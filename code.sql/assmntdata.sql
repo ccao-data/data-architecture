@@ -1,4 +1,4 @@
-SELECT 
+SELECT
 /* Fields from HEAD */
 HD_PIN as PIN, HD_CLASS as CLASS, H.TAX_YEAR, HD_NBHD AS NBHD, HD_HD_SF AS HD_SF
 , CONVERT(INT, SUBSTRING(CONVERT(CHARACTER, HD_TOWN),1,2)) as TOWN_CODE
@@ -8,7 +8,7 @@ HD_PIN as PIN, HD_CLASS as CLASS, H.TAX_YEAR, HD_NBHD AS NBHD, HD_HD_SF AS HD_SF
 , CASE WHEN ATTIC_FNSH=0 THEN NULL ELSE ATTIC_FNSH END AS ATTIC_FNSH /* NULL recorded as 0 in AS400 */
 , HBATH, TP_PLAN, TP_DSGN, CNST_QLTY
 , CASE WHEN RENOVATION=0 THEN NULL ELSE RENOVATION END AS RENOVATION /* NULL recorded as 0 in AS400 */
-, SITE, GAR1_SIZE, GAR1_CNST, GAR1_ATT, GAR1_AREA, GAR2_SIZE, GAR2_CNST, GAR2_ATT  
+, SITE, GAR1_SIZE, GAR1_CNST, GAR1_ATT, GAR1_AREA, GAR2_SIZE, GAR2_CNST, GAR2_ATT
 , GAR2_AREA
 , CASE WHEN PORCH=0 THEN NULL ELSE PORCH END AS PORCH /* NULL recorded as 0 in AS400 */
 , OT_IMPR, BLDG_SF, REPAIR_CND, MULTI_CODE, VOLUME, NCU
@@ -16,7 +16,7 @@ HD_PIN as PIN, HD_CLASS as CLASS, H.TAX_YEAR, HD_NBHD AS NBHD, HD_HD_SF AS HD_SF
 , (BOR.LANDVAL)*10 as PRI_EST_LAND, (BOR.BLDGVAL)*10 as PRI_EST_BLDG
 /* Fields from IDORSALES */
 , most_recent_sale_date, DOC_NO, most_recent_sale_price, DEED_TYPE
-/* Location data from PINGEO */
+/* Location data from PINLOCATIONS */
 , centroid_x, centroid_y, TRACTCE, ohare_noise, floodplain, withinmr100, withinmr101300, PUMA
 /* face sheet CDUS from detail */
 , DT_CDU AS CDU, total_units
@@ -30,11 +30,11 @@ HD_PIN as PIN, HD_CLASS as CLASS, H.TAX_YEAR, HD_NBHD AS NBHD, HD_HD_SF AS HD_SF
   , CASE WHEN MULTI_IND IS NULL THEN 0 ELSE MULTI_IND END AS MULTI_IND
 /* Account for missing addresses, then construct convenient property address field. */
   , CASE WHEN PL_HOUSE_NO IS NULL THEN 'ADDRESS MISSING FROM PROPLOCS' ELSE
-  LTRIM(RTRIM(CAST(PL_HOUSE_NO as varchar(10)))) + ' ' + LTRIM(RTRIM(PL_DIR))+ ' ' + LTRIM(RTRIM(PL_STR_NAME))+ 
+  LTRIM(RTRIM(CAST(PL_HOUSE_NO as varchar(10)))) + ' ' + LTRIM(RTRIM(PL_DIR))+ ' ' + LTRIM(RTRIM(PL_STR_NAME))+
 ' ' + LTRIM(RTRIM(PL_STR_SUFFIX)) + ' ' + LTRIM(RTRIM(PL_CITY_NAME)) END as ADDR
 /* Assign properties to modeling groups */
   , CASE WHEN HD_CLASS IN (200, 201, 241) OR (HD_CLASS = 299 AND (DT_CDU != 'GR' OR DT_CDU IS NULL) AND ((BLDGVAL + LANDVAL) > 10 OR (BLDGVAL + LANDVAL) IS NULL)) THEN 'NCHARS'
-    WHEN HD_CLASS IN (202, 203, 204, 205, 206, 207, 208, 209, 210, 234, 278, 295) THEN 'SF' 
+    WHEN HD_CLASS IN (202, 203, 204, 205, 206, 207, 208, 209, 210, 234, 278, 295) THEN 'SF'
     WHEN HD_CLASS IN (211, 212) THEN 'MF'
     WHEN HD_CLASS = 299 AND (DT_CDU = 'GR' OR (BLDGVAL + LANDVAL) <= 10) THEN 'FIXED'
     ELSE NULL END AS modeling_group
@@ -44,24 +44,24 @@ HD_PIN as PIN, HD_CLASS as CLASS, H.TAX_YEAR, HD_NBHD AS NBHD, HD_HD_SF AS HD_SF
     WHEN AGE IS NULL THEN 10 ELSE AGE END AS AGE
   , CASE WHEN [USE] IS NULL THEN 1 ELSE [USE] END AS [USE]
 /* Count number of condo units in a building */
-  , n_units  
+  , n_units
 /* Where we have missing percentage of ownership, we divide values equally */
-  , CASE WHEN DT_PER_ASS=0 THEN 1/n_units 
-         WHEN DT_PER_ASS IS NULL THEN 1/n_units 
-    ELSE DT_PER_ASS END AS PER_ASS 
+  , CASE WHEN DT_PER_ASS=0 THEN 1/n_units
+         WHEN DT_PER_ASS IS NULL THEN 1/n_units
+    ELSE DT_PER_ASS END AS PER_ASS
 /* Factor variable for NCHARS modeling group */
-  , CASE WHEN HD_CLASS IN (200,201,241) THEN 200 
-          WHEN HD_CLASS IN (299) THEN 299 
+  , CASE WHEN HD_CLASS IN (200,201,241) THEN 200
+          WHEN HD_CLASS IN (299) THEN 299
           ELSE NULL END AS CONDO_CLASS_FACTOR
 /* Factor variable for mf modeling group */
-  , CASE WHEN HD_CLASS IN (211, 212) THEN HD_CLASS 
-          ELSE NULL 
+  , CASE WHEN HD_CLASS IN (211, 212) THEN HD_CLASS
+          ELSE NULL
           END AS MULTI_FAMILY_IND
 /* 1 acre is an arbitrary break here */
-  , CASE WHEN HD_HD_SF > 43559 THEN 1 
-          ELSE 0 
-          END AS LARGE_LOT  
-FROM 
+  , CASE WHEN HD_HD_SF > 43559 THEN 1
+          ELSE 0
+          END AS LARGE_LOT
+FROM
 HEAD AS H /* The HEAD file defines the universe of PINs that could have a sale associated with them */
 LEFT JOIN
 (SELECT B.PIN, B.RECORDED_DATE as most_recent_sale_date, CONVERT(BIGINT, B.SALE_PRICE) as most_Recent_sale_price, B.DOC_NO, B.DEED_TYPE FROM
@@ -76,8 +76,8 @@ INNER JOIN
       (SELECT PIN, MAX(RECORDED_DATE)  as RECORDED_DATE
             FROM
             IDORSALES
-            WHERE DEED_TYPE NOT IN ('Q', 'E', 'B') 
-            AND MULT_IND = '' 
+            WHERE DEED_TYPE NOT IN ('Q', 'E', 'B')
+            AND MULT_IND = ''
             GROUP BY PIN) AS SS
       ON X.PIN=SS.PIN AND X.RECORDED_DATE=SS.RECORDED_DATE
       GROUP BY X.PIN, SS.RECORDED_DATE
@@ -94,11 +94,11 @@ LEFT JOIN
 ( /* For addresses, census tracts, and xy */
   SELECT *,
     CASE WHEN PL_PIN IS NULL THEN Name ELSE PL_PIN END AS PIN_FILLED
-    FROM PINLOCATIONS 
+    FROM PINLOCATIONS
     LEFT JOIN
     PROPLOCS
     ON LEFT(NAME, 10)=LEFT(PL_PIN, 10)
-    WHERE primary_polygon IN (1) 
+    WHERE primary_polygon IN (1)
     AND PIN999 NOT IN (1)
   ) AS X
 ON HD_PIN=PIN_FILLED
@@ -109,7 +109,7 @@ LEFT JOIN
   /* we take 399s as well as 299s here since some 299s were 399s in the previous year and we can't get info for them otherwise */
   (SELECT DISTINCT DT_PIN, (TAX_YEAR+1) AS TAX_YEAR, DT_CDU, DT_PER_ASS, DT_AGE AS NCHARS_AGE FROM DETAIL WHERE DT_CLASS in (299, 399)) AS DETAIL /* Gives us ther percentage of ownership for Condos */
   ON H.HD_PIN=DT_PIN AND DETAIL.TAX_YEAR=H.TAX_YEAR
-LEFT JOIN 
+LEFT JOIN
   /* total count of units in a building, including non-residential classes */
   (SELECT COUNT(LEFT(DT_PIN, 10)) AS total_units, LEFT(DT_PIN, 10) AS BUILDING_PIN, TAX_YEAR FROM DETAIL
   WHERE DT_MLT_CD = 1 AND DT_CLASS != '0'
@@ -122,7 +122,7 @@ LEFT JOIN
        GROUP BY PIN10, TAX_YEAR) AS AA
 ON AA.PIN10=SUBSTRING(H.HD_PIN, 1, 10) AND H.TAX_YEAR=AA.TAX_YEAR
 LEFT JOIN /* Allows us to proprate sale prices based on building size for multi properties */
-  (SELECT CASE WHEN SUM(BLDG_SF) = 0 THEN LAG(SUM(BLDG_SF)) OVER (ORDER BY PIN, TAX_YEAR) ELSE SUM(BLDG_SF) END as total_bldg_sf, PIN, TAX_YEAR FROM CCAOSFCHARS 
+  (SELECT CASE WHEN SUM(BLDG_SF) = 0 THEN LAG(SUM(BLDG_SF)) OVER (ORDER BY PIN, TAX_YEAR) ELSE SUM(BLDG_SF) END as total_bldg_sf, PIN, TAX_YEAR FROM CCAOSFCHARS
   WHERE MULTI_IND=1
   GROUP BY PIN, TAX_YEAR) AS PRO
 ON PRO.PIN=H.HD_PIN AND PRO.TAX_YEAR=H.TAX_YEAR /* Note the slight difference here vs. the modeling data */

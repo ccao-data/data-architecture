@@ -16,7 +16,7 @@ HD_PIN as PIN, HD_CLASS as CLASS, H.TAX_YEAR, HD_NBHD AS NBHD, HD_HD_SF AS HD_SF
 , (LANDVAL)*10 as PRI_EST_LAND, (BLDGVAL)*10 as PRI_EST_BLDG
 /* Fields from IDORSALES */
 , sale_date, DOC_NO, sale_price
-/* Location data from PINGEO */
+/* Location data from PINLOCATIONS */
 , centroid_x, centroid_y, TRACTCE, ohare_noise, floodplain, withinmr100, withinmr101300, PUMA
 /* face sheet CDUS from detail */
 , DT_CDU AS CDU
