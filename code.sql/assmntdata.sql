@@ -141,5 +141,4 @@ WHERE (1=1)
   AND primary_polygon IN (1)
   AND PIN999 NOT IN (1)
   AND HD_CLASS IN (211, 212, 200, 201, 241, 299, 202, 203, 204, 205, 206, 207, 208, 209, 210, 234, 278, 295)
-  AND CONVERT(INT, SUBSTRING(CONVERT(CHARACTER, HD_TOWN),1,2)) IN (", paste(target_township, collapse = ', ') ,")
 ORDER BY HD_PIN, HD_CLASS
