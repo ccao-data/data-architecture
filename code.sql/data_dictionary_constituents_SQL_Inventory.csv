@@ -1,0 +1,34 @@
+DBO,X..Records,X..MB,X..Fields,Description
+65D,205116,16.34,8,Desktop review data (first stage)
+ADDCHARS,101947,39.98,62,"All 288 permits for home improvements that have been put 
+on hold for tax exemption purposes"
+APPEALREPORT,35964,8.72,12,0
+APPEALSDATA,5396800,7056.88,61,0
+APPEALSY2019,150490,168.02,61,
+APPEALTRACKING,2576957,2517.4,102,0
+ASSESSABLEPERMITS,2822937,779.96,34,Data on large value permits
+BAMASTER,67906246,8888.27,10,Board of Review certified values
+BORSFCHARS,18570670,4444.24,44,BOR characteristics for each 200 class single-family property
+CCAOEMPLOYEES,228,0.03,3,A list of employee names and IDs
+CCAOEMPLOYEES_0,476,0.05,3,0
+CCAOMODELDATA,0,0.02,0,0
+CCAOSFCHARS,13178753,4938.58,44,Characteristics for each 200 class single-family property
+CLERKVALUES,5533465,1708.16,0,0
+COMPSTOTAL,134505493,33361.2,0,All single-family comparable sales
+CONDOSTRATA,2151,0.63,,"Assigns condominium buildings to one of 10 groups, or strata"
+COSTARSNAPSHOTS,17046,21.77,182,Commercial database for capturing rental income
+DETAIL,26152192,7164.26,25,A breakdown of each PIN into a land and improvement value
+DETAILBR,65748247,10206.33,26,The BOR’s equivalent to our DETAIL file
+DocketHistory,3919964,3926.09,,#N/A
+EXEMPTIONS2017,1029756,134.09,10,Data on which PINs received what exemptions in 2017
+HEAD,13042247,3804.09,21,A list of all PINs by year and their assessed values
+HEADBR,32576925,5608.24,21,The BOR’s equivalent to our HEAD file
+IDORSALES,3055172,744.51,7,All sales used by IDOR for ratio studies. These are used to construct our modeling sample.
+INSPECTORRESULTS,1420013,126.45,20,Field inspection results
+KEYPUNCH,1903736,539.4,36,Files are about permits that were key punched
+PERMITTRACKING,1216929,694.78,38,Files are about permit tracking
+PINLOCATIONS,1428639,634.62,8,"A dataset that links PINs to geographic locations using lat, long coordinates"
+PROPLOCS,1864614,476.38,21,"Contains addresses for PINs,"
+PTAX203,3068795,3996.53,116,Contains information from the paper based PTAX form
+SENIOREXEMPTIONS,5984311,1461.73,,Contains information from senior exemption forms
+TAXBILLAMOUNTS,33928487,9132.78,16,Data from the actual tax bills including exemptions and tax rates
