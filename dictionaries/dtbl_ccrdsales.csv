@@ -1,0 +1,13 @@
+Source.File,Column.Name,Column.Example,Display,Display.Name,Description,Data.Type
+Transfer List YYYY.csv:Doc #,DOC_NO,1800206093,Y,DOC_NO,Recorder of Deeds Document Number,Text
+Transfer List YYYY.csv:Address,ADDRESS,3930 N PINE GROVE AVE,Y,ADDRESS,Address of the property,Text
+Transfer List YYYY.csv:Unit #,APT_NO,315,Y,APT_NO,Unit number of property,Text
+Transfer List YYYY.csv:City,CITY,CHICAGO,Y,CITY,City of the property,Text
+Transfer List YYYY.csv:Zip,ZIPCODE,60613,Y,ZIPCODE,Zip Code of the property,Text
+Transfer List YYYY.csv:Amount,SALE_PRICE,188000,Y,SALE_PRICE,Price of transaction,Bigint
+Transfer List YYYY.csv:Recorded,RECORDED_DATE,1/4/1999,Y,RECORDED_DATE,Date the document was recorded by the Recorded of Deeds,Date
+Transfer List YYYY.csv:Executed,EXECUTED_DATE,11/07/2017 ,Y,EXECUTED_DATE,"Date the Deed was signed by parties NOTE: Many dates have been entered with data entry errors in Source Files, see e.g. Doc # 0600445026 Transfer File 2006.csv",Text
+Transfer List YYYY.csv:Seller,SELLER_NAME,FINE JEFFREY B,Y,SELLER_NAME,Property seller,Text
+Transfer List YYYY.csv: Buyer,BUYER_NAME,SHARP TYLER,Y,BUYER_NAME,Property buyer,Text
+Transfer List YYYY.csv: PIN,PIN,14211000181015,Y,PIN,Unique Permanent Identification Number for each property. All PINs are 14 digits: 2 digits for area + 2 digits for sub area + 2 digits for block + 2 digits for parcel + 4 digits for the multicode,Text
+Transfer List YYYY.csv: Township ,TOWN_NAME,LAKEVIEW,Y,TOWN_NAME,Township name as assigned by the Assessment office. An interactive map is available at https://maps.cookcountyil.gov/cookviewer/,Text
