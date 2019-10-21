@@ -22,8 +22,7 @@ SELECT
   /* face sheet CDUS from detail */
     , DT_CDU AS CDU
   /* strata */
-  /*, condo_strata_10, condo_strata_100*/
-    , condo_strata
+  , condo_strata_10, condo_strata_100
   /* Calculated field from CCAOSFCHARS where MULTI_IND==1 */
     , total_bldg_sf
   /* Recoded fields */
@@ -123,9 +122,8 @@ LEFT JOIN /* Allows us to proprate sale prices based on building size for multi 
   GROUP BY PIN, TAX_YEAR) AS PRO
 ON PRO.PIN=H.HD_PIN AND PRO.TAX_YEAR=H.TAX_YEAR /* Note the slight difference here vs. the modeling data */
 LEFT JOIN /* allows us to model condos within strata */
-  /*(SELECT PIN10, TAX_YEAR, condo_strata_10, condo_strata_100 FROM CONDOSTRATA) AS STRATA*/
-	(SELECT PIN10, TAX_YEAR, condo_strata FROM CONDOSTRATA) AS STRATA
-ON LEFT(HD_PIN, 10) = STRATA.PIN10 AND H.TAX_YEAR = STRATA.TAX_YEAR
+  (SELECT PIN10, ASSESSMENT_YEAR, condo_strata_10, condo_strata_100 FROM CONDOSTRATA) AS STRATA
+ON LEFT(HD_PIN, 10) = STRATA.PIN10 AND H.TAX_YEAR = STRATA.ASSESSMENT_YEAR
 LEFT OUTER JOIN /*Excludes properties with a pending  inspection */
   (SELECT PIN, TAX_YEAR FROM PERMITTRACKING WHERE COMP_RECV=0) AS I
   ON I.PIN=H.HD_PIN AND I.TAX_YEAR=H.TAX_YEAR
