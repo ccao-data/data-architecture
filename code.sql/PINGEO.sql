@@ -31,5 +31,5 @@ INNER JOIN
 WHERE rn = 1) h
 ON h.PIN = prop.PL_PIN
 INNER JOIN
-(SELECT * FROM PINLOCATIONS WHERE primary_polygon = 1) lox
+(SELECT * FROM PINLOCATIONS WHERE primary_polygon = 1 AND PIN999 != 1) lox
 ON LEFT(prop.PL_PIN, 10) = LEFT(lox.Name, 10)
