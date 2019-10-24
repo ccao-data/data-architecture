@@ -1,0 +1,96 @@
+ALTER VIEW VW_RES_UNIVERSE
+AS
+
+SELECT
+
+/* Fields from AS_HEADT */
+H.PIN as PIN, HD_CLASS as CLASS, H.TAX_YEAR, HD_NBHD AS NBHD, HD_HD_SF AS HD_SF, LEFT(HD_TOWN, 2) as TOWN_CODE
+, (HD_PRI_LND)*10 as PRI_EST_LAND, (HD_PRI_BLD)*10 as PRI_EST_BLDG
+/* Recoded fields */
+, 1 as cons
+, CASE WHEN MULTI_IND IS NULL THEN 0
+		ELSE MULTI_IND END AS MULTI_IND
+/* Assign properties to modeling groups */
+, CASE WHEN HD_CLASS IN (200, 201, 241) OR (HD_CLASS = 299 AND (DT_CDU != 'GR' OR DT_CDU IS NULL) AND ((HD_PRI_BLD + HD_PRI_LND) > 10 OR (HD_PRI_BLD + HD_PRI_LND) IS NULL)) THEN 'NCHARS'
+	WHEN HD_CLASS IN (202, 203, 204, 205, 206, 207, 208, 209, 210, 234, 278, 295) THEN 'SF'
+	WHEN HD_CLASS IN (211, 212) THEN 'MF'
+	WHEN HD_CLASS = 299 AND (DT_CDU = 'GR' OR (HD_PRI_BLD + HD_PRI_LND) <= 10) THEN 'FIXED'
+	ELSE NULL END AS modeling_group
+/* Account for missing characteristics for NCHARS group */
+, CASE WHEN HD_CLASS = 299 AND NCHARS_AGE IS NOT NULL THEN NCHARS_AGE
+	WHEN AGE IS NULL THEN 10
+	ELSE AGE END AS AGE
+, CASE WHEN [USE] IS NULL THEN 1
+	ELSE [USE] END AS [USE]
+/* Factor variable for NCHARS modeling group */
+, CASE WHEN HD_CLASS IN (200,201,241) THEN 200
+	WHEN HD_CLASS IN (299) THEN 299
+	ELSE NULL END AS CONDO_CLASS_FACTOR
+/* Factor variable for mf modeling group */
+, CASE WHEN HD_CLASS IN (211, 212) THEN HD_CLASS
+	ELSE NULL
+	END AS MULTI_FAMILY_IND
+/* Count number of condo units in a building */
+, n_units
+/* Fields from DETAIL */
+, DT_CDU AS CDU, total_units
+/* Where we have missing percentage of ownership, we divide values equally */
+, CASE WHEN DT_PER_ASS = 0 THEN 1/n_units
+	WHEN DT_PER_ASS IS NULL THEN 1/n_units
+	ELSE DT_PER_ASS END AS PER_ASS
+/* strata */
+, condo_strata_10, condo_strata_100
+/* Fields from CCAOSFCHARS */
+, APTS, EXT_WALL, ROOF_CNST, ROOMS, BEDS, BSMT, BSMT_FIN, HEAT, OHEAT, AIR, FRPL, ATTIC_TYPE, HBATH, TP_PLAN, TP_DSGN, CNST_QLTY, SITE
+, GAR1_SIZE, GAR1_CNST, GAR1_ATT, GAR1_AREA, GAR2_SIZE, GAR2_CNST, GAR2_ATT, GAR2_AREA, OT_IMPR, BLDG_SF, REPAIR_CND, MULTI_CODE, VOLUME, NCU
+, CASE WHEN TYPE_RESD = 0 THEN NULL
+	ELSE TYPE_RESD END AS TYPE_RESD /* NULL recorded as 0 in AS400 */
+, CASE WHEN ATTIC_FNSH = 0 THEN NULL
+	ELSE ATTIC_FNSH END AS ATTIC_FNSH /* NULL recorded as 0 in AS400 */
+, CASE WHEN RENOVATION = 0 THEN NULL
+	ELSE RENOVATION END AS RENOVATION /* NULL recorded as 0 in AS400 */
+, CASE WHEN PORCH = 0 THEN NULL
+	ELSE PORCH END AS PORCH /* NULL recorded as 0 in AS400 */
+/* Calculated field from CCAOSFCHARS where MULTI_IND == 1 */
+, total_bldg_sf
+
+/* The AS_HEADT file defines the universe of PINs that could have a sale associated with them */
+FROM AS_HEADT AS H
+
+/* Total count of 299s in a building */
+LEFT JOIN
+	(SELECT DISTINCT COUNT(PIN) AS n_units, LEFT(PIN, 10) as PIN10, TAX_YEAR FROM AS_HEADT
+	WHERE HD_CLASS = 299
+	GROUP BY LEFT(PIN, 10), TAX_YEAR) AS N299
+	ON N299.PIN10 = SUBSTRING(H.PIN, 1, 10) AND H.TAX_YEAR = N299.TAX_YEAR
+/* Total count of units in a building, including non-residential classes */
+LEFT JOIN 
+	(SELECT COUNT(LEFT(DT_PIN, 10)) AS total_units, LEFT(DT_PIN, 10) AS BUILDING_PIN, TAX_YEAR FROM AS_DETAILT
+	WHERE DT_MLT_CD = 1 AND DT_CLASS != '0'
+	GROUP BY LEFT(DT_PIN, 10), TAX_YEAR) AS BUILDING_UNITS
+	ON LEFT(H.PIN, 10) = BUILDING_PIN AND BUILDING_UNITS.TAX_YEAR = H.TAX_YEAR
+/* Percentage of ownership for condos */
+LEFT JOIN 
+	(SELECT DISTINCT DT_PIN, TAX_YEAR, DT_CDU, DT_PER_ASS, DT_AGE AS NCHARS_AGE FROM AS_DETAILT WHERE DT_CLASS = 299) AS DETAIL
+	ON H.PIN = DT_PIN AND DETAIL.TAX_YEAR = H.TAX_YEAR
+/* Allows us to prorate sale prices based on building size for multi properties */
+LEFT JOIN 
+	(SELECT CASE WHEN SUM(BLDG_SF) = 0 THEN LAG(SUM(BLDG_SF)) OVER (ORDER BY PIN, TAX_YEAR) ELSE SUM(BLDG_SF) END as total_bldg_sf, PIN, TAX_YEAR FROM CCAOSFCHARS
+	WHERE MULTI_IND = 1
+	GROUP BY PIN, TAX_YEAR) AS PRO
+	ON PRO.PIN = H.PIN AND PRO.TAX_YEAR = H.TAX_YEAR /* Note the slight difference here vs. the modeling data */
+/* Allows us to model condos within strata */
+LEFT JOIN
+	(SELECT PIN10, ASSESSMENT_YEAR, condo_strata_10, condo_strata_100 FROM CONDOSTRATA) AS STRATA
+	ON LEFT(H.PIN, 10) = STRATA.PIN10 AND H.TAX_YEAR = STRATA.ASSESSMENT_YEAR
+/* Add characteristics for SF & MF */
+LEFT JOIN 
+	CCAOSFCHARS AS C
+	ON C.PIN = H.PIN AND C.TAX_YEAR = H.TAX_YEAR
+/*Excludes properties with a pending inspection */
+LEFT OUTER JOIN
+	(SELECT PIN, TAX_YEAR FROM PERMITTRACKING WHERE COMP_RECV = 0) AS I
+	ON I.PIN = H.PIN AND I.TAX_YEAR = H.TAX_YEAR
+
+/* Limit sample to residential parcels */
+WHERE HD_CLASS IN (211, 212, 200, 201, 241, 299, 202, 203, 204, 205, 206, 207, 208, 209, 210, 234, 278, 295)
