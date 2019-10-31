@@ -17,6 +17,8 @@ PL_PIN AS PIN
 , PL_TOWN AS township
 /* HEAD VARIABLES */
 , HD_NBHD AS nbhd
+/* TOWNCODE VARIABLES */
+, township_name
 /* PINLOCATIONS VARIABLES */
 , GEOID AS geoid, TRACTCE AS census_tract, CASE WHEN ward = '' THEN NULL ELSE ward END AS ward, ohare_noise, floodplain
 , withinmr100, withinmr101300
@@ -26,14 +28,20 @@ PL_PIN AS PIN
 , centroid_x, centroid_y
 /* HEAD VARIABLES */
 , TAX_YEAR AS most_recent
+/* JOIN KEY */
+, CASE WHEN LEN(CAST(HD_NBHD AS varchar)) = 2 THEN CAST(PL_TOWN AS varchar) + '0' + CAST(HD_NBHD AS varchar)
+ELSE CAST(PL_TOWN AS varchar) + CAST(HD_NBHD AS varchar) END AS [town_nbhd.KEY]
 
 FROM PROPLOCS AS prop
 
 INNER JOIN
 	(SELECT * FROM
-	(SELECT *, ROW_NUMBER() OVER(PARTITION BY HD_PIN ORDER BY TAX_YEAR DESC) AS rn FROM AS_HEADT) AS a
+	(SELECT *, ROW_NUMBER() OVER(PARTITION BY HD_PIN ORDER BY TAX_YEAR DESC) AS rn FROM AS_HEADT) a
 	WHERE rn = 1) h
 	ON h.PIN = prop.PL_PIN
 INNER JOIN
 	(SELECT * FROM PINLOCATIONS WHERE primary_polygon = 1 AND PIN999 != 1) lox
 	ON LEFT(prop.PL_PIN, 10) = LEFT(lox.Name, 10)
+LEFT JOIN
+	(SELECT township_code, township_name FROM FTBL_TOWNCODES) town
+	on prop.PL_TOWN = town.township_code
