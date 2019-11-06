@@ -9,6 +9,7 @@ UNIVERSE.*
 , midincome, white_perc, black_perc, his_perc, other_perc
 , centroid_x, centroid_y
 , sale_date, sale_price, DOC_NO, DEED_TYPE
+, most_recent_sale_date
 
 FROM VW_RES_UNIVERSE AS UNIVERSE
 
@@ -18,3 +19,6 @@ LEFT JOIN
 INNER JOIN
 	VW_CLEAN_IDORSALES SALES
 	ON UNIVERSE.PIN = SALES.PIN AND UNIVERSE.TAX_YEAR = SALES.TAX_YEAR
+LEFT JOIN
+	(SELECT PIN, most_recent_sale_date FROM VW_MOST_RECENT_IDORSALES) RECENT
+	ON UNIVERSE.PIN = RECENT.PIN
