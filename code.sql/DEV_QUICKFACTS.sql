@@ -38,7 +38,7 @@ GROUP BY designates the tabulation groups
 
 */
 
-ALTER VIEW VW_QUICKFACTS AS
+ALTER VIEW DEV_QUICKFACTS AS
 
 SELECT * FROM
 (
