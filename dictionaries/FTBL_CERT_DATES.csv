@@ -1,0 +1,10 @@
+TOWNSHIP,name of township,varchar
+CODE,township code for joining,varchar
+ASSESSMENT_NOTICES_MAILED,date when assessment notices were mailed for township,date
+LAST_DATE_APPEALS_ACCEPTED,date when appeals are closed for township,date
+DATE_A_ROLL_CERTIFIED,date when assessor has certified its values for township,date
+DATE_A_ROLL_PUBLISHED,date of publication of assessor certified values,date
+BOARD_OF_REVIEW_FILING_DATES,date range for BOR appeals for township,varchar
+PASS,"first, second, or final pass",varchar
+BOARD_CLOSE_DATE,date when BOR certified township,date
+TAX_YEAR,assessment year,numeric
