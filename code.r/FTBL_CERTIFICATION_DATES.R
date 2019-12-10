@@ -1,6 +1,5 @@
 user <- Sys.info()[['user']]
 source(paste0("C:/Users/",user,"/Documents/ccao_utility/code.r/99_utility_2.r"))
-source(paste0("C:/Users/",user,"/Documents/data-architecture/code.r/utility.R"))
 invisible(check.packages(libs))
 dirs <- directories("ccao_sf_cama_dev")
 
@@ -39,7 +38,7 @@ colnames(cert_dates) <- gsub("\\.", "_", colnames(cert_dates))
 cert_dates <- cert_dates[, c(1, 10, 2, 3, 4, 5, 6, 7, 8, 9)]
 
 # insert table into SQL server
-dbWriteTable(CCAODATA, "FTBL_CERT_DATES", cert_dates, overwrite = TRUE)
+dbWriteTable(CCAODATA, "FTBL_CERT_DATES", cert_dates, field.types = c(TAX_YEAR = "float"), overwrite = TRUE)
 
 # disconnect
 dbDisconnect(CCAODATA)
