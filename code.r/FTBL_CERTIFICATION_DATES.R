@@ -17,7 +17,7 @@ SELECT township_name as TOWNSHIP, township_code AS CODE FROM FTBL_TOWNCODES
 "))
 
 # retrieve certification dates
-cert_dates <- read.xlsx2("C:/Users/wridgew/Desktop/New Microsoft Excel Worksheet.xlsx", sheetIndex = 1, header = TRUE, stringsAsFactors = FALSE)
+cert_dates <- read.xlsx2("O:/CCAODATA/data/certificationdates_2011-2018.xlsx", sheetIndex = 1, header = TRUE, stringsAsFactors = FALSE)
 
 # identify columns that need to be formatted for dates
 need_chages <- which(colnames(cert_dates) %in% c("ASSESSMENT.NOTICES.MAILED", "LAST.DATE.APPEALS.ACCEPTED", "DATE.A.ROLL.CERTIFIED", "DATE.A.ROLL.PUBLISHED", "BOARD.CLOSE.DATE"))
