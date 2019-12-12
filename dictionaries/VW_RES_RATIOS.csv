@@ -1,0 +1,10 @@
+PIN,14 digit property index number,varchar
+sale_price,market value sale price,int
+sale_date,date of sale,date
+DATE_A_ROLL_CERTIFIED,date township was certified by assessors office,date
+BOARD_CLOSE_DATE,date township was closed by board,date
+FMV,assessor certified value,numeric
+RATIO,fmv / sale_price,numeric
+TAX_YEAR,assessment year,int
+TOWN_CODE,township code,varchar
+modeling group,residentital modeling group,varchar
