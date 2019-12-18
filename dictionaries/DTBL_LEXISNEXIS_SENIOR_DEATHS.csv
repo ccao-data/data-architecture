@@ -1,0 +1,13 @@
+Source File,Primary Source,Column Name,Display,Display Name,Description,Data Type
+DTBL_LEXISNEXIS_SENIOR_DEATHS,CCAODATA.LNSeniors,PIN,N,,Property Index Number associated with exemption recipient,
+DTBL_LEXISNEXIS_SENIOR_DEATHS,CCAODATA.LNSeniors,NAME,N,,Name of exemption recipient,
+DTBL_LEXISNEXIS_SENIOR_DEATHS,CCAODATA.LNSeniors,BIRTH_DATE,N,,Birthdate of Exemption Recipient,
+DTBL_LEXISNEXIS_SENIOR_DEATHS,LexisNexis,LEX_MATCH_CODE,N,,,
+DTBL_LEXISNEXIS_SENIOR_DEATHS,LexisNexis,LEX_DEATH_ID,N,,"Internal DID (LexID, LexisNexis Proprietary ID)",
+DTBL_LEXISNEXIS_SENIOR_DEATHS,LexisNexis,LEX_SCORE,N,,Confidence score for the DID ,
+DTBL_LEXISNEXIS_SENIOR_DEATHS,LexisNexis,LEX_FILEDATE,N,,Date file was received by LexisNexis (sent by CCAO),
+DTBL_LEXISNEXIS_SENIOR_DEATHS,LexisNexis,LEX_RECORD_TYPE,N,,"Original Record Type (A = ADD,C = Change, Blank)",
+,,,,,,
+DTBL_LEXISNEXIS_SENIOR_DEATHS,LexisNexis,VorP_code,N,,"Verified or Proof Code (V = Verified, P = Proof); this info is only provided on SSA records; Verified or V = Report verified with a family member or someone acting on behalf of a family member (i.e. Funeral home, etc.), Proof or P = Death Certificate Observed. ",
+DTBL_LEXISNEXIS_SENIOR_DEATHS,LexisNexis,LEX_DEATH_DATE,N,,Date of Death of decedent ,
+DTBL_LEXISNEXIS_SENIOR_DEATHS,LexisNexis,LEX_DEATH_SOURCE,N,,,
