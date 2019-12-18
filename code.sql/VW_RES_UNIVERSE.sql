@@ -2,7 +2,7 @@ ALTER VIEW VW_RES_UNIVERSE AS
 
 SELECT
 
-/* Fields from AS_HEADT */
+/* Fields from AS_HEADTB */
 H.PIN as PIN, HD_CLASS as CLASS, H.TAX_YEAR, HD_NBHD AS NBHD, HD_HD_SF AS HD_SF, LEFT(HD_TOWN, 2) as TOWN_CODE
 , (HD_PRI_LND)*10 as PRI_EST_LAND, (HD_PRI_BLD)*10 as PRI_EST_BLDG
 /* Recoded fields */
@@ -53,24 +53,24 @@ H.PIN as PIN, HD_CLASS as CLASS, H.TAX_YEAR, HD_NBHD AS NBHD, HD_HD_SF AS HD_SF,
 /* Calculated field from CCAOSFCHARS where MULTI_IND == 1 */
 , total_bldg_sf
 
-/* The AS_HEADT file defines the universe of PINs that could have a sale associated with them */
-FROM AS_HEADT AS H
+/* The AS_HEADTB file defines the universe of PINs that could have a sale associated with them */
+FROM AS_HEADTB AS H
 
 /* Total count of 299s in a building */
 LEFT JOIN
-	(SELECT DISTINCT COUNT(PIN) AS n_units, LEFT(PIN, 10) as PIN10, TAX_YEAR FROM AS_HEADT
+	(SELECT DISTINCT COUNT(PIN) AS n_units, LEFT(PIN, 10) as PIN10, TAX_YEAR FROM AS_HEADTB
 	WHERE HD_CLASS = 299
 	GROUP BY LEFT(PIN, 10), TAX_YEAR) AS N299
 	ON N299.PIN10 = SUBSTRING(H.PIN, 1, 10) AND H.TAX_YEAR = N299.TAX_YEAR
 /* Total count of units in a building, including non-residential classes */
 LEFT JOIN
-	(SELECT COUNT(LEFT(PIN, 10)) AS total_units, LEFT(PIN, 10) AS BUILDING_PIN, TAX_YEAR FROM AS_DETAILT
+	(SELECT COUNT(LEFT(PIN, 10)) AS total_units, LEFT(PIN, 10) AS BUILDING_PIN, TAX_YEAR FROM AS_DETAILTB
 	WHERE DT_MLT_CD = 1 AND DT_CLASS != '0'
 	GROUP BY LEFT(PIN, 10), TAX_YEAR) AS BUILDING_UNITS
 	ON LEFT(H.PIN, 10) = BUILDING_PIN AND BUILDING_UNITS.TAX_YEAR = H.TAX_YEAR
 /* Percentage of ownership for condos */
 LEFT JOIN
-	(SELECT DISTINCT PIN, TAX_YEAR, DT_CDU, DT_PER_ASS, DT_AGE AS NCHARS_AGE FROM AS_DETAILT WHERE DT_CLASS = 299) AS DETAIL
+	(SELECT DISTINCT PIN, TAX_YEAR, DT_CDU, DT_PER_ASS, DT_AGE AS NCHARS_AGE FROM AS_DETAILTB WHERE DT_CLASS = 299) AS DETAIL
 	ON H.PIN = DETAIL.PIN AND DETAIL.TAX_YEAR = H.TAX_YEAR
 /* Allows us to prorate sale prices based on building size for multi properties */
 LEFT JOIN
@@ -81,7 +81,7 @@ LEFT JOIN
 /* Allows us to model condos within strata */
 LEFT JOIN
 	(SELECT PIN10, condo_strata_10, condo_strata_100 FROM CONDOSTRATA
-	WHERE  ASSESSMENT_YEAR = (SELECT MAX(TAX_YEAR) FROM AS_HEADT)) AS STRATA
+	WHERE  ASSESSMENT_YEAR = (SELECT MAX(TAX_YEAR) FROM AS_HEADTB)) AS STRATA
 	ON LEFT(H.PIN, 10) = STRATA.PIN10
 /* Add characteristics for SF & MF */
 LEFT JOIN
