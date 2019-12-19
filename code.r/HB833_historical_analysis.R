@@ -171,3 +171,6 @@ table <- subset(hb833, CALENDAR_YEAR>2010 & !is.na(STATUS_CHANGE_NEXTYEAR)) %>%
 table$rate <- (table$DEATHS+table$SALES)/table$n
 table[table$CALENDAR_YEAR==2017,]
 
+hb833$PIN <- paste0("PIN: ",hb833$PIN)
+write.csv(subset(hb833, CALENDAR_YEAR==2018), file="O:/CCAODATA/output_data/hb833.csv")
+
