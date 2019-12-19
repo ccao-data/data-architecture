@@ -1,4 +1,4 @@
-
+ALTER VIEW VW_HB833 AS
 /* 
 This view supports the implementation of HB 833 - the automatic renewal of senior homestead exemptions.
 
@@ -104,7 +104,6 @@ SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 + LTRIM(RTRIM(PL_STR_SUFFIX))=M.[RESIDENCE ADDRESS] 
 		AND PL_CITY_NAME=M.[RESIDENCE CITY] 
 		AND CONVERT(VARCHAR, PL_ZIPCODE)=M.[RESIDENCE ZIP] 		
-ORDER BY CALENDAR_YEAR, PIN
 /*
 ----------------------------------------------Queries for memo-------------------------------------------------------- 
 /* Integrity - did we match Lexis and IDPH data back into SENIOREXEMPTIONS correctly? It should be a complete match */
