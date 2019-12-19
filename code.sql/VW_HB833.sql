@@ -92,6 +92,7 @@ SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 				LEFT JOIN
 				(SELECT PIN, 2000+COE_TAX_YR AS CALENDAR_YEAR, COE_WC_NAME AS NAME 
 				FROM AS_RES_CERTOFCORRECTIONS AS C 
+				/* People who get C of E's for HS alone are all in type 4. People who get C of Es for HS and other things are in the second criteria, along with some people who get CofEs for reasons not related to HS */
 				WHERE (COE_ACT_TYPE IN (4) OR (COE_ACT_TYPE IN (20) AND COE_REASON IN (43, 44, 84, 85, 86))) AND COE_TAX_YR<=20) AS COE
 				ON A.PIN=COE.PIN AND A.TAX_YEAR=COE.CALENDAR_YEAR
 				LEFT JOIN
