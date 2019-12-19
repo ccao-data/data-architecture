@@ -10,7 +10,7 @@ If you're looking at the most current year in the data, YEARS_ON_TOTAL will be t
 DECEASED vaiables show whether the person is deceased currently, while DEATH variables show that the individual died in 
 that given calendar year.
 
-e also ac
+We also account for certificate of corrections,
 */
 SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 + LTRIM(RTRIM(PL_DIR)) + ' '
@@ -24,8 +24,7 @@ SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 	, CASE WHEN YEAR(L.DEATH_DATE) IS NULL THEN 0 ELSE 1 END AS IDPH_DEATH */
 	, CASE WHEN CCRD_SALES IS NULL THEN 0 ELSE CCRD_SALES END AS CCRD_SALES
 	, CASE WHEN IDOR_SALES IS NULL THEN 0 ELSE IDOR_SALES END AS IDOR_SALES
-	FROM(
-		
+	FROM(	
 		/* PART 1 - a dataset unique by PIN, Name, and birthday to join flag data against */
 		/* In this section, we join SENIOREXEMPTIONS against itself, lagged one year, to get deltas */
 		SELECT D.CALENDAR_YEAR, D.PIN, LTRIM(RTRIM(D.[NAME])) AS TAXPAYER_NAME
@@ -60,7 +59,7 @@ SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 				WHEN TAX_YEAR_LEAD<(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) AND A.TAX_YEAR IS NULL AND COE2.CALENDAR_YEAR IS NULL THEN 1
 				WHEN TAX_YEAR_LEAD<(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) AND  A.TAX_YEAR IS NULL AND COE2.CALENDAR_YEAR IS NOT NULL THEN 0
 				WHEN TAX_YEAR_LEAD<(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) AND A.TAX_YEAR IS NOT NULL AND B.TAX_YEAR_LEAD IS NOT NULL THEN 0
-			  /* We account for the fact that the last uear of data we don't know what will happen next year */
+			  /* We account for the fact that the last year of data we don't know what will happen next year */
 				WHEN TAX_YEAR_LEAD>=(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) THEN NULL
 				END AS STATUS_CHANGE_NEXTYEAR 
 				, CASE WHEN COE.CALENDAR_YEAR IS NOT NULL THEN 1 ELSE 0 END AS COE
