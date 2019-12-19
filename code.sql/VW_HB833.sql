@@ -63,6 +63,7 @@ SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 			  /* We account for the fact that the last uear of data we don't know what will happen next year */
 				WHEN TAX_YEAR_LEAD>=(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) THEN NULL
 				END AS STATUS_CHANGE_NEXTYEAR 
+				, CASE WHEN COE.CALENDAR_YEAR IS NOT NULL THEN 1 ELSE 0 END AS COE
 			FROM 
 				/* This join allows for the delta calculation the change from the prior year */
 				(SELECT NAME, BIRTH_DATE, PIN, TAX_YEAR FROM SENIOREXEMPTIONS) AS A	
