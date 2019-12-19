@@ -28,10 +28,10 @@ SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 		/* In this section, we join SENIOREXEMPTIONS against itself, lagged one year, to get deltas */
 		SELECT D.CALENDAR_YEAR, D.PIN, LTRIM(RTRIM(D.[NAME])) AS TAXPAYER_NAME
 		, D.BIRTH_DATE AS BIRTH_DATE
-		, STATUS_CHANGE_NEXTYEAR, CASE WHEN H.PIN IS NULL THEN 0 ELSE SF END AS SENIOR_FREEZE
+		, STATUS_CHANGE_NEXTYEAR, SF AS SENIOR_FREEZE
 		, YEARS_ON_TOTAL, FINAL_YEAR
 		/* Since we are joining a table against itself, we take values from whichever field populates */
-			FROM (SELECT 
+		FROM (SELECT 
 				CASE WHEN A.TAX_YEAR IS NULL THEN B.TAX_YEAR_LEAD ELSE A.TAX_YEAR END AS CALENDAR_YEAR
 			  , CASE WHEN A.[NAME] IS NULL THEN B.[NAME] ELSE A.[NAME] END AS NAME
 			  , CASE WHEN A.BIRTH_DATE IS NULL THEN B.BIRTH_DATE ELSE A.BIRTH_DATE END AS BIRTH_DATE
@@ -47,13 +47,13 @@ SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 				FULL OUTER JOIN
 				(SELECT NAME, BIRTH_DATE, PIN, TAX_YEAR-1 AS TAX_YEAR_LEAD FROM SENIOREXEMPTIONS) AS B
 				ON A.NAME=B.NAME AND A.BIRTH_DATE=B.BIRTH_DATE AND A.TAX_YEAR=B.TAX_YEAR_LEAD AND A.PIN=B.PIN
-				) AS D
+				) AS D 
 			/* This gets some additional contextual information at the individual level, how many years they have an exemption, and what their last year is*/
 			LEFT JOIN
 			(SELECT COUNT(NAME) AS YEARS_ON_TOTAL, MAX(TAX_YEAR) AS FINAL_YEAR, NAME, BIRTH_DATE, PIN FROM SENIOREXEMPTIONS GROUP BY PIN, NAME, BIRTH_DATE) AS C
 			ON D.PIN=C.PIN AND D.NAME=C.NAME AND D.BIRTH_DATE=C.BIRTH_DATE /* This may create data errors where a senior changed PINs */
 			/* This provides context about what exemptions they received */
-			LEFT JOIN 
+			INNER JOIN /* Need an INNER JOIN to account for people who moved between homes */
 			(SELECT PIN, TAX_YEAR AS CALENDAR_YEAR, HS, SF FROM EXEMPTIONS WHERE HS>0) AS H
 			ON H.PIN=D.PIN AND H.CALENDAR_YEAR=D.CALENDAR_YEAR 
 			WHERE (1=1)
@@ -105,7 +105,7 @@ SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 		AND PL_CITY_NAME=M.[RESIDENCE CITY] 
 		AND CONVERT(VARCHAR, PL_ZIPCODE)=M.[RESIDENCE ZIP] 		
 ORDER BY CALENDAR_YEAR, PIN
-
+/*
 ----------------------------------------------Queries for memo-------------------------------------------------------- 
 /* Integrity - did we match Lexis and IDPH data back into SENIOREXEMPTIONS correctly? It should be a complete match */
 /* Total number of non-matching observations from Lexis to SENIOrS match*/
@@ -130,6 +130,11 @@ SELECT COUNT(DISTINCT AGE) FROM
 		WHERE IDPH.BIRTH_DATE IS NOT NULL AND A.PROPERTY_ADDRESS IS NULL
 
 /* Total Seniors w/ homeowners in 2017 */
+<<<<<<< Updated upstream
+=======
+SELECT COUNT(S.PIN) FROM SENIOREXEMPTIONS AS S WhERE TAX_YEAR=2018
+
+>>>>>>> Stashed changes
 SELECT COUNT(S.PIN) FROM SENIOREXEMPTIONS AS S INNER JOIN EXEMPTIONS AS E
 ON S.PIN=E.PIN AND S.TAX_YEAR=E.TAX_YEAR
 WHERE (HS>0 OR SF>0) AND S.TAX_YEAR=2017
