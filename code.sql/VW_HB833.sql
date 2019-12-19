@@ -9,6 +9,8 @@ YEARS_ON_TOTAL is the number of years the senior was on the roll over the entire
 If you're looking at the most current year in the data, YEARS_ON_TOTAL will be the number of years on the roll to date.
 DECEASED vaiables show whether the person is deceased currently, while DEATH variables show that the individual died in 
 that given calendar year.
+
+We also account for certificate of corrections,
 */
 SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 + LTRIM(RTRIM(PL_DIR)) + ' '
@@ -18,35 +20,85 @@ SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 , PL_ZIPCODE AS PROPERTY_ZIP
 	, CASE WHEN K.LEX_DEATH_ID IS NULL THEN 0 ELSE 1 END AS LEXIS_DECEASED 
 	, CASE WHEN YEAR(J.LEX_DEATHDATE) IS NULL THEN 0 ELSE 1 END AS LEXIS_DEATH 
-	/* , CASE WHEN M.DEATH_DATE IS NULL THEN 0 ELSE 1 END AS IDPH_DECEASED 
-	, CASE WHEN YEAR(L.DEATH_DATE) IS NULL THEN 0 ELSE 1 END AS IDPH_DEATH */
+	, CASE WHEN M.DEATH_DATE IS NULL THEN 0 ELSE 1 END AS IDPH_DECEASED 
+	, CASE WHEN YEAR(L.DEATH_DATE) IS NULL THEN 0 ELSE 1 END AS IDPH_DEATH
 	, CASE WHEN CCRD_SALES IS NULL THEN 0 ELSE CCRD_SALES END AS CCRD_SALES
 	, CASE WHEN IDOR_SALES IS NULL THEN 0 ELSE IDOR_SALES END AS IDOR_SALES
-	FROM(
-		
+	FROM(	
 		/* PART 1 - a dataset unique by PIN, Name, and birthday to join flag data against */
 		/* In this section, we join SENIOREXEMPTIONS against itself, lagged one year, to get deltas */
 		SELECT D.CALENDAR_YEAR, D.PIN, LTRIM(RTRIM(D.[NAME])) AS TAXPAYER_NAME
 		, D.BIRTH_DATE AS BIRTH_DATE
-		, STATUS_CHANGE_NEXTYEAR, SF AS SENIOR_FREEZE
+		, CASE WHEN D.CALENDAR_YEAR>=(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) THEN NULL ELSE D.STATUS_CHANGE_NEXTYEAR END AS STATUS_CHANGE_NEXTYEAR
+		, SF AS SENIOR_FREEZE
 		, YEARS_ON_TOTAL, FINAL_YEAR
-		/* Since we are joining a table against itself, we take values from whichever field populates */
+		/* This inner query creates a data set with Year, Name, PIN and a status change indicator by joining exemption data against itself, and then also accounting for C of Es */
 		FROM (SELECT 
-				CASE WHEN A.TAX_YEAR IS NULL THEN B.TAX_YEAR_LEAD ELSE A.TAX_YEAR END AS CALENDAR_YEAR
-			  , CASE WHEN A.[NAME] IS NULL THEN B.[NAME] ELSE A.[NAME] END AS NAME
-			  , CASE WHEN A.BIRTH_DATE IS NULL THEN B.BIRTH_DATE ELSE A.BIRTH_DATE END AS BIRTH_DATE
-			  , CASE WHEN A.PIN IS NULL THEN B.PIN ELSE A.PIN END AS PIN
-			  /* This is the delta column. We account for the fact that the last uear of data we don't know what will happen next year */
-			  , CASE WHEN B.TAX_YEAR_LEAD IS NULL AND TAX_YEAR<(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) THEN -1
-				WHEN A.TAX_YEAR IS NULL AND TAX_YEAR_LEAD<(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) THEN 1
-				WHEN TAX_YEAR_LEAD>=(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) THEN NULL
-				ELSE 0 END AS STATUS_CHANGE_NEXTYEAR 
+				CASE WHEN A.TAX_YEAR IS NULL AND B.TAX_YEAR_LEAD IS NOT NULL THEN B.TAX_YEAR_LEAD 
+				WHEN A.TAX_YEAR IS NOT NULL AND B.TAX_YEAR_LEAD IS NULL THEN A.TAX_YEAR 
+				WHEN A.TAX_YEAR IS NOT NULL AND B.TAX_YEAR_LEAD IS NOT NULL THEN A.TAX_YEAR
+				WHEN A.TAX_YEAR IS NULL AND B.TAX_YEAR_LEAD IS NULL THEN COE.CALENDAR_YEAR
+					END AS CALENDAR_YEAR
+			  , CASE WHEN A.[NAME] IS NULL AND B.[NAME] IS NOT NULL THEN B.[NAME] 
+				WHEN A.[NAME] IS NOT NULL AND B.[NAME] IS NULL THEN A.[NAME]
+				WHEN A.[NAME] IS NOT NULL AND B.[NAME] IS NOT NULL THEN A.[NAME]
+				WHEN A.[NAME] IS NULL AND B.[NAME] IS NULL THEN COE.[NAME] 
+					END AS NAME
+			  , CASE WHEN A.BIRTH_DATE IS NULL AND  B.BIRTH_DATE IS NOT NULL THEN B.BIRTH_DATE 
+			  WHEN A.BIRTH_DATE IS NOT NULL AND  B.BIRTH_DATE IS NULL THEN A.BIRTH_DATE 
+			  WHEN A.BIRTH_DATE IS NOT NULL AND  B.BIRTH_DATE IS NOT NULL THEN A.BIRTH_DATE 
+			  WHEN A.BIRTH_DATE IS NULL AND  B.BIRTH_DATE IS NULL THEN NULL
+					END AS BIRTH_DATE
+			  , CASE WHEN A.PIN IS NULL AND  B.PIN IS NOT NULL THEN B.PIN 
+			  WHEN A.PIN IS NOT NULL AND  B.PIN IS NULL THEN A.PIN 
+			  WHEN A.PIN IS NOT NULL AND  B.PIN IS NOT NULL THEN A.PIN 
+			  WHEN A.PIN IS NULL AND  B.PIN IS NULL THEN COE.PIN 
+					END AS PIN
+			  /* This is the delta column showing the change from the previous year */ 
+			  , CASE  /*Leave roll, no COE */
+			  WHEN B.TAX_YEAR_LEAD IS NULL /* Not on roll for following year */
+					AND A.TAX_YEAR IS NOT NULL /* On roll for current year */
+					AND COE2.LEAD_CALENDAR_YEAR IS NULL /* Did not get a COE in the following year */
+						THEN -1 /* They will leave */
+				WHEN /* Leave roll, get COE next year */
+					B.TAX_YEAR_LEAD IS NULL /* Not on roll for following year */
+					AND A.TAX_YEAR IS NOT NULL /* On roll for current year */
+					AND COE2.LEAD_CALENDAR_YEAR IS NOT NULL /* Did get a COE in the following year */
+						THEN 0 /* No Change */
+				WHEN /* Enter roll, no COE in prior year */
+				A.TAX_YEAR IS NULL /* Not on roll for current year */
+				AND B.TAX_YEAR_LEAD IS NOT NULL /* Are on roll for following year */
+				AND COE.CALENDAR_YEAR IS NULL /* No COE in current year */
+						THEN 1 /* They will enter */
+				WHEN /* Enter roll, yes COE in prior year */
+				A.TAX_YEAR IS NULL /* Not on roll for current year */
+				AND B.TAX_YEAR_LEAD IS NOT NULL /* Are on roll for following year */
+				AND COE.CALENDAR_YEAR IS NOT NULL /* Have a COE in current year */
+						THEN 0 /* No Change */
+				WHEN /* Don't leave roll */ 
+					B.TAX_YEAR_LEAD IS NOT NULL 
+					AND A.TAX_YEAR IS NOT NULL 
+						THEN 0 /* No change*/
+			END AS STATUS_CHANGE_NEXTYEAR 
+				/* indicate whether they received a COE in the current year */
+				, CASE WHEN COE.CALENDAR_YEAR IS NOT NULL THEN 1 ELSE 0 END AS COE
 			FROM 
 				/* This join allows for the delta calculation the change from the prior year */
 				(SELECT NAME, BIRTH_DATE, PIN, TAX_YEAR FROM SENIOREXEMPTIONS) AS A	
 				FULL OUTER JOIN
 				(SELECT NAME, BIRTH_DATE, PIN, TAX_YEAR-1 AS TAX_YEAR_LEAD FROM SENIOREXEMPTIONS) AS B
 				ON A.NAME=B.NAME AND A.BIRTH_DATE=B.BIRTH_DATE AND A.TAX_YEAR=B.TAX_YEAR_LEAD AND A.PIN=B.PIN
+				/* Need to account for certificates of error */
+				LEFT JOIN
+				(SELECT PIN, 2000+COE_TAX_YR AS CALENDAR_YEAR, COE_WC_NAME AS NAME 
+				FROM AS_RES_CERTOFCORRECTIONS AS C 
+				/* People who get C of E's for HS alone are all in type 4. People who get C of Es for HS and other things are in the second criteria, along with some people who get CofEs for reasons not related to HS */
+				WHERE (COE_ACT_TYPE IN (4) OR (COE_ACT_TYPE IN (20) AND COE_REASON IN (43, 44, 84, 85, 86))) AND COE_TAX_YR<=20) AS COE
+				ON A.PIN=COE.PIN AND A.TAX_YEAR=COE.CALENDAR_YEAR
+				LEFT JOIN
+				(SELECT PIN, 2000+COE_TAX_YR-1 AS LEAD_CALENDAR_YEAR FROM AS_RES_CERTOFCORRECTIONS AS C 
+				WHERE (COE_ACT_TYPE IN (4) OR (COE_ACT_TYPE IN (20) AND COE_REASON IN (43, 44, 84, 85, 86))) AND COE_TAX_YR<=20) AS COE2
+				ON A.PIN=COE2.PIN AND A.TAX_YEAR=COE2.LEAD_CALENDAR_YEAR
 				) AS D 
 			/* This gets some additional contextual information at the individual level, how many years they have an exemption, and what their last year is*/
 			LEFT JOIN
