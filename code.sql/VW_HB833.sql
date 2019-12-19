@@ -29,7 +29,8 @@ SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 		/* In this section, we join SENIOREXEMPTIONS against itself, lagged one year, to get deltas */
 		SELECT D.CALENDAR_YEAR, D.PIN, LTRIM(RTRIM(D.[NAME])) AS TAXPAYER_NAME
 		, D.BIRTH_DATE AS BIRTH_DATE
-		, STATUS_CHANGE_NEXTYEAR, SF AS SENIOR_FREEZE
+		, CASE WHEN D.CALENDAR_YEAR>=(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) THEN NULL ELSE D.STATUS_CHANGE_NEXTYEAR END AS STATUS_CHANGE_NEXTYEAR
+		, SF AS SENIOR_FREEZE
 		, YEARS_ON_TOTAL, FINAL_YEAR
 		/* This inner query creates a data set with Year, Name, PIN and a status change indicator by joining exemption data against itself, and then also accounting for C of Es */
 		FROM (SELECT 
@@ -78,8 +79,6 @@ SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 					B.TAX_YEAR_LEAD IS NOT NULL 
 					AND A.TAX_YEAR IS NOT NULL 
 						THEN 0 /* No change*/
-			  WHEN /* It's calendar year 2019, and we're looking at 2018's roll. We don't know who will enter, leave, stay, so NULL */
-			  TAX_YEAR_LEAD>=(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) THEN NULL
 			END AS STATUS_CHANGE_NEXTYEAR 
 				/* indicate whether they received a COE in the current year */
 				, CASE WHEN COE.CALENDAR_YEAR IS NOT NULL THEN 1 ELSE 0 END AS COE
