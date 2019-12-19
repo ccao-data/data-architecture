@@ -54,14 +54,34 @@ SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 			  WHEN A.PIN IS NULL AND  B.PIN IS NULL THEN COE.PIN 
 					END AS PIN
 			  /* This is the delta column showing the change from the previous year */ 
-			  , CASE WHEN TAX_YEAR<(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) AND B.TAX_YEAR_LEAD IS NULL AND COE.CALENDAR_YEAR IS NULL THEN -1
-				WHEN TAX_YEAR<(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) AND B.TAX_YEAR_LEAD IS NULL AND COE.CALENDAR_YEAR IS NOT NULL THEN 0
-				WHEN TAX_YEAR_LEAD<(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) AND A.TAX_YEAR IS NULL AND COE2.CALENDAR_YEAR IS NULL THEN 1
-				WHEN TAX_YEAR_LEAD<(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) AND  A.TAX_YEAR IS NULL AND COE2.CALENDAR_YEAR IS NOT NULL THEN 0
-				WHEN TAX_YEAR_LEAD<(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) AND A.TAX_YEAR IS NOT NULL AND B.TAX_YEAR_LEAD IS NOT NULL THEN 0
-			  /* We account for the fact that the last year of data we don't know what will happen next year */
-				WHEN TAX_YEAR_LEAD>=(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) THEN NULL
-				END AS STATUS_CHANGE_NEXTYEAR 
+			  , CASE  /*Leave roll, no COE */
+			  WHEN B.TAX_YEAR_LEAD IS NULL /* Not on roll for following year */
+					AND A.TAX_YEAR IS NOT NULL /* On roll for current year */
+					AND COE2.LEAD_CALENDAR_YEAR IS NULL /* Did not get a COE in the following year */
+						THEN -1 /* They will leave */
+				WHEN /* Leave roll, get COE next year */
+					B.TAX_YEAR_LEAD IS NULL /* Not on roll for following year */
+					AND A.TAX_YEAR IS NOT NULL /* On roll for current year */
+					AND COE2.LEAD_CALENDAR_YEAR IS NOT NULL /* Did get a COE in the following year */
+						THEN 0 /* No Change */
+				WHEN /* Enter roll, no COE in prior year */
+				A.TAX_YEAR IS NULL /* Not on roll for current year */
+				AND B.TAX_YEAR_LEAD IS NOT NULL /* Are on roll for following year */
+				AND COE.CALENDAR_YEAR IS NULL /* No COE in current year */
+						THEN 1 /* They will enter */
+				WHEN /* Enter roll, yes COE in prior year */
+				A.TAX_YEAR IS NULL /* Not on roll for current year */
+				AND B.TAX_YEAR_LEAD IS NOT NULL /* Are on roll for following year */
+				AND COE.CALENDAR_YEAR IS NOT NULL /* Have a COE in current year */
+						THEN 0 /* No Change */
+				WHEN /* Don't leave roll */ 
+					B.TAX_YEAR_LEAD IS NOT NULL 
+					AND A.TAX_YEAR IS NOT NULL 
+						THEN 0 /* No change*/
+			  WHEN /* It's calendar year 2019, and we're looking at 2018's roll. We don't know who will enter, leave, stay, so NULL */
+			  TAX_YEAR_LEAD>=(SELECT MAX(TAX_YEAR)-1 FROM SENIOREXEMPTIONS) THEN NULL
+			END AS STATUS_CHANGE_NEXTYEAR 
+				/* indicate whether they received a COE in the current year */
 				, CASE WHEN COE.CALENDAR_YEAR IS NOT NULL THEN 1 ELSE 0 END AS COE
 			FROM 
 				/* This join allows for the delta calculation the change from the prior year */
@@ -76,9 +96,9 @@ SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 				WHERE (COE_ACT_TYPE IN (4) OR (COE_ACT_TYPE IN (20) AND COE_REASON IN (43, 44, 84, 85, 86))) AND COE_TAX_YR<=20) AS COE
 				ON A.PIN=COE.PIN AND A.TAX_YEAR=COE.CALENDAR_YEAR
 				LEFT JOIN
-				(SELECT PIN, 2000+COE_TAX_YR AS CALENDAR_YEAR FROM AS_RES_CERTOFCORRECTIONS AS C 
+				(SELECT PIN, 2000+COE_TAX_YR-1 AS LEAD_CALENDAR_YEAR FROM AS_RES_CERTOFCORRECTIONS AS C 
 				WHERE (COE_ACT_TYPE IN (4) OR (COE_ACT_TYPE IN (20) AND COE_REASON IN (43, 44, 84, 85, 86))) AND COE_TAX_YR<=20) AS COE2
-				ON B.PIN=COE2.PIN AND B.TAX_YEAR_LEAD=COE2.CALENDAR_YEAR
+				ON B.PIN=COE2.PIN AND B.TAX_YEAR_LEAD=COE2.LEAD_CALENDAR_YEAR
 				) AS D 
 			/* This gets some additional contextual information at the individual level, how many years they have an exemption, and what their last year is*/
 			LEFT JOIN
