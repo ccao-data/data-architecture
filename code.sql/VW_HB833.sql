@@ -98,7 +98,7 @@ SELECT E.*, LTRIM(RTRIM(CAST(PL_HOUSE_NO AS varchar(10)))) + ' '
 				LEFT JOIN
 				(SELECT PIN, 2000+COE_TAX_YR-1 AS LEAD_CALENDAR_YEAR FROM AS_RES_CERTOFCORRECTIONS AS C 
 				WHERE (COE_ACT_TYPE IN (4) OR (COE_ACT_TYPE IN (20) AND COE_REASON IN (43, 44, 84, 85, 86))) AND COE_TAX_YR<=20) AS COE2
-				ON B.PIN=COE2.PIN AND B.TAX_YEAR_LEAD=COE2.LEAD_CALENDAR_YEAR
+				ON A.PIN=COE2.PIN AND A.TAX_YEAR=COE2.LEAD_CALENDAR_YEAR
 				) AS D 
 			/* This gets some additional contextual information at the individual level, how many years they have an exemption, and what their last year is*/
 			LEFT JOIN
