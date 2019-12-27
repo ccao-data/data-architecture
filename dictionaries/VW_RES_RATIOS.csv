@@ -7,4 +7,5 @@ FMV,assessor certified value,numeric
 RATIO,fmv / sale_price,numeric
 TAX_YEAR,assessment year,int
 TOWN_CODE,township code,varchar
+NBHD,neighborhood code,varchar
 modeling group,residentital modeling group,varchar
