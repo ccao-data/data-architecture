@@ -54,7 +54,11 @@ FTBL_TOWNCODES AS TC
 ON TC.township_code=LEFT(T.HD_TOWN, 2)
 WHERE (1=1)
 	/* SOP 3.5.1 */
-	AND S.sale_price > 10000 AND S2.sale_price > 10000
+	AND (S.sale_price > 10000 AND S2.sale_price IS NULL 
+		OR
+		S.sale_price IS NULL AND S2.sale_price > 10000
+		OR 
+		S.sale_price >10000 AND S2.sale_price > 10000)
 	AND (S.sale_price IS NOT NULL OR S2.sale_price IS NOT NULL)
 	/* SOPs 3.1.1 */
 	AND (LEFT(T.HD_TOWN,2) NOT IN (23) AND T.HD_NBHD NOT IN (171))
