@@ -10,7 +10,7 @@ ALTER VIEW VW_RES_RATIOS AS
 
 SELECT
  T.PIN
-/* --------------- SOPs on Ratio Studies, 3.3.2.1 --------------- */
+/* --------------- SOPs on Ratio Studies, 3.3.2.3 --------------- */
  , CASE WHEN T.TAX_YEAR>=YEAR(GETDATE())-1 THEN
  (fitted_value_6)/PRIO_YEAR_SALE.sale_price 
 	WHEN T.TAX_YEAR<YEAR(GETDATE())-1 THEN (fitted_value_6)/NEXT_YEAR_SALE.sale_price 
