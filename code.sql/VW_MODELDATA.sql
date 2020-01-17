@@ -10,6 +10,7 @@ UNIVERSE.*
 , centroid_x, centroid_y
 , sale_date, sale_price, DOC_NO, DEED_TYPE
 , most_recent_sale_date
+, AMT_TAX_PAID / sale_price as effective_tax_rate
 
 FROM VW_RES_UNIVERSE AS UNIVERSE
 

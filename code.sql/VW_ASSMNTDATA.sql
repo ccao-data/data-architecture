@@ -9,6 +9,7 @@ UNIVERSE.*
 , midincome, white_perc, black_perc, his_perc, other_perc
 , centroid_x, centroid_y
 , most_recent_sale_date, most_recent_sale_price, DOC_NO, DEED_TYPE
+, AMT_TAX_PAID / most_recent_sale_price as effective_tax_rate
 
 FROM VW_RES_UNIVERSE AS UNIVERSE
 

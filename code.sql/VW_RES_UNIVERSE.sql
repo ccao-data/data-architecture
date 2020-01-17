@@ -52,6 +52,8 @@ H.PIN as PIN, HD_CLASS as CLASS, H.TAX_YEAR, HD_NBHD AS NBHD, HD_HD_SF AS HD_SF,
 	ELSE [USE] END AS [USE]
 /* Calculated field from CCAOSFCHARS where MULTI_IND == 1 */
 , total_bldg_sf
+/* Fields from TAXBILLAMOUNTS */
+, TB_TAX_CD AS TAX_CD, TB_TAX_RATE AS TAX_RATE, TB_AMT_TAX_PAID AS AMT_TAX_PAID
 
 /* The AS_HEADTB file defines the universe of PINs that could have a sale associated with them */
 FROM AS_HEADTB AS H
@@ -87,6 +89,10 @@ LEFT JOIN
 LEFT JOIN
 	CCAOSFCHARS AS C
 	ON C.PIN = H.PIN AND C.TAX_YEAR = H.TAX_YEAR
+/* Add effective tax rates and tax codes */
+LEFT JOIN
+	TAXBILLAMOUNTS AS TBA
+	ON TBA.PIN = H.PIN AND TBA.TAX_YEAR + 1 = H.TAX_YEAR
 /*Excludes properties with a pending inspection */
 LEFT OUTER JOIN
 	(SELECT PIN, TAX_YEAR FROM PERMITTRACKING WHERE COMP_RECV = 0) AS I
