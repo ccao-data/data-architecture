@@ -179,7 +179,7 @@ stats_100$strata_100_medsp <- round(stats_100$strata_100_medsp, 0)
 stats_10$ASSESSMENT_YEAR <- year
 stats_100$ASSESSMENT_YEAR <- year
 
-if (ask.user.yn.question("Do you want to overwrite the strata stat tables?") == TRUE) {
+if (ask.user.yn.question("Do you want to overwrite the strata stat tables w/ current year/sample?") == TRUE) {
 
   dbWriteTable(CCAODATA, "DTBL_CONDOSTRATA_STATS10", stats_10, overwrite = TRUE)
   dbWriteTable(CCAODATA, "DTBL_CONDOSTRATA_STATS100", stats_100, overwrite = TRUE)
