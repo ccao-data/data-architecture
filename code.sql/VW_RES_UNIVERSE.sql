@@ -82,7 +82,7 @@ LEFT JOIN
 	ON PRO.PIN = H.PIN AND PRO.TAX_YEAR = H.TAX_YEAR
 /* Allows us to model condos within strata */
 LEFT JOIN
-	(SELECT PIN10, condo_strata_10, condo_strata_100 FROM CONDOSTRATA
+	(SELECT PIN10, condo_strata_10, condo_strata_100 FROM DTBL_CONDOSTRATA
 	WHERE  ASSESSMENT_YEAR = (SELECT MAX(TAX_YEAR) FROM AS_HEADTB)) AS STRATA
 	ON LEFT(H.PIN, 10) = STRATA.PIN10
 /* Add characteristics for SF & MF */
