@@ -26,7 +26,7 @@ H.PIN as PIN, HD_CLASS as CLASS, H.TAX_YEAR, HD_NBHD AS NBHD, HD_HD_SF AS HD_SF,
 /* Count number of condo units in a building */
 , n_units
 /* Fields from DETAIL */
-, DT_CDU AS CDU, total_units
+, KEY_PIN, DT_CDU AS CDU, total_units
 /* Where we have missing percentage of ownership, we divide values equally */
 , CASE WHEN DT_PER_ASS = 0 THEN 1/n_units
 	WHEN DT_PER_ASS IS NULL THEN 1/n_units
@@ -70,9 +70,10 @@ LEFT JOIN
 	WHERE DT_MLT_CD = 1 AND DT_CLASS != '0'
 	GROUP BY LEFT(PIN, 10), TAX_YEAR) AS BUILDING_UNITS
 	ON LEFT(H.PIN, 10) = BUILDING_PIN AND BUILDING_UNITS.TAX_YEAR = H.TAX_YEAR
-/* Percentage of ownership for condos */
+/* Percentage of ownership for condos and proration for non-condo buildings on multiple PINs */
 LEFT JOIN
-	(SELECT DISTINCT PIN, TAX_YEAR, DT_CDU, DT_PER_ASS, DT_AGE AS NCHARS_AGE FROM AS_DETAILTB WHERE DT_CLASS = 299) AS DETAIL
+	(SELECT DISTINCT PIN, TAX_YEAR, DT_CDU, DT_PER_ASS, DT_AGE AS NCHARS_AGE, CASE WHEN DT_KEY_PIN != 0 THEN RIGHT('0' + CAST(DT_KEY_PIN AS VARCHAR), 14) ELSE NULL END AS KEY_PIN FROM AS_DETAILTB
+	WHERE RIGHT(DT_CLASS, 2) != '00') AS DETAIL
 	ON H.PIN = DETAIL.PIN AND DETAIL.TAX_YEAR = H.TAX_YEAR
 /* Allows us to prorate sale prices based on building size for multi properties */
 LEFT JOIN
