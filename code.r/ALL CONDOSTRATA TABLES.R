@@ -115,38 +115,43 @@ number_sales <- nrow(sales_universe)
 nbhds <- dplyr::select(pull[!duplicated(pull$PIN10),], c("PIN10", "NBHD", "TOWN"))
 colnames(nbhds)[colnames(nbhds) == 'NBHD'] <- 'nbhd'
 
+# weights for mean sale price
+pull$weight <- 1.15^(pull$SALE_YEAR - year)
+
 # aggregating to building level
 pull <- pull %>% dplyr::group_by(PIN10) %>% summarise(total_pins = length(PIN[!duplicated(PIN)]),
-                                                      age = round(mean(AGE, na.rm=TRUE), 0),
-                                                      num_sales = length(SALE_PRICE[!is.na(SALE_PRICE)]),
-                                                      mean_sale_price = round(mean(as.numeric(SALE_PRICE), na.rm=TRUE), 0 ),
-                                                      adj_mean_sale_price = round(mean(as.numeric(SALE_PRICE) / (PER_ASS * 100), na.rm=TRUE), 0 ),
-                                                      min_sale_price = min(as.numeric(SALE_PRICE), na.rm=TRUE),
-                                                      p25_sale_price = quantile(as.numeric(SALE_PRICE), c(.25), na.rm=TRUE),
-                                                      median_sale_price = median(as.numeric(SALE_PRICE), na.rm=TRUE),
-                                                      p75_sale_price = quantile(as.numeric(SALE_PRICE), c(.75), na.rm=TRUE),
-                                                      max_sale_price = max(as.numeric(SALE_PRICE), na.rm=TRUE),
-                                                      parking_spaces = length(CDU[CDU == 'GR' & !is.na(CDU) & !duplicated(PIN)]),
-                                                      common_areas = length(CDU[CDU == 'COMMON AREA' & !is.na(CDU) & !duplicated(PIN)]),
-                                                      storage_units = length(CDU[CDU == 'STORAGE' & !is.na(CDU) & !duplicated(PIN)]),
-                                                      dwelling_units = length(CDU[is.na(CDU) & !duplicated(PIN)]))
+  age = round(mean(AGE, na.rm=TRUE), 0),
+  num_sales = length(SALE_PRICE[!is.na(SALE_PRICE)]),
+  mean_sale_price = round(mean(as.numeric(SALE_PRICE), na.rm=TRUE), 0 ),
+  wt_mean_sale_price = round(weighted.mean(as.numeric(SALE_PRICE), weight, na.rm=TRUE), 0 ),
+  adj_mean_sale_price = round(mean(as.numeric(SALE_PRICE) / (PER_ASS * 100), na.rm=TRUE), 0 ),
+  min_sale_price = min(as.numeric(SALE_PRICE), na.rm=TRUE),
+  p25_sale_price = quantile(as.numeric(SALE_PRICE), c(.25), na.rm=TRUE),
+  median_sale_price = median(as.numeric(SALE_PRICE), na.rm=TRUE),
+  p75_sale_price = quantile(as.numeric(SALE_PRICE), c(.75), na.rm=TRUE),
+  max_sale_price = max(as.numeric(SALE_PRICE), na.rm=TRUE),
+  parking_spaces = length(CDU[CDU == 'GR' & !is.na(CDU) & !duplicated(PIN)]),
+  common_areas = length(CDU[CDU == 'COMMON AREA' & !is.na(CDU) & !duplicated(PIN)]),
+  storage_units = length(CDU[CDU == 'STORAGE' & !is.na(CDU) & !duplicated(PIN)]),
+  dwelling_units = length(CDU[is.na(CDU) & !duplicated(PIN)]))
 
 # additional info
 pull <- join(pull, nbhds, by = "PIN10")
 
 # assign condo strata
-pull$condo_strata_10[!is.na(pull$mean_sale_price)] <- cut(pull$mean_sale_price[!is.na(pull$mean_sale_price)]
-                                                          , breaks = quantile(pull$mean_sale_price[!is.na(pull$mean_sale_price)]
-                                                                              , probs = seq(0, 1, 0.1))
-                                                          , labels = 1:10
-                                                          , include.lowest = TRUE
-                                                          , na.rm = TRUE)
-pull$condo_strata_100[!is.na(pull$mean_sale_price)] <- cut(pull$mean_sale_price[!is.na(pull$mean_sale_price)]
-                                                           , breaks = quantile(pull$mean_sale_price[!is.na(pull$mean_sale_price)]
-                                                                               , probs = seq(0, 1, 0.01))
-                                                           , labels = 1:100
-                                                           , include.lowest = TRUE
-                                                           , na.rm = TRUE)
+pull$condo_strata_10[!is.na(pull$wt_mean_sale_price)] <- cut(pull$wt_mean_sale_price[!is.na(pull$wt_mean_sale_price)]
+ , breaks = quantile(pull$wt_mean_sale_price[!is.na(pull$wt_mean_sale_price)]
+                     , probs = seq(0, 1, 0.1))
+ , labels = 1:10
+ , include.lowest = TRUE
+ , na.rm = TRUE)
+
+pull$condo_strata_100[!is.na(pull$wt_mean_sale_price)] <- cut(pull$wt_mean_sale_price[!is.na(pull$wt_mean_sale_price)]
+  , breaks = quantile(pull$wt_mean_sale_price[!is.na(pull$wt_mean_sale_price)]
+                      , probs = seq(0, 1, 0.01))
+  , labels = 1:100
+  , include.lowest = TRUE
+  , na.rm = TRUE)
 
 # stats by condo strata
 pull$strata_10_age <- pull$strata_100_age <- NA
@@ -154,16 +159,16 @@ pull$strata_10_medsp <- pull$strata_100_medsp <- NA
 
 for (i in 1:10){
   pull$strata_10_age[pull$condo_strata_10 == i] <- median(pull$age[pull$condo_strata_10 == i], na.rm = TRUE)
-  pull$strata_10_minsp[pull$condo_strata_10 == i] <- min(pull$mean_sale_price[pull$condo_strata_10 == i], na.rm = TRUE)
-  pull$strata_10_medsp[pull$condo_strata_10 == i] <- median(pull$mean_sale_price[pull$condo_strata_10 == i], na.rm = TRUE)
-  pull$strata_10_maxsp[pull$condo_strata_10 == i] <- max(pull$mean_sale_price[pull$condo_strata_10 == i], na.rm = TRUE)
+  pull$strata_10_minsp[pull$condo_strata_10 == i] <- min(pull$wt_mean_sale_price[pull$condo_strata_10 == i], na.rm = TRUE)
+  pull$strata_10_medsp[pull$condo_strata_10 == i] <- median(pull$wt_mean_sale_price[pull$condo_strata_10 == i], na.rm = TRUE)
+  pull$strata_10_maxsp[pull$condo_strata_10 == i] <- max(pull$wt_mean_sale_price[pull$condo_strata_10 == i], na.rm = TRUE)
 }
 
 for (i in 1:100){
   pull$strata_100_age[pull$condo_strata_100 == i] <- median(pull$age[pull$condo_strata_100 == i], na.rm = TRUE)
-  pull$strata_100_minsp[pull$condo_strata_100 == i] <- min(pull$mean_sale_price[pull$condo_strata_100 == i], na.rm = TRUE)
-  pull$strata_100_medsp[pull$condo_strata_100 == i] <- median(pull$mean_sale_price[pull$condo_strata_100 == i], na.rm = TRUE)
-  pull$strata_100_maxsp[pull$condo_strata_100 == i] <- max(pull$mean_sale_price[pull$condo_strata_100 == i], na.rm = TRUE)
+  pull$strata_100_minsp[pull$condo_strata_100 == i] <- min(pull$wt_mean_sale_price[pull$condo_strata_100 == i], na.rm = TRUE)
+  pull$strata_100_medsp[pull$condo_strata_100 == i] <- median(pull$wt_mean_sale_price[pull$condo_strata_100 == i], na.rm = TRUE)
+  pull$strata_100_maxsp[pull$condo_strata_100 == i] <- max(pull$wt_mean_sale_price[pull$condo_strata_100 == i], na.rm = TRUE)
 }
 
 # clean up
