@@ -95,7 +95,7 @@ pull$PUMA[pull$PIN10 == '2301409024'] <- "03410"
 # adjust prices to Q4 2018
 pull$SALE_QUARTER <- lubridate::quarter(pull$SALE_DATE)
 pull$PUMA <- as.numeric(pull$PUMA)
-pull <- IHS_sale_time_adj(pull, "2018", "4", "SALE_YEAR", "SALE_QUARTER")
+pull <- IHS_sale_time_adj(pull, "2019", "2", "SALE_YEAR", "SALE_QUARTER")
 pull$PUMA.y <- NULL
 pull$SALE_PRICE_OG <- pull$SALE_PRICE
 pull$adjustment_factor[pull$SALE_YEAR == 2019] <- 1
