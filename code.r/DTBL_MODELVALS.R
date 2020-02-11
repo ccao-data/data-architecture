@@ -24,7 +24,7 @@ if(!grepl("_v", substr(destfile, 34, nchar(destfile) - 4))){
   
 }
 
-dbWriteTable(CCAODATA, "DTBL_MODELVALS", subset(valuationdata, select = pipeline_columns), append = TRUE)
+dbWriteTable(CCAODATA, "DTBL_MODELVALS", subset(valuationdata, !duplicated(valuationdata$PIN), select = pipeline_columns), append = TRUE)
 
 # disconnect after pulls
 dbDisconnect(CCAODATA)
