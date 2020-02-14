@@ -2,7 +2,7 @@ ALTER VIEW VW_MOST_RECENT_IDORSALES AS
 
 SELECT DISTINCT
 
-B.PIN, B.RECORDED_DATE as most_recent_sale_date, CONVERT(BIGINT, B.SALE_PRICE) as most_recent_sale_price, B.DOC_NO, B.DEED_TYPE
+B.PIN, B.RECORDED_DATE as most_recent_sale_date, CONVERT(FLOAT, B.SALE_PRICE) as most_recent_sale_price, B.DOC_NO, B.DEED_TYPE
 
 FROM IDORSALES AS B
 
