@@ -205,7 +205,7 @@ if (file.exists(paste0("O:/CCAODATA/results/ad_hoc/missing_strata.xlsx"))) {
 pull <- rbind(subset(pull, !is.na(condo_strata_10)), subset(read.xlsx2(file=paste0("O:/CCAODATA/results/ad_hoc/missing_strata.xlsx"), sheetName = "No Sales", colClasses = lapply(pull, class)), !is.na(condo_strata_10)))
 
 # only keep the columns we care about for upload, formatting
-pull <- dplyr::select(pull, c("PIN10", "condo_strata_10", "condo_strata_100"))
+pull <- dplyr::select(pull, c("PIN10", "condo_strata_10", "condo_strata_100", "TOWN"))
 pull$PIN10 <- gsub("-", "", pull$PIN10)
 pull$ASSESSMENT_YEAR <- year
 pull$TAX_YEAR <- NULL
