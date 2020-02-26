@@ -22,7 +22,7 @@ CCAODATA <- dbConnect(odbc(),
 
 # acquire township names and codes
 land_towns <- dbGetQuery(CCAODATA, paste0("
-SELECT township_code AS TOWN, UPPER(township_name) as township_name FROM FTBL_TOWNCODES
+SELECT CONVERT(varchar, township_code) AS TOWN, UPPER(township_name) as township_name FROM FTBL_TOWNCODES
 WHERE triad = 2
 "))
 
@@ -50,6 +50,7 @@ land_values <- left_join(land_values, land_towns, by = "township_name")
 
 # clean up
 land_values <- dplyr::select(land_values, c("TOWN", "NBHD", "LUP"))
+land_values$LUP <- as.numeric(land_values$LUP)
 land_values$TAX_YEAR <- year
 
 # export main condo strata table
