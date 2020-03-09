@@ -30,7 +30,7 @@ END AS MAILING_CITY
 , commissioner_dist, reps_dist, senate_dist
 , tif_agencynum, PUMA, municipality, FIPS, midincome
 , white_perc, black_perc, his_perc, other_perc
-, centroid_x, centroid_y
+, CONVERT(FLOAT, centroid_x) AS centroid_x, CONVERT(FLOAT, centroid_y) AS centroid_y
 /* HEAD VARIABLES */
 , TAX_YEAR AS most_recent
 /* JOIN KEY */
