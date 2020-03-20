@@ -2,6 +2,8 @@
 increments and jurisdiction crosswalks to tax codes, this query allows the calculation of tax bases for every
 jurisdiction in the County at each of the three main stages in the assessment cycle */
 
+SELECT * INTO DTBL_TAX_BASE_BY_TAXCODE FROM (
+
 SELECT 
 /* Contextual Fields */
 X.TAX_YEAR AS [Year], [Equalization Factor], X.TAX_CODE AS [Tax Code], X.TOWNSHIP AS [Township], X.MAJOR_CLASS AS [Major Class], PIN_COUNT AS [Total PINs]
@@ -97,3 +99,4 @@ X.TAX_YEAR AS [Year], [Equalization Factor], X.TAX_CODE AS [Tax Code], X.TOWNSHI
 	AND X.TOWNSHIP=XX.TOWNSHIP
 	AND X.MAJOR_CLASS=XX.MAJOR_CLASS
 
+	) DTBL_TAX_BASE_BY_TAXCODE
