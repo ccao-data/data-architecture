@@ -1,7 +1,6 @@
 # This script extracts XY coordinates for PINs from a Cook COunty parcels parcelsfile.
 
-user <- Sys.info()[['user']]
-source(paste0("C:/Users/",user,"/Documents/ccao_utility/code.r/99_utility_2.r"))
+source(paste0("C:/Users/", Sys.info()[['user']],"/Documents/ccao_utility/code.r/99_utility_2.r"))
 invisible(check.packages(libs))
 dirs <- directories("ccao_sf_cama_dev")
 options(java.parameters = "-Xmx24g")
@@ -87,12 +86,12 @@ parcels <- parcels[!is.na(parcels$PIN10), ]
 parcels$PIN999 <- ifelse(parcels$PINB == 999, 1, 0)
 
 # Temporarily drop pins that are less than 0.5 sqft in area and identify them
-temp <- parcels[parcels$ShapeSTAre < 0.5, ]
+temp <- parcels[parcels$SHAPE_Area < 0.5, ]
 temp$centroid_x <- temp$centroid_y <- temp$TRACTCE <- temp$ward <- temp$GEOID.x <- temp$district <- temp$district_1 <- temp$senatedist <- temp$agencynum <- temp$PUMA <- temp$NAME.y <- temp$PLACEFP <- NA
 temp$geometry <- NULL
 temp$point_parcel <- 1
 
-parcels <- parcels[parcels$ShapeSTAre >= 0.5, ]
+parcels <- parcels[parcels$SHAPE_Area >= 0.5, ]
 parcels$point_parcel <- 0
 
 # Extract x y coordinates if parcels are greater than 0.5 sqft in area
@@ -122,11 +121,10 @@ parcels$centroid_y <- str_split_fixed(parcels$clean, ", ", 2)[, 2]
 parcels$clean <- NULL
 
 # Clean up before export & add back pins that are less than 0.5 sqft in area
-keep <- c("Name", "PIN999", "point_parcel", "centroid_x", "centroid_y", "TRACTCE", "ward", "ohare_noise", "floodplain", "withinmr100", "withinmr101300", "GEOID.x", "district", "district_1", "senatedist", "agencynum", "PUMA", "NAME.y", "PLACEFP")
-parcels <- dplyr::select(parcels, keep)
+parcels <- parcels %>% select("Name", "PIN999", "point_parcel", "centroid_x", "centroid_y", "TRACTCE", "ward", "ohare_noise", "floodplain", "withinmr100", "withinmr101300", "GEOID.x", "district", "district_1", "senatedist", "agencynum", "PUMA", "NAME.y", "PLACEFP")
 parcels$geometry <- NULL
 
-temp <- dplyr::select(temp, keep)
+temp <- temp %>% select("Name", "PIN999", "point_parcel", "centroid_x", "centroid_y", "TRACTCE", "ward", "ohare_noise", "floodplain", "withinmr100", "withinmr101300", "GEOID.x", "district", "district_1", "senatedist", "agencynum", "PUMA", "NAME.y", "PLACEFP")
 parcels <- rbind(parcels, temp)
 parcels <- plyr::rename(parcels, c("Name" = "PIN", "GEOID.x" = "GEOID", "district" = "commissioner_dist", "district_1" = "reps_dist", "senatedist" = "senate_dist", "agencynum" = "tif_agencynum", "NAME.y" = "municipality", "PLACEFP" = "FIPS"))
 
@@ -149,9 +147,9 @@ CCAODATA <- dbConnect(odbc(),
                       pwd      = odbc.credentials("pwd"))
 
 if (ask.user.yn.question("Are you certain you want to overwrite DTBL_PINLOCATIONS?") == TRUE) {
-  
+
   dbWriteTable(CCAODATA, "DTBL_PINLOCATIONS", parcels, overwrite = TRUE)
-  
+
 }
 
 # disconnect after pulls
