@@ -39,7 +39,7 @@ WHEN T.TAX_YEAR<YEAR(GETDATE())-1 THEN ((BR.HD_ASS_LND + BR.HD_ASS_BLD)* 10)/NEX
   WHEN T.HD_CLASS = 299 AND ((T.HD_PRI_BLD + T.HD_PRI_LND) > 10 OR (T.HD_PRI_BLD + T.HD_PRI_LND) IS NULL) THEN 'Residential Condominium' 
   ELSE 'Error' END AS [modeling_group] 
 /* -------------------------------------------------------------- */
-, township_name, CAST(T.HD_NBHD AS varchar) AS NBHD, T.TAX_YEAR AS YEAR 
+, township_name, township_code, CAST(T.HD_NBHD AS varchar) AS NBHD, T.TAX_YEAR AS YEAR 
 FROM AS_HEADT AS T
 LEFT JOIN
 AS_HEADTB AS TB
