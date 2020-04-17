@@ -5,7 +5,7 @@ However, during the current year, there are no records for PINs before their ass
 This presents the challenge of reporting on values without a stable definition of the universe of PINs.
 This query is constructed so that it pulls PIN and YEAR from either HEAD */
 
- /* Class, Town and NBHD are taken from HEADT, if it exists, and HRADBR from the prior year
+/* Class, Town and NBHD are taken from HEADT, if it exists, and HRADBR from the prior year
  if HEADT is not populated yet. */
 SELECT PIN_UNIVERSE.PIN, PIN_UNIVERSE.TAX_YEAR AS [YEAR]
 , CASE WHEN HEADT.PIN IS NULL THEN LAGGED_BR.HD_CLASS 
@@ -15,8 +15,11 @@ SELECT PIN_UNIVERSE.PIN, PIN_UNIVERSE.TAX_YEAR AS [YEAR]
 		WHEN HEADT.PIN IS NOT NULL THEN HEADT.HD_NBHD 
 		END AS NBHD
 , CASE WHEN HEADT.PIN IS NULL THEN LEFT(LAGGED_BR.HD_TOWN, 2) 
-		WHEN HEADT.PIN IS NOT NULL THEN LEFT(LAGGED_BR.HD_TOWN, 2) 
+		WHEN HEADT.PIN IS NOT NULL THEN LEFT(HEADT.HD_TOWN, 2) 
 		END AS TOWN
+, CASE WHEN HEADT.PIN IS NULL THEN UPPER(NAME1)
+		WHEN HEADT.PIN IS NOT NULL THEN UPPER(NAME2)
+		END AS [TOWN NAME]
 , [MODEL RESULT], [PIPELINE RESULT],
 (HEADT.HD_ASS_BLD + HEADT.HD_ASS_LND) * 10 AS [FIRST PASS], CERTIFIED,
 CASE WHEN [APPEALED] = 1 THEN 'YES' ELSE 'NO' END AS [APPEALED],
@@ -24,8 +27,7 @@ CASE WHEN [APPEALED] = 1 THEN 'YES' ELSE 'NO' END AS [APPEALED],
 CASE WHEN [CHANGED] = 1 THEN 'YES' WHEN [CHANGED] = 0 THEN 'NO' ELSE NULL END AS [CHANGED] 
 , (BOR.HD_ASS_LND + BOR.HD_ASS_BLD)*10 AS [BOR RESULT]
 /* Due to the way AS_HEADT populates after mailing, we need a stable universe of PINs to left join onto.
-The following subquery constructs that stable set of PINs to builld the rest of the data off.
-*/
+The following subquery constructs that stable set of PINs to builld the rest of the data off. */
 FROM 
 (SELECT TAX_YEAR, PIN FROM AS_HEADT WHERE TAX_YEAR <= (SELECT MAX(TAX_YEAR) FROM AS_HEADT) - 1
 	UNION
@@ -35,19 +37,19 @@ FROM
 		SELECT TAX_YEAR + 1 AS TAX_YEAR, PIN, HD_CLASS FROM AS_HEADT WHERE TAX_YEAR = (SELECT MAX(TAX_YEAR) FROM AS_HEADT) - 1) UNIVERSE
 	WHERE HD_CLASS IN (200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 234, 241, 278, 295, 299)
 	) AS PIN_UNIVERSE
-/* Next, in order to select the most up-to-date context fields, we conduct two joins */
+--- Next, in order to select the most up-to-date context fields, we conduct two joins
 LEFT JOIN (SELECT *, TAX_YEAR+2 AS LAG_YEAR FROM AS_HEADBR) AS LAGGED_BR
 ON PIN_UNIVERSE.PIN=LAGGED_BR.PIN AND PIN_UNIVERSE.TAX_YEAR=LAGGED_BR.LAG_YEAR
-/* Mailed values */
+--- Mailed values
 LEFT JOIN AS_HEADT AS HEADT
 ON PIN_UNIVERSE.PIN=HEADT.PIN AND PIN_UNIVERSE.TAX_YEAR=HEADT.TAX_YEAR
 LEFT JOIN
-/* second pass values */
+--- second pass values
 (SELECT PIN, (HD_ASS_BLD + HD_ASS_LND) * 10 AS CERTIFIED, TAX_YEAR FROM AS_HEADTB) AS HEADTB
 ON PIN_UNIVERSE.PIN = HEADTB.PIN AND PIN_UNIVERSE.TAX_YEAR = HEADTB.TAX_YEAR
 LEFT JOIN
 	(SELECT
-		/* appeals data */
+		--- appeals data
 		PIN, CASE WHEN PC_PIN_RESULT_1 = 'C' OR PC_PIN_RESULT_2 = 'C' OR PC_PIN_RESULT_3 = 'C' THEN 1 ELSE 0 END AS [CHANGED],
 		CASE WHEN PC_PIN_RESULT_3 != '' AND PC_PIN_RESULT_2 = '' THEN 1
 		WHEN PC_PIN_RESULT_2 != '' AND PC_PIN_RESULT_1 = '' THEN 2
@@ -58,11 +60,11 @@ LEFT JOIN
 	FROM APPEALSDATA) AS APPEALS
 ON PIN_UNIVERSE.PIN = APPEALS.PIN AND PIN_UNIVERSE.TAX_YEAR = APPEALS.TAX_YEAR
 LEFT JOIN 
-/* BOR Results */
+--- BOR Results
 AS_HEADBR AS BOR
 ON PIN_UNIVERSE.PIN=BOR.PIN AND PIN_UNIVERSE.TAX_YEAR=BOR.TAX_YEAR
 LEFT JOIN 
-/* model and pipeline values, need to make sure only values from the latest version are ingested */
+--- model and pipeline values, need to make sure only values from the latest version are ingested
 (SELECT PIN, TAX_YEAR AS YEAR, fitted_value_1 AS [MODEL RESULT]
 	, fitted_value_6 AS [PIPELINE RESULT]
 	, CASE WHEN version IS NULL THEN 0 ELSE version 
@@ -71,3 +73,6 @@ LEFT JOIN
 	WHERE max_version = 1) AS FITTED_VALUES
 
 ON PIN_UNIVERSE.PIN = FITTED_VALUES.PIN AND PIN_UNIVERSE.TAX_YEAR = FITTED_VALUES.YEAR
+--- add town names
+LEFT JOIN (SELECT township_name AS NAME1, township_code FROM FTBL_TOWNCODES) TOWNS1 ON LEFT(LAGGED_BR.HD_TOWN, 2) = TOWNS1.township_code
+LEFT JOIN (SELECT township_name AS NAME2, township_code FROM FTBL_TOWNCODES) TOWNS2 ON LEFT(HEADT.HD_TOWN, 2) = TOWNS2.township_code
