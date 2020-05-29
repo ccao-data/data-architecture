@@ -6,29 +6,36 @@ However, during the current year, there are no records for PINs before their ass
 This presents the challenge of reporting on values without a stable definition of the universe of PINs.
 This query is constructed so that it pulls PIN and YEAR from either HEAD
 
-Below is a CTE defining the possible combinations of year and PIN. Goal is to get the full set
-of possible PINs for the most recent year of data, even if no data yet exists to
-populate those rows. This is accomplished by directly grabbing all PIN data for
-all years <= max_year - 1, and then combining the PIN data of max_year and max_year - 1
-to get a (mostly) up-to-date set
+Below is a CTE defining the possible combinations of year and PIN. Goal is to get the full universe of
+PIN and TAX_YEAR combinations, even in cases where that combination doesn't yet exist in the data
 */
-WITH PIN_UNIVERSE AS
-(
+WITH MOST_RECENT_YEAR AS (
+	SELECT PIN, TAX_YEAR, LEFT(HD_TOWN, 2) AS TOWN, HD_NBHD AS NBHD, HD_CLASS AS CLASS, TAX_YEAR AS REAL_YEAR
+	FROM AS_HEADT
+	WHERE TAX_YEAR = (SELECT MAX(TAX_YEAR) FROM AS_HEADT)
+	UNION
+	SELECT PIN, TAX_YEAR + 1 AS TAX_YEAR, LEFT(HD_TOWN, 2) AS TOWN, HD_NBHD AS NBHD, HD_CLASS AS CLASS, TAX_YEAR AS REAL_YEAR
+	FROM AS_HEADT
+	WHERE TAX_YEAR = (SELECT MAX(TAX_YEAR) FROM AS_HEADT) - 1
+),
+PIN_UNIVERSE AS (
 	SELECT PIN, TAX_YEAR, LEFT(HD_TOWN, 2) AS TOWN, HD_NBHD AS NBHD, HD_CLASS AS CLASS
 	FROM AS_HEADT
-	WHERE TAX_YEAR <= (SELECT MAX(TAX_YEAR) FROM AS_HEADT) - 1
+	WHERE TAX_YEAR < (SELECT MAX(TAX_YEAR) FROM AS_HEADT)
 	UNION
-	SELECT PIN, TAX_YEAR, TOWN, NBHD, CLASS
-	FROM (
-		SELECT PIN, TAX_YEAR, LEFT(HD_TOWN, 2) AS TOWN, HD_NBHD AS NBHD, HD_CLASS AS CLASS
-		FROM AS_HEADT
-		WHERE TAX_YEAR = (SELECT MAX(TAX_YEAR) FROM AS_HEADT)
-		UNION
-		SELECT PIN, TAX_YEAR + 1 AS TAX_YEAR, LEFT(HD_TOWN, 2) AS TOWN, HD_NBHD AS NBHD, HD_CLASS AS CLASS
-		FROM AS_HEADT
-		WHERE TAX_YEAR = (SELECT MAX(TAX_YEAR) FROM AS_HEADT) - 1
-	) a
-	WHERE CLASS IN (200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 234, 241, 278, 295, 299)
+	/* The goal of this subquery is to create a data row for the current year, even if that row doesn't yet exist in AS_HEADT.
+	To do this, we combine the latest year's data with the previous year's data. If the current year's data is different from
+	the previous year's, we take the current year. Otherwise, we simply drop duplicates (with UNION) to combine the two years.
+	This subquery should always return a single row.
+	*/
+	SELECT a.PIN, TAX_YEAR, TOWN, NBHD, CLASS
+	FROM MOST_RECENT_YEAR a
+	INNER JOIN (
+		SELECT PIN, MAX(REAL_YEAR) AS max_year
+		FROM MOST_RECENT_YEAR
+		GROUP BY PIN
+	) b ON a.PIN = b.PIN AND a.REAL_YEAR = b.max_year
+	AND CLASS IN (200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 234, 241, 278, 295, 299)
 )
 SELECT
 	PIN_UNIVERSE.PIN,
