@@ -7,20 +7,23 @@ options(java.parameters = "-Xmx24g")
 database <- 1
 
 # Load geographic data
-parcels <- read_sf(dsn = paste0(dirs$spatial_data, "Historical_Parcels__2019.shp"), lay = "Historical_Parcels__2019")
-tracts <- read_sf(dsn = paste0(dirs$spatial_data, "tl_2018_17_tract.shp"), lay = "tl_2018_17_tract")
-pumas <- read_sf(dsn = paste0(dirs$spatial_data, "ipums_puma_2010.shp"), lay = "ipums_puma_2010")[c(-3, -7)]
+parcels <- read_sf(dsn = paste0(dirs$spatial_data, "Historical_Parcels__2019/Historical_Parcels__2019.shp"),
+                   layer = "Historical_Parcels__2019")
+tracts <- read_sf(dsn = paste0(dirs$spatial_data, "tl_2018_17_tract.GeoJSON"))
+pumas <- read_sf(dsn = paste0(dirs$spatial_data, "ipums_puma_2010/ipums_puma_2010.shp"), layer = "ipums_puma_2010")[c(-3, -7)]
 
-leyden_ohare <- read_sf(dsn = paste0(dirs$spatial_data, "Half mile buffer.shp"), lay = "Half mile buffer")
-floodplains <- st_read(dsn = paste0(dirs$spatial_data, "NFHL_17_20190515/NFHL_17_20190515.gdb"), layer = "S_Fld_Haz_Ar")
-roads <- read_sf(dsn = paste0(dirs$spatial_data, "Streets.shp"), lay = "Streets")
+leyden_ohare <- read_sf(dsn = paste0(dirs$spatial_data, "Half_Mile_Contour_Buffer/Half_Mile_Contour_Buffer.shp"),
+                        layer = "Half_Mile_Contour_Buffer")
+floodplains <- read_sf(dsn = paste0(dirs$spatial_data, "NFHL_17_20190515.gdb"), layer = "S_Fld_Haz_Ar")
+roads <- read_sf(dsn = paste0(dirs$spatial_data, "Streets-shp/Streets.shp"), layer = "Streets")
 
-wards <- read_sf(dsn = paste0(dirs$spatial_data, "wards.shp"), lay = "wards")
-commissioner <- read_sf(dsn = paste0(dirs$spatial_data, "commissioner.shp"), lay = "commissioner")
-repres <- read_sf(dsn = paste0(dirs$spatial_data, "repres_dict.shp"), lay = "repres_dict")
-senate  <- read_sf(dsn = paste0(dirs$spatial_data, "senate_dict.shp"), lay = "senate_dict")
-tif <- read_sf(dsn = paste0(dirs$spatial_data, "tif_dict.shp"), lay = "tif_dict")
-municipalities <- read_sf(dsn = paste0(dirs$spatial_data, "tl_2013_17_place.shp"), lay = "tl_2013_17_place")
+wards <- read_sf(dsn = paste0(dirs$spatial_data, "wards.GeoJSON"))
+commissioner <- read_sf(dsn = paste0(dirs$spatial_data, "commissioner.GeoJSON"))
+repres <- read_sf(dsn = paste0(dirs$spatial_data, "repres_dict.GeoJSON"))
+senate  <- read_sf(dsn = paste0(dirs$spatial_data, "senate_dict.GeoJSON"))
+tif <- read_sf(dsn = paste0(dirs$spatial_data, "tif_dict.GeoJSON"))
+municipalities <- read_sf(dsn = paste0(dirs$spatial_data, "tl_2013_17_place.GeoJSON"))
+ssas <- read_sf(dsn = paste0(dirs$spatial_data, "SSAs.GeoJSON"))
 
 # Record parcels where PIN10 does not match Name and create observations for both "Name" and "PIN10" values
 problems <- subset(parcels, (substr(Name, 1, 10) != PIN10 | nchar(Name) != 14))
@@ -55,6 +58,7 @@ repres <- st_transform(repres, crs = 3435)
 senate <- st_transform(senate, crs = 3435)
 tif <- st_transform(tif, crs = 3435)
 municipalities <- st_transform(municipalities, crs = 3435)
+ssas <- st_transform(ssas, crs = 3435)
 
 # Identify which pins are affected by O'Hare noise
 join <- st_intersection(st_make_valid(parcels), leyden_ohare)
@@ -87,7 +91,7 @@ parcels$PIN999 <- ifelse(parcels$PINB == 999, 1, 0)
 
 # Temporarily drop pins that are less than 0.5 sqft in area and identify them
 temp <- parcels[parcels$SHAPE_Area < 0.5, ]
-temp$centroid_x <- temp$centroid_y <- temp$TRACTCE <- temp$ward <- temp$GEOID.x <- temp$district <- temp$district_1 <- temp$senatedist <- temp$agencynum <- temp$PUMA <- temp$NAME.y <- temp$PLACEFP <- NA
+temp$centroid_x <- temp$centroid_y <- temp$TRACTCE <- temp$ward.x <- temp$GEOID.x <- temp$district <- temp$district_1 <- temp$senatedist <- temp$agencynum <- temp$PUMA <- temp$NAME.y <- temp$PLACEFP <- temp$name <- temp$ref_no <- NA
 temp$geometry <- NULL
 temp$point_parcel <- 1
 
@@ -112,6 +116,7 @@ parcels <- st_join(parcels, repres)
 parcels <- st_join(parcels, senate)
 parcels <- st_join(parcels, tif)
 parcels <- st_join(parcels, municipalities)
+parcels <- st_join(parcels, ssas)
 
 # Convert coordinates to lat/long for export and leaflet
 parcels <- st_transform(parcels, crs = 4326)
@@ -121,12 +126,22 @@ parcels$centroid_y <- str_split_fixed(parcels$clean, ", ", 2)[, 2]
 parcels$clean <- NULL
 
 # Clean up before export & add back pins that are less than 0.5 sqft in area
-parcels <- parcels %>% select("Name", "PIN999", "point_parcel", "centroid_x", "centroid_y", "TRACTCE", "ward", "ohare_noise", "floodplain", "withinmr100", "withinmr101300", "GEOID.x", "district", "district_1", "senatedist", "agencynum", "PUMA", "NAME.y", "PLACEFP")
+parcels <- parcels %>% select("Name", "PIN999", "point_parcel", "centroid_x", "centroid_y",
+                              "TRACTCE", "ward.x", "ohare_noise", "floodplain", "withinmr100", "withinmr101300",
+                              "GEOID.x", "district", "district_1", "senatedist", "agencynum", "PUMA",
+                              "NAME.y", "PLACEFP", "name", "ref_no")
 parcels$geometry <- NULL
 
-temp <- temp %>% select("Name", "PIN999", "point_parcel", "centroid_x", "centroid_y", "TRACTCE", "ward", "ohare_noise", "floodplain", "withinmr100", "withinmr101300", "GEOID.x", "district", "district_1", "senatedist", "agencynum", "PUMA", "NAME.y", "PLACEFP")
+temp <- temp %>% select("Name", "PIN999", "point_parcel", "centroid_x", "centroid_y",
+                        "TRACTCE", "ward.x", "ohare_noise", "floodplain", "withinmr100", "withinmr101300",
+                        "GEOID.x", "district", "district_1", "senatedist", "agencynum", "PUMA",
+                        "NAME.y", "PLACEFP", "name", "ref_no")
+
 parcels <- rbind(parcels, temp)
-parcels <- plyr::rename(parcels, c("Name" = "PIN", "GEOID.x" = "GEOID", "district" = "commissioner_dist", "district_1" = "reps_dist", "senatedist" = "senate_dist", "agencynum" = "tif_agencynum", "NAME.y" = "municipality", "PLACEFP" = "FIPS"))
+parcels <- plyr::rename(parcels, c("Name" = "PIN", "GEOID.x" = "GEOID",
+                                   "ward.x" = "ward", "district" = "commissioner_dist","district_1" = "reps_dist",
+                                   "senatedist" = "senate_dist", "agencynum" = "tif_agencynum", "NAME.y" = "municipality",
+                                   "PLACEFP" = "FIPS", "name" = "ssa_name", "ref_no" = "ssa_no"))
 
 # Adding ACS information in the parcels data
 full_data <- read.csv("O:/CCAODATA/data/raw_data/latest_ACS.csv")[, c(-1, -3)]
@@ -137,6 +152,9 @@ parcels$PIN10 <- substr(parcels$PIN, 1, 10)
 parcels$multiple_geographies <- ifelse ((duplicated(parcels$PIN10) | duplicated(parcels$PIN10, fromLast = TRUE)) == TRUE, 1, 0)
 parcels$primary_polygon <- ifelse (duplicated(parcels$PIN10) == FALSE, 1, 0)
 parcels$PIN10 <- NULL
+
+# clean ssa variables
+parcels$ssa_no <- gsub("SSA#| ", "", parcels$ssa_no)
 
 # Upload table to SQL server
 CCAODATA <- dbConnect(odbc(),
