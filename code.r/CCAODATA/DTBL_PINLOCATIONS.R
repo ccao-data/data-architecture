@@ -1,162 +1,206 @@
 # This script extracts XY coordinates for PINs from a Cook COunty parcels parcelsfile.
 
+# ingest necessary functions for overwriting DTBL_PINLOCATIONS
 source(paste0("C:/Users/", Sys.info()[['user']],"/Documents/ccao_utility/code.r/99_utility_2.r"))
-invisible(check.packages(libs))
-dirs <- directories("ccao_sf_cama_dev")
-options(java.parameters = "-Xmx24g")
 database <- 1
 
-# Load geographic data
-parcels <- read_sf(dsn = paste0(dirs$spatial_data, "Historical_Parcels__2019/Historical_Parcels__2019.shp"),
-                   layer = "Historical_Parcels__2019")
-tracts <- read_sf(dsn = paste0(dirs$spatial_data, "tl_2018_17_tract.GeoJSON"))
-pumas <- read_sf(dsn = paste0(dirs$spatial_data, "ipums_puma_2010/ipums_puma_2010.shp"), layer = "ipums_puma_2010")[c(-3, -7)]
+# load needed packages
+library(sf)
+library(dplyr)
+library(DBI)
+library(odbc)
+library(safer)
+library(installr)
 
-leyden_ohare <- read_sf(dsn = paste0(dirs$spatial_data, "Half_Mile_Contour_Buffer/Half_Mile_Contour_Buffer.shp"),
-                        layer = "Half_Mile_Contour_Buffer")
-floodplains <- read_sf(dsn = paste0(dirs$spatial_data, "NFHL_17_20190515.gdb"), layer = "S_Fld_Haz_Ar")
-roads <- read_sf(dsn = paste0(dirs$spatial_data, "Streets-shp/Streets.shp"), layer = "Streets")
+# spatial data files ----
+directories <- list("parcels" = c("Historical_Parcels__2019/Historical_Parcels__2019.shp", "Historical_Parcels__2019"),
+                    "tracts" = "tl_2018_17_tract.GeoJSON",
+                    "pumas" = c("ipums_puma_2010/ipums_puma_2010.shp", "ipums_puma_2010"),
+                    "leyden_ohare" = c("Half_Mile_Contour_Buffer/Half_Mile_Contour_Buffer.shp", "Half_Mile_Contour_Buffer"),
+                    "floodplains" = c("NFHL_17_20190515.gdb", "S_Fld_Haz_Ar"),
+                    "roads" = c("Streets-shp/Streets.shp", "Streets"),
+                    "wards" = "wards.GeoJSON",
+                    "commissioner" = "commissioner.GeoJSON",
+                    "repres" = "repres_dict.GeoJSON",
+                    "senate" = "senate_dict.GeoJSON",
+                    "tif" = "tif_dict.GeoJSON",
+                    "municipalities" = "tl_2013_17_place.GeoJSON",
+                    "ssas" = "SSAs.GeoJSON")
 
-wards <- read_sf(dsn = paste0(dirs$spatial_data, "wards.GeoJSON"))
-commissioner <- read_sf(dsn = paste0(dirs$spatial_data, "commissioner.GeoJSON"))
-repres <- read_sf(dsn = paste0(dirs$spatial_data, "repres_dict.GeoJSON"))
-senate  <- read_sf(dsn = paste0(dirs$spatial_data, "senate_dict.GeoJSON"))
-tif <- read_sf(dsn = paste0(dirs$spatial_data, "tif_dict.GeoJSON"))
-municipalities <- read_sf(dsn = paste0(dirs$spatial_data, "tl_2013_17_place.GeoJSON"))
-ssas <- read_sf(dsn = paste0(dirs$spatial_data, "SSAs.GeoJSON"))
+# specific columns to ingest for each file ----
+columns <- list("parcels" = c("Name", "PIN10", "PINB", "SHAPE_Area", "geometry"),
+                "tracts" = c("TRACTCE", "geometry", "GEOID"),
+                "pumas" = c("PUMA", "geometry"),
+                "leyden_ohare" = c("AIRPORT", "geometry" ),
+                "floodplains" = c("SFHA_TF", "SHAPE"),
+                "roads" = c("MAJORROAD", "geometry"),
+                "wards" = c("ward", "geometry" ),
+                "commissioner" = c("district", "geometry"),
+                "repres" = c("district_1", "geometry"),
+                "senate" = c("senatedist", "geometry"),
+                "tif" = c("agencynum", "geometry"),
+                "municipalities" = c("PLACEFP", "NAME", "geometry"),
+                "ssas" = c("name", "ref_no", "geometry"))
 
-# Record parcels where PIN10 does not match Name and create observations for both "Name" and "PIN10" values
-problems <- subset(parcels, (substr(Name, 1, 10) != PIN10 | nchar(Name) != 14))
+# ingest spatial data ----
+spatial_data <- list()
 
-temp <- problems
-temp$geometry <- temp$OBJECTID <- NULL
-write.csv(temp, file = "O:/CCAODATA/data/bad_data/parcel_problems.csv", row.names = FALSE, na = "")
-rm(temp)
+for (i in names(directories)) {
 
-problems <- subset(problems, nchar(problems$Name) == 14 & nchar(problems$PIN10) == 10)
-names <- problems$Name
-problems$Name <- paste0(problems$PIN10, "0000")
-problems$PIN10 <- substr(names, 1, 10)
-parcels <- rbind(parcels, problems)
-rm(names, problems)
+  if (length(directories[[i]]) == 1) {
 
-# Trim off data we can't use ----
-parcels <- subset(parcels, nchar(Name) == 14)
+    spatial_data[[i]] <- read_sf(dsn = paste0("O:/CCAODATA/data/spatial/", directories[[i]])) %>%
+      select(columns[[i]])
 
-# Set shapefiles to same CRS
-parcels <- st_transform(parcels, crs = 3435)
-tracts <- st_transform(tracts, crs = 3435)
-pumas <- st_transform(pumas, crs = 3435)
+  } else {
 
-leyden_ohare <- st_transform(leyden_ohare, crs = 3435)
-floodplains <- st_transform(floodplains, crs = 3435)
-roads <- st_transform(roads, crs = 3435)
+    spatial_data[[i]] <- read_sf(dsn = paste0("O:/CCAODATA/data/spatial/", directories[[i]][1]), layer = directories[[i]][2]) %>%
+      select(columns[[i]])
 
-wards <- st_transform(wards, crs = 3435)
-commissioner <- st_transform(commissioner, crs = 3435)
-repres <- st_transform(repres, crs = 3435)
-senate <- st_transform(senate, crs = 3435)
-tif <- st_transform(tif, crs = 3435)
-municipalities <- st_transform(municipalities, crs = 3435)
-ssas <- st_transform(ssas, crs = 3435)
+  }
 
-# Identify which pins are affected by O'Hare noise
-join <- st_intersection(st_make_valid(parcels), leyden_ohare)
-parcels$ohare_noise <- 0
-parcels$ohare_noise[parcels$Name %in% join$Name] <- 1
+}
+
+# clean, prepare for joins ----
+
+# buffer roads
+spatial_data[["roads100"]] <- st_buffer(spatial_data[["roads"]], 100)
+spatial_data[["roads300"]] <- st_buffer(spatial_data[["roads"]], 300)
+spatial_data[["roads"]] <- NULL
+
+# rename columns/subset spatial data
+spatial_data[["leyden_ohare"]] <- rename(spatial_data[["leyden_ohare"]], "ohare_noise" = "AIRPORT")
+spatial_data[["parcels"]] <- rename(spatial_data[["parcels"]], "PIN" = "Name")
+spatial_data[["municipalities"]] <- rename(spatial_data[["municipalities"]],
+                                           "municipality" = "NAME", "FIPS" = "PLACEFP")
+spatial_data[["ssas"]] <- rename(spatial_data[["ssas"]], "ssa_name" = "name", "ssa_no" = "ref_no")
+spatial_data[["commissioner"]] <- rename(spatial_data[["commissioner"]], "commissioner_dist" = "district")
+spatial_data[["repres"]] <- rename(spatial_data[["repres"]], "reps_dist" = "district_1")
+spatial_data[["senate"]] <- rename(spatial_data[["senate"]], "senate_dist" = "senatedist")
+spatial_data[["tif"]] <- rename(spatial_data[["tif"]], "tif_agencynum" = "agencynum")
+
+spatial_data[["floodplains"]] <- spatial_data[["floodplains"]] %>%
+  filter(SFHA_TF == "T") %>%
+  rename(., "floodplain" = "SFHA_TF")
+
+spatial_data[["roads100"]] <- spatial_data[["roads100"]] %>%
+  filter(MAJORROAD == "YES") %>%
+  rename(., "withinmr100" = "MAJORROAD")
+
+spatial_data[["roads300"]] <- spatial_data[["roads300"]] %>%
+  filter(MAJORROAD == "YES") %>%
+  rename(., "withinmr300" = "MAJORROAD")
+
+# clean some columns
+spatial_data[["ssas"]]$ssa_no <- gsub("SSA#| ", "", spatial_data[["ssas"]]$ssa_no)
+
+# parcels shapefile can be a little wonky when it's first ingested
+spatial_data[["parcels"]] <- st_make_valid(spatial_data[["parcels"]])
+
+# if a PIN is 10 digits long, or if it isn't 14 digits long but the first 10 digits match PIN10, take the first 10 digits and add '0000'
+spatial_data[["parcels"]]$PIN <- ifelse(nchar(spatial_data[["parcels"]]$PIN) == 10 |
+                                          (nchar(spatial_data[["parcels"]]$PIN) != 14 &
+                                             substr(spatial_data[["parcels"]]$PIN, 1, 10) == spatial_data[["parcels"]]$PIN10),
+                                        paste0(substr(spatial_data[["parcels"]]$PIN, 1, 10), "0000"),
+                                        spatial_data[["parcels"]]$PIN)
+
+# record parcels where PIN10 does not match PIN and create observations for both "PIN" and "PIN10" values
+problems <- spatial_data[["parcels"]] %>% filter(substr(PIN, 1, 10) != PIN10 | nchar(PIN) != 14)
+
+write.csv(data.frame(problems) %>% select(-"geometry"),
+          file = "O:/CCAODATA/data/bad_data/parcel_problems.csv", row.names = FALSE, na = "")
+
+# remove those observations from the parcels data set
+spatial_data[["parcels"]] <- spatial_data[["parcels"]] %>% filter(substr(PIN, 1, 10) == PIN10 & nchar(PIN) == 14)
+
+# only keep problem observations with usable data
+problems <- problems %>% filter(nchar(problems$PIN) == 14 & nchar(problems$PIN10) == 10)
+
+# create an observation for both PIN10 and PIN if they don't match, make sure there are no duplicates
+PINs <- problems %>% filter(nchar(PIN) == 14) %>% mutate("PIN10" = paste0(substr(PIN, 1, 10)))
+pin10s <- problems %>% filter(nchar(PIN10) == 10) %>% mutate("PIN" = paste0(PIN10, "0000"))
+problems <- rbind(PINs, pin10s) %>% filter(!duplicated(PIN))
+spatial_data[["parcels"]] <- rbind(spatial_data[["parcels"]], problems)
+rm(PINs, pin10s, problems)
+
+# identify PINs with "999" values
+spatial_data[["parcels"]]$PIN999 <- ifelse(spatial_data[["parcels"]]$PINB == 999, 1, 0)
+
+# identify PINs that are points
+spatial_data[["parcels"]]$point_parcel <- ifelse(spatial_data[["parcels"]]$SHAPE_Area < 0.5, 1, 0)
+
+# identify pins with multiple geographies
+spatial_data[["parcels"]]$PIN10 <- substr(spatial_data[["parcels"]]$PIN, 1, 10)
+spatial_data[["parcels"]]$multiple_geographies <-
+  ifelse((duplicated(spatial_data[["parcels"]]$PIN10) | duplicated(spatial_data[["parcels"]]$PIN10,
+                                                                   fromLast = TRUE)) == TRUE, 1, 0)
+spatial_data[["parcels"]]$primary_polygon <- ifelse(duplicated(spatial_data[["parcels"]]$PIN10) == FALSE, 1, 0)
+spatial_data[["parcels"]]$PIN10 <- NULL
+
+# analyze parcels as centroids
+spatial_data[["parcels"]]$geometry <- st_centroid(spatial_data[["parcels"]]$geometry)
+
+# set shapefiles to same CRS ----
+for (i in names(spatial_data)) {
+
+  spatial_data[[i]] <- st_transform(spatial_data[[i]], crs = 3435)
+
+}
+
+# work with a single data frame for joined data
+output <- spatial_data[["parcels"]]
+
+# Identify which pins are in a 100ft or 101 to 300ft buffer around major roads ---
+join <- st_intersection(output, spatial_data[["roads100"]])
+output$withinmr100 <- ifelse(output$PIN %in% join$PIN, 1, 0)
+
+join <- st_intersection(output, spatial_data[["roads300"]])
+output$withinmr300 <- ifelse(output$PIN %in% join$PIN, 1, 0)
 rm(join)
 
-# Identify which pins are in floodplains
-join <- st_intersection(st_make_valid(parcels), subset(floodplains, floodplains$SFHA_TF == "T"))
-parcels$floodplain <- 0
-parcels$floodplain[parcels$Name %in% join$Name] <- 1
-rm(join)
+# create a way to dedupe after possible duplication issues during joins
+output$id <- 1:nrow(output)
 
-# Identify which pins are in a 100ft or 101 to 300ft buffer around major roads
-join <- st_intersection(st_make_valid(parcels), st_buffer(subset(roads, MAJORROAD == "YES"), 100))
-parcels$withinmr100 <- 0
-parcels$withinmr100[parcels$Name %in% join$Name] <- 1
-rm(join)
+# join/intersect parcels to other shapefiles ----
+for (i in names(spatial_data)) {
 
-join <- st_intersection(st_make_valid(parcels), st_buffer(subset(roads, MAJORROAD == "YES"), 300))
-parcels$withinmr101300 <- 0
-parcels$withinmr101300 <- if_else(parcels$withinmr100 != 1 & parcels$Name %in% join$Name, 1, parcels$withinmr101300)
-rm(join)
+  if (i %in% c("parcels", "roads100", "roads300")) {
 
-# Drop observations with missing PINs ----
-parcels <- parcels[!is.na(parcels$PIN10), ]
+  } else {
 
-# Identify PINs with "999" values
-parcels$PIN999 <- ifelse(parcels$PINB == 999, 1, 0)
+    print(i)
+    output <- st_join(output, spatial_data[[i]])
+    print(nrow(output))
 
-# Temporarily drop pins that are less than 0.5 sqft in area and identify them
-temp <- parcels[parcels$SHAPE_Area < 0.5, ]
-temp$centroid_x <- temp$centroid_y <- temp$TRACTCE <- temp$ward.x <- temp$GEOID.x <- temp$district <- temp$district_1 <- temp$senatedist <- temp$agencynum <- temp$PUMA <- temp$NAME.y <- temp$PLACEFP <- temp$name <- temp$ref_no <- NA
-temp$geometry <- NULL
-temp$point_parcel <- 1
+  }
 
-parcels <- parcels[parcels$SHAPE_Area >= 0.5, ]
-parcels$point_parcel <- 0
+}
 
-# Extract x y coordinates if parcels are greater than 0.5 sqft in area
-parcels$geometry <- st_centroid(parcels$geometry)
-parcels$clean <- gsub("[c()]", "", parcels$geometry)
-parcels$centroid_x <- str_split_fixed(parcels$clean, ", ", 2)[, 1]
-parcels$centroid_y <- str_split_fixed(parcels$clean, ", ", 2)[, 2]
-parcels$clean <- NULL
+# remove duplicates created by overlaps in shapefiles
+output <- output %>% filter(!duplicated(id))
+output$id <- NULL
 
-# Join parcel centroids with census boundaries
-parcels <- st_join(parcels, tracts)
-parcels <- st_join(parcels, pumas)
+# post-join cleaning ----
 
-# Join parcel centroids with political districts
-parcels <- st_join(parcels, wards)
-parcels <- st_join(parcels, commissioner)
-parcels <- st_join(parcels, repres)
-parcels <- st_join(parcels, senate)
-parcels <- st_join(parcels, tif)
-parcels <- st_join(parcels, municipalities)
-parcels <- st_join(parcels, ssas)
+# specify certain joined indicators
+output$ohare_noise[is.na(output$ohare_noise)] <- 0
+output$floodplain <- ifelse(!is.na(output$floodplain), 1, 0)
+output$withinmr101300 <- ifelse(output$withinmr300 == 1 & output$withinmr100 == 0, 1, 0)
 
-# Convert coordinates to lat/long for export and leaflet
-parcels <- st_transform(parcels, crs = 4326)
-parcels$clean <- gsub("[c()]", "", parcels$geometry)
-parcels$centroid_x <- str_split_fixed(parcels$clean, ", ", 2)[, 1]
-parcels$centroid_y <- str_split_fixed(parcels$clean, ", ", 2)[, 2]
-parcels$clean <- NULL
+# purge columns
+output <- output %>% select(-c("withinmr300", "PINB", "SHAPE_Area"))
 
-# Clean up before export & add back pins that are less than 0.5 sqft in area
-parcels <- parcels %>% select("Name", "PIN999", "point_parcel", "centroid_x", "centroid_y",
-                              "TRACTCE", "ward.x", "ohare_noise", "floodplain", "withinmr100", "withinmr101300",
-                              "GEOID.x", "district", "district_1", "senatedist", "agencynum", "PUMA",
-                              "NAME.y", "PLACEFP", "name", "ref_no")
-parcels$geometry <- NULL
+# extract x y coordinates
+output <- st_transform(output, crs = 4326)
+output$centroid_x <- st_coordinates(output$geometry)[, 1]
+output$centroid_y <- st_coordinates(output$geometry)[, 2]
+output$geometry <- NULL
 
-temp <- temp %>% select("Name", "PIN999", "point_parcel", "centroid_x", "centroid_y",
-                        "TRACTCE", "ward.x", "ohare_noise", "floodplain", "withinmr100", "withinmr101300",
-                        "GEOID.x", "district", "district_1", "senatedist", "agencynum", "PUMA",
-                        "NAME.y", "PLACEFP", "name", "ref_no")
+# add ACS information
+output$GEOID <- as.numeric(output$GEOID)
+output <- left_join(output, read.csv("O:/CCAODATA/data/raw_data/latest_ACS.csv")[, c(-1, -3)], by = "GEOID")
 
-parcels <- rbind(parcels, temp)
-parcels <- plyr::rename(parcels, c("Name" = "PIN", "GEOID.x" = "GEOID",
-                                   "ward.x" = "ward", "district" = "commissioner_dist","district_1" = "reps_dist",
-                                   "senatedist" = "senate_dist", "agencynum" = "tif_agencynum", "NAME.y" = "municipality",
-                                   "PLACEFP" = "FIPS", "name" = "ssa_name", "ref_no" = "ssa_no"))
-
-# Adding ACS information in the parcels data
-full_data <- read.csv("O:/CCAODATA/data/raw_data/latest_ACS.csv")[, c(-1, -3)]
-parcels <- merge(parcels, full_data, by.x = "GEOID", by.y = "GEOID", all.x = TRUE)
-
-# Identify duplicate pins
-parcels$PIN10 <- substr(parcels$PIN, 1, 10)
-parcels$multiple_geographies <- ifelse ((duplicated(parcels$PIN10) | duplicated(parcels$PIN10, fromLast = TRUE)) == TRUE, 1, 0)
-parcels$primary_polygon <- ifelse (duplicated(parcels$PIN10) == FALSE, 1, 0)
-parcels$PIN10 <- NULL
-
-# clean ssa variables
-parcels$ssa_no <- gsub("SSA#| ", "", parcels$ssa_no)
-
-# Upload table to SQL server
+# Upload table to SQL server ----
 CCAODATA <- dbConnect(odbc(),
                       driver   = "SQL Server",
                       server   = odbc.credentials("server"),
@@ -166,12 +210,9 @@ CCAODATA <- dbConnect(odbc(),
 
 if (ask.user.yn.question("Are you certain you want to overwrite DTBL_PINLOCATIONS?") == TRUE) {
 
-  dbWriteTable(CCAODATA, "DTBL_PINLOCATIONS", parcels, overwrite = TRUE)
+  dbWriteTable(CCAODATA, "DTBL_PINLOCATIONS", output, overwrite = TRUE)
 
 }
 
 # disconnect after pulls
 dbDisconnect(CCAODATA)
-
-# Remove extra files
-rm(temp, tracts, pumas, leyden_ohare, floodplains, roads, wards, commissioner, repres, senate, tif, full_data)
