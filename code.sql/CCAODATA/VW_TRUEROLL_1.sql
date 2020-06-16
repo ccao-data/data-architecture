@@ -11,6 +11,7 @@ FROM ( SELECT
 	T.PIN as [parcel_num], [KEY PIN] /* properties where the the home's footprint spans multiple PINs are unique by key pin */
 	, T.HD_CLASS AS [PROPERTY CLASS]
 	, T.TAX_YEAR
+	, MULTI_CODES.IS_MULTICODE
 	/* Addresses */
 	, GEO.PROPERTY_ADDRESS
 	, GEO.PROPERTY_APT_NO
@@ -53,6 +54,19 @@ FROM ( SELECT
 			WHERE LEFT(DT_CLASS,1)=2 AND DT_CLASS NOT IN (200, 288) AND TAX_YEAR=2018 AND DT_MLT_CD=1
 			) AS KEYPINS
 	ON KEYPINS.PIN=T.PIN AND KEYPINS.PIN=T.PIN
+	
+	/*
+	Simple query to detect multi-code PINs. Multi-code classes exist in AS_DETAIL but NOT in AS_HEADT
+	So joining to HEAD by pin, tax year, and class will result in NULL rows for HD_CLASS. If these NULL
+	rows exist then the PIN is a multicode and the IS_MULTICODE value of 1 will be joined
+	*/
+	LEFT JOIN (
+		SELECT DISTINCT DT.PIN, 1 AS IS_MULTICODE
+		FROM AS_DETAILT DT
+		LEFT JOIN AS_HEADT T
+		  ON T.PIN = DT.PIN AND T.TAX_YEAR = DT.TAX_YEAR AND T.HD_CLASS = DT.DT_CLASS
+		WHERE HD_CLASS IS NULL AND DT_CLASS NOT IN (200, 288)
+	) MULTI_CODES ON MULTI_CODES.PIN = T.PIN
 
 	LEFT JOIN 
 	(SELECT DISTINCT /* I copied the entire VW_PINGEO into this subsection so that this view did not leverage another view */
@@ -202,5 +216,3 @@ ON SALES.PIN=parcel_num
 LEFT JOIN /* CCRD sales have the names of the property owners. */
 DTBL_CCRDSALES AS CCRDSALES
 ON SALES.DOC_NO=CCRDSALES.DOC_NO
-
-ORDER BY parcel_num
