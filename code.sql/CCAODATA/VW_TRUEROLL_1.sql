@@ -11,7 +11,7 @@ FROM ( SELECT
 	T.PIN as [parcel_num], [KEY PIN] /* properties where the the home's footprint spans multiple PINs are unique by key pin */
 	, T.HD_CLASS AS [PROPERTY CLASS]
 	, T.TAX_YEAR
-	, MULTI_CODES.IS_MULTICODE
+	, MPIN.IS_ACROSS_MULT_PINS
 	, PARKING.IS_PARKING_SPACE
 	/* Addresses */
 	, GEO.PROPERTY_ADDRESS
@@ -57,17 +57,15 @@ FROM ( SELECT
 	ON KEYPINS.PIN=T.PIN
 	
 	/*
-	Simple query to detect multi-code PINs. Multi-code classes exist in AS_DETAIL but NOT in AS_HEADT
-	So joining to HEAD by pin, tax year, and class will result in NULL rows for HD_CLASS. If these NULL
-	rows exist then the PIN is a multicode and the IS_MULTICODE value of 1 will be joined
+	Simple query to find PINs whose structure is not entirely within the PIN bounds. Any PIN
+	single-family residential PIN with a proration rate not equal to 100% (DT_PER_ASS, but 100% is actually 0)
+	means that the structure on that PIN is actually spread across multiple PINs
 	*/
 	LEFT JOIN (
-		SELECT DISTINCT DT.PIN, 1 AS IS_MULTICODE
+		SELECT DISTINCT DT.PIN, 1 AS IS_ACROSS_MULT_PINS
 		FROM AS_DETAILT DT
-		LEFT JOIN AS_HEADT T
-		  ON T.PIN = DT.PIN AND T.TAX_YEAR = DT.TAX_YEAR AND T.HD_CLASS = DT.DT_CLASS
-		WHERE HD_CLASS IS NULL AND DT_CLASS NOT IN (200, 288)
-	) MULTI_CODES ON MULTI_CODES.PIN = T.PIN
+		WHERE DT_CLASS NOT IN (200, 288, 299) AND DT_PER_ASS != 0
+	) MPIN ON MPIN.PIN = T.PIN
 
 	/*
 	Detect parking spaces by looking for the GR CDU code
