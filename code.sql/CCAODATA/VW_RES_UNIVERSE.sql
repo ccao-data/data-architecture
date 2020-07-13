@@ -1,4 +1,4 @@
-ALTER VIEW VW_RES_UNIVERSE_ AS
+ALTER VIEW VW_RES_UNIVERSE AS
 
 SELECT
 	/* Fields from AS_HEADT */
@@ -68,7 +68,7 @@ SELECT
    This includes properties without characteristics data such as 211, 212, and 299s */
 FROM AS_HEADT AS HEADT
 
-/* Get the proper characteristics data from each year by merging AS_DETAILT and CCAOSFCHARS */
+/* Get the proper characteristics data from each year for each class by merging AS_DETAILT and CCAOSFCHARS */
 LEFT JOIN (
 	SELECT
 		T.PIN,
@@ -91,8 +91,7 @@ LEFT JOIN (
 	WHERE RIGHT(DT_CLASS, 2) NOT IN ('00', '01', '41', '88')
 ) AS DETAILT
 	ON HEADT.PIN = DETAILT.PIN 
-	AND HEADT.TAX_YEAR = DETAILT.TAX_YEAR 
-	AND HEADT.HD_CLASS = DETAILT.DT_CLASS
+	AND HEADT.TAX_YEAR = DETAILT.TAX_YEAR
 
 /* Allows us to model condos within strata */
 LEFT JOIN DTBL_CONDOSTRATA AS STRATA
