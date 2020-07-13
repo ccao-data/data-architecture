@@ -22,6 +22,7 @@ SELECT
 	/* Fields from AS_DETAILT */
 	/* The PER_ASS field is equal to 0 when the proration rate is 100%, and is > 0 all other times */
 	DT_AGE AS AGE,
+	DT_MLT_CD,
 	CASE WHEN DT_PER_ASS = 0 THEN 1
 	     ELSE DT_PER_ASS
 		 END AS DT_PER_ASS,
