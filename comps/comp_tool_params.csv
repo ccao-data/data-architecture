@@ -1,0 +1,16 @@
+Attribute,min,max,method,importance
+ROOMS,-2,2,range,0
+BEDS,-1,1,range,0
+BLDG_SF,-500,500,range,0
+AGE,-10,10,range,0
+ROOMS,0.8,1.2,percentiles,0
+BEDS,0.8,1.2,percentiles,0
+BLDG_SF,0.8,1.2,percentiles,0
+AGE,0.8,1.2,percentiles,0
+DISTANCE,0,5280,none,0
+BLDG_SF,0,0,alt,0.5
+HD_SF,0,0,alt,0.25
+ROOMS,0,0,alt,0.02
+FBATH,0,0,alt,0.04
+AGE,0,0,alt,0.1
+SALE_YEAR,0,0,alt,0.09
