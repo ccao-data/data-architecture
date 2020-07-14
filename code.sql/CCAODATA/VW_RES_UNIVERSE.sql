@@ -66,7 +66,7 @@ SELECT
 	TB_AMT_TAX_PAID AS TAX_AMT_PAID
 
 /* The AS_HEADT file defines the universe of PINs that could have a sale associated with them. 
-   This includes properties without characteristics data such as 211, 212, and 299s */
+This includes properties without characteristics data such as 211, 212, and 299s */
 FROM AS_HEADT AS HEADT
 
 /* Get the proper characteristics data from each year for each class by merging AS_DETAILT and CCAOSFCHARS */
@@ -91,25 +91,41 @@ LEFT JOIN (
 		AND T.DT_MLT_CD = CH.MULTI_CODE
 	WHERE RIGHT(DT_CLASS, 2) NOT IN ('00', '01', '41', '88')
 ) AS DETAILT
-	ON HEADT.PIN = DETAILT.PIN 
-	AND HEADT.TAX_YEAR = DETAILT.TAX_YEAR
+ON HEADT.PIN = DETAILT.PIN 
+AND HEADT.TAX_YEAR = DETAILT.TAX_YEAR
 
 /* Allows us to model condos within strata */
 LEFT JOIN DTBL_CONDOSTRATA AS STRATA
-	ON LEFT(HEADT.PIN, 10) = STRATA.PIN10 AND HEADT.TAX_YEAR = STRATA.ASSESSMENT_YEAR
+ON LEFT(HEADT.PIN, 10) = STRATA.PIN10 
+AND HEADT.TAX_YEAR = STRATA.ASSESSMENT_YEAR
 
-/* Add effective tax rates and tax codes */
-LEFT JOIN TAXBILLAMOUNTS AS TBA
-	ON TBA.PIN = HEADT.PIN AND TBA.TAX_YEAR + 1 = HEADT.TAX_YEAR
+/* Add effective tax rates and tax codes. Max is used here to remove the
+very occasional duplicated PIN and TAX_YEAR unique combo*/
+LEFT JOIN (
+	SELECT 
+		PIN,
+		TAX_YEAR, 
+		MAX(TB_AMT_TAX_PAID) AS TB_AMT_TAX_PAID, 
+		MAX(TB_TAX_RATE) AS TB_TAX_RATE
+	FROM TAXBILLAMOUNTS
+	GROUP BY PIN, TAX_YEAR
+) AS TBA
+ON TBA.PIN = HEADT.PIN 
+AND TBA.TAX_YEAR + 1 = HEADT.TAX_YEAR
 
 /* Excludes properties with a pending inspection */
 LEFT JOIN (
-	SELECT PIN, TAX_YEAR 
+	SELECT 
+		PIN, 
+		TAX_YEAR 
 	FROM PERMITTRACKING 
 	WHERE COMP_RECV = 0
 ) AS PERMITS
-	ON PERMITS.PIN = HEADT.PIN AND PERMITS.TAX_YEAR = HEADT.TAX_YEAR
+ON PERMITS.PIN = HEADT.PIN AND PERMITS.TAX_YEAR = HEADT.TAX_YEAR
 
 /* Limit sample to residential parcels */
 WHERE PERMITS.PIN IS NULL
-AND DT_CLASS IN (200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 234, 241, 278, 295, 299)
+AND DT_CLASS IN (
+	200, 201, 202, 203, 204, 205, 206, 207, 208,
+	209, 210, 211, 212, 234, 241, 278, 295, 299
+)
