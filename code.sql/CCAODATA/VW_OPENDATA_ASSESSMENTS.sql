@@ -9,33 +9,33 @@ This query is constructed so that it pulls PIN and YEAR from either HEAD
 Below is a CTE defining the possible combinations of year and PIN. Goal is to get the full universe of
 PIN and TAX_YEAR combinations, even in cases where that combination doesn't yet exist in the data
 */
-WITH MOST_RECENT_YEAR AS (
-	SELECT PIN, TAX_YEAR, LEFT(HD_TOWN, 2) AS TOWN, HD_NBHD AS NBHD, HD_CLASS AS CLASS, TAX_YEAR AS REAL_YEAR
+WITH MAX_YEAR AS (
+	SELECT MAX(TAX_YEAR) AS YEAR
 	FROM AS_HEADT
-	WHERE TAX_YEAR = (SELECT MAX(TAX_YEAR) FROM AS_HEADT)
-	UNION
-	SELECT PIN, TAX_YEAR + 1 AS TAX_YEAR, LEFT(HD_TOWN, 2) AS TOWN, HD_NBHD AS NBHD, HD_CLASS AS CLASS, TAX_YEAR AS REAL_YEAR
+),
+MOST_RECENT_YEAR_FOR_EACH_PIN AS (
+	SELECT PIN, 
+		(SELECT YEAR FROM MAX_YEAR) AS TAX_YEAR,
+		MAX(TAX_YEAR) AS REAL_YEAR
 	FROM AS_HEADT
-	WHERE TAX_YEAR = (SELECT MAX(TAX_YEAR) FROM AS_HEADT) - 1
+	WHERE TAX_YEAR >= (SELECT YEAR FROM MAX_YEAR) - 1
+	GROUP BY PIN
 ),
 PIN_UNIVERSE AS (
 	SELECT PIN, TAX_YEAR, LEFT(HD_TOWN, 2) AS TOWN, HD_NBHD AS NBHD, HD_CLASS AS CLASS
 	FROM AS_HEADT
-	WHERE TAX_YEAR < (SELECT MAX(TAX_YEAR) FROM AS_HEADT)
+	WHERE TAX_YEAR < (SELECT YEAR FROM MAX_YEAR)
 	UNION
 	/* The goal of this subquery is to create a data row for the current year, even if that row doesn't yet exist in AS_HEADT.
 	To do this, we combine the latest year's data with the previous year's data. If the current year's data is different from
 	the previous year's, we take the current year. Otherwise, we simply drop duplicates (with UNION) to combine the two years.
 	This subquery should always return a single row.
 	*/
-	SELECT a.PIN, TAX_YEAR, TOWN, NBHD, CLASS
-	FROM MOST_RECENT_YEAR a
-	INNER JOIN (
-		SELECT PIN, MAX(REAL_YEAR) AS max_year
-		FROM MOST_RECENT_YEAR
-		GROUP BY PIN
-	) b ON a.PIN = b.PIN AND a.REAL_YEAR = b.max_year
-	AND CLASS IN (200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 234, 241, 278, 295, 299)
+	SELECT a.PIN, b.TAX_YEAR, LEFT(HD_TOWN, 2) AS TOWN, HD_NBHD AS NBHD, HD_CLASS AS CLASS
+	FROM AS_HEADT a
+	INNER JOIN MOST_RECENT_YEAR_FOR_EACH_PIN b 
+	ON a.PIN = b.PIN AND a.TAX_YEAR = b.REAL_YEAR
+	AND a.HD_CLASS IN (200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 234, 241, 278, 295, 299)
 )
 SELECT
 	PIN_UNIVERSE.PIN,
