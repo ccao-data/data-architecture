@@ -3,61 +3,65 @@ library(DBI)
 library(magrittr)
 library(tidyverse)
 library(dplyr)
+library(sf)
+library(ccao)
 
 CCAODATA <- dbConnect(odbc(), .connection_string = Sys.getenv("DB_CONFIG_CCAODATA"))
 
+# ------------------ Way 1, match with Latitude/Longevity -----------------
 # SQL PULLS ----
 
-# fetch 300 class commercial apartments - NOT UNIQUE BY PIN DUE TO SALES -
-query <- "SELECT
-  HEAD.PIN AS [PIN], CASE WHEN LEN(DT_KEY_PIN) = 14 THEN CONVERT(VARCHAR, DT_KEY_PIN) ELSE NULL END AS [KEY_PIN],
-  HEAD.TAX_YEAR, HD_CLASS AS CLASS, DT_AGE AS [AGE], (HD_ASS_LND + HD_ASS_BLD) * 10 AS [FMV],
-  census_tract, township_code, TOWNS.township_name, triad_name, centroid_y AS lat, centroid_x AS long,
-  sale_price, sale_date, DEED_NUMBER, COMMENTS
+# # Fetch the Lat and Long columns from costarsnapshot
+# query <- "select ID, costar_latitude, costar_longitude   from COSTARSNAPSHOTS"
+# 
+# costar_gis_df <- dbGetQuery(CCAODATA, query) 
+# head(costar_gis_df)
+# # Pull data from shape file in O drive
+# 
+# parcel_shapes <- st_read(dsn = "//fileserver/ocommon/CCAODATA/data/spatial/Historical_Parcels__2019.GeoJSON") %>%
+#   # format PINs
+#   rename(PIN = PIN10) %>%
+#   filter(!is.na(as.numeric(PIN)) & nchar(PIN) %in% c(10, 14)) %>%
+#   mutate(PIN = pin_format_pretty(PIN)) %>%
+#   # some PINs have multiple polygons. we'll choose the largest polygon and discard the others to keep our data unique by PIN
+#   group_by(PIN) %>%
+#   filter(SHAPE_Area == max(SHAPE_Area)) %>%
+#   ungroup()
 
-FROM AS_HEADT HEAD
+# ---------------------- Way 2, match with parcel Pin ID ----------------------
+# SQL PULLS ----
 
-  --- GRAB AGE AND KEY PIN
-  LEFT JOIN AS_DETAILT DETAIL
-  ON HEAD.PIN = DETAIL.PIN AND HEAD.TAX_YEAR = DETAIL.TAX_YEAR AND HEAD.HD_CLASS = DETAIL.DT_CLASS
+# Fetch the Costar Parcel pins from costarsnapshot
+query_PIN_costar <- "select costar_parcel_number_1min, costar_parcel_number_2max from COSTARSNAPSHOTS"
+query_PIN_ccao <- "select PIN from AS_HEADT where TAX_YEAR = 2019;"
 
-  --- GRAB CENSUS TRACTS
-  LEFT JOIN VW_PINGEO GEO
-  ON HEAD.PIN = GEO.PIN
+# clean the data before deep pre-processing
+df_costar_parcelPIN <- dbGetQuery(CCAODATA, query_PIN_costar) 
+df_ccao_parcelPIN <- dbGetQuery(CCAODATA, query_PIN_ccao) %>% mutate(PIN = pin_format_pretty(PIN))
 
-  --- GRAB TOWN NAMES AND TRIS
-  INNER JOIN FTBL_TOWNCODES TOWNS
-  ON LEFT(HD_TOWN, 2) = township_code
+head(df_costar_parcelPIN)
+head(df_ccao_parcelPIN)
 
-  --- GRAB VALIDATED SALES
-  LEFT JOIN (
 
-  SELECT PIN, sale_price, sale_date, DEED_NUMBER, COMMENTS
 
-  FROM VW_CLEAN_IDORSALES SALES
 
-  LEFT JOIN DTBL_VALIDATED_IC_SALES AS VALID
-  ON SALES.DOC_NO = VALID.DEED_NUMBER
 
-  WHERE VALID = 1
 
-  ) SALES
 
-  ON HEAD.PIN = SALES.PIN AND HEAD.TAX_YEAR = Year(SALES.sale_date)
 
---- LIMIT TO PINS THAT AREN'T BRAND NEW, COMMERCIAL APT BUILDINGS, LAST THREE YEARS
-WHERE DT_AGE > 0
-  AND HD_CLASS IN (313, 314, 315, 318, 391, 396)
-  AND HEAD.TAX_YEAR >= 2018"
 
-all_apartment_PINs <- dbGetQuery(CCAODATA, query) %>%
-  
-  # format PIN and rename columns
-  mutate(PIN = pin_format_pretty(PIN, full_length = TRUE),
-         KEY_PIN = pin_format_pretty(KEY_PIN, full_length = TRUE)) %>%
-  rename_all(tolower) %>%
-  
-  # because there's no perfect way to merge head and detail,
-  # we need to carefully make sure we don't have duplicate sales
-  distinct() %>%
-  dplyr::filter(!duplicated(.[c("deed_number", "sale_price")]) | is.na(deed_number))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
