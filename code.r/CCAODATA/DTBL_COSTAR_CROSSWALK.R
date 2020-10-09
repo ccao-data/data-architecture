@@ -10,7 +10,7 @@ CCAODATA <- dbConnect(odbc(), .connection_string = Sys.getenv("DB_CONFIG_CCAODAT
 
 
 
-# ---------------------- Way 2, match with parcel Pin ID ----------------------
+# ---------------------- Way 1, match with parcel Pin ID ----------------------
 # SQL PULLS ----
 
 # Fetch the Costar Parcel pins from costarsnapshot
@@ -30,48 +30,32 @@ head(df_ccao_parcelPIN)
 # ------------------ Way 2, match with Latitude/Longevity -----------------
 # SQL PULLS ----
 
+# generate report on the jointed data
 # Fetch the Lat and Long columns from costarsnapshot
 query_gis <- "select ID, costar_latitude, costar_longitude from COSTARSNAPSHOTS where ID is not null and
              costar_latitude is not null and costar_longitude is not null and costar_tax_year = '2018' "
 # create sf spatial points
 df_costar_gis <- dbGetQuery(CCAODATA, query_gis) %>%
-  rename(latitude = costar_latitude,  longitude = costar_longitude ) %>% 
   # Convert gis data from costar into spatial object can be joined to shape file
-  st_as_sf(x = .,  coords = c('longitude', 'latitude'),
-           crs = "+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-
-
+  st_as_sf(coords = c("costar_longitude", "costar_latitude"), crs = 4326) %>% st_transform(crs = 3435)
 head(df_costar_gis)
 
-
-# Pull data from shape file in O drive
-
-poly_gis_shapes <- st_read(dsn = "//fileserver/ocommon/CCAODATA/data/spatial/Historical_Parcels__2018.GeoJSON") %>%
-  # format PINs
+# Historical_Parcel_2018.GeoJSON if transofmr to crs = 3435, will return "MULTIPOLYGON EMPTY" since 
+# It means the result of the intersection is an empty geometry (the points don't intersect). 
+# It's still a geometry collection but it just don't have any geometry object in it.
+# gis_shapes <- st_read(dsn = "//fileserver/ocommon/CCAODATA/data/spatial/Historical_Parcels__2019.GeoJSON") %>% 
+df_ccao_gis <- st_read(dsn = "//fileserver/ocommon/CCAODATA/data/spatial/Historical_Parcels__2018.GeoJSON") %>%
   rename(PIN = PIN10) %>%
   filter(!is.na(as.numeric(PIN)) & nchar(PIN) %in% c(10, 14)) %>%
-  mutate(PIN = pin_format_pretty(PIN)) %>%
-  # some PINs have multiple polygons. we'll choose the largest polygon and discard the others to keep our data unique by PIN
-  group_by(PIN) %>%
-  filter(ShapeSTAre == max(ShapeSTAre)) %>% 
-  ungroup() %>% st_as_sf(.)
+  mutate(PIN = pin_format_pretty(PIN))  %>%
+  # st_as_sf( crs = 3435) %>%  
+  st_transform(crs = 3435)
 
-# st_as_sf(poly_gis_shapes)
-# head(poly_gis_shapes)
+head(df_ccao_gis)
 
-# Join the df_costar_gis with gis_shapes by their spatial points
-
-st_crs(df_costar_gis) <- st_crs(poly_gis_shapes) 
-
-# join the two table (point to Multipolygon)
-# joined <- st_join(st_as_sf(poly_gis_shapes), df_costar_gis)
-
-joined <- st_contains(poly_gis_shapes,df_costar_gis, sparse = F)
+joined <- st_join(df_ccao_gis, df_costar_gis)
 head(joined)
-unique(joined$PIN10)
 unique(joined$ID)
-
-# generate report on the jointed data
 
 # ---------------------- Way 3, match by address ---------------------
 
