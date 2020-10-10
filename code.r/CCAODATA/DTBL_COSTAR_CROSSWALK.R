@@ -43,8 +43,8 @@ head(df_costar_gis)
 # Historical_Parcel_2018.GeoJSON if transofmr to crs = 3435, will return "MULTIPOLYGON EMPTY" since 
 # It means the result of the intersection is an empty geometry (the points don't intersect). 
 # It's still a geometry collection but it just don't have any geometry object in it.
-# gis_shapes <- st_read(dsn = "//fileserver/ocommon/CCAODATA/data/spatial/Historical_Parcels__2019.GeoJSON") %>% 
-df_ccao_gis <- st_read(dsn = "//fileserver/ocommon/CCAODATA/data/spatial/Historical_Parcels__2018.GeoJSON") %>%
+gis_shapes <- st_read(dsn = "//fileserver/ocommon/CCAODATA/data/spatial/Historical_Parcels__2019.GeoJSON") %>% 
+# df_ccao_gis <- st_read(dsn = "//fileserver/ocommon/CCAODATA/data/spatial/Historical_Parcels__2018.GeoJSON") %>%
   rename(PIN = PIN10) %>%
   filter(!is.na(as.numeric(PIN)) & nchar(PIN) %in% c(10, 14)) %>%
   mutate(PIN = pin_format_pretty(PIN))  %>%
@@ -52,6 +52,7 @@ df_ccao_gis <- st_read(dsn = "//fileserver/ocommon/CCAODATA/data/spatial/Histori
   st_transform(crs = 3435)
 
 head(df_ccao_gis)
+unique(df_ccao_gis$geometry)
 
 joined <- st_join(df_ccao_gis, df_costar_gis)
 head(joined)
@@ -59,7 +60,20 @@ unique(joined$ID)
 
 # ---------------------- Way 3, match by address ---------------------
 
-
+query_ccao_address <- "select PIN,  PROPERTY_ADDRESS, PROPERTY_APT_NO, PROPERTY_CITY, PROPERTY_ZIP 
+                     from VW_PINGEO where most_recent = 2018 and PROPERTY_ADDRESS is not null and PIN is not null "
+# 
+df_ccao_address <- dbGetQuery(CCAODATA, query_ccao_address) 
+head(df_ccao_address)
+query_costar_address <- "select ID,  costar_building_address, costar_zip, costar_parcel_number_1min, costar_parcel_number_2max  
+                       from COSTARSNAPSHOTS 
+                       where costar_tax_year = '2018' 
+                       and ID is not null and costar_building_address is not null 
+                       and  costar_zip is not null and  costar_parcel_number_1min is not null 
+                       and  costar_parcel_number_2max is not null "
+# 
+df_costar_address <- dbGetQuery(CCAODATA, query_costar_address)
+head(df_costar_address)
 
 
 
