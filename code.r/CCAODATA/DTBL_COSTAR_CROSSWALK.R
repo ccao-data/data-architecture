@@ -24,7 +24,7 @@ df_ccao_parcelPIN <- dbGetQuery(CCAODATA, query_PIN_ccao) %>% mutate(PIN = pin_f
 
 head(df_costar_parcelPIN)
 head(df_ccao_parcelPIN)
-# pending on this method, pretty complicated
+# pending on this method, pretty complicated in coding and costly in space/time
 
 
 # ------------------ Way 2, match with Latitude/Longevity -----------------
@@ -51,13 +51,19 @@ df_ccao_gis <- read_sf(dsn = "//fileserver/ocommon/CCAODATA/data/spatial/Histori
           filter(!duplicated(PIN))
 
 # perform the join
-joined <- st_join(df_costar_gis, df_ccao_gis )
-head(joined)
+joined <- st_join(df_costar_gis, df_ccao_gis ) %>% 
+  filter(!is.na(PIN) & !is.na(costar_tax_year)) %>% 
+  select(c(ID, PIN, costar_tax_year))
 head(joined)
 
-## Check on Duplicates
-unique(joined$costar_tax_year)
-unique(joined$ID)
+
+# Detect duplicated records after join
+joined %>% filter(costar_tax_year== "2018" | costar_tax_year == "2017" | costar_tax_year == "2016") %>% 
+  group_by(ID,PIN, costar_tax_year) %>% summarise(Count = n()) %>% filter(Count > 1)
+joined %>% group_by(ID, PIN, costar_tax_year) %>% summarise(Count = n()) %>% filter(costar_tax_year== "2019" & Count > 1)
+joined %>% group_by(ID, PIN, costar_tax_year) %>% summarise(Count = n()) %>% filter(costar_tax_year== "2017" & Count > 1)
+joined %>% group_by(ID, PIN, costar_tax_year) %>% summarise(Count = n()) %>% filter(costar_tax_year== "2016" & Count > 1)
+
 
 
 
@@ -106,7 +112,7 @@ df_costar_address_ready <- df_costar_address %>%
 
 nrow(df_ccao_address)
 
-# there was no obvious joined records ... need to look into more details tommr
+# there was no obvious joined records ...
 left_join(df_ccao_address, df_costar_address_ready,  by=c(  "PROPERTY_ADDRESS" = "costar_building_address"  ) )
 
 left_join(df_ccao_address, df_costar_address_ready, by=c(  "PROPERTY_ZIP" = "costar_zip"  )  )
