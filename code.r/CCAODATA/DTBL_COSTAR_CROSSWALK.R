@@ -20,9 +20,7 @@ df_costar_gis <- dbGetQuery(CCAODATA, query_gis) %>%
   st_as_sf(coords = c("costar_longitude", "costar_latitude"), crs = 4326) %>% st_transform(crs = 3435)
 
 # Read and porcess CCAO GIS data
-# df_ccao_gis <- read_sf(dsn = "O:/CCAODATA/data/spatial/Historical_Parcels__2019/Historical_Parcels__2019.shp", layer = 'Historical_Parcels__2019') %>% 
-  df_ccao_gis <- read_sf(dsn = "//fileserver/ocommon/CCAODATA/data/spatial/Historical_Parcels__2019/Historical_Parcels__2019.shp", layer = 'Historical_Parcels__2019') %>% 
-  
+df_ccao_gis <- read_sf(dsn = "O:/CCAODATA/data/spatial/Historical_Parcels__2019/Historical_Parcels__2019.shp", layer = 'Historical_Parcels__2019') %>% 
           rename(PIN = PIN10) %>%
           filter(!is.na(as.numeric(PIN)) & nchar(PIN) %in% c(10, 14)) %>%
           mutate(PIN = pin_format_pretty(PIN))  %>%
