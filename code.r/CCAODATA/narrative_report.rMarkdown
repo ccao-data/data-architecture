@@ -1,7 +1,22 @@
-library(ggplot2)
-library(tidyverse)
-library(dplyr)
+---
+title: "commercial_avm_narrative_report"
+author: "Mike"
+date: "11/4/2020"
+output: html_document
+---
+<!-- Import all library -->
 
+```{r, echo=FALSE,  warning=FALSE,  comment=FALSE, message= FALSE}
+library(dplyr)
+library(kableExtra)
+```
+
+<!-- Prep for all the data -->
+
+
+```{r echo = FALSE, warning=FALSE,  comment=FALSE}
+defaultW <- getOption("warn") 
+options(warn = -1) 
 
 format_data <- function(v, percent = FALSE, dollar = FALSE){
   
@@ -46,7 +61,6 @@ unit_Pin <- gpi %>%
 unit_per_building_calculation <- rbind(unit_building, unit_Pin)
 unit_per_building <- format_data(c(quantile(unit_per_building_calculation$`sum(units)`, c(0.25)),
                                    quantile(unit_per_building_calculation$`sum(units)`, c(0.75) )))
-unit_per_building
 
 # SQUARE FEET PER UNIT(RANGE) --
 
@@ -65,7 +79,6 @@ square_feet_per_unit_calculation <- rbind(modeling_sq_feet, gpi_sq_feet)
 square_feet_per_unit <- format_data(round(c(quantile(square_feet_per_unit_calculation$sq_feet, c(0.25)),
                          quantile(square_feet_per_unit_calculation$sq_feet, c(0.75) )), 2) )
 
-square_feet_per_unit
 # MONTHLY RENT PER UNITS (RANGE)
 monthly_rent_gpi <- gpi %>%
   group_by(key_pin) %>%
@@ -84,7 +97,6 @@ monthly_rent_per_unit_calculation <- rbind(monthly_rent_gpi, monthly_rent_modeli
 monthly_rent_per_unit <- format_data(round(c(quantile(monthly_rent_per_unit_calculation$monthly_rent, c(0.25)),
                     quantile(monthly_rent_per_unit_calculation$monthly_rent, c(0.75) )), 2) , percent = FALSE, dollar=TRUE )
 
-monthly_rent_per_unit
 # VACANCY RATE (RANGE)  --- Validate Vacancy rate need to be % and range from 0 -1 ?
 vacancy_rate_gpi <- gpi %>% 
   filter(vacancy_rate >= 0) %>%
@@ -105,18 +117,15 @@ vacancy_rate_calculated <- rbind(vacancy_rate_gpi, vacancy_rate_modeling)
 vacancy_rate <- format_data(round(c(quantile(vacancy_rate_calculated$vacancy_rate, c(0.25)),
                     quantile(vacancy_rate_calculated$vacancy_rate, c(0.75) )), 2) , percent = TRUE )
 
-vacancy_rate
 # EXPENSE RATIO (RANGE)
 expense_ratio <- format_data(round(c(quantile(gpi$expense_ratio, c(0.25)),
                     quantile(gpi$expense_ratio, c(0.75) )), 2) , percent = TRUE )
 
-expense_ratio
 # CAP RATE(RANGE)
 cap_rate <- format_data(round(c(quantile(gpi$mean_cap_rate, c(0.25), na.rm= T),
                     quantile(gpi$mean_cap_rate, c(0.75), na.rm=T )), 2) , percent = TRUE )
-cap_rate
-# ESTIMATED VALUES/UNIT (RANGE) ???
 
+# ESTIMATED VALUES/UNIT (RANGE) ???
 estimated_val_unit_gpi <- gpi %>%
   filter(.$gpi > 0 & !is.na(.$gpi)) %>%
   group_by(key_pin) %>%
@@ -130,7 +139,6 @@ Estimated_val_per_unit_calculation <- rbind(estimated_val_unit_gpi)
 Estimated_val_per_unit <- format_data(round(c(quantile(Estimated_val_per_unit_calculation$estimated_val_unit, c(0.25) , na.rm= T),
                     quantile(Estimated_val_per_unit_calculation$estimated_val_unit, c(0.75) , na.rm= T )), 2) , dollar = TRUE )
 
-Estimated_val_per_unit
 # TABLE 3 --- create a data frame with the reported value
 
 tbl3 <- data.frame( total_property_number,
@@ -143,42 +151,25 @@ tbl3 <- data.frame( total_property_number,
                     Estimated_val_per_unit
 )
 names(tbl3) <- c(" ", "  ", "   ")
-tbl3
 
-# KABLE library to create table visualizations --
-library(kableExtra)
+```
 
-kbl(tbl3, booktabs = T)
+## Table3
 
-kable(tbl3)
-add_footnote(x, c("footnote 1", "footnote 2"), notation = "symbol")
+```{r kable, echo = FALSE, warning=FALSE , comment=FALSE}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+kable(tbl3, echo= FALSE, row.names = FALSE, col.names = NULL, booktabs = T) %>%
+  kable_styling(
+  full_width = TRUE,
+  font_size = 14 
+  )  %>% 
+  add_header_above(c("# of Propertues" = 1, "Sqr feet Per Unit (Range)" = 1, "Units per building (Range)" = 1,  "Monthly Rent/unit (Range)" = 1, 
+                     "Vacancy Rate (Range)" = 1, "Expense Ratio (Range)" = 1, "Cap Rate (Range)" =  1, "Estimated Value/unit (Range)" = 1  ), 
+                   color = 'white', background = 'blue', align = 'center', bold = T, border_right = T) %>%
+  add_header_above(c("Initial 2020 Valuation Data" = 7, "CCAO DS Depatment Fair Market Value" = 1 ), color = c('white', 'white'), background = c('black', 'blue'), align = 'center', bold = T, border_right = T) %>%
+  row_spec(1, background = 'lightgrey', color = 'black', align = 'center', bold = T, font_size = 'x-large') %>%
+  column_spec(1:8, border_right  = TRUE) %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = T)
+```
 
 
