@@ -110,7 +110,6 @@ rpie_cleaned <- rpie %>%
          RPIE_MAILING_STATE = ifelse(str_length(MAILING_STATE) == 0, "IL", MAILING_STATE),
          RPIE_MAILING_ZIP = ifelse(str_length(MAILING_ADDRESS) == 0, PROPERTY_ZIP, MAILING_ZIP))
 
-
 rpie_geocode_pass_1 <- rpie_cleaned %>%
 
   filter(str_length(RPIE_MAILING_ZIP) != 5, str_length(RPIE_MAILING_ZIP) != 9) %>%
