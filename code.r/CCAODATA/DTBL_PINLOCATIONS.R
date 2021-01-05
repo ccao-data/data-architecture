@@ -1,1 +1,2 @@
-# This query has been moved to https://gitlab.com/ccao-data-science---modeling/processes/etl_pinlocations
+# This code has been moved to:
+# https://gitlab.com/ccao-data-science---modeling/processes/etl_pinlocations
