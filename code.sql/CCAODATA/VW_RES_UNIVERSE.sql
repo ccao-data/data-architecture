@@ -9,7 +9,9 @@ SELECT
 	HD_NBHD AS NBHD,
 	HD_HD_SF AS HD_SF,
 
-	/* Prior year values. BoR is 2 years prior */
+	/* Mailed and certified values within year, plus historical BoR values */
+	(BR_ASS_BLD * 10) AS PRI_2YR_BOR_EST_BLDG,
+	(BR_ASS_LND * 10) AS PRI_2YR_BOR_EST_LAND,
 	(HD_PRI_BLD * 10) AS PRI_YR_BOR_EST_BLDG,
 	(HD_PRI_LND * 10) AS PRI_YR_BOR_EST_LAND,
 	(HD_ASS_BLD * 10) AS MAILED_EST_BLDG,
@@ -97,7 +99,15 @@ LEFT JOIN (
 ON HEADT.PIN = DETAILT.PIN 
 AND HEADT.TAX_YEAR = DETAILT.TAX_YEAR
 
-/* Add Assessor certified values for each year */
+/* Add Board values from 2 years previous */
+LEFT JOIN (
+	SELECT PIN, TAX_YEAR, HD_ASS_BLD AS BR_ASS_BLD, HD_ASS_LND AS BR_ASS_LND
+	FROM AS_HEADBR
+) AS BR
+ON HEADT.PIN = BR.PIN
+AND HEADT.TAX_YEAR - 2 = BR.TAX_YEAR
+
+/* Add Assessor certified values for current year */
 LEFT JOIN (
 	SELECT PIN, TAX_YEAR, HD_ASS_BLD AS AC_ASS_BLD, HD_ASS_LND AS AC_ASS_LND
 	FROM AS_HEADTB
