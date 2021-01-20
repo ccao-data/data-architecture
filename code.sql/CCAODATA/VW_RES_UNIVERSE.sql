@@ -9,11 +9,11 @@ SELECT
 	HD_NBHD AS NBHD,
 	HD_HD_SF AS HD_SF,
 
-	/* Mailed and certified values within year, plus historical BoR values */
-	(BR_ASS_BLD * 10) AS PRI_2YR_BOR_EST_BLDG,
-	(BR_ASS_LND * 10) AS PRI_2YR_BOR_EST_LAND,
-	(HD_PRI_BLD * 10) AS PRI_YR_BOR_EST_BLDG,
-	(HD_PRI_LND * 10) AS PRI_YR_BOR_EST_LAND,
+	/* Mailed and certified market values within year, plus historical BoR values */
+	(BR_ASS_BLD * 10) AS [2YR_PRI_BOR_EST_BLDG],
+	(BR_ASS_LND * 10) AS [2YR_PRI_BOR_EST_LAND],
+	(HD_PRI_BLD * 10) AS [1YR_PRI_BOR_EST_BLDG],
+	(HD_PRI_LND * 10) AS [1YR_PRI_BOR_EST_LAND],
 	(HD_ASS_BLD * 10) AS MAILED_EST_BLDG,
 	(HD_ASS_LND * 10) AS MAILED_EST_LAND,
 	(AC_ASS_BLD * 10) AS CERTIFIED_EST_BLDG,
