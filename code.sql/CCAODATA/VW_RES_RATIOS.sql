@@ -17,10 +17,10 @@ DO NOT ALTER THIS VIEW WITHOUT AUTHORIZATION FROM A SENIOR DATA SCIENTISTS OR TH
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 */
 
-CREATE VIEW [dbo].[VW_RES_RATIOS] AS
+ALTER VIEW [dbo].[VW_RES_RATIOS] AS
 
 SELECT
- T.PIN
+ T.PIN, T.HD_CLASS AS Class
 /* --------------- SOPs on Ratio Studies, 3.3.2.3 --------------- */
  , CASE WHEN T.TAX_YEAR>=YEAR(GETDATE())-1 THEN
  (fitted_value_6)/NULLIF(PRIO_YEAR_SALE.sale_price,0)
@@ -73,11 +73,9 @@ FTBL_TOWNCODES AS TC
 ON TC.township_code=LEFT(T.HD_TOWN, 2)
 WHERE (1=1)
 	/* SOP 3.5.1 */
-	AND (NULLIF(PRIO_YEAR_SALE.sale_price,0) > 10000 AND PRIO_YEAR_SALE.PIN IS NOT NULL 
-	AND NULLIF(PRIO_YEAR_SALE.sale_price,0) > 0 
+	AND ((NULLIF(PRIO_YEAR_SALE.sale_price,0) > 10000 AND PRIO_YEAR_SALE.sale_price IS NOT NULL) 
 		OR
-		NULLIF(NEXT_YEAR_SALE.sale_price,0) >10000 AND NEXT_YEAR_SALE.PIN IS NOT NULL 
-	AND NULLIF(NEXT_YEAR_SALE.sale_price,0) > 0)
+		(NULLIF(NEXT_YEAR_SALE.sale_price,0) >10000 AND NEXT_YEAR_SALE.sale_price IS NOT NULL)) 
 	/* SOPs 3.1.1 */
 	AND CONCAT(LEFT(T.HD_TOWN,2), T.HD_NBHD) != '23171'
 	AND T.HD_CLASS IN (202, 203, 204, 205, 206, 207, 208, 209, 210, 234, 278, 295, 211, 212, 200, 201, 241, 299)
