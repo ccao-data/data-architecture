@@ -2,16 +2,24 @@ ALTER VIEW VW_RES_UNIVERSE AS
 
 SELECT
 	/* Fields from AS_HEADT */
-	HEADT.PIN as PIN,
+	HEADT.PIN AS PIN,
 	HEADT.TAX_YEAR,
-	DT_CLASS as CLASS,
-	LEFT(HD_TOWN, 2) as TOWN_CODE,
+	DT_CLASS AS CLASS,
+	LEFT(HD_TOWN, 2) AS TOWN_CODE,
 	HD_NBHD AS NBHD,
 	HD_HD_SF AS HD_SF,
-	(HD_PRI_LND) * 10 as PRI_EST_LAND,
-	(HD_PRI_BLD) * 10 as PRI_EST_BLDG,
 
-	/* Assign properties to modeling groups*/
+	/* Mailed and certified market values within year, plus historical BoR values */
+	(BR_ASS_BLD * 10) AS [2YR_PRI_BOR_EST_BLDG],
+	(BR_ASS_LND * 10) AS [2YR_PRI_BOR_EST_LAND],
+	(HD_PRI_BLD * 10) AS [1YR_PRI_BOR_EST_BLDG],
+	(HD_PRI_LND * 10) AS [1YR_PRI_BOR_EST_LAND],
+	(HD_ASS_BLD * 10) AS MAILED_EST_BLDG,
+	(HD_ASS_LND * 10) AS MAILED_EST_LAND,
+	(AC_ASS_BLD * 10) AS CERTIFIED_EST_BLDG,
+	(AC_ASS_LND * 10) AS CERTIFIED_EST_LAND,
+
+	/* Assign properties to modeling groups */
 	CASE WHEN DETAILT.DT_CLASS IN (200, 201, 241) OR (DETAILT.DT_CLASS IN (299, 399) AND (DT_CDU != 'GR' OR DT_CDU IS NULL) AND (HD_PRI_BLD + HD_PRI_LND) NOT BETWEEN 1 AND 3000) THEN 'NCHARS'
 		 WHEN DETAILT.DT_CLASS IN (202, 203, 204, 205, 206, 207, 208, 209, 210, 234, 278, 295) THEN 'SF'
 		 WHEN DETAILT.DT_CLASS IN (211, 212) THEN 'MF'
@@ -33,10 +41,6 @@ SELECT
 	CASE WHEN DT_KEY_PIN != 0 THEN RIGHT('0' + CAST(DT_KEY_PIN AS VARCHAR), 14)
 		 ELSE NULL 
 		 END AS DT_KEY_PIN,
-
-	/* Constructed condominium strata */
-	condo_strata_10 AS CONDO_STRATA_10,
-	condo_strata_100 AS CONDO_STRATA_100,
 
 	/* Fields from CCAOSFCHARS */
 	APTS, EXT_WALL, ROOF_CNST, ROOMS, BEDS, BSMT, BSMT_FIN, HEAT, OHEAT,
@@ -67,7 +71,7 @@ SELECT
 	TB_AMT_TAX_PAID AS TAX_AMT_PAID
 
 /* The AS_HEADT file defines the universe of PINs that could have a sale associated with them. 
-This includes properties without characteristics data such as 211, 212, and 299s */
+This includes properties without characteristics data such as 299s */
 FROM AS_HEADT AS HEADT
 
 /* Get the proper characteristics data from each year for each class by merging AS_DETAILT and CCAOSFCHARS */
@@ -95,10 +99,21 @@ LEFT JOIN (
 ON HEADT.PIN = DETAILT.PIN 
 AND HEADT.TAX_YEAR = DETAILT.TAX_YEAR
 
-/* Allows us to model condos within strata */
-LEFT JOIN DTBL_CONDOSTRATA AS STRATA
-ON LEFT(HEADT.PIN, 10) = STRATA.PIN10 
-AND HEADT.TAX_YEAR = STRATA.ASSESSMENT_YEAR
+/* Add Board values from 2 years previous */
+LEFT JOIN (
+	SELECT PIN, TAX_YEAR, HD_ASS_BLD AS BR_ASS_BLD, HD_ASS_LND AS BR_ASS_LND
+	FROM AS_HEADBR
+) AS BR
+ON HEADT.PIN = BR.PIN
+AND HEADT.TAX_YEAR - 2 = BR.TAX_YEAR
+
+/* Add Assessor certified values for current year */
+LEFT JOIN (
+	SELECT PIN, TAX_YEAR, HD_ASS_BLD AS AC_ASS_BLD, HD_ASS_LND AS AC_ASS_LND
+	FROM AS_HEADTB
+) AS TB
+ON HEADT.PIN = TB.PIN
+AND HEADT.TAX_YEAR = TB.TAX_YEAR
 
 /* Add effective tax rates and tax codes. Max is used here to remove the
 very occasional duplicated PIN and TAX_YEAR unique combo*/
