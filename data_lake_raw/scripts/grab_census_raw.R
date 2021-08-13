@@ -9,8 +9,17 @@ census_tables <- openxlsx::read.xlsx(here("census/documentation/2019_DataProduct
   dplyr::filter(Table.Universe == 'Universe: Total population' & Year == '1,5') %>%
   dplyr::pull(Table.ID)
 
-# remove a couple of 5 year tables tables that don't work with the census API, paste on 1 year table used for pinlocations
-census_tables <- c(census_tables[-c(14, 16)], "B19013")
+# remove a couple of 5 year tables tables that don't work with the census API, paste on 1 year tables
+census_tables <- c(census_tables[-c(14, 16)],
+                   "B25002", # OCCUPANCY STATUS
+                   "B19083", # GINI INDEX OF INCOME INEQUALITY
+                   "B25013", # TENURE BY EDUCATIONAL ATTAINMENT OF HOUSEHOLDER
+                   "B17019", # POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY HOUSEHOLD TYPE BY TENURE
+                   "B22003", # RECEIPT OF FOOD STAMPS/SNAP IN THE PAST 12 MONTHS BY POVERTY STATUS IN THE PAST 12 MONTHS FOR HOUSEHOLDS
+                   "B19013", # MEDIAN HOUSEHOLD INCOME IN THE PAST 12 MONTHS (IN 2019 INFLATION-ADJUSTED DOLLARS)
+                   "B25070", # GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME IN THE PAST 12 MONTHS
+                   "B25068"  # BEDROOMS BY GROSS RENT
+                   )
 
 # declare years we'd like to grab census data for
 census_years <- 2010:2019
@@ -18,6 +27,8 @@ names(census_years) <- 2010:2019
 
 # a function to grab a given table for however many years user would like and stack them into one dataframe
 acs_retrieve <- function(table, years) {
+
+  print(table)
 
   purrr::map_dfr(
     years,
