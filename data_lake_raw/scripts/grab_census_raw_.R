@@ -1,11 +1,3 @@
-library(stringr)
-library(tidycensus)
-library(dplyr)
-library(purrr)
-library(openxlsx)
-library(arrow)
-library(here)
-
 # retrieve census API key
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
@@ -65,4 +57,4 @@ acs <- Reduce(function(x, y) merge(x, y, all = TRUE), acs)
 #   select(PUMA, geometry)
 
 # output
-write_parquet(acs, here(paste0("census/acs_tables_", Sys.Date(), ".parquet")))
+write_parquet(acs, here(paste0("census/raw/acs_tables_", Sys.Date(), ".parquet")))
