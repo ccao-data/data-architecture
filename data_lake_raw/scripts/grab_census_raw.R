@@ -1,8 +1,11 @@
+# this script retrieves raw census data for the data lake
+
 # retrieve census API key
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
-# grab a list of all APS 5 year tables ----
-census_tables <- openxlsx::read.xlsx(here("census/documentation/2019_DataProductList.xlsx")) %>%
+# ACS ----
+# grab a list of all ACS 5 year tables
+census_tables <- openxlsx::read.xlsx(here("census/documentation/2019_DataProductList.xlsx"), sheet = "2019 Data Product List") %>%
   dplyr::filter(Table.Universe == 'Universe: Total population' & Year == '1,5') %>%
   dplyr::pull(Table.ID)
 
@@ -41,20 +44,6 @@ acs <- lapply(census_tables, acs_retrieve, years = census_years)
 
 # merge tables together by geoid
 acs <- Reduce(function(x, y) merge(x, y, all = TRUE), acs)
-
-
-
-# # Obtain public use microdata areas from Census API ----
-# pumas <- get_acs(
-#   geography = "public use microdata area",
-#   variables = "B19013_001",
-#   state = "IL",
-#   year = 2018,
-#   geometry = T
-# ) %>%
-#   st_transform(3435) %>%
-#   mutate(PUMA = str_sub(GEOID, 3, 7)) %>%
-#   select(PUMA, geometry)
 
 # output
 write_parquet(acs, here(paste0("census/raw/acs_tables_", Sys.Date(), ".parquet")))

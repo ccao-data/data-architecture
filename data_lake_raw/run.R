@@ -5,6 +5,7 @@ library(purrr)
 library(openxlsx)
 library(arrow)
 library(here)
+library(sf)
 
 # retrieve raw census data
-source(here("scripts/grab_census_raw_.R"))
+source(here("scripts/grab_census_raw.R"))
