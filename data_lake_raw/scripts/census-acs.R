@@ -76,19 +76,17 @@ pull_and_write_acs <- function(x) {
   geography <- x["geography"]
   year      <- x["year"]
 
+  current_file <- paste0("s3-bucket/stable/census/",
+                         survey, "/",
+                         folder, "/",
+                         survey, "_",
+                         year, ".parquet")
+
   # check to see if file already exists; if it does, skip it
   if (!file.exists(
-    here(paste0("s3-bucket/stable/census/",
-                survey, "/",
-                folder, "/",
-                survey, "_",
-                year, ".parquet")))) {
+    here(current_file))) {
 
-    print(paste0(Sys.time(), " - s3-bucket/stable/census/",
-                 survey, "/",
-                 folder, "/",
-                 survey, "_",
-                 year, ".parquet"))
+    print(paste0(Sys.time(), " - ", current_file))
 
     # these geographies are county specific
     if (geography %in% c("county", "county subdivision", "tract")) {
@@ -123,16 +121,7 @@ pull_and_write_acs <- function(x) {
     output %>%
 
       dplyr::rename("geoid" = "GEOID", "geography" = "NAME") %>%
-
-      write_parquet(
-
-        here(paste0("s3-bucket/stable/census/",
-                    survey, "/",
-                    folder, "/",
-                    survey, "_",
-                    year, ".parquet"))
-
-      )
+      write_parquet(here(current_file))
 
   }
 
