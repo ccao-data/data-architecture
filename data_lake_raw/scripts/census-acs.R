@@ -88,36 +88,21 @@ pull_and_write_acs <- function(x) {
     # print file being written
     print(
       paste0(Sys.time(), " - ", current_file)
-      )
+    )
 
-    # these geographies are county specific
-    if (geography %in% c("county", "county subdivision", "tract")) {
+    # these geographies are county-specific rather than state-level
+    county <- if (geography %in% c("county", "county subdivision", "tract")) "Cook" else NULL
 
-      output <- get_acs(
-        geography = geography,
-        variables = census_variables,
-        survey = survey,
-        output = "wide",
-        state = "IL",
-        county = "Cook",
-        year = year,
-        cache_table = TRUE
-      )
-
-      # these geographies are state level
-    } else {
-
-      output <- get_acs(
-        geography = geography,
-        variables = census_variables,
-        survey = survey,
-        output = "wide",
-        state = "IL",
-        year = year,
-        cache_table = TRUE
-      )
-
-    }
+    output <- get_acs(
+      geography = geography,
+      variables = census_variables,
+      survey = survey,
+      output = "wide",
+      state = "IL",
+      county = county,
+      year = year,
+      cache_table = TRUE
+    )
 
     # clean output, write to parquet files
     output %>%
