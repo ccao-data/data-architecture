@@ -63,9 +63,6 @@ all_combos <- expand.grid(geography = geography,
   # join on folder names
   left_join(folders) %>%
 
-  # rearrange
-  select(survey, geography, year, folder) %>%
-
   # some geographies only exist for the as5
   filter(!(survey == "acs1" & geography %in% c("state legislative district (lower chamber)",
                                                "state legislative district (upper chamber)",
