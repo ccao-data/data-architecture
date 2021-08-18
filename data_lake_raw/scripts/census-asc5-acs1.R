@@ -5,19 +5,21 @@ tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
 # ACS ----
 # all acs variables we're looking to grab
-census_variables <- c("tot_pop"   = "B03002_001",
-                      "white"     = "B03002_003",
-                      "black"     = "B03002_004",
-                      "am_ind"    = "B03002_005",
-                      "asian"     = "B03002_006",
-                      "pac_isl"   = "B03002_007",
-                      "o1"        = "B03002_008",
-                      "o2"        = "B03002_009",
-                      "o3"        = "B03002_010",
-                      "o4"        = "B03002_011",
-                      "his"       = "B03002_012",
-                      "midincome" = "B19013_001",
-                      "pcincome"  = "B19301_001")
+census_variables <- c(
+  "tot_pop"   = "B03002_001",
+  "white"     = "B03002_003",
+  "black"     = "B03002_004",
+  "am_ind"    = "B03002_005",
+  "asian"     = "B03002_006",
+  "pac_isl"   = "B03002_007",
+  "o1"        = "B03002_008",
+  "o2"        = "B03002_009",
+  "o3"        = "B03002_010",
+  "o4"        = "B03002_011",
+  "his"       = "B03002_012",
+  "midincome" = "B19013_001",
+  "pcincome"  = "B19301_001"
+)
 
 # declare years we'd like to grab census data for
 census_years <- Sys.getenv("CENSUS_ACS_MIN_YEAR"):Sys.getenv("CENSUS_ACS_MAX_YEAR")
@@ -73,31 +75,33 @@ all_combos <- expand.grid(geography = geography,
 # loop through all the combos and write the data to parquet files
 for (i in 1:nrow(all_combos)) {
 
+  current_combo <- all_combos[i, ]
+
   # skip a file if it already exists
   if (!file.exists(
     here(paste0("s3-bucket/stable/census/",
-                all_combos$survey[i], "/",
-                all_combos$folder[i], "/",
-                all_combos$survey[i], "_",
-                all_combos$year[i], ".parquet")))) {
+                current_combo$survey, "/",
+                current_combo$folder, "/",
+                current_combo$survey, "_",
+                current_combo$year, ".parquet")))) {
 
     print(paste0(Sys.time(), " - s3-bucket/stable/census/",
-                 all_combos$survey[i], "/",
-                 all_combos$folder[i], "/",
-                 all_combos$survey[i], "_",
-                 all_combos$year[i], ".parquet"))
+                 current_combo$survey, "/",
+                 current_combo$folder, "/",
+                 current_combo$survey, "_",
+                 current_combo$year, ".parquet"))
 
     # these geographies are county specific
-    if (all_combos$geography[i] %in% c("county", "county subdivision", "tract")) {
+    if (current_combo$geography %in% c("county", "county subdivision", "tract")) {
 
       output <- get_acs(
-        geography = all_combos$geography[i],
+        geography = current_combo$geography,
         variables = census_variables,
-        survey = all_combos$survey[i],
+        survey = current_combo$survey,
         output = "wide",
         state = "IL",
         county = "Cook",
-        year = all_combos$year[i],
+        year = current_combo$year,
         cache_table = TRUE
       )
 
@@ -105,12 +109,12 @@ for (i in 1:nrow(all_combos)) {
     } else {
 
       output <- get_acs(
-        geography = all_combos$geography[i],
+        geography = current_combo$geography,
         variables = census_variables,
-        survey = all_combos$survey[i],
+        survey = current_combo$survey,
         output = "wide",
         state = "IL",
-        year = all_combos$year[i],
+        year = current_combo$year,
         cache_table = TRUE
       )
 
@@ -124,10 +128,10 @@ for (i in 1:nrow(all_combos)) {
       write_parquet(
 
         here(paste0("s3-bucket/stable/census/",
-                    all_combos$survey[i], "/",
-                    all_combos$folder[i], "/",
-                    all_combos$survey[i], "_",
-                    all_combos$year[i], ".parquet"))
+                    current_combo$survey, "/",
+                    current_combo$folder, "/",
+                    current_combo$survey, "_",
+                    current_combo$year, ".parquet"))
 
       )
 
