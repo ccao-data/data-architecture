@@ -72,36 +72,38 @@ all_combos <- expand.grid(geography = geography,
                                                "state legislative district (upper chamber)",
                                                "tract")))
 
-# loop through all the combos and write the data to parquet files
-for (i in 1:nrow(all_combos)) {
+# function to loop through rows in all_combos, grab census data, and write it to a parquet file
+pull_and_write_acs <- function(x) {
 
-  current_combo <- all_combos[i, ]
+  survey    <- x["survey"]
+  folder    <- x["folder"]
+  geography <- x["geography"]
+  year      <- x["year"]
 
-  # skip a file if it already exists
   if (!file.exists(
     here(paste0("s3-bucket/stable/census/",
-                current_combo$survey, "/",
-                current_combo$folder, "/",
-                current_combo$survey, "_",
-                current_combo$year, ".parquet")))) {
+                survey, "/",
+                folder, "/",
+                survey, "_",
+                year, ".parquet")))) {
 
     print(paste0(Sys.time(), " - s3-bucket/stable/census/",
-                 current_combo$survey, "/",
-                 current_combo$folder, "/",
-                 current_combo$survey, "_",
-                 current_combo$year, ".parquet"))
+                 survey, "/",
+                 folder, "/",
+                 survey, "_",
+                 year, ".parquet"))
 
     # these geographies are county specific
-    if (current_combo$geography %in% c("county", "county subdivision", "tract")) {
+    if (geography %in% c("county", "county subdivision", "tract")) {
 
       output <- get_acs(
-        geography = current_combo$geography,
+        geography = geography,
         variables = census_variables,
-        survey = current_combo$survey,
+        survey = survey,
         output = "wide",
         state = "IL",
         county = "Cook",
-        year = current_combo$year,
+        year = year,
         cache_table = TRUE
       )
 
@@ -109,12 +111,12 @@ for (i in 1:nrow(all_combos)) {
     } else {
 
       output <- get_acs(
-        geography = current_combo$geography,
+        geography = geography,
         variables = census_variables,
-        survey = current_combo$survey,
+        survey = survey,
         output = "wide",
         state = "IL",
-        year = current_combo$year,
+        year = year,
         cache_table = TRUE
       )
 
@@ -128,13 +130,16 @@ for (i in 1:nrow(all_combos)) {
       write_parquet(
 
         here(paste0("s3-bucket/stable/census/",
-                    current_combo$survey, "/",
-                    current_combo$folder, "/",
-                    current_combo$survey, "_",
-                    current_combo$year, ".parquet"))
+                    survey, "/",
+                    folder, "/",
+                    survey, "_",
+                    year, ".parquet"))
 
       )
 
   }
 
 }
+
+# apply function to all_combos
+apply(all_combos, 1, pull_and_write_acs)
