@@ -79,6 +79,7 @@ pull_and_write_acs <- function(x) {
   geography <- x["geography"]
   year      <- x["year"]
 
+  # check to see if file already exists; if it does, skip it
   if (!file.exists(
     here(paste0("s3-bucket/stable/census/",
                 survey, "/",
