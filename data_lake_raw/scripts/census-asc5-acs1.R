@@ -5,7 +5,7 @@ tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
 # ACS ----
 # grab a list of all ACS 5 year tables
-five_year_census_tables <- openxlsx::read.xlsx(here("data/census/documentation/2019_DataProductList.xlsx"), sheet = "2019 Data Product List") %>%
+five_year_census_tables <- openxlsx::read.xlsx(here("s3-bucket/stable/census/documentation/2019_DataProductList.xlsx"), sheet = "2019 Data Product List") %>%
   dplyr::filter(Table.Universe == 'Universe: Total population' & Year == '1,5') %>%
   dplyr::pull(Table.ID)
 
@@ -80,13 +80,13 @@ for (i in 1:nrow(all_combos)) {
 
   # skip a file if it already exists
   if (!file.exists(
-    here(paste0("data/census/",
+    here(paste0("s3-bucket/stable/census/",
                 all_combos$survey[i], "/",
                 all_combos$folder[i], "/",
                 all_combos$table[i], "_",
                 all_combos$year[i], ".parquet")))) {
 
-    print(paste0(Sys.time(), " - data/census/",
+    print(paste0(Sys.time(), " - s3-bucket/stable/census/",
                  all_combos$survey[i], "/",
                  all_combos$folder[i], "/",
                  all_combos$table[i], "_",
@@ -127,7 +127,7 @@ for (i in 1:nrow(all_combos)) {
 
       write_parquet(
 
-        here(paste0("data/census/",
+        here(paste0("s3-bucket/stable/census/",
                     all_combos$survey[i], "/",
                     all_combos$folder[i], "/",
                     all_combos$table[i], "_",
