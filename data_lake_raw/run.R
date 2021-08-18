@@ -8,4 +8,4 @@ library(here)
 library(sf)
 
 # retrieve raw census data
-source(here("scripts/census-asc.R"))
+source(here("scripts/census-acs.R"))
