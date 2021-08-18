@@ -4,28 +4,23 @@
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
 # ACS ----
-# grab a list of all ACS 5 year tables
-five_year_census_tables <- openxlsx::read.xlsx(here("s3-bucket/stable/census/documentation/2019_DataProductList.xlsx"), sheet = "2019 Data Product List") %>%
-  dplyr::filter(Table.Universe == 'Universe: Total population' & Year == '1,5') %>%
-  dplyr::pull(Table.ID)
-
-# remove a couple of 5 year tables tables that don't work with the census API
-five_year_census_tables <- five_year_census_tables[-c(14, 16)]
-
-# 1 year tables
-one_year_census_tables <- c(
-  "B25002", # OCCUPANCY STATUS
-  "B19083", # GINI INDEX OF INCOME INEQUALITY
-  "B25013", # TENURE BY EDUCATIONAL ATTAINMENT OF HOUSEHOLDER
-  "B17019", # POVERTY STATUS IN THE PAST 12 MONTHS OF FAMILIES BY HOUSEHOLD TYPE BY TENURE
-  "B22003", # RECEIPT OF FOOD STAMPS/SNAP IN THE PAST 12 MONTHS BY POVERTY STATUS IN THE PAST 12 MONTHS FOR HOUSEHOLDS
-  "B19013", # MEDIAN HOUSEHOLD INCOME IN THE PAST 12 MONTHS (IN 2019 INFLATION-ADJUSTED DOLLARS)
-  "B25070", # GROSS RENT AS A PERCENTAGE OF HOUSEHOLD INCOME IN THE PAST 12 MONTHS
-  "B25068"  # BEDROOMS BY GROSS RENT
-)
+# all acs variables we're looking to grab
+census_variables <- c("tot_pop"   = "B03002_001",
+                      "white"     = "B03002_003",
+                      "black"     = "B03002_004",
+                      "am_ind"    = "B03002_005",
+                      "asian"     = "B03002_006",
+                      "pac_isl"   = "B03002_007",
+                      "o1"        = "B03002_008",
+                      "o2"        = "B03002_009",
+                      "o3"        = "B03002_010",
+                      "o4"        = "B03002_011",
+                      "his"       = "B03002_012",
+                      "midincome" = "B19013_001",
+                      "pcincome"  = "B19301_001")
 
 # declare years we'd like to grab census data for
-census_years <- 2010:2019
+census_years <- Sys.getenv("CENSUS_ACS_MIN_YEAR"):Sys.getenv("CENSUS_ACS_MAX_YEAR")
 
 # declare geographies we'd like to query
 geography <- c(
@@ -59,17 +54,13 @@ folders <- data.frame(geography, folder)
 # generate a combination of all years, geographies, and tables
 all_combos <- expand.grid(geography = geography,
                           year = census_years,
-                          table = c(one_year_census_tables, five_year_census_tables),
+                          survey = c("acs1", "acs5"),
                           stringsAsFactors = FALSE) %>%
-
-  # note which tables are acs1 vs acs5 for API
-  mutate(survey = case_when(table %in% one_year_census_tables ~ "acs1",
-                            table %in% five_year_census_tables ~ "acs5")) %>%
 
   left_join(folders) %>%
 
   # rearrange
-  select(survey, geography, year, table, folder) %>%
+  select(survey, geography, year, folder) %>%
 
   filter(!(survey == "acs1" & geography %in% c("state legislative district (lower chamber)",
                                                "state legislative district (upper chamber)",
@@ -83,20 +74,20 @@ for (i in 1:nrow(all_combos)) {
     here(paste0("s3-bucket/stable/census/",
                 all_combos$survey[i], "/",
                 all_combos$folder[i], "/",
-                all_combos$table[i], "_",
+                all_combos$survey[i], "_",
                 all_combos$year[i], ".parquet")))) {
 
     print(paste0(Sys.time(), " - s3-bucket/stable/census/",
                  all_combos$survey[i], "/",
                  all_combos$folder[i], "/",
-                 all_combos$table[i], "_",
+                 all_combos$survey[i], "_",
                  all_combos$year[i], ".parquet"))
 
     if (all_combos$geography[i] %in% c("county", "county subdivision", "tract")) {
 
-      output <- tidycensus::get_acs(
+      output <- get_acs(
         geography = all_combos$geography[i],
-        table = all_combos$table[i],
+        variables = census_variables,
         survey = all_combos$survey[i],
         output = "wide",
         state = "IL",
@@ -107,9 +98,9 @@ for (i in 1:nrow(all_combos)) {
 
     } else {
 
-      output <- tidycensus::get_acs(
+      output <- get_acs(
         geography = all_combos$geography[i],
-        table = all_combos$table[i],
+        variables = census_variables,
         survey = all_combos$survey[i],
         output = "wide",
         state = "IL",
@@ -121,16 +112,14 @@ for (i in 1:nrow(all_combos)) {
 
     output %>%
 
-      # Drop margin of error columns and suffix on estimate columns
-      dplyr::select(-ends_with("M", ignore.case = FALSE), -contains("NAME")) %>%
-      dplyr::rename_with(~ str_sub(.x, 1, -2), .cols = ends_with("E", ignore.case = FALSE)) %>%
+      dplyr::rename("geoid" = "GEOID", "geography" = "NAME") %>%
 
       write_parquet(
 
         here(paste0("s3-bucket/stable/census/",
                     all_combos$survey[i], "/",
                     all_combos$folder[i], "/",
-                    all_combos$table[i], "_",
+                    all_combos$survey[i], "_",
                     all_combos$year[i], ".parquet"))
 
       )
