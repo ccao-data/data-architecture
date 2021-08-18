@@ -79,7 +79,6 @@ pull_and_write_acs <- function(x) {
   current_file <- paste0("s3-bucket/stable/census/",
                          survey, "/",
                          folder, "/",
-                         survey, "_",
                          year, ".parquet")
 
   # check to see if file already exists; if it does, skip it
@@ -101,7 +100,7 @@ pull_and_write_acs <- function(x) {
       output = "wide",
       state = "IL",
       county = county,
-      year = year,
+      year = as.numeric(year),
       cache_table = TRUE
     ) |>
 
