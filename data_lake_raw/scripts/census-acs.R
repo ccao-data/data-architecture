@@ -5,19 +5,19 @@ tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
 # all acs variables we're looking to grab
 census_variables <- c(
-  "tot_pop"   = "B03002_001",
-  "white"     = "B03002_003",
-  "black"     = "B03002_004",
-  "am_ind"    = "B03002_005",
-  "asian"     = "B03002_006",
-  "pac_isl"   = "B03002_007",
-  "o1"        = "B03002_008",
-  "o2"        = "B03002_009",
-  "o3"        = "B03002_010",
-  "o4"        = "B03002_011",
-  "his"       = "B03002_012",
-  "midincome" = "B19013_001",
-  "pcincome"  = "B19301_001"
+  "tot_pop"   = "B03002_001", # Total population
+  "white"     = "B03002_003", # White alone
+  "black"     = "B03002_004", # Black or African American alone
+  "am_ind"    = "B03002_005", # American Indian and Alaska Native alone
+  "asian"     = "B03002_006", # Asian alone
+  "pac_isl"   = "B03002_007", # Native Hawaiian and Other Pacific Islander alone
+  "o1"        = "B03002_008", # Some other race alone
+  "o2"        = "B03002_009", # Two or more races
+  "o3"        = "B03002_010", # Two races including Some other race
+  "o4"        = "B03002_011", # Two races excluding Some other race, and three or more races
+  "his"       = "B03002_012", # Hispanic or Latino
+  "midincome" = "B19013_001", # Median household income in the past 12 months
+  "pcincome"  = "B19301_001"  # Per capita income in the past 12 months
 )
 
 # declare years we'd like to grab census data for
