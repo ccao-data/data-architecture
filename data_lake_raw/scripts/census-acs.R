@@ -83,10 +83,12 @@ pull_and_write_acs <- function(x) {
                          year, ".parquet")
 
   # check to see if file already exists; if it does, skip it
-  if (!file.exists(
-    here(current_file))) {
+  if (!file.exists(here(current_file))) {
 
-    print(paste0(Sys.time(), " - ", current_file))
+    # print file being written
+    print(
+      paste0(Sys.time(), " - ", current_file)
+      )
 
     # these geographies are county specific
     if (geography %in% c("county", "county subdivision", "tract")) {
