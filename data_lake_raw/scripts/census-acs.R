@@ -1,9 +1,8 @@
-# this script retrieves raw census data for the data lake
+# this script retrieves raw ACS data for the data lake
 
 # retrieve census API key
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
-# ACS ----
 # all acs variables we're looking to grab
 census_variables <- c(
   "tot_pop"   = "B03002_001",
