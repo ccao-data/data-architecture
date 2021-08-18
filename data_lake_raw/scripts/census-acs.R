@@ -58,10 +58,10 @@ folders <- data.frame(geography, folder)
 all_combos <- expand.grid(geography = geography,
                           year = census_years,
                           survey = c("acs1", "acs5"),
-                          stringsAsFactors = FALSE) %>%
+                          stringsAsFactors = FALSE) |>
 
   # join on folder names
-  left_join(folders) %>%
+  left_join(folders) |>
 
   # some geographies only exist for the as5
   filter(!(survey == "acs1" & geography %in% c("state legislative district (lower chamber)",
@@ -103,10 +103,10 @@ pull_and_write_acs <- function(x) {
       county = county,
       year = year,
       cache_table = TRUE
-    ) %>%
+    ) |>
 
       # clean output, write to parquet files
-      dplyr::rename("geoid" = "GEOID", "geography" = "NAME") %>%
+      dplyr::rename("geoid" = "GEOID", "geography" = "NAME") |>
       arrow::write_parquet(here(current_file))
 
   }
