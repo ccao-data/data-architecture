@@ -93,7 +93,8 @@ pull_and_write_acs <- function(x) {
     # these geographies are county-specific rather than state-level
     county <- if (geography %in% c("county", "county subdivision", "tract")) "Cook" else NULL
 
-    output <- get_acs(
+    # retrieve specified data from census API
+    get_acs(
       geography = geography,
       variables = census_variables,
       survey = survey,
@@ -102,13 +103,11 @@ pull_and_write_acs <- function(x) {
       county = county,
       year = year,
       cache_table = TRUE
-    )
+    ) %>%
 
-    # clean output, write to parquet files
-    output %>%
-
+      # clean output, write to parquet files
       dplyr::rename("geoid" = "GEOID", "geography" = "NAME") %>%
-      write_parquet(here(current_file))
+      arrow::write_parquet(here(current_file))
 
   }
 
