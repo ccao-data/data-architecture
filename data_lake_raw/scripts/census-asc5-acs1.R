@@ -36,6 +36,7 @@ geography <- c(
   "tract"
 )
 
+# folders have a different naming schema than goegraphies
 folder <- c(
   "congressional_district",
   "county",
@@ -49,6 +50,7 @@ folder <- c(
   "tract"
 )
 
+# link geographies and folders
 folders <- data.frame(geography, folder)
 
 # generate a combination of all years, geographies, and tables
@@ -57,11 +59,13 @@ all_combos <- expand.grid(geography = geography,
                           survey = c("acs1", "acs5"),
                           stringsAsFactors = FALSE) %>%
 
+  # join on folder names
   left_join(folders) %>%
 
   # rearrange
   select(survey, geography, year, folder) %>%
 
+  # some geographies only exist for the as5
   filter(!(survey == "acs1" & geography %in% c("state legislative district (lower chamber)",
                                                "state legislative district (upper chamber)",
                                                "tract")))
@@ -83,6 +87,7 @@ for (i in 1:nrow(all_combos)) {
                  all_combos$survey[i], "_",
                  all_combos$year[i], ".parquet"))
 
+    # these geographies are county specific
     if (all_combos$geography[i] %in% c("county", "county subdivision", "tract")) {
 
       output <- get_acs(
@@ -96,6 +101,7 @@ for (i in 1:nrow(all_combos)) {
         cache_table = TRUE
       )
 
+      # these geographies are state level
     } else {
 
       output <- get_acs(
@@ -110,6 +116,7 @@ for (i in 1:nrow(all_combos)) {
 
     }
 
+    # clean output, write to parquet files
     output %>%
 
       dplyr::rename("geoid" = "GEOID", "geography" = "NAME") %>%
