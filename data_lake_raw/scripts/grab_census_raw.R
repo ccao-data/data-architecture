@@ -29,17 +29,14 @@ census_years <- 2010:2019
 
 # declare geographies we'd like to query
 geographies <- c(
-  #"block",
-  #"block group",
-  #"congressional_district",
-  #"county",
-  #"county_subdivision",
-  #"puma",
-  #"school_district_elementary",
-  #"school_district_secondary",
-  #"school_district_unified",
-  #"state_representative",
-  #"state_senate",
+  "county",
+  "county subdivision",
+  "public use microdata area",
+  "school district (elementary)",
+  "school district (secondary)",
+  "school district (unified)",
+  "state legislative district (lower chamber)",
+  "state legislative district (upper chamber)",
   "tract"
 )
 
@@ -56,8 +53,9 @@ all_combos <- expand.grid(geography = geographies,
   # rearrange
   select(survey, geography, year, table) %>%
 
-  # temporary
-  filter(survey == "acs5")
+  filter(!(survey == "acs1" & geography %in% c("state legislative district (lower chamber)",
+                                             "state legislative district (upper chamber)",
+                                             "tract")))
 
 # loop through all the combos and write the data to parquet files
 for (i in 1:nrow(all_combos)) {
@@ -65,34 +63,59 @@ for (i in 1:nrow(all_combos)) {
   # skip a file if it already exists
   if (!file.exists(
     here(paste0("census/raw/",
-                paste0(all_combos[i, ], collapse = "/"),
-                ".parquet")))) {
+                all_combos$survey[i], "/",
+                all_combos$geography[i], "/",
+                all_combos$table[i], "_",
+                all_combos$year[i], ".parquet")))) {
 
-    print(paste0("census/raw/", paste0(all_combos[i, ], collapse = "/"), ".parquet"))
+    print(paste0("census/raw/",
+                 all_combos$survey[i], "/",
+                 all_combos$geography[i], "/",
+                 all_combos$table[i], "_",
+                 all_combos$year[i], ".parquet"))
 
-    write_parquet(
+    if (all_combos$geography[i] %in% c("county", "county subdivision", "tract")) {
 
-      tidycensus::get_acs(
+      output <- tidycensus::get_acs(
         geography = all_combos$geography[i],
         table = all_combos$table[i],
         survey = all_combos$survey[i],
         output = "wide",
         state = "IL",
         county = "Cook",
-        year = all_combos$year[i]
-      ) %>%
+        year = all_combos$year[i],
+        cache_table = TRUE
+      )
 
-        # Drop margin of error columns and suffix on estimate columns
-        dplyr::select(-ends_with("M", ignore.case = FALSE), -contains("NAME")) %>%
-        dplyr::rename_with(~ str_sub(.x, 1, -2), .cols = ends_with("E", ignore.case = FALSE)),
+    } else {
 
-      here(paste0("census/raw/",
-                  all_combos$survey[i], "/",
-                  all_combos$geography[i], "/",
-                  all_combos$year[i], "/",
-                  all_combos$table[i], ".parquet"))
+      output <- tidycensus::get_acs(
+        geography = all_combos$geography[i],
+        table = all_combos$table[i],
+        survey = all_combos$survey[i],
+        output = "wide",
+        state = "IL",
+        year = all_combos$year[i],
+        cache_table = TRUE
+      )
 
-    )
+    }
+
+    output %>%
+
+      # Drop margin of error columns and suffix on estimate columns
+      dplyr::select(-ends_with("M", ignore.case = FALSE), -contains("NAME")) %>%
+      dplyr::rename_with(~ str_sub(.x, 1, -2), .cols = ends_with("E", ignore.case = FALSE)) %>%
+
+      write_parquet(
+
+        here(paste0("census/raw/",
+                    all_combos$survey[i], "/",
+                    all_combos$geography[i], "/",
+                    all_combos$table[i], "_",
+                    all_combos$year[i], ".parquet"))
+
+      )
 
   }
 
