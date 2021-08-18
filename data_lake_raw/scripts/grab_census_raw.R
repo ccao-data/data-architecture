@@ -5,7 +5,7 @@ tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
 # ACS ----
 # grab a list of all ACS 5 year tables
-five_year_census_tables <- openxlsx::read.xlsx(here("census/documentation/2019_DataProductList.xlsx"), sheet = "2019 Data Product List") %>%
+five_year_census_tables <- openxlsx::read.xlsx(here("data/census/documentation/2019_DataProductList.xlsx"), sheet = "2019 Data Product List") %>%
   dplyr::filter(Table.Universe == 'Universe: Total population' & Year == '1,5') %>%
   dplyr::pull(Table.ID)
 
@@ -28,7 +28,8 @@ one_year_census_tables <- c(
 census_years <- 2010:2019
 
 # declare geographies we'd like to query
-geographies <- c(
+geography <- c(
+  "congressional district",
   "county",
   "county subdivision",
   "public use microdata area",
@@ -40,8 +41,23 @@ geographies <- c(
   "tract"
 )
 
+folder <- c(
+  "congressional_district",
+  "county",
+  "county_subdivision",
+  "puma",
+  "school_district_elementary",
+  "school_district_secondary",
+  "school_district_unified",
+  "state_representative",
+  "state_senate",
+  "tract"
+)
+
+folders <- data.frame(geography, folder)
+
 # generate a combination of all years, geographies, and tables
-all_combos <- expand.grid(geography = geographies,
+all_combos <- expand.grid(geography = geography,
                           year = census_years,
                           table = c(one_year_census_tables, five_year_census_tables),
                           stringsAsFactors = FALSE) %>%
@@ -50,27 +66,29 @@ all_combos <- expand.grid(geography = geographies,
   mutate(survey = case_when(table %in% one_year_census_tables ~ "acs1",
                             table %in% five_year_census_tables ~ "acs5")) %>%
 
+  left_join(folders) %>%
+
   # rearrange
-  select(survey, geography, year, table) %>%
+  select(survey, geography, year, table, folder) %>%
 
   filter(!(survey == "acs1" & geography %in% c("state legislative district (lower chamber)",
-                                             "state legislative district (upper chamber)",
-                                             "tract")))
+                                               "state legislative district (upper chamber)",
+                                               "tract")))
 
 # loop through all the combos and write the data to parquet files
 for (i in 1:nrow(all_combos)) {
 
   # skip a file if it already exists
   if (!file.exists(
-    here(paste0("census/raw/",
+    here(paste0("data/census/",
                 all_combos$survey[i], "/",
-                all_combos$geography[i], "/",
+                all_combos$folder[i], "/",
                 all_combos$table[i], "_",
                 all_combos$year[i], ".parquet")))) {
 
-    print(paste0("census/raw/",
+    print(paste0(Sys.time(), " - data/census/",
                  all_combos$survey[i], "/",
-                 all_combos$geography[i], "/",
+                 all_combos$folder[i], "/",
                  all_combos$table[i], "_",
                  all_combos$year[i], ".parquet"))
 
@@ -109,9 +127,9 @@ for (i in 1:nrow(all_combos)) {
 
       write_parquet(
 
-        here(paste0("census/raw/",
+        here(paste0("data/census/",
                     all_combos$survey[i], "/",
-                    all_combos$geography[i], "/",
+                    all_combos$folder[i], "/",
                     all_combos$table[i], "_",
                     all_combos$year[i], ".parquet"))
 
