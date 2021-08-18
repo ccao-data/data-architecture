@@ -1,6 +1,2 @@
-library/
-local/
-lock/
-python/
-staging/
-raw/
+*.parquet
+*.geojson
