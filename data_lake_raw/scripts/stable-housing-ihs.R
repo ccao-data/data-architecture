@@ -1,7 +1,9 @@
+library(here)
 library(rvest)
 library(openxlsx)
 library(janitor)
 library(dplyr)
+library(arrow)
 
 # this script retrieves raw DePaul IHS data for the data lake
 
@@ -26,4 +28,8 @@ data.frame(t(
   rename(name = "YEARQ") %>%
 
   # write IHS data
-  write_parquet(here(""))
+  write_parquet(here(
+    paste0("s3-bucket/stable/housing/ihs_index/",
+           basename(tools::file_path_sans_ext(most_recent_ihs_data_url)),
+           ".parquet")
+    ))
