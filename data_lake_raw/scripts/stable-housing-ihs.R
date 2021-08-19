@@ -26,7 +26,7 @@ data.frame(t(
 
   # names and columns are kind of a mess after the transpose, shift up first row, shift over column names
   janitor::row_to_names(1) %>%
-  dplyr::mutate(puma = rownames(ihs_data)) %>%
+  dplyr::mutate(puma = rownames(.)) %>%
   dplyr::relocate(puma, .before = "YEARQ") %>%
   dplyr::rename(name = "YEARQ") %>%
 
