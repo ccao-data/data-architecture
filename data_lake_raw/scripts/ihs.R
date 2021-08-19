@@ -13,12 +13,12 @@ most_recent_ihs_data_url <- read_html("https://price-index.housingstudies.org/")
   sprintf("https://price-index.housingstudies.org%s", .)
 
 # grab the data and clean it just a bit
-ihs_data <- data.frame(t(
+data.frame(t(
 
   openxlsx::read.xlsx(most_recent_ihs_data_url, sheet = 2) %>%
     select(-c("X2", "X3", "X4"))
 
-  )) %>%
+)) %>%
 
   # names and columns are kind of a mess after the transpose, shift up first row, shift over column names
   row_to_names(1) %>%
