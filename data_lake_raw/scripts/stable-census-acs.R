@@ -1,3 +1,8 @@
+library(arrow)
+library(dplyr)
+library(here)
+library(tidycensus)
+
 # this script retrieves raw ACS data for the data lake
 
 # retrieve census API key
@@ -55,31 +60,34 @@ folder <- c(
 folders <- data.frame(geography, folder)
 
 # generate a combination of all years, geographies, and tables
-all_combos <- expand.grid(geography = geography,
-                          year = census_years,
-                          survey = c("acs1", "acs5"),
-                          stringsAsFactors = FALSE) |>
-
+all_combos <- expand.grid(
+  geography = geography,
+  year = census_years,
+  survey = c("acs1", "acs5"),
+  stringsAsFactors = FALSE
+) |>
   # join on folder names
   left_join(folders) |>
-
   # some geographies only exist for the as5
-  filter(!(survey == "acs1" & geography %in% c("state legislative district (lower chamber)",
-                                               "state legislative district (upper chamber)",
-                                               "tract")))
+  filter(!(survey == "acs1" & geography %in% c(
+    "state legislative district (lower chamber)",
+    "state legislative district (upper chamber)",
+    "tract"
+  )))
 
 # function to loop through rows in all_combos, grab census data, and write it to a parquet file
 pull_and_write_acs <- function(x) {
-
-  survey    <- x["survey"]
-  folder    <- x["folder"]
+  survey <- x["survey"]
+  folder <- x["folder"]
   geography <- x["geography"]
-  year      <- x["year"]
+  year <- x["year"]
 
-  current_file <- paste0("s3-bucket/stable/census/",
-                         survey, "/",
-                         folder, "/",
-                         year, ".parquet")
+  current_file <- paste0(
+    "s3-bucket/stable/census/",
+    survey, "/",
+    folder, "/",
+    year, ".parquet"
+  )
 
   # check to see if file already exists; if it does, skip it
   if (!file.exists(here(current_file))) {
@@ -103,13 +111,10 @@ pull_and_write_acs <- function(x) {
       year = as.numeric(year),
       cache_table = TRUE
     ) |>
-
       # clean output, write to parquet files
       dplyr::rename("geoid" = "GEOID", "geography" = "NAME") |>
       arrow::write_parquet(here(current_file))
-
   }
-
 }
 
 # apply function to all_combos
