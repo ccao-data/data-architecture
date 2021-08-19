@@ -1,9 +1,9 @@
-# this script retrieves raw ACS data for the data lake
+# this script retrieves raw decennial census data for the data lake
 
 # retrieve census API key
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
-# all acs variables we're looking to grab
+# all census variables we're looking to grab
 census_variables <- c(
   "tot_pop"   = "P003001", # Total population
   "white"     = "P003002", # White alone
