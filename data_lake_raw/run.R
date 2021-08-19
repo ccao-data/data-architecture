@@ -13,4 +13,4 @@ library(janitor)
 # retrieve raw census data
 source(here("scripts/stable-census-acs.R"))
 source(here("scripts/stable-census-decennial.R"))
-source(here("scripts/ihs.R"))
+source(here("scripts/stable-housing-ihs.R"))
