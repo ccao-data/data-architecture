@@ -13,7 +13,7 @@ census_variables <- c(
   "pac_isl"   = "P003006", # Native Hawaiian and Other Pacific Islander alone
   "o1"        = "P003007", # Some other race alone
   "o2"        = "P003008", # Two or more races
-  "his"       = "P004001" # Hispanic or Latino
+  "his"       = "P004001"  # Hispanic or Latino
 )
 
 # declare years we'd like to grab census data for

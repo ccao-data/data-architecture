@@ -9,4 +9,4 @@ library(sf)
 
 # retrieve raw census data
 source(here("scripts/stable-census-acs.R"))
-
+source(here("scripts/stable-census-decennial.R"))
