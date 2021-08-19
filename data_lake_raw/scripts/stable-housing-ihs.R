@@ -6,6 +6,9 @@ library(dplyr)
 library(arrow)
 
 # this script retrieves raw DePaul IHS data for the data lake
+# it assumes a couple things about the imported .xlsx:
+# - three unnamed columns renamed "X1", "X2", and "X3" by R and
+# - the value of the first row/column being "YEARQ"
 
 # scrape main page for .xlsx, which should be most recent release
 most_recent_ihs_data_url <- read_html("https://price-index.housingstudies.org/") %>%
