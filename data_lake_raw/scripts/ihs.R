@@ -24,4 +24,6 @@ ihs_data <- data.frame(t(
   row_to_names(1) %>%
   mutate(puma = rownames(ihs_data)) %>%
   dplyr::relocate(puma, .before = "YEARQ") %>%
-  rename(name = "YEARQ")
+  rename(name = "YEARQ") %>%
+
+  write_parquet(here(""))
