@@ -6,6 +6,9 @@ library(openxlsx)
 library(arrow)
 library(here)
 library(sf)
+library(here)
+library(rvest)
+library(janitor)
 
 # retrieve raw census data
 source(here("scripts/stable-census-acs.R"))
