@@ -1,5 +1,4 @@
 library(rvest)
-library(magrittr)
 library(openxlsx)
 library(janitor)
 library(dplyr)
