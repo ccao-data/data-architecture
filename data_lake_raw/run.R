@@ -9,6 +9,8 @@ library(sf)
 library(here)
 library(rvest)
 library(janitor)
+library(odbc)
+library(DBI)
 
 # retrieve raw census data
 source(here("scripts/stable-census-acs.R"))
