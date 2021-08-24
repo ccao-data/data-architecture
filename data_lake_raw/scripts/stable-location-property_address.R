@@ -51,3 +51,6 @@ proplocs <- pull %>%
 
   # output
   arrow::write_parquet(here("s3-bucket/stable/location/property_address/property_address.parquet"))
+
+# clean
+rm(list = ls())
