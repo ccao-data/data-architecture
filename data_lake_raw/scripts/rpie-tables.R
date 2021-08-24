@@ -40,17 +40,16 @@ PII <- list(
   "User"               = c("Email")
 )
 
-# function to clean tables of PII
-clean_PII <- function(columns, table_name) {
+# clean tables of PII
+for (i in names(output)) {
 
-  output[[table_name]] <- output[[table_name]] %>%
-    mutate(across(columns, ~NA))
+  if (i %in% names(PII)) {
+
+    output[[i]] <- output[[i]] %>% mutate(across(PII[[i]], ~NA))
+
+  }
 
 }
-
-# cleanse tables of PII, append product to tables that didn't need to be cleaned
-output <- append(output[!(names(output) %in% names(PII))],
-                 mapply(clean_PII, columns = PII, table_name = names(PII)))
 
 # a function to write each table in "output" to a parquet file
 write_all_dataframes <- function(table, name) {
@@ -61,3 +60,6 @@ write_all_dataframes <- function(table, name) {
 
 # outputting all of the tables
 mapply(write_all_dataframes, table = output, name = names(output))
+
+# clean
+rm(list = ls())

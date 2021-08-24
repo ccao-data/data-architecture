@@ -110,3 +110,6 @@ pull_and_write_decennial <- function(x) {
 
 # apply function to all_combos
 apply(all_combos, 1, pull_and_write_decennial)
+
+# clean
+rm(list = ls())

@@ -36,3 +36,6 @@ data.frame(t(
            basename(tools::file_path_sans_ext(most_recent_ihs_data_url)),
            ".parquet")
     ))
+
+# clean
+rm(list = ls())
