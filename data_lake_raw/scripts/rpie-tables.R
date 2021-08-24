@@ -29,27 +29,28 @@ grab_table <- function(table_name) {
 output <- lapply(tables, grab_table)
 names(output) <- tables
 
-# cleanse tables of PII
-output[["Attachment"]] <- output[["Attachment"]] %>%
-  mutate(across(c(DisplayFileName, PhisicalFileName), ~NA))
+# all columns identified as PII, by table
+PII <- list(
+  "Attachment"         = c("DisplayFileName", "PhisicalFileName"),
+  "Building"           = c("ProjectName"),
+  "Filing"             = c("FilingName"),
+  "IncomeExpenseHotel" = c("HotelName", "CompanyName"),
+  "Party"              = c("FirstName", "LastName", "PrimaryPhone", "AlternativePhone", 'PartyIdentifier', "Email"),
+  "TransferFiling"     = c("ToEmail", "SenderName"),
+  "User"               = c("Email")
+)
 
-output[["Building"]] <- output[["Building"]] %>%
-  mutate(across(c(ProjectName), ~NA))
+# function to clean tables of PII
+clean_PII <- function(columns, table_name) {
 
-output[["Filing"]] <- output[["Filing"]] %>%
-  mutate(across(c(FilingName), ~NA))
+  output[[table_name]] <- output[[table_name]] %>%
+    mutate(across(columns, ~NA))
 
-output[["IncomeExpenseHotel"]] <- output[["IncomeExpenseHotel"]] %>%
-  mutate(across(c(HotelName, CompanyName), ~NA))
+}
 
-output[["Party"]] <- output[["Party"]] %>%
-  mutate(across(c(FirstName, LastName, PrimaryPhone, AlternativePhone, PartyIdentifier, Email), ~NA))
-
-output[["TransferFiling"]] <- output[["TransferFiling"]] %>%
-  mutate(across(c(ToEmail, SenderName), ~NA))
-
-output[["User"]] <- output[["User"]] %>%
-  mutate(across(c(Email), ~NA))
+# cleanse tables of PII, append product to tables that didn't need to be cleaned
+output <- append(output[!(names(output) %in% names(PII))],
+                 mapply(clean_PII, columns = PII, table_name = names(PII)))
 
 # a function to write each table in "output" to a parquet file
 write_all_dataframes <- function(table, name) {
@@ -59,4 +60,4 @@ write_all_dataframes <- function(table, name) {
 }
 
 # outputting all of the tables
-mapply(write_all_dataframes, table = output, name = tables)
+mapply(write_all_dataframes, table = output, name = names(output))
