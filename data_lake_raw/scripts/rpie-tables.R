@@ -41,15 +41,7 @@ PII <- list(
 )
 
 # clean tables of PII
-for (i in names(output)) {
-
-  if (i %in% names(PII)) {
-
-    output[[i]] <- output[[i]] %>% mutate(across(PII[[i]], ~NA))
-
-  }
-
-}
+for (i in names(output)) output[[i]] <- output[[i]] %>% mutate(across(PII[[i]], ~NA))
 
 # a function to write each table in "output" to a parquet file
 write_all_dataframes <- function(table, name) {
