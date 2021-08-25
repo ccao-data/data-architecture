@@ -5,160 +5,112 @@ library(sf)
 
 school_path <- here("s3-bucket", "stable", "spatial", "school")
 
-# DISTRICTS - UNIT
-st_read(paste0(
-  "https://datacatalog.cookcountyil.gov/api/geospatial/",
-  "angb-d97z?method=export&format=GeoJSON"
-)) %>%
-  st_write(
-    here(school_path, "school_district_unified", "2015.geojson"),
-    delete_dsn = TRUE
-  )
+api_info <- list(
+  # DISTRICTS - UNIT
+  "districts_unit_2015" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                            "api_url"  = "angb-d97z?method=export&format=GeoJSON",
+                            "boundary" = "school_district_unified",
+                            "year"     = "2015"),
 
-st_read(paste0(
-  "https://datacatalog.cookcountyil.gov/api/geospatial/",
-  "594e-g5w3?method=export&format=GeoJSON"
-)) %>%
-  st_write(
-    here(school_path, "school_district_unified", "2016.geojson"),
-    delete_dsn = TRUE
-  )
+  "districts_unit_2016" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                            "api_url"  = "594e-g5w3?method=export&format=GeoJSON",
+                            "boundary" = "school_district_unified",
+                            "year"     = "2016"),
 
-st_read(paste0(
-  "https://opendata.arcgis.com/datasets/",
-  "1e2f499e494744afb4ebae3a61d6e123_16.geojson"
-)) %>%
-  st_write(
-    here(school_path, "school_district_unified", "2018.geojson"),
-    delete_dsn = TRUE
-  )
+  "districts_unit_2018" = c("source"   = "https://opendata.arcgis.com/datasets/",
+                            "api_url"  = "1e2f499e494744afb4ebae3a61d6e123_16.geojson",
+                            "boundary" = "school_district_unified",
+                            "year"     = "2018"),
 
-# DISTRICTS - ELEMENTARY
-st_read(paste0(
-  "https://datacatalog.cookcountyil.gov/api/geospatial/",
-  "y8sv-9wex?method=export&format=GeoJSON"
-)) %>%
-  st_write(
-    here(school_path, "school_district_elementary", "2015.geojson"),
-    delete_dsn = TRUE
-  )
+  # DISTRICTS - ELEMENTARY
+  "districts_elem_2015" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                            "api_url"  = "y8sv-9wex?method=export&format=GeoJSON",
+                            "boundary" = "school_district_elementary",
+                            "year"     = "2015"),
 
-st_read(paste0(
-  "https://datacatalog.cookcountyil.gov/api/geospatial/",
-  "an6r-bw5a?method=export&format=GeoJSON"
-)) %>%
-  st_write(
-    here(school_path, "school_district_elementary", "2016.geojson"),
-    delete_dsn = TRUE
-  )
+  "districts_elem_2016" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                            "api_url"  = "an6r-bw5a?method=export&format=GeoJSON",
+                            "boundary" = "school_district_elementary",
+                            "year"     = "2016"),
 
-st_read(paste0(
-  "https://opendata.arcgis.com/datasets/",
-  "cbcf6b1c3aaa420d90ccea6af877562b_2.geojson"
-)) %>%
-  st_write(
-    here(school_path, "school_district_elementary", "2018.geojson"),
-    delete_dsn = TRUE
-  )
+  "districts_elem_2018" = c("source"   = "https://opendata.arcgis.com/datasets/",
+                            "api_url"  = "cbcf6b1c3aaa420d90ccea6af877562b_2.geojson",
+                            "boundary" = "school_district_elementary",
+                            "year"     = "2018"),
 
-# DISTRICTS - SECONDARY
-st_read(paste0(
-  "https://datacatalog.cookcountyil.gov/api/geospatial/",
-  "dagh-zphu?method=export&format=GeoJSON"
-)) %>%
-  st_write(
-    here(school_path, "school_district_secondary", "2015.geojson"),
-    delete_dsn = TRUE
-  )
+  # DISTRICTS - SECONDARY
+  "districts_scnd_2015" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                            "api_url"  = "dagh-zphu?method=export&format=GeoJSON",
+                            "boundary" = "school_district_secondary",
+                            "year"     = "2015"),
 
-st_read(paste0(
-  "https://datacatalog.cookcountyil.gov/api/geospatial/",
-  "h3xu-azvs?method=export&format=GeoJSON"
-)) %>%
-  st_write(
-    here(school_path, "school_district_secondary", "2016.geojson"),
-    delete_dsn = TRUE
-  )
+  "districts_scnd_2016" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                            "api_url"  = "h3xu-azvs?method=export&format=GeoJSON",
+                            "boundary" = "school_district_secondary",
+                            "year"     = "2016"),
 
-st_read(paste0(
-  "https://opendata.arcgis.com/datasets/",
-  "0657c2831de84e209863eac6c9296081_6.geojson"
-)) %>%
-  st_write(
-    here(school_path, "school_district_secondary", "2018.geojson"),
-    delete_dsn = TRUE
-  )
+  "districts_scnd_2018" = c("source"   = "https://opendata.arcgis.com/datasets/",
+                            "api_url"  = "0657c2831de84e209863eac6c9296081_6.geojson",
+                            "boundary" = "school_district_secondary",
+                            "year"     = "2018"),
 
-# CPS ATTENDANCE - ELEMENTARY
-st_read(paste0(
-  "https://data.cityofchicago.org/api/geospatial/",
-  "e75y-e6uw?method=export&format=GeoJSON"
-)) %>%
-  st_write(
-    here(school_path, "cps_attendance_elementary", "2014-2015.geojson"),
-    delete_dsn = TRUE
-  )
+  # CPS ATTENDANCE - ELEMENTARY
+  "attendance_ele_1415" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
+                            "api_url"  = "e75y-e6uw?method=export&format=GeoJSON",
+                            "boundary" = "cps_attendance_elementary",
+                            "year"     = "2014-2015"),
 
-st_read(paste0(
-  "https://data.cityofchicago.org/api/geospatial/",
-  "asty-4xrr?method=export&format=GeoJSON"
-)) %>%
-  st_write(
-    here(school_path, "cps_attendance_elementary", "2015-2016.geojson"),
-    delete_dsn = TRUE
-  )
+  "attendance_ele_1516" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
+                            "api_url"  = "asty-4xrr?method=export&format=GeoJSON",
+                            "boundary" = "cps_attendance_elementary",
+                            "year"     = "2015-2016"),
 
-st_read(paste0(
-  "https://data.cityofchicago.org/api/geospatial/",
-  "acyp-2sus?method=export&format=GeoJSON"
-)) %>%
-  st_write(
-    here(school_path, "cps_attendance_elementary", "2016-2017.geojson"),
-    delete_dsn = TRUE
-  )
+  "attendance_ele_1617" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
+                            "api_url"  = "acyp-2sus?method=export&format=GeoJSON",
+                            "boundary" = "cps_attendance_elementary",
+                            "year"     = "2016-2017"),
 
-st_read(paste0(
-  "https://data.cityofchicago.org/api/geospatial/",
-  "u959-tya7?method=export&format=GeoJSON"
-)) %>%
-  st_write(
-    here(school_path, "cps_attendance_elementary", "2017-2018.geojson"),
-    delete_dsn = TRUE
-  )
+  "attendance_ele_1718" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
+                            "api_url"  = "u959-tya7?method=export&format=GeoJSON",
+                            "boundary" = "cps_attendance_elementary",
+                            "year"     = "2017-2018"),
 
-# CPS ATTENDANCE - SECONDARY
-st_read(paste0(
-  "https://data.cityofchicago.org/api/geospatial/",
-  "47bj-3f4s?method=export&format=GeoJSON"
-)) %>%
-  st_write(
-    here(school_path, "cps_attendance_secondary", "2014-2015.geojson"),
-    delete_dsn = TRUE
-  )
+  # CPS ATTENDANCE - SECONDARY
+  "attendance_sec_1415" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
+                            "api_url"  = "47bj-3f4s?method=export&format=GeoJSON",
+                            "boundary" = "cps_attendance_secondary",
+                            "year"     = "2014-2015"),
 
-st_read(paste0(
-  "https://data.cityofchicago.org/api/geospatial/",
-  "vff3-x5qg?method=export&format=GeoJSON"
-)) %>%
-  st_write(
-    here(school_path, "cps_attendance_secondary", "2015-2016.geojson"),
-    delete_dsn = TRUE
-  )
+  "attendance_sec_1516" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
+                            "api_url"  = "vff3-x5qg?method=export&format=GeoJSON",
+                            "boundary" = "cps_attendance_secondary",
+                            "year"     = "2015-2016"),
 
-st_read(paste0(
-  "https://data.cityofchicago.org/api/geospatial/",
-  "bwum-4mhg?method=export&format=GeoJSON"
-)) %>%
-  st_write(
-    here(school_path, "cps_attendance_secondary", "2016-2017.geojson"),
-    delete_dsn = TRUE
-  )
+  "attendance_sec_1617" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
+                            "api_url"  = "bwum-4mhg?method=export&format=GeoJSON",
+                            "boundary" = "cps_attendance_secondary",
+                            "year"     = "2016-2017"),
 
-st_read(paste0(
-  "https://data.cityofchicago.org/api/geospatial/",
-  "y9da-bb2y?method=export&format=GeoJSON"
-)) %>%
-  st_write(
-    here(school_path, "cps_attendance_secondary", "2017-2018.geojson"),
-    delete_dsn = TRUE
-  )
+  "attendance_sec_1718" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
+                            "api_url"  = "y9da-bb2y?method=export&format=GeoJSON",
+                            "boundary" = "cps_attendance_secondary",
+                            "year"     = "2017-2018")
+)
+
+# function to call referenced API, pull requested data, and write it to specified file path
+pull_and_write <- function(x) {
+
+  current_file <- here(school_path, x["boundary"], paste0(x["year"], ".geojson"))
+
+  if (!file.exists(current_file)) {
+
+    st_read(paste0(x["source"], x["api_url"])) %>%
+
+      st_write(current_file, delete_dsn = TRUE)
+
+  }
+
+}
+
+# apply function to "api_info"
+lapply(api_info, pull_and_write)
