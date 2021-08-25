@@ -114,3 +114,6 @@ pull_and_write <- function(x) {
 
 # apply function to "api_info"
 lapply(api_info, pull_and_write)
+
+# clean
+rm(list = ls())
