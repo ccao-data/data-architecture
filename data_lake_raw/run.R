@@ -12,8 +12,8 @@ library(janitor)
 library(odbc)
 library(DBI)
 
-# retrieve raw census data
-source(here("scripts/stable-census-acs.R"))
-source(here("scripts/stable-census-decennial.R"))
-source(here("scripts/stable-housing-ihs.R"))
-source(here("scripts/rpie-tables.R"))
+# source scripts
+lapply(
+  list.files(here("scripts"), full.names = TRUE),
+  source
+  )
