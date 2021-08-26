@@ -5,43 +5,78 @@ library(sf)
 
 pol_path <- here("s3-bucket", "stable", "spatial", "political")
 
-# BOARD OF REVIEW
-st_read(paste0(
-  "https://datacatalog.cookcountyil.gov/api/geospatial/",
-  "7iyt-i4z4?method=export&format=GeoJSON"
-)) %>%
-  st_write(here(pol_path, "board_of_review", "2012.geojson"), delete_dsn = TRUE)
+api_info <- list(
+  # BOARD OF REVIEW
+  "bor_2012" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                 "api_url"  = "7iyt-i4z4?method=export&format=GeoJSON",
+                 "boundary" = "board_of_review",
+                 "year"     = "2012"),
 
-# COMMISSIONER DISTRICT
-st_read(paste0(
-  "https://datacatalog.cookcountyil.gov/api/geospatial/",
-  "ihae-id2m?method=export&format=GeoJSON"
-)) %>%
-  st_write(here(pol_path, "commissioner", "2012.geojson"), delete_dsn = TRUE)
+  # COMMISSIONER DISTRICT
+  "cmd_2012" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                 "api_url"  = "ihae-id2m?method=export&format=GeoJSON",
+                 "boundary" = "commissioner",
+                 "year"     = "2012"),
 
-# JUDICIAL SUBCIRCUIT DISTRICT
-st_read(paste0(
-  "https://datacatalog.cookcountyil.gov/api/geospatial/",
-  "54r3-ikn3?method=export&format=GeoJSON"
-)) %>%
-  st_write(here(pol_path, "judicial", "2012.geojson"), delete_dsn = TRUE)
+  # CONGRESSIONAL DISTRICT
+  "cnd_2010" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                 "api_url"  = "jh56-md8x?method=export&format=GeoJSON",
+                 "boundary" = "congressionial_district",
+                 "year"     = "2010"),
 
-# MUNICIPALITY
-st_read(paste0(
-  "https://datacatalog.cookcountyil.gov/api/geospatial/",
-  "ta8t-zebk?method=export&format=GeoJSON"
-)) %>%
-  st_write(here(pol_path, "municipality", "2014.geojson"), delete_dsn = TRUE)
+  # JUDICIAL SUBCIRCUIT DISTRICT
+  "jsd_2012" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                 "api_url"  = "54r3-ikn3?method=export&format=GeoJSON",
+                 "boundary" = "judicial",
+                 "year"     = "2012"),
 
-# WARD
-st_read(paste0(
-  "https://data.cityofchicago.org/api/geospatial/",
-  "xt4z-bnwh?method=export&format=GeoJSON"
-)) %>%
-  st_write(here(pol_path, "ward", "2003.geojson"), delete_dsn = TRUE)
+  # MUNICIPALITY
+  "mnc_2014" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                 "api_url"  = "ta8t-zebk?method=export&format=GeoJSON",
+                 "boundary" = "municipality",
+                 "year"     = "2014"),
 
-st_read(paste0(
-  "https://data.cityofchicago.org/api/geospatial/",
-  "sp34-6z76?method=export&format=GeoJSON"
-)) %>%
-  st_write(here(pol_path, "ward", "2015.geojson"), delete_dsn = TRUE)
+  # STATE REPRESENTATIVE
+  "str_2010" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                 "api_url"  = "gsew-ir9y?method=export&format=GeoJSON",
+                 "boundary" = "state_representative",
+                 "year"     = "2010"),
+
+  # STATE SENATE
+  "sts_2010" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                 "api_url"  = "ezne-sr8y?method=export&format=GeoJSON",
+                 "boundary" = "state_senate",
+                 "year"     = "2010"),
+
+  # WARD
+  "wrd_2003" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
+                 "api_url"  = "xt4z-bnwh?method=export&format=GeoJSON",
+                 "boundary" = "ward",
+                 "year"     = "2003"),
+  "wrd_2015" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
+                 "api_url"  = "sp34-6z76?method=export&format=GeoJSON",
+                 "boundary" = "ward",
+                 "year"     = "2015")
+
+)
+
+# function to call referenced API, pull requested data, and write it to specified file path
+pull_and_write <- function(x) {
+
+  current_file <- here(pol_path, x["boundary"], paste0(x["year"], ".geojson"))
+
+  if (!file.exists(current_file)) {
+
+    st_read(paste0(x["source"], x["api_url"])) %>%
+
+      st_write(current_file, delete_dsn = TRUE)
+
+  }
+
+}
+
+# apply function to "api_info"
+lapply(api_info, pull_and_write)
+
+# clean
+rm(list = ls())
