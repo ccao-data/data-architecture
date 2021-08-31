@@ -6,6 +6,7 @@ library(DBI)
 library(stringr)
 
 # this script retrieves raw addresses from the PROPLOCS table in CCAODATA
+# THIS SOURCE WILL NEED TO BE UPDATED
 
 # connect to CCAODATA SQL server
 CCAO <- odbc::dbConnect(odbc::odbc(),
