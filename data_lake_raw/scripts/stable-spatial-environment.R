@@ -28,8 +28,22 @@ read_gtfs(tmp_file) %>%
   # filter out bus stops
   get_route_geometry(route_ids = c("Red", "P", "Y", "Blue", "Pink", "G", "Org" ,"Brn")) %>%
 
-  # write data as geojso
+  # write data as geojson
   st_write(file.path(environment_path, "cta_line", "2020.geojson"), delete_dsn = TRUE)
 
 # clean
 rm(list = ls())
+
+# FEMA FLOODPLAINS
+# found here: https://www.floodmaps.fema.gov/NFHL/status.shtml
+download.file(
+  "https://hazards.fema.gov/femaportal/NFHL/Download/ProductsDownLoadServlet?DFIRMID=17031C&state=ILLINOIS&county=COOK%20COUNTY&fileName=17031C_20210615.zip",
+  destfile = tmp_file, mode = "wb"
+)
+
+unzip(tmp_file, exdir = tmp_dir)
+
+st_read(file.path(tmp_dir, "S_FLD_HAZ_AR.shp")) %>%
+
+  # write data as geojson
+  st_write(file.path(environment_path, "flood_fema", "2021.geojson"))
