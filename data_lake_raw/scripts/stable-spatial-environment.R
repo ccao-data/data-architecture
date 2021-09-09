@@ -31,11 +31,9 @@ read_gtfs(tmp_file) %>%
   # write data as geojson
   st_write(file.path(environment_path, "cta_line", "2020.geojson"), delete_dsn = TRUE)
 
-# clean
-rm(list = ls())
-
 # FEMA FLOODPLAINS
 # found here: https://www.floodmaps.fema.gov/NFHL/status.shtml
+tmp_file <- tempfile()
 download.file(
   "https://hazards.fema.gov/femaportal/NFHL/Download/ProductsDownLoadServlet?DFIRMID=17031C&state=ILLINOIS&county=COOK%20COUNTY&fileName=17031C_20210615.zip",
   destfile = tmp_file, mode = "wb"

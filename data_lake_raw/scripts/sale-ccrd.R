@@ -21,7 +21,7 @@ DBI::dbGetQuery(CCAO, paste0(
   )) %>%
 
   # output
-  arrow::write_parquet(here("s3-bucket/sales/ccrd/ccrd.parquet"))
+  arrow::write_parquet(here("s3-bucket/sale/ccrd/ccrd.parquet"))
 
 # clean
 rm(list = ls())
