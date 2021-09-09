@@ -21,7 +21,7 @@ api_info <- list(
   # CONGRESSIONAL DISTRICT
   "cnd_2010" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
                  "api_url"  = "jh56-md8x?method=export&format=GeoJSON",
-                 "boundary" = "congressionial_district",
+                 "boundary" = "congressional_district",
                  "year"     = "2010"),
 
   # JUDICIAL SUBCIRCUIT DISTRICT

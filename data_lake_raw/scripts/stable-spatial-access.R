@@ -51,7 +51,7 @@ zip::zipr(zipfile = tmp_file, files = list.files(tmp_dir, full.names = TRUE, pat
 # filter out bus stops
 read_gtfs(tmp_file) %>%
 filter_stops(route_ids = c("Red", "P", "Y", "Blue", "Pink", "G", "Org" ,"Brn"),
-               service_ids = gtfs$calendar %>% pull(service_id)) %>%
+               service_ids = .$calendar %>% pull(service_id)) %>%
 
   # make sure data is unique by stop
   distinct(stop_name, .keep_all = TRUE) %>%

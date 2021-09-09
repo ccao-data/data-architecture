@@ -28,7 +28,7 @@ print("Successfully connected to iasWorld")
 # Get all tables
 tables <- dbGetQuery(
   iasworld_conn,
-  "SELECT table_name FROM ALL_TABLES WHERE OWNER = 'IASWORLD'"
+  "SELECT table_name FROM ALL_TABLES WHERE OWNER = 'IASWORLD' FETCH NEXT 50000 ROWS ONLY"
 ) %>%
   pull(TABLE_NAME)
 
