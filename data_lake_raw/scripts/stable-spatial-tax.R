@@ -23,7 +23,7 @@ api_info <- list(
                  "year"     = "2018"),
 
   # SSA
-  "tif_2018" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
+  "ssa_2018" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
                  "api_url"  = "fz5x-7zak?method=export&format=GeoJSON",
                  "boundary" = "ssa",
                  "year"     = "2020"),
