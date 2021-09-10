@@ -5,7 +5,7 @@ library(DBI)
 library(dplyr)
 library(here)
 library(glue)
-options(java.parameters = "-Xmx16G")
+options(java.parameters = "-Xmx8G")
 
 parquet_compression_lib = "snappy"
 parquet_output_path <- here("s3-bucket", "iasworld", "data")
@@ -28,7 +28,7 @@ print("Successfully connected to iasWorld")
 # Get all tables
 tables <- dbGetQuery(
   iasworld_conn,
-  "SELECT table_name FROM ALL_TABLES WHERE OWNER = 'IASWORLD' FETCH NEXT 50000 ROWS ONLY"
+  "SELECT table_name FROM ALL_TABLES WHERE OWNER = 'IASWORLD'"
 ) %>%
   pull(TABLE_NAME)
 
@@ -36,12 +36,14 @@ tables <- c(tables, "ASMT_ALL")
 
 # Get all tables
 for (table in tables) {
-  print(glue("Pulling {table}"))
-  query_result <- dbGetQuery(
-    iasworld_conn,
-    glue("SELECT * FROM IASWORLD.{table}")
-  )
+  if (!file.exists(glue(parquet_output_path, "/{table}.parquet"))) {
+    print(glue("Pulling {table}"))
+    query_result <- dbGetQuery(
+      iasworld_conn,
+      glue("SELECT * FROM IASWORLD.{table} FETCH NEXT 50000 ROWS ONLY")
+    )
 
-  print(glue("Writing {table} to parquet"))
-  write_parquet(query_result, glue(parquet_output_path, "/{table}.parquet"))
+    print(glue("Writing {table} to parquet"))
+    write_parquet(query_result, glue(parquet_output_path, "/{table}.parquet"))
+  }
 }
