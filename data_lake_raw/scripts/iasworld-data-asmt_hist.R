@@ -33,6 +33,7 @@ rows <- seq.int(
 # pull according to batch size
 for (i in rows) {
 
+  # output location
   file_path <- glue("{here('s3-bucket/iasworld/data/ASMT_HIST')}/ASMT_HIST_{i / batch_size + 1}.parquet")
 
   # skip already completed pulls
