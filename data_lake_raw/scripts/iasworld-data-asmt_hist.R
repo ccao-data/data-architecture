@@ -2,7 +2,9 @@ library(RJDBC)
 library(glue)
 library(arrow)
 library(lubridate)
+library(dplyr)
 library(here)
+library(qpcR)
 
 # Set Rjava option to increase java mem size. Note that this is required for
 # large queries!
@@ -24,53 +26,63 @@ IASWORLD <- RJDBC::dbConnect(
 batch_size <- 1000000
 
 # generate row numbers and filepaths for pulls according to batch size
-batches <- data.frame(
-  "start_row" = seq.int(
-  from = 0,
-  to = as.numeric(dbGetQuery(IASWORLD, "SELECT NUM_ROWS FROM ALL_TABLES WHERE TABLE_NAME = 'ASMT_HIST'")),
-  by = batch_size
-))
+batches <- dbGetQuery(
+  IASWORLD,
+  "SELECT TAXYR, PROCNAME, COUNT(TAXYR) FROM IASWORLD.ASMT_HIST
+  GROUP BY TAXYR, PROCNAME"
+  )
 
-batches$file_path = glue("{here('s3-bucket/iasworld/data/ASMT_HIST')}/ASMT_HIST_{batches$start_row / batch_size + 1}.parquet")
+batches$file_path = glue("{here('s3-bucket/iasworld/data/ASMT_HIST')}/ASMT_HIST_{batches$TAXYR}_{batches$PROCNAME}.parquet")
 
 # function to pull according to batch size
-batch_out <- function(start_row, out_path) {
-
-  # output location
-  i <- start_row
-  file_path <- out_path
+batch_out <- function(year, proc, file_path) {
 
   # skip already completed pulls
   if (!file.exists(file_path)) {
 
     print(
-      glue("pulling records {i + 1} through {i + batch_size}")
+      glue("SELECT * FROM IASWORLD.ASMT_HIST WHERE TAXYR = {year} AND PROCNAME = '{proc}'")
     )
 
     # record start time
     start <- proc.time()[3]
 
-    # pull and write
-    write_parquet(
-      dbGetQuery(
-        IASWORLD,
-        glue(
-          "SELECT * FROM IASWORLD.ASMT_HIST
-          OFFSET {i} ROWS
-          FETCH NEXT {batch_size} ROWS ONLY"
-        )
-      ),
-      file_path
+    # pull
+    temp <- dbGetQuery(
+      IASWORLD,
+      glue(
+        "SELECT * FROM IASWORLD.ASMT_HIST
+          WHERE TAXYR = {year} AND PROCNAME = '{proc}'"
+      )
     )
 
-    # display pull/write time
+    # display pull time
     print(
-      glue("pull/write time: {lubridate::seconds_to_period(proc.time()[3] - start)}")
+      glue("pull time: {lubridate::seconds_to_period(proc.time()[3] - start)}")
     )
+
+    # write
+    write_parquet(temp, file_path)
+
+    rm(temp)
+    gc()
 
   }
 
 }
 
 # apply function
-mapply(batch_out, batches$start_row, batches$file_path)
+mapply(batch_out, batches$TAXYR, batches$PROCNAME, batches$file_path)
+
+# check row numbers
+output_files <- grep(glue_collapse(unique(batches$PROCNAME), "|"), list.files(here('s3-bucket/iasworld/data/ASMT_HIST'), full.names = TRUE), value = TRUE)
+
+total_rows <- 0
+
+for (i in output_files) {
+
+  print(i)
+  total_rows <- total_rows + nrow(read_parquet(i))
+  gc()
+
+}
