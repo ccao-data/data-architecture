@@ -1,0 +1,188 @@
+Parameters:
+  S3StagingName:
+    Type: String
+    Default: "ccao-staging-us-east-1"
+  S3LandingzoneName:
+    Type: String
+    Default: "ccao-landing-us-east-1"
+  Gluerolename:
+    Type: String
+    Default: "ccao-poc-gluerollname-cf"
+  Gluecrawlername:
+    Type: String
+    Default: "ccao-poc-gluecrawlername-cf"
+  TargetDatabaseName:
+    Type: String
+    Default: "ccao-staging-athena"
+  ArchiveDatabaseName:
+    Type: String
+    Default: "ccao-staging-athena-archives"
+  SSNDisplayName:
+    Type: String
+    Default: "ccao-iasworld-daily-dump-sns-email-notification"
+  SSNTopicName:
+    Type: String
+    Default: "ccao-iasworld-daily-dump-sns-email-notification"
+  Gluejobname:
+    Type: String
+    Default: "iasworld-daily-dump-glue"
+  Gluescriptbucket:
+    Type: String
+    Default: "ccao-glue-scripts"
+  Gluetempbucket:
+    Type: String
+    Default: "ccao-glue-temporary"
+  Email1:
+    Type: String
+    Default: "daniel.snow@cookcountyil.gov"
+  Email2:
+    Type: String
+    Default: "William.Ridgeway@cookcountyil.gov"
+Resources:
+  Stagingbucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      AccessControl: Private
+      BucketName: !Ref S3StagingName
+  Landingbucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      AccessControl: Private
+      BucketName: !Ref S3LandingzoneName
+  Gluescriptsbucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      AccessControl: Private
+      BucketName: !Join ['', [!Ref Gluescriptbucket,'-',!Ref "AWS::Region",'-',!Ref "AWS::AccountId" ]]
+  Gluetempsbucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      AccessControl: Private
+      BucketName: !Join ['', [!Ref Gluetempbucket,'-',!Ref "AWS::Region",'-',!Ref "AWS::AccountId" ]]
+  IAMRole:
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            RoleName: !Ref Gluerolename
+            AssumeRolePolicyDocument: "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"glue.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}"
+            MaxSessionDuration: 3600
+            ManagedPolicyArns: 
+              - "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+              - "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+              - "arn:aws:iam::aws:policy/AWSGlueConsoleFullAccess"
+            Description: "Allows Glue to call AWS services on your behalf. "
+            Tags: 
+              - 
+                Key: "Description"
+                Value: "Creating role for glue job to read and write from s3"
+  ServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: "Allow"
+            Principal:
+              Service:
+                - "glue.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies:
+        -
+          PolicyName: "root"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              -
+                Effect: "Allow"
+                Action: "*"
+                Resource: "*"
+  ArchiveDatabase:
+        Type: "AWS::Glue::Database"
+        Properties:
+            DatabaseInput: 
+                Name: !Ref ArchiveDatabaseName
+            CatalogId: !Ref "AWS::AccountId"
+            
+  TargetDatabase:
+        Type: "AWS::Glue::Database"
+        Properties:
+            DatabaseInput: 
+                Name: !Ref TargetDatabaseName
+            CatalogId: !Ref "AWS::AccountId"
+  GlueCrawler:
+        Type: "AWS::Glue::Crawler"
+        Properties:
+            Name: !Ref Gluecrawlername
+            Role: !GetAtt ServiceRole.Arn
+            Targets: 
+                S3Targets: 
+                  - 
+                    Path: !Join ['', ['s3://',!Ref S3StagingName,'/Archives']]
+            DatabaseName: !Ref ArchiveDatabaseName
+            SchemaChangePolicy: 
+                UpdateBehavior: "UPDATE_IN_DATABASE"
+                DeleteBehavior: "DEPRECATE_IN_DATABASE"
+            TablePrefix: "archive_"
+  GlueJob:
+        Type: "AWS::Glue::Job"
+        Properties:
+            Name: !Ref Gluejobname
+            Role: !GetAtt IAMRole.Arn
+            ExecutionProperty: 
+                MaxConcurrentRuns: 1
+            Command: 
+                Name: "glueetl"
+                ScriptLocation: !Join ['', ['s3://',!Ref Gluescriptbucket,'-',!Ref "AWS::Region",'/gluescripts/' ]]
+                #ScriptLocation: !Join ['', ['s3://',!Ref Gluescriptbucket,'-',!Ref "AWS::Region",'-',!Ref "AWS::AccountId",'/gluescripts/' ]]
+                PythonVersion: "3"
+            DefaultArguments: 
+                --TempDir: !Join ['', ['s3://',!Ref Gluetempbucket,'-',!Ref "AWS::Region"]]
+                #--TempDir: !Join ['', ['s3://',!Ref Gluetempbucket,'-',!Ref "AWS::Region",'-',!Ref "AWS::AccountId"]]
+                --job-bookmark-option: "job-bookmark-disable"
+                --job-language: "python"
+            MaxRetries: 0
+            #AllocatedCapacity: 10
+            Timeout: 2880
+            GlueVersion: "2.0"
+            #MaxCapacity: 10
+            NumberOfWorkers: 10
+            WorkerType: "G.1X"
+
+  SNSTopic:
+        Type: "AWS::SNS::Topic"
+        Properties:
+            DisplayName: !Ref SSNDisplayName
+            TopicName: !Ref SSNTopicName
+            Tags: 
+              - 
+                Key: "CCAO-AthenaPoc"
+                Value: !Sub "ccao-poc-ds-${AWS::Region}"
+              - 
+                Key: "Description"
+                Value: "Configuring CCAO POC topic for notificaitons"
+
+  SNSTopicPolicy:
+        Type: "AWS::SNS::TopicPolicy"
+        Properties:
+            PolicyDocument: !Sub "{\"Version\":\"2012-10-17\",\"Id\":\"__default_policy_ID\",\"Statement\":[{\"Sid\":\"__default_statement_ID\",\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"*\"},\"Action\":[\"SNS:GetTopicAttributes\",\"SNS:SetTopicAttributes\",\"SNS:AddPermission\",\"SNS:RemovePermission\",\"SNS:DeleteTopic\",\"SNS:Subscribe\",\"SNS:ListSubscriptionsByTopic\",\"SNS:Publish\",\"SNS:Receive\"],\"Resource\":\"${SNSTopic}\",\"Condition\":{\"StringEquals\":{\"AWS:SourceOwner\":\"${AWS::AccountId}\"}}},{\"Sid\":\"AWSEvents_${SNSTopic.TopicName}_CW_Id1971132356594\",\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"events.amazonaws.com\"},\"Action\":\"sns:Publish\",\"Resource\":\"${SNSTopic}\"}]}"
+            Topics: 
+              - !Ref SNSTopic
+
+  SNSSubscription:
+        Type: "AWS::SNS::Subscription"
+        Properties:
+            TopicArn: !Ref SNSTopic
+            Endpoint: !Ref Email1
+            Protocol: "email"
+            Region: !Ref AWS::Region
+
+  SNSSubscription2:
+        Type: "AWS::SNS::Subscription"
+        Properties:
+            TopicArn: !Ref SNSTopic
+            Endpoint: !Ref Email2
+            Protocol: "email"
+            Region: !Ref AWS::Region
