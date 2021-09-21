@@ -53,14 +53,14 @@ def replace_file(table):
             new_obj.copy(old_source)
             obj.delete()
     except Exception as e:
-        print("error with replace_file: ")
+        print("error with replacing file")
 
 
 def etl_fact_tables():
     if fact_dict:
         for table, keys1 in fact_dict.items():
             composite_keys = [x.strip() for x in keys1.split(',')]
-            print(table, " : ", composite_keys)
+            print("fact ", table, " : ", composite_keys)
             read_parquet_path = "s3://" + BUCKET + "/" + STAGE_RAW_FOLDER + "/" + table + "/"
             read_input_path = "s3://" + LANDING_BUCKET + "/" + LANDING_FOLDER + "/" + table + "/"
             write_parquet_raw_path = "s3a://" + BUCKET + "/" + STAGE_RAW_FOLDER + "/" + table + "/"
@@ -70,12 +70,14 @@ def etl_fact_tables():
             # read input csv file and write to archive
             try:
                 df_new = spark.read.option("header", "true").parquet(read_input_path)
+                print("read new file: ", read_input_path)
             except Exception as e:
                 print("error: ", e)
             try:
                 df_old = spark.read.option("header", "true").parquet(read_parquet_path)
+                print("error with file: ", read_parquet_path)
             except Exception as e:
-                print("error reading table write new: ", table, "\n error: ", str(e))
+                print("error reading old table write new: ", table, "\n error: ", str(e))
                 # write csv to parquet path because there was no previous file
                 try:
                     if ("TAXYR" in df_new.columns):
@@ -105,9 +107,10 @@ def etl_fact_tables():
                                                                                           "num_duplicate_records",
                                                                                           "upload_time"))
                     deptDF.write.option("header", "true").parquet(write_parquet_audit_log_prefix_path, mode="append")
+                    print("wrote file for: ", table)
                     # s3.Object(LANDING_BUCKET,LANDING_FOLDER + "/" + table + "/").delete()
                     bucket = s3.Bucket(LANDING_BUCKET)
-                    bucket.objects.filter(Prefix=LANDING_FOLDER + "/" + table + '/sample.parquet').delete()
+                    bucket.objects.filter(Prefix=LANDING_FOLDER + "/" + table).delete()
                     print("deleted table path after writing new: ", LANDING_FOLDER + "/" + table + "/")
                 except Exception as e:
                     print("error writing new with table: ", table, " error: ", str(e))
@@ -161,7 +164,7 @@ def etl_fact_tables():
                     # s3.Object(LANDING_BUCKET,LANDING_FOLDER + "/" + table + "/").delete()
                     # s3 = boto3.resource('s3')
                     bucket = s3.Bucket(LANDING_BUCKET)
-                    bucket.objects.filter(Prefix=LANDING_FOLDER + "/" + table + '/sample.parquet').delete()
+                    bucket.objects.filter(Prefix=LANDING_FOLDER + "/" + table).delete()
                     print("deleted table path after update: ", LANDING_FOLDER + "/" + table + "/")
                 except Exception as e:
                     print("error with table: ", table, " error: ", str(e))
@@ -179,23 +182,29 @@ def etl_dimension_tables():
             write_parquet_archive_prefix_path = "s3a://" + BUCKET + "/" + STAGE_ARCHIVE_FOLDER + "/" + table
             write_parquet_audit_log_prefix_path = "s3a://" + BUCKET + "/" + STAGE_AUDIT_LOG_FOLDER + "/" + table
             # read input csv file and write to archive
-            df_new = spark.read.option("header", "true").parquet(read_input_path)
-            print("read df_new")
+            try:
+                df_new = spark.read.option("header", "true").parquet(read_input_path)
+                print("read new file: ", read_input_path)
+            except Exception as e:
+                print("error: ", e)
             now = datetime.datetime.now()
             try:
                 df_old = spark.read.option("header", "true").parquet(read_parquet_path)
+                print("read old file: ", read_parquet_path)
             except Exception as e:
-                print("error reading table write new: ", table, "\n error: ", str(e))
+                print("error reading old table write new: ", table, "\n error: ", str(e))
                 try:
                     current_date = date_format(F.current_timestamp(), 'yyyy-MM-dd HH:mm:ss')
                     df_new = df_new.withColumn('start_date', lit('1999-12-31 23:59:59')).withColumn('end_date', lit(""))
+                    print("write dimension parquet")
                     df_new.write.option("header", "true").parquet(write_parquet_raw_path, mode="overwrite")
                     df_new_archive = df_new.withColumn("year", year(F.current_date())).withColumn("month", month(
-                        F.current_date())).withColumn("day", dayofmonth(F.current_date())) \
-                        .withColumn("hour", hour(F.current_timestamp())).withColumn("minute", minute(
-                        F.current_timestamp())).withColumn("second", second(F.current_timestamp()))
-                    df_new_archive.write.partitionBy("year", "month", "day", "hour", "minute", "second").option(
-                        "header", "true").parquet(write_parquet_archive_prefix_path, mode="append")
+                        F.current_date())).withColumn("day", dayofmonth(F.current_date())).withColumn("hour", hour(
+                        F.current_timestamp())).withColumn("minute", minute(F.current_timestamp())).withColumn("second",
+                                                                                                               second(
+                                                                                                                   F.current_timestamp()))
+                    print("wrote parquet")
+                    # df_new_archive.write.partitionBy("year","month","day","hour","minute","second").option("header","true").parquet(write_parquet_archive_prefix_path,mode="append")
                     num_source_records = str(df_new.count())
                     upload_time = datetime.datetime.now()
                     num_old_records = "0"
@@ -213,18 +222,20 @@ def etl_dimension_tables():
                     # s3.Object(LANDING_BUCKET,LANDING_FOLDER + "/" + table + "/").delete()
                     # s3a = boto3.resource('s3')
                     bucket = s3.Bucket(LANDING_BUCKET)
-                    bucket.objects.filter(Prefix=LANDING_FOLDER + "/" + table + '/sample.parquet').delete()
+                    bucket.objects.filter(Prefix=LANDING_FOLDER + "/" + table).delete()
                     print("deleted table path after writing new: ", LANDING_FOLDER + "/" + table + "/")
                 except Exception as e:
                     print("error writing new with table: ", table, " error: ", str(e))
             else:
                 try:
+                    print("\nwrite to archive")
                     df_new_archive = df_new.withColumn("year", year(F.current_date())).withColumn("month", month(
                         F.current_date())).withColumn("day", dayofmonth(F.current_date())) \
                         .withColumn("hour", hour(F.current_timestamp())).withColumn("minute", minute(
                         F.current_timestamp())).withColumn("second", second(F.current_timestamp()))
                     df_new_archive.write.partitionBy("year", "month", "day", "hour", "minute", "second").option(
                         "header", "true").parquet(write_parquet_archive_prefix_path, mode="append")
+                    print("\nwrote to archive")
                     # get audit info
                     num_source_records = str(df_new.count())
                     num_old_records = str(df_old.count())
@@ -239,6 +250,9 @@ def etl_dimension_tables():
                     # add column for new,old
                     df_new = df_new.withColumn("file_status", F.current_timestamp())
                     df_old = df_old.withColumn("file_status", F.current_timestamp() - expr("INTERVAL 1 DAY"))
+                    print("time to union")
+                    print(df_old.columns)
+                    print(df_new.columns)
                     # drop duplicates and union old data with new data
                     df_merge = df_old.union(df_new).dropDuplicates(column_names)
                     df_upsert = df_merge.withColumn("rn", F.row_number().over(
@@ -273,7 +287,7 @@ def etl_dimension_tables():
                     # s3.Object(LANDING_BUCKET,LANDING_FOLDER + "/" + table + "/").delete()
                     # s3a = boto3.resource('s3')
                     bucket = s3.Bucket(LANDING_BUCKET)
-                    bucket.objects.filter(Prefix=LANDING_FOLDER + "/" + table + '/sample.parquet').delete()
+                    bucket.objects.filter(Prefix=LANDING_FOLDER + "/" + table).delete()
                     print("deleted table path after update : ", LANDING_FOLDER + "/" + table + "/")
                 except Exception as e:
                     print("error with table: ", table, " error: ", str(e))
