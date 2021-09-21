@@ -204,7 +204,7 @@ def etl_dimension_tables():
                                                                                                                second(
                                                                                                                    F.current_timestamp()))
                     print("wrote parquet")
-                    # df_new_archive.write.partitionBy("year","month","day","hour","minute","second").option("header","true").parquet(write_parquet_archive_prefix_path,mode="append")
+                    df_new_archive.write.partitionBy("year","month","day","hour","minute","second").option("header","true").parquet(write_parquet_archive_prefix_path,mode="append")
                     num_source_records = str(df_new.count())
                     upload_time = datetime.datetime.now()
                     num_old_records = "0"
@@ -242,7 +242,6 @@ def etl_dimension_tables():
                     num_new_records = str(df_new.join(df_old, df_new.columns, "left_anti").count())
                     num_duplicate_records = str(df_new.join(df_old, df_new.columns, "inner").count())
                     # order column
-                    # df_old = df_old.select(df_new.columns)
                     column_names = df_new.columns
                     current_date = date_format(F.current_timestamp(), 'yyyy-MM-dd HH:mm:ss')
                     df_new = df_new.join(df_old, column_names, "left_anti")
