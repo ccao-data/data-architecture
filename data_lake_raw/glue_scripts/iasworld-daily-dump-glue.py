@@ -10,7 +10,7 @@ import datetime
 import sys
 import yaml
 
-with open("etl_config.yaml", 'r') as f:
+with open("iasworld-daily-dump-config.yaml", 'r') as f:
     doc = yaml.safe_load(f)
 
 file_location_dict = doc['File_Locations']
