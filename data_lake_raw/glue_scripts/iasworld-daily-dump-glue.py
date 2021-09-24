@@ -80,8 +80,12 @@ def etl_fact_tables():
                 except Exception as e:
                     print("error reading old table write new: ", table, "\n error: ", str(e))
                     try:
-                        df_new.write.partitionBy("TAXYR").option("header", "true").parquet(write_parquet_raw_path,
+                        if ("TAXYR" in df_new.columns):
+                            df_new.write.partitionBy("TAXYR").option("header", "true").parquet(write_parquet_raw_path,
                                                                                                mode="overwrite")
+                        else:
+                            df_new.write.option("header", "true").parquet(write_parquet_raw_path, mode="overwrite")
+
                         now = datetime.datetime.now()
                         df_new_archive = df_new.withColumn("year", year(F.current_date())).withColumn("month", month(
                                 F.current_date())).withColumn("day", dayofmonth(F.current_date())) \
