@@ -21,11 +21,17 @@ pull_and_write <- function(x) {
 
   current_file <- here(access_path, x["boundary"], paste0(x["year"], ".geojson"))
 
-  if (!file.exists(current_file)) {
+  if (!file.exists(paste0(current_file, ".gz"))) {
 
     st_read(paste0(x["source"], x["api_url"])) %>%
 
-      st_write(current_file, delete_dsn = TRUE)
+      st_write(current_file)
+
+    # compress geojson
+    gzip(
+      current_file,
+      destname = paste0(current_file, ".gz")
+    )
 
   }
 
@@ -35,30 +41,40 @@ pull_and_write <- function(x) {
 lapply(api_info, pull_and_write)
 
 # CTA STOPS
-tmp_file <- tempfile(fileext = ".zip")
-tmp_dir <- tempdir()
+if (!file.exists(file.path(access_path, "cta_stop", "2020.geojson.gz"))) {
 
-# grab files from openmobility data, recompress without .htm file
-download.file(
-  "http://www.transitchicago.com/downloads/sch_data/google_transit.zip",
-  destfile = tmp_file, mode = "wb"
-)
+  tmp_file <- tempfile(fileext = ".zip")
+  tmp_dir <- tempdir()
 
-unzip(tmp_file, exdir = tmp_dir)
+  # grab files from openmobility data, recompress without .htm file
+  download.file(
+    "http://www.transitchicago.com/downloads/sch_data/google_transit.zip",
+    destfile = tmp_file, mode = "wb"
+  )
 
-zip::zipr(zipfile = tmp_file, files = list.files(tmp_dir, full.names = TRUE, pattern = ".txt"))
+  unzip(tmp_file, exdir = tmp_dir)
 
-# filter out bus stops
-read_gtfs(tmp_file) %>%
-filter_stops(route_ids = c("Red", "P", "Y", "Blue", "Pink", "G", "Org" ,"Brn"),
-               service_ids = .$calendar %>% pull(service_id)) %>%
+  zip::zipr(zipfile = tmp_file, files = list.files(tmp_dir, full.names = TRUE, pattern = ".txt"))
 
-  # make sure data is unique by stop
-  distinct(stop_name, .keep_all = TRUE) %>%
-  st_as_sf(coords = c("stop_lon", "stop_lat")) %>%
+  # filter out bus stops
+  read_gtfs(tmp_file) %>%
+    filter_stops(route_ids = c("Red", "P", "Y", "Blue", "Pink", "G", "Org" ,"Brn"),
+                 service_ids = .$calendar %>% pull(service_id)) %>%
 
-  # write data as geojson
-  st_write(file.path(access_path, "cta_stop", "2020.geojson"), delete_dsn = TRUE)
+    # make sure data is unique by stop
+    distinct(stop_name, .keep_all = TRUE) %>%
+    st_as_sf(coords = c("stop_lon", "stop_lat")) %>%
+
+    # write data as geojson
+    st_write(file.path(access_path, "cta_stop", "2020.geojson"), delete_dsn = TRUE)
+
+  # compress geojson
+  gzip(
+    file.path(access_path, "cta_stop", "2020.geojson"),
+    destname = file.path(access_path, "cta_stop", "2020.geojson.gz")
+  )
+
+}
 
 # clean
 rm(list = ls())

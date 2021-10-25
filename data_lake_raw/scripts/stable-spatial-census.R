@@ -15,9 +15,12 @@ get_geojson <- function(FUN, year, dir, state = "17", ...) {
   geo_path <- here("s3-bucket", "stable", "spatial", "census")
   path <- here(geo_path, dir, paste0(year, ".geojson"))
 
-  if (!file.exists(path)) {
+  if (!file.exists(paste0(path, ".gz"))) {
     df <- FUN(state = state, year = year, ...)
     st_write(df, path, delete_dsn = TRUE)
+
+    # compress geojson
+    gzip(path, destname = paste0(path, ".gz"))
   }
 }
 
@@ -42,15 +45,35 @@ download.file(
   "https://www2.census.gov/geo/tiger/TIGER2020/CD/tl_2020_us_cd116.zip",
   destfile = tmp_file
 )
-unzip(tmp_file, exdir = tmp_dir)
-st_read(file.path(tmp_dir, "tl_2020_us_cd116.shp")) %>%
-  filter(STATEFP == "17") %>%
-  st_write(
-    file.path(
-      here("s3-bucket", "stable", "spatial", "census"),
-      "congressional_district", "2020.geojson"
+
+if (!file.exists(
+  file.path(
+    here("s3-bucket", "stable", "spatial", "census"),
+    "congressional_district", "2020.geojson.gz"
     )
-  )
+  )) {
+
+  unzip(tmp_file, exdir = tmp_dir)
+  st_read(file.path(tmp_dir, "tl_2020_us_cd116.shp")) %>%
+    filter(STATEFP == "17") %>%
+    st_write(
+      file.path(
+        here("s3-bucket", "stable", "spatial", "census"),
+        "congressional_district", "2020.geojson"
+      )
+    )
+
+  # compress geojson
+  gzip(file.path(
+    here("s3-bucket", "stable", "spatial", "census"),
+    "congressional_district", "2020.geojson"
+  ),
+  destname = file.path(
+    here("s3-bucket", "stable", "spatial", "census"),
+    "congressional_district", "2020.geojson.gz"
+  ))
+
+}
 
 # COUNTY
 map(years, ~ get_geojson(counties, .x, "county"))

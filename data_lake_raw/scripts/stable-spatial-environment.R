@@ -31,6 +31,13 @@ read_gtfs(tmp_file) %>%
   # write data as geojson
   st_write(file.path(environment_path, "cta_line", "2020.geojson"), delete_dsn = TRUE)
 
+# compress geojson
+gzip(
+  file.path(environment_path, "cta_line", "2020.geojson"),
+  destname = file.path(environment_path, "cta_line", "2020.geojson.gz")
+)
+
+
 # FEMA FLOODPLAINS
 # found here: https://www.floodmaps.fema.gov/NFHL/status.shtml
 tmp_file <- tempfile()
@@ -45,3 +52,9 @@ st_read(file.path(tmp_dir, "S_FLD_HAZ_AR.shp")) %>%
 
   # write data as geojson
   st_write(file.path(environment_path, "flood_fema", "2021.geojson"))
+
+# compress geojson
+gzip(
+  file.path(environment_path, "flood_fema", "2021.geojson"),
+  destname = file.path(environment_path, "flood_fema", "2021.geojson.gz")
+  )

@@ -8,6 +8,7 @@ import pandas as pd
 import s3fs
 from os import listdir
 from sklearn.neighbors import BallTree
+import gzip
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##### Connect to AWS #####
@@ -24,21 +25,24 @@ paths = {
     'fs_floodplains': 'stable/environment/flood_first_street/'
     }
 
+root = 'C:/Users/wridgew/Documents/data-architecture/data_lake_raw/s3-bucket/'
+paths = {key: root + val + max(listdir(root + val)) for key, val in paths.items()}
+
 # create connection
-token = input('one time use MFA token: ')
-
-client = boto3.client(
-    service_name='s3',
-    region_name='us-east-1',
-    aws_session_token=token
-    )
-
-# declare location of data
-root = 's3://ccao-landing-us-east-1/'
-bucket = 'ccao-landing-us-east-1'
-
-# files should be named after the year they pertain to, we want the most recent file
-paths = {key: root + val + max([(a['Key']) for a in client.list_objects(Bucket = bucket, Prefix = val)['Contents']]) for key, val in paths.items()}
+#token = input('one time use MFA token: ')
+#
+#client = boto3.client(
+#    service_name='s3',
+#    region_name='us-east-1',
+#    aws_session_token=token
+#    )
+#
+## declare location of data
+#root = 's3://ccao-landing-us-east-1/'
+#bucket = 'ccao-landing-us-east-1'
+#
+## files should be named after the year they pertain to, we want the most recent file
+#paths = {key: root + val + max([(a['Key']) for a in client.list_objects(Bucket = bucket, Prefix = val)['Contents']]) for key, val in paths.items()}
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##### Gather Data #####
@@ -46,8 +50,8 @@ paths = {key: root + val + max([(a['Key']) for a in client.list_objects(Bucket =
 
 data = {
     key:
-    gpd.read_file(val, rows = 100000) if 'spatial' in val
-    #gpd.read_file(val) if 'spatial' in val
+    #gpd.read_file(gzip.open(val), rows = 10000) if 'spatial' in val
+    gpd.read_file(gzip.open(val)) if 'spatial' in val
     else pd.read_parquet(val,
     engine = 'pyarrow')
     for key, val in paths.items()
@@ -66,9 +70,6 @@ if data['parcels'].crs != 4326:
 # drop rows not associated with a PIN
 parcels = data['parcels'].dropna(subset=['pin10'])
 parcels.index = parcels.reset_index().index
-
-# rename lat/long
-parcels = parcels.rename(columns={'longitude':'centroid_x', 'latitude':'centroid_y'})
 
 # format township
 parcels['township_name'] = parcels['politicaltownship'].str.replace('Town of ', '')
@@ -238,7 +239,6 @@ cols_to_fill_with_nn = [
 ]
 
 # split parcels into missing and non-missing data frames
-parcels_filled['centroid'] = parcels_filled.centroid
 parcels_filled['has_na'] = parcels_filled[cols_to_fill_with_nn].isna().any(axis = 1)
 parsplit = parcels_filled[parcels_filled['has_na'] == True]
 parcels_filled = parcels_filled[parcels_filled['has_na'] == False]
@@ -246,12 +246,12 @@ parcels_filled = parcels_filled[parcels_filled['has_na'] == False]
 # find the nearest point with non-missing data from the primary data frame
 
 # create a BallTree
-tree = BallTree(parcels_filled[['centroid_x', 'centroid_y']].values, leaf_size=2)
+tree = BallTree(parcels_filled[['latitude', 'longitude']].values, leaf_size=2)
 
 # query the BallTree on each feature from 'appart' to find the distance
 # to the nearest 'pharma' and its id
 parsplit['id_nearest'] = tree.query(
-    parsplit[['centroid_x', 'centroid_y']].values, # The input array for the query
+    parsplit[['latitude', 'longitude']].values, # The input array for the query
     k=1, # The number of nearest neighbors
     return_distance = False
 )
@@ -275,15 +275,21 @@ parcels_filled_no_missing = parcels_filled.append(parsplit)
 
 # sort columns for readability
 parcels_filled_no_missing = parcels_filled_no_missing[[
-  'PIN10', 'centroid_x', 'centroid_y', 'point_parcel', 'multiple_geographies', 'primary_polygon',
-  'GEOID', 'TRACTCE', 'tract_pop', 'white_perc', 'black_perc', 'asian_perc', 'his_perc', 'other_perc', 'midincome',
-  'PUMA', 'FIPS', 'municipality', 'township_name', 'commissioner_dist', 'reps_dist', 'senate_dist', 'ward', 'ssa_name', 'ssa_no', 'tif_dist',
+  'PIN10', 'latitude', 'longitude', 'point_parcel', 'multiple_geographies', 'primary_polygon',
+  'GEOID', 'TRACTCE', 'PUMA', 'FIPS',
+  'municipality', 'township_name', 'commissioner_dist', 'reps_dist', 'senate_dist', 'ward', 'ssa_name', 'ssa_no', 'tif_dist',
   'ohare_noise', 'floodplain', 'fs_flood_factor', 'fs_flood_risk_direction', 'withinmr100', 'withinmr101300',
-'elem_district', 'hs_district'
+  'elem_district', 'hs_district', 'geometry'
 ]]
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##### Upload to S3 #####
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-parcels_filled_no_missing.to_parquet('s3://ccao-staging-us-east-1/modeling/DTBL_PINLOCATIONS/DTBL_PINLOCATIONS.parquet', index = False)
+parcels_filled_no_missing.to_file(
+    's3://ccao-staging-us-east-1/modeling/DTBL_PINLOCATIONS/DTBL_PINLOCATIONS.geojson.gz',
+    na = 'null',
+    index = False,
+    driver = 'GeoJSON',
+    compression = 'gzip'
+    )
