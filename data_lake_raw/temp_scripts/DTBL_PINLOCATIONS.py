@@ -25,24 +25,21 @@ paths = {
     'fs_floodplains': 'stable/environment/flood_first_street/'
     }
 
-root = 'C:/Users/wridgew/Documents/data-architecture/data_lake_raw/s3-bucket/'
-paths = {key: root + val + max(listdir(root + val)) for key, val in paths.items()}
-
 # create connection
-#token = input('one time use MFA token: ')
-#
-#client = boto3.client(
-#    service_name='s3',
-#    region_name='us-east-1',
-#    aws_session_token=token
-#    )
-#
-## declare location of data
-#root = 's3://ccao-landing-us-east-1/'
-#bucket = 'ccao-landing-us-east-1'
-#
-## files should be named after the year they pertain to, we want the most recent file
-#paths = {key: root + val + max([(a['Key']) for a in client.list_objects(Bucket = bucket, Prefix = val)['Contents']]) for key, val in paths.items()}
+token = input('one time use MFA token: ')
+
+client = boto3.client(
+    service_name='s3',
+    region_name='us-east-1',
+    aws_session_token=token
+    )
+
+# declare location of data
+root = 's3://ccao-landing-us-east-1/'
+bucket = 'ccao-landing-us-east-1'
+
+# files should be named after the year they pertain to, we want the most recent file
+paths = {key: root + val + max([(a['Key']) for a in client.list_objects(Bucket = bucket, Prefix = val)['Contents']]) for key, val in paths.items()}
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##### Gather Data #####
