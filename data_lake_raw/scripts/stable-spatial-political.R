@@ -65,11 +65,15 @@ pull_and_write <- function(x) {
 
   current_file <- here(pol_path, x["boundary"], paste0(x["year"], ".geojson"))
 
-  if (!file.exists(current_file)) {
+  if (!file.exists(paste0(current_file, ".gz"))) {
 
     st_read(paste0(x["source"], x["api_url"])) %>%
 
       st_write(current_file, delete_dsn = TRUE)
+
+    # compress geojson using gzip
+    gzip(filename = current_file,
+         destname = paste0(current_file, ".gz"))
 
   }
 
