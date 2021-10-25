@@ -2,6 +2,7 @@ library(dplyr)
 library(here)
 library(purrr)
 library(sf)
+library(R.utils)
 
 tax_path <- here("s3-bucket", "stable", "spatial", "tax")
 
@@ -37,6 +38,14 @@ api_info <- list(
                  "api_url"  = "a33b-b59u?method=export&format=GeoJSON",
                  "boundary" = "parcel",
                  "year"     = "2016"),
+  "par_2017" = c("source"   = "https://opendata.arcgis.com/datasets/",
+                 "api_url"  = "a45722101ed8491fb71930fd4c2c64ab_0.geojson",
+                 "boundary" = "parcel",
+                 "year"     = "2017"),
+  "par_2018" = c("source"   = "https://opendata.arcgis.com/datasets/",
+                 "api_url"  = "9539568a52124b99addb042efd0f83b1_0.geojson",
+                 "boundary" = "parcel",
+                 "year"     = "2018"),
   "par_2019" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
                  "api_url"  = "c5mi-ck9v?method=export&format=GeoJSON",
                  "boundary" = "parcel",
@@ -94,11 +103,16 @@ pull_and_write <- function(x) {
 
   current_file <- here(tax_path, x["boundary"], paste0(x["year"], ".geojson"))
 
-  if (!file.exists(current_file)) {
+  if (!file.exists(paste0(current_file, ".gz"))) {
 
     st_read(paste0(x["source"], x["api_url"])) %>%
 
-      st_write(current_file, delete_dsn = TRUE)
+      st_write(current_file)
+
+    # compress geojson using gzip
+    gzip(filename = current_file,
+         destname = paste0(current_file, ".gz"))
+
 
   }
 
