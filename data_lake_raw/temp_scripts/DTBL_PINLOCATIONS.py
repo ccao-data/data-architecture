@@ -47,8 +47,8 @@ paths = {key: root + val + max([(a['Key']) for a in client.list_objects(Bucket =
 
 data = {
     key:
-    #gpd.read_file(gzip.open(val), rows = 10000) if 'spatial' in val
-    gpd.read_file(gzip.open(val)) if 'spatial' in val
+    gpd.read_parquet(val, rows = 10000) if 'spatial' in val
+    #gpd.read_parquet(val) if 'spatial' in val
     else pd.read_parquet(val,
     engine = 'pyarrow')
     for key, val in paths.items()
@@ -283,10 +283,4 @@ parcels_filled_no_missing = parcels_filled_no_missing[[
 ##### Upload to S3 #####
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-parcels_filled_no_missing.to_file(
-    's3://ccao-staging-us-east-1/modeling/DTBL_PINLOCATIONS/DTBL_PINLOCATIONS.geojson.gz',
-    na = 'null',
-    index = False,
-    driver = 'GeoJSON',
-    compression = 'gzip'
-    )
+parcels_filled_no_missing.to_parquet('s3://ccao-staging-us-east-1/modeling/DTBL_PINLOCATIONS/DTBL_PINLOCATIONS.parquet')
