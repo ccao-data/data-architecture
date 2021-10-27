@@ -39,7 +39,8 @@ root = 's3://ccao-landing-us-east-1/'
 bucket = 'ccao-landing-us-east-1'
 
 # files should be named after the year they pertain to, we want the most recent file
-paths = {key: root + val + max([(a['Key']) for a in client.list_objects(Bucket = bucket, Prefix = val)['Contents']]) for key, val in paths.items()}
+paths = {key: root + max([(a['Key']) for a in client.list_objects(Bucket = bucket, Prefix = val)['Contents']]).replace(".gz", "") for key, val in paths.items()}
+#paths = {key: root + max([(a['Key']) for a in client.list_objects(Bucket = bucket, Prefix = val)['Contents']]) for key, val in paths.items()}
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##### Gather Data #####
@@ -47,10 +48,9 @@ paths = {key: root + val + max([(a['Key']) for a in client.list_objects(Bucket =
 
 data = {
     key:
-    gpd.read_parquet(val, rows = 10000) if 'spatial' in val
-    #gpd.read_parquet(val) if 'spatial' in val
-    else pd.read_parquet(val,
-    engine = 'pyarrow')
+    #gpd.read_file(val, rows = 10000) if 'spatial' in val
+    gpd.read_file(val) if 'spatial' in val
+    else pd.read_parquet(val, engine = 'pyarrow')
     for key, val in paths.items()
     }
 
