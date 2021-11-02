@@ -9,7 +9,7 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 current_year <- strftime(Sys.Date(), "%Y")
 min_year <- as.numeric(Sys.getenv("CENSUS_GEO_MIN_YEAR", unset = "2010"))
 max_year <- as.numeric(Sys.getenv("CENSUS_GEO_MAX_YEAR", unset = current_year))
-census_years <- min_year:max_year
+years <- min_year:max_year
 
 # Mini-function to fetch geojson of geography if it doesn't exist
 get_geojson <- function(FUN, year, dir, state = "17", ...) {
