@@ -12,7 +12,10 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
 # Declare years we'd like to grab census data for
-census_years <- Sys.getenv("CENSUS_DEC_MIN_YEAR"):Sys.getenv("CENSUS_DEC_MAX_YEAR")
+census_years <- unique(c(
+  Sys.getenv("CENSUS_DEC_MIN_YEAR"),
+  Sys.getenv("CENSUS_DEC_MAX_YEAR")
+))
 
 # All decennial census variables we're looking to grab
 census_variables <- c(
@@ -66,8 +69,7 @@ all_combos <- expand.grid(
   year = census_years,
   survey = "decennial",
   stringsAsFactors = FALSE
-) |>
-  # Join on folder names
+) %>%
   left_join(folders_df)
 
 # Function to loop through rows in all_combos, grab census data,
