@@ -19,8 +19,6 @@ get_geojson <- function(FUN, year, dir, state = "17", ...) {
     df <- FUN(state = state, year = year, ...)
     st_write(df, path, delete_dsn = TRUE)
 
-    # compress geojson
-    gzip(path, destname = paste0(path, ".gz"))
   }
 }
 
@@ -80,6 +78,9 @@ map(years, ~ get_geojson(counties, .x, "county"))
 
 # COUNTY SUBDIVISION
 map(years, ~ get_geojson(county_subdivisions, .x, "county_subdivision"))
+
+# PLACE
+map(2011:max_year, ~ get_geojson(places, .x, "place", state = "IL"))
 
 # PUBLIC USE MICRODATA AREA (PUMA)
 map(2012:max_year, ~ get_geojson(pumas, .x, "puma"))

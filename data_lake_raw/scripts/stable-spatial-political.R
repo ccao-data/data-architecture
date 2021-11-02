@@ -18,6 +18,12 @@ api_info <- list(
                  "boundary" = "commissioner",
                  "year"     = "2012"),
 
+  # TOWNSHIPS
+  "twn_2019" = c("source"   = "https://opendata.arcgis.com/datasets/",
+                 "api_url"  = "78fe09c5954e41e19b65a4194eed38c7_3.geojson",
+                 "boundary" = "township",
+                 "year"     = "2019"),
+
   # CONGRESSIONAL DISTRICT
   "cnd_2010" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
                  "api_url"  = "jh56-md8x?method=export&format=GeoJSON",
