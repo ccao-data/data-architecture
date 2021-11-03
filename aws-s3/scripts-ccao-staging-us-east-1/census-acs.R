@@ -1,12 +1,14 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
+library(Hmisc)
+library(purrr)
 library(stringr)
 library(tidycensus)
 
 # This script retrieves raw ACS data for the data lake
 # It populates the raw s3 bucket
-AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+AWS_S3_STAGING_BUCKET <- Sys.getenv("AWS_S3_STAGING_BUCKET")
 
 # Retrieve census API key from local .Renviron
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
@@ -14,21 +16,28 @@ tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 # Declare years we'd like to grab census data for
 census_years <- Sys.getenv("CENSUS_ACS_MIN_YEAR"):Sys.getenv("CENSUS_ACS_MAX_YEAR")
 
-# All ACS variables we're looking to grab
-census_variables <- c(
-  "tot_pop"   = "B03002_001", # Total population
-  "white"     = "B03002_003", # White alone
-  "black"     = "B03002_004", # Black or African American alone
-  "am_ind"    = "B03002_005", # American Indian and Alaska Native alone
-  "asian"     = "B03002_006", # Asian alone
-  "pac_isl"   = "B03002_007", # Native Hawaiian and Other Pacific Islander alone
-  "o1"        = "B03002_008", # Some other race alone
-  "o2"        = "B03002_009", # Two or more races
-  "o3"        = "B03002_010", # Two races including other race
-  "o4"        = "B03002_011", # Two races excluding other race, and 3+ races
-  "his"       = "B03002_012", # Hispanic or Latino
-  "midincome" = "B19013_001", # Median household income in the past 12 months
-  "pcincome"  = "B19301_001"  # Per capita income in the past 12 months
+# Census tables we want to grab. Taken from: https://censusreporter.org/topics/
+census_tables <- c(
+  "Sex By Age"                                                    = "B01001",
+  "Race"                                                          = "B02001",
+  "Household Type"                                                = "B11001",
+  "Sex by Marital Status"                                         = "B12001",
+  "Sex by Age by Educational Attainment"                          = "B15001",
+  "Poverty Status by Sex by Age"                                  = "B17001",
+  "Household Income"                                              = "B19001",
+  "Median Household Income"                                       = "B19013",
+  "Per Capita Income"                                             = "B19301",
+  "Receipt of SNAP by Race of Householder (White Alone)"          = "B22005A",
+  "Receipt of SNAP by Race of Householder (Black Alone)"          = "B22005B",
+  "Receipt of SNAP by Race of Householder (AIAN Alone)"           = "B22005C",
+  "Receipt of SNAP by Race of Householder (Asian Alone)"          = "B22005D",
+  "Receipt of SNAP by Race of Householder (NHPI Alone)"           = "B22005E",
+  "Receipt of SNAP by Race of Householder (Other Alone)"          = "B22005F",
+  "Receipt of SNAP by Race of Householder (Two or More)"          = "B22005G",
+  "Receipt of SNAP by Race of Householder (WA, NHis)"             = "B22005H",
+  "Receipt of SNAP by Race of Householder (His/Lat)"              = "B22005I",
+  "Sex by Age by Employment Status"                               = "B23001",
+  "Tenure"                                                        = "B25003"
 )
 
 # Declare geographies we'd like to query
@@ -59,6 +68,12 @@ folders <- c(
   "tract"
 )
 
+# Create a vector of named census variables. These will be used to label
+# each output data frame
+census_variables_df <- load_variables(2018, "acs5", cache = TRUE)
+census_variables <- census_variables_df$label
+names(census_variables) <- census_variables_df$name
+
 # Link geographies and folders
 folders_df <- data.frame(geography = census_geographies, folder = folders)
 
@@ -87,7 +102,11 @@ pull_and_write_acs <- function(x) {
   year <- x["year"]
 
   remote_file <- file.path(
-    AWS_S3_RAW_BUCKET, "census", survey, folder, paste0(year, ".parquet")
+    AWS_S3_STAGING_BUCKET, "census",
+    paste0("survey=", survey),
+    paste0("geography=", folder),
+    paste0("year=", year),
+    paste(survey, folder, paste0(year, ".parquet"), sep = "-")
   )
 
   # Check to see if file already exists on S3; if it does, skip it
@@ -101,19 +120,27 @@ pull_and_write_acs <- function(x) {
     county <- if (geography %in% county_specific) "Cook" else NULL
 
     # Retrieve specified data from census API
-    get_acs(
+    df <- map_dfc(census_tables, ~ get_acs(
       geography = geography,
-      variables = census_variables,
+      table = .x,
       survey = survey,
       output = "wide",
       state = "IL",
       county = county,
       year = as.numeric(year),
       cache_table = TRUE
-    ) |>
-      # Clean output, write to parquet files
-      dplyr::rename("geoid" = "GEOID", "geography" = "NAME") |>
-      arrow::write_parquet(remote_file)
+    )) |>
+      rename(`GEOID` = `GEOID...1`) %>%
+      select(-starts_with("GEOID..."), -starts_with("NAME"))
+
+    # Add labels to the output dataframe columns
+    label(df) <- as.list(census_variables[match(
+      substr(names(df), 1, nchar(names(df)) - 1),
+      names(census_variables))]
+    )
+
+    # Write to S3
+    arrow::write_parquet(df, remote_file)
   }
 }
 
