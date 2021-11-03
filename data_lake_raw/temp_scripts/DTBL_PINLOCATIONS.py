@@ -15,26 +15,26 @@ import gzip
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 paths = {
-    'parcels': 'stable/spatial/tax/parcel/',
-    'pumas': 'stable/spatial/census/puma/',
-    'tracts': 'stable/spatial/census/tract/',
-    'ssas': 'stable/spatial/tax/ssa/',
-    'roads': 'stable/spatial/environment/major_road/',
-    'ohare': 'stable/spatial/environment/ohare_flight_path/',
-    'fema_floodplains': 'stable/spatial/environment/flood_fema/',
-    'fs_floodplains': 'stable/environment/flood_first_street/',
-    'fips': 'stable/spatial/census/place/',
-    'municipality':'stable/spatial/political/municipality/',
-    'township':'stable/spatial/political/township/',
-    'commissioner':'stable/spatial/political/commissioner/',
-    'congressional':'stable/spatial/political/congressional_district/',
-    'rep':'stable/spatial/political/state_representative/',
-    'senate':'stable/spatial/political/state_senate/',
-    'ward':'stable/spatial/political/ward/',
-    'tif':'stable/spatial/tax/tif/',
-    'school_elem':'stable/spatial/school/school_district_elementary/',
-    'school_hs':'stable/spatial/school/school_district_secondary/',
-    'school_uni':'stable/spatial/school/school_district_unified/'
+    'parcels': 'spatial/tax/parcel/',
+    'pumas': 'spatial/census/puma/',
+    'tracts': 'spatial/census/tract/',
+    'ssas': 'spatial/tax/ssa/',
+    'roads': 'spatial/environment/major_road/',
+    'ohare': 'spatial/environment/ohare_flight_path/',
+    'fema_floodplains': 'spatial/environment/flood_fema/',
+    'fs_floodplains': 'environment/flood_first_street/',
+    'fips': 'spatial/census/place/',
+    'municipality':'spatial/political/municipality/',
+    'township':'spatial/political/township/',
+    'commissioner':'spatial/political/commissioner/',
+    'congressional':'spatial/political/congressional_district/',
+    'rep':'spatial/political/state_representative/',
+    'senate':'spatial/political/state_senate/',
+    'ward':'spatial/political/ward/',
+    'tif':'spatial/tax/tif/',
+    'school_elem':'spatial/school/school_district_elementary/',
+    'school_hs':'spatial/school/school_district_secondary/',
+    'school_uni':'spatial/school/school_district_unified/'
     }
 
 # create connection
@@ -52,7 +52,6 @@ bucket = 'ccao-landing-us-east-1'
 
 # files should be named after the year they pertain to, we want the most recent file
 paths = {key: root + max([(a['Key']) for a in client.list_objects(Bucket = bucket, Prefix = val)['Contents']]) for key, val in paths.items()}
-paths = {key: root + max([(a['Key']) for a in client.list_objects(Bucket = bucket, Prefix = val)['Contents']]) for key, val in paths.items()}
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##### Gather Data #####
@@ -60,7 +59,6 @@ paths = {key: root + max([(a['Key']) for a in client.list_objects(Bucket = bucke
 
 data = {
     key:
-    #gpd.read_file(val, rows = 10000) if 'spatial' in val
     gpd.read_file(val) if 'spatial' in val
     else pd.read_parquet(val, engine = 'pyarrow')
     for key, val in paths.items()
@@ -71,7 +69,7 @@ data = {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # grab parcel files older than what's been detected as the most recent
-old_parcel_paths = [root + "stable/spatial/tax/parcel/" + x for x in os.listdir(root + "stable/spatial/tax/parcel/")
+old_parcel_paths = [root + "spatial/tax/parcel/" + x for x in os.listdir(root + "spatial/tax/parcel/")
 if x.endswith(".geojson") and x != os.path.basename(paths['parcels'])]
 
 current_pins = data['parcels']['pin10']
