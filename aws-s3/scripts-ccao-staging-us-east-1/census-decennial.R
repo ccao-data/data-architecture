@@ -44,32 +44,16 @@ census_variables_df <- census_variables_2020 %>%
 
 # Declare geographies we'd like to query
 census_geographies <- c(
-  "block",
-  "block group",
   "county",
-  "county subdivision",
-  "school district (elementary)",
-  "school district (secondary)",
-  "school district (unified)",
-  "state legislative district (lower chamber)",
-  "state legislative district (upper chamber)",
   "tract",
-  "zcta"
+  "block"
 )
 
 # Folders have a different naming schema than geographies
 folders <- c(
-  "block",
-  "block_group",
   "county",
-  "county_subdivision",
-  "school_district_elementary",
-  "school_district_secondary",
-  "school_district_unified",
-  "state_representative",
-  "state_senate",
   "tract",
-  "zcta"
+  "block"
 )
 
 # Link geographies and folders
@@ -106,10 +90,6 @@ pull_and_write_acs <- function(x) {
     # Print file being written
     print(paste0(Sys.time(), " - ", remote_file))
 
-    # These geographies are county-specific rather than state-level
-    county_specific <- c("county", "county subdivision", "tract")
-    county <- if (geography %in% county_specific) "Cook" else NULL
-
     # Get variables for the specific year of interest
     vars <- census_variables_df %>%
       pull(paste0("name_", year)) %>%
@@ -129,7 +109,7 @@ pull_and_write_acs <- function(x) {
       variables = vars,
       output = "wide",
       state = "IL",
-      county = county,
+      county = "Cook",
       year = as.numeric(year),
       sumfile = "pl",
       cache_table = TRUE
@@ -144,6 +124,7 @@ pull_and_write_acs <- function(x) {
       census_variables_df$name_2020
     )])
 
+    # Write to S3
     arrow::write_parquet(df, remote_file)
   }
 }
