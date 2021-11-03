@@ -7,7 +7,7 @@ library(stringr)
 library(tidycensus)
 
 # This script retrieves raw ACS data for the data lake
-# It populates the raw s3 bucket
+# It populates the staging s3 bucket
 AWS_S3_STAGING_BUCKET <- Sys.getenv("AWS_S3_STAGING_BUCKET")
 
 # Retrieve census API key from local .Renviron

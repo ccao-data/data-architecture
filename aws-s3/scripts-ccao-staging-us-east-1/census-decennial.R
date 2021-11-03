@@ -1,34 +1,46 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
+library(Hmisc)
 library(stringr)
 library(tidycensus)
 
-# This script retrieves raw ACS data for the data lake
-# It populates the raw s3 bucket
-AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+# This script retrieves raw decennial census data for the data lake
+# It populates the staging s3 bucket
+AWS_S3_STAGING_BUCKET <- Sys.getenv("AWS_S3_STAGING_BUCKET")
 
 # Retrieve census API key from local .Renviron
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
 # Declare years we'd like to grab census data for
-census_years <- unique(c(
-  Sys.getenv("CENSUS_DEC_MIN_YEAR"),
-  Sys.getenv("CENSUS_DEC_MAX_YEAR")
-))
+census_years <- c(2000, 2010, 2020)
 
 # All decennial census variables we're looking to grab
-census_variables <- c(
-  "tot_pop"   = "P003001", # Total population
-  "white"     = "P003002", # White alone
-  "black"     = "P003003", # Black or African American alone
-  "am_ind"    = "P003004", # American Indian and Alaska Native alone
-  "asian"     = "P003005", # Asian alone
-  "pac_isl"   = "P003006", # Native Hawaiian and Other Pacific Islander alone
-  "o1"        = "P003007", # Some other race alone
-  "o2"        = "P003008", # Two or more races
-  "his"       = "P004001"  # Hispanic or Latino
-)
+# Var names differ between years to we need a df to translate them
+census_variables_2000 <- load_variables(2000, "pl", cache = TRUE)
+census_variables_2010 <- load_variables(2010, "pl", cache = TRUE)
+census_variables_2020 <- load_variables(2020, "pl", cache = TRUE)
+census_variables_df <- census_variables_2020 %>%
+  mutate(
+    name_2010 = str_replace_all(name, "P", "P00"),
+    name_2010 = str_replace_all(name_2010, "H", "H00"),
+    name_2010 = str_remove_all(name_2010, "_"),
+    name_2010 = str_remove_all(name_2010, "N")
+  ) %>%
+  select(name, name_2010, label) %>%
+  left_join(
+    census_variables_2010 %>% select(-label, -concept) %>% mutate(temp = 1),
+    by = c("name_2010" = "name")
+  ) %>%
+  left_join(
+    census_variables_2000 %>%
+      select(-label, -concept, name_2000 = name) %>%
+      mutate(name_2010 = str_replace_all(name_2000, "PL", "P")),
+    by = c("name_2010")
+  ) %>%
+  rename(name_2020 = name) %>%
+  mutate(name_2010 = ifelse(temp != 1, NA, name_2010)) %>%
+  select(name_2020, name_2010, name_2000, label)
 
 # Declare geographies we'd like to query
 census_geographies <- c(
@@ -81,7 +93,11 @@ pull_and_write_acs <- function(x) {
   year <- x["year"]
 
   remote_file <- file.path(
-    AWS_S3_RAW_BUCKET, "census", survey, folder, paste0(year, ".parquet")
+    AWS_S3_STAGING_BUCKET, "census",
+    paste0("survey=", survey),
+    paste0("geography=", folder),
+    paste0("year=", year),
+    paste(survey, folder, year, "pl.parquet", sep = "-")
   )
 
   # Check to see if file already exists on S3; if it does, skip it
@@ -94,19 +110,41 @@ pull_and_write_acs <- function(x) {
     county_specific <- c("county", "county subdivision", "tract")
     county <- if (geography %in% county_specific) "Cook" else NULL
 
+    # Get variables for the specific year of interest
+    vars <- census_variables_df %>%
+      pull(paste0("name_", year)) %>%
+      .[!is.na(.)]
+
+    # Rename 2000 and 2010 vars to 2020 names
+    rename_to_2020 <- function(col_name, year) {
+      census_variables_df$name_2020[match(
+        col_name,
+        census_variables_df[[paste0("name_", year)]]
+      )]
+    }
+
     # Retrieve specified data from census API
-    get_decennial(
+    df <- get_decennial(
       geography = geography,
-      variables = census_variables,
+      variables = vars,
       output = "wide",
       state = "IL",
       county = county,
       year = as.numeric(year),
+      sumfile = "pl",
       cache_table = TRUE
-    ) |>
-      # Clean output, write to parquet files
-      dplyr::rename("geoid" = "GEOID", "geography" = "NAME") |>
-      arrow::write_parquet(remote_file)
+    ) %>%
+      select(-NAME) %>%
+      rename_with(~ rename_to_2020(.x, year), .cols = !GEOID)
+
+
+    # Add labels to the output dataframe columns
+    label(df) <- as.list(census_variables_df$label[match(
+      names(df),
+      census_variables_df$name_2020
+    )])
+
+    arrow::write_parquet(df, remote_file)
   }
 }
 
