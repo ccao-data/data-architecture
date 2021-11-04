@@ -102,8 +102,7 @@ pull_and_write_acs <- function(x) {
   year <- x["year"]
 
   remote_file <- file.path(
-    AWS_S3_STAGING_BUCKET, "census",
-    paste0("survey=", survey),
+    AWS_S3_STAGING_BUCKET, "census", survey,
     paste0("geography=", folder),
     paste0("year=", year),
     paste(survey, folder, paste0(year, ".parquet"), sep = "-")
