@@ -4,7 +4,7 @@ library(purrr)
 library(sf)
 library(tigris)
 
-# This script retrieves location data for all CTA bus and train stops
+# This script retrieves boundary files for all census geographies
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 current_year <- strftime(Sys.Date(), "%Y")
 min_year <- as.numeric(Sys.getenv("CENSUS_GEO_MIN_YEAR", unset = "2010"))
