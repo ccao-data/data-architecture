@@ -1,13 +1,12 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
-library(Hmisc)
 library(purrr)
 library(stringr)
 library(tidycensus)
 
 # This script retrieves raw ACS data for the data lake
-# It populates the staging s3 bucket
+# It populates the warehouse s3 bucket
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 
 # Retrieve census API key from local .Renviron
@@ -131,12 +130,6 @@ pull_and_write_acs <- function(x) {
     )) |>
       rename(`GEOID` = `GEOID...1`) %>%
       select(-starts_with("GEOID..."), -starts_with("NAME"))
-
-    # Add labels to the output dataframe columns
-    label(df) <- as.list(census_variables[match(
-      substr(names(df), 1, nchar(names(df)) - 1),
-      names(census_variables))]
-    )
 
     # Write to S3
     arrow::write_parquet(df, remote_file)

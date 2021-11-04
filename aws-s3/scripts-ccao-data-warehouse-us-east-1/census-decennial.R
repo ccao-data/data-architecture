@@ -1,12 +1,11 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
-library(Hmisc)
 library(stringr)
 library(tidycensus)
 
 # This script retrieves raw decennial census data for the data lake
-# It populates the staging s3 bucket
+# It populates the warehouse s3 bucket
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 
 # Retrieve census API key from local .Renviron
@@ -115,13 +114,6 @@ pull_and_write_acs <- function(x) {
     ) %>%
       select(-NAME) %>%
       rename_with(~ rename_to_2020(.x, year), .cols = !GEOID)
-
-
-    # Add labels to the output dataframe columns
-    label(df) <- as.list(census_variables_df$label[match(
-      names(df),
-      census_variables_df$name_2020
-    )])
 
     # Write to S3
     arrow::write_parquet(df, remote_file)
