@@ -47,8 +47,8 @@ client = boto3.client(
     )
 
 # declare location of data
-root = 's3://ccao-landing-us-east-1/'
-bucket = 'ccao-landing-us-east-1'
+root = 's3://ccao-data-raw-us-east-1/'
+bucket = 'ccao-data-raw-us-east-1'
 
 # files should be named after the year they pertain to, we want the most recent file
 paths = {key: root + max([(a['Key']) for a in client.list_objects(Bucket = bucket, Prefix = val)['Contents']]) for key, val in paths.items()}
@@ -395,4 +395,4 @@ parcels_filled_no_missing = parcels_filled_no_missing[[
 parcels_filled_no_missing['latitude'] = parcels_filled_no_missing['latitude'].astype('string')
 parcels_filled_no_missing['longitude'] = parcels_filled_no_missing['longitude'].astype('string')
 
-parcels_filled_no_missing.to_parquet('s3://ccao-staging-us-east-1/modeling/DTBL_PINLOCATIONS/DTBL_PINLOCATIONS.parquet', index = False)
+parcels_filled_no_missing.to_parquet('s3://ccao-data-warehouse-us-east-1/modeling/DTBL_PINLOCATIONS/DTBL_PINLOCATIONS.parquet', index = False)

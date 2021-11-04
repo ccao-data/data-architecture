@@ -7,7 +7,7 @@ library(tidycensus)
 
 # This script retrieves raw decennial census data for the data lake
 # It populates the staging s3 bucket
-AWS_S3_STAGING_BUCKET <- Sys.getenv("AWS_S3_STAGING_BUCKET")
+AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 
 # Retrieve census API key from local .Renviron
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
@@ -77,7 +77,7 @@ pull_and_write_acs <- function(x) {
   year <- x["year"]
 
   remote_file <- file.path(
-    AWS_S3_STAGING_BUCKET, "census", survey,
+    AWS_S3_WAREHOUSE_BUCKET, "census", survey,
     paste0("geography=", folder),
     paste0("year=", year),
     paste(survey, folder, year, "pl.parquet", sep = "-")
