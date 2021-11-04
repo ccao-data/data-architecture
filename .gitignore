@@ -6,3 +6,4 @@
 *.geojson
 *.parquet
 *.csv
+data_lake_raw/
