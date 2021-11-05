@@ -42,7 +42,9 @@ normalize_census_geo <- function(key) {
         c("GEOID", "NAME", "INTPT", "ALAND", "AWATER"),
         ignore.case = TRUE
       )) %>%
-      set_names(str_remove_all(names(.), "[[:digit:]]")) %>%
+      set_names(str_remove_all(names(.), "[[:digit:]]"))
+
+    df <- df %>%
       st_drop_geometry() %>%
       st_as_sf(coords = c("INTPTLON", "INTPTLAT"), crs = st_crs(df)) %>%
       cbind(st_coordinates(.)) %>%
