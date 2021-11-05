@@ -41,13 +41,8 @@ normalize_census_geo <- function(key) {
       select(starts_with(
         c("GEOID", "NAME", "INTPT", "ALAND", "AWATER"),
         ignore.case = TRUE
-      ))
-
-    # Strip number off column names
-    names(df) <- str_remove_all(names(df), "[[:digit:]]")
-
-    # Convert lat/lon to 4326 and normalize names
-    df <- df %>%
+      )) %>%
+      set_names(str_remove_all(names(.), "[[:digit:]]")) %>%
       st_drop_geometry() %>%
       st_as_sf(coords = c("INTPTLON", "INTPTLAT"), crs = st_crs(df)) %>%
       cbind(st_coordinates(.)) %>%
