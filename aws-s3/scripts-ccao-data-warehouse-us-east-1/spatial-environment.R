@@ -11,6 +11,7 @@ library(tidygeocoder)
 library(aws.s3)
 library(shiny)
 library(miniUI)
+library(sf)
 library(sfarrow)
 
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
@@ -93,7 +94,8 @@ noise_addresses <- left_join(noise_levels, addresses, by = "Site") %>%
   filter(!is.na(lat)) %>%
   st_as_sf(
     coords = c("long", "lat"),
-    crs = 4326
+    crs = 4326,
+    remove = FALSE
     )
 
 # Write to S3
