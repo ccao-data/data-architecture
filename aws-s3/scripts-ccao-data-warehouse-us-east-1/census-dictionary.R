@@ -54,8 +54,35 @@ census_acs_vars <- map2_dfr(
 census_vars <- census_acs_vars %>%
   distinct(name, .keep_all = TRUE) %>%
   filter(str_starts(name, paste(census_acs_tables, collapse = "|"))) %>%
-  mutate(survey = "acs", label = str_trim(label)) %>%
-  select(survey, variable_name = name, variable_label = label)
+  mutate(
+    survey = "acs",
+    label = str_trim(label),
+    source_table_name = ifelse(
+      str_starts(name, "B22005"),
+      str_sub(name, 1, 7),
+      str_sub(name, 1, 6)
+    )
+  ) %>%
+  left_join(
+    tibble::enframe(census_acs_tables) %>% rename(source_table_label = name),
+    by = c("source_table_name" = "value")
+  ) %>%
+  select(
+    survey, variable_name = name, variable_label = label,
+    source_table_name, source_table_label
+  )
+
+# Table defs for PL census files
+census_dec_tables <-
+  tribble(
+    ~ "source_table_name", ~ "source_table_label",
+    "H1", "Housing Units",
+    "P1", "Race",
+    "P2", "Hispanic Or Latino, And Not Hispanic Or Latino By Race",
+    "P3", "Race For The Population 18 Years And Over",
+    "P4", "Hispanic Or Latino, And Not Hispanic Or Latino By Race For The Population 18 Years And Over",
+    "P5", "Group Quarters Population By Major Group Quarters Type"
+  )
 
 # Get vars for 2020 decennial PL file (2000 and 2010 vars renamed to 2020)
 census_dec_vars <- load_variables(2020, "pl", cache = TRUE) %>%
@@ -64,7 +91,9 @@ census_dec_vars <- load_variables(2020, "pl", cache = TRUE) %>%
     label = str_sub(label, 4, -1),
     label = str_trim(str_remove_all(label, ":"))
   ) %>%
-  select(survey, variable_name = name, variable_label = label)
+  select(survey, variable_name = name, variable_label = label) %>%
+  mutate(source_table_name = str_sub(variable_name, 1, 2)) %>%
+  left_join(census_dec_tables, by = "source_table_name")
 
 # Combine ACS and decennial
 census_vars_merged <- bind_rows(census_vars, census_dec_vars) %>%
