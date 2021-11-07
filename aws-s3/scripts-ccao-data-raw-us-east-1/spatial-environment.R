@@ -10,7 +10,7 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 current_year <- strftime(Sys.Date(), "%Y")
 
 
-# CTA LINES
+##### CTA LINES #####
 remote_file_cta_feed <- file.path(
   AWS_S3_RAW_BUCKET, "spatial", "access", "cta_stop", "feed",
   paste0(current_year, ".zip")
@@ -66,7 +66,7 @@ if (!aws.s3::object_exists(remote_file_cta_line)) {
 }
 
 
-# FEMA FLOODPLAINS
+##### FEMA FLOODPLAINS #####
 remote_file_flood_fema <- file.path(
   AWS_S3_RAW_BUCKET, "spatial", "environment", "flood_fema",
   paste0(current_year, ".geojson")
@@ -88,29 +88,4 @@ if (!aws.s3::object_exists(remote_file_flood_fema)) {
     st_write(tmp_file_flood_fema)
   aws.s3::put_object(tmp_file_flood_fema, remote_file_flood_fema)
   file.remove(tmp_file_flood_fema, tmp_file)
-}
-
-# OHARE NOISE CONTOUR
-# this file isn't avaiable online
-ohare_noise <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "environment", "ohare_noise", "2016.geojson"
-)
-
-if (!aws.s3::object_exists(ohare_noise)) {
-
-  # grab file
-  tmp_file <- tempfile(fileext = ".geojson")
-  tmp_dir <- tempdir()
-
-  st_write(
-    st_read(
-      "//fileserver/ocommon/Communications Map/Airport Maps/Maine/O'Hare_Noise_Countour.shp"
-      ),
-    tmp_file
-    )
-
-  # Write to S3
-  aws.s3::put_object(tmp_file, ohare_noise)
-  file.remove(tmp_file)
-
 }

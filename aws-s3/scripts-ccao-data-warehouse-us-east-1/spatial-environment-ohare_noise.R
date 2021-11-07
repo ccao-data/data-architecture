@@ -1,39 +1,49 @@
-library(rJava)
-library(purrr)
+library(aws.s3)
+library(DBI)
 library(dplyr)
+library(glue)
 #library(remotes)
 #remotes::install_github(c("ropensci/tabulizerjars", "ropensci/tabulizer"), INSTALL_opts = "--no-multiarch")
-library(tabulizer)
-library(tidyr)
 library(janitor)
-library(stringr)
-library(tidygeocoder)
-library(aws.s3)
-library(shiny)
 library(miniUI)
+library(noctua)
+library(purrr)
+library(rJava)
+library(shiny)
 library(sf)
 library(sfarrow)
+library(stringr)
+library(tabulizer)
+library(tidygeocoder)
+library(tidyr)
 
+
+# Script to transform raw data on O'Hare noise into clean Athena tables
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+AWS_ATHENA_CONN <- DBI::dbConnect(noctua::athena())
 
-remote_file <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment", "ohare_noise", "ohare_noise_monitors.parquet")
 
-# OHARE NOISE MONITORS
-
+##### OHARE NOISE MONITORS #####
 file_paths <- c(
   "noise_levels" = file.path(
-    AWS_S3_RAW_BUCKET, "environment", "ohare_noise", "ORD_Fact_Sheet_Monitors_History.pdf"
+    AWS_S3_RAW_BUCKET, "spatial", "environment",
+    "ohare_noise", "monitor", "ORD_Fact_Sheet_Monitors_History.pdf"
   ),
   "addresses" = file.path(
-    AWS_S3_RAW_BUCKET, "environment", "ohare_noise", "ORD_Fact_Sheet_Monitors_Introduction.pdf"
+    AWS_S3_RAW_BUCKET, "spatial", "environment",
+    "ohare_noise", "monitor", "ORD_Fact_Sheet_Monitors_Introduction.pdf"
+  ),
+  "contour" = file.path(
+    AWS_S3_RAW_BUCKET, "spatial", "environment",
+    "ohare_noise", "contour", "ORD_2016_Noise_Contour.geojson"
   )
 )
 
 # Grab noise level pdf
 tmp_file <- tempfile(fileext = ".pdf")
 tmp_dir <- tempdir()
-aws.s3::save_object(file_paths['noise_levels'],
+aws.s3::save_object(file_paths["noise_levels"],
                     file = tmp_file)
 
 noise_levels <- extract_tables(
@@ -57,7 +67,7 @@ noise_levels <- noise_levels %>%
   na_if("--")
 
 # Grab sensor addresses pdf
-aws.s3::save_object(file_paths['addresses'],
+aws.s3::save_object(file_paths["addresses"],
                     file = tmp_file)
 
 # Only select site and address columns
@@ -66,21 +76,21 @@ addresses <- data.frame(extract_areas(tmp_file[1])[[1]]) %>%
 
 noise_addresses <- left_join(noise_levels, addresses, by = "Site") %>%
 
-  # some of these addresses are wrong or won't geocode for other reasons and need to be manually updated
-  mutate(Address = case_when(Address == '1600 Nicholas Avenue' ~ '1600 Nicholas Blvd',
-                             Address == '7240 Argyle Street' ~ '7240 W Argyle St',
-                             Address == '7515 W. Cullom Avenue' ~ '7515 Cullom Ave',
-                             Address == '1803 Lavergne Drive' ~ '1803 Lavergne Dr',
-                             Address == '799 School Street' ~ '799 S School St',
-                             Address == '1100 Parkside Drive' ~ '1100 Parkside Dr',
-                             Address == '1421 Garden Street' ~ '1421 Garden St',
-                             grepl('Harold Avenue', Address) ~ '4934 Harold Ave',
-                             Address == '744 Edgewood Avenue' ~ '744 S Edgewood Ave',
-                             Address == '720A S. Prospect Avenue' ~ '720 S Prospect Ave',
-                             Address == '7990 W. Keeney Street' ~ '7990 Keeney St',
+  # Some of these addresses are wrong or won"t geocode for other reasons and need to be manually updated
+  mutate(Address = case_when(Address == "1600 Nicholas Avenue" ~ "1600 Nicholas Blvd",
+                             Address == "7240 Argyle Street" ~ "7240 W Argyle St",
+                             Address == "7515 W. Cullom Avenue" ~ "7515 Cullom Ave",
+                             Address == "1803 Lavergne Drive" ~ "1803 Lavergne Dr",
+                             Address == "799 School Street" ~ "799 S School St",
+                             Address == "1100 Parkside Drive" ~ "1100 Parkside Dr",
+                             Address == "1421 Garden Street" ~ "1421 Garden St",
+                             grepl("Harold Avenue", Address) ~ "4934 Harold Ave",
+                             Address == "744 Edgewood Avenue" ~ "744 S Edgewood Ave",
+                             Address == "720A S. Prospect Avenue" ~ "720 S Prospect Ave",
+                             Address == "7990 W. Keeney Street" ~ "7990 Keeney St",
                              TRUE ~ Address),
-         Community = case_when(Address == '459 Geneva Avenue' ~ 'Hillside',
-                               Community == 'Mount Prospect' ~ 'Mt Prospect',
+         Community = case_when(Address == "459 Geneva Avenue" ~ "Hillside",
+                               Community == "Mount Prospect" ~ "Mt Prospect",
                                TRUE ~ Community)) %>%
   mutate(complete_address = paste(Address, Community, "IL", sep = ", ")) %>%
   geocode(complete_address) %>%
@@ -101,8 +111,67 @@ noise_addresses <- left_join(noise_levels, addresses, by = "Site") %>%
 # Write to S3
 tmp_file <- tempfile(fileext = ".parquet")
 tmp_dir <- tempdir()
-
 st_write_parquet(noise_addresses, tmp_file)
-
+remote_file <- file.path(
+  AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment",
+  "ohare_noise", "monitor", "ohare_noise_monitor.parquet"
+)
 aws.s3::put_object(tmp_file, remote_file)
 file.remove(tmp_file)
+
+# Create Athena table from S3 files
+dbSendStatement(
+  AWS_ATHENA_CONN, glue("
+  CREATE EXTERNAL TABLE IF NOT EXISTS `spatial`.`ohare_noise_monitor` (
+    `site` string,
+    `community` string,
+    `modeled_omp_build_out_values` double,
+    `address` string,
+    `year` int,
+    `noise` double,
+    `geometry` binary
+  )
+  ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+  WITH SERDEPROPERTIES (
+    'serialization.format' = '1'
+  ) LOCATION '{dirname(remote_file)}'
+  TBLPROPERTIES ('has_encrypted_data'='false');"
+))
+
+
+
+##### OHARE NOISE CONTOUR #####
+remote_file <- file.path(
+  AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment",
+  "ohare_noise", "contour", "ohare_noise_contour.parquet"
+)
+
+# Grab contour file
+tmp_file <- tempfile(fileext = ".geojson")
+aws.s3::save_object(file_paths["contour"], file = tmp_file)
+# Read file and cleanup
+ohare_noise_contour <- st_read(tmp_file) %>%
+  st_transform(4326) %>%
+  rename_with(tolower) %>%
+  mutate(airport = "ORD") %>%
+  select(airport, decibels) %>%
+  st_write_parquet(remote_file)
+
+# Create Athena table from S3 files
+dbSendStatement(
+  AWS_ATHENA_CONN, glue("
+  CREATE EXTERNAL TABLE IF NOT EXISTS `spatial`.`ohare_noise_contour` (
+    `airport` string,
+    `decibels` int,
+    `geometry` binary
+  )
+  ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+  WITH SERDEPROPERTIES (
+    'serialization.format' = '1'
+  ) LOCATION '{dirname(remote_file)}'
+  TBLPROPERTIES ('has_encrypted_data'='false');"
+  ))
+
+# Cleanup
+file.remove(tmp_file)
+dbDisconnect(AWS_ATHENA_CONN)
