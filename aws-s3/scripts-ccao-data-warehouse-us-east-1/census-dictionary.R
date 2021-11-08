@@ -64,7 +64,7 @@ census_tables <- bind_rows(census_acs_tables_df, census_dec_tables) %>%
   group_by(survey) %>%
   select(variable_table_code, variable_table_title, survey)
 remote_path_tables <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "census", "dict_tables"
+  AWS_S3_WAREHOUSE_BUCKET, "census", "dict_table"
 )
 write_dataset(
   dataset = census_tables,
@@ -131,7 +131,7 @@ census_vars_merged <- bind_rows(census_vars, census_dec_vars) %>%
 
 # Write final data to S3
 remote_path_variables <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "census", "dict_variables"
+  AWS_S3_WAREHOUSE_BUCKET, "census", "dict_variable"
 )
 write_dataset(
   dataset = census_vars_merged,
