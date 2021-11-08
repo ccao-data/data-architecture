@@ -12,6 +12,8 @@ AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 # Retrieve census API key from local .Renviron
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
+
+##### Tables #####
 # Years for which to grab variables
 census_acs_years <- Sys.getenv("CENSUS_ACS_MIN_YEAR"):Sys.getenv("CENSUS_ACS_MAX_YEAR")
 census_acs_tables <- c(
@@ -37,6 +39,44 @@ census_acs_tables <- c(
   "Tenure"                                                        = "B25003"
 )
 
+census_acs_tables_df <- census_acs_tables %>%
+  tibble::enframe(
+    name = "variable_table_title",
+    value = "variable_table_code"
+  ) %>%
+  mutate(survey = "acs")
+
+# Table defs for PL census files
+census_dec_tables <-
+  tribble(
+    ~ "variable_table_code", ~ "variable_table_title",
+    "H1", "Housing Units",
+    "P1", "Race",
+    "P2", "Hispanic Or Latino, And Not Hispanic Or Latino By Race",
+    "P3", "Race For The Population 18 Years And Over",
+    "P4", "Hispanic Or Latino, And Not Hispanic Or Latino By Race For The Population 18 Years And Over",
+    "P5", "Group Quarters Population By Major Group Quarters Type"
+  ) %>%
+  mutate(survey = "decennial")
+
+# Combine table defs and write to dataset
+census_tables <- bind_rows(census_acs_tables_df, census_dec_tables) %>%
+  group_by(survey) %>%
+  select(variable_table_code, variable_table_title, survey)
+remote_path_tables <- file.path(
+  AWS_S3_WAREHOUSE_BUCKET, "census", "dict_tables"
+)
+write_dataset(
+  dataset = census_tables,
+  path = remote_path_tables,
+  format = "parquet",
+  hive_style = TRUE,
+  existing_data_behavior = "overwrite",
+  compression = "snappy"
+)
+
+
+##### Variables #####
 # Grid of possible year/dataset combos
 census_acs_grid <- expand.grid(
   year = census_acs_years,
@@ -57,31 +97,17 @@ census_vars <- census_acs_vars %>%
   mutate(
     survey = "acs",
     label = str_trim(label),
-    source_table_name = ifelse(
+    table = ifelse(
       str_starts(name, "B22005"),
       str_sub(name, 1, 7),
       str_sub(name, 1, 6)
     )
   ) %>%
-  left_join(
-    tibble::enframe(census_acs_tables) %>% rename(source_table_label = name),
-    by = c("source_table_name" = "value")
-  ) %>%
   select(
-    survey, variable_name = name, variable_label = label,
-    source_table_name, source_table_label
-  )
-
-# Table defs for PL census files
-census_dec_tables <-
-  tribble(
-    ~ "source_table_name", ~ "source_table_label",
-    "H1", "Housing Units",
-    "P1", "Race",
-    "P2", "Hispanic Or Latino, And Not Hispanic Or Latino By Race",
-    "P3", "Race For The Population 18 Years And Over",
-    "P4", "Hispanic Or Latino, And Not Hispanic Or Latino By Race For The Population 18 Years And Over",
-    "P5", "Group Quarters Population By Major Group Quarters Type"
+    survey,
+    variable_name = name,
+    variable_table_code = table,
+    variable_label = label
   )
 
 # Get vars for 2020 decennial PL file (2000 and 2010 vars renamed to 2020)
@@ -89,21 +115,27 @@ census_dec_vars <- load_variables(2020, "pl", cache = TRUE) %>%
   mutate(
     survey = "decennial",
     label = str_sub(label, 4, -1),
-    label = str_trim(str_remove_all(label, ":"))
+    label = str_trim(str_remove_all(label, ":")),
+    table = str_sub(name, 1, 2)
   ) %>%
-  select(survey, variable_name = name, variable_label = label) %>%
-  mutate(source_table_name = str_sub(variable_name, 1, 2)) %>%
-  left_join(census_dec_tables, by = "source_table_name")
+  select(
+    survey,
+    variable_name = name,
+    variable_table_code = table,
+    variable_label = label
+  )
 
 # Combine ACS and decennial
 census_vars_merged <- bind_rows(census_vars, census_dec_vars) %>%
   group_by(survey)
 
 # Write final data to S3
-remote_path <- file.path(AWS_S3_WAREHOUSE_BUCKET, "census", "dictionary")
+remote_path_variables <- file.path(
+  AWS_S3_WAREHOUSE_BUCKET, "census", "dict_variables"
+)
 write_dataset(
   dataset = census_vars_merged,
-  path = remote_path,
+  path = remote_path_variables,
   format = "parquet",
   hive_style = TRUE,
   existing_data_behavior = "overwrite",
