@@ -106,8 +106,8 @@ census_vars <- census_acs_vars %>%
   select(
     survey,
     variable_name = name,
-    variable_table_code = table,
-    variable_label = label
+    variable_label = label,
+    variable_table_code = table
   )
 
 # Get vars for 2020 decennial PL file (2000 and 2010 vars renamed to 2020)
@@ -121,8 +121,8 @@ census_dec_vars <- load_variables(2020, "pl", cache = TRUE) %>%
   select(
     survey,
     variable_name = name,
-    variable_table_code = table,
-    variable_label = label
+    variable_label = label,
+    variable_table_code = table
   )
 
 # Combine ACS and decennial
