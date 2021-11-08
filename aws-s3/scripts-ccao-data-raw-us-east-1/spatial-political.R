@@ -38,10 +38,10 @@ api_info <- list(
                  "year"     = "2012"),
 
   # MUNICIPALITY
-  "mnc_2014" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                 "api_url"  = "ta8t-zebk?method=export&format=GeoJSON",
+  "mnc_2021" = c("source"   = "https://opendata.arcgis.com/datasets/",
+                 "api_url"  = "534226c6b1034985aca1e14a2eb234af_2.geojson",
                  "boundary" = "municipality",
-                 "year"     = "2014"),
+                 "year"     = "2021"),
 
   # STATE REPRESENTATIVE
   "str_2010" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
