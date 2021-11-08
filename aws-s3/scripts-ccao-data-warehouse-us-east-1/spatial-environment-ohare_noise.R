@@ -114,7 +114,7 @@ tmp_dir <- tempdir()
 st_write_parquet(noise_addresses, tmp_file)
 remote_file <- file.path(
   AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment",
-  "ohare_noise", "monitor", "ohare_noise_monitor.parquet"
+  "ohare_noise_monitor", "ohare_noise_monitor.parquet"
 )
 aws.s3::put_object(tmp_file, remote_file)
 file.remove(tmp_file)
@@ -143,7 +143,7 @@ dbSendStatement(
 ##### OHARE NOISE CONTOUR #####
 remote_file <- file.path(
   AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment",
-  "ohare_noise", "contour", "ohare_noise_contour.parquet"
+  "ohare_noise_contour", "ohare_noise_contour.parquet"
 )
 
 # Grab contour file
