@@ -28,15 +28,15 @@ AWS_ATHENA_CONN <- DBI::dbConnect(noctua::athena())
 file_paths <- c(
   "noise_levels" = file.path(
     AWS_S3_RAW_BUCKET, "spatial", "environment",
-    "ohare_noise", "monitor", "ORD_Fact_Sheet_Monitors_History.pdf"
+    "ohare_noise_monitor", "ORD_Fact_Sheet_Monitors_History.pdf"
   ),
   "addresses" = file.path(
     AWS_S3_RAW_BUCKET, "spatial", "environment",
-    "ohare_noise", "monitor", "ORD_Fact_Sheet_Monitors_Introduction.pdf"
+    "ohare_noise_monitor", "ORD_Fact_Sheet_Monitors_Introduction.pdf"
   ),
   "contour" = file.path(
     AWS_S3_RAW_BUCKET, "spatial", "environment",
-    "ohare_noise", "contour", "ORD_2016_Noise_Contour.geojson"
+    "ohare_noise_contour", "ORD_2016_Noise_Contour.geojson"
   )
 )
 
