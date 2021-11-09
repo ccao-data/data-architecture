@@ -1,11 +1,18 @@
+library(arrow)
 library(aws.s3)
+library(DBI)
 library(dplyr)
+library(glue)
+library(odbc)
 library(sf)
+library(stringr)
 
 # This script retrieves the parcel files from Cook Central and saves them as
 # geojson on S3
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 
+
+##### Shapefiles #####
 api_info <- list(
   c("api_url" = "983b136927b5418986e86ba8b131991f_0.geojson", "year" = "2000"),
   c("api_url" = "7bdf70f3ee6b48819f822d086f808669_0.geojson", "year" = "2001"),
@@ -34,18 +41,24 @@ api_info <- list(
 # Function to call referenced API, pull requested data, and write it to S3
 pull_and_write <- function(x) {
 
-  tmp_file <- tempfile(fileext = ".geojson")
+  tmp_file <- file.path(tempdir(), paste0(x["year"] ,".geojson"))
   remote_file <- file.path(
     AWS_S3_RAW_BUCKET, "spatial", "parcel",
     paste0(x["year"], ".geojson")
   )
 
   if (!aws.s3::object_exists(remote_file)) {
-
-    st_read(paste0("https://opendata.arcgis.com/datasets/", x["api_url"])) %>%
-      st_write(tmp_file, delete_dsn = TRUE)
-
-    aws.s3::put_object(tmp_file, remote_file)
+    if (!file.exists(tmp_file)) {
+      download.file(
+        paste0("https://opendata.arcgis.com/datasets/", x["api_url"]),
+        destfile = tmp_file
+      )
+    }
+    aws.s3::put_object(
+      file = tmp_file,
+      object = remote_file,
+      show_progress = TRUE
+    )
     file.remove(tmp_file)
   }
 }
@@ -53,5 +66,53 @@ pull_and_write <- function(x) {
 # Apply function to "api_info"
 lapply(api_info, pull_and_write)
 
+
+##### Attributes #####
+# Connect to CCAODATA SQL server
+CCAODATA <- odbc::dbConnect(
+  odbc::odbc(),
+  .connection_string = Sys.getenv("DB_CONFIG_CCAODATA")
+)
+
+# Function to download parcel-level attribute data from old (deprecated) SQL
+# Server. Useful for historical PINs for which data is hard-to-find
+pull_sql_and_write <- function(year) {
+  remote_file_attr <- file.path(
+    AWS_S3_RAW_BUCKET, "spatial", "parcel",
+    paste0(year, "-attr.parquet")
+  )
+
+  if (!aws.s3::object_exists(remote_file_attr)) {
+    print(paste("Now grabbing year:", year))
+    tmp_file <- tempfile(fileext = ".parquet")
+    df <- DBI::dbGetQuery(
+      CCAODATA, glue("
+      SELECT
+        PIN AS pin,
+        HD_CLASS AS class,
+        HD_TOWN AS tax_code,
+        HD_NBHD AS nbhd_code,
+        LEFT(HD_TOWN, 2) AS town_code,
+        TAX_YEAR AS taxyr
+      FROM AS_HEADT
+      WHERE TAX_YEAR = {year}")
+    ) %>%
+      mutate(
+        pin = str_pad(pin, 14, "left", "0"),
+        tax_code = str_pad(tax_code, 5, "left", "0"),
+        nbhd_code = str_pad(nbhd_code, 3, "left", "0"),
+        town_code = str_pad(town_code, 2, "left", "0")
+      ) %>%
+      distinct(pin, .keep_all = TRUE) %>%
+      write_parquet(tmp_file)
+
+    aws.s3::put_object(file = tmp_file, object = remote_file_attr)
+    file.remove(tmp_file)
+  }
+}
+
+lapply(2000:2020, pull_sql_and_write)
+
 # Cleanup
+dbDisconnect(CCAODATA)
 rm(list = ls())
