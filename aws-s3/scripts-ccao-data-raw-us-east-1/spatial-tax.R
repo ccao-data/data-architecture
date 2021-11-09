@@ -91,7 +91,13 @@ api_info <- list(
   "ccl_2016" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
                  "api_url"  = "69tz-shqi?method=export&format=GeoJSON",
                  "boundary" = "community_college",
-                 "year"     = "2016")
+                 "year"     = "2016"),
+
+  # SANITATION
+  "san_2018" = c("source"   = "https://opendata.arcgis.com/datasets/",
+                 "api_url"  = "b8cce49b653f4a059d527b0882f9667c_12.geojson",
+                 "boundary" = "sanitation",
+                 "year"     = "2018")
 )
 
 # Function to call referenced API, pull requested data, and write it to S3
