@@ -69,7 +69,29 @@ api_info <- list(
   "frp_2018" = c("source"   = "https://opendata.arcgis.com/datasets/",
                  "api_url"  = "8250672861de4690a6602113376015c9_3.geojson",
                  "boundary" = "fire_protection",
-                 "year"     = "2018")
+                 "year"     = "2018"),
+
+  # COMMUNITY COLLEGE
+  "ccl_2012" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                 "api_url"  = "pt2x-hzk3?method=export&format=GeoJSON",
+                 "boundary" = "community_college",
+                 "year"     = "2012"),
+  "ccl_2013" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                 "api_url"  = "4byp-2m3p?method=export&format=GeoJSON",
+                 "boundary" = "community_college",
+                 "year"     = "2013"),
+  "ccl_2014" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                 "api_url"  = "uxmj-ssxr?method=export&format=GeoJSON",
+                 "boundary" = "community_college",
+                 "year"     = "2014"),
+  "ccl_2015" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                 "api_url"  = "h5ph-eevy?method=export&format=GeoJSON",
+                 "boundary" = "community_college",
+                 "year"     = "2015"),
+  "ccl_2016" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+                 "api_url"  = "69tz-shqi?method=export&format=GeoJSON",
+                 "boundary" = "community_college",
+                 "year"     = "2016")
 )
 
 # Function to call referenced API, pull requested data, and write it to S3
