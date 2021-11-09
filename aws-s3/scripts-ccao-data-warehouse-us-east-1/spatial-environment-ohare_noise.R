@@ -28,15 +28,15 @@ AWS_ATHENA_CONN <- DBI::dbConnect(noctua::athena())
 file_paths <- c(
   "noise_levels" = file.path(
     AWS_S3_RAW_BUCKET, "spatial", "environment",
-    "ohare_noise", "monitor", "ORD_Fact_Sheet_Monitors_History.pdf"
+    "ohare_noise_monitor", "ORD_Fact_Sheet_Monitors_History.pdf"
   ),
   "addresses" = file.path(
     AWS_S3_RAW_BUCKET, "spatial", "environment",
-    "ohare_noise", "monitor", "ORD_Fact_Sheet_Monitors_Introduction.pdf"
+    "ohare_noise_monitor", "ORD_Fact_Sheet_Monitors_Introduction.pdf"
   ),
   "contour" = file.path(
     AWS_S3_RAW_BUCKET, "spatial", "environment",
-    "ohare_noise", "contour", "ORD_2016_Noise_Contour.geojson"
+    "ohare_noise_contour", "ORD_2016_Noise_Contour.geojson"
   )
 )
 
@@ -114,7 +114,7 @@ tmp_dir <- tempdir()
 st_write_parquet(noise_addresses, tmp_file)
 remote_file <- file.path(
   AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment",
-  "ohare_noise", "monitor", "ohare_noise_monitor.parquet"
+  "ohare_noise_monitor", "ohare_noise_monitor.parquet"
 )
 aws.s3::put_object(tmp_file, remote_file)
 file.remove(tmp_file)
@@ -143,7 +143,7 @@ dbSendStatement(
 ##### OHARE NOISE CONTOUR #####
 remote_file <- file.path(
   AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment",
-  "ohare_noise", "contour", "ohare_noise_contour.parquet"
+  "ohare_noise_contour", "ohare_noise_contour.parquet"
 )
 
 # Grab contour file

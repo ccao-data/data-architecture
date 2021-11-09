@@ -17,7 +17,7 @@ pull_and_write_ohare_noise <- function(x) {
 
   remote_file <- file.path(
     AWS_S3_RAW_BUCKET, "spatial", "environment",
-    "ohare_noise", "monitor", x
+    "ohare_noise_monitor", x
   )
 
   # Print file being written
@@ -39,9 +39,7 @@ pull_and_write_ohare_noise <- function(x) {
     # Write to S3
     aws.s3::put_object(tmp_file, remote_file)
     file.remove(tmp_file)
-
   }
-
 }
 
 # Apply function
@@ -52,7 +50,7 @@ lapply(files, pull_and_write_ohare_noise)
 # This file isn't available online
 ohare_noise_boundary <- file.path(
   AWS_S3_RAW_BUCKET, "spatial", "environment",
-  "ohare_noise", "contour", "ORD_2016_Noise_Contour.geojson"
+  "ohare_noise_contour", "ORD_2016_Noise_Contour.geojson"
 )
 
 if (!aws.s3::object_exists(ohare_noise_boundary)) {
