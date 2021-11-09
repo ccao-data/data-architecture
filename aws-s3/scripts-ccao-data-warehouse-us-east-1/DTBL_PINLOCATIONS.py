@@ -174,10 +174,6 @@ old_parcels_combined = old_parcels_combined[keep].to_crs(4326)
 if data['parcels'].crs != 4326:
     raise Exception("parcel CRS not as expected")
 
-# parcels should load as 4326 CRS
-if data['parcels'].crs != 4326:
-    raise Exception("parcel CRS not as expected")
-
 parcels = data['parcels']
 
 # add tax year
@@ -234,13 +230,13 @@ parcels = parcels.drop(['pinu', 'pinb', 'pinp', 'pinsa', 'pina', 'area', 'most_r
 # PUMAS
 
 # re-project, only keep geometry column and identiefier columns
-pumas = data['pumas'].to_crs(3435)
+pumas = data['pumas']
 pumas['PUMA'] = pumas['GEOID10'].str[2:7]
 pumas = pumas[['PUMA', 'geometry']]
 
 # CHICAGO SPECIAL SERVICE AREAS
 
-ssas = data['ssas'].to_crs(3435)
+ssas = data['ssas']
 
 # rename columns and only keep those of interest
 ssas = ssas.rename(columns = {'name':'ssa_name', 'ref':'ssa_no'})
@@ -249,14 +245,14 @@ ssas = ssas[['ssa_name', 'ssa_no', 'geometry']]
 # GEOGRAPHIC BOUNDARIES
 
 # roads shapefile
-roads = data['roads'].to_crs(3435)
+roads = data['roads']
 
 # O'Hare noise zone boundary (derived from buffering O'Hare boundary data)
 ohare = data['ohare']
 ohare = ohare.rename(columns = {'AIRPORT':'ohare_noise'})
 
 # FEMA flood data
-fema_floodplains = data['fema_floodplains'].to_crs(3435)
+fema_floodplains = data['fema_floodplains']
 fema_floodplains = fema_floodplains[['SFHA_TF', 'geometry']]
 fema_floodplains = fema_floodplains.rename(columns = {'SFHA_TF':'floodplain'})
 fema_floodplains['floodplain'] = fema_floodplains['floodplain'].replace({'T': 1, 'F': 0})
@@ -296,7 +292,7 @@ parcels_joined = parcels
 # perform spatial joins with all boundary datasets
 for df in (ohare, pumas, ssas, fema_floodplains):
 
-    parcels_joined = gpd.sjoin(parcels_joined, df, how = 'left', op = 'intersects')
+    parcels_joined = gpd.sjoin(parcels_joined, df.to_crs(3435), how = 'left', op = 'intersects')
     parcels_joined = parcels_joined.drop(['index_right'], axis = 1)
 
 # join third-party floodplains data by PIN
@@ -394,5 +390,7 @@ parcels_filled_no_missing = parcels_filled_no_missing[[
 # to_parquet is finicky about column types, lat and long can't upload as 'object' type
 parcels_filled_no_missing['latitude'] = parcels_filled_no_missing['latitude'].astype('string')
 parcels_filled_no_missing['longitude'] = parcels_filled_no_missing['longitude'].astype('string')
+
+parcels_filled_no_missing = parcels_filled_no_missing.to_crs(4326)
 
 parcels_filled_no_missing.to_parquet('s3://ccao-data-warehouse-us-east-1/modeling/DTBL_PINLOCATIONS/DTBL_PINLOCATIONS.parquet', index = False)
