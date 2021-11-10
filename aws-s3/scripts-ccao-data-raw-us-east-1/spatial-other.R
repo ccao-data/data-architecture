@@ -40,3 +40,21 @@ if (!aws.s3::object_exists(remote_file_unincorporated_area)) {
   aws.s3::put_object(tmp_file_unincorporated_area, remote_file_unincorporated_area)
   file.remove(tmp_file_unincorporated_area)
 }
+
+# INDUSTRIAL GROWTH ZONE
+remote_file_industrial_growth_zone <- file.path(
+  AWS_S3_RAW_BUCKET, "spatial", "other", "industrial_growth_zone",
+  paste0("2019", ".geojson")
+)
+tmp_file_industrial_growth_zone <- tempfile(fileext = ".geojson")
+
+# Write file to S3 if it doesn't already exist
+if (!aws.s3::object_exists(remote_file_industrial_growth_zone)) {
+  st_read(paste0(
+    "https://opendata.arcgis.com/datasets/",
+    "76e52da12b56406c945662eea968f3e1_1.geojson"
+  )) %>%
+    st_write(tmp_file_industrial_growth_zone, delete_dsn = TRUE)
+  aws.s3::put_object(tmp_file_industrial_growth_zone, remote_file_industrial_growth_zone)
+  file.remove(tmp_file_industrial_growth_zone)
+}
