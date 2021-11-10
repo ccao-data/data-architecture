@@ -50,7 +50,6 @@ process_parcel_file <- function(row) {
   file_year <- row["year"]
   attr_uri <- row["attr"]
   spatial_uri <- row["spatial"]
-  print(paste("Now processing parcel file for:", file_year))
   tictoc::tic(paste("Finished processing parcel file for:", file_year))
 
   # Download S3 files to local temp dir if the don't exist
@@ -60,75 +59,89 @@ process_parcel_file <- function(row) {
   parcel_dir <- file.path(dirname(tempdir()), "parcel")
   local_spatial_file <- file.path(parcel_dir, paste0(file_year, ".geojson"))
   local_attr_file <- file.path(parcel_dir, paste0(file_year, "-attr.parquet"))
+  local_backup_file <- file.path(parcel_dir, paste0(file_year, "-proc.parquet"))
 
-  # Read local geojson file
-  tictoc::tic(paste("Read file for:", file_year))
-  spatial_df_raw <- st_read(local_spatial_file)
-  tictoc::toc()
+  # Only run processing if local backup doesn't exist
+  if (!file.exists(local_backup_file)) {
+    print(paste("Now processing parcel file for:", file_year))
 
-  # If PIN14 is missing, create a column by padding PIN10
-  if (!"pin14" %in% names(spatial_df_raw)) {
-    spatial_df_raw <- spatial_df_raw %>%
+    # Read local geojson file
+    tictoc::tic(paste("Read file for:", file_year))
+    spatial_df_raw <- st_read(local_spatial_file)
+    tictoc::toc()
+
+    # If PIN14 is missing, create a column by padding PIN10
+    if (!"pin14" %in% names(spatial_df_raw)) {
+      spatial_df_raw <- spatial_df_raw %>%
+        rename_with(tolower) %>%
+        mutate(pin14 = str_pad(pin10, 14, "left", "0"))
+    }
+
+    # Clean up spatial data of local file
+    tictoc::tic(paste("Cleaned file for:", file_year))
+    spatial_df_clean <- spatial_df_raw %>%
+      filter(!is.na(pin10)) %>%
+      # Keep only vital columns
       rename_with(tolower) %>%
-      mutate(pin14 = str_pad(pin10, 14, "left", "0"))
+      select(pin14, pin10, geometry) %>%
+      mutate(
+        # Drop any non-numeric chars from PINs
+        across(c(pin10, pin14), ~ gsub("\\D", "", .x)),
+        # Ensure PINs are zero-padded
+        pin10 = str_pad(pin10, 10, "left", "0"),
+        pin14 = str_pad(pin14, 14, "left", "0"),
+        # If PIN10 is missing, fill with PIN14
+        pin10 = ifelse(is.na(pin10), str_sub(pin14, 1, 10), pin10)
+      ) %>%
+      # Ensure valid geometry and convert to 4326 if not already
+      st_make_valid() %>%
+      st_transform(2163) %>%
+      # Get the centroid of each polygon
+      cbind(st_coordinates(st_transform(st_centroid(.), 4326))) %>%
+      mutate(area = st_area(.)) %>%
+      rename(lon = X, lat = Y) %>%
+      st_transform(4326) %>%
+
+      # For each PIN10, keep the centroid of the largest polygon and then union
+      # of all geometries/shapes associated with that PIN10 into one multipolygon
+      group_by(pin10) %>%
+      arrange(desc(area)) %>%
+      summarize(
+        lon = first(lon),
+        lat = first(lat),
+        geometry = st_union(geometry)
+      )
+    tictoc::toc()
+
+    # Read attribute data and get unique attributes by PIN10
+    attr_df <- read_parquet(local_attr_file) %>%
+      mutate(pin10 = str_sub(pin, 1, 10)) %>%
+      group_by(pin10) %>%
+      summarize(
+        tax_code = first(tax_code),
+        nbhd_code = first(nbhd_code),
+        town_code = first(town_code),
+        year = file_year
+      )
+
+    # Merge spatial boundaries with attribute data
+    spatial_df_merged <- spatial_df_clean %>%
+      left_join(attr_df, by = "pin10") %>%
+      mutate(has_attributes = !is.na(town_code)) %>%
+      select(
+        pin10, tax_code, nbhd_code, has_attributes,
+        lon, lat, geometry, town_code, year
+      ) %>%
+      group_by(town_code, year)
+
+    # Write local backup copy
+    st_write_parquet(spatial_df_merged, local_backup_file)
+
+  } else {
+    print(paste("Loading processed parcels from backup for:", file_year))
+    spatial_df_merged <- st_read_parquet(local_backup_file) %>%
+      group_by(town_code, year)
   }
-
-  # Clean up spatial data of local file
-  tictoc::tic(paste("Cleaned file for:", file_year))
-  spatial_df_clean <- spatial_df_raw %>%
-    filter(!is.na(pin10)) %>%
-    # Keep only vital columns
-    rename_with(tolower) %>%
-    select(pin14, pin10, geometry) %>%
-    mutate(
-      # Drop any non-numeric chars from PINs
-      across(c(pin10, pin14), ~ gsub("\\D", "", .x)),
-      # Ensure PINs are zero-padded
-      pin10 = str_pad(pin10, 10, "left", "0"),
-      pin14 = str_pad(pin14, 14, "left", "0"),
-      # If PIN10 is missing, fill with PIN14
-      pin10 = ifelse(is.na(pin10), str_sub(pin14, 1, 10), pin10)
-    ) %>%
-    # Ensure valid geometry and convert to 4326 if not already
-    st_make_valid() %>%
-    st_transform(2163) %>%
-    # Get the centroid of each polygon
-    cbind(st_coordinates(st_transform(st_centroid(.), 4326))) %>%
-    mutate(area = st_area(.)) %>%
-    rename(lon = X, lat = Y) %>%
-    st_transform(4326) %>%
-
-    # For each PIN10, keep the centroid of the largest polygon and then union
-    # of all geometries/shapes associated with that PIN10 into one multipolygon
-    group_by(pin10) %>%
-    arrange(desc(area)) %>%
-    summarize(
-      lon = first(lon),
-      lat = first(lat),
-      geometry = st_union(geometry)
-    )
-  tictoc::toc()
-
-  # Read attribute data and get unique attributes by PIN10
-  attr_df <- read_parquet(local_attr_file) %>%
-    mutate(pin10 = str_sub(pin, 1, 10)) %>%
-    group_by(pin10) %>%
-    summarize(
-      tax_code = first(tax_code),
-      nbhd_code = first(nbhd_code),
-      town_code = first(town_code),
-      year = file_year
-    )
-
-  # Merge spatial boundaries with attribute data
-  spatial_df_merged <- spatial_df_clean %>%
-    left_join(attr_df, by = "pin10") %>%
-    mutate(has_attributes = !is.na(town_code)) %>%
-    select(
-      pin10, tax_code, nbhd_code, has_attributes,
-      lon, lat, geometry, town_code, year
-    ) %>%
-    group_by(town_code, year)
 
   # Write final dataframe to dataset on S3, partitioned by town and year
   remote_file <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
