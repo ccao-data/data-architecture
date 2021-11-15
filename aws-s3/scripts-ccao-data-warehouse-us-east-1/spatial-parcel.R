@@ -140,17 +140,28 @@ process_parcel_file <- function(row) {
   } else {
     print(paste("Loading processed parcels from backup for:", file_year))
     spatial_df_merged <- st_read_parquet(local_backup_file) %>%
-      group_by(town_code, year)
+      group_by(year, town_code)
   }
 
   # Write final dataframe to dataset on S3, partitioned by town and year
-  remote_file <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
-  write_sf_dataset(
-    obj = spatial_df_merged,
-    path = remote_file,
-    format = "parquet",
-    compression = "snappy"
-  )
+  spatial_df_merged %>%
+    mutate(year = file_year) %>%
+    group_by(year, town_code) %>%
+    group_walk(~ {
+      year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
+      town_code <- replace_na(.y$town_code, "__HIVE_DEFAULT_PARTITION__")
+      remote_path <- file.path(
+        AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel",
+        paste0("year=", year), paste0("town_code=", town_code),
+        "part-0.parquet"
+      )
+      if (!object_exists(remote_path)) {
+        print(paste("Now uploading:", year, "data for town:", town_code))
+        tmp_file <- tempfile(fileext = ".parquet")
+        st_write_parquet(.x, tmp_file, compression = "snappy")
+        aws.s3::put_object(tmp_file, remote_path)
+      }
+    })
   tictoc::toc()
 }
 
