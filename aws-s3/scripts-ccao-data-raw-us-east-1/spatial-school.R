@@ -95,7 +95,13 @@ api_info <- list(
   "attendance_sec_1718" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
                             "api_url"  = "y9da-bb2y?method=export&format=GeoJSON",
                             "boundary" = "cps_attendance_secondary",
-                            "year"     = "2017-2018")
+                            "year"     = "2017-2018"),
+
+  # LOCATION
+  "locations_all_21" = c("source"   = "https://opendata.arcgis.com/datasets/",
+                            "api_url"  = "a9a2e342397249fd90872765d11aede7_4.geojson",
+                            "boundary" = "location",
+                            "year"     = "2021")
 )
 
 # Function to call referenced API, pull requested data, and write it to S3
