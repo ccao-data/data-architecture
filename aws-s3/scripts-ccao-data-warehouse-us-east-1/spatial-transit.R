@@ -64,12 +64,15 @@ process_gtfs_feed <- function(feed) {
           ) %>%
           stops_as_sf() %>%
           st_transform(4326) %>%
-          mutate(route_type = as.integer(x), feed_pull_date = date)
+          mutate(
+            route_type = as.integer(x), feed_pull_date = date,
+            geometry_3435 = st_transform(geometry, 3435)
+          )
       }) %>%
         select(
           stop_id, stop_name, route_type,
           any_of(c("location_type", "parent_station", "wheelchair_boarding")),
-          any_of(c("feed_pull_date", "geometry"))
+          any_of(c("feed_pull_date", "geometry", "geometry_3435"))
         ) %>%
         st_write_parquet(remote_file_stop)
     }
@@ -83,7 +86,7 @@ process_gtfs_feed <- function(feed) {
           select(
             route_id, route_type, route_short_name, route_long_name,
             any_of(c("route_color", "route_text_color")),
-            any_of(c("feed_pull_date", "geometry"))
+            any_of(c("feed_pull_date", "geometry", "geometry_3435"))
           ) %>%
           write_parquet(remote_file_route)
       } else {
@@ -92,11 +95,15 @@ process_gtfs_feed <- function(feed) {
           get_route_geometry() %>%
           st_transform(4326) %>%
           left_join(gtfs_feed$routes, by = "route_id") %>%
-          mutate(feed_pull_date = date, route_type = as.integer(route_type)) %>%
+          mutate(
+            feed_pull_date = date,
+            route_type = as.integer(route_type),
+            geometry_3435 = st_transform(geometry, 3435)
+          ) %>%
           select(
             route_id, route_type, route_short_name, route_long_name,
             route_color, route_text_color,
-            feed_pull_date, geometry
+            feed_pull_date, geometry, geometry_3435
           ) %>%
           st_write_parquet(remote_file_route)
       }

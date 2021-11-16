@@ -37,25 +37,31 @@ normalize_census_geo <- function(key) {
     tmp_file <- tempfile(fileext = ".geojson")
     aws.s3::save_object(key, AWS_S3_RAW_BUCKET, file = tmp_file)
     df <- sf::read_sf(tmp_file) %>%
-      st_transform(4326) %>%
       select(starts_with(
         c("GEOID", "NAME", "INTPT", "ALAND", "AWATER"),
         ignore.case = TRUE
       )) %>%
-      set_names(str_remove_all(names(.), "[[:digit:]]"))
+      set_names(str_remove_all(names(.), "[[:digit:]]")) %>%
+      st_transform(4326)
 
     df <- df %>%
       st_drop_geometry() %>%
       st_as_sf(coords = c("INTPTLON", "INTPTLAT"), crs = st_crs(df)) %>%
-      cbind(st_coordinates(.)) %>%
+      cbind(st_coordinates(.), st_coordinates(st_transform(., 3435))) %>%
       st_drop_geometry() %>%
-      select(lon = X, lat = Y) %>%
+      select(lon = X, lat = Y, x_3435 = `X.1`, y_3435 = `Y.1`) %>%
       cbind(df, .) %>%
       select(
         -starts_with("INTPT", ignore.case = TRUE),
         -ends_with("LSAD", ignore.case = TRUE)
       ) %>%
       rename_with(tolower) %>%
+      mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+      select(
+        everything(),
+        lon, lat, x_3435, y_3435,
+        geometry, geometry_3435
+      ) %>%
       st_write_parquet(remote_file, compression = "snappy")
   }
 }

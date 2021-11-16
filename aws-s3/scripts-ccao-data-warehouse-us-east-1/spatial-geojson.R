@@ -20,7 +20,8 @@ if (!aws.s3::object_exists(tract_2020_warehouse)) {
     county = "031",
     cb = TRUE,
     year = 2020
-  )
+  ) %>%
+    st_transform(4326)
 
   # Write geojson to S3
   tmp_file_geojson <- tempfile(fileext = ".geojson")
