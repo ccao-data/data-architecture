@@ -152,9 +152,12 @@ aws.s3::save_object(file_paths["contour"], file = tmp_file)
 # Read file and cleanup
 ohare_noise_contour <- st_read(tmp_file) %>%
   st_transform(4326) %>%
+  st_cast("POLYGON") %>%
+  summarize(geometry = st_union(geometry)) %>%
+  nngeo::st_remove_holes() %>%
   rename_with(tolower) %>%
-  mutate(airport = "ORD") %>%
-  select(airport, decibels) %>%
+  mutate(airport = "ORD", decibels = 65) %>%
+  select(airport, decibels, geometry = geom) %>%
   st_write_parquet(remote_file)
 
 # Create Athena table from S3 files
