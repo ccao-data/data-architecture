@@ -95,11 +95,15 @@ process_parcel_file <- function(row) {
       ) %>%
       # Ensure valid geometry and convert to 4326 if not already
       st_make_valid() %>%
-      st_transform(2163) %>%
+      st_transform(3435) %>%
+
       # Get the centroid of each polygon
-      cbind(st_coordinates(st_transform(st_centroid(.), 4326))) %>%
+      cbind(
+        st_coordinates(st_transform(st_centroid(.), 4326)),
+        st_coordinates(st_centroid(.))
+      ) %>%
       mutate(area = st_area(.)) %>%
-      rename(lon = X, lat = Y) %>%
+      rename(lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1) %>%
       st_transform(4326) %>%
 
       # For each PIN10, keep the centroid of the largest polygon and then union
@@ -109,8 +113,11 @@ process_parcel_file <- function(row) {
       summarize(
         lon = first(lon),
         lat = first(lat),
+        x_3435 = first(x_3435),
+        y_3435 = first(y_3435),
         geometry = st_union(geometry)
-      )
+      ) %>%
+      mutate(geometry_3435 = st_transform(geometry, 3435))
     tictoc::toc()
 
     # Read attribute data and get unique attributes by PIN10
@@ -130,17 +137,16 @@ process_parcel_file <- function(row) {
       mutate(has_attributes = !is.na(town_code)) %>%
       select(
         pin10, tax_code, nbhd_code, has_attributes,
-        lon, lat, geometry, town_code, year
-      ) %>%
-      group_by(town_code, year)
+        lon, lat, x_3435, y_3435, geometry, geometry_3435,
+        town_code, year
+      )
 
     # Write local backup copy
     st_write_parquet(spatial_df_merged, local_backup_file)
 
   } else {
     print(paste("Loading processed parcels from backup for:", file_year))
-    spatial_df_merged <- st_read_parquet(local_backup_file) %>%
-      group_by(year, town_code)
+    spatial_df_merged <- st_read_parquet(local_backup_file)
   }
 
   # Write final dataframe to dataset on S3, partitioned by town and year

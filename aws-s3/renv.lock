@@ -9,13 +9,6 @@
     ]
   },
   "Packages": {
-    "BH": {
-      "Package": "BH",
-      "Version": "1.75.0-0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "e4c04affc2cac20c8fec18385cd14691"
-    },
     "DBI": {
       "Package": "DBI",
       "Version": "1.1.1",
@@ -37,13 +30,6 @@
       "Repository": "CRAN",
       "Hash": "0e59129db205112e3963904db67fd0dc"
     },
-    "Matrix": {
-      "Package": "Matrix",
-      "Version": "1.3-4",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "4ed05e9c9726267e4a5872e09c04587c"
-    },
     "R6": {
       "Package": "R6",
       "Version": "2.5.1",
@@ -57,13 +43,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "dab19adae4440ae55aa8a9d238b246bb"
-    },
-    "RcppEigen": {
-      "Package": "RcppEigen",
-      "Version": "0.3.3.9.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "ddfa72a87fdf4c80466a20818be91d00"
     },
     "arrow": {
       "Package": "arrow",
@@ -296,6 +275,13 @@
       "Repository": "CRAN",
       "Hash": "04144c88042173c88664d5340b3751b7"
     },
+    "geometries": {
+      "Package": "geometries",
+      "Version": "0.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "be29054e97e756ade56d13a89c6d5243"
+    },
     "glue": {
       "Package": "glue",
       "Version": "1.4.2",
@@ -394,13 +380,6 @@
       "Repository": "CRAN",
       "Hash": "2ff5eedb6ee38fb1b81205c73be1be5a"
     },
-    "lwgeom": {
-      "Package": "lwgeom",
-      "Version": "0.2-8",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "68b7afe010f5ddc3d5a5c8113018bb39"
-    },
     "magrittr": {
       "Package": "magrittr",
       "Version": "2.0.1",
@@ -428,20 +407,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "fec5f52652d60615fdb3957b3d74324a"
-    },
-    "nabor": {
-      "Package": "nabor",
-      "Version": "0.5.0",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "54388cc0cf3dfc0948a4bfbf9e8cceba"
-    },
-    "nngeo": {
-      "Package": "nngeo",
-      "Version": "0.4.4",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "4af82d9f642942a6c8bfe117d613ec65"
     },
     "noctua": {
       "Package": "noctua",
@@ -730,6 +695,13 @@
       "Repository": "CRAN",
       "Hash": "b320f164b1d7bb7e4582b841e22d15a0"
     },
+    "sfheaders": {
+      "Package": "sfheaders",
+      "Version": "0.4.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "c1bd5fbd6bed3c16a20df15d9bc20c55"
+    },
     "shiny": {
       "Package": "shiny",
       "Version": "1.7.1",
@@ -782,26 +754,16 @@
     "tabulizer": {
       "Package": "tabulizer",
       "Version": "0.2.2",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "tabulizer",
-      "RemoteUsername": "ropensci",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "9f45f9192b75f02c8de494909e0aa2930b26d477",
-      "Hash": "faa0290536f5b3acca284138fa6ce5e7"
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "3185156f8249ee6dad0af5a9cd7f39a7"
     },
     "tabulizerjars": {
       "Package": "tabulizerjars",
       "Version": "1.0.1",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "tabulizerjars",
-      "RemoteUsername": "ropensci",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "d1924e01db15b75251e4eb8f558e6e1a81e1c270",
-      "Hash": "19b09cc46a0c025054f38ae21700bf43"
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "f8e259f00c9fe116a167c838575d7d49"
     },
     "tibble": {
       "Package": "tibble",
