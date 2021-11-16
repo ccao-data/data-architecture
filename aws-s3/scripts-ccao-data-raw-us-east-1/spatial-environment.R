@@ -44,7 +44,7 @@ if (!aws.s3::object_exists(remote_file_coastline)) {
   tmp_file <- tempfile(fileext = ".geojson")
 
   st_write(
-    tigris::coastline() %>% filter(NAME == 'Great Lakes'),
+    tigris::coastline(year = current_year) %>% filter(NAME == 'Great Lakes'),
     tmp_file
     )
 
@@ -64,7 +64,7 @@ if (!aws.s3::object_exists(remote_file_hydrology)) {
   tmp_file <- tempfile(fileext = ".geojson")
 
   st_write(
-    tigris::area_water("IL", "Cook"),
+    tigris::area_water("IL", "Cook", year = current_year),
     tmp_file
   )
 
