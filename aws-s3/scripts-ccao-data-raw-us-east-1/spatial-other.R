@@ -113,7 +113,7 @@ if (!aws.s3::object_exists(remote_file_qualified_opportuniy_zone)) {
   tmp2 <- tempfile()
   tmp3 <- tempfile(fileext = ".geojson")
 
-  # Grab zipped shapefile
+  # Grab zipped shapefile - https://www.cdfifund.gov/opportunity-zones
   download.file(
     "https://www.cdfifund.gov/sites/cdfi/files/documents/opportunity-zones=8764.-9-10-2019.zip",
     destfile = tmp1
