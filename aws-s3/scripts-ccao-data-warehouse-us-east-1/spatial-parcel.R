@@ -1,6 +1,7 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
+library(here)
 library(purrr)
 library(readr)
 library(sf)
@@ -12,6 +13,7 @@ library(tidyr)
 # This script cleans historical Cook County parcel data and uploads it to S3
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+parcel_tmp_dir <- here("parcel-tmp")
 
 # Get list of all parcel files (geojson AND attribute files) in the raw bucket
 parcel_files_df <- aws.s3::get_bucket_df(
@@ -30,9 +32,8 @@ parcel_files_df <- aws.s3::get_bucket_df(
 
 # Save S3 parcel and attribute files locally for loading with sf
 save_local_parcel_files <- function(year, spatial_uri, attr_uri) {
-  temp_dir <- file.path(dirname(tempdir()), "parcel")
-  tmp_file_spatial <- file.path(temp_dir, paste0(year, ".geojson"))
-  tmp_file_attr <- file.path(temp_dir, paste0(year, "-attr.parquet"))
+  tmp_file_spatial <- file.path(parcel_tmp_dir, paste0(year, ".geojson"))
+  tmp_file_attr <- file.path(parcel_tmp_dir, paste0(year, "-attr.parquet"))
   if (!file.exists(tmp_file_spatial)) {
     print(paste("Grabbing geojson file for:", year))
     aws.s3::save_object(spatial_uri, file = tmp_file_spatial)
@@ -56,10 +57,9 @@ process_parcel_file <- function(row) {
   save_local_parcel_files(file_year, spatial_uri, attr_uri)
 
   # Local file paths for parcel files
-  parcel_dir <- file.path(dirname(tempdir()), "parcel")
-  local_spatial_file <- file.path(parcel_dir, paste0(file_year, ".geojson"))
-  local_attr_file <- file.path(parcel_dir, paste0(file_year, "-attr.parquet"))
-  local_backup_file <- file.path(parcel_dir, paste0(file_year, "-proc.parquet"))
+  local_spatial_file <- file.path(parcel_tmp_dir, paste0(file_year, ".geojson"))
+  local_attr_file <- file.path(parcel_tmp_dir, paste0(file_year, "-attr.parquet"))
+  local_backup_file <- file.path(parcel_tmp_dir, paste0(file_year, "-proc.parquet"))
 
   # Only run processing if local backup doesn't exist
   if (!file.exists(local_backup_file)) {

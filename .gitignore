@@ -7,3 +7,4 @@
 *.parquet
 *.csv
 data_lake_raw/
+aws-s3/parcel-tmp
