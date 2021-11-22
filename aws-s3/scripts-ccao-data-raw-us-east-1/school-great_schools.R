@@ -11,34 +11,38 @@ remote_file <- file.path(
   "school",
   "great_schools",
   paste0(format(Sys.Date(), "%Y"), ".parquet")
-  )
+)
 
 # We'll loop over Cook County zip codes to get all schools, since we can only grab 50 at a time
 cook_zips <- zipcodeR::search_county("Cook", "IL") %>%
-  pull(zipcode)
+  pull(zipcode) %>%
+  expand.grid(zip = ., "page" = 0:1)
 
 # Function to loop over zip codes and retrieve data
 gather_schools <- function(zipcode, api_key) {
 
   req <- httr::GET(
-    paste0("https://gs-api.greatschools.org/schools?zip=", zipcode),
+    paste0(
+      "https://gs-api.greatschools.org/schools?zip=", zipcode[1],
+      "&page=", zipcode[2],
+      "&limit=50"
+    ),
     add_headers("X-API-Key" = API_KEY)
   )
 
   return(
 
-    httr::content(req, as = "parsed") %>%
-      bind_rows()
+    httr::content(req, as = "parsed")
 
   )
 
 }
 
 # Apply function to zip codes
-great_schools <- lapply(cook_zips, gather_schools, api_key = API_KEY)
+great_schools <- apply(cook_zips, 1, gather_schools, api_key = API_KEY)
 
 # Condense data into dataframe, limit to Cook County FIPS
-great_schools <- bind_rows(schools) %>%
+great_schools <- bind_rows(great_schools) %>%
   filter(fipscounty == "17031")
 
 # Write data if it does not already exist
