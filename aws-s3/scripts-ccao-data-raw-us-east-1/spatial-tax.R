@@ -23,12 +23,6 @@ api_info <- list(
                  "boundary" = "tif",
                  "year"     = "2018"),
 
-  # SSA
-  "ssa_2018" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
-                 "api_url"  = "fz5x-7zak?method=export&format=GeoJSON",
-                 "boundary" = "ssa",
-                 "year"     = "2020"),
-
   # LIBRARY
   "lib_2015" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
                  "api_url"  = "nu5w-d9cb?method=export&format=GeoJSON",
@@ -121,6 +115,21 @@ pull_and_write <- function(x) {
 
 # Apply function to "api_info"
 lapply(api_info, pull_and_write)
+
+# SSAs
+remote_file <- file.path(
+  AWS_S3_RAW_BUCKET, "spatial", "tax",
+  "ssa", "2020.geojson"
+)
+
+if (!aws.s3::object_exists(remote_file)) {
+
+  aws.s3::put_object(
+    "O:/CCAODATA/data/spatial/SpecServTaxDist_2020/SpecServTaxDist_2020.geojson",
+    remote_file
+    )
+
+}
 
 # Cleanup
 rm(list = ls())
