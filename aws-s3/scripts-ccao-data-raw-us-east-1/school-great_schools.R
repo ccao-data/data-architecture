@@ -2,6 +2,7 @@ library(httr)
 library(arrow)
 library(dplyr)
 library(zipcodeR)
+library(aws.s3)
 
 # This script retrieves data including ratings from greatschools.org
 API_KEY <- Sys.getenv("GREAT_SCHOOLS_API_KEY")
