@@ -133,5 +133,20 @@ if (!aws.s3::object_exists(remote_file_qualified_opportuniy_zone)) {
 
 }
 
+# SUBDIVISIONS
+remote_file_subdivision <- file.path(
+  AWS_S3_RAW_BUCKET, "spatial", "other", "subdivision",
+  paste0(current_year, ".geojson")
+)
+
+# Write file to S3 if it doesn't already exist
+if (!aws.s3::object_exists(remote_file_subdivision)) {
+
+  aws.s3::put_object("O:/CCAODATA/data/spatial/Subdivisions.geojson",
+                     remote_file_subdivision,
+                     multipart = TRUE)
+
+}
+
 # Cleanup
 rm(list = ls())

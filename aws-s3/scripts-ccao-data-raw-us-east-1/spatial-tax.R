@@ -125,7 +125,7 @@ remote_file <- file.path(
 if (!aws.s3::object_exists(remote_file)) {
 
   aws.s3::put_object(
-    "O:/CCAODATA/data/spatial/SpecServTaxDist_2020/SpecServTaxDist_2020.geojson",
+    "O:/CCAODATA/data/spatial/SpecServTaxDist_2020.geojson",
     remote_file
     )
 
