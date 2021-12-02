@@ -3,18 +3,19 @@ library(aws.s3)
 library(DBI)
 library(dplyr)
 library(glue)
+library(noctua)
 library(odbc)
 library(sf)
 library(stringr)
 
-# This script retrieves the parcel files from Cook Central and saves them as
-# geojson on S3
-# NOTE: the most recent parcel file must be added manually to S3 ahead of its
-# public release on the data portal
+# This script retrieves the historical parcel files from Cook Central
+# and saves them as geojson on S3
+# It also cleans the most recent parcel file (before it's publicly
+# available) and adds some attribute data)
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 
 
-##### Shapefiles #####
+##### HISTORICAL PARCELS #####
 api_info <- list(
   c("api_url" = "983b136927b5418986e86ba8b131991f_0.geojson", "year" = "2000"),
   c("api_url" = "7bdf70f3ee6b48819f822d086f808669_0.geojson", "year" = "2001"),
@@ -115,6 +116,67 @@ pull_sql_and_write <- function(year) {
 
 lapply(2000:2020, pull_sql_and_write)
 
+
+##### CURRENT PARCELS #####
+current_year <- format(Sys.Date(), "%Y")
+parcels_current <- glue(
+  "O:/CCAODATA/data/spatial/{current_year}",
+  "parcel/clerkParcel{current_year}.shp"
+)
+parcels_current_tmp_geo <- tempfile(fileext = ".geojson")
+parcels_current_tmp_attr <- tempfile(fileext = ".parquet")
+parcels_current_remote_geo <- file.path(
+    AWS_S3_RAW_BUCKET, "spatial", "parcel",
+    paste0(current_year, ".geojson")
+  )
+parcels_current_remote_attr <- file.path(
+    AWS_S3_RAW_BUCKET, "spatial", "parcel",
+    paste0(current_year, "-attr.parquet")
+  )
+
+# Upload boundary file as geojson if it doesn't exist
+if (!aws.s3::object_exists(parcels_current_remote_geo)) {
+  st_read(parcels_current) %>%
+    st_write(parcels_current_tmp_geo)
+
+  aws.s3::put_object(parcels_current_tmp_geo, parcels_current_remote_geo)
+  file.remove(parcels_current_tmp_geo)
+}
+
+# Query iasWorld via Athena to get attribute data we can pre-join
+if (!aws.s3::object_exists(parcels_current_remote_attr)) {
+  AWS_ATHENA_CONN <- dbConnect(noctua::athena())
+
+  parcels_current_attr <- dbGetQuery(
+    AWS_ATHENA_CONN, glue("
+        SELECT
+          p.parid AS pin,
+          p.class AS class,
+          l.taxdist AS tax_code,
+          p.nbhd AS nbhd_code,
+          p.taxyr AS taxyr
+        FROM iasworld.pardat p
+        LEFT JOIN iasworld.legdat l
+        ON p.parid = l.parid AND p.taxyr = l.taxyr
+        WHERE p.taxyr = '{current_year}'")) %>%
+    mutate(
+      pin = str_pad(pin, 14, "left", "0"),
+      tax_code = str_pad(tax_code, 5, "left", "0"),
+      nbhd_code = str_sub(str_pad(nbhd_code, 5, "left", "0"), 3, 5),
+      town_code = str_sub(tax_code, 1, 2),
+      taxyr = as.integer(taxyr)
+    ) %>%
+    distinct(pin, .keep_all = TRUE) %>%
+    arrange(pin) %>%
+    select(pin, class, tax_code, nbhd_code, town_code, taxyr) %>%
+    as.data.frame() %>%
+    write_parquet(parcels_current_tmp_attr)
+
+  aws.s3::put_object(parcels_current_tmp_attr, parcels_current_remote_attr)
+  file.remove(parcels_current_tmp_attr)
+}
+
 # Cleanup
 dbDisconnect(CCAODATA)
+dbDisconnect(AWS_ATHENA_CONN)
 rm(list = ls())
