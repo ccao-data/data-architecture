@@ -18,7 +18,7 @@ api_info <- list(
   # PARKS
   "prk_2021" = c("source"   = "https://opendata.arcgis.com/datasets/",
                  "api_url"  = "52d4441a1e1743f58cd27408f564d11d_2.geojson",
-                 "boundary" = "parks",
+                 "boundary" = "park",
                  "year"     = "2021")
 )
 

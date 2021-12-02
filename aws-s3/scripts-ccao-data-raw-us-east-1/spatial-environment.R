@@ -33,7 +33,7 @@ if (!aws.s3::object_exists(remote_file_flood_fema)) {
   file.remove(tmp_file_flood_fema, tmp_file)
 }
 
-##### LAKE MICHICAGO COASTLINE #####
+##### LAKE MICHICAN COASTLINE #####
 remote_file_coastline <- file.path(
   AWS_S3_RAW_BUCKET, "spatial", "environment", "coastline",
   paste0(current_year, ".geojson")

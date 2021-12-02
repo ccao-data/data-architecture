@@ -9,6 +9,8 @@ library(stringr)
 
 # This script retrieves the parcel files from Cook Central and saves them as
 # geojson on S3
+# NOTE: the most recent parcel file must be added manually to S3 ahead of its
+# public release on the data portal
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 
 
