@@ -96,8 +96,10 @@ process_parcel_file <- function(row) {
       # Ensure valid geometry WARNING: takes ages!
       st_make_valid() %>%
 
-      # Split any multipolygon parcels into multiple rows per polygon
-      st_cast("POLYGON") %>%
+      # Split any multipolygon parcels into multiple rows, one for each polygon
+      # https://github.com/r-spatial/sf/issues/763
+      st_cast("MULTIPOLYGON") %>%
+      st_cast("POLYGON", warn = FALSE) %>%
       st_transform(3435) %>%
 
       # Get the centroid of each polygon
@@ -118,7 +120,13 @@ process_parcel_file <- function(row) {
         lat = first(lat),
         x_3435 = first(x_3435),
         y_3435 = first(y_3435),
-        geometry = st_cast(st_union(geometry), "MULTIPOLYGON"),
+        geometry = st_union(geometry)
+      ) %>%
+      # Sometimes union will create points and linestrings which need to be
+      # dropped
+      filter(st_geometry_type(geometry) %in% c("POLYGON", "MULTIPOLYGON")) %>%
+      mutate(
+        geometry = st_cast(geometry, "MULTIPOLYGON"),
         geometry_3435 = st_transform(geometry, 3435)
       )
     tictoc::toc()
