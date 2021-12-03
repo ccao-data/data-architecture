@@ -42,7 +42,8 @@ normalize_census_geo <- function(key) {
         ignore.case = TRUE
       )) %>%
       set_names(str_remove_all(names(.), "[[:digit:]]")) %>%
-      st_transform(4326)
+      st_transform(4326) %>%
+      st_cast("MULTIPOLYGON")
 
     df <- df %>%
       st_drop_geometry() %>%
