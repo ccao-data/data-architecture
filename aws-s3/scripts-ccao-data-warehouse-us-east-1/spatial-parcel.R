@@ -93,8 +93,11 @@ process_parcel_file <- function(row) {
         # If PIN10 is missing, fill with PIN14
         pin10 = ifelse(is.na(pin10), str_sub(pin14, 1, 10), pin10)
       ) %>%
-      # Ensure valid geometry and convert to 4326 if not already
+      # Ensure valid geometry WARNING: takes ages!
       st_make_valid() %>%
+
+      # Split any multipolygon parcels into multiple rows per polygon
+      st_cast("POLYGON") %>%
       st_transform(3435) %>%
 
       # Get the centroid of each polygon
@@ -115,9 +118,9 @@ process_parcel_file <- function(row) {
         lat = first(lat),
         x_3435 = first(x_3435),
         y_3435 = first(y_3435),
-        geometry = st_union(geometry)
-      ) %>%
-      mutate(geometry_3435 = st_transform(geometry, 3435))
+        geometry = st_cast(st_union(geometry), "MULTIPOLYGON"),
+        geometry_3435 = st_transform(geometry, 3435)
+      )
     tictoc::toc()
 
     # Read attribute data and get unique attributes by PIN10
