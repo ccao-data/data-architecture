@@ -163,25 +163,25 @@ process_parcel_file <- function(row) {
   }
 
   # Write final dataframe to dataset on S3, partitioned by town and year
-  # spatial_df_merged %>%
-  #   mutate(year = file_year) %>%
-  #   group_by(year, town_code) %>%
-  #   group_walk(~ {
-  #     year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
-  #     town_code <- replace_na(.y$town_code, "__HIVE_DEFAULT_PARTITION__")
-  #     remote_path <- file.path(
-  #       AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel",
-  #       paste0("year=", year), paste0("town_code=", town_code),
-  #       "part-0.parquet"
-  #     )
-  #     if (!object_exists(remote_path)) {
-  #       print(paste("Now uploading:", year, "data for town:", town_code))
-  #       tmp_file <- tempfile(fileext = ".parquet")
-  #       st_write_parquet(.x, tmp_file, compression = "snappy")
-  #       aws.s3::put_object(tmp_file, remote_path)
-  #     }
-  #   })
+  spatial_df_merged %>%
+    mutate(year = file_year) %>%
+    group_by(year, town_code) %>%
+    group_walk(~ {
+      year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
+      town_code <- replace_na(.y$town_code, "__HIVE_DEFAULT_PARTITION__")
+      remote_path <- file.path(
+        AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel",
+        paste0("year=", year), paste0("town_code=", town_code),
+        "part-0.parquet"
+      )
+      if (!object_exists(remote_path)) {
+        print(paste("Now uploading:", year, "data for town:", town_code))
+        tmp_file <- tempfile(fileext = ".parquet")
+        st_write_parquet(.x, tmp_file, compression = "snappy")
+        aws.s3::put_object(tmp_file, remote_path)
+      }
+    })
   tictoc::toc()
 }
 
-apply(parcel_files_df[1:10,], 1, process_parcel_file)
+apply(parcel_files_df, 1, process_parcel_file)
