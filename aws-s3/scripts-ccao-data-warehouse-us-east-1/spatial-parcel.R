@@ -80,6 +80,7 @@ process_parcel_file <- function(row) {
     # Clean up spatial data of local file
     tictoc::tic(paste("Cleaned file for:", file_year))
     spatial_df_clean <- spatial_df_raw %>%
+
       filter(!is.na(pin10)) %>%
       # Keep only vital columns
       rename_with(tolower) %>%
@@ -93,8 +94,9 @@ process_parcel_file <- function(row) {
         # If PIN10 is missing, fill with PIN14
         pin10 = ifelse(is.na(pin10), str_sub(pin14, 1, 10), pin10)
       ) %>%
-      # Ensure valid geometry WARNING: takes ages!
+      # Ensure valid geometry and dump empty geometries
       st_make_valid() %>%
+      filter(!st_is_empty(geometry)) %>%
 
       # Split any multipolygon parcels into multiple rows, one for each polygon
       # https://github.com/r-spatial/sf/issues/763
@@ -161,25 +163,25 @@ process_parcel_file <- function(row) {
   }
 
   # Write final dataframe to dataset on S3, partitioned by town and year
-  spatial_df_merged %>%
-    mutate(year = file_year) %>%
-    group_by(year, town_code) %>%
-    group_walk(~ {
-      year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
-      town_code <- replace_na(.y$town_code, "__HIVE_DEFAULT_PARTITION__")
-      remote_path <- file.path(
-        AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel",
-        paste0("year=", year), paste0("town_code=", town_code),
-        "part-0.parquet"
-      )
-      if (!object_exists(remote_path)) {
-        print(paste("Now uploading:", year, "data for town:", town_code))
-        tmp_file <- tempfile(fileext = ".parquet")
-        st_write_parquet(.x, tmp_file, compression = "snappy")
-        aws.s3::put_object(tmp_file, remote_path)
-      }
-    })
+  # spatial_df_merged %>%
+  #   mutate(year = file_year) %>%
+  #   group_by(year, town_code) %>%
+  #   group_walk(~ {
+  #     year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
+  #     town_code <- replace_na(.y$town_code, "__HIVE_DEFAULT_PARTITION__")
+  #     remote_path <- file.path(
+  #       AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel",
+  #       paste0("year=", year), paste0("town_code=", town_code),
+  #       "part-0.parquet"
+  #     )
+  #     if (!object_exists(remote_path)) {
+  #       print(paste("Now uploading:", year, "data for town:", town_code))
+  #       tmp_file <- tempfile(fileext = ".parquet")
+  #       st_write_parquet(.x, tmp_file, compression = "snappy")
+  #       aws.s3::put_object(tmp_file, remote_path)
+  #     }
+  #   })
   tictoc::toc()
 }
 
-apply(parcel_files_df, 1, process_parcel_file)
+apply(parcel_files_df[1:10,], 1, process_parcel_file)
