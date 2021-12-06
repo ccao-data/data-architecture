@@ -70,92 +70,118 @@ process_parcel_file <- function(row) {
     spatial_df_raw <- st_read(local_spatial_file)
     tictoc::toc()
 
-    # If PIN14 is missing, create a column by padding PIN10
-    if (!"pin14" %in% names(spatial_df_raw)) {
-      spatial_df_raw <- spatial_df_raw %>%
-        rename_with(tolower) %>%
-        mutate(pin14 = str_pad(pin10, 14, "left", "0"))
-    }
-
-    # Clean up spatial data of local file
+    # Clean up raw data file, dropping empty/invalid geoms and fixing PINs
     tictoc::tic(paste("Cleaned file for:", file_year))
-    spatial_df_clean <- spatial_df_raw %>%
+    if (!"pin14" %in% names(spatial_df_raw)) {
+      spatial_df_clean <- spatial_df_raw %>%
+        rename_with(tolower) %>%
+        filter(!is.na(pin10), !st_is_empty(geometry), st_is_valid(geometry)) %>%
+        select(pin10, geometry) %>%
+        mutate(
+          pin10 = gsub("\\D", "", pin10),
+          pin10 = str_pad(pin10, 10, "left", "0"),
+          pin14 = str_pad(pin10, 14, "right", "0")
+        ) %>%
+        st_cast("MULTIPOLYGON")
+    } else {
+      spatial_df_clean <- spatial_df_raw %>%
+        rename_with(tolower) %>%
+        filter(!is.na(pin10), !st_is_empty(geometry), st_is_valid(geometry)) %>%
+        select(pin14, pin10, geometry) %>%
+        mutate(
+          across(c(pin10, pin14), ~ gsub("\\D", "", .x)),
+          pin10 = str_pad(pin10, 10, "left", "0"),
+          pin14 = str_pad(pin14, 14, "left", "0"),
+          pin10 = ifelse(is.na(pin10), str_sub(pin14, 1, 10), pin10)
+        ) %>%
+        st_cast("MULTIPOLYGON")
+    }
+    tictoc::toc()
 
-      filter(!is.na(pin10)) %>%
-      # Keep only vital columns
-      rename_with(tolower) %>%
-      select(pin14, pin10, geometry) %>%
-      mutate(
-        # Drop any non-numeric chars from PINs
-        across(c(pin10, pin14), ~ gsub("\\D", "", .x)),
-        # Ensure PINs are zero-padded
-        pin10 = str_pad(pin10, 10, "left", "0"),
-        pin14 = str_pad(pin14, 14, "left", "0"),
-        # If PIN10 is missing, fill with PIN14
-        pin10 = ifelse(is.na(pin10), str_sub(pin14, 1, 10), pin10)
-      ) %>%
+    # Get the centroid of the largest polygon for each parcel
+    tictoc::tic(paste("Calculated centroids for:", file_year))
+    spatial_df_centroids <- spatial_df_clean %>%
       # Ensure valid geometry and dump empty geometries
       st_make_valid() %>%
       filter(!st_is_empty(geometry)) %>%
 
       # Split any multipolygon parcels into multiple rows, one for each polygon
       # https://github.com/r-spatial/sf/issues/763
-      st_cast("MULTIPOLYGON") %>%
       st_cast("POLYGON", warn = FALSE) %>%
+
+      # Transform to planar geometry then calculate centroids
       st_transform(3435) %>%
-
-      # Get the centroid of each polygon
+      mutate(centroid_geom = st_centroid(geometry)) %>%
       cbind(
-        st_coordinates(st_transform(st_centroid(.), 4326)),
-        st_coordinates(st_centroid(.))
+        st_coordinates(st_transform(.$centroid_geom, 4326)),
+        st_coordinates(.$centroid_geom)
       ) %>%
-      mutate(area = st_area(.)) %>%
-      rename(lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1) %>%
-      st_transform(4326) %>%
+      mutate(area = st_area(geometry)) %>%
+      select(pin10, lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1, area) %>%
+      st_drop_geometry() %>%
 
-      # For each PIN10, keep the centroid of the largest polygon and then union
-      # of all geometries/shapes associated with that PIN10 into one multipolygon
+      # For each PIN10, keep the centroid of the largest polygon
       group_by(pin10) %>%
       arrange(desc(area)) %>%
-      summarize(
-        lon = first(lon),
-        lat = first(lat),
-        x_3435 = first(x_3435),
-        y_3435 = first(y_3435),
-        geometry = st_union(geometry)
-      ) %>%
-      # Sometimes union will create points and linestrings which need to be
-      # dropped
-      filter(st_geometry_type(geometry) %in% c("POLYGON", "MULTIPOLYGON")) %>%
-      mutate(
-        geometry = st_cast(geometry, "MULTIPOLYGON"),
-        geometry_3435 = st_transform(geometry, 3435)
-      )
+      summarize(across(c(lon, lat, x_3435, y_3435), first)) %>%
+      ungroup()
     tictoc::toc()
 
     # Read attribute data and get unique attributes by PIN10
+    tictoc::tic(paste("Joined and wrote parquet for:", file_year))
     attr_df <- read_parquet(local_attr_file) %>%
       mutate(pin10 = str_sub(pin, 1, 10)) %>%
       group_by(pin10) %>%
       summarize(
-        tax_code = first(tax_code),
-        nbhd_code = first(nbhd_code),
-        town_code = first(town_code),
+        across(c(tax_code, nbhd_code, town_code), first),
         year = file_year
-      )
+      ) %>%
+      ungroup()
 
     # Merge spatial boundaries with attribute data
     spatial_df_merged <- spatial_df_clean %>%
       left_join(attr_df, by = "pin10") %>%
-      mutate(has_attributes = !is.na(town_code)) %>%
+      left_join(spatial_df_centroids, by = "pin10") %>%
+      mutate(
+        has_attributes = !is.na(town_code),
+        geometry_3435 = st_transform(geometry, 3435)
+      ) %>%
       select(
         pin10, tax_code, nbhd_code, has_attributes,
         lon, lat, x_3435, y_3435, geometry, geometry_3435,
         town_code, year
-      )
+      ) %>%
+      distinct(pin10, .keep_all = TRUE)
+
+    # If centroids are missing from join (invalid geom, empty, etc.)
+    # fill them in with centroid of the full multipolygon
+    if (any(is.na(spatial_df_merged$lon) | any(is.na(spatial_df_merged$x_3435)))) {
+      # Calculate centroids for missing
+      spatial_df_missing <- spatial_df_merged %>%
+        filter(is.na(lon) | is.na(x_3435)) %>%
+        mutate(centroid_geom = st_centroid(geometry_3435)) %>%
+        select(-lon, -lat, -x_3435, -y_3435) %>%
+        cbind(
+          st_coordinates(st_transform(.$centroid_geom, 4326)),
+          st_coordinates(.$centroid_geom)
+        ) %>%
+        rename(lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1) %>%
+        select(-centroid_geom)
+
+      # Merge missing centroids back into main data
+      spatial_df_merged <- spatial_df_merged %>%
+        filter(!is.na(lon) & !is.na(x_3435)) %>%
+        bind_rows(spatial_df_missing)
+    }
+
+    # Sort by year, town code, and PIN10 for better compression
+    spatial_df_merged <- spatial_df_merged %>%
+      ungroup() %>%
+      arrange(year, town_code, pin10)
 
     # Write local backup copy
     st_write_parquet(spatial_df_merged, local_backup_file)
+    tictoc::toc()
 
   } else {
     print(paste("Loading processed parcels from backup for:", file_year))
