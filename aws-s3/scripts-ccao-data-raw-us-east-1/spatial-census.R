@@ -34,6 +34,7 @@ map(years, ~ get_geojson(block_groups, .x, "block_group"))
 
 # CONGRESSIONAL DISTRICT
 # Geographies for con dist only go back to 2011, see ?congressional_districts
+congress <- "116" # workaround for 2021 CD file missing congress number
 map(
   2011:max_year,
   ~ get_geojson(congressional_districts, .x, "congressional_district")
