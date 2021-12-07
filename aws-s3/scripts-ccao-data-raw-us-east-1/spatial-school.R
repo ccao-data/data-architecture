@@ -122,7 +122,7 @@ api_info <- list(
                             "year"     = "2009-2010"),
 
   "attendance_ele_1011" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
-                            "api_url"  = "cjdh-ffxb?method=export&format=GeoJSON",
+                            "api_url"  = "7jn2-4muy?method=export&format=GeoJSON",
                             "boundary" = "cps_attendance_elementary",
                             "year"     = "2010-2011"),
 
