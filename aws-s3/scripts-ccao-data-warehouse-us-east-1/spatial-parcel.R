@@ -53,7 +53,7 @@ process_parcel_file <- function(row) {
   spatial_uri <- row["spatial"]
   tictoc::tic(paste("Finished processing parcel file for:", file_year))
 
-  # Download S3 files to local temp dir if the don't exist
+  # Download S3 files to local temp dir if they don't exist
   save_local_parcel_files(file_year, spatial_uri, attr_uri)
 
   # Local file paths for parcel files
