@@ -184,33 +184,3 @@ st_write_parquet(
   ),
   compression = "snappy"
 )
-
-# Manually create the combined table for footprints rather than
-# using a crawler
-AWS_ATHENA_CONN <- DBI::dbConnect(noctua::athena())
-s3_dir <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "spatial", "building_footprint"
-)
-dbSendStatement(
-  AWS_ATHENA_CONN, glue("
-  CREATE EXTERNAL TABLE IF NOT EXISTS `spatial`.`building_footprint` (
-    `year` double,
-    `lon` double,
-    `lat` double,
-    `x_3435` double,
-    `y_3435` double,
-    `geometry` binary,
-    `geometry_3435` binary
-  )
-  PARTITIONED BY (`source` string)
-  ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
-  WITH SERDEPROPERTIES (
-    'serialization.format' = '1'
-  ) LOCATION '{s3_dir}'
-  TBLPROPERTIES ('has_encrypted_data'='false');"
-))
-
-dbGetQuery(
-  AWS_ATHENA_CONN,
-  "MSCK REPAIR TABLE `spatial`.`building_footprint`;"
-)

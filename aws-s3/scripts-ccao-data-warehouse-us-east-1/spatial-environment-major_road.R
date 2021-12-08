@@ -9,7 +9,6 @@ library(sfarrow)
 # This script queries OpenStreetMap for major roads in Cook County and
 # saves them as a spatial parquet
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-AWS_ATHENA_CONN <- DBI::dbConnect(noctua::athena())
 current_year <- strftime(Sys.Date(), "%Y")
 
 
@@ -40,18 +39,4 @@ if (!aws.s3::object_exists(remote_file)) {
   remote_file <- file.path(
     AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment", "major_road"
   )
-  dbSendStatement(
-    AWS_ATHENA_CONN, glue("
-    CREATE EXTERNAL TABLE IF NOT EXISTS `spatial`.`major_road` (
-      `osm_id` string,
-      `name` string,
-      `geometry` binary,
-      `geometry_3435` binary
-  )
-    ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
-    WITH SERDEPROPERTIES (
-      'serialization.format' = '1'
-    ) LOCATION '{remote_file}'
-    TBLPROPERTIES ('ihas_encrypted_data'='false');"
-  ))
 }

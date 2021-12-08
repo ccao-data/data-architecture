@@ -46,7 +46,7 @@ if (!aws.s3::object_exists(remote_file_coastline)) {
   st_write(
     tigris::coastline(year = current_year) %>% filter(NAME == 'Great Lakes'),
     tmp_file
-    )
+  )
 
   aws.s3::put_object(tmp_file, remote_file_coastline)
   file.remove(tmp_file)

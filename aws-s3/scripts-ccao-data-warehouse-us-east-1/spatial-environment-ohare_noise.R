@@ -19,7 +19,6 @@ library(tidyr)
 # Script to transform raw data on O'Hare noise into clean Athena tables
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-AWS_ATHENA_CONN <- DBI::dbConnect(noctua::athena())
 
 
 ##### OHARE NOISE MONITORS #####
@@ -131,26 +130,6 @@ remote_file <- file.path(
 st_write_parquet(noise_addresses_clean, remote_file)
 file.remove(tmp_file)
 
-# Create Athena table from S3 files
-dbSendStatement(
-  AWS_ATHENA_CONN, glue("
-  CREATE EXTERNAL TABLE IF NOT EXISTS `spatial`.`ohare_noise_monitor` (
-    `site` string,
-    `community` string,
-    `modeled_omp_build_out_values` double,
-    `address` string,
-    `year` int,
-    `noise` double,
-    `geometry` binary,
-    `geometry_3435` binary
-  )
-  ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
-  WITH SERDEPROPERTIES (
-    'serialization.format' = '1'
-  ) LOCATION '{dirname(remote_file)}'
-  TBLPROPERTIES ('has_encrypted_data'='false');"
-))
-
 
 ##### OHARE NOISE CONTOUR #####
 remote_file <- file.path(
@@ -161,6 +140,7 @@ remote_file <- file.path(
 # Grab contour file
 tmp_file <- tempfile(fileext = ".geojson")
 aws.s3::save_object(file_paths["contour"], file = tmp_file)
+
 # Read file and cleanup
 ohare_noise_contour <- st_read(tmp_file) %>%
   st_transform(4326) %>%
@@ -175,23 +155,3 @@ ohare_noise_contour <- st_read(tmp_file) %>%
   ) %>%
   select(airport, decibels, geometry = geom, geometry_3435) %>%
   st_write_parquet(remote_file)
-
-# Create Athena table from S3 files
-dbSendStatement(
-  AWS_ATHENA_CONN, glue("
-  CREATE EXTERNAL TABLE IF NOT EXISTS `spatial`.`ohare_noise_contour` (
-    `airport` string,
-    `decibels` int,
-    `geometry` binary,
-    `geometry_3435` binary
-  )
-  ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
-  WITH SERDEPROPERTIES (
-    'serialization.format' = '1'
-  ) LOCATION '{dirname(remote_file)}'
-  TBLPROPERTIES ('has_encrypted_data'='false');"
-))
-
-# Cleanup
-file.remove(tmp_file)
-dbDisconnect(AWS_ATHENA_CONN)
