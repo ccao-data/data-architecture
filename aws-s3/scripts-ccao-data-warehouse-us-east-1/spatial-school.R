@@ -7,7 +7,6 @@ library(readr)
 library(sf)
 library(sfarrow)
 library(stringr)
-library(tictoc)
 library(tidyr)
 
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
@@ -189,6 +188,59 @@ bind_rows(
     )
     if (!object_exists(remote_path)) {
       print(paste("Now uploading:", year, "data for type:", district_type))
+      tmp_file <- tempfile(fileext = ".parquet")
+      st_write_parquet(.x, tmp_file, compression = "snappy")
+      aws.s3::put_object(tmp_file, remote_path)
+    }
+  })
+
+
+##### SCHOOL LOCATIONS #####
+
+location_files_df <- aws.s3::get_bucket_df(
+  bucket = AWS_S3_RAW_BUCKET,
+  prefix = file.path("spatial", "school", "location")
+) %>%
+  mutate(
+    year = str_extract(Key, "[0-9]{4}"),
+    s3_uri = file.path(AWS_S3_RAW_BUCKET, Key)
+  )
+
+# Clean up school locations for each file
+process_location_file <- function(row) {
+  file_year <- row["year"]
+  s3_uri <- row["s3_uri"]
+
+  # Download S3 files to local temp dir if they don't exist
+  tmp_file_local <- file.path(
+    school_tmp_dir,
+    paste0("location-", file_year, ".geojson")
+  )
+  save_local_file(tmp_file_local, s3_uri)
+
+  df <- sf::read_sf(tmp_file_local) %>%
+    rename_with(tolower) %>%
+    mutate(year = file_year) %>%
+    select(
+      name = cfname, type = cfsubtype, address, gniscode, comment,
+      jurisdiction, community, year
+    ) %>%
+    st_transform(4326) %>%
+    mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+    st_cast("POINT")
+}
+
+apply(location_files_df, 1, process_location_file) %>%
+  bind_rows() %>%
+  group_by(year) %>%
+  group_walk(~ {
+    year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
+    remote_path <- file.path(
+      AWS_S3_WAREHOUSE_BUCKET, "spatial", "school", "school_location",
+      paste0("year=", year), "part-0.parquet"
+    )
+    if (!object_exists(remote_path)) {
+      print(paste("Now uploading:", year, "data"))
       tmp_file <- tempfile(fileext = ".parquet")
       st_write_parquet(.x, tmp_file, compression = "snappy")
       aws.s3::put_object(tmp_file, remote_path)
