@@ -13,6 +13,7 @@ paths <- aws.s3::get_bucket_df(
   bucket = AWS_S3_RAW_BUCKET,
   prefix = "tax/tax_bill_amounts"
   ) %>%
+  filter(Size > 0) %>%
   pull(Key) %>%
   str_match("[0-9]{4}") %>%
   expand.grid(
@@ -53,7 +54,7 @@ if (!aws.s3::object_exists(remote_file)) {
    )
 
    mapply(
-     write_arrow,
+     write_parquet,
      taxbillamounts,
      remote_files
    )
