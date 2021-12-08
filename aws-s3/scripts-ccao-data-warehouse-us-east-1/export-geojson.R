@@ -12,7 +12,8 @@ AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 
 ##### 2020 Census tracts #####
 tract_2020_warehouse <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "spatial", "geojson", "census-tract-2020.geojson"
+  AWS_S3_WAREHOUSE_BUCKET, "export", "geojson",
+  "census-tract-2020.geojson"
 )
 if (!aws.s3::object_exists(tract_2020_warehouse)) {
   tracts_2020 <- tigris::tracts(
