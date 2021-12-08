@@ -44,6 +44,7 @@ if (!aws.s3::object_exists(remote_file)) {
     select(PIN, TAX_YEAR, TB_TOWN, TB_EAV:TB_EST_TAX_AMT) %>%
     rename_with(., ~ tolower(gsub("TB_", "", .x))) %>%
     rename(town_code = town) %>%
+    select(-tax_year) %>%
     mutate(year = path['year']) %>%
     group_by(year, town_code) %>%
     group_walk(~ {
