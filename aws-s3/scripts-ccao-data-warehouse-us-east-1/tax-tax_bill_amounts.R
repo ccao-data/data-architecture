@@ -34,30 +34,33 @@ upload_taxbillamounts <- function(path) {
 if (!aws.s3::object_exists(remote_file)) {
   print(paste("Now fetching:", path['year']))
 
-   taxbillamounts <- read_parquet(
-     aws.s3::get_object(
-       paste0(
-         's3://ccao-data-raw-us-east-1/tax/tax_bill_amounts/',
-         path['year'], '.parquet')
-       )
-     ) %>%
-     select(PIN, TAX_YEAR, TB_TOWN, TB_EAV:TB_EST_TAX_AMT) %>%
-     rename_with(., ~ tolower(gsub("TB_", "", .x))) %>%
-     rename(town_code = town) %>%
-     split(.$town)
-
-   remote_files <- file.path(
-     AWS_S3_WAREHOUSE_BUCKET, "tax", "tax_bill_amounts",
-     paste0("year=", path['year']),
-     paste0("town_code=", names(taxbillamounts)),
-     "part-0.parquet"
-   )
-
-   mapply(
-     write_parquet,
-     taxbillamounts,
-     remote_files
-   )
+  taxbillamounts <- read_parquet(
+    aws.s3::get_object(
+     paste0(
+       's3://ccao-data-raw-us-east-1/tax/tax_bill_amounts/',
+       path['year'], '.parquet')
+     )
+    ) %>%
+    select(PIN, TAX_YEAR, TB_TOWN, TB_EAV:TB_EST_TAX_AMT) %>%
+    rename_with(., ~ tolower(gsub("TB_", "", .x))) %>%
+    rename(town_code = town) %>%
+    mutate(year = path['year']) %>%
+    group_by(year, town_code) %>%
+    group_walk(~ {
+      year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
+      town_code <- replace_na(.y$town_code, "__HIVE_DEFAULT_PARTITION__")
+      remote_path <- file.path(
+        AWS_S3_WAREHOUSE_BUCKET, "tax", "tax_bill_amounts",
+        paste0("year=", year), paste0("town_code=", town_code),
+        "part-0.parquet"
+      )
+      if (!object_exists(remote_path)) {
+        print(paste("Now uploading:", year, "data for town:", town_code))
+        tmp_file <- tempfile(fileext = ".parquet")
+        write_parquet(.x, tmp_file, compression = "snappy")
+        aws.s3::put_object(tmp_file, remote_path)
+      }
+    })
   }
 }
 
