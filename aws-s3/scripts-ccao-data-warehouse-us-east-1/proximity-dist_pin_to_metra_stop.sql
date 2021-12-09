@@ -10,7 +10,10 @@ WITH (
 ) AS (
     WITH distances AS (
         SELECT
-            p.pin10, p.year, o.stop_id, o.stop_name,
+            p.pin10,
+            p.year,
+            o.stop_id,
+            o.stop_name,
             ST_Distance(
                 ST_Point(p.x_3435, p.y_3435),
                 ST_GeomFromBinary(o.geometry_3435)
@@ -27,16 +30,21 @@ WITH (
     -- are the same distance i.e. they have the identical lat/lon
     SELECT
         d1.pin10,
-        ARBITRARY(d2.stop_id) AS stop_id,
-        ARBITRARY(d2.stop_name) AS stop_name,
-        ARBITRARY(d1.dist_ft) AS dist_ft,
+        ARBITRARY(d1.stop_id) AS stop_id,
+        ARBITRARY(d1.stop_name) AS stop_name,
+        ARBITRARY(d2.min_dist) AS dist_ft,
         d1.year
-    FROM (
-        SELECT pin10, year, MIN(distance) AS dist_ft
+    FROM distances d1
+    INNER JOIN (
+        SELECT
+            pin10,
+            year,
+            MIN(distance) AS min_dist
         FROM distances
         GROUP BY pin10, year
-    ) d1
-    LEFT JOIN distances d2 ON d1.pin10 = d2.pin10 AND d1.dist_ft = d2.distance
+    ) d2
+        ON d1.pin10 = d2.pin10
+        AND d1.year = d2.year
+        AND d1.distance = d2.min_dist
     GROUP BY d1.year, d1.pin10
-    ORDER BY d1.year, d1.pin10
 );
