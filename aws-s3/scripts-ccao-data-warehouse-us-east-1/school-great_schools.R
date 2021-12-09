@@ -2,10 +2,15 @@ library(sfarrow)
 library(dplyr)
 library(aws.s3)
 library(arrow)
+library(noctua)
+library(glue)
+library(sf)
 
-# This script cleans data retrieved from greatschools.org
+# This script cleans data retrieved from greatschools.org and merges it with district shapefiles
+# In order to average school ratings by district in the suburbs and attendance areas in Chicago
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+AWS_ATHENA_CONN <- DBI::dbConnect(noctua::athena())
 
 source_file <- file.path(
   AWS_S3_RAW_BUCKET,
@@ -14,26 +19,106 @@ source_file <- file.path(
   paste0(format(Sys.Date(), "%Y"), ".parquet")
 )
 
-destination_file <- file.path(
+destination_folder <- file.path(
   AWS_S3_WAREHOUSE_BUCKET,
-  "spatial",
   "school",
-  "great_schools",
-  paste0(format(Sys.Date(), "%Y"), ".parquet")
+  "great_schools"
 )
 
 # Read, write data if it does not already exist
 if (!aws.s3::object_exists(destination_file)) {
 
+  # First dataset is each school matched with our district names and district types
+
   # Pull from S3, convert to spatial object with lat/long 3435 CRS
-  read_parquet(aws.s3::get_object(source_file)) %>%
+  great_districts <- read_parquet(source_file) %>%
     sf::st_as_sf(coords = c("lon", "lat"), remove = FALSE, crs = 4326) %>%
     sf::st_transform(3435) %>%
-    mutate(county = "Cook",
-           `district-id` = na_if(`district-id`, 0)) %>%
-    select(-distance) %>%
+
+    # We'll need to know which types of districts (elementary, secondary) each school belongs to
+    # Based on what grades they service since schools will be spatially joined to districts they're not actually part
+    mutate(
+      county = "Cook",
+      `district-id` = na_if(`district-id`, 0),
+      grades = case_when(
+        city != 'Chicago' & `level-codes` %in% c('h', 'm,h', 'p,h') ~ 'secondary',
+        city != 'Chicago' & !(`level-codes` %in% c('h', 'm,h', 'p,h')) ~ 'elementary',
+        TRUE ~ 'unified'
+        ),
+      rating = as.numeric(rating)
+      ) %>%
+
+    # Clean out unneeded columns
+    select(-c('universal-id', 'nces-id', 'state-id', 'district-id', 'district-name',
+              'web-site', 'phone', 'overview-url', 'rating-description', 'fax')) %>%
+
+    # Private school attendance isn't based on attendance/districts and thus isn't a discreet geographic correlate
+    filter(type == 'public' & !is.na(rating)) %>%
+
+    # Clean up some column names
+    rename("school_name" = "name") %>%
+    rename_with(~ gsub("-", "_", .x)) %>%
+
+    # Join schools to districts - this is a 1 to many join but will be de-duped using district type
+    st_join(
+
+      st_as_sf(
+        dbGetQuery(
+          # Use district shapefiles from one year post-Great Schools data
+          # Since they describes districts 1 year in the past
+          AWS_ATHENA_CONN, glue(
+            "SELECT name AS district_name, is_attendance_boundary, geometry_3435 AS geometry, district_type
+      FROM spatial.school_district
+      WHERE year IN ('{paste(unique(great_schools$year) + 1, collapse = \"', '\")}');"
+          )
+        ),
+      crs = 3435
+      )
+
+    ) %>%
+
+    # In Chicago, attendance boundaries are the equivalent of district boundaries for the rest of the county
+    filter(!(is_attendance_boundary == FALSE & city == 'Chicago')) %>%
+
+    # Here is where we de-dupe schools matched to overlapping elementary and secondary districts
+    filter(city == 'Chicago' | grades == district_type)
 
     # Write to S3
-    sfarrow::st_write_parquet(destination_file)
+    sfarrow::st_write_parquet(great_districts,
+      file.path(
+        destination_folder,
+                "school_level",
+                paste0(format(Sys.Date(), "%Y"), ".parquet")
+        )
+      )
+
+    # Second dataset is average school rating by district
+
+    great_districts %>%
+
+      # Drop geometry because summarize by group messes it up
+      st_drop_geometry() %>%
+      group_by(district_name, district_type, year) %>%
+      summarise(mean_rating = mean(rating, na.rm = TRUE),
+                n_schools = n()) %>%
+
+      # Rejoin geometry
+      left_join(
+        district_boundaries %>%
+          select(district_name, geometry)
+      ) %>%
+
+      # Make sure observations are unique, CRS is correct
+      distinct() %>%
+      st_as_sf(crs = 3435) %>%
+
+      # Write to S3
+      sfarrow::st_write_parquet(
+        file.path(
+          destination_folder,
+          "district_level",
+          paste0(format(Sys.Date(), "%Y"), ".parquet")
+          )
+      )
 
 }
