@@ -46,12 +46,14 @@ WITH (
             SELECT
                 x_3435,
                 y_3435,
+                year,
                 MIN(distance) AS dist_ft
             FROM distances
-            GROUP BY x_3435, y_3435
+            GROUP BY x_3435, y_3435, year
         ) d2
            ON d1.x_3435 = d2.x_3435
            AND d1.y_3435 = d2.y_3435
+           AND d1.year = d2.year
            AND d1.distance = d2.dist_ft
     )
     SELECT
