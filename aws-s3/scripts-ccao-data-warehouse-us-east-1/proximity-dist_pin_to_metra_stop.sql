@@ -8,43 +8,62 @@ WITH (
     bucketed_by = ARRAY['pin10'],
     bucket_count = 5
 ) AS (
-    WITH distances AS (
+    WITH pin_locations AS (
+        SELECT DISTINCT x_3435, y_3435
+        FROM spatial.parcel
+        WHERE year >= (SELECT MIN(year) FROM spatial.transit_stop)
+    ),
+    stop_locations AS (
+        SELECT *
+        FROM spatial.transit_stop
+        WHERE agency = 'metra'
+        AND route_type = 2
+    ),
+    distances AS (
         SELECT
-            p.pin10,
-            p.year,
+            p.x_3435,
+            p.y_3435,
             o.stop_id,
             o.stop_name,
+            o.year,
             ST_Distance(
                 ST_Point(p.x_3435, p.y_3435),
                 ST_GeomFromBinary(o.geometry_3435)
             ) distance
-        FROM spatial.parcel p
-        INNER JOIN (
-            SELECT *
-            FROM spatial.transit_stop
-            WHERE agency = 'metra'
-            AND route_type = 2
-        ) o ON p.year = o.year
-    )
-    -- The ARBITRARY() function is used to pick a random stop from the ones that
-    -- are the same distance i.e. they have the identical lat/lon
-    SELECT
-        d1.pin10,
-        ARBITRARY(d1.stop_id) AS stop_id,
-        ARBITRARY(d1.stop_name) AS stop_name,
-        ARBITRARY(d2.min_dist) AS dist_ft,
-        d1.year
-    FROM distances d1
-    INNER JOIN (
+        FROM pin_locations p
+        CROSS JOIN stop_locations o
+    ),
+    xy_to_stop_dist AS (
         SELECT
-            pin10,
-            year,
-            MIN(distance) AS min_dist
-        FROM distances
-        GROUP BY pin10, year
-    ) d2
-        ON d1.pin10 = d2.pin10
-        AND d1.year = d2.year
-        AND d1.distance = d2.min_dist
-    GROUP BY d1.pin10, d1.year
-);
+            d1.x_3435,
+            d1.y_3435,
+            d1.stop_id,
+            d1.stop_name,
+            d2.dist_ft,
+            d1.year
+        FROM distances d1
+        INNER JOIN (
+            SELECT
+                x_3435,
+                y_3435,
+                MIN(distance) AS dist_ft
+            FROM distances
+            GROUP BY x_3435, y_3435
+        ) d2
+           ON d1.x_3435 = d2.x_3435
+           AND d1.y_3435 = d2.y_3435
+           AND d1.distance = d2.dist_ft
+    )
+    SELECT
+        p.pin10,
+        ARBITRARY(xy.stop_id) AS stop_id,
+        ARBITRARY(xy.stop_name) AS stop_name,
+        ARBITRARY(xy.dist_ft) AS dist_ft,
+        p.year
+    FROM spatial.parcel p
+    INNER JOIN xy_to_stop_dist xy
+        ON p.x_3435 = xy.x_3435
+        AND p.y_3435 = xy.y_3435
+        AND p.year = xy.year
+    GROUP BY p.pin10, p.year
+)
