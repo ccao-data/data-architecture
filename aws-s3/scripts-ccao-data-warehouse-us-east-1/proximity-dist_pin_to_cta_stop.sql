@@ -46,5 +46,5 @@ WITH (
         ON d1.pin10 = d2.pin10
         AND d1.year = d2.year
         AND d1.distance = d2.min_dist
-    GROUP BY d1.year, d1.pin10
+    GROUP BY d1.pin10, d1.year
 );
