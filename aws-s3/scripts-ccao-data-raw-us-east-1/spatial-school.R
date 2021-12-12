@@ -1,105 +1,13 @@
 library(aws.s3)
 library(dplyr)
 library(sf)
+library(stringr)
 
 # This script retrieves school district and attendance boundaries published by
 # the various districts around Cook County
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 
 api_info <- list(
-  # DISTRICTS - UNIT
-  "districts_unit_2012" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "9pjs-siys?method=export&format=GeoJSON",
-                            "boundary" = "school_district_unified",
-                            "year"     = "2012"),
-
-  "districts_unit_2013" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "6bgu-89x4?method=export&format=GeoJSON",
-                            "boundary" = "school_district_unified",
-                            "year"     = "2013"),
-
-  "districts_unit_2014" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "239w-pnii?method=export&format=GeoJSON",
-                            "boundary" = "school_district_unified",
-                            "year"     = "2014"),
-
-  "districts_unit_2015" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "angb-d97z?method=export&format=GeoJSON",
-                            "boundary" = "school_district_unified",
-                            "year"     = "2015"),
-
-  "districts_unit_2016" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "594e-g5w3?method=export&format=GeoJSON",
-                            "boundary" = "school_district_unified",
-                            "year"     = "2016"),
-
-  "districts_unit_2018" = c("source"   = "https://opendata.arcgis.com/datasets/",
-                            "api_url"  = "1e2f499e494744afb4ebae3a61d6e123_16.geojson",
-                            "boundary" = "school_district_unified",
-                            "year"     = "2018"),
-
-  # DISTRICTS - ELEMENTARY
-  "districts_elem_2012" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "6mxp-5tr3?method=export&format=GeoJSON",
-                            "boundary" = "school_district_elementary",
-                            "year"     = "2012"),
-
-  "districts_elem_2013" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "y5p9-c2pm?method=export&format=GeoJSON",
-                            "boundary" = "school_district_elementary",
-                            "year"     = "2013"),
-
-  "districts_elem_2014" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "p5v4-ncme?method=export&format=GeoJSON",
-                            "boundary" = "school_district_elementary",
-                            "year"     = "2014"),
-
-  "districts_elem_2015" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "y8sv-9wex?method=export&format=GeoJSON",
-                            "boundary" = "school_district_elementary",
-                            "year"     = "2015"),
-
-  "districts_elem_2016" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "an6r-bw5a?method=export&format=GeoJSON",
-                            "boundary" = "school_district_elementary",
-                            "year"     = "2016"),
-
-  "districts_elem_2018" = c("source"   = "https://opendata.arcgis.com/datasets/",
-                            "api_url"  = "cbcf6b1c3aaa420d90ccea6af877562b_2.geojson",
-                            "boundary" = "school_district_elementary",
-                            "year"     = "2018"),
-
-  # DISTRICTS - SECONDARY
-  "districts_scnd_2012" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "yh6i-3pdt?method=export&format=GeoJSON",
-                            "boundary" = "school_district_secondary",
-                            "year"     = "2012"),
-
-  "districts_scnd_2013" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "d7n8-78xk?method=export&format=GeoJSON",
-                            "boundary" = "school_district_secondary",
-                            "year"     = "2013"),
-
-  "districts_scnd_2014" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "9zsm-c6ah?method=export&format=GeoJSON",
-                            "boundary" = "school_district_secondary",
-                            "year"     = "2014"),
-
-  "districts_scnd_2015" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "dagh-zphu?method=export&format=GeoJSON",
-                            "boundary" = "school_district_secondary",
-                            "year"     = "2015"),
-
-  "districts_scnd_2016" = c("source"   = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-                            "api_url"  = "h3xu-azvs?method=export&format=GeoJSON",
-                            "boundary" = "school_district_secondary",
-                            "year"     = "2016"),
-
-  "districts_scnd_2018" = c("source"   = "https://opendata.arcgis.com/datasets/",
-                            "api_url"  = "0657c2831de84e209863eac6c9296081_6.geojson",
-                            "boundary" = "school_district_secondary",
-                            "year"     = "2018"),
-
   # CPS ATTENDANCE - ELEMENTARY
   "attendance_ele_0607" = c("source"   = "https://data.cityofchicago.org/api/geospatial/",
                             "api_url"  = "qbay-3nnc?method=export&format=GeoJSON",
@@ -281,5 +189,38 @@ pull_and_write <- function(x) {
 # Apply function to "api_info"
 lapply(api_info, pull_and_write)
 
-# Cleanup
-rm(list = ls())
+
+##### County-provided District Files #####
+
+# This geodatabase was provided via Cook County BoT/GIS on 12/9/2021 and contains
+# all school district boundaries from 2000 - 2020
+gdb_file <- "O:/CCAODATA/data/SchoolTaxDist.gdb"
+layers <- st_layers(gdb_file)$name
+
+
+# Function to read each layer and save it to S3
+process_layer <- function(layer) {
+  dist_type <- str_sub(layer, 1, 4)
+  dist_type <- recode(
+    dist_type,
+    Elem = "elementary",
+    High = "secondary",
+    Unit = "unified"
+  )
+  year <- str_match(layer, "[0-9]{4}")
+  tmp_file <- tempfile(fileext = ".geojson")
+  remote_file <- file.path(
+    AWS_S3_RAW_BUCKET, "spatial", "school",
+    paste0("school_district_", dist_type), paste0(year, ".geojson")
+  )
+  if (!aws.s3::object_exists(remote_file)) {
+
+    st_read(gdb_file, layer) %>%
+      st_write(tmp_file, delete_dsn = TRUE)
+
+    aws.s3::put_object(tmp_file, remote_file)
+    file.remove(tmp_file)
+  }
+}
+
+lapply(layers, process_layer)
