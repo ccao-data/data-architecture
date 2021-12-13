@@ -27,7 +27,7 @@ clean_unincorporated_area <- function(shapefile_path) {
     select(agencydesc, zonenotes, zoneid, zonedesc, zoneordina, geometry) %>%
     rename(zoneordinance = zoneordina) %>%
     rename_with(~ gsub("zone", "zone_", .x)) %>%
-    st_transform(3435) %>%
+    mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
     sfarrow::st_write_parquet(
       file.path(
         AWS_S3_WAREHOUSE_BUCKET, "spatial", "other", "unincorporated_area",
@@ -36,6 +36,9 @@ clean_unincorporated_area <- function(shapefile_path) {
     )
 
 }
+
+# Apply function
+lapply(unincorporated_area_raw, clean_unincorporated_area)
 
 # SUBDIVISIONS
 
@@ -59,7 +62,7 @@ clean_subdivisions <- function(shapefile_path) {
   st_read(tmp_file) %>%
     filter(st_is_valid(.)) %>%
     select(geometry) %>%
-    st_transform(3435) %>%
+    mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
     sfarrow::st_write_parquet(
       file.path(
         AWS_S3_WAREHOUSE_BUCKET, "spatial", "other", "subdivision",
