@@ -26,14 +26,19 @@ destination_folder <- file.path(
 )
 
 # Read, write data if it does not already exist
-if (!aws.s3::object_exists(destination_file)) {
+if (!aws.s3::object_exists(
+  file.path(
+    destination_folder,
+    "school_level",
+    paste0(format(Sys.Date(), "%Y"), ".parquet")
+  )
+)) {
 
   # First dataset is each school matched with our district names and district types
 
-  # Pull from S3, convert to spatial object with lat/long 3435 CRS
+  # Pull from S3, convert to spatial object with lat/long, 4326 CRS
   great_districts <- read_parquet(source_file) %>%
     sf::st_as_sf(coords = c("lon", "lat"), remove = FALSE, crs = 4326) %>%
-    sf::st_transform(3435) %>%
 
     # We'll need to know which types of districts (elementary, secondary) each school belongs to
     # Based on what grades they service since schools will be spatially joined to districts they're not actually part
@@ -56,32 +61,35 @@ if (!aws.s3::object_exists(destination_file)) {
     filter(type == 'public' & !is.na(rating)) %>%
 
     # Clean up some column names
-    rename("school_name" = "name") %>%
-    rename_with(~ gsub("-", "_", .x)) %>%
+    dplyr::rename(school_name = name) %>%
+    rename_with(~ gsub("-", "_", .x))
+
+  # Retrieve district boundaries from S3
+  district_boundaries <- st_as_sf(
+    dbGetQuery(
+      # Use district shapefiles from one year post-Great Schools data
+      # Since they describes districts 1 year in the past
+      AWS_ATHENA_CONN, glue(
+        "SELECT name AS district_name, is_attendance_boundary, geometry, district_type
+      FROM spatial.school_district
+      WHERE year IN ('{paste(unique(great_districts$year) + 1, collapse = \"', '\")}');"
+      )
+    ),
+    crs = 4326
+  )
 
     # Join schools to districts - this is a 1 to many join but will be de-duped using district type
-    st_join(
-
-      st_as_sf(
-        dbGetQuery(
-          # Use district shapefiles from one year post-Great Schools data
-          # Since they describes districts 1 year in the past
-          AWS_ATHENA_CONN, glue(
-            "SELECT name AS district_name, is_attendance_boundary, geometry_3435 AS geometry, district_type
-      FROM spatial.school_district
-      WHERE year IN ('{paste(unique(great_schools$year) + 1, collapse = \"', '\")}');"
-          )
-        ),
-      crs = 3435
-      )
-
-    ) %>%
+  great_districts <- great_districts %>%
+    st_join(district_boundaries) %>%
 
     # In Chicago, attendance boundaries are the equivalent of district boundaries for the rest of the county
     filter(!(is_attendance_boundary == FALSE & city == 'Chicago')) %>%
 
     # Here is where we de-dupe schools matched to overlapping elementary and secondary districts
-    filter(city == 'Chicago' | grades == district_type)
+    filter(city == 'Chicago' | grades == district_type) %>%
+
+    # Add 3435 CRS column
+    mutate(geometry_3435 = st_transform(geometry, 3435))
 
     # Write to S3
     sfarrow::st_write_parquet(great_districts,
@@ -110,7 +118,10 @@ if (!aws.s3::object_exists(destination_file)) {
 
       # Make sure observations are unique, CRS is correct
       distinct() %>%
-      st_as_sf(crs = 3435) %>%
+      st_as_sf(crs = 4326) %>%
+
+      # Add 3435 CRS column
+      mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
 
       # Write to S3
       sfarrow::st_write_parquet(
