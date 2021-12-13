@@ -26,7 +26,7 @@ if (!aws.s3::object_exists(remote_file_community_area)) {
 # UNINCORPORATED AREA
 remote_file_unincorporated_area <- file.path(
   AWS_S3_RAW_BUCKET, "spatial", "other", "unincorporated_area",
-  paste0("2014", ".zip")
+  paste0("2014", ".geojson")
 )
 tmp_file_unincorporated_area <- tempfile(fileext = ".geojson")
 
@@ -40,7 +40,6 @@ if (!aws.s3::object_exists(remote_file_unincorporated_area)) {
   aws.s3::put_object(tmp_file_unincorporated_area, remote_file_unincorporated_area)
   file.remove(tmp_file_unincorporated_area)
 }
-
 
 # SUBDIVISIONS
 remote_file_subdivision <- file.path(
