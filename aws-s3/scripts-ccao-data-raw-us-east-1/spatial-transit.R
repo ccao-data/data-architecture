@@ -11,7 +11,7 @@ bkt_path <- file.path(AWS_S3_RAW_BUCKET, "spatial", "transit")
 
 ##### CTA #####
 # List of CTA feeds from Transit Feeds API
-ccta_feed_dates_list <- c(
+cta_feed_dates_list <- c(
   "2015-10-29", "2016-09-30", "2017-10-22", "2018-10-06",
   "2019-10-04", "2020-10-10", "2021-10-09"
 )
