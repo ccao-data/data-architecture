@@ -8,7 +8,7 @@ current_year <- strftime(Sys.Date(), "%Y")
 # CHICAGO COMMUNITY AREA
 remote_file_community_area <- file.path(
   AWS_S3_RAW_BUCKET, "spatial", "other", "community_area",
-  paste0(current_year, ".zip")
+  paste0(current_year, ".geojson")
 )
 tmp_file_community_area <- tempfile(fileext = ".geojson")
 

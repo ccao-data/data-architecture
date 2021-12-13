@@ -78,5 +78,43 @@ clean_subdivisions <- function(shapefile_path) {
 # Apply function
 lapply(subdivisions_raw, clean_subdivisions)
 
+
+# COMMUNITY AREAS
+# Gather paths for community area shapefiles
+comm_areas_raw <- grep(
+  ".geojson",
+  file.path(
+    AWS_S3_RAW_BUCKET,
+    aws.s3::get_bucket_df(
+      AWS_S3_RAW_BUCKET, prefix = 'spatial/other/community_area/')$Key
+  ),
+  value = TRUE
+)
+
+# Function to extract and transform geometry from shapefiles
+clean_comm_areas <- function(shapefile_path) {
+
+  tmp_file <- tempfile(fileext = ".geojson")
+  aws.s3::save_object(shapefile_path, file = tmp_file)
+
+  # All we need is geometry column for this data, the other columns aren't useful
+  st_read(tmp_file) %>%
+    st_transform(4326) %>%
+    mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+    select(
+      community, area_number = area_numbe,
+      geometry, geometry_3435
+    ) %>%
+    sfarrow::st_write_parquet(
+      file.path(
+        AWS_S3_WAREHOUSE_BUCKET, "spatial", "other", "community_area",
+        gsub("geojson", "parquet", basename(shapefile_path))
+      )
+    )
+}
+
+# Apply function
+lapply(comm_areas_raw, clean_comm_areas)
+
 # Cleanup
 rm(list = ls())
