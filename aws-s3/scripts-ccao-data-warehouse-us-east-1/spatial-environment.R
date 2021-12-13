@@ -84,3 +84,33 @@ if (aws.s3::object_exists(flood_fema_raw) & !aws.s3::object_exists(flood_fema_wa
   file.remove(tmp_file)
 
 }
+
+
+##### RAILROAD #####
+remote_file_rail_raw <- file.path(
+  AWS_S3_RAW_BUCKET, "spatial", "environment", "railroad",
+  paste0("2021.geojson")
+)
+remote_file_rail_warehouse <- file.path(
+  AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment", "railroad",
+  paste0("2021.geojson")
+)
+
+if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
+
+  tmp_file_rail <- tempfile(fileext = ".geojson")
+  aws.s3::save_object(remote_file_rail_raw, file = tmp_file_rail)
+
+  st_read(tmp_file_rail) %>%
+    st_transform(4326) %>%
+    rename_with(tolower) %>%
+    mutate(
+      geometry_3435 = st_transform(geometry, 3435)
+    ) %>%
+    select(
+      name_id, unique_id = uniqid, name = anno_name, taxmap_id, type,
+      ortho_year = orthoyear, commute_line = commute_li,
+      geometry, geometry_3435
+    ) %>%
+    sfarrow::st_write_parquet(remote_file_rail_warehouse)
+}
