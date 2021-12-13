@@ -1,10 +1,12 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
+library(tidyr)
 library(readr)
 library(tools)
 library(glue)
 library(data.table)
+library(lubridate)
 
 # This script cleans and combines raw foreclosure data for the warehouse
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
@@ -36,7 +38,22 @@ lapply(files, read_parquet) %>%
          original_sale_date, company_name, real_estate_auction,
          bankruptcy_filed) %>%
   separate(bankruptcy_filed, sep = " - Chapter ", into = c(NA, "bankruptcy_chapter")) %>%
-  write_parquet(dest_file)
+  mutate(year = lubridate::year(date_of_sale)) %>%
+  group_by(year) %>%
+  group_walk(~ {
+    year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
+    remote_path <- file.path(
+      AWS_S3_WAREHOUSE_BUCKET, "sale", "foreclosure",
+      paste0("year=", year),
+      "part-0.parquet"
+    )
+    if (!object_exists(remote_path)) {
+      print(paste("Now uploading:", year, "data for year:", year))
+      tmp_file <- tempfile(fileext = ".parquet")
+      write_parquet(.x, tmp_file, compression = "snappy")
+      aws.s3::put_object(tmp_file, remote_path)
+    }
+  })
 
 # Cleanup
 rm(list = ls())
