@@ -95,7 +95,7 @@ if (!aws.s3::object_exists(
     sfarrow::st_write_parquet(great_districts,
       file.path(
         destination_folder,
-                "school_level",
+                "gs_school_rating",
                 paste0(format(Sys.Date(), "%Y"), ".parquet")
         )
       )
@@ -127,7 +127,7 @@ if (!aws.s3::object_exists(
       sfarrow::st_write_parquet(
         file.path(
           destination_folder,
-          "district_level",
+          "gs_district_rating",
           paste0(format(Sys.Date(), "%Y"), ".parquet")
           )
       )
