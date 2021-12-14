@@ -3,10 +3,7 @@ library(aws.s3)
 library(dplyr)
 library(tidyr)
 
-# This script retrieves raw DePaul IHS data for the data lake
-# It assumes a couple things about the imported .xlsx:
-# - Three unnamed columns renamed "X1", "X2", and "X3" by R and
-# - The value of the first row/column being "YEARQ"
+# This script cleans a hedonic price index sourced from the DePaul Institute for Housing Studies
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 
