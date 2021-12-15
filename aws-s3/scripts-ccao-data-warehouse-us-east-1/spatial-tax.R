@@ -1,0 +1,110 @@
+library(aws.s3)
+library(dplyr)
+library(sf)
+library(sfarrow)
+library(stringr)
+library(tidyr)
+
+# This cleans tax boundaries and uploads them to the S3 warehouse
+# Users must link three raw column names to pre-selected column names for each shapefile
+# That will be cleaned and uplaoded since there isn't consistent across taxing bodies and time
+# Those three columns are agency number, the name of the tax body, and geometry (which doesn't need to be linked)
+AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+
+# Location of file to clean
+raw_files <- grep(
+  "geojson",
+  file.path(
+    AWS_S3_RAW_BUCKET,
+    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = 'spatial/tax/')$Key
+  ),
+  value = TRUE
+)
+
+dest_files_hydro <- raw_files_hydro %>%
+  gsub("geojson", "parquet", .) %>%
+  gsub(AWS_S3_RAW_BUCKET, AWS_S3_WAREHOUSE_BUCKET, .)
+
+# Link raw column names to standardized column names
+column_names <- list(
+  "community_college/2012" = c("agency_num" = "agency", "community_college" = "max_agency", "geometry"),
+  "community_college/2013" = c("agency_num" = "agency", "community_college" = "max_agency", "geometry"),
+  "community_college/2014" = c("agency_num" = "agency", "community_college" = "max_agency", "geometry"),
+  "community_college/2015" = c("agency_num" = "agency", "community_college" = "max_agency", "geometry"),
+  "community_college/2016" = c("agency_num" = "agency", "community_college" = "max_agency", "geometry"),
+  "fire_protection/2015" = c("agency_num" = "agency", "fire_protection" = "agency_des", "geometry"),
+  "fire_protection/2016" = c("agency_num" = "agency", "fire_protection" = "agency_des", "geometry"),
+  "fire_protection/2018" = c("agency_num" = "AGENCY", "fire_protection" = "AGENCY_DESCRIPTION", "geometry"),
+  "library/2015" = c("agency_num" = "agency", "library" = "max_agency", "geometry"),
+  "library/2016" = c("agency_num" = "agency", "library" = "max_agency", "geometry"),
+  "library/2018" = c("agency_num" = "AGENCY", "library" = "MAX_AGENCY_DESC", "geometry"),
+  "park/2015" = c("agency_num" = "agency", "park" = "agency_des", "geometry"),
+  "park/2016" = c("agency_num" = "agency", "park" = "agency_des", "geometry"),
+  "park/2018" = c("agency_num" = "AGENCY", "park" = "AGENCY_DESCRIPTION", "geometry"),
+  "sanitation/2018" = c("agency_num" = "AGENCY", "sanitation" = "MAX_AGENCY_DESC", "geometry"),
+  "ssa/2020" = c("agency_num" = "AGENCY", "ssa" = "AGENCY_DES", "geometry"),
+  "tif/2015" = c("agency_num" = "agencynum", "tif" = "tif_name", "geometry"),
+  "tif/2016" = c("agency_num" = "agencynum", "tif" = "agency_des", "geometry"),
+  "tif/2018" = c("agency_num" = "AGENCYNUM", "tif" = "AGENCY_DESCRIPTION", "geometry")
+)
+
+# Function to pull raw data from S3 and clean
+clean_tax <- function(remote_file) {
+
+  tax_body <- str_split(remote_file, "/", simplify = TRUE)[1,6]
+
+  year <- str_split(remote_file, "/", simplify = TRUE)[1,7] %>%
+    gsub(".geojson", "", .)
+
+  tax_body_year <- paste0(tax_body, "/", year)
+
+  tmp_file <- tempfile(fileext = ".geojson")
+  aws.s3::save_object(remote_file, file = tmp_file)
+
+  return(
+    st_read(tmp_file) %>%
+      select(column_names[[tax_body_year]]) %>%
+      mutate(agency_num = as.character(agency_num),
+        across(where(is.character), str_to_title),
+             geometry_3435 = st_transform(geometry, 3435),
+             year = year)
+  )
+
+  file.remove(tmp_file)
+
+}
+
+# Apply function to raw_files
+cleaned_output <- sapply(raw_files, clean_tax, simplify = FALSE, USE.NAMES = TRUE)
+
+tax_bodies <- unique(str_split(raw_files, "/", simplify = TRUE)[,6])
+
+# Function to parition and upload cleaned data to S3
+combine_upload <- function(tax_body) {
+
+    cleaned_output[grep(tax_body, names(cleaned_output))] %>%
+    bind_rows() %>%
+    group_by(year) %>%
+    group_walk(~ {
+      year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
+      remote_path <- file.path(
+        AWS_S3_WAREHOUSE_BUCKET, "spatial", "tax", tax_body,
+        paste0("year=", year),
+        "part-0.parquet"
+      )
+      if (!object_exists(remote_path)) {
+        print(paste("Now uploading:", tax_body, "data for year:", year))
+        tmp_file <- tempfile(fileext = ".parquet")
+        st_write_parquet(.x, tmp_file, compression = "snappy")
+        aws.s3::put_object(tmp_file, remote_path)
+      }
+    })
+
+}
+
+# Apply function to clean data
+lapply(tax_bodies, combine_upload)
+
+ # Cleanup
+rm(list = ls())
