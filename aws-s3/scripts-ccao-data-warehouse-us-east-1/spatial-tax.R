@@ -28,25 +28,25 @@ dest_files_hydro <- raw_files_hydro %>%
 
 # Link raw column names to standardized column names
 column_names <- list(
-  "community_college/2012" = c("agency_num" = "agency", "community_college" = "max_agency", "geometry"),
-  "community_college/2013" = c("agency_num" = "agency", "community_college" = "max_agency", "geometry"),
-  "community_college/2014" = c("agency_num" = "agency", "community_college" = "max_agency", "geometry"),
-  "community_college/2015" = c("agency_num" = "agency", "community_college" = "max_agency", "geometry"),
-  "community_college/2016" = c("agency_num" = "agency", "community_college" = "max_agency", "geometry"),
-  "fire_protection/2015" = c("agency_num" = "agency", "fire_protection" = "agency_des", "geometry"),
-  "fire_protection/2016" = c("agency_num" = "agency", "fire_protection" = "agency_des", "geometry"),
-  "fire_protection/2018" = c("agency_num" = "AGENCY", "fire_protection" = "AGENCY_DESCRIPTION", "geometry"),
-  "library/2015" = c("agency_num" = "agency", "library" = "max_agency", "geometry"),
-  "library/2016" = c("agency_num" = "agency", "library" = "max_agency", "geometry"),
-  "library/2018" = c("agency_num" = "AGENCY", "library" = "MAX_AGENCY_DESC", "geometry"),
-  "park/2015" = c("agency_num" = "agency", "park" = "agency_des", "geometry"),
-  "park/2016" = c("agency_num" = "agency", "park" = "agency_des", "geometry"),
-  "park/2018" = c("agency_num" = "AGENCY", "park" = "AGENCY_DESCRIPTION", "geometry"),
-  "sanitation/2018" = c("agency_num" = "AGENCY", "sanitation" = "MAX_AGENCY_DESC", "geometry"),
-  "ssa/2020" = c("agency_num" = "AGENCY", "ssa" = "AGENCY_DES", "geometry"),
-  "tif/2015" = c("agency_num" = "agencynum", "tif" = "tif_name", "geometry"),
-  "tif/2016" = c("agency_num" = "agencynum", "tif" = "agency_des", "geometry"),
-  "tif/2018" = c("agency_num" = "AGENCYNUM", "tif" = "AGENCY_DESCRIPTION", "geometry")
+  "community_college/2012" = c("community_college_num" = "agency", "community_college_name" = "max_agency", "geometry"),
+  "community_college/2013" = c("community_college_num" = "agency", "community_college_name" = "max_agency", "geometry"),
+  "community_college/2014" = c("community_college_num" = "agency", "community_college_name" = "max_agency", "geometry"),
+  "community_college/2015" = c("community_college_num" = "agency", "community_college_name" = "max_agency", "geometry"),
+  "community_college/2016" = c("community_college_num" = "agency", "community_college_name" = "max_agency", "geometry"),
+  "fire_protection/2015" = c("fire_protection_num" = "agency", "fire_protection_name" = "agency_des", "geometry"),
+  "fire_protection/2016" = c("fire_protection_num" = "agency", "fire_protection_name" = "agency_des", "geometry"),
+  "fire_protection/2018" = c("fire_protection_num" = "AGENCY", "fire_protection_name" = "AGENCY_DESCRIPTION", "geometry"),
+  "library/2015" = c("library_num" = "agency", "library_name" = "max_agency", "geometry"),
+  "library/2016" = c("library_num" = "agency", "library_name" = "max_agency", "geometry"),
+  "library/2018" = c("library_num" = "AGENCY", "library_name" = "MAX_AGENCY_DESC", "geometry"),
+  "park/2015" = c("park_num" = "agency", "park_name" = "agency_des", "geometry"),
+  "park/2016" = c("park_num" = "agency", "park_name" = "agency_des", "geometry"),
+  "park/2018" = c("park_num" = "AGENCY", "park_name" = "AGENCY_DESCRIPTION", "geometry"),
+  "sanitation/2018" = c("ssa_num" = "AGENCY", "sanitation_name" = "MAX_AGENCY_DESC", "geometry"),
+  "ssa/2020" = c("tif_num" = "AGENCY", "ssa_name" = "AGENCY_DES", "geometry"),
+  "tif/2015" = c("tif_num" = "agencynum", "tif_name" = "tif_name", "geometry"),
+  "tif/2016" = c("tif_num" = "agencynum", "tif_name" = "agency_des", "geometry"),
+  "tif/2018" = c("tif_num" = "AGENCYNUM", "tif_name" = "AGENCY_DESCRIPTION", "geometry")
 )
 
 # Function to pull raw data from S3 and clean
@@ -65,7 +65,7 @@ clean_tax <- function(remote_file) {
   return(
     st_read(tmp_file) %>%
       select(column_names[[tax_body_year]]) %>%
-      mutate(agency_num = as.character(agency_num),
+      mutate(across(contains('num'), as.character),
         across(where(is.character), str_to_title),
              geometry_3435 = st_transform(geometry, 3435),
              year = year)
@@ -94,7 +94,7 @@ combine_upload <- function(tax_body) {
         "part-0.parquet"
       )
       if (!object_exists(remote_path)) {
-        print(paste("Now uploading:", tax_body, "data for year:", year))
+        print(paste("Now uploading:", tax_body, "data for ", year))
         tmp_file <- tempfile(fileext = ".parquet")
         st_write_parquet(.x, tmp_file, compression = "snappy")
         aws.s3::put_object(tmp_file, remote_path)
