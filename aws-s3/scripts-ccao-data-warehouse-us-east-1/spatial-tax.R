@@ -94,7 +94,7 @@ combine_upload <- function(tax_body) {
         "part-0.parquet"
       )
       if (!object_exists(remote_path)) {
-        print(paste("Now uploading:", tax_body, "data for ", year))
+        print(paste0("Now uploading:", tax_body, "data for ", year))
         tmp_file <- tempfile(fileext = ".parquet")
         st_write_parquet(.x, tmp_file, compression = "snappy")
         aws.s3::put_object(tmp_file, remote_path)
@@ -103,7 +103,7 @@ combine_upload <- function(tax_body) {
 
 }
 
-# Apply function to clean data
+# Apply function to cleaned data
 lapply(tax_bodies, combine_upload)
 
  # Cleanup
