@@ -5,10 +5,10 @@ library(sfarrow)
 library(stringr)
 library(tidyr)
 
-# This cleans tax boundaries and uploads them to the S3 warehouse
-# Users must link three raw column names to pre-selected column names for each shapefile
-# That will be cleaned and uplaoded since there isn't consistent across taxing bodies and time
-# Those three columns are agency number, the name of the tax body, and geometry (which doesn't need to be linked)
+# This script cleans tax boundaries and uploads them to the S3 warehouse.
+# Users must link tow raw column names to pre-selected column names for each shapefile
+# That will be cleaned and uplaoded since there isn't consistent across taxing bodies and time.
+# Those tow columns are agency number and the name of the tax body - geometry doesn't need to be linked.
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 
