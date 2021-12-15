@@ -114,3 +114,39 @@ if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
     ) %>%
     sfarrow::st_write_parquet(remote_file_rail_warehouse)
 }
+
+##### HYDROLOGY #####
+raw_files_hydro <- grep(
+  "geojson",
+  file.path(
+    AWS_S3_RAW_BUCKET,
+    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = 'spatial/environment/hydrology/')$Key
+  ),
+  value = TRUE
+)
+
+dest_files_hydro <- raw_files_hydro %>%
+  gsub("geojson", "parquet", .) %>%
+  gsub(AWS_S3_RAW_BUCKET, AWS_S3_WAREHOUSE_BUCKET, .)
+
+# Function to pull raw data from S3 and clean
+clean_hydro <- function(remote_file, dest_file) {
+
+  if (!aws.s3::object_exists(dest_file)) {
+
+    tmp_file <- tempfile(fileext = ".geojson")
+    aws.s3::save_object(remote_file, file = tmp_file)
+
+    st_read(tmp_file) %>%
+      select(id = HYDROID, name = FULLNAME, geometry) %>%
+    mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+      sfarrow::st_write_parquet(dest_file)
+
+    file.remove(tmp_file)
+
+  }
+
+}
+
+# Apply function to raw_files
+mapply(clean_hydro, raw_files_hydro, dest_files_hydro)
