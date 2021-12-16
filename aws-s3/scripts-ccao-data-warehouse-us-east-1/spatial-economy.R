@@ -17,7 +17,7 @@ raw_files <- grep(
   "geojson",
   file.path(
     AWS_S3_RAW_BUCKET,
-    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = 'spatial/tax/')$Key
+    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = 'spatial/economy/')$Key
   ),
   value = TRUE
 )
