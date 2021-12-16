@@ -21,7 +21,6 @@ cook_zips <- zipcodeR::search_county("Cook", "IL") %>%
 
 # Function to loop over zip codes and retrieve data
 gather_schools <- function(zipcode, api_key) {
-
   req <- httr::GET(
     paste0(
       "https://gs-api.greatschools.org/schools?zip=", zipcode[1],
@@ -32,11 +31,8 @@ gather_schools <- function(zipcode, api_key) {
   )
 
   return(
-
     httr::content(req, as = "parsed")
-
   )
-
 }
 
 # Apply function to zip codes
@@ -46,9 +42,7 @@ output <- list()
 
 # Condense data into dataframe, limit to Cook County FIPS
 for (i in 1:length(great_schools)) {
-
   output[[i]] <- great_schools[[i]]$schools
-
 }
 
 output <- bind_rows(output) %>%
@@ -56,7 +50,5 @@ output <- bind_rows(output) %>%
 
 # Write data if it does not already exist
 if (!aws.s3::object_exists(remote_file)) {
-
   write_parquet(output, remote_file)
-
 }

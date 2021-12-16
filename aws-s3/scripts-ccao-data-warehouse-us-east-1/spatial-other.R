@@ -11,14 +11,15 @@ unincorporated_area_raw <- grep(
   file.path(
     AWS_S3_RAW_BUCKET,
     aws.s3::get_bucket_df(
-      AWS_S3_RAW_BUCKET, prefix = 'spatial/other/unincorporated_area/')$Key
+      AWS_S3_RAW_BUCKET,
+      prefix = "spatial/other/unincorporated_area/"
+    )$Key
   ),
   value = TRUE
 )
 
 # Function to extract and transform geometry from shapefiles
 clean_unincorporated_area <- function(shapefile_path) {
-
   tmp_file <- tempfile(fileext = ".geojson")
   aws.s3::save_object(shapefile_path, file = tmp_file)
 
@@ -51,14 +52,15 @@ subdivisions_raw <- grep(
   file.path(
     AWS_S3_RAW_BUCKET,
     aws.s3::get_bucket_df(
-      AWS_S3_RAW_BUCKET, prefix = 'spatial/other/subdivision/')$Key
+      AWS_S3_RAW_BUCKET,
+      prefix = "spatial/other/subdivision/"
+    )$Key
   ),
   value = TRUE
 )
 
 # Function to extract and transform geometry from shapefiles
 clean_subdivisions <- function(shapefile_path) {
-
   tmp_file <- tempfile(fileext = ".geojson")
   aws.s3::save_object(shapefile_path, file = tmp_file)
 
@@ -86,14 +88,15 @@ comm_areas_raw <- grep(
   file.path(
     AWS_S3_RAW_BUCKET,
     aws.s3::get_bucket_df(
-      AWS_S3_RAW_BUCKET, prefix = 'spatial/other/community_area/')$Key
+      AWS_S3_RAW_BUCKET,
+      prefix = "spatial/other/community_area/"
+    )$Key
   ),
   value = TRUE
 )
 
 # Function to extract and transform geometry from shapefiles
 clean_comm_areas <- function(shapefile_path) {
-
   tmp_file <- tempfile(fileext = ".geojson")
   aws.s3::save_object(shapefile_path, file = tmp_file)
 
@@ -102,7 +105,8 @@ clean_comm_areas <- function(shapefile_path) {
     st_transform(4326) %>%
     mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
     select(
-      community, area_number = area_numbe,
+      community,
+      area_number = area_numbe,
       geometry, geometry_3435
     ) %>%
     sfarrow::st_write_parquet(

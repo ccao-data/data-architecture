@@ -107,7 +107,7 @@ attendance_files_df <- aws.s3::get_bucket_df(
 ) %>%
   filter(Size > 0, str_detect(Key, "_attendance_")) %>%
   mutate(
-    year = str_extract_all(Key, "[0-9]{4}", simplify = TRUE)[,2],
+    year = str_extract_all(Key, "[0-9]{4}", simplify = TRUE)[, 2],
     s3_uri = file.path(AWS_S3_RAW_BUCKET, Key),
     district_type = case_when(
       str_detect(Key, "elementary") ~ "elementary",
@@ -140,9 +140,9 @@ process_cps_file <- function(row) {
       st_coordinates(.$centroid)
     ) %>%
     select(-centroid) %>%
-    rename_with(~ "school_id", contains(c("school_id", "schoolid"))) %>%
+    rename_with(~"school_id", contains(c("school_id", "schoolid"))) %>%
     rename_with(
-      ~ "school_nm", contains(
+      ~"school_nm", contains(
         c("schoolname", "school_nm", "short_name", "school_nam")
       )
     ) %>%

@@ -17,7 +17,7 @@ raw_files <- grep(
   "geojson",
   file.path(
     AWS_S3_RAW_BUCKET,
-    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = 'spatial/tax/')$Key
+    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "spatial/tax/")$Key
   ),
   value = TRUE
 )
@@ -47,10 +47,9 @@ column_names <- list(
 
 # Function to pull raw data from S3 and clean
 clean_tax <- function(remote_file) {
+  tax_body <- str_split(remote_file, "/", simplify = TRUE)[1, 6]
 
-  tax_body <- str_split(remote_file, "/", simplify = TRUE)[1,6]
-
-  year <- str_split(remote_file, "/", simplify = TRUE)[1,7] %>%
+  year <- str_split(remote_file, "/", simplify = TRUE)[1, 7] %>%
     gsub(".geojson", "", .)
 
   tax_body_year <- paste0(tax_body, "/", year)
@@ -61,25 +60,24 @@ clean_tax <- function(remote_file) {
   return(
     st_read(tmp_file) %>%
       select(column_names[[tax_body_year]]) %>%
-      mutate(across(contains('num'), as.character),
+      mutate(across(contains("num"), as.character),
         across(where(is.character), str_to_title),
-             geometry_3435 = st_transform(geometry, 3435),
-             year = year)
+        geometry_3435 = st_transform(geometry, 3435),
+        year = year
+      )
   )
 
   file.remove(tmp_file)
-
 }
 
 # Apply function to raw_files
 cleaned_output <- sapply(raw_files, clean_tax, simplify = FALSE, USE.NAMES = TRUE)
 
-tax_bodies <- unique(str_split(raw_files, "/", simplify = TRUE)[,6])
+tax_bodies <- unique(str_split(raw_files, "/", simplify = TRUE)[, 6])
 
 # Function to parition and upload cleaned data to S3
 combine_upload <- function(tax_body) {
-
-    cleaned_output[grep(tax_body, names(cleaned_output))] %>%
+  cleaned_output[grep(tax_body, names(cleaned_output))] %>%
     bind_rows() %>%
     group_by(year) %>%
     group_walk(~ {
@@ -96,11 +94,10 @@ combine_upload <- function(tax_body) {
         aws.s3::put_object(tmp_file, remote_path)
       }
     })
-
 }
 
 # Apply function to cleaned data
 lapply(tax_bodies, combine_upload)
 
- # Cleanup
+# Cleanup
 rm(list = ls())

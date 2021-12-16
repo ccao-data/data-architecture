@@ -14,7 +14,6 @@ files <- c("ORD_Fact_Sheet_Monitors_History.pdf", "ORD_Fact_Sheet_Monitors_Intro
 
 
 pull_and_write_ohare_noise <- function(x) {
-
   remote_file <- file.path(
     AWS_S3_RAW_BUCKET, "spatial", "environment",
     "ohare_noise_monitor", x
@@ -60,8 +59,10 @@ if (!aws.s3::object_exists(ohare_noise_boundary)) {
   tmp_dir <- tempdir()
   st_write(
     st_read(
-      paste0("//fileserver/ocommon/Communications Map",
-             "/Airport Maps/Maine/O'Hare_Noise_Countour.shp"),
+      paste0(
+        "//fileserver/ocommon/Communications Map",
+        "/Airport Maps/Maine/O'Hare_Noise_Countour.shp"
+      ),
     ),
     tmp_file
   )

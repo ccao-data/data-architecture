@@ -49,7 +49,7 @@ census_acs_tables_df <- census_acs_tables %>%
 # Table defs for PL census files
 census_dec_tables <-
   tribble(
-    ~ "variable_table_code", ~ "variable_table_title",
+    ~"variable_table_code", ~"variable_table_title",
     "H1", "Housing Units",
     "P1", "Race",
     "P2", "Hispanic Or Latino, And Not Hispanic Or Latino By Race",
@@ -86,8 +86,10 @@ census_acs_grid <- expand.grid(
 # Get ALL ACS vars
 census_acs_vars <- map2_dfr(
   census_acs_grid$year, census_acs_grid$dataset,
-  function(y, d) load_variables(year = y, dataset = d, cache = TRUE) %>%
-    mutate(year = y, dataset = d)
+  function(y, d) {
+    load_variables(year = y, dataset = d, cache = TRUE) %>%
+      mutate(year = y, dataset = d)
+  }
 )
 
 # Keep only distinct variables that are in the tables of interest

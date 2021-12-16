@@ -55,7 +55,6 @@ process_gtfs_feed <- function(feed) {
     # First fetch all stops for the given feed, get their geometry and attached
     # route, then upload
     if (!object_exists(remote_file_stop)) {
-
       map_dfr(c(0, 1, 2, 3), function(x) {
         gtfs_feed %>%
           filter_stops(
@@ -118,16 +117,16 @@ apply(gtfs_feeds_df, 1, process_gtfs_feed)
 # See: https://developers.google.com/transit/gtfs/reference
 transit_dict <- tribble(
   ~"field_name", ~"field_code", ~"field_label", ~"field_label_long",
-  "route_type", 0,  "streetcar"  ,  "Tram, Streetcar, Light rail. Any light rail or street level system within a metropolitan area.",
-  "route_type", 1,  "subway"     , "Subway, Metro. Any underground rail system within a metropolitan area.",
-  "route_type", 2,  "rail"       , "Rail. Used for intercity or long-distance travel.",
-  "route_type", 3,  "bus"        , "Bus. Used for short- and long-distance bus routes.",
-  "route_type", 4,  "ferry"      , "Ferry. Used for short- and long-distance boat service.",
-  "route_type", 5,  "cable_tram" , "Cable tram. Used for street-level rail cars where the cable runs beneath the vehicle, e.g., cable car in San Francisco.",
-  "route_type", 6,  "aerial_lift", "Aerial lift, suspended cable car (e.g., gondola lift, aerial tramway). Cable transport where cabins, cars, gondolas or open chairs are suspended by means of one or more cables.",
-  "route_type", 7,  "funicular"  , "Funicular. Any rail system designed for steep inclines.",
-  "route_type", 11, "trolleybus" , "Trolleybus. Electric buses that draw power from overhead wires using poles.",
-  "route_type", 12, "monorail"   , "Monorail. Railway in which the track consists of a single rail or a beam."
+  "route_type", 0, "streetcar", "Tram, Streetcar, Light rail. Any light rail or street level system within a metropolitan area.",
+  "route_type", 1, "subway", "Subway, Metro. Any underground rail system within a metropolitan area.",
+  "route_type", 2, "rail", "Rail. Used for intercity or long-distance travel.",
+  "route_type", 3, "bus", "Bus. Used for short- and long-distance bus routes.",
+  "route_type", 4, "ferry", "Ferry. Used for short- and long-distance boat service.",
+  "route_type", 5, "cable_tram", "Cable tram. Used for street-level rail cars where the cable runs beneath the vehicle, e.g., cable car in San Francisco.",
+  "route_type", 6, "aerial_lift", "Aerial lift, suspended cable car (e.g., gondola lift, aerial tramway). Cable transport where cabins, cars, gondolas or open chairs are suspended by means of one or more cables.",
+  "route_type", 7, "funicular", "Funicular. Any rail system designed for steep inclines.",
+  "route_type", 11, "trolleybus", "Trolleybus. Electric buses that draw power from overhead wires using poles.",
+  "route_type", 12, "monorail", "Monorail. Railway in which the track consists of a single rail or a beam."
 ) %>%
   mutate(field_code = as.integer(field_code))
 

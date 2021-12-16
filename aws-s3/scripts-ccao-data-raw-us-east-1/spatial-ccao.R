@@ -7,25 +7,28 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 
 api_info <- list(
   # NEIGHBORHOOD
-  "neighborhood" = c("url"  = paste0(
-        "https://gitlab.com/ccao-data-science---modeling/packages/ccao",
-        "/-/raw/master/data-raw/nbhd_shp.geojson"
-      ),
-                 "boundary" = "neighborhood",
-                 "year"     = "2021"),
+  "neighborhood" = c(
+    "url" = paste0(
+      "https://gitlab.com/ccao-data-science---modeling/packages/ccao",
+      "/-/raw/master/data-raw/nbhd_shp.geojson"
+    ),
+    "boundary" = "neighborhood",
+    "year" = "2021"
+  ),
 
   # TOWNSHIP
-  "township" = c("url"  = paste0(
-        "https://gitlab.com/ccao-data-science---modeling/packages/ccao",
-        "/-/raw/master/data-raw/town_shp.geojson"
-      ),
-                 "boundary" = "township",
-                 "year"     = "2019")
+  "township" = c(
+    "url" = paste0(
+      "https://gitlab.com/ccao-data-science---modeling/packages/ccao",
+      "/-/raw/master/data-raw/town_shp.geojson"
+    ),
+    "boundary" = "township",
+    "year" = "2019"
+  )
 )
 
 # Function to call referenced API, pull requested data, and write it to S3
 pull_and_write <- function(x) {
-
   tmp_file <- tempfile(fileext = ".geojson")
   remote_file <- file.path(
     AWS_S3_RAW_BUCKET, "spatial", "ccao",
@@ -33,7 +36,6 @@ pull_and_write <- function(x) {
   )
 
   if (!aws.s3::object_exists(remote_file)) {
-
     st_read(x["url"]) %>%
       st_write(tmp_file, delete_dsn = TRUE)
 

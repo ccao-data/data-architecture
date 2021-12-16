@@ -14,17 +14,15 @@ files <- list.files("O:/CCAODATA/data/foreclosures", recursive = TRUE)
 
 # Function to retrieve data and write to S3
 read_write <- function(x) {
-
   readr::read_delim(
     glue("O:/CCAODATA/data/foreclosures/", x),
     delim = ","
-    ) %>%
+  ) %>%
     write_parquet(
       file.path(
         AWS_S3_RAW_BUCKET, "sale", "foreclosure", glue(parse_number(x), ".parquet")
-                )
       )
-
+    )
 }
 
 # Apply function to foreclosure data

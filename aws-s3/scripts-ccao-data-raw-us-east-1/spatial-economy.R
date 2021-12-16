@@ -32,7 +32,6 @@ remote_file_qualified_opportuniy_zone <- file.path(
 
 # Write file to S3 if it doesn't already exist
 if (!aws.s3::object_exists(remote_file_qualified_opportuniy_zone)) {
-
   tmp1 <- tempfile(fileext = ".zip")
   tmp2 <- tempfile()
   tmp3 <- tempfile(fileext = ".geojson")
@@ -48,7 +47,7 @@ if (!aws.s3::object_exists(remote_file_qualified_opportuniy_zone)) {
 
   # Only keep Cook County, save as geojson
   st_read(grep("shp", list.files(tmp2, recursive = TRUE, full.names = TRUE), value = T)) %>%
-    filter(STATENAME == 'Illinois' & COUNTYNAME == 'Cook') %>%
+    filter(STATENAME == "Illinois" & COUNTYNAME == "Cook") %>%
     st_write(tmp3)
 
   # Upload, clean

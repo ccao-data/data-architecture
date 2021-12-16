@@ -22,7 +22,8 @@ remote_file <- file.path(
 )
 
 # Retrieve data and write to S3
-DBI::dbGetQuery(CCAODATA,
+DBI::dbGetQuery(
+  CCAODATA,
   "SELECT
      DOC_NO,
      SALE_PRICE,
@@ -34,7 +35,7 @@ DBI::dbGetQuery(CCAODATA,
   FROM DTBL_CCRDSALES
   WHERE YEAR(EXECUTED_DATE) >= 2013
   AND SALE_PRICE IS NOT NULL"
-  ) %>%
+) %>%
   write_parquet(remote_file)
 
 # Cleanup

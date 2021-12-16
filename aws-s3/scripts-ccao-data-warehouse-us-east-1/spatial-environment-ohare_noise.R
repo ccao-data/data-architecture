@@ -46,12 +46,12 @@ noise_levels <- extract_tables(split_pdf(tmp_file)[2])
 
 # Clean columns
 columns <- c(
-  noise_levels[[1]][1,1:2],
-  noise_levels[[1]][3,3:ncol(noise_levels[[1]])]
+  noise_levels[[1]][1, 1:2],
+  noise_levels[[1]][3, 3:ncol(noise_levels[[1]])]
 )
 columns <- unlist(strsplit(columns, " "))
 columns[length(columns)] <- paste(
-  noise_levels[[1]][,ncol(noise_levels[[1]])],
+  noise_levels[[1]][, ncol(noise_levels[[1]])],
   collapse = " "
 )
 

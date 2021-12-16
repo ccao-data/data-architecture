@@ -66,7 +66,8 @@ map2(
 map(
   2011:max_year,
   ~ get_geojson(
-    state_legislative_districts, .x, "state_representative", house = "lower"
+    state_legislative_districts, .x, "state_representative",
+    house = "lower"
   )
 )
 
@@ -74,7 +75,8 @@ map(
 map(
   2011:max_year,
   ~ get_geojson(
-    state_legislative_districts, .x, "state_senate", house = "upper"
+    state_legislative_districts, .x, "state_senate",
+    house = "upper"
   )
 )
 

@@ -16,7 +16,7 @@ AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 # Destination for upload
 dest_file <- file.path(
   AWS_S3_WAREHOUSE_BUCKET,
-  max(aws.s3::get_bucket_df(AWS_S3_RAW_BUCKET, prefix = 'sale/foreclosure/')$Key)
+  max(aws.s3::get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "sale/foreclosure/")$Key)
 )
 
 # Get S3 file addresses
@@ -24,14 +24,14 @@ files <- grep(
   ".parquet",
   file.path(
     AWS_S3_RAW_BUCKET,
-    aws.s3::get_bucket_df(AWS_S3_RAW_BUCKET, prefix = 'sale/foreclosure/')$Key
-    ),
+    aws.s3::get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "sale/foreclosure/")$Key
+  ),
   value = TRUE
-  )
+)
 
 lapply(files, read_parquet) %>%
   rbindlist() %>%
-  rename_with(~ tolower(gsub(" ", "_" ,.x))) %>%
+  rename_with(~ tolower(gsub(" ", "_", .x))) %>%
   rename(pin = property_identification_number) %>%
   mutate(
     pin = gsub("[^0-9.-]", "", pin),
@@ -41,8 +41,8 @@ lapply(files, read_parquet) %>%
       toupper
     ),
     datetime_of_sale = lubridate::ymd_hm(paste(
-        date_of_sale,
-        str_sub(str_pad(readr::parse_number(time_of_sale), 4, "left", "1"), 1, 4)
+      date_of_sale,
+      str_sub(str_pad(readr::parse_number(time_of_sale), 4, "left", "1"), 1, 4)
     )),
     date_of_sale = as_datetime(ifelse(
       !is.na(datetime_of_sale),

@@ -41,7 +41,8 @@ if (!aws.s3::object_exists(remote_file)) {
           substr(.$PL_ZIPCODE, 6, 9),
           sep = "-"
         ),
-        TRUE ~ ""),
+        TRUE ~ ""
+      ),
       # Format date address was updated
       updated = as.Date(as.character(PL_UPDT_DATE), "%Y%m%d")
     ) %>%

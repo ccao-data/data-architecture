@@ -51,7 +51,8 @@ esri_chicago_df_clean <- esri_chicago_df %>%
     st_coordinates(.$centroid)
   ) %>%
   select(
-    year, lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
+    year,
+    lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
     geometry, geometry_3435
   )
 st_write_parquet(
@@ -78,7 +79,8 @@ esri_sub_df_clean <- esri_sub_df %>%
     st_coordinates(.$centroid)
   ) %>%
   select(
-    year, lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
+    year,
+    lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
     geometry, geometry_3435
   )
 st_write_parquet(
@@ -115,7 +117,8 @@ osm_df_clean <- osm_df %>%
     st_coordinates(.$centroid)
   ) %>%
   select(
-    year, lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
+    year,
+    lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
     geometry, geometry_3435
   )
 st_write_parquet(
@@ -173,7 +176,8 @@ ms_df_clean_cook_only <- ms_df_clean %>%
     st_coordinates(.$centroid)
   ) %>%
   select(
-    year, lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
+    year,
+    lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
     geometry, geometry_3435
   )
 st_write_parquet(
