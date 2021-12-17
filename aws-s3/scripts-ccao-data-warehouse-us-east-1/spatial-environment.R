@@ -25,7 +25,6 @@ remote_file_coastline_warehouse <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_coastline_warehouse)) {
-
   tmp_file_coastline <- tempfile(fileext = ".geojson")
   aws.s3::save_object(remote_file_coastline_raw, file = tmp_file_coastline)
 
@@ -64,7 +63,6 @@ flood_fema_warehouse <- file.path(
 
 # Write FEMA floodplains to S3 if they don't exist
 if (aws.s3::object_exists(flood_fema_raw) & !aws.s3::object_exists(flood_fema_warehouse)) {
-
   tmp_file <- tempfile(fileext = ".geojson")
   aws.s3::save_object(flood_fema_raw, file = tmp_file)
 
@@ -82,7 +80,6 @@ if (aws.s3::object_exists(flood_fema_raw) & !aws.s3::object_exists(flood_fema_wa
     ) %>%
     sfarrow::st_write_parquet(flood_fema_warehouse)
   file.remove(tmp_file)
-
 }
 
 
@@ -97,7 +94,6 @@ remote_file_rail_warehouse <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
-
   tmp_file_rail <- tempfile(fileext = ".geojson")
   aws.s3::save_object(remote_file_rail_raw, file = tmp_file_rail)
 
@@ -108,7 +104,8 @@ if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
       geometry_3435 = st_transform(geometry, 3435)
     ) %>%
     select(
-      name_id, unique_id = uniqid, name = anno_name, taxmap_id, type,
+      name_id,
+      unique_id = uniqid, name = anno_name, taxmap_id, type,
       ortho_year = orthoyear, commute_line = commute_li,
       geometry, geometry_3435
     ) %>%
@@ -120,7 +117,7 @@ raw_files_hydro <- grep(
   "geojson",
   file.path(
     AWS_S3_RAW_BUCKET,
-    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = 'spatial/environment/hydrology/')$Key
+    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "spatial/environment/hydrology/")$Key
   ),
   value = TRUE
 )
@@ -131,21 +128,17 @@ dest_files_hydro <- raw_files_hydro %>%
 
 # Function to pull raw data from S3 and clean
 clean_hydro <- function(remote_file, dest_file) {
-
   if (!aws.s3::object_exists(dest_file)) {
-
     tmp_file <- tempfile(fileext = ".geojson")
     aws.s3::save_object(remote_file, file = tmp_file)
 
     st_read(tmp_file) %>%
       select(id = HYDROID, name = FULLNAME, geometry) %>%
-    mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+      mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
       sfarrow::st_write_parquet(dest_file)
 
     file.remove(tmp_file)
-
   }
-
 }
 
 # Apply function to raw_files

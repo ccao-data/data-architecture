@@ -13,33 +13,34 @@ AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 # Location of file to clean
 raw_files <- file.path(
   AWS_S3_RAW_BUCKET,
-  get_bucket_df(AWS_S3_RAW_BUCKET, prefix = 'spatial/political/')$Key
+  get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "spatial/political/")$Key
 )
 
 dest_files <- gsub(
   "geojson", "parquet",
   file.path(
     AWS_S3_WAREHOUSE_BUCKET,
-    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = 'spatial/political/')$Key
+    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "spatial/political/")$Key
   )
 )
 
-column_names <- c("board_of_review" = "district_n",
-                  "commissioner" = "district",
-                  "congressional_district" = "district_n",
-                  "judicial" = "district",
-                  "municipality" = "MUNICIPALITY",
-                  "state_representative" = "district_n",
-                  "state_senate" = "senatedist",
-                  "township" = "NAME",
-                  "ward" = "ward")
+column_names <- c(
+  "board_of_review" = "district_n",
+  "commissioner" = "district",
+  "congressional_district" = "district_n",
+  "judicial" = "district",
+  "municipality" = "MUNICIPALITY",
+  "state_representative" = "district_n",
+  "state_senate" = "senatedist",
+  "township" = "NAME",
+  "ward" = "ward"
+)
 
 # Function to pull raw data from S3 and clean
 clean_politics <- function(remote_file) {
+  political_unit <- str_split(remote_file, "/", simplify = TRUE)[1, 6]
 
-  political_unit <- str_split(remote_file, "/", simplify = TRUE)[1,6]
-
-  year <- str_split(remote_file, "/", simplify = TRUE)[1,7] %>%
+  year <- str_split(remote_file, "/", simplify = TRUE)[1, 7] %>%
     gsub(".geojson", "", .)
 
   tmp_file <- tempfile(fileext = ".geojson")
@@ -47,25 +48,24 @@ clean_politics <- function(remote_file) {
 
   return(
     st_read(tmp_file) %>%
-    mutate_at(vars(contains('MUNICIPALITY')), replace_na, "Unincorporated") %>%
-    select(column_names[political_unit], geometry) %>%
-    mutate(across(where(is.character), str_to_title),
-           geometry_3435 = st_transform(geometry, 3435),
-           year = year)
+      mutate_at(vars(contains("MUNICIPALITY")), replace_na, "Unincorporated") %>%
+      select(column_names[political_unit], geometry) %>%
+      mutate(across(where(is.character), str_to_title),
+        geometry_3435 = st_transform(geometry, 3435),
+        year = year
+      )
   )
 
   file.remove(tmp_file)
-
 }
 
 # Apply function to raw_files
 cleaned_output <- sapply(raw_files, clean_politics, simplify = FALSE, USE.NAMES = TRUE)
 
-political_units <- unique(str_split(raw_files, "/", simplify = TRUE)[,6])
+political_units <- unique(str_split(raw_files, "/", simplify = TRUE)[, 6])
 
 # Function to parition and upload cleaned data to S3
 combine_upload <- function(political_unit) {
-
   cleaned_output[grep(political_unit, names(cleaned_output))] %>%
     bind_rows() %>%
     group_by(year) %>%
@@ -83,11 +83,10 @@ combine_upload <- function(political_unit) {
         aws.s3::put_object(tmp_file, remote_path)
       }
     })
-
 }
 
 # Apply function to cleaned data
 lapply(political_units, combine_upload)
 
- # Cleanup
+# Cleanup
 rm(list = ls())

@@ -37,7 +37,7 @@ PII <- list(
   "Building"           = c("ProjectName"),
   "Filing"             = c("FilingName"),
   "IncomeExpenseHotel" = c("HotelName", "CompanyName"),
-  "Party"              = c("FirstName", "LastName", "PrimaryPhone", "AlternativePhone", 'PartyIdentifier', "Email"),
+  "Party"              = c("FirstName", "LastName", "PrimaryPhone", "AlternativePhone", "PartyIdentifier", "Email"),
   "TransferFiling"     = c("ToEmail", "SenderName"),
   "User"               = c("Email")
 )

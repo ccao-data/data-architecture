@@ -104,11 +104,9 @@ process_parcel_file <- function(row) {
       # Ensure valid geometry and dump empty geometries
       st_make_valid() %>%
       filter(!st_is_empty(geometry)) %>%
-
       # Split any multipolygon parcels into multiple rows, one for each polygon
       # https://github.com/r-spatial/sf/issues/763
       st_cast("POLYGON", warn = FALSE) %>%
-
       # Transform to planar geometry then calculate centroids
       st_transform(3435) %>%
       mutate(centroid_geom = st_centroid(geometry)) %>%
@@ -119,7 +117,6 @@ process_parcel_file <- function(row) {
       mutate(area = st_area(geometry)) %>%
       select(pin10, lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1, area) %>%
       st_drop_geometry() %>%
-
       # For each PIN10, keep the centroid of the largest polygon
       group_by(pin10) %>%
       arrange(desc(area)) %>%
@@ -182,7 +179,6 @@ process_parcel_file <- function(row) {
     # Write local backup copy
     st_write_parquet(spatial_df_merged, local_backup_file)
     tictoc::toc()
-
   } else {
     print(paste("Loading processed parcels from backup for:", file_year))
     spatial_df_merged <- st_read_parquet(local_backup_file)

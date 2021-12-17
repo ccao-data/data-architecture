@@ -26,7 +26,6 @@ remote_file_bike_warehouse <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_bike_warehouse)) {
-
   tmp_file_bike <- tempfile(fileext = ".geojson")
   aws.s3::save_object(remote_file_bike_raw, file = tmp_file_bike)
 
@@ -57,7 +56,6 @@ remote_file_ceme_warehouse <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_ceme_warehouse)) {
-
   tmp_file_ceme <- tempfile(fileext = ".geojson")
   aws.s3::save_object(remote_file_ceme_raw, file = tmp_file_ceme)
 
@@ -86,7 +84,6 @@ remote_file_hosp_warehouse <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_hosp_warehouse)) {
-
   tmp_file_hosp <- tempfile(fileext = ".geojson")
   aws.s3::save_object(remote_file_hosp_raw, file = tmp_file_hosp)
 
@@ -115,7 +112,6 @@ remote_file_park_warehouse <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_park_warehouse)) {
-
   tmp_file_park <- tempfile(fileext = ".geojson")
   aws.s3::save_object(remote_file_park_raw, file = tmp_file_park)
 
@@ -144,7 +140,6 @@ remote_file_indc_warehouse <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_indc_warehouse)) {
-
   tmp_file_indc <- tempfile(fileext = ".geojson")
   aws.s3::save_object(remote_file_indc_raw, file = tmp_file_indc)
 
@@ -155,7 +150,8 @@ if (!aws.s3::object_exists(remote_file_indc_warehouse)) {
       geometry_3435 = st_transform(geometry, 3435)
     ) %>%
     select(
-      name, region, num = no, hud_qualif, acres,
+      name, region,
+      num = no, hud_qualif, acres,
       geometry, geometry_3435
     ) %>%
     sfarrow::st_write_parquet(remote_file_indc_warehouse)

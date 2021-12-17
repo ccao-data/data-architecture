@@ -43,8 +43,7 @@ api_info <- list(
 
 # Function to call referenced API, pull requested data, and write it to S3
 pull_and_write <- function(x) {
-
-  tmp_file <- file.path(tempdir(), paste0(x["year"] ,".geojson"))
+  tmp_file <- file.path(tempdir(), paste0(x["year"], ".geojson"))
   remote_file <- file.path(
     AWS_S3_RAW_BUCKET, "spatial", "parcel",
     paste0(x["year"], ".geojson")
@@ -126,13 +125,13 @@ parcels_current <- glue(
 parcels_current_tmp_geo <- tempfile(fileext = ".geojson")
 parcels_current_tmp_attr <- tempfile(fileext = ".parquet")
 parcels_current_remote_geo <- file.path(
-    AWS_S3_RAW_BUCKET, "spatial", "parcel",
-    paste0(current_year, ".geojson")
-  )
+  AWS_S3_RAW_BUCKET, "spatial", "parcel",
+  paste0(current_year, ".geojson")
+)
 parcels_current_remote_attr <- file.path(
-    AWS_S3_RAW_BUCKET, "spatial", "parcel",
-    paste0(current_year, "-attr.parquet")
-  )
+  AWS_S3_RAW_BUCKET, "spatial", "parcel",
+  paste0(current_year, "-attr.parquet")
+)
 
 # Upload boundary file as geojson if it doesn't exist
 if (!aws.s3::object_exists(parcels_current_remote_geo)) {
@@ -158,7 +157,8 @@ if (!aws.s3::object_exists(parcels_current_remote_attr)) {
         FROM iasworld.pardat p
         LEFT JOIN iasworld.legdat l
         ON p.parid = l.parid AND p.taxyr = l.taxyr
-        WHERE p.taxyr = '{current_year}'")) %>%
+        WHERE p.taxyr = '{current_year}'")
+  ) %>%
     mutate(
       pin = str_pad(pin, 14, "left", "0"),
       tax_code = str_pad(tax_code, 5, "left", "0"),

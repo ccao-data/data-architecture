@@ -40,17 +40,15 @@ remote_file_coastline <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_coastline)) {
-
   tmp_file <- tempfile(fileext = ".geojson")
 
   st_write(
-    tigris::coastline(year = current_year) %>% filter(NAME == 'Great Lakes'),
+    tigris::coastline(year = current_year) %>% filter(NAME == "Great Lakes"),
     tmp_file
   )
 
   aws.s3::put_object(tmp_file, remote_file_coastline)
   file.remove(tmp_file)
-
 }
 
 ##### COOK COUNTY HYDROLOGY #####
@@ -60,7 +58,6 @@ remote_file_hydrology <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_hydrology)) {
-
   tmp_file <- tempfile(fileext = ".geojson")
 
   st_write(
@@ -70,5 +67,4 @@ if (!aws.s3::object_exists(remote_file_hydrology)) {
 
   aws.s3::put_object(tmp_file, remote_file_hydrology)
   file.remove(tmp_file)
-
 }

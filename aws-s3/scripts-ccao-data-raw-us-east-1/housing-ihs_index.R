@@ -26,12 +26,9 @@ remote_file <- file.path(
 # Grab the data, clean it just a bit, and write if it doesn't already exist
 if (!aws.s3::object_exists(remote_file)) {
   data.frame(t(
-
     openxlsx::read.xlsx(most_recent_ihs_data_url, sheet = 2) %>%
       dplyr::select(-c("X2", "X3", "X4"))
-
   )) %>%
-
     # Names and columns are kind of a mess after the transpose,
     # shift up first row, shift over column names
     janitor::row_to_names(1) %>%
