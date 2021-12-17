@@ -12,7 +12,9 @@ library(rvest)
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 
 # Scrape main page for .xlsx, which should be most recent release
-most_recent_ihs_data_url <- rvest::read_html("https://price-index.housingstudies.org/") %>%
+most_recent_ihs_data_url <- rvest::read_html(
+    "https://price-index.housingstudies.org/"
+  ) %>%
   rvest::html_nodes(xpath = ".//a[contains(@href, '.xlsx')]") %>%
   rvest::html_attr("href") %>%
   sprintf("https://price-index.housingstudies.org%s", .)
@@ -20,7 +22,10 @@ most_recent_ihs_data_url <- rvest::read_html("https://price-index.housingstudies
 # Get S3 file address
 remote_file <- file.path(
   AWS_S3_RAW_BUCKET, "housing", "ihs_index",
-  paste0(basename(tools::file_path_sans_ext(most_recent_ihs_data_url)), ".parquet")
+  paste0(
+    basename(tools::file_path_sans_ext(most_recent_ihs_data_url)),
+    ".parquet"
+  )
 )
 
 # Grab the data, clean it just a bit, and write if it doesn't already exist

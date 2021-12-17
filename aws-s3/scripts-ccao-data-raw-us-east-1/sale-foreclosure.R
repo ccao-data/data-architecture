@@ -20,7 +20,8 @@ read_write <- function(x) {
   ) %>%
     write_parquet(
       file.path(
-        AWS_S3_RAW_BUCKET, "sale", "foreclosure", glue(parse_number(x), ".parquet")
+        AWS_S3_RAW_BUCKET, "sale", "foreclosure",
+        glue(parse_number(x), ".parquet")
       )
     )
 }
