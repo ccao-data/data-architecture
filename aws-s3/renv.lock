@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.1.0",
+    "Version": "4.1.1",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -335,6 +335,13 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "36f1ae62f026c8ba9f9b5c9a08c03297"
+    },
+    "dtplyr": {
+      "Package": "dtplyr",
+      "Version": "1.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "f62678f8c708f10ee8f419862b9b008e"
     },
     "e1071": {
       "Package": "e1071",
@@ -716,10 +723,10 @@
     },
     "parallelly": {
       "Package": "parallelly",
-      "Version": "1.29.0",
+      "Version": "1.30.0",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "b5f399c9ce96977e22ef32c20b6cfe87"
+      "Hash": "67db13907a9cea89c118cf82d448799f"
     },
     "parsnip": {
       "Package": "parsnip",
@@ -902,6 +909,18 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "50b405c6419e921b9e9360cc9ebbcf2d"
+    },
+    "ptaxsim": {
+      "Package": "ptaxsim",
+      "Version": "0.1.0",
+      "Source": "GitLab",
+      "RemoteType": "gitlab",
+      "RemoteHost": "gitlab.com",
+      "RemoteRepo": "packages/ptaxsim",
+      "RemoteUsername": "ccao-data-science---modeling",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "5462deb45b80565540d5ffae08130b76e861fd42",
+      "Hash": "0498c6b2f2c5d642765b290f89f74f1a"
     },
     "purrr": {
       "Package": "purrr",
@@ -1263,7 +1282,7 @@
       "Version": "1.3.1",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "40682ed6a969ea5abfd351eb67833adc"
+      "Hash": "921dce7c0ec595ed85e77683d3e6c8b6"
     },
     "xtable": {
       "Package": "xtable",
