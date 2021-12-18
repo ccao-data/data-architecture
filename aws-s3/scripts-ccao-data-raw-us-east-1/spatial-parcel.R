@@ -7,16 +7,17 @@ library(noctua)
 library(odbc)
 library(sf)
 library(stringr)
+source("utils.R")
 
 # This script retrieves the historical parcel files from Cook Central
 # and saves them as geojson on S3
 # It also cleans the most recent parcel file (before it's publicly
 # available) and adds some attribute data)
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
-
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial")
 
 ##### HISTORICAL PARCELS #####
-api_info <- list(
+sources_list <- bind_rows(list(
   c("api_url" = "983b136927b5418986e86ba8b131991f_0.geojson", "year" = "2000"),
   c("api_url" = "7bdf70f3ee6b48819f822d086f808669_0.geojson", "year" = "2001"),
   c("api_url" = "2d7f0639172b4506bd2e34558359089f_0.geojson", "year" = "2002"),
@@ -38,35 +39,20 @@ api_info <- list(
   c("api_url" = "9539568a52124b99addb042efd0f83b1_0.geojson", "year" = "2018"),
   c("api_url" = "3d3375ac11d147308815d5cf4bb43f4e_0.geojson", "year" = "2019"),
   c("api_url" = "577d80fcbf0441a780ecdfd9e1b6b5c2_0.geojson", "year" = "2020")
-)
-
+))
 
 # Function to call referenced API, pull requested data, and write it to S3
-pull_and_write <- function(x) {
-  tmp_file <- file.path(tempdir(), paste0(x["year"], ".geojson"))
-  remote_file <- file.path(
-    AWS_S3_RAW_BUCKET, "spatial", "parcel",
-    paste0(x["year"], ".geojson")
+pwalk(sources_list, function(...) {
+  df <- tibble::tibble(...)
+  open_data_to_s3(
+    s3_bucket_uri = output_bucket,
+    base_url = "https://opendata.arcgis.com/datasets/",
+    data_url = df$api_url,
+    dir_name = "parcel",
+    file_year = df$year,
+    file_ext = ".geojson"
   )
-
-  if (!aws.s3::object_exists(remote_file)) {
-    if (!file.exists(tmp_file)) {
-      download.file(
-        paste0("https://opendata.arcgis.com/datasets/", x["api_url"]),
-        destfile = tmp_file
-      )
-    }
-    aws.s3::put_object(
-      file = tmp_file,
-      object = remote_file,
-      show_progress = TRUE
-    )
-    file.remove(tmp_file)
-  }
-}
-
-# Apply function to "api_info"
-lapply(api_info, pull_and_write)
+})
 
 
 ##### Attributes #####
@@ -80,7 +66,7 @@ CCAODATA <- odbc::dbConnect(
 # Server. Useful for historical PINs for which data is hard-to-find
 pull_sql_and_write <- function(year) {
   remote_file_attr <- file.path(
-    AWS_S3_RAW_BUCKET, "spatial", "parcel",
+    output_bucket, "parcel",
     paste0(year, "-attr.parquet")
   )
 
@@ -108,12 +94,12 @@ pull_sql_and_write <- function(year) {
       distinct(pin, .keep_all = TRUE) %>%
       write_parquet(tmp_file)
 
-    aws.s3::put_object(file = tmp_file, object = remote_file_attr)
+    save_local_to_s3(remote_file_attr, tmp_file)
     file.remove(tmp_file)
   }
 }
 
-lapply(2000:2020, pull_sql_and_write)
+walk(2000:2020, pull_sql_and_write)
 
 
 ##### CURRENT PARCELS #####
@@ -125,11 +111,11 @@ parcels_current <- glue(
 parcels_current_tmp_geo <- tempfile(fileext = ".geojson")
 parcels_current_tmp_attr <- tempfile(fileext = ".parquet")
 parcels_current_remote_geo <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "parcel",
+  output_bucket, "parcel",
   paste0(current_year, ".geojson")
 )
 parcels_current_remote_attr <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "parcel",
+  output_bucket, "parcel",
   paste0(current_year, "-attr.parquet")
 )
 
@@ -138,7 +124,7 @@ if (!aws.s3::object_exists(parcels_current_remote_geo)) {
   st_read(parcels_current) %>%
     st_write(parcels_current_tmp_geo)
 
-  aws.s3::put_object(parcels_current_tmp_geo, parcels_current_remote_geo)
+  save_local_to_s3(parcels_current_remote_geo, parcels_current_tmp_geo)
   file.remove(parcels_current_tmp_geo)
 }
 
@@ -172,11 +158,10 @@ if (!aws.s3::object_exists(parcels_current_remote_attr)) {
     as.data.frame() %>%
     write_parquet(parcels_current_tmp_attr)
 
-  aws.s3::put_object(parcels_current_tmp_attr, parcels_current_remote_attr)
+  save_local_to_s3(parcels_current_remote_attr, parcels_current_tmp_attr)
   file.remove(parcels_current_tmp_attr)
 }
 
 # Cleanup
 dbDisconnect(CCAODATA)
 dbDisconnect(AWS_ATHENA_CONN)
-rm(list = ls())

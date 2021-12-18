@@ -8,7 +8,7 @@ library(tools)
 
 save_s3_to_local <- function(s3_uri, path, overwrite = FALSE) {
   if (!file.exists(path) | overwrite) {
-    message("Saving file:", s3_uri, "to:", path)
+    message("Saving file: ", s3_uri, "to: ", path)
     aws.s3::save_object(object = s3_uri, file = path)
   }
 }
@@ -16,7 +16,7 @@ save_s3_to_local <- function(s3_uri, path, overwrite = FALSE) {
 
 save_local_to_s3 <- function(s3_uri, path, overwrite = FALSE) {
   if (!aws.s3::object_exists(s3_uri) | overwrite) {
-    message("Saving file:", path, "to:", s3_uri)
+    message("Saving file: ", path, "to: ", s3_uri)
     aws.s3::put_object(file = path, object = s3_uri)
   }
 }
@@ -28,12 +28,20 @@ open_data_to_s3 <- function(s3_bucket_uri,
                             dir_name,
                             file_year,
                             file_ext,
+                            file_prefix = NULL,
                             overwrite = FALSE
                             ) {
   open_data_file <- paste0(base_url, data_url)
   remote_file <- file.path(
     s3_bucket_uri, dir_name,
-    paste0(file_year, file_ext)
+    gsub(
+      "^-", "",
+      paste(
+        paste(file_prefix, collapse = "-"),
+        paste0(file_year, file_ext),
+        sep = "-"
+      )
+    )
   )
 
   if (!aws.s3::object_exists(remote_file)) {
@@ -45,7 +53,11 @@ open_data_to_s3 <- function(s3_bucket_uri,
 }
 
 
-write_partitions_to_s3 <- function(df, s3_output_path, is_spatial = TRUE, overwrite = FALSE) {
+write_partitions_to_s3 <- function(df,
+                                   s3_output_path,
+                                   is_spatial = TRUE,
+                                   overwrite = FALSE
+                                   ) {
   if (!dplyr::is.grouped_df(df)) {
     warning("Input data must contain grouping vars for partitioning")
   }
@@ -65,7 +77,7 @@ write_partitions_to_s3 <- function(df, s3_output_path, is_spatial = TRUE, overwr
       s3_output_path, partition_path, "part-0.parquet"
     )
     if (!object_exists(remote_path) | overwrite) {
-      message("Now uploading partition:", partition_path)
+      message("Now uploading butts lol: ", partition_path)
       tmp_file <- tempfile(fileext = ".parquet")
       if (is_spatial) {
         sfarrow::st_write_parquet(.x, tmp_file, compression = "snappy")

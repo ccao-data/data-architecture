@@ -4,10 +4,12 @@ library(DBI)
 library(dplyr)
 library(odbc)
 library(stringr)
+source("utils.R")
 
 # This script retrieves raw CCRD sales from the Data Department's SQL server
 # THIS SOURCE WILL NEED TO BE UPDATED
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "sale", "ccrd")
 
 # Connect to CCAODATA SQL server
 CCAODATA <- odbc::dbConnect(
@@ -16,10 +18,7 @@ CCAODATA <- odbc::dbConnect(
 )
 
 # Get S3 file address
-remote_file <- file.path(
-  AWS_S3_RAW_BUCKET, "sale", "ccrd",
-  paste0("ccrd", ".parquet")
-)
+remote_file <- file.path(output_bucket, paste0("ccrd", ".parquet"))
 
 # Retrieve data and write to S3
 DBI::dbGetQuery(
@@ -40,4 +39,3 @@ DBI::dbGetQuery(
 
 # Cleanup
 dbDisconnect(CCAODATA)
-rm(list = ls())

@@ -4,9 +4,11 @@ library(DBI)
 library(dplyr)
 library(odbc)
 library(stringr)
+source("utils.R")
 
 # This script retrieves raw versions of all RPIE tables with PII trimmed out
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "rpie", "data")
 
 # Connect to RPIE SQL server
 RPIE <- dbConnect(
@@ -45,15 +47,12 @@ PII <- list(
 # Strip tables of PII
 for (i in names(output)) {
   output[[i]] <- output[[i]] %>%
-    mutate(across(PII[[i]], ~NA))
+    mutate(across(PII[[i]], ~ NA))
 }
 
 # Function to write each table in "output" to a parquet file on S3
 write_all_dataframes <- function(table, name) {
-  remote_file <- file.path(
-    AWS_S3_RAW_BUCKET, "rpie", "data",
-    paste0(name, ".parquet")
-  )
+  remote_file <- file.path(output_bucket, paste0(name, ".parquet"))
   write_parquet(table, remote_file)
 }
 
@@ -62,4 +61,3 @@ mapply(write_all_dataframes, table = output, name = names(output))
 
 # Cleanup
 dbDisconnect(RPIE)
-rm(list = ls())

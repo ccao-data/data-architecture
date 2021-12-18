@@ -1,12 +1,15 @@
 library(aws.s3)
 library(dplyr)
+library(purrr)
 library(sf)
+source("utils.R")
 
 # This script retrieves major political boundaries such as townships and
 # judicial districts
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "political")
 
-api_info <- list(
+sources_list <- bind_rows(list(
   # BOARD OF REVIEW
   "bor_2012" = c(
     "source" = "https://datacatalog.cookcountyil.gov/api/geospatial/",
@@ -84,27 +87,17 @@ api_info <- list(
     "boundary" = "ward",
     "year" = "2015"
   )
-)
+))
 
 # Function to call referenced API, pull requested data, and write it to S3
-pull_and_write <- function(x) {
-  tmp_file <- tempfile(fileext = ".geojson")
-  remote_file <- file.path(
-    AWS_S3_RAW_BUCKET, "spatial", "political",
-    x["boundary"], paste0(x["year"], ".geojson")
+pwalk(sources_list, function(...) {
+  df <- tibble::tibble(...)
+  open_data_to_s3(
+    s3_bucket_uri = output_bucket,
+    base_url = df$source,
+    data_url = df$api_url,
+    dir_name = df$boundary,
+    file_year = df$year,
+    file_ext = ".geojson"
   )
-
-  if (!aws.s3::object_exists(remote_file)) {
-    st_read(paste0(x["source"], x["api_url"])) %>%
-      st_write(tmp_file, delete_dsn = TRUE)
-
-    aws.s3::put_object(tmp_file, remote_file)
-    file.remove(tmp_file)
-  }
-}
-
-# Apply function to "api_info"
-lapply(api_info, pull_and_write)
-
-# Cleanup
-rm(list = ls())
+})

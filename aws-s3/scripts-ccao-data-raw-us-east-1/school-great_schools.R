@@ -4,12 +4,14 @@ library(dplyr)
 library(httr)
 library(purrr)
 library(zipcodeR)
+source("utils.R")
 
 # This script retrieves data including ratings from greatschools.org
 GREAT_SCHOOLS_API_KEY <- Sys.getenv("GREAT_SCHOOLS_API_KEY")
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "sale", "ccrd")
 remote_file <- file.path(
-  AWS_S3_RAW_BUCKET, "school", "great_schools",
+  output_bucket,
   paste0(format(Sys.Date(), "%Y"), ".parquet")
 )
 
@@ -50,6 +52,3 @@ output <- bind_rows(great_schools) %>%
 if (!aws.s3::object_exists(remote_file)) {
   write_parquet(output, remote_file)
 }
-
-# Cleanup
-rm(list = ls())

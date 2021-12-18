@@ -2,21 +2,23 @@ library(aws.s3)
 library(dplyr)
 library(osmdata)
 library(sf)
+source("utils.R")
 
 # Script to gather various sources of building footprint data
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
-current_year <- strftime(Sys.Date(), "%Y")
 current_date <- Sys.Date()
+current_year <- strftime(current_date, "%Y")
+output_bucket <- file.path(
+  AWS_S3_RAW_BUCKET, "spatial", "building_footprint"
+)
 
-
-# OSM BUILDING FOOTPRINTS
+##### OSM BUILDING FOOTPRINTS #####
 remote_file_osm <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "building_footprint",
-  "osm", paste0(current_year, ".geojson")
+  output_bucket, "osm", paste0(current_year, ".geojson")
 )
 
 if (!aws.s3::object_exists(remote_file_osm)) {
-  temp_file_osm <- tempfile(fileext = ".geojson")
+  tmp_file_osm <- tempfile(fileext = ".geojson")
 
   # Gather building footprints from OSM
   footprints <- opq("Cook County United States") %>%
@@ -32,16 +34,16 @@ if (!aws.s3::object_exists(remote_file_osm)) {
     st_cast("MULTIPOLYGON") %>%
     mutate(pull_date = current_date) %>%
     select(osm_id, name, height, pull_date, geometry) %>%
-    # Upload to AWS
-    st_write(temp_file_osm, delete_dsn = TRUE)
+    st_write(tmp_file_osm, delete_dsn = TRUE)
 
-  aws.s3::put_object(temp_file_osm, remote_file_osm, multipart = TRUE)
-  file.remove(temp_file_osm)
+  # Upload to AWS
+  save_local_to_s3(remote_file_osm, tmp_file_osm)
+  file.remove(tmp_file_osm)
 }
 
 
-# ESRI / COOK COUNTY FOOTPRINTS
-api_info <- list(
+##### ESRI / COOK COUNTY FOOTPRINTS #####
+sources_list <- bind_rows(list(
   "esri_sub" = c(
     "source" = "https://datacatalog.cookcountyil.gov/api/geospatial/",
     "api_url" = "dh3h-25vu?method=export&format=GeoJSON",
@@ -56,35 +58,30 @@ api_info <- list(
     "area" = "chicago",
     "year" = "2008"
   )
-)
+))
 
 # Function to call referenced API, pull requested data, and write it to S3
-pull_and_write <- function(x) {
-  tmp_file <- tempfile(fileext = ".geojson")
-  remote_file <- file.path(
-    AWS_S3_RAW_BUCKET, "spatial", "building_footprint",
-    x["boundary"], paste0(x["area"], "-", x["year"], ".geojson")
+pwalk(sources_list, function(...) {
+  df <- tibble::tibble(...)
+  open_data_to_s3(
+    s3_bucket_uri = output_bucket,
+    base_url = df$source,
+    data_url = df$api_url,
+    dir_name = df$boundary,
+    file_year = df$year,
+    file_ext = ".geojson",
+    file_prefix = df$area
   )
-
-  if (!aws.s3::object_exists(remote_file)) {
-    download.file(paste0(x["source"], x["api_url"]), tmp_file)
-    aws.s3::put_object(tmp_file, remote_file)
-    file.remove(tmp_file)
-  }
-}
-
-# Apply function to "api_info"
-lapply(api_info, pull_and_write)
+})
 
 
-# MICROSOFT FOOTPRINTS
+##### MICROSOFT FOOTPRINTS #####
 remote_file_microsoft <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "building_footprint",
-  "microsoft", "2019.geojson"
+  output_bucket,  "microsoft", "2019.geojson"
 )
 
 if (!aws.s3::object_exists(remote_file_microsoft)) {
-  temp_file_zip <- tempfile(fileext = ".zip")
+  tmp_file_zip <- tempfile(fileext = ".zip")
   ext_file <- file.path(tempdir(), "Illinois.geojson")
 
   # Download compressed IL footprints file
@@ -93,9 +90,9 @@ if (!aws.s3::object_exists(remote_file_microsoft)) {
       "https://usbuildingdata.blob.core.windows.net",
       "/usbuildings-v2/Illinois.geojson.zip"
     ),
-    temp_file_zip
+    tmp_file_zip
   )
-  unzip(temp_file_zip, exdir = dirname(ext_file))
-  aws.s3::put_object(ext_file, remote_file_microsoft, multipart = TRUE)
+  unzip(tmp_file_zip, exdir = dirname(ext_file))
+  save_local_to_s3(remote_file_microsoft, ext_file)
   file.remove(ext_file)
 }
