@@ -7,6 +7,7 @@ library(sf)
 library(sfarrow)
 library(stringr)
 library(tidyr)
+source("utils.R")
 
 # This script cleans shapefiles that represent desirable amenities, such as
 # parks and hospitals

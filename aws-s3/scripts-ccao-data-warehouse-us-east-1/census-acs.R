@@ -4,6 +4,7 @@ library(dplyr)
 library(purrr)
 library(stringr)
 library(tidycensus)
+source("utils.R")
 
 # This script retrieves raw ACS data for the data lake
 # It populates the warehouse s3 bucket
@@ -111,7 +112,7 @@ pull_and_write_acs <- function(x) {
   if (!aws.s3::object_exists(remote_file)) {
 
     # Print file being written
-    print(paste0(Sys.time(), " - ", remote_file))
+    message(Sys.time(), " - ", remote_file)
 
     # These geographies are county-specific rather than state-level
     county_specific <- c("county", "county subdivision", "tract")
@@ -138,6 +139,3 @@ pull_and_write_acs <- function(x) {
 
 # Apply function to all_combos
 apply(all_combos, 1, pull_and_write_acs)
-
-# Cleanup
-rm(list = ls())

@@ -8,6 +8,7 @@ library(sf)
 library(sfarrow)
 library(stringr)
 library(tidyr)
+source("utils.R")
 
 # THERE ARE OVERLAPPING CPS SECONDARY ATTENDANCE BOUNDARIES - GAGE/ENGLEWOOD - GAGE DOES
 # APPEAR TO ACTUALLY OVERLAP WITH ENGLEWOOD SO THE OVERLAPPING POLYGON FOR GAGE CAN PROBABLY
@@ -39,13 +40,7 @@ district_files_df <- aws.s3::get_bucket_df(
   select(year, s3_uri, district_type)
 
 
-# Geometry file locally for loading with sf
-save_local_file <- function(local_path, uri) {
-  if (!file.exists(local_path)) {
-    print(paste("Grabbing geojson file:", uri))
-    aws.s3::save_object(uri, file = local_path)
-  }
-}
+
 
 
 ##### COOK DISTRICTS #####
@@ -194,7 +189,7 @@ bind_rows(
       "part-0.parquet"
     )
     if (!object_exists(remote_path)) {
-      print(paste("Now uploading:", year, "data for type:", district_type))
+      message("Now uploading: ", year, "data for type: ", district_type)
       tmp_file <- tempfile(fileext = ".parquet")
       st_write_parquet(.x, tmp_file, compression = "snappy")
       aws.s3::put_object(tmp_file, remote_path)
@@ -247,7 +242,7 @@ apply(location_files_df, 1, process_location_file) %>%
       paste0("year=", year), "part-0.parquet"
     )
     if (!object_exists(remote_path)) {
-      print(paste("Now uploading:", year, "data"))
+      message("Now uploading:", year, "data")
       tmp_file <- tempfile(fileext = ".parquet")
       st_write_parquet(.x, tmp_file, compression = "snappy")
       aws.s3::put_object(tmp_file, remote_path)

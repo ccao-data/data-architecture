@@ -7,6 +7,7 @@ library(sf)
 library(sfarrow)
 library(stringr)
 library(tidytransit)
+source("utils.R")
 
 # This script transforms GTFS data from Cook County transit systems into
 # spatial data files

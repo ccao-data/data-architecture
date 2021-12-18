@@ -1,9 +1,11 @@
 library(aws.s3)
 library(dplyr)
+library(purrr)
 library(sf)
 library(sfarrow)
 library(stringr)
 library(tidyr)
+source("utils.R")
 
 # This script retrieves major political boundaries such as townships and
 # judicial districts and keeps only necessary columns for reporting and analysis
@@ -77,7 +79,7 @@ combine_upload <- function(political_unit) {
         "part-0.parquet"
       )
       if (!object_exists(remote_path)) {
-        print(paste0("Now uploading:", political_unit, "data for ", year))
+        message("Now uploading: ", political_unit, "data for ", year)
         tmp_file <- tempfile(fileext = ".parquet")
         st_write_parquet(.x, tmp_file, compression = "snappy")
         aws.s3::put_object(tmp_file, remote_path)
@@ -86,7 +88,4 @@ combine_upload <- function(political_unit) {
 }
 
 # Apply function to cleaned data
-lapply(political_units, combine_upload)
-
-# Cleanup
-rm(list = ls())
+walk(political_units, combine_upload)

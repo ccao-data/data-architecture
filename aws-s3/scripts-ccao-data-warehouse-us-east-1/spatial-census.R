@@ -5,6 +5,7 @@ library(purrr)
 library(sf)
 library(sfarrow)
 library(stringr)
+source("utils.R")
 
 # This script cleans saved census boundary files and moves the cleaned data
 # into the main warehouse
@@ -33,7 +34,7 @@ normalize_census_geo <- function(key) {
   )
 
   if (!aws.s3::object_exists(remote_file)) {
-    print(paste("Now fetching:", key, "saving to:", remote_file))
+    message("Now fetching: ", key, "saving to: ", remote_file)
     tmp_file <- tempfile(fileext = ".geojson")
     aws.s3::save_object(key, AWS_S3_RAW_BUCKET, file = tmp_file)
     df <- sf::read_sf(tmp_file) %>%
@@ -68,4 +69,4 @@ normalize_census_geo <- function(key) {
 }
 
 # Map through and normalize all geographies
-lapply(census_geo_objs$Key, normalize_census_geo)
+walk(census_geo_objs$Key, normalize_census_geo)

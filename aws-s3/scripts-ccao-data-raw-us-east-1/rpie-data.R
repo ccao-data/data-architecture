@@ -30,7 +30,7 @@ grab_table <- function(table_name) {
 }
 
 # Grab listed tables
-output <- lapply(tables, grab_table)
+output <- walk(tables, grab_table)
 names(output) <- tables
 
 # All columns identified as PII, by table

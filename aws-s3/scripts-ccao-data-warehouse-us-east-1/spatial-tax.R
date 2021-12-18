@@ -1,9 +1,11 @@
 library(aws.s3)
 library(dplyr)
+library(purrr)
 library(sf)
 library(sfarrow)
 library(stringr)
 library(tidyr)
+source("utils.R")
 
 # This script cleans tax boundaries and uploads them to the S3 warehouse.
 # Users must link tow raw column names to pre-selected column names for each shapefile
@@ -88,7 +90,7 @@ combine_upload <- function(tax_body) {
         "part-0.parquet"
       )
       if (!object_exists(remote_path)) {
-        print(paste0("Now uploading:", tax_body, "data for ", year))
+        message("Now uploading: ", tax_body, "data for ", year)
         tmp_file <- tempfile(fileext = ".parquet")
         st_write_parquet(.x, tmp_file, compression = "snappy")
         aws.s3::put_object(tmp_file, remote_path)
@@ -97,7 +99,4 @@ combine_upload <- function(tax_body) {
 }
 
 # Apply function to cleaned data
-lapply(tax_bodies, combine_upload)
-
-# Cleanup
-rm(list = ls())
+walk(tax_bodies, combine_upload)

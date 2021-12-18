@@ -3,8 +3,10 @@ library(dplyr)
 library(glue)
 library(noctua)
 library(osmdata)
+library(purrr)
 library(sf)
 library(sfarrow)
+source("utils.R")
 
 # This script queries OpenStreetMap for major roads in Cook County and
 # saves them as a spatial parquet

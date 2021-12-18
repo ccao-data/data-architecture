@@ -9,6 +9,7 @@ library(sfarrow)
 library(stringr)
 library(tictoc)
 library(tidyr)
+source("utils.R")
 
 # This script cleans historical Cook County parcel data and uploads it to S3
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
@@ -35,11 +36,11 @@ save_local_parcel_files <- function(year, spatial_uri, attr_uri) {
   tmp_file_spatial <- file.path(parcel_tmp_dir, paste0(year, ".geojson"))
   tmp_file_attr <- file.path(parcel_tmp_dir, paste0(year, "-attr.parquet"))
   if (!file.exists(tmp_file_spatial)) {
-    print(paste("Grabbing geojson file for:", year))
+    message("Grabbing geojson file for: ", year)
     aws.s3::save_object(spatial_uri, file = tmp_file_spatial)
   }
   if (!file.exists(tmp_file_attr)) {
-    print(paste("Grabbing attribute file for:", year))
+    message("Grabbing attribute file for: ", year)
     aws.s3::save_object(attr_uri, file = tmp_file_attr)
   }
 }
@@ -63,7 +64,7 @@ process_parcel_file <- function(row) {
 
   # Only run processing if local backup doesn't exist
   if (!file.exists(local_backup_file)) {
-    print(paste("Now processing parcel file for:", file_year))
+    message("Now processing parcel file for: ", file_year)
 
     # Read local geojson file
     tictoc::tic(paste("Read file for:", file_year))
@@ -180,7 +181,7 @@ process_parcel_file <- function(row) {
     st_write_parquet(spatial_df_merged, local_backup_file)
     tictoc::toc()
   } else {
-    print(paste("Loading processed parcels from backup for:", file_year))
+    message("Loading processed parcels from backup for: ", file_year)
     spatial_df_merged <- st_read_parquet(local_backup_file)
   }
 
@@ -197,7 +198,7 @@ process_parcel_file <- function(row) {
         "part-0.parquet"
       )
       if (!object_exists(remote_path)) {
-        print(paste("Now uploading:", year, "data for town:", town_code))
+        message("Now uploading: ", year, "data for town: ", town_code)
         tmp_file <- tempfile(fileext = ".parquet")
         st_write_parquet(.x, tmp_file, compression = "snappy")
         aws.s3::put_object(tmp_file, remote_path)

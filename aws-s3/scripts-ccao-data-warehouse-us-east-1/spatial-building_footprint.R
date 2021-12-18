@@ -10,6 +10,7 @@ library(sf)
 library(sfarrow)
 library(stringr)
 library(tidyr)
+source("utils.R")
 
 # This script cleans building footprint data from various sources and
 # compiles it into a single table on AWS Athena

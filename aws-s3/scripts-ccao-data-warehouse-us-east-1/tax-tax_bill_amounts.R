@@ -1,8 +1,10 @@
 library(arrow)
 library(aws.s3)
-library(dplyr)
 library(ccao)
+library(dplyr)
+library(purrr)
 library(stringr)
+source("utils.R")
 
 # This script cleans saved data from the county's mainframe pertaining to tax bills
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
@@ -33,7 +35,7 @@ upload_taxbillamounts <- function(path) {
   )
 
   if (!aws.s3::object_exists(remote_file)) {
-    print(paste("Now fetching:", path["year"]))
+    message("Now fetching: ", path["year"])
 
     taxbillamounts <- read_parquet(
       aws.s3::get_object(
@@ -49,21 +51,7 @@ upload_taxbillamounts <- function(path) {
       select(-tax_year) %>%
       mutate(year = path["year"]) %>%
       group_by(year, town_code) %>%
-      group_walk(~ {
-        year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
-        town_code <- replace_na(.y$town_code, "__HIVE_DEFAULT_PARTITION__")
-        remote_path <- file.path(
-          AWS_S3_WAREHOUSE_BUCKET, "tax", "tax_bill_amounts",
-          paste0("year=", year), paste0("town_code=", town_code),
-          "part-0.parquet"
-        )
-        if (!object_exists(remote_path)) {
-          print(paste("Now uploading:", year, "data for town:", town_code))
-          tmp_file <- tempfile(fileext = ".parquet")
-          write_parquet(.x, tmp_file, compression = "snappy")
-          aws.s3::put_object(tmp_file, remote_path)
-        }
-      })
+      write_partitions_to_s3(output_bucket, is_spatial = FALSE)
   }
 }
 

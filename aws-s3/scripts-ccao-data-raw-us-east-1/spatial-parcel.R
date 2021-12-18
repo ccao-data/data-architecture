@@ -71,7 +71,7 @@ pull_sql_and_write <- function(year) {
   )
 
   if (!aws.s3::object_exists(remote_file_attr)) {
-    print(paste("Now grabbing year:", year))
+    message("Now grabbing year: ", year)
     tmp_file <- tempfile(fileext = ".parquet")
     df <- DBI::dbGetQuery(
       CCAODATA, glue("

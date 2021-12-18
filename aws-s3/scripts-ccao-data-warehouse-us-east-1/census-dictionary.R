@@ -4,6 +4,7 @@ library(dplyr)
 library(purrr)
 library(stringr)
 library(tidycensus)
+source("utils.R")
 
 # This script retrieves a dictionary of census variable names
 # It populates the warehouse s3 bucket

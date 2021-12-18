@@ -64,20 +64,18 @@ write_partitions_to_s3 <- function(df,
 
   dplyr::group_walk(df, ~ {
     partitions_df <- purrr::map_dfr(
-      replace_na(.y, "__HIVE_DEFAULT_PARTITION__")
+      .y, replace_na, "__HIVE_DEFAULT_PARTITION__"
     )
     partition_path <- paste0(purrr::map2_chr(
       names(partitions_df),
       partitions_df[1, ],
       function(x, y) paste0(x, "=", y)
-    ),
-    collapse = "/"
-    )
+    ), collapse = "/")
     remote_path <- file.path(
       s3_output_path, partition_path, "part-0.parquet"
     )
     if (!object_exists(remote_path) | overwrite) {
-      message("Now uploading butts lol: ", partition_path)
+      message("Now uploading: ", partition_path)
       tmp_file <- tempfile(fileext = ".parquet")
       if (is_spatial) {
         sfarrow::st_write_parquet(.x, tmp_file, compression = "snappy")

@@ -4,11 +4,11 @@ library(dplyr)
 library(purrr)
 library(sf)
 library(tigris)
+source("utils.R")
 
 # This script cleans geometry files and moves them to a specific folder for use
 # in Tableau and other visualization software
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-
 
 ##### 2020 Census tracts #####
 tract_2020_warehouse <- file.path(

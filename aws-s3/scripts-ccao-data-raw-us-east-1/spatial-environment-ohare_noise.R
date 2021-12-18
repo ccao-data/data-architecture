@@ -21,7 +21,7 @@ pull_and_write_ohare_noise <- function(x) {
   remote_file <- file.path(output_bucket, "ohare_noise_monitor", x)
 
   # Print file being written
-  print(paste0(Sys.time(), " - ", remote_file))
+  message(Sys.time(), " - ", remote_file)
 
   # Check to see if file already exists on S3; if it does, skip it
   if (!aws.s3::object_exists(remote_file)) {

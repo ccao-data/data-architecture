@@ -1,11 +1,13 @@
 library(aws.s3)
 library(dplyr)
+library(purrr)
 library(sf)
+source("utils.R")
 
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 
-# UNINCORPORATED AREA
+##### UNINCORPORATED AREA ####
 unincorporated_area_raw <- grep(
   ".geojson",
   file.path(
@@ -42,10 +44,10 @@ clean_unincorporated_area <- function(shapefile_path) {
 }
 
 # Apply function
-lapply(unincorporated_area_raw, clean_unincorporated_area)
+walk(unincorporated_area_raw, clean_unincorporated_area)
 
 
-# SUBDIVISIONS
+##### SUBDIVISIONS #####
 # Gather paths for subdivision shapefiles
 subdivisions_raw <- grep(
   ".geojson",
@@ -78,10 +80,10 @@ clean_subdivisions <- function(shapefile_path) {
 }
 
 # Apply function
-lapply(subdivisions_raw, clean_subdivisions)
+walk(subdivisions_raw, clean_subdivisions)
 
 
-# COMMUNITY AREAS
+##### COMMUNITY AREAS ####
 # Gather paths for community area shapefiles
 comm_areas_raw <- grep(
   ".geojson",
@@ -118,7 +120,4 @@ clean_comm_areas <- function(shapefile_path) {
 }
 
 # Apply function
-lapply(comm_areas_raw, clean_comm_areas)
-
-# Cleanup
-rm(list = ls())
+walk(comm_areas_raw, clean_comm_areas)

@@ -7,6 +7,7 @@ library(sf)
 library(sfarrow)
 library(stringr)
 library(tidyr)
+source("utils.R")
 
 # This script cleans environmental data such as floodplains and coastal
 # boundaries and uploads them to S3 as parquet files
