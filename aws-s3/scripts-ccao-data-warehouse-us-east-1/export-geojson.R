@@ -9,13 +9,14 @@ source("utils.R")
 # This script cleans geometry files and moves them to a specific folder for use
 # in Tableau and other visualization software
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "export")
 
 ##### 2020 Census tracts #####
-tract_2020_warehouse <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "export", "geojson",
+remote_file_tract_2020 <- file.path(
+  output_bucket, "geojson",
   "census-tract-2020.geojson"
 )
-if (!aws.s3::object_exists(tract_2020_warehouse)) {
+if (!aws.s3::object_exists(remote_file_tract_2020)) {
   tracts_2020 <- tigris::tracts(
     state = "17",
     county = "031",
@@ -27,5 +28,5 @@ if (!aws.s3::object_exists(tract_2020_warehouse)) {
   # Write geojson to S3
   tmp_file_geojson <- tempfile(fileext = ".geojson")
   st_write(tracts_2020, tmp_file_geojson)
-  aws.s3::put_object(tmp_file_geojson, tract_2020_warehouse)
+  save_local_to_s3(remote_file_tract_2020, tmp_file_geojson)
 }

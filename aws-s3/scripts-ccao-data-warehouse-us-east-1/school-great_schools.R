@@ -99,7 +99,6 @@ if (!aws.s3::object_exists(
   )
 
   # Second dataset is average school rating by district
-
   great_districts %>%
     # Drop geometry because summarize by group messes it up
     st_drop_geometry() %>%

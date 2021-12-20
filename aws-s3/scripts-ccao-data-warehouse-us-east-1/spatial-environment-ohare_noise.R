@@ -16,11 +16,9 @@ library(tidygeocoder)
 library(tidyr)
 source("utils.R")
 
-
 # Script to transform raw data on O'Hare noise into clean Athena tables
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-
 
 ##### OHARE NOISE MONITORS #####
 file_paths <- c(

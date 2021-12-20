@@ -32,7 +32,8 @@ files <- grep(
   value = TRUE
 )
 
-lapply(files, read_parquet) %>%
+# Load raw files, cleanup, then write to warehouse S3
+map(files, read_parquet) %>%
   rbindlist() %>%
   rename_with(~ tolower(gsub(" ", "_", .x))) %>%
   rename(pin = property_identification_number) %>%

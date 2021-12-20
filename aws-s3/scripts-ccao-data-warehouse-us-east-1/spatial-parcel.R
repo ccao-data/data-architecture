@@ -14,6 +14,7 @@ source("utils.R")
 # This script cleans historical Cook County parcel data and uploads it to S3
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
 parcel_tmp_dir <- here("parcel-tmp")
 
 # Get list of all parcel files (geojson AND attribute files) in the raw bucket
@@ -48,10 +49,10 @@ save_local_parcel_files <- function(year, spatial_uri, attr_uri) {
 
 # Load local parcel file, clean, extract centroids, and write to partitioned
 # dataset on S3
-process_parcel_file <- function(row) {
-  file_year <- row["year"]
-  attr_uri <- row["attr"]
-  spatial_uri <- row["spatial"]
+process_parcel_file <- function(s3_bucket_uri,
+                                file_year,
+                                attr_uri,
+                                spatial_uri) {
   tictoc::tic(paste("Finished processing parcel file for:", file_year))
 
   # Download S3 files to local temp dir if they don't exist
@@ -189,22 +190,17 @@ process_parcel_file <- function(row) {
   spatial_df_merged %>%
     mutate(year = file_year) %>%
     group_by(year, town_code) %>%
-    group_walk(~ {
-      year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
-      town_code <- replace_na(.y$town_code, "__HIVE_DEFAULT_PARTITION__")
-      remote_path <- file.path(
-        AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel",
-        paste0("year=", year), paste0("town_code=", town_code),
-        "part-0.parquet"
-      )
-      if (!object_exists(remote_path)) {
-        message("Now uploading: ", year, "data for town: ", town_code)
-        tmp_file <- tempfile(fileext = ".parquet")
-        st_write_parquet(.x, tmp_file, compression = "snappy")
-        aws.s3::put_object(tmp_file, remote_path)
-      }
-    })
+    write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = TRUE)
   tictoc::toc()
 }
 
-apply(parcel_files_df, 1, process_parcel_file)
+# Apply function to all parcel files
+pwalk(parcel_files_df, function(...) {
+  df <- tibble::tibble(...)
+  process_parcel_file(
+    s3_bucket_uri = output_bucket,
+    file_year = df$year,
+    attr_uri = df$attr,
+    spatial_uri = df$spatial
+  )
+})

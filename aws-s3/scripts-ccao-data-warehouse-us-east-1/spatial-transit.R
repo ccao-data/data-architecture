@@ -13,6 +13,7 @@ source("utils.R")
 # spatial data files
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "transit")
 
 # Get list of all GTFS feeds in raw bucket
 gtfs_feeds_df <- aws.s3::get_bucket_df(
@@ -27,21 +28,17 @@ gtfs_feeds_df <- aws.s3::get_bucket_df(
     raw_feed_url = file.path(AWS_S3_RAW_BUCKET, Key)
   )
 
-process_gtfs_feed <- function(feed) {
-  date <- feed["date"]
-  year <- feed["year"]
-  agency <- feed["agency"]
-  feed_url <- feed["raw_feed_url"]
+process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
 
   # Construct dest paths from input
   remote_file_stop <- file.path(
-    AWS_S3_WAREHOUSE_BUCKET, "spatial", "transit", "transit_stop",
+    s3_bucket_uri, "transit_stop",
     paste0("agency=", agency),
     paste0("year=", year),
     paste0(date, "-gtfs.parquet")
   )
   remote_file_route <- file.path(
-    AWS_S3_WAREHOUSE_BUCKET, "spatial", "transit", "transit_route",
+    s3_bucket_uri, "transit_route",
     paste0("agency=", agency),
     paste0("year=", year),
     paste0(date, "-gtfs.parquet")
@@ -111,8 +108,17 @@ process_gtfs_feed <- function(feed) {
   }
 }
 
-apply(gtfs_feeds_df, 1, process_gtfs_feed)
-
+# Apply function to all_combos
+pwalk(gtfs_feeds_df, function(...) {
+  df <- tibble::tibble(...)
+  process_gtfs_feed(
+    s3_bucket_uri = output_bucket,
+    date = df$date,
+    year = df$year,
+    agency = df$agency,
+    feed_url = df$raw_feed_url
+  )
+})
 
 # Create dictionary for GTFS numeric codes
 # See: https://developers.google.com/transit/gtfs/reference

@@ -40,9 +40,6 @@ district_files_df <- aws.s3::get_bucket_df(
   select(year, s3_uri, district_type)
 
 
-
-
-
 ##### COOK DISTRICTS #####
 
 # Clean up and merge non-CPS district files from different years

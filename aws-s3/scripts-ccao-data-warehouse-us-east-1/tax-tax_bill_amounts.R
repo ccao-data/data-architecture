@@ -9,6 +9,12 @@ source("utils.R")
 # This script cleans saved data from the county's mainframe pertaining to tax bills
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+input_bucket <- file.path(
+  AWS_S3_RAW_BUCKET, "tax", "tax_bill_amounts"
+)
+output_bucket <- file.path(
+  AWS_S3_WAREHOUSE_BUCKET, "tax", "tax_bill_amounts"
+)
 
 # Get a list of all TAXBILLAMOUNTS objects and their associated townships in S3
 paths <- aws.s3::get_bucket_df(
@@ -24,25 +30,21 @@ paths <- aws.s3::get_bucket_df(
   )
 
 # Function to load file from S3, clean and filter column names, and partition data
-upload_taxbillamounts <- function(path) {
+upload_taxbillamounts <- function(s3_bucket_uri, year, town_code) {
 
   # Only run if object doesn't already exist
   remote_file <- file.path(
-    AWS_S3_WAREHOUSE_BUCKET, "tax", "tax_bill_amounts",
-    paste0("year=", path["year"]),
-    paste0("town_code=", path["town_code"]),
+    output_bucket,
+    paste0("year=", year),
+    paste0("town_code=", town_code),
     "part-0.parquet"
   )
 
   if (!aws.s3::object_exists(remote_file)) {
-    message("Now fetching: ", path["year"])
+    message("Now fetching: ", year)
 
     taxbillamounts <- read_parquet(
-      aws.s3::get_object(
-        paste0(
-          "s3://ccao-data-raw-us-east-1/tax/tax_bill_amounts/",
-          path["year"], ".parquet"
-        )
+      aws.s3::get_object(paste0(input_bucket, year, ".parquet")
       )
     ) %>%
       select(PIN, TAX_YEAR, TB_TOWN, TB_EAV:TB_EST_TAX_AMT) %>%
@@ -51,9 +53,16 @@ upload_taxbillamounts <- function(path) {
       select(-tax_year) %>%
       mutate(year = path["year"]) %>%
       group_by(year, town_code) %>%
-      write_partitions_to_s3(output_bucket, is_spatial = FALSE)
+      write_partitions_to_s3(s3_bucket_uri, is_spatial = FALSE)
   }
 }
 
 # Apply function to all files
-apply(paths, 1, upload_taxbillamounts)
+pwalk(paths, function(...) {
+  df <- tibble::tibble(...)
+  upload_taxbillamounts(
+    s3_bucket_uri = output_bucket,
+    year = df$year,
+    town_code = df$town_code
+  )
+})
