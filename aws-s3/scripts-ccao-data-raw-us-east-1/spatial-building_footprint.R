@@ -1,6 +1,7 @@
 library(aws.s3)
 library(dplyr)
 library(osmdata)
+library(purrr)
 library(sf)
 source("utils.R")
 
