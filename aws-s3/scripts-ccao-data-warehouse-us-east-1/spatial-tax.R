@@ -45,6 +45,62 @@ column_names <- list(
   "tif/2018" = c("tif_num" = "AGENCYNUM", "tif_name" = "AGENCY_DESCRIPTION", "geometry")
 )
 
+# Function to clean fire protection districts
+clean_fire_protection <- function(shapefile, tax_body) {
+
+  if (tax_body == "fire_protection") {
+
+    return(
+
+      shapefile %>%
+        mutate(
+          fire_protection_name = gsub(
+            pattern = "Fire Dist|Fire Prot Dist|Fire Protection Dist",
+            replacement = "Fire Protection District",
+            fire_protection_name,
+            ignore.case = TRUE)) %>%
+        mutate(fire_protection_name = gsub(
+          pattern = "Districtrict",
+          replacement = "District",
+          fire_protection_name,
+          ignore.case = TRUE)) %>%
+        mutate(fire_protection_name = case_when(fire_protection_num == "6240" ~ "NORTHBROOK RURAL Fire Protection District",
+                                                TRUE ~ fire_protection_name),
+               fire_protection_num = NA)
+
+    )
+
+  } else {
+
+    return(shapefile)
+
+  }
+
+}
+
+# Function to clean library and park districts
+clean_general <- function(shapefile, tax_body) {
+
+  if (tax_body %in% c("library", "park")) {
+
+    return(
+
+      shapefile %>%
+        mutate(across(contains("num"), ~ NA)) %>%
+        mutate(across(contains("name"), ~ gsub("Districtrict", "District",
+                                               gsub("Dist", "District", ., ignore.case = TRUE),
+                                               ignore.case = TRUE)))
+
+    )
+
+  } else {
+
+    return(shapefile)
+
+  }
+
+}
+
 # Function to pull raw data from S3 and clean
 clean_tax <- function(remote_file) {
   tax_body <- str_split(remote_file, "/", simplify = TRUE)[1, 6]
@@ -60,6 +116,18 @@ clean_tax <- function(remote_file) {
   return(
     st_read(tmp_file) %>%
       select(column_names[[tax_body_year]]) %>%
+      filter(across(contains("name"), ~ !is.na(.))) %>%
+
+      # Apply specific cleaning functions
+      clean_fire_protection(tax_body = tax_body) %>%
+      clean_general(tax_body = tax_body) %>%
+
+      # Some shapefiles have multiple rows per tax body rather than multipolygons, fix that
+      st_make_valid() %>%
+      group_by(across(contains(c("num", "name")))) %>%
+      summarise() %>%
+      ungroup() %>%
+
       mutate(across(contains("num"), as.character),
         across(where(is.character), str_to_title),
         geometry_3435 = st_transform(geometry, 3435),
@@ -75,10 +143,17 @@ cleaned_output <- sapply(raw_files, clean_tax, simplify = FALSE, USE.NAMES = TRU
 
 tax_bodies <- unique(str_split(raw_files, "/", simplify = TRUE)[, 6])
 
-# Function to parition and upload cleaned data to S3
+# Function to partition and upload cleaned data to S3
 combine_upload <- function(tax_body) {
   cleaned_output[grep(tax_body, names(cleaned_output))] %>%
     bind_rows() %>%
+    group_by(across(contains("name"))) %>%
+
+    # Some shapefiles don't have consistent identifiers across time, create them using group IDs
+    mutate(across(contains("num"), ~ case_when(
+      is.na(.) ~ str_pad(cur_group_id(), width = 3, side = "left", pad = "0"),
+                                               TRUE ~ .
+      ))) %>%
     group_by(year) %>%
     group_walk(~ {
       year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
@@ -88,7 +163,7 @@ combine_upload <- function(tax_body) {
         "part-0.parquet"
       )
       if (!object_exists(remote_path)) {
-        print(paste0("Now uploading:", tax_body, "data for ", year))
+        print(paste0("Now uploading: ", tax_body, " data for ", year))
         tmp_file <- tempfile(fileext = ".parquet")
         st_write_parquet(.x, tmp_file, compression = "snappy")
         aws.s3::put_object(tmp_file, remote_path)
