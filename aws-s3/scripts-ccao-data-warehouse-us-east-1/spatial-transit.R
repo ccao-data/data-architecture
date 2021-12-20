@@ -108,7 +108,7 @@ process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
   }
 }
 
-# Apply function to all_combos
+# Apply function to all transit files
 pwalk(gtfs_feeds_df, function(...) {
   df <- tibble::tibble(...)
   process_gtfs_feed(
