@@ -14,7 +14,7 @@ sources_list <- bind_rows(list(
   "bor_2012" = c(
     "source" = "https://datacatalog.cookcountyil.gov/api/geospatial/",
     "api_url" = "7iyt-i4z4?method=export&format=GeoJSON",
-    "boundary" = "board_of_review",
+    "boundary" = "board_of_review_district",
     "year" = "2012"
   ),
 
@@ -22,16 +22,8 @@ sources_list <- bind_rows(list(
   "cmd_2012" = c(
     "source" = "https://datacatalog.cookcountyil.gov/api/geospatial/",
     "api_url" = "ihae-id2m?method=export&format=GeoJSON",
-    "boundary" = "commissioner",
+    "boundary" = "commissioner_district",
     "year" = "2012"
-  ),
-
-  # TOWNSHIPS
-  "twn_2019" = c(
-    "source" = "https://opendata.arcgis.com/datasets/",
-    "api_url" = "78fe09c5954e41e19b65a4194eed38c7_3.geojson",
-    "boundary" = "township",
-    "year" = "2019"
   ),
 
   # CONGRESSIONAL DISTRICT
@@ -46,7 +38,7 @@ sources_list <- bind_rows(list(
   "jsd_2012" = c(
     "source" = "https://datacatalog.cookcountyil.gov/api/geospatial/",
     "api_url" = "54r3-ikn3?method=export&format=GeoJSON",
-    "boundary" = "judicial",
+    "boundary" = "judicial_district",
     "year" = "2012"
   ),
 
@@ -62,7 +54,7 @@ sources_list <- bind_rows(list(
   "str_2010" = c(
     "source" = "https://datacatalog.cookcountyil.gov/api/geospatial/",
     "api_url" = "gsew-ir9y?method=export&format=GeoJSON",
-    "boundary" = "state_representative",
+    "boundary" = "state_representative_district",
     "year" = "2010"
   ),
 
@@ -70,7 +62,7 @@ sources_list <- bind_rows(list(
   "sts_2010" = c(
     "source" = "https://datacatalog.cookcountyil.gov/api/geospatial/",
     "api_url" = "ezne-sr8y?method=export&format=GeoJSON",
-    "boundary" = "state_senate",
+    "boundary" = "state_senate_district",
     "year" = "2010"
   ),
 

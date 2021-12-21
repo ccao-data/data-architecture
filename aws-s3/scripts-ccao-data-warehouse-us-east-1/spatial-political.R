@@ -26,14 +26,13 @@ dest_files <- gsub(
   )
 )
 column_names <- c(
-  "board_of_review" = "district_n",
-  "commissioner" = "district",
+  "board_of_review_district" = "district_n",
+  "commissioner_district" = "district",
   "congressional_district" = "district_n",
-  "judicial" = "district",
+  "judicial_district" = "district",
   "municipality" = "MUNICIPALITY",
-  "state_representative" = "district_n",
-  "state_senate" = "senatedist",
-  "township" = "NAME",
+  "state_representative_district" = "district_n",
+  "state_senate_district" = "senatedist",
   "ward" = "ward"
 )
 
@@ -51,10 +50,15 @@ clean_politics <- function(remote_file) {
     st_read(tmp_file) %>%
       mutate_at(vars(contains("MUNICIPALITY")), replace_na, "Unincorporated") %>%
       select(column_names[political_unit], geometry) %>%
-      mutate(across(where(is.character), str_to_title),
+      mutate(
+        across(where(is.character), str_to_title),
+        across(where(is.character), readr::parse_number, .names = "{.col}_num"),
         geometry_3435 = st_transform(geometry, 3435),
         year = year
-      )
+      ) %>%
+      rename_with(~ paste0(.x, "_name"), names(column_names[political_unit])) %>%
+      select(-any_of("municipality_num")) %>%
+      select(ends_with("_num"), everything(), geometry, geometry_3435, year)
   )
 
   file.remove(tmp_file)
