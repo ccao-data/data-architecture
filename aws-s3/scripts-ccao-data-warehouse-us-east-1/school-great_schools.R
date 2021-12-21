@@ -55,9 +55,6 @@ if (!aws.s3::object_exists(
     select(-c('universal-id', 'nces-id', 'state-id', 'district-id', 'district-name',
               'web-site', 'phone', 'overview-url', 'rating-description', 'fax')) %>%
 
-    # Private school attendance isn't based on attendance/districts and thus isn't a discreet geographic correlate
-    filter(type == 'public' & !is.na(rating)) %>%
-
     # Clean up some column names
     dplyr::rename(school_name = name) %>%
     rename_with(~ gsub("-", "_", .x))
@@ -78,26 +75,23 @@ if (!aws.s3::object_exists(
 
   # Join schools to districts - this is a 1 to many join but will be de-duped using district type
   great_districts <- great_districts %>%
-    st_join(district_boundaries) %>%
 
-    # In Chicago, attendance boundaries are the equivalent of district boundaries for the rest of the county
-    filter(
-      !(is_attendance_boundary == FALSE & city == 'Chicago') | school_name == 'Charles J Sahs Elementary School'
-    ) %>%
+    # We only want to join district information to public schools
+    filter(type == 'public') %>%
+    st_join(district_boundaries) %>%
 
     # Here is where we de-dupe schools matched to overlapping elementary and secondary districts
     filter(grades == district_type | (district_type == 'unified' & city != 'Chicago')) %>%
 
-    # There are currently two overlapping secondary CPS attendance zones that create duplicates for
-    # two high schools - nothing to do but de-dupe manually
-    filter(
-      !(
-        school_name %in% c("Harper High School", "Lindblom Math & Science Acad High School") &
-          district_name == "CPS SECONDARY - GAGE PARK HS"
-      )) %>%
+    # Bind private schools back on
+    bind_rows(
+      great_districts %>%
+        filter(type %in% c('private', 'charter'))
+      ) %>%
 
     # Add 3435 CRS column
     mutate(geometry_3435 = st_transform(geometry, 3435))
+
 
   # Write to S3
   sfarrow::st_write_parquet(great_districts,
@@ -111,6 +105,9 @@ if (!aws.s3::object_exists(
   # Second dataset is average school rating by district
 
   great_districts %>%
+
+    # Private school attendance isn't based on attendance/districts and thus isn't a discreet geographic correlate
+    filter(type == 'public' & !is.na(rating)) %>%
 
     # Drop geometry because summarize by group messes it up
     st_drop_geometry() %>%
