@@ -27,25 +27,25 @@ raw_files <- grep(
 
 # Link raw column names to standardized column names
 column_names <- list(
-  "community_college/2012" = c("community_college_num" = "agency", "community_college_name" = "max_agency", "geometry"),
-  "community_college/2013" = c("community_college_num" = "agency", "community_college_name" = "max_agency", "geometry"),
-  "community_college/2014" = c("community_college_num" = "agency", "community_college_name" = "max_agency", "geometry"),
-  "community_college/2015" = c("community_college_num" = "agency", "community_college_name" = "max_agency", "geometry"),
-  "community_college/2016" = c("community_college_num" = "agency", "community_college_name" = "max_agency", "geometry"),
-  "fire_protection/2015" = c("fire_protection_num" = "agency", "fire_protection_name" = "agency_des", "geometry"),
-  "fire_protection/2016" = c("fire_protection_num" = "agency", "fire_protection_name" = "agency_des", "geometry"),
-  "fire_protection/2018" = c("fire_protection_num" = "AGENCY", "fire_protection_name" = "AGENCY_DESCRIPTION", "geometry"),
-  "library/2015" = c("library_num" = "agency", "library_name" = "max_agency", "geometry"),
-  "library/2016" = c("library_num" = "agency", "library_name" = "max_agency", "geometry"),
-  "library/2018" = c("library_num" = "AGENCY", "library_name" = "MAX_AGENCY_DESC", "geometry"),
-  "park/2015" = c("park_num" = "agency", "park_name" = "agency_des", "geometry"),
-  "park/2016" = c("park_num" = "agency", "park_name" = "agency_des", "geometry"),
-  "park/2018" = c("park_num" = "AGENCY", "park_name" = "AGENCY_DESCRIPTION", "geometry"),
-  "sanitation/2018" = c("ssa_num" = "AGENCY", "sanitation_name" = "MAX_AGENCY_DESC", "geometry"),
-  "ssa/2020" = c("tif_num" = "AGENCY", "ssa_name" = "AGENCY_DES", "geometry"),
-  "tif/2015" = c("tif_num" = "agencynum", "tif_name" = "tif_name", "geometry"),
-  "tif/2016" = c("tif_num" = "agencynum", "tif_name" = "agency_des", "geometry"),
-  "tif/2018" = c("tif_num" = "AGENCYNUM", "tif_name" = "AGENCY_DESCRIPTION", "geometry")
+  "community_college_district/2012" = c("community_college_district_num" = "agency", "community_college_district_name" = "max_agency", "geometry"),
+  "community_college_district/2013" = c("community_college_district_num" = "agency", "community_college_district_name" = "max_agency", "geometry"),
+  "community_college_district/2014" = c("community_college_district_num" = "agency", "community_college_district_name" = "max_agency", "geometry"),
+  "community_college_district/2015" = c("community_college_district_num" = "agency", "community_college_district_name" = "max_agency", "geometry"),
+  "community_college_district/2016" = c("community_college_district_num" = "agency", "community_college_district_name" = "max_agency", "geometry"),
+  "fire_protection_district/2015" = c("fire_protection_district_num" = "agency", "fire_protection_district_name" = "agency_des", "geometry"),
+  "fire_protection_district/2016" = c("fire_protection_district_num" = "agency", "fire_protection_district_name" = "agency_des", "geometry"),
+  "fire_protection_district/2018" = c("fire_protection_district_num" = "AGENCY", "fire_protection_district_name" = "AGENCY_DESCRIPTION", "geometry"),
+  "library_district/2015" = c("library_district_num" = "agency", "library_district_name" = "max_agency", "geometry"),
+  "library_district/2016" = c("library_district_num" = "agency", "library_district_name" = "max_agency", "geometry"),
+  "library_district/2018" = c("library_district_num" = "AGENCY", "library_district_name" = "MAX_AGENCY_DESC", "geometry"),
+  "park_district/2015" = c("park_district_num" = "agency", "park_district_name" = "agency_des", "geometry"),
+  "park_district/2016" = c("park_district_num" = "agency", "park_district_name" = "agency_des", "geometry"),
+  "park_district/2018" = c("park_district_num" = "AGENCY", "park_district_name" = "AGENCY_DESCRIPTION", "geometry"),
+  "sanitation_district/2018" = c("sanitation_district_num" = "AGENCY", "sanitation_district_name" = "MAX_AGENCY_DESC", "geometry"),
+  "special_service_area/2020" = c("special_service_area_num" = "AGENCY", "special_service_area_name" = "AGENCY_DES", "geometry"),
+  "tif_district/2015" = c("tif_district_num" = "agencynum", "tif_district_name" = "tif_name", "geometry"),
+  "tif_district/2016" = c("tif_district_num" = "agencynum", "tif_district_name" = "agency_des", "geometry"),
+  "tif_district/2018" = c("tif_district_num" = "AGENCYNUM", "tif_district_name" = "AGENCY_DESCRIPTION", "geometry")
 )
 
 # Function to clean fire protection districts
