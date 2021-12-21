@@ -9,10 +9,12 @@ library(sfarrow)
 library(stringr)
 library(tictoc)
 library(tidyr)
+source("utils.R")
 
 # This script cleans historical Cook County parcel data and uploads it to S3
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
 parcel_tmp_dir <- here("parcel-tmp")
 
 # Get list of all parcel files (geojson AND attribute files) in the raw bucket
@@ -35,11 +37,11 @@ save_local_parcel_files <- function(year, spatial_uri, attr_uri) {
   tmp_file_spatial <- file.path(parcel_tmp_dir, paste0(year, ".geojson"))
   tmp_file_attr <- file.path(parcel_tmp_dir, paste0(year, "-attr.parquet"))
   if (!file.exists(tmp_file_spatial)) {
-    print(paste("Grabbing geojson file for:", year))
+    message("Grabbing geojson file for: ", year)
     aws.s3::save_object(spatial_uri, file = tmp_file_spatial)
   }
   if (!file.exists(tmp_file_attr)) {
-    print(paste("Grabbing attribute file for:", year))
+    message("Grabbing attribute file for: ", year)
     aws.s3::save_object(attr_uri, file = tmp_file_attr)
   }
 }
@@ -47,10 +49,10 @@ save_local_parcel_files <- function(year, spatial_uri, attr_uri) {
 
 # Load local parcel file, clean, extract centroids, and write to partitioned
 # dataset on S3
-process_parcel_file <- function(row) {
-  file_year <- row["year"]
-  attr_uri <- row["attr"]
-  spatial_uri <- row["spatial"]
+process_parcel_file <- function(s3_bucket_uri,
+                                file_year,
+                                attr_uri,
+                                spatial_uri) {
   tictoc::tic(paste("Finished processing parcel file for:", file_year))
 
   # Download S3 files to local temp dir if they don't exist
@@ -63,7 +65,7 @@ process_parcel_file <- function(row) {
 
   # Only run processing if local backup doesn't exist
   if (!file.exists(local_backup_file)) {
-    print(paste("Now processing parcel file for:", file_year))
+    message("Now processing parcel file for: ", file_year)
 
     # Read local geojson file
     tictoc::tic(paste("Read file for:", file_year))
@@ -180,7 +182,7 @@ process_parcel_file <- function(row) {
     st_write_parquet(spatial_df_merged, local_backup_file)
     tictoc::toc()
   } else {
-    print(paste("Loading processed parcels from backup for:", file_year))
+    message("Loading processed parcels from backup for: ", file_year)
     spatial_df_merged <- st_read_parquet(local_backup_file)
   }
 
@@ -188,22 +190,17 @@ process_parcel_file <- function(row) {
   spatial_df_merged %>%
     mutate(year = file_year) %>%
     group_by(year, town_code) %>%
-    group_walk(~ {
-      year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
-      town_code <- replace_na(.y$town_code, "__HIVE_DEFAULT_PARTITION__")
-      remote_path <- file.path(
-        AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel",
-        paste0("year=", year), paste0("town_code=", town_code),
-        "part-0.parquet"
-      )
-      if (!object_exists(remote_path)) {
-        print(paste("Now uploading:", year, "data for town:", town_code))
-        tmp_file <- tempfile(fileext = ".parquet")
-        st_write_parquet(.x, tmp_file, compression = "snappy")
-        aws.s3::put_object(tmp_file, remote_path)
-      }
-    })
+    write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = TRUE)
   tictoc::toc()
 }
 
-apply(parcel_files_df, 1, process_parcel_file)
+# Apply function to all parcel files
+pwalk(parcel_files_df, function(...) {
+  df <- tibble::tibble(...)
+  process_parcel_file(
+    s3_bucket_uri = output_bucket,
+    file_year = df$year,
+    attr_uri = df$attr,
+    spatial_uri = df$spatial
+  )
+})

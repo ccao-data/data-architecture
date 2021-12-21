@@ -1,9 +1,11 @@
 library(aws.s3)
 library(dplyr)
+library(purrr)
 library(sf)
 library(sfarrow)
 library(stringr)
 library(tidyr)
+source("utils.R")
 
 # This script cleans tax boundaries and uploads them to the S3 warehouse.
 # Users must link tow raw column names to pre-selected column names for each shapefile
@@ -11,6 +13,7 @@ library(tidyr)
 # Those tow columns are agency number and the name of the tax body - geometry doesn't need to be linked.
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "tax")
 
 # Location of file to clean
 raw_files <- grep(
@@ -140,7 +143,6 @@ clean_tax <- function(remote_file) {
 
 # Apply function to raw_files
 cleaned_output <- sapply(raw_files, clean_tax, simplify = FALSE, USE.NAMES = TRUE)
-
 tax_bodies <- unique(str_split(raw_files, "/", simplify = TRUE)[, 6])
 
 # Function to partition and upload cleaned data to S3
@@ -155,24 +157,12 @@ combine_upload <- function(tax_body) {
                                                TRUE ~ .
       ))) %>%
     group_by(year) %>%
-    group_walk(~ {
-      year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
-      remote_path <- file.path(
-        AWS_S3_WAREHOUSE_BUCKET, "spatial", "tax", tax_body,
-        paste0("year=", year),
-        "part-0.parquet"
-      )
-      if (!object_exists(remote_path)) {
-        print(paste0("Now uploading: ", tax_body, " data for ", year))
-        tmp_file <- tempfile(fileext = ".parquet")
-        st_write_parquet(.x, tmp_file, compression = "snappy")
-        aws.s3::put_object(tmp_file, remote_path)
-      }
-    })
+    write_partitions_to_s3(
+      file.path(output_bucket, tax_body),
+      is_spatial = TRUE,
+      overwrite = TRUE
+    )
 }
 
 # Apply function to cleaned data
-lapply(tax_bodies, combine_upload)
-
-# Cleanup
-rm(list = ls())
+walk(tax_bodies, combine_upload)

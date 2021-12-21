@@ -1,11 +1,14 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
+library(purrr)
 library(tidyr)
+source("utils.R")
 
 # This script cleans a hedonic price index sourced from the DePaul Institute for Housing Studies
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "housing", "ihs_index")
 
 # Location of file to clean
 raw_file <- file.path(
@@ -26,20 +29,4 @@ read_parquet(raw_file) %>%
   # Upload as partitioned parquet files
   relocate(year, .after = last_col()) %>%
   group_by(year) %>%
-  group_walk(~ {
-    year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
-    remote_path <- file.path(
-      AWS_S3_WAREHOUSE_BUCKET, "housing", "ihs_index",
-      paste0("year=", year),
-      "part-0.parquet"
-    )
-    if (!object_exists(remote_path)) {
-      print(paste("Now uploading:", year))
-      tmp_file <- tempfile(fileext = ".parquet")
-      write_parquet(.x, tmp_file, compression = "snappy")
-      aws.s3::put_object(tmp_file, remote_path)
-    }
-  })
-
-# Cleanup
-rm(list = ls())
+  write_partitions_to_s3(output_bucket, is_spatial = FALSE)

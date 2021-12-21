@@ -1,17 +1,20 @@
 library(arrow)
 library(aws.s3)
+library(data.table)
 library(dplyr)
-library(tidyr)
+library(glue)
+library(lubridate)
+library(purrr)
 library(readr)
 library(stringr)
+library(tidyr)
 library(tools)
-library(glue)
-library(data.table)
-library(lubridate)
+source("utils.R")
 
 # This script cleans and combines raw foreclosure data for the warehouse
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "sale", "foreclosure")
 
 # Destination for upload
 dest_file <- file.path(
@@ -29,7 +32,8 @@ files <- grep(
   value = TRUE
 )
 
-lapply(files, read_parquet) %>%
+# Load raw files, cleanup, then write to warehouse S3
+map(files, read_parquet) %>%
   rbindlist() %>%
   rename_with(~ tolower(gsub(" ", "_", .x))) %>%
   rename(pin = property_identification_number) %>%
@@ -79,20 +83,4 @@ lapply(files, read_parquet) %>%
   separate(bankruptcy_filed, sep = " - Chapter ", into = c(NA, "bankruptcy_chapter")) %>%
   select(pin, everything(), year_of_sale) %>%
   group_by(year_of_sale) %>%
-  group_walk(~ {
-    year_of_sale <- replace_na(.y$year_of_sale, "__HIVE_DEFAULT_PARTITION__")
-    remote_path <- file.path(
-      AWS_S3_WAREHOUSE_BUCKET, "sale", "foreclosure",
-      paste0("year_of_sale=", year_of_sale),
-      "part-0.parquet"
-    )
-    if (!object_exists(remote_path)) {
-      print(paste("Now uploading:", year_of_sale, "data for year:", year_of_sale))
-      tmp_file <- tempfile(fileext = ".parquet")
-      write_parquet(.x, tmp_file, compression = "snappy")
-      aws.s3::put_object(tmp_file, remote_path)
-    }
-  })
-
-# Cleanup
-rm(list = ls())
+  write_partitions_to_s3(output_bucket, is_spatial = FALSE)

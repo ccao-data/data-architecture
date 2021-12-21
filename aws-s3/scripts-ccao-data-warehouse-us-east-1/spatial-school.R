@@ -8,6 +8,7 @@ library(sf)
 library(sfarrow)
 library(stringr)
 library(tidyr)
+source("utils.R")
 
 # THERE ARE OVERLAPPING CPS SECONDARY ATTENDANCE BOUNDARIES - GAGE/ENGLEWOOD - GAGE DOES
 # APPEAR TO ACTUALLY OVERLAP WITH ENGLEWOOD SO THE OVERLAPPING POLYGON FOR GAGE CAN PROBABLY
@@ -15,9 +16,9 @@ library(tidyr)
 
 # SOME DISTRICTS SEEM TO HAVE MULTIPLE POLYGONS THAT COULD BE DISSOLVED
 
-
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "school")
 school_tmp_dir <- here("school-tmp")
 
 # Get a list of all district-level boundaries
@@ -39,29 +40,17 @@ district_files_df <- aws.s3::get_bucket_df(
   select(year, s3_uri, district_type)
 
 
-# Geometry file locally for loading with sf
-save_local_file <- function(local_path, uri) {
-  if (!file.exists(local_path)) {
-    print(paste("Grabbing geojson file:", uri))
-    aws.s3::save_object(uri, file = local_path)
-  }
-}
-
-
-##### COOK DISTRICTS #####
+##### COOK CENSUS DISTRICTS #####
 
 # Clean up and merge non-CPS district files from different years
-process_district_file <- function(row) {
-  file_year <- row["year"]
-  s3_uri <- row["s3_uri"]
-  dist_type <- row["district_type"]
+process_district_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
 
   # Download S3 files to local temp dir if they don't exist
   tmp_file_local <- file.path(
     school_tmp_dir,
     paste0("suburban-", dist_type, "-", file_year, ".geojson")
   )
-  save_local_file(tmp_file_local, s3_uri)
+  save_s3_to_local(uri, tmp_file_local)
 
   df <- sf::read_sf(tmp_file_local) %>%
     select(starts_with(
@@ -72,7 +61,7 @@ process_district_file <- function(row) {
     st_transform(4326) %>%
     st_cast("MULTIPOLYGON")
 
-  df <- df %>%
+  df %>%
     st_drop_geometry() %>%
     st_as_sf(coords = c("INTPTLON", "INTPTLAT"), crs = st_crs(df)) %>%
     cbind(st_coordinates(.), st_coordinates(st_transform(., 3435))) %>%
@@ -100,8 +89,16 @@ process_district_file <- function(row) {
     )
 }
 
-districts_df <- apply(district_files_df, 1, process_district_file) %>%
-  bind_rows() %>%
+# Apply function to all district files and merge output
+districts_df <- pmap_dfr(district_files_df, function(...) {
+  df <- tibble::tibble(...)
+  process_district_file(
+    s3_bucket_uri = output_bucket,
+    file_year = df$year,
+    uri = df$s3_uri,
+    dist_type = df$district_type
+  )
+}) %>%
   mutate(across(everything(), unname))
 
 
@@ -126,19 +123,16 @@ attendance_files_df <- aws.s3::get_bucket_df(
 
 
 # Clean up and merge CPS boundary files from different years
-process_cps_file <- function(row) {
-  file_year <- row["year"]
-  s3_uri <- row["s3_uri"]
-  dist_type <- row["district_type"]
+process_cps_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
 
   # Download S3 files to local temp dir if they don't exist
   tmp_file_local <- file.path(
     school_tmp_dir,
     paste0("cps-", dist_type, "-", file_year, ".geojson")
   )
-  save_local_file(tmp_file_local, s3_uri)
+  save_s3_to_local(uri, tmp_file_local)
 
-  df <- st_read(tmp_file_local) %>%
+  st_read(tmp_file_local) %>%
     st_transform(4326) %>%
     st_cast("MULTIPOLYGON") %>%
     mutate(centroid = st_centroid(st_transform(geometry, 3435))) %>%
@@ -173,10 +167,19 @@ process_cps_file <- function(row) {
     )
 }
 
-attendance_df <- apply(
-  attendance_files_df %>% filter(as.numeric(year) >= 2011), 1, process_cps_file
+attendance_df <- pmap_dfr(
+  attendance_files_df %>%
+    filter(as.numeric(year) >= 2011),
+  function(...) {
+    df <- tibble::tibble(...)
+    process_cps_file(
+      s3_bucket_uri = output_bucket,
+      file_year = df$year,
+      uri = df$s3_uri,
+      dist_type = df$district_type
+    )
+  }
 ) %>%
-  bind_rows() %>%
   mutate(across(everything(), unname))
 
 # Merge both datasets and write to S3
@@ -185,25 +188,15 @@ bind_rows(
   attendance_df
 ) %>%
   group_by(district_type, year) %>%
-  group_walk(~ {
-    year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
-    district_type <- replace_na(.y$district_type, "__HIVE_DEFAULT_PARTITION__")
-    remote_path <- file.path(
-      AWS_S3_WAREHOUSE_BUCKET, "spatial", "school", "school_district",
-      paste0("district_type=", district_type), paste0("year=", year),
-      "part-0.parquet"
-    )
-    if (!object_exists(remote_path)) {
-      print(paste("Now uploading:", year, "data for type:", district_type))
-      tmp_file <- tempfile(fileext = ".parquet")
-      st_write_parquet(.x, tmp_file, compression = "snappy")
-      aws.s3::put_object(tmp_file, remote_path)
-    }
-  })
+  write_partitions_to_s3(
+    file.path(output_bucket, "school_district"),
+    is_spatial = TRUE,
+    overwrite = TRUE
+  )
+
 
 
 ##### SCHOOL LOCATIONS #####
-
 location_files_df <- aws.s3::get_bucket_df(
   bucket = AWS_S3_RAW_BUCKET,
   prefix = file.path("spatial", "school", "location")
@@ -214,18 +207,16 @@ location_files_df <- aws.s3::get_bucket_df(
   )
 
 # Clean up school locations for each file
-process_location_file <- function(row) {
-  file_year <- row["year"]
-  s3_uri <- row["s3_uri"]
+process_location_file <- function(file_year, uri) {
 
   # Download S3 files to local temp dir if they don't exist
   tmp_file_local <- file.path(
     school_tmp_dir,
     paste0("location-", file_year, ".geojson")
   )
-  save_local_file(tmp_file_local, s3_uri)
+  save_s3_to_local(uri, tmp_file_local)
 
-  df <- sf::read_sf(tmp_file_local) %>%
+  sf::read_sf(tmp_file_local) %>%
     rename_with(tolower) %>%
     mutate(year = file_year) %>%
     select(
@@ -237,19 +228,17 @@ process_location_file <- function(row) {
     st_cast("POINT")
 }
 
-apply(location_files_df, 1, process_location_file) %>%
-  bind_rows() %>%
+# Apply function to all location files and write to S3
+pmap_dfr(location_files_df, function(...) {
+  df <- tibble::tibble(...)
+  process_location_file(
+    file_year = df$year,
+    uri = df$s3_uri
+  )
+}) %>%
   group_by(year) %>%
-  group_walk(~ {
-    year <- replace_na(.y$year, "__HIVE_DEFAULT_PARTITION__")
-    remote_path <- file.path(
-      AWS_S3_WAREHOUSE_BUCKET, "spatial", "school", "school_location",
-      paste0("year=", year), "part-0.parquet"
-    )
-    if (!object_exists(remote_path)) {
-      print(paste("Now uploading:", year, "data"))
-      tmp_file <- tempfile(fileext = ".parquet")
-      st_write_parquet(.x, tmp_file, compression = "snappy")
-      aws.s3::put_object(tmp_file, remote_path)
-    }
-  })
+  write_partitions_to_s3(
+    file.path(output_bucket, "school_location"),
+    is_spatial = TRUE,
+    overwrite = TRUE
+  )

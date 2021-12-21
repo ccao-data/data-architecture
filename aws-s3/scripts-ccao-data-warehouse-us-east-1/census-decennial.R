@@ -1,12 +1,15 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
+library(purrr)
 library(stringr)
 library(tidycensus)
+source("utils.R")
 
 # This script retrieves raw decennial census data for the data lake
 # It populates the warehouse s3 bucket
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "census")
 
 # Retrieve census API key from local .Renviron
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
@@ -69,14 +72,10 @@ all_combos <- expand.grid(
 
 # Function to loop through rows in all_combos, grab census data,
 # and write it to a parquet file on S3 if it doesn't already exist
-pull_and_write_acs <- function(x) {
-  survey <- x["survey"]
-  folder <- x["folder"]
-  geography <- x["geography"]
-  year <- x["year"]
+pull_and_write_dec <- function(s3_bucket_uri, survey, folder, geography, year) {
 
   remote_file <- file.path(
-    AWS_S3_WAREHOUSE_BUCKET, "census", survey,
+    output_bucket, survey,
     paste0("geography=", folder),
     paste0("year=", year),
     paste(survey, folder, year, "pl.parquet", sep = "-")
@@ -86,7 +85,7 @@ pull_and_write_acs <- function(x) {
   if (!aws.s3::object_exists(remote_file)) {
 
     # Print file being written
-    print(paste0(Sys.time(), " - ", remote_file))
+    message(Sys.time(), " - ", remote_file)
 
     # Get variables for the specific year of interest
     vars <- census_variables_df %>%
@@ -121,7 +120,13 @@ pull_and_write_acs <- function(x) {
 }
 
 # Apply function to all_combos
-apply(all_combos, 1, pull_and_write_acs)
-
-# Cleanup
-rm(list = ls())
+pwalk(all_combos, function(...) {
+  df <- tibble::tibble(...)
+  pull_and_write_dec(
+    s3_bucket_uri = output_bucket,
+    survey = df$survey,
+    folder = df$folder,
+    geography = df$geography,
+    year = df$year
+  )
+})

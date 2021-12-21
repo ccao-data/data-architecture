@@ -1,10 +1,12 @@
-library(sfarrow)
-library(dplyr)
-library(aws.s3)
 library(arrow)
-library(noctua)
+library(aws.s3)
+library(dplyr)
 library(glue)
+library(purrr)
+library(noctua)
 library(sf)
+library(sfarrow)
+source("utils.R")
 
 # This script cleans data retrieved from greatschools.org and merges it with district shapefiles
 # In order to average school ratings by district in the suburbs and attendance areas in Chicago
@@ -97,7 +99,6 @@ if (!aws.s3::object_exists(
   )
 
   # Second dataset is average school rating by district
-
   great_districts %>%
     # Drop geometry because summarize by group messes it up
     st_drop_geometry() %>%

@@ -1,13 +1,16 @@
 library(aws.s3)
 library(dplyr)
+library(purrr)
 library(sf)
 library(stringr)
+source("utils.R")
 
 # This script retrieves school district and attendance boundaries published by
 # the various districts around Cook County
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "school")
 
-api_info <- list(
+sources_list <- bind_rows(list(
   # CPS ATTENDANCE - ELEMENTARY
   "attendance_ele_0607" = c(
     "source" = "https://data.cityofchicago.org/api/geospatial/",
@@ -199,27 +202,20 @@ api_info <- list(
     "boundary" = "location",
     "year" = "2021"
   )
-)
+))
 
 # Function to call referenced API, pull requested data, and write it to S3
-pull_and_write <- function(x) {
-  tmp_file <- tempfile(fileext = ".geojson")
-  remote_file <- file.path(
-    AWS_S3_RAW_BUCKET, "spatial", "school",
-    x["boundary"], paste0(x["year"], ".geojson")
+pwalk(sources_list, function(...) {
+  df <- tibble::tibble(...)
+  open_data_to_s3(
+    s3_bucket_uri = output_bucket,
+    base_url = df$source,
+    data_url = df$api_url,
+    dir_name = df$boundary,
+    file_year = df$year,
+    file_ext = ".geojson"
   )
-
-  if (!aws.s3::object_exists(remote_file)) {
-    st_read(paste0(x["source"], x["api_url"])) %>%
-      st_write(tmp_file, delete_dsn = TRUE)
-
-    aws.s3::put_object(tmp_file, remote_file)
-    file.remove(tmp_file)
-  }
-}
-
-# Apply function to "api_info"
-lapply(api_info, pull_and_write)
+})
 
 
 ##### County-provided District Files #####
@@ -228,7 +224,6 @@ lapply(api_info, pull_and_write)
 # all school district boundaries from 2000 - 2020
 gdb_file <- "O:/CCAODATA/data/SchoolTaxDist.gdb"
 layers <- st_layers(gdb_file)$name
-
 
 # Function to read each layer and save it to S3
 process_layer <- function(layer) {
@@ -242,16 +237,16 @@ process_layer <- function(layer) {
   year <- str_match(layer, "[0-9]{4}")
   tmp_file <- tempfile(fileext = ".geojson")
   remote_file <- file.path(
-    AWS_S3_RAW_BUCKET, "spatial", "school",
+    output_bucket,
     paste0("school_district_", dist_type), paste0(year, ".geojson")
   )
   if (!aws.s3::object_exists(remote_file)) {
     st_read(gdb_file, layer) %>%
       st_write(tmp_file, delete_dsn = TRUE)
 
-    aws.s3::put_object(tmp_file, remote_file)
+    save_local_to_s3(remote_file, tmp_file)
     file.remove(tmp_file)
   }
 }
 
-lapply(layers, process_layer)
+walk(layers, process_layer)

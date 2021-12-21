@@ -4,12 +4,14 @@ library(dplyr)
 library(janitor)
 library(openxlsx)
 library(rvest)
+source("utils.R")
 
 # This script retrieves raw DePaul IHS data for the data lake
 # It assumes a couple things about the imported .xlsx:
 # - Three unnamed columns renamed "X1", "X2", and "X3" by R and
 # - The value of the first row/column being "YEARQ"
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "housing", "ihs_index")
 
 # Scrape main page for .xlsx, which should be most recent release
 most_recent_ihs_data_url <- rvest::read_html(
@@ -21,7 +23,7 @@ most_recent_ihs_data_url <- rvest::read_html(
 
 # Get S3 file address
 remote_file <- file.path(
-  AWS_S3_RAW_BUCKET, "housing", "ihs_index",
+  output_bucket,
   paste0(
     basename(tools::file_path_sans_ext(most_recent_ihs_data_url)),
     ".parquet"
@@ -42,6 +44,3 @@ if (!aws.s3::object_exists(remote_file)) {
     dplyr::rename(name = "YEARQ") %>%
     arrow::write_parquet(remote_file)
 }
-
-# Cleanup
-rm(list = ls())

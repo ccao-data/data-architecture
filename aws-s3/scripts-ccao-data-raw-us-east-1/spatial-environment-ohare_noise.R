@@ -1,73 +1,66 @@
 library(aws.s3)
 library(dplyr)
+library(purrr)
 library(sf)
+source("utils.R")
 
 # This script retrieves and uploads a couple of PDFs containing
-# Ohare noise level measurements and addresses of sensors, as well as
+# O'Hare noise level measurements and addresses of sensors, as well as
 # a shapefile containing a theoretical noise boundary
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
-
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "environment")
 
 ##### OHARE NOISE MONITORS #####
 # File names
-files <- c("ORD_Fact_Sheet_Monitors_History.pdf", "ORD_Fact_Sheet_Monitors_Introduction.pdf")
-
+files <- c(
+  "ORD_Fact_Sheet_Monitors_History.pdf",
+  "ORD_Fact_Sheet_Monitors_Introduction.pdf"
+)
 
 pull_and_write_ohare_noise <- function(x) {
-  remote_file <- file.path(
-    AWS_S3_RAW_BUCKET, "spatial", "environment",
-    "ohare_noise_monitor", x
-  )
+  remote_file <- file.path(output_bucket, "ohare_noise_monitor", x)
 
   # Print file being written
-  print(paste0(Sys.time(), " - ", remote_file))
+  message(Sys.time(), " - ", remote_file)
 
   # Check to see if file already exists on S3; if it does, skip it
   if (!aws.s3::object_exists(remote_file)) {
 
-    # grab files
+    # Grab files
     tmp_file <- tempfile(fileext = ".pdf")
     tmp_dir <- tempdir()
 
     download.file(
-      paste0("https://www.oharenoise.org/sitemedia/documents/noise_mitigation/noise_monitors/", x),
+      paste0(
+        "https://www.oharenoise.org/sitemedia/documents/",
+        "noise_mitigation/noise_monitors/",
+        x
+      ),
       destfile = tmp_file,
       mode = "wb"
     )
 
     # Write to S3
-    aws.s3::put_object(tmp_file, remote_file)
+    save_local_to_s3(remote_file, tmp_file)
     file.remove(tmp_file)
   }
 }
 
 # Apply function
-lapply(files, pull_and_write_ohare_noise)
+walk(files, pull_and_write_ohare_noise)
 
 
 ##### OHARE NOISE CONTOUR #####
 # This file isn't available online
-ohare_noise_boundary <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "environment",
-  "ohare_noise_contour", "ORD_2016_Noise_Contour.geojson"
+remote_file_ohare_noise_boundary <- file.path(
+  output_bucket, "ohare_noise_contour",
+  "ORD_2016_Noise_Contour.geojson"
 )
-
-if (!aws.s3::object_exists(ohare_noise_boundary)) {
-
-  # Grab file
-  tmp_file <- tempfile(fileext = ".geojson")
-  tmp_dir <- tempdir()
-  st_write(
-    st_read(
-      paste0(
-        "//fileserver/ocommon/Communications Map",
-        "/Airport Maps/Maine/O'Hare_Noise_Countour.shp"
-      ),
-    ),
-    tmp_file
-  )
-
-  # Write to S3
-  aws.s3::put_object(tmp_file, ohare_noise_boundary)
-  file.remove(tmp_file)
-}
+tmp_file_ohare_noise_boundary <- paste0(
+  "//fileserver/ocommon/Communications Map",
+  "/Airport Maps/Maine/O'Hare_Noise_Countour.shp"
+)
+save_local_to_s3(
+  remote_file_ohare_noise_boundary,
+  tmp_file_ohare_noise_boundary
+)

@@ -1,12 +1,15 @@
 library(aws.s3)
 library(dplyr)
+library(purrr)
 library(sf)
+source("utils.R")
 
 # This script retrieves the boundaries of various Cook County taxing districts
 # and entities, such as TIFs, libraries, etc.
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "tax")
 
-api_info <- list(
+sources_list <- bind_rows(list(
   # TIF
   "tif_2015" = c(
     "source" = "https://datacatalog.cookcountyil.gov/api/geospatial/",
@@ -126,40 +129,23 @@ api_info <- list(
     "boundary" = "sanitation",
     "year" = "2018"
   )
-)
+))
 
 # Function to call referenced API, pull requested data, and write it to S3
-pull_and_write <- function(x) {
-  tmp_file <- tempfile(fileext = ".geojson")
-  remote_file <- file.path(
-    AWS_S3_RAW_BUCKET, "spatial", "tax",
-    x["boundary"], paste0(x["year"], ".geojson")
+pwalk(sources_list, function(...) {
+  df <- tibble::tibble(...)
+  open_data_to_s3(
+    s3_bucket_uri = output_bucket,
+    base_url = df$source,
+    data_url = df$api_url,
+    dir_name = df$boundary,
+    file_year = df$year,
+    file_ext = ".geojson"
   )
+})
 
-  if (!aws.s3::object_exists(remote_file)) {
-    st_read(paste0(x["source"], x["api_url"])) %>%
-      st_write(tmp_file, delete_dsn = TRUE)
 
-    aws.s3::put_object(tmp_file, remote_file)
-    file.remove(tmp_file)
-  }
-}
-
-# Apply function to "api_info"
-lapply(api_info, pull_and_write)
-
-# SSAs
-remote_file <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "tax",
-  "ssa", "2020.geojson"
-)
-
-if (!aws.s3::object_exists(remote_file)) {
-  aws.s3::put_object(
-    "O:/CCAODATA/data/spatial/SpecServTaxDist_2020.geojson",
-    remote_file
-  )
-}
-
-# Cleanup
-rm(list = ls())
+##### SSAs #####
+remote_file_ssa <- file.path(output_bucket, "ssa", "2020.geojson")
+tmp_file_ssa <- "O:/CCAODATA/data/spatial/SpecServTaxDist_2020.geojson"
+save_local_to_s3(remote_file_ssa, tmp_file_ssa)

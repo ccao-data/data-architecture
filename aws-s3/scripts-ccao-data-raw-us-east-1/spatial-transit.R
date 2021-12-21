@@ -1,12 +1,16 @@
 library(aws.s3)
 library(dplyr)
+library(purrr)
 library(sf)
 library(stringr)
 library(zip)
+source("utils.R")
 
-# This script retrieves GTFS feeds for all Cook County public transit systems
+# This script retrieves GTFS feeds for all Cook County
+# public transit systems. NOTE: Certain early feeds are not enumerated
+# by date, and so must be added to S3 manually
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
-bkt_path <- file.path(AWS_S3_RAW_BUCKET, "spatial", "transit")
+output_path <- file.path(AWS_S3_RAW_BUCKET, "spatial", "transit")
 
 
 ##### CTA #####
@@ -23,7 +27,7 @@ get_cta_feed <- function(feed_date) {
     "https://transitfeeds.com/p/chicago-transit-authority/165/",
     str_remove_all(feed_date, "-"), "/download"
   )
-  s3_uri <- file.path(bkt_path, "cta", paste0(feed_date, "-gtfs.zip"))
+  s3_uri <- file.path(output_path, "cta", paste0(feed_date, "-gtfs.zip"))
 
   if (!aws.s3::object_exists(s3_uri)) {
     tmp_file <- tempfile(fileext = ".zip")
@@ -36,12 +40,12 @@ get_cta_feed <- function(feed_date) {
       zipfile = tmp_file,
       files = list.files(tmp_dir, full.names = TRUE, pattern = ".txt")
     )
-    aws.s3::put_object(tmp_file, s3_uri)
+    save_local_to_s3(s3_uri, tmp_file)
     file.remove(tmp_file)
   }
 }
 
-lapply(cta_feed_dates_list, get_cta_feed)
+walk(cta_feed_dates_list, get_cta_feed)
 
 
 ##### Metra #####
@@ -55,17 +59,18 @@ get_metra_feed <- function(feed_date) {
     "https://transitfeeds.com/p/metra/169/",
     str_remove_all(feed_date, "-"), "/download"
   )
-  s3_uri <- file.path(bkt_path, "metra", paste0(feed_date, "-gtfs.zip"))
+  s3_uri <- file.path(output_path, "metra", paste0(feed_date, "-gtfs.zip"))
 
   if (!aws.s3::object_exists(s3_uri)) {
     tmp_file <- tempfile(fileext = ".zip")
     download.file(feed_url, destfile = tmp_file, mode = "wb")
-    aws.s3::put_object(tmp_file, s3_uri)
+
+    save_local_to_s3(s3_uri, tmp_file)
     file.remove(tmp_file)
   }
 }
 
-lapply(metra_feed_dates_list, get_metra_feed)
+walk(metra_feed_dates_list, get_metra_feed)
 
 
 ##### Pace #####
@@ -79,17 +84,15 @@ get_pace_feed <- function(feed_date) {
     "https://transitfeeds.com/p/pace/171/",
     str_remove_all(feed_date, "-"), "/download"
   )
-  s3_uri <- file.path(bkt_path, "pace", paste0(feed_date, "-gtfs.zip"))
+  s3_uri <- file.path(output_path, "pace", paste0(feed_date, "-gtfs.zip"))
 
   if (!aws.s3::object_exists(s3_uri)) {
     tmp_file <- tempfile(fileext = ".zip")
     download.file(feed_url, destfile = tmp_file, mode = "wb")
-    aws.s3::put_object(tmp_file, s3_uri)
+
+    save_local_to_s3(s3_uri, tmp_file)
     file.remove(tmp_file)
   }
 }
 
-lapply(pace_feed_dates_list, get_pace_feed)
-
-# Cleanup
-rm(list = ls())
+walk(pace_feed_dates_list, get_pace_feed)

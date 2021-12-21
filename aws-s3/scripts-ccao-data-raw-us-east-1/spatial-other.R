@@ -1,59 +1,49 @@
 library(aws.s3)
 library(dplyr)
+library(purrr)
 library(sf)
+source("utils.R")
 
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "other")
 current_year <- strftime(Sys.Date(), "%Y")
 
-# CHICAGO COMMUNITY AREA
-remote_file_community_area <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "other", "community_area",
-  paste0(current_year, ".geojson")
-)
-tmp_file_community_area <- tempfile(fileext = ".geojson")
+sources_list <- bind_rows(list(
+  # CHICAGO COMMUNITY AREA
+  "cca_2018" = c(
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "api_url" = "cauq-8yn6?method=export&format=GeoJSON",
+    "boundary" = "community_area",
+    "year" = "2018"
+  ),
 
-# Write file to S3 if it doesn't already exist
-if (!aws.s3::object_exists(remote_file_community_area)) {
-  st_read(paste0(
-    "https://data.cityofchicago.org/api/geospatial/",
-    "cauq-8yn6?method=export&format=GeoJSON"
-  )) %>%
-    st_write(tmp_file_community_area, delete_dsn = TRUE)
-  aws.s3::put_object(tmp_file_community_area, remote_file_community_area)
-  file.remove(tmp_file_community_area)
-}
-
-# UNINCORPORATED AREA
-remote_file_unincorporated_area <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "other", "unincorporated_area",
-  paste0("2014", ".geojson")
-)
-tmp_file_unincorporated_area <- tempfile(fileext = ".geojson")
-
-# Write file to S3 if it doesn't already exist
-if (!aws.s3::object_exists(remote_file_unincorporated_area)) {
-  st_read(paste0(
-    "https://datacatalog.cookcountyil.gov/api/geospatial/",
-    "kbr6-dyec?method=export&format=GeoJSON"
-  )) %>%
-    st_write(tmp_file_unincorporated_area, delete_dsn = TRUE)
-  aws.s3::put_object(tmp_file_unincorporated_area, remote_file_unincorporated_area)
-  file.remove(tmp_file_unincorporated_area)
-}
-
-# SUBDIVISIONS
-remote_file_subdivision <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "other", "subdivision",
-  paste0(current_year, ".geojson")
-)
-
-# Write file to S3 if it doesn't already exist
-if (!aws.s3::object_exists(remote_file_subdivision)) {
-  aws.s3::put_object("O:/CCAODATA/data/spatial/Subdivisions.geojson",
-    remote_file_subdivision,
-    multipart = TRUE
+  # UNINCORPORATED AREA
+  "unc_2014" = c(
+    "source" = "https://datacatalog.cookcountyil.gov/api/geospatial/",
+    "api_url" = "kbr6-dyec?method=export&format=GeoJSON",
+    "boundary" = "unincorporated_area",
+    "year" = "2014"
   )
-}
+))
 
-# Cleanup
-rm(list = ls())
+# Function to call referenced API, pull requested data, and write it to S3
+pwalk(sources_list, function(...) {
+  df <- tibble::tibble(...)
+  open_data_to_s3(
+    s3_bucket_uri = output_bucket,
+    base_url = df$source,
+    data_url = df$api_url,
+    dir_name = df$boundary,
+    file_year = df$year,
+    file_ext = ".geojson"
+  )
+})
+
+
+##### SUBDIVISIONS #####
+remote_file_subdivision <- file.path(
+  output_bucket, "subdivision",
+  paste0(current_year, ".geojson")
+)
+tmp_file_subdivision <- "O:/CCAODATA/data/spatial/Subdivisions.geojson"
+save_local_to_s3(remote_file_subdivision, tmp_file_subdivision)

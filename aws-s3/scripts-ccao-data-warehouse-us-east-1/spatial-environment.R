@@ -7,21 +7,22 @@ library(sf)
 library(sfarrow)
 library(stringr)
 library(tidyr)
+source("utils.R")
 
 # This script cleans environmental data such as floodplains and coastal
 # boundaries and uploads them to S3 as parquet files
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+input_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "environment")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment")
 current_year <- strftime(Sys.Date(), "%Y")
 
 ##### LAKE MICHICAN COASTLINE #####
 remote_file_coastline_raw <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "environment", "coastline",
-  paste0("2021.geojson")
+  input_bucket, "coastline", "2021.geojson"
 )
 remote_file_coastline_warehouse <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment", "coastline",
-  paste0("2021.geojson")
+  output_bucket, "coastline", "2021.geojson"
 )
 
 if (!aws.s3::object_exists(remote_file_coastline_warehouse)) {
@@ -52,13 +53,10 @@ if (!aws.s3::object_exists(remote_file_coastline_warehouse)) {
 
 ##### FEMA FLOODPLAINS #####
 flood_fema_raw <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "environment", "flood_fema",
-  paste0(current_year, ".geojson")
+  input_bucket, "flood_fema", paste0(current_year, ".geojson")
 )
-
 flood_fema_warehouse <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment", "flood_fema",
-  paste0(current_year, ".parquet")
+  output_bucket, "flood_fema", paste0(current_year, ".parquet")
 )
 
 # Write FEMA floodplains to S3 if they don't exist
@@ -85,12 +83,10 @@ if (aws.s3::object_exists(flood_fema_raw) & !aws.s3::object_exists(flood_fema_wa
 
 ##### RAILROAD #####
 remote_file_rail_raw <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "environment", "railroad",
-  paste0("2021.geojson")
+  input_bucket, "railroad", "2021.geojson"
 )
 remote_file_rail_warehouse <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment", "railroad",
-  paste0("2021.geojson")
+  output_bucket, "railroad", "2021.geojson"
 )
 
 if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
@@ -112,6 +108,7 @@ if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
     sfarrow::st_write_parquet(remote_file_rail_warehouse)
 }
 
+
 ##### HYDROLOGY #####
 raw_files_hydro <- grep(
   "geojson",
@@ -121,7 +118,6 @@ raw_files_hydro <- grep(
   ),
   value = TRUE
 )
-
 dest_files_hydro <- raw_files_hydro %>%
   gsub("geojson", "parquet", .) %>%
   gsub(AWS_S3_RAW_BUCKET, AWS_S3_WAREHOUSE_BUCKET, .)

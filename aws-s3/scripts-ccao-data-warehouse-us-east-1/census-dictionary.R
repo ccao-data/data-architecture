@@ -4,14 +4,15 @@ library(dplyr)
 library(purrr)
 library(stringr)
 library(tidycensus)
+source("utils.R")
 
 # This script retrieves a dictionary of census variable names
 # It populates the warehouse s3 bucket
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "census")
 
 # Retrieve census API key from local .Renviron
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
-
 
 ##### Tables #####
 # Years for which to grab variables
@@ -63,9 +64,7 @@ census_dec_tables <-
 census_tables <- bind_rows(census_acs_tables_df, census_dec_tables) %>%
   group_by(survey) %>%
   select(variable_table_code, variable_table_title, survey)
-remote_path_tables <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "census", "table_dict"
-)
+remote_path_tables <- file.path(output_bucket, "table_dict")
 write_dataset(
   dataset = census_tables,
   path = remote_path_tables,
@@ -132,9 +131,7 @@ census_vars_merged <- bind_rows(census_vars, census_dec_vars) %>%
   group_by(survey)
 
 # Write final data to S3
-remote_path_variables <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "census", "variable_dict"
-)
+remote_path_variables <- file.path(output_bucket, "variable_dict")
 write_dataset(
   dataset = census_vars_merged,
   path = remote_path_variables,

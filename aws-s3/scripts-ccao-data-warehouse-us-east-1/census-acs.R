@@ -4,10 +4,12 @@ library(dplyr)
 library(purrr)
 library(stringr)
 library(tidycensus)
+source("utils.R")
 
 # This script retrieves raw ACS data for the data lake
 # It populates the warehouse s3 bucket
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "census")
 
 # Retrieve census API key from local .Renviron
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
@@ -82,9 +84,9 @@ all_combos <- expand.grid(
   year = census_years,
   survey = c("acs1", "acs5"),
   stringsAsFactors = FALSE
-) |>
+) %>%
   # Join on folder names
-  left_join(folders_df) |>
+  left_join(folders_df) %>%
   # Some geographies only exist for the ACS5
   filter(!(survey == "acs1" & geography %in% c(
     "state legislative district (lower chamber)",
@@ -94,14 +96,10 @@ all_combos <- expand.grid(
 
 # Function to loop through rows in all_combos, grab census data,
 # and write it to a parquet file on S3 if it doesn't already exist
-pull_and_write_acs <- function(x) {
-  survey <- x["survey"]
-  folder <- x["folder"]
-  geography <- x["geography"]
-  year <- x["year"]
+pull_and_write_acs <- function(s3_bucket_uri, survey, folder, geography, year) {
 
   remote_file <- file.path(
-    AWS_S3_WAREHOUSE_BUCKET, "census", survey,
+    s3_bucket_uri, survey,
     paste0("geography=", folder),
     paste0("year=", year),
     paste(survey, folder, paste0(year, ".parquet"), sep = "-")
@@ -111,7 +109,7 @@ pull_and_write_acs <- function(x) {
   if (!aws.s3::object_exists(remote_file)) {
 
     # Print file being written
-    print(paste0(Sys.time(), " - ", remote_file))
+    message(Sys.time(), " - ", remote_file)
 
     # These geographies are county-specific rather than state-level
     county_specific <- c("county", "county subdivision", "tract")
@@ -127,7 +125,7 @@ pull_and_write_acs <- function(x) {
       county = county,
       year = as.numeric(year),
       cache_table = TRUE
-    )) |>
+    )) %>%
       rename(`GEOID` = `GEOID...1`) %>%
       select(-starts_with("GEOID..."), -starts_with("NAME"))
 
@@ -137,7 +135,13 @@ pull_and_write_acs <- function(x) {
 }
 
 # Apply function to all_combos
-apply(all_combos, 1, pull_and_write_acs)
-
-# Cleanup
-rm(list = ls())
+pwalk(all_combos, function(...) {
+  df <- tibble::tibble(...)
+  pull_and_write_acs(
+    s3_bucket_uri = output_bucket,
+    survey = df$survey,
+    folder = df$folder,
+    geography = df$geography,
+    year = df$year
+  )
+})

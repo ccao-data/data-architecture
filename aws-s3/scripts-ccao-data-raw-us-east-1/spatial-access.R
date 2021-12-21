@@ -2,6 +2,7 @@ library(aws.s3)
 library(dplyr)
 library(purrr)
 library(sf)
+source("utils.R")
 
 # This script retrieves the spatial/location data for
 # industrial corridors in the City of Chicago
@@ -39,6 +40,3 @@ pwalk(sources_list, function(...) {
     file_ext = ".geojson"
   )
 })
-
-# Cleanup
-rm(list = ls())
