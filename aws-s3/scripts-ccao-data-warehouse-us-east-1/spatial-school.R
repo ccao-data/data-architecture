@@ -134,10 +134,10 @@ process_cps_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
         c("schoolname", "school_nm", "short_name", "school_nam")
       )
     ) %>%
-    # GAGE and ENGLEWOOD secondary attendance boundaries overlapped in 2020/2021
-    # As GAGE was reduced in size due to school closures and a new STEM school in ENGLEWOOD
+    # GAGE/BOGAN/PHILLIPS and ENGLEWOOD secondary attendance boundaries overlapped in 2020/2021
+    # As GAGE/BOGAN/PHILLIPS were reduced in size due to school closures and a new STEM school in ENGLEWOOD
     # The new district boundaries are what we're interested in
-    filter(!(school_nm == 'GAGE PARK HS' & boundarygr != '9, 10, 11, 12')) %>%
+    filter(!(str_detect(school_nm, "GAGE|BOGAN|PHILLIPS") & boundarygr != '9, 10, 11, 12')) %>%
     mutate(school_nm = str_replace(school_nm, "H S", "HS")) %>%
     group_by(grade_cat, school_id, school_nm) %>%
     summarise() %>%
