@@ -10,12 +10,6 @@ library(stringr)
 library(tidyr)
 source("utils.R")
 
-# THERE ARE OVERLAPPING CPS SECONDARY ATTENDANCE BOUNDARIES - GAGE/ENGLEWOOD - GAGE DOES
-# APPEAR TO ACTUALLY OVERLAP WITH ENGLEWOOD SO THE OVERLAPPING POLYGON FOR GAGE CAN PROBABLY
-# BE REMOVED
-
-# SOME DISTRICTS SEEM TO HAVE MULTIPLE POLYGONS THAT COULD BE DISSOLVED
-
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "school")
@@ -74,6 +68,7 @@ process_district_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
       -contains("AWATER", ignore.case = TRUE),
       -contains("ALAND", ignore.case = TRUE)
     ) %>%
+    filter(GEOID != '1729100') %>% # Oak Grove School District should only have one polygon, in NE IL
     rename_with(tolower) %>%
     mutate(
       year = file_year,
@@ -133,19 +128,26 @@ process_cps_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
   save_s3_to_local(uri, tmp_file_local)
 
   st_read(tmp_file_local) %>%
+    rename_with(~"school_id", contains(c("school_id", "schoolid"))) %>%
+    rename_with(
+      ~"school_nm", contains(
+        c("schoolname", "school_nm", "short_name", "school_nam")
+      )
+    ) %>%
+    # GAGE and ENGLEWOOD secondary attendance boundaries overlapped in 2020/2021
+    # As GAGE was reduced in size due to school closures and a new STEM school in ENGLEWOOD
+    # The new district boundaries are what we're interested in
+    filter(!(school_nm == 'GAGE PARK HS' & boundarygr != '9, 10, 11, 12')) %>%
+    mutate(school_nm = str_replace(school_nm, "H S", "HS")) %>%
+    group_by(grade_cat, school_id, school_nm) %>%
+    summarise() %>%
+    ungroup() %>%
     st_transform(4326) %>%
     st_cast("MULTIPOLYGON") %>%
     mutate(centroid = st_centroid(st_transform(geometry, 3435))) %>%
     cbind(
       st_coordinates(st_transform(.$centroid, 4326)),
       st_coordinates(.$centroid)
-    ) %>%
-    select(-centroid) %>%
-    rename_with(~"school_id", contains(c("school_id", "schoolid"))) %>%
-    rename_with(
-      ~"school_nm", contains(
-        c("schoolname", "school_nm", "short_name", "school_nam")
-      )
     ) %>%
     select(
       geoid = school_id, name = school_nm,
