@@ -13,17 +13,16 @@ source("utils.R")
 # parks and hospitals
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+input_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "access")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "access")
 current_year <- strftime(Sys.Date(), "%Y")
-
 
 ##### BIKE TRAIL #####
 remote_file_bike_raw <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "access", "bike_trail",
-  paste0("2021.geojson")
+  input_bucket, "bike_trail", "2021.geojson"
 )
 remote_file_bike_warehouse <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "spatial", "access", "bike_trail",
-  paste0("2021.geojson")
+  output_bucket, "bike_trail", "2021.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_bike_warehouse)) {
@@ -48,12 +47,10 @@ if (!aws.s3::object_exists(remote_file_bike_warehouse)) {
 
 ##### CEMETERY #####
 remote_file_ceme_raw <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "access", "cemetery",
-  paste0("2021.geojson")
+  input_bucket, "cemetery", "2021.geojson"
 )
 remote_file_ceme_warehouse <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "spatial", "access", "cemetery",
-  paste0("2021.geojson")
+  output_bucket, "cemetery", "2021.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_ceme_warehouse)) {
@@ -76,12 +73,10 @@ if (!aws.s3::object_exists(remote_file_ceme_warehouse)) {
 
 ##### HOSPITAL #####
 remote_file_hosp_raw <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "access", "hospital",
-  paste0("2021.geojson")
+  input_bucket, "hospital", "2021.geojson"
 )
 remote_file_hosp_warehouse <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "spatial", "access", "hospital",
-  paste0("2021.geojson")
+  output_bucket, "hospital", "2021.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_hosp_warehouse)) {
@@ -104,12 +99,10 @@ if (!aws.s3::object_exists(remote_file_hosp_warehouse)) {
 
 ##### PARK #####
 remote_file_park_raw <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "access", "park",
-  paste0("2021.geojson")
+  input_bucket, "park", "2021.geojson"
 )
 remote_file_park_warehouse <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "spatial", "access", "park",
-  paste0("2021.geojson")
+  output_bucket, "park", "2021.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_park_warehouse)) {
@@ -132,12 +125,10 @@ if (!aws.s3::object_exists(remote_file_park_warehouse)) {
 
 ##### INDUSTRIAL CORRIDOR #####
 remote_file_indc_raw <- file.path(
-  AWS_S3_RAW_BUCKET, "spatial", "access", "industrial_corridor",
-  paste0("2013.geojson")
+  input_bucket, "industrial_corridor", "2013.geojson"
 )
 remote_file_indc_warehouse <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "spatial", "access", "industrial_corridor",
-  paste0("2013.geojson")
+  output_bucket, "industrial_corridor", "2013.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_indc_warehouse)) {
