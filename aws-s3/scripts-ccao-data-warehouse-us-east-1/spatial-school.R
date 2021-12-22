@@ -15,8 +15,10 @@ AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "school")
 school_tmp_dir <- here("school-tmp")
 
+##### COOK CENSUS DISTRICTS #####
+
 # Get a list of all district-level boundaries
-district_files_df <- aws.s3::get_bucket_df(
+census_district_files_df <- aws.s3::get_bucket_df(
   bucket = AWS_S3_RAW_BUCKET,
   prefix = file.path("spatial", "census", "school")
 ) %>%
@@ -33,11 +35,8 @@ district_files_df <- aws.s3::get_bucket_df(
   ) %>%
   select(year, s3_uri, district_type)
 
-
-##### COOK CENSUS DISTRICTS #####
-
 # Clean up and merge non-CPS district files from different years
-process_district_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
+process_census_district_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
 
   # Download S3 files to local temp dir if they don't exist
   tmp_file_local <- file.path(
@@ -85,9 +84,9 @@ process_district_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
 }
 
 # Apply function to all district files and merge output
-districts_df <- pmap_dfr(district_files_df, function(...) {
+census_districts_df <- pmap_dfr(census_district_files_df, function(...) {
   df <- tibble::tibble(...)
-  process_district_file(
+  process_census_district_file(
     s3_bucket_uri = output_bucket,
     file_year = df$year,
     uri = df$s3_uri,
@@ -96,6 +95,76 @@ districts_df <- pmap_dfr(district_files_df, function(...) {
 }) %>%
   mutate(across(everything(), unname))
 
+unlink(file.path(school_tmp_dir, "*"))
+
+##### COOK CLERK DISTRICTS #####
+
+# Get a list of all district-level boundaries
+county_district_files_df <- aws.s3::get_bucket_df(
+  bucket = AWS_S3_RAW_BUCKET,
+  prefix = file.path("spatial", "school")
+) %>%
+  filter(Size > 0, str_detect(Key, "_district_")) %>%
+  mutate(
+    year = str_extract(Key, "[0-9]{4}"),
+    s3_uri = file.path(AWS_S3_RAW_BUCKET, Key),
+    district_type = case_when(
+      str_detect(Key, "elementary") ~ "elementary",
+      str_detect(Key, "secondary") ~ "secondary",
+      str_detect(Key, "unified") ~ "unified",
+      TRUE ~ "other"
+    )
+  ) %>%
+  select(year, s3_uri, district_type)
+
+
+# Clean up and merge non-CPS district files from different years
+process_county_district_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
+
+  # Download S3 files to local temp dir if they don't exist
+  tmp_file_local <- file.path(
+    school_tmp_dir,
+    paste0("suburban-", dist_type, "-", file_year, ".geojson")
+  )
+  if (!file.exists(tmp_file_local)) save_s3_to_local(uri, tmp_file_local)
+
+  df <- sf::read_sf(tmp_file_local) %>%
+    st_transform(4326) %>%
+    st_make_valid() %>%
+    select(contains("DESC"), geometry) %>%
+    rename_with(~"school_nm", contains("DESC", ignore.case = TRUE)) %>%
+    mutate(school_nm = str_replace(school_nm, "C C", ""),
+           school_nm = str_replace(school_nm, "LINCOLNWAY", "LEMONT TOWNSHIP")) %>%
+    mutate(school_nm = str_squish(school_nm)) %>%
+    filter(str_detect(school_nm, "[:alpha:]")) %>%
+    mutate(
+      school_num = str_squish(str_remove_all(school_nm, "[[:alpha:].#]")),
+      year = file_year,
+      district_type = dist_type,
+      geometry_3435 = st_transform(geometry, 3435)
+    ) %>%
+    filter(str_detect(school_num, "[:digit:]")) %>%
+    filter(!st_is_empty(.)) %>%
+    select(contains(c("school", "district_type", "year", "geometry"))) %>%
+    group_by(school_nm, school_num, district_type, year) %>%
+    summarise() %>%
+    ungroup()
+
+}
+
+# Apply function to all district files and merge output
+county_districts_df <- pmap_dfr(county_district_files_df, function(...) {
+  df <- tibble::tibble(...)
+  process_county_district_file(
+    s3_bucket_uri = output_bucket,
+    file_year = df$year,
+    uri = df$s3_uri,
+    dist_type = df$district_type
+  )
+}) %>%
+  mutate(across(everything(), unname))
+
+unlink(file.path(school_tmp_dir, "*"))
 
 ##### CPS #####
 
@@ -186,7 +255,7 @@ attendance_df <- pmap_dfr(
 
 # Merge both datasets and write to S3
 bind_rows(
-  districts_df,
+  census_districts_df,
   attendance_df
 ) %>%
   group_by(district_type, year) %>%
