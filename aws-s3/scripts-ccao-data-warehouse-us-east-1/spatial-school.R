@@ -166,6 +166,30 @@ county_districts_df <- pmap_dfr(county_district_files_df, function(...) {
 
 unlink(file.path(school_tmp_dir, "*"))
 
+# Add geoids to county districts
+county_districts_df <- st_join(
+  county_districts_df %>%
+    filter(year %in% unique(census_districts_df$year)) %>%
+    mutate(border = geometry) %>%
+    st_centroid(),
+  census_districts_df %>%
+    select(geoid, census_year = year, census_district_type = district_type)
+
+) %>%
+  group_by(school_num, district_type, year) %>%
+  mutate(matches = sum(year == census_year & district_type == census_district_type)) %>%
+  mutate(geoid = case_when(matches == 0 ~ '',
+                           TRUE ~ geoid)) %>%
+  ungroup() %>%
+  mutate(geoid = na_if(geoid, '')) %>%
+  filter((year == census_year & district_type == census_district_type) | is.na(geoid)) %>%
+  select(-contains("census")) %>%
+  mutate(geometry = border) %>%
+  select(-c(border, matches)) %>%
+  distinct() %>%
+  bind_rows(county_districts_df %>%
+              filter(!(year %in% unique(census_districts_df$year))))
+
 ##### CPS #####
 
 # Get a list of all attendance boundaries for CPS
