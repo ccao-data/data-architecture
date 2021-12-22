@@ -22,7 +22,7 @@ remote_file_coastline_raw <- file.path(
   input_bucket, "coastline", "2021.geojson"
 )
 remote_file_coastline_warehouse <- file.path(
-  output_bucket, "coastline", "2021.geojson"
+  output_bucket, "coastline", "2021.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_coastline_warehouse)) {
@@ -86,7 +86,7 @@ remote_file_rail_raw <- file.path(
   input_bucket, "railroad", "2021.geojson"
 )
 remote_file_rail_warehouse <- file.path(
-  output_bucket, "railroad", "2021.geojson"
+  output_bucket, "railroad", "2021.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
