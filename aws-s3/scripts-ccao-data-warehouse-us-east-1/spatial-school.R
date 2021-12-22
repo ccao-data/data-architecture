@@ -148,7 +148,18 @@ process_county_district_file <- function(s3_bucket_uri, file_year, uri, dist_typ
     group_by(school_nm, school_num, district_type, year) %>%
     summarise() %>%
     ungroup() %>%
-    mutate(geometry_3435 = st_transform(geometry, 3435))
+    mutate(geometry_3435 = st_transform(geometry, 3435),
+           centroid = st_centroid(st_transform(geometry, 3435)),
+           is_attendance_boundary = FALSE) %>%
+    cbind(
+      st_coordinates(st_transform(.$centroid, 4326)),
+      st_coordinates(.$centroid)
+    ) %>%
+  select(
+    name = school_nm, school_num,
+    lon = X, lat = Y, x_3435 = `X.1`, y_3435 = `Y.1`,
+    year, is_attendance_boundary, district_type, geometry, geometry_3435
+  )
 
 }
 
@@ -173,7 +184,8 @@ county_districts_df <- st_join(
     mutate(border = geometry) %>%
     st_centroid(),
   census_districts_df %>%
-    select(geoid, census_year = year, census_district_type = district_type)
+    mutate(census_year = as.numeric(year) - 1) %>%
+    select(geoid, census_year, census_district_type = district_type)
 
 ) %>%
   group_by(school_num, district_type, year) %>%
@@ -181,14 +193,18 @@ county_districts_df <- st_join(
   mutate(geoid = case_when(matches == 0 ~ '',
                            TRUE ~ geoid)) %>%
   ungroup() %>%
-  mutate(geoid = na_if(geoid, '')) %>%
-  filter((year == census_year & district_type == census_district_type) | is.na(geoid)) %>%
+  filter((year == census_year & district_type == census_district_type) | geoid == '') %>%
+  mutate(geoid = case_when(district_type == "unified" & school_num == 205 ~ '1719230',
+                            district_type == "elementary" & school_num == 100 ~ '1737860',
+                            district_type == "elementary" & school_num == 125 ~ '1704560',
+                            TRUE ~ geoid)) %>%
   select(-contains("census")) %>%
   mutate(geometry = border) %>%
   select(-c(border, matches)) %>%
   distinct() %>%
   bind_rows(county_districts_df %>%
-              filter(!(year %in% unique(census_districts_df$year))))
+              filter(!(year %in% unique(census_districts_df$year)))) %>%
+  select(geoid, everything())
 
 ##### CPS #####
 
