@@ -99,10 +99,10 @@ if (!aws.s3::object_exists(remote_file_hosp_warehouse)) {
 
 ##### PARK #####
 remote_file_park_raw <- file.path(
-  input_bucket, "park", "2021.geojson"
+  input_bucket, "park", "2014.geojson"
 )
 remote_file_park_warehouse <- file.path(
-  output_bucket, "park", "2021.parquet"
+  output_bucket, "park", "2014.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_park_warehouse)) {
