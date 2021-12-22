@@ -140,15 +140,15 @@ process_county_district_file <- function(s3_bucket_uri, file_year, uri, dist_typ
     mutate(
       school_num = str_squish(str_remove_all(school_nm, "[[:alpha:].#]")),
       year = file_year,
-      district_type = dist_type,
-      geometry_3435 = st_transform(geometry, 3435)
+      district_type = dist_type
     ) %>%
     filter(str_detect(school_num, "[:digit:]")) %>%
     filter(!st_is_empty(.)) %>%
     select(contains(c("school", "district_type", "year", "geometry"))) %>%
     group_by(school_nm, school_num, district_type, year) %>%
     summarise() %>%
-    ungroup()
+    ungroup() %>%
+    mutate(geometry_3435 = st_transform(geometry, 3435))
 
 }
 
