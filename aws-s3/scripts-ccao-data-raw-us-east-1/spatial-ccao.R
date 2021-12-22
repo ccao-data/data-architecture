@@ -22,8 +22,8 @@ sources_list <- bind_rows(list(
   # TOWNSHIP
   "township" = c(
     "url" = paste0(
-      "https://gitlab.com/ccao-data-science---modeling/packages/ccao",
-      "/-/raw/master/data-raw/town_shp.geojson"
+      "https://opendata.arcgis.com/datasets/",
+      "78fe09c5954e41e19b65a4194eed38c7_3.geojson"
     ),
     "boundary" = "township",
     "year" = "2019"

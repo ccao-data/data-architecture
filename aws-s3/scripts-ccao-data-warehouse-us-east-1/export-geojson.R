@@ -30,3 +30,39 @@ if (!aws.s3::object_exists(remote_file_tract_2020)) {
   st_write(tracts_2020, tmp_file_geojson)
   save_local_to_s3(remote_file_tract_2020, tmp_file_geojson)
 }
+
+
+##### NEIGHBORHOOD #####
+remote_file_nbhd_warehouse <- file.path(
+  AWS_S3_WAREHOUSE_BUCKET, "spatial", "ccao", "neighborhood", "2021.parquet"
+)
+remote_file_nbhd_export <- file.path(
+  output_bucket, "geojson", "ccao-neighborhood-2021.geojson"
+)
+
+if (!aws.s3::object_exists(remote_file_nbhd_warehouse)) {
+  tmp_file_nbhd <- tempfile(fileext = ".geojson")
+  st_read_parquet(remote_file_nbhd_warehouse) %>%
+    select(-geometry_3435) %>%
+    st_write(tmp_file_nbhd)
+
+  save_local_to_s3(remote_file_nbhd_export, tmp_file_nbhd)
+}
+
+
+##### TOWNSHIP #####
+remote_file_town_warehouse <- file.path(
+  AWS_S3_WAREHOUSE_BUCKET, "spatial", "ccao", "township", "2019.parquet"
+)
+remote_file_town_export <- file.path(
+  output_bucket, "geojson", "ccao-township-2019.geojson"
+)
+
+if (!aws.s3::object_exists(remote_file_town_export)) {
+  tmp_file_town <- tempfile(fileext = ".geojson")
+  st_read_parquet(remote_file_town_warehouse) %>%
+    select(-geometry_3435) %>%
+    st_write(tmp_file_town)
+
+  save_local_to_s3(remote_file_town_export, tmp_file_town)
+}

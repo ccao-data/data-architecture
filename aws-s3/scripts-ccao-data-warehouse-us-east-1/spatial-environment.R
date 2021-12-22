@@ -22,7 +22,7 @@ remote_file_coastline_raw <- file.path(
   input_bucket, "coastline", "2021.geojson"
 )
 remote_file_coastline_warehouse <- file.path(
-  output_bucket, "coastline", "2021.geojson"
+  output_bucket, "coastline", "2021.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_coastline_warehouse)) {
@@ -86,7 +86,7 @@ remote_file_rail_raw <- file.path(
   input_bucket, "railroad", "2021.geojson"
 )
 remote_file_rail_warehouse <- file.path(
-  output_bucket, "railroad", "2021.geojson"
+  output_bucket, "railroad", "2021.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
@@ -96,14 +96,11 @@ if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
   st_read(tmp_file_rail) %>%
     st_transform(4326) %>%
     rename_with(tolower) %>%
+    group_by(name_id, anno_name) %>%
+    summarise() %>%
+    select(name_id, name_anno = anno_name, geometry) %>%
     mutate(
       geometry_3435 = st_transform(geometry, 3435)
-    ) %>%
-    select(
-      name_id,
-      unique_id = uniqid, name = anno_name, taxmap_id, type,
-      ortho_year = orthoyear, commute_line = commute_li,
-      geometry, geometry_3435
     ) %>%
     sfarrow::st_write_parquet(remote_file_rail_warehouse)
 }
