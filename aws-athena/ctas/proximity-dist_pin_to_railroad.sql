@@ -21,9 +21,8 @@ WITH (
         SELECT
             p.x_3435,
             p.y_3435,
-            o.name,
-            o.unique_id,
-            o.commute_line,
+            o.name_id,
+            o.name_anno,
             ST_Distance(
                 ST_Point(p.x_3435, p.y_3435),
                 ST_GeomFromBinary(o.geometry_3435)
@@ -35,9 +34,8 @@ WITH (
         SELECT
             d1.x_3435,
             d1.y_3435,
-            d1.name,
-            d1.unique_id,
-            d1.commute_line,
+            d1.name_id,
+            d1.name_anno,
             d2.dist_ft
         FROM distances d1
         INNER JOIN (
@@ -54,9 +52,8 @@ WITH (
     )
     SELECT
         p.pin10,
-        ARBITRARY(xy.name) AS name,
-        ARBITRARY(xy.unique_id) AS unique_id,
-        ARBITRARY(xy.commute_line) AS commute_line,
+        ARBITRARY(xy.name_id) AS name_id,
+        ARBITRARY(xy.name_anno) AS name_anno,
         ARBITRARY(xy.dist_ft) AS dist_ft,
         p.year
     FROM spatial.parcel p
