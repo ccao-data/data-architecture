@@ -134,7 +134,12 @@ process_county_district_file <- function(s3_bucket_uri, file_year, uri, dist_typ
     select(contains("DESC"), geometry) %>%
     rename_with(~"school_nm", contains("DESC", ignore.case = TRUE)) %>%
     mutate(school_nm = str_replace(school_nm, "C C", ""),
-           school_nm = str_replace(school_nm, "LINCOLNWAY", "LEMONT TOWNSHIP")) %>%
+           school_nm = str_replace(
+             school_nm,
+             "LINCOLNWAY HIGH SCHOOL 210",
+             "RICH TOWNSHIP HIGH SCHOOL 227"
+             )
+           ) %>%
     mutate(school_nm = str_squish(school_nm)) %>%
     filter(str_detect(school_nm, "[:alpha:]")) %>%
     mutate(
@@ -194,10 +199,12 @@ county_districts_df <- st_join(
                            TRUE ~ geoid)) %>%
   ungroup() %>%
   filter((year == census_year & district_type == census_district_type) | geoid == '') %>%
-  mutate(geoid = case_when(district_type == "unified" & school_num == 205 ~ '1719230',
-                            district_type == "elementary" & school_num == 100 ~ '1737860',
-                            district_type == "elementary" & school_num == 125 ~ '1704560',
-                            TRUE ~ geoid)) %>%
+  mutate(geoid = case_when(district_type == "unified" & school_num == '205' ~ '1713970',
+                           district_type == "elementary" & school_num == '100' ~ '1737860',
+                           district_type == "elementary" & school_num == '125' ~ '1704560',
+                           school_num == '180' ~ '1730510',
+                           school_num == '157-' ~ '1715700',
+                           TRUE ~ geoid)) %>%
   select(-contains("census")) %>%
   mutate(geometry = border) %>%
   select(-c(border, matches)) %>%
@@ -304,7 +311,6 @@ bind_rows(
     is_spatial = TRUE,
     overwrite = TRUE
   )
-
 
 
 ##### SCHOOL LOCATIONS #####
