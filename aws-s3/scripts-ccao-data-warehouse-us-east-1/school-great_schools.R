@@ -65,7 +65,7 @@ if (!aws.s3::object_exists(
       # Use district shapefiles from one year post-Great Schools data
       # Since they describes districts 1 year in the past
       AWS_ATHENA_CONN, glue(
-        "SELECT name AS district_name, is_attendance_boundary, geometry, district_type
+        "SELECT geoid, name AS district_name, is_attendance_boundary, geometry, district_type
       FROM spatial.school_district
       WHERE year IN ('{paste(unique(great_districts$year) + 1, collapse = \"', '\")}');"
       )
@@ -90,8 +90,8 @@ if (!aws.s3::object_exists(
       ) %>%
 
     # Add 3435 CRS column
-    mutate(geometry_3435 = st_transform(geometry, 3435))
-
+    mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+    distinct()
 
   # Write to S3
   sfarrow::st_write_parquet(great_districts,
@@ -111,7 +111,7 @@ if (!aws.s3::object_exists(
 
     # Drop geometry because summarize by group messes it up
     st_drop_geometry() %>%
-    group_by(district_name, district_type, year) %>%
+    group_by(district_name, geoid, district_type, year) %>%
     summarise(mean_rating = mean(rating, na.rm = TRUE),
               n_schools = n()) %>%
 
