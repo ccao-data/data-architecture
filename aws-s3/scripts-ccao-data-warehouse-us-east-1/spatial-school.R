@@ -181,11 +181,11 @@ unlink(file.path(school_tmp_dir, "*"))
 county_districts_df <- st_join(
   county_districts_df %>%
     filter(year %in% unique(census_districts_df$year)) %>%
-    mutate(border = geometry) %>%
+    mutate(border = geometry,
+           year = as.character(as.numeric(year) + 1)) %>%
     st_centroid(),
   census_districts_df %>%
-    mutate(census_year = as.numeric(year) - 1) %>%
-    select(geoid, census_year, census_district_type = district_type)
+    select(geoid, census_year = year, census_district_type = district_type)
 
 ) %>%
   group_by(school_num, district_type, year) %>%
@@ -295,7 +295,7 @@ attendance_df <- pmap_dfr(
 
 # Merge both datasets and write to S3
 bind_rows(
-  census_districts_df,
+  county_districts_df,
   attendance_df
 ) %>%
   group_by(district_type, year) %>%
