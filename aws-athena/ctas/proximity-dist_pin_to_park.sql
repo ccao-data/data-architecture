@@ -22,6 +22,7 @@ WITH (
         SELECT
             p.x_3435,
             p.y_3435,
+            o.osm_id,
             o.name,
             ST_Distance(
                 ST_Point(p.x_3435, p.y_3435),
@@ -34,6 +35,7 @@ WITH (
         SELECT
             d1.x_3435,
             d1.y_3435,
+            d1.osm_id,
             d1.name,
             d2.dist_ft
         FROM distances d1
@@ -51,6 +53,7 @@ WITH (
     )
     SELECT
         p.pin10,
+        ARBITRARY(xy.osm_id) AS osm_id,
         ARBITRARY(xy.name) AS name,
         ARBITRARY(xy.dist_ft) AS dist_ft,
         p.year

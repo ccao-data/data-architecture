@@ -2,6 +2,7 @@ library(arrow)
 library(aws.s3)
 library(dplyr)
 library(here)
+library(osmdata)
 library(purrr)
 library(sf)
 library(sfarrow)
@@ -98,28 +99,41 @@ if (!aws.s3::object_exists(remote_file_hosp_warehouse)) {
 
 
 ##### PARK #####
-remote_file_park_raw <- file.path(
-  input_bucket, "park", "2014.geojson"
-)
+# Switched to using OSM parks because the county-provided parks file is
+# very incomplete
 remote_file_park_warehouse <- file.path(
-  output_bucket, "park", "2014.parquet"
+  output_bucket, "park", paste0(current_year, ".parquet")
 )
 
 if (!aws.s3::object_exists(remote_file_park_warehouse)) {
-  tmp_file_park <- tempfile(fileext = ".geojson")
-  aws.s3::save_object(remote_file_park_raw, file = tmp_file_park)
 
-  st_read(tmp_file_park) %>%
+  parks <- opq("Cook County United States") %>%
+    add_osm_feature(key = "leisure", value = "park") %>%
+    osmdata_sf()
+
+  cook_boundary <- st_read(
+    paste0(
+      "https://opendata.arcgis.com/datasets/",
+      "ea127f9e96b74677892722069c984198_1.geojson"
+    )
+  ) %>%
+    st_transform(4326)
+
+  parks_df <- bind_rows(parks$osm_polygons, parks$osm_multipolygons) %>%
+    st_make_valid() %>%
+    st_cast("MULTIPOLYGON") %>%
     st_transform(4326) %>%
-    rename_with(tolower) %>%
-    mutate(
-      geometry_3435 = st_transform(geometry, 3435)
-    ) %>%
-    select(
-      name = cfname, address, gniscode, source, community, jurisdiction,
-      comment, geometry, geometry_3435
-    ) %>%
-    sfarrow::st_write_parquet(remote_file_park_warehouse)
+    filter(st_is_valid(.)) %>%
+    select(osm_id, name, geometry) %>%
+    mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+    filter(
+      as.logical(st_intersects(
+        geometry,
+        cook_boundary
+      ))
+    )
+
+  st_write_parquet(parks_df, remote_file_park_warehouse, compression = "snappy")
 }
 
 
