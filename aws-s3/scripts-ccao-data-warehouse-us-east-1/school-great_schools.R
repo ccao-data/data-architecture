@@ -38,6 +38,20 @@ if (!aws.s3::object_exists(
 
   # Pull from S3, convert to spatial object with lat/long, 4326 CRS
   great_districts <- read_parquet(source_file) %>%
+
+    # A few schools have lat/long that will place them outside their attendance boundary and need to be manually moved
+    mutate(
+      lat = case_when(
+        name == 'Tarkington Elementary School' ~ 41.7642,
+        TRUE ~ lat
+      ),
+      lon = case_when(
+        name == 'Prieto Math-Science Elementary School' ~ -87.766,
+        TRUE ~ lon
+      )
+
+    ) %>%
+
     sf::st_as_sf(coords = c("lon", "lat"), remove = FALSE, crs = 4326) %>%
 
     # We'll need to know which types of districts (elementary, secondary) each school belongs to
@@ -111,14 +125,14 @@ if (!aws.s3::object_exists(
 
     # Drop geometry because summarize by group messes it up
     st_drop_geometry() %>%
-    group_by(district_name, geoid, district_type, year) %>%
+    group_by(district_name,district_type, year) %>%
     summarise(mean_rating = mean(rating, na.rm = TRUE),
               n_schools = n()) %>%
 
     # Rejoin geometry
-    left_join(
+    full_join(
       district_boundaries %>%
-        select(district_name, geometry)
+        select(geoid, district_name, geometry)
     ) %>%
 
     # Make sure observations are unique, CRS is correct
