@@ -58,7 +58,8 @@ clean_politics <- function(remote_file) {
       ) %>%
       rename_with(~ paste0(.x, "_name"), names(column_names[political_unit])) %>%
       select(-any_of("municipality_num")) %>%
-      select(ends_with("_num"), everything(), geometry, geometry_3435, year)
+      select(ends_with("_num"), everything(), geometry, geometry_3435, year) %>%
+      filter(!is.na(.))
   )
 
   file.remove(tmp_file)
