@@ -31,19 +31,10 @@ clean_consolidated_care <- function(shapefile, economic_unit) {
     return(
 
       shapefile %>%
-        st_transform(4326) %>%
-        st_make_valid() %>%
         mutate(AGENCY_DES = str_replace(AGENCY_DES, "PROVISIO", "PROVISO")) %>%
         group_by(AGENCY_DES, MUNICIPALI) %>%
         summarise() %>%
-        mutate(geometry_3435 = st_transform(geometry, 3435),
-               centroid = st_centroid(st_transform(geometry, 3435))) %>%
-        cbind(
-          st_coordinates(st_transform(.$centroid, 4326)),
-          st_coordinates(.$centroid)
-        ) %>%
-        group_by(AGENCY_DES) %>%
-        mutate(cc_num = str_pad(cur_group_id(), width = 3, side = "left", pad = "0"),
+        mutate(cc_num = as.character(NA),
                political_boundary = case_when(is.na(MUNICIPALI) ~ "Township",
                                               TRUE ~ "Municipality"),
                cc_name = str_squish(
@@ -52,8 +43,7 @@ clean_consolidated_care <- function(shapefile, economic_unit) {
                              TRUE ~ MUNICIPALI)
                    )
                  )) %>%
-        select(cc_num, cc_name, political_boundary,
-               lon = X, lat = Y, x_3435 = `X.1`, y_3435 = `Y.1`, geometry, geometry_3435) %>%
+        select(cc_num, cc_name, political_boundary, geometry) %>%
         ungroup()
     )
 
@@ -65,11 +55,130 @@ clean_consolidated_care <- function(shapefile, economic_unit) {
 
 }
 
-# TODO: Finish economy script
-remote_file <- raw_files[1]
-tmp_file <- tempfile(fileext = ".geojson")
-aws.s3::save_object(remote_file, file = tmp_file)
+# Function to clean enterprise zones
+clean_enterprise_zone <- function(shapefile, economic_unit) {
 
-shapefile <- st_read(tmp_file)
+  if (economic_unit == "enterprise_zone") {
 
-file.remove(tmp_file)
+    return(
+
+      shapefile %>%
+        filter(str_detect(County, "Will", negate = TRUE)) %>%
+        group_by(Name) %>%
+        summarise() %>%
+        mutate(ez_num = as.character(NA)) %>%
+        select(ez_num, ez_name = Name, geometry) %>%
+        ungroup()
+
+    )
+
+  } else {
+
+    return(shapefile)
+
+  }
+
+}
+
+# Function to clean industrial growth zones
+clean_industrial_growth_zone <- function(shapefile, economic_unit) {
+
+  if (economic_unit == "industrial_growth_zone") {
+
+    return(
+
+      shapefile %>%
+        mutate(igz_num = as.character(NA)) %>%
+        select(igz_num, igz_name = Name, geometry)
+
+    )
+
+  } else {
+
+    return(shapefile)
+
+  }
+
+}
+
+# Function to clean qualified opportunity zones
+clean_qualified_opportunity_zone <- function(shapefile, economic_unit) {
+
+  if (economic_unit == "qualified_opportunity_zone") {
+
+    return(
+
+      shapefile %>%
+        select(geoid = CENSUSTRAC, geometry)
+
+    )
+
+  } else {
+
+    return(shapefile)
+
+  }
+
+}
+
+# Function to pull raw data from S3 and clean
+clean_economy <- function(remote_file) {
+  economic_unit <- str_split(remote_file, "/", simplify = TRUE)[1, 6]
+
+  year <- str_split(remote_file, "/", simplify = TRUE)[1, 7] %>%
+    gsub(".geojson", "", .)
+
+  economic_unit_year <- paste0(economic_unit, "/", year)
+
+  tmp_file <- tempfile(fileext = ".geojson")
+  aws.s3::save_object(remote_file, file = tmp_file)
+
+  return(
+    st_read(tmp_file) %>%
+      st_transform(4326) %>%
+      st_make_valid() %>%
+      clean_consolidated_care(economic_unit) %>%
+      clean_enterprise_zone(economic_unit) %>%
+      clean_industrial_growth_zone(economic_unit) %>%
+      clean_qualified_opportunity_zone(economic_unit) %>%
+      mutate(geometry_3435 = st_transform(geometry, 3435),
+             centroid = st_centroid(st_transform(geometry, 3435)),
+             year = year) %>%
+      cbind(
+        st_coordinates(st_transform(.$centroid, 4326)),
+        st_coordinates(.$centroid)
+      ) %>%
+      select(!contains("centroid"),
+             lon = X, lat = Y, x_3435 = `X.1`, y_3435 = `Y.1`, geometry, geometry_3435, year)
+
+      )
+
+  file.remove(tmp_file)
+
+}
+
+# Apply function to raw_files
+cleaned_output <- sapply(raw_files, clean_economy, simplify = FALSE, USE.NAMES = TRUE)
+economic_units <- unique(str_split(raw_files, "/", simplify = TRUE)[, 6])
+
+# Function to partition and upload cleaned data to S3
+combine_upload <- function(economic_unit) {
+  cleaned_output[grep(economic_unit, names(cleaned_output))] %>%
+    bind_rows() %>%
+    group_by(across(contains("name"))) %>%
+
+    # Some shapefiles don't have consistent identifiers across time, create them using group IDs
+    mutate(across(contains("num"), ~ case_when(
+      is.na(.) ~ str_pad(cur_group_id(), width = 3, side = "left", pad = "0"),
+      TRUE ~ .
+    ))) %>%
+    group_by(year) %>%
+    write_partitions_to_s3(
+      file.path(output_bucket, economic_unit),
+      is_spatial = TRUE,
+      overwrite = TRUE
+    )
+}
+
+# Apply function to cleaned data
+walk(economic_units, combine_upload)
