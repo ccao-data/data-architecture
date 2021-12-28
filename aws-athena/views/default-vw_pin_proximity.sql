@@ -5,6 +5,8 @@ SELECT
     pin.pin10,
     pin.year,
     bus.num_stops_in_half_mile AS bus_num_stops_in_half_mile,
+    sch.num_schools_in_half_mile AS sch_num_schools_in_half_mile,
+    sch.avg_rating_in_half_mile AS sch_avg_rating_in_half_mile,
     bike.gnis_code AS bike_trail_gnis_code,
     bike.name AS bike_trail_name,
     bike.dist_ft AS bike_trail_dist_ft,
@@ -43,6 +45,9 @@ FROM spatial.parcel pin
 LEFT JOIN proximity.cnt_pin_num_bus_stop bus
     ON pin.pin10 = bus.pin10
     AND pin.year = bus.year
+LEFT JOIN proximity.cnt_pin_num_school sch
+    ON pin.pin10 = sch.pin10
+    AND pin.year = sch.year
 LEFT JOIN proximity.dist_pin_to_bike_trail bike
     ON pin.pin10 = bike.pin10
     AND pin.year = bike.year

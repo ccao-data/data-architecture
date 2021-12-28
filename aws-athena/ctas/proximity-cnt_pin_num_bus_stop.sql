@@ -47,7 +47,7 @@ WITH (
             ELSE xy.num_stops_in_half_mile END AS num_stops_in_half_mile,
         p.year
     FROM spatial.parcel p
-    INNER JOIN xy_stop_counts xy
+    LEFT JOIN xy_stop_counts xy
         ON p.x_3435 = xy.x_3435
         AND p.y_3435 = xy.y_3435
         AND p.year = xy.year
