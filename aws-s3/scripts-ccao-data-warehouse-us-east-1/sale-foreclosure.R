@@ -6,6 +6,7 @@ library(glue)
 library(lubridate)
 library(purrr)
 library(readr)
+library(sf)
 library(stringr)
 library(tidyr)
 library(tools)
@@ -31,12 +32,19 @@ files <- grep(
   ),
   value = TRUE
 )
+cook_bbox <- st_as_sfc(st_bbox(c(
+  xmin = -88.351,
+  xmax = -87.0299,
+  ymax = 42.3395,
+  ymin = 41.4625), crs = st_crs(4326)
+))
 
 # Load raw files, cleanup, then write to warehouse S3
 map(files, read_parquet) %>%
   rbindlist() %>%
   rename_with(~ tolower(gsub(" ", "_", .x))) %>%
   rename(pin = property_identification_number) %>%
+  filter(!is.na(global_x), !is.na(global_y)) %>%
   mutate(
     pin = gsub("[^0-9.-]", "", pin),
     foreclosure_recording_date = lubridate::mdy(foreclosure_recording_date),
@@ -78,9 +86,11 @@ map(files, read_parquet) %>%
     year_of_sale = as.character(lubridate::year(date_of_sale)),
     across(c(contains("district"), contains("phone")), as.character)
   ) %>%
-  select(-c(county, time_of_sale, datetime_of_sale, global_x, global_y)) %>%
-  rename(lon = longitude, lat = latitude) %>%
+  select(-c(county, time_of_sale, datetime_of_sale, longitude, latitude)) %>%
+  st_as_sf(coords = c("global_x", "global_y"), crs = 4326) %>%
+  filter(as.logical(st_within(geometry, cook_bbox))) %>%
+  mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
   separate(bankruptcy_filed, sep = " - Chapter ", into = c(NA, "bankruptcy_chapter")) %>%
-  select(pin, everything(), year_of_sale) %>%
+  select(pin, everything(), geometry, geometry_3435, year_of_sale) %>%
   group_by(year_of_sale) %>%
-  write_partitions_to_s3(output_bucket, is_spatial = FALSE)
+  write_partitions_to_s3(output_bucket, is_spatial = TRUE, overwrite = TRUE)
