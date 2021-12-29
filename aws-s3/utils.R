@@ -86,3 +86,32 @@ write_partitions_to_s3 <- function(df,
     }
   })
 }
+
+standardize_expand_geo <- function(spatial_df, make_valid = FALSE, polygon = TRUE) {
+
+  return(
+
+    spatial_df %>%
+      st_transform(4326) %>%
+      { if (make_valid) st_make_valid(.) else .} %>%
+      mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+      { if (polygon) {
+
+        mutate(., centroid = st_centroid(st_transform(geometry, 3435))) %>%
+        cbind(.,
+          st_coordinates(st_transform(.$centroid, 4326)),
+          st_coordinates(.$centroid)
+        ) %>%
+          select(!contains("centroid"),
+                 lon = X, lat = Y, x_3435 = `X.1`, y_3435 = `Y.1`, geometry, geometry_3435)
+
+      } else {
+
+        select(., dplyr::everything(), geometry, geometry_3435)
+
+      }
+        }
+
+  )
+
+}
