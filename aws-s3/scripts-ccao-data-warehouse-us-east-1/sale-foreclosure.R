@@ -37,6 +37,7 @@ map(files, read_parquet) %>%
   rbindlist() %>%
   rename_with(~ tolower(gsub(" ", "_", .x))) %>%
   rename(pin = property_identification_number) %>%
+  filter(!is.na(longitude), !is.na(latitude)) %>%
   mutate(
     pin = gsub("[^0-9.-]", "", pin),
     foreclosure_recording_date = lubridate::mdy(foreclosure_recording_date),
@@ -80,7 +81,9 @@ map(files, read_parquet) %>%
   ) %>%
   select(-c(county, time_of_sale, datetime_of_sale, global_x, global_y)) %>%
   rename(lon = longitude, lat = latitude) %>%
+  st_as_sf(coords = c("lon", "lat"), crs = 4326) %>%
+  mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
   separate(bankruptcy_filed, sep = " - Chapter ", into = c(NA, "bankruptcy_chapter")) %>%
-  select(pin, everything(), year_of_sale) %>%
+  select(pin, everything(), geometry, geometry_3435, year_of_sale) %>%
   group_by(year_of_sale) %>%
-  write_partitions_to_s3(output_bucket, is_spatial = FALSE)
+  write_partitions_to_s3(output_bucket, is_spatial = TRUE, overwrite = TRUE)
