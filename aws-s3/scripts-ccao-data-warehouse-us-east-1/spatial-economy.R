@@ -128,28 +128,18 @@ clean_economy <- function(remote_file) {
   year <- str_split(remote_file, "/", simplify = TRUE)[1, 7] %>%
     gsub(".geojson", "", .)
 
-  economic_unit_year <- paste0(economic_unit, "/", year)
-
   tmp_file <- tempfile(fileext = ".geojson")
   aws.s3::save_object(remote_file, file = tmp_file)
 
   return(
+
     st_read(tmp_file) %>%
-      st_transform(4326) %>%
-      st_make_valid() %>%
       clean_consolidated_care(economic_unit) %>%
       clean_enterprise_zone(economic_unit) %>%
       clean_industrial_growth_zone(economic_unit) %>%
       clean_qualified_opportunity_zone(economic_unit) %>%
-      mutate(geometry_3435 = st_transform(geometry, 3435),
-             centroid = st_centroid(st_transform(geometry, 3435)),
-             year = year) %>%
-      cbind(
-        st_coordinates(st_transform(.$centroid, 4326)),
-        st_coordinates(.$centroid)
-      ) %>%
-      select(!contains("centroid"),
-             lon = X, lat = Y, x_3435 = `X.1`, y_3435 = `Y.1`, geometry, geometry_3435, year)
+      standardize_expand_geo(make_valid = TRUE) %>%
+      mutate(year = year)
 
       )
 
