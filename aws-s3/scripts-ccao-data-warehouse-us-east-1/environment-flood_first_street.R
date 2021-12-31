@@ -21,7 +21,6 @@ input_bucket <- file.path(
 output_bucket <- file.path(
   AWS_S3_WAREHOUSE_BUCKET, "environment", "flood_first_street"
 )
-data_year <- "2019"
 
 # Load First Street data directly from S3
 flood_fs <- read_parquet(file.path(input_bucket, "2019.parquet")) %>%
@@ -34,7 +33,7 @@ parcels_df <- dbGetQuery(
   AWS_ATHENA_CONN, glue(
   "SELECT pin10, x_3435, y_3435, year
   FROM spatial.parcel
-  WHERE year >= '{data_year}'"
+  WHERE year >= '2012'"
 ))
 
 # Merge FS data to parcel data
@@ -48,7 +47,7 @@ merged_missing_df <- merged_df %>%
 merged_nonmissing_df <- merged_df %>%
   filter(!is.na(fs_flood_factor))
 
-# Get the nearest feature from the nonmissing frame
+# Get the nearest feature from the non-missing frame
 merged_fill <- merged_missing_df %>%
   mutate(nearest = st_nearest_feature(geometry, merged_nonmissing_df)) %>%
   st_drop_geometry() %>%
