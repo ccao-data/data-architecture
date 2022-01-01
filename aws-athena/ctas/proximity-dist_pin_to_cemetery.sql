@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS proximity.dist_pin_to_cemetery
 WITH (
     format='Parquet',
     write_compression = 'SNAPPY',
-    external_location='s3://ccao-data-warehouse-us-east-1/proximity/dist_pin_to_cemetery',
+    external_location='s3://ccao-athena-ctas-us-east-1/proximity/dist_pin_to_cemetery',
     partitioned_by = ARRAY['year'],
     bucketed_by = ARRAY['pin10'],
     bucket_count = 5

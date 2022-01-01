@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS proximity.cnt_pin_num_school
 WITH (
     format='Parquet',
     write_compression = 'SNAPPY',
-    external_location='s3://ccao-data-warehouse-us-east-1/proximity/cnt_pin_num_school',
+    external_location='s3://ccao-athena-ctas-us-east-1/proximity/cnt_pin_num_school',
     partitioned_by = ARRAY['year'],
     bucketed_by = ARRAY['pin10'],
     bucket_count = 5
