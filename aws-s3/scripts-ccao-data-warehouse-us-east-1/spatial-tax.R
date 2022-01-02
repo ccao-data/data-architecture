@@ -119,13 +119,14 @@ clean_tax <- function(remote_file) {
   return(
     st_read(tmp_file) %>%
       select(column_names[[tax_body_year]]) %>%
-      filter(across(contains("name"), ~ !is.na(.))) %>%
+      filter(across(contains("name"), ~ !is.na(.x))) %>%
 
       # Apply specific cleaning functions
       clean_fire_protection(tax_body = tax_body) %>%
       clean_general(tax_body = tax_body) %>%
 
       # Some shapefiles have multiple rows per tax body rather than multipolygons, fix that
+      st_transform(4326) %>%
       st_make_valid() %>%
       group_by(across(contains(c("num", "name")))) %>%
       summarise() %>%
@@ -153,8 +154,8 @@ combine_upload <- function(tax_body) {
 
     # Some shapefiles don't have consistent identifiers across time, create them using group IDs
     mutate(across(contains("num"), ~ case_when(
-      is.na(.) ~ str_pad(cur_group_id(), width = 3, side = "left", pad = "0"),
-                                               TRUE ~ .
+      is.na(.x) ~ str_pad(cur_group_id(), width = 3, side = "left", pad = "0"),
+                                               TRUE ~ .x
       ))) %>%
     group_by(year) %>%
     write_partitions_to_s3(
