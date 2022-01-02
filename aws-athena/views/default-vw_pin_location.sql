@@ -13,7 +13,7 @@ SELECT
     census_geoid_school_district_secondary,
     census_geoid_school_district_unified,
     census_geoid_state_representative,
-    census_geoid_state_senate
+    census_geoid_state_senate,
     census_geoid_tract,
     census_geoid_zcta,
     cook_dist_num_board_of_review,

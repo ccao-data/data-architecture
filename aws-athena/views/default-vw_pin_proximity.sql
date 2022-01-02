@@ -10,7 +10,7 @@ SELECT
     sch.avg_rating_in_half_mile AS sch_avg_rating_in_half_mile,
     fc.num_foreclosures_in_half_mile_past_5_years AS fc_num_foreclosures_in_half_mile_past_5_years,
     fc.num_fc_per_1000_props_past_5_years AS fc_num_foreclosures_per_1000_props_past_5_years,
-    CAST(CAST(bike.gnis_code AS bigint) AS varchar) AS bike_trail_gnis_code,
+    bike.gnis_code AS bike_trail_gnis_code,
     bike.name AS bike_trail_name,
     bike.dist_ft AS bike_trail_dist_ft,
     CAST(CAST(ceme.gnis_code AS bigint) AS varchar) AS cemetery_gnis_code,
