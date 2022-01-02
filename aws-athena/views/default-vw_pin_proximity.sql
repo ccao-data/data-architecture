@@ -4,9 +4,12 @@ CREATE OR REPLACE VIEW default.vw_pin_proximity AS
 SELECT
     pin.pin10,
     pin.year,
+    fc.num_pins_in_half_mile AS total_num_pins_in_half_mile,
     bus.num_stops_in_half_mile AS bus_num_stops_in_half_mile,
     sch.num_schools_in_half_mile AS sch_num_schools_in_half_mile,
     sch.avg_rating_in_half_mile AS sch_avg_rating_in_half_mile,
+    fc.num_foreclosures_in_half_mile_past_5_years AS fc_num_foreclosures_in_half_mile_past_5_years,
+    fc.num_fc_per_1000_props_past_5_years AS fc_num_foreclosures_per_1000_props_past_5_years,
     CAST(CAST(bike.gnis_code AS bigint) AS varchar) AS bike_trail_gnis_code,
     bike.name AS bike_trail_name,
     bike.dist_ft AS bike_trail_dist_ft,
@@ -45,6 +48,9 @@ FROM spatial.parcel pin
 LEFT JOIN proximity.cnt_pin_num_bus_stop bus
     ON pin.pin10 = bus.pin10
     AND pin.year = bus.year
+LEFT JOIN proximity.cnt_pin_num_foreclosure fc
+    ON pin.pin10 = fc.pin10
+    AND pin.year = fc.year
 LEFT JOIN proximity.cnt_pin_num_school sch
     ON pin.pin10 = sch.pin10
     AND pin.year = sch.year
