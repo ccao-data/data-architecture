@@ -5,16 +5,14 @@ WITH (
     format='Parquet',
     write_compression = 'SNAPPY',
     external_location='s3://ccao-athena-ctas-us-east-1/proximity/cnt_pin_num_foreclosure',
-    partitioned_by = ARRAY['year'],
-    bucketed_by = ARRAY['pin10'],
-    bucket_count = 5
+    partitioned_by = ARRAY['year']
 ) AS (
     WITH pin_locations AS (
         SELECT
             pin10,
             year,
-            ST_Point(x_3435, y_3435) AS point,
-            ST_Buffer(ST_Point(x_3435, y_3435), 2640) AS buffer
+            x_3435, y_3435,
+            ST_Point(x_3435, y_3435) AS point
         FROM spatial.parcel
         WHERE year >= '2012'
     ),
@@ -41,8 +39,8 @@ WITH (
             COUNT(*) AS num_pins_in_half_mile
         FROM pin_locations p
         INNER JOIN pin_locations o
-            ON ST_Contains(o.buffer, p.point)
-            AND o.year = p.year
+            ON p.year = o.year
+            AND ST_Distance(p.point, o.point) <= 2640
         GROUP BY p.pin10, p.year
     )
     SELECT
