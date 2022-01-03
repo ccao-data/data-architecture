@@ -40,3 +40,41 @@ pwalk(sources_list, function(...) {
     file_ext = ".geojson"
   )
 })
+
+##### WALKABILITY #####
+raw_walk <- c(
+  "url" = "https://datahub.cmap.illinois.gov/dataset/aac0d840-77b4-4e88-8a26-7220ac6c588f/resource/8f8ff761-0c02-41e1-9877-432fd0f42b07/download/Walkability.zip",
+  "year" = "2017")
+
+get_walkability <- function(url, year) {
+
+  s3_uri <- file.path(output_bucket, "walkability", paste0(year, ".geojson"))
+
+  if (!aws.s3::object_exists(s3_uri)) {
+    tmp_file <- tempfile(fileext = ".zip")
+    tmp_dir <- file.path(tempdir(), "walkability")
+
+    # Grab file from CTA, recompress without .htm file
+    download.file(url, destfile = tmp_file, mode = "wb")
+    unzip(tmp_file, exdir = tmp_dir)
+    tmp_file <- file.path(tmp_dir, paste0(year, ".geojson"))
+    if (file.exists(tmp_file)) file.remove(tmp_file)
+    st_read(
+      grep("xml",
+           grep("shp", list.files(tmp_dir, recursive = TRUE, full.names = TRUE), value = TRUE),
+           invert = TRUE,
+           value = TRUE)
+    ) %>%
+      st_write(tmp_file)
+    save_local_to_s3(s3_uri, tmp_file, overwrite = TRUE)
+    unlink(gsub("/walkability", "", tmp_dir))
+  }
+}
+
+pwalk(raw_walk, function(...) {
+  df <- tibble::tibble(...)
+  get_walkability(
+    url = df$url,
+    year = df$year
+  )
+})
