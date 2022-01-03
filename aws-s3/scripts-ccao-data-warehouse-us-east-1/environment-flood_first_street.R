@@ -24,7 +24,7 @@ output_bucket <- file.path(
 
 # Load First Street data directly from S3
 flood_fs <- read_parquet(file.path(input_bucket, "2019.parquet")) %>%
-  mutate(pin10 = str_sub(PIN, 1, 10)) %>%
+  mutate(pin10 = str_sub(PIN, 1, 10), year = "2019") %>%
   distinct(pin10, .keep_all = TRUE) %>%
   select(-PIN)
 
@@ -33,12 +33,12 @@ parcels_df <- dbGetQuery(
   AWS_ATHENA_CONN, glue(
   "SELECT pin10, x_3435, y_3435, year
   FROM spatial.parcel
-  WHERE year >= '2012'"
+  WHERE year = '2019'"
 ))
 
 # Merge FS data to parcel data
 merged_df <- parcels_df %>%
-  left_join(flood_fs, by = c("pin10")) %>%
+  left_join(flood_fs, by = c("pin10", "year")) %>%
   st_as_sf(coords = c("x_3435", "y_3435"), crs = 3435)
 
 # Split data into missing and non-missing frames
