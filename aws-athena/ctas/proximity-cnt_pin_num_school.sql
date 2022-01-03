@@ -5,10 +5,8 @@ CREATE TABLE IF NOT EXISTS proximity.cnt_pin_num_school
 WITH (
     format='Parquet',
     write_compression = 'SNAPPY',
-    external_location='s3://ccao-data-warehouse-us-east-1/proximity/cnt_pin_num_school',
-    partitioned_by = ARRAY['year'],
-    bucketed_by = ARRAY['pin10'],
-    bucket_count = 5
+    external_location='s3://ccao-athena-ctas-us-east-1/proximity/cnt_pin_num_school',
+    partitioned_by = ARRAY['year']
 ) AS (
     WITH pin_locations AS (
         SELECT p.year, p.pin10, s.geoid, s.district_type, ST_Point(p.x_3435, p.y_3435) AS centroid

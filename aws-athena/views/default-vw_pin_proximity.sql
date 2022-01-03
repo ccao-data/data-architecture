@@ -4,13 +4,16 @@ CREATE OR REPLACE VIEW default.vw_pin_proximity AS
 SELECT
     pin.pin10,
     pin.year,
+    fc.num_pins_in_half_mile AS total_num_pins_in_half_mile,
     bus.num_stops_in_half_mile AS bus_num_stops_in_half_mile,
     sch.num_schools_in_half_mile AS sch_num_schools_in_half_mile,
     sch.avg_rating_in_half_mile AS sch_avg_rating_in_half_mile,
+    fc.num_foreclosures_in_half_mile_past_5_years AS fc_num_foreclosures_in_half_mile_past_5_years,
+    fc.num_fc_per_1000_props_past_5_years AS fc_num_foreclosures_per_1000_props_past_5_years,
     bike.gnis_code AS bike_trail_gnis_code,
     bike.name AS bike_trail_name,
     bike.dist_ft AS bike_trail_dist_ft,
-    ceme.gnis_code AS cemetery_gnis_code,
+    CAST(CAST(ceme.gnis_code AS bigint) AS varchar) AS cemetery_gnis_code,
     ceme.name AS cemetery_name,
     ceme.dist_ft AS cemetery_dist_ft,
     ctar.route_id AS cta_route_id,
@@ -19,7 +22,7 @@ SELECT
     ctas.stop_id AS cta_stop_id,
     ctas.stop_name AS cta_stop_name,
     ctas.dist_ft AS cta_stop_dist_ft,
-    hosp.gnis_code AS hospital_gnis_code,
+    CAST(CAST(hosp.gnis_code AS bigint) AS varchar) AS hospital_gnis_code,
     hosp.name AS hospital_name,
     hosp.dist_ft AS hospital_dist_ft,
     lake.dist_ft AS lake_michigan_dist_ft,
@@ -36,7 +39,7 @@ SELECT
     park.osm_id AS park_osm_id,
     park.dist_ft AS park_dist_ft,
     rail.name AS railroad_name,
-    rail.unique_id AS railroad_unique_id,
+    CAST(CAST(rail.unique_id AS bigint) AS varchar) AS railroad_unique_id,
     rail.dist_ft AS railroad_dist_ft,
     water.name AS water_name,
     water.id AS water_id,
@@ -45,6 +48,9 @@ FROM spatial.parcel pin
 LEFT JOIN proximity.cnt_pin_num_bus_stop bus
     ON pin.pin10 = bus.pin10
     AND pin.year = bus.year
+LEFT JOIN proximity.cnt_pin_num_foreclosure fc
+    ON pin.pin10 = fc.pin10
+    AND pin.year = fc.year
 LEFT JOIN proximity.cnt_pin_num_school sch
     ON pin.pin10 = sch.pin10
     AND pin.year = sch.year
@@ -84,4 +90,4 @@ LEFT JOIN proximity.dist_pin_to_railroad rail
 LEFT JOIN proximity.dist_pin_to_water water
     ON pin.pin10 = water.pin10
     AND pin.year = water.year
-WHERE pin.year >= (SELECT MIN(year) FROM spatial.transit_stop);
+WHERE pin.year >= '2013';

@@ -3,10 +3,8 @@ CREATE TABLE IF NOT EXISTS proximity.dist_pin_to_park
 WITH (
     format='Parquet',
     write_compression = 'SNAPPY',
-    external_location='s3://ccao-data-warehouse-us-east-1/proximity/dist_pin_to_park',
-    partitioned_by = ARRAY['year'],
-    bucketed_by = ARRAY['pin10'],
-    bucket_count = 5
+    external_location='s3://ccao-athena-ctas-us-east-1/proximity/dist_pin_to_park',
+    partitioned_by = ARRAY['year']
 ) AS (
     WITH pin_locations AS (
         SELECT DISTINCT x_3435, y_3435
