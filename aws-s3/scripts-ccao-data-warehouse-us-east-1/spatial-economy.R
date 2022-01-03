@@ -24,9 +24,9 @@ raw_files <- grep(
 )
 
 # Function to clean consolidated care districts
-clean_consolidated_care <- function(shapefile, economic_unit) {
+clean_coordinated_care <- function(shapefile, economic_unit) {
 
-  if (economic_unit == "consolidated_care") {
+  if (economic_unit == "coordinated_care") {
 
     return(
 
@@ -134,14 +134,13 @@ clean_economy <- function(remote_file) {
   return(
 
     st_read(tmp_file) %>%
-      clean_consolidated_care(economic_unit) %>%
+      clean_coordinated_care(economic_unit) %>%
       clean_enterprise_zone(economic_unit) %>%
       clean_industrial_growth_zone(economic_unit) %>%
       clean_qualified_opportunity_zone(economic_unit) %>%
       standardize_expand_geo(make_valid = TRUE) %>%
       mutate(year = year)
-
-      )
+    )
 
   file.remove(tmp_file)
 
