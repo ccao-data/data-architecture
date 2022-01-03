@@ -41,7 +41,7 @@ pwalk(sources_list, function(...) {
   )
 })
 
-##### WALKABILITY #####
+##### CMAP WALKABILITY #####
 raw_walk <- c(
   "url" = "https://datahub.cmap.illinois.gov/dataset/aac0d840-77b4-4e88-8a26-7220ac6c588f/resource/8f8ff761-0c02-41e1-9877-432fd0f42b07/download/Walkability.zip",
   "year" = "2017")
