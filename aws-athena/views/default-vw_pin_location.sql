@@ -80,6 +80,10 @@ SELECT
     tax_tif_district_num,
     tax_tif_district_name,
     tax_tif_district_data_year,
+    access_cmap_walk_id,
+    access_cmap_walk_nta_score,
+    access_cmap_walk_total_score,
+    access_cmap_walk_data_year,
     misc_subdivision_id,
     misc_subdivision_data_year,
     misc_unincorporated_area_bool,
@@ -106,6 +110,9 @@ LEFT JOIN location.school
 LEFT JOIN location.tax
     ON pin.pin10 = tax.pin10
     AND pin.year = tax.year
+LEFT JOIN location.access
+    ON pin.pin10 = access.pin10
+    AND pin.year = access.year
 LEFT JOIN location.other
     ON pin.pin10 = other.pin10
     AND pin.year = other.year
