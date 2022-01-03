@@ -15,43 +15,43 @@ WITH (
             p.x_3435, p.y_3435,
             MAX(CASE
                 WHEN cen.geography = 'block_group' THEN cen.geoid
-                ELSE NULL END) AS census_geoid_block_group,
+                ELSE NULL END) AS census_block_group_geoid,
             MAX(CASE
                 WHEN cen.geography = 'block' THEN cen.geoid
-                ELSE NULL END) AS census_geoid_block,
+                ELSE NULL END) AS census_block_geoid,
             MAX(CASE
                 WHEN cen.geography = 'congressional_district' THEN cen.geoid
-                ELSE NULL END) AS census_geoid_congressional_district,
+                ELSE NULL END) AS census_congressional_district_geoid,
             MAX(CASE
                 WHEN cen.geography = 'county_subdivision' THEN cen.geoid
-                ELSE NULL END) AS census_geoid_county_subdivision,
+                ELSE NULL END) AS census_county_subdivision_geoid,
             MAX(CASE
                 WHEN cen.geography = 'place' THEN cen.geoid
-                ELSE NULL END) AS census_geoid_place,
+                ELSE NULL END) AS census_place_geoid,
             MAX(CASE
                 WHEN cen.geography = 'puma' THEN cen.geoid
-                ELSE NULL END) AS census_geoid_puma,
+                ELSE NULL END) AS census_puma_geoid,
             MAX(CASE
                 WHEN cen.geography = 'school_district_elementary' THEN cen.geoid
-                ELSE NULL END) AS census_geoid_school_district_elementary,
+                ELSE NULL END) AS census_school_district_elementary_geoid,
             MAX(CASE
                 WHEN cen.geography = 'school_district_secondary' THEN cen.geoid
-                ELSE NULL END) AS census_geoid_school_district_secondary,
+                ELSE NULL END) AS census_school_district_secondary_geoid,
             MAX(CASE
                 WHEN cen.geography = 'school_district_unified' THEN cen.geoid
-                ELSE NULL END) AS census_geoid_school_district_unified,
+                ELSE NULL END) AS census_school_district_unified_geoid,
             MAX(CASE
                 WHEN cen.geography = 'state_representative' THEN cen.geoid
-                ELSE NULL END) AS census_geoid_state_representative,
+                ELSE NULL END) AS census_state_representative_geoid,
             MAX(CASE
                 WHEN cen.geography = 'state_senate' THEN cen.geoid
-                ELSE NULL END) AS census_geoid_state_senate,
+                ELSE NULL END) AS census_state_senate_geoid,
             MAX(CASE
                 WHEN cen.geography = 'tract' THEN cen.geoid
-                ELSE NULL END) AS census_geoid_tract,
+                ELSE NULL END) AS census_tract_geoid,
             MAX(CASE
                 WHEN cen.geography = 'zcta' THEN cen.geoid
-                ELSE NULL END) AS census_geoid_zcta,
+                ELSE NULL END) AS census_zcta_geoid,
             cen.year
         FROM distinct_pins p
         LEFT JOIN spatial.census cen
@@ -60,19 +60,20 @@ WITH (
     )
     SELECT
         p.pin10,
-        census_geoid_block_group,
-        census_geoid_block,
-        census_geoid_congressional_district,
-        census_geoid_county_subdivision,
-        census_geoid_place,
-        census_geoid_puma,
-        census_geoid_school_district_elementary,
-        census_geoid_school_district_secondary,
-        census_geoid_school_district_unified,
-        census_geoid_state_representative,
-        census_geoid_state_senate,
-        census_geoid_tract,
-        census_geoid_zcta,
+        census_block_group_geoid,
+        census_block_geoid,
+        census_congressional_district_geoid,
+        census_county_subdivision_geoid,
+        census_place_geoid,
+        census_puma_geoid,
+        census_school_district_elementary_geoid,
+        census_school_district_secondary_geoid,
+        census_school_district_unified_geoid,
+        census_state_representative_geoid,
+        census_state_senate_geoid,
+        census_tract_geoid,
+        census_zcta_geoid,
+        dj.year AS census_data_year,
         p.year
     FROM spatial.parcel p
     LEFT JOIN distinct_joined dj

@@ -15,10 +15,15 @@ WITH (
     )
     SELECT
         p.pin10,
-        MAX(CAST(CAST(dist_bor.board_of_review_district_num AS integer) AS varchar)) AS cook_dist_num_board_of_review,
-        MAX(CAST(CAST(dist_comm.commissioner_district_num AS integer) AS varchar)) AS cook_dist_num_county_commissioner,
-        MAX(CAST(CAST(dist_jud.judicial_district_num AS integer) AS varchar)) AS cook_dist_num_judicial,
+        MAX(CAST(CAST(dist_bor.board_of_review_district_num AS integer) AS varchar)) AS cook_board_of_review_district_num,
+        MAX(dist_bor.year) AS cook_board_of_review_district_data_year,
+        MAX(CAST(CAST(dist_comm.commissioner_district_num AS integer) AS varchar)) AS cook_commissioner_district_num,
+        MAX(dist_comm.year) AS cook_commissioner_district_data_year,
+        MAX(CAST(CAST(dist_jud.judicial_district_num AS integer) AS varchar)) AS cook_judicial_district_num,
+        MAX(dist_jud.year) AS cook_judicial_district_data_year,
+        MAX(muni.municipality_num) AS cook_municipality_num,
         MAX(muni.municipality_name) AS cook_municipality_name,
+        MAX(muni.year) AS cook_municipality_data_year,
         p.year
     FROM pin_locations p
     LEFT JOIN (SELECT * FROM spatial.board_of_review_district WHERE year = '2012') dist_bor

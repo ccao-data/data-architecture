@@ -18,7 +18,8 @@ WITH (
     ward AS (
         SELECT
             p.x_3435, p.y_3435,
-            MAX(CAST(CAST(cprod.ward_num AS integer) AS varchar)) AS chicago_num_ward,
+            MAX(CAST(CAST(cprod.ward_num AS integer) AS varchar)) AS chicago_ward_num,
+            MAX(cprod.year) AS chicago_ward_data_year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
@@ -39,7 +40,8 @@ WITH (
     police_district AS (
         SELECT
             p.x_3435, p.y_3435,
-            MAX(CAST(CAST(cprod.pd_num AS integer) AS varchar)) AS chicago_num_police_district,
+            MAX(CAST(CAST(cprod.pd_num AS integer) AS varchar)) AS chicago_police_district_num,
+            MAX(cprod.year) AS chicago_police_district_data_year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
@@ -60,10 +62,10 @@ WITH (
     other AS (
         SELECT
             p.x_3435, p.y_3435,
-            MAX(CAST(CAST(comm_area.area_number AS integer) AS varchar)) AS chicago_num_community_area,
-            MAX(comm_area.community) AS chicago_name_community_area,
-            MAX(CAST(CAST(ind_corr.num AS integer) AS varchar)) AS chicago_num_industrial_corridor,
-            MAX(ind_corr.name) AS chicago_name_industrial_corridor
+            MAX(CAST(CAST(comm_area.area_number AS integer) AS varchar)) AS chicago_community_area_num,
+            MAX(comm_area.community) AS chicago_community_area_name,
+            MAX(CAST(CAST(ind_corr.num AS integer) AS varchar)) AS chicago_industrial_corridor_num,
+            MAX(ind_corr.name) AS chicago_industrial_corridor_name
         FROM distinct_pins p
         LEFT JOIN spatial.community_area comm_area
             ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(comm_area.geometry_3435))
@@ -73,12 +75,20 @@ WITH (
     )
     SELECT
         p.pin10,
-        ward.chicago_num_ward,
-        other.chicago_num_community_area,
-        other.chicago_name_community_area,
-        other.chicago_num_industrial_corridor,
-        other.chicago_name_industrial_corridor,
-        police_district.chicago_num_police_district,
+        ward.chicago_ward_num,
+        ward.chicago_ward_data_year,
+        other.chicago_community_area_num,
+        other.chicago_community_area_name,
+        CASE
+            WHEN other.chicago_community_area_num IS NOT NULL THEN '2018'
+            ELSE NULL END AS chicago_community_area_data_year,
+        other.chicago_industrial_corridor_num,
+        other.chicago_industrial_corridor_name,
+        CASE
+            WHEN other.chicago_industrial_corridor_num IS NOT NULL THEN '2013'
+            ELSE NULL END AS chicago_industrial_corridor_data_year,
+        police_district.chicago_police_district_num,
+        police_district.chicago_police_district_data_year,
         p.year
     FROM spatial.parcel p
     LEFT JOIN ward

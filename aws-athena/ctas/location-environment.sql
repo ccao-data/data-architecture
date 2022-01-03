@@ -16,14 +16,21 @@ WITH (
     SELECT
         p.pin10,
         MAX(flood_fema.fema_special_flood_hazard_area) AS env_flood_fema_sfha,
+        CASE
+            WHEN MAX(flood_fema.fema_special_flood_hazard_area) IS NOT NULL THEN '2021'
+            ELSE NULL END AS env_flood_fema_data_year,
         MAX(flood_fs.fs_flood_factor) AS env_flood_fs_factor,
         MAX(flood_fs.fs_flood_risk_direction) AS env_flood_fs_risk_direction,
+        CASE
+            WHEN MAX(flood_fs.fs_flood_factor) IS NOT NULL THEN '2019'
+            ELSE NULL END AS env_flood_fs_data_year,
         MAX(CASE
             WHEN ohare_contour_0000.airport IS NOT NULL THEN true
-            ELSE false END) AS env_ohare_noise_contour_no_buffer,
+            ELSE false END) AS env_ohare_noise_contour_no_buffer_bool,
         MAX(CASE
             WHEN ohare_contour_2640.airport IS NOT NULL THEN true
-            ELSE false END) AS env_ohare_noise_contour_half_mil_buffer,
+            ELSE false END) AS env_ohare_noise_contour_half_mile_buffer_bool,
+        '2016' AS env_ohare_noise_contour_data_year,
         p.year
     FROM pin_locations p
     LEFT JOIN spatial.flood_fema flood_fema

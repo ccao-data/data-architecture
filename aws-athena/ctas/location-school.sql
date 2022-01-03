@@ -15,22 +15,22 @@ WITH (
             p.x_3435, p.y_3435,
         MAX(CASE
             WHEN school.district_type = 'elementary' THEN school.geoid
-            ELSE NULL END) AS school_dist_geoid_elementary,
+            ELSE NULL END) AS school_elementary_district_geoid,
         MAX(CASE
             WHEN school.district_type = 'elementary' THEN school.name
-            ELSE NULL END) AS school_dist_name_elementary,
+            ELSE NULL END) AS school_elementary_district_name,
         MAX(CASE
             WHEN school.district_type = 'secondary' THEN school.geoid
-            ELSE NULL END) AS school_dist_geoid_secondary,
+            ELSE NULL END) AS school_secondary_district_geoid,
         MAX(CASE
             WHEN school.district_type = 'secondary' THEN school.name
-            ELSE NULL END) AS school_dist_name_secondary,
+            ELSE NULL END) AS school_secondary_district_name,
         MAX(CASE
             WHEN school.district_type = 'unified' THEN school.geoid
-            ELSE NULL END) AS school_dist_geoid_unified,
+            ELSE NULL END) AS school_unified_district_geoid,
         MAX(CASE
             WHEN school.district_type = 'unified' THEN school.name
-            ELSE NULL END) AS school_dist_name_unified,
+            ELSE NULL END) AS school_unified_district_name,
         school.year
         FROM distinct_pins p
         LEFT JOIN spatial.school_district school
@@ -39,9 +39,11 @@ WITH (
     )
     SELECT
         p.pin10,
-        school_dist_geoid_elementary, school_dist_name_elementary,
-        school_dist_geoid_secondary, school_dist_name_secondary,
-        school_dist_geoid_unified, school_dist_name_unified,
+        school_elementary_district_geoid, school_elementary_district_name,
+        school_secondary_district_geoid, school_secondary_district_name,
+        school_unified_district_geoid, school_unified_district_name,
+        CONCAT(CAST(CAST(dj.year AS integer) - 1 AS varchar), ' - ', dj.year) AS school_school_year,
+        dj.year AS school_data_year,
         p.year
     FROM spatial.parcel p
     LEFT JOIN distinct_joined dj

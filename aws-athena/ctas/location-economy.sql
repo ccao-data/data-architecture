@@ -15,15 +15,19 @@ WITH (
     )
     SELECT
         p.pin10,
-        MAX(econ_con_care.cc_num) AS econ_zone_consolidated_care,
-        MAX(econ_ent_zone.ez_num) AS econ_zone_enterprise,
-        MAX(econ_igz.igz_num) AS econ_zone_industrial_growth,
-        MAX(econ_qoz.geoid) AS econ_zone_qualified_opportunity,
+        MAX(econ_coord_care.cc_num) AS econ_consolidated_care_area_num,
+        MAX(econ_coord_care.year) AS econ_consolidated_care_area_data_year,
+        MAX(econ_ent_zone.ez_num) AS econ_enterprise_zone_num,
+        MAX(econ_ent_zone.year) AS econ_enterprise_zone_data_year,
+        MAX(econ_igz.igz_num) AS econ_industrial_growth_zone_num,
+        MAX(econ_igz.year) AS econ_industrial_growth_zone_data_year,
+        MAX(econ_qoz.geoid) AS econ_qualified_opportunity_zone_num,
+        MAX(econ_qoz.year) AS econ_qualified_opportunity_zone_data_year,
         p.year
     FROM pin_locations p
-    LEFT JOIN spatial.consolidated_care econ_con_care
-        ON p.year >= econ_con_care.year
-        AND ST_Within(p.centroid, ST_GeomFromBinary(econ_con_care.geometry_3435))
+    LEFT JOIN spatial.coordinated_care econ_coord_care
+        ON p.year >= econ_coord_care.year
+        AND ST_Within(p.centroid, ST_GeomFromBinary(econ_coord_care.geometry_3435))
     LEFT JOIN spatial.enterprise_zone econ_ent_zone
         ON p.year >= econ_ent_zone.year
         AND ST_Within(p.centroid, ST_GeomFromBinary(econ_ent_zone.geometry_3435))

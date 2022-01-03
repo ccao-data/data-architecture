@@ -16,9 +16,13 @@ WITH (
     SELECT
         p.pin10,
         MAX(subdivision.pagesubref) AS misc_subdivision_id,
+        CASE
+            WHEN MAX(subdivision.pagesubref) IS NOT NULL THEN '2021'
+            ELSE NULL END AS misc_subdivision_data_year,
         MAX(CASE
             WHEN uninc_area.agency_desc IS NOT NULL THEN true
-            ELSE false END) AS misc_unincorporated_area,
+            ELSE false END) AS misc_unincorporated_area_bool,
+        '2014' AS misc_unincorporated_area_data_year,
         p.year
     FROM pin_locations p
     LEFT JOIN spatial.subdivision subdivision
