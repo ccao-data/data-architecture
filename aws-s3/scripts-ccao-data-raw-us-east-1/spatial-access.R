@@ -61,7 +61,9 @@ get_walkability <- function(url, year) {
     if (file.exists(tmp_file)) file.remove(tmp_file)
     st_read(
       grep("xml",
-           grep("shp", list.files(tmp_dir, recursive = TRUE, full.names = TRUE), value = TRUE),
+           grep("shp",
+                list.files(tmp_dir, recursive = TRUE, full.names = TRUE),
+                value = TRUE),
            invert = TRUE,
            value = TRUE)
     ) %>%
