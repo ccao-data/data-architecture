@@ -10,12 +10,10 @@ WITH (
     WITH distinct_pins AS (
         SELECT DISTINCT x_3435, y_3435
         FROM spatial.parcel
-        WHERE year >= '2012'
     ),
     distinct_years AS (
         SELECT DISTINCT year
         FROM spatial.parcel
-        WHERE year >= '2012'
     ),
     community_college_district AS (
         SELECT
@@ -231,5 +229,4 @@ WITH (
         ON p.x_3435 = tif_district.x_3435
         AND p.y_3435 = tif_district.y_3435
         AND p.year = tif_district.pin_year
-    WHERE p.year >= '2012'
 )

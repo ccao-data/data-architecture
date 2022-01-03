@@ -10,7 +10,6 @@ WITH (
     WITH distinct_pins AS (
         SELECT DISTINCT x_3435, y_3435
         FROM spatial.parcel
-        WHERE year >= '2012'
     ),
     distinct_joined AS (
         SELECT
@@ -52,5 +51,4 @@ WITH (
         ON p.year = dj.year
         AND p.x_3435 = dj.x_3435
         AND p.y_3435 = dj.y_3435
-    WHERE p.year >= '2012'
 )

@@ -7,23 +7,48 @@ WITH (
     bucketed_by = ARRAY['pin10'],
     bucket_count = 1
 ) AS (
-    WITH pin_locations AS (
-        SELECT
-            pin10,
-            year,
-            ST_Point(x_3435, y_3435) AS centroid
+    WITH distinct_pins AS (
+        SELECT DISTINCT x_3435, y_3435
         FROM spatial.parcel
-        WHERE year >= '2012'
+    ),
+    distinct_years AS (
+        SELECT DISTINCT year
+        FROM spatial.parcel
+    ),
+    walkability AS (
+        SELECT
+            p.x_3435, p.y_3435,
+            CAST(CAST(MAX(cprod.walk_num) AS bigint) AS varchar) AS access_cmap_walk_id,
+            MAX(cprod.nta_score) AS access_cmap_walk_nta_score,
+            MAX(cprod.total_score) AS access_cmap_walk_total_score,
+            MAX(cprod.year) AS access_cmap_walk_data_year,
+            cprod.pin_year
+        FROM distinct_pins p
+        LEFT JOIN (
+            SELECT fill_years.pin_year, fill_data.*
+            FROM (
+                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
+                FROM spatial.walkability df
+                CROSS JOIN distinct_years dy
+                WHERE dy.year >= df.year
+                GROUP BY dy.year
+            ) fill_years
+            LEFT JOIN spatial.walkability fill_data
+                ON fill_years.fill_year = fill_data.year
+        ) cprod
+        ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
+        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
     )
     SELECT
         p.pin10,
-        CAST(CAST(MAX(walk.walk_num) AS bigint) AS varchar) AS access_cmap_walk_id,
-        MAX(walk.nta_score) AS access_cmap_walk_nta_score,
-        MAX(walk.total_score) AS access_cmap_walk_total_score,
-        MAX(walk.year) AS access_cmap_walk_data_year,
+        access_cmap_walk_id,
+        access_cmap_walk_nta_score,
+        access_cmap_walk_total_score,
+        access_cmap_walk_data_year,
         p.year
-    FROM pin_locations p
-    LEFT JOIN spatial.walkability walk
-        ON ST_Within(p.centroid, ST_GeomFromBinary(walk.geometry_3435))
-    GROUP BY p.pin10, p.year
+    FROM spatial.parcel p
+    LEFT JOIN walkability
+        ON p.x_3435 = walkability.x_3435
+        AND p.y_3435 = walkability.y_3435
+        AND p.year = walkability.pin_year
 )

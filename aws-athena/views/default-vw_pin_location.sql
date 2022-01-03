@@ -36,8 +36,8 @@ SELECT
     chicago_industrial_corridor_data_year,
     chicago_police_district_num,
     chicago_police_district_data_year,
-    econ_consolidated_care_area_num,
-    econ_consolidated_care_area_data_year,
+    econ_coordinated_care_area_num,
+    econ_coordinated_care_area_data_year,
     econ_enterprise_zone_num,
     econ_enterprise_zone_data_year,
     econ_industrial_growth_zone_num,
@@ -116,4 +116,3 @@ LEFT JOIN location.access
 LEFT JOIN location.other
     ON pin.pin10 = other.pin10
     AND pin.year = other.year
-WHERE pin.year >= '2013'
