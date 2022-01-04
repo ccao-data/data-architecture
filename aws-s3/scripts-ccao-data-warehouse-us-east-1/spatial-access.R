@@ -185,5 +185,6 @@ if (!aws.s3::object_exists(remote_file_walk_warehouse)) {
     rename(walkability_rating = walkabilit, amenities_score = amenities, transitaccess = transitacc) %>%
     standardize_expand_geo() %>%
     select(-contains("shape")) %>%
+    mutate(year = "2017") %>%
     sfarrow::st_write_parquet(remote_file_walk_warehouse)
 }
