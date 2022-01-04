@@ -2,6 +2,7 @@ library(aws.s3)
 library(dplyr)
 library(purrr)
 library(sf)
+library(stringr)
 source("utils.R")
 
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
@@ -38,7 +39,8 @@ clean_unincorporated_area <- function(shapefile_path) {
     sfarrow::st_write_parquet(
       file.path(
         AWS_S3_WAREHOUSE_BUCKET, "spatial", "other", "unincorporated_area",
-        gsub("geojson", "parquet", basename(shapefile_path))
+        paste0("year=", str_extract(shapefile_path, "[0-9]{4}")),
+        "part-0.parquet"
       )
     )
 }
@@ -74,7 +76,8 @@ clean_subdivisions <- function(shapefile_path) {
     sfarrow::st_write_parquet(
       file.path(
         AWS_S3_WAREHOUSE_BUCKET, "spatial", "other", "subdivision",
-        gsub("geojson", "parquet", basename(shapefile_path))
+        paste0("year=", str_extract(shapefile_path, "[0-9]{4}")),
+        "part-0.parquet"
       )
     )
 }
@@ -114,7 +117,8 @@ clean_comm_areas <- function(shapefile_path) {
     sfarrow::st_write_parquet(
       file.path(
         AWS_S3_WAREHOUSE_BUCKET, "spatial", "other", "community_area",
-        gsub("geojson", "parquet", basename(shapefile_path))
+        paste0("year=", str_extract(shapefile_path, "[0-9]{4}")),
+        "part-0.parquet"
       )
     )
 }

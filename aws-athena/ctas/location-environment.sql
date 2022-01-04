@@ -16,29 +16,37 @@ WITH (
         FROM spatial.parcel
     ),
     distinct_years_rhs AS (
-        SELECT DISTINCT '2021' AS year FROM spatial.flood_fema
+        SELECT DISTINCT year FROM spatial.flood_fema
         UNION ALL
-        SELECT DISTINCT '2019' AS year FROM other.flood_first_street
+        SELECT DISTINCT year FROM other.flood_first_street
         UNION ALL
-        SELECT DISTINCT '2020' AS year FROM spatial.ohare_noise_contour
+        SELECT DISTINCT year FROM spatial.ohare_noise_contour
+    ),
+    ohare_years AS (
+        SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
+        FROM spatial.ohare_noise_contour df
+        CROSS JOIN distinct_years dy
+        WHERE dy.year >= df.year
+        GROUP BY dy.year
     ),
     flood_fema AS (
         SELECT
             p.x_3435, p.y_3435,
             MAX(cprod.fema_special_flood_hazard_area) AS env_flood_fema_sfha,
-            MAX(cprod.fill_year) AS env_flood_fema_data_year,
+            MAX(cprod.year) AS env_flood_fema_data_year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
-            SELECT fill_years.*, fill_data.*
+            SELECT fill_years.pin_year, fill_data.*
             FROM (
-                SELECT dy.year AS pin_year, '2021' AS fill_year
+                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
                 FROM spatial.flood_fema df
                 CROSS JOIN distinct_years dy
-                WHERE dy.year >= '2021'
+                WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) fill_years
-            CROSS JOIN spatial.flood_fema fill_data
+            LEFT JOIN spatial.flood_fema fill_data
+                ON fill_years.fill_year = fill_data.year
         ) cprod
         ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
         GROUP BY p.x_3435, p.y_3435, cprod.pin_year
@@ -47,18 +55,20 @@ WITH (
         SELECT
             p.x_3435, p.y_3435,
             MAX(cprod.airport) AS airport,
+            MAX(cprod.year) AS year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
-            SELECT fill_years.*, fill_data.*
+            SELECT fill_years.pin_year, fill_data.*
             FROM (
-                SELECT dy.year AS pin_year, '2020' AS fill_year
+                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
                 FROM spatial.ohare_noise_contour df
                 CROSS JOIN distinct_years dy
-                WHERE dy.year >= '2020'
+                WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) fill_years
-            CROSS JOIN spatial.ohare_noise_contour fill_data
+            LEFT JOIN spatial.ohare_noise_contour fill_data
+                ON fill_years.fill_year = fill_data.year
         ) cprod
         ON ST_Within(
             ST_Point(p.x_3435, p.y_3435),
@@ -70,18 +80,20 @@ WITH (
         SELECT
             p.x_3435, p.y_3435,
             MAX(cprod.airport) AS airport,
+            MAX(cprod.year) AS year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
-            SELECT fill_years.*, fill_data.*
+            SELECT fill_years.pin_year, fill_data.*
             FROM (
-                SELECT dy.year AS pin_year, '2020' AS fill_year
+                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
                 FROM spatial.ohare_noise_contour df
                 CROSS JOIN distinct_years dy
-                WHERE dy.year >= '2020'
+                WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) fill_years
-            CROSS JOIN spatial.ohare_noise_contour fill_data
+            LEFT JOIN spatial.ohare_noise_contour fill_data
+                ON fill_years.fill_year = fill_data.year
         ) cprod
         ON ST_Within(
             ST_Point(p.x_3435, p.y_3435),
@@ -97,15 +109,15 @@ WITH (
         flood_first_street.fs_flood_risk_direction AS env_flood_fs_risk_direction,
         flood_first_street.year AS env_flood_fs_data_year,
         CASE
-            WHEN p.year >= '2020' AND ohare_noise_contour_0000.airport IS NOT NULL THEN true
-            WHEN p.year >= '2020' AND ohare_noise_contour_0000.airport IS NULL THEN false
+            WHEN p.year >= oy.fill_year AND onc0000.airport IS NOT NULL THEN true
+            WHEN p.year >= oy.fill_year AND onc0000.airport IS NULL THEN false
             ELSE NULL END AS env_ohare_noise_contour_no_buffer_bool,
         CASE
-            WHEN p.year >= '2020' AND ohare_noise_contour_2640.airport IS NOT NULL THEN true
-            WHEN p.year >= '2020' AND ohare_noise_contour_2640.airport IS NULL THEN false
+            WHEN p.year >= oy.fill_year AND onc2640.airport IS NOT NULL THEN true
+            WHEN p.year >= oy.fill_year AND onc2640.airport IS NULL THEN false
             ELSE NULL END AS env_ohare_noise_contour_half_mile_buffer_bool,
         CASE
-            WHEN p.year >= '2020' THEN '2020'
+            WHEN p.year >= oy.fill_year THEN oy.fill_year
             ELSE NULL END AS env_ohare_noise_contour_data_year,
         p.year
     FROM spatial.parcel p
@@ -116,13 +128,15 @@ WITH (
     LEFT JOIN other.flood_first_street
         ON p.pin10 = flood_first_street.pin10
         AND p.year >= flood_first_street.year
-    LEFT JOIN ohare_noise_contour_0000
-        ON p.x_3435 = ohare_noise_contour_0000.x_3435
-        AND p.y_3435 = ohare_noise_contour_0000.y_3435
-        AND p.year = ohare_noise_contour_0000.pin_year
-    LEFT JOIN ohare_noise_contour_2640
-        ON p.x_3435 = ohare_noise_contour_2640.x_3435
-        AND p.y_3435 = ohare_noise_contour_2640.y_3435
-        AND p.year = ohare_noise_contour_2640.pin_year
+    LEFT JOIN ohare_years oy
+        ON p.year = oy.pin_year
+    LEFT JOIN ohare_noise_contour_0000 onc0000
+        ON p.x_3435 = onc0000.x_3435
+        AND p.y_3435 = onc0000.y_3435
+        AND p.year = onc0000.pin_year
+    LEFT JOIN ohare_noise_contour_2640 onc2640
+        ON p.x_3435 = onc2640.x_3435
+        AND p.y_3435 = onc2640.y_3435
+        AND p.year = onc2640.pin_year
     WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

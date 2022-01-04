@@ -11,12 +11,13 @@ library(sf)
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 AWS_ATHENA_CONN <- DBI::dbConnect(noctua::athena())
+current_year <- format(Sys.Date(), "%Y")
 
 source_file <- file.path(
   AWS_S3_RAW_BUCKET,
   "school",
   "great_schools",
-  paste0(format(Sys.Date(), "%Y"), ".parquet")
+  paste0(current_year, ".parquet")
 )
 
 destination_folder <- file.path(
@@ -29,8 +30,8 @@ destination_folder <- file.path(
 if (!aws.s3::object_exists(
   file.path(
     destination_folder,
-    "school_level",
-    paste0(format(Sys.Date(), "%Y"), ".parquet")
+    "gs_school_rating",
+    paste0(current_year, ".parquet")
   )
 )) {
 
@@ -111,12 +112,13 @@ if (!aws.s3::object_exists(
     distinct()
 
   # Write to S3
-  sfarrow::st_write_parquet(great_districts,
-                            file.path(
-                              destination_folder,
-                              "gs_school_rating",
-                              paste0(format(Sys.Date(), "%Y"), ".parquet")
-                            )
+  sfarrow::st_write_parquet(
+    great_districts,
+    file.path(
+      destination_folder,
+      "gs_school_rating",
+      paste0(current_year, ".parquet")
+    )
   )
 
   # Second dataset is average school rating by district
@@ -152,7 +154,7 @@ if (!aws.s3::object_exists(
       file.path(
         destination_folder,
         "gs_district_rating",
-        paste0(format(Sys.Date(), "%Y"), ".parquet")
+        paste0(current_year, ".parquet")
       )
     )
 

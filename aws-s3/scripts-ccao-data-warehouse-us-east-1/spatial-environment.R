@@ -22,7 +22,7 @@ remote_file_coastline_raw <- file.path(
   input_bucket, "coastline", "2021.geojson"
 )
 remote_file_coastline_warehouse <- file.path(
-  output_bucket, "coastline", "2021.parquet"
+  output_bucket, "coastline", "year=2021", "part-0.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_coastline_warehouse)) {
@@ -53,10 +53,10 @@ if (!aws.s3::object_exists(remote_file_coastline_warehouse)) {
 
 ##### FEMA FLOODPLAINS #####
 flood_fema_raw <- file.path(
-  input_bucket, "flood_fema", paste0(current_year, ".geojson")
+  input_bucket, "flood_fema", "2021.geojson"
 )
 flood_fema_warehouse <- file.path(
-  output_bucket, "flood_fema", paste0(current_year, ".parquet")
+  output_bucket, "flood_fema", "year=2021", "part-0.parquet"
 )
 
 # Write FEMA floodplains to S3 if they don't exist
@@ -86,7 +86,7 @@ remote_file_rail_raw <- file.path(
   input_bucket, "railroad", "2021.geojson"
 )
 remote_file_rail_warehouse <- file.path(
-  output_bucket, "railroad", "2021.parquet"
+  output_bucket, "railroad", "year=2021", "part-0.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
@@ -115,9 +115,16 @@ raw_files_hydro <- grep(
   ),
   value = TRUE
 )
-dest_files_hydro <- raw_files_hydro %>%
-  gsub("geojson", "parquet", .) %>%
-  gsub(AWS_S3_RAW_BUCKET, AWS_S3_WAREHOUSE_BUCKET, .)
+dest_files_hydro_prefix <- raw_files_hydro %>%
+  str_replace(AWS_S3_RAW_BUCKET, AWS_S3_WAREHOUSE_BUCKET) %>%
+  dirname()
+dest_files_hydro_years <- raw_files_hydro %>%
+  str_extract("[0-9]{4}")
+dest_files_hydro <- file.path(
+  dest_files_hydro_prefix,
+  paste0("year=", dest_files_hydro_years),
+  "part-0.parquet"
+)
 
 # Function to pull raw data from S3 and clean
 clean_hydro <- function(remote_file, dest_file) {

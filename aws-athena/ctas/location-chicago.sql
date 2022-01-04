@@ -20,9 +20,9 @@ WITH (
         UNION ALL
         SELECT DISTINCT year FROM spatial.police_district
         UNION ALL
-        SELECT DISTINCT '2018' AS year FROM spatial.community_area
+        SELECT DISTINCT year FROM spatial.community_area
         UNION ALL
-        SELECT DISTINCT '2013' AS year FROM spatial.industrial_corridor
+        SELECT DISTINCT year FROM spatial.industrial_corridor
     ),
     ward AS (
         SELECT
@@ -73,19 +73,20 @@ WITH (
             p.x_3435, p.y_3435,
             MAX(CAST(CAST(cprod.area_number AS integer) AS varchar)) AS chicago_community_area_num,
             MAX(cprod.community) AS chicago_community_area_name,
-            MAX(cprod.fill_year) AS chicago_community_area_data_year,
+            MAX(cprod.year) AS chicago_community_area_data_year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
-            SELECT fill_years.*, fill_data.*
+            SELECT fill_years.pin_year, fill_data.*
             FROM (
-                SELECT dy.year AS pin_year, '2018' AS fill_year
+                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
                 FROM spatial.community_area df
                 CROSS JOIN distinct_years dy
-                WHERE dy.year >= '2018'
+                WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) fill_years
-            CROSS JOIN spatial.community_area fill_data
+            LEFT JOIN spatial.community_area fill_data
+                ON fill_years.fill_year = fill_data.year
         ) cprod
         ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
         GROUP BY p.x_3435, p.y_3435, cprod.pin_year
@@ -95,19 +96,20 @@ WITH (
             p.x_3435, p.y_3435,
             MAX(CAST(CAST(cprod.num AS integer) AS varchar)) AS chicago_industrial_corridor_num,
             MAX(cprod.name) AS chicago_industrial_corridor_name,
-            MAX(cprod.fill_year) AS chicago_industrial_corridor_data_year,
+            MAX(cprod.year) AS chicago_industrial_corridor_data_year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
-            SELECT fill_years.*, fill_data.*
+            SELECT fill_years.pin_year, fill_data.*
             FROM (
-                SELECT dy.year AS pin_year, '2013' AS fill_year
+                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
                 FROM spatial.industrial_corridor df
                 CROSS JOIN distinct_years dy
-                WHERE dy.year >= '2013'
+                WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) fill_years
-            CROSS JOIN spatial.industrial_corridor fill_data
+            LEFT JOIN spatial.industrial_corridor fill_data
+                ON fill_years.fill_year = fill_data.year
         ) cprod
         ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
         GROUP BY p.x_3435, p.y_3435, cprod.pin_year
