@@ -6,52 +6,94 @@ WITH (
     format='Parquet',
     write_compression = 'SNAPPY',
     external_location='s3://ccao-athena-ctas-us-east-1/proximity/cnt_pin_num_school',
-    partitioned_by = ARRAY['year']
+    partitioned_by = ARRAY['year'],
+    bucketed_by = ARRAY['pin10'],
+    bucket_count = 1
 ) AS (
-    WITH pin_locations AS (
-        SELECT p.year, p.pin10, s.geoid, s.district_type, ST_Point(p.x_3435, p.y_3435) AS centroid
-        FROM spatial.parcel p
-        LEFT JOIN spatial.school_district s
-            ON p.year = s.year
-            AND ST_Contains(ST_GeomFromBinary(s.geometry_3435), ST_Point(p.x_3435, p.y_3435))
-        WHERE p.year >= CAST((SELECT MAX(year) + 1 FROM other.gs_school_rating) AS varchar)
+    WITH distinct_pins AS (
+        SELECT DISTINCT x_3435, y_3435
+        FROM spatial.parcel
+    ),
+    distinct_years AS (
+        SELECT DISTINCT year
+        FROM spatial.parcel
+    ),
+    distinct_years_rhs AS (
+        SELECT DISTINCT year
+        FROM other.gs_school_rating
     ),
     school_locations_public AS (
-        SELECT *
-        FROM other.gs_school_rating
+        SELECT fill_years.pin_year, fill_data.*
+        FROM (
+            SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
+            FROM other.gs_school_rating df
+            CROSS JOIN distinct_years dy
+            WHERE dy.year >= df.year
+            GROUP BY dy.year
+        ) fill_years
+        LEFT JOIN other.gs_school_rating fill_data
+            ON fill_years.fill_year = fill_data.year
         WHERE type = 'public'
     ),
     school_locations_other AS (
-        SELECT *
-        FROM other.gs_school_rating
+        SELECT fill_years.pin_year, fill_data.*
+        FROM (
+            SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
+            FROM other.gs_school_rating df
+            CROSS JOIN distinct_years dy
+            WHERE dy.year >= df.year
+            GROUP BY dy.year
+        ) fill_years
+        LEFT JOIN other.gs_school_rating fill_data
+            ON fill_years.fill_year = fill_data.year
         WHERE type != 'public'
     ),
     school_ratings AS (
-        SELECT p.year, p.pin10, pub.school_name, pub.rating
-        FROM pin_locations p
+        SELECT DISTINCT
+            p.x_3435,
+            p.y_3435,
+            pub.rating,
+            pub.pin_year,
+            pub.year
+        FROM distinct_pins p
+        INNER JOIN spatial.school_district dis
+            ON ST_Contains(
+                ST_GeomFromBinary(dis.geometry_3435),
+                ST_Point(p.x_3435, p.y_3435)
+            )
         INNER JOIN school_locations_public pub
             ON ST_Contains(
-                ST_Buffer(ST_GeomFromBinary(pub.geometry_3435), 2640), centroid
+                ST_Buffer(ST_GeomFromBinary(pub.geometry_3435), 2640),
+                ST_Point(p.x_3435, p.y_3435)
             )
-            AND p.year = CAST((pub.year + 1) AS varchar)
-            AND p.geoid = pub.geoid
+            AND ST_Contains(
+                ST_GeomFromBinary(dis.geometry_3435),
+                ST_GeomFromBinary(pub.geometry_3435)
+            )
+            AND dis.geoid = pub.geoid
         UNION ALL
-        SELECT p.year, p.pin10,  oth.school_name, oth.rating
-        FROM pin_locations p
+        SELECT
+            p.x_3435,
+            p.y_3435,
+            oth.rating,
+            oth.pin_year,
+            oth.year
+        FROM distinct_pins p
         INNER JOIN school_locations_other oth
             ON ST_Contains(
-                ST_Buffer(ST_GeomFromBinary(oth.geometry_3435), 2640), centroid
+                ST_Buffer(ST_GeomFromBinary(oth.geometry_3435), 2640),
+                ST_Point(p.x_3435, p.y_3435)
             )
-            AND p.year = CAST((oth.year + 1) AS varchar)
     ),
     school_ratings_agg AS (
         SELECT
-            year,
-            pin10,
+            pin_year,
+            x_3435, y_3435,
             COUNT(*) AS num_schools_in_half_mile,
-            AVG(rating) AS avg_rating_in_half_mile
+            AVG(rating) AS avg_rating_in_half_mile,
+            MAX(year) AS num_schools_data_year
         FROM school_ratings
-        GROUP BY pin10, year
+        GROUP BY x_3435, y_3435, pin_year
     )
     SELECT
         p.pin10,
@@ -59,10 +101,12 @@ WITH (
             WHEN sr.num_schools_in_half_mile IS NULL THEN 0
             ELSE sr.num_schools_in_half_mile END AS num_schools_in_half_mile,
         sr.avg_rating_in_half_mile,
+        sr.num_schools_data_year,
         p.year
     FROM spatial.parcel p
     LEFT JOIN school_ratings_agg sr
-        ON p.pin10 = sr.pin10
-        AND p.year = sr.year
-    WHERE p.year >= CAST((SELECT MAX(year) + 1 FROM other.gs_school_rating) AS varchar)
+        ON p.x_3435 = sr.x_3435
+        AND p.y_3435 = sr.y_3435
+        AND p.year = sr.pin_year
+    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

@@ -3,34 +3,144 @@ WITH (
     format='Parquet',
     write_compression = 'SNAPPY',
     external_location='s3://ccao-athena-ctas-us-east-1/location/political',
-    partitioned_by = ARRAY['year']
+    partitioned_by = ARRAY['year'],
+    bucketed_by = ARRAY['pin10'],
+    bucket_count = 1
 ) AS (
-    WITH pin_locations AS (
-        SELECT
-            pin10,
-            year,
-            ST_Point(x_3435, y_3435) AS centroid
+    WITH distinct_pins AS (
+        SELECT DISTINCT x_3435, y_3435
         FROM spatial.parcel
-        WHERE year >= '2012'
+    ),
+    distinct_years AS (
+        SELECT DISTINCT year
+        FROM spatial.parcel
+    ),
+    distinct_years_rhs AS (
+        SELECT DISTINCT year FROM spatial.board_of_review_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.commissioner_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.judicial_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.municipality
+    ),
+    board_of_review_district AS (
+        SELECT
+            p.x_3435, p.y_3435,
+            MAX(CAST(CAST(cprod.board_of_review_district_num AS integer) AS varchar)) AS cook_board_of_review_district_num,
+            MAX(cprod.year) AS cook_board_of_review_district_data_year,
+            cprod.pin_year
+        FROM distinct_pins p
+        LEFT JOIN (
+            SELECT fill_years.pin_year, fill_data.*
+            FROM (
+                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
+                FROM spatial.board_of_review_district df
+                CROSS JOIN distinct_years dy
+                WHERE dy.year >= df.year
+                GROUP BY dy.year
+            ) fill_years
+            LEFT JOIN spatial.board_of_review_district fill_data
+                ON fill_years.fill_year = fill_data.year
+        ) cprod
+        ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
+        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+    ),
+    commissioner_district AS (
+        SELECT
+            p.x_3435, p.y_3435,
+            MAX(CAST(CAST(cprod.commissioner_district_num AS integer) AS varchar)) AS cook_commissioner_district_num,
+            MAX(cprod.year) AS cook_commissioner_district_data_year,
+            cprod.pin_year
+        FROM distinct_pins p
+        LEFT JOIN (
+            SELECT fill_years.pin_year, fill_data.*
+            FROM (
+                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
+                FROM spatial.commissioner_district df
+                CROSS JOIN distinct_years dy
+                WHERE dy.year >= df.year
+                GROUP BY dy.year
+            ) fill_years
+            LEFT JOIN spatial.commissioner_district fill_data
+                ON fill_years.fill_year = fill_data.year
+        ) cprod
+        ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
+        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+    ),
+    judicial_district AS (
+        SELECT
+            p.x_3435, p.y_3435,
+            MAX(CAST(CAST(cprod.judicial_district_num AS integer) AS varchar)) AS cook_judicial_district_num,
+            MAX(cprod.year) AS cook_judicial_district_data_year,
+            cprod.pin_year
+        FROM distinct_pins p
+        LEFT JOIN (
+            SELECT fill_years.pin_year, fill_data.*
+            FROM (
+                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
+                FROM spatial.judicial_district df
+                CROSS JOIN distinct_years dy
+                WHERE dy.year >= df.year
+                GROUP BY dy.year
+            ) fill_years
+            LEFT JOIN spatial.judicial_district fill_data
+                ON fill_years.fill_year = fill_data.year
+        ) cprod
+        ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
+        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+    ),
+    municipality AS (
+        SELECT
+            p.x_3435, p.y_3435,
+            MAX(cprod.municipality_num) AS cook_municipality_num,
+            MAX(cprod.municipality_name) AS cook_municipality_name,
+            MAX(cprod.year) AS cook_municipality_data_year,
+            cprod.pin_year
+        FROM distinct_pins p
+        LEFT JOIN (
+            SELECT fill_years.pin_year, fill_data.*
+            FROM (
+                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
+                FROM spatial.municipality df
+                CROSS JOIN distinct_years dy
+                WHERE dy.year >= df.year
+                GROUP BY dy.year
+            ) fill_years
+            LEFT JOIN spatial.municipality fill_data
+                ON fill_years.fill_year = fill_data.year
+        ) cprod
+        ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
+        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
     )
     SELECT
         p.pin10,
-        MAX(CAST(CAST(dist_bor.board_of_review_district_num AS integer) AS varchar)) AS cook_dist_num_board_of_review,
-        MAX(CAST(CAST(dist_comm.commissioner_district_num AS integer) AS varchar)) AS cook_dist_num_county_commissioner,
-        MAX(CAST(CAST(dist_jud.judicial_district_num AS integer) AS varchar)) AS cook_dist_num_judicial,
-        MAX(muni.municipality_name) AS cook_municipality_name,
+        cook_board_of_review_district_num,
+        cook_board_of_review_district_data_year,
+        cook_commissioner_district_num,
+        cook_commissioner_district_data_year,
+        cook_judicial_district_num,
+        cook_judicial_district_data_year,
+        cook_municipality_num,
+        cook_municipality_name,
+        cook_municipality_data_year,
         p.year
-    FROM pin_locations p
-    LEFT JOIN (SELECT * FROM spatial.board_of_review_district WHERE year = '2012') dist_bor
-        ON p.year >= dist_bor.year
-        AND ST_Within(p.centroid, ST_GeomFromBinary(dist_bor.geometry_3435))
-    LEFT JOIN (SELECT * FROM spatial.commissioner_district WHERE year = '2012') dist_comm
-        ON p.year >= dist_comm.year
-        AND ST_Within(p.centroid, ST_GeomFromBinary(dist_comm.geometry_3435))
-    LEFT JOIN (SELECT * FROM spatial.judicial_district WHERE year = '2012') dist_jud
-        ON p.year >= dist_jud.year
-        AND ST_Within(p.centroid, ST_GeomFromBinary(dist_jud.geometry_3435))
-    LEFT JOIN (SELECT * FROM spatial.municipality WHERE year = '2021') muni
-        ON ST_Within(p.centroid, ST_GeomFromBinary(muni.geometry_3435))
-    GROUP BY p.pin10, p.year
+    FROM spatial.parcel p
+    LEFT JOIN board_of_review_district
+        ON p.x_3435 = board_of_review_district.x_3435
+        AND p.y_3435 = board_of_review_district.y_3435
+        AND p.year = board_of_review_district.pin_year
+    LEFT JOIN commissioner_district
+        ON p.x_3435 = commissioner_district.x_3435
+        AND p.y_3435 = commissioner_district.y_3435
+        AND p.year = commissioner_district.pin_year
+    LEFT JOIN judicial_district
+        ON p.x_3435 = judicial_district.x_3435
+        AND p.y_3435 = judicial_district.y_3435
+        AND p.year = judicial_district.pin_year
+    LEFT JOIN municipality
+        ON p.x_3435 = municipality.x_3435
+        AND p.y_3435 = municipality.y_3435
+        AND p.year = municipality.pin_year
+    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

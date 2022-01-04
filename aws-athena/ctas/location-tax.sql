@@ -3,23 +3,39 @@ WITH (
     format='Parquet',
     write_compression = 'SNAPPY',
     external_location='s3://ccao-athena-ctas-us-east-1/location/tax',
-    partitioned_by = ARRAY['year']
+    partitioned_by = ARRAY['year'],
+    bucketed_by = ARRAY['pin10'],
+    bucket_count = 1
 ) AS (
     WITH distinct_pins AS (
         SELECT DISTINCT x_3435, y_3435
         FROM spatial.parcel
-        WHERE year >= '2012'
     ),
     distinct_years AS (
         SELECT DISTINCT year
         FROM spatial.parcel
-        WHERE year >= '2012'
+    ),
+    distinct_years_rhs AS (
+        SELECT DISTINCT year FROM spatial.community_college_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.fire_protection_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.library_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.park_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.sanitation_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.special_service_area
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.tif_district
     ),
     community_college_district AS (
         SELECT
             p.x_3435, p.y_3435,
-            MAX(cprod.community_college_district_num) AS tax_dist_num_community_college,
-            MAX(cprod.community_college_district_name) AS tax_dist_name_community_college,
+            MAX(cprod.community_college_district_num) AS tax_community_college_district_num,
+            MAX(cprod.community_college_district_name) AS tax_community_college_district_name,
+            MAX(cprod.year) AS tax_community_college_district_data_year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
@@ -40,8 +56,9 @@ WITH (
     fire_protection_district AS (
         SELECT
             p.x_3435, p.y_3435,
-            MAX(cprod.fire_protection_district_num) AS tax_dist_num_fire_protection,
-            MAX(cprod.fire_protection_district_name) AS tax_dist_name_fire_protection,
+            MAX(cprod.fire_protection_district_num) AS tax_fire_protection_district_num,
+            MAX(cprod.fire_protection_district_name) AS tax_fire_protection_district_name,
+            MAX(cprod.year) AS tax_fire_protection_district_data_year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
@@ -62,8 +79,9 @@ WITH (
     library_district AS (
         SELECT
             p.x_3435, p.y_3435,
-            MAX(cprod.library_district_num) AS tax_dist_num_library,
-            MAX(cprod.library_district_name) AS tax_dist_name_library,
+            MAX(cprod.library_district_num) AS tax_library_district_num,
+            MAX(cprod.library_district_name) AS tax_library_district_name,
+            MAX(cprod.year) AS tax_library_district_data_year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
@@ -84,8 +102,9 @@ WITH (
     park_district AS (
         SELECT
             p.x_3435, p.y_3435,
-            MAX(cprod.park_district_num) AS tax_dist_num_park,
-            MAX(cprod.park_district_name) AS tax_dist_name_park,
+            MAX(cprod.park_district_num) AS tax_park_district_num,
+            MAX(cprod.park_district_name) AS tax_park_district_name,
+            MAX(cprod.year) AS tax_park_district_data_year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
@@ -106,8 +125,9 @@ WITH (
     sanitation_district AS (
         SELECT
             p.x_3435, p.y_3435,
-            MAX(cprod.sanitation_district_num) AS tax_dist_num_sanitation,
-            MAX(cprod.sanitation_district_name) AS tax_dist_name_sanitation,
+            MAX(cprod.sanitation_district_num) AS tax_sanitation_district_num,
+            MAX(cprod.sanitation_district_name) AS tax_sanitation_district_name,
+            MAX(cprod.year) AS tax_sanitation_district_data_year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
@@ -128,8 +148,9 @@ WITH (
     special_service_area AS (
         SELECT
             p.x_3435, p.y_3435,
-            MAX(cprod.special_service_area_num) AS tax_dist_num_ssa,
-            MAX(cprod.special_service_area_name) AS tax_dist_name_ssa,
+            MAX(cprod.special_service_area_num) AS tax_special_service_area_num,
+            MAX(cprod.special_service_area_name) AS tax_special_service_area_name,
+            MAX(cprod.year) AS tax_special_service_area_data_year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
@@ -150,8 +171,9 @@ WITH (
     tif_district AS (
         SELECT
             p.x_3435, p.y_3435,
-            MAX(cprod.tif_district_num) AS tax_dist_num_tif,
-            MAX(cprod.tif_district_name) AS tax_dist_name_tif,
+            MAX(cprod.tif_district_num) AS tax_tif_district_num,
+            MAX(cprod.tif_district_name) AS tax_tif_district_name,
+            MAX(cprod.year) AS tax_tif_district_data_year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
@@ -171,20 +193,27 @@ WITH (
     )
     SELECT
         p.pin10,
-        tax_dist_num_community_college,
-        tax_dist_name_community_college,
-        tax_dist_num_fire_protection,
-        tax_dist_name_fire_protection,
-        tax_dist_num_library,
-        tax_dist_name_library,
-        tax_dist_num_park,
-        tax_dist_name_park,
-        tax_dist_num_sanitation,
-        tax_dist_name_sanitation,
-        tax_dist_num_ssa,
-        tax_dist_name_ssa,
-        tax_dist_num_tif,
-        tax_dist_name_tif,
+        tax_community_college_district_num,
+        tax_community_college_district_name,
+        tax_community_college_district_data_year,
+        tax_fire_protection_district_num,
+        tax_fire_protection_district_name,
+        tax_fire_protection_district_data_year,
+        tax_library_district_num,
+        tax_library_district_name,
+        tax_library_district_data_year,
+        tax_park_district_num,
+        tax_park_district_name,
+        tax_park_district_data_year,
+        tax_sanitation_district_num,
+        tax_sanitation_district_name,
+        tax_sanitation_district_data_year,
+        tax_special_service_area_num,
+        tax_special_service_area_name,
+        tax_special_service_area_data_year,
+        tax_tif_district_num,
+        tax_tif_district_name,
+        tax_tif_district_data_year,
         p.year
     FROM spatial.parcel p
     LEFT JOIN community_college_district
@@ -215,5 +244,5 @@ WITH (
         ON p.x_3435 = tif_district.x_3435
         AND p.y_3435 = tif_district.y_3435
         AND p.year = tif_district.pin_year
-    WHERE p.year >= '2012'
+    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

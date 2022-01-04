@@ -49,7 +49,7 @@ clean_politics <- function(remote_file) {
   return(
     st_read(tmp_file) %>%
       mutate_at(vars(contains("MUNICIPALITY")), replace_na, "Unincorporated") %>%
-      select(column_names[political_unit], geometry) %>%
+      select(column_names[political_unit], any_of("AGENCY"), geometry) %>%
       mutate(
         across(where(is.character), str_to_title),
         across(where(is.character), readr::parse_number, .names = "{.col}_num"),
@@ -58,6 +58,7 @@ clean_politics <- function(remote_file) {
       ) %>%
       rename_with(~ paste0(.x, "_name"), names(column_names[political_unit])) %>%
       select(-any_of("municipality_num")) %>%
+      rename_with(~ "municipality_num", any_of("AGENCY")) %>%
       select(ends_with("_num"), everything(), geometry, geometry_3435, year) %>%
       filter(!is.na(.))
   )
