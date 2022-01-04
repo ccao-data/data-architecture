@@ -3,7 +3,7 @@ library(DBI)
 library(dplyr)
 source("utils.R")
 
-# This script retrieves raw CCRD sales from the Data Department's SQL server
+# This script retrieves validated sales information provvided by valuations and stored on Gitlab
 # THIS SOURCE WILL NEED TO BE UPDATED
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "sale", "validated")
@@ -16,8 +16,9 @@ tmp_file <- tempfile(fileext = ".xlsx")
 tmp_dir <- tempdir()
 
 download.file(
-  'https://gitlab.com/ccao-data-science---modeling/processes/etl_validated_sales/-/raw/master/residential/data/2021-01-04_validated_res_sales.xlsx?inline=false',
-  tmp_file
+  'https://gitlab.com/ccao-data-science---modeling/processes/etl_validated_sales/-/raw/master/residential/data/2021-01-04_validated_res_sales.xlsx',
+  tmp_file,
+  mode = "wb"
 )
 
 save_local_to_s3(s3_uri, tmp_file, overwrite = TRUE)
