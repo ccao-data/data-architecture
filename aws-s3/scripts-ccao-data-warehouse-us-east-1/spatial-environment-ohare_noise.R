@@ -133,7 +133,7 @@ file.remove(tmp_file)
 ##### OHARE NOISE CONTOUR #####
 remote_file <- file.path(
   AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment",
-  "ohare_noise_contour", "ohare_noise_contour.parquet"
+  "ohare_noise_contour", "year=2020", "part-0.parquet"
 )
 
 # Grab contour file

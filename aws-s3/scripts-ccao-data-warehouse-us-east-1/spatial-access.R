@@ -23,7 +23,7 @@ remote_file_bike_raw <- file.path(
   input_bucket, "bike_trail", "2021.geojson"
 )
 remote_file_bike_warehouse <- file.path(
-  output_bucket, "bike_trail", "2021.parquet"
+  output_bucket, "bike_trail", "year=2021", "part-0.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_bike_warehouse)) {
@@ -51,7 +51,7 @@ remote_file_ceme_raw <- file.path(
   input_bucket, "cemetery", "2021.geojson"
 )
 remote_file_ceme_warehouse <- file.path(
-  output_bucket, "cemetery", "2021.parquet"
+  output_bucket, "cemetery", "year=2021", "part-0.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_ceme_warehouse)) {
@@ -77,7 +77,7 @@ remote_file_hosp_raw <- file.path(
   input_bucket, "hospital", "2021.geojson"
 )
 remote_file_hosp_warehouse <- file.path(
-  output_bucket, "hospital", "2021.parquet"
+  output_bucket, "hospital", "year=2021", "part-0.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_hosp_warehouse)) {
@@ -102,7 +102,7 @@ if (!aws.s3::object_exists(remote_file_hosp_warehouse)) {
 # Switched to using OSM parks because the county-provided parks file is
 # very incomplete
 remote_file_park_warehouse <- file.path(
-  output_bucket, "park", paste0(current_year, ".parquet")
+  output_bucket, "park", paste0("year=", current_year), "part-0.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_park_warehouse)) {
@@ -142,7 +142,7 @@ remote_file_indc_raw <- file.path(
   input_bucket, "industrial_corridor", "2013.geojson"
 )
 remote_file_indc_warehouse <- file.path(
-  output_bucket, "industrial_corridor", "2013.parquet"
+  output_bucket, "industrial_corridor", "year=2013", "part-0.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_indc_warehouse)) {
@@ -165,12 +165,13 @@ if (!aws.s3::object_exists(remote_file_indc_warehouse)) {
 
 ##### WALKABILITY #####
 # data dictionary located on page 7 at
-# https://datahub.cmap.illinois.gov/dataset/aac0d840-77b4-4e88-8a26-7220ac6c588f/resource/7f0d890f-e678-46f8-9a6e-8d0b6ad04ae7/download/WalkabilityMethodology.pdf
+# https://datahub.cmap.illinois.gov/dataset/aac0d840-77b4-4e88-8a26-7220ac6c588f/
+# resource/7f0d890f-e678-46f8-9a6e-8d0b6ad04ae7/download/WalkabilityMethodology.pdf
 remote_file_walk_raw <- file.path(
   input_bucket, "walkability", "2017.geojson"
 )
 remote_file_walk_warehouse <- file.path(
-  output_bucket, "walkability", "2017.parquet"
+  output_bucket, "walkability", "year=2017", "part-0.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_walk_warehouse)) {
