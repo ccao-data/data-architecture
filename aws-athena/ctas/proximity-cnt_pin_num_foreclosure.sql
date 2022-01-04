@@ -5,7 +5,9 @@ WITH (
     format='Parquet',
     write_compression = 'SNAPPY',
     external_location='s3://ccao-athena-ctas-us-east-1/proximity/cnt_pin_num_foreclosure',
-    partitioned_by = ARRAY['year']
+    partitioned_by = ARRAY['year'],
+    bucketed_by = ARRAY['pin10'],
+    bucket_count = 1
 ) AS (
     WITH pin_locations AS (
         SELECT
@@ -14,7 +16,10 @@ WITH (
             x_3435, y_3435,
             ST_Point(x_3435, y_3435) AS point
         FROM spatial.parcel
-        WHERE year >= '2012'
+    ),
+    distinct_pins AS (
+        SELECT DISTINCT x_3435, y_3435
+        FROM pin_locations
     ),
     foreclosure_locations AS (
         SELECT *, ST_Buffer(ST_GeomFromBinary(geometry_3435), 2640) AS buffer
@@ -34,14 +39,14 @@ WITH (
     ),
     pin_counts_in_half_mile AS (
         SELECT
-            p.pin10,
-            p.year,
+            p.x_3435,
+            p.y_3435,
+            o.year,
             COUNT(*) AS num_pins_in_half_mile
-        FROM pin_locations p
+        FROM distinct_pins p
         INNER JOIN pin_locations o
-            ON p.year = o.year
-            AND ST_Distance(p.point, o.point) <= 2640
-        GROUP BY p.pin10, p.year
+            ON ST_Contains(ST_Buffer(ST_Point(p.x_3435, p.y_3435), 2640), o.point)
+        GROUP BY p.x_3435, p.y_3435, o.year
     )
     SELECT
         p.pin10,
@@ -54,13 +59,19 @@ WITH (
         ROUND(
             CAST(num_foreclosures_in_half_mile_past_5_years AS double) / (
             CAST(num_pins_in_half_mile AS double) / 1000), 2
-        ) AS num_fc_per_1000_props_past_5_years,
+        ) AS num_foreclosures_per_1000_props_past_5_years,
+        CONCAT(
+            CAST(CAST(p.year AS int) - 5 AS varchar),
+            ' - ',
+            CAST(p.year AS varchar)
+        ) AS num_foreclosures_data_year,
         p.year
     FROM pin_locations p
     LEFT JOIN pins_in_buffers f
         ON p.pin10 = f.pin10
         AND p.year = f.year
     LEFT JOIN pin_counts_in_half_mile c
-        ON p.year = c.year
-        AND p.pin10 = c.pin10
+        ON p.x_3435 = c.x_3435
+        AND p.y_3435 = c.y_3435
+        AND p.year = c.year
 )
