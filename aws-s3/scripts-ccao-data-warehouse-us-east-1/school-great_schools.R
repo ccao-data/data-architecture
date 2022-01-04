@@ -104,7 +104,10 @@ if (!aws.s3::object_exists(
       ) %>%
 
     # Add 3435 CRS column
-    mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+    mutate(
+      geometry_3435 = st_transform(geometry, 3435),
+      year = as.character(year)
+    ) %>%
     distinct()
 
   # Write to S3
@@ -117,7 +120,6 @@ if (!aws.s3::object_exists(
   )
 
   # Second dataset is average school rating by district
-
   great_districts %>%
 
     # Private school attendance isn't based on attendance/districts and thus isn't a discreet geographic correlate
@@ -140,7 +142,10 @@ if (!aws.s3::object_exists(
     st_as_sf(crs = 4326) %>%
 
     # Add 3435 CRS column
-    mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+    mutate(
+      year = as.character(year),
+      geometry_3435 = st_transform(geometry, 3435)
+    ) %>%
 
     # Write to S3
     sfarrow::st_write_parquet(
