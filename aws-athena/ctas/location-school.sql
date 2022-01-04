@@ -11,6 +11,11 @@ WITH (
         SELECT DISTINCT x_3435, y_3435
         FROM spatial.parcel
     ),
+    distinct_years_rhs AS (
+        SELECT DISTINCT year
+        FROM spatial.school_district
+        WHERE geoid IS NOT NULL
+    ),
     distinct_joined AS (
         SELECT
             p.x_3435, p.y_3435,
@@ -51,4 +56,5 @@ WITH (
         ON p.year = dj.year
         AND p.x_3435 = dj.x_3435
         AND p.y_3435 = dj.y_3435
+    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

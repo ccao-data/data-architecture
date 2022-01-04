@@ -15,6 +15,15 @@ WITH (
         SELECT DISTINCT year
         FROM spatial.parcel
     ),
+    distinct_years_rhs AS (
+        SELECT DISTINCT year FROM spatial.board_of_review_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.commissioner_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.judicial_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.municipality
+    ),
     board_of_review_district AS (
         SELECT
             p.x_3435, p.y_3435,
@@ -133,4 +142,5 @@ WITH (
         ON p.x_3435 = municipality.x_3435
         AND p.y_3435 = municipality.y_3435
         AND p.year = municipality.pin_year
+    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

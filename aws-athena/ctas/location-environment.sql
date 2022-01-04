@@ -15,6 +15,13 @@ WITH (
         SELECT DISTINCT year
         FROM spatial.parcel
     ),
+    distinct_years_rhs AS (
+        SELECT DISTINCT '2021' AS year FROM spatial.flood_fema
+        UNION ALL
+        SELECT DISTINCT '2019' AS year FROM other.flood_first_street
+        UNION ALL
+        SELECT DISTINCT '2020' AS year FROM spatial.ohare_noise_contour
+    ),
     flood_fema AS (
         SELECT
             p.x_3435, p.y_3435,
@@ -117,4 +124,5 @@ WITH (
         ON p.x_3435 = ohare_noise_contour_2640.x_3435
         AND p.y_3435 = ohare_noise_contour_2640.y_3435
         AND p.year = ohare_noise_contour_2640.pin_year
+    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

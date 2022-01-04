@@ -15,6 +15,21 @@ WITH (
         SELECT DISTINCT year
         FROM spatial.parcel
     ),
+    distinct_years_rhs AS (
+        SELECT DISTINCT year FROM spatial.community_college_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.fire_protection_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.library_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.park_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.sanitation_district
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.special_service_area
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.tif_district
+    ),
     community_college_district AS (
         SELECT
             p.x_3435, p.y_3435,
@@ -229,4 +244,5 @@ WITH (
         ON p.x_3435 = tif_district.x_3435
         AND p.y_3435 = tif_district.y_3435
         AND p.year = tif_district.pin_year
+    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

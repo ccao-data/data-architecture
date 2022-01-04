@@ -15,6 +15,15 @@ WITH (
         SELECT DISTINCT year
         FROM spatial.parcel
     ),
+    distinct_years_rhs AS (
+        SELECT DISTINCT year FROM spatial.coordinated_care
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.enterprise_zone
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.industrial_growth_zone
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.qualified_opportunity_zone
+    ),
     coordinated_care AS (
         SELECT
             p.x_3435, p.y_3435,
@@ -131,4 +140,5 @@ WITH (
         ON p.x_3435 = qualified_opportunity_zone.x_3435
         AND p.y_3435 = qualified_opportunity_zone.y_3435
         AND p.year = qualified_opportunity_zone.pin_year
+    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

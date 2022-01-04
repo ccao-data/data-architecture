@@ -15,6 +15,11 @@ WITH (
         SELECT DISTINCT year
         FROM spatial.parcel
     ),
+    distinct_years_rhs AS (
+        SELECT DISTINCT '2021' AS year FROM spatial.subdivision
+        UNION ALL
+        SELECT DISTINCT '2014' AS year FROM spatial.enterprise_zone
+    ),
     subdivision AS (
         SELECT
             p.x_3435, p.y_3435,
@@ -77,4 +82,5 @@ WITH (
         ON p.x_3435 = unincorporated_area.x_3435
         AND p.y_3435 = unincorporated_area.y_3435
         AND p.year = unincorporated_area.pin_year
+    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

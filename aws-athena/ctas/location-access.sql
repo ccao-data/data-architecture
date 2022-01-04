@@ -15,6 +15,10 @@ WITH (
         SELECT DISTINCT year
         FROM spatial.parcel
     ),
+    distinct_years_rhs AS (
+        SELECT DISTINCT year
+        FROM spatial.walkability
+    ),
     walkability AS (
         SELECT
             p.x_3435, p.y_3435,
@@ -51,4 +55,5 @@ WITH (
         ON p.x_3435 = walkability.x_3435
         AND p.y_3435 = walkability.y_3435
         AND p.year = walkability.pin_year
+    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

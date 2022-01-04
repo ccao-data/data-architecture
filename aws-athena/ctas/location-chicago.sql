@@ -15,6 +15,15 @@ WITH (
         SELECT DISTINCT year
         FROM spatial.parcel
     ),
+    distinct_years_rhs AS (
+        SELECT DISTINCT year FROM spatial.ward
+        UNION ALL
+        SELECT DISTINCT year FROM spatial.police_district
+        UNION ALL
+        SELECT DISTINCT '2018' AS year FROM spatial.community_area
+        UNION ALL
+        SELECT DISTINCT '2013' AS year FROM spatial.industrial_corridor
+    ),
     ward AS (
         SELECT
             p.x_3435, p.y_3435,
@@ -133,4 +142,5 @@ WITH (
         ON p.x_3435 = industrial_corridor.x_3435
         AND p.y_3435 = industrial_corridor.y_3435
         AND p.year = industrial_corridor.pin_year
+    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )
