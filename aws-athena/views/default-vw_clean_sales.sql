@@ -101,5 +101,4 @@ GROUP BY township, class
     US.class = SALES_FILTER.class
 
 WHERE
-  sale_price_log10 BETWEEN lower_lim AND
-  upper_lim
+  sale_price_log10 BETWEEN lower_lim AND upper_lim
