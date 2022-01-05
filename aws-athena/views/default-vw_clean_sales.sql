@@ -5,20 +5,20 @@ WITH UNIQUE_SALES AS (
 
 SELECT DISTINCT
   SALES.PARID AS pin,
-  SUBSTR(SALES.SALEDT, 1, 4) AS sale_year,
   township, class,
-  SALEKEY AS sale_key,
-	SALES.TRANSNO AS doc_no,
-	INSTRTYP AS deed_type,
+  SUBSTR(SALES.SALEDT, 1, 4) AS sale_year,
 	SUBSTR(SALES.SALEDT, 1, 10) AS sale_date,
 	SALES.PRICE AS sale_price,
 	LOG(SALES.PRICE, 10) AS sale_price_log10,
+	SALEKEY AS sale_key,
+	SALES.TRANSNO AS doc_no,
+	INSTRTYP AS deed_type,
 	OLDOWN AS seller_name,
 	OWN1 AS buyer_name,
 	CASE
 		WHEN SALETYPE = '0' THEN 'LAND'
 		WHEN SALETYPE = '1' THEN 'LAND AND BUILDING'
-	END AS SALE_TYPE
+	END AS sale_type
 FROM iasworld.SALES
 
 -- JOIN ON TOWNSHIP AND CLASS
