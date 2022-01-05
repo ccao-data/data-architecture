@@ -1,6 +1,6 @@
 -- View to standardize residential property characteristics for use in
 -- modeling and reporting
-CREATE OR REPLACE VIEW default.vw_pin_char AS
+CREATE OR REPLACE VIEW default.vw_impr_char AS
 WITH multicodes AS (
     SELECT
         parid,
