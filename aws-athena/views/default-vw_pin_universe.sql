@@ -178,9 +178,9 @@ LEFT JOIN iasworld.legdat leg
 LEFT JOIN spatial.parcel sp
     ON SUBSTR(par.parid, 1, 10) = sp.pin10
     AND par.taxyr = sp.year
-LEFT JOIN default.vw_pin10_location vwl
+LEFT JOIN location.vw_pin10_location vwl
     ON SUBSTR(par.parid, 1, 10) = vwl.pin10
     AND par.taxyr = vwl.year
-LEFT JOIN default.vw_pin10_proximity vwp
+LEFT JOIN proximity.vw_pin10_proximity vwp
     ON SUBSTR(par.parid, 1, 10) = vwp.pin10
     AND par.taxyr = vwp.year
