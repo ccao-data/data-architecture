@@ -1,5 +1,5 @@
 -- View containing unique, filtered sales
-CREATE OR REPLACE VIEW default.vw_clean_sales AS
+CREATE OR REPLACE VIEW default.vw_clean_sale AS
 
 WITH UNIQUE_SALES AS (
 
