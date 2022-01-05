@@ -4,16 +4,29 @@ WITH (
     format='Parquet',
     write_compression = 'SNAPPY',
     external_location='s3://ccao-athena-ctas-us-east-1/proximity/dist_pin_to_metra_route',
-    partitioned_by = ARRAY['year']
+    partitioned_by = ARRAY['year'],
+    bucketed_by = ARRAY['pin10'],
+    bucket_count = 1
 ) AS (
-    WITH pin_locations AS (
+    WITH distinct_pins AS (
         SELECT DISTINCT x_3435, y_3435
         FROM spatial.parcel
-        WHERE year >= (SELECT MIN(year) FROM spatial.transit_stop)
     ),
-    route_locations AS (
-        SELECT *
-        FROM spatial.transit_route
+    distinct_years AS (
+        SELECT DISTINCT year
+        FROM spatial.parcel
+    ),
+    metra_route_location AS (
+        SELECT fill_years.pin_year, fill_data.*
+        FROM (
+            SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
+            FROM spatial.transit_route df
+            CROSS JOIN distinct_years dy
+            WHERE dy.year >= df.year
+            GROUP BY dy.year
+        ) fill_years
+        LEFT JOIN spatial.transit_route fill_data
+            ON fill_years.fill_year = fill_data.year
         WHERE agency = 'metra'
         AND route_type = 2
     ),
@@ -23,47 +36,50 @@ WITH (
             p.y_3435,
             o.route_id,
             o.route_long_name,
+            o.pin_year,
             o.year,
             ST_Distance(
                 ST_Point(p.x_3435, p.y_3435),
                 ST_GeomFromBinary(o.geometry_3435)
             ) distance
-        FROM pin_locations p
-        CROSS JOIN route_locations o
+        FROM distinct_pins p
+        CROSS JOIN metra_route_location o
     ),
-    xy_to_route_dist AS (
+    xy_to_metra_route_dist AS (
         SELECT
             d1.x_3435,
             d1.y_3435,
             d1.route_id,
             d1.route_long_name,
-            d2.dist_ft,
-            d1.year
+            d1.pin_year,
+            d1.year,
+            d2.dist_ft
         FROM distances d1
         INNER JOIN (
             SELECT
                 x_3435,
                 y_3435,
-                year,
+                pin_year,
                 MIN(distance) AS dist_ft
             FROM distances
-            GROUP BY x_3435, y_3435, year
+            GROUP BY x_3435, y_3435, pin_year
         ) d2
            ON d1.x_3435 = d2.x_3435
            AND d1.y_3435 = d2.y_3435
-           AND d1.year = d2.year
+           AND d1.pin_year = d2.pin_year
            AND d1.distance = d2.dist_ft
     )
     SELECT
         p.pin10,
-        ARBITRARY(xy.route_id) AS route_id,
-        ARBITRARY(xy.route_long_name) AS route_long_name,
-        ARBITRARY(xy.dist_ft) AS dist_ft,
+        ARBITRARY(xy.route_id) AS nearest_metra_route_id,
+        ARBITRARY(xy.route_long_name) AS nearest_metra_route_name,
+        ARBITRARY(xy.dist_ft) AS nearest_metra_route_dist_ft,
+        ARBITRARY(xy.year) AS nearest_metra_route_data_year,
         p.year
     FROM spatial.parcel p
-    INNER JOIN xy_to_route_dist xy
+    INNER JOIN xy_to_metra_route_dist xy
         ON p.x_3435 = xy.x_3435
         AND p.y_3435 = xy.y_3435
-        AND p.year = xy.year
+        AND p.year = xy.pin_year
     GROUP BY p.pin10, p.year
 )

@@ -46,6 +46,7 @@ SELECT
     econ_qualified_opportunity_zone_data_year,
     env_flood_fema_sfha,
     env_flood_fema_data_year,
+    env_flood_fs_factor,
     env_flood_fs_risk_direction,
     env_flood_fs_data_year,
     env_ohare_noise_contour_no_buffer_bool,
