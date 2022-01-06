@@ -7,8 +7,8 @@ WITH multicodes AS (
         taxyr,
         CASE
             WHEN COUNT(*) > 1 THEN true
-            ELSE false END AS pin_is_multicode,
-        COUNT(*) AS pin_num_improvements
+            ELSE false END AS pin_is_multicard,
+        COUNT(*) AS pin_num_cards
     FROM iasworld.dweldat
     GROUP BY parid, taxyr
 ),
@@ -36,8 +36,8 @@ SELECT
     -- PIN information
     class, -- 218, 219, 236, 241 classes added to DWELDAT
     cdu,
-    pin_is_multicode,
-    pin_num_improvements,
+    pin_is_multicard,
+    pin_num_cards,
     pin_is_multiland,
     pin_num_landlines,
 
