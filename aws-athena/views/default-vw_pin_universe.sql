@@ -10,6 +10,10 @@ SELECT
     par.nbhd AS nbhd_code,
     leg.taxdist AS tax_code,
 
+    -- Proration related fields from PARDAT
+    par.tieback AS tieback_key_pin,
+    par.tiebldgpct / 100 AS tieback_proration_rate,
+
     -- Centroid of each PIN from county parcel files
     sp.lon, sp.lat, sp.x_3435, sp.y_3435,
 
