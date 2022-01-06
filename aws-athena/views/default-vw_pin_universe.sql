@@ -6,7 +6,10 @@ SELECT
     SUBSTR(par.parid, 1, 10) AS pin10,
     par.taxyr AS year,
     par.class AS class,
-    SUBSTR(leg.taxdist, 1, 2) AS town_code,
+    twn.triad_name,
+    twn.triad_code,
+    twn.township_name,
+    SUBSTR(leg.taxdist, 1, 2) AS township_code,
     par.nbhd AS nbhd_code,
     leg.taxdist AS tax_code,
 
@@ -120,15 +123,15 @@ SELECT
     misc_unincorporated_area_data_year,
 
     -- PIN proximity measurements from CTAS
-    num_pins_in_half_mile,
-    num_bus_stops_in_half_mile,
-    num_bus_stops_data_year,
-    num_foreclosures_in_half_mile_past_5_years,
-    num_foreclosures_per_1000_props_past_5_years,
-    num_foreclosures_data_year,
-    num_schools_in_half_mile,
-    avg_rating_in_half_mile,
-    num_schools_data_year,
+    num_pin_in_half_mile,
+    num_bus_stop_in_half_mile,
+    num_bus_stop_data_year,
+    num_foreclosure_in_half_mile_past_5_years,
+    num_foreclosure_per_1000_props_past_5_years,
+    num_foreclosure_data_year,
+    num_school_in_half_mile,
+    avg_school_rating_in_half_mile,
+    num_school_data_year,
     nearest_bike_trail_id,
     nearest_bike_trail_name,
     nearest_bike_trail_dist_ft,
@@ -188,3 +191,5 @@ LEFT JOIN location.vw_pin10_location vwl
 LEFT JOIN proximity.vw_pin10_proximity vwp
     ON SUBSTR(par.parid, 1, 10) = vwp.pin10
     AND par.taxyr = vwp.year
+LEFT JOIN spatial.township twn
+    ON SUBSTR(leg.taxdist, 1, 2) = CAST(twn.township_code AS varchar)

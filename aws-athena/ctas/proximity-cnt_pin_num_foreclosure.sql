@@ -29,7 +29,7 @@ WITH (
         SELECT
             p.pin10,
             p.year,
-            COUNT(*) AS num_foreclosures_in_half_mile_past_5_years
+            COUNT(*) AS num_foreclosure_in_half_mile_past_5_years
         FROM pin_locations p
         INNER JOIN foreclosure_locations o
             ON YEAR(o.foreclosure_recording_date)
@@ -42,7 +42,7 @@ WITH (
             p.x_3435,
             p.y_3435,
             o.year,
-            COUNT(*) AS num_pins_in_half_mile
+            COUNT(*) AS num_pin_in_half_mile
         FROM distinct_pins p
         INNER JOIN pin_locations o
             ON ST_Contains(ST_Buffer(ST_Point(p.x_3435, p.y_3435), 2640), o.point)
@@ -51,20 +51,20 @@ WITH (
     SELECT
         p.pin10,
         CASE
-            WHEN f.num_foreclosures_in_half_mile_past_5_years IS NULL THEN 0
-            ELSE f.num_foreclosures_in_half_mile_past_5_years END AS num_foreclosures_in_half_mile_past_5_years,
+            WHEN f.num_foreclosure_in_half_mile_past_5_years IS NULL THEN 0
+            ELSE f.num_foreclosure_in_half_mile_past_5_years END AS num_foreclosure_in_half_mile_past_5_years,
         CASE
-            WHEN c.num_pins_in_half_mile IS NULL THEN 1
-            ELSE c.num_pins_in_half_mile END AS num_pins_in_half_mile,
+            WHEN c.num_pin_in_half_mile IS NULL THEN 1
+            ELSE c.num_pin_in_half_mile END AS num_pin_in_half_mile,
         ROUND(
-            CAST(num_foreclosures_in_half_mile_past_5_years AS double) / (
-            CAST(num_pins_in_half_mile AS double) / 1000), 2
-        ) AS num_foreclosures_per_1000_props_past_5_years,
+            CAST(num_foreclosure_in_half_mile_past_5_years AS double) / (
+            CAST(num_pin_in_half_mile AS double) / 1000), 2
+        ) AS num_foreclosure_per_1000_pin_past_5_years,
         CONCAT(
             CAST(CAST(p.year AS int) - 5 AS varchar),
             ' - ',
             CAST(p.year AS varchar)
-        ) AS num_foreclosures_data_year,
+        ) AS num_foreclosure_data_year,
         p.year
     FROM pin_locations p
     LEFT JOIN pins_in_buffers f

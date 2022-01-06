@@ -89,19 +89,19 @@ WITH (
         SELECT
             pin_year,
             x_3435, y_3435,
-            COUNT(*) AS num_schools_in_half_mile,
-            AVG(rating) AS avg_rating_in_half_mile,
-            MAX(year) AS num_schools_data_year
+            COUNT(*) AS num_school_in_half_mile,
+            AVG(rating) AS avg_school_rating_in_half_mile,
+            MAX(year) AS num_school_data_year
         FROM school_ratings
         GROUP BY x_3435, y_3435, pin_year
     )
     SELECT
         p.pin10,
         CASE
-            WHEN sr.num_schools_in_half_mile IS NULL THEN 0
-            ELSE sr.num_schools_in_half_mile END AS num_schools_in_half_mile,
-        sr.avg_rating_in_half_mile,
-        sr.num_schools_data_year,
+            WHEN sr.num_school_in_half_mile IS NULL THEN 0
+            ELSE sr.num_school_in_half_mile END AS num_school_in_half_mile,
+        sr.avg_school_rating_in_half_mile,
+        sr.num_school_data_year,
         p.year
     FROM spatial.parcel p
     LEFT JOIN school_ratings_agg sr

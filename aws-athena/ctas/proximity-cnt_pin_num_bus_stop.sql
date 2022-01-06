@@ -28,7 +28,7 @@ WITH (
             p.x_3435,
             p.y_3435,
             o.year,
-            COUNT(*) AS num_bus_stops_in_half_mile
+            COUNT(*) AS num_bus_stop_in_half_mile
         FROM distinct_pins p
         INNER JOIN stop_locations o
             ON ST_Contains(
@@ -40,9 +40,9 @@ WITH (
     SELECT
         p.pin10,
         CASE
-            WHEN xy.num_bus_stops_in_half_mile IS NULL THEN 0
-            ELSE xy.num_bus_stops_in_half_mile END AS num_bus_stops_in_half_mile,
-        xy.year AS num_bus_stops_data_year,
+            WHEN xy.num_bus_stop_in_half_mile IS NULL THEN 0
+            ELSE xy.num_bus_stop_in_half_mile END AS num_bus_stop_in_half_mile,
+        xy.year AS num_bus_stop_data_year,
         p.year
     FROM spatial.parcel p
     LEFT JOIN xy_stop_counts xy
