@@ -18,11 +18,12 @@ tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 # Years for which to grab variables
 census_acs_years <- Sys.getenv("CENSUS_ACS_MIN_YEAR"):Sys.getenv("CENSUS_ACS_MAX_YEAR")
 census_acs_tables <- c(
-  "Sex By Age"                                                    = "B01001",
+  "Sex by Age"                                                    = "B01001",
+  "Median Age by Sex"                                             = "B01002",
   "Race"                                                          = "B02001",
+  "Geographical Mobility in the Past Year by Sex for Current Residence in the United States" = "B07003",
   "Household Type"                                                = "B11001",
-  "Sex by Marital Status"                                         = "B12001",
-  "Sex by Age by Educational Attainment"                          = "B15001",
+  "Sex by Educational Attainment"                                 = "B15002",
   "Poverty Status by Sex by Age"                                  = "B17001",
   "Household Income"                                              = "B19001",
   "Median Household Income"                                       = "B19013",
@@ -37,7 +38,11 @@ census_acs_tables <- c(
   "Receipt of SNAP by Race of Householder (WA, NHis)"             = "B22005H",
   "Receipt of SNAP by Race of Householder (His/Lat)"              = "B22005I",
   "Sex by Age by Employment Status"                               = "B23001",
-  "Tenure"                                                        = "B25003"
+  "Tenure"                                                        = "B25003",
+  "Median Year Structure Built by Tenure"                         = "B25037",
+  "Median Gross Rent (Dollars)"                                   = "B25064",
+  "Median Value (Dollars)"                                        = "B25077",
+  "Tenure by Selected Physical and Financial Conditions"          = "B25123"
 )
 
 census_acs_tables_df <- census_acs_tables %>%
