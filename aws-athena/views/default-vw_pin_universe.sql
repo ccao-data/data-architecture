@@ -127,7 +127,7 @@ SELECT
     num_bus_stop_in_half_mile,
     num_bus_stop_data_year,
     num_foreclosure_in_half_mile_past_5_years,
-    num_foreclosure_per_1000_props_past_5_years,
+    num_foreclosure_per_1000_pin_past_5_years,
     num_foreclosure_data_year,
     num_school_in_half_mile,
     avg_school_rating_in_half_mile,
