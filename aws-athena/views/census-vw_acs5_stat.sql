@@ -127,9 +127,18 @@ SELECT
     B25003_001E AS count_household_total_occupied,
     B25003_002E AS count_household_owner_occupied,
     B25003_003E AS count_household_renter_occupied,
-    B25037_001E AS median_household_total_occupied_year_built,
-    B25037_002E AS median_household_owner_occupied_year_built,
-    B25037_003E AS median_household_renter_occupied_year_built,
+    CASE
+        WHEN B25037_001E = 0.0 THEN NULL
+        ELSE B25037_001E
+    END AS median_household_total_occupied_year_built,
+    CASE
+        WHEN B25037_002E = 0.0 THEN NULL
+        ELSE B25037_002E
+    END AS median_household_owner_occupied_year_built,
+    CASE
+        WHEN B25037_003E = 0.0 THEN NULL
+        ELSE B25037_003E
+    END AS median_household_renter_occupied_year_built,
     B25064_001E AS median_household_renter_occupied_gross_rent,
     B25077_001E AS median_household_owner_occupied_value,
 
