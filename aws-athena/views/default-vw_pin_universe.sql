@@ -15,7 +15,10 @@ SELECT
 
     -- Proration related fields from PARDAT
     par.tieback AS tieback_key_pin,
-    par.tiebldgpct / 100 AS tieback_proration_rate,
+    CASE
+        WHEN par.tiebldgpct IS NOT NULL THEN par.tiebldgpct / 100.0
+        ELSE 1.0
+    END AS tieback_proration_rate,
 
     -- Centroid of each PIN from county parcel files
     sp.lon, sp.lat, sp.x_3435, sp.y_3435,
