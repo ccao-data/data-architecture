@@ -31,7 +31,8 @@ if (!aws.s3::object_exists(remote_file_nbhd_warehouse)) {
     st_transform(4326) %>%
     rename_with(tolower) %>%
     mutate(
-      geometry_3435 = st_transform(geometry, 3435)
+      geometry_3435 = st_transform(geometry, 3435),
+      across(township_code:town_nbhd, as.character)
     ) %>%
     sfarrow::st_write_parquet(remote_file_nbhd_warehouse)
 }
@@ -53,7 +54,8 @@ if (!aws.s3::object_exists(remote_file_town_warehouse)) {
     st_transform(4326) %>%
     rename_with(tolower) %>%
     mutate(
-      geometry_3435 = st_transform(geometry, 3435)
+      geometry_3435 = st_transform(geometry, 3435),
+      across(township_code:triad_code, as.character)
     ) %>%
     sfarrow::st_write_parquet(remote_file_town_warehouse)
 }
