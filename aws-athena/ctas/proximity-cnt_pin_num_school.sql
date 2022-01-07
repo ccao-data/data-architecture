@@ -99,7 +99,8 @@ WITH (
         p.pin10,
         CASE
             WHEN sr.num_school_in_half_mile IS NULL THEN 0
-            ELSE sr.num_school_in_half_mile END AS num_school_in_half_mile,
+            ELSE sr.num_school_in_half_mile
+        END AS num_school_in_half_mile,
         sr.avg_school_rating_in_half_mile,
         sr.num_school_data_year,
         p.year

@@ -111,14 +111,17 @@ WITH (
         CASE
             WHEN p.year >= oy.fill_year AND onc0000.airport IS NOT NULL THEN true
             WHEN p.year >= oy.fill_year AND onc0000.airport IS NULL THEN false
-            ELSE NULL END AS env_ohare_noise_contour_no_buffer_bool,
+            ELSE NULL
+        END AS env_ohare_noise_contour_no_buffer_bool,
         CASE
             WHEN p.year >= oy.fill_year AND onc2640.airport IS NOT NULL THEN true
             WHEN p.year >= oy.fill_year AND onc2640.airport IS NULL THEN false
-            ELSE NULL END AS env_ohare_noise_contour_half_mile_buffer_bool,
+            ELSE NULL
+        END AS env_ohare_noise_contour_half_mile_buffer_bool,
         CASE
             WHEN p.year >= oy.fill_year THEN oy.fill_year
-            ELSE NULL END AS env_ohare_noise_contour_data_year,
+            ELSE NULL
+        END AS env_ohare_noise_contour_data_year,
         p.year
     FROM spatial.parcel p
     LEFT JOIN flood_fema

@@ -7,7 +7,8 @@ WITH multicodes AS (
         taxyr,
         CASE
             WHEN COUNT(*) > 1 THEN true
-            ELSE false END AS pin_is_multicard,
+            ELSE false
+        END AS pin_is_multicard,
         COUNT(*) AS pin_num_cards
     FROM iasworld.dweldat
     GROUP BY parid, taxyr
@@ -18,7 +19,8 @@ aggregate_land AS (
         taxyr,
         CASE
             WHEN COUNT(*) > 1 THEN true
-            ELSE false END AS pin_is_multiland,
+            ELSE false
+        END AS pin_is_multiland,
         COUNT(*) AS pin_num_landlines,
         SUM(sf) AS total_land_sf
     FROM iasworld.land

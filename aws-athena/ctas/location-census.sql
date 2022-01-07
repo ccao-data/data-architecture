@@ -19,44 +19,57 @@ WITH (
         SELECT
             p.x_3435, p.y_3435,
             MAX(CASE
-                WHEN cen.geography = 'block_group' THEN cen.geoid
-                ELSE NULL END) AS census_block_group_geoid,
+                    WHEN cen.geography = 'block_group' THEN cen.geoid
+                    ELSE NULL
+                END) AS census_block_group_geoid,
             MAX(CASE
-                WHEN cen.geography = 'block' THEN cen.geoid
-                ELSE NULL END) AS census_block_geoid,
+                    WHEN cen.geography = 'block' THEN cen.geoid
+                    ELSE NULL
+                END) AS census_block_geoid,
             MAX(CASE
-                WHEN cen.geography = 'congressional_district' THEN cen.geoid
-                ELSE NULL END) AS census_congressional_district_geoid,
+                    WHEN cen.geography = 'congressional_district' THEN cen.geoid
+                    ELSE NULL
+                END) AS census_congressional_district_geoid,
             MAX(CASE
-                WHEN cen.geography = 'county_subdivision' THEN cen.geoid
-                ELSE NULL END) AS census_county_subdivision_geoid,
+                    WHEN cen.geography = 'county_subdivision' THEN cen.geoid
+                    ELSE NULL
+                END) AS census_county_subdivision_geoid,
             MAX(CASE
-                WHEN cen.geography = 'place' THEN cen.geoid
-                ELSE NULL END) AS census_place_geoid,
+                    WHEN cen.geography = 'place' THEN cen.geoid
+                    ELSE NULL
+                END) AS census_place_geoid,
             MAX(CASE
-                WHEN cen.geography = 'puma' THEN cen.geoid
-                ELSE NULL END) AS census_puma_geoid,
+                    WHEN cen.geography = 'puma' THEN cen.geoid
+                    ELSE NULL
+                END) AS census_puma_geoid,
             MAX(CASE
-                WHEN cen.geography = 'school_district_elementary' THEN cen.geoid
-                ELSE NULL END) AS census_school_district_elementary_geoid,
+                    WHEN cen.geography = 'school_district_elementary' THEN cen.geoid
+                    ELSE NULL
+                END) AS census_school_district_elementary_geoid,
             MAX(CASE
-                WHEN cen.geography = 'school_district_secondary' THEN cen.geoid
-                ELSE NULL END) AS census_school_district_secondary_geoid,
+                    WHEN cen.geography = 'school_district_secondary' THEN cen.geoid
+                    ELSE NULL
+                END) AS census_school_district_secondary_geoid,
             MAX(CASE
-                WHEN cen.geography = 'school_district_unified' THEN cen.geoid
-                ELSE NULL END) AS census_school_district_unified_geoid,
+                    WHEN cen.geography = 'school_district_unified' THEN cen.geoid
+                    ELSE NULL
+                END) AS census_school_district_unified_geoid,
             MAX(CASE
-                WHEN cen.geography = 'state_representative' THEN cen.geoid
-                ELSE NULL END) AS census_state_representative_geoid,
+                    WHEN cen.geography = 'state_representative' THEN cen.geoid
+                    ELSE NULL
+                END) AS census_state_representative_geoid,
             MAX(CASE
-                WHEN cen.geography = 'state_senate' THEN cen.geoid
-                ELSE NULL END) AS census_state_senate_geoid,
+                    WHEN cen.geography = 'state_senate' THEN cen.geoid
+                    ELSE NULL
+                END) AS census_state_senate_geoid,
             MAX(CASE
-                WHEN cen.geography = 'tract' THEN cen.geoid
-                ELSE NULL END) AS census_tract_geoid,
+                    WHEN cen.geography = 'tract' THEN cen.geoid
+                    ELSE NULL
+                END) AS census_tract_geoid,
             MAX(CASE
-                WHEN cen.geography = 'zcta' THEN cen.geoid
-                ELSE NULL END) AS census_zcta_geoid,
+                    WHEN cen.geography = 'zcta' THEN cen.geoid
+                    ELSE NULL
+                END) AS census_zcta_geoid,
             cen.year
         FROM distinct_pins p
         LEFT JOIN spatial.census cen

@@ -52,10 +52,12 @@ WITH (
         p.pin10,
         CASE
             WHEN f.num_foreclosure_in_half_mile_past_5_years IS NULL THEN 0
-            ELSE f.num_foreclosure_in_half_mile_past_5_years END AS num_foreclosure_in_half_mile_past_5_years,
+            ELSE f.num_foreclosure_in_half_mile_past_5_years
+        END AS num_foreclosure_in_half_mile_past_5_years,
         CASE
             WHEN c.num_pin_in_half_mile IS NULL THEN 1
-            ELSE c.num_pin_in_half_mile END AS num_pin_in_half_mile,
+            ELSE c.num_pin_in_half_mile
+        END AS num_pin_in_half_mile,
         ROUND(
             CAST(num_foreclosure_in_half_mile_past_5_years AS double) / (
             CAST(num_pin_in_half_mile AS double) / 1000), 2

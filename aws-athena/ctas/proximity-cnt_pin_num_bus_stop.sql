@@ -41,7 +41,8 @@ WITH (
         p.pin10,
         CASE
             WHEN xy.num_bus_stop_in_half_mile IS NULL THEN 0
-            ELSE xy.num_bus_stop_in_half_mile END AS num_bus_stop_in_half_mile,
+            ELSE xy.num_bus_stop_in_half_mile
+        END AS num_bus_stop_in_half_mile,
         xy.year AS num_bus_stop_data_year,
         p.year
     FROM spatial.parcel p

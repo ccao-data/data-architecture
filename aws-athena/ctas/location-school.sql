@@ -20,23 +20,29 @@ WITH (
         SELECT
             p.x_3435, p.y_3435,
         MAX(CASE
-            WHEN school.district_type = 'elementary' THEN school.geoid
-            ELSE NULL END) AS school_elementary_district_geoid,
+                WHEN school.district_type = 'elementary' THEN school.geoid
+                ELSE NULL
+            END) AS school_elementary_district_geoid,
         MAX(CASE
-            WHEN school.district_type = 'elementary' THEN school.name
-            ELSE NULL END) AS school_elementary_district_name,
+                WHEN school.district_type = 'elementary' THEN school.name
+                ELSE NULL
+            END) AS school_elementary_district_name,
         MAX(CASE
-            WHEN school.district_type = 'secondary' THEN school.geoid
-            ELSE NULL END) AS school_secondary_district_geoid,
+                WHEN school.district_type = 'secondary' THEN school.geoid
+                ELSE NULL
+            END) AS school_secondary_district_geoid,
         MAX(CASE
-            WHEN school.district_type = 'secondary' THEN school.name
-            ELSE NULL END) AS school_secondary_district_name,
+                WHEN school.district_type = 'secondary' THEN school.name
+                ELSE NULL
+            END) AS school_secondary_district_name,
         MAX(CASE
-            WHEN school.district_type = 'unified' THEN school.geoid
-            ELSE NULL END) AS school_unified_district_geoid,
+                WHEN school.district_type = 'unified' THEN school.geoid
+                ELSE NULL
+            END) AS school_unified_district_geoid,
         MAX(CASE
-            WHEN school.district_type = 'unified' THEN school.name
-            ELSE NULL END) AS school_unified_district_name,
+                WHEN school.district_type = 'unified' THEN school.name
+                ELSE NULL
+            END) AS school_unified_district_name,
         school.year
         FROM distinct_pins p
         LEFT JOIN spatial.school_district school

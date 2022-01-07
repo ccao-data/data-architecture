@@ -78,10 +78,12 @@ WITH (
         CASE
             WHEN p.year >= uy.fill_year AND uninc.agency_desc IS NOT NULL THEN true
             WHEN p.year >= uy.fill_year AND uninc.agency_desc IS NULL THEN false
-            ELSE NULL END AS misc_unincorporated_area_bool,
+            ELSE NULL
+        END AS misc_unincorporated_area_bool,
         CASE
             WHEN p.year >= uy.fill_year THEN uy.fill_year
-            ELSE NULL END AS misc_unincorporated_area_data_year,
+            ELSE NULL
+        END AS misc_unincorporated_area_data_year,
         p.year
     FROM spatial.parcel p
     LEFT JOIN subdivision
