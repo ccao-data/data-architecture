@@ -17,6 +17,17 @@ SELECT
     census_tract_geoid,
     census_zcta_geoid,
     census_data_year,
+    census_acs5_congressional_district_geoid,
+    census_acs5_county_subdivision_geoid,
+    census_acs5_place_geoid,
+    census_acs5_puma_geoid,
+    census_acs5_school_district_elementary_geoid,
+    census_acs5_school_district_secondary_geoid,
+    census_acs5_school_district_unified_geoid,
+    census_acs5_state_representative_geoid,
+    census_acs5_state_senate_geoid,
+    census_acs5_tract_geoid,
+    census_acs5_data_year,
     cook_board_of_review_district_num,
     cook_board_of_review_district_data_year,
     cook_commissioner_district_num,
@@ -91,6 +102,9 @@ SELECT
     misc_unincorporated_area_data_year
 FROM spatial.parcel pin
 LEFT JOIN location.census
+    ON pin.pin10 = census.pin10
+    AND pin.year = census.year
+LEFT JOIN location.census_acs5
     ON pin.pin10 = census.pin10
     AND pin.year = census.year
 LEFT JOIN location.political
