@@ -105,8 +105,8 @@ LEFT JOIN location.census
     ON pin.pin10 = census.pin10
     AND pin.year = census.year
 LEFT JOIN location.census_acs5
-    ON pin.pin10 = census.pin10
-    AND pin.year = census.year
+    ON pin.pin10 = census_acs5.pin10
+    AND pin.year = census_acs5.year
 LEFT JOIN location.political
     ON pin.pin10 = political.pin10
     AND pin.year = political.year
