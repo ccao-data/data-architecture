@@ -22,6 +22,7 @@ census_tables <- c(
   "Sex by Age"                                                    = "B01001",
   "Median Age by Sex"                                             = "B01002",
   "Race"                                                          = "B02001",
+  "Hispanic or Latino Origin"                                     = "B03003",
   "Geographical Mobility in the Past Year by Sex for Current Residence in the United States" = "B07003",
   "Household Type"                                                = "B11001",
   "Sex by Educational Attainment"                                 = "B15002",
@@ -29,16 +30,8 @@ census_tables <- c(
   "Household Income"                                              = "B19001",
   "Median Household Income"                                       = "B19013",
   "Per Capita Income"                                             = "B19301",
-  "Receipt of SNAP by Race of Householder (White Alone)"          = "B22005A",
-  "Receipt of SNAP by Race of Householder (Black Alone)"          = "B22005B",
-  "Receipt of SNAP by Race of Householder (AIAN Alone)"           = "B22005C",
-  "Receipt of SNAP by Race of Householder (Asian Alone)"          = "B22005D",
-  "Receipt of SNAP by Race of Householder (NHPI Alone)"           = "B22005E",
-  "Receipt of SNAP by Race of Householder (Other Alone)"          = "B22005F",
-  "Receipt of SNAP by Race of Householder (Two or More)"          = "B22005G",
-  "Receipt of SNAP by Race of Householder (WA, NHis)"             = "B22005H",
-  "Receipt of SNAP by Race of Householder (His/Lat)"              = "B22005I",
-  "Sex by Age by Employment Status"                               = "B23001",
+  "Receipt of Food Stamps/SNAP by Poverty Status for Households"  = "B22003",
+  "Employment Status"                                             = "B23025",
   "Tenure"                                                        = "B25003",
   "Median Year Structure Built by Tenure"                         = "B25037",
   "Median Gross Rent (Dollars)"                                   = "B25064",
@@ -101,7 +94,7 @@ all_combos <- expand.grid(
 
 # Function to loop through rows in all_combos, grab census data,
 # and write it to a parquet file on S3 if it doesn't already exist
-pull_and_write_acs <- function(s3_bucket_uri, survey, folder, geography, year) {
+pull_and_write_acs <- function(s3_bucket_uri, survey, folder, geography, year, tables = census_tables) {
 
   remote_file <- file.path(
     s3_bucket_uri, survey,
@@ -120,8 +113,13 @@ pull_and_write_acs <- function(s3_bucket_uri, survey, folder, geography, year) {
     county_specific <- c("county", "county subdivision", "tract")
     county <- if (geography %in% county_specific) "Cook" else NULL
 
+    # No employment status prior to 2011
+    if (year < 2011) {
+      tables <- tables[tables != "B23025"]
+    }
+
     # Retrieve specified data from census API
-    df <- map_dfc(census_tables, ~ get_acs(
+    df <- map_dfc(tables, ~ get_acs(
       geography = geography,
       table = .x,
       survey = survey,
