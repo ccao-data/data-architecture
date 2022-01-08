@@ -1,16 +1,17 @@
-library(sfarrow)
-library(dplyr)
 library(aws.s3)
 library(arrow)
-library(noctua)
+library(dplyr)
 library(glue)
+library(noctua)
 library(sf)
+library(sfarrow)
 
-# This script cleans data retrieved from greatschools.org and merges it with district shapefiles
-# In order to average school ratings by district in the suburbs and attendance areas in Chicago
+# This script cleans data retrieved from greatschools.org and merges
+# it with district shapefiles. In order to average school ratings by district
+# in the suburbs and attendance areas in Chicago
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-AWS_ATHENA_CONN <- DBI::dbConnect(noctua::athena())
+AWS_ATHENA_CONN_NOCTUA <- DBI::dbConnect(noctua::athena())
 current_year <- format(Sys.Date(), "%Y")
 
 source_file <- file.path(
@@ -79,7 +80,7 @@ if (!aws.s3::object_exists(
     dbGetQuery(
       # Use district shapefiles from one year post-Great Schools data
       # Since they describes districts 1 year in the past
-      AWS_ATHENA_CONN, glue(
+      AWS_ATHENA_CONN_NOCTUA, glue(
         "SELECT geoid, name AS district_name, is_attendance_boundary, geometry, district_type
       FROM spatial.school_district
       WHERE year IN ('{paste(unique(great_districts$year) + 1, collapse = \"', '\")}');"

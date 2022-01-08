@@ -14,7 +14,7 @@ source("utils.R")
 # from their API to predict flood risk for each parcel
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-AWS_ATHENA_CONN <- dbConnect(noctua::athena())
+AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena())
 input_bucket <- file.path(
   AWS_S3_RAW_BUCKET, "environment", "flood_first_street"
 )
@@ -30,7 +30,7 @@ flood_fs <- read_parquet(file.path(input_bucket, "2019.parquet")) %>%
 
 # Load cleaned parcels to fill in missing flood data
 parcels_df <- dbGetQuery(
-  AWS_ATHENA_CONN, glue(
+  AWS_ATHENA_CONN_NOCTUA, glue(
   "SELECT pin10, x_3435, y_3435, year
   FROM spatial.parcel
   WHERE year = '2019'"

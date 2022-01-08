@@ -131,10 +131,10 @@ if (!aws.s3::object_exists(parcels_current_remote_geo)) {
 
 # Query iasWorld via Athena to get attribute data we can pre-join
 if (!aws.s3::object_exists(parcels_current_remote_attr)) {
-  AWS_ATHENA_CONN <- dbConnect(noctua::athena())
+  AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena())
 
   parcels_current_attr <- dbGetQuery(
-    AWS_ATHENA_CONN, glue("
+    AWS_ATHENA_CONN_NOCTUA, glue("
         SELECT
           p.parid AS pin,
           p.class AS class,
@@ -165,4 +165,4 @@ if (!aws.s3::object_exists(parcels_current_remote_attr)) {
 
 # Cleanup
 dbDisconnect(CCAODATA)
-dbDisconnect(AWS_ATHENA_CONN)
+dbDisconnect(AWS_ATHENA_CONN_NOCTUA)
