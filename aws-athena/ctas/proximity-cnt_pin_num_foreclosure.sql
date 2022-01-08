@@ -23,7 +23,7 @@ WITH (
     ),
     foreclosure_locations AS (
         SELECT *, ST_Buffer(ST_GeomFromBinary(geometry_3435), 2640) AS buffer
-        FROM other.foreclosure
+        FROM sale.foreclosure
     ),
     pins_in_buffers AS (
         SELECT
