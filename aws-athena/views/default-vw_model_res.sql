@@ -1,12 +1,12 @@
--- To add:
--- school rating
--- tax data
-
 -- TODO:
+-- school rating
+-- Add sales
+-- Compare to prev res_data script
+
+-- TODO later:
 -- Fill down missing, nearby
 -- Add previous estimates
 -- Add 288s
--- Add sales
 
 CREATE OR REPLACE VIEW default.vw_model_res_data AS
 WITH uni_filtered AS (
@@ -16,6 +16,10 @@ WITH uni_filtered AS (
         '202', '203', '204', '205', '206', '207', '208', '209',
         '210', '211', '212', '218', '219', '234', '278', '295'
     )
+),
+distinct_years AS (
+    SELECT DISTINCT year
+    FROM uni_filtered
 ),
 acs5 AS (
     SELECT *
@@ -27,7 +31,7 @@ housing_index AS (
     FROM other.ihs_index
     GROUP BY geoid, year
 ),
-char_percentiles AS (
+sqft_percentiles AS (
     SELECT
         uni.year, uni.township_code,
         CAST(approx_percentile(ch.char_bldg_sf, 0.95) AS int) AS char_bldg_sf_95_percentile,
@@ -37,6 +41,25 @@ char_percentiles AS (
         ON uni.pin = ch.pin
         AND uni.year = ch.year
     GROUP BY uni.year, uni.township_code
+),
+tax_bill_amount_fill AS (
+    SELECT
+        fill_years.pin_year,
+        fill_data.year,
+        fill_data.pin,
+        fill_data.tot_tax_amt,
+        fill_data.amt_tax_paid,
+        fill_data.tax_rate
+    FROM (
+        SELECT
+        dy.year AS pin_year, MAX(df.year) AS fill_year
+        FROM tax.bill_amount df
+        CROSS JOIN distinct_years dy
+        WHERE dy.year >= df.year
+        GROUP BY dy.year
+    ) fill_years
+    LEFT JOIN tax.bill_amount fill_data
+        ON fill_years.fill_year = fill_data.year
 )
 SELECT
     uni.pin AS meta_pin,
@@ -60,8 +83,8 @@ SELECT
     uni.tieback_key_pin AS meta_tieback_key_pin,
     uni.tieback_proration_rate AS meta_tieback_proration_rate,
     CASE
-        WHEN uni.tieback_proration_rate < 1.0 THEN false
-        ELSE true
+        WHEN uni.tieback_proration_rate < 1.0 THEN true
+        ELSE false
     END AS ind_pin_is_prorated,
 
     -- Multicode / multi-landline related fields. Each PIN can have more than
@@ -74,16 +97,16 @@ SELECT
     ch.cdu AS meta_cdu,
 
     -- Individual PIN-level address/location
-    CONCAT_WS(
+    NULLIF(CONCAT_WS(
         ' ',
         uni.address_prefix, CAST(uni.address_street_number AS varchar),
         uni.address_street_dir, uni.address_street_name,
         uni.address_suffix_1
-    ) AS loc_property_address,
-    CONCAT_WS(
+    ), '') AS loc_property_address,
+    NULLIF(CONCAT_WS(
         ' ',
         uni.address_unit_prefix, uni.address_unit_number
-    ) AS loc_property_apt_no,
+    ), '') AS loc_property_apt_no,
     uni.address_city_name AS loc_property_city,
     uni.address_state AS loc_property_state,
     uni.address_zipcode_1 AS loc_property_zip,
@@ -120,16 +143,20 @@ SELECT
     ch.char_tp_plan,
 
     -- Land and lot size indicators
-    cp.char_land_sf_95_percentile,
+    sp.char_land_sf_95_percentile,
     CASE
-        WHEN ch.char_land_sf >= cp.char_land_sf_95_percentile THEN true
+        WHEN ch.char_land_sf >= sp.char_land_sf_95_percentile THEN true
         ELSE false
     END AS ind_land_gte_95_percentile,
-    cp.char_bldg_sf_95_percentile,
+    sp.char_bldg_sf_95_percentile,
     CASE
-        WHEN ch.char_bldg_sf >= cp.char_bldg_sf_95_percentile THEN true
+        WHEN ch.char_bldg_sf >= sp.char_bldg_sf_95_percentile THEN true
         ELSE false
     END AS ind_bldg_gte_95_percentile,
+    CASE
+        WHEN (ch.char_land_sf / (ch.char_bldg_sf + 1)) > 4.0 THEN true
+        ELSE false
+    END AS ind_land_bldg_ratio_gt_4,
 
     -- PIN location data for aggregation and spatial joins
     uni.census_puma_geoid AS loc_census_puma_geoid,
@@ -162,7 +189,7 @@ SELECT
     -- PIN proximity count variables
     uni.num_pin_in_half_mile AS prox_num_pin_in_half_mile,
     uni.num_bus_stop_in_half_mile AS prox_num_bus_stop_in_half_mile,
-    uni.num_foreclosure_per_1000_pin_past_5_years AS prox_num_foreclosure_per_1000_props_past_5_years,
+    uni.num_foreclosure_per_1000_pin_past_5_years AS prox_num_foreclosure_per_1000_pin_past_5_years,
     uni.num_school_in_half_mile AS prox_num_school_in_half_mile,
     uni.avg_school_rating_in_half_mile AS prox_avg_school_rating_in_half_mile,
 
@@ -211,15 +238,18 @@ SELECT
     acs5.percent_household_total_occupied_w_sel_cond AS acs5_percent_household_total_occupied_w_sel_cond,
 
     -- Institute for Housing Studies data
-    housing_index.ihs_avg_year_index AS other_ihs_avg_year_index
+    housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
+    tbill.tot_tax_amt AS other_tax_bill_amount_total,
+    tbill.amt_tax_paid AS other_tax_bill_amount_paid,
+    tbill.tax_rate AS other_tax_bill_rate
 
 FROM uni_filtered uni
 LEFT JOIN default.vw_impr_char ch
     ON uni.pin = ch.pin
     AND uni.year = ch.year
-LEFT JOIN char_percentiles cp
-    ON uni.year = cp.year
-    AND uni.township_code = cp.township_code
+LEFT JOIN sqft_percentiles sp
+    ON uni.year = sp.year
+    AND uni.township_code = sp.township_code
 LEFT JOIN acs5
     ON uni.census_acs5_tract_geoid = acs5.geoid
     AND uni.census_acs5_data_year = acs5.acs5_data_year
@@ -227,7 +257,6 @@ LEFT JOIN acs5
 LEFT JOIN housing_index
     ON housing_index.geoid = uni.census_puma_geoid
     AND housing_index.year = uni.year
-WHERE uni.class IN (
-    '202', '203', '204', '205', '206', '207', '208', '209',
-    '210', '211', '212', '218', '219', '234', '278', '295'
-)
+LEFT JOIN tax_bill_amount_fill tbill
+    ON uni.pin = tbill.pin
+    AND uni.year = tbill.pin_year
