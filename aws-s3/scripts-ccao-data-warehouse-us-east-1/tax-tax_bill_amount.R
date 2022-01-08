@@ -4,22 +4,23 @@ library(ccao)
 library(dplyr)
 library(purrr)
 library(stringr)
+library(tidyr)
 source("utils.R")
 
 # This script cleans saved data from the county's mainframe pertaining to tax bills
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 input_bucket <- file.path(
-  AWS_S3_RAW_BUCKET, "tax", "tax_bill_amounts"
+  AWS_S3_RAW_BUCKET, "tax", "tax_bill_amount"
 )
 output_bucket <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "tax", "tax_bill_amounts"
+  AWS_S3_WAREHOUSE_BUCKET, "tax", "tax_bill_amount"
 )
 
 # Get a list of all TAXBILLAMOUNTS objects and their associated townships in S3
 paths <- aws.s3::get_bucket_df(
   bucket = AWS_S3_RAW_BUCKET,
-  prefix = "tax/tax_bill_amounts"
+  prefix = "tax/tax_bill_amount"
 ) %>%
   filter(Size > 0) %>%
   pull(Key) %>%
@@ -30,28 +31,27 @@ paths <- aws.s3::get_bucket_df(
   )
 
 # Function to load file from S3, clean and filter column names, and partition data
-upload_taxbillamounts <- function(s3_bucket_uri, year, town_code) {
+upload_taxbillamount <- function(s3_bucket_uri, file_year, town_code) {
 
   # Only run if object doesn't already exist
   remote_file <- file.path(
     output_bucket,
-    paste0("year=", year),
+    paste0("year=", file_year),
     paste0("town_code=", town_code),
     "part-0.parquet"
   )
 
   if (!aws.s3::object_exists(remote_file)) {
-    message("Now fetching: ", year)
+    message("Now fetching: ", file_year)
 
-    taxbillamounts <- read_parquet(
-      aws.s3::get_object(paste0(input_bucket, year, ".parquet")
-      )
-    ) %>%
+    taxbillamount <- read_parquet(
+      aws.s3::get_object(file.path(input_bucket, paste0(file_year, ".parquet"))
+    )) %>%
       select(PIN, TAX_YEAR, TB_TOWN, TB_EAV:TB_EST_TAX_AMT) %>%
       rename_with(., ~ tolower(gsub("TB_", "", .x))) %>%
       rename(town_code = town) %>%
       select(-tax_year) %>%
-      mutate(year = path["year"]) %>%
+      mutate(year = file_year) %>%
       group_by(year, town_code) %>%
       write_partitions_to_s3(s3_bucket_uri, is_spatial = FALSE)
   }
@@ -60,9 +60,9 @@ upload_taxbillamounts <- function(s3_bucket_uri, year, town_code) {
 # Apply function to all files
 pwalk(paths, function(...) {
   df <- tibble::tibble(...)
-  upload_taxbillamounts(
+  upload_taxbillamount(
     s3_bucket_uri = output_bucket,
-    year = df$year,
+    file_year = df$year,
     town_code = df$town_code
   )
 })

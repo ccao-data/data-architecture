@@ -9,7 +9,7 @@ source("utils.R")
 # This script retrieves a raw version of the CCAODATA SQL
 # table TAXBILLAMOUNTS
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
-output_bucket <- file.path(AWS_S3_RAW_BUCKET, "tax", "tax_bill_amounts")
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "tax", "tax_bill_amount")
 
 # Connect to CCAODATA SQL server
 CCAODATA <- dbConnect(
@@ -18,14 +18,14 @@ CCAODATA <- dbConnect(
 )
 
 # Gather the data
-taxbillamounts <- dbGetQuery(
+taxbillamount <- dbGetQuery(
   CCAODATA,
   paste0("SELECT * FROM TAXBILLAMOUNTS")
 ) %>%
   split(.$TAX_YEAR)
 
 # Function to write each year of TAXBILLAMOUNTS to a parquet file on S3
-upload_taxbillamounts <- function(data, name) {
+upload_taxbillamount <- function(data, name) {
   remote_file_path <- file.path(output_bucket, paste0(name, ".parquet"))
 
   if (!aws.s3::object_exists(remote_file_path)) {
@@ -38,10 +38,10 @@ upload_taxbillamounts <- function(data, name) {
 
 # Save all of table to S3
 mapply(
-  upload_taxbillamounts,
-  data = taxbillamounts,
-  name = names(taxbillamounts)
+  upload_taxbillamount,
+  data = taxbillamount,
+  name = names(taxbillamount)
 )
 
 # Cleanup
-dbDisconnect(RPIE)
+dbDisconnect(CCAODATA)
