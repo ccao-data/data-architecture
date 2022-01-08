@@ -11,16 +11,16 @@ source("utils.R")
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 input_bucket <- file.path(
-  AWS_S3_RAW_BUCKET, "tax", "tax_bill_amount"
+  AWS_S3_RAW_BUCKET, "tax", "bill_amount"
 )
 output_bucket <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "tax", "tax_bill_amount"
+  AWS_S3_WAREHOUSE_BUCKET, "tax", "bill_amount"
 )
 
 # Get a list of all TAXBILLAMOUNTS objects and their associated townships in S3
 paths <- aws.s3::get_bucket_df(
   bucket = AWS_S3_RAW_BUCKET,
-  prefix = "tax/tax_bill_amount"
+  prefix = "tax/bill_amount"
 ) %>%
   filter(Size > 0) %>%
   pull(Key) %>%
@@ -31,7 +31,7 @@ paths <- aws.s3::get_bucket_df(
   )
 
 # Function to load file from S3, clean and filter column names, and partition data
-upload_taxbillamount <- function(s3_bucket_uri, file_year, town_code) {
+upload_billamount <- function(s3_bucket_uri, file_year, town_code) {
 
   # Only run if object doesn't already exist
   remote_file <- file.path(
@@ -44,7 +44,7 @@ upload_taxbillamount <- function(s3_bucket_uri, file_year, town_code) {
   if (!aws.s3::object_exists(remote_file)) {
     message("Now fetching: ", file_year)
 
-    taxbillamount <- read_parquet(
+    billamount <- read_parquet(
       aws.s3::get_object(file.path(input_bucket, paste0(file_year, ".parquet"))
     )) %>%
       select(PIN, TAX_YEAR, TB_TOWN, TB_EAV:TB_EST_TAX_AMT) %>%
@@ -60,7 +60,7 @@ upload_taxbillamount <- function(s3_bucket_uri, file_year, town_code) {
 # Apply function to all files
 pwalk(paths, function(...) {
   df <- tibble::tibble(...)
-  upload_taxbillamount(
+  upload_billamount(
     s3_bucket_uri = output_bucket,
     file_year = df$year,
     town_code = df$town_code

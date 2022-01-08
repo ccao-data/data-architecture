@@ -2,9 +2,10 @@ library(arrow)
 library(aws.s3)
 library(dplyr)
 library(glue)
-library(tidyr)
 library(openxlsx)
+library(purrr)
 library(stringr)
+library(tidyr)
 source("utils.R")
 
 # This script cleans and combines raw validated data for the warehouse
