@@ -204,6 +204,7 @@ county_districts_df <- st_join(
                            district_type == "elementary" & school_num == '125' ~ '1704560',
                            school_num == '180' ~ '1730510',
                            school_num == '157-' ~ '1715700',
+                           school_num == '110' ~ '1737860',
                            TRUE ~ geoid)) %>%
   select(-contains("census")) %>%
   mutate(geometry = border) %>%
