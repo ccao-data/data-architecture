@@ -56,7 +56,7 @@ clean_great_schools_rating <- function(file, file_year) {
 
     # Some duplicate rows appear in the raw data. We want to keep only the row
     # per school with the most complete data
-    group_by(name, `school-summary`, lat, lon) %>%
+    group_by(name, phone, lat, lon) %>%
     slice_max(order_by = complete_case, n = 1) %>%
     ungroup() %>%
     sf::st_as_sf(coords = c("lon", "lat"), remove = FALSE, crs = 4326) %>%
