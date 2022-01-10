@@ -50,6 +50,16 @@ tax_bill_amount_fill AS (
     ) fill_years
     LEFT JOIN tax.bill_amount fill_data
         ON fill_years.fill_year = fill_data.year
+),
+school_district_ratings AS (
+    SELECT
+        district_geoid,
+        district_type,
+        AVG(rating) AS school_district_avg_rating,
+        COUNT(*) AS num_schools_in_district,
+        year
+    FROM other.great_schools_rating
+    GROUP BY district_geoid, district_type, year
 )
 SELECT
     uni.pin AS meta_pin,
@@ -180,7 +190,7 @@ SELECT
     uni.num_pin_in_half_mile AS prox_num_pin_in_half_mile,
     uni.num_bus_stop_in_half_mile AS prox_num_bus_stop_in_half_mile,
     uni.num_foreclosure_per_1000_pin_past_5_years AS prox_num_foreclosure_per_1000_pin_past_5_years,
-    uni.num_school_in_half_mile AS prox_num_school_in_half_mile,
+    uni.num_school_with_rating_in_half_mile AS prox_num_school_with_rating_in_half_mile,
     uni.avg_school_rating_in_half_mile AS prox_avg_school_rating_in_half_mile,
 
     -- PIN proximity distance variables
@@ -230,8 +240,9 @@ SELECT
     -- Institute for Housing Studies data
     housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
     tbill.tot_tax_amt AS other_tax_bill_amount_total,
-    tbill.amt_tax_paid AS other_tax_bill_amount_paid,
-    tbill.tax_rate AS other_tax_bill_rate
+    tbill.tax_rate AS other_tax_bill_rate,
+    sdre.school_district_avg_rating AS other_school_district_elementary_avg_rating,
+    sdrs.school_district_avg_rating AS other_school_district_secondary_avg_rating
 
 FROM uni_filtered uni
 LEFT JOIN default.vw_impr_char ch
@@ -250,3 +261,9 @@ LEFT JOIN housing_index
 LEFT JOIN tax_bill_amount_fill tbill
     ON uni.pin = tbill.pin
     AND uni.year = tbill.pin_year
+LEFT JOIN (SELECT * FROM school_district_ratings WHERE district_type = 'elementary') sdre
+    ON uni.school_elementary_district_geoid = sdre.district_geoid
+    AND uni.year = sdre.year
+LEFT JOIN (SELECT * FROM school_district_ratings WHERE district_type = 'secondary') sdrs
+    ON uni.school_secondary_district_geoid = sdrs.district_geoid
+    AND uni.year = sdrs.year
