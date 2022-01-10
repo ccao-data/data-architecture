@@ -3,6 +3,7 @@ library(aws.s3)
 library(dplyr)
 library(httr)
 library(purrr)
+library(tidyr)
 library(zipcodeR)
 source("utils.R")
 
@@ -10,11 +11,7 @@ source("utils.R")
 # Documentation available here: https://docs.google.com/document/d/1pSe1AeZXGL01m5uG3wwRr9k4pI2Qw52xzPi2NmNrhyI/edit
 GREAT_SCHOOLS_API_KEY <- Sys.getenv("GREAT_SCHOOLS_API_KEY")
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
-output_bucket <- file.path(AWS_S3_RAW_BUCKET, "sale", "ccrd")
-remote_file <- file.path(
-  output_bucket,
-  paste0(format(Sys.Date(), "%Y"), ".parquet")
-)
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "school", "great_schools_rating")
 
 # We'll loop over Cook County zip codes to get all schools,
 # since we can only grab 50 at a time
@@ -46,10 +43,18 @@ great_schools <- pmap_dfr(cook_zips, function(...) {
   )
 })
 
-output <- bind_rows(great_schools) %>%
-  dplyr::filter(fipscounty == "17031")
+great_schools_fil <- bind_rows(great_schools) %>%
+  dplyr::filter(fipscounty == "17031") %>%
+  rename(rating_year = year) %>%
+  fill(rating_year, .direction = "downup")
 
 # Write data if it does not already exist
+# Files are written to rating year + 1 since ratings correspond to the
+# in-progress school year (i.e. 2020 rating year is the 2020-2021 school year)
+remote_file <- file.path(
+  output_bucket,
+  paste0(unique(great_schools_fil$rating_year) + 1, ".parquet")
+)
 if (!aws.s3::object_exists(remote_file)) {
-  write_parquet(output, remote_file)
+  write_parquet(great_schools_fil, remote_file)
 }
