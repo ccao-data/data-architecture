@@ -20,32 +20,31 @@ WITH (
     ),
     distinct_years_rhs AS (
         SELECT DISTINCT year
-        FROM other.gs_school_rating
+        FROM other.great_schools_rating
     ),
-    school_locations_public AS (
+    school_locations AS (
         SELECT fill_years.pin_year, fill_data.*
         FROM (
-            SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
-            FROM other.gs_school_rating df
+            SELECT
+                dy.year AS pin_year,
+                MAX(df.year) AS fill_year,
+                MAX(df.rating_year) AS rating_year
+            FROM other.great_schools_rating df
             CROSS JOIN distinct_years dy
             WHERE dy.year >= df.year
             GROUP BY dy.year
         ) fill_years
-        LEFT JOIN other.gs_school_rating fill_data
+        LEFT JOIN other.great_schools_rating fill_data
             ON fill_years.fill_year = fill_data.year
+    ),
+    school_locations_public AS (
+        SELECT *
+        FROM school_locations
         WHERE type = 'public'
     ),
     school_locations_other AS (
-        SELECT fill_years.pin_year, fill_data.*
-        FROM (
-            SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
-            FROM other.gs_school_rating df
-            CROSS JOIN distinct_years dy
-            WHERE dy.year >= df.year
-            GROUP BY dy.year
-        ) fill_years
-        LEFT JOIN other.gs_school_rating fill_data
-            ON fill_years.fill_year = fill_data.year
+        SELECT *
+        FROM school_locations
         WHERE type != 'public'
     ),
     school_ratings AS (
@@ -54,8 +53,10 @@ WITH (
             p.y_3435,
             pub.rating,
             pub.pin_year,
-            pub.year
+            pub.year,
+            pub.rating_year
         FROM distinct_pins p
+        -- Keep only public schools with 1/2 mile WITHIN each PIN's district
         INNER JOIN spatial.school_district dis
             ON ST_Contains(
                 ST_GeomFromBinary(dis.geometry_3435),
@@ -66,18 +67,16 @@ WITH (
                 ST_Buffer(ST_GeomFromBinary(pub.geometry_3435), 2640),
                 ST_Point(p.x_3435, p.y_3435)
             )
-            AND ST_Contains(
-                ST_GeomFromBinary(dis.geometry_3435),
-                ST_GeomFromBinary(pub.geometry_3435)
-            )
-            AND dis.geoid = pub.geoid
+        WHERE dis.geoid = pub.district_geoid
         UNION ALL
+        -- Any and all private schools within 1/2 mile
         SELECT
             p.x_3435,
             p.y_3435,
             oth.rating,
             oth.pin_year,
-            oth.year
+            oth.year,
+            oth.rating_year
         FROM distinct_pins p
         INNER JOIN school_locations_other oth
             ON ST_Contains(
@@ -90,8 +89,14 @@ WITH (
             pin_year,
             x_3435, y_3435,
             COUNT(*) AS num_school_in_half_mile,
+            SUM(CASE
+                    WHEN rating IS NOT NULL THEN 1
+                    ELSE 0
+                END
+            ) AS num_school_with_rating_in_half_mile,
             AVG(rating) AS avg_school_rating_in_half_mile,
-            MAX(year) AS num_school_data_year
+            MAX(year) AS num_school_data_year,
+            MAX(rating_year) AS num_school_rating_data_year
         FROM school_ratings
         GROUP BY x_3435, y_3435, pin_year
     )
@@ -101,8 +106,13 @@ WITH (
             WHEN sr.num_school_in_half_mile IS NULL THEN 0
             ELSE sr.num_school_in_half_mile
         END AS num_school_in_half_mile,
+        CASE
+            WHEN sr.num_school_with_rating_in_half_mile IS NULL THEN 0
+            ELSE sr.num_school_with_rating_in_half_mile
+        END AS num_school_with_rating_in_half_mile,
         sr.avg_school_rating_in_half_mile,
         sr.num_school_data_year,
+        sr.num_school_rating_data_year,
         p.year
     FROM spatial.parcel p
     LEFT JOIN school_ratings_agg sr

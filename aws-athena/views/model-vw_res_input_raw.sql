@@ -1,14 +1,4 @@
--- TODO:
--- school rating
--- Add sales
--- Compare to prev res_data script
-
--- TODO later:
--- Fill down missing, nearby
--- Add previous estimates
--- Add 288s
-
-CREATE OR REPLACE VIEW default.vw_model_res_data AS
+CREATE OR REPLACE VIEW model.vw_res_input_raw AS
 WITH uni_filtered AS (
     SELECT *
     FROM default.vw_pin_universe
