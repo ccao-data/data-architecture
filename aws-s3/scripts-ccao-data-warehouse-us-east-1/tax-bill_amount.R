@@ -41,20 +41,21 @@ upload_billamount <- function(s3_bucket_uri, file_year, town_code) {
     "part-0.parquet"
   )
 
-  if (!aws.s3::object_exists(remote_file)) {
-    message("Now fetching: ", file_year)
+  billamount <- read_parquet(
+    file.path(input_bucket, paste0(file_year, ".parquet"))
+    ) %>%
+    select(PIN, TAX_YEAR, TB_TOWN, TB_EAV:TB_EST_TAX_AMT) %>%
+    rename_with(., ~ tolower(gsub("TB_", "", .x))) %>%
+    rename(town_code = town) %>%
+    select(-tax_year) %>%
+    mutate(year = file_year) %>%
 
-    billamount <- read_parquet(
-      aws.s3::get_object(file.path(input_bucket, paste0(file_year, ".parquet"))
-    )) %>%
-      select(PIN, TAX_YEAR, TB_TOWN, TB_EAV:TB_EST_TAX_AMT) %>%
-      rename_with(., ~ tolower(gsub("TB_", "", .x))) %>%
-      rename(town_code = town) %>%
-      select(-tax_year) %>%
-      mutate(year = file_year) %>%
-      group_by(year, town_code) %>%
-      write_partitions_to_s3(s3_bucket_uri, is_spatial = FALSE)
-  }
+    # There are some duplicate rows in the raw data. Keep only one row per PIN
+    # with the highest total tax amount
+    group_by(pin, year) %>%
+    slice_max(order_by = tot_tax_amt, n = 1) %>%
+    group_by(year, town_code) %>%
+    write_partitions_to_s3(s3_bucket_uri, is_spatial = FALSE, overwrite = TRUE)
 }
 
 # Apply function to all files
