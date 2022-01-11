@@ -3,51 +3,83 @@ CREATE OR replace VIEW default.vw_pin_history
 AS
   -- CCAO mailed_tot, CCAO final, and BOR final values for each PIN by year
   WITH values_by_year
-       AS (SELECT asmt_all.parid,
-                  asmt_all.taxyr,
+       AS (SELECT parid,
+                  taxyr,
                   Max(CASE
-                        WHEN asmt_all.procname = 'CCAOVALUE' AND Cast(asmt_all.taxyr AS INT) < 2020 THEN valasm3
-                        WHEN asmt_all.procname = 'CCAOVALUE' AND Cast(asmt_all.taxyr AS INT) = 2020 AND asmt_all.SEQ = 0 THEN valasm3
+                        WHEN procname = 'CCAOVALUE'
+                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm2
+                        WHEN procname = 'CCAOVALUE'
+                             AND Cast(taxyr AS INT) = 2020
+                             AND seq = 0 THEN valasm2
+                        ELSE NULL
+                      END) AS mailed_bldg,
+                  Max(CASE
+                        WHEN procname = 'CCAOVALUE'
+                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm1
+                        WHEN procname = 'CCAOVALUE'
+                             AND Cast(taxyr AS INT) = 2020
+                             AND seq = 0 THEN valasm1
+                        ELSE NULL
+                      END) AS mailed_land,
+                  Max(CASE
+                        WHEN procname = 'CCAOVALUE'
+                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm3
+                        WHEN procname = 'CCAOVALUE'
+                             AND Cast(taxyr AS INT) = 2020
+                             AND seq = 0 THEN valasm3
                         ELSE NULL
                       END) AS mailed_tot,
                   Max(CASE
-                        WHEN asmt_all.procname = 'CCAOFINAL' THEN userval2
+                        WHEN procname = 'CCAOFINAL'
+                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm2
+                        WHEN procname = 'CCAOFINAL'
+                             AND Cast(taxyr AS INT) = 2020
+                             AND seq = 1 THEN valasm2
                         ELSE NULL
                       END) AS certified_bldg,
                   Max(CASE
-                        WHEN asmt_all.procname = 'CCAOFINAL' THEN userval1
+                         WHEN procname = 'CCAOFINAL'
+                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm1
+                        WHEN procname = 'CCAOFINAL'
+                             AND Cast(taxyr AS INT) = 2020
+                             AND seq = 1 THEN valasm1
                         ELSE NULL
                       END) AS certified_land,
                   Max(CASE
-                        WHEN asmt_all.procname = 'CCAOFINAL' AND Cast(asmt_all.taxyr AS INT) < 2020 THEN valasm3
-                        WHEN asmt_all.procname = 'CCAOFINAL' AND Cast(asmt_all.taxyr AS INT) = 2020 AND asmt_all.SEQ = 1 THEN valasm3
+                        WHEN procname = 'CCAOFINAL'
+                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm3
+                        WHEN procname = 'CCAOFINAL'
+                             AND Cast(taxyr AS INT) = 2020
+                             AND seq = 1 THEN valasm3
                         ELSE NULL
                       END) AS certified_tot,
                   Max(CASE
-                        WHEN asmt_all.procname = 'BORVALUE' AND Cast(asmt_all.taxyr AS INT) < 2020 THEN userval5
+                        WHEN procname = 'BORVALUE'
+                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm2
                         ELSE NULL
                       END) AS board_bldg,
                   Max(CASE
-                        WHEN asmt_all.procname = 'BORVALUE' AND Cast(asmt_all.taxyr AS INT) < 2020 THEN userval4
+                        WHEN procname = 'BORVALUE'
+                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm1
                         ELSE NULL
                       END) AS board_lanD,
                   Max(CASE
-                        WHEN asmt_all.procname = 'BORVALUE' AND Cast(asmt_all.taxyr AS INT) < 2020 THEN valasm3
+                        WHEN procname = 'BORVALUE'
+                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm3
                         ELSE NULL
                       END) AS board_tot
            FROM   iasworld.asmt_all
-                  left join iasworld.aprval
-                         ON aprval.parid = asmt_all.parid
-                            AND aprval.taxyr = asmt_all.taxyr
            -- Still working on 2020
-           WHERE  Cast(asmt_all.taxyr AS INT) < Year(current_date) - 1
-           GROUP  BY asmt_all.parid,
-                     asmt_all.taxyr
-           ORDER  BY asmt_all.parid,
-                     asmt_all.taxyr)
+           WHERE  Cast(taxyr AS INT) < Year(current_date) - 1
+           GROUP  BY parid,
+                     taxyr
+           ORDER  BY parid,
+                     taxyr)
   -- Add lagged values for previous two years
   SELECT parid                      AS pin,
          taxyr                      AS year,
+         mailed_bldg,
+         mailed_land,
          mailed_tot,
          certified_bldg,
          certified_land,
@@ -55,6 +87,14 @@ AS
          board_bldg,
          board_land,
          board_tot,
+         Lag(mailed_bldg)
+           over(
+             PARTITION BY parid
+             ORDER BY parid, taxyr) AS oneyr_pri_mailed_bldg,
+         Lag(mailed_land)
+           over(
+             PARTITION BY parid
+             ORDER BY parid, taxyr) AS oneyr_pri_mailed_land,
          Lag(mailed_tot)
            over(
              PARTITION BY parid
