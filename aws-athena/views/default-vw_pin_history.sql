@@ -6,7 +6,8 @@ AS
        AS (SELECT asmt_all.parid,
                   asmt_all.taxyr,
                   Max(CASE
-                        WHEN asmt_all.procname = 'CCAOVALUE' THEN valasm3
+                        WHEN asmt_all.procname = 'CCAOVALUE' AND Cast(asmt_all.taxyr AS INT) < 2020 THEN valasm3
+                        WHEN asmt_all.procname = 'CCAOVALUE' AND Cast(asmt_all.taxyr AS INT) = 2020 AND asmt_all.SEQ = 0 THEN valasm3
                         ELSE NULL
                       END) AS mailed_tot,
                   Max(CASE
@@ -18,19 +19,20 @@ AS
                         ELSE NULL
                       END) AS certified_land,
                   Max(CASE
-                        WHEN asmt_all.procname = 'CCAOFINAL' THEN valasm3
+                        WHEN asmt_all.procname = 'CCAOFINAL' AND Cast(asmt_all.taxyr AS INT) < 2020 THEN valasm3
+                        WHEN asmt_all.procname = 'CCAOFINAL' AND Cast(asmt_all.taxyr AS INT) = 2020 AND asmt_all.SEQ = 1 THEN valasm3
                         ELSE NULL
                       END) AS certified_tot,
                   Max(CASE
-                        WHEN asmt_all.procname = 'BORVALUE' THEN userval5
+                        WHEN asmt_all.procname = 'BORVALUE' AND Cast(asmt_all.taxyr AS INT) < 2020 THEN userval5
                         ELSE NULL
                       END) AS board_bldg,
                   Max(CASE
-                        WHEN asmt_all.procname = 'BORVALUE' THEN userval4
+                        WHEN asmt_all.procname = 'BORVALUE' AND Cast(asmt_all.taxyr AS INT) < 2020 THEN userval4
                         ELSE NULL
                       END) AS board_lanD,
                   Max(CASE
-                        WHEN asmt_all.procname = 'BORVALUE' THEN valasm3
+                        WHEN asmt_all.procname = 'BORVALUE' AND Cast(asmt_all.taxyr AS INT) < 2020 THEN valasm3
                         ELSE NULL
                       END) AS board_tot
            FROM   iasworld.asmt_all
@@ -38,7 +40,7 @@ AS
                          ON aprval.parid = asmt_all.parid
                             AND aprval.taxyr = asmt_all.taxyr
            -- Still working on 2020
-           WHERE  Cast(asmt_all.taxyr AS INT) < Year(current_date) - 2
+           WHERE  Cast(asmt_all.taxyr AS INT) < Year(current_date) - 1
            GROUP  BY asmt_all.parid,
                      asmt_all.taxyr
            ORDER  BY asmt_all.parid,
