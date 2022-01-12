@@ -85,6 +85,7 @@ AS
                      taxyr
            ORDER  BY parid,
                      taxyr),
+       -- Add township number and valuation class
        townships
        AS (SELECT parid,
                   taxyr,
