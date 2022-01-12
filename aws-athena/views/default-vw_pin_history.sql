@@ -84,10 +84,18 @@ AS
            GROUP  BY parid,
                      taxyr
            ORDER  BY parid,
-                     taxyr)
+                     taxyr),
+       townships
+       AS (SELECT parid,
+                  taxyr,
+                  class,
+                  Substr(nbhd, 1, 2) AS township
+           FROM   iasworld.pardat)
   -- Add lagged values for previous two years
-  SELECT parid                      AS pin,
-         taxyr                      AS year,
+  SELECT values_by_year.parid                                     AS pin,
+         values_by_year.taxyr                                     AS year,
+         townships.class,
+         townships.township,
          mailed_bldg,
          mailed_land,
          mailed_tot,
@@ -99,66 +107,85 @@ AS
          board_tot,
          Lag(mailed_bldg)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS oneyr_pri_mailed_bldg,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         oneyr_pri_mailed_bldg,
          Lag(mailed_land)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS oneyr_pri_mailed_land,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         oneyr_pri_mailed_land,
          Lag(mailed_tot)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS oneyr_pri_mailed_tot,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         oneyr_pri_mailed_tot,
          Lag(certified_bldg)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS oneyr_pri_certified_bldg,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         oneyr_pri_certified_bldg,
          Lag(certified_land)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS oneyr_pri_certified_land,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         oneyr_pri_certified_land,
          Lag(certified_tot)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS oneyr_pri_certified_tot,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         oneyr_pri_certified_tot,
          Lag(board_bldg)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS oneyr_pri_board_bldg,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         oneyr_pri_board_bldg,
          Lag(board_land)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS oneyr_pri_board_land,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         oneyr_pri_board_land,
          Lag(board_tot)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS oneyr_pri_board_tot,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         oneyr_pri_board_tot,
          Lag(mailed_tot, 2)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS twoyr_pri_mailed_tot,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         twoyr_pri_mailed_tot,
          Lag(certified_bldg, 2)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS twoyr_pri_certified_bldg,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         twoyr_pri_certified_bldg,
          Lag(certified_land, 2)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS twoyr_pri_certified_land,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         twoyr_pri_certified_land,
          Lag(certified_tot, 2)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS twoyr_pri_certified_tot,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         twoyr_pri_certified_tot,
          Lag(board_bldg, 2)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS twoyr_pri_board_bldg,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         twoyr_pri_board_bldg,
          Lag(board_land, 2)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS twoyr_pri_board_land,
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         twoyr_pri_board_land,
          Lag(board_tot, 2)
            over(
-             PARTITION BY parid
-             ORDER BY parid, taxyr) AS twoyr_pri_board_tot
+             PARTITION BY values_by_year.parid
+             ORDER BY values_by_year.parid, values_by_year.taxyr) AS
+         twoyr_pri_board_tot
   FROM   values_by_year
+         left join townships
+                ON values_by_year.parid = townships.parid
+                   AND values_by_year.taxyr = townships.taxyr
