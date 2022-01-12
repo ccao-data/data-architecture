@@ -5,11 +5,15 @@ AS
   WITH values_by_year
        AS (SELECT parid,
                   taxyr,
+                  -- Mailed values
                   Max(CASE
                         WHEN procname = 'CCAOVALUE'
                              AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm2
                         WHEN procname = 'CCAOVALUE'
                              AND Cast(taxyr AS INT) = 2020
+                             AND seq = 0 THEN valasm2
+                        WHEN Cast(taxyr AS INT) = 2021
+                             AND valclass IS NULL
                              AND seq = 0 THEN valasm2
                         ELSE NULL
                       END) AS mailed_bldg,
@@ -19,6 +23,9 @@ AS
                         WHEN procname = 'CCAOVALUE'
                              AND Cast(taxyr AS INT) = 2020
                              AND seq = 0 THEN valasm1
+                        WHEN Cast(taxyr AS INT) = 2021
+                             AND valclass IS NULL
+                             AND seq = 0 THEN valasm1
                         ELSE NULL
                       END) AS mailed_land,
                   Max(CASE
@@ -27,8 +34,12 @@ AS
                         WHEN procname = 'CCAOVALUE'
                              AND Cast(taxyr AS INT) = 2020
                              AND seq = 0 THEN valasm3
+                        WHEN Cast(taxyr AS INT) = 2021
+                             AND valclass IS NULL
+                             AND seq = 0 THEN valasm3
                         ELSE NULL
                       END) AS mailed_tot,
+                  -- Assessor certified values
                   Max(CASE
                         WHEN procname = 'CCAOFINAL'
                              AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm2
@@ -38,7 +49,7 @@ AS
                         ELSE NULL
                       END) AS certified_bldg,
                   Max(CASE
-                         WHEN procname = 'CCAOFINAL'
+                        WHEN procname = 'CCAOFINAL'
                              AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm1
                         WHEN procname = 'CCAOFINAL'
                              AND Cast(taxyr AS INT) = 2020
@@ -53,6 +64,7 @@ AS
                              AND seq = 1 THEN valasm3
                         ELSE NULL
                       END) AS certified_tot,
+                  -- Board certified values
                   Max(CASE
                         WHEN procname = 'BORVALUE'
                              AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm2
@@ -69,8 +81,6 @@ AS
                         ELSE NULL
                       END) AS board_tot
            FROM   iasworld.asmt_all
-           -- Still working on 2020
-           WHERE  Cast(taxyr AS INT) < Year(current_date) - 1
            GROUP  BY parid,
                      taxyr
            ORDER  BY parid,
