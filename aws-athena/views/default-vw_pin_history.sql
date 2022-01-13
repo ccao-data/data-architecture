@@ -46,6 +46,9 @@ AS
                         WHEN procname = 'CCAOFINAL'
                              AND Cast(taxyr AS INT) = 2020
                              AND seq = 1 THEN valasm2
+                        WHEN Cast(taxyr AS INT) = 2021
+                             AND valclass IS NULL
+                             AND seq = 1 THEN valasm2
                         ELSE NULL
                       END) AS certified_bldg,
                   Max(CASE
@@ -54,6 +57,9 @@ AS
                         WHEN procname = 'CCAOFINAL'
                              AND Cast(taxyr AS INT) = 2020
                              AND seq = 1 THEN valasm1
+                        WHEN Cast(taxyr AS INT) = 2021
+                             AND valclass IS NULL
+                             AND seq = 1 THEN valasm1
                         ELSE NULL
                       END) AS certified_land,
                   Max(CASE
@@ -61,6 +67,9 @@ AS
                              AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm3
                         WHEN procname = 'CCAOFINAL'
                              AND Cast(taxyr AS INT) = 2020
+                             AND seq = 1 THEN valasm3
+                        WHEN Cast(taxyr AS INT) = 2021
+                             AND valclass IS NULL
                              AND seq = 1 THEN valasm3
                         ELSE NULL
                       END) AS certified_tot,
