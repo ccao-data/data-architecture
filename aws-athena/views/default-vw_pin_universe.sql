@@ -24,18 +24,24 @@ SELECT
     sp.lon, sp.lat, sp.x_3435, sp.y_3435,
 
     -- PIN legal address from LEGDAT
-    leg.adrpre AS address_prefix,
-    leg.adrno AS address_street_number,
-    leg.adrdir AS address_street_dir,
-    leg.adrstr AS address_street_name,
-    leg.adrsuf AS address_suffix_1,
-    leg.adrsuf2 AS address_suffix_2,
-    leg.unitdesc AS address_unit_prefix,
-    leg.unitno AS address_unit_number,
-    leg.cityname AS address_city_name,
-    leg.statecode AS address_state,
-    leg.zip1 AS address_zipcode_1,
-    leg.zip2 AS address_zipcode_2,
+    leg.adrpre AS prop_address_prefix,
+    leg.adrno AS prop_address_street_number,
+    leg.adrdir AS prop_address_street_dir,
+    leg.adrstr AS prop_address_street_name,
+    leg.adrsuf AS prop_address_suffix_1,
+    leg.adrsuf2 AS prop_address_suffix_2,
+    leg.unitdesc AS prop_address_unit_prefix,
+    leg.unitno AS prop_address_unit_number,
+    NULLIF(CONCAT_WS(
+        ' ',
+        leg.adrpre, CAST(leg.adrno AS varchar),
+        leg.adrdir, leg.adrstr, leg.adrsuf,
+        leg.unitdesc, leg.unitno
+    ), '') AS prop_address_full,
+    leg.cityname AS prop_address_city_name,
+    leg.statecode AS prop_address_state,
+    leg.zip1 AS prop_address_zipcode_1,
+    leg.zip2 AS prop_address_zipcode_2,
 
     -- PIN locations from spatial joins
     census_block_group_geoid,

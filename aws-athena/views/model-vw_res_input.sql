@@ -116,19 +116,10 @@ forward_fill AS (
         ch.cdu AS meta_cdu,
 
         -- Individual PIN-level address/location
-        NULLIF(CONCAT_WS(
-            ' ',
-            uni.address_prefix, CAST(uni.address_street_number AS varchar),
-            uni.address_street_dir, uni.address_street_name,
-            uni.address_suffix_1
-        ), '') AS loc_property_address,
-        NULLIF(CONCAT_WS(
-            ' ',
-            uni.address_unit_prefix, uni.address_unit_number
-        ), '') AS loc_property_apt_no,
-        uni.address_city_name AS loc_property_city,
-        uni.address_state AS loc_property_state,
-        uni.address_zipcode_1 AS loc_property_zip,
+        uni.prop_address_full AS loc_property_address,
+        uni.prop_address_city_name AS loc_property_city,
+        uni.prop_address_state AS loc_property_state,
+        uni.prop_address_zipcode_1 AS loc_property_zip,
         uni.lon AS loc_longitude,
         uni.lat AS loc_latitude,
 
@@ -501,7 +492,6 @@ SELECT
     f1.meta_pin_num_landlines,
     f1.meta_cdu,
     f1.loc_property_address,
-    f1.loc_property_apt_no,
     f1.loc_property_city,
     f1.loc_property_state,
     f1.loc_property_zip,
