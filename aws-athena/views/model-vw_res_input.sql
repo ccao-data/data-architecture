@@ -115,6 +115,23 @@ forward_fill AS (
         ch.pin_num_landlines AS meta_pin_num_landlines,
         ch.cdu AS meta_cdu,
 
+        -- PIN AV history for use in reporting and aggregate stats generation
+        hist.mailed_bldg AS meta_mailed_bldg,
+        hist.mailed_land AS meta_mailed_land,
+        hist.mailed_tot AS meta_mailed_tot,
+        hist.certified_bldg AS meta_certified_bldg,
+        hist.certified_land AS meta_certified_land,
+        hist.certified_tot AS meta_certified_tot,
+        hist.board_bldg AS meta_board_bldg,
+        hist.board_land AS meta_board_land,
+        hist.board_tot AS meta_board_tot,
+        hist.oneyr_pri_board_bldg AS meta_1yr_pri_board_bldg,
+        hist.oneyr_pri_board_land AS meta_1yr_pri_board_land,
+        hist.oneyr_pri_board_tot AS meta_1yr_pri_board_tot,
+        hist.twoyr_pri_board_bldg AS meta_2yr_pri_board_bldg,
+        hist.twoyr_pri_board_land AS meta_2yr_pri_board_land,
+        hist.twoyr_pri_board_tot AS meta_2yr_pri_board_tot,
+
         -- Individual PIN-level address/location
         uni.prop_address_full AS loc_property_address,
         uni.prop_address_city_name AS loc_property_city,
@@ -150,6 +167,7 @@ forward_fill AS (
         ch.char_use,
         ch.char_porch,
         ch.char_air,
+        ch.char_ncu,
         ch.char_tp_plan,
 
         -- Land and lot size indicators
@@ -164,9 +182,9 @@ forward_fill AS (
             ELSE false
         END AS ind_bldg_gte_95_percentile,
         CASE
-            WHEN (ch.char_land_sf / (ch.char_bldg_sf + 1)) > 4.0 THEN true
+            WHEN (ch.char_land_sf / (ch.char_bldg_sf + 1)) >= 10.0 THEN true
             ELSE false
-        END AS ind_land_bldg_ratio_gt_4,
+        END AS ind_land_bldg_ratio_gte_10,
 
         -- PIN location data for aggregation and spatial joins
         uni.census_puma_geoid AS loc_census_puma_geoid,
@@ -448,6 +466,9 @@ forward_fill AS (
     LEFT JOIN default.vw_impr_char ch
         ON uni.pin = ch.pin
         AND uni.year = ch.year
+    LEFT JOIN default.vw_pin_history hist
+        ON uni.pin = hist.pin
+        AND uni.year = hist.year
     LEFT JOIN sqft_percentiles sp
         ON uni.year = sp.year
         AND uni.township_code = sp.township_code
@@ -491,6 +512,21 @@ SELECT
     f1.ind_pin_is_multiland,
     f1.meta_pin_num_landlines,
     f1.meta_cdu,
+    f1.meta_mailed_bldg,
+    f1.meta_mailed_land,
+    f1.meta_mailed_tot,
+    f1.meta_certified_bldg,
+    f1.meta_certified_land,
+    f1.meta_certified_tot,
+    f1.meta_board_bldg,
+    f1.meta_board_land,
+    f1.meta_board_tot,
+    f1.meta_1yr_pri_board_bldg,
+    f1.meta_1yr_pri_board_land,
+    f1.meta_1yr_pri_board_tot,
+    f1.meta_2yr_pri_board_bldg,
+    f1.meta_2yr_pri_board_land,
+    f1.meta_2yr_pri_board_tot,
     f1.loc_property_address,
     f1.loc_property_city,
     f1.loc_property_state,
@@ -523,12 +559,13 @@ SELECT
     f1.char_use,
     f1.char_porch,
     f1.char_air,
+    f1.char_ncu,
     f1.char_tp_plan,
     f1.char_land_sf_95_percentile,
     f1.ind_land_gte_95_percentile,
     f1.char_bldg_sf_95_percentile,
     f1.ind_bldg_gte_95_percentile,
-    f1.ind_land_bldg_ratio_gt_4,
+    f1.ind_land_bldg_ratio_gte_10,
     f1.loc_census_puma_geoid,
     f1.loc_census_tract_geoid,
     f1.loc_census_data_year,
