@@ -47,8 +47,8 @@ dedupe_transno AS (
         COUNT(transno) AS duplicate_transnos
     FROM iasworld.sales
     WHERE transno IS NOT NULL
-    AND nopar = 1
     GROUP BY transno
+    HAVING COUNT(transno)  = 1
 ),
 unique_sales AS (
     SELECT DISTINCT
@@ -83,15 +83,16 @@ unique_sales AS (
         ON sales.parid = highest_sp.parid
         AND sales.saledt = highest_sp.saledt
         AND sales.price = highest_sp.max_price
-    LEFT JOIN dedupe_transno
+    INNER JOIN dedupe_transno
         ON sales.transno = dedupe_transno.transno
     -- nopar is number of parcels sold
     WHERE ((sales.transno IS NOT NULL
             AND nopar = 1
-            AND duplicate_transnos = 1
             AND linenum = 1)
         OR obs = 1)
     AND sales.price > 10000
+    AND sales.parid != '0'
+    AND sales.transno != '1'
     AND CAST(SUBSTR(sales.saledt, 1, 4) AS int)
         BETWEEN 1997 AND YEAR(current_date)
     -- Exclude quit claims, executor deeds, beneficial interests
