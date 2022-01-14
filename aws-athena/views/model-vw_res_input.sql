@@ -182,9 +182,9 @@ forward_fill AS (
             ELSE false
         END AS ind_bldg_gte_95_percentile,
         CASE
-            WHEN (ch.char_land_sf / (ch.char_bldg_sf + 1)) > 4.0 THEN true
+            WHEN (ch.char_land_sf / (ch.char_bldg_sf + 1)) >= 10.0 THEN true
             ELSE false
-        END AS ind_land_bldg_ratio_gt_4,
+        END AS ind_land_bldg_ratio_gte_10,
 
         -- PIN location data for aggregation and spatial joins
         uni.census_puma_geoid AS loc_census_puma_geoid,
@@ -565,7 +565,7 @@ SELECT
     f1.ind_land_gte_95_percentile,
     f1.char_bldg_sf_95_percentile,
     f1.ind_bldg_gte_95_percentile,
-    f1.ind_land_bldg_ratio_gt_4,
+    f1.ind_land_bldg_ratio_gte_10,
     f1.loc_census_puma_geoid,
     f1.loc_census_tract_geoid,
     f1.loc_census_data_year,
