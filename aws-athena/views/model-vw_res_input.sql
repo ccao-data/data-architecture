@@ -167,6 +167,7 @@ forward_fill AS (
         ch.char_use,
         ch.char_porch,
         ch.char_air,
+        ch.char_ncu,
         ch.char_tp_plan,
 
         -- Land and lot size indicators
@@ -558,6 +559,7 @@ SELECT
     f1.char_use,
     f1.char_porch,
     f1.char_air,
+    f1.char_ncu,
     f1.char_tp_plan,
     f1.char_land_sf_95_percentile,
     f1.ind_land_gte_95_percentile,
