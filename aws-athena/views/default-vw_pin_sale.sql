@@ -58,13 +58,13 @@ AS
                                    AS
                                            sale_type,
                                    -- Sales are not entirely unique by pin/date so we group all sales b pin/date
-                                   -- then order then order by descending price and give the top observation a value of 1 for "linenum"
+                                   -- then order then order by descending price and give the top observation a value of 1 for "max_price"
                                    Row_number()
                                      over(
                                        PARTITION BY sales.parid, sales.saledt
                                        ORDER BY sales.parid, sales.saledt, -1 *
                                      sales.price ) AS
-                                           linenum
+                                           max_price
                    FROM   iasworld.sales
                           left join calculated
                                  ON sales.instruno = calculated.instruno
@@ -84,7 +84,7 @@ AS
                           -- Exclude quit claims, executor deeds, beneficial interests
                           AND instrtyp NOT IN ( '03', '04', '06' ))
            -- Only use max price by pin/sale date
-           WHERE  linenum = 1),
+           WHERE  max_price = 1),
        -- Lower and upper bounds so that outlier sales can be filtered out
        sale_filter
        AS (SELECT township_code,
