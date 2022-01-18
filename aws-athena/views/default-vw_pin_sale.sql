@@ -62,8 +62,7 @@ AS
                                    Row_number()
                                      over(
                                        PARTITION BY sales.parid, sales.saledt
-                                       ORDER BY sales.parid, sales.saledt, -1 *
-                                     sales.price ) AS
+                                       ORDER BY -1 * sales.price ) AS
                                            max_price,
                                    -- Some pins sell for the exact same price a few months after they're sold
                                    -- these sales are unecessary for modeling and may be duplicates
