@@ -64,7 +64,17 @@ AS
                                        PARTITION BY sales.parid, sales.saledt
                                        ORDER BY sales.parid, sales.saledt, -1 *
                                      sales.price ) AS
-                                           max_price
+                                           max_price,
+                                   -- Some pins sell for the exact same price a few months after they're sold
+                                   -- these sales are unecessary for modeling and may be duplicates
+                                   Lag(Date_parse(Substr(sales.saledt, 1, 10),
+                                       '%Y-%m-%d')
+                                   )
+                                     over(
+                                       PARTITION BY sales.parid, sales.price
+                                       ORDER BY sales.saledt)
+                                   AS
+                                           same_price_earlier_date
                    FROM   iasworld.sales
                           left join calculated
                                  ON sales.instruno = calculated.instruno
@@ -82,9 +92,14 @@ AS
                           AND Cast(Substr(sales.saledt, 1, 4) AS INT) BETWEEN
                               1997 AND Year(current_date)
                           -- Exclude quit claims, executor deeds, beneficial interests
-                          AND instrtyp NOT IN ( '03', '04', '06' ))
+                          AND instrtyp NOT IN ( '03', '04', '06' )
+                          AND townclass.township_code IS NOT NULL)
            -- Only use max price by pin/sale date
-           WHERE  max_price = 1),
+           WHERE  max_price = 1
+                  -- Drop sales for a given pin if it has sold within the last 12 months for the same price
+                  AND ( Extract(day FROM sale_date - same_price_earlier_date) >
+                        365
+                         OR same_price_earlier_date IS NULL )),
        -- Lower and upper bounds so that outlier sales can be filtered out
        sale_filter
        AS (SELECT township_code,
