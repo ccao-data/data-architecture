@@ -142,8 +142,8 @@ forward_fill AS (
 
         -- Property characteristics from iasWorld
         ch.char_yrblt,
-        ch.char_bldg_sf,
-        ch.char_land_sf,
+        NULLIF(ch.char_bldg_sf, 0.0) AS char_bldg_sf,
+        NULLIF(ch.char_land_sf, 0.0) AS char_land_sf,
         ch.char_beds,
         ch.char_rooms,
         ch.char_fbath,
