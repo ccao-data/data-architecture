@@ -1,0 +1,40 @@
+{
+    "Crawler": {
+        "Name": "ccao-data-warehouse-model-crawler",
+        "Role": "ccao-glue-service-role",
+        "Targets": {
+            "S3Targets": [
+                {
+                    "Path": "s3://ccao-data-warehouse-us-east-1/model",
+                    "Exclusions": [
+                        "dvc/**",
+                        "workflow/**",
+                        "parameter_raw/**"
+                    ]
+                }
+            ],
+            "JdbcTargets": [],
+            "DynamoDBTargets": [],
+            "CatalogTargets": []
+        },
+        "DatabaseName": "model",
+        "Classifiers": [],
+        "SchemaChangePolicy": {
+            "UpdateBehavior": "UPDATE_IN_DATABASE",
+            "DeleteBehavior": "DELETE_FROM_DATABASE"
+        },
+        "State": "READY",
+        "CrawlElapsedTime": 0,
+        "CreationTime": "2022-01-17T14:03:48-06:00",
+        "LastUpdated": "2022-01-18T11:49:18-06:00",
+        "LastCrawl": {
+            "Status": "SUCCEEDED",
+            "LogGroup": "/aws-glue/crawlers",
+            "LogStream": "ccao-data-warehouse-model-crawler",
+            "MessagePrefix": "e05af80c-9ed3-4aab-8458-c3fbb33f79dd",
+            "StartTime": "2022-01-21T08:29:27-06:00"
+        },
+        "Version": 4,
+        "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":3}}"
+    }
+}

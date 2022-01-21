@@ -1,0 +1,48 @@
+{
+    "Crawler": {
+        "Name": "ccao-data-warehouse-spatial-crawler-level4",
+        "Role": "ccao-glue-service-role",
+        "Targets": {
+            "S3Targets": [
+                {
+                    "Path": "s3://ccao-data-warehouse-us-east-1/spatial/police",
+                    "Exclusions": []
+                },
+                {
+                    "Path": "s3://ccao-data-warehouse-us-east-1/spatial/economy",
+                    "Exclusions": []
+                },
+                {
+                    "Path": "s3://ccao-data-warehouse-us-east-1/spatial/ccao",
+                    "Exclusions": []
+                }
+            ],
+            "JdbcTargets": [],
+            "DynamoDBTargets": [],
+            "CatalogTargets": []
+        },
+        "DatabaseName": "spatial",
+        "Classifiers": [],
+        "SchemaChangePolicy": {
+            "UpdateBehavior": "UPDATE_IN_DATABASE",
+            "DeleteBehavior": "DELETE_FROM_DATABASE"
+        },
+        "State": "READY",
+        "Schedule": {
+            "ScheduleExpression": "cron(00 06 * * ? *)",
+            "State": "SCHEDULED"
+        },
+        "CrawlElapsedTime": 0,
+        "CreationTime": "2021-12-29T11:41:05-06:00",
+        "LastUpdated": "2022-01-07T15:57:10-06:00",
+        "LastCrawl": {
+            "Status": "SUCCEEDED",
+            "LogGroup": "/aws-glue/crawlers",
+            "LogStream": "ccao-data-warehouse-spatial-crawler-level4",
+            "MessagePrefix": "adfaf9bc-a8da-4d92-973e-4d1d7c18dc5d",
+            "StartTime": "2022-01-21T00:00:31-06:00"
+        },
+        "Version": 5,
+        "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":4}}"
+    }
+}
