@@ -1,0 +1,39 @@
+{
+    "Crawler": {
+        "Name": "ccao-data-warehouse-iasworld-crawler",
+        "Role": "ccao-glue-service-role",
+        "Targets": {
+            "S3Targets": [
+                {
+                    "Path": "s3://ccao-data-warehouse-us-east-1/iasworld",
+                    "Exclusions": []
+                }
+            ],
+            "JdbcTargets": [],
+            "DynamoDBTargets": [],
+            "CatalogTargets": []
+        },
+        "DatabaseName": "iasworld",
+        "Classifiers": [],
+        "SchemaChangePolicy": {
+            "UpdateBehavior": "UPDATE_IN_DATABASE",
+            "DeleteBehavior": "DEPRECATE_IN_DATABASE"
+        },
+        "State": "READY",
+        "Schedule": {
+            "ScheduleExpression": "cron(00 6 ? * * *)",
+            "State": "SCHEDULED"
+        },
+        "CrawlElapsedTime": 0,
+        "CreationTime": "2021-11-03T22:42:52-05:00",
+        "LastUpdated": "2021-12-08T16:27:08-06:00",
+        "LastCrawl": {
+            "Status": "SUCCEEDED",
+            "LogGroup": "/aws-glue/crawlers",
+            "LogStream": "ccao-data-warehouse-iasworld-crawler",
+            "MessagePrefix": "0148fd05-ff25-4fb9-bc6c-04cfd1b298c8",
+            "StartTime": "2022-01-21T00:00:28-06:00"
+        },
+        "Version": 4
+    }
+}

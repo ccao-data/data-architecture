@@ -1,0 +1,43 @@
+{
+    "Crawler": {
+        "Name": "ccao-data-warehouse-other-crawler",
+        "Role": "ccao-glue-service-role",
+        "Targets": {
+            "S3Targets": [
+                {
+                    "Path": "s3://ccao-data-warehouse-us-east-1/environment/flood_first_street",
+                    "Exclusions": []
+                },
+                {
+                    "Path": "s3://ccao-data-warehouse-us-east-1/housing/ihs_index",
+                    "Exclusions": []
+                },
+                {
+                    "Path": "s3://ccao-data-warehouse-us-east-1/school/great_schools_rating",
+                    "Exclusions": []
+                }
+            ],
+            "JdbcTargets": [],
+            "DynamoDBTargets": [],
+            "CatalogTargets": []
+        },
+        "DatabaseName": "other",
+        "Classifiers": [],
+        "SchemaChangePolicy": {
+            "UpdateBehavior": "UPDATE_IN_DATABASE",
+            "DeleteBehavior": "DELETE_FROM_DATABASE"
+        },
+        "State": "READY",
+        "CrawlElapsedTime": 0,
+        "CreationTime": "2021-12-21T16:16:05-06:00",
+        "LastUpdated": "2022-01-17T19:52:01-06:00",
+        "LastCrawl": {
+            "Status": "SUCCEEDED",
+            "LogGroup": "/aws-glue/crawlers",
+            "LogStream": "ccao-data-warehouse-other-crawler",
+            "MessagePrefix": "480c9b12-e3ba-4f16-ab32-018e2fdcf89b",
+            "StartTime": "2022-01-17T00:00:24-06:00"
+        },
+        "Version": 10
+    }
+}
