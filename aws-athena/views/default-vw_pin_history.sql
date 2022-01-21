@@ -8,76 +8,76 @@ AS
                   -- Mailed values
                   Max(CASE
                         WHEN procname = 'CCAOVALUE'
-                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm2
+                             AND taxyr < '2020' THEN ovrvalasm2
                         WHEN procname = 'CCAOVALUE'
-                             AND Cast(taxyr AS INT) >= 2020
+                             AND taxyr >= '2020'
                              AND valclass IS NULL THEN valasm2
                         ELSE NULL
                       END) AS mailed_bldg,
                   Max(CASE
                         WHEN procname = 'CCAOVALUE'
-                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm1
+                             AND taxyr < '2020' THEN ovrvalasm1
                         WHEN procname = 'CCAOVALUE'
-                             AND Cast(taxyr AS INT) >= 2020
+                             AND taxyr >= '2020'
                              AND valclass IS NULL THEN valasm1
                         ELSE NULL
                       END) AS mailed_land,
                   Max(CASE
                         WHEN procname = 'CCAOVALUE'
-                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm3
+                             AND taxyr < '2020' THEN ovrvalasm3
                         WHEN procname = 'CCAOVALUE'
-                             AND Cast(taxyr AS INT) >= 2020
+                             AND taxyr >= '2020'
                              AND valclass IS NULL THEN valasm3
                         ELSE NULL
                       END) AS mailed_tot,
                   -- Assessor certified values
                   Max(CASE
                         WHEN procname = 'CCAOFINAL'
-                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm2
+                             AND taxyr < '2020' THEN ovrvalasm2
                         WHEN procname = 'CCAOFINAL'
-                             AND Cast(taxyr AS INT) >= 2020
+                             AND taxyr >= '2020'
                              AND valclass IS NULL THEN valasm2
                         ELSE NULL
                       END) AS certified_bldg,
                   Max(CASE
                         WHEN procname = 'CCAOFINAL'
-                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm1
+                             AND taxyr < '2020' THEN ovrvalasm1
                         WHEN procname = 'CCAOFINAL'
-                             AND Cast(taxyr AS INT) >= 2020
+                             AND taxyr >= '2020'
                              AND valclass IS NULL THEN valasm1
                         ELSE NULL
                       END) AS certified_land,
                   Max(CASE
                         WHEN procname = 'CCAOFINAL'
-                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm3
+                             AND taxyr < '2020' THEN ovrvalasm3
                         WHEN procname = 'CCAOFINAL'
-                             AND Cast(taxyr AS INT) >= 2020
+                             AND taxyr >= '2020'
                              AND valclass IS NULL THEN valasm3
                         ELSE NULL
                       END) AS certified_tot,
                   -- Board certified values
                   Max(CASE
                         WHEN procname = 'BORVALUE'
-                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm2
+                             AND taxyr < '2020' THEN ovrvalasm2
                         WHEN procname = 'BORVALUE'
                               AND valclass IS NULL
-                             AND Cast(taxyr AS INT) >= 2020 THEN valasm2
+                             AND taxyr >= '2020' THEN valasm2
                         ELSE NULL
                       END) AS board_bldg,
                   Max(CASE
                         WHEN procname = 'BORVALUE'
-                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm1
+                             AND taxyr < '2020' THEN ovrvalasm1
                          WHEN procname = 'BORVALUE'
                               AND valclass IS NULL
-                             AND Cast(taxyr AS INT) >= 2020 THEN valasm1
+                             AND taxyr >= '2020' THEN valasm1
                         ELSE NULL
                       END) AS board_lanD,
                   Max(CASE
                         WHEN procname = 'BORVALUE'
-                             AND Cast(taxyr AS INT) < 2020 THEN ovrvalasm3
+                             AND taxyr < '2020' THEN ovrvalasm3
                              WHEN procname = 'BORVALUE'
                               AND valclass IS NULL
-                             AND Cast(taxyr AS INT) >= 2020 THEN valasm3
+                             AND taxyr >= '2020' THEN valasm3
                         ELSE NULL
                       END) AS board_tot
            FROM   iasworld.asmt_all
