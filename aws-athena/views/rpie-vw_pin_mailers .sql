@@ -4,7 +4,7 @@ AS
   -- physical parcel addresses
   WITH parcel_addressess
        AS (SELECT parid                                   AS pin,
-                  Cast(Cast(taxyr AS INT) + 1 AS VARCHAR) AS year,
+                  Cast(Cast(taxyr AS INT) + 1 AS VARCHAR) AS rpie_year,
                   Cast(adrno AS VARCHAR)
                   || CASE
                        WHEN adrdir IS NOT NULL THEN ' '
@@ -47,7 +47,7 @@ AS
        -- parcel mailing addresses
        owner_addressess
        AS (SELECT parid                                   AS pin,
-                  Cast(Cast(taxyr AS INT) + 1 AS VARCHAR) AS year,
+                  Cast(Cast(taxyr AS INT) + 1 AS VARCHAR) AS rpie_year,
                   own1
                   || CASE
                        WHEN own2 IS NOT NULL THEN ' '
@@ -88,8 +88,10 @@ AS
                                                     || zip2
                        ELSE ''
                      END                                  AS mailing_zip
-           FROM   iasworld.owndat)
-  SELECT pin_codes.pin,
+           FROM   iasworld.owndat),
+           -- RPIE pin/code combinations
+           pin_codes
+           AS (SELECT pin,
          Substr(pin_codes.pin, 1, 2)
          || '-'
          || Substr(pin_codes.pin, 3, 2)
@@ -100,7 +102,9 @@ AS
          || '-'
          || Substr(pin_codes.pin, 11, 4) AS rpie_pin,
          pin_codes.year                  AS rpie_year,
-         pin_codes.rpie_code,
+         pin_codes.rpie_code FROM  rpie.pin_codes)
+
+         SELECT pin_codes.*,
          property_address,
          property_apt_no,
          property_city,
@@ -114,10 +118,11 @@ AS
          mailing_zip,
          major_class,
          tri
-  FROM   rpie.pin_codes
-         left join parcel_addressess
-                ON pin_codes.pin = parcel_addressess.pin
-                   AND pin_codes.year = parcel_addressess.year
+  from parcel_addressess
          left join owner_addressess
-                ON pin_codes.pin = owner_addressess.pin
-                   AND pin_codes.year = owner_addressess.year
+                ON parcel_addressess.pin = owner_addressess.pin
+                   AND parcel_addressess.rpie_year = owner_addressess.rpie_year
+        left join pin_codes
+                ON parcel_addressess.pin = pin_codes.pin
+                   AND parcel_addressess.rpie_year = pin_codes.rpie_year
+where parcel_addressess.rpie_year >= '2019'
