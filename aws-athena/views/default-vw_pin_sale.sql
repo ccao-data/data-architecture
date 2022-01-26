@@ -44,6 +44,9 @@ AS
                                    Nullif(sales.instrtyp, '')
                                    AS
                                            deed_type,
+                                   -- "nopar" is number of parcels sold
+                                   case when sales.nopar <= 1 AND calculated.nopar_calculated = 1 then FALSE else TRUE end as is_multisale,
+                                   case when sales.nopar > 1 then sales.nopar else calculated.nopar_calculated end as num_parcels_sale,
                                    Nullif(sales.oldown, '')
                                    AS
                                            seller_name,
@@ -84,9 +87,6 @@ AS
                    WHERE  sales.instruno IS NOT NULL
                           -- Indicates whether a record has been deactivated
                           AND sales.deactivat IS NULL
-                          AND calculated.nopar_calculated = 1
-                          -- "nopar" is number of parcels sold
-                          AND sales.nopar <= 1
                           AND sales.price > 10000
                           AND Cast(Substr(sales.saledt, 1, 4) AS INT) BETWEEN
                               1997 AND Year(current_date)
@@ -104,6 +104,7 @@ AS
        AS (SELECT township_code,
                   class,
                   year,
+                  is_multisale,
                   Avg(sale_price_log10) - STDDEV(sale_price_log10) * 4 AS
                      sale_filter_lower_limit,
                   Avg(sale_price_log10) + STDDEV(sale_price_log10) * 4 AS
@@ -111,9 +112,11 @@ AS
                   Count(*)
                   sale_filter_count
            FROM   unique_sales
+           where is_multisale = FALSE
            GROUP  BY township_code,
                      class,
-                     year)
+                     year,
+                     is_multisale)
   SELECT unique_sales.pin,
          unique_sales.year,
          unique_sales.township_code,
@@ -125,6 +128,8 @@ AS
          unique_sales.doc_no,
          unique_sales.deed_type,
          unique_sales.seller_name,
+         unique_sales.is_multisale,
+         unique_sales.num_parcels_sale,
          unique_sales.buyer_name,
          unique_sales.sale_type,
          sale_filter_lower_limit,
@@ -135,3 +140,4 @@ AS
                 ON unique_sales.township_code = sale_filter.township_code
                    AND unique_sales.class = sale_filter.class
                    AND unique_sales.year = sale_filter.year
+                   AND unique_sales.is_multisale = sale_filter.is_multisale
