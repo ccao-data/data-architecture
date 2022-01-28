@@ -11,7 +11,7 @@ source("utils.R")
 # This script retrieves raw condominium characteristics from the CCAO's O Drive
 # compiled by the valuations department
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
-output_bucket <- file.path(AWS_S3_RAW_BUCKET, "condominium", "characteristics")
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "condominium", "characteristic")
 
 # Get local file addresses
 source_paths <- c("//fileserver/ocommon/2022 Data Collection/Condo Project/")
