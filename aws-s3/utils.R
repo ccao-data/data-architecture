@@ -87,6 +87,7 @@ write_partitions_to_s3 <- function(df,
   })
 }
 
+
 standardize_expand_geo <- function(spatial_df, make_valid = FALSE, polygon = TRUE) {
 
   return(
