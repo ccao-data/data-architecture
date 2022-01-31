@@ -25,20 +25,20 @@
         },
         "State": "READY",
         "Schedule": {
-            "ScheduleExpression": "cron(00 06 * * ? *)",
+            "ScheduleExpression": "cron(00 06 ? * TUE,THU,SAT *)",
             "State": "SCHEDULED"
         },
         "CrawlElapsedTime": 0,
         "CreationTime": "2021-12-29T11:53:57-06:00",
-        "LastUpdated": "2022-01-07T15:56:23-06:00",
+        "LastUpdated": "2022-01-21T18:32:35-06:00",
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-spatial-crawler-level3",
-            "MessagePrefix": "d6d714e8-857b-45b2-a7a0-3cf054da78a2",
-            "StartTime": "2022-01-21T00:00:38-06:00"
+            "MessagePrefix": "23236bed-c216-4168-85eb-a7f73e8db382",
+            "StartTime": "2022-01-29T00:00:25-06:00"
         },
-        "Version": 3,
+        "Version": 5,
         "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":3}}"
     }
 }
