@@ -38,7 +38,7 @@ AS
                                    sales.salekey
                                    AS
                                            sale_key,
-                                   Nullif(sales.instruno, '')
+                                   Nullif(replace(sales.instruno, 'D', ''), '')
                                    AS
                                            doc_no,
                                    Nullif(sales.instrtyp, '')
@@ -118,7 +118,7 @@ AS
                      year,
                      is_multisale),
         mydec_sales
-        AS (SELECT document_number as doc_no,
+        AS (SELECT replace(document_number, 'D', '') as doc_no,
                 CASE WHEN line_7_property_advertised = 1 THEN TRUE ELSE FALSE END AS "property_advertised",
                 CASE WHEN line_10a = 1 THEN TRUE ELSE FALSE END AS "is_installment_contract_fulfilled",
                 CASE WHEN line_10b = 1 THEN TRUE ELSE FALSE END AS "is_sale_between_related_individuals_or_corporate_affiliates",

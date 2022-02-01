@@ -60,6 +60,7 @@ map(files, clean_up) %>%
   # create an indicator for the first row withinduplicated document numbers
   arrange(line_4_instrument_date, date_recorded, .by_group = TRUE) %>%
   mutate(year_of_sale = lubridate::year(line_4_instrument_date),
+         declaration_id = as.character(declaration_id),
          is_earliest_within_doc_no = case_when(
            1:n() == 1 ~ TRUE,
            TRUE ~ FALSE
