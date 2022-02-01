@@ -116,7 +116,34 @@ AS
            GROUP  BY township_code,
                      class,
                      year,
-                     is_multisale)
+                     is_multisale),
+        mydec_sales
+        AS (SELECT document_number as doc_no,
+                CASE WHEN line_7_property_advertised = 1 THEN TRUE ELSE FALSE END AS "property_advertised",
+                CASE WHEN line_10a = 1 THEN TRUE ELSE FALSE END AS "is_installment_contract_fulfilled",
+                CASE WHEN line_10b = 1 THEN TRUE ELSE FALSE END AS "is_sale_between_related_individuals_or_corporate_affiliates",
+                CASE WHEN line_10c = 1 THEN TRUE ELSE FALSE END AS "is_transfer_of_less_than_100_percent_interest",
+                CASE WHEN line_10d = 1 THEN TRUE ELSE FALSE END AS "is_court-ordered_sale",
+                CASE WHEN line_10e = 1 THEN TRUE ELSE FALSE END AS "is_sale_in_lieu_of_foreclosure",
+                CASE WHEN line_10f = 1 THEN TRUE ELSE FALSE END AS "is_condemnation",
+                CASE WHEN line_10g = 1 THEN TRUE ELSE FALSE END AS "is_short_sale",
+                CASE WHEN line_10h = 1 THEN TRUE ELSE FALSE END AS "is_bank_reo_real_estate_owned",
+                CASE WHEN line_10i = 1 THEN TRUE ELSE FALSE END AS "is_auction_sale",
+                CASE WHEN line_10j = 1 THEN TRUE ELSE FALSE END AS "is_seller-buyer_a_relocation_company",
+                CASE WHEN line_10k = 1 THEN TRUE ELSE FALSE END AS "is_seller-buyer_a_financial_institution_or_government_agency",
+                CASE WHEN line_10l = 1 THEN TRUE ELSE FALSE END AS "is_buyer_a_real_estate_investment_trust",
+                CASE WHEN line_10m = 1 THEN TRUE ELSE FALSE END AS "is_buyer_a_pension_fund",
+                CASE WHEN line_10n = 1 THEN TRUE ELSE FALSE END AS "is_buyer_an_adjacent_property_owner",
+                CASE WHEN line_10o = 1 THEN TRUE ELSE FALSE END AS "is_buyer_exercising_an_option_to_purchase",
+                CASE WHEN line_10p = 1 THEN TRUE ELSE FALSE END AS "is_simultaneous_trade_of_property",
+                CASE WHEN line_10q = 1 THEN TRUE ELSE FALSE END AS "is_sale-leaseback",
+                CASE WHEN line_10s = 1 THEN TRUE ELSE FALSE END AS "is_homestead_exemption",
+                line_10s_generalalternative AS "homestead_exemption_general-alternative",
+                line_10s_senior_citizens AS "homestead_exemption_senior_citizens",
+                line_10s_senior_citizens_assessment_freeze AS "homestead_exemption_senior_citizens_assessment_freeze"
+                FROM sale.mydec
+                WHERE is_earliest_within_doc_no = TRUE
+                )
   SELECT unique_sales.pin,
          unique_sales.year,
          unique_sales.township_code,
@@ -134,10 +161,34 @@ AS
          unique_sales.sale_type,
          sale_filter_lower_limit,
          sale_filter_upper_limit,
-         sale_filter_count
+         sale_filter_count,
+         mydec_sales.property_advertised,
+         mydec_sales.is_installment_contract_fulfilled,
+         mydec_sales.is_sale_between_related_individuals_or_corporate_affiliates,
+         mydec_sales.is_transfer_of_less_than_100_percent_interest,
+         mydec_sales."is_court-ordered_sale",
+         mydec_sales.is_sale_in_lieu_of_foreclosure,
+         mydec_sales.is_condemnation,
+         mydec_sales.is_short_sale,
+         mydec_sales.is_bank_reo_real_estate_owned,
+         mydec_sales.is_auction_sale,
+         mydec_sales."is_seller-buyer_a_relocation_company",
+         mydec_sales."is_seller-buyer_a_financial_institution_or_government_agency",
+         mydec_sales.is_buyer_a_real_estate_investment_trust,
+         mydec_sales.is_buyer_a_pension_fund,
+         mydec_sales.is_buyer_an_adjacent_property_owner,
+         mydec_sales.is_buyer_exercising_an_option_to_purchase,
+         mydec_sales.is_simultaneous_trade_of_property,
+         mydec_sales."is_sale-leaseback",
+         mydec_sales.is_homestead_exemption,
+         mydec_sales."homestead_exemption_general-alternative",
+         mydec_sales.homestead_exemption_senior_citizens,
+         mydec_sales.homestead_exemption_senior_citizens_assessment_freeze
   FROM   unique_sales
          left join sale_filter
                 ON unique_sales.township_code = sale_filter.township_code
                    AND unique_sales.class = sale_filter.class
                    AND unique_sales.year = sale_filter.year
                    AND unique_sales.is_multisale = sale_filter.is_multisale
+         left join mydec_sales
+                ON unique_sales.doc_no = mydec_sales.doc_no
