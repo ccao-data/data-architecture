@@ -46,12 +46,23 @@ clean_up <- function(x) {
 # Load raw files, cleanup, then write to warehouse S3
 map(files, clean_up) %>%
   rbindlist(fill = TRUE) %>%
+  na_if("NULL") %>%
   rename_with(~ tolower(
     str_replace_all(
       str_squish(
         str_replace_all(.x, "[[:punct:]]", "")
-        ), " ", "_")
-    )) %>%
-  mutate(year_of_sale = lubridate::year(date_recorded)) %>%
+      ), " ", "_")
+  )) %>%
+  filter(!is.na(document_number) & line_1_county == "Cook") %>%
+  group_by(document_number) %>%
+  # Data isn't unique by document number, or even transaction date and document number
+  # so we arrange by transaction date and then recorder date within codument number and
+  # create an indicator for the first row withinduplicated document numbers
+  arrange(line_4_instrument_date, date_recorded, .by_group = TRUE) %>%
+  mutate(year_of_sale = lubridate::year(line_4_instrument_date),
+         is_earliest_within_doc_no = case_when(
+           1:n() == 1 ~ TRUE,
+           TRUE ~ FALSE
+         )) %>%
   group_by(year_of_sale) %>%
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
