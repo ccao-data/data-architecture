@@ -139,6 +139,8 @@ forward_fill AS (
         uni.prop_address_zipcode_1 AS loc_property_zip,
         uni.lon AS loc_longitude,
         uni.lat AS loc_latitude,
+        uni.x_3435 AS loc_x_3435,
+        uni.y_3435 AS loc_y_3435,
 
         -- Property characteristics from iasWorld
         ch.char_yrblt,
@@ -527,6 +529,8 @@ SELECT
     f1.loc_property_zip,
     f1.loc_longitude,
     f1.loc_latitude,
+    f1.loc_x_3435,
+    f1.loc_y_3435,
     f1.char_yrblt,
     f1.char_bldg_sf,
     f1.char_land_sf,
