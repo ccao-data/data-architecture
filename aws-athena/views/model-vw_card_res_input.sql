@@ -13,7 +13,7 @@ filled with the following steps:
 WARNING: This is a very heavy view. Don't use it for anything other than making
 extracts for modeling
 **/
-CREATE OR REPLACE VIEW model.vw_res_input AS
+CREATE OR REPLACE VIEW model.vw_card_res_input AS
 WITH uni_filtered AS (
     SELECT *
     FROM default.vw_pin_universe
@@ -42,7 +42,7 @@ sqft_percentiles AS (
         CAST(approx_percentile(ch.char_bldg_sf, 0.95) AS int) AS char_bldg_sf_95_percentile,
         CAST(approx_percentile(ch.char_land_sf, 0.95) AS int) AS char_land_sf_95_percentile
     FROM uni_filtered uni
-    LEFT JOIN default.vw_impr_char ch
+    LEFT JOIN default.vw_card_res_char ch
         ON uni.pin = ch.pin
         AND uni.year = ch.year
     GROUP BY uni.year, uni.township_code
@@ -106,8 +106,8 @@ forward_fill AS (
             ELSE false
         END AS ind_pin_is_prorated,
 
-        -- Multicode / multi-landline related fields. Each PIN can have more than
-        -- one improvement AND/OR more than one attached landline
+        -- Multicard/multi-landline related fields. Each PIN can have more than
+        -- one improvement/card AND/OR more than one attached landline
         ch.card AS meta_card_num,
         ch.pin_is_multicard AS ind_pin_is_multicard,
         ch.pin_num_cards AS meta_pin_num_cards,
@@ -459,7 +459,7 @@ forward_fill AS (
         uni.nearest_neighbor_3_dist_ft
 
     FROM uni_filtered uni
-    LEFT JOIN default.vw_impr_char ch
+    LEFT JOIN default.vw_card_res_char ch
         ON uni.pin = ch.pin
         AND uni.year = ch.year
     LEFT JOIN default.vw_pin_history hist
