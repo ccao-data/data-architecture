@@ -15,29 +15,44 @@
                 {
                     "Path": "s3://ccao-data-warehouse-us-east-1/school/great_schools_rating",
                     "Exclusions": []
+                },
+                {
+                    "Path": "s3://ccao-data-warehouse-us-east-1/land/land_nbhd_rate",
+                    "Exclusions": []
+                },
+                {
+                    "Path": "s3://ccao-data-warehouse-us-east-1/land/land_site_rate",
+                    "Exclusions": []
                 }
             ],
             "JdbcTargets": [],
+            "MongoDBTargets": [],
             "DynamoDBTargets": [],
             "CatalogTargets": []
         },
         "DatabaseName": "other",
         "Classifiers": [],
+        "RecrawlPolicy": {
+            "RecrawlBehavior": "CRAWL_EVERYTHING"
+        },
         "SchemaChangePolicy": {
             "UpdateBehavior": "UPDATE_IN_DATABASE",
             "DeleteBehavior": "DELETE_FROM_DATABASE"
         },
-        "State": "READY",
-        "CrawlElapsedTime": 0,
-        "CreationTime": "2021-12-21T16:16:05-06:00",
-        "LastUpdated": "2022-01-17T19:52:01-06:00",
+        "LineageConfiguration": {
+            "CrawlerLineageSettings": "DISABLE"
+        },
+        "State": "STOPPING",
+        "CrawlElapsedTime": 59000,
+        "CreationTime": 1640124965.0,
+        "LastUpdated": 1644264583.0,
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-other-crawler",
-            "MessagePrefix": "480c9b12-e3ba-4f16-ab32-018e2fdcf89b",
-            "StartTime": "2022-01-17T00:00:24-06:00"
+            "MessagePrefix": "99717a7e-6b74-461a-a045-296f166ba986",
+            "StartTime": 1644264259.0
         },
-        "Version": 10
+        "Version": 14
     }
 }

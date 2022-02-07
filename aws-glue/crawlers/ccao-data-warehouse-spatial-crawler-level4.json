@@ -18,14 +18,21 @@
                 }
             ],
             "JdbcTargets": [],
+            "MongoDBTargets": [],
             "DynamoDBTargets": [],
             "CatalogTargets": []
         },
         "DatabaseName": "spatial",
         "Classifiers": [],
+        "RecrawlPolicy": {
+            "RecrawlBehavior": "CRAWL_EVERYTHING"
+        },
         "SchemaChangePolicy": {
             "UpdateBehavior": "UPDATE_IN_DATABASE",
             "DeleteBehavior": "DELETE_FROM_DATABASE"
+        },
+        "LineageConfiguration": {
+            "CrawlerLineageSettings": "DISABLE"
         },
         "State": "READY",
         "Schedule": {
@@ -33,14 +40,14 @@
             "State": "SCHEDULED"
         },
         "CrawlElapsedTime": 0,
-        "CreationTime": "2021-12-29T11:41:05-06:00",
-        "LastUpdated": "2022-01-21T18:32:52-06:00",
+        "CreationTime": 1640799665.0,
+        "LastUpdated": 1642811572.0,
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-spatial-crawler-level4",
-            "MessagePrefix": "f8814db6-fcd0-44e8-8bf3-180125697218",
-            "StartTime": "2022-02-01T00:00:48-06:00"
+            "MessagePrefix": "c742f18b-c381-4304-b9dd-679806202c06",
+            "StartTime": 1644040847.0
         },
         "Version": 7,
         "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":4}}"

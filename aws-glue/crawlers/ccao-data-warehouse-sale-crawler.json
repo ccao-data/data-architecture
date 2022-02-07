@@ -10,25 +10,32 @@
                 }
             ],
             "JdbcTargets": [],
+            "MongoDBTargets": [],
             "DynamoDBTargets": [],
             "CatalogTargets": []
         },
         "DatabaseName": "sale",
         "Classifiers": [],
+        "RecrawlPolicy": {
+            "RecrawlBehavior": "CRAWL_EVERYTHING"
+        },
         "SchemaChangePolicy": {
             "UpdateBehavior": "UPDATE_IN_DATABASE",
             "DeleteBehavior": "DELETE_FROM_DATABASE"
         },
+        "LineageConfiguration": {
+            "CrawlerLineageSettings": "DISABLE"
+        },
         "State": "READY",
         "CrawlElapsedTime": 0,
-        "CreationTime": "2022-01-07T19:54:38-06:00",
-        "LastUpdated": "2022-01-21T09:27:41-06:00",
+        "CreationTime": 1641606878.0,
+        "LastUpdated": 1642778861.0,
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-sale-crawler",
-            "MessagePrefix": "8b5b1b51-c7a9-4e06-ac2b-2523273c533c",
-            "StartTime": "2022-01-21T00:00:58-06:00"
+            "MessagePrefix": "22718ce2-a6f3-4c0f-980e-2db072f400e1",
+            "StartTime": 1643748666.0
         },
         "Version": 5,
         "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":3}}"

@@ -10,25 +10,32 @@
                 }
             ],
             "JdbcTargets": [],
+            "MongoDBTargets": [],
             "DynamoDBTargets": [],
             "CatalogTargets": []
         },
         "DatabaseName": "census",
         "Classifiers": [],
+        "RecrawlPolicy": {
+            "RecrawlBehavior": "CRAWL_EVERYTHING"
+        },
         "SchemaChangePolicy": {
             "UpdateBehavior": "UPDATE_IN_DATABASE",
             "DeleteBehavior": "DELETE_FROM_DATABASE"
         },
+        "LineageConfiguration": {
+            "CrawlerLineageSettings": "DISABLE"
+        },
         "State": "READY",
         "CrawlElapsedTime": 0,
-        "CreationTime": "2021-11-03T22:41:26-05:00",
-        "LastUpdated": "2022-01-17T19:51:46-06:00",
+        "CreationTime": 1635997286.0,
+        "LastUpdated": 1642470706.0,
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-census-crawler",
             "MessagePrefix": "8a973c6a-18b1-4c16-b7e9-63aa132c812c",
-            "StartTime": "2022-01-17T00:00:44-06:00"
+            "StartTime": 1642399244.0
         },
         "Version": 10
     }
