@@ -63,7 +63,7 @@ binary_checksum <- function(x) {
 
 }
 
-# Select a value from a list given the position provided by the checksum function
+# Function to select a value from a list given the position provided by the checksum function
 select_value <- function(x) {
 
   str_sub(
