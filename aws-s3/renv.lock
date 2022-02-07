@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.1.1",
+    "Version": "4.1.2",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -125,8 +125,8 @@
       "Package": "assessr",
       "Version": "0.4.4",
       "Source": "GitLab",
-      "Remotes": "gitlab::ccao-data-science---modeling/packages/ccao",
       "RemoteType": "gitlab",
+      "Remotes": "gitlab::ccao-data-science---modeling/packages/ccao",
       "RemoteHost": "gitlab.com",
       "RemoteRepo": "packages/assessr",
       "RemoteUsername": "ccao-data-science---modeling",
@@ -208,8 +208,8 @@
       "Package": "ccao",
       "Version": "0.5.1",
       "Source": "GitLab",
-      "Remotes": "gitlab::ccao-data-science---modeling/packages/assessr",
       "RemoteType": "gitlab",
+      "Remotes": "gitlab::ccao-data-science---modeling/packages/assessr",
       "RemoteHost": "gitlab.com",
       "RemoteRepo": "packages/ccao",
       "RemoteUsername": "ccao-data-science---modeling",
@@ -1280,7 +1280,9 @@
     "xml2": {
       "Package": "xml2",
       "Version": "1.3.2",
-      "Source": "Repository"
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "d4d71a75dd3ea9eb5fa28cc21f9585e2"
     },
     "xtable": {
       "Package": "xtable",

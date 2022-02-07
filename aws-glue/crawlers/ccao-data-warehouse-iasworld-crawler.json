@@ -10,14 +10,21 @@
                 }
             ],
             "JdbcTargets": [],
+            "MongoDBTargets": [],
             "DynamoDBTargets": [],
             "CatalogTargets": []
         },
         "DatabaseName": "iasworld",
         "Classifiers": [],
+        "RecrawlPolicy": {
+            "RecrawlBehavior": "CRAWL_EVERYTHING"
+        },
         "SchemaChangePolicy": {
             "UpdateBehavior": "UPDATE_IN_DATABASE",
             "DeleteBehavior": "DEPRECATE_IN_DATABASE"
+        },
+        "LineageConfiguration": {
+            "CrawlerLineageSettings": "DISABLE"
         },
         "State": "READY",
         "Schedule": {
@@ -25,14 +32,14 @@
             "State": "SCHEDULED"
         },
         "CrawlElapsedTime": 0,
-        "CreationTime": "2021-11-03T22:42:52-05:00",
-        "LastUpdated": "2021-12-08T16:27:08-06:00",
+        "CreationTime": 1635997372.0,
+        "LastUpdated": 1639002428.0,
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-iasworld-crawler",
-            "MessagePrefix": "208dec09-e119-48eb-8a73-f5fe2eb618e6",
-            "StartTime": "2022-02-01T00:00:31-06:00"
+            "MessagePrefix": "757794fb-9457-4aa3-a2b4-b9ab3bbc5c5e",
+            "StartTime": 1644213632.0
         },
         "Version": 4
     }
