@@ -13,7 +13,7 @@ filled with the following steps:
 WARNING: This is a very heavy view. Don't use it for anything other than making
 extracts for modeling
 **/
-CREATE OR REPLACE VIEW model.vw_res_input AS
+CREATE OR REPLACE VIEW model.vw_card_res_input AS
 WITH uni_filtered AS (
     SELECT *
     FROM default.vw_pin_universe
@@ -42,7 +42,7 @@ sqft_percentiles AS (
         CAST(approx_percentile(ch.char_bldg_sf, 0.95) AS int) AS char_bldg_sf_95_percentile,
         CAST(approx_percentile(ch.char_land_sf, 0.95) AS int) AS char_land_sf_95_percentile
     FROM uni_filtered uni
-    LEFT JOIN default.vw_impr_char ch
+    LEFT JOIN default.vw_card_res_char ch
         ON uni.pin = ch.pin
         AND uni.year = ch.year
     GROUP BY uni.year, uni.township_code
@@ -95,10 +95,12 @@ forward_fill AS (
         uni.tax_code AS meta_tax_code,
 
         -- Proration fields. Buildings can be split over multiple PINs, with each
-        -- PIN owning a percentage of a building
+        -- PIN owning a percentage of a building. For residential buildings, if
+        -- a proration rate is NULL or 0, it's almost always actually 1
         uni.tieback_key_pin AS meta_tieback_key_pin,
         CASE
             WHEN uni.tieback_proration_rate IS NULL THEN 1.0
+            WHEN uni.tieback_proration_rate = 0.0 THEN 1.0
             ELSE uni.tieback_proration_rate
         END AS meta_tieback_proration_rate,
         CASE
@@ -106,8 +108,8 @@ forward_fill AS (
             ELSE false
         END AS ind_pin_is_prorated,
 
-        -- Multicode / multi-landline related fields. Each PIN can have more than
-        -- one improvement AND/OR more than one attached landline
+        -- Multicard/multi-landline related fields. Each PIN can have more than
+        -- one improvement/card AND/OR more than one attached landline
         ch.card AS meta_card_num,
         ch.pin_is_multicard AS ind_pin_is_multicard,
         ch.pin_num_cards AS meta_pin_num_cards,
@@ -139,6 +141,8 @@ forward_fill AS (
         uni.prop_address_zipcode_1 AS loc_property_zip,
         uni.lon AS loc_longitude,
         uni.lat AS loc_latitude,
+        uni.x_3435 AS loc_x_3435,
+        uni.y_3435 AS loc_y_3435,
 
         -- Property characteristics from iasWorld
         ch.char_yrblt,
@@ -457,7 +461,7 @@ forward_fill AS (
         uni.nearest_neighbor_3_dist_ft
 
     FROM uni_filtered uni
-    LEFT JOIN default.vw_impr_char ch
+    LEFT JOIN default.vw_card_res_char ch
         ON uni.pin = ch.pin
         AND uni.year = ch.year
     LEFT JOIN default.vw_pin_history hist
@@ -527,6 +531,8 @@ SELECT
     f1.loc_property_zip,
     f1.loc_longitude,
     f1.loc_latitude,
+    f1.loc_x_3435,
+    f1.loc_y_3435,
     f1.char_yrblt,
     f1.char_bldg_sf,
     f1.char_land_sf,
