@@ -110,6 +110,14 @@ assign_new_code <- all_pins %>%
 # Generate RPIE codes
 assign_new_code$rpie_code <- unlist(lapply(1:nrow(assign_new_code), gen_rpie_code))
 
+# Make sure no old codes have been assigned as new codes
+while (any(assign_new_code$rpie_code %in% unique(all_pins$rpie_code))) {
+
+  # Generate RPIE codes
+  assign_new_code$rpie_code <- unlist(lapply(1:nrow(assign_new_code), gen_rpie_code))
+
+}
+
 # Recombine PINs
 upload <- bind_rows(
   assign_new_code,
@@ -117,26 +125,31 @@ upload <- bind_rows(
     filter(!is.na(rpie_code) | year < 2022)
 ) %>% ungroup()
 
-# Make sure no old codes have been assigned as new codes
-while (any(assign_new_code$rpie_code %in% unique(all_pins$rpie_code))) {
-
-  # Gather new pins without RPIE codes
-  assign_new_code <- all_pins %>%
-    filter(is.na(rpie_code) & year >= 2022)
-
-  # Generate RPIE codes
-  assign_new_code$rpie_code <- unlist(lapply(1:nrow(assign_new_code), gen_rpie_code))
-
-  # Recombine PINs
-  upload <- bind_rows(
-    assign_new_code,
-    all_pins %>%
-      filter(!is.na(rpie_code) | year < 2022)
-  ) %>% ungroup()
-
-}
-
 # Upload to S3
 upload %>%
   group_by(year) %>%
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
+
+# connect to CCAODATA
+CCAODATA <- dbConnect(odbc::odbc(),
+                      .connection_string = Sys.getenv("DB_CONFIG_CCAODATAW"))
+
+# Check most recent data in CCAODATA.RPIE_PIN_CODES
+max_year_CCAODATA <- dbGetQuery(
+  conn = CCAODATA,
+  "select max(TAX_YEAR) from rpie_pin_codes"
+)
+
+# Update CCAODATA.RPIE_PIN_CODES if need be
+if (max(upload$year) > max_year_CCAODATA) {
+
+  dbAppendTable(
+    conn = CCAODATA,
+    "rpie_pin_codes",
+    upload %>%
+      filter(year == max(year)) %>%
+      rename("tax_year" = "year", "rpie_pin" = "pin") %>%
+      select(rpie_pin, tax_year, rpie_code)
+    )
+
+}
