@@ -42,14 +42,6 @@ all_chars AS (
     (SELECT DISTINCT
         parid AS pin,
         Substr(parid, 1, 10) AS pin10,
-        who AS updated_by,
-        Date_parse(wen, '%Y-%m-%d %H:%i:%s.%f') AS updated_at,
-        CASE WHEN wen = (
-            Max(wen)
-                over(PARTITION BY parid, taxyr)
-            ) THEN TRUE
-            ELSE FALSE
-            END AS is_most_recent_update,
         class,
         seq,
         cur,
@@ -68,14 +60,6 @@ all_chars AS (
     (SELECT DISTINCT
         parid AS pin,
         Substr(parid, 1, 10) AS pin10,
-        who AS updated_by,
-        Date_parse(wen, '%Y-%m-%d %H:%i:%s.%f') AS updated_at,
-        CASE WHEN wen = (
-            Max(wen)
-                over(PARTITION BY parid, taxyr)
-            ) THEN TRUE
-            ELSE FALSE
-            END AS is_most_recent_update,
         class,
         seq,
         cur,
@@ -93,18 +77,24 @@ all_chars AS (
         ),
 -- Have to INNER JOIN by class with pardat since some PINs show up in both OBY and COMDAT but with differnt classes...
 chars AS (
-    SELECT
-        all_chars.*
-    FROM all_chars
-    INNER JOIN (
+    SELECT * FROM (
         SELECT
-            parid AS pin,
-            taxyr AS year,
-            class FROM iasworld.pardat
-        ) pardat
-    ON all_chars.pin = pardat.pin
-        AND all_chars.year = pardat.year
-        AND all_chars.class = pardat.class
+            all_chars.*,
+            max(char_yrblt)
+                OVER (PARTITION BY all_chars.pin, all_chars.year)
+                AS max_yrblt
+        FROM all_chars
+        INNER JOIN (
+            SELECT
+                parid AS pin,
+                taxyr AS year,
+                class FROM iasworld.pardat
+            ) pardat
+        ON all_chars.pin = pardat.pin
+            AND all_chars.year = pardat.year
+            AND all_chars.class = pardat.class
+    )
+    WHERE char_yrblt = max_yrblt
 ),
 -- Unit numbers and notes, used to help fing parking spaces
 unit_numbers AS (
@@ -153,9 +143,6 @@ SELECT
     chars.pin10,
     chars.year,
     chars.class,
-    chars.updated_by,
-    chars.updated_at,
-    chars.is_most_recent_update,
     chars.seq,
     chars.cur,
     chars.char_yrblt,
