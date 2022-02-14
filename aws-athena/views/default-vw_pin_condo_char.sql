@@ -37,7 +37,7 @@ units AS (
     FROM unique_pins
     GROUP BY pin10, year
     ),
--- All characteristics associated with condos in the OBY/COMDAT tables
+-- All characteristics associated with condos in the OBY (299s)/COMDAT (399s) tables
 all_chars AS (
     (SELECT DISTINCT
         parid AS pin,
@@ -94,6 +94,7 @@ chars AS (
             AND all_chars.year = pardat.year
             AND all_chars.class = pardat.class
     )
+    -- Some PINs show up up with different yrblt across lline (within year)
     WHERE char_yrblt = max_yrblt
 ),
 -- Unit numbers and notes, used to help fing parking spaces
@@ -109,7 +110,7 @@ unit_numbers AS (
     WHERE unitdesc IS NOT NULL
         OR unitno IS NOT NULL
         ),
--- CDUs are not well-maintained year-to-year, we'll forward fill NULLs to account for this
+-- CDUs/notes are not well-maintained year-to-year, we'll forward fill NULLs to account for this
 forward_fill AS (
     SELECT
         chars.pin,
