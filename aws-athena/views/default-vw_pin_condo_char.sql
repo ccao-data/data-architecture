@@ -33,7 +33,7 @@ units AS (
     SELECT
         pin10,
         year,
-        Count(*) AS building_units
+        Count(*) AS building_pins
     FROM unique_pins
     GROUP BY pin10, year
     ),
@@ -155,7 +155,19 @@ SELECT
     CASE WHEN chars.char_grade IN ('2', 'A') THEN 'Average'
         WHEN chars.char_grade = 'C' THEN 'Good'
         ELSE NULL END AS char_grade,
-    units.building_units as char_building_units,
+    -- Count of non-unit PINs by pin10
+    sum(CASE
+        WHEN forward_fill.cdu = 'GR'
+            OR SUBSTR(unit_numbers.unitno, 1, 1) = 'P'
+            OR SUBSTR(unit_numbers.unitno, 1, 3) = 'GAR'
+            -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
+            OR (unit_numbers.tiebldgpct < (50 / units.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
+            OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
+        THEN 1
+        ELSE 0 END)
+        OVER (PARTITION BY chars.pin10, chars.year)
+        AS char_building_non_units,
+    units.building_pins as char_building_pins,
     unit_numbers.tiebldgpct as char_tiebldgpct,
     total_building_land_sf as char_land_sf,
 
@@ -168,7 +180,7 @@ SELECT
             OR SUBSTR(unit_numbers.unitno, 1, 1) = 'P'
             OR SUBSTR(unit_numbers.unitno, 1, 3) = 'GAR'
             -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
-            OR (unit_numbers.tiebldgpct < (50 / units.building_units) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
+            OR (unit_numbers.tiebldgpct < (50 / units.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
             OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
         THEN TRUE
         ELSE FALSE
@@ -177,7 +189,7 @@ SELECT
         WHEN forward_fill.cdu = 'GR' then 'cdu'
         WHEN SUBSTR(unit_numbers.unitno, 1, 1) = 'P'
             OR SUBSTR(unit_numbers.unitno, 1, 3) = 'GAR' THEN 'unit number'
-        WHEN (unit_numbers.tiebldgpct < (50 / units.building_units) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000) THEN 'declaration percent'
+        WHEN (unit_numbers.tiebldgpct < (50 / units.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000) THEN 'declaration percent'
         WHEN prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000 THEN 'prior value'
         ELSE NULL
     END AS parking_space_flag_reason,
