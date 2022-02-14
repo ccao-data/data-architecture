@@ -27,7 +27,8 @@ unique_pins AS (
         Substr(parid, 1, 10) AS pin10,
         taxyr as year
     FROM iasworld.pardat
-    WHERE class in ('299', '399')),
+    WHERE class in ('299', '399')
+    ),
 units AS (
     SELECT
         pin10,
@@ -36,16 +37,16 @@ units AS (
     FROM unique_pins
     GROUP BY pin10, year
     ),
--- All characteristics associated with condos in the OBY table
-chars AS (
-    SELECT DISTINCT
+-- All characteristics associated with condos in the OBY/COMDAT tables
+all_chars AS (
+    (SELECT DISTINCT
         parid AS pin,
         Substr(parid, 1, 10) AS pin10,
         who AS updated_by,
         Date_parse(wen, '%Y-%m-%d %H:%i:%s.%f') AS updated_at,
         CASE WHEN wen = (
             Max(wen)
-                over(PARTITION BY parid, taxyr, cur )
+                over(PARTITION BY parid, taxyr)
             ) THEN TRUE
             ELSE FALSE
             END AS is_most_recent_update,
@@ -61,15 +62,59 @@ chars AS (
         cond AS char_cond,
         grade AS char_grade
     FROM iasworld.oby
-    WHERE class IN ( '299', '399' )
+    WHERE class IN ( '299')
+        AND cur = 'Y')
+    UNION
+    (SELECT DISTINCT
+        parid AS pin,
+        Substr(parid, 1, 10) AS pin10,
+        who AS updated_by,
+        Date_parse(wen, '%Y-%m-%d %H:%i:%s.%f') AS updated_at,
+        CASE WHEN wen = (
+            Max(wen)
+                over(PARTITION BY parid, taxyr)
+            ) THEN TRUE
+            ELSE FALSE
+            END AS is_most_recent_update,
+        class,
+        seq,
+        cur,
+        taxyr AS year,
+        user16 AS cdu,
+        -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
+        CASE WHEN yrblt IS NULL THEN effyr
+            ELSE yrblt
+            END AS char_yrblt,
+        cdu AS char_cond,
+        grade AS char_grade
+    FROM iasworld.comdat
+    WHERE class IN ( '399')
+        AND cur = 'Y')
         ),
--- Unit numbers, used to help fing parking spaces
+-- Have to INNER JOIN by class with pardat since some PINs show up in both OBY and COMDAT but with differnt classes...
+chars AS (
+    SELECT
+        all_chars.*
+    FROM all_chars
+    INNER JOIN (
+        SELECT
+            parid AS pin,
+            taxyr AS year,
+            class FROM iasworld.pardat
+        ) pardat
+    ON all_chars.pin = pardat.pin
+        AND all_chars.year = pardat.year
+        AND all_chars.class = pardat.class
+),
+-- Unit numbers and notes, used to help fing parking spaces
 unit_numbers AS (
     SELECT DISTINCT
-        parid AS pin,taxyr AS year,
+        parid AS pin,
+        taxyr AS year,
         unitdesc,
         unitno,
-        tiebldgpct
+        tiebldgpct,
+        note2 as note
     FROM iasworld.pardat
     WHERE unitdesc IS NOT NULL
         OR unitno IS NOT NULL
@@ -77,15 +122,22 @@ unit_numbers AS (
 -- CDUs are not well-maintained year-to-year, we'll forward fill NULLs to account for this
 forward_fill AS (
     SELECT
-        pin,
-        year,
+        chars.pin,
+        chars.year,
         CASE
             WHEN cdu IS NULL
             THEN LAST_VALUE(chars.cdu) IGNORE NULLS
                 OVER (PARTITION BY chars.pin ORDER BY chars.year)
             ELSE chars.cdu
-            END AS cdu
+            END AS cdu,
+        CASE
+            WHEN note IS NULL
+            THEN LAST_VALUE(unit_numbers.note) IGNORE NULLS
+                OVER (PARTITION BY chars.pin ORDER BY chars.year)
+            ELSE unit_numbers.note
+            END AS note
     FROM chars
+    LEFT JOIN unit_numbers ON chars.pin = unit_numbers.pin AND chars.year = unit_numbers.year
 ),
 -- Prior year AV, used to help fing parking spaces and common areas
 prior_values AS (
@@ -107,12 +159,20 @@ SELECT
     chars.seq,
     chars.cur,
     chars.char_yrblt,
-    chars.char_cond,
-    chars.char_grade,
+    CASE WHEN chars.char_cond IN ('AV', 'A') THEN 'Average'
+        WHEN chars.char_cond IN ('GD', 'G') THEN 'Good'
+        WHEN chars.char_cond = 'V' THEN 'Very Good'
+        WHEN chars.char_cond = 'F' THEN 'Fair'
+        ELSE NULL END AS char_cond,
+    CASE WHEN chars.char_grade IN ('2', 'A') THEN 'Average'
+        WHEN chars.char_grade = 'C' THEN 'Good'
+        ELSE NULL END AS char_grade,
+    units.building_units as char_building_units,
+    unit_numbers.tiebldgpct as char_tiebldgpct,
+    total_building_land_sf as char_land_sf,
 
     forward_fill.cdu,
-    units.building_units,
-    unit_numbers.tiebldgpct,
+    forward_fill.note,
     unit_numbers.unitno,
     prior_values.oneyr_pri_board_tot,
     CASE
@@ -141,8 +201,7 @@ SELECT
     END AS is_common_area,
 
     pin_is_multiland,
-    pin_num_landlines,
-    total_building_land_sf
+    pin_num_landlines
 FROM chars
 LEFT JOIN aggregate_land
 ON chars.pin = aggregate_land.parid
