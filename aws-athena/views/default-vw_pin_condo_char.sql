@@ -160,6 +160,7 @@ SELECT
         WHEN forward_fill.cdu = 'GR'
             OR SUBSTR(unit_numbers.unitno, 1, 1) = 'P'
             OR SUBSTR(unit_numbers.unitno, 1, 3) = 'GAR'
+            OR forward_fill.note = 'PARKING/STORAGE/COMMON UNIT'
             -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
             OR (unit_numbers.tiebldgpct < (50 / units.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
             OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
@@ -179,6 +180,7 @@ SELECT
         WHEN forward_fill.cdu = 'GR'
             OR SUBSTR(unit_numbers.unitno, 1, 1) = 'P'
             OR SUBSTR(unit_numbers.unitno, 1, 3) = 'GAR'
+            OR forward_fill.note = 'PARKING/STORAGE/COMMON UNIT'
             -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
             OR (unit_numbers.tiebldgpct < (50 / units.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
             OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
@@ -186,7 +188,8 @@ SELECT
         ELSE FALSE
     END AS is_parking_space,
     CASE
-        WHEN forward_fill.cdu = 'GR' then 'cdu'
+        WHEN forward_fill.note = 'PARKING/STORAGE/COMMON UNIT' THEN 'identified by valuations as non-unit'
+        WHEN forward_fill.cdu = 'GR' THEN 'cdu'
         WHEN SUBSTR(unit_numbers.unitno, 1, 1) = 'P'
             OR SUBSTR(unit_numbers.unitno, 1, 3) = 'GAR' THEN 'unit number'
         WHEN (unit_numbers.tiebldgpct < (50 / units.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000) THEN 'declaration percent'
