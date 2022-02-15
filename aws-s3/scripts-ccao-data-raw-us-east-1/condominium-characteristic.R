@@ -14,7 +14,7 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "condominium", "characteristic")
 
 # Get local file addresses
-source_paths <- c("//fileserver/ocommon/2022 Data Collection/Condo Project/")
+source_paths <- c("//fileserver/ocommon/2022 Data Collection/Condo Project/William Approved Layout North Tri Condo Project FINAL COMPLETED/")
 
 source_files <- grep(
   "completed",
@@ -26,8 +26,6 @@ source_files <- grep(
   value = TRUE
 )
 
-remove <- c("completed", "condo", "project", "[[:punct:]]", "[[:number:]]")
-
 # Function to retrieve data and write to S3
 read_write <- function(x) {
   openxlsx::read.xlsx(x, sheet = 1) %>%
@@ -37,19 +35,12 @@ read_write <- function(x) {
           file.path(
             output_bucket,
             str_sub(str_extract(x, '20.*'), 1, 4),
-            paste0(
-              str_squish(
-                str_remove_all(
-                  tools::file_path_sans_ext(basename(x)), regex(str_c(remove, collapse = '|'), ignore_case = T)
-                )
-              ),
-              ".parquet"
-            )
-          ),
+            paste0(tools::file_path_sans_ext(basename(x)), ".parquet")
+            ),
           " ", "_"
+          )
         )
       )
-    )
 }
 
 # Apply function to foreclosure data
