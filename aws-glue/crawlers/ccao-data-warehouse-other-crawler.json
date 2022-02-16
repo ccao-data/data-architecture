@@ -42,16 +42,16 @@
         "LineageConfiguration": {
             "CrawlerLineageSettings": "DISABLE"
         },
-        "State": "STOPPING",
-        "CrawlElapsedTime": 59000,
+        "State": "READY",
+        "CrawlElapsedTime": 0,
         "CreationTime": 1640124965.0,
         "LastUpdated": 1644264583.0,
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-other-crawler",
-            "MessagePrefix": "99717a7e-6b74-461a-a045-296f166ba986",
-            "StartTime": 1644264259.0
+            "MessagePrefix": "b52974ab-eae5-4e48-8efe-6ac59d74a169",
+            "StartTime": 1644264585.0
         },
         "Version": 14
     }

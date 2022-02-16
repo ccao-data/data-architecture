@@ -7,7 +7,6 @@
                 {
                     "Path": "s3://ccao-model-results-us-east-1",
                     "Exclusions": [
-                        "dvc/**",
                         "workflow/**",
                         "parameter_raw/**"
                     ]
@@ -33,15 +32,15 @@
         "State": "READY",
         "CrawlElapsedTime": 0,
         "CreationTime": 1643672867.0,
-        "LastUpdated": 1643672867.0,
+        "LastUpdated": 1645045559.0,
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-model-results-crawler",
-            "MessagePrefix": "7d515a76-e338-48db-8557-aadeb655b0b3",
-            "StartTime": 1644190976.0
+            "MessagePrefix": "462d0bc9-1d77-4c39-92a2-81acc88d7c38",
+            "StartTime": 1645047293.0
         },
-        "Version": 1,
+        "Version": 2,
         "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":2}}"
     }
 }
