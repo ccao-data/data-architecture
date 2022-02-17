@@ -222,7 +222,7 @@ shaps AS (
         a1.run_id,
         a1.township_code,
         a2.feature_name,
-        a2.shap_value
+        a2.feature_shap
     FROM
         model.shap a1
     CROSS JOIN
@@ -424,7 +424,7 @@ shaps AS (
         time_sale_week_of_year,
         time_sale_during_school_year,
         time_sale_during_holidays
-    ]) a2 (feature_name, shap_value)
+    ]) a2 (feature_name, feature_shap)
 )
 SELECT 
     f.run_id,
@@ -433,7 +433,7 @@ SELECT
     f.meta_card_num,
     f.feature_name,
     f.feature_value,
-    s.shap_value,
+    s.feature_shap,
     f.year,
     f.township_code
 FROM features f
