@@ -14,7 +14,7 @@ source("utils.R")
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <-
-  file.path(AWS_S3_WAREHOUSE_BUCKET, "condominium", "characteristic")
+  file.path(AWS_S3_WAREHOUSE_BUCKET, "condominium", "condo_char")
 
 # Connect to the JDBC driver
 aws_athena_jdbc_driver <- RJDBC::JDBC(
@@ -34,7 +34,7 @@ AWS_ATHENA_CONN_JDBC <- dbConnect(
 # Destination for upload
 dest_file <- file.path(AWS_S3_WAREHOUSE_BUCKET,
                        max(
-                         aws.s3::get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "condominium/characteristic/")$Key
+                         aws.s3::get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "condominium/condo_char/")$Key
                          )
                        )
 
@@ -42,7 +42,7 @@ dest_file <- file.path(AWS_S3_WAREHOUSE_BUCKET,
 files <- grep(".parquet",
               file.path(
                 AWS_S3_RAW_BUCKET,
-                aws.s3::get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "condominium/characteristic/")$Key
+                aws.s3::get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "condominium/condo_char/")$Key
                 ),
               value = TRUE)
 
@@ -76,7 +76,6 @@ classes <- dbGetQuery(
 map(files, clean_condo_sheets) %>%
   rbindlist(fill = TRUE) %>%
   inner_join(classes) %>%
-  select(-class) %>%
   mutate(across(c(unit_sf, building_sf), ~ na_if(., "0"))) %>%
   mutate(across(c(unit_sf, building_sf), ~ na_if(., "1"))) %>%
   mutate(across(c(building_sf, unit_sf, bedrooms), ~ gsub("[^0-9.-]", "", .))) %>%
@@ -90,5 +89,6 @@ map(files, clean_condo_sheets) %>%
   mutate(across(c(building_sf, unit_sf, bedrooms), ~ as.numeric(.))) %>%
   mutate(parking_pin = str_detect(source, "(?i)parking|garage") & is.na(unit_sf) & is.na(building_sf),
          year = '2021') %>%
+  select(-c(class, source)) %>%
   group_by(year) %>%
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
