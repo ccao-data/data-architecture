@@ -46,6 +46,7 @@ files <- grep(".parquet",
                 ),
               value = TRUE)
 
+# function to make different condo sheets stackable
 clean_condo_sheets <- function(x) {
 
   read_parquet(x) %>%
