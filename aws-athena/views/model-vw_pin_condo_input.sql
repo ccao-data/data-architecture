@@ -148,6 +148,26 @@ forward_fill AS (
         ch.char_building_non_units,
         ch.char_tiebldgpct,
 
+        -- Property characteristics from MLS/valuations
+        CASE
+            WHEN ch.char_building_sf IS NULL THEN
+                LAST_VALUE(ch.char_building_sf) IGNORE NULLS
+                OVER (PARTITION BY ch.pin ORDER BY ch.year DESC)
+            ELSE ch.char_building_sf
+        END AS char_building_sf,
+        CASE
+            WHEN ch.char_unit_sf IS NULL THEN
+                LAST_VALUE(ch.char_unit_sf) IGNORE NULLS
+                OVER (PARTITION BY ch.pin ORDER BY ch.year DESC)
+            ELSE ch.char_unit_sf
+        END AS char_unit_sf,
+        CASE
+            WHEN ch.char_bedrooms IS NULL THEN
+                LAST_VALUE(ch.char_bedrooms) IGNORE NULLS
+                OVER (PARTITION BY ch.pin ORDER BY ch.year DESC)
+            ELSE ch.char_bedrooms
+        END AS char_bedrooms,
+
         -- Land and lot size indicators
         sp.char_land_sf_95_percentile,
         CASE
@@ -501,6 +521,9 @@ SELECT
     f1.char_grade,
     f1.char_building_pins - f1.char_building_non_units AS char_building_units,
     f1.char_tiebldgpct,
+    f1.char_building_sf,
+    f1.char_unit_sf,
+    f1.char_bedrooms,
     f1.char_land_sf_95_percentile,
     f1.ind_land_gte_95_percentile,
     f1.loc_census_puma_geoid,
