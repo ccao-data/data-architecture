@@ -97,6 +97,10 @@ chars AS (
     -- Some PINs show up up with different yrblt across lline (within year)
     WHERE char_yrblt = max_yrblt
 ),
+-- Characteristics data gathered from MLS by valuations
+val_chars AS (
+    SELECT * FROM other.condo_char
+),
 -- Unit numbers and notes, used to help fing parking spaces
 unit_numbers AS (
     SELECT DISTINCT
@@ -155,6 +159,9 @@ SELECT
     CASE WHEN chars.char_grade IN ('2', 'A') THEN 'Average'
         WHEN chars.char_grade = 'C' THEN 'Good'
         ELSE NULL END AS char_grade,
+    val_chars.building_sf AS char_building_sf,
+    val_chars.unit_sf AS char_unit_sf,
+    val_chars.bedrooms AS char_bedrooms,
     -- Count of non-unit PINs by pin10
     sum(CASE
         WHEN forward_fill.cdu = 'GR'
@@ -221,3 +228,6 @@ ON chars.pin = forward_fill.pin
 LEFT JOIN prior_values
 ON chars.pin = prior_values.pin
     AND chars.year = prior_values.year
+LEFT JOIN val_chars
+ON chars.pin = val_chars.pin
+    AND chars.year = val_chars.year
