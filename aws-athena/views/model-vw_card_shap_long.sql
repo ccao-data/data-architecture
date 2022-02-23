@@ -111,7 +111,9 @@ WITH features AS (
         'time_sale_quarter_of_year',
         'time_sale_week_of_year',
         'time_sale_during_school_year',
-        'time_sale_during_holidays'
+        'time_sale_during_holidays',
+        'time_sale_day',
+        'time_sale_day_of_year'
     ],
     array[
         CAST(meta_township_code AS varchar),
@@ -210,7 +212,9 @@ WITH features AS (
         CAST(time_sale_quarter_of_year AS varchar),
         CAST(time_sale_week_of_year AS varchar),
         CAST(time_sale_during_school_year AS varchar),
-        CAST(time_sale_during_holidays AS varchar)
+        CAST(time_sale_during_holidays AS varchar),
+        CAST(time_sale_day AS varchar),
+        CAST(time_sale_day_of_year AS varchar)
     ]) a2 (feature_name, feature_value)
 ),
 shaps AS (
@@ -324,7 +328,9 @@ shaps AS (
         'time_sale_quarter_of_year',
         'time_sale_week_of_year',
         'time_sale_during_school_year',
-        'time_sale_during_holidays'
+        'time_sale_during_holidays',
+        'time_sale_day',
+        'time_sale_day_of_year'
     ],
     array[
         meta_township_code,
@@ -423,7 +429,9 @@ shaps AS (
         time_sale_quarter_of_year,
         time_sale_week_of_year,
         time_sale_during_school_year,
-        time_sale_during_holidays
+        time_sale_during_holidays,
+        time_sale_day,
+        time_sale_day_of_year
     ]) a2 (feature_name, feature_shap)
 )
 SELECT 
