@@ -149,24 +149,9 @@ forward_fill AS (
         ch.char_tiebldgpct,
 
         -- Property characteristics from MLS/valuations
-        CASE
-            WHEN ch.char_building_sf IS NULL THEN
-                LAST_VALUE(ch.char_building_sf) IGNORE NULLS
-                OVER (PARTITION BY ch.pin ORDER BY ch.year DESC)
-            ELSE ch.char_building_sf
-        END AS char_building_sf,
-        CASE
-            WHEN ch.char_unit_sf IS NULL THEN
-                LAST_VALUE(ch.char_unit_sf) IGNORE NULLS
-                OVER (PARTITION BY ch.pin ORDER BY ch.year DESC)
-            ELSE ch.char_unit_sf
-        END AS char_unit_sf,
-        CASE
-            WHEN ch.char_bedrooms IS NULL THEN
-                LAST_VALUE(ch.char_bedrooms) IGNORE NULLS
-                OVER (PARTITION BY ch.pin ORDER BY ch.year DESC)
-            ELSE ch.char_bedrooms
-        END AS char_bedrooms,
+        ch.char_building_sf,
+        ch.char_unit_sf,
+        ch.char_bedrooms,
 
         -- Land and lot size indicators
         sp.char_land_sf_95_percentile,
