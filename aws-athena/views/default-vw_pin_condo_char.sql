@@ -99,7 +99,46 @@ chars AS (
 ),
 -- Characteristics data gathered from MLS by valuations
 val_chars AS (
-    SELECT * FROM other.condo_char
+    SELECT
+      pin,
+      year,
+      CASE
+          WHEN building_sf IS NULL THEN
+              LAST_VALUE(building_sf) IGNORE NULLS
+              OVER (PARTITION BY pin ORDER BY year DESC)
+          ELSE building_sf
+      END AS building_sf,
+      CASE
+          WHEN unit_sf IS NULL THEN
+              LAST_VALUE(unit_sf) IGNORE NULLS
+              OVER (PARTITION BY pin ORDER BY year DESC)
+          ELSE unit_sf
+      END AS unit_sf,
+      CASE
+          WHEN bedrooms IS NULL THEN
+              LAST_VALUE(bedrooms) IGNORE NULLS
+              OVER (PARTITION BY pin ORDER BY year DESC)
+          ELSE bedrooms
+      END AS bedrooms,
+      CASE
+          WHEN parking_pin IS NULL THEN
+              LAST_VALUE(parking_pin) IGNORE NULLS
+              OVER (PARTITION BY pin ORDER BY year DESC)
+          ELSE parking_pin
+      END AS parking_pin
+    FROM (
+      SELECT
+        chars.pin,
+        chars.year,
+        condo_char.building_sf,
+        condo_char.unit_sf,
+        CAST(condo_char.bedrooms AS int) AS bedrooms,
+        condo_char.parking_pin
+      FROM chars
+      LEFT JOIN other.condo_char
+      ON chars.pin = condo_char.pin
+        AND chars.year = condo_char.year
+    )
 ),
 -- Unit numbers and notes, used to help fing parking spaces
 unit_numbers AS (
@@ -168,6 +207,7 @@ SELECT
             OR SUBSTR(unit_numbers.unitno, 1, 1) = 'P'
             OR SUBSTR(unit_numbers.unitno, 1, 3) = 'GAR'
             OR forward_fill.note = 'PARKING/STORAGE/COMMON UNIT'
+            OR val_chars.parking_pin = TRUE
             -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
             OR (unit_numbers.tiebldgpct < (50 / units.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
             OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
@@ -188,6 +228,7 @@ SELECT
             OR SUBSTR(unit_numbers.unitno, 1, 1) = 'P'
             OR SUBSTR(unit_numbers.unitno, 1, 3) = 'GAR'
             OR forward_fill.note = 'PARKING/STORAGE/COMMON UNIT'
+            OR val_chars.parking_pin = TRUE
             -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
             OR (unit_numbers.tiebldgpct < (50 / units.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
             OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
@@ -195,7 +236,8 @@ SELECT
         ELSE FALSE
     END AS is_parking_space,
     CASE
-        WHEN forward_fill.note = 'PARKING/STORAGE/COMMON UNIT' THEN 'identified by valuations as non-unit'
+        WHEN forward_fill.note = 'PARKING/STORAGE/COMMON UNIT' OR val_chars.parking_pin = TRUE
+          THEN 'identified by valuations as non-unit'
         WHEN forward_fill.cdu = 'GR' THEN 'cdu'
         WHEN SUBSTR(unit_numbers.unitno, 1, 1) = 'P'
             OR SUBSTR(unit_numbers.unitno, 1, 3) = 'GAR' THEN 'unit number'
