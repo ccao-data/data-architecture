@@ -153,7 +153,8 @@ unit_numbers AS (
     WHERE unitdesc IS NOT NULL
         OR unitno IS NOT NULL
         ),
--- CDUs/notes are not well-maintained year-to-year, we'll forward fill NULLs to account for this
+-- CDUs/notes are not well-maintained year-to-year,
+-- we'll forward fill CDUs and backwards fill notes to account for this
 forward_fill AS (
     SELECT
         chars.pin,
@@ -167,7 +168,7 @@ forward_fill AS (
         CASE
             WHEN note IS NULL
             THEN LAST_VALUE(unit_numbers.note) IGNORE NULLS
-                OVER (PARTITION BY chars.pin ORDER BY chars.year)
+                OVER (PARTITION BY chars.pin ORDER BY chars.year DESC)
             ELSE unit_numbers.note
             END AS note
     FROM chars
