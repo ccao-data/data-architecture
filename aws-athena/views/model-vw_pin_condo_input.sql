@@ -81,9 +81,9 @@ forward_fill AS (
         uni.year AS meta_year,
         uni.class AS meta_class,
         CASE
-            WHEN uni.class IN ('211', '212') THEN 'MF'
-            WHEN uni.class IN ('218', '219') THEN 'BB'
-            ELSE 'SF'
+            WHEN ch.is_parking_space = TRUE
+                OR ch.is_common_area = TRUE THEN 'NONLIVABLE'
+            ELSE 'CONDO'
         END AS meta_modeling_group,
         uni.triad_name AS meta_triad_name,
         uni.triad_code AS meta_triad_code,
