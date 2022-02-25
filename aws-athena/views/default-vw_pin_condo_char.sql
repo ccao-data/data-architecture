@@ -56,7 +56,7 @@ all_chars AS (
     FROM iasworld.oby
     WHERE class IN ( '299')
         AND cur = 'Y')
-    UNION
+    UNION ALL
     (SELECT DISTINCT
         parid AS pin,
         Substr(parid, 1, 10) AS pin10,
@@ -140,7 +140,7 @@ val_chars AS (
         AND chars.year = condo_char.year
     )
 ),
--- Unit numbers and notes, used to help fing parking spaces
+-- Unit numbers and notes, used to help find parking spaces
 unit_numbers AS (
     SELECT DISTINCT
         parid AS pin,
@@ -177,11 +177,22 @@ forward_fill AS (
 -- Prior year AV, used to help fing parking spaces and common areas
 prior_values AS (
     SELECT
-        pin,
-        year,
-        oneyr_pri_board_tot
-    FROM default.vw_pin_history
-)
+    parid as pin,
+    CAST(CAST(taxyr AS int) + 1 AS varchar) AS year,
+    Max(
+        CASE
+        WHEN procname = 'BORVALUE'
+            AND taxyr < '2020' THEN ovrvalasm3
+        WHEN procname = 'BORVALUE'
+            AND valclass IS NULL
+            AND taxyr >= '2020' THEN valasm3
+        ELSE NULL
+        END
+        ) AS oneyr_pri_board_tot
+    FROM iasworld.asmt_all
+    WHERE class IN ('299', '399')
+    GROUP BY parid, taxyr
+    )
 
 SELECT
     chars.pin,
@@ -256,21 +267,21 @@ SELECT
     pin_is_multiland,
     pin_num_landlines
 FROM chars
-LEFT JOIN aggregate_land
+INNER JOIN aggregate_land
 ON chars.pin = aggregate_land.parid
     AND chars.year = aggregate_land.taxyr
-LEFT JOIN units
+INNER JOIN units
 ON chars.pin10 = units.pin10
     AND chars.year = units.year
-LEFT JOIN unit_numbers
+INNER JOIN unit_numbers
 ON chars.pin = unit_numbers.pin
     AND chars.year = unit_numbers.year
-LEFT JOIN forward_fill
+INNER JOIN forward_fill
 ON chars.pin = forward_fill.pin
     AND chars.year = forward_fill.year
-LEFT JOIN prior_values
+INNER JOIN prior_values
 ON chars.pin = prior_values.pin
     AND chars.year = prior_values.year
-LEFT JOIN val_chars
+INNER JOIN val_chars
 ON chars.pin = val_chars.pin
     AND chars.year = val_chars.year
