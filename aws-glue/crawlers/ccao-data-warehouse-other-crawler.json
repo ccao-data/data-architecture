@@ -15,14 +15,6 @@
                 {
                     "Path": "s3://ccao-data-warehouse-us-east-1/school/great_schools_rating",
                     "Exclusions": []
-                },
-                {
-                    "Path": "s3://ccao-data-warehouse-us-east-1/land/land_nbhd_rate",
-                    "Exclusions": []
-                },
-                {
-                    "Path": "s3://ccao-data-warehouse-us-east-1/land/land_site_rate",
-                    "Exclusions": []
                 }
             ],
             "JdbcTargets": [],
@@ -45,14 +37,14 @@
         "State": "READY",
         "CrawlElapsedTime": 0,
         "CreationTime": 1640124965.0,
-        "LastUpdated": 1644264583.0,
+        "LastUpdated": 1645903721.0,
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-other-crawler",
-            "MessagePrefix": "b52974ab-eae5-4e48-8efe-6ac59d74a169",
-            "StartTime": 1644264585.0
+            "MessagePrefix": "a7e09ffd-11ba-47ca-9c64-c8463e5079c7",
+            "StartTime": 1645907326.0
         },
-        "Version": 14
+        "Version": 20
     }
 }

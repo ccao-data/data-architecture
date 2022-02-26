@@ -1,15 +1,12 @@
 {
     "Crawler": {
-        "Name": "ccao-model-results-crawler",
+        "Name": "ccao-data-warehouse-ccao-crawler",
         "Role": "ccao-glue-service-role",
         "Targets": {
             "S3Targets": [
                 {
-                    "Path": "s3://ccao-model-results-us-east-1",
-                    "Exclusions": [
-                        "workflow/**",
-                        "parameter_raw/**"
-                    ]
+                    "Path": "s3://ccao-data-warehouse-us-east-1/ccao",
+                    "Exclusions": []
                 }
             ],
             "JdbcTargets": [],
@@ -17,7 +14,7 @@
             "DynamoDBTargets": [],
             "CatalogTargets": []
         },
-        "DatabaseName": "model",
+        "DatabaseName": "ccao",
         "Classifiers": [],
         "RecrawlPolicy": {
             "RecrawlBehavior": "CRAWL_EVERYTHING"
@@ -31,16 +28,16 @@
         },
         "State": "READY",
         "CrawlElapsedTime": 0,
-        "CreationTime": 1643672867.0,
-        "LastUpdated": 1645045559.0,
+        "CreationTime": 1645902482.0,
+        "LastUpdated": 1645903123.0,
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
-            "LogStream": "ccao-model-results-crawler",
-            "MessagePrefix": "ec6ebbd1-8930-4697-a52e-0e160da35d27",
-            "StartTime": 1645843796.0
+            "LogStream": "ccao-data-warehouse-ccao-crawler",
+            "MessagePrefix": "eb1056c5-0bd5-4974-8de1-73afccc67af8",
+            "StartTime": 1645903577.0
         },
-        "Version": 2,
-        "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":2}}"
+        "Version": 4,
+        "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":4}}"
     }
 }

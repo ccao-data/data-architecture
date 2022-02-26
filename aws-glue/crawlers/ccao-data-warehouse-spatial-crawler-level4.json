@@ -35,21 +35,17 @@
             "CrawlerLineageSettings": "DISABLE"
         },
         "State": "READY",
-        "Schedule": {
-            "ScheduleExpression": "cron(00 06 ? * TUE,THU,SAT *)",
-            "State": "SCHEDULED"
-        },
         "CrawlElapsedTime": 0,
         "CreationTime": 1640799665.0,
-        "LastUpdated": 1642811572.0,
+        "LastUpdated": 1645903774.0,
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-spatial-crawler-level4",
-            "MessagePrefix": "97e88815-a749-47ff-870b-cce0fb6195f2",
-            "StartTime": 1644904848.0
+            "MessagePrefix": "eba51f1d-e0f4-4232-9a98-a0f25612ff5c",
+            "StartTime": 1645855249.0
         },
-        "Version": 7,
+        "Version": 9,
         "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":4}}"
     }
 }

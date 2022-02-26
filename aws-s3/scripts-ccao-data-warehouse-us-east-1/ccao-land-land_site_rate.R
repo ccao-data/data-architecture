@@ -13,8 +13,8 @@ source("utils.R")
 # the Valuations department and formats them for use in Athena
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-input_bucket <- file.path(AWS_S3_RAW_BUCKET, "land")
-output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "land")
+input_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "land")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "ccao", "land")
 
 # Location of remote files
 remote_file_raw_site_rate_2022 <- file.path(
