@@ -88,9 +88,9 @@ SELECT DISTINCT -- Distinct because oby and comdat contain multiple cards for a 
     )
     OVER (PARTITION BY pardat.parid, pardat.taxyr)
     AS max_yrblt,
-    pin_condo_char.building_sf AS char_building_sf,
-    pin_condo_char.unit_sf AS char_unit_sf,
-    pin_condo_char.bedrooms AS char_bedrooms,
+    CAST(ROUND(pin_condo_char.building_sf, 0) AS int) AS char_building_sf,
+    CAST(ROUND(pin_condo_char.unit_sf, 0) AS int) AS char_unit_sf,
+    CAST(pin_condo_char.bedrooms AS int) AS char_bedrooms,
     pin_condo_char.parking_pin,
     unitno,
     tiebldgpct,
@@ -202,7 +202,7 @@ SELECT
 
     filled.char_building_sf,
     filled.char_unit_sf,
-    CAST(filled.char_bedrooms AS int) AS char_bedrooms,
+    filled.char_bedrooms,
 
     -- Count of non-unit PINs by pin10
     sum(CASE
