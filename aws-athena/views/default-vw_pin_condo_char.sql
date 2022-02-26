@@ -130,14 +130,14 @@ val_chars AS (
       SELECT
         chars.pin,
         chars.year,
-        condo_char.building_sf,
-        condo_char.unit_sf,
-        CAST(condo_char.bedrooms AS int) AS bedrooms,
-        condo_char.parking_pin
+        cc.building_sf,
+        cc.unit_sf,
+        CAST(cc.bedrooms AS int) AS bedrooms,
+        cc.parking_pin
       FROM chars
-      LEFT JOIN other.condo_char
-      ON chars.pin = condo_char.pin
-        AND chars.year = condo_char.year
+      LEFT JOIN ccao.pin_condo_char cc
+      ON chars.pin = cc.pin
+        AND chars.year = cc.year
     )
 ),
 -- Unit numbers and notes, used to help find parking spaces
