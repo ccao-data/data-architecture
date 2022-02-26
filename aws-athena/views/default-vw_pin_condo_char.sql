@@ -6,258 +6,250 @@ All historical data is filled FORWARD in time, i.e. data from 2020 fills
 2021 as long as the data isn't something which frequently changes
 **/
 
-CREATE OR replace VIEW default.vw_pin_condo_char
+CREATE OR REPLACE VIEW default.vw_pin_condo_char
 AS
 WITH aggregate_land AS (
     SELECT
+
         parid,
         taxyr,
-        CASE WHEN Count(*) > 1 THEN TRUE
+        CASE
+            WHEN COUNT(*) > 1 THEN TRUE
             ELSE FALSE
-            END AS pin_is_multiland,
-            Count(*) AS pin_num_landlines,
-            SUM(sf) AS total_building_land_sf
+        END AS pin_is_multiland,
+        COUNT(*) AS pin_num_landlines,
+        SUM(sf) AS total_building_land_sf
+
     FROM iasworld.land
+
     GROUP BY parid,taxyr
     ),
--- Generate our own count of building units by year
-unique_pins AS (
-    SELECT DISTINCT
-        parid,
-        Substr(parid, 1, 10) AS pin10,
-        taxyr as year
-    FROM iasworld.pardat
-    WHERE class in ('299', '399')
-    ),
-units AS (
-    SELECT
-        pin10,
-        year,
-        Count(*) AS building_pins
-    FROM unique_pins
-    GROUP BY pin10, year
-    ),
--- All characteristics associated with condos in the OBY (299s)/COMDAT (399s) tables
-all_chars AS (
-    (SELECT DISTINCT
-        parid AS pin,
-        Substr(parid, 1, 10) AS pin10,
-        class,
-        seq,
-        cur,
-        taxyr AS year,
-        user16 AS cdu,
-        -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
-        CASE WHEN yrblt IS NULL THEN effyr
-            ELSE yrblt
-            END AS char_yrblt,
-        cond AS char_cond,
-        grade AS char_grade
-    FROM iasworld.oby
-    WHERE class IN ( '299')
-        AND cur = 'Y')
-    UNION ALL
-    (SELECT DISTINCT
-        parid AS pin,
-        Substr(parid, 1, 10) AS pin10,
-        class,
-        seq,
-        cur,
-        taxyr AS year,
-        user16 AS cdu,
-        -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
-        CASE WHEN yrblt IS NULL THEN effyr
-            ELSE yrblt
-            END AS char_yrblt,
-        cdu AS char_cond,
-        grade AS char_grade
-    FROM iasworld.comdat
-    WHERE class IN ( '399')
-        AND cur = 'Y')
-        ),
--- Have to INNER JOIN by class with pardat since some PINs show up in both OBY and COMDAT but with differnt classes...
-chars AS (
-    SELECT * FROM (
-        SELECT
-            all_chars.*,
-            max(char_yrblt)
-                OVER (PARTITION BY all_chars.pin, all_chars.year)
-                AS max_yrblt
-        FROM all_chars
-        INNER JOIN (
-            SELECT
-                parid AS pin,
-                taxyr AS year,
-                class FROM iasworld.pardat
-            ) pardat
-        ON all_chars.pin = pardat.pin
-            AND all_chars.year = pardat.year
-            AND all_chars.class = pardat.class
-    )
-    -- Some PINs show up up with different yrblt across lline (within year)
-    WHERE char_yrblt = max_yrblt
-),
--- Characteristics data gathered from MLS by valuations
-val_chars AS (
-    SELECT
-      pin,
-      year,
-      CASE
-          WHEN building_sf IS NULL THEN
-              LAST_VALUE(building_sf) IGNORE NULLS
-              OVER (PARTITION BY pin ORDER BY year DESC)
-          ELSE building_sf
-      END AS building_sf,
-      CASE
-          WHEN unit_sf IS NULL THEN
-              LAST_VALUE(unit_sf) IGNORE NULLS
-              OVER (PARTITION BY pin ORDER BY year DESC)
-          ELSE unit_sf
-      END AS unit_sf,
-      CASE
-          WHEN bedrooms IS NULL THEN
-              LAST_VALUE(bedrooms) IGNORE NULLS
-              OVER (PARTITION BY pin ORDER BY year DESC)
-          ELSE bedrooms
-      END AS bedrooms,
-      CASE
-          WHEN parking_pin IS NULL THEN
-              LAST_VALUE(parking_pin) IGNORE NULLS
-              OVER (PARTITION BY pin ORDER BY year DESC)
-          ELSE parking_pin
-      END AS parking_pin
-    FROM (
-      SELECT
-        chars.pin,
-        chars.year,
-        condo_char.building_sf,
-        condo_char.unit_sf,
-        CAST(condo_char.bedrooms AS int) AS bedrooms,
-        condo_char.parking_pin
-      FROM chars
-      LEFT JOIN other.condo_char
-      ON chars.pin = condo_char.pin
-        AND chars.year = condo_char.year
-    )
-),
--- Unit numbers and notes, used to help find parking spaces
-unit_numbers AS (
-    SELECT DISTINCT
-        parid AS pin,
-        taxyr AS year,
-        unitdesc,
-        unitno,
-        tiebldgpct,
-        note2 as note
-    FROM iasworld.pardat
-    WHERE unitdesc IS NOT NULL
-        OR unitno IS NOT NULL
-        ),
--- CDUs/notes are not well-maintained year-to-year,
--- we'll forward fill CDUs and backwards fill notes to account for this
-forward_fill AS (
-    SELECT
-        chars.pin,
-        chars.year,
-        CASE
-            WHEN cdu IS NULL
-            THEN LAST_VALUE(chars.cdu) IGNORE NULLS
-                OVER (PARTITION BY chars.pin ORDER BY chars.year)
-            ELSE chars.cdu
-            END AS cdu,
-        CASE
-            WHEN note IS NULL
-            THEN LAST_VALUE(unit_numbers.note) IGNORE NULLS
-                OVER (PARTITION BY chars.pin ORDER BY chars.year DESC)
-            ELSE unit_numbers.note
-            END AS note
-    FROM chars
-    LEFT JOIN unit_numbers ON chars.pin = unit_numbers.pin AND chars.year = unit_numbers.year
-),
 -- Prior year AV, used to help fing parking spaces and common areas
 prior_values AS (
     SELECT
-    parid as pin,
-    CAST(CAST(taxyr AS int) + 1 AS varchar) AS year,
-    Max(
-        CASE
-        WHEN procname = 'BORVALUE'
-            AND taxyr < '2020' THEN ovrvalasm3
-        WHEN procname = 'BORVALUE'
-            AND valclass IS NULL
-            AND taxyr >= '2020' THEN valasm3
-        ELSE NULL
-        END
-        ) AS oneyr_pri_board_tot
+
+        parid as pin,
+        CAST(CAST(taxyr AS int) + 1 AS varchar) AS year,
+        MAX(
+            CASE
+                WHEN procname = 'BORVALUE' AND taxyr < '2020' THEN ovrvalasm3
+                WHEN procname = 'BORVALUE' AND valclass IS NULL AND taxyr >= '2020' THEN valasm3
+                ELSE NULL
+            END
+            ) AS oneyr_pri_board_tot
+
     FROM iasworld.asmt_all
+
     WHERE class IN ('299', '399')
     GROUP BY parid, taxyr
+    ),
+-- All characteristics associated with condos in the OBY (299s)/COMDAT (399s) tables
+chars AS (
+SELECT DISTINCT -- Distinct because oby and comdat contain multiple cards for a few condos
+
+    pardat.parid AS pin,
+    SUBSTR(pardat.parid, 1, 10) AS pin10,
+    pardat.class,
+    pardat.taxyr AS year,
+    CASE
+        WHEN pardat.class = '299' THEN oby.user16
+        WHEN pardat.class = '399' THEN comdat.user16
+    END AS cdu,
+    CASE
+        WHEN pardat.class = '299' THEN oby.cond
+        WHEN pardat.class = '399' THEN comdat.cdu
+    END AS char_cond,
+    CASE
+        WHEN pardat.class = '299' THEN oby.grade
+        WHEN pardat.class = '399' THEN comdat.grade
+    END AS char_grade,
+    -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
+    CASE
+        WHEN pardat.class = '299' AND oby.yrblt IS NULL
+            THEN oby.effyr
+        WHEN pardat.class = '299' AND oby.yrblt IS NOT NULL
+            THEN oby.yrblt
+        WHEN pardat.class = '399' AND comdat.yrblt IS NULL
+            THEN comdat.effyr
+        WHEN pardat.class = '399' AND comdat.yrblt IS NOT NULL
+            THEN comdat.yrblt
+    END AS char_yrblt,
+    MAX(
+        CASE
+        WHEN pardat.class = '299' AND oby.yrblt IS NULL
+            THEN oby.effyr
+        WHEN pardat.class = '299' AND oby.yrblt IS NOT NULL
+            THEN oby.yrblt
+        WHEN pardat.class = '399' AND comdat.yrblt IS NULL
+            THEN comdat.effyr
+        WHEN pardat.class = '399' AND comdat.yrblt IS NOT NULL
+            THEN comdat.yrblt
+    END
     )
+    OVER (PARTITION BY pardat.parid, pardat.taxyr)
+    AS max_yrblt,
+    pin_condo_char.building_sf AS char_building_sf,
+    pin_condo_char.unit_sf AS char_unit_sf,
+    pin_condo_char.bedrooms AS char_bedrooms,
+    pin_condo_char.parking_pin,
+    unitno,
+    tiebldgpct,
+    pardat.note2 AS note
+
+FROM iasworld.pardat
+
+-- Left joins because pardat contains both 299s & 399s (oby and comdat do not)
+-- and pin_condo_char doesn't contain all condos
+LEFT JOIN (
+    SELECT * FROM iasworld.oby
+    WHERE class = '299'
+        AND cur = 'Y'
+    ) oby
+ON pardat.parid = oby.parid
+    AND pardat.taxyr = oby.taxyr
+    AND pardat.class = oby.class
+LEFT JOIN (
+    SELECT * FROM iasworld.comdat
+    WHERE class = '399'
+        AND cur = 'Y'
+    ) comdat
+ON pardat.parid = comdat.parid
+    AND pardat.taxyr = comdat.taxyr
+    AND pardat.class = comdat.class
+LEFT JOIN ccao.pin_condo_char
+ON pardat.parid = pin_condo_char.pin
+    AND pardat.taxyr = pin_condo_char.year
+
+WHERE pardat.class IN ('299', '399')
+),
+filled AS (
+    -- Backfilling data since it's rarely updated
+    SELECT
+        pin,
+        pin10,
+        class,
+        year,
+        char_cond,
+        char_grade,
+        char_yrblt,
+        -- CDUs/notes are not well-maintained year-to-year,
+        CASE
+            WHEN cdu IS NULL
+                THEN LAST_VALUE(cdu) IGNORE NULLS
+                OVER (PARTITION BY pin ORDER BY year DESC)
+            ELSE cdu
+        END AS cdu,
+        CASE
+            WHEN note IS NULL
+                THEN LAST_VALUE(note) IGNORE NULLS
+                OVER (PARTITION BY pin ORDER BY year DESC)
+            ELSE note
+        END AS note,
+        -- Characteristics data gathered from MLS by valuations
+        CASE
+            WHEN char_building_sf IS NULL
+                THEN LAST_VALUE(char_building_sf) IGNORE NULLS
+                OVER (PARTITION BY pin ORDER BY year DESC)
+            ELSE char_building_sf
+        END AS char_building_sf,
+        CASE
+            WHEN char_unit_sf IS NULL
+                THEN LAST_VALUE(char_unit_sf) IGNORE NULLS
+                OVER (PARTITION BY pin ORDER BY year DESC)
+            ELSE char_unit_sf
+        END AS char_unit_sf,
+        CASE
+            WHEN char_bedrooms IS NULL
+                THEN LAST_VALUE(char_bedrooms) IGNORE NULLS
+                OVER (PARTITION BY pin ORDER BY year DESC)
+            ELSE char_bedrooms
+        END AS char_bedrooms,
+        CASE
+            WHEN parking_pin IS NULL
+                THEN LAST_VALUE(parking_pin) IGNORE NULLS
+                OVER (PARTITION BY pin ORDER BY year DESC)
+            ELSE parking_pin
+        END AS parking_pin,
+        unitno,
+        tiebldgpct,
+        COUNT(*)
+        OVER (PARTITION BY pin10, year)
+            AS building_pins
+    FROM chars
+
+    -- Some PINs show up up with different yrblt across lline (within year)
+    WHERE char_yrblt = max_yrblt
+)
 
 SELECT
-    chars.pin,
-    chars.pin10,
-    chars.year,
-    chars.class,
-    chars.seq,
-    chars.cur,
-    chars.char_yrblt,
-    CASE WHEN chars.char_cond IN ('AV', 'A') THEN 'Average'
-        WHEN chars.char_cond IN ('GD', 'G') THEN 'Good'
-        WHEN chars.char_cond = 'V' THEN 'Very Good'
-        WHEN chars.char_cond = 'F' THEN 'Fair'
-        ELSE NULL END AS char_cond,
-    CASE WHEN chars.char_grade IN ('2', 'A') THEN 'Average'
-        WHEN chars.char_grade = 'C' THEN 'Good'
-        ELSE NULL END AS char_grade,
-    val_chars.building_sf AS char_building_sf,
-    val_chars.unit_sf AS char_unit_sf,
-    val_chars.bedrooms AS char_bedrooms,
+
+    filled.pin,
+    filled.pin10,
+    filled.year,
+    filled.class,
+    filled.char_yrblt,
+
+    CASE WHEN filled.char_cond IN ('AV', 'A') THEN 'Average'
+        WHEN filled.char_cond IN ('GD', 'G') THEN 'Good'
+        WHEN filled.char_cond = 'V' THEN 'Very Good'
+        WHEN filled.char_cond = 'F' THEN 'Fair'
+        ELSE NULL
+    END AS char_cond,
+    CASE WHEN filled.char_grade IN ('2', 'A') THEN 'Average'
+        WHEN filled.char_grade = 'C' THEN 'Good'
+        ELSE NULL
+    END AS char_grade,
+
+    filled.char_building_sf,
+    filled.char_unit_sf,
+    CAST(filled.char_bedrooms AS int) AS char_bedrooms,
+
     -- Count of non-unit PINs by pin10
     sum(CASE
-        WHEN forward_fill.cdu = 'GR'
-            OR SUBSTR(unit_numbers.unitno, 1, 1) = 'P'
-            OR SUBSTR(unit_numbers.unitno, 1, 3) = 'GAR'
-            OR forward_fill.note = 'PARKING/STORAGE/COMMON UNIT'
-            OR val_chars.parking_pin = TRUE
+        WHEN filled.cdu = 'GR'
+            OR SUBSTR(filled.unitno, 1, 1) = 'P'
+            OR SUBSTR(filled.unitno, 1, 3) = 'GAR'
+            OR filled.note = 'PARKING/STORAGE/COMMON UNIT'
+            OR filled.parking_pin = TRUE
             -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
-            OR (unit_numbers.tiebldgpct < (50 / units.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
+            OR (filled.tiebldgpct < (50 / filled.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
             OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
         THEN 1
         ELSE 0 END)
-        OVER (PARTITION BY chars.pin10, chars.year)
+        OVER (PARTITION BY filled.pin10, filled.year)
         AS char_building_non_units,
-    units.building_pins as char_building_pins,
-    unit_numbers.tiebldgpct as char_tiebldgpct,
-    total_building_land_sf as char_land_sf,
 
-    forward_fill.cdu,
-    forward_fill.note,
-    unit_numbers.unitno,
+    filled.building_pins as char_building_pins,
+    filled.tiebldgpct as char_tiebldgpct,
+    total_building_land_sf as char_land_sf,
+    filled.cdu,
+    filled.note,
+    filled.unitno,
     prior_values.oneyr_pri_board_tot,
+
     CASE
-        WHEN forward_fill.cdu = 'GR'
-            OR SUBSTR(unit_numbers.unitno, 1, 1) = 'P'
-            OR SUBSTR(unit_numbers.unitno, 1, 3) = 'GAR'
-            OR forward_fill.note = 'PARKING/STORAGE/COMMON UNIT'
-            OR val_chars.parking_pin = TRUE
+        WHEN filled.cdu = 'GR'
+            OR SUBSTR(filled.unitno, 1, 1) = 'P'
+            OR SUBSTR(filled.unitno, 1, 3) = 'GAR'
+            OR filled.note = 'PARKING/STORAGE/COMMON UNIT'
+            OR filled.parking_pin = TRUE
             -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
-            OR (unit_numbers.tiebldgpct < (50 / units.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
+            OR (filled.tiebldgpct < (50 / filled.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
             OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
         THEN TRUE
         ELSE FALSE
     END AS is_parking_space,
     CASE
-        WHEN forward_fill.note = 'PARKING/STORAGE/COMMON UNIT' OR val_chars.parking_pin = TRUE
+        WHEN filled.note = 'PARKING/STORAGE/COMMON UNIT' OR filled.parking_pin = TRUE
           THEN 'identified by valuations as non-unit'
-        WHEN forward_fill.cdu = 'GR' THEN 'cdu'
-        WHEN SUBSTR(unit_numbers.unitno, 1, 1) = 'P'
-            OR SUBSTR(unit_numbers.unitno, 1, 3) = 'GAR' THEN 'unit number'
-        WHEN (unit_numbers.tiebldgpct < (50 / units.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000) THEN 'declaration percent'
+        WHEN filled.cdu = 'GR' THEN 'cdu'
+        WHEN SUBSTR(filled.unitno, 1, 1) = 'P'
+            OR SUBSTR(filled.unitno, 1, 3) = 'GAR' THEN 'unit number'
+        -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
+        WHEN (filled.tiebldgpct < (50 / filled.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000) THEN 'declaration percent'
         WHEN prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000 THEN 'prior value'
         ELSE NULL
     END AS parking_space_flag_reason,
-
     CASE
         WHEN prior_values.oneyr_pri_board_tot < 10
         THEN TRUE
@@ -266,22 +258,11 @@ SELECT
 
     pin_is_multiland,
     pin_num_landlines
-FROM chars
+
+FROM filled
 INNER JOIN aggregate_land
-ON chars.pin = aggregate_land.parid
-    AND chars.year = aggregate_land.taxyr
-INNER JOIN units
-ON chars.pin10 = units.pin10
-    AND chars.year = units.year
-INNER JOIN unit_numbers
-ON chars.pin = unit_numbers.pin
-    AND chars.year = unit_numbers.year
-INNER JOIN forward_fill
-ON chars.pin = forward_fill.pin
-    AND chars.year = forward_fill.year
+ON filled.pin = aggregate_land.parid
+    AND filled.year = aggregate_land.taxyr
 INNER JOIN prior_values
-ON chars.pin = prior_values.pin
-    AND chars.year = prior_values.year
-INNER JOIN val_chars
-ON chars.pin = val_chars.pin
-    AND chars.year = val_chars.year
+ON filled.pin = prior_values.pin
+    AND filled.year = prior_values.year
