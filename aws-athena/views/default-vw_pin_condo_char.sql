@@ -55,14 +55,6 @@ SELECT DISTINCT -- Distinct because oby and comdat contain multiple cards for a 
         WHEN pardat.class = '299' THEN oby.user16
         WHEN pardat.class = '399' THEN comdat.user16
     END AS cdu,
-    CASE
-        WHEN pardat.class = '299' THEN oby.cond
-        WHEN pardat.class = '399' THEN comdat.cdu
-    END AS char_cond,
-    CASE
-        WHEN pardat.class = '299' THEN oby.grade
-        WHEN pardat.class = '399' THEN comdat.grade
-    END AS char_grade,
     -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
     CASE
         WHEN pardat.class = '299' AND oby.yrblt IS NULL
@@ -129,8 +121,6 @@ filled AS (
         pin10,
         class,
         year,
-        char_cond,
-        char_grade,
         char_yrblt,
         -- CDUs/notes are not well-maintained year-to-year,
         CASE
@@ -188,18 +178,6 @@ SELECT
     filled.year,
     filled.class,
     filled.char_yrblt,
-
-    CASE WHEN filled.char_cond IN ('AV', 'A') THEN 'Average'
-        WHEN filled.char_cond IN ('GD', 'G') THEN 'Good'
-        WHEN filled.char_cond = 'V' THEN 'Very Good'
-        WHEN filled.char_cond = 'F' THEN 'Fair'
-        ELSE NULL
-    END AS char_cond,
-    CASE WHEN filled.char_grade IN ('2', 'A') THEN 'Average'
-        WHEN filled.char_grade = 'C' THEN 'Good'
-        ELSE NULL
-    END AS char_grade,
-
     filled.char_building_sf,
     filled.char_unit_sf,
     filled.char_bedrooms,
