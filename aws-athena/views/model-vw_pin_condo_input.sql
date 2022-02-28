@@ -456,6 +456,43 @@ forward_fill AS (
     LEFT JOIN (SELECT * FROM school_district_ratings WHERE district_type = 'secondary') sdrs
         ON uni.school_secondary_district_geoid = sdrs.district_geoid
         AND uni.year = sdrs.year
+),
+nn AS (
+    SELECT DISTINCT
+        meta_pin10,
+        meta_year,
+        loc_cook_municipality_name,
+        loc_chicago_ward_num,
+        loc_chicago_community_area_name,
+        loc_school_elementary_district_geoid,
+        loc_school_secondary_district_geoid,
+        loc_school_unified_district_geoid,
+        loc_tax_special_service_area_num,
+        loc_tax_tif_district_num,
+        loc_misc_subdivision_id,
+        loc_misc_unincorporated_area_bool,
+        loc_env_flood_fema_sfha,
+        loc_env_flood_fs_factor,
+        loc_env_flood_fs_risk_direction,
+        loc_env_ohare_noise_contour_no_buffer_bool,
+        loc_access_cmap_walk_nta_score,
+        loc_access_cmap_walk_total_score,
+        prox_num_school_in_half_mile,
+        prox_num_school_with_rating_in_half_mile,
+        prox_avg_school_rating_in_half_mile,
+        prox_nearest_bike_trail_dist_ft,
+        prox_nearest_cemetery_dist_ft,
+        prox_nearest_hospital_dist_ft,
+        prox_lake_michigan_dist_ft,
+        prox_nearest_major_road_dist_ft,
+        prox_nearest_park_dist_ft,
+        prox_nearest_railroad_dist_ft,
+        prox_nearest_water_dist_ft,
+        other_school_district_elementary_avg_rating,
+        other_school_district_secondary_avg_rating,
+        nearest_neighbor_1_dist_ft,
+        nearest_neighbor_2_dist_ft
+    FROM forward_fill
 )
 -- Anything with a CASE WHEN here is just borrowing missing values from its nearest
 -- spatial neighbor
@@ -726,14 +763,14 @@ SELECT
 FROM forward_fill f1
 LEFT JOIN (
     SELECT *
-    FROM forward_fill
+    FROM nn
     WHERE nearest_neighbor_1_dist_ft <= 500
 ) nn1
     ON f1.nearest_neighbor_1_pin10 = nn1.meta_pin10
     AND f1.meta_year = nn1.meta_year
 LEFT JOIN (
     SELECT *
-    FROM forward_fill
+    FROM nn
     WHERE nearest_neighbor_2_dist_ft <= 500
 ) nn2
     ON f1.nearest_neighbor_1_pin10 = nn2.meta_pin10
