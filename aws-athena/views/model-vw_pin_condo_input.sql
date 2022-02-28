@@ -138,9 +138,8 @@ SELECT
     -- Property characteristics from iasWorld
     ch.char_yrblt,
     NULLIF(ch.char_land_sf, 0.0) AS char_land_sf,
-    ch.char_cond,
-    ch.char_grade,
     ch.char_building_pins,
+    ch.char_building_pins - ch.char_building_non_units AS char_building_units,
     ch.char_building_non_units,
     ch.char_tiebldgpct,
 
