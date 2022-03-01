@@ -415,15 +415,7 @@ SELECT
             LAST_VALUE(sdrs.school_district_avg_rating) IGNORE NULLS
             OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
         ELSE sdrs.school_district_avg_rating
-    END AS other_school_district_secondary_avg_rating,
-
-    -- PIN nearest neighbors, used for filling missing data
-    uni.nearest_neighbor_1_pin10,
-    uni.nearest_neighbor_1_dist_ft,
-    uni.nearest_neighbor_2_pin10,
-    uni.nearest_neighbor_2_dist_ft,
-    uni.nearest_neighbor_3_pin10,
-    uni.nearest_neighbor_3_dist_ft
+    END AS other_school_district_secondary_avg_rating
 
 FROM uni_filtered uni
 LEFT JOIN default.vw_pin_condo_char ch
