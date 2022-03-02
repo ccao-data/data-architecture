@@ -196,7 +196,7 @@ process_parcel_file <- function(s3_bucket_uri,
 }
 
 # Apply function to all parcel files
-pwalk(parcel_files_df[22,], function(...) {
+pwalk(parcel_files_df, function(...) {
   df <- tibble::tibble(...)
   process_parcel_file(
     s3_bucket_uri = output_bucket,
