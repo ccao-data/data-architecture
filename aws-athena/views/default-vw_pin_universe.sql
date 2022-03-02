@@ -5,12 +5,12 @@ SELECT
     par.parid AS pin,
     SUBSTR(par.parid, 1, 10) AS pin10,
     par.taxyr AS year,
-    par.class AS class,
+    regexp_replace(par.class,'([^0-9EXR])','') AS class,
     twn.triad_name,
     twn.triad_code,
     twn.township_name,
     SUBSTR(leg.taxdist, 1, 2) AS township_code,
-    par.nbhd AS nbhd_code,
+    regexp_replace(par.nbhd,'([^0-9])','') AS nbhd_code,
     leg.taxdist AS tax_code,
 
     -- Proration related fields from PARDAT
