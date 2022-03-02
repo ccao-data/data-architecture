@@ -38,8 +38,8 @@
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-spatial-crawler-level3",
-            "MessagePrefix": "613e13f0-e2b7-45c9-af57-f01da2fb0d3e",
-            "StartTime": 1645855226.0
+            "MessagePrefix": "7fa07ad6-ed33-44bb-8108-9b335f500d15",
+            "StartTime": 1646240125.0
         },
         "Version": 7,
         "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":3}}"
