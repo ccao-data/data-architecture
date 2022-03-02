@@ -113,7 +113,17 @@ WITH features AS (
         'time_sale_during_school_year',
         'time_sale_during_holidays',
         'time_sale_day',
-        'time_sale_day_of_year'
+        'time_sale_day_of_year',
+        'lag_meta_sale_price',
+        'lag_char_bldg_sf',
+        'lag_char_land_sf',
+        'lag_char_rooms',
+        'lag_char_beds',
+        'lag_char_fbath',
+        'lag_char_hbath',
+        'lag_char_frpl',
+        'lag_char_yrblt',
+        'lag_other_tax_bill_amount_total'
     ],
     array[
         CAST(meta_township_code AS varchar),
@@ -214,7 +224,17 @@ WITH features AS (
         CAST(time_sale_during_school_year AS varchar),
         CAST(time_sale_during_holidays AS varchar),
         CAST(time_sale_day AS varchar),
-        CAST(time_sale_day_of_year AS varchar)
+        CAST(time_sale_day_of_year AS varchar),
+        CAST(lag_meta_sale_price AS varchar),
+        CAST(lag_char_bldg_sf AS varchar),
+        CAST(lag_char_land_sf AS varchar),
+        CAST(lag_char_rooms AS varchar),
+        CAST(lag_char_beds AS varchar),
+        CAST(lag_char_fbath AS varchar),
+        CAST(lag_char_hbath AS varchar),
+        CAST(lag_char_frpl AS varchar),
+        CAST(lag_char_yrblt AS varchar),
+        CAST(lag_other_tax_bill_amount_total AS varchar)
     ]) a2 (feature_name, feature_value)
 ),
 shaps AS (
@@ -330,7 +350,17 @@ shaps AS (
         'time_sale_during_school_year',
         'time_sale_during_holidays',
         'time_sale_day',
-        'time_sale_day_of_year'
+        'time_sale_day_of_year',
+        'lag_meta_sale_price',
+        'lag_char_bldg_sf',
+        'lag_char_land_sf',
+        'lag_char_rooms',
+        'lag_char_beds',
+        'lag_char_fbath',
+        'lag_char_hbath',
+        'lag_char_frpl',
+        'lag_char_yrblt',
+        'lag_other_tax_bill_amount_total'
     ],
     array[
         meta_township_code,
@@ -431,10 +461,20 @@ shaps AS (
         time_sale_during_school_year,
         time_sale_during_holidays,
         time_sale_day,
-        time_sale_day_of_year
+        time_sale_day_of_year,
+        lag_meta_sale_price,
+        lag_char_bldg_sf,
+        lag_char_land_sf,
+        lag_char_rooms,
+        lag_char_beds,
+        lag_char_fbath,
+        lag_char_hbath,
+        lag_char_frpl,
+        lag_char_yrblt,
+        lag_other_tax_bill_amount_total
     ]) a2 (feature_name, feature_shap)
 )
-SELECT 
+SELECT
     f.run_id,
     f.meta_year,
     f.meta_pin,
