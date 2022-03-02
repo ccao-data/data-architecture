@@ -143,6 +143,7 @@ process_parcel_file <- function(s3_bucket_uri,
       left_join(spatial_df_centroids, by = "pin10") %>%
       mutate(
         has_attributes = !is.na(town_code),
+        geometry = st_transform(geometry, 4326),
         geometry_3435 = st_transform(geometry, 3435)
       ) %>%
       select(
@@ -195,7 +196,7 @@ process_parcel_file <- function(s3_bucket_uri,
 }
 
 # Apply function to all parcel files
-pwalk(parcel_files_df, function(...) {
+pwalk(parcel_files_df[22,], function(...) {
   df <- tibble::tibble(...)
   process_parcel_file(
     s3_bucket_uri = output_bucket,
