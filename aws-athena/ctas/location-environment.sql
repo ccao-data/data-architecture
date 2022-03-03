@@ -127,7 +127,7 @@ WITH (
         CASE
             WHEN p.year <= '2020' THEN an.airport_noise_dnl
             WHEN p.year > '2020' THEN omp.airport_noise_dnl
-            ELSE 55.0
+            ELSE 50.0
         END AS env_airport_noise_dnl,
         CASE
             WHEN p.year <= '2020' THEN an.year
