@@ -122,6 +122,8 @@ SELECT
     env_ohare_noise_contour_no_buffer_bool,
     env_ohare_noise_contour_half_mile_buffer_bool,
     env_ohare_noise_contour_data_year,
+    env_airport_noise_dnl,
+    env_airport_noise_data_year,
     school_elementary_district_geoid,
     school_elementary_district_name,
     school_secondary_district_geoid,

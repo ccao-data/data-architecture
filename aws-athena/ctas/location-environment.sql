@@ -21,6 +21,8 @@ WITH (
         SELECT DISTINCT year FROM other.flood_first_street
         UNION ALL
         SELECT DISTINCT year FROM spatial.ohare_noise_contour
+        UNION ALL
+        SELECT DISTINCT year FROM other.airport_noise
     ),
     ohare_years AS (
         SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
@@ -122,6 +124,15 @@ WITH (
             WHEN p.year >= oy.fill_year THEN oy.fill_year
             ELSE NULL
         END AS env_ohare_noise_contour_data_year,
+        CASE
+            WHEN p.year <= '2020' THEN an.airport_noise_dnl
+            WHEN p.year > '2020' THEN omp.airport_noise_dnl
+            ELSE 55.0
+        END AS env_airport_noise_dnl,
+        CASE
+            WHEN p.year <= '2020' THEN an.year
+            ELSE 'omp'
+        END AS env_airport_noise_data_year,
         p.year
     FROM spatial.parcel p
     LEFT JOIN flood_fema
@@ -131,6 +142,12 @@ WITH (
     LEFT JOIN other.flood_first_street
         ON p.pin10 = flood_first_street.pin10
         AND p.year >= flood_first_street.year
+    LEFT JOIN (SELECT * FROM other.airport_noise WHERE year != 'omp') an
+        ON p.pin10 = an.pin10
+        AND p.year = an.year
+    LEFT JOIN (SELECT * FROM other.airport_noise WHERE year = 'omp') omp
+        ON p.pin10 = omp.pin10
+        AND p.year >= '2021'
     LEFT JOIN ohare_years oy
         ON p.year = oy.pin_year
     LEFT JOIN ohare_noise_contour_0000 onc0000

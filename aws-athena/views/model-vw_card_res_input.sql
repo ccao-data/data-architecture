@@ -286,6 +286,12 @@ forward_fill AS (
             ELSE uni.env_ohare_noise_contour_no_buffer_bool
         END AS loc_env_ohare_noise_contour_no_buffer_bool,
         CASE
+            WHEN uni.env_airport_noise_dnl IS NULL THEN
+                LAST_VALUE(uni.env_airport_noise_dnl) IGNORE NULLS
+                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
+            ELSE uni.env_airport_noise_dnl
+        END AS loc_env_airport_noise_dnl,
+        CASE
             WHEN uni.access_cmap_walk_nta_score IS NULL THEN
                 LAST_VALUE(uni.access_cmap_walk_nta_score) IGNORE NULLS
                 OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
@@ -656,6 +662,12 @@ SELECT
         WHEN nn1.loc_env_ohare_noise_contour_no_buffer_bool IS NULL THEN nn2.loc_env_ohare_noise_contour_no_buffer_bool
         ELSE NULL
     END AS loc_env_ohare_noise_contour_no_buffer_bool,
+    CASE
+        WHEN f1.loc_env_airport_noise_dnl IS NOT NULL THEN f1.loc_env_airport_noise_dnl
+        WHEN f1.loc_env_airport_noise_dnl IS NULL THEN nn1.loc_env_airport_noise_dnl
+        WHEN nn1.loc_env_airport_noise_dnl IS NULL THEN nn2.loc_env_airport_noise_dnl
+        ELSE NULL
+    END AS loc_env_airport_noise_dnl,
     CASE
         WHEN f1.loc_access_cmap_walk_nta_score IS NOT NULL THEN f1.loc_access_cmap_walk_nta_score
         WHEN f1.loc_access_cmap_walk_nta_score IS NULL THEN nn1.loc_access_cmap_walk_nta_score
