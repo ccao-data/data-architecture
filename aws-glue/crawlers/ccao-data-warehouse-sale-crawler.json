@@ -34,8 +34,8 @@
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-sale-crawler",
-            "MessagePrefix": "22718ce2-a6f3-4c0f-980e-2db072f400e1",
-            "StartTime": 1643748666.0
+            "MessagePrefix": "db3882cc-6dda-4744-afd2-e8635f752901",
+            "StartTime": 1646325440.0
         },
         "Version": 5,
         "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":3}}"
