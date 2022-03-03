@@ -43,21 +43,74 @@ clean_up <- function(x) {
 
 }
 
+# MyDec columns we want to use, tend to be different across duplicate sales...
+mydec_vars <- c("line_7_property_advertised",
+                "line_10a",
+                "line_10b",
+                "line_10c",
+                "line_10d",
+                "line_10e",
+                "line_10f",
+                "line_10g",
+                "line_10h",
+                "line_10i",
+                "line_10j",
+                "line_10k",
+                "line_10l",
+                "line_10m",
+                "line_10n",
+                "line_10o",
+                "line_10p",
+                "line_10q",
+                "line_10s",
+                "line_10s",
+                "line_10s_generalalternative",
+                "line_10s_senior_citizens",
+                "line_10s_senior_citizens_assessment_freeze")
+
 # Load raw files, cleanup, then write to warehouse S3
 map(files, clean_up) %>%
   rbindlist(fill = TRUE) %>%
-  na_if("NULL") %>%
   rename_with(~ tolower(
     str_replace_all(
       str_squish(
         str_replace_all(.x, "[[:punct:]]", "")
       ), " ", "_")
   )) %>%
+  mutate(across(where(is.character), str_squish)) %>%
+  na_if("") %>%
+  na_if("NULL") %>%
   filter(!is.na(document_number) & line_1_county == "Cook") %>%
+  mutate(document_number = str_replace_all(document_number, "D", "")) %>%
   group_by(document_number) %>%
+  # because MyDec variables can be different across duplicate sales doc #s, we'll take the max values
+  mutate(across(mydec_vars, ~ max(.x, na.rm = TRUE))) %>%
+  distinct(document_number,
+                     line_7_property_advertised,
+                     line_10a,
+                     line_10b,
+                     line_10c,
+                     line_10d,
+                     line_10e,
+                     line_10f,
+                     line_10g,
+                     line_10h,
+                     line_10i,
+                     line_10j,
+                     line_10k,
+                     line_10l,
+                     line_10m,
+                     line_10n,
+                     line_10o,
+                     line_10p,
+                     line_10q,
+                     line_10s,
+                     line_10s,
+                     line_10s_senior_citizens,
+                     line_10s_senior_citizens_assessment_freeze, .keep_all = TRUE) %>%
   # Data isn't unique by document number, or even transaction date and document number
-  # so we arrange by transaction date and then recorder date within codument number and
-  # create an indicator for the first row withinduplicated document numbers
+  # so we arrange by transaction date and then recorded date within document number and
+  # create an indicator for the first row within duplicated document numbers
   arrange(line_4_instrument_date, date_recorded, .by_group = TRUE) %>%
   mutate(year_of_sale = lubridate::year(line_4_instrument_date),
          declaration_id = as.character(declaration_id),

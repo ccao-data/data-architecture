@@ -24,7 +24,7 @@ unique_sales AS (
     SELECT *
     FROM (
 
-        SELECT DISTINCT
+        SELECT
             sales.parid AS pin,
             Substr(sales.saledt, 1, 4) AS year,
             townclass.township_code,
@@ -100,8 +100,9 @@ sale_filter AS (
         ),
 mydec_sales AS (
 
-    SELECT DISTINCT
+    SELECT
         replace(document_number, 'D', '') as doc_no,
+        replace(line_1_primary_pin, '-', '') as pin,
         CASE WHEN line_7_property_advertised = 1 THEN TRUE ELSE FALSE END AS "property_advertised",
         CASE WHEN line_10a = 1 THEN TRUE ELSE FALSE END AS "is_installment_contract_fulfilled",
         CASE WHEN line_10b = 1 THEN TRUE ELSE FALSE END AS "is_sale_between_related_individuals_or_corporate_affiliates",
@@ -120,7 +121,10 @@ mydec_sales AS (
         CASE WHEN line_10o = 1 THEN TRUE ELSE FALSE END AS "is_buyer_exercising_an_option_to_purchase",
         CASE WHEN line_10p = 1 THEN TRUE ELSE FALSE END AS "is_simultaneous_trade_of_property",
         CASE WHEN line_10q = 1 THEN TRUE ELSE FALSE END AS "is_sale_leaseback",
-        CASE WHEN line_10s = 1 THEN TRUE ELSE FALSE END AS "is_homestead_exemption"
+        CASE WHEN line_10s = 1 THEN TRUE ELSE FALSE END AS "is_homestead_exemption",
+        line_10s_generalalternative AS "homestead_exemption_general_alternative",
+        line_10s_senior_citizens AS "homestead_exemption_senior_citizens",
+        line_10s_senior_citizens_assessment_freeze AS "homestead_exemption_senior_citizens_assessment_freeze"
     FROM sale.mydec
     WHERE is_earliest_within_doc_no = TRUE
 
@@ -163,7 +167,10 @@ SELECT
     mydec_sales.is_buyer_exercising_an_option_to_purchase,
     mydec_sales.is_simultaneous_trade_of_property,
     mydec_sales.is_sale_leaseback,
-    mydec_sales.is_homestead_exemption
+    mydec_sales.is_homestead_exemption,
+    mydec_sales.homestead_exemption_general_alternative,
+    mydec_sales.homestead_exemption_senior_citizens,
+    mydec_sales.homestead_exemption_senior_citizens_assessment_freeze
 FROM unique_sales
 LEFT JOIN sale_filter
     ON unique_sales.township_code = sale_filter.township_code
@@ -172,3 +179,4 @@ LEFT JOIN sale_filter
     AND unique_sales.is_multisale = sale_filter.is_multisale
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
+    AND unique_sales.pin = mydec_sales.pin
