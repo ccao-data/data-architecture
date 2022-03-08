@@ -88,10 +88,10 @@ hie_clean <- hie %>%
       is.na(QU_UPLOAD_DATE),
       lubridate::make_date(as.numeric(TAX_YEAR), 1, 1),
       QU_UPLOAD_DATE
-    ))
+    )),
   ) %>%
   rename_with(tolower) %>%
-  rename(pin = qu_pin, year = tax_year)
+  rename(pin = qu_pin, year = tax_year, qu_no_com_unit = qu_no__com_unit)
 
 # Save HIE data to warehouse, partitioned by year
 hie_clean %>%
