@@ -245,6 +245,12 @@ SELECT
         ELSE uni.env_flood_fs_risk_direction
     END AS loc_env_flood_fs_risk_direction,
     CASE
+        WHEN uni.env_airport_noise_dnl IS NULL THEN
+            LAST_VALUE(uni.env_airport_noise_dnl) IGNORE NULLS
+            OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
+        ELSE uni.env_airport_noise_dnl
+    END AS loc_env_airport_noise_dnl,
+    CASE
         WHEN uni.env_ohare_noise_contour_no_buffer_bool IS NULL THEN
             LAST_VALUE(uni.env_ohare_noise_contour_no_buffer_bool) IGNORE NULLS
             OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
