@@ -40,11 +40,9 @@ land_nbhd_rate <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2022) %>%
   select(
     township_code = twp_number,
     township_name = twp_name,
-    nbhd = neighborhood_no,
     town_nbhd = twp_nbhd,
     `2019` = `2019_rate`,
-    `2022` = `2022_rate`,
-    class_observed = classes_observed
+    `2022` = `2022_rate`
   ) %>%
   pivot_longer(
     c(`2019`, `2022`),
@@ -52,16 +50,13 @@ land_nbhd_rate <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2022) %>%
   ) %>%
   mutate(
     across(c(township_code:town_nbhd, year), as.character),
-    nbhd = str_pad(nbhd, 3, "left", "0"),
     town_nbhd = str_remove_all(town_nbhd, "-"),
-    land_rate_per_sqft = parse_number(land_rate_per_sqft),
-    class_observed = str_remove_all(class_observed, "Class |-| "),
-    class_observed = str_replace_all(class_observed, ",,*", ","),
-    class_observed = str_split(class_observed, ",")
+    land_rate_per_sqft = parse_number(land_rate_per_sqft)
   ) %>%
   group_by(year) %>%
-  write_partitions_to_s3(
-    remote_file_warehouse_nbhd_rate,
-    is_spatial = FALSE,
-    overwrite = TRUE
+  arrow::write_dataset(
+    path = remote_file_warehouse_nbhd_rate,
+    format = "parquet",
+    hive_style = TRUE,
+    compression = "snappy"
   )
