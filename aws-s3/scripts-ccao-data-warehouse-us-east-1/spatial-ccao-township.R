@@ -15,28 +15,6 @@ AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 input_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "ccao")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "ccao")
 
-##### NEIGHBORHOOD #####
-remote_file_nbhd_raw <- file.path(
-  input_bucket, "neighborhood", "2021.geojson"
-)
-remote_file_nbhd_warehouse <- file.path(
-  output_bucket, "neighborhood", "2021.parquet"
-)
-
-if (!aws.s3::object_exists(remote_file_nbhd_warehouse)) {
-  tmp_file_nbhd <- tempfile(fileext = ".geojson")
-  aws.s3::save_object(remote_file_nbhd_raw, file = tmp_file_nbhd)
-
-  st_read(tmp_file_nbhd) %>%
-    st_transform(4326) %>%
-    rename_with(tolower) %>%
-    mutate(
-      geometry_3435 = st_transform(geometry, 3435),
-      across(township_code:town_nbhd, as.character)
-    ) %>%
-    sfarrow::st_write_parquet(remote_file_nbhd_warehouse)
-}
-
 
 ##### TOWNSHIP #####
 remote_file_town_raw <- file.path(
