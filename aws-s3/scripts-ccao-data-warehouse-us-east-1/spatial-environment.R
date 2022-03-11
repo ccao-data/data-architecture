@@ -30,12 +30,12 @@ if (!aws.s3::object_exists(remote_file_coastline_warehouse)) {
   aws.s3::save_object(remote_file_coastline_raw, file = tmp_file_coastline)
 
   # We need to clip the coastlines to only include Cook County
-  cook_boundary <- st_read(
-    paste0(
-      "https://opendata.arcgis.com/datasets/",
-      "ea127f9e96b74677892722069c984198_1.geojson"
+  cook_boundary <- st_read_parquet(
+    file.path(
+      AWS_S3_WAREHOUSE_BUCKET,
+      "spatial/ccao/county/2019.parquet"
     )
-  ) %>%
+  )  %>%
     st_transform(4326) %>%
     st_buffer(1)
 

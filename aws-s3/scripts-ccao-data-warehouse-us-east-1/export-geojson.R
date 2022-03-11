@@ -14,10 +14,10 @@ AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "export")
 
 # Shapefile of the Cook County boundary for clipping
-cook_boundary <- st_read(
-  paste0(
-    "https://opendata.arcgis.com/datasets/",
-    "ea127f9e96b74677892722069c984198_1.geojson"
+cook_boundary <- st_read_parquet(
+  file.path(
+    AWS_S3_WAREHOUSE_BUCKET,
+    "spatial/ccao/county/2019.parquet"
   )
 ) %>%
   st_transform(4326)

@@ -111,10 +111,10 @@ if (!aws.s3::object_exists(remote_file_park_warehouse)) {
     add_osm_feature(key = "leisure", value = "park") %>%
     osmdata_sf()
 
-  cook_boundary <- st_read(
-    paste0(
-      "https://opendata.arcgis.com/datasets/",
-      "ea127f9e96b74677892722069c984198_1.geojson"
+  cook_boundary <- st_read_parquet(
+    file.path(
+      AWS_S3_WAREHOUSE_BUCKET,
+      "spatial/ccao/county/2019.parquet"
     )
   ) %>%
     st_transform(4326)
