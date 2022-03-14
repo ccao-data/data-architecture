@@ -241,6 +241,6 @@ FROM filled
 INNER JOIN aggregate_land
 ON filled.pin = aggregate_land.parid
     AND filled.year = aggregate_land.taxyr
-INNER JOIN prior_values
+LEFT JOIN prior_values
 ON filled.pin = prior_values.pin
     AND filled.year = prior_values.year
