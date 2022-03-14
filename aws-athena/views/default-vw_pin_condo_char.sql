@@ -24,6 +24,29 @@ WITH aggregate_land AS (
 
     GROUP BY parid,taxyr
     ),
+-- For some reason PINs can have cur != 'Y' in the current year even when there's only one row
+oby_filtered AS (
+    SELECT * FROM (
+        SELECT
+            *,
+            SUM(CASE WHEN CUR = 'Y' THEN 1 ELSE 0 END) OVER (PARTITION BY parid, taxyr) cur_count,
+            ROW_NUMBER() OVER (PARTITION BY parid, taxyr ORDER BY wen DESC) AS row_no
+        FROM iasworld.oby
+        WHERE class IN ('299', '2-99', '200')
+    )
+    WHERE (cur = 'Y' OR (cur_count = 0 and row_no = 1))
+),
+comdat_filtered AS (
+    SELECT * FROM (
+        SELECT
+            *,
+            SUM(CASE WHEN CUR = 'Y' THEN 1 ELSE 0 END) OVER (PARTITION BY parid, taxyr) cur_count,
+            ROW_NUMBER() OVER (PARTITION BY parid, taxyr ORDER BY wen DESC) AS row_no
+        FROM iasworld.comdat
+        WHERE class = '399'
+    )
+    WHERE (cur = 'Y' OR (cur_count = 0 and row_no = 1))
+),
 -- Prior year AV, used to help fing parking spaces and common areas
 prior_values AS (
     SELECT
@@ -40,7 +63,7 @@ prior_values AS (
 
     FROM iasworld.asmt_all
 
-    WHERE class IN ('299', '399')
+    WHERE class IN ('299', '2-99', '399')
     GROUP BY parid, taxyr
     ),
 -- All characteristics associated with condos in the OBY (299s)/COMDAT (399s) tables
@@ -52,30 +75,18 @@ SELECT DISTINCT -- Distinct because oby and comdat contain multiple cards for a 
     pardat.class,
     pardat.taxyr AS year,
     CASE
-        WHEN pardat.class = '299' THEN oby.user16
+        WHEN pardat.class IN ('299', '2-99') THEN oby.user16
         WHEN pardat.class = '399' THEN comdat.user16
     END AS cdu,
     -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
     CASE
-        WHEN pardat.class = '299' AND oby.yrblt IS NULL
-            THEN oby.effyr
-        WHEN pardat.class = '299' AND oby.yrblt IS NOT NULL
-            THEN oby.yrblt
-        WHEN pardat.class = '399' AND comdat.yrblt IS NULL
-            THEN comdat.effyr
-        WHEN pardat.class = '399' AND comdat.yrblt IS NOT NULL
-            THEN comdat.yrblt
+        WHEN pardat.class IN ('299', '2-99') THEN COALESCE(oby.yrblt, oby.effyr, comdat.yrblt, comdat.effyr)
+        WHEN pardat.class = '399' THEN COALESCE(comdat.yrblt, comdat.effyr, oby.yrblt, oby.effyr)
     END AS char_yrblt,
     MAX(
         CASE
-        WHEN pardat.class = '299' AND oby.yrblt IS NULL
-            THEN oby.effyr
-        WHEN pardat.class = '299' AND oby.yrblt IS NOT NULL
-            THEN oby.yrblt
-        WHEN pardat.class = '399' AND comdat.yrblt IS NULL
-            THEN comdat.effyr
-        WHEN pardat.class = '399' AND comdat.yrblt IS NOT NULL
-            THEN comdat.yrblt
+            WHEN pardat.class IN ('299', '2-99') THEN COALESCE(oby.yrblt, oby.effyr, comdat.yrblt, comdat.effyr)
+            WHEN pardat.class = '399' THEN COALESCE(comdat.yrblt, comdat.effyr, oby.yrblt, oby.effyr)
     END
     )
     OVER (PARTITION BY pardat.parid, pardat.taxyr)
@@ -92,27 +103,17 @@ FROM iasworld.pardat
 
 -- Left joins because pardat contains both 299s & 399s (oby and comdat do not)
 -- and pin_condo_char doesn't contain all condos
-LEFT JOIN (
-    SELECT * FROM iasworld.oby
-    WHERE class = '299'
-        AND cur = 'Y'
-    ) oby
+LEFT JOIN oby_filtered oby
 ON pardat.parid = oby.parid
     AND pardat.taxyr = oby.taxyr
-    AND pardat.class = oby.class
-LEFT JOIN (
-    SELECT * FROM iasworld.comdat
-    WHERE class = '399'
-        AND cur = 'Y'
-    ) comdat
+LEFT JOIN comdat_filtered comdat
 ON pardat.parid = comdat.parid
     AND pardat.taxyr = comdat.taxyr
-    AND pardat.class = comdat.class
 LEFT JOIN ccao.pin_condo_char
 ON pardat.parid = pin_condo_char.pin
     AND pardat.taxyr = pin_condo_char.year
 
-WHERE pardat.class IN ('299', '399')
+WHERE pardat.class IN ('299', '2-99', '399')
 ),
 filled AS (
     -- Backfilling data since it's rarely updated
@@ -176,7 +177,9 @@ SELECT
     filled.pin,
     filled.pin10,
     filled.year,
-    filled.class,
+    CASE WHEN filled.class = '2-99'
+        THEN '299'
+        ELSE filled.class END AS class,
     filled.char_yrblt,
     filled.char_building_sf,
     filled.char_unit_sf,
