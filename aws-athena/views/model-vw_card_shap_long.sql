@@ -5,6 +5,7 @@ WITH features AS (
         a1.meta_pin,
         a1.meta_card_num,
         a1.meta_class,
+        a1.meta_nbhd_code,
         a1.year,
         a1.run_id,
         a1.township_code,
@@ -49,6 +50,8 @@ WITH features AS (
         'ind_land_gte_95_percentile',
         'ind_bldg_gte_95_percentile',
         'ind_land_bldg_ratio_gte_10',
+        'loc_longitude',
+        'loc_latitude',
         'loc_cook_municipality_name',
         'loc_school_elementary_district_geoid',
         'loc_school_secondary_district_geoid',
@@ -60,6 +63,7 @@ WITH features AS (
         'loc_env_flood_fs_factor',
         'loc_env_flood_fs_risk_direction',
         'loc_env_ohare_noise_contour_no_buffer_bool',
+        'loc_env_airport_noise_dnl',
         'loc_access_cmap_walk_nta_score',
         'loc_access_cmap_walk_total_score',
         'prox_num_pin_in_half_mile',
@@ -123,7 +127,10 @@ WITH features AS (
         'lag_char_hbath',
         'lag_char_frpl',
         'lag_char_yrblt',
-        'lag_other_tax_bill_amount_total'
+        'lag_other_tax_bill_amount_total',
+        'meta_1yr_pri_board_tot',
+        'meta_2yr_pri_board_tot',
+        'meta_mailed_tot'
     ],
     array[
         CAST(meta_township_code AS varchar),
@@ -160,6 +167,8 @@ WITH features AS (
         CAST(ind_land_gte_95_percentile AS varchar),
         CAST(ind_bldg_gte_95_percentile AS varchar),
         CAST(ind_land_bldg_ratio_gte_10 AS varchar),
+        CAST(loc_longitude AS varchar),
+        CAST(loc_latitude AS varchar),
         CAST(loc_cook_municipality_name AS varchar),
         CAST(loc_school_elementary_district_geoid AS varchar),
         CAST(loc_school_secondary_district_geoid AS varchar),
@@ -171,6 +180,7 @@ WITH features AS (
         CAST(loc_env_flood_fs_factor AS varchar),
         CAST(loc_env_flood_fs_risk_direction AS varchar),
         CAST(loc_env_ohare_noise_contour_no_buffer_bool AS varchar),
+        CAST(loc_env_airport_noise_dnl AS varchar),
         CAST(loc_access_cmap_walk_nta_score AS varchar),
         CAST(loc_access_cmap_walk_total_score AS varchar),
         CAST(prox_num_pin_in_half_mile AS varchar),
@@ -234,7 +244,10 @@ WITH features AS (
         CAST(lag_char_hbath AS varchar),
         CAST(lag_char_frpl AS varchar),
         CAST(lag_char_yrblt AS varchar),
-        CAST(lag_other_tax_bill_amount_total AS varchar)
+        CAST(lag_other_tax_bill_amount_total AS varchar),
+        CAST(meta_1yr_pri_board_tot AS varchar),
+        CAST(meta_2yr_pri_board_tot AS varchar),
+        CAST(meta_mailed_tot AS varchar)
     ]) a2 (feature_name, feature_value)
 ),
 shaps AS (
@@ -286,6 +299,8 @@ shaps AS (
         'ind_land_gte_95_percentile',
         'ind_bldg_gte_95_percentile',
         'ind_land_bldg_ratio_gte_10',
+        'loc_longitude',
+        'loc_latitude',
         'loc_cook_municipality_name',
         'loc_school_elementary_district_geoid',
         'loc_school_secondary_district_geoid',
@@ -297,6 +312,7 @@ shaps AS (
         'loc_env_flood_fs_factor',
         'loc_env_flood_fs_risk_direction',
         'loc_env_ohare_noise_contour_no_buffer_bool',
+        'loc_env_airport_noise_dnl',
         'loc_access_cmap_walk_nta_score',
         'loc_access_cmap_walk_total_score',
         'prox_num_pin_in_half_mile',
@@ -360,7 +376,10 @@ shaps AS (
         'lag_char_hbath',
         'lag_char_frpl',
         'lag_char_yrblt',
-        'lag_other_tax_bill_amount_total'
+        'lag_other_tax_bill_amount_total',
+        'meta_1yr_pri_board_tot',
+        'meta_2yr_pri_board_tot',
+        'meta_mailed_tot'
     ],
     array[
         meta_township_code,
@@ -397,6 +416,8 @@ shaps AS (
         ind_land_gte_95_percentile,
         ind_bldg_gte_95_percentile,
         ind_land_bldg_ratio_gte_10,
+        loc_longitude,
+        loc_latitude,
         loc_cook_municipality_name,
         loc_school_elementary_district_geoid,
         loc_school_secondary_district_geoid,
@@ -408,6 +429,7 @@ shaps AS (
         loc_env_flood_fs_factor,
         loc_env_flood_fs_risk_direction,
         loc_env_ohare_noise_contour_no_buffer_bool,
+        loc_env_airport_noise_dnl,
         loc_access_cmap_walk_nta_score,
         loc_access_cmap_walk_total_score,
         prox_num_pin_in_half_mile,
@@ -471,7 +493,10 @@ shaps AS (
         lag_char_hbath,
         lag_char_frpl,
         lag_char_yrblt,
-        lag_other_tax_bill_amount_total
+        lag_other_tax_bill_amount_total,
+        meta_1yr_pri_board_tot,
+        meta_2yr_pri_board_tot,
+        meta_mailed_tot
     ]) a2 (feature_name, feature_shap)
 )
 SELECT
@@ -479,6 +504,8 @@ SELECT
     f.meta_year,
     f.meta_pin,
     f.meta_card_num,
+    f.meta_class,
+    f.meta_nbhd_code,
     f.feature_name,
     f.feature_value,
     s.feature_shap,
