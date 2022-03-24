@@ -69,9 +69,13 @@ prior_values AS (
 -- All characteristics associated with condos in the OBY (299s)/COMDAT (399s) tables
 chars AS (
     SELECT DISTINCT * FROM ( -- Distinct because oby and comdat contain multiple cards for a few condos
-        SELECT  
+        SELECT
 
             pardat.parid AS pin,
+            CASE
+                WHEN pardat.class IN ('299', '2-99') THEN oby.card
+                WHEN pardat.class = '399' THEN comdat.card
+            END AS card,
             SUBSTR(pardat.parid, 1, 10) AS pin10,
             pardat.class,
             pardat.taxyr AS year,
@@ -125,6 +129,7 @@ filled AS (
     SELECT
         pin,
         pin10,
+        card,
         class,
         year,
         char_yrblt,
@@ -182,6 +187,7 @@ SELECT
 
     filled.pin,
     filled.pin10,
+    filled.card,
     filled.year,
     CASE WHEN filled.class = '2-99'
         THEN '299'
