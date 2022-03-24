@@ -68,52 +68,57 @@ prior_values AS (
     ),
 -- All characteristics associated with condos in the OBY (299s)/COMDAT (399s) tables
 chars AS (
-SELECT DISTINCT -- Distinct because oby and comdat contain multiple cards for a few condos
+    SELECT DISTINCT * FROM ( -- Distinct because oby and comdat contain multiple cards for a few condos
+        SELECT  
 
-    pardat.parid AS pin,
-    SUBSTR(pardat.parid, 1, 10) AS pin10,
-    pardat.class,
-    pardat.taxyr AS year,
-    CASE
-        WHEN pardat.class IN ('299', '2-99') THEN oby.user16
-        WHEN pardat.class = '399' THEN comdat.user16
-    END AS cdu,
-    -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
-    CASE
-        WHEN pardat.class IN ('299', '2-99') THEN COALESCE(oby.yrblt, oby.effyr, comdat.yrblt, comdat.effyr)
-        WHEN pardat.class = '399' THEN COALESCE(comdat.yrblt, comdat.effyr, oby.yrblt, oby.effyr)
-    END AS char_yrblt,
-    MAX(
-        CASE
-            WHEN pardat.class IN ('299', '2-99') THEN COALESCE(oby.yrblt, oby.effyr, comdat.yrblt, comdat.effyr)
-            WHEN pardat.class = '399' THEN COALESCE(comdat.yrblt, comdat.effyr, oby.yrblt, oby.effyr)
-    END
+            pardat.parid AS pin,
+            SUBSTR(pardat.parid, 1, 10) AS pin10,
+            pardat.class,
+            pardat.taxyr AS year,
+            CASE
+                WHEN pardat.class IN ('299', '2-99') THEN oby.user16
+                WHEN pardat.class = '399' THEN comdat.user16
+            END AS cdu,
+            -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
+            CASE
+                WHEN pardat.class IN ('299', '2-99') THEN COALESCE(oby.yrblt, oby.effyr, comdat.yrblt, comdat.effyr)
+                WHEN pardat.class = '399' THEN COALESCE(comdat.yrblt, comdat.effyr, oby.yrblt, oby.effyr)
+            END AS char_yrblt,
+            MAX(
+                CASE
+                    WHEN pardat.class IN ('299', '2-99') THEN COALESCE(oby.yrblt, oby.effyr, comdat.yrblt, comdat.effyr)
+                    WHEN pardat.class = '399' THEN COALESCE(comdat.yrblt, comdat.effyr, oby.yrblt, oby.effyr)
+            END
+            )
+            OVER (PARTITION BY pardat.parid, pardat.taxyr)
+            AS max_yrblt,
+            CAST(ROUND(pin_condo_char.building_sf, 0) AS int) AS char_building_sf,
+            CAST(ROUND(pin_condo_char.unit_sf, 0) AS int) AS char_unit_sf,
+            CAST(pin_condo_char.bedrooms AS int) AS char_bedrooms,
+            pin_condo_char.parking_pin,
+            unitno,
+            tiebldgpct,
+            pardat.note2 AS note,
+            CASE WHEN SUM(CASE WHEN pardat.class NOT IN ('299', '2-99', '399') THEN 1 ELSE 0 END)
+                OVER (PARTITION BY SUBSTR(pardat.parid, 1, 10), pardat.taxyr) > 0 THEN true ELSE false END
+                AS is_mixed_use
+
+        FROM iasworld.pardat
+
+        -- Left joins because pardat contains both 299s & 399s (oby and comdat do not)
+        -- and pin_condo_char doesn't contain all condos
+        LEFT JOIN oby_filtered oby
+        ON pardat.parid = oby.parid
+            AND pardat.taxyr = oby.taxyr
+        LEFT JOIN comdat_filtered comdat
+        ON pardat.parid = comdat.parid
+            AND pardat.taxyr = comdat.taxyr
+        LEFT JOIN ccao.pin_condo_char
+        ON pardat.parid = pin_condo_char.pin
+            AND pardat.taxyr = pin_condo_char.year
     )
-    OVER (PARTITION BY pardat.parid, pardat.taxyr)
-    AS max_yrblt,
-    CAST(ROUND(pin_condo_char.building_sf, 0) AS int) AS char_building_sf,
-    CAST(ROUND(pin_condo_char.unit_sf, 0) AS int) AS char_unit_sf,
-    CAST(pin_condo_char.bedrooms AS int) AS char_bedrooms,
-    pin_condo_char.parking_pin,
-    unitno,
-    tiebldgpct,
-    pardat.note2 AS note
 
-FROM iasworld.pardat
-
--- Left joins because pardat contains both 299s & 399s (oby and comdat do not)
--- and pin_condo_char doesn't contain all condos
-LEFT JOIN oby_filtered oby
-ON pardat.parid = oby.parid
-    AND pardat.taxyr = oby.taxyr
-LEFT JOIN comdat_filtered comdat
-ON pardat.parid = comdat.parid
-    AND pardat.taxyr = comdat.taxyr
-LEFT JOIN ccao.pin_condo_char
-ON pardat.parid = pin_condo_char.pin
-    AND pardat.taxyr = pin_condo_char.year
-
-WHERE pardat.class IN ('299', '2-99', '399')
+    WHERE class IN ('299', '2-99', '399')
 ),
 filled AS (
     -- Backfilling data since it's rarely updated
@@ -163,6 +168,7 @@ filled AS (
         END AS parking_pin,
         unitno,
         tiebldgpct,
+        is_mixed_use,
         COUNT(*)
         OVER (PARTITION BY pin10, year)
             AS building_pins
@@ -206,6 +212,7 @@ SELECT
     filled.cdu,
     filled.note,
     filled.unitno,
+    filled.is_mixed_use,
     prior_values.oneyr_pri_board_tot,
 
     CASE

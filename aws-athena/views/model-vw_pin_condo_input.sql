@@ -141,7 +141,7 @@ SELECT
     ch.char_building_pins,
     ch.char_building_pins - ch.char_building_non_units AS char_building_units,
     ch.char_building_non_units,
-    ch.char_tiebldgpct,
+    ch.is_mixed_use as char_is_mixed_use,
 
     -- Property characteristics from MLS/valuations
     ch.char_building_sf,
