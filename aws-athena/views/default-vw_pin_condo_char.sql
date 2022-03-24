@@ -105,7 +105,7 @@ chars AS (
             pardat.note2 AS note,
             CASE WHEN SUM(CASE WHEN pardat.class NOT IN ('299', '2-99', '399') THEN 1 ELSE 0 END)
                 OVER (PARTITION BY SUBSTR(pardat.parid, 1, 10), pardat.taxyr) > 0 THEN true ELSE false END
-                AS is_mixed_use
+                AS bldg_is_mixed_use
 
         FROM iasworld.pardat
 
@@ -173,7 +173,7 @@ filled AS (
         END AS parking_pin,
         unitno,
         tiebldgpct,
-        is_mixed_use,
+        bldg_is_mixed_use,
         COUNT(*)
         OVER (PARTITION BY pin10, year)
             AS building_pins
@@ -218,7 +218,7 @@ SELECT
     filled.cdu,
     filled.note,
     filled.unitno,
-    filled.is_mixed_use,
+    filled.bldg_is_mixed_use,
     prior_values.oneyr_pri_board_tot,
 
     CASE
