@@ -115,11 +115,13 @@ raw_files_hydro <- grep(
   ),
   value = TRUE
 )
-dest_files_hydro_prefix <- raw_files_hydro %>%
-  str_replace(AWS_S3_RAW_BUCKET, AWS_S3_WAREHOUSE_BUCKET) %>%
-  dirname()
+dest_files_hydro_prefix <- file.path(
+  AWS_S3_WAREHOUSE_BUCKET,
+  "spatial/environment/hydrology/"
+  )
 dest_files_hydro_years <- raw_files_hydro %>%
-  str_extract("[0-9]{4}")
+  str_extract("[0-9]{4}") %>%
+  unique()
 dest_files_hydro <- file.path(
   dest_files_hydro_prefix,
   paste0("year=", dest_files_hydro_years),
@@ -127,13 +129,34 @@ dest_files_hydro <- file.path(
 )
 
 # Function to pull raw data from S3 and clean
-clean_hydro <- function(remote_file, dest_file) {
+clean_hydro <- function(raw_file_year, dest_file) {
   if (!aws.s3::object_exists(dest_file)) {
-    tmp_file <- tempfile(fileext = ".geojson")
-    aws.s3::save_object(remote_file, file = tmp_file)
 
-    st_read(tmp_file) %>%
-      select(id = HYDROID, name = FULLNAME, geometry) %>%
+    raw_file <- grep(raw_file_year, raw_files_hydro, value = TRUE)
+
+    tmp_file <- tempfile(c(fileext = ".geojson", fileext = ".geojson"))
+    mapply(aws.s3::save_object, raw_file, file = tmp_file)
+    #aws.s3::save_object(remote_file, file = tmp_file)
+
+    names(tmp_file) <- str_extract(raw_file, "linear|area")
+
+    rbind(
+      st_read(tmp_file['linear']) %>%
+        mutate(
+          HYDROID = LINEARID,
+          ALAND = NA,
+          AWATER = NA,
+          INTPTLAT = NA,
+          INTPTLON = NA,
+          hydrology_type = 'linear'
+        ) %>%
+        select(-c(LINEARID, ARTPATH)),
+      st_read(tmp_file['area']) %>%
+        mutate(
+          hydrology_type = 'area'
+        )
+    ) %>%
+      select(id = HYDROID, name = FULLNAME, hydrology_type, geometry) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
       sfarrow::st_write_parquet(dest_file)
 
@@ -142,4 +165,4 @@ clean_hydro <- function(remote_file, dest_file) {
 }
 
 # Apply function to raw_files
-mapply(clean_hydro, raw_files_hydro, dest_files_hydro)
+mapply(clean_hydro, dest_files_hydro_years, dest_files_hydro)

@@ -3,6 +3,7 @@ library(dplyr)
 library(purrr)
 library(sf)
 library(zip)
+library(tigris)
 source("utils.R")
 
 # This script retrieves environmental spatial data such as floodplain boundaries
@@ -61,19 +62,36 @@ if (!aws.s3::object_exists(remote_file_coastline)) {
 
 
 ##### COOK COUNTY HYDROLOGY #####
-remote_file_hydrology <- file.path(
-  output_bucket, "hydrology",
-  paste0(current_year, ".geojson")
+remote_file_hydrology_area <- file.path(
+  output_bucket, "hydrology", "area",
+  paste0(as.numeric(current_year) - 1, ".geojson")
 )
 
-if (!aws.s3::object_exists(remote_file_hydrology)) {
+if (!aws.s3::object_exists(remote_file_hydrology_area)) {
   tmp_file <- tempfile(fileext = ".geojson")
 
   st_write(
-    tigris::area_water("IL", "Cook", year = current_year),
+    tigris::area_water("IL", "Cook", year = as.numeric(current_year) - 1),
     tmp_file
   )
 
-  save_local_to_s3(remote_file_hydrology, tmp_file)
+  save_local_to_s3(remote_file_hydrology_area, tmp_file)
+  file.remove(tmp_file)
+}
+
+remote_file_hydrology_linear <- file.path(
+  output_bucket, "hydrology", "linear",
+  paste0(as.numeric(current_year) - 1, ".geojson")
+)
+
+if (!aws.s3::object_exists(remote_file_hydrology_linear)) {
+  tmp_file <- tempfile(fileext = ".geojson")
+
+  st_write(
+    tigris::linear_water("IL", "Cook", year = as.numeric(current_year) - 1),
+    tmp_file
+  )
+
+  save_local_to_s3(remote_file_hydrology_linear, tmp_file)
   file.remove(tmp_file)
 }
