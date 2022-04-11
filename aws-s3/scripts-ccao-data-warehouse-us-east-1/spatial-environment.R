@@ -142,25 +142,17 @@ clean_hydro <- function(raw_file_year, dest_file) {
 
     rbind(
       st_read(tmp_file['linear']) %>%
-        mutate(
-          HYDROID = LINEARID,
-          ALAND = NA,
-          AWATER = NA,
-          INTPTLAT = NA,
-          INTPTLON = NA,
-          hydrology_type = 'linear'
-        ) %>%
-        select(-c(LINEARID, ARTPATH)),
+        mutate(hydrology_type = 'linear') %>%
+        select(id = LINEARID, name = FULLNAME, hydrology_type, geometry),
       st_read(tmp_file['area']) %>%
-        mutate(
-          hydrology_type = 'area'
-        )
+        mutate(hydrology_type = 'area') %>%
+        select(id = HYDROID, name = FULLNAME, hydrology_type, geometry)
     ) %>%
-      select(id = HYDROID, name = FULLNAME, hydrology_type, geometry) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
       sfarrow::st_write_parquet(dest_file)
 
     file.remove(tmp_file)
+
   }
 }
 
