@@ -92,11 +92,7 @@ SELECT
     -- PIN owning a percentage of a building. For residential buildings, if
     -- a proration rate is NULL or 0, it's almost always actually 1
     uni.tieback_key_pin AS meta_tieback_key_pin,
-    CASE
-        WHEN uni.tieback_proration_rate IS NULL THEN 1.0
-        WHEN uni.tieback_proration_rate = 0.0 THEN 1.0
-        ELSE uni.tieback_proration_rate
-    END AS meta_tieback_proration_rate,
+    uni.tieback_proration_rate AS meta_tieback_proration_rate,
     CASE
         WHEN uni.tieback_proration_rate < 1.0 THEN true
         ELSE false

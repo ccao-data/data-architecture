@@ -200,7 +200,7 @@ SELECT
     -- Count of non-unit PINs by pin10
     sum(CASE
         WHEN filled.cdu = 'GR'
-            OR SUBSTR(filled.unitno, 1, 1) = 'P'
+            OR (SUBSTR(filled.unitno, 1, 1) = 'P' AND filled.unitno != 'PH')
             OR SUBSTR(filled.unitno, 1, 3) = 'GAR'
             OR filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
@@ -223,7 +223,7 @@ SELECT
 
     CASE
         WHEN filled.cdu = 'GR'
-            OR SUBSTR(filled.unitno, 1, 1) = 'P'
+            OR (SUBSTR(filled.unitno, 1, 1) = 'P' AND filled.unitno != 'PH')
             OR SUBSTR(filled.unitno, 1, 3) = 'GAR'
             OR filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
@@ -237,7 +237,7 @@ SELECT
         WHEN filled.note = 'PARKING/STORAGE/COMMON UNIT' OR filled.parking_pin = TRUE
           THEN 'identified by valuations as non-unit'
         WHEN filled.cdu = 'GR' THEN 'cdu'
-        WHEN SUBSTR(filled.unitno, 1, 1) = 'P'
+        WHEN (SUBSTR(filled.unitno, 1, 1) = 'P' AND filled.unitno != 'PH')
             OR SUBSTR(filled.unitno, 1, 3) = 'GAR' THEN 'unit number'
         -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
         WHEN (filled.tiebldgpct < (50 / filled.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000) THEN 'declaration percent'

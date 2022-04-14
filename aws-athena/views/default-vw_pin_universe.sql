@@ -17,6 +17,7 @@ SELECT
     par.tieback AS tieback_key_pin,
     CASE
         WHEN par.tiebldgpct IS NOT NULL THEN par.tiebldgpct / 100.0
+        WHEN par.tiebldgpct IS NULL AND par.class IN ('299', '399') THEN 0
         ELSE 1.0
     END AS tieback_proration_rate,
 
