@@ -6,4 +6,5 @@
 *.geojson
 *.parquet
 *.csv
+!open_data_info.csv
 aws-s3/parcel-tmp
