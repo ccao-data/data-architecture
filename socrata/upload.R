@@ -35,7 +35,7 @@ gather_upload <- function(query, url) {
   RSocrata::write.socrata(
     data,
     url,
-    update_mode = "REPLACE",
+    update_mode = "UPSERT",
     Sys.getenv("SOCRATA_EMAIL"),
     Sys.getenv("SOCRATA_PASSWORD"),
     app_token = Sys.getenv("SOCRATA_APP_TOKEN")

@@ -2,6 +2,7 @@ library(arrow)
 library(aws.s3)
 library(dplyr)
 library(purrr)
+library(stringr)
 library(tools)
 source("utils.R")
 
@@ -29,7 +30,9 @@ files <- grep(
 read_questionable <- function(x) {
 
   read_parquet(x) %>%
-    mutate(year = tools::file_path_sans_ext(basename(x)))
+    mutate(pin = str_pad(pin, 14, side = 'left', pad = '0'),
+      year = tools::file_path_sans_ext(basename(x))
+      )
 
 }
 
