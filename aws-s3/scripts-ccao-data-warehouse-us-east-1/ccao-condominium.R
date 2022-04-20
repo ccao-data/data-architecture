@@ -30,9 +30,10 @@ files <- grep(
 read_questionable <- function(x) {
 
   read_parquet(x) %>%
-    mutate(pin = str_pad(pin, 14, side = 'left', pad = '0'),
-      year = tools::file_path_sans_ext(basename(x))
-      )
+    mutate(year = tools::file_path_sans_ext(basename(x))) %>%
+    select("pin" = 1, "year") %>%
+    filter(str_detect(pin, "^[:digit:]+$")) %>%
+    mutate(pin = str_pad(pin, 14, side = 'left', pad = '0'))
 
 }
 
