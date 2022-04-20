@@ -24,6 +24,8 @@ WITH aggregate_land AS (
 
     GROUP BY parid,taxyr
     ),
+-- Valuations has detected some PINs that shouldn't be considered parking spaces
+questionable_gr AS (SELECT pin, TRUE AS is_question_garage_unit FROM ccao.pin_questionable_garage_units),
 -- For some reason PINs can have cur != 'Y' in the current year even when there's only one row
 oby_filtered AS (
     SELECT * FROM (
@@ -199,14 +201,15 @@ SELECT
 
     -- Count of non-unit PINs by pin10
     sum(CASE
-        WHEN filled.cdu = 'GR'
+        WHEN (filled.cdu = 'GR'
             OR (SUBSTR(filled.unitno, 1, 1) = 'P' AND filled.unitno != 'PH')
             OR SUBSTR(filled.unitno, 1, 3) = 'GAR'
             OR filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
             -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
             OR (filled.tiebldgpct < (50 / filled.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
-            OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
+            OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000)
+            AND questionable_gr.is_question_garage_unit != TRUE
         THEN 1
         ELSE 0 END)
         OVER (PARTITION BY filled.pin10, filled.year)
@@ -222,18 +225,20 @@ SELECT
     prior_values.oneyr_pri_board_tot,
 
     CASE
-        WHEN filled.cdu = 'GR'
+        WHEN (filled.cdu = 'GR'
             OR (SUBSTR(filled.unitno, 1, 1) = 'P' AND filled.unitno != 'PH')
             OR SUBSTR(filled.unitno, 1, 3) = 'GAR'
             OR filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
             -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
             OR (filled.tiebldgpct < (50 / filled.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
-            OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
+            OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000)
+            AND questionable_gr.is_question_garage_unit != TRUE
         THEN TRUE
         ELSE FALSE
     END AS is_parking_space,
     CASE
+        WHEN questionable_gr.is_question_garage_unit = TRUE THEN NULL
         WHEN filled.note = 'PARKING/STORAGE/COMMON UNIT' OR filled.parking_pin = TRUE
           THEN 'identified by valuations as non-unit'
         WHEN filled.cdu = 'GR' THEN 'cdu'
@@ -260,3 +265,5 @@ ON filled.pin = aggregate_land.parid
 LEFT JOIN prior_values
 ON filled.pin = prior_values.pin
     AND filled.year = prior_values.year
+LEFT JOIN questionable_gr
+ON filled.pin = questionable_gr.pin
