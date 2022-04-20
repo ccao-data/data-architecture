@@ -30,6 +30,7 @@ files <- grep(
 read_questionable <- function(x) {
 
   read_parquet(x) %>%
+    filter(!str_detect(X3, "storage") | is.na(X3)) %>%
     mutate(year = tools::file_path_sans_ext(basename(x))) %>%
     select("pin" = 1, "year") %>%
     filter(str_detect(pin, "^[:digit:]+$")) %>%
