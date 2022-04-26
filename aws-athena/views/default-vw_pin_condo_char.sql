@@ -233,7 +233,7 @@ SELECT
             -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
             OR (filled.tiebldgpct < (50 / filled.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
             OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000)
-            AND questionable_gr.is_question_garage_unit != TRUE
+            AND questionable_gr.is_question_garage_unit IS NULL
         THEN TRUE
         ELSE FALSE
     END AS is_parking_space,
@@ -254,6 +254,7 @@ SELECT
         THEN TRUE
         ELSE FALSE
     END AS is_common_area,
+    questionable_gr.is_question_garage_unit,
 
     pin_is_multiland,
     pin_num_landlines
