@@ -90,13 +90,19 @@ AS
        AS (SELECT parid,
                   taxyr,
                   class,
-                  Substr(nbhd, 1, 2) AS township
-           FROM   iasworld.pardat)
+                  Substr(nbhd, 1, 2) AS township_code
+           FROM   iasworld.pardat),
+       -- Add township name
+       town_names
+       AS (SELECT township_name,
+                  township_code
+           FROM spatial.township)
   -- Add lagged values for previous two years
   SELECT values_by_year.parid                                     AS pin,
          values_by_year.taxyr                                     AS year,
          townships.class,
-         townships.township,
+         townships.township_code,
+         town_names.township_name,
          mailed_bldg,
          mailed_land,
          mailed_tot,
@@ -190,3 +196,5 @@ AS
          left join townships
                 ON values_by_year.parid = townships.parid
                    AND values_by_year.taxyr = townships.taxyr
+         left join town_names
+                ON townships.township_code = town_names.township_code
