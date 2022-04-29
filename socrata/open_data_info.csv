@@ -1,5 +1,0 @@
-view,query,socrataURL
-vw_pin_sale,select * from default.vw_pin_sale limit 100,https://datacatalog.cookcountyil.gov/resource/wvhk-k5uv.json
-vw_pin_universe,select * from default.vw_pin_universe limit 100,https://datacatalog.cookcountyil.gov/resource/tx2p-k2g9.json
-vw_card_res_char,select * from default.vw_card_res_char limit 100,https://datacatalog.cookcountyil.gov/resource/jfum-2s5a.json
-vw_pin_condo_char,select * from default.vw_pin_condo_char limit 100,https://datacatalog.cookcountyil.gov/resource/cmrj-gztn.json
