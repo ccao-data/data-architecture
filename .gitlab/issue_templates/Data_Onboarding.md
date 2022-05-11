@@ -1,6 +1,6 @@
 # Data Onboarding
 
-After filling out this issue template, onboard the data, close the issue, and add the neccasry information to the department's data dictionary [here](XXX).
+After filling out this issue template: onboard the data, close the issue, and add the neccasry information to the department's [data catalog](https://gitlab.com/groups/ccao-data-science---modeling/-/wikis/Data/data_catalog.xlsx).
 
 ### Description
 
@@ -15,7 +15,7 @@ After filling out this issue template, onboard the data, close the issue, and ad
 
 ### Documentation
 
-If the data has documentation, provide its source: 
+(If the data has documentation, provide its source.)
 
 ### Date Retrieved
 
@@ -23,7 +23,7 @@ If the data has documentation, provide its source:
 
 ### Reproducibility 
 
-- [ ] Reproducible
+- [ ] Reproducible (How was the data retrieved? API? R Package? Please note the method.)
 - [ ] Bespoke
 
 ### Data Type
