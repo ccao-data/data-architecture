@@ -33,7 +33,8 @@ column_names <- c(
   "municipality" = "MUNICIPALITY",
   "state_representative_district" = "district_n",
   "state_senate_district" = "senatedist",
-  "ward" = "ward"
+  "ward_chicago" = "ward",
+  "ward_evanston" = "ward"
 )
 
 # Function to pull raw data from S3 and clean
@@ -51,6 +52,7 @@ clean_politics <- function(remote_file) {
       mutate_at(vars(contains("MUNICIPALITY")), replace_na, "Unincorporated") %>%
       select(column_names[political_unit], any_of("AGENCY"), geometry) %>%
       mutate(
+        across(where(is.character), ~ str_replace(.x, "//.0", "")),
         across(where(is.character), str_to_title),
         across(where(is.character), readr::parse_number, .names = "{.col}_num"),
         geometry_3435 = st_transform(geometry, 3435),
@@ -60,7 +62,7 @@ clean_politics <- function(remote_file) {
       select(-any_of("municipality_num")) %>%
       rename_with(~ "municipality_num", any_of("AGENCY")) %>%
       select(ends_with("_num"), everything(), geometry, geometry_3435, year) %>%
-      filter(!is.na(.))
+      na.omit()
   )
 
   file.remove(tmp_file)

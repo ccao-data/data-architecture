@@ -1614,25 +1614,6 @@
       "Hash": "50b405c6419e921b9e9360cc9ebbcf2d",
       "Requirements": []
     },
-    "ptaxsim": {
-      "Package": "ptaxsim",
-      "Version": "0.1.0",
-      "Source": "GitLab",
-      "RemoteType": "gitlab",
-      "RemoteHost": "gitlab.com",
-      "RemoteRepo": "packages/ptaxsim",
-      "RemoteUsername": "ccao-data-science---modeling",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "5462deb45b80565540d5ffae08130b76e861fd42",
-      "Hash": "0498c6b2f2c5d642765b290f89f74f1a",
-      "Requirements": [
-        "data.table",
-        "dplyr",
-        "dtplyr",
-        "magrittr",
-        "rlang"
-      ]
-    },
     "purrr": {
       "Package": "purrr",
       "Version": "0.3.4",

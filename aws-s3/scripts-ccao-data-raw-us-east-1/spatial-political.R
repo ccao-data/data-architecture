@@ -66,18 +66,32 @@ sources_list <- bind_rows(list(
     "year" = "2010"
   ),
 
-  # WARD
-  "wrd_2003" = c(
+  # CHICAGO WARD
+  "cwrd_2003" = c(
     "source" = "https://data.cityofchicago.org/api/geospatial/",
     "api_url" = "xt4z-bnwh?method=export&format=GeoJSON",
-    "boundary" = "ward",
+    "boundary" = "ward_chicago",
     "year" = "2003"
   ),
-  "wrd_2015" = c(
+  "cwrd_2015" = c(
     "source" = "https://data.cityofchicago.org/api/geospatial/",
     "api_url" = "sp34-6z76?method=export&format=GeoJSON",
-    "boundary" = "ward",
+    "boundary" = "ward_chicago",
     "year" = "2015"
+  ),
+
+  # EVANSTON WARD
+  "ewrd_2019" = c(
+    "source" = "https://data.cityofevanston.org/api/geospatial/",
+    "api_url" = "42py-uyez?method=export&format=GeoJSON",
+    "boundary" = "ward_evanston",
+    "year" = "2019"
+  ),
+  "ewrd_2022" = c(
+    "source" = "https://data.cityofevanston.org/api/geospatial/",
+    "api_url" = "qqzu-c4r8?method=export&format=GeoJSON",
+    "boundary" = "ward_evanston",
+    "year" = "2022"
   )
 ))
 
