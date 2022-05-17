@@ -260,7 +260,7 @@ SELECT
     pin_num_landlines
 
 FROM filled
-INNER JOIN aggregate_land
+LEFT JOIN aggregate_land
 ON filled.pin = aggregate_land.parid
     AND filled.year = aggregate_land.taxyr
 LEFT JOIN prior_values
