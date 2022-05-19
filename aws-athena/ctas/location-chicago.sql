@@ -16,7 +16,7 @@ WITH (
         FROM spatial.parcel
     ),
     distinct_years_rhs AS (
-        SELECT DISTINCT year FROM spatial.ward
+        SELECT DISTINCT year FROM spatial.ward_chicago
         UNION ALL
         SELECT DISTINCT year FROM spatial.police_district
         UNION ALL
@@ -27,7 +27,7 @@ WITH (
     ward AS (
         SELECT
             p.x_3435, p.y_3435,
-            MAX(CAST(CAST(cprod.ward_num AS integer) AS varchar)) AS chicago_ward_num,
+            MAX(CAST(CAST(cprod.ward_chicago_num AS integer) AS varchar)) AS chicago_ward_num,
             MAX(cprod.year) AS chicago_ward_data_year,
             cprod.pin_year
         FROM distinct_pins p
@@ -35,12 +35,12 @@ WITH (
             SELECT fill_years.pin_year, fill_data.*
             FROM (
                 SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
-                FROM spatial.ward df
+                FROM spatial.ward_chicago df
                 CROSS JOIN distinct_years dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) fill_years
-            LEFT JOIN spatial.ward fill_data
+            LEFT JOIN spatial.ward_chicago fill_data
                 ON fill_years.fill_year = fill_data.year
         ) cprod
         ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
