@@ -41,7 +41,10 @@ SELECT
         WHEN chicago_ward_num IS NOT NULL THEN chicago_ward_num
         WHEN evanston_ward_num IS NOT NULL THEN evanston_ward_num
         ELSE NULL END AS ward_num,
-    chicago_ward_data_year,
+    CASE
+        WHEN chicago_ward_data_year IS NOT NULL THEN chicago_ward_data_year
+        WHEN evanston_ward_data_year IS NOT NULL THEN evanston_ward_data_year
+        ELSE NULL END AS ward_data_year,
     chicago_community_area_num,
     chicago_community_area_name,
     chicago_community_area_data_year,
