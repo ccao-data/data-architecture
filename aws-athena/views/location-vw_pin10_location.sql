@@ -37,7 +37,10 @@ SELECT
     cook_municipality_num,
     cook_municipality_name,
     cook_municipality_data_year,
-    chicago_ward_num,
+    CASE
+        WHEN chicago_ward_num IS NOT NULL THEN chicago_ward_num
+        WHEN evanston_ward_num IS NOT NULL THEN evanston_ward_num
+        ELSE NULL END AS ward_num,
     chicago_ward_data_year,
     chicago_community_area_num,
     chicago_community_area_name,
@@ -115,6 +118,9 @@ LEFT JOIN location.political
 LEFT JOIN location.chicago
     ON pin.pin10 = chicago.pin10
     AND pin.year = chicago.year
+LEFT JOIN location.evanston
+    ON pin.pin10 = evanston.pin10
+    AND pin.year = evanston.year
 LEFT JOIN location.economy
     ON pin.pin10 = economy.pin10
     AND pin.year = economy.year
