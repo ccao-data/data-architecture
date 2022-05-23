@@ -204,11 +204,11 @@ forward_fill AS (
             ELSE uni.cook_municipality_name
         END AS loc_cook_municipality_name,
         CASE
-            WHEN uni.chicago_ward_num IS NULL THEN
-                LAST_VALUE(uni.chicago_ward_num) IGNORE NULLS
+            WHEN uni.ward_num IS NULL THEN
+                LAST_VALUE(uni.ward_num) IGNORE NULLS
                 OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.chicago_ward_num
-        END AS loc_chicago_ward_num,
+            ELSE uni.ward_num
+        END AS loc_ward_num,
         CASE
             WHEN uni.chicago_community_area_name IS NULL THEN
                 LAST_VALUE(uni.chicago_community_area_name) IGNORE NULLS
@@ -585,11 +585,11 @@ SELECT
         ELSE NULL
     END AS loc_cook_municipality_name,
     CASE
-        WHEN f1.loc_chicago_ward_num IS NOT NULL THEN f1.loc_chicago_ward_num
-        WHEN f1.loc_chicago_ward_num IS NULL THEN nn1.loc_chicago_ward_num
-        WHEN nn1.loc_chicago_ward_num IS NULL THEN nn2.loc_chicago_ward_num
+        WHEN f1.loc_ward_num IS NOT NULL THEN f1.loc_ward_num
+        WHEN f1.loc_ward_num IS NULL THEN nn1.loc_ward_num
+        WHEN nn1.loc_ward_num IS NULL THEN nn2.loc_ward_num
         ELSE NULL
-    END AS loc_chicago_ward_num,
+    END AS loc_ward_num,
     CASE
         WHEN f1.loc_chicago_community_area_name IS NOT NULL THEN f1.loc_chicago_community_area_name
         WHEN f1.loc_chicago_community_area_name IS NULL THEN nn1.loc_chicago_community_area_name
