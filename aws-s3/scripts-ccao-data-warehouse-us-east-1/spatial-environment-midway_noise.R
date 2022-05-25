@@ -4,7 +4,6 @@ library(sfarrow)
 library(stringr)
 library(tidygeocoder)
 library(tidyr)
-library(tmap)
 
 # Script to transform raw data on Midway noise into clean Athena tables.
 # Data is located here: s3://ccao-data-raw-us-east-1/spatial/environment/midway_noise_monitor/
