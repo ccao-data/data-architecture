@@ -95,3 +95,27 @@ if (!aws.s3::object_exists(remote_file_hydrology_linear)) {
   save_local_to_s3(remote_file_hydrology_linear, tmp_file)
   file.remove(tmp_file)
 }
+
+##### RAILROAD #####
+remote_file_railroad <- file.path(
+  output_bucket, "railroad",
+  paste0('2021', ".geojson")
+)
+
+# Write railroads to S3 if they don't exist
+if (!aws.s3::object_exists(remote_file_railroad)) {
+
+  tmp_file <- tempfile(fileext = ".geojson")
+  tmp_dir <- tempdir()
+  download.file(
+"https://gis.cookcountyil.gov/traditional/
+      rest/services/planimetry/MapServer/
+      3/query?outFields=*&where=1%3D1&f=geojson",
+    destfile = tmp_file,
+    mode = "wb"
+  )
+
+  save_local_to_s3(remote_file_railroad, tmp_file)
+  file.remove(tmp_file)
+
+}
