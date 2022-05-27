@@ -83,7 +83,7 @@ WITH values_by_year AS (
                     '550', '580', '581', '583', '587', '589', '593'
                     ) THEN '5B'
                 ELSE substr(class, 1, 1) END AS class,
-            Substr(nbhd, 1, 2) AS township_code
+            substr(nbhd, 1, 2) AS township_code
         FROM   iasworld.pardat
         ),
     -- Add township name
