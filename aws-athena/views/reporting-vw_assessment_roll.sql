@@ -5,67 +5,35 @@ WITH values_by_year AS (
     SELECT
         parid,
         taxyr,
-        -- Mailed values
+        CASE
+            WHEN procname = 'CCAOVALUE' THEN 'mailed'
+            WHEN procname = 'CCAOFINAL' THEN 'assessor certified'
+            WHEN procname = 'BORVALUE'  THEN 'bor certified'
+            ELSE NULL END AS stage,
         max(
             CASE
-                WHEN procname = 'CCAOVALUE' AND taxyr < '2020' THEN ovrvalasm2
-                WHEN procname = 'CCAOVALUE' AND taxyr >= '2020' THEN valasm2
+                WHEN taxyr < '2020' THEN ovrvalasm2
+                WHEN taxyr >= '2020' THEN valasm2
                 ELSE NULL END
-            ) AS mailed_bldg,
+            ) AS bldg,
         max(
             CASE
-                WHEN procname = 'CCAOVALUE' AND taxyr < '2020' THEN ovrvalasm1
-                WHEN procname = 'CCAOVALUE' AND taxyr >= '2020' THEN valasm1
+                WHEN taxyr < '2020' THEN ovrvalasm1
+                WHEN taxyr >= '2020' THEN valasm1
                 ELSE NULL END
-            ) AS mailed_land,
+            ) AS land,
         max(
             CASE
-                WHEN procname = 'CCAOVALUE' AND taxyr < '2020' THEN ovrvalasm3
-                WHEN procname = 'CCAOVALUE' AND taxyr >= '2020' THEN valasm3
+                WHEN taxyr < '2020' THEN ovrvalasm3
+                WHEN taxyr >= '2020' THEN valasm3
                 ELSE NULL END
-            ) AS mailed_tot,
-        -- Assessor certified values
-        max(
-            CASE
-                WHEN procname = 'CCAOFINAL' AND taxyr < '2020' THEN ovrvalasm2
-                WHEN procname = 'CCAOFINAL' AND taxyr >= '2020' THEN valasm2
-                ELSE NULL END
-            ) AS certified_bldg,
-        max(
-            CASE
-                WHEN procname = 'CCAOFINAL' AND taxyr < '2020' THEN ovrvalasm1
-                WHEN procname = 'CCAOFINAL' AND taxyr >= '2020' THEN valasm1
-                ELSE NULL END
-            ) AS certified_land,
-        max(
-            CASE
-                WHEN procname = 'CCAOFINAL' AND taxyr < '2020' THEN ovrvalasm3
-                WHEN procname = 'CCAOFINAL' AND taxyr >= '2020' THEN valasm3
-                ELSE NULL END
-            ) AS certified_tot,
-        -- Board certified values
-        max(
-                CASE WHEN procname = 'BORVALUE' AND taxyr < '2020' THEN ovrvalasm2
-                WHEN procname = 'BORVALUE' AND taxyr >= '2020' THEN valasm2
-                ELSE NULL END
-            ) AS board_bldg,
-        max(
-            CASE
-                WHEN procname = 'BORVALUE' AND taxyr < '2020' THEN ovrvalasm1
-                WHEN procname = 'BORVALUE' AND taxyr >= '2020' THEN valasm1
-                ELSE NULL END
-            ) AS board_lanD,
-        max(
-            CASE
-                WHEN procname = 'BORVALUE' AND taxyr < '2020' THEN ovrvalasm3
-                WHEN procname = 'BORVALUE' AND taxyr >= '2020' THEN valasm3
-                ELSE NULL END
-            ) AS board_tot
-        FROM iasworld.asmt_all
+            ) AS total
+    FROM iasworld.asmt_all
 
-        WHERE ((taxyr >= '2020' and valclass IS null) OR taxyr < '2020')
-        GROUP BY parid, taxyr
-        ORDER BY parid, taxyr
+    WHERE (valclass IS null OR taxyr < '2020')
+
+    GROUP BY parid, taxyr, procname
+    ORDER BY parid, taxyr, procname
         ),
     -- Add township number and valuation class
     townships AS (
@@ -97,33 +65,22 @@ WITH values_by_year AS (
 -- Add total and median values by township
 SELECT
     values_by_year.taxyr AS year,
+    stage,
     town_names.township_name,
     triad,
+    townships.class,
     CASE
         WHEN mod(cast(values_by_year.taxyr AS INT), 3) = 0 and triad = 'North' THEN TRUE
         WHEN mod(cast(values_by_year.taxyr AS INT), 3) = 1 and triad = 'South' THEN TRUE
         WHEN mod(cast(values_by_year.taxyr AS INT), 3) = 2 and triad = 'City' THEN TRUE
         ELSE FALSE END AS reassessment_year,
-    townships.class,
     count(*) AS n,
-    sum(mailed_bldg) AS mailed_bldg_sum,
-    cast(approx_percentile(mailed_bldg, 0.5) AS INT) AS mailed_bldg_median,
-    sum(mailed_land) AS mailed_land_sum,
-    cast(approx_percentile(mailed_land, 0.5) AS INT) AS mailed_land_median,
-    sum(mailed_tot) AS mailed_tot_sum,
-    cast(approx_percentile(mailed_tot, 0.5) AS INT) AS mailed_tot_median,
-    sum(certified_bldg) AS certified_bldg_sum,
-    cast(approx_percentile(certified_bldg, 0.5) AS INT) AS certified_bldg_median,
-    sum(certified_land) AS certified_land_sum,
-    cast(approx_percentile(certified_land, 0.5) AS INT) AS certified_land_median,
-    sum(certified_tot) AS certified_tot_sum,
-    cast(approx_percentile(certified_tot, 0.5) AS INT) AS certified_tot_median,
-    sum(board_bldg) AS board_bldg_sum,
-    cast(approx_percentile(board_bldg, 0.5) AS INT) AS board_bldg_median,
-    sum(board_land) AS board_land_sum,
-    cast(approx_percentile(board_land, 0.5) AS INT) AS board_land_median,
-    sum(board_tot) AS board_tot_sum,
-    cast(approx_percentile(board_tot, 0.5) AS INT) AS board_tot_median
+    sum(bldg) AS bldg_sum,
+    cast(approx_percentile(bldg, 0.5) AS INT) AS bldg_median,
+    sum(land) AS land_sum,
+    cast(approx_percentile(land, 0.5) AS INT) AS land_median,
+    sum(total) AS tot_sum,
+    cast(approx_percentile(total, 0.5) AS INT) AS tot_median
 FROM values_by_year
 
 LEFT JOIN townships
@@ -132,4 +89,5 @@ LEFT JOIN townships
 LEFT JOIN town_names
     ON townships.township_code = town_names.township_code
 
-GROUP BY townships.township_code, town_names.township_name, values_by_year.taxyr, class, triad
+GROUP BY townships.township_code, town_names.township_name, values_by_year.taxyr, class, triad, stage
+ORDER BY town_names.township_name, values_by_year.taxyr, stage, class
