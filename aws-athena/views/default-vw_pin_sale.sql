@@ -102,6 +102,7 @@ mydec_sales AS (
     SELECT
         replace(document_number, 'D', '') as doc_no,
         replace(line_1_primary_pin, '-', '') as pin,
+        Date_parse(line_4_instrument_date, '%Y-%m-%d') AS mydec_date,
         CASE WHEN line_7_property_advertised = 1 THEN TRUE ELSE FALSE END AS "property_advertised",
         CASE WHEN line_10a = 1 THEN TRUE ELSE FALSE END AS "is_installment_contract_fulfilled",
         CASE WHEN line_10b = 1 THEN TRUE ELSE FALSE END AS "is_sale_between_related_individuals_or_corporate_affiliates",
@@ -134,7 +135,9 @@ SELECT
     unique_sales.year,
     unique_sales.township_code,
     unique_sales.class,
-    unique_sales.sale_date,
+    CASE
+        WHEN mydec_date IS NOT NULL AND mydec_date != unique_sales.sale_date THEN mydec_date
+        ELSE unique_sales.sale_date END AS sale_date,
     unique_sales.sale_price,
     unique_sales.sale_price_log10,
     unique_sales.sale_key,
