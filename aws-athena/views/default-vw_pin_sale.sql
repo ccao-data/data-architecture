@@ -139,6 +139,10 @@ SELECT
     CASE
         WHEN mydec_date IS NOT NULL AND mydec_date != unique_sales.sale_date THEN mydec_date
         ELSE unique_sales.sale_date END AS sale_date,
+    -- From 2021 on iasWorld uses precise MyDec dates
+    CASE
+        WHEN mydec_date IS NOT NULL OR YEAR(unique_sales.sale_date) >= 2021 THEN TRUE
+        ELSE FALSE END AS is_mydec_date,
     unique_sales.sale_price,
     unique_sales.sale_price_log10,
     unique_sales.sale_key,
