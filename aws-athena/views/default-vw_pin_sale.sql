@@ -135,6 +135,7 @@ SELECT
     unique_sales.year,
     unique_sales.township_code,
     unique_sales.class,
+    --- In the past, mydec sale dates are more precise than iasworld dates which had been truncated
     CASE
         WHEN mydec_date IS NOT NULL AND mydec_date != unique_sales.sale_date THEN mydec_date
         ELSE unique_sales.sale_date END AS sale_date,
