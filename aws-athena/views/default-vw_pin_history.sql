@@ -71,7 +71,7 @@ AS
                               AND valclass IS NULL
                              AND taxyr >= '2020' THEN valasm1
                         ELSE NULL
-                      END) AS board_lanD,
+                      END) AS board_land,
                   Max(CASE
                         WHEN procname = 'BORVALUE'
                              AND taxyr < '2020' THEN ovrvalasm3
@@ -81,6 +81,7 @@ AS
                         ELSE NULL
                       END) AS board_tot
            FROM   iasworld.asmt_all
+           WHERE procname IS NOT NULL
            GROUP  BY parid,
                      taxyr
            ORDER  BY parid,
