@@ -25,6 +25,13 @@ aggregate_land AS (
         SUM(sf) AS total_land_sf
     FROM iasworld.land
     GROUP BY parid, taxyr
+),
+townships AS (
+    SELECT
+        parid,
+        taxyr,
+        substr(nbhd, 1, 2) as township_code
+    FROM iasworld.pardat
 )
 SELECT
     dweldat.parid AS pin,
@@ -37,6 +44,7 @@ SELECT
 
     -- PIN information
     class, -- 218, 219, 236, 241 classes added to DWELDAT
+    township_code,
     cdu,
     pin_is_multicard,
     pin_num_cards,
@@ -99,3 +107,6 @@ LEFT JOIN multicodes
 LEFT JOIN aggregate_land
     ON dweldat.parid = aggregate_land.parid
     AND dweldat.taxyr = aggregate_land.taxyr
+LEFT JOIN townships
+    ON dweldat.parid = townships.parid
+    AND dweldat.taxyr = townships.taxyr

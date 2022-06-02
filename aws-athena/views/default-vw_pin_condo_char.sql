@@ -81,6 +81,7 @@ chars AS (
             SUBSTR(pardat.parid, 1, 10) AS pin10,
             pardat.class,
             pardat.taxyr AS year,
+            substr(pardat.nbhd, 1, 2) AS township_code,
             CASE
                 WHEN pardat.class IN ('299', '2-99') THEN oby.user16
                 WHEN pardat.class = '399' THEN comdat.user16
@@ -134,6 +135,7 @@ filled AS (
         card,
         class,
         year,
+        township_code,
         char_yrblt,
         -- CDUs/notes are not well-maintained year-to-year,
         CASE
@@ -194,6 +196,7 @@ SELECT
     CASE WHEN filled.class = '2-99'
         THEN '299'
         ELSE filled.class END AS class,
+    filled.township_code,
     filled.char_yrblt,
     filled.char_building_sf,
     filled.char_unit_sf,
