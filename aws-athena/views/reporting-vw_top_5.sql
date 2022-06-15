@@ -40,13 +40,12 @@ WITH values_by_year AS (
         FROM values_by_year
         WHERE certified_tot IS NOT NULL OR mailed_tot IS NOT NULL
     ),
-    -- Add township number and valuation class
-    townships AS (
+    -- Add valuation class
+    classes AS (
         SELECT
             parid,
             taxyr,
             class,
-            substr(nbhd, 1, 2) AS township_code,
             NULLIF(CONCAT_WS(
                 ' ',
                 adrpre, CAST(adrno AS varchar),
@@ -56,6 +55,14 @@ WITH values_by_year AS (
             cityname AS city
         FROM iasworld.pardat
         ),
+    -- Add townships
+    townships AS (
+        SELECT
+            parid,
+            taxyr,
+            substr(TAXDIST, 1, 2) AS township_code
+        FROM iasworld.legdat
+    ),
     -- Add township name
     town_names AS (
         SELECT
@@ -81,7 +88,7 @@ WITH values_by_year AS (
             most_recent_values.taxyr AS year,
             town_names.township_name as township,
             triad,
-            townships.class,
+            classes.class,
             rank() over(
              PARTITION BY townships.township_code, most_recent_values.taxyr
              ORDER BY total_av DESC
@@ -94,6 +101,9 @@ WITH values_by_year AS (
              stage_used
         FROM most_recent_values
 
+        LEFT JOIN classes
+            ON most_recent_values.parid = classes.parid
+                AND most_recent_values.taxyr = classes.taxyr
         LEFT JOIN townships
             ON most_recent_values.parid = townships.parid
                 AND most_recent_values.taxyr = townships.taxyr
