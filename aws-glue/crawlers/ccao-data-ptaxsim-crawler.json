@@ -1,11 +1,11 @@
 {
     "Crawler": {
-        "Name": "ccao-data-warehouse-ccao-crawler",
+        "Name": "ccao-data-ptaxsim-crawler",
         "Role": "ccao-glue-service-role",
         "Targets": {
             "S3Targets": [
                 {
-                    "Path": "s3://ccao-data-warehouse-us-east-1/ccao",
+                    "Path": "s3://ccao-data-ptaxsim-us-east-1",
                     "Exclusions": []
                 }
             ],
@@ -14,7 +14,7 @@
             "DynamoDBTargets": [],
             "CatalogTargets": []
         },
-        "DatabaseName": "ccao",
+        "DatabaseName": "tax",
         "Classifiers": [],
         "RecrawlPolicy": {
             "RecrawlBehavior": "CRAWL_EVERYTHING"
@@ -28,16 +28,16 @@
         },
         "State": "READY",
         "CrawlElapsedTime": 0,
-        "CreationTime": 1645902482.0,
-        "LastUpdated": 1645903123.0,
+        "CreationTime": 1655388884.0,
+        "LastUpdated": 1655388884.0,
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
-            "LogStream": "ccao-data-warehouse-ccao-crawler",
-            "MessagePrefix": "c5dd760f-ed5c-47a2-b2a6-c84528673baa",
-            "StartTime": 1655302236.0
+            "LogStream": "ccao-data-ptaxsim-crawler",
+            "MessagePrefix": "2a8a9bcf-568a-4725-9ec2-7869c43a93ab",
+            "StartTime": 1655388892.0
         },
-        "Version": 4,
-        "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":4}}"
+        "Version": 1,
+        "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":2}}"
     }
 }

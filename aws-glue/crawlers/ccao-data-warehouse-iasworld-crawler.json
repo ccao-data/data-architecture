@@ -33,14 +33,15 @@
         },
         "CrawlElapsedTime": 0,
         "CreationTime": 1635997372.0,
-        "LastUpdated": 1639002428.0,
+        "LastUpdated": 1655304159.0,
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-iasworld-crawler",
-            "MessagePrefix": "5574310d-37ce-4dbc-8945-b1bf7013856b",
-            "StartTime": 1648101633.0
+            "MessagePrefix": "72ac87a8-7426-480e-954d-d8acd8605af5",
+            "StartTime": 1655388152.0
         },
-        "Version": 4
+        "Version": 5,
+        "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":2}}"
     }
 }
