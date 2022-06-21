@@ -191,6 +191,7 @@ chars AS (
         char_yrblt AS yrblt,
         char_building_sf AS total_bldg_sf
     FROM default.vw_pin_condo_char
+    WHERE is_parking_space = FALSE
 ),
 
 --- AGGREGATE ---
@@ -211,12 +212,12 @@ values_town_groups AS (
         approx_percentile(total_bldg_sf, 0.5) AS bldg_sf_median,
         approx_percentile(yrblt, 0.5) AS yrblt_median
 
-    FROM all_values vby
+    FROM all_values av
 
-    LEFT JOIN aggregate_land al ON vby.parid = al.parid
-        AND vby.year = al.taxyr
-    LEFT JOIN chars ab ON vby.parid = ab.parid
-        AND vby.year = ab.taxyr
+    LEFT JOIN aggregate_land al ON av.parid = al.parid
+        AND av.year = al.taxyr
+    INNER JOIN chars ab ON av.parid = ab.parid
+        AND av.year = ab.taxyr
 
     GROUP BY assessment_stage, triad, township_code, year, property_group
 ),
@@ -235,12 +236,12 @@ values_town_no_groups AS (
         approx_percentile(total_bldg_sf, 0.5) AS bldg_sf_median,
         approx_percentile(yrblt, 0.5) AS yrblt_median
 
-    FROM all_values vby
+    FROM all_values av
 
-    LEFT JOIN aggregate_land al ON vby.parid = al.parid
-        AND vby.year = al.taxyr
-    LEFT JOIN chars ab ON vby.parid = ab.parid
-        AND vby.year = ab.taxyr
+    LEFT JOIN aggregate_land al ON av.parid = al.parid
+        AND av.year = al.taxyr
+    INNER JOIN chars ab ON av.parid = ab.parid
+        AND av.year = ab.taxyr
 
     GROUP BY assessment_stage, triad, township_code, year
 ),
@@ -259,12 +260,12 @@ values_nbhd_groups AS (
         approx_percentile(total_bldg_sf, 0.5) AS bldg_sf_median,
         approx_percentile(yrblt, 0.5) AS yrblt_median
 
-    FROM all_values vby
+    FROM all_values av
 
-    LEFT JOIN aggregate_land al ON vby.parid = al.parid
-        AND vby.year = al.taxyr
-    LEFT JOIN chars ab ON vby.parid = ab.parid
-        AND vby.year = ab.taxyr
+    LEFT JOIN aggregate_land al ON av.parid = al.parid
+        AND av.year = al.taxyr
+    INNER JOIN chars ab ON av.parid = ab.parid
+        AND av.year = ab.taxyr
 
     GROUP BY assessment_stage, triad, TownNBHD, year, property_group
 ),
@@ -283,12 +284,12 @@ values_nbhd_no_groups AS (
         approx_percentile(total_bldg_sf, 0.5) AS bldg_sf_median,
         approx_percentile(yrblt, 0.5) AS yrblt_median
 
-    FROM all_values vby
+    FROM all_values av
 
-    LEFT JOIN aggregate_land al ON vby.parid = al.parid
-        AND vby.year = al.taxyr
-    LEFT JOIN chars ab ON vby.parid = ab.parid
-        AND vby.year = ab.taxyr
+    LEFT JOIN aggregate_land al ON av.parid = al.parid
+        AND av.year = al.taxyr
+    INNER JOIN chars ab ON av.parid = ab.parid
+        AND av.year = ab.taxyr
 
     GROUP BY assessment_stage, triad, TownNBHD, year
 ),
