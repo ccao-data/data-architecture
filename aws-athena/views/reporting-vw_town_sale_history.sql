@@ -30,7 +30,6 @@ AND sale_price_log10 BETWEEN sale_filter_lower_limit AND sale_filter_upper_limit
 groups AS (
 
 SELECT
-    year(current_date) AS year,
     triad_code,
     'Town' AS geography_type,
     property_group,
@@ -47,7 +46,6 @@ GROUP BY sale_year, property_group, geography_id, triad_code
 no_groups AS (
 
 SELECT
-    year(current_date) AS year,
     triad_code,
     'Town' AS geography_type,
     'ALL REGRESSION' AS property_group,
