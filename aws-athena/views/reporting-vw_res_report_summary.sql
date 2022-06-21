@@ -1,6 +1,6 @@
 
---(will need to add final model run_ids each year)
--- UPDATE JOIN ON MODEL YEAR (right now, the model year is 2021, but those model values were used for what's mailed in 2022) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+-- THIS VIEW NEEDS TO BE UPDATED WITH FINAL MODEL RUN IDs EACH YEAR
+-- UPDATE JOIN ON MODEL YEAR (right now, the model year is 2021, but those model values were used for what's mailed in 2022 - this should only need to be done once)
 CREATE OR REPLACE VIEW reporting.vw_res_report_summary
 AS
 
