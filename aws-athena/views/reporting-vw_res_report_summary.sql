@@ -1,6 +1,5 @@
 
 -- THIS VIEW NEEDS TO BE UPDATED WITH FINAL MODEL RUN IDs EACH YEAR
--- UPDATE JOIN ON MODEL YEAR (right now, the model year is 2021, but those model values were used for what's mailed in 2022 - this should only need to be done once)
 CREATE OR REPLACE VIEW reporting.vw_res_report_summary
 AS
 
@@ -29,7 +28,7 @@ townships AS (
     LEFT JOIN spatial.township
         ON substr(TAXDIST, 1, 2) = township_code
 ),
--- Final model values
+-- Final model values (Add 1 to model year since '2021' correspond to '2022' mailed values in iasWorld)
 model_values AS (
     SELECT
         meta_pin AS parid,
@@ -38,16 +37,16 @@ model_values AS (
         triad,
         townships.township_code,
         CONCAT(townships.township_code, substr(nbhd, 3, 3)) AS TownNBHD,
-        meta_year AS year,
+        CAST(CAST(meta_year AS INT) + 1 AS VARCHAR) AS year,
         'model' AS assessment_stage,
         pred_pin_final_fmv_round AS total
 
     FROM model.assessment_pin
 
     LEFT JOIN classes
-        ON assessment_pin.meta_pin = classes.parid AND assessment_pin.meta_year = classes.taxyr
+        ON assessment_pin.meta_pin = classes.parid AND CAST(assessment_pin.meta_year AS INT) + 1 = CAST(classes.taxyr AS INT)
     LEFT JOIN townships
-        ON assessment_pin.meta_pin = townships.parid AND assessment_pin.meta_year = townships.taxyr
+        ON assessment_pin.meta_pin = townships.parid AND CAST(assessment_pin.meta_year AS INT) + 1 = CAST(townships.taxyr AS INT)
 
     WHERE run_id IN ('2022-04-26-beautiful-dan', '2022-04-27-keen-gabe')
         AND property_group IS NOT NULL
