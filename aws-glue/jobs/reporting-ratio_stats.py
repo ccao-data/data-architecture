@@ -8,6 +8,8 @@ import pandas as pd
 import re
 import s3fs
 import statsmodels.api as sm
+from statsmodels.distributions.empirical_distribution import ECDF
+import warnings
 
 
 # Define AWS boto3 clients
@@ -19,11 +21,12 @@ s3_client = boto3.client('s3')
 athena_db = 'iasworld'
 
 s3_bucket = 'ccao-data-warehouse-us-east-1'
-s3_prefix = 'reporting/temp/'
+s3_prefix = 'reporting/ratio_stats/'
 s3_output = 's3://'+ s3_bucket + '/' + s3_prefix
-s3_ratio_stats = 's3://'+ s3_bucket + '/' + s3_prefix + 'temp.parquet'
+s3_ratio_stats = 's3://'+ s3_bucket + '/' + s3_prefix + 'ratio_stats.parquet'
 
-# Functions to help with Athena queries
+
+# Functions to help with Athena queries ----
 def poll_status(athena_client, execution_id):
     """ Checks the status of the a query using an incoming execution id and returns
     a 'pass' string value when the status is either SUCCEEDED, FAILED or CANCELLED. """
@@ -89,7 +92,7 @@ def run_query_get_result(
     return r_file_object
 
 
-# Athena query
+# Athena query ----
 SQL_QUERY = """
 -- THIS SCRIPT NEEDS TO BE UPDATED WITH FINAL MODEL RUN IDs EACH YEAR
 
@@ -161,9 +164,9 @@ iasworld_values AS (
 
     WHERE (valclass IS null OR asmt_all.taxyr < '2020')
       AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
-      AND asmt_all.taxyr = (
+      AND asmt_all.taxyr >= (
           SELECT
-            max(taxyr)
+            CAST(CAST(max(taxyr) AS INT) - 1 AS VARCHAR)
           FROM iasworld.asmt_all
           WHERE procname IS NOT NULL
           )
@@ -206,17 +209,17 @@ all_values AS (
     INNER JOIN all_values av ON vps.pin = av.parid
         AND CAST(vps.year AS INT) = CAST(av.year AS INT) - 1
     -- Grab parking spaces and join them to aggregate stats for removal
-    LEFT JOIN default.vw_pin_condo_char ps ON av.parid = ps.pin
-        AND av.year = ps.year
+    LEFT JOIN (
+      SELECT * FROM default.vw_pin_condo_char WHERE is_parking_space = TRUE
+      ) ps ON av.parid = ps.pin AND av.year = ps.year
 
     WHERE is_multisale = FALSE
-        AND sale_price_log10 BETWEEN sale_filter_lower_limit AND sale_filter_upper_limit
         AND property_group IS NOT NULL
         AND ps.pin IS NULL;
 """
 
 
-# Run run_query_get_result to get file like object
+# Run run_query_get_result to get file like object ----
 r_file_object = run_query_get_result(
     athena_client,
     s3_bucket,
@@ -241,7 +244,7 @@ for object in response['Contents']:
         s3_client.delete_object(Bucket = s3_bucket, Key = object['Key'])
 
 
-# COD, PRD, PRB functions
+# COD, PRD, PRB functions ----
 def cod(ratio):
 
     n = ratio.size
@@ -297,6 +300,8 @@ def boot_ci(fun, *args, nboot = 100, alpha = 0.05):
 
     ci = [ests.quantile(alpha / 2), ests.quantile(1 - alpha / 2)]
 
+    ci = ', '.join([str(element) for element in ci])
+
     return ci
 
 # Formula specific bootstrapping functions
@@ -320,6 +325,7 @@ def median_boot(ratio, nboot = 100, alpha = 0.05):
 def ccao_cod(ratio):
     """ """
 
+    # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
     no_outliers = ratio[ratio.between(ratio.quantile(0.05), ratio.quantile(0.95), inclusive = "neither")]
 
     cod_n = no_outliers.size
@@ -334,7 +340,7 @@ def ccao_cod(ratio):
 
     else:
 
-        out = [None, [None, None], None, cod_n]
+        out = [None, None, None, cod_n]
 
     return out
 
@@ -342,6 +348,7 @@ def ccao_prd(fmv, sale_price):
 
     ratio = fmv / sale_price
 
+    # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
     no_outliers = ratio.between(ratio.quantile(0.05), ratio.quantile(0.95), inclusive = "neither")
 
     fmv_no_outliers = fmv[no_outliers == True]
@@ -359,7 +366,7 @@ def ccao_prd(fmv, sale_price):
 
     else:
 
-        out = [None, [None, None], None, prd_n]
+        out = [None, None, None, prd_n]
 
     return out
 
@@ -367,6 +374,7 @@ def ccao_prb(fmv, sale_price):
 
     ratio = fmv / sale_price
 
+    # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
     no_outliers = ratio.between(ratio.quantile(0.05), ratio.quantile(0.95), inclusive = "neither")
 
     fmv_no_outliers = fmv[no_outliers == True]
@@ -378,37 +386,101 @@ def ccao_prb(fmv, sale_price):
 
         prb_model = prb(fmv_no_outliers, sale_price_no_outliers)
         prb_val = float(prb_model.params)
-        prb_ci = prb_model.conf_int(alpha = 0.05)[0].tolist()
+        prb_ci = ', '.join(
+            [str(element) for element in prb_model.conf_int(alpha = 0.05)[0].tolist()]
+            )
         met = prb_met(prb_val)
 
         out = [prb_val, prb_ci, met, prb_n]
 
     else:
 
-        out = [None, [None, None], None, prb_n]
+        out = [None, None, None, prb_n]
 
     return out
 
 def ccao_median(x):
 
+    # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
     no_outliers = x.between(x.quantile(0.05), x.quantile(0.95), inclusive = "neither")
 
     x_no_outliers = x[no_outliers == True]
 
     median_n = sum(no_outliers)
 
-    if median_n >= 20:
+    median_val = np.median(x_no_outliers)
+    median_ci = median_boot(x, nboot = 1000)
 
-        median_val = np.median(x_no_outliers)
-        median_ci = median_boot(x, nboot = 1000)
-
-        out = [median_val, median_ci, median_n]
-
-    else:
-
-        out = [None, [None, None], median_n]
+    out = [median_val, median_ci, median_n]
 
     return(out)
+
+# Sales chasing functions
+def detect_chasing_cdf(ratio, bounds = [0.98, 1.02], cdf_gap = 0.03):
+    # CDF gap method for detecting sales chasing.
+
+    # Sort the ratios
+    sorted_ratio = ratio.sort_values()
+
+    # Calculate the CDF of the sorted ratios and extract percentile ranking
+    cdf = ECDF(sorted_ratio)(sorted_ratio)
+
+    # Calculate the difference between each value and the next value, the largest
+    # difference will be the CDF gap
+    diffs = np.diff(cdf)
+
+    # Check if the largest difference is greater than the threshold and make sure
+    # it's within the specified boundaries
+    diff_loc = sorted_ratio.iloc[np.argmax(diffs)]
+    out = (max(diffs) > cdf_gap) & ((diff_loc > bounds[0]) & (diff_loc < bounds[1]))
+
+    return(out)
+
+def detect_chasing_dist(ratio, bounds = [0.98, 1.02]):
+    # Distribution comparison method for detecting sales chasing.
+
+    # Return the percentage of x within the specified range
+    def pct_in_range(x, min, max):
+        out = np.mean(((x >= min) & (x <= max)))
+        return out
+
+    # Calculate the ideal normal distribution using observed values from input
+    ideal_dist = np.random.normal(
+        loc = np.mean(ratio),
+        scale = np.std(ratio),
+        size = 10000
+        )
+
+    # Determine what percentage of the data would be within the specified bounds
+    # in the ideal distribution
+    pct_ideal = pct_in_range(ideal_dist, bounds[0], bounds[1])
+
+    # Determine what percentage of the data is actually within the bounds
+    pct_actual = pct_in_range(ratio, bounds[0], bounds[1])
+
+    return pct_actual > pct_ideal
+
+def detect_chasing(ratio, method = 'both'):
+
+    # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
+    no_outliers = ratio.between(ratio.quantile(0.05), ratio.quantile(0.95), inclusive = "neither")
+
+    if len(no_outliers) < 30:
+        warnings.warn(
+            """Sales chasing detection can be misleading when applied to small samples (N < 30).
+            Increase N or use a different statistical test."""
+            )
+
+        out = None
+
+    else:
+        out = {
+            'cdf': detect_chasing_cdf(no_outliers),
+            'dist': detect_chasing_dist(no_outliers),
+            'both': (detect_chasing_cdf(no_outliers) & detect_chasing_dist(no_outliers))
+        }.get(method)
+
+    return out
 
 def report_summarise(df, geography_id, geography_type):
     # Aggregates data and calculates summary statistics for given groupings
@@ -428,6 +500,7 @@ def report_summarise(df, geography_id, geography_type):
             'cod':ccao_cod(ratio = x['ratio']),
             'prd':ccao_prd(fmv = x['fmv'], sale_price = x['sale_price']),
             'prb':ccao_prb(fmv = x['fmv'], sale_price = x['sale_price']),
+            'detect_chasing':detect_chasing(ratio = x['ratio']),
             'within_20_pct':sum(abs(1 - x['ratio']) <= .20),
             'within_10_pct':sum(abs(1 - x['ratio']) <= .10),
             'within_05_pct':sum(abs(1 - x['ratio']) <= .05),
@@ -442,39 +515,39 @@ def report_summarise(df, geography_id, geography_type):
 
     # Arrange output columns
     df = df[[
-    'sale_n',
-    'median_ratio',
-    'median_ratio_ci',
-    'cod',
-    'cod_ci',
-    'cod_n',
-    'prd',
-    'prd_ci',
-    'prd_n',
-    'prb',
-    'prb_ci',
-    'prb_n',
-    'ratio_met',
-    'cod_met',
-    'prd_met',
-    'prb_met',
-    'vertical_equity_met',
-    'within_20_pct',
-    'within_10_pct',
-    'within_05_pct'
-]]
+        'sale_n',
+        'median_ratio',
+        'median_ratio_ci',
+        'cod',
+        'cod_ci',
+        'cod_n',
+        'prd',
+        'prd_ci',
+        'prd_n',
+        'prb',
+        'prb_ci',
+        'prb_n',
+        'detect_chasing',
+        'ratio_met',
+        'cod_met',
+        'prd_met',
+        'prb_met',
+        'vertical_equity_met',
+        'within_20_pct',
+        'within_10_pct',
+        'within_05_pct'
+]].reset_index()
 
     return df
 
 
-# Write output to s3 bucket
+# Append and write output to s3 bucket
 pd.concat([
     report_summarise(pull, 'triad', 'Tri'),
     report_summarise(pull, 'township_code', 'Town')
     ]).to_parquet(
         s3_ratio_stats
         )
-
 
 # Trigger reporting glue crawler
 glue_client.start_crawler(Name='ccao-data-warehouse-reporting-crawler')
