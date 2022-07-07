@@ -164,12 +164,7 @@ iasworld_values AS (
 
     WHERE (valclass IS null OR asmt_all.taxyr < '2020')
       AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
-      AND asmt_all.taxyr >= (
-          SELECT
-            CAST(CAST(max(taxyr) AS INT) - 1 AS VARCHAR)
-          FROM iasworld.asmt_all
-          WHERE procname IS NOT NULL
-          )
+      AND asmt_all.taxyr >= '2021'
 
     GROUP BY
         asmt_all.parid,
