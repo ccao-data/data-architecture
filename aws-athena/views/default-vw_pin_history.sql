@@ -81,7 +81,7 @@ AS
                         ELSE NULL
                       END) AS board_tot
            FROM   iasworld.asmt_all
-           WHERE procname IS NOT NULL
+           WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
            GROUP  BY parid,
                      taxyr
            ORDER  BY parid,
