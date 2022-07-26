@@ -308,10 +308,6 @@ def prd_boot(fmv, sale_price, nboot = 100, alpha = 0.05):
 
     return boot_ci(prd, fmv, sale_price, nboot = nboot, alpha = alpha)
 
-def prb_boot(fmv, sale_price, nboot = 100, alpha = 0.05):
-
-    return boot_ci(prb, fmv, sale_price, nboot = nboot, alpha = alpha)
-
 def median_boot(ratio, nboot = 100, alpha = 0.05):
 
     return boot_ci(np.median, ratio, nboot = nboot, alpha = alpha)
