@@ -54,9 +54,9 @@ pin_count AS ( -- Aggregated pin counts, land SF, and MVs by case number
 SELECT
     htpar.caseno AS "Case No.",
     pin_count.num_pins AS "PINs in Case",
-    pin_count."2022 1st pass value",
-    pin_count."2021 ccao final value",
-    pin_count."2021 bor final value",
+    pin_count."2022 1st Pass Value",
+    pin_count."2021 CCAO Final Value",
+    pin_count."2021 BOR Final Value",
     htpar.propreduct AS "Petitioner's Requested Value",
     pin_count."total land sf",
     htpar.user38 AS "Appeal Type",
@@ -118,3 +118,4 @@ WHERE htpar.taxyr = '2022'
 AND pardat.class != '299'
 AND htpar.user38 NOT IN ('RS', 'IN')
 AND htpar.propreduct IS NOT NULL
+AND htpar.cur = 'Y'
