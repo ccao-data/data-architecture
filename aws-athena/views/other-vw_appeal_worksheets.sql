@@ -46,8 +46,14 @@ pin_count AS ( -- Aggregated pin counts, land SF, and MVs by case number
         Sum(sf) AS "Total Land SF"
     FROM iasworld.htpar
 
+    LEFT JOIN iasworld.pardat ON htpar.parid = pardat.parid AND htpar.taxyr = pardat.taxyr
     LEFT JOIN iasworld.land ON htpar.parid = land.parid AND htpar.taxyr = land.taxyr
     LEFT JOIN hv ON htpar.parid = hv.parid
+
+    WHERE pardat.class != '299'
+    AND htpar.user38 NOT IN ('RS', 'IN')
+    AND htpar.cur = 'Y'
+
     GROUP BY caseno
 )
 
