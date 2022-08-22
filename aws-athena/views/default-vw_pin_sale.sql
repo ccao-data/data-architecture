@@ -88,8 +88,7 @@ sale_filter AS (
         is_multisale,
         Avg(sale_price_log10) - STDDEV(sale_price_log10) * 3.6 AS sale_filter_lower_limit,
         Avg(sale_price_log10) + STDDEV(sale_price_log10) * 3.6 AS sale_filter_upper_limit,
-        Count(*)
-        sale_filter_count
+        Count(*) AS sale_filter_count
     FROM unique_sales
     GROUP BY
         township_code,
