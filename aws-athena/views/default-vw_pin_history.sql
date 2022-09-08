@@ -86,13 +86,19 @@ AS
                      taxyr
            ORDER  BY parid,
                      taxyr),
-       -- Add township number and valuation class
-       townships
+       -- Add valuation class
+       classes
        AS (SELECT parid,
                   taxyr,
-                  class,
-                  Substr(nbhd, 1, 2) AS township_code
+                  class
            FROM   iasworld.pardat),
+        -- Add township number
+        townships
+        AS (SELECT parid,
+                   taxyr,
+                   substr(TAXDIST, 1, 2) AS township_code
+        FROM iasworld.legdat
+    ),
        -- Add township name
        town_names
        AS (SELECT township_name,
@@ -101,7 +107,7 @@ AS
   -- Add lagged values for previous two years
   SELECT values_by_year.parid                                     AS pin,
          values_by_year.taxyr                                     AS year,
-         townships.class,
+         classes.class,
          townships.township_code,
          town_names.township_name,
          mailed_bldg,
@@ -197,5 +203,8 @@ AS
          left join townships
                 ON values_by_year.parid = townships.parid
                    AND values_by_year.taxyr = townships.taxyr
+         left join classes
+                ON values_by_year.parid = classes.parid
+                   AND values_by_year.taxyr = classes.taxyr
          left join town_names
                 ON townships.township_code = town_names.township_code
