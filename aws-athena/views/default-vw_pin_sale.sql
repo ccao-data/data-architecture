@@ -1,14 +1,20 @@
 -- View containing unique, filtered sales
 CREATE OR replace VIEW default.vw_pin_sale
 AS
--- Township and class of associated PIN
-WITH townclass AS (
-    SELECT DISTINCT
+-- Class of associated PIN
+WITH class AS (
+    SELECT
         parid,
         class,
-        Substr(nbhd, 1, 2) AS township_code,
         taxyr
     FROM iasworld.pardat),
+-- Township of associated PIN
+town AS (
+    SELECT
+        parid,
+        substr(TAXDIST, 1, 2) AS township_code,
+        taxyr
+    FROM iasworld.legdat),
 -- "nopar" isn't entirely accurate for sales associated with only one parcel, so we create our own counter
 calculated AS (
 
@@ -27,8 +33,8 @@ unique_sales AS (
         SELECT
             sales.parid AS pin,
             Substr(sales.saledt, 1, 4) AS year,
-            townclass.township_code,
-            townclass.class,
+            town.township_code,
+            class.class,
             Date_parse(Substr(sales.saledt, 1, 10), '%Y-%m-%d') AS sale_date,
             Cast(sales.price AS BIGINT) AS sale_price,
             Log(sales.price, 10) AS sale_price_log10,
@@ -56,9 +62,12 @@ unique_sales AS (
             ) AS same_price_earlier_date
     FROM iasworld.sales
     LEFT JOIN calculated ON sales.instruno = calculated.instruno
-    LEFT JOIN townclass
-        ON sales.parid = townclass.parid
-        AND Substr(sales.saledt, 1, 4) = townclass.taxyr
+    LEFT JOIN class
+        ON sales.parid = class.parid
+        AND Substr(sales.saledt, 1, 4) = class.taxyr
+    LEFT JOIN town
+        ON sales.parid = town.parid
+        AND Substr(sales.saledt, 1, 4) = town.taxyr
     WHERE sales.instruno IS NOT NULL
         -- Indicates whether a record has been deactivated
         AND sales.deactivat IS NULL
@@ -66,7 +75,7 @@ unique_sales AS (
         AND Cast(Substr(sales.saledt, 1, 4) AS INT) BETWEEN 1997 AND Year(current_date)
         -- Exclude quit claims, executor deeds, beneficial interests
         AND instrtyp NOT IN ( '03', '04', '06' )
-        AND townclass.township_code IS NOT NULL
+        AND town.township_code IS NOT NULL
 
         )
 

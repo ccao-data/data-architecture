@@ -81,7 +81,7 @@ chars AS (
             SUBSTR(pardat.parid, 1, 10) AS pin10,
             pardat.class,
             pardat.taxyr AS year,
-            substr(pardat.nbhd, 1, 2) AS township_code,
+            substr(TAXDIST, 1, 2) AS township_code,
             CASE
                 WHEN pardat.class IN ('299', '2-99') THEN oby.user16
                 WHEN pardat.class = '399' THEN comdat.user16
@@ -103,7 +103,7 @@ chars AS (
             CAST(ROUND(pin_condo_char.unit_sf, 0) AS int) AS char_unit_sf,
             CAST(pin_condo_char.bedrooms AS int) AS char_bedrooms,
             pin_condo_char.parking_pin,
-            unitno,
+            pardat.unitno,
             tiebldgpct,
             pardat.note2 AS note,
             CASE WHEN SUM(CASE WHEN pardat.class NOT IN ('299', '2-99', '399') THEN 1 ELSE 0 END)
@@ -115,14 +115,17 @@ chars AS (
         -- Left joins because pardat contains both 299s & 399s (oby and comdat do not)
         -- and pin_condo_char doesn't contain all condos
         LEFT JOIN oby_filtered oby
-        ON pardat.parid = oby.parid
+            ON pardat.parid = oby.parid
             AND pardat.taxyr = oby.taxyr
         LEFT JOIN comdat_filtered comdat
-        ON pardat.parid = comdat.parid
+            ON pardat.parid = comdat.parid
             AND pardat.taxyr = comdat.taxyr
         LEFT JOIN ccao.pin_condo_char
-        ON pardat.parid = pin_condo_char.pin
+            ON pardat.parid = pin_condo_char.pin
             AND pardat.taxyr = pin_condo_char.year
+        LEFT JOIN iasworld.legdat
+            ON pardat.parid = legdat.parid
+            AND pardat.taxyr = legdat.taxyr
     )
 
     WHERE class IN ('299', '2-99', '399')

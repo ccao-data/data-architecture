@@ -30,8 +30,8 @@ townships AS (
     SELECT
         parid,
         taxyr,
-        substr(nbhd, 1, 2) as township_code
-    FROM iasworld.pardat
+        substr(TAXDIST, 1, 2) AS township_code
+    FROM iasworld.legdat
 )
 SELECT
     dweldat.parid AS pin,
