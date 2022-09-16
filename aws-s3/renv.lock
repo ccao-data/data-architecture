@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.2.0",
+    "Version": "4.2.1",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -185,10 +185,10 @@
     },
     "arrow": {
       "Package": "arrow",
-      "Version": "7.0.0",
+      "Version": "9.0.0.1",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "77fa403564ce3495510be855fb0c21d0",
+      "Hash": "a5062a6f58c335252dc427e86aa9ca8e",
       "Requirements": [
         "R6",
         "assertthat",
