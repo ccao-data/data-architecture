@@ -25,7 +25,7 @@ dest_files <- gsub(
     get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "spatial/political/")$Key
   )
 )
-column_names <- c(
+column_names_old <- c(
   "board_of_review_district" = "district_n",
   "commissioner_district" = "district",
   "congressional_district" = "district_n",
@@ -37,12 +37,28 @@ column_names <- c(
   "ward_evanston" = "ward"
 )
 
+column_names_2023 <- c(
+  "board_of_review_district" = "DISTRICT_TXT"
+)
+
 # Function to pull raw data from S3 and clean
 clean_politics <- function(remote_file) {
+
   political_unit <- str_split(remote_file, "/", simplify = TRUE)[1, 6]
+
+  print(political_unit)
 
   year <- str_split(remote_file, "/", simplify = TRUE)[1, 7] %>%
     gsub(".geojson", "", .)
+
+  print(year)
+
+  column_names <- if (year == "2023" &
+                      political_unit %in% names(column_names_2023)) {
+
+    column_names_2023
+
+  }  else column_names_old
 
   tmp_file <- tempfile(fileext = ".geojson")
   aws.s3::save_object(remote_file, file = tmp_file)
@@ -81,7 +97,7 @@ combine_upload <- function(political_unit) {
     write_partitions_to_s3(
       file.path(output_bucket, political_unit),
       is_spatial = TRUE,
-      overwrite = TRUE
+      overwrite = FALSE
     )
 }
 

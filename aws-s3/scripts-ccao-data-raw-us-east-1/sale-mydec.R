@@ -23,9 +23,11 @@ files <- xml2::read_html('https://www2.illinois.gov/rev/localgovernments/propert
 down_up <- function(x) {
 
   year <- str_split(x, pattern = "/")[[1]][8]
-  print(glue("Uploading data for: {year}"))
 
   if (!aws.s3::object_exists(file.path(output_bucket, glue("{year}.parquet")))) {
+
+    print(glue("Uploading data for: {year}"))
+
     tmp1 <- tempfile(fileext = ".zip")
     tmp2 <- tempfile()
 

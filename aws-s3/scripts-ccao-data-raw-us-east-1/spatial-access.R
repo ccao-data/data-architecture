@@ -24,7 +24,7 @@ sources_list <- bind_rows(list(
     "source" = "https://opendata.arcgis.com/datasets/",
     "api_url" = "74d19d6bd7f646ecb34c252ae17cd2f7_7.geojson",
     "boundary" = "park",
-    "year" = "2014"
+    "year" = "2021"
   )
 ))
 

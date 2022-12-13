@@ -18,7 +18,7 @@ RPIE <- dbConnect(
 
 # Get list of RPIE tables, stripped of extraneous tables
 tables <- grep(
-  "Asp|Question|Audit|Deadline|qc",
+  "Asp|Question|Audit|Deadline|qc|archive|bak",
   dbListTables(RPIE)[2:63],
   value = TRUE,
   invert = TRUE
@@ -30,7 +30,7 @@ grab_table <- function(table_name) {
 }
 
 # Grab listed tables
-output <- walk(tables, grab_table)
+output <- lapply(tables, grab_table)
 names(output) <- tables
 
 # All columns identified as PII, by table
@@ -50,14 +50,16 @@ for (i in names(output)) {
     mutate(across(PII[[i]], ~ NA))
 }
 
-# Function to write each table in "output" to a parquet file on S3
-write_all_dataframes <- function(table, name) {
-  remote_file <- file.path(output_bucket, paste0(name, ".parquet"))
-  write_parquet(table, remote_file)
-}
-
 # Save all of table to S3
-mapply(write_all_dataframes, table = output, name = names(output))
+walk2(output, names(output), function(table, name) {
+
+  # Write each table in "output" to a parquet file on S3
+  write_parquet(
+    table,
+    file.path(output_bucket, paste0(name, ".parquet"))
+    )
+
+})
 
 # Cleanup
 dbDisconnect(RPIE)

@@ -18,6 +18,7 @@ conn <- dbConnect(
 
 # Write RPIE_PIN_CODES to S3 (RPIE did not exist prior to 2018, so only years 2019 and later will be uploaded)
 dbGetQuery(conn, "SELECT * FROM RPIE_PIN_CODES WHERE TAX_YEAR >= 2019") %>%
+  mutate(TAX_YEAR = as.character(TAX_YEAR)) %>%
   group_by(TAX_YEAR) %>%
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
 

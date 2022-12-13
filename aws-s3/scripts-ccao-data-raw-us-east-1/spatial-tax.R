@@ -29,6 +29,12 @@ sources_list <- bind_rows(list(
     "boundary" = "tif_district",
     "year" = "2018"
   ),
+  "tif_2019" = c(
+    "source" = "https://gis.cookcountyil.gov/traditional/rest/services/clerkTaxDistricts/MapServer/",
+    "api_url" = "18/query?outFields=*&where=1%3D1&f=geojson",
+    "boundary" = "tif_district",
+    "year" = "2019"
+  ),
 
   # LIBRARY
   "lib_2015" = c(

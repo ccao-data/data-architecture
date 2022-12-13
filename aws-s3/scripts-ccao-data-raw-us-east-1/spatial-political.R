@@ -17,6 +17,12 @@ sources_list <- bind_rows(list(
     "boundary" = "board_of_review_district",
     "year" = "2012"
   ),
+  "bor_2023" = c(
+    "source" = "https://gis.cookcountyil.gov/traditional/rest/services/politicalBoundary/MapServer/",
+    "api_url" = "10/query?outFields=*&where=1%3D1&f=geojson",
+    "boundary" = "board_of_review_district",
+    "year" = "2023"
+  ),
 
   # COMMISSIONER DISTRICT
   "cmd_2012" = c(
@@ -24,6 +30,12 @@ sources_list <- bind_rows(list(
     "api_url" = "ihae-id2m?method=export&format=GeoJSON",
     "boundary" = "commissioner_district",
     "year" = "2012"
+  ),
+  "cmd_2023" = c(
+    "source" = "https://gis.cookcountyil.gov/traditional/rest/services/politicalBoundary/MapServer/",
+    "api_url" = "9/query?outFields=*&where=1%3D1&f=geojson",
+    "boundary" = "commissioner_district",
+    "year" = "2023"
   ),
 
   # CONGRESSIONAL DISTRICT
@@ -33,6 +45,12 @@ sources_list <- bind_rows(list(
     "boundary" = "congressional_district",
     "year" = "2010"
   ),
+  "cnd_2023" = c(
+    "source" = "https://gis.cookcountyil.gov/traditional/rest/services/politicalBoundary/MapServer/",
+    "api_url" = "13/query?outFields=*&where=1%3D1&f=geojson",
+    "boundary" = "congressional_district",
+    "year" = "2023"
+  ),
 
   # JUDICIAL SUBCIRCUIT DISTRICT
   "jsd_2012" = c(
@@ -40,6 +58,12 @@ sources_list <- bind_rows(list(
     "api_url" = "54r3-ikn3?method=export&format=GeoJSON",
     "boundary" = "judicial_district",
     "year" = "2012"
+  ),
+  "jsd_2022" = c(
+    "source" = "https://gis.cookcountyil.gov/traditional/rest/services/politicalBoundary/MapServer/",
+    "api_url" = "5/query?outFields=*&where=1%3D1&f=geojson",
+    "boundary" = "judicial_district",
+    "year" = "2022"
   ),
 
   # MUNICIPALITY
@@ -49,6 +73,12 @@ sources_list <- bind_rows(list(
     "boundary" = "municipality",
     "year" = "2021"
   ),
+  "mnc_2022" = c(
+    "source" = "https://gis.cookcountyil.gov/traditional/rest/services/politicalBoundary/MapServer/",
+    "api_url" = "2/query?outFields=*&where=1%3D1&f=geojson",
+    "boundary" = "municipality",
+    "year" = "2022"
+  ),
 
   # STATE REPRESENTATIVE
   "str_2010" = c(
@@ -57,6 +87,12 @@ sources_list <- bind_rows(list(
     "boundary" = "state_representative_district",
     "year" = "2010"
   ),
+  "str_2023" = c(
+    "source" = "https://gis.cookcountyil.gov/traditional/rest/services/politicalBoundary/MapServer/",
+    "api_url" = "11/query?outFields=*&where=1%3D1&f=geojson",
+    "boundary" = "state_representative_district",
+    "year" = "2023"
+  ),
 
   # STATE SENATE
   "sts_2010" = c(
@@ -64,6 +100,12 @@ sources_list <- bind_rows(list(
     "api_url" = "ezne-sr8y?method=export&format=GeoJSON",
     "boundary" = "state_senate_district",
     "year" = "2010"
+  ),
+  "sts_2023" = c(
+    "source" = "https://gis.cookcountyil.gov/traditional/rest/services/politicalBoundary/MapServer/",
+    "api_url" = "12/query?outFields=*&where=1%3D1&f=geojson",
+    "boundary" = "state_senate_district",
+    "year" = "2023"
   ),
 
   # CHICAGO WARD
@@ -78,6 +120,12 @@ sources_list <- bind_rows(list(
     "api_url" = "sp34-6z76?method=export&format=GeoJSON",
     "boundary" = "ward_chicago",
     "year" = "2015"
+  ),
+  "cwrd_2023" = c(
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "api_url" = "p293-wvbd?method=export&format=GeoJSON",
+    "boundary" = "ward_chicago",
+    "year" = "2023"
   ),
 
   # EVANSTON WARD
