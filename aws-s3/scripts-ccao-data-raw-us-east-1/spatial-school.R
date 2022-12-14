@@ -102,6 +102,18 @@ sources_list <- bind_rows(list(
     "boundary" = "cps_attendance_elementary",
     "year" = "2020-2021"
   ),
+  "attendance_ele_2022" = c(
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "api_url" = "a3xm-ett9?method=export&format=GeoJSON",
+    "boundary" = "cps_attendance_elementary",
+    "year" = "2021-2022"
+  ),
+  "attendance_ele_2023" = c(
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "api_url" = "d8hd-y5ce?method=export&format=GeoJSON",
+    "boundary" = "cps_attendance_elementary",
+    "year" = "2022-2023"
+  ),
 
   # CPS ATTENDANCE - SECONDARY
   "attendance_sec_0607" = c(
@@ -194,6 +206,18 @@ sources_list <- bind_rows(list(
     "boundary" = "cps_attendance_secondary",
     "year" = "2020-2021"
   ),
+  "attendance_sec_2022" = c(
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "api_url" = "is3f-j4ke?method=export&format=GeoJSON",
+    "boundary" = "cps_attendance_secondary",
+    "year" = "2021-2022"
+  ),
+  "attendance_sec_2023" = c(
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "api_url" = "4m25-hh4h?method=export&format=GeoJSON",
+    "boundary" = "cps_attendance_secondary",
+    "year" = "2022-2023"
+  ),
 
   # LOCATION
   "locations_all_21" = c(
@@ -201,6 +225,12 @@ sources_list <- bind_rows(list(
     "api_url" = "a9a2e342397249fd90872765d11aede7_4.geojson",
     "boundary" = "location",
     "year" = "2021"
+  ),
+  "locations_all_22" = c(
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "api_url" = "vfmh-nkyk?method=export&format=GeoJSON",
+    "boundary" = "location",
+    "year" = "2022"
   )
 ))
 
@@ -220,8 +250,8 @@ pwalk(sources_list, function(...) {
 
 ##### County-provided District Files #####
 
-# This geodatabase was provided via Cook County BoT/GIS on 12/9/2021 and contains
-# all school district boundaries from 2000 - 2020
+# This geodatabase was provided via Cook County BoT/GIS on 12/9/2021 and
+# contains all school district boundaries from 2000 - 2020
 gdb_file <- "O:/CCAODATA/data/SchoolTaxDist.gdb"
 layers <- st_layers(gdb_file)$name
 

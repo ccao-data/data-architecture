@@ -23,6 +23,12 @@ sources_list <- bind_rows(list(
     "api_url" = "kbr6-dyec?method=export&format=GeoJSON",
     "boundary" = "unincorporated_area",
     "year" = "2014"
+  ),
+  "unc_2022" = c(
+    "source" = "https://gis.cookcountyil.gov/traditional/rest/services/economicDevelopment/MapServer/2/",
+    "api_url" = "query?outFields=*&where=1%3D1&f=geojson",
+    "boundary" = "unincorporated_area",
+    "year" = "2022"
   )
 ))
 

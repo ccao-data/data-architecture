@@ -12,12 +12,14 @@ source("utils.R")
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_path <- file.path(AWS_S3_RAW_BUCKET, "spatial", "transit")
 
+# Make sure download.file doesn't timeout for larger files
+options(timeout = max(300, getOption("timeout")))
 
 ##### CTA #####
 # List of CTA feeds from Transit Feeds API
 cta_feed_dates_list <- c(
   "2015-10-29", "2016-09-30", "2017-10-22", "2018-10-06",
-  "2019-10-04", "2020-10-10", "2021-10-09"
+  "2019-10-04", "2020-10-10", "2021-10-09", "2022-10-20"
 )
 
 # If missing feed on S3, download and remove .htm file (causes errors)
@@ -51,7 +53,7 @@ walk(cta_feed_dates_list, get_cta_feed)
 ##### Metra #####
 metra_feed_dates_list <- c(
   "2015-10-30", "2016-09-30", "2017-10-21", "2018-10-05",
-  "2019-10-04", "2020-10-10", "2021-10-08"
+  "2019-10-04", "2020-10-10", "2021-10-08", "2022-10-21"
 )
 
 get_metra_feed <- function(feed_date) {
