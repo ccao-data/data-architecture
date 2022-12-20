@@ -74,7 +74,7 @@ clean_subdivisions <- function(shapefile_path) {
     filter(st_is_valid(geometry) & !is.na(PAGE_SUBRE)) %>%
     mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
     select(pagesubref = PAGE_SUBRE, geometry, geometry_3435) %>%
-    sfarrow::st_write_parquet(
+    geoarrow::write_geoparquet(
       file.path(
         AWS_S3_WAREHOUSE_BUCKET, "spatial", "other", "subdivision",
         paste0("year=", str_extract(shapefile_path, "[0-9]{4}")),
@@ -115,7 +115,7 @@ clean_comm_areas <- function(shapefile_path) {
       area_number = area_numbe,
       geometry, geometry_3435
     ) %>%
-    sfarrow::st_write_parquet(
+    geoarrow::write_geoparquet(
       file.path(
         AWS_S3_WAREHOUSE_BUCKET, "spatial", "other", "community_area",
         paste0("year=", str_extract(shapefile_path, "[0-9]{4}")),

@@ -2709,19 +2709,6 @@
         "units"
       ]
     },
-    "sfarrow": {
-      "Package": "sfarrow",
-      "Version": "0.4.1",
-      "Source": "Repository",
-      "Repository": "CRAN",
-      "Hash": "b320f164b1d7bb7e4582b841e22d15a0",
-      "Requirements": [
-        "arrow",
-        "dplyr",
-        "jsonlite",
-        "sf"
-      ]
-    },
     "sfheaders": {
       "Package": "sfheaders",
       "Version": "0.4.0",
