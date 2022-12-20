@@ -1,7 +1,7 @@
 library(aws.s3)
 library(dplyr)
+library(geoarrow)
 library(sf)
-library(sfarrow)
 
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
@@ -26,5 +26,5 @@ if (!aws.s3::object_exists(remote_file_golf_course_warehouse)) {
     mutate(
       geometry_3435 = st_transform(geometry, 3435)
     ) %>%
-    sfarrow::st_write_parquet(remote_file_golf_course_warehouse)
+    geoarrow::write_geoparquet(remote_file_golf_course_warehouse)
 }

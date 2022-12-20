@@ -1,5 +1,6 @@
 library(aws.s3)
 library(dplyr)
+library(geoarrow)
 library(purrr)
 library(sf)
 library(stringr)
@@ -36,7 +37,7 @@ clean_unincorporated_area <- function(shapefile_path) {
       zone_notes = na_if(zone_notes, ""),
       geometry_3435 = st_transform(geometry, 3435)
     ) %>%
-    sfarrow::st_write_parquet(
+    geoarrw::write_geoparquet(
       file.path(
         AWS_S3_WAREHOUSE_BUCKET, "spatial", "other", "unincorporated_area",
         paste0("year=", str_extract(shapefile_path, "[0-9]{4}")),

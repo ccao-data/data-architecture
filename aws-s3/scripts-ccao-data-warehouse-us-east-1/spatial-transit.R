@@ -1,10 +1,10 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
+library(geoarrow)
 library(lubridate)
 library(purrr)
 library(sf)
-library(sfarrow)
 library(stringr)
 library(tidytransit)
 source("utils.R")
@@ -71,7 +71,7 @@ process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
           any_of(c("location_type", "parent_station", "wheelchair_boarding")),
           any_of(c("feed_pull_date", "geometry", "geometry_3435"))
         ) %>%
-        st_write_parquet(remote_file_stop)
+        write_geoparquet(remote_file_stop)
     }
 
     # Now create route geometries and save. Skip PACE since they have no geoms
@@ -102,7 +102,7 @@ process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
             route_color, route_text_color,
             feed_pull_date, geometry, geometry_3435
           ) %>%
-          st_write_parquet(remote_file_route)
+          write_geoparquet(remote_file_route)
       }
     }
   }

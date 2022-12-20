@@ -1,6 +1,6 @@
 library(dplyr)
+library(geoarrow)
 library(sf)
-library(sfarrow)
 library(stringr)
 library(tidygeocoder)
 library(tidyr)
@@ -57,4 +57,4 @@ data.frame(
   st_set_crs(4326) %>%
   mutate(geometry_3435 = st_transform(geometry, 3435),
          year = str_replace(year, "X", "")) %>%
-  st_write_parquet(remote_file)
+  write_geoparquet(remote_file)

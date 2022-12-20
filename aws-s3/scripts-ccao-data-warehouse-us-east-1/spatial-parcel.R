@@ -1,11 +1,11 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
+library(geoarrow)
 library(here)
 library(purrr)
 library(readr)
 library(sf)
-library(sfarrow)
 library(stringr)
 library(tictoc)
 library(tidyr)
@@ -180,11 +180,11 @@ process_parcel_file <- function(s3_bucket_uri,
       arrange(year, town_code, pin10)
 
     # Write local backup copy
-    st_write_parquet(spatial_df_merged, local_backup_file)
+    write_geoparquet(spatial_df_merged, local_backup_file)
     tictoc::toc()
   } else {
     message("Loading processed parcels from backup for: ", file_year)
-    spatial_df_merged <- st_read_parquet(local_backup_file)
+    spatial_df_merged <- read_geoparquet_sf(local_backup_file)
   }
 
   # Write final dataframe to dataset on S3, partitioned by town and year
