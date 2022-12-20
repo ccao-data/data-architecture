@@ -2,12 +2,12 @@ library(arrow)
 library(aws.s3)
 library(DBI)
 library(dplyr)
+library(geoarrow)
 library(glue)
 library(here)
 library(noctua)
 library(purrr)
 library(sf)
-library(sfarrow)
 library(stringr)
 library(tidyr)
 source("utils.R")
@@ -56,7 +56,7 @@ if (!aws.s3::object_exists(esri_chicago_remote)) {
       lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
       geometry, geometry_3435
     )
-  st_write_parquet(
+  write_geoparquet(
     esri_chicago_df_clean,
     esri_chicago_remote,
     compression = "snappy"
@@ -94,7 +94,7 @@ if (!aws.s3::object_exists(esri_sub_remote)) {
       lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
       geometry, geometry_3435
     )
-  st_write_parquet(esri_sub_df_clean, esri_sub_remote, compression = "snappy")
+  write_geoparquet(esri_sub_df_clean, esri_sub_remote, compression = "snappy")
 }
 
 
@@ -126,7 +126,7 @@ if (!aws.s3::object_exists(osm_remote)) {
       lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
       geometry, geometry_3435
     )
-  st_write_parquet(osm_df_clean, osm_remote, compression = "snappy")
+  write_geoparquet(osm_df_clean, osm_remote, compression = "snappy")
 }
 
 
@@ -144,7 +144,7 @@ if (!aws.s3::object_exists(ms_remote)) {
 
   # The microsoft footprints file includes the whole state of IL
   # We need to clip it to only include Cook County
-  cook_boundary <- st_read_parquet(
+  cook_boundary <- read_geoparquet_sf(
     file.path(
       AWS_S3_WAREHOUSE_BUCKET,
       "spatial/ccao/county/2019.parquet"
@@ -182,5 +182,5 @@ if (!aws.s3::object_exists(ms_remote)) {
       lon = X, lat = Y, x_3435 = X.1, y_3435 = Y.1,
       geometry, geometry_3435
     )
-  st_write_parquet(ms_df_clean_cook_only, ms_remote, compression = "snappy")
+  write_geoparquet(ms_df_clean_cook_only, ms_remote, compression = "snappy")
 }

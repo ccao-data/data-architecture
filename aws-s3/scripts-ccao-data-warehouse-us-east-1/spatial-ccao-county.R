@@ -1,9 +1,9 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
+library(geoarrow)
 library(here)
 library(sf)
-library(sfarrow)
 library(stringr)
 library(tidyr)
 source("utils.R")
@@ -34,5 +34,5 @@ if (!aws.s3::object_exists(remote_file_county_warehouse)) {
       geometry_3435 = st_transform(geometry, 3435),
     ) %>%
     select(geometry, geometry_3435) %>%
-    sfarrow::st_write_parquet(remote_file_county_warehouse)
+    geoarrow::write_geoparquet(remote_file_county_warehouse)
 }
