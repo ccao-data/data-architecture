@@ -3,7 +3,7 @@ library(arrow)
 library(dplyr)
 library(purrr)
 library(sf)
-library(sfarrow)
+library(geoarrow)
 library(stringr)
 source("utils.R")
 
@@ -64,7 +64,7 @@ normalize_census_geo <- function(key) {
         lon, lat, x_3435, y_3435,
         geometry, geometry_3435
       ) %>%
-      st_write_parquet(remote_file, compression = "snappy")
+      write_geoparquet(remote_file, compression = "snappy")
   }
 }
 

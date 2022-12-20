@@ -83,6 +83,8 @@ all_combos <- expand.grid(
   survey = c("acs1", "acs5"),
   stringsAsFactors = FALSE
 ) %>%
+  # Census did not release 2020 acs1 data because of COVID
+  filter(year != 2020 | survey != "acs1") %>%
   # Join on folder names
   left_join(folders_df) %>%
   # Some geographies only exist for the ACS5

@@ -22,25 +22,17 @@ most_recent_ihs_data_url <- rvest::read_html(
   sprintf("https://price-index.housingstudies.org%s", .)
 
 # Get S3 file address
-remote_file <- file.path(
-  output_bucket,
-  paste0(
-    basename(tools::file_path_sans_ext(most_recent_ihs_data_url)),
-    ".parquet"
-  )
-)
+remote_file <- file.path(output_bucket, paste0("ihs_price_index_data.parquet"))
 
 # Grab the data, clean it just a bit, and write if it doesn't already exist
-if (!aws.s3::object_exists(remote_file)) {
-  data.frame(t(
-    openxlsx::read.xlsx(most_recent_ihs_data_url, sheet = 2) %>%
-      dplyr::select(-c("X2", "X3", "X4"))
-  )) %>%
-    # Names and columns are kind of a mess after the transpose,
-    # shift up first row, shift over column names
-    janitor::row_to_names(1) %>%
-    dplyr::mutate(puma = rownames(.)) %>%
-    dplyr::relocate(puma, .before = "YEARQ") %>%
-    dplyr::rename(name = "YEARQ") %>%
-    arrow::write_parquet(remote_file)
-}
+data.frame(t(
+  openxlsx::read.xlsx(most_recent_ihs_data_url, sheet = 2) %>%
+    dplyr::select(-c("X2", "X3", "X4"))
+)) %>%
+  # Names and columns are kind of a mess after the transpose,
+  # shift up first row, shift over column names
+  janitor::row_to_names(1) %>%
+  dplyr::mutate(puma = rownames(.)) %>%
+  dplyr::relocate(puma, .before = "YEARQ") %>%
+  dplyr::rename(name = "YEARQ") %>%
+  arrow::write_parquet(remote_file)

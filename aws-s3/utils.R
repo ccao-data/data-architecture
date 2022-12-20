@@ -2,7 +2,7 @@ library(arrow)
 library(aws.s3)
 library(dplyr)
 library(purrr)
-library(sfarrow)
+library(geoarrow)
 library(tools)
 
 
@@ -78,7 +78,7 @@ write_partitions_to_s3 <- function(df,
       message("Now uploading: ", partition_path)
       tmp_file <- tempfile(fileext = ".parquet")
       if (is_spatial) {
-        sfarrow::st_write_parquet(.x, tmp_file, compression = "snappy")
+        geoarrow::write_geoparquet(.x, tmp_file, compression = "snappy")
       } else {
         arrow::write_parquet(.x, tmp_file, compression = "snappy")
       }

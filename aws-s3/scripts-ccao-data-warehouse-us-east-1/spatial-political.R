@@ -37,8 +37,16 @@ column_names_old <- c(
   "ward_evanston" = "ward"
 )
 
+column_names_2022 <- c(
+  "judicial_district" = "NAME2"
+)
+
 column_names_2023 <- c(
-  "board_of_review_district" = "DISTRICT_TXT"
+  "board_of_review_district" = "DISTRICT_TXT",
+  "commissioner_district" = "DISTRICT_TXT",
+  "congressional_district" = "DISTRICT_TXT",
+  "state_representative_district" = "DISTRICT_TXT",
+  "state_senate_district" = "DISTRICT_TXT"
 )
 
 # Function to pull raw data from S3 and clean
@@ -58,13 +66,18 @@ clean_politics <- function(remote_file) {
 
     column_names_2023
 
-  }  else column_names_old
+  } else if (year == "2022" &
+       political_unit %in% names(column_names_2022)) {
+
+    column_names_2022
+
+  } else column_names_old
 
   tmp_file <- tempfile(fileext = ".geojson")
   aws.s3::save_object(remote_file, file = tmp_file)
 
   return(
-    st_read(tmp_file) %>%
+    temp <- st_read(tmp_file) %>%
       mutate_at(vars(contains("MUNICIPALITY")), replace_na, "Unincorporated") %>%
       select(column_names[political_unit], any_of("AGENCY"), geometry) %>%
       mutate(
@@ -75,6 +88,7 @@ clean_politics <- function(remote_file) {
         year = year
       ) %>%
       rename_with(~ paste0(.x, "_name"), names(column_names[political_unit])) %>%
+      mutate(across(ends_with("_name"), as.character)) %>%
       select(-any_of("municipality_num")) %>%
       rename_with(~ "municipality_num", any_of("AGENCY")) %>%
       select(ends_with("_num"), everything(), geometry, geometry_3435, year) %>%

@@ -73,14 +73,14 @@ if (!aws.s3::object_exists(remote_file_coastline)) {
 ##### COOK COUNTY HYDROLOGY #####
 remote_file_hydrology_area <- file.path(
   output_bucket, "hydrology", "area",
-  paste0(as.numeric(current_year) - 1, ".geojson")
+  paste0(current_year, ".geojson")
 )
 
 if (!aws.s3::object_exists(remote_file_hydrology_area)) {
   tmp_file <- tempfile(fileext = ".geojson")
 
   st_write(
-    tigris::area_water("IL", "Cook", year = as.numeric(current_year) - 1),
+    tigris::area_water("IL", "Cook", year = current_year),
     tmp_file
   )
 
@@ -90,7 +90,7 @@ if (!aws.s3::object_exists(remote_file_hydrology_area)) {
 
 remote_file_hydrology_linear <- file.path(
   output_bucket, "hydrology", "linear",
-  paste0(as.numeric(current_year) - 1, ".geojson")
+  paste0(current_year, ".geojson")
 )
 
 if (!aws.s3::object_exists(remote_file_hydrology_linear)) {
@@ -108,7 +108,7 @@ if (!aws.s3::object_exists(remote_file_hydrology_linear)) {
 ##### RAILROAD #####
 remote_file_railroad <- file.path(
   output_bucket, "railroad",
-  paste0('2021', ".geojson")
+  paste0(current_year, ".geojson")
 )
 
 # Write railroads to S3 if they don't exist
@@ -117,9 +117,9 @@ if (!aws.s3::object_exists(remote_file_railroad)) {
   tmp_file <- tempfile(fileext = ".geojson")
   tmp_dir <- tempdir()
   download.file(
-"https://gis.cookcountyil.gov/traditional/
-      rest/services/planimetry/MapServer/
-      3/query?outFields=*&where=1%3D1&f=geojson",
+paste0("https://opendata.arcgis.com/api/v3/",
+       "datasets/dfa393be3a104c33a2ae95455c916ccd_3/downloads/",
+       "data?format=geojson&spatialRefId=4326&where=1%3D1"),
     destfile = tmp_file,
     mode = "wb"
   )

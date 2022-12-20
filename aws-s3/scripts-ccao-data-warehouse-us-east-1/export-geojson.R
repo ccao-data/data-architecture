@@ -120,23 +120,23 @@ if (!aws.s3::object_exists(remote_file_nbhd_export)) {
 
 
 ##### CHICAGO WARD #####
-remote_file_ward_2015_warehouse <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "spatial", "political", "ward",
-  "year=2015", "part-0.parquet"
+remote_file_ward_2023_warehouse <- file.path(
+  AWS_S3_WAREHOUSE_BUCKET, "spatial", "political", "ward_chicago",
+  "year=2023", "part-0.parquet"
 )
-remote_file_ward_2015_export <- file.path(
-  output_bucket, "geojson", "chicago-ward-2015.geojson"
+remote_file_ward_2023_export <- file.path(
+  output_bucket, "geojson", "chicago-ward-2023.geojson"
 )
 
-if (!aws.s3::object_exists(remote_file_ward_2015_export)) {
-  tmp_file_ward_2015 <- tempfile(fileext = ".geojson")
-  st_read_parquet(remote_file_ward_2015_warehouse) %>%
+if (!aws.s3::object_exists(remote_file_ward_2023_export)) {
+  tmp_file_ward_2023 <- tempfile(fileext = ".geojson")
+  st_read_parquet(remote_file_ward_2023_warehouse) %>%
     select(-geometry_3435) %>%
     st_transform(4326) %>%
     rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE) %>%
-    st_write(tmp_file_ward_2015)
+    st_write(tmp_file_ward_2023)
 
-  save_local_to_s3(remote_file_ward_2015_export, tmp_file_ward_2015)
+  save_local_to_s3(remote_file_ward_2023_export, tmp_file_ward_2023)
 }
 
 

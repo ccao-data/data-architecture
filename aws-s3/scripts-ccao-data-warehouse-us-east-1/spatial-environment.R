@@ -1,10 +1,10 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
+library(geoarrow)
 library(here)
 library(purrr)
 library(sf)
-library(sfarrow)
 library(stringr)
 library(tidyr)
 source("utils.R")
@@ -47,7 +47,7 @@ if (!aws.s3::object_exists(remote_file_coastline_warehouse)) {
       geometry_3435 = st_transform(geometry, 3435)
     ) %>%
     rename_with(tolower) %>%
-    sfarrow::st_write_parquet(remote_file_coastline_warehouse)
+    geoarrow::write_geoparquet(remote_file_coastline_warehouse)
 }
 
 
@@ -76,7 +76,7 @@ if (aws.s3::object_exists(flood_fema_raw) & !aws.s3::object_exists(flood_fema_wa
       fema_special_flood_hazard_area = SFHA_TF,
       geometry, geometry_3435
     ) %>%
-    sfarrow::st_write_parquet(flood_fema_warehouse)
+    geoarrow::write_geoparquet(flood_fema_warehouse)
   file.remove(tmp_file)
 }
 
@@ -102,7 +102,7 @@ if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
     mutate(
       geometry_3435 = st_transform(geometry, 3435)
     ) %>%
-    sfarrow::st_write_parquet(remote_file_rail_warehouse)
+    geoarrow::write_geoparquet(remote_file_rail_warehouse)
 }
 
 
@@ -149,7 +149,7 @@ clean_hydro <- function(raw_file_year, dest_file) {
         select(id = HYDROID, name = FULLNAME, hydrology_type, geometry)
     ) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
-      sfarrow::st_write_parquet(dest_file)
+      geoarrow::write_geoparquet(dest_file)
 
     file.remove(tmp_file)
 

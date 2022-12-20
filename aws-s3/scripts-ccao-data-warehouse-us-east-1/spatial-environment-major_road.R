@@ -1,11 +1,11 @@
 library(aws.s3)
 library(dplyr)
+library(geoarrow)
 library(glue)
 library(noctua)
 library(osmdata)
 library(purrr)
 library(sf)
-library(sfarrow)
 source("utils.R")
 
 # This script queries OpenStreetMap for major roads in Cook County and
@@ -34,5 +34,5 @@ if (!aws.s3::object_exists(remote_file)) {
     st_transform(4326) %>%
     mutate(geometry_3435 = st_transform(geometry, 3435))
 
-  st_write_parquet(osm_roads, remote_file)
+  geoarrow::write_geoparquet(osm_roads, remote_file)
 }

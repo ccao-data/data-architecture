@@ -78,7 +78,10 @@ write_dataset(
 census_acs_grid <- expand.grid(
   year = census_acs_years,
   dataset = c("acs1", "acs5")
-)
+) %>%
+  mutate(dataset = as.character(dataset)) %>%
+  # Census did not release 2020 acs1 data because of COVID
+  filter(year != 2020 | dataset != "acs1")
 
 # Get ALL ACS vars
 census_acs_vars <- map2_dfr(

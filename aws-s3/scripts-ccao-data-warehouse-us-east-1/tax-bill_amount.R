@@ -47,6 +47,7 @@ upload_billamount <- function(s3_bucket_uri, file_year, town_code) {
     select(PIN, TAX_YEAR, TB_TOWN, TB_EAV:TB_EST_TAX_AMT) %>%
     rename_with(., ~ tolower(gsub("TB_", "", .x))) %>%
     rename(town_code = town) %>%
+    mutate(town_code = as.character(town_code)) %>%
     select(-tax_year) %>%
     mutate(year = file_year) %>%
 

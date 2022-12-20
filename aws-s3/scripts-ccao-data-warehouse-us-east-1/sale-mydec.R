@@ -69,7 +69,7 @@ mydec_vars <- c("line_7_property_advertised",
                 "line_10s_senior_citizens_assessment_freeze")
 
 # Load raw files, cleanup, then write to warehouse S3
-map(files, clean_up) %>%
+temp <- map(files, clean_up) %>%
   rbindlist(fill = TRUE) %>%
   rename_with(~ tolower(
     str_replace_all(
@@ -84,7 +84,7 @@ map(files, clean_up) %>%
   mutate(document_number = str_replace_all(document_number, "D", "")) %>%
   group_by(document_number) %>%
   # because MyDec variables can be different across duplicate sales doc #s, we'll take the max values
-  mutate(across(mydec_vars, ~ max(.x, na.rm = TRUE))) %>%
+  mutate(across(all_of(mydec_vars), ~ max(.x, na.rm = TRUE))) %>%
   distinct(document_number,
                      line_7_property_advertised,
                      line_10a,
@@ -112,11 +112,11 @@ map(files, clean_up) %>%
   # so we arrange by transaction date and then recorded date within document number and
   # create an indicator for the first row within duplicated document numbers
   arrange(line_4_instrument_date, date_recorded, .by_group = TRUE) %>%
-  mutate(year_of_sale = lubridate::year(line_4_instrument_date),
+  mutate(year_of_sale = as.character(lubridate::year(line_4_instrument_date)),
          declaration_id = as.character(declaration_id),
          is_earliest_within_doc_no = case_when(
            1:n() == 1 ~ TRUE,
            TRUE ~ FALSE
          )) %>%
   group_by(year_of_sale) %>%
-  write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
+  write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = FALSE)
