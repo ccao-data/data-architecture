@@ -1,11 +1,11 @@
 library(aws.s3)
 library(arrow)
 library(dplyr)
+library(geoarrow)
 library(glue)
 library(noctua)
 library(purrr)
 library(sf)
-library(sfarrow)
 library(stringr)
 
 # This script cleans data retrieved from greatschools.org and merges
@@ -132,7 +132,7 @@ clean_great_schools_rating <- function(file, file_year) {
     )
 
   # Write to S3
-  sfarrow::st_write_parquet(
+  geoarrow::write_geoparquet(
     great_schools_w_district,
     file.path(
       destination_folder,

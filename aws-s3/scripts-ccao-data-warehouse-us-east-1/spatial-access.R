@@ -1,11 +1,11 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
+library(geoarrow)
 library(here)
 library(osmdata)
 library(purrr)
 library(sf)
-library(sfarrow)
 library(stringr)
 library(tidyr)
 source("utils.R")
@@ -42,7 +42,7 @@ if (!aws.s3::object_exists(remote_file_bike_warehouse)) {
       trail_width = trailwdth, trail_type = trailtype,
       trail_surface = trailsurfa
     ) %>%
-    sfarrow::st_write_parquet(remote_file_bike_warehouse)
+    geoarrow::write_geoparquet(remote_file_bike_warehouse)
 }
 
 
@@ -68,7 +68,7 @@ if (!aws.s3::object_exists(remote_file_ceme_warehouse)) {
       name = cfname, address, gniscode, source, community, comment, mergeid,
       geometry, geometry_3435
     ) %>%
-    sfarrow::st_write_parquet(remote_file_ceme_warehouse)
+    geoarrow::write_geoparquet(remote_file_ceme_warehouse)
 }
 
 
@@ -94,7 +94,7 @@ if (!aws.s3::object_exists(remote_file_hosp_warehouse)) {
       name = cfname, address, gniscode, source, community, comment, mergeid,
       geometry, geometry_3435
     ) %>%
-    sfarrow::st_write_parquet(remote_file_hosp_warehouse)
+    geoarrow::write_geoparquet(remote_file_hosp_warehouse)
 }
 
 
@@ -133,7 +133,7 @@ if (!aws.s3::object_exists(remote_file_park_warehouse)) {
       ))
     )
 
-  st_write_parquet(parks_df, remote_file_park_warehouse, compression = "snappy")
+  geoarrow::write_geoparquet(parks_df, remote_file_park_warehouse, compression = "snappy")
 }
 
 
@@ -160,7 +160,7 @@ if (!aws.s3::object_exists(remote_file_indc_warehouse)) {
       num = no, hud_qualif, acres,
       geometry, geometry_3435
     ) %>%
-    sfarrow::st_write_parquet(remote_file_indc_warehouse)
+    geoarrow::write_geoparquet(remote_file_indc_warehouse)
 }
 
 ##### WALKABILITY #####
@@ -187,5 +187,5 @@ if (!aws.s3::object_exists(remote_file_walk_warehouse)) {
     standardize_expand_geo() %>%
     select(-contains("shape")) %>%
     mutate(year = "2017") %>%
-    sfarrow::st_write_parquet(remote_file_walk_warehouse)
+    geoarrow::write_geoparquet(remote_file_walk_warehouse)
 }

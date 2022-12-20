@@ -2,22 +2,23 @@
 #Gabe Morrison
 #Note: This script is a more succinct version of an Rmd attached to the 77 issue
 
-library(tidyverse)
-library(aws.s3)
+
 library(arrow)
+library(aws.s3)
+library(ccao)
 library(DBI)
-library(RJDBC)
+library(geoarrow)
+library(ggpubr)
 library(glue)
+library(gstat)
+library(RJDBC)
+library(stars)
 library(sf)
 library(sp)
-library(tmap)
-library(ccao)
 library(tidycensus)
-library(gstat)
-library(stars)
-library(ggpubr)
+library(tidyverse)
+library(tmap)
 library(viridis)
-library(sfarrow)
 
 
 ## Part 1: READ, VISUALIZE, AND CLEAN DATA ===================

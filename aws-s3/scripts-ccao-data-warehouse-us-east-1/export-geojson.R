@@ -1,10 +1,10 @@
 library(aws.s3)
 library(arrow)
 library(dplyr)
+library(geoarrow)
 library(purrr)
 library(rmapshaper)
 library(sf)
-library(sfarrow)
 library(tigris)
 source("utils.R")
 
@@ -14,7 +14,7 @@ AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "export")
 
 # Shapefile of the Cook County boundary for clipping
-cook_boundary <- st_read_parquet(
+cook_boundary <- read_geoparquet_sf(
   file.path(
     AWS_S3_WAREHOUSE_BUCKET,
     "spatial/ccao/county/2019.parquet"
@@ -33,7 +33,7 @@ remote_file_tract_2021_export <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_tract_2021_export)) {
-  tracts_2021 <- st_read_parquet(remote_file_tract_2021_warehouse) %>%
+  tracts_2021 <- read_geoparquet_sf(remote_file_tract_2021_warehouse) %>%
     filter(geoid != "17031990000") %>%
     select(geoid, geometry) %>%
     mutate(year = "2021") %>%
@@ -63,7 +63,7 @@ remote_file_ihs_warehouse <- file.path(
 
 if (!aws.s3::object_exists(remote_file_puma_2021_export)) {
   ihs_index <- read_parquet(remote_file_ihs_warehouse)
-  puma_2021 <- st_read_parquet(remote_file_puma_2021_warehouse) %>%
+  puma_2021 <- read_geoparquet_sf(remote_file_puma_2021_warehouse) %>%
     filter(geoid %in% c(ihs_index$geoid, "1703525")) %>%
     select(geoid, geometry) %>%
     mutate(year = "2021") %>%
@@ -89,7 +89,7 @@ remote_file_town_export <- file.path(
 
 if (!aws.s3::object_exists(remote_file_town_export)) {
   tmp_file_town <- tempfile(fileext = ".geojson")
-  st_read_parquet(remote_file_town_warehouse) %>%
+  read_geoparquet_sf(remote_file_town_warehouse) %>%
     select(-geometry_3435) %>%
     st_transform(4326) %>%
     rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE) %>%
@@ -110,7 +110,7 @@ remote_file_nbhd_export <- file.path(
 
 if (!aws.s3::object_exists(remote_file_nbhd_export)) {
   tmp_file_nbhd <- tempfile(fileext = ".geojson")
-  nbhds <- st_read_parquet(remote_file_nbhd_warehouse) %>%
+  nbhds <- read_geoparquet_sf(remote_file_nbhd_warehouse) %>%
     select(-geometry_3435) %>%
     st_transform(4326) %>%
     st_write(tmp_file_nbhd)
@@ -130,7 +130,7 @@ remote_file_ward_2023_export <- file.path(
 
 if (!aws.s3::object_exists(remote_file_ward_2023_export)) {
   tmp_file_ward_2023 <- tempfile(fileext = ".geojson")
-  st_read_parquet(remote_file_ward_2023_warehouse) %>%
+  read_geoparquet_sf(remote_file_ward_2023_warehouse) %>%
     select(-geometry_3435) %>%
     st_transform(4326) %>%
     rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE) %>%
@@ -151,7 +151,7 @@ remote_file_municipality_2021_export <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_municipality_2021_export)) {
-  municipality_2021 <- st_read_parquet(remote_file_municipality_2021_warehouse) %>%
+  municipality_2021 <- read_geoparquet_sf(remote_file_municipality_2021_warehouse) %>%
     mutate(year = "2021") %>%
     st_transform(4326) %>%
     rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE)
@@ -174,7 +174,7 @@ remote_file_school_elem_2021_export <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_school_elem_2021_export)) {
-  school_elem_2021 <- st_read_parquet(remote_file_school_elem_2021_warehouse) %>%
+  school_elem_2021 <- read_geoparquet_sf(remote_file_school_elem_2021_warehouse) %>%
     select(geoid, name, school_num, is_attendance_boundary) %>%
     mutate(year = "2021") %>%
     st_transform(4326) %>%
@@ -198,7 +198,7 @@ remote_file_school_sec_2021_export <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_school_sec_2021_export)) {
-  school_sec_2021 <- st_read_parquet(remote_file_school_sec_2021_warehouse) %>%
+  school_sec_2021 <- read_geoparquet_sf(remote_file_school_sec_2021_warehouse) %>%
     select(geoid, name, school_num, is_attendance_boundary) %>%
     mutate(year = "2021") %>%
     st_transform(4326) %>%
@@ -222,7 +222,7 @@ remote_file_school_unif_2021_export <- file.path(
 )
 
 if (!aws.s3::object_exists(remote_file_school_unif_2021_export)) {
-  school_unif_2021 <- st_read_parquet(remote_file_school_unif_2021_warehouse) %>%
+  school_unif_2021 <- read_geoparquet_sf(remote_file_school_unif_2021_warehouse) %>%
     select(geoid, name, school_num, is_attendance_boundary) %>%
     mutate(year = "2021") %>%
     st_transform(4326) %>%
