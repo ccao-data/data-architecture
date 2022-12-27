@@ -8,7 +8,7 @@ library(tools)
 
 save_s3_to_local <- function(s3_uri, path, overwrite = FALSE) {
   if (!file.exists(path) | overwrite) {
-    message("Saving file: ", s3_uri, "to: ", path)
+    message("Saving file: ", s3_uri, " to: ", path)
     aws.s3::save_object(object = s3_uri, file = path)
   }
 }
@@ -115,4 +115,32 @@ standardize_expand_geo <- function(spatial_df, make_valid = FALSE, polygon = TRU
 
   )
 
+}
+
+county_gdb_to_s3 <- function(
+    s3_bucket_uri,
+    dir_name,
+    file_path,
+    layer,
+    overwrite = FALSE
+) {
+
+  remote_file <- file.path(
+    s3_bucket_uri,
+    dir_name,
+    paste0(str_sub(file_path, -8, -5), ".geojson")
+  )
+
+  if (!aws.s3::object_exists(remote_file)) {
+
+    message(paste0("Reading ", file_path))
+
+    tmp_file <- tempfile(fileext = ".geojson")
+    st_read(file_path, layer) %>% st_write(tmp_file)
+    save_local_to_s3(remote_file, tmp_file, overwrite = overwrite)
+    file.remove(tmp_file)
+
+    message(paste0("File successfully written to ", remote_file))
+
+  }
 }
