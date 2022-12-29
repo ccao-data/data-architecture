@@ -2,12 +2,17 @@ library(aws.s3)
 library(dplyr)
 library(purrr)
 library(sf)
+library(stringr)
 source("utils.R")
 
 # This script retrieves major political boundaries such as townships and
 # judicial districts
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "political")
+
+# Read privileges for the this drive location are limited.
+# Contact Cook County GIS if permissions need to be changed.
+file_path <- "//gisemcv1.ccounty.com/ArchiveServices/"
 
 sources_list <- bind_rows(list(
   # BOARD OF REVIEW
@@ -63,20 +68,6 @@ sources_list <- bind_rows(list(
     "source" = "https://gis.cookcountyil.gov/traditional/rest/services/politicalBoundary/MapServer/",
     "api_url" = "5/query?outFields=*&where=1%3D1&f=geojson",
     "boundary" = "judicial_district",
-    "year" = "2022"
-  ),
-
-  # MUNICIPALITY
-  "mnc_2021" = c(
-    "source" = "https://opendata.arcgis.com/datasets/",
-    "api_url" = "534226c6b1034985aca1e14a2eb234af_2.geojson",
-    "boundary" = "municipality",
-    "year" = "2021"
-  ),
-  "mnc_2022" = c(
-    "source" = "https://gis.cookcountyil.gov/traditional/rest/services/politicalBoundary/MapServer/",
-    "api_url" = "2/query?outFields=*&where=1%3D1&f=geojson",
-    "boundary" = "municipality",
     "year" = "2022"
   ),
 
@@ -153,5 +144,26 @@ pwalk(sources_list, function(...) {
     dir_name = df$boundary,
     file_year = df$year,
     file_ext = ".geojson"
+  )
+})
+
+# MUNICIPALITY
+
+# Paths for all relevant geodatabases
+gdb_files <- data.frame("path" = list.files(file_path, full.names = TRUE)) %>%
+  filter(
+    str_detect(path, "Current", negate = TRUE) &
+      str_detect(path, "20") &
+      str_detect(path, "Admin")
+  )
+
+# Function to call referenced API, pull requested data, and write it to S3
+pwalk(gdb_files, function(...) {
+  df <- tibble::tibble(...)
+  county_gdb_to_s3(
+    s3_bucket_uri = output_bucket,
+    dir_name = "municipality",
+    file_path = df$path,
+    layer = "MuniTaxDist"
   )
 })
