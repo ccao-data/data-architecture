@@ -2,12 +2,12 @@ library(aws.s3)
 library(dplyr)
 library(geoarrow)
 library(sf)
+library(igraph)
 
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 input_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "environment")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment")
-current_year <- strftime(Sys.Date(), "%Y")
 
 remote_file_golf_course_raw <- file.path(
   input_bucket, "golf_course", "2022.geojson"
@@ -23,8 +23,25 @@ if (!aws.s3::object_exists(remote_file_golf_course_warehouse)) {
   st_read(tmp_file_golf_course) %>%
     st_transform(4326) %>%
     rename_with(tolower) %>%
+    # Dissolve touching polygons, keeping the first OSM ID
+    mutate(
+      geometry_3435 = st_transform(geometry, 3435),
+      touches = components(graph.adjlist(st_touches(.)))$membership
+    ) %>%
+    st_make_valid() %>%
+    st_cast("MULTIPOLYGON") %>%
+    group_by(touches) %>%
+    summarize(
+      id = ifelse(
+        any(startsWith("way/|relation/", id)),
+        first(grep("way/relation/", id, value = TRUE)),
+        first(id)
+      )
+    ) %>%
+    ungroup() %>%
     mutate(
       geometry_3435 = st_transform(geometry, 3435)
     ) %>%
+    select(-touches) %>%
     geoarrow::write_geoparquet(remote_file_golf_course_warehouse)
 }

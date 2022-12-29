@@ -114,4 +114,3 @@ gdf_final.to_file('/tmp/golf_course.geojson', driver='GeoJSON')
 AWS_S3_RAW_BUCKET = os.environ.get("AWS_S3_RAW_BUCKET")
 output_path = os.path.join("spatial", "environment", "golf_course", "2022.geojson")
 s3_client.upload_file("/tmp/golf_course.geojson", AWS_S3_RAW_BUCKET, output_path)
-
