@@ -17,7 +17,12 @@ save_s3_to_local <- function(s3_uri, path, overwrite = FALSE) {
 save_local_to_s3 <- function(s3_uri, path, overwrite = FALSE) {
   if (!aws.s3::object_exists(s3_uri) | overwrite) {
     message("Saving file: ", path, "to: ", s3_uri)
-    aws.s3::put_object(file = path, object = s3_uri)
+    aws.s3::put_object(
+      file = path,
+      object = s3_uri,
+      show_progress = TRUE,
+      multipart = TRUE
+      )
   }
 }
 

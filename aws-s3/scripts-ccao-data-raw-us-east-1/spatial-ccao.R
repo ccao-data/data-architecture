@@ -2,11 +2,16 @@ library(aws.s3)
 library(dplyr)
 library(purrr)
 library(sf)
+library(stringr)
 source("utils.R")
 
 # This script retrieves CCAO neighborhood boundaries
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "ccao")
+
+# Read privileges for the this drive location are limited.
+# Contact Cook County GIS if permissions need to be changed.
+file_path <- "//gisemcv1.ccounty.com/ArchiveServices/"
 
 sources_list <- bind_rows(list(
   # NEIGHBORHOOD
@@ -17,16 +22,6 @@ sources_list <- bind_rows(list(
     ),
     "boundary" = "neighborhood",
     "year" = "2021"
-  ),
-
-  # TOWNSHIP
-  "township" = c(
-    "url" = paste0(
-      "https://opendata.arcgis.com/datasets/",
-      "78fe09c5954e41e19b65a4194eed38c7_3.geojson"
-    ),
-    "boundary" = "township",
-    "year" = "2019"
   )
 ))
 
@@ -40,5 +35,26 @@ pwalk(sources_list, function(...) {
     dir_name = df$boundary,
     file_year = df$year,
     file_ext = ".geojson"
+  )
+})
+
+# TOWNSHIPS
+
+# Paths for all relevant geodatabases
+gdb_files <- data.frame("path" = list.files(file_path, full.names = TRUE)) %>%
+  filter(
+    str_detect(path, "Current", negate = TRUE) &
+      str_detect(path, "20") &
+      str_detect(path, "Parcels")
+  )
+
+# Function to call referenced GDBs, pull requested data, and write it to S3
+pwalk(gdb_files, function(...) {
+  df <- tibble::tibble(...)
+  county_gdb_to_s3(
+    s3_bucket_uri = output_bucket,
+    dir_name = "township",
+    file_path = df$path,
+    layer = "PoliticalTownship"
   )
 })
