@@ -1,10 +1,10 @@
 # Data Onboarding
 
-After filling out this issue template: onboard the data, close the issue, and add the neccasry information to the department's [data catalog](https://gitlab.com/groups/ccao-data-science---modeling/-/wikis/Data/data_catalog.xlsx).
+After filling out this issue template: onboard the data, close the issue, and add the necessary information to the department's [data catalog](https://gitlab.com/groups/ccao-data-science---modeling/-/wikis/Data/data_catalog.xlsx).
 
 ### Description
 
-(What is this data for? Briefly describe the intended puprpose of this data and why it's being added to the department's data architecture.)
+(What is this data for? Briefly describe the intended purpose of this data and why it's being added to the department's data architecture.)
 
 ### Origin
 
@@ -19,7 +19,7 @@ After filling out this issue template: onboard the data, close the issue, and ad
 
 ### Date Retrieved
 
-(The date the data was initially recieved or retrieved from the source noted above. MM-DD-YYYY.)
+(The date the data was initially received or retrieved from the source noted above. MM-DD-YYYY.)
 
 ### Reproducibility 
 
