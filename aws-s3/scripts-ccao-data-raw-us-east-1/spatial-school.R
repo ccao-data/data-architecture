@@ -250,33 +250,44 @@ pwalk(sources_list, function(...) {
 
 ##### County-provided District Files #####
 
-# This geodatabase was provided via Cook County BoT/GIS on 12/9/2021 and
-# contains all school district boundaries from 2000 - 2020
-gdb_file <- "O:/CCAODATA/data/SchoolTaxDist.gdb"
-layers <- st_layers(gdb_file)$name
+# Read privileges for the this drive location are limited.
+# Contact Cook County GIS if permissions need to be changed.
+file_path <- "//gisemcv1.ccounty.com/ArchiveServices/"
 
-# Function to read each layer and save it to S3
-process_layer <- function(layer) {
-  dist_type <- str_sub(layer, 1, 4)
-  dist_type <- recode(
-    dist_type,
-    Elem = "elementary",
-    High = "secondary",
-    Unit = "unified"
+crossing(
+
+  # Paths for all relevant geodatabases
+  data.frame("path" = list.files(file_path, full.names = TRUE)) %>%
+    filter(
+      str_detect(path, "Current", negate = TRUE) &
+        str_detect(path, "20") &
+        str_detect(path, "Admin")
+    ),
+
+  # S3 paths and corresponding layers
+  data.frame(
+    dir_name = c(
+      "school_district_elementary",
+      "school_district_secondary",
+      "school_district_unified"
+    ),
+    layer = c(
+      "ElemSchlTaxDist",
+      "HighSchlTaxDist",
+      "UnitSchlTaxDist"
+    )
   )
-  year <- str_match(layer, "[0-9]{4}")
-  tmp_file <- tempfile(fileext = ".geojson")
-  remote_file <- file.path(
-    output_bucket,
-    paste0("school_district_", dist_type), paste0(year, ".geojson")
-  )
-  if (!aws.s3::object_exists(remote_file)) {
-    st_read(gdb_file, layer) %>%
-      st_write(tmp_file, delete_dsn = TRUE)
 
-    save_local_to_s3(remote_file, tmp_file)
-    file.remove(tmp_file)
-  }
-}
+) %>%
+  arrange(dir_name, path) %>%
 
-walk(layers, process_layer)
+  # Function to call referenced GDBs, pull requested data, and write it to S3
+  pwalk(function(...) {
+    df <- tibble::tibble(...)
+    county_gdb_to_s3(
+      s3_bucket_uri = output_bucket,
+      dir_name = df$dir_name,
+      file_path = df$path,
+      layer = df$layer
+    )
+  })

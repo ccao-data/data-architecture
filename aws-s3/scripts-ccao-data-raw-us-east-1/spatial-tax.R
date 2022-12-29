@@ -14,14 +14,6 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "tax")
 # Contact Cook County GIS if permissions need to be changed.
 file_path <- "//gisemcv1.ccounty.com/ArchiveServices/"
 
-
-##### SSAs #####
-remote_file_ssa <- file.path(
-  output_bucket, "special_service_area", "2020.geojson"
-)
-tmp_file_ssa <- "O:/CCAODATA/data/spatial/SpecServTaxDist_2020.geojson"
-save_local_to_s3(remote_file_ssa, tmp_file_ssa)
-
 # Tax districts
 crossing(
 

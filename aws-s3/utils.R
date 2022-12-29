@@ -133,17 +133,21 @@ county_gdb_to_s3 <- function(
   remote_file <- file.path(
     s3_bucket_uri,
     dir_name,
-    paste0(str_sub(file_path, -8, -5), ".geojson")
+    paste0(str_match(file_path, "[0-9]{4}"), ".geojson")
   )
 
   if (!aws.s3::object_exists(remote_file)) {
 
     message(paste0("Reading ", file_path))
 
-    tmp_file <- tempfile(fileext = ".geojson")
-    st_read(file_path, layer) %>% st_write(tmp_file)
-    save_local_to_s3(remote_file, tmp_file, overwrite = overwrite)
-    file.remove(tmp_file)
+    try({
+
+      tmp_file <- tempfile(fileext = ".geojson")
+      st_read(file_path, layer) %>% st_write(tmp_file)
+      save_local_to_s3(remote_file, tmp_file, overwrite = overwrite)
+      file.remove(tmp_file)
+
+    })
 
     message(paste0("File successfully written to ", remote_file))
 
