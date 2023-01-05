@@ -1,5 +1,7 @@
+library(arrow)
 library(aws.s3)
 library(dplyr)
+library(geoarrow)
 library(purrr)
 library(sf)
 library(stringr)
@@ -12,107 +14,127 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "political")
 
-# Location of file to clean
-raw_files <- file.path(
+# Gather all relevant raw bucket files
+raw_files <- aws.s3::get_bucket_df(
   AWS_S3_RAW_BUCKET,
-  get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "spatial/political/")$Key
-)
-dest_files <- gsub(
-  "geojson", "parquet",
-  file.path(
-    AWS_S3_WAREHOUSE_BUCKET,
-    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "spatial/political/")$Key
-  )
-)
-column_names_old <- c(
-  "board_of_review_district" = "district_n",
-  "commissioner_district" = "district",
-  "congressional_district" = "district_n",
-  "judicial_district" = "district",
-  "municipality" = "MUNICIPALITY",
-  "state_representative_district" = "district_n",
-  "state_senate_district" = "senatedist",
-  "ward_chicago" = "ward",
-  "ward_evanston" = "ward"
-)
+  prefix = 'spatial/political/'
+)$Key %>% sapply(function(x) {
 
-column_names_2022 <- c(
-  "judicial_district" = "NAME2"
-)
-
-column_names_2023 <- c(
-  "board_of_review_district" = "DISTRICT_TXT",
-  "commissioner_district" = "DISTRICT_TXT",
-  "congressional_district" = "DISTRICT_TXT",
-  "state_representative_district" = "DISTRICT_TXT",
-  "state_senate_district" = "DISTRICT_TXT"
-)
-
-# Function to pull raw data from S3 and clean
-clean_politics <- function(remote_file) {
-
-  political_unit <- str_split(remote_file, "/", simplify = TRUE)[1, 6]
-
-  print(political_unit)
-
-  year <- str_split(remote_file, "/", simplify = TRUE)[1, 7] %>%
-    gsub(".geojson", "", .)
-
-  print(year)
-
-  column_names <- if (year == "2023" &
-                      political_unit %in% names(column_names_2023)) {
-
-    column_names_2023
-
-  } else if (year == "2022" &
-       political_unit %in% names(column_names_2022)) {
-
-    column_names_2022
-
-  } else column_names_old
-
+  x <- file.path(AWS_S3_RAW_BUCKET, x)
   tmp_file <- tempfile(fileext = ".geojson")
-  aws.s3::save_object(remote_file, file = tmp_file)
+  save_s3_to_local(x, tmp_file)
+  st_read(tmp_file) %>% rename_with(tolower)
 
-  return(
-    temp <- st_read(tmp_file) %>%
-      mutate_at(vars(contains("MUNICIPALITY")), replace_na, "Unincorporated") %>%
-      select(column_names[political_unit], any_of("AGENCY"), geometry) %>%
-      mutate(
-        across(where(is.character), ~ str_replace(.x, "//.0", "")),
-        across(where(is.character), str_to_title),
-        across(where(is.character), readr::parse_number, .names = "{.col}_num"),
-        geometry_3435 = st_transform(geometry, 3435),
-        year = year
-      ) %>%
-      rename_with(~ paste0(.x, "_name"), names(column_names[political_unit])) %>%
-      mutate(across(ends_with("_name"), as.character)) %>%
-      select(-any_of("municipality_num")) %>%
-      rename_with(~ "municipality_num", any_of("AGENCY")) %>%
-      select(ends_with("_num"), everything(), geometry, geometry_3435, year) %>%
-      na.omit()
-  )
+}, simplify = TRUE, USE.NAMES = TRUE)
 
-  file.remove(tmp_file)
-}
+# List of columns to keep - place number columns before name columns, if only
+# one column is identifed it will be used as both district number and name
+columns <- list(
+  "board_of_review_district_2012" = c("district_n"),
+  "board_of_review_district_2023" = c("district_int", "district_txt"),
+  "commissioner_district_2012" = c("district"),
+  "commissioner_district_2023" = c("district_int", "district_txt"),
+  "congressional_district_2010" = c("district_n"),
+  "congressional_district_2023" = c("district_int", "district_txt"),
+  "judicial_district_2012" = c("district"),
+  "judicial_district_2022" = c("district"),
+  "municipality_2000" = c("agency", "agency_desc"),
+  "municipality_2001" = c("agency", "agency_desc"),
+  "municipality_2002" = c("agency", "agency_desc"),
+  "municipality_2003" = c("agency", "agency_desc"),
+  "municipality_2004" = c("agency", "agency_desc"),
+  "municipality_2005" = c("agency", "agency_desc"),
+  "municipality_2006" = c("agency", "agency_desc"),
+  "municipality_2007" = c("agency", "agency_desc"),
+  "municipality_2008" = c("agency", "agency_desc"),
+  "municipality_2009" = c("agency", "agency_desc"),
+  "municipality_2010" = c("agency", "agency_desc"),
+  "municipality_2011" = c("agency", "agency_desc"),
+  "municipality_2012" = c("agency", "agency_desc"),
+  "municipality_2013" = c("agency", "agency_desc"),
+  "municipality_2014" = c("agency", "agency_desc"),
+  "municipality_2015" = c("agency", "agency_desc"),
+  "municipality_2016" = c("agency", "agency_desc"),
+  "municipality_2017" = c("agency", "agency_desc"),
+  "municipality_2018" = c("agency", "agency_desc"),
+  "municipality_2019" = c("agency", "agency_desc"),
+  "municipality_2020" = c("agency", "agency_desc"),
+  "municipality_2021" = c("agency", "agency_desc"),
+  "municipality_2022" = c("agency", "agency_desc"),
+  "state_representative_district_2010" = c("district_n"),
+  "state_representative_district_2023" = c("district_int", "district_txt"),
+  "state_senate_district_2010" = c("senatenum", "senatedist"),
+  "state_senate_district_2023" = c("district_int", "district_txt"),
+  "ward_chicago_2003" = c("ward"),
+  "ward_chicago_2015" = c("ward"),
+  "ward_chicago_2023" = c("ward"),
+  "ward_evanston_2019" = c("ward"),
+  "ward_evanston_2022" = c("ward")
+)
 
-# Apply function to raw_files
-cleaned_output <- sapply(raw_files, clean_politics, simplify = FALSE, USE.NAMES = TRUE)
+# Clean data according to each shapefile's associated columns
+clean_files <- mapply(function(x, y, z) {
 
-political_units <- unique(str_split(raw_files, "/", simplify = TRUE)[, 6])
+  if (length(y) == 1) {
 
-# Function to partition and upload cleaned data to S3
-combine_upload <- function(political_unit) {
-  cleaned_output[grep(political_unit, names(cleaned_output))] %>%
-    bind_rows() %>%
-    group_by(year) %>%
-    write_partitions_to_s3(
-      file.path(output_bucket, political_unit),
-      is_spatial = TRUE,
-      overwrite = FALSE
-    )
-}
+    x <- x %>% select(all_of(y), geometry)
+    names(x) <- c("district_num", "geometry")
+    x <- x %>%
+      mutate(district_name = str_remove_all(district_num, '[:alpha:]')) %>%
+      select("district_num", "district_name", "geometry")
 
-# Apply function to cleaned data
-walk(political_units, combine_upload)
+  } else {
+
+    x <- x %>% select(all_of(y), geometry)
+    names(x) <- c("district_num", "district_name", "geometry")
+
+    if (str_detect(z, "municipality")) {
+
+      x <- x %>% mutate(
+        district_num = case_when(
+          (is.na(district_name) |
+             district_name == "1" |
+             district_name == "Unincorp") ~ NA_integer_,
+          TRUE ~ district_num
+        ),
+        district_name = case_when(
+          (is.na(district_name) |
+             district_name == "1" |
+             district_name == "Unincorp") ~ "Unincorporated",
+          TRUE ~ str_to_title(district_name)
+        )
+      )
+
+    }
+
+  }
+
+  x <- x %>%
+    mutate(district_num = str_remove_all(district_num, '[:alpha:]')) %>%
+    filter(district_name != '') %>%
+    mutate(
+      across(ends_with('num'), as.integer),
+      across(ends_with('name'), str_remove_all, '\\..*'),
+      across(ends_with('name'), str_squish),
+      geometry_3435 = st_transform(geometry, 3435),
+      year = str_extract(z, "[0-9]{4}")
+    ) %>%
+    arrange(district_num)
+
+  return(x)
+
+}, raw_files, columns, names(columns), SIMPLIFY = FALSE, USE.NAMES = TRUE)
+
+# Upload to S3
+unique(str_sub(names(columns), 1, -6)) %>%
+  walk(function(x) {
+
+    bind_rows(clean_files[grepl(x, names(clean_files))]) %>%
+      group_by(year) %>%
+      write_partitions_to_s3(
+        file.path(output_bucket, x),
+        is_spatial = TRUE,
+        overwrite = TRUE
+      )
+
+  })

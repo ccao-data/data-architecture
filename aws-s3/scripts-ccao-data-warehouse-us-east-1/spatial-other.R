@@ -9,46 +9,6 @@ source("utils.R")
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 
-##### UNINCORPORATED AREA ####
-unincorporated_area_raw <- grep(
-  ".geojson",
-  file.path(
-    AWS_S3_RAW_BUCKET,
-    aws.s3::get_bucket_df(
-      AWS_S3_RAW_BUCKET,
-      prefix = "spatial/other/unincorporated_area/"
-    )$Key
-  ),
-  value = TRUE
-)
-
-# Function to extract and transform geometry from shapefiles
-clean_unincorporated_area <- function(shapefile_path) {
-  tmp_file <- tempfile(fileext = ".geojson")
-  aws.s3::save_object(shapefile_path, file = tmp_file)
-
-  # Just need to clean up column names and transform
-  st_read(tmp_file) %>%
-    filter(st_is_valid(.)) %>%
-    select(agencydesc, zonenotes, zoneid, zonedesc, zoneordina, geometry) %>%
-    rename(zoneordinance = zoneordina, agency_desc = agencydesc) %>%
-    rename_with(~ gsub("zone", "zone_", .x)) %>%
-    mutate(
-      zone_notes = na_if(zone_notes, ""),
-      geometry_3435 = st_transform(geometry, 3435)
-    ) %>%
-    geoarrw::write_geoparquet(
-      file.path(
-        AWS_S3_WAREHOUSE_BUCKET, "spatial", "other", "unincorporated_area",
-        paste0("year=", str_extract(shapefile_path, "[0-9]{4}")),
-        "part-0.parquet"
-      )
-    )
-}
-
-# Apply function
-walk(unincorporated_area_raw, clean_unincorporated_area)
-
 
 ##### SUBDIVISIONS #####
 # Gather paths for subdivision shapefiles
@@ -65,26 +25,32 @@ subdivisions_raw <- grep(
 )
 
 # Function to extract and transform geometry from shapefiles
-clean_subdivisions <- function(shapefile_path) {
-  tmp_file <- tempfile(fileext = ".geojson")
-  aws.s3::save_object(shapefile_path, file = tmp_file)
+walk(subdivisions_raw, function(shapefile_path) {
 
-  # All we need is geometry column for this data, the other columns aren't useful
-  st_read(tmp_file) %>%
-    filter(st_is_valid(geometry) & !is.na(PAGE_SUBRE)) %>%
-    mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
-    select(pagesubref = PAGE_SUBRE, geometry, geometry_3435) %>%
-    geoarrow::write_geoparquet(
-      file.path(
-        AWS_S3_WAREHOUSE_BUCKET, "spatial", "other", "subdivision",
-        paste0("year=", str_extract(shapefile_path, "[0-9]{4}")),
-        "part-0.parquet"
-      )
-    )
-}
+  dest_path <- file.path(
+    AWS_S3_WAREHOUSE_BUCKET, "spatial", "other", "subdivision",
+    paste0("year=", str_extract(shapefile_path, "[0-9]{4}")),
+    "part-0.parquet"
+  )
 
-# Apply function
-walk(subdivisions_raw, clean_subdivisions)
+  if (!aws.s3::object_exists(dest_path)) {
+
+    tmp_file <- tempfile(fileext = ".geojson")
+    aws.s3::save_object(shapefile_path, file = tmp_file)
+
+    # All we need is geometry column for this data, the other columns aren't useful
+    st_read(tmp_file) %>%
+      rename(pagesubref = starts_with("PAGE")) %>%
+      filter(st_is_valid(geometry) & !is.na(pagesubref)) %>%
+      mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+      select(pagesubref, geometry, geometry_3435) %>%
+      geoarrow::write_geoparquet(dest_path)
+
+  }
+
+  file.remove(tmp_file)
+
+})
 
 
 ##### COMMUNITY AREAS ####

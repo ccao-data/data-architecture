@@ -52,58 +52,67 @@ if (!aws.s3::object_exists(remote_file_flood_fema)) {
 
 
 ##### LAKE MICHICAN COASTLINE #####
-remote_file_coastline <- file.path(
-  output_bucket, "coastline",
-  paste0(current_year, ".geojson")
-)
+walk(2013:current_year, function(i) {
 
-if (!aws.s3::object_exists(remote_file_coastline)) {
-  tmp_file <- tempfile(fileext = ".geojson")
-
-  st_write(
-    tigris::coastline(year = current_year) %>%
-      filter(NAME == "Great Lakes"),
-    tmp_file
+  remote_file_coastline <- file.path(
+    output_bucket, "coastline",
+    paste0(i, ".geojson")
   )
-  save_local_to_s3(remote_file_coastline, tmp_file)
-  file.remove(tmp_file)
-}
+
+  if (!aws.s3::object_exists(remote_file_coastline)) {
+    tmp_file <- tempfile(fileext = ".geojson")
+
+    st_write(
+      tigris::coastline(year = i) %>%
+        filter(NAME == "Great Lakes"),
+      tmp_file
+    )
+    save_local_to_s3(remote_file_coastline, tmp_file)
+    file.remove(tmp_file)
+  }
+
+})
 
 
 ##### COOK COUNTY HYDROLOGY #####
-remote_file_hydrology_area <- file.path(
-  output_bucket, "hydrology", "area",
-  paste0(current_year, ".geojson")
-)
+walk(2011:current_year, function(i) {
 
-if (!aws.s3::object_exists(remote_file_hydrology_area)) {
-  tmp_file <- tempfile(fileext = ".geojson")
-
-  st_write(
-    tigris::area_water("IL", "Cook", year = current_year),
-    tmp_file
+  remote_file_hydrology_area <- file.path(
+    output_bucket, "hydrology", "area",
+    paste0(i, ".geojson")
   )
 
-  save_local_to_s3(remote_file_hydrology_area, tmp_file)
-  file.remove(tmp_file)
-}
+  if (!aws.s3::object_exists(remote_file_hydrology_area)) {
+    tmp_file <- tempfile(fileext = ".geojson")
 
-remote_file_hydrology_linear <- file.path(
-  output_bucket, "hydrology", "linear",
-  paste0(current_year, ".geojson")
-)
+    st_write(
+      tigris::area_water("IL", "Cook", year = i),
+      tmp_file
+    )
 
-if (!aws.s3::object_exists(remote_file_hydrology_linear)) {
-  tmp_file <- tempfile(fileext = ".geojson")
+    save_local_to_s3(remote_file_hydrology_area, tmp_file)
+    file.remove(tmp_file)
+  }
 
-  st_write(
-    tigris::linear_water("IL", "Cook", year = as.numeric(current_year) - 1),
-    tmp_file
+  remote_file_hydrology_linear <- file.path(
+    output_bucket, "hydrology", "linear",
+    paste0(i, ".geojson")
   )
 
-  save_local_to_s3(remote_file_hydrology_linear, tmp_file)
-  file.remove(tmp_file)
-}
+  if (!aws.s3::object_exists(remote_file_hydrology_linear)) {
+    tmp_file <- tempfile(fileext = ".geojson")
+
+    st_write(
+      tigris::linear_water("IL", "Cook", year = i),
+      tmp_file
+    )
+
+    save_local_to_s3(remote_file_hydrology_linear, tmp_file)
+    file.remove(tmp_file)
+  }
+
+})
+
 
 ##### RAILROAD #####
 remote_file_railroad <- file.path(

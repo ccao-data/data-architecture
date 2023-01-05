@@ -19,20 +19,6 @@ sources_list <- bind_rows(list(
     "api_url" = "cauq-8yn6?method=export&format=GeoJSON",
     "boundary" = "community_area",
     "year" = "2018"
-  ),
-
-  # UNINCORPORATED AREA
-  "unc_2014" = c(
-    "source" = "https://datacatalog.cookcountyil.gov/api/geospatial/",
-    "api_url" = "kbr6-dyec?method=export&format=GeoJSON",
-    "boundary" = "unincorporated_area",
-    "year" = "2014"
-  ),
-  "unc_2022" = c(
-    "source" = "https://gis.cookcountyil.gov/traditional/rest/services/economicDevelopment/MapServer/2/",
-    "api_url" = "query?outFields=*&where=1%3D1&f=geojson",
-    "boundary" = "unincorporated_area",
-    "year" = "2022"
   )
 ))
 
@@ -52,15 +38,15 @@ pwalk(sources_list, function(...) {
 
 ##### SUBDIVISIONS #####
 # Paths for all relevant geodatabases
-gdb_files <- data.frame("path" = list.files(file_path, full.names = TRUE)) %>%
+data.frame("path" = list.files(file_path, full.names = TRUE)) %>%
   filter(
     str_detect(path, "Current", negate = TRUE) &
       str_detect(path, "20") &
       str_detect(path, "Parcel")
-  )
+  ) %>%
 
 # Function to call referenced GDBs, pull requested data, and write it to S3
-pwalk(gdb_files, function(...) {
+pwalk(function(...) {
   df <- tibble::tibble(...)
   county_gdb_to_s3(
     s3_bucket_uri = output_bucket,
