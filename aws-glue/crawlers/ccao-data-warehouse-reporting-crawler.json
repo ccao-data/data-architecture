@@ -1,11 +1,11 @@
 {
     "Crawler": {
-        "Name": "ccao-data-warehouse-census-crawler",
+        "Name": "ccao-data-warehouse-reporting-crawler",
         "Role": "ccao-glue-service-role",
         "Targets": {
             "S3Targets": [
                 {
-                    "Path": "s3://ccao-data-warehouse-us-east-1/census",
+                    "Path": "s3://ccao-data-warehouse-us-east-1/reporting",
                     "Exclusions": []
                 }
             ],
@@ -13,7 +13,7 @@
             "DynamoDBTargets": [],
             "CatalogTargets": []
         },
-        "DatabaseName": "census",
+        "DatabaseName": "reporting",
         "Classifiers": [],
         "SchemaChangePolicy": {
             "UpdateBehavior": "UPDATE_IN_DATABASE",
@@ -21,15 +21,16 @@
         },
         "State": "READY",
         "CrawlElapsedTime": 0,
-        "CreationTime": "2021-11-03T22:41:26-05:00",
-        "LastUpdated": "2022-01-17T19:51:46-06:00",
+        "CreationTime": "2022-06-23T14:54:46-05:00",
+        "LastUpdated": "2022-06-30T14:31:32-05:00",
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
-            "LogStream": "ccao-data-warehouse-census-crawler",
-            "MessagePrefix": "8a973c6a-18b1-4c16-b7e9-63aa132c812c",
-            "StartTime": "2022-01-17T00:00:44-06:00"
+            "LogStream": "ccao-data-warehouse-reporting-crawler",
+            "MessagePrefix": "101a090c-12e2-4dbb-84c9-56395b1a2642",
+            "StartTime": "2022-12-30T06:19:23-06:00"
         },
-        "Version": 10
+        "Version": 9,
+        "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":3}}"
     }
 }

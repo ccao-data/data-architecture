@@ -10,32 +10,25 @@
                 }
             ],
             "JdbcTargets": [],
-            "MongoDBTargets": [],
             "DynamoDBTargets": [],
             "CatalogTargets": []
         },
         "DatabaseName": "tax",
         "Classifiers": [],
-        "RecrawlPolicy": {
-            "RecrawlBehavior": "CRAWL_EVERYTHING"
-        },
         "SchemaChangePolicy": {
             "UpdateBehavior": "UPDATE_IN_DATABASE",
             "DeleteBehavior": "DELETE_FROM_DATABASE"
         },
-        "LineageConfiguration": {
-            "CrawlerLineageSettings": "DISABLE"
-        },
         "State": "READY",
         "CrawlElapsedTime": 0,
-        "CreationTime": 1655388884.0,
-        "LastUpdated": 1655388884.0,
+        "CreationTime": "2022-06-16T09:14:44-05:00",
+        "LastUpdated": "2022-06-16T09:14:44-05:00",
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-ptaxsim-crawler",
-            "MessagePrefix": "2a8a9bcf-568a-4725-9ec2-7869c43a93ab",
-            "StartTime": 1655388892.0
+            "MessagePrefix": "960b8bdb-b761-41ab-b2cf-47fe7202444e",
+            "StartTime": "2022-12-06T16:05:26-06:00"
         },
         "Version": 1,
         "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":2}}"

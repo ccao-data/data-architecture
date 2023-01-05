@@ -13,32 +13,25 @@
                 }
             ],
             "JdbcTargets": [],
-            "MongoDBTargets": [],
             "DynamoDBTargets": [],
             "CatalogTargets": []
         },
         "DatabaseName": "model",
         "Classifiers": [],
-        "RecrawlPolicy": {
-            "RecrawlBehavior": "CRAWL_EVERYTHING"
-        },
         "SchemaChangePolicy": {
             "UpdateBehavior": "UPDATE_IN_DATABASE",
             "DeleteBehavior": "DELETE_FROM_DATABASE"
         },
-        "LineageConfiguration": {
-            "CrawlerLineageSettings": "DISABLE"
-        },
         "State": "READY",
         "CrawlElapsedTime": 0,
-        "CreationTime": 1643672867.0,
-        "LastUpdated": 1645045559.0,
+        "CreationTime": "2022-01-31T17:47:47-06:00",
+        "LastUpdated": "2022-02-16T15:05:59-06:00",
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-model-results-crawler",
             "MessagePrefix": "ff951279-890f-4e74-92ac-0e02ed8d0cb2",
-            "StartTime": 1651858799.0
+            "StartTime": "2022-05-06T12:39:59-05:00"
         },
         "Version": 2,
         "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":2}}"
