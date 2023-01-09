@@ -130,6 +130,7 @@ unique(str_sub(names(columns), 1, -6)) %>%
   walk(function(x) {
 
     bind_rows(clean_files[grepl(x, names(clean_files))]) %>%
+      rename_with( ~ gsub("district", x, .x)) %>%
       group_by(year) %>%
       write_partitions_to_s3(
         file.path(output_bucket, x),

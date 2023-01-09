@@ -191,7 +191,7 @@ process_parcel_file <- function(s3_bucket_uri,
   spatial_df_merged %>%
     mutate(year = file_year) %>%
     group_by(year, town_code) %>%
-    write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = TRUE)
+    write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = FALSE)
   tictoc::toc()
 }
 
