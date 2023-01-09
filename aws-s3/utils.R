@@ -138,18 +138,29 @@ county_gdb_to_s3 <- function(
 
   if (!aws.s3::object_exists(remote_file)) {
 
-    message(paste0("Reading ", file_path))
+    message(paste0("Reading ", basename(file_path)))
 
-    try({
+    if (layer %in% st_layers(file_path)$name) {
 
-      tmp_file <- tempfile(fileext = ".geojson")
-      st_read(file_path, layer) %>% st_write(tmp_file)
-      save_local_to_s3(remote_file, tmp_file, overwrite = overwrite)
-      file.remove(tmp_file)
+      try({
 
-    })
+        tmp_file <- tempfile(fileext = ".geojson")
+        st_read(file_path, layer) %>% st_write(tmp_file)
+        save_local_to_s3(remote_file, tmp_file, overwrite = overwrite)
+        file.remove(tmp_file)
+        cat(paste0("File successfully written to ", remote_file, "\n"))
 
-    message(paste0("File successfully written to ", remote_file))
+      })
+
+    } else {
+
+      cat(paste0("Layer '", layer,
+                 "' not present in ",
+                 basename(file_path),
+                 "... skipping.\n")
+          )
+
+    }
 
   }
 }
