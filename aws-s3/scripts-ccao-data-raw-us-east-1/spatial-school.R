@@ -225,12 +225,6 @@ sources_list <- bind_rows(list(
     "api_url" = "a9a2e342397249fd90872765d11aede7_4.geojson",
     "boundary" = "location",
     "year" = "2021"
-  ),
-  "locations_all_22" = c(
-    "source" = "https://data.cityofchicago.org/api/geospatial/",
-    "api_url" = "vfmh-nkyk?method=export&format=GeoJSON",
-    "boundary" = "location",
-    "year" = "2022"
   )
 ))
 
