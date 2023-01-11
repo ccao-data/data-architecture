@@ -73,11 +73,13 @@ columns <- list(
 )
 
 # Clean data according to each shapefile's associated columns
-clean_files <- mapply(function(x, y, z) {
+clean_files <- mapply(function(x, y) {
 
-  if (length(y) == 1) {
+  message(paste0("processing "), y)
 
-    x <- x %>% select(all_of(y), geometry)
+  if (length(columns[[y]]) == 1) {
+
+    x <- x %>% select(all_of(columns[[y]]), geometry)
     names(x) <- c("district_num", "geometry")
     x <- x %>%
       mutate(district_name = str_remove_all(district_num, '[:alpha:]')) %>%
@@ -85,10 +87,10 @@ clean_files <- mapply(function(x, y, z) {
 
   } else {
 
-    x <- x %>% select(all_of(y), geometry)
+    x <- x %>% select(all_of(columns[[y]]), geometry)
     names(x) <- c("district_num", "district_name", "geometry")
 
-    if (str_detect(z, "municipality")) {
+    if (str_detect(y, "municipality")) {
 
       x <- x %>% mutate(
         district_num = case_when(
@@ -110,26 +112,38 @@ clean_files <- mapply(function(x, y, z) {
   }
 
   x <- x %>%
+    st_make_valid() %>%
+    st_transform(4326) %>%
     mutate(district_num = str_remove_all(district_num, '[:alpha:]')) %>%
-    filter(district_name != '') %>%
     mutate(
       across(ends_with('num'), as.integer),
       across(ends_with('name'), str_remove_all, '\\..*'),
       across(ends_with('name'), str_squish),
-      geometry_3435 = st_transform(geometry, 3435),
-      year = str_extract(z, "[0-9]{4}")
+      year = str_extract(y, "[0-9]{4}")
     ) %>%
+    filter(!(district_name %in% c('', '0'))) %>%
+    group_by_at(vars(-geometry)) %>%
+    summarise() %>%
+    ungroup() %>%
+    st_cast("MULTIPOLYGON") %>%
+    mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
     arrange(district_num)
 
   return(x)
 
-}, raw_files, columns, names(columns), SIMPLIFY = FALSE, USE.NAMES = TRUE)
+}, raw_files, names(columns), SIMPLIFY = FALSE, USE.NAMES = TRUE)
+
 
 # Upload to S3
 unique(str_sub(names(columns), 1, -6)) %>%
   walk(function(x) {
 
+    message(x)
+
     bind_rows(clean_files[grepl(x, names(clean_files))]) %>%
+      group_by(district_name) %>%
+      mutate(district_num = min(district_num, na.rm = TRUE)) %>%
+      mutate(district_num = na_if(district_num, Inf)) %>%
       rename_with( ~ gsub("district", x, .x)) %>%
       group_by(year) %>%
       write_partitions_to_s3(

@@ -14,155 +14,80 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "tax")
 
-# Location of file to clean
-raw_files <- grep(
-  "geojson",
+# Tax districts to clean
+districts <- c(
+  "community_college_district",
+  "fire_protection_district",
+  "library_district",
+  "park_district",
+  "sanitation_district",
+  "special_service_area",
+  "tif_district"
+)
+
+raw_files <- lapply(districts, function(x) {
+
   file.path(
     AWS_S3_RAW_BUCKET,
-    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "spatial/tax/")$Key
-  ),
-  value = TRUE
-)
-
-# Link raw column names to standardized column names
-column_names <- list(
-  "community_college_district/2012" = c("community_college_district_num" = "agency", "community_college_district_name" = "max_agency", "geometry"),
-  "community_college_district/2013" = c("community_college_district_num" = "agency", "community_college_district_name" = "max_agency", "geometry"),
-  "community_college_district/2014" = c("community_college_district_num" = "agency", "community_college_district_name" = "max_agency", "geometry"),
-  "community_college_district/2015" = c("community_college_district_num" = "agency", "community_college_district_name" = "max_agency", "geometry"),
-  "community_college_district/2016" = c("community_college_district_num" = "agency", "community_college_district_name" = "max_agency", "geometry"),
-  "fire_protection_district/2015" = c("fire_protection_district_num" = "agency", "fire_protection_district_name" = "agency_des", "geometry"),
-  "fire_protection_district/2016" = c("fire_protection_district_num" = "agency", "fire_protection_district_name" = "agency_des", "geometry"),
-  "fire_protection_district/2018" = c("fire_protection_district_num" = "AGENCY", "fire_protection_district_name" = "AGENCY_DESCRIPTION", "geometry"),
-  "library_district/2015" = c("library_district_num" = "agency", "library_district_name" = "max_agency", "geometry"),
-  "library_district/2016" = c("library_district_num" = "agency", "library_district_name" = "max_agency", "geometry"),
-  "library_district/2018" = c("library_district_num" = "AGENCY", "library_district_name" = "MAX_AGENCY_DESC", "geometry"),
-  "park_district/2015" = c("park_district_num" = "agency", "park_district_name" = "agency_des", "geometry"),
-  "park_district/2016" = c("park_district_num" = "agency", "park_district_name" = "agency_des", "geometry"),
-  "park_district/2018" = c("park_district_num" = "AGENCY", "park_district_name" = "AGENCY_DESCRIPTION", "geometry"),
-  "sanitation_district/2018" = c("sanitation_district_num" = "AGENCY", "sanitation_district_name" = "MAX_AGENCY_DESC", "geometry"),
-  "special_service_area/2020" = c("special_service_area_num" = "AGENCY", "special_service_area_name" = "AGENCY_DES", "geometry"),
-  "tif_district/2015" = c("tif_district_num" = "agencynum", "tif_district_name" = "tif_name", "geometry"),
-  "tif_district/2016" = c("tif_district_num" = "agencynum", "tif_district_name" = "agency_des", "geometry"),
-  "tif_district/2018" = c("tif_district_num" = "AGENCYNUM", "tif_district_name" = "AGENCY_DESCRIPTION", "geometry")
-)
-
-# Function to clean fire protection districts
-clean_fire_protection <- function(shapefile, tax_body) {
-
-  if (tax_body == "fire_protection") {
-
-    return(
-
-      shapefile %>%
-        mutate(
-          fire_protection_name = gsub(
-            pattern = "Fire Dist|Fire Prot Dist|Fire Protection Dist",
-            replacement = "Fire Protection District",
-            fire_protection_name,
-            ignore.case = TRUE)) %>%
-        mutate(fire_protection_name = gsub(
-          pattern = "Districtrict",
-          replacement = "District",
-          fire_protection_name,
-          ignore.case = TRUE)) %>%
-        mutate(fire_protection_name = case_when(fire_protection_num == "6240" ~ "NORTHBROOK RURAL Fire Protection District",
-                                                TRUE ~ fire_protection_name),
-               fire_protection_num = NA)
-
-    )
-
-  } else {
-
-    return(shapefile)
-
-  }
-
-}
-
-# Function to clean library and park districts
-clean_general <- function(shapefile, tax_body) {
-
-  if (tax_body %in% c("library", "park")) {
-
-    return(
-
-      shapefile %>%
-        mutate(across(contains("num"), ~ NA)) %>%
-        mutate(across(contains("name"), ~ gsub("Districtrict", "District",
-                                               gsub("Dist", "District", ., ignore.case = TRUE),
-                                               ignore.case = TRUE)))
-
-    )
-
-  } else {
-
-    return(shapefile)
-
-  }
-
-}
-
-# Function to pull raw data from S3 and clean
-clean_tax <- function(remote_file) {
-  tax_body <- str_split(remote_file, "/", simplify = TRUE)[1, 6]
-
-  year <- str_split(remote_file, "/", simplify = TRUE)[1, 7] %>%
-    gsub(".geojson", "", .)
-
-  tax_body_year <- paste0(tax_body, "/", year)
-
-  tmp_file <- tempfile(fileext = ".geojson")
-  aws.s3::save_object(remote_file, file = tmp_file)
-
-  return(
-    st_read(tmp_file) %>%
-      select(column_names[[tax_body_year]]) %>%
-      filter(across(contains("name"), ~ !is.na(.x))) %>%
-
-      # Apply specific cleaning functions
-      clean_fire_protection(tax_body = tax_body) %>%
-      clean_general(tax_body = tax_body) %>%
-
-      # Some shapefiles have multiple rows per tax body rather than multipolygons, fix that
-      st_transform(4326) %>%
-      st_make_valid() %>%
-      group_by(across(contains(c("num", "name")))) %>%
-      summarise() %>%
-      ungroup() %>%
-
-      mutate(across(contains("num"), as.character),
-        across(where(is.character), str_to_title),
-        geometry_3435 = st_transform(geometry, 3435),
-        year = year
-      )
+    aws.s3::get_bucket_df(
+      AWS_S3_RAW_BUCKET, prefix = file.path('spatial/tax', x)
+    )$Key
   )
 
-  file.remove(tmp_file)
-}
+}) %>%
+  unlist() %>%
+  sapply(function(x) {
 
-# Apply function to raw_files
-cleaned_output <- sapply(raw_files, clean_tax, simplify = FALSE, USE.NAMES = TRUE)
-tax_bodies <- unique(str_split(raw_files, "/", simplify = TRUE)[, 6])
+    tmp_file <- tempfile(fileext = ".geojson")
+    aws.s3::save_object(x, file = tmp_file)
 
-# Function to partition and upload cleaned data to S3
-combine_upload <- function(tax_body) {
-  cleaned_output[grep(tax_body, names(cleaned_output))] %>%
-    bind_rows() %>%
-    group_by(across(contains("name"))) %>%
+    st_read(tmp_file)
 
-    # Some shapefiles don't have consistent identifiers across time, create them using group IDs
-    mutate(across(contains("num"), ~ case_when(
-      is.na(.x) ~ str_pad(cur_group_id(), width = 3, side = "left", pad = "0"),
-                                               TRUE ~ .x
-      ))) %>%
-    group_by(year) %>%
-    write_partitions_to_s3(
-      file.path(output_bucket, tax_body),
-      is_spatial = TRUE,
-      overwrite = TRUE
+  }, simplify = TRUE, USE.NAMES = TRUE)
+
+
+# Function to clean shapefiles
+clean_files <- sapply(names(raw_files), function(x) {
+
+  message(paste0("processing "), x)
+
+  new_cols <- c(paste0(basename(dirname(x)), c("_num", "_name")))
+
+  raw_files[[x]] %>%
+    st_make_valid() %>%
+    st_transform(4326) %>%
+    rename_all(tolower) %>%
+    select(contains("agency") & !contains("num")) %>%
+    rename_with(.cols = contains("agency"), ~ new_cols) %>%
+    drop_na() %>%
+    filter_at(vars(new_cols[2]), all_vars(str_squish(.) != "")) %>%
+    group_by_at(new_cols[1:2]) %>%
+    summarise() %>%
+    ungroup() %>%
+    st_cast("MULTIPOLYGON") %>%
+    mutate(
+      geometry_3435 = st_transform(geometry, 3435),
+      year = str_extract(x, "[0-9]{4}")
     )
-}
 
-# Apply function to cleaned data
-walk(tax_bodies, combine_upload)
+}, simplify = FALSE, USE.NAMES = TRUE)
+
+# Upload to S3 by district
+districts %>%
+  walk(function(x) {
+
+    message(x)
+
+    bind_rows(clean_files[grepl(x, names(clean_files))]) %>%
+      group_by_at(vars(starts_with(x))) %>%
+      mutate(across(ends_with("num"), ~ min(.x))) %>%
+      group_by(year) %>%
+
+      # Upload to s3
+      write_partitions_to_s3(
+        file.path(output_bucket, x),
+        is_spatial = TRUE,
+        overwrite = TRUE
+      )
+
+  })

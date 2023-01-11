@@ -46,7 +46,7 @@ crossing(
       "municipality_district",
       "neighborhood_district",
       "park_district",
-      "publich_health_district",
+      "public_health_district",
       "road_and_bridge_district",
       "sanitation_district",
       "special_police_district",
