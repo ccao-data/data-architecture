@@ -152,6 +152,7 @@ process_county_district_file <- function(s3_bucket_uri, file_year, uri, dist_typ
     group_by(school_nm, school_num, district_type, year) %>%
     summarise() %>%
     ungroup() %>%
+    st_cast("MULTIPOLYGON") %>%
     mutate(geometry_3435 = st_transform(geometry, 3435),
            centroid = st_centroid(st_transform(geometry, 3435)),
            is_attendance_boundary = FALSE) %>%
@@ -244,6 +245,8 @@ process_cps_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
   save_s3_to_local(uri, tmp_file_local)
 
   st_read(tmp_file_local) %>%
+    st_make_valid() %>%
+    st_transform(4326) %>%
     rename_with(~"school_id", contains(c("school_id", "schoolid"))) %>%
     rename_with(
       ~"school_nm", contains(
@@ -258,7 +261,6 @@ process_cps_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
     group_by(grade_cat, school_id, school_nm) %>%
     summarise() %>%
     ungroup() %>%
-    st_transform(4326) %>%
     st_cast("MULTIPOLYGON") %>%
     mutate(centroid = st_centroid(st_transform(geometry, 3435))) %>%
     cbind(

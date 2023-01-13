@@ -66,6 +66,7 @@ clean_files <- sapply(names(raw_files), function(x) {
     ungroup() %>%
     st_cast("MULTIPOLYGON") %>%
     mutate(
+      across(ends_with("num"), as.numeric),
       geometry_3435 = st_transform(geometry, 3435),
       year = str_extract(x, "[0-9]{4}")
     )
