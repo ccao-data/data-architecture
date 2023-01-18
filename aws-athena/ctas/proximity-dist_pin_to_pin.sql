@@ -115,7 +115,7 @@ pin_dists AS (
                 ST_Distance(ST_Point(p.x_3435, p.y_3435), o.point) AS dist
             FROM distinct_pins p
             INNER JOIN pin_locations o
-                ON ST_Contains(ST_Buffer(ST_Point(p.x_3435, p.y_3435), 10000), o.point)
+                ON ST_Contains(ST_Buffer(ST_Point(p.x_3435, p.y_3435), 50000), o.point)
         ) dists
     )
     WHERE row_num <= 4
