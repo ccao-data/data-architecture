@@ -105,9 +105,7 @@ SELECT
     access_cmap_walk_total_score,
     access_cmap_walk_data_year,
     misc_subdivision_id,
-    misc_subdivision_data_year,
-    misc_unincorporated_area_bool,
-    misc_unincorporated_area_data_year
+    misc_subdivision_data_year
 FROM spatial.parcel pin
 LEFT JOIN location.census
     ON pin.pin10 = census.pin10
