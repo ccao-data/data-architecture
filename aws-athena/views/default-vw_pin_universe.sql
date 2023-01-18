@@ -159,9 +159,7 @@ SELECT
     access_cmap_walk_total_score,
     access_cmap_walk_data_year,
     misc_subdivision_id,
-    misc_subdivision_data_year,
-    misc_unincorporated_area_bool,
-    misc_unincorporated_area_data_year,
+    misc_subdivision_data_year
 
     -- PIN proximity measurements from CTAS
     num_pin_in_half_mile,
@@ -223,12 +221,12 @@ SELECT
     nearest_water_data_year,
 
     -- Distance to nearest neighbors
-    nearest_neighbor_1_pin10,
-    nearest_neighbor_1_dist_ft,
-    nearest_neighbor_2_pin10,
-    nearest_neighbor_2_dist_ft,
-    nearest_neighbor_3_pin10,
-    nearest_neighbor_3_dist_ft
+    CAST(NULL AS VARCHAR) AS nearest_neighbor_1_pin10,
+    CAST(NULL AS VARCHAR) AS nearest_neighbor_1_dist_ft,
+    CAST(NULL AS VARCHAR) AS nearest_neighbor_2_pin10,
+    CAST(NULL AS VARCHAR) AS nearest_neighbor_2_dist_ft,
+    CAST(NULL AS VARCHAR) AS nearest_neighbor_3_pin10,
+    CAST(NULL AS VARCHAR) AS nearest_neighbor_3_dist_ft
 FROM iasworld.pardat par
 LEFT JOIN iasworld.legdat leg
     ON par.parid = leg.parid

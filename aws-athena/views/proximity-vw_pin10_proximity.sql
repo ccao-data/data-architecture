@@ -60,13 +60,13 @@ SELECT
     nearest_water_id,
     nearest_water_name,
     nearest_water_dist_ft,
-    nearest_water_data_year,
+    nearest_water_data_year/*,
     nearest_neighbor_1_pin10,
     nearest_neighbor_1_dist_ft,
     nearest_neighbor_2_pin10,
     nearest_neighbor_2_dist_ft,
     nearest_neighbor_3_pin10,
-    nearest_neighbor_3_dist_ft
+    nearest_neighbor_3_dist_ft*/
 FROM spatial.parcel pin
 LEFT JOIN proximity.cnt_pin_num_bus_stop
     ON pin.pin10 = cnt_pin_num_bus_stop.pin10
@@ -113,6 +113,6 @@ LEFT JOIN proximity.dist_pin_to_railroad
 LEFT JOIN proximity.dist_pin_to_water
     ON pin.pin10 = dist_pin_to_water.pin10
     AND pin.year = dist_pin_to_water.year
-LEFT JOIN proximity.dist_pin_to_pin
+/*LEFT JOIN proximity.dist_pin_to_pin
     ON pin.pin10 = dist_pin_to_pin.pin10
-    AND pin.year = dist_pin_to_pin.year
+    AND pin.year = dist_pin_to_pin.year*/
