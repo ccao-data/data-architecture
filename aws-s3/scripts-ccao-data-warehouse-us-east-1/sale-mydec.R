@@ -69,7 +69,7 @@ mydec_vars <- c("line_7_property_advertised",
                 "line_10s_senior_citizens_assessment_freeze")
 
 # Load raw files, cleanup, then write to warehouse S3
-temp <- map(files, clean_up) %>%
+map(files, clean_up) %>%
   rbindlist(fill = TRUE) %>%
   rename_with(~ tolower(
     str_replace_all(
@@ -119,4 +119,4 @@ temp <- map(files, clean_up) %>%
            TRUE ~ FALSE
          )) %>%
   group_by(year_of_sale) %>%
-  write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = FALSE)
+  write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
