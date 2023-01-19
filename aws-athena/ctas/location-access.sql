@@ -7,9 +7,15 @@ WITH (
     bucketed_by = ARRAY['pin10'],
     bucket_count = 1
 ) AS (
-    WITH distinct_pins AS (
-        SELECT DISTINCT x_3435, y_3435
+    WITH most_recent_pins AS (
+        SELECT x_3435, y_3435,
+        RANK() OVER (PARTITION BY pin10 ORDER BY year DESC) AS r
         FROM spatial.parcel
+    ),
+    distinct_pins AS (
+        SELECT DISTINCT x_3435, y_3435
+        FROM most_recent_pins
+        WHERE r = 1
     ),
     distinct_years AS (
         SELECT DISTINCT year
