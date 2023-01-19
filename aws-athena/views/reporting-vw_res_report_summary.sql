@@ -1,4 +1,5 @@
-
+-- Aggregates statistics on characteristics, classes, AVs, and sales by
+-- assessment stage, property groups, year, and various geographies
 -- THIS VIEW NEEDS TO BE UPDATED WITH FINAL MODEL RUN IDs EACH YEAR
 CREATE OR REPLACE VIEW reporting.vw_res_report_summary
 AS

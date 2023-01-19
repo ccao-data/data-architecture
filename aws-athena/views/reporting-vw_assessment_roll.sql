@@ -1,3 +1,4 @@
+-- Gathers AVs by year, major class, assessment stage, and township for reporting
 CREATE OR REPLACE VIEW reporting.vw_assessment_roll
 AS
 

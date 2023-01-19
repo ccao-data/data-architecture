@@ -1,4 +1,4 @@
- -- View containing RPIE codes and parcel physical and mailing addresses
+ -- View containing RPIE codes and mailing addresses
 CREATE OR replace VIEW rpie.vw_code_retrieval
 AS
 WITH address AS (

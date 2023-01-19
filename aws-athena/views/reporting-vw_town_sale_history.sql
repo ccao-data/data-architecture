@@ -1,3 +1,4 @@
+-- Aggregate sales by assessment stage, property groups, year, and township
 CREATE OR REPLACE VIEW reporting.vw_town_sale_history
 AS
 -- Add township name

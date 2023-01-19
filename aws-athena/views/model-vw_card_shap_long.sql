@@ -1,3 +1,4 @@
+-- Contains shap values associated with model output
 CREATE OR REPLACE VIEW model.vw_card_shap_long AS
 WITH features AS (
     SELECT
