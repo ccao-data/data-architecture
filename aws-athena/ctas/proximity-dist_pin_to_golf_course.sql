@@ -68,8 +68,8 @@ WITH (
     SELECT
         p.pin10,
         ARBITRARY(xy.id) AS nearest_golf_course_id,
-        ARBITRARY(xy.dist_ft) AS nearest_golf_course_ft,
-        ARBITRARY(xy.year) AS nearest_golf_course_year,
+        ARBITRARY(xy.dist_ft) AS nearest_golf_course_dist_ft,
+        ARBITRARY(xy.year) AS nearest_golf_course_data_year,
         p.year
     FROM spatial.parcel p
     INNER JOIN xy_to_golf_course_dist xy

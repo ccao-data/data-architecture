@@ -31,6 +31,9 @@ SELECT
     nearest_cta_stop_name,
     nearest_cta_stop_dist_ft,
     nearest_cta_stop_data_year,
+    nearest_golf_course_id,
+    nearest_golf_course_dist_ft,
+    nearest_golf_course_data_year,
     nearest_hospital_gnis_code,
     nearest_hospital_name,
     nearest_hospital_dist_ft,
@@ -89,6 +92,9 @@ LEFT JOIN proximity.dist_pin_to_cta_route
 LEFT JOIN proximity.dist_pin_to_cta_stop
     ON pin.pin10 = dist_pin_to_cta_stop.pin10
     AND pin.year = dist_pin_to_cta_stop.year
+LEFT JOIN proximity.dist_pin_to_golf_course
+    ON pin.pin10 = dist_pin_to_golf_course.pin10
+    AND pin.year = dist_pin_to_golf_course.year
 LEFT JOIN proximity.dist_pin_to_hospital
     ON pin.pin10 = dist_pin_to_hospital.pin10
     AND pin.year = dist_pin_to_hospital.year
