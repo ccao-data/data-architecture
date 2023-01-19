@@ -224,12 +224,12 @@ SELECT
     nearest_water_data_year,
 
     -- Distance to nearest neighbors
-    CAST(NULL AS VARCHAR) AS nearest_neighbor_1_pin10,
-    CAST(NULL AS VARCHAR) AS nearest_neighbor_1_dist_ft,
-    CAST(NULL AS VARCHAR) AS nearest_neighbor_2_pin10,
-    CAST(NULL AS VARCHAR) AS nearest_neighbor_2_dist_ft,
-    CAST(NULL AS VARCHAR) AS nearest_neighbor_3_pin10,
-    CAST(NULL AS VARCHAR) AS nearest_neighbor_3_dist_ft
+    nearest_neighbor_1_pin10,
+    nearest_neighbor_1_dist_ft,
+    nearest_neighbor_2_pin10,
+    nearest_neighbor_2_dist_ft,
+    nearest_neighbor_3_pin10,
+    nearest_neighbor_3_dist_ft
 FROM iasworld.pardat par
 LEFT JOIN iasworld.legdat leg
     ON par.parid = leg.parid
