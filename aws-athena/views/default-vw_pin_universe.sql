@@ -159,7 +159,7 @@ SELECT
     access_cmap_walk_total_score,
     access_cmap_walk_data_year,
     misc_subdivision_id,
-    misc_subdivision_data_year
+    misc_subdivision_data_year,
 
     -- PIN proximity measurements from CTAS
     num_pin_in_half_mile,
