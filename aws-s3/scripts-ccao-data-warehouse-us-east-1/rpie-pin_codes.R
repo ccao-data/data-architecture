@@ -1,38 +1,26 @@
 # This script generates RPIE codes for new PINs, and fills forward RPIE codes for PINs (later than 2021)
 # that already have them using the universe of PINs in iasWorld.
-library(odbc)
 library(DBI)
-library(RJDBC)
+library(digest)
+library(glue)
+library(ids)
+library(noctua)
+library(odbc)
 library(dplyr)
 library(tidyverse)
 library(stringr)
-library(ids)
-library(digest)
-library(glue)
 source("utils.R")
 
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "rpie", "pin_codes")
 
-# Connect to the JDBC driver
-aws_athena_jdbc_driver <- RJDBC::JDBC(
-  driverClass = "com.simba.athena.jdbc.Driver",
-  classPath = list.files("~/drivers", "^Athena.*jar$", full.names = TRUE),
-  identifier.quote = "'"
-)
-
-# Establish connection
-AWS_ATHENA_CONN_JDBC <- dbConnect(
-  aws_athena_jdbc_driver,
-  url = Sys.getenv("AWS_ATHENA_JDBC_URL"),
-  aws_credentials_provider_class = Sys.getenv("AWS_CREDENTIALS_PROVIDER_CLASS"),
-  Schema = "Default"
-)
+# Connect to Athena
+AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena())
 
 # Grab universe of PINs and all known RPIE codes
 all_pins <- dbGetQuery(
-  conn = AWS_ATHENA_CONN_JDBC,
+  conn = AWS_ATHENA_CONN_NOCTUA,
   "
 WITH all_pins AS (
   SELECT DISTINCT
@@ -123,7 +111,8 @@ upload <- bind_rows(
   assign_new_code,
   all_pins %>%
     filter(!is.na(rpie_code) | year < 2022)
-) %>% ungroup()
+) %>%
+  ungroup()
 
 # Upload to S3
 upload %>%
@@ -148,8 +137,7 @@ if (max(upload$year) > max_year_CCAODATA) {
     "rpie_pin_codes",
     upload %>%
       filter(year == max(year)) %>%
-      rename("tax_year" = "year", "rpie_pin" = "pin") %>%
-      select(rpie_pin, tax_year, rpie_code)
+      select(rpie_pin = pin, tax_year = year, rpie_code)
     )
 
 }
