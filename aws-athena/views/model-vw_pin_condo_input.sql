@@ -215,12 +215,6 @@ SELECT
             OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
         ELSE uni.misc_subdivision_id
     END AS loc_misc_subdivision_id,
-    CASE
-        WHEN uni.misc_unincorporated_area_bool IS NULL THEN
-            LAST_VALUE(uni.misc_unincorporated_area_bool) IGNORE NULLS
-            OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-        ELSE uni.misc_unincorporated_area_bool
-    END AS loc_misc_unincorporated_area_bool,
 
     -- Environmental and access data
     CASE

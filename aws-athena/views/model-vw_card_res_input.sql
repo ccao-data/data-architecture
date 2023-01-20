@@ -281,12 +281,6 @@ forward_fill AS (
                 OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
             ELSE uni.misc_subdivision_id
         END AS loc_misc_subdivision_id,
-        CASE
-            WHEN uni.misc_unincorporated_area_bool IS NULL THEN
-                LAST_VALUE(uni.misc_unincorporated_area_bool) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.misc_unincorporated_area_bool
-        END AS loc_misc_unincorporated_area_bool,
 
         -- Environmental and access data
         CASE
@@ -661,12 +655,6 @@ SELECT
         WHEN nn1.loc_misc_subdivision_id IS NULL THEN nn2.loc_misc_subdivision_id
         ELSE NULL
     END AS loc_misc_subdivision_id,
-    CASE
-        WHEN f1.loc_misc_unincorporated_area_bool IS NOT NULL THEN f1.loc_misc_unincorporated_area_bool
-        WHEN f1.loc_misc_unincorporated_area_bool IS NULL THEN nn1.loc_misc_unincorporated_area_bool
-        WHEN nn1.loc_misc_unincorporated_area_bool IS NULL THEN nn2.loc_misc_unincorporated_area_bool
-        ELSE NULL
-    END AS loc_misc_unincorporated_area_bool,
     CASE
         WHEN f1.loc_env_flood_fema_sfha IS NOT NULL THEN f1.loc_env_flood_fema_sfha
         WHEN f1.loc_env_flood_fema_sfha IS NULL THEN nn1.loc_env_flood_fema_sfha
