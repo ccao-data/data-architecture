@@ -14,9 +14,18 @@ WITH (
             ST_Point(x_3435, y_3435) AS point
         FROM spatial.parcel
     ),
+    most_recent_pins AS (
+        -- Parcel centroids may shift very slightly over time in GIS shapefiles.
+        -- We want to make sure we only grab the most recent instance of a given
+        -- parcel to avoid duplicates caused by these slight shifts.
+        SELECT x_3435, y_3435,
+        RANK() OVER (PARTITION BY pin10 ORDER BY year DESC) AS r
+        FROM spatial.parcel
+    ),
     distinct_pins AS (
         SELECT DISTINCT x_3435, y_3435
-        FROM pin_locations
+        FROM most_recent_pins
+        WHERE r = 1
     ),
     pin_dists AS (
         SELECT *
