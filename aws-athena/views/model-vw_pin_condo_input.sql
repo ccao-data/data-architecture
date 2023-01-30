@@ -323,6 +323,12 @@ SELECT
             OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
         ELSE uni.nearest_cta_stop_dist_ft
     END AS prox_nearest_cta_stop_dist_ft,
+    CASE
+        WHEN uni.nearest_golf_course_dist_ft IS NULL THEN
+            LAST_VALUE(uni.nearest_golf_course_dist_ft) IGNORE NULLS
+            OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
+        ELSE uni.nearest_golf_course_dist_ft
+    END AS prox_nearest_golf_course_dist_ft,
 
     CASE
         WHEN uni.nearest_hospital_dist_ft IS NULL THEN
