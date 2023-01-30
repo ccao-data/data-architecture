@@ -87,6 +87,35 @@ SELECT
     user2 AS char_site,
     user20 AS char_ncu,
     user3 AS char_renovation,
+
+    -- Indicate a change from 0 or NULL to 1 for renovation
+    -- within the last 3 years
+    CASE
+        WHEN (user3 = '1' AND
+            Lag(user3)
+                over(
+                    PARTITION BY dweldat.parid
+                    ORDER BY dweldat.parid, dweldat.taxyr) != '1') OR
+            (Lag(user3)
+                over(
+                    PARTITION BY dweldat.parid
+                    ORDER BY dweldat.parid, dweldat.taxyr) = '1' AND
+            Lag(user3, 2)
+                over(
+                    PARTITION BY dweldat.parid
+                    ORDER BY dweldat.parid, dweldat.taxyr) != '1') OR
+            (Lag(user3, 2)
+                over(
+                    PARTITION BY dweldat.parid
+                    ORDER BY dweldat.parid, dweldat.taxyr) = '1' AND
+            Lag(user3, 3)
+                over(
+                    PARTITION BY dweldat.parid
+                    ORDER BY dweldat.parid, dweldat.taxyr) != '1')
+        THEN true
+        ELSE false
+    END AS char_recent_renovation,
+
     user30 AS char_porch,
     user7 AS char_air,
     user5 AS char_tp_plan

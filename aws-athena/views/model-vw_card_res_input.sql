@@ -173,34 +173,7 @@ forward_fill AS (
         ch.char_air,
         ch.char_ncu,
         ch.char_tp_plan,
-
-        -- Indicate a change from 0 or NULL to 1 for renovation
-        -- within the last 3 years
-        CASE
-            WHEN (ch.char_renovation = '1' AND
-                Lag(ch.char_renovation)
-                    over(
-                        PARTITION BY ch.pin
-                        ORDER BY ch.pin, ch.year) != '1') OR
-                (Lag(ch.char_renovation)
-                    over(
-                        PARTITION BY ch.pin
-                        ORDER BY ch.pin, ch.year) = '1' AND
-                Lag(ch.char_renovation, 2)
-                    over(
-                        PARTITION BY ch.pin
-                        ORDER BY ch.pin, ch.year) != '1') OR
-                (Lag(ch.char_renovation, 2)
-                    over(
-                        PARTITION BY ch.pin
-                        ORDER BY ch.pin, ch.year) = '1' AND
-                Lag(ch.char_renovation, 3)
-                    over(
-                        PARTITION BY ch.pin
-                        ORDER BY ch.pin, ch.year) != '1')
-            THEN 1
-            ELSE 0
-        END AS char_recent_renovation,
+        ch.char_recent_renovation,
 
         -- Land and lot size indicators
         sp.char_land_sf_95_percentile,
