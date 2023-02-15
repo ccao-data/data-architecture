@@ -24,7 +24,7 @@ FROM default.vw_pin_sale
 LEFT JOIN town_names
     ON vw_pin_sale.township_code = town_names.township_code
 WHERE is_multisale = FALSE
-AND sale_price_log10 BETWEEN sale_filter_lower_limit AND sale_filter_upper_limit
+AND NOT sale_filter_is_outlier
 
 ),
 -- Aggregate by modeling group, town
