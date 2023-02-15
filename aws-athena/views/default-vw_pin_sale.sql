@@ -12,7 +12,7 @@ WITH class AS (
 town AS (
     SELECT
         parid,
-        substr(TAXDIST, 1, 2) AS township_code,
+        Substr(TAXDIST, 1, 2) AS township_code,
         taxyr
     FROM iasworld.legdat
 ),
@@ -40,8 +40,8 @@ unique_sales AS (
             Nullif(replace(sales.instruno, 'D', ''), '') AS doc_no,
             Nullif(sales.instrtyp, '') AS deed_type,
             -- "nopar" is number of parcels sold
-            case when sales.nopar <= 1 AND calculated.nopar_calculated = 1 then FALSE else TRUE end as is_multisale,
-            case when sales.nopar > 1 then sales.nopar else calculated.nopar_calculated end as num_parcels_sale,
+            CASE WHEN sales.nopar <= 1 AND calculated.nopar_calculated = 1 THEN FALSE ELSE TRUE END as is_multisale,
+            CASE WHEN sales.nopar > 1 THEN sales.nopar ELSE calculated.nopar_calculated END as num_parcels_sale,
             Nullif(sales.oldown, '') AS seller_name,
             Nullif(sales.own1, '') AS buyer_name,
             CASE
@@ -75,7 +75,6 @@ unique_sales AS (
         AND instrtyp NOT IN ( '03', '04', '06' )
         AND town.township_code IS NOT NULL
     )
-
     -- Only use max price by pin/sale date
     WHERE max_price = 1
     -- Drop sales for a given pin if it has sold within the last 12 months for the same price
@@ -127,9 +126,22 @@ mydec_sales AS (
         CASE WHEN line_10s = 1 THEN TRUE ELSE FALSE END AS "is_homestead_exemption",
         line_10s_generalalternative AS "homestead_exemption_general_alternative",
         line_10s_senior_citizens AS "homestead_exemption_senior_citizens",
-        line_10s_senior_citizens_assessment_freeze AS "homestead_exemption_senior_citizens_assessment_freeze"
-    FROM sale.mydec
-    WHERE is_earliest_within_doc_no
+        line_10s_senior_citizens_assessment_freeze AS "homestead_exemption_senior_citizens_assessment_freeze",
+        -- Flag for booting outlier PTAX-203 sales from modeling and reporting. Used in combination with
+        -- sale_filter upper and lower, which finds sales more than 2 SD from the year, town, and class mean
+        (
+          COALESCE(line_10b, 0) +
+          COALESCE(line_10c, 0) +
+          COALESCE(line_10d, 0) +
+          COALESCE(line_10e, 0) +
+          COALESCE(line_10f, 0) +
+          COALESCE(line_10g, 0) +
+          COALESCE(line_10h, 0) +
+          COALESCE(line_10i, 0) +
+          COALESCE(line_10k, 0)
+        ) > 0 AS sale_filter_ptax_flag
+        FROM sale.mydec
+        WHERE is_earliest_within_doc_no
 )
 SELECT
     unique_sales.pin,
@@ -157,19 +169,11 @@ SELECT
     sale_filter.sale_filter_lower_limit,
     sale_filter.sale_filter_upper_limit,
     sale_filter.sale_filter_count,
-    -- Flag for booting outlier PTAX-203 sales from modeling and reporting. Used in combination with
-    -- sale_filter upper and lower, which finds sales more than 2 SD from the year, town, and class mean
-    (
-      COALESCE(CAST(mydec_sales.is_sale_between_related_individuals_or_corporate_affiliates AS int), 0) +
-      COALESCE(CAST(mydec_sales.is_transfer_of_less_than_100_percent_interest AS int), 0) +
-      COALESCE(CAST(mydec_sales.is_court_ordered_sale AS int), 0) +
-      COALESCE(CAST(mydec_sales.is_sale_in_lieu_of_foreclosure AS int), 0) +
-      COALESCE(CAST(mydec_sales.is_condemnation AS int), 0) +
-      COALESCE(CAST(mydec_sales.is_short_sale AS int), 0) +
-      COALESCE(CAST(mydec_sales.is_bank_reo_real_estate_owned AS int), 0) +
-      COALESCE(CAST(mydec_sales.is_auction_sale AS int), 0) +
-      COALESCE(CAST(mydec_sales.is_seller_buyer_a_financial_institution_or_government_agency AS int), 0)
-    ) > 0 AS sale_filter_ptax_flag,
+    mydec_sales.sale_filter_ptax_flag,
+    CASE
+        WHEN (mydec_sales.sale_filter_ptax_flag AND 
+        sale_price_log10 NOT BETWEEN sale_filter_lower_limit AND sale_filter_upper_limit) THEN TRUE
+        ELSE FALSE END AS sale_filter_is_outlier,
     mydec_sales.property_advertised,
     mydec_sales.is_installment_contract_fulfilled,
     mydec_sales.is_sale_between_related_individuals_or_corporate_affiliates,
