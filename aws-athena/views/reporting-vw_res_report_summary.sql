@@ -164,7 +164,7 @@ sales AS (
     LEFT JOIN townships
         ON vps.pin = townships.parid AND vps.year = townships.taxyr
     WHERE is_multisale = FALSE
-        AND sale_price_log10 BETWEEN sale_filter_lower_limit AND sale_filter_upper_limit
+    AND NOT sale_filter_is_outlier
 ),
 -- Aggregate land for all parcels
 aggregate_land AS (
