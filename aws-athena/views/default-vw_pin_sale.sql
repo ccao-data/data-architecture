@@ -37,7 +37,7 @@ unique_sales AS (
             class.class,
             Date_parse(Substr(sales.saledt, 1, 10), '%Y-%m-%d') AS sale_date,
             Cast(sales.price AS BIGINT) AS sale_price,
-            Log(sales.price, 10) AS sale_price_log10,
+            Log10(sales.price) AS sale_price_log10,
             sales.salekey AS sale_key,
             Nullif(replace(sales.instruno, 'D', ''), '') AS doc_no,
             Nullif(sales.instrtyp, '') AS deed_type,
@@ -88,15 +88,15 @@ unique_sales AS (
     )
 
 ),
--- Lower and upper bounds so that outlier sales can be filtered out
+-- Lower and upper bounds so that outlier sales can be filtered out using PTAX203 data
 sale_filter AS (
     SELECT
         township_code,
         class,
         year,
         is_multisale,
-        Avg(sale_price_log10) - STDDEV(sale_price_log10) * 3.6 AS sale_filter_lower_limit,
-        Avg(sale_price_log10) + STDDEV(sale_price_log10) * 3.6 AS sale_filter_upper_limit,
+        Avg(sale_price_log10) - STDDEV(sale_price_log10) * 2 AS sale_filter_lower_limit,
+        Avg(sale_price_log10) + STDDEV(sale_price_log10) * 2 AS sale_filter_upper_limit,
         Count(*) AS sale_filter_count
     FROM unique_sales
     GROUP BY
@@ -104,7 +104,7 @@ sale_filter AS (
         class,
         year,
         is_multisale
-        ),
+),
 mydec_sales AS (
 
     SELECT
@@ -135,7 +135,6 @@ mydec_sales AS (
         line_10s_senior_citizens_assessment_freeze AS "homestead_exemption_senior_citizens_assessment_freeze"
     FROM sale.mydec
     WHERE is_earliest_within_doc_no = TRUE
-
 )
 
 SELECT
