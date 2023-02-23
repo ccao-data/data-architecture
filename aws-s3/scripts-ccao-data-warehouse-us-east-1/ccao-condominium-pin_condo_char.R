@@ -1,16 +1,17 @@
+# This script cleans and combines raw condo characteristics data for the warehouse
 library(arrow)
 library(aws.s3)
+library(DBI)
+library(data.table)
 library(dplyr)
 library(glue)
+library(noctua)
 library(purrr)
 library(stringr)
 library(tidyr)
-library(data.table)
-library(DBI)
-library(RJDBC)
 source("utils.R")
 
-# This script cleans and combines raw foreclosure data for the warehouse
+# Declare raw and clean condo data locations
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(
@@ -18,20 +19,8 @@ output_bucket <- file.path(
   "ccao", "condominium", "pin_condo_char"
 )
 
-# Connect to the JDBC driver
-aws_athena_jdbc_driver <- RJDBC::JDBC(
-  driverClass = "com.simba.athena.jdbc.Driver",
-  classPath = list.files("~/drivers", "^Athena.*jar$", full.names = TRUE),
-  identifier.quote = "'"
-)
-
-# Establish connection
-AWS_ATHENA_CONN_JDBC <- dbConnect(
-  aws_athena_jdbc_driver,
-  url = Sys.getenv("AWS_ATHENA_JDBC_URL"),
-  aws_credentials_provider_class = Sys.getenv("AWS_CREDENTIALS_PROVIDER_CLASS"),
-  Schema = "Default"
-)
+# Connect to Athena
+AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena())
 
 # Get S3 file addresses
 files <- grep(
@@ -45,24 +34,9 @@ files <- grep(
   value = TRUE
 )
 
-# function to make different condo sheets stackable
-clean_condo_sheets <- function(x) {
-
-  read_parquet(x) %>%
-    tibble(.name_repair = "unique") %>%
-    rename_with( ~ tolower(.x)) %>%
-    mutate(pin = str_pad(parid, 14, side = "left", pad = "0")) %>%
-    select(contains(c('pin', 'sqft', 'bed', 'source'))) %>%
-    select(-contains(c('x', 'all', 'search'))) %>%
-    rename_with( ~ "bedrooms", contains('bed')) %>%
-    rename_with( ~ "unit_sf", contains('unit')) %>%
-    rename_with( ~ "building_sf", contains('building'))
-
-}
-
 # Grab sales/spatial data
 classes <- dbGetQuery(
-  conn = AWS_ATHENA_CONN_JDBC, "
+  conn = AWS_ATHENA_CONN_NOCTUA, "
   SELECT DISTINCT
       parid AS pin,
       class
@@ -72,27 +46,141 @@ classes <- dbGetQuery(
   "
 )
 
-# Load raw files, cleanup, then write to warehouse S3
-map(files, clean_condo_sheets) %>%
-  rbindlist(fill = TRUE) %>%
-  inner_join(classes) %>%
-  mutate(across(c(unit_sf, building_sf), ~ na_if(., "0"))) %>%
-  mutate(across(c(unit_sf, building_sf), ~ na_if(., "1"))) %>%
-  mutate(across(c(building_sf, unit_sf, bedrooms), ~ gsub("[^0-9.-]", "", .))) %>%
-  mutate(across(.cols = everything(), ~ trimws(., which = "both"))) %>%
-  na_if("") %>%
-  mutate(
-    bedrooms = case_when(
-      is.na(unit_sf) & bedrooms == "0" ~ NA_character_,
-      TRUE ~ bedrooms
-    )
-  ) %>%
-  mutate(across(c(building_sf, unit_sf, bedrooms), ~ as.numeric(.))) %>%
-  mutate(
-    parking_pin = str_detect(source, "(?i)parking|garage") & is.na(unit_sf) & is.na(building_sf),
-    year = '2021'
-  ) %>%
-  select(-c(class, source)) %>%
+# Grab all years of previously assembled condo data already present on Athena
+years <- dbGetQuery(
+  conn = AWS_ATHENA_CONN_NOCTUA, "
+  SELECT DISTINCT year FROM ccao.pin_condo_char
+  "
+) %>%
+  as.character()
+
+# Function to grab chars data from Athena if it's already available
+athena_chars <- function(x){
+
+  dbGetQuery(
+    conn = AWS_ATHENA_CONN_NOCTUA, glue("
+  SELECT * FROM ccao.pin_condo_char
+  WHERE year = '{x}'
+  ")
+  )
+
+}
+
+# A place to store characteristics data so we can stack it
+chars <- list()
+
+# We use tax year, valuations uses year the work was done
+for (i in c("2021", "2022")) {
+
+  if (!("2021" %in% years) & i == "2021") {
+
+    # If clean 2021 data is not already in Athena, load and clean it
+    chars[[i]] <- map(
+      grep("2022", files, value = TRUE), function(x) {
+
+        read_parquet(x) %>%
+          tibble(.name_repair = "unique") %>%
+          rename_with( ~ tolower(.x)) %>%
+          mutate(pin = str_pad(parid, 14, side = "left", pad = "0")) %>%
+          select(contains(c('pin', 'sqft', 'bed', 'source'))) %>%
+          select(-contains(c('x', 'all', 'search'))) %>%
+          rename_with( ~ "bedrooms", contains('bed')) %>%
+          rename_with( ~ "unit_sf", contains('unit')) %>%
+          rename_with( ~ "building_sf", contains('building'))
+
+      }) %>%
+      rbindlist(fill = TRUE) %>%
+      inner_join(classes) %>%
+      mutate(across(c(unit_sf, building_sf), ~ na_if(., "0"))) %>%
+      mutate(across(c(unit_sf, building_sf), ~ na_if(., "1"))) %>%
+      mutate(across(c(building_sf, unit_sf, bedrooms), ~ gsub("[^0-9.-]", "", .))) %>%
+      mutate(across(.cols = everything(), ~ trimws(., which = "both"))) %>%
+      na_if("") %>%
+      mutate(
+        bedrooms = case_when(
+          is.na(unit_sf) & bedrooms == "0" ~ NA_character_,
+          TRUE ~ bedrooms
+        )
+      ) %>%
+      mutate(across(c(building_sf, unit_sf, bedrooms), ~ as.numeric(.))) %>%
+      mutate(
+        parking_pin = str_detect(source, "(?i)parking|garage") & is.na(unit_sf) & is.na(building_sf),
+        year = '2021'
+      ) %>%
+      select(-c(class, source)) %>%
+      # These are obvious typos
+      mutate(unit_sf = case_when(unit_sf == 28002000 ~ 2800,
+                                 unit_sf == 20002800 ~ 2000,
+                                 unit_sf == 182901 ~ 1829,
+                                 TRUE ~ unit_sf))
+
+  } else if (!("2022" %in% years) & i == "2022") {
+
+    # If clean 2022 data is not already in Athena, load and clean it
+    chars[[i]] <- lapply(grep("2023", files, value = TRUE), function(x) {
+
+      raw <- read_parquet(x)[,1:20]
+
+      names <- tolower(names(raw))
+      names(raw) <- make.unique(names)
+
+      raw %>%
+        select(!contains('pin')) %>%
+        rename_with(~ str_replace(.x, "iasworold", "iasworld")) %>%
+        mutate(pin = str_pad(iasworld_parid, 14, side = "left", pad = "0")) %>%
+        rename_with(~ str_replace_all(.x, "[[:space:]]", "")) %>%
+        rename_with(~ str_replace_all(.x, "\\.{4}", "")) %>%
+        select(!contains(c("1", "2", "all"))) %>%
+        select(contains(c('pin', 'sq', 'bed', 'bath'))) %>%
+        rename_with( ~ "bedrooms", contains('bed')) %>%
+        rename_with( ~ "unit_sf", contains('unit')) %>%
+        rename_with( ~ "building_sf", contains(c("building", "bldg"))) %>%
+        rename_with( ~ "half_baths", contains("half")) %>%
+        rename_with( ~ "full_baths", contains("full")) %>%
+        mutate(
+          across(!contains("pin"), as.numeric),
+          year = '2022',
+          # Define a parking pin as a unit with only 0 or NA values for
+          # characteristics
+          parking_pin = case_when(
+            (bedrooms == 0 | unit_sf == 0) &
+              rowSums(
+                across(c(unit_sf, bedrooms, full_baths, half_baths)), na.rm = TRUE
+                ) == 0 ~ TRUE,
+            TRUE ~ FALSE
+          ),
+          # Really low unit_sf should be considered NA
+          unit_sf = case_when(
+            unit_sf < 5 & !parking_pin ~ NA_real_,
+            TRUE ~ unit_sf),
+          # Assume missing half_baths value is 0 if there is full bathroom data
+          # for PIN
+          half_baths = case_when(
+            is.na(half_baths) & !is.na(full_baths) & full_baths > 0 ~ 0,
+            TRUE ~ half_baths
+            ),
+          # Set all characteristics to NA for parking pins
+          across(
+            c(bedrooms, unit_sf, half_baths, full_baths),
+            ~ ifelse(parking_pin, NA, .x)
+          )
+        )
+
+    }) %>%
+      bind_rows()
+
+  } else {
+
+    # If data is already in Athena, just take it from there
+    chars[[i]] <- athena_chars(i)
+
+  }
+
+}
+
+# Upload cleaned data to S3
+chars %>%
+  bind_rows() %>%
   group_by(year) %>%
   arrow::write_dataset(
     path = output_bucket,
