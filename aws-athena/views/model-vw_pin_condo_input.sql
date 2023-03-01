@@ -144,6 +144,8 @@ SELECT
     ch.char_building_sf,
     ch.char_unit_sf,
     ch.char_bedrooms,
+    ch.char_half_baths,
+    ch.char_full_baths,
 
     -- Land and lot size indicators
     sp.char_land_sf_95_percentile,
