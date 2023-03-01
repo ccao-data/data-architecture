@@ -104,6 +104,7 @@ for (i in c("2021", "2022")) {
       ) %>%
       mutate(across(c(building_sf, unit_sf, bedrooms), ~ as.numeric(.))) %>%
       mutate(
+        bedrooms = ceiling(bedrooms),
         parking_pin = str_detect(source, "(?i)parking|garage") & is.na(unit_sf) & is.na(building_sf),
         year = '2021'
       ) %>%
@@ -159,6 +160,8 @@ for (i in c("2021", "2022")) {
             is.na(half_baths) & !is.na(full_baths) & full_baths > 0 ~ 0,
             TRUE ~ half_baths
             ),
+          # Make beds and baths are integers
+          across(c(half_baths, full_baths, bedrooms), ~ ceiling(.x)),
           # Set all characteristics to NA for parking pins
           across(
             c(bedrooms, unit_sf, half_baths, full_baths),

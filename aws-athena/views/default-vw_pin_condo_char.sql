@@ -102,6 +102,8 @@ chars AS (
             CAST(ROUND(pin_condo_char.building_sf, 0) AS int) AS char_building_sf,
             CAST(ROUND(pin_condo_char.unit_sf, 0) AS int) AS char_unit_sf,
             CAST(pin_condo_char.bedrooms AS int) AS char_bedrooms,
+            CAST(pin_condo_char.half_baths AS int) AS char_half_baths,
+            CAST(pin_condo_char.full_baths AS int) AS char_full_baths,
             pin_condo_char.parking_pin,
             pardat.unitno,
             tiebldgpct,
@@ -173,6 +175,18 @@ filled AS (
             ELSE char_bedrooms
         END AS char_bedrooms,
         CASE
+            WHEN char_half_baths IS NULL
+                THEN LAST_VALUE(char_half_baths) IGNORE NULLS
+                OVER (PARTITION BY pin ORDER BY year DESC)
+            ELSE char_half_baths
+        END AS char_half_baths,
+        CASE
+            WHEN char_full_baths IS NULL
+                THEN LAST_VALUE(char_full_baths) IGNORE NULLS
+                OVER (PARTITION BY pin ORDER BY year DESC)
+            ELSE char_full_baths
+        END AS char_full_baths,
+        CASE
             WHEN parking_pin IS NULL
                 THEN LAST_VALUE(parking_pin) IGNORE NULLS
                 OVER (PARTITION BY pin ORDER BY year DESC)
@@ -204,6 +218,8 @@ SELECT
     filled.char_building_sf,
     filled.char_unit_sf,
     filled.char_bedrooms,
+    filled.char_half_baths,
+    filled.char_full_baths,
 
     -- Count of non-unit PINs by pin10
     sum(CASE
