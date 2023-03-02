@@ -4,6 +4,7 @@ library(dplyr)
 library(glue)
 library(purrr)
 library(openxlsx)
+library(readr)
 library(tools)
 library(stringr)
 source("utils.R")
@@ -40,3 +41,11 @@ read_write_questionable <- function(x) {
 
 # Apply function to foreclosure data
 walk(source_files, read_write_questionable)
+
+##### 399 GARAGE UNITS #####
+
+# Retrieve data and write to S3
+read_delim("O:/CCAODATA/data/condos/gr_399.csv", delim = ",", col_types = c("c", "c", "c")) %>%
+    write_parquet(file.path(
+      output_bucket, "pin_399_garage_units", "2023.parquet"
+      ))

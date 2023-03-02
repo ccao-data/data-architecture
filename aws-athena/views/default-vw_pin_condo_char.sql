@@ -9,7 +9,7 @@ should only be the case while condo characteristics are culled from excel
 workbooks rather than iasWorld.
 **/
 
-CREATE OR REPLACE VIEW default.vw_pin_condo_char
+CREATE OR REPLACE VIEW default.vw_temp
 AS
 WITH aggregate_land AS (
     SELECT
@@ -87,7 +87,8 @@ chars AS (
             substr(TAXDIST, 1, 2) AS township_code,
             CASE
                 WHEN pardat.class IN ('299', '2-99') THEN oby.user16
-                WHEN pardat.class = '399' THEN comdat.user16
+                WHEN pardat.class = '399' AND p3gu.user16 IS NULL THEN comdat.user16
+                WHEN pardat.class = '399' AND p3gu.user16 IS NOT NULL THEN p3gu.user16
             END AS cdu,
             -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
             CASE
@@ -131,6 +132,9 @@ chars AS (
         LEFT JOIN iasworld.legdat
             ON pardat.parid = legdat.parid
             AND pardat.taxyr = legdat.taxyr
+        LEFT JOIN ccao.pin_399_garage_units p3gu
+            ON pardat.parid = p3gu.parid
+            AND pardat.taxyr = p3gu.taxyr
     )
 
     WHERE class IN ('299', '2-99', '399')
