@@ -1,9 +1,12 @@
 /**
 View containing cleaned, filled data for condo modeling. Missing data is
-filled with the following steps:
+filled as following:
 
-All historical data is filled FORWARD in time, i.e. data from 2020 fills
-2021 as long as the data isn't something which frequently changes
+Conod characteristics are filled with whatever the most recent non NULL
+value is. This assumes that new condo data is more accurate than older
+data, not that it represents a change in a unit's characteristics. This
+should only be the case while condo characteristics are culled from excel
+workbooks rather than iasWorld.
 **/
 
 CREATE OR REPLACE VIEW default.vw_pin_condo_char
@@ -142,13 +145,10 @@ filled AS (
         year,
         township_code,
         char_yrblt,
-        -- CDUs/notes are not well-maintained year-to-year,
-        CASE
-            WHEN cdu IS NULL
-                THEN LAST_VALUE(cdu) IGNORE NULLS
-                OVER (PARTITION BY pin ORDER BY year DESC)
-            ELSE cdu
-        END AS cdu,
+        -- CDUs/notes are not well-maintained year-to-year, but CDU CAN be updated to NULL
+        FIRST_VALUE(cdu)
+            OVER (PARTITION BY pin ORDER BY year DESC)
+            AS cdu,
         CASE
             WHEN note IS NULL
                 THEN LAST_VALUE(note) IGNORE NULLS
@@ -156,42 +156,24 @@ filled AS (
             ELSE note
         END AS note,
         -- Characteristics data gathered from MLS by valuations
-        CASE
-            WHEN char_building_sf IS NULL
-                THEN LAST_VALUE(char_building_sf) IGNORE NULLS
-                OVER (PARTITION BY pin ORDER BY year DESC)
-            ELSE char_building_sf
-        END AS char_building_sf,
-        CASE
-            WHEN char_unit_sf IS NULL
-                THEN LAST_VALUE(char_unit_sf) IGNORE NULLS
-                OVER (PARTITION BY pin ORDER BY year DESC)
-            ELSE char_unit_sf
-        END AS char_unit_sf,
-        CASE
-            WHEN char_bedrooms IS NULL
-                THEN LAST_VALUE(char_bedrooms) IGNORE NULLS
-                OVER (PARTITION BY pin ORDER BY year DESC)
-            ELSE char_bedrooms
-        END AS char_bedrooms,
-        CASE
-            WHEN char_half_baths IS NULL
-                THEN LAST_VALUE(char_half_baths) IGNORE NULLS
-                OVER (PARTITION BY pin ORDER BY year DESC)
-            ELSE char_half_baths
-        END AS char_half_baths,
-        CASE
-            WHEN char_full_baths IS NULL
-                THEN LAST_VALUE(char_full_baths) IGNORE NULLS
-                OVER (PARTITION BY pin ORDER BY year DESC)
-            ELSE char_full_baths
-        END AS char_full_baths,
-        CASE
-            WHEN parking_pin IS NULL
-                THEN LAST_VALUE(parking_pin) IGNORE NULLS
-                OVER (PARTITION BY pin ORDER BY year DESC)
-            ELSE parking_pin
-        END AS parking_pin,
+        FIRST_VALUE(char_building_sf)
+            OVER (PARTITION BY pin ORDER BY case when char_building_sf IS NOT NULL THEN year ELSE '0' END DESC)
+        AS char_building_sf,
+        FIRST_VALUE(char_unit_sf)
+            OVER (PARTITION BY pin ORDER BY case when char_unit_sf IS NOT NULL THEN year ELSE '0' END DESC)
+        AS char_unit_sf,
+        FIRST_VALUE(char_bedrooms)
+            OVER (PARTITION BY pin ORDER BY case when char_bedrooms IS NOT NULL THEN year ELSE '0' END DESC)
+        AS char_bedrooms,
+        FIRST_VALUE(char_half_baths)
+            OVER (PARTITION BY pin ORDER BY case when char_half_baths IS NOT NULL THEN year ELSE '0' END DESC)
+        AS char_half_baths,
+        FIRST_VALUE(char_full_baths)
+            OVER (PARTITION BY pin ORDER BY case when char_full_baths IS NOT NULL THEN year ELSE '0' END DESC)
+        AS char_full_baths,
+        FIRST_VALUE(parking_pin)
+            OVER (PARTITION BY pin ORDER BY case when parking_pin IS NOT NULL THEN year ELSE '0' END DESC)
+        AS parking_pin,
         unitno,
         tiebldgpct,
         bldg_is_mixed_use,
