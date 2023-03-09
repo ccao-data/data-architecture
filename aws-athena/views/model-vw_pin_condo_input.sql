@@ -101,6 +101,9 @@ SELECT
     -- Multicard/multi-landline related fields. Each PIN can have more than
     -- one improvement/card AND/OR more than one attached landline
     ch.card AS meta_card_num,
+    ch.lline AS meta_lline_num,
+    ch.pin_is_multilline AS ind_pin_is_multilline,
+    ch.pin_num_lline AS meta_pin_num_lline,
     ch.pin_is_multiland AS ind_pin_is_multiland,
     ch.pin_num_landlines AS meta_pin_num_landlines,
     ch.cdu AS meta_cdu,

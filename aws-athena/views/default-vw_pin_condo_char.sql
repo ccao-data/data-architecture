@@ -9,7 +9,7 @@ should only be the case while condo characteristics are culled from excel
 workbooks rather than iasWorld.
 **/
 
-CREATE OR REPLACE VIEW default.vw_temp
+CREATE OR REPLACE VIEW default.vw_pin_condo_char
 AS
 WITH aggregate_land AS (
     SELECT
@@ -81,6 +81,7 @@ chars AS (
                 WHEN pardat.class IN ('299', '2-99') THEN oby.card
                 WHEN pardat.class = '399' THEN comdat.card
             END AS card,
+            lline,
             SUBSTR(pardat.parid, 1, 10) AS pin10,
             pardat.class,
             pardat.taxyr AS year,
@@ -145,6 +146,7 @@ filled AS (
         pin,
         pin10,
         card,
+        lline,
         class,
         year,
         township_code,
@@ -186,20 +188,26 @@ filled AS (
             AS building_pins
     FROM chars
 
-    -- Some PINs show up up with different yrblt across lline (within year)
-    WHERE char_yrblt = max_yrblt
 )
 
-SELECT
+SELECT DISTINCT
 
     filled.pin,
     filled.pin10,
     filled.card,
+    filled.lline,
     filled.year,
     CASE WHEN filled.class = '2-99'
         THEN '299'
         ELSE filled.class END AS class,
     filled.township_code,
+    -- Count pin rather than lline here since lline can be null. It shouldn't be,
+    -- but some condo PINs exist in PARDAT and not OBY.
+    CASE
+        WHEN COUNT(filled.pin) OVER (PARTITION BY filled.pin, filled.year) > 1 THEN TRUE
+        ELSE FALSE
+    END pin_is_multilline,
+    COUNT(filled.pin) OVER (PARTITION BY filled.pin, filled.year) AS pin_num_lline,
     filled.char_yrblt,
     filled.char_building_sf,
     filled.char_unit_sf,
