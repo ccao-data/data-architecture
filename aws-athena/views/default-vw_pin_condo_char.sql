@@ -218,7 +218,7 @@ SELECT DISTINCT
     -- Count of non-unit PINs by pin10
     sum(CASE
         WHEN (filled.cdu = 'GR'
-            OR (SUBSTR(filled.unitno, 1, 1) = 'P' AND filled.unitno != 'PH')
+            OR (SUBSTR(filled.unitno, 1, 1) = 'P' AND SUBSTR(filled.unitno, 1, 2) != 'PH')
             OR SUBSTR(filled.unitno, 1, 3) = 'GAR'
             OR filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
@@ -242,7 +242,7 @@ SELECT DISTINCT
 
     CASE
         WHEN (filled.cdu = 'GR'
-            OR (SUBSTR(filled.unitno, 1, 1) = 'P' AND filled.unitno != 'PH')
+            OR (SUBSTR(filled.unitno, 1, 1) = 'P' AND SUBSTR(filled.unitno, 1, 2) != 'PH')
             OR SUBSTR(filled.unitno, 1, 3) = 'GAR'
             OR filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
