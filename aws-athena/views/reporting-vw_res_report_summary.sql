@@ -1,6 +1,20 @@
--- Aggregates statistics on characteristics, classes, AVs, and sales by
--- assessment stage, property groups, year, and various geographies
--- THIS VIEW NEEDS TO BE UPDATED WITH FINAL MODEL RUN IDs EACH YEAR
+/*
+Aggregates statistics on characteristics, classes, AVs, and sales by
+assessment stage, property groups, year, and various geographies.
+
+Essentially, this view takes model and assessment values from two
+locations on Athena and stacks them. Model and assessment values are
+gathered independently and aggregated via a UNION rather than a JOIN,
+so it's important to keep in mind that years for model and assessment
+stages do NOT need to match, i.e. we can have 2023 model values in the
+view before there are any 2023 assessment values to report on. Sales are
+added via a lagged join, so sales_year should always = year - 1. It is
+also worth nothing that "model year" has has 1 added to it solely for
+the sake of reporting in this view - models with a 'meta_year' value
+of 2022 in model.assessment_pin will populate the view with a value of
+2023 for 'year'.
+THIS VIEW NEEDS TO BE UPDATED WITH FINAL MODEL RUN IDs EACH YEAR
+*/
 CREATE OR REPLACE VIEW reporting.vw_res_report_summary
 AS
 
@@ -49,7 +63,10 @@ model_values AS (
     LEFT JOIN townships
         ON assessment_pin.meta_pin = townships.parid AND CAST(assessment_pin.meta_year AS INT) + 1 = CAST(townships.taxyr AS INT)
 
-    WHERE run_id IN ('2022-04-26-beautiful-dan', '2022-04-27-keen-gabe')
+    WHERE run_id IN (
+        '2023-03-14-clever-damani', '2023-03-15-clever-kyra', --- 2023 models
+        '2022-04-26-beautiful-dan', '2022-04-27-keen-gabe'  --- 2022 models
+        )
         AND property_group IS NOT NULL
 ),
 -- Values by assessment stages available in iasWorld (not model)
@@ -83,7 +100,7 @@ iasworld_values AS (
     WHERE (valclass IS null OR asmt_all.taxyr < '2020')
     AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
     AND property_group IS NOT NULL
-    AND asmt_all.taxyr = (SELECT max(taxyr) FROM iasworld.asmt_all WHERE procname IS NOT NULL)
+    AND asmt_all.taxyr >= '2021'
 
     GROUP BY
         asmt_all.parid,
@@ -192,6 +209,7 @@ chars AS (
         char_building_sf AS total_bldg_sf
     FROM default.vw_pin_condo_char
     WHERE is_parking_space = FALSE
+        AND is_common_area = FALSE
 ),
 
 --- AGGREGATE ---
