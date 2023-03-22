@@ -1,7 +1,7 @@
  -- View containing appeals by PIN.
  -- Appeal values are not yet in iasWorld, so this view cannot be completed
 CREATE OR REPLACE VIEW default.vw_pin_appeal AS
--- CCAO mailed_tot and CCAO final values for each PIN by year
+  -- CCAO mailed_tot and CCAO final values for each PIN by year
 WITH values_by_year AS (
     SELECT
         parid,
@@ -65,7 +65,12 @@ SELECT
     pardat.class AS class,
     legdat.user1 AS township,
     htpar.taxyr AS year,
-    values_by_year.*,
+    values_by_year.mailed_bldg,
+    values_by_year.mailed_land,
+    values_by_year.mailed_tot,
+    values_by_year.certified_bldg,
+    values_by_year.certified_land,
+    values_by_year.certified_tot,
     htpar.caseno AS case_no,
     htpar.user38 AS appeal_type,
     -- Reason codes come from different columns before and after 2020
