@@ -2,33 +2,112 @@
  -- Appeal values are not yet in iasWorld, so this view cannot be completed.
 CREATE OR replace VIEW default.vw_pin_appeal
 AS
+  -- CCAO mailed_tot and CCAO final values for each PIN by year
+  WITH values_by_year AS (
+    SELECT
+
+        parid,
+        taxyr,
+        -- Mailed values
+        Max(CASE
+            WHEN procname = 'CCAOVALUE'
+                    AND taxyr < '2020' THEN ovrvalasm2
+            WHEN procname = 'CCAOVALUE'
+                    AND taxyr >= '2020'
+                    AND valclass IS NULL THEN valasm2
+            ELSE NULL
+            END) AS mailed_bldg,
+        Max(CASE
+            WHEN procname = 'CCAOVALUE'
+                    AND taxyr < '2020' THEN ovrvalasm1
+            WHEN procname = 'CCAOVALUE'
+                    AND taxyr >= '2020'
+                    AND valclass IS NULL THEN valasm1
+            ELSE NULL
+            END) AS mailed_land,
+        Max(CASE
+            WHEN procname = 'CCAOVALUE'
+                    AND taxyr < '2020' THEN ovrvalasm3
+            WHEN procname = 'CCAOVALUE'
+                    AND taxyr >= '2020'
+                    AND valclass IS NULL THEN valasm3
+            ELSE NULL
+            END) AS mailed_tot,
+        -- Assessor certified values
+        Max(CASE
+            WHEN procname = 'CCAOFINAL'
+                    AND taxyr < '2020' THEN ovrvalasm2
+            WHEN procname = 'CCAOFINAL'
+                    AND taxyr >= '2020'
+                    AND valclass IS NULL THEN valasm2
+            ELSE NULL
+            END) AS certified_bldg,
+        Max(CASE
+            WHEN procname = 'CCAOFINAL'
+                    AND taxyr < '2020' THEN ovrvalasm1
+            WHEN procname = 'CCAOFINAL'
+                    AND taxyr >= '2020'
+                    AND valclass IS NULL THEN valasm1
+            ELSE NULL
+            END) AS certified_land,
+        Max(CASE
+            WHEN procname = 'CCAOFINAL'
+                    AND taxyr < '2020' THEN ovrvalasm3
+            WHEN procname = 'CCAOFINAL'
+                    AND taxyr >= '2020'
+                    AND valclass IS NULL THEN valasm3
+            ELSE NULL
+            END) AS certified_tot
+
+    FROM   iasworld.asmt_all
+    WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+    GROUP BY parid, taxyr
+    ORDER  BY parid, taxyr
+    )
 
 SELECT
     htpar.parid AS pin,
     pardat.class AS class,
-    htpar.user94 AS class_des,
-    Substr(legdat.taxdist, 1, 2) AS township,
+    legdat.user1 AS township,
     htpar.taxyr AS year,
+    values_by_year.*,
     htpar.caseno AS case_no,
-    CASE WHEN htpar.heartyp = '1' THEN 'ASSESSOR RECOMMENDATION'
-        WHEN htpar.heartyp = '2' THEN 'CERTIFICATE OF CORRECTION'
-        WHEN htpar.heartyp = 'A' THEN 'CURRENT YEAR APPEAL'
-        WHEN htpar.heartyp = 'C' THEN 'CURRENT APPEAL & C OF E'
-        WHEN htpar.heartyp = 'T' THEN 'TAXABLE'
-    ELSE NULL END AS  hearing_type,
     htpar.user38 AS appeal_type,
-    htpar.noticval AS notice_val,
-    htpar.propreduct AS pre_req_val,
-    htpar.user104 AS change,
-    htpar.user89 AS reason_code1,
-    htpar.user100 AS reason_code2,
-    htpar.user101 AS reason_code3,
-    resnote1 AS note1,
-    resnote2 AS note2
+    -- Reason codes come from different columns before and after 2020
+    CASE
+        WHEN htpar.taxyr < '2020' AND htpar.resact = 'C' THEN 'change'
+        WHEN htpar.taxyr < '2020' AND htpar.resact = 'NC' THEN 'no change'
+        WHEN htpar.taxyr >= '2020' THEN lower(htpar.user104)
+    ELSE NULL END AS change,
+    CASE
+        WHEN htpar.taxyr < '2020' AND trim(substr(htpar.user42, 1, 2)) NOT IN ('0', ':')
+            THEN trim(substr(htpar.user42, 1, 2))
+        WHEN htpar.taxyr >= '2020' THEN htpar.user89
+    ELSE NULL END AS reason_code1,
+    CASE
+        WHEN htpar.taxyr < '2020' AND trim(substr(htpar.user43, 1, 2)) NOT IN ('0', ':')
+            THEN trim(substr(htpar.user42, 1, 2))
+        WHEN htpar.taxyr >= '2020' THEN htpar.user100
+    ELSE NULL END AS reason_code2,
+    CASE
+        WHEN htpar.taxyr < '2020' AND trim(substr(htpar.user44, 1, 2)) NOT IN ('0', ':')
+            THEN trim(substr(htpar.user42, 1, 2))
+        WHEN htpar.taxyr >= '2020' THEN htpar.user101
+    ELSE NULL END AS reason_code3,
+    cpatty AS agent_code,
+    CASE
+        WHEN hrstatus = 'C' THEN 'closed'
+        WHEN hrstatus = 'O' THEN 'open'
+        WHEN hrstatus = 'P' THEN 'pending'
+        WHEN hrstatus = 'X' THEN 'closed pending c of e'
+    ELSE NULL END AS status
 
 FROM iasworld.htpar
 LEFT JOIN iasworld.pardat ON htpar.parid = pardat.parid
     AND htpar.taxyr = pardat.taxyr
 LEFT JOIN iasworld.legdat ON htpar.parid = legdat.parid
     AND htpar.taxyr = legdat.taxyr
+LEFT JOIN values_by_year ON htpar.parid = values_by_year.parid
+    AND htpar.taxyr = values_by_year.taxyr
 WHERE htpar.cur = 'Y'
+    AND htpar.caseno IS NOT NULL
