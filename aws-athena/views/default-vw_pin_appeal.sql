@@ -1,11 +1,9 @@
  -- View containing appeals by PIN.
- -- Appeal values are not yet in iasWorld, so this view cannot be completed.
-CREATE OR replace VIEW default.vw_pin_appeal
-AS
-  -- CCAO mailed_tot and CCAO final values for each PIN by year
-  WITH values_by_year AS (
+ -- Appeal values are not yet in iasWorld, so this view cannot be completed
+CREATE OR REPLACE VIEW default.vw_pin_appeal AS
+-- CCAO mailed_tot and CCAO final values for each PIN by year
+WITH values_by_year AS (
     SELECT
-
         parid,
         taxyr,
         -- Mailed values
@@ -58,13 +56,10 @@ AS
                     AND valclass IS NULL THEN valasm3
             ELSE NULL
             END) AS certified_tot
-
-    FROM   iasworld.asmt_all
+    FROM iasworld.asmt_all
     WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
     GROUP BY parid, taxyr
-    ORDER  BY parid, taxyr
-    )
-
+)
 SELECT
     htpar.parid AS pin,
     pardat.class AS class,
@@ -101,13 +96,15 @@ SELECT
         WHEN hrstatus = 'P' THEN 'pending'
         WHEN hrstatus = 'X' THEN 'closed pending c of e'
     ELSE NULL END AS status
-
 FROM iasworld.htpar
-LEFT JOIN iasworld.pardat ON htpar.parid = pardat.parid
+LEFT JOIN iasworld.pardat
+    ON htpar.parid = pardat.parid
     AND htpar.taxyr = pardat.taxyr
-LEFT JOIN iasworld.legdat ON htpar.parid = legdat.parid
+LEFT JOIN iasworld.legdat
+    ON htpar.parid = legdat.parid
     AND htpar.taxyr = legdat.taxyr
-LEFT JOIN values_by_year ON htpar.parid = values_by_year.parid
+LEFT JOIN values_by_year 
+    ON htpar.parid = values_by_year.parid
     AND htpar.taxyr = values_by_year.taxyr
 WHERE htpar.cur = 'Y'
-    AND htpar.caseno IS NOT NULL
+AND htpar.caseno IS NOT NULL
