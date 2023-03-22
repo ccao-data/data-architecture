@@ -35,7 +35,6 @@ WITH values_by_year AS (
     AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
 
     GROUP BY parid, taxyr, procname
-    ORDER BY parid, taxyr, procname
         ),
     -- Add valuation class
     classes AS (

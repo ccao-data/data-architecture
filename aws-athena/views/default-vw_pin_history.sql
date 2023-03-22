@@ -2,90 +2,89 @@
 CREATE OR replace VIEW default.vw_pin_history
 AS
   -- CCAO mailed_tot, CCAO final, and BOR final values for each PIN by year
-  WITH values_by_year
-       AS (SELECT parid,
-                  taxyr,
-                  -- Mailed values
-                  Max(CASE
-                        WHEN procname = 'CCAOVALUE'
-                             AND taxyr < '2020' THEN ovrvalasm2
-                        WHEN procname = 'CCAOVALUE'
-                             AND taxyr >= '2020'
-                             AND valclass IS NULL THEN valasm2
-                        ELSE NULL
-                      END) AS mailed_bldg,
-                  Max(CASE
-                        WHEN procname = 'CCAOVALUE'
-                             AND taxyr < '2020' THEN ovrvalasm1
-                        WHEN procname = 'CCAOVALUE'
-                             AND taxyr >= '2020'
-                             AND valclass IS NULL THEN valasm1
-                        ELSE NULL
-                      END) AS mailed_land,
-                  Max(CASE
-                        WHEN procname = 'CCAOVALUE'
-                             AND taxyr < '2020' THEN ovrvalasm3
-                        WHEN procname = 'CCAOVALUE'
-                             AND taxyr >= '2020'
-                             AND valclass IS NULL THEN valasm3
-                        ELSE NULL
-                      END) AS mailed_tot,
-                  -- Assessor certified values
-                  Max(CASE
-                        WHEN procname = 'CCAOFINAL'
-                             AND taxyr < '2020' THEN ovrvalasm2
-                        WHEN procname = 'CCAOFINAL'
-                             AND taxyr >= '2020'
-                             AND valclass IS NULL THEN valasm2
-                        ELSE NULL
-                      END) AS certified_bldg,
-                  Max(CASE
-                        WHEN procname = 'CCAOFINAL'
-                             AND taxyr < '2020' THEN ovrvalasm1
-                        WHEN procname = 'CCAOFINAL'
-                             AND taxyr >= '2020'
-                             AND valclass IS NULL THEN valasm1
-                        ELSE NULL
-                      END) AS certified_land,
-                  Max(CASE
-                        WHEN procname = 'CCAOFINAL'
-                             AND taxyr < '2020' THEN ovrvalasm3
-                        WHEN procname = 'CCAOFINAL'
-                             AND taxyr >= '2020'
-                             AND valclass IS NULL THEN valasm3
-                        ELSE NULL
-                      END) AS certified_tot,
-                  -- Board certified values
-                  Max(CASE
-                        WHEN procname = 'BORVALUE'
-                             AND taxyr < '2020' THEN ovrvalasm2
-                        WHEN procname = 'BORVALUE'
-                              AND valclass IS NULL
-                             AND taxyr >= '2020' THEN valasm2
-                        ELSE NULL
-                      END) AS board_bldg,
-                  Max(CASE
-                        WHEN procname = 'BORVALUE'
-                             AND taxyr < '2020' THEN ovrvalasm1
-                         WHEN procname = 'BORVALUE'
-                              AND valclass IS NULL
-                             AND taxyr >= '2020' THEN valasm1
-                        ELSE NULL
-                      END) AS board_land,
-                  Max(CASE
-                        WHEN procname = 'BORVALUE'
-                             AND taxyr < '2020' THEN ovrvalasm3
-                             WHEN procname = 'BORVALUE'
-                              AND valclass IS NULL
-                             AND taxyr >= '2020' THEN valasm3
-                        ELSE NULL
-                      END) AS board_tot
-           FROM   iasworld.asmt_all
-           WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
-           GROUP  BY parid,
-                     taxyr
-           ORDER  BY parid,
-                     taxyr),
+  WITH values_by_year AS (
+    SELECT
+        parid,
+        taxyr,
+        -- Mailed values
+        Max(CASE
+            WHEN procname = 'CCAOVALUE'
+                    AND taxyr < '2020' THEN ovrvalasm2
+            WHEN procname = 'CCAOVALUE'
+                    AND taxyr >= '2020'
+                    AND valclass IS NULL THEN valasm2
+            ELSE NULL
+            END) AS mailed_bldg,
+        Max(CASE
+            WHEN procname = 'CCAOVALUE'
+                    AND taxyr < '2020' THEN ovrvalasm1
+            WHEN procname = 'CCAOVALUE'
+                    AND taxyr >= '2020'
+                    AND valclass IS NULL THEN valasm1
+            ELSE NULL
+            END) AS mailed_land,
+        Max(CASE
+            WHEN procname = 'CCAOVALUE'
+                    AND taxyr < '2020' THEN ovrvalasm3
+            WHEN procname = 'CCAOVALUE'
+                    AND taxyr >= '2020'
+                    AND valclass IS NULL THEN valasm3
+            ELSE NULL
+            END) AS mailed_tot,
+        -- Assessor certified values
+        Max(CASE
+            WHEN procname = 'CCAOFINAL'
+                    AND taxyr < '2020' THEN ovrvalasm2
+            WHEN procname = 'CCAOFINAL'
+                    AND taxyr >= '2020'
+                    AND valclass IS NULL THEN valasm2
+            ELSE NULL
+            END) AS certified_bldg,
+        Max(CASE
+            WHEN procname = 'CCAOFINAL'
+                    AND taxyr < '2020' THEN ovrvalasm1
+            WHEN procname = 'CCAOFINAL'
+                    AND taxyr >= '2020'
+                    AND valclass IS NULL THEN valasm1
+            ELSE NULL
+            END) AS certified_land,
+        Max(CASE
+            WHEN procname = 'CCAOFINAL'
+                    AND taxyr < '2020' THEN ovrvalasm3
+            WHEN procname = 'CCAOFINAL'
+                    AND taxyr >= '2020'
+                    AND valclass IS NULL THEN valasm3
+            ELSE NULL
+            END) AS certified_tot,
+        -- Board certified values
+        Max(CASE
+            WHEN procname = 'BORVALUE'
+                    AND taxyr < '2020' THEN ovrvalasm2
+            WHEN procname = 'BORVALUE'
+                    AND valclass IS NULL
+                    AND taxyr >= '2020' THEN valasm2
+            ELSE NULL
+            END) AS board_bldg,
+        Max(CASE
+            WHEN procname = 'BORVALUE'
+                    AND taxyr < '2020' THEN ovrvalasm1
+                WHEN procname = 'BORVALUE'
+                    AND valclass IS NULL
+                    AND taxyr >= '2020' THEN valasm1
+            ELSE NULL
+            END) AS board_land,
+        Max(CASE
+            WHEN procname = 'BORVALUE'
+                    AND taxyr < '2020' THEN ovrvalasm3
+                    WHEN procname = 'BORVALUE'
+                    AND valclass IS NULL
+                    AND taxyr >= '2020' THEN valasm3
+            ELSE NULL
+            END) AS board_tot
+    FROM   iasworld.asmt_all
+    WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+    GROUP BY parid, taxyr
+    ),
        -- Add valuation class
        classes
        AS (SELECT parid,
