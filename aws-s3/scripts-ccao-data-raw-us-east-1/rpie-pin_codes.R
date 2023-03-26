@@ -38,7 +38,7 @@ dbGetQuery(conn,
   "
   ) %>%
   # Cross join dummy codes with all possible years of RPIE data
-  crossing("YEAR" = as.character(2018:year(Sys.Date()) + 1)) %>%
+  crossing("YEAR" = as.character(2019:year(Sys.Date()))) %>%
   group_by(YEAR) %>%
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
 
