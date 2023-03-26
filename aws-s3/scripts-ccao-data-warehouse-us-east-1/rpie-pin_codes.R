@@ -11,12 +11,17 @@ library(tidyverse)
 library(stringr)
 source("utils.R")
 
+# No scietific notation
+options(scipen = 999)
+
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "rpie", "pin_codes")
 
 # Connect to Athena
 AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena())
+
+### PIN CODES
 
 # Grab universe of PINs and all known RPIE codes
 all_pins <- dbGetQuery(
@@ -141,3 +146,17 @@ if (max(upload$year) > max_year_CCAODATA) {
     )
 
 }
+
+### PIN CODES DUMMY
+aws.s3::get_bucket_df(file.path(AWS_S3_RAW_BUCKET)) %>%
+  filter(str_detect(Key, "dummy")) %>%
+  pull(Key) %>%
+  walk(function(x) {
+
+    # We just copy from raw to warehouse for dummy codes
+    put_object(
+      get_object(file.path(AWS_S3_RAW_BUCKET, x)),
+      file.path(file.path(AWS_S3_WAREHOUSE_BUCKET, x))
+    )
+
+  })
