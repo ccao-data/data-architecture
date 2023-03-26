@@ -63,7 +63,7 @@ WITH values_by_year AS (
 SELECT
     htpar.parid AS pin,
     pardat.class AS class,
-    legdat.user1 AS township,
+    legdat.user1 AS township_code,
     htpar.taxyr AS year,
     values_by_year.mailed_bldg,
     values_by_year.mailed_land,
@@ -106,7 +106,7 @@ SELECT
         WHEN htpar.taxyr >= '2020' THEN htpar.user101
     ELSE NULL END AS reason_code3,
     cpatty AS agent_code,
-    htagnt.name1 AS agent,
+    htagnt.name1 AS agent_name,
     CASE
         WHEN hrstatus = 'C' THEN 'closed'
         WHEN hrstatus = 'O' THEN 'open'
