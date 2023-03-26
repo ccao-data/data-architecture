@@ -10,18 +10,16 @@ WITH classes AS (
   )
 
 SELECT
-  pin_codes.pin,
-  substr(pin_codes.pin, 1, 2) || '-' ||
-  substr(pin_codes.pin, 3, 2) || '-' ||
-  substr(pin_codes.pin, 5, 3) || '-' ||
-  substr(pin_codes.pin, 8, 3) || '-' ||
-  substr(pin_codes.pin, 11, 4)
+  pc.pin,
+  substr(pc.pin, 1, 2) || '-' ||
+  substr(pc.pin, 3, 2) || '-' ||
+  substr(pc.pin, 5, 3) || '-' ||
+  substr(pc.pin, 8, 3) || '-' ||
+  substr(pc.pin, 11, 4)
   AS pin_pretty,
-  pin_codes.year as rpie_year,
+  pc.year as rpie_year,
   class,
   rpie_code
-FROM rpie.pin_codes
+FROM (SELECT * FROM rpie.pin_codes UNION SELECT * FROM rpie.pin_codes_dummy) pc
 
-left join classes
-    ON pin_codes.pin = classes.pin
-    AND pin_codes.year = classes.year
+LEFT JOIN classes ON pc.pin = classes.pin AND pc.year = classes.year
