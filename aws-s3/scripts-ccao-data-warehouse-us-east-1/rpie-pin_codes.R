@@ -11,9 +11,6 @@ library(tidyverse)
 library(stringr)
 source("utils.R")
 
-# No scietific notation
-options(scipen = 999)
-
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "rpie", "pin_codes")

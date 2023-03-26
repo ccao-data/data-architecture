@@ -32,14 +32,14 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "rpie", "pin_codes_dummy")
 dbGetQuery(conn,
   "
   SELECT
-    DISTINCT CAST(CAST(RPIE_PIN AS DECIMAL) AS VARCHAR) AS RPIE_PIN,
+    DISTINCT CAST(CAST(RPIE_PIN AS DECIMAL) AS VARCHAR) AS PIN,
     RPIE_CODE
   FROM RPIE_PIN_CODES_DUMMY
   "
   ) %>%
   # Cross join dummy codes with all possible years of RPIE data
-  crossing("TAX_YEAR" = as.character(2018:year(Sys.Date()) + 1)) %>%
-  group_by(TAX_YEAR) %>%
+  crossing("YEAR" = as.character(2018:year(Sys.Date()) + 1)) %>%
+  group_by(YEAR) %>%
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
 
 # Cleanup
