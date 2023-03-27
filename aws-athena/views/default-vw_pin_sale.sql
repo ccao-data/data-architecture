@@ -5,14 +5,15 @@ WITH class AS (
     SELECT
         parid,
         class,
-        taxyr
+        taxyr,
+        nbhd
     FROM iasworld.pardat
 ),
 -- Township of associated PIN
 town AS (
     SELECT
         parid,
-        Substr(TAXDIST, 1, 2) AS township_code,
+        user1 AS township_code,
         taxyr
     FROM iasworld.legdat
 ),
@@ -32,6 +33,7 @@ unique_sales AS (
             sales.parid AS pin,
             Substr(sales.saledt, 1, 4) AS year,
             town.township_code,
+            class.nbhd,
             class.class,
             Date_parse(Substr(sales.saledt, 1, 10), '%Y-%m-%d') AS sale_date,
             Cast(sales.price AS BIGINT) AS sale_price,
@@ -51,7 +53,7 @@ unique_sales AS (
             -- Sales are not entirely unique by pin/date so we group all sales b pin/date
             -- then order then order by descending price and give the top observation a value of 1 for "max_price"
             Row_number() OVER(
-                PARTITION BY sales.parid, sales.saledt ORDER BY -1 * sales.price
+                PARTITION BY sales.parid, sales.saledt ORDER BY sales.price DESC
             ) AS max_price,
            -- Some pins sell for the exact same price a few months after they're sold
            -- these sales are unecessary for modeling and may be duplicates
@@ -101,52 +103,65 @@ sale_filter AS (
         is_multisale
 ),
 mydec_sales AS (
-    SELECT
-        replace(document_number, 'D', '') as doc_no,
-        replace(line_1_primary_pin, '-', '') as pin,
-        Date_parse(line_4_instrument_date, '%Y-%m-%d') AS mydec_date,
-        CASE WHEN line_7_property_advertised = 1 THEN TRUE ELSE FALSE END AS "property_advertised",
-        CASE WHEN line_10a = 1 THEN TRUE ELSE FALSE END AS "is_installment_contract_fulfilled",
-        CASE WHEN line_10b = 1 THEN TRUE ELSE FALSE END AS "is_sale_between_related_individuals_or_corporate_affiliates",
-        CASE WHEN line_10c = 1 THEN TRUE ELSE FALSE END AS "is_transfer_of_less_than_100_percent_interest",
-        CASE WHEN line_10d = 1 THEN TRUE ELSE FALSE END AS "is_court_ordered_sale",
-        CASE WHEN line_10e = 1 THEN TRUE ELSE FALSE END AS "is_sale_in_lieu_of_foreclosure",
-        CASE WHEN line_10f = 1 THEN TRUE ELSE FALSE END AS "is_condemnation",
-        CASE WHEN line_10g = 1 THEN TRUE ELSE FALSE END AS "is_short_sale",
-        CASE WHEN line_10h = 1 THEN TRUE ELSE FALSE END AS "is_bank_reo_real_estate_owned",
-        CASE WHEN line_10i = 1 THEN TRUE ELSE FALSE END AS "is_auction_sale",
-        CASE WHEN line_10j = 1 THEN TRUE ELSE FALSE END AS "is_seller_buyer_a_relocation_company",
-        CASE WHEN line_10k = 1 THEN TRUE ELSE FALSE END AS "is_seller_buyer_a_financial_institution_or_government_agency",
-        CASE WHEN line_10l = 1 THEN TRUE ELSE FALSE END AS "is_buyer_a_real_estate_investment_trust",
-        CASE WHEN line_10m = 1 THEN TRUE ELSE FALSE END AS "is_buyer_a_pension_fund",
-        CASE WHEN line_10n = 1 THEN TRUE ELSE FALSE END AS "is_buyer_an_adjacent_property_owner",
-        CASE WHEN line_10o = 1 THEN TRUE ELSE FALSE END AS "is_buyer_exercising_an_option_to_purchase",
-        CASE WHEN line_10p = 1 THEN TRUE ELSE FALSE END AS "is_simultaneous_trade_of_property",
-        CASE WHEN line_10q = 1 THEN TRUE ELSE FALSE END AS "is_sale_leaseback",
-        CASE WHEN line_10s = 1 THEN TRUE ELSE FALSE END AS "is_homestead_exemption",
-        line_10s_generalalternative AS "homestead_exemption_general_alternative",
-        line_10s_senior_citizens AS "homestead_exemption_senior_citizens",
-        line_10s_senior_citizens_assessment_freeze AS "homestead_exemption_senior_citizens_assessment_freeze",
-        -- Flag for booting outlier PTAX-203 sales from modeling and reporting. Used in combination with
-        -- sale_filter upper and lower, which finds sales more than 2 SD from the year, town, and class mean
-        (
-          COALESCE(line_10b, 0) +
-          COALESCE(line_10c, 0) +
-          COALESCE(line_10d, 0) +
-          COALESCE(line_10e, 0) +
-          COALESCE(line_10f, 0) +
-          COALESCE(line_10g, 0) +
-          COALESCE(line_10h, 0) +
-          COALESCE(line_10i, 0) +
-          COALESCE(line_10k, 0)
-        ) > 0 AS sale_filter_ptax_flag
+    SELECT * FROM (
+        SELECT
+            replace(document_number, 'D', '') as doc_no,
+            replace(line_1_primary_pin, '-', '') as pin,
+            Date_parse(line_4_instrument_date, '%Y-%m-%d') AS mydec_date,
+            CASE WHEN line_7_property_advertised = 1 THEN TRUE ELSE FALSE END AS "property_advertised",
+            CASE WHEN line_10a = 1 THEN TRUE ELSE FALSE END AS "is_installment_contract_fulfilled",
+            CASE WHEN line_10b = 1 THEN TRUE ELSE FALSE END AS "is_sale_between_related_individuals_or_corporate_affiliates",
+            CASE WHEN line_10c = 1 THEN TRUE ELSE FALSE END AS "is_transfer_of_less_than_100_percent_interest",
+            CASE WHEN line_10d = 1 THEN TRUE ELSE FALSE END AS "is_court_ordered_sale",
+            CASE WHEN line_10e = 1 THEN TRUE ELSE FALSE END AS "is_sale_in_lieu_of_foreclosure",
+            CASE WHEN line_10f = 1 THEN TRUE ELSE FALSE END AS "is_condemnation",
+            CASE WHEN line_10g = 1 THEN TRUE ELSE FALSE END AS "is_short_sale",
+            CASE WHEN line_10h = 1 THEN TRUE ELSE FALSE END AS "is_bank_reo_real_estate_owned",
+            CASE WHEN line_10i = 1 THEN TRUE ELSE FALSE END AS "is_auction_sale",
+            CASE WHEN line_10j = 1 THEN TRUE ELSE FALSE END AS "is_seller_buyer_a_relocation_company",
+            CASE WHEN line_10k = 1 THEN TRUE ELSE FALSE END AS "is_seller_buyer_a_financial_institution_or_government_agency",
+            CASE WHEN line_10l = 1 THEN TRUE ELSE FALSE END AS "is_buyer_a_real_estate_investment_trust",
+            CASE WHEN line_10m = 1 THEN TRUE ELSE FALSE END AS "is_buyer_a_pension_fund",
+            CASE WHEN line_10n = 1 THEN TRUE ELSE FALSE END AS "is_buyer_an_adjacent_property_owner",
+            CASE WHEN line_10o = 1 THEN TRUE ELSE FALSE END AS "is_buyer_exercising_an_option_to_purchase",
+            CASE WHEN line_10p = 1 THEN TRUE ELSE FALSE END AS "is_simultaneous_trade_of_property",
+            CASE WHEN line_10q = 1 THEN TRUE ELSE FALSE END AS "is_sale_leaseback",
+            CASE WHEN line_10s = 1 THEN TRUE ELSE FALSE END AS "is_homestead_exemption",
+            line_10s_generalalternative AS "homestead_exemption_general_alternative",
+            line_10s_senior_citizens AS "homestead_exemption_senior_citizens",
+            line_10s_senior_citizens_assessment_freeze AS "homestead_exemption_senior_citizens_assessment_freeze",
+            -- Flag for booting outlier PTAX-203 sales from modeling and reporting. Used in combination with
+            -- sale_filter upper and lower, which finds sales more than 2 SD from the year, town, and class mean
+            (
+            COALESCE(line_10b, 0) +
+            COALESCE(line_10c, 0) +
+            COALESCE(line_10d, 0) +
+            COALESCE(line_10e, 0) +
+            COALESCE(line_10f, 0) +
+            COALESCE(line_10g, 0) +
+            COALESCE(line_10h, 0) +
+            COALESCE(line_10i, 0) +
+            COALESCE(line_10k, 0)
+            ) > 0 AS sale_filter_ptax_flag,
+            Count() OVER(
+                PARTITION BY line_1_primary_pin, line_4_instrument_date
+                ) AS num_cards_sale
         FROM sale.mydec
         WHERE is_earliest_within_doc_no
+    )
+    /*Some sales in mydec have multiple rows for one pin on a given sale date. These are likely individual cards
+    being sold since they have different doc numbers. The issue is that sometimes they have different dates than
+    iasworld prior to 2021 and when joined back onto unique_sales will create duplicates by pin/sale date.
+    We don't know whether these values should be summed or not, so we'll exclude them to avoid afore mentioned
+    duplicates.*/
+    WHERE num_cards_sale = 1
+        OR (YEAR(mydec_date) > 2020)
 )
 SELECT
     unique_sales.pin,
     unique_sales.year,
     unique_sales.township_code,
+    unique_sales.nbhd,
     unique_sales.class,
     --- In the past, mydec sale dates were more precise than iasworld dates which had been truncated
     CASE
@@ -171,7 +186,7 @@ SELECT
     sale_filter.sale_filter_count,
     mydec_sales.sale_filter_ptax_flag,
     CASE
-        WHEN (mydec_sales.sale_filter_ptax_flag AND 
+        WHEN (mydec_sales.sale_filter_ptax_flag AND
         sale_price_log10 NOT BETWEEN sale_filter_lower_limit AND sale_filter_upper_limit) THEN TRUE
         ELSE FALSE END AS sale_filter_is_outlier,
     mydec_sales.property_advertised,
