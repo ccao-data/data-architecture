@@ -9,7 +9,7 @@ SELECT
     twn.triad_name,
     twn.triad_code,
     twn.township_name,
-    SUBSTR(leg.taxdist, 1, 2) AS township_code,
+    leg.user1 AS township_code,
     regexp_replace(par.nbhd,'([^0-9])','') AS nbhd_code,
     leg.taxdist AS tax_code,
 
@@ -247,4 +247,4 @@ LEFT JOIN proximity.vw_pin10_proximity vwp
     ON SUBSTR(par.parid, 1, 10) = vwp.pin10
     AND par.taxyr = vwp.year
 LEFT JOIN spatial.township twn
-    ON SUBSTR(leg.taxdist, 1, 2) = CAST(twn.township_code AS varchar)
+    ON leg.user1 = CAST(twn.township_code AS varchar)
