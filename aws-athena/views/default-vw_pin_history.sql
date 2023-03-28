@@ -3,7 +3,7 @@ CREATE OR replace VIEW default.vw_pin_history
 AS
   -- CCAO mailed_tot, CCAO final, and BOR final values for each PIN by year
   WITH values_by_year AS (
-    SELECT DISTINCT
+    SELECT
         parid,
         taxyr,
         -- Mailed values
