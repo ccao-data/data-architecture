@@ -11,24 +11,21 @@ WITH values_by_year AS (
             WHEN procname = 'CCAOVALUE'
                     AND taxyr < '2020' THEN ovrvalasm2
             WHEN procname = 'CCAOVALUE'
-                    AND taxyr >= '2020'
-                    AND valclass IS NULL THEN valasm2
+                    AND taxyr >= '2020' THEN valasm2
             ELSE NULL
             END) AS mailed_bldg,
         Max(CASE
             WHEN procname = 'CCAOVALUE'
                     AND taxyr < '2020' THEN ovrvalasm1
             WHEN procname = 'CCAOVALUE'
-                    AND taxyr >= '2020'
-                    AND valclass IS NULL THEN valasm1
+                    AND taxyr >= '2020' THEN valasm1
             ELSE NULL
             END) AS mailed_land,
         Max(CASE
             WHEN procname = 'CCAOVALUE'
                     AND taxyr < '2020' THEN ovrvalasm3
             WHEN procname = 'CCAOVALUE'
-                    AND taxyr >= '2020'
-                    AND valclass IS NULL THEN valasm3
+                    AND taxyr >= '2020' THEN valasm3
             ELSE NULL
             END) AS mailed_tot,
         -- Assessor certified values
@@ -36,28 +33,28 @@ WITH values_by_year AS (
             WHEN procname = 'CCAOFINAL'
                     AND taxyr < '2020' THEN ovrvalasm2
             WHEN procname = 'CCAOFINAL'
-                    AND taxyr >= '2020'
-                    AND valclass IS NULL THEN valasm2
+                    AND taxyr >= '2020' THEN valasm2
             ELSE NULL
             END) AS certified_bldg,
         Max(CASE
             WHEN procname = 'CCAOFINAL'
                     AND taxyr < '2020' THEN ovrvalasm1
             WHEN procname = 'CCAOFINAL'
-                    AND taxyr >= '2020'
-                    AND valclass IS NULL THEN valasm1
+                    AND taxyr >= '2020' THEN valasm1
             ELSE NULL
             END) AS certified_land,
         Max(CASE
             WHEN procname = 'CCAOFINAL'
                     AND taxyr < '2020' THEN ovrvalasm3
             WHEN procname = 'CCAOFINAL'
-                    AND taxyr >= '2020'
-                    AND valclass IS NULL THEN valasm3
+                    AND taxyr >= '2020' THEN valasm3
             ELSE NULL
             END) AS certified_tot
     FROM iasworld.asmt_all
-    WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+    WHERE procname IN ('CCAOVALUE', 'CCAOFINAL')
+      AND rolltype != 'RR'
+      AND deactivat IS NULL
+      AND valclass IS NULL
     GROUP BY parid, taxyr
 )
 SELECT

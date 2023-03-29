@@ -12,8 +12,7 @@ AS
             WHEN procname = 'CCAOVALUE'
               AND taxyr < '2020' THEN ovrvalasm2
             WHEN procname = 'CCAOVALUE'
-              AND taxyr >= '2020'
-              AND valclass IS NULL THEN valasm2
+              AND taxyr >= '2020' THEN valasm2
             ELSE NULL END
             ) AS mailed_bldg,
         Max(
@@ -21,8 +20,7 @@ AS
             WHEN procname = 'CCAOVALUE'
               AND taxyr < '2020' THEN ovrvalasm1
             WHEN procname = 'CCAOVALUE'
-              AND taxyr >= '2020'
-              AND valclass IS NULL THEN valasm1
+              AND taxyr >= '2020' THEN valasm1
             ELSE NULL END
             ) AS mailed_land,
         Max(
@@ -30,8 +28,7 @@ AS
             WHEN procname = 'CCAOVALUE'
               AND taxyr < '2020' THEN ovrvalasm3
             WHEN procname = 'CCAOVALUE'
-              AND taxyr >= '2020'
-              AND valclass IS NULL THEN valasm3
+              AND taxyr >= '2020' THEN valasm3
             ELSE NULL END
             ) AS mailed_tot,
         -- Assessor certified values
@@ -40,8 +37,7 @@ AS
             WHEN procname = 'CCAOFINAL'
               AND taxyr < '2020' THEN ovrvalasm2
             WHEN procname = 'CCAOFINAL'
-              AND taxyr >= '2020'
-              AND valclass IS NULL THEN valasm2
+              AND taxyr >= '2020' THEN valasm2
             ELSE NULL END
             ) AS certified_bldg,
         Max(
@@ -49,8 +45,7 @@ AS
             WHEN procname = 'CCAOFINAL'
               AND taxyr < '2020' THEN ovrvalasm1
             WHEN procname = 'CCAOFINAL'
-              AND taxyr >= '2020'
-              AND valclass IS NULL THEN valasm1
+              AND taxyr >= '2020' THEN valasm1
             ELSE NULL END
             ) AS certified_land,
         Max(
@@ -58,8 +53,7 @@ AS
             WHEN procname = 'CCAOFINAL'
               AND taxyr < '2020' THEN ovrvalasm3
             WHEN procname = 'CCAOFINAL'
-              AND taxyr >= '2020'
-              AND valclass IS NULL THEN valasm3
+              AND taxyr >= '2020' THEN valasm3
             ELSE NULL END
             ) AS certified_tot,
         -- Board certified values
@@ -68,7 +62,6 @@ AS
             WHEN procname = 'BORVALUE'
               AND taxyr < '2020' THEN ovrvalasm2
             WHEN procname = 'BORVALUE'
-              AND valclass IS NULL
               AND taxyr >= '2020' THEN valasm2
             ELSE NULL END
             ) AS board_bldg,
@@ -77,7 +70,6 @@ AS
             WHEN procname = 'BORVALUE'
               AND taxyr < '2020' THEN ovrvalasm1
             WHEN procname = 'BORVALUE'
-              AND valclass IS NULL
               AND taxyr >= '2020' THEN valasm1
             ELSE NULL END
             ) AS board_land,
@@ -86,7 +78,6 @@ AS
             WHEN procname = 'BORVALUE'
               AND taxyr < '2020' THEN ovrvalasm3
             WHEN procname = 'BORVALUE'
-              AND valclass IS NULL
               AND taxyr >= '2020' THEN valasm3
             ELSE NULL END
             ) AS board_tot
@@ -94,7 +85,7 @@ AS
     WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
       AND rolltype != 'RR'
       AND deactivat IS NULL
-      AND ((taxyr >= '2020' AND valclass IS NULL) OR taxyr < '2020')
+      AND valclass IS NULL
     GROUP BY parid, taxyr
     ),
   -- Add valuation class
