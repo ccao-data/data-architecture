@@ -24,7 +24,10 @@ WITH values_by_year AS (
             END) AS certified_tot
     FROM iasworld.asmt_all
 
-    WHERE (valclass IS null OR taxyr < '2020')
+    WHERE procname IN ('CCAOVALUE', 'CCAOFINAL')
+      AND rolltype != 'RR'
+      AND deactivat IS NULL
+      AND valclass IS NULL
 
     GROUP BY parid, taxyr
         ),
@@ -60,7 +63,7 @@ WITH values_by_year AS (
         SELECT
             parid,
             taxyr,
-            substr(TAXDIST, 1, 2) AS township_code
+            user1 AS township_code
         FROM iasworld.legdat
     ),
     -- Add township name

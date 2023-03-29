@@ -97,10 +97,12 @@ iasworld_values AS (
     LEFT JOIN townships
         ON asmt_all.parid = townships.parid AND asmt_all.taxyr = townships.taxyr
 
-    WHERE (valclass IS null OR asmt_all.taxyr < '2020')
-    AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
-    AND property_group IS NOT NULL
-    AND asmt_all.taxyr >= '2021'
+    WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+      AND rolltype != 'RR'
+      AND deactivat IS NULL
+      AND valclass IS NULL
+        AND property_group IS NOT NULL
+        AND asmt_all.taxyr >= '2021'
 
     GROUP BY
         asmt_all.parid,
@@ -173,13 +175,11 @@ sales AS (
         sale_price,
         year AS sale_year,
         property_group,
-        townships.township_code,
-        CONCAT(townships.township_code, substr(nbhd, 3, 3)) AS TownNBHD
+        vps.township_code,
+        CONCAT(vps.township_code, substr(vps.nbhd, 3, 3)) AS TownNBHD
     FROM default.vw_pin_sale vps
     LEFT JOIN classes
         ON vps.pin = classes.parid AND vps.year = classes.taxyr
-    LEFT JOIN townships
-        ON vps.pin = townships.parid AND vps.year = townships.taxyr
     WHERE is_multisale = FALSE
     AND NOT sale_filter_is_outlier
 ),
