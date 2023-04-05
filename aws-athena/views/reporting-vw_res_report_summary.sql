@@ -18,31 +18,26 @@ THIS VIEW NEEDS TO BE UPDATED WITH FINAL MODEL RUN IDs EACH YEAR
 CREATE OR REPLACE VIEW reporting.vw_res_report_summary
 AS
 
--- Valuation class and nbhd from pardat
-WITH classes AS (
+-- Valuation class and nbhd from pardat, townships from legdat
+-- since pardat has some errors we can't accept for public reporting
+WITH town_class AS (
     SELECT
-        parid,
-        taxyr,
-        nbhd,
-        class,
-        CASE WHEN class in ('299', '399') THEN 'CONDO'
-            when class in ('211', '212') THEN 'MF'
-            when class in ('202', '203', '204', '205', '206', '207', '208', '209', '210', '234', '278', '295') THEN 'SF'
-            ELSE NULL END AS property_group
-    FROM iasworld.pardat
-    ),
--- Townships from legdat since pardat has some errors we can't accept for public reporting
-townships AS (
-    SELECT
-        parid,
-        taxyr,
-        substr(TAXDIST, 1, 2) AS township_code,
-        triad_name AS triad
-    FROM iasworld.legdat
+        p.parid,
+        p.taxyr,
+        triad_name AS triad,
+        l.user1 AS township_code,
+        CONCAT(l.user1, substr(p.nbhd, 3, 3)) AS TownNBHD,
+        p.class,
+        CASE WHEN p.class in ('299', '399') THEN 'CONDO'
+            WHEN p.class in ('211', '212') THEN 'MF'
+            WHEN p.class in ('202', '203', '204', '205', '206', '207', '208', '209', '210', '234', '278', '295') THEN 'SF'
+            ELSE NULL END AS property_group,
+        CAST(CAST(p.taxyr AS INT) - 1 AS VARCHAR) AS model_join_year
+    FROM iasworld.pardat p
+    LEFT JOIN iasworld.legdat l ON p.parid = l.parid AND p.taxyr = l.taxyr
+    LEFT JOIN spatial.township t ON l.user1 = t.township_code
 
-    LEFT JOIN spatial.township
-        ON substr(TAXDIST, 1, 2) = township_code
-),
+    ),
 -- Final model values (Add 1 to model year since '2021' correspond to '2022' mailed values in iasWorld)
 model_values AS (
     SELECT
@@ -50,18 +45,16 @@ model_values AS (
         property_group,
         class,
         triad,
-        townships.township_code,
-        CONCAT(townships.township_code, substr(nbhd, 3, 3)) AS TownNBHD,
-        CAST(CAST(meta_year AS INT) + 1 AS VARCHAR) AS year,
+        tc.township_code,
+        tc.TownNBHD,
+        tc.taxyr as year,
         'model' AS assessment_stage,
         pred_pin_final_fmv_round AS total
 
-    FROM model.assessment_pin
+    FROM model.assessment_pin ap
 
-    LEFT JOIN classes
-        ON assessment_pin.meta_pin = classes.parid AND CAST(assessment_pin.meta_year AS INT) + 1 = CAST(classes.taxyr AS INT)
-    LEFT JOIN townships
-        ON assessment_pin.meta_pin = townships.parid AND CAST(assessment_pin.meta_year AS INT) + 1 = CAST(townships.taxyr AS INT)
+    LEFT JOIN town_class tc
+        ON ap.meta_pin = tc.parid AND ap.meta_year = tc.model_join_year
 
     WHERE run_id IN (
         '2023-03-14-clever-damani', '2023-03-15-clever-kyra', --- 2023 models
@@ -72,13 +65,13 @@ model_values AS (
 -- Values by assessment stages available in iasWorld (not model)
 iasworld_values AS (
     SELECT
-        asmt_all.parid,
-        property_group,
-        asmt_all.class,
+        aa.parid,
+        tc.property_group,
+        aa.class,
         triad,
-        townships.township_code,
-        CONCAT(townships.township_code, substr(nbhd, 3, 3)) AS TownNBHD,
-        asmt_all.taxyr as year,
+        tc.township_code,
+        tc.TownNBHD,
+        aa.taxyr as year,
         CASE
             WHEN procname = 'CCAOVALUE' THEN 'mailed'
             WHEN procname = 'CCAOFINAL' THEN 'assessor certified'
@@ -86,38 +79,35 @@ iasworld_values AS (
             ELSE NULL END AS assessment_stage,
         max(
             CASE
-                WHEN asmt_all.taxyr < '2020' THEN ovrvalasm3
-                WHEN asmt_all.taxyr >= '2020' THEN valasm3
+                WHEN aa.taxyr < '2020' THEN ovrvalasm3
+                WHEN aa.taxyr >= '2020' THEN valasm3
                 ELSE NULL END
             ) * 10 AS total
-    FROM iasworld.asmt_all
+    FROM iasworld.asmt_all aa
 
-    LEFT JOIN classes
-        ON asmt_all.parid = classes.parid AND asmt_all.taxyr = classes.taxyr
-    LEFT JOIN townships
-        ON asmt_all.parid = townships.parid AND asmt_all.taxyr = townships.taxyr
+    LEFT JOIN town_class tc ON aa.parid = tc.parid AND aa.taxyr = tc.taxyr
 
     WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
-      AND rolltype != 'RR'
-      AND deactivat IS NULL
-      AND valclass IS NULL
+        AND rolltype != 'RR'
+        AND deactivat IS NULL
+        AND valclass IS NULL
         AND property_group IS NOT NULL
-        AND asmt_all.taxyr >= '2021'
+        AND aa.taxyr >= '2021'
 
     GROUP BY
-        asmt_all.parid,
-        asmt_all.taxyr,
-        procname,
-        property_group,
+        aa.parid,
+        aa.taxyr,
+        aa.procname,
+        tc.property_group,
         CASE
             WHEN procname = 'CCAOVALUE' THEN 'mailed'
             WHEN procname = 'CCAOFINAL' THEN 'assessor certified'
             WHEN procname = 'BORVALUE'  THEN 'bor certified'
             ELSE NULL END,
-        asmt_all.class,
+        aa.class,
         triad,
-        townships.township_code,
-        CONCAT(townships.township_code, substr(nbhd, 3, 3))
+        tc.township_code,
+        tc.TownNBHD
         ),
 all_values AS (
     SELECT * FROM model_values
@@ -126,26 +116,26 @@ all_values AS (
 ),
 -- Count of each class by different reporting groups (property group, assessment stage, town/nbhd)
 class_counts AS (
-SELECT
-    class,
-    assessment_stage,
-    township_code,
-    TownNBHD,
-    year,
-    property_group,
-    count(*) over(
-         PARTITION BY assessment_stage, township_code, year, property_group, class
-         ) AS group_town_count,
-    count(*) over(
-         PARTITION BY assessment_stage, TownNBHD, year, property_group, class
-         ) AS group_townnbhd_count,
-    count(*) over(
-         PARTITION BY assessment_stage, township_code, year, class
-         ) AS town_count,
-    count(*) over(
-         PARTITION BY assessment_stage, TownNBHD, year, class
-         ) AS townnbhd_count
-FROM all_values
+    SELECT
+        class,
+        assessment_stage,
+        township_code,
+        TownNBHD,
+        year,
+        property_group,
+        count(*) over(
+            PARTITION BY assessment_stage, township_code, year, property_group, class
+            ) AS group_town_count,
+        count(*) over(
+            PARTITION BY assessment_stage, TownNBHD, year, property_group, class
+            ) AS group_townnbhd_count,
+        count(*) over(
+            PARTITION BY assessment_stage, township_code, year, class
+            ) AS town_count,
+        count(*) over(
+            PARTITION BY assessment_stage, TownNBHD, year, class
+            ) AS townnbhd_count
+    FROM all_values
 ),
 -- Most common class by reporting group based on class counts
 class_modes AS (
@@ -176,10 +166,10 @@ sales AS (
         year AS sale_year,
         property_group,
         vps.township_code,
-        CONCAT(vps.township_code, substr(vps.nbhd, 3, 3)) AS TownNBHD
+        vps.nbhd AS TownNBHD
     FROM default.vw_pin_sale vps
-    LEFT JOIN classes
-        ON vps.pin = classes.parid AND vps.year = classes.taxyr
+    LEFT JOIN town_class tc
+        ON vps.pin = tc.parid AND vps.year = tc.taxyr
     WHERE is_multisale = FALSE
     AND NOT sale_filter_is_outlier
 ),

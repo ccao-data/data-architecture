@@ -1,21 +1,16 @@
 -- View containing unique, filtered sales
 CREATE OR replace VIEW default.vw_pin_sale AS
--- Class of associated PIN
-WITH class AS (
+-- Class and township of associated PIN
+WITH town_class AS (
     SELECT
-        parid,
-        class,
-        taxyr,
-        nbhd
-    FROM iasworld.pardat
-),
--- Township of associated PIN
-town AS (
-    SELECT
-        parid,
-        user1 AS township_code,
-        taxyr
-    FROM iasworld.legdat
+        p.parid,
+        p.class,
+        p.taxyr,
+        l.user1 AS township_code,
+        CONCAT(l.user1, substr(p.nbhd, 3, 3)) AS nbhd
+    FROM iasworld.pardat p
+
+    LEFT JOIN iasworld.legdat l ON p.parid = l.parid AND p.taxyr = l.taxyr
 ),
 -- "nopar" isn't entirely accurate for sales associated with only one parcel, so we create our own counter
 calculated AS (
@@ -32,9 +27,9 @@ unique_sales AS (
         SELECT
             sales.parid AS pin,
             Substr(sales.saledt, 1, 4) AS year,
-            town.township_code,
-            class.nbhd,
-            class.class,
+            tc.township_code,
+            tc.nbhd,
+            tc.class,
             Date_parse(Substr(sales.saledt, 1, 10), '%Y-%m-%d') AS sale_date,
             Cast(sales.price AS BIGINT) AS sale_price,
             Log10(sales.price) AS sale_price_log10,
@@ -61,13 +56,10 @@ unique_sales AS (
                 PARTITION BY sales.parid, sales.price ORDER BY sales.saledt
             ) AS same_price_earlier_date
     FROM iasworld.sales
+
     LEFT JOIN calculated ON sales.instruno = calculated.instruno
-    LEFT JOIN class
-        ON sales.parid = class.parid
-        AND Substr(sales.saledt, 1, 4) = class.taxyr
-    LEFT JOIN town
-        ON sales.parid = town.parid
-        AND Substr(sales.saledt, 1, 4) = town.taxyr
+    LEFT JOIN town_class tc ON sales.parid = tc.parid AND Substr(sales.saledt, 1, 4) = tc.taxyr
+
     WHERE sales.instruno IS NOT NULL
         -- Indicates whether a record has been deactivated
         AND sales.deactivat IS NULL
@@ -75,7 +67,7 @@ unique_sales AS (
         AND Cast(Substr(sales.saledt, 1, 4) AS INT) BETWEEN 1997 AND Year(current_date)
         -- Exclude quit claims, executor deeds, beneficial interests
         AND instrtyp NOT IN ( '03', '04', '06' )
-        AND town.township_code IS NOT NULL
+        AND tc.township_code IS NOT NULL
     )
     -- Only use max price by pin/sale date
     WHERE max_price = 1
