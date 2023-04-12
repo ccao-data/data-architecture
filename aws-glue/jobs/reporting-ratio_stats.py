@@ -1,9 +1,4 @@
 # Glue setup
-%idle_timeout 2880
-%glue_version 3.0
-%worker_type G.1X
-%number_of_workers 5
-
 import sys
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions
