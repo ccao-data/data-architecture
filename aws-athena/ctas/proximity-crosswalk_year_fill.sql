@@ -6,11 +6,11 @@ of assessment data. Assessment years missing equivalent proximity data are fille
    2021.
 2. Current data is filled BACKWARD to account for missing historical data.
 */
-CREATE TABLE IF NOT EXISTS proximity.crosswalk_year_filled
+CREATE TABLE IF NOT EXISTS proximity.crosswalk_year_fill
 WITH (
     format='Parquet',
     write_compression = 'SNAPPY',
-    external_location='s3://ccao-athena-ctas-us-east-1/proximity/crosswalk_year_filled'
+    external_location='s3://ccao-athena-ctas-us-east-1/proximity/crosswalk_year_fill'
 ) AS (
     WITH unfilled AS (
         SELECT

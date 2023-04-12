@@ -62,7 +62,7 @@ LEFT JOIN iasworld.pardat
 LEFT JOIN iasworld.legdat
     ON htpar.parid = legdat.parid
     AND htpar.taxyr = legdat.taxyr
-LEFT JOIN default.temp_vw_pin_values tvpv
+LEFT JOIN default.temp_vw_pin_value tvpv
     ON htpar.parid = tvpv.parid
     AND htpar.taxyr = tvpv.taxyr
 LEFT JOIN iasworld.htagnt

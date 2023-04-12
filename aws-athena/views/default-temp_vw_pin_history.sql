@@ -106,7 +106,7 @@ SELECT
     ORDER BY tvpv.parid, tvpv.taxyr
     ) AS twoyr_pri_board_tot
 
-FROM default.temp_vw_pin_values tvpv
+FROM default.temp_vw_pin_value tvpv
 LEFT JOIN townships ON tvpv.parid = townships.parid
   AND tvpv.taxyr = townships.taxyr
 LEFT JOIN classes ON tvpv.parid = classes.parid
