@@ -133,9 +133,27 @@ clean_files <- mapply(function(x, y) {
 
 }, raw_files, names(columns), SIMPLIFY = FALSE, USE.NAMES = TRUE)
 
+# For the sake of convenience, Chicago and Evanston wards are combined
+ward_files <- grep("ward", names(clean_files), value = TRUE)
+
+clean_files[["ward"]] <- mapply(function(x, y) {
+
+  x <- x %>%
+    mutate(
+      district_name = paste(
+        str_extract(y, "chicago|evanston"),
+        district_name,
+        sep = "_"
+      )
+    )
+
+  }, clean_files[ward_files], ward_files, SIMPLIFY = FALSE, USE.NAMES = TRUE) %>%
+  bind_rows()
+
+clean_files[ward_files] <- NULL
 
 # Upload to S3
-unique(str_sub(names(columns), 1, -6)) %>%
+unique(str_remove_all(str_sub(names(columns), 1, -6), "_chicago|_evanston")) %>%
   walk(function(x) {
 
     message(x)
