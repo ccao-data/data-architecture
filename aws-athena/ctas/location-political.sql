@@ -115,24 +115,57 @@ WITH (
         ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
         GROUP BY p.x_3435, p.y_3435, cprod.pin_year
     ),
-    ward AS (
+    ward_chicago AS (
         SELECT
             p.x_3435, p.y_3435,
             MAX(cprod.ward_num) AS ward_num,
             MAX(cprod.ward_name) AS ward_name,
-            MAX(cprod.year) AS ward_data_year,
+            MAX(
+                CASE WHEN SUBSTR(cprod.ward_name, 1, 1) = 'c' THEN cprod.year ELSE NULL END
+                ) AS ward_chicago_data_year,
             cprod.pin_year
         FROM distinct_pins p
         LEFT JOIN (
             SELECT fill_years.pin_year, fill_data.*
             FROM (
-                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
+                SELECT dy.year AS pin_year,
+                MAX(
+                    CASE WHEN SUBSTR(df.ward_name, 1, 1) = 'c' THEN df.year ELSE NULL END
+                    ) AS fill_year
                 FROM spatial.ward df
                 CROSS JOIN distinct_years dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) fill_years
-            LEFT JOIN spatial. ward fill_data
+            LEFT JOIN spatial.ward fill_data
+                ON fill_years.fill_year = fill_data.year
+        ) cprod
+        ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
+        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+    ),
+    ward_evanston AS (
+        SELECT
+            p.x_3435, p.y_3435,
+            MAX(cprod.ward_num) AS ward_num,
+            MAX(cprod.ward_name) AS ward_name,
+            MAX(
+                CASE WHEN SUBSTR(cprod.ward_name, 1, 1) = 'e' THEN cprod.year ELSE NULL END
+                ) AS ward_evanston_data_year,
+            cprod.pin_year
+        FROM distinct_pins p
+        LEFT JOIN (
+            SELECT fill_years.pin_year, fill_data.*
+            FROM (
+                SELECT dy.year AS pin_year,
+                MAX(
+                    CASE WHEN SUBSTR(df.ward_name, 1, 1) = 'e' THEN df.year ELSE NULL END
+                    ) AS fill_year
+                FROM spatial.ward df
+                CROSS JOIN distinct_years dy
+                WHERE dy.year >= df.year
+                GROUP BY dy.year
+            ) fill_years
+            LEFT JOIN spatial.ward fill_data
                 ON fill_years.fill_year = fill_data.year
         ) cprod
         ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
@@ -149,9 +182,16 @@ WITH (
         cook_municipality_num,
         cook_municipality_name,
         cook_municipality_data_year,
-        ward_num,
-        ward_name,
-        ward_data_year,
+        CASE
+            WHEN ward_evanston.ward_num IS NOT NULL THEN ward_evanston.ward_num
+            ELSE ward_chicago.ward_num
+        END AS ward_num,
+        CASE
+            WHEN ward_evanston.ward_name IS NOT NULL THEN ward_evanston.ward_name
+            ELSE ward_chicago.ward_name
+        END AS ward_name,
+        ward_chicago_data_year,
+        ward_evanston_data_year,
         p.year
     FROM spatial.parcel p
     LEFT JOIN board_of_review_district
@@ -170,9 +210,13 @@ WITH (
         ON p.x_3435 = municipality.x_3435
         AND p.y_3435 = municipality.y_3435
         AND p.year = municipality.pin_year
-    LEFT JOIN ward
-        ON p.x_3435 = ward.x_3435
-        AND p.y_3435 = ward.y_3435
-        AND p.year = ward.pin_year
+    LEFT JOIN ward_chicago
+        ON p.x_3435 = ward_chicago.x_3435
+        AND p.y_3435 = ward_chicago.y_3435
+        AND p.year = ward_chicago.pin_year
+    LEFT JOIN ward_evanston
+        ON p.x_3435 = ward_evanston.x_3435
+        AND p.y_3435 = ward_evanston.y_3435
+        AND p.year = ward_evanston.pin_year
     WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

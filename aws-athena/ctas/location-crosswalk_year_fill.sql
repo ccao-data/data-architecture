@@ -21,12 +21,8 @@ WITH (
             Max(cook_commissioner_district_data_year) AS cook_commissioner_district_data_year,
             Max(cook_judicial_district_data_year) AS cook_judicial_district_data_year,
             Max(cook_municipality_data_year) AS cook_municipality_data_year,
-            Max(
-                CASE
-                    WHEN chicago_ward_data_year IS NOT NULL THEN chicago_ward_data_year
-                    WHEN evanston_ward_data_year IS NOT NULL THEN evanston_ward_data_year
-                ELSE NULL END
-                ) AS ward_data_year,
+            Max(ward_chicago_data_year) AS ward_chicago_data_year,
+            Max(ward_evanston_data_year) AS ward_evanston_data_year,
             Max(chicago_community_area_data_year) AS chicago_community_area_data_year,
             Max(chicago_industrial_corridor_data_year) AS chicago_industrial_corridor_data_year,
             Max(chicago_police_district_data_year) AS chicago_police_district_data_year,
@@ -38,7 +34,6 @@ WITH (
             Max(env_flood_fs_data_year) AS env_flood_fs_data_year,
             Max(env_ohare_noise_contour_data_year) AS env_ohare_noise_contour_data_year,
             Max(env_airport_noise_data_year) AS env_airport_noise_data_year,
-            Max(school_school_year) AS school_school_year,
             Max(school_data_year) AS school_data_year,
             Max(tax_community_college_district_data_year) AS tax_community_college_district_data_year,
             Max(tax_fire_protection_district_data_year) AS tax_fire_protection_district_data_year,
@@ -63,21 +58,19 @@ WITH (
                 cook_board_of_review_district_data_year,
                 cook_commissioner_district_data_year,
                 cook_judicial_district_data_year,
-                cook_municipality_data_year
+                cook_municipality_data_year,
+                ward_chicago_data_year,
+                ward_evanston_data_year
             FROM location.political
             ) political ON pin.year = political.year
         LEFT JOIN (
             SELECT DISTINCT
                 year,
-                chicago_ward_data_year,
                 chicago_community_area_data_year,
                 chicago_industrial_corridor_data_year,
                 chicago_police_district_data_year
             FROM location.chicago
             ) chicago ON pin.year = chicago.year
-        LEFT JOIN (
-            SELECT DISTINCT year, evanston_ward_data_year FROM location.evanston
-            ) evanston ON pin.year = evanston.year
         LEFT JOIN (
             SELECT DISTINCT
                 year,
@@ -99,7 +92,6 @@ WITH (
         LEFT JOIN (
             SELECT DISTINCT
                 year,
-                school_school_year,
                 school_data_year
             FROM location.school
             ) school ON pin.year = school.year
@@ -157,10 +149,15 @@ WITH (
                 OVER (ORDER BY year DESC)
             ELSE cook_municipality_data_year END AS cook_municipality_data_year,
         CASE
-            WHEN ward_data_year IS NULL THEN
-                LAST_VALUE(ward_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE ward_data_year END AS ward_data_year,
+            WHEN ward_chicago_data_year IS NULL THEN
+                LAST_VALUE(ward_chicago_data_year) IGNORE NULLS
+                OVER (ORDER BY unfilled.year DESC)
+            ELSE ward_chicago_data_year END AS ward_chicago_data_year,
+        CASE
+            WHEN ward_evanston_data_year IS NULL THEN
+                LAST_VALUE(ward_evanston_data_year) IGNORE NULLS
+                OVER (ORDER BY unfilled.year DESC)
+            ELSE ward_evanston_data_year END AS ward_evanston_data_year,
         CASE
             WHEN chicago_community_area_data_year IS NULL THEN
                 LAST_VALUE(chicago_community_area_data_year) IGNORE NULLS
@@ -216,11 +213,6 @@ WITH (
                 LAST_VALUE(env_airport_noise_data_year) IGNORE NULLS
                 OVER (ORDER BY year DESC)
             ELSE env_airport_noise_data_year END AS env_airport_noise_data_year,
-        CASE
-            WHEN school_school_year IS NULL THEN
-                LAST_VALUE(school_school_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE school_school_year END AS school_school_year,
         CASE
             WHEN school_data_year IS NULL THEN
                 LAST_VALUE(school_data_year) IGNORE NULLS
