@@ -498,8 +498,7 @@ forward_fill AS (
                 LAST_VALUE(sdrs.school_district_avg_rating) IGNORE NULLS
                 OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
             ELSE sdrs.school_district_avg_rating
-        END AS other_school_district_secondary_avg_rating,sdre.school_district_avg_rating AS other_school_district_elementary_avg_rating,
-        sdrs.school_district_avg_rating AS other_school_district_secondary_avg_rating,
+        END AS other_school_district_secondary_avg_rating,
 
         -- PIN nearest neighbors, used for filling missing data
         uni.nearest_neighbor_1_pin10,
