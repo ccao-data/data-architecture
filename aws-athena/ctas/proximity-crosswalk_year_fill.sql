@@ -38,7 +38,11 @@ WITH (
             SELECT DISTINCT year, num_bus_stop_data_year FROM proximity.cnt_pin_num_bus_stop
             ) cnt_pin_num_bus_stop on pin.year = cnt_pin_num_bus_stop.year
         LEFT JOIN (
-            SELECT DISTINCT year, num_foreclosure_data_year FROM proximity.cnt_pin_num_foreclosure
+            SELECT DISTINCT
+                year,
+                -- Foreclosure data year descripes a range of years, which can't be used for joins
+                SUBSTR(num_foreclosure_data_year, 8, 11) AS num_foreclosure_data_year
+            FROM proximity.cnt_pin_num_foreclosure
             ) cnt_pin_num_foreclosure on pin.year = cnt_pin_num_foreclosure.year
         LEFT JOIN (
             SELECT DISTINCT year, num_school_data_year, num_school_rating_data_year FROM proximity.cnt_pin_num_school
@@ -85,94 +89,94 @@ WITH (
 
         GROUP BY pin.year
     )
-    SELECT
-        year,
-        CASE
-            WHEN num_bus_stop_data_year IS NULL THEN
-                LAST_VALUE(num_bus_stop_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE num_bus_stop_data_year END AS num_bus_stop_data_year,
-        CASE
-            WHEN num_foreclosure_data_year IS NULL THEN
-                LAST_VALUE(num_foreclosure_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE num_foreclosure_data_year END AS num_foreclosure_data_year,
-        CASE
-            WHEN num_school_data_year IS NULL THEN
-                LAST_VALUE(num_school_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE num_school_data_year END AS num_school_data_year,
-        CASE
-            WHEN num_school_rating_data_year IS NULL THEN
-                LAST_VALUE(num_school_rating_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE num_school_rating_data_year END AS num_school_rating_data_year,
-        CASE
-            WHEN nearest_bike_trail_data_year IS NULL THEN
-                LAST_VALUE(nearest_bike_trail_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE nearest_bike_trail_data_year END AS nearest_bike_trail_data_year,
-        CASE
-            WHEN nearest_cemetery_data_year IS NULL THEN
-                LAST_VALUE(nearest_cemetery_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE nearest_cemetery_data_year END AS nearest_cemetery_data_year,
-        CASE
-            WHEN nearest_cta_route_data_year IS NULL THEN
-                LAST_VALUE(nearest_cta_route_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE nearest_cta_route_data_year END AS nearest_cta_route_data_year,
-        CASE
-            WHEN nearest_cta_stop_data_year IS NULL THEN
-                LAST_VALUE(nearest_cta_stop_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE nearest_cta_stop_data_year END AS nearest_cta_stop_data_year,
-        CASE
-            WHEN nearest_golf_course_data_year IS NULL THEN
-                LAST_VALUE(nearest_golf_course_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE nearest_golf_course_data_year END AS nearest_golf_course_data_year,
-        CASE
-            WHEN nearest_hospital_data_year IS NULL THEN
-                LAST_VALUE(nearest_hospital_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE nearest_hospital_data_year END AS nearest_hospital_data_year,
-        CASE
-            WHEN lake_michigan_data_year IS NULL THEN
-                LAST_VALUE(lake_michigan_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE lake_michigan_data_year END AS lake_michigan_data_year,
-        CASE
-            WHEN nearest_major_road_data_year IS NULL THEN
-                LAST_VALUE(nearest_major_road_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE nearest_major_road_data_year END AS nearest_major_road_data_year,
-        CASE
-            WHEN nearest_metra_route_data_year IS NULL THEN
-                LAST_VALUE(nearest_metra_route_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE nearest_metra_route_data_year END AS nearest_metra_route_data_year,
-        CASE
-            WHEN nearest_metra_stop_data_year IS NULL THEN
-                LAST_VALUE(nearest_metra_stop_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE nearest_metra_stop_data_year END AS nearest_metra_stop_data_year,
-        CASE
-            WHEN nearest_park_data_year IS NULL THEN
-                LAST_VALUE(nearest_park_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE nearest_park_data_year END AS nearest_park_data_year,
-        CASE
-            WHEN nearest_railroad_data_year IS NULL THEN
-                LAST_VALUE(nearest_railroad_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE nearest_railroad_data_year END AS nearest_railroad_data_year,
-        CASE
-            WHEN nearest_water_data_year IS NULL THEN
-                LAST_VALUE(nearest_water_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE nearest_water_data_year END AS nearest_water_data_year
+SELECT
+    year,
+    CASE
+        WHEN num_bus_stop_data_year IS NULL THEN
+            LAST_VALUE(num_bus_stop_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE num_bus_stop_data_year END AS num_bus_stop_data_year,
+    CASE
+        WHEN num_foreclosure_data_year IS NULL THEN
+            LAST_VALUE(num_foreclosure_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE num_foreclosure_data_year END AS num_foreclosure_data_year,
+    CASE
+        WHEN num_school_data_year IS NULL THEN
+            LAST_VALUE(num_school_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE num_school_data_year END AS num_school_data_year,
+    CASE
+        WHEN num_school_rating_data_year IS NULL THEN
+            LAST_VALUE(num_school_rating_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE num_school_rating_data_year END AS num_school_rating_data_year,
+    CASE
+        WHEN nearest_bike_trail_data_year IS NULL THEN
+            LAST_VALUE(nearest_bike_trail_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE nearest_bike_trail_data_year END AS nearest_bike_trail_data_year,
+    CASE
+        WHEN nearest_cemetery_data_year IS NULL THEN
+            LAST_VALUE(nearest_cemetery_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE nearest_cemetery_data_year END AS nearest_cemetery_data_year,
+    CASE
+        WHEN nearest_cta_route_data_year IS NULL THEN
+            LAST_VALUE(nearest_cta_route_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE nearest_cta_route_data_year END AS nearest_cta_route_data_year,
+    CASE
+        WHEN nearest_cta_stop_data_year IS NULL THEN
+            LAST_VALUE(nearest_cta_stop_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE nearest_cta_stop_data_year END AS nearest_cta_stop_data_year,
+    CASE
+        WHEN nearest_golf_course_data_year IS NULL THEN
+            LAST_VALUE(nearest_golf_course_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE nearest_golf_course_data_year END AS nearest_golf_course_data_year,
+    CASE
+        WHEN nearest_hospital_data_year IS NULL THEN
+            LAST_VALUE(nearest_hospital_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE nearest_hospital_data_year END AS nearest_hospital_data_year,
+    CASE
+        WHEN lake_michigan_data_year IS NULL THEN
+            LAST_VALUE(lake_michigan_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE lake_michigan_data_year END AS lake_michigan_data_year,
+    CASE
+        WHEN nearest_major_road_data_year IS NULL THEN
+            LAST_VALUE(nearest_major_road_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE nearest_major_road_data_year END AS nearest_major_road_data_year,
+    CASE
+        WHEN nearest_metra_route_data_year IS NULL THEN
+            LAST_VALUE(nearest_metra_route_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE nearest_metra_route_data_year END AS nearest_metra_route_data_year,
+    CASE
+        WHEN nearest_metra_stop_data_year IS NULL THEN
+            LAST_VALUE(nearest_metra_stop_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE nearest_metra_stop_data_year END AS nearest_metra_stop_data_year,
+    CASE
+        WHEN nearest_park_data_year IS NULL THEN
+            LAST_VALUE(nearest_park_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE nearest_park_data_year END AS nearest_park_data_year,
+    CASE
+        WHEN nearest_railroad_data_year IS NULL THEN
+            LAST_VALUE(nearest_railroad_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE nearest_railroad_data_year END AS nearest_railroad_data_year,
+    CASE
+        WHEN nearest_water_data_year IS NULL THEN
+            LAST_VALUE(nearest_water_data_year) IGNORE NULLS
+            OVER (ORDER BY year DESC)
+        ELSE nearest_water_data_year END AS nearest_water_data_year
 
-    FROM unfilled
-    ORDER BY YEAR
-    )
+FROM unfilled
+ORDER BY YEAR
+)

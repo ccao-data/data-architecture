@@ -119,7 +119,10 @@ clean_great_schools_rating <- function(file, file_year) {
     ) %>%
 
     # Convert geometry column to 3435
-    mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+    mutate(
+      geometry_3435 = st_transform(geometry, 3435),
+      rating_year = as.character(rating_year)
+      ) %>%
 
     # Keep only needed columns
     select(
