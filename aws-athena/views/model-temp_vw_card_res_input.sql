@@ -49,10 +49,6 @@ WITH uni AS (
     )
 
 ),
-distinct_years AS (
-    SELECT DISTINCT year
-    FROM uni
-),
 acs5 AS (
     SELECT *
     FROM census.vw_acs5_stat
@@ -64,44 +60,32 @@ housing_index AS (
     GROUP BY geoid, year
 ),
 sqft_percentiles AS (
-    SELECT
-        uni.year, uni.township_code,
-        CAST(approx_percentile(ch.char_bldg_sf, 0.95) AS int) AS char_bldg_sf_95_percentile,
-        CAST(approx_percentile(ch.char_land_sf, 0.95) AS int) AS char_land_sf_95_percentile
-    FROM uni
-    LEFT JOIN default.vw_card_res_char ch
-        ON uni.pin = ch.pin
-        AND uni.year = ch.year
-    GROUP BY uni.year, uni.township_code
-),
-tax_bill_amount_fill AS (
-    SELECT
-        fill_years.pin_year,
-        fill_data.year,
-        fill_data.pin,
-        fill_data.tot_tax_amt,
-        fill_data.amt_tax_paid,
-        fill_data.tax_rate
-    FROM (
         SELECT
-        dy.year AS pin_year, MAX(df.year) AS fill_year
-        FROM tax.bill_amount df
-        CROSS JOIN distinct_years dy
-        WHERE dy.year >= df.year
-        GROUP BY dy.year
-    ) fill_years
-    LEFT JOIN tax.bill_amount fill_data
-        ON fill_years.fill_year = fill_data.year
+            d.taxyr AS year, l.user1 AS township_code,
+            CAST(approx_percentile(sfla, 0.95) AS int) AS char_bldg_sf_95_percentile,
+            CAST(approx_percentile(sfla, 0.95) AS int) AS char_land_sf_95_percentile
+        FROM iasworld.dweldat d
+        LEFT JOIN iasworld.legdat l
+            ON d.parid = l.parid and d.taxyr = l.taxyr
+        GROUP BY d.taxyr, l.user1
+),
+tax_bill_amount AS ( -- Removing fill for now, since this will be pulled from PTAXSIM in the future
+    SELECT
+        pin,
+        year,
+        tot_tax_amt,
+        amt_tax_paid,
+        tax_rate
+    FROM tax.bill_amount
 ),
 school_district_ratings AS (
     SELECT
         district_geoid,
         district_type,
         AVG(rating) AS school_district_avg_rating,
-        COUNT(*) AS num_schools_in_district,
-        year
+        COUNT(*) AS num_schools_in_district
     FROM other.great_schools_rating
-    GROUP BY district_geoid, district_type, year
+    GROUP BY district_geoid, district_type
 ),
 forward_fill AS (
     SELECT
@@ -163,10 +147,10 @@ forward_fill AS (
         hist.twoyr_pri_board_tot AS meta_2yr_pri_board_tot,
 
         -- Individual PIN-level address/location
-        uni.prop_address_full AS loc_property_address,
-        uni.prop_address_city_name AS loc_property_city,
-        uni.prop_address_state AS loc_property_state,
-        uni.prop_address_zipcode_1 AS loc_property_zip,
+        vpa.prop_address_full AS loc_property_address,
+        vpa.prop_address_city_name AS loc_property_city,
+        vpa.prop_address_state AS loc_property_state,
+        vpa.prop_address_zipcode_1 AS loc_property_zip,
         uni.lon AS loc_longitude,
         uni.lat AS loc_latitude,
         uni.x_3435 AS loc_x_3435,
@@ -298,18 +282,9 @@ forward_fill AS (
         housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
         tbill.tot_tax_amt AS other_tax_bill_amount_total,
         tbill.tax_rate AS other_tax_bill_rate,
-        CASE
-            WHEN sdre.school_district_avg_rating IS NULL THEN
-                LAST_VALUE(sdre.school_district_avg_rating) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE sdre.school_district_avg_rating
-        END AS other_school_district_elementary_avg_rating,
-        CASE
-            WHEN sdrs.school_district_avg_rating IS NULL THEN
-                LAST_VALUE(sdrs.school_district_avg_rating) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE sdrs.school_district_avg_rating
-        END AS other_school_district_secondary_avg_rating,
+        -- FOLLOWING TWO COLUMNS NEED TO BE FILLED - NOT FILLED NOW FOR TESTING PURPOSES
+        sdre.school_district_avg_rating AS other_school_district_elementary_avg_rating,
+        sdrs.school_district_avg_rating AS other_school_district_secondary_avg_rating,
 
         -- PIN nearest neighbors, used for filling missing data
         vwpf.nearest_neighbor_1_pin10,
@@ -342,17 +317,17 @@ forward_fill AS (
         ON vwlf.census_acs5_tract_geoid = acs5.geoid
         AND vwlf.year = acs5.year
     LEFT JOIN housing_index
-        ON housing_index.geoid = uni.census_puma_geoid
-        AND housing_index.year = uni.year
-    LEFT JOIN tax_bill_amount_fill tbill
+        ON housing_index.geoid = vwlf.census_puma_geoid
+        AND housing_index.year = vwlf.year
+    LEFT JOIN tax_bill_amount tbill
         ON uni.pin = tbill.pin
-        AND uni.year = tbill.pin_year
+        AND uni.year = tbill.year
+    -- The two following joins need to include year if we get more than
+    -- one year of school ratings data.
     LEFT JOIN (SELECT * FROM school_district_ratings WHERE district_type = 'elementary') sdre
-        ON uni.school_elementary_district_geoid = sdre.district_geoid
-        AND uni.year = sdre.year
+        ON vwlf.school_elementary_district_geoid = sdre.district_geoid
     LEFT JOIN (SELECT * FROM school_district_ratings WHERE district_type = 'secondary') sdrs
-        ON uni.school_secondary_district_geoid = sdrs.district_geoid
-        AND uni.year = sdrs.year
+        ON vwlf.school_secondary_district_geoid = sdrs.district_geoid
 )
 -- Anything with a CASE WHEN here is just borrowing missing values from its nearest
 -- spatial neighbor
