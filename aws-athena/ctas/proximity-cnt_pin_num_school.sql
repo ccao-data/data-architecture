@@ -27,8 +27,7 @@ WITH (
         FROM (
             SELECT
                 dy.year AS pin_year,
-                MAX(df.year) AS fill_year,
-                MAX(df.rating_year) AS rating_year
+                MAX(df.year) AS fill_year
             FROM other.great_schools_rating df
             CROSS JOIN distinct_years dy
             WHERE dy.year >= df.year
@@ -53,8 +52,7 @@ WITH (
             p.y_3435,
             pub.rating,
             pub.pin_year,
-            pub.year,
-            pub.rating_year
+            pub.year
         FROM distinct_pins p
         -- Keep only public schools with 1/2 mile WITHIN each PIN's district
         INNER JOIN spatial.school_district dis
@@ -75,8 +73,7 @@ WITH (
             p.y_3435,
             oth.rating,
             oth.pin_year,
-            oth.year,
-            oth.rating_year
+            oth.year
         FROM distinct_pins p
         INNER JOIN school_locations_other oth
             ON ST_Contains(
@@ -96,7 +93,7 @@ WITH (
             ) AS num_school_with_rating_in_half_mile,
             AVG(rating) AS avg_school_rating_in_half_mile,
             MAX(year) AS num_school_data_year,
-            MAX(rating_year) AS num_school_rating_data_year
+            MAX(year) AS num_school_rating_data_year
         FROM school_ratings
         GROUP BY x_3435, y_3435, pin_year
     )

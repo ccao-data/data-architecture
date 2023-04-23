@@ -7,6 +7,7 @@ library(noctua)
 library(purrr)
 library(sf)
 library(stringr)
+source("utils.R")
 
 # This script cleans data retrieved from greatschools.org and merges
 # it with district shapefiles. In order to average school ratings by district
@@ -24,14 +25,14 @@ source_files <- grep(
   ),
   value = TRUE
 )
-source_years <- str_extract(source_files, "[0-9]{4}")
+
 destination_folder <- file.path(
   AWS_S3_WAREHOUSE_BUCKET,
   "school",
   "great_schools_rating"
 )
 
-clean_great_schools_rating <- function(file, file_year) {
+clean_great_schools_rating <- function(file) {
   # First dataset is each school, matched with district names and district types
   # Pull from S3, convert to spatial object with lat/long, 4326 CRS
   great_schools <- read_parquet(file) %>%
@@ -91,7 +92,7 @@ clean_great_schools_rating <- function(file, file_year) {
              geometry,
              district_type
          FROM spatial.school_district
-         WHERE year IN ({file_year*});",
+         WHERE year = '{unique(great_schools$rating_year)*}';",
         .con = AWS_ATHENA_CONN_NOCTUA
       )
     ),
@@ -121,32 +122,27 @@ clean_great_schools_rating <- function(file, file_year) {
     # Convert geometry column to 3435
     mutate(
       geometry_3435 = st_transform(geometry, 3435),
-      rating_year = as.character(rating_year)
+      year = as.character(rating_year)
       ) %>%
 
     # Keep only needed columns
     select(
       universal_id, nces_id, state_id,
-      school_name, school_summary, rating, rating_year, phone, web_site,
+      school_name, school_summary, rating, phone, web_site,
       type, level, level_codes,
       street, city, state, zip, lat, lon,
       district_geoid = geoid, district_name, district_type,
-      is_attendance_boundary, geometry, geometry_3435
+      is_attendance_boundary, geometry, geometry_3435, year
     )
 
-  # Write to S3
-  geoarrow::write_geoparquet(
-    great_schools_w_district,
-    file.path(
-      destination_folder,
-      paste0("year=", file_year),
-      "part-0.parquet"
-    )
-  )
 }
 
 # Run function over all GS input files
-pwalk(
-  list(source_files, source_years),
-  clean_great_schools_rating
-)
+lapply(source_files, clean_great_schools_rating) %>%
+  bind_rows() %>%
+  group_by(year) %>%
+  write_partitions_to_s3(
+    s3_output_path = destination_folder,
+    is_spatial = TRUE,
+    overwrite = FALSE
+  )
