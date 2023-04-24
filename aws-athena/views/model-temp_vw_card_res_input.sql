@@ -61,13 +61,13 @@ housing_index AS (
 ),
 sqft_percentiles AS (
         SELECT
-            d.taxyr AS year, l.user1 AS township_code,
-            CAST(approx_percentile(sfla, 0.95) AS int) AS char_bldg_sf_95_percentile,
-            CAST(approx_percentile(sfla, 0.95) AS int) AS char_land_sf_95_percentile
-        FROM iasworld.dweldat d
+            ch.year, l.user1 AS township_code,
+            CAST(approx_percentile(ch.char_bldg_sf, 0.95) AS int) AS char_bldg_sf_95_percentile,
+            CAST(approx_percentile(ch.char_land_sf, 0.95) AS int) AS char_land_sf_95_percentile
+        FROM default.vw_card_res_char ch
         LEFT JOIN iasworld.legdat l
-            ON d.parid = l.parid and d.taxyr = l.taxyr
-        GROUP BY d.taxyr, l.user1
+            ON ch.pin = l.parid and ch.year = l.taxyr
+        GROUP BY ch.year, l.user1
 ),
 tax_bill_amount AS ( -- Removing fill for now, since this will be pulled from PTAXSIM in the future
     SELECT
@@ -302,7 +302,7 @@ forward_fill AS (
         ON uni.pin10 = vwpf.pin10
         AND uni.year = vwpf.year
     LEFT JOIN default.temp_vw_pin_address vpa
-        ON uni.pin10 = vpa.pin10
+        ON uni.pin = vpa.pin
         AND uni.year = vpa.year
     LEFT JOIN default.temp_vw_card_res_char ch
         ON uni.pin = ch.pin
