@@ -64,7 +64,7 @@ sqft_percentiles AS (
             ch.year, l.user1 AS township_code,
             CAST(approx_percentile(ch.char_bldg_sf, 0.95) AS int) AS char_bldg_sf_95_percentile,
             CAST(approx_percentile(ch.char_land_sf, 0.95) AS int) AS char_land_sf_95_percentile
-        FROM default.vw_card_res_char ch
+        FROM default.temp_vw_card_res_char ch
         LEFT JOIN iasworld.legdat l
             ON ch.pin = l.parid and ch.year = l.taxyr
         GROUP BY ch.year, l.user1
@@ -282,7 +282,7 @@ forward_fill AS (
         housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
         tbill.tot_tax_amt AS other_tax_bill_amount_total,
         tbill.tax_rate AS other_tax_bill_rate,
-        -- FOLLOWING TWO COLUMNS NEED TO BE FILLED - NOT FILLED NOW FOR TESTING PURPOSES
+
         sdre.school_district_avg_rating AS other_school_district_elementary_avg_rating,
         sdrs.school_district_avg_rating AS other_school_district_secondary_avg_rating,
 
