@@ -71,12 +71,27 @@ sqft_percentiles AS (
 ),
 tax_bill_amount AS ( -- Removing fill for now, since this will be pulled from PTAXSIM in the future
     SELECT
-        pin,
-        year,
-        tot_tax_amt,
-        amt_tax_paid,
-        tax_rate
-    FROM tax.bill_amount
+        pardat.parid AS pin,
+        pardat.taxyr AS year,
+        tax_bill_total AS tot_tax_amt,
+        tax_code_rate AS tax_rate
+    FROM iasworld.pardat
+    LEFT JOIN tax.pin p
+        ON pardat.parid = p.pin
+        AND (
+            CASE WHEN pardat.taxyr > (SELECT Max(year) FROM tax.pin)
+                THEN (SELECT Max(year) FROM tax.pin)
+                ELSE pardat.taxyr END = p.year
+                    )
+    LEFT JOIN (
+        SELECT DISTINCT
+            year, tax_code_num, tax_code_rate
+        FROM tax.tax_code
+        ) tax_code
+        ON p.tax_code_num = tax_code.tax_code_num
+        AND p.year = tax_code.year
+
+    WHERE p.pin IS NOT NULL
 ),
 school_district_ratings AS (
     SELECT
