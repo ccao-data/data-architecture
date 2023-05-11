@@ -31,6 +31,23 @@ files <- list.files(
     str_detect(sheet, "Summary", negate = TRUE)
   )
 
+# Define known character columns
+char_cols <- c(
+  "keypin",
+  "pins",
+  "township",
+  "class(es)",
+  "address",
+  "propertyuse",
+  "investmentrating",
+  "f/r",
+  "carwash?",
+  "ceilingheight",
+  "2023permit/partial/demovalue",
+  "file",
+  "sheet"
+)
+
 # Ingest the sheets, clean, and bind them
 map2(files$file, files$sheet, function(x, y) {
 
@@ -57,21 +74,7 @@ map2(files$file, files$sheet, function(x, y) {
     township = str_extract(file, paste(ccao::town_dict$township_name, collapse = "|")),
     across(.cols = everything(), ~ na_if(.x, "N/A")),
     # Ignore known character columns for parse_number
-    across(.cols = !c(
-      keypin,
-      pins,
-      township,
-      `class(es)`,
-      address,
-      propertyuse,
-      investmentrating,
-      `f/r`,
-      `carwash?`,
-      ceilingheight,
-      `2023permit/partial/demovalue`,
-      file,
-      sheet
-    ), parse_number),
+    across(.cols = !char_cols, parse_number),
     # Columns that can be numeric should be
     across(where(~ all(check.numeric(.x))), as.numeric),
     # Don't stack pin numbers when "Thru" is present in PIN list
