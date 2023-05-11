@@ -10,7 +10,7 @@ library(tidyverse)
 library(stringr)
 library(varhandle)
 
-# Definre known character columns
+# Define known character columns
 char_cols <- c(
   "keypin",
   "pins",
@@ -37,11 +37,7 @@ list.files(
   list.files(ignore.case = TRUE, full.names = TRUE) %>%
   grep(pattern = "Past|xlsx", invert = TRUE, value = TRUE) %>%
   list.files(pattern = ".xlsx", full.names = TRUE) %>%
-  map(function(x) {
-
-    expand.grid(sheet = getSheetNames(x), file = x, stringsAsFactors = FALSE)
-
-  }, .progress = TRUE) %>%
+  map(~ crossing(sheet = getSheetNames(.x), file = .x), .progress = TRUE) %>%
   bind_rows() %>%
   filter(
     str_detect(file, "Hard|Copy", negate = TRUE),
