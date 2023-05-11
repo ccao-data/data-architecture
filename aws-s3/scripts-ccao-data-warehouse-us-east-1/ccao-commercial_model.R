@@ -10,27 +10,6 @@ library(tidyverse)
 library(stringr)
 library(varhandle)
 
-# Compile a filtered list of excel workbooks and worksheets to ingest
-files <- list.files(
-  "G:/1st Pass spreadsheets",
-  pattern = "[0-9]{4} Valuation Models",
-  full.names = TRUE
-) %>%
-  file.path("PublicVersions") %>%
-  list.files(ignore.case = TRUE, full.names = TRUE) %>%
-  grep(pattern = "Past|xlsx", invert = TRUE, value = TRUE) %>%
-  list.files(pattern = ".xlsx", full.names = TRUE) %>%
-  map(function(x) {
-
-    expand.grid(sheet = getSheetNames(x), file = x, stringsAsFactors = FALSE)
-
-  }, .progress = TRUE) %>%
-  bind_rows() %>%
-  filter(
-    str_detect(file, "Hard|Copy", negate = TRUE),
-    str_detect(sheet, "Summary", negate = TRUE)
-  )
-
 # Definre known character columns
 char_cols <- c(
   "keypin",
@@ -48,27 +27,51 @@ char_cols <- c(
   "sheet"
 )
 
-# Ingest the sheets, clean, and bind them
-map2(files$file, files$sheet, function(x, y) {
+# Compile a filtered list of excel workbooks and worksheets to ingest ----
+list.files(
+  "G:/1st Pass spreadsheets",
+  pattern = "[0-9]{4} Valuation Models",
+  full.names = TRUE
+) %>%
+  file.path("PublicVersions") %>%
+  list.files(ignore.case = TRUE, full.names = TRUE) %>%
+  grep(pattern = "Past|xlsx", invert = TRUE, value = TRUE) %>%
+  list.files(pattern = ".xlsx", full.names = TRUE) %>%
+  map(function(x) {
 
-  read.xlsx(x, sheet = y) %>%
-    mutate(file = x, sheet = y) %>%
-    rename_with(~ tolower(gsub("\\.|", "", .x))) %>%
-    rename_with(~ tolower(gsub("class|classes", "class(es)", .x))) %>%
-    rename_with(~ gsub("mv", "marketvalue", .x)) %>%
-    rename_with(~ gsub("sqft", "sf", .x)) %>%
-    rename_with(~ gsub("incm", "incomem", .x)) %>%
-    rename_with(~ gsub("iasworld", "", .x)) %>%
-    rename_with(~ gsub("finalmarketvalue/sf", "finalmarketvalue$/sf", .x)) %>%
-    rename_with(~ gsub("marketvalue/sf", "marketvalue$/sf", .x)) %>%
-    select(-starts_with("X")) %>%
-    mutate(
-      across(.cols = everything(), as.character)
-    )
+    expand.grid(sheet = getSheetNames(x), file = x, stringsAsFactors = FALSE)
 
-}, .progress = TRUE) %>%
+  }, .progress = TRUE) %>%
   bind_rows() %>%
-  # Add useful information to output and clean-up columns
+  filter(
+    str_detect(file, "Hard|Copy", negate = TRUE),
+    str_detect(sheet, "Summary", negate = TRUE)
+  ) %>%
+
+  # Ingest the sheets, clean, and bind them ----
+  pmap(function(...) {
+
+    data <- tibble(...)
+
+    read.xlsx(data$file, sheet = data$sheet) %>%
+      mutate(file = data$file, sheet = data$sheet) %>%
+      rename_with(~ tolower(gsub("\\.|", "", .x))) %>%
+      rename_with(~ tolower(gsub("class|classes", "class(es)", .x))) %>%
+      rename_with(~ gsub("mv", "marketvalue", .x)) %>%
+      rename_with(~ gsub("sqft", "sf", .x)) %>%
+      rename_with(~ gsub("incm", "incomem", .x)) %>%
+      rename_with(~ gsub("iasworld", "", .x)) %>%
+      rename_with(~ gsub("finalmarketvalue/sf", "finalmarketvalue$/sf", .x)) %>%
+      rename_with(~ gsub("marketvalue/sf", "marketvalue$/sf", .x)) %>%
+      select(-starts_with("X")) %>%
+      mutate(
+        across(.cols = everything(), as.character)
+      )
+
+  }, .progress = TRUE) %>%
+  bind_rows() %>%
+
+  # Add useful information to output and clean-up columns ----
   mutate(
     year = str_extract(file, "[0-9]{4}"),
     township = str_extract(file, paste(ccao::town_dict$township_name, collapse = "|")),
