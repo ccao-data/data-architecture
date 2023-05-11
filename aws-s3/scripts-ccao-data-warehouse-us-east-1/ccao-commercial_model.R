@@ -10,64 +10,53 @@ library(tidyverse)
 library(stringr)
 library(varhandle)
 
-files <- list.files("G:/1st Pass spreadsheets", pattern = "[0-9]{4} Valuation Models", full.names = TRUE) %>%
-  map(function(x) {
-
-  list.files(file.path(x, "PublicVersions"), ignore.case = TRUE, full.names = TRUE)
-
-}) %>%
-  unlist() %>%
+# Compile a filtered list of excel workbooks and worksheets to ingest
+files <- list.files(
+  "G:/1st Pass spreadsheets",
+  pattern = "[0-9]{4} Valuation Models",
+  full.names = TRUE
+) %>%
+  file.path("PublicVersions") %>%
+  list.files(ignore.case = TRUE, full.names = TRUE) %>%
   grep(pattern = "Past|xlsx", invert = TRUE, value = TRUE) %>%
-  map(list.files, pattern = ".xlsx", full.names = TRUE) %>%
-  unlist() %>%
+  list.files(pattern = ".xlsx", full.names = TRUE) %>%
   map(function(x) {
 
-    expand.grid(sheet_name = getSheetNames(x), file = x, stringsAsFactors = FALSE)
+    expand.grid(sheet = getSheetNames(x), file = x, stringsAsFactors = FALSE)
 
-  }) %>%
+  }, .progress = TRUE) %>%
   bind_rows() %>%
-  arrange(sheet_name) %>%
   filter(
     str_detect(file, "Hard|Copy", negate = TRUE),
-    str_detect(sheet_name, "Summary", negate = TRUE)
-    ) %>%
-  mutate(agg_name = trimws(str_remove_all(sheet_name, "T[0-9]{2}-")))
+    str_detect(sheet, "Summary", negate = TRUE)
+  )
 
-temp <- sapply(unique(files$agg_name), function(x) {
+# Ingest the sheets, clean, and bind them
+map2(files$file, files$sheet, function(x, y) {
 
-  group <- files %>%
-    filter(agg_name == x)
-    map2(group$file, group$sheet_name, function(y, z) {
+  read.xlsx(x, sheet = y) %>%
+    mutate(file = x, sheet = y) %>%
+    rename_with(~ tolower(gsub("\\.|", "", .x))) %>%
+    rename_with(~ tolower(gsub("class|classes", "class(es)", .x))) %>%
+    rename_with(~ gsub("mv", "marketvalue", .x)) %>%
+    rename_with(~ gsub("sqft", "sf", .x)) %>%
+    rename_with(~ gsub("incm", "incomem", .x)) %>%
+    rename_with(~ gsub("iasworld", "", .x)) %>%
+    rename_with(~ gsub("finalmarketvalue/sf", "finalmarketvalue$/sf", .x)) %>%
+    rename_with(~ gsub("marketvalue/sf", "marketvalue$/sf", .x)) %>%
+    select(-starts_with("X")) %>%
+    mutate(
+      across(.cols = everything(), as.character)
+    )
 
-      read.xlsx(y, sheet = z) %>%
-        mutate(
-          year = str_extract(y, "[0-9]{4}"),
-          township = str_extract(y, paste(ccao::town_dict$township_name, collapse = "|")),
-          file = y,
-          sheet = z
-          ) %>%
-        rename_with(~ tolower(gsub("\\.|", "", .x))) %>%
-        rename_with(~ tolower(gsub("class|classes", "class(es)", .x))) %>%
-        rename_with(~ gsub("mv", "marketvalue", .x)) %>%
-        rename_with(~ gsub("sqft", "sf", .x)) %>%
-        rename_with(~ gsub("incm", "incomem", .x)) %>%
-        rename_with(~ gsub("iasworld", "", .x)) %>%
-        rename_with(~ gsub("finalmarketvalue/sf", "finalmarketvalue$/sf", .x)) %>%
-        rename_with(~ gsub("marketvalue/sf" , "marketvalue$/sf" , .x)) %>%
-        select(-starts_with("X")) %>%
-        mutate(
-          across(.cols= everything(), as.character)
-          )
-
-    }, .progress = TRUE) %>%
-    bind_rows()
-
-}, simplify = FALSE, USE.NAMES = TRUE) %>%
-  bind_rows()
-
-temp %>%
+}, .progress = TRUE) %>%
+  bind_rows() %>%
+  # Add useful information to output and clean-up columns
   mutate(
+    year = str_extract(file, "[0-9]{4}"),
+    township = str_extract(file, paste(ccao::town_dict$township_name, collapse = "|")),
     across(.cols = everything(), ~ na_if(.x, "N/A")),
+    # Ignore known character columns for parse_number
     across(.cols = !c(
       keypin,
       pins,
@@ -83,13 +72,15 @@ temp %>%
       file,
       sheet
     ), parse_number),
-    across(where(~ all(check.numeric(.x)) ), as.numeric),
+    # Columns that can be numeric should be
+    across(where(~ all(check.numeric(.x))), as.numeric),
+    # Don't stack pin numbers when "Thru" is present in PIN list
     across(.cols = c(pins, `class(es)`), ~ case_when(
       grepl("thru", .x, ignore.case = TRUE) ~ str_squish(.x),
       .x == "0" ~ NA,
       TRUE ~ str_replace_all(str_squish(.x), " ", ", ")
     ))
-    ) %>%
+  ) %>%
   select(sort(names(.))) %>%
   relocate(c(keypin, pins, township, year)) %>%
   relocate(c(file, sheet), .after = last_col()) %>%
