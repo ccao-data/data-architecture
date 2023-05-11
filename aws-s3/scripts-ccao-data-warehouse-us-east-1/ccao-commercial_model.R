@@ -31,7 +31,7 @@ files <- list.files(
     str_detect(sheet, "Summary", negate = TRUE)
   )
 
-# Define known character columns
+# Definre known character columns
 char_cols <- c(
   "keypin",
   "pins",
