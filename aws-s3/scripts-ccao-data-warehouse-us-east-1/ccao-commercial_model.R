@@ -76,9 +76,9 @@ list.files(
   map(function(x) {
 
     crossing(
-      # Unfortunately, people can still be working on these sheets which means
-      # this script will error out when a file is open - TryCatch here avoids
-      # that. Don't consider data final if an error is thrown.
+      # Unfortunately, people are still working on some of these sheets which
+      # means this script will error out when a file is open - TryCatch here
+      # avoids that. Don't consider data final if an error is thrown.
       sheet = tryCatch(
         {getSheetNames(x)},
         error = function(error_message){return(NULL)}
