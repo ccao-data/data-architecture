@@ -1,3 +1,6 @@
+# This script ingests excel workbooks from the IC drive and standardizes them
+# in order to compile a single aggregated dataset of commercial valuation data.
+
 library(arrow)
 library(ccao)
 library(DBI)
@@ -17,7 +20,7 @@ char_cols <- c(
   "township",
   "class(es)",
   "address",
-  "propertyuse",
+  "property_type/use",
   "investmentrating",
   "f/r",
   "carwash?",
@@ -27,22 +30,65 @@ char_cols <- c(
   "sheet"
 )
 
+# Declare all regex syntax for renaming sheet column names as they're ingested
+renames <- c(
+  "\\." = "",
+  "(^adj)(.*rent.*)" = "adj_rent$/sf",
+  "adjsales" = "adjsale",
+  "hotelclass" = "hotel",
+  "cost\\\\" = "cost",
+  "costapproach" = "costapp",
+  "costapp" = "costapproach",
+  ".*class.*" = "class(es)",
+  "(^exc)(.*val.*)" = "excesslandval",
+  "^exp%|^%exp" = "exp",
+  "approxcommsf|apprxtotalsfcomm|commsf" = "aprx_comm_sf",
+  "ceilinght" = "ceilingheight",
+  "mv" = "marketvalue",
+  "occ%" = "occupancy",
+  "sqft" = "sf",
+  "incm" = "incomem",
+  "(^income)(.*exc.*)" = "income_mv_incl_excessland",
+  "iasworld" = "",
+  "finalmarketvalue/sf" = "finalmarketvalue$/sf",
+  "marketmarket" = "market",
+  "marketvalue/sf" = "marketvalue$/sf",
+  "(^market)(.*exc.*)" = "marketvalue_incl_excessland",
+  "^propertyn.*|^propertyd.*" = "property_name/description",
+  "^propertyt.*|^propertyt.*" = "property_type/use",
+  "(^total)(.*ap.*)" = "tot_apts",
+  "(^total)(.*units.*)" = "tot_units",
+  "unit2" = "unit",
+  "^v.*|%vac" = "vacancy"
+)
+
 # Compile a filtered list of excel workbooks and worksheets to ingest ----
-list.files(
+files <- list.files(
   "G:/1st Pass spreadsheets",
-  pattern = "[0-9]{4} Valuation Models",
+  pattern = "[0-9]{4} Valuation",
   full.names = TRUE
 ) %>%
   file.path("PublicVersions") %>%
   list.files(ignore.case = TRUE, full.names = TRUE) %>%
-  grep(pattern = "Past|xlsx", invert = TRUE, value = TRUE) %>%
+  # Ignore files that are currently open
+  grep(pattern = "Other", invert = TRUE, value = TRUE) %>%
   list.files(pattern = ".xlsx", full.names = TRUE) %>%
-  map(~ crossing(sheet = getSheetNames(.x), file = .x), .progress = TRUE) %>%
+  map(function(x) {
+
+    crossing(
+      # Unfortunately, people can still be working on these sheets which means
+      # this script will error out when a file is open - TryCatch here avoids
+      # that. Don't consider data final if an error is thrown.
+      sheet = tryCatch(
+        {getSheetNames(x)},
+        error = function(error_message){return(NULL)}
+        ),
+      file = x
+      )
+
+    }, .progress = TRUE) %>%
   bind_rows() %>%
-  filter(
-    str_detect(file, "Hard|Copy", negate = TRUE),
-    str_detect(sheet, "Summary", negate = TRUE)
-  ) %>%
+  filter(str_detect(sheet, "Summary", negate = TRUE), !is.na(sheet)) %>%
 
   # Ingest the sheets, clean, and bind them ----
   pmap(function(...) {
@@ -51,26 +97,26 @@ list.files(
 
     read.xlsx(data$file, sheet = data$sheet) %>%
       mutate(file = data$file, sheet = data$sheet) %>%
-      rename_with(~ tolower(gsub("\\.|", "", .x))) %>%
-      rename_with(~ tolower(gsub("class|classes", "class(es)", .x))) %>%
-      rename_with(~ gsub("mv", "marketvalue", .x)) %>%
-      rename_with(~ gsub("sqft", "sf", .x)) %>%
-      rename_with(~ gsub("incm", "incomem", .x)) %>%
-      rename_with(~ gsub("iasworld", "", .x)) %>%
-      rename_with(~ gsub("finalmarketvalue/sf", "finalmarketvalue$/sf", .x)) %>%
-      rename_with(~ gsub("marketvalue/sf", "marketvalue$/sf", .x)) %>%
+      rename_with(tolower) %>%
+      set_names(str_replace_all(names(.), renames)) %>%
       select(-starts_with("X")) %>%
+      select(-contains("age2")) %>%
       mutate(
         across(.cols = everything(), as.character)
       )
 
   }, .progress = TRUE) %>%
   bind_rows() %>%
+  filter(check.numeric(excesslandval)) %>%
+  select(where(~ !all(is.na(.x)))) %>%
 
   # Add useful information to output and clean-up columns ----
   mutate(
     year = str_extract(file, "[0-9]{4}"),
-    township = str_extract(file, paste(ccao::town_dict$township_name, collapse = "|")),
+    township = str_extract(
+      file,
+      str_remove_all(paste(ccao::town_dict$township_name, collapse = "|"), " ")
+      ),
     across(.cols = everything(), ~ na_if(.x, "N/A")),
     # Ignore known character columns for parse_number
     across(.cols = !char_cols, parse_number),
@@ -83,7 +129,7 @@ list.files(
       TRUE ~ str_replace_all(str_squish(.x), " ", ", ")
     ))
   ) %>%
-  select(sort(names(.))) %>%
+  select(all_of(sort(names(.)))) %>%
   relocate(c(keypin, pins, township, year)) %>%
   relocate(c(file, sheet), .after = last_col()) %>%
   write.xlsx("C:/Users/wridgew/Scratch Space/commercial_models.xlsx")
