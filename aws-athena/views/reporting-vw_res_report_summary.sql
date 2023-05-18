@@ -13,7 +13,6 @@ also worth nothing that "model year" has has 1 added to it solely for
 the sake of reporting in this view - models with a 'meta_year' value
 of 2022 in model.assessment_pin will populate the view with a value of
 2023 for 'year'.
-THIS VIEW NEEDS TO BE UPDATED WITH FINAL MODEL RUN IDs EACH YEAR
 */
 CREATE OR REPLACE VIEW reporting.vw_res_report_summary
 AS
@@ -56,10 +55,7 @@ model_values AS (
     LEFT JOIN town_class tc
         ON ap.meta_pin = tc.parid AND ap.meta_year = tc.model_join_year
 
-    WHERE run_id IN (
-        '2023-03-14-clever-damani', '2023-03-15-clever-kyra', --- 2023 models
-        '2022-04-26-beautiful-dan', '2022-04-27-keen-gabe'  --- 2022 models
-        )
+    WHERE run_id IN (SELECT run_id FROM model.final_model)
         AND property_group IS NOT NULL
 ),
 -- Values by assessment stages available in iasWorld (not model)
