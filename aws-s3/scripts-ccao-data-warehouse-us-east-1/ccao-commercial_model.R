@@ -63,7 +63,7 @@ renames <- c(
 )
 
 # Compile a filtered list of excel workbooks and worksheets to ingest ----
-files <- list.files(
+list.files(
   "G:/1st Pass spreadsheets",
   pattern = "[0-9]{4} Valuation",
   full.names = TRUE
@@ -99,8 +99,7 @@ files <- list.files(
       mutate(file = data$file, sheet = data$sheet) %>%
       rename_with(tolower) %>%
       set_names(str_replace_all(names(.), renames)) %>%
-      select(-starts_with("X")) %>%
-      select(-contains("age2")) %>%
+      select(-starts_with("X"), -contains("age2")) %>%
       mutate(
         across(.cols = everything(), as.character)
       )
