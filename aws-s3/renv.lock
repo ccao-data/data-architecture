@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.3.0",
+    "Version": "4.2.2",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -275,13 +275,14 @@
       "Package": "assessr",
       "Version": "0.4.8",
       "Source": "GitLab",
-      "Remotes": "gitlab::ccao-data-science---modeling/packages/ccao",
       "RemoteType": "gitlab",
+      "Remotes": "gitlab::ccao-data-science---modeling/packages/ccao",
       "RemoteHost": "gitlab.com",
       "RemoteRepo": "packages/assessr",
       "RemoteUsername": "ccao-data-science---modeling",
       "RemoteRef": "HEAD",
       "RemoteSha": "01f385846ced9fc19bd551ec08a9cf154e27a414",
+      "Remotes": "gitlab::ccao-data-science---modeling/packages/ccao",
       "Requirements": [
         "R",
         "clustMixType",
@@ -289,7 +290,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "9b39ecc5c59b907610f8186edf96e627"
+      "Hash": "9025e171da3556544e81992556d916dc"
     },
     "aws.s3": {
       "Package": "aws.s3",
@@ -497,13 +498,14 @@
       "Package": "ccao",
       "Version": "1.2.1",
       "Source": "GitLab",
-      "Remotes": "gitlab::ccao-data-science---modeling/packages/assessr",
       "RemoteType": "gitlab",
+      "Remotes": "gitlab::ccao-data-science---modeling/packages/assessr",
       "RemoteHost": "gitlab.com",
       "RemoteRepo": "packages/ccao",
       "RemoteUsername": "ccao-data-science---modeling",
       "RemoteRef": "HEAD",
       "RemoteSha": "69de1ec95d7848b8b17fdc9bd65a32498f4b0b55",
+      "Remotes": "gitlab::ccao-data-science---modeling/packages/assessr",
       "Requirements": [
         "R",
         "assessr",
@@ -512,7 +514,7 @@
         "rlang",
         "tidyr"
       ],
-      "Hash": "38a0bc090cddcd5fdff1774b2929d6f9"
+      "Hash": "a62510ef048d2f789fbc79602ef204d1"
     },
     "cellranger": {
       "Package": "cellranger",
@@ -992,6 +994,24 @@
         "methods"
       ],
       "Hash": "15e9634c0fcd294799e9b2e929ed1b86"
+    },
+    "geoarrow": {
+      "Package": "geoarrow",
+      "Version": "0.0.0.9000",
+      "Source": "GitHub",
+      "Remotes": "paleolimbot/narrow",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "geoarrow",
+      "RemoteUsername": "paleolimbot",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "feebf9608b0cb3786a19e8a857479e0f50607c26",
+      "Requirements": [
+        "R",
+        "narrow",
+        "wk"
+      ],
+      "Hash": "41b0d41d7933333b5b7958f46c3e3a66"
     },
     "geodist": {
       "Package": "geodist",
@@ -1870,6 +1890,18 @@
       ],
       "Hash": "54388cc0cf3dfc0948a4bfbf9e8cceba"
     },
+    "narrow": {
+      "Package": "narrow",
+      "Version": "0.0.0.9000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "narrow",
+      "RemoteUsername": "paleolimbot",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "3572fb5dbcee331188d27367faced26a0f1c6045",
+      "Hash": "79e20f0a849e50170ce9dcfdee1f74c5"
+    },
     "nlme": {
       "Package": "nlme",
       "Version": "3.1-162",
@@ -2388,6 +2420,7 @@
       "RemoteRef": "master",
       "RemoteSha": "fa13e59cdbfa757e5249e95e6d23b3edc0a2f6af",
       "Remotes": "github::paleolimbot/geoarrow",
+      "Remotes": "github::paleolimbot/geoarrow",
       "Requirements": [
         "DBI",
         "R",
@@ -2396,7 +2429,7 @@
         "glue",
         "utils"
       ],
-      "Hash": "9967b0ab5c7fd00ea8ddedb32b34e2f4"
+      "Hash": "bbfa004e647beccbf3caae1df42ef134"
     },
     "purrr": {
       "Package": "purrr",
@@ -2976,13 +3009,14 @@
       "Package": "tabulizer",
       "Version": "0.2.3",
       "Source": "GitHub",
-      "Remotes": "ropensci/tabulizerjars",
       "RemoteType": "github",
+      "Remotes": "ropensci/tabulizerjars",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "tabulizer",
       "RemoteUsername": "ropensci",
       "RemoteRef": "HEAD",
       "RemoteSha": "08e3d763b7bb2becfe5fc95f800b3767ea704439",
+      "Remotes": "ropensci/tabulizerjars",
       "Requirements": [
         "png",
         "rJava",
@@ -2990,7 +3024,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "d28e18700ae68cb431258e2e8b8678a4"
+      "Hash": "0e051c194cb6b13b71e16d65a91a0b2b"
     },
     "tabulizerjars": {
       "Package": "tabulizerjars",
