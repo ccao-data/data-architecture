@@ -13,7 +13,7 @@ library(tidyverse)
 library(stringr)
 library(varhandle)
 
-# Define known character columns
+# Declare known character columns
 char_cols <- c(
   "keypin",
   "pins",
@@ -75,16 +75,12 @@ list.files(
   list.files(pattern = ".xlsx", full.names = TRUE) %>%
   map(function(x) {
 
-    crossing(
-      # Unfortunately, people are still working on some of these sheets which
-      # means this script will error out when a file is open - TryCatch here
-      # avoids that. Don't consider data final if an error is thrown.
-      sheet = tryCatch(
-        {getSheetNames(x)},
-        error = function(error_message){return(NULL)}
-        ),
-      file = x
-      )
+    # Unfortunately, people are still working on some of these sheets which
+    # means this script will error out when a file is open - `possibly` here
+    # avoids that. Don't consider data final if an error is caught.
+    safe_gSN = possibly(.f = getSheetNames, otherwise = NULL)
+
+    crossing(sheet = safe_gSN(x), file = x)
 
     }, .progress = TRUE) %>%
   bind_rows() %>%
