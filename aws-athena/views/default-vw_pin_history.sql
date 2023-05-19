@@ -14,8 +14,8 @@ AS
     SELECT
       parid,
       taxyr,
-      user1 AS township_code,
-  FROM iasworld.legdat
+      user1 AS township_code
+    FROM iasworld.legdat
   ),
   -- Add township name
   town_names AS (
