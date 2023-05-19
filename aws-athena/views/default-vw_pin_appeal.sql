@@ -1,73 +1,17 @@
  -- View containing appeals by PIN.
  -- Appeal values are not yet in iasWorld, so this view cannot be completed
 CREATE OR REPLACE VIEW default.vw_pin_appeal AS
-  -- CCAO mailed_tot and CCAO final values for each PIN by year
-WITH values_by_year AS (
-    SELECT
-        parid,
-        taxyr,
-        -- Mailed values
-        Max(CASE
-            WHEN procname = 'CCAOVALUE'
-                    AND taxyr < '2020' THEN ovrvalasm2
-            WHEN procname = 'CCAOVALUE'
-                    AND taxyr >= '2020' THEN valasm2
-            ELSE NULL
-            END) AS mailed_bldg,
-        Max(CASE
-            WHEN procname = 'CCAOVALUE'
-                    AND taxyr < '2020' THEN ovrvalasm1
-            WHEN procname = 'CCAOVALUE'
-                    AND taxyr >= '2020' THEN valasm1
-            ELSE NULL
-            END) AS mailed_land,
-        Max(CASE
-            WHEN procname = 'CCAOVALUE'
-                    AND taxyr < '2020' THEN ovrvalasm3
-            WHEN procname = 'CCAOVALUE'
-                    AND taxyr >= '2020' THEN valasm3
-            ELSE NULL
-            END) AS mailed_tot,
-        -- Assessor certified values
-        Max(CASE
-            WHEN procname = 'CCAOFINAL'
-                    AND taxyr < '2020' THEN ovrvalasm2
-            WHEN procname = 'CCAOFINAL'
-                    AND taxyr >= '2020' THEN valasm2
-            ELSE NULL
-            END) AS certified_bldg,
-        Max(CASE
-            WHEN procname = 'CCAOFINAL'
-                    AND taxyr < '2020' THEN ovrvalasm1
-            WHEN procname = 'CCAOFINAL'
-                    AND taxyr >= '2020' THEN valasm1
-            ELSE NULL
-            END) AS certified_land,
-        Max(CASE
-            WHEN procname = 'CCAOFINAL'
-                    AND taxyr < '2020' THEN ovrvalasm3
-            WHEN procname = 'CCAOFINAL'
-                    AND taxyr >= '2020' THEN valasm3
-            ELSE NULL
-            END) AS certified_tot
-    FROM iasworld.asmt_all
-    WHERE procname IN ('CCAOVALUE', 'CCAOFINAL')
-      AND rolltype != 'RR'
-      AND deactivat IS NULL
-      AND valclass IS NULL
-    GROUP BY parid, taxyr
-)
 SELECT
     htpar.parid AS pin,
     pardat.class AS class,
     legdat.user1 AS township_code,
     htpar.taxyr AS year,
-    values_by_year.mailed_bldg,
-    values_by_year.mailed_land,
-    values_by_year.mailed_tot,
-    values_by_year.certified_bldg,
-    values_by_year.certified_land,
-    values_by_year.certified_tot,
+    vwpv.mailed_bldg,
+    vwpv.mailed_land,
+    vwpv.mailed_tot,
+    vwpv.certified_bldg,
+    vwpv.certified_land,
+    vwpv.certified_tot,
     htpar.caseno AS case_no,
     CASE
         WHEN htpar.user38 = 'CC' THEN 'condo/coop'
@@ -117,9 +61,9 @@ LEFT JOIN iasworld.pardat
 LEFT JOIN iasworld.legdat
     ON htpar.parid = legdat.parid
     AND htpar.taxyr = legdat.taxyr
-LEFT JOIN values_by_year
-    ON htpar.parid = values_by_year.parid
-    AND htpar.taxyr = values_by_year.taxyr
+LEFT JOIN default.vw_pin_value vwpv
+    ON htpar.parid = vwpv.parid
+    AND htpar.taxyr = vwpv.taxyr
 LEFT JOIN iasworld.htagnt
     ON htpar.cpatty = htagnt.agent
 WHERE htpar.cur = 'Y'

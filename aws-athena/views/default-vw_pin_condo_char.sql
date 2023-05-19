@@ -81,6 +81,16 @@ chars AS (
                 WHEN pardat.class IN ('299', '2-99') THEN oby.card
                 WHEN pardat.class = '399' THEN comdat.card
             END AS card,
+            -- Proration related fields from PARDAT
+            pardat.tieback AS tieback_key_pin,
+            CASE
+                WHEN pardat.tiebldgpct IS NOT NULL THEN pardat.tiebldgpct / 100.0
+                WHEN pardat.tiebldgpct IS NULL AND pardat.class IN ('299', '2-99', '399') THEN 0
+            ELSE 1.0 END AS tieback_proration_rate,
+            CASE
+                WHEN pardat.class IN ('299', '2-99') THEN CAST(oby.user20 AS double) / 100.0
+                WHEN pardat.class = '399' THEN CAST(comdat.user24 AS double) / 100.0
+            END AS card_protation_rate,
             lline,
             SUBSTR(pardat.parid, 1, 10) AS pin10,
             pardat.class,
@@ -182,6 +192,9 @@ filled AS (
         AS parking_pin,
         unitno,
         tiebldgpct,
+        tieback_key_pin,
+        tieback_proration_rate,
+        card_protation_rate,
         bldg_is_mixed_use,
         COUNT(*)
         OVER (PARTITION BY pin10, year)
@@ -208,6 +221,9 @@ SELECT DISTINCT
         ELSE FALSE
     END pin_is_multilline,
     COUNT(filled.pin) OVER (PARTITION BY filled.pin, filled.year) AS pin_num_lline,
+    tieback_key_pin,
+    tieback_proration_rate,
+    card_protation_rate,
     filled.char_yrblt,
     filled.char_building_sf,
     filled.char_unit_sf,

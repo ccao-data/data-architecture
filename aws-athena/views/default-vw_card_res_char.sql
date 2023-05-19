@@ -30,7 +30,7 @@ townships AS (
     SELECT
         parid,
         taxyr,
-        substr(TAXDIST, 1, 2) AS township_code
+        user1 AS township_code
     FROM iasworld.legdat
 )
 SELECT
@@ -38,14 +38,19 @@ SELECT
     SUBSTR(dweldat.parid, 1, 10) AS pin10,
     dweldat.taxyr AS year,
     card,
-    seq,
-    who AS updated_by,
-    date_parse(wen, '%Y-%m-%d %H:%i:%s.%f') AS updated_at,
+    dweldat.seq,
+    dweldat.who AS updated_by,
+    date_parse(dweldat.wen, '%Y-%m-%d %H:%i:%s.%f') AS updated_at,
 
     -- PIN information
-    class, -- 218, 219, 236, 241 classes added to DWELDAT
+    dweldat.class, -- 218, 219, 236, 241 classes added to DWELDAT
     township_code,
     cdu,
+    pardat.tieback AS tieback_key_pin,
+    CASE
+        WHEN pardat.tiebldgpct IS NOT NULL THEN pardat.tiebldgpct / 100.0
+    ELSE 1.0 END AS tieback_proration_rate,
+    CAST(dweldat.user24 AS double) / 100.0 AS card_protation_rate,
     pin_is_multicard,
     pin_num_cards,
     pin_is_multiland,
@@ -66,49 +71,49 @@ SELECT
     -- New numeric encoding compared to AS/400
     stories AS char_type_resd,
     grade AS char_cnst_qlty,
-    user14 AS char_apts,
-    user4 AS char_tp_dsgn,
-    user6 AS char_attic_fnsh,
-    user31 AS char_gar1_att,
-    user32 AS char_gar1_area,
+    dweldat.user14 AS char_apts,
+    dweldat.user4 AS char_tp_dsgn,
+    dweldat.user6 AS char_attic_fnsh,
+    dweldat.user31 AS char_gar1_att,
+    dweldat.user32 AS char_gar1_area,
 
     -- Same numeric encoding as AS/400
-    user33 AS char_gar1_size,
-    user34 AS char_gar1_cnst,
+    dweldat.user33 AS char_gar1_size,
+    dweldat.user34 AS char_gar1_cnst,
     attic AS char_attic_type,
     bsmt AS char_bsmt,
     extwall AS char_ext_wall,
     heat AS char_heat,
-    user1 AS char_repair_cnd,
-    user12 AS char_bsmt_fin,
-    user13 AS char_roof_cnst,
-    user15 AS char_use,
-    user17 AS char_age, -- Deprecated, use yrblt
-    user2 AS char_site,
-    user20 AS char_ncu,
-    user3 AS char_renovation,
+    dweldat.user1 AS char_repair_cnd,
+    dweldat.user12 AS char_bsmt_fin,
+    dweldat.user13 AS char_roof_cnst,
+    dweldat.user15 AS char_use,
+    dweldat.user17 AS char_age, -- Deprecated, use yrblt
+    dweldat.user2 AS char_site,
+    dweldat.user20 AS char_ncu,
+    dweldat.user3 AS char_renovation,
 
     -- Indicate a change from 0 or NULL to 1 for renovation
     -- within the last 3 years
     CASE
-        WHEN (user3 = '1' AND
-            Lag(user3)
+        WHEN (dweldat.user3 = '1' AND
+            Lag(dweldat.user3)
                 over(
                     PARTITION BY dweldat.parid
                     ORDER BY dweldat.parid, dweldat.taxyr) != '1') OR
-            (Lag(user3)
+            (Lag(dweldat.user3)
                 over(
                     PARTITION BY dweldat.parid
                     ORDER BY dweldat.parid, dweldat.taxyr) = '1' AND
-            Lag(user3, 2)
+            Lag(dweldat.user3, 2)
                 over(
                     PARTITION BY dweldat.parid
                     ORDER BY dweldat.parid, dweldat.taxyr) != '1') OR
-            (Lag(user3, 2)
+            (Lag(dweldat.user3, 2)
                 over(
                     PARTITION BY dweldat.parid
                     ORDER BY dweldat.parid, dweldat.taxyr) = '1' AND
-            Lag(user3, 3)
+            Lag(dweldat.user3, 3)
                 over(
                     PARTITION BY dweldat.parid
                     ORDER BY dweldat.parid, dweldat.taxyr) != '1')
@@ -116,9 +121,9 @@ SELECT
         ELSE false
     END AS char_recent_renovation,
 
-    user30 AS char_porch,
-    user7 AS char_air,
-    user5 AS char_tp_plan
+    dweldat.user30 AS char_porch,
+    dweldat.user7 AS char_air,
+    dweldat.user5 AS char_tp_plan
 
     -- To investigate later:
     -- plumval
@@ -130,6 +135,9 @@ SELECT
     -- convbldg
 
 FROM iasworld.dweldat
+LEFT JOIN iasworld.pardat
+    ON dweldat.parid = pardat.parid
+    AND dweldat.taxyr = pardat.taxyr
 LEFT JOIN multicodes
     ON dweldat.parid = multicodes.parid
     AND dweldat.taxyr = multicodes.taxyr
