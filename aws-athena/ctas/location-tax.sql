@@ -43,11 +43,11 @@ WITH (
           filter(
               array_agg(CASE WHEN minor_type = 'MUNI' THEN agency_num ELSE NULL END),
               x -> x IS NOT NULL
-              ) AS tax_cook_municipality_num,
+              ) AS tax_municipality_num,
           filter(
               array_agg(CASE WHEN minor_type = 'MUNI' THEN agency_name ELSE NULL END),
               x -> x IS NOT NULL
-              ) AS tax_cook_municipality_name,
+              ) AS tax_municipality_name,
           filter(
               array_agg(CASE WHEN minor_type = 'ELEMENTARY' THEN agency_num ELSE NULL END),
               x -> x IS NOT NULL
@@ -135,8 +135,8 @@ WITH (
 
   SELECT
       p.pin10,
-      wide.tax_cook_municipality_num,
-      wide.tax_cook_municipality_name,
+      wide.tax_municipality_num,
+      wide.tax_municipality_name,
       wide.tax_school_elementary_district_num,
       wide.tax_school_elementary_district_name,
       wide.tax_school_secondary_district_num,

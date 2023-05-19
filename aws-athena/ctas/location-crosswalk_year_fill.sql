@@ -20,7 +20,6 @@ WITH (
             Max(cook_board_of_review_district_data_year) AS cook_board_of_review_district_data_year,
             Max(cook_commissioner_district_data_year) AS cook_commissioner_district_data_year,
             Max(cook_judicial_district_data_year) AS cook_judicial_district_data_year,
-            Max(cook_municipality_data_year) AS cook_municipality_data_year,
             Max(ward_chicago_data_year) AS ward_chicago_data_year,
             Max(ward_evanston_data_year) AS ward_evanston_data_year,
             Max(chicago_community_area_data_year) AS chicago_community_area_data_year,
@@ -35,13 +34,7 @@ WITH (
             Max(env_ohare_noise_contour_data_year) AS env_ohare_noise_contour_data_year,
             Max(env_airport_noise_data_year) AS env_airport_noise_data_year,
             Max(school_data_year) AS school_data_year,
-            Max(tax_community_college_district_data_year) AS tax_community_college_district_data_year,
-            Max(tax_fire_protection_district_data_year) AS tax_fire_protection_district_data_year,
-            Max(tax_library_district_data_year) AS tax_library_district_data_year,
-            Max(tax_park_district_data_year) AS tax_park_district_data_year,
-            Max(tax_sanitation_district_data_year) AS tax_sanitation_district_data_year,
-            Max(tax_special_service_area_data_year) AS tax_special_service_area_data_year,
-            Max(tax_tif_district_data_year) AS tax_tif_district_data_year,
+            Max(tax_data_year) AS tax_data_year,
             Max(access_cmap_walk_data_year) AS access_cmap_walk_data_year,
             Max(misc_subdivision_data_year) AS misc_subdivision_data_year
 
@@ -58,7 +51,6 @@ WITH (
                 cook_board_of_review_district_data_year,
                 cook_commissioner_district_data_year,
                 cook_judicial_district_data_year,
-                cook_municipality_data_year,
                 ward_chicago_data_year,
                 ward_evanston_data_year
             FROM location.political
@@ -98,13 +90,7 @@ WITH (
         LEFT JOIN (
             SELECT DISTINCT
                 year,
-                tax_community_college_district_data_year,
-                tax_fire_protection_district_data_year,
-                tax_library_district_data_year,
-                tax_park_district_data_year,
-                tax_sanitation_district_data_year,
-                tax_special_service_area_data_year,
-                tax_tif_district_data_year
+                tax_data_year
             FROM location.tax
             ) tax ON pin.year = tax.year
         LEFT JOIN (
@@ -143,11 +129,6 @@ WITH (
                 LAST_VALUE(cook_judicial_district_data_year) IGNORE NULLS
                 OVER (ORDER BY year DESC)
             ELSE cook_judicial_district_data_year END AS cook_judicial_district_data_year,
-        CASE
-            WHEN cook_municipality_data_year IS NULL THEN
-                LAST_VALUE(cook_municipality_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE cook_municipality_data_year END AS cook_municipality_data_year,
         CASE
             WHEN ward_chicago_data_year IS NULL THEN
                 LAST_VALUE(ward_chicago_data_year) IGNORE NULLS
@@ -219,40 +200,10 @@ WITH (
                 OVER (ORDER BY year DESC)
             ELSE school_data_year END AS school_data_year,
         CASE
-            WHEN tax_community_college_district_data_year IS NULL THEN
-                LAST_VALUE(tax_community_college_district_data_year) IGNORE NULLS
+            WHEN tax_data_year IS NULL THEN
+                LAST_VALUE(tax_data_year) IGNORE NULLS
                 OVER (ORDER BY year DESC)
-            ELSE tax_community_college_district_data_year END AS tax_community_college_district_data_year,
-        CASE
-            WHEN tax_fire_protection_district_data_year IS NULL THEN
-                LAST_VALUE(tax_fire_protection_district_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE tax_fire_protection_district_data_year END AS tax_fire_protection_district_data_year,
-        CASE
-            WHEN tax_library_district_data_year IS NULL THEN
-                LAST_VALUE(tax_library_district_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE tax_library_district_data_year END AS tax_library_district_data_year,
-        CASE
-            WHEN tax_park_district_data_year IS NULL THEN
-                LAST_VALUE(tax_park_district_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE tax_park_district_data_year END AS tax_park_district_data_year,
-        CASE
-            WHEN tax_sanitation_district_data_year IS NULL THEN
-                LAST_VALUE(tax_sanitation_district_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE tax_sanitation_district_data_year END AS tax_sanitation_district_data_year,
-        CASE
-            WHEN tax_special_service_area_data_year IS NULL THEN
-                LAST_VALUE(tax_special_service_area_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE tax_special_service_area_data_year END AS tax_special_service_area_data_year,
-        CASE
-            WHEN tax_tif_district_data_year IS NULL THEN
-                LAST_VALUE(tax_tif_district_data_year) IGNORE NULLS
-                OVER (ORDER BY year DESC)
-            ELSE tax_tif_district_data_year END AS tax_tif_district_data_year,
+            ELSE tax_data_year END AS tax_data_year,
         CASE
             WHEN access_cmap_walk_data_year IS NULL THEN
                 LAST_VALUE(access_cmap_walk_data_year) IGNORE NULLS
