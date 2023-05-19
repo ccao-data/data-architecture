@@ -226,7 +226,7 @@ forward_fill AS (
         vwlf.census_acs5_puma_geoid AS loc_census_acs5_puma_geoid,
         vwlf.census_acs5_tract_geoid AS loc_census_acs5_tract_geoid,
         vwlf.census_acs5_data_year AS loc_census_acs5_data_year,
-        vwlf.cook_municipality_name AS loc_cook_municipality_name,
+        vwlf.tax_municipality_name AS loc_tax_municipality_name,
         vwlf.ward_num AS loc_ward_num,
         vwlf.chicago_community_area_name AS loc_chicago_community_area_name,
 
@@ -432,11 +432,11 @@ SELECT
     f1.loc_census_acs5_tract_geoid,
     f1.loc_census_acs5_data_year,
     CASE
-        WHEN f1.loc_cook_municipality_name IS NOT NULL THEN f1.loc_cook_municipality_name
-        WHEN f1.loc_cook_municipality_name IS NULL THEN nn1.loc_cook_municipality_name
-        WHEN nn1.loc_cook_municipality_name IS NULL THEN nn2.loc_cook_municipality_name
+        WHEN f1.loc_tax_municipality_name IS NOT NULL THEN f1.loc_tax_municipality_name
+        WHEN f1.loc_tax_municipality_name IS NULL THEN nn1.loc_tax_municipality_name
+        WHEN nn1.loc_tax_municipality_name IS NULL THEN nn2.loc_tax_municipality_name
         ELSE NULL
-    END AS loc_cook_municipality_name,
+    END AS loc_tax_municipality_name,
     CASE
         WHEN f1.loc_ward_num IS NOT NULL THEN f1.loc_ward_num
         WHEN f1.loc_ward_num IS NULL THEN nn1.loc_ward_num

@@ -190,7 +190,7 @@ SELECT
     vwlf.census_acs5_puma_geoid AS loc_census_acs5_puma_geoid,
     vwlf.census_acs5_tract_geoid AS loc_census_acs5_tract_geoid,
     vwlf.census_acs5_data_year AS loc_census_acs5_data_year,
-    vwlf.cook_municipality_name AS loc_cook_municipality_name,
+    vwlf.tax_municipality_name AS loc_tax_municipality_name,
     vwlf.ward_num AS loc_ward_num,
     vwlf.chicago_community_area_name AS loc_chicago_community_area_name,
 
