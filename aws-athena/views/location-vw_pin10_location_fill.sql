@@ -34,9 +34,6 @@ SELECT
     cook_commissioner_district.cook_commissioner_district_data_year,
     cook_judicial_district.cook_judicial_district_num,
     cook_judicial_district.cook_judicial_district_data_year,
-    cook_municipality.cook_municipality_num,
-    cook_municipality.cook_municipality_name,
-    cook_municipality.cook_municipality_data_year,
     CASE
         WHEN ward_evanston.ward_num IS NOT NULL THEN ward_evanston.ward_num
         ELSE ward_chicago.ward_num
@@ -81,27 +78,23 @@ SELECT
     school.school_unified_district_name,
     school.school_school_year,
     school.school_data_year,
-    tax_community_college_district.tax_community_college_district_num,
-    tax_community_college_district.tax_community_college_district_name,
-    tax_community_college_district.tax_community_college_district_data_year,
-    tax_fire_protection_district.tax_fire_protection_district_num,
-    tax_fire_protection_district.tax_fire_protection_district_name,
-    tax_fire_protection_district.tax_fire_protection_district_data_year,
-    tax_library_district.tax_library_district_num,
-    tax_library_district.tax_library_district_name,
-    tax_library_district.tax_library_district_data_year,
-    tax_park_district.tax_park_district_num,
-    tax_park_district.tax_park_district_name,
-    tax_park_district.tax_park_district_data_year,
-    tax_sanitation_district.tax_sanitation_district_num,
-    tax_sanitation_district.tax_sanitation_district_name,
-    tax_sanitation_district.tax_sanitation_district_data_year,
-    tax_special_service_area.tax_special_service_area_num,
-    tax_special_service_area.tax_special_service_area_name,
-    tax_special_service_area.tax_special_service_area_data_year,
-    tax_tif_district.tax_tif_district_num,
-    tax_tif_district.tax_tif_district_name,
-    tax_tif_district.tax_tif_district_data_year,
+    tax.tax_municipality_num,
+    tax.tax_municipality_name,
+    tax.tax_community_college_district_num,
+    tax.tax_community_college_district_name,
+    tax.tax_fire_protection_district_num,
+    tax.tax_fire_protection_district_name,
+    tax.tax_library_district_num,
+    tax.tax_library_district_name,
+    tax.tax_park_district_num,
+    tax.tax_park_district_name,
+    tax.tax_sanitation_district_num,
+    tax.tax_sanitation_district_name,
+    tax.tax_special_service_area_num,
+    tax.tax_special_service_area_name,
+    tax.tax_tif_district_num,
+    tax.tax_tif_district_name,
+    tax.tax_data_year,
     access.access_cmap_walk_id,
     access.access_cmap_walk_nta_score,
     access.access_cmap_walk_total_score,
@@ -126,9 +119,6 @@ LEFT JOIN location.political cook_commissioner_district
 LEFT JOIN location.political cook_judicial_district
     ON pin.pin10 = cook_judicial_district.pin10
     AND cyf.cook_judicial_district_data_year = cook_judicial_district.year
-LEFT JOIN location.political cook_municipality
-    ON pin.pin10 = cook_municipality.pin10
-    AND cyf.cook_municipality_data_year = cook_municipality.year
 LEFT JOIN location.political ward_chicago
     ON pin.pin10 = ward_chicago.pin10
     AND cyf.ward_chicago_data_year = ward_chicago.year
@@ -171,27 +161,9 @@ LEFT JOIN location.environment env_airport_noise
 LEFT JOIN location.school
     ON pin.pin10 = school.pin10
     AND cyf.school_data_year = school.year
-LEFT JOIN location.tax tax_community_college_district
-    ON pin.pin10 = tax_community_college_district.pin10
-    AND cyf.tax_community_college_district_data_year = tax_community_college_district.year
-LEFT JOIN location.tax tax_fire_protection_district
-    ON pin.pin10 = tax_fire_protection_district.pin10
-    AND cyf.tax_fire_protection_district_data_year = tax_fire_protection_district.year
-LEFT JOIN location.tax tax_library_district
-    ON pin.pin10 = tax_library_district.pin10
-    AND cyf.tax_library_district_data_year = tax_library_district.year
-LEFT JOIN location.tax tax_park_district
-    ON pin.pin10 = tax_park_district.pin10
-    AND cyf.tax_park_district_data_year = tax_park_district.year
-LEFT JOIN location.tax tax_sanitation_district
-    ON pin.pin10 = tax_sanitation_district.pin10
-    AND cyf.tax_sanitation_district_data_year = tax_sanitation_district.year
-LEFT JOIN location.tax tax_special_service_area
-    ON pin.pin10 = tax_special_service_area.pin10
-    AND cyf.tax_special_service_area_data_year = tax_special_service_area.year
-LEFT JOIN location.tax tax_tif_district
-    ON pin.pin10 = tax_tif_district.pin10
-    AND cyf.tax_tif_district_data_year = tax_tif_district.year
+LEFT JOIN location.tax
+    ON pin.pin10 = tax.pin10
+    AND cyf.tax_data_year = tax.year
 LEFT JOIN location.access
     ON pin.pin10 = access.pin10
     AND cyf.access_cmap_walk_data_year = access.year

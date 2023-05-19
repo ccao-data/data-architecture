@@ -22,8 +22,6 @@ WITH (
         UNION ALL
         SELECT DISTINCT year FROM spatial.judicial_district
         UNION ALL
-        SELECT DISTINCT year FROM spatial.municipality
-        UNION ALL
         SELECT DISTINCT year FROM spatial.ward
     ),
     board_of_review_district AS (
@@ -87,29 +85,6 @@ WITH (
                 GROUP BY dy.year
             ) fill_years
             LEFT JOIN spatial.judicial_district fill_data
-                ON fill_years.fill_year = fill_data.year
-        ) cprod
-        ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
-    ),
-    municipality AS (
-        SELECT
-            p.x_3435, p.y_3435,
-            MAX(cprod.municipality_num) AS cook_municipality_num,
-            MAX(cprod.municipality_name) AS cook_municipality_name,
-            MAX(cprod.year) AS cook_municipality_data_year,
-            cprod.pin_year
-        FROM distinct_pins p
-        LEFT JOIN (
-            SELECT fill_years.pin_year, fill_data.*
-            FROM (
-                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
-                FROM spatial.municipality df
-                CROSS JOIN distinct_years dy
-                WHERE dy.year >= df.year
-                GROUP BY dy.year
-            ) fill_years
-            LEFT JOIN spatial.municipality fill_data
                 ON fill_years.fill_year = fill_data.year
         ) cprod
         ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
@@ -179,9 +154,6 @@ WITH (
         cook_commissioner_district_data_year,
         cook_judicial_district_num,
         cook_judicial_district_data_year,
-        cook_municipality_num,
-        cook_municipality_name,
-        cook_municipality_data_year,
         CASE
             WHEN ward_evanston.ward_num IS NOT NULL THEN ward_evanston.ward_num
             ELSE ward_chicago.ward_num
@@ -206,10 +178,6 @@ WITH (
         ON p.x_3435 = judicial_district.x_3435
         AND p.y_3435 = judicial_district.y_3435
         AND p.year = judicial_district.pin_year
-    LEFT JOIN municipality
-        ON p.x_3435 = municipality.x_3435
-        AND p.y_3435 = municipality.y_3435
-        AND p.year = municipality.pin_year
     LEFT JOIN ward_chicago
         ON p.x_3435 = ward_chicago.x_3435
         AND p.y_3435 = ward_chicago.y_3435
