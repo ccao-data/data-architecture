@@ -1,4 +1,4 @@
-/**
+/*
 View containing cleaned, filled data for residential condo modeling. Missing data is
 filled with the following steps:
 
@@ -9,7 +9,7 @@ filled with the following steps:
 
 WARNING: This is a very heavy view. Don't use it for anything other than making
 extracts for modeling
-**/
+*/
 CREATE OR REPLACE VIEW model.temp_vw_pin_condo_input AS
 WITH uni AS (
 
@@ -62,7 +62,8 @@ sqft_percentiles AS (
             ON ch.pin = l.parid and ch.year = l.taxyr
         GROUP BY ch.year, l.user1
 ),
-tax_bill_amount AS ( -- Removing fill for now, since this will be pulled from PTAXSIM in the future
+tax_bill_amount AS ( 
+    -- Removing fill for now, since this will be pulled from PTAXSIM in the future
     SELECT
         pardat.parid AS pin,
         pardat.taxyr AS year,

@@ -1,4 +1,4 @@
--- Source of truth view for PIN address
+-- Source of truth view for PIN address, both legal and mailing
 CREATE OR REPLACE VIEW default.vw_pin_address AS
 SELECT
     -- Main PIN-level attribute data from iasWorld

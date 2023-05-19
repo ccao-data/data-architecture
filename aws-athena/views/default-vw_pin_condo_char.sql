@@ -1,19 +1,18 @@
-/**
+/*
 View containing cleaned, filled data for condo modeling. Missing data is
-filled as following:
+filled as follows:
 
-Conod characteristics are filled with whatever the most recent non NULL
+Condo characteristics are filled with whatever the most recent non-NULL
 value is. This assumes that new condo data is more accurate than older
 data, not that it represents a change in a unit's characteristics. This
-should only be the case while condo characteristics are culled from excel
+should only be the case while condo characteristics are pulled from excel
 workbooks rather than iasWorld.
-**/
+*/
 
 CREATE OR REPLACE VIEW default.vw_pin_condo_char
 AS
 WITH aggregate_land AS (
     SELECT
-
         parid,
         taxyr,
         CASE
@@ -27,9 +26,15 @@ WITH aggregate_land AS (
 
     GROUP BY parid,taxyr
     ),
--- Valuations has detected some PINs that shouldn't be considered parking spaces
-questionable_gr AS (SELECT pin, TRUE AS is_question_garage_unit FROM ccao.pin_questionable_garage_units),
--- For some reason PINs can have cur != 'Y' in the current year even when there's only one row
+-- Valuations-provided PINs that shouldn't be considered parking spaces
+questionable_gr AS (
+    SELECT
+        pin,
+        TRUE AS is_question_garage_unit
+    FROM ccao.pin_questionable_garage_units
+),
+-- For some reason PINs can have cur != 'Y' in the current year even
+-- when there's only one row
 oby_filtered AS (
     SELECT * FROM (
         SELECT
@@ -52,7 +57,7 @@ comdat_filtered AS (
     )
     WHERE (cur = 'Y' OR (cur_count = 0 and row_no = 1))
 ),
--- Prior year AV, used to help fing parking spaces and common areas
+-- Prior year AV, used to help find parking spaces and common areas
 prior_values AS (
     SELECT
 
@@ -73,9 +78,9 @@ prior_values AS (
     ),
 -- All characteristics associated with condos in the OBY (299s)/COMDAT (399s) tables
 chars AS (
-    SELECT DISTINCT * FROM ( -- Distinct because oby and comdat contain multiple cards for a few condos
+    -- Distinct because oby and comdat contain multiple cards for a few condos
+    SELECT DISTINCT * FROM (
         SELECT
-
             pardat.parid AS pin,
             CASE
                 WHEN pardat.class IN ('299', '2-99') THEN oby.card
@@ -129,8 +134,8 @@ chars AS (
 
         FROM iasworld.pardat
 
-        -- Left joins because pardat contains both 299s & 399s (oby and comdat do not)
-        -- and pin_condo_char doesn't contain all condos
+        -- Left joins because pardat contains both 299s & 399s (oby and comdat
+        -- do not) and pin_condo_char doesn't contain all condos
         LEFT JOIN oby_filtered oby
             ON pardat.parid = oby.parid
             AND pardat.taxyr = oby.taxyr
@@ -161,7 +166,8 @@ filled AS (
         year,
         township_code,
         char_yrblt,
-        -- CDUs/notes are not well-maintained year-to-year, but CDU CAN be updated to NULL
+        -- CDUs/notes are not well-maintained year-to-year
+        -- but CDU CAN be updated to NULL
         FIRST_VALUE(cdu)
             OVER (PARTITION BY pin ORDER BY year DESC)
             AS cdu,
@@ -214,8 +220,8 @@ SELECT DISTINCT
         THEN '299'
         ELSE filled.class END AS class,
     filled.township_code,
-    -- Count pin rather than lline here since lline can be null. It shouldn't be,
-    -- but some condo PINs exist in PARDAT and not OBY.
+    -- Count pin rather than lline here since lline can be null. It shouldn't
+    -- be, but some condo PINs exist in PARDAT and not OBY
     CASE
         WHEN COUNT(filled.pin) OVER (PARTITION BY filled.pin, filled.year) > 1 THEN TRUE
         ELSE FALSE
@@ -238,7 +244,8 @@ SELECT DISTINCT
             OR SUBSTR(filled.unitno, 1, 3) = 'GAR'
             OR filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
-            -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
+            -- If a unit's percent of the declaration is less than half of
+            -- what it would be if all units had an equal share, AV limited
             OR (filled.tiebldgpct < (50 / filled.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
             OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000)
             AND questionable_gr.is_question_garage_unit IS NULL
@@ -262,7 +269,8 @@ SELECT DISTINCT
             OR SUBSTR(filled.unitno, 1, 3) = 'GAR'
             OR filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
-            -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
+            -- If a unit's percent of the declaration is less than half of
+            -- what it would be if all units had an equal share, AV limited
             OR (filled.tiebldgpct < (50 / filled.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000)
             OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000)
             AND questionable_gr.is_question_garage_unit IS NULL
@@ -276,7 +284,8 @@ SELECT DISTINCT
         WHEN filled.cdu = 'GR' THEN 'cdu'
         WHEN (SUBSTR(filled.unitno, 1, 1) = 'P' AND filled.unitno != 'PH')
             OR SUBSTR(filled.unitno, 1, 3) = 'GAR' THEN 'unit number'
-        -- If a unit's percent of the declaration is less than half of what it would be if all units had an equal share, AV limited
+        -- If a unit's percent of the declaration is less than half of what
+        -- it would be if all units had an equal share, AV limited
         WHEN (filled.tiebldgpct < (50 / filled.building_pins) AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000) THEN 'declaration percent'
         WHEN prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000 THEN 'prior value'
         ELSE NULL

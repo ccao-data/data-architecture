@@ -43,7 +43,8 @@ SELECT
     date_parse(dweldat.wen, '%Y-%m-%d %H:%i:%s.%f') AS updated_at,
 
     -- PIN information
-    dweldat.class, -- 218, 219, 236, 241 classes added to DWELDAT
+    -- 218, 219, 236, 241 classes added to DWELDAT
+    dweldat.class, 
     township_code,
     cdu,
     pardat.tieback AS tieback_key_pin,
@@ -56,10 +57,8 @@ SELECT
     pin_is_multiland,
     pin_num_landlines,
 
-    -- New variables
-    yrblt AS char_yrblt,
-
     -- Continuous variables
+    yrblt AS char_yrblt,
     sfla AS char_bldg_sf,
     total_land_sf AS char_land_sf,
     rmbed AS char_beds,
@@ -124,15 +123,6 @@ SELECT
     dweldat.user30 AS char_porch,
     dweldat.user7 AS char_air,
     dweldat.user5 AS char_tp_plan
-
-    -- To investigate later:
-    -- plumval
-    -- atticval
-    -- wbfpval
-    -- subtval
-    -- user38
-    -- user23
-    -- convbldg
 
 FROM iasworld.dweldat
 LEFT JOIN iasworld.pardat

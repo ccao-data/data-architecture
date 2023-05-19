@@ -13,7 +13,6 @@ also worth nothing that "model year" has has 1 added to it solely for
 the sake of reporting in this view - models with a 'meta_year' value
 of 2022 in model.assessment_pin will populate the view with a value of
 2023 for 'year'.
-THIS VIEW NEEDS TO BE UPDATED WITH FINAL MODEL RUN IDs EACH YEAR
 */
 CREATE OR REPLACE VIEW reporting.vw_res_report_summary
 AS
@@ -38,7 +37,8 @@ WITH town_class AS (
     LEFT JOIN spatial.township t ON l.user1 = t.township_code
 
     ),
--- Final model values (Add 1 to model year since '2021' correspond to '2022' mailed values in iasWorld)
+-- Final model values (Add 1 to model year since '2021' correspond to '2022'
+-- mailed values in iasWorld)
 model_values AS (
     SELECT
         meta_pin AS parid,
@@ -56,11 +56,8 @@ model_values AS (
     LEFT JOIN town_class tc
         ON ap.meta_pin = tc.parid AND ap.meta_year = tc.model_join_year
 
-    WHERE run_id IN (
-        '2023-03-14-clever-damani', '2023-03-15-clever-kyra', --- 2023 models
-        '2022-04-26-beautiful-dan', '2022-04-27-keen-gabe'  --- 2022 models
-        )
-        AND property_group IS NOT NULL
+    WHERE run_id IN (SELECT run_id FROM model.final_model)
+    AND property_group IS NOT NULL
 ),
 -- Values by assessment stages available in iasWorld (not model)
 iasworld_values AS (
@@ -114,7 +111,8 @@ all_values AS (
     UNION
     SELECT * FROM iasworld_values
 ),
--- Count of each class by different reporting groups (property group, assessment stage, town/nbhd)
+-- Count of each class by different reporting groups (property group,
+-- assessment stage, town/nbhd)
 class_counts AS (
     SELECT
         class,

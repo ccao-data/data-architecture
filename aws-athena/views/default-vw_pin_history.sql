@@ -14,7 +14,7 @@ AS
     SELECT
       parid,
       taxyr,
-      substr(TAXDIST, 1, 2) AS township_code
+      user1 AS township_code,
   FROM iasworld.legdat
   ),
   -- Add township name

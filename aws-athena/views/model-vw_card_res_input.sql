@@ -1,4 +1,4 @@
-/**
+/*
 View containing cleaned, filled data for residential modeling. Missing data is
 filled with the following steps:
 
@@ -12,7 +12,7 @@ filled with the following steps:
 
 WARNING: This is a very heavy view. Don't use it for anything other than making
 extracts for modeling
-**/
+*/
 CREATE OR REPLACE VIEW model.vw_card_res_input AS
 WITH uni AS (
 

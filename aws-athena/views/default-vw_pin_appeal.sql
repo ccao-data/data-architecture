@@ -1,5 +1,4 @@
- -- View containing appeals by PIN.
- -- Appeal values are not yet in iasWorld, so this view cannot be completed
+ -- View containing appeals by PIN
 CREATE OR REPLACE VIEW default.vw_pin_appeal AS
 SELECT
     htpar.parid AS pin,
@@ -25,7 +24,8 @@ SELECT
         WHEN htpar.user38 = 'OM' THEN 'omitteed assessment'
         WHEN htpar.user38 = 'RS' THEN 'residential'
     ELSE NULL END AS appeal_type,
-    -- Status, reason codes, and agent name come from different columns before and after 2020
+    -- Status, reason codes, and agent name come from different columns
+    -- before and after 2020
     CASE
         WHEN htpar.taxyr < '2020' AND htpar.resact = 'C' THEN 'change'
         WHEN htpar.taxyr < '2020' AND htpar.resact = 'NC' THEN 'no change'
