@@ -1,22 +1,24 @@
 -- Source of truth view for PIN location
-CREATE OR REPLACE VIEW default.vw_pin_universe AS
+CREATE OR REPLACE VIEW
+    DEFAULT.vw_pin_universe AS
 SELECT
     -- Main PIN-level attribute data from iasWorld
     par.parid AS pin,
     SUBSTR(par.parid, 1, 10) AS pin10,
-    par.taxyr AS year,
-    regexp_replace(par.class,'([^0-9EXR])','') AS class,
+    par.taxyr AS YEAR,
+    REGEXP_REPLACE(par.class, '([^0-9EXR])', '') AS class,
     twn.triad_name,
     twn.triad_code,
     twn.township_name,
     leg.user1 AS township_code,
-    regexp_replace(par.nbhd,'([^0-9])','') AS nbhd_code,
+    REGEXP_REPLACE(par.nbhd, '([^0-9])', '') AS nbhd_code,
     leg.taxdist AS tax_code,
     NULLIF(leg.zip1, '00000') AS zip_code,
-
     -- Centroid of each PIN from county parcel files
-    sp.lon, sp.lat, sp.x_3435, sp.y_3435,
-
+    sp.lon,
+    sp.lat,
+    sp.x_3435,
+    sp.y_3435,
     -- PIN locations from spatial joins
     census_block_group_geoid,
     census_block_geoid,
@@ -110,16 +112,13 @@ SELECT
     access_cmap_walk_data_year,
     misc_subdivision_id,
     misc_subdivision_data_year
-
-FROM iasworld.pardat par
-LEFT JOIN iasworld.legdat leg
-    ON par.parid = leg.parid
+FROM
+    iasworld.pardat par
+    LEFT JOIN iasworld.legdat leg ON par.parid = leg.parid
     AND par.taxyr = leg.taxyr
-LEFT JOIN spatial.parcel sp
-    ON SUBSTR(par.parid, 1, 10) = sp.pin10
+    LEFT JOIN spatial.parcel sp ON SUBSTR(par.parid, 1, 10) = sp.pin10
     AND par.taxyr = sp.year
-LEFT JOIN location.vw_pin10_location vwl
-    ON SUBSTR(par.parid, 1, 10) = vwl.pin10
+    LEFT JOIN location.vw_pin10_location vwl ON SUBSTR(par.parid, 1, 10) = vwl.pin10
     AND par.taxyr = vwl.year
-LEFT JOIN spatial.township twn
-    ON leg.user1 = CAST(twn.township_code AS varchar)
+    LEFT JOIN spatial.township twn ON leg.user1 = CAST(twn.township_code AS VARCHAR)
+
