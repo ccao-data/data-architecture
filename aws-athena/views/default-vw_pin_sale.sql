@@ -12,7 +12,8 @@ WITH town_class AS (
 
     LEFT JOIN iasworld.legdat l ON p.parid = l.parid AND p.taxyr = l.taxyr
 ),
--- "nopar" isn't entirely accurate for sales associated with only one parcel, so we create our own counter
+-- "nopar" isn't entirely accurate for sales associated with only one parcel,
+-- so we create our own counter
 calculated AS (
     SELECT
         instruno,
@@ -45,8 +46,9 @@ unique_sales AS (
                 WHEN sales.saletype = '0' THEN 'LAND'
                 WHEN sales.saletype = '1' THEN 'LAND AND BUILDING'
             END AS sale_type,
-            -- Sales are not entirely unique by pin/date so we group all sales b pin/date
-            -- then order then order by descending price and give the top observation a value of 1 for "max_price"
+            -- Sales are not entirely unique by pin/date so we group all
+            -- sales by pin/date, then order then order by descending price
+            -- and give the top observation a value of 1 for "max_price"
             Row_number() OVER(
                 PARTITION BY sales.parid, sales.saledt ORDER BY sales.price DESC
             ) AS max_price,
@@ -71,7 +73,8 @@ unique_sales AS (
     )
     -- Only use max price by pin/sale date
     WHERE max_price = 1
-    -- Drop sales for a given pin if it has sold within the last 12 months for the same price
+    -- Drop sales for a given pin if it has sold within the last 12 months
+    -- for the same price
     AND (
         Extract(day FROM sale_date - same_price_earlier_date) > 365
         OR same_price_earlier_date IS NULL
@@ -141,11 +144,12 @@ mydec_sales AS (
         FROM sale.mydec
         WHERE is_earliest_within_doc_no
     )
-    /*Some sales in mydec have multiple rows for one pin on a given sale date. These are likely individual cards
-    being sold since they have different doc numbers. The issue is that sometimes they have different dates than
-    iasworld prior to 2021 and when joined back onto unique_sales will create duplicates by pin/sale date.
-    We don't know whether these values should be summed or not, so we'll exclude them to avoid afore mentioned
-    duplicates.*/
+    /* Some sales in mydec have multiple rows for one pin on a given sale date.
+    These are likely individual cards being sold since they have different doc
+    numbers. The issue is that sometimes they have different dates than iasworld
+    prior to 2021 and when joined back onto unique_sales will create duplicates
+    by pin/sale date. We don't know whether these values should be summed or
+    not, so we'll exclude them to avoid afore mentioned duplicates. */
     WHERE num_cards_sale = 1
         OR (YEAR(mydec_date) > 2020)
 )
@@ -155,7 +159,8 @@ SELECT
     unique_sales.township_code,
     unique_sales.nbhd,
     unique_sales.class,
-    --- In the past, mydec sale dates were more precise than iasworld dates which had been truncated
+    --- In the past, mydec sale dates were more precise than iasworld dates
+    -- which had been truncated
     CASE
         WHEN mydec_date IS NOT NULL AND mydec_date != unique_sales.sale_date THEN mydec_date
         ELSE unique_sales.sale_date END AS sale_date,

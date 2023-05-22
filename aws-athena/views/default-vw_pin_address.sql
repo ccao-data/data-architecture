@@ -1,5 +1,5 @@
--- Source of truth view for PIN address
-CREATE OR REPLACE VIEW default.temp_vw_pin_address AS
+-- Source of truth view for PIN address, both legal and mailing
+CREATE OR REPLACE VIEW default.vw_pin_address AS
 SELECT
     -- Main PIN-level attribute data from iasWorld
     par.parid AS pin,

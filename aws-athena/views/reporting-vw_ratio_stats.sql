@@ -1,4 +1,3 @@
--- THIS SCRIPT NEEDS TO BE UPDATED WITH FINAL MODEL RUN IDs EACH YEAR
 -- View containing ratios by pin, intended to feed glue job 'reporting-ratio_stats'.
 CREATE OR replace VIEW reporting.vw_ratio_stats
 AS
@@ -16,7 +15,8 @@ WITH classes AS (
     FROM iasworld.pardat
 
     ),
--- Townships from legdat since pardat has some errors we can't accept for public reporting
+-- Townships from legdat since pardat has some errors we can't accept
+-- for public reporting
 townships AS (
 
     SELECT
@@ -45,8 +45,8 @@ model_values AS (
     LEFT JOIN townships
         ON assessment_pin.meta_pin = townships.parid AND assessment_pin.meta_year = townships.taxyr
 
-    WHERE run_id IN ('2022-04-26-beautiful-dan', '2022-04-27-keen-gabe')
-        AND property_group IS NOT NULL
+    WHERE run_id IN (SELECT run_id FROM model.final_model)
+    AND property_group IS NOT NULL
 
 ),
 -- Values by assessment stages available in iasWorld (not model)
@@ -106,7 +106,8 @@ all_values AS (
         ON vps.pin = classes.parid AND vps.year = classes.taxyr
     LEFT JOIN townships
         ON vps.pin = townships.parid AND vps.year = townships.taxyr
-    -- Join sales so that values for a given year can be compared to a complete set of sales from the previous year
+    -- Join sales so that values for a given year can be compared to a
+    -- complete set of sales from the previous year
     INNER JOIN all_values av ON vps.pin = av.parid
         AND CAST(vps.year AS INT) = CAST(av.year AS INT) - 1
     -- Grab parking spaces and join them to aggregate stats for removal
