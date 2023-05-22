@@ -13,6 +13,8 @@ also worth nothing that "model year" has has 1 added to it solely for
 the sake of reporting in this view - models with a 'meta_year' value
 of 2022 in model.assessment_pin will populate the view with a value of
 2023 for 'year'.
+
+Intended to feed glue job 'res_report_summary'.
 */
 CREATE OR REPLACE VIEW reporting.vw_res_report_summary
 AS
