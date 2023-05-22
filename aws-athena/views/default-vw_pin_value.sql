@@ -3,8 +3,8 @@ CREATE OR replace VIEW default.vw_pin_value
 AS
   -- CCAO mailed_tot, CCAO final, and BOR final values for each PIN by year
     SELECT
-        parid,
-        taxyr,
+        parid as pin,
+        taxyr as year,
         -- Mailed values
         Max(
           CASE

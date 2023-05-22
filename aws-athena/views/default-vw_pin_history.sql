@@ -26,8 +26,8 @@ AS
     )
   -- Add lagged values for previous two years
 SELECT
-  vwpv.parid AS pin,
-  vwpv.taxyr AS year,
+  vwpv.pin,
+  vwpv.year,
   classes.class,
   townships.township_code,
   town_names.township_name,
@@ -41,73 +41,73 @@ SELECT
   board_land,
   board_tot,
   Lag(mailed_bldg) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_mailed_bldg,
   Lag(mailed_land) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_mailed_land,
   Lag(mailed_tot) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_mailed_tot,
   Lag(certified_bldg) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_certified_bldg,
   Lag(certified_land) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_certified_land,
   Lag(certified_tot) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_certified_tot,
   Lag(board_bldg) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_board_bldg,
   Lag(board_land) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_board_land,
   Lag(board_tot) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_board_tot,
   Lag(mailed_tot, 2) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_mailed_tot,
   Lag(certified_bldg, 2) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_certified_bldg,
   Lag(certified_land, 2) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_certified_land,
   Lag(certified_tot, 2) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_certified_tot,
   Lag(board_bldg, 2) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_board_bldg,
   Lag(board_land, 2) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_board_land,
   Lag(board_tot, 2) over(
-    PARTITION BY vwpv.parid
-    ORDER BY vwpv.parid, vwpv.taxyr
+    PARTITION BY vwpv.pin
+    ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_board_tot
 
 FROM default.vw_pin_value vwpv
-LEFT JOIN townships ON vwpv.parid = townships.parid
-  AND vwpv.taxyr = townships.taxyr
-LEFT JOIN classes ON vwpv.parid = classes.parid
-  AND vwpv.taxyr = classes.taxyr
+LEFT JOIN townships ON vwpv.pin = townships.parid
+  AND vwpv.year = townships.taxyr
+LEFT JOIN classes ON vwpv.pin = classes.parid
+  AND vwpv.year = classes.taxyr
 LEFT JOIN town_names ON townships.township_code = town_names.township_code

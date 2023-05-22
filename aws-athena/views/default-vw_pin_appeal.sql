@@ -62,8 +62,8 @@ LEFT JOIN iasworld.legdat
     ON htpar.parid = legdat.parid
     AND htpar.taxyr = legdat.taxyr
 LEFT JOIN default.vw_pin_value vwpv
-    ON htpar.parid = vwpv.parid
-    AND htpar.taxyr = vwpv.taxyr
+    ON htpar.parid = vwpv.pin
+    AND htpar.taxyr = vwpv.year
 LEFT JOIN iasworld.htagnt
     ON htpar.cpatty = htagnt.agent
 WHERE htpar.cur = 'Y'
