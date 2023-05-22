@@ -255,7 +255,6 @@ SELECT DISTINCT
         AS char_building_non_units,
 
     filled.building_pins as char_building_pins,
-    filled.tiebldgpct as char_tiebldgpct,
     total_building_land_sf as char_land_sf,
     filled.cdu,
     filled.note,
