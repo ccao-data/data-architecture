@@ -19,21 +19,21 @@
         "DatabaseName": "model",
         "Classifiers": [],
         "SchemaChangePolicy": {
-            "UpdateBehavior": "UPDATE_IN_DATABASE",
-            "DeleteBehavior": "DELETE_FROM_DATABASE"
+            "UpdateBehavior": "LOG",
+            "DeleteBehavior": "LOG"
         },
         "State": "READY",
         "CrawlElapsedTime": 0,
         "CreationTime": "2022-01-31T17:47:47-06:00",
-        "LastUpdated": "2022-02-16T15:05:59-06:00",
+        "LastUpdated": "2023-05-18T15:22:44-05:00",
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-model-results-crawler",
-            "MessagePrefix": "ff951279-890f-4e74-92ac-0e02ed8d0cb2",
-            "StartTime": "2022-05-06T12:39:59-05:00"
+            "MessagePrefix": "27af842c-6249-462c-b236-be41534caa8b",
+            "StartTime": "2023-05-18T15:18:07-05:00"
         },
-        "Version": 2,
-        "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":2}}"
+        "Version": 9,
+        "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":2},\"CreatePartitionIndex\":true}"
     }
 }

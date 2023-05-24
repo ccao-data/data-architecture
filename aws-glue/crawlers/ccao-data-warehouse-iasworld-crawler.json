@@ -31,8 +31,8 @@
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-iasworld-crawler",
-            "MessagePrefix": "48fd7798-8c71-4824-bff6-ac430d1f234b",
-            "StartTime": "2022-12-30T00:00:57-06:00"
+            "MessagePrefix": "f3c297ce-4c80-4748-9cb0-651a3d6e8556",
+            "StartTime": "2023-05-24T01:00:32-05:00"
         },
         "Version": 5,
         "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":2}}"

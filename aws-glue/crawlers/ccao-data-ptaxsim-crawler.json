@@ -27,8 +27,8 @@
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-ptaxsim-crawler",
-            "MessagePrefix": "960b8bdb-b761-41ab-b2cf-47fe7202444e",
-            "StartTime": "2022-12-06T16:05:26-06:00"
+            "MessagePrefix": "af6ee008-68e0-4fe7-8f1a-7d0cb6c92288",
+            "StartTime": "2023-04-28T11:25:32-05:00"
         },
         "Version": 1,
         "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":2}}"
