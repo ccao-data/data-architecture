@@ -1,6 +1,6 @@
 [sqlfluff]
 dialect = athena
-exclude_rules = ambiguous.column_count, structure.column_order, RF04, ST01, LT12
+exclude_rules = ambiguous.column_count, structure.column_order, RF04
 large_file_skip_byte_limit = 0
 processes = -1
 
@@ -20,7 +20,7 @@ aliasing = explicit
 [sqlfluff:rules:aliasing.column]
 aliasing = explicit
 [sqlfluff:rules:aliasing.length]
-min_alias_length = 1
+min_alias_length = 2
 
 [sqlfluff:rules:capitalisation.keywords]
 capitalisation_policy = upper
