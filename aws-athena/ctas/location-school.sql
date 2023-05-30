@@ -1,64 +1,77 @@
 CREATE TABLE IF NOT EXISTS location.school
 WITH (
-    format='Parquet',
-    write_compression = 'SNAPPY',
-    external_location='s3://ccao-athena-ctas-us-east-1/location/school',
-    partitioned_by = ARRAY['year'],
-    bucketed_by = ARRAY['pin10'],
-    bucket_count = 1
+    FORMAT = 'Parquet',
+    WRITE_COMPRESSION = 'SNAPPY',
+    EXTERNAL_LOCATION = 's3://ccao-athena-ctas-us-east-1/location/school',
+    PARTITIONED_BY = ARRAY['year'],
+    BUCKETED_BY = ARRAY['pin10'],
+    BUCKET_COUNT = 1
 ) AS (
     WITH distinct_pins AS (
-        SELECT DISTINCT x_3435, y_3435
+        SELECT DISTINCT
+            x_3435,
+            y_3435
         FROM spatial.parcel
     ),
+
     distinct_years_rhs AS (
         SELECT DISTINCT year
         FROM spatial.school_district
         WHERE geoid IS NOT NULL
     ),
+
     distinct_joined AS (
         SELECT
-            p.x_3435, p.y_3435,
-        MAX(CASE
+            p.x_3435,
+            p.y_3435,
+            MAX(CASE
                 WHEN school.district_type = 'elementary' THEN school.geoid
                 ELSE NULL
             END) AS school_elementary_district_geoid,
-        MAX(CASE
+            MAX(CASE
                 WHEN school.district_type = 'elementary' THEN school.name
                 ELSE NULL
             END) AS school_elementary_district_name,
-        MAX(CASE
+            MAX(CASE
                 WHEN school.district_type = 'secondary' THEN school.geoid
                 ELSE NULL
             END) AS school_secondary_district_geoid,
-        MAX(CASE
+            MAX(CASE
                 WHEN school.district_type = 'secondary' THEN school.name
                 ELSE NULL
             END) AS school_secondary_district_name,
-        MAX(CASE
+            MAX(CASE
                 WHEN school.district_type = 'unified' THEN school.geoid
                 ELSE NULL
             END) AS school_unified_district_geoid,
-        MAX(CASE
+            MAX(CASE
                 WHEN school.district_type = 'unified' THEN school.name
                 ELSE NULL
             END) AS school_unified_district_name,
-        school.year
-        FROM distinct_pins p
-        LEFT JOIN spatial.school_district school
-            ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(school.geometry_3435))
+            school.year
+        FROM distinct_pins AS p
+        LEFT JOIN spatial.school_district AS school
+            ON ST_WITHIN(
+                ST_POINT(p.x_3435, p.y_3435),
+                ST_GEOMFROMBINARY(school.geometry_3435)
+            )
         GROUP BY p.x_3435, p.y_3435, school.year
     )
+
     SELECT
         p.pin10,
-        school_elementary_district_geoid, school_elementary_district_name,
-        school_secondary_district_geoid, school_secondary_district_name,
-        school_unified_district_geoid, school_unified_district_name,
-        CONCAT(CAST(CAST(dj.year AS integer) - 1 AS varchar), ' - ', dj.year) AS school_school_year,
+        school_elementary_district_geoid,
+        school_elementary_district_name,
+        school_secondary_district_geoid,
+        school_secondary_district_name,
+        school_unified_district_geoid,
+        school_unified_district_name,
+        CONCAT(CAST(CAST(dj.year AS INTEGER) - 1 AS VARCHAR), ' - ', dj.year)
+            AS school_school_year,
         dj.year AS school_data_year,
         p.year
-    FROM spatial.parcel p
-    LEFT JOIN distinct_joined dj
+    FROM spatial.parcel AS p
+    LEFT JOIN distinct_joined AS dj
         ON p.year = dj.year
         AND p.x_3435 = dj.x_3435
         AND p.y_3435 = dj.y_3435

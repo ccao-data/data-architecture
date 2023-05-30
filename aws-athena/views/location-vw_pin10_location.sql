@@ -101,7 +101,7 @@ SELECT
     access_cmap_walk_data_year,
     misc_subdivision_id,
     misc_subdivision_data_year
-FROM spatial.parcel pin
+FROM spatial.parcel AS pin
 LEFT JOIN location.census
     ON pin.pin10 = census.pin10
     AND pin.year = census.year

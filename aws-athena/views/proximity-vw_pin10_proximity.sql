@@ -70,7 +70,7 @@ SELECT
     nearest_neighbor_2_dist_ft,
     nearest_neighbor_3_pin10,
     nearest_neighbor_3_dist_ft
-FROM spatial.parcel pin
+FROM spatial.parcel AS pin
 LEFT JOIN proximity.cnt_pin_num_bus_stop
     ON pin.pin10 = cnt_pin_num_bus_stop.pin10
     AND pin.year = cnt_pin_num_bus_stop.year

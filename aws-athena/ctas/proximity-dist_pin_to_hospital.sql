@@ -1,33 +1,43 @@
 -- CTAS to create a table of distance to the nearest hospital for each PIN
 CREATE TABLE IF NOT EXISTS proximity.dist_pin_to_hospital
 WITH (
-    format='Parquet',
-    write_compression = 'SNAPPY',
-    external_location='s3://ccao-athena-ctas-us-east-1/proximity/dist_pin_to_hospital',
-    partitioned_by = ARRAY['year'],
-    bucketed_by = ARRAY['pin10'],
-    bucket_count = 1
+    FORMAT = 'Parquet',
+    WRITE_COMPRESSION = 'SNAPPY',
+    EXTERNAL_LOCATION
+    = 's3://ccao-athena-ctas-us-east-1/proximity/dist_pin_to_hospital',
+    PARTITIONED_BY = ARRAY['year'],
+    BUCKETED_BY = ARRAY['pin10'],
+    BUCKET_COUNT = 1
 ) AS (
     WITH distinct_pins AS (
-        SELECT DISTINCT x_3435, y_3435
+        SELECT DISTINCT
+            x_3435,
+            y_3435
         FROM spatial.parcel
     ),
+
     distinct_years AS (
         SELECT DISTINCT year
         FROM spatial.parcel
     ),
+
     hospital_location AS (
-        SELECT fill_years.pin_year, fill_data.*
+        SELECT
+            fill_years.pin_year,
+            fill_data.*
         FROM (
-            SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
-            FROM spatial.hospital df
-            CROSS JOIN distinct_years dy
+            SELECT
+                dy.year AS pin_year,
+                MAX(df.year) AS fill_year
+            FROM spatial.hospital AS df
+            CROSS JOIN distinct_years AS dy
             WHERE dy.year >= df.year
             GROUP BY dy.year
-        ) fill_years
-        LEFT JOIN spatial.hospital fill_data
+        ) AS fill_years
+        LEFT JOIN spatial.hospital AS fill_data
             ON fill_years.fill_year = fill_data.year
     ),
+
     distances AS (
         SELECT
             p.x_3435,
@@ -36,13 +46,14 @@ WITH (
             o.gniscode,
             o.pin_year,
             o.year,
-            ST_Distance(
-                ST_Point(p.x_3435, p.y_3435),
-                ST_GeomFromBinary(o.geometry_3435)
-            ) distance
-        FROM distinct_pins p
-        CROSS JOIN hospital_location o
+            ST_DISTANCE(
+                ST_POINT(p.x_3435, p.y_3435),
+                ST_GEOMFROMBINARY(o.geometry_3435)
+            ) AS distance
+        FROM distinct_pins AS p
+        CROSS JOIN hospital_location AS o
     ),
+
     xy_to_hospital_dist AS (
         SELECT
             d1.x_3435,
@@ -52,7 +63,7 @@ WITH (
             d1.pin_year,
             d1.year,
             d2.dist_ft
-        FROM distances d1
+        FROM distances AS d1
         INNER JOIN (
             SELECT
                 x_3435,
@@ -61,21 +72,23 @@ WITH (
                 MIN(distance) AS dist_ft
             FROM distances
             GROUP BY x_3435, y_3435, pin_year
-        ) d2
-           ON d1.x_3435 = d2.x_3435
-           AND d1.y_3435 = d2.y_3435
-           AND d1.pin_year = d2.pin_year
-           AND d1.distance = d2.dist_ft
+        ) AS d2
+            ON d1.x_3435 = d2.x_3435
+            AND d1.y_3435 = d2.y_3435
+            AND d1.pin_year = d2.pin_year
+            AND d1.distance = d2.dist_ft
     )
+
     SELECT
         p.pin10,
-        CAST(CAST(ARBITRARY(xy.gniscode) AS bigint) AS varchar) AS nearest_hospital_gnis_code,
+        CAST(CAST(ARBITRARY(xy.gniscode) AS BIGINT) AS VARCHAR)
+            AS nearest_hospital_gnis_code,
         ARBITRARY(xy.name) AS nearest_hospital_name,
         ARBITRARY(xy.dist_ft) AS nearest_hospital_dist_ft,
         ARBITRARY(xy.year) AS nearest_hospital_data_year,
         p.year
-    FROM spatial.parcel p
-    INNER JOIN xy_to_hospital_dist xy
+    FROM spatial.parcel AS p
+    INNER JOIN xy_to_hospital_dist AS xy
         ON p.x_3435 = xy.x_3435
         AND p.y_3435 = xy.y_3435
         AND p.year = xy.pin_year

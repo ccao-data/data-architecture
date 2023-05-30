@@ -70,8 +70,8 @@ SELECT
     dist_pin_to_pin.nearest_neighbor_2_dist_ft,
     dist_pin_to_pin.nearest_neighbor_3_pin10,
     dist_pin_to_pin.nearest_neighbor_3_dist_ft
-FROM spatial.parcel pin
-INNER JOIN proximity.crosswalk_year_fill cyf
+FROM spatial.parcel AS pin
+INNER JOIN proximity.crosswalk_year_fill AS cyf
     ON pin.year = cyf.year
 LEFT JOIN proximity.cnt_pin_num_bus_stop
     ON pin.pin10 = cnt_pin_num_bus_stop.pin10
@@ -79,10 +79,10 @@ LEFT JOIN proximity.cnt_pin_num_bus_stop
 LEFT JOIN proximity.cnt_pin_num_foreclosure
     ON pin.pin10 = cnt_pin_num_foreclosure.pin10
     AND cyf.num_foreclosure_data_year = cnt_pin_num_foreclosure.year
-LEFT JOIN proximity.cnt_pin_num_school num_school
+LEFT JOIN proximity.cnt_pin_num_school AS num_school
     ON pin.pin10 = num_school.pin10
     AND cyf.num_school_data_year = num_school.year
-LEFT JOIN proximity.cnt_pin_num_school num_school_rating
+LEFT JOIN proximity.cnt_pin_num_school AS num_school_rating
     ON pin.pin10 = num_school_rating.pin10
     AND cyf.num_school_rating_data_year = num_school_rating.year
 LEFT JOIN proximity.dist_pin_to_bike_trail

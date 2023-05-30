@@ -1,20 +1,24 @@
 CREATE TABLE IF NOT EXISTS location.environment
 WITH (
-    format='Parquet',
-    write_compression = 'SNAPPY',
-    external_location='s3://ccao-athena-ctas-us-east-1/location/environment',
-    partitioned_by = ARRAY['year'],
-    bucketed_by = ARRAY['pin10'],
-    bucket_count = 1
+    FORMAT = 'Parquet',
+    WRITE_COMPRESSION = 'SNAPPY',
+    EXTERNAL_LOCATION = 's3://ccao-athena-ctas-us-east-1/location/environment',
+    PARTITIONED_BY = ARRAY['year'],
+    BUCKETED_BY = ARRAY['pin10'],
+    BUCKET_COUNT = 1
 ) AS (
- WITH distinct_pins AS (
-        SELECT DISTINCT x_3435, y_3435
+    WITH distinct_pins AS (
+        SELECT DISTINCT
+            x_3435,
+            y_3435
         FROM spatial.parcel
     ),
+
     distinct_years AS (
         SELECT DISTINCT year
         FROM spatial.parcel
     ),
+
     distinct_years_rhs AS (
         SELECT DISTINCT year FROM spatial.flood_fema
         UNION ALL
@@ -24,100 +28,130 @@ WITH (
         UNION ALL
         SELECT DISTINCT year FROM other.airport_noise
     ),
+
     ohare_years AS (
-        SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
-        FROM spatial.ohare_noise_contour df
-        CROSS JOIN distinct_years dy
+        SELECT
+            dy.year AS pin_year,
+            MAX(df.year) AS fill_year
+        FROM spatial.ohare_noise_contour AS df
+        CROSS JOIN distinct_years AS dy
         WHERE dy.year >= df.year
         GROUP BY dy.year
     ),
+
     flood_fema AS (
         SELECT
-            p.x_3435, p.y_3435,
+            p.x_3435,
+            p.y_3435,
             MAX(cprod.fema_special_flood_hazard_area) AS env_flood_fema_sfha,
             MAX(cprod.year) AS env_flood_fema_data_year,
             cprod.pin_year
-        FROM distinct_pins p
+        FROM distinct_pins AS p
         LEFT JOIN (
-            SELECT fill_years.pin_year, fill_data.*
+            SELECT
+                fill_years.pin_year,
+                fill_data.*
             FROM (
-                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
-                FROM spatial.flood_fema df
-                CROSS JOIN distinct_years dy
+                SELECT
+                    dy.year AS pin_year,
+                    MAX(df.year) AS fill_year
+                FROM spatial.flood_fema AS df
+                CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
-            ) fill_years
-            LEFT JOIN spatial.flood_fema fill_data
+            ) AS fill_years
+            LEFT JOIN spatial.flood_fema AS fill_data
                 ON fill_years.fill_year = fill_data.year
-        ) cprod
-        ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
+        ) AS cprod
+            ON ST_WITHIN(
+                ST_POINT(p.x_3435, p.y_3435),
+                ST_GEOMFROMBINARY(cprod.geometry_3435)
+            )
         GROUP BY p.x_3435, p.y_3435, cprod.pin_year
     ),
+
     ohare_noise_contour_0000 AS (
         SELECT
-            p.x_3435, p.y_3435,
+            p.x_3435,
+            p.y_3435,
             MAX(cprod.airport) AS airport,
             MAX(cprod.year) AS year,
             cprod.pin_year
-        FROM distinct_pins p
+        FROM distinct_pins AS p
         LEFT JOIN (
-            SELECT fill_years.pin_year, fill_data.*
+            SELECT
+                fill_years.pin_year,
+                fill_data.*
             FROM (
-                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
-                FROM spatial.ohare_noise_contour df
-                CROSS JOIN distinct_years dy
+                SELECT
+                    dy.year AS pin_year,
+                    MAX(df.year) AS fill_year
+                FROM spatial.ohare_noise_contour AS df
+                CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
-            ) fill_years
-            LEFT JOIN spatial.ohare_noise_contour fill_data
+            ) AS fill_years
+            LEFT JOIN spatial.ohare_noise_contour AS fill_data
                 ON fill_years.fill_year = fill_data.year
-        ) cprod
-        ON ST_Within(
-            ST_Point(p.x_3435, p.y_3435),
-            ST_GeomFromBinary(cprod.geometry_3435)
-        )
+        ) AS cprod
+            ON ST_WITHIN(
+                ST_POINT(p.x_3435, p.y_3435),
+                ST_GEOMFROMBINARY(cprod.geometry_3435)
+            )
         GROUP BY p.x_3435, p.y_3435, cprod.pin_year
     ),
+
     ohare_noise_contour_2640 AS (
         SELECT
-            p.x_3435, p.y_3435,
+            p.x_3435,
+            p.y_3435,
             MAX(cprod.airport) AS airport,
             MAX(cprod.year) AS year,
             cprod.pin_year
-        FROM distinct_pins p
+        FROM distinct_pins AS p
         LEFT JOIN (
-            SELECT fill_years.pin_year, fill_data.*
+            SELECT
+                fill_years.pin_year,
+                fill_data.*
             FROM (
-                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
-                FROM spatial.ohare_noise_contour df
-                CROSS JOIN distinct_years dy
+                SELECT
+                    dy.year AS pin_year,
+                    MAX(df.year) AS fill_year
+                FROM spatial.ohare_noise_contour AS df
+                CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
-            ) fill_years
-            LEFT JOIN spatial.ohare_noise_contour fill_data
+            ) AS fill_years
+            LEFT JOIN spatial.ohare_noise_contour AS fill_data
                 ON fill_years.fill_year = fill_data.year
-        ) cprod
-        ON ST_Within(
-            ST_Point(p.x_3435, p.y_3435),
-            ST_Buffer(ST_GeomFromBinary(cprod.geometry_3435), 2640)
-        )
+        ) AS cprod
+            ON ST_WITHIN(
+                ST_POINT(p.x_3435, p.y_3435),
+                ST_BUFFER(ST_GEOMFROMBINARY(cprod.geometry_3435), 2640)
+            )
         GROUP BY p.x_3435, p.y_3435, cprod.pin_year
     )
+
     SELECT
         p.pin10,
         env_flood_fema_sfha,
         env_flood_fema_data_year,
         flood_first_street.fs_flood_factor AS env_flood_fs_factor,
-        flood_first_street.fs_flood_risk_direction AS env_flood_fs_risk_direction,
+        flood_first_street.fs_flood_risk_direction
+            AS env_flood_fs_risk_direction,
         flood_first_street.year AS env_flood_fs_data_year,
         CASE
-            WHEN p.year >= oy.fill_year AND onc0000.airport IS NOT NULL THEN true
-            WHEN p.year >= oy.fill_year AND onc0000.airport IS NULL THEN false
+            WHEN
+                p.year >= oy.fill_year AND onc0000.airport IS NOT NULL
+                THEN TRUE
+            WHEN p.year >= oy.fill_year AND onc0000.airport IS NULL THEN FALSE
             ELSE NULL
         END AS env_ohare_noise_contour_no_buffer_bool,
         CASE
-            WHEN p.year >= oy.fill_year AND onc2640.airport IS NOT NULL THEN true
-            WHEN p.year >= oy.fill_year AND onc2640.airport IS NULL THEN false
+            WHEN
+                p.year >= oy.fill_year AND onc2640.airport IS NOT NULL
+                THEN TRUE
+            WHEN p.year >= oy.fill_year AND onc2640.airport IS NULL THEN FALSE
             ELSE NULL
         END AS env_ohare_noise_contour_half_mile_buffer_bool,
         CASE
@@ -134,7 +168,7 @@ WITH (
             ELSE 'omp'
         END AS env_airport_noise_data_year,
         p.year
-    FROM spatial.parcel p
+    FROM spatial.parcel AS p
     LEFT JOIN flood_fema
         ON p.x_3435 = flood_fema.x_3435
         AND p.y_3435 = flood_fema.y_3435
@@ -142,19 +176,19 @@ WITH (
     LEFT JOIN other.flood_first_street
         ON p.pin10 = flood_first_street.pin10
         AND p.year >= flood_first_street.year
-    LEFT JOIN (SELECT * FROM other.airport_noise WHERE year != 'omp') an
+    LEFT JOIN (SELECT * FROM other.airport_noise WHERE year != 'omp') AS an
         ON p.pin10 = an.pin10
         AND p.year = an.year
-    LEFT JOIN (SELECT * FROM other.airport_noise WHERE year = 'omp') omp
+    LEFT JOIN (SELECT * FROM other.airport_noise WHERE year = 'omp') AS omp
         ON p.pin10 = omp.pin10
         AND p.year >= '2021'
-    LEFT JOIN ohare_years oy
+    LEFT JOIN ohare_years AS oy
         ON p.year = oy.pin_year
-    LEFT JOIN ohare_noise_contour_0000 onc0000
+    LEFT JOIN ohare_noise_contour_0000 AS onc0000
         ON p.x_3435 = onc0000.x_3435
         AND p.y_3435 = onc0000.y_3435
         AND p.year = onc0000.pin_year
-    LEFT JOIN ohare_noise_contour_2640 onc2640
+    LEFT JOIN ohare_noise_contour_2640 AS onc2640
         ON p.x_3435 = onc2640.x_3435
         AND p.y_3435 = onc2640.y_3435
         AND p.year = onc2640.pin_year

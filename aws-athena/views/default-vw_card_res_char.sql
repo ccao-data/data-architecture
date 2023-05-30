@@ -5,27 +5,23 @@ WITH multicodes AS (
     SELECT
         parid,
         taxyr,
-        CASE
-            WHEN COUNT(*) > 1 THEN true
-            ELSE false
-        END AS pin_is_multicard,
+        COALESCE(COUNT(*) > 1, FALSE) AS pin_is_multicard,
         COUNT(*) AS pin_num_cards
     FROM iasworld.dweldat
     GROUP BY parid, taxyr
 ),
+
 aggregate_land AS (
     SELECT
         parid,
         taxyr,
-        CASE
-            WHEN COUNT(*) > 1 THEN true
-            ELSE false
-        END AS pin_is_multiland,
+        COALESCE(COUNT(*) > 1, FALSE) AS pin_is_multiland,
         COUNT(*) AS pin_num_landlines,
         SUM(sf) AS total_land_sf
     FROM iasworld.land
     GROUP BY parid, taxyr
 ),
+
 townships AS (
     SELECT
         parid,
@@ -33,6 +29,7 @@ townships AS (
         user1 AS township_code
     FROM iasworld.legdat
 )
+
 SELECT
     dweldat.parid AS pin,
     SUBSTR(dweldat.parid, 1, 10) AS pin10,
@@ -40,18 +37,19 @@ SELECT
     card,
     dweldat.seq,
     dweldat.who AS updated_by,
-    date_parse(dweldat.wen, '%Y-%m-%d %H:%i:%s.%f') AS updated_at,
+    DATE_PARSE(dweldat.wen, '%Y-%m-%d %H:%i:%s.%f') AS updated_at,
 
     -- PIN information
     -- 218, 219, 236, 241 classes added to DWELDAT
-    dweldat.class, 
+    dweldat.class,
     township_code,
     cdu,
     pardat.tieback AS tieback_key_pin,
     CASE
         WHEN pardat.tiebldgpct IS NOT NULL THEN pardat.tiebldgpct / 100.0
-    ELSE 1.0 END AS tieback_proration_rate,
-    CAST(dweldat.user24 AS double) / 100.0 AS card_protation_rate,
+        ELSE 1.0
+    END AS tieback_proration_rate,
+    CAST(dweldat.user24 AS DOUBLE) / 100.0 AS card_protation_rate,
     pin_is_multicard,
     pin_num_cards,
     pin_is_multiland,
@@ -94,32 +92,39 @@ SELECT
 
     -- Indicate a change from 0 or NULL to 1 for renovation
     -- within the last 3 years
-    CASE
-        WHEN (dweldat.user3 = '1' AND
-            Lag(dweldat.user3)
-                over(
-                    PARTITION BY dweldat.parid
-                    ORDER BY dweldat.parid, dweldat.taxyr) != '1') OR
-            (Lag(dweldat.user3)
-                over(
-                    PARTITION BY dweldat.parid
-                    ORDER BY dweldat.parid, dweldat.taxyr) = '1' AND
-            Lag(dweldat.user3, 2)
-                over(
-                    PARTITION BY dweldat.parid
-                    ORDER BY dweldat.parid, dweldat.taxyr) != '1') OR
-            (Lag(dweldat.user3, 2)
-                over(
-                    PARTITION BY dweldat.parid
-                    ORDER BY dweldat.parid, dweldat.taxyr) = '1' AND
-            Lag(dweldat.user3, 3)
-                over(
-                    PARTITION BY dweldat.parid
-                    ORDER BY dweldat.parid, dweldat.taxyr) != '1')
-        THEN true
-        ELSE false
-    END AS char_recent_renovation,
-
+    COALESCE((
+        dweldat.user3 = '1'
+        AND LAG(dweldat.user3)
+            OVER (
+                PARTITION BY dweldat.parid
+                ORDER BY dweldat.parid, dweldat.taxyr
+            )
+        != '1'
+    )
+    OR (LAG(dweldat.user3)
+        OVER (
+            PARTITION BY dweldat.parid
+            ORDER BY dweldat.parid, dweldat.taxyr
+        )
+    = '1'
+    AND LAG(dweldat.user3, 2)
+        OVER (
+            PARTITION BY dweldat.parid
+            ORDER BY dweldat.parid, dweldat.taxyr
+        )
+    != '1')
+    OR (LAG(dweldat.user3, 2)
+        OVER (
+            PARTITION BY dweldat.parid
+            ORDER BY dweldat.parid, dweldat.taxyr
+        )
+    = '1'
+    AND LAG(dweldat.user3, 3)
+        OVER (
+            PARTITION BY dweldat.parid
+            ORDER BY dweldat.parid, dweldat.taxyr
+        )
+    != '1'), FALSE) AS char_recent_renovation,
     dweldat.user30 AS char_porch,
     dweldat.user7 AS char_air,
     dweldat.user5 AS char_tp_plan

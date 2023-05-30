@@ -1,11 +1,10 @@
 -- Source of truth view for PIN location
-CREATE OR REPLACE VIEW
-    DEFAULT.vw_pin_universe AS
+CREATE OR REPLACE VIEW default.vw_pin_universe AS
 SELECT
     -- Main PIN-level attribute data from iasWorld
     par.parid AS pin,
     SUBSTR(par.parid, 1, 10) AS pin10,
-    par.taxyr AS YEAR,
+    par.taxyr AS year,
     REGEXP_REPLACE(par.class, '([^0-9EXR])', '') AS class,
     twn.triad_name,
     twn.triad_code,
@@ -112,13 +111,15 @@ SELECT
     access_cmap_walk_data_year,
     misc_subdivision_id,
     misc_subdivision_data_year
-FROM
-    iasworld.pardat par
-    LEFT JOIN iasworld.legdat leg ON par.parid = leg.parid
+FROM iasworld.pardat AS par
+LEFT JOIN iasworld.legdat AS leg
+    ON par.parid = leg.parid
     AND par.taxyr = leg.taxyr
-    LEFT JOIN spatial.parcel sp ON SUBSTR(par.parid, 1, 10) = sp.pin10
+LEFT JOIN spatial.parcel AS sp
+    ON SUBSTR(par.parid, 1, 10) = sp.pin10
     AND par.taxyr = sp.year
-    LEFT JOIN location.vw_pin10_location vwl ON SUBSTR(par.parid, 1, 10) = vwl.pin10
+LEFT JOIN location.vw_pin10_location AS vwl
+    ON SUBSTR(par.parid, 1, 10) = vwl.pin10
     AND par.taxyr = vwl.year
-    LEFT JOIN spatial.township twn ON leg.user1 = CAST(twn.township_code AS VARCHAR)
-
+LEFT JOIN spatial.township AS twn
+    ON leg.user1 = CAST(twn.township_code AS VARCHAR)

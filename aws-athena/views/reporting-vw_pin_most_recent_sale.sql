@@ -1,27 +1,25 @@
 -- View containing most recent filtered sales
-CREATE OR replace VIEW reporting.vw_pin_most_recent_sale
-AS
+CREATE OR REPLACE VIEW reporting.vw_pin_most_recent_sale AS
 -- Universe of all PINs from most recent year of iasWorld data
 WITH all_pins AS (
-    SELECT DISTINCT
-        parid
+    SELECT DISTINCT parid
     FROM iasworld.pardat
-    WHERE taxyr = CAST(Year(current_date) AS VARCHAR)
-    ),
+    WHERE taxyr = CAST(YEAR(CURRENT_DATE) AS VARCHAR)
+),
+
 -- Order PINs by sale date descending and rank them
 sale_rank AS (
     SELECT
         *,
-        rank() over(
+        RANK() OVER (
             PARTITION BY pin
             ORDER BY sale_date DESC
-            ) AS rank
+        ) AS rank
     FROM default.vw_pin_sale
-    )
+)
 
 SELECT
-
-    CASE WHEN pin IS NULL THEN parid ELSE pin END AS pin,
+    COALESCE(pin, parid) AS pin,
     year,
     township_code,
     class,

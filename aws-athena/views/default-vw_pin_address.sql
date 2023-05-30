@@ -17,7 +17,7 @@ SELECT
     leg.unitno AS prop_address_unit_number,
     NULLIF(CONCAT_WS(
         ' ',
-        leg.adrpre, CAST(leg.adrno AS varchar),
+        leg.adrpre, CAST(leg.adrno AS VARCHAR),
         leg.adrdir, leg.adrstr, leg.adrsuf,
         leg.unitdesc, leg.unitno
     ), '') AS prop_address_full,
@@ -32,22 +32,23 @@ SELECT
         own.own1, own.own2
     ), '') AS mail_address_name,
     CASE WHEN NULLIF(own.addr1, '') IS NOT NULL THEN own.addr1
-         WHEN NULLIF(own.addr2, '') IS NOT NULL THEN own.addr2
-         ELSE NULLIF(CONCAT_WS(' ',
-             CAST(own.adrno AS varchar),
-             own.adrdir, own.adrstr, own.adrsuf,
-             own.unitdesc, own.unitno
-         ), '')
+        WHEN NULLIF(own.addr2, '') IS NOT NULL THEN own.addr2
+        ELSE NULLIF(CONCAT_WS(
+                ' ',
+                CAST(own.adrno AS VARCHAR),
+                own.adrdir, own.adrstr, own.adrsuf,
+                own.unitdesc, own.unitno
+            ), '')
     END AS mail_address_full,
     own.cityname AS mail_address_city_name,
     own.statecode AS mail_address_state,
     NULLIF(own.zip1, '00000') AS mail_address_zipcode_1,
     NULLIF(own.zip2, '0000') AS mail_address_zipcode_2
 
-FROM iasworld.pardat par
-LEFT JOIN iasworld.legdat leg
+FROM iasworld.pardat AS par
+LEFT JOIN iasworld.legdat AS leg
     ON par.parid = leg.parid
     AND par.taxyr = leg.taxyr
-LEFT JOIN iasworld.owndat own
+LEFT JOIN iasworld.owndat AS own
     ON par.parid = own.parid
     AND par.taxyr = own.taxyr
