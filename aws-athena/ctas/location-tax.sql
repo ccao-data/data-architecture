@@ -9,32 +9,23 @@ WITH (
 ) AS (
     WITH long AS (
         SELECT
-            p.pin10,
-            p.year,
-            p.tax_code,
+            pcl.pin10,
+            pcl.year,
+            pcl.tax_code,
             tc.agency_num,
             ai.agency_name,
             ai.major_type,
             ai.minor_type,
             tc.year AS tax_data_year
-        FROM spatial.parcel AS p
+        FROM spatial.parcel AS pcl
         INNER JOIN tax.tax_code AS tc
-            ON p.tax_code = tc.tax_code_num
-            AND p.year = tc.year
+            ON pcl.tax_code = tc.tax_code_num
+            AND pcl.year = tc.year
         LEFT JOIN tax.agency_info AS ai
             ON tc.agency_num = ai.agency_num
-        WHERE minor_type IN (
-                'MUNI',
-                'ELEMENTARY',
-                'SECONDARY',
-                'UNIFIED',
-                'COMM COLL',
-                'FIRE',
-                'LIBRARY',
-                'PARK',
-                'SANITARY',
-                'SSA',
-                'TIF'
+        WHERE ai.minor_type IN (
+                'MUNI', 'ELEMENTARY', 'SECONDARY', 'UNIFIED', 'COMM COLL',
+                'FIRE', 'LIBRARY', 'PARK', 'SANITARY', 'SSA', 'TIF'
             )
     ),
 
@@ -43,20 +34,20 @@ WITH (
             pin10,
             FILTER(
                 ARRAY_AGG(
-                    CASE WHEN minor_type = 'MUNI' THEN agency_num ELSE NULL END
+                    CASE WHEN minor_type = 'MUNI' THEN agency_num END
                 ),
                 x -> x IS NOT NULL
             ) AS tax_municipality_num,
             FILTER(
                 ARRAY_AGG(
-                    CASE WHEN minor_type = 'MUNI' THEN agency_name ELSE NULL END
+                    CASE WHEN minor_type = 'MUNI' THEN agency_name END
                 ),
                 x -> x IS NOT NULL
             ) AS tax_municipality_name,
             FILTER(
                 ARRAY_AGG(
                     CASE
-                        WHEN minor_type = 'ELEMENTARY' THEN agency_num ELSE NULL
+                        WHEN minor_type = 'ELEMENTARY' THEN agency_num
                     END
                 ),
                 x -> x IS NOT NULL
@@ -64,8 +55,7 @@ WITH (
             FILTER(
                 ARRAY_AGG(
                     CASE
-                        WHEN minor_type = 'ELEMENTARY' THEN agency_name ELSE
-                            NULL
+                        WHEN minor_type = 'ELEMENTARY' THEN agency_name
                     END
                 ),
                 x -> x IS NOT NULL
@@ -73,7 +63,7 @@ WITH (
             FILTER(
                 ARRAY_AGG(
                     CASE
-                        WHEN minor_type = 'SECONDARY' THEN agency_num ELSE NULL
+                        WHEN minor_type = 'SECONDARY' THEN agency_num
                     END
                 ),
                 x -> x IS NOT NULL
@@ -81,7 +71,7 @@ WITH (
             FILTER(
                 ARRAY_AGG(
                     CASE
-                        WHEN minor_type = 'SECONDARY' THEN agency_name ELSE NULL
+                        WHEN minor_type = 'SECONDARY' THEN agency_name
                     END
                 ),
                 x -> x IS NOT NULL
@@ -89,7 +79,7 @@ WITH (
             FILTER(
                 ARRAY_AGG(
                     CASE
-                        WHEN minor_type = 'UNIFIED' THEN agency_num ELSE NULL
+                        WHEN minor_type = 'UNIFIED' THEN agency_num
                     END
                 ),
                 x -> x IS NOT NULL
@@ -97,7 +87,7 @@ WITH (
             FILTER(
                 ARRAY_AGG(
                     CASE
-                        WHEN minor_type = 'UNIFIED' THEN agency_name ELSE NULL
+                        WHEN minor_type = 'UNIFIED' THEN agency_name
                     END
                 ),
                 x -> x IS NOT NULL
@@ -105,7 +95,7 @@ WITH (
             FILTER(
                 ARRAY_AGG(
                     CASE
-                        WHEN minor_type = 'COMM COLL' THEN agency_num ELSE NULL
+                        WHEN minor_type = 'COMM COLL' THEN agency_num
                     END
                 ),
                 x -> x IS NOT NULL
@@ -113,27 +103,27 @@ WITH (
             FILTER(
                 ARRAY_AGG(
                     CASE
-                        WHEN minor_type = 'COMM COLL' THEN agency_name ELSE NULL
+                        WHEN minor_type = 'COMM COLL' THEN agency_name
                     END
                 ),
                 x -> x IS NOT NULL
             ) AS tax_community_college_district_name,
             FILTER(
                 ARRAY_AGG(
-                    CASE WHEN minor_type = 'FIRE' THEN agency_num ELSE NULL END
+                    CASE WHEN minor_type = 'FIRE' THEN agency_num END
                 ),
                 x -> x IS NOT NULL
             ) AS tax_fire_protection_district_num,
             FILTER(
                 ARRAY_AGG(
-                    CASE WHEN minor_type = 'FIRE' THEN agency_name ELSE NULL END
+                    CASE WHEN minor_type = 'FIRE' THEN agency_name END
                 ),
                 x -> x IS NOT NULL
             ) AS tax_fire_protection_district_name,
             FILTER(
                 ARRAY_AGG(
                     CASE
-                        WHEN minor_type = 'LIBRARY' THEN agency_num ELSE NULL
+                        WHEN minor_type = 'LIBRARY' THEN agency_num
                     END
                 ),
                 x -> x IS NOT NULL
@@ -141,27 +131,27 @@ WITH (
             FILTER(
                 ARRAY_AGG(
                     CASE
-                        WHEN minor_type = 'LIBRARY' THEN agency_name ELSE NULL
+                        WHEN minor_type = 'LIBRARY' THEN agency_name
                     END
                 ),
                 x -> x IS NOT NULL
             ) AS tax_library_district_name,
             FILTER(
                 ARRAY_AGG(
-                    CASE WHEN minor_type = 'PARK' THEN agency_num ELSE NULL END
+                    CASE WHEN minor_type = 'PARK' THEN agency_num END
                 ),
                 x -> x IS NOT NULL
             ) AS tax_park_district_num,
             FILTER(
                 ARRAY_AGG(
-                    CASE WHEN minor_type = 'PARK' THEN agency_name ELSE NULL END
+                    CASE WHEN minor_type = 'PARK' THEN agency_name END
                 ),
                 x -> x IS NOT NULL
             ) AS tax_park_district_name,
             FILTER(
                 ARRAY_AGG(
                     CASE
-                        WHEN minor_type = 'SANITARY' THEN agency_num ELSE NULL
+                        WHEN minor_type = 'SANITARY' THEN agency_num
                     END
                 ),
                 x -> x IS NOT NULL
@@ -169,32 +159,32 @@ WITH (
             FILTER(
                 ARRAY_AGG(
                     CASE
-                        WHEN minor_type = 'SANITARY' THEN agency_name ELSE NULL
+                        WHEN minor_type = 'SANITARY' THEN agency_name
                     END
                 ),
                 x -> x IS NOT NULL
             ) AS tax_sanitation_district_name,
             FILTER(
                 ARRAY_AGG(
-                    CASE WHEN minor_type = 'SSA' THEN agency_num ELSE NULL END
+                    CASE WHEN minor_type = 'SSA' THEN agency_num END
                 ),
                 x -> x IS NOT NULL
             ) AS tax_special_service_area_num,
             FILTER(
                 ARRAY_AGG(
-                    CASE WHEN minor_type = 'SSA' THEN agency_name ELSE NULL END
+                    CASE WHEN minor_type = 'SSA' THEN agency_name END
                 ),
                 x -> x IS NOT NULL
             ) AS tax_special_service_area_name,
             FILTER(
                 ARRAY_AGG(
-                    CASE WHEN minor_type = 'TIF' THEN agency_num ELSE NULL END
+                    CASE WHEN minor_type = 'TIF' THEN agency_num END
                 ),
                 x -> x IS NOT NULL
             ) AS tax_tif_district_num,
             FILTER(
                 ARRAY_AGG(
-                    CASE WHEN minor_type = 'TIF' THEN agency_name ELSE NULL END
+                    CASE WHEN minor_type = 'TIF' THEN agency_name END
                 ),
                 x -> x IS NOT NULL
             ) AS tax_tif_district_name,
@@ -205,7 +195,7 @@ WITH (
     )
 
     SELECT
-        p.pin10,
+        pcl.pin10,
         wide.tax_municipality_num,
         wide.tax_municipality_name,
         wide.tax_school_elementary_district_num,
@@ -229,15 +219,15 @@ WITH (
         wide.tax_tif_district_num,
         wide.tax_tif_district_name,
         wide.tax_data_year,
-        p.year
-    FROM spatial.parcel AS p
+        pcl.year
+    FROM spatial.parcel AS pcl
     LEFT JOIN wide
-        ON p.pin10 = wide.pin10
+        ON pcl.pin10 = wide.pin10
         -- Join syntax here forward fills with most recent non-null value.
         AND (
-            CASE WHEN p.year > (SELECT MAX(year) FROM wide)
+            CASE WHEN pcl.year > (SELECT MAX(year) FROM wide)
                     THEN (SELECT MAX(year) FROM wide)
-                ELSE p.year
+                ELSE pcl.year
             END = wide.year
         )
 )

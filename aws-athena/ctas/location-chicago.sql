@@ -29,13 +29,13 @@ WITH (
 
     police_district AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(CAST(CAST(cprod.pd_num AS INTEGER) AS VARCHAR))
                 AS chicago_police_district_num,
             MAX(cprod.year) AS chicago_police_district_data_year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -53,22 +53,22 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     ),
 
     community_area AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(CAST(CAST(cprod.area_number AS INTEGER) AS VARCHAR))
                 AS chicago_community_area_num,
             MAX(cprod.community) AS chicago_community_area_name,
             MAX(cprod.year) AS chicago_community_area_data_year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -86,22 +86,22 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     ),
 
     industrial_corridor AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(CAST(CAST(cprod.num AS INTEGER) AS VARCHAR))
                 AS chicago_industrial_corridor_num,
             MAX(cprod.name) AS chicago_industrial_corridor_name,
             MAX(cprod.year) AS chicago_industrial_corridor_data_year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -119,35 +119,35 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     )
 
     SELECT
-        p.pin10,
-        chicago_community_area_num,
-        chicago_community_area_name,
-        chicago_community_area_data_year,
-        chicago_industrial_corridor_num,
-        chicago_industrial_corridor_name,
-        chicago_industrial_corridor_data_year,
-        chicago_police_district_num,
-        chicago_police_district_data_year,
-        p.year
-    FROM spatial.parcel AS p
-    LEFT JOIN police_district
-        ON p.x_3435 = police_district.x_3435
-        AND p.y_3435 = police_district.y_3435
-        AND p.year = police_district.pin_year
-    LEFT JOIN community_area
-        ON p.x_3435 = community_area.x_3435
-        AND p.y_3435 = community_area.y_3435
-        AND p.year = community_area.pin_year
-    LEFT JOIN industrial_corridor
-        ON p.x_3435 = industrial_corridor.x_3435
-        AND p.y_3435 = industrial_corridor.y_3435
-        AND p.year = industrial_corridor.pin_year
-    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
+        pcl.pin10,
+        ca.chicago_community_area_num,
+        ca.chicago_community_area_name,
+        ca.chicago_community_area_data_year,
+        ic.chicago_industrial_corridor_num,
+        ic.chicago_industrial_corridor_name,
+        ic.chicago_industrial_corridor_data_year,
+        pd.chicago_police_district_num,
+        pd.chicago_police_district_data_year,
+        pcl.year
+    FROM spatial.parcel AS pcl
+    LEFT JOIN police_district AS pd
+        ON pcl.x_3435 = pd.x_3435
+        AND pcl.y_3435 = pd.y_3435
+        AND pcl.year = pd.pin_year
+    LEFT JOIN community_area AS ca
+        ON pcl.x_3435 = ca.x_3435
+        AND pcl.y_3435 = ca.y_3435
+        AND pcl.year = ca.pin_year
+    LEFT JOIN industrial_corridor AS ic
+        ON pcl.x_3435 = ic.x_3435
+        AND pcl.y_3435 = ic.y_3435
+        AND pcl.year = ic.pin_year
+    WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

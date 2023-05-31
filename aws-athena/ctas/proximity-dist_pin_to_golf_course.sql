@@ -40,17 +40,17 @@ WITH (
 
     distances AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
-            o.id,
-            o.pin_year,
-            o.year,
+            dp.x_3435,
+            dp.y_3435,
+            loc.id,
+            loc.pin_year,
+            loc.year,
             ST_DISTANCE(
-                ST_POINT(p.x_3435, p.y_3435),
-                ST_GEOMFROMBINARY(o.geometry_3435)
+                ST_POINT(dp.x_3435, dp.y_3435),
+                ST_GEOMFROMBINARY(loc.geometry_3435)
             ) AS distance
-        FROM distinct_pins AS p
-        CROSS JOIN golf_course_location AS o
+        FROM distinct_pins AS dp
+        CROSS JOIN golf_course_location AS loc
     ),
 
     xy_to_golf_course_dist AS (
@@ -78,15 +78,15 @@ WITH (
     )
 
     SELECT
-        p.pin10,
+        pcl.pin10,
         ARBITRARY(xy.id) AS nearest_golf_course_id,
         ARBITRARY(xy.dist_ft) AS nearest_golf_course_dist_ft,
         ARBITRARY(xy.year) AS nearest_golf_course_data_year,
-        p.year
-    FROM spatial.parcel AS p
+        pcl.year
+    FROM spatial.parcel AS pcl
     INNER JOIN xy_to_golf_course_dist AS xy
-        ON p.x_3435 = xy.x_3435
-        AND p.y_3435 = xy.y_3435
-        AND p.year = xy.pin_year
-    GROUP BY p.pin10, p.year
+        ON pcl.x_3435 = xy.x_3435
+        AND pcl.y_3435 = xy.y_3435
+        AND pcl.year = xy.pin_year
+    GROUP BY pcl.pin10, pcl.year
 )

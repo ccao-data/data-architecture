@@ -17,24 +17,40 @@ WITH (
     WITH unfilled AS (
         SELECT
             pin.year,
-            MAX(num_bus_stop_data_year) AS num_bus_stop_data_year,
-            MAX(num_foreclosure_data_year) AS num_foreclosure_data_year,
-            MAX(num_school_data_year) AS num_school_data_year,
-            MAX(num_school_rating_data_year) AS num_school_rating_data_year,
-            MAX(nearest_bike_trail_data_year) AS nearest_bike_trail_data_year,
-            MAX(nearest_cemetery_data_year) AS nearest_cemetery_data_year,
-            MAX(nearest_cta_route_data_year) AS nearest_cta_route_data_year,
-            MAX(nearest_cta_stop_data_year) AS nearest_cta_stop_data_year,
-            MAX(nearest_golf_course_data_year) AS nearest_golf_course_data_year,
-            MAX(nearest_hospital_data_year) AS nearest_hospital_data_year,
-            MAX(lake_michigan_data_year) AS lake_michigan_data_year,
-            MAX(nearest_major_road_data_year) AS nearest_major_road_data_year,
-            MAX(nearest_metra_route_data_year) AS nearest_metra_route_data_year,
-            MAX(nearest_metra_stop_data_year) AS nearest_metra_stop_data_year,
-            MAX(nearest_park_data_year) AS nearest_park_data_year,
-            MAX(nearest_railroad_data_year) AS nearest_railroad_data_year,
-            MAX(nearest_water_data_year) AS nearest_water_data_year
-
+            MAX(cnt_pin_num_bus_stop.num_bus_stop_data_year)
+                AS num_bus_stop_data_year,
+            MAX(cnt_pin_num_foreclosure.num_foreclosure_data_year)
+                AS num_foreclosure_data_year,
+            MAX(cnt_pin_num_school.num_school_data_year)
+                AS num_school_data_year,
+            MAX(cnt_pin_num_school.num_school_rating_data_year)
+                AS num_school_rating_data_year,
+            MAX(dist_pin_to_bike_trail.nearest_bike_trail_data_year)
+                AS nearest_bike_trail_data_year,
+            MAX(dist_pin_to_cemetery.nearest_cemetery_data_year)
+                AS nearest_cemetery_data_year,
+            MAX(dist_pin_to_cta_route.nearest_cta_route_data_year)
+                AS nearest_cta_route_data_year,
+            MAX(dist_pin_to_cta_stop.nearest_cta_stop_data_year)
+                AS nearest_cta_stop_data_year,
+            MAX(dist_pin_to_golf_course.nearest_golf_course_data_year)
+                AS nearest_golf_course_data_year,
+            MAX(dist_pin_to_hospital.nearest_hospital_data_year)
+                AS nearest_hospital_data_year,
+            MAX(dist_pin_to_lake_michigan.lake_michigan_data_year)
+                AS lake_michigan_data_year,
+            MAX(dist_pin_to_major_road.nearest_major_road_data_year)
+                AS nearest_major_road_data_year,
+            MAX(dist_pin_to_metra_route.nearest_metra_route_data_year)
+                AS nearest_metra_route_data_year,
+            MAX(dist_pin_to_metra_stop.nearest_metra_stop_data_year)
+                AS nearest_metra_stop_data_year,
+            MAX(dist_pin_to_park.nearest_park_data_year)
+                AS nearest_park_data_year,
+            MAX(dist_pin_to_railroad.nearest_railroad_data_year)
+                AS nearest_railroad_data_year,
+            MAX(dist_pin_to_water.nearest_water_data_year)
+                AS nearest_water_data_year
         FROM (SELECT DISTINCT year FROM spatial.parcel) AS pin
         LEFT JOIN (
             SELECT DISTINCT
