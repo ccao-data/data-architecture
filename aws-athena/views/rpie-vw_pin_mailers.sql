@@ -3,7 +3,7 @@ CREATE OR REPLACE VIEW rpie.vw_pin_mailers AS
 -- physical parcel addresses
 WITH parcel_addressess AS (
     SELECT
-parid AS pin,
+        parid AS pin,
         CAST(CAST(taxyr AS INT) + 1 AS VARCHAR) AS rpie_year,
         -- PIN mailing address from OWNDAT
         NULLIF(CONCAT_WS(
