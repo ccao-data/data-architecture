@@ -3,6 +3,7 @@ CREATE OR REPLACE VIEW location.vw_pin10_location_fill AS
 SELECT
     pin.pin10,
     pin.year,
+
     census.census_block_group_geoid,
     census.census_block_geoid,
     census.census_congressional_district_geoid,
@@ -17,6 +18,7 @@ SELECT
     census.census_tract_geoid,
     census.census_zcta_geoid,
     census.census_data_year,
+
     census_acs5.census_acs5_congressional_district_geoid,
     census_acs5.census_acs5_county_subdivision_geoid,
     census_acs5.census_acs5_place_geoid,
@@ -28,6 +30,7 @@ SELECT
     census_acs5.census_acs5_state_senate_geoid,
     census_acs5.census_acs5_tract_geoid,
     census_acs5.census_acs5_data_year,
+
     cook_board_of_review_district.cook_board_of_review_district_num,
     cook_board_of_review_district.cook_board_of_review_district_data_year,
     cook_commissioner_district.cook_commissioner_district_num,
@@ -38,6 +41,7 @@ SELECT
     COALESCE(ward_evanston.ward_name, ward_chicago.ward_name) AS ward_name,
     ward_chicago.ward_chicago_data_year,
     ward_evanston.ward_evanston_data_year,
+
     chicago_community_area.chicago_community_area_num,
     chicago_community_area.chicago_community_area_name,
     chicago_community_area.chicago_community_area_data_year,
@@ -46,6 +50,7 @@ SELECT
     chicago_industrial_corridor.chicago_industrial_corridor_data_year,
     chicago_police_district.chicago_police_district_num,
     chicago_police_district.chicago_police_district_data_year,
+
     econ_coordinated_care_area.econ_coordinated_care_area_num,
     econ_coordinated_care_area.econ_coordinated_care_area_data_year,
     econ_enterprise_zone.econ_enterprise_zone_num,
@@ -54,6 +59,7 @@ SELECT
     econ_industrial_growth_zone.econ_industrial_growth_zone_data_year,
     econ_qualified_opportunity_zone.econ_qualified_opportunity_zone_num,
     econ_qualified_opportunity_zone.econ_qualified_opportunity_zone_data_year,
+
     env_flood_fema.env_flood_fema_sfha,
     env_flood_fema.env_flood_fema_data_year,
     env_flood_fs.env_flood_fs_factor,
@@ -64,6 +70,7 @@ SELECT
     env_ohare_noise_contour.env_ohare_noise_contour_data_year,
     env_airport_noise.env_airport_noise_dnl,
     env_airport_noise.env_airport_noise_data_year,
+
     school.school_elementary_district_geoid,
     school.school_elementary_district_name,
     school.school_secondary_district_geoid,
@@ -72,6 +79,7 @@ SELECT
     school.school_unified_district_name,
     school.school_school_year,
     school.school_data_year,
+
     tax.tax_municipality_num,
     tax.tax_municipality_name,
     tax.tax_community_college_district_num,
@@ -89,10 +97,12 @@ SELECT
     tax.tax_tif_district_num,
     tax.tax_tif_district_name,
     tax.tax_data_year,
+
     access.access_cmap_walk_id,
     access.access_cmap_walk_nta_score,
     access.access_cmap_walk_total_score,
     access.access_cmap_walk_data_year,
+
     other.misc_subdivision_id,
     other.misc_subdivision_data_year
 FROM spatial.parcel AS pin

@@ -41,12 +41,12 @@ WITH (
 
     flood_fema AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(cprod.fema_special_flood_hazard_area) AS env_flood_fema_sfha,
             MAX(cprod.year) AS env_flood_fema_data_year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -64,20 +64,20 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     ),
 
     ohare_noise_contour_0000 AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(cprod.airport) AS airport,
             MAX(cprod.year) AS year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -95,20 +95,20 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     ),
 
     ohare_noise_contour_2640 AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(cprod.airport) AS airport,
             MAX(cprod.year) AS year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -126,71 +126,68 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_BUFFER(ST_GEOMFROMBINARY(cprod.geometry_3435), 2640)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     )
 
     SELECT
-        p.pin10,
-        env_flood_fema_sfha,
-        env_flood_fema_data_year,
+        pcl.pin10,
+        flood_fema.env_flood_fema_sfha,
+        flood_fema.env_flood_fema_data_year,
         flood_first_street.fs_flood_factor AS env_flood_fs_factor,
         flood_first_street.fs_flood_risk_direction
             AS env_flood_fs_risk_direction,
         flood_first_street.year AS env_flood_fs_data_year,
         CASE
             WHEN
-                p.year >= oy.fill_year AND onc0000.airport IS NOT NULL
+                pcl.year >= oy.fill_year AND onc0000.airport IS NOT NULL
                 THEN TRUE
-            WHEN p.year >= oy.fill_year AND onc0000.airport IS NULL THEN FALSE
-            ELSE NULL
+            WHEN pcl.year >= oy.fill_year AND onc0000.airport IS NULL THEN FALSE
         END AS env_ohare_noise_contour_no_buffer_bool,
         CASE
             WHEN
-                p.year >= oy.fill_year AND onc2640.airport IS NOT NULL
+                pcl.year >= oy.fill_year AND onc2640.airport IS NOT NULL
                 THEN TRUE
-            WHEN p.year >= oy.fill_year AND onc2640.airport IS NULL THEN FALSE
-            ELSE NULL
+            WHEN pcl.year >= oy.fill_year AND onc2640.airport IS NULL THEN FALSE
         END AS env_ohare_noise_contour_half_mile_buffer_bool,
         CASE
-            WHEN p.year >= oy.fill_year THEN oy.fill_year
-            ELSE NULL
+            WHEN pcl.year >= oy.fill_year THEN oy.fill_year
         END AS env_ohare_noise_contour_data_year,
         CASE
-            WHEN p.year <= '2020' THEN an.airport_noise_dnl
-            WHEN p.year > '2020' THEN omp.airport_noise_dnl
+            WHEN pcl.year <= '2020' THEN an.airport_noise_dnl
+            WHEN pcl.year > '2020' THEN omp.airport_noise_dnl
             ELSE 52.5
         END AS env_airport_noise_dnl,
         CASE
-            WHEN p.year <= '2020' THEN an.year
+            WHEN pcl.year <= '2020' THEN an.year
             ELSE 'omp'
         END AS env_airport_noise_data_year,
-        p.year
-    FROM spatial.parcel AS p
+        pcl.year
+    FROM spatial.parcel AS pcl
     LEFT JOIN flood_fema
-        ON p.x_3435 = flood_fema.x_3435
-        AND p.y_3435 = flood_fema.y_3435
-        AND p.year = flood_fema.pin_year
+        ON pcl.x_3435 = flood_fema.x_3435
+        AND pcl.y_3435 = flood_fema.y_3435
+        AND pcl.year = flood_fema.pin_year
     LEFT JOIN other.flood_first_street
-        ON p.pin10 = flood_first_street.pin10
-        AND p.year >= flood_first_street.year
+        ON pcl.pin10 = flood_first_street.pin10
+        AND pcl.year >= flood_first_street.year
     LEFT JOIN (SELECT * FROM other.airport_noise WHERE year != 'omp') AS an
-        ON p.pin10 = an.pin10
-        AND p.year = an.year
+        ON pcl.pin10 = an.pin10
+        AND pcl.year = an.year
     LEFT JOIN (SELECT * FROM other.airport_noise WHERE year = 'omp') AS omp
-        ON p.pin10 = omp.pin10
-        AND p.year >= '2021'
+        ON pcl.pin10 = omp.pin10
+        AND pcl.year >= '2021'
     LEFT JOIN ohare_years AS oy
-        ON p.year = oy.pin_year
+        ON pcl.year = oy.pin_year
     LEFT JOIN ohare_noise_contour_0000 AS onc0000
-        ON p.x_3435 = onc0000.x_3435
-        AND p.y_3435 = onc0000.y_3435
-        AND p.year = onc0000.pin_year
+        ON pcl.x_3435 = onc0000.x_3435
+        AND pcl.y_3435 = onc0000.y_3435
+        AND pcl.year = onc0000.pin_year
     LEFT JOIN ohare_noise_contour_2640 AS onc2640
-        ON p.x_3435 = onc2640.x_3435
-        AND p.y_3435 = onc2640.y_3435
-        AND p.year = onc2640.pin_year
-    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
+        ON pcl.x_3435 = onc2640.x_3435
+        AND pcl.y_3435 = onc2640.y_3435
+        AND pcl.year = onc2640.pin_year
+    WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

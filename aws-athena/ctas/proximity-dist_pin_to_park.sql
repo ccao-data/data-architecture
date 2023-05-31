@@ -36,23 +36,23 @@ WITH (
         ) AS fill_years
         LEFT JOIN spatial.park AS fill_data
             ON fill_years.fill_year = fill_data.year
-        WHERE ST_AREA(ST_GEOMFROMBINARY(geometry_3435)) > 87120
+        WHERE ST_AREA(ST_GEOMFROMBINARY(fill_data.geometry_3435)) > 87120
     ),
 
     distances AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
-            o.osm_id,
-            o.name,
-            o.pin_year,
-            o.year,
+            dp.x_3435,
+            dp.y_3435,
+            loc.osm_id,
+            loc.name,
+            loc.pin_year,
+            loc.year,
             ST_DISTANCE(
-                ST_POINT(p.x_3435, p.y_3435),
-                ST_GEOMFROMBINARY(o.geometry_3435)
+                ST_POINT(dp.x_3435, dp.y_3435),
+                ST_GEOMFROMBINARY(loc.geometry_3435)
             ) AS distance
-        FROM distinct_pins AS p
-        CROSS JOIN park_location AS o
+        FROM distinct_pins AS dp
+        CROSS JOIN park_location AS loc
     ),
 
     xy_to_park_dist AS (
@@ -81,16 +81,16 @@ WITH (
     )
 
     SELECT
-        p.pin10,
+        pcl.pin10,
         ARBITRARY(xy.osm_id) AS nearest_park_osm_id,
         ARBITRARY(xy.name) AS nearest_park_name,
         ARBITRARY(xy.dist_ft) AS nearest_park_dist_ft,
         ARBITRARY(xy.year) AS nearest_park_data_year,
-        p.year
-    FROM spatial.parcel AS p
+        pcl.year
+    FROM spatial.parcel AS pcl
     INNER JOIN xy_to_park_dist AS xy
-        ON p.x_3435 = xy.x_3435
-        AND p.y_3435 = xy.y_3435
-        AND p.year = xy.pin_year
-    GROUP BY p.pin10, p.year
+        ON pcl.x_3435 = xy.x_3435
+        AND pcl.y_3435 = xy.y_3435
+        AND pcl.year = xy.pin_year
+    GROUP BY pcl.pin10, pcl.year
 )

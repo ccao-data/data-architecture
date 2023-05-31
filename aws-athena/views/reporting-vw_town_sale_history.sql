@@ -11,25 +11,23 @@ WITH town_names AS (
 -- Recode classes into modeling groups and filter sales
 classes AS (
     SELECT
-        sale_price,
-        year AS sale_year,
-        CASE WHEN class IN ('299', '399') THEN 'CONDO'
-            WHEN class IN ('211', '212') THEN 'MF'
-            WHEN
-                class IN (
+        vwps.sale_price,
+        vwps.year AS sale_year,
+        CASE WHEN vwps.class IN ('299', '399') THEN 'CONDO'
+            WHEN vwps.class IN ('211', '212') THEN 'MF'
+            WHEN vwps.class IN (
                     '202', '203', '204', '205', '206', '207',
                     '208', '209', '210', '234', '278', '295'
                 )
                 THEN 'SF'
-            ELSE NULL
         END AS property_group,
-        vw_pin_sale.township_code AS geography_id,
-        triad_code
-    FROM default.vw_pin_sale
+        vwps.township_code AS geography_id,
+        town_names.triad_code
+    FROM default.vw_pin_sale AS vwps
     LEFT JOIN town_names
-        ON vw_pin_sale.township_code = town_names.township_code
-    WHERE is_multisale = FALSE
-        AND NOT sale_filter_is_outlier
+        ON vwps.township_code = town_names.township_code
+    WHERE NOT vwps.is_multisale
+        AND NOT vwps.sale_filter_is_outlier
 ),
 
 -- Aggregate by modeling group, town

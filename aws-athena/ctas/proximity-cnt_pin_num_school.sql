@@ -59,37 +59,37 @@ WITH (
 
     school_ratings AS (
         SELECT DISTINCT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             pub.rating,
             pub.pin_year,
             pub.year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         -- Keep only public schools with 1/2 mile WITHIN each PIN's district
         INNER JOIN spatial.school_district AS dis
             ON ST_CONTAINS(
                 ST_GEOMFROMBINARY(dis.geometry_3435),
-                ST_POINT(p.x_3435, p.y_3435)
+                ST_POINT(dp.x_3435, dp.y_3435)
             )
         INNER JOIN school_locations_public AS pub
             ON ST_CONTAINS(
                 ST_BUFFER(ST_GEOMFROMBINARY(pub.geometry_3435), 2640),
-                ST_POINT(p.x_3435, p.y_3435)
+                ST_POINT(dp.x_3435, dp.y_3435)
             )
         WHERE dis.geoid = pub.district_geoid
         UNION ALL
         -- Any and all private schools within 1/2 mile
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             oth.rating,
             oth.pin_year,
             oth.year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         INNER JOIN school_locations_other AS oth
             ON ST_CONTAINS(
                 ST_BUFFER(ST_GEOMFROMBINARY(oth.geometry_3435), 2640),
-                ST_POINT(p.x_3435, p.y_3435)
+                ST_POINT(dp.x_3435, dp.y_3435)
             )
     ),
 
@@ -113,7 +113,7 @@ WITH (
     )
 
     SELECT
-        p.pin10,
+        pcl.pin10,
         COALESCE(sr.num_school_in_half_mile, 0) AS num_school_in_half_mile,
         COALESCE(
             sr.num_school_with_rating_in_half_mile,
@@ -122,11 +122,11 @@ WITH (
         sr.avg_school_rating_in_half_mile,
         sr.num_school_data_year,
         sr.num_school_rating_data_year,
-        p.year
-    FROM spatial.parcel AS p
+        pcl.year
+    FROM spatial.parcel AS pcl
     LEFT JOIN school_ratings_agg AS sr
-        ON p.x_3435 = sr.x_3435
-        AND p.y_3435 = sr.y_3435
-        AND p.year = sr.pin_year
-    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
+        ON pcl.x_3435 = sr.x_3435
+        AND pcl.y_3435 = sr.y_3435
+        AND pcl.year = sr.pin_year
+    WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

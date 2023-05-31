@@ -31,8 +31,8 @@ WITH (
 
     board_of_review_district AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(
                 CAST(
                     CAST(
@@ -42,7 +42,7 @@ WITH (
             ) AS cook_board_of_review_district_num,
             MAX(cprod.year) AS cook_board_of_review_district_data_year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -60,16 +60,16 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     ),
 
     commissioner_district AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(
                 CAST(
                     CAST(cprod.commissioner_district_num AS INTEGER) AS VARCHAR
@@ -77,7 +77,7 @@ WITH (
             ) AS cook_commissioner_district_num,
             MAX(cprod.year) AS cook_commissioner_district_data_year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -95,21 +95,21 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     ),
 
     judicial_district AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(CAST(CAST(cprod.judicial_district_num AS INTEGER) AS VARCHAR))
                 AS cook_judicial_district_num,
             MAX(cprod.year) AS cook_judicial_district_data_year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -127,16 +127,16 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     ),
 
     ward_chicago AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(cprod.ward_num) AS ward_num,
             MAX(cprod.ward_name) AS ward_name,
             MAX(
@@ -144,11 +144,10 @@ WITH (
                     WHEN
                         SUBSTR(cprod.ward_name, 1, 1) = 'c'
                         THEN cprod.year
-                    ELSE NULL
                 END
             ) AS ward_chicago_data_year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -161,7 +160,6 @@ WITH (
                             WHEN
                                 SUBSTR(df.ward_name, 1, 1) = 'c'
                                 THEN df.year
-                            ELSE NULL
                         END
                     ) AS fill_year
                 FROM spatial.ward AS df
@@ -173,16 +171,16 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     ),
 
     ward_evanston AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(cprod.ward_num) AS ward_num,
             MAX(cprod.ward_name) AS ward_name,
             MAX(
@@ -190,11 +188,10 @@ WITH (
                     WHEN
                         SUBSTR(cprod.ward_name, 1, 1) = 'e'
                         THEN cprod.year
-                    ELSE NULL
                 END
             ) AS ward_evanston_data_year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -207,7 +204,6 @@ WITH (
                             WHEN
                                 SUBSTR(df.ward_name, 1, 1) = 'e'
                                 THEN df.year
-                            ELSE NULL
                         END
                     ) AS fill_year
                 FROM spatial.ward AS df
@@ -219,45 +215,45 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     )
 
     SELECT
-        p.pin10,
-        cook_board_of_review_district_num,
-        cook_board_of_review_district_data_year,
-        cook_commissioner_district_num,
-        cook_commissioner_district_data_year,
-        cook_judicial_district_num,
-        cook_judicial_district_data_year,
-        COALESCE(ward_evanston.ward_num, ward_chicago.ward_num) AS ward_num,
-        COALESCE(ward_evanston.ward_name, ward_chicago.ward_name) AS ward_name,
-        ward_chicago_data_year,
-        ward_evanston_data_year,
-        p.year
-    FROM spatial.parcel AS p
-    LEFT JOIN board_of_review_district
-        ON p.x_3435 = board_of_review_district.x_3435
-        AND p.y_3435 = board_of_review_district.y_3435
-        AND p.year = board_of_review_district.pin_year
-    LEFT JOIN commissioner_district
-        ON p.x_3435 = commissioner_district.x_3435
-        AND p.y_3435 = commissioner_district.y_3435
-        AND p.year = commissioner_district.pin_year
-    LEFT JOIN judicial_district
-        ON p.x_3435 = judicial_district.x_3435
-        AND p.y_3435 = judicial_district.y_3435
-        AND p.year = judicial_district.pin_year
-    LEFT JOIN ward_chicago
-        ON p.x_3435 = ward_chicago.x_3435
-        AND p.y_3435 = ward_chicago.y_3435
-        AND p.year = ward_chicago.pin_year
-    LEFT JOIN ward_evanston
-        ON p.x_3435 = ward_evanston.x_3435
-        AND p.y_3435 = ward_evanston.y_3435
-        AND p.year = ward_evanston.pin_year
-    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
+        pcl.pin10,
+        brd.cook_board_of_review_district_num,
+        brd.cook_board_of_review_district_data_year,
+        cd.cook_commissioner_district_num,
+        cd.cook_commissioner_district_data_year,
+        jd.cook_judicial_district_num,
+        jd.cook_judicial_district_data_year,
+        COALESCE(we.ward_num, wc.ward_num) AS ward_num,
+        COALESCE(we.ward_name, wc.ward_name) AS ward_name,
+        wc.ward_chicago_data_year,
+        we.ward_evanston_data_year,
+        pcl.year
+    FROM spatial.parcel AS pcl
+    LEFT JOIN board_of_review_district AS brd
+        ON pcl.x_3435 = brd.x_3435
+        AND pcl.y_3435 = brd.y_3435
+        AND pcl.year = brd.pin_year
+    LEFT JOIN commissioner_district AS cd
+        ON pcl.x_3435 = cd.x_3435
+        AND pcl.y_3435 = cd.y_3435
+        AND pcl.year = cd.pin_year
+    LEFT JOIN judicial_district AS jd
+        ON pcl.x_3435 = jd.x_3435
+        AND pcl.y_3435 = jd.y_3435
+        AND pcl.year = jd.pin_year
+    LEFT JOIN ward_chicago AS wc
+        ON pcl.x_3435 = wc.x_3435
+        AND pcl.y_3435 = wc.y_3435
+        AND pcl.year = wc.pin_year
+    LEFT JOIN ward_evanston AS we
+        ON pcl.x_3435 = we.x_3435
+        AND pcl.y_3435 = we.y_3435
+        AND pcl.year = we.pin_year
+    WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

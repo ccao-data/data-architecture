@@ -45,7 +45,6 @@ WITH parcel_addressess AS (
                     '33', '34', '36', '37', '39'
                 )
                 THEN 'South'
-            ELSE NULL
         END AS tri
     FROM iasworld.pardat
 ),
@@ -84,7 +83,7 @@ owner_addressess AS (
 -- RPIE pin/code combinations
 pin_codes AS (
     SELECT
-        pin,
+        pin_codes.pin,
         SUBSTR(pin_codes.pin, 1, 2)
         || '-'
         || SUBSTR(pin_codes.pin, 3, 2)
@@ -100,26 +99,26 @@ pin_codes AS (
 )
 
 SELECT
-    pin_codes.*,
-    property_address,
-    property_apt_no,
-    property_city,
-    property_state,
-    property_zip,
-    mailing_name,
-    mailing_care_of,
-    mailing_address,
-    mailing_city,
-    mailing_state,
-    mailing_zip,
-    class,
-    major_class,
-    tri
-FROM parcel_addressess
-LEFT JOIN owner_addressess
-    ON parcel_addressess.pin = owner_addressess.pin
-    AND parcel_addressess.rpie_year = owner_addressess.rpie_year
-LEFT JOIN pin_codes
-    ON parcel_addressess.pin = pin_codes.pin
-    AND parcel_addressess.rpie_year = pin_codes.rpie_year
-WHERE parcel_addressess.rpie_year >= '2019'
+    pc.*,
+    pa.property_address,
+    pa.property_apt_no,
+    pa.property_city,
+    pa.property_state,
+    pa.property_zip,
+    oa.mailing_name,
+    oa.mailing_care_of,
+    oa.mailing_address,
+    oa.mailing_city,
+    oa.mailing_state,
+    oa.mailing_zip,
+    pa.class,
+    pa.major_class,
+    pa.tri
+FROM parcel_addressess AS pa
+LEFT JOIN owner_addressess AS oa
+    ON pa.pin = oa.pin
+    AND pa.rpie_year = oa.rpie_year
+LEFT JOIN pin_codes AS pc
+    ON pa.pin = pc.pin
+    AND pa.rpie_year = pc.rpie_year
+WHERE pa.rpie_year >= '2019'

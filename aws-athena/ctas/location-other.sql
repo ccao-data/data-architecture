@@ -27,12 +27,12 @@ WITH (
 
     subdivision AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(cprod.pagesubref) AS misc_subdivision_id,
             MAX(cprod.year) AS misc_subdivision_data_year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -50,21 +50,21 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     )
 
     SELECT
-        p.pin10,
-        misc_subdivision_id,
-        misc_subdivision_data_year,
-        p.year
-    FROM spatial.parcel AS p
-    LEFT JOIN subdivision
-        ON p.x_3435 = subdivision.x_3435
-        AND p.y_3435 = subdivision.y_3435
-        AND p.year = subdivision.pin_year
-    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
+        pcl.pin10,
+        sub.misc_subdivision_id,
+        sub.misc_subdivision_data_year,
+        pcl.year
+    FROM spatial.parcel AS pcl
+    LEFT JOIN subdivision AS sub
+        ON pcl.x_3435 = sub.x_3435
+        AND pcl.y_3435 = sub.y_3435
+        AND pcl.year = sub.pin_year
+    WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

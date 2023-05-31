@@ -17,39 +17,50 @@ WITH (
     WITH unfilled AS (
         SELECT
             pin.year,
-            MAX(census_data_year) AS census_data_year,
-            MAX(census_acs5_data_year) AS census_acs5_data_year,
-            MAX(cook_board_of_review_district_data_year)
+            MAX(census.census_data_year)
+                AS census_data_year,
+            MAX(census_acs5.census_acs5_data_year)
+                AS census_acs5_data_year,
+            MAX(political.cook_board_of_review_district_data_year)
                 AS cook_board_of_review_district_data_year,
-            MAX(cook_commissioner_district_data_year)
+            MAX(political.cook_commissioner_district_data_year)
                 AS cook_commissioner_district_data_year,
-            MAX(cook_judicial_district_data_year)
+            MAX(political.cook_judicial_district_data_year)
                 AS cook_judicial_district_data_year,
-            MAX(ward_chicago_data_year) AS ward_chicago_data_year,
-            MAX(ward_evanston_data_year) AS ward_evanston_data_year,
-            MAX(chicago_community_area_data_year)
+            MAX(political.ward_chicago_data_year)
+                AS ward_chicago_data_year,
+            MAX(political.ward_evanston_data_year)
+                AS ward_evanston_data_year,
+            MAX(chicago.chicago_community_area_data_year)
                 AS chicago_community_area_data_year,
-            MAX(chicago_industrial_corridor_data_year)
+            MAX(chicago.chicago_industrial_corridor_data_year)
                 AS chicago_industrial_corridor_data_year,
-            MAX(chicago_police_district_data_year)
+            MAX(chicago.chicago_police_district_data_year)
                 AS chicago_police_district_data_year,
-            MAX(econ_coordinated_care_area_data_year)
+            MAX(economy.econ_coordinated_care_area_data_year)
                 AS econ_coordinated_care_area_data_year,
-            MAX(econ_enterprise_zone_data_year)
+            MAX(economy.econ_enterprise_zone_data_year)
                 AS econ_enterprise_zone_data_year,
-            MAX(econ_industrial_growth_zone_data_year)
+            MAX(economy.econ_industrial_growth_zone_data_year)
                 AS econ_industrial_growth_zone_data_year,
-            MAX(econ_qualified_opportunity_zone_data_year)
+            MAX(economy.econ_qualified_opportunity_zone_data_year)
                 AS econ_qualified_opportunity_zone_data_year,
-            MAX(env_flood_fema_data_year) AS env_flood_fema_data_year,
-            MAX(env_flood_fs_data_year) AS env_flood_fs_data_year,
-            MAX(env_ohare_noise_contour_data_year)
+            MAX(environment.env_flood_fema_data_year)
+                AS env_flood_fema_data_year,
+            MAX(environment.env_flood_fs_data_year)
+                AS env_flood_fs_data_year,
+            MAX(environment.env_ohare_noise_contour_data_year)
                 AS env_ohare_noise_contour_data_year,
-            MAX(env_airport_noise_data_year) AS env_airport_noise_data_year,
-            MAX(school_data_year) AS school_data_year,
-            MAX(tax_data_year) AS tax_data_year,
-            MAX(access_cmap_walk_data_year) AS access_cmap_walk_data_year,
-            MAX(misc_subdivision_data_year) AS misc_subdivision_data_year
+            MAX(environment.env_airport_noise_data_year)
+                AS env_airport_noise_data_year,
+            MAX(school.school_data_year)
+                AS school_data_year,
+            MAX(tax.tax_data_year)
+                AS tax_data_year,
+            MAX(access.access_cmap_walk_data_year)
+                AS access_cmap_walk_data_year,
+            MAX(other.misc_subdivision_data_year)
+                AS misc_subdivision_data_year
 
         FROM (SELECT DISTINCT year FROM spatial.parcel) AS pin
         LEFT JOIN (
@@ -124,7 +135,6 @@ WITH (
                 misc_subdivision_data_year
             FROM location.other
         ) AS other ON pin.year = other.year
-
         GROUP BY pin.year
     )
 

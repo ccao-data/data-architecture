@@ -31,12 +31,12 @@ WITH (
 
     coordinated_care AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(cprod.cc_num) AS econ_coordinated_care_area_num,
             MAX(cprod.year) AS econ_coordinated_care_area_data_year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -54,20 +54,20 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     ),
 
     enterprise_zone AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(cprod.ez_num) AS econ_enterprise_zone_num,
             MAX(cprod.year) AS econ_enterprise_zone_data_year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -85,20 +85,20 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     ),
 
     industrial_growth_zone AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(cprod.igz_num) AS econ_industrial_growth_zone_num,
             MAX(cprod.year) AS econ_industrial_growth_zone_data_year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -116,20 +116,20 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     ),
 
     qualified_opportunity_zone AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
+            dp.x_3435,
+            dp.y_3435,
             MAX(cprod.geoid) AS econ_qualified_opportunity_zone_num,
             MAX(cprod.year) AS econ_qualified_opportunity_zone_data_year,
             cprod.pin_year
-        FROM distinct_pins AS p
+        FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT
                 fill_years.pin_year,
@@ -147,39 +147,39 @@ WITH (
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
-                ST_POINT(p.x_3435, p.y_3435),
+                ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cprod.geometry_3435)
             )
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     )
 
     SELECT
-        p.pin10,
-        econ_coordinated_care_area_num,
-        econ_coordinated_care_area_data_year,
-        econ_enterprise_zone_num,
-        econ_enterprise_zone_data_year,
-        econ_industrial_growth_zone_num,
-        econ_industrial_growth_zone_data_year,
-        econ_qualified_opportunity_zone_num,
-        econ_qualified_opportunity_zone_data_year,
-        p.year
-    FROM spatial.parcel AS p
-    LEFT JOIN coordinated_care
-        ON p.x_3435 = coordinated_care.x_3435
-        AND p.y_3435 = coordinated_care.y_3435
-        AND p.year = coordinated_care.pin_year
-    LEFT JOIN enterprise_zone
-        ON p.x_3435 = enterprise_zone.x_3435
-        AND p.y_3435 = enterprise_zone.y_3435
-        AND p.year = enterprise_zone.pin_year
-    LEFT JOIN industrial_growth_zone
-        ON p.x_3435 = industrial_growth_zone.x_3435
-        AND p.y_3435 = industrial_growth_zone.y_3435
-        AND p.year = industrial_growth_zone.pin_year
-    LEFT JOIN qualified_opportunity_zone
-        ON p.x_3435 = qualified_opportunity_zone.x_3435
-        AND p.y_3435 = qualified_opportunity_zone.y_3435
-        AND p.year = qualified_opportunity_zone.pin_year
-    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
+        pcl.pin10,
+        cc.econ_coordinated_care_area_num,
+        cc.econ_coordinated_care_area_data_year,
+        ez.econ_enterprise_zone_num,
+        ez.econ_enterprise_zone_data_year,
+        igz.econ_industrial_growth_zone_num,
+        igz.econ_industrial_growth_zone_data_year,
+        qoz.econ_qualified_opportunity_zone_num,
+        qoz.econ_qualified_opportunity_zone_data_year,
+        pcl.year
+    FROM spatial.parcel AS pcl
+    LEFT JOIN coordinated_care AS cc
+        ON pcl.x_3435 = cc.x_3435
+        AND pcl.y_3435 = cc.y_3435
+        AND pcl.year = cc.pin_year
+    LEFT JOIN enterprise_zone AS ez
+        ON pcl.x_3435 = ez.x_3435
+        AND pcl.y_3435 = ez.y_3435
+        AND pcl.year = ez.pin_year
+    LEFT JOIN industrial_growth_zone AS igz
+        ON pcl.x_3435 = igz.x_3435
+        AND pcl.y_3435 = igz.y_3435
+        AND pcl.year = igz.pin_year
+    LEFT JOIN qualified_opportunity_zone AS qoz
+        ON pcl.x_3435 = qoz.x_3435
+        AND pcl.y_3435 = qoz.y_3435
+        AND pcl.year = qoz.pin_year
+    WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )

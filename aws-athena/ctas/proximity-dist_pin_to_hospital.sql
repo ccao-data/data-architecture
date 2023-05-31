@@ -40,18 +40,18 @@ WITH (
 
     distances AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
-            o.name,
-            o.gniscode,
-            o.pin_year,
-            o.year,
+            dp.x_3435,
+            dp.y_3435,
+            loc.name,
+            loc.gniscode,
+            loc.pin_year,
+            loc.year,
             ST_DISTANCE(
-                ST_POINT(p.x_3435, p.y_3435),
-                ST_GEOMFROMBINARY(o.geometry_3435)
+                ST_POINT(dp.x_3435, dp.y_3435),
+                ST_GEOMFROMBINARY(loc.geometry_3435)
             ) AS distance
-        FROM distinct_pins AS p
-        CROSS JOIN hospital_location AS o
+        FROM distinct_pins AS dp
+        CROSS JOIN hospital_location AS loc
     ),
 
     xy_to_hospital_dist AS (
@@ -80,17 +80,17 @@ WITH (
     )
 
     SELECT
-        p.pin10,
+        pcl.pin10,
         CAST(CAST(ARBITRARY(xy.gniscode) AS BIGINT) AS VARCHAR)
             AS nearest_hospital_gnis_code,
         ARBITRARY(xy.name) AS nearest_hospital_name,
         ARBITRARY(xy.dist_ft) AS nearest_hospital_dist_ft,
         ARBITRARY(xy.year) AS nearest_hospital_data_year,
-        p.year
-    FROM spatial.parcel AS p
+        pcl.year
+    FROM spatial.parcel AS pcl
     INNER JOIN xy_to_hospital_dist AS xy
-        ON p.x_3435 = xy.x_3435
-        AND p.y_3435 = xy.y_3435
-        AND p.year = xy.pin_year
-    GROUP BY p.pin10, p.year
+        ON pcl.x_3435 = xy.x_3435
+        AND pcl.y_3435 = xy.y_3435
+        AND pcl.year = xy.pin_year
+    GROUP BY pcl.pin10, pcl.year
 )

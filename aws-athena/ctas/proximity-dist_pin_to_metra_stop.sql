@@ -36,24 +36,24 @@ WITH (
         ) AS fill_years
         LEFT JOIN spatial.transit_stop AS fill_data
             ON fill_years.fill_year = fill_data.year
-        WHERE agency = 'metra'
-            AND route_type = 2
+        WHERE fill_data.agency = 'metra'
+            AND fill_data.route_type = 2
     ),
 
     distances AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
-            o.stop_id,
-            o.stop_name,
-            o.pin_year,
-            o.year,
+            dp.x_3435,
+            dp.y_3435,
+            loc.stop_id,
+            loc.stop_name,
+            loc.pin_year,
+            loc.year,
             ST_DISTANCE(
-                ST_POINT(p.x_3435, p.y_3435),
-                ST_GEOMFROMBINARY(o.geometry_3435)
+                ST_POINT(dp.x_3435, dp.y_3435),
+                ST_GEOMFROMBINARY(loc.geometry_3435)
             ) AS distance
-        FROM distinct_pins AS p
-        CROSS JOIN metra_stop_location AS o
+        FROM distinct_pins AS dp
+        CROSS JOIN metra_stop_location AS loc
     ),
 
     xy_to_metra_stop_dist AS (
@@ -82,16 +82,16 @@ WITH (
     )
 
     SELECT
-        p.pin10,
+        pcl.pin10,
         ARBITRARY(xy.stop_id) AS nearest_metra_stop_id,
         ARBITRARY(xy.stop_name) AS nearest_metra_stop_name,
         ARBITRARY(xy.dist_ft) AS nearest_metra_stop_dist_ft,
         ARBITRARY(xy.year) AS nearest_metra_stop_data_year,
-        p.year
-    FROM spatial.parcel AS p
+        pcl.year
+    FROM spatial.parcel AS pcl
     INNER JOIN xy_to_metra_stop_dist AS xy
-        ON p.x_3435 = xy.x_3435
-        AND p.y_3435 = xy.y_3435
-        AND p.year = xy.pin_year
-    GROUP BY p.pin10, p.year
+        ON pcl.x_3435 = xy.x_3435
+        AND pcl.y_3435 = xy.y_3435
+        AND pcl.year = xy.pin_year
+    GROUP BY pcl.pin10, pcl.year
 )
