@@ -1,6 +1,6 @@
 [sqlfluff]
 dialect = athena
-exclude_rules = ambiguous.column_count, structure.column_order, RF04
+exclude_rules = ambiguous.column_count, structure.column_order, RF04, ST05
 large_file_skip_byte_limit = 0
 processes = -1
 
