@@ -70,94 +70,98 @@ prior_values AS (
         CAST(CAST(taxyr AS INT) + 1 AS VARCHAR) AS year,
         MAX(
             CASE
-                WHEN procname = 'BORVALUE' AND taxyr < '2020' THEN ovrvalasm3
+                WHEN
+                    procname = 'BORVALUE'
+                    AND taxyr < '2020'
+                    THEN ovrvalasm3
                 WHEN
                     procname = 'BORVALUE'
                     AND valclass IS NULL
                     AND taxyr >= '2020'
                     THEN valasm3
-                ELSE NULL
             END
         ) AS oneyr_pri_board_tot
-
     FROM iasworld.asmt_all
     WHERE class IN ('299', '2-99', '399')
     GROUP BY parid, taxyr
 ),
 
 -- All characteristics associated with condos in
--- the OBY (299s)/COMDAT (399s) tables
+-- the OBY (299s) / COMDAT (399s) tables
 chars AS (
     -- Distinct because oby and comdat contain multiple cards for a few condos
     SELECT DISTINCT * FROM (
         SELECT
-            pardat.parid AS pin,
+            par.parid AS pin,
             CASE
-                WHEN pardat.class IN ('299', '2-99') THEN oby.card
-                WHEN pardat.class = '399' THEN comdat.card
+                WHEN par.class IN ('299', '2-99') THEN oby.card
+                WHEN par.class = '399' THEN com.card
             END AS card,
             -- Proration related fields from PARDAT
-            pardat.tieback AS tieback_key_pin,
+            par.tieback AS tieback_key_pin,
             CASE
                 WHEN
-                    pardat.tiebldgpct IS NOT NULL
-                    THEN pardat.tiebldgpct / 100.0
+                    par.tiebldgpct IS NOT NULL
+                    THEN par.tiebldgpct / 100.0
                 WHEN
-                    pardat.tiebldgpct IS NULL
-                    AND pardat.class IN ('299', '2-99', '399')
+                    par.tiebldgpct IS NULL
+                    AND par.class IN ('299', '2-99', '399')
                     THEN 0
                 ELSE 1.0
             END AS tieback_proration_rate,
             CASE
                 WHEN
-                    pardat.class IN ('299', '2-99')
+                    par.class IN ('299', '2-99')
                     THEN CAST(oby.user20 AS DOUBLE) / 100.0
                 WHEN
-                    pardat.class = '399'
-                    THEN CAST(comdat.user24 AS DOUBLE) / 100.0
+                    par.class = '399'
+                    THEN CAST(com.user24 AS DOUBLE) / 100.0
             END AS card_protation_rate,
-            lline,
-            SUBSTR(pardat.parid, 1, 10) AS pin10,
-            pardat.class,
-            pardat.taxyr AS year,
-            SUBSTR(taxdist, 1, 2) AS township_code,
+            oby.lline,
+
+            SUBSTR(par.parid, 1, 10) AS pin10,
+            par.class,
+            par.taxyr AS year,
+            leg.user1 AS township_code,
             CASE
-                WHEN pardat.class IN ('299', '2-99') THEN oby.user16
                 WHEN
-                    pardat.class = '399' AND p3gu.user16 IS NULL
-                    THEN comdat.user16
+                    par.class IN ('299', '2-99')
+                    THEN oby.user16
                 WHEN
-                    pardat.class = '399' AND p3gu.user16 IS NOT NULL
+                    par.class = '399' AND p3gu.user16 IS NULL
+                    THEN com.user16
+                WHEN
+                    par.class = '399' AND p3gu.user16 IS NOT NULL
                     THEN p3gu.user16
             END AS cdu,
             -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
             CASE
                 WHEN
-                    pardat.class IN ('299', '2-99')
+                    par.class IN ('299', '2-99')
                     THEN COALESCE(
-                        oby.yrblt, oby.effyr, comdat.yrblt, comdat.effyr
+                        oby.yrblt, oby.effyr, com.yrblt, com.effyr
                     )
                 WHEN
-                    pardat.class = '399'
+                    par.class = '399'
                     THEN COALESCE(
-                        comdat.yrblt, comdat.effyr, oby.yrblt, oby.effyr
+                        com.yrblt, com.effyr, oby.yrblt, oby.effyr
                     )
             END AS char_yrblt,
             MAX(
                 CASE
                     WHEN
-                        pardat.class IN ('299', '2-99')
+                        par.class IN ('299', '2-99')
                         THEN COALESCE(
-                            oby.yrblt, oby.effyr, comdat.yrblt, comdat.effyr
+                            oby.yrblt, oby.effyr, com.yrblt, com.effyr
                         )
                     WHEN
-                        pardat.class = '399'
+                        par.class = '399'
                         THEN COALESCE(
-                            comdat.yrblt, comdat.effyr, oby.yrblt, oby.effyr
+                            com.yrblt, com.effyr, oby.yrblt, oby.effyr
                         )
                 END
             )
-                OVER (PARTITION BY pardat.parid, pardat.taxyr)
+                OVER (PARTITION BY par.parid, par.taxyr)
                 AS max_yrblt,
             CAST(ROUND(pin_condo_char.building_sf, 0) AS INT)
                 AS char_building_sf,
@@ -166,41 +170,41 @@ chars AS (
             CAST(pin_condo_char.half_baths AS INT) AS char_half_baths,
             CAST(pin_condo_char.full_baths AS INT) AS char_full_baths,
             pin_condo_char.parking_pin,
-            pardat.unitno,
-            tiebldgpct,
-            pardat.note2 AS note,
+            par.unitno,
+            par.tiebldgpct,
+            par.note2 AS note,
             COALESCE(SUM(
                 CASE
                     WHEN
-                        pardat.class NOT IN ('299', '2-99', '399')
+                        par.class NOT IN ('299', '2-99', '399')
                         THEN 1
                     ELSE 0
                 END
             )
                 OVER (
-                    PARTITION BY SUBSTR(pardat.parid, 1, 10), pardat.taxyr
+                    PARTITION BY SUBSTR(par.parid, 1, 10), par.taxyr
                 )
             > 0, FALSE)
                 AS bldg_is_mixed_use
-        FROM iasworld.pardat
+        FROM iasworld.pardat AS par
 
-        -- Left joins because pardat contains both 299s & 399s (oby and comdat
+        -- Left joins because par contains both 299s & 399s (oby and comdat
         -- do not) and pin_condo_char doesn't contain all condos
         LEFT JOIN oby_filtered AS oby
-            ON pardat.parid = oby.parid
-            AND pardat.taxyr = oby.taxyr
-        LEFT JOIN comdat_filtered AS comdat
-            ON pardat.parid = comdat.parid
-            AND pardat.taxyr = comdat.taxyr
+            ON par.parid = oby.parid
+            AND par.taxyr = oby.taxyr
+        LEFT JOIN comdat_filtered AS com
+            ON par.parid = com.parid
+            AND par.taxyr = com.taxyr
         LEFT JOIN ccao.pin_condo_char
-            ON pardat.parid = pin_condo_char.pin
-            AND pardat.taxyr = pin_condo_char.year
-        LEFT JOIN iasworld.legdat
-            ON pardat.parid = legdat.parid
-            AND pardat.taxyr = legdat.taxyr
+            ON par.parid = pin_condo_char.pin
+            AND par.taxyr = pin_condo_char.year
+        LEFT JOIN iasworld.legdat AS leg
+            ON par.parid = leg.parid
+            AND par.taxyr = leg.taxyr
         LEFT JOIN ccao.pin_399_garage_units AS p3gu
-            ON pardat.parid = p3gu.parid
-            AND pardat.taxyr = p3gu.taxyr
+            ON par.parid = p3gu.parid
+            AND par.taxyr = p3gu.taxyr
     )
     WHERE class IN ('299', '2-99', '399')
 ),
@@ -303,7 +307,7 @@ SELECT DISTINCT
     END AS class,
     filled.township_code,
     -- Count pin rather than lline here since lline can be null. It shouldn't
-    -- be, but some condo PINs exist in PARDAT and not OBY
+    -- be, but some condo PINs exist in pardat and not OBY
     COALESCE(
         COUNT(filled.pin) OVER (PARTITION BY filled.pin, filled.year) > 1,
         FALSE
@@ -311,9 +315,9 @@ SELECT DISTINCT
     COUNT(filled.pin)
         OVER (PARTITION BY filled.pin, filled.year)
         AS pin_num_lline,
-    tieback_key_pin,
-    tieback_proration_rate,
-    card_protation_rate,
+    filled.tieback_key_pin,
+    filled.tieback_proration_rate,
+    filled.card_protation_rate,
     filled.char_yrblt,
     filled.char_building_sf,
     filled.char_unit_sf,
@@ -348,7 +352,7 @@ SELECT DISTINCT
         AS char_building_non_units,
 
     filled.building_pins AS char_building_pins,
-    total_building_land_sf AS char_land_sf,
+    aggregate_land.total_building_land_sf AS char_land_sf,
     filled.cdu,
     filled.note,
     filled.unitno,
@@ -392,12 +396,11 @@ SELECT DISTINCT
         WHEN
             prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
             THEN 'prior value'
-        ELSE NULL
     END AS parking_space_flag_reason,
     COALESCE(prior_values.oneyr_pri_board_tot < 10, FALSE) AS is_common_area,
     questionable_gr.is_question_garage_unit,
-    pin_is_multiland,
-    pin_num_landlines
+    aggregate_land.pin_is_multiland,
+    aggregate_land.pin_num_landlines
 
 FROM filled
 LEFT JOIN aggregate_land

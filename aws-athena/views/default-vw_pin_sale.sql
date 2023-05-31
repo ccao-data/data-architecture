@@ -3,15 +3,15 @@ CREATE OR REPLACE VIEW default.vw_pin_sale AS
 -- Class and township of associated PIN
 WITH town_class AS (
     SELECT
-        p.parid,
-        p.class,
-        p.taxyr,
-        l.user1 AS township_code,
-        CONCAT(l.user1, SUBSTR(p.nbhd, 3, 3)) AS nbhd
-    FROM iasworld.pardat AS p
-    LEFT JOIN iasworld.legdat AS l
-        ON p.parid = l.parid
-        AND p.taxyr = l.taxyr
+        par.parid,
+        par.class,
+        par.taxyr,
+        leg.user1 AS township_code,
+        CONCAT(leg.user1, SUBSTR(par.nbhd, 3, 3)) AS nbhd
+    FROM iasworld.pardat AS par
+    LEFT JOIN iasworld.legdat AS leg
+        ON par.parid = leg.parid
+        AND par.taxyr = leg.taxyr
 ),
 
 -- "nopar" isn't entirely accurate for sales associated with only one parcel,
@@ -83,7 +83,7 @@ unique_sales AS (
                 CURRENT_DATE
             )
             -- Exclude quit claims, executor deeds, beneficial interests
-            AND instrtyp NOT IN ('03', '04', '06')
+            AND sales.instrtyp NOT IN ('03', '04', '06')
             AND tc.township_code IS NOT NULL
     )
     -- Only use max price by pin/sale date
@@ -204,13 +204,15 @@ SELECT
     -- which had been truncated
     CASE
         WHEN
-            mydec_date IS NOT NULL AND mydec_date != unique_sales.sale_date
-            THEN mydec_date
+            mydec_sales.mydec_date IS NOT NULL
+            AND mydec_sales.mydec_date != unique_sales.sale_date
+            THEN mydec_sales.mydec_date
         ELSE unique_sales.sale_date
     END AS sale_date,
     -- From 2021 on iasWorld uses precise MyDec dates
     COALESCE(
-        mydec_date IS NOT NULL OR YEAR(unique_sales.sale_date) >= 2021,
+        mydec_sales.mydec_date IS NOT NULL
+        OR YEAR(unique_sales.sale_date) >= 2021,
         FALSE
     ) AS is_mydec_date,
     unique_sales.sale_price,
@@ -229,9 +231,9 @@ SELECT
     mydec_sales.sale_filter_ptax_flag,
     COALESCE((
         mydec_sales.sale_filter_ptax_flag
-        AND sale_price_log10
-        NOT BETWEEN sale_filter_lower_limit
-        AND sale_filter_upper_limit
+        AND unique_sales.sale_price_log10
+        NOT BETWEEN sale_filter.sale_filter_lower_limit
+        AND sale_filter.sale_filter_upper_limit
     ), FALSE) AS sale_filter_is_outlier,
     mydec_sales.property_advertised,
     mydec_sales.is_installment_contract_fulfilled,

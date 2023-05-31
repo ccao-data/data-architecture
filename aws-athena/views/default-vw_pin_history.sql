@@ -33,76 +33,76 @@ SELECT
     classes.class,
     townships.township_code,
     town_names.township_name,
-    mailed_bldg,
-    mailed_land,
-    mailed_tot,
-    certified_bldg,
-    certified_land,
-    certified_tot,
-    board_bldg,
-    board_land,
-    board_tot,
-    LAG(mailed_bldg) OVER (
+    vwpv.mailed_bldg,
+    vwpv.mailed_land,
+    vwpv.mailed_tot,
+    vwpv.certified_bldg,
+    vwpv.certified_land,
+    vwpv.certified_tot,
+    vwpv.board_bldg,
+    vwpv.board_land,
+    vwpv.board_tot,
+    LAG(vwpv.mailed_bldg) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_mailed_bldg,
-    LAG(mailed_land) OVER (
+    LAG(vwpv.mailed_land) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_mailed_land,
-    LAG(mailed_tot) OVER (
+    LAG(vwpv.mailed_tot) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_mailed_tot,
-    LAG(certified_bldg) OVER (
+    LAG(vwpv.certified_bldg) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_certified_bldg,
-    LAG(certified_land) OVER (
+    LAG(vwpv.certified_land) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_certified_land,
-    LAG(certified_tot) OVER (
+    LAG(vwpv.certified_tot) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_certified_tot,
-    LAG(board_bldg) OVER (
+    LAG(vwpv.board_bldg) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_board_bldg,
-    LAG(board_land) OVER (
+    LAG(vwpv.board_land) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_board_land,
-    LAG(board_tot) OVER (
+    LAG(vwpv.board_tot) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_board_tot,
-    LAG(mailed_tot, 2) OVER (
+    LAG(vwpv.mailed_tot, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_mailed_tot,
-    LAG(certified_bldg, 2) OVER (
+    LAG(vwpv.certified_bldg, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_certified_bldg,
-    LAG(certified_land, 2) OVER (
+    LAG(vwpv.certified_land, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_certified_land,
-    LAG(certified_tot, 2) OVER (
+    LAG(vwpv.certified_tot, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_certified_tot,
-    LAG(board_bldg, 2) OVER (
+    LAG(vwpv.board_bldg, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_board_bldg,
-    LAG(board_land, 2) OVER (
+    LAG(vwpv.board_land, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_board_land,
-    LAG(board_tot, 2) OVER (
+    LAG(vwpv.board_tot, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_board_tot

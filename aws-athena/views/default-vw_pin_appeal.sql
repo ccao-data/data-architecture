@@ -26,44 +26,41 @@ SELECT
         WHEN htpar.user38 = 'IN' THEN 'incentive'
         WHEN htpar.user38 = 'LD' THEN 'land'
         WHEN htpar.user38 = 'OM' THEN 'omitteed assessment'
-        WHEN htpar.user38 = 'RS' THEN 'residential' ELSE NULL
+        WHEN htpar.user38 = 'RS' THEN 'residential'
     END AS appeal_type,
+
     -- Status, reason codes, and agent name come from different columns
     -- before and after 2020
     CASE
-        WHEN htpar.taxyr < '2020'
-            AND htpar.resact = 'C'
-            THEN 'change'
-        WHEN htpar.taxyr < '2020'
-            AND htpar.resact = 'NC'
-            THEN 'no change'
-        WHEN htpar.taxyr >= '2020' THEN LOWER(htpar.user104) ELSE NULL
+        WHEN htpar.taxyr < '2020' AND htpar.resact = 'C' THEN 'change'
+        WHEN htpar.taxyr < '2020' AND htpar.resact = 'NC' THEN 'no change'
+        WHEN htpar.taxyr >= '2020' THEN LOWER(htpar.user104)
     END AS change,
     CASE
         WHEN htpar.taxyr < '2020'
             AND TRIM(SUBSTR(htpar.user42, 1, 2)) NOT IN ('0', ':')
             THEN TRIM(SUBSTR(htpar.user42, 1, 2))
-        WHEN htpar.taxyr >= '2020' THEN htpar.user89 ELSE NULL
+        WHEN htpar.taxyr >= '2020' THEN htpar.user89
     END AS reason_code1,
     CASE
         WHEN htpar.taxyr < '2020'
             AND TRIM(SUBSTR(htpar.user43, 1, 2)) NOT IN ('0', ':')
             THEN TRIM(SUBSTR(htpar.user42, 1, 2))
-        WHEN htpar.taxyr >= '2020' THEN htpar.user100 ELSE NULL
+        WHEN htpar.taxyr >= '2020' THEN htpar.user100
     END AS reason_code2,
     CASE
         WHEN htpar.taxyr < '2020'
             AND TRIM(SUBSTR(htpar.user44, 1, 2)) NOT IN ('0', ':')
             THEN TRIM(SUBSTR(htpar.user42, 1, 2))
-        WHEN htpar.taxyr >= '2020' THEN htpar.user101 ELSE NULL
+        WHEN htpar.taxyr >= '2020' THEN htpar.user101
     END AS reason_code3,
-    cpatty AS agent_code,
+    htpar.cpatty AS agent_code,
     htagnt.name1 AS agent_name,
     CASE
-        WHEN hrstatus = 'C' THEN 'closed'
-        WHEN hrstatus = 'O' THEN 'open'
-        WHEN hrstatus = 'P' THEN 'pending'
-        WHEN hrstatus = 'X' THEN 'closed pending c of e' ELSE NULL
+        WHEN htpar.hrstatus = 'C' THEN 'closed'
+        WHEN htpar.hrstatus = 'O' THEN 'open'
+        WHEN htpar.hrstatus = 'P' THEN 'pending'
+        WHEN htpar.hrstatus = 'X' THEN 'closed pending c of e'
     END AS status
 FROM iasworld.htpar
 LEFT JOIN iasworld.pardat

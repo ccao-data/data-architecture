@@ -1,6 +1,5 @@
 -- View containing RPIE codes and mailing addresses
-CREATE OR REPLACE VIEW rpie.vw_code_retrieval
-AS
+CREATE OR REPLACE VIEW rpie.vw_code_retrieval AS
 WITH address AS (
     SELECT
         parid AS pin,

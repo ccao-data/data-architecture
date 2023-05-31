@@ -9,27 +9,23 @@ WITH values_by_year AS (
             WHEN procname = 'CCAOVALUE' THEN 'mailed'
             WHEN procname = 'CCAOFINAL' THEN 'assessor certified'
             WHEN procname = 'BORVALUE' THEN 'bor certified'
-            ELSE NULL
         END AS stage,
         MAX(
             CASE
                 WHEN taxyr < '2020' THEN ovrvalasm2
                 WHEN taxyr >= '2020' THEN valasm2
-                ELSE NULL
             END
         ) AS bldg,
         MAX(
             CASE
                 WHEN taxyr < '2020' THEN ovrvalasm1
                 WHEN taxyr >= '2020' THEN valasm1
-                ELSE NULL
             END
         ) AS land,
         MAX(
             CASE
                 WHEN taxyr < '2020' THEN ovrvalasm3
                 WHEN taxyr >= '2020' THEN valasm3
-                ELSE NULL
             END
         ) AS total
     FROM iasworld.asmt_all
@@ -81,29 +77,32 @@ town_names AS (
 -- Add total and median values by township
 SELECT
     values_by_year.taxyr AS year,
-    stage,
+    values_by_year.stage,
     town_names.township_name,
-    triad,
+    town_names.triad,
     classes.class,
     CASE
         WHEN
-            MOD(CAST(values_by_year.taxyr AS INT), 3) = 0 AND triad = 'North'
+            MOD(CAST(values_by_year.taxyr AS INT), 3) = 0
+            AND town_names.triad = 'North'
             THEN TRUE
         WHEN
-            MOD(CAST(values_by_year.taxyr AS INT), 3) = 1 AND triad = 'South'
+            MOD(CAST(values_by_year.taxyr AS INT), 3) = 1
+            AND town_names.triad = 'South'
             THEN TRUE
         WHEN
-            MOD(CAST(values_by_year.taxyr AS INT), 3) = 2 AND triad = 'City'
+            MOD(CAST(values_by_year.taxyr AS INT), 3) = 2
+            AND town_names.triad = 'City'
             THEN TRUE
         ELSE FALSE
     END AS reassessment_year,
     COUNT(*) AS n,
-    SUM(bldg) AS bldg_sum,
-    CAST(APPROX_PERCENTILE(bldg, 0.5) AS INT) AS bldg_median,
-    SUM(land) AS land_sum,
-    CAST(APPROX_PERCENTILE(land, 0.5) AS INT) AS land_median,
-    SUM(total) AS tot_sum,
-    CAST(APPROX_PERCENTILE(total, 0.5) AS INT) AS tot_median
+    SUM(values_by_year.bldg) AS bldg_sum,
+    CAST(APPROX_PERCENTILE(values_by_year.bldg, 0.5) AS INT) AS bldg_median,
+    SUM(values_by_year.land) AS land_sum,
+    CAST(APPROX_PERCENTILE(values_by_year.land, 0.5) AS INT) AS land_median,
+    SUM(values_by_year.total) AS tot_sum,
+    CAST(APPROX_PERCENTILE(values_by_year.total, 0.5) AS INT) AS tot_median
 FROM values_by_year
 LEFT JOIN classes
     ON values_by_year.parid = classes.parid
@@ -117,7 +116,11 @@ GROUP BY
     townships.township_code,
     town_names.township_name,
     values_by_year.taxyr,
-    class,
-    triad,
-    stage
-ORDER BY town_names.township_name, values_by_year.taxyr, stage, class
+    classes.class,
+    town_names.triad,
+    values_by_year.stage
+ORDER BY
+    town_names.township_name,
+    values_by_year.taxyr,
+    values_by_year.stage,
+    classes.class

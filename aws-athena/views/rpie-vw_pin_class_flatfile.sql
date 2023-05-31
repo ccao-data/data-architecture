@@ -17,11 +17,13 @@ SELECT
     || SUBSTR(pc.pin, 11, 4)
         AS pin_pretty,
     pc.year AS rpie_year,
-    class,
-    rpie_code
+    classes.class,
+    pc.rpie_code
 FROM (
     SELECT * FROM rpie.pin_codes
     UNION
     SELECT * FROM rpie.pin_codes_dummy
 ) AS pc
-LEFT JOIN classes ON pc.pin = classes.pin AND pc.year = classes.year
+LEFT JOIN classes
+    ON pc.pin = classes.pin
+    AND pc.year = classes.year
