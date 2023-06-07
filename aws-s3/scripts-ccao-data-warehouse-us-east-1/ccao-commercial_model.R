@@ -20,6 +20,7 @@ char_cols <- c(
   "township",
   "class(es)",
   "address",
+  "property_name/description",
   "property_type/use",
   "investmentrating",
   "f/r",
@@ -30,34 +31,58 @@ char_cols <- c(
   "sheet"
 )
 
+# Declare columns to remove
+remove_cols <- c(
+  "age",
+  "boatslips",
+  "ccaofinal",
+  "comments",
+  "cond",
+  "locrating",
+  "mobilehomepads",
+  "tot_apts",
+  "usecode"
+  #"finalmarketvalue",
+  #"marketvalue_incl_excessland"
+)
+
 # Declare all regex syntax for renaming sheet column names as they're ingested
 renames <- c(
-  "\\." = "",
+  "\\.|2021" = "",
   "(^adj)(.*rent.*)" = "adj_rent$/sf",
   "adjsales" = "adjsale",
   "hotelclass" = "hotel",
   "cost\\\\" = "cost",
-  "costapproach" = "costapp",
-  "costapp" = "costapproach",
+  "^costapp.*" = "costapproach$/sf",
+  "(.*bed.*)(.*day.*)" = "revenuebed/day",
   ".*class.*" = "class(es)",
-  "(^exc)(.*val.*)" = "excesslandval",
-  "^exp%|^%exp" = "exp",
+  "(^exc)(.*val.*)|surpluslandvalue" = "excesslandval",
+  "^exp%|^%exp|totalexp%" = "exp",
   "approxcommsf|apprxtotalsfcomm|commsf" = "aprx_comm_sf",
   "ceilinght" = "ceilingheight",
+  "grouping" = "s",
   "mv" = "marketvalue",
   "occ%" = "occupancy",
   "sqft" = "sf",
-  "incm" = "incomem",
-  "(^income)(.*exc.*)" = "income_mv_incl_excessland",
+  "(^income)(.*exc.*)|.*incm.*|^incc.*" = "incomemarketvalue",
   "iasworld" = "",
   "finalmarketvalue/sf" = "finalmarketvalue$/sf",
+  "(.*marketvalue.*)(.*key.*)" = "marketvalue$/key",
+  "(.*marketvalue.*)(.*unit.*)" = "marketvalue$/unit",
+  ".*landsf.*" = "landsf",
   "marketmarket" = "market",
   "marketvalue/sf" = "marketvalue$/sf",
   "(^market)(.*exc.*)" = "marketvalue_incl_excessland",
+  "^med.*" = "medinc$/sf",
+  "netincome|.*noi.*" = "noi",
+  ".*occupancy.*" = "reportedoccupancy",
+  "^oiltankvalue.*" = "oiltankvalue/atypicaloby",
+  ".*pgi.*|grossinc" = "pgi",
   "^propertyn.*|^propertyd.*" = "property_name/description",
   "^propertyt.*|^propertyt.*" = "property_type/use",
+  "(.*sale.*)(.*/sf.*)" = "salecompmarketvalue$/sf",
   "(^total)(.*ap.*)" = "tot_apts",
-  "(^total)(.*units.*)" = "tot_units",
+  "(^total)(.*units.*)|^#of.*" = "tot_units",
   "unit2" = "unit",
   "^v.*|%vac" = "vacancy"
 )
@@ -117,6 +142,12 @@ list.files(
     across(.cols = !char_cols, parse_number),
     # Columns that can be numeric should be
     across(where(~ all(check.numeric(.x))), as.numeric),
+    yearbuilt = case_when(
+      is.na(yearbuilt) & age < 1000 ~ (year - age),
+      TRUE ~ yearbuilt
+    ),
+    tot_units = coalesce(tot_units, tot_apts, `boatslips`, `mobilehomepads`),
+    #marketvalue = coalesce(finalmarketvalue, marketvalue, marketvalue_incl_excessland),
     # Don't stack pin numbers when "Thru" is present in PIN list
     across(.cols = c(pins, `class(es)`), ~ case_when(
       grepl("thru", .x, ignore.case = TRUE) ~ str_squish(.x),
@@ -124,6 +155,10 @@ list.files(
       TRUE ~ str_replace_all(str_squish(.x), " ", ", ")
     ))
   ) %>%
+  # Remove empty columns
+  select(where(~!(all(is.na(.)) | all(. == "")))) %>%
+  # Remove pre-declared columns
+  select(!remove_cols) %>%
   select(all_of(sort(names(.)))) %>%
   relocate(c(keypin, pins, township, year)) %>%
   relocate(c(file, sheet), .after = last_col()) %>%
