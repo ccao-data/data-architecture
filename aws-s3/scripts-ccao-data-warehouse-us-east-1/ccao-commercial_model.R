@@ -79,7 +79,7 @@ renames <- c(
   "^oiltankvalue.*" = "oiltankvalue/atypicaloby",
   ".*pgi.*|grossinc" = "pgi",
   "^propertyn.*|^propertyd.*" = "property_name/description",
-  "^propertyt.*|^propertyt.*" = "property_type/use",
+  "^propertyt.*" = "property_type/use",
   "(.*sale.*)(.*/sf.*)" = "salecompmarketvalue$/sf",
   "(^total)(.*ap.*)" = "tot_apts",
   "(^total)(.*units.*)|^#of.*" = "tot_units",
