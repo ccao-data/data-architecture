@@ -56,7 +56,7 @@ unique_sales AS (
                 WHEN sales.saletype = '1' THEN 'LAND AND BUILDING'
             END AS sale_type,
             -- Sales are not entirely unique by pin/date so we group all
-            -- sales by pin/date, then order then order by descending price
+            -- sales by pin/date, then order by descending price
             -- and give the top observation a value of 1 for "max_price"
             ROW_NUMBER() OVER (
                 PARTITION BY sales.parid, sales.saledt ORDER BY sales.price DESC
@@ -94,27 +94,6 @@ unique_sales AS (
             EXTRACT(DAY FROM sale_date - same_price_earlier_date) > 365
             OR same_price_earlier_date IS NULL
         )
-),
-
--- Lower and upper bounds so that outlier sales can be filtered
--- out using PTAX-203 data
-sale_filter AS (
-    SELECT
-        township_code,
-        class,
-        year,
-        is_multisale,
-        AVG(sale_price_log10)
-        - STDDEV(sale_price_log10) * 2 AS sale_filter_lower_limit,
-        AVG(sale_price_log10)
-        + STDDEV(sale_price_log10) * 2 AS sale_filter_upper_limit,
-        COUNT(*) AS sale_filter_count
-    FROM unique_sales
-    GROUP BY
-        township_code,
-        class,
-        year,
-        is_multisale
 ),
 
 mydec_sales AS (
@@ -168,9 +147,7 @@ mydec_sales AS (
             line_10s_senior_citizens_assessment_freeze
                 AS homestead_exemption_senior_citizens_assessment_freeze,
             -- Flag for booting outlier PTAX-203 sales from modeling and
-            -- reporting. Used in combination with sale_filter upper and lower,
-            -- which finds sales more than 2 SD from the year, town, and
-            -- class mean
+            -- reporting.
             (
                 COALESCE(line_10b, 0) + COALESCE(line_10c, 0)
                 + COALESCE(line_10d, 0) + COALESCE(line_10e, 0)
@@ -225,16 +202,7 @@ SELECT
     unique_sales.num_parcels_sale,
     unique_sales.buyer_name,
     unique_sales.sale_type,
-    sale_filter.sale_filter_lower_limit,
-    sale_filter.sale_filter_upper_limit,
-    sale_filter.sale_filter_count,
     mydec_sales.sale_filter_ptax_flag,
-    COALESCE((
-        mydec_sales.sale_filter_ptax_flag
-        AND unique_sales.sale_price_log10
-        NOT BETWEEN sale_filter.sale_filter_lower_limit
-        AND sale_filter.sale_filter_upper_limit
-    ), FALSE) AS sale_filter_is_outlier,
     mydec_sales.property_advertised,
     mydec_sales.is_installment_contract_fulfilled,
     mydec_sales.is_sale_between_related_individuals_or_corporate_affiliates,
@@ -258,11 +226,6 @@ SELECT
     mydec_sales.homestead_exemption_senior_citizens,
     mydec_sales.homestead_exemption_senior_citizens_assessment_freeze
 FROM unique_sales
-LEFT JOIN sale_filter
-    ON unique_sales.township_code = sale_filter.township_code
-    AND unique_sales.class = sale_filter.class
-    AND unique_sales.year = sale_filter.year
-    AND unique_sales.is_multisale = sale_filter.is_multisale
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
     AND unique_sales.pin = mydec_sales.pin

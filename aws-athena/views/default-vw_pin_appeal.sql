@@ -25,7 +25,7 @@ SELECT
         WHEN htpar.user38 = 'IC' THEN 'commercial'
         WHEN htpar.user38 = 'IN' THEN 'incentive'
         WHEN htpar.user38 = 'LD' THEN 'land'
-        WHEN htpar.user38 = 'OM' THEN 'omitteed assessment'
+        WHEN htpar.user38 = 'OM' THEN 'omitted assessment'
         WHEN htpar.user38 = 'RS' THEN 'residential'
     END AS appeal_type,
 
