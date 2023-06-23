@@ -1,10 +1,8 @@
 # This script ingests excel workbooks from the IC drive and standardizes them
 # in order to compile a single aggregated dataset of commercial valuation data.
 
-library(arrow)
 library(ccao)
 library(DBI)
-library(data.table)
 library(noctua)
 library(dplyr)
 library(openxlsx)
@@ -18,7 +16,7 @@ source("utils.R")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(
   AWS_S3_WAREHOUSE_BUCKET,
-  "ccao", "commercial_model"
+  "ccao", "other", "commercial_valuation"
 )
 
 # Declare known character columns
@@ -37,6 +35,22 @@ char_cols <- c(
   "2023permit/partial/demovalue",
   "file",
   "sheet"
+)
+
+# Declare known integer columns
+int_cols <- c(
+  "yearbuilt",
+  "1brunits",
+  "2brunits",
+  "3brunits",
+  "4brunits",
+  "aprx_comm_sf",
+  "bldgsf",
+  "landsf",
+  "studiounits",
+  "tot_units",
+  "total2019revreported",
+  "total2020revreported"
 )
 
 # Declare columns to remove
@@ -58,6 +72,7 @@ renames <- c(
   "(^adj)(.*rent.*)" = "adj_rent/sf",
   "adjsales" = "adjsale",
   "hotelclass" = "hotel",
+  "idphlic#" = "idphlicense#",
   "cost\\\\" = "cost",
   "^costapp.*" = "costapproach/sf",
   "(.*bed.*)(.*day.*)" = "revenuebed/day",
@@ -74,6 +89,7 @@ renames <- c(
   "iasworld" = "",
   ".*landsf.*" = "landsf",
   "marketmarket" = "market",
+  "netbldgsf" = "netrentablesf",
   "netincome|.*noi.*" = "noi",
   ".*occupancy.*" = "reportedoccupancy",
   "^oiltankvalue.*" = "oiltankvalue/atypicaloby",
@@ -88,7 +104,7 @@ renames <- c(
 )
 
 # Compile a filtered list of excel workbooks and worksheets to ingest ----
-list.files(
+temp <- list.files(
   "G:/1st Pass spreadsheets",
   pattern = "[0-9]{4} Valuation",
   full.names = TRUE
@@ -166,15 +182,18 @@ mutate(
     grepl("thru", .x, ignore.case = TRUE) ~ str_squish(.x),
     .x == "0" ~ NA,
     TRUE ~ str_replace_all(str_squish(.x), " ", ", ")
-  ))
+  )),
+  taxdist = as.character(taxdist),
+  across(int_cols, as.integer)
 ) %>%
   # Remove empty columns
   select(where(~!(all(is.na(.)) | all(. == "")))) %>%
   # Remove pre-declared columns
-  select(!remove_cols & !starts_with("market")) %>%
+  select(!all_of(remove_cols) & !starts_with("market")) %>%
   select(all_of(sort(names(.)))) %>%
   relocate(c(keypin, pins, township, year)) %>%
   relocate(c(file, sheet), .after = last_col()) %>%
-  #write.xlsx("C:/Users/wridgew/Scratch Space/commercial_models.xlsx")
   group_by(year) %>%
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
+
+
