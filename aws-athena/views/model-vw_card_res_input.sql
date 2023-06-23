@@ -317,10 +317,10 @@ forward_fill AS (
     LEFT JOIN proximity.vw_pin10_proximity_fill vwpf
         ON uni.pin10 = vwpf.pin10
         AND uni.year = vwpf.year
-    LEFT JOIN default.temp_vw_pin_address vwpa
+    LEFT JOIN default.vw_pin_address vwpa
         ON uni.pin = vwpa.pin
         AND uni.year = vwpa.year
-    LEFT JOIN default.temp_vw_card_res_char ch
+    LEFT JOIN default.vw_card_res_char ch
         ON uni.pin = ch.pin
         AND uni.year = ch.year
     LEFT JOIN default.vw_pin_history hist
