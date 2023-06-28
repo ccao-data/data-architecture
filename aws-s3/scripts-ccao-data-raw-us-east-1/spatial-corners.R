@@ -17,10 +17,15 @@ library(geosphere)
 library(profvis)
 library(furrr)
 
+township <- "Calumet"
+
+bbox <- ccao::town_shp %>%
+  filter(township_name == township) %>%
+  st_bbox()
 
 # Street network data
 osm_data <- function(type) {
-  opq(bbox = c(-87.821064,41.818754,-87.62139,41.940533)) %>%
+  opq(bbox = bbox) %>%
     add_osm_feature(key = "highway", value = type) %>%
     add_osm_feature(key = "highway", value = "!footway") %>%
     add_osm_feature(key = "highway:tag", value = "!alley") %>%
@@ -29,26 +34,30 @@ osm_data <- function(type) {
 
 highway_type <- available_tags("highway")
 
-west <- lapply(highway_type, osm_data)
+town_osm <- lapply(highway_type, osm_data)
 
-west_center <- purrr::map_dfr(west, ~ .x$osm_lines) %>%
+town_osm_center <- town_osm$Value$osm_lines %>%
   filter(!highway %in% c("bridleway", "construction", "corridor", "cycleway", "elevator", "service", "services", "steps"))
 
+
 # Construct the street network
-network <- as_sfnetwork(west_center, directed = FALSE) %>%
+network <- as_sfnetwork(town_osm_center, directed = FALSE) %>%
   activate(edges) %>%
   arrange(edge_length()) %>%
   filter(!edge_is_multiple()) %>%
   filter(!edge_is_loop()) %>%
   st_transform(3435) %>%
   convert(to_spatial_simple) %>%
-  convert(to_spatial_smooth) %>%
+  # convert(to_spatial_smooth) %>%
   convert(to_spatial_subdivision) %>%
   activate(nodes) %>%
   mutate(degree = centrality_degree())
 
 # Parcel data
-parcels <- st_read("https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20West&$limit=1000000") %>% 
+parcels <- st_read(
+  glue::glue(
+    "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
+  )) %>% 
   mutate(id = row_number())
 
 # Create a nested list for target parcel, neighbor parcel, neighbor network
@@ -80,6 +89,8 @@ for (i in 1:nrow(parcels)) {
 parcel <- parcels$geometry
 
 sf_use_s2(FALSE)
+
+
 
 
 # Step 1: Create the minimum rectangle
@@ -214,7 +225,7 @@ future_pmap_lgl(
 ## SEQUENTIAL
 corner_indicator <- c()
 
-for (i in 1:1000) {
+for (i in 1:6861) {
   cross_idx <- (i - (i %% 4) + 1):(i - (i %% 4) + 4)
   corner_indicator[[i]] <- crossing(parcel[i], cross[cross_idx, ], clip_network[[i]], clip_parcel[[i]], rectangle_network)
 }
