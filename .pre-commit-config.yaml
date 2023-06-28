@@ -1,6 +1,6 @@
 # All available hooks: https://pre-commit.com/hooks.html
 repos:
--   repo: github.com/sqlfluff/sqlfluff 
+  - repo: https://github.com/sqlfluff/sqlfluff
     rev: 2.1.1
     hooks:
     -   id: sqlfluff-lint
