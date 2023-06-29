@@ -27,7 +27,8 @@ bbox <- ccao::town_shp %>%
   filter(township_name == township) %>%
   st_bbox()
 
-bbox <- st_bbox(c(xmin = -87.62, ymin = 41.645, xmax = -87.625, ymax = 41.65))
+# Code to minimize size if necessary
+# bbox <- st_bbox(c(xmin = -87.62, ymin = 41.645, xmax = -87.625, ymax = 41.65))
 
 
 # Street network data
@@ -69,9 +70,10 @@ parcels <- st_read(
   )) %>% 
   mutate(id = row_number())
 
-parcels <- parcels %>%
-  filter(latitude >= 41.645 & latitude <= 41.65) %>%
-  filter(longitude <= -87.625 & longitude >= -87.62) 
+# Code to minimize size if necessary
+# parcels <- parcels %>%
+#  filter(latitude >= 41.645 & latitude <= 41.65) %>%
+#  filter(longitude <= -87.625 & longitude >= -87.62) 
   
 
 
@@ -254,38 +256,19 @@ crossing <- function(parcel, cross, network, neighbor_parcel, rectangle_network)
 
 
 
-
-# parcel, cross, network, neighbor_parcel, rectangle_network
-# parcel, cross_lst, clip_network, clip_parcel, rectangle_network
-
-touching_unit <- suppressWarnings(suppressMessages(st_intersects(cross_lst$geom, clip_parcel)))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Apply the above function to all parcels
 num_threads <- parallel::detectCores(logical = FALSE)
 plan(multisession, workers = 2)
 
-## PARALLEL
-future_pmap_lgl(
-  list(parcel, cross_lst, clip_network, clip_parcel),
-  function(p, c, cl, cp) {
-    crossing(p, c, cl, cp, rectangle_network)
-  },
-  .options = furrr_options(seed = NULL), 
-  .progress = TRUE
-)
+# ## PARALLEL
+# future_pmap_lgl(
+#   list(parcel, cross_lst, clip_network, clip_parcel),
+#   function(p, c, cl, cp) {
+#     crossing(p, c, cl, cp, rectangle_network)
+#   },
+#   .options = furrr_options(seed = NULL), 
+#   .progress = TRUE
+# )
 
 
 ## SEQUENTIAL
@@ -293,16 +276,9 @@ corner_indicator <- c()
 
 for (i in 1:98) {
   cross_idx <- (i - (i %% 4) + 1):(i - (i %% 4) + 4)
-  corner_indicator[[i]] <- crossing(parcel[i], cross[cross_idx, ], clip_network[[i]], clip_parcel[[i]], rectangle_network)
+  corner_indicator[[i]] <- crossing(parcel[i], cross_lst[[i]], clip_network[[i]], clip_parcel[[i]], rectangle_network)
 }
 
-
-
-parcel_list <- list()
-cross_list <- list()
-clip_network_list <- list()
-clip_parcel_list <- list()
-rectangle_network_vector <- vector("list", length = 98) 
 
 for (i in 1:98) {
   cross_idx <- (i - (i %% 4) + 1):(i - (i %% 4) + 4)
@@ -315,19 +291,13 @@ for (i in 1:98) {
   rectangle_network_vector[[i]] <- rectangle_network
 }
 
-parcel <- unlist(parcel_list)
-cross <- do.call(rbind, cross_list)
-clip_network <- unlist(clip_network_list)
-clip_parcel <- unlist(clip_parcel_list)
-rectangle_network <- unlist(rectangle_network_vector)
+
 
 
 corner_parcel_calumet <- parcels %>%
   mutate(corner_indicator = unlist(corner_indicator)) %>%
   filter(corner_indicator == TRUE)
 
-plot(cross[1])
-plot(parcels[1])
 
 ggplot() +
   geom_sf(data = st_geometry(parcels)) +
