@@ -27,8 +27,8 @@
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-rpie-crawler",
-            "MessagePrefix": "fcfcea36-9616-4baa-a924-80b80453fe41",
-            "StartTime": "2022-02-07T14:21:29-06:00"
+            "MessagePrefix": "a8560e01-98e1-43f6-92d6-1d6edc221cec",
+            "StartTime": "2023-03-26T17:57:42-05:00"
         },
         "Version": 4,
         "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":3}}"

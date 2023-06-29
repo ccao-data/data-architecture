@@ -2,78 +2,89 @@
 -- mile and past 5 years of each target PIN
 CREATE TABLE IF NOT EXISTS proximity.cnt_pin_num_foreclosure
 WITH (
-    format='Parquet',
-    write_compression = 'SNAPPY',
-    external_location='s3://ccao-athena-ctas-us-east-1/proximity/cnt_pin_num_foreclosure',
-    partitioned_by = ARRAY['year'],
-    bucketed_by = ARRAY['pin10'],
-    bucket_count = 1
+    FORMAT = 'Parquet',
+    WRITE_COMPRESSION = 'SNAPPY',
+    EXTERNAL_LOCATION
+    = 's3://ccao-athena-ctas-us-east-1/proximity/cnt_pin_num_foreclosure',
+    PARTITIONED_BY = ARRAY['year'],
+    BUCKETED_BY = ARRAY['pin10'],
+    BUCKET_COUNT = 1
 ) AS (
     WITH pin_locations AS (
         SELECT
             pin10,
             year,
-            x_3435, y_3435,
-            ST_Point(x_3435, y_3435) AS point
+            x_3435,
+            y_3435,
+            ST_POINT(x_3435, y_3435) AS point
         FROM spatial.parcel
     ),
+
     distinct_pins AS (
-        SELECT DISTINCT x_3435, y_3435
+        SELECT DISTINCT
+            x_3435,
+            y_3435
         FROM pin_locations
     ),
+
     foreclosure_locations AS (
-        SELECT *, ST_Buffer(ST_GeomFromBinary(geometry_3435), 2640) AS buffer
+        SELECT
+            *,
+            ST_BUFFER(ST_GEOMFROMBINARY(geometry_3435), 2640) AS buffer
         FROM sale.foreclosure
     ),
+
     pins_in_buffers AS (
         SELECT
-            p.pin10,
-            p.year,
+            pl.pin10,
+            pl.year,
             COUNT(*) AS num_foreclosure_in_half_mile_past_5_years
-        FROM pin_locations p
-        INNER JOIN foreclosure_locations o
-            ON YEAR(o.foreclosure_recording_date)
-                BETWEEN CAST(p.year AS int) - 5 AND CAST(p.year AS int)
-            AND ST_Contains(o.buffer, p.point)
-        GROUP BY p.pin10, p.year
+        FROM pin_locations AS pl
+        INNER JOIN foreclosure_locations AS loc
+            ON YEAR(loc.foreclosure_recording_date)
+            BETWEEN CAST(pl.year AS INT) - 5 AND CAST(pl.year AS INT)
+            AND ST_CONTAINS(loc.buffer, pl.point)
+        GROUP BY pl.pin10, pl.year
     ),
+
     pin_counts_in_half_mile AS (
         SELECT
-            p.x_3435,
-            p.y_3435,
-            o.year,
+            dp.x_3435,
+            dp.y_3435,
+            pl.year,
             COUNT(*) AS num_pin_in_half_mile
-        FROM distinct_pins p
-        INNER JOIN pin_locations o
-            ON ST_Contains(ST_Buffer(ST_Point(p.x_3435, p.y_3435), 2640), o.point)
-        GROUP BY p.x_3435, p.y_3435, o.year
+        FROM distinct_pins AS dp
+        INNER JOIN pin_locations AS pl
+            ON ST_CONTAINS(
+                ST_BUFFER(ST_POINT(dp.x_3435, dp.y_3435), 2640), pl.point
+            )
+        GROUP BY dp.x_3435, dp.y_3435, pl.year
     )
+
     SELECT
-        p.pin10,
-        CASE
-            WHEN f.num_foreclosure_in_half_mile_past_5_years IS NULL THEN 0
-            ELSE f.num_foreclosure_in_half_mile_past_5_years
-        END AS num_foreclosure_in_half_mile_past_5_years,
-        CASE
-            WHEN c.num_pin_in_half_mile IS NULL THEN 1
-            ELSE c.num_pin_in_half_mile
-        END AS num_pin_in_half_mile,
+        pl.pin10,
+        COALESCE(
+            pib.num_foreclosure_in_half_mile_past_5_years,
+            0
+        ) AS num_foreclosure_in_half_mile_past_5_years,
+        COALESCE(pc.num_pin_in_half_mile, 1) AS num_pin_in_half_mile,
         ROUND(
-            CAST(num_foreclosure_in_half_mile_past_5_years AS double) / (
-            CAST(num_pin_in_half_mile AS double) / 1000), 2
+            CAST(pib.num_foreclosure_in_half_mile_past_5_years AS DOUBLE) / (
+                CAST(pc.num_pin_in_half_mile AS DOUBLE) / 1000
+            ), 2
         ) AS num_foreclosure_per_1000_pin_past_5_years,
         CONCAT(
-            CAST(CAST(p.year AS int) - 5 AS varchar),
+            CAST(CAST(pl.year AS INT) - 5 AS VARCHAR),
             ' - ',
-            CAST(p.year AS varchar)
+            CAST(pl.year AS VARCHAR)
         ) AS num_foreclosure_data_year,
-        p.year
-    FROM pin_locations p
-    LEFT JOIN pins_in_buffers f
-        ON p.pin10 = f.pin10
-        AND p.year = f.year
-    LEFT JOIN pin_counts_in_half_mile c
-        ON p.x_3435 = c.x_3435
-        AND p.y_3435 = c.y_3435
-        AND p.year = c.year
+        pl.year
+    FROM pin_locations AS pl
+    LEFT JOIN pins_in_buffers AS pib
+        ON pl.pin10 = pib.pin10
+        AND pl.year = pib.year
+    LEFT JOIN pin_counts_in_half_mile AS pc
+        ON pl.x_3435 = pc.x_3435
+        AND pl.y_3435 = pc.y_3435
+        AND pl.year = pc.year
 )

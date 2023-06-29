@@ -1,4 +1,4 @@
-/**
+/*
 View containing cleaned, filled data for residential modeling. Missing data is
 filled with the following steps:
 
@@ -12,19 +12,42 @@ filled with the following steps:
 
 WARNING: This is a very heavy view. Don't use it for anything other than making
 extracts for modeling
-**/
+*/
 CREATE OR REPLACE VIEW model.vw_card_res_input AS
-WITH uni_filtered AS (
-    SELECT *
-    FROM default.vw_pin_universe
+WITH uni AS (
+
+    SELECT
+        -- Main PIN-level attribute data from iasWorld
+        par.parid AS pin,
+        SUBSTR(par.parid, 1, 10) AS pin10,
+        par.taxyr AS year,
+        regexp_replace(par.class,'([^0-9EXR])','') AS class,
+        twn.triad_name,
+        twn.triad_code,
+        twn.township_name,
+        leg.user1 AS township_code,
+        regexp_replace(par.nbhd,'([^0-9])','') AS nbhd_code,
+        leg.taxdist AS tax_code,
+        NULLIF(leg.zip1, '00000') AS zip_code,
+
+        -- Centroid of each PIN from county parcel files
+        sp.lon, sp.lat, sp.x_3435, sp.y_3435
+
+    FROM iasworld.pardat par
+    LEFT JOIN iasworld.legdat leg
+        ON par.parid = leg.parid
+        AND par.taxyr = leg.taxyr
+    LEFT JOIN spatial.parcel sp
+        ON SUBSTR(par.parid, 1, 10) = sp.pin10
+        AND par.taxyr = sp.year
+    LEFT JOIN spatial.township twn
+        ON leg.user1 = CAST(twn.township_code AS varchar)
+
     WHERE class IN (
         '202', '203', '204', '205', '206', '207', '208', '209',
         '210', '211', '212', '218', '219', '234', '278', '295'
     )
-),
-distinct_years AS (
-    SELECT DISTINCT year
-    FROM uni_filtered
+
 ),
 acs5 AS (
     SELECT *
@@ -37,44 +60,48 @@ housing_index AS (
     GROUP BY geoid, year
 ),
 sqft_percentiles AS (
-    SELECT
-        uni.year, uni.township_code,
-        CAST(approx_percentile(ch.char_bldg_sf, 0.95) AS int) AS char_bldg_sf_95_percentile,
-        CAST(approx_percentile(ch.char_land_sf, 0.95) AS int) AS char_land_sf_95_percentile
-    FROM uni_filtered uni
-    LEFT JOIN default.vw_card_res_char ch
-        ON uni.pin = ch.pin
-        AND uni.year = ch.year
-    GROUP BY uni.year, uni.township_code
-),
-tax_bill_amount_fill AS (
-    SELECT
-        fill_years.pin_year,
-        fill_data.year,
-        fill_data.pin,
-        fill_data.tot_tax_amt,
-        fill_data.amt_tax_paid,
-        fill_data.tax_rate
-    FROM (
         SELECT
-        dy.year AS pin_year, MAX(df.year) AS fill_year
-        FROM tax.bill_amount df
-        CROSS JOIN distinct_years dy
-        WHERE dy.year >= df.year
-        GROUP BY dy.year
-    ) fill_years
-    LEFT JOIN tax.bill_amount fill_data
-        ON fill_years.fill_year = fill_data.year
+            ch.year, l.user1 AS township_code,
+            CAST(approx_percentile(ch.char_bldg_sf, 0.95) AS int) AS char_bldg_sf_95_percentile,
+            CAST(approx_percentile(ch.char_land_sf, 0.95) AS int) AS char_land_sf_95_percentile
+        FROM default.vw_card_res_char ch
+        LEFT JOIN iasworld.legdat l
+            ON ch.pin = l.parid and ch.year = l.taxyr
+        GROUP BY ch.year, l.user1
+),
+tax_bill_amount AS (
+    -- Removing fill for now, since this will be pulled from PTAXSIM in the future
+    SELECT
+        pardat.parid AS pin,
+        pardat.taxyr AS year,
+        tax_bill_total AS tot_tax_amt,
+        tax_code_rate AS tax_rate
+    FROM iasworld.pardat
+    LEFT JOIN tax.pin p
+        ON pardat.parid = p.pin
+        AND (
+            CASE WHEN pardat.taxyr > (SELECT Max(year) FROM tax.pin)
+                THEN (SELECT Max(year) FROM tax.pin)
+                ELSE pardat.taxyr END = p.year
+                    )
+    LEFT JOIN (
+        SELECT DISTINCT
+            year, tax_code_num, tax_code_rate
+        FROM tax.tax_code
+        ) tax_code
+        ON p.tax_code_num = tax_code.tax_code_num
+        AND p.year = tax_code.year
+
+    WHERE p.pin IS NOT NULL
 ),
 school_district_ratings AS (
     SELECT
         district_geoid,
         district_type,
         AVG(rating) AS school_district_avg_rating,
-        COUNT(*) AS num_schools_in_district,
-        year
+        COUNT(*) AS num_schools_in_district
     FROM other.great_schools_rating
-    GROUP BY district_geoid, district_type, year
+    GROUP BY district_geoid, district_type
 ),
 forward_fill AS (
     SELECT
@@ -97,16 +124,17 @@ forward_fill AS (
         -- Proration fields. Buildings can be split over multiple PINs, with each
         -- PIN owning a percentage of a building. For residential buildings, if
         -- a proration rate is NULL or 0, it's almost always actually 1
-        uni.tieback_key_pin AS meta_tieback_key_pin,
+        ch.tieback_key_pin AS meta_tieback_key_pin,
         CASE
-            WHEN uni.tieback_proration_rate IS NULL THEN 1.0
-            WHEN uni.tieback_proration_rate = 0.0 THEN 1.0
-            ELSE uni.tieback_proration_rate
+            WHEN ch.tieback_proration_rate IS NULL THEN 1.0
+            WHEN ch.tieback_proration_rate = 0.0 THEN 1.0
+            ELSE ch.tieback_proration_rate
         END AS meta_tieback_proration_rate,
         CASE
-            WHEN uni.tieback_proration_rate < 1.0 THEN true
+            WHEN ch.tieback_proration_rate < 1.0 THEN true
             ELSE false
         END AS ind_pin_is_prorated,
+        ch.card_protation_rate AS meta_card_protation_rate,
 
         -- Multicard/multi-landline related fields. Each PIN can have more than
         -- one improvement/card AND/OR more than one attached landline
@@ -135,10 +163,10 @@ forward_fill AS (
         hist.twoyr_pri_board_tot AS meta_2yr_pri_board_tot,
 
         -- Individual PIN-level address/location
-        uni.prop_address_full AS loc_property_address,
-        uni.prop_address_city_name AS loc_property_city,
-        uni.prop_address_state AS loc_property_state,
-        uni.prop_address_zipcode_1 AS loc_property_zip,
+        vwpa.prop_address_full AS loc_property_address,
+        vwpa.prop_address_city_name AS loc_property_city,
+        vwpa.prop_address_state AS loc_property_state,
+        vwpa.prop_address_zipcode_1 AS loc_property_zip,
         uni.lon AS loc_longitude,
         uni.lat AS loc_latitude,
         uni.x_3435 AS loc_x_3435,
@@ -192,231 +220,55 @@ forward_fill AS (
         END AS ind_land_bldg_ratio_gte_10,
 
         -- PIN location data for aggregation and spatial joins
-        uni.census_puma_geoid AS loc_census_puma_geoid,
-        uni.census_tract_geoid AS loc_census_tract_geoid,
-        uni.census_data_year AS loc_census_data_year,
-        uni.census_acs5_puma_geoid AS loc_census_acs5_puma_geoid,
-        uni.census_acs5_tract_geoid AS loc_census_acs5_tract_geoid,
-        uni.census_acs5_data_year AS loc_census_acs5_data_year,
-        CASE
-            WHEN uni.cook_municipality_name IS NULL THEN
-                LAST_VALUE(uni.cook_municipality_name) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.cook_municipality_name
-        END AS loc_cook_municipality_name,
-        CASE
-            WHEN uni.ward_num IS NULL THEN
-                LAST_VALUE(uni.ward_num) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.ward_num
-        END AS loc_ward_num,
-        CASE
-            WHEN uni.chicago_community_area_name IS NULL THEN
-                LAST_VALUE(uni.chicago_community_area_name) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.chicago_community_area_name
-        END AS loc_chicago_community_area_name,
+        vwlf.census_puma_geoid AS loc_census_puma_geoid,
+        vwlf.census_tract_geoid AS loc_census_tract_geoid,
+        vwlf.census_data_year AS loc_census_data_year,
+        vwlf.census_acs5_puma_geoid AS loc_census_acs5_puma_geoid,
+        vwlf.census_acs5_tract_geoid AS loc_census_acs5_tract_geoid,
+        vwlf.census_acs5_data_year AS loc_census_acs5_data_year,
+        vwlf.tax_municipality_name AS loc_tax_municipality_name,
+        vwlf.ward_num AS loc_ward_num,
+        vwlf.chicago_community_area_name AS loc_chicago_community_area_name,
 
         -- Location data used for spatial fixed effects
-        CASE
-            WHEN uni.school_elementary_district_geoid IS NULL THEN
-                LAST_VALUE(uni.school_elementary_district_geoid) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.school_elementary_district_geoid
-        END AS loc_school_elementary_district_geoid,
-        CASE
-            WHEN uni.school_secondary_district_geoid IS NULL THEN
-                LAST_VALUE(uni.school_secondary_district_geoid) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.school_secondary_district_geoid
-        END AS loc_school_secondary_district_geoid,
-        CASE
-            WHEN uni.school_unified_district_geoid IS NULL THEN
-                LAST_VALUE(uni.school_unified_district_geoid) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.school_unified_district_geoid
-        END AS loc_school_unified_district_geoid,
-        CASE
-            WHEN uni.tax_special_service_area_num IS NULL THEN
-                LAST_VALUE(uni.tax_special_service_area_num) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.tax_special_service_area_num
-        END AS loc_tax_special_service_area_num,
-        CASE
-            WHEN uni.tax_tif_district_num IS NULL THEN
-                LAST_VALUE(uni.tax_tif_district_num) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.tax_tif_district_num
-        END AS loc_tax_tif_district_num,
-        CASE
-            WHEN uni.misc_subdivision_id IS NULL THEN
-                LAST_VALUE(uni.misc_subdivision_id) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.misc_subdivision_id
-        END AS loc_misc_subdivision_id,
+        vwlf.school_elementary_district_geoid AS loc_school_elementary_district_geoid,
+        vwlf.school_secondary_district_geoid AS loc_school_secondary_district_geoid,
+        vwlf.school_unified_district_geoid AS loc_school_unified_district_geoid,
+        vwlf.tax_special_service_area_num AS loc_tax_special_service_area_num,
+        vwlf.tax_tif_district_num AS loc_tax_tif_district_num,
+        vwlf.misc_subdivision_id AS loc_misc_subdivision_id,
 
         -- Environmental and access data
-        CASE
-            WHEN uni.env_flood_fema_sfha IS NULL THEN
-                LAST_VALUE(uni.env_flood_fema_sfha) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.env_flood_fema_sfha
-        END AS loc_env_flood_fema_sfha,
-        CASE
-            WHEN uni.env_flood_fs_factor IS NULL THEN
-                LAST_VALUE(uni.env_flood_fs_factor) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.env_flood_fs_factor
-        END AS loc_env_flood_fs_factor,
-        CASE
-            WHEN uni.env_flood_fs_risk_direction IS NULL THEN
-                LAST_VALUE(uni.env_flood_fs_risk_direction) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.env_flood_fs_risk_direction
-        END AS loc_env_flood_fs_risk_direction,
-        CASE
-            WHEN uni.env_ohare_noise_contour_no_buffer_bool IS NULL THEN
-                LAST_VALUE(uni.env_ohare_noise_contour_no_buffer_bool) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.env_ohare_noise_contour_no_buffer_bool
-        END AS loc_env_ohare_noise_contour_no_buffer_bool,
-        CASE
-            WHEN uni.env_airport_noise_dnl IS NULL THEN
-                LAST_VALUE(uni.env_airport_noise_dnl) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.env_airport_noise_dnl
-        END AS loc_env_airport_noise_dnl,
-        CASE
-            WHEN uni.access_cmap_walk_nta_score IS NULL THEN
-                LAST_VALUE(uni.access_cmap_walk_nta_score) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.access_cmap_walk_nta_score
-        END AS loc_access_cmap_walk_nta_score,
-        CASE
-            WHEN uni.access_cmap_walk_total_score IS NULL THEN
-                LAST_VALUE(uni.access_cmap_walk_total_score) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.access_cmap_walk_total_score
-        END AS loc_access_cmap_walk_total_score,
+        vwlf.env_flood_fema_sfha AS loc_env_flood_fema_sfha,
+        vwlf.env_flood_fs_factor AS loc_env_flood_fs_factor,
+        vwlf.env_flood_fs_risk_direction AS loc_env_flood_fs_risk_direction,
+        vwlf.env_ohare_noise_contour_no_buffer_bool AS loc_env_ohare_noise_contour_no_buffer_bool,
+        vwlf.env_airport_noise_dnl AS loc_env_airport_noise_dnl,
+        vwlf.access_cmap_walk_nta_score AS loc_access_cmap_walk_nta_score,
+        vwlf.access_cmap_walk_total_score AS loc_access_cmap_walk_total_score,
 
         -- PIN proximity count variables
-        CASE
-            WHEN uni.num_pin_in_half_mile IS NULL THEN
-                LAST_VALUE(uni.num_pin_in_half_mile) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.num_pin_in_half_mile
-        END AS prox_num_pin_in_half_mile,
-        CASE
-            WHEN uni.num_bus_stop_in_half_mile IS NULL THEN
-                LAST_VALUE(uni.num_bus_stop_in_half_mile) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.num_bus_stop_in_half_mile
-        END AS prox_num_bus_stop_in_half_mile,
-        CASE
-            WHEN uni.num_foreclosure_per_1000_pin_past_5_years IS NULL THEN
-                LAST_VALUE(uni.num_foreclosure_per_1000_pin_past_5_years) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.num_foreclosure_per_1000_pin_past_5_years
-        END AS prox_num_foreclosure_per_1000_pin_past_5_years,
-        CASE
-            WHEN uni.num_school_in_half_mile IS NULL THEN
-                LAST_VALUE(uni.num_school_in_half_mile) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.num_school_in_half_mile
-        END AS prox_num_school_in_half_mile,
-        CASE
-            WHEN uni.num_school_with_rating_in_half_mile IS NULL THEN
-                LAST_VALUE(uni.num_school_with_rating_in_half_mile) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.num_school_with_rating_in_half_mile
-        END AS prox_num_school_with_rating_in_half_mile,
-        CASE
-            WHEN uni.avg_school_rating_in_half_mile IS NULL THEN
-                LAST_VALUE(uni.avg_school_rating_in_half_mile) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.avg_school_rating_in_half_mile
-        END AS prox_avg_school_rating_in_half_mile,
+        vwpf.num_pin_in_half_mile AS prox_num_pin_in_half_mile,
+        vwpf.num_bus_stop_in_half_mile AS prox_num_bus_stop_in_half_mile,
+        vwpf.num_foreclosure_per_1000_pin_past_5_years AS prox_num_foreclosure_per_1000_pin_past_5_years,
+        vwpf.num_school_in_half_mile AS prox_num_school_in_half_mile,
+        vwpf.num_school_with_rating_in_half_mile AS prox_num_school_with_rating_in_half_mile,
+        vwpf.avg_school_rating_in_half_mile AS prox_avg_school_rating_in_half_mile,
 
         -- PIN proximity distance variables
-        CASE
-            WHEN uni.nearest_bike_trail_dist_ft IS NULL THEN
-                LAST_VALUE(uni.nearest_bike_trail_dist_ft) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.nearest_bike_trail_dist_ft
-        END AS prox_nearest_bike_trail_dist_ft,
-        CASE
-            WHEN uni.nearest_cemetery_dist_ft IS NULL THEN
-                LAST_VALUE(uni.nearest_cemetery_dist_ft) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.nearest_cemetery_dist_ft
-        END AS prox_nearest_cemetery_dist_ft,
-        CASE
-            WHEN uni.nearest_cta_route_dist_ft IS NULL THEN
-                LAST_VALUE(uni.nearest_cta_route_dist_ft) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.nearest_cta_route_dist_ft
-        END AS prox_nearest_cta_route_dist_ft,
-        CASE
-            WHEN uni.nearest_cta_stop_dist_ft IS NULL THEN
-                LAST_VALUE(uni.nearest_cta_stop_dist_ft) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.nearest_cta_stop_dist_ft
-        END AS prox_nearest_cta_stop_dist_ft,
-        CASE
-            WHEN uni.nearest_golf_course_dist_ft IS NULL THEN
-                LAST_VALUE(uni.nearest_golf_course_dist_ft) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.nearest_golf_course_dist_ft
-        END AS prox_nearest_golf_course_dist_ft,
-
-        CASE
-            WHEN uni.nearest_hospital_dist_ft IS NULL THEN
-                LAST_VALUE(uni.nearest_hospital_dist_ft) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.nearest_hospital_dist_ft
-        END AS prox_nearest_hospital_dist_ft,
-        CASE
-            WHEN uni.lake_michigan_dist_ft IS NULL THEN
-                LAST_VALUE(uni.lake_michigan_dist_ft) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.lake_michigan_dist_ft
-        END AS prox_lake_michigan_dist_ft,
-        CASE
-            WHEN uni.nearest_major_road_dist_ft IS NULL THEN
-                LAST_VALUE(uni.nearest_major_road_dist_ft) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.nearest_major_road_dist_ft
-        END AS prox_nearest_major_road_dist_ft,
-        CASE
-            WHEN uni.nearest_metra_route_dist_ft IS NULL THEN
-                LAST_VALUE(uni.nearest_metra_route_dist_ft) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.nearest_metra_route_dist_ft
-        END AS prox_nearest_metra_route_dist_ft,
-        CASE
-            WHEN uni.nearest_metra_stop_dist_ft IS NULL THEN
-                LAST_VALUE(uni.nearest_metra_stop_dist_ft) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.nearest_metra_stop_dist_ft
-        END AS prox_nearest_metra_stop_dist_ft,
-        CASE
-            WHEN uni.nearest_park_dist_ft IS NULL THEN
-                LAST_VALUE(uni.nearest_park_dist_ft) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.nearest_park_dist_ft
-        END AS prox_nearest_park_dist_ft,
-        CASE
-            WHEN uni.nearest_railroad_dist_ft IS NULL THEN
-                LAST_VALUE(uni.nearest_railroad_dist_ft) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.nearest_railroad_dist_ft
-        END AS prox_nearest_railroad_dist_ft,
-        CASE
-            WHEN uni.nearest_water_dist_ft IS NULL THEN
-                LAST_VALUE(uni.nearest_water_dist_ft) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE uni.nearest_water_dist_ft
-        END AS prox_nearest_water_dist_ft,
+        vwpf.nearest_bike_trail_dist_ft AS prox_nearest_bike_trail_dist_ft,
+        vwpf.nearest_cemetery_dist_ft AS prox_nearest_cemetery_dist_ft,
+        vwpf.nearest_cta_route_dist_ft AS prox_nearest_cta_route_dist_ft,
+        vwpf.nearest_cta_stop_dist_ft AS prox_nearest_cta_stop_dist_ft,
+        vwpf.nearest_golf_course_dist_ft AS prox_nearest_golf_course_dist_ft,
+        vwpf.nearest_hospital_dist_ft AS prox_nearest_hospital_dist_ft,
+        vwpf.lake_michigan_dist_ft AS prox_lake_michigan_dist_ft,
+        vwpf.nearest_major_road_dist_ft AS prox_nearest_major_road_dist_ft,
+        vwpf.nearest_metra_route_dist_ft AS prox_nearest_metra_route_dist_ft,
+        vwpf.nearest_metra_stop_dist_ft AS prox_nearest_metra_stop_dist_ft,
+        vwpf.nearest_park_dist_ft AS prox_nearest_park_dist_ft,
+        vwpf.nearest_railroad_dist_ft AS prox_nearest_railroad_dist_ft,
+        vwpf.nearest_water_dist_ft AS prox_nearest_water_dist_ft,
 
         -- ACS5 census data
         acs5.count_sex_total AS acs5_count_sex_total,
@@ -446,28 +298,28 @@ forward_fill AS (
         housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
         tbill.tot_tax_amt AS other_tax_bill_amount_total,
         tbill.tax_rate AS other_tax_bill_rate,
-        CASE
-            WHEN sdre.school_district_avg_rating IS NULL THEN
-                LAST_VALUE(sdre.school_district_avg_rating) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE sdre.school_district_avg_rating
-        END AS other_school_district_elementary_avg_rating,
-        CASE
-            WHEN sdrs.school_district_avg_rating IS NULL THEN
-                LAST_VALUE(sdrs.school_district_avg_rating) IGNORE NULLS
-                OVER (PARTITION BY uni.pin ORDER BY uni.year DESC)
-            ELSE sdrs.school_district_avg_rating
-        END AS other_school_district_secondary_avg_rating,
+
+        sdre.school_district_avg_rating AS other_school_district_elementary_avg_rating,
+        sdrs.school_district_avg_rating AS other_school_district_secondary_avg_rating,
 
         -- PIN nearest neighbors, used for filling missing data
-        uni.nearest_neighbor_1_pin10,
-        uni.nearest_neighbor_1_dist_ft,
-        uni.nearest_neighbor_2_pin10,
-        uni.nearest_neighbor_2_dist_ft,
-        uni.nearest_neighbor_3_pin10,
-        uni.nearest_neighbor_3_dist_ft
+        vwpf.nearest_neighbor_1_pin10,
+        vwpf.nearest_neighbor_1_dist_ft,
+        vwpf.nearest_neighbor_2_pin10,
+        vwpf.nearest_neighbor_2_dist_ft,
+        vwpf.nearest_neighbor_3_pin10,
+        vwpf.nearest_neighbor_3_dist_ft
 
-    FROM uni_filtered uni
+    FROM uni
+    LEFT JOIN location.vw_pin10_location_fill vwlf
+        ON uni.pin10 = vwlf.pin10
+        AND uni.year = vwlf.year
+    LEFT JOIN proximity.vw_pin10_proximity_fill vwpf
+        ON uni.pin10 = vwpf.pin10
+        AND uni.year = vwpf.year
+    LEFT JOIN default.vw_pin_address vwpa
+        ON uni.pin = vwpa.pin
+        AND uni.year = vwpa.year
     LEFT JOIN default.vw_card_res_char ch
         ON uni.pin = ch.pin
         AND uni.year = ch.year
@@ -478,21 +330,20 @@ forward_fill AS (
         ON uni.year = sp.year
         AND uni.township_code = sp.township_code
     LEFT JOIN acs5
-        ON uni.census_acs5_tract_geoid = acs5.geoid
-        AND uni.census_acs5_data_year = acs5.acs5_data_year
-        AND uni.year = acs5.year
+        ON vwlf.census_acs5_tract_geoid = acs5.geoid
+        AND vwlf.year = acs5.year
     LEFT JOIN housing_index
-        ON housing_index.geoid = uni.census_puma_geoid
-        AND housing_index.year = uni.year
-    LEFT JOIN tax_bill_amount_fill tbill
+        ON housing_index.geoid = vwlf.census_puma_geoid
+        AND housing_index.year = vwlf.year
+    LEFT JOIN tax_bill_amount tbill
         ON uni.pin = tbill.pin
-        AND uni.year = tbill.pin_year
+        AND uni.year = tbill.year
+    -- The two following joins need to include year if we get more than
+    -- one year of school ratings data.
     LEFT JOIN (SELECT * FROM school_district_ratings WHERE district_type = 'elementary') sdre
-        ON uni.school_elementary_district_geoid = sdre.district_geoid
-        AND uni.year = sdre.year
+        ON vwlf.school_elementary_district_geoid = sdre.district_geoid
     LEFT JOIN (SELECT * FROM school_district_ratings WHERE district_type = 'secondary') sdrs
-        ON uni.school_secondary_district_geoid = sdrs.district_geoid
-        AND uni.year = sdrs.year
+        ON vwlf.school_secondary_district_geoid = sdrs.district_geoid
 )
 -- Anything with a CASE WHEN here is just borrowing missing values from its nearest
 -- spatial neighbor
@@ -581,11 +432,11 @@ SELECT
     f1.loc_census_acs5_tract_geoid,
     f1.loc_census_acs5_data_year,
     CASE
-        WHEN f1.loc_cook_municipality_name IS NOT NULL THEN f1.loc_cook_municipality_name
-        WHEN f1.loc_cook_municipality_name IS NULL THEN nn1.loc_cook_municipality_name
-        WHEN nn1.loc_cook_municipality_name IS NULL THEN nn2.loc_cook_municipality_name
+        WHEN f1.loc_tax_municipality_name IS NOT NULL THEN f1.loc_tax_municipality_name
+        WHEN f1.loc_tax_municipality_name IS NULL THEN nn1.loc_tax_municipality_name
+        WHEN nn1.loc_tax_municipality_name IS NULL THEN nn2.loc_tax_municipality_name
         ELSE NULL
-    END AS loc_cook_municipality_name,
+    END AS loc_tax_municipality_name,
     CASE
         WHEN f1.loc_ward_num IS NOT NULL THEN f1.loc_ward_num
         WHEN f1.loc_ward_num IS NULL THEN nn1.loc_ward_num

@@ -1,2 +1,0 @@
-# This code has been moved to:
-# https://gitlab.com/ccao-data-science---modeling/processes/etl_validated_sales

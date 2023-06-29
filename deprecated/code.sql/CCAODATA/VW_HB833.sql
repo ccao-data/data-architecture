@@ -1,2 +1,0 @@
--- This view has been moved to:
--- https://gitlab.com/ccao-data-science---modeling/documentation/senior-auto-renewal

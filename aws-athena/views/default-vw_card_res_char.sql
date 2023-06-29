@@ -5,137 +5,140 @@ WITH multicodes AS (
     SELECT
         parid,
         taxyr,
-        CASE
-            WHEN COUNT(*) > 1 THEN true
-            ELSE false
-        END AS pin_is_multicard,
+        COALESCE(COUNT(*) > 1, FALSE) AS pin_is_multicard,
         COUNT(*) AS pin_num_cards
     FROM iasworld.dweldat
     GROUP BY parid, taxyr
 ),
+
 aggregate_land AS (
     SELECT
         parid,
         taxyr,
-        CASE
-            WHEN COUNT(*) > 1 THEN true
-            ELSE false
-        END AS pin_is_multiland,
+        COALESCE(COUNT(*) > 1, FALSE) AS pin_is_multiland,
         COUNT(*) AS pin_num_landlines,
         SUM(sf) AS total_land_sf
     FROM iasworld.land
     GROUP BY parid, taxyr
 ),
+
 townships AS (
     SELECT
         parid,
         taxyr,
-        substr(TAXDIST, 1, 2) AS township_code
+        user1 AS township_code
     FROM iasworld.legdat
 )
+
 SELECT
-    dweldat.parid AS pin,
-    SUBSTR(dweldat.parid, 1, 10) AS pin10,
-    dweldat.taxyr AS year,
-    card,
-    seq,
-    who AS updated_by,
-    date_parse(wen, '%Y-%m-%d %H:%i:%s.%f') AS updated_at,
+    dwel.parid AS pin,
+    SUBSTR(dwel.parid, 1, 10) AS pin10,
+    dwel.taxyr AS year,
+    dwel.card,
+    dwel.seq,
+    dwel.who AS updated_by,
+    DATE_PARSE(dwel.wen, '%Y-%m-%d %H:%i:%s.%f') AS updated_at,
 
     -- PIN information
-    class, -- 218, 219, 236, 241 classes added to DWELDAT
-    township_code,
-    cdu,
-    pin_is_multicard,
-    pin_num_cards,
-    pin_is_multiland,
-    pin_num_landlines,
-
-    -- New variables
-    yrblt AS char_yrblt,
+    -- 218, 219, 236, 241 classes added to DWELDAT
+    dwel.class,
+    townships.township_code,
+    dwel.cdu,
+    pardat.tieback AS tieback_key_pin,
+    CASE
+        WHEN pardat.tiebldgpct IS NOT NULL THEN pardat.tiebldgpct / 100.0
+        ELSE 1.0
+    END AS tieback_proration_rate,
+    CAST(dwel.user24 AS DOUBLE) / 100.0 AS card_protation_rate,
+    multicodes.pin_is_multicard,
+    multicodes.pin_num_cards,
+    aggregate_land.pin_is_multiland,
+    aggregate_land.pin_num_landlines,
 
     -- Continuous variables
-    sfla AS char_bldg_sf,
-    total_land_sf AS char_land_sf,
-    rmbed AS char_beds,
-    rmtot AS char_rooms,
-    fixbath AS char_fbath,
-    fixhalf AS char_hbath,
-    wbfp_o AS char_frpl,
+    dwel.yrblt AS char_yrblt,
+    dwel.sfla AS char_bldg_sf,
+    aggregate_land.total_land_sf AS char_land_sf,
+    dwel.rmbed AS char_beds,
+    dwel.rmtot AS char_rooms,
+    dwel.fixbath AS char_fbath,
+    dwel.fixhalf AS char_hbath,
+    dwel.wbfp_o AS char_frpl,
 
     -- New numeric encoding compared to AS/400
-    stories AS char_type_resd,
-    grade AS char_cnst_qlty,
-    user14 AS char_apts,
-    user4 AS char_tp_dsgn,
-    user6 AS char_attic_fnsh,
-    user31 AS char_gar1_att,
-    user32 AS char_gar1_area,
+    dwel.stories AS char_type_resd,
+    dwel.grade AS char_cnst_qlty,
+    dwel.user14 AS char_apts,
+    dwel.user4 AS char_tp_dsgn,
+    dwel.user6 AS char_attic_fnsh,
+    dwel.user31 AS char_gar1_att,
+    dwel.user32 AS char_gar1_area,
 
     -- Same numeric encoding as AS/400
-    user33 AS char_gar1_size,
-    user34 AS char_gar1_cnst,
-    attic AS char_attic_type,
-    bsmt AS char_bsmt,
-    extwall AS char_ext_wall,
-    heat AS char_heat,
-    user1 AS char_repair_cnd,
-    user12 AS char_bsmt_fin,
-    user13 AS char_roof_cnst,
-    user15 AS char_use,
-    user17 AS char_age, -- Deprecated, use yrblt
-    user2 AS char_site,
-    user20 AS char_ncu,
-    user3 AS char_renovation,
+    dwel.user33 AS char_gar1_size,
+    dwel.user34 AS char_gar1_cnst,
+    dwel.attic AS char_attic_type,
+    dwel.bsmt AS char_bsmt,
+    dwel.extwall AS char_ext_wall,
+    dwel.heat AS char_heat,
+    dwel.user1 AS char_repair_cnd,
+    dwel.user12 AS char_bsmt_fin,
+    dwel.user13 AS char_roof_cnst,
+    dwel.user15 AS char_use,
+    dwel.user17 AS char_age, -- Deprecated, use yrblt
+    dwel.user2 AS char_site,
+    dwel.user20 AS char_ncu,
+    dwel.user3 AS char_renovation,
 
     -- Indicate a change from 0 or NULL to 1 for renovation
     -- within the last 3 years
-    CASE
-        WHEN (user3 = '1' AND
-            Lag(user3)
-                over(
-                    PARTITION BY dweldat.parid
-                    ORDER BY dweldat.parid, dweldat.taxyr) != '1') OR
-            (Lag(user3)
-                over(
-                    PARTITION BY dweldat.parid
-                    ORDER BY dweldat.parid, dweldat.taxyr) = '1' AND
-            Lag(user3, 2)
-                over(
-                    PARTITION BY dweldat.parid
-                    ORDER BY dweldat.parid, dweldat.taxyr) != '1') OR
-            (Lag(user3, 2)
-                over(
-                    PARTITION BY dweldat.parid
-                    ORDER BY dweldat.parid, dweldat.taxyr) = '1' AND
-            Lag(user3, 3)
-                over(
-                    PARTITION BY dweldat.parid
-                    ORDER BY dweldat.parid, dweldat.taxyr) != '1')
-        THEN true
-        ELSE false
-    END AS char_recent_renovation,
+    COALESCE((
+        dwel.user3 = '1'
+        AND LAG(dwel.user3)
+            OVER (
+                PARTITION BY dwel.parid
+                ORDER BY dwel.parid, dwel.taxyr
+            )
+        != '1'
+    )
+    OR (LAG(dwel.user3)
+        OVER (
+            PARTITION BY dwel.parid
+            ORDER BY dwel.parid, dwel.taxyr
+        )
+    = '1'
+    AND LAG(dwel.user3, 2)
+        OVER (
+            PARTITION BY dwel.parid
+            ORDER BY dwel.parid, dwel.taxyr
+        )
+    != '1')
+    OR (LAG(dwel.user3, 2)
+        OVER (
+            PARTITION BY dwel.parid
+            ORDER BY dwel.parid, dwel.taxyr
+        )
+    = '1'
+    AND LAG(dwel.user3, 3)
+        OVER (
+            PARTITION BY dwel.parid
+            ORDER BY dwel.parid, dwel.taxyr
+        )
+    != '1'), FALSE) AS char_recent_renovation,
+    dwel.user30 AS char_porch,
+    dwel.user7 AS char_air,
+    dwel.user5 AS char_tp_plan
 
-    user30 AS char_porch,
-    user7 AS char_air,
-    user5 AS char_tp_plan
-
-    -- To investigate later:
-    -- plumval
-    -- atticval
-    -- wbfpval
-    -- subtval
-    -- user38
-    -- user23
-    -- convbldg
-
-FROM iasworld.dweldat
+FROM iasworld.dweldat AS dwel
+LEFT JOIN iasworld.pardat
+    ON dwel.parid = pardat.parid
+    AND dwel.taxyr = pardat.taxyr
 LEFT JOIN multicodes
-    ON dweldat.parid = multicodes.parid
-    AND dweldat.taxyr = multicodes.taxyr
+    ON dwel.parid = multicodes.parid
+    AND dwel.taxyr = multicodes.taxyr
 LEFT JOIN aggregate_land
-    ON dweldat.parid = aggregate_land.parid
-    AND dweldat.taxyr = aggregate_land.taxyr
+    ON dwel.parid = aggregate_land.parid
+    AND dwel.taxyr = aggregate_land.taxyr
 LEFT JOIN townships
-    ON dweldat.parid = townships.parid
-    AND dweldat.taxyr = townships.taxyr
+    ON dwel.parid = townships.parid
+    AND dwel.taxyr = townships.taxyr

@@ -15,6 +15,10 @@
                 {
                     "Path": "s3://ccao-data-warehouse-us-east-1/spatial/ccao",
                     "Exclusions": []
+                },
+                {
+                    "Path": "s3://ccao-data-warehouse-us-east-1/spatial/other",
+                    "Exclusions": []
                 }
             ],
             "JdbcTargets": [],
@@ -30,15 +34,15 @@
         "State": "READY",
         "CrawlElapsedTime": 0,
         "CreationTime": "2021-12-29T11:41:05-06:00",
-        "LastUpdated": "2022-02-26T13:29:34-06:00",
+        "LastUpdated": "2023-01-05T16:45:47-06:00",
         "LastCrawl": {
             "Status": "SUCCEEDED",
             "LogGroup": "/aws-glue/crawlers",
             "LogStream": "ccao-data-warehouse-spatial-crawler-level4",
-            "MessagePrefix": "d5835bea-acbb-4c5b-8ebd-f58e8765c991",
-            "StartTime": "2022-12-07T11:21:58-06:00"
+            "MessagePrefix": "5e527da3-be17-4074-b85d-a134a31c89f0",
+            "StartTime": "2023-04-16T13:50:22-05:00"
         },
-        "Version": 9,
+        "Version": 15,
         "Configuration": "{\"Version\":1.0,\"Grouping\":{\"TableLevelConfiguration\":4}}"
     }
 }

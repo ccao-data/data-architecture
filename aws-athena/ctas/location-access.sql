@@ -1,59 +1,74 @@
 CREATE TABLE IF NOT EXISTS location.access
 WITH (
-    format='Parquet',
-    write_compression = 'SNAPPY',
-    external_location='s3://ccao-athena-ctas-us-east-1/location/access',
-    partitioned_by = ARRAY['year'],
-    bucketed_by = ARRAY['pin10'],
-    bucket_count = 1
+    FORMAT = 'Parquet',
+    WRITE_COMPRESSION = 'SNAPPY',
+    EXTERNAL_LOCATION = 's3://ccao-athena-ctas-us-east-1/location/access',
+    PARTITIONED_BY = ARRAY['year'],
+    BUCKETED_BY = ARRAY['pin10'],
+    BUCKET_COUNT = 1
 ) AS (
     WITH distinct_pins AS (
-        SELECT DISTINCT x_3435, y_3435
+        SELECT DISTINCT
+            x_3435,
+            y_3435
         FROM spatial.parcel
     ),
+
     distinct_years AS (
         SELECT DISTINCT year
         FROM spatial.parcel
     ),
+
     distinct_years_rhs AS (
         SELECT DISTINCT year
         FROM spatial.walkability
     ),
+
     walkability AS (
         SELECT
-            p.x_3435, p.y_3435,
-            CAST(CAST(MAX(cprod.walk_num) AS bigint) AS varchar) AS access_cmap_walk_id,
+            dp.x_3435,
+            dp.y_3435,
+            CAST(CAST(MAX(cprod.walk_num) AS BIGINT) AS VARCHAR)
+                AS access_cmap_walk_id,
             MAX(cprod.nta_score) AS access_cmap_walk_nta_score,
             MAX(cprod.total_score) AS access_cmap_walk_total_score,
             MAX(cprod.year) AS access_cmap_walk_data_year,
             cprod.pin_year
-        FROM distinct_pins p
+        FROM distinct_pins AS dp
         LEFT JOIN (
-            SELECT fill_years.pin_year, fill_data.*
+            SELECT
+                fill_years.pin_year,
+                fill_data.*
             FROM (
-                SELECT dy.year AS pin_year, MAX(df.year) AS fill_year
-                FROM spatial.walkability df
-                CROSS JOIN distinct_years dy
+                SELECT
+                    dy.year AS pin_year,
+                    MAX(df.year) AS fill_year
+                FROM spatial.walkability AS df
+                CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
-            ) fill_years
-            LEFT JOIN spatial.walkability fill_data
+            ) AS fill_years
+            LEFT JOIN spatial.walkability AS fill_data
                 ON fill_years.fill_year = fill_data.year
-        ) cprod
-        ON ST_Within(ST_Point(p.x_3435, p.y_3435), ST_GeomFromBinary(cprod.geometry_3435))
-        GROUP BY p.x_3435, p.y_3435, cprod.pin_year
+        ) AS cprod
+            ON ST_WITHIN(
+                ST_POINT(dp.x_3435, dp.y_3435),
+                ST_GEOMFROMBINARY(cprod.geometry_3435)
+            )
+        GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
     )
+
     SELECT
-        p.pin10,
-        access_cmap_walk_id,
-        access_cmap_walk_nta_score,
-        access_cmap_walk_total_score,
-        access_cmap_walk_data_year,
-        p.year
-    FROM spatial.parcel p
-    LEFT JOIN walkability
-        ON p.x_3435 = walkability.x_3435
-        AND p.y_3435 = walkability.y_3435
-        AND p.year = walkability.pin_year
-    WHERE p.year >= (SELECT MIN(year) FROM distinct_years_rhs)
+        pcl.pin10,
+        walk.access_cmap_walk_id,
+        walk.access_cmap_walk_nta_score,
+        walk.access_cmap_walk_total_score,
+        walk.access_cmap_walk_data_year,
+        pcl.year
+    FROM spatial.parcel AS pcl
+    LEFT JOIN walkability AS walk
+        ON pcl.x_3435 = walk.x_3435
+        AND pcl.y_3435 = walk.y_3435
+        AND pcl.year = walk.pin_year
+    WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )
