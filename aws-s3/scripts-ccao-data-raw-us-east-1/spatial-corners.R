@@ -17,11 +17,18 @@ library(geosphere)
 library(profvis)
 library(furrr)
 
+
+
+# NEED TO DO Jefferson Northwood Palinite Ridgeville South West Worth
+
 township <- "Calumet"
 
 bbox <- ccao::town_shp %>%
   filter(township_name == township) %>%
   st_bbox()
+
+bbox <- st_bbox(c(xmin = -87.62, ymin = 41.645, xmax = -87.625, ymax = 41.65))
+
 
 # Street network data
 osm_data <- function(type) {
@@ -38,6 +45,8 @@ town_osm <- lapply(highway_type, osm_data)
 
 town_osm_center <- town_osm$Value$osm_lines %>%
   filter(!highway %in% c("bridleway", "construction", "corridor", "cycleway", "elevator", "service", "services", "steps"))
+
+
 
 
 # Construct the street network
@@ -59,6 +68,12 @@ parcels <- st_read(
     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
   )) %>% 
   mutate(id = row_number())
+
+parcels <- parcels %>%
+  filter(latitude >= 41.645 & latitude <= 41.65) %>%
+  filter(longitude <= -87.625 & longitude >= -87.62) 
+  
+
 
 # Create a nested list for target parcel, neighbor parcel, neighbor network
 ## Find the neighbor parcel clip
@@ -91,7 +106,29 @@ parcel <- parcels$geometry
 sf_use_s2(FALSE)
 
 
+### NOTHING CHANGED ABOVE
+# 
+# 
+# plot(parcels[1])
+# 
+# shapefile <- st_read("your_shapefile.shp")
+# 
+# 
+# save_objects_within_distance <- function(object, distance, output_dir) {
+#   # Calculate distances between the object and all other objects
+#   distances <- st_distance(object, shapefile)
+#   
+#   # Filter objects within the specified distance
+#   nearby_objects <- shapefile[distances <= distance, ]
+#   
+#   # Save the filtered object to a separate file
+#   output_file <- paste0(output_dir, "/object_", object$ID, ".shp")
+#   st_write(nearby_objects, output_file)
+# }
+# 
 
+
+#### NOTHING CHANGED BELOW
 
 # Step 1: Create the minimum rectangle
 min_rectangle <- st_minimum_rotated_rectangle(parcel)
@@ -125,9 +162,18 @@ dest <- destPoint(p = centriod, b = rectangle_network$corrected_bearing, d = rec
 
 cross <- cbind(centriod, dest) %>% as.data.frame()
 
+
+
+# DRAW LINE FUNCTION
 draw_line <- function(r) {
   st_linestring(t(matrix(unlist(r), 2, 2)))
 }
+
+
+
+
+
+# CROSS GEOM FUNCTION
 
 cross$geom <- st_sfc(sapply(1:nrow(cross),
                             function(i) {
@@ -207,6 +253,26 @@ crossing <- function(parcel, cross, network, neighbor_parcel, rectangle_network)
 }
 
 
+
+
+# parcel, cross, network, neighbor_parcel, rectangle_network
+# parcel, cross_lst, clip_network, clip_parcel, rectangle_network
+
+touching_unit <- suppressWarnings(suppressMessages(st_intersects(cross_lst$geom, clip_parcel)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Apply the above function to all parcels
 num_threads <- parallel::detectCores(logical = FALSE)
 plan(multisession, workers = 2)
@@ -225,22 +291,54 @@ future_pmap_lgl(
 ## SEQUENTIAL
 corner_indicator <- c()
 
-for (i in 1:6861) {
+for (i in 1:98) {
   cross_idx <- (i - (i %% 4) + 1):(i - (i %% 4) + 4)
   corner_indicator[[i]] <- crossing(parcel[i], cross[cross_idx, ], clip_network[[i]], clip_parcel[[i]], rectangle_network)
 }
 
 
-corner_parcel_west <- parcels %>%
+
+parcel_list <- list()
+cross_list <- list()
+clip_network_list <- list()
+clip_parcel_list <- list()
+rectangle_network_vector <- vector("list", length = 98) 
+
+for (i in 1:98) {
+  cross_idx <- (i - (i %% 4) + 1):(i - (i %% 4) + 4)
+  
+  # Extract and store the components
+  parcel_list[[i]] <- parcel[i]
+  cross_list[[i]] <- cross[cross_idx, ]
+  clip_network_list[[i]] <- clip_network[[i]]
+  clip_parcel_list[[i]] <- clip_parcel[[i]]
+  rectangle_network_vector[[i]] <- rectangle_network
+}
+
+parcel <- unlist(parcel_list)
+cross <- do.call(rbind, cross_list)
+clip_network <- unlist(clip_network_list)
+clip_parcel <- unlist(clip_parcel_list)
+rectangle_network <- unlist(rectangle_network_vector)
+
+
+corner_parcel_calumet <- parcels %>%
   mutate(corner_indicator = unlist(corner_indicator)) %>%
   filter(corner_indicator == TRUE)
 
+plot(cross[1])
+plot(parcels[1])
 
 ggplot() +
   geom_sf(data = st_geometry(parcels)) +
-  geom_sf(data = st_geometry(corner_parcel_west), fill = "blue") +
-  # geom_sf(data = st_as_sf(network, 'edges'), col = 'green') +
+  geom_sf(data = st_geometry(corner_parcel_calumet), fill = "blue") +
+  geom_sf(data = st_as_sf(network, 'edges'), col = 'green') +
   theme_void()
 
-write_csv(corner_parcel_west, 'corner_west.csv')
+# write_csv(corner_parcel_calumet, 'corner_calumet_1.csv')
+
+
+
+
+
 
