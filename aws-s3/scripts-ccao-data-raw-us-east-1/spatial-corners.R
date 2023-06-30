@@ -29,7 +29,7 @@ township <- "Calumet"
 
 # WORKS FOR -87.625 and doesn't for -87.4
 
-bbox <- st_bbox(c(xmin = -87.4, ymin = 41.64, xmax = -87.61, ymax = 41.65))
+bbox <- st_bbox(c(xmin = -87.625, ymin = 41.642, xmax = -87.61, ymax = 41.65))
 
 
 
@@ -75,8 +75,8 @@ parcels <- st_read(
   mutate(id = row_number())
 
 parcels <- parcels %>%
-  filter(latitude >= 41.64 & latitude <= 41.65) %>% 
-  filter(longitude <= -87.64 & longitude >= -87.61) 
+  filter(latitude >= 41.642 & latitude <= 41.65) %>% 
+  filter(longitude <= -87.625 & longitude >= -87.61) 
 
 
 
@@ -258,7 +258,7 @@ plan(multisession, workers = 2)
 ## SEQUENTIAL
 corner_indicator <- c()
 
-for (i in 1:687) {
+for (i in 1:196) {
   cross_idx <- (i - (i %% 4) + 1):(i - (i %% 4) + 4)
   corner_indicator[[i]] <- crossing(parcel[i], cross_lst[[i]], clip_network[[i]], clip_parcel[[i]], rectangle_network)
 }

@@ -18,9 +18,6 @@ library(profvis)
 library(furrr)
 
 
-
-# NEED TO DO Jefferson Northwood Palinite Ridgeville South West Worth
-
 township <- "Calumet"
 
 #bbox <- ccao::town_shp %>%
@@ -29,7 +26,7 @@ township <- "Calumet"
 
 # WORKS FOR -87.625 and doesn't for -87.4
 
-bbox <- st_bbox(c(xmin = -87.4, ymin = 41.64, xmax = -87.61, ymax = 41.65))
+bbox <- st_bbox(c(xmin = -87.625, ymin = 41.642, xmax = -87.61, ymax = 41.65))
 
 
 
@@ -75,8 +72,12 @@ parcels <- st_read(
   mutate(id = row_number())
 
 parcels <- parcels %>%
-  filter(latitude >= 41.64 & latitude <= 41.65) %>% 
-  filter(longitude <= -87.64 & longitude >= -87.61) 
+  filter(latitude >= 41.642 & latitude <= 41.65) %>% 
+  filter(longitude <= -87.625 & longitude >= -87.61) 
+
+parcel <- parcels$geometry
+
+
 
 
 
@@ -88,95 +89,98 @@ parcels <- parcels %>%
   mutate(clip_parcel = st_intersects(., buffer_area)) %>%
   st_transform(4326)
 
+
+
 clip_parcel <- map(parcels$clip_parcel, function(x) {
   st_transform(parcels$geometry[x], 4326)
-}) # change back to full file
+})
 
 
-# Find the neighbor network clip
-clip_network <- c()
-for (i in 1:nrow(parcels)) {
-  clip_network[[i]] <- network %>%
-    activate("edges") %>%
-    st_filter(parcels$buffer_area[i], .pred = st_overlaps) %>%
-    activate("nodes") %>%
-    filter(!node_is_isolated()) %>%
-    activate("edges") %>%
-    st_as_sf() %>%
-    st_transform(4326)
+
+
+DamonFunction <- function(parcel) {
+  # Find the neighbor network clip
+  clip_network <- c()
+  for (i in 1:nrow(parcels)) {
+    clip_network[[i]] <- network %>%
+      activate("edges") %>%
+      st_filter(parcels$buffer_area[i], .pred = st_overlaps) %>%
+      activate("nodes") %>%
+      filter(!node_is_isolated()) %>%
+      activate("edges") %>%
+      st_as_sf() %>%
+      st_transform(4326)
+  }
+  
+  # Step 1: Create the minimum rectangle
+  min_rectangle <- st_minimum_rotated_rectangle(parcel)
+  min_rectangle_line <- st_segments(min_rectangle) %>%
+    st_transform(crs = 4326)
+  
+  # Step 2: Draw the cross
+  ## Find out the bearing angle
+  rectangle_network <- as_sfnetwork(min_rectangle_line, directed = FALSE) %>%
+    activate(edges) %>%
+    mutate(bearing = edge_azimuth()) %>%
+    mutate(bearing = units::set_units(bearing, "degree")) %>%
+    mutate(id = row_number()) %>%
+    mutate(corrected_bearing = ifelse(id %% 4 != 0, bearing, bearing + units::set_units(180, "degree"))) %>%
+    st_as_sf()
+  
+  ## Step 3 Find out the distance
+  rectangle_network <- rectangle_network %>%
+    mutate(length = st_length(x) + units::set_units(10, "m"))
+  
+  ## Step 4 Find out the starting point
+  centroid <- st_centroid(parcel) %>% st_as_sf()
+  centroid <- centroid %>%
+    slice(rep(1:n(), each = 4)) %>%
+    st_transform(crs = 4326) %>%
+    st_coordinates()
+  
+  ## Step 5 Draw the cross
+  dest <- destPoint(p = centroid, b = rectangle_network$corrected_bearing, d = rectangle_network$length)
+  
+  cross <- cbind(centroid, dest) %>% as.data.frame()
+  
+  ## Step 6 Draw Line
+  draw_line <- function(r) {
+    st_linestring(t(matrix(unlist(r), 2, 2)))
+  }
+  
+  ## Step 7 Cross Function
+  cross$geom <- st_sfc(sapply(1:nrow(cross), function(i) {
+    draw_line(cross[i, ])
+  }, simplify = FALSE))
+  
+  cross <- cross %>%
+    st_set_geometry("geom") %>%
+    st_set_crs(4326) %>%
+    mutate(
+      length = st_length(geom),
+      aspect_ratio = as.numeric(lag(length) / length),
+      id = rep(1:(nrow(.) / 4), each = 4)
+    )
+  
+  # Return the results
+  return(list(rectangle_network = rectangle_network, cross_lst = split(cross, cross$id), clip_network = clip_network))
 }
 
-parcel <- parcels$geometry
-
-sf_use_s2(FALSE)
 
 
-
-
-# Step 1: Create the minimum rectangle
-min_rectangle <- st_minimum_rotated_rectangle(parcel)
-min_rectangle_line <- st_segments(min_rectangle) %>%
-  st_transform(crs = 4326)
-
-# Step 2: Draw the cross
-## find out the bearing angle
-rectangle_network <- as_sfnetwork(min_rectangle_line, directed = FALSE) %>%
-  activate(edges) %>%
-  mutate(bearing = edge_azimuth()) %>%
-  mutate(bearing = units::set_units(bearing, "degree")) %>%
-  # mutate(group_id = rep(1:nrow(parcels), each = 4)) %>%
-  mutate(id = row_number()) %>%
-  mutate(corrected_bearing = ifelse(id %% 4 != 0, bearing, bearing + units::set_units(180, "degree"))) %>%
-  st_as_sf()
-
-## find out distance
-rectangle_network <- rectangle_network %>%
-  mutate(length = st_length(x) + units::set_units(10, "m"))
-
-## find out starting point
-centriod <- st_centroid(parcel) %>% st_as_sf()
-centriod <- centriod %>%
-  slice(rep(1:n(), each = 4)) %>%
-  st_transform(crs = 4326) %>%
-  st_coordinates()
-
-## draw the cross
-dest <- destPoint(p = centriod, b = rectangle_network$corrected_bearing, d = rectangle_network$length)
-
-cross <- cbind(centriod, dest) %>% as.data.frame()
-
-
-
-# DRAW LINE FUNCTION
-draw_line <- function(r) {
-  st_linestring(t(matrix(unlist(r), 2, 2)))
-}
+result <- DamonFunction(parcel)
+rectangle_network <- result$rectangle_network
+cross_lst <- result$cross_lst
+clip_network <- result$clip_network
 
 
 
 
 
-# CROSS GEOM FUNCTION
 
-cross$geom <- st_sfc(sapply(1:nrow(cross),
-                            function(i) {
-                              draw_line(cross[i, ])
-                            },
-                            simplify = FALSE
-))
 
-cross <- cross %>%
-  st_set_geometry("geom") %>%
-  st_set_crs(4326) %>%
-  mutate(
-    length = st_length(geom),
-    aspect_ratio = as.numeric(lag(length) / length),
-    id = rep(1:(nrow(.) / 4), each = 4)
-  )
 
-cross_lst <- cross %>%
-  group_by(id) %>%
-  group_split()
+
 
 
 # Create the function 
@@ -237,33 +241,21 @@ crossing <- function(parcel, cross, network, neighbor_parcel, rectangle_network)
 
 
 
-
-
-
-# Apply the above function to all parcels
-num_threads <- parallel::detectCores(logical = FALSE)
-plan(multisession, workers = 2)
-
-# ## PARALLEL
-# future_pmap_lgl(
-#   list(parcel, cross_lst, clip_network, clip_parcel),
-#   function(p, c, cl, cp) {
-#     crossing(p, c, cl, cp, rectangle_network)
-#   },
-#   .options = furrr_options(seed = NULL), 
-#   .progress = TRUE
-# )
-
-
 ## SEQUENTIAL
 corner_indicator <- c()
 
-for (i in 1:687) {
+for (i in 1:196) {
   cross_idx <- (i - (i %% 4) + 1):(i - (i %% 4) + 4)
   corner_indicator[[i]] <- crossing(parcel[i], cross_lst[[i]], clip_network[[i]], clip_parcel[[i]], rectangle_network)
 }
 
 
+
+
+
+
+# crossing <- function(parcel, cross, network, neighbor_parcel, rectangle_network) 
+  
 
 corner_parcel_calumet <- parcels %>%
   mutate(corner_indicator = unlist(corner_indicator)) %>%
@@ -276,9 +268,4 @@ ggplot() +
   theme_void()
 
 # write_csv(corner_parcel_calumet, 'corner_calumet_1.csv')
-
-
-
-
-
 
