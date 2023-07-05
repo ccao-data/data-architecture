@@ -104,15 +104,19 @@ parcel <- parcels$geometry
 
 
 ```{r}
+parcelsfull <- parcels
 
 
-DamonFunction_single_observation_final <- function(parcels, network) {
+DamonFunction_single_observation_final <- function(parcels, network, parcelsfull) {
   # Create a nested list for target parcel, neighbor parcel, neighbor network
   # Find the neighbor parcel clip
   parcels <- parcels %>%
     st_transform(3435) %>%
     mutate(buffer_area = st_buffer(geometry, dist = units::set_units(100, "m"))) %>%
     mutate(clip_parcel = st_intersects(., buffer_area)) %>%
+    st_transform(4326)
+  
+  parcelsfull <- parcelsfull %>%
     st_transform(4326)
   
   clip_parcel <- map(parcels$clip_parcel, function(x) {
@@ -132,6 +136,8 @@ DamonFunction_single_observation_final <- function(parcels, network) {
       st_transform(4326)
   }
   
+   browser() 
+
   
   # Step 1: Create the minimum rectangle
   min_rectangle <- st_minimum_rotated_rectangle(parcel)
@@ -154,56 +160,59 @@ DamonFunction_single_observation_final <- function(parcels, network) {
   
   ## Step 4 Find out the starting point
   centroid <- st_centroid(parcel) %>% st_as_sf()
+  centroid <- centroid[i]
   centroid <- centroid %>%
     slice(rep(1:n(), each = 4)) %>%
     st_transform(crs = 4326) %>%
     st_coordinates()
+    
+  ## Step 5 Draw the cross
+  dest <- destPoint(p = centroid, b = rectangle_network$corrected_bearing, d = rectangle_network$length)
   
-   # Step 5: Remove the cross segments in the intersection of {cross_touching_unit & neighbor_unit}
+  cross <- cbind(centroid, dest) %>% as.data.frame()
   
-  cross_int <- suppressMessages(imap_lgl(neighbor_and_touching, function(x, i) {
-    any(map_lgl(x, function(y) {
-      as.logical(st_intersects(cross$geom[i], neighbor_parcel[y]))
-    }))
-  }))
-  
-  cross_filter <- cross %>%
-    mutate(is_neighboring = cross_int) %>%
-    mutate(id = 1:4) %>%
-    filter(!is_neighboring)
-  
-  # Step 6: Calculate the angle of cross segments
-  angle_diff <- function(theta1, theta2) {
-    theta <- abs(theta1 - theta2) %% 360
-    return(ifelse(theta > 180, 360 - theta, theta))
+  ## Step 6 Draw Line
+  draw_line <- function(r) {
+    st_linestring(t(matrix(unlist(r), 2, 2)))
   }
   
-  cross_corner <- rectangle_network %>%
-    mutate(bearing = as.numeric(bearing)) %>%
-    filter(id %in% cross_filter$id) %>%
-    mutate(diff_degree = angle_diff(bearing, lag(bearing))) %>%
-    filter(diff_degree >= 85 & diff_degree <= 95, na.rm = TRUE)
+  ## Step 7 Cross Function
+  cross$geom <- st_sfc(sapply(1:nrow(cross), function(i) {
+    draw_line(cross[i, ])
+  }, simplify = FALSE))
   
- 
+  cross <- cross %>%
+    st_set_geometry("geom") %>%
+    st_set_crs(4326) %>%
+    mutate(
+      length = st_length(geom),
+      aspect_ratio = as.numeric(lag(length) / length),
+      id = rep(1:(nrow(.) / 4), each = 4)
+    ) 
+  
+  
+  result <- list(
+  rectangle_network = rectangle_network,
+  cross_lst = split(cross, cross$id),
+  clip_network = clip_network,
+  clip_parcel = clip_parcel)
 
  # Find out all the units touched by the cross
-  touching_unit <- suppressWarnings(suppressMessages(st_intersects(cross$geom, neighbor_parcel)))
+  touching_unit <- suppressWarnings(suppressMessages(st_intersects(cross$geom, clip_parcel[[i]])))
   
   # Step 3: Find out all the neighbor units for a parcel
-  neighbor_unit <- suppressWarnings(suppressMessages(st_touches(parcel, neighbor_parcel)))
+  neighbor_unit <- suppressWarnings(suppressMessages(st_touches(parcel[[i]], clip_parcel[[i]])))
   neighbor_unit <- rep(neighbor_unit, each = 4)
   
   # Step 4: Find out the intersection of {cross_touching_unit & neighbor_unit}
-  neighbor_and_touching <- list()
-  for (i in 1:4) {
-    neighbor_and_touching[[i]] <- intersect(touching_unit[[i]], neighbor_unit[[i]])
-  }
+  neighbor_and_touching <- lapply(1:4, function(i) intersect(touching_unit[[i]], neighbor_unit[[i]]))
+
   
   # Step 5: Remove the cross segments in the intersection of {cross_touching_unit & neighbor_unit}
   
   cross_int <- suppressMessages(imap_lgl(neighbor_and_touching, function(x, i) {
     any(map_lgl(x, function(y) {
-      as.logical(st_intersects(cross$geom[i], neighbor_parcel[y]))
+      as.logical(st_intersects(cross_list$geom[i], cross_parcel[y]))
     }))
   }))
   
@@ -237,23 +246,62 @@ DamonFunction_single_observation_final <- function(parcels, network) {
   } else {
     return(FALSE)
   }
+  
+  
 
 }
-TempFilea <- vector("list", nrow(parcels))
 
-for (i in 1:nrow(parcels)) {
-  TempFilea[[i]] <- DamonFunction_single_observation_final(parcels[i, ], network)
-}
+TempFile <- vector("list", nrow(parcels))
 
 
 for (i in 1:nrow(parcels)) {
   cross_idx <- (i - (i %% 4) + 1):(i - (i %% 4) + 4)
-  TempFilea[[i]] <-  DamonFunction_single_observation_final(parcels[i, ], network)
+  TempFile[[i]] <- DamonFunction_single_observation_final(parcels[i, ], network, parcelsfull)
 }
 
 
+```
+
+
+
+```{r}
+
+result <- DamonFunction_single_observation_final(parcels, network)
+
+help(as_s2_geography)
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -366,7 +414,7 @@ for (i in 1:nrow(parcels)) {
 ```{r}
 
 
-result <- DamonFunction1(parcels, network)
+result <- DamonFunction_single_observation(parcels, network)
 rectangle_network <- result$rectangle_network
 cross_lst <- result$cross_lst
 clip_network <- result$clip_network
@@ -386,6 +434,7 @@ clip_parcel <- result$clip_parcel
 
 # Create the function 
 crossing <- function(parcel, cross, network, neighbor_parcel, rectangle_network) {
+  (browser)
   
   # Find out all the units touched by the cross
   touching_unit <- suppressWarnings(suppressMessages(st_intersects(cross$geom, neighbor_parcel)))
@@ -581,7 +630,7 @@ clip_parcel <- result$clip_parcel
 
 # Create the function 
 crossing <- function(parcel, cross, network, neighbor_parcel, rectangle_network) {
-  
+  browser()
   # Find out all the units touched by the cross
   touching_unit <- suppressWarnings(suppressMessages(st_intersects(cross$geom, neighbor_parcel)))
   

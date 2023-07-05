@@ -1,3 +1,291 @@
+# parcelsfull <- parcels
+
+
+
+township <- "Calumet"
+
+#bbox <- ccao::town_shp %>%
+#  filter(township_name == township) %>%
+#  st_bbox()
+
+# WORKS FOR -87.625 and doesn't for -87.4
+
+bbox <- st_bbox(c(xmin = -87.625, ymin = 41.642, xmax = -87.61, ymax = 41.65))
+
+
+
+# Street network data
+osm_data <- function(type) {
+  opq(bbox = bbox) %>%
+    add_osm_feature(key = "highway", value = type) %>%
+    add_osm_feature(key = "highway", value = "!footway") %>%
+    add_osm_feature(key = "highway:tag", value = "!alley") %>%
+    osmdata_sf()
+}
+
+highway_type <- available_tags("highway")
+
+town_osm <- lapply(highway_type, osm_data)
+
+town_osm_center <- town_osm$Value$osm_lines %>%
+  filter(!highway %in% c("bridleway", "construction", "corridor", "cycleway", "elevator", "service", "services", "steps"))
+
+plot(town_osm_center[1])
+
+
+# Construct the street network
+network <- as_sfnetwork(town_osm_center, directed = FALSE) %>%
+  activate(edges) %>%
+  arrange(edge_length()) %>%
+  filter(!edge_is_multiple()) %>%
+  filter(!edge_is_loop()) %>%
+  st_transform(3435) %>%
+  convert(to_spatial_simple) %>%
+  # convert(to_spatial_smooth) %>%
+  convert(to_spatial_subdivision) %>%
+  activate(nodes) %>%
+  mutate(degree = centrality_degree())
+
+
+
+# Parcel data
+parcels <- st_read(
+  glue::glue(
+    "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
+  )) %>% 
+  mutate(id = row_number())
+
+parcels <- parcels %>%
+  filter(latitude >= 41.642 & latitude <= 41.65) %>% 
+  filter(longitude <= -87.625 & longitude >= -87.61) 
+
+parcel <- parcels$geometry
+
+parcelsfull <- parcels
+
+
+
+
+
+
+
+
+
+DamonFunction_single_observation_final <- function(parcels, network, parcelsfull) {
+  # Create a nested list for target parcel, neighbor parcel, neighbor network
+  # Find the neighbor parcel clip
+  parcels <- parcels %>%
+    st_transform(3435) %>%
+    mutate(buffer_area = st_buffer(geometry, dist = units::set_units(100, "m"))) %>%
+    mutate(clip_parcel = st_intersects(., buffer_area)) %>%
+    st_transform(4326)
+  
+  parcelsfull <- parcelsfull %>%
+    st_transform(4326)
+  
+  clip_parcel <- map(parcels$clip_parcel, function(x) {
+    st_transform(parcels$geometry[x], 4326)
+  })
+  
+  # Find the neighbor network clip
+  clip_network <- list()
+  for (i in 1:nrow(parcels)) {
+    clip_network[[i]] <- network %>%
+      activate("edges") %>%
+      st_filter(parcels$buffer_area[i], .pred = st_overlaps) %>%
+      activate("nodes") %>%
+      filter(!node_is_isolated()) %>%
+      activate("edges") %>%
+      st_as_sf() %>%
+      st_transform(4326)
+  }
+  
+
+  
+  # Step 1: Create the minimum rectangle
+  min_rectangle <- st_minimum_rotated_rectangle(parcel)
+  min_rectangle_line <- st_segments(min_rectangle) %>%
+    st_transform(crs = 4326)
+  
+  
+  
+  # Step 2: Draw the cross
+  ## Find out the bearing angle
+  rectangle_network <- as_sfnetwork(min_rectangle_line, directed = FALSE) %>%
+    activate(edges) %>%
+    mutate(bearing = edge_azimuth()) %>%
+    mutate(bearing = units::set_units(bearing, "degree")) %>%
+    mutate(id = row_number()) %>%
+    mutate(corrected_bearing = ifelse(id %% 4 != 0, bearing, bearing + units::set_units(180, "degree"))) %>%
+    st_as_sf()
+  
+  
+  
+  ## Step 3 Find out the distance
+  rectangle_network <- rectangle_network %>%
+    mutate(length = st_length(x) + units::set_units(10, "m"))
+  
+  rectangle_network_subset <- rectangle_network[1:4 * i, ]
+  
+  
+  ## Step 4 Find out the starting point
+  centroid <- st_centroid(parcel[i]) %>% st_as_sf() 
+
+     centroid <- centroid %>%
+     slice(rep(1:n(), each = 4)) %>%
+     st_transform(crs = 4326) %>%
+     st_coordinates()
+  
+  ## Step 5 Draw the cross
+  dest <- destPoint(p = centroid, b = rectangle_network_subset$corrected_bearing, d = rectangle_network_subset$length)
+  
+  cross <- cbind(centroid, dest) %>% as.data.frame()
+  
+  ## Step 6 Draw Line
+  draw_line <- function(r) {
+    st_linestring(t(matrix(unlist(r), 2, 2)))
+  }
+  
+  ## Step 7 Cross Function
+  cross$geom <- st_sfc(sapply(1:nrow(cross), function(i) {
+    draw_line(cross[i, ])
+  }, simplify = FALSE))
+  
+  cross <- cross %>%
+    st_set_geometry("geom") %>%
+    st_set_crs(4326) %>%
+    mutate(
+      length = st_length(geom),
+      aspect_ratio = as.numeric(lag(length) / length),
+      id = rep(1:(nrow(.) / 4), each = 4)
+    ) 
+  
+  
+  result <- list(
+    rectangle_network = rectangle_network,
+    cross_lst = split(cross, cross$id),
+    clip_network = clip_network,
+    clip_parcel = clip_parcel)
+  
+  # Find out all the units touched by the cross
+  touching_unit <- suppressWarnings(suppressMessages(st_intersects(cross$geom, parcelsfull)))
+  
+  # Step 3: Find out all the neighbor units for a parcel
+  neighbor_unit <- suppressWarnings(suppressMessages(st_touches(parcelsfull, clip_parcel[[i]])))
+  neighbor_unit <- rep(neighbor_unit, each = 4)
+  
+  # Step 4: Find out the intersection of {cross_touching_unit & neighbor_unit}
+  neighbor_and_touching <- lapply(1:4, function(i) intersect(touching_unit[[i]], neighbor_unit[[i]]))
+  
+  
+  # Step 5: Remove the cross segments in the intersection of {cross_touching_unit & neighbor_unit}
+  
+  cross_int <- suppressMessages(imap_lgl(neighbor_and_touching, function(x, i) {
+    any(map_lgl(x, function(y) {
+      as.logical(st_intersects(cross_list$geom[i], cross_parcel[y]))
+    }))
+  }))
+  
+  cross_filter <- cross %>%
+    mutate(is_neighboring = cross_int) %>%
+    mutate(id = 1:4) %>%
+    filter(!is_neighboring)
+  
+  # Step 6: Calculate the angle of cross segments
+  angle_diff <- function(theta1, theta2) {
+    theta <- abs(theta1 - theta2) %% 360
+    return(ifelse(theta > 180, 360 - theta, theta))
+  }
+  
+  cross_corner <- rectangle_network %>%
+    mutate(bearing = as.numeric(bearing)) %>%
+    filter(id %in% cross_filter$id) %>%
+    mutate(diff_degree = angle_diff(bearing, lag(bearing))) %>%
+    filter(diff_degree >= 85 & diff_degree <= 95, na.rm = TRUE)
+  
+  touching_unit_street <- suppressWarnings(suppressMessages(st_intersects(cross$geom, network)))
+  touching_street_number <- sum(lengths(touching_unit_street))
+  
+  cross_corner_number <- nrow(cross_corner)
+  
+  aspect_ratio <- max(cross$aspect_ratio, na.rm = TRUE)
+  
+  
+  if (all(touching_street_number >= 2) & all(cross_corner_number >= 1) & all(aspect_ratio < 30)) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+  
+}
+
+TempFile <- vector("list", nrow(parcels))
+
+
+for (i in 1:nrow(parcels)) {
+  cross_idx <- (i - (i %% 4) + 1):(i - (i %% 4) + 4)
+  TempFile[[i]] <- DamonFunction_single_observation_final(parcels[i, ], network, parcelsfull)
+}
+
+TempFile
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # loading the libraries
 library(osmdata)
 library(tidyverse)
@@ -250,7 +538,7 @@ for (i in 1:196) {
 }
 
 
-
+dan_func_single_obs(9, parcels, network)
 
 
 
@@ -261,9 +549,12 @@ corner_parcel_calumet <- parcels %>%
   mutate(corner_indicator = unlist(corner_indicator)) %>%
   filter(corner_indicator == TRUE)
 
+parcels %>%
+  mutate(id = row_number()) %>%
+  slice(9, 11, 12, 31, 37) %>%
 ggplot() +
-  geom_sf(data = st_geometry(parcels)) +
-  geom_sf(data = st_geometry(corner_parcel_calumet), fill = "blue") +
+  geom_sf(aes(fill = factor(id))) +
+  # geom_sf(data = st_geometry(corner_parcel_calumet), fill = "blue") +
   geom_sf(data = st_as_sf(network, 'edges'), col = 'green') +
   theme_void()
 
