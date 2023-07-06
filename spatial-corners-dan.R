@@ -1,3 +1,92 @@
+library(osmdata)
+library(tidyverse)
+library(sf)
+library(ggmap)
+library(tidygraph)
+library(sfnetworks)
+library(dbscan)
+library(units)
+library(tmap)
+library(rgrass)
+library(link2GI)
+library(nabor)
+library(terra)
+library(nngeo)
+library(geosphere)
+library(profvis)
+library(furrr)
+
+# parcelsfull <- parcels
+
+
+
+township <- "Calumet"
+
+bbox <- ccao::town_shp %>%
+ filter(township_name == township) %>%
+  st_bbox()
+
+# WORKS FOR -87.625 and doesn't for -87.4
+
+# bbox <- st_bbox(c(xmin = -87.4, ymin = 41.642, xmax = -87.61, ymax = 41.8))
+
+
+
+# Street network data
+osm_data <- function(type) {
+  opq(bbox = bbox) %>%
+    add_osm_feature(key = "highway", value = type) %>%
+    add_osm_feature(key = "highway", value = "!footway") %>%
+    add_osm_feature(key = "highway:tag", value = "!alley") %>%
+    osmdata_sf()
+}
+
+highway_type <- available_tags("highway")
+
+town_osm <- lapply(highway_type, osm_data)
+
+town_osm_center <- town_osm$Value$osm_lines %>%
+  filter(!highway %in% c("bridleway", "construction", "corridor", "cycleway", "elevator", "service", "services", "steps"))
+
+plot(town_osm_center[1])
+
+
+# Construct the street network
+network <- suppressWarnings({
+  as_sfnetwork(town_osm_center, directed = FALSE) %>%
+    activate(edges) %>%
+    arrange(edge_length()) %>%
+    filter(!edge_is_multiple()) %>%
+    filter(!edge_is_loop()) %>%
+    st_transform(3435) %>%
+    convert(to_spatial_simple) %>%
+    convert(to_spatial_subdivision) %>%
+    activate(nodes) %>%
+    mutate(degree = centrality_degree())
+})
+
+
+
+
+
+# Parcel data
+parcels <- st_read(
+  glue::glue(
+    "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
+  )) %>% 
+  mutate(id = row_number())
+
+# parcels <- parcels %>%
+ #  filter(latitude >= 41.642 & latitude <= 41.8) %>% 
+ #  filter(longitude <= -87.64 & longitude >= -87.61) 
+
+parcel <- parcels$geometry
+
+parcelsfull <- parcels
+
+
+
+
 
 
 dan_func_single_obs <- function(x, parcels, network) {
@@ -14,21 +103,18 @@ dan_func_single_obs <- function(x, parcels, network) {
   # Create a nested list for target parcel, neighbor parcel, neighbor network
   # Find the neighbor parcel clip
   parcels_buffered <- parcels_trans %>%
-    st_buffer(dist = units::set_units(100, "m")) %>%
+    st_buffer(dist = units::set_units(20, "m")) %>%
     st_transform(4326)
 
-  # Find the neighbor network clip
-  # clip_network <- list()
-  # for (i in 1:nrow(parcels)) {
-  #   clip_network[[i]] <- network %>%
-  #     activate("edges") %>%
-  #     st_filter(parcels$buffer_area[i], .pred = st_overlaps) %>%
-  #     activate("nodes") %>%
-  #     filter(!node_is_isolated()) %>%
-  #     activate("edges") %>%
-  #     st_as_sf() %>%
-  #     st_transform(4326)
-  # }
+  clip_network  <- network %>%
+      activate("edges") %>%
+      activate("nodes") %>%
+      filter(!node_is_isolated()) %>%
+      activate("edges") %>%
+      st_as_sf() %>%
+      st_transform(4326)
+
+  
   
   # Step 1: Create the minimum rectangle
   min_rectangle <- parcels_trans[x, ] %>%
@@ -99,6 +185,8 @@ dan_func_single_obs <- function(x, parcels, network) {
   # Find out all the units touched by the cross
   touching_unit <- suppressWarnings(suppressMessages(st_intersects(cross$geometry, parcels_full)))
   
+
+  
   # Step 3: Find out all the neighbor units for a parcel
   neighbor_unit <- 
     list(which(replace_na(as.logical(st_intersects(parcels_full, parcels_buffered[x, ])), FALSE)))
@@ -110,9 +198,9 @@ dan_func_single_obs <- function(x, parcels, network) {
   # Step 5: Remove the cross segments in the intersection of {cross_touching_unit & neighbor_unit}
   # cross_int <- suppressMessages(imap_lgl(neighbor_and_touching, function(x, i) {
  
-  # cross_int <- replace_na(imap_lgl(neighbor_and_touching, function(y, i) {
-  #   as.logical(st_intersects(cross$geometry[i], parcels_full[i, ]))
-  # }), FALSE)
+  cross_int <- replace_na(imap_lgl(neighbor_and_touching, function(y, i) {
+     as.logical(st_intersects(cross$geometry[i], parcels_full[i, ]))
+   }), FALSE)
   
   cross_int <- map_lgl(neighbor_and_touching, function(x) length(x) > 0)
   
@@ -135,14 +223,18 @@ dan_func_single_obs <- function(x, parcels, network) {
       diff_degree = angle_diff(bearing, lag(bearing)),
       diff_degree = replace_na(diff_degree, 0)
     ) %>%
-    filter((diff_degree >= 85 & diff_degree <= 95) | diff_degree == 0, na.rm = TRUE)
+    filter((diff_degree >= 85 & diff_degree <= 95) | diff_degree <= 5 & diff_degree >= 375, na.rm = TRUE)
   
-  touching_unit_street <- suppressWarnings(suppressMessages(st_intersects(cross$geometry, network_trans)))
+
+  touching_unit_street <- suppressWarnings(suppressMessages(st_intersects(cross$geometry, clip_network)))
+
   touching_street_number <- sum(lengths(touching_unit_street))
   
   cross_corner_number <- nrow(cross_corner)
   
   aspect_ratio <- max(cross$aspect_ratio, na.rm = TRUE)
+  
+  
   
   # TODO: Convert network to 4326
   # TODO: Buffered parcel has small buffer/or is touching
@@ -154,3 +246,50 @@ dan_func_single_obs <- function(x, parcels, network) {
     return(FALSE)
   }
 }
+
+
+#result <- numeric(nrow(parcels))
+#for (x in 1:nrow(parcels)) {
+#  result[x] <- dan_func_single_obs(x, parcels, network)
+#}
+
+
+
+dan_func_single_obs(8, parcels, network)
+
+plot(parcels[8:12,])
+
+table(result)
+
+pin <- parcels %>%
+  slice(1:30) %>%
+  select(pin10)
+
+
+
+
+# final <- cbind(pin, result) %>%
+#   as.tibble %>%
+#   select(1, 2)
+#   
+
+  
+view(final)
+
+corner_parcel_calumet <- parcels %>%
+   mutate(corner_indicator = unlist(result)) %>%
+   filter(corner_indicator == TRUE)
+
+plot <- ggplot() +
+  geom_sf(data = final) +
+  geom_sf(data = st_as_sf(network, 'edges'), col = 'green') +
+  coord_sf(xlim = c(-87.64,  -87.62), ylim = c( 41.642,  41.65), expand = FALSE)
+
+
+plot(final[2])
+
+for (i in 1:length(network)) {
+  plot(network[[i]], add = TRUE)
+}
+
+table(final)
