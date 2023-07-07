@@ -22,13 +22,13 @@ library(furrr)
 
 township <- "Calumet"
 
-bbox <- ccao::town_shp %>%
- filter(township_name == township) %>%
-  st_bbox()
+#bbox <- ccao::town_shp %>%
+#  filter(township_name == township) %>%
+#  st_bbox()
 
 # WORKS FOR -87.625 and doesn't for -87.4
 
-# bbox <- st_bbox(c(xmin = -87.4, ymin = 41.642, xmax = -87.61, ymax = 41.8))
+bbox <- st_bbox(c(xmin = -87.625, ymin = 41.642, xmax = -87.6, ymax = 41.65))
 
 
 
@@ -47,8 +47,6 @@ town_osm <- lapply(highway_type, osm_data)
 
 town_osm_center <- town_osm$Value$osm_lines %>%
   filter(!highway %in% c("bridleway", "construction", "corridor", "cycleway", "elevator", "service", "services", "steps"))
-
-plot(town_osm_center[1])
 
 
 # Construct the street network
@@ -76,54 +74,33 @@ parcels <- st_read(
   )) %>% 
   mutate(id = row_number())
 
-# parcels <- parcels %>%
- #  filter(latitude >= 41.642 & latitude <= 41.8) %>% 
- #  filter(longitude <= -87.64 & longitude >= -87.61) 
+parcels <- parcels %>%
+  filter(latitude >= 41.642 & latitude <= 41.65) %>% 
+  filter(longitude <= -87.625 & longitude >= -87.6) %>%
+  st_transform(4326)
 
-parcel <- parcels$geometry
-
-parcelsfull <- parcels
-
-
-
+# parcel <- parcels$geometry
+# 
+# parcelsfull <- parcels
 
 
 
-dan_func_single_obs <- function(x, parcels, network) {
+
+
+dan_func_single_obs <- function(x, parcels_full, parcels_buffered, network) {
   
-  network_trans <- network %>%
-    st_transform(4326)
-  
-  parcels_trans <- parcels %>%
-    st_transform(3435)
-  
-  parcels_full <- parcels %>%
-    st_transform(4326)
-  
-  # Create a nested list for target parcel, neighbor parcel, neighbor network
-  # Find the neighbor parcel clip
-  parcels_buffered <- parcels_trans %>%
-    st_buffer(dist = units::set_units(20, "m")) %>%
-    st_transform(4326)
-
-  clip_network  <- network %>%
-      activate("edges") %>%
-      activate("nodes") %>%
-      filter(!node_is_isolated()) %>%
-      activate("edges") %>%
-      st_as_sf() %>%
-      st_transform(4326)
-
-  
+  stopifnot(
+    st_crs(parcels_full) == st_crs(parcels_buffered),
+    st_crs(parcels_buffered) == st_crs(network)
+  )
   
   # Step 1: Create the minimum rectangle
-  min_rectangle <- parcels_trans[x, ] %>%
+  min_rectangle <- parcels_full[x, ] %>%
     st_minimum_rotated_rectangle() %>%
     select(geometry)
   
   min_rectangle_line <- st_segments(min_rectangle) %>%
     st_transform(crs = 4326)
-  
   
   
   # Step 2: Draw the cross
@@ -142,15 +119,18 @@ dan_func_single_obs <- function(x, parcels, network) {
     mutate(length = st_length(result) + units::set_units(10, "m"))
   
   ## Step 4 Find out the starting point
-  centroid <- st_centroid(parcels_trans[x, ]) %>%
-    st_as_sf() %>%
-    st_transform(4326) %>%
-    select(geometry)
+  centroid <- suppressWarnings({
+    st_centroid(parcels_full[x, ]) %>%
+      st_as_sf() %>%
+      st_transform(4326) %>%
+      select(geometry)
+  })
   
   centroid <- centroid %>%
     slice(rep(1:n(), each = 4)) %>%
     st_transform(crs = 4326) %>%
     st_coordinates()
+  
   
   ## Step 5 Draw the cross
   dest <- destPoint(p = centroid, b = rectangle_network$corrected_bearing, d = rectangle_network$length)
@@ -158,8 +138,10 @@ dan_func_single_obs <- function(x, parcels, network) {
   cross <- cbind(centroid, dest) %>%
     as.data.frame()
   
+  
   ## Step 6 Draw Line
   draw_line <- function(r) st_linestring(t(matrix(unlist(r), 2, 2)))
+  
   
   ## Step 7 Cross Function
   cross$geometry <- st_sfc(sapply(1:nrow(cross), function(i) {
@@ -173,19 +155,15 @@ dan_func_single_obs <- function(x, parcels, network) {
       length = st_length(geometry),
       aspect_ratio = as.numeric(lag(length) / length),
       id = rep(1:(nrow(.) / 4), each = 4)
-    ) 
+    ) %>%
+    st_transform(3435)
   
+  ######################################
   
-  # result <- list(
-  #   rectangle_network = rectangle_network,
-  #   cross_lst = split(cross, cross$id),
-  #   clip_network = clip_network,
-  #   clip_parcel = clip_parcel)
   
   # Find out all the units touched by the cross
   touching_unit <- suppressWarnings(suppressMessages(st_intersects(cross$geometry, parcels_full)))
   
-
   
   # Step 3: Find out all the neighbor units for a parcel
   neighbor_unit <- 
@@ -215,6 +193,8 @@ dan_func_single_obs <- function(x, parcels, network) {
     return(ifelse(theta > 180, 360 - theta, theta))
   }
   
+  
+  
   cross_corner <- rectangle_network %>%
     mutate(bearing = as.numeric(bearing)) %>%
     filter(id %in% cross_filter$id) %>%
@@ -223,10 +203,16 @@ dan_func_single_obs <- function(x, parcels, network) {
       diff_degree = angle_diff(bearing, lag(bearing)),
       diff_degree = replace_na(diff_degree, 0)
     ) %>%
-    filter((diff_degree >= 85 & diff_degree <= 95) | diff_degree <= 5 & diff_degree >= 375, na.rm = TRUE)
+    filter((diff_degree >= 85 & diff_degree <= 95) | diff_degree == 0, na.rm = TRUE) %>%
+    st_set_geometry("result") %>%
+    st_transform(3435)
   
+  ######################################
+  
+  
+  angle <- cross_corner$diff_degree
 
-  touching_unit_street <- suppressWarnings(suppressMessages(st_intersects(cross$geometry, clip_network)))
+  touching_unit_street <- suppressWarnings(suppressMessages(st_intersects(cross$geometry, network)))
 
   touching_street_number <- sum(lengths(touching_unit_street))
   
@@ -234,9 +220,6 @@ dan_func_single_obs <- function(x, parcels, network) {
   
   aspect_ratio <- max(cross$aspect_ratio, na.rm = TRUE)
   
-  
-  
-  # TODO: Convert network to 4326
   # TODO: Buffered parcel has small buffer/or is touching
   # TODO: check logical criteria
   
@@ -245,51 +228,72 @@ dan_func_single_obs <- function(x, parcels, network) {
   } else {
     return(FALSE)
   }
-}
+} 
 
 
-#result <- numeric(nrow(parcels))
-#for (x in 1:nrow(parcels)) {
-#  result[x] <- dan_func_single_obs(x, parcels, network)
-#}
+# Prepare inputs
+parcels_buffered <- parcels %>%
+  st_transform(3435) %>%
+  st_buffer(dist = units::set_units(20, "m"))
+
+network_trans  <- network %>%
+  activate("edges") %>%
+  activate("nodes") %>%
+  filter(!node_is_isolated()) %>%
+  activate("edges") %>%
+  st_as_sf() %>%
+  st_transform(3435)
+
+
+dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+
+
+result <- numeric(nrow(parcels))
+
+
+ for (x in 1:nrow(parcels)) {
+   result[x] <- dan_func_single_obs(x,  parcels %>% st_transform(3435), parcels_buffered, network_trans)
+ }
 
 
 
-dan_func_single_obs(8, parcels, network)
+# result <- numeric(30)
 
-plot(parcels[8:12,])
+# for (x in 1:30) {
+#   result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+# }
 
-table(result)
 
-pin <- parcels %>%
-  slice(1:30) %>%
-  select(pin10)
-
+# dan_func_single_obs(8, parcels, network)
 
 
 
-# final <- cbind(pin, result) %>%
-#   as.tibble %>%
-#   select(1, 2)
+
+# plot(parcels[8:12,])
+# 
+# table(result)
+# 
+ pin <- parcels  %>%
+   select(pin10)
+# 
+# 
+# 
+# 
+final <- cbind(parcels, result)
+# 
+#    
+# 
 #   
-
-  
-view(final)
-
-corner_parcel_calumet <- parcels %>%
-   mutate(corner_indicator = unlist(result)) %>%
-   filter(corner_indicator == TRUE)
-
-plot <- ggplot() +
-  geom_sf(data = final) +
-  geom_sf(data = st_as_sf(network, 'edges'), col = 'green') +
-  coord_sf(xlim = c(-87.64,  -87.62), ylim = c( 41.642,  41.65), expand = FALSE)
-
-
-plot(final[2])
-
-for (i in 1:length(network)) {
-  plot(network[[i]], add = TRUE)
-}
-
-table(final)
+ ggplot() +
+   geom_sf(data = final, aes(fill = result)) +
+   geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
+# 
+# 
+# 
+# plot(final[2])
+# 
+# for (i in 1:length(network)) {
+#   plot(network[[i]], add = TRUE)
+# }
+# 
+# table(final)
