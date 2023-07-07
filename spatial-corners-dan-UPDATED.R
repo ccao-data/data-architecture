@@ -22,13 +22,13 @@ library(furrr)
 
 township <- "Calumet"
 
-#bbox <- ccao::town_shp %>%
-#  filter(township_name == township) %>%
-#  st_bbox()
+bbox <- ccao::town_shp %>%
+  filter(township_name == township) %>%
+  st_bbox()
 
 # WORKS FOR -87.625 and doesn't for -87.4
 
-bbox <- st_bbox(c(xmin = -87.625, ymin = 41.642, xmax = -87.6, ymax = 41.65))
+# bbox <- st_bbox(c(xmin = -87.625, ymin = 41.642, xmax = -87.6, ymax = 41.65))
 
 
 
@@ -74,10 +74,10 @@ parcels <- st_read(
   )) %>%
   mutate(id = row_number())
 
-parcels <- parcels %>%
-  filter(latitude >= 41.642 & latitude <= 41.65) %>%
-  filter(longitude <= -87.625 & longitude >= -87.6) %>%
-  st_transform(4326)
+#parcels <- parcels %>%
+#  filter(latitude >= 41.642 & latitude <= 41.65) %>%
+#  filter(longitude <= -87.625 & longitude >= -87.6) %>%
+#  st_transform(4326)
 
 # parcel <- parcels$geometry
 #
@@ -210,6 +210,9 @@ dan_func_single_obs <- function(x, parcels_full, parcels_buffered, network) {
   cross_corner_number <- nrow(cross_corner)
 
   aspect_ratio <- max(cross$aspect_ratio, na.rm = TRUE)
+  
+  cat("Iteration:", iteration, "/", totalIterations, "\n")
+  
 
   if (all(touching_street_number >= 2) & all(cross_corner_number >= 1) & all(aspect_ratio < 30)) {
     return(TRUE)
