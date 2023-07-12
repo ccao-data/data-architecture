@@ -15,16 +15,30 @@ library(nngeo)
 library(geosphere)
 library(profvis)
 library(furrr)
+# library(terra)
+# library(raster)
+
 
 # parcelsfull <- parcels
 
+townshiplist <- c("Barrington", "Berwyn", "Bloom", "Bremen", "Calumet", "Cicero", "Elk Grove", "Evanston",
+               "Hanover", "Hyde Park", "Jefferson", "Lake", "Lake View", "Lemont", "Leyden", "Lyons",
+               "Maine", "New Trier", "Niles", "North Chicago", "Northfield", "Norwood Park", "Oak Park",
+               "Orland", "Palatine", "Palos", "Proviso", "Rich", "River Forest", "Riverside", "Rogers Park",
+               "Schaumburg", "South Chicago", "Stickney", "Thornton", "West Chicago", "Wheeling", "Worth")
 
 
-township <- "Calumet"
+townshipa <- "Calumet"
+Township <- "Calumet"
 
 bbox <- ccao::town_shp %>%
-  filter(township_name == township) %>%
+  filter(township_name == townshipa) %>%
   st_bbox()
+
+bbox[1] <- bbox[1] - (0.001)
+bbox[2] <- bbox[2] - (0.001)
+bbox[3] <- bbox[3] + (0.001)
+bbox[4] <- bbox[4] + (0.001)
 
 # WORKS FOR -87.625 and doesn't for -87.4
 
@@ -74,6 +88,10 @@ parcels <- st_read(
   )) %>%
   mutate(id = row_number())
 
+
+
+
+
 #parcels <- parcels %>%
 #  filter(latitude >= 41.642 & latitude <= 41.65) %>%
 #  filter(longitude <= -87.625 & longitude >= -87.6) %>%
@@ -98,7 +116,7 @@ dan_func_single_obs <- function(x, parcels_full, parcels_buffered, network) {
   min_rectangle <- parcels_full[x, ] %>%
     st_minimum_rotated_rectangle() %>%
     select(geometry)
-
+  
   min_rectangle_line <- st_segments(min_rectangle) %>%
     st_transform(crs = 4326)
 
@@ -211,8 +229,7 @@ dan_func_single_obs <- function(x, parcels_full, parcels_buffered, network) {
 
   aspect_ratio <- max(cross$aspect_ratio, na.rm = TRUE)
   
-  cat("Iteration:", iteration, "/", totalIterations, "\n")
-  
+
 
   if (all(touching_street_number >= 2) & all(cross_corner_number >= 1) & all(aspect_ratio < 30)) {
     return(TRUE)
@@ -220,7 +237,6 @@ dan_func_single_obs <- function(x, parcels_full, parcels_buffered, network) {
     return(FALSE)
   }
 }
-
 
 # Prepare inputs
 parcels_buffered <- parcels %>%
@@ -236,13 +252,19 @@ network_trans  <- network %>%
   st_transform(3435)
 
 
-dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+# dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
 
 
 result <- numeric(nrow(parcels))
- for (x in 1:nrow(parcels)) {
-   result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
- }
+
+for (x in 1:nrow(parcels)) {
+  result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+  cat("Iteration:", x, "/", nrow(parcels), "\n")  # Print iteration progress
+}
+
+
+
+
 
 
 
@@ -259,22 +281,55 @@ result <- numeric(nrow(parcels))
 
 # plot(parcels[8:12,])
 #
-# table(result)
+
+
+table(result)
+
+
 #
-pin <- parcels  %>%
-  select(pin10)
-#
-#
-#
-#
- final <- cbind(parcels, result)
-#
+# pin <- parcels  %>%
+#   select(pin10)
 #
 #
 #
-ggplot() +
-  geom_sf(data = final, aes(fill = result)) +
-  geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
+#
+
+# sf_network <- as_sfnetwork(network, "LINESTRING")
+# 
+# output_file <- file.path("~", "corner_lots_results", "Shapefiles", paste0(township, ".shp"))
+# output_file_network <- file.path("I:\Vacant Lot Indicators\Base Data\Vacant Lots by Township", "corner_lots_results", "Shapefiles", paste0(township, "network.shp"))
+# 
+# sf_network <- network %>% activate(edges) %>% as_tibble() %>% st_as_sf()
+# 
+# 
+
+parcels$area <- as.numeric(st_area(parcels))
+
+table(parcels$area)
+
+final <- cbind(parcels, result)
+
+view(final)
+
+final$result <- ifelse(parcels$area > 10000, 0, final$result)
+
+
+
+
+# #
+# #
+# #
+# #
+#  
+#  st_write(network_trans, output_file)
+#  
+#  st_write(sf_network, output_file_network)
+ 
+ 
+ 
+ ggplot() +
+   geom_sf(data = final, aes(fill = result)) +
+   geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
 #
 #
 #
@@ -285,3 +340,31 @@ ggplot() +
 # }
 #
 # table(final)
+ 
+ 
+ 
+ 
+ library(sf)
+ 
+ # Define the township and file name
+ township <- "Calumet"
+ file_name <- paste0(township, ".shp")
+ 
+ # Specify the directory path
+ directory <- "Base Data"
+ 
+ # Create the complete file path
+ output_file <- file.path(directory, file_name)
+ 
+ # Create an sf object with your data
+ sf_obj <- final  # Replace `your_sf_object` with your actual sf object
+ 
+ sf_obj <- sf_obj %>%
+   select(pin10, result, geometry)
+ 
+ sf_obj <- sf_obj %>%
+   subset(result == 1)
+ 
+ # Save the complete shapefile
+ sf::st_write(sf_obj, output_file, append = FALSE)
+ 
