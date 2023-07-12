@@ -29,7 +29,7 @@ townshiplist <- c("Barrington", "Berwyn", "Bloom", "Bremen", "Calumet", "Cicero"
 
 
 townshipa <- "Calumet"
-Township <- "Calumet"
+township <- "Calumet"
 
 bbox <- ccao::town_shp %>%
   filter(township_name == townshipa) %>%
