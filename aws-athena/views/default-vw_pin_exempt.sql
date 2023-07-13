@@ -11,6 +11,7 @@ SELECT
     p.class,
     vpa.prop_address_full AS property_address,
     vpa.prop_address_city_name AS property_city,
+    --- Forward fill lat and long
     COALESCE(
         parcel.lon,
         LAST_VALUE(parcel.lon)
@@ -30,5 +31,6 @@ LEFT JOIN spatial.parcel ON vpa.pin10 = parcel.pin10 AND vpa.year = parcel.year
 LEFT JOIN spatial.township AS twn
     ON l.user1 = CAST(twn.township_code AS VARCHAR)
 WHERE
+    --- This condition is how we determine exempt status, not through class
     o.ownnum IS NOT NULL
     AND l.cur = 'Y'
