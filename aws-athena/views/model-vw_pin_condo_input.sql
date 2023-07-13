@@ -10,7 +10,7 @@ filled with the following steps:
 WARNING: This is a very heavy view. Don't use it for anything other than making
 extracts for modeling
 */
-CREATE OR REPLACE VIEW model.temp_vw_pin_condo_input AS
+CREATE OR REPLACE VIEW model.vw_pin_condo_input AS
 WITH uni AS (
 
     SELECT
@@ -57,12 +57,12 @@ sqft_percentiles AS (
         SELECT
             ch.year, l.user1 AS township_code,
             CAST(approx_percentile(ch.char_land_sf, 0.95) AS int) AS char_land_sf_95_percentile
-        FROM default.temp_vw_pin_condo_char ch
+        FROM default.vw_pin_condo_char ch
         LEFT JOIN iasworld.legdat l
             ON ch.pin = l.parid and ch.year = l.taxyr
         GROUP BY ch.year, l.user1
 ),
-tax_bill_amount AS ( 
+tax_bill_amount AS (
     -- Removing fill for now, since this will be pulled from PTAXSIM in the future
     SELECT
         pardat.parid AS pin,
@@ -273,10 +273,10 @@ LEFT JOIN location.vw_pin10_location_fill vwlf
 LEFT JOIN proximity.vw_pin10_proximity_fill vwpf
     ON uni.pin10 = vwpf.pin10
     AND uni.year = vwpf.year
-LEFT JOIN default.temp_vw_pin_address vwpa
+LEFT JOIN default.vw_pin_address vwpa
     ON uni.pin = vwpa.pin
     AND uni.year = vwpa.year
-LEFT JOIN default.temp_vw_pin_condo_char ch
+LEFT JOIN default.vw_pin_condo_char ch
     ON uni.pin = ch.pin
     AND uni.year = ch.year
 LEFT JOIN default.vw_pin_history hist
