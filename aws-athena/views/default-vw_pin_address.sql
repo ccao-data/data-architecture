@@ -8,7 +8,9 @@ SELECT
 
     -- PIN legal address from LEGDAT
     leg.adrpre AS prop_address_prefix,
-    leg.adrno AS prop_address_street_number,
+    CASE
+        WHEN leg.adrno != 0 THEN leg.adrno
+    END AS prop_address_street_number,
     leg.adrdir AS prop_address_street_dir,
     leg.adrstr AS prop_address_street_name,
     leg.adrsuf AS prop_address_suffix_1,
@@ -17,7 +19,9 @@ SELECT
     leg.unitno AS prop_address_unit_number,
     NULLIF(CONCAT_WS(
         ' ',
-        leg.adrpre, CAST(leg.adrno AS VARCHAR),
+        leg.adrpre, CAST(
+            CASE WHEN leg.adrno != 0 THEN leg.adrno END AS VARCHAR
+        ),
         leg.adrdir, leg.adrstr, leg.adrsuf,
         leg.unitdesc, leg.unitno
     ), '') AS prop_address_full,
