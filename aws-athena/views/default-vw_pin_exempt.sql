@@ -38,3 +38,4 @@ WHERE
     --- This condition is how we determine exempt status, not through class
     own.ownnum IS NOT NULL
     AND leg.cur = 'Y'
+    AND par.taxyr >= '2022'
