@@ -1,46 +1,16 @@
 --- A view to generate the top 5 parcels in a given township and year by AV
 CREATE OR REPLACE VIEW reporting.vw_top_5 AS
-WITH values_by_year AS (
-    SELECT
-        parid,
-        taxyr,
-        MAX(CASE
-            WHEN procname = 'CCAOVALUE'
-                AND taxyr < '2020'
-                THEN ovrvalasm3
-            WHEN procname = 'CCAOVALUE'
-                AND taxyr >= '2020'
-                AND valclass IS NULL
-                THEN valasm3
-        END) AS mailed_tot,
-        MAX(CASE
-            WHEN procname = 'CCAOFINAL'
-                AND taxyr < '2020'
-                THEN ovrvalasm3
-            WHEN procname = 'CCAOFINAL'
-                AND taxyr >= '2020'
-                AND valclass IS NULL
-                THEN valasm3
-        END) AS certified_tot
-    FROM iasworld.asmt_all
-    WHERE procname IN ('CCAOVALUE', 'CCAOFINAL')
-        AND rolltype != 'RR'
-        AND deactivat IS NULL
-        AND valclass IS NULL
-    GROUP BY parid, taxyr
-),
-
 --- Choose most recent assessor value
-most_recent_values AS (
+WITH most_recent_values AS (
     SELECT
-        parid,
-        taxyr,
+        pin AS parid,
+        year AS taxyr,
         COALESCE(certified_tot, mailed_tot) AS total_av,
         CASE
             WHEN certified_tot IS NULL THEN 'mailed'
             ELSE 'certified'
         END AS stage_used
-    FROM values_by_year
+    FROM default.vw_pin_value
     WHERE certified_tot IS NOT NULL
         OR mailed_tot IS NOT NULL
 ),
