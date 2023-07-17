@@ -1,6 +1,6 @@
 /*
-View containing cleaned, filled data for residential condo modeling. Missing data is
-filled with the following steps:
+View containing cleaned, filled data for residential condo modeling. Missing
+data is filled with the following steps:
 
 1. All historical data is filled FORWARD in time, i.e. data from 2020 fills
    2021 as long as the data isn't something which frequently changes
@@ -18,75 +18,90 @@ WITH uni AS (
         par.parid AS pin,
         SUBSTR(par.parid, 1, 10) AS pin10,
         par.taxyr AS year,
-        regexp_replace(par.class,'([^0-9EXR])','') AS class,
+        REGEXP_REPLACE(par.class, '([^0-9EXR])', '') AS class,
         twn.triad_name,
         twn.triad_code,
         twn.township_name,
         leg.user1 AS township_code,
-        regexp_replace(par.nbhd,'([^0-9])','') AS nbhd_code,
+        REGEXP_REPLACE(par.nbhd, '([^0-9])', '') AS nbhd_code,
         leg.taxdist AS tax_code,
         NULLIF(leg.zip1, '00000') AS zip_code,
 
         -- Centroid of each PIN from county parcel files
-        sp.lon, sp.lat, sp.x_3435, sp.y_3435
+        sp.lon,
+        sp.lat,
+        sp.x_3435,
+        sp.y_3435
 
-    FROM iasworld.pardat par
-    LEFT JOIN iasworld.legdat leg
+    FROM iasworld.pardat AS par
+    LEFT JOIN iasworld.legdat AS leg
         ON par.parid = leg.parid
         AND par.taxyr = leg.taxyr
-    LEFT JOIN spatial.parcel sp
+    LEFT JOIN spatial.parcel AS sp
         ON SUBSTR(par.parid, 1, 10) = sp.pin10
         AND par.taxyr = sp.year
-    LEFT JOIN spatial.township twn
-        ON leg.user1 = CAST(twn.township_code AS varchar)
+    LEFT JOIN spatial.township AS twn
+        ON leg.user1 = CAST(twn.township_code AS VARCHAR)
 
     WHERE class IN ('299', '399')
 
 ),
+
 acs5 AS (
     SELECT *
     FROM census.vw_acs5_stat
     WHERE geography = 'tract'
 ),
+
 housing_index AS (
-    SELECT geoid, year, AVG(CAST(ihs_index AS double)) AS ihs_avg_year_index
+    SELECT
+        geoid,
+        year,
+        AVG(CAST(ihs_index AS DOUBLE)) AS ihs_avg_year_index
     FROM other.ihs_index
     GROUP BY geoid, year
 ),
+
 sqft_percentiles AS (
-        SELECT
-            ch.year, l.user1 AS township_code,
-            CAST(approx_percentile(ch.char_land_sf, 0.95) AS int) AS char_land_sf_95_percentile
-        FROM default.vw_pin_condo_char ch
-        LEFT JOIN iasworld.legdat l
-            ON ch.pin = l.parid and ch.year = l.taxyr
-        GROUP BY ch.year, l.user1
+    SELECT
+        ch.year,
+        leg.user1 AS township_code,
+        CAST(APPROX_PERCENTILE(ch.char_land_sf, 0.95) AS INT)
+            AS char_land_sf_95_percentile
+    FROM default.vw_pin_condo_char AS ch
+    LEFT JOIN iasworld.legdat AS leg
+        ON ch.pin = leg.parid AND ch.year = leg.taxyr
+    GROUP BY ch.year, leg.user1
 ),
+
 tax_bill_amount AS (
-    -- Removing fill for now, since this will be pulled from PTAXSIM in the future
     SELECT
         pardat.parid AS pin,
         pardat.taxyr AS year,
-        tax_bill_total AS tot_tax_amt,
-        tax_code_rate AS tax_rate
+        pin.tax_bill_total AS tot_tax_amt,
+        tax_code.tax_code_rate AS tax_rate
     FROM iasworld.pardat
-    LEFT JOIN tax.pin p
-        ON pardat.parid = p.pin
+    LEFT JOIN tax.pin
+        ON pardat.parid = pin.pin
         AND (
-            CASE WHEN pardat.taxyr > (SELECT Max(year) FROM tax.pin)
-                THEN (SELECT Max(year) FROM tax.pin)
-                ELSE pardat.taxyr END = p.year
-                    )
+            CASE WHEN pardat.taxyr > (SELECT MAX(year) FROM tax.pin)
+                    THEN (SELECT MAX(year) FROM tax.pin)
+                ELSE pardat.taxyr
+            END = pin.year
+        )
     LEFT JOIN (
         SELECT DISTINCT
-            year, tax_code_num, tax_code_rate
+            year,
+            tax_code_num,
+            tax_code_rate
         FROM tax.tax_code
-        ) tax_code
-        ON p.tax_code_num = tax_code.tax_code_num
-        AND p.year = tax_code.year
+    ) AS tax_code
+        ON pin.tax_code_num = tax_code.tax_code_num
+        AND pin.year = tax_code.year
 
-    WHERE p.pin IS NOT NULL
+    WHERE pin.pin IS NOT NULL
 ),
+
 school_district_ratings AS (
     SELECT
         district_geoid,
@@ -96,6 +111,7 @@ school_district_ratings AS (
     FROM other.great_schools_rating
     GROUP BY district_geoid, district_type
 )
+
 SELECT
     uni.pin AS meta_pin,
     uni.pin10 AS meta_pin10,
@@ -118,10 +134,7 @@ SELECT
     -- a proration rate is NULL or 0, it's almost always actually 1
     ch.tieback_key_pin AS meta_tieback_key_pin,
     ch.tieback_proration_rate AS meta_tieback_proration_rate,
-    CASE
-        WHEN ch.tieback_proration_rate < 1.0 THEN true
-        ELSE false
-    END AS ind_pin_is_prorated,
+    COALESCE(ch.tieback_proration_rate < 1.0, FALSE) AS ind_pin_is_prorated,
     ch.card_protation_rate AS meta_card_protation_rate,
 
     -- Multicard/multi-landline related fields. Each PIN can have more than
@@ -167,7 +180,7 @@ SELECT
     ch.char_building_pins,
     ch.char_building_pins - ch.char_building_non_units AS char_building_units,
     ch.char_building_non_units,
-    ch.bldg_is_mixed_use as char_bldg_is_mixed_use,
+    ch.bldg_is_mixed_use AS char_bldg_is_mixed_use,
 
     -- Property characteristics from MLS/valuations
     ch.char_building_sf,
@@ -178,10 +191,10 @@ SELECT
 
     -- Land and lot size indicators
     sp.char_land_sf_95_percentile,
-    CASE
-        WHEN ch.char_land_sf >= sp.char_land_sf_95_percentile THEN true
-        ELSE false
-    END AS ind_land_gte_95_percentile,
+    COALESCE(
+        ch.char_land_sf >= sp.char_land_sf_95_percentile,
+        FALSE
+    ) AS ind_land_gte_95_percentile,
 
     -- PIN location data for aggregation and spatial joins
     vwlf.census_puma_geoid AS loc_census_puma_geoid,
@@ -195,8 +208,9 @@ SELECT
     vwlf.chicago_community_area_name AS loc_chicago_community_area_name,
 
     -- Location data used for spatial fixed effects
-    vwlf.school_elementary_district_geoid loc_school_elementary_district_geoid,
-    vwlf.school_secondary_district_geoid loc_school_secondary_district_geoid,
+    vwlf.school_elementary_district_geoid
+        AS loc_school_elementary_district_geoid,
+    vwlf.school_secondary_district_geoid AS loc_school_secondary_district_geoid,
     vwlf.school_unified_district_geoid AS loc_school_unified_district_geoid,
     vwlf.tax_special_service_area_num AS loc_tax_special_service_area_num,
     vwlf.tax_tif_district_num AS loc_tax_tif_district_num,
@@ -207,16 +221,19 @@ SELECT
     vwlf.env_flood_fs_factor AS loc_env_flood_fs_factor,
     vwlf.env_flood_fs_risk_direction AS loc_env_flood_fs_risk_direction,
     vwlf.env_airport_noise_dnl AS loc_env_airport_noise_dnl,
-    vwlf.env_ohare_noise_contour_no_buffer_bool AS loc_env_ohare_noise_contour_no_buffer_bool,
+    vwlf.env_ohare_noise_contour_no_buffer_bool
+        AS loc_env_ohare_noise_contour_no_buffer_bool,
     vwlf.access_cmap_walk_nta_score AS loc_access_cmap_walk_nta_score,
     vwlf.access_cmap_walk_total_score AS loc_access_cmap_walk_total_score,
 
     -- PIN proximity count variables
     vwpf.num_pin_in_half_mile AS prox_num_pin_in_half_mile,
     vwpf.num_bus_stop_in_half_mile AS prox_num_bus_stop_in_half_mile,
-    vwpf.num_foreclosure_per_1000_pin_past_5_years AS prox_num_foreclosure_per_1000_pin_past_5_years,
+    vwpf.num_foreclosure_per_1000_pin_past_5_years
+        AS prox_num_foreclosure_per_1000_pin_past_5_years,
     vwpf.num_school_in_half_mile AS prox_num_school_in_half_mile,
-    vwpf.num_school_with_rating_in_half_mile AS prox_num_school_with_rating_in_half_mile,
+    vwpf.num_school_with_rating_in_half_mile
+        AS prox_num_school_with_rating_in_half_mile,
     vwpf.avg_school_rating_in_half_mile AS prox_avg_school_rating_in_half_mile,
 
     -- PIN proximity distance variables
@@ -240,49 +257,64 @@ SELECT
     acs5.percent_age_senior AS acs5_percent_age_senior,
     acs5.median_age_total AS acs5_median_age_total,
     acs5.percent_mobility_no_move AS acs5_percent_mobility_no_move,
-    acs5.percent_mobility_moved_in_county AS acs5_percent_mobility_moved_in_county,
-    acs5.percent_mobility_moved_from_other_state AS acs5_percent_mobility_moved_from_other_state,
-    acs5.percent_household_family_married AS acs5_percent_household_family_married,
-    acs5.percent_household_nonfamily_alone AS acs5_percent_household_nonfamily_alone,
+    acs5.percent_mobility_moved_in_county
+        AS acs5_percent_mobility_moved_in_county,
+    acs5.percent_mobility_moved_from_other_state
+        AS acs5_percent_mobility_moved_from_other_state,
+    acs5.percent_household_family_married
+        AS acs5_percent_household_family_married,
+    acs5.percent_household_nonfamily_alone
+        AS acs5_percent_household_nonfamily_alone,
     acs5.percent_education_high_school AS acs5_percent_education_high_school,
     acs5.percent_education_bachelor AS acs5_percent_education_bachelor,
     acs5.percent_education_graduate AS acs5_percent_education_graduate,
-    acs5.percent_income_below_poverty_level AS acs5_percent_income_below_poverty_level,
-    acs5.median_income_household_past_year AS acs5_median_income_household_past_year,
-    acs5.median_income_per_capita_past_year AS acs5_median_income_per_capita_past_year,
-    acs5.percent_income_household_received_snap_past_year AS acs5_percent_income_household_received_snap_past_year,
+    acs5.percent_income_below_poverty_level
+        AS acs5_percent_income_below_poverty_level,
+    acs5.median_income_household_past_year
+        AS acs5_median_income_household_past_year,
+    acs5.median_income_per_capita_past_year
+        AS acs5_median_income_per_capita_past_year,
+    acs5.percent_income_household_received_snap_past_year
+        AS acs5_percent_income_household_received_snap_past_year,
     acs5.percent_employment_unemployed AS acs5_percent_employment_unemployed,
-    acs5.median_household_total_occupied_year_built AS acs5_median_household_total_occupied_year_built,
-    acs5.median_household_renter_occupied_gross_rent AS acs5_median_household_renter_occupied_gross_rent,
-    acs5.median_household_owner_occupied_value AS acs5_median_household_owner_occupied_value,
-    acs5.percent_household_owner_occupied AS acs5_percent_household_owner_occupied,
-    acs5.percent_household_total_occupied_w_sel_cond AS acs5_percent_household_total_occupied_w_sel_cond,
+    acs5.median_household_total_occupied_year_built
+        AS acs5_median_household_total_occupied_year_built,
+    acs5.median_household_renter_occupied_gross_rent
+        AS acs5_median_household_renter_occupied_gross_rent,
+    acs5.median_household_owner_occupied_value
+        AS acs5_median_household_owner_occupied_value,
+    acs5.percent_household_owner_occupied
+        AS acs5_percent_household_owner_occupied,
+    acs5.percent_household_total_occupied_w_sel_cond
+        AS acs5_percent_household_total_occupied_w_sel_cond,
 
     -- Institute for Housing Studies data
     housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
     tbill.tot_tax_amt AS other_tax_bill_amount_total,
     tbill.tax_rate AS other_tax_bill_rate,
 
-    sdre.school_district_avg_rating AS other_school_district_elementary_avg_rating,
-    sdrs.school_district_avg_rating AS other_school_district_secondary_avg_rating
+    sdre.school_district_avg_rating
+        AS other_school_district_elementary_avg_rating,
+    sdrs.school_district_avg_rating
+        AS other_school_district_secondary_avg_rating
 
 FROM uni
-LEFT JOIN location.vw_pin10_location_fill vwlf
+LEFT JOIN location.vw_pin10_location_fill AS vwlf
     ON uni.pin10 = vwlf.pin10
     AND uni.year = vwlf.year
-LEFT JOIN proximity.vw_pin10_proximity_fill vwpf
+LEFT JOIN proximity.vw_pin10_proximity_fill AS vwpf
     ON uni.pin10 = vwpf.pin10
     AND uni.year = vwpf.year
-LEFT JOIN default.vw_pin_address vwpa
+LEFT JOIN default.vw_pin_address AS vwpa
     ON uni.pin = vwpa.pin
     AND uni.year = vwpa.year
-LEFT JOIN default.vw_pin_condo_char ch
+LEFT JOIN default.vw_pin_condo_char AS ch
     ON uni.pin = ch.pin
     AND uni.year = ch.year
-LEFT JOIN default.vw_pin_history hist
+LEFT JOIN default.vw_pin_history AS hist
     ON uni.pin = hist.pin
     AND uni.year = hist.year
-LEFT JOIN sqft_percentiles sp
+LEFT JOIN sqft_percentiles AS sp
     ON uni.year = sp.year
     AND uni.township_code = sp.township_code
 LEFT JOIN acs5
@@ -291,12 +323,16 @@ LEFT JOIN acs5
 LEFT JOIN housing_index
     ON housing_index.geoid = vwlf.census_puma_geoid
     AND housing_index.year = vwlf.year
-LEFT JOIN tax_bill_amount tbill
+LEFT JOIN tax_bill_amount AS tbill
     ON uni.pin = tbill.pin
     AND uni.year = tbill.year
 -- The two following joins need to include year if we get more than
 -- one year of school ratings data.
-LEFT JOIN (SELECT * FROM school_district_ratings WHERE district_type = 'elementary') sdre
+LEFT JOIN
+    (SELECT * FROM school_district_ratings WHERE district_type = 'elementary')
+        AS sdre
     ON vwlf.school_elementary_district_geoid = sdre.district_geoid
-LEFT JOIN (SELECT * FROM school_district_ratings WHERE district_type = 'secondary') sdrs
+LEFT JOIN
+    (SELECT * FROM school_district_ratings WHERE district_type = 'secondary')
+        AS sdrs
     ON vwlf.school_secondary_district_geoid = sdrs.district_geoid

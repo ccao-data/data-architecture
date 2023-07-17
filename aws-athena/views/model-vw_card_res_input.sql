@@ -21,79 +21,97 @@ WITH uni AS (
         par.parid AS pin,
         SUBSTR(par.parid, 1, 10) AS pin10,
         par.taxyr AS year,
-        regexp_replace(par.class,'([^0-9EXR])','') AS class,
+        REGEXP_REPLACE(par.class, '([^0-9EXR])', '') AS class,
         twn.triad_name,
         twn.triad_code,
         twn.township_name,
         leg.user1 AS township_code,
-        regexp_replace(par.nbhd,'([^0-9])','') AS nbhd_code,
+        REGEXP_REPLACE(par.nbhd, '([^0-9])', '') AS nbhd_code,
         leg.taxdist AS tax_code,
         NULLIF(leg.zip1, '00000') AS zip_code,
 
         -- Centroid of each PIN from county parcel files
-        sp.lon, sp.lat, sp.x_3435, sp.y_3435
+        sp.lon,
+        sp.lat,
+        sp.x_3435,
+        sp.y_3435
 
-    FROM iasworld.pardat par
-    LEFT JOIN iasworld.legdat leg
+    FROM iasworld.pardat AS par
+    LEFT JOIN iasworld.legdat AS leg
         ON par.parid = leg.parid
         AND par.taxyr = leg.taxyr
-    LEFT JOIN spatial.parcel sp
+    LEFT JOIN spatial.parcel AS sp
         ON SUBSTR(par.parid, 1, 10) = sp.pin10
         AND par.taxyr = sp.year
-    LEFT JOIN spatial.township twn
-        ON leg.user1 = CAST(twn.township_code AS varchar)
+    LEFT JOIN spatial.township AS twn
+        ON leg.user1 = CAST(twn.township_code AS VARCHAR)
 
     WHERE class IN (
-        '202', '203', '204', '205', '206', '207', '208', '209',
-        '210', '211', '212', '218', '219', '234', '278', '295'
-    )
+            '202', '203', '204', '205', '206', '207', '208', '209',
+            '210', '211', '212', '218', '219', '234', '278', '295'
+        )
 
 ),
+
 acs5 AS (
     SELECT *
     FROM census.vw_acs5_stat
     WHERE geography = 'tract'
 ),
+
 housing_index AS (
-    SELECT geoid, year, AVG(CAST(ihs_index AS double)) AS ihs_avg_year_index
+    SELECT
+        geoid,
+        year,
+        AVG(CAST(ihs_index AS DOUBLE)) AS ihs_avg_year_index
     FROM other.ihs_index
     GROUP BY geoid, year
 ),
+
 sqft_percentiles AS (
-        SELECT
-            ch.year, l.user1 AS township_code,
-            CAST(approx_percentile(ch.char_bldg_sf, 0.95) AS int) AS char_bldg_sf_95_percentile,
-            CAST(approx_percentile(ch.char_land_sf, 0.95) AS int) AS char_land_sf_95_percentile
-        FROM default.vw_card_res_char ch
-        LEFT JOIN iasworld.legdat l
-            ON ch.pin = l.parid and ch.year = l.taxyr
-        GROUP BY ch.year, l.user1
+    SELECT
+        ch.year,
+        leg.user1 AS township_code,
+        CAST(APPROX_PERCENTILE(ch.char_bldg_sf, 0.95) AS INT)
+            AS char_bldg_sf_95_percentile,
+        CAST(APPROX_PERCENTILE(ch.char_land_sf, 0.95) AS INT)
+            AS char_land_sf_95_percentile
+    FROM default.vw_card_res_char AS ch
+    LEFT JOIN iasworld.legdat AS leg
+        ON ch.pin = leg.parid AND ch.year = leg.taxyr
+    GROUP BY ch.year, leg.user1
 ),
+
 tax_bill_amount AS (
-    -- Removing fill for now, since this will be pulled from PTAXSIM in the future
+    -- Removing fill for now, since this will be pulled from PTAXSIM in the
+    -- future
     SELECT
         pardat.parid AS pin,
         pardat.taxyr AS year,
-        tax_bill_total AS tot_tax_amt,
-        tax_code_rate AS tax_rate
+        pin.tax_bill_total AS tot_tax_amt,
+        tax_code.tax_code_rate AS tax_rate
     FROM iasworld.pardat
-    LEFT JOIN tax.pin p
-        ON pardat.parid = p.pin
+    LEFT JOIN tax.pin
+        ON pardat.parid = pin.pin
         AND (
-            CASE WHEN pardat.taxyr > (SELECT Max(year) FROM tax.pin)
-                THEN (SELECT Max(year) FROM tax.pin)
-                ELSE pardat.taxyr END = p.year
-                    )
+            CASE WHEN pardat.taxyr > (SELECT MAX(year) FROM tax.pin)
+                    THEN (SELECT MAX(year) FROM tax.pin)
+                ELSE pardat.taxyr
+            END = pin.year
+        )
     LEFT JOIN (
         SELECT DISTINCT
-            year, tax_code_num, tax_code_rate
+            year,
+            tax_code_num,
+            tax_code_rate
         FROM tax.tax_code
-        ) tax_code
-        ON p.tax_code_num = tax_code.tax_code_num
-        AND p.year = tax_code.year
+    ) AS tax_code
+        ON pin.tax_code_num = tax_code.tax_code_num
+        AND pin.year = tax_code.year
 
-    WHERE p.pin IS NOT NULL
+    WHERE pin.pin IS NOT NULL
 ),
+
 school_district_ratings AS (
     SELECT
         district_geoid,
@@ -103,6 +121,7 @@ school_district_ratings AS (
     FROM other.great_schools_rating
     GROUP BY district_geoid, district_type
 ),
+
 forward_fill AS (
     SELECT
         uni.pin AS meta_pin,
@@ -121,19 +140,20 @@ forward_fill AS (
         uni.nbhd_code AS meta_nbhd_code,
         uni.tax_code AS meta_tax_code,
 
-        -- Proration fields. Buildings can be split over multiple PINs, with each
-        -- PIN owning a percentage of a building. For residential buildings, if
-        -- a proration rate is NULL or 0, it's almost always actually 1
+        -- Proration fields. Buildings can be split over multiple PINs, with
+        -- each PIN owning a percentage of a building. For residential
+        -- buildings, if a proration rate is NULL or 0, it's almost always
+        -- actually 1
         ch.tieback_key_pin AS meta_tieback_key_pin,
         CASE
             WHEN ch.tieback_proration_rate IS NULL THEN 1.0
             WHEN ch.tieback_proration_rate = 0.0 THEN 1.0
             ELSE ch.tieback_proration_rate
         END AS meta_tieback_proration_rate,
-        CASE
-            WHEN ch.tieback_proration_rate < 1.0 THEN true
-            ELSE false
-        END AS ind_pin_is_prorated,
+        COALESCE(
+            ch.tieback_proration_rate < 1.0,
+            FALSE
+        ) AS ind_pin_is_prorated,
         ch.card_protation_rate AS meta_card_protation_rate,
 
         -- Multicard/multi-landline related fields. Each PIN can have more than
@@ -205,19 +225,19 @@ forward_fill AS (
 
         -- Land and lot size indicators
         sp.char_land_sf_95_percentile,
-        CASE
-            WHEN ch.char_land_sf >= sp.char_land_sf_95_percentile THEN true
-            ELSE false
-        END AS ind_land_gte_95_percentile,
+        COALESCE(
+            ch.char_land_sf >= sp.char_land_sf_95_percentile,
+            FALSE
+        ) AS ind_land_gte_95_percentile,
         sp.char_bldg_sf_95_percentile,
-        CASE
-            WHEN ch.char_bldg_sf >= sp.char_bldg_sf_95_percentile THEN true
-            ELSE false
-        END AS ind_bldg_gte_95_percentile,
-        CASE
-            WHEN (ch.char_land_sf / (ch.char_bldg_sf + 1)) >= 10.0 THEN true
-            ELSE false
-        END AS ind_land_bldg_ratio_gte_10,
+        COALESCE(
+            ch.char_bldg_sf >= sp.char_bldg_sf_95_percentile,
+            FALSE
+        ) AS ind_bldg_gte_95_percentile,
+        COALESCE(
+            (ch.char_land_sf / (ch.char_bldg_sf + 1)) >= 10.0,
+            FALSE
+        ) AS ind_land_bldg_ratio_gte_10,
 
         -- PIN location data for aggregation and spatial joins
         vwlf.census_puma_geoid AS loc_census_puma_geoid,
@@ -231,8 +251,10 @@ forward_fill AS (
         vwlf.chicago_community_area_name AS loc_chicago_community_area_name,
 
         -- Location data used for spatial fixed effects
-        vwlf.school_elementary_district_geoid AS loc_school_elementary_district_geoid,
-        vwlf.school_secondary_district_geoid AS loc_school_secondary_district_geoid,
+        vwlf.school_elementary_district_geoid
+            AS loc_school_elementary_district_geoid,
+        vwlf.school_secondary_district_geoid
+            AS loc_school_secondary_district_geoid,
         vwlf.school_unified_district_geoid AS loc_school_unified_district_geoid,
         vwlf.tax_special_service_area_num AS loc_tax_special_service_area_num,
         vwlf.tax_tif_district_num AS loc_tax_tif_district_num,
@@ -242,7 +264,8 @@ forward_fill AS (
         vwlf.env_flood_fema_sfha AS loc_env_flood_fema_sfha,
         vwlf.env_flood_fs_factor AS loc_env_flood_fs_factor,
         vwlf.env_flood_fs_risk_direction AS loc_env_flood_fs_risk_direction,
-        vwlf.env_ohare_noise_contour_no_buffer_bool AS loc_env_ohare_noise_contour_no_buffer_bool,
+        vwlf.env_ohare_noise_contour_no_buffer_bool
+            AS loc_env_ohare_noise_contour_no_buffer_bool,
         vwlf.env_airport_noise_dnl AS loc_env_airport_noise_dnl,
         vwlf.access_cmap_walk_nta_score AS loc_access_cmap_walk_nta_score,
         vwlf.access_cmap_walk_total_score AS loc_access_cmap_walk_total_score,
@@ -250,10 +273,13 @@ forward_fill AS (
         -- PIN proximity count variables
         vwpf.num_pin_in_half_mile AS prox_num_pin_in_half_mile,
         vwpf.num_bus_stop_in_half_mile AS prox_num_bus_stop_in_half_mile,
-        vwpf.num_foreclosure_per_1000_pin_past_5_years AS prox_num_foreclosure_per_1000_pin_past_5_years,
+        vwpf.num_foreclosure_per_1000_pin_past_5_years
+            AS prox_num_foreclosure_per_1000_pin_past_5_years,
         vwpf.num_school_in_half_mile AS prox_num_school_in_half_mile,
-        vwpf.num_school_with_rating_in_half_mile AS prox_num_school_with_rating_in_half_mile,
-        vwpf.avg_school_rating_in_half_mile AS prox_avg_school_rating_in_half_mile,
+        vwpf.num_school_with_rating_in_half_mile
+            AS prox_num_school_with_rating_in_half_mile,
+        vwpf.avg_school_rating_in_half_mile
+            AS prox_avg_school_rating_in_half_mile,
 
         -- PIN proximity distance variables
         vwpf.nearest_bike_trail_dist_ft AS prox_nearest_bike_trail_dist_ft,
@@ -276,31 +302,48 @@ forward_fill AS (
         acs5.percent_age_senior AS acs5_percent_age_senior,
         acs5.median_age_total AS acs5_median_age_total,
         acs5.percent_mobility_no_move AS acs5_percent_mobility_no_move,
-        acs5.percent_mobility_moved_in_county AS acs5_percent_mobility_moved_in_county,
-        acs5.percent_mobility_moved_from_other_state AS acs5_percent_mobility_moved_from_other_state,
-        acs5.percent_household_family_married AS acs5_percent_household_family_married,
-        acs5.percent_household_nonfamily_alone AS acs5_percent_household_nonfamily_alone,
-        acs5.percent_education_high_school AS acs5_percent_education_high_school,
+        acs5.percent_mobility_moved_in_county
+            AS acs5_percent_mobility_moved_in_county,
+        acs5.percent_mobility_moved_from_other_state
+            AS acs5_percent_mobility_moved_from_other_state,
+        acs5.percent_household_family_married
+            AS acs5_percent_household_family_married,
+        acs5.percent_household_nonfamily_alone
+            AS acs5_percent_household_nonfamily_alone,
+        acs5.percent_education_high_school
+            AS acs5_percent_education_high_school,
         acs5.percent_education_bachelor AS acs5_percent_education_bachelor,
         acs5.percent_education_graduate AS acs5_percent_education_graduate,
-        acs5.percent_income_below_poverty_level AS acs5_percent_income_below_poverty_level,
-        acs5.median_income_household_past_year AS acs5_median_income_household_past_year,
-        acs5.median_income_per_capita_past_year AS acs5_median_income_per_capita_past_year,
-        acs5.percent_income_household_received_snap_past_year AS acs5_percent_income_household_received_snap_past_year,
-        acs5.percent_employment_unemployed AS acs5_percent_employment_unemployed,
-        acs5.median_household_total_occupied_year_built AS acs5_median_household_total_occupied_year_built,
-        acs5.median_household_renter_occupied_gross_rent AS acs5_median_household_renter_occupied_gross_rent,
-        acs5.median_household_owner_occupied_value AS acs5_median_household_owner_occupied_value,
-        acs5.percent_household_owner_occupied AS acs5_percent_household_owner_occupied,
-        acs5.percent_household_total_occupied_w_sel_cond AS acs5_percent_household_total_occupied_w_sel_cond,
+        acs5.percent_income_below_poverty_level
+            AS acs5_percent_income_below_poverty_level,
+        acs5.median_income_household_past_year
+            AS acs5_median_income_household_past_year,
+        acs5.median_income_per_capita_past_year
+            AS acs5_median_income_per_capita_past_year,
+        acs5.percent_income_household_received_snap_past_year
+            AS acs5_percent_income_household_received_snap_past_year,
+        acs5.percent_employment_unemployed
+            AS acs5_percent_employment_unemployed,
+        acs5.median_household_total_occupied_year_built
+            AS acs5_median_household_total_occupied_year_built,
+        acs5.median_household_renter_occupied_gross_rent
+            AS acs5_median_household_renter_occupied_gross_rent,
+        acs5.median_household_owner_occupied_value
+            AS acs5_median_household_owner_occupied_value,
+        acs5.percent_household_owner_occupied
+            AS acs5_percent_household_owner_occupied,
+        acs5.percent_household_total_occupied_w_sel_cond
+            AS acs5_percent_household_total_occupied_w_sel_cond,
 
         -- Institute for Housing Studies data
         housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
         tbill.tot_tax_amt AS other_tax_bill_amount_total,
         tbill.tax_rate AS other_tax_bill_rate,
 
-        sdre.school_district_avg_rating AS other_school_district_elementary_avg_rating,
-        sdrs.school_district_avg_rating AS other_school_district_secondary_avg_rating,
+        sdre.school_district_avg_rating
+            AS other_school_district_elementary_avg_rating,
+        sdrs.school_district_avg_rating
+            AS other_school_district_secondary_avg_rating,
 
         -- PIN nearest neighbors, used for filling missing data
         vwpf.nearest_neighbor_1_pin10,
@@ -311,22 +354,22 @@ forward_fill AS (
         vwpf.nearest_neighbor_3_dist_ft
 
     FROM uni
-    LEFT JOIN location.vw_pin10_location_fill vwlf
+    LEFT JOIN location.vw_pin10_location_fill AS vwlf
         ON uni.pin10 = vwlf.pin10
         AND uni.year = vwlf.year
-    LEFT JOIN proximity.vw_pin10_proximity_fill vwpf
+    LEFT JOIN proximity.vw_pin10_proximity_fill AS vwpf
         ON uni.pin10 = vwpf.pin10
         AND uni.year = vwpf.year
-    LEFT JOIN default.vw_pin_address vwpa
+    LEFT JOIN default.vw_pin_address AS vwpa
         ON uni.pin = vwpa.pin
         AND uni.year = vwpa.year
-    LEFT JOIN default.vw_card_res_char ch
+    LEFT JOIN default.vw_card_res_char AS ch
         ON uni.pin = ch.pin
         AND uni.year = ch.year
-    LEFT JOIN default.vw_pin_history hist
+    LEFT JOIN default.vw_pin_history AS hist
         ON uni.pin = hist.pin
         AND uni.year = hist.year
-    LEFT JOIN sqft_percentiles sp
+    LEFT JOIN sqft_percentiles AS sp
         ON uni.year = sp.year
         AND uni.township_code = sp.township_code
     LEFT JOIN acs5
@@ -335,18 +378,29 @@ forward_fill AS (
     LEFT JOIN housing_index
         ON housing_index.geoid = vwlf.census_puma_geoid
         AND housing_index.year = vwlf.year
-    LEFT JOIN tax_bill_amount tbill
+    LEFT JOIN tax_bill_amount AS tbill
         ON uni.pin = tbill.pin
         AND uni.year = tbill.year
     -- The two following joins need to include year if we get more than
     -- one year of school ratings data.
-    LEFT JOIN (SELECT * FROM school_district_ratings WHERE district_type = 'elementary') sdre
+    LEFT JOIN
+        (
+            SELECT *
+            FROM school_district_ratings
+            WHERE district_type = 'elementary'
+        ) AS sdre
         ON vwlf.school_elementary_district_geoid = sdre.district_geoid
-    LEFT JOIN (SELECT * FROM school_district_ratings WHERE district_type = 'secondary') sdrs
+    LEFT JOIN
+        (
+            SELECT *
+            FROM school_district_ratings
+            WHERE district_type = 'secondary'
+        ) AS sdrs
         ON vwlf.school_secondary_district_geoid = sdrs.district_geoid
 )
--- Anything with a CASE WHEN here is just borrowing missing values from its nearest
--- spatial neighbor
+
+-- Anything with a CASE WHEN here is just borrowing missing values
+-- from its nearest spatial neighbor
 SELECT
     f1.meta_pin,
     f1.meta_pin10,
@@ -432,174 +486,297 @@ SELECT
     f1.loc_census_acs5_tract_geoid,
     f1.loc_census_acs5_data_year,
     CASE
-        WHEN f1.loc_tax_municipality_name IS NOT NULL THEN f1.loc_tax_municipality_name
-        WHEN f1.loc_tax_municipality_name IS NULL THEN nn1.loc_tax_municipality_name
-        WHEN nn1.loc_tax_municipality_name IS NULL THEN nn2.loc_tax_municipality_name
-        ELSE NULL
+        WHEN
+            f1.loc_tax_municipality_name IS NOT NULL
+            THEN f1.loc_tax_municipality_name
+        WHEN
+            f1.loc_tax_municipality_name IS NULL
+            THEN nn1.loc_tax_municipality_name
+        WHEN
+            nn1.loc_tax_municipality_name IS NULL
+            THEN nn2.loc_tax_municipality_name
     END AS loc_tax_municipality_name,
     CASE
         WHEN f1.loc_ward_num IS NOT NULL THEN f1.loc_ward_num
         WHEN f1.loc_ward_num IS NULL THEN nn1.loc_ward_num
         WHEN nn1.loc_ward_num IS NULL THEN nn2.loc_ward_num
-        ELSE NULL
     END AS loc_ward_num,
     CASE
-        WHEN f1.loc_chicago_community_area_name IS NOT NULL THEN f1.loc_chicago_community_area_name
-        WHEN f1.loc_chicago_community_area_name IS NULL THEN nn1.loc_chicago_community_area_name
-        WHEN nn1.loc_chicago_community_area_name IS NULL THEN nn2.loc_chicago_community_area_name
-        ELSE NULL
+        WHEN
+            f1.loc_chicago_community_area_name IS NOT NULL
+            THEN f1.loc_chicago_community_area_name
+        WHEN
+            f1.loc_chicago_community_area_name IS NULL
+            THEN nn1.loc_chicago_community_area_name
+        WHEN
+            nn1.loc_chicago_community_area_name IS NULL
+            THEN nn2.loc_chicago_community_area_name
     END AS loc_chicago_community_area_name,
     CASE
-        WHEN f1.loc_school_elementary_district_geoid IS NOT NULL THEN f1.loc_school_elementary_district_geoid
-        WHEN f1.loc_school_elementary_district_geoid IS NULL THEN nn1.loc_school_elementary_district_geoid
-        WHEN nn1.loc_school_elementary_district_geoid IS NULL THEN nn2.loc_school_elementary_district_geoid
-        ELSE NULL
+        WHEN
+            f1.loc_school_elementary_district_geoid IS NOT NULL
+            THEN f1.loc_school_elementary_district_geoid
+        WHEN
+            f1.loc_school_elementary_district_geoid IS NULL
+            THEN nn1.loc_school_elementary_district_geoid
+        WHEN
+            nn1.loc_school_elementary_district_geoid IS NULL
+            THEN nn2.loc_school_elementary_district_geoid
     END AS loc_school_elementary_district_geoid,
     CASE
-        WHEN f1.loc_school_secondary_district_geoid IS NOT NULL THEN f1.loc_school_secondary_district_geoid
-        WHEN f1.loc_school_secondary_district_geoid IS NULL THEN nn1.loc_school_secondary_district_geoid
-        WHEN nn1.loc_school_secondary_district_geoid IS NULL THEN nn2.loc_school_secondary_district_geoid
-        ELSE NULL
+        WHEN
+            f1.loc_school_secondary_district_geoid IS NOT NULL
+            THEN f1.loc_school_secondary_district_geoid
+        WHEN
+            f1.loc_school_secondary_district_geoid IS NULL
+            THEN nn1.loc_school_secondary_district_geoid
+        WHEN
+            nn1.loc_school_secondary_district_geoid IS NULL
+            THEN nn2.loc_school_secondary_district_geoid
     END AS loc_school_secondary_district_geoid,
     CASE
-        WHEN f1.loc_school_unified_district_geoid IS NOT NULL THEN f1.loc_school_unified_district_geoid
-        WHEN f1.loc_school_unified_district_geoid IS NULL THEN nn1.loc_school_unified_district_geoid
-        WHEN nn1.loc_school_unified_district_geoid IS NULL THEN nn2.loc_school_unified_district_geoid
-        ELSE NULL
+        WHEN
+            f1.loc_school_unified_district_geoid IS NOT NULL
+            THEN f1.loc_school_unified_district_geoid
+        WHEN
+            f1.loc_school_unified_district_geoid IS NULL
+            THEN nn1.loc_school_unified_district_geoid
+        WHEN
+            nn1.loc_school_unified_district_geoid IS NULL
+            THEN nn2.loc_school_unified_district_geoid
     END AS loc_school_unified_district_geoid,
     CASE
-        WHEN f1.loc_tax_special_service_area_num IS NOT NULL THEN f1.loc_tax_special_service_area_num
-        WHEN f1.loc_tax_special_service_area_num IS NULL THEN nn1.loc_tax_special_service_area_num
-        WHEN nn1.loc_tax_special_service_area_num IS NULL THEN nn2.loc_tax_special_service_area_num
-        ELSE NULL
+        WHEN
+            f1.loc_tax_special_service_area_num IS NOT NULL
+            THEN f1.loc_tax_special_service_area_num
+        WHEN
+            f1.loc_tax_special_service_area_num IS NULL
+            THEN nn1.loc_tax_special_service_area_num
+        WHEN
+            nn1.loc_tax_special_service_area_num IS NULL
+            THEN nn2.loc_tax_special_service_area_num
     END AS loc_tax_special_service_area_num,
     CASE
-        WHEN f1.loc_tax_tif_district_num IS NOT NULL THEN f1.loc_tax_tif_district_num
-        WHEN f1.loc_tax_tif_district_num IS NULL THEN nn1.loc_tax_tif_district_num
-        WHEN nn1.loc_tax_tif_district_num IS NULL THEN nn2.loc_tax_tif_district_num
-        ELSE NULL
+        WHEN
+            f1.loc_tax_tif_district_num IS NOT NULL
+            THEN f1.loc_tax_tif_district_num
+        WHEN
+            f1.loc_tax_tif_district_num IS NULL
+            THEN nn1.loc_tax_tif_district_num
+        WHEN
+            nn1.loc_tax_tif_district_num IS NULL
+            THEN nn2.loc_tax_tif_district_num
     END AS loc_tax_tif_district_num,
     CASE
-        WHEN f1.loc_misc_subdivision_id IS NOT NULL THEN f1.loc_misc_subdivision_id
+        WHEN
+            f1.loc_misc_subdivision_id IS NOT NULL
+            THEN f1.loc_misc_subdivision_id
         WHEN f1.loc_misc_subdivision_id IS NULL THEN nn1.loc_misc_subdivision_id
-        WHEN nn1.loc_misc_subdivision_id IS NULL THEN nn2.loc_misc_subdivision_id
-        ELSE NULL
+        WHEN
+            nn1.loc_misc_subdivision_id IS NULL
+            THEN nn2.loc_misc_subdivision_id
     END AS loc_misc_subdivision_id,
     CASE
-        WHEN f1.loc_env_flood_fema_sfha IS NOT NULL THEN f1.loc_env_flood_fema_sfha
+        WHEN
+            f1.loc_env_flood_fema_sfha IS NOT NULL
+            THEN f1.loc_env_flood_fema_sfha
         WHEN f1.loc_env_flood_fema_sfha IS NULL THEN nn1.loc_env_flood_fema_sfha
-        WHEN nn1.loc_env_flood_fema_sfha IS NULL THEN nn2.loc_env_flood_fema_sfha
-        ELSE NULL
+        WHEN
+            nn1.loc_env_flood_fema_sfha IS NULL
+            THEN nn2.loc_env_flood_fema_sfha
     END AS loc_env_flood_fema_sfha,
     CASE
-        WHEN f1.loc_env_flood_fs_factor IS NOT NULL THEN f1.loc_env_flood_fs_factor
+        WHEN
+            f1.loc_env_flood_fs_factor IS NOT NULL
+            THEN f1.loc_env_flood_fs_factor
         WHEN f1.loc_env_flood_fs_factor IS NULL THEN nn1.loc_env_flood_fs_factor
-        WHEN nn1.loc_env_flood_fs_factor IS NULL THEN nn2.loc_env_flood_fs_factor
-        ELSE NULL
+        WHEN
+            nn1.loc_env_flood_fs_factor IS NULL
+            THEN nn2.loc_env_flood_fs_factor
     END AS loc_env_flood_fs_factor,
     CASE
-        WHEN f1.loc_env_flood_fs_risk_direction IS NOT NULL THEN f1.loc_env_flood_fs_risk_direction
-        WHEN f1.loc_env_flood_fs_risk_direction IS NULL THEN nn1.loc_env_flood_fs_risk_direction
-        WHEN nn1.loc_env_flood_fs_risk_direction IS NULL THEN nn2.loc_env_flood_fs_risk_direction
-        ELSE NULL
+        WHEN
+            f1.loc_env_flood_fs_risk_direction IS NOT NULL
+            THEN f1.loc_env_flood_fs_risk_direction
+        WHEN
+            f1.loc_env_flood_fs_risk_direction IS NULL
+            THEN nn1.loc_env_flood_fs_risk_direction
+        WHEN
+            nn1.loc_env_flood_fs_risk_direction IS NULL
+            THEN nn2.loc_env_flood_fs_risk_direction
     END AS loc_env_flood_fs_risk_direction,
     CASE
-        WHEN f1.loc_env_ohare_noise_contour_no_buffer_bool IS NOT NULL THEN f1.loc_env_ohare_noise_contour_no_buffer_bool
-        WHEN f1.loc_env_ohare_noise_contour_no_buffer_bool IS NULL THEN nn1.loc_env_ohare_noise_contour_no_buffer_bool
-        WHEN nn1.loc_env_ohare_noise_contour_no_buffer_bool IS NULL THEN nn2.loc_env_ohare_noise_contour_no_buffer_bool
-        ELSE NULL
+        WHEN
+            f1.loc_env_ohare_noise_contour_no_buffer_bool IS NOT NULL
+            THEN f1.loc_env_ohare_noise_contour_no_buffer_bool
+        WHEN
+            f1.loc_env_ohare_noise_contour_no_buffer_bool IS NULL
+            THEN nn1.loc_env_ohare_noise_contour_no_buffer_bool
+        WHEN
+            nn1.loc_env_ohare_noise_contour_no_buffer_bool IS NULL
+            THEN nn2.loc_env_ohare_noise_contour_no_buffer_bool
     END AS loc_env_ohare_noise_contour_no_buffer_bool,
     CASE
-        WHEN f1.loc_env_airport_noise_dnl IS NOT NULL THEN f1.loc_env_airport_noise_dnl
-        WHEN f1.loc_env_airport_noise_dnl IS NULL THEN nn1.loc_env_airport_noise_dnl
-        WHEN nn1.loc_env_airport_noise_dnl IS NULL THEN nn2.loc_env_airport_noise_dnl
-        ELSE NULL
+        WHEN
+            f1.loc_env_airport_noise_dnl IS NOT NULL
+            THEN f1.loc_env_airport_noise_dnl
+        WHEN
+            f1.loc_env_airport_noise_dnl IS NULL
+            THEN nn1.loc_env_airport_noise_dnl
+        WHEN
+            nn1.loc_env_airport_noise_dnl IS NULL
+            THEN nn2.loc_env_airport_noise_dnl
     END AS loc_env_airport_noise_dnl,
     CASE
-        WHEN f1.loc_access_cmap_walk_nta_score IS NOT NULL THEN f1.loc_access_cmap_walk_nta_score
-        WHEN f1.loc_access_cmap_walk_nta_score IS NULL THEN nn1.loc_access_cmap_walk_nta_score
-        WHEN nn1.loc_access_cmap_walk_nta_score IS NULL THEN nn2.loc_access_cmap_walk_nta_score
-        ELSE NULL
+        WHEN
+            f1.loc_access_cmap_walk_nta_score IS NOT NULL
+            THEN f1.loc_access_cmap_walk_nta_score
+        WHEN
+            f1.loc_access_cmap_walk_nta_score IS NULL
+            THEN nn1.loc_access_cmap_walk_nta_score
+        WHEN
+            nn1.loc_access_cmap_walk_nta_score IS NULL
+            THEN nn2.loc_access_cmap_walk_nta_score
     END AS loc_access_cmap_walk_nta_score,
     CASE
-        WHEN f1.loc_access_cmap_walk_total_score IS NOT NULL THEN f1.loc_access_cmap_walk_total_score
-        WHEN f1.loc_access_cmap_walk_total_score IS NULL THEN nn1.loc_access_cmap_walk_total_score
-        WHEN nn1.loc_access_cmap_walk_total_score IS NULL THEN nn2.loc_access_cmap_walk_total_score
-        ELSE NULL
+        WHEN
+            f1.loc_access_cmap_walk_total_score IS NOT NULL
+            THEN f1.loc_access_cmap_walk_total_score
+        WHEN
+            f1.loc_access_cmap_walk_total_score IS NULL
+            THEN nn1.loc_access_cmap_walk_total_score
+        WHEN
+            nn1.loc_access_cmap_walk_total_score IS NULL
+            THEN nn2.loc_access_cmap_walk_total_score
     END AS loc_access_cmap_walk_total_score,
     f1.prox_num_pin_in_half_mile,
     f1.prox_num_bus_stop_in_half_mile,
     f1.prox_num_foreclosure_per_1000_pin_past_5_years,
     CASE
-        WHEN f1.prox_num_school_in_half_mile IS NOT NULL THEN f1.prox_num_school_in_half_mile
-        WHEN f1.prox_num_school_in_half_mile IS NULL THEN nn1.prox_num_school_in_half_mile
-        WHEN nn1.prox_num_school_in_half_mile IS NULL THEN nn2.prox_num_school_in_half_mile
-        ELSE NULL
+        WHEN
+            f1.prox_num_school_in_half_mile IS NOT NULL
+            THEN f1.prox_num_school_in_half_mile
+        WHEN
+            f1.prox_num_school_in_half_mile IS NULL
+            THEN nn1.prox_num_school_in_half_mile
+        WHEN
+            nn1.prox_num_school_in_half_mile IS NULL
+            THEN nn2.prox_num_school_in_half_mile
     END AS prox_num_school_in_half_mile,
     CASE
-        WHEN f1.prox_num_school_with_rating_in_half_mile IS NOT NULL THEN f1.prox_num_school_with_rating_in_half_mile
-        WHEN f1.prox_num_school_with_rating_in_half_mile IS NULL THEN nn1.prox_num_school_with_rating_in_half_mile
-        WHEN nn1.prox_num_school_with_rating_in_half_mile IS NULL THEN nn2.prox_num_school_with_rating_in_half_mile
-        ELSE NULL
+        WHEN
+            f1.prox_num_school_with_rating_in_half_mile IS NOT NULL
+            THEN f1.prox_num_school_with_rating_in_half_mile
+        WHEN
+            f1.prox_num_school_with_rating_in_half_mile IS NULL
+            THEN nn1.prox_num_school_with_rating_in_half_mile
+        WHEN
+            nn1.prox_num_school_with_rating_in_half_mile IS NULL
+            THEN nn2.prox_num_school_with_rating_in_half_mile
     END AS prox_num_school_with_rating_in_half_mile,
     CASE
-        WHEN f1.prox_avg_school_rating_in_half_mile IS NOT NULL THEN f1.prox_avg_school_rating_in_half_mile
-        WHEN f1.prox_avg_school_rating_in_half_mile IS NULL THEN nn1.prox_avg_school_rating_in_half_mile
-        WHEN nn1.prox_avg_school_rating_in_half_mile IS NULL THEN nn2.prox_avg_school_rating_in_half_mile
-        ELSE NULL
+        WHEN
+            f1.prox_avg_school_rating_in_half_mile IS NOT NULL
+            THEN f1.prox_avg_school_rating_in_half_mile
+        WHEN
+            f1.prox_avg_school_rating_in_half_mile IS NULL
+            THEN nn1.prox_avg_school_rating_in_half_mile
+        WHEN
+            nn1.prox_avg_school_rating_in_half_mile IS NULL
+            THEN nn2.prox_avg_school_rating_in_half_mile
     END AS prox_avg_school_rating_in_half_mile,
     CASE
-        WHEN f1.prox_nearest_bike_trail_dist_ft IS NOT NULL THEN f1.prox_nearest_bike_trail_dist_ft
-        WHEN f1.prox_nearest_bike_trail_dist_ft IS NULL THEN nn1.prox_nearest_bike_trail_dist_ft
-        WHEN nn1.prox_nearest_bike_trail_dist_ft IS NULL THEN nn2.prox_nearest_bike_trail_dist_ft
-        ELSE NULL
+        WHEN
+            f1.prox_nearest_bike_trail_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_bike_trail_dist_ft
+        WHEN
+            f1.prox_nearest_bike_trail_dist_ft IS NULL
+            THEN nn1.prox_nearest_bike_trail_dist_ft
+        WHEN
+            nn1.prox_nearest_bike_trail_dist_ft IS NULL
+            THEN nn2.prox_nearest_bike_trail_dist_ft
     END AS prox_nearest_bike_trail_dist_ft,
     CASE
-        WHEN f1.prox_nearest_cemetery_dist_ft IS NOT NULL THEN f1.prox_nearest_cemetery_dist_ft
-        WHEN f1.prox_nearest_cemetery_dist_ft IS NULL THEN nn1.prox_nearest_cemetery_dist_ft
-        WHEN nn1.prox_nearest_cemetery_dist_ft IS NULL THEN nn2.prox_nearest_cemetery_dist_ft
-        ELSE NULL
+        WHEN
+            f1.prox_nearest_cemetery_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_cemetery_dist_ft
+        WHEN
+            f1.prox_nearest_cemetery_dist_ft IS NULL
+            THEN nn1.prox_nearest_cemetery_dist_ft
+        WHEN
+            nn1.prox_nearest_cemetery_dist_ft IS NULL
+            THEN nn2.prox_nearest_cemetery_dist_ft
     END AS prox_nearest_cemetery_dist_ft,
     f1.prox_nearest_cta_route_dist_ft,
     f1.prox_nearest_cta_stop_dist_ft,
     f1.prox_nearest_golf_course_dist_ft,
     CASE
-        WHEN f1.prox_nearest_hospital_dist_ft IS NOT NULL THEN f1.prox_nearest_hospital_dist_ft
-        WHEN f1.prox_nearest_hospital_dist_ft IS NULL THEN nn1.prox_nearest_hospital_dist_ft
-        WHEN nn1.prox_nearest_hospital_dist_ft IS NULL THEN nn2.prox_nearest_hospital_dist_ft
-        ELSE NULL
+        WHEN
+            f1.prox_nearest_hospital_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_hospital_dist_ft
+        WHEN
+            f1.prox_nearest_hospital_dist_ft IS NULL
+            THEN nn1.prox_nearest_hospital_dist_ft
+        WHEN
+            nn1.prox_nearest_hospital_dist_ft IS NULL
+            THEN nn2.prox_nearest_hospital_dist_ft
     END AS prox_nearest_hospital_dist_ft,
     CASE
-        WHEN f1.prox_lake_michigan_dist_ft IS NOT NULL THEN f1.prox_lake_michigan_dist_ft
-        WHEN f1.prox_lake_michigan_dist_ft IS NULL THEN nn1.prox_lake_michigan_dist_ft
-        WHEN nn1.prox_lake_michigan_dist_ft IS NULL THEN nn2.prox_lake_michigan_dist_ft
-        ELSE NULL
+        WHEN
+            f1.prox_lake_michigan_dist_ft IS NOT NULL
+            THEN f1.prox_lake_michigan_dist_ft
+        WHEN
+            f1.prox_lake_michigan_dist_ft IS NULL
+            THEN nn1.prox_lake_michigan_dist_ft
+        WHEN
+            nn1.prox_lake_michigan_dist_ft IS NULL
+            THEN nn2.prox_lake_michigan_dist_ft
     END AS prox_lake_michigan_dist_ft,
     CASE
-        WHEN f1.prox_nearest_major_road_dist_ft IS NOT NULL THEN f1.prox_nearest_major_road_dist_ft
-        WHEN f1.prox_nearest_major_road_dist_ft IS NULL THEN nn1.prox_nearest_major_road_dist_ft
-        WHEN nn1.prox_nearest_major_road_dist_ft IS NULL THEN nn2.prox_nearest_major_road_dist_ft
-        ELSE NULL
+        WHEN
+            f1.prox_nearest_major_road_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_major_road_dist_ft
+        WHEN
+            f1.prox_nearest_major_road_dist_ft IS NULL
+            THEN nn1.prox_nearest_major_road_dist_ft
+        WHEN
+            nn1.prox_nearest_major_road_dist_ft IS NULL
+            THEN nn2.prox_nearest_major_road_dist_ft
     END AS prox_nearest_major_road_dist_ft,
     f1.prox_nearest_metra_route_dist_ft,
     f1.prox_nearest_metra_stop_dist_ft,
     CASE
-        WHEN f1.prox_nearest_park_dist_ft IS NOT NULL THEN f1.prox_nearest_park_dist_ft
-        WHEN f1.prox_nearest_park_dist_ft IS NULL THEN nn1.prox_nearest_park_dist_ft
-        WHEN nn1.prox_nearest_park_dist_ft IS NULL THEN nn2.prox_nearest_park_dist_ft
-        ELSE NULL
+        WHEN
+            f1.prox_nearest_park_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_park_dist_ft
+        WHEN
+            f1.prox_nearest_park_dist_ft IS NULL
+            THEN nn1.prox_nearest_park_dist_ft
+        WHEN
+            nn1.prox_nearest_park_dist_ft IS NULL
+            THEN nn2.prox_nearest_park_dist_ft
     END AS prox_nearest_park_dist_ft,
     CASE
-        WHEN f1.prox_nearest_railroad_dist_ft IS NOT NULL THEN f1.prox_nearest_railroad_dist_ft
-        WHEN f1.prox_nearest_railroad_dist_ft IS NULL THEN nn1.prox_nearest_railroad_dist_ft
-        WHEN nn1.prox_nearest_railroad_dist_ft IS NULL THEN nn2.prox_nearest_railroad_dist_ft
-        ELSE NULL
+        WHEN
+            f1.prox_nearest_railroad_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_railroad_dist_ft
+        WHEN
+            f1.prox_nearest_railroad_dist_ft IS NULL
+            THEN nn1.prox_nearest_railroad_dist_ft
+        WHEN
+            nn1.prox_nearest_railroad_dist_ft IS NULL
+            THEN nn2.prox_nearest_railroad_dist_ft
     END AS prox_nearest_railroad_dist_ft,
     CASE
-        WHEN f1.prox_nearest_water_dist_ft IS NOT NULL THEN f1.prox_nearest_water_dist_ft
-        WHEN f1.prox_nearest_water_dist_ft IS NULL THEN nn1.prox_nearest_water_dist_ft
-        WHEN nn1.prox_nearest_water_dist_ft IS NULL THEN nn2.prox_nearest_water_dist_ft
-        ELSE NULL
+        WHEN
+            f1.prox_nearest_water_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_water_dist_ft
+        WHEN
+            f1.prox_nearest_water_dist_ft IS NULL
+            THEN nn1.prox_nearest_water_dist_ft
+        WHEN
+            nn1.prox_nearest_water_dist_ft IS NULL
+            THEN nn2.prox_nearest_water_dist_ft
     END AS prox_nearest_water_dist_ft,
     f1.acs5_count_sex_total,
     f1.acs5_percent_age_children,
@@ -627,31 +804,41 @@ SELECT
     f1.other_tax_bill_amount_total,
     f1.other_tax_bill_rate,
     CASE
-        WHEN f1.other_school_district_elementary_avg_rating IS NOT NULL THEN f1.other_school_district_elementary_avg_rating
-        WHEN f1.other_school_district_elementary_avg_rating IS NULL THEN nn1.other_school_district_elementary_avg_rating
-        WHEN nn1.other_school_district_elementary_avg_rating IS NULL THEN nn2.other_school_district_elementary_avg_rating
-        ELSE NULL
+        WHEN
+            f1.other_school_district_elementary_avg_rating IS NOT NULL
+            THEN f1.other_school_district_elementary_avg_rating
+        WHEN
+            f1.other_school_district_elementary_avg_rating IS NULL
+            THEN nn1.other_school_district_elementary_avg_rating
+        WHEN
+            nn1.other_school_district_elementary_avg_rating IS NULL
+            THEN nn2.other_school_district_elementary_avg_rating
     END AS other_school_district_elementary_avg_rating,
     CASE
-        WHEN f1.other_school_district_secondary_avg_rating IS NOT NULL THEN f1.other_school_district_secondary_avg_rating
-        WHEN f1.other_school_district_secondary_avg_rating IS NULL THEN nn1.other_school_district_secondary_avg_rating
-        WHEN nn1.other_school_district_secondary_avg_rating IS NULL THEN nn2.other_school_district_secondary_avg_rating
-        ELSE NULL
+        WHEN
+            f1.other_school_district_secondary_avg_rating IS NOT NULL
+            THEN f1.other_school_district_secondary_avg_rating
+        WHEN
+            f1.other_school_district_secondary_avg_rating IS NULL
+            THEN nn1.other_school_district_secondary_avg_rating
+        WHEN
+            nn1.other_school_district_secondary_avg_rating IS NULL
+            THEN nn2.other_school_district_secondary_avg_rating
     END AS other_school_district_secondary_avg_rating
-FROM forward_fill f1
+FROM forward_fill AS f1
 LEFT JOIN (
     SELECT *
     FROM forward_fill
     WHERE NOT ind_pin_is_multicard
-    AND nearest_neighbor_1_dist_ft <= 500
-) nn1
+        AND nearest_neighbor_1_dist_ft <= 500
+) AS nn1
     ON f1.nearest_neighbor_1_pin10 = nn1.meta_pin10
     AND f1.meta_year = nn1.meta_year
 LEFT JOIN (
     SELECT *
     FROM forward_fill
     WHERE NOT ind_pin_is_multicard
-    AND nearest_neighbor_2_dist_ft <= 500
-) nn2
+        AND nearest_neighbor_2_dist_ft <= 500
+) AS nn2
     ON f1.nearest_neighbor_1_pin10 = nn2.meta_pin10
     AND f1.meta_year = nn2.meta_year
