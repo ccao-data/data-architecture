@@ -1,3 +1,5 @@
+
+
 library(osmdata)
 library(tidyverse)
 library(sf)
@@ -33,82 +35,9 @@ bbox <- ccao::town_shp %>%
 
 
 
-
-
-# Define the coordinates
-xmin <- -87.79912
-ymin <- 41.64626
-xmax <- -87.67970
-ymax <- 41.73552
-
-# Calculate the width and height of the area
-width <- xmax - xmin
-height <- ymax - ymin
-
-# Divide the width and height into four equal parts
-sub_width <- width / 2
-sub_height <- height / 2
-
-# Create four bounding boxes
-bbox1 <- c(xmin, ymin, xmin + sub_width, ymin + sub_height)
-bbox2 <- c(xmin + sub_width, ymin, xmax, ymin + sub_height)
-bbox3 <- c(xmin, ymin + sub_height, xmin + sub_width, ymax)
-bbox4 <- c(xmin + sub_width, ymin + sub_height, xmax, ymax)
-
-# Print the bounding boxes
-print(bbox1)
-print(bbox2)
-print(bbox3)
-print(bbox4)
-
-
-
-
-
-
-
-
-
-
-split_bbox <- function(bbox, n_x = 2, n_y = 2) {
-  # Assert that bbox is a bounding box
-  stopifnot(class(bbox) %in% "bbox")
-  
-  # Get the length of the x axis
-  x_ext <- bbox["xmax"] - bbox["xmin"]
-  # Get the length of the y axis
-  y_ext <- bbox["ymax"] - bbox["ymin"]
-  
-  incr_x <- x_ext / n_x
-  incr_y <- y_ext / n_y
-  
-  # Create a sequence of x and y coordinates to generate the xmins and ymins
-  xmin <- seq(from = bbox["xmin"], to = bbox["xmax"], by = incr_x)
-  ymin <- seq(from = bbox["ymin"], to = bbox["ymax"], by = incr_y)
-  
-  # Remove the last element of x and y to ensure that the
-  # top right corner isnt create an xmin or ymin
-  xmin <- xmin[1:length(xmin) - 1]
-  ymin <- ymin[1:length(ymin) - 1]
-  
-  bbox_table <-
-    expand_grid(xmin, ymin) %>%
-    mutate(xmax = xmin + incr_x,
-           ymax = ymin + incr_y)
-  
-  bounding_boxes <-
-    transpose(bbox_table) %>% map( ~ .x %>%
-                                     unlist %>% st_bbox(crs = st_crs(bbox)$epsg))
-  
-  return(bounding_boxes)
-}
-
-split_bbox(bbox, n_x = 5, n_y = 5)
-
-
 # Street network data
 osm_data <- function(type) {
-  opq(bbox = bbox4) %>%
+  opq(bbox = bbox) %>%
     add_osm_feature(key = "highway", value = type) %>%
     add_osm_feature(key = "highway", value = "!footway") %>%
     add_osm_feature(key = "highway:tag", value = "!alley") %>%
@@ -145,48 +74,6 @@ parcels <- st_read(
     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
   )) %>%
   mutate(id = row_number())
-
-
-# bbox_grid <- st_make_grid(bbox)
-# plot(bbox_grid)
-# individual_bboxes <- st_geometry(bbox_grid)
-# 
-
-
-
-
-
-
-
-
-
-
-# # Access the first individual bounding box
-# first_bbox <- individual_bboxes[[1]]
-# spatial_bbox <- st_bbox(first_bbox)
-# spatial_bbox[1] <- spatial_bbox[1] -.001
-# spatial_bbox[2] <- spatial_bbox[2] -.001
-# spatial_bbox[3] <- spatial_bbox[3] +.001
-# spatial_bbox[4] <- spatial_bbox[4] +.001
-
-
-parcels <- parcels %>%
-  filter(latitude >= bbox4[2] & latitude <= bbox4[4]) %>%
-  filter(longitude <= bbox4[1] & longitude >= bbox4[3]) %>%
-  st_transform(4326)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -364,7 +251,7 @@ for (x in 1:nrow(parcels)) {
  
  
 
-
+view(result)
 
 
 #
