@@ -26,8 +26,8 @@ library(furrr)
 
 
 
-townshipa <- "Jefferson"
-township <- "JEFFERSON"
+townshipa <- "Lake"
+township <- "Lake"
 
 bbox <- ccao::town_shp %>%
   filter(township_name == townshipa) %>%
@@ -77,7 +77,7 @@ network <- suppressWarnings({
 # Parcel data
 parcels <- st_read(
   glue::glue(
-    "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+    "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
   )) %>%
   mutate(id = row_number())
 
@@ -323,7 +323,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
 # Parcel data
 parcels <- st_read(
   glue::glue(
-    "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+    "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
   )) %>%
   mutate(id = row_number())
 
@@ -419,7 +419,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -501,7 +501,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -574,7 +574,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -649,7 +649,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -731,7 +731,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -803,7 +803,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -885,7 +885,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -967,7 +967,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -1053,7 +1053,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -1133,7 +1133,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -1216,7 +1216,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -1298,7 +1298,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -1378,7 +1378,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -1455,7 +1455,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -1539,7 +1539,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -1622,7 +1622,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -1702,7 +1702,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -1781,7 +1781,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -1861,7 +1861,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -1940,7 +1940,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -2020,7 +2020,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -2100,7 +2100,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -2177,7 +2177,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -2252,7 +2252,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
@@ -2331,14 +2331,14 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  # Parcel data
  parcels <- st_read(
    glue::glue(
-     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=TOWN%20OF%20{township}&$limit=1000000"
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
    )) %>%
    mutate(id = row_number())
  
  
  
  parcels <- parcels %>%
-   slice(130001: 132642)
+   slice(130001: 135000)
  
  
  
@@ -2404,4 +2404,5 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  
+
  
