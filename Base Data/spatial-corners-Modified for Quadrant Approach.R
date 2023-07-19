@@ -26,8 +26,8 @@ library(furrr)
 
 
 
-townshipa <- "Lake"
-township <- "Lake"
+townshipa <- "West Chicago"
+township <- "West"
 
 bbox <- ccao::town_shp %>%
   filter(township_name == townshipa) %>%
