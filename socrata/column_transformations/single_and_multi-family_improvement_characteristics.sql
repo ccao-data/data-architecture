@@ -1,3 +1,5 @@
+left_pad(`pin`, 14, '0')
+
 case
     when `char_type_resd` = 1 then '1 Story'
     when `char_type_resd` = 2 then '2 Story'
