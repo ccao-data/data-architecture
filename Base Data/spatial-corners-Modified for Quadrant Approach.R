@@ -2373,6 +2373,90 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  ggplot() +
+   geom_sf(data = final27,  aes(fill = result)) +
+   geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Define the township and file name
+ file_name <- paste0(township, "Final.shp")
+ 
+ # Specify the directory path
+ directory <- "Base Data"
+ 
+ # Create the complete file path
+ output_file <- file.path(directory, file_name)
+ 
+ # Create an sf object with your data
+ sf_obj <- Lakefinal  # Replace `your_sf_object` with your actual sf object
+ 
+ sf_obj <- sf_obj %>%
+   select(pin10, result, geometry)
+ 
+ # Save the complete shapefile
+ sf::st_write(sf_obj, output_file, append = FALSE)
+ 
+ 
+ 
+ Lakefinal <- rbind(final1, final2, final3, final4, final5, final6, final7, final8, final9, final10, final11, final12, final13, final14, final15, final16, final17, final18, final19, final20, final21, final22, final23, final24, final25, final26, final27, final28, final29, final30, final31, final32, final33, final34, final35, final36, final37, final38)
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Parcel data
+ parcels <- st_read(
+   glue::glue(
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
+   )) %>%
+   mutate(id = row_number())
+ 
+ 
+ 
+ parcels <- parcels %>%
+   slice(135001: 140000)
+ 
+ 
+ 
+ # Prepare inputs
+ parcels_buffered <- parcels %>%
+   st_transform(3435) %>%
+   st_buffer(dist = units::set_units(5, "m"))
+ 
+ network_trans  <- network %>%
+   activate("edges") %>%
+   activate("nodes") %>%
+   filter(!node_is_isolated()) %>%
+   activate("edges") %>%
+   st_as_sf() %>%
+   st_transform(3435)
+ 
+ 
+ # dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+ 
+ # 
+ result <- numeric(nrow(parcels))
+ # 
+ for (x in 1:nrow(parcels)) {
+   result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+   cat("Iteration:", x, "/", nrow(parcels), "\n")  # Print iteration progress
+ }
+ 
+ 
+ 
+ final28 <- cbind(parcels, result)
+ 
+ 
+ 
+ ggplot() +
    geom_sf(data = parcels) +
    geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
  
@@ -2384,7 +2468,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "27.shp")
+ file_name <- paste0(township, "28.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -2393,7 +2477,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  output_file <- file.path(directory, file_name)
  
  # Create an sf object with your data
- sf_obj <- final27  # Replace `your_sf_object` with your actual sf object
+ sf_obj <- final28  # Replace `your_sf_object` with your actual sf object
  
  sf_obj <- sf_obj %>%
    select(pin10, result, geometry)
@@ -2404,5 +2488,841 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  
-
  
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Parcel data
+ parcels <- st_read(
+   glue::glue(
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
+   )) %>%
+   mutate(id = row_number())
+ 
+ 
+ 
+ parcels <- parcels %>%
+   slice(140001: 145000)
+ 
+ 
+ 
+ # Prepare inputs
+ parcels_buffered <- parcels %>%
+   st_transform(3435) %>%
+   st_buffer(dist = units::set_units(5, "m"))
+ 
+ network_trans  <- network %>%
+   activate("edges") %>%
+   activate("nodes") %>%
+   filter(!node_is_isolated()) %>%
+   activate("edges") %>%
+   st_as_sf() %>%
+   st_transform(3435)
+ 
+ 
+ # dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+ 
+ # 
+ result <- numeric(nrow(parcels))
+ # 
+ for (x in 1:nrow(parcels)) {
+   result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+   cat("Iteration:", x, "/", nrow(parcels), "\n")  # Print iteration progress
+ }
+ 
+ 
+ 
+ final29 <- cbind(parcels, result)
+ 
+ 
+ 
+ ggplot() +
+   geom_sf(data = parcels) +
+   geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Define the township and file name
+ file_name <- paste0(township, "29.shp")
+ 
+ # Specify the directory path
+ directory <- "Base Data"
+ 
+ # Create the complete file path
+ output_file <- file.path(directory, file_name)
+ 
+ # Create an sf object with your data
+ sf_obj <- final29  # Replace `your_sf_object` with your actual sf object
+ 
+ sf_obj <- sf_obj %>%
+   select(pin10, result, geometry)
+ 
+ # Save the complete shapefile
+ sf::st_write(sf_obj, output_file, append = FALSE)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Parcel data
+ parcels <- st_read(
+   glue::glue(
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
+   )) %>%
+   mutate(id = row_number())
+ 
+ 
+ 
+ parcels <- parcels %>%
+   slice(145001: 150000)
+ 
+ 
+ 
+ # Prepare inputs
+ parcels_buffered <- parcels %>%
+   st_transform(3435) %>%
+   st_buffer(dist = units::set_units(5, "m"))
+ 
+ network_trans  <- network %>%
+   activate("edges") %>%
+   activate("nodes") %>%
+   filter(!node_is_isolated()) %>%
+   activate("edges") %>%
+   st_as_sf() %>%
+   st_transform(3435)
+ 
+ 
+ # dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+ 
+ # 
+ result <- numeric(nrow(parcels))
+ # 
+ for (x in 1:nrow(parcels)) {
+   result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+   cat("Iteration:", x, "/", nrow(parcels), "\n")  # Print iteration progress
+ }
+ 
+ 
+ 
+ final30 <- cbind(parcels, result)
+ 
+ 
+ 
+ ggplot() +
+   geom_sf(data = parcels) +
+   geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Define the township and file name
+ file_name <- paste0(township, "30.shp")
+ 
+ # Specify the directory path
+ directory <- "Base Data"
+ 
+ # Create the complete file path
+ output_file <- file.path(directory, file_name)
+ 
+ # Create an sf object with your data
+ sf_obj <- final30  # Replace `your_sf_object` with your actual sf object
+ 
+ sf_obj <- sf_obj %>%
+   select(pin10, result, geometry)
+ 
+ # Save the complete shapefile
+ sf::st_write(sf_obj, output_file, append = FALSE)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Parcel data
+ parcels <- st_read(
+   glue::glue(
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
+   )) %>%
+   mutate(id = row_number())
+ 
+ 
+ 
+ parcels <- parcels %>%
+   slice(150001: 155000)
+ 
+ 
+ 
+ # Prepare inputs
+ parcels_buffered <- parcels %>%
+   st_transform(3435) %>%
+   st_buffer(dist = units::set_units(5, "m"))
+ 
+ network_trans  <- network %>%
+   activate("edges") %>%
+   activate("nodes") %>%
+   filter(!node_is_isolated()) %>%
+   activate("edges") %>%
+   st_as_sf() %>%
+   st_transform(3435)
+ 
+ 
+ # dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+ 
+ # 
+ result <- numeric(nrow(parcels))
+ # 
+ for (x in 1:nrow(parcels)) {
+   result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+   cat("Iteration:", x, "/", nrow(parcels), "\n")  # Print iteration progress
+ }
+ 
+ 
+ 
+ final31 <- cbind(parcels, result)
+ 
+ 
+ 
+ ggplot() +
+   geom_sf(data = parcels) +
+   geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Define the township and file name
+ file_name <- paste0(township, "31.shp")
+ 
+ # Specify the directory path
+ directory <- "Base Data"
+ 
+ # Create the complete file path
+ output_file <- file.path(directory, file_name)
+ 
+ # Create an sf object with your data
+ sf_obj <- final31  # Replace `your_sf_object` with your actual sf object
+ 
+ sf_obj <- sf_obj %>%
+   select(pin10, result, geometry)
+ 
+ # Save the complete shapefile
+ sf::st_write(sf_obj, output_file, append = FALSE)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Parcel data
+ parcels <- st_read(
+   glue::glue(
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
+   )) %>%
+   mutate(id = row_number())
+ 
+ 
+ 
+ parcels <- parcels %>%
+   slice(155001: 160000)
+ 
+ 
+ 
+ # Prepare inputs
+ parcels_buffered <- parcels %>%
+   st_transform(3435) %>%
+   st_buffer(dist = units::set_units(5, "m"))
+ 
+ network_trans  <- network %>%
+   activate("edges") %>%
+   activate("nodes") %>%
+   filter(!node_is_isolated()) %>%
+   activate("edges") %>%
+   st_as_sf() %>%
+   st_transform(3435)
+ 
+ 
+ # dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+ 
+ # 
+ result <- numeric(nrow(parcels))
+ # 
+ for (x in 1:nrow(parcels)) {
+   result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+   cat("Iteration:", x, "/", nrow(parcels), "\n")  # Print iteration progress
+ }
+ 
+ 
+ 
+ final32 <- cbind(parcels, result)
+ 
+ 
+ 
+ ggplot() +
+   geom_sf(data = parcels) +
+   geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Define the township and file name
+ file_name <- paste0(township, "32.shp")
+ 
+ # Specify the directory path
+ directory <- "Base Data"
+ 
+ # Create the complete file path
+ output_file <- file.path(directory, file_name)
+ 
+ # Create an sf object with your data
+ sf_obj <- final32  # Replace `your_sf_object` with your actual sf object
+ 
+ sf_obj <- sf_obj %>%
+   select(pin10, result, geometry)
+ 
+ # Save the complete shapefile
+ sf::st_write(sf_obj, output_file, append = FALSE)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Parcel data
+ parcels <- st_read(
+   glue::glue(
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
+   )) %>%
+   mutate(id = row_number())
+ 
+ 
+ 
+ parcels <- parcels %>%
+   slice(160001: 165000)
+ 
+ 
+ 
+ # Prepare inputs
+ parcels_buffered <- parcels %>%
+   st_transform(3435) %>%
+   st_buffer(dist = units::set_units(5, "m"))
+ 
+ network_trans  <- network %>%
+   activate("edges") %>%
+   activate("nodes") %>%
+   filter(!node_is_isolated()) %>%
+   activate("edges") %>%
+   st_as_sf() %>%
+   st_transform(3435)
+ 
+ 
+ # dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+ 
+ # 
+ result <- numeric(nrow(parcels))
+ # 
+ for (x in 1:nrow(parcels)) {
+   result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+   cat("Iteration:", x, "/", nrow(parcels), "\n")  # Print iteration progress
+ }
+ 
+ 
+ 
+ final33 <- cbind(parcels, result)
+ 
+ 
+ 
+ ggplot() +
+   geom_sf(data = parcels) +
+   geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Define the township and file name
+ file_name <- paste0(township, "33.shp")
+ 
+ # Specify the directory path
+ directory <- "Base Data"
+ 
+ # Create the complete file path
+ output_file <- file.path(directory, file_name)
+ 
+ # Create an sf object with your data
+ sf_obj <- final33  # Replace `your_sf_object` with your actual sf object
+ 
+ sf_obj <- sf_obj %>%
+   select(pin10, result, geometry)
+ 
+ # Save the complete shapefile
+ sf::st_write(sf_obj, output_file, append = FALSE)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Parcel data
+ parcels <- st_read(
+   glue::glue(
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
+   )) %>%
+   mutate(id = row_number())
+ 
+ 
+ 
+ parcels <- parcels %>%
+   slice(165001: 170000)
+ 
+ 
+ 
+ # Prepare inputs
+ parcels_buffered <- parcels %>%
+   st_transform(3435) %>%
+   st_buffer(dist = units::set_units(5, "m"))
+ 
+ network_trans  <- network %>%
+   activate("edges") %>%
+   activate("nodes") %>%
+   filter(!node_is_isolated()) %>%
+   activate("edges") %>%
+   st_as_sf() %>%
+   st_transform(3435)
+ 
+ 
+ # dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+ 
+ # 
+ result <- numeric(nrow(parcels))
+ # 
+ for (x in 1:nrow(parcels)) {
+   result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+   cat("Iteration:", x, "/", nrow(parcels), "\n")  # Print iteration progress
+ }
+ 
+ 
+ 
+ final34 <- cbind(parcels, result)
+ 
+ 
+ 
+ ggplot() +
+   geom_sf(data = parcels) +
+   geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Define the township and file name
+ file_name <- paste0(township, "34.shp")
+ 
+ # Specify the directory path
+ directory <- "Base Data"
+ 
+ # Create the complete file path
+ output_file <- file.path(directory, file_name)
+ 
+ # Create an sf object with your data
+ sf_obj <- final34  # Replace `your_sf_object` with your actual sf object
+ 
+ sf_obj <- sf_obj %>%
+   select(pin10, result, geometry)
+ 
+ # Save the complete shapefile
+ sf::st_write(sf_obj, output_file, append = FALSE)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Parcel data
+ parcels <- st_read(
+   glue::glue(
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
+   )) %>%
+   mutate(id = row_number())
+ 
+ 
+ 
+ parcels <- parcels %>%
+   slice(170001: 175000)
+ 
+ 
+ 
+ # Prepare inputs
+ parcels_buffered <- parcels %>%
+   st_transform(3435) %>%
+   st_buffer(dist = units::set_units(5, "m"))
+ 
+ network_trans  <- network %>%
+   activate("edges") %>%
+   activate("nodes") %>%
+   filter(!node_is_isolated()) %>%
+   activate("edges") %>%
+   st_as_sf() %>%
+   st_transform(3435)
+ 
+ 
+ # dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+ 
+ # 
+ result <- numeric(nrow(parcels))
+ # 
+ for (x in 1:nrow(parcels)) {
+   result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+   cat("Iteration:", x, "/", nrow(parcels), "\n")  # Print iteration progress
+ }
+ 
+ 
+ 
+ final35 <- cbind(parcels, result)
+ 
+ 
+ 
+ ggplot() +
+   geom_sf(data = parcels) +
+   geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Define the township and file name
+ file_name <- paste0(township, "35.shp")
+ 
+ # Specify the directory path
+ directory <- "Base Data"
+ 
+ # Create the complete file path
+ output_file <- file.path(directory, file_name)
+ 
+ # Create an sf object with your data
+ sf_obj <- final35  # Replace `your_sf_object` with your actual sf object
+ 
+ sf_obj <- sf_obj %>%
+   select(pin10, result, geometry)
+ 
+ # Save the complete shapefile
+ sf::st_write(sf_obj, output_file, append = FALSE)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Parcel data
+ parcels <- st_read(
+   glue::glue(
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
+   )) %>%
+   mutate(id = row_number())
+ 
+ 
+ 
+ parcels <- parcels %>%
+   slice(175001: 180000)
+ 
+ 
+ 
+ # Prepare inputs
+ parcels_buffered <- parcels %>%
+   st_transform(3435) %>%
+   st_buffer(dist = units::set_units(5, "m"))
+ 
+ network_trans  <- network %>%
+   activate("edges") %>%
+   activate("nodes") %>%
+   filter(!node_is_isolated()) %>%
+   activate("edges") %>%
+   st_as_sf() %>%
+   st_transform(3435)
+ 
+ 
+ # dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+ 
+ # 
+ result <- numeric(nrow(parcels))
+ # 
+ for (x in 1:nrow(parcels)) {
+   result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+   cat("Iteration:", x, "/", nrow(parcels), "\n")  # Print iteration progress
+ }
+ 
+ 
+ 
+ final36 <- cbind(parcels, result)
+ 
+ 
+ 
+ ggplot() +
+   geom_sf(data = parcels) +
+   geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Define the township and file name
+ file_name <- paste0(township, "36.shp")
+ 
+ # Specify the directory path
+ directory <- "Base Data"
+ 
+ # Create the complete file path
+ output_file <- file.path(directory, file_name)
+ 
+ # Create an sf object with your data
+ sf_obj <- final36  # Replace `your_sf_object` with your actual sf object
+ 
+ sf_obj <- sf_obj %>%
+   select(pin10, result, geometry)
+ 
+ # Save the complete shapefile
+ sf::st_write(sf_obj, output_file, append = FALSE)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Parcel data
+ parcels <- st_read(
+   glue::glue(
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
+   )) %>%
+   mutate(id = row_number())
+ 
+ 
+ 
+ parcels <- parcels %>%
+   slice(180001: 185000)
+ 
+ 
+ 
+ # Prepare inputs
+ parcels_buffered <- parcels %>%
+   st_transform(3435) %>%
+   st_buffer(dist = units::set_units(5, "m"))
+ 
+ network_trans  <- network %>%
+   activate("edges") %>%
+   activate("nodes") %>%
+   filter(!node_is_isolated()) %>%
+   activate("edges") %>%
+   st_as_sf() %>%
+   st_transform(3435)
+ 
+ 
+ # dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+ 
+ # 
+ result <- numeric(nrow(parcels))
+ # 
+ for (x in 1:nrow(parcels)) {
+   result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+   cat("Iteration:", x, "/", nrow(parcels), "\n")  # Print iteration progress
+ }
+ 
+ 
+ 
+ final37 <- cbind(parcels, result)
+ 
+ 
+ 
+ ggplot() +
+   geom_sf(data = parcels) +
+   geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Define the township and file name
+ file_name <- paste0(township, "37.shp")
+ 
+ # Specify the directory path
+ directory <- "Base Data"
+ 
+ # Create the complete file path
+ output_file <- file.path(directory, file_name)
+ 
+ # Create an sf object with your data
+ sf_obj <- final37  # Replace `your_sf_object` with your actual sf object
+ 
+ sf_obj <- sf_obj %>%
+   select(pin10, result, geometry)
+ 
+ # Save the complete shapefile
+ sf::st_write(sf_obj, output_file, append = FALSE)
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Parcel data
+ parcels <- st_read(
+   glue::glue(
+     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
+   )) %>%
+   mutate(id = row_number())
+ 
+ 
+ 
+ parcels <- parcels %>%
+   slice(185001: 188219)
+ 
+ 
+ 
+ # Prepare inputs
+ parcels_buffered <- parcels %>%
+   st_transform(3435) %>%
+   st_buffer(dist = units::set_units(5, "m"))
+ 
+ network_trans  <- network %>%
+   activate("edges") %>%
+   activate("nodes") %>%
+   filter(!node_is_isolated()) %>%
+   activate("edges") %>%
+   st_as_sf() %>%
+   st_transform(3435)
+ 
+ 
+ # dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+ 
+ # 
+ result <- numeric(nrow(parcels))
+ # 
+ for (x in 1:nrow(parcels)) {
+   result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
+   cat("Iteration:", x, "/", nrow(parcels), "\n")  # Print iteration progress
+ }
+ 
+ 
+ 
+ final38 <- cbind(parcels, result)
+ 
+ 
+ 
+ ggplot() +
+   geom_sf(data = parcels) +
+   geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ # Define the township and file name
+ file_name <- paste0(township, "38.shp")
+ 
+ # Specify the directory path
+ directory <- "Base Data"
+ 
+ # Create the complete file path
+ output_file <- file.path(directory, file_name)
+ 
+ # Create an sf object with your data
+ sf_obj <- final38  # Replace `your_sf_object` with your actual sf object
+ 
+ sf_obj <- sf_obj %>%
+   select(pin10, result, geometry)
+ 
+ # Save the complete shapefile
+ sf::st_write(sf_obj, output_file, append = FALSE)
