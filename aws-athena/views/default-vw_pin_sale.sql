@@ -62,7 +62,7 @@ unique_sales AS (
             -- price, date, and pin.
             ROW_NUMBER() OVER (
                 PARTITION BY sales.parid, sales.saledt
-                ORDER BY sales.price, sales.salekey DESC
+                ORDER BY sales.price DESC, sales.salekey ASC
             ) AS max_price,
             -- Some pins sell for the exact same price a few months after
             -- they're sold. These sales are unecessary for modeling and may be
@@ -71,7 +71,7 @@ unique_sales AS (
             -- price, date, and pin.
             LAG(DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) OVER (
                 PARTITION BY sales.parid, sales.price
-                ORDER BY sales.saledt, sales.salekey
+                ORDER BY sales.saledt ASC, sales.salekey ASC
             ) AS same_price_earlier_date
         FROM iasworld.sales
         LEFT JOIN calculated
