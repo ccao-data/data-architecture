@@ -31,4 +31,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_R: true
           VALIDATE_SQLFLUFF: true
-          SQLFLUFF_CONFIG_FILE: /.sqlfluff
+          SQLFLUFF_CONFIG_FILE: ./.sqlfluff
