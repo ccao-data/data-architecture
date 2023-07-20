@@ -184,6 +184,21 @@ We should be able to:
 * See results of ETL jobs and debug them in cases of failure
 * Notify ourselves of job failures or warnings
 
+### Athena integration
+
+#### Motivation
+
+Our data stack is currently built on top of [AWS
+Athena](https://aws.amazon.com/athena/), in particular all of our views on
+top of iasWorld. Whatever tool we use for our catalog should work with Athena,
+or else we would need to rewrite all of our existing view code.
+
+#### Requirements
+
+We should be able to:
+
+* Define and document views in AWS Athena
+
 ## Design
 
 ## Options
@@ -256,7 +271,7 @@ orchestration and monitoring.
 #### Cons
 
 * No support for R scripting, so we would have to either rewrite it or write some kind of hack like running our R scripts from a Python function
-* We would need to use a community plugin for Glue/Athena support
+* We would need to use a community plugin for Glue/Athena support; this plugin is not supported on dbt Cloud, if we ever decided to move to that
 * Requires a separate orchestrator for automation, monitoring, and alerting
 
 #### Raw notes
@@ -343,3 +358,9 @@ was on 6/13
   filtering (in Athena) to get the "correct" records out of iasWorld." Where
   does this deduping/filtering happen? Can we easily port it over to the new
   catalog?
+
+## Notes from chat with Dan
+
+* Catalog docs don't necessarily need to be public
+* $100/mo is actually reasonable for a tool if need be
+* Orchestration is not our main blocker right now; validation + docs are
