@@ -29,6 +29,7 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_PYTHON: true
           VALIDATE_R: true
           VALIDATE_SQLFLUFF: true
           SQLFLUFF_CONFIG_FILE: ./.sqlfluff
