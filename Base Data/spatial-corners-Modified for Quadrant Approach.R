@@ -1852,9 +1852,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  sf::st_write(sf_obj, output_file, append = FALSE)
  
  
- 
- 
- 
+
  
  
  
