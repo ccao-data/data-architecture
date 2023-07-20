@@ -186,7 +186,7 @@ We should be able to:
 
 ## Design
 
-## Alternatives considered
+## Options
 
 ### [AWS
 Glue](https://aws.amazon.com/blogs/big-data/getting-started-with-aws-glue-data-quality-from-the-aws-glue-data-catalog/)
@@ -201,12 +201,21 @@ Glue](https://aws.amazon.com/blogs/big-data/getting-started-with-aws-glue-data-q
 give me confidence in ease of use
 * Pricing might not scale well with usage
 
+#### Raw notes
+
+* [Version control integration](https://aws.amazon.com/blogs/big-data/code-versioning-using-aws-glue-studio-and-github/) seems like it requires some AWS spaghetti code
+* As seen in the [quickstart guide](https://docs.aws.amazon.com/glue/latest/dg/start-console-overview.html), authoring jobs seems very UI-heavy
+* [Schemas](https://docs.aws.amazon.com/glue/latest/dg/schema-registry.html#schema-registry-schemas) are defined as either JSON or protobuf
+
 ### dbt
 
 dbt is a "Data Build Tool" that allows users to define and document ETL
 workflows using common software engineering patterns like version control
 and modularization. For a longer introduction, see [the
 docs](https://docs.getdbt.com/docs/introduction).
+
+For a fun take on what dbt is through the lens of what it is _not_, see
+[this blog post](https://stkbailey.substack.com/p/what-exactly-isnt-dbt).
 
 There are two distinct tools that are both somewhat confusingly referred to as
 "dbt":
@@ -219,10 +228,36 @@ There are two distinct tools that are both somewhat confusingly referred to as
   * **Cons**: Basically only handles DAG builds (equivalent to e.g. CMake); orchestration/monitoring/etc would have to be handled by another tool
 
 dbt Cloud would save us time in the short run, but is likely prohibitively
-expensive for our office, and we also have no guarantee of how long the company
+expensive for our office, and we also have no guarantee how long the company
 will survive. Instead, it seems more prudent for us to build on top of dbt Core
 and integrate it with our own orchestration/monitoring/authentication services.
 Hence, when this doc refers to "dbt", we are actually referring to dbt Core.
+
+The downside of this choice is that we would have to choose a separate tool for
+orchestrating and monitoring our DAGs if we move forward with dbt. This is an
+important fact to note in our decision, because [orchestrators are notoriously
+controversial](https://stkbailey.substack.com/p/what-exactly-isnt-dbt):
+
+> Every other application, besides dbt, is an orchestrator. Every application
+> pays the price for it. Every person hates every application as soon as it
+> starts orchestrating. To orchestrate is to grapple with reality, to embrace
+> mortality, to welcome death.
+
+As such, we evaluate this choice with an eye towards the options for third-party
+orchestration and monitoring.
+
+#### Pros
+
+* Designed around software engineering best practices (version control, reproducibility, testing, etc.)
+* Open source
+* Built on top of old, comfortable tools (command line, SQL, Python)
+* Documentation and data validation out of the box
+
+#### Cons
+
+* No support for R scripting, so we would have to either rewrite it or write some kind of hack like running our R scripts from a Python function
+* We would need to use a community plugin for Glue/Athena support
+* Requires a separate orchestrator for automation, monitoring, and alerting
 
 #### Raw notes
 
@@ -246,13 +281,14 @@ Hence, when this doc refers to "dbt", we are actually referring to dbt Core.
       * Airflow
       * [Prefect](https://www.prefect.io/)
       * [Dagster](https://dagster.io/)
-  * Views
+      * [Meltano](https://docs.meltano.com/getting-started/meltano-at-a-glance)
+  * Views and joins
     * [Docs](https://docs.getdbt.com/terms/view)
     * Can be defined and documented like other tables
   * Data validation
     * [Tests](https://docs.getdbt.com/docs/build/tests) can be any SQL query
     * Two failiure levels: `fail` and `warn`
-  * Bidirectional data flows
+  * Automated flagging
     * Nothing built in; we would have to produce output views and then use the
       orchestration layer to define an automated process
   * Monitoring
@@ -263,20 +299,14 @@ Hence, when this doc refers to "dbt", we are actually referring to dbt Core.
 * Web UI seems [expensive](https://www.getdbt.com/pricing/)
   * Team is $100/seat/mo, and we likely need Enterprise features
     * E.g. Team plan only allows 5 readonly users
-  * Core example uses
-    [Meltano](https://docs.meltano.com/getting-started/meltano-at-a-glance)
-    for ETL
+  * Core example uses [Meltano](https://docs.meltano.com/getting-started/meltano-at-a-glance) for ETL
 * A lot of useful stuff is only available in Cloud, including:
   * CI/CD
   * Job scheduling
   * Deploy environments
   * Built-in IDE
   * Job monitoring
-
-#### Pros
-* Emerging industry standard
-
-#### Cons
+* There are clearly [a lot of orchestrators](https://www.reddit.com/r/dataengineering/comments/10x4n7n/best_orchestration_tool_to_run_dbt_projects/)!
 
 ### [Apache Atlas](https://atlas.apache.org)
 
