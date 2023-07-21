@@ -34,5 +34,15 @@ models:
             - case_no
       # TODO: Classes match with relevant appeal type at case-level
       # TODO: Stage values make comparative sense in context of appeal outcome
-
+  # TODO: Tests for these models
+  - name: vw_card_res_char_test
+    description: '{{ doc("vw_card_res_char_test") }}'
+  - name: vw_pin_address_test
+    description: '{{ doc("vw_pin_address_test") }}'
+  - name: vw_pin_condo_char_test
+    description: '{{ doc("vw_pin_condo_char_test") }}'
+  - name: vw_pin_sale_test
+    description: '{{ doc("vw_pin_sale_test") }}'
+  - name: vw_pin_universe_test
+    description: '{{ doc("vw_pin_universe_test") }}'
 
