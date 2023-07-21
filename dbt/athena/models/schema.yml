@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: vw_pin_history_test
+    description: '{{ doc("vw_pin_history_test") }}'
+    tests:
+      # Unique by 14-digit PIN and year
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - pin
+            - year
+  - name: vw_pin_value_test
+    description: '{{ doc("vw_pin_value_test") }}'
+    tests:
+      # Unique by 14-digit PIN and year
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - pin
+            - year
+      # Missing test here: "values match what's in whatever iasworld view
+      # feeds our website
+  - name: vw_pin_appeal_test
+    description: '{{ doc("vw_pin_appeal_test") }}'
+    tests:
+      # Unique by 14-digit PIN and year
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - pin
+            - year
+      # Unique by case number and year
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - year
+            - case_no
+      # TODO: Classes match with relevant appeal type at case-level
+      # TODO: Stage values make comparative sense in context of appeal outcome
+
+
