@@ -35,6 +35,12 @@ SELECT
 
     uni.*,
 
+    CASE
+        WHEN ch.is_parking_space = TRUE
+            OR ch.is_common_area = TRUE THEN 'NONLIVABLE'
+        ELSE 'CONDO'
+    END AS meta_modeling_group,
+
     -- Proration fields. Buildings can be split over multiple PINs, with each
     -- PIN owning a percentage of a building. For residential buildings, if
     -- a proration rate is NULL or 0, it's almost always actually 1

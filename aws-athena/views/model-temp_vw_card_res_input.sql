@@ -44,6 +44,12 @@ forward_fill AS (
 
         uni.*,
 
+        CASE
+            WHEN uni.meta_class IN ('211', '212') THEN 'MF'
+            WHEN uni.meta_class IN ('218', '219') THEN 'BB'
+            ELSE 'SF'
+        END AS meta_modeling_group,
+
         -- Proration fields. Buildings can be split over multiple PINs, with
         -- each PIN owning a percentage of a building. For residential
         -- buildings, if a proration rate is NULL or 0, it's almost always

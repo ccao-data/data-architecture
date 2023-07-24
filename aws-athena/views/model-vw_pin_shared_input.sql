@@ -91,11 +91,6 @@ SELECT
     uni.pin10 AS meta_pin10,
     uni.year AS meta_year,
     uni.class AS meta_class,
-    CASE
-        WHEN uni.class IN ('211', '212') THEN 'MF'
-        WHEN uni.class IN ('218', '219') THEN 'BB'
-        ELSE 'SF'
-    END AS meta_modeling_group,
     uni.triad_name AS meta_triad_name,
     uni.triad_code AS meta_triad_code,
     uni.township_name AS meta_township_name,
