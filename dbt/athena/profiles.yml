@@ -10,3 +10,4 @@ athena:
       schema: dbt-test
       # "database" here corresponds to a Glue data catalog
       database: awsdatacatalog
+      threads: 5
