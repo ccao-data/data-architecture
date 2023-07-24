@@ -15,18 +15,31 @@ pip](https://docs.getdbt.com/docs/core/pip-install).
 * Python3 with venv installed (`sudo apt install python3-venv`)
 * [AWS CLI installed
   locally](https://github.com/ccao-data/wiki/blob/master/How-To/Connect-to-AWS-Resources.md)
+  * You'll also need permissions for Athena, Glue, and S3
 
 ### Install dependencies
 
 ```
-python3 -m venv .venv
-source .venv/bin/activate
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 cd athena
 dbt deps
 ```
 
 ## Usage
+
+Make sure you have the virtual environment activated:
+
+```
+source venv/bin/activate
+```
+
+Authenticate with AWS MFA if you haven't already today:
+
+```
+aws-mfa
+```
 
 All dbt commands should be run in the project directory:
 
@@ -59,4 +72,10 @@ Run the tests:
 
 ```
 dbt test
+```
+
+Run tests for only one model:
+
+```
+dbt test --select <model_name>
 ```
