@@ -103,7 +103,6 @@ We should be able to:
   * ETL operations
   * Databases, tables, views, schemas
   * Manual processes
-* Share docs with less technical teammates
 
 ### Orchestration and automation
 
@@ -129,6 +128,17 @@ We should be able to:
 ### Simpler joins and views
 
 #### Motivation
+
+From the project README:
+
+> In addition to the first-party backend data, the Data Department also attaches
+> a plethora of third-party data that we use for modeling and reporting. This
+> includes things like spatial data (neighborhood, census tract) and economic
+> data (median income).
+>
+> Joining this third-party data to the primary records can be complex, and
+> currently involves running many CREATE TABLE AS statements. There's lots of
+> room for error in this process.
 
 #### Requirements
 
@@ -201,26 +211,8 @@ We should be able to:
 
 ## Design
 
-## Options
-
-### [AWS
-Glue](https://aws.amazon.com/blogs/big-data/getting-started-with-aws-glue-data-quality-from-the-aws-glue-data-catalog/)
-
-#### Pros
-* Built-in to AWS
-* Pricing is similar to ETL tasks
-
-#### Cons
-* Even more AWS lockin
-* "Push logs to CloudWatch" and "query failures using Athena" do not
-give me confidence in ease of use
-* Pricing might not scale well with usage
-
-#### Raw notes
-
-* [Version control integration](https://aws.amazon.com/blogs/big-data/code-versioning-using-aws-glue-studio-and-github/) seems like it requires some AWS spaghetti code
-* As seen in the [quickstart guide](https://docs.aws.amazon.com/glue/latest/dg/start-console-overview.html), authoring jobs seems very UI-heavy
-* [Schemas](https://docs.aws.amazon.com/glue/latest/dg/schema-registry.html#schema-registry-schemas) are defined as either JSON or protobuf
+After a decent amount of research and experimentation, we propose to build our
+data catalog and data integrity checks in **dbt**.
 
 ### dbt
 
@@ -236,16 +228,19 @@ There are two distinct tools that are both somewhat confusingly referred to as
 "dbt":
 
 1. **dbt Cloud**: The SaaS version of dbt, including a web view with CI/CD, orchestration, monitoring, RBAC, and an IDE
-  * **Pros**: Provides all the features we want for a data catalog
-  * **Cons**: Super expensive (minimum $100/seat/mo); we don't control it
+  * **Pros**: Provides a full-featured, hosted data catalog service
+  * **Cons**: Super expensive (minimum $100/seat/mo); owned and operated by a VC-funded startup
 2. **dbt Core**: Open source CLI that dbt Cloud is built on top of
-  * **Pros**: Free and open source; we would have full control
-  * **Cons**: Basically only handles DAG builds (equivalent to e.g. CMake); orchestration/monitoring/etc would have to be handled by another tool
+  * **Pros**: Free and open source; users have full control and ownership
+  * **Cons**: Basically only handles DAG builds (equivalent to e.g. CMake); orchestration/monitoring has to be handled by another tool
 
-dbt Cloud would save us time in the short run, but is likely prohibitively
-expensive for our office, and we also have no guarantee how long the company
-will survive. Instead, it seems more prudent for us to build on top of dbt Core
-and integrate it with our own orchestration/monitoring/authentication services.
+dbt Cloud might save us time in the short run, but the process to get it
+approved and procured may take a number of months. It also seems risky to
+build our catalog on top of a VC-funded service, and the
+orchestration/monitoring tools it provides on top of the Core features
+are not high priority for us.
+As such, we think it would be  more prudent for us to build with dbt Core
+and design our own orchestration/monitoring/authentication integrations on top.
 Hence, when this doc refers to "dbt", we are actually referring to dbt Core.
 
 The downside of this choice is that we would have to choose a separate tool for
@@ -258,23 +253,34 @@ controversial](https://stkbailey.substack.com/p/what-exactly-isnt-dbt):
 > starts orchestrating. To orchestrate is to grapple with reality, to embrace
 > mortality, to welcome death.
 
-As such, we evaluate this choice with an eye towards the options for third-party
+As such, we evaluate this choice with an eye towards options for third-party
 orchestration and monitoring.
+
+#### Demo
+
+See the
+[`jeancochrane/dbt-spike`](https://github.com/ccao-data/data-architecture/tree/jeancochrane/dbt-spike/dbt)
+branch of this repo for an example of a simple dbt setup using our views.
 
 #### Pros
 
 * Designed around software engineering best practices (version control, reproducibility, testing, etc.)
-* Open source
-* Built on top of old, comfortable tools (command line, SQL, Python)
+* Free and open source
+* Built on top of established, familiar tools (e.g. command line, SQL, Python)
 * Documentation and data validation out of the box
 
 #### Cons
 
-* No support for R scripting, so we would have to either rewrite it or write some kind of hack like running our R scripts from a Python function
-* We would need to use a community plugin for Glue/Athena support; this plugin is not supported on dbt Cloud, if we ever decided to move to that
+* No native support for R scripting as a means of building models, so we would have to either rewrite our raw data extraction scripts or use some kind of hack like running our R scripts from a Python function
+* We would need to use a [community plugin](https://dbt-athena.github.io/) for Athena support; this plugin is not supported on dbt Cloud, if we ever decided to move to that
 * Requires a separate orchestrator for automation, monitoring, and alerting
+* Tests currently do not support the same rich documentation descriptions that other entities do (see [this GitHub issue](https://github.com/dbt-labs/dbt-core/issues/2578))
 
-#### Raw notes
+#### Raw dbt notes
+
+<details>
+<summary>Click here for raw notes on dbt</summary>
+<br>
 
 * Requirements
   * Referential integrity
@@ -323,7 +329,62 @@ orchestration and monitoring.
   * Job monitoring
 * There are clearly [a lot of orchestrators](https://www.reddit.com/r/dataengineering/comments/10x4n7n/best_orchestration_tool_to_run_dbt_projects/)!
 
+</details>
+
+## Alternatives considered
+
+### [AWS Glue](https://aws.amazon.com/glue/)
+
+AWS Glue is an AWS service for ETL. It also provides utilities for data
+quality checks and data cataloging.
+
+#### Pros
+* Built-in to AWS, which we are already locked into
+* High confidence that this service will last for a long time
+* Pricing for data integrity checks is similar to running ETL tasks
+
+#### Cons
+* It may be a strategic risk to lock ourselves into AWS even further
+* "Push logs to CloudWatch" and "query failures using Athena" do not
+give me confidence in ease of use
+* No easy way of keeping code and configuration under version control
+* No data documentation beyond what is visible in the AWS console
+
+#### Raw notes
+
+<details>
+<summary>Click here for raw notes on AWS Glue</summary>
+<br>
+
+* (Getting started guide for data quality)[https://aws.amazon.com/blogs/big-data/getting-started-with-aws-glue-data-quality-from-the-aws-glue-data-catalog/]
+* [Version control integration](https://aws.amazon.com/blogs/big-data/code-versioning-using-aws-glue-studio-and-github/) seems like it requires some AWS spaghetti code
+* As seen in the [quickstart guide](https://docs.aws.amazon.com/glue/latest/dg/start-console-overview.html), authoring jobs seems very UI-heavy
+* [Schemas](https://docs.aws.amazon.com/glue/latest/dg/schema-registry.html#schema-registry-schemas) are defined as either JSON or protobuf
+
+</details>
+
+### [Great Expectations](https://greatexpectations.io/gx-oss)
+
+Great Expectations is an open source Python library for data validation. It
+is often used for data integrity in conjunction with dbt, most notably in the
+[Meltano](https://docs.meltano.com/getting-started/meltano-at-a-glance/)
+ELT stack.
+
+#### Pros
+* Simple design (data quality checks are just Python functions)
+* More extensive documentation of tests than dbt
+* Native Athena support
+* Validation runs can [output HTML](https://docs.greatexpectations.io/docs/terms/data_docs) or other [custom rendering formats](https://docs.greatexpectations.io/docs/terms/renderer/)
+
+#### Cons
+* Documentation of non-test entities is less featureful than dbt (e.g. no lineage graphs)
+* Can't build or version views; can only run integrity checks
+* Only satisfies data validation requirement
+* [Custom checks](https://docs.greatexpectations.io/docs/guides/expectations/creating_custom_expectations/overview) are complicated and must be defined in Python
+
 ### [Apache Atlas](https://atlas.apache.org)
+
+Apache Atlas is an open source data governance and metadata management service.
 
 #### Pros
 * Open source
@@ -333,16 +394,12 @@ orchestration and monitoring.
 * Uncertain how well maintained it is, e.g. on 7/18 the [last
 commit](https://github.com/apache/atlas/commit/75eb33f0fb3ac7baf6547bdd35bd65acdea0d8f9)
 was on 6/13
-
-### Custom software
-
-#### Pros
-* We would control every feature and can tailor it exactly to our needs
-
-#### Cons
-* Would likely require a huge amount of engineering time to ship basic features
+* Integrity checks require a [third-party package](https://github.com/osmlab/atlas-checks)
 
 ### A huge Excel spreadsheet
+
+Theoretically, we could use a large Excel spreadsheet to document our data,
+and write macros for running integrity checks.
 
 #### Pros
 * Easy for non-Data team members to operate
@@ -351,16 +408,4 @@ was on 6/13
 #### Cons
 * Excel macros are an esoteric art and will probably be hard to debug and
   maintain in the long run
-
-## Open questions
-
-* The project README says "We have to do a fairly large amount of deduping and
-  filtering (in Athena) to get the "correct" records out of iasWorld." Where
-  does this deduping/filtering happen? Can we easily port it over to the new
-  catalog?
-
-## Notes from chat with Dan
-
-* Catalog docs don't necessarily need to be public
-* $100/mo is actually reasonable for a tool if need be
-* Orchestration is not our main blocker right now; validation + docs are
+* No clear path forward for integrating with Athena
