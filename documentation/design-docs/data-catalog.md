@@ -214,8 +214,6 @@ We should be able to:
 After a decent amount of research and experimentation, we propose to build our
 data catalog and data integrity checks in **dbt**.
 
-### dbt
-
 dbt is a "Data Build Tool" that allows users to define and document ETL
 workflows using common software engineering patterns like version control
 and modularization. For a longer introduction, see [the
@@ -256,27 +254,115 @@ controversial](https://stkbailey.substack.com/p/what-exactly-isnt-dbt):
 As such, we evaluate this choice with an eye towards options for third-party
 orchestration and monitoring.
 
-#### Demo
+### Demo
 
 See the
 [`jeancochrane/dbt-spike`](https://github.com/ccao-data/data-architecture/tree/jeancochrane/dbt-spike/dbt)
 branch of this repo for an example of a simple dbt setup using our views.
 
-#### Pros
+### Requirements matrix
+
+| Requirement | dbt | Notes |
+| =========== | === | ===== |
+| Referential integrity    | Yes | Via tests. |
+| Schema consistency       | Yes | Via tests. |
+| Documentation            | Yes | Via docs generator. |
+| Orchestration/automation | No  | Requires dbt Cloud, or integration with another service. |
+| Simpler joins/views      | Sorta | Can't simplify views, but can help factor them out and document them better.|
+| Data validation          | Yes | Via tests. |
+| Automated flagging       | No  | Requires dbt Cloud, or integration with another service. |
+| Monitoring               | No  | Requires dbt Cloud, or integration with another service. |
+| Athena integration       | Yes | Via `dbt-athena-community` plugin. |
+
+After some discussion, we consider the lack of orchestration, automation,
+automated flagging, and monitoring to be acceptable. The only mission critical
+pieces are are flagging and monitoring, and we provide some thoughts on how
+to accomplish those goals using external services in the [Design](#design)
+section below.
+
+### Design
+
+Here is a sketch of how we plan to implement a workflow for cataloging
+and validating our data using dbt:
+
+#### Code organization
+
+* Our dbt configuration will be stored in a `dbt/` folder in the
+  `data-architecture` repo.
+* View definitions will be stored in a `models/` subdirectory, with
+  nested subdirectories for each schema (e.g. `default/`, `location/`).
+* Tests will be defined in a `schema.yml` file, and docs will be defined
+  as doc blocks in a `docs.md` file.
+    * It may end up being wise to split these files up by schema.
+* We will have two profiles, one for `dev` and one for `prod`, which will point
+  to two separate AWS data catalogs.
+    * We may want to eventually namespace these by users, but we should push off
+      that optimization until we run into conflicts.
+
+#### Building and updating views
+
+* Data science team members will edit views by editing the model files and
+  making pull requests against the `data-architecture/` repo.
+* Team members will build views manually by running `dbt run` from
+  the root of the folder.
+* In rare cases where we want to preserve the behavior of old views, we will
+  enable [dbt
+  versioning](https://docs.getdbt.com/docs/collaborate/govern/model-versions)
+  for those views.
+
+#### Building and updating documentation
+
+* Like views, documentation will be edited via pull request.
+* Documentation will be rebuilt by running `dbt docs generate` from the
+  root of the folder.
+* Documentation will be hosted as a static site on S3 with a CloudFront CDN.
+* We will define a helper script in the repo to update documentation.
+* As an optional improvement, we may decide to incorporate docs generation and
+  upload into a CI/CD step (GitHub Action).
+
+#### Running data integrity checks
+
+* Data integrity checks will run via the `dbt test` command, and will be defined
+  as a GitHub Action workflow.
+* Data integrity checks will be run once per night after the sqoop operation
+  completes.
+* The sqoop process will trigger data integrity checks by issuing an API request
+  to [trigger the GitHub Action
+  workflow](https://docs.github.com/en/rest/actions/workflows?apiVersion=2022-11-28#create-a-workflow-dispatch-event).
+* As an initial MVP, data integrity results will print to the console in the
+  output of the GitHub Action workflow.
+* As an initial MVP, we will subscribe to [workflow
+  notifications](https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs)
+  to get notified about results of data integrity checks.
+* As an iterative improvement, we will design a more complicated result
+  notification process using e.g. [stored dbt test
+  failures](https://docs.getdbt.com/reference/resource-configs/store_failures)
+  and [AWS SNS](https://aws.amazon.com/sns/) for notification management.
+
+### Pros
 
 * Designed around software engineering best practices (version control, reproducibility, testing, etc.)
 * Free and open source
 * Built on top of established, familiar tools (e.g. command line, SQL, Python)
 * Documentation and data validation out of the box
 
-#### Cons
+### Cons
 
 * No native support for R scripting as a means of building models, so we would have to either rewrite our raw data extraction scripts or use some kind of hack like running our R scripts from a Python function
 * We would need to use a [community plugin](https://dbt-athena.github.io/) for Athena support; this plugin is not supported on dbt Cloud, if we ever decided to move to that
 * Requires a separate orchestrator for automation, monitoring, and alerting
 * Tests currently do not support the same rich documentation descriptions that other entities do (see [this GitHub issue](https://github.com/dbt-labs/dbt-core/issues/2578))
 
-#### Raw dbt notes
+### Open questions
+
+* Given the way tests are defined in dbt, we expect each validation check to be
+  implemented as a query that runs against Athena. According to experiments
+  by other users, Athena has a soft concurrency limit of 4-5 queries at once
+  ([source](https://stackoverflow.com/q/57145967)). Given that table scans
+  take ~10s in my experience, is this flow going to scale to the size of the
+  validation we expect to need?
+
+### Raw dbt notes
 
 <details>
 <summary>Click here for raw notes on dbt</summary>
