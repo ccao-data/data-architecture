@@ -31,3 +31,7 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   athena:
     +materialized: view
+    default:
+      +schema: dbt-test-default
+    location:
+      +schema: dbt-test-location
