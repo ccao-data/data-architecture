@@ -23,7 +23,6 @@ pip](https://docs.getdbt.com/docs/core/pip-install).
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-cd athena
 dbt deps
 ```
 
@@ -39,12 +38,6 @@ Authenticate with AWS MFA if you haven't already today:
 
 ```
 aws-mfa
-```
-
-All dbt commands should be run in the project directory:
-
-```
-cd athena
 ```
 
 Build the models to create views in our Athena warehouse:

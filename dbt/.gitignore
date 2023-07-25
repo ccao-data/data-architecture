@@ -1,3 +1,6 @@
 .user.yml
 logs/
 venv/
+target/
+dbt_modules/
+dbt_packages/
