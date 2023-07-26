@@ -1,6 +1,6 @@
 {% macro log_results(results) %}
 
-  {% if execute %}
+    {% if execute %}
   {{ log("", info=True) }}
   {{ log("========== Begin Summary ==========", info=True) }}
   {% for res in results -%}
