@@ -1,0 +1,17 @@
+[sqlfluff:indentation]
+# Ideally we would like to lint template block indentation, but in practice
+# it doesn't work with dbt macros -- specifically, it doesn't know how to
+# properly nest blocks like `for` and `if` inside a macro tag like `test` or
+# `macro`. The dbt plugin is also slow, experimental, and requires access to
+# the data warehouse we use for dbt, which defeats the purpose of a pre-commit
+# hook. If we were to use dbt, we also wouldn't be able to set a different
+# templater for our non-dbt directories in this repo.
+# See: https://docs.sqlfluff.com/en/2.1.4/configuration.html#dbt-templater
+# for a good breakdown of the pros/cons of using the dbt plugin. Hopefully
+# future development will make it a more appealing choice.
+template_blocks_indent = False
+
+[sqlfluff:templater:jinja]
+# This allows sqlfluff to mock out basic dbt symbols without needing to use
+# the dbt plugin
+apply_dbt_builtins = True
