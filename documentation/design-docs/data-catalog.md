@@ -263,16 +263,16 @@ branch of this repo for an example of a simple dbt setup using our views.
 ### Requirements matrix
 
 | Requirement | dbt | Notes |
-| =========== | === | ===== |
-| Referential integrity    | Yes | Via tests. |
-| Schema consistency       | Yes | Via tests. |
-| Documentation            | Yes | Via docs generator. |
-| Orchestration/automation | No  | Requires dbt Cloud, or integration with another service. |
-| Simpler joins/views      | Sorta | Can't simplify views, but can help factor them out and document them better.|
-| Data validation          | Yes | Via tests. |
-| Automated flagging       | No  | Requires dbt Cloud, or integration with another service. |
-| Monitoring               | No  | Requires dbt Cloud, or integration with another service. |
-| Athena integration       | Yes | Via `dbt-athena-community` plugin. |
+| ----------- | --- | ----- |
+| Referential integrity    | ✅ | Via tests. |
+| Schema consistency       | ✅ | Via tests. |
+| Documentation            | ✅ | Via docs generator. |
+| Orchestration/automation | ❌  | Requires dbt Cloud, or integration with another service. |
+| Simpler joins/views      | 🟡 | Can't simplify views, but can help factor them out and document them better. |
+| Data validation          | ✅ | Via tests. |
+| Automated flagging       | ❌  | Requires dbt Cloud, or integration with another service. |
+| Monitoring               | ❌  | Requires dbt Cloud, or integration with another service. |
+| Athena integration       | ✅ | Via `dbt-athena-community` plugin. |
 
 After some discussion, we consider the lack of orchestration, automation,
 automated flagging, and monitoring to be acceptable. The only mission critical
