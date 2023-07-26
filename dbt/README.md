@@ -8,7 +8,9 @@ This directory stores the configuration for building our data catalog using
 These instructions are for Ubuntu, which is the only platform we've tested.
 
 For background, see the docs on [installing dbt with
-pip](https://docs.getdbt.com/docs/core/pip-install).
+pip](https://docs.getdbt.com/docs/core/pip-install). (You don't need to
+follow these docs in order to install dbt; the steps that follow will take
+care of that for you.)
 
 ### Requirements
 

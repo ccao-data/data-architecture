@@ -5,19 +5,19 @@
 
     {%- set conditions_list = [] %}
     {% for column_name in column_names %}
-  {% set conditions_list = conditions_list.append(
-    '(' + column_name + " like '%  %' or " + column_name + " like '% ' or " +
-    column_name + " like ' %')"
-  ) %}
+    {%- set conditions_list = conditions_list.append(
+        '(' + column_name + " like '%  %' or " + column_name +
+        " like '% ' or " + column_name + " like ' %')"
+    ) %}
 {%- endfor %}
 {%- set conditions = conditions_list | join(' or ') %}
 
-with validation_errors as (
-  select {{ columns }}
-  from {{ model }}
-  where {{ conditions }}
-)
-select *
-from validation_errors
+    with validation_errors as (
+        select {{ columns }}
+        from {{ model }}
+        where {{ conditions }}
+    )
+    select *
+    from validation_errors
 
 {% endtest %}
