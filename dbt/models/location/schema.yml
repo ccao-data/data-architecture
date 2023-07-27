@@ -27,6 +27,7 @@ models:
           additional_select_columns:
             - pin10
             - year
-      # TODO: Columns specific to certain locations only have values for that location
+      # TODO: Columns specific to certain locations only have values for that
+      # location
   - name: vw_pin10_location_fill_test
     description: '{{ doc("vw_pin10_location_fill_test") }}'

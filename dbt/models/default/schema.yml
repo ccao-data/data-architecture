@@ -69,7 +69,10 @@ models:
       - dbt_utils.expression_is_true:
           name: renovation_fields_match
           # char_renovation can be null, which we count here as falsey
-          expression: char_recent_renovation = (case when char_renovation = '1' then true else false end)
+          expression: >-
+            char_recent_renovation = (
+              case when char_renovation = '1' then true else false end
+            )
       # TODO: Characteristics columns should adhere to pre-determined criteria
   - name: vw_pin_address_test
     description: '{{ doc("vw_pin_address_test") }}'
@@ -107,7 +110,8 @@ models:
             - year
       # TODO: Non-liveable unit heuristics
       # TODO: Row count matches PARDAT for condo classes
-      # TODO: Non-unit and unit parcel count add up to total parcels per 10-digit PIN
+      # TODO: Non-unit and unit parcel count add up to total parcels per
+      # 10-digit PIN
       # TODO: Sum of proration rate never exceeds 1 per 10-digit PIN
       # TODO: Characteristics columns should adhere to pre-determined criteria
   - name: vw_pin_sale_test
@@ -131,7 +135,8 @@ models:
             - pin
             - year
           allowed_duplicates: 2
-      # TODO: Sale is validated (after sales validation has been added to iasworld)
+      # TODO: Sale is validated (after sales validation has been added to
+      # iasworld)
       # TODO: Validation is catching obvious outliers
       # TODO: Joins with other tables produce consistent number of rows
   - name: vw_pin_universe_test
@@ -153,4 +158,5 @@ models:
           name: class_count_is_consistent_by_year
           group_column: year
           count_column: class
-      # TODO: Data completeness correlates with availability of spatial data by year
+      # TODO: Data completeness correlates with availability of spatial data
+      # by year
