@@ -9,7 +9,7 @@ repos:
     rev: v0.19.1
     hooks:
       - id: sqlfmt
-        files: ^dbt/
-        types: [sql]
+        entry: sqlfmt -v --check dbt/analyses dbt/macros dbt/seeds dbt/snapshots dbt/tests
+        exclude: dbt/models/
         language_version: python
         additional_dependencies: ['.[jinjafmt]']

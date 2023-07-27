@@ -1,0 +1,20 @@
+# Reverse the policies set by dbt/.sqlfluff until we're ready to consolidate
+# these models
+[sqlfluff]
+exclude_rules = ambiguous.column_count, structure.column_order, RF04, ST05
+max_line_length = 80
+
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.identifiers]
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.functions]
+extended_capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.literals]
+capitalisation_policy = upper
+
+[sqlfluff:rules:capitalisation.types]
+extended_capitalisation_policy = upper
