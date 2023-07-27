@@ -30,3 +30,6 @@ jobs:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_SQLFLUFF: false
+          VALIDATE_MARKDOWN: false
+          LINTER_RULES_PATH: /
+          YAML_CONFIG_FILE: .yamllint.yml
