@@ -5,3 +5,11 @@ repos:
     hooks:
     -   id: sqlfluff-lint
     -   id: sqlfluff-fix
+  - repo: https://github.com/tconbeer/sqlfmt
+    rev: v0.19.1
+    hooks:
+      - id: sqlfmt
+        files: ^dbt/
+        types: [sql]
+        language_version: python
+        additional_dependencies: ['.[jinjafmt]']

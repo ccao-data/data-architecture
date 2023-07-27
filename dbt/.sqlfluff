@@ -1,3 +1,17 @@
+[sqlfluff]
+# Required to support sqlfmt. See:
+# https://docs.sqlfmt.com/integrations/sqlfluff
+exclude_rules = layout.indent, layout.cte_bracket, layout.select_targets
+
+[sqlfluff:rules]
+# These two rules are required to support sqlfmt
+capitalisation_policy = lower
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:convention.terminator]
+# Required to support sqlfmt
+multiline_newline = True
+
 [sqlfluff:indentation]
 # Ideally we would like to lint template block indentation, but in practice
 # it doesn't work with dbt macros -- specifically, it doesn't know how to
@@ -9,9 +23,9 @@
 # See: https://docs.sqlfluff.com/en/2.1.4/configuration.html#dbt-templater
 # for a good breakdown of the pros/cons of using the dbt plugin. Hopefully
 # future development will make it a more appealing choice.
-template_blocks_indent = False
+# template_blocks_indent = False
 
 [sqlfluff:templater:jinja]
 # This allows sqlfluff to mock out basic dbt symbols without needing to use
 # the dbt plugin
-apply_dbt_builtins = True
+# apply_dbt_builtins = True
