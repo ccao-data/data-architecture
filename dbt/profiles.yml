@@ -1,0 +1,13 @@
+athena:
+  target: dev
+  outputs:
+    dev:
+      type: athena
+      s3_staging_dir: s3://ccao-dbt-athena-test-us-east-1/results/
+      s3_data_dir: s3://ccao-dbt-athena-test-us-east-1/data/
+      region_name: us-east-1
+      # "schema" here corresponds to a Glue database
+      schema: dbt-test
+      # "database" here corresponds to a Glue data catalog
+      database: awsdatacatalog
+      threads: 5
