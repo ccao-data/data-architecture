@@ -1,31 +1,21 @@
 -- View containing RPIE codes and mailing addresses
 CREATE OR REPLACE VIEW rpie.vw_code_retrieval AS
-WITH address AS (
-    SELECT
-        parid AS pin,
-        own1 AS mailing_name,
-        addr1 AS mailing_addr1,
-        CONCAT_WS(
-            ' ',
-            CONCAT_WS(', ', cityname, statecode),
-            CONCAT_WS('-', zip1, zip2)
-        ) AS mailing_addr2,
-        taxyr AS year
-    FROM iasworld.owndat
-)
-
 SELECT
-    pc.pin,
-    pc.year,
-    pc.rpie_code,
+    pin_codes.pin,
+    pin_codes.year,
+    pin_codes.rpie_code,
     pardat.class,
-    ad.mailing_name,
-    ad.mailing_addr1,
-    ad.mailing_addr2
-FROM rpie.pin_codes AS pc
-LEFT JOIN address AS ad
-    ON pc.pin = ad.pin
-    AND pc.year = ad.year
+    owndat.own1 AS mailing_name,
+    owndat.addr1 AS mailing_addr1,
+    CONCAT_WS(
+        ' ',
+        CONCAT_WS(', ', owndat.cityname, owndat.statecode),
+        CONCAT_WS('-', owndat.zip1, owndat.zip2)
+    ) AS mailing_addr2
+FROM rpie.pin_codes
+LEFT JOIN iasworld.owndat
+    ON pin_codes.pin = owndat.parid
+    AND pin_codes.year = owndat.taxyr
 LEFT JOIN iasworld.pardat
-    ON pc.pin = pardat.parid
-    AND pc.year = pardat.taxyr
+    ON pin_codes.pin = pardat.parid
+    AND pin_codes.year = pardat.taxyr

@@ -1,0 +1,162 @@
+version: 2
+
+
+models:
+  - name: vw_pin_history_test
+    description: '{{ doc("vw_pin_history_test") }}'
+    tests:
+      # Unique by 14-digit PIN and year
+      - unique_combination_of_columns:
+          name: unique_by_14_digit_pin_and_year
+          combination_of_columns:
+            - pin
+            - year
+  - name: vw_pin_value_test
+    description: '{{ doc("vw_pin_value_test") }}'
+    tests:
+      # Unique by 14-digit PIN and year
+      - unique_combination_of_columns:
+          combination_of_columns:
+            - pin
+            - year
+      # TODO: Values match what's in whatever iasworld view feeds our website
+  - name: vw_pin_appeal_test
+    description: '{{ doc("vw_pin_appeal_test") }}'
+    tests:
+      # Unique by 14-digit PIN and year
+      - unique_combination_of_columns:
+          name: unique_by_14_digit_pin_and_year
+          combination_of_columns:
+            - pin
+            - year
+      # Unique by case number and year
+      - unique_combination_of_columns:
+          name: unique_by_case_number_and_year
+          combination_of_columns:
+            - year
+            - case_no
+      # `change` should be an enum
+      - dbt_utils.expression_is_true:
+          name: no_unexpected_change_values
+          expression: change is null or change in ('change', 'no change')
+      # If there is a `change`, the values should reflect this
+      - dbt_utils.expression_is_true:
+          name: change_matches_appeal_outcome
+          expression: >-
+            (change = 'no change' AND
+              (mailed_bldg, mailed_land, mailed_tot)
+              =
+              (certified_bldg, certified_land, certified_tot)
+            )
+            OR
+            (change = 'change' AND
+              (mailed_bldg, mailed_land, mailed_tot)
+              !=
+              (certified_bldg, certified_land, certified_tot)
+            )
+            OR
+            (change is null)
+  - name: vw_card_res_char_test
+    description: '{{ doc("vw_card_res_char_test") }}'
+    tests:
+      # Unique by card and year
+      - dbt_utils.unique_combination_of_columns:
+          name: unique_by_card_and_year
+          combination_of_columns:
+            - year
+            - card
+      # char_recent_renovation correlates with char_renovation
+      - dbt_utils.expression_is_true:
+          name: renovation_fields_match
+          # char_renovation can be null, which we count here as falsey
+          expression: >-
+            char_recent_renovation = (
+              case when char_renovation = '1' then true else false end
+            )
+      # TODO: Characteristics columns should adhere to pre-determined criteria
+  - name: vw_pin_address_test
+    description: '{{ doc("vw_pin_address_test") }}'
+    tests:
+      # Unique by 14-digit PIN and year
+      - unique_combination_of_columns:
+          name: unique_by_14_digit_pin_and_year
+          combination_of_columns:
+            - pin
+            - year
+      # No superfluous whitespace
+      - no_extra_whitespace:
+          name: no_extra_whitespace
+          column_names:
+            - prop_address_full
+            - prop_address_city_name
+            - prop_address_state
+            - prop_address_zipcode_1
+            - prop_address_zipcode_2
+            - mail_address_full
+            - mail_address_city_name
+            - mail_address_state
+            - mail_address_zipcode_1
+            - mail_address_zipcode_2
+      # TODO: Mailing address changes after validated sale(?)
+      # TODO: Site addresses are all in Cook County
+  - name: vw_pin_condo_char_test
+    description: '{{ doc("vw_pin_condo_char_test") }}'
+    tests:
+      # Unique by 14-digit PIN and year
+      - unique_combination_of_columns:
+          name: unique_by_14_digit_pin_and_year
+          combination_of_columns:
+            - pin
+            - year
+      # TODO: Non-liveable unit heuristics
+      # TODO: Row count matches PARDAT for condo classes
+      # TODO: Non-unit and unit parcel count add up to total parcels per
+      # 10-digit PIN
+      # TODO: Sum of proration rate never exceeds 1 per 10-digit PIN
+      # TODO: Characteristics columns should adhere to pre-determined criteria
+  - name: vw_pin_sale_test
+    description: '{{ doc("vw_pin_sale_test") }}'
+    columns:
+      - name: doc_no
+        tests:
+          - unique
+    tests:
+      # No sales for same price/pin within 12 months
+      - unique_combination_of_columns:
+          name: unique_price_pin_and_year
+          combination_of_columns:
+            - pin
+            - year
+            - sale_price
+      # Number of sales for a given time period isn't suspicious
+      - unique_combination_of_columns:
+          name: reasonable_number_of_sales_per_year
+          combination_of_columns:
+            - pin
+            - year
+          allowed_duplicates: 2
+      # TODO: Sale is validated (after sales validation has been added to
+      # iasworld)
+      # TODO: Validation is catching obvious outliers
+      # TODO: Joins with other tables produce consistent number of rows
+  - name: vw_pin_universe_test
+    description: '{{ doc("vw_pin_universe_test") }}'
+    tests:
+      # Unique by 14-digit PIN and year
+      - unique_combination_of_columns:
+          name: unique_by_14_digit_pin_and_year
+          combination_of_columns:
+            - pin
+            - year
+      # Number of towns is consistent over time
+      - count_is_consistent:
+          name: township_code_count_is_consistent_by_year
+          group_column: year
+          count_column: township_code
+      # Number of classes is consistent over time
+      - count_is_consistent:
+          name: class_count_is_consistent_by_year
+          group_column: year
+          count_column: class
+      # TODO: Data completeness correlates with availability of spatial data
+      # by year
