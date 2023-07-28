@@ -1,3 +1,17 @@
+/*
+View containing cleaned, filled data for residential and condo modeling. This
+view functions as a pre-cursor to the separate residential and condo modelling
+input views with the goal of sharing as much code as possible for the sake of
+consistency. Missing data is filled with the following steps:
+
+1. All historical data is filled FORWARD in time, i.e. data from 2020 fills
+   2021 as long as the data isn't something which frequently changes
+2. Current data is filled BACKWARD to account for missing historical data.
+   Again, this is only for things unlikely to change
+
+WARNING: This is a very heavy view. Don't use it for anything other than making
+extracts for modeling
+*/
 CREATE OR REPLACE VIEW model.vw_pin_shared_input AS
 WITH uni AS (
 
@@ -240,40 +254,40 @@ SELECT
     vwpf.nearest_neighbor_3_dist_ft
 
 FROM uni
-    LEFT JOIN location.vw_pin10_location_fill AS vwlf
-        ON uni.pin10 = vwlf.pin10
-        AND uni.year = vwlf.year
-    LEFT JOIN proximity.vw_pin10_proximity_fill AS vwpf
-        ON uni.pin10 = vwpf.pin10
-        AND uni.year = vwpf.year
-    LEFT JOIN default.vw_pin_address AS vwpa
-        ON uni.pin = vwpa.pin
-        AND uni.year = vwpa.year
-    LEFT JOIN default.vw_pin_history AS hist
-        ON uni.pin = hist.pin
-        AND uni.year = hist.year
-    LEFT JOIN acs5
-        ON vwlf.census_acs5_tract_geoid = acs5.geoid
-        AND vwlf.year = acs5.year
-    LEFT JOIN housing_index
-        ON housing_index.geoid = vwlf.census_puma_geoid
-        AND housing_index.year = vwlf.year
-    LEFT JOIN tax_bill_amount AS tbill
-        ON uni.pin = tbill.pin
-        AND uni.year = tbill.year
+LEFT JOIN location.vw_pin10_location_fill AS vwlf
+    ON uni.pin10 = vwlf.pin10
+    AND uni.year = vwlf.year
+LEFT JOIN proximity.vw_pin10_proximity_fill AS vwpf
+    ON uni.pin10 = vwpf.pin10
+    AND uni.year = vwpf.year
+LEFT JOIN default.vw_pin_address AS vwpa
+    ON uni.pin = vwpa.pin
+    AND uni.year = vwpa.year
+LEFT JOIN default.vw_pin_history AS hist
+    ON uni.pin = hist.pin
+    AND uni.year = hist.year
+LEFT JOIN acs5
+    ON vwlf.census_acs5_tract_geoid = acs5.geoid
+    AND vwlf.year = acs5.year
+LEFT JOIN housing_index
+    ON housing_index.geoid = vwlf.census_puma_geoid
+    AND housing_index.year = vwlf.year
+LEFT JOIN tax_bill_amount AS tbill
+    ON uni.pin = tbill.pin
+    AND uni.year = tbill.year
     -- The two following joins need to include year if we get more than
     -- one year of school ratings data.
-    LEFT JOIN
-        (
-            SELECT *
-            FROM school_district_ratings
-            WHERE district_type = 'elementary'
-        ) AS sdre
-        ON vwlf.school_elementary_district_geoid = sdre.district_geoid
-    LEFT JOIN
-        (
-            SELECT *
-            FROM school_district_ratings
-            WHERE district_type = 'secondary'
-        ) AS sdrs
-        ON vwlf.school_secondary_district_geoid = sdrs.district_geoid
+LEFT JOIN
+    (
+        SELECT *
+        FROM school_district_ratings
+        WHERE district_type = 'elementary'
+    ) AS sdre
+    ON vwlf.school_elementary_district_geoid = sdre.district_geoid
+LEFT JOIN
+    (
+        SELECT *
+        FROM school_district_ratings
+        WHERE district_type = 'secondary'
+    ) AS sdrs
+    ON vwlf.school_secondary_district_geoid = sdrs.district_geoid
