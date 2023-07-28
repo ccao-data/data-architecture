@@ -258,7 +258,7 @@ orchestration and monitoring.
 
 See the
 [`jeancochrane/dbt-spike`](https://github.com/ccao-data/data-architecture/tree/jeancochrane/dbt-spike/dbt)
-branch of this repo for an example of a simple dbt setup using our views.
+branch of this repository for an example of a simple dbt setup using our views.
 
 ### Requirements matrix
 
@@ -288,7 +288,7 @@ and validating our data using dbt:
 #### Code organization
 
 * Our dbt configuration will be stored in a `dbt/` folder in the
-  `data-architecture` repo.
+  `data-architecture` repository.
 * View definitions will be stored in a `models/` subdirectory, with
   nested subdirectories for each schema (e.g. `default/`, `location/`).
 * Tests will be defined in a `schema.yml` file, and docs will be defined
@@ -302,7 +302,7 @@ and validating our data using dbt:
 #### Building and updating views
 
 * Data science team members will edit views by editing the model files and
-  making pull requests against the `data-architecture/` repo.
+  making pull requests against the `data-architecture/` repository.
 * Team members will build views manually by running `dbt run` from
   the root of the folder.
 * In rare cases where we want to preserve the behavior of old views, we will
@@ -316,7 +316,7 @@ and validating our data using dbt:
 * Documentation will be rebuilt by running `dbt docs generate` from the
   root of the folder.
 * Documentation will be hosted as a static site on S3 with a CloudFront CDN.
-* We will define a helper script in the repo to update documentation.
+* We will define a helper script in the repository to update documentation.
 * As an optional improvement, we may decide to incorporate docs generation and
   upload into a CI/CD step (GitHub Action).
 
@@ -343,7 +343,7 @@ and validating our data using dbt:
 
 * Designed around software engineering best practices (version control, reproducibility, testing, etc.)
 * Free and open source
-* Built on top of established, familiar tools (e.g. command line, SQL, Python)
+* Built on top of established, familiar tools (e.g. command-line, SQL, Python)
 * Documentation and data validation out of the box
 
 ### Cons
@@ -370,7 +370,7 @@ and validating our data using dbt:
 
 * Requirements
   * Referential integrity
-    * Built in via [tests](https://docs.getdbt.com/docs/build/tests) (relationship)
+    * Built-in via [tests](https://docs.getdbt.com/docs/build/tests) (relationship)
   * Schema consistency
     * [Ref versioning](https://docs.getdbt.com/reference/dbt-jinja-functions/ref#versioned-ref)
     * [Snapshots](https://docs.getdbt.com/docs/build/snapshots)
@@ -384,7 +384,7 @@ and validating our data using dbt:
       * But these seem too strict for our use case (basically build failures)
         * We would likely want to set `enforced: false`
   * Orchestration
-    * Nothing built in, some recommended solutions include:
+    * Nothing built-in, some recommended solutions include:
       * Airflow
       * [Prefect](https://www.prefect.io/)
       * [Dagster](https://dagster.io/)
@@ -396,10 +396,10 @@ and validating our data using dbt:
     * [Tests](https://docs.getdbt.com/docs/build/tests) can be any SQL query
     * Two failiure levels: `fail` and `warn`
   * Automated flagging
-    * Nothing built in; we would have to produce output views and then use the
+    * Nothing built-in; we would have to produce output views and then use the
       orchestration layer to define an automated process
   * Monitoring
-    * Nothing built in, this will likely need to be part of the orchestration layer
+    * Nothing built-in, this will likely need to be part of the orchestration layer
 * We would have to use a [community adapter](https://dbt-athena.github.io/) to connect to Athena
   * Migration may be challenging
   * Not a [verified adapter](https://docs.getdbt.com/docs/supported-data-platforms#verified-adapters)
