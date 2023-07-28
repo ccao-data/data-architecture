@@ -12,11 +12,8 @@ extracts for modeling
 */
 CREATE OR REPLACE VIEW model.vw_pin_condo_input AS
 WITH uni AS (
-
     SELECT * FROM model.vw_pin_shared_input
-
     WHERE meta_class IN ('299', '399')
-
 ),
 
 sqft_percentiles AS (
@@ -32,7 +29,6 @@ sqft_percentiles AS (
 )
 
 SELECT
-
     uni.*,
 
     CASE

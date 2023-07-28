@@ -1,6 +1,6 @@
 /*
 View containing cleaned, filled data for residential and condo modeling. This
-view functions as a pre-cursor to the separate residential and condo modelling
+view functions as a pre-cursor to the separate residential and condo modeling
 input views with the goal of sharing as much code as possible for the sake of
 consistency. Missing data is filled with the following steps:
 
@@ -44,7 +44,6 @@ WITH uni AS (
         AND par.taxyr = sp.year
     LEFT JOIN spatial.township AS twn
         ON leg.user1 = CAST(twn.township_code AS VARCHAR)
-
 ),
 
 acs5 AS (
@@ -86,7 +85,6 @@ tax_bill_amount AS (
     ) AS tax_code
         ON pin.tax_code_num = tax_code.tax_code_num
         AND pin.year = tax_code.year
-
     WHERE pin.pin IS NOT NULL
 ),
 

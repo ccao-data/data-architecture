@@ -15,14 +15,11 @@ extracts for modeling
 */
 CREATE OR REPLACE VIEW model.vw_card_res_input AS
 WITH uni AS (
-
     SELECT * FROM model.vw_pin_shared_input
-
     WHERE meta_class IN (
             '202', '203', '204', '205', '206', '207', '208', '209',
             '210', '211', '212', '218', '219', '234', '278', '295'
         )
-
 ),
 
 sqft_percentiles AS (
@@ -41,7 +38,6 @@ sqft_percentiles AS (
 
 forward_fill AS (
     SELECT
-
         uni.*,
 
         CASE
@@ -129,7 +125,6 @@ forward_fill AS (
     LEFT JOIN sqft_percentiles AS sp
         ON uni.meta_year = sp.year
         AND uni.meta_township_code = sp.township_code
-
 )
 
 -- Anything with a CASE WHEN here is just borrowing missing values
