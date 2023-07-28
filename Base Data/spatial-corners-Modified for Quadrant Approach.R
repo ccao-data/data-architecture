@@ -17,6 +17,7 @@ library(nngeo)
 library(geosphere)
 library(profvis)
 library(furrr)
+
 # library(terra)
 # library(raster)
 
@@ -26,8 +27,8 @@ library(furrr)
 
 
 
-townshipa <- "West Chicago"
-township <- "West"
+townshipa <- "South Chicago"
+township <- "South"
 
 bbox <- ccao::town_shp %>%
   filter(township_name == townshipa) %>%
@@ -83,13 +84,13 @@ parcels <- st_read(
 
 
 
-parcels <- parcels %>%
+parcels <- test1 %>%
   slice(1:5000)
 
 
 
 # Prepare inputs
-parcels_buffered <- parcels %>%
+parcels_buffered <- test1 %>%
   st_transform(3435) %>%
   st_buffer(dist = units::set_units(5, "m"))
 
@@ -267,17 +268,17 @@ network_trans  <- network %>%
 # dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
 
 # 
-result <- numeric(nrow(parcels))
+result <- numeric(nrow(test1))
 # 
-for (x in 1:nrow(parcels)) {
-  result[x] <- dan_func_single_obs(x, parcels %>% st_transform(3435), parcels_buffered, network_trans)
-  cat("Iteration:", x, "/", nrow(parcels), "\n")  # Print iteration progress
+for (x in 1:nrow(test1)) {
+  result[x] <- dan_func_single_obs(x, test1 %>% st_transform(3435), parcels_buffered, network_trans)
+  cat("Iteration:", x, "/", nrow(test1), "\n")  # Print iteration progress
 }
 
 
 
 
-final1 <- cbind(parcels, result)
+final1 <- cbind(test1, result)
 
 
 ggplot() +
@@ -294,6 +295,8 @@ ggplot() +
 # Define the township and file name
 file_name <- paste0(township, "1.shp")
 
+file_name <- paste0(final1, "1.shp")
+
 # Specify the directory path
 directory <- "Base Data"
 
@@ -307,7 +310,7 @@ sf_obj <- sf_obj %>%
   select(pin10, result, geometry)
 
 # Save the complete shapefile
-sf::st_write(sf_obj, output_file, append = FALSE)
+sf::st_write(final1, output_file, append = FALSE)
 
 
 

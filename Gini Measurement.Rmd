@@ -1,0 +1,64 @@
+---
+title: "Gini Coefficient"
+author: "Damon"
+date: "2023-07-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r cars}
+
+set.seed(42)
+
+num_individuals <- 1000
+min_value <- 100000
+max_value <- 10000000
+
+
+
+min_value2 <- 100000
+max_value2 <- 10000000
+
+value_vector <- round(runif(num_individuals, min_value, max_value))
+
+
+# Assuming 'value_vector' is your data containing value values
+sorted_value <- sort(value_vector)
+n <- length(sorted_value)
+
+# Calculate cumulative percentage of total value/wealth
+cumulative_value <- cumsum(sorted_value) / sum(sorted_value)
+
+# Calculate cumulative percentage of population
+cumulative_population <- 1:n / n
+
+# Plot the Lorenz curve
+plot(cumulative_population, cumulative_value, type = "l", col = "blue",
+     xlab = "Cumulative Population Percentage", ylab = "Cumulative value Percentage",
+     main = "Lorenz Curve")
+
+# Calculate the area under the Lorenz curve
+A <- sum(cumulative_value[-1] * (cumulative_population[-1] - cumulative_population[-n]))
+
+# Calculate the area under the line of perfect equality (triangle area)
+B <- 0.5
+
+# Calculate the Gini coefficient
+gini_coefficient <- A / (A + B)
+
+
+cat("Gini coefficient:", gini_coefficient, "\n")
+
+
+
+
+
+
+
+
+
+```

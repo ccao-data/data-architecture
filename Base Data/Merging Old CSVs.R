@@ -1,6 +1,5 @@
 
-   
-township <- "Barrington"
+township <- "North"
 
 bbox <- ccao::town_shp %>%
   filter(township_name == township) %>%
@@ -51,7 +50,7 @@ parcels <- st_read(
 
 
 
-corner <- read_csv("~/corner_lots_results/csv/corner_barrington.csv") %>%
+corner <- read_csv("~/corner_lots_results/csv/corner_north.csv") %>%
   select(pin10) %>%
   mutate(cornerlot = 1)
 
@@ -61,6 +60,8 @@ corner$pin10 <- as.numeric(corner$pin10)
 
 parcels$duplicated <- parcels$pin10 %>%
   duplicated()
+
+table(parcels$duplicated)
 
 parcels <- parcels %>%
   subset(duplicated == FALSE)
@@ -74,8 +75,6 @@ final_corner[is.na(final_corner)] <- 0
 table(final_corner$cornerlot)
 
 final_corner <- st_as_sf(final_corner)
-
-
 
 
 directory <- "Base Data"
@@ -101,7 +100,13 @@ sf_graph_edges <- sf_graph_edges %>%
 sf::st_write(sf_graph_edges, output_file, append = FALSE)
 
 
+shapefile_data <- st_read("Base Data/SOUTHFinal.shp")
 
+shapefile_data <- shapefile_data %>%
+  arrange(-result)
+
+
+sf::st_write(shapefile_data, "Base Data/SOUTH.shp", append = FALSE)
 
 
 
@@ -109,10 +114,35 @@ sf::st_write(sf_graph_edges, output_file, append = FALSE)
    geom_sf(data = final_corner, aes(fill = cornerlot)) +
    geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
 
+ test <- new_df %>%
+   filter(pin10 == "1732999001") %>%
+   subset(duplicated == TRUE)
 
+ plot(test)
+ 
+ 
+ parcels_new <- parcels %>%
+   group_by(pin10)
+ 
+ 
+ 
+ 
+ attr_table <- parcels %>% 
+   as_data_frame() %>% 
+   select(-geometry) %>% 
+   unique()
+ 
+ new_df <- parcels %>% 
+   group_by(pin10) %>% 
+   summarise() %>% 
+   as.data.frame(.) %>% 
+   left_join(., attr_table, by='pin10')   %>% 
+   st_as_sf()
+ 
+table(new_df$duplicated) 
 
-
-
+test1 <- new_df %>%
+  subset(duplicated == TRUE)
 # 
 # 
 # corner_bloom <- read_csv("~/corner_lots_results/csv/corner_bloom.csv")%>%
@@ -180,9 +210,9 @@ corner_leyden <- read_csv("~/corner_lots_results/csv/corner_leyden.csv")%>%
 #   select(pin10) %>%
 #   mutate(cornerlot = 1)
 
-corner_north <- read_csv("~/corner_lots_results/csv/corner_north.csv")%>%
-  select(pin10) %>%
-  mutate(cornerlot = 1)
+# corner_north <- read_csv("~/corner_lots_results/csv/corner_north.csv")%>%
+#   select(pin10) %>%
+#   mutate(cornerlot = 1)
 
 # corner_northfield <- read_csv("~/corner_lots_results/csv/corner_northfield.csv")%>%
 #   select(pin10) %>%
