@@ -9,7 +9,6 @@ should only be the case while condo characteristics are pulled from excel
 workbooks rather than iasWorld.
 */
 
-CREATE OR REPLACE VIEW default.vw_pin_condo_char AS
 WITH aggregate_land AS (
     SELECT
         parid,

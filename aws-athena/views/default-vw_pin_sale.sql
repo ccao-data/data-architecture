@@ -1,5 +1,4 @@
 --- View containing unique, filtered sales
-CREATE OR REPLACE VIEW default.vw_pin_sale AS
 --- Class and township of associated PIN
 WITH town_class AS (
     SELECT

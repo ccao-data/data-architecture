@@ -1,5 +1,4 @@
 -- Source of truth view for PIN location
-CREATE OR REPLACE VIEW default.vw_pin_universe AS
 SELECT
     -- Main PIN-level attribute data from iasWorld
     par.parid AS pin,
@@ -126,7 +125,7 @@ LEFT JOIN iasworld.legdat AS leg
 LEFT JOIN spatial.parcel AS sp
     ON SUBSTR(par.parid, 1, 10) = sp.pin10
     AND par.taxyr = sp.year
-LEFT JOIN location.vw_pin10_location AS vwl
+LEFT JOIN {{ ref('vw_pin10_location_test') }} AS vwl
     ON SUBSTR(par.parid, 1, 10) = vwl.pin10
     AND par.taxyr = vwl.year
 LEFT JOIN spatial.township AS twn

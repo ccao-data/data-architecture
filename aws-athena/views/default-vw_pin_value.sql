@@ -1,5 +1,4 @@
 -- View containing current and prior years' assessments by PIN in wide format
-CREATE OR REPLACE VIEW default.vw_pin_value AS
 -- CCAO mailed_tot, CCAO final, and BOR final values for each PIN by year
 SELECT
     parid AS pin,
