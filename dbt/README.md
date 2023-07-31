@@ -84,3 +84,9 @@ Run tests for only one model:
 ```
 dbt test --select <model_name>
 ```
+
+Run tests for dbt macros:
+
+```
+dbt run-operation test_all
+```

@@ -2,7 +2,20 @@
 -- and replace it with our own namespacing on dev and CI.
 -- See: https://docs.getdbt.com/docs/build/custom-schemas
 {% macro generate_schema_name(custom_schema_name, node) -%}
+    {{ return(_generate_schema_name(
+        custom_schema_name,
+        node,
+        target,
+        env_var,
+        exceptions.raise_compiler_error
+    )) }}
+{%- endmacro %}
 
+-- Helper implementation of generate_schema_name where no arguments
+-- are read from the global variable context. Useful for unit testing.
+{% macro _generate_schema_name(
+    custom_schema_name, node, target, env_var_func, raise_error_func
+) %}
     {#
         According to the dbt docs linked above, this is required to be set by
         the built-in macro that we are overriding, but we don't actually use it
@@ -10,9 +23,12 @@
     {%- set default_schema = target.schema -%}
 
     {%- if target.name == "dev" -%}
-        {%- set schema_prefix = env_var("USER") -%}
+        {%- set schema_prefix = "dev-" ~ env_var_func("USER") ~ "-" -%}
     {%- elif target.name == "ci" -%}
-        {%- set schema_prefix = env_var("GITHUB_HEAD_REF") -%}
+        {%- set github_head_ref = kebab_slugify(
+            env_var_func("GITHUB_HEAD_REF")
+        ) -%}
+        {%- set schema_prefix = "ci-" ~ github_head_ref ~ "-" -%}
     {%- else -%}
         {%- set schema_prefix = "" -%}
     {%- endif -%}
@@ -23,20 +39,19 @@
             The default schema name is not allowed, since we use subdirectory
             organization to map tables/views to their Athena database
         #}
-        {{ exceptions.raise_compiler_error(
+        {{ return(raise_error_func(
             "Missing schema definition for " ~ node.name ~ ". " ~
             "Its containing subdirectory is probably missing a `+schema` " ~
             "attribute under the `models` config in dbt_project.yml."
-        ) }}
+        )) }}
 
     {%- else -%}
 
         {%- set full_schema_name -%}
-            {{ schema_prefix ~ "-" ~ custom_schema_name | trim }}
+            {{ schema_prefix ~ custom_schema_name | trim }}
         {%- endset -%}
 
-        {{ full_schema_name }}
+        {{ return(full_schema_name) }}
 
     {%- endif -%}
-
-{%- endmacro %}
+{% endmacro %}
