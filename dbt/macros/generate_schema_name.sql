@@ -23,12 +23,12 @@
     {%- set default_schema = target.schema -%}
 
     {%- if target.name == "dev" -%}
-        {%- set schema_prefix = "dev-" ~ env_var_func("USER") ~ "-" -%}
+        {%- set schema_prefix = "dev_" ~ env_var_func("USER") ~ "_" -%}
     {%- elif target.name == "ci" -%}
         {%- set github_head_ref = kebab_slugify(
             env_var_func("GITHUB_HEAD_REF")
         ) -%}
-        {%- set schema_prefix = "ci-" ~ github_head_ref ~ "-" -%}
+        {%- set schema_prefix = "ci_" ~ github_head_ref ~ "_" -%}
     {%- else -%}
         {%- set schema_prefix = "" -%}
     {%- endif -%}
