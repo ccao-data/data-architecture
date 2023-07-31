@@ -147,7 +147,7 @@ for (i in c("2021", "2022")) {
             (bedrooms == 0 | unit_sf == 0) &
               rowSums(
                 across(c(unit_sf, bedrooms, full_baths, half_baths)), na.rm = TRUE
-                ) == 0 ~ TRUE,
+              ) == 0 ~ TRUE,
             TRUE ~ FALSE
           ),
           # Really low unit_sf should be considered NA
@@ -159,7 +159,7 @@ for (i in c("2021", "2022")) {
           half_baths = case_when(
             is.na(half_baths) & !is.na(full_baths) & full_baths > 0 ~ 0,
             TRUE ~ half_baths
-            ),
+          ),
           # Make beds and baths are integers
           across(c(half_baths, full_baths, bedrooms), ~ ceiling(.x)),
           # Set all characteristics to NA for parking pins
@@ -170,7 +170,12 @@ for (i in c("2021", "2022")) {
         )
 
     }) %>%
-      bind_rows()
+      bind_rows() %>%
+      group_by(pin) %>%
+      arrange(unit_sf) %>%
+      filter(row_number() == 1) %>%
+      ungroup() %>%
+      filter(!is.na(pin))
 
   } else {
 
