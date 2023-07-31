@@ -1,5 +1,4 @@
 -- View containing current and prior years' assessments by PIN in wide format
-CREATE OR REPLACE VIEW default.vw_pin_history AS
 -- Add valuation class
 WITH classes AS (
     SELECT
@@ -107,7 +106,7 @@ SELECT
         ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_board_tot
 
-FROM default.vw_pin_value AS vwpv
+FROM {{ ref('vw_pin_value_test') }} AS vwpv
 LEFT JOIN townships
     ON vwpv.pin = townships.parid
     AND vwpv.year = townships.taxyr

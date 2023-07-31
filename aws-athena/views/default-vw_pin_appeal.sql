@@ -1,5 +1,4 @@
 -- View containing appeals by PIN
-CREATE OR REPLACE VIEW default.vw_pin_appeal AS
 SELECT
     htpar.parid AS pin,
     pardat.class AS class,
@@ -69,7 +68,7 @@ LEFT JOIN iasworld.pardat
 LEFT JOIN iasworld.legdat
     ON htpar.parid = legdat.parid
     AND htpar.taxyr = legdat.taxyr
-LEFT JOIN default.vw_pin_value AS vwpv
+LEFT JOIN {{ ref('vw_pin_value_test') }} AS vwpv
     ON htpar.parid = vwpv.pin
     AND htpar.taxyr = vwpv.year
 LEFT JOIN iasworld.htagnt

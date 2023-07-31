@@ -1,5 +1,4 @@
 -- View containing each of the PIN-level location (spatial joins)
-CREATE OR REPLACE VIEW location.vw_pin10_location_fill AS
 SELECT
     pin.pin10,
     pin.year,
