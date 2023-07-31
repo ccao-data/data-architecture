@@ -12,7 +12,7 @@
     {%- if target.name == "dev" -%}
         {%- set schema_prefix = env_var("USER") -%}
     {%- elif target.name == "ci" -%}
-        {%- set schema_prefix = env_var("GITHUB_BASE_REF") -%}
+        {%- set schema_prefix = env_var("GITHUB_HEAD_REF") -%}
     {%- else -%}
         {%- set schema_prefix = "" -%}
     {%- endif -%}
