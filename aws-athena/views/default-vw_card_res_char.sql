@@ -90,38 +90,38 @@ SELECT
     dwel.user3 AS char_renovation,
 
     -- Indicate a change from 0 or NULL to 1 for renovation
-    -- within the last 3 years
+    -- within the last 3 years. Needs to be partioned by card as well as pin.
     COALESCE((
         dwel.user3 = '1'
         AND LAG(dwel.user3)
             OVER (
-                PARTITION BY dwel.parid
-                ORDER BY dwel.parid, dwel.taxyr
+                PARTITION BY dwel.parid, dwel.card
+                ORDER BY dwel.taxyr
             )
         != '1'
     )
     OR (LAG(dwel.user3)
         OVER (
-            PARTITION BY dwel.parid
-            ORDER BY dwel.parid, dwel.taxyr
+            PARTITION BY dwel.parid, dwel.card
+            ORDER BY dwel.taxyr
         )
     = '1'
     AND LAG(dwel.user3, 2)
         OVER (
-            PARTITION BY dwel.parid
-            ORDER BY dwel.parid, dwel.taxyr
+            PARTITION BY dwel.parid, dwel.card
+            ORDER BY dwel.taxyr
         )
     != '1')
     OR (LAG(dwel.user3, 2)
         OVER (
-            PARTITION BY dwel.parid
-            ORDER BY dwel.parid, dwel.taxyr
+            PARTITION BY dwel.parid, dwel.card
+            ORDER BY dwel.taxyr
         )
     = '1'
     AND LAG(dwel.user3, 3)
         OVER (
-            PARTITION BY dwel.parid
-            ORDER BY dwel.parid, dwel.taxyr
+            PARTITION BY dwel.parid, dwel.card
+            ORDER BY dwel.taxyr
         )
     != '1'), FALSE) AS char_recent_renovation,
     dwel.user30 AS char_porch,
