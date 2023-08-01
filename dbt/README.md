@@ -48,6 +48,16 @@ Build the models to create views in our Athena warehouse:
 dbt run
 ```
 
+By default, all `dbt` commands will run against the `dev` environment, which
+namespaces the resources it creates by prefixing target database names with
+your Unix `$USER` name (e.g. `jecochr-default` for the `default` database when
+`dbt` is run on Jean's machine). To instead **run commands against prod**,
+use the `--target` flag:
+
+```
+dbt run --target prod
+```
+
 Generate the documentation:
 
 ```
@@ -55,7 +65,7 @@ dbt docs generate
 ```
 
 This will create a new file `target/index.html` representing the static
-docs website.
+docs site.
 
 You can also serve the docs locally:
 
@@ -73,4 +83,10 @@ Run tests for only one model:
 
 ```
 dbt test --select <model_name>
+```
+
+Run tests for dbt macros:
+
+```
+dbt run-operation test_all
 ```

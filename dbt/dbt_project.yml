@@ -28,6 +28,6 @@ models:
   athena:
     +materialized: view
     default:
-      +schema: dbt-test-default
+      +schema: default
     location:
-      +schema: dbt-test-location
+      +schema: location
