@@ -85,11 +85,7 @@ models:
               case when char_renovation = '1' then true else false end
             )
           config:
-            # This error threshold represents an upper bound, since the
-            # underlying query that generates `char_recent_renovation`
-            # is currently not deterministic. When we fix the underlying
-            # view to make that column deterministic, we should lower this.
-            error_if: ">74500"
+            error_if: ">73925"
       # TODO: Characteristics columns should adhere to pre-determined criteria
   - name: vw_pin_address_test
     description: '{{ doc("vw_pin_address_test") }}'
