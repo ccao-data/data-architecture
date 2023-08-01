@@ -7,7 +7,7 @@ models:
     tests:
       # Unique by 14-digit PIN and year
       - unique_combination_of_columns:
-          name: unique_by_14_digit_pin_and_year
+          name: vw_pin_history_unique_by_14_digit_pin_and_year
           combination_of_columns:
             - pin
             - year
@@ -16,6 +16,7 @@ models:
     tests:
       # Unique by 14-digit PIN and year
       - unique_combination_of_columns:
+          name: vw_pin_value_unique_by_14_digit_pin_and_year
           combination_of_columns:
             - pin
             - year
@@ -25,23 +26,29 @@ models:
     tests:
       # Unique by 14-digit PIN and year
       - unique_combination_of_columns:
-          name: unique_by_14_digit_pin_and_year
+          name: vw_pin_appeal_unique_by_14_digit_pin_and_year
           combination_of_columns:
             - pin
             - year
+          config:
+            error_if: ">280655"
       # Unique by case number and year
       - unique_combination_of_columns:
-          name: unique_by_case_number_and_year
+          name: vw_pin_appeal_unique_by_case_number_and_year
           combination_of_columns:
             - year
             - case_no
+          config:
+            error_if: ">365779"
       # `change` should be an enum
       - dbt_utils.expression_is_true:
-          name: no_unexpected_change_values
+          name: vw_pin_appeal_no_unexpected_change_values
           expression: change is null or change in ('change', 'no change')
+          config:
+            error_if: ">43"
       # If there is a `change`, the values should reflect this
       - dbt_utils.expression_is_true:
-          name: change_matches_appeal_outcome
+          name: vw_pin_appeal_change_matches_appeal_outcome
           expression: >-
             (change = 'no change' AND
               (mailed_bldg, mailed_land, mailed_tot)
@@ -56,36 +63,42 @@ models:
             )
             OR
             (change is null)
+          config:
+            error_if: ">266758"
   - name: vw_card_res_char_test
     description: '{{ doc("vw_card_res_char_test") }}'
     tests:
       # Unique by card and year
       - dbt_utils.unique_combination_of_columns:
-          name: unique_by_card_and_year
+          name: vw_card_res_char_unique_by_card_and_year
           combination_of_columns:
             - year
             - card
+          config:
+            error_if: ">913"
       # char_recent_renovation correlates with char_renovation
       - dbt_utils.expression_is_true:
-          name: renovation_fields_match
+          name: vw_card_res_char_renovation_fields_match
           # char_renovation can be null, which we count here as falsey
           expression: >-
             char_recent_renovation = (
               case when char_renovation = '1' then true else false end
             )
+          config:
+            error_if: ">73925"
       # TODO: Characteristics columns should adhere to pre-determined criteria
   - name: vw_pin_address_test
     description: '{{ doc("vw_pin_address_test") }}'
     tests:
       # Unique by 14-digit PIN and year
       - unique_combination_of_columns:
-          name: unique_by_14_digit_pin_and_year
+          name: vw_pin_address_unique_by_14_digit_pin_and_year
           combination_of_columns:
             - pin
             - year
       # No superfluous whitespace
       - no_extra_whitespace:
-          name: no_extra_whitespace
+          name: vw_pin_address_no_extra_whitespace
           column_names:
             - prop_address_full
             - prop_address_city_name
@@ -97,6 +110,8 @@ models:
             - mail_address_state
             - mail_address_zipcode_1
             - mail_address_zipcode_2
+          config:
+            error_if: ">879261"
       # TODO: Mailing address changes after validated sale(?)
       # TODO: Site addresses are all in Cook County
   - name: vw_pin_condo_char_test
@@ -104,10 +119,12 @@ models:
     tests:
       # Unique by 14-digit PIN and year
       - unique_combination_of_columns:
-          name: unique_by_14_digit_pin_and_year
+          name: vw_pin_condo_char_unique_by_14_digit_pin_and_year
           combination_of_columns:
             - pin
             - year
+          config:
+            error_if: ">70297"
       # TODO: Non-liveable unit heuristics
       # TODO: Row count matches PARDAT for condo classes
       # TODO: Non-unit and unit parcel count add up to total parcels per
@@ -119,22 +136,26 @@ models:
     columns:
       - name: doc_no
         tests:
-          - unique
+          - unique:
+              config:
+                error_if: ">1711769"
     tests:
       # No sales for same price/pin within 12 months
       - unique_combination_of_columns:
-          name: unique_price_pin_and_year
+          name: vw_pin_sale_unique_price_pin_and_year
           combination_of_columns:
             - pin
             - year
             - sale_price
       # Number of sales for a given time period isn't suspicious
       - unique_combination_of_columns:
-          name: reasonable_number_of_sales_per_year
+          name: vw_pin_sale_reasonable_number_of_sales_per_year
           combination_of_columns:
             - pin
             - year
           allowed_duplicates: 2
+          config:
+            error_if: ">3192"
       # TODO: Sale is validated (after sales validation has been added to
       # iasworld)
       # TODO: Validation is catching obvious outliers
@@ -144,19 +165,21 @@ models:
     tests:
       # Unique by 14-digit PIN and year
       - unique_combination_of_columns:
-          name: unique_by_14_digit_pin_and_year
+          name: vw_pin_universe_unique_by_14_digit_pin_and_year
           combination_of_columns:
             - pin
             - year
       # Number of towns is consistent over time
       - count_is_consistent:
-          name: township_code_count_is_consistent_by_year
+          name: vw_pin_universe_township_code_count_is_consistent_by_year
           group_column: year
           count_column: township_code
       # Number of classes is consistent over time
       - count_is_consistent:
-          name: class_count_is_consistent_by_year
+          name: vw_pin_universe_class_count_is_consistent_by_year
           group_column: year
           count_column: class
+          config:
+            error_if: ">23"
       # TODO: Data completeness correlates with availability of spatial data
       # by year

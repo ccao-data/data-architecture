@@ -185,7 +185,8 @@ mydec_sales AS (
             ) > 0 AS sale_filter_ptax_flag,
             COUNT() OVER (
                 PARTITION BY line_1_primary_pin, line_4_instrument_date
-            ) AS num_cards_sale
+            ) AS num_cards_sale,
+            year_of_sale
         FROM sale.mydec
         WHERE is_earliest_within_doc_no
     )
