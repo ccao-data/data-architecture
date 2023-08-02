@@ -1,0 +1,63 @@
+name: Build and test dbt
+
+on:
+  pull_request:
+    branches: [master, data-catalog]
+  push:
+    branches: [master, data-catalog]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dbt requirements
+        uses: ./.github/actions/install_dbt_requirements.yaml
+
+      # TODO: AWS configuration?
+
+      - name: Set environment for branch
+        run: |
+          if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
+            echo "DBT_TARGET=prod" >> "$GITHUB_ENV"
+            echo "CACHE_KEY=master" >> "$GITHUB_ENV"
+          else
+            echo "DBT_TARGET=ci" >> "$GITHUB_ENV"
+            echo "CACHE_KEY=$GITHUB_HEAD_REF" >> "$GITHUB_ENV"
+          fi
+        shell: bash
+
+      - name: Cache dbt manifest
+        id: cache
+        uses: actions/cache@v3
+        env:
+          # Cache keys are shared by the test_dbt workflow and we are too lazy
+          # to factor this step out into a composite action, so make sure to
+          # update that workflow if you change the cache key format
+          cache-name: cache-dbt-run
+        with:
+          path: ./dbt/target
+          key: ${{ cache-name }}-$${{ vars.CACHE_KEY }}
+          restore-keys: ${{ cache-name }}-master
+
+      - if: ${{ steps.cache.outputs.cache-hit == 'true' }}
+        name: Set state args
+        run: echo "STATE_ARGS='-s state:modified --state target/'" >> "$GITHUB_ENV"
+        shell: bash
+
+      - name: Test dbt macros
+        run: dbt run-operation test_all
+        working-directory: ./dbt
+        shell: bash
+
+      - name: Build models
+        run: dbt run --target "$DBT_TARGET" "$STATE_ARGS"
+        working-directory: ./dbt
+        shell: bash
+
+      - name: Test models
+        run: dbt test --target "$DBT_TARGET" "$STATE_ARGS"
+        working-directory: ./dbt
+        shell: bash
