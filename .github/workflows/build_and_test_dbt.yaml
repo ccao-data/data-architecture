@@ -16,6 +16,9 @@ jobs:
       - name: Install dbt requirements
         uses: ./.github/actions/install_dbt_requirements.yaml
 
+      - name: Load environment variables
+        uses: ./.github/actions/load_environment_variables.yaml
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -24,9 +27,13 @@ jobs:
 
       - name: Set environment for branch
         run: |
-          if [[ $GITHUB_REF == 'refs/heads/master' ]]; then
+          if [[ $GITHUB_REF_NAME == 'master' ]]; then
             echo "DBT_TARGET=prod" >> "$GITHUB_ENV"
             echo "CACHE_KEY=master" >> "$GITHUB_ENV"
+          elif [[ $GITHUB_REF_NAME == 'data-catalog' ]]; then
+            echo "DBT_TARGET=ci" >> "$GITHUB_ENV"
+            echo "CACHE_KEY=data-catalog" >> "$GITHUB_ENV"
+            echo "GITHUB_HEAD_REF=data-catalog" >> "$GITHUB_ENV"
           else
             echo "DBT_TARGET=ci" >> "$GITHUB_ENV"
             echo "CACHE_KEY=$GITHUB_HEAD_REF" >> "$GITHUB_ENV"
@@ -36,32 +43,29 @@ jobs:
       - name: Cache dbt manifest
         id: cache
         uses: actions/cache@v3
-        env:
-          # Cache keys are shared by the test_dbt workflow and we are too lazy
-          # to factor this step out into a composite action, so make sure to
-          # update that workflow if you change the cache key format
-          cache-name: cache-dbt-run
         with:
-          path: ./dbt/target
-          key: ${{ cache-name }}-$${{ vars.CACHE_KEY }}
-          restore-keys: ${{ cache-name }}-master
+          path: ${{ env.DBT_MANIFEST_DIR }}
+          key: ${{ env.DBT_CACHE_NAME }}-$${{ vars.CACHE_KEY }}
+          restore-keys: |
+            ${{ env.DBT_CACHE_NAME }}-data-catalog
+            ${{ env.DBT_CACHE_NAME }}-master
 
       - if: ${{ steps.cache.outputs.cache-hit == 'true' }}
         name: Set state args
-        run: echo "STATE_ARGS='-s state:modified --state target/'" >> "$GITHUB_ENV"
+        run: echo "DBT_STATE_ARGS='-s state:modified --state target/'" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Test dbt macros
         run: dbt run-operation test_all
-        working-directory: ./dbt
+        working-directory: ${{ env.DBT_PROJECT_DIR }}
         shell: bash
 
       - name: Build models
-        run: dbt run --target "$DBT_TARGET" "$STATE_ARGS"
-        working-directory: ./dbt
+        run: dbt run --target "$DBT_TARGET" "$DBT_STATE_ARGS"
+        working-directory: ${{ env.DBT_PROJECT_DIR }}
         shell: bash
 
       - name: Test models
-        run: dbt test --target "$DBT_TARGET" "$STATE_ARGS"
-        working-directory: ./dbt
+        run: dbt test --target "$DBT_TARGET" "$DBT_STATE_ARGS"
+        working-directory: ${{ env.DBT_PROJECT_DIR }}
         shell: bash
