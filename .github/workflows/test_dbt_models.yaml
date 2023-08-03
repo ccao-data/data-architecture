@@ -18,10 +18,10 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install dbt requirements
-        uses: ./.github/actions/install_dbt_requirements.yaml
+        uses: ./.github/actions/install_dbt_requirements
 
       - name: Load environment variables
-        uses: ./.github/actions/load_environment_variables.yaml
+        uses: ./.github/actions/load_environment_variables
 
       - if: ${{ inputs.use_build_cache }}
         name: Cache dbt manifest
