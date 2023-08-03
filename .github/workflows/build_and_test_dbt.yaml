@@ -21,6 +21,10 @@ jobs:
       - name: Install dbt requirements
         uses: ./.github/actions/install_dbt_requirements
 
+      - name: Test dbt installation
+        run: dbt --help
+        working-directory: ${{ env.PROJECT_DIR }}
+
       - name: Load environment variables
         uses: ./.github/actions/load_environment_variables
 
