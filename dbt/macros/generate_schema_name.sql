@@ -25,7 +25,7 @@
     {%- if target.name == "dev" -%}
         {%- set schema_prefix = "dev_" ~ env_var_func("USER") ~ "_" -%}
     {%- elif target.name == "ci" -%}
-        {%- set github_head_ref = kebab_slugify(
+        {%- set github_head_ref = dbt_utils.slugify(
             env_var_func("GITHUB_HEAD_REF")
         ) -%}
         {%- set schema_prefix = "ci_" ~ github_head_ref ~ "_" -%}
