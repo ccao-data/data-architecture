@@ -62,8 +62,13 @@ jobs:
             ${{ env.CACHE_NAME }}-master
 
       - if: ${{ steps.cache.outputs.cache-hit == 'true' }}
-        name: Set state args
+        name: Set state args to build/test modified resources
         run: echo "STATE_ARGS='-s state:modified --state target/'" >> "$GITHUB_ENV"
+        shell: bash
+
+      - if: ${{ steps.cache.outputs.cache-hit != 'true' }}
+        name: Set state args to build/test all resources
+        run: echo "STATE_ARGS='--state target/'" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Test dbt macros
