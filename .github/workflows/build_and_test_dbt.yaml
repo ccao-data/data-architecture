@@ -86,7 +86,7 @@ jobs:
             dbt run --target "$TARGET" -s state:modified --state target/
           else
             echo "Running build on all resources"
-            dbt run --target "$TARGET"
+            dbt --debug run --target "$TARGET"
           fi
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
