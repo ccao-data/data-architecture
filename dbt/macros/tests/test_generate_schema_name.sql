@@ -6,12 +6,9 @@
 {% endmacro %}
 
 {% macro mock_env_var(var_name) %}
-    {% if var_name == "USER" %}
-        {{ return("testuser") }}
-    {% elif var_name == "GITHUB_HEAD_REF" %}
-        {{ return("testuser/feature-branch-1") }}
-    {% else %}
-        {{ return("") }}
+    {% if var_name == "USER" %} {{ return("testuser") }}
+    {% elif var_name == "GITHUB_HEAD_REF" %} {{ return("testuser/feature-branch-1") }}
+    {% else %} {{ return("") }}
     {% endif %}
 {% endmacro %}
 
@@ -27,9 +24,9 @@
             {"name": "test"},
             {"schema": "default", "name": "dev"},
             mock_env_var,
-            exceptions.raise_compiler_error
+            exceptions.raise_compiler_error,
         ),
-        "dev_testuser_test"
+        "dev_testuser_test",
     ) %}
 {% endmacro %}
 
@@ -41,9 +38,9 @@
             {"name": "test"},
             {"schema": "default", "name": "ci"},
             mock_env_var,
-            exceptions.raise_compiler_error
+            exceptions.raise_compiler_error,
         ),
-        "ci_testuserfeature_branch_1_test"
+        "ci_testuserfeature_branch_1_test",
     ) %}
 {% endmacro %}
 
@@ -55,9 +52,9 @@
             {"name": "test"},
             {"schema": "default", "name": "prod"},
             mock_env_var,
-            exceptions.raise_compiler_error
+            exceptions.raise_compiler_error,
         ),
-        "test"
+        "test",
     ) %}
 {% endmacro %}
 
@@ -69,8 +66,8 @@
             {"name": "test"},
             {"schema": "default", "name": "prod"},
             mock_env_var,
-            mock_raise_compiler_error
+            mock_raise_compiler_error,
         ),
-        "Compiler error raised"
+        "Compiler error raised",
     ) %}
 {% endmacro %}

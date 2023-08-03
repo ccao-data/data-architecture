@@ -2,13 +2,17 @@
 -- and replace it with our own namespacing on dev and CI.
 -- See: https://docs.getdbt.com/docs/build/custom-schemas
 {% macro generate_schema_name(custom_schema_name, node) -%}
-    {{ return(_generate_schema_name(
-        custom_schema_name,
-        node,
-        target,
-        env_var,
-        exceptions.raise_compiler_error
-    )) }}
+    {{
+        return(
+            _generate_schema_name(
+                custom_schema_name,
+                node,
+                target,
+                env_var,
+                exceptions.raise_compiler_error,
+            )
+        )
+    }}
 {%- endmacro %}
 
 -- Helper implementation of generate_schema_name where no arguments
@@ -25,12 +29,9 @@
     {%- if target.name == "dev" -%}
         {%- set schema_prefix = "dev_" ~ env_var_func("USER") ~ "_" -%}
     {%- elif target.name == "ci" -%}
-        {%- set github_head_ref = dbt_utils.slugify(
-            env_var_func("GITHUB_HEAD_REF")
-        ) -%}
+        {%- set github_head_ref = dbt_utils.slugify(env_var_func("GITHUB_HEAD_REF")) -%}
         {%- set schema_prefix = "ci_" ~ github_head_ref ~ "_" -%}
-    {%- else -%}
-        {%- set schema_prefix = "" -%}
+    {%- else -%} {%- set schema_prefix = "" -%}
     {%- endif -%}
 
     {%- if custom_schema_name is none -%}
@@ -39,11 +40,17 @@
             The default schema name is not allowed, since we use subdirectory
             organization to map tables/views to their Athena database
         #}
-        {{ return(raise_error_func(
-            "Missing schema definition for " ~ node.name ~ ". " ~
-            "Its containing subdirectory is probably missing a `+schema` " ~
-            "attribute under the `models` config in dbt_project.yml."
-        )) }}
+        {{
+            return(
+                raise_error_func(
+                    "Missing schema definition for "
+                    ~ node.name
+                    ~ ". "
+                    ~ "Its containing subdirectory is probably missing a `+schema` "
+                    ~ "attribute under the `models` config in dbt_project.yml."
+                )
+            )
+        }}
 
     {%- else -%}
 
