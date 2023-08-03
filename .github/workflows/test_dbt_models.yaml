@@ -7,7 +7,7 @@ on:
         description: >-
           Use the master branch build cache to avoid rebuilding models.
         type: boolean
-        required: true
+        required: false
         default: true
 
 jobs:
@@ -38,5 +38,5 @@ jobs:
 
       - name: Test models
         run: dbt test --target prod
-        working-directory: ${{ DBT_PROJECT_DIR }}
+        working-directory: ${{ env.DBT_PROJECT_DIR }}
         shell: bash
