@@ -46,7 +46,7 @@ jobs:
           else
             {
               echo "DBT_TARGET=ci";
-              echo "CACHE_KEY=GITHUB_HEAD_REF";
+              echo "CACHE_KEY=$GITHUB_HEAD_REF";
             } >> "$GITHUB_ENV"
           fi
         shell: bash
@@ -56,7 +56,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ env.DBT_MANIFEST_DIR }}
-          key: ${{ env.DBT_CACHE_NAME }}-$${{ env.CACHE_KEY }}
+          key: ${{ env.DBT_CACHE_NAME }}-${{ env.CACHE_KEY }}
           restore-keys: |
             ${{ env.DBT_CACHE_NAME }}-data-catalog
             ${{ env.DBT_CACHE_NAME }}-master
