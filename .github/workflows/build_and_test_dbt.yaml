@@ -63,20 +63,12 @@ jobs:
 
       - if: ${{ steps.cache.outputs.cache-hit == 'true' }}
         name: Set command args to build/test modified resources
-        run: |
-          {
-            echo "RUN_CMD=dbt\ run\ --target\ $TARGET\ -s\ state:modified\ --state\ target/";
-            echo "TEST_CMD=dbt\ test\ --target\ $TARGET\ -s\ state:modified\ --state\ target/";
-          } >> "$GITHUB_ENV"
+        run: echo "MODIFIED_RESOURCES_ONLY=true" >> "$GITHUB_ENV"
         shell: bash
 
       - if: ${{ steps.cache.outputs.cache-hit != 'true' }}
         name: Set command args to build/test all resources
-        run: |
-          {
-            echo "RUN_CMD=dbt\ run\ --target\ $TARGET";
-            echo "TEST_CMD=dbt\ test\ --target\ $TARGET";
-          } >> "$GITHUB_ENV"
+        run: echo "MODIFIED_RESOURCES_ONLY=false" >> "$GITHUB_ENV"
         shell: bash
 
       - name: Test dbt macros
@@ -85,11 +77,21 @@ jobs:
         shell: bash
 
       - name: Build models
-        run: ${{ env.RUN_CMD }}
+        run: |
+          if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
+            dbt run --target "$TARGET" -s state:modified --state target/
+          else
+            dbt run --target "$TARGET"
+          fi
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
       - name: Test models
-        run: ${{ env.TEST_CMD }}
+        run: |
+          if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
+            dbt test --target "$TARGET" -s state:modified --state target/
+          else
+            dbt test --target "$TARGET"
+          fi
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
