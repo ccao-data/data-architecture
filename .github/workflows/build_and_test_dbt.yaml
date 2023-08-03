@@ -62,13 +62,21 @@ jobs:
             ${{ env.CACHE_NAME }}-master
 
       - if: ${{ steps.cache.outputs.cache-hit == 'true' }}
-        name: Set state args to build/test modified resources
-        run: echo "STATE_ARGS='-s state:modified --state target/'" >> "$GITHUB_ENV"
+        name: Set command args to build/test modified resources
+        run: |
+          {
+            echo "RUN_CMD='dbt run --target $TARGET -s state:modified --state target/'";
+            echo "TEST_CMD='dbt test --target $TARGET -s state:modified --state target/'";
+          } >> "$GITHUB_ENV"
         shell: bash
 
       - if: ${{ steps.cache.outputs.cache-hit != 'true' }}
-        name: Set state args to build/test all resources
-        run: echo "STATE_ARGS='--state target/'" >> "$GITHUB_ENV"
+        name: Set command args to build/test all resources
+        run: |
+          {
+            echo "RUN_CMD='dbt run --target $TARGET'";
+            echo "TEST_CMD='dbt test --target $TARGET'";
+          } >> "$GITHUB_ENV"
         shell: bash
 
       - name: Test dbt macros
@@ -77,11 +85,11 @@ jobs:
         shell: bash
 
       - name: Build models
-        run: dbt run --target "$TARGET" "$STATE_ARGS"
+        run: $RUN_CMD
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
       - name: Test models
-        run: dbt test --target "$TARGET" "$STATE_ARGS"
+        run: $TEST_CMD
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
