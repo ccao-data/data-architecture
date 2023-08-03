@@ -21,10 +21,6 @@ jobs:
       - name: Install dbt requirements
         uses: ./.github/actions/install_dbt_requirements
 
-      - name: Test dbt installation
-        run: dbt --help
-        working-directory: ${{ env.PROJECT_DIR }}
-
       - name: Load environment variables
         uses: ./.github/actions/load_environment_variables
 
@@ -69,8 +65,8 @@ jobs:
         name: Set command args to build/test modified resources
         run: |
           {
-            echo "RUN_CMD='dbt run --target $TARGET -s state:modified --state target/'";
-            echo "TEST_CMD='dbt test --target $TARGET -s state:modified --state target/'";
+            echo "RUN_CMD=dbt\ run\ --target\ $TARGET\ -s\ state:modified\ --state\ target/";
+            echo "TEST_CMD=dbt\ test\ --target\ $TARGET\ -s\ state:modified\ --state\ target/";
           } >> "$GITHUB_ENV"
         shell: bash
 
@@ -78,8 +74,8 @@ jobs:
         name: Set command args to build/test all resources
         run: |
           {
-            echo "RUN_CMD='dbt run --target $TARGET'";
-            echo "TEST_CMD='dbt test --target $TARGET'";
+            echo "RUN_CMD=dbt\ run\ --target\ $TARGET";
+            echo "TEST_CMD=dbt\ test\ --target\ $TARGET";
           } >> "$GITHUB_ENV"
         shell: bash
 
@@ -89,11 +85,11 @@ jobs:
         shell: bash
 
       - name: Build models
-        run: $RUN_CMD
+        run: ${{ env.RUN_CMD }}
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
       - name: Test models
-        run: $TEST_CMD
+        run: ${{ env.TEST_CMD }}
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
