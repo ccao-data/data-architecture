@@ -33,17 +33,20 @@ jobs:
       - name: Set environment for branch
         run: |
           if [[ $GITHUB_REF_NAME == 'master' ]]; then
+            echo "On master branch"
             {
               echo "TARGET=prod";
               echo "CACHE_KEY=master";
             } >> "$GITHUB_ENV"
           elif [[ $GITHUB_REF_NAME == 'data-catalog' ]]; then
+            echo "On data catalog branch"
             {
               echo "TARGET=ci";
               echo "CACHE_KEY=data-catalog";
               echo "GITHUB_HEAD_REF=data-catalog";
             } >> "$GITHUB_ENV"
           else
+            echo "On pull request branch"
             {
               echo "TARGET=ci";
               echo "CACHE_KEY=$GITHUB_HEAD_REF";
@@ -79,8 +82,10 @@ jobs:
       - name: Build models
         run: |
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
+            echo "Running build on modified resources only"
             dbt run --target "$TARGET" -s state:modified --state target/
           else
+            echo "Running build on all resources"
             dbt run --target "$TARGET"
           fi
         working-directory: ${{ env.PROJECT_DIR }}
@@ -89,8 +94,10 @@ jobs:
       - name: Test models
         run: |
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
+            echo "Running tests on modified resources only"
             dbt test --target "$TARGET" -s state:modified --state target/
           else
+            echo "Running tests on all resources"
             dbt test --target "$TARGET"
           fi
         working-directory: ${{ env.PROJECT_DIR }}
