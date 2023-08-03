@@ -46,7 +46,7 @@ jobs:
           else
             {
               echo "DBT_TARGET=ci";
-              echo "CACHE_KEY=$GITHUB_HEAD_REF";
+              echo "CACHE_KEY=GITHUB_HEAD_REF";
             } >> "$GITHUB_ENV"
           fi
         shell: bash
