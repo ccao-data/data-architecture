@@ -102,3 +102,13 @@ jobs:
           fi
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
+
+      - if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
+        name: Install cleanup requirements
+        run: apt update && apt install jq
+
+      - if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
+        name: Clean up resources
+        run: ./.github/scripts/cleanup_dbt_resources.sh
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
