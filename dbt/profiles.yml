@@ -7,7 +7,7 @@ athena:
       s3_data_dir: s3://ccao-dbt-athena-test-us-east-1/data/
       region_name: us-east-1
       # "schema" here corresponds to a Glue database
-      schema: dbt_test
+      schema: dbt-test
       # "database" here corresponds to a Glue data catalog
       database: awsdatacatalog
       threads: 5
@@ -16,7 +16,7 @@ athena:
       s3_staging_dir: s3://ccao-dbt-athena-ci-us-east-1/results/
       s3_data_dir: s3://ccao-dbt-athena-ci-us-east-1/data/
       region_name: us-east-1
-      schema: dbt_test
+      schema: dbt-test
       database: awsdatacatalog
       # Prefix all generated data by schema, so that we can delete it when the
       # PR is merged
