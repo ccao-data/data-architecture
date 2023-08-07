@@ -1,6 +1,6 @@
 -- Gathers AVs by year, major class, assessment stage, and
 -- township for reporting
-CREATE OR REPLACE VIEW reporting.vw_assessment_roll AS
+CREATE OR REPLACE VIEW reporting.vw_assessment_roll_test AS
 WITH values_by_year AS (
     SELECT
         parid,
@@ -10,30 +10,24 @@ WITH values_by_year AS (
             WHEN procname = 'CCAOFINAL' THEN 'assessor certified'
             WHEN procname = 'BORVALUE' THEN 'bor certified'
         END AS stage,
-        MAX(
-            CASE
-                WHEN taxyr < '2020' THEN ovrvalasm2
-                WHEN taxyr >= '2020' THEN valasm2
-            END
-        ) AS bldg,
-        MAX(
-            CASE
-                WHEN taxyr < '2020' THEN ovrvalasm1
-                WHEN taxyr >= '2020' THEN valasm1
-            END
-        ) AS land,
-        MAX(
-            CASE
-                WHEN taxyr < '2020' THEN ovrvalasm3
-                WHEN taxyr >= '2020' THEN valasm3
-            END
-        ) AS total
+        CASE
+            WHEN taxyr < '2020' THEN ovrvalasm2
+            WHEN taxyr >= '2020' THEN valasm2
+        END AS bldg,
+        CASE
+            WHEN taxyr < '2020' THEN ovrvalasm1
+            WHEN taxyr >= '2020' THEN valasm1
+        END AS land,
+        CASE
+            WHEN taxyr < '2020' THEN ovrvalasm3
+            WHEN taxyr >= '2020' THEN valasm3
+        END AS total
     FROM iasworld.asmt_all
     WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+        AND cur = 'Y'
         AND rolltype != 'RR'
         AND deactivat IS NULL
         AND valclass IS NULL
-    GROUP BY parid, taxyr, procname
 ),
 
 -- Add valuation class
