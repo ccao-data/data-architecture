@@ -112,7 +112,7 @@ jobs:
 
       - if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
         name: Install requirements for cleaning up dbt resources
-        run: apt update && apt install jq
+        run: apt-get update && apt-get install jq
 
       - if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
         name: Clean up dbt resources
