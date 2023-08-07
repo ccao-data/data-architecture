@@ -15,10 +15,6 @@ jobs:
     permissions:
       pages: write      # To deploy to Pages
       id-token: write   # To verify the deployment comes from an valid source
-    # Deploy to the github-pages environment
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
       - name: Checkout
