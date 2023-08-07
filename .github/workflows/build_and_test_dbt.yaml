@@ -110,10 +110,6 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
-      - name: Install requirements for cleaning up dbt resources
-        run: sudo apt-get update && sudo apt-get install jq
-        shell: bash
-
       - if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
         name: Clean up dbt resources
         run: ./.github/scripts/cleanup_dbt_resources.sh ci
