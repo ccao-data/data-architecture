@@ -1,9 +1,6 @@
 name: Test dbt models
 
-on:
-  workflow_dispatch:
-  pull_request:
-    branches: [master, data-catalog]
+on: workflow_dispatch
 
 jobs:
   test-dbt-models:
