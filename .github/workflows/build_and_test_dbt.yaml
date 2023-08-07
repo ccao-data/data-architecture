@@ -111,7 +111,8 @@ jobs:
         shell: bash
 
       - name: Install requirements for cleaning up dbt resources
-        run: apt-get update && apt-get install jq
+        run: sudo apt-get update && sudo apt-get install jq
+        shell: bash
 
       - if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
         name: Clean up dbt resources
