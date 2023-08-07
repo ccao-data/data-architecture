@@ -90,7 +90,7 @@ jobs:
         run: |
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
             echo "Running build on modified resources only"
-            dbt run --target "$TARGET" -s state:modified --state target/
+            dbt run --target "$TARGET" -s state:modified --defer --state target/
           else
             echo "Running build on all resources"
             dbt run --target "$TARGET"
