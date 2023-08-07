@@ -31,6 +31,6 @@ jobs:
           aws-region: us-east-1
 
       - name: Test models
-        run: dbt test --target ci
+        run: dbt --debug test --target ci
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
