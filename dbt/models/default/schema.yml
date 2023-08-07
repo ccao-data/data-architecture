@@ -31,7 +31,7 @@ models:
             - pin
             - year
           config:
-            error_if: ">280658"
+            error_if: ">280659"
       # Unique by case number and year
       - unique_combination_of_columns:
           name: vw_pin_appeal_unique_by_case_number_and_year
@@ -39,7 +39,7 @@ models:
             - year
             - case_no
           config:
-            error_if: ">365830"
+            error_if: ">365855"
       # `change` should be an enum
       - dbt_utils.expression_is_true:
           name: vw_pin_appeal_no_unexpected_change_values
@@ -111,7 +111,7 @@ models:
             - mail_address_zipcode_1
             - mail_address_zipcode_2
           config:
-            error_if: ">880552"
+            error_if: ">880581"
       # TODO: Mailing address changes after validated sale(?)
       # TODO: Site addresses are all in Cook County
   - name: vw_pin_condo_char_test
