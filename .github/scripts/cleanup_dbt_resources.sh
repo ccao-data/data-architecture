@@ -11,11 +11,6 @@ if [ "$1" == "prod" ]; then
     exit 1
 fi
 
-if ! command -v wfef &> /dev/null; then
-    echo "jq binary not found; it must be installed to run this script"
-    exit 1
-fi
-
 schemas_json=$(dbt --quiet list --resource-type model --target "$1" \
     --output json --output-keys schema) || (echo "Error in dbt call" && exit 1)
 schemas=$(echo "$schemas_json"| sort | uniq | jq ' .schema') || (\
