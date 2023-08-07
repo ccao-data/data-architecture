@@ -1,4 +1,12 @@
 #!/usr/bin/env bash
+# Clean up dbt resources created by a CI run or by local development.
+#
+# Takes one argument representing the target environment to clean up,
+# one of `dev` or `ci`. E.g.:
+#
+# ./cleanup_dbt_resources.sh dev
+#
+# Assumes that jq is installed and available on the caller's path.
 set -euo pipefail
 
 if [[ "$#" -eq 0 ]]; then
