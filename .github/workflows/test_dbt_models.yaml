@@ -1,8 +1,6 @@
 name: Test dbt models
 
 on:
-  pull_request:
-    branches: [master, data-catalog]
   workflow_dispatch:
     inputs:
       use_build_cache:
