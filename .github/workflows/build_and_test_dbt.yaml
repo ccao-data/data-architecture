@@ -110,8 +110,7 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
-      - if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
-        name: Install requirements for cleaning up dbt resources
+      - name: Install requirements for cleaning up dbt resources
         run: apt-get update && apt-get install jq
 
       - if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
