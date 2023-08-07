@@ -1,6 +1,10 @@
 name: Test dbt models
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'jeancochrane/31-data-catalog-define-github-actions-workflows-for-building-the-dbt-dag-and-running-tests'
 
 jobs:
   test-dbt-models:
