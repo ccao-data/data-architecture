@@ -14,7 +14,7 @@ on:
     branches: [master, data-catalog]
 
 jobs:
-  build-and-test:
+  build-and-test-dbt:
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint
     # so that we can authenticate with AWS
