@@ -1,0 +1,41 @@
+name: Deploy dbt docs
+
+on:
+  push:
+    branches:
+      - master
+      - data-catalog
+      # TODO: Remove this after testing
+      - '34-data-catalog-define-github-actions-workflow-for-rebuilding-and-deploying-docs-site'
+
+jobs:
+  deploy-dbt-docs:
+    runs-on: ubuntu-latest
+    # These permissions are required to make a GitHub Pages deployment
+    permissions:
+      pages: write      # To deploy to Pages
+      id-token: write   # To verify the deployment comes from an valid source
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dbt requirements
+        uses: ./.github/actions/install_dbt_requirements
+
+      - name: Load environment variables
+        uses: ./.github/actions/load_environment_variables
+
+      - name: Generate docs
+        run: dbt docs generate
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Upload docs directory artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: "target/"
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
