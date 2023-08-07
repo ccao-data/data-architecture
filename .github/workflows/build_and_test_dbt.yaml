@@ -112,6 +112,6 @@ jobs:
 
       - if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
         name: Clean up dbt resources
-        run: ./.github/scripts/cleanup_dbt_resources.sh ci
+        run: ../.github/scripts/cleanup_dbt_resources.sh ci
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
