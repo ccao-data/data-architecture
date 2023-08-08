@@ -11,5 +11,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - run: sed "" ${{ inputs.env_var_file_path }} >> "$GITHUB_ENV"
+    # Use sed to strip comment lines
+    - run: sed "/#/d" ${{ inputs.env_var_file_path }} >> "$GITHUB_ENV"
       shell: bash
