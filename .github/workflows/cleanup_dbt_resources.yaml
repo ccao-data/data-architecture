@@ -1,9 +1,12 @@
-name: test-dbt-models
+name: cleanup-dbt-resources
 
-on: workflow_dispatch
+on:
+  pull_request:
+    branches: [master, data-catalog]
+    types: [closed]
 
 jobs:
-  test-dbt-models:
+  cleanup-dbt-resources:
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint
     # so that we can authenticate with AWS
@@ -17,6 +20,10 @@ jobs:
       - name: Install dbt requirements
         uses: ./.github/actions/install_dbt_requirements
 
+      - name: Install requirements for cleaning up dbt resources
+        run: sudo apt-get update && sudo apt-get install jq
+        shell: bash
+
       - name: Load environment variables
         uses: ./.github/actions/load_environment_variables
 
@@ -26,12 +33,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
           aws-region: us-east-1
 
-      - name: Test models
-        # Target is currently set to CI because we expect this action to be
-        # run against the long-lived data-catalog branch, but we should change
-        # this to prod when we merge that branch into master
-        run: dbt test --target ci
+      - name: Clean up dbt resources
+        run: ../.github/scripts/cleanup_dbt_resources.sh ci
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
-        env:
-          GITHUB_HEAD_REF: data-catalog
