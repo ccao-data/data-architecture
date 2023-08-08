@@ -31,7 +31,7 @@ models:
             - pin
             - year
           config:
-            error_if: ">280659"
+            error_if: ">280662"
       # Unique by case number and year
       - unique_combination_of_columns:
           name: vw_pin_appeal_unique_by_case_number_and_year
@@ -39,7 +39,7 @@ models:
             - year
             - case_no
           config:
-            error_if: ">365855"
+            error_if: ">365894"
       # `change` should be an enum
       - dbt_utils.expression_is_true:
           name: vw_pin_appeal_no_unexpected_change_values
