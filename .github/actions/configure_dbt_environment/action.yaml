@@ -8,6 +8,8 @@ runs:
         # GITHUB_HEAD_REF is only set on pull_request events, so if it's
         # present, we must be in a PR context. Use the +x param expansion:
         # https://stackoverflow.com/a/13864829
+        echo "GITHUB_HEAD_REF:"
+        echo "$GITHUB_HEAD_REF"
         if [ -z ${GITHUB_HEAD_REF+x} ]; then
           echo "On pull request branch, setting dbt env to CI"
           {
