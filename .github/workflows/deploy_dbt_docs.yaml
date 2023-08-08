@@ -2,11 +2,11 @@ name: Deploy dbt docs
 
 on:
   push:
+    branches: [master, data-catalog]
+  # TODO: Remove this after testing
+  pull_request:
     branches:
-      - master
-      - data-catalog
-      # TODO: Remove this after testing
-      - '34-data-catalog-define-github-actions-workflow-for-rebuilding-and-deploying-docs-site'
+      - 'jeancochrane/31-data-catalog-define-github-actions-workflows-for-building-the-dbt-dag-and-running-tests'
 
 jobs:
   deploy-dbt-docs:
