@@ -3,13 +3,6 @@ name: build-and-test-dbt
 on:
   pull_request:
     branches: [master, data-catalog]
-    # Specifying event types manually allows us to run this flow when the
-    # PR is closed so that we can clean up staging dbt resources
-    types:
-      - opened
-      - synchronize
-      - closed
-      - reopened
   push:
     branches: [master, data-catalog]
 
@@ -107,16 +100,5 @@ jobs:
             echo "Running tests on all resources"
             dbt test --target "$TARGET"
           fi
-        working-directory: ${{ env.PROJECT_DIR }}
-        shell: bash
-
-      - if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
-        name: Install requirements for cleaning up dbt resources
-        run: sudo apt-get update && sudo apt-get install jq
-        shell: bash
-
-      - if: ${{ github.event_name == 'pull_request' && github.event.action == 'closed' }}
-        name: Clean up dbt resources
-        run: ../.github/scripts/cleanup_dbt_resources.sh ci
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
