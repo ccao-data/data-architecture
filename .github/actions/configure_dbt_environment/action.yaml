@@ -1,0 +1,29 @@
+name: Configure dbt environment
+description: Set environment variables based on the active dbt project (CI or prod)
+runs:
+  using: composite
+  steps:
+    - name: Configure dbt environment
+      run: |
+        if [[ $GITHUB_REF_NAME == 'master' ]]; then
+          echo "On master branch, setting dbt env to prod"
+          {
+            echo "TARGET=prod";
+            echo "CACHE_KEY=master";
+          } >> "$GITHUB_ENV"
+        elif [[ $GITHUB_REF_NAME == 'data-catalog' ]]; then
+          echo "On data catalog branch, setting dbt env to CI"
+          {
+            echo "TARGET=ci";
+            echo "CACHE_KEY=data-catalog";
+            echo "HEAD_REF=data-catalog";
+          } >> "$GITHUB_ENV"
+        else
+          echo "On pull request branch, setting dbt env to CI"
+          {
+            echo "TARGET=ci";
+            echo "CACHE_KEY=$GITHUB_HEAD_REF";
+            echo "HEAD_REF=$GITHUB_HEAD_REF"
+          } >> "$GITHUB_ENV"
+        fi
+      shell: bash
