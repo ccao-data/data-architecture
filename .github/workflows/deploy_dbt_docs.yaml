@@ -37,7 +37,7 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         env:
-          GITHUB_HEAD_REF: 34-data-catalog-define-github-actions-workflow-for-rebuilding-and-deploying-docs-site
+          HEAD_REF: 34-data-catalog-define-github-actions-workflow-for-rebuilding-and-deploying-docs-site
 
       - name: Upload docs directory artifact
         uses: actions/upload-pages-artifact@v2
