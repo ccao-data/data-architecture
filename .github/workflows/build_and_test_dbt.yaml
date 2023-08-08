@@ -1,4 +1,4 @@
-name: Build and test dbt
+name: build-and-test-dbt
 
 on:
   pull_request:

@@ -1,4 +1,4 @@
-name: Test dbt models
+name: test-dbt-models
 
 on: workflow_dispatch
 
