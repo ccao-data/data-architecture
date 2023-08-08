@@ -32,7 +32,7 @@ jobs:
         shell: bash
 
       - name: Upload docs directory artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v2
         with:
           path: "target/"
 
