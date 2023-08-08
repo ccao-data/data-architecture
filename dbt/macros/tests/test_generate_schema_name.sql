@@ -7,7 +7,7 @@
 
 {% macro mock_env_var(var_name) %}
     {% if var_name == "USER" %} {{ return("testuser") }}
-    {% elif var_name == "GITHUB_HEAD_REF" %} {{ return("testuser/feature-branch-1") }}
+    {% elif var_name == "HEAD_REF" %} {{ return("testuser/feature-branch-1") }}
     {% else %} {{ return("") }}
     {% endif %}
 {% endmacro %}
