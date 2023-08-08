@@ -39,10 +39,19 @@ jobs:
         env:
           HEAD_REF: 34-data-catalog-define-github-actions-workflow-for-rebuilding-and-deploying-docs-site
 
+      - name: Package doc files for upload
+        run: |
+          mkdir _site
+          for file in index.html catalog.json manifest.json; do
+            cp "target/$file" "_site/$file"
+          done
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
       - name: Upload docs directory artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: ${{ format('{0}/target', env.PROJECT_DIR) }}
+          path: ${{ format('{0}/_site', env.PROJECT_DIR) }}
 
       - name: Deploy to GitHub Pages
         id: deployment
