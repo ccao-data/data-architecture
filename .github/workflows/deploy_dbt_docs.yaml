@@ -1,12 +1,12 @@
-name: Deploy dbt docs
+name: deploy-dbt-docs
 
 on:
   push:
-    branches: [master, data-catalog]
-  # TODO: Remove this after testing
-  pull_request:
     branches:
-      - 'jeancochrane/31-data-catalog-define-github-actions-workflows-for-building-the-dbt-dag-and-running-tests'
+      - master
+      - data-catalog
+      # TODO: Remove this after testing
+      - 34-data-catalog-define-github-actions-workflow-for-rebuilding-and-deploying-docs-site
 
 jobs:
   deploy-dbt-docs:
@@ -36,6 +36,8 @@ jobs:
         run: dbt docs generate --target ci
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
+        env:
+          GITHUB_HEAD_REF: 34-data-catalog-define-github-actions-workflow-for-rebuilding-and-deploying-docs-site
 
       - name: Upload docs directory artifact
         uses: actions/upload-pages-artifact@v2
