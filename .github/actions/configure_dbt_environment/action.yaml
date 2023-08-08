@@ -6,9 +6,8 @@ runs:
     - name: Configure dbt environment
       run: |
         # GITHUB_REF_NAME is only set on pull_request events, so if it's
-        # present, we must be in a PR context. Use the +x param expansion:
-        # https://stackoverflow.com/a/13864829
-        if [ -z ${GITHUB_REF_NAME+x} ]; then
+        # present, we must be in a PR context
+        if [ -z $GITHUB_REF_NAME} ]; then
           echo "On pull request branch, setting dbt env to CI"
           {
             echo "TARGET=ci";
