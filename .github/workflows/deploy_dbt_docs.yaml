@@ -33,7 +33,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Generate docs
-        run: dbt docs generate
+        run: dbt docs generate --target ci
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
