@@ -27,6 +27,11 @@ jobs:
           aws-region: us-east-1
 
       - name: Test models
+        # Target is currently set to CI because we expect this action to be
+        # run against the long-lived data-catalog branch, but we should change
+        # this to prod when we merge that branch into master
         run: dbt test --target ci
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
+        env:
+          GITHUB_HEAD_REF: data-catalog
