@@ -33,7 +33,7 @@ jobs:
           aws-region: us-east-1
 
       - name: Generate docs
-        run: dbt --debug docs generate --target ci
+        run: GITHUB_HEAD_REF=$GITHUB_HEAD_REF dbt docs generate --target ci
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         env:
