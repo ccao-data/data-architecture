@@ -5,7 +5,6 @@ on:
     workflows: [build-and-test-dbt]
     branches: [master, data-catalog, 34-data-catalog-define-github-actions-workflow-for-rebuilding-and-deploying-docs-site]
     types: [completed]
-  workflow_dispatch:
 
 jobs:
   deploy-dbt-docs:
