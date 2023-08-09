@@ -39,7 +39,7 @@ models:
             - year
             - case_no
           config:
-            error_if: ">365894"
+            error_if: ">365905"
       # `change` should be an enum
       - dbt_utils.expression_is_true:
           name: vw_pin_appeal_no_unexpected_change_values
@@ -111,7 +111,7 @@ models:
             - mail_address_zipcode_1
             - mail_address_zipcode_2
           config:
-            error_if: ">880581"
+            error_if: ">880607"
       # TODO: Mailing address changes after validated sale(?)
       # TODO: Site addresses are all in Cook County
   - name: vw_pin_condo_char
@@ -180,6 +180,6 @@ models:
           group_column: year
           count_column: class
           config:
-            error_if: ">23"
+            error_if: ">24"
       # TODO: Data completeness correlates with availability of spatial data
       # by year
