@@ -125,7 +125,7 @@ LEFT JOIN iasworld.legdat AS leg
 LEFT JOIN spatial.parcel AS sp
     ON SUBSTR(par.parid, 1, 10) = sp.pin10
     AND par.taxyr = sp.year
-LEFT JOIN {{ ref('vw_pin10_location_test') }} AS vwl
+LEFT JOIN {{ ref('vw_pin10_location') }} AS vwl
     ON SUBSTR(par.parid, 1, 10) = vwl.pin10
     AND par.taxyr = vwl.year
 LEFT JOIN spatial.township AS twn

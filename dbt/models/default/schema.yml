@@ -2,8 +2,8 @@ version: 2
 
 
 models:
-  - name: vw_pin_history_test
-    description: '{{ doc("vw_pin_history_test") }}'
+  - name: vw_pin_history
+    description: '{{ doc("vw_pin_history") }}'
     tests:
       # Unique by 14-digit PIN and year
       - unique_combination_of_columns:
@@ -11,8 +11,8 @@ models:
           combination_of_columns:
             - pin
             - year
-  - name: vw_pin_value_test
-    description: '{{ doc("vw_pin_value_test") }}'
+  - name: vw_pin_value
+    description: '{{ doc("vw_pin_value") }}'
     tests:
       # Unique by 14-digit PIN and year
       - unique_combination_of_columns:
@@ -21,8 +21,8 @@ models:
             - pin
             - year
       # TODO: Values match what's in whatever iasworld view feeds our website
-  - name: vw_pin_appeal_test
-    description: '{{ doc("vw_pin_appeal_test") }}'
+  - name: vw_pin_appeal
+    description: '{{ doc("vw_pin_appeal") }}'
     tests:
       # Unique by 14-digit PIN and year
       - unique_combination_of_columns:
@@ -65,8 +65,8 @@ models:
             (change is null)
           config:
             error_if: ">266758"
-  - name: vw_card_res_char_test
-    description: '{{ doc("vw_card_res_char_test") }}'
+  - name: vw_card_res_char
+    description: '{{ doc("vw_card_res_char") }}'
     tests:
       # Unique by card and year
       - dbt_utils.unique_combination_of_columns:
@@ -87,8 +87,8 @@ models:
           config:
             error_if: ">73941"
       # TODO: Characteristics columns should adhere to pre-determined criteria
-  - name: vw_pin_address_test
-    description: '{{ doc("vw_pin_address_test") }}'
+  - name: vw_pin_address
+    description: '{{ doc("vw_pin_address") }}'
     tests:
       # Unique by 14-digit PIN and year
       - unique_combination_of_columns:
@@ -114,8 +114,8 @@ models:
             error_if: ">880581"
       # TODO: Mailing address changes after validated sale(?)
       # TODO: Site addresses are all in Cook County
-  - name: vw_pin_condo_char_test
-    description: '{{ doc("vw_pin_condo_char_test") }}'
+  - name: vw_pin_condo_char
+    description: '{{ doc("vw_pin_condo_char") }}'
     tests:
       # Unique by 14-digit PIN and year
       - unique_combination_of_columns:
@@ -131,8 +131,8 @@ models:
       # 10-digit PIN
       # TODO: Sum of proration rate never exceeds 1 per 10-digit PIN
       # TODO: Characteristics columns should adhere to pre-determined criteria
-  - name: vw_pin_sale_test
-    description: '{{ doc("vw_pin_sale_test") }}'
+  - name: vw_pin_sale
+    description: '{{ doc("vw_pin_sale") }}'
     columns:
       - name: doc_no
         tests:
@@ -160,8 +160,8 @@ models:
       # iasworld)
       # TODO: Validation is catching obvious outliers
       # TODO: Joins with other tables produce consistent number of rows
-  - name: vw_pin_universe_test
-    description: '{{ doc("vw_pin_universe_test") }}'
+  - name: vw_pin_universe
+    description: '{{ doc("vw_pin_universe") }}'
     tests:
       # Unique by 14-digit PIN and year
       - unique_combination_of_columns:
