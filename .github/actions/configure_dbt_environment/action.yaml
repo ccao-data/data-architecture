@@ -27,13 +27,6 @@ runs:
             echo "CACHE_KEY=data-catalog";
             echo "HEAD_REF=data-catalog";
           } >> "$GITHUB_ENV"
-        elif [[ $GITHUB_REF_NAME == '34-data-catalog-define-github-actions-workflow-for-rebuilding-and-deploying-docs-site' ]]; then
-          echo "On dbt docs branch, setting dbt env to CI"
-          {
-            echo "TARGET=ci";
-            echo "CACHE_KEY=$GITHUB_REF_NAME";
-            echo "HEAD_REF=$GITHUB_REF_NAME"
-          } >> "$GITHUB_ENV"
         else
           echo "CI context did not match any of the expected environments"
           exit 1

@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [master, data-catalog]
   push:
-    branches: [master, data-catalog, 34-data-catalog-define-github-actions-workflow-for-rebuilding-and-deploying-docs-site]
+    branches: [master, data-catalog]
 
 jobs:
   build-and-test-dbt:
