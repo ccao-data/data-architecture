@@ -1,0 +1,13 @@
+version: 2
+
+
+models:
+  - name: class_dict
+  - name: commercial_valuation
+  - name: hie
+  - name: land_nbhd_rate
+  - name: land_site_rate
+  - name: pin_399_garage_units
+  - name: pin_condo_char
+  - name: pin_questionable_garage_units
+  - name: pin_weird
