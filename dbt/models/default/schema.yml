@@ -183,3 +183,4 @@ models:
             error_if: ">24"
       # TODO: Data completeness correlates with availability of spatial data
       # by year
+  - name: vw_pin_exempt
