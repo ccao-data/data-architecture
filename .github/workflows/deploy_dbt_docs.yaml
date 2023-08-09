@@ -5,6 +5,7 @@ on:
     workflows: [build-and-test-dbt]
     branches: [master, data-catalog]
     types: [completed]
+  workflow_dispatch:
 
 jobs:
   deploy-dbt-docs:
@@ -13,33 +14,24 @@ jobs:
     permissions:
       pages: write      # To deploy to Pages
       id-token: write   # To verify the deployment comes from an valid source
-
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     steps:
-      # There is currently no way to early-exit a run with a success status
-      # in GitHub actions, so we have to mark each of these steps with the
-      # same `if` condition to restrict deploys to successful builds :(
-      # https://github.com/actions/runner/issues/662
-      - if: github.event.workflow_run.conclusion == 'success'
-        name: Checkout
+      - name: Checkout
         uses: actions/checkout@v3
 
-      - if: github.event.workflow_run.conclusion == 'success'
-        name: Install dbt requirements
+      - name: Install dbt requirements
         uses: ./.github/actions/install_dbt_requirements
 
-      - if: github.event.workflow_run.conclusion == 'success'
-        name: Load environment variables
+      - name: Load environment variables
         uses: ./.github/actions/load_environment_variables
 
-      - if: github.event.workflow_run.conclusion == 'success'
-        name: Configure AWS credentials
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
           aws-region: us-east-1
 
-      - if: github.event.workflow_run.conclusion == 'success'
-        name: Generate docs
+      - name: Generate docs
         # Target is currently set to CI because we expect this action to be
         # run against the long-lived data-catalog branch, but we should change
         # this to prod when we merge that branch into master
@@ -49,8 +41,7 @@ jobs:
         env:
           HEAD_REF: data-catalog
 
-      - if: github.event.workflow_run.conclusion == 'success'
-        name: Package doc files for upload
+      - name: Package doc files for upload
         run: |
           mkdir _site
           for file in index.html catalog.json manifest.json; do
@@ -59,13 +50,11 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
-      - if: github.event.workflow_run.conclusion == 'success'
-        name: Upload docs directory artifact
+      - name: Upload docs directory artifact
         uses: actions/upload-pages-artifact@v2
         with:
           path: ${{ format('{0}/_site', env.PROJECT_DIR) }}
 
-      - if: github.event.workflow_run.conclusion == 'success'
-        name: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
