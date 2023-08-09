@@ -2,8 +2,8 @@ version: 2
 
 
 models:
-  - name: vw_pin10_location_test
-    description: '{{ doc("vw_pin10_location_test") }}'
+  - name: vw_pin10_location
+    description: '{{ doc("vw_pin10_location") }}'
     tests:
       # Unique by 10-digit PIN and year
       - unique_combination_of_columns:
@@ -29,5 +29,5 @@ models:
             - year
       # TODO: Columns specific to certain locations only have values for that
       # location
-  - name: vw_pin10_location_fill_test
-    description: '{{ doc("vw_pin10_location_fill_test") }}'
+  - name: vw_pin10_location_fill
+    description: '{{ doc("vw_pin10_location_fill") }}'
