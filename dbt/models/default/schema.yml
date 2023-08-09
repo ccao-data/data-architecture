@@ -41,13 +41,18 @@ models:
           config:
             error_if: ">365905"
       # `change` should be an enum
-      - dbt_utils.expression_is_true:
+      - expression_is_true:
           name: vw_pin_appeal_no_unexpected_change_values
           expression: change is null or change in ('change', 'no change')
+          select_columns:
+            - pin
+            - year
+            - case_no
+            - change
           config:
             error_if: ">43"
       # If there is a `change`, the values should reflect this
-      - dbt_utils.expression_is_true:
+      - expression_is_true:
           name: vw_pin_appeal_change_matches_appeal_outcome
           expression: >-
             (change = 'no change' AND
@@ -63,6 +68,16 @@ models:
             )
             OR
             (change is null)
+          select_columns:
+            - pin
+            - year
+            - case_no
+            - mailed_bldg
+            - certified_bldg
+            - mailed_land
+            - certified_land
+            - mailed_tot
+            - certified_tot
           config:
             error_if: ">266758"
   - name: vw_card_res_char
@@ -77,13 +92,18 @@ models:
           config:
             error_if: ">913"
       # char_recent_renovation correlates with char_renovation
-      - dbt_utils.expression_is_true:
+      - expression_is_true:
           name: vw_card_res_char_renovation_fields_match
           # char_renovation can be null, which we count here as falsey
           expression: >-
             char_recent_renovation = (
               case when char_renovation = '1' then true else false end
             )
+          select_columns:
+            - card
+            - year
+            - char_renovation
+            - char_recent_renovation
           config:
             error_if: ">73941"
       # TODO: Characteristics columns should adhere to pre-determined criteria
