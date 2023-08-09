@@ -118,7 +118,7 @@ to debug the test failure.
 ### A special note on failures related to code changes
 
 To quickly rule out a failure related to a code change, you can switch to the
-main branch of this repo (or to an earlier commit where we know tests passed,
-if tests are failing on the main branch) and rerun the test. If the test
-continues to fail in the same fashion, then we can be confident that the root
-cause is the data and not the code change.
+main branch of this repository (or to an earlier commit where we know tests
+passed, if tests are failing on the main branch) and rerun the test. If the
+test continues to fail in the same fashion, then we can be confident that the
+root cause is the data and not the code change.
