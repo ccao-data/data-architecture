@@ -29,7 +29,7 @@ echo "Deleting the following schemas from Athena:"
 echo
 echo "$schemas"
 
-echo "$schemas" | xargs -i bash -c 'aws glue delete-database --name {} || exit 255'
+echo "$schemas" | xargs -i bash -c 'aws glue delete-database --name {}'
 
 echo
 echo "Done!"
