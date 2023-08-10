@@ -1,6 +1,4 @@
 -- View to collect currently exempt properties
-CREATE OR REPLACE VIEW default.vw_pin_exempt AS
-
 SELECT
     par.parid AS pin,
     par.taxyr AS year,

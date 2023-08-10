@@ -13,7 +13,8 @@ filled with the following steps:
 WARNING: This is a very heavy view. Don't use it for anything other than making
 extracts for modeling
 */
-CREATE OR REPLACE VIEW model.vw_card_res_input AS
+{{ config(materialized='view') }}
+
 WITH uni AS (
     SELECT * FROM model.vw_pin_shared_input
     WHERE meta_class IN (

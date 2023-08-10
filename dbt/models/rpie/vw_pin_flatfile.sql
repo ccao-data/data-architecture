@@ -1,0 +1,1 @@
+../../../aws-athena/views/rpie-vw_pin_class_flatfile.sql

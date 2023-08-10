@@ -1,5 +1,6 @@
 -- View containing most recent filtered sales
-CREATE OR REPLACE VIEW reporting.vw_pin_most_recent_sale AS
+{{ config(materialized='view') }}
+
 -- Universe of all PINs from most recent year of iasWorld data
 WITH all_pins AS (
     SELECT DISTINCT parid

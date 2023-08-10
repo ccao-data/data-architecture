@@ -30,7 +30,34 @@ models:
     ccao:
       +materialized: ephemeral
       +schema: ccao
+    census:
+      +materialized: ephemeral
+      +schema: census
     default:
       +schema: default
+    iasworld:
+      +materialized: ephemeral
+      +schema: iasworld
     location:
       +schema: location
+    model:
+      +materialized: ephemeral
+      +schema: model
+    other:
+      +materialized: ephemeral
+      +schema: other
+    proximity:
+      +materialized: ephemeral
+      +schema: proximity
+    reporting:
+      +materialized: ephemeral
+      +schema: reporting
+    rpie:
+      +materialized: ephemeral
+      +schema: rpie
+    spatial:
+      +materialized: ephemeral
+      +schema: spatial
+    tax:
+      +materialized: ephemeral
+      +schema: tax

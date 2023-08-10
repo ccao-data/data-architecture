@@ -16,8 +16,8 @@ of 2022 in model.assessment_pin will populate the view with a value of
 
 Intended to feed glue job 'res_report_summary'.
 */
+{{ config(materialized='view') }}
 
-CREATE OR REPLACE VIEW reporting.vw_res_report_summary AS
 -- Valuation class and nbhd from pardat, townships from legdat
 -- since pardat has some errors we can't accept for public reporting
 WITH town_class AS (
