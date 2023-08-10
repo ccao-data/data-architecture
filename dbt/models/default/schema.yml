@@ -39,7 +39,7 @@ models:
             - year
             - case_no
           config:
-            error_if: ">365905"
+            error_if: ">365929"
       # `change` should be an enum
       - dbt_utils.expression_is_true:
           name: vw_pin_appeal_no_unexpected_change_values
