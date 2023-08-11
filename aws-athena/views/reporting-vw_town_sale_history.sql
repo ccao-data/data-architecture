@@ -1,5 +1,4 @@
 -- Aggregate sales by assessment stage, property groups, year, and township
-{{ config(materialized='view') }}
 
 -- Add township name
 WITH town_names AS (

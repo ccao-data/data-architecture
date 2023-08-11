@@ -1,7 +1,5 @@
 -- View containing each of the PIN-level proximity/distance measurements
 -- in the proximity database
-{{ config(materialized='view') }}
-
 SELECT
     pin.pin10,
     pin.year,

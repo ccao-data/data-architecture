@@ -1,5 +1,5 @@
 -- View containing RPIE codes and parcel physical and mailing addresses
-CREATE OR REPLACE VIEW rpie.vw_pin_mailers AS
+
 -- physical parcel addresses
 WITH parcel_addressess AS (
     SELECT

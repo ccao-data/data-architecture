@@ -1,5 +1,4 @@
 --- A view to generate the top 5 parcels in a given township and year by AV
-{{ config(materialized='view') }}
 
 --- Choose most recent assessor value
 WITH most_recent_values AS (

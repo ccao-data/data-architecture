@@ -13,8 +13,6 @@ filled with the following steps:
 WARNING: This is a very heavy view. Don't use it for anything other than making
 extracts for modeling
 */
-{{ config(materialized='view') }}
-
 WITH uni AS (
     SELECT * FROM model.vw_pin_shared_input
     WHERE meta_class IN (

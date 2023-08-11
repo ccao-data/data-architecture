@@ -1,5 +1,4 @@
 -- View containing most recent filtered sales
-{{ config(materialized='view') }}
 
 -- Universe of all PINs from most recent year of iasWorld data
 WITH all_pins AS (

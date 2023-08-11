@@ -1,6 +1,4 @@
 -- View to convert raw ACS5 variables into useable statistics
-{{ config(materialized='view') }}
-
 WITH distinct_years AS (
     SELECT DISTINCT year
     FROM spatial.parcel

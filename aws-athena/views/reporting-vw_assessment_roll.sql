@@ -1,7 +1,5 @@
 -- Gathers AVs by year, major class, assessment stage, and
 -- township for reporting
-{{ config(materialized='view') }}
-
 WITH values_by_year AS (
     SELECT
         parid,

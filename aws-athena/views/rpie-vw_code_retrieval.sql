@@ -1,5 +1,4 @@
 -- View containing RPIE codes and mailing addresses
-CREATE OR REPLACE VIEW rpie.vw_code_retrieval AS
 SELECT
     pin_codes.pin,
     pin_codes.year,

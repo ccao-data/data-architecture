@@ -28,10 +28,21 @@ models:
   athena:
     +materialized: view
     ccao:
+      # Set default materialization on a per-schema basis. Schemas that contain
+      # _any_ persistent models should be set to `view` or `table`, or left
+      # to inherit the `view` default which is set on the `athena` project, but
+      # schemas that are entirely ephemeral should be marked `ephemeral`. The
+      # point of this pattern of defaults is that schemas with non-ephemeral
+      # defaults will be marked for deletion by the cleanup_dbt_resources.sh
+      # script, since `dbt list --select config.materialization:view` only
+      # reads this config file and does not consider model-level overrides.
+      # Hence, only schemas that contain exclusively ephemeral models should
+      # be marked with an `ephemeral` default, since we won't build those
+      # schemas into Athena and we don't want cleanup_dbt_resources.sh to
+      # try to clean them up.
       +materialized: ephemeral
       +schema: ccao
     census:
-      +materialized: ephemeral
       +schema: census
     default:
       +schema: default
@@ -41,19 +52,15 @@ models:
     location:
       +schema: location
     model:
-      +materialized: ephemeral
       +schema: model
     other:
       +materialized: ephemeral
       +schema: other
     proximity:
-      +materialized: ephemeral
       +schema: proximity
     reporting:
-      +materialized: ephemeral
       +schema: reporting
     rpie:
-      +materialized: ephemeral
       +schema: rpie
     spatial:
       +materialized: ephemeral

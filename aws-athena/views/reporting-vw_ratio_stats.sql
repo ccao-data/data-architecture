@@ -1,6 +1,5 @@
 -- View containing ratios by pin, intended to feed the
 -- glue job 'reporting-ratio_stats'.
-{{ config(materialized='view') }}
 
 -- Valuation class from pardat
 WITH classes AS (

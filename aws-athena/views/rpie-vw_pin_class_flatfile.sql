@@ -1,5 +1,4 @@
 -- View containing RPIE codes and classes for smartfile
-CREATE OR REPLACE VIEW rpie.vw_pin_flatfile AS
 WITH classes AS (
     SELECT
         parid AS pin,
