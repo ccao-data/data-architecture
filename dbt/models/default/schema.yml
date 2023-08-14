@@ -204,4 +204,3 @@ models:
       # TODO: Data completeness correlates with availability of spatial data
       # by year
   - name: vw_pin_exempt
-  - name: vw_test

@@ -5,7 +5,7 @@ SELECT
     SUBSTR(par.parid, 1, 10) AS pin10,
     par.taxyr AS year,
     REGEXP_REPLACE(par.class, '([^0-9EXR])', '') AS class,
-    -- twn.triad_name,
+    twn.triad_name,
     twn.triad_code,
     twn.township_name,
     leg.user1 AS township_code,
