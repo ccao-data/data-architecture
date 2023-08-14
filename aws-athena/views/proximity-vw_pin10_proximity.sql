@@ -1,6 +1,5 @@
 -- View containing each of the PIN-level proximity/distance measurements
 -- in the proximity database
-CREATE OR REPLACE VIEW proximity.vw_pin10_proximity AS
 SELECT
     pin.pin10,
     pin.year,

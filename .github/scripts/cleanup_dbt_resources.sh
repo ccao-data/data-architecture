@@ -20,7 +20,10 @@ if [ "$1" == "prod" ]; then
 fi
 
 schemas_json=$(dbt --quiet list --resource-type model --target "$1" \
-    --output json --output-keys schema) || (echo "Error in dbt call" && exit 1)
+    --exclude config.materialized:ephemeral --output json --output-keys schema \
+) || (\
+    echo "Error in dbt call" && exit 1
+)
 schemas=$(echo "$schemas_json"| sort | uniq | jq ' .schema') || (\
     echo "Error in schema parsing" && exit 1
 )

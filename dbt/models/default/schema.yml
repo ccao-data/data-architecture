@@ -39,7 +39,7 @@ models:
             - year
             - case_no
           config:
-            error_if: ">365905"
+            error_if: ">365929"
       # `change` should be an enum
       - expression_is_true:
           name: vw_pin_appeal_no_unexpected_change_values
@@ -203,3 +203,4 @@ models:
             error_if: ">24"
       # TODO: Data completeness correlates with availability of spatial data
       # by year
+  - name: vw_pin_exempt

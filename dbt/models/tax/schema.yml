@@ -1,0 +1,16 @@
+version: 2
+
+
+models:
+  - name: agency
+  - name: agency_fund
+  - name: agency_fund_info
+  - name: agency_info
+  - name: cpi
+  - name: eq_factor
+  - name: pin
+  - name: pin_geometry_raw
+  - name: tax_code
+  - name: tif
+  - name: tif_crosswalk
+  - name: tif_distribution

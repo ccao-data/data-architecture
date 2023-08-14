@@ -1,0 +1,12 @@
+version: 2
+
+
+models:
+  - name: ratio_stats
+  - name: res_report_summary
+  - name: vw_assessment_roll
+  - name: vw_pin_most_recent_sale
+  - name: vw_ratio_stats
+  - name: vw_res_report_summary
+  - name: vw_top_5
+  - name: vw_town_sale_history

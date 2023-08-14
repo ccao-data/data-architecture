@@ -1,5 +1,4 @@
 -- View to convert raw ACS5 variables into useable statistics
-CREATE OR REPLACE VIEW census.vw_acs5_stat AS
 WITH distinct_years AS (
     SELECT DISTINCT year
     FROM spatial.parcel

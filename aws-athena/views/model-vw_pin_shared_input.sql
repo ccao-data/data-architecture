@@ -12,7 +12,6 @@ consistency. Missing data is filled with the following steps:
 WARNING: This is a very heavy view. Don't use it for anything other than making
 extracts for modeling
 */
-CREATE OR REPLACE VIEW model.vw_pin_shared_input AS
 WITH uni AS (
 
     SELECT

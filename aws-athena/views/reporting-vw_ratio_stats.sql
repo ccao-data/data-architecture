@@ -1,6 +1,6 @@
 -- View containing ratios by pin, intended to feed the
 -- glue job 'reporting-ratio_stats'.
-CREATE OR REPLACE VIEW reporting.vw_ratio_stats AS
+
 -- Valuation class from pardat
 WITH classes AS (
     SELECT
