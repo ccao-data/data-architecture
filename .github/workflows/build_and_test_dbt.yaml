@@ -33,11 +33,11 @@ jobs:
       - name: Configure dbt environment
         uses: ./.github/actions/configure_dbt_environment
 
-      - name: Cache dbt manifest
+      - name: Cache dbt state directory
         id: cache
         uses: actions/cache@v3
         with:
-          path: ${{ env.MANIFEST_DIR }}
+          path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
           key: ${{ env.CACHE_NAME }}-${{ env.CACHE_KEY }}
           restore-keys: |
             ${{ env.CACHE_NAME }}-data-catalog
@@ -62,7 +62,7 @@ jobs:
         run: |
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
             echo "Running build on modified/new resources only"
-            dbt run -t "$TARGET" -s state:modified state:new --defer --state "$MANIFEST_DIR"
+            dbt run -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR"
           else
             echo "Running build on all resources"
             dbt run -t "$TARGET"
@@ -74,7 +74,7 @@ jobs:
         run: |
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
             echo "Running tests on modified/new resources only"
-            dbt test -t "$TARGET" -s state:modified state:new --state "$MANIFEST_DIR"
+            dbt test -t "$TARGET" -s state:modified state:new --state "$STATE_DIR"
           else
             echo "Running tests on all resources"
             dbt test -t "$TARGET"
@@ -83,6 +83,6 @@ jobs:
         shell: bash
 
       - name: Move dbt manifest directory to update cache
-        run: mv target "$MANIFEST_DIR"
+        run: mv "$TARGET_DIR" "$STATE_DIR"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
