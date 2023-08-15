@@ -44,6 +44,17 @@ ward_evanston AS (
         = (SELECT MAX(ward_evanston.year) FROM spatial.ward_evanston)
 ),
 
+community_area AS (
+    SELECT
+        community_area.community AS community_area_name,
+        community_area.area_number AS community_area_num,
+        community_area.year AS community_area_year,
+        ST_GEOMFROMBINARY(community_area.geometry_3435) AS geom
+    FROM spatial.community_area
+    WHERE community_area.year
+        = (SELECT MAX(community_area.year) FROM spatial.community_area)
+),
+
 commissioner_district AS (
     SELECT
         commissioner_district.commissioner_district_name,
@@ -100,6 +111,9 @@ SELECT
     ward_evanston.ward_evanston_name,
     ward_evanston.ward_evanston_num,
     ward_evanston.ward_evanston_year,
+    community_area.community_area_name,
+    community_area.community_area_num,
+    community_area.community_area_year,
     commissioner_district.commissioner_district_name,
     commissioner_district.commissioner_district_num,
     commissioner_district.commissioner_district_year,
@@ -113,6 +127,7 @@ FROM parcel
 LEFT JOIN municipality ON ST_WITHIN(parcel.geom, municipality.geom)
 LEFT JOIN ward_chicago ON ST_WITHIN(parcel.geom, ward_chicago.geom)
 LEFT JOIN ward_evanston ON ST_WITHIN(parcel.geom, ward_evanston.geom)
+LEFT JOIN community_area ON ST_WITHIN(parcel.geom, community_area.geom)
 LEFT JOIN
     commissioner_district
     ON ST_WITHIN(parcel.geom, commissioner_district.geom)
