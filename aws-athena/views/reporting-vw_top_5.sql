@@ -10,7 +10,7 @@ WITH most_recent_values AS (
             WHEN certified_tot IS NULL THEN 'mailed'
             ELSE 'certified'
         END AS stage_used
-    FROM default.vw_pin_value
+    FROM {{ ref('vw_pin_value') }}
     WHERE certified_tot IS NOT NULL
         OR mailed_tot IS NOT NULL
 ),
@@ -28,7 +28,7 @@ classes AS (
             unitdesc, unitno
         ), '') AS address,
         cityname AS city
-    FROM iasworld.pardat
+    FROM {{ ref('pardat') }}
 ),
 
 -- Add townships
@@ -37,7 +37,7 @@ townships AS (
         parid,
         taxyr,
         user1 AS township_code
-    FROM iasworld.legdat
+    FROM {{ ref('legdat') }}
 ),
 
 -- Add township name
@@ -46,7 +46,7 @@ town_names AS (
         triad_name AS triad,
         township_name,
         township_code
-    FROM spatial.township
+    FROM {{ ref('township') }}
 ),
 
 --- Mailing name from owndat
@@ -58,7 +58,7 @@ taxpayers AS (
             ' ',
             own1, own2
         ), '') AS owner_name
-    FROM iasworld.owndat
+    FROM {{ ref('owndat') }}
 ),
 
 -- Create ranks

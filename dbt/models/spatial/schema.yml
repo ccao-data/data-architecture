@@ -6,7 +6,7 @@ models:
   - name: board_of_review_district
   - name: building_footprint
   - name: cemetery
-  - name: census
+  - name: spatial_census
   - name: coastline
   - name: commissioner_district
   - name: community_area

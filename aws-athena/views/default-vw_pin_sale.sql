@@ -7,8 +7,8 @@ WITH town_class AS (
         par.taxyr,
         leg.user1 AS township_code,
         CONCAT(leg.user1, SUBSTR(par.nbhd, 3, 3)) AS nbhd
-    FROM iasworld.pardat AS par
-    LEFT JOIN iasworld.legdat AS leg
+    FROM {{ ref('pardat') }} AS par
+    LEFT JOIN {{ ref('legdat') }} AS leg
         ON par.parid = leg.parid
         AND par.taxyr = leg.taxyr
 ),
@@ -19,7 +19,7 @@ calculated AS (
     SELECT
         instruno,
         COUNT(*) AS nopar_calculated
-    FROM iasworld.sales
+    FROM {{ ref('sales') }}
     WHERE deactivat IS NULL
     GROUP BY instruno
 ),
@@ -72,7 +72,7 @@ unique_sales AS (
                 PARTITION BY sales.parid, sales.price
                 ORDER BY sales.saledt ASC, sales.salekey ASC
             ) AS same_price_earlier_date
-        FROM iasworld.sales
+        FROM {{ ref('sales') }} AS sales
         LEFT JOIN calculated
             ON sales.instruno = calculated.instruno
         LEFT JOIN

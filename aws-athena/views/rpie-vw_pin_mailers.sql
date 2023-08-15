@@ -46,7 +46,7 @@ WITH parcel_addressess AS (
                 )
                 THEN 'South'
         END AS tri
-    FROM iasworld.pardat
+    FROM {{ ref('pardat') }}
 ),
 
 -- parcel mailing addresses
@@ -77,7 +77,7 @@ owner_addressess AS (
             NULLIF(zip1, '00000'),
             NULLIF(zip2, '0000')
         ) AS mailing_zip
-    FROM iasworld.owndat
+    FROM {{ ref('owndat') }}
 ),
 
 -- RPIE pin/code combinations
@@ -95,7 +95,7 @@ pin_codes AS (
         || SUBSTR(pin_codes.pin, 11, 4) AS rpie_pin,
         pin_codes.year AS rpie_year,
         pin_codes.rpie_code
-    FROM rpie.pin_codes
+    FROM {{ ref('pin_codes') }} AS pin_codes
 )
 
 SELECT

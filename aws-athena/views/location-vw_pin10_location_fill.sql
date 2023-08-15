@@ -104,78 +104,78 @@ SELECT
 
     other.misc_subdivision_id,
     other.misc_subdivision_data_year
-FROM spatial.parcel AS pin
-INNER JOIN location.crosswalk_year_fill AS cyf
+FROM {{ ref('parcel') }} AS pin
+INNER JOIN {{ ref('location_crosswalk_year_fill') }} AS cyf
     ON pin.year = cyf.year
-LEFT JOIN location.census
+LEFT JOIN {{ ref('location_census') }} AS census
     ON pin.pin10 = census.pin10
     AND cyf.census_data_year = census.year
-LEFT JOIN location.census_acs5
+LEFT JOIN {{ ref('census_acs5') }} AS census_acs5
     ON pin.pin10 = census_acs5.pin10
     AND cyf.census_acs5_data_year = census_acs5.year
-LEFT JOIN location.political AS cook_board_of_review_district
+LEFT JOIN {{ ref('political') }} AS cook_board_of_review_district
     ON pin.pin10 = cook_board_of_review_district.pin10
     AND cyf.cook_board_of_review_district_data_year
     = cook_board_of_review_district.year
-LEFT JOIN location.political AS cook_commissioner_district
+LEFT JOIN {{ ref('political') }} AS cook_commissioner_district
     ON pin.pin10 = cook_commissioner_district.pin10
     AND cyf.cook_commissioner_district_data_year
     = cook_commissioner_district.year
-LEFT JOIN location.political AS cook_judicial_district
+LEFT JOIN {{ ref('political') }} AS cook_judicial_district
     ON pin.pin10 = cook_judicial_district.pin10
     AND cyf.cook_judicial_district_data_year = cook_judicial_district.year
-LEFT JOIN location.political AS ward_chicago
+LEFT JOIN {{ ref('political') }} AS ward_chicago
     ON pin.pin10 = ward_chicago.pin10
     AND cyf.ward_chicago_data_year = ward_chicago.year
-LEFT JOIN location.political AS ward_evanston
+LEFT JOIN {{ ref('political') }} AS ward_evanston
     ON pin.pin10 = ward_evanston.pin10
     AND cyf.ward_evanston_data_year = ward_evanston.year
-LEFT JOIN location.chicago AS chicago_community_area
+LEFT JOIN {{ ref('chicago') }} AS chicago_community_area
     ON pin.pin10 = chicago_community_area.pin10
     AND cyf.chicago_community_area_data_year = chicago_community_area.year
-LEFT JOIN location.chicago AS chicago_industrial_corridor
+LEFT JOIN {{ ref('chicago') }} AS chicago_industrial_corridor
     ON pin.pin10 = chicago_industrial_corridor.pin10
     AND cyf.chicago_industrial_corridor_data_year
     = chicago_industrial_corridor.year
-LEFT JOIN location.chicago AS chicago_police_district
+LEFT JOIN {{ ref('chicago') }} AS chicago_police_district
     ON pin.pin10 = chicago_police_district.pin10
     AND cyf.chicago_police_district_data_year = chicago_police_district.year
-LEFT JOIN location.economy AS econ_coordinated_care_area
+LEFT JOIN {{ ref('economy') }} AS econ_coordinated_care_area
     ON pin.pin10 = econ_coordinated_care_area.pin10
     AND cyf.econ_coordinated_care_area_data_year
     = econ_coordinated_care_area.year
-LEFT JOIN location.economy AS econ_enterprise_zone
+LEFT JOIN {{ ref('economy') }} AS econ_enterprise_zone
     ON pin.pin10 = econ_enterprise_zone.pin10
     AND cyf.econ_enterprise_zone_data_year = econ_enterprise_zone.year
-LEFT JOIN location.economy AS econ_industrial_growth_zone
+LEFT JOIN {{ ref('economy') }} AS econ_industrial_growth_zone
     ON pin.pin10 = econ_industrial_growth_zone.pin10
     AND cyf.econ_industrial_growth_zone_data_year
     = econ_industrial_growth_zone.year
-LEFT JOIN location.economy AS econ_qualified_opportunity_zone
+LEFT JOIN {{ ref('economy') }} AS econ_qualified_opportunity_zone
     ON pin.pin10 = econ_qualified_opportunity_zone.pin10
     AND cyf.econ_qualified_opportunity_zone_data_year
     = econ_qualified_opportunity_zone.year
-LEFT JOIN location.environment AS env_flood_fema
+LEFT JOIN {{ ref('environment') }} AS env_flood_fema
     ON pin.pin10 = env_flood_fema.pin10
     AND cyf.env_flood_fema_data_year = env_flood_fema.year
-LEFT JOIN location.environment AS env_flood_fs
+LEFT JOIN {{ ref('environment') }} AS env_flood_fs
     ON pin.pin10 = env_flood_fs.pin10
     AND cyf.env_flood_fs_data_year = env_flood_fs.year
-LEFT JOIN location.environment AS env_ohare_noise_contour
+LEFT JOIN {{ ref('environment') }} AS env_ohare_noise_contour
     ON pin.pin10 = env_ohare_noise_contour.pin10
     AND cyf.env_ohare_noise_contour_data_year = env_ohare_noise_contour.year
-LEFT JOIN location.environment AS env_airport_noise
+LEFT JOIN {{ ref('environment') }} AS env_airport_noise
     ON pin.pin10 = env_airport_noise.pin10
     AND cyf.env_airport_noise_data_year = env_airport_noise.year
-LEFT JOIN location.school
+LEFT JOIN {{ ref('school') }} AS school
     ON pin.pin10 = school.pin10
     AND cyf.school_data_year = school.year
-LEFT JOIN location.tax
+LEFT JOIN {{ ref('tax') }} AS tax
     ON pin.pin10 = tax.pin10
     AND cyf.tax_data_year = tax.year
-LEFT JOIN location.access
+LEFT JOIN {{ ref('access') }} AS access
     ON pin.pin10 = access.pin10
     AND cyf.access_cmap_walk_data_year = access.year
-LEFT JOIN location.other
+LEFT JOIN {{ ref('other') }} AS other
     ON pin.pin10 = other.pin10
     AND cyf.misc_subdivision_data_year = other.year

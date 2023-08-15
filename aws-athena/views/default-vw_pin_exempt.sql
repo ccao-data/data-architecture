@@ -20,17 +20,19 @@ SELECT
         LAST_VALUE(parcel.lat)
             IGNORE NULLS OVER (PARTITION BY par.parid ORDER BY par.taxyr)
     ) AS lat
-FROM iasworld.pardat AS par
+FROM {{ ref('pardat') }} AS par
 LEFT JOIN
-    iasworld.owndat AS own
+    {{ ref('owndat') }} AS own
     ON par.parid = own.parid AND par.taxyr = own.taxyr
 LEFT JOIN
-    iasworld.legdat AS leg
+    {{ ref('legdat') }} AS leg
     ON par.parid = leg.parid AND par.taxyr = leg.taxyr
-LEFT JOIN default.vw_pin_address AS vpa
+LEFT JOIN {{ ref('vw_pin_address') }} AS vpa
     ON par.parid = vpa.pin AND par.taxyr = vpa.year
-LEFT JOIN spatial.parcel ON vpa.pin10 = parcel.pin10 AND vpa.year = parcel.year
-LEFT JOIN spatial.township AS twn
+LEFT JOIN
+    {{ ref('parcel') }} AS parcel
+    ON vpa.pin10 = parcel.pin10 AND vpa.year = parcel.year
+LEFT JOIN {{ ref('township') }} AS twn
     ON leg.user1 = CAST(twn.township_code AS VARCHAR)
 WHERE
     --- This condition is how we determine exempt status, not through class

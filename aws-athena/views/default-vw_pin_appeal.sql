@@ -61,17 +61,17 @@ SELECT
         WHEN htpar.hrstatus = 'P' THEN 'pending'
         WHEN htpar.hrstatus = 'X' THEN 'closed pending c of e'
     END AS status
-FROM iasworld.htpar
-LEFT JOIN iasworld.pardat
+FROM {{ ref('htpar') }} AS htpar
+LEFT JOIN {{ ref('pardat') }} AS pardat
     ON htpar.parid = pardat.parid
     AND htpar.taxyr = pardat.taxyr
-LEFT JOIN iasworld.legdat
+LEFT JOIN {{ ref('legdat') }} AS legdat
     ON htpar.parid = legdat.parid
     AND htpar.taxyr = legdat.taxyr
 LEFT JOIN {{ ref('vw_pin_value') }} AS vwpv
     ON htpar.parid = vwpv.pin
     AND htpar.taxyr = vwpv.year
-LEFT JOIN iasworld.htagnt
+LEFT JOIN {{ ref('htagnt') }} AS htagnt
     ON htpar.cpatty = htagnt.agent
 WHERE htpar.cur = 'Y'
     AND htpar.caseno IS NOT NULL

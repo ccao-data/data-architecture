@@ -5,7 +5,7 @@ models:
   - name: cnt_pin_num_bus_stop
   - name: cnt_pin_num_foreclosure
   - name: cnt_pin_num_school
-  - name: crosswalk_year_fill
+  - name: proximity_crosswalk_year_fill
   - name: dist_pin_to_bike_trail
   - name: dist_pin_to_cemetery
   - name: dist_pin_to_cta_route

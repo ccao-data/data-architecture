@@ -5,7 +5,7 @@ WITH classes AS (
         parid,
         taxyr,
         class
-    FROM iasworld.pardat
+    FROM {{ ref('pardat') }}
 ),
 
 -- Add township number
@@ -14,7 +14,7 @@ townships AS (
         parid,
         taxyr,
         user1 AS township_code
-    FROM iasworld.legdat
+    FROM {{ ref('legdat') }}
 ),
 
 -- Add township name
@@ -22,7 +22,7 @@ town_names AS (
     SELECT
         township_name,
         township_code
-    FROM spatial.township
+    FROM {{ ref('township') }}
 )
 
 -- Add lagged values for previous two years
