@@ -2,20 +2,20 @@ version: 2
 
 
 models:
-  - name: assessment_card
-  - name: assessment_pin
-  - name: feature_importance
-  - name: final_model
-  - name: metadata
-  - name: parameter_final
-  - name: parameter_range
-  - name: parameter_search
-  - name: performance
-  - name: performance_quantile
-  - name: shap
-  - name: test_card
-  - name: timing
-  - name: vw_card_res_input
-  - name: vw_pin_condo_input
-  - name: vw_pin_shared_input
+  - name: model.assessment_card
+  - name: model.assessment_pin
+  - name: model.feature_importance
+  - name: model.final_model
+  - name: model.metadata
+  - name: model.parameter_final
+  - name: model.parameter_range
+  - name: model.parameter_search
+  - name: model.performance
+  - name: model.performance_quantile
+  - name: model.shap
+  - name: model.test_card
+  - name: model.timing
+  - name: model.vw_card_res_input
+  - name: model.vw_pin_condo_input
+  - name: model.vw_pin_shared_input
 

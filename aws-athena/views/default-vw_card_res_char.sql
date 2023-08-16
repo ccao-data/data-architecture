@@ -6,7 +6,7 @@ WITH multicodes AS (
         taxyr,
         COALESCE(COUNT(*) > 1, FALSE) AS pin_is_multicard,
         COUNT(*) AS pin_num_cards
-    FROM {{ ref('dweldat') }}
+    FROM {{ ref('iasworld.dweldat') }}
     GROUP BY parid, taxyr
 ),
 
@@ -17,7 +17,7 @@ aggregate_land AS (
         COALESCE(COUNT(*) > 1, FALSE) AS pin_is_multiland,
         COUNT(*) AS pin_num_landlines,
         SUM(sf) AS total_land_sf
-    FROM {{ ref('land') }}
+    FROM {{ ref('iasworld.land') }}
     GROUP BY parid, taxyr
 ),
 
@@ -26,7 +26,7 @@ townships AS (
         parid,
         taxyr,
         user1 AS township_code
-    FROM {{ ref('legdat') }}
+    FROM {{ ref('iasworld.legdat') }}
 )
 
 SELECT
@@ -128,8 +128,8 @@ SELECT
     dwel.user7 AS char_air,
     dwel.user5 AS char_tp_plan
 
-FROM {{ ref('dweldat') }} AS dwel
-LEFT JOIN {{ ref('pardat') }} AS pardat
+FROM {{ ref('iasworld.dweldat') }} AS dwel
+LEFT JOIN {{ ref('iasworld.pardat') }} AS pardat
     ON dwel.parid = pardat.parid
     AND dwel.taxyr = pardat.taxyr
 LEFT JOIN multicodes

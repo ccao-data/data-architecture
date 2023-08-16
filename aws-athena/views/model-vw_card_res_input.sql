@@ -14,7 +14,7 @@ WARNING: This is a very heavy view. Don't use it for anything other than making
 extracts for modeling
 */
 WITH uni AS (
-    SELECT * FROM {{ ref('vw_pin_shared_input') }}
+    SELECT * FROM {{ ref('model.vw_pin_shared_input') }}
     WHERE meta_class IN (
             '202', '203', '204', '205', '206', '207', '208', '209',
             '210', '211', '212', '218', '219', '234', '278', '295'
@@ -29,8 +29,8 @@ sqft_percentiles AS (
             AS char_bldg_sf_95_percentile,
         CAST(APPROX_PERCENTILE(ch.char_land_sf, 0.95) AS INT)
             AS char_land_sf_95_percentile
-    FROM {{ ref('vw_card_res_char') }} AS ch
-    LEFT JOIN {{ ref('legdat') }} AS leg
+    FROM {{ ref('default.vw_card_res_char') }} AS ch
+    LEFT JOIN {{ ref('iasworld.legdat') }} AS leg
         ON ch.pin = leg.parid AND ch.year = leg.taxyr
     GROUP BY ch.year, leg.user1
 ),
@@ -118,7 +118,7 @@ forward_fill AS (
         ) AS ind_land_bldg_ratio_gte_10
 
     FROM uni
-    LEFT JOIN {{ ref('vw_card_res_char') }} AS ch
+    LEFT JOIN {{ ref('default.vw_card_res_char') }} AS ch
         ON uni.meta_pin = ch.pin
         AND uni.meta_year = ch.year
     LEFT JOIN sqft_percentiles AS sp

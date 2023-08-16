@@ -34,20 +34,20 @@ WITH uni AS (
         sp.x_3435,
         sp.y_3435
 
-    FROM {{ ref('pardat') }} AS par
-    LEFT JOIN {{ ref('legdat') }} AS leg
+    FROM {{ ref('iasworld.pardat') }} AS par
+    LEFT JOIN {{ ref('iasworld.legdat') }} AS leg
         ON par.parid = leg.parid
         AND par.taxyr = leg.taxyr
-    LEFT JOIN {{ ref('parcel') }} AS sp
+    LEFT JOIN {{ ref('spatial.parcel') }} AS sp
         ON SUBSTR(par.parid, 1, 10) = sp.pin10
         AND par.taxyr = sp.year
-    LEFT JOIN {{ ref('township') }} AS twn
+    LEFT JOIN {{ ref('spatial.township') }} AS twn
         ON leg.user1 = CAST(twn.township_code AS VARCHAR)
 ),
 
 acs5 AS (
     SELECT *
-    FROM {{ ref('vw_acs5_stat') }}
+    FROM {{ ref('census.vw_acs5_stat') }}
     WHERE geography = 'tract'
 ),
 
@@ -56,7 +56,7 @@ housing_index AS (
         geoid,
         year,
         AVG(CAST(ihs_index AS DOUBLE)) AS ihs_avg_year_index
-    FROM {{ ref('ihs_index') }}
+    FROM {{ ref('other.ihs_index') }}
     GROUP BY geoid, year
 ),
 
@@ -66,8 +66,8 @@ tax_bill_amount AS (
         pardat.taxyr AS year,
         pin.tax_bill_total AS tot_tax_amt,
         tax_code.tax_code_rate AS tax_rate
-    FROM {{ ref('pardat') }} AS pardat
-    LEFT JOIN {{ ref('pin') }} AS pin
+    FROM {{ ref('iasworld.pardat') }} AS pardat
+    LEFT JOIN {{ ref('tax.pin') }} AS pin
         ON pardat.parid = pin.pin
         AND (
             CASE WHEN pardat.taxyr > (SELECT MAX(year) FROM tax.pin)
@@ -80,7 +80,7 @@ tax_bill_amount AS (
             year,
             tax_code_num,
             tax_code_rate
-        FROM {{ ref('tax_code') }}
+        FROM {{ ref('tax.tax_code') }}
     ) AS tax_code
         ON pin.tax_code_num = tax_code.tax_code_num
         AND pin.year = tax_code.year
@@ -93,7 +93,7 @@ school_district_ratings AS (
         district_type,
         AVG(rating) AS school_district_avg_rating,
         COUNT(*) AS num_schools_in_district
-    FROM {{ ref('great_schools_rating') }}
+    FROM {{ ref('other.great_schools_rating') }}
     GROUP BY district_geoid, district_type
 )
 
@@ -251,16 +251,16 @@ SELECT
     vwpf.nearest_neighbor_3_dist_ft
 
 FROM uni
-LEFT JOIN {{ ref('vw_pin10_location_fill') }} AS vwlf
+LEFT JOIN {{ ref('location.vw_pin10_location_fill') }} AS vwlf
     ON uni.pin10 = vwlf.pin10
     AND uni.year = vwlf.year
-LEFT JOIN {{ ref('vw_pin10_proximity_fill') }} AS vwpf
+LEFT JOIN {{ ref('proximity.vw_pin10_proximity_fill') }} AS vwpf
     ON uni.pin10 = vwpf.pin10
     AND uni.year = vwpf.year
-LEFT JOIN {{ ref('vw_pin_address') }} AS vwpa
+LEFT JOIN {{ ref('default.vw_pin_address') }} AS vwpa
     ON uni.pin = vwpa.pin
     AND uni.year = vwpa.year
-LEFT JOIN {{ ref('vw_pin_history') }} AS hist
+LEFT JOIN {{ ref('default.vw_pin_history') }} AS hist
     ON uni.pin = hist.pin
     AND uni.year = hist.year
 LEFT JOIN acs5

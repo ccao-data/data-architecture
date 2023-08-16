@@ -36,11 +36,11 @@ WITH town_class AS (
                 THEN 'SF'
         END AS property_group,
         CAST(CAST(par.taxyr AS INT) - 1 AS VARCHAR) AS model_join_year
-    FROM {{ ref('pardat') }} AS par
-    LEFT JOIN {{ ref('legdat') }} AS leg
+    FROM {{ ref('iasworld.pardat') }} AS par
+    LEFT JOIN {{ ref('iasworld.legdat') }} AS leg
         ON par.parid = leg.parid
         AND par.taxyr = leg.taxyr
-    LEFT JOIN {{ ref('township') }} AS town
+    LEFT JOIN {{ ref('spatial.township') }} AS town
         ON leg.user1 = town.township_code
 ),
 
@@ -57,7 +57,7 @@ model_values AS (
         tc.taxyr AS year,
         'model' AS assessment_stage,
         ap.pred_pin_final_fmv_round AS total
-    FROM {{ ref('assessment_pin') }} AS ap
+    FROM {{ ref('model.assessment_pin') }} AS ap
     LEFT JOIN town_class AS tc
         ON ap.meta_pin = tc.parid
         AND ap.meta_year = tc.model_join_year
@@ -86,7 +86,7 @@ iasworld_values AS (
                 WHEN aa.taxyr >= '2020' THEN aa.valasm3
             END
         ) * 10 AS total
-    FROM {{ ref('asmt_all') }} AS aa
+    FROM {{ ref('iasworld.asmt_all') }} AS aa
     LEFT JOIN town_class AS tc
         ON aa.parid = tc.parid
         AND aa.taxyr = tc.taxyr
@@ -179,7 +179,7 @@ sales AS (
         tc.property_group,
         tc.township_code,
         vwps.nbhd AS townnbhd
-    FROM {{ ref('vw_pin_sale') }} AS vwps
+    FROM {{ ref('default.vw_pin_sale') }} AS vwps
     LEFT JOIN town_class AS tc
         ON vwps.pin = tc.parid
         AND vwps.year = tc.taxyr
@@ -193,7 +193,7 @@ aggregate_land AS (
         parid,
         taxyr,
         SUM(sf) AS total_land_sf
-    FROM {{ ref('land') }}
+    FROM {{ ref('iasworld.land') }}
     GROUP BY parid, taxyr
 ),
 
@@ -204,7 +204,7 @@ chars AS (
         taxyr,
         MIN(yrblt) AS yrblt,
         SUM(sfla) AS total_bldg_sf
-    FROM {{ ref('dweldat') }}
+    FROM {{ ref('iasworld.dweldat') }}
     GROUP BY parid, taxyr
     UNION
     SELECT
@@ -212,7 +212,7 @@ chars AS (
         year AS taxyr,
         char_yrblt AS yrblt,
         char_building_sf AS total_bldg_sf
-    FROM {{ ref('vw_pin_condo_char') }}
+    FROM {{ ref('default.vw_pin_condo_char') }}
     WHERE NOT is_parking_space
         AND NOT is_common_area
 ),

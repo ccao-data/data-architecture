@@ -4,7 +4,7 @@ WITH classes AS (
         parid AS pin,
         CAST(CAST(taxyr AS INT) + 1 AS VARCHAR) AS year,
         class
-    FROM {{ ref('pardat') }}
+    FROM {{ ref('iasworld.pardat') }}
 )
 
 SELECT
@@ -19,9 +19,9 @@ SELECT
     classes.class,
     pc.rpie_code
 FROM (
-    SELECT * FROM {{ ref('pin_codes') }}
+    SELECT * FROM {{ ref('rpie.pin_codes') }}
     UNION
-    SELECT * FROM {{ ref('pin_codes_dummy') }}
+    SELECT * FROM {{ ref('rpie.pin_codes_dummy') }}
 ) AS pc
 LEFT JOIN classes
     ON pc.pin = classes.pin

@@ -2,23 +2,23 @@ version: 2
 
 
 models:
-  - name: cnt_pin_num_bus_stop
-  - name: cnt_pin_num_foreclosure
-  - name: cnt_pin_num_school
-  - name: proximity_crosswalk_year_fill
-  - name: dist_pin_to_bike_trail
-  - name: dist_pin_to_cemetery
-  - name: dist_pin_to_cta_route
-  - name: dist_pin_to_cta_stop
-  - name: dist_pin_to_golf_course
-  - name: dist_pin_to_hospital
-  - name: dist_pin_to_lake_michigan
-  - name: dist_pin_to_major_road
-  - name: dist_pin_to_metra_route
-  - name: dist_pin_to_metra_stop
-  - name: dist_pin_to_park
-  - name: dist_pin_to_pin
-  - name: dist_pin_to_railroad
-  - name: dist_pin_to_water
-  - name: vw_pin10_proximity
-  - name: vw_pin10_proximity_fill
+  - name: proximity.cnt_pin_num_bus_stop
+  - name: proximity.cnt_pin_num_foreclosure
+  - name: proximity.cnt_pin_num_school
+  - name: proximity.crosswalk_year_fill
+  - name: proximity.dist_pin_to_bike_trail
+  - name: proximity.dist_pin_to_cemetery
+  - name: proximity.dist_pin_to_cta_route
+  - name: proximity.dist_pin_to_cta_stop
+  - name: proximity.dist_pin_to_golf_course
+  - name: proximity.dist_pin_to_hospital
+  - name: proximity.dist_pin_to_lake_michigan
+  - name: proximity.dist_pin_to_major_road
+  - name: proximity.dist_pin_to_metra_route
+  - name: proximity.dist_pin_to_metra_stop
+  - name: proximity.dist_pin_to_park
+  - name: proximity.dist_pin_to_pin
+  - name: proximity.dist_pin_to_railroad
+  - name: proximity.dist_pin_to_water
+  - name: proximity.vw_pin10_proximity
+  - name: proximity.vw_pin10_proximity_fill

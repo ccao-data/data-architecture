@@ -5,7 +5,7 @@ WITH classes AS (
         parid,
         taxyr,
         class
-    FROM {{ ref('pardat') }}
+    FROM {{ ref('iasworld.pardat') }}
 ),
 
 -- Add township number
@@ -14,7 +14,7 @@ townships AS (
         parid,
         taxyr,
         user1 AS township_code
-    FROM {{ ref('legdat') }}
+    FROM {{ ref('iasworld.legdat') }}
 ),
 
 -- Add township name
@@ -22,7 +22,7 @@ town_names AS (
     SELECT
         township_name,
         township_code
-    FROM {{ ref('township') }}
+    FROM {{ ref('spatial.township') }}
 )
 
 -- Add lagged values for previous two years
@@ -106,7 +106,7 @@ SELECT
         ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_board_tot
 
-FROM {{ ref('vw_pin_value') }} AS vwpv
+FROM {{ ref('default.vw_pin_value') }} AS vwpv
 LEFT JOIN townships
     ON vwpv.pin = townships.parid
     AND vwpv.year = townships.taxyr

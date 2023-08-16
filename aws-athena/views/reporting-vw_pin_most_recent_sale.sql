@@ -3,7 +3,7 @@
 -- Universe of all PINs from most recent year of iasWorld data
 WITH all_pins AS (
     SELECT DISTINCT parid
-    FROM {{ ref('pardat') }}
+    FROM {{ ref('iasworld.pardat') }}
     WHERE taxyr = CAST(YEAR(CURRENT_DATE) AS VARCHAR)
 ),
 
@@ -15,7 +15,7 @@ sale_rank AS (
             PARTITION BY pin
             ORDER BY sale_date DESC
         ) AS rank
-    FROM {{ ref('vw_pin_sale') }}
+    FROM {{ ref('default.vw_pin_sale') }}
 )
 
 SELECT

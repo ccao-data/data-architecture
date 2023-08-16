@@ -2,18 +2,18 @@ version: 2
 
 
 models:
-  - name: access
-  - name: location_census
-  - name: census_acs5
-  - name: chicago
-  - name: location_crosswalk_year_fill
-  - name: economy
-  - name: environment
-  - name: other
-  - name: political
-  - name: school
-  - name: tax
-  - name: vw_pin10_location
+  - name: location.access
+  - name: location.census
+  - name: location.census_acs5
+  - name: location.chicago
+  - name: location.crosswalk_year_fill
+  - name: location.economy
+  - name: location.environment
+  - name: location.other
+  - name: location.political
+  - name: location.school
+  - name: location.tax
+  - name: location.vw_pin10_location
     description: '{{ doc("vw_pin10_location") }}'
     tests:
       # Unique by 10-digit PIN and year
@@ -40,5 +40,5 @@ models:
             - year
       # TODO: Columns specific to certain locations only have values for that
       # location
-  - name: vw_pin10_location_fill
+  - name: location.vw_pin10_location_fill
     description: '{{ doc("vw_pin10_location_fill") }}'

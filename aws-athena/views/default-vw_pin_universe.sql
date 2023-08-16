@@ -118,15 +118,15 @@ SELECT
     vwl.access_cmap_walk_data_year,
     vwl.misc_subdivision_id,
     vwl.misc_subdivision_data_year
-FROM {{ ref('pardat') }} AS par
-LEFT JOIN {{ ref('legdat') }} AS leg
+FROM {{ ref('iasworld.pardat') }} AS par
+LEFT JOIN {{ ref('iasworld.legdat') }} AS leg
     ON par.parid = leg.parid
     AND par.taxyr = leg.taxyr
-LEFT JOIN {{ ref('parcel') }} AS sp
+LEFT JOIN {{ ref('spatial.parcel') }} AS sp
     ON SUBSTR(par.parid, 1, 10) = sp.pin10
     AND par.taxyr = sp.year
-LEFT JOIN {{ ref('vw_pin10_location') }} AS vwl
+LEFT JOIN {{ ref('location.vw_pin10_location') }} AS vwl
     ON SUBSTR(par.parid, 1, 10) = vwl.pin10
     AND par.taxyr = vwl.year
-LEFT JOIN {{ ref('township') }} AS twn
+LEFT JOIN {{ ref('spatial.township') }} AS twn
     ON leg.user1 = CAST(twn.township_code AS VARCHAR)

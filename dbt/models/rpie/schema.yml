@@ -2,8 +2,8 @@ version: 2
 
 
 models:
-  - name: pin_codes
-  - name: pin_codes_dummy
-  - name: vw_code_retrieval
-  - name: vw_pin_flatfile
-  - name: vw_pin_mailers
+  - name: rpie.pin_codes
+  - name: rpie.pin_codes_dummy
+  - name: rpie.vw_code_retrieval
+  - name: rpie.vw_pin_flatfile
+  - name: rpie.vw_pin_mailers

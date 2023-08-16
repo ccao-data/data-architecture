@@ -1,7 +1,7 @@
 -- View to convert raw ACS5 variables into useable statistics
 WITH distinct_years AS (
     SELECT DISTINCT year
-    FROM {{ ref('parcel') }}
+    FROM {{ ref('spatial.parcel') }}
 ),
 
 acs5_forward_fill AS (
@@ -12,12 +12,12 @@ acs5_forward_fill AS (
         SELECT
             dy.year AS filled_year,
             MAX(df.year) AS fill_year
-        FROM {{ ref('acs5') }} AS df
+        FROM {{ ref('census.acs5') }} AS df
         CROSS JOIN distinct_years AS dy
         WHERE dy.year >= df.year
         GROUP BY dy.year
     ) AS fill_years
-    LEFT JOIN {{ ref('acs5') }} AS fill_data
+    LEFT JOIN {{ ref('census.acs5') }} AS fill_data
         ON fill_years.fill_year = fill_data.year
 )
 

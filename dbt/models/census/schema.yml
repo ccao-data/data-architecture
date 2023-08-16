@@ -2,9 +2,9 @@ version: 2
 
 
 models:
-  - name: acs1
-  - name: acs5
-  - name: decennial
-  - name: table_dict
-  - name: variable_dict
-  - name: vw_acs5_stat
+  - name: census.acs1
+  - name: census.acs5
+  - name: census.decennial
+  - name: census.table_dict
+  - name: census.variable_dict
+  - name: census.vw_acs5_stat

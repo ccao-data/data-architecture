@@ -16,7 +16,7 @@ WITH classes AS (
                 )
                 THEN 'SF'
         END AS property_group
-    FROM {{ ref('pardat') }}
+    FROM {{ ref('iasworld.pardat') }}
 ),
 
 townships AS (
@@ -24,14 +24,14 @@ townships AS (
         leg.parid,
         leg.taxyr,
         leg.user1 AS township_code
-    FROM {{ ref('legdat') }} AS leg
+    FROM {{ ref('iasworld.legdat') }} AS leg
 ),
 
 town_names AS (
     SELECT
         township_code,
         triad_code AS triad
-    FROM {{ ref('township') }}
+    FROM {{ ref('spatial.township') }}
 ),
 
 model_values AS (
@@ -40,7 +40,7 @@ model_values AS (
         CAST(CAST(ap.meta_year AS INT) + 1 AS VARCHAR) AS year,
         'model' AS assessment_stage,
         ap.pred_pin_final_fmv_round AS total
-    FROM {{ ref('assessment_pin') }} AS ap
+    FROM {{ ref('model.assessment_pin') }} AS ap
     LEFT JOIN classes
         ON ap.meta_pin = classes.parid
         AND ap.meta_year = classes.taxyr
@@ -63,7 +63,7 @@ iasworld_values AS (
                 WHEN asmt_all.taxyr >= '2020' THEN asmt_all.valasm3
             END
         ) * 10 AS total
-    FROM {{ ref('asmt_all') }} AS asmt_all
+    FROM {{ ref('iasworld.asmt_all') }} AS asmt_all
     WHERE (asmt_all.valclass IS NULL OR asmt_all.taxyr < '2020')
         AND asmt_all.procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
         AND asmt_all.taxyr >= '2021'
@@ -86,7 +86,7 @@ all_values AS (
 
 parking_space AS (
     SELECT *
-    FROM {{ ref('vw_pin_condo_char') }}
+    FROM {{ ref('default.vw_pin_condo_char') }}
     WHERE is_parking_space = TRUE
 )
 
@@ -101,7 +101,7 @@ SELECT
     av.total AS fmv,
     vwps.sale_price,
     av.total / vwps.sale_price AS ratio
-FROM {{ ref('vw_pin_sale') }} AS vwps
+FROM {{ ref('default.vw_pin_sale') }} AS vwps
 LEFT JOIN classes
     ON vwps.pin = classes.parid
     AND vwps.year = classes.taxyr

@@ -48,10 +48,10 @@ SELECT
     NULLIF(own.zip1, '00000') AS mail_address_zipcode_1,
     NULLIF(own.zip2, '0000') AS mail_address_zipcode_2
 
-FROM {{ ref('pardat') }} AS par
-LEFT JOIN {{ ref('legdat') }} AS leg
+FROM {{ ref('iasworld.pardat') }} AS par
+LEFT JOIN {{ ref('iasworld.legdat') }} AS leg
     ON par.parid = leg.parid
     AND par.taxyr = leg.taxyr
-LEFT JOIN {{ ref('owndat') }} AS own
+LEFT JOIN {{ ref('iasworld.owndat') }} AS own
     ON par.parid = own.parid
     AND par.taxyr = own.taxyr

@@ -16,7 +16,7 @@ WITH aggregate_land AS (
         COALESCE(COUNT(*) > 1, FALSE) AS pin_is_multiland,
         COUNT(*) AS pin_num_landlines,
         SUM(sf) AS total_building_land_sf
-    FROM {{ ref('land') }}
+    FROM {{ ref('iasworld.land') }}
     GROUP BY parid, taxyr
 ),
 
@@ -25,7 +25,7 @@ questionable_gr AS (
     SELECT
         pin,
         TRUE AS is_question_garage_unit
-    FROM {{ ref('pin_questionable_garage_units') }}
+    FROM {{ ref('ccao.pin_questionable_garage_units') }}
 ),
 
 -- For some reason PINs can have cur != 'Y' in the current year even
@@ -40,7 +40,7 @@ oby_filtered AS (
             ROW_NUMBER()
                 OVER (PARTITION BY parid, taxyr ORDER BY wen DESC)
                 AS row_no
-        FROM {{ ref('oby') }}
+        FROM {{ ref('iasworld.oby') }}
         WHERE class IN ('299', '2-99', '200')
     )
     WHERE (cur = 'Y' OR (cur_count = 0 AND row_no = 1))
@@ -56,7 +56,7 @@ comdat_filtered AS (
             ROW_NUMBER()
                 OVER (PARTITION BY parid, taxyr ORDER BY wen DESC)
                 AS row_no
-        FROM {{ ref('comdat') }}
+        FROM {{ ref('iasworld.comdat') }}
         WHERE class = '399'
     )
     WHERE (cur = 'Y' OR (cur_count = 0 AND row_no = 1))
@@ -80,7 +80,7 @@ prior_values AS (
                     THEN valasm3
             END
         ) AS oneyr_pri_board_tot
-    FROM {{ ref('asmt_all') }}
+    FROM {{ ref('iasworld.asmt_all') }}
     WHERE class IN ('299', '2-99', '399')
     GROUP BY parid, taxyr
 ),
@@ -185,7 +185,7 @@ chars AS (
                 )
             > 0, FALSE)
                 AS bldg_is_mixed_use
-        FROM {{ ref('pardat') }} AS par
+        FROM {{ ref('iasworld.pardat') }} AS par
 
         -- Left joins because par contains both 299s & 399s (oby and comdat
         -- do not) and pin_condo_char doesn't contain all condos
@@ -195,13 +195,13 @@ chars AS (
         LEFT JOIN comdat_filtered AS com
             ON par.parid = com.parid
             AND par.taxyr = com.taxyr
-        LEFT JOIN {{ ref('pin_condo_char') }} AS pin_condo_char
+        LEFT JOIN {{ ref('ccao.pin_condo_char') }} AS pin_condo_char
             ON par.parid = pin_condo_char.pin
             AND par.taxyr = pin_condo_char.year
-        LEFT JOIN {{ ref('legdat') }} AS leg
+        LEFT JOIN {{ ref('iasworld.legdat') }} AS leg
             ON par.parid = leg.parid
             AND par.taxyr = leg.taxyr
-        LEFT JOIN {{ ref('pin_399_garage_units') }} AS p3gu
+        LEFT JOIN {{ ref('ccao.pin_399_garage_units') }} AS p3gu
             ON par.parid = p3gu.parid
             AND par.taxyr = p3gu.taxyr
     )
