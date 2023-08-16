@@ -1,8 +1,10 @@
 version: 2
 
 
-models:
-  - name: other.airport_noise
-  - name: other.flood_first_street
-  - name: other.great_schools_rating
-  - name: other.ihs_index
+sources:
+  - name: other
+    tables:
+      - name: airport_noise
+      - name: flood_first_street
+      - name: great_schools_rating
+      - name: ihs_index

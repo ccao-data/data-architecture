@@ -27,7 +27,7 @@ WITH values_by_year AS (
                 WHEN taxyr >= '2020' THEN valasm3
             END
         ) AS total
-    FROM {{ ref('iasworld.asmt_all') }}
+    FROM {{ source('iasworld', 'asmt_all') }}
     WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
         AND rolltype != 'RR'
         AND deactivat IS NULL
@@ -52,7 +52,7 @@ classes AS (
                 ) THEN '5B'
             ELSE SUBSTR(class, 1, 1)
         END AS class
-    FROM {{ ref('iasworld.pardat') }}
+    FROM {{ source('iasworld', 'pardat') }}
 ),
 
 -- Add townships
@@ -61,7 +61,7 @@ townships AS (
         parid,
         taxyr,
         user1 AS township_code
-    FROM {{ ref('iasworld.legdat') }}
+    FROM {{ source('iasworld', 'legdat') }}
 ),
 
 -- Add township name
@@ -70,7 +70,7 @@ town_names AS (
         triad_name AS triad,
         township_name,
         township_code
-    FROM {{ ref('spatial.township') }}
+    FROM {{ source('spatial', 'township') }}
 )
 
 -- Add total and median values by township

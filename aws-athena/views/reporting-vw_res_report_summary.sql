@@ -36,11 +36,11 @@ WITH town_class AS (
                 THEN 'SF'
         END AS property_group,
         CAST(CAST(par.taxyr AS INT) - 1 AS VARCHAR) AS model_join_year
-    FROM {{ ref('iasworld.pardat') }} AS par
-    LEFT JOIN {{ ref('iasworld.legdat') }} AS leg
+    FROM {{ source('iasworld', 'pardat') }} AS par
+    LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
         ON par.parid = leg.parid
         AND par.taxyr = leg.taxyr
-    LEFT JOIN {{ ref('spatial.township') }} AS town
+    LEFT JOIN {{ source('spatial', 'township') }} AS town
         ON leg.user1 = town.township_code
 ),
 
@@ -57,7 +57,7 @@ model_values AS (
         tc.taxyr AS year,
         'model' AS assessment_stage,
         ap.pred_pin_final_fmv_round AS total
-    FROM {{ ref('model.assessment_pin') }} AS ap
+    FROM {{ source('model', 'assessment_pin') }} AS ap
     LEFT JOIN town_class AS tc
         ON ap.meta_pin = tc.parid
         AND ap.meta_year = tc.model_join_year
@@ -86,7 +86,7 @@ iasworld_values AS (
                 WHEN aa.taxyr >= '2020' THEN aa.valasm3
             END
         ) * 10 AS total
-    FROM {{ ref('iasworld.asmt_all') }} AS aa
+    FROM {{ source('iasworld', 'asmt_all') }} AS aa
     LEFT JOIN town_class AS tc
         ON aa.parid = tc.parid
         AND aa.taxyr = tc.taxyr
@@ -193,7 +193,7 @@ aggregate_land AS (
         parid,
         taxyr,
         SUM(sf) AS total_land_sf
-    FROM {{ ref('iasworld.land') }}
+    FROM {{ source('iasworld', 'land') }}
     GROUP BY parid, taxyr
 ),
 
@@ -204,7 +204,7 @@ chars AS (
         taxyr,
         MIN(yrblt) AS yrblt,
         SUM(sfla) AS total_bldg_sf
-    FROM {{ ref('iasworld.dweldat') }}
+    FROM {{ source('iasworld', 'dweldat') }}
     GROUP BY parid, taxyr
     UNION
     SELECT

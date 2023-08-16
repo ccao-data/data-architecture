@@ -30,7 +30,7 @@ sqft_percentiles AS (
         CAST(APPROX_PERCENTILE(ch.char_land_sf, 0.95) AS INT)
             AS char_land_sf_95_percentile
     FROM {{ ref('default.vw_card_res_char') }} AS ch
-    LEFT JOIN {{ ref('iasworld.legdat') }} AS leg
+    LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
         ON ch.pin = leg.parid AND ch.year = leg.taxyr
     GROUP BY ch.year, leg.user1
 ),

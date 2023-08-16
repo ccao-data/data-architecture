@@ -34,14 +34,14 @@ WITH uni AS (
         sp.x_3435,
         sp.y_3435
 
-    FROM {{ ref('iasworld.pardat') }} AS par
-    LEFT JOIN {{ ref('iasworld.legdat') }} AS leg
+    FROM {{ source('iasworld', 'pardat') }} AS par
+    LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
         ON par.parid = leg.parid
         AND par.taxyr = leg.taxyr
-    LEFT JOIN {{ ref('spatial.parcel') }} AS sp
+    LEFT JOIN {{ source('spatial', 'parcel') }} AS sp
         ON SUBSTR(par.parid, 1, 10) = sp.pin10
         AND par.taxyr = sp.year
-    LEFT JOIN {{ ref('spatial.township') }} AS twn
+    LEFT JOIN {{ source('spatial', 'township') }} AS twn
         ON leg.user1 = CAST(twn.township_code AS VARCHAR)
 ),
 
@@ -56,7 +56,7 @@ housing_index AS (
         geoid,
         year,
         AVG(CAST(ihs_index AS DOUBLE)) AS ihs_avg_year_index
-    FROM {{ ref('other.ihs_index') }}
+    FROM {{ source('other', 'ihs_index') }}
     GROUP BY geoid, year
 ),
 
@@ -66,8 +66,8 @@ tax_bill_amount AS (
         pardat.taxyr AS year,
         pin.tax_bill_total AS tot_tax_amt,
         tax_code.tax_code_rate AS tax_rate
-    FROM {{ ref('iasworld.pardat') }} AS pardat
-    LEFT JOIN {{ ref('tax.pin') }} AS pin
+    FROM {{ source('iasworld', 'pardat') }} AS pardat
+    LEFT JOIN {{ source('tax', 'pin') }} AS pin
         ON pardat.parid = pin.pin
         AND (
             CASE WHEN pardat.taxyr > (SELECT MAX(year) FROM tax.pin)
@@ -80,7 +80,7 @@ tax_bill_amount AS (
             year,
             tax_code_num,
             tax_code_rate
-        FROM {{ ref('tax.tax_code') }}
+        FROM {{ source('tax', 'tax_code') }}
     ) AS tax_code
         ON pin.tax_code_num = tax_code.tax_code_num
         AND pin.year = tax_code.year
@@ -93,7 +93,7 @@ school_district_ratings AS (
         district_type,
         AVG(rating) AS school_district_avg_rating,
         COUNT(*) AS num_schools_in_district
-    FROM {{ ref('other.great_schools_rating') }}
+    FROM {{ source('other', 'great_schools_rating') }}
     GROUP BY district_geoid, district_type
 )
 

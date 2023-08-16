@@ -111,34 +111,34 @@ SELECT
     other.misc_subdivision_id,
     other.misc_subdivision_data_year
 
-FROM {{ ref('spatial.parcel') }} AS pin
-LEFT JOIN {{ ref('location.census') }} AS census
+FROM {{ source('spatial', 'parcel') }} AS pin
+LEFT JOIN {{ source('location', 'census') }} AS census
     ON pin.pin10 = census.pin10
     AND pin.year = census.year
-LEFT JOIN {{ ref('location.census_acs5') }} AS census_acs5
+LEFT JOIN {{ source('location', 'census_acs5') }} AS census_acs5
     ON pin.pin10 = census_acs5.pin10
     AND pin.year = census_acs5.year
-LEFT JOIN {{ ref('location.political') }} AS political
+LEFT JOIN {{ source('location', 'political') }} AS political
     ON pin.pin10 = political.pin10
     AND pin.year = political.year
-LEFT JOIN {{ ref('location.chicago') }} AS chicago
+LEFT JOIN {{ source('location', 'chicago') }} AS chicago
     ON pin.pin10 = chicago.pin10
     AND pin.year = chicago.year
-LEFT JOIN {{ ref('location.economy') }} AS economy
+LEFT JOIN {{ source('location', 'economy') }} AS economy
     ON pin.pin10 = economy.pin10
     AND pin.year = economy.year
-LEFT JOIN {{ ref('location.environment') }} AS environment
+LEFT JOIN {{ source('location', 'environment') }} AS environment
     ON pin.pin10 = environment.pin10
     AND pin.year = environment.year
-LEFT JOIN {{ ref('location.school') }} AS school
+LEFT JOIN {{ source('location', 'school') }} AS school
     ON pin.pin10 = school.pin10
     AND pin.year = school.year
-LEFT JOIN {{ ref('location.tax') }} AS tax
+LEFT JOIN {{ source('location', 'tax') }} AS tax
     ON pin.pin10 = tax.pin10
     AND pin.year = tax.year
-LEFT JOIN {{ ref('location.access') }} AS access
+LEFT JOIN {{ source('location', 'access') }} AS access
     ON pin.pin10 = access.pin10
     AND pin.year = access.year
-LEFT JOIN {{ ref('location.other') }} AS other
+LEFT JOIN {{ source('location', 'other') }} AS other
     ON pin.pin10 = other.pin10
     AND pin.year = other.year

@@ -5,7 +5,7 @@ WITH town_names AS (
     SELECT
         triad_name AS triad_code,
         township_code
-    FROM {{ ref('spatial.township') }}
+    FROM {{ source('spatial', 'township') }}
 ),
 
 -- Recode classes into modeling groups and filter sales

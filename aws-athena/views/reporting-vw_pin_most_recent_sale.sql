@@ -3,7 +3,7 @@
 -- Universe of all PINs from most recent year of iasWorld data
 WITH all_pins AS (
     SELECT DISTINCT parid
-    FROM {{ ref('iasworld.pardat') }}
+    FROM {{ source('iasworld', 'pardat') }}
     WHERE taxyr = CAST(YEAR(CURRENT_DATE) AS VARCHAR)
 ),
 

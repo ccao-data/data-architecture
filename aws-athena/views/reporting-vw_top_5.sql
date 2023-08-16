@@ -28,7 +28,7 @@ classes AS (
             unitdesc, unitno
         ), '') AS address,
         cityname AS city
-    FROM {{ ref('iasworld.pardat') }}
+    FROM {{ source('iasworld', 'pardat') }}
 ),
 
 -- Add townships
@@ -37,7 +37,7 @@ townships AS (
         parid,
         taxyr,
         user1 AS township_code
-    FROM {{ ref('iasworld.legdat') }}
+    FROM {{ source('iasworld', 'legdat') }}
 ),
 
 -- Add township name
@@ -46,7 +46,7 @@ town_names AS (
         triad_name AS triad,
         township_name,
         township_code
-    FROM {{ ref('spatial.township') }}
+    FROM {{ source('spatial', 'township') }}
 ),
 
 --- Mailing name from owndat
@@ -58,7 +58,7 @@ taxpayers AS (
             ' ',
             own1, own2
         ), '') AS owner_name
-    FROM {{ ref('iasworld.owndat') }}
+    FROM {{ source('iasworld', 'owndat') }}
 ),
 
 -- Create ranks

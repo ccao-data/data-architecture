@@ -1,16 +1,18 @@
 version: 2
 
 
-models:
-  - name: tax.agency
-  - name: tax.agency_fund
-  - name: tax.agency_fund_info
-  - name: tax.agency_info
-  - name: tax.cpi
-  - name: tax.eq_factor
-  - name: tax.pin
-  - name: tax.pin_geometry_raw
-  - name: tax.tax_code
-  - name: tax.tif
-  - name: tax.tif_crosswalk
-  - name: tax.tif_distribution
+sources:
+  - name: tax
+    tables:
+      - name: agency
+      - name: agency_fund
+      - name: agency_fund_info
+      - name: agency_info
+      - name: cpi
+      - name: eq_factor
+      - name: pin
+      - name: pin_geometry_raw
+      - name: tax_code
+      - name: tif
+      - name: tif_crosswalk
+      - name: tif_distribution
