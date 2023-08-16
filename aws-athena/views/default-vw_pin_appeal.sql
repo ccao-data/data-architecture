@@ -76,3 +76,4 @@ LEFT JOIN iasworld.htagnt
     ON htpar.cpatty = htagnt.agent
 WHERE htpar.cur = 'Y'
     AND htpar.caseno IS NOT NULL
+    AND htpar.deactivat IS NULL
