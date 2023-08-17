@@ -11,10 +11,10 @@ SELECT
         CONCAT_WS(', ', owndat.cityname, owndat.statecode),
         CONCAT_WS('-', owndat.zip1, owndat.zip2)
     ) AS mailing_addr2
-FROM rpie.pin_codes
-LEFT JOIN iasworld.owndat
+FROM {{ source('rpie', 'pin_codes') }} AS pin_codes
+LEFT JOIN {{ source('iasworld', 'owndat') }} AS owndat
     ON pin_codes.pin = owndat.parid
     AND pin_codes.year = owndat.taxyr
-LEFT JOIN iasworld.pardat
+LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
     ON pin_codes.pin = pardat.parid
     AND pin_codes.year = pardat.taxyr

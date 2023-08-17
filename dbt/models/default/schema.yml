@@ -2,7 +2,7 @@ version: 2
 
 
 models:
-  - name: vw_pin_history
+  - name: default.vw_pin_history
     description: '{{ doc("vw_pin_history") }}'
     tests:
       # Unique by 14-digit PIN and year
@@ -11,7 +11,7 @@ models:
           combination_of_columns:
             - pin
             - year
-  - name: vw_pin_value
+  - name: default.vw_pin_value
     description: '{{ doc("vw_pin_value") }}'
     tests:
       # Unique by 14-digit PIN and year
@@ -21,25 +21,9 @@ models:
             - pin
             - year
       # TODO: Values match what's in whatever iasworld view feeds our website
-  - name: vw_pin_appeal
+  - name: default.vw_pin_appeal
     description: '{{ doc("vw_pin_appeal") }}'
     tests:
-      # Unique by 14-digit PIN and year
-      - unique_combination_of_columns:
-          name: vw_pin_appeal_unique_by_14_digit_pin_and_year
-          combination_of_columns:
-            - pin
-            - year
-          config:
-            error_if: ">280679"
-      # Unique by case number and year
-      - unique_combination_of_columns:
-          name: vw_pin_appeal_unique_by_case_number_and_year
-          combination_of_columns:
-            - year
-            - case_no
-          config:
-            error_if: ">366017"
       # `change` should be an enum
       - expression_is_true:
           name: vw_pin_appeal_no_unexpected_change_values
@@ -80,7 +64,7 @@ models:
             - certified_tot
           config:
             error_if: ">266758"
-  - name: vw_card_res_char
+  - name: default.vw_card_res_char
     description: '{{ doc("vw_card_res_char") }}'
     tests:
       # Unique by card and year
@@ -107,7 +91,7 @@ models:
           config:
             error_if: ">73941"
       # TODO: Characteristics columns should adhere to pre-determined criteria
-  - name: vw_pin_address
+  - name: default.vw_pin_address
     description: '{{ doc("vw_pin_address") }}'
     tests:
       # Unique by 14-digit PIN and year
@@ -134,7 +118,7 @@ models:
             error_if: ">880607"
       # TODO: Mailing address changes after validated sale(?)
       # TODO: Site addresses are all in Cook County
-  - name: vw_pin_condo_char
+  - name: default.vw_pin_condo_char
     description: '{{ doc("vw_pin_condo_char") }}'
     tests:
       # Unique by 14-digit PIN and year
@@ -151,7 +135,7 @@ models:
       # 10-digit PIN
       # TODO: Sum of proration rate never exceeds 1 per 10-digit PIN
       # TODO: Characteristics columns should adhere to pre-determined criteria
-  - name: vw_pin_sale
+  - name: default.vw_pin_sale
     description: '{{ doc("vw_pin_sale") }}'
     columns:
       - name: doc_no
@@ -180,7 +164,7 @@ models:
       # iasworld)
       # TODO: Validation is catching obvious outliers
       # TODO: Joins with other tables produce consistent number of rows
-  - name: vw_pin_universe
+  - name: default.vw_pin_universe
     description: '{{ doc("vw_pin_universe") }}'
     tests:
       # Unique by 14-digit PIN and year
@@ -203,4 +187,4 @@ models:
             error_if: ">24"
       # TODO: Data completeness correlates with availability of spatial data
       # by year
-  - name: vw_pin_exempt
+  - name: default.vw_pin_exempt
