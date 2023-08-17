@@ -67,6 +67,7 @@ iasworld_values AS (
     WHERE (asmt_all.valclass IS NULL OR asmt_all.taxyr < '2020')
         AND asmt_all.procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
         AND asmt_all.taxyr >= '2021'
+        AND asmt_all.deactivat IS NULL
     GROUP BY
         asmt_all.parid,
         asmt_all.taxyr,
