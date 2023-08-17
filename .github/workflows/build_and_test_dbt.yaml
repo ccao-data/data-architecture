@@ -2,9 +2,9 @@ name: build-and-test-dbt
 
 on:
   pull_request:
-    branches: [master, data-catalog]
+    branches: [master]
   push:
-    branches: [master, data-catalog]
+    branches: [master]
 
 jobs:
   build-and-test-dbt:
@@ -40,7 +40,6 @@ jobs:
           path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
           key: ${{ env.CACHE_NAME }}-${{ env.CACHE_KEY }}
           restore-keys: |
-            ${{ env.CACHE_NAME }}-data-catalog
             ${{ env.CACHE_NAME }}-master
 
       - if: ${{ steps.cache.outputs.cache-hit == 'true' }}

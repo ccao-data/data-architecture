@@ -3,7 +3,7 @@ name: deploy-dbt-docs
 on:
   workflow_run:
     workflows: [build-and-test-dbt]
-    branches: [master, data-catalog]
+    branches: [master]
     types: [completed]
   workflow_dispatch:
 
@@ -32,14 +32,9 @@ jobs:
           aws-region: us-east-1
 
       - name: Generate docs
-        # Target is currently set to CI because we expect this action to be
-        # run against the long-lived data-catalog branch, but we should change
-        # this to prod when we merge that branch into master
-        run: dbt docs generate --target ci
+        run: dbt docs generate --target "$TARGET"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
-        env:
-          HEAD_REF: data-catalog
 
       - name: Package doc files for upload
         run: |

@@ -2,7 +2,7 @@ name: cleanup-dbt-resources
 
 on:
   pull_request:
-    branches: [master, data-catalog]
+    branches: [master]
     types: [closed]
 
 jobs:

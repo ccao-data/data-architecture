@@ -1,8 +1,8 @@
 on:
   push:
-    branches: [master, main, data-catalog]
+    branches: [master, main]
   pull_request:
-    branches: [master, main, data-catalog]
+    branches: [master, main]
 
 name: super-linter
 

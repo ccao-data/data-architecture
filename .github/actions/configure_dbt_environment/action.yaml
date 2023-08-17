@@ -20,13 +20,6 @@ runs:
             echo "TARGET=prod";
             echo "CACHE_KEY=master";
           } >> "$GITHUB_ENV"
-        elif [[ $GITHUB_REF_NAME == 'data-catalog' ]]; then
-          echo "On data catalog branch, setting dbt env to CI"
-          {
-            echo "TARGET=ci";
-            echo "CACHE_KEY=data-catalog";
-            echo "HEAD_REF=data-catalog";
-          } >> "$GITHUB_ENV"
         else
           echo "CI context did not match any of the expected environments"
           exit 1
