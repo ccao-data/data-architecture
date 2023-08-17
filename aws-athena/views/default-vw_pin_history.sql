@@ -1,37 +1,10 @@
 -- View containing current and prior years' assessments by PIN in wide format
--- Add valuation class
-WITH classes AS (
-    SELECT
-        parid,
-        taxyr,
-        class
-    FROM {{ source('iasworld', 'pardat') }}
-),
-
--- Add township number
-townships AS (
-    SELECT
-        parid,
-        taxyr,
-        user1 AS township_code
-    FROM {{ source('iasworld', 'legdat') }}
-),
-
--- Add township name
-town_names AS (
-    SELECT
-        township_name,
-        township_code
-    FROM {{ source('spatial', 'township') }}
-)
-
--- Add lagged values for previous two years
 SELECT
     vwpv.pin,
     vwpv.year,
-    classes.class,
-    townships.township_code,
-    town_names.township_name,
+    par.class,
+    leg.user1 AS township_code,
+    town.township_name,
     vwpv.mailed_bldg,
     vwpv.mailed_land,
     vwpv.mailed_tot,
@@ -41,6 +14,7 @@ SELECT
     vwpv.board_bldg,
     vwpv.board_land,
     vwpv.board_tot,
+    -- Add lagged values for previous two years
     LAG(vwpv.mailed_bldg) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
@@ -107,11 +81,11 @@ SELECT
     ) AS twoyr_pri_board_tot
 
 FROM {{ ref('default.vw_pin_value') }} AS vwpv
-LEFT JOIN townships
-    ON vwpv.pin = townships.parid
-    AND vwpv.year = townships.taxyr
-LEFT JOIN classes
-    ON vwpv.pin = classes.parid
-    AND vwpv.year = classes.taxyr
-LEFT JOIN town_names
-    ON townships.township_code = town_names.township_code
+LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
+    ON vwpv.pin = leg.parid
+    AND vwpv.year = leg.taxyr
+LEFT JOIN {{ source('iasworld', 'pardat') }} AS par
+    ON vwpv.pin = par.parid
+    AND vwpv.year = par.taxyr
+LEFT JOIN {{ source('spatial', 'township') }} AS town
+    ON leg.user1 = town.township_code
