@@ -1,0 +1,13 @@
+version: 2
+
+
+sources:
+  - name: rpie
+    tables:
+      - name: pin_codes
+      - name: pin_codes_dummy
+
+models:
+  - name: rpie.vw_code_retrieval
+  - name: rpie.vw_pin_flatfile
+  - name: rpie.vw_pin_mailers

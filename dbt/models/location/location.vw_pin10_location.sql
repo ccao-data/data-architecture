@@ -1,0 +1,1 @@
+../../../aws-athena/views/location-vw_pin10_location.sql

@@ -1,0 +1,55 @@
+name: deploy-dbt-docs
+
+on:
+  workflow_run:
+    workflows: [build-and-test-dbt]
+    branches: [master]
+    types: [completed]
+  workflow_dispatch:
+
+jobs:
+  deploy-dbt-docs:
+    runs-on: ubuntu-latest
+    # These permissions are required to make a GitHub Pages deployment
+    permissions:
+      pages: write      # To deploy to Pages
+      id-token: write   # To verify the deployment comes from an valid source
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dbt requirements
+        uses: ./.github/actions/install_dbt_requirements
+
+      - name: Load environment variables
+        uses: ./.github/actions/load_environment_variables
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+          aws-region: us-east-1
+
+      - name: Generate docs
+        run: dbt docs generate --target "$TARGET"
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Package doc files for upload
+        run: |
+          mkdir _site
+          for file in index.html catalog.json manifest.json; do
+            cp "target/$file" "_site/$file"
+          done
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Upload docs directory artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: ${{ format('{0}/_site', env.PROJECT_DIR) }}
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2

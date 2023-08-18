@@ -1,0 +1,1 @@
+../../../aws-athena/views/reporting-vw_town_sale_history.sql

@@ -1,6 +1,6 @@
 -- View containing values from each stage of assessment by PIN and year
 -- in wide format
-CREATE OR REPLACE VIEW default.vw_pin_value AS
+
 -- CCAO mailed_tot, CCAO final, and BOR final values for each PIN by year.
 -- We use MAX functions here for two reasons: 1) To flatten three stages of
 -- assessment into one row, and to deduplicate PINs with multiple rows for
@@ -67,7 +67,7 @@ WITH stage_values AS (
                 WHEN procname = 'BORVALUE' AND taxyr >= '2020' THEN valasm3
             END
         ) AS board_tot
-    FROM iasworld.asmt_all
+    FROM {{ source('iasworld', 'asmt_all') }}
     WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
         AND rolltype != 'RR'
         AND deactivat IS NULL

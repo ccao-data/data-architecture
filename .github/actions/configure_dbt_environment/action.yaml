@@ -1,0 +1,27 @@
+name: Configure dbt environment
+description: Set environment variables based on the active dbt project (CI or prod)
+runs:
+  using: composite
+  steps:
+    - name: Configure dbt environment
+      run: |
+        # GITHUB_HEAD_REF is only set on pull_request events, so if it's
+        # present, we must be in a PR context
+        if [ -n "$GITHUB_HEAD_REF" ]; then
+          echo "On pull request branch, setting dbt env to CI"
+          {
+            echo "TARGET=ci";
+            echo "CACHE_KEY=$GITHUB_HEAD_REF";
+            echo "HEAD_REF=$GITHUB_HEAD_REF"
+          } >> "$GITHUB_ENV"
+        elif [[ $GITHUB_REF_NAME == 'master' ]]; then
+          echo "On master branch, setting dbt env to prod"
+          {
+            echo "TARGET=prod";
+            echo "CACHE_KEY=master";
+          } >> "$GITHUB_ENV"
+        else
+          echo "CI context did not match any of the expected environments"
+          exit 1
+        fi
+      shell: bash

@@ -1,0 +1,57 @@
+version: 2
+
+
+sources:
+  - name: spatial
+    tables:
+      - name: bike_trail
+      - name: board_of_review_district
+      - name: building_footprint
+      - name: cemetery
+      - name: census
+      - name: coastline
+      - name: commissioner_district
+      - name: community_area
+      - name: community_college_district
+      - name: congressional_district
+      - name: coordinated_care
+      - name: county
+      - name: enterprize_zone
+      - name: fire_protection_district
+      - name: flood_fema
+      - name: geojson
+      - name: golf_course
+      - name: hospital
+      - name: hydrology
+      - name: industrial_corridor
+      - name: industrial_growth_zone
+      - name: judicial_district
+      - name: library_district
+      - name: major_road
+      - name: midway_noise_monitor
+      - name: municipality
+      - name: neighborhood
+      - name: ohare_noise_contour
+      - name: ohare_noise_monitor
+      - name: parcel
+      - name: park
+      - name: park_district
+      - name: police_district
+      - name: qualified_opportunity_zone
+      - name: railroad
+      - name: sanitation_district
+      - name: school_district
+      - name: school_location
+      - name: special_service_area
+      - name: state_representative_district
+      - name: state_senate_district
+      - name: subdivision
+      - name: tif_district
+      - name: township
+      - name: transit_dict
+      - name: transit_route
+      - name: transit_stop
+      - name: walkability
+      - name: ward
+      - name: ward_chicago
+      - name: ward_evanston

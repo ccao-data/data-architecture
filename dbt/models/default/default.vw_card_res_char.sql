@@ -1,0 +1,1 @@
+../../../aws-athena/views/default-vw_card_res_char.sql

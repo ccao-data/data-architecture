@@ -1,9 +1,9 @@
 -- View containing most recent filtered sales
-CREATE OR REPLACE VIEW reporting.vw_pin_most_recent_sale AS
+
 -- Universe of all PINs from most recent year of iasWorld data
 WITH all_pins AS (
     SELECT DISTINCT parid
-    FROM iasworld.pardat
+    FROM {{ source('iasworld', 'pardat') }}
     WHERE taxyr = CAST(YEAR(CURRENT_DATE) AS VARCHAR)
 ),
 
@@ -15,7 +15,7 @@ sale_rank AS (
             PARTITION BY pin
             ORDER BY sale_date DESC
         ) AS rank
-    FROM default.vw_pin_sale
+    FROM {{ ref('default.vw_pin_sale') }}
 )
 
 SELECT

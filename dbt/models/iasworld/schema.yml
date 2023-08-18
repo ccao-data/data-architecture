@@ -1,0 +1,40 @@
+version: 2
+
+
+sources:
+  - name: iasworld
+    tables:
+      - name: aasysjur
+      - name: addn
+      - name: addrindx
+      - name: aprval
+      - name: asmt_all
+      - name: asmt_hist
+      - name: cname
+      - name: comdat
+      - name: comnt
+      - name: cvleg
+      - name: cvown
+      - name: cvtran
+      - name: dedit
+      - name: dweldat
+      - name: enter
+      - name: exadmn
+      - name: exapp
+      - name: excode
+      - name: exdet
+      - name: htagnt
+      - name: htdates
+      - name: htpar
+      - name: land
+      - name: legdat
+      - name: lpmod
+      - name: lpnbhd
+      - name: oby
+      - name: owndat
+      - name: pardat
+      - name: permit
+      - name: rcoby
+      - name: sales
+      - name: splcom
+      - name: valclass

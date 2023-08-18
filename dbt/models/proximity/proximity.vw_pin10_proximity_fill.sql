@@ -1,0 +1,1 @@
+../../../aws-athena/views/proximity-vw_pin10_proximity_fill.sql

@@ -1,6 +1,6 @@
 -- View containing ratios by pin, intended to feed the
 -- glue job 'reporting-ratio_stats'.
-CREATE OR REPLACE VIEW reporting.vw_ratio_stats AS
+
 -- Valuation class from pardat
 WITH classes AS (
     SELECT
@@ -16,7 +16,7 @@ WITH classes AS (
                 )
                 THEN 'SF'
         END AS property_group
-    FROM iasworld.pardat
+    FROM {{ source('iasworld', 'pardat') }}
 ),
 
 townships AS (
@@ -24,14 +24,14 @@ townships AS (
         leg.parid,
         leg.taxyr,
         leg.user1 AS township_code
-    FROM iasworld.legdat AS leg
+    FROM {{ source('iasworld', 'legdat') }} AS leg
 ),
 
 town_names AS (
     SELECT
         township_code,
         triad_code AS triad
-    FROM spatial.township
+    FROM {{ source('spatial', 'township') }}
 ),
 
 model_values AS (
@@ -40,11 +40,11 @@ model_values AS (
         CAST(CAST(ap.meta_year AS INT) + 1 AS VARCHAR) AS year,
         'model' AS assessment_stage,
         ap.pred_pin_final_fmv_round AS total
-    FROM model.assessment_pin AS ap
+    FROM {{ source('model', 'assessment_pin') }} AS ap
     LEFT JOIN classes
         ON ap.meta_pin = classes.parid
         AND ap.meta_year = classes.taxyr
-    WHERE ap.run_id IN (SELECT ap.run_id FROM model.final_model)
+    WHERE ap.run_id IN (SELECT final_model.run_id FROM model.final_model)
         AND classes.property_group IS NOT NULL
 ),
 
@@ -63,10 +63,11 @@ iasworld_values AS (
                 WHEN asmt_all.taxyr >= '2020' THEN asmt_all.valasm3
             END
         ) * 10 AS total
-    FROM iasworld.asmt_all
+    FROM {{ source('iasworld', 'asmt_all') }} AS asmt_all
     WHERE (asmt_all.valclass IS NULL OR asmt_all.taxyr < '2020')
         AND asmt_all.procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
         AND asmt_all.taxyr >= '2021'
+        AND asmt_all.deactivat IS NULL
     GROUP BY
         asmt_all.parid,
         asmt_all.taxyr,
@@ -86,7 +87,7 @@ all_values AS (
 
 parking_space AS (
     SELECT *
-    FROM default.vw_pin_condo_char
+    FROM {{ ref('default.vw_pin_condo_char') }}
     WHERE is_parking_space = TRUE
 )
 
@@ -101,7 +102,7 @@ SELECT
     av.total AS fmv,
     vwps.sale_price,
     av.total / vwps.sale_price AS ratio
-FROM default.vw_pin_sale AS vwps
+FROM {{ ref('default.vw_pin_sale') }} AS vwps
 LEFT JOIN classes
     ON vwps.pin = classes.parid
     AND vwps.year = classes.taxyr

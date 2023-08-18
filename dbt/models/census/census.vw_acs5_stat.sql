@@ -1,0 +1,1 @@
+../../../aws-athena/views/census-vw_acs5_stat.sql

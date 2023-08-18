@@ -1,0 +1,1 @@
+../../../aws-athena/views/model-vw_pin_shared_input.sql

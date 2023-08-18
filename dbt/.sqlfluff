@@ -1,0 +1,29 @@
+# These rules are required to support sqlfmt. See:
+# https://docs.sqlfmt.com/integrations/sqlfluff
+[sqlfluff]
+exclude_rules = layout.indent, layout.cte_bracket, layout.select_targets, ambiguous.column_count, structure.column_order, RF04, ST05
+max_line_length = 88
+
+[sqlfluff:rules]
+capitalisation_policy = lower
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:convention.terminator]
+multiline_newline = True
+
+# These rules are required to override the sqlfluff config at the root of
+# the project repo, since those rules interfere with sqlfmt standards.
+[sqlfluff:rules:capitalisation.keywords]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.identifiers]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.functions]
+extended_capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.literals]
+capitalisation_policy = lower
+
+[sqlfluff:rules:capitalisation.types]
+extended_capitalisation_policy = lower
