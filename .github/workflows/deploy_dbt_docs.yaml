@@ -31,6 +31,9 @@ jobs:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
           aws-region: us-east-1
 
+      - name: Configure dbt environment
+        uses: ./.github/actions/configure_dbt_environment
+
       - name: Generate docs
         run: dbt docs generate --target "$TARGET"
         working-directory: ${{ env.PROJECT_DIR }}
