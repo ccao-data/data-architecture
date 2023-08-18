@@ -44,7 +44,7 @@ model_values AS (
     LEFT JOIN classes
         ON ap.meta_pin = classes.parid
         AND ap.meta_year = classes.taxyr
-    WHERE ap.run_id IN (SELECT ap.run_id FROM model.final_model)
+    WHERE ap.run_id IN (SELECT final_model.run_id FROM model.final_model)
         AND classes.property_group IS NOT NULL
 ),
 
