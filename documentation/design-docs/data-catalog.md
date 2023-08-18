@@ -241,7 +241,7 @@ As such, we think it would be  more prudent for us to build with dbt Core
 and design our own orchestration/monitoring/authentication integrations on top.
 Hence, when this doc refers to "dbt", we are actually referring to dbt Core.
 
-The downside of this choice is that we would have to choose a separate tool for
+One downside of this choice is that we would have to choose a separate tool for
 orchestrating and monitoring our DAGs if we move forward with dbt. This is an
 important fact to note in our decision, because [orchestrators are notoriously
 controversial](https://stkbailey.substack.com/p/what-exactly-isnt-dbt):
@@ -253,6 +253,21 @@ controversial](https://stkbailey.substack.com/p/what-exactly-isnt-dbt):
 
 As such, we evaluate this choice with an eye towards options for third-party
 orchestration and monitoring.
+
+Another downside is that dbt does not have robust support for the types of
+non-SQL scripted transformations we sometimes want to produce, like our
+[sales value flagging script](https://github.com/ccao-data/model-sales-val).
+There is currently an effort underway to provide better support for [Python
+models](https://docs.getdbt.com/docs/building-a-dbt-project/building-models/python-models)
+in dbt, but only [three data
+platforms](https://docs.getdbt.com/docs/building-a-dbt-project/building-models/python-models#specific-data-platforms)
+have been supported since the launch of Python models in late 2022, and there
+is [not yet a clear
+roadmap](https://github.com/dbt-labs/dbt-core/discussions/5742) for the future
+development of Python models. As such, we will need to use a separate system to
+keep track of our scripted transformations. We provide a brief sketch of the
+design of such a system in the [Tracking raw data and ML
+transformations](#tracking-raw-data-and-ml-transformations) section below.
 
 ### Demo
 
@@ -339,6 +354,68 @@ and validating our data using dbt:
   failures](https://docs.getdbt.com/reference/resource-configs/store_failures)
   and [AWS SNS](https://aws.amazon.com/sns/) for notification management.
 
+#### Tracking raw data and ML transformations
+
+* We will keep our raw data extraction scripts separate from the dbt DAG, per
+  [dbt's recommendation](https://docs.getdbt.com/terms/data-extraction).
+* Raw data will be referenced in dbt transformations using the [`source()`
+  function](https://docs.getdbt.com/reference/dbt-jinja-functions/source).
+* [Source freshness
+  checks](https://docs.getdbt.com/docs/deploy/source-freshness) will be used to
+  ensure that raw data is updated appropriately prior to transformation.
+* Where possible, the intermediate transformations defined in the
+  `aws-s3/scripts-ccao-data-warehouse-us-east-1` subdirectory will be rewritten
+  in SQL and moved into the dbt DAG. During the transition period, while some
+  transformations are still written in R, we will treat their output as if it
+  were raw data and reference it using `source()`. Any transformations that
+  can't be easily rewritten in SQL will continue to be defined this way in the
+  long term.
+* Intermediate transformations that require CPU- or memory-intensive operations
+  like running machine learning models will be defined in Python, run as
+  AWS Glue jobs, and defined as [ephemeral
+  models](https://docs.getdbt.com/docs/deploy/source-freshness) in the dbt DAG.
+  This will be true even in cases where the Glue jobs depend on models produced
+  by the dbt DAG, e.g. the tables produced by
+  [`model-sales-val`](https://github.com/ccao-data/model-sales-val). A bullet
+  below will explain how we will manage circular dependencies between these
+  services.
+* Glue jobs will be kept under version control and deployed to AWS using
+  [Terraform](https://www.terraform.io/) run in GitHub Actions on
+  commits to their repo's main branch. We will write a reusable [composite
+  action](https://docs.github.com/en/actions/creating-actions/creating-a-composite-action)
+  that performs the following operations:
+    1. Runs `terraform apply` to recreate the Glue job definition in AWS
+      1. In doing so, inserts the current Git SHA as a command argument in the
+         Glue job definition so that the job script can read the SHA and use it
+         for versioning.
+      2. Supports creating staging jobs that we can use for testing during CI.
+    2. Uploads the newest version of the script to the proper bucket in S3
+* There will be three expected ways in which we handle dependencies between
+  dbt and glue, depending on the direction of the dependency graph:
+    * In cases where dbt depends on the output of a Glue job (Glue -> dbt), we
+      will treat the Glue job output as a `source()` in the dependant dbt
+      models and schedule the job as necessary to maintain freshness.
+        * If we would like to rebuild the dbt models every time the Glue
+          source data updates, we can schedule the job via GitHub Actions
+          instead of the Glue job scheduler and configure GitHub Actions to
+          rerun dbt in case of a successful Glue job run.
+    * In cases where a Glue job depends on the output of dbt (dbt -> Glue),
+      we will write a wrapper script around `dbt run` that uses the Glue
+      `StartJobRun` API
+      ([docs](https://docs.aws.amazon.com/glue/latest/webapi/API_StartJobRun.html))
+      to trigger job runs once the dbt build completes successfully.
+    * In case of a circular dependency between dbt and Glue (dbt -> Glue ->
+      dbt), we will separate the dbt config into two targets, use the second
+      bullet approach (dbt -> Glue) to trigger the Glue job once the first
+      target has completed, and update the dbt wrapper script to initiate
+      the second dbt target build once the Glue job has completed.
+        * This wrapper script should also provide the caller with the option
+          to skip running the Glue job if the AWS CLI can determine that
+          the output of the Glue job already exists.
+        * The opposite circular dependency (Glue -> dbt -> Glue) should not
+          require a special solution since it is just a combination of the
+          first and second bullets above.
+
 ### Pros
 
 * Designed around software engineering best practices (version control, reproducibility, testing, etc.)
@@ -348,7 +425,7 @@ and validating our data using dbt:
 
 ### Cons
 
-* No native support for R scripting as a means of building models, so we would have to either rewrite our raw data extraction scripts or use some kind of hack like running our R scripts from a Python function
+* No native support for Python or R scripting as a means of building models, so we can't incorporate our raw data extraction scripts
 * We would need to use a [community plugin](https://dbt-athena.github.io/) for Athena support; this plugin is not supported on dbt Cloud, if we ever decided to move to that
 * Requires a separate orchestrator for automation, monitoring, and alerting
 * Tests currently do not support the same rich documentation descriptions that other entities do (see [this GitHub issue](https://github.com/dbt-labs/dbt-core/issues/2578))
