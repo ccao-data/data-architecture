@@ -33,21 +33,35 @@ jobs:
       - name: Configure dbt environment
         uses: ./.github/actions/configure_dbt_environment
 
-      - name: Cache dbt state directory
+      # We have to use the separate `restore`/`save` actions instead of the
+      # unified `cache` action because only `restore` provides access to the
+      # `cache-matched-key` and `cache-primary-key` outputs as of v3
+      - name: Restore dbt state cache
         id: cache
-        uses: actions/cache@v3
+        uses: actions/cache/restore@v3
         with:
           path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
           key: ${{ env.CACHE_NAME }}-${{ env.CACHE_KEY }}
           restore-keys: |
             ${{ env.CACHE_NAME }}-master
 
-      - if: ${{ steps.cache.outputs.cache-hit == 'true' }}
+      # If we restore the cache from the `restore-keys` key, the `cache-hit`
+      # output will be 'false' but the `cache-matched-key` output will be
+      # the name of the `restore-keys` key; we want to count this case as a hit
+      - if: |
+          steps.cache.outputs.cache-hit == 'true' ||
+          steps.cache.outputs.cache-matched-key == format(
+            '{0}-master', env.CACHE_NAME
+          )
         name: Set command args to build/test modified resources
         run: echo "MODIFIED_RESOURCES_ONLY=true" >> "$GITHUB_ENV"
         shell: bash
 
-      - if: ${{ steps.cache.outputs.cache-hit != 'true' }}
+      - if: |
+          steps.cache.outputs.cache-hit != 'true' &&
+          steps.cache.outputs.cache-matched-key != format(
+            '{0}-master', env.CACHE_NAME
+          )
         name: Set command args to build/test all resources
         run: echo "MODIFIED_RESOURCES_ONLY=false" >> "$GITHUB_ENV"
         shell: bash
@@ -81,7 +95,8 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
-      - name: Move dbt manifest directory to update cache
-        run: rsync -av --delete "$TARGET_DIR/" "$STATE_DIR"
-        working-directory: ${{ env.PROJECT_DIR }}
-        shell: bash
+      - name: Update dbt state cache
+        uses: actions/cache/save@v3
+        with:
+          path: ${{ env.PROJECT_DIR }}/${{ env.TARGET_DIR }}
+          key: ${{ env.CACHE_NAME }}-${{ env.CACHE_KEY }}
