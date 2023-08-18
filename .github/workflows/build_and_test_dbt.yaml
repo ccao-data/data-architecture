@@ -82,6 +82,6 @@ jobs:
         shell: bash
 
       - name: Move dbt manifest directory to update cache
-        run: mv "$TARGET_DIR" "$STATE_DIR"
+        run: rsync -av --delete "$TARGET_DIR/" "$STATE_DIR"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
