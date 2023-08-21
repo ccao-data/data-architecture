@@ -4,6 +4,10 @@ on:
   schedule:
     # Every day at 9am CST (3pm UTC)
     - cron: '0 15 * * *'
+  # TODO: Remove this once testing is complete
+  pull_request:
+    branches: [master]
+
 
 jobs:
   test-dbt-source-freshness:
