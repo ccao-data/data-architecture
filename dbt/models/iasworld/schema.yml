@@ -3,12 +3,17 @@ version: 2
 
 sources:
   - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
     tables:
       - name: aasysjur
       - name: addn
       - name: addrindx
       - name: aprval
       - name: asmt_all
+        freshness:
+          filter: taxyr = date_format(current_date, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
       - name: asmt_hist
       - name: cname
       - name: comdat
@@ -26,6 +31,10 @@ sources:
       - name: htagnt
       - name: htdates
       - name: htpar
+        freshness:
+          filter: taxyr = date_format(current_date, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
       - name: land
       - name: legdat
       - name: lpmod
@@ -34,6 +43,10 @@ sources:
       - name: owndat
       - name: pardat
       - name: permit
+        freshness:
+          filter: date_format(date_parse(permdt, '%Y-%m-%d %H:%i:%s.0'), '%Y') = date_format(current_date, '%Y')
+          warn_after: {count: 48, period: hour}
+          error_after: {count: 72, period: hour}
       - name: rcoby
       - name: sales
       - name: splcom
