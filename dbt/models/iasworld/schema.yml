@@ -11,7 +11,7 @@ sources:
       - name: aprval
       - name: asmt_all
         freshness:
-          filter: taxyr = date_format(current_date, '%Y')
+          filter: &latest_taxyr taxyr >= date_format(current_date - interval '1' year, '%Y')
           warn_after: {count: 24, period: hour}
           error_after: {count: 48, period: hour}
       - name: asmt_hist
@@ -32,7 +32,7 @@ sources:
       - name: htdates
       - name: htpar
         freshness:
-          filter: taxyr = date_format(current_date, '%Y')
+          filter: *latest_taxyr
           warn_after: {count: 24, period: hour}
           error_after: {count: 48, period: hour}
       - name: land
@@ -44,7 +44,7 @@ sources:
       - name: pardat
       - name: permit
         freshness:
-          filter: date_format(date_parse(permdt, '%Y-%m-%d %H:%i:%s.0'), '%Y') = date_format(current_date, '%Y')
+          filter: date_format(date_parse(permdt, '%Y-%m-%d %H:%i:%s.0'), '%Y') >= date_format(current_date - interval '1' year, '%Y')
           warn_after: {count: 48, period: hour}
           error_after: {count: 72, period: hour}
       - name: rcoby
