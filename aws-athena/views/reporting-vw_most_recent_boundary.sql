@@ -9,6 +9,7 @@ WITH parcel AS (
         ST_POINT(parcel.x_3435, parcel.y_3435) AS geom
     FROM spatial.parcel
     WHERE parcel.year = (SELECT MAX(parcel.year) FROM spatial.parcel)
+        AND parcel.town_code IS NOT NULL
 ),
 
 municipality AS (
