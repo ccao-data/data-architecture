@@ -1,0 +1,73 @@
+name: Restore dbt cache
+description: Attempts to restore dbt cache from S3 storage.
+inputs:
+  path:
+    description: The local path to restore the cache to in case of a hit.
+    required: true
+  key:
+    description: The cache key to query for.
+    required: true
+  restore-key:
+    description: An additional key to use as a fallback for the cache.
+    required: true
+  bucket:
+    description: The S3 bucket that stores caches.
+    required: false
+    default: ccao-dbt-cache-us-east-1
+outputs:
+  cache-hit:
+    description: >-
+      Boolean indicating whether a match was found for the cache key.
+    value: ${{ steps.query-cache-keys.outputs.cache-hit }}
+  exact-match:
+    description: >-
+      Boolean indicating whether a cache hit was an exact match. Always
+      false if cache-hit is false.
+    value: ${{ steps.query-cache-keys.outputs.exact-match }}
+  cache-matched-key:
+    description: The cache key that matched, if any. Empty if cache-hit is false.
+    value: ${{ steps.query-cache-keys.outputs.cache-matched-key }}
+runs:
+  using: composite
+  steps:
+    # Check if there is an exact or fallback match for the cache key
+    - name: Check for a cache key match
+      id: query-cache-keys
+      run: |
+        if aws s3api head-object --bucket "$BUCKET" --key "$KEY/manifest.json"; then
+          echo "Cache hit: Found exact match"
+          {
+            echo "cache-hit=true";
+            echo "exact-match=true";
+            echo "cache-matched-key=$KEY"
+          } >> $GITHUB_OUTPUT
+        else
+          echo "Did not find exact match for cache key, checking fallback"
+          if aws s3api head-object --bucket "$BUCKET" --key "$RESTORE_KEY/manifest.json"; then
+            echo "Cache hit: Found fallback match"
+            {
+              echo "cache-hit=true";
+              echo "exact-match=false";
+              echo "cache-matched-key=$RESTORE_KEY"
+            } >> $GITHUB_OUTPUT
+          else
+            echo "Cache miss: Did not find fallback match for cache key"
+            {
+              echo "cache-hit=false";
+              echo "exact-match=false";
+              echo "cache-matched-key=''";
+            } >> $GITHUB_OUTPUT
+          fi
+        fi
+      env:
+        KEY: ${{ inputs.key }}
+        RESTORE_KEY: ${{ inputs.restore-key }}
+        BUCKET: ${{ inputs.bucket }}
+
+    # In case of a cache hit, copy the contents of the cache to the path
+    - if: steps.query-cache-keys.outputs.cache-hit == 'true'
+      name: Copy cache to path
+      run: aws s3 cp "s3://$BUCKET/$KEY/manifest.json" "$PATH/manifest.json"
+      env:
+        KEY: ${{ steps.query-cache-keys.outputs.cache-matched-key }}
+        PATH: ${{ inputs.path }}

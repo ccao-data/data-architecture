@@ -45,6 +45,10 @@ jobs:
           restore-keys: |
             ${{ env.CACHE_NAME }}-master
 
+      - name: Pull dbt state cache from S3
+        id: cache
+        uses: ./.github/actions/restore_dbt_cache
+
       # If we restore the cache from the `restore-keys` key, the `cache-hit`
       # output will be 'false' but the `cache-matched-key` output will be
       # the name of the `restore-keys` key; we want to count this case as a hit
