@@ -370,9 +370,9 @@ and validating our data using dbt:
   were raw data and reference it using `source()`. Any transformations that
   can't be easily rewritten in SQL will continue to be defined this way in the
   long term.
-* Intermediate transformations that require CPU- or memory-intensive operations
-  like running machine learning models will be defined in Python, run as
-  AWS Glue jobs, and defined as [ephemeral
+* Intermediate or final transformations that require CPU- or memory-intensive
+  operations like running machine learning models will be defined in Python,
+  run as AWS Glue jobs, and defined as [ephemeral
   models](https://docs.getdbt.com/docs/deploy/source-freshness) in the dbt DAG.
   This will be true even in cases where the Glue jobs depend on models produced
   by the dbt DAG, e.g. the tables produced by
@@ -393,28 +393,39 @@ and validating our data using dbt:
 * There will be three expected ways in which we handle dependencies between
   dbt and glue, depending on the direction of the dependency graph:
     * In cases where dbt depends on the output of a Glue job (Glue -> dbt), we
-      will treat the Glue job output as a `source()` in the dependant dbt
-      models and schedule the job as necessary to maintain freshness.
+      will treat the Glue job output as an  or
+      a [source](https://docs.getdbt.com/docs/build/sources) in the DAG and
+      schedule the job as necessary to maintain freshness.
         * If we would like to rebuild the dbt models every time the Glue
           source data updates, we can schedule the job via GitHub Actions
           instead of the Glue job scheduler and configure GitHub Actions to
           rerun dbt in case of a successful Glue job run.
     * In cases where a Glue job depends on the output of dbt (dbt -> Glue),
-      we will write a wrapper script around `dbt run` that uses the Glue
-      `StartJobRun` API
+      we will document the Glue job as an
+      [exposure](https://docs.getdbt.com/docs/build/exposures) in the DAG.
+      If we would like to ensure that we run the Glue job every time the
+      dbt source data updates, we can write a wrapper script around `dbt run`
+      that uses the Glue `StartJobRun` API
       ([docs](https://docs.aws.amazon.com/glue/latest/webapi/API_StartJobRun.html))
-      to trigger job runs once the dbt build completes successfully.
+      to trigger a job run once the dbt build completes successfully.
     * In case of a circular dependency between dbt and Glue (dbt -> Glue ->
-      dbt), we will separate the dbt config into two targets, use the second
-      bullet approach (dbt -> Glue) to trigger the Glue job once the first
+      dbt), we will document the Glue job as an [ephemeral
+      model](https://docs.getdbt.com/docs/build/materializations#ephemeral) in
+      dbt so that we can specify its dependencies using [the `depends_on`
+      attribute](https://docs.getdbt.com/reference/dbt-jinja-functions/ref#forcing-dependencies).
+      If we would like to be able to build the entire DAG from scratch,
+      including running the Glue jobs and transforming their output using
+      dbt, we can separate the dbt config into two targets, use the second
+      bullet approach above (dbt -> Glue) to trigger the Glue job once the first
       target has completed, and update the dbt wrapper script to initiate
       the second dbt target build once the Glue job has completed.
-        * This wrapper script should also provide the caller with the option
+        * Any such wrapper script should also provide the caller with the option
           to skip running the Glue job if the AWS CLI can determine that
           the output of the Glue job already exists.
         * The opposite circular dependency (Glue -> dbt -> Glue) should not
           require a special solution since it is just a combination of the
-          first and second bullets above.
+          first and second bullets above (i.e. one Glue job acting as a source
+          and another acting as an exposure).
 
 ### Pros
 
