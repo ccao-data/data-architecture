@@ -12,8 +12,8 @@ sources:
       - name: asmt_all
         freshness:
           filter: &latest_taxyr taxyr >= date_format(current_date - interval '1' year, '%Y')
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
+          warn_after: &24_hours {count: 24, period: hour}
+          error_after: &48_hours {count: 48, period: hour}
       - name: asmt_hist
       - name: cname
       - name: comdat
@@ -33,8 +33,8 @@ sources:
       - name: htpar
         freshness:
           filter: *latest_taxyr
-          warn_after: {count: 24, period: hour}
-          error_after: {count: 48, period: hour}
+          warn_after: *24_hours
+          error_after: *48_hours
       - name: land
       - name: legdat
       - name: lpmod
@@ -45,8 +45,8 @@ sources:
       - name: permit
         freshness:
           filter: date_format(date_parse(permdt, '%Y-%m-%d %H:%i:%s.0'), '%Y') >= date_format(current_date - interval '1' year, '%Y')
-          warn_after: {count: 48, period: hour}
-          error_after: {count: 72, period: hour}
+          warn_after: *48_hours
+          error_after: &72_hours {count: 72, period: hour}
       - name: rcoby
       - name: sales
       - name: splcom
