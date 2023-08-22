@@ -14,6 +14,17 @@ sources:
           filter: &latest_taxyr taxyr >= date_format(current_date - interval '1' year, '%Y')
           warn_after: &24_hours {count: 24, period: hour}
           error_after: &48_hours {count: 48, period: hour}
+        tests:
+          - unique_combination_of_columns:
+              name: asmt_all_unique_by_parid_procname_and_taxyr
+              combination_of_columns:
+                - parid
+                - procname
+                - taxyr
+              where: >-
+                cur = 'Y' and
+                deactivat is null and
+                procname in ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
       - name: asmt_hist
       - name: cname
       - name: comdat
