@@ -6,6 +6,16 @@ sources:
     tables:
       - name: aasysjur
       - name: addn
+        description: '{{ doc("addn") }}'
+        tests:
+          # Unique by 14-digit PIN and year
+          - unique_combination_of_columns:
+              name: addn_unique_by_parid_taxyr_card_lline
+              combination_of_columns:
+                - parid
+                - taxyr
+                - card
+                - lline
       - name: addrindx
       - name: aprval
       - name: asmt_all
