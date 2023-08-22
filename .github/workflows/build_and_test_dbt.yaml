@@ -95,8 +95,18 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
+      - name: Move dbt state directory to prepare for updating cache
+        run: |
+          if [ -d "$STATE_DIR" ]; then
+            echo "Moving existing state directory to prepare for update"
+            mv "$STATE_DIR" "$STATE_DIR.bk"
+          fi
+          mv "$TARGET_DIR" "$STATE_DIR"
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
       - name: Update dbt state cache
         uses: actions/cache/save@v3
         with:
-          path: ${{ env.PROJECT_DIR }}/${{ env.TARGET_DIR }}
+          path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
           key: ${{ env.CACHE_NAME }}-${{ env.CACHE_KEY }}
