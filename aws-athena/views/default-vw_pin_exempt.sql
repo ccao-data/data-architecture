@@ -1,6 +1,4 @@
 -- View to collect currently exempt properties
-CREATE OR REPLACE VIEW default.vw_pin_exempt AS
-
 SELECT
     par.parid AS pin,
     par.taxyr AS year,
@@ -22,17 +20,19 @@ SELECT
         LAST_VALUE(parcel.lat)
             IGNORE NULLS OVER (PARTITION BY par.parid ORDER BY par.taxyr)
     ) AS lat
-FROM iasworld.pardat AS par
+FROM {{ source('iasworld', 'pardat') }} AS par
 LEFT JOIN
-    iasworld.owndat AS own
+    {{ source('iasworld', 'owndat') }} AS own
     ON par.parid = own.parid AND par.taxyr = own.taxyr
 LEFT JOIN
-    iasworld.legdat AS leg
+    {{ source('iasworld', 'legdat') }} AS leg
     ON par.parid = leg.parid AND par.taxyr = leg.taxyr
-LEFT JOIN default.vw_pin_address AS vpa
+LEFT JOIN {{ ref('default.vw_pin_address') }} AS vpa
     ON par.parid = vpa.pin AND par.taxyr = vpa.year
-LEFT JOIN spatial.parcel ON vpa.pin10 = parcel.pin10 AND vpa.year = parcel.year
-LEFT JOIN spatial.township AS twn
+LEFT JOIN
+    {{ source('spatial', 'parcel') }} AS parcel
+    ON vpa.pin10 = parcel.pin10 AND vpa.year = parcel.year
+LEFT JOIN {{ source('spatial', 'township') }} AS twn
     ON leg.user1 = CAST(twn.township_code AS VARCHAR)
 WHERE
     --- This condition is how we determine exempt status, not through class

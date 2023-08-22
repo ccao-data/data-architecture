@@ -1,13 +1,12 @@
 -- View to standardize residential property characteristics for use in
 -- modeling and reporting
-CREATE OR REPLACE VIEW default.vw_card_res_char AS
 WITH multicodes AS (
     SELECT
         parid,
         taxyr,
         COALESCE(COUNT(*) > 1, FALSE) AS pin_is_multicard,
         COUNT(*) AS pin_num_cards
-    FROM iasworld.dweldat
+    FROM {{ source('iasworld', 'dweldat') }}
     GROUP BY parid, taxyr
 ),
 
@@ -18,7 +17,7 @@ aggregate_land AS (
         COALESCE(COUNT(*) > 1, FALSE) AS pin_is_multiland,
         COUNT(*) AS pin_num_landlines,
         SUM(sf) AS total_land_sf
-    FROM iasworld.land
+    FROM {{ source('iasworld', 'land') }}
     GROUP BY parid, taxyr
 ),
 
@@ -27,7 +26,7 @@ townships AS (
         parid,
         taxyr,
         user1 AS township_code
-    FROM iasworld.legdat
+    FROM {{ source('iasworld', 'legdat') }}
 )
 
 SELECT
@@ -129,8 +128,8 @@ SELECT
     dwel.user7 AS char_air,
     dwel.user5 AS char_tp_plan
 
-FROM iasworld.dweldat AS dwel
-LEFT JOIN iasworld.pardat
+FROM {{ source('iasworld', 'dweldat') }} AS dwel
+LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
     ON dwel.parid = pardat.parid
     AND dwel.taxyr = pardat.taxyr
 LEFT JOIN multicodes

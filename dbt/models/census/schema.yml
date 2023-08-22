@@ -1,0 +1,14 @@
+version: 2
+
+
+sources:
+  - name: census
+    tables:
+      - name: acs1
+      - name: acs5
+      - name: decennial
+      - name: table_dict
+      - name: variable_dict
+
+models:
+  - name: census.vw_acs5_stat

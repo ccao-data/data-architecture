@@ -1,0 +1,1 @@
+../../../aws-athena/views/reporting-vw_res_report_summary.sql

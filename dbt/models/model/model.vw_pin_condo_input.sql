@@ -1,0 +1,1 @@
+../../../aws-athena/views/model-vw_pin_condo_input.sql

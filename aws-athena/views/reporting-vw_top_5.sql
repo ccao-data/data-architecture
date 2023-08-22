@@ -1,5 +1,5 @@
 --- A view to generate the top 5 parcels in a given township and year by AV
-CREATE OR REPLACE VIEW reporting.vw_top_5 AS
+
 --- Choose most recent assessor value
 WITH most_recent_values AS (
     SELECT
@@ -10,7 +10,7 @@ WITH most_recent_values AS (
             WHEN certified_tot IS NULL THEN 'mailed'
             ELSE 'certified'
         END AS stage_used
-    FROM default.vw_pin_value
+    FROM {{ ref('default.vw_pin_value') }}
     WHERE certified_tot IS NOT NULL
         OR mailed_tot IS NOT NULL
 ),
@@ -28,7 +28,7 @@ classes AS (
             unitdesc, unitno
         ), '') AS address,
         cityname AS city
-    FROM iasworld.pardat
+    FROM {{ source('iasworld', 'pardat') }}
 ),
 
 -- Add townships
@@ -37,7 +37,7 @@ townships AS (
         parid,
         taxyr,
         user1 AS township_code
-    FROM iasworld.legdat
+    FROM {{ source('iasworld', 'legdat') }}
 ),
 
 -- Add township name
@@ -46,7 +46,7 @@ town_names AS (
         triad_name AS triad,
         township_name,
         township_code
-    FROM spatial.township
+    FROM {{ source('spatial', 'township') }}
 ),
 
 --- Mailing name from owndat
@@ -58,7 +58,7 @@ taxpayers AS (
             ' ',
             own1, own2
         ), '') AS owner_name
-    FROM iasworld.owndat
+    FROM {{ source('iasworld', 'owndat') }}
 ),
 
 -- Create ranks

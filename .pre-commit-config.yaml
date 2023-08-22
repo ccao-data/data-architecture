@@ -5,3 +5,17 @@ repos:
     hooks:
     -   id: sqlfluff-lint
     -   id: sqlfluff-fix
+  - repo: https://github.com/tconbeer/sqlfmt
+    rev: v0.19.2
+    hooks:
+      - id: sqlfmt
+        entry: >-
+          sqlfmt -v dbt
+            --exclude dbt/venv/**/*
+            --exclude dbt/models/**/*
+            --exclude dbt/target/**/*
+            --exclude dbt/dbt_packages/**/*
+            --exclude dbt/dbt_modules/**/*
+        files: ^dbt/
+        language_version: python
+        additional_dependencies: ['.[jinjafmt]']

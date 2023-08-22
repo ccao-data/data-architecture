@@ -1,0 +1,35 @@
+name: test-dbt-models
+
+on: workflow_dispatch
+
+jobs:
+  test-dbt-models:
+    runs-on: ubuntu-latest
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint
+    # so that we can authenticate with AWS
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dbt requirements
+        uses: ./.github/actions/install_dbt_requirements
+
+      - name: Load environment variables
+        uses: ./.github/actions/load_environment_variables
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+          aws-region: us-east-1
+
+      - name: Configure dbt environment
+        uses: ./.github/actions/configure_dbt_environment
+
+      - name: Test models
+        run: dbt test --target "$TARGET"
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash

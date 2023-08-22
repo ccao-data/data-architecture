@@ -1,19 +1,34 @@
 version: 2
 
 
+sources:
+  - name: location
+    tables:
+      - name: access
+      - name: census
+      - name: census_acs5
+      - name: chicago
+      - name: crosswalk_year_fill
+      - name: economy
+      - name: environment
+      - name: other
+      - name: political
+      - name: school
+      - name: tax
+
 models:
-  - name: vw_pin10_location_test
-    description: '{{ doc("vw_pin10_location_test") }}'
+  - name: location.vw_pin10_location
+    description: '{{ doc("vw_pin10_location") }}'
     tests:
       # Unique by 10-digit PIN and year
       - unique_combination_of_columns:
-          name: unique_by_10_digit_pin_and_year
+          name: vw_pin10_location_unique_by_10_digit_pin_and_year
           combination_of_columns:
             - pin10
             - year
       # GeoIDs are the correct length
       - column_length:
-          name: seven_digit_geoids_are_the_correct_length
+          name: vw_pin10_location_seven_digit_geoids_are_the_correct_length
           length: 7
           columns:
             - census_place_geoid
@@ -29,5 +44,5 @@ models:
             - year
       # TODO: Columns specific to certain locations only have values for that
       # location
-  - name: vw_pin10_location_fill_test
-    description: '{{ doc("vw_pin10_location_fill_test") }}'
+  - name: location.vw_pin10_location_fill
+    description: '{{ doc("vw_pin10_location_fill") }}'
