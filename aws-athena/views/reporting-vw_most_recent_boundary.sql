@@ -1,5 +1,5 @@
 -- View that always contains the most recent political boundaries the
--- data department has ingested, by 10-digit parcel.
+-- Data Department has ingested, by 10-digit parcel
 
 WITH parcel AS (
     SELECT
