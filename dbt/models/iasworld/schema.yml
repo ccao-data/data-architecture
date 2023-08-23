@@ -8,7 +8,6 @@ sources:
       - name: addn
         description: '{{ doc("addn") }}'
         tests:
-          # Unique by 14-digit PIN and year
           - unique_combination_of_columns:
               name: addn_unique_by_parid_taxyr_card_lline
               combination_of_columns:
@@ -18,31 +17,98 @@ sources:
                 - lline
       - name: addrindx
       - name: aprval
+        description: '{{ doc("aprval") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: aprval_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
       - name: asmt_all
       - name: asmt_hist
       - name: cname
       - name: comdat
+        description: '{{ doc("comdat") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: comdat_unique_by_parid_card_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+                - card
       - name: comnt
       - name: cvleg
       - name: cvown
       - name: cvtran
       - name: dedit
       - name: dweldat
+        description: '{{ doc("dweldat") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: dweldat_unique_by_parid_card_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+                - card
       - name: enter
       - name: exadmn
       - name: exapp
       - name: excode
       - name: exdet
       - name: htagnt
+        description: '{{ doc("htagnt") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: htagnt_unique_by_agent
+              combination_of_columns:
+                - agent
       - name: htdates
       - name: htpar
       - name: land
+        description: '{{ doc("land") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: land_unique_by_parid_lline_taxyr
+              combination_of_columns:
+                - parid
+                - lline
+                - taxyr
       - name: legdat
+        description: '{{ doc("legdat") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: legdat_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr      
       - name: lpmod
       - name: lpnbhd
       - name: oby
+        description: '{{ doc("oby") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: oby_unique_by_parid_card_lline_taxyr
+              combination_of_columns:
+                - parid
+                - card
+                - lline
+                - taxyr
       - name: owndat
+        description: '{{ doc("owndat") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: owndat_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr      
       - name: pardat
+        description: '{{ doc("pardat") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: pardat_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr   
       - name: permit
       - name: rcoby
       - name: sales
