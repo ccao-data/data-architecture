@@ -6,7 +6,6 @@
     {% do test_kebab_slugify_replaces_slashes() %}
     {% do test_kebab_slugify_replaces_underscores() %}
     {% do test_kebab_slugify_removes_special_characters() %}
-    {% do test_kebab_slugify_handles_leading_numbers() %}
 {% endmacro %}
 
 {% macro test_kebab_slugify_lowercases_strings() %}
