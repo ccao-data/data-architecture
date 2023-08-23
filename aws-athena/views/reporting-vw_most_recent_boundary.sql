@@ -1,14 +1,15 @@
 -- View that always contains the most recent political boundaries the
 -- data department has ingested, by 10-digit parcel.
-CREATE OR REPLACE VIEW reporting.vw_most_recent_boundary AS
+
 WITH parcel AS (
     SELECT
         parcel.pin10,
         parcel.town_code AS township_code,
         parcel.year AS parcel_year,
         ST_POINT(parcel.x_3435, parcel.y_3435) AS geom
-    FROM spatial.parcel
-    WHERE parcel.year = (SELECT MAX(parcel.year) FROM spatial.parcel)
+    FROM {{ source('spatial', 'parcel') }}
+    WHERE parcel.year
+        = (SELECT MAX(parcel.year) FROM {{ source('spatial', 'parcel') }})
         AND parcel.town_code IS NOT NULL
 ),
 
@@ -18,9 +19,12 @@ municipality AS (
         municipality.municipality_num,
         municipality.year AS municipality_year,
         ST_GEOMFROMBINARY(municipality.geometry_3435) AS geom
-    FROM spatial.municipality
+    FROM {{ source('spatial', 'municipality') }}
     WHERE municipality.year
-        = (SELECT MAX(municipality.year) FROM spatial.municipality)
+        = (
+            SELECT MAX(municipality.year)
+            FROM {{ source('spatial', 'municipality') }}
+        )
 ),
 
 ward_chicago AS (
@@ -29,9 +33,12 @@ ward_chicago AS (
         ward_chicago.ward_chicago_num,
         ward_chicago.year AS ward_chicago_year,
         ST_GEOMFROMBINARY(ward_chicago.geometry_3435) AS geom
-    FROM spatial.ward_chicago
+    FROM {{ source('spatial', 'ward_chicago') }}
     WHERE ward_chicago.year
-        = (SELECT MAX(ward_chicago.year) FROM spatial.ward_chicago)
+        = (
+            SELECT MAX(ward_chicago.year)
+            FROM {{ source('spatial', 'ward_chicago') }}
+        )
 ),
 
 ward_evanston AS (
@@ -40,9 +47,12 @@ ward_evanston AS (
         ward_evanston.ward_evanston_num,
         ward_evanston.year AS ward_evanston_year,
         ST_GEOMFROMBINARY(ward_evanston.geometry_3435) AS geom
-    FROM spatial.ward_evanston
+    FROM {{ source('spatial', 'ward_evanston') }}
     WHERE ward_evanston.year
-        = (SELECT MAX(ward_evanston.year) FROM spatial.ward_evanston)
+        = (
+            SELECT MAX(ward_evanston.year)
+            FROM {{ source('spatial', 'ward_evanston') }}
+        )
 ),
 
 community_area AS (
@@ -51,9 +61,12 @@ community_area AS (
         community_area.area_number AS community_area_num,
         community_area.year AS community_area_year,
         ST_GEOMFROMBINARY(community_area.geometry_3435) AS geom
-    FROM spatial.community_area
+    FROM {{ source('spatial', 'community_area') }}
     WHERE community_area.year
-        = (SELECT MAX(community_area.year) FROM spatial.community_area)
+        = (
+            SELECT MAX(community_area.year)
+            FROM {{ source('spatial', 'community_area') }}
+        )
 ),
 
 commissioner_district AS (
@@ -62,11 +75,11 @@ commissioner_district AS (
         commissioner_district.commissioner_district_num,
         commissioner_district.year AS commissioner_district_year,
         ST_GEOMFROMBINARY(commissioner_district.geometry_3435) AS geom
-    FROM spatial.commissioner_district
+    FROM {{ source('spatial', 'commissioner_district') }}
     WHERE commissioner_district.year
         = (
             SELECT MAX(commissioner_district.year)
-            FROM spatial.commissioner_district
+            FROM {{ source('spatial', 'commissioner_district') }}
         )
 ),
 
@@ -77,11 +90,11 @@ state_representative_district AS (
         state_representative_district.year
             AS state_representative_district_year,
         ST_GEOMFROMBINARY(state_representative_district.geometry_3435) AS geom
-    FROM spatial.state_representative_district
+    FROM {{ source('spatial', 'state_representative_district') }}
     WHERE state_representative_district.year
         = (
             SELECT MAX(state_representative_district.year)
-            FROM spatial.state_representative_district
+            FROM {{ source('spatial', 'state_representative_district') }}
         )
 ),
 
@@ -91,11 +104,11 @@ state_senate_district AS (
         state_senate_district.state_senate_district_num,
         state_senate_district.year AS state_senate_district_year,
         ST_GEOMFROMBINARY(state_senate_district.geometry_3435) AS geom
-    FROM spatial.state_senate_district
+    FROM {{ source('spatial', 'state_senate_district') }}
     WHERE state_senate_district.year
         = (
             SELECT MAX(state_senate_district.year)
-            FROM spatial.state_senate_district
+            FROM {{ source('spatial', 'state_senate_district') }}
         )
 )
 
