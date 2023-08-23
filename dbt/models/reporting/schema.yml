@@ -1,0 +1,16 @@
+version: 2
+
+
+sources:
+  - name: reporting
+    tables:
+      - name: ratio_stats
+      - name: res_report_summary
+
+models:
+  - name: reporting.vw_assessment_roll
+  - name: reporting.vw_pin_most_recent_sale
+  - name: reporting.vw_ratio_stats
+  - name: reporting.vw_res_report_summary
+  - name: reporting.vw_top_5
+  - name: reporting.vw_town_sale_history

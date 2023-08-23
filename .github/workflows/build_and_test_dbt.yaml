@@ -1,0 +1,102 @@
+name: build-and-test-dbt
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+jobs:
+  build-and-test-dbt:
+    runs-on: ubuntu-latest
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint
+    # so that we can authenticate with AWS
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install dbt requirements
+        uses: ./.github/actions/install_dbt_requirements
+
+      - name: Load environment variables
+        uses: ./.github/actions/load_environment_variables
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+          aws-region: us-east-1
+
+      - name: Configure dbt environment
+        uses: ./.github/actions/configure_dbt_environment
+
+      # We have to use the separate `restore`/`save` actions instead of the
+      # unified `cache` action because only `restore` provides access to the
+      # `cache-matched-key` and `cache-primary-key` outputs as of v3
+      - name: Restore dbt state cache
+        id: cache
+        uses: actions/cache/restore@v3
+        with:
+          path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
+          key: ${{ env.CACHE_NAME }}-${{ env.CACHE_KEY }}
+          restore-keys: |
+            ${{ env.CACHE_NAME }}-master
+
+      # If we restore the cache from the `restore-keys` key, the `cache-hit`
+      # output will be 'false' but the `cache-matched-key` output will be
+      # the name of the `restore-keys` key; we want to count this case as a hit
+      - if: |
+          steps.cache.outputs.cache-hit == 'true' ||
+          steps.cache.outputs.cache-matched-key == format(
+            '{0}-master', env.CACHE_NAME
+          )
+        name: Set command args to build/test modified resources
+        run: echo "MODIFIED_RESOURCES_ONLY=true" >> "$GITHUB_ENV"
+        shell: bash
+
+      - if: |
+          steps.cache.outputs.cache-hit != 'true' &&
+          steps.cache.outputs.cache-matched-key != format(
+            '{0}-master', env.CACHE_NAME
+          )
+        name: Set command args to build/test all resources
+        run: echo "MODIFIED_RESOURCES_ONLY=false" >> "$GITHUB_ENV"
+        shell: bash
+
+      - name: Test dbt macros
+        run: dbt run-operation test_all
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Build models
+        run: |
+          if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
+            echo "Running build on modified/new resources only"
+            dbt run -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR"
+          else
+            echo "Running build on all resources"
+            dbt run -t "$TARGET"
+          fi
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Test models
+        run: |
+          if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
+            echo "Running tests on modified/new resources only"
+            dbt test -t "$TARGET" -s state:modified state:new --state "$STATE_DIR"
+          else
+            echo "Running tests on all resources"
+            dbt test -t "$TARGET"
+          fi
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Update dbt state cache
+        uses: actions/cache/save@v3
+        with:
+          path: ${{ env.PROJECT_DIR }}/${{ env.TARGET_DIR }}
+          key: ${{ env.CACHE_NAME }}-${{ env.CACHE_KEY }}

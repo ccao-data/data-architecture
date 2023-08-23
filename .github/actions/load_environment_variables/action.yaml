@@ -1,0 +1,16 @@
+name: Load environment variables
+description: Configures environment variables for a workflow
+inputs:
+  env_var_file_path:
+    description: |
+      File path to variable file or directory.
+      Defaults to ./.github/variables/* if none specified
+      and runs against each file in that directory.
+    required: false
+    default: ./.github/variables/*
+runs:
+  using: composite
+  steps:
+    # Use sed to strip comment lines
+    - run: sed "/#/d" ${{ inputs.env_var_file_path }} >> "$GITHUB_ENV"
+      shell: bash

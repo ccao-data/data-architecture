@@ -1,11 +1,10 @@
 -- View containing RPIE codes and classes for smartfile
-CREATE OR REPLACE VIEW rpie.vw_pin_flatfile AS
 WITH classes AS (
     SELECT
         parid AS pin,
         CAST(CAST(taxyr AS INT) + 1 AS VARCHAR) AS year,
         class
-    FROM iasworld.pardat
+    FROM {{ source('iasworld', 'pardat') }}
 )
 
 SELECT
@@ -20,9 +19,9 @@ SELECT
     classes.class,
     pc.rpie_code
 FROM (
-    SELECT * FROM rpie.pin_codes
+    SELECT * FROM {{ source('rpie', 'pin_codes') }}
     UNION
-    SELECT * FROM rpie.pin_codes_dummy
+    SELECT * FROM {{ source('rpie', 'pin_codes_dummy') }}
 ) AS pc
 LEFT JOIN classes
     ON pc.pin = classes.pin

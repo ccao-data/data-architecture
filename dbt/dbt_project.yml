@@ -27,7 +27,17 @@ clean-targets:
 models:
   athena:
     +materialized: view
+    census:
+      +schema: census
     default:
-      +schema: dbt-test-default
+      +schema: default
     location:
-      +schema: dbt-test-location
+      +schema: location
+    model:
+      +schema: model
+    proximity:
+      +schema: proximity
+    reporting:
+      +schema: reporting
+    rpie:
+      +schema: rpie
