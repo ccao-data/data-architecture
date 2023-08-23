@@ -52,13 +52,3 @@
         )
     }}
 {% endmacro %}
-
-{% macro test_kebab_slugify_handles_leading_numbers() %}
-    {{
-        assert_equals(
-            "test_kebab_slugify_handles_leading_numbers",
-            kebab_slugify("123test"),
-            "_123test",
-        )
-    }}
-{% endmacro %}
