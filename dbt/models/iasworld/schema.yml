@@ -25,6 +25,8 @@ sources:
                 cur = 'Y' and
                 deactivat is null and
                 procname in ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+              config:
+                error_if: ">5991764"
       - name: asmt_hist
       - name: cname
       - name: comdat
@@ -46,6 +48,17 @@ sources:
           filter: *latest_taxyr
           warn_after: *24_hours
           error_after: *48_hours
+        tests:
+          - unique_combination_of_columns:
+              name: htpar_unique_by_parid_caseno_taxyr_subkey
+              combination_of_columns:
+                - parid
+                - caseno
+                - taxyr
+                - subkey
+              where: cur = 'Y' and deactivat is null
+              config:
+                error_if: ">2"
       - name: land
       - name: legdat
       - name: lpmod
@@ -60,5 +73,12 @@ sources:
           error_after: &72_hours {count: 72, period: hour}
       - name: rcoby
       - name: sales
+        tests:
+          - unique_combination_of_columns:
+              name: sales_unique_by_parid_instruno
+              combination_of_columns:
+                - parid
+                - instruno
+              where: substr(saledt, 1, 4) >= '2023'
       - name: splcom
       - name: valclass
