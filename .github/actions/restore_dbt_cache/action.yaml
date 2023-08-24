@@ -59,6 +59,7 @@ runs:
             } >> $GITHUB_OUTPUT
           fi
         fi
+      shell: bash
       env:
         KEY: ${{ inputs.key }}
         RESTORE_KEY: ${{ inputs.restore-key }}
@@ -68,6 +69,7 @@ runs:
     - if: steps.query-cache-keys.outputs.cache-hit == 'true'
       name: Copy cache to path
       run: aws s3 cp "s3://$BUCKET/$KEY/manifest.json" "$PATH/manifest.json"
+      shell: bash
       env:
         KEY: ${{ steps.query-cache-keys.outputs.cache-matched-key }}
         PATH: ${{ inputs.path }}
