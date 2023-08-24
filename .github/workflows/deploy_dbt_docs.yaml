@@ -10,6 +10,9 @@ on:
 jobs:
   deploy-dbt-docs:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     # These permissions are required to make a GitHub Pages deployment
     permissions:
       pages: write      # To deploy to Pages
