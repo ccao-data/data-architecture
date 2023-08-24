@@ -11,7 +11,7 @@ inputs:
     description: An additional key to use as a fallback for the cache.
     required: true
   bucket:
-    description: The S3 bucket that stores caches.
+    description: The S3 bucket that should store the cache.
     required: false
     default: ccao-dbt-cache-us-east-1
 outputs:
@@ -71,3 +71,4 @@ runs:
       env:
         KEY: ${{ steps.query-cache-keys.outputs.cache-matched-key }}
         PATH: ${{ inputs.path }}
+        BUCKET: ${{ inputs.bucket }}
