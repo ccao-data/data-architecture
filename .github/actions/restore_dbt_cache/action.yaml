@@ -30,7 +30,6 @@ outputs:
 runs:
   using: composite
   steps:
-    # Check if there is an exact or fallback match for the cache key
     - name: Check for a cache key match
       id: query-cache-keys
       run: |
@@ -65,7 +64,6 @@ runs:
         RESTORE_KEY: ${{ inputs.restore-key }}
         BUCKET: ${{ inputs.bucket }}
 
-    # In case of a cache hit, copy the contents of the cache to the path
     - if: steps.query-cache-keys.outputs.cache-hit == 'true'
       name: Copy cache to path
       run: aws s3 cp "s3://$BUCKET/$KEY/manifest.json" "$CACHE_PATH/manifest.json"
