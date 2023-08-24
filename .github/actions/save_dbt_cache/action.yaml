@@ -15,9 +15,9 @@ runs:
   using: composite
   steps:
     - name: Save dbt cache
-      run: aws s3 cp "$PATH/manifest.json" "s3://$BUCKET/$KEY/manifest.json"
+      run: aws s3 cp "$CACHE_PATH/manifest.json" "s3://$BUCKET/$KEY/manifest.json"
       shell: bash
       env:
         KEY: ${{ inputs.key }}
-        PATH: ${{ inputs.path }}
+        CACHE_PATH: ${{ inputs.path }}
         BUCKET: ${{ inputs.bucket }}

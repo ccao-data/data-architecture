@@ -68,9 +68,9 @@ runs:
     # In case of a cache hit, copy the contents of the cache to the path
     - if: steps.query-cache-keys.outputs.cache-hit == 'true'
       name: Copy cache to path
-      run: aws s3 cp "s3://$BUCKET/$KEY/manifest.json" "$PATH/manifest.json"
+      run: aws s3 cp "s3://$BUCKET/$KEY/manifest.json" "$CACHE_PATH/manifest.json"
       shell: bash
       env:
         KEY: ${{ steps.query-cache-keys.outputs.cache-matched-key }}
-        PATH: ${{ inputs.path }}
+        CACHE_PATH: ${{ inputs.path }}
         BUCKET: ${{ inputs.bucket }}
