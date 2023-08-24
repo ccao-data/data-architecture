@@ -40,9 +40,10 @@ sources:
               where: >-
                 cur = 'Y' and
                 deactivat is null and
-                procname in ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                procname in ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE') and
+                valclass is null
               config:
-                error_if: ">5991764"
+                error_if: ">125"
       - name: asmt_hist
       - name: cname
       - name: comdat
