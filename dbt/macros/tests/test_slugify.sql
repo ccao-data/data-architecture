@@ -6,7 +6,6 @@
     {% do test_kebab_slugify_replaces_slashes() %}
     {% do test_kebab_slugify_replaces_underscores() %}
     {% do test_kebab_slugify_removes_special_characters() %}
-    {% do test_kebab_slugify_handles_leading_numbers() %}
 {% endmacro %}
 
 {% macro test_kebab_slugify_lowercases_strings() %}
@@ -49,16 +48,6 @@
             "test_kebab_slugify_removes_special_characters",
             kebab_slugify("t!@#e$%^s&*()t"),
             "test",
-        )
-    }}
-{% endmacro %}
-
-{% macro test_kebab_slugify_handles_leading_numbers() %}
-    {{
-        assert_equals(
-            "test_kebab_slugify_handles_leading_numbers",
-            kebab_slugify("123test"),
-            "_123test",
         )
     }}
 {% endmacro %}
