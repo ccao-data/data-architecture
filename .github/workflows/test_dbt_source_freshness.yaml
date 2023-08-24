@@ -1,12 +1,12 @@
-name: cleanup-dbt-resources
+name: test-dbt-source-freshness
 
 on:
-  pull_request:
-    branches: [master]
-    types: [closed]
+  schedule:
+    # Every day at 9am CST (3pm UTC)
+    - cron: '0 15 * * *'
 
 jobs:
-  cleanup-dbt-resources:
+  test-dbt-source-freshness:
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint
     # so that we can authenticate with AWS
@@ -22,11 +22,7 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
-      - name: Install requirements for cleaning up dbt resources
-        run: sudo apt-get update && sudo apt-get install jq
-        shell: bash
-
-      - name: Clean up dbt resources
-        run: ../.github/scripts/cleanup_dbt_resources.sh ci
+      - name: Test source freshness
+        run: dbt source freshness --target "$TARGET"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
