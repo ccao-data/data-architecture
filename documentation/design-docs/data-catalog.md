@@ -391,9 +391,9 @@ and validating our data using dbt:
       2. Supports creating staging jobs that we can use for testing during CI.
     2. Uploads the newest version of the script to the proper bucket in S3
 * There will be three expected ways in which we handle dependencies between
-  dbt and glue, depending on the direction of the dependency graph:
+  dbt and Glue, depending on the direction of the dependency graph:
     * In cases where dbt depends on the output of a Glue job (Glue -> dbt), we
-      will treat the Glue job output as an  or
+      will treat the Glue job output as an ephemeral model or
       a [source](https://docs.getdbt.com/docs/build/sources) in the DAG and
       schedule the job as necessary to maintain freshness.
         * If we would like to rebuild the dbt models every time the Glue
@@ -403,6 +403,8 @@ and validating our data using dbt:
     * In cases where a Glue job depends on the output of dbt (dbt -> Glue),
       we will document the Glue job as an
       [exposure](https://docs.getdbt.com/docs/build/exposures) in the DAG.
+      Exposures should make use of the `depends_on` config attribute in order
+      to properly document the lineage of the data created by Glue.
       If we would like to ensure that we run the Glue job every time the
       dbt source data updates, we can write a wrapper script around `dbt run`
       that uses the Glue `StartJobRun` API
