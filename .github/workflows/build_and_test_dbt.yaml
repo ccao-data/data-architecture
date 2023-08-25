@@ -28,8 +28,8 @@ jobs:
         uses: ./.github/actions/restore_dbt_cache
         with:
           path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
-          key: ${{ env.CACHE_NAME }}-${{ env.CACHE_KEY }}
-          restore-key: ${{ env.CACHE_NAME }}-master
+          key: ${{ env.CACHE_KEY }}
+          restore-key: ${{ env.CACHE_RESTORE_KEY }}
 
       - if: steps.cache.outputs.cache-hit == 'true'
         name: Set command args to build/test modified resources
@@ -74,4 +74,4 @@ jobs:
         uses: ./.github/actions/save_dbt_cache
         with:
           path: ${{ env.PROJECT_DIR }}/${{ env.TARGET_DIR }}
-          key: ${{ env.CACHE_NAME }}-${{ env.CACHE_KEY }}
+          key: ${{ env.CACHE_KEY }}
