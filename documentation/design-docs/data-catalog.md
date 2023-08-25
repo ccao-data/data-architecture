@@ -373,9 +373,9 @@ and validating our data using dbt:
 * Intermediate or final transformations that require CPU- or memory-intensive
   operations like running machine learning models will be defined in Python,
   run as AWS Glue jobs, and defined as [ephemeral
-  models](https://docs.getdbt.com/docs/deploy/source-freshness) in the dbt DAG.
-  This will be true even in cases where the Glue jobs depend on models produced
-  by the dbt DAG, e.g. the tables produced by
+  models](https://docs.getdbt.com/docs/build/materializations#ephemeral) in the
+  dbt DAG. This will be true even in cases where the Glue jobs depend on
+  models produced by the dbt DAG, e.g. the tables produced by
   [`model-sales-val`](https://github.com/ccao-data/model-sales-val). A bullet
   below will explain how we will manage circular dependencies between these
   services.
