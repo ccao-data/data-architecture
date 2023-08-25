@@ -37,12 +37,12 @@ sources:
                 - parid
                 - procname
                 - taxyr
-              where: >-
-                cur = 'Y' and
-                deactivat is null and
-                procname in ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE') and
-                valclass is null
               config:
+                where: >-
+                  cur = 'Y' and
+                  deactivat is null and
+                  procname in ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE') and
+                  valclass is null
                 error_if: ">125"
       - name: asmt_hist
       - name: cname
@@ -95,8 +95,8 @@ sources:
                 - caseno
                 - taxyr
                 - subkey
-              where: cur = 'Y' and deactivat is null
               config:
+                where: cur = 'Y' and deactivat is null
                 error_if: ">2"
       - name: land
         description: '{{ doc("land") }}'
@@ -156,6 +156,7 @@ sources:
               combination_of_columns:
                 - parid
                 - instruno
-              where: substr(saledt, 1, 4) >= '2023'
+              config:
+                where: substr(saledt, 1, 4) >= '2023'
       - name: splcom
       - name: valclass
