@@ -406,10 +406,9 @@ and validating our data using dbt:
       Exposures should make use of the `depends_on` config attribute in order
       to properly document the lineage of the data created by Glue.
       If we would like to ensure that we run the Glue job every time the
-      dbt source data updates, we can write a wrapper script around `dbt run`
-      that uses the Glue `StartJobRun` API
-      ([docs](https://docs.aws.amazon.com/glue/latest/webapi/API_StartJobRun.html))
-      to trigger a job run once the dbt build completes successfully.
+      dbt source data updates, we can schedule the Glue job using a GitHub
+      Actions workflow and configure the workflow to check the dbt state
+      to see if it needs to be rerun.
     * In case of a circular dependency between dbt and Glue (dbt -> Glue ->
       dbt), we will document the Glue job as an [ephemeral
       model](https://docs.getdbt.com/docs/build/materializations#ephemeral) in
