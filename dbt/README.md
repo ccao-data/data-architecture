@@ -30,19 +30,21 @@ dbt deps
 
 ## Usage
 
-Make sure you have the virtual environment activated:
+To run dbt commands, make sure you have the virtual environment activated:
 
 ```
 source venv/bin/activate
 ```
 
-Authenticate with AWS MFA if you haven't already today:
+You must also authenticate with AWS using MFA if you haven't already today:
 
 ```
 aws-mfa
 ```
 
-Build the models to create views in our Athena warehouse:
+### Build tables and views
+
+Build the models to create tables and views in our Athena warehouse:
 
 ```
 dbt run
@@ -50,28 +52,51 @@ dbt run
 
 By default, all `dbt` commands will run against the `dev` environment, which
 namespaces the resources it creates by prefixing target database names with
-your Unix `$USER` name (e.g. `jecochr-default` for the `default` database when
-`dbt` is run on Jean's machine). To instead **run commands against prod**,
+your Unix `$USER` name (e.g. `dev_jecochr_default` for the `default` database
+when `dbt` is run on Jean's machine). To instead **run commands against prod**,
 use the `--target` flag:
 
 ```
 dbt run --target prod
 ```
 
-Generate the documentation:
+### Generate documentation
+
+Note that we configure dbt's [`asset-paths`
+attribute](https://docs.getdbt.com/reference/project-configs/asset-paths) in
+order to link to images in our documentation. Some of those images, like the
+Mermaid diagram defined in `assets/dataflow-diagram.md`, are generated
+automatically during the `deploy-dbt-docs` deployment workflow. To generate
+them locally, make sure you have
+[`mermaid-cli`](https://github.com/mermaid-js/mermaid-cli) installed (we
+recommend a [local
+installation](https://github.com/mermaid-js/mermaid-cli#install-locally)) and
+run the following command:
+
+```bash
+for file in assets/*.mmd; do
+  ./node_modules/.bin/mmdc -i "$file" -o "${file/.mmd/.png}"
+done
+```
+
+Then, generate the documentation:
 
 ```
 dbt docs generate
 ```
 
-This will create a new file `target/index.html` representing the static
-docs site.
+This will create a set of static files in the `target/` subdirectory that can
+be used to serve the docs site.
 
-You can also serve the docs locally:
+To serve the docs locally:
 
 ```
 dbt docs serve
 ```
+
+Then, navigate to http://localhost:8080 to view the site.
+
+### Run tests
 
 Run the tests:
 
@@ -91,7 +116,7 @@ Run tests for dbt macros:
 dbt run-operation test_all
 ```
 
-## Debugging dbt test failures
+#### Debugging dbt test failures
 
 Most of our dbt tests are simple SQL statements that we run against our
 models in order to confirm that models conform to spec. If a test is
@@ -115,7 +140,7 @@ helpful for spotting it in the list of recent queries.
 Open the query in the Athena query editor, and edit or run it as necessary
 to debug the test failure.
 
-### A special note on failures related to code changes
+#### A special note on failures related to code changes
 
 To quickly rule out a failure related to a code change, you can switch to the
 main branch of this repository (or to an earlier commit where we know tests
