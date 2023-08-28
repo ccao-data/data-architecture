@@ -1,0 +1,77 @@
+name: build-and-test-dbt
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+
+jobs:
+  build-and-test-dbt:
+    runs-on: ubuntu-latest
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint
+    # so that we can authenticate with AWS
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup dbt
+        uses: ./.github/actions/setup_dbt
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+
+      - name: Restore dbt state cache
+        id: cache
+        uses: ./.github/actions/restore_dbt_cache
+        with:
+          path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
+          key: ${{ env.CACHE_KEY }}
+          restore-key: ${{ env.CACHE_RESTORE_KEY }}
+
+      - if: steps.cache.outputs.cache-hit == 'true'
+        name: Set command args to build/test modified resources
+        run: echo "MODIFIED_RESOURCES_ONLY=true" >> "$GITHUB_ENV"
+        shell: bash
+
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Set command args to build/test all resources
+        run: echo "MODIFIED_RESOURCES_ONLY=false" >> "$GITHUB_ENV"
+        shell: bash
+
+      - name: Test dbt macros
+        run: dbt run-operation test_all
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Build models
+        run: |
+          if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
+            echo "Running build on modified/new resources only"
+            dbt run -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR"
+          else
+            echo "Running build on all resources"
+            dbt run -t "$TARGET"
+          fi
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Test models
+        run: |
+          if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
+            echo "Running tests on modified/new resources only"
+            dbt test -t "$TARGET" -s state:modified state:new --state "$STATE_DIR"
+          else
+            echo "Running tests on all resources"
+            dbt test -t "$TARGET"
+          fi
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Update dbt state cache
+        uses: ./.github/actions/save_dbt_cache
+        with:
+          path: ${{ env.PROJECT_DIR }}/${{ env.TARGET_DIR }}
+          key: ${{ env.CACHE_KEY }}

@@ -1,0 +1,162 @@
+version: 2
+
+
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tables:
+      - name: aasysjur
+      - name: addn
+        description: '{{ doc("addn") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: addn_unique_by_parid_taxyr_card_lline
+              combination_of_columns:
+                - parid
+                - taxyr
+                - card
+                - lline
+      - name: addrindx
+      - name: aprval
+        description: '{{ doc("aprval") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: aprval_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+      - name: asmt_all
+        freshness:
+          filter: &latest_taxyr taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: &24_hours {count: 24, period: hour}
+          error_after: &48_hours {count: 48, period: hour}
+        tests:
+          - unique_combination_of_columns:
+              name: asmt_all_unique_by_parid_procname_and_taxyr
+              combination_of_columns:
+                - parid
+                - procname
+                - taxyr
+              config:
+                where: >-
+                  cur = 'Y' and
+                  deactivat is null and
+                  procname in ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE') and
+                  valclass is null
+                error_if: ">125"
+      - name: asmt_hist
+      - name: cname
+      - name: comdat
+        description: '{{ doc("comdat") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: comdat_unique_by_parid_card_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+                - card
+      - name: comnt
+      - name: cvleg
+      - name: cvown
+      - name: cvtran
+      - name: dedit
+      - name: dweldat
+        description: '{{ doc("dweldat") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: dweldat_unique_by_parid_card_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+                - card
+      - name: enter
+      - name: exadmn
+      - name: exapp
+      - name: excode
+      - name: exdet
+      - name: htagnt
+        description: '{{ doc("htagnt") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: htagnt_unique_by_agent
+              combination_of_columns:
+                - agent
+      - name: htdates
+      - name: htpar
+        freshness:
+          filter: *latest_taxyr
+          warn_after: *24_hours
+          error_after: *48_hours
+        tests:
+          - unique_combination_of_columns:
+              name: htpar_unique_by_parid_caseno_taxyr_subkey
+              combination_of_columns:
+                - parid
+                - caseno
+                - taxyr
+                - subkey
+              config:
+                where: cur = 'Y' and deactivat is null
+                error_if: ">2"
+      - name: land
+        description: '{{ doc("land") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: land_unique_by_parid_lline_taxyr
+              combination_of_columns:
+                - parid
+                - lline
+                - taxyr
+      - name: legdat
+        description: '{{ doc("legdat") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: legdat_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+      - name: lpmod
+      - name: lpnbhd
+      - name: oby
+        description: '{{ doc("oby") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: oby_unique_by_parid_card_lline_taxyr
+              combination_of_columns:
+                - parid
+                - card
+                - lline
+                - taxyr
+      - name: owndat
+        description: '{{ doc("owndat") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: owndat_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+      - name: pardat
+        description: '{{ doc("pardat") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: pardat_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+      - name: permit
+        freshness:
+          filter: date_format(date_parse(permdt, '%Y-%m-%d %H:%i:%s.0'), '%Y') >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: *48_hours
+          error_after: &72_hours {count: 72, period: hour}
+      - name: rcoby
+      - name: sales
+        tests:
+          - unique_combination_of_columns:
+              name: sales_unique_by_parid_instruno
+              combination_of_columns:
+                - parid
+                - instruno
+              config:
+                where: substr(saledt, 1, 4) >= '2023'
+      - name: splcom
+      - name: valclass

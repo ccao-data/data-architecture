@@ -1,6 +1,4 @@
 -- View containing current and prior years' assessments by PIN in wide format
-CREATE OR REPLACE VIEW default.vw_pin_history_test AS
-
 SELECT
     vwpv.pin,
     vwpv.year,
@@ -82,12 +80,12 @@ SELECT
         ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_board_tot
 
-FROM default.vw_pin_value AS vwpv
-LEFT JOIN iasworld.legdat AS leg
+FROM {{ ref('default.vw_pin_value') }} AS vwpv
+LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     ON vwpv.pin = leg.parid
     AND vwpv.year = leg.taxyr
-LEFT JOIN iasworld.pardat AS par
+LEFT JOIN {{ source('iasworld', 'pardat') }} AS par
     ON vwpv.pin = par.parid
     AND vwpv.year = par.taxyr
-LEFT JOIN spatial.township AS town
+LEFT JOIN {{ source('spatial', 'township') }} AS town
     ON leg.user1 = town.township_code

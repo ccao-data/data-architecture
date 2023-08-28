@@ -1,11 +1,11 @@
 -- Aggregate sales by assessment stage, property groups, year, and township
-CREATE OR REPLACE VIEW reporting.vw_town_sale_history AS
+
 -- Add township name
 WITH town_names AS (
     SELECT
         triad_name AS triad_code,
         township_code
-    FROM spatial.township
+    FROM {{ source('spatial', 'township') }}
 ),
 
 -- Recode classes into modeling groups and filter sales
@@ -23,7 +23,7 @@ classes AS (
         END AS property_group,
         vwps.township_code AS geography_id,
         town_names.triad_code
-    FROM default.vw_pin_sale AS vwps
+    FROM {{ ref('default.vw_pin_sale') }} AS vwps
     LEFT JOIN town_names
         ON vwps.township_code = town_names.township_code
     WHERE NOT vwps.is_multisale

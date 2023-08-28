@@ -1,4 +1,4 @@
-{% docs vw_pin_history_test %}
+{% docs vw_pin_history %}
 Current and prior years' assessments by PIN in wide format.
 
 ### Nuance
@@ -6,7 +6,7 @@ Current and prior years' assessments by PIN in wide format.
 `spatial.township` is not yearly.
 {% enddocs %}
 
-{% docs vw_pin_value_test %}
+{% docs vw_pin_value %}
 CCAO mailed total, CCAO final, and BOR final values for each PIN by year.
 
 ### Assumptions
@@ -15,7 +15,7 @@ We do this because even given the criteria to de-dupe `asmt_all`, we still end
 up with duplicates by pin and year.
 {% enddocs %}
 
-{% docs vw_pin_appeal_test %}
+{% docs vw_pin_appeal %}
 Appeals by PIN.
 
 ### Assumptions
@@ -26,7 +26,7 @@ Appeals by PIN.
   category prior to 2021
 {% enddocs %}
 
-{% docs vw_card_res_char_test %}
+{% docs vw_card_res_char %}
 View that standardizes residential property characteristics for use in modeling
 and reporting.
 
@@ -37,14 +37,14 @@ and reporting.
 Land is parcel-level.
 {% enddocs %}
 
-{% docs vw_pin_address_test %}
+{% docs vw_pin_address %}
 Source of truth view for PIN address, both legal and mailing.
 
 ### Assumptions
 Mailing addresses are updated when properties transfer ownership.
 {% enddocs %}
 
-{% docs vw_pin_condo_char_test %}
+{% docs vw_pin_condo_char %}
 View containing cleaned, filled data for condo modeling. Missing data is
 filled as follows:
 
@@ -71,7 +71,7 @@ units
 reclassification issue)
 {% enddocs %}
 
-{% docs vw_pin_sale_test %}
+{% docs vw_pin_sale %}
 View containing unique, filtered sales.
 
 ### Assumptions
@@ -90,7 +90,7 @@ View containing unique, filtered sales.
   to `iasworld.sales` (which is only parcel-level) without creating duplicates
 {% enddocs %}
 
-{% docs vw_pin_universe_test %}
+{% docs vw_pin_universe %}
 Source of truth view for PIN location.
 
 ### Nuance

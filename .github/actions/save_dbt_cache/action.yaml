@@ -1,0 +1,23 @@
+name: Save dbt cache
+description: Updates dbt cache using S3 storage.
+inputs:
+  path:
+    description: The local path to the state dir to upload as the new cache.
+    required: true
+  key:
+    description: The key to use for the cache.
+    required: true
+  bucket:
+    description: The S3 bucket that should store the cache.
+    required: false
+    default: ccao-dbt-cache-us-east-1
+runs:
+  using: composite
+  steps:
+    - name: Save dbt cache
+      run: aws s3 cp "$CACHE_PATH/manifest.json" "s3://$BUCKET/$KEY/manifest.json"
+      shell: bash
+      env:
+        KEY: ${{ inputs.key }}
+        CACHE_PATH: ${{ inputs.path }}
+        BUCKET: ${{ inputs.bucket }}

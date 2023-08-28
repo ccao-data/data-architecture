@@ -1,0 +1,32 @@
+name: cleanup-dbt-resources
+
+on:
+  pull_request:
+    branches: [master]
+    types: [closed]
+
+jobs:
+  cleanup-dbt-resources:
+    runs-on: ubuntu-latest
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint
+    # so that we can authenticate with AWS
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup dbt
+        uses: ./.github/actions/setup_dbt
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+
+      - name: Install requirements for cleaning up dbt resources
+        run: sudo apt-get update && sudo apt-get install jq
+        shell: bash
+
+      - name: Clean up dbt resources
+        run: ../.github/scripts/cleanup_dbt_resources.sh ci
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash

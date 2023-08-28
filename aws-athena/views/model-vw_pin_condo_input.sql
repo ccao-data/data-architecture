@@ -10,9 +10,8 @@ data is filled with the following steps:
 WARNING: This is a very heavy view. Don't use it for anything other than making
 extracts for modeling
 */
-CREATE OR REPLACE VIEW model.vw_pin_condo_input AS
 WITH uni AS (
-    SELECT * FROM model.vw_pin_shared_input
+    SELECT * FROM {{ ref('model.vw_pin_shared_input') }}
     WHERE meta_class IN ('299', '399')
 ),
 
@@ -22,8 +21,8 @@ sqft_percentiles AS (
         leg.user1 AS township_code,
         CAST(APPROX_PERCENTILE(ch.char_land_sf, 0.95) AS INT)
             AS char_land_sf_95_percentile
-    FROM default.vw_pin_condo_char AS ch
-    LEFT JOIN iasworld.legdat AS leg
+    FROM {{ ref('default.vw_pin_condo_char') }} AS ch
+    LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
         ON ch.pin = leg.parid AND ch.year = leg.taxyr
     GROUP BY ch.year, leg.user1
 )
@@ -78,7 +77,7 @@ SELECT
     ) AS ind_land_gte_95_percentile
 
 FROM uni
-LEFT JOIN default.vw_pin_condo_char AS ch
+LEFT JOIN {{ ref('default.vw_pin_condo_char') }} AS ch
     ON uni.meta_pin = ch.pin
     AND uni.meta_year = ch.year
 LEFT JOIN sqft_percentiles AS sp
