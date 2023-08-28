@@ -20,7 +20,7 @@ WITH total_influ AS (
             AS non_null_influ,
         MAX(land.sf) OVER (PARTITION BY land.parid, land.taxyr) AS max_sf,
         MIN(land.sf) OVER (PARTITION BY land.parid, land.taxyr) AS min_sf
-    FROM iasworld.land
+    FROM {{ source('iasworld', 'land') }} AS land
     WHERE
         land.cur = 'Y'
         AND land.deactivat IS NULL
