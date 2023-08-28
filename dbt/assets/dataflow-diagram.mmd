@@ -1,0 +1,18 @@
+---
+title: CCAO Data Flow Diagram
+---
+flowchart TD
+  A[Mainframe + AS/400] & B[User input] --> C[(iasWorld)]
+  C -- service-sqoop-iasworld --> D[(AWS Athena\nwarehouse)]
+  E["Public data sources (e.g. Census, OSM, BetterSchools)"] & F["Private data sources (e.g. RPIE, sales)"] -- R extraction scripts --> D
+  D -- R transformation scripts --> D
+  D --> I[dbt] --> D
+  D --> J[CTAs] --> D
+  D ----> K[AWS Glue jobs]
+  K ---> L(Ratio stats) -- reporting database --> D
+  K ---> M(Res reporting) -- reporting database --> D
+  K ---> N(Sales flagging) -- sale database --> D
+  D --> O[On-prem modeling and dev. server] -- Socrata agent --> P[Open data portal]
+  O -- R modeling pipeline --> D
+  L & M --> Q[Tableau reports]
+  D -- Scheduled extracts --> Q
