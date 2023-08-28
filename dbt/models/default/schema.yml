@@ -135,6 +135,8 @@ models:
       # 10-digit PIN
       # TODO: Sum of proration rate never exceeds 1 per 10-digit PIN
       # TODO: Characteristics columns should adhere to pre-determined criteria
+  - name: default.vw_pin_land
+    description: '{{ doc("vw_pin_land") }}'
   - name: default.vw_pin_sale
     description: '{{ doc("vw_pin_sale") }}'
     columns:
