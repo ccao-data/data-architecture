@@ -16,7 +16,7 @@ WITH aggregate_land AS (
         COALESCE(num_landlines > 1, FALSE) AS pin_is_multiland,
         num_landlines AS pin_num_landlines,
         sf AS total_building_land_sf
-    FROM {{ source('default', 'vw_pin_land') }}
+    FROM {{ ref('default.vw_pin_land') }}
 ),
 
 -- Valuations-provided PINs that shouldn't be considered parking spaces

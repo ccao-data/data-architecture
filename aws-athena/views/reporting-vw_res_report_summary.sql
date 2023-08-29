@@ -193,7 +193,7 @@ aggregate_land AS (
         pin AS parid,
         year AS taxyr,
         sf AS total_land_sf
-    FROM {{ source('default', 'vw_pin_land') }}
+    FROM {{ ref('default.vw_pin_land') }}
 ),
 
 
