@@ -28,6 +28,14 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
+      - name: Restore dbt state cache
+        id: cache
+        uses: ./.github/actions/restore_dbt_cache
+        with:
+          path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
+          key: ${{ env.CACHE_RESTORE_KEY }}
+          restore-key: ${{ env.CACHE_RESTORE_KEY }}
+
       - name: Setup node
         uses: actions/setup-node@v3
 
@@ -43,7 +51,7 @@ jobs:
         shell: bash
 
       - name: Generate docs
-        run: dbt docs generate --target "$TARGET"
+        run: dbt docs generate --target "$TARGET" --defer --state "$STATE_DIR"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
