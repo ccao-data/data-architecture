@@ -22,8 +22,7 @@
     select {{ columns_csv }}
     from {{ model }}
     left join
-        distinct_external_values dist_ext
-        on {{ model }}.{{ column }} = dist_ext.external_column
+        distinct_external_values dist_ext on {{ column }} = dist_ext.external_column
     where dist_ext.external_column is null
 
 {% endtest %}

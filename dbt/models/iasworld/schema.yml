@@ -151,6 +151,11 @@ sources:
               additional_select_columns:
                 - parid
                 - taxyr
+              config:
+                # Codes ending in 999 are dummy codes used for some purpose,
+                # although we do not yet know what it is
+                where: (cast(taxyr as int) between 2010 and 2021) and (nbhd not like '%999')
+                error_if: ">1992"
       - name: permit
         freshness:
           filter: date_format(date_parse(permdt, '%Y-%m-%d %H:%i:%s.0'), '%Y') >= date_format(current_date - interval '1' year, '%Y')
