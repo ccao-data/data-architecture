@@ -18,7 +18,10 @@ WITH total_influ AS (
             OVER (PARTITION BY land.parid, land.taxyr)
             AS non_null_influ,
         MAX(land.sf) OVER (PARTITION BY land.parid, land.taxyr) AS max_sf,
-        MIN(land.sf) OVER (PARTITION BY land.parid, land.taxyr) AS min_sf
+        MIN(land.sf) OVER (PARTITION BY land.parid, land.taxyr) AS min_sf,
+        -- When the first landline for a pin is deactived we should take the
+        -- minimum value of lline as the top line. 
+        MIN(land.lline) OVER (PARTITION BY land.parid, land.taxyr) AS top_line
     FROM {{ source('iasworld', 'land') }} AS land
     WHERE
         land.cur = 'Y'
@@ -40,4 +43,4 @@ SELECT
         ELSE total_influ.sf_sum
     END AS sf
 FROM total_influ
-WHERE total_influ.lline = 1
+WHERE total_influ.lline = total_influ.top_line
