@@ -6,6 +6,8 @@ on:
     branches: [master]
     types: [completed]
   workflow_dispatch:
+  pull_request:
+    branches: [master]
 
 jobs:
   deploy-dbt-docs:
@@ -17,7 +19,6 @@ jobs:
     permissions:
       pages: write      # To deploy to Pages
       id-token: write   # To verify the deployment comes from an valid source
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
