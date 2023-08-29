@@ -75,7 +75,7 @@ run the following command:
 
 ```bash
 for file in assets/*.mmd; do
-  ./node_modules/.bin/mmdc -i "$file" -o "${file/.mmd/.png}"
+  ./node_modules/.bin/mmdc -i "$file" -o "${file/.mmd/.svg}"
 done
 ```
 

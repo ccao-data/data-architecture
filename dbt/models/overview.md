@@ -13,6 +13,6 @@ on [GitHub](https://github.com/ccao-data/data-architecture/).
 The following diagram provides a summary of the way in which the Data
 Department builds and uses our data warehouse.
 
-![Data Flow Diagram](/data-architecture/assets/dataflow-diagram.png)
+![Data Flow Diagram](/data-architecture/assets/dataflow-diagram.svg)
 
 {% enddocs %}

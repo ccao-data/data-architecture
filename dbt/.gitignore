@@ -4,4 +4,4 @@ venv/
 target/
 dbt_modules/
 dbt_packages/
-assets/*.png
+assets/*.svg

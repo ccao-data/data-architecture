@@ -36,7 +36,7 @@ jobs:
       - name: Prepare Mermaid assets for docs
         run: |
           for file in assets/*.mmd; do
-            mmdc -i "$file" -o "${file/.mmd/.png}"
+            mmdc -i "$file" -o "${file/.mmd/.svg}"
           done
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
