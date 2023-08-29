@@ -1,6 +1,5 @@
 -- A view to properly aggregate land square footage at the PIN level. Parcels
 -- can have multiple land lines that are sometimes summed or ignored.
-CREATE OR REPLACE VIEW default.vw_pin_land AS
 WITH total_influ AS (
     SELECT
         land.parid,
