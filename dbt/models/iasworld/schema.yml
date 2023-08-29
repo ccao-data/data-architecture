@@ -143,6 +143,14 @@ sources:
               combination_of_columns:
                 - parid
                 - taxyr
+          - column_is_subset_of_external_column:
+              name: pardat_nbhd_matches_spatial_town_nbhd
+              column: nbhd
+              external_model: spatial.neighborhood
+              external_column: town_nbhd
+              additional_select_columns:
+                - parid
+                - taxyr
       - name: permit
         freshness:
           filter: date_format(date_parse(permdt, '%Y-%m-%d %H:%i:%s.0'), '%Y') >= date_format(current_date - interval '1' year, '%Y')
