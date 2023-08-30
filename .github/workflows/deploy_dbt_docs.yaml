@@ -27,17 +27,32 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
+      - name: Setup node
+        uses: actions/setup-node@v3
+
+      - name: Install docs build dependencies
+        run: npm install -g @mermaid-js/mermaid-cli
+
+      - name: Prepare Mermaid assets for docs
+        run: |
+          for file in assets/*.mmd; do
+            mmdc -i "$file" -o "${file/.mmd/.svg}"
+          done
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
       - name: Generate docs
-        run: dbt docs generate --target "$TARGET"
+        run: dbt docs generate --target prod
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
       - name: Package doc files for upload
         run: |
-          mkdir _site
+          mkdir -p _site/assets
           for file in index.html catalog.json manifest.json; do
             cp "target/$file" "_site/$file"
           done
+          cp -R target/assets/* _site/assets
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
