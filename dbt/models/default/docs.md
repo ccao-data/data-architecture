@@ -98,3 +98,7 @@ Source of truth view for PIN location.
   for current year can be relatively sparse
 * `spatial.township` is not yearly
 {% enddocs %}
+
+{% docs vw_pin_land %}
+View containing aggregated land square footage.
+{% enddocs %}

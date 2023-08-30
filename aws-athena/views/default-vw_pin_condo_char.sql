@@ -11,13 +11,12 @@ workbooks rather than iasWorld.
 
 WITH aggregate_land AS (
     SELECT
-        parid,
-        taxyr,
-        COALESCE(COUNT(*) > 1, FALSE) AS pin_is_multiland,
-        COUNT(*) AS pin_num_landlines,
-        SUM(sf) AS total_building_land_sf
-    FROM {{ source('iasworld', 'land') }}
-    GROUP BY parid, taxyr
+        pin AS parid,
+        year AS taxyr,
+        COALESCE(num_landlines > 1, FALSE) AS pin_is_multiland,
+        num_landlines AS pin_num_landlines,
+        sf AS total_building_land_sf
+    FROM {{ ref('default.vw_pin_land') }}
 ),
 
 -- Valuations-provided PINs that shouldn't be considered parking spaces

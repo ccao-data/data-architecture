@@ -190,12 +190,12 @@ sales AS (
 -- Aggregate land for all parcels
 aggregate_land AS (
     SELECT
-        parid,
-        taxyr,
-        SUM(sf) AS total_land_sf
-    FROM {{ source('iasworld', 'land') }}
-    GROUP BY parid, taxyr
+        pin AS parid,
+        year AS taxyr,
+        sf AS total_land_sf
+    FROM {{ ref('default.vw_pin_land') }}
 ),
+
 
 -- Combined SF/MF and condo characteristics
 chars AS (
