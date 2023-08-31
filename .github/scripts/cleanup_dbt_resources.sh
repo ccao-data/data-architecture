@@ -16,10 +16,9 @@ delete_database() {
         echo "$output"
         if [[ $output =~ "EntityNotFoundException" ]]; then
             # This case is expected, since it's likely that not all models
-            # will be built during CI runs. Exit with a non-255 status so
+            # will be built during CI runs. Suppress the error so
             # that xargs continues executing.
             echo "Continuing execution due to expected 404 response."
-            exit 254
         else
             exit 255  # Unexpected error; signal to xargs to quit
         fi
