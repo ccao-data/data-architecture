@@ -9,6 +9,24 @@
 # Assumes that jq is installed and available on the caller's path.
 set -euo pipefail
 
+delete_database() {
+    output=$(aws glue delete-database --name "$1" 2>&1)
+    status=$?
+    if [ "$status" != "0" ]; then
+        echo "$output"
+        if [[ $output =~ "EntityNotFoundException" ]]; then
+            # This case is expected, since it's likely that not all models
+            # will be built during CI runs. Exit with a non-255 status so
+            # that xargs continues executing.
+            echo "Continuing execution due to expected 404 response."
+            exit 254
+        else
+            exit 255  # Unexpected error; signal to xargs to quit
+        fi
+    fi
+}
+export -f delete_database  # Make delete_database useable by xargs
+
 if [[ "$#" -eq 0 ]]; then
     echo "Missing first argument representing dbt target"
     exit 1
@@ -32,7 +50,7 @@ echo "Deleting the following schemas from Athena:"
 echo
 echo "$schemas"
 
-echo "$schemas" | xargs -i bash -c 'aws glue delete-database --name {} || exit 255'
+echo "$schemas" | xargs -i bash -c 'delete_database {}'
 
 echo
 echo "Done!"
