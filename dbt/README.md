@@ -42,12 +42,22 @@ You must also authenticate with AWS using MFA if you haven't already today:
 aws-mfa
 ```
 
+The following commands use the `dbt` wrapper script defined in this library
+rather than the native `dbt` binary in order to run dbt Core commands. The
+wrapper script abstracts away some of the options required to run development
+commands without needing to build all of the tables in the DAG, which can
+take a long time. We recommend that anyone who does not feel comfortable with
+[dbt state
+selection](https://docs.getdbt.com/reference/node-selection/methods#the-state-method)
+use the wrapper script instead of the native binary, but if you feel comfortable
+managing your own state, you can forego the wrapper script.
+
 ### Build tables and views
 
 Build the models to create tables and views in our Athena warehouse:
 
 ```
-dbt run
+./dbt run
 ```
 
 By default, all `dbt` commands will run against the `dev` environment, which
@@ -57,32 +67,19 @@ when `dbt` is run on Jean's machine). To instead **run commands against prod**,
 use the `--target` flag:
 
 ```
-dbt run --target prod
+./dbt run --target prod
 ```
 
 ### Generate documentation
 
-Note that we configure dbt's [`asset-paths`
-attribute](https://docs.getdbt.com/reference/project-configs/asset-paths) in
-order to link to images in our documentation. Some of those images, like the
-Mermaid diagram defined in `assets/dataflow-diagram.md`, are generated
-automatically during the `deploy-dbt-docs` deployment workflow. To generate
-them locally, make sure you have
-[`mermaid-cli`](https://github.com/mermaid-js/mermaid-cli) installed (we
-recommend a [local
-installation](https://github.com/mermaid-js/mermaid-cli#install-locally)) and
-run the following command:
+Generating documentation requires that [Node and
+npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+be installed with a Node version >= 16 in order to generate bundled images.
 
-```bash
-for file in assets/*.mmd; do
-  ./node_modules/.bin/mmdc -i "$file" -o "${file/.mmd/.svg}"
-done
-```
-
-Then, generate the documentation:
+Once you have Node and npm installed, generate the documentation:
 
 ```
-dbt docs generate
+./dbt docs generate
 ```
 
 This will create a set of static files in the `target/` subdirectory that can
@@ -91,7 +88,7 @@ be used to serve the docs site.
 To serve the docs locally:
 
 ```
-dbt docs serve
+./dbt docs serve
 ```
 
 Then, navigate to http://localhost:8080 to view the site.
@@ -101,19 +98,19 @@ Then, navigate to http://localhost:8080 to view the site.
 Run the tests:
 
 ```
-dbt test
+./dbt test
 ```
 
 Run tests for only one model:
 
 ```
-dbt test --select <model_name>
+./dbt test --select <model_name>
 ```
 
 Run tests for dbt macros:
 
 ```
-dbt run-operation test_all
+./dbt run-operation test_all
 ```
 
 #### Debugging dbt test failures
@@ -128,7 +125,7 @@ the data specification.
 To edit or run the query underlying a test, first run the test in isolation:
 
 ```
-dbt test --select <test_name>
+./dbt test --select <test_name>
 ```
 
 Then, navigate to the [Recent

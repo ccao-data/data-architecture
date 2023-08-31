@@ -1,0 +1,154 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+USAGE=$(cat << END
+Usage: ./dbt [OPTIONS] [COMMAND] [COMMAND_OPTIONS]
+
+    Thin wrapper around dbt to ensure that we defer to prod state when possible.
+    Accepts most options that the dbt command accepts, in addition to
+    the options listed below that are specific to this wrapper command.
+
+    For documentation of underlying dbt commands, run dbt --help or
+    dbt <subcommand> --help without using this script.
+
+Options:
+    --sync      Force a sync of the remote state to your local machine, so that
+                the local state cache reflects the state of the remote cache.
+                When running this command without the --sync option, a sync
+                will still be performed if no local cache is found, but the
+                --sync option can be useful if you would like to force an
+                update of a local cache that already exists.
+    -h, --help  Show this message and exit.
+
+Commands:
+    docs:          Generate or serve the documentation website for your project.
+    run:           Compile SQL and execute against the current target database.
+    run-operation: Run the named macro with any supplied arguments.
+    test:          Runs tests on data in deployed models.
+
+Command options:
+    For command options, run dbt <command> -h.
+END
+)
+STATE_COMPARISON_BUCKET="s3://ccao-dbt-cache-us-east-1/master-cache"
+STATE_COMPARISON_DIR=".remote_state/"
+TARGET_DIR="target/"
+
+sync_local_cache() {
+    aws s3 cp "$STATE_COMPARISON_BUCKET" "$STATE_COMPARISON_DIR" --recursive
+}
+
+if [[ "$#" -eq 0 ]]; then
+    echo "$USAGE"
+    echo
+    echo "Error: Missing required arguments"
+    exit 1
+fi
+
+case "$1" in
+
+    "-h" | "--help")
+        echo "$USAGE"
+        ;;
+
+    "--sync")
+        rm -Rf "$STATE_COMPARISON_DIR"
+        echo "Syncing local dbt state with the remote cache..."
+        sync_local_cache
+        echo "Sync complete!"
+        ;;
+
+    "run-operation")
+        # shellcheck disable=SC2068
+        dbt $@
+        ;;
+
+    "docs")
+        shift
+        if [ -z "${1+x}" ]; then
+            echo "$USAGE"
+            echo
+            echo "Error: Missing required docs subcommand"
+            exit 1
+        else
+            subcommand="$1"
+            shift
+            if [[ "$subcommand" == "generate" ]]; then
+                mmdc_cmd=""
+                global_mmdc="mmdc"
+                local_mmdc="./node_modules/.bin/mmdc"
+                if command -v "$global_mmdc" &> /dev/null; then
+                    mmdc_cmd=$global_mmdc
+                elif [ -f "$local_mmdc" ]; then
+                    mmdc_cmd=$local_mmdc
+                else
+                    if ! command -v npm &> /dev/null; then
+                        echo "$USAGE"
+                        echo
+                        echo "Error: Missing required npm installation. Install"
+                        echo "npm with Node >= 16:"
+                        echo
+                        echo "https://docs.npmjs.com/downloading-and-installing-node-js-and-npm"
+                        exit 1
+                    else
+                        echo "mermaid-cli not found, installing using npm..."
+                        echo
+                        npm install @mermaid-js/mermaid-cli
+                        mmdc_cmd=$local_mmdc
+                    fi
+                fi
+
+                for file in assets/*.mmd; do
+                    $mmdc_cmd -i "$file" -o "${file/.mmd/.svg}"
+                done
+
+                echo "Using prod target for docs generation, since dbt does not"
+                echo "support state selectors for this command. If you'd like"
+                echo "to generate docs based on a development environment, use"
+                echo "the native 'dbt docs generate' command instead."
+                echo
+                # We don't need to double quote the array expansion since we
+                # want it to be re-split in order to parse the dbt arguments
+                # correctly.
+                # shellcheck disable=SC2068
+                dbt docs generate --target prod $@
+            elif [[ "$subcommand" == "serve" ]]; then
+                # shellcheck disable=SC2068
+                dbt docs serve $@
+            else
+                echo "$USAGE"
+                echo
+                echo "Error: Docs subcommand $subcommand not recognized"
+                exit 1
+            fi
+        fi
+        ;;
+
+    "run" | "test")
+        if [ ! -d "$STATE_COMPARISON_DIR" ]; then
+            echo "Local state cache not found, syncing with the remote"
+            sync_local_cache
+            echo "Sync complete!"
+        fi
+
+        extra_args=""
+        if [[ "$1" == "run" ]]; then
+            # We only care about selecting only modified/new resources in the
+            # case of the build step, where there is a penalty to building
+            # unmodified models. In the case of tests, this is unnecessary.
+            extra_args="-s state:modified state:new"
+        fi
+
+        # shellcheck disable=SC2068
+        dbt $@ --defer --state "$STATE_COMPARISON_DIR" "$extra_args"
+
+        # Keep the local state comparison dir in sync with the latest dbt state
+        rm -Rf "$STATE_COMPARISON_DIR"
+        cp -R "$TARGET_DIR" "$STATE_COMPARISON_DIR"
+        ;;
+
+    *)
+        echo "Error: Subcommand $1 is not supported, use dbt binary instead"
+        exit 1
+        ;;
+esac
