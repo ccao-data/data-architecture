@@ -1,30 +1,31 @@
-CREATE TABLE IF NOT EXISTS location.chicago
-WITH (
-    FORMAT = 'Parquet',
-    WRITE_COMPRESSION = 'SNAPPY',
-    EXTERNAL_LOCATION = 's3://ccao-athena-ctas-us-east-1/location/chicago',
-    PARTITIONED_BY = ARRAY['year'],
-    BUCKETED_BY = ARRAY['pin10'],
-    BUCKET_COUNT = 1
-) AS (
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
+    )
+}}
+
+WITH chicago AS (
     WITH distinct_pins AS (
         SELECT DISTINCT
             x_3435,
             y_3435
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years AS (
         SELECT DISTINCT year
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years_rhs AS (
-        SELECT DISTINCT year FROM spatial.police_district
+        SELECT DISTINCT year FROM {{ source('spatial', 'police_district') }}
         UNION ALL
-        SELECT DISTINCT year FROM spatial.community_area
+        SELECT DISTINCT year FROM {{ source('spatial', 'community_area') }}
         UNION ALL
-        SELECT DISTINCT year FROM spatial.industrial_corridor
+        SELECT DISTINCT year FROM {{ source('spatial', 'industrial_corridor') }}
     ),
 
     police_district AS (
@@ -44,12 +45,12 @@ WITH (
                 SELECT
                     dy.year AS pin_year,
                     MAX(df.year) AS fill_year
-                FROM spatial.police_district AS df
+                FROM {{ source('spatial', 'police_district') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.police_district AS fill_data
+            LEFT JOIN {{ source('spatial', 'police_district') }} AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -77,12 +78,12 @@ WITH (
                 SELECT
                     dy.year AS pin_year,
                     MAX(df.year) AS fill_year
-                FROM spatial.community_area AS df
+                FROM {{ source('spatial', 'community_area') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.community_area AS fill_data
+            LEFT JOIN {{ source('spatial', 'community_area') }} AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -110,12 +111,13 @@ WITH (
                 SELECT
                     dy.year AS pin_year,
                     MAX(df.year) AS fill_year
-                FROM spatial.industrial_corridor AS df
+                FROM {{ source('spatial', 'industrial_corridor') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.industrial_corridor AS fill_data
+            LEFT JOIN
+                {{ source('spatial', 'industrial_corridor') }} AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -136,7 +138,7 @@ WITH (
         pd.chicago_police_district_num,
         pd.chicago_police_district_data_year,
         pcl.year
-    FROM spatial.parcel AS pcl
+    FROM {{ source('spatial', 'parcel') }} AS pcl
     LEFT JOIN police_district AS pd
         ON pcl.x_3435 = pd.x_3435
         AND pcl.y_3435 = pd.y_3435
@@ -151,3 +153,5 @@ WITH (
         AND pcl.year = ic.pin_year
     WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )
+
+SELECT * FROM chicago;

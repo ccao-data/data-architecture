@@ -2,42 +2,43 @@
 -- current PINs. For example, 2020 ACS data is not yet release, but we do have
 -- current (2021) geographies and PINs. We need to join 2019 geographies to
 -- 2021 PINs to facilitate joining 2019 ACS5 data
-CREATE TABLE IF NOT EXISTS location.census_acs5
-WITH (
-    FORMAT = 'Parquet',
-    WRITE_COMPRESSION = 'SNAPPY',
-    EXTERNAL_LOCATION = 's3://ccao-athena-ctas-us-east-1/location/census_acs5',
-    PARTITIONED_BY = ARRAY['year'],
-    BUCKETED_BY = ARRAY['pin10'],
-    BUCKET_COUNT = 1
-) AS (
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
+    )
+}}
+
+WITH census_acs5 AS (
     WITH distinct_pins AS (
         SELECT DISTINCT
             x_3435,
             y_3435
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years AS (
         SELECT DISTINCT year
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years_rhs AS (
         SELECT DISTINCT year
-        FROM spatial.census
+        FROM {{ source('spatial', 'census') }}
     ),
 
     acs5_max_year AS (
         SELECT MAX(year) AS max_year
-        FROM census.acs5
+        FROM {{ source('census', 'acs5') }}
     ),
 
     acs5_year_fill AS (
         SELECT
             dy.year AS pin_year,
             MAX(df.year) AS fill_year
-        FROM census.acs5 AS df
+        FROM {{ source('census', 'acs5') }} AS df
         CROSS JOIN distinct_years AS dy
         WHERE dy.year >= df.year
         GROUP BY dy.year
@@ -81,7 +82,7 @@ WITH (
         FROM distinct_pins AS dp
         LEFT JOIN (
             SELECT *
-            FROM spatial.census
+            FROM {{ source('spatial', 'census') }}
             WHERE year <= (SELECT max_year FROM acs5_max_year)
         ) AS cen
             ON ST_WITHIN(
@@ -105,7 +106,7 @@ WITH (
         ayf.census_acs5_tract_geoid,
         dj.year AS census_acs5_data_year,
         pcl.year
-    FROM spatial.parcel AS pcl
+    FROM {{ source('spatial', 'parcel') }} AS pcl
     LEFT JOIN acs5_year_fill AS ayf
         ON pcl.year = ayf.pin_year
     LEFT JOIN distinct_joined AS dj
@@ -114,3 +115,5 @@ WITH (
         AND pcl.y_3435 = dj.y_3435
     WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )
+
+SELECT * FROM census_acs5

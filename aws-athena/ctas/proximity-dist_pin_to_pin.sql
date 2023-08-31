@@ -1,12 +1,14 @@
 -- CTAS to find the 3 nearest neighbor PINs for every PIN for every year
-CREATE TABLE IF NOT EXISTS proximity.dist_pin_to_pin_temp
-WITH (
-    FORMAT = 'Parquet',
-    WRITE_COMPRESSION = 'SNAPPY',
-    EXTERNAL_LOCATION
-    = 's3://ccao-athena-results-us-east-1/dist_pin_to_pin_temp',
-    PARTITIONED_BY = ARRAY['year']
-) AS (
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
+    )
+}}
+
+WITH dist_pin_to_pin AS (
     WITH pin_locations AS (
         SELECT
             pin10,
@@ -14,7 +16,7 @@ WITH (
             x_3435,
             y_3435,
             ST_POINT(x_3435, y_3435) AS point
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     most_recent_pins AS (
@@ -25,7 +27,7 @@ WITH (
             x_3435,
             y_3435,
             RANK() OVER (PARTITION BY pin10 ORDER BY year DESC) AS r
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_pins AS (
@@ -87,7 +89,7 @@ WITH (
                 WHEN pd.row_num = 4 THEN pd.dist
             END) AS nearest_neighbor_3_dist_ft,
             pcl.year
-        FROM spatial.parcel AS pcl
+        FROM {{ source('spatial', 'parcel') }} AS pcl
         INNER JOIN pin_dists AS pd
             ON pcl.x_3435 = pd.x_3435
             AND pcl.y_3435 = pd.y_3435
@@ -99,38 +101,4 @@ WITH (
         AND nearest_neighbor_3_pin10 IS NOT NULL
 )
 
--- Consolidate unbucketed files into single files and delete temp table
-CREATE TABLE IF NOT EXISTS proximity.dist_pin_to_pin
-WITH (
-    format='Parquet',
-    write_compression = 'SNAPPY',
-    external_location='s3://ccao-athena-ctas-us-east-1/proximity/dist_pin_to_pin',
-    partitioned_by = ARRAY['year'],
-    bucketed_by = ARRAY['pin10'],
-    bucket_count = 1
-) AS (
-    SELECT
-        pin10,
-        nearest_neighbor_1_pin10,
-        nearest_neighbor_1_dist_ft,
-        nearest_neighbor_2_pin10,
-        nearest_neighbor_2_dist_ft,
-        nearest_neighbor_3_pin10,
-        nearest_neighbor_3_dist_ft,
-        year
-    FROM proximity.dist_pin_to_pin_temp
-    UNION
-    SELECT
-        pin10,
-        nearest_neighbor_1_pin10,
-        nearest_neighbor_1_dist_ft,
-        nearest_neighbor_2_pin10,
-        nearest_neighbor_2_dist_ft,
-        nearest_neighbor_3_pin10,
-        nearest_neighbor_3_dist_ft,
-        year
-    FROM proximity.dist_pin_to_pin_temp2
-);
-
-DROP TABLE IF EXISTS proximity.dist_pin_to_pin_temp
-DROP TABLE IF EXISTS proximity.dist_pin_to_pin_temp2
+SELECT * FROM dist_pin_to_pin

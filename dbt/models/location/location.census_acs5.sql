@@ -1,0 +1,1 @@
+../../../aws-athena/ctas/location-census_acs5.sql

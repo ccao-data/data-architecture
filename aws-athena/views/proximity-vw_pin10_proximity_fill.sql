@@ -88,79 +88,73 @@ SELECT
     dist_pin_to_pin.nearest_neighbor_3_dist_ft
 
 FROM {{ source('spatial', 'parcel') }} AS pin
-INNER JOIN {{ source('proximity', 'crosswalk_year_fill') }} AS cyf
+INNER JOIN {{ ref('proximity.crosswalk_year_fill') }} AS cyf
     ON pin.year = cyf.year
 LEFT JOIN
-    {{ source('proximity', 'cnt_pin_num_bus_stop') }} AS cnt_pin_num_bus_stop
+    {{ ref('proximity.cnt_pin_num_bus_stop') }} AS cnt_pin_num_bus_stop
     ON pin.pin10 = cnt_pin_num_bus_stop.pin10
     AND cyf.num_bus_stop_data_year = cnt_pin_num_bus_stop.year
 LEFT JOIN
-    {{ source('proximity', 'cnt_pin_num_foreclosure') }}
-        AS cnt_pin_num_foreclosure
+    {{ ref('proximity.cnt_pin_num_foreclosure') }} AS cnt_pin_num_foreclosure
     ON pin.pin10 = cnt_pin_num_foreclosure.pin10
     AND cyf.num_foreclosure_data_year = cnt_pin_num_foreclosure.year
-LEFT JOIN {{ source('proximity', 'cnt_pin_num_school') }} AS num_school
+LEFT JOIN {{ ref('proximity.cnt_pin_num_school') }} AS num_school
     ON pin.pin10 = num_school.pin10
     AND cyf.num_school_data_year = num_school.year
-LEFT JOIN {{ source('proximity', 'cnt_pin_num_school') }} AS num_school_rating
+LEFT JOIN {{ ref('proximity.cnt_pin_num_school') }} AS num_school_rating
     ON pin.pin10 = num_school_rating.pin10
     AND cyf.num_school_rating_data_year = num_school_rating.year
 LEFT JOIN
-    {{ source('proximity', 'dist_pin_to_bike_trail') }}
-        AS dist_pin_to_bike_trail
+    {{ ref('proximity.dist_pin_to_bike_trail') }} AS dist_pin_to_bike_trail
     ON pin.pin10 = dist_pin_to_bike_trail.pin10
     AND cyf.nearest_bike_trail_data_year = dist_pin_to_bike_trail.year
 LEFT JOIN
-    {{ source('proximity', 'dist_pin_to_cemetery') }} AS dist_pin_to_cemetery
+    {{ ref('proximity.dist_pin_to_cemetery') }} AS dist_pin_to_cemetery
     ON pin.pin10 = dist_pin_to_cemetery.pin10
     AND cyf.nearest_cemetery_data_year = dist_pin_to_cemetery.year
 LEFT JOIN
-    {{ source('proximity', 'dist_pin_to_cta_route') }} AS dist_pin_to_cta_route
+    {{ ref('proximity.dist_pin_to_cta_route') }} AS dist_pin_to_cta_route
     ON pin.pin10 = dist_pin_to_cta_route.pin10
     AND cyf.nearest_cta_route_data_year = dist_pin_to_cta_route.year
 LEFT JOIN
-    {{ source('proximity', 'dist_pin_to_cta_stop') }} AS dist_pin_to_cta_stop
+    {{ ref('proximity.dist_pin_to_cta_stop') }} AS dist_pin_to_cta_stop
     ON pin.pin10 = dist_pin_to_cta_stop.pin10
     AND cyf.nearest_cta_stop_data_year = dist_pin_to_cta_stop.year
 LEFT JOIN
-    {{ source('proximity', 'dist_pin_to_golf_course') }}
-        AS dist_pin_to_golf_course
+    {{ ref('proximity.dist_pin_to_golf_course') }} AS dist_pin_to_golf_course
     ON pin.pin10 = dist_pin_to_golf_course.pin10
     AND cyf.nearest_golf_course_data_year = dist_pin_to_golf_course.year
 LEFT JOIN
-    {{ source('proximity', 'dist_pin_to_hospital') }} AS dist_pin_to_hospital
+    {{ ref('proximity.dist_pin_to_hospital') }} AS dist_pin_to_hospital
     ON pin.pin10 = dist_pin_to_hospital.pin10
     AND cyf.nearest_hospital_data_year = dist_pin_to_hospital.year
 LEFT JOIN
-    {{ source('proximity', 'dist_pin_to_lake_michigan') }}
+    {{ ref('proximity.dist_pin_to_lake_michigan') }}
         AS dist_pin_to_lake_michigan
     ON pin.pin10 = dist_pin_to_lake_michigan.pin10
     AND cyf.lake_michigan_data_year = dist_pin_to_lake_michigan.year
 LEFT JOIN
-    {{ source('proximity', 'dist_pin_to_major_road') }}
-        AS dist_pin_to_major_road
+    {{ ref('proximity.dist_pin_to_major_road') }} AS dist_pin_to_major_road
     ON pin.pin10 = dist_pin_to_major_road.pin10
     AND cyf.nearest_major_road_data_year = dist_pin_to_major_road.year
 LEFT JOIN
-    {{ source('proximity', 'dist_pin_to_metra_route') }}
-        AS dist_pin_to_metra_route
+    {{ ref('proximity.dist_pin_to_metra_route') }} AS dist_pin_to_metra_route
     ON pin.pin10 = dist_pin_to_metra_route.pin10
     AND cyf.nearest_metra_route_data_year = dist_pin_to_metra_route.year
 LEFT JOIN
-    {{ source('proximity', 'dist_pin_to_metra_stop') }}
-        AS dist_pin_to_metra_stop
+    {{ ref('proximity.dist_pin_to_metra_stop') }} AS dist_pin_to_metra_stop
     ON pin.pin10 = dist_pin_to_metra_stop.pin10
     AND cyf.nearest_metra_stop_data_year = dist_pin_to_metra_stop.year
-LEFT JOIN {{ source('proximity', 'dist_pin_to_park') }} AS dist_pin_to_park
+LEFT JOIN {{ ref('proximity.dist_pin_to_park') }} AS dist_pin_to_park
     ON pin.pin10 = dist_pin_to_park.pin10
     AND cyf.nearest_park_data_year = dist_pin_to_park.year
-LEFT JOIN {{ source('proximity', 'dist_pin_to_pin') }} AS dist_pin_to_pin
+LEFT JOIN {{ ref('proximity.dist_pin_to_pin') }} AS dist_pin_to_pin
     ON pin.pin10 = dist_pin_to_pin.pin10
     AND cyf.year = dist_pin_to_pin.year -- NOTE, doesn't need to be filled
 LEFT JOIN
-    {{ source('proximity', 'dist_pin_to_railroad') }} AS dist_pin_to_railroad
+    {{ ref('proximity.dist_pin_to_railroad') }} AS dist_pin_to_railroad
     ON pin.pin10 = dist_pin_to_railroad.pin10
     AND cyf.nearest_railroad_data_year = dist_pin_to_railroad.year
-LEFT JOIN {{ source('proximity', 'dist_pin_to_water') }} AS dist_pin_to_water
+LEFT JOIN {{ ref('proximity.dist_pin_to_water') }} AS dist_pin_to_water
     ON pin.pin10 = dist_pin_to_water.pin10
     AND cyf.nearest_water_data_year = dist_pin_to_water.year

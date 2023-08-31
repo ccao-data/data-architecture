@@ -1,12 +1,13 @@
-CREATE TABLE IF NOT EXISTS location.tax
-WITH (
-    FORMAT = 'Parquet',
-    WRITE_COMPRESSION = 'SNAPPY',
-    EXTERNAL_LOCATION = 's3://ccao-athena-ctas-us-east-1/location/tax',
-    PARTITIONED_BY = ARRAY['year'],
-    BUCKETED_BY = ARRAY['pin10'],
-    BUCKET_COUNT = 1
-) AS (
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
+    )
+}}
+
+WITH tax AS (
     WITH long AS (
         SELECT
             pcl.pin10,
@@ -17,11 +18,11 @@ WITH (
             ai.major_type,
             ai.minor_type,
             tc.year AS tax_data_year
-        FROM spatial.parcel AS pcl
-        INNER JOIN tax.tax_code AS tc
+        FROM {{ source('spatial', 'parcel') }} AS pcl
+        INNER JOIN {{ source('tax', 'tax_code') }} AS tc
             ON pcl.tax_code = tc.tax_code_num
             AND pcl.year = tc.year
-        LEFT JOIN tax.agency_info AS ai
+        LEFT JOIN {{ source('tax', 'agency_info') }} AS ai
             ON tc.agency_num = ai.agency_num
         WHERE ai.minor_type IN (
                 'MUNI', 'ELEMENTARY', 'SECONDARY', 'UNIFIED', 'COMM COLL',
@@ -220,7 +221,7 @@ WITH (
         wide.tax_tif_district_name,
         wide.tax_data_year,
         pcl.year
-    FROM spatial.parcel AS pcl
+    FROM {{ source('spatial', 'parcel') }} AS pcl
     LEFT JOIN wide
         ON pcl.pin10 = wide.pin10
         -- Join syntax here forward fills with most recent non-null value.
@@ -231,3 +232,5 @@ WITH (
             END = wide.year
         )
 )
+
+SELECT * FROM tax
