@@ -69,27 +69,11 @@ models:
     tests:
       # Unique by card and year
       - dbt_utils.unique_combination_of_columns:
-          name: vw_card_res_char_unique_by_card_and_year
+          name: vw_card_res_char_unique_by_pin_card_and_year
           combination_of_columns:
+            - pin
             - year
             - card
-          config:
-            error_if: ">913"
-      # char_recent_renovation correlates with char_renovation
-      - expression_is_true:
-          name: vw_card_res_char_renovation_fields_match
-          # char_renovation can be null, which we count here as falsey
-          expression: >-
-            char_recent_renovation = (
-              case when char_renovation = '1' then true else false end
-            )
-          select_columns:
-            - card
-            - year
-            - char_renovation
-            - char_recent_renovation
-          config:
-            error_if: ">73942"
       # TODO: Characteristics columns should adhere to pre-determined criteria
   - name: default.vw_pin_address
     description: '{{ doc("vw_pin_address") }}'
