@@ -62,7 +62,7 @@ jobs:
         run: |
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
             echo "Running tests on modified/new resources only"
-            dbt test -t "$TARGET" -s state:modified state:new --state "$STATE_DIR"
+            dbt test -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR"
           else
             echo "Running tests on all resources"
             dbt test -t "$TARGET"
