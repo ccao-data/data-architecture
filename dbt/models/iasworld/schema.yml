@@ -143,6 +143,19 @@ sources:
               combination_of_columns:
                 - parid
                 - taxyr
+          - column_is_subset_of_external_column:
+              name: pardat_nbhd_matches_spatial_town_nbhd
+              column: nbhd
+              external_model: spatial.neighborhood
+              external_column: town_nbhd
+              additional_select_columns:
+                - parid
+                - taxyr
+              config:
+                # Codes ending in 999 are dummy codes used for some purpose,
+                # although we do not yet know what it is
+                where: (taxyr between '2010' and '2021') and (nbhd not like '%999')
+                error_if: ">1992"
       - name: permit
         freshness:
           filter: date_format(date_parse(permdt, '%Y-%m-%d %H:%i:%s.0'), '%Y') >= date_format(current_date - interval '1' year, '%Y')
