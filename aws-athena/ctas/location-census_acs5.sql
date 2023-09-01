@@ -94,16 +94,16 @@ WITH census_acs5 AS (
 
     SELECT
         pcl.pin10,
-        ayf.census_acs5_congressional_district_geoid,
-        ayf.census_acs5_county_subdivision_geoid,
-        ayf.census_acs5_place_geoid,
-        ayf.census_acs5_puma_geoid,
-        ayf.census_acs5_school_district_elementary_geoid,
-        ayf.census_acs5_school_district_secondary_geoid,
-        ayf.census_acs5_school_district_unified_geoid,
-        ayf.census_acs5_state_representative_geoid,
-        ayf.census_acs5_state_senate_geoid,
-        ayf.census_acs5_tract_geoid,
+        dj.census_acs5_congressional_district_geoid,
+        dj.census_acs5_county_subdivision_geoid,
+        dj.census_acs5_place_geoid,
+        dj.census_acs5_puma_geoid,
+        dj.census_acs5_school_district_elementary_geoid,
+        dj.census_acs5_school_district_secondary_geoid,
+        dj.census_acs5_school_district_unified_geoid,
+        dj.census_acs5_state_representative_geoid,
+        dj.census_acs5_state_senate_geoid,
+        dj.census_acs5_tract_geoid,
         dj.year AS census_acs5_data_year,
         pcl.year
     FROM {{ source('spatial', 'parcel') }} AS pcl
