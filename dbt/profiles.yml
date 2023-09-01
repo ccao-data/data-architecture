@@ -11,6 +11,7 @@ athena:
       # "database" here corresponds to a Glue data catalog
       database: awsdatacatalog
       threads: 5
+      num_retries: 0
     ci:
       type: athena
       s3_staging_dir: s3://ccao-dbt-athena-ci-us-east-1/results/
