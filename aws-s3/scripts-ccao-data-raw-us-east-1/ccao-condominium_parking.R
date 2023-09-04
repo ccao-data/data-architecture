@@ -1,9 +1,10 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
-library(purrr)
 library(openxlsx)
+library(purrr)
 library(readr)
+library(tools)
 
 # This script retrieves raw condominium characteristics from the CCAO's O Drive
 # compiled by the valuations department
@@ -23,9 +24,6 @@ openxlsx::read.xlsx(
       )
     )
   )
-
-# Apply function to foreclosure data
-walk(source_files, read_write_questionable)
 
 ##### 399 GARAGE UNITS & NEGATIVE PREDICTED VALUE #####
 
