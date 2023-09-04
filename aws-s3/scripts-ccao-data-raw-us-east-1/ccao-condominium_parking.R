@@ -1,13 +1,9 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
-library(glue)
 library(purrr)
 library(openxlsx)
 library(readr)
-library(tools)
-library(stringr)
-source("utils.R")
 
 # This script retrieves raw condominium characteristics from the CCAO's O Drive
 # compiled by the valuations department
@@ -16,36 +12,40 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "condominium")
 
 ##### QUESTIONABLE GARAGE UNITS #####
 
-# Get local file addresses
-source_paths <- c("O:/Condo Worksheets/Condo 2022/")
-
-source_files <- list.files(
-  source_paths,
-  recursive = TRUE, full.names = TRUE
-  )
-
-
-# Function to retrieve data and write to S3
-read_write_questionable <- function(x) {
-  openxlsx::read.xlsx(x, sheet = 1) %>%
-    write_parquet(
-      tolower(
-        file.path(
-          output_bucket, "pin_questionable_garage_units",
-          paste0(str_sub(str_extract(x, '20.*'), 1, 4),".parquet")
-        )
-
+openxlsx::read.xlsx(
+  "O:/Condo Worksheets/Condo 2022/2022 Desk Review - Questionable Garage Units.xlsx", # styler: off
+  sheet = 1
+) %>%
+  write_parquet(
+    tolower(
+      file.path(
+        output_bucket, "pin_questionable_garage_units", "2022.parquet"
       )
     )
-}
+  )
 
 # Apply function to foreclosure data
 walk(source_files, read_write_questionable)
 
-##### 399 GARAGE UNITS #####
+##### 399 GARAGE UNITS & NEGATIVE PREDICTED VALUE #####
+
+# Negative predicted values were detected by our intern Caroline while
+# investigating condo data and suggest a unit should be non-livable.
 
 # Retrieve data and write to S3
-read_delim("O:/CCAODATA/data/condos/gr_399.csv", delim = ",", col_types = c("c", "c", "c")) %>%
-    write_parquet(file.path(
-      output_bucket, "pin_399_garage_units", "2023.parquet"
-      ))
+file_path <- "O:/CCAODATA/data/condos"
+source_files <- file_path_sans_ext(list.files(file_path))
+map(source_files, function(x) {
+
+  if (!aws.s3::object_exists(file.path(output_bucket, x, "2023.parquet"))) {
+
+    read_delim(
+      file.path(file_path, paste0(x, ".csv")),
+      delim = ",",
+      col_types = rep("c", 3)
+    ) %>%
+      write_parquet(file.path(output_bucket, x, "2023.parquet"))
+
+  }
+
+})
