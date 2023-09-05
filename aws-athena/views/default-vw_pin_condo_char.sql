@@ -27,6 +27,14 @@ questionable_gr AS (
     FROM {{ source('ccao', 'pin_questionable_garage_units') }}
 ),
 
+-- Some condo PINs have been detected as non-livable through modeling
+negative_preds AS (
+    SELECT
+        pin,
+        TRUE AS is_negative_pred
+    FROM {{ source('ccao', 'pin_negative_predicted_value') }}
+),
+
 -- For some reason PINs can have cur != 'Y' in the current year even
 -- when there's only one row
 oby_filtered AS (
@@ -341,6 +349,7 @@ SELECT DISTINCT
                 AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000
             )
             OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
+            OR negative_preds.is_negative_pred = TRUE
         )
         AND questionable_gr.is_question_garage_unit IS NULL
             THEN 1
@@ -372,11 +381,15 @@ SELECT DISTINCT
             AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000
         )
         OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
+        OR negative_preds.is_negative_pred = TRUE
     )
     AND questionable_gr.is_question_garage_unit IS NULL,
     FALSE) AS is_parking_space,
     CASE
         WHEN questionable_gr.is_question_garage_unit = TRUE THEN NULL
+        WHEN
+            negative_preds.is_negative_pred = TRUE
+            THEN 'model predicted negative value'
         WHEN filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
             THEN 'identified by valuations as non-unit'
@@ -397,6 +410,7 @@ SELECT DISTINCT
     END AS parking_space_flag_reason,
     COALESCE(prior_values.oneyr_pri_board_tot < 10, FALSE) AS is_common_area,
     questionable_gr.is_question_garage_unit,
+    negative_preds.is_negative_pred,
     aggregate_land.pin_is_multiland,
     aggregate_land.pin_num_landlines
 
@@ -409,3 +423,5 @@ LEFT JOIN prior_values
     AND filled.year = prior_values.year
 LEFT JOIN questionable_gr
     ON filled.pin = questionable_gr.pin
+LEFT JOIN negative_preds
+    ON filled.pin = negative_preds.pin

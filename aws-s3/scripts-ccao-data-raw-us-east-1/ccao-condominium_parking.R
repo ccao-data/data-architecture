@@ -33,7 +33,7 @@ openxlsx::read.xlsx(
 # Retrieve data and write to S3
 file_path <- "O:/CCAODATA/data/condos"
 source_files <- file_path_sans_ext(list.files(file_path))
-map(source_files, function(x) {
+walk(source_files, function(x) {
 
   if (!aws.s3::object_exists(file.path(output_bucket, x, "2023.parquet"))) {
 

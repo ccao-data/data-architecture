@@ -84,3 +84,37 @@ map(files, read_399s) %>%
     hive_style = TRUE,
     compression = "snappy"
   )
+
+##### NEGATIVE PREDICTED VALUES #####
+
+# Get S3 file addresses
+files <- grep(
+  ".parquet",
+  file.path(
+    AWS_S3_RAW_BUCKET,
+    aws.s3::get_bucket_df(
+      AWS_S3_RAW_BUCKET,
+      prefix = "ccao/condominium/pin_negative_predicted_value/")$Key
+  ),
+  value = TRUE
+)
+
+map(files, function(x) {
+
+  read_parquet(x) %>%
+    mutate(across(.cols = everything(), ~ as.character(.x))) %>%
+    rename_with(tolower) %>%
+    mutate(
+      pin = str_remove_all(pin, "-"),
+      taxyr = str_extract(x, "[0-9]{4}")
+      )
+
+}) %>%
+  bind_rows() %>%
+  group_by(taxyr) %>%
+  arrow::write_dataset(
+    path = file.path(output_bucket, "pin_negative_predicted_value"),
+    format = "parquet",
+    hive_style = TRUE,
+    compression = "snappy"
+  )
