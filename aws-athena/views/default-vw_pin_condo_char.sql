@@ -409,8 +409,9 @@ SELECT DISTINCT
             THEN 'prior value'
     END AS parking_space_flag_reason,
     COALESCE(prior_values.oneyr_pri_board_tot < 10, FALSE) AS is_common_area,
-    questionable_gr.is_question_garage_unit,
-    negative_preds.is_negative_pred,
+    COALESCE(questionable_gr.is_question_garage_unit, FALSE)
+        AS is_question_garage_unit,
+    COALESCE(negative_preds.is_negative_pred, FALSE) AS is_negative_pred,
     aggregate_land.pin_is_multiland,
     aggregate_land.pin_num_landlines
 
