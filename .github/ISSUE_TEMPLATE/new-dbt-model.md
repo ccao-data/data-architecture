@@ -1,12 +1,10 @@
 ---
 name: Add a new dbt model
-about: Request the addition of a new model to the dbt DAG.
-title: ''
-labels: ''
-assignees: ''
+description: Request the addition of a new model to the dbt DAG.
+title: Add a new dbt model
 ---
 
-_(Replace or delete anything in parentheses with your own issue.)_
+_(Replace or delete anything in parentheses with your own issue content.)_
 
 # New dbt model
 
@@ -25,12 +23,12 @@ _(Brief description of the task here.)_
 * **Description**: _(Provide a rich description for this model that will be
   displayed in documentation. Markdown is supported, and encouraged for more
   complex models. See [Model
-  description](/ccao-data/data-architecture#model-description) for guidance.)
+  description](/ccao-data/data-architecture#model-description) for guidance.)_
 
 ## Short checklist
 
 _(Use this checklist if the assignee already knows how to add a dbt model.
-Otherwise, delete it in favor of the long checklist below.)_
+Otherwise, delete it in favor of the long checklist in the following section.)_
 
 - [ ] Define the SQL query that creates the model in the `aws-athena/` directory
   - [ ] Optionally configure model materialization
@@ -56,10 +54,10 @@ Complete the following checklist to add the model:
   while tables should live in `aws-athena/ctas/`. When naming the file for the
   query, the period in the model name that separates the entity name from the
   database namespace should be changed to a hyphen (e.g. `default.new_model`
-  should become `default-new_model` for the purposes of the SQL file name).
+  should become `default-new_model` for the purpose of the SQL file name).
 
 
-```console
+```bash
 # View example
 touch aws-athena/views/default-vw_new_model.sql
 
@@ -114,6 +112,16 @@ using (pin10, year)
   `dbt_project.yml` to document the new directory under the `models.athena`
   key with a `+schema` attribute.
 
+```yaml
+# Table example (only the model name would change for a view)
+# schema.yml
+version: 2
+
+
+models:
+  - name: default.new_model
+```
+
 ```diff
 # View or table example
 --- a/dbt/dbt_project.yml
@@ -131,7 +139,7 @@ using (pin10, year)
 - [ ] Add a symlink from the appropriate subfolder of the `dbt/models/`
   directory to the SQL query you created in the `aws-athena/` directory.
 
-```console
+```bash
 # View example
 ln -s aws-athena/views/default-vw_new_model.sql dbt/models/default/default.vw_new_model.sql
 
@@ -144,7 +152,7 @@ ln -s aws-athena/ctas/default-new_model.sql dbt/models/default/default.new_model
 
 
 ```diff
-# example
+# Table example (only the model name would change for a view)
 --- a/dbt/models/default/docs.md
 +++ b/dbt/models/default/docs.md
 
