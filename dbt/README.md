@@ -5,16 +5,21 @@ This directory stores the configuration for building our data catalog using
 
 ## Quick links
 
-* [Background: What does the data catalog
-  do?](#background-what-does-the-data-catalog-do)
-* [How to develop the catalog](#how-to-develop-the-catalog)
-* [How to add a new model](#how-to-add-a-new-model)
-* [Debugging tips](#debugging-tips)
-* [Data documentation](https://ccao-data.github.io/data-architecture)
-* [Design doc for our decision to develop our catalog with
+### In this document
+
+* [🖼️ Background: What does the data catalog
+  do?](background-what-does-the-data-catalog-do)
+* [💻 How to develop the catalog](#how-to-develop-the-catalog)
+* [➕ How to add a new model](#how-to-add-a-new-model)
+* [🐛 Debugging tips](#debugging-tips)
+
+### Outside this document
+
+* [📖 Data documentation](https://ccao-data.github.io/data-architecture)
+* [📝 Design doc for our decision to develop our catalog with
   dbt](../documentation/design-docs/data-catalog.md)
 
-## Background: What does the data catalog do?
+<h2 id="background-what-does-the-data-catalog-do">🖼️ Background: What does the data catalog do?</h2>
 
 The data catalog accomplishes a few main goals:
 
@@ -25,10 +30,10 @@ we run in order to transform raw data into output data for use in statistical
 modeling and reporting. These transformations comprise a DAG that we use for
 documenting our data and rebuilding it efficiently. We use the [`dbt
 run`](https://docs.getdbt.com/reference/commands/run) command to build these
-models into Athena views and tables.
+models into views and tables in AWS Athena.
 
-Note that when we talk about "models" in these docs, we generally mean to
-discuss [the resources that dbt calls
+Note that when we talk about "models" in these docs, we generally mean [the
+resources that dbt calls
 "models"](https://docs.getdbt.com/docs/build/models), namely the definitions of
 the tables and views in our Athena warehouse. In contrast, we will use the
 phrase "statistical models" wherever we mean to discuss the algorithms that we
@@ -36,9 +41,10 @@ use to predict property values.
 
 ### 2. Define integrity checks that specify the correct format for our data
 
-The tests defined in the `schema.yml` files in the `models/` directory and in
-the [`tests/`](./tests/) directory set the specification for our source data
-and its transformations. These specs allow us to build confidence in the
+The tests defined in the `schema.yml` files in the `models/` directory,
+alongside some one-off tests defined in the [`tests/`](./tests/) directory,
+set the specification for our source data and its transformations. These
+specs allow us to build confidence in the
 integrity of the data that we use and publish. We use the
 [`dbt test`](https://docs.getdbt.com/docs/build/tests) command to run these
 tests against our Athena warehouse.
@@ -55,8 +61,8 @@ command to generate these docs.
 The workflows, actions, and scripts defined in [the `.github/`
 directory](../.github/) work together to perform all of our dbt operations
 automatically, and to integrate with the development cycle such that new
-commits to the main branch of this repo automatically deploy changes to our
-tables, views, tests, and docs. Automated tasks include:
+commits to the main branch of this repository automatically deploy changes to
+our tables, views, tests, and docs. Automated tasks include:
 
 * (Re)building any models that have been added or modified since the last commit
   to the main branch (the `build-and-test-dbt` workflow)
@@ -71,9 +77,9 @@ tables, views, tests, and docs. Automated tasks include:
   site](https://ccao-data.github.io/data-architecture) on every commit to the
   main branch (the `deploy-dbt-docs` workflow)
 * Cleaning up temporary resources in our Athena warehouse whenever a pull
-  request is merged to the main branch (the `cleanup-dbt-resources` workflow)
+  request is merged into the main branch (the `cleanup-dbt-resources` workflow)
 
-## How to develop the catalog
+<h2 id="how-to-develop-the-catalog"> 💻 How to develop the catalog </h2>
 
 ### Installation
 
@@ -93,7 +99,7 @@ care of that for you.)
 
 #### Install dependencies
 
-Run the following commands in this repo:
+Run the following commands in this directory:
 
 ```
 python3 -m venv venv
@@ -169,6 +175,38 @@ Delete all the resources created in your local environment:
 ../.github/scripts/cleanup_dbt_resources.sh dev
 ```
 
+#### Run tests
+
+Run tests for all models:
+
+```
+dbt test
+```
+
+Run all tests for one model:
+
+```
+dbt test --select default.vw_pin_universe
+```
+
+Run only one test:
+
+```
+dbt test --select vw_pin_universe_unique_by_14_digit_pin_and_year
+```
+
+Run a test against the prod models:
+
+```
+dbt test --select vw_pin_universe_unique_by_14_digit_pin_and_year --target prod
+```
+
+Run tests for dbt macros:
+
+```
+dbt run-operation test_all
+```
+
 #### Generate documentation
 
 Note that we configure dbt's [`asset-paths`
@@ -205,39 +243,7 @@ dbt docs serve
 
 Then, navigate to http://localhost:8080 to view the site.
 
-#### Run tests
-
-Run tests for all models:
-
-```
-dbt test
-```
-
-Run all tests for one model:
-
-```
-dbt test --select default.vw_pin_universe
-```
-
-Run only one test:
-
-```
-dbt test --select vw_pin_universe_unique_by_14_digit_pin_and_year
-```
-
-Run a test against the prod models:
-
-```
-dbt test --select vw_pin_universe_unique_by_14_digit_pin_and_year --target prod
-```
-
-Run tests for dbt macros:
-
-```
-dbt run-operation test_all
-```
-
-### How to add a new model
+<h3 id="how-to-add-a-new-model"> ➕ How to add a new model </h3>
 
 To request the addition of a new model, open an issue using the [Add a new dbt
 model](.github/ISSUE_TEMPLATE/new-dbt-model.md) issue template. The assignee
@@ -251,7 +257,7 @@ below.
 
 There are a number of different ways of materializing tables in Athena
 using dbt; see the [dbt
-docs](https://docs.getdbt.com/docs/build/materializations#overview) for more
+docs](https://docs.getdbt.com/docs/build/materializations) for more
 detail.
 
 So far our DAG only uses view and table materialization, although we are
@@ -273,7 +279,7 @@ Models should be namespaced according to the database that the model lives in
 dbt does not yet support namespacing for refs, we include the database as a
 prefix in the model name to simulate real namespacing, and we override the
 `generate_alias_name` macro to strip out this fake namespace when generating
-names of tables and views
+names of tables and views in Athena
 ([docs](https://docs.getdbt.com/docs/build/custom-aliases)).
 
 In addition to database namespacing, views should be named with a `vw_` prefix
@@ -295,7 +301,9 @@ yet.
 #### Model tests
 
 Any assumptions underlying the new model should be documented in the form of
-[dbt tests](https://docs.getdbt.com/docs/build/tests).
+[dbt tests](https://docs.getdbt.com/docs/build/tests). We prefer adding tests
+inline in `schema.yml` model properties files, as opposed to defining one-off
+tests in the `tests/` directory.
 
 Conceptually, there are two types of tests that we might consider for a new
 model:
@@ -316,7 +324,7 @@ Due to this complexity, we currently do not have a way of supporting unit
 tests, although we plan to revisit this in the future; as such, when proposing
 new tests, check to ensure that they are in fact data tests and not unit tests.
 
-## Debugging tips
+<h2 id="debugging-tips"> 🐛 Debugging tips </h2>
 
 ### How do I debug a failing test?
 
@@ -355,8 +363,8 @@ code change.
 
 The `cleanup-dbt-resources` workflow removes all AWS resources that were created
 by GitHub Actions for a pull request once that pull request has been merged into
-the main branch of the repo. On rare occasions, this workflow might fail due to
-changes to our dbt setup that invalidate the assumptions of the workflow.
+the main branch of the repository. On rare occasions, this workflow might fail
+due to changes to our dbt setup that invalidate the assumptions of the workflow.
 
 There are two ways to clean up a PR's resources manually:
 
@@ -368,7 +376,7 @@ There are two ways to clean up a PR's resources manually:
    `Delete` button in the top right-hand corner of the table.
 2. **Using the command line**: If the workflow has failed, it most likely means
    there is a bug in the `.github/scripts/cleanup_dbt_resources.sh` script
-   ([source](../.github/scripts/cleanup_dbt_resources.sh)). Once you've
+   ([source code](../.github/scripts/cleanup_dbt_resources.sh)). Once you've
    identified and fixed the bug, confirm it works by running the following
    command to clean up the resources created by the pull request:
 
