@@ -51,7 +51,7 @@ jobs:
         run: |
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
             echo "Running build on modified/new resources only"
-            dbt run -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR"
+            dbt run -t "$TARGET" --select location.tax --defer --state "$STATE_DIR"
           else
             echo "Running build on all resources"
             dbt run -t "$TARGET"
