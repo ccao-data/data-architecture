@@ -66,6 +66,25 @@ models:
             error_if: ">266758"
   - name: default.vw_card_res_char
     description: '{{ doc("vw_card_res_char") }}'
+    columns:
+      - name: char_air
+        description: Whether the unit has central air conditioning.
+        meta:
+          var_name_hie: qu_air
+          var_name_iasworld: user7
+          var_name_athena: char_air
+          var_name_model: char_air
+          var_name_publish: central_air
+          var_name_pretty: Central Air Conditioning
+          var_type: char
+          var_data_type: categorical
+          var_codes:
+            1:
+              var_value: Central A/C
+              var_value_short: "YES"
+            2:
+              var_value: No Central A/C
+              var_value_short: "NO"
     tests:
       # Unique by card and year
       - dbt_utils.unique_combination_of_columns:
