@@ -1,6 +1,9 @@
-# Tech talk: dbt
+---
+author: Jean Cochrane
+date: MMMM dd, YYYY
+---
 
-Jean Cochrane | September 2023
+# Tech talk: dbt
 
 ---
 
@@ -21,8 +24,6 @@ Things we do with dbt include:
 * Define and run tests to ensure our data meet spec
 * Generate documentation for our data warehouse
 
-We will discuss each of these in more detail in the coming slides.
-
 ---
 
 # What _isn't_ dbt?
@@ -36,95 +37,149 @@ than dbt:
 * Raw data extraction
 * Publishing data to platforms like Socrata and Tableau
 
-We will discuss the tools we use to accomplish these tasks shortly.
+---
+
+# Repo overview
+
+https://github.com/ccao-data/data-architecture
 
 ---
 
 # Demo time!
 
----
-
-# Demo outline
-
-* Show `data-architecture/dbt`
-  * Explain each subfolder
-    1. `models`
-      * `spatial`: Sources
-      * `default`: Models (views)
-    2. `macros`
-    3. `tests`
-    4. `target`
-    4. YAML files
-      * `dbt_project.yml`
-      * `packages.yml`
-      * `profiles.yml`
-
-* Make sure we have no resources built yet
+Make sure we have no resources built yet:
 
 ```
 ../.github/scripts/cleanup_dbt_resources.sh dev
 ```
 
-* Confirm we can't build the target without dependencies
+---
+
+# Demo: dbt run
+
+Let's try building a model:
 
 ```
 dbt run --select default.vw_pin_universe
 ```
 
-* Build a view and its dependencies
+---
+
+# Demo: dbt run
+
+Oops, that didn't work!
+
+Add a plus sign to build a view including its dependencies:
 
 ```
 dbt run --select +default.vw_pin_universe
 ```
 
-* Navigate to Athena console and confirm the views exist
+---
 
-* Test the view
+# Demo: dbt run
 
-```
-dbt test --select default.vw_pin_universe
-```
+You can also defer to remote state to avoid building things locally.
 
-* Test the view on prod
-
-```
-dbt test --select default.vw_pin_universe --target prod
-```
-
-* Delete the dependencies
+Start by deleting the dependency database, so that we have to rebuild it:
 
 ```
 aws glue delete-database --name dev_jecochr_location
 ```
 
-* Download and defer to remote state
+---
+
+# Demo: dbt run
+
+Now try downloading and deferring to remote state:
 
 ```
-aws s3 cp s3://ccao-dbt-cache-us-east-1/master-cache/manifest.json state/manifest.json
+aws s3 cp s3://ccao-dbt-cache-us-east-1/master-cache/manifest.json state/manifest.json && \
 dbt run --select default.vw_pin_universe --defer --state state
 ```
 
-* Navigate to Athena console and confirm that `default.vw_pin_universe` points
-  to the prod model
+---
 
-* Only build new and changed state; confirm that this doesn't do anything
+# Demo: dbt run
+
+We can also instruct dbt to only build models that are new or have changed.
+
+This won't build any models:
 
 ```
 dbt run -s state:modified state:new --defer --state state
 ```
 
-* Edit `default.vw_pin_universe`
+---
 
-* Rerun above command to confirm it works this time
+# Demo: dbt run
 
-* Build docs
+But if we edit `default.vw_pin_universe`, it will get rebuilt!
+
+Let's rerun that previous command:
+
+```
+dbt run -s state:modified state:new --defer --state state
+```
+
+---
+
+# Demo: dbt test
+
+We can also run tests using dbt.
+
+Run all tests for a model:
+
+```
+dbt test --select default.vw_pin_universe
+```
+
+---
+
+# Demo: dbt test
+
+Run tests on prod:
+
+```
+dbt test --select default.vw_pin_universe --target prod
+```
+
+---
+
+# Demo: dbt docs
+
+Lastly, dbt lets us build our data docs:
 
 ```
 dbt docs generate --target prod
 ```
+---
 
-* Serve docs
+# Demo: dbt docs
+
+Docs are built into a static website, but we can also use this convenience
+function to serve them locally:
 
 ```
 dbt docs serve
 ```
+
+---
+
+# Automation, orchestration, and monitoring
+
+What do these terms mean?
+
+* **Automation**: Running builds and tests automatically
+* **Orchestration**: Running builds and tests on schedule and in order
+* **Monitoring**: Making sure we get notified if builds and tests fail
+
+We use **GitHub Actions** to automate, orchestrate, and monitor dbt.
+
+Let's take a look:
+
+https://github.com/ccao-data/data-architecture/actions
+
+---
+
+# Questions?

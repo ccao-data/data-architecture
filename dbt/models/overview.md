@@ -12,6 +12,6 @@ on [GitHub](https://github.com/ccao-data/data-architecture/).
 
 The following diagram summarizes the Data Department's current infrastructure and data flows.
 
-![Data Flow Diagram](/data-architecture/assets/dataflow-diagram.svg)
+![Data Flow Diagram](assets/dataflow-diagram.svg)
 
 {% enddocs %}
