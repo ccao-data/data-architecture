@@ -374,7 +374,7 @@ There are two ways to clean up a PR's resources manually:
    data source that matches the database pattern for your pull request
    (i.e. prefixed with `ci_` plus the name of your branch) and click the
    `Delete` button in the top right-hand corner of the table.
-2. **Using the command line**: If the workflow has failed, it most likely means
+2. **Using the command-line**: If the workflow has failed, it most likely means
    there is a bug in the `.github/scripts/cleanup_dbt_resources.sh` script
    ([source code](../.github/scripts/cleanup_dbt_resources.sh)). Once you've
    identified and fixed the bug, confirm it works by running the following

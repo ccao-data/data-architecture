@@ -54,7 +54,7 @@ Complete the following checklist to add the model:
   while tables should live in `aws-athena/ctas/`. When naming the file for the
   query, the period in the model name that separates the entity name from the
   database namespace should be changed to a hyphen (e.g. `default.new_model`
-  should become `default-new_model` for the purpose of the SQL file name).
+  should become `default-new_model` for the purpose of the SQL filename).
 
 
 ```bash
@@ -83,9 +83,9 @@ using (pin10, year)
 
 - [ ] Optionally configure model materialization. If the output of the query
   should be a view, no action is necessary, since the default for all models in
-  this repo is to materialize as views; but if the output should be a table,
-  with table data stored in S3, then you'll need to add a config block to the
-  top of the view to configure materialization.
+  this repository is to materialize as views; but if the output should be a
+  table, with table data stored in S3, then you'll need to add a config block
+  to the top of the view to configure materialization.
 
 ```sql
 -- Table example
