@@ -1,11 +1,10 @@
-# Glue setup
 import sys
 from awsglue.transforms import *
 from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
 from awsglue.context import GlueContext
 from awsglue.job import Job
-
+  
 sc = SparkContext.getOrCreate()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
@@ -23,6 +22,16 @@ import s3fs
 import time
 import statsmodels.api as sm
 import warnings
+import assesspy as ap
+from assesspy import cod as cod
+from assesspy import prd as prd
+from assesspy import cod_met as cod_met
+from assesspy import prd_met as prd_met
+from assesspy import prb_met as prb_met
+from assesspy import detect_chasing as detect_chasing
+from assesspy import mki as mki
+from assesspy import mki_met as mki_met
+
 
 # Define AWS boto3 clients
 athena_client = boto3.client('athena')
@@ -36,7 +45,7 @@ s3_bucket = 'ccao-data-warehouse-us-east-1'
 s3_prefix = 'reporting/ratio_stats/'
 s3_output = 's3://'+ s3_bucket + '/' + s3_prefix
 s3_ratio_stats = 's3://'+ s3_bucket + '/' + s3_prefix + 'ratio_stats.parquet'
-
+s3_ratio_stats_test = 's3://'+ s3_bucket + '/' + 'reporting/ratio_stats_test/' + 'ratio_stats.parquet'
 
 # Functions to help with Athena queries ----
 def poll_status(athena_client, execution_id):
@@ -131,24 +140,7 @@ for object in response['Contents']:
     if re.search("csv", object['Key']):
         print('Deleting', object['Key'])
         s3_client.delete_object(Bucket = s3_bucket, Key = object['Key'])
-
-
-# COD, PRD, PRB functions ----
-def cod(ratio):
-
-    n = ratio.size
-    median_ratio = ratio.median()
-    cod = 100 / median_ratio * (sum(abs(ratio - median_ratio)) / n)
-
-    return cod
-
-def prd(fmv, sale_price):
-
-    ratio = fmv / sale_price
-    prd = ratio.mean() / np.average(a = ratio, weights = sale_price)
-
-    return prd
-
+        
 def prb(fmv, sale_price):
 
     ratio = fmv / sale_price
@@ -161,13 +153,7 @@ def prb(fmv, sale_price):
     rhs = np.array(rhs)
 
     return sm.OLS(lhs, rhs).fit()
-
-# Functions to determine whether assessment fairness criteria has been met
-cod_met = lambda x: 5 <= x <= 15
-
-prd_met = lambda x: 0.98 <= x <= 1.03
-
-prb_met = lambda x: -0.05 <= x <= 0.05
+    
 
 # General boostrapping function
 def boot_ci(fun, *args, nboot = 100, alpha = 0.05):
@@ -193,7 +179,8 @@ def boot_ci(fun, *args, nboot = 100, alpha = 0.05):
 
     return ci
 
-# Formula specific bootstrapping functions
+
+ # Formula specific bootstrapping functions
 def cod_boot(ratio, nboot = 100, alpha = 0.05):
 
     return boot_ci(cod, ratio, nboot = nboot, alpha = alpha)
@@ -299,6 +286,32 @@ def ccao_median(x):
     out = [median_val, median_ci, median_n]
 
     return(out)
+    
+    
+def ccao_mki(fmv, sale_price):
+
+    ratio = fmv / sale_price
+
+    # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
+    no_outliers = ratio.between(ratio.quantile(0.05), ratio.quantile(0.95), inclusive = "neither")
+
+    fmv_no_outliers = fmv[no_outliers == True]
+    sale_price_no_outliers = sale_price[no_outliers == True]
+
+    mki_n = sum(no_outliers)
+
+    if mki_n >= 20:
+
+        mki_val = mki(fmv_no_outliers, sale_price_no_outliers)
+        met = mki_met(mki_val)
+
+        out = [mki_val, met, mki_n]
+
+    else:
+
+        out = [None, None, mki_n]
+        
+    return out
 
 # Sales chasing functions
 def detect_chasing_cdf(ratio, bounds = [0.98, 1.02], cdf_gap = 0.03):
@@ -345,27 +358,6 @@ def detect_chasing_dist(ratio, bounds = [0.98, 1.02]):
 
     return pct_actual > pct_ideal
 
-def detect_chasing(ratio, method = 'both'):
-
-    # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
-    no_outliers = ratio.between(ratio.quantile(0.05), ratio.quantile(0.95), inclusive = "neither")
-
-    if len(no_outliers) < 30:
-        warnings.warn(
-            """Sales chasing detection can be misleading when applied to small samples (N < 30).
-            Increase N or use a different statistical test."""
-            )
-
-        out = None
-
-    else:
-        out = {
-            'cdf': detect_chasing_cdf(no_outliers),
-            'dist': detect_chasing_dist(no_outliers),
-            'both': (detect_chasing_cdf(no_outliers) & detect_chasing_dist(no_outliers))
-        }.get(method)
-
-    return out
 
 def report_summarise(df, geography_id, geography_type):
     # Aggregates data and calculates summary statistics for given groupings
@@ -383,6 +375,7 @@ def report_summarise(df, geography_id, geography_type):
             'sale_n':np.size(x['triad']),
             'ratio':ccao_median(x['ratio']),
             'cod':ccao_cod(ratio = x['ratio']),
+            'mki': ccao_mki(fmv=x['fmv'], sale_price=x['sale_price']),
             'prd':ccao_prd(fmv = x['fmv'], sale_price = x['sale_price']),
             'prb':ccao_prb(fmv = x['fmv'], sale_price = x['sale_price']),
             'detect_chasing':detect_chasing(ratio = x['ratio']),
@@ -395,6 +388,7 @@ def report_summarise(df, geography_id, geography_type):
     df[['cod', 'cod_ci', 'cod_met', 'cod_n']] = pd.DataFrame(df.cod.tolist(), index = df.index)
     df[['prd', 'prd_ci', 'prd_met', 'prd_n']] = pd.DataFrame(df.prd.tolist(), index = df.index)
     df[['prb', 'prb_ci', 'prb_met', 'prb_n']] = pd.DataFrame(df.prb.tolist(), index = df.index)
+    df[['mki', 'mki_met', 'mki_n']] = pd.DataFrame(df.mki.tolist(), index = df.index)
     df['ratio_met'] = abs(1 - df['median_ratio']) <= .05
     df['vertical_equity_met'] = (df.prd_met | df.prb_met)
 
@@ -412,11 +406,13 @@ def report_summarise(df, geography_id, geography_type):
         'prb',
         'prb_ci',
         'prb_n',
+        'mki',
         'detect_chasing',
         'ratio_met',
         'cod_met',
         'prd_met',
         'prb_met',
+        'mki_met',
         'vertical_equity_met',
         'within_20_pct',
         'within_10_pct',
@@ -425,13 +421,12 @@ def report_summarise(df, geography_id, geography_type):
 
     return df
 
-
 # Append and write output to s3 bucket
 pd.concat([
     report_summarise(pull, 'triad', 'Tri'),
     report_summarise(pull, 'township_code', 'Town')
     ]).to_parquet(
-        s3_ratio_stats
+        s3_ratio_stats_test
         )
 
 # Trigger reporting glue crawler
