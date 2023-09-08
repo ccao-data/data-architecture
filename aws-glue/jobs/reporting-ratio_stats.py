@@ -23,7 +23,6 @@ import time
 import statsmodels.api as sm
 import warnings
 import assesspy as ap
-from assesspy import cod as cod
 from assesspy import prd as prd
 from assesspy import cod_met as cod_met
 from assesspy import prd_met as prd_met
@@ -31,6 +30,10 @@ from assesspy import prb_met as prb_met
 from assesspy import detect_chasing as detect_chasing
 from assesspy import mki as mki
 from assesspy import mki_met as mki_met
+from assesspy import cod as cod
+from assesspy import prb as prb
+from assesspy import boot_ci as boot_ci
+from assesspy import cod_ci as cod_ci
 
 
 # Define AWS boto3 clients
@@ -141,20 +144,7 @@ for object in response['Contents']:
         print('Deleting', object['Key'])
         s3_client.delete_object(Bucket = s3_bucket, Key = object['Key'])
         
-def prb(fmv, sale_price):
-
-    ratio = fmv / sale_price
-    median_ratio = ratio.median()
-
-    lhs = (ratio - median_ratio) /median_ratio
-    rhs = np.log(((fmv / median_ratio) + sale_price) / 2) / np.log(2)
-
-    lhs = np.array(lhs)
-    rhs = np.array(rhs)
-
-    return sm.OLS(lhs, rhs).fit()
-    
-
+        
 # General boostrapping function
 def boot_ci(fun, *args, nboot = 100, alpha = 0.05):
 
@@ -192,8 +182,95 @@ def prd_boot(fmv, sale_price, nboot = 100, alpha = 0.05):
 def median_boot(ratio, nboot = 100, alpha = 0.05):
 
     return boot_ci(np.median, ratio, nboot = nboot, alpha = alpha)
+        
 
-# Fairness metrics functions that comply with CCAO's SOPs
+def ccao_median(x):
+
+    # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
+    no_outliers = x.between(x.quantile(0.05), x.quantile(0.95), inclusive = "neither")
+
+    x_no_outliers = x[no_outliers == True]
+
+    median_n = sum(no_outliers)
+
+    median_val = np.median(x_no_outliers)
+    median_ci = median_boot(x, nboot = 1000)
+
+    out = [median_val, median_ci, median_n]
+
+    return(out)
+    
+        
+# Sales chasing functions
+def detect_chasing_cdf(ratio, bounds = [0.98, 1.02], cdf_gap = 0.03):
+    # CDF gap method for detecting sales chasing.
+
+    # Sort the ratios
+    sorted_ratio = ratio.sort_values()
+
+    # Calculate the CDF of the sorted ratios and extract percentile ranking
+    cdf = ECDF(sorted_ratio)(sorted_ratio)
+
+    # Calculate the difference between each value and the next value, the largest
+    # difference will be the CDF gap
+    diffs = np.diff(cdf)
+
+    # Check if the largest difference is greater than the threshold and make sure
+    # it's within the specified boundaries
+    diff_loc = sorted_ratio.iloc[np.argmax(diffs)]
+    out = (max(diffs) > cdf_gap) & ((diff_loc > bounds[0]) & (diff_loc < bounds[1]))
+
+    return(out)
+
+def detect_chasing_dist(ratio, bounds = [0.98, 1.02]):
+    # Distribution comparison method for detecting sales chasing.
+
+    # Return the percentage of x within the specified range
+    def pct_in_range(x, min, max):
+        out = np.mean(((x >= min) & (x <= max)))
+        return out
+
+    # Calculate the ideal normal distribution using observed values from input
+    ideal_dist = np.random.normal(
+        loc = np.mean(ratio),
+        scale = np.std(ratio),
+        size = 10000
+        )
+
+    # Determine what percentage of the data would be within the specified bounds
+    # in the ideal distribution
+    pct_ideal = pct_in_range(ideal_dist, bounds[0], bounds[1])
+
+    # Determine what percentage of the data is actually within the bounds
+    pct_actual = pct_in_range(ratio, bounds[0], bounds[1])
+
+    return pct_actual > pct_ideal
+    
+def ccao_mki(fmv, sale_price):
+
+    ratio = fmv / sale_price
+
+    # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
+    no_outliers = ratio.between(ratio.quantile(0.05), ratio.quantile(0.95), inclusive = "neither")
+
+    fmv_no_outliers = fmv[no_outliers == True]
+    sale_price_no_outliers = sale_price[no_outliers == True]
+
+    mki_n = sum(no_outliers)
+
+    if mki_n >= 20:
+
+        mki_val = mki(fmv_no_outliers, sale_price_no_outliers)
+        met = mki_met(mki_val)
+
+        out = [mki_val, met, mki_n]
+
+    else:
+
+        out = [None, None, mki_n]
+        
+    return out
+    
 def ccao_cod(ratio):
     """ """
 
@@ -257,10 +334,8 @@ def ccao_prb(fmv, sale_price):
     if prb_n >= 20:
 
         prb_model = prb(fmv_no_outliers, sale_price_no_outliers)
-        prb_val = float(prb_model.params)
-        prb_ci = ', '.join(
-            [str(element) for element in prb_model.conf_int(alpha = 0.05)[0].tolist()]
-            )
+        prb_val = prb_model['prb'] 
+        prb_ci = prb_model['95% ci']
         met = prb_met(prb_val)
 
         out = [prb_val, prb_ci, met, prb_n]
@@ -270,93 +345,6 @@ def ccao_prb(fmv, sale_price):
         out = [None, None, None, prb_n]
 
     return out
-
-def ccao_median(x):
-
-    # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
-    no_outliers = x.between(x.quantile(0.05), x.quantile(0.95), inclusive = "neither")
-
-    x_no_outliers = x[no_outliers == True]
-
-    median_n = sum(no_outliers)
-
-    median_val = np.median(x_no_outliers)
-    median_ci = median_boot(x, nboot = 1000)
-
-    out = [median_val, median_ci, median_n]
-
-    return(out)
-    
-    
-def ccao_mki(fmv, sale_price):
-
-    ratio = fmv / sale_price
-
-    # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
-    no_outliers = ratio.between(ratio.quantile(0.05), ratio.quantile(0.95), inclusive = "neither")
-
-    fmv_no_outliers = fmv[no_outliers == True]
-    sale_price_no_outliers = sale_price[no_outliers == True]
-
-    mki_n = sum(no_outliers)
-
-    if mki_n >= 20:
-
-        mki_val = mki(fmv_no_outliers, sale_price_no_outliers)
-        met = mki_met(mki_val)
-
-        out = [mki_val, met, mki_n]
-
-    else:
-
-        out = [None, None, mki_n]
-        
-    return out
-
-# Sales chasing functions
-def detect_chasing_cdf(ratio, bounds = [0.98, 1.02], cdf_gap = 0.03):
-    # CDF gap method for detecting sales chasing.
-
-    # Sort the ratios
-    sorted_ratio = ratio.sort_values()
-
-    # Calculate the CDF of the sorted ratios and extract percentile ranking
-    cdf = ECDF(sorted_ratio)(sorted_ratio)
-
-    # Calculate the difference between each value and the next value, the largest
-    # difference will be the CDF gap
-    diffs = np.diff(cdf)
-
-    # Check if the largest difference is greater than the threshold and make sure
-    # it's within the specified boundaries
-    diff_loc = sorted_ratio.iloc[np.argmax(diffs)]
-    out = (max(diffs) > cdf_gap) & ((diff_loc > bounds[0]) & (diff_loc < bounds[1]))
-
-    return(out)
-
-def detect_chasing_dist(ratio, bounds = [0.98, 1.02]):
-    # Distribution comparison method for detecting sales chasing.
-
-    # Return the percentage of x within the specified range
-    def pct_in_range(x, min, max):
-        out = np.mean(((x >= min) & (x <= max)))
-        return out
-
-    # Calculate the ideal normal distribution using observed values from input
-    ideal_dist = np.random.normal(
-        loc = np.mean(ratio),
-        scale = np.std(ratio),
-        size = 10000
-        )
-
-    # Determine what percentage of the data would be within the specified bounds
-    # in the ideal distribution
-    pct_ideal = pct_in_range(ideal_dist, bounds[0], bounds[1])
-
-    # Determine what percentage of the data is actually within the bounds
-    pct_actual = pct_in_range(ratio, bounds[0], bounds[1])
-
-    return pct_actual > pct_ideal
 
 
 def report_summarise(df, geography_id, geography_type):
@@ -375,7 +363,7 @@ def report_summarise(df, geography_id, geography_type):
             'sale_n':np.size(x['triad']),
             'ratio':ccao_median(x['ratio']),
             'cod':ccao_cod(ratio = x['ratio']),
-            'mki': ccao_mki(fmv=x['fmv'], sale_price=x['sale_price']),
+            'mki':ccao_mki(fmv = x['fmv'], sale_price = x['sale_price']),
             'prd':ccao_prd(fmv = x['fmv'], sale_price = x['sale_price']),
             'prb':ccao_prb(fmv = x['fmv'], sale_price = x['sale_price']),
             'detect_chasing':detect_chasing(ratio = x['ratio']),
@@ -384,13 +372,15 @@ def report_summarise(df, geography_id, geography_type):
             'within_05_pct':sum(abs(1 - x['ratio']) <= .05),
             })
         )
+        
     df[['median_ratio', 'median_ratio_ci', 'median_ratio_n']] = pd.DataFrame(df.ratio.tolist(), index = df.index)
     df[['cod', 'cod_ci', 'cod_met', 'cod_n']] = pd.DataFrame(df.cod.tolist(), index = df.index)
+    df[['mki', 'mki_met', 'mki_n']] = pd.DataFrame(df.mki.tolist(), index = df.index)
     df[['prd', 'prd_ci', 'prd_met', 'prd_n']] = pd.DataFrame(df.prd.tolist(), index = df.index)
     df[['prb', 'prb_ci', 'prb_met', 'prb_n']] = pd.DataFrame(df.prb.tolist(), index = df.index)
-    df[['mki', 'mki_met', 'mki_n']] = pd.DataFrame(df.mki.tolist(), index = df.index)
     df['ratio_met'] = abs(1 - df['median_ratio']) <= .05
     df['vertical_equity_met'] = (df.prd_met | df.prb_met)
+
 
     # Arrange output columns
     df = df[[
@@ -407,6 +397,7 @@ def report_summarise(df, geography_id, geography_type):
         'prb_ci',
         'prb_n',
         'mki',
+        'mki_n',
         'detect_chasing',
         'ratio_met',
         'cod_met',
