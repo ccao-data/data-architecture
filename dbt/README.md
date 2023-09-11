@@ -295,10 +295,14 @@ All new models should include, at minimum, a
 of the model itself. We generally store these descriptions as [docs
 blocks](https://docs.getdbt.com/reference/resource-properties/description#use-a-docs-block-in-a-description).
 
-Ideally, new models should also include descriptions for each column,
-implemented directly in the `schema.yml` model definition. However, our
-column descriptions are currently sparse, so it is not a strict requirement just
-yet.
+New models should also include descriptions for each column,
+implemented directly in the `schema.yml` model definition. Docs blocks are
+generally not necessary for column descriptions, since column descriptions
+should be kept short and simple so that docs readers can scan them from the
+context of the "Columns" table.
+
+Any documentation for a column beyond its basic summary should be stored in
+a `meta.notes` attribute on the column.
 
 #### Model tests
 
