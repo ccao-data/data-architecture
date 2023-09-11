@@ -29,4 +29,11 @@ models:
   - name: reporting.vw_res_report_summary
   - name: reporting.vw_top_5
   - name: reporting.vw_town_sale_history
+    tests:
+      - unique_combination_of_columns:
+          name: vw_town_sale_history_unique_by_geography_id_property_group_sale_year
+          combination_of_columns:
+            - geography_id
+            - property_group
+            - sale_year
 
