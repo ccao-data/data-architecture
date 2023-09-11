@@ -8,7 +8,7 @@ This directory stores the configuration for building our data catalog using
 ### In this document
 
 * [🖼️ Background: What does the data catalog
-  do?](background-what-does-the-data-catalog-do)
+  do?](#background-what-does-the-data-catalog-do)
 * [💻 How to develop the catalog](#how-to-develop-the-catalog)
 * [➕ How to add a new model](#how-to-add-a-new-model)
 * [🐛 Debugging tips](#debugging-tips)
@@ -96,6 +96,7 @@ care of that for you.)
 * [AWS CLI installed
   locally](https://github.com/ccao-data/wiki/blob/master/How-To/Connect-to-AWS-Resources.md)
   * You'll also need permissions for Athena, Glue, and S3
+* [`aws-mfa` installed locally](https://github.com/ccao-data/wiki/blob/master/How-To/Setup-the-AWS-Command-Line-Interface-and-Multi-factor-Authentication.md)
 
 #### Install dependencies
 
@@ -246,7 +247,7 @@ Then, navigate to http://localhost:8080 to view the site.
 <h3 id="how-to-add-a-new-model"> ➕ How to add a new model </h3>
 
 To request the addition of a new model, open an issue using the [Add a new dbt
-model](.github/ISSUE_TEMPLATE/new-dbt-model.md) issue template. The assignee
+model](../.github/ISSUE_TEMPLATE/new-dbt-model.md) issue template. The assignee
 should follow the checklist in the body of the issue in order to add the model
 to the DAG.
 
@@ -285,6 +286,7 @@ names of tables and views in Athena
 In addition to database namespacing, views should be named with a `vw_` prefix
 (e.g. `location.vw_pin10_location`) to mark them as a view, while tables do not
 require any prefix (e.g. `location.tax`).
+Finally, for the sake of consistency and ease of interpretation, all tables and views should be named using the singular case e.g. `location.tax` rather than `location.taxes`.
 
 #### Model description
 
