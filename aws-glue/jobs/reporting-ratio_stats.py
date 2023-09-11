@@ -49,11 +49,8 @@ s3_prefix = "reporting/ratio_stats/"
 s3_output = "s3://" + s3_bucket + "/" + s3_prefix
 s3_ratio_stats = "s3://" + s3_bucket + "/" + s3_prefix + "ratio_stats.parquet"
 s3_ratio_stats_test = (
-    "s3://" +
-    s3_bucket +
-    "/" +
-    "reporting/ratio_stats_test/" +
-    "ratio_stats.parquet")
+    "s3://" + s3_bucket + "/" + "reporting/ratio_stats_test/" + "ratio_stats.parquet"
+)
 
 
 # Functions to help with Athena queries ----
@@ -181,10 +178,7 @@ def median_boot(ratio, nboot=100, alpha=0.05):
 
 def ccao_median(x):
     # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
-    no_outliers = x.between(
-        x.quantile(0.05),
-        x.quantile(0.95),
-        inclusive="neither")
+    no_outliers = x.between(x.quantile(0.05), x.quantile(0.95), inclusive="neither")
 
     x_no_outliers = x[no_outliers]
 
@@ -215,10 +209,7 @@ def detect_chasing_cdf(ratio, bounds=[0.98, 1.02], cdf_gap=0.03):
     # Check if the largest difference is greater than the threshold and make sure
     # it's within the specified boundaries
     diff_loc = sorted_ratio.iloc[np.argmax(diffs)]
-    out = (
-        max(diffs) > cdf_gap) & (
-        (diff_loc > bounds[0]) & (
-            diff_loc < bounds[1]))
+    out = (max(diffs) > cdf_gap) & ((diff_loc > bounds[0]) & (diff_loc < bounds[1]))
 
     return out
 
@@ -232,10 +223,7 @@ def detect_chasing_dist(ratio, bounds=[0.98, 1.02]):
         return out
 
     # Calculate the ideal normal distribution using observed values from input
-    ideal_dist = np.random.normal(
-        loc=np.mean(ratio),
-        scale=np.std(ratio),
-        size=10000)
+    ideal_dist = np.random.normal(loc=np.mean(ratio), scale=np.std(ratio), size=10000)
 
     # Determine what percentage of the data would be within the specified bounds
     # in the ideal distribution
@@ -276,8 +264,9 @@ def ccao_cod(ratio):
     """ """
 
     # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
-    no_outliers = ratio[ratio.between(ratio.quantile(
-        0.05), ratio.quantile(0.95), inclusive="neither")]
+    no_outliers = ratio[
+        ratio.between(ratio.quantile(0.05), ratio.quantile(0.95), inclusive="neither")
+    ]
 
     cod_n = no_outliers.size
 
@@ -337,6 +326,7 @@ def ccao_prb(fmv, sale_price):
         prb_model = prb(fmv_no_outliers, sale_price_no_outliers)
         prb_val = prb_model["prb"]
         prb_ci = prb_model["95% ci"]
+        prb_ci = f"{prb_ci[0]}, {prb_ci[1]}"
         met = prb_met(prb_val)
 
         out = [prb_val, prb_ci, met, prb_n]
@@ -389,8 +379,7 @@ def report_summarise(df, geography_id, geography_type):
     df[["cod", "cod_ci", "cod_met", "cod_n"]] = pd.DataFrame(
         df.cod.tolist(), index=df.index
     )
-    df[["mki", "mki_met", "mki_n"]] = pd.DataFrame(
-        df.mki.tolist(), index=df.index)
+    df[["mki", "mki_met", "mki_n"]] = pd.DataFrame(df.mki.tolist(), index=df.index)
     df[["prd", "prd_ci", "prd_met", "prd_n"]] = pd.DataFrame(
         df.prd.tolist(), index=df.index
     )
