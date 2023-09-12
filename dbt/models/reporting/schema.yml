@@ -43,6 +43,12 @@ models:
             - property_group
             - assessment_stage
             - year
+      - expression_is_true:
+          name: vs_res_report_summary_sale_year_equals_year_minus_one
+          expression: CAST(sale_year AS INTEGER) = CAST(year AS INTEGER) - 1
+          select_columns:
+            - sale_year
+            - year
   - name: reporting.vw_top_5
     tests:
       - unique_combination_of_columns:
