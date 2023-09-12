@@ -10,12 +10,11 @@ from assesspy import (
     prb_met,
     prd,
     prd_met,
+    boot_ci,
     prd_ci as prd_boot,
 )
 
 from assesspy.sales_chasing import detect_chasing_cdf, detect_chasing_dist
-
-from assesspy.ci import boot_ci
 
 import warnings
 import statsmodels.api as sm
