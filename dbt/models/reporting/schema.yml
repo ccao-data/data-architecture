@@ -52,6 +52,9 @@ models:
             - class
             - rank
             - parid
+      - expression_is_true:
+          name: vw_top_5_rank_between_1_and_5
+          expression: rank BETWEEN 1 AND 5
   - name: reporting.vw_town_sale_history
     tests:
       - unique_combination_of_columns:
