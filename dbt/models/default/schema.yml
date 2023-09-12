@@ -339,55 +339,55 @@ models:
       - name: prop_address_zipcode_2
         description: Property street address
         meta:
-         notes: Not the address of the taxpayer/property owner
+          notes: Not the address of the taxpayer/property owner
       - name: prop_address_zipcode_1
         description: Property street address
         meta:
-         notes: Not the address of the taxpayer/property owner
+          notes: Not the address of the taxpayer/property owner
       - name: prop_address_unit_prefix
         description: Property street address
         meta:
-         notes: Not the address of the taxpayer/property owner
+          notes: Not the address of the taxpayer/property owner
       - name: prop_address_unit_number
         description: Property street address
         meta:
-         notes: Not the address of the taxpayer/property owner
+          notes: Not the address of the taxpayer/property owner
       - name: prop_address_suffix_2
         description: Property street address
         meta:
-         notes: Not the address of the taxpayer/property owner
+          notes: Not the address of the taxpayer/property owner
       - name: prop_address_suffix_1
         description: Property street address
         meta:
-         notes: Not the address of the taxpayer/property owner
+          notes: Not the address of the taxpayer/property owner
       - name: prop_address_street_number
         description: Property street address
         meta:
-         notes: Not the address of the taxpayer/property owner
+          notes: Not the address of the taxpayer/property owner
       - name: prop_address_street_name
         description: Property street address
         meta:
-         notes: Not the address of the taxpayer/property owner
+          notes: Not the address of the taxpayer/property owner
       - name: prop_address_street_dir
         description: Property street address
         meta:
-         notes: Not the address of the taxpayer/property owner
+          notes: Not the address of the taxpayer/property owner
       - name: prop_address_state
         description: Property street address
         meta:
-         notes: Not the address of the taxpayer/property owner
+          notes: Not the address of the taxpayer/property owner
       - name: prop_address_prefix
         description: Property street address
         meta:
-         notes: Not the address of the taxpayer/property owner
+          notes: Not the address of the taxpayer/property owner
       - name: prop_address_full
         description: Property street address
         meta:
-         notes: Not the address of the taxpayer/property owner
+          notes: Not the address of the taxpayer/property owner
       - name: prop_address_city_name
         description: Property street address
         meta:
-         notes: Not the address of the taxpayer/property owner
+          notes: Not the address of the taxpayer/property owner
       - name: pin10
         description: First 10 digits of a PIN
         meta:
@@ -421,59 +421,59 @@ models:
       - name: nearest_railroad_dist_ft
         description: Distance in feet to the nearest rail (not including CTA)
         meta:
-         notes: Taken from Cook County GIS shapefiles
+          notes: Taken from Cook County GIS shapefiles
       - name: nearest_park_dist_ft
         description: Distance in feet to the nearest park
         meta:
-         notes: Pull via OpenStreetMap, key=leisure, value=park
+          notes: Pull via OpenStreetMap, key=leisure, value=park
       - name: nearest_metra_stop_dist_ft
         description: Distance in feet to the nearest Metra stop
         meta:
-         notes: Taken from Metra GTFS feeds retrieved via transitfeeds.com
+          notes: Taken from Metra GTFS feeds retrieved via transitfeeds.com
       - name: nearest_metra_route_dist_ft
         description: Distance in feet to the nearest Metra tracks
         meta:
-         notes: Taken from Metra GTFS feeds retrieved via transitfeeds.com
+          notes: Taken from Metra GTFS feeds retrieved via transitfeeds.com
       - name: nearest_major_road_dist_ft
         description: Distance in feet to the nearest major road/highway
         meta:
-         notes: Pulled via OpenStreetMap, key=highway, value=motorway,primary,trunk
+          notes: Pulled via OpenStreetMap, key=highway, value=motorway,primary,trunk
       - name: nearest_hospital_dist_ft
         description: Distance in feet to the nearest hospital (polygon)
         meta:
-         notes: Taken from Cook County GIS shapefiles
+          notes: Taken from Cook County GIS shapefiles
       - name: nearest_golf_course_dist_ft
         description: Distance in feet to the nearest golf course (polygon)
         meta:
-         notes: Taken from Cook County GIS shapefiles and OpenStreetMap
+          notes: Taken from Cook County GIS shapefiles and OpenStreetMap
       - name: nearest_cta_stop_dist_ft
         description: Distance in feet to the nearest CTA stop
         meta:
-         notes: Taken from CTA GTFS feeds retrieved via transitfeeds.com
+          notes: Taken from CTA GTFS feeds retrieved via transitfeeds.com
       - name: nearest_cta_stop_data_year
         description: Distance in feet to the nearest Metra stop
         meta:
-         notes: Taken from Metra GTFS feeds retrieved via transitfeeds.com
+          notes: Taken from Metra GTFS feeds retrieved via transitfeeds.com
       - name: nearest_cta_route_dist_ft
         description: Distance in feet to the nearest CTA tracks
         meta:
-         notes: Taken from CTA GTFS feeds retrieved via transitfeeds.com
+          notes: Taken from CTA GTFS feeds retrieved via transitfeeds.com
       - name: nearest_cemetery_dist_ft
         description: Distance in feet to the nearest cemetery (polygon)
         meta:
-         notes: Taken from Cook County GIS shapefiles
+          notes: Taken from Cook County GIS shapefiles
       - name: nearest_bike_trail_dist_ft
         description: Distance in feet to the nearest bike trail (linestring)
         meta:
-         notes: Taken from Cook County GIS shapefiles
+          notes: Taken from Cook County GIS shapefiles
       - name: nbhd_code
         description: Assessor neighborhood
         meta:
-         notes: First 2 digits are township code, last 3 digits are neighborhood code
+          notes: First 2 digits are township code, last 3 digits are neighborhood code
       - name: misc_unincorporated_area_bool
         description: Indicator for a PIN within an unincorporated part of Cook County
         meta:
-         notes: Taken from Cook County GIS shapefiles
+          notes: Taken from Cook County GIS shapefiles
       - name: misc_subdivision_id
         description: Subdivision ID for a given PIN
         meta:
