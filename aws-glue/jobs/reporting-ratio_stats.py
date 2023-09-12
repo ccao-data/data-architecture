@@ -1,15 +1,22 @@
-from assesspy import cod_ci as cod_ci
-from assesspy import boot_ci as boot_ci
-from assesspy import prb as prb
-from assesspy import cod as cod
-from assesspy import mki_met as mki_met
-from assesspy import mki as mki
-from assesspy import detect_chasing as detect_chasing
-from assesspy import prb_met as prb_met
-from assesspy import prd_met as prd_met
-from assesspy import cod_met as cod_met
-from assesspy import prd as prd
-import assesspy as ap
+from assesspy import (
+    boot_ci,
+    cod,
+    cod_ci as cod_boot,
+    cod_met,
+    detect_chasing,
+    mki,
+    mki_met,
+    prb,
+    prb_met,
+    prd,
+    prd_met,
+    prd_ci as prd_boot,
+)
+
+from assesspy.sales_chasing import detect_chasing_cdf, detect_chasing_dist
+
+from assesspy.ci import boot_ci
+
 import warnings
 import statsmodels.api as sm
 import time
@@ -33,9 +40,6 @@ glueContext = GlueContext(sc)
 spark = glueContext.spark_session
 job = Job(glueContext)
 
-# Import necessary libraries
-
-
 # Define AWS boto3 clients
 athena_client = boto3.client("athena")
 glue_client = boto3.client("glue", region_name="us-east-1")
@@ -48,9 +52,6 @@ s3_bucket = "ccao-data-warehouse-us-east-1"
 s3_prefix = "reporting/ratio_stats/"
 s3_output = "s3://" + s3_bucket + "/" + s3_prefix
 s3_ratio_stats = "s3://" + s3_bucket + "/" + s3_prefix + "ratio_stats.parquet"
-s3_ratio_stats_test = (
-    "s3://" + s3_bucket + "/" + "reporting/ratio_stats_test/" + "ratio_stats.parquet"
-)
 
 
 # Functions to help with Athena queries ----
@@ -139,41 +140,8 @@ for object in response["Contents"]:
         s3_client.delete_object(Bucket=s3_bucket, Key=object["Key"])
 
 
-# General boostrapping function
-def boot_ci(fun, *args, nboot=100, alpha=0.05):
-    num_args = len(args)
-    args = pd.DataFrame(args).T
-    n = len(args)
-
-    ests = []
-
-    for i in list(range(1, nboot)):
-        sample = args.sample(n=n, replace=True)
-        if fun.__name__ == "cod" or num_args == 1:
-            ests.append(fun(sample.iloc[:, 0]))
-        elif fun.__name__ in ["prd", "prb"]:
-            ests.append(fun(sample.iloc[:, 0], sample.iloc[:, 1]))
-
-    ests = pd.Series(ests)
-
-    ci = [ests.quantile(alpha / 2), ests.quantile(1 - alpha / 2)]
-
-    ci = ", ".join([str(element) for element in ci])
-
-    return ci
-
-
-# Formula specific bootstrapping functions
-def cod_boot(ratio, nboot=100, alpha=0.05):
-    return boot_ci(cod, ratio, nboot=nboot, alpha=alpha)
-
-
-def prd_boot(fmv, sale_price, nboot=100, alpha=0.05):
-    return boot_ci(prd, fmv, sale_price, nboot=nboot, alpha=alpha)
-
-
 def median_boot(ratio, nboot=100, alpha=0.05):
-    return boot_ci(np.median, ratio, nboot=nboot, alpha=alpha)
+    return boot_ci(np.median, nboot=nboot, alpha=alpha, ratio=ratio)
 
 
 def ccao_median(x):
@@ -186,53 +154,11 @@ def ccao_median(x):
 
     median_val = np.median(x_no_outliers)
     median_ci = median_boot(x, nboot=1000)
+    median_ci = f"{median_ci[0]}, {median_ci[1]}"
 
     out = [median_val, median_ci, median_n]
 
     return out
-
-
-# Sales chasing functions
-def detect_chasing_cdf(ratio, bounds=[0.98, 1.02], cdf_gap=0.03):
-    # CDF gap method for detecting sales chasing.
-
-    # Sort the ratios
-    sorted_ratio = ratio.sort_values()
-
-    # Calculate the CDF of the sorted ratios and extract percentile ranking
-    cdf = ECDF(sorted_ratio)(sorted_ratio)
-
-    # Calculate the difference between each value and the next value, the largest
-    # difference will be the CDF gap
-    diffs = np.diff(cdf)
-
-    # Check if the largest difference is greater than the threshold and make sure
-    # it's within the specified boundaries
-    diff_loc = sorted_ratio.iloc[np.argmax(diffs)]
-    out = (max(diffs) > cdf_gap) & ((diff_loc > bounds[0]) & (diff_loc < bounds[1]))
-
-    return out
-
-
-def detect_chasing_dist(ratio, bounds=[0.98, 1.02]):
-    # Distribution comparison method for detecting sales chasing.
-
-    # Return the percentage of x within the specified range
-    def pct_in_range(x, min, max):
-        out = np.mean(((x >= min) & (x <= max)))
-        return out
-
-    # Calculate the ideal normal distribution using observed values from input
-    ideal_dist = np.random.normal(loc=np.mean(ratio), scale=np.std(ratio), size=10000)
-
-    # Determine what percentage of the data would be within the specified bounds
-    # in the ideal distribution
-    pct_ideal = pct_in_range(ideal_dist, bounds[0], bounds[1])
-
-    # Determine what percentage of the data is actually within the bounds
-    pct_actual = pct_in_range(ratio, bounds[0], bounds[1])
-
-    return pct_actual > pct_ideal
 
 
 def ccao_mki(fmv, sale_price):
@@ -272,9 +198,9 @@ def ccao_cod(ratio):
 
     if cod_n >= 20:
         cod_val = cod(no_outliers)
-        cod_ci = boot_ci(cod, no_outliers, nboot=1000)
+        cod_ci = cod_boot(no_outliers, nboot=1000)
+        cod_ci = f"{cod_ci[0]}, {cod_ci[1]}"
         met = cod_met(cod_val)
-
         out = [cod_val, cod_ci, met, cod_n]
 
     else:
@@ -299,6 +225,7 @@ def ccao_prd(fmv, sale_price):
     if prd_n >= 20:
         prd_val = prd(fmv_no_outliers, sale_price_no_outliers)
         prd_ci = prd_boot(fmv_no_outliers, sale_price_no_outliers, nboot=1000)
+        prd_ci = f"{prd_ci[0]}, {prd_ci[1]}"
         met = prd_met(prd_val)
 
         out = [prd_val, prd_ci, met, prd_n]
@@ -428,7 +355,7 @@ pd.concat(
         report_summarise(pull, "triad", "Tri"),
         report_summarise(pull, "township_code", "Town"),
     ]
-).to_parquet(s3_ratio_stats_test)
+).to_parquet(s3_ratio_stats)
 
 # Trigger reporting glue crawler
 glue_client.start_crawler(Name="ccao-data-warehouse-reporting-crawler")
