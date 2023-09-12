@@ -524,37 +524,37 @@ models:
           notes: Taken from Cook County GIS shapefiles
       - name: census_acs5_tract_geoid
         meta:
-          notes:  Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+          notes: Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
       - name: census_acs5_state_senate_geoid
         meta:
-          notes:  Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+          notes: Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
       - name: census_acs5_state_representative_geoid
         meta:
-          notes:  Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+          notes: Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
       - name: census_acs5_school_district_unified_geoid
         meta:
-          notes:  Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+          notes: Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
       - name: census_acs5_school_district_secondary_geoid
         meta:
-          notes:  Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+          notes: Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
       - name: census_acs5_school_district_elementary_geoid
         meta:
-          notes:  Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+          notes: Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
       - name: census_acs5_puma_geoid
         meta:
-          notes:  Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+          notes: Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
       - name: census_acs5_place_geoid
         meta:
-          notes:  Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+          notes: Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
       - name: census_acs5_data_year
         meta:
-          notes:  Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+          notes: Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
       - name: census_acs5_county_subdivision_geoid
         meta:
-          notes:  Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+          notes: Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
       - name: census_acs5_congressional_district_geoid
         meta:
-          notes:  Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+          notes: Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
       - name: avg_school_rating_in_half_mile
         description: Average Great Schools rating for all schools (with a rating) within half mile of a given PIN
         meta:
