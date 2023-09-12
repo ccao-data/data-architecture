@@ -44,6 +44,14 @@ models:
             - assessment_stage
             - year
   - name: reporting.vw_top_5
+    tests:
+      - unique_combination_of_columns:
+          name: vw_top_5_unique_by_township_class_rank_parid
+          combination_of_columns:
+            - township
+            - class
+            - rank
+            - parid
   - name: reporting.vw_town_sale_history
     tests:
       - unique_combination_of_columns:
