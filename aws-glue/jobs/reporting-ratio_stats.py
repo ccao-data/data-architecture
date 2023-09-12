@@ -1,5 +1,4 @@
 from assesspy import (
-    boot_ci,
     cod,
     cod_ci as cod_boot,
     cod_met,
@@ -10,25 +9,15 @@ from assesspy import (
     prb_met,
     prd,
     prd_met,
+    boot_ci,
     prd_ci as prd_boot,
 )
 
-from assesspy.sales_chasing import detect_chasing_cdf, detect_chasing_dist
-
-import warnings
-import statsmodels.api as sm
-import time
-import s3fs
 import re
+import time
 import pandas as pd
 import numpy as np
-import math
-import io
-from statsmodels.distributions.empirical_distribution import ECDF
 import boto3
-import sys
-from awsglue.transforms import *
-from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
 from awsglue.context import GlueContext
 from awsglue.job import Job
@@ -46,16 +35,18 @@ s3_client = boto3.client("s3")
 # Define s3 and Athena paths
 athena_db = "iasworld"
 
-s3_bucket = "ccao-data-warehouse-us-east-1"
-s3_prefix = "reporting/ratio_stats/"
-s3_output = "s3://" + s3_bucket + "/" + s3_prefix
-s3_ratio_stats = "s3://" + s3_bucket + "/" + s3_prefix + "ratio_stats.parquet"
+s3_bucket = 'ccao-data-warehouse-us-east-1'
+s3_prefix = 'reporting/ratio_stats/'
+s3_output = 's3://'+ s3_bucket + '/' + s3_prefix
+s3_ratio_stats = 's3://'+ s3_bucket + '/' + s3_prefix + 'ratio_stats.parquet'
 
 
 # Functions to help with Athena queries ----
 def poll_status(athena_client, execution_id):
-    """Checks the status of the a query using an incoming execution id and returns
-    a 'pass' string value when the status is either SUCCEEDED, FAILED or CANCELLED."""
+    """Checks the status of the a query using an
+    incoming execution id and returns
+    a 'pass' string value when the status is
+    either SUCCEEDED, FAILED or CANCELLED."""
 
     result = athena_client.get_query_execution(QueryExecutionId=execution_id)
     state = result["QueryExecution"]["Status"]["State"]
@@ -71,8 +62,9 @@ def poll_status(athena_client, execution_id):
 
 
 def poll_result(athena_client, execution_id):
-    """Gets the query result using an incoming execution id. This function is ran after the
-    poll_status function and only if we are sure that the query was fully executed."""
+    """Gets the query result using an incoming execution id.
+    This function is ran after the poll_status function and
+    only if we are sure that the query was fully executed."""
 
     result = athena_client.get_query_execution(QueryExecutionId=execution_id)
 
@@ -82,7 +74,8 @@ def poll_result(athena_client, execution_id):
 def run_query_get_result(
     athena_client, s3_bucket, query, database, s3_output, s3_prefix
 ):
-    """Runs an incoming query and returns the output as an s3 file like object."""
+    """Runs an incoming query and returns
+    the output as an s3 file like object."""
 
     response = athena_client.start_query_execution(
         QueryString=query,
@@ -348,12 +341,12 @@ def report_summarise(df, geography_id, geography_type):
 
 
 # Append and write output to s3 bucket
-pd.concat(
-    [
-        report_summarise(pull, "triad", "Tri"),
-        report_summarise(pull, "township_code", "Town"),
-    ]
-).to_parquet(s3_ratio_stats)
+pd.concat([
+    report_summarise(pull, 'triad', 'Tri'),
+    report_summarise(pull, 'township_code', 'Town')
+    ]).to_parquet(
+        s3_ratio_stats
+        )
 
 # Trigger reporting glue crawler
 glue_client.start_crawler(Name="ccao-data-warehouse-reporting-crawler")
