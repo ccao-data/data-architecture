@@ -10,7 +10,6 @@ from assesspy import (
     prb_met,
     prd,
     prd_met,
-    boot_ci,
     prd_ci as prd_boot,
 )
 
