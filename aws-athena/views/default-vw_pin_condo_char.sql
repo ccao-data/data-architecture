@@ -339,7 +339,7 @@ SELECT DISTINCT
                 AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000
             )
             OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
-            OR nonlivable.flag = "negative pred"
+            OR nonlivable.flag = 'negative pred'
         )
         AND nonlivable.flag != 'questionable'
             THEN 1
