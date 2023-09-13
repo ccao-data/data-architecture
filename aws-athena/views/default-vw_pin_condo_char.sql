@@ -27,10 +27,11 @@ questionable_gr AS (
     FROM {{ source('ccao', 'pin_questionable_garage_units') }}
 ),
 
--- In the process of QC'ing condo data, we discovered that some condo units
--- received (unused) negative predicted values. These units were non-livable units
--- incorrectly classified as livable. They received negative predicted values due to 
--- their very low % of ownership. This CTE excludes them from the model going forward.
+/* In the process of QC'ing condo data, we discovered that some condo units
+received (unused) negative predicted values. These units were non-livable units
+incorrectly classified as livable. They received negative predicted values due
+to their very low % of ownership. This CTE excludes them from the model going
+forward. */
 negative_preds AS (
     SELECT
         pin,
