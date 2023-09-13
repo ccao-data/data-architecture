@@ -9,8 +9,6 @@ sources:
       - name: hie
       - name: land_nbhd_rate
       - name: land_site_rate
-      - name: pin_399_garage_units
       - name: pin_condo_char
-      - name: pin_negative_predicted_value
-      - name: pin_questionable_garage_units
+      - name: pin_nonlivable
       - name: pin_weird
