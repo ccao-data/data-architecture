@@ -1,26 +1,17 @@
-from assesspy import (
-    cod,
-    cod_ci as cod_boot,
-    cod_met,
-    detect_chasing,
-    mki,
-    mki_met,
-    prb,
-    prb_met,
-    prd,
-    prd_met,
-    boot_ci,
-    prd_ci as prd_boot,
-)
-
 import re
 import time
-import pandas as pd
-import numpy as np
+
 import boto3
-from pyspark.context import SparkContext
+import numpy as np
+import pandas as pd
+from assesspy import boot_ci, cod
+from assesspy import cod_ci as cod_boot
+from assesspy import cod_met, detect_chasing, mki, mki_met, prb, prb_met, prd
+from assesspy import prd_ci as prd_boot
+from assesspy import prd_met
 from awsglue.context import GlueContext
 from awsglue.job import Job
+from pyspark.context import SparkContext
 
 sc = SparkContext.getOrCreate()
 glueContext = GlueContext(sc)
@@ -35,10 +26,10 @@ s3_client = boto3.client("s3")
 # Define s3 and Athena paths
 athena_db = "iasworld"
 
-s3_bucket = 'ccao-data-warehouse-us-east-1'
-s3_prefix = 'reporting/ratio_stats/'
-s3_output = 's3://'+ s3_bucket + '/' + s3_prefix
-s3_ratio_stats = 's3://'+ s3_bucket + '/' + s3_prefix + 'ratio_stats.parquet'
+s3_bucket = "ccao-data-warehouse-us-east-1"
+s3_prefix = "reporting/ratio_stats/"
+s3_output = "s3://" + s3_bucket + "/" + s3_prefix
+s3_ratio_stats = "s3://" + s3_bucket + "/" + s3_prefix + "ratio_stats.parquet"
 
 
 # Functions to help with Athena queries ----
@@ -137,7 +128,9 @@ def median_boot(ratio, nboot=100, alpha=0.05):
 
 def ccao_median(x):
     # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
-    no_outliers = x.between(x.quantile(0.05), x.quantile(0.95), inclusive="neither")
+    no_outliers = x.between(
+        x.quantile(0.05), x.quantile(0.95), inclusive="neither"
+    )
 
     x_no_outliers = x[no_outliers]
 
@@ -182,7 +175,9 @@ def ccao_cod(ratio):
 
     # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
     no_outliers = ratio[
-        ratio.between(ratio.quantile(0.05), ratio.quantile(0.95), inclusive="neither")
+        ratio.between(
+            ratio.quantile(0.05), ratio.quantile(0.95), inclusive="neither"
+        )
     ]
 
     cod_n = no_outliers.size
@@ -297,7 +292,9 @@ def report_summarise(df, geography_id, geography_type):
     df[["cod", "cod_ci", "cod_met", "cod_n"]] = pd.DataFrame(
         df.cod.tolist(), index=df.index
     )
-    df[["mki", "mki_met", "mki_n"]] = pd.DataFrame(df.mki.tolist(), index=df.index)
+    df[["mki", "mki_met", "mki_n"]] = pd.DataFrame(
+        df.mki.tolist(), index=df.index
+    )
     df[["prd", "prd_ci", "prd_met", "prd_n"]] = pd.DataFrame(
         df.prd.tolist(), index=df.index
     )
@@ -341,12 +338,12 @@ def report_summarise(df, geography_id, geography_type):
 
 
 # Append and write output to s3 bucket
-pd.concat([
-    report_summarise(pull, 'triad', 'Tri'),
-    report_summarise(pull, 'township_code', 'Town')
-    ]).to_parquet(
-        s3_ratio_stats
-        )
+pd.concat(
+    [
+        report_summarise(pull, "triad", "Tri"),
+        report_summarise(pull, "township_code", "Town"),
+    ]
+).to_parquet(s3_ratio_stats)
 
 # Trigger reporting glue crawler
 glue_client.start_crawler(Name="ccao-data-warehouse-reporting-crawler")
