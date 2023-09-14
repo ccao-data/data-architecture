@@ -1,7 +1,6 @@
 -- Source of truth view for PIN location
 SELECT
     -- Main PIN-level attribute data from iasWorld
-    1 AS foo,
     par.parid AS pin,
     SUBSTR(par.parid, 1, 10) AS pin10,
     par.taxyr AS year,
