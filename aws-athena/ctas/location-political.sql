@@ -1,32 +1,35 @@
-CREATE TABLE IF NOT EXISTS location.political
-WITH (
-    FORMAT = 'Parquet',
-    WRITE_COMPRESSION = 'SNAPPY',
-    EXTERNAL_LOCATION = 's3://ccao-athena-ctas-us-east-1/location/political',
-    PARTITIONED_BY = ARRAY['year'],
-    BUCKETED_BY = ARRAY['pin10'],
-    BUCKET_COUNT = 1
-) AS (
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
+    )
+}}
+
+WITH political AS (
     WITH distinct_pins AS (
         SELECT DISTINCT
             x_3435,
             y_3435
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years AS (
         SELECT DISTINCT year
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years_rhs AS (
-        SELECT DISTINCT year FROM spatial.board_of_review_district
+        SELECT DISTINCT year
+        FROM {{ source('spatial', 'board_of_review_district') }}
         UNION ALL
-        SELECT DISTINCT year FROM spatial.commissioner_district
+        SELECT DISTINCT year
+        FROM {{ source('spatial', 'commissioner_district') }}
         UNION ALL
-        SELECT DISTINCT year FROM spatial.judicial_district
+        SELECT DISTINCT year FROM {{ source('spatial', 'judicial_district') }}
         UNION ALL
-        SELECT DISTINCT year FROM spatial.ward
+        SELECT DISTINCT year FROM {{ source('spatial', 'ward') }}
     ),
 
     board_of_review_district AS (
@@ -51,12 +54,13 @@ WITH (
                 SELECT
                     dy.year AS pin_year,
                     MAX(df.year) AS fill_year
-                FROM spatial.board_of_review_district AS df
+                FROM {{ source('spatial', 'board_of_review_district') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.board_of_review_district AS fill_data
+            LEFT JOIN
+                {{ source('spatial', 'board_of_review_district') }} AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -86,12 +90,13 @@ WITH (
                 SELECT
                     dy.year AS pin_year,
                     MAX(df.year) AS fill_year
-                FROM spatial.commissioner_district AS df
+                FROM {{ source('spatial', 'commissioner_district') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.commissioner_district AS fill_data
+            LEFT JOIN
+                {{ source('spatial', 'commissioner_district') }} AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -118,12 +123,12 @@ WITH (
                 SELECT
                     dy.year AS pin_year,
                     MAX(df.year) AS fill_year
-                FROM spatial.judicial_district AS df
+                FROM {{ source('spatial', 'judicial_district') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.judicial_district AS fill_data
+            LEFT JOIN {{ source('spatial', 'judicial_district') }} AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -162,12 +167,12 @@ WITH (
                                 THEN df.year
                         END
                     ) AS fill_year
-                FROM spatial.ward AS df
+                FROM {{ source('spatial', 'ward') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.ward AS fill_data
+            LEFT JOIN {{ source('spatial', 'ward') }} AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -206,12 +211,12 @@ WITH (
                                 THEN df.year
                         END
                     ) AS fill_year
-                FROM spatial.ward AS df
+                FROM {{ source('spatial', 'ward') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.ward AS fill_data
+            LEFT JOIN {{ source('spatial', 'ward') }} AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -234,7 +239,7 @@ WITH (
         wc.ward_chicago_data_year,
         we.ward_evanston_data_year,
         pcl.year
-    FROM spatial.parcel AS pcl
+    FROM {{ source('spatial', 'parcel') }} AS pcl
     LEFT JOIN board_of_review_district AS brd
         ON pcl.x_3435 = brd.x_3435
         AND pcl.y_3435 = brd.y_3435
@@ -257,3 +262,5 @@ WITH (
         AND pcl.year = we.pin_year
     WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )
+
+SELECT * FROM political

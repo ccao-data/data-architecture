@@ -1,32 +1,35 @@
-CREATE TABLE IF NOT EXISTS location.economy
-WITH (
-    FORMAT = 'Parquet',
-    WRITE_COMPRESSION = 'SNAPPY',
-    EXTERNAL_LOCATION = 's3://ccao-athena-ctas-us-east-1/location/economy',
-    PARTITIONED_BY = ARRAY['year'],
-    BUCKETED_BY = ARRAY['pin10'],
-    BUCKET_COUNT = 1
-) AS (
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
+    )
+}}
+
+WITH economy AS (
     WITH distinct_pins AS (
         SELECT DISTINCT
             x_3435,
             y_3435
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years AS (
         SELECT DISTINCT year
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years_rhs AS (
-        SELECT DISTINCT year FROM spatial.coordinated_care
+        SELECT DISTINCT year FROM {{ source('spatial', 'coordinated_care') }}
         UNION ALL
-        SELECT DISTINCT year FROM spatial.enterprise_zone
+        SELECT DISTINCT year FROM {{ source('spatial', 'enterprise_zone') }}
         UNION ALL
-        SELECT DISTINCT year FROM spatial.industrial_growth_zone
+        SELECT DISTINCT year
+        FROM {{ source('spatial', 'industrial_growth_zone') }}
         UNION ALL
-        SELECT DISTINCT year FROM spatial.qualified_opportunity_zone
+        SELECT DISTINCT year
+        FROM {{ source('spatial', 'qualified_opportunity_zone') }}
     ),
 
     coordinated_care AS (
@@ -45,12 +48,12 @@ WITH (
                 SELECT
                     dy.year AS pin_year,
                     MAX(df.year) AS fill_year
-                FROM spatial.coordinated_care AS df
+                FROM {{ source('spatial', 'coordinated_care') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.coordinated_care AS fill_data
+            LEFT JOIN {{ source('spatial', 'coordinated_care') }} AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -76,12 +79,12 @@ WITH (
                 SELECT
                     dy.year AS pin_year,
                     MAX(df.year) AS fill_year
-                FROM spatial.enterprise_zone AS df
+                FROM {{ source('spatial', 'enterprise_zone') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.enterprise_zone AS fill_data
+            LEFT JOIN {{ source('spatial', 'enterprise_zone') }} AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -107,12 +110,13 @@ WITH (
                 SELECT
                     dy.year AS pin_year,
                     MAX(df.year) AS fill_year
-                FROM spatial.industrial_growth_zone AS df
+                FROM {{ source('spatial', 'industrial_growth_zone') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.industrial_growth_zone AS fill_data
+            LEFT JOIN
+                {{ source('spatial', 'industrial_growth_zone') }} AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -138,12 +142,14 @@ WITH (
                 SELECT
                     dy.year AS pin_year,
                     MAX(df.year) AS fill_year
-                FROM spatial.qualified_opportunity_zone AS df
+                FROM {{ source('spatial', 'qualified_opportunity_zone') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.qualified_opportunity_zone AS fill_data
+            LEFT JOIN
+                {{ source('spatial', 'qualified_opportunity_zone') }}
+                    AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -164,7 +170,7 @@ WITH (
         qoz.econ_qualified_opportunity_zone_num,
         qoz.econ_qualified_opportunity_zone_data_year,
         pcl.year
-    FROM spatial.parcel AS pcl
+    FROM {{ source('spatial', 'parcel') }} AS pcl
     LEFT JOIN coordinated_care AS cc
         ON pcl.x_3435 = cc.x_3435
         AND pcl.y_3435 = cc.y_3435
@@ -183,3 +189,5 @@ WITH (
         AND pcl.year = qoz.pin_year
     WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )
+
+SELECT * FROM economy

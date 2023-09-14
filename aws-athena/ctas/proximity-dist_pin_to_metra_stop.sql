@@ -1,24 +1,24 @@
 -- CTAS to create a table of distance to the nearest Metra stop for each PIN
-CREATE TABLE IF NOT EXISTS proximity.dist_pin_to_metra_stop
-WITH (
-    FORMAT = 'Parquet',
-    WRITE_COMPRESSION = 'SNAPPY',
-    EXTERNAL_LOCATION
-    = 's3://ccao-athena-ctas-us-east-1/proximity/dist_pin_to_metra_stop',
-    PARTITIONED_BY = ARRAY['year'],
-    BUCKETED_BY = ARRAY['pin10'],
-    BUCKET_COUNT = 1
-) AS (
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
+    )
+}}
+
+WITH dist_pin_to_metra_stop AS (
     WITH distinct_pins AS (
         SELECT DISTINCT
             x_3435,
             y_3435
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years AS (
         SELECT DISTINCT year
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     metra_stop_location AS (
@@ -29,12 +29,12 @@ WITH (
             SELECT
                 dy.year AS pin_year,
                 MAX(df.year) AS fill_year
-            FROM spatial.transit_stop AS df
+            FROM {{ source('spatial', 'transit_stop') }} AS df
             CROSS JOIN distinct_years AS dy
             WHERE dy.year >= df.year
             GROUP BY dy.year
         ) AS fill_years
-        LEFT JOIN spatial.transit_stop AS fill_data
+        LEFT JOIN {{ source('spatial', 'transit_stop') }} AS fill_data
             ON fill_years.fill_year = fill_data.year
         WHERE fill_data.agency = 'metra'
             AND fill_data.route_type = 2
@@ -88,10 +88,12 @@ WITH (
         ARBITRARY(xy.dist_ft) AS nearest_metra_stop_dist_ft,
         ARBITRARY(xy.year) AS nearest_metra_stop_data_year,
         pcl.year
-    FROM spatial.parcel AS pcl
+    FROM {{ source('spatial', 'parcel') }} AS pcl
     INNER JOIN xy_to_metra_stop_dist AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
         AND pcl.year = xy.pin_year
     GROUP BY pcl.pin10, pcl.year
 )
+
+SELECT * FROM dist_pin_to_metra_stop

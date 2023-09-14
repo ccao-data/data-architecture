@@ -1,25 +1,25 @@
 -- CTAS to create a table of distance to the Lake Michigan
 -- coastline for each PIN
-CREATE TABLE IF NOT EXISTS proximity.dist_pin_to_lake_michigan
-WITH (
-    FORMAT = 'Parquet',
-    WRITE_COMPRESSION = 'SNAPPY',
-    EXTERNAL_LOCATION
-    = 's3://ccao-athena-ctas-us-east-1/proximity/dist_pin_to_lake_michigan',
-    PARTITIONED_BY = ARRAY['year'],
-    BUCKETED_BY = ARRAY['pin10'],
-    BUCKET_COUNT = 1
-) AS (
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
+    )
+}}
+
+WITH dist_pin_to_lake_michigan AS (
     WITH distinct_pins AS (
         SELECT DISTINCT
             x_3435,
             y_3435
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years AS (
         SELECT DISTINCT year
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     lake_michigan_location AS (
@@ -30,12 +30,12 @@ WITH (
             SELECT
                 dy.year AS pin_year,
                 MAX(df.year) AS fill_year
-            FROM spatial.coastline AS df
+            FROM {{ source('spatial', 'coastline') }} AS df
             CROSS JOIN distinct_years AS dy
             WHERE dy.year >= df.year
             GROUP BY dy.year
         ) AS fill_years
-        LEFT JOIN spatial.coastline AS fill_data
+        LEFT JOIN {{ source('spatial', 'coastline') }} AS fill_data
             ON fill_years.fill_year = fill_data.year
     ),
 
@@ -81,10 +81,12 @@ WITH (
         ARBITRARY(xy.dist_ft) AS lake_michigan_dist_ft,
         ARBITRARY(xy.year) AS lake_michigan_data_year,
         pcl.year
-    FROM spatial.parcel AS pcl
+    FROM {{ source('spatial', 'parcel') }} AS pcl
     INNER JOIN xy_to_lake_michigan_dist AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
         AND pcl.year = xy.pin_year
     GROUP BY pcl.pin10, pcl.year
 )
+
+SELECT * FROM dist_pin_to_lake_michigan

@@ -1,24 +1,24 @@
 -- CTAS to create a table of distance to the nearest park (2+ acre) for each PIN
-CREATE TABLE IF NOT EXISTS proximity.dist_pin_to_park
-WITH (
-    FORMAT = 'Parquet',
-    WRITE_COMPRESSION = 'SNAPPY',
-    EXTERNAL_LOCATION
-    = 's3://ccao-athena-ctas-us-east-1/proximity/dist_pin_to_park',
-    PARTITIONED_BY = ARRAY['year'],
-    BUCKETED_BY = ARRAY['pin10'],
-    BUCKET_COUNT = 1
-) AS (
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
+    )
+}}
+
+WITH dist_pin_to_park AS (
     WITH distinct_pins AS (
         SELECT DISTINCT
             x_3435,
             y_3435
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years AS (
         SELECT DISTINCT year
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     park_location AS (
@@ -29,12 +29,12 @@ WITH (
             SELECT
                 dy.year AS pin_year,
                 MAX(df.year) AS fill_year
-            FROM spatial.park AS df
+            FROM {{ source('spatial', 'park') }} AS df
             CROSS JOIN distinct_years AS dy
             WHERE dy.year >= df.year
             GROUP BY dy.year
         ) AS fill_years
-        LEFT JOIN spatial.park AS fill_data
+        LEFT JOIN {{ source('spatial', 'park') }} AS fill_data
             ON fill_years.fill_year = fill_data.year
         WHERE ST_AREA(ST_GEOMFROMBINARY(fill_data.geometry_3435)) > 87120
     ),
@@ -87,10 +87,12 @@ WITH (
         ARBITRARY(xy.dist_ft) AS nearest_park_dist_ft,
         ARBITRARY(xy.year) AS nearest_park_data_year,
         pcl.year
-    FROM spatial.parcel AS pcl
+    FROM {{ source('spatial', 'parcel') }} AS pcl
     INNER JOIN xy_to_park_dist AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
         AND pcl.year = xy.pin_year
     GROUP BY pcl.pin10, pcl.year
 )
+
+SELECT * FROM dist_pin_to_park

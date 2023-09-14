@@ -7,13 +7,9 @@ equivalent location data are filled thus:
    2021.
 2. Current data is filled BACKWARD to account for missing historical data.
 */
-CREATE TABLE IF NOT EXISTS location.crosswalk_year_fill
-WITH (
-    FORMAT = 'Parquet',
-    WRITE_COMPRESSION = 'SNAPPY',
-    EXTERNAL_LOCATION
-    = 's3://ccao-athena-ctas-us-east-1/location/crosswalk_year_fill'
-) AS (
+{{ config(materialized='table') }}
+
+WITH crosswalk_year_fill AS (
     WITH unfilled AS (
         SELECT
             pin.year,
@@ -62,18 +58,21 @@ WITH (
             MAX(other.misc_subdivision_data_year)
                 AS misc_subdivision_data_year
 
-        FROM (SELECT DISTINCT year FROM spatial.parcel) AS pin
+        FROM (
+            SELECT DISTINCT year
+            FROM {{ source('spatial', 'parcel') }}
+        ) AS pin
         LEFT JOIN (
             SELECT DISTINCT
                 year,
                 census_data_year
-            FROM location.census
+            FROM {{ ref('location.census') }}
         ) AS census ON pin.year = census.year
         LEFT JOIN (
             SELECT DISTINCT
                 year,
                 census_acs5_data_year
-            FROM location.census_acs5
+            FROM {{ ref('location.census_acs5') }}
         ) AS census_acs5 ON pin.year = census_acs5.year
         LEFT JOIN (
             SELECT DISTINCT
@@ -83,7 +82,7 @@ WITH (
                 cook_judicial_district_data_year,
                 ward_chicago_data_year,
                 ward_evanston_data_year
-            FROM location.political
+            FROM {{ ref('location.political') }}
         ) AS political ON pin.year = political.year
         LEFT JOIN (
             SELECT DISTINCT
@@ -91,7 +90,7 @@ WITH (
                 chicago_community_area_data_year,
                 chicago_industrial_corridor_data_year,
                 chicago_police_district_data_year
-            FROM location.chicago
+            FROM {{ ref('location.chicago') }}
         ) AS chicago ON pin.year = chicago.year
         LEFT JOIN (
             SELECT DISTINCT
@@ -100,7 +99,7 @@ WITH (
                 econ_enterprise_zone_data_year,
                 econ_industrial_growth_zone_data_year,
                 econ_qualified_opportunity_zone_data_year
-            FROM location.economy
+            FROM {{ ref('location.economy') }}
         ) AS economy ON pin.year = economy.year
         LEFT JOIN (
             SELECT DISTINCT
@@ -109,31 +108,31 @@ WITH (
                 env_flood_fs_data_year,
                 env_ohare_noise_contour_data_year,
                 env_airport_noise_data_year
-            FROM location.environment
+            FROM {{ ref('location.environment') }}
         ) AS environment ON pin.year = environment.year
         LEFT JOIN (
             SELECT DISTINCT
                 year,
                 school_data_year
-            FROM location.school
+            FROM {{ ref('location.school') }}
         ) AS school ON pin.year = school.year
         LEFT JOIN (
             SELECT DISTINCT
                 year,
                 tax_data_year
-            FROM location.tax
+            FROM {{ ref('location.tax') }}
         ) AS tax ON pin.year = tax.year
         LEFT JOIN (
             SELECT DISTINCT
                 year,
                 access_cmap_walk_data_year
-            FROM location.access
+            FROM {{ ref('location.access') }}
         ) AS access ON pin.year = access.year
         LEFT JOIN (
             SELECT DISTINCT
                 year,
                 misc_subdivision_data_year
-            FROM location.other
+            FROM {{ ref('location.other') }}
         ) AS other ON pin.year = other.year
         GROUP BY pin.year
     )
@@ -267,3 +266,5 @@ WITH (
     FROM unfilled
     ORDER BY unfilled.year
 )
+
+SELECT * FROM crosswalk_year_fill

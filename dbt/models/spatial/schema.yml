@@ -16,7 +16,7 @@ sources:
       - name: congressional_district
       - name: coordinated_care
       - name: county
-      - name: enterprize_zone
+      - name: enterprise_zone
       - name: fire_protection_district
       - name: flood_fema
       - name: geojson
