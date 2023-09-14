@@ -25,7 +25,7 @@ jobs:
         shell: bash
 
       - name: Send failure notification
-        # if: failure()
+        if: failure()
         uses: ./.github/actions/send_notification
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
