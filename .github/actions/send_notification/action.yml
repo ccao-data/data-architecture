@@ -21,13 +21,12 @@ runs:
         TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
         {
           echo "NOTIFICATION_SUBJECT=dbt tests failed for workflow run: $GITHUB_RUN_ID"
-          echo "NOTIFICATION_BODY=$(cat <<- END
-        dbt tests failed for workflow $GITHUB_RUN_ID, run on $TIMESTAMP
-
-        Link to failing workflow: \
-        https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
-        END
-        )";
+          echo "NOTIFICATION_BODY<<EOF"
+          echo "dbt tests failed for workflow $GITHUB_RUN_ID, run on $TIMESTAMP"
+          echo ""
+          echo "Link to failing workflow: \
+        https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+          echo EOF
         } >> "$GITHUB_ENV"
       shell: bash
 
