@@ -18,9 +18,9 @@ runs:
 
     - name: Create failure notification components
       run: |
-        TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S")
         {
-          echo "NOTIFICATION_SUBJECT=dbt tests failed for workflow run: $GITHUB_RUN_ID"
+          echo "NOTIFICATION_SUBJECT=dbt tests failed for workflow run: $GITHUB_RUN_ID UTC"
           echo "NOTIFICATION_BODY<<EOF"
           echo "dbt tests failed for workflow $GITHUB_RUN_ID, run on $TIMESTAMP"
           echo ""
@@ -37,4 +37,3 @@ runs:
           --subject "${{ env.NOTIFICATION_SUBJECT }}" \
           --message "${{ env.NOTIFICATION_BODY }}"
       shell: bash
-
