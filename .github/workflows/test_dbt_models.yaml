@@ -23,3 +23,10 @@ jobs:
         run: dbt test --target "$TARGET"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
+
+      - name: Send failure notification
+        # if: failure()
+        uses: ./.github/actions/send_notification
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+          sns-topic-arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
