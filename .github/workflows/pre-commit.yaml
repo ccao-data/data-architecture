@@ -8,6 +8,9 @@ name: pre-commit
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -36,3 +39,10 @@ jobs:
       - name: Run pre-commit
         run: pre-commit run --show-diff-on-failure --color=always --all-files
         shell: bash
+
+      - name: Send failure notification
+        # if: failure()
+        uses: ./.github/actions/send_notification
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+          sns-topic-arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
