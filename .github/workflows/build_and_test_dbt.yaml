@@ -29,7 +29,6 @@ jobs:
         with:
           path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
           key: ${{ env.CACHE_KEY }}
-          restore-key: foobar
 
       - if: steps.cache.outputs.cache-hit == 'true'
         name: Set command args to build/test modified resources
