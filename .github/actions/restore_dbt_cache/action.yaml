@@ -8,8 +8,8 @@ inputs:
     description: The cache key to query for.
     required: true
   restore-key:
-    description: An additional key to use as a fallback for the cache.
-    required: true
+    description: An optional additional key to use as a fallback for the cache.
+    required: false
   bucket:
     description: The S3 bucket that should store the cache.
     required: false
@@ -41,16 +41,26 @@ runs:
             echo "cache-matched-key=$KEY"
           } >> $GITHUB_OUTPUT
         else
-          echo "Did not find exact match for cache key, checking fallback"
-          if aws s3api head-object --bucket "$BUCKET" --key "$RESTORE_KEY/manifest.json"; then
-            echo "Cache hit: Found fallback match"
-            {
-              echo "cache-hit=true";
-              echo "exact-match=false";
-              echo "cache-matched-key=$RESTORE_KEY"
-            } >> $GITHUB_OUTPUT
+          echo "Did not find exact match for cache key"
+          if [ ! -z "$RESTORE_KEY" ]; then
+            echo "Checking for fallback cache via restore-key"
+            if aws s3api head-object --bucket "$BUCKET" --key "$RESTORE_KEY/manifest.json"; then
+              echo "Cache hit: Found fallback match"
+              {
+                echo "cache-hit=true";
+                echo "exact-match=false";
+                echo "cache-matched-key=$RESTORE_KEY"
+              } >> $GITHUB_OUTPUT
+            else
+              echo "Cache miss: Did not find fallback match for cache key"
+              {
+                echo "cache-hit=false";
+                echo "exact-match=false";
+                echo "cache-matched-key=''";
+              } >> $GITHUB_OUTPUT
+            fi
           else
-            echo "Cache miss: Did not find fallback match for cache key"
+            echo "Cache miss: No exact match and no fallback cache key"
             {
               echo "cache-hit=false";
               echo "exact-match=false";
