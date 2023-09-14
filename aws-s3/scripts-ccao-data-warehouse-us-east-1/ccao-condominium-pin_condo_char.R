@@ -1,4 +1,5 @@
-# This script cleans and combines raw condo characteristics data for the warehouse
+# This script cleans and combines raw condo characteristics data for the
+# warehouse
 library(arrow)
 library(aws.s3)
 library(DBI)
@@ -29,7 +30,8 @@ files <- grep(
     AWS_S3_RAW_BUCKET,
     aws.s3::get_bucket_df(
       AWS_S3_RAW_BUCKET,
-      prefix = "ccao/condominium/pin_condo_char/")$Key
+      prefix = "ccao/condominium/pin_condo_char/"
+    )$Key
   ),
   value = TRUE
 )
@@ -55,15 +57,13 @@ years <- dbGetQuery(
   as.character()
 
 # Function to grab chars data from Athena if it's already available
-athena_chars <- function(x){
-
+athena_chars <- function(x) {
   dbGetQuery(
     conn = AWS_ATHENA_CONN_NOCTUA, glue("
   SELECT * FROM ccao.pin_condo_char
   WHERE year = '{x}'
   ")
   )
-
 }
 
 # A place to store characteristics data so we can stack it
@@ -71,29 +71,28 @@ chars <- list()
 
 # We use tax year, valuations uses year the work was done
 for (i in c("2021", "2022")) {
-
   if (!("2021" %in% years) & i == "2021") {
-
     # If clean 2021 data is not already in Athena, load and clean it
     chars[[i]] <- map(
       grep("2022", files, value = TRUE), function(x) {
-
         read_parquet(x) %>%
           tibble(.name_repair = "unique") %>%
-          rename_with( ~ tolower(.x)) %>%
+          rename_with(~ tolower(.x)) %>%
           mutate(pin = str_pad(parid, 14, side = "left", pad = "0")) %>%
-          select(contains(c('pin', 'sqft', 'bed', 'source'))) %>%
-          select(-contains(c('x', 'all', 'search'))) %>%
-          rename_with( ~ "bedrooms", contains('bed')) %>%
-          rename_with( ~ "unit_sf", contains('unit')) %>%
-          rename_with( ~ "building_sf", contains('building'))
-
-      }) %>%
+          select(contains(c("pin", "sqft", "bed", "source"))) %>%
+          select(-contains(c("x", "all", "search"))) %>%
+          rename_with(~"bedrooms", contains("bed")) %>%
+          rename_with(~"unit_sf", contains("unit")) %>%
+          rename_with(~"building_sf", contains("building"))
+      }
+    ) %>%
       rbindlist(fill = TRUE) %>%
       inner_join(classes) %>%
       mutate(across(c(unit_sf, building_sf), ~ na_if(., "0"))) %>%
       mutate(across(c(unit_sf, building_sf), ~ na_if(., "1"))) %>%
-      mutate(across(c(building_sf, unit_sf, bedrooms), ~ gsub("[^0-9.-]", "", .))) %>%
+      mutate(
+        across(c(building_sf, unit_sf, bedrooms), ~ gsub("[^0-9.-]", "", .))
+        ) %>%
       mutate(across(.cols = everything(), ~ trimws(., which = "both"))) %>%
       na_if("") %>%
       mutate(
@@ -105,55 +104,57 @@ for (i in c("2021", "2022")) {
       mutate(across(c(building_sf, unit_sf, bedrooms), ~ as.numeric(.))) %>%
       mutate(
         bedrooms = ceiling(bedrooms),
-        parking_pin = str_detect(source, "(?i)parking|garage") & is.na(unit_sf) & is.na(building_sf),
-        year = '2021'
+        parking_pin = str_detect(source, "(?i)parking|garage") &
+          is.na(unit_sf) & is.na(building_sf),
+        year = "2021"
       ) %>%
       select(-c(class, source)) %>%
       # These are obvious typos
-      mutate(unit_sf = case_when(unit_sf == 28002000 ~ 2800,
-                                 unit_sf == 20002800 ~ 2000,
-                                 unit_sf == 182901 ~ 1829,
-                                 TRUE ~ unit_sf))
-
+      mutate(unit_sf = case_when(
+        unit_sf == 28002000 ~ 2800,
+        unit_sf == 20002800 ~ 2000,
+        unit_sf == 182901 ~ 1829,
+        TRUE ~ unit_sf
+      ))
   } else if (!("2022" %in% years) & i == "2022") {
-
     # If clean 2022 data is not already in Athena, load and clean it
     chars[[i]] <- lapply(grep("2023", files, value = TRUE), function(x) {
-
-      raw <- read_parquet(x)[,1:20]
+      raw <- read_parquet(x)[, 1:20]
 
       names <- tolower(names(raw))
       names(raw) <- make.unique(names)
 
       raw %>%
-        select(!contains('pin')) %>%
+        select(!contains("pin")) %>%
         rename_with(~ str_replace(.x, "iasworold", "iasworld")) %>%
         mutate(pin = str_pad(iasworld_parid, 14, side = "left", pad = "0")) %>%
         rename_with(~ str_replace_all(.x, "[[:space:]]", "")) %>%
         rename_with(~ str_replace_all(.x, "\\.{4}", "")) %>%
         select(!contains(c("1", "2", "all"))) %>%
-        select(contains(c('pin', 'sq', 'bed', 'bath'))) %>%
-        rename_with( ~ "bedrooms", contains('bed')) %>%
-        rename_with( ~ "unit_sf", contains('unit')) %>%
-        rename_with( ~ "building_sf", contains(c("building", "bldg"))) %>%
-        rename_with( ~ "half_baths", contains("half")) %>%
-        rename_with( ~ "full_baths", contains("full")) %>%
+        select(contains(c("pin", "sq", "bed", "bath"))) %>%
+        rename_with(~"bedrooms", contains("bed")) %>%
+        rename_with(~"unit_sf", contains("unit")) %>%
+        rename_with(~"building_sf", contains(c("building", "bldg"))) %>%
+        rename_with(~"half_baths", contains("half")) %>%
+        rename_with(~"full_baths", contains("full")) %>%
         mutate(
           across(!contains("pin"), as.numeric),
-          year = '2022',
+          year = "2022",
           # Define a parking pin as a unit with only 0 or NA values for
           # characteristics
           parking_pin = case_when(
             (bedrooms == 0 | unit_sf == 0) &
               rowSums(
-                across(c(unit_sf, bedrooms, full_baths, half_baths)), na.rm = TRUE
+                across(c(unit_sf, bedrooms, full_baths, half_baths)),
+                na.rm = TRUE
               ) == 0 ~ TRUE,
             TRUE ~ FALSE
           ),
           # Really low unit_sf should be considered NA
           unit_sf = case_when(
             unit_sf < 5 & !parking_pin ~ NA_real_,
-            TRUE ~ unit_sf),
+            TRUE ~ unit_sf
+          ),
           # Assume missing half_baths value is 0 if there is full bathroom data
           # for PIN
           half_baths = case_when(
@@ -168,7 +169,6 @@ for (i in c("2021", "2022")) {
             ~ ifelse(parking_pin, NA, .x)
           )
         )
-
     }) %>%
       bind_rows() %>%
       group_by(pin) %>%
@@ -176,14 +176,10 @@ for (i in c("2021", "2022")) {
       filter(row_number() == 1) %>%
       ungroup() %>%
       filter(!is.na(pin))
-
   } else {
-
     # If data is already in Athena, just take it from there
     chars[[i]] <- athena_chars(i)
-
   }
-
 }
 
 # Upload cleaned data to S3
