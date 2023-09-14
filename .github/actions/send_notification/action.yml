@@ -1,0 +1,41 @@
+name: Send SNS failure notification
+description: Send an SNS notification on failure using the AWS CLI
+inputs:
+  role-to-assume:
+    description: AWS IAM role to assume when sending the notification
+    required: true
+  sns-topic-arn:
+    description: AWS SNS topic ARN to use when sending the notification
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        role-to-assume: ${{ inputs.role-to-assume }}
+        aws-region: us-east-1
+
+    - name: Create failure notification components
+      run: |
+        TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+        {
+          echo "NOTIFICATION_SUBJECT=dbt tests failed for workflow run: $GITHUB_RUN_ID"
+          echo "NOTIFICATION_BODY=$(cat <<- END
+        dbt tests failed for workflow $GITHUB_RUN_ID, run on $TIMESTAMP
+
+        Link to failing workflow: \
+        https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID
+        END
+        )";
+        } >> "$GITHUB_ENV"
+      shell: bash
+
+    - name: Send SNS notification
+      run: > 
+        aws sns publish \
+          --topic-arn ${{ inputs.sns-topic-arn }} \
+          --subject ${{ env.NOTIFICATION_SUBJECT }} \
+          --message ${{ env.NOTIFICATION_BODY }}
+      shell: bash
+
