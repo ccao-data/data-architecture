@@ -55,49 +55,62 @@ comdat_filtered AS (
 -- the OBY (299s) / COMDAT (399s) tables
 chars AS (
     -- Distinct because oby and comdat contain multiple cards for a few condos
-        SELECT
-            par.parid AS pin,
-            CASE
-                WHEN par.class IN ('299', '2-99') THEN oby.card
-                WHEN par.class = '399' THEN com.card
-            END AS card,
-            -- Proration related fields from PARDAT
-            par.tieback AS tieback_key_pin,
-            CASE
-                WHEN
-                    par.tiebldgpct IS NOT NULL
-                    THEN par.tiebldgpct / 100.0
-                WHEN
-                    par.tiebldgpct IS NULL
-                    THEN 0
-                ELSE 1.0
-            END AS tieback_proration_rate,
-            CASE
-                WHEN
-                    par.class IN ('299', '2-99')
-                    THEN CAST(oby.user20 AS DOUBLE) / 100.0
-                WHEN
-                    par.class = '399'
-                    THEN CAST(com.user24 AS DOUBLE) / 100.0
-            END AS card_protation_rate,
-            oby.lline,
+    SELECT
+        par.parid AS pin,
+        CASE
+            WHEN par.class IN ('299', '2-99') THEN oby.card
+            WHEN par.class = '399' THEN com.card
+        END AS card,
+        -- Proration related fields from PARDAT
+        par.tieback AS tieback_key_pin,
+        CASE
+            WHEN
+                par.tiebldgpct IS NOT NULL
+                THEN par.tiebldgpct / 100.0
+            WHEN
+                par.tiebldgpct IS NULL
+                THEN 0
+            ELSE 1.0
+        END AS tieback_proration_rate,
+        CASE
+            WHEN
+                par.class IN ('299', '2-99')
+                THEN CAST(oby.user20 AS DOUBLE) / 100.0
+            WHEN
+                par.class = '399'
+                THEN CAST(com.user24 AS DOUBLE) / 100.0
+        END AS card_protation_rate,
+        oby.lline,
 
-            SUBSTR(par.parid, 1, 10) AS pin10,
-            par.class,
-            par.taxyr AS year,
-            leg.user1 AS township_code,
-            CASE
-                WHEN
-                    par.class IN ('299', '2-99')
-                    THEN oby.user16
-                WHEN
-                    par.class = '399' AND nonlivable.flag != '399 GR'
-                    THEN com.user16
-                WHEN
-                    par.class = '399' AND nonlivable.flag = '399 GR'
-                    THEN 'GR'
-            END AS cdu,
-            -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
+        SUBSTR(par.parid, 1, 10) AS pin10,
+        par.class,
+        par.taxyr AS year,
+        leg.user1 AS township_code,
+        CASE
+            WHEN
+                par.class IN ('299', '2-99')
+                THEN oby.user16
+            WHEN
+                par.class = '399' AND nonlivable.flag != '399 GR'
+                THEN com.user16
+            WHEN
+                par.class = '399' AND nonlivable.flag = '399 GR'
+                THEN 'GR'
+        END AS cdu,
+        -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
+        CASE
+            WHEN
+                par.class IN ('299', '2-99')
+                THEN COALESCE(
+                    oby.yrblt, oby.effyr, com.yrblt, com.effyr
+                )
+            WHEN
+                par.class = '399'
+                THEN COALESCE(
+                    com.yrblt, com.effyr, oby.yrblt, oby.effyr
+                )
+        END AS char_yrblt,
+        MAX(
             CASE
                 WHEN
                     par.class IN ('299', '2-99')
@@ -109,62 +122,49 @@ chars AS (
                     THEN COALESCE(
                         com.yrblt, com.effyr, oby.yrblt, oby.effyr
                     )
-            END AS char_yrblt,
-            MAX(
-                CASE
-                    WHEN
-                        par.class IN ('299', '2-99')
-                        THEN COALESCE(
-                            oby.yrblt, oby.effyr, com.yrblt, com.effyr
-                        )
-                    WHEN
-                        par.class = '399'
-                        THEN COALESCE(
-                            com.yrblt, com.effyr, oby.yrblt, oby.effyr
-                        )
-                END
+            END
+        )
+            OVER (PARTITION BY par.parid, par.taxyr)
+            AS max_yrblt,
+        CAST(ROUND(pin_condo_char.building_sf, 0) AS INT)
+            AS char_building_sf,
+        CAST(ROUND(pin_condo_char.unit_sf, 0) AS INT) AS char_unit_sf,
+        CAST(pin_condo_char.bedrooms AS INT) AS char_bedrooms,
+        CAST(pin_condo_char.half_baths AS INT) AS char_half_baths,
+        CAST(pin_condo_char.full_baths AS INT) AS char_full_baths,
+        pin_condo_char.parking_pin,
+        par.unitno,
+        par.tiebldgpct,
+        par.note2 AS note,
+        COALESCE(SUM(
+            CASE
+                WHEN
+                    par.class NOT IN ('299', '2-99', '399')
+                    THEN 1
+                ELSE 0
+            END
+        )
+            OVER (
+                PARTITION BY SUBSTR(par.parid, 1, 10), par.taxyr
             )
-                OVER (PARTITION BY par.parid, par.taxyr)
-                AS max_yrblt,
-            CAST(ROUND(pin_condo_char.building_sf, 0) AS INT)
-                AS char_building_sf,
-            CAST(ROUND(pin_condo_char.unit_sf, 0) AS INT) AS char_unit_sf,
-            CAST(pin_condo_char.bedrooms AS INT) AS char_bedrooms,
-            CAST(pin_condo_char.half_baths AS INT) AS char_half_baths,
-            CAST(pin_condo_char.full_baths AS INT) AS char_full_baths,
-            pin_condo_char.parking_pin,
-            par.unitno,
-            par.tiebldgpct,
-            par.note2 AS note,
-            COALESCE(SUM(
-                CASE
-                    WHEN
-                        par.class NOT IN ('299', '2-99', '399')
-                        THEN 1
-                    ELSE 0
-                END
-            )
-                OVER (
-                    PARTITION BY SUBSTR(par.parid, 1, 10), par.taxyr
-                )
-            > 0, FALSE)
-                AS bldg_is_mixed_use
-        FROM {{ source('iasworld', 'pardat') }} AS par
+        > 0, FALSE)
+            AS bldg_is_mixed_use
+    FROM {{ source('iasworld', 'pardat') }} AS par
 
-        -- Left joins because par contains both 299s & 399s (oby and comdat
-        -- do not) and pin_condo_char doesn't contain all condos
-        LEFT JOIN oby_filtered AS oby
-            ON par.parid = oby.parid
-            AND par.taxyr = oby.taxyr
-        LEFT JOIN comdat_filtered AS com
-            ON par.parid = com.parid
-            AND par.taxyr = com.taxyr
-        LEFT JOIN {{ source('ccao', 'pin_condo_char') }} AS pin_condo_char
-            ON par.parid = pin_condo_char.pin
-            AND par.taxyr = pin_condo_char.year
-        LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
-            ON par.parid = leg.parid
-            AND par.taxyr = leg.taxyr
+    -- Left joins because par contains both 299s & 399s (oby and comdat
+    -- do not) and pin_condo_char doesn't contain all condos
+    LEFT JOIN oby_filtered AS oby
+        ON par.parid = oby.parid
+        AND par.taxyr = oby.taxyr
+    LEFT JOIN comdat_filtered AS com
+        ON par.parid = com.parid
+        AND par.taxyr = com.taxyr
+    LEFT JOIN {{ source('ccao', 'pin_condo_char') }} AS pin_condo_char
+        ON par.parid = pin_condo_char.pin
+        AND par.taxyr = pin_condo_char.year
+    LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
+        ON par.parid = leg.parid
+        AND par.taxyr = leg.taxyr
         --
         /* 1) Valuations-provided PINs that shouldn't be considered parking
         spaces 2) In the process of QC'ing condo data, we discovered that some
@@ -174,9 +174,8 @@ chars AS (
         excludes them from the model going forward. 3) Questionable garage units
         are those that have been deemed nonlivable by some part of our
         nonlivable detection, but upon human review have been deemed livable. */
-        LEFT JOIN {{ source('ccao', 'pin_nonlivable') }} AS nonlivable
-            ON par.parid = nonlivable.pin
-    )
+    LEFT JOIN {{ source('ccao', 'pin_nonlivable') }} AS nonlivable
+        ON par.parid = nonlivable.pin
     WHERE par.class IN ('299', '2-99', '399')
         AND par.cur = 'Y'
         AND par.deactivat IS NULL
