@@ -46,6 +46,19 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
+      - name: Print dbt manifests
+        run: |
+          NODE_SELECTOR='.nodes."model.athena.default.vw_pin_land"'
+          echo "vw_pin_land node in state manifest:"
+          echo
+          jq $NODE_SELECTOR state/manifest.json
+          echo
+          echo "vw_pin_land node in target manifest:"
+          echo
+          jq $NODE_SELECTOR target/manifest.json
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
       - name: Build models
         run: |
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
