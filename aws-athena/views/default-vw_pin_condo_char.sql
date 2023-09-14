@@ -29,9 +29,7 @@ oby_filtered AS (
             AS row_no
     FROM {{ source('iasworld', 'oby') }}
     -- We don't include DEACTIVAT IS NULL here since it can disagree with
-    -- DEACTIVAT in iasworld.pardat and we'll defer to that table even if it's
-    -- less likely to be correct than OBY/COMDAT for the sake of having one
-    -- source of active status
+    -- DEACTIVAT in iasworld.pardat and we'll defer to that table
     WHERE cur = 'Y'
         AND class IN ('299', '2-99', '399')
 ),
@@ -44,9 +42,7 @@ comdat_filtered AS (
             AS row_no
     FROM {{ source('iasworld', 'comdat') }}
     -- We don't include DEACTIVAT IS NULL here since it can disagree with
-    -- DEACTIVAT in iasworld.pardat and we'll defer to that table even if it's
-    -- less likely to be correct than OBY/COMDAT for the sake of having one
-    -- source of active status
+    -- DEACTIVAT in iasworld.pardat and we'll defer to that table
     WHERE cur = 'Y'
         AND class IN ('299', '2-99', '399')
 ),
