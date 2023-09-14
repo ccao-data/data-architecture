@@ -198,7 +198,9 @@ chars AS (
         condo units received (unused) negative predicted values. These units
         were non-livable units incorrectly classified as livable. They received
         negative predicted values due to their very low % of ownership. This CTE
-        excludes them from the model going forward. */
+        excludes them from the model going forward. 3) Questionable garage units
+        are those that have been deemed nonlivable by some part of our
+        nonlivable detection, but upon human review have been deemed livable. */
         LEFT JOIN {{ source('ccao', 'pin_nonlivable') }} AS nonlivable
             ON par.parid = nonlivable.pin
     )
