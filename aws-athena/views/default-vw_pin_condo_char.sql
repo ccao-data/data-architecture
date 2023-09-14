@@ -19,68 +19,42 @@ WITH aggregate_land AS (
     FROM {{ ref('default.vw_pin_land') }}
 ),
 
--- For some reason PINs can have cur != 'Y' in the current year even
--- when there's only one row
+-- These two filtered queries exist only to make sure condos pulled from
+-- OBY and COMDAT are unique by pin and taxyr
 oby_filtered AS (
-    SELECT * FROM (
-        SELECT
-            *,
-            SUM(CASE WHEN cur = 'Y' THEN 1 ELSE 0 END)
-                OVER (PARTITION BY parid, taxyr)
-                AS cur_count,
-            ROW_NUMBER()
-                OVER (PARTITION BY parid, taxyr ORDER BY wen DESC)
-                AS row_no
-        FROM {{ source('iasworld', 'oby') }}
-        WHERE class IN ('299', '2-99', '200')
-    )
-    WHERE (cur = 'Y' OR (cur_count = 0 AND row_no = 1))
+    SELECT
+        *,
+        ROW_NUMBER()
+            OVER (PARTITION BY parid, taxyr ORDER BY lline ASC)
+            AS row_no
+    FROM {{ source('iasworld', 'oby') }}
+    -- We don't include DEACTIVAT IS NULL here since it can disagree with
+    -- DEACTIVAT in iasworld.pardat and we'll defer to that table even if it's
+    -- less likely to be correct than OBY/COMDAT for the sake of having one
+    -- source of active status
+    WHERE cur = 'Y'
+        AND class IN ('299', '2-99', '399')
 ),
 
 comdat_filtered AS (
-    SELECT * FROM (
-        SELECT
-            *,
-            SUM(CASE WHEN cur = 'Y' THEN 1 ELSE 0 END)
-                OVER (PARTITION BY parid, taxyr)
-                AS cur_count,
-            ROW_NUMBER()
-                OVER (PARTITION BY parid, taxyr ORDER BY wen DESC)
-                AS row_no
-        FROM {{ source('iasworld', 'comdat') }}
-        WHERE class = '399'
-    )
-    WHERE (cur = 'Y' OR (cur_count = 0 AND row_no = 1))
-),
-
--- Prior year AV, used to help find parking spaces and common areas
-prior_values AS (
     SELECT
-        parid AS pin,
-        CAST(CAST(taxyr AS INT) + 1 AS VARCHAR) AS year,
-        MAX(
-            CASE
-                WHEN
-                    procname = 'BORVALUE'
-                    AND taxyr < '2020'
-                    THEN ovrvalasm3
-                WHEN
-                    procname = 'BORVALUE'
-                    AND valclass IS NULL
-                    AND taxyr >= '2020'
-                    THEN valasm3
-            END
-        ) AS oneyr_pri_board_tot
-    FROM {{ source('iasworld', 'asmt_all') }}
-    WHERE class IN ('299', '2-99', '399')
-    GROUP BY parid, taxyr
+        *,
+        ROW_NUMBER()
+            OVER (PARTITION BY parid, taxyr ORDER BY card ASC)
+            AS row_no
+    FROM {{ source('iasworld', 'comdat') }}
+    -- We don't include DEACTIVAT IS NULL here since it can disagree with
+    -- DEACTIVAT in iasworld.pardat and we'll defer to that table even if it's
+    -- less likely to be correct than OBY/COMDAT for the sake of having one
+    -- source of active status
+    WHERE cur = 'Y'
+        AND class IN ('299', '2-99', '399')
 ),
 
 -- All characteristics associated with condos in
 -- the OBY (299s) / COMDAT (399s) tables
 chars AS (
     -- Distinct because oby and comdat contain multiple cards for a few condos
-    SELECT DISTINCT * FROM (
         SELECT
             par.parid AS pin,
             CASE
@@ -95,7 +69,6 @@ chars AS (
                     THEN par.tiebldgpct / 100.0
                 WHEN
                     par.tiebldgpct IS NULL
-                    AND par.class IN ('299', '2-99', '399')
                     THEN 0
                 ELSE 1.0
             END AS tieback_proration_rate,
@@ -204,7 +177,10 @@ chars AS (
         LEFT JOIN {{ source('ccao', 'pin_nonlivable') }} AS nonlivable
             ON par.parid = nonlivable.pin
     )
-    WHERE class IN ('299', '2-99', '399')
+    WHERE par.class IN ('299', '2-99', '399')
+        AND par.cur = 'Y'
+        AND par.deactivat IS NULL
+        AND (oby.row_no = 1 OR com.row_no = 1)
 ),
 
 filled AS (
@@ -338,9 +314,9 @@ SELECT DISTINCT
             -- what it would be if all units had an equal share, AV limited
             OR (
                 filled.tiebldgpct < (50 / filled.building_pins)
-                AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000
+                AND vph.oneyr_pri_board_tot BETWEEN 10 AND 5000
             )
-            OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
+            OR vph.oneyr_pri_board_tot BETWEEN 10 AND 1000
             OR nonlivable.flag = 'negative pred'
         )
         AND nonlivable.flag != 'questionable'
@@ -356,7 +332,7 @@ SELECT DISTINCT
     filled.note,
     filled.unitno,
     filled.bldg_is_mixed_use,
-    prior_values.oneyr_pri_board_tot,
+    vph.oneyr_pri_board_tot,
     COALESCE((
         filled.cdu = 'GR'
         OR (
@@ -370,9 +346,9 @@ SELECT DISTINCT
         -- what it would be if all units had an equal share, AV limited
         OR (
             filled.tiebldgpct < (50 / filled.building_pins)
-            AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000
+            AND vph.oneyr_pri_board_tot BETWEEN 10 AND 5000
         )
-        OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
+        OR vph.oneyr_pri_board_tot BETWEEN 10 AND 1000
         OR nonlivable.flag = 'negative pred'
     )
     AND nonlivable.flag != 'questionable',
@@ -393,14 +369,14 @@ SELECT DISTINCT
         WHEN
             (
                 filled.tiebldgpct < (50 / filled.building_pins)
-                AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000
+                AND vph.oneyr_pri_board_tot BETWEEN 10 AND 5000
             )
             THEN 'declaration percent'
         WHEN
-            prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
+            vph.oneyr_pri_board_tot BETWEEN 10 AND 1000
             THEN 'prior value'
     END AS parking_space_flag_reason,
-    COALESCE(prior_values.oneyr_pri_board_tot < 10, FALSE) AS is_common_area,
+    COALESCE(vph.oneyr_pri_board_tot < 10, FALSE) AS is_common_area,
     nonlivable.flag = 'questionable' AS is_question_garage_unit,
     nonlivable.flag = 'negative pred' AS is_negative_pred,
     aggregate_land.pin_is_multiland,
@@ -410,8 +386,8 @@ FROM filled
 LEFT JOIN aggregate_land
     ON filled.pin = aggregate_land.parid
     AND filled.year = aggregate_land.taxyr
-LEFT JOIN prior_values
-    ON filled.pin = prior_values.pin
-    AND filled.year = prior_values.year
+LEFT JOIN default.vw_pin_history AS vph
+    ON filled.pin = vph.pin
+    AND filled.year = vph.year
 LEFT JOIN {{ source('ccao', 'pin_nonlivable') }} AS nonlivable
     ON filled.pin = nonlivable.pin
