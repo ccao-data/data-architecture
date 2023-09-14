@@ -11,75 +11,63 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(
   AWS_S3_WAREHOUSE_BUCKET,
-  "ccao", "condominium"
+  "ccao", "condominium", "pin_nonlivable"
 )
+
+files <- aws.s3::get_bucket_df(
+  AWS_S3_RAW_BUCKET,
+  prefix = "ccao/condominium/"
+) %>%
+  filter(stringr::str_ends(Key, ".parquet") & !str_detect(Key, "char")) %>%
+  mutate(Key = file.path(AWS_S3_RAW_BUCKET, Key)) %>%
+  pull(Key)
+
+nonlivable <- list()
 
 ##### QUESTIONABLE GARAGE UNITS #####
 
-# Get S3 file addresses
-files <- grep(
-  ".parquet",
-  file.path(
-    AWS_S3_RAW_BUCKET,
-    aws.s3::get_bucket_df(
-      AWS_S3_RAW_BUCKET,
-      prefix = "ccao/condominium/pin_questionable_garage_units/")$Key
-  ),
-  value = TRUE
-)
-
-# Function to read and amend questionable parking spaces
-read_questionable <- function(x) {
-
-  read_parquet(x) %>%
-    filter(!str_detect(X3, "storage") | is.na(X3)) %>%
-    mutate(year = tools::file_path_sans_ext(basename(x))) %>%
-    select("pin" = 1, "year") %>%
-    filter(str_detect(pin, "^[:digit:]+$")) %>%
-    mutate(pin = str_pad(pin, 14, side = 'left', pad = '0'))
-
-}
-
-# Load raw files, cleanup, then write to warehouse S3
-map(files, read_questionable) %>%
-  bind_rows() %>%
-  group_by(year) %>%
-  arrow::write_dataset(
-    path = file.path(output_bucket, "pin_questionable_garage_units"),
-    format = "parquet",
-    hive_style = TRUE,
-    compression = "snappy"
+nonlivable[["questionable"]] <- read_parquet(
+  grep("questionable", files, value = TRUE)
+) %>%
+  filter(!str_detect(X3, "storage") | is.na(X3)) %>%
+  mutate(year = "2022") %>%
+  select("pin" = 1, "year") %>%
+  filter(str_detect(pin, "^[:digit:]+$")) %>%
+  mutate(
+    pin = str_pad(pin, 14, side = "left", pad = "0"),
+    flag = "questionable"
   )
 
 ##### 399 GARAGE UNITS #####
 
-# Get S3 file addresses
-files <- grep(
-  ".parquet",
-  file.path(
-    AWS_S3_RAW_BUCKET,
-    aws.s3::get_bucket_df(
-      AWS_S3_RAW_BUCKET,
-      prefix = "ccao/condominium/pin_399_garage_units/")$Key
-  ),
-  value = TRUE
-)
+nonlivable[["gr_399s"]] <- read_parquet(grep("399", files, value = TRUE)) %>%
+  select("pin" = "PARID", "year" = "TAXYR") %>%
+  mutate(
+    across(.cols = everything(), ~ as.character(.x)),
+    flag = "399 GR"
+  )
 
-# Function to read and amend questionable parking spaces
-read_399s <- function(x) {
+##### NEGATIVE PREDICTED VALUES #####
 
-  read_parquet(x) %>%
-    mutate(across(.cols = everything(), ~ as.character(.x))) %>%
-    rename_with(tolower)
+nonlivable[["neg_pred"]] <- map(
+  grep("negative", files, value = TRUE), function(x) {
+    read_parquet(x) %>%
+      mutate(across(.cols = everything(), ~ as.character(.x))) %>%
+      mutate(
+        pin = str_remove_all(pin, "-"),
+        year = str_extract(x, "[0-9]{4}"),
+        flag = "negative pred"
+      )
+  }
+) %>%
+  bind_rows()
 
-}
-
-# Load raw files, cleanup, then write to warehouse S3
-map(files, read_399s) %>%
+# Upload all nonlivable spaces to nonlivable table
+nonlivable %>%
   bind_rows() %>%
-  group_by(taxyr) %>%
+  group_by(year) %>%
   arrow::write_dataset(
-    path = file.path(output_bucket, "pin_399_garage_units"),
+    path = output_bucket,
     format = "parquet",
     hive_style = TRUE,
     compression = "snappy"

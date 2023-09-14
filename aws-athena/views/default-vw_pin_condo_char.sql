@@ -19,14 +19,6 @@ WITH aggregate_land AS (
     FROM {{ ref('default.vw_pin_land') }}
 ),
 
--- Valuations-provided PINs that shouldn't be considered parking spaces
-questionable_gr AS (
-    SELECT
-        pin,
-        TRUE AS is_question_garage_unit
-    FROM {{ source('ccao', 'pin_questionable_garage_units') }}
-),
-
 -- For some reason PINs can have cur != 'Y' in the current year even
 -- when there's only one row
 oby_filtered AS (
@@ -126,11 +118,11 @@ chars AS (
                     par.class IN ('299', '2-99')
                     THEN oby.user16
                 WHEN
-                    par.class = '399' AND p3gu.user16 IS NULL
+                    par.class = '399' AND nonlivable.flag != '399 GR'
                     THEN com.user16
                 WHEN
-                    par.class = '399' AND p3gu.user16 IS NOT NULL
-                    THEN p3gu.user16
+                    par.class = '399' AND nonlivable.flag = '399 GR'
+                    THEN 'GR'
             END AS cdu,
             -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
             CASE
@@ -200,9 +192,17 @@ chars AS (
         LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
             ON par.parid = leg.parid
             AND par.taxyr = leg.taxyr
-        LEFT JOIN {{ source('ccao', 'pin_399_garage_units') }} AS p3gu
-            ON par.parid = p3gu.parid
-            AND par.taxyr = p3gu.taxyr
+        --
+        /* 1) Valuations-provided PINs that shouldn't be considered parking
+        spaces 2) In the process of QC'ing condo data, we discovered that some
+        condo units received (unused) negative predicted values. These units
+        were non-livable units incorrectly classified as livable. They received
+        negative predicted values due to their very low % of ownership. This CTE
+        excludes them from the model going forward. 3) Questionable garage units
+        are those that have been deemed nonlivable by some part of our
+        nonlivable detection, but upon human review have been deemed livable. */
+        LEFT JOIN {{ source('ccao', 'pin_nonlivable') }} AS nonlivable
+            ON par.parid = nonlivable.pin
     )
     WHERE class IN ('299', '2-99', '399')
 ),
@@ -341,8 +341,9 @@ SELECT DISTINCT
                 AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000
             )
             OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
+            OR nonlivable.flag = 'negative pred'
         )
-        AND questionable_gr.is_question_garage_unit IS NULL
+        AND nonlivable.flag != 'questionable'
             THEN 1
         ELSE 0
     END)
@@ -372,11 +373,15 @@ SELECT DISTINCT
             AND prior_values.oneyr_pri_board_tot BETWEEN 10 AND 5000
         )
         OR prior_values.oneyr_pri_board_tot BETWEEN 10 AND 1000
+        OR nonlivable.flag = 'negative pred'
     )
-    AND questionable_gr.is_question_garage_unit IS NULL,
+    AND nonlivable.flag != 'questionable',
     FALSE) AS is_parking_space,
     CASE
-        WHEN questionable_gr.is_question_garage_unit = TRUE THEN NULL
+        WHEN nonlivable.flag = 'questionable' THEN NULL
+        WHEN
+            nonlivable.flag = 'negative pred'
+            THEN 'model predicted negative value'
         WHEN filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
             THEN 'identified by valuations as non-unit'
@@ -396,7 +401,8 @@ SELECT DISTINCT
             THEN 'prior value'
     END AS parking_space_flag_reason,
     COALESCE(prior_values.oneyr_pri_board_tot < 10, FALSE) AS is_common_area,
-    questionable_gr.is_question_garage_unit,
+    nonlivable.flag = 'questionable' AS is_question_garage_unit,
+    nonlivable.flag = 'negative pred' AS is_negative_pred,
     aggregate_land.pin_is_multiland,
     aggregate_land.pin_num_landlines
 
@@ -407,5 +413,5 @@ LEFT JOIN aggregate_land
 LEFT JOIN prior_values
     ON filled.pin = prior_values.pin
     AND filled.year = prior_values.year
-LEFT JOIN questionable_gr
-    ON filled.pin = questionable_gr.pin
+LEFT JOIN {{ source('ccao', 'pin_nonlivable') }} AS nonlivable
+    ON filled.pin = nonlivable.pin
