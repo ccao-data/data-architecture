@@ -130,7 +130,7 @@ map(files, clean_up) %>%
     year_of_sale = as.character(lubridate::year(line_4_instrument_date)),
     declaration_id = as.character(declaration_id),
     is_earliest_within_doc_no = case_when(
-      1:n() == 1 ~ TRUE,
+      seq_len(n()) == 1 ~ TRUE,
       TRUE ~ FALSE
     )
   ) %>%
