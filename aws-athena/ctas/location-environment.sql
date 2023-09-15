@@ -1,39 +1,40 @@
-CREATE TABLE IF NOT EXISTS location.environment
-WITH (
-    FORMAT = 'Parquet',
-    WRITE_COMPRESSION = 'SNAPPY',
-    EXTERNAL_LOCATION = 's3://ccao-athena-ctas-us-east-1/location/environment',
-    PARTITIONED_BY = ARRAY['year'],
-    BUCKETED_BY = ARRAY['pin10'],
-    BUCKET_COUNT = 1
-) AS (
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
+    )
+}}
+
+WITH environment AS (
     WITH distinct_pins AS (
         SELECT DISTINCT
             x_3435,
             y_3435
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years AS (
         SELECT DISTINCT year
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years_rhs AS (
-        SELECT DISTINCT year FROM spatial.flood_fema
+        SELECT DISTINCT year FROM {{ source('spatial', 'flood_fema') }}
         UNION ALL
-        SELECT DISTINCT year FROM other.flood_first_street
+        SELECT DISTINCT year FROM {{ source('other', 'flood_first_street') }}
         UNION ALL
-        SELECT DISTINCT year FROM spatial.ohare_noise_contour
+        SELECT DISTINCT year FROM {{ source('spatial', 'ohare_noise_contour') }}
         UNION ALL
-        SELECT DISTINCT year FROM other.airport_noise
+        SELECT DISTINCT year FROM {{ source('other', 'airport_noise') }}
     ),
 
     ohare_years AS (
         SELECT
             dy.year AS pin_year,
             MAX(df.year) AS fill_year
-        FROM spatial.ohare_noise_contour AS df
+        FROM {{ source('spatial', 'ohare_noise_contour') }} AS df
         CROSS JOIN distinct_years AS dy
         WHERE dy.year >= df.year
         GROUP BY dy.year
@@ -55,12 +56,12 @@ WITH (
                 SELECT
                     dy.year AS pin_year,
                     MAX(df.year) AS fill_year
-                FROM spatial.flood_fema AS df
+                FROM {{ source('spatial', 'flood_fema') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.flood_fema AS fill_data
+            LEFT JOIN {{ source('spatial', 'flood_fema') }} AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -86,12 +87,13 @@ WITH (
                 SELECT
                     dy.year AS pin_year,
                     MAX(df.year) AS fill_year
-                FROM spatial.ohare_noise_contour AS df
+                FROM {{ source('spatial', 'ohare_noise_contour') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.ohare_noise_contour AS fill_data
+            LEFT JOIN
+                {{ source('spatial', 'ohare_noise_contour') }} AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -117,12 +119,13 @@ WITH (
                 SELECT
                     dy.year AS pin_year,
                     MAX(df.year) AS fill_year
-                FROM spatial.ohare_noise_contour AS df
+                FROM {{ source('spatial', 'ohare_noise_contour') }} AS df
                 CROSS JOIN distinct_years AS dy
                 WHERE dy.year >= df.year
                 GROUP BY dy.year
             ) AS fill_years
-            LEFT JOIN spatial.ohare_noise_contour AS fill_data
+            LEFT JOIN
+                {{ source('spatial', 'ohare_noise_contour') }} AS fill_data
                 ON fill_years.fill_year = fill_data.year
         ) AS cprod
             ON ST_WITHIN(
@@ -165,18 +168,30 @@ WITH (
             ELSE 'omp'
         END AS env_airport_noise_data_year,
         pcl.year
-    FROM spatial.parcel AS pcl
+    FROM {{ source('spatial', 'parcel') }} AS pcl
     LEFT JOIN flood_fema
         ON pcl.x_3435 = flood_fema.x_3435
         AND pcl.y_3435 = flood_fema.y_3435
         AND pcl.year = flood_fema.pin_year
-    LEFT JOIN other.flood_first_street
+    LEFT JOIN {{ source('other', 'flood_first_street') }} AS flood_first_street
         ON pcl.pin10 = flood_first_street.pin10
         AND pcl.year >= flood_first_street.year
-    LEFT JOIN (SELECT * FROM other.airport_noise WHERE year != 'omp') AS an
+    LEFT JOIN
+        (
+            SELECT *
+            FROM {{ source('other', 'airport_noise') }}
+            WHERE year != 'omp'
+        )
+            AS an
         ON pcl.pin10 = an.pin10
         AND pcl.year = an.year
-    LEFT JOIN (SELECT * FROM other.airport_noise WHERE year = 'omp') AS omp
+    LEFT JOIN
+        (
+            SELECT *
+            FROM {{ source('other', 'airport_noise') }}
+            WHERE year = 'omp'
+        )
+            AS omp
         ON pcl.pin10 = omp.pin10
         AND pcl.year >= '2021'
     LEFT JOIN ohare_years AS oy
@@ -191,3 +206,5 @@ WITH (
         AND pcl.year = onc2640.pin_year
     WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )
+
+SELECT * FROM environment

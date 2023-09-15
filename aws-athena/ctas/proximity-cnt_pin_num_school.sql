@@ -1,31 +1,31 @@
 -- CTAS to create a table of schools counts and ratings. Public schools must be
 -- within 1/2 mile AND in the same district as the target PIN. Private/charter
 -- schools must be within 1/2 mile
-CREATE TABLE IF NOT EXISTS proximity.cnt_pin_num_school
-WITH (
-    FORMAT = 'Parquet',
-    WRITE_COMPRESSION = 'SNAPPY',
-    EXTERNAL_LOCATION
-    = 's3://ccao-athena-ctas-us-east-1/proximity/cnt_pin_num_school',
-    PARTITIONED_BY = ARRAY['year'],
-    BUCKETED_BY = ARRAY['pin10'],
-    BUCKET_COUNT = 1
-) AS (
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
+    )
+}}
+
+WITH cnt_pin_num_school AS (
     WITH distinct_pins AS (
         SELECT DISTINCT
             x_3435,
             y_3435
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years AS (
         SELECT DISTINCT year
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years_rhs AS (
         SELECT DISTINCT year
-        FROM other.great_schools_rating
+        FROM {{ source('other', 'great_schools_rating') }}
     ),
 
     school_locations AS (
@@ -36,12 +36,12 @@ WITH (
             SELECT
                 dy.year AS pin_year,
                 MAX(df.year) AS fill_year
-            FROM other.great_schools_rating AS df
+            FROM {{ source('other', 'great_schools_rating') }} AS df
             CROSS JOIN distinct_years AS dy
             WHERE dy.year >= df.year
             GROUP BY dy.year
         ) AS fill_years
-        LEFT JOIN other.great_schools_rating AS fill_data
+        LEFT JOIN {{ source('other', 'great_schools_rating') }} AS fill_data
             ON fill_years.fill_year = fill_data.year
     ),
 
@@ -66,7 +66,7 @@ WITH (
             pub.year
         FROM distinct_pins AS dp
         -- Keep only public schools with 1/2 mile WITHIN each PIN's district
-        INNER JOIN spatial.school_district AS dis
+        INNER JOIN {{ source('spatial', 'school_district') }} AS dis
             ON ST_CONTAINS(
                 ST_GEOMFROMBINARY(dis.geometry_3435),
                 ST_POINT(dp.x_3435, dp.y_3435)
@@ -123,10 +123,12 @@ WITH (
         sr.num_school_data_year,
         sr.num_school_rating_data_year,
         pcl.year
-    FROM spatial.parcel AS pcl
+    FROM {{ source('spatial', 'parcel') }} AS pcl
     LEFT JOIN school_ratings_agg AS sr
         ON pcl.x_3435 = sr.x_3435
         AND pcl.y_3435 = sr.y_3435
         AND pcl.year = sr.pin_year
     WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )
+
+SELECT * FROM cnt_pin_num_school

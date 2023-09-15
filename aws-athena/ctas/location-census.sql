@@ -1,22 +1,23 @@
-CREATE TABLE IF NOT EXISTS location.census
-WITH (
-    FORMAT = 'Parquet',
-    WRITE_COMPRESSION = 'SNAPPY',
-    EXTERNAL_LOCATION = 's3://ccao-athena-ctas-us-east-1/location/census',
-    PARTITIONED_BY = ARRAY['year'],
-    BUCKETED_BY = ARRAY['pin10'],
-    BUCKET_COUNT = 1
-) AS (
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
+    )
+}}
+
+WITH census AS (
     WITH distinct_pins AS (
         SELECT DISTINCT
             x_3435,
             y_3435
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_years_rhs AS (
         SELECT DISTINCT year
-        FROM spatial.census
+        FROM {{ source('spatial', 'census') }}
     ),
 
     distinct_joined AS (
@@ -64,7 +65,7 @@ WITH (
             END) AS census_zcta_geoid,
             cen.year
         FROM distinct_pins AS dp
-        LEFT JOIN spatial.census AS cen
+        LEFT JOIN {{ source('spatial', 'census') }} AS cen
             ON ST_WITHIN(
                 ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(cen.geometry_3435)
@@ -89,10 +90,12 @@ WITH (
         dj.census_zcta_geoid,
         dj.year AS census_data_year,
         pcl.year
-    FROM spatial.parcel AS pcl
+    FROM {{ source('spatial', 'parcel') }} AS pcl
     LEFT JOIN distinct_joined AS dj
         ON pcl.year = dj.year
         AND pcl.x_3435 = dj.x_3435
         AND pcl.y_3435 = dj.y_3435
     WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)
 )
+
+SELECT * FROM census

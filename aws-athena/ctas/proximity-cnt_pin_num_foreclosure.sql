@@ -1,15 +1,15 @@
 -- CTAS to create a table of foreclosure counts per PIN. Counts are within 1/2
 -- mile and past 5 years of each target PIN
-CREATE TABLE IF NOT EXISTS proximity.cnt_pin_num_foreclosure
-WITH (
-    FORMAT = 'Parquet',
-    WRITE_COMPRESSION = 'SNAPPY',
-    EXTERNAL_LOCATION
-    = 's3://ccao-athena-ctas-us-east-1/proximity/cnt_pin_num_foreclosure',
-    PARTITIONED_BY = ARRAY['year'],
-    BUCKETED_BY = ARRAY['pin10'],
-    BUCKET_COUNT = 1
-) AS (
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
+    )
+}}
+
+WITH cnt_pin_num_foreclosure AS (
     WITH pin_locations AS (
         SELECT
             pin10,
@@ -17,7 +17,7 @@ WITH (
             x_3435,
             y_3435,
             ST_POINT(x_3435, y_3435) AS point
-        FROM spatial.parcel
+        FROM {{ source('spatial', 'parcel') }}
     ),
 
     distinct_pins AS (
@@ -88,3 +88,5 @@ WITH (
         AND pl.y_3435 = pc.y_3435
         AND pl.year = pc.year
 )
+
+SELECT * FROM cnt_pin_num_foreclosure

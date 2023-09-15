@@ -4,6 +4,10 @@ inputs:
   role-to-assume:
     description: AWS IAM role to assume when running dbt operations.
     required: true
+  role-duration-seconds:
+    description: Expiration time for AWS OIDC token. Default is one hour.
+    required: false
+    default: 3600
 runs:
   using: composite
   steps:
@@ -18,6 +22,7 @@ runs:
       with:
         role-to-assume: ${{ inputs.role-to-assume }}
         aws-region: us-east-1
+        role-duration-seconds: ${{ inputs.role-duration-seconds }}
 
     - name: Configure dbt environment
       uses: ./.github/actions/configure_dbt_environment
