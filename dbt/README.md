@@ -125,56 +125,96 @@ aws-mfa
 
 #### Build tables and views
 
-Build all the tables and views in our Athena warehouse:
+We use the [`dbt run` command](https://docs.getdbt.com/reference/commands/run)
+to build tables and views (called
+[models](https://docs.getdbt.com/docs/build/models) in dbt jargon) in our
+Athena data warehouse. See the following sections for specific instructions
+on how to build [development](#build-tables-and-views-in-development) and
+[production](#build-tables-and-views-in-production) models.
+
+#### Build tables and views in development
+
+When passed no arguments, `dbt run` will default to building _all_ tables
+and views in development schemas dedicated to your user. The full build takes
+about three hours and thirty minutes, so we don't recommend running it
+from scratch.
+
+Instead, start by copying the production dbt state file (also known as the
+[manifest file](https://docs.getdbt.com/reference/artifacts/manifest-json)):
 
 ```
-dbt run
+aws s3 cp s3://ccao-dbt-cache-us-east-1/master-cache/manifest.json master-cache/manifest.json
 ```
 
-By default, all `dbt` commands will run against the `dev` environment, which
-namespaces the resources it creates by prefixing target database names with
-your Unix `$USER` name (e.g. `dev_jecochr_default` for the `default` database
-when `dbt` is run on Jean's machine). To instead **run commands against prod**,
-use the `--target` flag:
+Then, use [`dbt clone`](https://docs.getdbt.com/reference/commands/clone) to
+clone the production tables and views into your development environment:
+
+```
+dbt clone --state master-cache
+```
+
+This will copy all production views and tables into a new set of Athena schemas
+prefixed with your Unix `$USER` name (e.g. `dev_jecochr_default` for the
+`default` schema when `dbt` is run on Jean's machine).
+
+Once you've copied prod tables and views into your development schemas, you can
+rebuild specific tables and views using [dbt's node selection
+syntax](https://docs.getdbt.com/reference/node-selection/syntax).
+
+Use `--select` to build one specific model, or a group of models:
+
+```bash
+# This builds just the vw_pin_universe view
+dbt run --select default.vw_pin_universe
+
+# This builds vw_pin_universe as well as vw_pin10_location
+dbt run --select default.vw_pin_universe location.vw_pin10_location
+
+# This builds everything in the default schema
+dbt run --select default.*
+```
+
+#### Build tables and views in production
+
+By default, all `dbt` commands will run against the `dev` environment (called
+a [target](https://docs.getdbt.com/reference/dbt-jinja-functions/target) in
+dbt jargon), which namespaces the resources it creates by prefixing database
+names with `dev_` and your Unix `$USER` name.
+
+You should almost never have to manually build tables and views in our
+production environment, since this repository is configured to automatically
+deploy production models using GitHub Actions for continuous integration.
+However, in the rare case that you need to manually build models in production,
+use the `--target` option:
 
 ```
 dbt run --target prod
 ```
 
-To build a subset of the models, use the `--select` option:
+#### Clean up development resources
 
-```
-dbt run --select location.vw_pin10_location default.vw_pin_universe
-```
+If you'd like to remove your development resources to keep our Athena
+data sources tidy, you have two options: Delete all of your development Athena
+databases, or delete a selection of Athena databases.
 
-Prefix a model's names with a plus sign (`+`) to instruct dbt to (re)build its
-parents as well:
-
-```
-dbt run --select +default.vw_pin_universe
-```
-
-Download the prod state and use the `--defer` and `--state` options in order to
-build a model without having to build its dependencies (for more details, see
-[the docs on deferral](https://docs.getdbt.com/reference/node-selection/defer)):
-
-```
-aws s3 cp s3://ccao-dbt-cache-us-east-1/master-cache/manifest.json state/manifest.json
-dbt run --select default.vw_pin_universe --defer --state state
-```
-
-After downloading the prod state, only build models that have been added or
-changed since the last prod run:
-
-```
-dbt run -s state:modified state:new --defer --state state
-```
-
-Delete all the resources created in your local environment:
+To delete all the resources in your local environment (i.e. every Athena
+database with a name matching the pattern `dev_$USER_$SCHEMA`):
 
 ```
 ../.github/scripts/cleanup_dbt_resources.sh dev
 ```
+
+To instead delete a selected database, use the [`aws glue delete-database`
+command](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/glue/delete-database.html):
+
+```
+aws glue delete-database dev_jecochr_default
+```
+
+Note that these two operations will only delete Athena databases, and will leave
+intact any parquet files that your queries created in S3. If you would like to
+remove those files as well, delete them in the S3 console or using the [`aws
+s3 rm` command](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/s3/rm.html).
 
 #### Run tests
 
@@ -404,3 +444,34 @@ It usually means that dbt's state has unresolvable conflicts with the current
 state of your working directory. To resolve this, run `dbt clean` to clear your
 dbt state, reinstall dbt dependencies with `dbt deps`, and then try rerunning
 the command that raised the error.
+
+### What do I do if dbt says a schema or table does not exist?
+
+When attempting to build models, you may occasionally run into the following
+error indicating that a model that your selected model depends on does not
+exist:
+
+```
+Runtime Error in model default.vw_card_res_char (models/default/default.vw_card_res_char.sql)
+  line 24:10: Table 'awsdatacatalog.dev_jecochr_default.vw_pin_land' does not exist
+```
+
+The error may look like this if an entire schema is missing:
+
+```
+Runtime Error in model default.vw_pin_universe (models/default/default.vw_pin_universe.sql)
+  line 130:11: Schema 'dev_jecochr_location' does not exist
+```
+
+To resolve this error, you can prefix your selected model's names with a plus
+sign (`+`) to instruct dbt to (re)build its dependency models as well. However,
+note that this will rebuild _all_ dependency models, even ones that already
+exist in your development environment, so if your model depends on another model
+that is compute-intensive (basically, anything in the `location` or `proximity`
+schemas) you should use [the `--exclude`
+option](https://docs.getdbt.com/reference/node-selection/exclude) to exclude
+these compute-intensive models from being rebuilt:
+
+```
+dbt run --select +model.vw_pin_shared_input --exclude location.* proximity.*
+```
