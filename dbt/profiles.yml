@@ -12,6 +12,7 @@ athena:
       # "database" here corresponds to a Glue data catalog
       database: awsdatacatalog
       threads: 5
+      num_retries: 1
     ci:
       type: athena
       s3_staging_dir: s3://ccao-dbt-athena-ci-us-east-1/results/
@@ -21,6 +22,7 @@ athena:
       schema: dbt-test
       database: awsdatacatalog
       threads: 5
+      num_retries: 1
     prod:
       type: athena
       s3_staging_dir: s3://ccao-athena-results-us-east-1/
@@ -30,3 +32,4 @@ athena:
       schema: default
       database: awsdatacatalog
       threads: 5
+      num_retries: 1
