@@ -24,7 +24,7 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
-      - name: Create failure notification message content
+      - name: Create failure notification body
         id: create-message
         if: failure()
         run: |
