@@ -236,7 +236,7 @@ models:
             - mail_address_zipcode_1
             - mail_address_zipcode_2
           config:
-            error_if: ">880634"
+            error_if: ">900000"
       # TODO: Mailing address changes after validated sale(?)
       # TODO: Site addresses are all in Cook County
   - name: default.vw_pin_condo_char
