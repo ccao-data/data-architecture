@@ -1,4 +1,5 @@
-{{ config(
+{{
+    config(
         materialized='table',
         partitioned_by=['year'],
         bucketed_by=['pin10'],
