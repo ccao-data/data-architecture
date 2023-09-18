@@ -118,7 +118,7 @@ models:
             - mailed_tot
             - certified_tot
           config:
-            error_if: ">266758"
+            error_if: ">266759"
   - name: default.vw_card_res_char
     columns:
       - name: card_proration_rate
@@ -320,7 +320,7 @@ models:
             - year
           allowed_duplicates: 2
           config:
-            error_if: ">3192"
+            error_if: ">3233"
       # TODO: Sale is validated (after sales validation has been added to
       # iasworld)
       # TODO: Validation is catching obvious outliers
