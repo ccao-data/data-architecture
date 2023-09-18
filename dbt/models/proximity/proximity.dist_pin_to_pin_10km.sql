@@ -1,1 +1,1 @@
-aws-athena/ctas/proximity-dist_pin_to_pin_10km.sql
+../../../aws-athena/ctas/proximity-dist_pin_to_pin_10km.sql
