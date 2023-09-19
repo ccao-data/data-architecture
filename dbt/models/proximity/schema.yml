@@ -21,8 +21,6 @@ models:
     description: '{{ doc("dist_pin_to_pin") }}'
   - name: proximity.dist_pin_to_pin_1km
     description: '{{ doc("dist_pin_to_pin_intermediate") }}'
-  - name: proximity.dist_pin_to_pin_1km_missing_matches
-    description: '{{ doc("dist_pin_to_pin_intermediate") }}'
   - name: proximity.dist_pin_to_pin_10km
     description: '{{ doc("dist_pin_to_pin_intermediate") }}'
   - name: proximity.dist_pin_to_railroad
