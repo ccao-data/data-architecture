@@ -129,10 +129,7 @@ map(files, clean_up) %>%
   mutate(
     year_of_sale = as.character(lubridate::year(line_4_instrument_date)),
     declaration_id = as.character(declaration_id),
-    is_earliest_within_doc_no = case_when(
-      seq_len(n()) == 1 ~ TRUE,
-      TRUE ~ FALSE
-    )
+    is_earliest_within_doc_no = row_number() == 1
   ) %>%
   group_by(year_of_sale) %>%
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
