@@ -22,12 +22,15 @@
             -- We want to make sure we only grab the most recent instance of a given
             -- parcel to avoid duplicates caused by these slight shifts.
             select
-                x_3435, y_3435, rank() over (partition by pin10 order by year desc) as r
+                x_3435,
+                y_3435,
+                pin10,
+                rank() over (partition by pin10 order by year desc) as r
             from {{ source_model }}
         ),
 
         distinct_pins as (
-            select distinct x_3435, y_3435 from most_recent_pins where r = 1
+            select distinct x_3435, y_3435, pin10 from most_recent_pins where r = 1
         ),
 
         pin_dists as (
@@ -43,10 +46,11 @@
                     from
                         (
                             select
+                                dp.pin10,
                                 dp.x_3435,
                                 dp.y_3435,
                                 loc.year,
-                                loc.pin10,
+                                loc.pin10 as neighbor_pin10,
                                 st_distance(
                                     st_point(dp.x_3435, dp.y_3435), loc.point
                                 ) as dist
@@ -59,6 +63,7 @@
                                     ),
                                     loc.point
                                 )
+                                and dp.pin10 != loc.pin10
                         ) as dists
                 )
             where row_num <= 4
@@ -71,7 +76,7 @@
                 pcl.pin10,
                 {% for idx in range(1, num_neighbors + 1) %}
                     max(
-                        case when pd.row_num = {{ idx + 1 }} then pd.pin10 end
+                        case when pd.row_num = {{ idx + 1 }} then pd.neighbor_pin10 end
                     ) as nearest_neighbor_{{ idx }}_pin10,
                     max(
                         case when pd.row_num = {{ idx + 1 }} then pd.dist end
@@ -79,11 +84,7 @@
                 {% endfor %}
                 pcl.year
             from {{ source("spatial", "parcel") }} as pcl
-            inner join
-                pin_dists as pd
-                on pcl.x_3435 = pd.x_3435
-                and pcl.y_3435 = pd.y_3435
-                and pcl.year = pd.year
+            inner join pin_dists as pd on pcl.pin10 = pd.pin10 and pcl.year = pd.year
             group by pcl.pin10, pcl.year
         )
     where
