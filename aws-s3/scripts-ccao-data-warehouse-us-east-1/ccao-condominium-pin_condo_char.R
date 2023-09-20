@@ -71,7 +71,7 @@ chars <- list()
 
 # We use tax year, valuations uses year the work was done
 for (i in c("2021", "2022")) {
-  if (!("2021" %in% years) & i == "2021") {
+  if (!("2021" %in% years) && i == "2021") {
     # If clean 2021 data is not already in Athena, load and clean it
     chars[[i]] <- map(
       grep("2022", files, value = TRUE), function(x) {
@@ -116,7 +116,7 @@ for (i in c("2021", "2022")) {
         unit_sf == 182901 ~ 1829,
         TRUE ~ unit_sf
       ))
-  } else if (!("2022" %in% years) & i == "2022") {
+  } else if (!("2022" %in% years) && i == "2022") {
     # If clean 2022 data is not already in Athena, load and clean it
     chars[[i]] <- lapply(grep("2023", files, value = TRUE), function(x) {
       raw <- read_parquet(x)[, 1:20]
