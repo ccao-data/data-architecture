@@ -1,7 +1,7 @@
 -- Macro that takes a `source_model` containing PIN geometries and joins it
--- against itself in order to generate the `num_neighbors` nearest neighbors
--- for each PIN for each year in the data, where a "neighbor" is defined as
--- another PIN that is within `radius_km` of the given PIN.
+-- against spatial.parcel in order to generate the `num_neighbors` nearest
+-- neighbors for each PIN for each year in the data, where a "neighbor" is
+-- defined as another PIN that is within `radius_km` of the given PIN.
 --
 -- The `source_model` must contain four required columns, and is modeled
 -- after spatial.parcel, which is the primary source for this macro:
