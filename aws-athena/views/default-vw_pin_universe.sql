@@ -130,3 +130,7 @@ LEFT JOIN {{ ref('location.vw_pin10_location') }} AS vwl
     AND par.taxyr = vwl.year
 LEFT JOIN {{ source('spatial', 'township') }} AS twn
     ON leg.user1 = CAST(twn.township_code AS VARCHAR)
+WHERE par.cur = 'Y'
+    AND par.deactivat IS NULL
+    AND leg.cur = 'Y'
+    AND leg.deactivat IS NULL

@@ -89,3 +89,7 @@ LEFT JOIN {{ source('iasworld', 'pardat') }} AS par
     AND vwpv.year = par.taxyr
 LEFT JOIN {{ source('spatial', 'township') }} AS town
     ON leg.user1 = town.township_code
+WHERE leg.cur = 'Y'
+    AND leg.deactivat IS NULL
+    AND par.cur = 'Y'
+    AND par.deactivat IS NULL

@@ -76,3 +76,9 @@ LEFT JOIN {{ source('iasworld', 'htagnt') }} AS htagnt
 WHERE htpar.cur = 'Y'
     AND htpar.caseno IS NOT NULL
     AND htpar.deactivat IS NULL
+    AND pardat.cur = 'Y'
+    AND pardat.deactivat IS NULL
+    AND legdat.cur = 'Y'
+    AND legdat.deactivat IS NULL
+    AND htagnt.cur = 'Y'
+    AND htagnt.deactivat IS NULL

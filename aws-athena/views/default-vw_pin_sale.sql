@@ -11,6 +11,10 @@ WITH town_class AS (
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
         ON par.parid = leg.parid
         AND par.taxyr = leg.taxyr
+    WHERE par.cur = 'Y'
+        AND par.deactivat IS NULL
+        AND leg.cur = 'Y'
+        AND leg.deactivat IS NULL
 ),
 
 --- "nopar" isn't entirely accurate for sales associated with only one parcel,
@@ -21,6 +25,7 @@ calculated AS (
         COUNT(*) AS nopar_calculated
     FROM {{ source('iasworld', 'sales') }}
     WHERE deactivat IS NULL
+        AND cur = 'Y'
     GROUP BY instruno
 ),
 
@@ -83,6 +88,7 @@ unique_sales AS (
         WHERE sales.instruno IS NOT NULL
         --- Indicates whether a record has been deactivated
             AND sales.deactivat IS NULL
+            AND sales.cur = 'Y'
             AND sales.price > 10000
             AND CAST(SUBSTR(sales.saledt, 1, 4) AS INT) BETWEEN 1997 AND YEAR(
                 CURRENT_DATE
