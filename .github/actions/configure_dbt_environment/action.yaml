@@ -11,16 +11,12 @@ runs:
           echo "On pull request branch, setting dbt env to CI"
           {
             echo "TARGET=ci";
-            echo "CACHE_KEY=pr-caches/$GITHUB_HEAD_REF";
-            echo "CACHE_RESTORE_KEY=master-cache"
             echo "HEAD_REF=$GITHUB_HEAD_REF"
           } >> "$GITHUB_ENV"
         elif [[ $GITHUB_REF_NAME == 'master' ]]; then
           echo "On master branch, setting dbt env to prod"
           {
             echo "TARGET=prod";
-            echo "CACHE_KEY=master-cache";
-            echo "CACHE_RESTORE_KEY=master-cache"
           } >> "$GITHUB_ENV"
         else
           echo "CI context did not match any of the expected environments"

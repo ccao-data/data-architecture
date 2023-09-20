@@ -22,6 +22,7 @@ jobs:
         uses: ./.github/actions/setup_dbt
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+          role-duration-seconds: 14400  # Worst-case time for full build
 
       - name: Restore dbt state cache
         id: cache
@@ -29,7 +30,6 @@ jobs:
         with:
           path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
           key: ${{ env.CACHE_KEY }}
-          restore-key: ${{ env.CACHE_RESTORE_KEY }}
 
       - if: steps.cache.outputs.cache-hit == 'true'
         name: Set command args to build/test modified resources
@@ -70,7 +70,8 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
-      - name: Update dbt state cache
+      - if: github.ref == 'refs/heads/master'
+        name: Update dbt state cache
         uses: ./.github/actions/save_dbt_cache
         with:
           path: ${{ env.PROJECT_DIR }}/${{ env.TARGET_DIR }}

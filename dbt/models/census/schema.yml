@@ -12,3 +12,170 @@ sources:
 
 models:
   - name: census.vw_acs5_stat
+    columns:
+      - name: percent_race_white
+        description: |
+          Summary forthcoming.
+
+          Percentages will NOT sum to 1 since the Census allows more than 1 race per respondent
+      - name: percent_race_other
+        description: |
+          Summary forthcoming.
+
+          Percentages will NOT sum to 1 since the Census allows more than 1 race per respondent
+      - name: percent_race_nhpi
+        description: |
+          Summary forthcoming.
+
+          Percentages will NOT sum to 1 since the Census allows more than 1 race per respondent
+      - name: percent_race_hisp
+        description: |
+          Summary forthcoming.
+
+          Counts for hispanic/latino population are complicated. See Census Reporter for more info
+      - name: percent_race_black
+        description: |
+          Summary forthcoming.
+
+          Percentages will NOT sum to 1 since the Census allows more than 1 race per respondent
+      - name: percent_race_asian
+        description: |
+          Summary forthcoming.
+
+          Percentages will NOT sum to 1 since the Census allows more than 1 race per respondent
+      - name: percent_race_aian
+        description: |
+          Summary forthcoming.
+
+          Percentages will NOT sum to 1 since the Census allows more than 1 race per respondent
+      - name: percent_mobility_no_move
+        description: |
+          Percent of people (older than 1 year) who have not moved in the past 12 months.
+
+          ACS variable B07003_004E / B07003_001E
+      - name: percent_mobility_moved_in_county
+        description: |
+          Percent of people (older than 1 year) who moved in county in the past 12 months.
+
+          ACS variable B07003_007E / B07003_001E
+      - name: percent_mobility_moved_from_other_state
+        description: |
+          Percent of people (older than 1 year) who moved from another state in the past 12 months.
+
+          ACS variable B07003_013E / B07003_001E
+      - name: percent_income_household_received_snap_past_year
+        description: |
+          Percent of households that received SNAP in the past 12 months.
+
+          ACS variable B22003_002E / B22003_001E
+      - name: percent_income_below_poverty_level
+        description: |
+          Percent of people below poverty level.
+
+          ACS variable B17001_002E / B17001_001E
+      - name: percent_household_total_occupied_w_sel_cond
+        description: |
+          Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs
+
+          ACS variable (B25123_003E + B25123_004E + B25123_005E + B25123_006E + B25123_009E + B25123_010E + B25123_011E + B25123_012E) / B25123_001E
+      - name: percent_household_renter_occupied_w_sel_cond
+        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
+      - name: percent_household_owner_occupied_w_sel_cond
+        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
+      - name: percent_household_owner_occupied
+        description: |
+          Percent of households that are owner-occupied.
+
+          ACS variable B25003_002E / B25003_001E
+      - name: percent_household_nonfamily_alone
+        description: |
+          Percent of households that are non-family, alone (single).
+
+          ACS variable B11001_008E / B11001_001E
+      - name: percent_household_family_married
+        description: |
+          Percent of households that are family, married (married).
+
+          ACS variable B11001_003E / B11001_001E
+      - name: percent_employment_unemployed
+        description: |
+          Percent of people 16 years and older unemployed.
+
+          ACS variable B23025_005E / B23025_003E
+      - name: percent_education_high_school
+        description: |
+          Percent of people older than 25 who attained a high school degree.
+
+          ACS variable (B15002_011E + B15002_028E) / B15002_001E
+      - name: percent_education_graduate
+        description: |
+          Percent of people older than 25 who attained a graduate degree.
+
+          ACS variable (B15002_016E + B15002_017E + B15002_018E + B15002_033E + B15002_034E + B15002_035E) / B15002_001E
+      - name: percent_education_bachelor
+        description: |
+          Percent of people older than 25 who attained a bachelor degree.
+
+          ACS variable (B15002_015E + B15002_032E) / B15002_001E
+      - name: percent_age_senior
+        description: |
+          Percent of the population 65 years or older.
+
+          ACS variable (B01001_020E + B01001_021E + B01001_022E + B01001_023E + B01001_024E + B01001_025E + B01001_044E + B01001_045E + B01001_046E + B01001_046E + B01001_048E + B01001_049E) / B01001_001E
+      - name: percent_age_children
+        description: |
+          Percent of the population 17 years or younger.
+
+          ACS variable (B01001_003E + B01001_004E + B01001_005E + B01001_006E + B01001_007E + B01001_027E + B01001_028E + B01001_029E + B01001_030E + B01001_031E) / B01001_001E
+      - name: median_income_per_capita_past_year
+        description: |
+          Median income per capita in the past 12 months.
+
+          ACS variable B19301_001E
+      - name: median_income_household_past_year
+        description: |
+          Median income per household in the past 12 months.
+
+          ACS variable B19013_001E
+      - name: median_household_total_occupied_year_built
+        description: |
+          Median year built for all occupied housing units.
+
+          ACS variable B25037_001E
+      - name: median_household_renter_occupied_gross_rent
+        description: |
+          Median gross rent for only renter-occupied units.
+
+          ACS variable B25064_001E
+      - name: median_household_owner_occupied_value
+        description: |
+          Median household value for only owner-occupied units.
+
+          ACS variable B25077_001E
+      - name: median_age_total
+        description: |
+          Median age for whole population.
+
+          ACS variable B01002_001E
+      - name: count_household_renter_occupied_4_sel_cond
+        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
+      - name: count_household_renter_occupied_3_sel_cond
+        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
+      - name: count_household_renter_occupied_2_sel_cond
+        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
+      - name: count_household_renter_occupied_1_sel_cond
+        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
+      - name: count_household_owner_occupied_4_sel_cond
+        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
+      - name: count_household_owner_occupied_3_sel_cond
+        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
+      - name: count_household_owner_occupied_2_sel_cond
+        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
+      - name: count_household_owner_occupied_1_sel_cond
+        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
+      - name: count_employment_unemployed
+        description: Unemployed population 16 and older
+      - name: count_employment_not_in_labor_force
+        description: Unemployed population 16 and older, not in the labor force
+      - name: count_employment_in_civilian_labor_force
+        description: Employed population 16 and older

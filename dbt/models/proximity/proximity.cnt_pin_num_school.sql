@@ -1,0 +1,1 @@
+../../../aws-athena/ctas/proximity-cnt_pin_num_school.sql

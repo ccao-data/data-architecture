@@ -1,0 +1,1 @@
+../../../aws-athena/ctas/location-other.sql

@@ -28,6 +28,8 @@ clean-targets:
 models:
   athena:
     +materialized: view
+    +write_compression: SNAPPY
+    +format: PARQUET
     census:
       +schema: census
     default:

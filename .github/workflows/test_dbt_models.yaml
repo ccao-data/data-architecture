@@ -23,3 +23,29 @@ jobs:
         run: dbt test --target "$TARGET"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
+
+      - name: Create failure notification body
+        id: create-message
+        if: failure()
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S")
+          {
+            echo "notification_subject=dbt tests failed for workflow run: $GITHUB_RUN_ID UTC"
+            echo "notification_body<<EOF"
+            echo "dbt tests failed for workflow $GITHUB_RUN_ID, run on $TIMESTAMP"
+            echo ""
+            echo "Link to failing workflow: \
+          https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: Send SNS failure notification
+        if: failure()
+        id: send-message
+        run: >
+          aws sns publish \
+            --topic-arn ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }} \
+            --subject "${{ steps.create-message.outputs.notification_subject }}" \
+            --message "${{ steps.create-message.outputs.notification_body }}"
+        shell: bash
