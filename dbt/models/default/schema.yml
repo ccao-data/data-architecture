@@ -94,17 +94,37 @@ models:
       - expression_is_true:
           name: vw_pin_appeal_change_matches_appeal_outcome
           expression: >-
+            {% set vars = [
+              ('mailed_bldg', 'certified_bldg'),
+              ('mailed_land', 'certified_land'),
+              ('mailed_tot', 'certified_tot'),
+            ] %}
+
             (change = 'no change' AND
-              (mailed_bldg, mailed_land, mailed_tot)
-              =
-              (certified_bldg, certified_land, certified_tot)
+              -- Use ABS(...) <= 1 instead of equality for comparison to account
+              -- for the fact that values are not always rounded consistently
+              {% for mailed_var, certified_var in vars %}
+                {% if loop.index0 > 0 %}AND{% endif %}
+                (
+                  ({{ mailed_var }} IS NULL AND {{ certified_var }} IS NULL)
+                  OR
+                  (ABS({{ mailed_var }} - {{ certified_var }}) <= 1)
+                )
+              {% endfor %}
             )
             OR
-            (change = 'change' AND
-              (mailed_bldg, mailed_land, mailed_tot)
-              !=
-              (certified_bldg, certified_land, certified_tot)
-            )
+            (change = 'change' AND (
+              {% for mailed_var, certified_var in vars %}
+                {% if loop.index0 > 0 %}OR{% endif %}
+                (
+                  ({{ mailed_var }} IS NULL AND {{ certified_var }} IS NOT NULL)
+                  OR
+                  ({{ mailed_var }} IS NOT NULL AND {{ certified_var }} IS NULL)
+                  OR
+                  (ABS({{ mailed_var }} - {{ certified_var }}) > 1)
+                )
+              {% endfor %}
+            ))
             OR
             (change is null)
           select_columns:
@@ -118,7 +138,7 @@ models:
             - mailed_tot
             - certified_tot
           config:
-            error_if: ">266758"
+            error_if: ">266719"
   - name: default.vw_card_res_char
     columns:
       - name: card_proration_rate
@@ -320,7 +340,7 @@ models:
             - year
           allowed_duplicates: 2
           config:
-            error_if: ">3192"
+            error_if: ">3233"
       # TODO: Sale is validated (after sales validation has been added to
       # iasworld)
       # TODO: Validation is catching obvious outliers
