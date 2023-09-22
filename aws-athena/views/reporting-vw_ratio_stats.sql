@@ -17,6 +17,8 @@ WITH classes AS (
                 THEN 'SF'
         END AS property_group
     FROM {{ source('iasworld', 'pardat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
 ),
 
 townships AS (
@@ -25,6 +27,8 @@ townships AS (
         leg.taxyr,
         leg.user1 AS township_code
     FROM {{ source('iasworld', 'legdat') }} AS leg
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
 ),
 
 town_names AS (

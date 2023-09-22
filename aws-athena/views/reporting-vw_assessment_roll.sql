@@ -53,6 +53,8 @@ classes AS (
             ELSE SUBSTR(class, 1, 1)
         END AS class
     FROM {{ source('iasworld', 'pardat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
 ),
 
 -- Add townships
@@ -62,6 +64,8 @@ townships AS (
         taxyr,
         user1 AS township_code
     FROM {{ source('iasworld', 'legdat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
 ),
 
 -- Add township name

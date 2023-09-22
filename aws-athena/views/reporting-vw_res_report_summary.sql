@@ -42,6 +42,10 @@ WITH town_class AS (
         AND par.taxyr = leg.taxyr
     LEFT JOIN {{ source('spatial', 'township') }} AS town
         ON leg.user1 = town.township_code
+    WHERE par.cur = 'Y'
+        AND par.deactivat IS NULL
+        AND leg.cur = 'Y'
+        AND leg.deactivat IS NULL
 ),
 
 -- Final model values (Add 1 to model year since '2021' correspond to '2022'
@@ -205,6 +209,8 @@ chars AS (
         MIN(yrblt) AS yrblt,
         SUM(sfla) AS total_bldg_sf
     FROM {{ source('iasworld', 'dweldat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
     GROUP BY parid, taxyr
     UNION
     SELECT

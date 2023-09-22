@@ -144,7 +144,6 @@ LEFT JOIN aggregate_land
 LEFT JOIN townships
     ON dwel.parid = townships.parid
     AND dwel.taxyr = townships.taxyr
-
 WHERE dwel.cur = 'Y'
     AND dwel.deactivat IS NULL
     AND pardat.cur = 'Y'
