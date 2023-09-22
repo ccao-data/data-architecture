@@ -147,4 +147,4 @@ LEFT JOIN townships
 WHERE dwel.cur = 'Y'
     AND dwel.deactivat IS NULL
     AND pardat.cur = 'Y'
-    AND pardat.deacivat IS NULL
+    AND pardat.deactivat IS NULL
