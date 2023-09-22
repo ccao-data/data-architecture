@@ -4,21 +4,21 @@
 -- Valuation class from pardat
 WITH classes AS (
     SELECT
-        parid,
-        taxyr,
-        class,
-        CASE WHEN class IN ('299', '399') THEN 'CONDO'
-            WHEN class IN ('211', '212') THEN 'MF'
+        par.parid,
+        par.taxyr,
+        par.class,
+        CASE WHEN par.class IN ('299', '399') THEN 'CONDO'
+            WHEN par.class IN ('211', '212') THEN 'MF'
             WHEN
-                class IN (
+                par.class IN (
                     '202', '203', '204', '205', '206', '207',
                     '208', '209', '210', '234', '278', '295'
                 )
                 THEN 'SF'
         END AS property_group
-    FROM {{ source('iasworld', 'pardat') }}
-    WHERE cur = 'Y'
-        AND deactivat IS NULL
+    FROM {{ source('iasworld', 'pardat') }} AS par
+    WHERE par.cur = 'Y'
+        AND par.deactivat IS NULL
 ),
 
 townships AS (
@@ -27,8 +27,8 @@ townships AS (
         leg.taxyr,
         leg.user1 AS township_code
     FROM {{ source('iasworld', 'legdat') }} AS leg
-    WHERE cur = 'Y'
-        AND deactivat IS NULL
+    WHERE leg.cur = 'Y'
+        AND leg.deactivat IS NULL
 ),
 
 town_names AS (
