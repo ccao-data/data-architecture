@@ -32,6 +32,8 @@ sqft_percentiles AS (
     FROM {{ ref('default.vw_card_res_char') }} AS ch
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
         ON ch.pin = leg.parid AND ch.year = leg.taxyr
+    WHERE leg.cur = 'Y'
+        and leg.deactivat IS NULL
     GROUP BY ch.year, leg.user1
 ),
 
