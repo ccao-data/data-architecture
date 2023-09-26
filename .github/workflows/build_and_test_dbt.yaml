@@ -9,10 +9,11 @@ on:
   workflow_dispatch:
     inputs:
       models:
+        required: true
         description: >
           A space-separated list of dbt models to build.
           Prefix with the + sign to rebuild upstream models
-        default: default.vw_pin_sale default.vw_pin_universe
+        default: 'default.vw_pin_sale default.vw_pin_universe'
         type: string
 
 jobs:
@@ -40,19 +41,17 @@ jobs:
           path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
           key: ${{ env.CACHE_KEY }}
 
-      - if: steps.cache.outputs.cache-hit == 'true'
-        name: Set command args to build/test modified resources
-        run: echo "MODIFIED_RESOURCES_ONLY=true" >> "$GITHUB_ENV"
-        shell: bash
+        name: Set command args for building/testing resources
+        run: |
+          if [[ ${{ steps.cache.outputs.cache-hit == 'true' }} ]]; then
+            echo "MODIFIED_RESOURCES_ONLY=true" >> "$GITHUB_ENV"
+          else
+            echo "MODIFIED_RESOURCES_ONLY=false" >> "$GITHUB_ENV"
+          fi
 
-      - if: steps.cache.outputs.cache-hit != 'true'
-        name: Set command args to build/test all resources
-        run: echo "MODIFIED_RESOURCES_ONLY=false" >> "$GITHUB_ENV"
-        shell: bash
-
-      - if: inputs.models != '' && github.event_name == 'workflow_dispatch'
-        name: Set command args for manually dispatched workflow
-        run: echo "MANUALLY_DISPATCHED=true" >> "$GITHUB_ENV"
+          if [[ ${{ github.event_name == 'workflow_dispatch' }} ]]; then
+              echo "MANUALLY_DISPATCHED=true" >> "$GITHUB_ENV"
+          fi
         shell: bash
 
       - name: Test dbt macros
