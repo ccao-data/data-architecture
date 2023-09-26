@@ -150,6 +150,6 @@ LEFT JOIN
 LEFT JOIN {{ ref('proximity.dist_pin_to_water') }} AS dist_pin_to_water
     ON pin.pin10 = dist_pin_to_water.pin10
     AND pin.year = dist_pin_to_water.year
-LEFT JOIN {{ source('proximity', 'dist_pin_to_pin') }} AS dist_pin_to_pin
+LEFT JOIN {{ ref('proximity.dist_pin_to_pin') }} AS dist_pin_to_pin
     ON pin.pin10 = dist_pin_to_pin.pin10
     AND pin.year = dist_pin_to_pin.year
