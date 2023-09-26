@@ -5,6 +5,8 @@ WITH all_pins AS (
     SELECT DISTINCT parid
     FROM {{ source('iasworld', 'pardat') }}
     WHERE taxyr = CAST(YEAR(CURRENT_DATE) AS VARCHAR)
+        AND cur = 'Y'
+        AND deactivat IS NULL
 ),
 
 -- Order PINs by sale date descending and rank them
