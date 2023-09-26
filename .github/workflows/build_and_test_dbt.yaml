@@ -41,7 +41,7 @@ jobs:
           path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
           key: ${{ env.CACHE_KEY }}
 
-        name: Set command args for building/testing resources
+      - name: Set command args for building/testing resources
         run: |
           if [[ ${{ steps.cache.outputs.cache-hit == 'true' }} ]]; then
             echo "MODIFIED_RESOURCES_ONLY=true" >> "$GITHUB_ENV"
