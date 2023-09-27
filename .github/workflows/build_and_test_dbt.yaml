@@ -45,8 +45,6 @@ jobs:
         run: |
           if [[ $CACHE_HIT == 'true' ]]; then
             echo "MODIFIED_RESOURCES_ONLY=true" >> "$GITHUB_ENV"
-          else
-            echo "MODIFIED_RESOURCES_ONLY=false" >> "$GITHUB_ENV"
           fi
           if [[ $EVENT_NAME == 'workflow_dispatch' ]]; then
               echo "MANUALLY_DISPATCHED=true" >> "$GITHUB_ENV"
