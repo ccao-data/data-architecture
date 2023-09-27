@@ -137,7 +137,7 @@ def ccao_median(x):
     median_n = sum(no_outliers)
 
     median_val = np.median(x_no_outliers)
-    median_ci = median_boot(x, nboot=1000)
+    median_ci = median_boot(x_no_outliers, nboot=1000)
     median_ci = f"{median_ci[0]}, {median_ci[1]}"
 
     out = [median_val, median_ci, median_n]
