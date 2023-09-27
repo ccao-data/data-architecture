@@ -10,9 +10,7 @@ on:
     inputs:
       models:
         required: true
-        description: >
-          A space-separated list of dbt models to build.
-          Prefix with the + sign to rebuild upstream models
+        description: A space-separated list of dbt models
         default: 'default.vw_pin_sale default.vw_pin_universe'
         type: string
 
