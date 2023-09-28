@@ -1,7 +1,9 @@
 ---
 name: Add a new dbt model
-description: Request the addition of a new model to the dbt DAG.
+about: Request the addition of a new model to the dbt DAG.
 title: Add a new dbt model
+labels: ''
+assignees: ''
 ---
 
 _(Replace or delete anything in parentheses with your own issue content.)_
