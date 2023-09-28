@@ -140,18 +140,30 @@ models:
 
 - [ ] Add a symlink from the appropriate subfolder of the `dbt/models/`
   directory to the SQL query you created in the `aws-athena/` directory.
-  Make sure to change into the subdirectory of `dbt/models/` that will
-  store the symlink before running this command so that the link can
-  properly follow the relative path to the target.
+  Note that the path for the target file in the `aws-athena/` directory
+  needs to be relative to the location of the symlink, _not_ to the
+  location of the working directory where you run the `ln` command;
+  as a result, the path to the target file in the `aws-athena/` directory
+  will not autocomplete in your shell as it usually does when you use
+  the tab key.
 
 ```bash
 # View example
-cd dbt/models/default
-ln -s ../../../aws-athena/views/default-vw_new_model.sql default.vw_new_model.sql
+ln -s ../../../aws-athena/views/default-vw_new_model.sql dbt/models/default/default.vw_new_model.sql
 
 # Table example
-cd dbt/models/default
-ln -s ../../../aws-athena/ctas/default-new_model.sql default.new_model.sql
+ln -s ../../../aws-athena/ctas/default-new_model.sql dbt/models/default/default.new_model.sql
+```
+
+- [ ] The `ln` command won't raise an error if the link it creates is invalid,
+  so use `cat` to confirm that the link is pointing to the correct file.
+
+```bash
+# View example
+cat dbt/models/default/default.vw_new_model.sql
+
+# Table example
+dbt/models/default/default.new_model.sql
 ```
 
 - [ ] Add or edit the docs file for the `dbt/models/` subdirectory your symlink
