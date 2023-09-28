@@ -140,13 +140,18 @@ models:
 
 - [ ] Add a symlink from the appropriate subfolder of the `dbt/models/`
   directory to the SQL query you created in the `aws-athena/` directory.
+  Make sure to change into the subdirectory of `dbt/models/` that will
+  store the symlink before running this command so that the link can
+  properly follow the relative path to the target.
 
 ```bash
 # View example
-ln -s aws-athena/views/default-vw_new_model.sql dbt/models/default/default.vw_new_model.sql
+cd dbt/models/default
+ln -s ../../../aws-athena/views/default-vw_new_model.sql default.vw_new_model.sql
 
 # Table example
-ln -s aws-athena/ctas/default-new_model.sql dbt/models/default/default.new_model.sql
+cd dbt/models/default
+ln -s ../../../aws-athena/ctas/default-new_model.sql default.new_model.sql
 ```
 
 - [ ] Add or edit the docs file for the `dbt/models/` subdirectory your symlink
