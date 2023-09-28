@@ -163,7 +163,7 @@ ln -s ../../../aws-athena/ctas/default-new_model.sql dbt/models/default/default.
 cat dbt/models/default/default.vw_new_model.sql
 
 # Table example
-dbt/models/default/default.new_model.sql
+cat dbt/models/default/default.new_model.sql
 ```
 
 - [ ] Add or edit the docs file for the `dbt/models/` subdirectory your symlink
