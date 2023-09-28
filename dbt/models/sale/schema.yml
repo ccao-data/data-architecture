@@ -1,0 +1,9 @@
+models:
+  - name: sale.vw_ias_salesval_upload
+    description: '{{doc("vw_ias_salesval_upload")}}' 
+    columns:
+      - name: salekey
+      - name: sv_is_outlier
+      - name: sv_outlier_type
+      - name: analyst_override
+      - name: run_id

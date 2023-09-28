@@ -44,3 +44,5 @@ models:
       +schema: reporting
     rpie:
       +schema: rpie
+    sale:
+      +schema: sale
