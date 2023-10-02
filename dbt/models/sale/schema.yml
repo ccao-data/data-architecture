@@ -5,5 +5,4 @@ models:
       - name: salekey
       - name: sv_is_outlier
       - name: sv_outlier_type
-      - name: analyst_override
       - name: run_id
