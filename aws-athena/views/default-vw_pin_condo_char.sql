@@ -314,7 +314,7 @@ SELECT DISTINCT
             OR vph.oneyr_pri_board_tot BETWEEN 10 AND 1000
             OR nonlivable.flag = 'negative pred'
         )
-        AND nonlivable.flag != 'questionable'
+        AND (nonlivable.flag != 'questionable' OR nonlivable.flag IS NULL)
             THEN 1
         ELSE 0
     END)
@@ -346,7 +346,7 @@ SELECT DISTINCT
         OR vph.oneyr_pri_board_tot BETWEEN 10 AND 1000
         OR nonlivable.flag = 'negative pred'
     )
-    AND nonlivable.flag != 'questionable',
+    AND (nonlivable.flag != 'questionable' OR nonlivable.flag IS NULL),
     FALSE) AS is_parking_space,
     CASE
         WHEN nonlivable.flag = 'questionable' THEN NULL
@@ -357,8 +357,11 @@ SELECT DISTINCT
             OR filled.parking_pin = TRUE
             THEN 'identified by valuations as non-unit'
         WHEN filled.cdu = 'GR' THEN 'cdu'
-        WHEN (SUBSTR(filled.unitno, 1, 1) = 'P' AND filled.unitno != 'PH')
-            OR SUBSTR(filled.unitno, 1, 3) = 'GAR' THEN 'unit number'
+        WHEN (
+            SUBSTR(filled.unitno, 1, 1) = 'P'
+            AND SUBSTR(filled.unitno, 1, 2) != 'PH'
+        )
+        OR SUBSTR(filled.unitno, 1, 3) = 'GAR' THEN 'unit number'
         -- If a unit's percent of the declaration is less than half of what
         -- it would be if all units had an equal share, AV limited
         WHEN
@@ -372,8 +375,9 @@ SELECT DISTINCT
             THEN 'prior value'
     END AS parking_space_flag_reason,
     COALESCE(vph.oneyr_pri_board_tot < 10, FALSE) AS is_common_area,
-    nonlivable.flag = 'questionable' AS is_question_garage_unit,
-    nonlivable.flag = 'negative pred' AS is_negative_pred,
+    COALESCE(nonlivable.flag = 'questionable', FALSE)
+        AS is_question_garage_unit,
+    COALESCE(nonlivable.flag = 'negative pred', FALSE) AS is_negative_pred,
     aggregate_land.pin_is_multiland,
     aggregate_land.pin_num_landlines
 
