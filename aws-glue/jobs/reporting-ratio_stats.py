@@ -1,17 +1,26 @@
-import re
-import time
+from assesspy import (
+    cod,
+    cod_ci as cod_boot,
+    cod_met,
+    detect_chasing,
+    mki,
+    mki_met,
+    prb,
+    prb_met,
+    prd,
+    prd_met, 
+    boot_ci,
+    prd_ci as prd_boot
+)
 
+from awsglue.context import GlueContext
+from awsglue.job import Job
 import boto3
 import numpy as np
 import pandas as pd
-from assesspy import boot_ci, cod
-from assesspy import cod_ci as cod_boot
-from assesspy import cod_met, detect_chasing, mki, mki_met, prb, prb_met, prd
-from assesspy import prd_ci as prd_boot
-from assesspy import prd_met
-from awsglue.context import GlueContext
-from awsglue.job import Job
 from pyspark.context import SparkContext
+import re
+import time
 
 sc = SparkContext.getOrCreate()
 glueContext = GlueContext(sc)
@@ -267,7 +276,7 @@ def report_summarise(df, geography_id, geography_type):
 
     # Remove groups with less than three observations
     df["n"] = df.groupby(group_cols)["ratio"].transform("count")
-    df = df[df["n"] > 5]
+    df = df[df["n"] > 3]
     df = df.groupby(group_cols).apply(
         lambda x: pd.Series(
             {
