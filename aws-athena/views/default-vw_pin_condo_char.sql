@@ -314,7 +314,7 @@ SELECT DISTINCT
             OR vph.oneyr_pri_board_tot BETWEEN 10 AND 1000
             OR nonlivable.flag = 'negative pred'
         )
-        AND nonlivable.flag != 'questionable'
+        AND (nonlivable.flag != 'questionable' OR nonlivable.flag IS NULL)
             THEN 1
         ELSE 0
     END)
@@ -346,7 +346,7 @@ SELECT DISTINCT
         OR vph.oneyr_pri_board_tot BETWEEN 10 AND 1000
         OR nonlivable.flag = 'negative pred'
     )
-    AND nonlivable.flag != 'questionable',
+    AND (nonlivable.flag != 'questionable' OR nonlivable.flag IS NULL),
     FALSE) AS is_parking_space,
     CASE
         WHEN nonlivable.flag = 'questionable' THEN NULL
