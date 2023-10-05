@@ -267,7 +267,7 @@ def report_summarise(df, geography_id, geography_type):
 
     # Remove groups with less than three observations
     df["n"] = df.groupby(group_cols)["ratio"].transform("count")
-    df = df[df["n"] > 2]
+    df = df[df["n"] > 5]
     df = df.groupby(group_cols).apply(
         lambda x: pd.Series(
             {
