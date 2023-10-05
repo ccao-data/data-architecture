@@ -13,4 +13,4 @@ SELECT
     sf.sv_outlier_type,
     sf.run_id
 FROM ias_sales 
-INNER JOIN {{ ref('sale.flag') }} sf ON ias_sales.instruno_clean = sf.meta_sale_document_num;
+INNER JOIN {{ source('sale', 'flag') }} sf ON ias_sales.instruno_clean = sf.meta_sale_document_num;
