@@ -2,7 +2,7 @@ WITH ias_sales AS (
     SELECT 
         salekey,
         NULLIF(REPLACE(instruno, 'D', ''), '') AS instruno_clean
-    FROM {{'iasworld', 'sales'}}
+    FROM {{ source('iasworld', 'sales') }}
     WHERE cur = 'Y'
     AND deactivat IS NULL
 )
