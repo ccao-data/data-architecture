@@ -357,8 +357,11 @@ SELECT DISTINCT
             OR filled.parking_pin = TRUE
             THEN 'identified by valuations as non-unit'
         WHEN filled.cdu = 'GR' THEN 'cdu'
-        WHEN (SUBSTR(filled.unitno, 1, 1) = 'P' AND filled.unitno != 'PH')
-            OR SUBSTR(filled.unitno, 1, 3) = 'GAR' THEN 'unit number'
+        WHEN (
+            SUBSTR(filled.unitno, 1, 1) = 'P'
+            AND SUBSTR(filled.unitno, 1, 2) != 'PH'
+        )
+        OR SUBSTR(filled.unitno, 1, 3) = 'GAR' THEN 'unit number'
         -- If a unit's percent of the declaration is less than half of what
         -- it would be if all units had an equal share, AV limited
         WHEN
