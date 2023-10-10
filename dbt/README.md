@@ -7,11 +7,11 @@ This directory stores the configuration for building our data catalog using
 
 ### In this document
 
-* [🖼️ Background: What does the data catalog do?](#background-what-does-the-data-catalog-do)
-* [🔨 How to rebuild models using GitHub Actions](#how-to-rebuild-models-using-github-actions)
-* [💻 How to develop the catalog](#how-to-develop-the-catalog)
-* [➕ How to add a new model](#how-to-add-a-new-model)
-* [🐛 Debugging tips](#debugging-tips)
+* [🖼️ Background: What does the data catalog do?](#%EF%B8%8F-background-what-does-the-data-catalog-do)
+* [🔨 How to rebuild models using GitHub Actions](#--how-to-rebuild-models-using-github-actions)
+* [💻 How to develop the catalog](#--how-to-develop-the-catalog)
+* [➕ How to add a new model](#--how-to-add-a-new-model)
+* [🐛 Debugging tips](#--debugging-tips)
 
 ### Outside this document
 
@@ -19,7 +19,7 @@ This directory stores the configuration for building our data catalog using
 * [📝 Design doc for our decision to develop our catalog with
   dbt](../documentation/design-docs/data-catalog.md)
 
-<h2 id="background-what-does-the-data-catalog-do">🖼️ Background: What does the data catalog do?</h2>
+## 🖼️ Background: What does the data catalog do?
 
 The data catalog accomplishes a few main goals:
 
@@ -79,7 +79,7 @@ our tables, views, tests, and docs. Automated tasks include:
 * Cleaning up temporary resources in our Athena warehouse whenever a pull
   request is merged into the main branch (the `cleanup-dbt-resources` workflow)
 
-<h2 id="how-to-rebuild-models-using-github-actions"> 🔨 How to rebuild models using GitHub Actions</h2>
+## 🔨 How to rebuild models using GitHub Actions
 
 GitHub Actions can be used to manually rebuild part or all of our dbt DAG.
 To use this functionality:
@@ -101,7 +101,7 @@ passed directly to `dbt run`. Model names _must include the database schema name
 
 For more possible inputs using dbt node selection, see the [documentation site](https://docs.getdbt.com/reference/node-selection/syntax#examples).
 
-<h2 id="how-to-develop-the-catalog"> 💻 How to develop the catalog </h2>
+## 💻 How to develop the catalog
 
 ### Installation
 
@@ -306,7 +306,7 @@ dbt docs serve
 
 Then, navigate to http://localhost:8080 to view the site.
 
-<h2 id="how-to-add-a-new-model"> ➕ How to add a new model </h2>
+## ➕ How to add a new model
 
 To request the addition of a new model, open an issue using the [Add a new dbt
 model](../.github/ISSUE_TEMPLATE/new-dbt-model.md) issue template. The assignee
@@ -392,7 +392,7 @@ Due to this complexity, we currently do not have a way of supporting unit
 tests, although we plan to revisit this in the future; as such, when proposing
 new tests, check to ensure that they are in fact data tests and not unit tests.
 
-<h2 id="debugging-tips"> 🐛 Debugging tips </h2>
+## 🐛 Debugging tips
 
 ### How do I debug a failing test?
 
