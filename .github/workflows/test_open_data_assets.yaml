@@ -1,15 +1,22 @@
-name: test-dbt-models
+name: test-open-data-assets
 
-on: workflow_dispatch
+on:
+  # TODO: Remove this once we've finished testing
+  pull_request:
+    branches: [master]
+  schedule:
+    # Every Monday at 9am CST (3pm UTC)
+    - cron: '0 15 * * 1'
 
 jobs:
-  test-dbt-models:
+  test-open-data-assets:
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint
     # so that we can authenticate with AWS
     permissions:
       id-token: write
       contents: read
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -19,8 +26,17 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
-      - name: Test models
-        run: dbt test --target "$TARGET"
+      - name: Install Python requirements
+        run: pip install requests
+        shell: bash
+
+      - name: Compile dbt manifest
+        run: dbt compile
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Test that open data row counts match Athena views
+        run: python3 ../.github/scripts/test_open_data_assets.py target/manifest.json
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
@@ -34,9 +50,9 @@ jobs:
         uses: ./.github/actions/publish_sns_topic
         with:
           sns_topic_arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
-          subject: "dbt tests failed for workflow run: ${{ github.run_id }}"
+          subject: "Open data asset tests failed for workflow run: ${{ github.run_id }}"
           body: |
-            dbt tests failed for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
+            Open data asset tests failed for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
 
             Link to failing workflow:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}

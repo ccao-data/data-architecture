@@ -17,6 +17,7 @@ runs:
   steps:
     - name: Mask topic ARN
       run: echo "::add-mask::${{ inputs.sns_topic_arn }}"
+      shell: bash
 
     - name: Publish SNS topic
       run: >
