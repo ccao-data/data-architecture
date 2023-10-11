@@ -4,10 +4,10 @@ import contextlib
 import datetime
 import io
 import json
-import pprint
 import sys
 import typing
 
+import agate
 import requests
 from dbt.cli.main import dbtRunner
 
@@ -27,7 +27,7 @@ def main() -> None:
     with open(dbt_manifest_path) as dbt_manifest_file:
         dbt_manifest_json = json.loads(dbt_manifest_file.read())
 
-    errors: typing.List[typing.Dict] = []
+    diffs: typing.List[typing.List[typing.Dict]] = []
 
     for exposure in dbt_manifest_json["exposures"].values():
         asset_name = exposure["label"]
@@ -62,7 +62,7 @@ def main() -> None:
                     "--args",
                     f"{{model: '{source_model_name}', print: true}}",
                     "--target",
-                    "prod"
+                    "prod",
                 ]
             )
 
@@ -72,39 +72,47 @@ def main() -> None:
 
         source_model_row_counts_by_year = json.loads(dbt_output.getvalue())
 
-        if row_counts_differ(
-            source_model_row_counts_by_year, asset_row_counts_by_year
+        if diff := diff_row_counts(
+            source_model_name,
+            source_model_row_counts_by_year,
+            asset_name,
+            asset_row_counts_by_year,
         ):
-            errors.append(
-                {
-                    source_model_name: source_model_row_counts_by_year,
-                    asset_name: asset_row_counts_by_year,
-                }
-            )
+            diffs.append(diff)
 
-    if errors:
+    if diffs:
         print()
         print(
-            "The following view/asset pairs did not have matching row "
-            "counts by year:"
+            "The following view/asset pairs had mismatching row counts "
+            "by year:"
         )
-        print()
-        for error in errors:
-            pprint.pprint(error)
+        for diff in diffs:
+            print()
+            diff_table = agate.Table.from_object(diff)
+            # Note that agate adds thousands separators to years, even when
+            # they're strings (as in our data). This is super annoying but
+            # it's still the fastest way we know to print a clean table
+            # in Python :\
+            diff_table.print_table(max_rows=None)
         print()
         raise ValueError("Open data asset test failed")
 
     print("All open data assets have the expected row counts by year!")
 
 
-def row_counts_differ(
+def diff_row_counts(
+    athena_model_name: str,
     athena_model_row_counts: typing.List[typing.Dict],
+    open_data_asset_name: str,
     open_data_asset_row_counts: typing.List[typing.Dict],
     current_year_buffer: float = BUFFER,
-) -> bool:
+) -> typing.List[typing.Dict]:
     """Check whether two lists of row count dicts are the same. Applies a
     buffer to the current year of data to account for the fact that more
     recent years may have incomplete data.
+
+    Returns a list of dicts representing the rows that differ in each
+    dataset. If no rows differ, the return value will be an empty list.
 
     Row count dicts are expected to have a "COUNT" key and a "year" key.
     The "COUNT" key should represent an integer, but it can be a string
@@ -121,13 +129,19 @@ def row_counts_differ(
 
     # Extract the current and last year since we want to apply different
     # matching rules to them
-    current_year = datetime.datetime.now().year
-    last_year = current_year - 1
-    current_year, last_year = str(current_year), str(last_year)
+    current_year_int = datetime.datetime.now().year
+    last_year_int = current_year_int - 1
+    current_year, last_year = str(current_year_int), str(last_year_int)
+
+    formatted_rows: typing.List[typing.Dict] = []
 
     for model_row_count_dict in athena_model_row_counts:
         model_year = model_row_count_dict["year"]
         model_count = model_row_count_dict["COUNT"]
+        base_formatted_row = {
+            "year": model_year,
+            athena_model_name: model_count,
+        }
 
         asset_count: int = 0
         for asset_row_count_dict in open_data_asset_row_counts:
@@ -136,7 +150,10 @@ def row_counts_differ(
                 break
         else:
             # No matching year found, so these two datasets must be different
-            return True
+            formatted_rows.append(
+                {**base_formatted_row, **{open_data_asset_name: None}}
+            )
+            continue
 
         counts_match = (
             (
@@ -147,10 +164,35 @@ def row_counts_differ(
             if model_year in [current_year, last_year]
             else asset_count == model_count
         )
-        if not counts_match:
-            return True
 
-    return False
+        if not counts_match:
+            formatted_rows.append(
+                {**base_formatted_row, **{open_data_asset_name: asset_count}}
+            )
+
+    # Reverse the comparison to check for years that are in open data, but not
+    # in the model. Note that we don't have to check for equality here, because
+    # anything that was missed in the previous iteration will be null on the
+    # model side, hence a mismatch by definition
+    for asset_row_count_dict in open_data_asset_row_counts:
+        asset_year = asset_row_count_dict["year"]
+        asset_count = asset_row_count_dict["COUNT"]
+        base_formatted_row = {}
+
+        for model_row_count_dict in athena_model_row_counts:
+            if model_row_count_dict["year"] == asset_year:
+                break
+        else:
+            # No matching year found, so these two datasets must be different
+            formatted_rows.append(
+                {
+                    "year": asset_year,
+                    athena_model_name: None,
+                    open_data_asset_name: asset_count,
+                }
+            )
+
+    return formatted_rows
 
 
 if __name__ == "__main__":
