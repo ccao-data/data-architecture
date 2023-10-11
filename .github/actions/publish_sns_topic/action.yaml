@@ -26,4 +26,3 @@ runs:
           --subject "${{ inputs.subject }}" \
           --message "${{ inputs.body }}"
       shell: bash
-

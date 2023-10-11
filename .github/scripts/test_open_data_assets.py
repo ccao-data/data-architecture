@@ -1,5 +1,16 @@
 #!/usr/bin/env python3
-# Run tests on our open data assets
+# Run tests on our open data assets to confirm that their row counts match
+# the row counts of the underlying Athena tables when grouped by year.
+#
+# Requires one positional argument, the path to a dbt manifest that can be
+# used to parse exposure data representing open data assets and their
+# dependency graph.
+#
+# Example:
+#
+#   cd dbt
+#   python3 ../.github/scripts/test_open_data_assets.py target/manifest.json
+
 import contextlib
 import datetime
 import io
@@ -119,7 +130,7 @@ def diff_row_counts(
     Row count dicts are expected to have a "COUNT" key and a "year" key.
     The "COUNT" key should represent an integer, but it can be a string
     representation of an int in the case of open_data_asset_row_counts,
-    where that is the format returned by the Socrata API.
+    since that is the format returned by the Socrata API.
     """
     # We expect these lists to already be sorted, but double-check anyway
     athena_model_row_counts = sorted(
