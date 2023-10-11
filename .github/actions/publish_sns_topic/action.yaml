@@ -1,0 +1,28 @@
+name: Publish SNS topic
+description: |
+  Publish a notification to an AWS SNS topic. Requires that AWS authentication
+  already be configured.
+inputs:
+  sns_topic_arn:
+    description: ARN of the SNS topic to publish to.
+    required: true
+  subject:
+    description: Subject for the SNS notification.
+    required: true
+  body:
+    description: Text body for the SNS notification.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Mask topic ARN
+      run: echo "::add-mask::${{ inputs.sns_topic_arn }}"
+
+    - name: Publish SNS topic
+      run: >
+        aws sns publish \
+          --topic-arn "${{ inputs.sns_topic_arn }}" \
+          --subject "${{ inputs.subject }}" \
+          --message "${{ inputs.body }}"
+      shell: bash
+
