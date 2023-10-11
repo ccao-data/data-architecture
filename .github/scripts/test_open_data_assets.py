@@ -18,7 +18,7 @@ DBT = dbtRunner()
 
 # Data for the most recent two years are permitted to be slightly different,
 # according to this buffer value
-BUFFER = 0.2
+BUFFER = 0.02
 
 
 def main() -> None:
@@ -93,7 +93,9 @@ def main() -> None:
             # they're strings (as in our data). This is super annoying but
             # it's still the fastest way we know to print a clean table
             # in Python :\
-            diff_table.print_table(max_rows=None)
+            diff_table.print_table(
+                max_rows=None, max_columns=None, max_column_width=None
+            )
         print()
         raise ValueError("Open data asset test failed")
 
