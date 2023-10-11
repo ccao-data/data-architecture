@@ -1,12 +1,13 @@
 name: test-open-data-assets
 
 on:
-  # TODO: Remove this once we've finished testing
-  pull_request:
-    branches: [master]
   schedule:
-    # Every Monday at 9am CST (3pm UTC)
-    - cron: '0 15 * * 1'
+    # Every third day of the month at 9am CST (3pm UTC). This schedule
+    # makes sense since most of our assets are configured to refresh on the
+    # first day of the month. Some assets have a biweekly schedule such
+    # that they also refresh in the middle of the month, but we ignore that
+    # in order to make scheduling simpler.
+    - cron: '0 15 3 * *'
 
 jobs:
   test-open-data-assets:
@@ -16,7 +17,6 @@ jobs:
     permissions:
       id-token: write
       contents: read
-
     steps:
       - name: Checkout
         uses: actions/checkout@v3
