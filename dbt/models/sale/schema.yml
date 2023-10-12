@@ -1,0 +1,8 @@
+sources:
+  - name: sale
+    tables:
+      - name: flag
+      
+models:
+  - name: sale.vw_ias_salesval_upload
+    description: '{{ doc("vw_ias_salesval_upload") }}'
