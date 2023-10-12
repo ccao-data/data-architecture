@@ -7,6 +7,8 @@ WITH multicodes AS (
         COALESCE(COUNT(*) > 1, FALSE) AS pin_is_multicard,
         COUNT(*) AS pin_num_cards
     FROM {{ source('iasworld', 'dweldat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
     GROUP BY parid, taxyr
 ),
 
@@ -26,6 +28,8 @@ townships AS (
         taxyr,
         user1 AS township_code
     FROM {{ source('iasworld', 'legdat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
 )
 
 SELECT
@@ -140,3 +144,7 @@ LEFT JOIN aggregate_land
 LEFT JOIN townships
     ON dwel.parid = townships.parid
     AND dwel.taxyr = townships.taxyr
+WHERE dwel.cur = 'Y'
+    AND dwel.deactivat IS NULL
+    AND pardat.cur = 'Y'
+    AND pardat.deactivat IS NULL

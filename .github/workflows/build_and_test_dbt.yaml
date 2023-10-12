@@ -6,6 +6,14 @@ on:
   push:
     branches: [master]
 
+  workflow_dispatch:
+    inputs:
+      models:
+        required: true
+        description: A space-separated list of dbt models
+        default: 'default.vw_pin_sale default.vw_pin_universe'
+        type: string
+
 jobs:
   build-and-test-dbt:
     runs-on: ubuntu-latest
@@ -31,15 +39,18 @@ jobs:
           path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
           key: ${{ env.CACHE_KEY }}
 
-      - if: steps.cache.outputs.cache-hit == 'true'
-        name: Set command args to build/test modified resources
-        run: echo "MODIFIED_RESOURCES_ONLY=true" >> "$GITHUB_ENV"
+      - name: Set command args for building/testing resources
+        run: |
+          if [[ $CACHE_HIT == 'true' ]]; then
+            echo "MODIFIED_RESOURCES_ONLY=true" >> "$GITHUB_ENV"
+          fi
+          if [[ $EVENT_NAME == 'workflow_dispatch' ]]; then
+              echo "MANUALLY_DISPATCHED=true" >> "$GITHUB_ENV"
+          fi
         shell: bash
-
-      - if: steps.cache.outputs.cache-hit != 'true'
-        name: Set command args to build/test all resources
-        run: echo "MODIFIED_RESOURCES_ONLY=false" >> "$GITHUB_ENV"
-        shell: bash
+        env:
+          CACHE_HIT: ${{ steps.cache.outputs.cache-hit }}
+          EVENT_NAME: ${{ github.event_name }}
 
       - name: Test dbt macros
         run: dbt run-operation test_all
@@ -49,8 +60,13 @@ jobs:
       - name: Build models
         run: |
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
-            echo "Running build on modified/new resources only"
-            dbt run -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR"
+            if [[ $MANUALLY_DISPATCHED == 'true' ]]; then
+              echo "Running build on manually selected resources"
+              dbt run -t "$TARGET" -s ${{ inputs.models }} --defer --state "$STATE_DIR"
+            else
+              echo "Running build on modified/new resources only"
+              dbt run -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR"
+            fi
           else
             echo "Running build on all resources"
             dbt run -t "$TARGET"
@@ -61,8 +77,13 @@ jobs:
       - name: Test models
         run: |
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
-            echo "Running tests on modified/new resources only"
-            dbt test -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR"
+            if [[ $MANUALLY_DISPATCHED == 'true' ]]; then
+              echo "Running tests on manually selected resources"
+              dbt test -t "$TARGET" -s ${{ inputs.models }} --defer --state "$STATE_DIR"
+            else
+              echo "Running tests on modified/new resources only"
+              dbt test -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR"
+            fi
           else
             echo "Running tests on all resources"
             dbt test -t "$TARGET"
@@ -70,7 +91,7 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
-      - if: github.ref == 'refs/heads/master'
+      - if: github.ref == 'refs/heads/master' && success()
         name: Update dbt state cache
         uses: ./.github/actions/save_dbt_cache
         with:

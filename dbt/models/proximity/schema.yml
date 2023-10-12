@@ -1,11 +1,6 @@
 version: 2
 
 
-sources:
-  - name: proximity
-    tables:
-      - name: dist_pin_to_pin
-
 models:
   - name: proximity.cnt_pin_num_bus_stop
   - name: proximity.cnt_pin_num_foreclosure
@@ -22,6 +17,12 @@ models:
   - name: proximity.dist_pin_to_metra_route
   - name: proximity.dist_pin_to_metra_stop
   - name: proximity.dist_pin_to_park
+  - name: proximity.dist_pin_to_pin
+    description: '{{ doc("dist_pin_to_pin") }}'
+  - name: proximity.dist_pin_to_pin_1km
+    description: '{{ doc("dist_pin_to_pin_intermediate") }}'
+  - name: proximity.dist_pin_to_pin_10km
+    description: '{{ doc("dist_pin_to_pin_intermediate") }}'
   - name: proximity.dist_pin_to_railroad
   - name: proximity.dist_pin_to_water
   - name: proximity.vw_pin10_proximity

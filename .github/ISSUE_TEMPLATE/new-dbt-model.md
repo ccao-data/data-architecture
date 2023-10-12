@@ -1,7 +1,9 @@
 ---
 name: Add a new dbt model
-description: Request the addition of a new model to the dbt DAG.
+about: Request the addition of a new model to the dbt DAG.
 title: Add a new dbt model
+labels: ''
+assignees: ''
 ---
 
 _(Replace or delete anything in parentheses with your own issue content.)_
@@ -138,13 +140,30 @@ models:
 
 - [ ] Add a symlink from the appropriate subfolder of the `dbt/models/`
   directory to the SQL query you created in the `aws-athena/` directory.
+  Note that the path for the target file in the `aws-athena/` directory
+  needs to be relative to the location of the symlink, _not_ to the
+  location of the working directory where you run the `ln` command;
+  as a result, the path to the target file in the `aws-athena/` directory
+  will not autocomplete in your shell as it usually does when you use
+  the tab key.
 
 ```bash
 # View example
-ln -s aws-athena/views/default-vw_new_model.sql dbt/models/default/default.vw_new_model.sql
+ln -s ../../../aws-athena/views/default-vw_new_model.sql dbt/models/default/default.vw_new_model.sql
 
 # Table example
-ln -s aws-athena/ctas/default-new_model.sql dbt/models/default/default.new_model.sql
+ln -s ../../../aws-athena/ctas/default-new_model.sql dbt/models/default/default.new_model.sql
+```
+
+- [ ] The `ln` command won't raise an error if the link it creates is invalid,
+  so use `cat` to confirm that the link is pointing to the correct file.
+
+```bash
+# View example
+cat dbt/models/default/default.vw_new_model.sql
+
+# Table example
+cat dbt/models/default/default.new_model.sql
 ```
 
 - [ ] Add or edit the docs file for the `dbt/models/` subdirectory your symlink

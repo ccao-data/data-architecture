@@ -1,1 +1,0 @@
-../../../aws-athena/views/reporting-vw_most_recent_boundary.sql

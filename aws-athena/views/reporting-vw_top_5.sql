@@ -29,6 +29,8 @@ classes AS (
         ), '') AS address,
         cityname AS city
     FROM {{ source('iasworld', 'pardat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
 ),
 
 -- Add townships
@@ -38,6 +40,8 @@ townships AS (
         taxyr,
         user1 AS township_code
     FROM {{ source('iasworld', 'legdat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
 ),
 
 -- Add township name
@@ -59,6 +63,8 @@ taxpayers AS (
             own1, own2
         ), '') AS owner_name
     FROM {{ source('iasworld', 'owndat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
 ),
 
 -- Create ranks

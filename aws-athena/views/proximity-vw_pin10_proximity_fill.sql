@@ -148,7 +148,7 @@ LEFT JOIN
 LEFT JOIN {{ ref('proximity.dist_pin_to_park') }} AS dist_pin_to_park
     ON pin.pin10 = dist_pin_to_park.pin10
     AND cyf.nearest_park_data_year = dist_pin_to_park.year
-LEFT JOIN {{ source('proximity', 'dist_pin_to_pin') }} AS dist_pin_to_pin
+LEFT JOIN {{ ref('proximity.dist_pin_to_pin') }} AS dist_pin_to_pin
     ON pin.pin10 = dist_pin_to_pin.pin10
     AND cyf.year = dist_pin_to_pin.year -- NOTE, doesn't need to be filled
 LEFT JOIN

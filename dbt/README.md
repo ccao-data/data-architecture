@@ -7,11 +7,11 @@ This directory stores the configuration for building our data catalog using
 
 ### In this document
 
-* [🖼️ Background: What does the data catalog
-  do?](#background-what-does-the-data-catalog-do)
-* [💻 How to develop the catalog](#how-to-develop-the-catalog)
-* [➕ How to add a new model](#how-to-add-a-new-model)
-* [🐛 Debugging tips](#debugging-tips)
+* [🖼️ Background: What does the data catalog do?](#%EF%B8%8F-background-what-does-the-data-catalog-do)
+* [🔨 How to rebuild models using GitHub Actions](#-how-to-rebuild-models-using-github-actions)
+* [💻 How to develop the catalog](#-how-to-develop-the-catalog)
+* [➕ How to add a new model](#-how-to-add-a-new-model)
+* [🐛 Debugging tips](#-debugging-tips)
 
 ### Outside this document
 
@@ -19,7 +19,7 @@ This directory stores the configuration for building our data catalog using
 * [📝 Design doc for our decision to develop our catalog with
   dbt](../documentation/design-docs/data-catalog.md)
 
-<h2 id="background-what-does-the-data-catalog-do">🖼️ Background: What does the data catalog do?</h2>
+## 🖼️ Background: What does the data catalog do?
 
 The data catalog accomplishes a few main goals:
 
@@ -79,7 +79,29 @@ our tables, views, tests, and docs. Automated tasks include:
 * Cleaning up temporary resources in our Athena warehouse whenever a pull
   request is merged into the main branch (the `cleanup-dbt-resources` workflow)
 
-<h2 id="how-to-develop-the-catalog"> 💻 How to develop the catalog </h2>
+## 🔨 How to rebuild models using GitHub Actions
+
+GitHub Actions can be used to manually rebuild part or all of our dbt DAG.
+To use this functionality:
+
+- Go to the `build-and-test-dbt` [workflow page](https://github.com/ccao-data/data-architecture/actions/workflows/build_and_test_dbt.yaml)
+- Click the **Run workflow** dropdown on the right-hand side of the screen
+- Populate the input box following the instructions below
+- Click **Run workflow**, then click the created workflow run to view progress
+
+The workflow input box expects a space-separated list of dbt model names or selectors.
+Multiple models can be passed at the same time, as the input box values are
+passed directly to `dbt run`. Model names _must include the database schema name_. Some possible inputs include:
+
+- `default.vw_pin_sale` - Rebuild a single view
+- `default.vw_pin_sale default.vw_pin_universe` - Rebuild two views at once
+- `+default.vw_pin_history` - Rebuild a view and all its upstream dependencies
+- `location.*` - Rebuild all views under the `location` schema
+- `path:models` - Rebuild the full DAG (:warning: takes a long time!)
+
+For more possible inputs using dbt node selection, see the [documentation site](https://docs.getdbt.com/reference/node-selection/syntax#examples).
+
+## 💻 How to develop the catalog
 
 ### Installation
 
@@ -284,7 +306,7 @@ dbt docs serve
 
 Then, navigate to http://localhost:8080 to view the site.
 
-<h3 id="how-to-add-a-new-model"> ➕ How to add a new model </h3>
+## ➕ How to add a new model
 
 To request the addition of a new model, open an issue using the [Add a new dbt
 model](../.github/ISSUE_TEMPLATE/new-dbt-model.md) issue template. The assignee
@@ -294,7 +316,7 @@ to the DAG.
 There are a few subtleties to consider when requesting a new model, outlined
 below.
 
-#### Model materialization
+### Model materialization
 
 There are a number of different ways of materializing tables in Athena
 using dbt; see the [dbt
@@ -313,7 +335,7 @@ by another model that is itself computationally intensive.
 Our DAG is configured to materialize models as views by default, so
 extra configuration is only required for non-view materialization.
 
-#### Model naming
+### Model naming
 
 Models should be namespaced according to the database that the model lives in
 (e.g. `location.tax` for the `tax` table in the `location` database.) Since
@@ -328,7 +350,7 @@ In addition to database namespacing, views should be named with a `vw_` prefix
 require any prefix (e.g. `location.tax`).
 Finally, for the sake of consistency and ease of interpretation, all tables and views should be named using the singular case e.g. `location.tax` rather than `location.taxes`.
 
-#### Model description
+### Model description
 
 All new models should include, at minimum, a
 [description](https://docs.getdbt.com/reference/resource-properties/description)
@@ -344,7 +366,7 @@ context of the "Columns" table.
 Any documentation for a column beyond its basic summary should be stored in
 a `meta.notes` attribute on the column.
 
-#### Model tests
+### Model tests
 
 Any assumptions underlying the new model should be documented in the form of
 [dbt tests](https://docs.getdbt.com/docs/build/tests). We prefer adding tests
@@ -370,7 +392,7 @@ Due to this complexity, we currently do not have a way of supporting unit
 tests, although we plan to revisit this in the future; as such, when proposing
 new tests, check to ensure that they are in fact data tests and not unit tests.
 
-<h2 id="debugging-tips"> 🐛 Debugging tips </h2>
+## 🐛 Debugging tips
 
 ### How do I debug a failing test?
 
