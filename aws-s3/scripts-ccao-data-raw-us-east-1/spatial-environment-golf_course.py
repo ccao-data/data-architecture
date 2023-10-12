@@ -43,17 +43,19 @@ osm_df = osm_df.to_crs(3435)
 osm_df = osm_df[~osm_df["description"].str.contains("indoor", na=False)]
 osm_df = osm_df.rename(columns={"@id": "id"})
 
-# Universe of PINs which have a golf course class (535) from the "Assessor - Parcel Universe", year 2021
+# Universe of PINs which have a golf course class (535) from the "Assessor -
+# Parcel Universe", year 2021
 parcel_uni_res = requests.get(
-    "https://datacatalog.cookcountyil.gov/resource/tx2p-k2g9.json?class=535&year=2021&$select=pin10"
+    "https://datacatalog.cookcountyil.gov/resource/tx2p-k2g9.json"
+    "?class=535&year=2021&$select=pin10"
 )
 parcel_uni_df = pd.DataFrame.from_dict(parcel_uni_res.json())
 
-# Use the list of class 535 PINs from the parcel universe to get the parcel polygons from
-# Cook County's parcel shapefile
+# Use the list of class 535 PINs from the parcel universe to get the parcel
+# polygons from Cook County's parcel shapefile
 query_string = (
-    "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?$where=PIN10 in"
-    + str(tuple(parcel_uni_df.pin10.tolist()))
+    "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson"
+    "?$where=PIN10 in" + str(tuple(parcel_uni_df.pin10.tolist()))
 )
 
 parcel_shp_res = requests.get(query_string)
@@ -62,7 +64,9 @@ parcel_shp_df = parcel_shp_df.set_crs(4326)
 parcel_shp_df = parcel_shp_df.to_crs(3435)
 
 # Keep any polygons that exist in both OSM and the Assessor parcel shapefile
-overlap_osm_df = gpd.sjoin(osm_df, parcel_shp_df, how="inner", predicate="contains")
+overlap_osm_df = gpd.sjoin(
+    osm_df, parcel_shp_df, how="inner", predicate="contains"
+)
 
 # Rename the column and drop the duplicate to merge with overlap_osm_df
 overlap_osm_df = overlap_osm_df.rename(columns={"@id": "id"})
@@ -70,9 +74,16 @@ overlap_osm_df = overlap_osm_df["id"].drop_duplicates()
 
 # Keep anything in OSM that is NOT in the parcel shapefile
 no_overlap_osm_df = pd.merge(
-    osm_df, overlap_osm_df, how="outer", left_on="id", right_on="id", indicator=True
+    osm_df,
+    overlap_osm_df,
+    how="outer",
+    left_on="id",
+    right_on="id",
+    indicator=True,
 )
-no_overlap_osm_df = no_overlap_osm_df.loc[no_overlap_osm_df["_merge"] == "left_only"]
+no_overlap_osm_df = no_overlap_osm_df.loc[
+    no_overlap_osm_df["_merge"] == "left_only"
+]
 no_overlap_osm_df = no_overlap_osm_df.loc[
     ~no_overlap_osm_df.id.isin(["way/231037058", "way/1025843449"])
 ]["id"]
@@ -81,7 +92,9 @@ no_overlap_osm_df = no_overlap_osm_df.loc[
 parcel_shp_df_no_osm = gpd.sjoin(
     parcel_shp_df, osm_df[["id", "geometry"]], how="left", predicate="within"
 )
-parcel_shp_df_no_osm = parcel_shp_df_no_osm.loc[parcel_shp_df_no_osm["id"].isnull()]
+parcel_shp_df_no_osm = parcel_shp_df_no_osm.loc[
+    parcel_shp_df_no_osm["id"].isnull()
+]
 parcel_shp_df_no_osm = parcel_shp_df_no_osm.drop_duplicates(
     subset=["pin10"], keep=False
 )
@@ -216,8 +229,8 @@ parcel_shp_df_no_osm_file = parcel_shp_df_no_osm.loc[
     parcel_shp_df_no_osm.pin10.isin(parcel_shp_pins_to_keep)
 ]
 
-# Concatenate 3 data sources (OSM overlapping with parcels, OSM not overlapping with parcels,
-# and manually reviewed parcels)
+# Concatenate 3 data sources (OSM overlapping with parcels, OSM not overlapping
+# with parcels, and manually reviewed parcels)
 osm_df_concat = pd.concat([overlap_osm_df, no_overlap_osm_df])
 osm_df_concat = gpd.GeoDataFrame(osm_df_concat)
 
@@ -230,10 +243,16 @@ osm_df_concat = pd.DataFrame(osm_df_concat).merge(
 df_final = pd.concat([osm_df_concat, parcel_shp_fil])
 
 # Save concatenated data to a single geojson file with 1 column (ID)
-gdf_final = gpd.GeoDataFrame(df_final, geometry="geometry", crs=3435).to_crs(4326)
+gdf_final = gpd.GeoDataFrame(df_final, geometry="geometry", crs=3435).to_crs(
+    4326
+)
 gdf_final.to_file("/tmp/golf_course.geojson", driver="GeoJSON")
 
 # Write file to S3
 AWS_S3_RAW_BUCKET = os.environ.get("AWS_S3_RAW_BUCKET")
-output_path = os.path.join("spatial", "environment", "golf_course", "2022.geojson")
-s3_client.upload_file("/tmp/golf_course.geojson", AWS_S3_RAW_BUCKET, output_path)
+output_path = os.path.join(
+    "spatial", "environment", "golf_course", "2022.geojson"
+)
+s3_client.upload_file(
+    "/tmp/golf_course.geojson", AWS_S3_RAW_BUCKET, output_path
+)

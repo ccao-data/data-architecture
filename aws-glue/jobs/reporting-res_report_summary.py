@@ -1,26 +1,17 @@
-# Glue setup
-import sys
+import re
+import time
 
+import boto3
+import pandas as pd
 from awsglue.context import GlueContext
 from awsglue.job import Job
-from awsglue.transforms import *
-from awsglue.utils import getResolvedOptions
+from awsglue.transforms import *  # noqa: F401,F403
 from pyspark.context import SparkContext
 
 sc = SparkContext.getOrCreate()
 glueContext = GlueContext(sc)
 spark = glueContext.spark_session
 job = Job(glueContext)
-
-import io
-import re
-import time
-import warnings
-
-# Import necessary libraries
-import boto3
-import pandas as pd
-import s3fs
 
 # Define AWS boto3 clients
 athena_client = boto3.client("athena")
@@ -40,8 +31,10 @@ s3_res_report_summary = (
 
 # Functions to help with Athena queries ----
 def poll_status(athena_client, execution_id):
-    """Checks the status of the a query using an incoming execution id and returns
-    a 'pass' string value when the status is either SUCCEEDED, FAILED or CANCELLED."""
+    """Checks the status of the a query using an incoming execution id and
+    returns a 'pass' string value when the status is either SUCCEEDED, FAILED
+    or CANCELLED.
+    """
 
     result = athena_client.get_query_execution(QueryExecutionId=execution_id)
     state = result["QueryExecution"]["Status"]["State"]
@@ -57,8 +50,10 @@ def poll_status(athena_client, execution_id):
 
 
 def poll_result(athena_client, execution_id):
-    """Gets the query result using an incoming execution id. This function is ran after the
-    poll_status function and only if we are sure that the query was fully executed."""
+    """Gets the query result using an incoming execution id. This function is
+    ran after the poll_status function and only if we are sure that the query
+    was fully executed.
+    """
 
     result = athena_client.get_query_execution(QueryExecutionId=execution_id)
 
@@ -68,7 +63,8 @@ def poll_result(athena_client, execution_id):
 def run_query_get_result(
     athena_client, s3_bucket, query, database, s3_output, s3_prefix
 ):
-    """Runs an incoming query and returns the output as an s3 file like object."""
+    """Runs an incoming query and returns the output as an s3 file like
+    object."""
 
     response = athena_client.start_query_execution(
         QueryString=query,
