@@ -171,7 +171,6 @@ def ccao_mki(fmv, sale_price):
 
 
 def ccao_cod(ratio):
-
     # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
     no_outliers = ratio[
         ratio.between(
