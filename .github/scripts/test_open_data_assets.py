@@ -28,7 +28,9 @@ ASSET_API_QUERY_PARAMS = {"$query": "SELECT COUNT(*),year GROUP BY year"}
 DBT = dbtRunner()
 
 # Data for the most recent two years are permitted to be slightly different,
-# according to this buffer value
+# according to this buffer value. This is because we expect some level of
+# change in the Athena data (which is updated daily) compared to the Open Data
+# portal (which is updated bi-weekly or monthly).
 BUFFER = 0.02
 
 
