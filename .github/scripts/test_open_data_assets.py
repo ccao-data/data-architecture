@@ -82,9 +82,15 @@ def main() -> None:
                 [
                     "--quiet",
                     "run-operation",
-                    "row_count_by_year",
+                    "row_count_by_group",
                     "--args",
-                    f"{{model: '{source_model_name}', print: true}}",
+                    (
+                        "{"
+                            f"model: '{source_model_name}', "
+                            "group_by: 'year', "
+                            "print: true"
+                        "}"
+                    ),
                     "--target",
                     "prod",
                 ]
