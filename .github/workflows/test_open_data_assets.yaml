@@ -1,8 +1,6 @@
 name: test-open-data-assets
 
 on:
-  # TODO: Remove this after testing
-  pull_request:
   schedule:
     # Every third day of the month at 9am CST (3pm UTC). This schedule
     # makes sense since most of our assets are configured to refresh on the
