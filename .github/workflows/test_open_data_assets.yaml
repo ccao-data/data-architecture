@@ -26,10 +26,6 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
-      - name: Install Python requirements
-        run: pip install requests
-        shell: bash
-
       - name: Compile dbt manifest
         run: dbt compile
         working-directory: ${{ env.PROJECT_DIR }}
