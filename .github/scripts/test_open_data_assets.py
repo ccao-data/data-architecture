@@ -6,7 +6,11 @@
 # used to parse exposure data representing open data assets and their
 # dependency graph.
 #
-# Example:
+# Exposures that should be tested are required to have a `meta.test_row_count`
+# attribute set to `true`. Exposures that do not have this attribute set to
+# `true` will not be tested.
+#
+# Example usage:
 #
 #   cd dbt
 #   python3 ../.github/scripts/test_open_data_assets.py target/manifest.json
@@ -43,6 +47,13 @@ def main() -> None:
     diffs: typing.List[typing.List[typing.Dict]] = []
 
     for exposure in dbt_manifest_json["exposures"].values():
+        if not exposure.get("meta", {}).get("test_row_count", False):
+            print(
+                f"Skipping row count test for exposure `{exposure['name']}` "
+                "because it does not have an enabled `meta.test_row_count` attr"
+            )
+            continue
+
         asset_name = exposure["label"]
         asset_url = exposure["url"]
         asset_id = asset_url.split("/")[-1]

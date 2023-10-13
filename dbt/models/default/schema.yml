@@ -716,6 +716,8 @@ exposures:
       - ref('default.vw_pin_universe')
     owner:
       name: Data Department
+    meta:
+      test_row_count: true
     description: |
       A complete, historic universe of Cook County parcels with attached geographic, governmental, and spatial data.
 
@@ -731,6 +733,8 @@ exposures:
       - ref('default.vw_card_res_char')
     owner:
       name: Data Department
+    meta:
+      test_row_count: true
     description: |
       Single and multi-family (less than 7 units) property characteristics collected and maintained by the Assessor's Office for all of Cook County, from 1999 to present.
 
@@ -750,6 +754,8 @@ exposures:
       - ref('default.vw_pin_condo_char')
     owner:
       name: Data Department
+    meta:
+      test_row_count: true
     description: |
       Residential condominium unit characteristics collected and maintained by the Assessor's office for all of Cook County, from 1999 to present.
 
@@ -767,6 +773,8 @@ exposures:
       - ref('default.vw_pin_sale')
     owner:
       name: Data Department
+    meta:
+      test_row_count: true
     description: |
       Parcel sales for real property in Cook County, from 1999 to present.
 
@@ -782,6 +790,8 @@ exposures:
       - ref('default.vw_pin_history')
     owner:
       name: Data Department
+    meta:
+      test_row_count: true
     description: |
       Land, building, and total assessed values for all Cook County parcels, from 1999 to present.
 
@@ -797,6 +807,8 @@ exposures:
       - ref('default.vw_pin_appeal')
     owner:
       name: Data Department
+    meta:
+      test_row_count: true
     description: |
       Land, building, and total assessed values, pre and post-appeal with the Cook County Assessor’s office, for all Cook County parcels, from 1999 to present.
 
@@ -812,6 +824,8 @@ exposures:
       - ref('default.vw_pin_address')
     owner:
       name: Data Department
+    meta:
+      test_row_count: true
     description: |
       Situs and mailing addresses of Cook County parcels.
 
@@ -827,6 +841,8 @@ exposures:
       - ref('default.vw_pin_exempt')
     owner:
       name: Data Department
+    meta:
+      test_row_count: true
     description: |
       Parcels with property tax-exempt status across all of Cook County per tax year, from Tax Year 2022 on, with geographic coordinates and addresses.
 

@@ -37,6 +37,8 @@ exposures:
       - ref('proximity.vw_pin10_proximity')
     owner:
       name: Data Department
+    meta:
+      test_row_count: true
     description: |
       Cook County 10-digit parcels with attached distances to various spatial features.
 
