@@ -50,7 +50,8 @@ def main() -> None:
         if not exposure.get("meta", {}).get("test_row_count", False):
             print(
                 f"Skipping row count test for exposure `{exposure['name']}` "
-                "because it does not have an enabled `meta.test_row_count` attr"
+                "because it does not have an enabled `meta.test_row_count` "
+                "attribute"
             )
             continue
 
@@ -86,9 +87,9 @@ def main() -> None:
                     "--args",
                     (
                         "{"
-                            f"model: '{source_model_name}', "
-                            "group_by: 'year', "
-                            "print: true"
+                        f"model: '{source_model_name}', "
+                        "group_by: 'year', "
+                        "print: true"
                         "}"
                     ),
                     "--target",
