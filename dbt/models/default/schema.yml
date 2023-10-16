@@ -418,9 +418,9 @@ models:
       - name: class
         description: '{{ doc("column_class") }}'
       - name: y_3435
-        description: PIN location derived from the centroid of the largest polygon associated with the PIN
+        description: '{{ doc("column_y_3435") }}'
       - name: x_3435
-        description: PIN location derived from the centroid of the largest polygon associated with the PIN
+        description: '{{ doc("column_x_3435") }}'
       - name: ward_num
         description: |
           Ward ID for municipalities with wards.
@@ -644,9 +644,9 @@ models:
       - name: mail_address_city_name
         description: Taxpayer/property owner address
       - name: lon
-        description: PIN location derived from the centroid of the largest polygon associated with the PIN
+        description: '{{ doc("column_longitude") }}'
       - name: lat
-        description: PIN location derived from the centroid of the largest polygon associated with the PIN
+        description: '{{ doc("column_latitude") }}'
       - name: lake_michigan_dist_ft
         description: |
           Distance in feet to the Lake Michigan coastline.

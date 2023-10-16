@@ -144,11 +144,60 @@ on any given property.
 
 # Spatial
 
-- x
-- y
-- lon
-- lat
-- geometry
-- geometry_3435
+## x_3435
+
+{% docs column_x_3435 %}
+X coordinate in feet.
+
+Point location derived from the centroid of the largest polygon associated
+with the geometry. Units are feet, taken from the NAD83 / Illinois East
+projection (EPSG 3435).
+{% enddocs %}
+
+## y_3435
+
+{% docs column_y_3435 %}
+Y coordinate in feet.
+
+Point location derived from the centroid of the largest polygon associated
+with the geometry. Units are feet, taken from the NAD83 / Illinois East
+projection (EPSG 3435).
+{% enddocs %}
+
+## longitude
+
+{% docs column_longitude %}
+X coordinate in degrees (global longitude).
+
+Point location derived from the centroid of the largest polygon associated
+with the geometry. Units are degrees, taken from the WGS84 projection
+(EPSG 4326).
+{% enddocs %}
+
+## latitude
+
+{% docs column_latitude %}
+Y coordinate in degrees (global latitude).
+
+Point location derived from the centroid of the largest polygon associated
+with the geometry. Units are degrees, taken from the WGS84 projection
+(EPSG 4326).
+{% enddocs %}
+
+## geometry
+
+{% docs column_geometry %}
+Well-Known Binary (WKB) geometry (EPSG 4326).
+
+Represents a point, polygon, or linestring associated with this observation.
+{% enddocs %}
+
+## geometry_3435
+
+{% docs column_geometry_3435 %}
+Well-Known Binary (WKB) geometry (EPSG 3435).
+
+Represents a point, polygon, or linestring associated with this observation.
+{% enddocs %}
 
 # iasWorld
