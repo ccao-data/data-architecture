@@ -341,7 +341,7 @@ pd.concat(
         report_summarise(pull, "triad", "Tri"),
         report_summarise(pull, "township_code", "Town"),
     ]
-).to_parquet(s3_ratio_stats)
+).reset_index(drop=True).to_parquet(s3_ratio_stats)
 
 # Trigger reporting glue crawler
 glue_client.start_crawler(Name="ccao-data-warehouse-reporting-crawler")
