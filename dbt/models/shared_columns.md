@@ -22,6 +22,29 @@ Useful for identifying individual condominium buildings since the last 4
 digits of a PIN identifies individual units.
 {% enddocs %}
 
+## card
+
+{% docs column_card %}
+Sub-unit of a PIN.
+
+For residential properties, cards usually identify each *building*, For
+commercial properties, they can identify spaces within the same building.
+Cards also serve as the unit of observation for the residential model.
+
+Equivalent to legacy `MLT_CD` (multicode) value.
+{% enddocs %}
+
+## cdu
+
+{% docs column_cdu %}
+Condition - Desirability - Utility code.
+
+Code representing a any number of seemingly unrelated characteristics
+associated with a PIN, ranging from condition to types of subsidies, to
+whether or not a PIN is a garage. The full list of CDU codes can be found on
+the Assessor's website.
+{% enddocs %}
+
 ## year
 
 {% docs column_year %}
@@ -95,13 +118,25 @@ with 7 are City triad townships.
 {% docs column_nbhd_code %}
 Assessor neighborhood code.
 
-- 5 digits, first 2 are township, last 3 are neighborhood.
-- Created a long time ago
-- Unit of work and analysis (land rates)
-- coincident with townships
+First 2 digits are township code, last 3 digits are neighborhood code.
+Neighborhood boundaries are coincident with townships.
+
+Geographic neighborhoods intended to represent relatively homogeneous
+housing sub-markets. They were created a long time ago for internal use by the
+various property tax offices. The Assessor now uses them as units of work and
+analysis. For example, land rates are usually delimited by neighborhood.
 {% enddocs %}
 
 ## tax_code
+
+{% docs column_tax_code %}
+Property tax code.
+
+Identifies the unique combination of taxing districts which impose a levy
+on any given property.
+{% enddocs %}
+
+# Sales
 
 ## sale_date
 
