@@ -347,6 +347,8 @@ models:
       # TODO: Joins with other tables produce consistent number of rows
   - name: default.vw_pin_universe
     columns:
+      - name: class
+        description: '{{ doc("column_class") }}'
       - name: y_3435
         description: PIN location derived from the centroid of the largest polygon associated with the PIN
       - name: x_3435
@@ -450,16 +452,20 @@ models:
           Property street address.
 
           Not the address of the taxpayer/property owner
-      - name: pin10
-        description: |
-          First 10 digits of a PIN.
-
-          Useful for identifying individual condominium buildings since the last 4 digits of a PIN identify units
       - name: pin
-        description: |
-          Full PIN.
-
-          All PINs are 14 digits: 2 digits for area + 2 digits for sub area + 2 digits for block + 2 digits for parcel + 4 digits for the condominium unit/leasehold
+        description: '{{ doc("column_pin") }}'
+      - name: pin10
+        description: '{{ doc("column_pin10") }}'
+      - name: year
+        description: '{{ doc("column_year") }}'
+      - name: triad_name
+        description: '{{ doc("column_triad_name") }}'
+      - name: triad_code
+        description: '{{ doc("column_triad_code") }}'
+      - name: township_name
+        description: '{{ doc("column_township_name") }}'
+      - name: township_code
+        description: '{{ doc("column_township_code") }}'
       - name: num_school_with_rating_in_half_mile
         description: Number of schools with Great Schools ratings within half mile of a given PIN
       - name: num_school_in_half_mile
