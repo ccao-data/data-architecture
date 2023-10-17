@@ -25,13 +25,13 @@ Address line 3
 ## addr4
 
 {% docs column_addr4 %}
-Address Line 4
+Address line 4
 {% enddocs %}
 
 ## addr5
 
 {% docs column_addr5 %}
-Address Line 5
+Address line 5
 {% enddocs %}
 
 ## addrtype
@@ -73,7 +73,7 @@ Grid address number
 ## adrid
 
 {% docs column_adrid %}
-Unique Address ID
+Unique address ID
 {% enddocs %}
 
 ## adrno
@@ -85,7 +85,7 @@ Street number
 ## adrparchild
 
 {% docs column_adrparchild %}
-Address Parent Child Indicator
+Address parent child indicator
 {% enddocs %}
 
 ## adrpostmod
