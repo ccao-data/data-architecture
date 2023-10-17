@@ -2,7 +2,7 @@
 
 ## pin
 
-{% docs column_pin %}
+{% docs shared_column_pin %}
 Full Property Index Number.
 
 The index number is a brief legal description of a particular parcel by
@@ -15,7 +15,7 @@ for block + 2 digits for parcel + 4 digits for the condominium unit/leasehold.
 
 ## pin10
 
-{% docs column_pin10 %}
+{% docs shared_column_pin10 %}
 First 10 digits of a PIN.
 
 Useful for identifying individual condominium buildings since the last 4
@@ -24,7 +24,7 @@ digits of a PIN identifies individual units.
 
 ## card
 
-{% docs column_card %}
+{% docs shared_column_card %}
 Sub-unit of a PIN.
 
 For residential properties, cards usually identify each *building*, For
@@ -36,7 +36,7 @@ Equivalent to legacy `MLT_CD` (multicode) value.
 
 ## cdu
 
-{% docs column_cdu %}
+{% docs shared_column_cdu %}
 Condition - Desirability - Utility code.
 
 Code representing a any number of seemingly unrelated characteristics
@@ -47,7 +47,7 @@ the Assessor's website.
 
 ## year
 
-{% docs column_year %}
+{% docs shared_column_year %}
 Tax year.
 
 Tax years are the "working" or current year for which assessments and levies
@@ -58,7 +58,7 @@ will be paid in calendar year 2024.
 
 ## class
 
-{% docs column_class %}
+{% docs shared_column_class %}
 Property type and/or use.
 
 Designates the property type, such as vacant, residential, multi-family,
@@ -69,7 +69,7 @@ purposes. See `ccao.class_dict` for more information.
 
 ## triad_name
 
-{% docs column_triad_name %}
+{% docs shared_column_triad_name %}
 Cook County triad name.
 
 Triads are the "unit of yearly work" for the Cook County property system:
@@ -80,7 +80,7 @@ or `City` (Chicago).
 
 ## triad_code
 
-{% docs column_triad_code %}
+{% docs shared_column_triad_code %}
 Cook County triad code.
 
 Triads are the "unit of yearly work" for the Cook County property system:
@@ -94,7 +94,7 @@ up of townships. The possible triad codes are:
 
 ## township_name
 
-{% docs column_township_name %}
+{% docs shared_column_township_name %}
 Cook County township name.
 
 The county is divided into 38 geographic townships. These townships act as
@@ -106,7 +106,7 @@ authority. Townships in the City of Chicago are effectively vestigial.
 
 ## township_code
 
-{% docs column_township_code %}
+{% docs shared_column_township_code %}
 Cook County township code.
 
 See `township_name` for more information. Note that township codes that start
@@ -115,7 +115,7 @@ with 7 are City triad townships.
 
 ## nbhd_code
 
-{% docs column_nbhd_code %}
+{% docs shared_column_nbhd_code %}
 Assessor neighborhood code.
 
 First 2 digits are township code, last 3 digits are neighborhood code.
@@ -129,7 +129,7 @@ analysis. For example, land rates are usually delimited by neighborhood.
 
 ## tax_code
 
-{% docs column_tax_code %}
+{% docs shared_column_tax_code %}
 Property tax code.
 
 Identifies the unique combination of taxing districts which impose a levy
@@ -146,7 +146,7 @@ on any given property.
 
 ## x_3435
 
-{% docs column_x_3435 %}
+{% docs shared_column_x_3435 %}
 X coordinate in feet.
 
 Point location derived from the centroid of the largest polygon associated
@@ -156,7 +156,7 @@ projection (EPSG 3435).
 
 ## y_3435
 
-{% docs column_y_3435 %}
+{% docs shared_column_y_3435 %}
 Y coordinate in feet.
 
 Point location derived from the centroid of the largest polygon associated
@@ -166,7 +166,7 @@ projection (EPSG 3435).
 
 ## longitude
 
-{% docs column_longitude %}
+{% docs shared_column_longitude %}
 X coordinate in degrees (global longitude).
 
 Point location derived from the centroid of the largest polygon associated
@@ -176,7 +176,7 @@ with the geometry. Units are degrees, taken from the WGS84 projection
 
 ## latitude
 
-{% docs column_latitude %}
+{% docs shared_column_latitude %}
 Y coordinate in degrees (global latitude).
 
 Point location derived from the centroid of the largest polygon associated
@@ -186,7 +186,7 @@ with the geometry. Units are degrees, taken from the WGS84 projection
 
 ## geometry
 
-{% docs column_geometry %}
+{% docs shared_column_geometry %}
 Well-Known Binary (WKB) geometry (EPSG 4326).
 
 Represents a point, polygon, or linestring associated with this observation.
@@ -194,10 +194,8 @@ Represents a point, polygon, or linestring associated with this observation.
 
 ## geometry_3435
 
-{% docs column_geometry_3435 %}
+{% docs shared_column_geometry_3435 %}
 Well-Known Binary (WKB) geometry (EPSG 3435).
 
 Represents a point, polygon, or linestring associated with this observation.
 {% enddocs %}
-
-# iasWorld
