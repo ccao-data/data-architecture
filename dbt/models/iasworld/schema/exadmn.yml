@@ -1,0 +1,129 @@
+version: 2
+
+
+sources:
+  - name: iasworld
+    tables:
+      - name: exadmn
+
+        columns:
+          - name: appname1
+            description: Applicant name 1
+          - name: appname1_companyname
+            description: Applicant 1 company name
+          - name: appname1_firstname
+            description: Applicant 1 first name
+          - name: appname1_lastname
+            description: Applicant 1 last name
+          - name: appname1_middlename
+            description: Applicant 1 middle name
+          - name: appname1_prefix
+            description: Applicant 1 prefix
+          - name: appname1_suffix
+            description: Applicant 1 suffix
+          - name: appname2
+            description: Applicant name 2
+          - name: appname2_companyname
+            description: Applicant 2 company name
+          - name: appname2_firstname
+            description: Applicant 2 first name
+          - name: appname2_lastname
+            description: Applicant 2 last name
+          - name: appname2_middlename
+            description: Applicant 2 middle name
+          - name: appname2_prefix
+            description: Applicant 2 prefix
+          - name: appname2_suffix
+            description: Applicant 2 suffix
+          - name: bldgno
+            description: '{{ doc("column_bldgno") }}'
+          - name: caseno
+            description: '{{ doc("column_caseno") }}'
+          - name: contact_addr1
+            description: Contact address line 1
+          - name: contact_addr2
+            description: Contact address line 2
+          - name: contact_addr3
+            description: Contact address line 3
+          - name: contact1
+            description: Contact name 1
+          - name: contact2
+            description: Contact name 2
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: endyr
+            description: Ending year
+          - name: exappl
+            description: Exemption application number
+          - name: excode
+            description: '{{ doc("column_excode") }}'
+          - name: exdate
+            description: Date of exemption
+          - name: exstat
+            description: Exemption status
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: ownnum
+            description: '{{ doc("column_ownnum") }}'
+          - name: ownnum10
+            description: Owner number 10
+          - name: ownnum2
+            description: Owner number 2
+          - name: ownnum3
+            description: Owner number 3
+          - name: ownnum4
+            description: Owner number 4
+          - name: ownnum5
+            description: Owner number 5
+          - name: ownnum6
+            description: Owner number 6
+          - name: ownnum7
+            description: Owner number 7
+          - name: ownnum8
+            description: Owner number 8
+          - name: ownnum9
+            description: Owner number 9
+          - name: parid
+            description: '{{ doc("column_parid") }}'
+          - name: reascd
+            description: Exemption reason code
+          - name: recnr
+            description: '{{ doc("column_recnr") }}'
+          - name: rectype
+            description: '{{ doc("column_rectype") }}'
+          - name: repaddr1
+            description: Representative address line 1
+          - name: repaddr2
+            description: Representative address line 2
+          - name: repaddr3
+            description: Representative address line 3
+          - name: repname
+            description: Representative name
+          - name: repname2
+            description: Representative name 2
+          - name: repphone
+            description: Representative phone number
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: seq
+            description: '{{ doc("column_seq") }}'
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: taxyr
+            description: '{{ doc("column_taxyr") }}'
+          - name: title
+            description: Contact person's title
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: unit
+            description: '{{ doc("column_unit") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'

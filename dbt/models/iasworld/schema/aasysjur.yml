@@ -1,0 +1,87 @@
+version: 2
+
+
+sources:
+  - name: iasworld
+    tables:
+      - name: aasysjur
+
+        columns:
+          - name: aprvalsum_ind
+            description: Flag for `aprvalsum`
+          - name: asmtown_ind
+            description: Flag for asmtown functionality on `AA11`, `AA13`, `AA16`
+          - name: base_ver
+            description: Base calc table version
+          - name: cama_rolltype
+            description: CAMA roll name
+          - name: cb_ind
+            description: Flag for circuit breaker
+          - name: comnt_inc
+            description: Increment for new lines in table `COMNT`
+          - name: country_code
+            description: Country code
+          - name: countycd
+            description: County Code used for client specific calculations
+          - name: def_class
+            description: Default value class to read citax
+          - name: default_jur
+            description: Default value to use for column `JUR` (anywhere)
+          - name: disp_owner
+            description: Flag which determines if owner is displayed
+          - name: display_jur
+            description: Flag to display column JUR on screens, etc
+          - name: dupyr
+            description: Duplicate year
+          - name: edms_ind
+            description: Flag for Electronic Document Management System (EDMS)
+          - name: exauto_case
+            description: Flag to generate automatic case numbers for exemptions
+          - name: exremove
+            description: Exemption removal status
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: ie_rolltype
+            description: Rolltype for valclass lookup to read citax
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: jur_label
+            description: Label for column `JUR` on screens, etc
+          - name: latest_owner
+            description: Use latest owner rather than tax year for owner queries
+          - name: ld_card_ind
+            description: Flag for Landisc `CARD`
+          - name: ld_jur_ind
+            description: Flag for Landisc `JUR`
+          - name: ld_parid_ind
+            description: Flag for Landisc `PARID`
+          - name: ld_taxyr_ind
+            description: Flag for Landisc `TAXYR`
+          - name: legadd_inc
+            description: Increment for new lines in table `LEGADD`
+          - name: maildat_ind
+            description: Flag for maildat functionality on `AA11`
+          - name: max_taxyr
+            description: Maximum tax year
+          - name: min_taxyr
+            description: Minimum tax year
+          - name: natrsrc
+            description: Natural resource
+          - name: ppyear
+            description: Current tax year for personal property
+          - name: pw_expire_days
+            description: Number of days after which IAS passwords will expire
+          - name: seam_ind
+            description: Flag for seam functionality on `AA05`, `SA01` and `CA12`
+          - name: show_hidden
+            description: Show hidden names
+          - name: ss_ext_date
+            description: Date of last subscription server extract
+          - name: taxdist_req
+            description: Flag to indicate if `LEGDAT.TAXDIST` is a required field
+          - name: thisyear
+            description: Default year for users
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'

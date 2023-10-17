@@ -1,0 +1,37 @@
+version: 2
+
+
+sources:
+  - name: iasworld
+    tables:
+      - name: comnt
+
+        columns:
+          - name: caseno
+            description: '{{ doc("column_caseno") }}'
+          - name: code
+            description: Code defining comment type
+          - name: comnt
+            description: '{{ doc("column_comnt") }}'
+          - name: comnt2
+            description: Unlimited comment
+          - name: comntno
+            description: Comment number
+          - name: comntstat
+            description: Current status
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: parid
+            description: '{{ doc("column_parid") }}'
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'

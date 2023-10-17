@@ -1,0 +1,229 @@
+version: 2
+
+
+sources:
+  - name: iasworld
+    tables:
+      - name: oby
+        description: '{{ doc("oby") }}'
+
+        columns:
+          - name: adjfact
+            description: '{{ doc("column_adjfact") }}'
+          - name: adjrcn
+            description: Adjusted RCN using LCF factor
+          - name: adjrcnld
+            description: Final adjusted replacement cost new less depreciation
+          - name: altbasedate
+            description: '{{ doc("column_altbasedate") }}'
+          - name: area
+            description: '{{ doc("column_area") }}'
+          - name: areaid
+            description: '{{ doc("column_areaid") }}'
+          - name: areasum
+            description: '{{ doc("column_areasum") }}'
+          - name: bld_modelid
+            description: '{{ doc("column_bld_modelid") }}'
+          - name: card
+            description: '{{ doc("column_card") }}'
+          - name: cdpct
+            description: Cost and design percent
+          - name: chgrsn
+            description: '{{ doc("column_chgrsn") }}'
+          - name: class
+            description: '{{ doc("column_class") }}'
+          - name: cline
+            description: Condominium line
+          - name: cndcmplx
+            description: Condominium complex
+          - name: cndflag
+            description: Condo flag
+          - name: cndtype
+            description: Condominium type code
+          - name: code
+            description: OBY type code
+          - name: cond
+            description: Condition code
+          - name: condolvl
+            description: Condominium floor level
+          - name: condovw
+            description: Condominium view
+          - name: convoby
+            description: Conveyance OBY
+          - name: cubicft
+            description: Cubic feet
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: curmult
+            description: Current multiplier
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: depr
+            description: Percent good from table
+          - name: deprt
+            description: '{{ doc("column_deprt") }}'
+          - name: ecndep
+            description: '{{ doc("column_ecndep") }}'
+          - name: ecnrsn
+            description: '{{ doc("column_ecnrsn") }}'
+          - name: effageovr
+            description: '{{ doc("column_effageovr") }}'
+          - name: effyr
+            description: '{{ doc("column_effyr") }}'
+          - name: excess
+            description: '{{ doc("column_excess") }}'
+          - name: exmppct
+            description: '{{ doc("column_exmppct") }}'
+          - name: exmpval
+            description: '{{ doc("column_exmpval") }}'
+          - name: funct
+            description: Function used in computing this calcualtion
+          - name: fundep
+            description: '{{ doc("column_fundep") }}'
+          - name: funrsn
+            description: '{{ doc("column_funrsn") }}'
+          - name: grade
+            description: '{{ doc("column_grade") }}'
+          - name: grpadj
+            description: '{{ doc("column_grpadj") }}'
+          - name: hga
+            description: '{{ doc("column_hga") }}'
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: incuse
+            description: Income type use
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: lcf
+            description: Factor used to calculate `RCNADJ`
+          - name: lline
+            description: '{{ doc("column_lline") }}'
+          - name: locmult
+            description: Local multiplier
+          - name: lumpadj
+            description: Lump sum dollar adjustment
+          - name: lumpcamod
+            description: '{{ doc("column_lumpcamod") }}'
+          - name: lumpcure
+            description: Cost to cure adjustment
+          - name: lumpdepr
+            description: Lump sum depreciation
+          - name: meas1
+            description: Measurement 1 for a line
+          - name: mhmake
+            description: Make of manufactured home
+          - name: mhmodel
+            description: Model of manufactured home
+          - name: miles
+            description: Miles for railroads
+          - name: mktadj
+            description: Percent good override
+          - name: msclass
+            description: Class identifier for Occupancy (CODE) from Marshall Swift
+          - name: msrank
+            description: Rank identifier for Occupancy (CODE) from Marshall Swift
+          - name: nccalc
+            description: '{{ doc("column_nccalc") }}'
+          - name: ncoval
+            description: '{{ doc("column_ncoval") }}'
+          - name: nctot
+            description: '{{ doc("column_nctot") }}'
+          - name: ncval
+            description: '{{ doc("column_ncval") }}'
+          - name: newconmo
+            description: '{{ doc("column_newconmo") }}'
+          - name: newconpct
+            description: '{{ doc("column_newconpct") }}'
+          - name: obygrp
+            description: Group for local modifier override
+          - name: obymod1
+            description: Modification code (1 of 4)
+          - name: obymod2
+            description: Modification code (2 of 4)
+          - name: obymod3
+            description: Modification code (3 of 4)
+          - name: obymod4
+            description: Modification code (4 of 4)
+          - name: ovrnbhd
+            description: '{{ doc("column_ovrnbhd") }}'
+          - name: ovrrcn
+            description: Override replacement cost new
+          - name: ovrrcnld
+            description: '{{ doc("column_ovrrcnld") }}'
+          - name: parid
+            description: '{{ doc("column_parid") }}'
+          - name: pctcomp
+            description: '{{ doc("column_pctcomp") }}'
+          - name: perim
+            description: Perimeter of the building/line
+          - name: prodamage
+            description: '{{ doc("column_prodamage") }}'
+          - name: prodate
+            description: '{{ doc("column_prodate") }}'
+          - name: profact
+            description: '{{ doc("column_profact") }}'
+          - name: proprate
+            description: Investment rating
+          - name: protype
+            description: '{{ doc("column_protype") }}'
+          - name: rate
+            description: Rate (SF cost) from tables
+          - name: rateovr
+            description: Override rate
+          - name: rcn
+            description: '{{ doc("column_rcn") }}'
+          - name: rcnfact
+            description: RCN Adjustment Factor
+          - name: rcnld
+            description: '{{ doc("column_rcnld") }}'
+          - name: recnr
+            description: '{{ doc("column_recnr") }}'
+          - name: rectype
+            description: '{{ doc("column_rectype") }}'
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: seq
+            description: '{{ doc("column_seq") }}'
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: stories
+            description: '{{ doc("column_stories") }}'
+          - name: suppress
+            description: '{{ doc("column_suppress") }}'
+          - name: taxyr
+            description: '{{ doc("column_taxyr") }}'
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: units
+            description: Number of identical units
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: valmeth
+            description: Valuation Method (R(CLT/RES) or M(MSB))
+          - name: vect
+            description: '{{ doc("column_vect") }}'
+          - name: vectnotes
+            description: '{{ doc("column_vectnotes") }}'
+          - name: wallhgt
+            description: '{{ doc("column_wallhgt") }}'
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+          - name: yrblt
+            description: '{{ doc("column_yrblt") }}'
+          - name: yrrem
+            description: Year remodeled
+
+        tests:
+          - unique_combination_of_columns:
+              name: oby_unique_by_parid_card_lline_taxyr
+              combination_of_columns:
+                - parid
+                - card
+                - lline
+                - taxyr

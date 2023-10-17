@@ -1,0 +1,87 @@
+version: 2
+
+
+sources:
+  - name: iasworld
+    tables:
+      - name: excode
+
+        columns:
+          - name: altsched
+            description: Alternate schedule code
+          - name: annual_cap
+            description: Annual cap amount for the exemption
+          - name: calcpri
+            description: Calculation priority
+          - name: calcpri2
+            description: Calculation priority 2
+          - name: const1
+            description: Constant value 1
+          - name: const2
+            description: Constant value 2
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: descr
+            description: Description
+          - name: equation
+            description: Equation for computation
+          - name: equation2
+            description: Equation to calculate 2nd set of values
+          - name: excode
+            description: '{{ doc("column_excode") }}'
+          - name: exgrp
+            description: Exemption code grouping for view definitions
+          - name: extype
+            description: Exemption type
+          - name: freq
+            description: Frequency
+          - name: freqyr
+            description: Yearly frequency
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: luc
+            description: '{{ doc("column_luc") }}'
+          - name: maxamt
+            description: Maximum amount for computation
+          - name: minamt
+            description: Minimum amount
+          - name: nocalc
+            description: Perform no calculation online or in batch
+          - name: ownerflag
+            description: Owner dependent flag (y/n)
+          - name: prorate_typ
+            description: Exemption proration type to prorate by day/month
+          - name: rnd
+            description: Rounding for value
+          - name: rnd_month
+            description: Specific day to round in a given month
+          - name: roundcent
+            description: Decimal positions to round
+          - name: seq
+            description: '{{ doc("column_seq") }}'
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: sumtype
+            description: Summary type
+          - name: taxyr
+            description: '{{ doc("column_taxyr") }}'
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: valclass
+            description: '{{ doc("column_valclass") }}'
+          - name: warnamtdiff
+            description: Raises warning message if the change in exemption exceeds this amount
+          - name: warnpctdiff
+            description: Raises warning message if the percentage change in exemption exceeds this percent
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'
+          - name: yrend
+            description: Exemption end year

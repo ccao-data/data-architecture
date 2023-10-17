@@ -1,0 +1,300 @@
+version: 2
+
+
+sources:
+  - name: iasworld
+    tables:
+      - name: htpar
+        freshness:
+          filter: *latest_taxyr
+          warn_after: *24_hours
+          error_after: *48_hours
+
+        columns:
+          - name: action
+            description: Action code
+          - name: addr1
+            description: '{{ doc("column_addr1") }}'
+          - name: addr2
+            description: '{{ doc("column_addr2") }}'
+          - name: addr3
+            description: '{{ doc("column_addr3") }}'
+          - name: agent
+            description: Agent code
+          - name: agentjur
+            description: Agent Jurisdiction
+          - name: appdate
+            description: Application date
+          - name: appstat
+            description: Application status
+          - name: asmtreas
+            description: Assessment reason code
+          - name: bdname1
+            description: Board name 1
+          - name: bdname10
+            description: Board name 10
+          - name: bdname2
+            description: Board name 2
+          - name: bdname3
+            description: Board name 3
+          - name: bdname4
+            description: Board name 4
+          - name: bdname5
+            description: Board name 5
+          - name: bdname6
+            description: Board name 6
+          - name: bdname7
+            description: Board name 7
+          - name: bdname8
+            description: Board name 8
+          - name: bdname9
+            description: Board name 9
+          - name: bdtype1
+            description: Board type 1
+          - name: bdtype10
+            description: Board type 10
+          - name: bdtype2
+            description: Board type 2
+          - name: bdtype3
+            description: Board type 3
+          - name: bdtype4
+            description: Board type 4
+          - name: bdtype5
+            description: Board type 5
+          - name: bdtype6
+            description: Board type 6
+          - name: bdtype7
+            description: Board type 7
+          - name: bdtype8
+            description: Board type 8
+          - name: bdtype9
+            description: Board type 9
+          - name: bdvote1
+            description: Board vote 1
+          - name: bdvote10
+            description: Board vote 10
+          - name: bdvote2
+            description: Board vote 2
+          - name: bdvote3
+            description: Board vote 3
+          - name: bdvote4
+            description: Board vote 4
+          - name: bdvote5
+            description: Board vote 5
+          - name: bdvote6
+            description: Board vote 6
+          - name: bdvote7
+            description: Board vote 7
+          - name: bdvote8
+            description: Board vote 8
+          - name: bdvote9
+            description: Board vote 9
+          - name: camareas
+            description: Cama reason code
+          - name: careof
+            description: '{{ doc("column_careof") }}'
+          - name: caseno
+            description: '{{ doc("column_caseno") }}'
+          - name: complnt
+            description: Complainant
+          - name: complnt_companyname
+            description: Complainant company name
+          - name: complnt_firstname
+            description: Complainant first name
+          - name: complnt_lastname
+            description: Complainant last name
+          - name: complnt_middlename
+            description: Complainant middle name
+          - name: complnt_prefix
+            description: Complainant prefix
+          - name: complnt_suffix
+            description: Complainant suffix
+          - name: comptype
+            description: Complaint type
+          - name: cpaddr1
+            description: Complainant address 1
+          - name: cpaddr2
+            description: Complainant address 2
+          - name: cpaddr3
+            description: Complainant address 3
+          - name: cpatty
+            description: Complainant attorney code
+          - name: cpattyjur
+            description: Attorney jurisdiction
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: curbldg
+            description: Current building value
+          - name: curland
+            description: Current land value
+          - name: curtax
+            description: Current tax
+          - name: curtot
+            description: Current total value
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: doc
+            description: Flag (Y/N) indicating taxpayer provided addition documentation
+          - name: docdate
+            description: Date documents were received
+          - name: fieldchk
+            description: Field check indicator
+          - name: hearlen
+            description: Hearing length
+          - name: hearoff
+            description: Hearing official code
+          - name: heartyp
+            description: Hearing type
+          - name: heartypjur
+            description: Hearing type jurisdiction
+          - name: hrmult
+            description: Hearing multiple parcel indicator
+          - name: hrreas
+            description: Hearing reason code
+          - name: hrstatus
+            description: Hearing status code
+          - name: httimejur
+            description: Schedule jurisdiction
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: loc
+            description: Location code
+          - name: notcdate
+            description: Date of notice from previous hearing level
+          - name: noticedate
+            description: Notice date printed on notice form
+          - name: noticval
+            description: Notice value printed on notice form
+          - name: own1
+            description: '{{ doc("column_own1") }}'
+          - name: own1_companyname
+            description: '{{ doc("column_own1_companyname") }}'
+          - name: own1_firstname
+            description: '{{ doc("column_own1_firstname") }}'
+          - name: own1_lastname
+            description: '{{ doc("column_own1_lastname") }}'
+          - name: own1_middlename
+            description: '{{ doc("column_own1_middlename") }}'
+          - name: own1_prefix
+            description: '{{ doc("column_own1_prefix") }}'
+          - name: own1_suffix
+            description: '{{ doc("column_own1_suffix") }}'
+          - name: own2
+            description: '{{ doc("column_own2") }}'
+          - name: own2_companyname
+            description: '{{ doc("column_own2_companyname") }}'
+          - name: own2_firstname
+            description: '{{ doc("column_own2_firstname") }}'
+          - name: own2_lastname
+            description: '{{ doc("column_own2_lastname") }}'
+          - name: own2_middlename
+            description: '{{ doc("column_own2_middlename") }}'
+          - name: own2_prefix
+            description: '{{ doc("column_own2_prefix") }}'
+          - name: own2_suffix
+            description: '{{ doc("column_own2_suffix") }}'
+          - name: ownemail
+            description: Owner email address
+          - name: ownfax
+            description: Owner fax number
+          - name: ownnum
+            description: '{{ doc("column_ownnum") }}'
+          - name: ownphone
+            description: Owner phone number
+          - name: parid
+            description: '{{ doc("column_parid") }}'
+          - name: petemail
+            description: Petitioner email address
+          - name: petfax
+            description: Petitioner fax number
+          - name: petnno
+            description: An optional field for a separately assigned petition number, if available
+          - name: petphone
+            description: Petitioner phone number
+          - name: propbldg
+            description: Proposed building value
+          - name: propland
+            description: Proposed land value
+          - name: propreduct
+            description: Proposed tax reduction
+          - name: proptax
+            description: Proposed tax
+          - name: proptot
+            description: Proposed total value
+          - name: ptabbldg
+            description: PTAB building value
+          - name: ptabland
+            description: PTAB land value
+          - name: ptabreduct
+            description: PTAB tax reduction
+          - name: ptabtax
+            description: PTAB tax
+          - name: ptabtot
+            description: PTAB total Value
+          - name: resact
+            description: Result action
+          - name: resdate
+            description: Result date
+          - name: resnote1
+            description: Result note field 1
+          - name: resnote2
+            description: Result note field 2
+          - name: resrsn1
+            description: Result reason 1
+          - name: resrsn2
+            description: Result reason 2
+          - name: resrsn3
+            description: Result reason 3
+          - name: rolltype
+            description: '{{ doc("column_rolltype") }}'
+          - name: rptcode
+            description: Report code
+          - name: rptcodejur
+            description: Report Code Jurisdiction
+          - name: schdte
+            description: Schedule date
+          - name: schtime
+            description: Schedule time
+          - name: seq
+            description: '{{ doc("column_seq") }}'
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: stipbldg
+            description: Stipulated building value
+          - name: stipland
+            description: Stipulated land value
+          - name: stipreduct
+            description: Stipulated Tax reduction
+          - name: stiptax
+            description: Stipulated tax
+          - name: stiptot
+            description: Stipulated total value
+          - name: subkey
+            description: Unique number to allow multiple hearings per level
+          - name: taxyr
+            description: '{{ doc("column_taxyr") }}'
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: txpyval
+            description: Taxpayer value
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: valdisp
+            description: Value in dispute
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: who
+
+        tests:
+          - unique_combination_of_columns:
+              name: htpar_unique_by_parid_caseno_taxyr_subkey
+              combination_of_columns:
+                - parid
+                - caseno
+                - taxyr
+                - subkey
+              config:
+                where: cur = 'Y' and deactivat is null
+                error_if: ">2"

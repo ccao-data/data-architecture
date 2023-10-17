@@ -1,0 +1,152 @@
+version: 2
+
+
+sources:
+  - name: iasworld
+    tables:
+      - name: sales
+
+        columns:
+          - name: adjamt
+            description: Adjustment amount (used to calculate `ADJPRICE`)
+          - name: adjprice
+            description: Adjusted sales price
+          - name: adjreas
+            description: Reason for adjusting sale price
+          - name: aprtot
+            description: '{{ doc("column_aprtot") }}'
+          - name: asmt
+            description: Assessed value at time of sale
+          - name: asr
+            description: Assessment to sale ratio
+          - name: batch
+            description: Batch number
+          - name: book
+            description: '{{ doc("column_book") }}'
+          - name: cntyfinaldt
+            description: County final date
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: deed_ref
+            description: Deed ref flag
+          - name: ecrv
+            description: 'Electronic certificate of real estate values ID: (state of MN specific)'
+          - name: ecrv_date
+            description: Electronic certificate of real estate Processed Date
+          - name: grp
+            description: Time adjusted sale group
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: imageno
+            description: Document image number for the sale deed
+          - name: instrtyp
+            description: '{{ doc("column_instrtyp") }}'
+          - name: instruno
+            description: '{{ doc("column_instruno") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: linkno
+            description: Used to tie multi-parcel sales together (either instrument number, or transfer number, or book/page)
+          - name: mktvalid
+            description: Market validity code
+          - name: newseq
+            description: '{{ doc("column_newseq") }}'
+          - name: newyr
+            description: New year
+          - name: nopar
+            description: '{{ doc("column_nopar") }}'
+          - name: notes
+            description: Sales comments
+          - name: oldown
+            description: '{{ doc("column_oldown") }}'
+          - name: oldown2
+            description: '{{ doc("column_oldown2") }}'
+          - name: oldseq
+            description: '{{ doc("column_oldseq") }}'
+          - name: oldyr
+            description: '{{ doc("column_oldyr") }}'
+          - name: own1
+            description: '{{ doc("column_own1") }}'
+          - name: own2
+            description: '{{ doc("column_own2") }}'
+          - name: page
+            description: '{{ doc("column_page") }}'
+          - name: parent
+            description: Time adjusted sale parent name
+          - name: parid
+            description: '{{ doc("column_parid") }}'
+          - name: price
+            description: Sale price
+          - name: recorddt
+            description: Recording date
+          - name: saledt
+            description: Sale date
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: saletype
+            description: '{{ doc("column_saletype") }}'
+          - name: saleval
+            description: '{{ doc("column_saleval") }}'
+          - name: seq
+            description: '{{ doc("column_seq") }}'
+          - name: source
+            description: Source code
+          - name: stampval
+            description: Stamp value for the sale
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: steb
+            description: '{{ doc("column_steb") }}'
+          - name: stflag
+            description: '{{ doc("column_stflag") }}'
+          - name: tasp_ovr
+            description: Time adjusted sale price for override roll year
+          - name: tasp_ovr_year
+            description: Roll year of time adjusted sale price override value
+          - name: tasp_year1
+            description: Roll year of time adjusted sale price 1
+          - name: tasp_year2
+            description: Roll year of time adjusted sale price 2
+          - name: tasp_year3
+            description: Roll year of time adjusted sale price 3
+          - name: tasp1
+            description: Time adjusted sale price for roll year 1
+          - name: tasp2
+            description: Time adjusted sale price for roll year 2
+          - name: tasp3
+            description: Time adjusted sale price for roll year 3
+          - name: timeadjfact
+            description: Time adjusted fact
+          - name: timeadjsp
+            description: Time adjusted sales price
+          - name: timeadjvaldt
+            description: Time adjusted valuation date
+          - name: timeadjvaldt2
+            description: Time adjusted valuation date 2
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: transdt
+            description: Transaction date
+          - name: transno
+            description: Transfer number
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+
+        tests:
+          - unique_combination_of_columns:
+              name: sales_unique_by_parid_instruno
+              combination_of_columns:
+                - parid
+                - instruno
+              config:
+                where: substr(saledt, 1, 4) >= '2023'

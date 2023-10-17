@@ -1,0 +1,53 @@
+version: 2
+
+
+sources:
+  - name: iasworld
+    tables:
+      - name: lpmod
+
+        columns:
+          - name: acradjflg
+            description: Adjustment flag
+          - name: acretble
+            description: Acre table number
+          - name: adjltype
+            description: Adjustment type
+          - name: bdecr
+            description: Decremental rate
+          - name: bincr
+            description: Incremental rate
+          - name: brate
+            description: Base rate
+          - name: bsize
+            description: Base size
+          - name: depthtble
+            description: Depth table assignment
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: lcode
+            description: Land code
+          - name: lmod
+            description: Land location model number
+          - name: ltype
+            description: Land type (F, S, A, G, U)
+          - name: modtype
+            description: Rate type description
+          - name: nmod
+            description: Neighborhood model
+          - name: schedtble
+            description: '`LPSCHED` table number'
+          - name: smod
+            description: Street model number
+          - name: soiltble
+            description: Soil schedule
+          - name: umod
+            description: Utility model
+          - name: ver
+            description: '{{ doc("column_ver") }}'
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'
+          - name: zmod
+            description: Zone model

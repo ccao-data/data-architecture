@@ -1,0 +1,69 @@
+version: 2
+
+
+sources:
+  - name: iasworld
+    tables:
+      - name: asmt_hist
+
+        columns:
+          - name: class
+            description: '{{ doc("column_class") }}'
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: distcode
+            description: District code
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: luc
+            description: '{{ doc("column_luc") }}'
+          - name: ovrclass
+            description: Override class
+          - name: ovrcodtax
+            description: Override code for taxes
+          - name: ovrvaltax
+            description: Override value for taxes
+          - name: parid
+            description: '{{ doc("column_parid") }}'
+          - name: procdate
+            description: '{{ doc("column_procdate") }}'
+          - name: procname
+            description: '{{ doc("column_procname") }}'
+          - name: reascd
+            description: Reason code for change in assessed value
+          - name: rolltype
+            description: '{{ doc("column_rolltype") }}'
+          - name: seq
+            description: '{{ doc("column_seq") }}'
+          - name: splitno
+            description: '{{ doc("column_splitno") }}'
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: taxtable
+            description: Flag to indicate assessment record used in tax calculation
+          - name: taxyr
+            description: '{{ doc("column_taxyr") }}'
+          - name: tottax
+            description: Total tax
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: valclass
+            description: '{{ doc("column_valclass") }}'
+          - name: valtax
+            description: Taxes
+          - name: valyear
+            description: Valuation year
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'

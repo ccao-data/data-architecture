@@ -1,0 +1,564 @@
+version: 2
+
+
+sources:
+  - name: iasworld
+    tables:
+      - name: dweldat
+        description: '{{ doc("dweldat") }}'
+
+        columns:
+          - name: ac
+            description: Air condition
+          - name: acarea
+            description: Air conditioning area
+          - name: accode
+            description: Support AC code
+          - name: acval
+            description: Air conditioning value
+          - name: addfact
+            description: Additional factor
+          - name: addnarea
+            description: Living area in additions
+          - name: addnrcnval
+            description: The RCN from `ADDN`
+          - name: addnval
+            description: RCN value of additions
+          - name: adjarea
+            description: Adjusted area
+          - name: adjfact
+            description: '{{ doc("column_adjfact") }}'
+          - name: adjgrmfact
+            description: Neighborhood / class factor applied to `RESGRMVAL`
+          - name: adjrate
+            description: Adjusted base rate
+          - name: adjrcnld
+            description: Adjusted replacement cost new less depreciation
+          - name: areafact
+            description: Area factor
+          - name: areasum
+            description: '{{ doc("column_areasum") }}'
+          - name: attic
+            description: Attic code
+          - name: atticarea
+            description: Attic area
+          - name: atticval
+            description: Attic value
+          - name: baserate
+            description: Calculated base rate
+          - name: basercn
+            description: Base replacement cost new
+          - name: basercnld
+            description: '`RCNLD` for main section of the dwelling'
+          - name: bgarval
+            description: Basement garage value
+          - name: bld_modelid
+            description: '{{ doc("column_bld_modelid") }}'
+          - name: bldguse
+            description: Building use
+          - name: bsmt
+            description: Basement code
+          - name: bsmtarea
+            description: Unfinished basement area
+          - name: bsmtcar
+            description: Basement garage (number cars)
+          - name: bsmtval
+            description: Basement value
+          - name: calceffyr
+            description: Claculated effective year
+          - name: card
+            description: '{{ doc("column_card") }}'
+          - name: catharea
+            description: Cathedral ceiling area
+          - name: cathval
+            description: Cathedral ceiling RCN
+          - name: cddesc
+            description: Cost and Design description code
+          - name: cdpct
+            description: Cost and Design percent
+          - name: cdu
+            description: '{{ doc("column_cdu") }}'
+          - name: ceiling
+            description: Ceilling
+          - name: chgrsn
+            description: '{{ doc("column_chgrsn") }}'
+          - name: class
+            description: '{{ doc("column_class") }}'
+          - name: cline
+            description: Condominium line
+          - name: cndadjval
+            description: Total living area
+          - name: cndbaseval
+            description: Main section ground floor area
+          - name: cndcmplx
+            description: Condominium complex
+          - name: cnstfact
+            description: Construction factor
+          - name: cnstval
+            description: Construction factor value
+          - name: comwallfact
+            description: Common wall factor
+          - name: comwallpct
+            description: Common wall percent
+          - name: cond
+            description: Condition code
+          - name: condolvl
+            description: Condominium floor level
+          - name: condosflaovr
+            description: Condo Sfla override at card level
+          - name: condotyp
+            description: Condominium type code
+          - name: condovw
+            description: Condominium View
+          - name: convbldg
+            description: '{{ doc("column_convbldg") }}'
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: degrem
+            description: Degree remodeled
+          - name: depr
+            description: Percent good from tables
+          - name: deprt
+            description: '{{ doc("column_deprt") }}'
+          - name: ecndep
+            description: '{{ doc("column_ecndep") }}'
+          - name: ecnrsn
+            description: '{{ doc("column_ecnrsn") }}'
+          - name: eff_area
+            description: Support total by card
+          - name: effageovr
+            description: '{{ doc("column_effageovr") }}'
+          - name: effyr
+            description: '{{ doc("column_effyr") }}'
+          - name: effyrovr
+            description: Override effective year
+          - name: elepct
+            description: Electric percentage
+          - name: eleyr
+            description: Electric year
+          - name: estpct
+            description: Estimated percentage
+          - name: estyr
+            description: Estimated year
+          - name: excess
+            description: '{{ doc("column_excess") }}'
+          - name: exmppct
+            description: '{{ doc("column_exmppct") }}'
+          - name: exmppctover
+            description: Override exemption percent
+          - name: exmpval
+            description: '{{ doc("column_exmpval") }}'
+          - name: extwall
+            description: Exterior wall code
+          - name: extwall1
+            description: Exterior wall code
+          - name: extwall1pct
+            description: Exterior wall % (for `EXTWALL1`)
+          - name: finbsmtarea
+            description: Finished basement living area
+          - name: finbsmtl
+            description: Finished basement living area length
+          - name: finbsmtval
+            description: Finished basement value
+          - name: finbsmtw
+            description: Finished basement living area width
+          - name: fixaddl
+            description: Number additional plumbing fixtures
+          - name: fixbath
+            description: Number full bathrooms
+          - name: fixbath1
+            description: Number of full bathrooms on the first floor
+          - name: fixbath2
+            description: Number of full bathrooms on the second floor
+          - name: fixbath3
+            description: Number of full bathrooms on the third floor
+          - name: fixbath4
+            description: Number of four fixture bathrooms
+          - name: fixbath4m
+            description: Number of four fixture bathrooms  in Main Floor
+          - name: fixbath4u
+            description: Number of four fixture bathrooms  in upper Floor
+          - name: fixbath5
+            description: Number of five fixture bathrooms
+          - name: fixbath5m
+            description: Number of five fixture bathrooms in Main Floor
+          - name: fixbath5u
+            description: Number of five fixture bathrooms in upper Floor
+          - name: fixbath6
+            description: Number of six fixture bathrooms
+          - name: fixbath7
+            description: Number of seven fixture bathrooms
+          - name: fixbathb
+            description: Number of full bathrooms in the basement
+          - name: fixbathm
+            description: Number full bathrooms  in Main Floor
+          - name: fixbathu
+            description: Number full bathrooms  in upper Floor
+          - name: fixhalf
+            description: Number half bathrooms
+          - name: fixhalf1
+            description: Number of half baths on the first floor
+          - name: fixhalf2
+            description: Number of half baths on the second floor
+          - name: fixhalf3
+            description: Number of half baths on the third floor
+          - name: fixhalfb
+            description: Number of half baths in the basement
+          - name: fixhalfm
+            description: Number half bathrooms in Main Floor
+          - name: fixhalfu
+            description: Number half bathrooms in upper Floor
+          - name: fixtot
+            description: Total plumbing fixtures
+          - name: fixtotovr
+            description: Bathroom fixture override
+          - name: floor
+            description: Floor
+          - name: floor1
+            description: Floor 1
+          - name: floor1pct
+            description: Floor percent
+          - name: floorfact
+            description: Floor factor
+          - name: flr1area
+            description: Sub total value
+          - name: flr1val
+            description: First floor structure RCN
+          - name: flrharea
+            description: Half floor structure square foot
+          - name: flrhval
+            description: Half floor structure RCN
+          - name: flruarea
+            description: Upper floor structure square foot
+          - name: flruval
+            description: Upper floor structure RCN
+          - name: fuel
+            description: Heating fuel type
+          - name: fundep
+            description: '{{ doc("column_fundep") }}'
+          - name: funrsn
+            description: '{{ doc("column_funrsn") }}'
+          - name: furpct
+            description: Furnace percentage
+          - name: furyr
+            description: Furnace year
+          - name: grade
+            description: '{{ doc("column_grade") }}'
+          - name: grdfact
+            description: Grade factor
+          - name: grmovr
+            description: Override for the GRM Multiplier pulled from `LPNBHD`
+          - name: grmrent
+            description: Gross rent multiplier rent
+          - name: grmunits
+            description: Gross rent multiplier units
+          - name: grpadj
+            description: '{{ doc("column_grpadj") }}'
+          - name: heat
+            description: Heat code
+          - name: heatarea
+            description: Heat area
+          - name: heatsys
+            description: Heating system type
+          - name: heatval
+            description: Heating/air value
+          - name: hga
+            description: '{{ doc("column_hga") }}'
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: intext
+            description: Interior condition relative to exterior
+          - name: intwall
+            description: Inside wall
+          - name: intwall1
+            description: Inside wall 1
+          - name: intwall1pct
+            description: Inside wall percent
+          - name: intwallfact
+            description: Inside wall factor
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: kitpct
+            description: Kitchen percentage
+          - name: kityr
+            description: Kitchen year
+          - name: locmult
+            description: Local multiplier
+          - name: lumpcamod
+            description: '{{ doc("column_lumpcamod") }}'
+          - name: lumpcure
+            description: Lump cure value
+          - name: mastrimarea
+            description: Masonry trim square footage
+          - name: mastriml
+            description: Masonry trim, length
+          - name: mastrimw
+            description: Masonry trim, width
+          - name: mgfa
+            description: Main section ground floor area
+          - name: mktadj
+            description: Override Percent good
+          - name: mktrsn
+            description: Reason for market adjustment
+          - name: modover
+            description: Residential override model
+          - name: mvpattic
+            description: MVP Attic
+          - name: mvpbsmt
+            description: MVP Basement
+          - name: mvpsf
+            description: MVP square footage
+          - name: mvpstyle
+            description: MVP style
+          - name: mvpunfin
+            description: MVP unfinished
+          - name: nccalc
+            description: '{{ doc("column_nccalc") }}'
+          - name: ncoval
+            description: '{{ doc("column_ncoval") }}'
+          - name: nctot
+            description: '{{ doc("column_nctot") }}'
+          - name: ncval
+            description: '{{ doc("column_ncval") }}'
+          - name: newconmo
+            description: '{{ doc("column_newconmo") }}'
+          - name: newconpct
+            description: '{{ doc("column_newconpct") }}'
+          - name: numident
+            description: Identical units
+          - name: obsdep
+            description: Observable Condition
+          - name: obsrsn
+            description: Reason code for observable condition
+          - name: ovrmraval
+            description: '{{ doc("column_ovrmraval") }}'
+          - name: ovrnbhd
+            description: '{{ doc("column_ovrnbhd") }}'
+          - name: ovrrcn
+            description: Override RCN value
+          - name: ovrrcnld
+            description: '{{ doc("column_ovrrcnld") }}'
+          - name: parid
+            description: '{{ doc("column_parid") }}'
+          - name: pctcomplete
+            description: Percent of construction completed
+          - name: plumbgrade
+            description: Plumbing grade
+          - name: plumval
+            description: Plumbing value
+          - name: plupct
+            description: Plumbing percentage
+          - name: pluyr
+            description: Plumbing year
+          - name: prior_renolvl
+            description: Prior renovation Level
+          - name: prodamage
+            description: '{{ doc("column_prodamage") }}'
+          - name: prodate
+            description: '{{ doc("column_prodate") }}'
+          - name: profact
+            description: '{{ doc("column_profact") }}'
+          - name: protype
+            description: '{{ doc("column_protype") }}'
+          - name: rcnfact
+            description: RCN adjustment factor
+          - name: rcnld
+            description: '{{ doc("column_rcnld") }}'
+          - name: rcnval
+            description: Replacement cost new of dwelling
+          - name: recnr
+            description: '{{ doc("column_recnr") }}'
+          - name: recromarea
+            description: Recreational room area
+          - name: recroml
+            description: Recreational room length
+          - name: recromw
+            description: Recreational room width
+          - name: rectype
+            description: '{{ doc("column_rectype") }}'
+          - name: recval
+            description: Recreational room value
+          - name: rembath
+            description: Bathrooms remodeled
+          - name: remkit
+            description: Kitchen remodeled
+          - name: renolvl
+            description: Renovation level
+          - name: renoovr
+            description: Override for renovation level
+          - name: renopoint
+            description: Sum of renovation points assigned to this parcel
+          - name: renoyr
+            description: Year of renovation
+          - name: resfeatval
+            description: The total residential feature value
+          - name: resgrmval
+            description: Gross rent multiplier value
+          - name: resmod
+            description: Residential cost model
+          - name: rmbed
+            description: Number bedrooms
+          - name: rmbed1
+            description: Number of bedrooms on the first floor
+          - name: rmbed2
+            description: Number of bedrooms on the second floor
+          - name: rmbed3
+            description: Number of bedrooms on the third floor
+          - name: rmbedb
+            description: Number of bedrooms in the basement
+          - name: rmdin
+            description: Total number of dining rooms
+          - name: rmdin1
+            description: Number of dining rooms on the first floor
+          - name: rmdin2
+            description: Number of dining rooms on the second floor
+          - name: rmdin3
+            description: Number of dining rooms on the third floor
+          - name: rmdinb
+            description: Number of dining rooms in the basement
+          - name: rmfam
+            description: Number family rooms
+          - name: rmfam1
+            description: Number of family rooms on the first floor
+          - name: rmfam2
+            description: Number of family rooms on the second floor
+          - name: rmfam3
+            description: Number of family rooms on the third floor
+          - name: rmfamb
+            description: Number of family rooms in the basement
+          - name: rmkit
+            description: Total number of kitchens
+          - name: rmkit1
+            description: Number of kitchens on the first floor
+          - name: rmkit2
+            description: Number of kitchens on the second floor
+          - name: rmkit3
+            description: Number of kitchens on the third floor
+          - name: rmkitb
+            description: Number of kitchens in the basement
+          - name: rmliv
+            description: Total number of living rooms
+          - name: rmliv1
+            description: Number of living rooms on the first floor
+          - name: rmliv2
+            description: Number of living rooms on the second floor
+          - name: rmliv3
+            description: Number of living rooms on the third floor
+          - name: rmlivb
+            description: Number of living rooms in the basement
+          - name: rmoth
+            description: Total number of other rooms
+          - name: rmoth1
+            description: Number of other rooms on the first floor
+          - name: rmoth2
+            description: Number of other rooms on the second floor
+          - name: rmoth3
+            description: Number of other rooms on the third floor
+          - name: rmothb
+            description: Number of other rooms in the basement
+          - name: rmtot
+            description: Total rooms
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: seq
+            description: '{{ doc("column_seq") }}'
+          - name: sfla
+            description: Total living area
+          - name: shfact
+            description: Story height factor
+          - name: sidpct
+            description: Siding percentage
+          - name: sidyr
+            description: Siding year
+          - name: sizecode
+            description: Size code
+          - name: slabarea
+            description: Slab area
+          - name: slabval
+            description: Slab value
+          - name: stage
+            description: Recreation homes level
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: stories
+            description: '{{ doc("column_stories") }}'
+          - name: style
+            description: Architectural style
+          - name: subtval
+            description: Sub total value
+          - name: suppress
+            description: '{{ doc("column_suppress") }}'
+          - name: taxyr
+            description: '{{ doc("column_taxyr") }}'
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: trimval
+            description: Masonry trim value
+          - name: ufeatarea
+            description: Feature area
+          - name: ufeatl
+            description: Feature length
+          - name: ufeatval
+            description: Feature value
+          - name: ufeatw
+            description: Feature width
+          - name: unfinarea
+            description: Unfinished area
+          - name: unfinl
+            description: Unfinished area length
+          - name: unfinval
+            description: Unfinished area value
+          - name: unfinw
+            description: Unfinished area width
+          - name: unitno
+            description: '{{ doc("column_unitno") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: useramt
+            description: RCN value of additions
+          - name: userfact
+            description: Living area in additions
+          - name: valmeth
+            description: Valuation method (MAN/CLT)
+          - name: wallhgt
+            description: '{{ doc("column_wallhgt") }}'
+          - name: wallhgtfact
+            description: Wall height factor
+          - name: wbfp_o
+            description: Wood burning fireplace - number of openings
+          - name: wbfp_pf
+            description: Wood burning fireplace - prefab
+          - name: wbfp_pfx
+            description: Additional stories for prefab fireplace stacks
+          - name: wbfp_s
+            description: Wood burning fireplace - number of stacks
+          - name: wbfp_x
+            description: Additional stories for wood-burning fireplace stacks
+          - name: wbfpval
+            description: Wood burning fireplace value
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+          - name: winpct
+            description: Windows percentage
+          - name: winyr
+            description: Windows year
+          - name: yrblt
+            description: '{{ doc("column_yrblt") }}'
+          - name: yrremod
+            description: Year remodeled
+
+        tests:
+          - unique_combination_of_columns:
+              name: dweldat_unique_by_parid_card_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+                - card
