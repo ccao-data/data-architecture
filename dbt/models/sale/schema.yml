@@ -2,7 +2,14 @@ sources:
   - name: sale
     tables:
       - name: flag
-      
+        description: '{{ doc("flag") }}'
+      - name: parameter
+        description: '{{ doc("parameter") }}'
+      - name: group_mean
+        description: '{{ doc("group_mean") }}'
+      - name: metadata
+        description: '{{ doc("metadata") }}'
+
 models:
   - name: sale.vw_ias_salesval_upload
     description: '{{ doc("vw_ias_salesval_upload") }}'
