@@ -2,6 +2,9 @@ sources:
   - name: sale
     tables:
       - name: flag
+      - name: metadata
+      - name: parameter
+      - name: group_mean
       
 models:
   - name: sale.vw_ias_salesval_upload
