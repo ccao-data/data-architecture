@@ -6,9 +6,9 @@ sources:
     tables:
       - name: asmt_all
         freshness:
-          filter: &latest_taxyr taxyr >= date_format(current_date - interval '1' year, '%Y')
-          warn_after: &24_hours {count: 24, period: hour}
-          error_after: &48_hours {count: 48, period: hour}
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
 
         columns:
           - name: class

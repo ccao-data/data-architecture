@@ -6,9 +6,9 @@ sources:
     tables:
       - name: htpar
         freshness:
-          filter: *latest_taxyr
-          warn_after: *24_hours
-          error_after: *48_hours
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
 
         columns:
           - name: action
@@ -22,7 +22,7 @@ sources:
           - name: agent
             description: Agent code
           - name: agentjur
-            description: Agent Jurisdiction
+            description: Agent jurisdiction
           - name: appdate
             description: Application date
           - name: appstat

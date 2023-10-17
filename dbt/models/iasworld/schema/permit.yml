@@ -7,8 +7,8 @@ sources:
       - name: permit
         freshness:
           filter: date_format(date_parse(permdt, '%Y-%m-%d %H:%i:%s.0'), '%Y') >= date_format(current_date - interval '1' year, '%Y')
-          warn_after: *48_hours
-          error_after: &72_hours {count: 72, period: hour}
+          warn_after: {count: 48, period: hour}
+          error_after: {count: 72, period: hour}
 
         columns:
           - name: addrvalid
