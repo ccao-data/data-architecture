@@ -1,5 +1,7 @@
 # Characteristics
 
+
+
 # Cook County
 
 ## card
@@ -17,7 +19,7 @@ Equivalent to legacy `MLT_CD` (multicode) value.
 ## cdu
 
 {% docs shared_column_cdu %}
-Condition - Desirability - Utility code.
+Condition/Desirability/Utility code.
 
 Code representing a any number of seemingly unrelated characteristics
 associated with a PIN, ranging from condition to types of subsidies, to
