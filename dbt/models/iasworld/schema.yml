@@ -512,10 +512,6 @@ sources:
             description: Market value
           - name: mraland
             description: MRA estimate land only
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
           - name: nrval
             description: Sum of designated structure areas
           - name: obyval
@@ -629,10 +625,6 @@ sources:
             description: '{{ doc("column_jur") }}'
           - name: luc
             description: '{{ doc("column_luc") }}'
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
           - name: ovrclass
             description: Override class
           - name: ovrcodtax
@@ -710,10 +702,6 @@ sources:
             description: '{{ doc("column_jur") }}'
           - name: luc
             description: '{{ doc("column_luc") }}'
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
           - name: ovrclass
             description: Override class
           - name: ovrcodtax
@@ -1060,7 +1048,7 @@ sources:
                 - card
 
       - name: comnt
-        comments:
+        columns:
           - name: caseno
             description: '{{ doc("column_caseno") }}'
           - name: code
@@ -1176,10 +1164,6 @@ sources:
             description: '{{ doc("column_newseq") }}'
           - name: nopar
             description: '{{ doc("column_nopar") }}'
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
           - name: numlot
             description: Number of lots
           - name: oldown
@@ -1316,8 +1300,6 @@ sources:
             description: '{{ doc("column_taxyr") }}'
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
-          - name: transdt
-            description:
           - name: unitdesc
             description: '{{ doc("column_unitdesc") }}'
           - name: unitno
@@ -1417,8 +1399,6 @@ sources:
             description: '{{ doc("column_floorno") }}'
           - name: grpflag
             description: Grouping code for multiple owners
-          - name: hidename
-            description: '{{ doc("column_hidename") }}'
           - name: iasw_id
             description: '{{ doc("column_iasw_id") }}'
           - name: jur
@@ -1427,10 +1407,6 @@ sources:
             description: Owner link number
           - name: marstat
             description: '{{ doc("column_marstat") }}'
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
           - name: notecd
             description: Code for predefined note
           - name: oseq
@@ -2113,10 +2089,6 @@ sources:
             description: '{{ doc("column_newconmo") }}'
           - name: newconpct
             description: '{{ doc("column_newconpct") }}'
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
           - name: numident
             description: Identical units
           - name: obsdep
@@ -2371,10 +2343,6 @@ sources:
             description: '{{ doc("column_iasw_id") }}'
           - name: jur
             description: '{{ doc("column_jur") }}'
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
           - name: parid
             description: '{{ doc("column_parid") }}'
           - name: seq
@@ -2450,10 +2418,6 @@ sources:
             description: '{{ doc("column_iasw_id") }}'
           - name: jur
             description: '{{ doc("column_jur") }}'
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
           - name: ownnum
             description: '{{ doc("column_ownnum") }}'
           - name: ownnum10
@@ -2551,12 +2515,8 @@ sources:
             description: '{{ doc("column_deactivat") }}'
           - name: exappl
             description: Exemption application number
-          - name: exbldgpct
-            description:
           - name: excode
             description: '{{ doc("column_excode") }}'
-          - name: exlandpct
-            description:
           - name: fld
             description: Column name of data to which this exemption applies
           - name: iasw_id
@@ -2569,24 +2529,10 @@ sources:
             description: '{{ doc("column_lline") }}'
           - name: marstat
             description: '{{ doc("column_marstat") }}'
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
-          - name: note3
-            description: '{{ doc("column_note3") }}'
-          - name: note4
-            description: '{{ doc("column_note4") }}'
-          - name: note5
-            description: '{{ doc("column_note5") }}'
-          - name: note6
-            description: '{{ doc("column_note6") }}'
           - name: ovrclass
             description: Override class
           - name: ovrclass1
             description: Original class to be overridden
-          - name: ownchg
-            description:
           - name: ownnum
             description: '{{ doc("column_ownnum") }}'
           - name: parid
@@ -2884,7 +2830,7 @@ sources:
           - name: firm2
             description: Firm name/address line 2
           - name: iasw_id
-            description:
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
             description: '{{ doc("column_jur") }}'
           - name: name1
@@ -2915,10 +2861,6 @@ sources:
             description: Agent 2 prefix
           - name: name2_suffix
             description: Agent 2 suffix
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
           - name: ownnum
             description: '{{ doc("column_ownnum") }}'
           - name: phone
@@ -3140,10 +3082,6 @@ sources:
             description: Location code
           - name: notcdate
             description: Date of notice from previous hearing level
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
           - name: noticedate
             description: Notice date printed on notice form
           - name: noticval
@@ -3364,8 +3302,6 @@ sources:
             description: '{{ doc("column_lline") }}'
           - name: lmod
             description: Land location model number
-          - name: location
-            description:
           - name: locfact
             description: Location factor
           - name: ltype
@@ -3394,8 +3330,6 @@ sources:
             description: '{{ doc("column_ncval") }}'
           - name: nmod
             description: Neighborhood model
-          - name: note1
-            description: '{{ doc("column_note1") }}'
           - name: odecr
             description: Override decremental rate
           - name: oincr
@@ -3555,10 +3489,6 @@ sources:
             description: Lot prefix and suffix, formatted
           - name: lotdim
             description: Lot dimensions
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
           - name: numlot
             description: Number of lots
           - name: parid
@@ -3767,18 +3697,6 @@ sources:
             description: Neighborhood number
           - name: ngroup
             description: Neighborhood group
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
-          - name: note3
-            description: '{{ doc("column_note3") }}'
-          - name: note4
-            description: '{{ doc("column_note4") }}'
-          - name: note5
-            description: '{{ doc("column_note5") }}'
-          - name: note6
-            description: '{{ doc("column_note6") }}'
           - name: obyfact
             description: '`OBY` factor - all classes'
           - name: rent
@@ -3819,8 +3737,6 @@ sources:
             description: '{{ doc("column_altbasedate") }}'
           - name: area
             description: '{{ doc("column_area") }}'
-          - name: area_sqm
-            description:
           - name: areaid
             description: '{{ doc("column_areaid") }}'
           - name: areasum
@@ -3855,8 +3771,6 @@ sources:
             description: Conveyance OBY
           - name: cubicft
             description: Cubic feet
-          - name: cubicmeters
-            description:
           - name: cur
             description: '{{ doc("column_cur") }}'
           - name: curmult
@@ -4011,8 +3925,6 @@ sources:
             description: '{{ doc("column_vectnotes") }}'
           - name: wallhgt
             description: '{{ doc("column_wallhgt") }}'
-          - name: wallhgt_m
-            description:
           - name: wen
             description: '{{ doc("column_wen") }}'
           - name: wencalc
@@ -4107,8 +4019,6 @@ sources:
             description: '{{ doc("column_floorno") }}'
           - name: grpflag
             description: Grouping code for multiple owners
-          - name: hidename
-            description: '{{ doc("column_hidename") }}'
           - name: iasw_id
             description: '{{ doc("column_iasw_id") }}'
           - name: jur
@@ -4117,10 +4027,6 @@ sources:
             description: Owner link number
           - name: marstat
             description: '{{ doc("column_marstat") }}'
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
           - name: notecd
             description: Code for predefined note
           - name: own1
@@ -4339,14 +4245,6 @@ sources:
             description: Neighborhood income valuation
           - name: nonfarminc
             description: Non-farm income
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
-          - name: note3
-            description: '{{ doc("column_note3") }}'
-          - name: note4
-            description: '{{ doc("column_note4") }}'
           - name: notecd1
             description: Code for predefined note 1
           - name: notecd2
@@ -4525,12 +4423,6 @@ sources:
             description: '{{ doc("column_jur") }}'
           - name: longdesc
             description: Long description
-          - name: note1
-            description: '{{ doc("column_note1") }}'
-          - name: note2
-            description: '{{ doc("column_note2") }}'
-          - name: note3
-            description: '{{ doc("column_note3") }}'
           - name: notes
             description: Permit notes
           - name: num

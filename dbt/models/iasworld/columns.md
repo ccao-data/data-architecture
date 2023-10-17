@@ -100,12 +100,6 @@ Address post modifier
 Address number prefix
 {% enddocs %}
 
-## adrpre
-
-{% docs column_adrpre %}
-Address number prefix
-{% enddocs %}
-
 ## adrpremod
 
 {% docs column_adrpremod %}
@@ -386,12 +380,6 @@ Federal tax ID number
 
 {% docs column_floorno %}
 Address floor number
-{% enddocs %}
-
-## floorno
-
-{% docs column_floorno %}
-Floor number
 {% enddocs %}
 
 ## fundep
@@ -700,12 +688,6 @@ Phone number
 Postal code (international zip code)
 {% enddocs %}
 
-## postalcode
-
-{% docs column_postalcode %}
-Postal code
-{% enddocs %}
-
 ## postal_indx
 
 {% docs column_postal_indx %}
@@ -764,12 +746,6 @@ Replacement cost new less depreciation
 
 {% docs column_recnr %}
 Value record number
-{% enddocs %}
-
-## rectype
-
-{% docs column_rectype %}
-Record type
 {% enddocs %}
 
 ## rectype
