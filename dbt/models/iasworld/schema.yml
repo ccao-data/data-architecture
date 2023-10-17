@@ -6,8 +6,251 @@ sources:
     loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
     tables:
       - name: aasysjur
+        columns:
+          - name: aprvalsum_ind
+            description: Flag for `aprvalsum`
+          - name: asmtown_ind
+            description: Flag for asmtown functionality on `AA11`, `AA13`, `AA16`
+          - name: base_ver
+            description: Base calc table version
+          - name: cama_rolltype
+            description: CAMA roll name
+          - name: cb_ind
+            description: Flag for circuit breaker
+          - name: comnt_inc
+            description: Increment for new lines in table `COMNT`
+          - name: country_code
+            description: Country code
+          - name: countycd
+            description: County Code used for client specific calculations
+          - name: def_class
+            description: Default value class to read citax
+          - name: default_jur
+            description: Default value to use for column `JUR` (anywhere)
+          - name: disp_owner
+            description: Flag which determines if owner is displayed
+          - name: display_jur
+            description: Flag to display column JUR on screens, etc
+          - name: dupyr
+            description: Duplicate year
+          - name: edms_ind
+            description: Flag for Electronic Document Management System (EDMS)
+          - name: exauto_case
+            description: Flag to generate automatic case numbers for exemptions
+          - name: exremove
+            description: Exemption removal status
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: ie_rolltype
+            description: Rolltype for valclass lookup to read citax
+          - name: jur
+            description: Jurisdiction
+          - name: jur_label
+            description: Label for column `JUR` on screens, etc
+          - name: latest_owner
+            description: Use latest owner rather than tax year for owner queries
+          - name: ld_card_ind
+            description: Flag for Landisc `CARD`
+          - name: ld_jur_ind
+            description: Flag for Landisc `JUR`
+          - name: ld_parid_ind
+            description: Flag for Landisc `PARID`
+          - name: ld_taxyr_ind
+            description: Flag for Landisc `TAXYR`
+          - name: legadd_inc
+            description: Increment for new lines in table `LEGADD`
+          - name: maildat_ind
+            description: Flag for maildat functionality on `AA11`
+          - name: max_taxyr
+            description: Maximum tax year
+          - name: min_taxyr
+            description: Minimum tax year
+          - name: natrsrc
+            description: Natural resource
+          - name: ppyear
+            description: Current tax year for personal property
+          - name: pw_expire_days
+            description: Number of days after which IAS passwords will expire
+          - name: seam_ind
+            description: Flag for seam functionality on `AA05`, `SA01` and `CA12`
+          - name: show_hidden
+            description: Show hidden names
+          - name: ss_ext_date
+            description: Date of last subscription server extract
+          - name: taxdist_req
+            description: Flag to indicate if `LEGDAT.TAXDIST` is a required field
+          - name: thisyear
+            description: Default year for users
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
+
       - name: addn
         description: '{{ doc("addn") }}'
+        columns:
+          - name: area
+            description: Area of this line
+          - name: area_sqm
+            description: Area of this line in meters
+          - name: areaid
+            description: Unique identifier used to associate record to an Apex sketch area
+          - name: areasum
+            description: Sum of designated structure areas
+          - name: card
+            description: Building (card) number
+          - name: cdu
+            description: Condition/desirability/utility code
+          - name: chgrsn
+            description: Reason code for change of value
+          - name: class
+            description: Classification
+          - name: convaddn
+            description: Converted addition total
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: depr
+            description: Percent good from tables (based on age+cdu)
+          - name: eff_area
+            description: Support value per line
+          - name: effageovr
+            description: Effective age override
+          - name: effyr
+            description: Effective year
+          - name: exmppct
+            description: Exemption percent
+          - name: exmpval
+            description: Exemption value
+          - name: first
+            description: First floor addition code
+          - name: grade
+            description: Grade
+          - name: grdfact
+            description: Grade factor
+          - name: grdfact1
+            description: First level class/grade factor
+          - name: grdfact2
+            description: Second level class/grade factor
+          - name: grdfact3
+            description: Third level class/grade factor
+          - name: grdfactl
+            description: Lower level class/grade factor
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: lline
+            description: Line number
+          - name: lower
+            description: Lower level addition code
+          - name: mktadj
+            description: Override percent good
+          - name: nccalc
+            description: Calculated current new construction value
+          - name: ncoval
+            description: Override current new construction value
+          - name: nctot
+            description: Cumulative new construction value
+          - name: ncval
+            description: Final current new construction value
+          - name: newconmo
+            description: New construction month. Used only in asmt calc.
+          - name: newconpct
+            description: New construction percentage. Used only in asmt calc.
+          - name: parid
+            description: Parcel identification number
+          - name: pctcomp
+            description: Percent of construction completed
+          - name: prodamage
+            description: Percent damaged
+          - name: prodate
+            description: Proration date
+          - name: profact
+            description: Proration factor
+          - name: protype
+            description: Proration type
+          - name: rate1
+            description: First level base rate
+          - name: rate2
+            description: Second level base rate
+          - name: rate3
+            description: Third level base rate
+          - name: ratel
+            description: Lower level base rate
+          - name: rcn1
+            description: First level replacement cost new amount
+          - name: rcn2
+            description: Second level replacement cost new amount
+          - name: rcn3
+            description: Third level replacement cost new amount
+          - name: rcnl
+            description: Lower level replacement cost new amount
+          - name: rcnld
+            description: Replacement cost new less depreciation
+          - name: rcnld1
+            description: First level replacement cost new less depreciation amount
+          - name: rcnld2
+            description: Second level replacement cost new less depreciation amount
+          - name: rcnld3
+            description: Third level replacement cost new less depreciation amount
+          - name: rcnldl
+            description: Lower level replacement cost new less depreciation amount
+          - name: rectype
+            description: 'Value category: P (`PP11`) or R (`CA11`)'
+          - name: salekey
+            description: Key pointing to the sale
+          - name: second
+            description: Second floor addition code
+          - name: seq
+            description: Version number of this record
+          - name: status
+            description: Processing status
+          - name: taxyr
+            description: Tax year
+          - name: third
+            description: Third floor addition code
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: user1
+            description: User defined field 1
+          - name: user2
+            description: User defined field 2
+          - name: user3
+            description: User defined field 3
+          - name: user4
+            description: User defined field 4
+          - name: user5
+            description: User defined field 5
+          - name: userval1
+            description: User defined value field 1
+          - name: userval2
+            description: User defined value field 2
+          - name: userval3
+            description: User defined value field 3
+          - name: userval4
+            description: User defined value field 4
+          - name: userval5
+            description: User defined value field 5
+          - name: value
+            description: Value of the addition
+          - name: vect
+            description: Vector string
+          - name: vectnotes
+            description: Sketch vector notes
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
+          - name: yrblt
+            description: Year built
         tests:
           - unique_combination_of_columns:
               name: addn_unique_by_parid_taxyr_card_lline
@@ -16,20 +259,426 @@ sources:
                 - taxyr
                 - card
                 - lline
+
       - name: addrindx
+        columns:
+          - name: addrsrc
+            description: Address source
+          - name: addrvalid
+            description: Flag to denote whether address was validated against validation service
+          - name: adradd
+            description: Address number suffix
+          - name: adrdir
+            description: Street direction
+          - name: adrgrid
+            description: Grid address number
+          - name: adrid
+            description: Unique address ID
+          - name: adrno
+            description: Street number
+          - name: adrparchild
+            description: Address Parent Child Indicator
+          - name: adrpostmod
+            description: Address post modifier
+          - name: adrpre
+            description: Address number prefix
+          - name: adrpremod
+            description: Address pre modifier
+          - name: adrpretype
+            description: Address pre type
+          - name: adrstatus
+            description: Address effective status
+          - name: adrstr
+            description: Address street name
+          - name: adrsuf
+            description: Street suffix
+          - name: adrsuf2
+            description: 'Street suffix #2'
+          - name: bldgno
+            description: Building number
+          - name: card
+            description: Building (card) number
+          - name: childparid
+            description: Child Parcel ID
+          - name: cityname
+            description: City name
+          - name: coopid
+            description: Cooperative identifier
+          - name: country
+            description: Country
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: defaddr
+            description: Primary address for unique combination of `JUR`, `PARID`, `CARD`, `TAXYR` and `TBLE`
+          - name: floorno
+            description: Address floor number
+          - name: gislink
+            description: Key to link address record with third party GIS 911 system for PBC
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: lline
+            description: Line number
+          - name: loc2
+            description: Address location line 2
+          - name: parid
+            description: Parcel identification number
+          - name: postalcode
+            description: Postal code (international zip code)
+          - name: seq
+            description: Version number of this record
+          - name: statecode
+            description: State or province (2 digit)
+          - name: strcd
+            description: Street code
+          - name: strreloc
+            description: Relative Location
+          - name: tabseq
+            description: Sort order within addresses associated with `TBLE`
+          - name: taxyr
+            description: Tax year
+          - name: tble
+            description: Table name associated with this address
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: unitdesc
+            description: Address unit description
+          - name: unitno
+            description: Address unit number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: user1
+            description: User defined field 1
+          - name: user10
+            description: User defined field 10
+          - name: user11
+            description: User defined field 11
+          - name: user12
+            description: User defined field 12
+          - name: user13
+            description: User defined field 13
+          - name: user14
+            description: User defined field 14
+          - name: user15
+            description: User defined field 15
+          - name: user2
+            description: User defined field 2
+          - name: user3
+            description: User defined field 3
+          - name: user4
+            description: User defined field 4
+          - name: user5
+            description: User defined field 5
+          - name: user6
+            description: User defined field 6
+          - name: user7
+            description: User defined field 7
+          - name: user8
+            description: User defined field 8
+          - name: user9
+            description: User defined field 9
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
+          - name: xcoord
+            description: X coordinate
+          - name: ycoord
+            description: Y coordinate
+          - name: zip1
+            description: Zip code, first 5 digits
+          - name: zip2
+            description: Zip code suffix, last 4 digits
+
       - name: aprval
         description: '{{ doc("aprval") }}'
+        columns:
+          - name: adjbldgfact
+            description: Building factor
+          - name: adjlandfact
+            description: Land factor
+          - name: apmktval
+            description: Applied market value
+          - name: aprbldg
+            description: Appraised building value
+          - name: aprdate
+            description: '`APRTOT` calc date'
+          - name: aprland
+            description: Appraised land value
+          - name: aprtot
+            description: Total appraised value
+          - name: areasum
+            description: Sum of designated structure areas
+          - name: assmkt
+            description: Total assessed value
+          - name: auid
+            description: Appraisal unit number
+          - name: bldgval
+            description: Building value
+          - name: comincval
+            description: Commercial income value
+          - name: commktsf
+            description: Commercial market sqft value
+          - name: commktsfdate
+            description: Commercial market sqft date
+          - name: commktun
+            description: Commercial market unit value
+          - name: commktundate
+            description: Commercial market unit date
+          - name: commonbldg
+            description: Building value based on % of master condo parcel
+          - name: commonland
+            description: Land value based on % of master condo parcel
+          - name: compasmt
+            description: Comparable `ASMT` value
+          - name: compdate
+            description: Comparable `ASMT` date
+          - name: comval
+            description: Commercial building cost value
+          - name: comvalpersf
+            description: Commercial appraised value per SF
+          - name: comvalperunit
+            description: Commercial appraised value per unit
+          - name: convbldg
+            description: Building value at conversion
+          - name: convland
+            description: Land value at conversion
+          - name: costdt
+            description: Cost value date
+          - name: costval
+            description: Total cost value
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: dwelval
+            description: Total dwelling value
+          - name: ecf
+            description: Economic condition factor
+          - name: equflag
+            description: When appraisal values changes this is checked
+          - name: excess_improvement
+            description: Excess improvement amount
+          - name: excess_land
+            description: Excess land amount
+          - name: excess_total
+            description: Excess total amount
+          - name: exmpbldg
+            description: Exemption building value
+          - name: exmpland
+            description: Exemption land value
+          - name: exmppct
+            description: Exemption percent
+          - name: exmppctb
+            description: Bldg exemption percentage. If this % is null, it will use `EXMPPCT`
+          - name: exmppctl
+            description: Land exemption percentage. If this % is null, it will use `EXMPPCT`
+          - name: exmpval
+            description: Exemption value
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: incdate
+            description: Income Value Date
+          - name: income
+            description: Total income value
+          - name: incomecost
+            description: Total value for blended INCOME and COST aproach
+          - name: incomemkt
+            description: Total value for blended INCOME and MARKET aproach
+          - name: jur
+            description: Jurisdiction
+          - name: landpct
+            description: Land allocation percent
+          - name: landval
+            description: Total land cost value
+          - name: lastupd
+            description: Date of last change to a value field
+          - name: mandate
+            description: Manual model date
+          - name: manmodval
+            description: Manual model value
+          - name: mktcost
+            description: Total value for blended MARKET and COST aproach
+          - name: mktdt
+            description: Total market date
+          - name: mktland
+            description: Market land only
+          - name: mkttotval
+            description: Total market value
+          - name: mktval
+            description: Market value
+          - name: mraland
+            description: MRA estimate land only
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: nrval
+            description: Sum of designated structure areas
+          - name: obyval
+            description: Total `OBY` value
+          - name: overridemodelid
+            description: Override model ID number
+          - name: ovrmraval
+            description: Override MRA value
+          - name: parid
+            description: Parcel identification number
+          - name: posttype
+            description: Assessment posting type
+          - name: ppcomval
+            description: Personal property commercial value
+          - name: ppdwelval
+            description: Personal property residential value
+          - name: ppobyval
+            description: Personal property `OBY` value
+          - name: procdate
+            description: Procedure date
+          - name: procname
+            description: Procedure name
+          - name: reascd
+            description: Reason code for change in assessed value
+          - name: resgrmval
+            description: Gross rent multiplier value
+          - name: revbldg
+            description: Reviewer building value estimate
+          - name: revcode
+            description: Review code (value type)
+          - name: revdt
+            description: Review date
+          - name: revland
+            description: Reviewer land value estimate
+          - name: revmeth
+            description: Review method
+          - name: revreas
+            description: Review reason code
+          - name: revtot
+            description: Reviewer total estimate
+          - name: revwho
+            description: Reviewer name/code
+          - name: rolltype
+            description: Tax roll name
+          - name: saledate
+            description: Selected sale date
+          - name: salekey
+            description: Key pointing to the sale
+          - name: saleprice
+            description: Selected sale price
+          - name: seq
+            description: Version number of this record
+          - name: spcflg
+            description: Special processing flag
+          - name: splitno
+            description: Split/combination tracking number
+          - name: spssmrabldg
+            description: SPSS MRA building value
+          - name: spssmraland
+            description: SPSS MRA land value
+          - name: status
+            description: Processing status
+          - name: taxyr
+            description: Tax year
+          - name: tiebackbldg
+            description: Sum of building value for all children in the income tieback group
+          - name: tiebackland
+            description: Sum of land value for all children in the income tieback group
+          - name: tiebacktotal
+            description: Sum of total value for all children in the income tieback group
+          - name: totcomla
+            description: Total commercial living area
+          - name: totresla
+            description: Total residential living area
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
         tests:
           - unique_combination_of_columns:
               name: aprval_unique_by_parid_taxyr
               combination_of_columns:
                 - parid
                 - taxyr
+
       - name: asmt_all
         freshness:
           filter: &latest_taxyr taxyr >= date_format(current_date - interval '1' year, '%Y')
           warn_after: &24_hours {count: 24, period: hour}
           error_after: &48_hours {count: 48, period: hour}
+        columns:
+          - name: class
+            description: Classification
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: distcode
+            description: District code
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: luc
+            description: Land use code
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: ovrclass
+            description: Override class
+          - name: ovrcodtax
+            description: Override code for taxes
+          - name: ovrvaltax
+            description: Override value for taxes
+          - name: parid
+            description: Parcel identification number
+          - name: procdate
+            description: Procedure date
+          - name: procname
+            description: Procedure name
+          - name: reascd
+            description: Reason code for change in assessed value
+          - name: rolltype
+            description: Tax roll name
+          - name: seq
+            description: Version number of this record
+          - name: splitno
+            description: Split/combination tracking number
+          - name: status
+            description: Processing status
+          - name: taxtable
+            description: Flag to indicate assessment record used in tax calculation
+          - name: taxyr
+            description: Tax year
+          - name: tottax
+            description: Total tax
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: valclass
+            description: Tax assessment class
+          - name: valtax
+            description: Taxes
+          - name: valyear
+            description: Valuation year
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
         tests:
           - unique_combination_of_columns:
               name: asmt_all_unique_by_parid_procname_and_taxyr
@@ -44,10 +693,364 @@ sources:
                   procname in ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE') and
                   valclass is null
                 error_if: ">125"
+
       - name: asmt_hist
+        columns:
+          - name: class
+            description: Classification
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: distcode
+            description: District code
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: luc
+            description: Land use code
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: ovrclass
+            description: Override class
+          - name: ovrcodtax
+            description: Override code for taxes
+          - name: ovrvaltax
+            description: Override value for taxes
+          - name: parid
+            description: Parcel identification number
+          - name: procdate
+            description: Procedure date
+          - name: procname
+            description: Procedure name
+          - name: reascd
+            description: Reason code for change in assessed value
+          - name: rolltype
+            description: Tax roll name
+          - name: seq
+            description: Version number of this record
+          - name: splitno
+            description: Split/combination tracking number
+          - name: status
+            description: Processing status
+          - name: taxtable
+            description: Flag to indicate assessment record used in tax calculation
+          - name: taxyr
+            description: Tax year
+          - name: tottax
+            description: Total tax
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: valclass
+            description: Tax assessment class
+          - name: valtax
+            description: Taxes
+          - name: valyear
+            description: Valuation year
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
+
       - name: cname
+        columns:
+          - name: addr1
+            description: Address line 1
+          - name: addr2
+            description: Address line 2
+          - name: addr3
+            description: Address line 3
+          - name: addr4
+            description: Address line 4
+          - name: addr5
+            description: Address line 5
+          - name: addressguid
+            description: Address GUID
+          - name: addrtype
+            description: Address type code (N, S, F, R, C)
+          - name: addrvalid
+            description: Flag to denote whether address was validated against validation service
+          - name: adradd
+            description: Address number suffix
+          - name: adrdir
+            description: Street direction
+          - name: adrgrid
+            description: Grid address number
+          - name: adrno
+            description: Street number
+          - name: adrpre
+            description: Address number prefix
+          - name: adrstr
+            description: Address street name
+          - name: adrsuf
+            description: Street suffix
+          - name: adrsuf2
+            description: 'Street suffix #2'
+          - name: attn
+            description: Attention Line
+          - name: careof
+            description: In Care Of name
+          - name: carrier_rt
+            description: Carrier route - 4 digit suffix
+          - name: cityname
+            description: City name
+          - name: compartment
+            description: Compartment
+          - name: contactguid
+            description: Contact GUID
+          - name: country
+            description: Country
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: delinstalltype
+            description: Delivery installation type
+          - name: delinstallval
+            description: Delivery installation value
+          - name: delmod
+            description: Mode of delivery
+          - name: delmodval
+            description: Mode of delivery value
+          - name: email
+            description: E-mail address of contact person
+          - name: fax
+            description: Fax number of contact person
+          - name: fedid
+            description: Federal tax ID number
+          - name: floorno
+            description: Floor number
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: name1
+            description: Name 1
+          - name: name1_companyname
+            description: Name 1 company name
+          - name: name1_firstname
+            description: Name 1 first name
+          - name: name1_lastname
+            description: Name 1 last name
+          - name: name1_middlename
+            description: Name 1 middle name
+          - name: name1_prefix
+            description: Name 1 prefix
+          - name: name1_suffix
+            description: Name 1 suffix
+          - name: name2
+            description: Name 2
+          - name: name2_companyname
+            description: Name 2 company name
+          - name: name2_firstname
+            description: Name 2 first name
+          - name: name2_lastname
+            description: Name 2 last name
+          - name: name2_middlename
+            description: Name 2 middle name
+          - name: name2_prefix
+            description: Name 2 prefix
+          - name: name2_suffix
+            description: Name 2 suffix
+          - name: nameid
+            description: 'Name ID is used to link different Owner # / Name'
+          - name: ownnum
+            description: Owner number
+          - name: phone
+            description: Phone number
+          - name: postal_indx
+            description: Postal index number
+          - name: postalcode
+            description: Postal code (international zip code)
+          - name: rectype
+            description: Record type
+          - name: seq
+            description: Version number of this record
+          - name: site
+            description: Site
+          - name: skip_addr_validation
+            description: Skip address validation
+          - name: statecode
+            description: State or province (2 digit)
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: unitdesc
+            description: Address unit description
+          - name: unitno
+            description: Address unit number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: vldrsc
+            description: No validation reason code
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
+          - name: zip1
+            description: Zip code, first 5 digits
+          - name: zip2
+            description: Zip code suffix, last 4 digits
+
       - name: comdat
         description: '{{ doc("comdat") }}'
+        columns:
+          - name: adjfact
+            description: Adjustment factor
+          - name: areasum
+            description: Sum of designated structure areas
+          - name: bld_modelid
+            description: Building model ID from `BLDMODELMAST` table
+          - name: bldgros_d
+            description: Gross building description
+          - name: bldgros_v
+            description: Gross building value
+          - name: bldgval
+            description: Building value
+          - name: bldnum
+            description: Building number
+          - name: busla
+            description: Total business living area
+          - name: calcexclude
+            description: Exclude this record from income calculations
+          - name: card
+            description: Building (card) number
+          - name: cdu
+            description: Condition/desirability/utility code
+          - name: chgrsn
+            description: Reason code for change of value
+          - name: class
+            description: Classification
+          - name: convbldg
+            description: Building value at conversion
+          - name: cubicft
+            description: Cubic feet
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: depr
+            description: Percent good from tables
+          - name: deprt
+            description: Override depreciation table
+          - name: effageovr
+            description: Effective age override
+          - name: effyr
+            description: Effective year
+          - name: excess
+            description: Flag to indicate excess value
+          - name: exmppct
+            description: Exemption percent
+          - name: exmpval
+            description: Exemption value
+          - name: gfact
+            description: Grade factor
+          - name: grade
+            description: Grade
+          - name: hga
+            description: Homesite indicator
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: imprname
+            description: Improvement name
+          - name: jur
+            description: Jurisdiction
+          - name: mktadj
+            description: Market adjustment percent good override
+          - name: mktrsn
+            description: Reason for market adjustment
+          - name: msarea
+            description: Override area for M and S `PAR` adjustment calc.
+          - name: msperim
+            description: Override perimeter for M and S `PAR` adjustment calc.
+          - name: nccalc
+            description: Calculated current new construction value
+          - name: ncoval
+            description: Override current new construction value
+          - name: nctot
+            description: Cumulative new construction value
+          - name: ncval
+            description: Final current new construction value
+          - name: newconmo
+            description: New construction month. Used only in asmt calc.
+          - name: newconpct
+            description: New construction percentage. Used only in asmt calc.
+          - name: numident
+            description: Number of identical units
+          - name: ovrmraval
+            description: Override MRA Value
+          - name: ovrnbhd
+            description: Neighborhood number
+          - name: ovrrcnld
+            description: Override replacement cost new less depreciation
+          - name: parid
+            description: Parcel identification number
+          - name: parkcover
+            description: Number of parking spaces covered
+          - name: parkuncov
+            description: Number of parking spaces uncovered
+          - name: pctcomp
+            description: Percent of construction completed
+          - name: prodamage
+            description: Percent damaged
+          - name: prodate
+            description: Proration date
+          - name: profact
+            description: Proration factor
+          - name: proprate
+            description: Investment rating
+          - name: protype
+            description: Proration type
+          - name: rcn
+            description: Replacement cost new
+          - name: rcnfact
+            description: RCN adjustment factor
+          - name: rcnld
+            description: Replacement cost new less depreciation
+          - name: recnr
+            description: Value record number
+          - name: rectype
+            description: 'Value category: P (`PP11`) or R (`CA11`)'
+          - name: salekey
+            description: Key pointing to the sale
+          - name: seq
+            description: Version number of this record
+          - name: status
+            description: Processing status
+          - name: structure
+            description: Structure code
+          - name: suppress
+            description: Flag to indicate suppress value
+          - name: taxyr
+            description: Tax year
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: units
+            description: Number of units
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: useradj
+            description: Override to comdat userdef adjustment factor
+          - name: valmeth
+            description: Valuation method (`MAN`/`CLT`)
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
+          - name: yrblt
+            description: Year built
         tests:
           - unique_combination_of_columns:
               name: comdat_unique_by_parid_card_taxyr
@@ -55,13 +1058,1293 @@ sources:
                 - parid
                 - taxyr
                 - card
+
       - name: comnt
+        comments:
+          - name: caseno
+            description: Case number
+          - name: code
+            description: Code defining comment type
+          - name: comnt
+            description: Comment
+          - name: comnt2
+            description: Unlimited comment
+          - name: comntno
+            description: Comment number
+          - name: comntstat
+            description: Current status
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: parid
+            description: Parcel identification number
+          - name: status
+            description: Processing status
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
+
       - name: cvleg
+        columns:
+          - name: acres
+            description: Total acres
+          - name: actdep
+            description: Actual lot depth
+          - name: actfrt
+            description: Actual front footage
+          - name: actualjur
+            description: Actual jurisdiction of the parcel if a crossover parcel
+          - name: adradd
+            description: Address number suffix
+          - name: adrdir
+            description: Street direction
+          - name: adrid
+            description: Unique address ID
+          - name: adrno
+            description: Street number
+          - name: adrparchild
+            description: Address Parent Child Indicator
+          - name: adrpostmod
+            description: Address post modifier
+          - name: adrpre
+            description: Address number prefix
+          - name: adrpremod
+            description: Address pre modifier
+          - name: adrpretype
+            description: Address pre type
+          - name: adrstatus
+            description: Address effective status
+          - name: adrstr
+            description: Address street name
+          - name: adrsuf
+            description: Street suffix
+          - name: adrsuf2
+            description: Street suffix #2
+          - name: block
+            description: Block prefix and suffix, formatted
+          - name: book
+            description: Book number
+          - name: cityname
+            description: City name
+          - name: compct
+            description: Common interest
+          - name: condbdg
+            description: Condominium building number
+          - name: condunt
+            description: Condominium unit number
+          - name: conveyno
+            description: Conveyance number
+          - name: crossoverparflg
+            description: Crossover parcel flag
+          - name: floorno
+            description: Address floor number
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: instrtyp
+            description: Instrument type
+          - name: instruno
+            description: Instrument number
+          - name: jur
+            description: Jurisdiction
+          - name: legal1
+            description: Legal description line 1
+          - name: legal2
+            description: Legal description line 2
+          - name: legal3
+            description: Legal description line 3
+          - name: legdesc
+            description: Unlimited legal description
+          - name: loc2
+            description: Address location line 2
+          - name: lot
+            description: Lot prefix and suffix, formatted
+          - name: lotdim
+            description: Lot dimensions
+          - name: lseq
+            description: Previous `LEGDAT` sequence from before the conveyance was performed
+          - name: ltaxyr
+            description: Previous `LEGDAT` tax year from before the conveyance was performed
+          - name: multown
+            description: Multiple owner indicator
+          - name: newseq
+            description: New sequence number
+          - name: nopar
+            description: Number of parcels
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: numlot
+            description: Number of lots
+          - name: oldown
+            description: Old owner name
+          - name: oldown_companyname
+            description: Old owner company name
+          - name: oldown_firstname
+            description: Old owner first name
+          - name: oldown_lastname
+            description: Old owner last name
+          - name: oldown_middlename
+            description: Old owner middle name
+          - name: oldown_prefix
+            description: Old owner prefix
+          - name: oldown_suffix
+            description: Old owner suffix
+          - name: oldown2
+            description: Old owner name 2
+          - name: oldseq
+            description: Old sequence number
+          - name: oldyr
+            description: Old year
+          - name: oseq
+            description: Previous `OWNDAT` sequence
+          - name: otaxyr
+            description: Previous `OWNDAT` tax year
+          - name: own1
+            description: Owner name 1
+          - name: own1_companyname
+            description: Owner 1 company name
+          - name: own1_firstname
+            description: Owner 1 first name
+          - name: own1_lastname
+            description: Owner 1 last name
+          - name: own1_middlename
+            description: Owner 1 middle name
+          - name: own1_prefix
+            description: Owner 1 prefix
+          - name: own1_suffix
+            description: Owner 1 suffix
+          - name: page
+            description: Page number
+          - name: parid
+            description: Parcel identification number
+          - name: parseq
+            description: Conveyance parcel sequence number
+          - name: pmultown
+            description: Previous multi owner indicator
+          - name: postalcode
+            description: Postal code
+          - name: pown1
+            description: Previous owner name 1
+          - name: pown1_companyname
+            description: Previous owner 1 company name
+          - name: pown1_firstname
+            description: Previous owner 1 first name
+          - name: pown1_lastname
+            description: Previous owner 1 last name
+          - name: pown1_middlename
+            description: Previous owner 1 middle name
+          - name: pown1_prefix
+            description: Previous owner 1 prefix
+          - name: pown1_suffix
+            description: Previous owner 1 suffix
+          - name: price
+            description: Sale price
+          - name: procdate
+            description: Procedure date
+          - name: procname
+            description: Procedure name
+          - name: qualifier
+            description: Qualifier codes, left justified
+          - name: respct
+            description: Residential percentage
+          - name: roll_section
+            description: Roll section
+          - name: saledt
+            description: Sale date
+          - name: salekey
+            description: Key pointing to the sale
+          - name: saletype
+            description: Sale type code (land or land and building)
+          - name: saleval
+            description: Sale validity code
+          - name: schdist
+            description: School district code
+          - name: school_code
+            description: School code
+          - name: schvalpct
+            description: School district value percentage
+          - name: sortkey
+            description: Block, lot and qualifier, reformatted for sorting
+          - name: splitno
+            description: Split/combination tracking number
+          - name: sqft
+            description: Deeded square foot acrage
+          - name: statecode
+            description: State or province (2 digit)
+          - name: status
+            description: Processing status
+          - name: steb
+            description: State sales code
+          - name: stflag
+            description: State report flag
+          - name: strcd
+            description: Street code
+          - name: strreloc
+            description: Relative location
+          - name: subblck
+            description: Subdivision block number
+          - name: subcode
+            description: Subdivision code
+          - name: subdiv
+            description: Subdivision name
+          - name: subdnum
+            description: Subdivision number
+          - name: sublot
+            description: Subdivision lot number
+          - name: swis_code
+            description: Swis Code
+          - name: taxdist
+            description: Tax district
+          - name: taxdist2
+            description: Tax district 2
+          - name: taxdist3
+            description: Tax district 3
+          - name: taxdist4
+            description: Tax district 4
+          - name: taxdist5
+            description: Tax district 5
+          - name: taxdist6
+            description: Tax district 6
+          - name: taxyr
+            description: Tax year
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: transdt
+            description:
+          - name: unitdesc
+            description: Address unit description
+          - name: unitno
+            description: Address unit number
+          - name: upd_owndat
+            description: Flag to update `OWNDAT`
+          - name: upd_ownmlt
+            description: Flag to update `OWNMLT`
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
+          - name: xcoord
+            description: X coordinate
+          - name: ycoord
+            description: Y coordinate
+          - name: zcoord
+            description: Z coordinate
+          - name: zip1
+            description: Zip code, first 5 digits
+          - name: zip2
+            description: Zip code suffix, last 4 digits
+
       - name: cvown
+        columns:
+          - name: addr1
+            description: Address line 1
+          - name: addr2
+            description: Address line 2
+          - name: addr3
+            description: Address line 3
+          - name: addr4
+            description: Address Line 4
+          - name: addr5
+            description: Address Line 5
+          - name: addrtype
+            description: Address type code (N, S, F, R, C)
+          - name: addrvalid
+            description: Flag to denote whether address was validated against validation service
+          - name: adradd
+            description: Address number suffix
+          - name: adrdir
+            description: Street direction
+          - name: adrgrid
+            description: Grid address number
+          - name: adrno
+            description: Street number
+          - name: adrpre
+            description: Address Number Prefix
+          - name: adrstr
+            description: Address street name
+          - name: adrsuf
+            description: Street suffix
+          - name: adrsuf2
+            description: 'Street suffix #2'
+          - name: attn
+            description: Attention Line
+          - name: book
+            description: Book number
+          - name: careof
+            description: In Care Of name
+          - name: carrier_rt
+            description: Carrier route - 4 digit suffix
+          - name: chgrsn
+            description: Reason code for change of value
+          - name: cityname
+            description: City name
+          - name: cnamejur
+            description: Stores `CNAME.JUR` when ownnum is populated in hierarchical `jur` sites
+          - name: compartment
+            description: Compartment
+          - name: conveyno
+            description: Conveyance number
+          - name: country
+            description: Country
+          - name: delflg
+            description: Delete flag
+          - name: delinstalltype
+            description: Delivery installation type
+          - name: delinstallval
+            description: Delivery installation value
+          - name: delmod
+            description: Mode of delivery
+          - name: delmodval
+            description: Mode of delivery value
+          - name: email
+            description: E-mail address of contact person
+          - name: fax
+            description: Fax number of contact person
+          - name: floorno
+            description: Floor number
+          - name: grpflag
+            description: Grouping code for multiple owners
+          - name: hidename
+            description: Flag to hide name/address from public view (Y)
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: link
+            description: Owner link number
+          - name: marstat
+            description: Marital status
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: notecd
+            description: Code for predefined note
+          - name: oseq
+            description: Previuos `OWNDAT` sequence
+          - name: otaxyr
+            description: Previous `OWNDAT` tax year
+          - name: own1
+            description: Owner name 1
+          - name: own1_companyname
+            description: Owner 1 company name
+          - name: own1_firstname
+            description: Owner 1 first name
+          - name: own1_lastname
+            description: Owner 1 last name
+          - name: own1_middlename
+            description: Owner 1 middle name
+          - name: own1_prefix
+            description: Owner 1 prefix
+          - name: own1_suffix
+            description: Owner 1 suffix
+          - name: own2
+            description: Owner name 2
+          - name: own2_companyname
+            description: Owner 2 company name
+          - name: own2_firstname
+            description: Owner 2 first name
+          - name: own2_lastname
+            description: Owner 2 last name
+          - name: own2_middlename
+            description: Owner 2 middle name
+          - name: own2_prefix
+            description: Owner 2 prefix
+          - name: own2_suffix
+            description: Owner 2 suffix
+          - name: ownbeg
+            description: Ownership begin date
+          - name: ownend
+            description: Ownership ending date
+          - name: ownnum
+            description: Owner number
+          - name: ownseq
+            description: Owner sequence number
+          - name: owntype1
+            description: Type of owner(individual, guardian, etc) 1
+          - name: owntype2
+            description: Type of owner(individual, guardian, etc) 2
+          - name: owntype3
+            description: Type of owner(individual, guardian, etc) 3
+          - name: owntype4
+            description: Type of owner(individual, guardian, etc) 4
+          - name: page
+            description: Page number
+          - name: partial
+            description: Partial ownership indicator
+          - name: pctown
+            description: Percent of ownership for primary owner
+          - name: phone
+            description: Phone number
+          - name: po
+            description: Primary owner flag (1 = `OWNDAT`, 0 = `OWNMLT`)
+          - name: postal_indx
+            description: Postal index number
+          - name: postalcode
+            description: Postal code (international zip code)
+          - name: pown1
+            description: Previous owner name 1
+          - name: pown1_companyname
+            description: Previous owner 1 company name
+          - name: pown1_firstname
+            description: Previous owner 1 first name
+          - name: pown1_lastname
+            description: Previous owner 1 last name
+          - name: pown1_middlename
+            description: Previous owner 1 middle name
+          - name: pown1_prefix
+            description: Previous owner 1 prefix
+          - name: pown1_suffix
+            description: Previous owner 1 suffix
+          - name: pown2
+            description: Previous owner name 2
+          - name: pown2_companyname
+            description: Previous owner 2 company name
+          - name: pown2_firstname
+            description: Previous owner 2 first name
+          - name: pown2_lastname
+            description: Previous owner 2 last name
+          - name: pown2_middlename
+            description: Previous owner 2 middle name
+          - name: pown2_prefix
+            description: Previous owner 2 prefix
+          - name: pown2_suffix
+            description: Previous owner 2 suffix
+          - name: salekey
+            description: Key pointing to the sale
+          - name: site
+            description: Site
+          - name: skip_addr_validation
+            description: Skip address validation
+          - name: splitno
+            description: Split/combination tracking number
+          - name: statecode
+            description: State or province (2 digit)
+          - name: stateid
+            description: State tax ID number
+          - name: status
+            description: Processing status
+          - name: taxyr
+            description: Tax year
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: unitdesc
+            description: Address unit description
+          - name: unitno
+            description: Address unit number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
+          - name: zip1
+            description: Zip code, first 5 digits
+          - name: zip2
+            description: Zip code suffix, last 4 digits
+
       - name: cvtran
+        columns:
+          - name: actconsid
+            description: Actual consideration
+          - name: adjamt
+            description: Adjustment amount (used to calculate `ADJPRICE`)
+          - name: adjprice
+            description: Adjusted sales price
+          - name: adjreas
+            description: Reason for adjusting sale price
+          - name: altid
+            description: Alternate identification number
+          - name: aprtot
+            description: Total appraised value
+          - name: armslen
+            description: Arms length sale indicator
+          - name: asmt
+            description: Assessed value at time of sale
+          - name: asr
+            description: Assessment to sale ratio
+          - name: assumind
+            description: Assumed indicator
+          - name: bldgtyp
+            description: Building type
+          - name: book
+            description: Book number
+          - name: cashamt
+            description: Cash amount toward mortgage
+          - name: cashassm
+            description: Amount of assumed mortgage paid in cash
+          - name: chgrsn
+            description: Reason code for change of value
+          - name: comnt
+            description: Comment
+          - name: considamt
+            description: Consideration amount
+          - name: convdate
+            description: Conveyance date
+          - name: conveyno
+            description: Conveyance number
+          - name: convstat
+            description: Conveyance status
+          - name: ecrv
+            description: 'Electronic certificate of real estate values ID: (state of MN specific)'
+          - name: exfee
+            description: Exempt fee code
+          - name: feetype
+            description: Type of fee based on characteristics of the property
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: imageno
+            description: Document image number for the sale deed
+          - name: instrtyp
+            description: Instrument type
+          - name: instruno
+            description: Instrument number
+          - name: jur
+            description: Jurisdiction
+          - name: linkno
+            description: Used to tie multi-parcel sales together (either instrument number, or transfer number, or book/page)
+          - name: lots
+            description: Total lots involved in this conveyance
+          - name: mip
+            description: Mortgage interest premium
+          - name: mktval
+            description: Market value
+          - name: mktvalid
+            description: Market validity code
+          - name: mortamt
+            description: Mortgage amount
+          - name: mortassm
+            description: Mortgage assumed amount
+          - name: morttype
+            description: Mortgage type code
+          - name: newseq
+            description: New sequence number
+          - name: newyr
+            description: New year
+          - name: nopar
+            description: Number of parcels
+          - name: notes
+            description: Sales comments
+          - name: oldown
+            description: Old owner name
+          - name: oldown_companyname
+            description: Old owner company name
+          - name: oldown_firstname
+            description: Old owner first name
+          - name: oldown_lastname
+            description: Old owner last name
+          - name: oldown_middlename
+            description: Old owner middle name
+          - name: oldown_prefix
+            description: Old owner prefix
+          - name: oldown_suffix
+            description: Old owner suffix
+          - name: oldown2
+            description: Old owner name 2
+          - name: oldown2_companyname
+            description: Old owner 2 company name
+          - name: oldown2_firstname
+            description: Old owner 2 first name
+          - name: oldown2_lastname
+            description: Old owner 2 last name
+          - name: oldown2_middlename
+            description: Old owner 2 middle name
+          - name: oldown2_prefix
+            description: Old owner 2 prefix
+          - name: oldown2_suffix
+            description: Old owner 2 suffix
+          - name: oldseq
+            description: Old sequence number
+          - name: oldyr
+            description: Old year
+          - name: own1
+            description: Owner name 1
+          - name: own1_companyname
+            description: Owner 1 company name
+          - name: own1_firstname
+            description: Owner 1 first name
+          - name: own1_lastname
+            description: Owner 1 last name
+          - name: own1_middlename
+            description: Owner 1 middle name
+          - name: own1_prefix
+            description: Owner 1 prefix
+          - name: own1_suffix
+            description: Owner 1 suffix
+          - name: own2
+            description: Owner name 2
+          - name: own2_companyname
+            description: Owner 2 company name
+          - name: own2_firstname
+            description: Owner 2 first name
+          - name: own2_lastname
+            description: Owner 2 last name
+          - name: own2_middlename
+            description: Owner 2 middle name
+          - name: own2_prefix
+            description: Owner 2 prefix
+          - name: own2_suffix
+            description: Owner 2 suffix
+          - name: page
+            description: Page number
+          - name: parsin
+            description: Tot parcels being split
+          - name: parsout
+            description: Tot parcels split
+          - name: persprop
+            description: Personal property value
+          - name: realctr
+            description: Realtor/contractor indicator
+          - name: recorddt
+            description: Recording date
+          - name: remdate
+            description: Building removed date
+          - name: resind
+            description: Primary residence indicator
+          - name: salekey
+            description: Key pointing to the sale
+          - name: saletype
+            description: Sale type code (land or land and building)
+          - name: saleval
+            description: Sale validity code
+          - name: source
+            description: Source code
+          - name: splitno
+            description: Split/combination tracking number
+          - name: stampval
+            description: Stamp value for the sale
+          - name: status
+            description: Processing status
+          - name: steb
+            description: State sales code
+          - name: stflag
+            description: State report flag
+          - name: taxyr
+            description: Tax year
+          - name: titleco
+            description: Escrow Company Code
+          - name: tnn
+            description: Transfer not necessary indicator
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: transdt
+            description: Transaction date
+          - name: upd_owndat
+            description: Flag to update `OWNDAT`
+          - name: upd_ownmlt
+            description: Flag to update `OWNMLT`
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: useind
+            description: Use in sales indicator
+          - name: voidflg
+            description: Void indicator
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
+
       - name: dedit
+        columns:
+          - name: fld1
+            description: Column name of edit field 1
+          - name: fld2
+            description: Column name of edit field 2
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: longdesc
+            description: Long description
+          - name: msg
+            description: Message associated with this pair of values
+          - name: shortdesc
+            description: Short description
+          - name: tbl1
+            description: Table name of edit field 1
+          - name: tbl2
+            description: Table name of edit field 2
+          - name: val1
+            description: Value 1
+          - name: val2
+            description: Value in edit field 2
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
+
       - name: dweldat
         description: '{{ doc("dweldat") }}'
+        columns:
+          - name: ac
+            description: Air condition
+          - name: acarea
+            description: Air conditioning area
+          - name: accode
+            description: Support AC code
+          - name: acval
+            description: Air conditioning value
+          - name: addfact
+            description: Additional factor
+          - name: addnarea
+            description: Living area in additions
+          - name: addnrcnval
+            description: The RCN from `ADDN`
+          - name: addnval
+            description: RCN value of additions
+          - name: adjarea
+            description: Adjusted area
+          - name: adjfact
+            description: Adjustment factor
+          - name: adjgrmfact
+            description: Neighborhood / class factor applied to `RESGRMVAL`
+          - name: adjrate
+            description: Adjusted base rate
+          - name: adjrcnld
+            description: Adjusted replacement cost new less depreciation
+          - name: areafact
+            description: Area factor
+          - name: areasum
+            description: Sum of designated structure areas
+          - name: attic
+            description: Attic code
+          - name: atticarea
+            description: Attic area
+          - name: atticval
+            description: Attic value
+          - name: baserate
+            description: Calculated base rate
+          - name: basercn
+            description: Base replacement cost new
+          - name: basercnld
+            description: '`RCNLD` for main section of the dwelling'
+          - name: bgarval
+            description: Basement garage value
+          - name: bld_modelid
+            description: Building model ID from `BLDMODELMAST` table
+          - name: bldguse
+            description: Building use
+          - name: bsmt
+            description: Basement code
+          - name: bsmtarea
+            description: Unfinished basement area
+          - name: bsmtcar
+            description: Basement garage (number cars)
+          - name: bsmtval
+            description: Basement value
+          - name: calceffyr
+            description: Claculated effective year
+          - name: card
+            description: Building (card) number
+          - name: catharea
+            description: Cathedral ceiling area
+          - name: cathval
+            description: Cathedral ceiling RCN
+          - name: cddesc
+            description: Cost and Design description code
+          - name: cdpct
+            description: Cost and Design percent
+          - name: cdu
+            description: Condition/desirability/utility code
+          - name: ceiling
+            description: Ceilling
+          - name: chgrsn
+            description: Reason code for change of value
+          - name: class
+            description: Classification
+          - name: cline
+            description: Condominium line
+          - name: cndadjval
+            description: Total living area
+          - name: cndbaseval
+            description: Main section ground floor area
+          - name: cndcmplx
+            description: Condominium complex
+          - name: cnstfact
+            description: Construction factor
+          - name: cnstval
+            description: Construction factor value
+          - name: comwallfact
+            description: Common wall factor
+          - name: comwallpct
+            description: Common wall percent
+          - name: cond
+            description: Condition code
+          - name: condolvl
+            description: Condominium floor level
+          - name: condosflaovr
+            description: Condo Sfla override at card level
+          - name: condotyp
+            description: Condominium type code
+          - name: condovw
+            description: Condominium View
+          - name: convbldg
+            description: Building value at conversion
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: degrem
+            description: Degree remodeled
+          - name: depr
+            description: Percent good from tables
+          - name: deprt
+            description: Override depreciation table
+          - name: ecndep
+            description: Economic depreciation
+          - name: ecnrsn
+            description: Reason code for economic depreciation
+          - name: eff_area
+            description: Support total by card
+          - name: effageovr
+            description: Effective age override
+          - name: effyr
+            description: Effective year
+          - name: effyrovr
+            description: Override effective year
+          - name: elepct
+            description: Electric percentage
+          - name: eleyr
+            description: Electric year
+          - name: estpct
+            description: Estimated percentage
+          - name: estyr
+            description: Estimated year
+          - name: excess
+            description: Flag to indicate excess value
+          - name: exmppct
+            description: Exemption percent
+          - name: exmppctover
+            description: Override exemption percent
+          - name: exmpval
+            description: Exemption value
+          - name: extwall
+            description: Exterior wall code
+          - name: extwall1
+            description: Exterior wall code
+          - name: extwall1pct
+            description: Exterior wall % (for `EXTWALL1`)
+          - name: finbsmtarea
+            description: Finished basement living area
+          - name: finbsmtl
+            description: Finished basement living area length
+          - name: finbsmtval
+            description: Finished basement value
+          - name: finbsmtw
+            description: Finished basement living area width
+          - name: fixaddl
+            description: Number additional plumbing fixtures
+          - name: fixbath
+            description: Number full bathrooms
+          - name: fixbath1
+            description: Number of full bathrooms on the first floor
+          - name: fixbath2
+            description: Number of full bathrooms on the second floor
+          - name: fixbath3
+            description: Number of full bathrooms on the third floor
+          - name: fixbath4
+            description: Number of four fixture bathrooms
+          - name: fixbath4m
+            description: Number of four fixture bathrooms  in Main Floor
+          - name: fixbath4u
+            description: Number of four fixture bathrooms  in upper Floor
+          - name: fixbath5
+            description: Number of five fixture bathrooms
+          - name: fixbath5m
+            description: Number of five fixture bathrooms in Main Floor
+          - name: fixbath5u
+            description: Number of five fixture bathrooms in upper Floor
+          - name: fixbath6
+            description: Number of six fixture bathrooms
+          - name: fixbath7
+            description: Number of seven fixture bathrooms
+          - name: fixbathb
+            description: Number of full bathrooms in the basement
+          - name: fixbathm
+            description: Number full bathrooms  in Main Floor
+          - name: fixbathu
+            description: Number full bathrooms  in upper Floor
+          - name: fixhalf
+            description: Number half bathrooms
+          - name: fixhalf1
+            description: Number of half baths on the first floor
+          - name: fixhalf2
+            description: Number of half baths on the second floor
+          - name: fixhalf3
+            description: Number of half baths on the third floor
+          - name: fixhalfb
+            description: Number of half baths in the basement
+          - name: fixhalfm
+            description: Number half bathrooms in Main Floor
+          - name: fixhalfu
+            description: Number half bathrooms in upper Floor
+          - name: fixtot
+            description: Total plumbing fixtures
+          - name: fixtotovr
+            description: Bathroom fixture override
+          - name: floor
+            description: Floor
+          - name: floor1
+            description: Floor 1
+          - name: floor1pct
+            description: Floor percent
+          - name: floorfact
+            description: Floor factor
+          - name: flr1area
+            description: Sub total value
+          - name: flr1val
+            description: First floor structure RCN
+          - name: flrharea
+            description: Half floor structure square foot
+          - name: flrhval
+            description: Half floor structure RCN
+          - name: flruarea
+            description: Upper floor structure square foot
+          - name: flruval
+            description: Upper floor structure RCN
+          - name: fuel
+            description: Heating fuel type
+          - name: fundep
+            description: Functional depreciation
+          - name: funrsn
+            description: Reason code for functional depreciation
+          - name: furpct
+            description: Furnace percentage
+          - name: furyr
+            description: Furnace year
+          - name: grade
+            description: Grade
+          - name: grdfact
+            description: Grade factor
+          - name: grmovr
+            description: Override for the GRM Multiplier pulled from `LPNBHD`
+          - name: grmrent
+            description: Gross rent multiplier rent
+          - name: grmunits
+            description: Gross rent multiplier units
+          - name: grpadj
+            description: Group adjustment value
+          - name: heat
+            description: Heat code
+          - name: heatarea
+            description: Heat area
+          - name: heatsys
+            description: Heating system type
+          - name: heatval
+            description: Heating/air value
+          - name: hga
+            description: Homesite Indicator
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: intext
+            description: Interior condition relative to exterior
+          - name: intwall
+            description: Inside wall
+          - name: intwall1
+            description: Inside wall 1
+          - name: intwall1pct
+            description: Inside wall percent
+          - name: intwallfact
+            description: Inside wall factor
+          - name: jur
+            description: Jurisdiction
+          - name: kitpct
+            description: Kitchen percentage
+          - name: kityr
+            description: Kitchen year
+          - name: locmult
+            description: Local multiplier
+          - name: lumpcamod
+            description: Market modifier lumpsum value
+          - name: lumpcure
+            description: Lump cure value
+          - name: mastrimarea
+            description: Masonry trim square footage
+          - name: mastriml
+            description: Masonry trim, length
+          - name: mastrimw
+            description: Masonry trim, width
+          - name: mgfa
+            description: Main section ground floor area
+          - name: mktadj
+            description: Override Percent good
+          - name: mktrsn
+            description: Reason for market adjustment
+          - name: modover
+            description: Residential override model
+          - name: mvpattic
+            description: MVP Attic
+          - name: mvpbsmt
+            description: MVP Basement
+          - name: mvpsf
+            description: MVP square footage
+          - name: mvpstyle
+            description: MVP style
+          - name: mvpunfin
+            description: MVP unfinished
+          - name: nccalc
+            description: Calculated current new construction value
+          - name: ncoval
+            description: Override current new construction value
+          - name: nctot
+            description: Cumulative new construction value
+          - name: ncval
+            description: Final current new construction value
+          - name: newconmo
+            description: New construction month. Used only in asmt calc.
+          - name: newconpct
+            description: New construction percentage. Used only in asmt calc.
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: numident
+            description: Identical units
+          - name: obsdep
+            description: Observable Condition
+          - name: obsrsn
+            description: Reason code for observable condition
+          - name: ovrmraval
+            description: Override MRA Value
+          - name: ovrnbhd
+            description: Neighborhood number
+          - name: ovrrcn
+            description: Override RCN value
+          - name: ovrrcnld
+            description: Override replacement cost new less depreciation
+          - name: parid
+            description: Parcel identification number
+          - name: pctcomplete
+            description: Percent of construction completed
+          - name: plumbgrade
+            description: Plumbing grade
+          - name: plumval
+            description: Plumbing value
+          - name: plupct
+            description: Plumbing percentage
+          - name: pluyr
+            description: Plumbing year
+          - name: prior_renolvl
+            description: Prior renovation Level
+          - name: prodamage
+            description: Percent damaged
+          - name: prodate
+            description: Proration date
+          - name: profact
+            description: Proration factor
+          - name: protype
+            description: Proration type
+          - name: rcnfact
+            description: RCN adjustment factor
+          - name: rcnld
+            description: Replacement cost new less depreciation
+          - name: rcnval
+            description: Replacement cost new of dwelling
+          - name: recnr
+            description: Value record number
+          - name: recromarea
+            description: Recreational room area
+          - name: recroml
+            description: Recreational room length
+          - name: recromw
+            description: Recreational room width
+          - name: rectype
+            description: 'Value category: P (`PP11`) or R (`CA11`)'
+          - name: recval
+            description: Recreational room value
+          - name: rembath
+            description: Bathrooms remodeled
+          - name: remkit
+            description: Kitchen remodeled
+          - name: renolvl
+            description: Renovation level
+          - name: renoovr
+            description: Override for renovation level
+          - name: renopoint
+            description: Sum of renovation points assigned to this parcel
+          - name: renoyr
+            description: Year of renovation
+          - name: resfeatval
+            description: The total residential feature value
+          - name: resgrmval
+            description: Gross rent multiplier value
+          - name: resmod
+            description: Residential cost model
+          - name: rmbed
+            description: Number bedrooms
+          - name: rmbed1
+            description: Number of bedrooms on the first floor
+          - name: rmbed2
+            description: Number of bedrooms on the second floor
+          - name: rmbed3
+            description: Number of bedrooms on the third floor
+          - name: rmbedb
+            description: Number of bedrooms in the basement
+          - name: rmdin
+            description: Total number of dining rooms
+          - name: rmdin1
+            description: Number of dining rooms on the first floor
+          - name: rmdin2
+            description: Number of dining rooms on the second floor
+          - name: rmdin3
+            description: Number of dining rooms on the third floor
+          - name: rmdinb
+            description: Number of dining rooms in the basement
+          - name: rmfam
+            description: Number family rooms
+          - name: rmfam1
+            description: Number of family rooms on the first floor
+          - name: rmfam2
+            description: Number of family rooms on the second floor
+          - name: rmfam3
+            description: Number of family rooms on the third floor
+          - name: rmfamb
+            description: Number of family rooms in the basement
+          - name: rmkit
+            description: Total number of kitchens
+          - name: rmkit1
+            description: Number of kitchens on the first floor
+          - name: rmkit2
+            description: Number of kitchens on the second floor
+          - name: rmkit3
+            description: Number of kitchens on the third floor
+          - name: rmkitb
+            description: Number of kitchens in the basement
+          - name: rmliv
+            description: Total number of living rooms
+          - name: rmliv1
+            description: Number of living rooms on the first floor
+          - name: rmliv2
+            description: Number of living rooms on the second floor
+          - name: rmliv3
+            description: Number of living rooms on the third floor
+          - name: rmlivb
+            description: Number of living rooms in the basement
+          - name: rmoth
+            description: Total number of other rooms
+          - name: rmoth1
+            description: Number of other rooms on the first floor
+          - name: rmoth2
+            description: Number of other rooms on the second floor
+          - name: rmoth3
+            description: Number of other rooms on the third floor
+          - name: rmothb
+            description: Number of other rooms in the basement
+          - name: rmtot
+            description: Total rooms
+          - name: salekey
+            description: Key pointing to the sale
+          - name: seq
+            description: Version number of this record
+          - name: sfla
+            description: Total living area
+          - name: shfact
+            description: Story height factor
+          - name: sidpct
+            description: Siding percentage
+          - name: sidyr
+            description: Siding year
+          - name: sizecode
+            description: Size code
+          - name: slabarea
+            description: Slab area
+          - name: slabval
+            description: Slab value
+          - name: stage
+            description: Recreation homes level
+          - name: status
+            description: Processing status
+          - name: stories
+            description: Story height
+          - name: style
+            description: Architectural style
+          - name: subtval
+            description: Sub total value
+          - name: suppress
+            description: Flag to indicate suppress value
+          - name: taxyr
+            description: Tax year
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: trimval
+            description: Masonry trim value
+          - name: ufeatarea
+            description: Feature area
+          - name: ufeatl
+            description: Feature length
+          - name: ufeatval
+            description: Feature value
+          - name: ufeatw
+            description: Feature width
+          - name: unfinarea
+            description: Unfinished area
+          - name: unfinl
+            description: Unfinished area length
+          - name: unfinval
+            description: Unfinished area value
+          - name: unfinw
+            description: Unfinished area width
+          - name: unitno
+            description: Unit number of dwelling
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: useramt
+            description: RCN value of additions
+          - name: userfact
+            description: Living area in additions
+          - name: valmeth
+            description: Valuation method (MAN/CLT)
+          - name: wallhgt
+            description: Wall height
+          - name: wallhgtfact
+            description: Wall height factor
+          - name: wbfp_o
+            description: Wood burning fireplace - number of openings
+          - name: wbfp_pf
+            description: Wood burning fireplace - prefab
+          - name: wbfp_pfx
+            description: Additional stories for prefab fireplace stacks
+          - name: wbfp_s
+            description: Wood burning fireplace - number of stacks
+          - name: wbfp_x
+            description: Additional stories for wood-burning fireplace stacks
+          - name: wbfpval
+            description: Wood burning fireplace value
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
+          - name: winpct
+            description: Windows percentage
+          - name: winyr
+            description: Windows year
+          - name: yrblt
+            description: Year built
+          - name: yrremod
+            description: Year remodeled
         tests:
           - unique_combination_of_columns:
               name: dweldat_unique_by_parid_card_taxyr
@@ -69,20 +2352,921 @@ sources:
                 - parid
                 - taxyr
                 - card
+
       - name: enter
+        columns:
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: entercd
+            description: Entrance code
+          - name: enterdt
+            description: Entrance date
+          - name: enterid
+            description: ID of person making inspection
+          - name: enterinfo
+            description: Entrance information code
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: parid
+            description: Parcel identification number
+          - name: seq
+            description: Version number of this record
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
+
       - name: exadmn
+        columns:
+          - name: appname1
+            description: Applicant name 1
+          - name: appname1_companyname
+            description: Applicant 1 company name
+          - name: appname1_firstname
+            description: Applicant 1 first name
+          - name: appname1_lastname
+            description: Applicant 1 last name
+          - name: appname1_middlename
+            description: Applicant 1 middle name
+          - name: appname1_prefix
+            description: Applicant 1 prefix
+          - name: appname1_suffix
+            description: Applicant 1 suffix
+          - name: appname2
+            description: Applicant name 2
+          - name: appname2_companyname
+            description: Applicant 2 company name
+          - name: appname2_firstname
+            description: Applicant 2 first name
+          - name: appname2_lastname
+            description: Applicant 2 last name
+          - name: appname2_middlename
+            description: Applicant 2 middle name
+          - name: appname2_prefix
+            description: Applicant 2 prefix
+          - name: appname2_suffix
+            description: Applicant 2 suffix
+          - name: bldgno
+            description: Building number
+          - name: caseno
+            description: Case number
+          - name: contact_addr1
+            description: Contact address line 1
+          - name: contact_addr2
+            description: Contact address line 2
+          - name: contact_addr3
+            description: Contact address line 3
+          - name: contact1
+            description: Contact name 1
+          - name: contact2
+            description: Contact name 2
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: endyr
+            description: Ending year
+          - name: exappl
+            description: Exemption application number
+          - name: excode
+            description: Exemption code
+          - name: exdate
+            description: Date of exemption
+          - name: exstat
+            description: Exemption status
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: ownnum
+            description: Owner number
+          - name: ownnum10
+            description: Owner number 10
+          - name: ownnum2
+            description: Owner number 2
+          - name: ownnum3
+            description: Owner number 3
+          - name: ownnum4
+            description: Owner number 4
+          - name: ownnum5
+            description: Owner number 5
+          - name: ownnum6
+            description: Owner number 6
+          - name: ownnum7
+            description: Owner number 7
+          - name: ownnum8
+            description: Owner number 8
+          - name: ownnum9
+            description: Owner number 9
+          - name: parid
+            description: Parcel identification number
+          - name: reascd
+            description: Exemption reason code
+          - name: recnr
+            description: Value record number
+          - name: rectype
+            description: Record type
+          - name: repaddr1
+            description: Representative address line 1
+          - name: repaddr2
+            description: Representative address line 2
+          - name: repaddr3
+            description: Representative address line 3
+          - name: repname
+            description: Representative name
+          - name: repname2
+            description: Representative name 2
+          - name: repphone
+            description: Representative phone number
+          - name: salekey
+            description: Key pointing to the sale
+          - name: seq
+            description: Version number of this record
+          - name: status
+            description: Processing status
+          - name: taxyr
+            description: Tax year
+          - name: title
+            description: Contact person's title
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: unit
+            description: Unit
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
+
       - name: exapp
+        columns:
+          - name: apaddr1
+            description: Applicant address line 1
+          - name: apaddr2
+            description: Applicant address line 2
+          - name: apaddr3
+            description: Applicant address line 3
+          - name: apdate
+            description: Application / renewal date
+          - name: apname
+            description: Applicant name
+          - name: apphone
+            description: Applicant phone number
+          - name: appseq
+            description: Application sequence
+          - name: appstat
+            description: Application status
+          - name: apptype
+            description: Application type
+          - name: assetid
+            description: Asset ID number
+          - name: batch
+            description: Batch process id
+          - name: batchno
+            description: Batch process number
+          - name: bldgno
+            description: Building number
+          - name: caseno
+            description: Case number
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: exappl
+            description: Exemption application number
+          - name: exbldgpct
+            description:
+          - name: excode
+            description: Exemption code
+          - name: exlandpct
+            description:
+          - name: fld
+            description: Column name of data to which this exemption applies
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: imageid
+            description: Image identification number
+          - name: jur
+            description: Jurisdiction
+          - name: lline
+            description: Line number
+          - name: marstat
+            description: Marital status
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: note3
+            description: Note field 3
+          - name: note4
+            description: Note field 4
+          - name: note5
+            description: Note field 5
+          - name: note6
+            description: Note field 6
+          - name: ovrclass
+            description: Override class
+          - name: ovrclass1
+            description: Original class to be overridden
+          - name: ownchg
+            description:
+          - name: ownnum
+            description: Owner number
+          - name: parid
+            description: Parcel identification number
+          - name: perex
+            description: Percent of Exemption
+          - name: procdate
+            description: Procedure date
+          - name: procname
+            description: Procedure name
+          - name: proofown
+            description: Proof of ownership
+          - name: proofres
+            description: Proof of residency
+          - name: rolltype
+            description: Tax roll name
+          - name: salekey
+            description: Key pointing to the sale
+          - name: seq
+            description: Version number of this record
+          - name: statreas
+            description: Status reason code
+          - name: status
+            description: Processing status
+          - name: taxid
+            description: Tax ID
+          - name: taxyr
+            description: Tax year
+          - name: tble
+            description: Table name of data to which this exemption applies
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: typeown
+            description: Type of ownership
+          - name: unit
+            description: Unit
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
+          - name: yrbeg
+            description: Year begin date
+          - name: yrend
+            description: Year end date
+
       - name: excode
+        columns:
+          - name: altsched
+            description: Alternate schedule code
+          - name: annual_cap
+            description: Annual cap amount for the exemption
+          - name: calcpri
+            description: Calculation priority
+          - name: calcpri2
+            description: Calculation priority 2
+          - name: const1
+            description: Constant value 1
+          - name: const2
+            description: Constant value 2
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: descr
+            description: Description
+          - name: equation
+            description: Equation for computation
+          - name: equation2
+            description: Equation to calculate 2nd set of values
+          - name: excode
+            description: Exemption code
+          - name: exgrp
+            description: Exemption code grouping for view definitions
+          - name: extype
+            description: Exemption type
+          - name: freq
+            description: Frequency
+          - name: freqyr
+            description: Yearly frequency
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: luc
+            description: Land use code
+          - name: maxamt
+            description: Maximum amount for computation
+          - name: minamt
+            description: Minimum amount
+          - name: nocalc
+            description: Perform no calculation online or in batch
+          - name: ownerflag
+            description: Owner dependent flag (y/n)
+          - name: prorate_typ
+            description: Exemption proration type to prorate by day/month
+          - name: rnd
+            description: Rounding for value
+          - name: rnd_month
+            description: Specific day to round in a given month
+          - name: roundcent
+            description: Decimal positions to round
+          - name: seq
+            description: Version number of this record
+          - name: status
+            description: Processing status
+          - name: sumtype
+            description: Summary type
+          - name: taxyr
+            description: Tax year
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: valclass
+            description: Tax assessment class
+          - name: warnamtdiff
+            description: Raises warning message if the change in exemption exceeds this amount
+          - name: warnpctdiff
+            description: Raises warning message if the percentage change in exemption exceeds this percent
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
+          - name: yrend
+            description: Exemption end year
+
       - name: exdet
+        columns:
+          - name: assetid
+            description: Asset ID number
+          - name: begdt
+            description: Proration exemption start date
+          - name: card
+            description: Building (card) number
+          - name: caseno
+            description: Case number
+          - name: class
+            description: Class
+          - name: codejur
+            description: The Jurisdiction number that is associated with the exemption code
+          - name: const1
+            description: Constant value 1
+          - name: const2
+            description: Constant value 2
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: enddt
+            description: Proration exemption end date
+          - name: exbldg
+            description: Exemption building value
+          - name: exbldg2
+            description: Exemption building value 2
+          - name: excode
+            description: Exemption code
+          - name: exland
+            description: Exemption land value
+          - name: exland2
+            description: Exemption land value 2
+          - name: exlink
+            description: To maintain link between multiple lines of exemptions for the same owner
+          - name: exother
+            description: Exemption other value
+          - name: exother2
+            description: Exemption other value 2
+          - name: exseq
+            description: Sequence in which the exemption has to be applied within the link
+          - name: fld
+            description: Column name to which this exemption applies
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: lineno
+            description: Exemption line line number for this `parid`/`excode`
+          - name: lline
+            description: Line number
+          - name: override
+            description: Override indicator
+          - name: ovrval
+            description: Override value
+          - name: parid
+            description: Parcel identification number
+          - name: procdate
+            description: Procedure date
+          - name: procname
+            description: Procedure name
+          - name: projno
+            description: Project number
+          - name: reascd
+            description: Reason code
+          - name: recipfld
+            description: Column name of value to be exempted is located
+          - name: recipline
+            description: Line number where value to be exempted is located
+          - name: reciptble
+            description: Table where value to be exempted is located
+          - name: recnr
+            description: Value record number
+          - name: rolltype
+            description: Tax roll name
+          - name: salekey
+            description: Key pointing to the sale
+          - name: scrn
+            description: Screen name to which this exemption applies
+          - name: seq
+            description: Version number of this record
+          - name: statflg
+            description: Status flag
+          - name: status
+            description: Processing status
+          - name: taxyr
+            description: Tax year
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: units
+            description: Number of units
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: valclass
+            description: Tax assessment class
+          - name: valyear
+            description: Valuation year
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
+          - name: yrbase
+            description: Base year exemption
+          - name: yrbeg
+            description: Year exemption begins
+          - name: yrend
+            description: Ending year
+
       - name: htagnt
         description: '{{ doc("htagnt") }}'
+        columns:
+          - name: addr1
+            description: Address line 1
+          - name: addr2
+            description: Address line 2
+          - name: addr3
+            description: Address line 3
+          - name: addrtype
+            description: Address type code (N, S, F, R, C)
+          - name: adradd
+            description: Address number suffix
+          - name: adrdir
+            description: Street direction
+          - name: adrgrid
+            description: Grid address number
+          - name: adrno
+            description: Street number
+          - name: adrstr
+            description: Address street name
+          - name: adrsuf
+            description: Street suffix
+          - name: adrsuf2
+            description: 'Street suffix #2'
+          - name: agent
+            description: Agent code
+          - name: agent_type
+            description: Agent Type
+          - name: carrier_rt
+            description: Carrier route - 4 digit suffix
+          - name: cityname
+            description: City name
+          - name: comments
+            description: Comments
+          - name: country
+            description: Country
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: email
+            description: E-mail address of contact person
+          - name: fax
+            description: Fax number of contact person
+          - name: fedid
+            description: Federal tax ID number
+          - name: firm1
+            description: Firm name/address line 1
+          - name: firm2
+            description: Firm name/address line 2
+          - name: iasw_id
+            description:
+          - name: jur
+            description: Jurisdiction
+          - name: name1
+            description: Name line 1
+          - name: name1_companyname
+            description: Agent 1 company name
+          - name: name1_firstname
+            description: Agent 1 first name
+          - name: name1_lastname
+            description: Agent 1 last name
+          - name: name1_middlename
+            description: Agent 1 middle name
+          - name: name1_prefix
+            description: Agent 1 prefix
+          - name: name1_suffix
+            description: Agent 1 suffix
+          - name: name2
+            description: Name line 2
+          - name: name2_companyname
+            description: Agent 2 company name
+          - name: name2_firstname
+            description: Agent 2 first name
+          - name: name2_lastname
+            description: Agent 2 last name
+          - name: name2_middlename
+            description: Agent 2 middle name
+          - name: name2_prefix
+            description: Agent 2 prefix
+          - name: name2_suffix
+            description: Agent 2 suffix
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: ownnum
+            description: Owner number
+          - name: phone
+            description: Phone number
+          - name: postal_indx
+            description: Postal index number
+          - name: postalcode
+            description: Postal code (international zip code)
+          - name: seq
+            description: Version number of this record
+          - name: statecode
+            description: State or province (2 digit)
+          - name: status
+            description: Processing status
+          - name: unitdesc
+            description: Address unit description
+          - name: unitno
+            description: Address unit number
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
+          - name: zip1
+            description: Zip code, first 5 digits
+          - name: zip2
+            description: Zip code suffix, last 4 digits
         tests:
           - unique_combination_of_columns:
               name: htagnt_unique_by_agent
               combination_of_columns:
                 - agent
+
       - name: htdates
+        columns:
+          - name: caseno
+            description: Case number
+          - name: code
+            description: Notes code
+          - name: heartyp
+            description: Hearing type code
+          - name: heartypjur
+            description: Hearing type jurisdiction
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: notes
+            description: Notes
+          - name: parid
+            description: Parcel identification number
+          - name: schdte
+            description: Schedule date
+          - name: schtime
+            description: Schedule time
+          - name: subkey
+            description: Unique number to allow multiple hearings per level
+          - name: taxyr
+            description: Tax year
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
+
       - name: htpar
+        columns:
+          - name: action
+            description: Action code
+          - name: addr1
+            description: Address line 1
+          - name: addr2
+            description: Address line 2
+          - name: addr3
+            description: Address line 3
+          - name: agent
+            description: Agent code
+          - name: agentjur
+            description: Agent Jurisdiction
+          - name: appdate
+            description: Application date
+          - name: appstat
+            description: Application status
+          - name: asmtreas
+            description: Assessment reason code
+          - name: bdname1
+            description: Board name 1
+          - name: bdname10
+            description: Board name 10
+          - name: bdname2
+            description: Board name 2
+          - name: bdname3
+            description: Board name 3
+          - name: bdname4
+            description: Board name 4
+          - name: bdname5
+            description: Board name 5
+          - name: bdname6
+            description: Board name 6
+          - name: bdname7
+            description: Board name 7
+          - name: bdname8
+            description: Board name 8
+          - name: bdname9
+            description: Board name 9
+          - name: bdtype1
+            description: Board type 1
+          - name: bdtype10
+            description: Board type 10
+          - name: bdtype2
+            description: Board type 2
+          - name: bdtype3
+            description: Board type 3
+          - name: bdtype4
+            description: Board type 4
+          - name: bdtype5
+            description: Board type 5
+          - name: bdtype6
+            description: Board type 6
+          - name: bdtype7
+            description: Board type 7
+          - name: bdtype8
+            description: Board type 8
+          - name: bdtype9
+            description: Board type 9
+          - name: bdvote1
+            description: Board vote 1
+          - name: bdvote10
+            description: Board vote 10
+          - name: bdvote2
+            description: Board vote 2
+          - name: bdvote3
+            description: Board vote 3
+          - name: bdvote4
+            description: Board vote 4
+          - name: bdvote5
+            description: Board vote 5
+          - name: bdvote6
+            description: Board vote 6
+          - name: bdvote7
+            description: Board vote 7
+          - name: bdvote8
+            description: Board vote 8
+          - name: bdvote9
+            description: Board vote 9
+          - name: camareas
+            description: Cama reason code
+          - name: careof
+            description: In care of
+          - name: caseno
+            description: Case number
+          - name: complnt
+            description: Complainant
+          - name: complnt_companyname
+            description: Complainant company name
+          - name: complnt_firstname
+            description: Complainant first name
+          - name: complnt_lastname
+            description: Complainant last name
+          - name: complnt_middlename
+            description: Complainant middle name
+          - name: complnt_prefix
+            description: Complainant prefix
+          - name: complnt_suffix
+            description: Complainant suffix
+          - name: comptype
+            description: Complaint type
+          - name: cpaddr1
+            description: Complainant address 1
+          - name: cpaddr2
+            description: Complainant address 2
+          - name: cpaddr3
+            description: Complainant address 3
+          - name: cpatty
+            description: Complainant attorney code
+          - name: cpattyjur
+            description: Attorney jurisdiction
+          - name: cur
+            description: Current record indicator
+          - name: curbldg
+            description: Current building value
+          - name: curland
+            description: Current land value
+          - name: curtax
+            description: Current tax
+          - name: curtot
+            description: Current total value
+          - name: deactivat
+            description: Deactivate date
+          - name: doc
+            description: Flag (Y/N) indicating taxpayer provided addition documentation
+          - name: docdate
+            description: Date documents were received
+          - name: fieldchk
+            description: Field check indicator
+          - name: hearlen
+            description: Hearing length
+          - name: hearoff
+            description: Hearing official code
+          - name: heartyp
+            description: Hearing type
+          - name: heartypjur
+            description: Hearing type jurisdiction
+          - name: hrmult
+            description: Hearing multiple parcel indicator
+          - name: hrreas
+            description: Hearing reason code
+          - name: hrstatus
+            description: Hearing status code
+          - name: httimejur
+            description: Schedule jurisdiction
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: loc
+            description: Location code
+          - name: notcdate
+            description: Date of notice from previous hearing level
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: noticedate
+            description: Notice date printed on notice form
+          - name: noticval
+            description: Notice value printed on notice form
+          - name: own1
+            description: Owner name 1
+          - name: own1_companyname
+            description: Owner 1 company name
+          - name: own1_firstname
+            description: Owner 1 first name
+          - name: own1_lastname
+            description: Owner 1 last name
+          - name: own1_middlename
+            description: Owner 1 middle name
+          - name: own1_prefix
+            description: Owner 1 prefix
+          - name: own1_suffix
+            description: Owner 1 suffix
+          - name: own2
+            description: Owner name 2
+          - name: own2_companyname
+            description: Owner 2 company name
+          - name: own2_firstname
+            description: Owner 2 first name
+          - name: own2_lastname
+            description: Owner 2 last name
+          - name: own2_middlename
+            description: Owner 2 middle name
+          - name: own2_prefix
+            description: Owner 2 prefix
+          - name: own2_suffix
+            description: Owner 2 suffix
+          - name: ownemail
+            description: Owner email address
+          - name: ownfax
+            description: Owner fax number
+          - name: ownnum
+            description: Owner number
+          - name: ownphone
+            description: Owner phone number
+          - name: parid
+            description: Parcel identification number
+          - name: petemail
+            description: Petitioner email address
+          - name: petfax
+            description: Petitioner fax number
+          - name: petnno
+            description: An optional field for a separately assigned petition number, if available
+          - name: petphone
+            description: Petitioner phone number
+          - name: propbldg
+            description: Proposed building value
+          - name: propland
+            description: Proposed land value
+          - name: propreduct
+            description: Proposed tax reduction
+          - name: proptax
+            description: Proposed tax
+          - name: proptot
+            description: Proposed total value
+          - name: ptabbldg
+            description: PTAB building value
+          - name: ptabland
+            description: PTAB land value
+          - name: ptabreduct
+            description: PTAB tax reduction
+          - name: ptabtax
+            description: PTAB tax
+          - name: ptabtot
+            description: PTAB total Value
+          - name: resact
+            description: Result action
+          - name: resdate
+            description: Result date
+          - name: resnote1
+            description: Result note field 1
+          - name: resnote2
+            description: Result note field 2
+          - name: resrsn1
+            description: Result reason 1
+          - name: resrsn2
+            description: Result reason 2
+          - name: resrsn3
+            description: Result reason 3
+          - name: rolltype
+            description: Brought in from `ASMT` for single roll type parcel
+          - name: rptcode
+            description: Report code
+          - name: rptcodejur
+            description: Report Code Jurisdiction
+          - name: schdte
+            description: Schedule date
+          - name: schtime
+            description: Schedule time
+          - name: seq
+            description: Version number of this record
+          - name: status
+            description: Processing status
+          - name: stipbldg
+            description: Stipulated building value
+          - name: stipland
+            description: Stipulated land value
+          - name: stipreduct
+            description: Stipulated Tax reduction
+          - name: stiptax
+            description: Stipulated tax
+          - name: stiptot
+            description: Stipulated total value
+          - name: subkey
+            description: Unique number to allow multiple hearings per level
+          - name: taxyr
+            description: Tax year
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: txpyval
+            description: Taxpayer value
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: valdisp
+            description: Value in dispute
+          - name: wen
+            description: Last maintenance date
+          - name: who
         freshness:
           filter: *latest_taxyr
           warn_after: *24_hours
@@ -98,8 +3282,200 @@ sources:
               config:
                 where: cur = 'Y' and deactivat is null
                 error_if: ">2"
+
       - name: land
         description: '{{ doc("land") }}'
+        columns:
+          - name: acres
+            description: Total acres
+          - name: adjfact
+            description: Adjustment factor
+          - name: agflg
+            description: Agricultural flag
+          - name: allocpct
+            description: Allocation percentage
+          - name: bdecr
+            description: Decremental rate
+          - name: bincr
+            description: Incremental rate
+          - name: brate
+            description: Base rate
+          - name: bsize
+            description: Base size
+          - name: caascard
+            description: CAAS card number
+          - name: card
+            description: Building (card) number
+          - name: cerrate
+            description: Crop equivalent rating
+          - name: chgrsn
+            description: Reason code for change of value
+          - name: class
+            description: Classification
+          - name: code
+            description: Code
+          - name: comres
+            description: Commercial residual flag
+          - name: convland
+            description: Land value at conversion
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: depfact
+            description: Depth factor
+          - name: deptbl
+            description: Depth factor
+          - name: depth
+            description: Depth
+          - name: excess
+            description: Flag to indicate excess value
+          - name: exmppct
+            description: Exemption percent
+          - name: exmpval
+            description: Exemption value
+          - name: fldfact
+            description: Flood factor
+          - name: fronact
+            description: Actual frontage (type F)
+          - name: froneff
+            description: Effective frontage
+          - name: hectares
+            description: Stores hectare value for land
+          - name: hga
+            description: Homesite Indicator
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: infl1
+            description: 'Influence Code #1'
+          - name: infl2
+            description: 'Influence Code #2'
+          - name: influ
+            description: Influence percent (+/-)
+          - name: influ2
+            description: Influence percent (+/-)
+          - name: jur
+            description: Jurisdiction
+          - name: landid
+            description: Land Identification number
+          - name: lcodemod
+            description: Land code model
+          - name: lline
+            description: Line number
+          - name: lmod
+            description: Land location model number
+          - name: location
+            description:
+          - name: locfact
+            description: Location factor
+          - name: ltype
+            description: Land type (F, S, A, G, U)
+          - name: lump1
+            description: Lump sum adjustment value 1
+          - name: lump2
+            description: Lump sum adjustment value 2
+          - name: lumpcamod
+            description: Market modifier lumpsum value
+          - name: lumpcd1
+            description: Lump sum code 1
+          - name: lumpcd2
+            description: Lump sum code 2
+          - name: mktfact
+            description: Market condition factor
+          - name: modtype
+            description: Associates land line to the specific model level in `NBHDMOD`
+          - name: nccalc
+            description: Calculated current new construction value
+          - name: ncoval
+            description: Override current new construction value
+          - name: nctot
+            description: Cumulative new construction value
+          - name: ncval
+            description: Final current new construction value
+          - name: nmod
+            description: Neighborhood model
+          - name: note1
+            description: Note field 1
+          - name: odecr
+            description: Override decremental rate
+          - name: oincr
+            description: Override incremental rate
+          - name: orate
+            description: Override base rate
+          - name: osize
+            description: Override base size
+          - name: ovrdepfact
+            description: Override depth factor
+          - name: ovrnbhd
+            description: Neighborhood number
+          - name: ovrprice
+            description: Override price
+          - name: parid
+            description: Parcel identification number
+          - name: price
+            description: Price
+          - name: recnr
+            description: Value record number
+          - name: salekey
+            description: Key pointing to the sale
+          - name: schedmod
+            description: Schedule model number
+          - name: seq
+            description: Version number of this record
+          - name: sf
+            description: SF of land (type S) or units (type U)
+          - name: sfact
+            description: S factor
+          - name: sizefact
+            description: Size factor
+          - name: smod
+            description: Street model number
+          - name: soil
+            description: Soil type
+          - name: soilflg
+            description: Soil rating flag
+          - name: soilmod
+            description: Soil model number
+          - name: sqmeter
+            description: Square meters
+          - name: status
+            description: Status
+          - name: suppress
+            description: Flag to indicate suppress value
+          - name: taxyr
+            description: Tax year
+          - name: topofact
+            description: Topography Factor
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: udate1
+            description: User date defined field 1
+          - name: udate2
+            description: User date defined field 2
+          - name: udate3
+            description: User date defined field 3
+          - name: udate4
+            description: User date defined field 4
+          - name: udate5
+            description: User date defined field 5
+          - name: umod
+            description: Utility model
+          - name: units
+            description: Units, instead of using square feet
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
+          - name: zmod
+            description: Zone model
+          - name: zoning
+            description: Override zoning at line level
         tests:
           - unique_combination_of_columns:
               name: land_unique_by_parid_lline_taxyr
@@ -107,18 +3483,548 @@ sources:
                 - parid
                 - lline
                 - taxyr
+
       - name: legdat
         description: '{{ doc("legdat") }}'
+        columns:
+          - name: acres
+            description: Total acres
+          - name: actdep
+            description: Actual lot depth
+          - name: actfrt
+            description: Actual front footage
+          - name: adradd
+            description: Address number suffix
+          - name: adrdir
+            description: Street direction
+          - name: adrid
+            description: Unique address ID
+          - name: adrno
+            description: Street number
+          - name: adrparchild
+            description: Address parent child indicator
+          - name: adrpostmod
+            description: Address post modifier
+          - name: adrpre
+            description: Address number prefix
+          - name: adrpremod
+            description: Address pre modifier
+          - name: adrpretype
+            description: Address pre type
+          - name: adrstatus
+            description: Address effective status
+          - name: adrstr
+            description: Address street name
+          - name: adrsuf
+            description: Street suffix
+          - name: adrsuf2
+            description: 'Street suffix #2'
+          - name: block
+            description: Block prefix and suffix, formatted
+          - name: cityname
+            description: City name
+          - name: compct
+            description: Common interest
+          - name: condbdg
+            description: Condominium building number
+          - name: condunt
+            description: Condominium unit number
+          - name: conveyno
+            description: Conveyance number
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: floorno
+            description: Address floor number
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: legal1
+            description: Legal description line 1
+          - name: legal2
+            description: Legal description line 2
+          - name: legal3
+            description: Legal description line 3
+          - name: legdesc
+            description: Unlimited legal description
+          - name: loc2
+            description: Address location line 2
+          - name: lot
+            description: Lot prefix and suffix, formatted
+          - name: lotdim
+            description: Lot dimensions
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: numlot
+            description: Number of lots
+          - name: parid
+            description: Parcel identification number
+          - name: postalcode
+            description: Postal code
+          - name: procdate
+            description: Procedure date
+          - name: procname
+            description: Procedure name
+          - name: qualifier
+            description: Qualifier codes, left justified
+          - name: respct
+            description: Residential percentage
+          - name: roll_section
+            description: Roll section
+          - name: schdist
+            description: School district code
+          - name: schdist2
+            description: Consolidated School district code
+          - name: school_code
+            description: School code
+          - name: schvalpct
+            description: School district value percentage
+          - name: schvalpct2
+            description: Consolidated school district value percentage
+          - name: seq
+            description: Version number of this record
+          - name: sortkey
+            description: Block, lot and qualifier, reformatted for sorting
+          - name: splitno
+            description: Split/combination tracking number
+          - name: sqft
+            description: Deeded square foot acrage
+          - name: star_credit
+            description: Star credit flag
+          - name: statecode
+            description: State or province (2 digit)
+          - name: status
+            description: Processing status
+          - name: strcd
+            description: Street code
+          - name: strreloc
+            description: Relative location
+          - name: subblck
+            description: Subdivision block number
+          - name: subcode
+            description: Subdivision code
+          - name: subdiv
+            description: Subdivision name
+          - name: subdnum
+            description: Subdivision number
+          - name: sublot
+            description: Subdivision lot number
+          - name: swis_code
+            description: Swis code
+          - name: taxdist
+            description: Tax district
+          - name: taxdist2
+            description: Tax district 2
+          - name: taxdist3
+            description: Tax district 3
+          - name: taxdist4
+            description: Tax district 4
+          - name: taxdist5
+            description: Tax district 5
+          - name: taxdist6
+            description: Tax district 6
+          - name: taxyr
+            description: Tax year
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: unitdesc
+            description: Address unit description
+          - name: unitno
+            description: Address unit number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
+          - name: xcoord
+            description: X coordinate
+          - name: ycoord
+            description: Y coordinate
+          - name: zcoord
+            description: Z coordinate
+          - name: zip1
+            description: Zip code, first 5 digits
+          - name: zip2
+            description: Zip code suffix, last 4 digits
         tests:
           - unique_combination_of_columns:
               name: legdat_unique_by_parid_taxyr
               combination_of_columns:
                 - parid
                 - taxyr
+
       - name: lpmod
+        columns:
+          - name: acradjflg
+            description: Adjustment flag
+          - name: acretble
+            description: Acre table number
+          - name: adjltype
+            description: Adjustment type
+          - name: bdecr
+            description: Decremental rate
+          - name: bincr
+            description: Incremental rate
+          - name: brate
+            description: Base rate
+          - name: bsize
+            description: Base size
+          - name: depthtble
+            description: Depth table assignment
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: lcode
+            description: Land code
+          - name: lmod
+            description: Land location model number
+          - name: ltype
+            description: Land type (F, S, A, G, U)
+          - name: modtype
+            description: Rate type description
+          - name: nmod
+            description: Neighborhood model
+          - name: schedtble
+            description: '`LPSCHED` table number'
+          - name: smod
+            description: Street model number
+          - name: soiltble
+            description: Soil schedule
+          - name: umod
+            description: Utility model
+          - name: ver
+            description: Calculation table version
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
+          - name: zmod
+            description: Zone model
+
       - name: lpnbhd
+        columns:
+          - name: acmod
+            description: Type A (Acre) land model assignment
+          - name: acpct
+            description: Factor for type A (Acreage) land
+          - name: agmod
+            description: Factor for type A (Acreage) land
+          - name: agpct
+            description: Rate adjustment for agricultural model
+          - name: bldgfact
+            description: Building factor
+          - name: cdu
+            description: Condition/desirability/utility code
+          - name: cdutble
+            description: CDU table
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: deprt
+            description: Depreciation table name
+          - name: depthtble
+            description: Depth table assignment
+          - name: describ
+            description: Description
+          - name: dwelfact
+            description: Dwellingfactor - all classes
+          - name: grade
+            description: Grade
+          - name: grm
+            description: Gross rent multiplier
+          - name: grmflg
+            description: Gross rent multiplier flag
+          - name: grmod
+            description: Type G (Site) - land model assignment
+          - name: grpct
+            description: Factor for type G (Gross/Site) land
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: landfact
+            description: Land factor
+          - name: landpct
+            description: Percentage of Land allocation
+          - name: lcodemod
+            description: Land code model
+          - name: lotmod
+            description: Type F (Front Ft)- land model assignment
+          - name: lotpct
+            description: Factor for type F (Front Ft) land
+          - name: modelid
+            description: Linkage to Manualmod table
+          - name: nbhd
+            description: Neighborhood number
+          - name: ngroup
+            description: Neighborhood group
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: note3
+            description: Note field 3
+          - name: note4
+            description: Note field 4
+          - name: note5
+            description: Note field 5
+          - name: note6
+            description: Note field 6
+          - name: obyfact
+            description: '`OBY` factor - all classes'
+          - name: rent
+            description: Default GRM rent
+          - name: resmod
+            description: Residential cost model
+          - name: revmeth
+            description: Review Method
+          - name: seq
+            description: Version number of this record
+          - name: sfmod
+            description: Type S (Sq. Ft.) - land model assignment
+          - name: sfpct
+            description: Factor for type S (Sq. Ft.) land
+          - name: unmod
+            description: Type U (Unit) - land model assignment
+          - name: unpct
+            description: Factor for type U (Unit) land
+          - name: valarea
+            description: Value area
+          - name: ver
+            description: Calculation table version
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
+
       - name: oby
         description: '{{ doc("oby") }}'
+        columns:
+          - name: adjfact
+            description: Adjustment factor
+          - name: adjrcn
+            description: Adjusted RCN using LCF factor
+          - name: adjrcnld
+            description: Final adjusted replacement cost new less depreciation
+          - name: altbasedate
+            description: Alternate base date
+          - name: area
+            description: Area of this line
+          - name: area_sqm
+            description:
+          - name: areaid
+            description: Unique identifier used to associate record to an Apex sketch area
+          - name: areasum
+            description: Sum of designated structure areas
+          - name: bld_modelid
+            description: Building model ID from `BLDMODELMAST` table
+          - name: card
+            description: Building (card) number
+          - name: cdpct
+            description: Cost and design percent
+          - name: chgrsn
+            description: Reason code for change of value
+          - name: class
+            description: Classification
+          - name: cline
+            description: Condominium line
+          - name: cndcmplx
+            description: Condominium complex
+          - name: cndflag
+            description: Condo flag
+          - name: cndtype
+            description: Condominium type code
+          - name: code
+            description: OBY type code
+          - name: cond
+            description: Condition code
+          - name: condolvl
+            description: Condominium floor level
+          - name: condovw
+            description: Condominium view
+          - name: convoby
+            description: Conveyance OBY
+          - name: cubicft
+            description: Cubic feet
+          - name: cubicmeters
+            description:
+          - name: cur
+            description: Current record indicator
+          - name: curmult
+            description: Current multiplier
+          - name: deactivat
+            description: Deactivate date
+          - name: depr
+            description: Percent good from table
+          - name: deprt
+            description: Override depreciation table
+          - name: ecndep
+            description: Economic depreciation
+          - name: ecnrsn
+            description: Reason code for economic depreciation
+          - name: effageovr
+            description: Effective age override
+          - name: effyr
+            description: Effective year
+          - name: excess
+            description: Flag to indicate excess value
+          - name: exmppct
+            description: Exemption percent
+          - name: exmpval
+            description: Exemption value
+          - name: funct
+            description: Function used in computing this calcualtion
+          - name: fundep
+            description: Functional depreciation
+          - name: funrsn
+            description: Reason code for functional depreciation
+          - name: grade
+            description: Grade
+          - name: grpadj
+            description: Group adjustment value
+          - name: hga
+            description: Homesite indicator
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: incuse
+            description: Income type use
+          - name: jur
+            description: Jurisdiction
+          - name: lcf
+            description: Factor used to calculate `RCNADJ`
+          - name: lline
+            description: Line number
+          - name: locmult
+            description: Local multiplier
+          - name: lumpadj
+            description: Lump sum dollar adjustment
+          - name: lumpcamod
+            description: Market modifier lumpsum value
+          - name: lumpcure
+            description: Cost to cure adjustment
+          - name: lumpdepr
+            description: Lump sum depreciation
+          - name: meas1
+            description: Measurement 1 for a line
+          - name: mhmake
+            description: Make of manufactured home
+          - name: mhmodel
+            description: Model of manufactured home
+          - name: miles
+            description: Miles for railroads
+          - name: mktadj
+            description: Percent good override
+          - name: msclass
+            description: Class identifier for Occupancy (CODE) from Marshall Swift
+          - name: msrank
+            description: Rank identifier for Occupancy (CODE) from Marshall Swift
+          - name: nccalc
+            description: Calculated current new construction value
+          - name: ncoval
+            description: Override current new construction value
+          - name: nctot
+            description: Cumulative new construction value
+          - name: ncval
+            description: Final current new construction value
+          - name: newconmo
+            description: New construction month. Used only in asmt calc.
+          - name: newconpct
+            description: New construction percentage. Used only in asmt calc.
+          - name: obygrp
+            description: Group for local modifier override
+          - name: obymod1
+            description: Modification code (1 of 4)
+          - name: obymod2
+            description: Modification code (2 of 4)
+          - name: obymod3
+            description: Modification code (3 of 4)
+          - name: obymod4
+            description: Modification code (4 of 4)
+          - name: ovrnbhd
+            description: Neighborhood number
+          - name: ovrrcn
+            description: Override replacement cost new
+          - name: ovrrcnld
+            description: Override replacement cost new less depreciation
+          - name: parid
+            description: Parcel identification number
+          - name: pctcomp
+            description: Percent of construction completed
+          - name: perim
+            description: Perimeter of the building/line
+          - name: prodamage
+            description: Percent damaged
+          - name: prodate
+            description: Proration date
+          - name: profact
+            description: Proration factor
+          - name: proprate
+            description: Investment rating
+          - name: protype
+            description: Proration type
+          - name: rate
+            description: Rate (SF cost) from tables
+          - name: rateovr
+            description: Override rate
+          - name: rcn
+            description: Replacement cost new
+          - name: rcnfact
+            description: RCN Adjustment Factor
+          - name: rcnld
+            description: Adjusted replacement cost new less depreciation
+          - name: recnr
+            description: Value record number
+          - name: rectype
+            description: 'Value category: P (`PP11`) or R (`CA11`)'
+          - name: salekey
+            description: Key pointing to the sale
+          - name: seq
+            description: Version number of this record
+          - name: status
+            description: Processing status
+          - name: stories
+            description: Story height
+          - name: suppress
+            description: Flag to indicate suppress value
+          - name: taxyr
+            description: Tax year
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: units
+            description: Number of identical units
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: valmeth
+            description: Valuation Method (R(CLT/RES) or M(MSB))
+          - name: vect
+            description: Vector string
+          - name: vectnotes
+            description: Sketch vector notes
+          - name: wallhgt
+            description: Wall height
+          - name: wallhgt_m
+            description:
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
+          - name: yrblt
+            description: Year built
+          - name: yrrem
+            description: Year remodeled
         tests:
           - unique_combination_of_columns:
               name: oby_unique_by_parid_card_lline_taxyr
@@ -127,16 +4033,440 @@ sources:
                 - card
                 - lline
                 - taxyr
+
       - name: owndat
         description: '{{ doc("owndat") }}'
+        columns:
+          - name: addr1
+            description: Address line 1
+          - name: addr2
+            description: Address line 2
+          - name: addr3
+            description: Address line 3
+          - name: addr4
+            description: Address Line 4
+          - name: addr5
+            description: Address Line 5
+          - name: addrtype
+            description: Address type code (N, S, F, R, C)
+          - name: addrvalid
+            description: Flag to denote whether address was validated against validation service
+          - name: adradd
+            description: Address number suffix
+          - name: adrdir
+            description: Street direction
+          - name: adrgrid
+            description: Grid address number
+          - name: adrno
+            description: Street number
+          - name: adrpre
+            description: Address number prefix
+          - name: adrstr
+            description: Address street name
+          - name: adrsuf
+            description: Street suffix
+          - name: adrsuf2
+            description: 'Street suffix #2'
+          - name: attn
+            description: Attention line
+          - name: book
+            description: Book number
+          - name: careof
+            description: In Care Of name
+          - name: carrier_rt
+            description: Carrier route - 4 digit suffix
+          - name: cityname
+            description: City name
+          - name: cnamejur
+            description: Stores `CNAME.JUR` when ownnum is populated in hierarchical `JUR` sites
+          - name: compartment
+            description: Compartment
+          - name: conveyno
+            description: Conveyance number
+          - name: country
+            description: Country
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: delinstalltype
+            description: Delivery installation type
+          - name: delinstallval
+            description: Delivery installation value
+          - name: delmod
+            description: Mode of delivery
+          - name: delmodval
+            description: Mode of delivery value
+          - name: email
+            description: E-mail address of contact person
+          - name: fax
+            description: Fax number of contact person
+          - name: fedid
+            description: Federal tax ID number
+          - name: floorno
+            description: Floor Number
+          - name: grpflag
+            description: Grouping code for multiple owners
+          - name: hidename
+            description: Flag to hide name/address from public view (Y)
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: link
+            description: Owner link number
+          - name: marstat
+            description: Marital status
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: notecd
+            description: Code for predefined note
+          - name: own1
+            description: Owner name 1
+          - name: own1_companyname
+            description: Owner 1 company name
+          - name: own1_firstname
+            description: Owner 1 first name
+          - name: own1_lastname
+            description: Owner 1 last name
+          - name: own1_middlename
+            description: Owner 1 middle name
+          - name: own1_prefix
+            description: Owner 1 prefix
+          - name: own1_suffix
+            description: Owner 1 suffix
+          - name: own2
+            description: Owner name 2
+          - name: own2_companyname
+            description: Owner 2 company name
+          - name: own2_firstname
+            description: Owner 2 first name
+          - name: own2_lastname
+            description: Owner 2 last name
+          - name: own2_middlename
+            description: Owner 2 middle name
+          - name: own2_prefix
+            description: Owner 2 prefix
+          - name: own2_suffix
+            description: Owner 2 suffix
+          - name: ownbeg
+            description: Ownership begin date
+          - name: ownend
+            description: Ownership ending date
+          - name: ownnum
+            description: Owner number
+          - name: ownseq
+            description: Owner sequence number
+          - name: owntype1
+            description: Type of owner(individual, guardian, etc) 1
+          - name: owntype2
+            description: Type of owner(individual, guardian, etc) 2
+          - name: owntype3
+            description: Type of owner(individual, guardian, etc) 3
+          - name: owntype4
+            description: Type of owner(individual, guardian, etc) 4
+          - name: page
+            description: Page number
+          - name: parid
+            description: Parcel identification number
+          - name: partial
+            description: Partial ownership indicator
+          - name: pctown
+            description: Percent of ownership for primary owner
+          - name: phone
+            description: Phone number
+          - name: po
+            description: Primary owner flag (1 = `OWNDAT`, 0 = `OWNMLT`)
+          - name: postal_indx
+            description: Postal index number
+          - name: postalcode
+            description: Postal code (international zip code)
+          - name: salekey
+            description: Key pointing to the sale
+          - name: seq
+            description: Version number of this record
+          - name: site
+            description: Site
+          - name: skip_addr_validation
+            description: Skip address validation
+          - name: splitno
+            description: Split/combination tracking number
+          - name: statecode
+            description: State or province (2 digit)
+          - name: stateid
+            description: State tax ID number
+          - name: status
+            description: Processing status
+          - name: taxyr
+            description: Tax year
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: unitdesc
+            description: Address unit description
+          - name: unitno
+            description: Address unit number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
+          - name: zip1
+            description: Zip code, first 5 digits
+          - name: zip2
+            description: Zip code suffix, last 4 digits
         tests:
           - unique_combination_of_columns:
               name: owndat_unique_by_parid_taxyr
               combination_of_columns:
                 - parid
                 - taxyr
+
       - name: pardat
         description: '{{ doc("pardat") }}'
+        columns:
+          - name: acres
+            description: Total acres
+          - name: addrsrc
+            description: Address source
+          - name: addrvalid
+            description: Flag to denote whether address was validated against validation service
+          - name: adjfact
+            description: Adjustment factor
+          - name: adradd
+            description: Address number suffix
+          - name: adrdir
+            description: Street direction
+          - name: adrid
+            description: Unique address ID
+          - name: adrno
+            description: Street number
+          - name: adrparchild
+            description: Address parent child indicator
+          - name: adrpostmod
+            description: Address post modifier
+          - name: adrpre
+            description: Address number prefix
+          - name: adrpremod
+            description: Address pre modifier
+          - name: adrpretype
+            description: Address pre type
+          - name: adrstatus
+            description: Address effective status
+          - name: adrstr
+            description: Address street name
+          - name: adrsuf
+            description: Street suffix
+          - name: adrsuf2
+            description: 'Street suffix #2'
+          - name: afar
+            description: Actual FAR (calculated)
+          - name: afarsf
+            description: Square feet of actual FAR (calculated)
+          - name: aguse
+            description: Agriculture use
+          - name: alt_id
+            description: Alternate parcel identification
+          - name: areacd
+            description: Area code used as part of Folio number (BCA)
+          - name: assessorid
+            description: Assessor assigned to this parcel
+          - name: bldgros_d
+            description: Gross building description
+          - name: bldgros_v
+            description: Gross building value
+          - name: block
+            description: Parcel block
+          - name: calcacres
+            description: Total acres calculated from LAND table
+          - name: chgrsn
+            description: Reason code for change of value
+          - name: cityname
+            description: City name
+          - name: class
+            description: Classification
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: farminc
+            description: Farm income
+          - name: fldref
+            description: Field reference code
+          - name: floorno
+            description: Address Floor Number
+          - name: fronting
+            description: Fronting location factor (street)
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: juris
+            description: Jurisdiction
+          - name: landisc
+            description: Landisc frame number
+          - name: livunit
+            description: Number of living units
+          - name: loc2
+            description: Address location line 2
+          - name: location
+            description: Location factor (area type)
+          - name: luc
+            description: Land use code
+          - name: lucmult
+            description: Multiple land use flag
+          - name: mappre
+            description: Map/Routing map prefix number
+          - name: mapsuf
+            description: Map/Routing map suffix number
+          - name: mscbld_n
+            description: Number of miscellaneous buildings
+          - name: mscbld_v
+            description: Adjusted miscellaneous buildings value
+          - name: muni
+            description: Municipality
+          - name: municd
+            description: Jurisdictions (Municipalities) used as part of Folio number (BCA)
+          - name: nbhd
+            description: Neighborhood number
+          - name: nbhdie
+            description: Neighborhood income valuation
+          - name: nonfarminc
+            description: Non-farm income
+          - name: note1
+            description: Note field 1
+          - name: note2
+            description: Note field 2
+          - name: note3
+            description: Note Field 3
+          - name: note4
+            description: Note Field 4
+          - name: notecd1
+            description: Code for predefined note 1
+          - name: notecd2
+            description: Code for predefined note 2
+          - name: nrinc
+            description: Natural resource income
+          - name: ofcard
+            description: Number of main buildings (cards)
+          - name: ovrassessorid
+            description: Override assessor assigned to this parcel
+          - name: parid
+            description: Parcel identification number
+          - name: parkprox
+            description: Parking proximity
+          - name: parkquanit
+            description: Parking quantity
+          - name: parktype
+            description: Parking type
+          - name: partial
+            description: Partial ownership indicator
+          - name: pctown
+            description: Percent of ownership for primary owner
+          - name: pfar
+            description: Proffered FAR (user entered)
+          - name: pfarsf
+            description: Square feet of proffered FAR (user entered)
+          - name: postalcode
+            description: Postal code
+          - name: prefactmscbld
+            description: Misc bldg value before adj factor is applied
+          - name: procdate
+            description: Procedure date
+          - name: procname
+            description: Procedure name
+          - name: rectype
+            description: 'Value category: P (`PP11`) or R (`CA11`)'
+          - name: restrict1
+            description: Restriction 1
+          - name: restrict2
+            description: Restriction 2
+          - name: restrict3
+            description: Restriction 3
+          - name: rollno
+            description: Roll number used as part of Folio number (BCA)
+          - name: rtepre
+            description: Map/Routing routing prefix number
+          - name: rtesuf
+            description: Map/Routing routing suffix number
+          - name: salekey
+            description: Key pointing to the sale
+          - name: sec_fld
+            description: Security field
+          - name: seq
+            description: Version number of this record
+          - name: skip_addr_validation
+            description: Skip address validation
+          - name: splitno
+            description: Split/combination tracking number
+          - name: spot
+            description: Spot location percentage adj./land value
+          - name: statecode
+            description: State or province (2 digit)
+          - name: status
+            description: Processing status
+          - name: strcd
+            description: Street code
+          - name: street1
+            description: Street and sidewalk code 1
+          - name: street2
+            description: Street and sidewalk code 2
+          - name: strreloc
+            description: relative location
+          - name: taxyr
+            description: Tax year
+          - name: tieback
+            description: Parcel tieback
+          - name: tiebkcd
+            description: Tieback code
+          - name: tiebldgpct
+            description: Percent bldg common interest
+          - name: tielandpct
+            description: Percent land common interest
+          - name: topo1
+            description: Topography code 1
+          - name: topo2
+            description: Topography code 2
+          - name: topo3
+            description: Topography code 3
+          - name: traffic
+            description: Traffic code
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: unit
+            description: Parcel unit
+          - name: unitdesc
+            description: Address unit description
+          - name: unitno
+            description: Address unit number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: util1
+            description: Utility code 1
+          - name: util2
+            description: Utility code 2
+          - name: util3
+            description: Utility code 3
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
+          - name: zfar
+            description: Zoned FAR, from LP53
+          - name: zip1
+            description: Zip code, first 5 digits
+          - name: zip2
+            description: Zip code suffix, last 4 digits
         tests:
           - unique_combination_of_columns:
               name: pardat_unique_by_parid_taxyr
@@ -156,13 +4486,325 @@ sources:
                 # although we do not yet know what it is
                 where: (taxyr between '2010' and '2021') and (nbhd not like '%999')
                 error_if: ">1992"
+
       - name: permit
+        columns:
+          - name: addrvalid
+            description: Flag to denote whether address was validated against validation service
+          - name: adradd
+            description: Address number suffix
+          - name: adrdir
+            description: Street direction
+          - name: adrno
+            description: Street number
+          - name: adrstr
+            description: Address street name
+          - name: adrsuf
+            description: Street suffix
+          - name: adrsuf2
+            description: 'Street suffix #2'
+          - name: amount
+            description: Amount
+          - name: certdate
+            description: Certified date
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: drawndt
+            description: Date plans were drawn
+          - name: flag
+            description: Flag
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: id1
+            description: ID field 1
+          - name: id2
+            description: ID field 2
+          - name: jur
+            description: Jurisdiction
+          - name: longdesc
+            description: Long description
+          - name: note1
+            description: Note 1
+          - name: note2
+            description: Note 2
+          - name: note3
+            description: Note 3
+          - name: notes
+            description: Permit notes
+          - name: num
+            description: Number
+          - name: parid
+            description: Parcel identification number
+          - name: permdt
+            description: Permit date
+          - name: seq
+            description: Version number of this record
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: udate1
+            description: User date field 1
+          - name: udate2
+            description: User date field 2
+          - name: udate3
+            description: User date field 3
+          - name: udate4
+            description: User date field 4
+          - name: udate5
+            description: User date field 5
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
         freshness:
           filter: date_format(date_parse(permdt, '%Y-%m-%d %H:%i:%s.0'), '%Y') >= date_format(current_date - interval '1' year, '%Y')
           warn_after: *48_hours
           error_after: &72_hours {count: 72, period: hour}
+
       - name: rcoby
+        columns:
+          - name: altbasedate
+            description: Alternate base date
+          - name: cdutble
+            description: CDU table
+          - name: code
+            description: OBY structure type code
+          - name: code_mvp
+            description: MSB component code
+          - name: depr_cls
+            description: Determines the `DEPRT` entry
+          - name: deprt
+            description: Depreciation table name
+          - name: describ
+            description: Description of factor
+          - name: dim1
+            description: Abbreviation for first units entry
+          - name: dim1desc
+            description: Description for first units entry
+          - name: dim2
+            description: Abbreviation for second units entry, if applicable
+          - name: dim2desc
+            description: Description for second units entry, if applicable
+          - name: dimref
+            description: Reference to measure (`MEAS1` or `MEAS2`)
+          - name: dimrtype
+            description: Dimension reference type (R, S)
+          - name: fc
+            description: Formula number
+          - name: gradea
+            description: Grade factor for grade A
+          - name: gradeb
+            description: Grade factor for grade B
+          - name: gradec
+            description: Grade factor for grade C
+          - name: graded
+            description: Grade factor for grade D
+          - name: gradee
+            description: Grade factor for grade E
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: incuse
+            description: Income Type Use
+          - name: locmultcd
+            description: Local Multiplier Code
+          - name: maxdimr
+            description: Maximum range for `DIMREF`
+          - name: maxsize
+            description: Maximum allowable size
+          - name: mindimr
+            description: Minimum range for `DIMREF`
+          - name: minsize
+            description: Minimum allowable size
+          - name: msclass
+            description: Construction class
+          - name: mult_units
+            description: Multiple units flag
+          - name: mvpflag
+            description: MVP calculation flag
+          - name: mvpinput1
+            description: Additional input attribute for MSB components
+          - name: mvpinput2
+            description: Additional input attribute for MSB components
+          - name: mvpinput3
+            description: Additional input attribute for MSB components
+          - name: mvpinput4
+            description: Additional input attribute for MSB components
+          - name: mvpinput5
+            description: Additional input attribute for MSB components
+          - name: nam
+            description: Short version of description
+          - name: obygrp
+            description: Group for local modifier override
+          - name: occupancy
+            description: Occupancy Code used for MSB
+          - name: ppcalctype
+            description: 'Filter for allowable use in PP Cama Calculations: P=PP Only, O/Null = OBY Only, B = Both'
+          - name: r1
+            description: 'Variable to be used in cost equation: e.g. for `units = 1`, `cost = R1 + (R2*sqft(area)) + (R3*area)`'
+          - name: schedincr
+            description: Schedule display increment
+          - name: schedmax
+            description: Schedule display maximum size
+          - name: schedmin
+            description: Schedule display minimum size
+          - name: schedtype
+            description: Schedule type (`RATE` or `COST`)
+          - name: srvclife
+            description: Service life
+          - name: sumpct
+            description: Percent of area to be included in area of parcel buildings (`areasum`)
+          - name: units
+            description: Units to use for cost equation
+          - name: valmeth
+            description: Valuation Method (M(MSB))
+          - name: ver
+            description: Calculation table version
+          - name: wallhgt
+            description: Wall height
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
+
       - name: sales
+        columns:
+          - name: adjamt
+            description: Adjustment amount (used to calculate `ADJPRICE`)
+          - name: adjprice
+            description: Adjusted sales price
+          - name: adjreas
+            description: Reason for adjusting sale price
+          - name: aprtot
+            description: Total appraised value
+          - name: asmt
+            description: Assessed value at time of sale
+          - name: asr
+            description: Assessment to sale ratio
+          - name: batch
+            description: Batch number
+          - name: book
+            description: Book number
+          - name: cntyfinaldt
+            description: County final date
+          - name: cur
+            description: Current record indicator
+          - name: deactivat
+            description: Deactivate date
+          - name: deed_ref
+            description: Deed ref flag
+          - name: ecrv
+            description: 'Electronic certificate of real estate values ID: (state of MN specific)'
+          - name: ecrv_date
+            description: Electronic certificate of real estate Processed Date
+          - name: grp
+            description: Time adjusted sale group
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: imageno
+            description: Document image number for the sale deed
+          - name: instrtyp
+            description: Instrument type
+          - name: instruno
+            description: Instrument number
+          - name: jur
+            description: Jurisdiction
+          - name: linkno
+            description: Used to tie multi-parcel sales together (either instrument number, or transfer number, or book/page)
+          - name: mktvalid
+            description: Market validity code
+          - name: newseq
+            description: New sequence number
+          - name: newyr
+            description: New year
+          - name: nopar
+            description: Number of parcels
+          - name: notes
+            description: Sales comments
+          - name: oldown
+            description: Old owner name
+          - name: oldown2
+            description: Old owner name 2
+          - name: oldseq
+            description: Old sequence number
+          - name: oldyr
+            description: Old year
+          - name: own1
+            description: Owner name 1
+          - name: own2
+            description: Owner name 2
+          - name: page
+            description: Page number
+          - name: parent
+            description: Time adjusted sale parent name
+          - name: parid
+            description: Parcel identification number
+          - name: price
+            description: Sale price
+          - name: recorddt
+            description: Recording date
+          - name: saledt
+            description: Sale date
+          - name: salekey
+            description: Key pointing to the sale
+          - name: saletype
+            description: Sale type code (land or land and building)
+          - name: saleval
+            description: Sale validity code
+          - name: seq
+            description: Version number of this record
+          - name: source
+            description: Source code
+          - name: stampval
+            description: Stamp value for the sale
+          - name: status
+            description: Processing status
+          - name: steb
+            description: State sales code
+          - name: stflag
+            description: State report flag
+          - name: tasp_ovr
+            description: Time adjusted sale price for override roll year
+          - name: tasp_ovr_year
+            description: Roll year of time adjusted sale price override value
+          - name: tasp_year1
+            description: Roll year of time adjusted sale price 1
+          - name: tasp_year2
+            description: Roll year of time adjusted sale price 2
+          - name: tasp_year3
+            description: Roll year of time adjusted sale price 3
+          - name: tasp1
+            description: Time adjusted sale price for roll year 1
+          - name: tasp2
+            description: Time adjusted sale price for roll year 2
+          - name: tasp3
+            description: Time adjusted sale price for roll year 3
+          - name: timeadjfact
+            description: Time adjusted fact
+          - name: timeadjsp
+            description: Time adjusted sales price
+          - name: timeadjvaldt
+            description: Time adjusted valuation date
+          - name: timeadjvaldt2
+            description: Time adjusted valuation date 2
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: transdt
+            description: Transaction date
+          - name: transno
+            description: Transfer number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: wen
+            description: Last maintenance date
+          - name: wencalc
+            description: Date of last batch change
+          - name: who
+            description: User ID of last maintenance
+          - name: whocalc
+            description: Batch computation/change
         tests:
           - unique_combination_of_columns:
               name: sales_unique_by_parid_instruno
@@ -171,5 +4813,133 @@ sources:
                 - instruno
               config:
                 where: substr(saledt, 1, 4) >= '2023'
+
       - name: splcom
+        columns:
+          - name: alt_splitnum
+            description: Alternate split/combination tracking number
+          - name: deact_flag
+            description: Parent/existing parcels deactivation flag
+          - name: distcode
+            description: District code
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: newacr
+            description: New acreage (deed)
+          - name: newalt_id
+            description: New alternate parcel identification
+          - name: newbldg
+            description: Appraised building value for new parcel
+          - name: newbldgpct
+            description: Percentage of bldg value split
+          - name: newblock
+            description: New block prefix and suffix, formatted
+          - name: newbook
+            description: New deed book reference
+          - name: newid
+            description: New parcel ID
+          - name: newland
+            description: Appraised land value for new parcel
+          - name: newlandpct
+            description: Percentage of land value split
+          - name: newlot
+            description: New lot prefix and suffix, formatted
+          - name: newnbhd
+            description: New neighborhood number
+          - name: newpage
+            description: New deed page reference
+          - name: newqualifier
+            description: New qualifier codes, left justified
+          - name: newsf
+            description: New square footage
+          - name: newtaxdue
+            description: New parcel taxes due
+          - name: newtot
+            description: Total appraised value for new parcel
+          - name: newvalpct
+            description: Percentage used in apportioning taxes due
+          - name: newvaltax
+            description: New parcel taxable value
+          - name: newzoning
+            description: New zoning
+          - name: oldacr
+            description: Original acreage (deed)
+          - name: oldalt_id
+            description: Original alternate parcel identification
+          - name: oldblock
+            description: Original block prefix and suffix, formatted
+          - name: oldbook
+            description: Original deed book reference
+          - name: oldid
+            description: Old parcel ID
+          - name: oldlot
+            description: Original lot prefix and suffix, formatted
+          - name: oldnbhd
+            description: Original neighborhood number
+          - name: oldpage
+            description: Original deed page reference
+          - name: oldqualifier
+            description: Original qualifier codes, left justified
+          - name: oldsf
+            description: Original square footage
+          - name: oldtaxdue
+            description: Parent taxes due
+          - name: oldvaltax
+            description: Parent taxable value
+          - name: oldzoning
+            description: Original zoning
+          - name: reascd
+            description: Reason for change
+          - name: seq
+            description: Version number of this record
+          - name: splcom_status
+            description: Apportionment/merger status (C - complete, R - reversed, null - in progress)
+          - name: splitcde
+            description: Code for type (S)plit (C)ombination
+          - name: splitno
+            description: Split/combination tracking number
+          - name: status
+            description: Processing status
+          - name: taxyr
+            description: Tax year
+          - name: trans_id
+            description: iasWorld transaction number
+          - name: upd_status
+            description: iasWorld update status for this row
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
+
       - name: valclass
+        columns:
+          - name: assess_pct
+            description: Assessment percent used in calc of asmt
+          - name: class
+            description: Classification
+          - name: iasw_id
+            description: iasWorld unique row identifier
+          - name: jur
+            description: Jurisdiction
+          - name: luc
+            description: Land use code
+          - name: ratio1
+            description: Ratio 1
+          - name: ratio2
+            description: Ratio 2
+          - name: ratio3
+            description: Ratio 3
+          - name: rolltype
+            description: Tax roll name
+          - name: taxyr
+            description: Tax year
+          - name: valclass
+            description: Tax assessment class
+          - name: vclass
+            description: Other valclass class pointing to assigned valclass
+          - name: wen
+            description: Last maintenance date
+          - name: who
+            description: User ID of last maintenance
