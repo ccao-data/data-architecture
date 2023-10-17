@@ -238,11 +238,6 @@ sources:
             description: '{{ doc("column_zip2") }}'
 
         tests:
-          - unique_combination_of_columns:
-              name: pardat_unique_by_parid_taxyr
-              combination_of_columns:
-                - parid
-                - taxyr
           - column_is_subset_of_external_column:
               name: pardat_nbhd_matches_spatial_town_nbhd
               column: nbhd
@@ -256,3 +251,8 @@ sources:
                 # although we do not yet know what it is
                 where: (taxyr between '2010' and '2021') and (nbhd not like '%999')
                 error_if: ">1992"
+          - unique_combination_of_columns:
+              name: pardat_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
