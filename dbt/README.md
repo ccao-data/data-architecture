@@ -362,6 +362,8 @@ define the Markdown text that comprises these descriptions:
   under the `description` key for the resource
 * If a description is shared between three or more resources, its text should
   be defined as a [docs block](https://docs.getdbt.com/reference/resource-properties/description#use-a-docs-block-in-a-description).
+  If the docs block represents text that will be used by columns, its identifier
+  should have a `column_` prefix.
 
 New models should also include descriptions for each column. Since the first
 few characters of a column description will be shown in the documentation in
