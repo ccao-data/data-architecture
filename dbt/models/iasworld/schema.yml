@@ -40,11 +40,11 @@ sources:
           - name: exremove
             description: Exemption removal status
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: ie_rolltype
             description: Rolltype for valclass lookup to read citax
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: jur_label
             description: Label for column `JUR` on screens, etc
           - name: latest_owner
@@ -82,51 +82,51 @@ sources:
           - name: thisyear
             description: Default year for users
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
 
       - name: addn
         description: '{{ doc("addn") }}'
         columns:
           - name: area
-            description: Area of this line
+            description: '{{ doc("column_area") }}'
           - name: area_sqm
             description: Area of this line in meters
           - name: areaid
-            description: Unique identifier used to associate record to an Apex sketch area
+            description: '{{ doc("column_areaid") }}'
           - name: areasum
-            description: Sum of designated structure areas
+            description: '{{ doc("column_areasum") }}'
           - name: card
-            description: Building (card) number
+            description: '{{ doc("column_card") }}'
           - name: cdu
-            description: Condition/desirability/utility code
+            description: '{{ doc("column_cdu") }}'
           - name: chgrsn
-            description: Reason code for change of value
+            description: '{{ doc("column_chgrsn") }}'
           - name: class
-            description: Classification
+            description: '{{ doc("column_class") }}'
           - name: convaddn
             description: Converted addition total
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: depr
             description: Percent good from tables (based on age+cdu)
           - name: eff_area
             description: Support value per line
           - name: effageovr
-            description: Effective age override
+            description: '{{ doc("column_effageovr") }}'
           - name: effyr
-            description: Effective year
+            description: '{{ doc("column_effyr") }}'
           - name: exmppct
-            description: Exemption percent
+            description: '{{ doc("column_exmppct") }}'
           - name: exmpval
-            description: Exemption value
+            description: '{{ doc("column_exmpval") }}'
           - name: first
             description: First floor addition code
           - name: grade
-            description: Grade
+            description: '{{ doc("column_grade") }}'
           - name: grdfact
             description: Grade factor
           - name: grdfact1
@@ -138,39 +138,39 @@ sources:
           - name: grdfactl
             description: Lower level class/grade factor
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: lline
-            description: Line number
+            description: '{{ doc("column_lline") }}'
           - name: lower
             description: Lower level addition code
           - name: mktadj
             description: Override percent good
           - name: nccalc
-            description: Calculated current new construction value
+            description: '{{ doc("column_nccalc") }}'
           - name: ncoval
-            description: Override current new construction value
+            description: '{{ doc("column_ncoval") }}'
           - name: nctot
-            description: Cumulative new construction value
+            description: '{{ doc("column_nctot") }}'
           - name: ncval
-            description: Final current new construction value
+            description: '{{ doc("column_ncval") }}'
           - name: newconmo
-            description: New construction month. Used only in asmt calc.
+            description: '{{ doc("column_newconmo") }}'
           - name: newconpct
-            description: New construction percentage. Used only in asmt calc.
+            description: '{{ doc("column_newconpct") }}'
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: pctcomp
-            description: Percent of construction completed
+            description: '{{ doc("column_pctcomp") }}'
           - name: prodamage
-            description: Percent damaged
+            description: '{{ doc("column_prodamage") }}'
           - name: prodate
-            description: Proration date
+            description: '{{ doc("column_prodate") }}'
           - name: profact
-            description: Proration factor
+            description: '{{ doc("column_profact") }}'
           - name: protype
-            description: Proration type
+            description: '{{ doc("column_protype") }}'
           - name: rate1
             description: First level base rate
           - name: rate2
@@ -188,7 +188,7 @@ sources:
           - name: rcnl
             description: Lower level replacement cost new amount
           - name: rcnld
-            description: Replacement cost new less depreciation
+            description: '{{ doc("column_rcnld") }}'
           - name: rcnld1
             description: First level replacement cost new less depreciation amount
           - name: rcnld2
@@ -198,23 +198,23 @@ sources:
           - name: rcnldl
             description: Lower level replacement cost new less depreciation amount
           - name: rectype
-            description: 'Value category: P (`PP11`) or R (`CA11`)'
+            description: '{{ doc("column_rectype") }}'
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: second
             description: Second floor addition code
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: third
             description: Third floor addition code
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: user1
             description: User defined field 1
           - name: user2
@@ -238,19 +238,19 @@ sources:
           - name: value
             description: Value of the addition
           - name: vect
-            description: Vector string
+            description: '{{ doc("column_vect") }}'
           - name: vectnotes
-            description: Sketch vector notes
+            description: '{{ doc("column_vectnotes") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
           - name: yrblt
-            description: Year built
+            description: '{{ doc("column_yrblt") }}'
         tests:
           - unique_combination_of_columns:
               name: addn_unique_by_parid_taxyr_card_lline
@@ -265,91 +265,91 @@ sources:
           - name: addrsrc
             description: Address source
           - name: addrvalid
-            description: Flag to denote whether address was validated against validation service
+            description: '{{ doc("column_addrvalid") }}'
           - name: adradd
-            description: Address number suffix
+            description: '{{ doc("column_adradd") }}'
           - name: adrdir
-            description: Street direction
+            description: '{{ doc("column_adrdir") }}'
           - name: adrgrid
-            description: Grid address number
+            description: '{{ doc("column_adrgrid") }}'
           - name: adrid
-            description: Unique address ID
+            description: '{{ doc("column_adrid") }}'
           - name: adrno
-            description: Street number
+            description: '{{ doc("column_adrno") }}'
           - name: adrparchild
-            description: Address Parent Child Indicator
+            description: '{{ doc("column_adrparchild") }}'
           - name: adrpostmod
-            description: Address post modifier
+            description: '{{ doc("column_adrpostmod") }}'
           - name: adrpre
-            description: Address number prefix
+            description: '{{ doc("column_adrpre") }}'
           - name: adrpremod
-            description: Address pre modifier
+            description: '{{ doc("column_adrpremod") }}'
           - name: adrpretype
-            description: Address pre type
+            description: '{{ doc("column_adrpretype") }}'
           - name: adrstatus
-            description: Address effective status
+            description: '{{ doc("column_adrstatus") }}'
           - name: adrstr
-            description: Address street name
+            description: '{{ doc("column_adrstr") }}'
           - name: adrsuf
-            description: Street suffix
+            description: '{{ doc("column_adrsuf") }}'
           - name: adrsuf2
-            description: 'Street suffix #2'
+            description: '{{ doc("column_adrsuf2") }}'
           - name: bldgno
-            description: Building number
+            description: '{{ doc("column_bldgno") }}'
           - name: card
-            description: Building (card) number
+            description: '{{ doc("column_card") }}'
           - name: childparid
             description: Child Parcel ID
           - name: cityname
-            description: City name
+            description: '{{ doc("column_cityname") }}'
           - name: coopid
             description: Cooperative identifier
           - name: country
-            description: Country
+            description: '{{ doc("column_country") }}'
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: defaddr
             description: Primary address for unique combination of `JUR`, `PARID`, `CARD`, `TAXYR` and `TBLE`
           - name: floorno
-            description: Address floor number
+            description: '{{ doc("column_floorno") }}'
           - name: gislink
             description: Key to link address record with third party GIS 911 system for PBC
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: lline
-            description: Line number
+            description: '{{ doc("column_lline") }}'
           - name: loc2
-            description: Address location line 2
+            description: '{{ doc("column_loc2") }}'
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: postalcode
-            description: Postal code (international zip code)
+            description: '{{ doc("column_postalcode") }}'
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: statecode
-            description: State or province (2 digit)
+            description: '{{ doc("column_statecode") }}'
           - name: strcd
-            description: Street code
+            description: '{{ doc("column_strcd") }}'
           - name: strreloc
-            description: Relative Location
+            description: '{{ doc("column_strreloc") }}'
           - name: tabseq
             description: Sort order within addresses associated with `TBLE`
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: tble
             description: Table name associated with this address
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: unitdesc
-            description: Address unit description
+            description: '{{ doc("column_unitdesc") }}'
           - name: unitno
-            description: Address unit number
+            description: '{{ doc("column_unitno") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: user1
             description: User defined field 1
           - name: user10
@@ -381,17 +381,17 @@ sources:
           - name: user9
             description: User defined field 9
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: xcoord
-            description: X coordinate
+            description: '{{ doc("column_xcoord") }}'
           - name: ycoord
-            description: Y coordinate
+            description: '{{ doc("column_ycoord") }}'
           - name: zip1
-            description: Zip code, first 5 digits
+            description: '{{ doc("column_zip1") }}'
           - name: zip2
-            description: Zip code suffix, last 4 digits
+            description: '{{ doc("column_zip2") }}'
 
       - name: aprval
         description: '{{ doc("aprval") }}'
@@ -409,9 +409,9 @@ sources:
           - name: aprland
             description: Appraised land value
           - name: aprtot
-            description: Total appraised value
+            description: '{{ doc("column_aprtot") }}'
           - name: areasum
-            description: Sum of designated structure areas
+            description: '{{ doc("column_areasum") }}'
           - name: assmkt
             description: Total assessed value
           - name: auid
@@ -443,7 +443,7 @@ sources:
           - name: comvalperunit
             description: Commercial appraised value per unit
           - name: convbldg
-            description: Building value at conversion
+            description: '{{ doc("column_convbldg") }}'
           - name: convland
             description: Land value at conversion
           - name: costdt
@@ -451,9 +451,9 @@ sources:
           - name: costval
             description: Total cost value
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: dwelval
             description: Total dwelling value
           - name: ecf
@@ -471,15 +471,15 @@ sources:
           - name: exmpland
             description: Exemption land value
           - name: exmppct
-            description: Exemption percent
+            description: '{{ doc("column_exmppct") }}'
           - name: exmppctb
             description: Bldg exemption percentage. If this % is null, it will use `EXMPPCT`
           - name: exmppctl
             description: Land exemption percentage. If this % is null, it will use `EXMPPCT`
           - name: exmpval
-            description: Exemption value
+            description: '{{ doc("column_exmpval") }}'
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: incdate
             description: Income Value Date
           - name: income
@@ -489,7 +489,7 @@ sources:
           - name: incomemkt
             description: Total value for blended INCOME and MARKET aproach
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: landpct
             description: Land allocation percent
           - name: landval
@@ -513,9 +513,9 @@ sources:
           - name: mraland
             description: MRA estimate land only
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: nrval
             description: Sum of designated structure areas
           - name: obyval
@@ -523,9 +523,9 @@ sources:
           - name: overridemodelid
             description: Override model ID number
           - name: ovrmraval
-            description: Override MRA value
+            description: '{{ doc("column_ovrmraval") }}'
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: posttype
             description: Assessment posting type
           - name: ppcomval
@@ -535,9 +535,9 @@ sources:
           - name: ppobyval
             description: Personal property `OBY` value
           - name: procdate
-            description: Procedure date
+            description: '{{ doc("column_procdate") }}'
           - name: procname
-            description: Procedure name
+            description: '{{ doc("column_procname") }}'
           - name: reascd
             description: Reason code for change in assessed value
           - name: resgrmval
@@ -559,27 +559,27 @@ sources:
           - name: revwho
             description: Reviewer name/code
           - name: rolltype
-            description: Tax roll name
+            description: '{{ doc("column_rolltype") }}'
           - name: saledate
             description: Selected sale date
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: saleprice
             description: Selected sale price
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: spcflg
             description: Special processing flag
           - name: splitno
-            description: Split/combination tracking number
+            description: '{{ doc("column_splitno") }}'
           - name: spssmrabldg
             description: SPSS MRA building value
           - name: spssmraland
             description: SPSS MRA land value
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: tiebackbldg
             description: Sum of building value for all children in the income tieback group
           - name: tiebackland
@@ -591,17 +591,17 @@ sources:
           - name: totresla
             description: Total residential living area
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
         tests:
           - unique_combination_of_columns:
               name: aprval_unique_by_parid_taxyr
@@ -616,23 +616,23 @@ sources:
           error_after: &48_hours {count: 48, period: hour}
         columns:
           - name: class
-            description: Classification
+            description: '{{ doc("column_class") }}'
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: distcode
             description: District code
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: luc
-            description: Land use code
+            description: '{{ doc("column_luc") }}'
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: ovrclass
             description: Override class
           - name: ovrcodtax
@@ -640,45 +640,45 @@ sources:
           - name: ovrvaltax
             description: Override value for taxes
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: procdate
-            description: Procedure date
+            description: '{{ doc("column_procdate") }}'
           - name: procname
-            description: Procedure name
+            description: '{{ doc("column_procname") }}'
           - name: reascd
             description: Reason code for change in assessed value
           - name: rolltype
-            description: Tax roll name
+            description: '{{ doc("column_rolltype") }}'
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: splitno
-            description: Split/combination tracking number
+            description: '{{ doc("column_splitno") }}'
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: taxtable
             description: Flag to indicate assessment record used in tax calculation
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: tottax
             description: Total tax
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: valclass
-            description: Tax assessment class
+            description: '{{ doc("column_valclass") }}'
           - name: valtax
             description: Taxes
           - name: valyear
             description: Valuation year
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
         tests:
           - unique_combination_of_columns:
               name: asmt_all_unique_by_parid_procname_and_taxyr
@@ -697,23 +697,23 @@ sources:
       - name: asmt_hist
         columns:
           - name: class
-            description: Classification
+            description: '{{ doc("column_class") }}'
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: distcode
             description: District code
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: luc
-            description: Land use code
+            description: '{{ doc("column_luc") }}'
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: ovrclass
             description: Override class
           - name: ovrcodtax
@@ -721,118 +721,118 @@ sources:
           - name: ovrvaltax
             description: Override value for taxes
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: procdate
-            description: Procedure date
+            description: '{{ doc("column_procdate") }}'
           - name: procname
-            description: Procedure name
+            description: '{{ doc("column_procname") }}'
           - name: reascd
             description: Reason code for change in assessed value
           - name: rolltype
-            description: Tax roll name
+            description: '{{ doc("column_rolltype") }}'
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: splitno
-            description: Split/combination tracking number
+            description: '{{ doc("column_splitno") }}'
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: taxtable
             description: Flag to indicate assessment record used in tax calculation
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: tottax
             description: Total tax
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: valclass
-            description: Tax assessment class
+            description: '{{ doc("column_valclass") }}'
           - name: valtax
             description: Taxes
           - name: valyear
             description: Valuation year
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
 
       - name: cname
         columns:
           - name: addr1
-            description: Address line 1
+            description: '{{ doc("column_addr1") }}'
           - name: addr2
-            description: Address line 2
+            description: '{{ doc("column_addr2") }}'
           - name: addr3
-            description: Address line 3
+            description: '{{ doc("column_addr3") }}'
           - name: addr4
-            description: Address line 4
+            description: '{{ doc("column_addr4") }}'
           - name: addr5
-            description: Address line 5
+            description: '{{ doc("column_addr5") }}'
           - name: addressguid
             description: Address GUID
           - name: addrtype
-            description: Address type code (N, S, F, R, C)
+            description: '{{ doc("column_addrtype") }}'
           - name: addrvalid
-            description: Flag to denote whether address was validated against validation service
+            description: '{{ doc("column_addrvalid") }}'
           - name: adradd
-            description: Address number suffix
+            description: '{{ doc("column_adradd") }}'
           - name: adrdir
-            description: Street direction
+            description: '{{ doc("column_adrdir") }}'
           - name: adrgrid
-            description: Grid address number
+            description: '{{ doc("column_adrgrid") }}'
           - name: adrno
-            description: Street number
+            description: '{{ doc("column_adrno") }}'
           - name: adrpre
-            description: Address number prefix
+            description: '{{ doc("column_adrpre") }}'
           - name: adrstr
-            description: Address street name
+            description: '{{ doc("column_adrstr") }}'
           - name: adrsuf
-            description: Street suffix
+            description: '{{ doc("column_adrsuf") }}'
           - name: adrsuf2
-            description: 'Street suffix #2'
+            description: '{{ doc("column_adrsuf2") }}'
           - name: attn
-            description: Attention Line
+            description: '{{ doc("column_attn") }}'
           - name: careof
-            description: In Care Of name
+            description: '{{ doc("column_careof") }}'
           - name: carrier_rt
-            description: Carrier route - 4 digit suffix
+            description: '{{ doc("column_carrier_rt") }}'
           - name: cityname
-            description: City name
+            description: '{{ doc("column_cityname") }}'
           - name: compartment
-            description: Compartment
+            description: '{{ doc("column_compartment") }}'
           - name: contactguid
             description: Contact GUID
           - name: country
-            description: Country
+            description: '{{ doc("column_country") }}'
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: delinstalltype
-            description: Delivery installation type
+            description: '{{ doc("column_delinstalltype") }}'
           - name: delinstallval
-            description: Delivery installation value
+            description: '{{ doc("column_delinstallval") }}'
           - name: delmod
-            description: Mode of delivery
+            description: '{{ doc("column_delmod") }}'
           - name: delmodval
-            description: Mode of delivery value
+            description: '{{ doc("column_delmodval") }}'
           - name: email
-            description: E-mail address of contact person
+            description: '{{ doc("column_email") }}'
           - name: fax
-            description: Fax number of contact person
+            description: '{{ doc("column_fax") }}'
           - name: fedid
-            description: Federal tax ID number
+            description: '{{ doc("column_fedid") }}'
           - name: floorno
-            description: Floor number
+            description: '{{ doc("column_floorno") }}'
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: name1
             description: Name 1
           - name: name1_companyname
@@ -864,51 +864,51 @@ sources:
           - name: nameid
             description: 'Name ID is used to link different Owner # / Name'
           - name: ownnum
-            description: Owner number
+            description: '{{ doc("column_ownnum") }}'
           - name: phone
-            description: Phone number
+            description: '{{ doc("column_phone") }}'
           - name: postal_indx
-            description: Postal index number
+            description: '{{ doc("column_postal_indx") }}'
           - name: postalcode
-            description: Postal code (international zip code)
+            description: '{{ doc("column_postalcode") }}'
           - name: rectype
-            description: Record type
+            description: '{{ doc("column_rectype") }}'
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: site
-            description: Site
+            description: '{{ doc("column_site") }}'
           - name: skip_addr_validation
-            description: Skip address validation
+            description: '{{ doc("column_skip_addr_validation") }}'
           - name: statecode
-            description: State or province (2 digit)
+            description: '{{ doc("column_statecode") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: unitdesc
-            description: Address unit description
+            description: '{{ doc("column_unitdesc") }}'
           - name: unitno
-            description: Address unit number
+            description: '{{ doc("column_unitno") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: vldrsc
             description: No validation reason code
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: zip1
-            description: Zip code, first 5 digits
+            description: '{{ doc("column_zip1") }}'
           - name: zip2
-            description: Zip code suffix, last 4 digits
+            description: '{{ doc("column_zip2") }}'
 
       - name: comdat
         description: '{{ doc("comdat") }}'
         columns:
           - name: adjfact
-            description: Adjustment factor
+            description: '{{ doc("column_adjfact") }}'
           - name: areasum
-            description: Sum of designated structure areas
+            description: '{{ doc("column_areasum") }}'
           - name: bld_modelid
-            description: Building model ID from `BLDMODELMAST` table
+            description: '{{ doc("column_bld_modelid") }}'
           - name: bldgros_d
             description: Gross building description
           - name: bldgros_v
@@ -922,47 +922,47 @@ sources:
           - name: calcexclude
             description: Exclude this record from income calculations
           - name: card
-            description: Building (card) number
+            description: '{{ doc("column_card") }}'
           - name: cdu
-            description: Condition/desirability/utility code
+            description: '{{ doc("column_cdu") }}'
           - name: chgrsn
-            description: Reason code for change of value
+            description: '{{ doc("column_chgrsn") }}'
           - name: class
-            description: Classification
+            description: '{{ doc("column_class") }}'
           - name: convbldg
-            description: Building value at conversion
+            description: '{{ doc("column_convbldg") }}'
           - name: cubicft
             description: Cubic feet
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: depr
             description: Percent good from tables
           - name: deprt
-            description: Override depreciation table
+            description: '{{ doc("column_deprt") }}'
           - name: effageovr
-            description: Effective age override
+            description: '{{ doc("column_effageovr") }}'
           - name: effyr
-            description: Effective year
+            description: '{{ doc("column_effyr") }}'
           - name: excess
-            description: Flag to indicate excess value
+            description: '{{ doc("column_excess") }}'
           - name: exmppct
-            description: Exemption percent
+            description: '{{ doc("column_exmppct") }}'
           - name: exmpval
-            description: Exemption value
+            description: '{{ doc("column_exmpval") }}'
           - name: gfact
             description: Grade factor
           - name: grade
-            description: Grade
+            description: '{{ doc("column_grade") }}'
           - name: hga
-            description: Homesite indicator
+            description: '{{ doc("column_hga") }}'
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: imprname
             description: Improvement name
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: mktadj
             description: Market adjustment percent good override
           - name: mktrsn
@@ -972,85 +972,85 @@ sources:
           - name: msperim
             description: Override perimeter for M and S `PAR` adjustment calc.
           - name: nccalc
-            description: Calculated current new construction value
+            description: '{{ doc("column_nccalc") }}'
           - name: ncoval
-            description: Override current new construction value
+            description: '{{ doc("column_ncoval") }}'
           - name: nctot
-            description: Cumulative new construction value
+            description: '{{ doc("column_nctot") }}'
           - name: ncval
-            description: Final current new construction value
+            description: '{{ doc("column_ncval") }}'
           - name: newconmo
-            description: New construction month. Used only in asmt calc.
+            description: '{{ doc("column_newconmo") }}'
           - name: newconpct
-            description: New construction percentage. Used only in asmt calc.
+            description: '{{ doc("column_newconpct") }}'
           - name: numident
             description: Number of identical units
           - name: ovrmraval
-            description: Override MRA Value
+            description: '{{ doc("column_ovrmraval") }}'
           - name: ovrnbhd
-            description: Neighborhood number
+            description: '{{ doc("column_ovrnbhd") }}'
           - name: ovrrcnld
-            description: Override replacement cost new less depreciation
+            description: '{{ doc("column_ovrrcnld") }}'
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: parkcover
             description: Number of parking spaces covered
           - name: parkuncov
             description: Number of parking spaces uncovered
           - name: pctcomp
-            description: Percent of construction completed
+            description: '{{ doc("column_pctcomp") }}'
           - name: prodamage
-            description: Percent damaged
+            description: '{{ doc("column_prodamage") }}'
           - name: prodate
-            description: Proration date
+            description: '{{ doc("column_prodate") }}'
           - name: profact
-            description: Proration factor
+            description: '{{ doc("column_profact") }}'
           - name: proprate
             description: Investment rating
           - name: protype
-            description: Proration type
+            description: '{{ doc("column_protype") }}'
           - name: rcn
-            description: Replacement cost new
+            description: '{{ doc("column_rcn") }}'
           - name: rcnfact
             description: RCN adjustment factor
           - name: rcnld
-            description: Replacement cost new less depreciation
+            description: '{{ doc("column_rcnld") }}'
           - name: recnr
-            description: Value record number
+            description: '{{ doc("column_recnr") }}'
           - name: rectype
-            description: 'Value category: P (`PP11`) or R (`CA11`)'
+            description: '{{ doc("column_rectype") }}'
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: structure
             description: Structure code
           - name: suppress
-            description: Flag to indicate suppress value
+            description: '{{ doc("column_suppress") }}'
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: units
             description: Number of units
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: useradj
             description: Override to comdat userdef adjustment factor
           - name: valmeth
             description: Valuation method (`MAN`/`CLT`)
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
           - name: yrblt
-            description: Year built
+            description: '{{ doc("column_yrblt") }}'
         tests:
           - unique_combination_of_columns:
               name: comdat_unique_by_parid_card_taxyr
@@ -1062,11 +1062,11 @@ sources:
       - name: comnt
         comments:
           - name: caseno
-            description: Case number
+            description: '{{ doc("column_caseno") }}'
           - name: code
             description: Code defining comment type
           - name: comnt
-            description: Comment
+            description: '{{ doc("column_comnt") }}'
           - name: comnt2
             description: Unlimited comment
           - name: comntno
@@ -1074,26 +1074,26 @@ sources:
           - name: comntstat
             description: Current status
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
 
       - name: cvleg
         columns:
           - name: acres
-            description: Total acres
+            description: '{{ doc("column_acres") }}'
           - name: actdep
             description: Actual lot depth
           - name: actfrt
@@ -1101,37 +1101,37 @@ sources:
           - name: actualjur
             description: Actual jurisdiction of the parcel if a crossover parcel
           - name: adradd
-            description: Address number suffix
+            description: '{{ doc("column_adradd") }}'
           - name: adrdir
-            description: Street direction
+            description: '{{ doc("column_adrdir") }}'
           - name: adrid
-            description: Unique address ID
+            description: '{{ doc("column_adrid") }}'
           - name: adrno
-            description: Street number
+            description: '{{ doc("column_adrno") }}'
           - name: adrparchild
-            description: Address Parent Child Indicator
+            description: '{{ doc("column_adrparchild") }}'
           - name: adrpostmod
-            description: Address post modifier
+            description: '{{ doc("column_adrpostmod") }}'
           - name: adrpre
-            description: Address number prefix
+            description: '{{ doc("column_adrpre") }}'
           - name: adrpremod
-            description: Address pre modifier
+            description: '{{ doc("column_adrpremod") }}'
           - name: adrpretype
-            description: Address pre type
+            description: '{{ doc("column_adrpretype") }}'
           - name: adrstatus
-            description: Address effective status
+            description: '{{ doc("column_adrstatus") }}'
           - name: adrstr
-            description: Address street name
+            description: '{{ doc("column_adrstr") }}'
           - name: adrsuf
-            description: Street suffix
+            description: '{{ doc("column_adrsuf") }}'
           - name: adrsuf2
-            description: Street suffix #2
+            description: '{{ doc("column_adrsuf2") }}'
           - name: block
             description: Block prefix and suffix, formatted
           - name: book
-            description: Book number
+            description: '{{ doc("column_book") }}'
           - name: cityname
-            description: City name
+            description: '{{ doc("column_cityname") }}'
           - name: compct
             description: Common interest
           - name: condbdg
@@ -1139,19 +1139,19 @@ sources:
           - name: condunt
             description: Condominium unit number
           - name: conveyno
-            description: Conveyance number
+            description: '{{ doc("column_conveyno") }}'
           - name: crossoverparflg
             description: Crossover parcel flag
           - name: floorno
-            description: Address floor number
+            description: '{{ doc("column_floorno") }}'
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: instrtyp
-            description: Instrument type
+            description: '{{ doc("column_instrtyp") }}'
           - name: instruno
-            description: Instrument number
+            description: '{{ doc("column_instruno") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: legal1
             description: Legal description line 1
           - name: legal2
@@ -1161,7 +1161,7 @@ sources:
           - name: legdesc
             description: Unlimited legal description
           - name: loc2
-            description: Address location line 2
+            description: '{{ doc("column_loc2") }}'
           - name: lot
             description: Lot prefix and suffix, formatted
           - name: lotdim
@@ -1173,17 +1173,17 @@ sources:
           - name: multown
             description: Multiple owner indicator
           - name: newseq
-            description: New sequence number
+            description: '{{ doc("column_newseq") }}'
           - name: nopar
-            description: Number of parcels
+            description: '{{ doc("column_nopar") }}'
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: numlot
             description: Number of lots
           - name: oldown
-            description: Old owner name
+            description: '{{ doc("column_oldown") }}'
           - name: oldown_companyname
             description: Old owner company name
           - name: oldown_firstname
@@ -1197,39 +1197,39 @@ sources:
           - name: oldown_suffix
             description: Old owner suffix
           - name: oldown2
-            description: Old owner name 2
+            description: '{{ doc("column_oldown2") }}'
           - name: oldseq
-            description: Old sequence number
+            description: '{{ doc("column_oldseq") }}'
           - name: oldyr
-            description: Old year
+            description: '{{ doc("column_oldyr") }}'
           - name: oseq
             description: Previous `OWNDAT` sequence
           - name: otaxyr
             description: Previous `OWNDAT` tax year
           - name: own1
-            description: Owner name 1
+            description: '{{ doc("column_own1") }}'
           - name: own1_companyname
-            description: Owner 1 company name
+            description: '{{ doc("column_own1_companyname") }}'
           - name: own1_firstname
-            description: Owner 1 first name
+            description: '{{ doc("column_own1_firstname") }}'
           - name: own1_lastname
-            description: Owner 1 last name
+            description: '{{ doc("column_own1_lastname") }}'
           - name: own1_middlename
-            description: Owner 1 middle name
+            description: '{{ doc("column_own1_middlename") }}'
           - name: own1_prefix
-            description: Owner 1 prefix
+            description: '{{ doc("column_own1_prefix") }}'
           - name: own1_suffix
-            description: Owner 1 suffix
+            description: '{{ doc("column_own1_suffix") }}'
           - name: page
-            description: Page number
+            description: '{{ doc("column_page") }}'
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: parseq
             description: Conveyance parcel sequence number
           - name: pmultown
             description: Previous multi owner indicator
           - name: postalcode
-            description: Postal code
+            description: '{{ doc("column_postalcode") }}'
           - name: pown1
             description: Previous owner name 1
           - name: pown1_companyname
@@ -1247,9 +1247,9 @@ sources:
           - name: price
             description: Sale price
           - name: procdate
-            description: Procedure date
+            description: '{{ doc("column_procdate") }}'
           - name: procname
-            description: Procedure name
+            description: '{{ doc("column_procname") }}'
           - name: qualifier
             description: Qualifier codes, left justified
           - name: respct
@@ -1259,11 +1259,11 @@ sources:
           - name: saledt
             description: Sale date
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: saletype
-            description: Sale type code (land or land and building)
+            description: '{{ doc("column_saletype") }}'
           - name: saleval
-            description: Sale validity code
+            description: '{{ doc("column_saleval") }}'
           - name: schdist
             description: School district code
           - name: school_code
@@ -1273,21 +1273,21 @@ sources:
           - name: sortkey
             description: Block, lot and qualifier, reformatted for sorting
           - name: splitno
-            description: Split/combination tracking number
+            description: '{{ doc("column_splitno") }}'
           - name: sqft
             description: Deeded square foot acrage
           - name: statecode
-            description: State or province (2 digit)
+            description: '{{ doc("column_statecode") }}'
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: steb
-            description: State sales code
+            description: '{{ doc("column_steb") }}'
           - name: stflag
-            description: State report flag
+            description: '{{ doc("column_stflag") }}'
           - name: strcd
-            description: Street code
+            description: '{{ doc("column_strcd") }}'
           - name: strreloc
-            description: Relative location
+            description: '{{ doc("column_strreloc") }}'
           - name: subblck
             description: Subdivision block number
           - name: subcode
@@ -1313,124 +1313,124 @@ sources:
           - name: taxdist6
             description: Tax district 6
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: transdt
             description:
           - name: unitdesc
-            description: Address unit description
+            description: '{{ doc("column_unitdesc") }}'
           - name: unitno
-            description: Address unit number
+            description: '{{ doc("column_unitno") }}'
           - name: upd_owndat
             description: Flag to update `OWNDAT`
           - name: upd_ownmlt
             description: Flag to update `OWNMLT`
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
           - name: xcoord
-            description: X coordinate
+            description: '{{ doc("column_xcoord") }}'
           - name: ycoord
-            description: Y coordinate
+            description: '{{ doc("column_ycoord") }}'
           - name: zcoord
             description: Z coordinate
           - name: zip1
-            description: Zip code, first 5 digits
+            description: '{{ doc("column_zip1") }}'
           - name: zip2
-            description: Zip code suffix, last 4 digits
+            description: '{{ doc("column_zip2") }}'
 
       - name: cvown
         columns:
           - name: addr1
-            description: Address line 1
+            description: '{{ doc("column_addr1") }}'
           - name: addr2
-            description: Address line 2
+            description: '{{ doc("column_addr2") }}'
           - name: addr3
-            description: Address line 3
+            description: '{{ doc("column_addr3") }}'
           - name: addr4
-            description: Address Line 4
+            description: '{{ doc("column_addr4") }}'
           - name: addr5
-            description: Address Line 5
+            description: '{{ doc("column_addr5") }}'
           - name: addrtype
-            description: Address type code (N, S, F, R, C)
+            description: '{{ doc("column_addrtype") }}'
           - name: addrvalid
-            description: Flag to denote whether address was validated against validation service
+            description: '{{ doc("column_addrvalid") }}'
           - name: adradd
-            description: Address number suffix
+            description: '{{ doc("column_adradd") }}'
           - name: adrdir
-            description: Street direction
+            description: '{{ doc("column_adrdir") }}'
           - name: adrgrid
-            description: Grid address number
+            description: '{{ doc("column_adrgrid") }}'
           - name: adrno
-            description: Street number
+            description: '{{ doc("column_adrno") }}'
           - name: adrpre
-            description: Address Number Prefix
+            description: '{{ doc("column_adrpre") }}'
           - name: adrstr
-            description: Address street name
+            description: '{{ doc("column_adrstr") }}'
           - name: adrsuf
-            description: Street suffix
+            description: '{{ doc("column_adrsuf") }}'
           - name: adrsuf2
-            description: 'Street suffix #2'
+            description: '{{ doc("column_adrsuf2") }}'
           - name: attn
-            description: Attention Line
+            description: '{{ doc("column_attn") }}'
           - name: book
-            description: Book number
+            description: '{{ doc("column_book") }}'
           - name: careof
-            description: In Care Of name
+            description: '{{ doc("column_careof") }}'
           - name: carrier_rt
-            description: Carrier route - 4 digit suffix
+            description: '{{ doc("column_carrier_rt") }}'
           - name: chgrsn
-            description: Reason code for change of value
+            description: '{{ doc("column_chgrsn") }}'
           - name: cityname
-            description: City name
+            description: '{{ doc("column_cityname") }}'
           - name: cnamejur
             description: Stores `CNAME.JUR` when ownnum is populated in hierarchical `jur` sites
           - name: compartment
-            description: Compartment
+            description: '{{ doc("column_compartment") }}'
           - name: conveyno
-            description: Conveyance number
+            description: '{{ doc("column_conveyno") }}'
           - name: country
-            description: Country
+            description: '{{ doc("column_country") }}'
           - name: delflg
             description: Delete flag
           - name: delinstalltype
-            description: Delivery installation type
+            description: '{{ doc("column_delinstalltype") }}'
           - name: delinstallval
-            description: Delivery installation value
+            description: '{{ doc("column_delinstallval") }}'
           - name: delmod
-            description: Mode of delivery
+            description: '{{ doc("column_delmod") }}'
           - name: delmodval
-            description: Mode of delivery value
+            description: '{{ doc("column_delmodval") }}'
           - name: email
-            description: E-mail address of contact person
+            description: '{{ doc("column_email") }}'
           - name: fax
-            description: Fax number of contact person
+            description: '{{ doc("column_fax") }}'
           - name: floorno
-            description: Floor number
+            description: '{{ doc("column_floorno") }}'
           - name: grpflag
             description: Grouping code for multiple owners
           - name: hidename
-            description: Flag to hide name/address from public view (Y)
+            description: '{{ doc("column_hidename") }}'
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: link
             description: Owner link number
           - name: marstat
-            description: Marital status
+            description: '{{ doc("column_marstat") }}'
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: notecd
             description: Code for predefined note
           - name: oseq
@@ -1438,39 +1438,39 @@ sources:
           - name: otaxyr
             description: Previous `OWNDAT` tax year
           - name: own1
-            description: Owner name 1
+            description: '{{ doc("column_own1") }}'
           - name: own1_companyname
-            description: Owner 1 company name
+            description: '{{ doc("column_own1_companyname") }}'
           - name: own1_firstname
-            description: Owner 1 first name
+            description: '{{ doc("column_own1_firstname") }}'
           - name: own1_lastname
-            description: Owner 1 last name
+            description: '{{ doc("column_own1_lastname") }}'
           - name: own1_middlename
-            description: Owner 1 middle name
+            description: '{{ doc("column_own1_middlename") }}'
           - name: own1_prefix
-            description: Owner 1 prefix
+            description: '{{ doc("column_own1_prefix") }}'
           - name: own1_suffix
-            description: Owner 1 suffix
+            description: '{{ doc("column_own1_suffix") }}'
           - name: own2
-            description: Owner name 2
+            description: '{{ doc("column_own2") }}'
           - name: own2_companyname
-            description: Owner 2 company name
+            description: '{{ doc("column_own2_companyname") }}'
           - name: own2_firstname
-            description: Owner 2 first name
+            description: '{{ doc("column_own2_firstname") }}'
           - name: own2_lastname
-            description: Owner 2 last name
+            description: '{{ doc("column_own2_lastname") }}'
           - name: own2_middlename
-            description: Owner 2 middle name
+            description: '{{ doc("column_own2_middlename") }}'
           - name: own2_prefix
-            description: Owner 2 prefix
+            description: '{{ doc("column_own2_prefix") }}'
           - name: own2_suffix
-            description: Owner 2 suffix
+            description: '{{ doc("column_own2_suffix") }}'
           - name: ownbeg
             description: Ownership begin date
           - name: ownend
             description: Ownership ending date
           - name: ownnum
-            description: Owner number
+            description: '{{ doc("column_ownnum") }}'
           - name: ownseq
             description: Owner sequence number
           - name: owntype1
@@ -1482,19 +1482,19 @@ sources:
           - name: owntype4
             description: Type of owner(individual, guardian, etc) 4
           - name: page
-            description: Page number
+            description: '{{ doc("column_page") }}'
           - name: partial
-            description: Partial ownership indicator
+            description: '{{ doc("column_partial") }}'
           - name: pctown
-            description: Percent of ownership for primary owner
+            description: '{{ doc("column_pctown") }}'
           - name: phone
-            description: Phone number
+            description: '{{ doc("column_phone") }}'
           - name: po
             description: Primary owner flag (1 = `OWNDAT`, 0 = `OWNMLT`)
           - name: postal_indx
-            description: Postal index number
+            description: '{{ doc("column_postal_indx") }}'
           - name: postalcode
-            description: Postal code (international zip code)
+            description: '{{ doc("column_postalcode") }}'
           - name: pown1
             description: Previous owner name 1
           - name: pown1_companyname
@@ -1524,41 +1524,41 @@ sources:
           - name: pown2_suffix
             description: Previous owner 2 suffix
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: site
-            description: Site
+            description: '{{ doc("column_site") }}'
           - name: skip_addr_validation
-            description: Skip address validation
+            description: '{{ doc("column_skip_addr_validation") }}'
           - name: splitno
-            description: Split/combination tracking number
+            description: '{{ doc("column_splitno") }}'
           - name: statecode
-            description: State or province (2 digit)
+            description: '{{ doc("column_statecode") }}'
           - name: stateid
             description: State tax ID number
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: unitdesc
-            description: Address unit description
+            description: '{{ doc("column_unitdesc") }}'
           - name: unitno
-            description: Address unit number
+            description: '{{ doc("column_unitno") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
           - name: zip1
-            description: Zip code, first 5 digits
+            description: '{{ doc("column_zip1") }}'
           - name: zip2
-            description: Zip code suffix, last 4 digits
+            description: '{{ doc("column_zip2") }}'
 
       - name: cvtran
         columns:
@@ -1573,7 +1573,7 @@ sources:
           - name: altid
             description: Alternate identification number
           - name: aprtot
-            description: Total appraised value
+            description: '{{ doc("column_aprtot") }}'
           - name: armslen
             description: Arms length sale indicator
           - name: asmt
@@ -1585,21 +1585,21 @@ sources:
           - name: bldgtyp
             description: Building type
           - name: book
-            description: Book number
+            description: '{{ doc("column_book") }}'
           - name: cashamt
             description: Cash amount toward mortgage
           - name: cashassm
             description: Amount of assumed mortgage paid in cash
           - name: chgrsn
-            description: Reason code for change of value
+            description: '{{ doc("column_chgrsn") }}'
           - name: comnt
-            description: Comment
+            description: '{{ doc("column_comnt") }}'
           - name: considamt
             description: Consideration amount
           - name: convdate
             description: Conveyance date
           - name: conveyno
-            description: Conveyance number
+            description: '{{ doc("column_conveyno") }}'
           - name: convstat
             description: Conveyance status
           - name: ecrv
@@ -1609,15 +1609,15 @@ sources:
           - name: feetype
             description: Type of fee based on characteristics of the property
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: imageno
             description: Document image number for the sale deed
           - name: instrtyp
-            description: Instrument type
+            description: '{{ doc("column_instrtyp") }}'
           - name: instruno
-            description: Instrument number
+            description: '{{ doc("column_instruno") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: linkno
             description: Used to tie multi-parcel sales together (either instrument number, or transfer number, or book/page)
           - name: lots
@@ -1635,15 +1635,15 @@ sources:
           - name: morttype
             description: Mortgage type code
           - name: newseq
-            description: New sequence number
+            description: '{{ doc("column_newseq") }}'
           - name: newyr
             description: New year
           - name: nopar
-            description: Number of parcels
+            description: '{{ doc("column_nopar") }}'
           - name: notes
             description: Sales comments
           - name: oldown
-            description: Old owner name
+            description: '{{ doc("column_oldown") }}'
           - name: oldown_companyname
             description: Old owner company name
           - name: oldown_firstname
@@ -1657,7 +1657,7 @@ sources:
           - name: oldown_suffix
             description: Old owner suffix
           - name: oldown2
-            description: Old owner name 2
+            description: '{{ doc("column_oldown2") }}'
           - name: oldown2_companyname
             description: Old owner 2 company name
           - name: oldown2_firstname
@@ -1671,39 +1671,39 @@ sources:
           - name: oldown2_suffix
             description: Old owner 2 suffix
           - name: oldseq
-            description: Old sequence number
+            description: '{{ doc("column_oldseq") }}'
           - name: oldyr
-            description: Old year
+            description: '{{ doc("column_oldyr") }}'
           - name: own1
-            description: Owner name 1
+            description: '{{ doc("column_own1") }}'
           - name: own1_companyname
-            description: Owner 1 company name
+            description: '{{ doc("column_own1_companyname") }}'
           - name: own1_firstname
-            description: Owner 1 first name
+            description: '{{ doc("column_own1_firstname") }}'
           - name: own1_lastname
-            description: Owner 1 last name
+            description: '{{ doc("column_own1_lastname") }}'
           - name: own1_middlename
-            description: Owner 1 middle name
+            description: '{{ doc("column_own1_middlename") }}'
           - name: own1_prefix
-            description: Owner 1 prefix
+            description: '{{ doc("column_own1_prefix") }}'
           - name: own1_suffix
-            description: Owner 1 suffix
+            description: '{{ doc("column_own1_suffix") }}'
           - name: own2
-            description: Owner name 2
+            description: '{{ doc("column_own2") }}'
           - name: own2_companyname
-            description: Owner 2 company name
+            description: '{{ doc("column_own2_companyname") }}'
           - name: own2_firstname
-            description: Owner 2 first name
+            description: '{{ doc("column_own2_firstname") }}'
           - name: own2_lastname
-            description: Owner 2 last name
+            description: '{{ doc("column_own2_lastname") }}'
           - name: own2_middlename
-            description: Owner 2 middle name
+            description: '{{ doc("column_own2_middlename") }}'
           - name: own2_prefix
-            description: Owner 2 prefix
+            description: '{{ doc("column_own2_prefix") }}'
           - name: own2_suffix
-            description: Owner 2 suffix
+            description: '{{ doc("column_own2_suffix") }}'
           - name: page
-            description: Page number
+            description: '{{ doc("column_page") }}'
           - name: parsin
             description: Tot parcels being split
           - name: parsout
@@ -1719,31 +1719,31 @@ sources:
           - name: resind
             description: Primary residence indicator
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: saletype
-            description: Sale type code (land or land and building)
+            description: '{{ doc("column_saletype") }}'
           - name: saleval
-            description: Sale validity code
+            description: '{{ doc("column_saleval") }}'
           - name: source
             description: Source code
           - name: splitno
-            description: Split/combination tracking number
+            description: '{{ doc("column_splitno") }}'
           - name: stampval
             description: Stamp value for the sale
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: steb
-            description: State sales code
+            description: '{{ doc("column_steb") }}'
           - name: stflag
-            description: State report flag
+            description: '{{ doc("column_stflag") }}'
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: titleco
             description: Escrow Company Code
           - name: tnn
             description: Transfer not necessary indicator
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: transdt
             description: Transaction date
           - name: upd_owndat
@@ -1751,19 +1751,19 @@ sources:
           - name: upd_ownmlt
             description: Flag to update `OWNMLT`
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: useind
             description: Use in sales indicator
           - name: voidflg
             description: Void indicator
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
 
       - name: dedit
         columns:
@@ -1772,7 +1772,7 @@ sources:
           - name: fld2
             description: Column name of edit field 2
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: longdesc
             description: Long description
           - name: msg
@@ -1788,9 +1788,9 @@ sources:
           - name: val2
             description: Value in edit field 2
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
 
       - name: dweldat
         description: '{{ doc("dweldat") }}'
@@ -1814,7 +1814,7 @@ sources:
           - name: adjarea
             description: Adjusted area
           - name: adjfact
-            description: Adjustment factor
+            description: '{{ doc("column_adjfact") }}'
           - name: adjgrmfact
             description: Neighborhood / class factor applied to `RESGRMVAL`
           - name: adjrate
@@ -1824,7 +1824,7 @@ sources:
           - name: areafact
             description: Area factor
           - name: areasum
-            description: Sum of designated structure areas
+            description: '{{ doc("column_areasum") }}'
           - name: attic
             description: Attic code
           - name: atticarea
@@ -1840,7 +1840,7 @@ sources:
           - name: bgarval
             description: Basement garage value
           - name: bld_modelid
-            description: Building model ID from `BLDMODELMAST` table
+            description: '{{ doc("column_bld_modelid") }}'
           - name: bldguse
             description: Building use
           - name: bsmt
@@ -1854,7 +1854,7 @@ sources:
           - name: calceffyr
             description: Claculated effective year
           - name: card
-            description: Building (card) number
+            description: '{{ doc("column_card") }}'
           - name: catharea
             description: Cathedral ceiling area
           - name: cathval
@@ -1864,13 +1864,13 @@ sources:
           - name: cdpct
             description: Cost and Design percent
           - name: cdu
-            description: Condition/desirability/utility code
+            description: '{{ doc("column_cdu") }}'
           - name: ceiling
             description: Ceilling
           - name: chgrsn
-            description: Reason code for change of value
+            description: '{{ doc("column_chgrsn") }}'
           - name: class
-            description: Classification
+            description: '{{ doc("column_class") }}'
           - name: cline
             description: Condominium line
           - name: cndadjval
@@ -1898,27 +1898,27 @@ sources:
           - name: condovw
             description: Condominium View
           - name: convbldg
-            description: Building value at conversion
+            description: '{{ doc("column_convbldg") }}'
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: degrem
             description: Degree remodeled
           - name: depr
             description: Percent good from tables
           - name: deprt
-            description: Override depreciation table
+            description: '{{ doc("column_deprt") }}'
           - name: ecndep
-            description: Economic depreciation
+            description: '{{ doc("column_ecndep") }}'
           - name: ecnrsn
-            description: Reason code for economic depreciation
+            description: '{{ doc("column_ecnrsn") }}'
           - name: eff_area
             description: Support total by card
           - name: effageovr
-            description: Effective age override
+            description: '{{ doc("column_effageovr") }}'
           - name: effyr
-            description: Effective year
+            description: '{{ doc("column_effyr") }}'
           - name: effyrovr
             description: Override effective year
           - name: elepct
@@ -1930,13 +1930,13 @@ sources:
           - name: estyr
             description: Estimated year
           - name: excess
-            description: Flag to indicate excess value
+            description: '{{ doc("column_excess") }}'
           - name: exmppct
-            description: Exemption percent
+            description: '{{ doc("column_exmppct") }}'
           - name: exmppctover
             description: Override exemption percent
           - name: exmpval
-            description: Exemption value
+            description: '{{ doc("column_exmpval") }}'
           - name: extwall
             description: Exterior wall code
           - name: extwall1
@@ -2024,15 +2024,15 @@ sources:
           - name: fuel
             description: Heating fuel type
           - name: fundep
-            description: Functional depreciation
+            description: '{{ doc("column_fundep") }}'
           - name: funrsn
-            description: Reason code for functional depreciation
+            description: '{{ doc("column_funrsn") }}'
           - name: furpct
             description: Furnace percentage
           - name: furyr
             description: Furnace year
           - name: grade
-            description: Grade
+            description: '{{ doc("column_grade") }}'
           - name: grdfact
             description: Grade factor
           - name: grmovr
@@ -2042,7 +2042,7 @@ sources:
           - name: grmunits
             description: Gross rent multiplier units
           - name: grpadj
-            description: Group adjustment value
+            description: '{{ doc("column_grpadj") }}'
           - name: heat
             description: Heat code
           - name: heatarea
@@ -2052,9 +2052,9 @@ sources:
           - name: heatval
             description: Heating/air value
           - name: hga
-            description: Homesite Indicator
+            description: '{{ doc("column_hga") }}'
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: intext
             description: Interior condition relative to exterior
           - name: intwall
@@ -2066,7 +2066,7 @@ sources:
           - name: intwallfact
             description: Inside wall factor
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: kitpct
             description: Kitchen percentage
           - name: kityr
@@ -2074,7 +2074,7 @@ sources:
           - name: locmult
             description: Local multiplier
           - name: lumpcamod
-            description: Market modifier lumpsum value
+            description: '{{ doc("column_lumpcamod") }}'
           - name: lumpcure
             description: Lump cure value
           - name: mastrimarea
@@ -2102,21 +2102,21 @@ sources:
           - name: mvpunfin
             description: MVP unfinished
           - name: nccalc
-            description: Calculated current new construction value
+            description: '{{ doc("column_nccalc") }}'
           - name: ncoval
-            description: Override current new construction value
+            description: '{{ doc("column_ncoval") }}'
           - name: nctot
-            description: Cumulative new construction value
+            description: '{{ doc("column_nctot") }}'
           - name: ncval
-            description: Final current new construction value
+            description: '{{ doc("column_ncval") }}'
           - name: newconmo
-            description: New construction month. Used only in asmt calc.
+            description: '{{ doc("column_newconmo") }}'
           - name: newconpct
-            description: New construction percentage. Used only in asmt calc.
+            description: '{{ doc("column_newconpct") }}'
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: numident
             description: Identical units
           - name: obsdep
@@ -2124,15 +2124,15 @@ sources:
           - name: obsrsn
             description: Reason code for observable condition
           - name: ovrmraval
-            description: Override MRA Value
+            description: '{{ doc("column_ovrmraval") }}'
           - name: ovrnbhd
-            description: Neighborhood number
+            description: '{{ doc("column_ovrnbhd") }}'
           - name: ovrrcn
             description: Override RCN value
           - name: ovrrcnld
-            description: Override replacement cost new less depreciation
+            description: '{{ doc("column_ovrrcnld") }}'
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: pctcomplete
             description: Percent of construction completed
           - name: plumbgrade
@@ -2146,21 +2146,21 @@ sources:
           - name: prior_renolvl
             description: Prior renovation Level
           - name: prodamage
-            description: Percent damaged
+            description: '{{ doc("column_prodamage") }}'
           - name: prodate
-            description: Proration date
+            description: '{{ doc("column_prodate") }}'
           - name: profact
-            description: Proration factor
+            description: '{{ doc("column_profact") }}'
           - name: protype
-            description: Proration type
+            description: '{{ doc("column_protype") }}'
           - name: rcnfact
             description: RCN adjustment factor
           - name: rcnld
-            description: Replacement cost new less depreciation
+            description: '{{ doc("column_rcnld") }}'
           - name: rcnval
             description: Replacement cost new of dwelling
           - name: recnr
-            description: Value record number
+            description: '{{ doc("column_recnr") }}'
           - name: recromarea
             description: Recreational room area
           - name: recroml
@@ -2168,7 +2168,7 @@ sources:
           - name: recromw
             description: Recreational room width
           - name: rectype
-            description: 'Value category: P (`PP11`) or R (`CA11`)'
+            description: '{{ doc("column_rectype") }}'
           - name: recval
             description: Recreational room value
           - name: rembath
@@ -2252,9 +2252,9 @@ sources:
           - name: rmtot
             description: Total rooms
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: sfla
             description: Total living area
           - name: shfact
@@ -2272,19 +2272,19 @@ sources:
           - name: stage
             description: Recreation homes level
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: stories
-            description: Story height
+            description: '{{ doc("column_stories") }}'
           - name: style
             description: Architectural style
           - name: subtval
             description: Sub total value
           - name: suppress
-            description: Flag to indicate suppress value
+            description: '{{ doc("column_suppress") }}'
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: trimval
             description: Masonry trim value
           - name: ufeatarea
@@ -2304,9 +2304,9 @@ sources:
           - name: unfinw
             description: Unfinished area width
           - name: unitno
-            description: Unit number of dwelling
+            description: '{{ doc("column_unitno") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: useramt
             description: RCN value of additions
           - name: userfact
@@ -2314,7 +2314,7 @@ sources:
           - name: valmeth
             description: Valuation method (MAN/CLT)
           - name: wallhgt
-            description: Wall height
+            description: '{{ doc("column_wallhgt") }}'
           - name: wallhgtfact
             description: Wall height factor
           - name: wbfp_o
@@ -2330,19 +2330,19 @@ sources:
           - name: wbfpval
             description: Wood burning fireplace value
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
           - name: winpct
             description: Windows percentage
           - name: winyr
             description: Windows year
           - name: yrblt
-            description: Year built
+            description: '{{ doc("column_yrblt") }}'
           - name: yrremod
             description: Year remodeled
         tests:
@@ -2356,9 +2356,9 @@ sources:
       - name: enter
         columns:
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: entercd
             description: Entrance code
           - name: enterdt
@@ -2368,25 +2368,25 @@ sources:
           - name: enterinfo
             description: Entrance information code
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
 
       - name: exadmn
         columns:
@@ -2419,9 +2419,9 @@ sources:
           - name: appname2_suffix
             description: Applicant 2 suffix
           - name: bldgno
-            description: Building number
+            description: '{{ doc("column_bldgno") }}'
           - name: caseno
-            description: Case number
+            description: '{{ doc("column_caseno") }}'
           - name: contact_addr1
             description: Contact address line 1
           - name: contact_addr2
@@ -2433,29 +2433,29 @@ sources:
           - name: contact2
             description: Contact name 2
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: endyr
             description: Ending year
           - name: exappl
             description: Exemption application number
           - name: excode
-            description: Exemption code
+            description: '{{ doc("column_excode") }}'
           - name: exdate
             description: Date of exemption
           - name: exstat
             description: Exemption status
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: ownnum
-            description: Owner number
+            description: '{{ doc("column_ownnum") }}'
           - name: ownnum10
             description: Owner number 10
           - name: ownnum2
@@ -2475,13 +2475,13 @@ sources:
           - name: ownnum9
             description: Owner number 9
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: reascd
             description: Exemption reason code
           - name: recnr
-            description: Value record number
+            description: '{{ doc("column_recnr") }}'
           - name: rectype
-            description: Record type
+            description: '{{ doc("column_rectype") }}'
           - name: repaddr1
             description: Representative address line 1
           - name: repaddr2
@@ -2495,25 +2495,25 @@ sources:
           - name: repphone
             description: Representative phone number
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: title
             description: Contact person's title
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: unit
-            description: Unit
+            description: '{{ doc("column_unit") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
 
       - name: exapp
         columns:
@@ -2542,45 +2542,45 @@ sources:
           - name: batchno
             description: Batch process number
           - name: bldgno
-            description: Building number
+            description: '{{ doc("column_bldgno") }}'
           - name: caseno
-            description: Case number
+            description: '{{ doc("column_caseno") }}'
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: exappl
             description: Exemption application number
           - name: exbldgpct
             description:
           - name: excode
-            description: Exemption code
+            description: '{{ doc("column_excode") }}'
           - name: exlandpct
             description:
           - name: fld
             description: Column name of data to which this exemption applies
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: imageid
             description: Image identification number
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: lline
-            description: Line number
+            description: '{{ doc("column_lline") }}'
           - name: marstat
-            description: Marital status
+            description: '{{ doc("column_marstat") }}'
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: note3
-            description: Note field 3
+            description: '{{ doc("column_note3") }}'
           - name: note4
-            description: Note field 4
+            description: '{{ doc("column_note4") }}'
           - name: note5
-            description: Note field 5
+            description: '{{ doc("column_note5") }}'
           - name: note6
-            description: Note field 6
+            description: '{{ doc("column_note6") }}'
           - name: ovrclass
             description: Override class
           - name: ovrclass1
@@ -2588,51 +2588,51 @@ sources:
           - name: ownchg
             description:
           - name: ownnum
-            description: Owner number
+            description: '{{ doc("column_ownnum") }}'
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: perex
             description: Percent of Exemption
           - name: procdate
-            description: Procedure date
+            description: '{{ doc("column_procdate") }}'
           - name: procname
-            description: Procedure name
+            description: '{{ doc("column_procname") }}'
           - name: proofown
             description: Proof of ownership
           - name: proofres
             description: Proof of residency
           - name: rolltype
-            description: Tax roll name
+            description: '{{ doc("column_rolltype") }}'
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: statreas
             description: Status reason code
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: taxid
             description: Tax ID
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: tble
             description: Table name of data to which this exemption applies
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: typeown
             description: Type of ownership
           - name: unit
-            description: Unit
+            description: '{{ doc("column_unit") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
           - name: yrbeg
             description: Year begin date
           - name: yrend
@@ -2653,9 +2653,9 @@ sources:
           - name: const2
             description: Constant value 2
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: descr
             description: Description
           - name: equation
@@ -2663,7 +2663,7 @@ sources:
           - name: equation2
             description: Equation to calculate 2nd set of values
           - name: excode
-            description: Exemption code
+            description: '{{ doc("column_excode") }}'
           - name: exgrp
             description: Exemption code grouping for view definitions
           - name: extype
@@ -2673,11 +2673,11 @@ sources:
           - name: freqyr
             description: Yearly frequency
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: luc
-            description: Land use code
+            description: '{{ doc("column_luc") }}'
           - name: maxamt
             description: Maximum amount for computation
           - name: minamt
@@ -2695,27 +2695,27 @@ sources:
           - name: roundcent
             description: Decimal positions to round
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: sumtype
             description: Summary type
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: valclass
-            description: Tax assessment class
+            description: '{{ doc("column_valclass") }}'
           - name: warnamtdiff
             description: Raises warning message if the change in exemption exceeds this amount
           - name: warnpctdiff
             description: Raises warning message if the percentage change in exemption exceeds this percent
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: yrend
             description: Exemption end year
 
@@ -2726,11 +2726,11 @@ sources:
           - name: begdt
             description: Proration exemption start date
           - name: card
-            description: Building (card) number
+            description: '{{ doc("column_card") }}'
           - name: caseno
-            description: Case number
+            description: '{{ doc("column_caseno") }}'
           - name: class
-            description: Class
+            description: '{{ doc("column_class") }}'
           - name: codejur
             description: The Jurisdiction number that is associated with the exemption code
           - name: const1
@@ -2738,9 +2738,9 @@ sources:
           - name: const2
             description: Constant value 2
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: enddt
             description: Proration exemption end date
           - name: exbldg
@@ -2748,7 +2748,7 @@ sources:
           - name: exbldg2
             description: Exemption building value 2
           - name: excode
-            description: Exemption code
+            description: '{{ doc("column_excode") }}'
           - name: exland
             description: Exemption land value
           - name: exland2
@@ -2764,23 +2764,23 @@ sources:
           - name: fld
             description: Column name to which this exemption applies
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: lineno
             description: Exemption line line number for this `parid`/`excode`
           - name: lline
-            description: Line number
+            description: '{{ doc("column_lline") }}'
           - name: override
             description: Override indicator
           - name: ovrval
             description: Override value
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: procdate
-            description: Procedure date
+            description: '{{ doc("column_procdate") }}'
           - name: procname
-            description: Procedure name
+            description: '{{ doc("column_procname") }}'
           - name: projno
             description: Project number
           - name: reascd
@@ -2792,39 +2792,39 @@ sources:
           - name: reciptble
             description: Table where value to be exempted is located
           - name: recnr
-            description: Value record number
+            description: '{{ doc("column_recnr") }}'
           - name: rolltype
-            description: Tax roll name
+            description: '{{ doc("column_rolltype") }}'
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: scrn
             description: Screen name to which this exemption applies
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: statflg
             description: Status flag
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: units
             description: Number of units
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: valclass
-            description: Tax assessment class
+            description: '{{ doc("column_valclass") }}'
           - name: valyear
             description: Valuation year
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
           - name: yrbase
             description: Base year exemption
           - name: yrbeg
@@ -2836,49 +2836,49 @@ sources:
         description: '{{ doc("htagnt") }}'
         columns:
           - name: addr1
-            description: Address line 1
+            description: '{{ doc("column_addr1") }}'
           - name: addr2
-            description: Address line 2
+            description: '{{ doc("column_addr2") }}'
           - name: addr3
-            description: Address line 3
+            description: '{{ doc("column_addr3") }}'
           - name: addrtype
-            description: Address type code (N, S, F, R, C)
+            description: '{{ doc("column_addrtype") }}'
           - name: adradd
-            description: Address number suffix
+            description: '{{ doc("column_adradd") }}'
           - name: adrdir
-            description: Street direction
+            description: '{{ doc("column_adrdir") }}'
           - name: adrgrid
-            description: Grid address number
+            description: '{{ doc("column_adrgrid") }}'
           - name: adrno
-            description: Street number
+            description: '{{ doc("column_adrno") }}'
           - name: adrstr
-            description: Address street name
+            description: '{{ doc("column_adrstr") }}'
           - name: adrsuf
-            description: Street suffix
+            description: '{{ doc("column_adrsuf") }}'
           - name: adrsuf2
-            description: 'Street suffix #2'
+            description: '{{ doc("column_adrsuf2") }}'
           - name: agent
             description: Agent code
           - name: agent_type
             description: Agent Type
           - name: carrier_rt
-            description: Carrier route - 4 digit suffix
+            description: '{{ doc("column_carrier_rt") }}'
           - name: cityname
-            description: City name
+            description: '{{ doc("column_cityname") }}'
           - name: comments
             description: Comments
           - name: country
-            description: Country
+            description: '{{ doc("column_country") }}'
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: email
-            description: E-mail address of contact person
+            description: '{{ doc("column_email") }}'
           - name: fax
-            description: Fax number of contact person
+            description: '{{ doc("column_fax") }}'
           - name: fedid
-            description: Federal tax ID number
+            description: '{{ doc("column_fedid") }}'
           - name: firm1
             description: Firm name/address line 1
           - name: firm2
@@ -2886,7 +2886,7 @@ sources:
           - name: iasw_id
             description:
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: name1
             description: Name line 1
           - name: name1_companyname
@@ -2916,35 +2916,35 @@ sources:
           - name: name2_suffix
             description: Agent 2 suffix
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: ownnum
-            description: Owner number
+            description: '{{ doc("column_ownnum") }}'
           - name: phone
-            description: Phone number
+            description: '{{ doc("column_phone") }}'
           - name: postal_indx
-            description: Postal index number
+            description: '{{ doc("column_postal_indx") }}'
           - name: postalcode
-            description: Postal code (international zip code)
+            description: '{{ doc("column_postalcode") }}'
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: statecode
-            description: State or province (2 digit)
+            description: '{{ doc("column_statecode") }}'
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: unitdesc
-            description: Address unit description
+            description: '{{ doc("column_unitdesc") }}'
           - name: unitno
-            description: Address unit number
+            description: '{{ doc("column_unitno") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: zip1
-            description: Zip code, first 5 digits
+            description: '{{ doc("column_zip1") }}'
           - name: zip2
-            description: Zip code suffix, last 4 digits
+            description: '{{ doc("column_zip2") }}'
         tests:
           - unique_combination_of_columns:
               name: htagnt_unique_by_agent
@@ -2954,7 +2954,7 @@ sources:
       - name: htdates
         columns:
           - name: caseno
-            description: Case number
+            description: '{{ doc("column_caseno") }}'
           - name: code
             description: Notes code
           - name: heartyp
@@ -2962,13 +2962,13 @@ sources:
           - name: heartypjur
             description: Hearing type jurisdiction
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: notes
             description: Notes
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: schdte
             description: Schedule date
           - name: schtime
@@ -2976,26 +2976,26 @@ sources:
           - name: subkey
             description: Unique number to allow multiple hearings per level
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
 
       - name: htpar
         columns:
           - name: action
             description: Action code
           - name: addr1
-            description: Address line 1
+            description: '{{ doc("column_addr1") }}'
           - name: addr2
-            description: Address line 2
+            description: '{{ doc("column_addr2") }}'
           - name: addr3
-            description: Address line 3
+            description: '{{ doc("column_addr3") }}'
           - name: agent
             description: Agent code
           - name: agentjur
@@ -3069,9 +3069,9 @@ sources:
           - name: camareas
             description: Cama reason code
           - name: careof
-            description: In care of
+            description: '{{ doc("column_careof") }}'
           - name: caseno
-            description: Case number
+            description: '{{ doc("column_caseno") }}'
           - name: complnt
             description: Complainant
           - name: complnt_companyname
@@ -3099,7 +3099,7 @@ sources:
           - name: cpattyjur
             description: Attorney jurisdiction
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: curbldg
             description: Current building value
           - name: curland
@@ -3109,7 +3109,7 @@ sources:
           - name: curtot
             description: Current total value
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: doc
             description: Flag (Y/N) indicating taxpayer provided addition documentation
           - name: docdate
@@ -3133,59 +3133,59 @@ sources:
           - name: httimejur
             description: Schedule jurisdiction
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: loc
             description: Location code
           - name: notcdate
             description: Date of notice from previous hearing level
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: noticedate
             description: Notice date printed on notice form
           - name: noticval
             description: Notice value printed on notice form
           - name: own1
-            description: Owner name 1
+            description: '{{ doc("column_own1") }}'
           - name: own1_companyname
-            description: Owner 1 company name
+            description: '{{ doc("column_own1_companyname") }}'
           - name: own1_firstname
-            description: Owner 1 first name
+            description: '{{ doc("column_own1_firstname") }}'
           - name: own1_lastname
-            description: Owner 1 last name
+            description: '{{ doc("column_own1_lastname") }}'
           - name: own1_middlename
-            description: Owner 1 middle name
+            description: '{{ doc("column_own1_middlename") }}'
           - name: own1_prefix
-            description: Owner 1 prefix
+            description: '{{ doc("column_own1_prefix") }}'
           - name: own1_suffix
-            description: Owner 1 suffix
+            description: '{{ doc("column_own1_suffix") }}'
           - name: own2
-            description: Owner name 2
+            description: '{{ doc("column_own2") }}'
           - name: own2_companyname
-            description: Owner 2 company name
+            description: '{{ doc("column_own2_companyname") }}'
           - name: own2_firstname
-            description: Owner 2 first name
+            description: '{{ doc("column_own2_firstname") }}'
           - name: own2_lastname
-            description: Owner 2 last name
+            description: '{{ doc("column_own2_lastname") }}'
           - name: own2_middlename
-            description: Owner 2 middle name
+            description: '{{ doc("column_own2_middlename") }}'
           - name: own2_prefix
-            description: Owner 2 prefix
+            description: '{{ doc("column_own2_prefix") }}'
           - name: own2_suffix
-            description: Owner 2 suffix
+            description: '{{ doc("column_own2_suffix") }}'
           - name: ownemail
             description: Owner email address
           - name: ownfax
             description: Owner fax number
           - name: ownnum
-            description: Owner number
+            description: '{{ doc("column_ownnum") }}'
           - name: ownphone
             description: Owner phone number
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: petemail
             description: Petitioner email address
           - name: petfax
@@ -3229,7 +3229,7 @@ sources:
           - name: resrsn3
             description: Result reason 3
           - name: rolltype
-            description: Brought in from `ASMT` for single roll type parcel
+            description: '{{ doc("column_rolltype") }}'
           - name: rptcode
             description: Report code
           - name: rptcodejur
@@ -3239,9 +3239,9 @@ sources:
           - name: schtime
             description: Schedule time
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: stipbldg
             description: Stipulated building value
           - name: stipland
@@ -3255,17 +3255,17 @@ sources:
           - name: subkey
             description: Unique number to allow multiple hearings per level
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: txpyval
             description: Taxpayer value
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: valdisp
             description: Value in dispute
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
         freshness:
           filter: *latest_taxyr
@@ -3287,9 +3287,9 @@ sources:
         description: '{{ doc("land") }}'
         columns:
           - name: acres
-            description: Total acres
+            description: '{{ doc("column_acres") }}'
           - name: adjfact
-            description: Adjustment factor
+            description: '{{ doc("column_adjfact") }}'
           - name: agflg
             description: Agricultural flag
           - name: allocpct
@@ -3305,13 +3305,13 @@ sources:
           - name: caascard
             description: CAAS card number
           - name: card
-            description: Building (card) number
+            description: '{{ doc("column_card") }}'
           - name: cerrate
             description: Crop equivalent rating
           - name: chgrsn
-            description: Reason code for change of value
+            description: '{{ doc("column_chgrsn") }}'
           - name: class
-            description: Classification
+            description: '{{ doc("column_class") }}'
           - name: code
             description: Code
           - name: comres
@@ -3319,9 +3319,9 @@ sources:
           - name: convland
             description: Land value at conversion
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: depfact
             description: Depth factor
           - name: deptbl
@@ -3329,11 +3329,11 @@ sources:
           - name: depth
             description: Depth
           - name: excess
-            description: Flag to indicate excess value
+            description: '{{ doc("column_excess") }}'
           - name: exmppct
-            description: Exemption percent
+            description: '{{ doc("column_exmppct") }}'
           - name: exmpval
-            description: Exemption value
+            description: '{{ doc("column_exmpval") }}'
           - name: fldfact
             description: Flood factor
           - name: fronact
@@ -3343,9 +3343,9 @@ sources:
           - name: hectares
             description: Stores hectare value for land
           - name: hga
-            description: Homesite Indicator
+            description: '{{ doc("column_hga") }}'
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: infl1
             description: 'Influence Code #1'
           - name: infl2
@@ -3355,13 +3355,13 @@ sources:
           - name: influ2
             description: Influence percent (+/-)
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: landid
             description: Land Identification number
           - name: lcodemod
             description: Land code model
           - name: lline
-            description: Line number
+            description: '{{ doc("column_lline") }}'
           - name: lmod
             description: Land location model number
           - name: location
@@ -3375,7 +3375,7 @@ sources:
           - name: lump2
             description: Lump sum adjustment value 2
           - name: lumpcamod
-            description: Market modifier lumpsum value
+            description: '{{ doc("column_lumpcamod") }}'
           - name: lumpcd1
             description: Lump sum code 1
           - name: lumpcd2
@@ -3385,17 +3385,17 @@ sources:
           - name: modtype
             description: Associates land line to the specific model level in `NBHDMOD`
           - name: nccalc
-            description: Calculated current new construction value
+            description: '{{ doc("column_nccalc") }}'
           - name: ncoval
-            description: Override current new construction value
+            description: '{{ doc("column_ncoval") }}'
           - name: nctot
-            description: Cumulative new construction value
+            description: '{{ doc("column_nctot") }}'
           - name: ncval
-            description: Final current new construction value
+            description: '{{ doc("column_ncval") }}'
           - name: nmod
             description: Neighborhood model
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: odecr
             description: Override decremental rate
           - name: oincr
@@ -3407,21 +3407,21 @@ sources:
           - name: ovrdepfact
             description: Override depth factor
           - name: ovrnbhd
-            description: Neighborhood number
+            description: '{{ doc("column_ovrnbhd") }}'
           - name: ovrprice
             description: Override price
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: price
             description: Price
           - name: recnr
-            description: Value record number
+            description: '{{ doc("column_recnr") }}'
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: schedmod
             description: Schedule model number
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: sf
             description: SF of land (type S) or units (type U)
           - name: sfact
@@ -3439,15 +3439,15 @@ sources:
           - name: sqmeter
             description: Square meters
           - name: status
-            description: Status
+            description: '{{ doc("column_status") }}'
           - name: suppress
-            description: Flag to indicate suppress value
+            description: '{{ doc("column_suppress") }}'
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: topofact
             description: Topography Factor
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: udate1
             description: User date defined field 1
           - name: udate2
@@ -3463,15 +3463,15 @@ sources:
           - name: units
             description: Units, instead of using square feet
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
           - name: zmod
             description: Zone model
           - name: zoning
@@ -3488,41 +3488,41 @@ sources:
         description: '{{ doc("legdat") }}'
         columns:
           - name: acres
-            description: Total acres
+            description: '{{ doc("column_acres") }}'
           - name: actdep
             description: Actual lot depth
           - name: actfrt
             description: Actual front footage
           - name: adradd
-            description: Address number suffix
+            description: '{{ doc("column_adradd") }}'
           - name: adrdir
-            description: Street direction
+            description: '{{ doc("column_adrdir") }}'
           - name: adrid
-            description: Unique address ID
+            description: '{{ doc("column_adrid") }}'
           - name: adrno
-            description: Street number
+            description: '{{ doc("column_adrno") }}'
           - name: adrparchild
-            description: Address parent child indicator
+            description: '{{ doc("column_adrparchild") }}'
           - name: adrpostmod
-            description: Address post modifier
+            description: '{{ doc("column_adrpostmod") }}'
           - name: adrpre
-            description: Address number prefix
+            description: '{{ doc("column_adrpre") }}'
           - name: adrpremod
-            description: Address pre modifier
+            description: '{{ doc("column_adrpremod") }}'
           - name: adrpretype
-            description: Address pre type
+            description: '{{ doc("column_adrpretype") }}'
           - name: adrstatus
-            description: Address effective status
+            description: '{{ doc("column_adrstatus") }}'
           - name: adrstr
-            description: Address street name
+            description: '{{ doc("column_adrstr") }}'
           - name: adrsuf
-            description: Street suffix
+            description: '{{ doc("column_adrsuf") }}'
           - name: adrsuf2
-            description: 'Street suffix #2'
+            description: '{{ doc("column_adrsuf2") }}'
           - name: block
             description: Block prefix and suffix, formatted
           - name: cityname
-            description: City name
+            description: '{{ doc("column_cityname") }}'
           - name: compct
             description: Common interest
           - name: condbdg
@@ -3530,17 +3530,17 @@ sources:
           - name: condunt
             description: Condominium unit number
           - name: conveyno
-            description: Conveyance number
+            description: '{{ doc("column_conveyno") }}'
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: floorno
-            description: Address floor number
+            description: '{{ doc("column_floorno") }}'
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: legal1
             description: Legal description line 1
           - name: legal2
@@ -3550,25 +3550,25 @@ sources:
           - name: legdesc
             description: Unlimited legal description
           - name: loc2
-            description: Address location line 2
+            description: '{{ doc("column_loc2") }}'
           - name: lot
             description: Lot prefix and suffix, formatted
           - name: lotdim
             description: Lot dimensions
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: numlot
             description: Number of lots
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: postalcode
-            description: Postal code
+            description: '{{ doc("column_postalcode") }}'
           - name: procdate
-            description: Procedure date
+            description: '{{ doc("column_procdate") }}'
           - name: procname
-            description: Procedure name
+            description: '{{ doc("column_procname") }}'
           - name: qualifier
             description: Qualifier codes, left justified
           - name: respct
@@ -3586,23 +3586,23 @@ sources:
           - name: schvalpct2
             description: Consolidated school district value percentage
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: sortkey
             description: Block, lot and qualifier, reformatted for sorting
           - name: splitno
-            description: Split/combination tracking number
+            description: '{{ doc("column_splitno") }}'
           - name: sqft
             description: Deeded square foot acrage
           - name: star_credit
             description: Star credit flag
           - name: statecode
-            description: State or province (2 digit)
+            description: '{{ doc("column_statecode") }}'
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: strcd
-            description: Street code
+            description: '{{ doc("column_strcd") }}'
           - name: strreloc
-            description: Relative location
+            description: '{{ doc("column_strreloc") }}'
           - name: subblck
             description: Subdivision block number
           - name: subcode
@@ -3628,33 +3628,33 @@ sources:
           - name: taxdist6
             description: Tax district 6
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: unitdesc
-            description: Address unit description
+            description: '{{ doc("column_unitdesc") }}'
           - name: unitno
-            description: Address unit number
+            description: '{{ doc("column_unitno") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
           - name: xcoord
-            description: X coordinate
+            description: '{{ doc("column_xcoord") }}'
           - name: ycoord
-            description: Y coordinate
+            description: '{{ doc("column_ycoord") }}'
           - name: zcoord
             description: Z coordinate
           - name: zip1
-            description: Zip code, first 5 digits
+            description: '{{ doc("column_zip1") }}'
           - name: zip2
-            description: Zip code suffix, last 4 digits
+            description: '{{ doc("column_zip2") }}'
         tests:
           - unique_combination_of_columns:
               name: legdat_unique_by_parid_taxyr
@@ -3681,7 +3681,7 @@ sources:
           - name: depthtble
             description: Depth table assignment
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: lcode
             description: Land code
           - name: lmod
@@ -3701,11 +3701,11 @@ sources:
           - name: umod
             description: Utility model
           - name: ver
-            description: Calculation table version
+            description: '{{ doc("column_ver") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: zmod
             description: Zone model
 
@@ -3722,15 +3722,15 @@ sources:
           - name: bldgfact
             description: Building factor
           - name: cdu
-            description: Condition/desirability/utility code
+            description: '{{ doc("column_cdu") }}'
           - name: cdutble
             description: CDU table
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: deprt
-            description: Depreciation table name
+            description: '{{ doc("column_deprt") }}'
           - name: depthtble
             description: Depth table assignment
           - name: describ
@@ -3738,7 +3738,7 @@ sources:
           - name: dwelfact
             description: Dwellingfactor - all classes
           - name: grade
-            description: Grade
+            description: '{{ doc("column_grade") }}'
           - name: grm
             description: Gross rent multiplier
           - name: grmflg
@@ -3748,9 +3748,9 @@ sources:
           - name: grpct
             description: Factor for type G (Gross/Site) land
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: landfact
             description: Land factor
           - name: landpct
@@ -3768,17 +3768,17 @@ sources:
           - name: ngroup
             description: Neighborhood group
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: note3
-            description: Note field 3
+            description: '{{ doc("column_note3") }}'
           - name: note4
-            description: Note field 4
+            description: '{{ doc("column_note4") }}'
           - name: note5
-            description: Note field 5
+            description: '{{ doc("column_note5") }}'
           - name: note6
-            description: Note field 6
+            description: '{{ doc("column_note6") }}'
           - name: obyfact
             description: '`OBY` factor - all classes'
           - name: rent
@@ -3788,7 +3788,7 @@ sources:
           - name: revmeth
             description: Review Method
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: sfmod
             description: Type S (Sq. Ft.) - land model assignment
           - name: sfpct
@@ -3800,41 +3800,41 @@ sources:
           - name: valarea
             description: Value area
           - name: ver
-            description: Calculation table version
+            description: '{{ doc("column_ver") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
 
       - name: oby
         description: '{{ doc("oby") }}'
         columns:
           - name: adjfact
-            description: Adjustment factor
+            description: '{{ doc("column_adjfact") }}'
           - name: adjrcn
             description: Adjusted RCN using LCF factor
           - name: adjrcnld
             description: Final adjusted replacement cost new less depreciation
           - name: altbasedate
-            description: Alternate base date
+            description: '{{ doc("column_altbasedate") }}'
           - name: area
-            description: Area of this line
+            description: '{{ doc("column_area") }}'
           - name: area_sqm
             description:
           - name: areaid
-            description: Unique identifier used to associate record to an Apex sketch area
+            description: '{{ doc("column_areaid") }}'
           - name: areasum
-            description: Sum of designated structure areas
+            description: '{{ doc("column_areasum") }}'
           - name: bld_modelid
-            description: Building model ID from `BLDMODELMAST` table
+            description: '{{ doc("column_bld_modelid") }}'
           - name: card
-            description: Building (card) number
+            description: '{{ doc("column_card") }}'
           - name: cdpct
             description: Cost and design percent
           - name: chgrsn
-            description: Reason code for change of value
+            description: '{{ doc("column_chgrsn") }}'
           - name: class
-            description: Classification
+            description: '{{ doc("column_class") }}'
           - name: cline
             description: Condominium line
           - name: cndcmplx
@@ -3858,57 +3858,57 @@ sources:
           - name: cubicmeters
             description:
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: curmult
             description: Current multiplier
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: depr
             description: Percent good from table
           - name: deprt
-            description: Override depreciation table
+            description: '{{ doc("column_deprt") }}'
           - name: ecndep
-            description: Economic depreciation
+            description: '{{ doc("column_ecndep") }}'
           - name: ecnrsn
-            description: Reason code for economic depreciation
+            description: '{{ doc("column_ecnrsn") }}'
           - name: effageovr
-            description: Effective age override
+            description: '{{ doc("column_effageovr") }}'
           - name: effyr
-            description: Effective year
+            description: '{{ doc("column_effyr") }}'
           - name: excess
-            description: Flag to indicate excess value
+            description: '{{ doc("column_excess") }}'
           - name: exmppct
-            description: Exemption percent
+            description: '{{ doc("column_exmppct") }}'
           - name: exmpval
-            description: Exemption value
+            description: '{{ doc("column_exmpval") }}'
           - name: funct
             description: Function used in computing this calcualtion
           - name: fundep
-            description: Functional depreciation
+            description: '{{ doc("column_fundep") }}'
           - name: funrsn
-            description: Reason code for functional depreciation
+            description: '{{ doc("column_funrsn") }}'
           - name: grade
-            description: Grade
+            description: '{{ doc("column_grade") }}'
           - name: grpadj
-            description: Group adjustment value
+            description: '{{ doc("column_grpadj") }}'
           - name: hga
-            description: Homesite indicator
+            description: '{{ doc("column_hga") }}'
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: incuse
             description: Income type use
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: lcf
             description: Factor used to calculate `RCNADJ`
           - name: lline
-            description: Line number
+            description: '{{ doc("column_lline") }}'
           - name: locmult
             description: Local multiplier
           - name: lumpadj
             description: Lump sum dollar adjustment
           - name: lumpcamod
-            description: Market modifier lumpsum value
+            description: '{{ doc("column_lumpcamod") }}'
           - name: lumpcure
             description: Cost to cure adjustment
           - name: lumpdepr
@@ -3928,17 +3928,17 @@ sources:
           - name: msrank
             description: Rank identifier for Occupancy (CODE) from Marshall Swift
           - name: nccalc
-            description: Calculated current new construction value
+            description: '{{ doc("column_nccalc") }}'
           - name: ncoval
-            description: Override current new construction value
+            description: '{{ doc("column_ncoval") }}'
           - name: nctot
-            description: Cumulative new construction value
+            description: '{{ doc("column_nctot") }}'
           - name: ncval
-            description: Final current new construction value
+            description: '{{ doc("column_ncval") }}'
           - name: newconmo
-            description: New construction month. Used only in asmt calc.
+            description: '{{ doc("column_newconmo") }}'
           - name: newconpct
-            description: New construction percentage. Used only in asmt calc.
+            description: '{{ doc("column_newconpct") }}'
           - name: obygrp
             description: Group for local modifier override
           - name: obymod1
@@ -3950,79 +3950,79 @@ sources:
           - name: obymod4
             description: Modification code (4 of 4)
           - name: ovrnbhd
-            description: Neighborhood number
+            description: '{{ doc("column_ovrnbhd") }}'
           - name: ovrrcn
             description: Override replacement cost new
           - name: ovrrcnld
-            description: Override replacement cost new less depreciation
+            description: '{{ doc("column_ovrrcnld") }}'
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: pctcomp
-            description: Percent of construction completed
+            description: '{{ doc("column_pctcomp") }}'
           - name: perim
             description: Perimeter of the building/line
           - name: prodamage
-            description: Percent damaged
+            description: '{{ doc("column_prodamage") }}'
           - name: prodate
-            description: Proration date
+            description: '{{ doc("column_prodate") }}'
           - name: profact
-            description: Proration factor
+            description: '{{ doc("column_profact") }}'
           - name: proprate
             description: Investment rating
           - name: protype
-            description: Proration type
+            description: '{{ doc("column_protype") }}'
           - name: rate
             description: Rate (SF cost) from tables
           - name: rateovr
             description: Override rate
           - name: rcn
-            description: Replacement cost new
+            description: '{{ doc("column_rcn") }}'
           - name: rcnfact
             description: RCN Adjustment Factor
           - name: rcnld
-            description: Adjusted replacement cost new less depreciation
+            description: '{{ doc("column_rcnld") }}'
           - name: recnr
-            description: Value record number
+            description: '{{ doc("column_recnr") }}'
           - name: rectype
-            description: 'Value category: P (`PP11`) or R (`CA11`)'
+            description: '{{ doc("column_rectype") }}'
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: stories
-            description: Story height
+            description: '{{ doc("column_stories") }}'
           - name: suppress
-            description: Flag to indicate suppress value
+            description: '{{ doc("column_suppress") }}'
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: units
             description: Number of identical units
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: valmeth
             description: Valuation Method (R(CLT/RES) or M(MSB))
           - name: vect
-            description: Vector string
+            description: '{{ doc("column_vect") }}'
           - name: vectnotes
-            description: Sketch vector notes
+            description: '{{ doc("column_vectnotes") }}'
           - name: wallhgt
-            description: Wall height
+            description: '{{ doc("column_wallhgt") }}'
           - name: wallhgt_m
             description:
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
           - name: yrblt
-            description: Year built
+            description: '{{ doc("column_yrblt") }}'
           - name: yrrem
             description: Year remodeled
         tests:
@@ -4038,125 +4038,125 @@ sources:
         description: '{{ doc("owndat") }}'
         columns:
           - name: addr1
-            description: Address line 1
+            description: '{{ doc("column_addr1") }}'
           - name: addr2
-            description: Address line 2
+            description: '{{ doc("column_addr2") }}'
           - name: addr3
-            description: Address line 3
+            description: '{{ doc("column_addr3") }}'
           - name: addr4
-            description: Address Line 4
+            description: '{{ doc("column_addr4") }}'
           - name: addr5
-            description: Address Line 5
+            description: '{{ doc("column_addr5") }}'
           - name: addrtype
-            description: Address type code (N, S, F, R, C)
+            description: '{{ doc("column_addrtype") }}'
           - name: addrvalid
-            description: Flag to denote whether address was validated against validation service
+            description: '{{ doc("column_addrvalid") }}'
           - name: adradd
-            description: Address number suffix
+            description: '{{ doc("column_adradd") }}'
           - name: adrdir
-            description: Street direction
+            description: '{{ doc("column_adrdir") }}'
           - name: adrgrid
-            description: Grid address number
+            description: '{{ doc("column_adrgrid") }}'
           - name: adrno
-            description: Street number
+            description: '{{ doc("column_adrno") }}'
           - name: adrpre
-            description: Address number prefix
+            description: '{{ doc("column_adrpre") }}'
           - name: adrstr
-            description: Address street name
+            description: '{{ doc("column_adrstr") }}'
           - name: adrsuf
-            description: Street suffix
+            description: '{{ doc("column_adrsuf") }}'
           - name: adrsuf2
-            description: 'Street suffix #2'
+            description: '{{ doc("column_adrsuf2") }}'
           - name: attn
-            description: Attention line
+            description: '{{ doc("column_attn") }}'
           - name: book
-            description: Book number
+            description: '{{ doc("column_book") }}'
           - name: careof
-            description: In Care Of name
+            description: '{{ doc("column_careof") }}'
           - name: carrier_rt
-            description: Carrier route - 4 digit suffix
+            description: '{{ doc("column_carrier_rt") }}'
           - name: cityname
-            description: City name
+            description: '{{ doc("column_cityname") }}'
           - name: cnamejur
             description: Stores `CNAME.JUR` when ownnum is populated in hierarchical `JUR` sites
           - name: compartment
-            description: Compartment
+            description: '{{ doc("column_compartment") }}'
           - name: conveyno
-            description: Conveyance number
+            description: '{{ doc("column_conveyno") }}'
           - name: country
-            description: Country
+            description: '{{ doc("column_country") }}'
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: delinstalltype
-            description: Delivery installation type
+            description: '{{ doc("column_delinstalltype") }}'
           - name: delinstallval
-            description: Delivery installation value
+            description: '{{ doc("column_delinstallval") }}'
           - name: delmod
-            description: Mode of delivery
+            description: '{{ doc("column_delmod") }}'
           - name: delmodval
-            description: Mode of delivery value
+            description: '{{ doc("column_delmodval") }}'
           - name: email
-            description: E-mail address of contact person
+            description: '{{ doc("column_email") }}'
           - name: fax
-            description: Fax number of contact person
+            description: '{{ doc("column_fax") }}'
           - name: fedid
-            description: Federal tax ID number
+            description: '{{ doc("column_fedid") }}'
           - name: floorno
-            description: Floor Number
+            description: '{{ doc("column_floorno") }}'
           - name: grpflag
             description: Grouping code for multiple owners
           - name: hidename
-            description: Flag to hide name/address from public view (Y)
+            description: '{{ doc("column_hidename") }}'
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: link
             description: Owner link number
           - name: marstat
-            description: Marital status
+            description: '{{ doc("column_marstat") }}'
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: notecd
             description: Code for predefined note
           - name: own1
-            description: Owner name 1
+            description: '{{ doc("column_own1") }}'
           - name: own1_companyname
-            description: Owner 1 company name
+            description: '{{ doc("column_own1_companyname") }}'
           - name: own1_firstname
-            description: Owner 1 first name
+            description: '{{ doc("column_own1_firstname") }}'
           - name: own1_lastname
-            description: Owner 1 last name
+            description: '{{ doc("column_own1_lastname") }}'
           - name: own1_middlename
-            description: Owner 1 middle name
+            description: '{{ doc("column_own1_middlename") }}'
           - name: own1_prefix
-            description: Owner 1 prefix
+            description: '{{ doc("column_own1_prefix") }}'
           - name: own1_suffix
-            description: Owner 1 suffix
+            description: '{{ doc("column_own1_suffix") }}'
           - name: own2
-            description: Owner name 2
+            description: '{{ doc("column_own2") }}'
           - name: own2_companyname
-            description: Owner 2 company name
+            description: '{{ doc("column_own2_companyname") }}'
           - name: own2_firstname
-            description: Owner 2 first name
+            description: '{{ doc("column_own2_firstname") }}'
           - name: own2_lastname
-            description: Owner 2 last name
+            description: '{{ doc("column_own2_lastname") }}'
           - name: own2_middlename
-            description: Owner 2 middle name
+            description: '{{ doc("column_own2_middlename") }}'
           - name: own2_prefix
-            description: Owner 2 prefix
+            description: '{{ doc("column_own2_prefix") }}'
           - name: own2_suffix
-            description: Owner 2 suffix
+            description: '{{ doc("column_own2_suffix") }}'
           - name: ownbeg
             description: Ownership begin date
           - name: ownend
             description: Ownership ending date
           - name: ownnum
-            description: Owner number
+            description: '{{ doc("column_ownnum") }}'
           - name: ownseq
             description: Owner sequence number
           - name: owntype1
@@ -4168,59 +4168,59 @@ sources:
           - name: owntype4
             description: Type of owner(individual, guardian, etc) 4
           - name: page
-            description: Page number
+            description: '{{ doc("column_page") }}'
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: partial
-            description: Partial ownership indicator
+            description: '{{ doc("column_partial") }}'
           - name: pctown
-            description: Percent of ownership for primary owner
+            description: '{{ doc("column_pctown") }}'
           - name: phone
-            description: Phone number
+            description: '{{ doc("column_phone") }}'
           - name: po
             description: Primary owner flag (1 = `OWNDAT`, 0 = `OWNMLT`)
           - name: postal_indx
-            description: Postal index number
+            description: '{{ doc("column_postal_indx") }}'
           - name: postalcode
-            description: Postal code (international zip code)
+            description: '{{ doc("column_postalcode") }}'
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: site
-            description: Site
+            description: '{{ doc("column_site") }}'
           - name: skip_addr_validation
-            description: Skip address validation
+            description: '{{ doc("column_skip_addr_validation") }}'
           - name: splitno
-            description: Split/combination tracking number
+            description: '{{ doc("column_splitno") }}'
           - name: statecode
-            description: State or province (2 digit)
+            description: '{{ doc("column_statecode") }}'
           - name: stateid
             description: State tax ID number
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: unitdesc
-            description: Address unit description
+            description: '{{ doc("column_unitdesc") }}'
           - name: unitno
-            description: Address unit number
+            description: '{{ doc("column_unitno") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
           - name: zip1
-            description: Zip code, first 5 digits
+            description: '{{ doc("column_zip1") }}'
           - name: zip2
-            description: Zip code suffix, last 4 digits
+            description: '{{ doc("column_zip2") }}'
         tests:
           - unique_combination_of_columns:
               name: owndat_unique_by_parid_taxyr
@@ -4232,39 +4232,39 @@ sources:
         description: '{{ doc("pardat") }}'
         columns:
           - name: acres
-            description: Total acres
+            description: '{{ doc("column_acres") }}'
           - name: addrsrc
             description: Address source
           - name: addrvalid
-            description: Flag to denote whether address was validated against validation service
+            description: '{{ doc("column_addrvalid") }}'
           - name: adjfact
-            description: Adjustment factor
+            description: '{{ doc("column_adjfact") }}'
           - name: adradd
-            description: Address number suffix
+            description: '{{ doc("column_adradd") }}'
           - name: adrdir
-            description: Street direction
+            description: '{{ doc("column_adrdir") }}'
           - name: adrid
-            description: Unique address ID
+            description: '{{ doc("column_adrid") }}'
           - name: adrno
-            description: Street number
+            description: '{{ doc("column_adrno") }}'
           - name: adrparchild
-            description: Address parent child indicator
+            description: '{{ doc("column_adrparchild") }}'
           - name: adrpostmod
-            description: Address post modifier
+            description: '{{ doc("column_adrpostmod") }}'
           - name: adrpre
-            description: Address number prefix
+            description: '{{ doc("column_adrpre") }}'
           - name: adrpremod
-            description: Address pre modifier
+            description: '{{ doc("column_adrpremod") }}'
           - name: adrpretype
-            description: Address pre type
+            description: '{{ doc("column_adrpretype") }}'
           - name: adrstatus
-            description: Address effective status
+            description: '{{ doc("column_adrstatus") }}'
           - name: adrstr
-            description: Address street name
+            description: '{{ doc("column_adrstr") }}'
           - name: adrsuf
-            description: Street suffix
+            description: '{{ doc("column_adrsuf") }}'
           - name: adrsuf2
-            description: 'Street suffix #2'
+            description: '{{ doc("column_adrsuf2") }}'
           - name: afar
             description: Actual FAR (calculated)
           - name: afarsf
@@ -4286,27 +4286,27 @@ sources:
           - name: calcacres
             description: Total acres calculated from LAND table
           - name: chgrsn
-            description: Reason code for change of value
+            description: '{{ doc("column_chgrsn") }}'
           - name: cityname
-            description: City name
+            description: '{{ doc("column_cityname") }}'
           - name: class
-            description: Classification
+            description: '{{ doc("column_class") }}'
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: farminc
             description: Farm income
           - name: fldref
             description: Field reference code
           - name: floorno
-            description: Address Floor Number
+            description: '{{ doc("column_floorno") }}'
           - name: fronting
             description: Fronting location factor (street)
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: juris
             description: Jurisdiction
           - name: landisc
@@ -4314,11 +4314,11 @@ sources:
           - name: livunit
             description: Number of living units
           - name: loc2
-            description: Address location line 2
+            description: '{{ doc("column_loc2") }}'
           - name: location
             description: Location factor (area type)
           - name: luc
-            description: Land use code
+            description: '{{ doc("column_luc") }}'
           - name: lucmult
             description: Multiple land use flag
           - name: mappre
@@ -4340,13 +4340,13 @@ sources:
           - name: nonfarminc
             description: Non-farm income
           - name: note1
-            description: Note field 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note field 2
+            description: '{{ doc("column_note2") }}'
           - name: note3
-            description: Note Field 3
+            description: '{{ doc("column_note3") }}'
           - name: note4
-            description: Note Field 4
+            description: '{{ doc("column_note4") }}'
           - name: notecd1
             description: Code for predefined note 1
           - name: notecd2
@@ -4358,7 +4358,7 @@ sources:
           - name: ovrassessorid
             description: Override assessor assigned to this parcel
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: parkprox
             description: Parking proximity
           - name: parkquanit
@@ -4366,23 +4366,23 @@ sources:
           - name: parktype
             description: Parking type
           - name: partial
-            description: Partial ownership indicator
+            description: '{{ doc("column_partial") }}'
           - name: pctown
-            description: Percent of ownership for primary owner
+            description: '{{ doc("column_pctown") }}'
           - name: pfar
             description: Proffered FAR (user entered)
           - name: pfarsf
             description: Square feet of proffered FAR (user entered)
           - name: postalcode
-            description: Postal code
+            description: '{{ doc("column_postalcode") }}'
           - name: prefactmscbld
             description: Misc bldg value before adj factor is applied
           - name: procdate
-            description: Procedure date
+            description: '{{ doc("column_procdate") }}'
           - name: procname
-            description: Procedure name
+            description: '{{ doc("column_procname") }}'
           - name: rectype
-            description: 'Value category: P (`PP11`) or R (`CA11`)'
+            description: '{{ doc("column_rectype") }}'
           - name: restrict1
             description: Restriction 1
           - name: restrict2
@@ -4396,31 +4396,31 @@ sources:
           - name: rtesuf
             description: Map/Routing routing suffix number
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: sec_fld
             description: Security field
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: skip_addr_validation
-            description: Skip address validation
+            description: '{{ doc("column_skip_addr_validation") }}'
           - name: splitno
-            description: Split/combination tracking number
+            description: '{{ doc("column_splitno") }}'
           - name: spot
             description: Spot location percentage adj./land value
           - name: statecode
-            description: State or province (2 digit)
+            description: '{{ doc("column_statecode") }}'
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: strcd
-            description: Street code
+            description: '{{ doc("column_strcd") }}'
           - name: street1
             description: Street and sidewalk code 1
           - name: street2
             description: Street and sidewalk code 2
           - name: strreloc
-            description: relative location
+            description: '{{ doc("column_strreloc") }}'
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: tieback
             description: Parcel tieback
           - name: tiebkcd
@@ -4438,15 +4438,15 @@ sources:
           - name: traffic
             description: Traffic code
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: unit
-            description: Parcel unit
+            description: '{{ doc("column_unit") }}'
           - name: unitdesc
-            description: Address unit description
+            description: '{{ doc("column_unitdesc") }}'
           - name: unitno
-            description: Address unit number
+            description: '{{ doc("column_unitno") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: util1
             description: Utility code 1
           - name: util2
@@ -4454,19 +4454,19 @@ sources:
           - name: util3
             description: Utility code 3
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
           - name: zfar
             description: Zoned FAR, from LP53
           - name: zip1
-            description: Zip code, first 5 digits
+            description: '{{ doc("column_zip1") }}'
           - name: zip2
-            description: Zip code suffix, last 4 digits
+            description: '{{ doc("column_zip2") }}'
         tests:
           - unique_combination_of_columns:
               name: pardat_unique_by_parid_taxyr
@@ -4490,59 +4490,59 @@ sources:
       - name: permit
         columns:
           - name: addrvalid
-            description: Flag to denote whether address was validated against validation service
+            description: '{{ doc("column_addrvalid") }}'
           - name: adradd
-            description: Address number suffix
+            description: '{{ doc("column_adradd") }}'
           - name: adrdir
-            description: Street direction
+            description: '{{ doc("column_adrdir") }}'
           - name: adrno
-            description: Street number
+            description: '{{ doc("column_adrno") }}'
           - name: adrstr
-            description: Address street name
+            description: '{{ doc("column_adrstr") }}'
           - name: adrsuf
-            description: Street suffix
+            description: '{{ doc("column_adrsuf") }}'
           - name: adrsuf2
-            description: 'Street suffix #2'
+            description: '{{ doc("column_adrsuf2") }}'
           - name: amount
             description: Amount
           - name: certdate
             description: Certified date
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: drawndt
             description: Date plans were drawn
           - name: flag
             description: Flag
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: id1
             description: ID field 1
           - name: id2
             description: ID field 2
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: longdesc
             description: Long description
           - name: note1
-            description: Note 1
+            description: '{{ doc("column_note1") }}'
           - name: note2
-            description: Note 2
+            description: '{{ doc("column_note2") }}'
           - name: note3
-            description: Note 3
+            description: '{{ doc("column_note3") }}'
           - name: notes
             description: Permit notes
           - name: num
             description: Number
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: permdt
             description: Permit date
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: udate1
             description: User date field 1
           - name: udate2
@@ -4554,11 +4554,11 @@ sources:
           - name: udate5
             description: User date field 5
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
         freshness:
           filter: date_format(date_parse(permdt, '%Y-%m-%d %H:%i:%s.0'), '%Y') >= date_format(current_date - interval '1' year, '%Y')
           warn_after: *48_hours
@@ -4567,7 +4567,7 @@ sources:
       - name: rcoby
         columns:
           - name: altbasedate
-            description: Alternate base date
+            description: '{{ doc("column_altbasedate") }}'
           - name: cdutble
             description: CDU table
           - name: code
@@ -4577,7 +4577,7 @@ sources:
           - name: depr_cls
             description: Determines the `DEPRT` entry
           - name: deprt
-            description: Depreciation table name
+            description: '{{ doc("column_deprt") }}'
           - name: describ
             description: Description of factor
           - name: dim1
@@ -4605,7 +4605,7 @@ sources:
           - name: gradee
             description: Grade factor for grade E
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: incuse
             description: Income Type Use
           - name: locmultcd
@@ -4661,13 +4661,13 @@ sources:
           - name: valmeth
             description: Valuation Method (M(MSB))
           - name: ver
-            description: Calculation table version
+            description: '{{ doc("column_ver") }}'
           - name: wallhgt
-            description: Wall height
+            description: '{{ doc("column_wallhgt") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
 
       - name: sales
         columns:
@@ -4678,7 +4678,7 @@ sources:
           - name: adjreas
             description: Reason for adjusting sale price
           - name: aprtot
-            description: Total appraised value
+            description: '{{ doc("column_aprtot") }}'
           - name: asmt
             description: Assessed value at time of sale
           - name: asr
@@ -4686,13 +4686,13 @@ sources:
           - name: batch
             description: Batch number
           - name: book
-            description: Book number
+            description: '{{ doc("column_book") }}'
           - name: cntyfinaldt
             description: County final date
           - name: cur
-            description: Current record indicator
+            description: '{{ doc("column_cur") }}'
           - name: deactivat
-            description: Deactivate date
+            description: '{{ doc("column_deactivat") }}'
           - name: deed_ref
             description: Deed ref flag
           - name: ecrv
@@ -4702,45 +4702,45 @@ sources:
           - name: grp
             description: Time adjusted sale group
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: imageno
             description: Document image number for the sale deed
           - name: instrtyp
-            description: Instrument type
+            description: '{{ doc("column_instrtyp") }}'
           - name: instruno
-            description: Instrument number
+            description: '{{ doc("column_instruno") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: linkno
             description: Used to tie multi-parcel sales together (either instrument number, or transfer number, or book/page)
           - name: mktvalid
             description: Market validity code
           - name: newseq
-            description: New sequence number
+            description: '{{ doc("column_newseq") }}'
           - name: newyr
             description: New year
           - name: nopar
-            description: Number of parcels
+            description: '{{ doc("column_nopar") }}'
           - name: notes
             description: Sales comments
           - name: oldown
-            description: Old owner name
+            description: '{{ doc("column_oldown") }}'
           - name: oldown2
-            description: Old owner name 2
+            description: '{{ doc("column_oldown2") }}'
           - name: oldseq
-            description: Old sequence number
+            description: '{{ doc("column_oldseq") }}'
           - name: oldyr
-            description: Old year
+            description: '{{ doc("column_oldyr") }}'
           - name: own1
-            description: Owner name 1
+            description: '{{ doc("column_own1") }}'
           - name: own2
-            description: Owner name 2
+            description: '{{ doc("column_own2") }}'
           - name: page
-            description: Page number
+            description: '{{ doc("column_page") }}'
           - name: parent
             description: Time adjusted sale parent name
           - name: parid
-            description: Parcel identification number
+            description: '{{ doc("column_parid") }}'
           - name: price
             description: Sale price
           - name: recorddt
@@ -4748,23 +4748,23 @@ sources:
           - name: saledt
             description: Sale date
           - name: salekey
-            description: Key pointing to the sale
+            description: '{{ doc("column_salekey") }}'
           - name: saletype
-            description: Sale type code (land or land and building)
+            description: '{{ doc("column_saletype") }}'
           - name: saleval
-            description: Sale validity code
+            description: '{{ doc("column_saleval") }}'
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: source
             description: Source code
           - name: stampval
             description: Stamp value for the sale
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: steb
-            description: State sales code
+            description: '{{ doc("column_steb") }}'
           - name: stflag
-            description: State report flag
+            description: '{{ doc("column_stflag") }}'
           - name: tasp_ovr
             description: Time adjusted sale price for override roll year
           - name: tasp_ovr_year
@@ -4790,21 +4790,21 @@ sources:
           - name: timeadjvaldt2
             description: Time adjusted valuation date 2
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: transdt
             description: Transaction date
           - name: transno
             description: Transfer number
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: wencalc
-            description: Date of last batch change
+            description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
           - name: whocalc
-            description: Batch computation/change
+            description: '{{ doc("column_whocalc") }}'
         tests:
           - unique_combination_of_columns:
               name: sales_unique_by_parid_instruno
@@ -4823,9 +4823,9 @@ sources:
           - name: distcode
             description: District code
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: newacr
             description: New acreage (deed)
           - name: newalt_id
@@ -4893,38 +4893,38 @@ sources:
           - name: reascd
             description: Reason for change
           - name: seq
-            description: Version number of this record
+            description: '{{ doc("column_seq") }}'
           - name: splcom_status
             description: Apportionment/merger status (C - complete, R - reversed, null - in progress)
           - name: splitcde
             description: Code for type (S)plit (C)ombination
           - name: splitno
-            description: Split/combination tracking number
+            description: '{{ doc("column_splitno") }}'
           - name: status
-            description: Processing status
+            description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: trans_id
-            description: iasWorld transaction number
+            description: '{{ doc("column_trans_id") }}'
           - name: upd_status
-            description: iasWorld update status for this row
+            description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
 
       - name: valclass
         columns:
           - name: assess_pct
             description: Assessment percent used in calc of asmt
           - name: class
-            description: Classification
+            description: '{{ doc("column_class") }}'
           - name: iasw_id
-            description: iasWorld unique row identifier
+            description: '{{ doc("column_iasw_id") }}'
           - name: jur
-            description: Jurisdiction
+            description: '{{ doc("column_jur") }}'
           - name: luc
-            description: Land use code
+            description: '{{ doc("column_luc") }}'
           - name: ratio1
             description: Ratio 1
           - name: ratio2
@@ -4932,14 +4932,14 @@ sources:
           - name: ratio3
             description: Ratio 3
           - name: rolltype
-            description: Tax roll name
+            description: '{{ doc("column_rolltype") }}'
           - name: taxyr
-            description: Tax year
+            description: '{{ doc("column_taxyr") }}'
           - name: valclass
-            description: Tax assessment class
+            description: '{{ doc("column_valclass") }}'
           - name: vclass
             description: Other valclass class pointing to assigned valclass
           - name: wen
-            description: Last maintenance date
+            description: '{{ doc("column_wen") }}'
           - name: who
-            description: User ID of last maintenance
+            description: '{{ doc("column_who") }}'
