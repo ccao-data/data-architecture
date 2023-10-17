@@ -1,0 +1,6 @@
+version: 2
+
+
+models:
+  - name: default.vw_pin_land
+    description: '{{ doc("vw_pin_land") }}'

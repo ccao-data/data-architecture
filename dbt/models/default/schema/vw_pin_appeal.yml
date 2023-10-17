@@ -1,0 +1,68 @@
+version: 2
+
+
+models:
+  - name: default.vw_pin_appeal
+    description: '{{ doc("vw_pin_appeal") }}'
+
+    tests:
+      # If there is a `change`, the values should reflect this
+      - expression_is_true:
+          name: vw_pin_appeal_change_matches_appeal_outcome
+          expression: >-
+            {% set vars = [
+              ('mailed_bldg', 'certified_bldg'),
+              ('mailed_land', 'certified_land'),
+              ('mailed_tot', 'certified_tot'),
+            ] %}
+
+            (change = 'no change' AND
+              -- Use ABS(...) <= 1 instead of equality for comparison to account
+              -- for the fact that values are not always rounded consistently
+              {% for mailed_var, certified_var in vars %}
+                {% if loop.index0 > 0 %}AND{% endif %}
+                (
+                  ({{ mailed_var }} IS NULL AND {{ certified_var }} IS NULL)
+                  OR
+                  (ABS({{ mailed_var }} - {{ certified_var }}) <= 1)
+                )
+              {% endfor %}
+            )
+            OR
+            (change = 'change' AND (
+              {% for mailed_var, certified_var in vars %}
+                {% if loop.index0 > 0 %}OR{% endif %}
+                (
+                  ({{ mailed_var }} IS NULL AND {{ certified_var }} IS NOT NULL)
+                  OR
+                  ({{ mailed_var }} IS NOT NULL AND {{ certified_var }} IS NULL)
+                  OR
+                  (ABS({{ mailed_var }} - {{ certified_var }}) > 1)
+                )
+              {% endfor %}
+            ))
+            OR
+            (change is null)
+          select_columns:
+            - pin
+            - year
+            - case_no
+            - mailed_bldg
+            - certified_bldg
+            - mailed_land
+            - certified_land
+            - mailed_tot
+            - certified_tot
+          config:
+            error_if: ">266719"
+      # `change` should be an enum
+      - expression_is_true:
+          name: vw_pin_appeal_no_unexpected_change_values
+          expression: change is null or change in ('change', 'no change')
+          select_columns:
+            - pin
+            - year
+            - case_no
+            - change
+          config:
+            error_if: ">43"
