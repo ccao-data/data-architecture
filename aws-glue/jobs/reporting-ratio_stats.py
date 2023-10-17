@@ -266,7 +266,7 @@ def report_summarise(df, geography_id, geography_type):
 
     # Remove groups with less than three observations
     df["n"] = df.groupby(group_cols)["ratio"].transform("count")
-    df = df[df["n"] > 5]
+    df = df[df["n"] > 3]
     df = df.groupby(group_cols).apply(
         lambda x: pd.Series(
             {
@@ -341,7 +341,7 @@ pd.concat(
         report_summarise(pull, "triad", "Tri"),
         report_summarise(pull, "township_code", "Town"),
     ]
-).to_parquet(s3_ratio_stats)
+).reset_index(drop=True).to_parquet(s3_ratio_stats)
 
 # Trigger reporting glue crawler
 glue_client.start_crawler(Name="ccao-data-warehouse-reporting-crawler")
