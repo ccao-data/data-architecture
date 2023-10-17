@@ -8,22 +8,20 @@
     )
 }}
 
-WITH distinct_pins AS (
-    SELECT DISTINCT
-        x_3435,
-        y_3435
-    FROM {{ source('spatial', 'parcel') }}
-),
-
-distinct_years AS (
+WITH distinct_years AS (
     SELECT DISTINCT year
     FROM {{ source('spatial', 'parcel') }}
 ),
 
-water_location AS (
+water_location AS (  -- noqa: ST03
     SELECT
-        fill_years.pin_year,
-        fill_data.*
+        fill_years.pin_year AS year,
+        fill_data.year AS original_year,
+        fill_data.id,
+        fill_data.name,
+        fill_data.hydrology_type,
+        fill_data.geometry,
+        fill_data.geometry_3435
     FROM (
         SELECT
             dy.year AS pin_year,
@@ -38,56 +36,27 @@ water_location AS (
 ),
 
 distances AS (
-    SELECT
-        dp.x_3435,
-        dp.y_3435,
-        loc.id,
-        loc.name,
-        loc.pin_year,
-        loc.year,
-        ST_DISTANCE(
-            ST_POINT(dp.x_3435, dp.y_3435),
-            ST_GEOMFROMBINARY(loc.geometry_3435)
-        ) AS distance
-    FROM distinct_pins AS dp
-    CROSS JOIN water_location AS loc
-),
-
-xy_to_water_dist AS (
-    SELECT
-        d1.x_3435,
-        d1.y_3435,
-        d1.id,
-        d1.name,
-        d1.pin_year,
-        d1.year,
-        d2.dist_ft
-    FROM distances AS d1
-    INNER JOIN (
-        SELECT
-            x_3435,
-            y_3435,
-            pin_year,
-            MIN(distance) AS dist_ft
-        FROM distances
-        GROUP BY x_3435, y_3435, pin_year
-    ) AS d2
-        ON d1.x_3435 = d2.x_3435
-        AND d1.y_3435 = d2.y_3435
-        AND d1.pin_year = d2.pin_year
-        AND d1.distance = d2.dist_ft
+    SELECT *
+    FROM (
+        {{
+            nearest_neighbors(
+                'water_location',
+                'id',
+                1,
+                [1000, 2000, 5000, 10000, 20000]
+            )
+        }}
+    )
 )
 
 SELECT
-    pcl.pin10,
-    ARBITRARY(xy.id) AS nearest_water_id,
-    ARBITRARY(xy.name) AS nearest_water_name,
-    ARBITRARY(xy.dist_ft) AS nearest_water_dist_ft,
-    ARBITRARY(xy.year) AS nearest_water_data_year,
-    pcl.year
-FROM {{ source('spatial', 'parcel') }} AS pcl
-INNER JOIN xy_to_water_dist AS xy
-    ON pcl.x_3435 = xy.x_3435
-    AND pcl.y_3435 = xy.y_3435
-    AND pcl.year = xy.pin_year
-GROUP BY pcl.pin10, pcl.year
+    dist.pin10,
+    loc.id AS nearest_water_id,
+    loc.name AS nearest_water_name,
+    dist.distance AS nearest_water_dist_ft,
+    loc.original_year AS nearest_water_data_year,
+    dist.year
+FROM distances AS dist
+INNER JOIN water_location AS loc
+    ON dist.neighbor_id = loc.id
+    AND dist.year = loc.year
