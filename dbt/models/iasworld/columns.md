@@ -337,7 +337,7 @@ Effective year
 ## email
 
 {% docs column_email %}
-E-mail address of contact person
+Email address of contact person
 {% enddocs %}
 
 ## excess
