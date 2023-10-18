@@ -4,18 +4,29 @@ sources:
       - load_manual
     tables:
       - name: class_dict
+
       - name: commercial_valuation
         tags:
           - type_ic
+
       - name: hie
         tags:
           - type_res
+
       - name: land_nbhd_rate
+        tags:
+          - type_land
+
       - name: land_site_rate
+        tags:
+          - type_land
+
       - name: pin_condo_char
         tags:
           - type_condo
+
       - name: pin_nonlivable
         tags:
           - type_condo
+
       - name: pin_weird
