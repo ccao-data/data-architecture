@@ -1,8 +1,9 @@
 models:
   - name: default.vw_pin_condo_char
     description: '{{ doc("vw_pin_condo_char") }}'
-    +tags:
-      - type_condo
+    config:
+      tags:
+        - type_condo
 
     columns:
       - name: parking_space_flag_reason

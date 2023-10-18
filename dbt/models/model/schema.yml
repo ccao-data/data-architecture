@@ -56,8 +56,9 @@ sources:
 
 models:
   - name: model.vw_card_res_input
-    +tags:
-      - type_res
+    config:
+      tags:
+        - type_res
     columns:
       - name: other_tax_bill_rate
         description: |
@@ -94,8 +95,9 @@ models:
         description: 95th percentile of building square footage, by year and township
 
   - name: model.vw_pin_condo_input
-    +tags:
-      - type_condo
+    config:
+      tags:
+        - type_condo
     columns:
       - name: ind_pin_is_multilline
         description: Indicator for a PIN with more than one Lline

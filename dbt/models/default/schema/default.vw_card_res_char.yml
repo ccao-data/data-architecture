@@ -1,8 +1,9 @@
 models:
   - name: default.vw_card_res_char
     description: '{{ doc("vw_card_res_char") }}'
-    +tags:
-      - type_res
+    config:
+      tags:
+        - type_res
 
     columns:
       - name: card_proration_rate
