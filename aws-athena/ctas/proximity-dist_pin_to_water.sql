@@ -8,7 +8,7 @@
     )
 }}
 
-{% set radii_km = [1000, 10000, 20000] %}
+{% set radii_km = [5000, 10000, 20000] %}
 
 WITH distinct_pins AS (
     SELECT DISTINCT
@@ -48,6 +48,11 @@ water_location AS (
     ) AS fill_years
     LEFT JOIN {{ source('spatial', 'hydrology') }} AS fill_data
         ON fill_years.fill_year = fill_data.year
+),
+
+distinct_water_years AS (
+    SELECT DISTINCT pin_year AS year
+    FROM water_location
 ),
 
 {% for radius_km in radii_km %}
@@ -105,6 +110,8 @@ water_location AS (
             INNER JOIN distinct_pin_years AS dpy
                 ON dp.x_3435 = dpy.x_3435
                 AND dpy.x_3435 = dpy.y_3435
+            INNER JOIN distinct_water_years AS dwy
+                ON dpy.year = dwy.year
         ),
 
         missing_matches_{{ radius_km }} AS (
