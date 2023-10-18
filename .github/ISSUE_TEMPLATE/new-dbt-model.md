@@ -165,8 +165,8 @@ cat dbt/models/default/default.new_model.sql
 - [ ] Update the `schema.yml` file in the subfolder of `dbt/models/` where you
   created your symlink to add a definition for your model. Make sure to add
   descriptions for new entities (models, sources, columns, etc). See
-  [Model description](ccao-data/data-architecture/tree/master/dbt#model-description)
-  and [Column descriptions](ccao-data/data-architecture/tree/master/dbt#column-descriptions)
+  [Model description](/ccao-data/data-architecture/tree/master/dbt#model-description)
+  and [Column descriptions](/ccao-data/data-architecture/tree/master/dbt#column-descriptions)
   for specific guidance on doc locations and using docs blocks
 
 ```diff
