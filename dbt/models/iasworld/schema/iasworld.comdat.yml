@@ -1,0 +1,164 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tables:
+      - name: comdat
+        description: '{{ doc("comdat") }}'
+
+        columns:
+          - name: adjfact
+            description: '{{ doc("column_adjfact") }}'
+          - name: areasum
+            description: '{{ doc("column_areasum") }}'
+          - name: bld_modelid
+            description: '{{ doc("column_bld_modelid") }}'
+          - name: bldgros_d
+            description: Gross building description
+          - name: bldgros_v
+            description: Gross building value
+          - name: bldgval
+            description: Building value
+          - name: bldnum
+            description: Building number
+          - name: busla
+            description: Total business living area
+          - name: calcexclude
+            description: Exclude this record from income calculations
+          - name: card
+            description: '{{ doc("column_card") }}'
+          - name: cdu
+            description: '{{ doc("column_cdu") }}'
+          - name: chgrsn
+            description: '{{ doc("column_chgrsn") }}'
+          - name: class
+            description: '{{ doc("column_class") }}'
+          - name: convbldg
+            description: '{{ doc("column_convbldg") }}'
+          - name: cubicft
+            description: Cubic feet
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: depr
+            description: Percent good from tables
+          - name: deprt
+            description: '{{ doc("column_deprt") }}'
+          - name: effageovr
+            description: '{{ doc("column_effageovr") }}'
+          - name: effyr
+            description: '{{ doc("column_effyr") }}'
+          - name: excess
+            description: '{{ doc("column_excess") }}'
+          - name: exmppct
+            description: '{{ doc("column_exmppct") }}'
+          - name: exmpval
+            description: '{{ doc("column_exmpval") }}'
+          - name: gfact
+            description: Grade factor
+          - name: grade
+            description: '{{ doc("column_grade") }}'
+          - name: hga
+            description: '{{ doc("column_hga") }}'
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: imprname
+            description: Improvement name
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: mktadj
+            description: Market adjustment percent good override
+          - name: mktrsn
+            description: Reason for market adjustment
+          - name: msarea
+            description: Override area for M and S `PAR` adjustment calc.
+          - name: msperim
+            description: Override perimeter for M and S `PAR` adjustment calc.
+          - name: nccalc
+            description: '{{ doc("column_nccalc") }}'
+          - name: ncoval
+            description: '{{ doc("column_ncoval") }}'
+          - name: nctot
+            description: '{{ doc("column_nctot") }}'
+          - name: ncval
+            description: '{{ doc("column_ncval") }}'
+          - name: newconmo
+            description: '{{ doc("column_newconmo") }}'
+          - name: newconpct
+            description: '{{ doc("column_newconpct") }}'
+          - name: numident
+            description: Number of identical units
+          - name: ovrmraval
+            description: '{{ doc("column_ovrmraval") }}'
+          - name: ovrnbhd
+            description: '{{ doc("column_ovrnbhd") }}'
+          - name: ovrrcnld
+            description: '{{ doc("column_ovrrcnld") }}'
+          - name: parid
+            description: '{{ doc("column_parid") }}'
+          - name: parkcover
+            description: Number of parking spaces covered
+          - name: parkuncov
+            description: Number of parking spaces uncovered
+          - name: pctcomp
+            description: '{{ doc("column_pctcomp") }}'
+          - name: prodamage
+            description: '{{ doc("column_prodamage") }}'
+          - name: prodate
+            description: '{{ doc("column_prodate") }}'
+          - name: profact
+            description: '{{ doc("column_profact") }}'
+          - name: proprate
+            description: Investment rating
+          - name: protype
+            description: '{{ doc("column_protype") }}'
+          - name: rcn
+            description: '{{ doc("column_rcn") }}'
+          - name: rcnfact
+            description: RCN adjustment factor
+          - name: rcnld
+            description: '{{ doc("column_rcnld") }}'
+          - name: recnr
+            description: '{{ doc("column_recnr") }}'
+          - name: rectype
+            description: '{{ doc("column_rectype") }}'
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: seq
+            description: '{{ doc("column_seq") }}'
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: structure
+            description: Structure code
+          - name: suppress
+            description: '{{ doc("column_suppress") }}'
+          - name: taxyr
+            description: '{{ doc("column_taxyr") }}'
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: units
+            description: Number of units
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: useradj
+            description: Override to comdat userdef adjustment factor
+          - name: valmeth
+            description: Valuation method (`MAN`/`CLT`)
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+          - name: yrblt
+            description: '{{ doc("column_yrblt") }}'
+
+        tests:
+          - unique_combination_of_columns:
+              name: comdat_unique_by_parid_card_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+                - card

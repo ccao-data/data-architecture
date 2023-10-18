@@ -1,0 +1,209 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tables:
+      - name: cvtran
+
+        columns:
+          - name: actconsid
+            description: Actual consideration
+          - name: adjamt
+            description: Adjustment amount (used to calculate `ADJPRICE`)
+          - name: adjprice
+            description: Adjusted sales price
+          - name: adjreas
+            description: Reason for adjusting sale price
+          - name: altid
+            description: Alternate identification number
+          - name: aprtot
+            description: '{{ doc("column_aprtot") }}'
+          - name: armslen
+            description: Arms length sale indicator
+          - name: asmt
+            description: Assessed value at time of sale
+          - name: asr
+            description: Assessment to sale ratio
+          - name: assumind
+            description: Assumed indicator
+          - name: bldgtyp
+            description: Building type
+          - name: book
+            description: '{{ doc("column_book") }}'
+          - name: cashamt
+            description: Cash amount toward mortgage
+          - name: cashassm
+            description: Amount of assumed mortgage paid in cash
+          - name: chgrsn
+            description: '{{ doc("column_chgrsn") }}'
+          - name: comnt
+            description: '{{ doc("column_comnt") }}'
+          - name: considamt
+            description: Consideration amount
+          - name: convdate
+            description: Conveyance date
+          - name: conveyno
+            description: '{{ doc("column_conveyno") }}'
+          - name: convstat
+            description: Conveyance status
+          - name: ecrv
+            description: 'Electronic certificate of real estate values ID: (state of MN specific)'
+          - name: exfee
+            description: Exempt fee code
+          - name: feetype
+            description: Type of fee based on characteristics of the property
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: imageno
+            description: Document image number for the sale deed
+          - name: instrtyp
+            description: '{{ doc("column_instrtyp") }}'
+          - name: instruno
+            description: '{{ doc("column_instruno") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: linkno
+            description: Used to tie multi-parcel sales together (either instrument number, or transfer number, or book/page)
+          - name: lots
+            description: Total lots involved in this conveyance
+          - name: mip
+            description: Mortgage interest premium
+          - name: mktval
+            description: Market value
+          - name: mktvalid
+            description: Market validity code
+          - name: mortamt
+            description: Mortgage amount
+          - name: mortassm
+            description: Mortgage assumed amount
+          - name: morttype
+            description: Mortgage type code
+          - name: newseq
+            description: '{{ doc("column_newseq") }}'
+          - name: newyr
+            description: New year
+          - name: nopar
+            description: '{{ doc("column_nopar") }}'
+          - name: notes
+            description: Sales comments
+          - name: oldown
+            description: '{{ doc("column_oldown") }}'
+          - name: oldown_companyname
+            description: Old owner company name
+          - name: oldown_firstname
+            description: Old owner first name
+          - name: oldown_lastname
+            description: Old owner last name
+          - name: oldown_middlename
+            description: Old owner middle name
+          - name: oldown_prefix
+            description: Old owner prefix
+          - name: oldown_suffix
+            description: Old owner suffix
+          - name: oldown2
+            description: '{{ doc("column_oldown2") }}'
+          - name: oldown2_companyname
+            description: Old owner 2 company name
+          - name: oldown2_firstname
+            description: Old owner 2 first name
+          - name: oldown2_lastname
+            description: Old owner 2 last name
+          - name: oldown2_middlename
+            description: Old owner 2 middle name
+          - name: oldown2_prefix
+            description: Old owner 2 prefix
+          - name: oldown2_suffix
+            description: Old owner 2 suffix
+          - name: oldseq
+            description: '{{ doc("column_oldseq") }}'
+          - name: oldyr
+            description: '{{ doc("column_oldyr") }}'
+          - name: own1
+            description: '{{ doc("column_own1") }}'
+          - name: own1_companyname
+            description: '{{ doc("column_own1_companyname") }}'
+          - name: own1_firstname
+            description: '{{ doc("column_own1_firstname") }}'
+          - name: own1_lastname
+            description: '{{ doc("column_own1_lastname") }}'
+          - name: own1_middlename
+            description: '{{ doc("column_own1_middlename") }}'
+          - name: own1_prefix
+            description: '{{ doc("column_own1_prefix") }}'
+          - name: own1_suffix
+            description: '{{ doc("column_own1_suffix") }}'
+          - name: own2
+            description: '{{ doc("column_own2") }}'
+          - name: own2_companyname
+            description: '{{ doc("column_own2_companyname") }}'
+          - name: own2_firstname
+            description: '{{ doc("column_own2_firstname") }}'
+          - name: own2_lastname
+            description: '{{ doc("column_own2_lastname") }}'
+          - name: own2_middlename
+            description: '{{ doc("column_own2_middlename") }}'
+          - name: own2_prefix
+            description: '{{ doc("column_own2_prefix") }}'
+          - name: own2_suffix
+            description: '{{ doc("column_own2_suffix") }}'
+          - name: page
+            description: '{{ doc("column_page") }}'
+          - name: parsin
+            description: Tot parcels being split
+          - name: parsout
+            description: Tot parcels split
+          - name: persprop
+            description: Personal property value
+          - name: realctr
+            description: Realtor/contractor indicator
+          - name: recorddt
+            description: Recording date
+          - name: remdate
+            description: Building removed date
+          - name: resind
+            description: Primary residence indicator
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: saletype
+            description: '{{ doc("column_saletype") }}'
+          - name: saleval
+            description: '{{ doc("column_saleval") }}'
+          - name: source
+            description: Source code
+          - name: splitno
+            description: '{{ doc("column_splitno") }}'
+          - name: stampval
+            description: Stamp value for the sale
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: steb
+            description: '{{ doc("column_steb") }}'
+          - name: stflag
+            description: '{{ doc("column_stflag") }}'
+          - name: taxyr
+            description: '{{ doc("column_taxyr") }}'
+          - name: titleco
+            description: Escrow Company Code
+          - name: tnn
+            description: Transfer not necessary indicator
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: transdt
+            description: Transaction date
+          - name: upd_owndat
+            description: Flag to update `OWNDAT`
+          - name: upd_ownmlt
+            description: Flag to update `OWNMLT`
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: useind
+            description: Use in sales indicator
+          - name: voidflg
+            description: Void indicator
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'

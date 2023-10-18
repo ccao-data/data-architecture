@@ -1,0 +1,40 @@
+models:
+  - name: default.vw_pin_condo_char
+    description: '{{ doc("vw_pin_condo_char") }}'
+
+    columns:
+      - name: parking_space_flag_reason
+        description: Parking space/storage unit heuristic that was triggered
+      - name: is_parking_space
+        description: Deeded parking/garage space or storage unit detected either by valuations, CDU, or unit number/proration rate heuristics
+      - name: is_common_area
+        description: Building common area detected primarily through prior AV of less than 10
+      - name: char_tiebldgpct
+        description: |
+          Proration rate for a given PIN.
+
+          Some buildings sit across multiple PINs. This number is intended to capture the split in building value
+      - name: char_building_pins
+        description: The number of 14 digits PINs associated with a given 10 digit PIN in iasworld.pardat
+      - name: char_building_non_units
+        description: The number of 14 digits PINs associated with a given 10 digit PIN in iasworld.pardat less units identified as parking spaces, commone areas, or storage units through a number of validation criteria
+      - name: card_proration_rate
+        description: |
+          Proration rate within a given PIN.
+
+          Some PINs have multiple improvements, known as "cards". Total value for a PIN should be allocated across cards accordingly.
+
+    tests:
+      - unique_combination_of_columns:
+          name: vw_pin_condo_char_unique_by_14_digit_pin_and_year
+          combination_of_columns:
+            - pin
+            - year
+          config:
+            error_if: ">70297"
+      # TODO: Non-liveable unit heuristics
+      # TODO: Row count matches PARDAT for condo classes
+      # TODO: Non-unit and unit parcel count add up to total parcels per
+      # 10-digit PIN
+      # TODO: Sum of proration rate never exceeds 1 per 10-digit PIN
+      # TODO: Characteristics columns should adhere to pre-determined criteria

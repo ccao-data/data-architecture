@@ -1,0 +1,362 @@
+models:
+  - name: default.vw_pin_universe
+    description: '{{ doc("vw_pin_universe") }}'
+
+    columns:
+      - name: y_3435
+        description: PIN location derived from the centroid of the largest polygon associated with the PIN
+      - name: x_3435
+        description: PIN location derived from the centroid of the largest polygon associated with the PIN
+      - name: ward_num
+        description: |
+          Ward ID for municipalities with wards.
+
+          currently only Chicago and Evanston
+      - name: township_code
+        description: Numeric code identifying the Cook County township of a given PIN
+      - name: tieback_proration_rate
+        description: |
+          Proration rate for a given PIN.
+
+          Some buildings sit across multiple PINs. This number is intended to capture the split in building value
+      - name: tax_special_service_area_num
+        description: |
+          Tax ID of the special service area of a given PIN, if applicable.
+
+          Taken from Cook County GIS shapefiles
+      - name: tax_code
+        description: Identifier for the unique combination of taxing districts which impose a levy on any given PIN
+      - name: school_unified_district_geoid
+        description: |
+          Unified school district ID for a given PIN.
+
+          CPS is included as a unified district. Taken from Cook County GIS shapefiles
+      - name: school_secondary_district_geoid
+        description: |
+          Secondary school district ID for a given PIN.
+
+          For CPS, secondary school attendance boundaries are used. Taken from Cook County GIS shapefiles
+      - name: school_elementary_district_geoid
+        description: |
+          Elementary school district ID for a given PIN.
+
+          For CPS, elementary school attendance boundaries are used. Taken from Cook County GIS shapefiles
+      - name: prop_address_zipcode_2
+        description: |
+          Property street address.
+
+          Not the address of the taxpayer/property owner
+      - name: prop_address_zipcode_1
+        description: |
+          Property street address.
+
+          Not the address of the taxpayer/property owner
+      - name: prop_address_unit_prefix
+        description: |
+          Property street address.
+
+          Not the address of the taxpayer/property owner
+      - name: prop_address_unit_number
+        description: |
+          Property street address.
+
+          Not the address of the taxpayer/property owner
+      - name: prop_address_suffix_2
+        description: |
+          Property street address.
+
+          Not the address of the taxpayer/property owner
+      - name: prop_address_suffix_1
+        description: |
+          Property street address.
+
+          Not the address of the taxpayer/property owner
+      - name: prop_address_street_number
+        description: |
+          Property street address.
+
+          Not the address of the taxpayer/property owner
+      - name: prop_address_street_name
+        description: |
+          Property street address.
+
+          Not the address of the taxpayer/property owner
+      - name: prop_address_street_dir
+        description: |
+          Property street address.
+
+          Not the address of the taxpayer/property owner
+      - name: prop_address_state
+        description: |
+          Property street address.
+
+          Not the address of the taxpayer/property owner
+      - name: prop_address_prefix
+        description: |
+          Property street address.
+
+          Not the address of the taxpayer/property owner
+      - name: prop_address_full
+        description: |
+          Property street address.
+
+          Not the address of the taxpayer/property owner
+      - name: prop_address_city_name
+        description: |
+          Property street address.
+
+          Not the address of the taxpayer/property owner
+      - name: pin10
+        description: |
+          First 10 digits of a PIN.
+
+          Useful for identifying individual condominium buildings since the last 4 digits of a PIN identify units
+      - name: pin
+        description: |
+          Full PIN.
+
+          All PINs are 14 digits: 2 digits for area + 2 digits for sub area + 2 digits for block + 2 digits for parcel + 4 digits for the condominium unit/leasehold
+      - name: num_school_with_rating_in_half_mile
+        description: Number of schools with Great Schools ratings within half mile of a given PIN
+      - name: num_school_in_half_mile
+        description: |
+          Number of schools within half mile of a given PIN.
+
+          This includes preschools, small private schools, universities, etc
+      - name: num_pin_in_half_mile
+        description: |
+          Number of PINs within half mile of a given PIN.
+
+          Condo buildings are counted as a single PIN
+      - name: num_foreclosure_per_1000_pin_past_5_years
+        description: |
+          Number of PIN-level foreclosure in the past 5 years, per 1000 PINs, within half mile of a given PIN.
+
+          Taken from Illinois Public Records https://public-record.com/login/
+      - name: num_bus_stop_in_half_mile
+        description: |
+          Number of bus stops (CTA or PACE) within half mile of a given PIN.
+
+          Taken from GTFS feeds retrieved from transitfeeds.com
+      - name: nearest_water_dist_ft
+        description: |
+          Distance in feet to the nearest water.
+
+          As identified by Cook County hydrology files
+      - name: nearest_railroad_dist_ft
+        description: |
+          Distance in feet to the nearest rail (not including CTA).
+
+          Taken from Cook County GIS shapefiles
+      - name: nearest_park_dist_ft
+        description: |
+          Distance in feet to the nearest park.
+
+          Pull via OpenStreetMap, key=leisure, value=park
+      - name: nearest_metra_stop_dist_ft
+        description: |
+          Distance in feet to the nearest Metra stop.
+
+          Taken from Metra GTFS feeds retrieved via transitfeeds.com
+      - name: nearest_metra_route_dist_ft
+        description: |
+          Distance in feet to the nearest Metra tracks.
+
+          Taken from Metra GTFS feeds retrieved via transitfeeds.com
+      - name: nearest_major_road_dist_ft
+        description: |
+          Distance in feet to the nearest major road/highway.
+
+          Pulled via OpenStreetMap, key=highway, value=motorway,primary,trunk
+      - name: nearest_hospital_dist_ft
+        description: |
+          Distance in feet to the nearest hospital (polygon).
+
+          Taken from Cook County GIS shapefiles
+      - name: nearest_golf_course_dist_ft
+        description: |
+          Distance in feet to the nearest golf course (polygon).
+
+          Taken from Cook County GIS shapefiles and OpenStreetMap
+      - name: nearest_cta_stop_dist_ft
+        description: |
+          Distance in feet to the nearest CTA stop.
+
+          Taken from CTA GTFS feeds retrieved via transitfeeds.com
+      - name: nearest_cta_stop_data_year
+        description: |
+          Distance in feet to the nearest Metra stop.
+
+          Taken from Metra GTFS feeds retrieved via transitfeeds.com
+      - name: nearest_cta_route_dist_ft
+        description: |
+          Distance in feet to the nearest CTA tracks.
+
+          Taken from CTA GTFS feeds retrieved via transitfeeds.com
+      - name: nearest_cemetery_dist_ft
+        description: |
+          Distance in feet to the nearest cemetery (polygon).
+
+          Taken from Cook County GIS shapefiles
+      - name: nearest_bike_trail_dist_ft
+        description: |
+          Distance in feet to the nearest bike trail (linestring).
+
+          Taken from Cook County GIS shapefiles
+      - name: nbhd_code
+        description: |
+          Assessor neighborhood.
+
+          First 2 digits are township code, last 3 digits are neighborhood code
+      - name: misc_unincorporated_area_bool
+        description: |
+          Indicator for a PIN within an unincorporated part of Cook County.
+
+          Taken from Cook County GIS shapefiles
+      - name: misc_subdivision_id
+        description: |
+          Subdivision ID for a given PIN.
+
+          Nearly all PINs are within one subdivision. Each subdivision has a unique ID with the PageSubref column. Page being the area and section and subref being the letter of that sub on a page. The subrefs go A B C D and so on, however new subs can kill old subs, so a page could have subrefs B C G M L R S T, with each letter being a unique subdivision
+      - name: mail_address_zipcode_2
+        description: Taxpayer/property owner address
+      - name: mail_address_zipcode_1
+        description: Taxpayer/property owner address
+      - name: mail_address_state
+        description: Taxpayer/property owner address
+      - name: mail_address_name
+        description: Taxpayer/property owner address
+      - name: mail_address_full
+        description: Taxpayer/property owner address
+      - name: mail_address_city_name
+        description: Taxpayer/property owner address
+      - name: lon
+        description: PIN location derived from the centroid of the largest polygon associated with the PIN
+      - name: lat
+        description: PIN location derived from the centroid of the largest polygon associated with the PIN
+      - name: lake_michigan_dist_ft
+        description: |
+          Distance in feet to the Lake Michigan coastline.
+
+          Taken from TIGER/Line coastlines file and filtered to Cook County only
+      - name: env_ohare_noise_contour_no_buffer_bool
+        description: |
+          O'Hare Airport 65 DNL noise contour.
+
+          Taken from oharenoise.org
+      - name: env_flood_fs_risk_direction
+        description: |
+          First Street risk direction for a given PIN.
+
+          Positive scores indicate increasing future flood risk, negative scores the opposite. Provided to the CCAO by firststreet.org
+      - name: env_flood_fs_factor
+        description: |
+          First Street flood factor (risk score) for a given PIN, scores 1 - 10.
+
+          Provided to the CCAO by firststreet.org
+      - name: env_flood_fema_sfha
+        description: |
+          Indicator for a PIN within a FEMA Special Flood Hazard Area.
+
+          Taken from FEMA site for 2021 only
+      - name: env_airport_noise_dnl
+        description: |
+          Airport noise calculated via kriging noise monitor data from CDA.
+
+          See https://gitlab.com/ccao-data-science---modeling/models/ccao_res_avm/-/issues/70 for more information
+      - name: cook_municipality_name
+        description: |
+          Municipality name for a given PIN.
+
+          Taken from Cook County GIS shapefiles
+      - name: census_acs5_tract_geoid
+        description: |
+          Summary forthcoming.
+
+          Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+      - name: census_acs5_state_senate_geoid
+        description: |
+          Summary forthcoming.
+
+          Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+      - name: census_acs5_state_representative_geoid
+        description: |
+          Summary forthcoming.
+
+          Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+      - name: census_acs5_school_district_unified_geoid
+        description: |
+          Summary forthcoming.
+
+          Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+      - name: census_acs5_school_district_secondary_geoid
+        description: |
+          Summary forthcoming.
+
+          Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+      - name: census_acs5_school_district_elementary_geoid
+        description: |
+          Summary forthcoming.
+
+          Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+      - name: census_acs5_puma_geoid
+        description: |
+          Summary forthcoming.
+
+          Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+      - name: census_acs5_place_geoid
+        description: |
+          Summary forthcoming.
+
+          Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+      - name: census_acs5_data_year
+        description: |
+          Summary forthcoming.
+
+          Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+      - name: census_acs5_county_subdivision_geoid
+        description: |
+          Summary forthcoming.
+
+          Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+      - name: census_acs5_congressional_district_geoid
+        description: |
+          Summary forthcoming.
+
+          Census ACS5 columns provide the geographic IDs (GEOIDs) of Census geography with the latest ACS5 data available. For example, only 2019 ACS5 data is available in 2022, so the ACS5 tract GEOID is the 2019 Census geography joined to the 2022 PIN
+      - name: avg_school_rating_in_half_mile
+        description: |
+          Average Great Schools rating for all schools (with a rating) within half mile of a given PIN.
+
+          Public schools must be within the same district as the PIN to be considered in the average
+      - name: access_cmap_walk_total_score
+        description: |
+          CMAP walkability score for a given PIN, including transit walkability.
+
+          Taken from CMAP's ON TO 2050 walkability layer
+      - name: access_cmap_walk_nta_score
+        description: |
+          CMAP walkability score for a given PIN, excluding transit walkability.
+
+          Taken from CMAP's ON TO 2050 walkability layer
+
+    tests:
+      # Number of classes is consistent over time
+      - count_is_consistent:
+          name: vw_pin_universe_class_count_is_consistent_by_year
+          group_column: year
+          count_column: class
+          config:
+            error_if: ">24"
+      # Number of towns is consistent over time
+      - count_is_consistent:
+          name: vw_pin_universe_township_code_count_is_consistent_by_year
+          group_column: year
+          count_column: township_code
+      - unique_combination_of_columns:
+          name: vw_pin_universe_unique_by_14_digit_pin_and_year
+          combination_of_columns:
+            - pin
+            - year
+      # TODO: Data completeness correlates with availability of spatial data
+      # by year

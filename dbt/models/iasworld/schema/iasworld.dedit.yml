@@ -1,0 +1,31 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tables:
+      - name: dedit
+
+        columns:
+          - name: fld1
+            description: Column name of edit field 1
+          - name: fld2
+            description: Column name of edit field 2
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: longdesc
+            description: Long description
+          - name: msg
+            description: Message associated with this pair of values
+          - name: shortdesc
+            description: Short description
+          - name: tbl1
+            description: Table name of edit field 1
+          - name: tbl2
+            description: Table name of edit field 2
+          - name: val1
+            description: Value 1
+          - name: val2
+            description: Value in edit field 2
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'

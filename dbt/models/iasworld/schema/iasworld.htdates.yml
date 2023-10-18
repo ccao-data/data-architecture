@@ -1,0 +1,39 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tables:
+      - name: htdates
+
+        columns:
+          - name: caseno
+            description: '{{ doc("column_caseno") }}'
+          - name: code
+            description: Notes code
+          - name: heartyp
+            description: Hearing type code
+          - name: heartypjur
+            description: Hearing type jurisdiction
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: notes
+            description: Notes
+          - name: parid
+            description: '{{ doc("column_parid") }}'
+          - name: schdte
+            description: Schedule date
+          - name: schtime
+            description: Schedule time
+          - name: subkey
+            description: Unique number to allow multiple hearings per level
+          - name: taxyr
+            description: '{{ doc("column_taxyr") }}'
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'

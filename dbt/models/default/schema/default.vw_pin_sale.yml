@@ -1,0 +1,49 @@
+models:
+  - name: default.vw_pin_sale
+    description: '{{ doc("vw_pin_sale") }}'
+
+    columns:
+      - name: sale_price
+        description: |
+          Fair market sale price of a PIN.
+
+          Sales are sourced from myDec/IDOR. This serves as the outcome variable in regression models
+      - name: sale_key
+        description: iasWorld internal sale identifier
+      - name: sale_filter_upper_limit
+        description: Calculated boundary used to filter sales. See view definition
+      - name: sale_filter_lower_limit
+        description: Calculated boundary used to filter sales. See view definition
+      - name: sale_filter_count
+        description: Number of sales used to calculate upper and lower boundary
+      - name: num_parcels_sale
+        description: Number of parcels that are part of multisale
+      - name: is_multisale
+        description: Indicates whether or not a sale involved multiple parcels
+      - name: doc_no
+        tests:
+          - unique:
+              config:
+                error_if: ">1711769"
+
+    tests:
+      # Number of sales for a given time period isn't suspicious
+      - unique_combination_of_columns:
+          name: vw_pin_sale_reasonable_number_of_sales_per_year
+          combination_of_columns:
+            - pin
+            - year
+          allowed_duplicates: 2
+          config:
+            error_if: ">3233"
+      # No sales for same price/pin within 12 months
+      - unique_combination_of_columns:
+          name: vw_pin_sale_unique_price_pin_and_year
+          combination_of_columns:
+            - pin
+            - year
+            - sale_price
+      # TODO: Sale is validated (after sales validation has been added to
+      # iasworld)
+      # TODO: Validation is catching obvious outliers
+      # TODO: Joins with other tables produce consistent number of rows
