@@ -4,6 +4,7 @@ sources:
     tags:
       - load_auto
       - type_res
+
     tables:
       - name: dweldat
         description: '{{ doc("dweldat") }}'

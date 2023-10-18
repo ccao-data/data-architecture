@@ -4,6 +4,7 @@ sources:
     tags:
       - load_auto
       - type_res
+
     tables:
       - name: addn
         description: '{{ doc("addn") }}'
