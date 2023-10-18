@@ -50,7 +50,6 @@ exposures:
 
       Use cases: Can be used for geocoding or joining address-level data to other datasets.
 
-
   - name: parcel_sales
     label: Parcel Sales
     type: dashboard
