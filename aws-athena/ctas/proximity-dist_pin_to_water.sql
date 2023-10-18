@@ -8,6 +8,8 @@
     )
 }}
 
+{% set radii_km = [1000, 10000, 20000] %}
+
 WITH distinct_pins AS (
     SELECT DISTINCT
         x_3435,
@@ -15,8 +17,19 @@ WITH distinct_pins AS (
     FROM {{ source('spatial', 'parcel') }}
 ),
 
+{# Use a namespace so we can update this value inside a loop body #}
+{% set ns = namespace(distinct_pins='distinct_pins') %}
+
 distinct_years AS (
     SELECT DISTINCT year
+    FROM {{ source('spatial', 'parcel') }}
+),
+
+distinct_pin_years AS (
+    SELECT DISTINCT
+        x_3435,
+        y_3435,
+        year
     FROM {{ source('spatial', 'parcel') }}
 ),
 
@@ -37,45 +50,91 @@ water_location AS (
         ON fill_years.fill_year = fill_data.year
 ),
 
-distances AS (
-    SELECT
-        dp.x_3435,
-        dp.y_3435,
-        loc.id,
-        loc.name,
-        loc.pin_year,
-        loc.year,
-        ST_DISTANCE(
-            ST_POINT(dp.x_3435, dp.y_3435),
-            ST_GEOMFROMBINARY(loc.geometry_3435)
-        ) AS distance
-    FROM distinct_pins AS dp
-    CROSS JOIN water_location AS loc
-),
+{% for radius_km in radii_km %}
 
-xy_to_water_dist AS (
-    SELECT
-        d1.x_3435,
-        d1.y_3435,
-        d1.id,
-        d1.name,
-        d1.pin_year,
-        d1.year,
-        d2.dist_ft
-    FROM distances AS d1
-    INNER JOIN (
+    distances_{{ radius_km }} AS (
         SELECT
-            x_3435,
-            y_3435,
-            pin_year,
-            MIN(distance) AS dist_ft
-        FROM distances
-        GROUP BY x_3435, y_3435, pin_year
-    ) AS d2
-        ON d1.x_3435 = d2.x_3435
-        AND d1.y_3435 = d2.y_3435
-        AND d1.pin_year = d2.pin_year
-        AND d1.distance = d2.dist_ft
+            dp.x_3435,
+            dp.y_3435,
+            loc.id,
+            loc.name,
+            loc.pin_year,
+            loc.year,
+            ST_DISTANCE(
+                ST_POINT(dp.x_3435, dp.y_3435),
+                ST_GEOMFROMBINARY(loc.geometry_3435)
+            ) AS distance
+        FROM {{ ns.distinct_pins }} AS dp
+        INNER JOIN water_location AS loc
+            ON ST_INTERSECTS(
+                ST_BUFFER(ST_POINT(dp.x_3435, dp.y_3435), {{ radius_km }}),
+                ST_GEOMFROMBINARY(loc.geometry_3435)
+            )
+    ),
+
+    xy_to_water_dist_{{ radius_km }} AS (
+        SELECT
+            d1.x_3435,
+            d1.y_3435,
+            d1.id,
+            d1.name,
+            d1.pin_year,
+            d1.year,
+            d2.dist_ft
+        FROM distances_{{ radius_km }} AS d1
+        INNER JOIN (
+            SELECT
+                x_3435,
+                y_3435,
+                pin_year,
+                MIN(distance) AS dist_ft
+            FROM distances_{{ radius_km }}
+            GROUP BY x_3435, y_3435, pin_year
+        ) AS d2
+            ON d1.x_3435 = d2.x_3435
+            AND d1.y_3435 = d2.y_3435
+            AND d1.pin_year = d2.pin_year
+            AND d1.distance = d2.dist_ft
+    ),
+
+    {% if not loop.last %}
+
+        distinct_pin_years_{{ radius_km }} AS (
+            SELECT dpy.*
+            FROM {{ ns.distinct_pins }} AS dp
+            INNER JOIN distinct_pin_years AS dpy
+                ON dp.x_3435 = dpy.x_3435
+                AND dpy.x_3435 = dpy.y_3435
+        ),
+
+        missing_matches_{{ radius_km }} AS (
+            SELECT DISTINCT
+                dpy.x_3435,
+                dpy.y_3435
+            FROM distinct_pin_years_{{ radius_km }} AS dpy
+            LEFT JOIN xy_to_water_dist_{{ radius_km }} AS xy
+                ON dpy.x_3435 = xy.x_3435
+                AND dpy.y_3435 = xy.y_3435
+                AND dpy.year = xy.year
+            WHERE xy.year IS NULL
+        ),
+
+        {% set ns.distinct_pins = 'missing_matches_{0}'.format(radius_km) %}
+
+    {% endif %}
+
+{% endfor %}
+
+unioned_distances AS (
+    SELECT *
+    FROM (
+        {% for radius_km in radii_km %}
+            {% if not loop.first %}
+                UNION
+            {% endif %}
+            SELECT * FROM xy_to_water_dist_{{ radius_km }}
+        {% endfor %}
+    )
 )
 
 SELECT
@@ -86,7 +145,7 @@ SELECT
     ARBITRARY(xy.year) AS nearest_water_data_year,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
-INNER JOIN xy_to_water_dist AS xy
+INNER JOIN unioned_distances AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
     AND pcl.year = xy.pin_year
