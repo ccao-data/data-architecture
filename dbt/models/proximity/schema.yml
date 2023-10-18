@@ -1,6 +1,3 @@
-version: 2
-
-
 models:
   - name: proximity.cnt_pin_num_bus_stop
   - name: proximity.cnt_pin_num_foreclosure

@@ -1,6 +1,3 @@
-version: 2
-
-
 models:
   - name: default.vw_pin_sale
     description: '{{ doc("vw_pin_sale") }}'

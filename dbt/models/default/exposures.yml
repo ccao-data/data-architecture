@@ -1,6 +1,3 @@
-version: 2
-
-
 exposures:
   - name: appeals
     label: Appeals
