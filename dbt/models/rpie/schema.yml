@@ -1,10 +1,24 @@
 sources:
   - name: rpie
+    tags:
+      - load_manual
+      - type_ic
     tables:
       - name: pin_codes
       - name: pin_codes_dummy
 
 models:
   - name: rpie.vw_code_retrieval
+    config:
+      tags:
+        - type_ic
+
   - name: rpie.vw_pin_flatfile
+    config:
+      tags:
+        - type_ic
+
   - name: rpie.vw_pin_mailers
+    config:
+      tags:
+        - type_ic

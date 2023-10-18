@@ -1,5 +1,7 @@
 sources:
   - name: reporting
+    tags:
+      - load_auto
     tables:
       - name: ratio_stats
       - name: res_report_summary

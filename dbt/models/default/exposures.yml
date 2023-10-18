@@ -104,6 +104,8 @@ exposures:
   - name: residential_condominium_unit_characteristics
     label: Residential Condominium Unit Characteristics
     type: dashboard
+    tags:
+      - type_condo
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Residential-Condominium-Unit-Characteri/3r7i-mrz4
     depends_on:
       - ref('default.vw_pin_condo_char')
@@ -123,6 +125,8 @@ exposures:
   - name: single_and_multi_family_improvement_characteristics
     label: Single and Multi-Family Improvement Characteristics
     type: dashboard
+    tags:
+      - type_res
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Single-and-Multi-Family-Improvement-Chara/x54s-btds
     depends_on:
       - ref('default.vw_card_res_char')
