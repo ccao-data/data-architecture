@@ -15,17 +15,17 @@ _(Brief description of the task here.)_
 ## Model attributes
 
 * **Name**: _(What should the model be called? See [Model
- naming](/ccao-data/data-architecture#model-naming) for guidance.)_
+ naming](/ccao-data/data-architecture/tree/master/dbt#model-naming) for guidance.)_
 * **Materialization**: _(Should the model be a table or a view? See [Model
-  materialization](/ccao-data/data-architecture#model-materialization) for
+  materialization](/ccao-data/data-architecture/tree/master/dbt#model-materialization) for
   guidance.)_
 * **Tests**:
   * _(Add a bulleted list of tests here. See [Model
-  tests](/ccao-data/data-architecture#model-tests) for guidance.)_
+  tests](/ccao-data/data-architecture/tree/master/dbt#model-tests) for guidance.)_
 * **Description**: _(Provide a rich description for this model that will be
   displayed in documentation. Markdown is supported, and encouraged for more
   complex models. See [Model
-  description](/ccao-data/data-architecture#model-description) for guidance.)_
+  description](/ccao-data/data-architecture/tree/master/dbt#model-description) for guidance.)_
 
 ## Short checklist
 
@@ -39,7 +39,6 @@ Otherwise, delete it in favor of the long checklist in the following section.)_
   file, and update `dbt_project.yml` to document the `+schema`
 - [ ] Add a symlink from the appropriate subfolder of the `dbt/models/`
   directory to the new SQL query in the `aws-athena/` directory
-- [ ] Add docs for the model to the subdirectory `docs.md` file
 - [ ] Update the `schema.yml` file in the subfolder of `dbt/models/` where you
   created your symlink to add a definition for your model
 - [ ] Add tests to your new model definition in `schema.yml`
@@ -117,9 +116,6 @@ using (pin10, year)
 ```yaml
 # Table example (only the model name would change for a view)
 # schema.yml
-version: 2
-
-
 models:
   - name: default.new_model
 ```
@@ -166,30 +162,12 @@ cat dbt/models/default/default.vw_new_model.sql
 cat dbt/models/default/default.new_model.sql
 ```
 
-- [ ] Add or edit the docs file for the `dbt/models/` subdirectory your symlink
-  is in to add docs for your model.
-
-
-```diff
-# Table example (only the model name would change for a view)
---- a/dbt/models/default/docs.md
-+++ b/dbt/models/default/docs.md
-
- `spatial.township` is not yearly.
- {% enddocs %}
-
-+{% docs new_model %}
-+
-+Your Markdown docs go here.
-+
-+{% enddocs %}
-+
- {% docs vw_pin_value %}
- CCAO mailed total, CCAO final, and BOR final values for each PIN by year.
-```
-
 - [ ] Update the `schema.yml` file in the subfolder of `dbt/models/` where you
-  created your symlink to add a definition for your model.
+  created your symlink to add a definition for your model. Make sure to add
+  descriptions for new entities (models, sources, columns, etc). See
+  [Model description](/ccao-data/data-architecture/tree/master/dbt#model-description)
+  and [Column descriptions](/ccao-data/data-architecture/tree/master/dbt#column-descriptions)
+  for specific guidance on doc locations and using docs blocks
 
 ```diff
 # Table example (only the model name would change for a view)
@@ -198,14 +176,14 @@ cat dbt/models/default/default.new_model.sql
 
  models:
 +  - name: default.new_model
-+    description: '{{ doc("new_model") }}'
++    description: New model
 +    columns:
 +      - name: pin10
 +        description: 10-digit PIN
 +      - name: year
 +        description: Year
    - name: default.vw_pin_history
-     description: '{{ doc("vw_pin_history") }}'
+     description: PIN history
      tests:
 ```
 
@@ -218,7 +196,7 @@ cat dbt/models/default/default.new_model.sql
 
  models:
    - name: default.new_model
-     description: '{{ doc("new_model") }}'
+     description: New model
      columns:
        - name: pin10
          description: 10-digit PIN
@@ -231,7 +209,7 @@ cat dbt/models/default/default.new_model.sql
 +          - pin
 +          - year
    - name: default.vw_pin_history
-     description: '{{ doc("vw_pin_history") }}'
+     description: PIN history
      tests:
 ```
 
