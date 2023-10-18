@@ -15,17 +15,17 @@ _(Brief description of the task here.)_
 ## Model attributes
 
 * **Name**: _(What should the model be called? See [Model
- naming](/ccao-data/data-architecture#model-naming) for guidance.)_
+ naming](/ccao-data/data-architecture/tree/master/dbt#model-naming) for guidance.)_
 * **Materialization**: _(Should the model be a table or a view? See [Model
-  materialization](/ccao-data/data-architecture#model-materialization) for
+  materialization](/ccao-data/data-architecture/tree/master/dbt#model-materialization) for
   guidance.)_
 * **Tests**:
   * _(Add a bulleted list of tests here. See [Model
-  tests](/ccao-data/data-architecture#model-tests) for guidance.)_
+  tests](/ccao-data/data-architecture/tree/master/dbt#model-tests) for guidance.)_
 * **Description**: _(Provide a rich description for this model that will be
   displayed in documentation. Markdown is supported, and encouraged for more
   complex models. See [Model
-  description](/ccao-data/data-architecture#model-description) for guidance.)_
+  description](/ccao-data/data-architecture/tree/master/dbt#model-description) for guidance.)_
 
 ## Short checklist
 
@@ -116,9 +116,6 @@ using (pin10, year)
 ```yaml
 # Table example (only the model name would change for a view)
 # schema.yml
-version: 2
-
-
 models:
   - name: default.new_model
 ```
@@ -167,7 +164,10 @@ cat dbt/models/default/default.new_model.sql
 
 - [ ] Update the `schema.yml` file in the subfolder of `dbt/models/` where you
   created your symlink to add a definition for your model. Make sure to add
-  descriptions for new entities (models, sources, columns, etc).
+  descriptions for new entities (models, sources, columns, etc). See
+  [Model description](ccao-data/data-architecture/tree/master/dbt#model-description)
+  and [Column descriptions](ccao-data/data-architecture/tree/master/dbt#column-descriptions)
+  for specific guidance on doc locations and using docs blocks
 
 ```diff
 # Table example (only the model name would change for a view)

@@ -348,29 +348,59 @@ names of tables and views in Athena
 In addition to database namespacing, views should be named with a `vw_` prefix
 (e.g. `location.vw_pin10_location`) to mark them as a view, while tables do not
 require any prefix (e.g. `location.tax`).
+
 Finally, for the sake of consistency and ease of interpretation, all tables and views should be named using the singular case e.g. `location.tax` rather than `location.taxes`.
+
+### Model location
+
+Models are generally defined in the `schema.yml` file within each database
+subdirectory. Resources related to each model should be defined inline (with
+the exception of columns, see [Column descriptions](#column-descriptions).
+
+For complicated models with *many* columns or tests, we split `schema.yml`
+files into individual files per model. These files should be contained in a
+`schema/` subdirectory within each database directory, and should be named
+using the fully namespaced model name. For example, the model definition
+for `iasworld.sales` lives in `models/iasworld/schema/iasworld.sales.yml`.
 
 ### Model description
 
 All new models should include, at minimum, a
 [description](https://docs.getdbt.com/reference/resource-properties/description)
-of the model itself. We use the following pattern to determine where to
-define the Markdown text that comprises these descriptions:
+of the model itself. We store these model-level descriptions as [docs
+blocks](https://docs.getdbt.com/reference/resource-properties/description#use-a-docs-block-in-a-description)
+within the `docs.md` file of each schema subdirectory.
 
-* If a description is shared between two or fewer resources (models, sources,
-  columns, etc.), its text should be defined inline in the `schema.yml` file
-  under the `description` key for the resource
-* If a description is shared between three or more resources, its text should
-  be defined as a [docs block](https://docs.getdbt.com/reference/resource-properties/description#use-a-docs-block-in-a-description).
-  If the docs block represents text that will be used by columns, its identifier
-  should have a `column_` prefix.
+Descriptions related to models in a `schema/` subdirectory should still live
+in `docs.md`. For example, the description for `default.vw_pin_universe` lives
+in `models/default/docs.md`.
+
+#### Column descriptions
 
 New models should also include descriptions for each column. Since the first
 few characters of a column description will be shown in the documentation in
 a dedicated column on the "Columns" table, column descriptions should always
-start with a sentence that is short and simple enough that docs readers can
-scan it from the context of the "Columns" table and understand what the column
-represents at a high level.
+start with a sentence that is short and simple. This allows docs readers to
+scan the "Columns" table and understand what the column represents at a high level.
+
+Column descriptions can live in three separate places with the following hierarchy:
+
+1. `models/shared_columns.md` - Definitions shared across all databases and models
+2. `models/$DATEBASE/columns.md` - Definitions shared across a single database
+3. `models/$DATEBASE/schema.yml` OR `models/$DATABASE/schema/$DATABASE-$MODEL.yml` - Definitions specific to a single model
+
+We use the following pattern to determine where to define each column description:
+
+1. If a description is shared by three or more resources *across multiple
+  databases*, its text should be defined as a [docs block](https://docs.getdbt.com/reference/resource-properties/description#use-a-docs-block-in-a-description) in `models/shared_columns.md`.
+  The docs block identifier for each column should have a `shared_column_` prefix.
+2. If a description is shared by three or more resources *across multiple
+  models in the same database*, its text should be defined as a
+  [docs block](https://docs.getdbt.com/reference/resource-properties/description#use-a-docs-block-in-a-description) in `models/$DATABASE/columns.md`.
+  The docs block identifier for each column should have a `column_` prefix.
+3. If a description is shared between two or fewer columns, its text should
+  be defined inline in the `schema.yml` file under the `description` key for
+  the column.
 
 ### Model tests
 
