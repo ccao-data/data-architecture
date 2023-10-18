@@ -5,6 +5,8 @@ sources:
     tables:
       - name: class_dict
       - name: commercial_valuation
+        tags:
+          - type_ic
       - name: hie
         tags:
           - type_res
