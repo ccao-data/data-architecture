@@ -1,0 +1,120 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tables:
+      - name: htagnt
+        description: '{{ doc("htagnt") }}'
+
+        columns:
+          - name: addr1
+            description: '{{ doc("column_addr1") }}'
+          - name: addr2
+            description: '{{ doc("column_addr2") }}'
+          - name: addr3
+            description: '{{ doc("column_addr3") }}'
+          - name: addrtype
+            description: '{{ doc("column_addrtype") }}'
+          - name: adradd
+            description: '{{ doc("column_adradd") }}'
+          - name: adrdir
+            description: '{{ doc("column_adrdir") }}'
+          - name: adrgrid
+            description: '{{ doc("column_adrgrid") }}'
+          - name: adrno
+            description: '{{ doc("column_adrno") }}'
+          - name: adrstr
+            description: '{{ doc("column_adrstr") }}'
+          - name: adrsuf
+            description: '{{ doc("column_adrsuf") }}'
+          - name: adrsuf2
+            description: '{{ doc("column_adrsuf2") }}'
+          - name: agent
+            description: Agent code
+          - name: agent_type
+            description: Agent Type
+          - name: carrier_rt
+            description: '{{ doc("column_carrier_rt") }}'
+          - name: cityname
+            description: '{{ doc("column_cityname") }}'
+          - name: comments
+            description: Comments
+          - name: country
+            description: '{{ doc("column_country") }}'
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: email
+            description: '{{ doc("column_email") }}'
+          - name: fax
+            description: '{{ doc("column_fax") }}'
+          - name: fedid
+            description: '{{ doc("column_fedid") }}'
+          - name: firm1
+            description: Firm name/address line 1
+          - name: firm2
+            description: Firm name/address line 2
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: name1
+            description: Name line 1
+          - name: name1_companyname
+            description: Agent 1 company name
+          - name: name1_firstname
+            description: Agent 1 first name
+          - name: name1_lastname
+            description: Agent 1 last name
+          - name: name1_middlename
+            description: Agent 1 middle name
+          - name: name1_prefix
+            description: Agent 1 prefix
+          - name: name1_suffix
+            description: Agent 1 suffix
+          - name: name2
+            description: Name line 2
+          - name: name2_companyname
+            description: Agent 2 company name
+          - name: name2_firstname
+            description: Agent 2 first name
+          - name: name2_lastname
+            description: Agent 2 last name
+          - name: name2_middlename
+            description: Agent 2 middle name
+          - name: name2_prefix
+            description: Agent 2 prefix
+          - name: name2_suffix
+            description: Agent 2 suffix
+          - name: ownnum
+            description: '{{ doc("column_ownnum") }}'
+          - name: phone
+            description: '{{ doc("column_phone") }}'
+          - name: postal_indx
+            description: '{{ doc("column_postal_indx") }}'
+          - name: postalcode
+            description: '{{ doc("column_postalcode") }}'
+          - name: seq
+            description: '{{ doc("column_seq") }}'
+          - name: statecode
+            description: '{{ doc("column_statecode") }}'
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: unitdesc
+            description: '{{ doc("column_unitdesc") }}'
+          - name: unitno
+            description: '{{ doc("column_unitno") }}'
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'
+          - name: zip1
+            description: '{{ doc("column_zip1") }}'
+          - name: zip2
+            description: '{{ doc("column_zip2") }}'
+
+        tests:
+          - unique_combination_of_columns:
+              name: htagnt_unique_by_agent
+              combination_of_columns:
+                - agent

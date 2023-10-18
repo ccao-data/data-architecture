@@ -1,0 +1,107 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tables:
+      - name: addrindx
+
+        columns:
+          - name: addrsrc
+            description: Address source
+          - name: addrvalid
+            description: '{{ doc("column_addrvalid") }}'
+          - name: adradd
+            description: '{{ doc("column_adradd") }}'
+          - name: adrdir
+            description: '{{ doc("column_adrdir") }}'
+          - name: adrgrid
+            description: '{{ doc("column_adrgrid") }}'
+          - name: adrid
+            description: '{{ doc("column_adrid") }}'
+          - name: adrno
+            description: '{{ doc("column_adrno") }}'
+          - name: adrparchild
+            description: '{{ doc("column_adrparchild") }}'
+          - name: adrpostmod
+            description: '{{ doc("column_adrpostmod") }}'
+          - name: adrpre
+            description: '{{ doc("column_adrpre") }}'
+          - name: adrpremod
+            description: '{{ doc("column_adrpremod") }}'
+          - name: adrpretype
+            description: '{{ doc("column_adrpretype") }}'
+          - name: adrstatus
+            description: '{{ doc("column_adrstatus") }}'
+          - name: adrstr
+            description: '{{ doc("column_adrstr") }}'
+          - name: adrsuf
+            description: '{{ doc("column_adrsuf") }}'
+          - name: adrsuf2
+            description: '{{ doc("column_adrsuf2") }}'
+          - name: bldgno
+            description: '{{ doc("column_bldgno") }}'
+          - name: card
+            description: '{{ doc("column_card") }}'
+          - name: childparid
+            description: Child Parcel ID
+          - name: cityname
+            description: '{{ doc("column_cityname") }}'
+          - name: coopid
+            description: Cooperative identifier
+          - name: country
+            description: '{{ doc("column_country") }}'
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: defaddr
+            description: Primary address for unique combination of `JUR`, `PARID`, `CARD`, `TAXYR` and `TBLE`
+          - name: floorno
+            description: '{{ doc("column_floorno") }}'
+          - name: gislink
+            description: Key to link address record with third party GIS 911 system for PBC
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: lline
+            description: '{{ doc("column_lline") }}'
+          - name: loc2
+            description: '{{ doc("column_loc2") }}'
+          - name: parid
+            description: '{{ doc("column_parid") }}'
+          - name: postalcode
+            description: '{{ doc("column_postalcode") }}'
+          - name: seq
+            description: '{{ doc("column_seq") }}'
+          - name: statecode
+            description: '{{ doc("column_statecode") }}'
+          - name: strcd
+            description: '{{ doc("column_strcd") }}'
+          - name: strreloc
+            description: '{{ doc("column_strreloc") }}'
+          - name: tabseq
+            description: Sort order within addresses associated with `TBLE`
+          - name: taxyr
+            description: '{{ doc("column_taxyr") }}'
+          - name: tble
+            description: Table name associated with this address
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: unitdesc
+            description: '{{ doc("column_unitdesc") }}'
+          - name: unitno
+            description: '{{ doc("column_unitno") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'
+          - name: xcoord
+            description: '{{ doc("column_xcoord") }}'
+          - name: ycoord
+            description: '{{ doc("column_ycoord") }}'
+          - name: zip1
+            description: '{{ doc("column_zip1") }}'
+          - name: zip2
+            description: '{{ doc("column_zip2") }}'

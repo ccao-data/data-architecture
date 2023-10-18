@@ -1,0 +1,255 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tables:
+      - name: cvleg
+
+        columns:
+          - name: acres
+            description: '{{ doc("column_acres") }}'
+          - name: actdep
+            description: Actual lot depth
+          - name: actfrt
+            description: Actual front footage
+          - name: actualjur
+            description: Actual jurisdiction of the parcel if a crossover parcel
+          - name: adradd
+            description: '{{ doc("column_adradd") }}'
+          - name: adrdir
+            description: '{{ doc("column_adrdir") }}'
+          - name: adrid
+            description: '{{ doc("column_adrid") }}'
+          - name: adrno
+            description: '{{ doc("column_adrno") }}'
+          - name: adrparchild
+            description: '{{ doc("column_adrparchild") }}'
+          - name: adrpostmod
+            description: '{{ doc("column_adrpostmod") }}'
+          - name: adrpre
+            description: '{{ doc("column_adrpre") }}'
+          - name: adrpremod
+            description: '{{ doc("column_adrpremod") }}'
+          - name: adrpretype
+            description: '{{ doc("column_adrpretype") }}'
+          - name: adrstatus
+            description: '{{ doc("column_adrstatus") }}'
+          - name: adrstr
+            description: '{{ doc("column_adrstr") }}'
+          - name: adrsuf
+            description: '{{ doc("column_adrsuf") }}'
+          - name: adrsuf2
+            description: '{{ doc("column_adrsuf2") }}'
+          - name: block
+            description: Block prefix and suffix, formatted
+          - name: book
+            description: '{{ doc("column_book") }}'
+          - name: cityname
+            description: '{{ doc("column_cityname") }}'
+          - name: compct
+            description: Common interest
+          - name: condbdg
+            description: Condominium building number
+          - name: condunt
+            description: Condominium unit number
+          - name: conveyno
+            description: '{{ doc("column_conveyno") }}'
+          - name: crossoverparflg
+            description: Crossover parcel flag
+          - name: floorno
+            description: '{{ doc("column_floorno") }}'
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: instrtyp
+            description: '{{ doc("column_instrtyp") }}'
+          - name: instruno
+            description: '{{ doc("column_instruno") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: legal1
+            description: Legal description line 1
+          - name: legal2
+            description: Legal description line 2
+          - name: legal3
+            description: Legal description line 3
+          - name: legdesc
+            description: Unlimited legal description
+          - name: loc2
+            description: '{{ doc("column_loc2") }}'
+          - name: lot
+            description: Lot prefix and suffix, formatted
+          - name: lotdim
+            description: Lot dimensions
+          - name: lseq
+            description: Previous `LEGDAT` sequence from before the conveyance was performed
+          - name: ltaxyr
+            description: Previous `LEGDAT` tax year from before the conveyance was performed
+          - name: multown
+            description: Multiple owner indicator
+          - name: newseq
+            description: '{{ doc("column_newseq") }}'
+          - name: nopar
+            description: '{{ doc("column_nopar") }}'
+          - name: numlot
+            description: Number of lots
+          - name: oldown
+            description: '{{ doc("column_oldown") }}'
+          - name: oldown_companyname
+            description: Old owner company name
+          - name: oldown_firstname
+            description: Old owner first name
+          - name: oldown_lastname
+            description: Old owner last name
+          - name: oldown_middlename
+            description: Old owner middle name
+          - name: oldown_prefix
+            description: Old owner prefix
+          - name: oldown_suffix
+            description: Old owner suffix
+          - name: oldown2
+            description: '{{ doc("column_oldown2") }}'
+          - name: oldseq
+            description: '{{ doc("column_oldseq") }}'
+          - name: oldyr
+            description: '{{ doc("column_oldyr") }}'
+          - name: oseq
+            description: Previous `OWNDAT` sequence
+          - name: otaxyr
+            description: Previous `OWNDAT` tax year
+          - name: own1
+            description: '{{ doc("column_own1") }}'
+          - name: own1_companyname
+            description: '{{ doc("column_own1_companyname") }}'
+          - name: own1_firstname
+            description: '{{ doc("column_own1_firstname") }}'
+          - name: own1_lastname
+            description: '{{ doc("column_own1_lastname") }}'
+          - name: own1_middlename
+            description: '{{ doc("column_own1_middlename") }}'
+          - name: own1_prefix
+            description: '{{ doc("column_own1_prefix") }}'
+          - name: own1_suffix
+            description: '{{ doc("column_own1_suffix") }}'
+          - name: page
+            description: '{{ doc("column_page") }}'
+          - name: parid
+            description: '{{ doc("column_parid") }}'
+          - name: parseq
+            description: Conveyance parcel sequence number
+          - name: pmultown
+            description: Previous multi owner indicator
+          - name: postalcode
+            description: '{{ doc("column_postalcode") }}'
+          - name: pown1
+            description: Previous owner name 1
+          - name: pown1_companyname
+            description: Previous owner 1 company name
+          - name: pown1_firstname
+            description: Previous owner 1 first name
+          - name: pown1_lastname
+            description: Previous owner 1 last name
+          - name: pown1_middlename
+            description: Previous owner 1 middle name
+          - name: pown1_prefix
+            description: Previous owner 1 prefix
+          - name: pown1_suffix
+            description: Previous owner 1 suffix
+          - name: price
+            description: Sale price
+          - name: procdate
+            description: '{{ doc("column_procdate") }}'
+          - name: procname
+            description: '{{ doc("column_procname") }}'
+          - name: qualifier
+            description: Qualifier codes, left justified
+          - name: respct
+            description: Residential percentage
+          - name: roll_section
+            description: Roll section
+          - name: saledt
+            description: Sale date
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: saletype
+            description: '{{ doc("column_saletype") }}'
+          - name: saleval
+            description: '{{ doc("column_saleval") }}'
+          - name: schdist
+            description: School district code
+          - name: school_code
+            description: School code
+          - name: schvalpct
+            description: School district value percentage
+          - name: sortkey
+            description: Block, lot and qualifier, reformatted for sorting
+          - name: splitno
+            description: '{{ doc("column_splitno") }}'
+          - name: sqft
+            description: Deeded square foot acrage
+          - name: statecode
+            description: '{{ doc("column_statecode") }}'
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: steb
+            description: '{{ doc("column_steb") }}'
+          - name: stflag
+            description: '{{ doc("column_stflag") }}'
+          - name: strcd
+            description: '{{ doc("column_strcd") }}'
+          - name: strreloc
+            description: '{{ doc("column_strreloc") }}'
+          - name: subblck
+            description: Subdivision block number
+          - name: subcode
+            description: Subdivision code
+          - name: subdiv
+            description: Subdivision name
+          - name: subdnum
+            description: Subdivision number
+          - name: sublot
+            description: Subdivision lot number
+          - name: swis_code
+            description: Swis Code
+          - name: taxdist
+            description: Tax district
+          - name: taxdist2
+            description: Tax district 2
+          - name: taxdist3
+            description: Tax district 3
+          - name: taxdist4
+            description: Tax district 4
+          - name: taxdist5
+            description: Tax district 5
+          - name: taxdist6
+            description: Tax district 6
+          - name: taxyr
+            description: '{{ doc("column_taxyr") }}'
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: unitdesc
+            description: '{{ doc("column_unitdesc") }}'
+          - name: unitno
+            description: '{{ doc("column_unitno") }}'
+          - name: upd_owndat
+            description: Flag to update `OWNDAT`
+          - name: upd_ownmlt
+            description: Flag to update `OWNMLT`
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+          - name: xcoord
+            description: '{{ doc("column_xcoord") }}'
+          - name: ycoord
+            description: '{{ doc("column_ycoord") }}'
+          - name: zcoord
+            description: Z coordinate
+          - name: zip1
+            description: '{{ doc("column_zip1") }}'
+          - name: zip2
+            description: '{{ doc("column_zip2") }}'

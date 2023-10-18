@@ -1,0 +1,10 @@
+models:
+  - name: default.vw_pin_value
+    description: '{{ doc("vw_pin_value") }}'
+
+    tests:
+      - unique_combination_of_columns:
+          name: vw_pin_value_unique_by_14_digit_pin_and_year
+          combination_of_columns:
+            - pin
+            - year

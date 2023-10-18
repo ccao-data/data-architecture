@@ -1,0 +1,103 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tables:
+      - name: splcom
+
+        columns:
+          - name: alt_splitnum
+            description: Alternate split/combination tracking number
+          - name: deact_flag
+            description: Parent/existing parcels deactivation flag
+          - name: distcode
+            description: District code
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: newacr
+            description: New acreage (deed)
+          - name: newalt_id
+            description: New alternate parcel identification
+          - name: newbldg
+            description: Appraised building value for new parcel
+          - name: newbldgpct
+            description: Percentage of bldg value split
+          - name: newblock
+            description: New block prefix and suffix, formatted
+          - name: newbook
+            description: New deed book reference
+          - name: newid
+            description: New parcel ID
+          - name: newland
+            description: Appraised land value for new parcel
+          - name: newlandpct
+            description: Percentage of land value split
+          - name: newlot
+            description: New lot prefix and suffix, formatted
+          - name: newnbhd
+            description: New neighborhood number
+          - name: newpage
+            description: New deed page reference
+          - name: newqualifier
+            description: New qualifier codes, left justified
+          - name: newsf
+            description: New square footage
+          - name: newtaxdue
+            description: New parcel taxes due
+          - name: newtot
+            description: Total appraised value for new parcel
+          - name: newvalpct
+            description: Percentage used in apportioning taxes due
+          - name: newvaltax
+            description: New parcel taxable value
+          - name: newzoning
+            description: New zoning
+          - name: oldacr
+            description: Original acreage (deed)
+          - name: oldalt_id
+            description: Original alternate parcel identification
+          - name: oldblock
+            description: Original block prefix and suffix, formatted
+          - name: oldbook
+            description: Original deed book reference
+          - name: oldid
+            description: Old parcel ID
+          - name: oldlot
+            description: Original lot prefix and suffix, formatted
+          - name: oldnbhd
+            description: Original neighborhood number
+          - name: oldpage
+            description: Original deed page reference
+          - name: oldqualifier
+            description: Original qualifier codes, left justified
+          - name: oldsf
+            description: Original square footage
+          - name: oldtaxdue
+            description: Parent taxes due
+          - name: oldvaltax
+            description: Parent taxable value
+          - name: oldzoning
+            description: Original zoning
+          - name: reascd
+            description: Reason for change
+          - name: seq
+            description: '{{ doc("column_seq") }}'
+          - name: splcom_status
+            description: Apportionment/merger status (C - complete, R - reversed, null - in progress)
+          - name: splitcde
+            description: Code for type (S)plit (C)ombination
+          - name: splitno
+            description: '{{ doc("column_splitno") }}'
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: taxyr
+            description: '{{ doc("column_taxyr") }}'
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: wen
+            description: '{{ doc("column_wen") }}'
+          - name: who
+            description: '{{ doc("column_who") }}'
