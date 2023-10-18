@@ -1,5 +1,8 @@
 sources:
   - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
     tables:
       - name: exadmn
 

@@ -1,5 +1,7 @@
 sources:
   - name: ccao
+    tags:
+      - load_manual
     tables:
       - name: class_dict
       - name: commercial_valuation

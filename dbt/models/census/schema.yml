@@ -1,5 +1,7 @@
 sources:
   - name: census
+    tags:
+      - load_manual
     tables:
       - name: acs1
       - name: acs5

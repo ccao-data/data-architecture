@@ -1,5 +1,7 @@
 sources:
   - name: tax
+    tags:
+      - load_manual
     tables:
       - name: agency
       - name: agency_fund

@@ -1,5 +1,7 @@
 sources:
   - name: other
+    tags:
+      - load_manual
     tables:
       - name: airport_noise
       - name: flood_first_street

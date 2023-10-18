@@ -1,5 +1,7 @@
 sources:
   - name: rpie
+    tags:
+      - load_manual
     tables:
       - name: pin_codes
       - name: pin_codes_dummy

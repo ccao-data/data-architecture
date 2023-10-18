@@ -1,5 +1,7 @@
 sources:
   - name: sale
+    tags:
+      - load_auto
     tables:
       - name: flag
         description: '{{ doc("flag") }}'

@@ -1,5 +1,7 @@
 sources:
   - name: spatial
+    tags:
+      - load_manual
     tables:
       - name: bike_trail
       - name: board_of_review_district

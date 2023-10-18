@@ -2,18 +2,57 @@ sources:
   - name: model
     tables:
       - name: assessment_card
+        tags:
+          - load_auto
+
       - name: assessment_pin
+        tags:
+          - load_auto
+
       - name: feature_importance
+        tags:
+          - load_auto
+
       - name: final_model
+        tags:
+          - load_manual
+
       - name: metadata
+        tags:
+          - load_auto
+
       - name: parameter_final
+        tags:
+          - load_auto
+
       - name: parameter_range
+        tags:
+          - load_auto
+
       - name: parameter_search
+        tags:
+          - load_auto
+
       - name: performance
+        tags:
+          - load_auto
+
       - name: performance_quantile
+        tags:
+          - load_auto
+
       - name: shap
+        tags:
+          - load_auto
+
       - name: test_card
+        tags:
+          - load_auto
+
       - name: timing
+        tags:
+          - load_auto
+
 
 models:
   - name: model.vw_card_res_input
