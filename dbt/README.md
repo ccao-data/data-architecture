@@ -386,8 +386,8 @@ scan the "Columns" table and understand what the column represents at a high lev
 Column descriptions can live in three separate places with the following hierarchy:
 
 1. `models/shared_columns.md` - Definitions shared across all databases and models
-2. `models/$DATEBASE/columns.md` - Definitions shared across a single database
-3. `models/$DATEBASE/schema.yml` OR `models/$DATABASE/schema/$DATABASE-$MODEL.yml` - Definitions specific to a single model
+2. `models/$DATABASE/columns.md` - Definitions shared across a single database
+3. `models/$DATABASE/schema.yml` OR `models/$DATABASE/schema/$DATABASE-$MODEL.yml` - Definitions specific to a single model
 
 We use the following pattern to determine where to define each column description:
 
