@@ -1,6 +1,9 @@
 models:
   - name: default.vw_card_res_char
     description: '{{ doc("vw_card_res_char") }}'
+    config:
+      tags:
+        - type_res
 
     columns:
       - name: char_air
