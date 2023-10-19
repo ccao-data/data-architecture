@@ -206,30 +206,27 @@ mydec_sales AS (
         OR (YEAR(mydec_date) > 2020)
 ),
 
-sales_val AS (
+max_version_flag AS (
     SELECT
         meta_sale_document_num,
-        sv_is_outlier,
-        sv_is_ptax_outlier,
-        sv_is_heuristic_outlier,
-        sv_outlier_type,
-        run_id,
-        version
-    FROM (
-        SELECT
-            meta_sale_document_num,
-            sv_is_outlier,
-            sv_is_ptax_outlier,
-            sv_is_heuristic_outlier,
-            sv_outlier_type,
-            run_id,
-            version,
-            ROW_NUMBER()
-                OVER (PARTITION BY meta_sale_document_num ORDER BY version DESC)
-                AS rn
-        FROM {{ source('sale', 'flag') }}
-    ) AS tmp
-    WHERE rn = 1
+        MAX(version) as max_version
+    FROM {{ source('sale', 'flag') }}
+    GROUP BY meta_sale_document_num
+),
+
+sales_val AS (
+    SELECT
+        f.meta_sale_document_num,
+        f.sv_is_outlier,
+        f.sv_is_ptax_outlier,
+        f.sv_is_heuristic_outlier,
+        f.sv_outlier_type,
+        f.run_id,
+        f.version
+    FROM {{ source('sale', 'flag') }} AS f
+    JOIN max_version_flag AS mv
+        ON f.meta_sale_document_num = mv.meta_sale_document_num
+        AND f.version = mv.max_version
 )
 
 SELECT
