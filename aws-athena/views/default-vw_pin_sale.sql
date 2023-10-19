@@ -216,17 +216,17 @@ max_version_flag AS (
 
 sales_val AS (
     SELECT
-        f.meta_sale_document_num,
-        f.sv_is_outlier,
-        f.sv_is_ptax_outlier,
-        f.sv_is_heuristic_outlier,
-        f.sv_outlier_type,
-        f.run_id AS sv_run_id,
-        f.version AS sv_version
-    FROM {{ source('sale', 'flag') }} AS f
+        sf.meta_sale_document_num,
+        sf.sv_is_outlier,
+        sf.sv_is_ptax_outlier,
+        sf.sv_is_heuristic_outlier,
+        sf.sv_outlier_type,
+        sf.run_id AS sv_run_id,
+        sf.version AS sv_version
+    FROM {{ source('sale', 'flag') }} AS sf
     JOIN max_version_flag AS mv
-        ON f.meta_sale_document_num = mv.meta_sale_document_num
-        AND f.version = mv.max_version
+        ON sf.meta_sale_document_num = mv.meta_sale_document_num
+        AND sf.version = mv.max_version
 )
 
 SELECT
