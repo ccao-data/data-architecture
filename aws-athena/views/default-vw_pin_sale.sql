@@ -215,6 +215,29 @@ mydec_sales AS (
     not, so we'll exclude them to avoid afore mentioned duplicates. */
     WHERE num_cards_sale = 1
         OR (YEAR(mydec_date) > 2020)
+),
+
+max_version_flag AS (
+    SELECT
+        meta_sale_document_num,
+        MAX(version) AS max_version
+    FROM {{ source('sale', 'flag') }}
+    GROUP BY meta_sale_document_num
+),
+
+sales_val AS (
+    SELECT
+        sf.meta_sale_document_num,
+        sf.sv_is_outlier,
+        sf.sv_is_ptax_outlier,
+        sf.sv_is_heuristic_outlier,
+        sf.sv_outlier_type,
+        sf.run_id AS sv_run_id,
+        sf.version AS sv_version
+    FROM {{ source('sale', 'flag') }} AS sf
+    INNER JOIN max_version_flag AS mv
+        ON sf.meta_sale_document_num = mv.meta_sale_document_num
+        AND sf.version = mv.max_version
 )
 
 SELECT
@@ -287,7 +310,8 @@ SELECT
     mydec_sales.is_homestead_exemption,
     mydec_sales.homestead_exemption_general_alternative,
     mydec_sales.homestead_exemption_senior_citizens,
-    mydec_sales.homestead_exemption_senior_citizens_assessment_freeze
+    mydec_sales.homestead_exemption_senior_citizens_assessment_freeze,
+    sales_val.*
 FROM unique_sales
 LEFT JOIN sale_filter
     ON unique_sales.township_code = sale_filter.township_code
@@ -297,3 +321,5 @@ LEFT JOIN sale_filter
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
     AND unique_sales.pin = mydec_sales.pin
+LEFT JOIN sales_val
+    ON unique_sales.doc_no = sales_val.meta_sale_document_num;
