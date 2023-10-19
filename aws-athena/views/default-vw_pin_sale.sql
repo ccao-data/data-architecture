@@ -207,7 +207,7 @@ mydec_sales AS (
 ),
 
 sales_val AS (
-    SELECT 
+    SELECT
         meta_sale_document_num,
         sv_is_outlier,
         sv_is_ptax_outlier,
@@ -216,7 +216,7 @@ sales_val AS (
         run_id,
         version
     FROM (
-        SELECT 
+        SELECT
             meta_sale_document_num,
             sv_is_outlier,
             sv_is_ptax_outlier,
@@ -224,9 +224,11 @@ sales_val AS (
             sv_outlier_type,
             run_id,
             version,
-            ROW_NUMBER() OVER (PARTITION BY meta_sale_document_num ORDER BY version DESC) AS rn
+            ROW_NUMBER()
+                OVER (PARTITION BY meta_sale_document_num ORDER BY version DESC)
+                AS rn
         FROM {{ source('sale', 'flag') }}
-    ) tmp
+    ) AS tmp
     WHERE rn = 1
 )
 
