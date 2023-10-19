@@ -3,6 +3,18 @@ models:
     description: '{{ doc("vw_card_res_char") }}'
 
     columns:
+      - name: char_air
+        description: '{{ doc("shared_column_char_air") }}'
+      - name: char_attic_fnsh
+        description: '{{ doc("shared_column_char_attic_fnsh") }}'
+      - name: char_attic_type
+        description: '{{ doc("shared_column_char_attic_type") }}'
+      - name: char_bsmt
+        description: '{{ doc("shared_column_char_bsmt") }}'
+      - name: char_bsmt_fin
+        description: '{{ doc("shared_column_char_bsmt_fin") }}'
+      - name: char_ext_wall
+        description: '{{ doc("shared_column_char_ext_wall") }}'
       - name: card
         description: '{{ doc("shared_column_card") }}'
       - name: card_proration_rate
@@ -24,23 +36,43 @@ models:
       - name: char_frpl
         description: '{{ doc("shared_column_char_frpl") }}'
       - name: char_gar1_area
-        description: '{{ doc("shared_column_char_gar1_area") }}'
+        description: '{{ doc("shared_column_char_gar_area") }}'
+      - name: char_gar1_att
+        description: '{{ doc("shared_column_char_gar_att") }}'
+      - name: char_gar1_cnst
+        description: '{{ doc("shared_column_char_gar_cnst") }}'
+      - name: char_gar1_size
+        description: '{{ doc("shared_column_char_gar_size") }}'
+      - name: char_heat
+        description: '{{ doc("shared_column_char_heat") }}'
       - name: char_hbath
         description: '{{ doc("shared_column_char_hbath") }}'
       - name: char_land_sf
         description: '{{ doc("shared_column_char_land_sf") }}'
       - name: char_ncu
         description: '{{ doc("shared_column_char_ncu") }}'
+      - name: char_porch
+        description: '{{ doc("shared_column_char_porch") }}'
       - name: char_recent_renovation
         description: '{{ doc("shared_column_char_recent_renovation") }}'
+      - name: char_renovation
+        description: '{{ doc("shared_column_char_renovation") }}'
       - name: char_repair_cnd
         description: '{{ doc("shared_column_char_repair_cnd") }}'
+      - name: char_roof_cnst
+        description: '{{ doc("shared_column_char_roof_cnst") }}'
       - name: char_rooms
         description: '{{ doc("shared_column_char_rooms") }}'
       - name: char_site
         description: '{{ doc("shared_column_char_site") }}'
       - name: char_tp_dsgn
         description: '{{ doc("shared_column_char_tp_dsgn") }}'
+      - name: char_tp_plan
+        description: '{{ doc("shared_column_char_tp_plan") }}'
+      - name: char_type_resd
+        description: '{{ doc("shared_column_char_type_resd") }}'
+      - name: char_yrblt
+        description: '{{ doc("shared_column_char_yrblt") }}'
       - name: class
         description: '{{ doc("shared_column_class") }}'
       - name: pin

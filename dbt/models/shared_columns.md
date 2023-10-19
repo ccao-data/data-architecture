@@ -1,11 +1,22 @@
 # Characteristics
 
+## char_air
+
+{% docs shared_column_char_air %}
+Indicator for central air.
+
+Possible values for this variable are:
+
+- `1` = Central A/C (`YES`)
+- `2` = No central A/C (`NO`)
+{% enddocs %}
+
 ## char_age
 
 {% docs shared_column_char_age %}
 Deprecated.
 
-Use year built instead
+Use year built (`char_yrblt`) instead
 {% enddocs %}
 
 ## char_apts
@@ -13,7 +24,40 @@ Use year built instead
 {% docs shared_column_char_apts %}
 Number of apartments for class 211 and 212 properties.
 
-CAUTION: Note the numerically encoded values DO NOT correspond to the number of apartments i.e. code 1 means 2 apartments, code 6 means 0 apartments
+CAUTION: Note the numerically encoded values DO NOT correspond to the number of apartments i.e. code 1 means 2 apartments, code 6 means 0 apartments.
+
+Possible values for this variable are:
+
+- `1` = Two apartments (`TWO`)
+- `2` = Three apartments (`THREE`)
+- `3` = Four apartments (`FOUR`)
+- `4` = Five apartments (`FIVE`)
+- `5` = Six apartments (`SIX`)
+- `6` = No apartments (`NONE`)
+{% enddocs %}
+
+## char_attic_fnsh
+
+{% docs shared_column_char_attic_fnsh %}
+Attic finish.
+
+Possible values for this variable are:
+
+- `1` = Living area (`LAR`)
+- `2` = Partial (`PT`)
+- `3` = None (`UNF`)
+{% enddocs %}
+
+## char_attic_type
+
+{% docs shared_column_char_attic_type %}
+Attic type.
+
+Possible values for this variable are:
+
+- `1` = Full (`FL`)
+- `2` = Partial (`PT`)
+- `3` = None (`NO`)
 {% enddocs %}
 
 ## char_beds
@@ -28,12 +72,56 @@ Number of bedrooms in the building.
 Square footage of the building, as measured from the exterior.
 {% enddocs %}
 
+## char_bsmt
+
+{% docs shared_column_char_bsmt %}
+Basement type.
+
+Possible values for this variable are:
+
+- `1` = Full (`FL`)
+- `2` = Slab (`SL`)
+- `3` = Partial (`PT`)
+- `4` = Crawl (`CR`)
+{% enddocs %}
+
+## char_bsmt_fin
+
+{% docs shared_column_char_bsmt_fin %}
+Basement finish.
+
+Possible values for this variable are:
+
+- `1` = Finished / formal rec room (`REC`)
+- `2` = Apartment (`APT`)
+- `3` = Unfinished (`UNF`)
+{% enddocs %}
+
 ## char_cnst_qlty
 
 {% docs shared_column_char_cnst_qlty %}
 Construction quality.
 
-In general, this field is not used consistently and is therefore not useful for analytical purposes
+In general, this field is not used consistently and is therefore not useful for analytical purposes.
+
+Possible values for this variable are:
+
+- `1` = Deluxe (`DLXE`)
+- `2` = Average (`AVG`)
+- `3` = Poor (`POOR`)
+{% enddocs %}
+
+## char_ext_wall
+
+{% docs shared_column_char_ext_wall %}
+Exterior wall construction.
+
+Possible values for this variable are:
+
+- `1` = Frame (`FRAM`)
+- `2` = Masonry (`MASR`)
+- `3` = Frame + masonry (`FRMA`)
+- `4` = Stucco (`STUC`)
 {% enddocs %}
 
 ## char_fbath
@@ -52,12 +140,73 @@ Number of fireplaces.
 Counted as the number of flues one can see from the outside of the building
 {% enddocs %}
 
-## char_gar1_area
+## char_gar1_area / char_gar2_area
 
-{% docs shared_column_char_gar1_area %}
+{% docs shared_column_char_gar_area %}
 Indicator for garage area inclusion.
 
-Is Garage 1 physically included within the building area? If yes, the garage area is subtracted from the building square feet calculation by the field agent
+Is the garage physically included within the building area? If yes, the garage area is subtracted from the building square feet calculation by the field agent.
+
+Possible values for this variable are:
+
+- `1` = Yes (`YES`)
+- `2` = No (`NO`)
+{% enddocs %}
+
+## char_gar1_att / char_gar2_att
+
+{% docs shared_column_char_gar_att %}
+Indicator for garage attached.
+
+Is the garage physically attached to the main building?
+
+Possible values for this variable are:
+
+- `1` = Yes (`YES`)
+- `2` = No (`NO`)
+{% enddocs %}
+
+## char_gar1_cnst / char_gar2_cnst
+
+{% docs shared_column_char_gar_cnst %}
+Garage exterior wall construction.
+
+Possible values for this variable are:
+
+- `1` = Frame (`FRAM`)
+- `2` = Masonry (`MASR`)
+- `3` = Frame + masonry (`FRMA`)
+- `4` = Stucco (`STUC`)
+{% enddocs %}
+
+## char_gar1_size / char_gar2_size
+
+{% docs shared_column_char_gar_size %}
+Garage size (number of cars).
+
+Possible values for this variable are:
+
+- `1` = 1 car (`1CAR`)
+- `2` = 1.5 cars (`1.5CAR`)
+- `3` = 2 cars (`2CAR`)
+- `4` = 2.5 cars (`2.5CAR`)
+- `5` = 3 cars (`3CAR`)
+- `6` = 3.5 cars (`3.5CAR`)
+- `7` = 0 cars (`0CAR`)
+- `8` = 4 cars (`4CAR`)
+{% enddocs %}
+
+## char_heat
+
+{% docs shared_column_char_heat %}
+Interior heating type.
+
+Possible values for this variable are:
+
+- `1` = Central air / furnace (`FURN`)
+- `2` = Steam / radiator (`STM`)
+- `3` = Electric (`ELEC`)
+- `4` = None (`NONE`)
 {% enddocs %}
 
 ## char_hbath
@@ -84,12 +233,36 @@ Number of commercial units.
 The vast majority are for properties with class 212
 {% enddocs %}
 
+## char_porch
+
+{% docs shared_column_char_porch %}
+Porch type.
+
+Possible values for this variable are:
+
+- `0` = None (`NONE`)
+- `1` = Frame enclosed (`FRAM`)
+- `2` = Masonry enclosed (`MSRY`)
+{% enddocs %}
+
 ## char_recent_renovation
 
 {% docs shared_column_char_recent_renovation %}
 Indicates whether or not a property was renovated within the last 3 years.
 
-Renovation is indicated by the `char_renovation` characteristic flipping from "NO" to "YES"
+Renovation is indicated by the `char_renovation` characteristic flipping
+from `NO` to `YES`
+{% enddocs %}
+
+## char_renovation
+
+{% docs shared_column_char_renovation %}
+Has the property had a renovation this year.
+
+Possible values for this variable are:
+
+- `0` = No (`No`)
+- `1` = Yes (`YES`)
 {% enddocs %}
 
 ## char_repair_cnd
@@ -97,7 +270,28 @@ Renovation is indicated by the `char_renovation` characteristic flipping from "N
 {% docs shared_column_char_repair_cnd %}
 Deprecated.
 
-This field is subjective and contains little variation. As such, it is not used for modeling or other purposes
+This field is subjective and contains little variation. As such, it is not used for modeling or other purposes.
+
+Possible values for this variable are:
+
+- `1` = Above average (`GOOD`)
+- `2` = Average (`AVG`)
+- `3` = Below average (`POOR`)
+{% enddocs %}
+
+## char_roof_cnst
+
+{% docs shared_column_char_roof_cnst %}
+Roof material / construction.
+
+Possible values for this variable are:
+
+- `1` = Shingle + asphalt (`SHAS`)
+- `2` = Tar + gravel (`TRGR`)
+- `3` = Slate (`SLTE`)
+- `4` = Shake (`SHKE`)
+- `5` = Tile (`TILE`)
+- `6` = Other (`OTHR`)
 {% enddocs %}
 
 ## char_rooms
@@ -113,7 +307,13 @@ Not to be confused with bedrooms
 {% docs shared_column_char_site %}
 Deprecated.
 
-This field lacks sufficient variation to be useful for modeling
+This field lacks sufficient variation to be useful for modeling.
+
+Possible values for this variable are:
+
+- `1` = Beneficial to value (`BTV`)
+- `2` = Not relevant to value (`NRTV`)
+- `3` = Detracts from value (`DFV`)
 {% enddocs %}
 
 ## char_tp_dsgn
@@ -122,6 +322,43 @@ This field lacks sufficient variation to be useful for modeling
 Deprecated.
 
 Field has not been updated recently enough to be useful for modeling
+{% enddocs %}
+
+## char_tp_plan
+
+{% docs shared_column_char_tp_plan %}
+Design plan.
+
+Whether the property was designed by an architect or from a stock plan.
+
+Possible values for this variable are:
+
+- `1` = Architect (`ARCT`)
+- `2` = Stock plan (`STCK`)
+{% enddocs %}
+
+## char_type_resd
+
+{% docs shared_column_char_type_resd %}
+Type of residence.
+
+Used to indicate stories as well as other information about the design of the
+property. Also used to determine the property class.
+
+Possible values for this variable are:
+
+- `1` = 1 story (`1STRY`)
+- `2` = 2 story (`2STRY`)
+- `3` = 3 story or more (`3STRY+`)
+- `4` = Split level (`SPLT`)
+- `5` = 1.5 story (`1.5STRY`)
+- `9.9` = Missing (`MSSNG`)
+{% enddocs %}
+
+## char_yrblt
+
+{% docs shared_column_char_yrblt %}
+Year the property was constructed
 {% enddocs %}
 
 # Cook County
@@ -235,9 +472,9 @@ Triads are the "unit of yearly work" for the Cook County property system:
 one triad is reassessed every 3 years on a rotating cycle. Each triad is made
 up of townships. The possible triad codes are:
 
-- `1` (City)
-- `2` (North)
-- `3` (South)
+- `1` = City
+- `2` = North
+- `3` = South
 {% enddocs %}
 
 ## triad_name
