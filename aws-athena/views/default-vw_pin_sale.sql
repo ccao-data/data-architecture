@@ -104,8 +104,8 @@ unique_sales AS (
     -- Only use max price by pin/sale date
     WHERE max_price = 1
         AND (bad_doc_no = 1 OR is_multisale = TRUE)
-    -- Drop sales for a given pin if it has sold within the last 12 months
-    -- for the same price
+        -- Drop sales for a given pin if it has sold within the last 12 months
+        -- for the same price
         AND (
             EXTRACT(DAY FROM sale_date - same_price_earlier_date) > 365
             OR same_price_earlier_date IS NULL
