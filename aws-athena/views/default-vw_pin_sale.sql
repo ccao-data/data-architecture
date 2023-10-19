@@ -221,8 +221,8 @@ sales_val AS (
         f.sv_is_ptax_outlier,
         f.sv_is_heuristic_outlier,
         f.sv_outlier_type,
-        f.run_id,
-        f.version
+        f.run_id AS sv_run_id,
+        f.version AS sv_version
     FROM {{ source('sale', 'flag') }} AS f
     JOIN max_version_flag AS mv
         ON f.meta_sale_document_num = mv.meta_sale_document_num
@@ -304,8 +304,8 @@ SELECT
     sales_val.sv_is_ptax_outlier,
     sales_val.sv_is_heuristic_outlier,
     sales_val.sv_outlier_type,
-    sales_val.run_id,
-    sales_val.version
+    sales_val.sv_run_id,
+    sales_val.sv_version AS 
 FROM unique_sales
 LEFT JOIN sale_filter
     ON unique_sales.township_code = sale_filter.township_code
