@@ -75,7 +75,7 @@ chars AS (
             WHEN
                 par.class = '399'
                 THEN CAST(com.user24 AS DOUBLE) / 100.0
-        END AS card_protation_rate,
+        END AS card_proration_rate,
         oby.lline,
 
         SUBSTR(par.parid, 1, 10) AS pin10,
@@ -256,7 +256,7 @@ filled AS (
         tiebldgpct,
         tieback_key_pin,
         tieback_proration_rate,
-        card_protation_rate,
+        card_proration_rate,
         bldg_is_mixed_use,
         COUNT(*)
             OVER (PARTITION BY pin10, year)
@@ -286,7 +286,7 @@ SELECT DISTINCT
         AS pin_num_lline,
     filled.tieback_key_pin,
     filled.tieback_proration_rate,
-    filled.card_protation_rate,
+    filled.card_proration_rate,
     filled.char_yrblt,
     filled.char_building_sf,
     filled.char_unit_sf,

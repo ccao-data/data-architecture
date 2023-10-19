@@ -44,7 +44,7 @@ SELECT
     ch.tieback_key_pin AS meta_tieback_key_pin,
     ch.tieback_proration_rate AS meta_tieback_proration_rate,
     COALESCE(ch.tieback_proration_rate < 1.0, FALSE) AS ind_pin_is_prorated,
-    ch.card_protation_rate AS meta_card_protation_rate,
+    ch.card_proration_rate AS meta_card_proration_rate,
 
     -- Multicard/multi-landline related fields. Each PIN can have more than
     -- one improvement/card AND/OR more than one attached landline
