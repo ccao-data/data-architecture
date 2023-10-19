@@ -138,15 +138,6 @@ Cards also serve as the unit of observation for the residential model.
 Equivalent to legacy `MLT_CD` (multicode) value
 {% enddocs %}
 
-## card_proration_rate
-
-{% docs shared_column_card_proration_rate %}
-Proration rate for a card on a given PIN.
-
-Prorated cards split their total value across multiple PINs. An example is
-something like a building that crosses multiple PINs
-{% enddocs %}
-
 ## cdu
 
 {% docs shared_column_cdu %}
@@ -194,18 +185,6 @@ of taxable value in Cook County.
 
 All PINs are 14 digits: 2 digits for area + 2 digits for sub area + 2 digits
 for block + 2 digits for parcel + 4 digits for the condominium unit/leasehold
-{% enddocs %}
-
-## pin_is_multiland
-
-{% docs shared_column_pin_is_multiland %}
-Indicates the PIN has more than one landline.
-{% enddocs %}
-
-## pin_is_multicard
-
-{% docs shared_column_pin_is_multicard %}
-Indicates a PIN with more than one building (ADU, coach house, etc.).
 {% enddocs %}
 
 ## pin10
@@ -280,6 +259,93 @@ Tax year.
 Tax years are the "working" or current year for which assessments and levies
 are calculated. Tax bills are paid in arrears, so an assessment from TY2023
 will be paid in calendar year 2024
+{% enddocs %}
+
+# iasWorld
+
+## seq
+
+{% docs shared_column_seq %}
+Version number of this record.
+
+Incremented each time there is a change to the underlying data for
+this record
+{% enddocs %}
+
+## updated_at
+
+{% docs shared_column_updated_at %}
+Timestamp of last record update.
+
+Changes in tandem with `updated_by`/`who` field.
+{% enddocs %}
+
+## updated_by
+
+{% docs shared_column_updated_by %}
+Username of last person to update the record.
+
+Changes in tandem with `updated_at`/`wen` field.
+{% enddocs %}
+
+# Proration, Multi-cards, and Landlines
+
+## card_proration_rate
+
+{% docs shared_column_card_proration_rate %}
+Proration rate for a card on a given PIN.
+
+Prorated cards split their total value across multiple PINs. An example is
+something like a building that crosses multiple PINs
+{% enddocs %}
+
+## pin_is_multiland
+
+{% docs shared_column_pin_is_multiland %}
+Indicates the PIN has more than one landline.
+{% enddocs %}
+
+## pin_is_multicard
+
+{% docs shared_column_pin_is_multicard %}
+Indicates a PIN with more than one building (ADU, coach house, etc.).
+{% enddocs %}
+
+## pin_num_cards
+
+{% docs shared_column_pin_num_cards %}
+Number of cards associated with a PIN.
+
+PINs can have multiple cards (buildings) within their area. Multi-card PINs
+are valued slightly differently than single-card ones.
+{% enddocs %}
+
+## pin_num_landlines
+
+{% docs shared_column_pin_num_landlines %}
+Number of landlines associated with a PIN.
+
+Each landlines is typically associated with an individual land rate i.e.
+rate varies within the PIN.
+{% enddocs %}
+
+## tieback_key_pin
+
+{% docs shared_column_tieback_key_pin %}
+Key PIN for prorated PINs.
+
+See `tieback_proration_rate` for explanation of PIN-level proration.
+{% enddocs %}
+
+## tieback_proration_rate
+
+{% docs shared_column_tieback_proration_rate %}
+Proration rate applied to the PIN.
+
+PINs are occasionally prorated when not all of their value is contained within
+their boundaries. For example, a building that lies equally across two PINs
+would be prorated to 50%. In this case, the _land_ value of the PIN is not
+prorated, but the building value is.
 {% enddocs %}
 
 # Sales

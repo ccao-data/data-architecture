@@ -41,10 +41,32 @@ models:
         description: '{{ doc("shared_column_char_site") }}'
       - name: char_tp_dsgn
         description: '{{ doc("shared_column_char_tp_dsgn") }}'
+      - name: class
+        description: '{{ doc("shared_column_class") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
       - name: pin_is_multiland
         description: '{{ doc("shared_column_pin_is_multiland") }}'
       - name: pin_is_multicard
         description: '{{ doc("shared_column_pin_is_multicard") }}'
+      - name: pin_num_cards
+        description: '{{ doc("shared_column_pin_num_cards") }}'
+      - name: pin_num_landlines
+        description: '{{ doc("shared_column_pin_num_landlines") }}'
+      - name: pin10
+        description: '{{ doc("shared_column_pin10") }}'
+      - name: tieback_key_pin
+        description: '{{ doc("shared_column_tieback_key_pin") }}'
+      - name: tieback_proration_rate
+        description: '{{ doc("shared_column_tieback_proration_rate") }}'
+      - name: township_code
+        description: '{{ doc("shared_column_township_code") }}'
+      - name: updated_at
+        description: '{{ doc("shared_column_updated_at") }}'
+      - name: updated_by
+        description: '{{ doc("shared_column_updated_by") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
 
     tests:
       - unique_combination_of_columns:
