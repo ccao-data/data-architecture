@@ -311,12 +311,7 @@ SELECT
     mydec_sales.homestead_exemption_general_alternative,
     mydec_sales.homestead_exemption_senior_citizens,
     mydec_sales.homestead_exemption_senior_citizens_assessment_freeze,
-    sales_val.sv_is_outlier,
-    sales_val.sv_is_ptax_outlier,
-    sales_val.sv_is_heuristic_outlier,
-    sales_val.sv_outlier_type,
-    sales_val.sv_run_id,
-    sales_val.sv_version
+    sales_val.*
 FROM unique_sales
 LEFT JOIN sale_filter
     ON unique_sales.township_code = sale_filter.township_code
