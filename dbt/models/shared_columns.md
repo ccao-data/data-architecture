@@ -16,7 +16,30 @@ Number of apartments for class 211 and 212 properties.
 CAUTION: Note the numerically encoded values DO NOT correspond to the number of apartments i.e. code 1 means 2 apartments, code 6 means 0 apartments
 {% enddocs %}
 
-## char_er of full bathrooms.
+## char_beds
+
+{% docs shared_column_char_beds %}
+Number of bedrooms in the building.
+{% enddocs %}
+
+## char_bldg_sf
+
+{% docs shared_column_char_bldg_sf %}
+Square footage of the building, as measured from the exterior.
+{% enddocs %}
+
+## char_cnst_qlty
+
+{% docs shared_column_char_cnst_qlty %}
+Construction quality.
+
+In general, this field is not used consistently and is therefore not useful for analytical purposes
+{% enddocs %}
+
+## char_fbath
+
+{% docs shared_column_char_fbath %}
+Number of full bathrooms.
 
 Defined as bathrooms with a bath or shower. If this value is missing, the default value is set to 1
 {% enddocs %}
