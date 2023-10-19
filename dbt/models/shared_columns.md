@@ -355,6 +355,17 @@ Possible values for this variable are:
 - `9.9` = Missing (`MSSNG`)
 {% enddocs %}
 
+## char_use
+
+{% docs shared_column_char_use %}
+Single or multi-family use.
+
+Possible values for this variable are:
+
+- `1` = Single-family (`SF`)
+- `2` = Multi-family (`MF`)
+{% enddocs %}
+
 ## char_yrblt
 
 {% docs shared_column_char_yrblt %}
