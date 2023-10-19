@@ -3,49 +3,48 @@ models:
     description: '{{ doc("vw_card_res_char") }}'
 
     columns:
-      - name: card_proration_rate
-        description: '{{ doc("shared_column_card_proration_rate") }}'
-
-      - name: pin_is_multiland
-        description: Indicates the PIN has more than one landline
-      - name: pin_is_multicard
-        description: Indicator for a PIN with more than one building (ADU, coach house, etc.)
-      - name: char_tp_dsgn
-        description: '{{ doc("shared_column_char_tp_dsgn") }}'
-      - name: char_site
-        description: '{{ doc("shared_column_char_site") }}'
-      - name: char_rooms
-        description: '{{ doc("shared_column_char_rooms") }}'
-      - name: char_repair_cnd
-        description: '{{ doc("shared_column_char_repair_cnd") }}'
-      - name: char_recent_renovation
-        description: '{{ doc("shared_column_char_recent_renovation") }}'
-      - name: char_ncu
-        description: '{{ doc("shared_column_char_ncu") }}'
-      - name: char_land_sf
-        description: '{{ doc("shared_column_char_land_sf") }}'
-      - name: char_hbath
-        description: '{{ doc("shared_column_char_hbath") }}'
-      - name: char_gar1_area
-        description: '{{ doc("shared_column_char_gar1_area") }}'
-      - name: char_frpl
-        description: '{{ doc("shared_column_char_frpl") }}'
-      - name: char_fbath
-        description: '{{ doc("shared_column_char_fbath") }}'
-      - name: char_cnst_qlty
-        description: '{{ doc("shared_column_char_cnst_qlty") }}'
-      - name: char_bldg_sf
-        description: '{{ doc("shared_column_char_bldg_sf") }}'
-      - name: char_beds
-        description: '{{ doc("shared_column_char_beds") }}'
-      - name: char_apts
-        description: '{{ doc("shared_column_char_apts") }}'
-      - name: char_age
-        description: '{{ doc("shared_column_char_age") }}'
-      - name: cdu
-        description: '{{ doc("shared_column_cdu") }}'
       - name: card
         description: '{{ doc("shared_column_card") }}'
+      - name: card_proration_rate
+        description: '{{ doc("shared_column_card_proration_rate") }}'
+      - name: cdu
+        description: '{{ doc("shared_column_cdu") }}'
+      - name: char_age
+        description: '{{ doc("shared_column_char_age") }}'
+      - name: char_apts
+        description: '{{ doc("shared_column_char_apts") }}'
+      - name: char_beds
+        description: '{{ doc("shared_column_char_beds") }}'
+      - name: char_bldg_sf
+        description: '{{ doc("shared_column_char_bldg_sf") }}'
+      - name: char_cnst_qlty
+        description: '{{ doc("shared_column_char_cnst_qlty") }}'
+      - name: char_fbath
+        description: '{{ doc("shared_column_char_fbath") }}'
+      - name: char_frpl
+        description: '{{ doc("shared_column_char_frpl") }}'
+      - name: char_gar1_area
+        description: '{{ doc("shared_column_char_gar1_area") }}'
+      - name: char_hbath
+        description: '{{ doc("shared_column_char_hbath") }}'
+      - name: char_land_sf
+        description: '{{ doc("shared_column_char_land_sf") }}'
+      - name: char_ncu
+        description: '{{ doc("shared_column_char_ncu") }}'
+      - name: char_recent_renovation
+        description: '{{ doc("shared_column_char_recent_renovation") }}'
+      - name: char_repair_cnd
+        description: '{{ doc("shared_column_char_repair_cnd") }}'
+      - name: char_rooms
+        description: '{{ doc("shared_column_char_rooms") }}'
+      - name: char_site
+        description: '{{ doc("shared_column_char_site") }}'
+      - name: char_tp_dsgn
+        description: '{{ doc("shared_column_char_tp_dsgn") }}'
+      - name: pin_is_multiland
+        description: '{{ doc("shared_column_pin_is_multiland") }}'
+      - name: pin_is_multicard
+        description: '{{ doc("shared_column_pin_is_multicard") }}'
 
     tests:
       - unique_combination_of_columns:

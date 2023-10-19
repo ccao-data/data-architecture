@@ -173,6 +173,18 @@ All PINs are 14 digits: 2 digits for area + 2 digits for sub area + 2 digits
 for block + 2 digits for parcel + 4 digits for the condominium unit/leasehold
 {% enddocs %}
 
+## pin_is_multiland
+
+{% docs shared_column_pin_is_multiland %}
+Indicates the PIN has more than one landline.
+{% enddocs %}
+
+## pin_is_multicard
+
+{% docs shared_column_pin_is_multicard %}
+Indicates a PIN with more than one building (ADU, coach house, etc.).
+{% enddocs %}
+
 ## pin10
 
 {% docs shared_column_pin10 %}
