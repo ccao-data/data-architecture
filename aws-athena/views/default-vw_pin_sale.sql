@@ -220,7 +220,7 @@ mydec_sales AS (
 max_version_flag AS (
     SELECT
         meta_sale_document_num,
-        MAX(version) as max_version
+        MAX(version) AS max_version
     FROM {{ source('sale', 'flag') }}
     GROUP BY meta_sale_document_num
 ),
@@ -235,7 +235,7 @@ sales_val AS (
         sf.run_id AS sv_run_id,
         sf.version AS sv_version
     FROM {{ source('sale', 'flag') }} AS sf
-    JOIN max_version_flag AS mv
+    INNER JOIN max_version_flag AS mv
         ON sf.meta_sale_document_num = mv.meta_sale_document_num
         AND sf.version = mv.max_version
 )
