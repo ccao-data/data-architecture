@@ -305,7 +305,7 @@ SELECT
     sales_val.sv_is_heuristic_outlier,
     sales_val.sv_outlier_type,
     sales_val.sv_run_id,
-    sales_val.sv_version AS 
+    sales_val.sv_version
 FROM unique_sales
 LEFT JOIN sale_filter
     ON unique_sales.township_code = sale_filter.township_code
