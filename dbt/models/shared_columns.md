@@ -1,3 +1,119 @@
+# Address
+
+## mail_address_city_name
+
+{% docs shared_column_mail_address_city_name %}
+
+{% enddocs %}
+
+## mail_address_full
+
+{% docs shared_column_mail_address_full %}
+
+{% enddocs %}
+
+## mail_address_name
+
+{% docs shared_column_mail_address_name %}
+
+{% enddocs %}
+
+## mail_address_state
+
+{% docs shared_column_mail_address_state %}
+
+{% enddocs %}
+
+## mail_address_zipcode_1
+
+{% docs shared_column_mail_address_zipcode_1 %}
+
+{% enddocs %}
+
+## mail_address_zipcode_2
+
+{% docs shared_column_mail_address_zipcode_2 %}
+
+{% enddocs %}
+
+## prop_address_city_name
+
+{% docs shared_column_prop_address_city_name %}
+
+{% enddocs %}
+
+## prop_address_full
+
+{% docs shared_column_prop_address_full %}
+
+{% enddocs %}
+
+## prop_address_prefix
+
+{% docs shared_column_prop_address_prefix %}
+
+{% enddocs %}
+
+## prop_address_state
+
+{% docs shared_column_prop_address_state %}
+
+{% enddocs %}
+
+## prop_address_street_dir
+
+{% docs shared_column_prop_address_street_dir %}
+
+{% enddocs %}
+
+## prop_address_street_name
+
+{% docs shared_column_prop_address_street_name %}
+
+{% enddocs %}
+
+## prop_address_street_number
+
+{% docs shared_column_prop_address_street_number %}
+
+{% enddocs %}
+
+## prop_address_suffix_1
+
+{% docs shared_column_prop_address_suffix_1 %}
+
+{% enddocs %}
+
+## prop_address_suffix_2
+
+{% docs shared_column_prop_address_suffix_2 %}
+
+{% enddocs %}
+
+## prop_address_unit_prefix
+
+{% docs shared_column_prop_address_unit_prefix %}
+
+{% enddocs %}
+
+## prop_address_unit_number
+
+{% docs shared_column_prop_address_unit_number %}
+
+{% enddocs %}
+
+## prop_address_zipcode_1
+
+{% docs shared_column_prop_address_zipcode_1 %}
+
+{% enddocs %}
+
+## prop_address_zipcode_2
+
+{% docs shared_column_prop_address_zipcode_2 %}
+
+{% enddocs %}
+
 # Characteristics
 
 ## char_air
@@ -257,7 +373,9 @@ from `NO` to `YES`
 ## char_renovation
 
 {% docs shared_column_char_renovation %}
-Has the property had a renovation this year.
+Property renovated.
+
+Triggered when Home Improvement permits are filed.
 
 Possible values for this variable are:
 
