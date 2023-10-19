@@ -68,6 +68,12 @@ unique_sales AS (
                 PARTITION BY sales.parid, sales.saledt
                 ORDER BY sales.price DESC, sales.salekey ASC
             ) AS max_price,
+            -- We remove the letter 'D' that trails some document numbers in
+            -- iasworld.sales since it prevents us from joining to mydec sales.
+            -- This creates one instance where we have duplicate document
+            -- numbers, so we sort by the orgiginal document number within the
+            -- new doument number to identify and remove the sale causing the
+            -- duplicate document number.
             ROW_NUMBER() OVER (
                 PARTITION BY NULLIF(REPLACE(sales.instruno, 'D', ''), '')
                 ORDER BY sales.instruno
@@ -110,6 +116,27 @@ unique_sales AS (
             EXTRACT(DAY FROM sale_date - same_price_earlier_date) > 365
             OR same_price_earlier_date IS NULL
         )
+),
+
+-- Lower and upper bounds so that outlier sales can be filtered
+-- out using PTAX-203 data
+sale_filter AS (
+    SELECT
+        township_code,
+        class,
+        year,
+        is_multisale,
+        AVG(sale_price_log10)
+        - STDDEV(sale_price_log10) * 2 AS sale_filter_lower_limit,
+        AVG(sale_price_log10)
+        + STDDEV(sale_price_log10) * 2 AS sale_filter_upper_limit,
+        COUNT(*) AS sale_filter_count
+    FROM unique_sales
+    GROUP BY
+        township_code,
+        class,
+        year,
+        is_multisale
 ),
 
 mydec_sales AS (
@@ -229,7 +256,16 @@ SELECT
     unique_sales.num_parcels_sale,
     unique_sales.buyer_name,
     unique_sales.sale_type,
+    sale_filter.sale_filter_lower_limit,
+    sale_filter.sale_filter_upper_limit,
+    sale_filter.sale_filter_count,
     mydec_sales.sale_filter_ptax_flag,
+    COALESCE((
+        mydec_sales.sale_filter_ptax_flag
+        AND unique_sales.sale_price_log10
+        NOT BETWEEN sale_filter.sale_filter_lower_limit
+        AND sale_filter.sale_filter_upper_limit
+    ), FALSE) AS sale_filter_is_outlier,
     mydec_sales.property_advertised,
     mydec_sales.is_installment_contract_fulfilled,
     mydec_sales.is_sale_between_related_individuals_or_corporate_affiliates,
@@ -253,6 +289,11 @@ SELECT
     mydec_sales.homestead_exemption_senior_citizens,
     mydec_sales.homestead_exemption_senior_citizens_assessment_freeze
 FROM unique_sales
+LEFT JOIN sale_filter
+    ON unique_sales.township_code = sale_filter.township_code
+    AND unique_sales.class = sale_filter.class
+    AND unique_sales.year = sale_filter.year
+    AND unique_sales.is_multisale = sale_filter.is_multisale
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
     AND unique_sales.pin = mydec_sales.pin
