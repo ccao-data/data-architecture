@@ -51,7 +51,7 @@ SELECT
         WHEN pardat.tiebldgpct IS NOT NULL THEN pardat.tiebldgpct / 100.0
         ELSE 1.0
     END AS tieback_proration_rate,
-    CAST(dwel.user24 AS DOUBLE) / 100.0 AS card_protation_rate,
+    CAST(dwel.user24 AS DOUBLE) / 100.0 AS card_proration_rate,
     multicodes.pin_is_multicard,
     multicodes.pin_num_cards,
     aggregate_land.pin_is_multiland,
