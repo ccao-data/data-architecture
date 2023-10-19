@@ -1,5 +1,5 @@
---- View containing unique, filtered sales
---- Class and township of associated PIN
+-- View containing unique, filtered sales
+-- Class and township of associated PIN
 WITH town_class AS (
     SELECT
         par.parid,
@@ -17,8 +17,8 @@ WITH town_class AS (
         AND leg.deactivat IS NULL
 ),
 
---- "nopar" isn't entirely accurate for sales associated with only one parcel,
---- so we create our own counter
+-- "nopar" isn't entirely accurate for sales associated with only one parcel,
+-- so we create our own counter
 calculated AS (
     SELECT
         instruno,
@@ -44,7 +44,7 @@ unique_sales AS (
             sales.salekey AS sale_key,
             NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
             NULLIF(sales.instrtyp, '') AS deed_type,
-            --- "nopar" is number of parcels sold
+            -- "nopar" is number of parcels sold
             NOT COALESCE(
                 sales.nopar <= 1 AND calculated.nopar_calculated = 1,
                 FALSE
@@ -59,20 +59,30 @@ unique_sales AS (
                 WHEN sales.saletype = '0' THEN 'LAND'
                 WHEN sales.saletype = '1' THEN 'LAND AND BUILDING'
             END AS sale_type,
-            --- Sales are not entirely unique by pin/date so we group all
-            --- sales by pin/date, then order by descending price
-            --- and give the top observation a value of 1 for "max_price".
-            --- We need to order by salekey as well in case of any ties within
-            --- price, date, and pin.
+            -- Sales are not entirely unique by pin/date so we group all
+            -- sales by pin/date, then order by descending price
+            -- and give the top observation a value of 1 for "max_price".
+            -- We need to order by salekey as well in case of any ties within
+            -- price, date, and pin.
             ROW_NUMBER() OVER (
                 PARTITION BY sales.parid, sales.saledt
                 ORDER BY sales.price DESC, sales.salekey ASC
             ) AS max_price,
-            --- Some pins sell for the exact same price a few months after
-            --- they're sold. These sales are unecessary for modeling and may be
-            --- duplicates.
-            --- We need to order by salekey as well in case of any ties within
-            --- price, date, and pin.
+            -- We remove the letter 'D' that trails some document numbers in
+            -- iasworld.sales since it prevents us from joining to mydec sales.
+            -- This creates one instance where we have duplicate document
+            -- numbers, so we sort by the original document number within the
+            -- new doument number to identify and remove the sale causing the
+            -- duplicate document number.
+            ROW_NUMBER() OVER (
+                PARTITION BY NULLIF(REPLACE(sales.instruno, 'D', ''), '')
+                ORDER BY sales.instruno
+            ) AS bad_doc_no,
+            -- Some pins sell for the exact same price a few months after
+            -- they're sold. These sales are unecessary for modeling and may be
+            -- duplicates.
+            -- We need to order by salekey as well in case of any ties within
+            -- price, date, and pin.
             LAG(DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) OVER (
                 PARTITION BY sales.parid, sales.price
                 ORDER BY sales.saledt ASC, sales.salekey ASC
@@ -86,29 +96,30 @@ unique_sales AS (
             AND SUBSTR(sales.saledt, 1, 4) = tc.taxyr
 
         WHERE sales.instruno IS NOT NULL
-        --- Indicates whether a record has been deactivated
+        -- Indicates whether a record has been deactivated
             AND sales.deactivat IS NULL
             AND sales.cur = 'Y'
             AND sales.price > 10000
             AND CAST(SUBSTR(sales.saledt, 1, 4) AS INT) BETWEEN 1997 AND YEAR(
                 CURRENT_DATE
             )
-            --- Exclude quit claims, executor deeds, beneficial interests
+            -- Exclude quit claims, executor deeds, beneficial interests
             AND sales.instrtyp NOT IN ('03', '04', '06')
             AND tc.township_code IS NOT NULL
     )
-    --- Only use max price by pin/sale date
+    -- Only use max price by pin/sale date
     WHERE max_price = 1
-    --- Drop sales for a given pin if it has sold within the last 12 months
-    --- for the same price
+        AND (bad_doc_no = 1 OR is_multisale = TRUE)
+        -- Drop sales for a given pin if it has sold within the last 12 months
+        -- for the same price
         AND (
             EXTRACT(DAY FROM sale_date - same_price_earlier_date) > 365
             OR same_price_earlier_date IS NULL
         )
 ),
 
---- Lower and upper bounds so that outlier sales can be filtered
---- out using PTAX-203 data
+-- Lower and upper bounds so that outlier sales can be filtered
+-- out using PTAX-203 data
 sale_filter AS (
     SELECT
         township_code,
@@ -178,10 +189,10 @@ mydec_sales AS (
                 AS homestead_exemption_senior_citizens,
             line_10s_senior_citizens_assessment_freeze
                 AS homestead_exemption_senior_citizens_assessment_freeze,
-            --- Flag for booting outlier PTAX-203 sales from modeling and
-            --- reporting. Used in combination with sale_filter upper and lower,
-            --- which finds sales more than 2 SD from the year, town, and
-            --- class mean
+            -- Flag for booting outlier PTAX-203 sales from modeling and
+            -- reporting. Used in combination with sale_filter upper and lower,
+            -- which finds sales more than 2 SD from the year, town, and
+            -- class mean
             (
                 COALESCE(line_10b, 0) + COALESCE(line_10c, 0)
                 + COALESCE(line_10d, 0) + COALESCE(line_10e, 0)
@@ -208,8 +219,8 @@ mydec_sales AS (
 
 SELECT
     unique_sales.pin,
-    --- In the past, mydec sale dates were more precise than iasworld dates
-    --- which had been truncated
+    -- In the past, mydec sale dates were more precise than iasworld dates
+    -- which had been truncated
     CASE
         WHEN
             mydec_sales.mydec_date IS NOT NULL
@@ -220,8 +231,8 @@ SELECT
     unique_sales.township_code,
     unique_sales.nbhd,
     unique_sales.class,
-    --- In the past, mydec sale dates were more precise than iasworld dates
-    --- which had been truncated
+    -- In the past, mydec sale dates were more precise than iasworld dates
+    -- which had been truncated
     CASE
         WHEN
             mydec_sales.mydec_date IS NOT NULL
@@ -229,7 +240,7 @@ SELECT
             THEN mydec_sales.mydec_date
         ELSE unique_sales.sale_date
     END AS sale_date,
-    --- From 2021 on iasWorld uses precise MyDec dates
+    -- From 2021 on iasWorld uses precise MyDec dates
     COALESCE(
         mydec_sales.mydec_date IS NOT NULL
         OR YEAR(unique_sales.sale_date) >= 2021,
