@@ -30,7 +30,7 @@ calculated AS (
         FROM {{ source('iasworld', 'sales') }}
         WHERE deactivat IS NULL
             AND cur = 'Y'
-        )
+    )
     GROUP BY instruno
 ),
 
