@@ -73,7 +73,10 @@ unique_sales AS (
             -- We need to order by salekey as well in case of any ties within
             -- price, date, and pin.
             ROW_NUMBER() OVER (
-                PARTITION BY sales.parid, sales.saledt
+                PARTITION BY
+                    sales.parid,
+                    sales.saledt,
+                    sales.instrtyp NOT IN ('03', '04', '06')
                 ORDER BY sales.price DESC, sales.salekey ASC
             ) AS max_price,
             -- We remove the letter 'D' that trails some document numbers in
