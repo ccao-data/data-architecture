@@ -23,9 +23,14 @@ calculated AS (
     SELECT
         instruno,
         COUNT(*) AS nopar_calculated
-    FROM {{ source('iasworld', 'sales') }}
-    WHERE deactivat IS NULL
-        AND cur = 'Y'
+    FROM (
+        SELECT DISTINCT
+            parid,
+            instruno
+        FROM {{ source('iasworld', 'sales') }}
+        WHERE deactivat IS NULL
+            AND cur = 'Y'
+        )
     GROUP BY instruno
 ),
 
