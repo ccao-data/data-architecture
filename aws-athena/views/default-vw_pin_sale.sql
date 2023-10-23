@@ -86,8 +86,9 @@ unique_sales AS (
             -- new doument number to identify and remove the sale causing the
             -- duplicate document number.
             ROW_NUMBER() OVER (
-                PARTITION BY NULLIF(REPLACE(sales.instruno, 'D', ''), ''),
-                sales.instrtyp NOT IN ('03', '04', '06')
+                PARTITION BY
+                    NULLIF(REPLACE(sales.instruno, 'D', ''), ''),
+                    sales.instrtyp NOT IN ('03', '04', '06')
                 ORDER BY sales.saledt DESC
             ) AS bad_doc_no,
             -- Some pins sell for the exact same price a few months after
