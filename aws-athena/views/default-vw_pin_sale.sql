@@ -92,7 +92,7 @@ unique_sales AS (
             -- duplicate document number.
             ROW_NUMBER() OVER (
                 PARTITION BY NULLIF(REPLACE(sales.instruno, 'D', ''), '')
-                ORDER BY sales.saledt DESC
+                ORDER BY sales.saledt
             ) AS bad_doc_no,
             -- Some pins sell for the exact same price a few months after
             -- they're sold (we need to make sure to only include deed types we
