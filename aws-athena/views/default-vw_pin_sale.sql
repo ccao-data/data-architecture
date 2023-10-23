@@ -263,6 +263,9 @@ SELECT
     unique_sales.num_parcels_sale,
     unique_sales.buyer_name,
     unique_sales.sale_type,
+    unique_sales.legacy_filter_same_sale_within_365,
+    unique_sales.legacy_filter_less_than_10k,
+    unique_sales.legacy_filter_deed_type,
     mydec_sales.sale_filter_ptax_flag,
     mydec_sales.property_advertised,
     mydec_sales.is_installment_contract_fulfilled,
@@ -286,7 +289,7 @@ SELECT
     mydec_sales.homestead_exemption_general_alternative,
     mydec_sales.homestead_exemption_senior_citizens,
     mydec_sales.homestead_exemption_senior_citizens_assessment_freeze,
-    sales_val.*
+    sales_val.*,
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
