@@ -289,7 +289,7 @@ SELECT
     mydec_sales.homestead_exemption_general_alternative,
     mydec_sales.homestead_exemption_senior_citizens,
     mydec_sales.homestead_exemption_senior_citizens_assessment_freeze,
-    sales_val.*,
+    sales_val.*
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
