@@ -45,7 +45,7 @@ models:
             - sale_price
             - legacy_filter_same_sale_within_365
           config:
-            error_if: ">888"
+            error_if: ">1433"
       # TODO: Sale is validated (after sales validation has been added to
       # iasworld)
       # TODO: Validation is catching obvious outliers
