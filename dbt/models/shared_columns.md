@@ -3,115 +3,123 @@
 ## mail_address_city_name
 
 {% docs shared_column_mail_address_city_name %}
-
+City name of owner/taxpayer mailing address
 {% enddocs %}
 
 ## mail_address_full
 
 {% docs shared_column_mail_address_full %}
+First line (no city, state, ZIP) of owner/taxpayer mailing address.
 
+Concatenated from other columns in the following order:
+
+`street_prefix` `street_number` `street_direction` `street_name` `street_suffix` `unit_prefix` `unit_number`
 {% enddocs %}
 
 ## mail_address_name
 
 {% docs shared_column_mail_address_name %}
-
+Full name (single unsplit string) of owner/taxpayer mailing address
 {% enddocs %}
 
 ## mail_address_state
 
 {% docs shared_column_mail_address_state %}
-
+State abbreviation of owner/taxpayer mailing address
 {% enddocs %}
 
 ## mail_address_zipcode_1
 
 {% docs shared_column_mail_address_zipcode_1 %}
-
+ZIP code (first 5 digits) of owner/taxpayer mailing address
 {% enddocs %}
 
 ## mail_address_zipcode_2
 
 {% docs shared_column_mail_address_zipcode_2 %}
-
+ZIP code (last 4 digits) of owner/taxpayer mailing address
 {% enddocs %}
 
 ## prop_address_city_name
 
 {% docs shared_column_prop_address_city_name %}
-
+City name of property address
 {% enddocs %}
 
 ## prop_address_full
 
 {% docs shared_column_prop_address_full %}
+First line (no city, state, ZIP) of property address.
 
+Concatenated from other columns in the following order:
+
+`street_prefix` `street_number` `street_direction` `street_name` `street_suffix` `unit_prefix` `unit_number`
 {% enddocs %}
 
 ## prop_address_prefix
 
 {% docs shared_column_prop_address_prefix %}
-
+Address prefix of property address
 {% enddocs %}
 
 ## prop_address_state
 
 {% docs shared_column_prop_address_state %}
-
+State abbreviation of property address
 {% enddocs %}
 
 ## prop_address_street_dir
 
 {% docs shared_column_prop_address_street_dir %}
-
+Street direction (N, S, E, W) of property address
 {% enddocs %}
 
 ## prop_address_street_name
 
 {% docs shared_column_prop_address_street_name %}
-
+Street name (Damen, Argyle) of property address
 {% enddocs %}
 
 ## prop_address_street_number
 
 {% docs shared_column_prop_address_street_number %}
-
+Street number of property address
 {% enddocs %}
 
 ## prop_address_suffix_1
 
 {% docs shared_column_prop_address_suffix_1 %}
-
+Street suffix (Rd., Ln.) of property address
 {% enddocs %}
 
 ## prop_address_suffix_2
 
 {% docs shared_column_prop_address_suffix_2 %}
-
+Additional street suffix of property address
 {% enddocs %}
 
 ## prop_address_unit_prefix
 
 {% docs shared_column_prop_address_unit_prefix %}
-
+Unit prefix (Num., Apt.) of property address
 {% enddocs %}
 
 ## prop_address_unit_number
 
 {% docs shared_column_prop_address_unit_number %}
-
+Unit number of property address
 {% enddocs %}
 
 ## prop_address_zipcode_1
 
 {% docs shared_column_prop_address_zipcode_1 %}
-
+ZIP code (first 5 digits) of property address
 {% enddocs %}
 
 ## prop_address_zipcode_2
 
 {% docs shared_column_prop_address_zipcode_2 %}
-
+ZIP code (last 4 digits) of property address
 {% enddocs %}
 
 # Characteristics
