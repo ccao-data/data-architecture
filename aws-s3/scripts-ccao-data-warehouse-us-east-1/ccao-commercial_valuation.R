@@ -2,8 +2,6 @@
 # in order to compile a single aggregated dataset of commercial valuation data.
 
 library(ccao)
-library(DBI)
-library(noctua)
 library(dplyr)
 library(openxlsx)
 library(readr)
