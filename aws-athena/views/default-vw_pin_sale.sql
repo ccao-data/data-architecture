@@ -87,12 +87,15 @@ unique_sales AS (
                 ORDER BY sales.instruno
             ) AS bad_doc_no,
             -- Some pins sell for the exact same price a few months after
-            -- they're sold. These sales are unecessary for modeling and may be
-            -- duplicates.
-            -- We need to order by salekey as well in case of any ties within
-            -- price, date, and pin.
+            -- they're sold (we need to make sure to only include deed types we
+            -- want). These sales are unecessary for modeling and may be
+            -- duplicates. We need to order by salekey as well in case of any
+            -- ties within price, date, and pin.
             LAG(DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) OVER (
-                PARTITION BY sales.parid, sales.price
+                PARTITION BY
+                    sales.parid,
+                    sales.price,
+                    sales.instrtyp NOT IN ('03', '04', '06')
                 ORDER BY sales.saledt ASC, sales.salekey ASC
             ) AS same_price_earlier_date,
             -- Historically, this view filtered out sales less than $10k and
@@ -117,6 +120,7 @@ unique_sales AS (
                 CURRENT_DATE
             )
             AND tc.township_code IS NOT NULL
+            AND sale_price IS NOT NULL
     )
     -- Only use max price by pin/sale date
     WHERE max_price = 1
