@@ -79,6 +79,17 @@ unique_sales AS (
                     sales.instrtyp NOT IN ('03', '04', '06')
                 ORDER BY sales.price DESC, sales.salekey ASC
             ) AS max_price,
+            -- We remove the letter 'D' that trails some document numbers in
+            -- iasworld.sales since it prevents us from joining to mydec sales.
+            -- This creates one instance where we have duplicate document
+            -- numbers, so we sort by the original document number within the
+            -- new doument number to identify and remove the sale causing the
+            -- duplicate document number.
+            ROW_NUMBER() OVER (
+                PARTITION BY NULLIF(REPLACE(sales.instruno, 'D', ''), ''),
+                sales.instrtyp NOT IN ('03', '04', '06')
+                ORDER BY sales.saledt DESC
+            ) AS bad_doc_no,
             -- Some pins sell for the exact same price a few months after
             -- they're sold (we need to make sure to only include deed types we
             -- want). These sales are unecessary for modeling and may be
@@ -117,6 +128,7 @@ unique_sales AS (
     )
     -- Only use max price by pin/sale date
     WHERE max_price = 1
+        AND (bad_doc_no = 1 OR is_multisale = TRUE)
 ),
 
 mydec_sales AS (
