@@ -120,7 +120,7 @@ unique_sales AS (
                 CURRENT_DATE
             )
             AND tc.township_code IS NOT NULL
-            AND sale_price IS NOT NULL
+            AND sales.price IS NOT NULL
     )
     -- Only use max price by pin/sale date
     WHERE max_price = 1
