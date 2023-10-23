@@ -30,7 +30,15 @@ calculated AS (
 ),
 
 unique_sales AS (
-    SELECT *
+    SELECT
+        *,
+        -- Historically, this view excluded sales for a given pin if it had sold
+        -- within the last 12 months for the same price. This filter allows us
+        -- to filter out those sales.
+        (
+            EXTRACT(DAY FROM sale_date - same_price_earlier_date) > 365
+            OR same_price_earlier_date IS NULL
+        ) AS legacy_filter_same_sale_within_365
     FROM (
         SELECT
             sales.parid AS pin,
@@ -86,7 +94,13 @@ unique_sales AS (
             LAG(DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) OVER (
                 PARTITION BY sales.parid, sales.price
                 ORDER BY sales.saledt ASC, sales.salekey ASC
-            ) AS same_price_earlier_date
+            ) AS same_price_earlier_date,
+            -- Historically, this view filtered out sales less than $10k and
+            -- as well as quit claims, executor deeds, beneficial interests.
+            -- Now we create "legacy" filter columns so that this filtering
+            -- can reproduced while still allowing all sales into the view.
+            sales.price > 10000 AS legacy_filter_less_than_10k,
+            sales.instrtyp NOT IN ('03', '04', '06') AS legacy_filter_deed_type
         FROM {{ source('iasworld', 'sales') }} AS sales
         LEFT JOIN calculated
             ON sales.instruno = calculated.instruno
@@ -99,44 +113,14 @@ unique_sales AS (
         -- Indicates whether a record has been deactivated
             AND sales.deactivat IS NULL
             AND sales.cur = 'Y'
-            AND sales.price > 10000
             AND CAST(SUBSTR(sales.saledt, 1, 4) AS INT) BETWEEN 1997 AND YEAR(
                 CURRENT_DATE
             )
-            -- Exclude quit claims, executor deeds, beneficial interests
-            AND sales.instrtyp NOT IN ('03', '04', '06')
             AND tc.township_code IS NOT NULL
     )
     -- Only use max price by pin/sale date
     WHERE max_price = 1
         AND (bad_doc_no = 1 OR is_multisale = TRUE)
-        -- Drop sales for a given pin if it has sold within the last 12 months
-        -- for the same price
-        AND (
-            EXTRACT(DAY FROM sale_date - same_price_earlier_date) > 365
-            OR same_price_earlier_date IS NULL
-        )
-),
-
--- Lower and upper bounds so that outlier sales can be filtered
--- out using PTAX-203 data
-sale_filter AS (
-    SELECT
-        township_code,
-        class,
-        year,
-        is_multisale,
-        AVG(sale_price_log10)
-        - STDDEV(sale_price_log10) * 2 AS sale_filter_lower_limit,
-        AVG(sale_price_log10)
-        + STDDEV(sale_price_log10) * 2 AS sale_filter_upper_limit,
-        COUNT(*) AS sale_filter_count
-    FROM unique_sales
-    GROUP BY
-        township_code,
-        class,
-        year,
-        is_multisale
 ),
 
 mydec_sales AS (
@@ -279,16 +263,7 @@ SELECT
     unique_sales.num_parcels_sale,
     unique_sales.buyer_name,
     unique_sales.sale_type,
-    sale_filter.sale_filter_lower_limit,
-    sale_filter.sale_filter_upper_limit,
-    sale_filter.sale_filter_count,
     mydec_sales.sale_filter_ptax_flag,
-    COALESCE((
-        mydec_sales.sale_filter_ptax_flag
-        AND unique_sales.sale_price_log10
-        NOT BETWEEN sale_filter.sale_filter_lower_limit
-        AND sale_filter.sale_filter_upper_limit
-    ), FALSE) AS sale_filter_is_outlier,
     mydec_sales.property_advertised,
     mydec_sales.is_installment_contract_fulfilled,
     mydec_sales.is_sale_between_related_individuals_or_corporate_affiliates,
@@ -313,11 +288,6 @@ SELECT
     mydec_sales.homestead_exemption_senior_citizens_assessment_freeze,
     sales_val.*
 FROM unique_sales
-LEFT JOIN sale_filter
-    ON unique_sales.township_code = sale_filter.township_code
-    AND unique_sales.class = sale_filter.class
-    AND unique_sales.year = sale_filter.year
-    AND unique_sales.is_multisale = sale_filter.is_multisale
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
     AND unique_sales.pin = mydec_sales.pin
