@@ -188,7 +188,7 @@ sales AS (
         ON vwps.pin = tc.parid
         AND vwps.year = tc.taxyr
     WHERE NOT vwps.is_multisale
-        AND NOT vwps.sv_is_outlier
+        AND NOT vwps.sale_filter_is_outlier
         AND vwps.sale_filter_deed_type
         AND vwps.sale_filter_less_than_10k
         AND vwps.sale_filter_same_sale_within_365
