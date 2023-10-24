@@ -11,9 +11,7 @@ City name of owner/taxpayer mailing address
 {% docs shared_column_mail_address_full %}
 First line (no city, state, ZIP) of owner/taxpayer mailing address.
 
-Concatenated from other columns in the following order:
-
-`street_prefix` `street_number` `street_direction` `street_name` `street_suffix` `unit_prefix` `unit_number`
+Concatenated from other columns in the following order: `street_prefix` `street_number` `street_direction` `street_name` `street_suffix` `unit_prefix` `unit_number`
 {% enddocs %}
 
 ## mail_address_name
@@ -63,9 +61,7 @@ City name of property address
 {% docs shared_column_prop_address_full %}
 First line (no city, state, ZIP) of property address.
 
-Concatenated from other columns in the following order:
-
-`street_prefix` `street_number` `street_direction` `street_name` `street_suffix` `unit_prefix` `unit_number`
+Concatenated from other columns in the following order: `street_prefix` `street_number` `street_direction` `street_name` `street_suffix` `unit_prefix` `unit_number`
 {% enddocs %}
 
 ## prop_address_prefix
