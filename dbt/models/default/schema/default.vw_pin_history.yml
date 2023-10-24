@@ -47,14 +47,12 @@ models:
         description: '{{ doc("shared_column_township_code") }}'
       - name: township_name
         description: '{{ doc("shared_column_township_name") }}'
-      - name: twoyr_pri_mailed_bldg
-        description: Mailed assessed value of building from 2 years prior to observation year
-      - name: twoyr_pri_mailed_land
-        description: Mailed assessed value of land from 2 years prior to observation year
       - name: twoyr_pri_certified_bldg
         description: Certified assessed value of building from 2 years prior to observation year
       - name: twoyr_pri_certified_land
         description: Certified assessed value of land from 2 years prior to observation year
+      - name: twoyr_pri_certified_tot
+        description: Certified total assessed value from 2 years prior to observation year
       - name: twoyr_pri_mailed_tot
         description: Certified total assessed value from 2 years prior to observation year
       - name: twoyr_pri_board_bldg

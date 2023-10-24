@@ -815,7 +815,7 @@ are valued slightly differently than single-card ones.
 Number of landlines associated with a PIN.
 
 Each landlines is typically associated with an individual land rate i.e.
-rate varies within the PIN.
+rate varies within the PIN. The sum of all landline square footage _should_ be equal to the total square footage of the parcel. Each landline can correspond to a different land price/rate. NOTE: there are cases where land itself is prorated, in which case landline values may not sum to the parcel square footage.
 {% enddocs %}
 
 ## tieback_key_pin
