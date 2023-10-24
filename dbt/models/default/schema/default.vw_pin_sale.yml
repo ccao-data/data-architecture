@@ -3,28 +3,54 @@ models:
     description: '{{ doc("vw_pin_sale") }}'
 
     columns:
-      - name: sale_price
-        description: |
-          Fair market sale price of a PIN.
-
-          Sales are sourced from myDec/IDOR. This serves as the outcome variable in regression models
-      - name: sale_key
-        description: iasWorld internal sale identifier
-      - name: sale_filter_upper_limit
-        description: Calculated boundary used to filter sales. See view definition
-      - name: sale_filter_lower_limit
-        description: Calculated boundary used to filter sales. See view definition
-      - name: sale_filter_count
-        description: Number of sales used to calculate upper and lower boundary
-      - name: num_parcels_sale
-        description: Number of parcels that are part of multisale
-      - name: is_multisale
-        description: Indicates whether or not a sale involved multiple parcels
+      - name: buyer_name
+        description: '{{ doc("shared_column_buyer_name") }}'
+      - name: class
+        description: '{{ doc("shared_column_class") }}'
+      - name: deed_type
+        description: '{{ doc("shared_column_deed_type") }}'
       - name: doc_no
-        tests:
-          - unique:
-              config:
-                error_if: ">1711769"
+        description: '{{ doc("shared_column_document_number") }}'
+      - name: is_multisale
+        description: '{{ doc("shared_column_sale_is_multisale") }}'
+      - name: is_mydec_date
+        description: Indicator for whether or not the observation uses the myDec sale date
+      - name: nbhd
+        description: '{{ doc("shared_column_nbhd_code") }}'
+      - name: num_parcels_sale
+        description: '{{ doc("shared_column_num_parcels_sale") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: sale_date
+        description: '{{ doc("shared_column_sale_date") }}'
+      - name: sale_filter_same_sale_within_365
+        description: Remove sale with the _same_ value (for the same PIN) within 365 days
+      - name: sale_filter_less_than_10k
+        description: Indicator for whether sale is less than $10K FMW
+      - name: sale_filter_deed_type
+        description: Remove quit claim, executor, and beneficiary deeds
+      - name: sale_filter_is_outlier
+        description: Same as `sv_is_outlier`, but `NULL` values are replaced with `FALSE`
+      - name: sale_key
+        description: '{{ doc("shared_column_sale_key") }}'
+      - name: sale_price
+        description: '{{ doc("shared_column_sale_price") }}'
+      - name: seller_name
+        description: '{{ doc("shared_column_seller_name") }}'
+      - name: sv_is_heuristic_outlier
+        description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
+      - name: sv_is_ptax_outlier
+        description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
+      - name: sv_is_outlier
+        description: '{{ doc("shared_column_sv_is_outlier") }}'
+      - name: sv_run_id
+        description: '{{ doc("shared_column_sv_is_run_id") }}'
+      - name: sv_version
+        description: '{{ doc("shared_column_sv_is_version") }}'
+      - name: township_code
+        description: '{{ doc("shared_column_township_code") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
 
     tests:
       # Number of sales for a given time period isn't suspicious

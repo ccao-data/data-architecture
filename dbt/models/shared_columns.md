@@ -694,9 +694,9 @@ analysis. For example, land rates are usually delimited by neighborhood
 ## pin
 
 {% docs shared_column_pin %}
-Full Property Index Number.
+Full (14-digit) Property Index Number.
 
-The index number is a brief legal description of a particular parcel by
+The Property Index Number (PIN) is a brief legal description of a particular parcel by
 numerical reference to parcels on assessment maps. It is also the primary unit
 of taxable value in Cook County.
 
@@ -885,9 +885,125 @@ prorated, but the building value is.
 
 # Sales
 
+## buyer_name
+
+{% docs shared_column_buyer_name %}
+Name of property buyer, as listed on deed.
+
+Can be truncated by myDec/IDOR. See Clerk/Recorder of Deeds for full name.
+{% enddocs %}
+
 ## document_number
 
+{% docs shared_column_document_number %}
+Deed number/document number of the sale.
+
+Serves as the unique identifier for each sale. Can be used to lookup more
+information on the Clerk/Recorder of Deeds website.
+{% enddocs %}
+
+## deed_type
+
+{% docs shared_column_deed_type %}
+Numerically-encoded deed type of the sale.
+
+Possible values for this variable include:
+
+- `01` - Warranty
+- `02` - Trustee
+- `03` - Quit claim
+- `04` - Executor
+- `05` - Other
+- `06` - Beneficiary
+- `99` - Unknown
+{% enddocs %}
+
+## num_parcels_sale
+
+{% docs shared_column_num_parcels_sale %}
+Number of parcels that are part of multisale
+{% enddocs %}
+
 ## sale_date
+
+{% docs shared_column_sale_date %}
+Date of property sale.
+
+Uses dates from `sale.mydec` prior to 2021. Also defaults to `sale.mydec`
+any time `iasworld.sales` and `sale.mydec` disagree.
+{% enddocs %}
+
+## sale_is_multisale
+
+{% docs shared_column_sale_is_multisale %}
+Indicates whether or not a sale involved multiple parcels
+{% enddocs %}
+
+## sale_key
+
+{% docs shared_column_sale_key %}
+iasWorld internal sale identifier
+{% enddocs %}
+
+## sale_price
+
+{% docs shared_column_sale_price %}
+Fair market sale price of a PIN, as recorded on the deed.
+
+Sales are sourced from myDec/IDOR. This serves as the outcome variable in regression models
+{% enddocs %}
+
+## seller_name
+
+{% docs shared_column_seller_name %}
+Name of property seller, as listed on deed.
+
+Can be truncated by myDec/IDOR. See Clerk/Recorder of Deeds for full name.
+{% enddocs %}
+
+# Sale Validation
+
+## sv_is_heuristic_outlier
+
+{% docs shared_column_sv_is_heuristic_outlier %}
+Heuristic outlier flagged by [model-sales-val](https://github.com/ccao-data/model-sales-val).
+
+These outliers are flagged due to high prices, large price swings, institutional buyer detection, etc. See [model-sales-val](https://github.com/ccao-data/model-sales-val) for full details
+{% enddocs %}
+
+## sv_is_ptax_outlier
+
+{% docs shared_column_sv_is_ptax_outlier %}
+Outlier flagged due to certain answers on Q10 of the PTAX-203 form.
+
+See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more details
+{% enddocs %}
+
+## sv_is_outlier
+
+{% docs shared_column_sv_is_outlier %}
+Indicates an outlier sale not used in modeling or reporting.
+
+This variable combines `sv_is_heuristic_outlier` with `sv_is_ptax_outlier` (using OR logic). NOTE: Outlier flags only exist for sales _after_ 2014.
+{% enddocs %}
+
+## sv_run_id
+
+{% docs shared_column_sv_run_id %}
+Run ID of the sales validation model that created the flags for this observation.
+
+Each new run of [model-sales-val](https://github.com/ccao-data/model-sales-val)
+will create a new ID, set of flags, and metadata. One can use the run ID
+to determine which parameters were used to create specific sales flags
+{% enddocs %}
+
+## sv_version
+
+{% docs shared_column_sv_version %}
+Version of the sales validation record.
+
+New runs of the sales validation model will increment the version by 1
+{% enddocs %}
 
 # Spatial
 
