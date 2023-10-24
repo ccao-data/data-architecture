@@ -43,7 +43,7 @@ models:
             - pin
             - year
             - sale_price
-            - legacy_filter_same_sale_within_365
+            - sale_filter_same_sale_within_365
           config:
             error_if: ">2079"
       # TODO: Sale is validated (after sales validation has been added to
