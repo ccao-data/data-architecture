@@ -44,9 +44,9 @@ models:
       - name: sv_is_outlier
         description: '{{ doc("shared_column_sv_is_outlier") }}'
       - name: sv_run_id
-        description: '{{ doc("shared_column_sv_is_run_id") }}'
+        description: '{{ doc("shared_column_sv_run_id") }}'
       - name: sv_version
-        description: '{{ doc("shared_column_sv_is_version") }}'
+        description: '{{ doc("shared_column_sv_version") }}'
       - name: township_code
         description: '{{ doc("shared_column_township_code") }}'
       - name: year
