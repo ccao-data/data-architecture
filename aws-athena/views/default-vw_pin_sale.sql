@@ -40,9 +40,9 @@ unique_sales AS (
         -- Historically, this view excluded sales for a given pin if it had sold
         -- within the last 12 months for the same price. This filter allows us
         -- to filter out those sales.
-        (
-            EXTRACT(DAY FROM sale_date - same_price_earlier_date) > 365
-            OR same_price_earlier_date IS NULL
+        COALESCE(
+            EXTRACT(DAY FROM sale_date - same_price_earlier_date) <= 365,
+            FALSE
         ) AS sale_filter_same_sale_within_365
     FROM (
         SELECT
@@ -114,8 +114,11 @@ unique_sales AS (
             -- as well as quit claims, executor deeds, beneficial interests.
             -- Now we create "legacy" filter columns so that this filtering
             -- can reproduced while still allowing all sales into the view.
-            sales.price > 10000 AS sale_filter_less_than_10k,
-            sales.instrtyp NOT IN ('03', '04', '06') AS sale_filter_deed_type
+            sales.price <= 10000 AS sale_filter_less_than_10k,
+            COALESCE(
+                sales.instrtyp IN ('03', '04', '06'),
+                FALSE
+            ) AS sale_filter_deed_type
         FROM {{ source('iasworld', 'sales') }} AS sales
         LEFT JOIN calculated
             ON sales.instruno = calculated.instruno
