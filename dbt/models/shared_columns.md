@@ -788,6 +788,12 @@ Prorated cards split their total value across multiple PINs. An example is
 something like a building that crosses multiple PINs
 {% enddocs %}
 
+## lline
+
+{% docs shared_column_card_proration_rate %}
+Record number related to land or building "line".
+{% enddocs %}
+
 ## pin_is_multiland
 
 {% docs shared_column_pin_is_multiland %}
@@ -798,6 +804,12 @@ Indicates the PIN has more than one landline.
 
 {% docs shared_column_pin_is_multicard %}
 Indicates a PIN with more than one building (ADU, coach house, etc.).
+{% enddocs %}
+
+## pin_is_multiline
+
+{% docs shared_column_pin_is_multiline %}
+Indicates a PIN with multiple values for `lline`.
 {% enddocs %}
 
 ## pin_num_cards
@@ -816,6 +828,12 @@ Number of landlines associated with a PIN.
 
 Each landlines is typically associated with an individual land rate i.e.
 rate varies within the PIN. The sum of all landline square footage _should_ be equal to the total square footage of the parcel. Each landline can correspond to a different land price/rate. NOTE: there are cases where land itself is prorated, in which case landline values may not sum to the parcel square footage.
+{% enddocs %}
+
+## pin_num_lline
+
+{% docs shared_column_pin_num_lline %}
+Number of `lline` values associated with a PIN
 {% enddocs %}
 
 ## tieback_key_pin

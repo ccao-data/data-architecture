@@ -6,26 +6,67 @@ models:
         - type_condo
 
     columns:
-      - name: parking_space_flag_reason
-        description: Parking space/storage unit heuristic that was triggered
-      - name: is_parking_space
-        description: Deeded parking/garage space or storage unit detected either by valuations, CDU, or unit number/proration rate heuristics
-      - name: is_common_area
-        description: Building common area detected primarily through prior AV of less than 10
-      - name: char_tiebldgpct
-        description: |
-          Proration rate for a given PIN.
-
-          Some buildings sit across multiple PINs. This number is intended to capture the split in building value
-      - name: char_building_pins
-        description: The number of 14 digits PINs associated with a given 10 digit PIN in iasworld.pardat
-      - name: char_building_non_units
-        description: The number of 14 digits PINs associated with a given 10 digit PIN in iasworld.pardat less units identified as parking spaces, commone areas, or storage units through a number of validation criteria
+      - name: card
+        description: '{{ doc("shared_column_card") }}'
       - name: card_proration_rate
+        description: '{{ doc("shared_column_card_proration_rate") }}'
+      - name: cdu
+        description: '{{ doc("shared_column_cdu") }}'
+      - name: char_beds
+        description: '{{ doc("shared_column_char_beds") }}'
+      - name: char_building_non_units
         description: |
-          Proration rate within a given PIN.
+          The number of 14-digit PINs associated with a given
+          10-digit PIN in `iasworld.pardat`, minus units identified
+          as parking spaces, commone areas, or storage units
+          through a number of validation criteria
+      - name: char_building_pins
+        description: |
+          The number of 14-digit PINs associated with a given
+          10-digit PIN in `iasworld.pardat`
+      - name: char_fbath
+        description: '{{ doc("shared_column_char_fbath") }}'
+      - name: char_hbath
+        description: '{{ doc("shared_column_char_hbath") }}'
+      - name: char_land_sf
+        description: '{{ doc("shared_column_char_land_sf") }}'
+      - name: char_yrblt
+        description: '{{ doc("shared_column_char_yrblt") }}'
+      - name: class
+        description: '{{ doc("shared_column_class") }}'
+      - name: is_common_area
+        description: |
+          Building common area.
 
-          Some PINs have multiple improvements, known as "cards". Total value for a PIN should be allocated across cards accordingly.
+          Detected primarily through prior AV of less than $10.
+      - name: is_parking_space
+        description: |
+          Deeded parking/garage space or storage unit.
+
+          Detected either by valuations, CDU, or unit
+          number/proration rate heuristics.
+      - name: lline
+        description: '{{ doc("shared_column_lline") }}'
+      - name: parking_space_flag_reason
+        description: Parking space/storage unit heuristic used to flag this PIN
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: pin10
+        description: '{{ doc("shared_column_pin10") }}'
+      - name: pin_is_multiline
+        description: '{{ doc("shared_column_pin_is_multiline") }}'
+      - name: pin_num_lline
+        description: '{{ doc("shared_column_pin_num_lline") }}'
+      - name: tieback_key_pin
+        description: '{{ doc("shared_column_tieback_key_pin") }}'
+      - name: tieback_proration_rate
+        description: '{{ doc("shared_column_tieback_proration_rate") }}'
+      - name: township_code
+        description: '{{ doc("shared_column_township_code") }}'
+      - name: unitno
+        description: '{{ doc("shared_column_unitno") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
 
     tests:
       - unique_combination_of_columns:
