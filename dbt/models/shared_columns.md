@@ -11,7 +11,9 @@ City name of owner/taxpayer mailing address
 {% docs shared_column_mail_address_full %}
 First line (no city, state, ZIP) of owner/taxpayer mailing address.
 
-Concatenated from other columns in the following order: `street_prefix` `street_number` `street_direction` `street_name` `street_suffix` `unit_prefix` `unit_number`
+Concatenated from other columns in the following order: `street_prefix`
+`street_number` `street_direction` `street_name` `street_suffix`
+`unit_prefix` `unit_number`
 {% enddocs %}
 
 ## mail_address_name
@@ -61,7 +63,9 @@ City name of property address
 {% docs shared_column_prop_address_full %}
 First line (no city, state, ZIP) of property address.
 
-Concatenated from other columns in the following order: `street_prefix` `street_number` `street_direction` `street_name` `street_suffix` `unit_prefix` `unit_number`
+Concatenated from other columns in the following order: `street_prefix`
+`street_number` `street_direction` `street_name` `street_suffix`
+`unit_prefix` `unit_number`
 {% enddocs %}
 
 ## prop_address_prefix
@@ -185,40 +189,46 @@ Reason for change or no change
 ## board_bldg
 
 {% docs shared_column_board_bldg %}
-Board of Review assessed value of building from year specified by column prefix (or year of observation if not prefixed)
+Board of Review assessed value of building from year specified by column
+prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## board_land
 
 {% docs shared_column_board_land %}
-Board of Review assessed value of land from year specified by column prefix (or year of observation if not prefixed)
+Board of Review assessed value of land from year specified by column
+prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## board_tot
 
 {% docs shared_column_board_tot %}
-Board of Review total assessed value from year specified by column prefix (or year of observation if not prefixed).
+Board of Review total assessed value from year specified by
+column prefix (or year of observation if not prefixed).
 
-This is the value after the first round of appeals at the Assessor's Office
-**and** the second round of appeals at the Board of Review.
+This is the value after the first round of appeals at the Assessor's
+Office **and** the second round of appeals at the Board of Review.
 {% enddocs %}
 
 ## certified_bldg
 
 {% docs shared_column_certified_bldg %}
-Certified assessed value of building from year specified by column prefix (or year of observation if not prefixed)
+Certified assessed value of building from year specified by column
+prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## certified_land
 
 {% docs shared_column_certified_land %}
-Certified assessed value of land from year specified by column prefix (or year of observation if not prefixed)
+Certified assessed value of land from year specified by column
+prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## certified_tot
 
 {% docs shared_column_certified_tot %}
-Certified total assessed value from year specified by column prefix (or year of observation if not prefixed).
+Certified total assessed value from year specified by column
+prefix (or year of observation if not prefixed).
 
 This is the value after the first round of appeals at the Assessor's Office.
 {% enddocs %}
@@ -226,19 +236,22 @@ This is the value after the first round of appeals at the Assessor's Office.
 ## mailed_bldg
 
 {% docs shared_column_mailed_bldg %}
-Mailed assessed value of building from year specified by column prefix (or year of observation if not prefixed)
+Mailed assessed value of building from year specified by column
+prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## mailed_land
 
 {% docs shared_column_mailed_land %}
-Mailed assessed value of land from year specified by column prefix (or year of observation if not prefixed)
+Mailed assessed value of land from year specified by column
+prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## mailed_tot
 
 {% docs shared_column_mailed_tot %}
-Mailed total assessed value from year specified by column prefix (or year of observation if not prefixed).
+Mailed total assessed value from year specified by column
+prefix (or year of observation if not prefixed).
 
 This the pre-appeal value that is initially mailed to taxpayers.
 However, this value is post-Desk Review and so may not perfectly match
@@ -271,7 +284,9 @@ Use year built (`char_yrblt`) instead
 {% docs shared_column_char_apts %}
 Number of apartments for class 211 and 212 properties.
 
-CAUTION: Note the numerically encoded values DO NOT correspond to the number of apartments i.e. code 1 means 2 apartments, code 6 means 0 apartments.
+CAUTION: Note the numerically encoded values DO NOT correspond
+to the number of apartments i.e. code 1 means 2 apartments,
+code 6 means 0 apartments.
 
 Possible values for this variable are:
 
@@ -400,7 +415,9 @@ Counted as the number of flues one can see from the outside of the building
 {% docs shared_column_char_gar_area %}
 Indicator for garage area inclusion.
 
-Is the garage physically included within the building area? If yes, the garage area is subtracted from the building square feet calculation by the field agent.
+Is the garage physically included within the building area? If yes,
+the garage area is subtracted from the building square feet calculation
+by the field agent.
 
 Possible values for this variable are:
 
@@ -851,7 +868,11 @@ are valued slightly differently than single-card ones.
 Number of landlines associated with a PIN.
 
 Each landlines is typically associated with an individual land rate i.e.
-rate varies within the PIN. The sum of all landline square footage _should_ be equal to the total square footage of the parcel. Each landline can correspond to a different land price/rate. NOTE: there are cases where land itself is prorated, in which case landline values may not sum to the parcel square footage.
+rate varies within the PIN. The sum of all landline square footage _should_
+be equal to the total square footage of the parcel. Each landline can
+correspond to a different land price/rate. NOTE: there are cases where land
+itself is prorated, in which case landline values may not sum to the parcel
+square footage
 {% enddocs %}
 
 ## pin_num_lline
@@ -964,7 +985,9 @@ Can be truncated by myDec/IDOR. See Clerk/Recorder of Deeds for full name.
 {% docs shared_column_sv_is_heuristic_outlier %}
 Heuristic outlier flagged by [model-sales-val](https://github.com/ccao-data/model-sales-val).
 
-These outliers are flagged due to high prices, large price swings, institutional buyer detection, etc. See [model-sales-val](https://github.com/ccao-data/model-sales-val) for full details
+These outliers are flagged due to high prices, large price swings,
+institutional buyer detection, etc.
+See [model-sales-val](https://github.com/ccao-data/model-sales-val) for full details
 {% enddocs %}
 
 ## sv_is_ptax_outlier
@@ -980,7 +1003,9 @@ See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more det
 {% docs shared_column_sv_is_outlier %}
 Indicates an outlier sale not used in modeling or reporting.
 
-This variable combines `sv_is_heuristic_outlier` with `sv_is_ptax_outlier` (using OR logic). NOTE: Outlier flags only exist for sales _after_ 2014.
+This variable combines `sv_is_heuristic_outlier`
+with `sv_is_ptax_outlier` (using OR logic).
+NOTE: Outlier flags only exist for sales _after_ 2014.
 {% enddocs %}
 
 ## sv_run_id
