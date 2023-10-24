@@ -228,9 +228,15 @@ max_version_flag AS (
 sales_val AS (
     SELECT
         sf.meta_sale_document_num,
-        sf.sv_is_outlier,
-        sf.sv_is_ptax_outlier,
-        sf.sv_is_heuristic_outlier,
+        CASE WHEN sf.sv_is_outlier = 1 THE TRUE
+            WHEN sf.sv_is_outlier = 0 THEN FALSE
+            ELSE NULL END AS sv_is_outlier,
+        CASE WHEN sf.sv_is_ptax_outlier = 1 THE TRUE
+            WHEN sf.sv_is_ptax_outlier = 0 THEN FALSE
+            ELSE NULL END AS sv_is_ptax_outlier,
+        CASE WHEN sf.sv_is_heuristic_outlier = 1 THE TRUE
+            WHEN sf.sv_is_heuristic_outlier = 0 THEN FALSE
+            ELSE NULL END AS sv_is_heuristic_outlier,
         sf.sv_outlier_type,
         sf.run_id AS sv_run_id,
         sf.version AS sv_version
