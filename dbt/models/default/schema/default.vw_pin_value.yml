@@ -25,12 +25,12 @@ models:
         description: '{{ doc("shared_column_pin") }}'
       - name: stage_name
         description: |
-          Name of currently active/open stage.
+          Name of currently active/open stages.
 
           One of `MAILED`, `ASSESSOR CERTIFIED`, or `BOARD CERTIFIED`
       - name: stage_num
         description: |
-          Number of currently active/open stage.
+          Number of currently active/open stages.
 
           The possible values include:
           
