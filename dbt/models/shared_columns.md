@@ -790,7 +790,7 @@ something like a building that crosses multiple PINs
 
 ## lline
 
-{% docs shared_column_card_proration_rate %}
+{% docs shared_column_lline %}
 Record number related to land or building "line".
 {% enddocs %}
 
