@@ -87,7 +87,9 @@ unique_sales AS (
             -- We remove the letter 'D' that trails some document numbers in
             -- iasworld.sales since it prevents us from joining to mydec sales.
             -- This creates one instance where we have duplicate document
-            -- numbers, so we sort by the original document number within the
+            -- numbers, so we sort by sale date (specifically to avoid conflicts
+            -- with detecting the easliest duplicate sale when there are
+            -- multiple within one document number, within a year) within the
             -- new doument number to identify and remove the sale causing the
             -- duplicate document number.
             ROW_NUMBER() OVER (
