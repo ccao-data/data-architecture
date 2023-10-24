@@ -40,6 +40,18 @@ ZIP code (first 5 digits) of owner/taxpayer mailing address
 ZIP code (last 4 digits) of owner/taxpayer mailing address
 {% enddocs %}
 
+## owner_name
+
+{% docs shared_column_owner_name %}
+Property owner name
+{% enddocs %}
+
+## owner_num
+
+{% docs shared_column_owner_num %}
+Property owner internal iasWorld number
+{% enddocs %}
+
 ## prop_address_city_name
 
 {% docs shared_column_prop_address_city_name %}
