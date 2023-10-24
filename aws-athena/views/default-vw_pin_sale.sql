@@ -287,7 +287,7 @@ SELECT
     unique_sales.sale_filter_same_sale_within_365,
     unique_sales.sale_filter_less_than_10k,
     unique_sales.sale_filter_deed_type,
-    COALESCE(sales_val.sv_is_outlier, FALSE) AS sale_filter_is_outlier
+    COALESCE(sales_val.sv_is_outlier, FALSE) AS sale_filter_is_outlier,
     mydec_sales.sale_filter_ptax_flag,
     mydec_sales.mydec_property_advertised,
     mydec_sales.mydec_is_installment_contract_fulfilled,
