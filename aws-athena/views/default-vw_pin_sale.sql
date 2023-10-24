@@ -95,7 +95,8 @@ unique_sales AS (
             ROW_NUMBER() OVER (
                 PARTITION BY
                     NULLIF(REPLACE(sales.instruno, 'D', ''), ''),
-                    sales.instrtyp NOT IN ('03', '04', '06')
+                    sales.instrtyp NOT IN ('03', '04', '06'),
+                    sales.price > 10000
                 ORDER BY sales.saledt
             ) AS bad_doc_no,
             -- Some pins sell for the exact same price a few months after
