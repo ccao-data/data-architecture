@@ -177,19 +177,19 @@ Reason for change or no change
 ## board_bldg
 
 {% docs shared_column_board_bldg %}
-Board of Review assessed value of building from observation year
+Board of Review assessed value of building from year specified by column prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## board_land
 
 {% docs shared_column_board_land %}
-Board of Review assessed value of land from observation year
+Board of Review assessed value of land from year specified by column prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## board_tot
 
 {% docs shared_column_board_tot %}
-Board of Review total assessed value from observation year.
+Board of Review total assessed value from year specified by column prefix (or year of observation if not prefixed).
 
 This is the value after the first round of appeals at the Assessor's Office
 **and** the second round of appeals at the Board of Review.
@@ -198,19 +198,19 @@ This is the value after the first round of appeals at the Assessor's Office
 ## certified_bldg
 
 {% docs shared_column_certified_bldg %}
-Certified assessed value of building from observation year
+Certified assessed value of building from year specified by column prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## certified_land
 
 {% docs shared_column_certified_land %}
-Certified assessed value of land from observation year
+Certified assessed value of land from year specified by column prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## certified_tot
 
 {% docs shared_column_certified_tot %}
-Certified total assessed value from observation year.
+Certified total assessed value from year specified by column prefix (or year of observation if not prefixed).
 
 This is the value after the first round of appeals at the Assessor's Office.
 {% enddocs %}
@@ -218,19 +218,19 @@ This is the value after the first round of appeals at the Assessor's Office.
 ## mailed_bldg
 
 {% docs shared_column_mailed_bldg %}
-Mailed assessed value of building from observation year
+Mailed assessed value of building from year specified by column prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## mailed_land
 
 {% docs shared_column_mailed_land %}
-Mailed assessed value of land from observation year
+Mailed assessed value of land from year specified by column prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## mailed_tot
 
 {% docs shared_column_mailed_tot %}
-Mailed total assessed value from observation year.
+Mailed total assessed value from year specified by column prefix (or year of observation if not prefixed).
 
 This the pre-appeal value that is initially mailed to taxpayers.
 However, this value is post-Desk Review and so may not perfectly match
@@ -334,6 +334,14 @@ Possible values for this variable are:
 - `1` = Finished / formal rec room (`REC`)
 - `2` = Apartment (`APT`)
 - `3` = Unfinished (`UNF`)
+{% enddocs %}
+
+## char_building_sf
+
+{% docs shared_column_char_building_sf %}
+Square footage of the _building_ (PIN10) containing this unit.
+
+Applies to condos only.
 {% enddocs %}
 
 ## char_cnst_qlty
@@ -596,6 +604,14 @@ Possible values for this variable are:
 - `9.9` = Missing (`MSSNG`)
 {% enddocs %}
 
+## char_unit_sf
+
+{% docs shared_column_char_unit_sf %}
+Square footage of the condominium unit associated with this PIN.
+
+Applies to condos only.
+{% enddocs %}
+
 ## char_use
 
 {% docs shared_column_char_use %}
@@ -806,9 +822,9 @@ Indicates the PIN has more than one landline.
 Indicates a PIN with more than one building (ADU, coach house, etc.).
 {% enddocs %}
 
-## pin_is_multiline
+## pin_is_multilline
 
-{% docs shared_column_pin_is_multiline %}
+{% docs shared_column_pin_is_multilline %}
 Indicates a PIN with multiple values for `lline`.
 {% enddocs %}
 

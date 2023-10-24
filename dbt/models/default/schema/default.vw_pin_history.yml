@@ -23,24 +23,24 @@ models:
         description: '{{ doc("shared_column_mailed_land") }}'
       - name: mailed_tot
         description: '{{ doc("shared_column_mailed_tot") }}'
-      - name: oneyr_pri_mailed_bldg
-        description: Mailed assessed value of building from 1 year prior to observation year
-      - name: oneyr_pri_mailed_land
-        description: Mailed assessed value of land from 1 year prior to observation year
-      - name: oneyr_pri_mailed_tot
-        description: Mailed total assessed value from 1 year prior to observation year
-      - name: oneyr_pri_certified_bldg
-        description: Certified assessed value of building from 1 year prior to observation year
-      - name: oneyr_pri_certified_land
-        description: Certified assessed value of land from 1 year prior to observation year
-      - name: oneyr_pri_certified_tot
-        description: Certified total assessed value from 1 year prior to observation year
       - name: oneyr_pri_board_bldg
-        description: Board of Review assessed value of building from 1 year prior to observation year
+        description: '{{ doc("shared_column_board_bldg") }}'
       - name: oneyr_pri_board_land
-        description: Board of Review assessed value of land from 1 year prior to observation year
+        description: '{{ doc("shared_column_board_land") }}'
       - name: oneyr_pri_board_tot
-        description: Board of Review total assessed value from 1 year prior to observation year
+        description: '{{ doc("shared_column_board_tot") }}'
+      - name: oneyr_pri_certified_bldg
+        description: '{{ doc("shared_column_certified_bldg") }}'
+      - name: oneyr_pri_certified_land
+        description: '{{ doc("shared_column_certified_land") }}'
+      - name: oneyr_pri_certified_tot
+        description: '{{ doc("shared_column_certified_tot") }}'
+      - name: oneyr_pri_mailed_bldg
+        description: '{{ doc("shared_column_mailed_bldg") }}'
+      - name: oneyr_pri_mailed_land
+        description: '{{ doc("shared_column_mailed_land") }}'
+      - name: oneyr_pri_mailed_tot
+        description: '{{ doc("shared_column_mailed_tot") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: township_code
@@ -48,19 +48,23 @@ models:
       - name: township_name
         description: '{{ doc("shared_column_township_name") }}'
       - name: twoyr_pri_certified_bldg
-        description: Certified assessed value of building from 2 years prior to observation year
+        description: '{{ doc("shared_column_certified_bldg") }}'
       - name: twoyr_pri_certified_land
-        description: Certified assessed value of land from 2 years prior to observation year
+        description: '{{ doc("shared_column_certified_land") }}'
       - name: twoyr_pri_certified_tot
-        description: Certified total assessed value from 2 years prior to observation year
+        description: '{{ doc("shared_column_certified_tot") }}'
+      - name: twoyr_pri_mailed_bldg
+        description: '{{ doc("shared_column_mailed_bldg") }}'
+      - name: twoyr_pri_mailed_land
+        description: '{{ doc("shared_column_mailed_land") }}'
       - name: twoyr_pri_mailed_tot
-        description: Certified total assessed value from 2 years prior to observation year
+        description: '{{ doc("shared_column_mailed_tot") }}'
       - name: twoyr_pri_board_bldg
-        description: Board of Review assessed value of building from 2 years prior to observation year
+        description: '{{ doc("shared_column_board_bldg") }}'
       - name: twoyr_pri_board_land
-        description: Board of Review assessed value of land from 2 years prior to observation year
+        description: '{{ doc("shared_column_board_land") }}'
       - name: twoyr_pri_board_tot
-        description: Board of Review total assessed value from 2 years prior to observation year
+        description: '{{ doc("shared_column_board_tot") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
 
