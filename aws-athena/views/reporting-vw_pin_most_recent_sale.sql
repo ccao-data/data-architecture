@@ -17,7 +17,7 @@ sale_rank AS (
             PARTITION BY pin
             ORDER BY sale_date DESC
         ) AS rank
-    FROM {{ ref('default.vw_pin_sale') }}
+    FROM {{ ref('default.legacy_vw_pin_sale') }}
 )
 
 SELECT
