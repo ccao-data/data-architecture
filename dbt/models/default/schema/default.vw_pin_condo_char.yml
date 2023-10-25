@@ -21,7 +21,7 @@ models:
       - name: char_building_non_units
         description: |
           The number of 14-digit PINs associated with a given
-          10-digit PIN in `iasworld.pardat`, minus units identified
+          10-digit PIN in `iasworld.pardat` identified
           as parking spaces, common areas, or storage units
           through a number of validation criteria
       - name: char_building_pins
