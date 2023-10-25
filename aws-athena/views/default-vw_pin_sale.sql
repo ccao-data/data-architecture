@@ -116,7 +116,7 @@ unique_sales AS (
             -- can reproduced while still allowing all sales into the view.
             sales.price <= 10000 AS sale_filter_less_than_10k,
             COALESCE(
-                sales.instrtyp IN ('03', '04', '06'),
+                sales.instrtyp IN ('03', '04', '06') OR sales.instrtyp IS NULL,
                 FALSE
             ) AS sale_filter_deed_type
         FROM {{ source('iasworld', 'sales') }} AS sales
