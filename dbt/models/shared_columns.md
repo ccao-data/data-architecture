@@ -818,6 +818,41 @@ Username of last person to update the record.
 Changes in tandem with `updated_at`/`wen` field.
 {% enddocs %}
 
+# Other
+
+## ihs_avg_year_index
+
+{% docs shared_column_ihs_avg_year_index %}
+DePaul Institute of Housing Studies quarterly index.
+
+Averaged up to the yearly level. Unit of observation is Census PUMAs
+{% enddocs %}
+
+## school_district_elementary_avg_rating
+
+{% docs shared_column_school_district_elementary_avg_rating %}
+Average GreatSchools rating of elementary schools within the district of a given PIN.
+
+For CPS, which is a unified school district, the average of schools within attendance boundary is used
+{% enddocs %}
+
+## school_district_secondary_avg_rating
+
+{% docs shared_column_school_district_secondary_avg_rating %}
+Average GreatSchools rating of secondary schools within the district of a given PIN.
+
+For CPS, which is a unified school district, the average of schools within attendance boundary is used
+{% enddocs %}
+
+## tax_bill_rate
+
+{% docs shared_column_tax_bill_rate %}
+Tax bill rate for the taxing district containing a given PIN.
+
+For modeling, the idea is to capture any downward pressure
+on price from higher tax burdens
+{% enddocs %}
+
 # Proration, Multi-cards, and Landlines
 
 ## card_proration_rate
