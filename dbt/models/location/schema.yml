@@ -10,8 +10,8 @@ models:
   - name: location.political
   - name: location.school
   - name: location.tax
-  - name: location.vw_pin10_location
-    description: '{{ doc("vw_pin10_location") }}'
+  - name: location.vw_pin10_location_fill
+    description: '{{ doc("vw_pin10_location_fill") }}'
 
     columns: &vw_location_columns
       - name: access_cmap_walk_data_year
@@ -184,18 +184,6 @@ models:
         description: '{{ doc("column_tax_district_name") }}'
       - name: tax_sanitation_district_num
         description: '{{ doc("column_tax_district_num") }}'
-      - name: tax_school_elementary_district_name
-        description: '{{ doc("column_tax_district_name") }}'
-      - name: tax_school_elementary_district_num
-        description: '{{ doc("column_tax_district_num") }}'
-      - name: tax_school_secondary_district_name
-        description: '{{ doc("column_tax_district_name") }}'
-      - name: tax_school_secondary_district_num
-        description: '{{ doc("column_tax_district_num") }}'
-      - name: tax_school_unified_district_name
-        description: '{{ doc("column_tax_district_name") }}'
-      - name: tax_school_unified_district_num
-        description: '{{ doc("column_tax_district_num") }}'
       - name: tax_special_service_area_name
         description: '{{ doc("column_tax_district_name") }}'
       - name: tax_special_service_area_num
@@ -214,6 +202,25 @@ models:
         description: '{{ doc("column_ward_num") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
+
+  - name: location.vw_pin10_location
+    description: '{{ doc("vw_pin10_location") }}'
+
+    columns: 
+      # These columns only exist in vw_pin10_location, they aren't filled
+      - name: tax_school_elementary_district_name
+        description: '{{ doc("column_tax_district_name") }}'
+      - name: tax_school_elementary_district_num
+        description: '{{ doc("column_tax_district_num") }}'
+      - name: tax_school_secondary_district_name
+        description: '{{ doc("column_tax_district_name") }}'
+      - name: tax_school_secondary_district_num
+        description: '{{ doc("column_tax_district_num") }}'
+      - name: tax_school_unified_district_name
+        description: '{{ doc("column_tax_district_name") }}'
+      - name: tax_school_unified_district_num
+        description: '{{ doc("column_tax_district_num") }}'
+        <<: *vw_location_columns
 
     tests:
       # Unique by 10-digit PIN and year
@@ -240,7 +247,3 @@ models:
             - year
       # TODO: Columns specific to certain locations only have values for that
       # location
-
-  - name: location.vw_pin10_location_fill
-    description: '{{ doc("vw_pin10_location_fill") }}'
-    columns: *vw_location_columns
