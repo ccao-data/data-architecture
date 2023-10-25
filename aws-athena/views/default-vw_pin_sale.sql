@@ -23,9 +23,14 @@ calculated AS (
     SELECT
         instruno,
         COUNT(*) AS nopar_calculated
-    FROM {{ source('iasworld', 'sales') }}
-    WHERE deactivat IS NULL
-        AND cur = 'Y'
+    FROM (
+        SELECT DISTINCT
+            parid,
+            instruno
+        FROM {{ source('iasworld', 'sales') }}
+        WHERE deactivat IS NULL
+            AND cur = 'Y'
+    )
     GROUP BY instruno
 ),
 
@@ -71,12 +76,14 @@ unique_sales AS (
             -- We remove the letter 'D' that trails some document numbers in
             -- iasworld.sales since it prevents us from joining to mydec sales.
             -- This creates one instance where we have duplicate document
-            -- numbers, so we sort by the original document number within the
+            -- numbers, so we sort by sale date (specifically to avoid conflicts
+            -- with detecting the easliest duplicate sale when there are
+            -- multiple within one document number, within a year) within the
             -- new doument number to identify and remove the sale causing the
             -- duplicate document number.
             ROW_NUMBER() OVER (
                 PARTITION BY NULLIF(REPLACE(sales.instruno, 'D', ''), '')
-                ORDER BY sales.instruno
+                ORDER BY sales.saledt ASC, sales.salekey ASC
             ) AS bad_doc_no,
             -- Some pins sell for the exact same price a few months after
             -- they're sold. These sales are unecessary for modeling and may be

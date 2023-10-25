@@ -9,7 +9,7 @@ models:
       - name: bldg_is_mixed_use
         description: |
           The 10-digit PIN (building) contains a 14-digit PIN that is
-          class 5 (commercial)
+          neither class 299 nor 399.
       - name: card
         description: '{{ doc("shared_column_card") }}'
       - name: card_proration_rate
@@ -21,7 +21,7 @@ models:
       - name: char_building_non_units
         description: |
           The number of 14-digit PINs associated with a given
-          10-digit PIN in `iasworld.pardat`, minus units identified
+          10-digit PIN in `iasworld.pardat` identified
           as parking spaces, common areas, or storage units
           through a number of validation criteria
       - name: char_building_pins

@@ -673,7 +673,7 @@ Equivalent to legacy `MLT_CD` (multicode) value
 {% docs shared_column_cdu %}
 Condition/Desirability/Utility code.
 
-Code representing a any number of seemingly unrelated characteristics
+Code representing any number of seemingly unrelated characteristics
 associated with a PIN, ranging from condition to types of subsidies, to
 whether or not a PIN is a garage. The full list of CDU codes can be found on
 the Assessor's website
@@ -867,7 +867,7 @@ are valued slightly differently than single-card ones.
 {% docs shared_column_pin_num_landlines %}
 Number of landlines associated with a PIN.
 
-Each landlines is typically associated with an individual land rate i.e.
+Each landline is typically associated with an individual land rate i.e.
 rate varies within the PIN. The sum of all landline square footage _should_
 be equal to the total square footage of the parcel. Each landline can
 correspond to a different land price/rate. NOTE: there are cases where land
@@ -946,7 +946,7 @@ Number of parcels that are part of multisale
 {% docs shared_column_sale_date %}
 Date of property sale.
 
-Uses dates from `sale.mydec` prior to 2021. Also defaults to `sale.mydec`
+Uses dates from `sale.mydec` between 2014 and 2021. Also defaults to `sale.mydec`
 any time `iasworld.sales` and `sale.mydec` disagree.
 {% enddocs %}
 
@@ -965,7 +965,7 @@ iasWorld internal sale identifier
 ## sale_price
 
 {% docs shared_column_sale_price %}
-Fair market sale price of a PIN, as recorded on the deed.
+Sale price of a PIN, as recorded on the deed.
 
 Sales are sourced from myDec/IDOR. This serves as the outcome variable in regression models
 {% enddocs %}
