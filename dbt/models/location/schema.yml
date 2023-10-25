@@ -243,5 +243,4 @@ models:
 
   - name: location.vw_pin10_location_fill
     description: '{{ doc("vw_pin10_location_fill") }}'
-    columns:
-      <<: *vw_location_columns
+    columns: *vw_location_columns
