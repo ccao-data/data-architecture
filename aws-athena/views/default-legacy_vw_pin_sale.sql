@@ -1,3 +1,5 @@
+--- Snapshot of default.vw_pin_sale from 37d202f ---
+
 -- View containing unique, filtered sales
 -- Class and township of associated PIN
 WITH town_class AS (
