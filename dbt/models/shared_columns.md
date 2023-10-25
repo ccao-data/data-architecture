@@ -673,7 +673,7 @@ Equivalent to legacy `MLT_CD` (multicode) value
 {% docs shared_column_cdu %}
 Condition/Desirability/Utility code.
 
-Code representing a any number of seemingly unrelated characteristics
+Code representing any number of seemingly unrelated characteristics
 associated with a PIN, ranging from condition to types of subsidies, to
 whether or not a PIN is a garage. The full list of CDU codes can be found on
 the Assessor's website
