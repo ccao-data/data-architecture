@@ -31,7 +31,6 @@ View that standardizes residential property characteristics for use in modeling
 and reporting.
 
 ### Assumptions
-`char_renovation` (`dweldat.user3`) is updated when HI permits are filed.
 
 ### Nuance
 Land is parcel-level.
