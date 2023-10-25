@@ -22,7 +22,7 @@ models:
         description: |
           The number of 14-digit PINs associated with a given
           10-digit PIN in `iasworld.pardat`, minus units identified
-          as parking spaces, commone areas, or storage units
+          as parking spaces, common areas, or storage units
           through a number of validation criteria
       - name: char_building_pins
         description: |
