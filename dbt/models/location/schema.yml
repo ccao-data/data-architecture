@@ -159,9 +159,9 @@ models:
       - name: school_unified_district_name
         description: '{{ doc("column_school_unified_district_name") }}'
       - name: tax_community_college_district_name
-        description: '{{ doc("column_tax_community_college_district_name") }}'
+        description: '{{ doc("column_tax_district_name") }}'
       - name: tax_community_college_district_num
-        description: '{{ doc("column_tax_community_college_district_num") }}'
+        description: '{{ doc("column_tax_district_num") }}'
       - name: tax_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: tax_fire_protection_district_name
