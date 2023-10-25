@@ -946,7 +946,7 @@ Number of parcels that are part of multisale
 {% docs shared_column_sale_date %}
 Date of property sale.
 
-Uses dates from `sale.mydec` prior to 2021. Also defaults to `sale.mydec`
+Uses dates from `sale.mydec` between 2014 and 2021. Also defaults to `sale.mydec`
 any time `iasworld.sales` and `sale.mydec` disagree.
 {% enddocs %}
 
