@@ -160,7 +160,8 @@ Hospital locations sourced from Cook County GIS
 Nearest major road distance (feet).
 
 Major road locations sourced from OpenStreetMap (OSM).
-Major roads include any OSM ways tagged with `highway/motorway`, `highway/trunk`, or `highway/primary`
+Major roads include any OSM ways tagged with
+`highway/motorway`, `highway/trunk`, or `highway/primary`
 {% enddocs %}
 
 ## nearest_major_road_name
@@ -169,7 +170,8 @@ Major roads include any OSM ways tagged with `highway/motorway`, `highway/trunk`
 Nearest major road name, if available.
 
 Major road locations sourced from OpenStreetMap (OSM).
-Major roads include any OSM ways tagged with `highway/motorway`, `highway/trunk`, or `highway/primary`
+Major roads include any OSM ways tagged with
+`highway/motorway`, `highway/trunk`, or `highway/primary`
 {% enddocs %}
 
 ## nearest_major_road_osm_id
@@ -178,7 +180,8 @@ Major roads include any OSM ways tagged with `highway/motorway`, `highway/trunk`
 Nearest major road OpenStreetMap ID.
 
 Major road locations sourced from OpenStreetMap (OSM).
-Major roads include any OSM ways tagged with `highway/motorway`, `highway/trunk`, or `highway/primary`
+Major roads include any OSM ways tagged with
+`highway/motorway`, `highway/trunk`, or `highway/primary`
 {% enddocs %}
 
 ## nearest_metra_route_dist_ft
@@ -237,7 +240,8 @@ Stops include any active Metra stops. Stop data sourced from Metra GTFS feeds
 {% docs column_nearest_neighbor_dist_ft %}
 Nearest neighboring parcel distance (feet).
 
-These columns provide the three nearest neighbor PINs, starting with `nearest_neighbor_1_dist_ft` (which is the nearest)
+These columns provide the three nearest neighbor PINs, starting
+with `nearest_neighbor_1_dist_ft` (which is the nearest)
 {% enddocs %}
 
 ## nearest_neighbor_pin10
@@ -245,7 +249,8 @@ These columns provide the three nearest neighbor PINs, starting with `nearest_ne
 {% docs column_nearest_neighbor_pin10 %}
 Nearest neighboring parcel ID (PIN).
 
-These columns provide the three nearest neighbor PINs and their distance, starting with `nearest_neighbor_1_*` (which is the nearest)
+These columns provide the three nearest neighbor PINs and their
+distance, starting with `nearest_neighbor_1_*` (which is the nearest)
 {% enddocs %}
 
 ## nearest_park_dist_ft

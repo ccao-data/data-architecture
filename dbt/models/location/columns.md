@@ -100,7 +100,8 @@ single district.
 {% docs column_census_zcta_geoid %}
 5-digit Census ZIP Code Tabulation Area (ZCTA) GEOID.
 
-ZCTAs are generalized areal representations of the geographic extent and distribution of the point-based ZIP codes.
+ZCTAs are generalized areal representations of the geographic
+extent and distribution of the point-based ZIP codes.
 {% enddocs %}
 
 ## chicago_community_area_name
@@ -182,14 +183,17 @@ Chicago industrial corridor name
 {% docs column_env_airport_noise_dnl %}
 O'Hare and Midway noise, measured as DNL.
 
-DNL measures the total cumulative sound exposure over a 24-hour period. Here DNL is imputed using physical models or a kriging surface based on noise data from monitors around each airport. Noise monitor data retrieved from the
-Chicago Department of Aviation
+DNL measures the total cumulative sound exposure over a 24-hour period.
+Here DNL is imputed using physical models or a kriging surface based on
+noise data from monitors around each airport. Noise monitor data retrieved
+from the Chicago Department of Aviation
 {% enddocs %}
 
 ## env_flood_fema_sfha
 
 {% docs column_env_flood_fema_sfha %}
-FEMA Special Flood Hazard Area, derived from spatial intersection with FEMA floodplain maps.
+FEMA Special Flood Hazard Area, derived from spatial intersection
+with FEMA floodplain maps.
 
 Taken from FEMA site for 2021 only
 {% enddocs %}
@@ -208,13 +212,16 @@ the lowest risk. Pulled from 2019 First Street extract provided to the CCAO
 {% docs column_env_flood_fs_risk_direction %}
 First Street risk direction.
 
-Positive scores indicate increasing risk of flood, negative scores indicate decreasing risk of flood, 0 indicates no movement of risk. Pulled from 2019 First Street extract provided to the CCAO
+Positive scores indicate increasing risk of flood, negative scores indicate
+decreasing risk of flood, 0 indicates no movement of risk. Pulled from 2019
+First Street extract provided to the CCAO
 {% enddocs %}
 
 ## env_ohare_noise_contour_half_mile_buffer_bool
 
 {% docs column_env_ohare_noise_contour_half_mile_buffer_bool %}
-Indicator for properties within a buffered version of the O'Hare 65 DNL noise buffer (OMP)
+Indicator for properties within a buffered version of the O'Hare
+65 DNL noise buffer (OMP)
 
 Ingested from oharenoise.org
 {% enddocs %}
