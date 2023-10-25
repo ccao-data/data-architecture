@@ -28,7 +28,7 @@ models:
       - name: sale_filter_less_than_10k
         description: Indicator for whether sale is less than $10K FMW
       - name: sale_filter_deed_type
-        description: Remove quit claim, executor, and beneficiary deeds
+        description: Remove quit claim, executor, beneficiary and missing deed types
       - name: sale_filter_is_outlier
         description: Same as `sv_is_outlier`, but `NULL` values are replaced with `FALSE`
       - name: sale_key
