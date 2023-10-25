@@ -111,9 +111,10 @@ unique_sales AS (
                 ORDER BY sales.saledt ASC, sales.salekey ASC
             ) AS same_price_earlier_date,
             -- Historically, this view filtered out sales less than $10k and
-            -- as well as quit claims, executor deeds, beneficial interests.
-            -- Now we create "legacy" filter columns so that this filtering
-            -- can reproduced while still allowing all sales into the view.
+            -- as well as quit claims, executor deeds, beneficial interests,
+            -- and NULL deed types. Now we create "legacy" filter columns so
+            -- that this filtering can reproduced while still allowing all sales
+            -- into the view.
             sales.price <= 10000 AS sale_filter_less_than_10k,
             COALESCE(
                 sales.instrtyp IN ('03', '04', '06') OR sales.instrtyp IS NULL,

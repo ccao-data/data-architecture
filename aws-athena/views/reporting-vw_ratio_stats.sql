@@ -125,8 +125,8 @@ LEFT JOIN parking_space AS ps
     ON av.parid = ps.pin
     AND av.year = ps.year
 WHERE NOT vwps.is_multisale
-    AND vwps.sale_filter_deed_type
-    AND vwps.sale_filter_less_than_10k
-    AND vwps.sale_filter_same_sale_within_365
+    AND NOT vwps.sale_filter_deed_type
+    AND NOT vwps.sale_filter_less_than_10k
+    AND NOT vwps.sale_filter_same_sale_within_365
     AND classes.property_group IS NOT NULL
     AND ps.pin IS NULL
