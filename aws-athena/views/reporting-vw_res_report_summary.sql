@@ -188,7 +188,10 @@ sales AS (
         ON vwps.pin = tc.parid
         AND vwps.year = tc.taxyr
     WHERE NOT vwps.is_multisale
-        AND NOT vwps.sale_filter_is_outlier
+        AND (NOT vwps.sale_filter_is_outlier OR vwps.year < '2014')
+        AND NOT vwps.sale_filter_deed_type
+        AND NOT vwps.sale_filter_less_than_10k
+        AND NOT vwps.sale_filter_same_sale_within_365
 ),
 
 -- Aggregate land for all parcels
