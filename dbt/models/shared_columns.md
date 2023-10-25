@@ -965,7 +965,7 @@ iasWorld internal sale identifier
 ## sale_price
 
 {% docs shared_column_sale_price %}
-Fair market sale price of a PIN, as recorded on the deed.
+Sale price of a PIN, as recorded on the deed.
 
 Sales are sourced from myDec/IDOR. This serves as the outcome variable in regression models
 {% enddocs %}
