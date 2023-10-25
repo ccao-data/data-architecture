@@ -144,7 +144,9 @@ temp <- list.files(
     township = str_replace_all(
       str_extract(
         file,
-        str_remove_all(paste(ccao::town_dict$township_name, collapse = "|"), " ")
+        str_remove_all(
+          paste(ccao::town_dict$township_name, collapse = "|"), " "
+          )
       ),
       c(
         "ElkGrove" = "Elk Grove",
@@ -170,7 +172,9 @@ temp <- list.files(
       TRUE ~ yearbuilt
     ),
     tot_units = coalesce(tot_units, tot_apts, `boatslips`, `mobilehomepads`),
-    # marketvalue = coalesce(finalmarketvalue, marketvalue, marketvalue_incl_excessland),
+    # marketvalue = coalesce(
+    # finalmarketvalue, marketvalue, marketvalue_incl_excessland
+    # ),
     # Don't stack pin numbers when "Thru" is present in PIN list
     across(.cols = c(pins, `class(es)`), ~ case_when(
       grepl("thru", .x, ignore.case = TRUE) ~ str_squish(.x),
