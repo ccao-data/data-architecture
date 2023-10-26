@@ -28,6 +28,7 @@ SELECT
     sr.sale_date,
     sr.is_mydec_date,
     sr.sale_price,
+    sr.sale_price_log10,
     sr.sale_key,
     sr.doc_no,
     sr.deed_type,
