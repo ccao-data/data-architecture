@@ -125,4 +125,4 @@ LEFT JOIN parking_space AS ps
     ON av.parid = ps.pin
     AND av.year = ps.year
 WHERE NOT vwps.is_multisale
-   AND NOT vwps.sale_filter_is_outlier
+    AND NOT vwps.sale_filter_is_outlier
