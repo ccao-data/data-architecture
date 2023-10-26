@@ -51,6 +51,14 @@ SELECT
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_board_tot,
+    LAG(vwpv.mailed_bldg, 2) OVER (
+        PARTITION BY vwpv.pin
+        ORDER BY vwpv.pin, vwpv.year
+    ) AS twoyr_pri_mailed_bldg,
+    LAG(vwpv.mailed_land, 2) OVER (
+        PARTITION BY vwpv.pin
+        ORDER BY vwpv.pin, vwpv.year
+    ) AS twoyr_pri_mailed_land,
     LAG(vwpv.mailed_tot, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year

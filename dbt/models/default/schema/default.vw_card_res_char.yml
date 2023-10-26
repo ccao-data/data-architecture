@@ -6,87 +6,106 @@ models:
         - type_res
 
     columns:
-      - name: card_proration_rate
-        description: |
-          Proration rate within a given PIN.
-
-          Some PINs have multiple improvements, known as "cards". Total value for a PIN should be allocated across cards accordingly.
-      - name: pin_is_multiland
-        description: Indicates the PIN has more than one landline
-      - name: pin_is_multicard
-        description: Indicator for a PIN with more than one building (ADU, coach house, etc.)
-      - name: char_tp_dsgn
-        description: |
-          Deprecated.
-
-          Field has not been updated recently enough to be useful for modeling
-      - name: char_site
-        description: |
-          Deprecated.
-
-          This field lacks sufficient variation to be useful for modeling
-      - name: char_rooms
-        description: Number of total rooms in the building (excluding baths). Not to be confused with bedrooms
-      - name: char_repair_cnd
-        description: |
-          Deprecated.
-
-          This field is subjective and contains little variation. As such, it is not used for modeling
-      - name: char_recent_renovation
-        description: |
-          Indicates whether or not a property was renovated within the last 3 years.
-
-          Renovation is indicated by the char_renovation characteristic flipping from "NO" to "YES"
-      - name: char_ncu
-        description: |
-          Number of commercial units.
-
-          The vast majority are for properties with class 212
-      - name: char_land_sf
-        description: |
-          Square footage of the land (not just the building) of the property.
-
-          A single PIN can have multiple "land lines," meaning it can be associated with more than one 200-class land lot
-      - name: char_hbath
-        description: Number of half baths, defined as bathrooms without a shower or bathtub
-      - name: char_gar1_area
-        descripion: |
-          Summary forthcoming.
-
-          Is Garage 1 physically included within the building area? If yes, the garage area is subtracted from the building square feet calculation by the field agent
-      - name: char_frpl
-        description: Number of fireplaces, counted as the number of flues one can see from the outside of the building
-      - name: char_fbath
-        description: |
-          Number of full bathrooms, defined as having a bath or shower.
-
-          If this value is missing, the default value is set to 1
-      - name: char_cnst_qlty
-        descripion: |
-          Summary forthcoming.
-
-          In general, this field is not used consistently and is therefore not useful for analytical purposes
-      - name: char_bldg_sf
-        description: Square footage of the building, as measured from the exterior
-      - name: char_beds
-        description: Number of bedrooms in the building
-      - name: char_apts
-        description: |
-          Number of apartments for class 211 and 212 properties.
-
-          CAUTION: Note the numerically encoded values DO NOT correspond to the number of apartments i.e. code 1 means 2 apartments, code 6 means 0 apartments
-      - name: char_age
-        description: |
-          Deprecated.
-
-          Use year built instead
-      - name: cdu
-        description: Dozens of codes attached to a face sheet that denote a number of seemingly unrelated characteristics associated with a PIN, ranging from condition to types of subsidies
+      - name: char_air
+        description: '{{ doc("shared_column_char_air") }}'
+      - name: char_attic_fnsh
+        description: '{{ doc("shared_column_char_attic_fnsh") }}'
+      - name: char_attic_type
+        description: '{{ doc("shared_column_char_attic_type") }}'
+      - name: char_bsmt
+        description: '{{ doc("shared_column_char_bsmt") }}'
+      - name: char_bsmt_fin
+        description: '{{ doc("shared_column_char_bsmt_fin") }}'
+      - name: char_ext_wall
+        description: '{{ doc("shared_column_char_ext_wall") }}'
       - name: card
-        description: |
-          Represents the building ID if multiple buildings or spaces exist on the same PIN
-
-          Equivalent to legacy MLT_CD (multicode)
+        description: '{{ doc("shared_column_card") }}'
+      - name: card_proration_rate
+        description: '{{ doc("shared_column_card_proration_rate") }}'
+      - name: cdu
+        description: '{{ doc("shared_column_cdu") }}'
+      - name: char_age
+        description: '{{ doc("shared_column_char_age") }}'
+      - name: char_apts
+        description: '{{ doc("shared_column_char_apts") }}'
+      - name: char_beds
+        description: '{{ doc("shared_column_char_beds") }}'
+      - name: char_bldg_sf
+        description: '{{ doc("shared_column_char_bldg_sf") }}'
+      - name: char_cnst_qlty
+        description: '{{ doc("shared_column_char_cnst_qlty") }}'
+      - name: char_fbath
+        description: '{{ doc("shared_column_char_fbath") }}'
+      - name: char_frpl
+        description: '{{ doc("shared_column_char_frpl") }}'
+      - name: char_gar1_area
+        description: '{{ doc("shared_column_char_gar_area") }}'
+      - name: char_gar1_att
+        description: '{{ doc("shared_column_char_gar_att") }}'
+      - name: char_gar1_cnst
+        description: '{{ doc("shared_column_char_gar_cnst") }}'
+      - name: char_gar1_size
+        description: '{{ doc("shared_column_char_gar_size") }}'
+      - name: char_heat
+        description: '{{ doc("shared_column_char_heat") }}'
+      - name: char_hbath
+        description: '{{ doc("shared_column_char_hbath") }}'
+      - name: char_land_sf
+        description: '{{ doc("shared_column_char_land_sf") }}'
+      - name: char_ncu
+        description: '{{ doc("shared_column_char_ncu") }}'
+      - name: char_porch
+        description: '{{ doc("shared_column_char_porch") }}'
+      - name: char_recent_renovation
+        description: '{{ doc("shared_column_char_recent_renovation") }}'
+      - name: char_renovation
+        description: '{{ doc("shared_column_char_renovation") }}'
+      - name: char_repair_cnd
+        description: '{{ doc("shared_column_char_repair_cnd") }}'
+      - name: char_roof_cnst
+        description: '{{ doc("shared_column_char_roof_cnst") }}'
+      - name: char_rooms
+        description: '{{ doc("shared_column_char_rooms") }}'
+      - name: char_site
+        description: '{{ doc("shared_column_char_site") }}'
+      - name: char_tp_dsgn
+        description: '{{ doc("shared_column_char_tp_dsgn") }}'
+      - name: char_tp_plan
+        description: '{{ doc("shared_column_char_tp_plan") }}'
+      - name: char_type_resd
+        description: '{{ doc("shared_column_char_type_resd") }}'
+      - name: char_use
+        description: '{{ doc("shared_column_char_use") }}'
+      - name: char_yrblt
+        description: '{{ doc("shared_column_char_yrblt") }}'
+      - name: class
+        description: '{{ doc("shared_column_class") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: pin_is_multiland
+        description: '{{ doc("shared_column_pin_is_multiland") }}'
+      - name: pin_is_multicard
+        description: '{{ doc("shared_column_pin_is_multicard") }}'
+      - name: pin_num_cards
+        description: '{{ doc("shared_column_pin_num_cards") }}'
+      - name: pin_num_landlines
+        description: '{{ doc("shared_column_pin_num_landlines") }}'
+      - name: pin10
+        description: '{{ doc("shared_column_pin10") }}'
+      - name: seq
+        description: '{{ doc("shared_column_seq") }}'
+      - name: tieback_key_pin
+        description: '{{ doc("shared_column_tieback_key_pin") }}'
+      - name: tieback_proration_rate
+        description: '{{ doc("shared_column_tieback_proration_rate") }}'
+      - name: township_code
+        description: '{{ doc("shared_column_township_code") }}'
+      - name: updated_at
+        description: '{{ doc("shared_column_updated_at") }}'
+      - name: updated_by
+        description: '{{ doc("shared_column_updated_by") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
 
     tests:
       - unique_combination_of_columns:
