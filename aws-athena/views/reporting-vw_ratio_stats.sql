@@ -124,5 +124,6 @@ INNER JOIN all_values AS av
 LEFT JOIN parking_space AS ps
     ON av.parid = ps.pin
     AND av.year = ps.year
-WHERE NOT vwps.is_multisale
-    AND NOT vwps.sale_filter_is_outlier
+WHERE vwps.is_multisale = FALSE
+    AND classes.property_group IS NOT NULL
+    AND ps.pin IS NULL
