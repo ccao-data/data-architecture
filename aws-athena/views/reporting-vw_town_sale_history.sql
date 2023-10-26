@@ -23,14 +23,11 @@ classes AS (
         END AS property_group,
         vwps.township_code AS geography_id,
         town_names.triad_code
-    FROM {{ ref('default.vw_pin_sale') }} AS vwps
+    FROM {{ ref('default.legacy_vw_pin_sale') }} AS vwps
     LEFT JOIN town_names
         ON vwps.township_code = town_names.township_code
     WHERE NOT vwps.is_multisale
-        AND (NOT vwps.sale_filter_is_outlier OR vwps.year < '2014')
-        AND NOT vwps.sale_filter_deed_type
-        AND NOT vwps.sale_filter_less_than_10k
-        AND NOT vwps.sale_filter_same_sale_within_365
+        AND NOT vwps.sale_filter_is_outlier
 ),
 
 -- Aggregate by modeling group, town
