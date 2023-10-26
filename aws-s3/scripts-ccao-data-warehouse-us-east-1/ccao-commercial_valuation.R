@@ -172,9 +172,6 @@ mutate(
     TRUE ~ yearbuilt
   ),
   tot_units = coalesce(tot_units, tot_apts, `boatslips`, `mobilehomepads`),
-  # marketvalue = coalesce(
-  # finalmarketvalue, marketvalue, marketvalue_incl_excessland
-  # ),
   # Don't stack pin numbers when "Thru" is present in PIN list
   across(.cols = c(pins, `class(es)`), ~ case_when(
     grepl("thru", .x, ignore.case = TRUE) ~ str_squish(.x),
