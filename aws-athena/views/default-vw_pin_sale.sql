@@ -232,15 +232,9 @@ max_version_flag AS (
 sales_val AS (
     SELECT
         sf.meta_sale_document_num,
-        CASE WHEN sf.sv_is_outlier = 1 THEN TRUE
-            WHEN sf.sv_is_outlier = 0 THEN FALSE
-        END AS sv_is_outlier,
-        CASE WHEN sf.sv_is_ptax_outlier = 1 THEN TRUE
-            WHEN sf.sv_is_ptax_outlier = 0 THEN FALSE
-        END AS sv_is_ptax_outlier,
-        CASE WHEN sf.sv_is_heuristic_outlier = 1 THEN TRUE
-            WHEN sf.sv_is_heuristic_outlier = 0 THEN FALSE
-        END AS sv_is_heuristic_outlier,
+        sf.sv_is_outlier,
+        sf.sv_is_ptax_outlier,
+        sf.sv_is_heuristic_outlier,
         sf.sv_outlier_type,
         sf.run_id AS sv_run_id,
         sf.version AS sv_version
@@ -291,6 +285,10 @@ SELECT
     unique_sales.sale_filter_same_sale_within_365,
     unique_sales.sale_filter_less_than_10k,
     unique_sales.sale_filter_deed_type,
+    -- Our sales validation pipeline only validates sales past 2014 due to MyDec
+    -- limitations. Previous to that values for sv_is_outlier will be NULL, so
+    -- if we want to both exclude detected outliers and include sales prior to
+    -- 2014, we need to code everything NULL as FALSE.
     COALESCE(sales_val.sv_is_outlier, FALSE) AS sale_filter_is_outlier,
     mydec_sales.sale_filter_ptax_flag,
     mydec_sales.mydec_property_advertised,
