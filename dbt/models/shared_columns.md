@@ -692,7 +692,7 @@ purposes. See `ccao.class_dict` for more information
 
 ## modeling_group
 
-{% docs shared_column_class %}
+{% docs shared_column_modeling_group %}
 Modeling group, one of: `SF`, `MF`, `CONDO`, or `BB`
 {% enddocs %}
 
