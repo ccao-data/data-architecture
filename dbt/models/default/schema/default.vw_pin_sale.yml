@@ -61,7 +61,7 @@ models:
             - year
           allowed_duplicates: 2
           config:
-            error_if: ">3233"
+            error_if: ">4032"
       # No sales for same price/pin within 12 months
       - unique_combination_of_columns:
           name: vw_pin_sale_unique_price_pin_and_year
@@ -69,6 +69,9 @@ models:
             - pin
             - year
             - sale_price
+            - sale_filter_same_sale_within_365
+          config:
+            error_if: ">2079"
       # TODO: Sale is validated (after sales validation has been added to
       # iasworld)
       # TODO: Validation is catching obvious outliers

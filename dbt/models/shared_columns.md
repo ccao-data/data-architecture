@@ -1028,6 +1028,17 @@ New runs of the sales validation model will increment the version by 1
 
 # Spatial
 
+## data_year
+
+{% docs shared_column_data_year %}
+Year of data joined to this record for the corresponding column.
+
+For example, a 2022 PIN with `census_acs5_tract_geoid` joined to it might
+have a corresponding data year of 2021. This indicates that while the
+record is for 2022, the ACS data attached to it is from 2021 (the latest
+year available)
+{% enddocs %}
+
 ## geometry
 
 {% docs shared_column_geometry %}
