@@ -690,6 +690,12 @@ percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
+## modeling_group
+
+{% docs shared_column_class %}
+Modeling group, one of: `SF`, `MF`, `CONDO`, or `BB`
+{% enddocs %}
+
 ## nbhd_code
 
 {% docs shared_column_nbhd_code %}
