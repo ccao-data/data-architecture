@@ -853,6 +853,12 @@ For modeling, the idea is to capture any downward pressure
 on price from higher tax burdens
 {% enddocs %}
 
+## tax_bill_amount_total
+
+{% docs shared_column_tax_bill_amount_total %}
+Tax bill total amount for the tax year
+{% enddocs %}
+
 # Proration, Multi-cards, and Landlines
 
 ## card_proration_rate
