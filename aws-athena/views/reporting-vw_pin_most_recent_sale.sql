@@ -40,7 +40,7 @@ SELECT
     sr.num_parcels_sale,
     sr.buyer_name,
     sr.sale_type,
-    sr.sale_filter_is_outlier,
+    sr.sale_filter_is_outlier
     --sr.mydec_property_advertised,
     --sr.mydec_is_installment_contract_fulfilled,
     --sr.mydec_is_sale_between_related_individuals_or_corporate_affiliates,
