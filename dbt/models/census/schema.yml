@@ -13,7 +13,7 @@ models:
   - name: census.vw_acs5_stat
     columns:
       - name: acs5_data_year
-        description: '{{ doc("shareD_column_data_year") }}'
+        description: '{{ doc("shared_column_data_year") }}'
       - name: count_age_children
         description: '{{ doc("column_count_age_children") }}'
       - name: count_age_senior
