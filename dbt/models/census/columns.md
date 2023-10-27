@@ -515,7 +515,7 @@ ACS variable `B23025_005E` / `B23025_003E`
 ## percent_household_family_married
 
 {% docs column_percent_household_family_married %}
-Percent of households that are family, married (married).
+Percent of households that are family, married.
 
 ACS variable `B11001_003E` / `B11001_001E`
 {% enddocs %}
