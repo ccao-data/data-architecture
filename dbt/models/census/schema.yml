@@ -109,7 +109,7 @@ models:
       - name: count_sex_total
         description: '{{ doc("column_count_sex_total") }}'
       - name: geography
-        description: '{{ doc("column_geography") }}'
+        description: '{{ doc("shared_column_geography") }}'
       - name: geoid
         description: '{{ doc("column_geoid") }}'
       - name: geography
