@@ -134,7 +134,7 @@ sources:
           - name: ovrmraval
             description: '{{ doc("column_ovrmraval") }}'
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: posttype
             description: Assessment posting type
           - name: ppcomval
@@ -188,7 +188,7 @@ sources:
           - name: status
             description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: tiebackbldg
             description: Sum of building value for all children in the income tieback group
           - name: tiebackland

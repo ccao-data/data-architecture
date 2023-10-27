@@ -81,7 +81,7 @@ sources:
           - name: newconpct
             description: '{{ doc("column_newconpct") }}'
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: pctcomp
             description: '{{ doc("column_pctcomp") }}'
           - name: prodamage
@@ -129,7 +129,7 @@ sources:
           - name: status
             description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: third
             description: Third floor addition code
           - name: trans_id

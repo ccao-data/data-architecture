@@ -89,7 +89,7 @@ sources:
           - name: ownnum9
             description: Owner number 9
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: reascd
             description: Exemption reason code
           - name: recnr
@@ -115,7 +115,7 @@ sources:
           - name: status
             description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: title
             description: Contact person's title
           - name: trans_id

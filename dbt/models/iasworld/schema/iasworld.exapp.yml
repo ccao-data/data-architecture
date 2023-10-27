@@ -63,7 +63,7 @@ sources:
           - name: ownnum
             description: '{{ doc("column_ownnum") }}'
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: perex
             description: Percent of Exemption
           - name: procdate
@@ -87,7 +87,7 @@ sources:
           - name: taxid
             description: Tax ID
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: tble
             description: Table name of data to which this exemption applies
           - name: trans_id

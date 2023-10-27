@@ -27,7 +27,7 @@ sources:
           - name: rolltype
             description: '{{ doc("column_rolltype") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: valclass
             description: '{{ doc("column_valclass") }}'
           - name: vclass

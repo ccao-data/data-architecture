@@ -77,7 +77,7 @@ sources:
           - name: parent
             description: Time adjusted sale parent name
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: price
             description: Sale price
           - name: recorddt

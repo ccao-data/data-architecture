@@ -135,7 +135,7 @@ sources:
           - name: page
             description: '{{ doc("column_page") }}'
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: parseq
             description: Conveyance parcel sequence number
           - name: pmultown
@@ -225,7 +225,7 @@ sources:
           - name: taxdist6
             description: Tax district 6
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: unitdesc

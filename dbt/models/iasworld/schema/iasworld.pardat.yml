@@ -128,7 +128,7 @@ sources:
           - name: ovrassessorid
             description: Override assessor assigned to this parcel
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: parkprox
             description: Parking proximity
           - name: parkquanit
@@ -190,7 +190,7 @@ sources:
           - name: strreloc
             description: '{{ doc("column_strreloc") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: tieback
             description: Parcel tieback
           - name: tiebkcd

@@ -183,7 +183,7 @@ sources:
           - name: stflag
             description: '{{ doc("column_stflag") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: titleco
             description: Escrow Company Code
           - name: tnn

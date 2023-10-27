@@ -343,7 +343,7 @@ sources:
           - name: ovrrcnld
             description: '{{ doc("column_ovrrcnld") }}'
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: pctcomplete
             description: Percent of construction completed
           - name: plumbgrade
@@ -493,7 +493,7 @@ sources:
           - name: suppress
             description: '{{ doc("column_suppress") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: trimval

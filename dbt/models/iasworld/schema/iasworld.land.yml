@@ -131,7 +131,7 @@ sources:
           - name: ovrprice
             description: Override price
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: price
             description: Price
           - name: recnr
@@ -163,7 +163,7 @@ sources:
           - name: suppress
             description: '{{ doc("column_suppress") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: topofact
             description: Topography Factor
           - name: trans_id

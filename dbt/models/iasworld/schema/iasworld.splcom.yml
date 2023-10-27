@@ -95,7 +95,7 @@ sources:
           - name: status
             description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status

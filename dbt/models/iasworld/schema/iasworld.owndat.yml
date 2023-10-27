@@ -136,7 +136,7 @@ sources:
           - name: page
             description: '{{ doc("column_page") }}'
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: partial
             description: '{{ doc("column_partial") }}'
           - name: pctown
@@ -166,7 +166,7 @@ sources:
           - name: status
             description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: unitdesc

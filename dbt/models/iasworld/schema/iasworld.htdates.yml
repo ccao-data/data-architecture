@@ -23,7 +23,7 @@ sources:
           - name: notes
             description: Notes
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: schdte
             description: Schedule date
           - name: schtime
@@ -31,7 +31,7 @@ sources:
           - name: subkey
             description: Unique number to allow multiple hearings per level
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status
