@@ -12,169 +12,191 @@ sources:
 models:
   - name: census.vw_acs5_stat
     columns:
-      - name: percent_race_white
-        description: |
-          Summary forthcoming.
-
-          Percentages will NOT sum to 1 since the Census allows more than 1 race per respondent
-      - name: percent_race_other
-        description: |
-          Summary forthcoming.
-
-          Percentages will NOT sum to 1 since the Census allows more than 1 race per respondent
-      - name: percent_race_nhpi
-        description: |
-          Summary forthcoming.
-
-          Percentages will NOT sum to 1 since the Census allows more than 1 race per respondent
-      - name: percent_race_hisp
-        description: |
-          Summary forthcoming.
-
-          Counts for hispanic/latino population are complicated. See Census Reporter for more info
-      - name: percent_race_black
-        description: |
-          Summary forthcoming.
-
-          Percentages will NOT sum to 1 since the Census allows more than 1 race per respondent
-      - name: percent_race_asian
-        description: |
-          Summary forthcoming.
-
-          Percentages will NOT sum to 1 since the Census allows more than 1 race per respondent
-      - name: percent_race_aian
-        description: |
-          Summary forthcoming.
-
-          Percentages will NOT sum to 1 since the Census allows more than 1 race per respondent
-      - name: percent_mobility_no_move
-        description: |
-          Percent of people (older than 1 year) who have not moved in the past 12 months.
-
-          ACS variable B07003_004E / B07003_001E
-      - name: percent_mobility_moved_in_county
-        description: |
-          Percent of people (older than 1 year) who moved in county in the past 12 months.
-
-          ACS variable B07003_007E / B07003_001E
-      - name: percent_mobility_moved_from_other_state
-        description: |
-          Percent of people (older than 1 year) who moved from another state in the past 12 months.
-
-          ACS variable B07003_013E / B07003_001E
-      - name: percent_income_household_received_snap_past_year
-        description: |
-          Percent of households that received SNAP in the past 12 months.
-
-          ACS variable B22003_002E / B22003_001E
-      - name: percent_income_below_poverty_level
-        description: |
-          Percent of people below poverty level.
-
-          ACS variable B17001_002E / B17001_001E
-      - name: percent_household_total_occupied_w_sel_cond
-        description: |
-          Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs
-
-          ACS variable (B25123_003E + B25123_004E + B25123_005E + B25123_006E + B25123_009E + B25123_010E + B25123_011E + B25123_012E) / B25123_001E
-      - name: percent_household_renter_occupied_w_sel_cond
-        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
-      - name: percent_household_owner_occupied_w_sel_cond
-        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
-      - name: percent_household_owner_occupied
-        description: |
-          Percent of households that are owner-occupied.
-
-          ACS variable B25003_002E / B25003_001E
-      - name: percent_household_nonfamily_alone
-        description: |
-          Percent of households that are non-family, alone (single).
-
-          ACS variable B11001_008E / B11001_001E
-      - name: percent_household_family_married
-        description: |
-          Percent of households that are family, married (married).
-
-          ACS variable B11001_003E / B11001_001E
-      - name: percent_employment_unemployed
-        description: |
-          Percent of people 16 years and older unemployed.
-
-          ACS variable B23025_005E / B23025_003E
-      - name: percent_education_high_school
-        description: |
-          Percent of people older than 25 who attained a high school degree.
-
-          ACS variable (B15002_011E + B15002_028E) / B15002_001E
-      - name: percent_education_graduate
-        description: |
-          Percent of people older than 25 who attained a graduate degree.
-
-          ACS variable (B15002_016E + B15002_017E + B15002_018E + B15002_033E + B15002_034E + B15002_035E) / B15002_001E
-      - name: percent_education_bachelor
-        description: |
-          Percent of people older than 25 who attained a bachelor degree.
-
-          ACS variable (B15002_015E + B15002_032E) / B15002_001E
-      - name: percent_age_senior
-        description: |
-          Percent of the population 65 years or older.
-
-          ACS variable (B01001_020E + B01001_021E + B01001_022E + B01001_023E + B01001_024E + B01001_025E + B01001_044E + B01001_045E + B01001_046E + B01001_046E + B01001_048E + B01001_049E) / B01001_001E
-      - name: percent_age_children
-        description: |
-          Percent of the population 17 years or younger.
-
-          ACS variable (B01001_003E + B01001_004E + B01001_005E + B01001_006E + B01001_007E + B01001_027E + B01001_028E + B01001_029E + B01001_030E + B01001_031E) / B01001_001E
-      - name: median_income_per_capita_past_year
-        description: |
-          Median income per capita in the past 12 months.
-
-          ACS variable B19301_001E
-      - name: median_income_household_past_year
-        description: |
-          Median income per household in the past 12 months.
-
-          ACS variable B19013_001E
-      - name: median_household_total_occupied_year_built
-        description: |
-          Median year built for all occupied housing units.
-
-          ACS variable B25037_001E
-      - name: median_household_renter_occupied_gross_rent
-        description: |
-          Median gross rent for only renter-occupied units.
-
-          ACS variable B25064_001E
-      - name: median_household_owner_occupied_value
-        description: |
-          Median household value for only owner-occupied units.
-
-          ACS variable B25077_001E
-      - name: median_age_total
-        description: |
-          Median age for whole population.
-
-          ACS variable B01002_001E
-      - name: count_household_renter_occupied_4_sel_cond
-        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
-      - name: count_household_renter_occupied_3_sel_cond
-        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
-      - name: count_household_renter_occupied_2_sel_cond
-        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
-      - name: count_household_renter_occupied_1_sel_cond
-        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
-      - name: count_household_owner_occupied_4_sel_cond
-        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
-      - name: count_household_owner_occupied_3_sel_cond
-        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
-      - name: count_household_owner_occupied_2_sel_cond
-        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
-      - name: count_household_owner_occupied_1_sel_cond
-        description: "Selected conditions, including: incomplete plumbing or kitchens, overcrowding, 30% or more of the household income spent on rent or monthly owner costs"
-      - name: count_employment_unemployed
-        description: Unemployed population 16 and older
-      - name: count_employment_not_in_labor_force
-        description: Unemployed population 16 and older, not in the labor force
+      - name: acs5_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: count_age_children
+        description: '{{ doc("column_count_age_children") }}'
+      - name: count_age_senior
+        description: '{{ doc("column_count_age_senior") }}'
+      - name: count_education_associate
+        description: '{{ doc("column_count_education_associate") }}'
+      - name: count_education_bachelor
+        description: '{{ doc("column_count_education_bachelor") }}'
+      - name: count_education_graduate
+        description: '{{ doc("column_count_education_graduate") }}'
+      - name: count_education_high_school
+        description: '{{ doc("column_count_education_high_school") }}'
+      - name: count_education_total
+        description: '{{ doc("column_count_education_total") }}'
       - name: count_employment_in_civilian_labor_force
-        description: Employed population 16 and older
+        description: '{{ doc("column_count_employment_in_civilian_labor_force") }}'
+      - name: count_employment_not_in_labor_force
+        description: '{{ doc("column_count_employment_not_in_labor_force") }}'
+      - name: count_employment_unemployed
+        description: '{{ doc("column_count_employment_unemployed") }}'
+      - name: count_household_family_married
+        description: '{{ doc("column_count_household_family_married") }}'
+      - name: count_household_family_other
+        description: '{{ doc("column_count_household_family_other") }}'
+      - name: count_household_family_total
+        description: '{{ doc("column_count_household_family_total") }}'
+      - name: count_household_nonfamily_alone
+        description: '{{ doc("column_count_household_nonfamily_alone") }}'
+      - name: count_household_nonfamily_not_alone
+        description: '{{ doc("column_count_household_nonfamily_not_alone") }}'
+      - name: count_household_owner_occupied
+        description: '{{ doc("column_count_household_owner_occupied") }}'
+      - name: count_household_owner_occupied_1_sel_cond
+        description: '{{ doc("column_count_household_owner_occupied_w_sel_cond") }}'
+      - name: count_household_owner_occupied_2_sel_cond
+        description: '{{ doc("column_count_household_owner_occupied_w_sel_cond") }}'
+      - name: count_household_owner_occupied_3_sel_cond
+        description: '{{ doc("column_count_household_owner_occupied_w_sel_cond") }}'
+      - name: count_household_owner_occupied_4_sel_cond
+        description: '{{ doc("column_count_household_owner_occupied_w_sel_cond") }}'
+      - name: count_household_renter_occupied
+        description: '{{ doc("column_count_household_renter_occupied") }}'
+      - name: count_household_renter_occupied_1_sel_cond
+        description: '{{ doc("column_count_household_renter_occupied_w_sel_cond") }}'
+      - name: count_household_renter_occupied_2_sel_cond
+        description: '{{ doc("column_count_household_renter_occupied_w_sel_cond") }}'
+      - name: count_household_renter_occupied_3_sel_cond
+        description: '{{ doc("column_count_household_renter_occupied_w_sel_cond") }}'
+      - name: count_household_renter_occupied_4_sel_cond
+        description: '{{ doc("column_count_household_renter_occupied_w_sel_cond") }}'
+      - name: count_household_total
+        description: '{{ doc("column_count_household_total") }}'
+      - name: count_household_total_occupied
+        description: '{{ doc("column_count_household_total_occupied") }}'
+      - name: count_income_above_poverty_level
+        description: '{{ doc("column_count_income_above_poverty_level") }}'
+      - name: count_income_below_poverty_level
+        description: '{{ doc("column_count_income_below_poverty_level") }}'
+      - name: count_income_household_received_snap_past_year
+        description: '{{ doc("column_count_income_household_received_snap_past_year") }}'
+      - name: count_income_total_poverty_level
+        description: '{{ doc("column_count_income_total_poverty_level") }}'
+      - name: count_mobility_moved_from_abroad
+        description: '{{ doc("column_count_mobility_moved_from_abroad") }}'
+      - name: count_mobility_moved_from_other_state
+        description: '{{ doc("column_count_mobility_moved_from_other_state") }}'
+      - name: count_mobility_moved_in_county
+        description: '{{ doc("column_count_mobility_moved_in_county") }}'
+      - name: count_mobility_moved_in_state
+        description: '{{ doc("column_count_mobility_moved_in_state") }}'
+      - name: count_mobility_no_move
+        description: '{{ doc("column_count_mobility_no_move") }}'
+      - name: count_mobility_total
+        description: '{{ doc("column_count_mobility_total") }}'
+      - name: count_race_aian
+        description: '{{ doc("column_count_race_aian") }}'
+      - name: count_race_asian
+        description: '{{ doc("column_count_race_asian") }}'
+      - name: count_race_black
+        description: '{{ doc("column_count_race_black") }}'
+      - name: count_race_hisp
+        description: '{{ doc("column_count_race_hisp") }}'
+      - name: count_race_nhpi
+        description: '{{ doc("column_count_race_nhpi") }}'
+      - name: count_race_other
+        description: '{{ doc("column_count_race_other") }}'
+      - name: count_race_total
+        description: '{{ doc("column_count_race_total") }}'
+      - name: count_race_white
+        description: '{{ doc("column_count_race_white") }}'
+      - name: count_sex_female
+        description: '{{ doc("column_count_sex_female") }}'
+      - name: count_sex_male
+        description: '{{ doc("column_count_sex_male") }}'
+      - name: count_sex_total
+        description: '{{ doc("column_count_sex_total") }}'
+      - name: geography
+        description: '{{ doc("shared_column_geography") }}'
+      - name: geoid
+        description: '{{ doc("column_geoid") }}'
+      - name: median_age_female
+        description: '{{ doc("column_median_age_female") }}'
+      - name: median_age_male
+        description: '{{ doc("column_median_age_male") }}'
+      - name: median_age_total
+        description: '{{ doc("column_median_age_total") }}'
+      - name: median_household_owner_occupied_value
+        description: '{{ doc("column_median_household_owner_occupied_value") }}'
+      - name: median_household_owner_occupied_year_built
+        description: '{{ doc("column_median_household_owner_occupied_year_built") }}'
+      - name: median_household_renter_occupied_gross_rent
+        description: '{{ doc("column_median_household_renter_occupied_gross_rent") }}'
+      - name: median_household_renter_occupied_year_built
+        description: '{{ doc("column_median_household_renter_occupied_year_built") }}'
+      - name: median_household_total_occupied_year_built
+        description: '{{ doc("column_median_household_total_occupied_year_built") }}'
+      - name: median_income_household_past_year
+        description: '{{ doc("column_median_income_household_past_year") }}'
+      - name: median_income_per_capita_past_year
+        description: '{{ doc("column_median_income_per_capita_past_year") }}'
+      - name: percent_age_children
+        description: '{{ doc("column_percent_age_children") }}'
+      - name: percent_age_senior
+        description: '{{ doc("column_percent_age_senior") }}'
+      - name: percent_education_associate
+        description: '{{ doc("column_percent_education_associate") }}'
+      - name: percent_education_bachelor
+        description: '{{ doc("column_percent_education_bachelor") }}'
+      - name: percent_education_graduate
+        description: '{{ doc("column_percent_education_graduate") }}'
+      - name: percent_education_high_school
+        description: '{{ doc("column_percent_education_high_school") }}'
+      - name: percent_employment_unemployed
+        description: '{{ doc("column_percent_employment_unemployed") }}'
+      - name: percent_household_family_married
+        description: '{{ doc("column_percent_household_family_married") }}'
+      - name: percent_household_nonfamily_alone
+        description: '{{ doc("column_percent_household_nonfamily_alone") }}'
+      - name: percent_household_nonfamily_not_alone
+        description: '{{ doc("column_percent_household_nonfamily_not_alone") }}'
+      - name: percent_household_owner_occupied
+        description: '{{ doc("column_percent_household_owner_occupied") }}'
+      - name: percent_household_owner_occupied_w_sel_cond
+        description: '{{ doc("column_percent_household_owner_occupied_w_sel_cond") }}'
+      - name: percent_household_renter_occupied
+        description: '{{ doc("column_percent_household_renter_occupied") }}'
+      - name: percent_household_renter_occupied_w_sel_cond
+        description: '{{ doc("column_percent_household_renter_occupied_w_sel_cond") }}'
+      - name: percent_household_total_occupied_w_sel_cond
+        description: '{{ doc("column_percent_household_total_occupied_w_sel_cond") }}'
+      - name: percent_income_above_poverty_level
+        description: '{{ doc("column_percent_income_above_poverty_level") }}'
+      - name: percent_income_below_poverty_level
+        description: '{{ doc("column_percent_income_below_poverty_level") }}'
+      - name: percent_income_household_received_snap_past_year
+        description: '{{ doc("column_percent_income_household_received_snap_past_year") }}'
+      - name: percent_mobility_moved_from_abroad
+        description: '{{ doc("column_percent_mobility_moved_from_abroad") }}'
+      - name: percent_mobility_moved_from_other_state
+        description: '{{ doc("column_percent_mobility_moved_from_other_state") }}'
+      - name: percent_mobility_moved_in_county
+        description: '{{ doc("column_percent_mobility_moved_in_county") }}'
+      - name: percent_mobility_moved_in_state
+        description: '{{ doc("column_percent_mobility_moved_in_state") }}'
+      - name: percent_mobility_no_move
+        description: '{{ doc("column_percent_mobility_no_move") }}'
+      - name: percent_race_aian
+        description: '{{ doc("column_percent_race_aian") }}'
+      - name: percent_race_asian
+        description: '{{ doc("column_percent_race_asian") }}'
+      - name: percent_race_black
+        description: '{{ doc("column_percent_race_black") }}'
+      - name: percent_race_hisp
+        description: '{{ doc("column_percent_race_hisp") }}'
+      - name: percent_race_nhpi
+        description: '{{ doc("column_percent_race_nhpi") }}'
+      - name: percent_race_other
+        description: '{{ doc("column_percent_race_other") }}'
+      - name: percent_race_white
+        description: '{{ doc("column_percent_race_white") }}'
+      - name: percent_sex_female
+        description: '{{ doc("column_percent_sex_female") }}'
+      - name: percent_sex_male
+        description: '{{ doc("column_percent_sex_male") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'

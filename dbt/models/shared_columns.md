@@ -818,6 +818,41 @@ Username of last person to update the record.
 Changes in tandem with `updated_at`/`wen` field.
 {% enddocs %}
 
+# Other
+
+## ihs_avg_year_index
+
+{% docs shared_column_ihs_avg_year_index %}
+DePaul Institute of Housing Studies quarterly index.
+
+Averaged up to the yearly level. Unit of observation is Census PUMAs
+{% enddocs %}
+
+## school_district_elementary_avg_rating
+
+{% docs shared_column_school_district_elementary_avg_rating %}
+Average GreatSchools rating of elementary schools within the district of a given PIN.
+
+For CPS, which is a unified school district, the average of schools within attendance boundary is used
+{% enddocs %}
+
+## school_district_secondary_avg_rating
+
+{% docs shared_column_school_district_secondary_avg_rating %}
+Average GreatSchools rating of secondary schools within the district of a given PIN.
+
+For CPS, which is a unified school district, the average of schools within attendance boundary is used
+{% enddocs %}
+
+## tax_bill_rate
+
+{% docs shared_column_tax_bill_rate %}
+Tax bill rate for the taxing district containing a given PIN.
+
+For modeling, the idea is to capture any downward pressure
+on price from higher tax burdens
+{% enddocs %}
+
 # Proration, Multi-cards, and Landlines
 
 ## card_proration_rate
@@ -1037,6 +1072,15 @@ For example, a 2022 PIN with `census_acs5_tract_geoid` joined to it might
 have a corresponding data year of 2021. This indicates that while the
 record is for 2022, the ACS data attached to it is from 2021 (the latest
 year available)
+{% enddocs %}
+
+## geography
+
+{% docs shared_column_geography %}
+Type of geography (triad, township, neighborhood, etc.).
+
+Typically used in SQL `WHERE` clauses to filter multi-geography tables.
+Possible values depend on the particular table
 {% enddocs %}
 
 ## geometry

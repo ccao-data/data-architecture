@@ -59,66 +59,42 @@ models:
     config:
       tags:
         - type_res
+
     columns:
-      - name: other_tax_bill_rate
+      - name: char_bldg_sf_95_percentile
         description: |
-          Tax bill rate for the taxing district containing a given PIN.
-
-          Idea is to capture any downward pressure on price from higher tax burdens
-      - name: other_school_district_secondary_avg_rating
+          95th percentile of building square footage,
+          by year and township
+      - name: char_land_sf_95_percentile
         description: |
-          Average Great Schools rating of secondary schools within the district of a given PIN.
-
-          For CPS, which is a unified school district, the average of schools within attendance boundary is used
-      - name: other_school_district_elementary_avg_rating
+          95th percentile of land square footage,
+          by year and township
+      - name: ind_bldg_gte_95_percentile
         description: |
-          Average Great Schools rating of elementary schools within the district of a given PIN.
-
-          For CPS, which is a unified school district, the average of schools within attendance boundary is used
-      - name: other_ihs_avg_year_index
-        description: |
-          DePaul Institute of Housing Studies quarterly index, averaged up to the yearly level.
-
-          Unit of observation is Census PUMAs
-      - name: ind_land_gte_95_percentile
-        description: Indicator for a PIN with land square footage larger than 95% of other properties for this year and township
+          Indicator for a PIN with building square footage larger
+          than 95% of other properties for this year and township
       - name: ind_land_bldg_ratio_gte_10
         description: |
-          Indicator for a PIN with a ratio of (land sqft / bldg sqft) of greater than or equal to 10.
+          Indicator for a PIN with a ratio of (land sqft / bldg sqft)
+          of greater than or equal to 10.
 
           This is intended to identify small houses on very large lots
-      - name: ind_bldg_gte_95_percentile
-        description: Indicator for a PIN with building square footage larger than 95% of other properties for this year and township
-      - name: char_land_sf_95_percentile
-        description: 95th percentile of land square footage, by year and township
-      - name: char_bldg_sf_95_percentile
-        description: 95th percentile of building square footage, by year and township
+      - name: ind_land_gte_95_percentile
+        description: |
+          Indicator for a PIN with land square footage larger
+          than 95% of other properties for this year and township
+      - name: other_ihs_avg_year_index
+        description: '{{ doc("shared_column_ihs_avg_year_index") }}'
+      - name: other_school_district_elementary_avg_rating
+        description: '{{ doc("shared_column_school_district_elementary_avg_rating") }}'
+      - name: other_school_district_secondary_avg_rating
+        description: '{{ doc("shared_column_school_district_secondary_avg_rating") }}'
+      - name: other_tax_bill_rate
+        description: '{{ doc("shared_column_tax_bill_rate") }}'
 
   - name: model.vw_pin_condo_input
     config:
       tags:
         - type_condo
-    columns:
-      - name: ind_pin_is_multilline
-        description: Indicator for a PIN with more than one Lline
-      - name: char_unit_sf
-        description: Square footage for single condominium unit associated with 14 digit PIN
-      - name: char_half_baths
-        description: Number of half baths for single condominium unit associated with 14 digit PIN
-      - name: char_full_baths
-        description: Number of full baths for single condominium unit associated with 14 digit PIN
-      - name: char_building_units
-        description: |
-          The number of 14 digits PINs associated with a given 10 digit PIN.
 
-          14 digit PINs must not be identified as parking spaces, common areas, or storage units through a number of validation criteria
-      - name: char_building_sf
-        description: |
-          Square footage for entire condominium building.
-
-          Includes commercial and non-livable spaces
-      - name: char_bldg_is_mixed_use
-        description: Indicator for condominium buildings with a non-299 or 399 PIN under the same PIN10
-      - name: char_bedrooms
-        description: Number of bedrooms for single condominium unit associated with 14 digit PIN
   - name: model.vw_pin_shared_input
