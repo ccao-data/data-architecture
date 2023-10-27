@@ -482,7 +482,7 @@ ACS variable (`B15002_014E` + `B15002_031E`) / `B15002_001E`
 ## percent_education_bachelor
 
 {% docs column_percent_education_bachelor %}
-Percent of people older than 25 who attained a bachelor degree.
+Percent of people older than 25 who attained a bachelor's degree.
 
 ACS variable (`B15002_015E` + `B15002_032E`) / `B15002_001E`
 {% enddocs %}
