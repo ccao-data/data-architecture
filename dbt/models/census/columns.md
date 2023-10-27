@@ -29,7 +29,7 @@ ACS variable `B15002_014E` + `B15002_031E`
 ## count_education_bachelor
 
 {% docs column_count_education_bachelor %}
-Count of all people older than 25 years old with an bachelor's degree.
+Count of all people older than 25 years old with a bachelor's degree.
 
 ACS variable `B15002_015E` + `B15002_032E`
 {% enddocs %}
