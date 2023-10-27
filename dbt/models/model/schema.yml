@@ -160,16 +160,16 @@ models:
       - &acs5_percent_mobility_no_move
         name: acs5_percent_mobility_no_move
         description: '{{ doc("column_percent_mobility_no_move") }}'
-      - &avg_school_rating_in_half_mile
-        name: avg_school_rating_in_half_mile
+      - &prox_avg_school_rating_in_half_mile
+        name: prox_avg_school_rating_in_half_mile
         description: '{{ doc("column_avg_school_rating_in_half_mile") }}'
-      - &num_bus_stop_in_half_mile
-        name: num_bus_stop_in_half_mile
+      - &prox_num_bus_stop_in_half_mile
+        name: prox_num_bus_stop_in_half_mile
         description: '{{ doc("column_num_bus_stop_in_half_mile") }}'
-      - &num_foreclosure_per_1000_pin_past_5_years
-        name: num_foreclosure_per_1000_pin_past_5_years
+      - &prox_num_foreclosure_per_1000_pin_past_5_years
+        name: prox_num_foreclosure_per_1000_pin_past_5_years
         description: '{{ doc("column_num_foreclosure_per_1000_pin_past_5_years") }}'
-      - &num_school_with_rating_in_half_mile
+      - &prox_num_school_with_rating_in_half_mile
         name: prox_num_school_with_rating_in_half_mile
         description: '{{ doc("column_num_school_with_rating_in_half_mile") }}'
       - &loc_access_cmap_walk_nta_score
@@ -444,10 +444,10 @@ models:
       - *acs5_percent_mobility_moved_from_other_state
       - *acs5_percent_mobility_moved_in_county
       - *acs5_percent_mobility_no_move
-      - *avg_school_rating_in_half_mile
-      - *num_bus_stop_in_half_mile
-      - *num_foreclosure_per_1000_pin_past_5_years
-      - *num_school_with_rating_in_half_mile
+      - *prox_avg_school_rating_in_half_mile
+      - *prox_num_bus_stop_in_half_mile
+      - *prox_num_foreclosure_per_1000_pin_past_5_years
+      - *prox_num_school_with_rating_in_half_mile
       - *loc_access_cmap_walk_nta_score
       - *loc_access_cmap_walk_total_score
       - *loc_census_acs5_data_year
