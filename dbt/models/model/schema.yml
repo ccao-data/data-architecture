@@ -288,23 +288,17 @@ models:
       - &meta_year
         name: meta_year
         description: '{{ doc("shared_column_year") }}'
-      - &nearest_neighbor_1_dist_ft
-        name: nearest_neighbor_1_dist_ft
+      - name: nearest_neighbor_1_dist_ft
         description: '{{ doc("column_nearest_neighbor_dist_ft") }}'
-      - &nearest_neighbor_1_pin10
-        name: nearest_neighbor_1_pin10
+      - name: nearest_neighbor_1_pin10
         description: '{{ doc("column_nearest_neighbor_pin10") }}'
-      - &nearest_neighbor_2_dist_ft
-        name: nearest_neighbor_2_dist_ft
+      - name: nearest_neighbor_2_dist_ft
         description: '{{ doc("column_nearest_neighbor_dist_ft") }}'
-      - &nearest_neighbor_2_pin10
-        name: nearest_neighbor_2_pin10
+      - name: nearest_neighbor_2_pin10
         description: '{{ doc("column_nearest_neighbor_pin10") }}'
-      - &nearest_neighbor_3_dist_ft
-        name: nearest_neighbor_3_dist_ft
+      - name: nearest_neighbor_3_dist_ft
         description: '{{ doc("column_nearest_neighbor_dist_ft") }}'
-      - &nearest_neighbor_3_pin10
-        name: nearest_neighbor_3_pin10
+      - name: nearest_neighbor_3_pin10
         description: '{{ doc("column_nearest_neighbor_pin10") }}'
       - &other_ihs_avg_year_index
         name: other_ihs_avg_year_index
@@ -463,12 +457,6 @@ models:
       - *meta_triad_code
       - *meta_triad_name
       - *meta_year
-      - *nearest_neighbor_1_dist_ft
-      - *nearest_neighbor_1_pin10
-      - *nearest_neighbor_2_dist_ft
-      - *nearest_neighbor_2_pin10
-      - *nearest_neighbor_3_dist_ft
-      - *nearest_neighbor_3_pin10
       - *other_ihs_avg_year_index
       - *other_school_district_elementary_avg_rating
       - *other_school_district_secondary_avg_rating
@@ -550,14 +538,8 @@ models:
         description: '{{ doc("shared_column_char_bsmt_fin") }}'
       - name: char_ext_wall
         description: '{{ doc("shared_column_char_ext_wall") }}'
-      - name: card
-        description: '{{ doc("shared_column_card") }}'
       - name: card_proration_rate
         description: '{{ doc("shared_column_card_proration_rate") }}'
-      - name: cdu
-        description: '{{ doc("shared_column_cdu") }}'
-      - name: char_age
-        description: '{{ doc("shared_column_char_age") }}'
       - name: char_apts
         description: '{{ doc("shared_column_char_apts") }}'
       - name: char_beds
@@ -590,16 +572,10 @@ models:
         description: '{{ doc("shared_column_char_porch") }}'
       - name: char_recent_renovation
         description: '{{ doc("shared_column_char_recent_renovation") }}'
-      - name: char_renovation
-        description: '{{ doc("shared_column_char_renovation") }}'
-      - name: char_repair_cnd
-        description: '{{ doc("shared_column_char_repair_cnd") }}'
       - name: char_roof_cnst
         description: '{{ doc("shared_column_char_roof_cnst") }}'
       - name: char_rooms
         description: '{{ doc("shared_column_char_rooms") }}'
-      - name: char_site
-        description: '{{ doc("shared_column_char_site") }}'
       - name: char_tp_dsgn
         description: '{{ doc("shared_column_char_tp_dsgn") }}'
       - name: char_tp_plan
