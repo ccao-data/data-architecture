@@ -334,6 +334,15 @@ Number of bedrooms in the building.
 Square footage of the building, as measured from the exterior.
 {% enddocs %}
 
+## char_bldg_is_mixed_use
+
+{% docs shared_column_char_bldg_is_mixed_use %}
+The 10-digit PIN (building) contains a 14-digit PIN that is
+neither class 299 nor 399.
+
+Applies to condos only
+{% enddocs %}
+
 ## char_bsmt
 
 {% docs shared_column_char_bsmt %}
@@ -357,6 +366,32 @@ Possible values for this variable are:
 - `1` = Finished / formal rec room (`REC`)
 - `2` = Apartment (`APT`)
 - `3` = Unfinished (`UNF`)
+{% enddocs %}
+
+## char_building_non_units
+
+{% docs shared_column_char_building_non_units %}
+Count of non-livable 14-digit PINs.
+
+Non-livable PINs are anything identified as parking spaces,
+common areas, or storage units. These PINs are identified through
+a number of validation criteria. Applies to condos only
+{% enddocs %}
+
+## char_building_pins
+
+{% docs shared_column_char_building_pins %}
+Total number of PINs associated with a building (PIN10).
+
+Includes both livable and non-livable units. Applies to condos only
+{% enddocs %}
+
+## char_building_units
+
+{% docs shared_column_char_building_units %}
+Count of livable 14-digit PINs (AKA condo units).
+
+Applies to condos only
 {% enddocs %}
 
 ## char_building_sf
@@ -690,6 +725,12 @@ percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
+## modeling_group
+
+{% docs shared_column_modeling_group %}
+Modeling group, one of: `SF`, `MF`, `CONDO`, or `BB`
+{% enddocs %}
+
 ## nbhd_code
 
 {% docs shared_column_nbhd_code %}
@@ -851,6 +892,12 @@ Tax bill rate for the taxing district containing a given PIN.
 
 For modeling, the idea is to capture any downward pressure
 on price from higher tax burdens
+{% enddocs %}
+
+## tax_bill_amount_total
+
+{% docs shared_column_tax_bill_amount_total %}
+Tax bill total amount for the tax year
 {% enddocs %}
 
 # Proration, Multi-cards, and Landlines
