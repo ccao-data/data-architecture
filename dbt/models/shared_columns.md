@@ -1081,7 +1081,7 @@ Type of geography (triad, township, neighborhood, etc.).
 
 Typically used in SQL `WHERE` clauses to filter multi-geography tables.
 Possible values depend on the particular table
-% enddocs %}
+{% enddocs %}
 
 ## geometry
 
