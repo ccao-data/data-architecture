@@ -214,7 +214,8 @@ ACS variable `B17001_001E`
 ## count_mobility_moved_from_abroad
 
 {% docs column_count_mobility_moved_from_abroad %}
-Count of people (older than 1 year) who moved from abroad in the past 12 months.
+Count of people (older than 1 year) who moved from abroad
+in the past 12 months.
 
 ACS variable `B07003_016E`
 {% enddocs %}
@@ -222,7 +223,8 @@ ACS variable `B07003_016E`
 ## count_mobility_moved_from_other_state
 
 {% docs column_count_mobility_moved_from_other_state %}
-Count of people (older than 1 year) who moved from another state in the past 12 months.
+Count of people (older than 1 year) who moved from another
+state in the past 12 months.
 
 ACS variable `B07003_013E`
 {% enddocs %}
@@ -230,7 +232,8 @@ ACS variable `B07003_013E`
 ## count_mobility_moved_in_county
 
 {% docs column_count_mobility_moved_in_county %}
-Count of people (older than 1 year) who moved within the same county in the past 12 months.
+Count of people (older than 1 year) who moved within the
+same county in the past 12 months.
 
 ACS variable `B07003_007E`
 {% enddocs %}
@@ -238,7 +241,8 @@ ACS variable `B07003_007E`
 ## count_mobility_moved_in_state
 
 {% docs column_count_mobility_moved_in_state %}
-Count of people (older than 1 year) who moved within the same state in the past 12 months.
+Count of people (older than 1 year) who moved within the
+same state in the past 12 months.
 
 ACS variable `B07003_010E`
 {% enddocs %}
@@ -246,7 +250,8 @@ ACS variable `B07003_010E`
 ## count_mobility_no_move
 
 {% docs column_count_mobility_no_move %}
-Count of people (older than 1 year) who have not moved in the past 12 months.
+Count of people (older than 1 year) who have not moved in
+the past 12 months.
 
 ACS variable `B07003_004E`
 {% enddocs %}
@@ -450,7 +455,9 @@ ACS variable `B19301_001E`
 {% docs column_percent_age_children %}
 Percent of the people 17 years or younger.
 
-ACS variable (`B01001_003E` + `B01001_004E` + `B01001_005E` + `B01001_006E` + `B01001_007E` + `B01001_027E` + `B01001_028E` + `B01001_029E` + `B01001_030E` + `B01001_031E`) / `B01001_001E`
+ACS variable (`B01001_003E` + `B01001_004E` + `B01001_005E` +
+`B01001_006E` + `B01001_007E` + `B01001_027E` + `B01001_028E` +
+`B01001_029E` + `B01001_030E` + `B01001_031E`) / `B01001_001E`
 {% enddocs %}
 
 ## percent_age_senior
@@ -458,7 +465,10 @@ ACS variable (`B01001_003E` + `B01001_004E` + `B01001_005E` + `B01001_006E` + `B
 {% docs column_percent_age_senior %}
 Percent of the people 65 years or older.
 
-ACS variable (`B01001_020E` + `B01001_021E` + `B01001_022E` + `B01001_023E` + `B01001_024E` + `B01001_025E` + `B01001_044E` + `B01001_045E` + `B01001_046E` + `B01001_046E` + `B01001_048E` + `B01001_049E`) / `B01001_001E`
+ACS variable (`B01001_020E` + `B01001_021E` + `B01001_022E` +
+`B01001_023E` + `B01001_024E` + `B01001_025E` + `B01001_044E` +
+`B01001_045E` + `B01001_046E` + `B01001_046E` + `B01001_048E` +
+`B01001_049E`) / `B01001_001E`
 {% enddocs %}
 
 ## percent_education_associate
@@ -482,7 +492,8 @@ ACS variable (`B15002_015E` + `B15002_032E`) / `B15002_001E`
 {% docs column_percent_education_graduate %}
 Percent of people older than 25 who attained a graduate degree.
 
-ACS variable (`B15002_016E` + `B15002_017E` + `B15002_018E` + `B15002_033E` + `B15002_034E` + `B15002_035E`) / `B15002_001E`
+ACS variable (`B15002_016E` + `B15002_017E` + `B15002_018E` +
+`B15002_033E` + `B15002_034E` + `B15002_035E`) / `B15002_001E`
 {% enddocs %}
 
 ## percent_education_high_school
@@ -570,7 +581,9 @@ Conditions include: incomplete plumbing or kitchens,
 overcrowding, 30% or more of the household income spent
 on rent or monthly owner costs.
 
-ACS variable (`B25123_003E` + `B25123_004E` + `B25123_005E` + `B25123_006E` + `B25123_009E` + `B25123_010E` + `B25123_011E` + `B25123_012E`) / `B25123_001E`
+ACS variable (`B25123_003E` + `B25123_004E` + `B25123_005E` +
+`B25123_006E` + `B25123_009E` + `B25123_010E` + `B25123_011E` +
+`B25123_012E`) / `B25123_001E`
 {% enddocs %}
 
 ## percent_income_above_poverty_level
@@ -627,7 +640,8 @@ ACS variable `B07003_007E` / `B07003_001E`
 ## percent_mobility_moved_in_state
 
 {% docs column_percent_mobility_moved_in_state %}
-Percent of people (older than 1 year) who moved within the same state in the past 12 months.
+Percent of people (older than 1 year) who moved within the
+same state in the past 12 months.
 
 ACS variable `B07003_010E` / `B07003_001E`
 {% enddocs %}
@@ -646,7 +660,8 @@ ACS variable `B07003_004E` / `B07003_001E`
 {% docs column_percent_race_aian %}
 Percent of people American Indian and Alaska Native alone.
 
-Note percentages will _not_ sum to 1 since the Census allows more than 1 race per respondent.
+Note percentages will _not_ sum to 1 since the Census allows
+more than 1 race per respondent.
 
 ACS variable `B02001_005E` / `B02001_001E`
 {% enddocs %}
@@ -656,7 +671,8 @@ ACS variable `B02001_005E` / `B02001_001E`
 {% docs column_percent_race_asian %}
 Percent of people Asian alone.
 
-Note percentages will _not_ sum to 1 since the Census allows more than 1 race per respondent.
+Note percentages will _not_ sum to 1 since the Census allows
+more than 1 race per respondent.
 
 ACS variable `B02001_005E` / `B02001_001E`
 {% enddocs %}
@@ -666,7 +682,8 @@ ACS variable `B02001_005E` / `B02001_001E`
 {% docs column_percent_race_black %}
 Percent of people Black alone.
 
-Note percentages will _not_ sum to 1 since the Census allows more than 1 race per respondent.
+Note percentages will _not_ sum to 1 since the Census allows
+more than 1 race per respondent.
 
 ACS variable `B02001_003E` / `B02001_001E`
 {% enddocs %}
@@ -679,10 +696,11 @@ Count of people with Hispanic origin.
 Note that this is pulled from a separate table than the other Census race
 categories. Counts for Hispanic origin are complicated in the Census, as
 it considers race and Hispanic origin to be separate concepts. See
-[census.gov](https://www.census.gov/quickfacts/fact/note/US/RHI725222) for
-more details.
+[census.gov](https://www.census.gov/quickfacts/fact/note/US/RHI725222)
+for more details.
 
-Note percentages will _not_ sum to 1 since the Census allows more than 1 race per respondent.
+Note percentages will _not_ sum to 1 since the Census allows
+more than 1 race per respondent.
 
 ACS variable `B03003_003E` / `B02001_001E`
 {% enddocs %}
@@ -692,7 +710,8 @@ ACS variable `B03003_003E` / `B02001_001E`
 {% docs column_percent_race_nhpi %}
 Percent of people Native Hawaiian and Other Pacific Islander alone.
 
-Note percentages will _not_ sum to 1 since the Census allows more than 1 race per respondent.
+Note percentages will _not_ sum to 1 since the Census allows
+more than 1 race per respondent.
 
 ACS variable `B02001_006E` / `B02001_001E`
 {% enddocs %}
@@ -703,9 +722,11 @@ ACS variable `B02001_006E` / `B02001_001E`
 Percent of people other race.
 
 This is inclusive of the Census "Some Other Race alone" and
-"Two or More Races" categories. Note percentages will _not_ sum to 1 since the Census allows more than 1 race per respondent.
+"Two or More Races" categories. Note percentages will _not_ sum
+to 1 since the Census allows more than 1 race per respondent.
 
-ACS variable (`B02001_007E` + `B02001_008E` + `B02001_009E` + `B02001_010E`) / `B02001_001E`
+ACS variable (`B02001_007E` + `B02001_008E` + `B02001_009E` +
+`B02001_010E`) / `B02001_001E`
 {% enddocs %}
 
 ## percent_race_white
@@ -713,7 +734,8 @@ ACS variable (`B02001_007E` + `B02001_008E` + `B02001_009E` + `B02001_010E`) / `
 {% docs column_percent_race_white %}
 Percent of people White alone.
 
-Note percentages will _not_ sum to 1 since the Census allows more than 1 race per respondent.
+Note percentages will _not_ sum to 1 since the Census allows
+more than 1 race per respondent.
 
 ACS variable `B02001_002E` / `B02001_001E`
 {% enddocs %}
