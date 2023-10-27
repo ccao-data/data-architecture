@@ -114,8 +114,6 @@ models:
         description: '{{ doc("shared_column_geography") }}'
       - name: geoid
         description: '{{ doc("column_geoid") }}'
-      - name: geography
-        description: '{{ doc("shared_column_geography") }}'
       - name: median_age_female
         description: '{{ doc("column_median_age_female") }}'
       - name: median_age_male
