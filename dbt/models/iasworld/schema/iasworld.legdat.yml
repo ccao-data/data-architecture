@@ -155,6 +155,8 @@ sources:
             description: '{{ doc("column_unitno") }}'
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
+          - name: user1
+            description: '{{ doc("shared_column_township_code") }}'
           - name: wen
             description: '{{ doc("column_wen") }}'
           - name: wencalc

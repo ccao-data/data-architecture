@@ -43,9 +43,9 @@ sources:
           - name: imageno
             description: Document image number for the sale deed
           - name: instrtyp
-            description: '{{ doc("column_instrtyp") }}'
+            description: '{{ doc("shared_column_deed_type") }}'
           - name: instruno
-            description: '{{ doc("column_instruno") }}'
+            description: '{{ doc("shared_column_deed_number") }}'
           - name: jur
             description: '{{ doc("column_jur") }}'
           - name: linkno
@@ -61,7 +61,7 @@ sources:
           - name: notes
             description: Sales comments
           - name: oldown
-            description: '{{ doc("column_oldown") }}'
+            description: '{{ doc("shared_column_seller_name") }}'
           - name: oldown2
             description: '{{ doc("column_oldown2") }}'
           - name: oldseq
@@ -69,7 +69,7 @@ sources:
           - name: oldyr
             description: '{{ doc("column_oldyr") }}'
           - name: own1
-            description: '{{ doc("column_own1") }}'
+            description: '{{ doc("shared_column_buyer_name") }}'
           - name: own2
             description: '{{ doc("column_own2") }}'
           - name: page
@@ -79,13 +79,13 @@ sources:
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
           - name: price
-            description: Sale price
+            description: '{{ doc("shared_column_sale_price") }}'
           - name: recorddt
             description: Recording date
           - name: saledt
-            description: Sale date
+            description: '{{ doc("shared_column_sale_date") }}'
           - name: salekey
-            description: '{{ doc("column_salekey") }}'
+            description: '{{ doc("shared_column_sale_key") }}'
           - name: saletype
             description: '{{ doc("column_saletype") }}'
           - name: saleval
