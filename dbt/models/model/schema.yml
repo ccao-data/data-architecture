@@ -123,18 +123,6 @@ models:
       - &acs5_percent_mobility_no_move
         name: acs5_percent_mobility_no_move
         description: '{{ doc("column_percent_mobility_no_move") }}'
-      - &prox_avg_school_rating_in_half_mile
-        name: prox_avg_school_rating_in_half_mile
-        description: '{{ doc("column_avg_school_rating_in_half_mile") }}'
-      - &prox_num_bus_stop_in_half_mile
-        name: prox_num_bus_stop_in_half_mile
-        description: '{{ doc("column_num_bus_stop_in_half_mile") }}'
-      - &prox_num_foreclosure_per_1000_pin_past_5_years
-        name: prox_num_foreclosure_per_1000_pin_past_5_years
-        description: '{{ doc("column_num_foreclosure_per_1000_pin_past_5_years") }}'
-      - &prox_num_school_with_rating_in_half_mile
-        name: prox_num_school_with_rating_in_half_mile
-        description: '{{ doc("column_num_school_with_rating_in_half_mile") }}'
       - &loc_access_cmap_walk_nta_score
         name: loc_access_cmap_walk_nta_score
         description: '{{ doc("column_access_cmap_walk_nta_score") }}'
@@ -333,6 +321,9 @@ models:
       - &other_tax_bill_rate
         name: other_tax_bill_rate
         description: '{{ doc("shared_column_tax_bill_rate") }}'
+      - &prox_avg_school_rating_in_half_mile
+        name: prox_avg_school_rating_in_half_mile
+        description: '{{ doc("column_avg_school_rating_in_half_mile") }}'
       - &prox_lake_michigan_dist_ft
         name: prox_lake_michigan_dist_ft
         description: '{{ doc("column_lake_michigan_dist_ft") }}'
@@ -372,12 +363,21 @@ models:
       - &prox_nearest_water_dist_ft
         name: prox_nearest_water_dist_ft
         description: '{{ doc("column_nearest_water_dist_ft") }}'
+      - &prox_num_bus_stop_in_half_mile
+        name: prox_num_bus_stop_in_half_mile
+        description: '{{ doc("column_num_bus_stop_in_half_mile") }}'
+      - &prox_num_foreclosure_per_1000_pin_past_5_years
+        name: prox_num_foreclosure_per_1000_pin_past_5_years
+        description: '{{ doc("column_num_foreclosure_per_1000_pin_past_5_years") }}'
       - &prox_num_pin_in_half_mile
         name: prox_num_pin_in_half_mile
         description: '{{ doc("column_num_pin_in_half_mile") }}'
       - &prox_num_school_in_half_mile
         name: prox_num_school_in_half_mile
         description: '{{ doc("column_num_school_in_half_mile") }}'
+      - &prox_num_school_with_rating_in_half_mile
+        name: prox_num_school_with_rating_in_half_mile
+        description: '{{ doc("column_num_school_with_rating_in_half_mile") }}'
 
   - name: model.vw_card_res_input
     config:
@@ -408,10 +408,6 @@ models:
       - *acs5_percent_mobility_moved_from_other_state
       - *acs5_percent_mobility_moved_in_county
       - *acs5_percent_mobility_no_move
-      - *prox_avg_school_rating_in_half_mile
-      - *prox_num_bus_stop_in_half_mile
-      - *prox_num_foreclosure_per_1000_pin_past_5_years
-      - *prox_num_school_with_rating_in_half_mile
       - *loc_access_cmap_walk_nta_score
       - *loc_access_cmap_walk_total_score
       - *loc_census_acs5_data_year
@@ -478,6 +474,7 @@ models:
       - *other_school_district_secondary_avg_rating
       - *other_tax_bill_amount_total
       - *other_tax_bill_rate
+      - *prox_avg_school_rating_in_half_mile
       - *prox_lake_michigan_dist_ft
       - *prox_nearest_bike_trail_dist_ft
       - *prox_nearest_cemetery_dist_ft
@@ -491,10 +488,23 @@ models:
       - *prox_nearest_park_dist_ft
       - *prox_nearest_railroad_dist_ft
       - *prox_nearest_water_dist_ft
+      - *prox_num_bus_stop_in_half_mile
+      - *prox_num_foreclosure_per_1000_pin_past_5_years
       - *prox_num_pin_in_half_mile
       - *prox_num_school_in_half_mile
+      - *prox_num_school_with_rating_in_half_mile
 
       # Columns shared between vw_card_res_input and vw_pin_condo_input
+      - &char_land_sf_95_percentile 
+        name: char_land_sf_95_percentile
+        description: |
+          95th percentile of land square footage,
+          by year and township
+      - &ind_land_gte_95_percentile
+        name: ind_land_gte_95_percentile
+        description: |
+          Indicator for a PIN with land square footage larger
+          than 95% of other properties for this year and township
       - &ind_pin_is_multilline
         name: ind_pin_is_multilline
         description: '{{ doc("shared_column_pin_is_multilline") }}'
@@ -533,14 +543,82 @@ models:
         description: '{{ doc("shared_column_tieback_proration_rate") }}'
 
       # Columns specific to vw_card_res_input
+      - name: char_air
+        description: '{{ doc("shared_column_char_air") }}'
+      - name: char_attic_fnsh
+        description: '{{ doc("shared_column_char_attic_fnsh") }}'
+      - name: char_attic_type
+        description: '{{ doc("shared_column_char_attic_type") }}'
       - name: char_bldg_sf_95_percentile
         description: |
           95th percentile of building square footage,
           by year and township
-      - name: char_land_sf_95_percentile
-        description: |
-          95th percentile of land square footage,
-          by year and township
+      - name: char_bsmt
+        description: '{{ doc("shared_column_char_bsmt") }}'
+      - name: char_bsmt_fin
+        description: '{{ doc("shared_column_char_bsmt_fin") }}'
+      - name: char_ext_wall
+        description: '{{ doc("shared_column_char_ext_wall") }}'
+      - name: card
+        description: '{{ doc("shared_column_card") }}'
+      - name: card_proration_rate
+        description: '{{ doc("shared_column_card_proration_rate") }}'
+      - name: cdu
+        description: '{{ doc("shared_column_cdu") }}'
+      - name: char_age
+        description: '{{ doc("shared_column_char_age") }}'
+      - name: char_apts
+        description: '{{ doc("shared_column_char_apts") }}'
+      - name: char_beds
+        description: '{{ doc("shared_column_char_beds") }}'
+      - name: char_bldg_sf
+        description: '{{ doc("shared_column_char_bldg_sf") }}'
+      - name: char_cnst_qlty
+        description: '{{ doc("shared_column_char_cnst_qlty") }}'
+      - name: char_fbath
+        description: '{{ doc("shared_column_char_fbath") }}'
+      - name: char_frpl
+        description: '{{ doc("shared_column_char_frpl") }}'
+      - name: char_gar1_area
+        description: '{{ doc("shared_column_char_gar_area") }}'
+      - name: char_gar1_att
+        description: '{{ doc("shared_column_char_gar_att") }}'
+      - name: char_gar1_cnst
+        description: '{{ doc("shared_column_char_gar_cnst") }}'
+      - name: char_gar1_size
+        description: '{{ doc("shared_column_char_gar_size") }}'
+      - name: char_heat
+        description: '{{ doc("shared_column_char_heat") }}'
+      - name: char_hbath
+        description: '{{ doc("shared_column_char_hbath") }}'
+      - name: char_land_sf
+        description: '{{ doc("shared_column_char_land_sf") }}'
+      - name: char_ncu
+        description: '{{ doc("shared_column_char_ncu") }}'
+      - name: char_porch
+        description: '{{ doc("shared_column_char_porch") }}'
+      - name: char_recent_renovation
+        description: '{{ doc("shared_column_char_recent_renovation") }}'
+      - name: char_renovation
+        description: '{{ doc("shared_column_char_renovation") }}'
+      - name: char_repair_cnd
+        description: '{{ doc("shared_column_char_repair_cnd") }}'
+      - name: char_roof_cnst
+        description: '{{ doc("shared_column_char_roof_cnst") }}'
+      - name: char_rooms
+        description: '{{ doc("shared_column_char_rooms") }}'
+      - name: char_site
+        description: '{{ doc("shared_column_char_site") }}'
+      - name: char_tp_dsgn
+        description: '{{ doc("shared_column_char_tp_dsgn") }}'
+      - name: char_tp_plan
+        description: '{{ doc("shared_column_char_tp_plan") }}'
+      - name: char_type_resd
+        description: '{{ doc("shared_column_char_type_resd") }}'
+      - name: char_use
+        description: '{{ doc("shared_column_char_use") }}'
+      - name: char_yrblt
+        description: '{{ doc("shared_column_char_yrblt") }}'
       - name: ind_bldg_gte_95_percentile
         description: |
           Indicator for a PIN with building square footage larger
@@ -551,10 +629,6 @@ models:
           of greater than or equal to 10.
 
           This is intended to identify small houses on very large lots
-      - name: ind_land_gte_95_percentile
-        description: |
-          Indicator for a PIN with land square footage larger
-          than 95% of other properties for this year and township
 
   - name: model.vw_pin_condo_input
     config:
@@ -562,6 +636,7 @@ models:
         - type_condo
 
     columns:
+      # Columns inherited from vw_pin_shared_input
       - *acs5_count_sex_total
       - *acs5_median_age_total
       - *acs5_median_household_owner_occupied_value
@@ -584,10 +659,6 @@ models:
       - *acs5_percent_mobility_moved_from_other_state
       - *acs5_percent_mobility_moved_in_county
       - *acs5_percent_mobility_no_move
-      - *prox_avg_school_rating_in_half_mile
-      - *prox_num_bus_stop_in_half_mile
-      - *prox_num_foreclosure_per_1000_pin_past_5_years
-      - *prox_num_school_with_rating_in_half_mile
       - *loc_access_cmap_walk_nta_score
       - *loc_access_cmap_walk_total_score
       - *loc_census_acs5_data_year
@@ -654,6 +725,7 @@ models:
       - *other_school_district_secondary_avg_rating
       - *other_tax_bill_amount_total
       - *other_tax_bill_rate
+      - *prox_avg_school_rating_in_half_mile
       - *prox_lake_michigan_dist_ft
       - *prox_nearest_bike_trail_dist_ft
       - *prox_nearest_cemetery_dist_ft
@@ -667,10 +739,15 @@ models:
       - *prox_nearest_park_dist_ft
       - *prox_nearest_railroad_dist_ft
       - *prox_nearest_water_dist_ft
+      - *prox_num_bus_stop_in_half_mile
+      - *prox_num_foreclosure_per_1000_pin_past_5_years
       - *prox_num_pin_in_half_mile
       - *prox_num_school_in_half_mile
+      - *prox_num_school_with_rating_in_half_mile
 
       # Columns inherited from vw_card_res_input
+      - *char_land_sf_95_percentile 
+      - *ind_land_gte_95_percentile
       - *ind_pin_is_multilline
       - *ind_pin_is_prorated
       - *meta_card_num
@@ -682,3 +759,27 @@ models:
       - *meta_pin_num_lline
       - *meta_tieback_key_pin
       - *meta_tieback_proration_rate
+
+      # Columns specific to vw_pin_condo_input
+      - name: char_bedrooms
+        description: '{{ doc("shared_column_char_beds") }}'
+      - name: char_bldg_is_mixed_use
+        description: '{{ doc("shared_column_char_bldg_is_mixed_use") }}'
+      - name: char_building_non_units
+        description: '{{ doc("shared_column_char_building_non_units") }}'
+      - name: char_building_pins
+        description: '{{ doc("shared_column_char_building_pins") }}'
+      - name: char_building_sf
+        description: '{{ doc("shared_column_char_building_sf") }}'
+      - name: char_building_units
+        description: '{{ doc("shared_column_char_building_units") }}'
+      - name: char_full_baths
+        description: '{{ doc("shared_column_char_fbath") }}'
+      - name: char_half_baths
+        description: '{{ doc("shared_column_char_hbath") }}'
+      - name: char_land_sf
+        description: '{{ doc("shared_column_char_land_sf") }}'
+      - name: char_unit_sf
+        description: '{{ doc("shared_column_char_unit_sf") }}'
+      - name: char_yrblt
+        description: '{{ doc("shared_column_char_yrblt") }}'

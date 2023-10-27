@@ -334,6 +334,15 @@ Number of bedrooms in the building.
 Square footage of the building, as measured from the exterior.
 {% enddocs %}
 
+## char_bldg_is_mixed_use
+
+{% docs shared_column_char_bldg_is_mixed_use %}
+The 10-digit PIN (building) contains a 14-digit PIN that is
+neither class 299 nor 399.
+
+Applies to condos only
+{% enddocs %}
+
 ## char_bsmt
 
 {% docs shared_column_char_bsmt %}
@@ -357,6 +366,32 @@ Possible values for this variable are:
 - `1` = Finished / formal rec room (`REC`)
 - `2` = Apartment (`APT`)
 - `3` = Unfinished (`UNF`)
+{% enddocs %}
+
+## char_building_non_units
+
+{% docs shared_column_char_building_non_units %}
+Count of non-livable 14-digit PINs.
+
+Non-livable PINs are anything identified as parking spaces,
+common areas, or storage units. These PINs are identified through
+a number of validation criteria. Applies to condos only
+{% enddocs %}
+
+## char_building_pins
+
+{% docs shared_column_char_building_pins %}
+Total number of PINs associated with a building (PIN10).
+
+Includes both livable and non-livable units. Applies to condos only
+{% enddocs %}
+
+## char_building_units
+
+{% docs shared_column_char_building_units %}
+Count of livable 14-digit PINs (AKA condo units).
+
+Applies to condos only
 {% enddocs %}
 
 ## char_building_sf
