@@ -98,3 +98,31 @@ models:
         - type_condo
 
   - name: model.vw_pin_shared_input
+    columns:
+      - &meta_class
+        name: meta_class
+        description: '{{ doc("shared_column_class") }}'
+      - &meta_pin
+        name: meta_pin
+        description: '{{ doc("shared_column_pin") }}'
+      - &meta_pin10
+        name: meta_pin10
+        description: '{{ doc("shared_column_pin10") }}'
+      - &meta_township_code
+        code: meta_township_code
+        description: '{{ doc("shared_column_township_code") }}'
+      - &meta_township_name
+        code: meta_township_name
+        description: '{{ doc("shared_column_township_name") }}'
+      - &meta_triad_code
+        code: meta_triad_code
+        description: '{{ doc("shared_column_triad_code") }}'
+      - &meta_triad_name
+        name: meta_triad_name
+        description: '{{ doc("shared_column_triad_name") }}'
+      - &meta_tax_code
+        name: meta_tax_code
+        description: '{{ doc("shared_column_tax_code") }}'
+      - &meta_year
+        name: meta_year
+        description: '{{ doc("shared_column_year") }}'
