@@ -29,7 +29,7 @@ ACS variable `B15002_014E` + `B15002_031E`
 ## count_education_bachelor
 
 {% docs column_count_education_bachelor %}
-Count of all people older than 25 years old with an bachelor's degree.
+Count of all people older than 25 years old with a bachelor's degree.
 
 ACS variable `B15002_015E` + `B15002_032E`
 {% enddocs %}
@@ -482,7 +482,7 @@ ACS variable (`B15002_014E` + `B15002_031E`) / `B15002_001E`
 ## percent_education_bachelor
 
 {% docs column_percent_education_bachelor %}
-Percent of people older than 25 who attained a bachelor degree.
+Percent of people older than 25 who attained a bachelor's degree.
 
 ACS variable (`B15002_015E` + `B15002_032E`) / `B15002_001E`
 {% enddocs %}
@@ -515,7 +515,7 @@ ACS variable `B23025_005E` / `B23025_003E`
 ## percent_household_family_married
 
 {% docs column_percent_household_family_married %}
-Percent of households that are family, married (married).
+Percent of households that are family, married.
 
 ACS variable `B11001_003E` / `B11001_001E`
 {% enddocs %}
