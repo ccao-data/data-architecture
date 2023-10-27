@@ -1074,6 +1074,15 @@ record is for 2022, the ACS data attached to it is from 2021 (the latest
 year available)
 {% enddocs %}
 
+## geography
+
+{% docs shared_column_geometry %}
+Type of geography (triad, township, neighborhood, etc.).
+
+Typically used in SQL `WHERE` clauses to filter multi-geometry tables.
+Possible values depend on the particular table
+% enddocs %}
+
 ## geometry
 
 {% docs shared_column_geometry %}
