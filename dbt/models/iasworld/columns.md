@@ -232,12 +232,6 @@ Reason code for change of value
 City name
 {% enddocs %}
 
-## class
-
-{% docs column_class %}
-Classification
-{% enddocs %}
-
 ## comnt
 
 {% docs column_comnt %}
@@ -652,12 +646,6 @@ Owner number
 Page number
 {% enddocs %}
 
-## parid
-
-{% docs column_parid %}
-Parcel identification number
-{% enddocs %}
-
 ## partial
 
 {% docs column_partial %}
@@ -860,12 +848,6 @@ Relative location
 
 {% docs column_suppress %}
 Flag to indicate suppress value
-{% enddocs %}
-
-## taxyr
-
-{% docs column_taxyr %}
-Tax year
 {% enddocs %}
 
 ## trans_id

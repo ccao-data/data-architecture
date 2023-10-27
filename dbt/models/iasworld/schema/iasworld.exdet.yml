@@ -17,7 +17,7 @@ sources:
           - name: caseno
             description: '{{ doc("column_caseno") }}'
           - name: class
-            description: '{{ doc("column_class") }}'
+            description: '{{ doc("shared_column_class") }}'
           - name: codejur
             description: The Jurisdiction number that is associated with the exemption code
           - name: const1

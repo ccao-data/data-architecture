@@ -68,7 +68,7 @@ sources:
           - name: cityname
             description: '{{ doc("column_cityname") }}'
           - name: class
-            description: '{{ doc("column_class") }}'
+            description: '{{ doc("shared_column_class") }}'
           - name: cur
             description: '{{ doc("column_cur") }}'
           - name: deactivat

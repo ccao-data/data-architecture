@@ -85,7 +85,7 @@ sources:
           - name: chgrsn
             description: '{{ doc("column_chgrsn") }}'
           - name: class
-            description: '{{ doc("column_class") }}'
+            description: '{{ doc("shared_column_class") }}'
           - name: cline
             description: Condominium line
           - name: cndadjval

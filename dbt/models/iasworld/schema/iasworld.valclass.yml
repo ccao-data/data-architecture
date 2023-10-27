@@ -11,7 +11,7 @@ sources:
           - name: assess_pct
             description: Assessment percent used in calc of asmt
           - name: class
-            description: '{{ doc("column_class") }}'
+            description: '{{ doc("shared_column_class") }}'
           - name: iasw_id
             description: '{{ doc("column_iasw_id") }}'
           - name: jur
