@@ -23,7 +23,7 @@ classes AS (
         END AS property_group,
         vwps.township_code AS geography_id,
         town_names.triad_code
-    FROM {{ ref('default.vw_pin_sale') }} AS vwps
+    FROM {{ ref('default.legacy_vw_pin_sale') }} AS vwps
     LEFT JOIN town_names
         ON vwps.township_code = town_names.township_code
     WHERE NOT vwps.is_multisale

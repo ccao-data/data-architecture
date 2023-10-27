@@ -220,7 +220,7 @@ First Street extract provided to the CCAO
 ## env_ohare_noise_contour_half_mile_buffer_bool
 
 {% docs column_env_ohare_noise_contour_half_mile_buffer_bool %}
-Indicator for properties within a buffered version of the O'Hare
+Indicator for properties within half a mile of the O'Hare
 65 DNL noise buffer (OMP)
 
 Ingested from oharenoise.org

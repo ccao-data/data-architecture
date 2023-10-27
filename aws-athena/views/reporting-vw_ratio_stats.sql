@@ -106,7 +106,7 @@ SELECT
     av.total AS fmv,
     vwps.sale_price,
     av.total / vwps.sale_price AS ratio
-FROM {{ ref('default.vw_pin_sale') }} AS vwps
+FROM {{ ref('default.legacy_vw_pin_sale') }} AS vwps
 LEFT JOIN classes
     ON vwps.pin = classes.parid
     AND vwps.year = classes.taxyr
