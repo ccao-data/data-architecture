@@ -1076,10 +1076,10 @@ year available)
 
 ## geography
 
-{% docs shared_column_geometry %}
+{% docs shared_column_geography %}
 Type of geography (triad, township, neighborhood, etc.).
 
-Typically used in SQL `WHERE` clauses to filter multi-geometry tables.
+Typically used in SQL `WHERE` clauses to filter multi-geography tables.
 Possible values depend on the particular table
 % enddocs %}
 
