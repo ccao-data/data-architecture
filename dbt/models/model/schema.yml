@@ -505,9 +505,9 @@ models:
         description: |
           Indicator for a PIN with land square footage larger
           than 95% of other properties for this year and township
-      - &ind_pin_is_multilline
-        name: ind_pin_is_multilline
-        description: '{{ doc("shared_column_pin_is_multilline") }}'
+      - &ind_pin_is_multiland
+        name: ind_pin_is_multiland
+        description: '{{ doc("shared_column_pin_is_multiland") }}'
       - &ind_pin_is_prorated
         name: ind_pin_is_prorated 
         description: |
@@ -520,21 +520,12 @@ models:
       - &meta_cdu
         name: meta_cdu
         description: '{{ doc("shared_column_cdu") }}'
-      - &meta_card_proration_rate
-        name: meta_card_proration_rate
-        description: '{{ doc("shared_column_card_proration_rate") }}'
-      - &meta_lline_num
-        name: meta_lline_num
-        description: '{{ doc("shared_column_lline") }}'
       - &meta_modeling_group
         name: meta_modeling_group
         description: '{{ doc("shared_column_modeling_group") }}'
       - &meta_pin_num_landlines
         name: meta_pin_num_landlines
         description: '{{ doc("shared_column_pin_num_landlines") }}'
-      - &meta_pin_num_lline
-        name: meta_pin_num_lline
-        description: '{{ doc("shared_column_pin_num_lline") }}'
       - &meta_tieback_key_pin
         name: meta_tieback_key_pin
         description: '{{ doc("shared_column_tieback_key_pin") }}'
@@ -629,6 +620,10 @@ models:
           of greater than or equal to 10.
 
           This is intended to identify small houses on very large lots
+      - name: ind_pin_is_multicard
+        description: '{{ doc("shared_column_pin_is_multicard") }}'
+      - name: meta_pin_num_cards
+        description: '{{ doc("shared_column_pin_num_cards") }}'
 
   - name: model.vw_pin_condo_input
     config:
@@ -714,12 +709,6 @@ models:
       - *meta_triad_code
       - *meta_triad_name
       - *meta_year
-      - *nearest_neighbor_1_dist_ft
-      - *nearest_neighbor_1_pin10
-      - *nearest_neighbor_2_dist_ft
-      - *nearest_neighbor_2_pin10
-      - *nearest_neighbor_3_dist_ft
-      - *nearest_neighbor_3_pin10
       - *other_ihs_avg_year_index
       - *other_school_district_elementary_avg_rating
       - *other_school_district_secondary_avg_rating
@@ -748,15 +737,12 @@ models:
       # Columns inherited from vw_card_res_input
       - *char_land_sf_95_percentile 
       - *ind_land_gte_95_percentile
-      - *ind_pin_is_multilline
+      - *ind_pin_is_multiland
       - *ind_pin_is_prorated
       - *meta_card_num
       - *meta_cdu
-      - *meta_card_proration_rate
-      - *meta_lline_num
       - *meta_modeling_group
       - *meta_pin_num_landlines
-      - *meta_pin_num_lline
       - *meta_tieback_key_pin
       - *meta_tieback_proration_rate
 
@@ -783,3 +769,11 @@ models:
         description: '{{ doc("shared_column_char_unit_sf") }}'
       - name: char_yrblt
         description: '{{ doc("shared_column_char_yrblt") }}'
+      - name: ind_pin_is_multilline
+        description: '{{ doc("shared_column_pin_is_multilline") }}'
+      - name: meta_card_proration_rate
+        description: '{{ doc("shared_column_card_proration_rate") }}'
+      - name: meta_lline_num
+        description: '{{ doc("shared_column_lline") }}'
+      - name: meta_pin_num_lline
+        description: '{{ doc("shared_column_pin_num_lline") }}'
