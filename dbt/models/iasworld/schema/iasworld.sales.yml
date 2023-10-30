@@ -45,7 +45,7 @@ sources:
           - name: instrtyp
             description: '{{ doc("shared_column_deed_type") }}'
           - name: instruno
-            description: '{{ doc("shared_column_deed_number") }}'
+            description: '{{ doc("shared_column_document_number") }}'
           - name: jur
             description: '{{ doc("column_jur") }}'
           - name: linkno

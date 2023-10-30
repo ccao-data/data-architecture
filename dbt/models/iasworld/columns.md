@@ -691,7 +691,14 @@ Procedure date
 ## procname
 
 {% docs column_procname %}
-Procedure name
+Procedure name.
+
+Defines the "stage" of assessed values held in the `valasm*` and `ovrvalasm*`
+fields. Possible values include:
+
+- `CCAOVALUE` = CCAO mailed values (pre-appeal)
+- `CCAOFINAL` = CCAO certified values (after Assessor appeals)
+- `BORVALUE` = BoR certified values (after Board of Review appeals)
 {% enddocs %}
 
 ## prodamage
