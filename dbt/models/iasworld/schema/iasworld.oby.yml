@@ -99,7 +99,7 @@ sources:
           - name: lcf
             description: Factor used to calculate `RCNADJ`
           - name: lline
-            description: '{{ doc("column_lline") }}'
+            description: '{{ doc("shared_column_lline") }}'
           - name: locmult
             description: Local multiplier
           - name: lumpadj

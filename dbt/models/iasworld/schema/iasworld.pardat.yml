@@ -112,7 +112,7 @@ sources:
           - name: municd
             description: Jurisdictions (Municipalities) used as part of Folio number (BCA)
           - name: nbhd
-            description: Neighborhood number
+            description: '{{ doc("shared_column_nbhd_code") }}'
           - name: nbhdie
             description: Neighborhood income valuation
           - name: nonfarminc

@@ -63,7 +63,7 @@ sources:
           - name: jur
             description: '{{ doc("column_jur") }}'
           - name: lline
-            description: '{{ doc("column_lline") }}'
+            description: '{{ doc("shared_column_lline") }}'
           - name: lower
             description: Lower level addition code
           - name: mktadj

@@ -85,7 +85,7 @@ sources:
           - name: lcodemod
             description: Land code model
           - name: lline
-            description: '{{ doc("column_lline") }}'
+            description: '{{ doc("shared_column_lline") }}'
           - name: lmod
             description: Land location model number
           - name: locfact
@@ -143,7 +143,7 @@ sources:
           - name: seq
             description: '{{ doc("column_seq") }}'
           - name: sf
-            description: SF of land (type S) or units (type U)
+            description: '{{ doc("shared_column_char_land_sf") }}'
           - name: sfact
             description: S factor
           - name: sizefact

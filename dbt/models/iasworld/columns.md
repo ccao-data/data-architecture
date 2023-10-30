@@ -430,12 +430,6 @@ Instrument number
 Jurisdiction
 {% enddocs %}
 
-## lline
-
-{% docs column_lline %}
-Line number
-{% enddocs %}
-
 ## loc2
 
 {% docs column_loc2 %}

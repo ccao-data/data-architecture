@@ -57,7 +57,7 @@ sources:
           - name: lineno
             description: Exemption line line number for this `parid`/`excode`
           - name: lline
-            description: '{{ doc("column_lline") }}'
+            description: '{{ doc("shared_column_lline") }}'
           - name: override
             description: Override indicator
           - name: ovrval
