@@ -51,7 +51,7 @@ sources:
           - name: effageovr
             description: '{{ doc("column_effageovr") }}'
           - name: effyr
-            description: '{{ doc("column_effyr") }}'
+            description: '{{ doc("shared_column_char_yrblt") }}'
           - name: excess
             description: '{{ doc("column_excess") }}'
           - name: exmppct
@@ -157,7 +157,7 @@ sources:
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
           - name: yrblt
-            description: '{{ doc("column_yrblt") }}'
+            description: '{{ doc("shared_column_char_yrblt") }}'
 
         tests:
           - unique_combination_of_columns:

@@ -192,11 +192,11 @@ sources:
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
           - name: tieback
-            description: Parcel tieback
+            description: '{{ doc("shared_column_tieback_key_pin") }}'
           - name: tiebkcd
             description: Tieback code
           - name: tiebldgpct
-            description: Percent bldg common interest
+            description: '{{ doc("shared_column_tieback_proration_rate") }}'
           - name: tielandpct
             description: Percent land common interest
           - name: topo1
