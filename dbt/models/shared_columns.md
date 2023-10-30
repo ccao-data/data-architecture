@@ -1077,6 +1077,8 @@ See [model-sales-val](https://github.com/ccao-data/model-sales-val) for full det
 {% docs shared_column_sv_is_ptax_outlier %}
 Outlier flagged due to certain answers on Q10 of the PTAX-203 form.
 
+Must have a Q10 flag _in addition to_ a statistical flag.
+
 See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more details
 {% enddocs %}
 
@@ -1088,6 +1090,15 @@ Indicates an outlier sale not used in modeling or reporting.
 This variable combines `sv_is_heuristic_outlier`
 with `sv_is_ptax_outlier` (using OR logic).
 NOTE: Outlier flags only exist for sales _after_ 2014.
+{% enddocs %}
+
+## sv_outlier_type
+
+{% docs shared_column_sv_outlier_type %}
+Heuristic or model used to flag an outlier.
+
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
+for a list of possible flags.
 {% enddocs %}
 
 ## sv_run_id
