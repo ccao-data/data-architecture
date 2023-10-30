@@ -108,9 +108,9 @@ sources:
           - name: unitno
             description: '{{ doc("column_unitno") }}'
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: zip1
             description: '{{ doc("column_zip1") }}'
           - name: zip2

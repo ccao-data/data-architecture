@@ -237,7 +237,7 @@ sources:
           - name: valdisp
             description: Value in dispute
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: who
 
         tests:

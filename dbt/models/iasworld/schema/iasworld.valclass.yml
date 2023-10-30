@@ -33,6 +33,6 @@ sources:
           - name: vclass
             description: Other valclass class pointing to assigned valclass
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'

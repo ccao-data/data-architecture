@@ -81,8 +81,8 @@ sources:
           - name: warnpctdiff
             description: Raises warning message if the percentage change in exemption exceeds this percent
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: yrend
             description: Exemption end year

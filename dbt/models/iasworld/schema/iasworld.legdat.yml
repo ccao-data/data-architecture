@@ -158,11 +158,11 @@ sources:
           - name: user1
             description: '{{ doc("shared_column_township_code") }}'
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
             description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
           - name: xcoord

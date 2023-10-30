@@ -135,11 +135,11 @@ sources:
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
             description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
 
