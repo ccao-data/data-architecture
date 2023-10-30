@@ -18,7 +18,7 @@ sources:
           - name: adradd
             description: '{{ doc("column_adradd") }}'
           - name: adrdir
-            description: '{{ doc("shared_column_prop_address_street_direction") }}'
+            description: '{{ doc("shared_column_prop_address_street_dir") }}'
           - name: adrid
             description: '{{ doc("column_adrid") }}'
           - name: adrno
@@ -30,17 +30,17 @@ sources:
           - name: adrpre
             description: '{{ doc("shared_column_prop_address_prefix") }}'
           - name: adrpremod
-            description: '{{ doc("shared_column_prop_address_prefixmod") }}'
+            description: '{{ doc("column_adrpremod") }}'
           - name: adrpretype
-            description: '{{ doc("shared_column_prop_address_prefixtype") }}'
+            description: '{{ doc("column_adrpretype") }}'
           - name: adrstatus
             description: '{{ doc("column_adrstatus") }}'
           - name: adrstr
             description: '{{ doc("shared_column_prop_address_street_name") }}'
           - name: adrsuf
-            description: '{{ doc("shared_column_prop_address_street_suffix_1") }}'
+            description: '{{ doc("shared_column_prop_address_suffix_1") }}'
           - name: adrsuf2
-            description: '{{ doc("shared_column_prop_address_street_suffix_12") }}'
+            description: '{{ doc("shared_column_prop_address_suffix_2") }}'
           - name: block
             description: Block prefix and suffix, formatted
           - name: cityname

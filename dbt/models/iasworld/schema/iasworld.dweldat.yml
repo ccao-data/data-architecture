@@ -549,13 +549,13 @@ sources:
           - name: user30
             description: '{{ doc("shared_column_char_porch") }}'
           - name: user31
-            description: '{{ doc("shared_column_char_gar1_att") }}'
+            description: '{{ doc("shared_column_char_gar_att") }}'
           - name: user32
-            description: '{{ doc("shared_column_char_gar1_area") }}'
+            description: '{{ doc("shared_column_char_gar_area") }}'
           - name: user33
-            description: '{{ doc("shared_column_char_gar1_size") }}'
+            description: '{{ doc("shared_column_char_gar_size") }}'
           - name: user34
-            description: '{{ doc("shared_column_char_gar1_cnst") }}'
+            description: '{{ doc("shared_column_char_gar_cnst") }}'
           - name: useramt
             description: RCN value of additions
           - name: userfact
