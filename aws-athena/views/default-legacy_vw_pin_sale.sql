@@ -224,14 +224,6 @@ mydec_sales AS (
     not, so we'll exclude them to avoid afore mentioned duplicates. */
     WHERE num_cards_sale = 1
         OR (YEAR(mydec_date) > 2020)
-),
-
-max_version_flag AS (
-    SELECT
-        meta_sale_document_num,
-        MAX(version) AS max_version
-    FROM {{ source('sale', 'flag') }}
-    GROUP BY meta_sale_document_num
 )
 
 SELECT
