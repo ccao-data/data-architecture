@@ -104,7 +104,7 @@ sources:
           - name: schvalpct2
             description: Consolidated school district value percentage
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: sortkey
             description: Block, lot and qualifier, reformatted for sorting
           - name: splitno

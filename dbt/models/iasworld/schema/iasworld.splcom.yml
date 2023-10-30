@@ -85,7 +85,7 @@ sources:
           - name: reascd
             description: Reason for change
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: splcom_status
             description: Apportionment/merger status (C - complete, R - reversed, null - in progress)
           - name: splitcde

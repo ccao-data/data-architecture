@@ -152,7 +152,7 @@ sources:
           - name: salekey
             description: '{{ doc("column_salekey") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: site
             description: '{{ doc("column_site") }}'
           - name: skip_addr_validation

@@ -125,7 +125,7 @@ sources:
           - name: second
             description: Second floor addition code
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: status
             description: '{{ doc("column_status") }}'
           - name: taxyr

@@ -87,7 +87,7 @@ sources:
           - name: scrn
             description: Screen name to which this exemption applies
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: statflg
             description: Status flag
           - name: status

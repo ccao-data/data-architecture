@@ -57,7 +57,7 @@ sources:
           - name: permdt
             description: Permit date
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status

@@ -176,7 +176,7 @@ sources:
           - name: saleprice
             description: Selected sale price
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: spcflg
             description: Special processing flag
           - name: splitno

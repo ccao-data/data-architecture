@@ -75,7 +75,7 @@ sources:
           - name: postalcode
             description: '{{ doc("column_postalcode") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: statecode
             description: '{{ doc("column_statecode") }}'
           - name: strcd

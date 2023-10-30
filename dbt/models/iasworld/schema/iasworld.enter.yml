@@ -27,7 +27,7 @@ sources:
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status

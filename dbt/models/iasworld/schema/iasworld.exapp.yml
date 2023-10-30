@@ -79,7 +79,7 @@ sources:
           - name: salekey
             description: '{{ doc("column_salekey") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: statreas
             description: Status reason code
           - name: status

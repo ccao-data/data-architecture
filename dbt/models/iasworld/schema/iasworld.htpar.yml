@@ -201,7 +201,7 @@ sources:
           - name: schtime
             description: Schedule time
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: status
             description: '{{ doc("column_status") }}'
           - name: stipbldg

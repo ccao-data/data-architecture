@@ -73,7 +73,7 @@ sources:
           - name: revmeth
             description: Review Method
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: sfmod
             description: Type S (Sq. Ft.) - land model assignment
           - name: sfpct

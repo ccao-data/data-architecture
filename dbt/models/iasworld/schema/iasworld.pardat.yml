@@ -170,7 +170,7 @@ sources:
           - name: sec_fld
             description: Security field
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: skip_addr_validation
             description: '{{ doc("column_skip_addr_validation") }}'
           - name: splitno

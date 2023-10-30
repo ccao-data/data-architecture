@@ -119,7 +119,7 @@ sources:
           - name: rectype
             description: '{{ doc("column_rectype") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: site
             description: '{{ doc("column_site") }}'
           - name: skip_addr_validation

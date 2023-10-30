@@ -91,7 +91,7 @@ sources:
           - name: saleval
             description: '{{ doc("column_saleval") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: source
             description: Source code
           - name: stampval

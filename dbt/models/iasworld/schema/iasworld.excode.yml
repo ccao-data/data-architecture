@@ -63,7 +63,7 @@ sources:
           - name: roundcent
             description: Decimal positions to round
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: status
             description: '{{ doc("column_status") }}'
           - name: sumtype

@@ -39,7 +39,7 @@ sources:
           - name: rolltype
             description: '{{ doc("column_rolltype") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: splitno
             description: '{{ doc("column_splitno") }}'
           - name: status
