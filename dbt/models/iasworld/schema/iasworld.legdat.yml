@@ -18,33 +18,33 @@ sources:
           - name: adradd
             description: '{{ doc("column_adradd") }}'
           - name: adrdir
-            description: '{{ doc("column_adrdir") }}'
+            description: '{{ doc("shared_column_prop_address_street_direction") }}'
           - name: adrid
             description: '{{ doc("column_adrid") }}'
           - name: adrno
-            description: '{{ doc("column_adrno") }}'
+            description: '{{ doc("shared_column_prop_address_street_number") }}'
           - name: adrparchild
             description: '{{ doc("column_adrparchild") }}'
           - name: adrpostmod
             description: '{{ doc("column_adrpostmod") }}'
           - name: adrpre
-            description: '{{ doc("column_adrpre") }}'
+            description: '{{ doc("shared_column_prop_address_prefix") }}'
           - name: adrpremod
-            description: '{{ doc("column_adrpremod") }}'
+            description: '{{ doc("shared_column_prop_address_prefixmod") }}'
           - name: adrpretype
-            description: '{{ doc("column_adrpretype") }}'
+            description: '{{ doc("shared_column_prop_address_prefixtype") }}'
           - name: adrstatus
             description: '{{ doc("column_adrstatus") }}'
           - name: adrstr
-            description: '{{ doc("column_adrstr") }}'
+            description: '{{ doc("shared_column_prop_address_street_name") }}'
           - name: adrsuf
-            description: '{{ doc("column_adrsuf") }}'
+            description: '{{ doc("shared_column_prop_address_street_suffix_1") }}'
           - name: adrsuf2
-            description: '{{ doc("column_adrsuf2") }}'
+            description: '{{ doc("shared_column_prop_address_street_suffix_12") }}'
           - name: block
             description: Block prefix and suffix, formatted
           - name: cityname
-            description: '{{ doc("column_cityname") }}'
+            description: '{{ doc("shared_column_prop_address_city_name") }}'
           - name: compct
             description: Common interest
           - name: condbdg
@@ -114,7 +114,7 @@ sources:
           - name: star_credit
             description: Star credit flag
           - name: statecode
-            description: '{{ doc("column_statecode") }}'
+            description: '{{ doc("shared_column_prop_address_state") }}'
           - name: status
             description: '{{ doc("column_status") }}'
           - name: strcd
@@ -150,9 +150,9 @@ sources:
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: unitdesc
-            description: '{{ doc("column_unitdesc") }}'
+            description: '{{ doc("shared_column_prop_address_unit_prefix") }}'
           - name: unitno
-            description: '{{ doc("column_unitno") }}'
+            description: '{{ doc("shared_column_prop_address_unit_number") }}'
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
           - name: user1
@@ -172,9 +172,9 @@ sources:
           - name: zcoord
             description: Z coordinate
           - name: zip1
-            description: '{{ doc("column_zip1") }}'
+            description: '{{ doc("shared_column_prop_address_zipcode_1") }}'
           - name: zip2
-            description: '{{ doc("column_zip2") }}'
+            description: '{{ doc("shared_column_prop_address_zipcode_2") }}'
 
         tests:
           - unique_combination_of_columns:
