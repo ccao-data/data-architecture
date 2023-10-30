@@ -48,7 +48,7 @@ sources:
           - name: carrier_rt
             description: '{{ doc("column_carrier_rt") }}'
           - name: cityname
-            description: '{{ doc("column_cityname") }}'
+            description: '{{ doc("shared_column_mail_address_city_name") }}'
           - name: cnamejur
             description: Stores `CNAME.JUR` when ownnum is populated in hierarchical `JUR` sites
           - name: compartment
@@ -90,7 +90,7 @@ sources:
           - name: notecd
             description: Code for predefined note
           - name: own1
-            description: '{{ doc("column_own1") }}'
+            description: '{{ doc("shared_column_owner_name") }}'
           - name: own1_companyname
             description: '{{ doc("column_own1_companyname") }}'
           - name: own1_firstname
@@ -122,7 +122,7 @@ sources:
           - name: ownend
             description: Ownership ending date
           - name: ownnum
-            description: '{{ doc("column_ownnum") }}'
+            description: '{{ doc("shared_column_owner_num") }}'
           - name: ownseq
             description: Owner sequence number
           - name: owntype1
@@ -160,7 +160,7 @@ sources:
           - name: splitno
             description: '{{ doc("column_splitno") }}'
           - name: statecode
-            description: '{{ doc("column_statecode") }}'
+            description: '{{ doc("shared_column_mail_address_state") }}'
           - name: stateid
             description: State tax ID number
           - name: status
@@ -184,9 +184,9 @@ sources:
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
           - name: zip1
-            description: '{{ doc("column_zip1") }}'
+            description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
           - name: zip2
-            description: '{{ doc("column_zip2") }}'
+            description: '{{ doc("shared_column_mail_address_zipcode_2") }}'
 
         tests:
           - unique_combination_of_columns:
