@@ -1,19 +1,39 @@
 models:
   - name: location.access
+    description: '{{ doc("table_access") }}'
+
   - name: location.census
+    description: '{{ doc("table_census") }}'
+
   - name: location.census_acs5
+    description: '{{ doc("table_census_acs5") }}'
+
   - name: location.chicago
+    description: '{{ doc("table_chicago") }}'
+
   - name: location.crosswalk_year_fill
+    description: '{{ doc("table_crosswalk_year_fill") }}'
+
   - name: location.economy
+    description: '{{ doc("table_economy") }}'
+
   - name: location.environment
+    description: '{{ doc("table_environment") }}'
+
   - name: location.other
+    description: '{{ doc("table_other") }}'
+
   - name: location.political
+    description: '{{ doc("table_political") }}'
+
   - name: location.school
+    description: '{{ doc("table_school") }}'
+
   - name: location.tax
+    description: '{{ doc("table_tax") }}'
 
   - name: location.vw_pin10_location
     description: '{{ doc("view_vw_pin10_location") }}'
-
     columns: &vw_location_columns
       - name: access_cmap_walk_data_year
         description: '{{ doc("shared_column_data_year") }}'
