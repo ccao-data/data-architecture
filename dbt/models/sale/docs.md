@@ -1,27 +1,67 @@
+# flag
+
 {% docs flag %}
-This table holds the flag information from the sales val program.
+PIN-level sales validation flags created by
+[model-sales-val](https://github.com/ccao-data/model-sales-val).
+
+This is the primary sales validation output table. Flags within this table
+should be possible to reconstruct using the other sales validation tables:
+`sale.group_mean`, `sale.parameter`, and `sale.metadata`.
+
+**Primary Key**: `meta_sale_document_number`, `run_id`, `version`
 {% enddocs %}
+
+# foreclosure
 
 {% docs foreclosure %}
-Foreclosures
+Foreclosure data ingested from Illinois Public Records (RIS).
+
+**Primary Key**: `pin`, `document_number`
 {% enddocs %}
+
+# parameter
 
 {% docs parameter %}
-This table holds information about the specifications used to flag outliers in the sales val program.
+Parameters used for each run of
+[model-sales-val](https://github.com/ccao-data/model-sales-val),
+including the statistical bounds, groupings, window sizes, etc.
+
+**Primary Key**: `run_id`
 {% enddocs %}
+
+# group_mean
 
 {% docs group_mean %}
-This table holds group mean information which we can utilize to explain exactly why an outlier was flagged.
+Information about groups used to calculate statistical deviations
+for sales validation.
+
+**Primary Key**: `run_id`, `group`
 {% enddocs %}
+
+# metadata
 
 {% docs metadata %}
-View to help the upload process of sales validation flags into iasWorld.
+Information about the code used for a sales validation run, as well as
+the start time and type of run.
+
+**Primary Key**: `run_id`
 {% enddocs %}
+
+# mydec
 
 {% docs mydec %}
-mydec
+MyDec data from the Illinois Department of Revenue (IDOR). Includes property
+transfer declarations (sales) used to fill in missing data in `iasworld.sales`
+and as an input to sales validation flagging.
+
+**Primary Key**: `document_number`, `year_of_sale`
 {% enddocs %}
 
+# vw_ias_salesval_upload
+
 {% docs vw_ias_salesval_upload %}
-View to help the upload process of sales validation flags into iasWorld.
+View for sales validation outputs to create an upload format compatible
+with iasWorld.
+
+**Primary Key**: `salekey`, `run_id`
 {% enddocs %}
