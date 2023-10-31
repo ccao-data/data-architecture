@@ -11,7 +11,7 @@ Classification codes and descriptions for real property. Derived from the
 
 {% docs table_commercial_valuation %}
 CCAO commercial valuation data, aggregated from the commercial team spreadsheets
-[available on the Assessor's website](https://www.cookcountyassessor.com/valuation-reports).
+[available on the Assessor's site](https://www.cookcountyassessor.com/valuation-reports).
 
 **Primary Key**: `keypin`, `year`
 {% enddocs %}
