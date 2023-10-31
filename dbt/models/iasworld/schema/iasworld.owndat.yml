@@ -6,7 +6,7 @@ sources:
 
     tables:
       - name: owndat
-        description: '{{ doc("owndat") }}'
+        description: '{{ doc("table_owndat") }}'
 
         columns:
           - name: addr1

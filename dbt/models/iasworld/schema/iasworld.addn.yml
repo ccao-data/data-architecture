@@ -7,7 +7,7 @@ sources:
 
     tables:
       - name: addn
-        description: '{{ doc("addn") }}'
+        description: '{{ doc("table_addn") }}'
 
         columns:
           - name: area

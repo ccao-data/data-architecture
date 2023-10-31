@@ -7,7 +7,7 @@ sources:
 
     tables:
       - name: dweldat
-        description: '{{ doc("dweldat") }}'
+        description: '{{ doc("table_dweldat") }}'
 
         columns:
           - name: ac

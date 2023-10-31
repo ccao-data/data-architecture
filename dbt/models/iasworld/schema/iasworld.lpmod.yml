@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: lpmod
+        description: '{{ doc("table_lpmod") }}'
 
         columns:
           - name: acradjflg

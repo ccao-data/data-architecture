@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: excode
+        description: '{{ doc("table_excode") }}'
 
         columns:
           - name: altsched

@@ -6,7 +6,7 @@ sources:
 
     tables:
       - name: pardat
-        description: '{{ doc("pardat") }}'
+        description: '{{ doc("table_pardat") }}'
 
         columns:
           - name: acres

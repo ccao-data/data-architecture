@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: lpnbhd
+        description: '{{ doc("table_lpnbhd") }}'
 
         columns:
           - name: acmod

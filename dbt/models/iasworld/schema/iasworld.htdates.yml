@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: htdates
+        description: '{{ doc("table_htdates") }}'
 
         columns:
           - name: caseno

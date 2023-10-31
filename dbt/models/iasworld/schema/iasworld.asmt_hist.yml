@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: asmt_hist
+        description: '{{ doc("table_asmt_hist") }}'
 
         columns:
           - name: class

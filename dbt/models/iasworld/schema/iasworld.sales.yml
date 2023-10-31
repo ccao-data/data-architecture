@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: sales
+        description: '{{ doc("table_sales") }}'
 
         columns:
           - name: adjamt

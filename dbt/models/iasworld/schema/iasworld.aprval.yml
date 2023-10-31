@@ -6,7 +6,7 @@ sources:
 
     tables:
       - name: aprval
-        description: '{{ doc("aprval") }}'
+        description: '{{ doc("table_aprval") }}'
 
         columns:
           - name: adjbldgfact

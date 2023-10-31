@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: enter
+        description: '{{ doc("table_enter") }}'
 
         columns:
           - name: cur

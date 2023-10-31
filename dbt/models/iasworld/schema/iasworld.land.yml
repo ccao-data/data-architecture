@@ -7,7 +7,7 @@ sources:
 
     tables:
       - name: land
-        description: '{{ doc("land") }}'
+        description: '{{ doc("table_land") }}'
 
         columns:
           - name: acres

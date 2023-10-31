@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: comnt
+        description: '{{ doc("table_comnt") }}'
 
         columns:
           - name: caseno

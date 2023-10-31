@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: aasysjur
+        description: '{{ doc("table_aasysjur") }}'
 
         columns:
           - name: aprvalsum_ind

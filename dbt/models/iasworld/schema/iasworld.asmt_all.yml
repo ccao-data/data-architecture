@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: asmt_all
+        description: '{{ doc("table_asmt_all") }}'
         freshness:
           filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
           warn_after: {count: 24, period: hour}

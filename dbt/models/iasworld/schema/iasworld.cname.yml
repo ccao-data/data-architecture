@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: cname
+        description: '{{ doc("table_cname") }}'
 
         columns:
           - name: addr1

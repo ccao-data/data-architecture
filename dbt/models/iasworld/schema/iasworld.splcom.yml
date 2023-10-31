@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: splcom
+        description: '{{ doc("table_splcom") }}'
 
         columns:
           - name: alt_splitnum

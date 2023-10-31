@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: permit
+        description: '{{ doc("table_permit") }}'
         freshness:
           filter: date_format(date_parse(permdt, '%Y-%m-%d %H:%i:%s.0'), '%Y') >= date_format(current_date - interval '1' year, '%Y')
           warn_after: {count: 48, period: hour}

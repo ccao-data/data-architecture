@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: exdet
+        description: '{{ doc("table_exdet") }}'
 
         columns:
           - name: assetid
