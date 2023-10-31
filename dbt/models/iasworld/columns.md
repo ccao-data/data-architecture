@@ -232,12 +232,6 @@ Reason code for change of value
 City name
 {% enddocs %}
 
-## class
-
-{% docs column_class %}
-Classification
-{% enddocs %}
-
 ## comnt
 
 {% docs column_comnt %}
@@ -434,12 +428,6 @@ Instrument number
 
 {% docs column_jur %}
 Jurisdiction
-{% enddocs %}
-
-## lline
-
-{% docs column_lline %}
-Line number
 {% enddocs %}
 
 ## loc2
@@ -652,12 +640,6 @@ Owner number
 Page number
 {% enddocs %}
 
-## parid
-
-{% docs column_parid %}
-Parcel identification number
-{% enddocs %}
-
 ## partial
 
 {% docs column_partial %}
@@ -703,7 +685,14 @@ Procedure date
 ## procname
 
 {% docs column_procname %}
-Procedure name
+Procedure name.
+
+Defines the "stage" of assessed values held in the `valasm*` and `ovrvalasm*`
+fields. Possible values include:
+
+- `CCAOVALUE` = CCAO mailed values (pre-appeal)
+- `CCAOFINAL` = CCAO certified values (after Assessor appeals)
+- `BORVALUE` = BoR certified values (after Board of Review appeals)
 {% enddocs %}
 
 ## prodamage
@@ -860,12 +849,6 @@ Relative location
 
 {% docs column_suppress %}
 Flag to indicate suppress value
-{% enddocs %}
-
-## taxyr
-
-{% docs column_taxyr %}
-Tax year
 {% enddocs %}
 
 ## trans_id

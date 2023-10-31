@@ -9,7 +9,7 @@ sources:
 
         columns:
           - name: class
-            description: '{{ doc("column_class") }}'
+            description: '{{ doc("shared_column_class") }}'
           - name: cur
             description: '{{ doc("column_cur") }}'
           - name: deactivat
@@ -29,7 +29,7 @@ sources:
           - name: ovrvaltax
             description: Override value for taxes
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: procdate
             description: '{{ doc("column_procdate") }}'
           - name: procname
@@ -39,7 +39,7 @@ sources:
           - name: rolltype
             description: '{{ doc("column_rolltype") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: splitno
             description: '{{ doc("column_splitno") }}'
           - name: status
@@ -47,7 +47,7 @@ sources:
           - name: taxtable
             description: Flag to indicate assessment record used in tax calculation
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: tottax
             description: Total tax
           - name: trans_id
@@ -61,10 +61,10 @@ sources:
           - name: valyear
             description: Valuation year
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
             description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'

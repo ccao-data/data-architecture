@@ -4,6 +4,9 @@ sources:
       - load_manual
     tables:
       - name: class_dict
+        columns:
+          - name: class_code
+            description: '{{ doc("shared_column_class") }}'
 
       - name: commercial_valuation
         tags:
@@ -24,6 +27,27 @@ sources:
       - name: pin_condo_char
         tags:
           - type_condo
+        columns:
+          - name: bedrooms
+            description: '{{ doc("shared_column_char_beds") }}'
+          - name: building_sf
+            description: '{{ doc("shared_column_char_building_sf") }}'
+          - name: full_baths
+            description: '{{ doc("shared_column_char_fbath") }}'
+          - name: half_baths
+            description: '{{ doc("shared_column_char_hbath") }}'
+          - name: parking_pin
+            description: |
+              Deeded parking/garage space or storage unit.
+
+              Detected either by valuations, CDU, or unit
+              number/proration rate heuristics.
+          - name: pin
+            description: '{{ doc("shared_column_pin") }}'
+          - name: unit_sf
+            description: '{{ doc("shared_column_char_unit_sf") }}'
+          - name: year
+            description: '{{ doc("shared_column_year") }}'
 
       - name: pin_nonlivable
         tags:

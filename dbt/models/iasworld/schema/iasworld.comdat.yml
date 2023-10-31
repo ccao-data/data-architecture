@@ -35,7 +35,7 @@ sources:
           - name: chgrsn
             description: '{{ doc("column_chgrsn") }}'
           - name: class
-            description: '{{ doc("column_class") }}'
+            description: '{{ doc("shared_column_class") }}'
           - name: convbldg
             description: '{{ doc("column_convbldg") }}'
           - name: cubicft
@@ -51,7 +51,7 @@ sources:
           - name: effageovr
             description: '{{ doc("column_effageovr") }}'
           - name: effyr
-            description: '{{ doc("column_effyr") }}'
+            description: '{{ doc("shared_column_char_yrblt") }}'
           - name: excess
             description: '{{ doc("column_excess") }}'
           - name: exmppct
@@ -99,7 +99,7 @@ sources:
           - name: ovrrcnld
             description: '{{ doc("column_ovrrcnld") }}'
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: parkcover
             description: Number of parking spaces covered
           - name: parkuncov
@@ -129,7 +129,7 @@ sources:
           - name: salekey
             description: '{{ doc("column_salekey") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: status
             description: '{{ doc("column_status") }}'
           - name: structure
@@ -137,7 +137,7 @@ sources:
           - name: suppress
             description: '{{ doc("column_suppress") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: units
@@ -149,15 +149,15 @@ sources:
           - name: valmeth
             description: Valuation method (`MAN`/`CLT`)
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
             description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
           - name: yrblt
-            description: '{{ doc("column_yrblt") }}'
+            description: '{{ doc("shared_column_char_yrblt") }}'
 
         tests:
           - unique_combination_of_columns:

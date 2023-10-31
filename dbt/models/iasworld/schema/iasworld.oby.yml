@@ -33,7 +33,7 @@ sources:
           - name: chgrsn
             description: '{{ doc("column_chgrsn") }}'
           - name: class
-            description: '{{ doc("column_class") }}'
+            description: '{{ doc("shared_column_class") }}'
           - name: cline
             description: Condominium line
           - name: cndcmplx
@@ -71,7 +71,7 @@ sources:
           - name: effageovr
             description: '{{ doc("column_effageovr") }}'
           - name: effyr
-            description: '{{ doc("column_effyr") }}'
+            description: '{{ doc("shared_column_char_yrblt") }}'
           - name: excess
             description: '{{ doc("column_excess") }}'
           - name: exmppct
@@ -99,7 +99,7 @@ sources:
           - name: lcf
             description: Factor used to calculate `RCNADJ`
           - name: lline
-            description: '{{ doc("column_lline") }}'
+            description: '{{ doc("shared_column_lline") }}'
           - name: locmult
             description: Local multiplier
           - name: lumpadj
@@ -153,7 +153,7 @@ sources:
           - name: ovrrcnld
             description: '{{ doc("column_ovrrcnld") }}'
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: pctcomp
             description: '{{ doc("column_pctcomp") }}'
           - name: perim
@@ -185,7 +185,7 @@ sources:
           - name: salekey
             description: '{{ doc("column_salekey") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: status
             description: '{{ doc("column_status") }}'
           - name: stories
@@ -193,13 +193,15 @@ sources:
           - name: suppress
             description: '{{ doc("column_suppress") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: units
             description: Number of identical units
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
+          - name: user16
+            description: '{{ doc("shared_column_cdu") }}'
           - name: valmeth
             description: Valuation Method (R(CLT/RES) or M(MSB))
           - name: vect
@@ -209,15 +211,15 @@ sources:
           - name: wallhgt
             description: '{{ doc("column_wallhgt") }}'
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
             description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
           - name: yrblt
-            description: '{{ doc("column_yrblt") }}'
+            description: '{{ doc("shared_column_char_yrblt") }}'
           - name: yrrem
             description: Year remodeled
 
