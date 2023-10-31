@@ -1,6 +1,6 @@
 models:
   - name: default.vw_pin_universe
-    description: '{{ doc("vw_pin_universe") }}'
+    description: '{{ doc("view_vw_pin_universe") }}'
 
     columns:
       - name: access_cmap_walk_data_year

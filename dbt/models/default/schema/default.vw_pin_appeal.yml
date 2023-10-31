@@ -1,6 +1,6 @@
 models:
   - name: default.vw_pin_appeal
-    description: '{{ doc("vw_pin_appeal") }}'
+    description: '{{ doc("view_vw_pin_appeal") }}'
 
     columns:
       - name: agent_code

@@ -1,6 +1,6 @@
 models:
   - name: default.vw_pin_address
-    description: '{{ doc("vw_pin_address") }}'
+    description: '{{ doc("view_vw_pin_address") }}'
 
     columns:
       - name: mail_address_city_name

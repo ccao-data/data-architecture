@@ -1,6 +1,6 @@
 models:
   - name: default.vw_card_res_char
-    description: '{{ doc("vw_card_res_char") }}'
+    description: '{{ doc("view_vw_card_res_char") }}'
     config:
       tags:
         - type_res
