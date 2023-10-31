@@ -989,7 +989,7 @@ prorated, but the building value is.
 {% docs shared_column_buyer_name %}
 Name of property buyer, as listed on deed.
 
-Can be truncated by myDec/IDOR. See Clerk/Recorder of Deeds for full name.
+Can be truncated by MyDec/IDOR. See Clerk/Recorder of Deeds for full name.
 {% enddocs %}
 
 ## document_number
@@ -1049,7 +1049,7 @@ iasWorld internal sale identifier
 {% docs shared_column_sale_price %}
 Sale price of a PIN, as recorded on the deed.
 
-Sales are sourced from myDec/IDOR. This serves as the outcome variable in regression models
+Sales are sourced from MyDec/IDOR. This serves as the outcome variable in regression models
 {% enddocs %}
 
 ## seller_name
@@ -1057,7 +1057,7 @@ Sales are sourced from myDec/IDOR. This serves as the outcome variable in regres
 {% docs shared_column_seller_name %}
 Name of property seller, as listed on deed.
 
-Can be truncated by myDec/IDOR. See Clerk/Recorder of Deeds for full name.
+Can be truncated by MyDec/IDOR. See Clerk/Recorder of Deeds for full name.
 {% enddocs %}
 
 # Sale Validation
@@ -1077,6 +1077,8 @@ See [model-sales-val](https://github.com/ccao-data/model-sales-val) for full det
 {% docs shared_column_sv_is_ptax_outlier %}
 Outlier flagged due to certain answers on Q10 of the PTAX-203 form.
 
+Must have a Q10 flag _in addition to_ a statistical flag.
+
 See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more details
 {% enddocs %}
 
@@ -1088,6 +1090,15 @@ Indicates an outlier sale not used in modeling or reporting.
 This variable combines `sv_is_heuristic_outlier`
 with `sv_is_ptax_outlier` (using OR logic).
 NOTE: Outlier flags only exist for sales _after_ 2014.
+{% enddocs %}
+
+## sv_outlier_type
+
+{% docs shared_column_sv_outlier_type %}
+Heuristic or model used to flag an outlier.
+
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
+for a list of possible flags.
 {% enddocs %}
 
 ## sv_run_id

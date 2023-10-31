@@ -14,7 +14,7 @@ models:
       - name: is_multisale
         description: '{{ doc("shared_column_sale_is_multisale") }}'
       - name: is_mydec_date
-        description: Indicator for whether or not the observation uses the myDec sale date
+        description: Indicator for whether or not the observation uses the MyDec sale date
       - name: nbhd
         description: '{{ doc("shared_column_nbhd_code") }}'
       - name: num_parcels_sale
