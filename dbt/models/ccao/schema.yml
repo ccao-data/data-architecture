@@ -68,7 +68,7 @@ exposures:
     type: dashboard
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Commercial-Valuation-Data/csik-bsws
     depends_on:
-      - ref('ccao.commercial_valuation')
+      - source('ccao', 'commercial_valuation')
     owner:
       name: Data Department
     description: |
@@ -76,4 +76,4 @@ exposures:
 
       Notes: Refreshed annually, as data is made available by the commercial team.
 
-      Use cases: Look up the number of units in a multi-unit apartment building.
+      Use cases: Can be used to look up the number of units in a multi-unit apartment building.
