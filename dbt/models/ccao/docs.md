@@ -19,9 +19,9 @@ CCAO commercial valuation data, aggregated from the commercial team spreadsheets
 # hie
 
 {% docs table_hie %}
-Legacy Home Improvement Exemption (HOE) data pulled from the AS/400.
+Legacy Home Improvement Exemption (HIE) data pulled from the AS/400.
 
-This table exists in order to apply HOE characteristics to sales for modeling,
+This table exists in order to apply HIE characteristics to sales for modeling,
 but it will naturally become deprecated as the remaining legacy HOEs expire.
 
 **Primary Key**: `pin`, `year`

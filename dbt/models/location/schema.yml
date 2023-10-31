@@ -12,7 +12,7 @@ models:
   - name: location.tax
 
   - name: location.vw_pin10_location
-    description: '{{ doc("vw_pin10_location") }}'
+    description: '{{ doc("view_vw_pin10_location") }}'
 
     columns: &vw_location_columns
       - name: access_cmap_walk_data_year
@@ -243,5 +243,5 @@ models:
       # location
 
   - name: location.vw_pin10_location_fill
-    description: '{{ doc("vw_pin10_location_fill") }}'
+    description: '{{ doc("view_vw_pin10_location_fill") }}'
     columns: *vw_location_columns
