@@ -123,7 +123,7 @@ for every model run (`run_id`).
 
 These are the per feature per observation contribution to the final predicted
 model value starting from a baseline value. See the
-[shap repo](https://github.com/shap/shap) for more information.
+[shap repository](https://github.com/shap/shap) for more information.
 
 **Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`
 {% enddocs %}
