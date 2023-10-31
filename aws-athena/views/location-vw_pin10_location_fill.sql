@@ -81,6 +81,12 @@ SELECT
 
     tax.tax_municipality_num,
     tax.tax_municipality_name,
+    tax.tax_school_elementary_district_num,
+    tax.tax_school_elementary_district_name,
+    tax.tax_school_secondary_district_num,
+    tax.tax_school_secondary_district_name,
+    tax.tax_school_unified_district_num,
+    tax.tax_school_unified_district_name,
     tax.tax_community_college_district_num,
     tax.tax_community_college_district_name,
     tax.tax_fire_protection_district_num,
