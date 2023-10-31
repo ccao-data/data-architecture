@@ -77,14 +77,18 @@ sources:
               This inclusive of the rolling window period used for
               calculating statistical groups. In other words, if the earliest
               sale to-be-flagged is 2013-12-01 and the rolling window period
-              is 9 months, then the earliest sale *used* would be 2023-03-01
+              is 9 months, then the earliest sale *used* would be 2013-03-01
           - name: iso_forest_cols
             description: Columns used as features in the isolation forest model
           - name: latest_data_ingest
             description: Date of latest sale used in validation
           - name: min_group_thresh
             description: |
-              Minimum number of sales required for statistical flagging
+              Minimum number of sales required for statistical flagging.
+
+              If the minimum number of sales in our group methodology
+              (township, class, rolling window) is below N, these sales
+              are not flagged and are set to `Not outlier`
           - name: ptax_sd
             description: |
               Boundaries for standard deviation flagging in combination
@@ -98,7 +102,8 @@ sources:
               Rolling window size, in months.
 
               For each target sale, calculate statistics (std. dev.,
-              group size) using all sales in the period N months prior
+              group size) using all sales in the period N months prior,
+              inclusive of the month of the sale itself
           - name: run_id
             description: '{{ doc("shared_column_sv_run_id") }}'
           - name: sales_flagged
