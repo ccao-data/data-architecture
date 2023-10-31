@@ -4,6 +4,7 @@ sources:
       - load_manual
     tables:
       - name: class_dict
+        description: '{{ doc("table_class_dict") }}'
         columns:
           - name: class_code
             description: '{{ doc("shared_column_class") }}'
@@ -13,18 +14,22 @@ sources:
           - type_ic
 
       - name: hie
+        description: '{{ doc("table_hie") }}'
         tags:
           - type_res
 
       - name: land_nbhd_rate
+        description: '{{ doc("table_land_nbhd_rate") }}'
         tags:
           - type_land
 
       - name: land_site_rate
+        description: '{{ doc("table_land_site_rate") }}'
         tags:
           - type_land
 
       - name: pin_condo_char
+        description: '{{ doc("table_pin_condo_char") }}'
         tags:
           - type_condo
         columns:
@@ -50,7 +55,25 @@ sources:
             description: '{{ doc("shared_column_year") }}'
 
       - name: pin_nonlivable
+        description: '{{ doc("table_pin_nonlivable") }}'
         tags:
           - type_condo
 
       - name: pin_weird
+        description: '{{ doc("table_pin_weird") }}'
+
+exposures:
+  - name: commercial_valuation_data
+    label: Commercial Valuation Data
+    type: dashboard
+    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Commercial-Valuation-Data/csik-bsws
+    depends_on:
+      - ref('ccao.commercial_valuation')
+    owner:
+      name: Data Department
+    description: |
+      Commercial valuation data collected and maintained by the Cook County Assessor's Office, from 2021 to present.
+
+      Notes: Refreshed annually, as data is made available by the commercial team.
+
+      Use cases: Look up the number of units in a multi-unit apartment building.
