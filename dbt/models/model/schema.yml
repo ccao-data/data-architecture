@@ -2,60 +2,73 @@ sources:
   - name: model
     tables:
       - name: assessment_card
+        description: '{{ doc("table_assessment_card") }}'
         tags:
           - load_auto
 
       - name: assessment_pin
+        description: '{{ doc("table_assessment_pin") }}'
         tags:
           - load_auto
 
       - name: feature_importance
+        description: '{{ doc("table_feature_importance") }}'
         tags:
           - load_auto
 
       - name: final_model
+        description: '{{ doc("table_final_model") }}'
         tags:
           - load_manual
 
       - name: metadata
+        description: '{{ doc("table_metadata") }}'
         tags:
           - load_auto
 
       - name: parameter_final
+        description: '{{ doc("table_parameter_final") }}'
         tags:
           - load_auto
 
       - name: parameter_range
+        description: '{{ doc("table_parameter_range") }}'
         tags:
           - load_auto
 
       - name: parameter_search
+        description: '{{ doc("table_parameter_search") }}'
         tags:
           - load_auto
 
       - name: performance
+        description: '{{ doc("table_performance") }}'
         tags:
           - load_auto
 
       - name: performance_quantile
+        description: '{{ doc("table_performance_quantile") }}'
         tags:
           - load_auto
 
       - name: shap
+        description: '{{ doc("table_shap") }}'
         tags:
           - load_auto
 
       - name: test_card
+        description: '{{ doc("table_test_card") }}'
         tags:
           - load_auto
 
       - name: timing
+        description: '{{ doc("table_timing") }}'
         tags:
           - load_auto
 
-
 models:
   - name: model.vw_pin_shared_input
+    description: '{{ doc("view_vw_pin_shared_input") }}'
     columns:
       - &acs5_count_sex_total
         name: acs5_count_sex_total
@@ -380,10 +393,10 @@ models:
         description: '{{ doc("column_num_school_with_rating_in_half_mile") }}'
 
   - name: model.vw_card_res_input
+    description: '{{ doc("view_vw_card_res_input") }}'
     config:
       tags:
         - type_res
-
     columns:
       # Columns inherited from vw_pin_shared_input
       - *acs5_count_sex_total
@@ -606,10 +619,10 @@ models:
         description: '{{ doc("shared_column_pin_num_cards") }}'
 
   - name: model.vw_pin_condo_input
+    description: '{{ doc("view_vw_pin_condo_input") }}'
     config:
       tags:
         - type_condo
-
     columns:
       # Columns inherited from vw_pin_shared_input
       - *acs5_count_sex_total
