@@ -989,7 +989,7 @@ prorated, but the building value is.
 {% docs shared_column_buyer_name %}
 Name of property buyer, as listed on deed.
 
-Can be truncated by myDec/IDOR. See Clerk/Recorder of Deeds for full name.
+Can be truncated by MyDec/IDOR. See Clerk/Recorder of Deeds for full name.
 {% enddocs %}
 
 ## document_number
@@ -1049,7 +1049,7 @@ iasWorld internal sale identifier
 {% docs shared_column_sale_price %}
 Sale price of a PIN, as recorded on the deed.
 
-Sales are sourced from myDec/IDOR. This serves as the outcome variable in regression models
+Sales are sourced from MyDec/IDOR. This serves as the outcome variable in regression models
 {% enddocs %}
 
 ## seller_name
@@ -1057,7 +1057,7 @@ Sales are sourced from myDec/IDOR. This serves as the outcome variable in regres
 {% docs shared_column_seller_name %}
 Name of property seller, as listed on deed.
 
-Can be truncated by myDec/IDOR. See Clerk/Recorder of Deeds for full name.
+Can be truncated by MyDec/IDOR. See Clerk/Recorder of Deeds for full name.
 {% enddocs %}
 
 # Sale Validation
