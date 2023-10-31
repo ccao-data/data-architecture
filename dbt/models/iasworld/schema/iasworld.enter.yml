@@ -25,14 +25,14 @@ sources:
           - name: jur
             description: '{{ doc("column_jur") }}'
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'

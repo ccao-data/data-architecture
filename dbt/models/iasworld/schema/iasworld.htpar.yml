@@ -30,72 +30,12 @@ sources:
             description: Application status
           - name: asmtreas
             description: Assessment reason code
-          - name: bdname1
-            description: Board name 1
-          - name: bdname10
-            description: Board name 10
-          - name: bdname2
-            description: Board name 2
-          - name: bdname3
-            description: Board name 3
-          - name: bdname4
-            description: Board name 4
-          - name: bdname5
-            description: Board name 5
-          - name: bdname6
-            description: Board name 6
-          - name: bdname7
-            description: Board name 7
-          - name: bdname8
-            description: Board name 8
-          - name: bdname9
-            description: Board name 9
-          - name: bdtype1
-            description: Board type 1
-          - name: bdtype10
-            description: Board type 10
-          - name: bdtype2
-            description: Board type 2
-          - name: bdtype3
-            description: Board type 3
-          - name: bdtype4
-            description: Board type 4
-          - name: bdtype5
-            description: Board type 5
-          - name: bdtype6
-            description: Board type 6
-          - name: bdtype7
-            description: Board type 7
-          - name: bdtype8
-            description: Board type 8
-          - name: bdtype9
-            description: Board type 9
-          - name: bdvote1
-            description: Board vote 1
-          - name: bdvote10
-            description: Board vote 10
-          - name: bdvote2
-            description: Board vote 2
-          - name: bdvote3
-            description: Board vote 3
-          - name: bdvote4
-            description: Board vote 4
-          - name: bdvote5
-            description: Board vote 5
-          - name: bdvote6
-            description: Board vote 6
-          - name: bdvote7
-            description: Board vote 7
-          - name: bdvote8
-            description: Board vote 8
-          - name: bdvote9
-            description: Board vote 9
           - name: camareas
             description: Cama reason code
           - name: careof
             description: '{{ doc("column_careof") }}'
           - name: caseno
-            description: '{{ doc("column_caseno") }}'
+            description: '{{ doc("shared_column_case_no") }}'
           - name: complnt
             description: Complainant
           - name: complnt_companyname
@@ -119,7 +59,7 @@ sources:
           - name: cpaddr3
             description: Complainant address 3
           - name: cpatty
-            description: Complainant attorney code
+            description: '{{ doc("shared_column_agent_code") }}'
           - name: cpattyjur
             description: Attorney jurisdiction
           - name: cur
@@ -153,7 +93,7 @@ sources:
           - name: hrreas
             description: Hearing reason code
           - name: hrstatus
-            description: Hearing status code
+            description: '{{ doc("shared_column_appeal_status") }}'
           - name: httimejur
             description: Schedule jurisdiction
           - name: iasw_id
@@ -162,6 +102,8 @@ sources:
             description: '{{ doc("column_jur") }}'
           - name: loc
             description: Location code
+          - name: name1
+            description: '{{ doc("shared_column_agent_name") }}'
           - name: notcdate
             description: Date of notice from previous hearing level
           - name: noticedate
@@ -205,7 +147,7 @@ sources:
           - name: ownphone
             description: Owner phone number
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: petemail
             description: Petitioner email address
           - name: petfax
@@ -259,7 +201,7 @@ sources:
           - name: schtime
             description: Schedule time
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: status
             description: '{{ doc("column_status") }}'
           - name: stipbldg
@@ -275,17 +217,27 @@ sources:
           - name: subkey
             description: Unique number to allow multiple hearings per level
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: txpyval
             description: Taxpayer value
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
+          - name: user38
+            description: '{{ doc("shared_column_appeal_type") }}'
+          - name: user89
+            description: '{{ doc("shared_column_reason_code") }}'
+          - name: user100
+            description: '{{ doc("shared_column_reason_code") }}'
+          - name: user101
+            description: '{{ doc("shared_column_reason_code") }}'
+          - name: user104
+            description: '{{ doc("shared_column_appeal_change") }}'
           - name: valdisp
             description: Value in dispute
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: who
 
         tests:

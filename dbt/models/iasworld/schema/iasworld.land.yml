@@ -35,7 +35,7 @@ sources:
           - name: chgrsn
             description: '{{ doc("column_chgrsn") }}'
           - name: class
-            description: '{{ doc("column_class") }}'
+            description: '{{ doc("shared_column_class") }}'
           - name: code
             description: Code
           - name: comres
@@ -85,7 +85,7 @@ sources:
           - name: lcodemod
             description: Land code model
           - name: lline
-            description: '{{ doc("column_lline") }}'
+            description: '{{ doc("shared_column_lline") }}'
           - name: lmod
             description: Land location model number
           - name: locfact
@@ -131,7 +131,7 @@ sources:
           - name: ovrprice
             description: Override price
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: price
             description: Price
           - name: recnr
@@ -141,9 +141,9 @@ sources:
           - name: schedmod
             description: Schedule model number
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: sf
-            description: SF of land (type S) or units (type U)
+            description: '{{ doc("shared_column_char_land_sf") }}'
           - name: sfact
             description: S factor
           - name: sizefact
@@ -163,7 +163,7 @@ sources:
           - name: suppress
             description: '{{ doc("column_suppress") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: topofact
             description: Topography Factor
           - name: trans_id
@@ -175,11 +175,11 @@ sources:
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
             description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
           - name: zmod
