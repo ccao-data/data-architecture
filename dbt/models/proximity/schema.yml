@@ -1,29 +1,66 @@
 models:
   - name: proximity.cnt_pin_num_bus_stop
+    description: '{{ doc("table_cnt_pin_num_bus_stop") }}'
+
   - name: proximity.cnt_pin_num_foreclosure
+    description: '{{ doc("table_cnt_pin_num_foreclosure") }}'
+
   - name: proximity.cnt_pin_num_school
+    description: '{{ doc("table_cnt_pin_num_school") }}'
+
   - name: proximity.crosswalk_year_fill
+    description: '{{ doc("table_crosswalk_year_fill") }}'
+
   - name: proximity.dist_pin_to_bike_trail
+    description: '{{ doc("table_dist_pin_to_bike_trail") }}'
+
   - name: proximity.dist_pin_to_cemetery
+    description: '{{ doc("table_dist_pin_to_cemetery") }}'
+
   - name: proximity.dist_pin_to_cta_route
+    description: '{{ doc("table_dist_pin_to_cta_route") }}'
+
   - name: proximity.dist_pin_to_cta_stop
+    description: '{{ doc("table_dist_pin_to_cta_stop") }}'
+
   - name: proximity.dist_pin_to_golf_course
+    description: '{{ doc("table_dist_pin_to_golf_course") }}'
+
   - name: proximity.dist_pin_to_hospital
+    description: '{{ doc("table_dist_pin_to_hospital") }}'
+
   - name: proximity.dist_pin_to_lake_michigan
+    description: '{{ doc("table_dist_pin_to_lake_michigan") }}'
+
   - name: proximity.dist_pin_to_major_road
+    description: '{{ doc("table_dist_pin_to_major_road") }}'
+
   - name: proximity.dist_pin_to_metra_route
+    description: '{{ doc("table_dist_pin_to_metra_route") }}'
+
   - name: proximity.dist_pin_to_metra_stop
+    description: '{{ doc("table_dist_pin_to_metra_stop") }}'
+
   - name: proximity.dist_pin_to_park
+    description: '{{ doc("table_dist_pin_to_park") }}'
+
   - name: proximity.dist_pin_to_pin
-    description: '{{ doc("dist_pin_to_pin") }}'
+    description: '{{ doc("table_dist_pin_to_pin") }}'
+
   - name: proximity.dist_pin_to_pin_1km
-    description: '{{ doc("dist_pin_to_pin_intermediate") }}'
+    description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
+
   - name: proximity.dist_pin_to_pin_10km
-    description: '{{ doc("dist_pin_to_pin_intermediate") }}'
+    description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
+
   - name: proximity.dist_pin_to_railroad
+    description: '{{ doc("table_dist_pin_to_railroad") }}'
+
   - name: proximity.dist_pin_to_water
+    description: '{{ doc("table_dist_pin_to_water") }}'
 
   - name: proximity.vw_pin10_proximity
+    description: '{{ doc("view_vw_pin10_proximity") }}'
     columns: &vw_proximity_columns
       - name: avg_school_rating_in_half_mile
         description: '{{ doc("column_avg_school_rating_in_half_mile") }}'
@@ -163,6 +200,7 @@ models:
         description: '{{ doc("shared_column_year") }}'
 
   - name: proximity.vw_pin10_proximity_fill
+    description: '{{ doc("view_vw_pin10_proximity_fill") }}'
     columns: *vw_proximity_columns
 
 exposures:
