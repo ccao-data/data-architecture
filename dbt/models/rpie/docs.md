@@ -18,7 +18,7 @@ Table of test RPIE codes to open test filings.
 
 # vw_code_retrieval
 
-{% docs table_vw_code_retrieval %}
+{% docs view_vw_code_retrieval %}
 View for RPIE code retrieval application. Adds mailing address to PIN.
 
 **Primary Key**: `pin`, `year`
@@ -26,7 +26,7 @@ View for RPIE code retrieval application. Adds mailing address to PIN.
 
 # vw_pin_flatfile
 
-{% docs table_vw_pin_flatfile %}
+{% docs view_vw_pin_flatfile %}
 View to ship RPIE codes for entry into the RPIE database.
 
 **Primary Key**: `pin`, `rpie_year`
@@ -34,7 +34,7 @@ View to ship RPIE codes for entry into the RPIE database.
 
 # vw_pin_mailers
 
-{% docs table_vw_pin_mailers %}
+{% docs view_vw_pin_mailers %}
 View to support mailing RPIE codes. Used for vendor mail merge.
 
 **Primary Key**: `pin`, `rpie_year`
