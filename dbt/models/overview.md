@@ -64,7 +64,7 @@ best current understanding of the main iasWorld tables used by the CCAO. Note
 that this is _not_ an official diagram, only an approximation. The source for this
 diagram can be [found here](https://lucid.app/lucidchart/da854c6c-eead-4d15-8989-8f2060e3ba71/edit?invitationId=inv_f226cccb-c40c-4260-8334-f2f6bae216aa).
 
-![iasWorld ERD](/data-architecture/assets/iasworld-erd.pdf)
+![iasWorld ERD](/data-architecture/assets/iasworld-erd.png)
 
 ### Additional Resources
 
