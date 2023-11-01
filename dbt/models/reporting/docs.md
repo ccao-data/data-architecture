@@ -24,8 +24,8 @@ Materialized to speed up queries for Tableau.
 # vw_assessment_roll
 
 {% docs view_vw_assessment_roll %}
-View for township-level assessment reports at each stage, specifically used
-for getting total AVs per class.
+View for reporting total AVs and PIN counts per major class group, township,
+assessment stage, and year. Feeds public reporting assets.
 
 **Primary Key**: `year`, `township_name`, `class`, `stage`
 {% enddocs %}
@@ -54,6 +54,7 @@ PINs without sales have `NULL` sale values.
 
 {% docs view_vw_ratio_stats %}
 View to feed the `reporting.ratio_stats` table and Glue job.
+Feeds public reporting assets.
 
 **Primary Key**: `year`, `pin`, `assessment_stage`
 {% enddocs %}
@@ -61,8 +62,9 @@ View to feed the `reporting.ratio_stats` table and Glue job.
 # vw_res_report_summary
 
 {% docs view_vw_res_report_summary %}
-Aggregates statistics on characteristics, classes, AVs, and sales by
-assessment stage, property groups, year, and various geographies.
+Aggregates statistics on characteristics, classes, AVs, and sales
+by assessment stage, property groups, year, and various geographies.
+Feeds public reporting assets.
 
 **Primary Key**: `year`, `geography_type`, `geography_id`, `assessment_stage`,
 `property_group`
@@ -81,6 +83,7 @@ by year.
 
 {% docs view_vw_town_sale_history %}
 View for township-level reporting on sales by year.
+Feeds public reporting assets.
 
 **Primary Key**: `year`, `geography_type`, `geography_id`, `property_group`
 {% enddocs %}
