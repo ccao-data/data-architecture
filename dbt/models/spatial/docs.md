@@ -403,7 +403,7 @@ Cook County Tax Increment Finance district boundaries.
 {% docs table_township %}
 Cook County Assessor township boundaries.
 
-Includes townships within the City of Chicago, which are technical defunct.
+Includes townships within the City of Chicago, which are technically defunct.
 
 **Geometry:** `MULTIPOLYGON`
 {% enddocs %}
