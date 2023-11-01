@@ -47,7 +47,7 @@ buyer AS (
 
         SELECT DISTINCT
             sales.instruno,
-            TRIM(sales.own1) AS seller_name,
+            TRIM(sales.own1) AS buyer_name,
             RANK()
                 OVER (
                     PARTITION BY NULLIF(REPLACE(sales.instruno, 'D', ''), '')
