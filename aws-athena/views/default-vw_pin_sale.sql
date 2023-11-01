@@ -285,11 +285,9 @@ SELECT
     unique_sales.doc_no,
     unique_sales.deed_type,
     COALESCE(unique_sales.seller_name, mydec_sales.seller_name) AS seller_name,
-    mydec_sales.seller_name AS mydec_seller,
     unique_sales.is_multisale,
     unique_sales.num_parcels_sale,
     COALESCE(unique_sales.buyer_name, mydec_sales.buyer_name) AS buyer_name,
-    mydec_sales.buyer_name AS mydec_buyer,
     unique_sales.sale_type,
     unique_sales.sale_filter_same_sale_within_365,
     unique_sales.sale_filter_less_than_10k,
@@ -331,6 +329,5 @@ SELECT
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
-    AND unique_sales.pin = mydec_sales.pin
 LEFT JOIN sales_val
     ON unique_sales.doc_no = sales_val.meta_sale_document_num;
