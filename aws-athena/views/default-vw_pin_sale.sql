@@ -148,8 +148,8 @@ mydec_sales AS (
             REPLACE(document_number, 'D', '') AS doc_no,
             REPLACE(line_1_primary_pin, '-', '') AS pin,
             DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS mydec_date,
-            seller_name,
-            buyer_name,
+            NULLIF(TRIM(seller_name), '') AS seller_name,
+            NULLIF(TRIM(buyer_name), '') AS buyer_name,
             COALESCE(line_7_property_advertised = 1, FALSE)
                 AS mydec_property_advertised,
             COALESCE(line_10a = 1, FALSE)
