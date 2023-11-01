@@ -128,7 +128,7 @@ Distance from each PIN to the nearest park.
 
 # dist_pin_to_pin
 
-{% docs table_dist_pin_to_pin %}
+{% docs view_dist_pin_to_pin %}
 View to find the three nearest neighbor PINs for every PIN for every year.
 
 **Primary Key**: `pin10`, `year`
