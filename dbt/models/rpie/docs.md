@@ -11,7 +11,7 @@ Used for identifying and filing RPIE forms.
 # pin_codes_dummy
 
 {% docs table_pin_codes_dummy %}
-Table of test RPIE codes to open test filings.
+Table of test RPIE codes to open test/stub filings.
 
 **Primary Key**: `pin`, `year`
 {% enddocs %}
@@ -19,7 +19,7 @@ Table of test RPIE codes to open test filings.
 # vw_code_retrieval
 
 {% docs view_vw_code_retrieval %}
-View for RPIE code retrieval application. Adds mailing address to PIN.
+View for RPIE code retrieval application. Joins mailing address to PIN.
 
 **Primary Key**: `pin`, `year`
 {% enddocs %}
@@ -27,7 +27,7 @@ View for RPIE code retrieval application. Adds mailing address to PIN.
 # vw_pin_flatfile
 
 {% docs view_vw_pin_flatfile %}
-View to ship RPIE codes for entry into the RPIE database.
+View to extract RPIE codes for entry into the RPIE database.
 
 **Primary Key**: `pin`, `rpie_year`
 {% enddocs %}
@@ -35,7 +35,7 @@ View to ship RPIE codes for entry into the RPIE database.
 # vw_pin_mailers
 
 {% docs view_vw_pin_mailers %}
-View to support mailing RPIE codes. Used for vendor mail merge.
+View to support mailing RPIE codes to taxpayers. Used for vendor mail merge.
 
 **Primary Key**: `pin`, `rpie_year`
 {% enddocs %}
