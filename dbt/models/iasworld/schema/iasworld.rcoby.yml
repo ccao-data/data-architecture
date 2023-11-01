@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: rcoby
+        description: '{{ doc("table_rcoby") }}'
 
         columns:
           - name: altbasedate

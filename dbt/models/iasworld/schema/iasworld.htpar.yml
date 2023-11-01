@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: htpar
+        description: '{{ doc("table_htpar") }}'
         freshness:
           filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
           warn_after: {count: 24, period: hour}

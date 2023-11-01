@@ -4,14 +4,37 @@ sources:
       - load_manual
     tables:
       - name: agency
+        description: '{{ doc("table_agency") }}'
+
       - name: agency_fund
+        description: '{{ doc("table_agency_fund") }}'
+
       - name: agency_fund_info
+        description: '{{ doc("table_agency_fund_info") }}'
+
       - name: agency_info
+        description: '{{ doc("table_agency_info") }}'
+
       - name: cpi
+        description: '{{ doc("table_cpi") }}'
+
       - name: eq_factor
+        description: '{{ doc("table_eq_factor") }}'
+
       - name: pin
+        description: '{{ doc("table_pin") }}'
+
       - name: pin_geometry_raw
+        description: '{{ doc("table_pin_geometry_raw") }}'
+
       - name: tax_code
+        description: '{{ doc("table_tax_code") }}'
+
       - name: tif
+        description: '{{ doc("table_tif") }}'
+
       - name: tif_crosswalk
+        description: '{{ doc("table_tif_crosswalk") }}'
+
       - name: tif_distribution
+        description: '{{ doc("table_tif_distribution") }}'

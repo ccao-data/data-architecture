@@ -6,7 +6,7 @@ sources:
 
     tables:
       - name: legdat
-        description: '{{ doc("legdat") }}'
+        description: '{{ doc("table_legdat") }}'
 
         columns:
           - name: acres

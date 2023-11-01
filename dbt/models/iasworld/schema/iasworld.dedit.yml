@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: dedit
+        description: '{{ doc("table_dedit") }}'
 
         columns:
           - name: fld1

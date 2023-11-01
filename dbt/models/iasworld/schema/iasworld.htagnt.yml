@@ -6,7 +6,7 @@ sources:
 
     tables:
       - name: htagnt
-        description: '{{ doc("htagnt") }}'
+        description: '{{ doc("table_htagnt") }}'
 
         columns:
           - name: addr1

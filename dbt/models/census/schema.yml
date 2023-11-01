@@ -4,13 +4,23 @@ sources:
       - load_manual
     tables:
       - name: acs1
+        description: '{{ doc("table_acs1") }}'
+
       - name: acs5
+        description: '{{ doc("table_acs5") }}'
+
       - name: decennial
+        description: '{{ doc("table_decennial") }}'
+
       - name: table_dict
+        description: '{{ doc("table_table_dict") }}'
+
       - name: variable_dict
+        description: '{{ doc("table_variable_dict") }}'
 
 models:
   - name: census.vw_acs5_stat
+    description: '{{ doc("view_vw_acs5_stat") }}'
     columns:
       - name: acs5_data_year
         description: '{{ doc("shared_column_data_year") }}'

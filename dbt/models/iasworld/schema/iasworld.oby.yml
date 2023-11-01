@@ -7,7 +7,7 @@ sources:
 
     tables:
       - name: oby
-        description: '{{ doc("oby") }}'
+        description: '{{ doc("table_oby") }}'
 
         columns:
           - name: adjfact

@@ -7,7 +7,7 @@ sources:
 
     tables:
       - name: comdat
-        description: '{{ doc("comdat") }}'
+        description: '{{ doc("table_comdat") }}'
 
         columns:
           - name: adjfact

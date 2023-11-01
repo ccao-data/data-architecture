@@ -4,53 +4,154 @@ sources:
       - load_manual
     tables:
       - name: bike_trail
+        description: '{{ doc("table_bike_trail") }}'
+
       - name: board_of_review_district
+        description: '{{ doc("table_board_of_review_district") }}'
+
       - name: building_footprint
+        description: '{{ doc("table_building_footprint") }}'
+
       - name: cemetery
+        description: '{{ doc("table_cemetery") }}'
+
       - name: census
+        description: '{{ doc("table_spatial_census") }}'
+
       - name: coastline
+        description: '{{ doc("table_coastline") }}'
+
       - name: commissioner_district
+        description: '{{ doc("table_commissioner_district") }}'
+
       - name: community_area
+        description: '{{ doc("table_community_area") }}'
+
       - name: community_college_district
+        description: '{{ doc("table_community_college_district") }}'
+
       - name: congressional_district
+        description: '{{ doc("table_congressional_district") }}'
+
       - name: coordinated_care
+        description: '{{ doc("table_coordinated_care") }}'
+
       - name: county
+        description: '{{ doc("table_county") }}'
+
       - name: enterprise_zone
+        description: '{{ doc("table_enterprise_zone") }}'
+
       - name: fire_protection_district
+        description: '{{ doc("table_fire_protection_district") }}'
+
       - name: flood_fema
+        description: '{{ doc("table_flood_fema") }}'
+
       - name: geojson
+        description: '{{ doc("table_geojson") }}'
+
       - name: golf_course
+        description: '{{ doc("table_golf_course") }}'
+
       - name: hospital
+        description: '{{ doc("table_hospital") }}'
+
       - name: hydrology
+        description: '{{ doc("table_hydrology") }}'
+
       - name: industrial_corridor
+        description: '{{ doc("table_industrial_corridor") }}'
+
       - name: industrial_growth_zone
+        description: '{{ doc("table_industrial_growth_zone") }}'
+
       - name: judicial_district
+        description: '{{ doc("table_judicial_district") }}'
+
       - name: library_district
+        description: '{{ doc("table_library_district") }}'
+
       - name: major_road
+        description: '{{ doc("table_major_road") }}'
+
       - name: midway_noise_monitor
+        description: '{{ doc("table_midway_noise_monitor") }}'
+
       - name: municipality
+        description: '{{ doc("table_municipality") }}'
+
       - name: neighborhood
+        description: '{{ doc("table_neighborhood") }}'
+
       - name: ohare_noise_contour
+        description: '{{ doc("table_ohare_noise_contour") }}'
+
       - name: ohare_noise_monitor
+        description: '{{ doc("table_ohare_noise_monitor") }}'
+
       - name: parcel
+        description: '{{ doc("table_parcel") }}'
+
       - name: park
+        description: '{{ doc("table_park") }}'
+
       - name: park_district
+        description: '{{ doc("table_park_district") }}'
+
       - name: police_district
+        description: '{{ doc("table_police_district") }}'
+
       - name: qualified_opportunity_zone
+        description: '{{ doc("table_qualified_opportunity_zone") }}'
+
       - name: railroad
+        description: '{{ doc("table_railroad") }}'
+
       - name: sanitation_district
+        description: '{{ doc("table_sanitation_district") }}'
+
       - name: school_district
+        description: '{{ doc("table_school_district") }}'
+
       - name: school_location
+        description: '{{ doc("table_school_location") }}'
+
       - name: special_service_area
+        description: '{{ doc("table_special_service_area") }}'
+
       - name: state_representative_district
+        description: '{{ doc("table_state_representative_district") }}'
+
       - name: state_senate_district
+        description: '{{ doc("table_state_senate_district") }}'
+
       - name: subdivision
+        description: '{{ doc("table_subdivision") }}'
+
       - name: tif_district
+        description: '{{ doc("table_tif_district") }}'
+
       - name: township
+        description: '{{ doc("table_township") }}'
+
       - name: transit_dict
+        description: '{{ doc("table_transit_dict") }}'
+
       - name: transit_route
+        description: '{{ doc("table_transit_route") }}'
+
       - name: transit_stop
+        description: '{{ doc("table_transit_stop") }}'
+
       - name: walkability
+        description: '{{ doc("table_walkability") }}'
+
       - name: ward
+        description: '{{ doc("table_ward") }}'
+
       - name: ward_chicago
+        description: '{{ doc("table_ward_chicago") }}'
+
       - name: ward_evanston
+        description: '{{ doc("table_ward_evanston") }}'

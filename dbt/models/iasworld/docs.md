@@ -1,39 +1,289 @@
-{% docs addn %}
-temp addn docs
+# aasysjur
+
+{% docs table_aasysjur %}
+Control table for `asmt` admin module - multi-jurisdiction version.
+
+**Primary Key**: `jur`
 {% enddocs %}
 
-{% docs aprval %}
-temp aprval docs
+# addn
+
+{% docs table_addn %}
+Residential additions. Stores data about Home Improvement Exemptions (HIEs)
+and other information about `iasworld.dweldat` properties.
+
+**Primary Key**: `jur`, `taxyr`, `parid`, `card`, `lline`
 {% enddocs %}
 
-{% docs comdat %}
-temp comdat docs
+# addrindx
+
+{% docs table_addrindx %}
+Address lookup tied to a table/column/line.
+
+**Primary Key**: `jur`, `taxyr`, `parid`, `card`, `lline`, `tble`, `tabseq`
 {% enddocs %}
 
-{% docs dweldat %}
-temp dweldat docs
+# aprval
+
+{% docs table_aprval %}
+Summary of market values (no assessed values).
+
+**Primary Key**: `jur`, `taxyr`, `parid`
 {% enddocs %}
 
-{% docs htagnt %}
-temp htagnt docs
+# asmt_all
+
+{% docs table_asmt_all %}
+Main assessment table, union of `iasworld.asmt` and `iasworld.asmt_hist`.
+Provides the latest assessed value for each PIN and used heavily in
+Data Department views.
+
+**Primary Key**: `jur`, `rolltype`, `valclass`, `valyear`, `distcode`,
+`seq` `taxyr`, `parid`, `card`
 {% enddocs %}
 
-{% docs land %}
-temp land docs
+# asmt_hist
+
+{% docs table_asmt_hist %}
+History table for assessments that stores non-current records. Same schema
+as `iasworld.asmt_all`.
+
+**Primary Key**: `jur`, `rolltype`, `valclass`, `valyear`, `distcode`,
+`seq` `taxyr`, `parid`, `card`
 {% enddocs %}
 
-{% docs legdat %}
-temp legdat docs
+# cname
+
+{% docs table_cname %}
+Owner code table for owner names.
+
+**Primary Key**: `jur`, `ownnum`
 {% enddocs %}
 
-{% docs oby %}
-temp oby docs
+# comdat
+
+{% docs table_comdat %}
+Major building table for commercial properties, which includes basically any
+non-class 2 property besides land.
+
+**Primary Key**: `jur`, `taxyr`, `parid`, `card`
 {% enddocs %}
 
-{% docs owndat %}
-temp owndat docs
+# comnt
+
+{% docs table_comnt %}
+*Unlimited* notes table.
+
+**Primary Key**: `jur`, `parid`, `code`, `comtno`, `caseno`
 {% enddocs %}
 
-{% docs pardat %}
-temp pardat docs
+# cvleg
+
+{% docs table_cvleg %}
+Conveyance/sales information. Holds additional info about each sale, such
+as PTAX-203 data.
+
+**Primary Key**: `jur`, `taxyr`, `parid`, `conveyno`
+{% enddocs %}
+
+# cvown
+
+{% docs table_cvown %}
+Conveyance/owner information.
+
+**Primary Key**: `jur`, `taxyr`, `conveyno`, `ownseq`
+{% enddocs %}
+
+# cvtran
+
+{% docs table_cvtran %}
+Header table for conveyance transactions.
+
+**Primary Key**: `jur`, `taxyr`, `conveyno`
+{% enddocs %}
+
+# dedit
+
+{% docs table_dedit %}
+CCAO land use code descriptions + edit code descriptions.
+
+**Primary Key**: `tbl1`, `fld1`, `tbl2`, `fld2`, `val1`, `val2`
+{% enddocs %}
+
+# dweldat
+
+{% docs table_dweldat %}
+Residential property characteristics table (excluding residential
+condominiums).
+
+**Primary Key**: `jur`, `taxyr`, `parid`, `lline`
+{% enddocs %}
+
+# enter
+
+{% docs table_enter %}
+Field inspection tracking table.
+
+**Primary Key**: `jur`, `taxyr`, `parid`
+{% enddocs %}
+
+# exadmn
+
+{% docs table_exadmn %}
+Exemption applications table.
+
+**Primary Key**: `jur`, `taxyr`, `parid` `caseno`
+{% enddocs %}
+
+# exapp
+
+{% docs table_exapp %}
+Exemption applicant information table.
+
+**Primary Key**: `jur`, `taxyr`, `parid` `caseno`
+{% enddocs %}
+
+# excode
+
+{% docs table_excode %}
+Exemption code table.
+
+**Primary Key**: `jur`, `taxyr`, `excode`
+{% enddocs %}
+
+# exdet
+
+{% docs table_exdet %}
+Exemption administration detail lines tied to all or part of a parcel.
+
+**Primary Key**: `jur`, `taxyr`, `parid`, `card`, `lline`, `excode`,
+`lineno`, `scrn`, `fld`
+{% enddocs %}
+
+# htagnt
+
+{% docs table_htagnt %}
+Agent/attorney code maintenance and name storage.
+
+**Primary Key**: `jur`, `agent`
+{% enddocs %}
+
+# htdates
+
+{% docs table_htdates %}
+Hearing date and note maintenance.
+
+**Primary Key**: `jur`, `taxyr`, `parid`, `heartyp`, `subkey`
+{% enddocs %}
+
+# htpar
+
+{% docs table_htpar %}
+Main appeal tracking table. Used in the construction of Data Department
+appeal views.
+
+**Primary Key**: `jur`, `taxyr`, `parid`, `heartyp`, `subkey`,
+`caseno`, `hrreas`
+{% enddocs %}
+
+# land
+
+{% docs table_land %}
+Main land information table. Stores the land size, number of lines, proration,
+etc. of all parcels.
+
+**Primary Key**: `jur`, `taxyr`, `parid`, `lline`
+{% enddocs %}
+
+# legdat
+
+{% docs table_legdat %}
+Parcel legal descriptions and addresses. Stores township, property address,
+and other location information about each parcel.
+
+**Primary Key**: `jur`, `taxyr`, `parid`
+{% enddocs %}
+
+# lpmod
+
+{% docs table_lpmod %}
+Calp model.
+
+**Primary Key**: `jur`, `ltype`, `lcode`, `ver`, `nmod`, `zmod`, `lmod`,
+`smod`, `umod`
+{% enddocs %}
+
+# lpnbhd
+
+{% docs table_lpnbhd %}
+Neighborhood parameter table for calp, valuation models, etc.
+
+**Primary Key**: `jur`, `ver`, `nbhd`
+{% enddocs %}
+
+# oby
+
+{% docs table_oby %}
+Outbuilding table. This is the main storage table for condo unit-level data.
+It also stores other miscellaneous sub-PIN information like HIEs.
+
+**Primary Key**: `jur`, `taxyr`, `parid`, `card`, `lline`
+{% enddocs %}
+
+# owndat
+
+{% docs table_owndat %}
+Property owner information such as name and mailing address.
+
+**Primary Key**: `jur`, `taxyr`, `parid`
+{% enddocs %}
+
+# pardat
+
+{% docs table_pardat %}
+Universe of all Cook County parcels for each tax year. This is *the* base
+table, along with `iasworld.legdat`.
+
+**Primary Key**: `jur`, `taxyr`, `parid`
+{% enddocs %}
+
+# permit
+
+{% docs table_permit %}
+Building permit ingestion and processing.
+
+**Primary Key**: `jur`, `taxyr`, `parid`, `id1`, `id2`
+{% enddocs %}
+
+# rcoby
+
+{% docs table_rcoby %}
+Outbuilding cost table.
+
+**Primary Key**: `ver`, `code`
+{% enddocs %}
+
+# sales
+
+{% docs table_sales %}
+Main table for tracking property sales. Sales are ingested and populated
+manually from IDOR's MyDec platform.
+
+**Primary Key**: `jur`, `parid`, `saledt`, `instruno`
+{% enddocs %}
+
+# splcom
+
+{% docs table_splcom %}
+Split tracking AKA divisions table.
+
+**Primary Key**: `jur`, `taxyr`, `splitno`
+{% enddocs %}
+
+# valclass
+
+{% docs table_valclass %}
+Class definitions and assessment levels.
+
+**Primary Key**: `jur`, `taxyr`, `rolltype`, `class`, `luc`, `vclass`
 {% enddocs %}

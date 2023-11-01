@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: cvtran
+        description: '{{ doc("table_cvtran") }}'
 
         columns:
           - name: actconsid
