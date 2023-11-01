@@ -10,6 +10,7 @@ sources:
             description: '{{ doc("shared_column_class") }}'
 
       - name: commercial_valuation
+        description: '{{ doc("table_commercial_valuation") }}'
         tags:
           - type_ic
 
