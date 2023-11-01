@@ -51,7 +51,7 @@ facilitates SQL querying of static files stored on [S3](https://aws.amazon.com/s
 of the County's property tax system-of-record, iasWorld. The Data Department
 collects, cleans, and appends additional data to this core to support residential
 modeling. It also aggregates and exports data to support valuation reporting
-via Tableau and the Assessor's website. The following diagram summarizes the
+via Tableau and the Assessor's site. The following diagram summarizes the
 Data Department's current infrastructure and data flows.
 
 #### Data Flow Diagram
