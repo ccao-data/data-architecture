@@ -148,6 +148,8 @@ mydec_sales AS (
             REPLACE(document_number, 'D', '') AS doc_no,
             REPLACE(line_1_primary_pin, '-', '') AS pin,
             DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS mydec_date,
+            seller_name,
+            buyer_name,
             COALESCE(line_7_property_advertised = 1, FALSE)
                 AS mydec_property_advertised,
             COALESCE(line_10a = 1, FALSE)
@@ -276,10 +278,10 @@ SELECT
     unique_sales.sale_key,
     unique_sales.doc_no,
     unique_sales.deed_type,
-    unique_sales.seller_name,
+    COALESCE(unique_sales.seller_name, mydec_sales.seller_name) AS seller_name,
     unique_sales.is_multisale,
     unique_sales.num_parcels_sale,
-    unique_sales.buyer_name,
+    COALESCE(unique_sales.buyer_name, mydec_sales.buyer_name) AS buyer_name,
     unique_sales.sale_type,
     unique_sales.sale_filter_same_sale_within_365,
     unique_sales.sale_filter_less_than_10k,
