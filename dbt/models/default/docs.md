@@ -11,6 +11,8 @@ and reporting.
 - Observations are card-level, i.e. each row is one building. Note that a
   card does not necessarily equal a PIN.
 - Land is parcel-level, not card-level.
+
+**Primary Key**: `year`, `pin`, `card`
 {% enddocs %}
 
 # vw_pin_address
@@ -27,6 +29,8 @@ and mailing (owner/taxpayer address).
 
 - Newer properties may be missing a mailing or property address, as they
   need to be assigned one by the postal service.
+
+**Primary Key**: `year`, `pin`
 {% enddocs %}
 
 # vw_pin_appeal
@@ -49,6 +53,8 @@ reason, and results.
 - Only contains appeal decisions for the Assessor's Office. Board of Review
   appeal decisions can be found on the
   [Cook County Open Data portal here](https://datacatalog.cookcountyil.gov/Property-Taxation/Board-of-Review-Appeal-Decision-History/7pny-nedm).
+
+**Primary Key**: `year`, `pin`
 {% enddocs %}
 
 # vw_pin_condo_char
@@ -79,6 +85,8 @@ workbooks rather than iasWorld.
 - Land is parcel-level.
 - Condo parcels can exist in `pardat` but not `comdat` (this is probably a
   reclassification issue).
+
+**Primary Key**: `year`, `pin`
 {% enddocs %}
 
 # vw_pin_exempt
@@ -98,53 +106,86 @@ institutions, or local governments.
 
 {% docs view_vw_pin_history %}
 Current and prior years' assessments by PIN in wide format.
+
+Assessed values are only populated once townships are "closed" and their
+corresponding `procname` value is updated in `iasworld.asmt_all`.
+
+**Primary Key**: `year`, `pin`
 {% enddocs %}
 
 # vw_pin_land
 
 {% docs view_vw_pin_land %}
-View containing aggregated land square footage.
+View containing aggregate land square footage for all PINs.
+
+### Nuance
+
+- Different sections of land on the same PIN can be valued at different
+  rates, which this view does not capture.
+
+**Primary Key**: `year`, `pin`
 {% enddocs %}
 
 # vw_pin_sale
 
 {% docs view_vw_pin_sale %}
-View containing unique, filtered sales.
+View containing cleaned and deduplicated PIN-level sales.
+
+Sourced from `iasworld.sales`, which is sourced from MyDec.
 
 ### Assumptions
-* `iasworld.sales.deactivat` properly indicates sales that should and shouldn't
-  be included
-* For sales not unique by pin and sale date, the most expensive sale for a
-  given day/pin is used
-* Some parcels are sold for the exact same price soon after an initial sale -
-  we ignore duplicate prices for pins if they've sold in the last 12 months
+
+- `deactivat` properly indicates sales that should and shouldn't be included.
+- For sales not unique by pin and sale date, the most expensive sale for a
+  given day/PIN is used.
+- Some parcels are sold for the exact same price soon after an initial sale -
+  we ignore duplicate prices for PINs if they've sold in the last 12 months.
 
 ### Nuance
-* `iasworld.sales.nopar` is inaccurate: excludes quit claims, executor deeds,
-  beneficial interests
-* `mydec` data is given precedence over `iasworld.sales` prior to 2021
-* Multicard sales are excluded from `mydec` data because they can't be joined
+
+- `nopar` is inaccurate: it excludes quit claims, executor deeds,
+  and beneficial interests.
+- `sale.mydec` data is given precedence over `iasworld.sales` prior to 2021
+- Multicard sales are excluded from `mydec` data because they can't be joined
   to `iasworld.sales` (which is only parcel-level) without creating duplicates
+
+**Primary Key**: `year`, `pin`
 {% enddocs %}
 
 # vw_pin_universe
 
 {% docs view_vw_pin_universe %}
-Source of truth view for PIN location.
+PIN-level geographic location and spatially joined locations.
+
+If you want to know where a PIN is or what boundaries it lies within, this
+is the view you're looking for.
 
 ### Nuance
-* `spatial.parcel` typically lags behind `iasworld.pardat` by a year, so data
-  for current year can be relatively sparse
-* `spatial.township` is not yearly
+
+- `spatial.parcel` typically lags behind `iasworld.pardat` by a year, so data
+  for current year can be relatively sparse or missing. Parcel shapefiles
+  typically become available to populate this view at the end of each year.
+- `spatial.township` is not yearly.
+
+**Primary Key**: `year`, `pin`
 {% enddocs %}
 
 # vw_pin_value
 
 {% docs view_vw_pin_value %}
-CCAO mailed total, CCAO final, and BOR final values for each PIN by year.
+Assessed values by PIN and year, for each assessment stage.
+
+The assessment stages are:
+
+1. `mailed` - Values initially mailed by the Assessor
+2. `certified` - Values after the Assessor has finished processing appeals
+2. `board` - Values after the Board of Review has finished their appeals
 
 ### Assumptions
-Taking the max value by 14-digit pin and year is sufficient for accurate values.
-We do this because even given the criteria to de-dupe `asmt_all`, we still end
-up with duplicates by pin and year.
+
+- Taking the max value by 14-digit PIN and year is sufficient for accurate
+  values. We do this because even given the criteria to de-dupe `asmt_all`,
+  we still end up with duplicates by PIN and year.
+
+**Primary Key**: `year`, `pin`
 {% enddocs %}
