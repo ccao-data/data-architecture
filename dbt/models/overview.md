@@ -30,9 +30,9 @@ or table by clicking the teal button on the bottom right of this page. This
 lets you explore the upstream and downstream dependencies of any asset.
 Assets in the graph are color-coded by type:
 
-- ![source](/data-architecture/assets/swatch-source.png) [Sources](https://docs.getdbt.com/docs/build/sources) - Data loaded into the warehouse by scripts and other tools
-- ![model](/data-architecture/assets/swatch-model.png) [Models](https://docs.getdbt.com/docs/build/models) - Data transformation and assets created and managed by dbt
-- ![exposure](/data-architecture/assets/swatch-exposure.png) [Exposures](https://docs.getdbt.com/docs/build/exposures) - Downstream consumers of dbt assets e.g. [Open Data](https://datacatalog.cookcountyil.gov/browse?tags=cook+county+assessor)
+- [Sources](https://docs.getdbt.com/docs/build/sources) - Data loaded into the warehouse by scripts and other tools ![source](/data-architecture/assets/swatch-source.png)
+- [Models](https://docs.getdbt.com/docs/build/models) - Data transformation and assets created and managed by dbt ![model](/data-architecture/assets/swatch-model.png)
+- [Exposures](https://docs.getdbt.com/docs/build/exposures) - Downstream consumers of dbt assets e.g. [Open Data](https://datacatalog.cookcountyil.gov/browse?tags=cook+county+assessor) ![exposure](/data-architecture/assets/swatch-exposure.png)
 
 For more information on the function and construction of this system, visit the
 [Data Department's dbt README on GitHub](https://github.com/ccao-data/data-architecture/tree/master/dbt#readme).
