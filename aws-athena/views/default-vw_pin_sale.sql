@@ -66,9 +66,13 @@ unique_sales AS (
                     calculated.nopar_calculated
             END AS num_parcels_sale,
             CASE WHEN TRIM(sales.oldown) IN ('', 'MISSING SELLER NAME')
-            THEN NULL ELSE sales.oldown AS seller_name,
+                    THEN NULL
+                ELSE sales.oldown
+            END AS seller_name,
             CASE WHEN TRIM(sales.own1) IN ('', 'MISSING BUYER NAME')
-            THEN NULL ELSE sales.own1 AS buyer_name,
+                    THEN NULL
+                ELSE sales.own1
+            END AS buyer_name,
             CASE
                 WHEN sales.saletype = '0' THEN 'LAND'
                 WHEN sales.saletype = '1' THEN 'LAND AND BUILDING'
