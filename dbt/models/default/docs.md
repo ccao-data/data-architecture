@@ -1,36 +1,54 @@
 # vw_card_res_char
 
 {% docs view_vw_card_res_char %}
-View that standardizes residential property characteristics for use in modeling
+View to standardize residential property characteristics for use in modeling
 and reporting.
 
-### Assumptions
-
 ### Nuance
-Land is parcel-level.
+
+- Only contains characteristics for "regression class" residential properties,
+  see `ccao.class_dict` for details.
+- Observations are card-level, i.e. each row is one building. Note that a
+  card does not necessarily equal a PIN.
+- Land is parcel-level, not card-level.
 {% enddocs %}
 
 # vw_pin_address
 
 {% docs view_vw_pin_address %}
-Source of truth view for PIN address, both legal and mailing.
+Source of truth view for PIN address, both legal (property address)
+and mailing (owner/taxpayer address).
 
 ### Assumptions
 
-Mailing addresses are updated when properties transfer ownership.
+- Mailing addresses are updated when properties transfer ownership.
+
+### Nuance
+
+- Newer properties may be missing a mailing or property address, as they
+  need to be assigned one by the postal service.
 {% enddocs %}
 
 # vw_pin_appeal
 
 {% docs view_vw_pin_appeal %}
-Appeals by PIN.
+View of assessment appeals by stage (wide format). Shows appeal decision,
+reason, and results.
 
 ### Assumptions
 
-* Appeal types coding is static
-* Status coding is static
-* Condo/coop appeal type is new, so we have to assume which classes fit the
-  category prior to 2021
+- Appeal types coding is static.
+- Status coding is static.
+- Condo/co-op appeal type is new, so we have to assume which classes fit the
+  category prior to 2021.
+
+### Nuance
+
+- Not live updated. This table is only updated as townships are "closed"
+  according to the Assessor's town schedule.
+- Only contains appeal decisions for the Assessor's Office. Board of Review
+  appeal decisions can be found on the
+  [Cook County Open Data portal here](https://datacatalog.cookcountyil.gov/Property-Taxation/Board-of-Review-Appeal-Decision-History/7pny-nedm).
 {% enddocs %}
 
 # vw_pin_condo_char
@@ -47,34 +65,39 @@ workbooks rather than iasWorld.
 
 ### Assumptions
 
-* `cur = 'Y'` or a single row for a parcel even when `cur = 'N'` indicate rows
-that should be included from `oby` and `comdat`
-* Null proration rate for condo unit indicates condo isn't associated with other
-units
-* Proration rates in `oby` and `comdat` are parcel-level
-* `effyr` is equivalent to `yrblt` when `yrblt` is `NULL`
-* Most recent value for CDU is most relevant if it has been re-coded to `NULL`
+- `cur = 'Y'` or a single row for a parcel even when `cur = 'N'` indicate rows
+  that should be included from `oby` and `comdat`.
+- A null proration rate for condo unit indicates the condo isn't associated
+  with other units.
+- Proration rates in `oby` and `comdat` are parcel-level.
+- `effyr` is equivalent to `yrblt` when `yrblt` is `NULL`.
+- The most recent value for CDU is most relevant if it has
+  been re-coded to `NULL`
 
 ### Nuance
-* Land is parcel-level
-* 299s can have there class coded as 2-99 in iasWorld
-* Condo parcels can exist in `pardat` but not `comdat` (this is probably a
-reclassification issue)
+
+- Land is parcel-level.
+- Condo parcels can exist in `pardat` but not `comdat` (this is probably a
+  reclassification issue).
 {% enddocs %}
 
 # vw_pin_exempt
 
 {% docs view_vw_pin_exempt %}
+Parcels with property tax-exempt status across all of Cook County per tax year,
+from 2022 on. Exempt parcels are typically owned by non-profits, religious
+institutions, or local governments.
+
+### Nuance
+
+- Newer properties may be missing a mailing or property address, as they
+  need to be assigned one by the postal service.
 {% enddocs %}
 
 # vw_pin_history
 
 {% docs view_vw_pin_history %}
 Current and prior years' assessments by PIN in wide format.
-
-### Nuance
-
-`spatial.township` is not yearly.
 {% enddocs %}
 
 # vw_pin_land
