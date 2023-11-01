@@ -13,8 +13,6 @@ Includes PACE and CTA bus stops.
 {% docs table_cnt_pin_num_foreclosure %}
 Count of number of foreclosures within a half mile of each PIN.
 
-Sourced from Illinois Public Records data.
-
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
@@ -22,9 +20,6 @@ Sourced from Illinois Public Records data.
 
 {% docs table_cnt_pin_num_school %}
 Count of number of schools (any kind) within a half mile of each PIN.
-
-School locations (lat/lon) are sourced from
-[GreatSchools.org](https://greatschools.org).
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
@@ -37,8 +32,6 @@ See `location/docs.md`.
 
 {% docs table_dist_pin_to_bike_trail %}
 Distance from each PIN to the nearest bike trail.
-
-Bike trail locations are sourced from Cook County GIS.
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
@@ -60,8 +53,6 @@ In this case, "route" is inclusive of any CTA train tracks. So living
 directly next to the CTA tracks would have a low distance, even if you
 are not near an actual CTA stop.
 
-Sourced from CTA GTFS feeds.
-
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
@@ -72,8 +63,6 @@ Distance from each PIN to the nearest CTA stop.
 
 In this case, "stop" means any CTA train station, _not_ bus stops.
 
-Sourced from CTA GTFS feeds.
-
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
@@ -82,9 +71,6 @@ Sourced from CTA GTFS feeds.
 {% docs table_dist_pin_to_golf_course %}
 Distance from each PIN to the nearest golf course.
 
-Golf course locations were sourced from a combination of Cook County GIS
-data and tagged OpenStreetMap amenities.
-
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
@@ -92,8 +78,6 @@ data and tagged OpenStreetMap amenities.
 
 {% docs table_dist_pin_to_hospital %}
 Distance from each PIN to the nearest hospital.
-
-Hospital locations sourced from Cook County GIS.
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
@@ -111,8 +95,6 @@ Distance from each PIN to the Lake Michigan shoreline.
 {% docs table_dist_pin_to_major_road %}
 Distance from each PIN to the nearest major road.
 
-Major roads sourced from OpenStreetMap, see column descriptions for details.
-
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
@@ -125,8 +107,6 @@ In this case, "route" is inclusive of any Metra train tracks. So living
 directly next to the Metra tracks would have a low distance, even if you
 are not near an actual Metra stop.
 
-Sourced from Metra GTFS feeds.
-
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
@@ -135,8 +115,6 @@ Sourced from Metra GTFS feeds.
 {% docs table_dist_pin_to_metra_stop %}
 Distance from each PIN to the nearest Metra stop.
 
-Sourced from Metra GTFS feeds.
-
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
@@ -144,8 +122,6 @@ Sourced from Metra GTFS feeds.
 
 {% docs table_dist_pin_to_park %}
 Distance from each PIN to the nearest park.
-
-Park locations sourced from OpenStreetMap.
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
@@ -184,8 +160,6 @@ union of the 1km table and the 10km table is aliased to the
 
 {% docs table_dist_pin_to_railroad %}
 Distance from each PIN to the nearest rail track of any kind.
-
-Rail locations sourced from Cook County GIS.
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
