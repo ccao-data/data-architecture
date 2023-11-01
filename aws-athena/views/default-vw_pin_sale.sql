@@ -17,6 +17,50 @@ WITH town_class AS (
         AND leg.deactivat IS NULL
 ),
 
+seller AS (
+    SELECT
+        instruno,
+        seller_name
+    FROM (
+
+        SELECT DISTINCT
+            sales.instruno,
+            TRIM(sales.oldown) AS seller_name,
+            RANK()
+                OVER (
+                    PARTITION BY NULLIF(REPLACE(sales.instruno, 'D', ''), '')
+                    ORDER BY LENGTH(sales.oldown) DESC
+                )
+                AS rank
+        FROM {{ source('iasworld', 'sales') }}
+        WHERE sales.oldown IS NOT NULL
+            AND TRIM(sales.oldown) != ''
+
+    ) WHERE rank = 1
+),
+
+buyer AS (
+    SELECT
+        instruno,
+        buyer_name
+    FROM (
+
+        SELECT DISTINCT
+            sales.instruno,
+            TRIM(sales.own1) AS seller_name,
+            RANK()
+                OVER (
+                    PARTITION BY NULLIF(REPLACE(sales.instruno, 'D', ''), '')
+                    ORDER BY LENGTH(sales.own1) DESC
+                )
+                AS rank
+        FROM {{ source('iasworld', 'sales') }}
+        WHERE sales.own1 IS NOT NULL
+            AND TRIM(sales.own1) != ''
+
+    ) WHERE rank = 1
+),
+
 -- "nopar" isn't entirely accurate for sales associated with only one parcel,
 -- so we create our own counter
 calculated AS (
@@ -65,8 +109,8 @@ unique_sales AS (
                 WHEN sales.nopar > 1 THEN sales.nopar ELSE
                     calculated.nopar_calculated
             END AS num_parcels_sale,
-            NULLIF(sales.oldown, '') AS seller_name,
-            NULLIF(sales.own1, '') AS buyer_name,
+            seller.seller_name,
+            buyer.buyer_name,
             CASE
                 WHEN sales.saletype = '0' THEN 'LAND'
                 WHEN sales.saletype = '1' THEN 'LAND AND BUILDING'
@@ -121,13 +165,13 @@ unique_sales AS (
                 FALSE
             ) AS sale_filter_deed_type
         FROM {{ source('iasworld', 'sales') }} AS sales
-        LEFT JOIN calculated
-            ON sales.instruno = calculated.instruno
+        LEFT JOIN calculated ON sales.instruno = calculated.instruno
+        LEFT JOIN buyer ON sales.instruno = buyer.instruno
+        LEFT JOIN seller ON sales.instruno = seller.instruno
         LEFT JOIN
             town_class AS tc
             ON sales.parid = tc.parid
             AND SUBSTR(sales.saledt, 1, 4) = tc.taxyr
-
         WHERE sales.instruno IS NOT NULL
         -- Indicates whether a record has been deactivated
             AND sales.deactivat IS NULL
