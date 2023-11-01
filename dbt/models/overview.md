@@ -27,7 +27,7 @@ a single AWS data catalog. To view the documentation of a single table:
 You can also view the
 [lineage graph](https://docs.getdbt.com/terms/data-lineage) of any view
 or table by clicking the teal button on the bottom right of this page. This
-lets you explore the upstream dependencies of any asset, as well as see the
+lets you explore the upstream and downstream dependencies of any asset
 downstream things which depend on that asset. Assets in the graph are
 color-coded by type:
 
