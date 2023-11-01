@@ -48,8 +48,6 @@ reason, and results.
 
 ### Nuance
 
-- Not live updated. This table is only updated as townships are "closed"
-  according to the Assessor's town schedule.
 - Only contains appeal decisions for the Assessor's Office. Board of Review
   appeal decisions can be found on the
   [Cook County Open Data portal here](https://datacatalog.cookcountyil.gov/Property-Taxation/Board-of-Review-Appeal-Decision-History/7pny-nedm).
@@ -71,8 +69,6 @@ workbooks rather than iasWorld.
 
 ### Assumptions
 
-- `cur = 'Y'` or a single row for a parcel even when `cur = 'N'` indicate rows
-  that should be included from `oby` and `comdat`.
 - A null proration rate for condo unit indicates the condo isn't associated
   with other units.
 - Proration rates in `oby` and `comdat` are parcel-level.
