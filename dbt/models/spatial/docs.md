@@ -446,7 +446,7 @@ polygons.
 # ward
 
 {% docs table_ward %}
-Combined ward political boundaries
+Combined ward political boundaries.
 
 **Geometry:** `MULTIPOLYGON`
 {% enddocs %}
