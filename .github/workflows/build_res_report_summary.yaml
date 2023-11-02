@@ -58,12 +58,12 @@ jobs:
         shell: bash
 
       - name: Build res_report_summary
-        run: dbt run -t "$TARGET" -s ${{ inputs.models }}
+        run: dbt run -t "$TARGET" -s ${{ inputs.models }} --defer --state "$STATE_DIR"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
       - name: Test res_report_summary
-        run: dbt test -t "$TARGET" -s ${{ inputs.models }}
+        run: dbt test -t "$TARGET" -s ${{ inputs.models }} --defer --state "$STATE_DIR"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
