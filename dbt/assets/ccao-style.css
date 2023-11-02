@@ -1,5 +1,5 @@
 .logo {
-  background-image: url(./assets/ccao-logo.svg);
+  background-image: url("./assets/ccao-logo.svg");
   background-repeat: no-repeat;
   background-color: transparent;
 }
