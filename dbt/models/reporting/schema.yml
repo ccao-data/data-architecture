@@ -9,6 +9,9 @@ sources:
 models:
   - name: reporting.res_report_summary
     description: '{{ doc("table_res_report_summary") }}'
+    config:
+      tags:
+        - daily
 
   - name: reporting.vw_assessment_roll
     description: '{{ doc("view_vw_assessment_roll") }}'
