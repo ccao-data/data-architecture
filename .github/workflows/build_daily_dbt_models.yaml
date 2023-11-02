@@ -1,12 +1,12 @@
-name: build-and-test-dbt-daily-assets
+name: build-daily-dbt-models
 
 on:
   schedule:
-    # Run daily at 7am
-    - cron: '0 7 * * *'
+    # Run daily at 8am
+    - cron: '0 8 * * *'
 
 jobs:
-  build-and-test-dbt-daily-assets:
+   build-daily-dbt-models:
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint
     # so that we can authenticate with AWS
@@ -30,36 +30,15 @@ jobs:
           path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
           key: ${{ env.CACHE_KEY }}
 
-      - name: Set command args for building/testing resources
-        run: |
-          if [[ $CACHE_HIT == 'true' ]]; then
-            echo "MODIFIED_RESOURCES_ONLY=true" >> "$GITHUB_ENV"
-          fi
-          if [[ $EVENT_NAME == 'workflow_dispatch' ]]; then
-              echo "MANUALLY_DISPATCHED=true" >> "$GITHUB_ENV"
-          fi
-        shell: bash
-        env:
-          CACHE_HIT: ${{ steps.cache.outputs.cache-hit }}
-          EVENT_NAME: ${{ github.event_name }}
-
-      - name: Build daily assets
-        run: dbt run -t "$TARGET" --select tag:daily --defer --state "$STATE_DIR"
+      - name: Build daily models
+        run: dbt run -t "$TARGET" -s tag:daily --defer --state "$STATE_DIR"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
-      - name: Test daily assets
-        run: |
-          dbt test -t "$TARGET" --select tag:daily --defer --state "$STATE_DIR"
+      - name: Test daily models
+        run: dbt test -t "$TARGET" -s tag:daily --defer --state "$STATE_DIR"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
-
-      - if: github.ref == 'refs/heads/master' && success()
-        name: Update dbt state cache
-        uses: ./.github/actions/save_dbt_cache
-        with:
-          path: ${{ env.PROJECT_DIR }}/${{ env.TARGET_DIR }}
-          key: ${{ env.CACHE_KEY }}
 
       - name: Get current time
         if: failure()
@@ -71,9 +50,9 @@ jobs:
         uses: ./.github/actions/publish_sns_topic
         with:
           sns_topic_arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
-          subject: "Daily dbt asset creation failed for workflow run: ${{ github.run_id }}"
+          subject: "Daily dbt model creation failed for workflow run: ${{ github.run_id }}"
           body: |
-            Daily dbt asset creation failed for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
+            Daily dbt model creation failed for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
 
             Link to failing workflow:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
