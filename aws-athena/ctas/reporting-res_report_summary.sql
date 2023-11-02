@@ -18,8 +18,8 @@ Intended to be materialized daily through a GitHub action.
 
 {{
     config(
-        materialized = 'table',
-        full_refresh = true
+        materialized='table',
+        full_refresh=true
     )
 }}
 
