@@ -42,7 +42,9 @@ jobs:
         shell: bash
 
       - name: Generate docs
-        run: dbt docs generate --target prod
+        run: |
+          dbt docs generate --target prod
+          sed -i 's|<head>|<head>\n\t<link rel="stylesheet" href="./assets/ccao-style.css" />|' target/index.html
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
