@@ -1,10 +1,6 @@
 name: build-and-test-dbt-daily-assets
 
 on:
-  pull_request:
-    branches: [master]
-  push:
-    branches: [master]
   schedule:
     # Run daily at 7am
     - cron: '0 7 * * *'
@@ -48,7 +44,7 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
 
       - name: Build daily assets
-        run: dbt run  -t "$TARGET" --select tag:daily --defer --state "$STATE_DIR"
+        run: dbt run --full-refresh -t "$TARGET" --select tag:daily --defer --state "$STATE_DIR"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
