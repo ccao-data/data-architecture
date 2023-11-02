@@ -1,0 +1,13 @@
+.logo {
+    background-image: url(./assets/ccao-logo.svg);
+    background-repeat: no-repeat;
+    background-color: transparent;
+}
+
+img.logo {
+    display: none;
+}
+
+img[alt="Data Flow Diagram"] {
+    max-width: 800px !important;
+}

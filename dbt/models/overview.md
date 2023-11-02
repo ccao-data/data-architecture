@@ -30,9 +30,9 @@ or table by clicking the teal button on the bottom right of this page. This
 lets you explore the upstream and downstream dependencies of any asset.
 Assets in the graph are color-coded by type:
 
-- [Sources](https://docs.getdbt.com/docs/build/sources) - Data loaded into the warehouse by scripts and other tools ![source](/data-architecture/assets/swatch-source.png)
-- [Models](https://docs.getdbt.com/docs/build/models) - Data transformation and assets created and managed by dbt ![model](/data-architecture/assets/swatch-model.png)
-- [Exposures](https://docs.getdbt.com/docs/build/exposures) - Downstream consumers of dbt assets e.g. [Open Data](https://datacatalog.cookcountyil.gov/browse?tags=cook+county+assessor) ![exposure](/data-architecture/assets/swatch-exposure.png)
+- [Sources](https://docs.getdbt.com/docs/build/sources) - Data loaded into the warehouse by scripts and other tools ![source](./assets/swatch-source.png)
+- [Models](https://docs.getdbt.com/docs/build/models) - Data transformation and assets created and managed by dbt ![model](./assets/swatch-model.png)
+- [Exposures](https://docs.getdbt.com/docs/build/exposures) - Downstream consumers of dbt assets e.g. [Open Data](https://datacatalog.cookcountyil.gov/browse?tags=cook+county+assessor) ![exposure](./assets/swatch-exposure.png)
 
 For more information on the function and construction of this system, visit the
 [Data Department's dbt README on GitHub](https://github.com/ccao-data/data-architecture/tree/master/dbt#readme).
@@ -55,7 +55,7 @@ Data Department's current infrastructure and data flows.
 
 #### Data Flow Diagram
 
-![Data Flow Diagram](/data-architecture/assets/dataflow-diagram.svg)
+![Data Flow Diagram](./assets/dataflow-diagram.svg)
 
 #### iasWorld Entity Relationship Diagram
 
@@ -64,7 +64,7 @@ best current understanding of the main iasWorld tables used by the CCAO. Note
 that this is _not_ an official diagram, only an approximation. The source for this
 diagram can be [found here](https://lucid.app/lucidchart/da854c6c-eead-4d15-8989-8f2060e3ba71/edit?invitationId=inv_f226cccb-c40c-4260-8334-f2f6bae216aa).
 
-![iasWorld ERD](/data-architecture/assets/iasworld-erd.png)
+![iasWorld ERD](./assets/iasworld-erd.png)
 
 ### Additional Resources
 
