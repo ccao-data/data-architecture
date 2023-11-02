@@ -1,13 +1,16 @@
-name: build-and-test-res-report-summary
+name: build-and-test-dbt-daily-assets
 
 on:
   pull_request:
     branches: [master]
   push:
     branches: [master]
+  schedule:
+    # Run daily at 7am
+    - cron: '0 7 * * *'
 
 jobs:
-  build-and-test-res-report-summary:
+  build-and-test-dbt-daily-assets:
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint
     # so that we can authenticate with AWS
@@ -44,8 +47,14 @@ jobs:
           CACHE_HIT: ${{ steps.cache.outputs.cache-hit }}
           EVENT_NAME: ${{ github.event_name }}
 
-      - name: Build res_report_summary
-        run: dbt run --full-refresh -t "$TARGET" --select reporting.res_report_summary --defer --state "$STATE_DIR"
+      - name: Build daily assets
+        run: dbt run  -t "$TARGET" --select tag:daily --defer --state "$STATE_DIR"
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Test daily assets
+        run: |
+          dbt test -t "$TARGET" --select tag:daily --defer --state "$STATE_DIR"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
@@ -55,3 +64,15 @@ jobs:
         with:
           path: ${{ env.PROJECT_DIR }}/${{ env.TARGET_DIR }}
           key: ${{ env.CACHE_KEY }}
+
+      - name: Send failure notification
+        if: failure()
+        uses: ./.github/actions/publish_sns_topic
+        with:
+          sns_topic_arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
+          subject: "Daily dbt asset creation failed in workflow run: ${{ github.run_id }}"
+          body: |
+            Daily dbt asset creation failed for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
+
+            Link to failing workflow:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
