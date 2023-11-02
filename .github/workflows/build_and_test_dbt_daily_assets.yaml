@@ -61,12 +61,17 @@ jobs:
           path: ${{ env.PROJECT_DIR }}/${{ env.TARGET_DIR }}
           key: ${{ env.CACHE_KEY }}
 
+      - name: Get current time
+        if: failure()
+        run: echo "TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S")" >> "$GITHUB_ENV"
+        shell: bash
+
       - name: Send failure notification
         if: failure()
         uses: ./.github/actions/publish_sns_topic
         with:
           sns_topic_arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
-          subject: "Daily dbt asset creation failed in workflow run: ${{ github.run_id }}"
+          subject: "Daily dbt asset creation failed for workflow run: ${{ github.run_id }}"
           body: |
             Daily dbt asset creation failed for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
 
