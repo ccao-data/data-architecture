@@ -1,6 +1,8 @@
 name: build-daily-dbt-models
 
 on:
+  pull_request:
+    branches: [master]
   schedule:
     # Run daily at 8am
     - cron: '0 8 * * *'
