@@ -1,4 +1,4 @@
-name: build-and-test-dbt
+name: build-and-test-res-report-summary
 
 on:
   pull_request:
@@ -15,7 +15,7 @@ on:
         type: string
 
 jobs:
-  build-and-test-dbt:
+  build-and-test-res-report-summary:
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint
     # so that we can authenticate with AWS
