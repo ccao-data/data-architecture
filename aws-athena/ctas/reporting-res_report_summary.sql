@@ -2,20 +2,26 @@
 Aggregates statistics on characteristics, classes, AVs, and sales by
 assessment stage, property groups, year, and various geographies.
 
-Essentially, this view takes model and assessment values from two
-locations on Athena and stacks them. Model and assessment values are
-gathered independently and aggregated via a UNION rather than a JOIN,
-so it's important to keep in mind that years for model and assessment
-stages do NOT need to match, i.e. we can have 2023 model values in the
-view before there are any 2023 assessment values to report on. Sales are
-added via a lagged join, so sales_year should always = year - 1. It is
-also worth nothing that "model year" has has 1 added to it solely for
-the sake of reporting in this view - models with a 'meta_year' value
-of 2022 in model.assessment_pin will populate the view with a value of
-2023 for 'year'.
+This table takes model and assessment values from two locations on Athena and
+stacks them. Model and assessment values are gathered independently and
+aggregated via a UNION rather than a JOIN, so it's important to keep in mind
+that years for model and assessment stages do NOT need to match, i.e. we can
+have 2023 model values in the table before there are any 2023 assessment values
+to report on. Sales are added via a lagged join, so sales_year should always =
+year - 1. It is also worth nothing that "model year" has has 1 added to it
+solely for the sake of reporting in this table - models with a 'meta_year' value
+of 2022 in model.assessment_pin will populate the table with a value of 2023 for
+'year'.
 
-Intended to feed glue job 'res_report_summary'.
+Intended to be materialized daily through a GitHub action.
 */
+
+{{
+    config(
+        materialized='table'
+    )
+}}
+
 -- Valuation class and nbhd from pardat, townships from legdat
 -- since pardat has some errors we can't accept for public reporting
 WITH town_class AS (
