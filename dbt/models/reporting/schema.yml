@@ -6,10 +6,13 @@ sources:
       - name: ratio_stats
         description: '{{ doc("table_ratio_stats") }}'
 
-      - name: res_report_summary
-        description: '{{ doc("table_res_report_summary") }}'
-
 models:
+  - name: reporting.res_report_summary
+    description: '{{ doc("table_res_report_summary") }}'
+    config:
+      tags:
+        - daily
+
   - name: reporting.vw_assessment_roll
     description: '{{ doc("view_vw_assessment_roll") }}'
 
@@ -21,9 +24,6 @@ models:
 
   - name: reporting.vw_ratio_stats
     description: '{{ doc("view_vw_ratio_stats") }}'
-
-  - name: reporting.vw_res_report_summary
-    description: '{{ doc("view_vw_res_report_summary") }}'
 
   - name: reporting.vw_top_5
     description: '{{ doc("view_vw_top_5") }}'

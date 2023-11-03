@@ -1,16 +1,12 @@
-name: test-open-data-assets
+name: build-daily-dbt-models
 
 on:
   schedule:
-    # Every third day of the month at 9am (2pm UTC-5). This schedule
-    # makes sense since most of our assets are configured to refresh on the
-    # first day of the month. Some assets have a biweekly schedule such
-    # that they also refresh in the middle of the month, but we ignore that
-    # in order to make scheduling simpler.
-    - cron: '0 14 3 * *'
+    # Every day at 8am (2pm UTC-5)
+    - cron: '0 13 * * *'
 
 jobs:
-  test-open-data-assets:
+   build-daily-dbt-models:
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint
     # so that we can authenticate with AWS
@@ -19,20 +15,28 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
 
       - name: Setup dbt
         uses: ./.github/actions/setup_dbt
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+          role-duration-seconds: 900
 
-      - name: Compile dbt manifest
-        run: dbt compile
+      - name: Restore dbt state cache
+        id: cache
+        uses: ./.github/actions/restore_dbt_cache
+        with:
+          path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
+          key: ${{ env.CACHE_KEY }}
+
+      - name: Build daily models
+        run: dbt run -t "$TARGET" -s tag:daily --defer --state "$STATE_DIR"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
-      - name: Test that open data row counts match Athena views
-        run: python3 ../.github/scripts/test_open_data_assets.py target/manifest.json
+      - name: Test daily models
+        run: dbt test -t "$TARGET" -s tag:daily --defer --state "$STATE_DIR"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
@@ -46,9 +50,9 @@ jobs:
         uses: ./.github/actions/publish_sns_topic
         with:
           sns_topic_arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
-          subject: "Open data asset tests failed for workflow run: ${{ github.run_id }}"
+          subject: "Daily dbt model creation failed for workflow run: ${{ github.run_id }}"
           body: |
-            Open data asset tests failed for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
+            Daily dbt model creation failed for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
 
             Link to failing workflow:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}

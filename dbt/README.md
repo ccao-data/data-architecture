@@ -32,7 +32,8 @@ documenting our data and rebuilding it efficiently. We use the [`dbt
 run`](https://docs.getdbt.com/reference/commands/run) command to build these
 models into views and tables in AWS Athena.
 
-Note that when we talk about "models" in these docs, we generally mean [the
+> [!NOTE]
+When we talk about "models" in these docs, we generally mean [the
 resources that dbt calls
 "models"](https://docs.getdbt.com/docs/build/models), namely the definitions of
 the tables and views in our Athena warehouse. In contrast, we will use the
