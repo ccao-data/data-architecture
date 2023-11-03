@@ -4,8 +4,8 @@ on:
   pull_request:
     branches: [master]
   schedule:
-    # Run daily at 8am
-    - cron: '0 8 * * *'
+    # Run daily at 8am CST (1pm UTC)
+    - cron: '0 13 * * *'
 
 jobs:
    build-daily-dbt-models:
