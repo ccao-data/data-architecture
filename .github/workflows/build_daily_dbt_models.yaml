@@ -2,7 +2,7 @@ name: build-daily-dbt-models
 
 on:
   schedule:
-    # Run daily at 8am CST (1pm UTC)
+    # Every day at 8am (2pm UTC-5)
     - cron: '0 13 * * *'
 
 jobs:
