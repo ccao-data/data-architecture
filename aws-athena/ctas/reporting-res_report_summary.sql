@@ -19,7 +19,11 @@ Intended to be materialized daily through a GitHub action.
 {{
     config(
         materialized='table',
-        full_refresh=true
+        table_type='hive',
+        format='parquet',
+        write_compression='zstd',
+        bucketed_by=['year'],
+        bucket_count=1
     )
 }}
 
