@@ -19,7 +19,7 @@ FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN ( {{
         dist_to_nearest_geometry(
             source('spatial', 'park'),
-            'WHERE ST_AREA(ST_GEOMFROMBINARY(fill_data.geometry_3435)) > 87120'
+            'ST_AREA(ST_GEOMFROMBINARY(fill_data.geometry_3435)) > 87120'
         )
     }} ) AS xy
     ON pcl.x_3435 = xy.x_3435

@@ -36,7 +36,7 @@
                 ) as fill_years
             left join
                 {{ source_model }} as fill_data on fill_years.fill_year = fill_data.year
-                {{ source_conditional }}
+                where {{ source_conditional }}
         ),
 
         -- Source table with forward filling applied by year, but containing
@@ -51,6 +51,7 @@
             from {{ source_model }} as df
             cross join distinct_years as dy
             where dy.year >= df.year
+            and {{ source_conditional }}
             group by dy.year
         ),
 

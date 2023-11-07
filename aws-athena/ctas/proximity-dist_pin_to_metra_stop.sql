@@ -19,7 +19,7 @@ FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN ( {{
         dist_to_nearest_geometry(
             source('spatial', 'transit_stop'),
-            'WHERE agency = \'metra\' AND route_type = 2'
+            'agency = \'metra\' AND route_type = 2'
         )
     }} ) AS xy
     ON pcl.x_3435 = xy.x_3435
