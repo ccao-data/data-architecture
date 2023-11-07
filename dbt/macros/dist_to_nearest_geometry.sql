@@ -7,6 +7,14 @@
 {% macro dist_to_nearest_geometry(source_model, source_conditional) %}
 
     with
+        -- Source table with conditional applied (if applicable)
+        source_table as (
+            select * from {{ source_model }}
+            {% if source_conditional is defined %}
+                where {{ source_conditional }}
+            {% endif %}
+        ),
+        
         -- Universe of all possible PINs. This ignores years since PINs don't
         -- actually move very often, so unique xy coordinates are a good enough
         -- proxy for PIN coordinates and year
@@ -34,11 +42,7 @@
                     where dy.year >= df.year
                     group by dy.year
                 ) as fill_years
-            left join
-                {{ source_model }} as fill_data on fill_years.fill_year = fill_data.year
-            {% if source_conditional is defined %}
-                where {{ source_conditional }}
-            {% endif %}
+            left join source_table as fill_data on fill_years.fill_year = fill_data.year
         ),
 
         -- Source table with forward filling applied by year, but containing
@@ -50,13 +54,10 @@
                 dy.year as pin_year,
                 max(df.year) as fill_year,
                 geometry_union_agg(st_geomfrombinary(df.geometry_3435)) as geom_3435
-            from {{ source_model }} as df
+            from (
+            ) as df
             cross join distinct_years as dy
-            where
-                dy.year >= df.year
-                {% if source_conditional is defined %}
-                    and {{ source_conditional }}
-                {% endif %}
+            where dy.year >= df.year
             group by dy.year
         ),
 
