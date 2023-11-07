@@ -57,8 +57,10 @@
         location_agg as (
             select
                 fy.pin_year,
-                max(fill_data.year) AS fill_year,
-                geometry_union(array_agg(st_geomfrombinary(fill_data.geometry_3435))) as geom_3435
+                max(fill_data.year) as fill_year,
+                geometry_union(
+                    array_agg(st_geomfrombinary(fill_data.geometry_3435))
+                ) as geom_3435
             from fill_years as fy
             left join source_table as fill_data on fy.fill_year = fill_data.year
             group by fy.pin_year
