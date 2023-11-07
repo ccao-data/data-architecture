@@ -37,7 +37,7 @@
             from
                 (
                     select dy.year as pin_year, max(df.year) as fill_year
-                    from {{ source_model }} as df
+                    from source_table as df
                     cross join distinct_years as dy
                     where dy.year >= df.year
                     group by dy.year
@@ -54,8 +54,7 @@
                 dy.year as pin_year,
                 max(df.year) as fill_year,
                 geometry_union_agg(st_geomfrombinary(df.geometry_3435)) as geom_3435
-            from (
-            ) as df
+            from source_table as df
             cross join distinct_years as dy
             where dy.year >= df.year
             group by dy.year
