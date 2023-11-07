@@ -16,7 +16,6 @@ SELECT
     ARBITRARY(xy.year) AS nearest_metra_stop_data_year,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
-INNER JOIN xy_to_metra_stop_dist AS xy
 INNER JOIN ( {{
         dist_to_nearest_geometry(
             source('spatial', 'transit_stop'),
