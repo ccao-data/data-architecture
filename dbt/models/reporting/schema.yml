@@ -41,12 +41,12 @@ models:
             - township_name
             - class
       - expression_is_true:
-        name: vw_assessment_roll_no_nulls
-        expression: >-
-          stage IS NOT NULL
-            AND township_name IS NOT NULL
-            AND triad IS NOT NULL
-            AND class IS NOT NULL
+          name: vw_assessment_roll_no_nulls
+          expression: >-
+            stage IS NOT NULL
+              AND township_name IS NOT NULL
+              AND triad IS NOT NULL
+              AND class IS NOT NULL
   - name: reporting.vw_most_recent_boundary
     tests:
       - unique_combination_of_columns:
