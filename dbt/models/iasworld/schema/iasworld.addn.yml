@@ -1,0 +1,162 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+      - type_res
+
+    tables:
+      - name: addn
+        description: '{{ doc("table_addn") }}'
+
+        columns:
+          - name: area
+            description: '{{ doc("column_area") }}'
+          - name: area_sqm
+            description: Area of this line in meters
+          - name: areaid
+            description: '{{ doc("column_areaid") }}'
+          - name: areasum
+            description: '{{ doc("column_areasum") }}'
+          - name: card
+            description: '{{ doc("column_card") }}'
+          - name: cdu
+            description: '{{ doc("column_cdu") }}'
+          - name: chgrsn
+            description: '{{ doc("column_chgrsn") }}'
+          - name: class
+            description: '{{ doc("shared_column_class") }}'
+          - name: convaddn
+            description: Converted addition total
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: depr
+            description: Percent good from tables (based on age+cdu)
+          - name: eff_area
+            description: Support value per line
+          - name: effageovr
+            description: '{{ doc("column_effageovr") }}'
+          - name: effyr
+            description: '{{ doc("column_effyr") }}'
+          - name: exmppct
+            description: '{{ doc("column_exmppct") }}'
+          - name: exmpval
+            description: '{{ doc("column_exmpval") }}'
+          - name: first
+            description: First floor addition code
+          - name: grade
+            description: '{{ doc("column_grade") }}'
+          - name: grdfact
+            description: Grade factor
+          - name: grdfact1
+            description: First level class/grade factor
+          - name: grdfact2
+            description: Second level class/grade factor
+          - name: grdfact3
+            description: Third level class/grade factor
+          - name: grdfactl
+            description: Lower level class/grade factor
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: lline
+            description: '{{ doc("shared_column_lline") }}'
+          - name: lower
+            description: Lower level addition code
+          - name: mktadj
+            description: Override percent good
+          - name: nccalc
+            description: '{{ doc("column_nccalc") }}'
+          - name: ncoval
+            description: '{{ doc("column_ncoval") }}'
+          - name: nctot
+            description: '{{ doc("column_nctot") }}'
+          - name: ncval
+            description: '{{ doc("column_ncval") }}'
+          - name: newconmo
+            description: '{{ doc("column_newconmo") }}'
+          - name: newconpct
+            description: '{{ doc("column_newconpct") }}'
+          - name: parid
+            description: '{{ doc("shared_column_pin") }}'
+          - name: pctcomp
+            description: '{{ doc("column_pctcomp") }}'
+          - name: prodamage
+            description: '{{ doc("column_prodamage") }}'
+          - name: prodate
+            description: '{{ doc("column_prodate") }}'
+          - name: profact
+            description: '{{ doc("column_profact") }}'
+          - name: protype
+            description: '{{ doc("column_protype") }}'
+          - name: rate1
+            description: First level base rate
+          - name: rate2
+            description: Second level base rate
+          - name: rate3
+            description: Third level base rate
+          - name: ratel
+            description: Lower level base rate
+          - name: rcn1
+            description: First level replacement cost new amount
+          - name: rcn2
+            description: Second level replacement cost new amount
+          - name: rcn3
+            description: Third level replacement cost new amount
+          - name: rcnl
+            description: Lower level replacement cost new amount
+          - name: rcnld
+            description: '{{ doc("column_rcnld") }}'
+          - name: rcnld1
+            description: First level replacement cost new less depreciation amount
+          - name: rcnld2
+            description: Second level replacement cost new less depreciation amount
+          - name: rcnld3
+            description: Third level replacement cost new less depreciation amount
+          - name: rcnldl
+            description: Lower level replacement cost new less depreciation amount
+          - name: rectype
+            description: '{{ doc("column_rectype") }}'
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: second
+            description: Second floor addition code
+          - name: seq
+            description: '{{ doc("shared_column_seq") }}'
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: taxyr
+            description: '{{ doc("shared_column_year") }}'
+          - name: third
+            description: Third floor addition code
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: value
+            description: Value of the addition
+          - name: vect
+            description: '{{ doc("column_vect") }}'
+          - name: vectnotes
+            description: '{{ doc("column_vectnotes") }}'
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+          - name: yrblt
+            description: '{{ doc("column_yrblt") }}'
+        tests:
+          - unique_combination_of_columns:
+              name: addn_unique_by_parid_taxyr_card_lline
+              combination_of_columns:
+                - parid
+                - taxyr
+                - card
+                - lline

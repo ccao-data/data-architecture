@@ -7,6 +7,8 @@ WITH multicodes AS (
         COALESCE(COUNT(*) > 1, FALSE) AS pin_is_multicard,
         COUNT(*) AS pin_num_cards
     FROM {{ source('iasworld', 'dweldat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
     GROUP BY parid, taxyr
 ),
 
@@ -26,6 +28,8 @@ townships AS (
         taxyr,
         user1 AS township_code
     FROM {{ source('iasworld', 'legdat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
 )
 
 SELECT
@@ -47,7 +51,7 @@ SELECT
         WHEN pardat.tiebldgpct IS NOT NULL THEN pardat.tiebldgpct / 100.0
         ELSE 1.0
     END AS tieback_proration_rate,
-    CAST(dwel.user24 AS DOUBLE) / 100.0 AS card_protation_rate,
+    CAST(dwel.user24 AS DOUBLE) / 100.0 AS card_proration_rate,
     multicodes.pin_is_multicard,
     multicodes.pin_num_cards,
     aggregate_land.pin_is_multiland,
@@ -140,3 +144,7 @@ LEFT JOIN aggregate_land
 LEFT JOIN townships
     ON dwel.parid = townships.parid
     AND dwel.taxyr = townships.taxyr
+WHERE dwel.cur = 'Y'
+    AND dwel.deactivat IS NULL
+    AND pardat.cur = 'Y'
+    AND pardat.deactivat IS NULL

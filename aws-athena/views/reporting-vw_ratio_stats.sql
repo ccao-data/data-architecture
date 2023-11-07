@@ -4,19 +4,21 @@
 -- Valuation class from pardat
 WITH classes AS (
     SELECT
-        parid,
-        taxyr,
-        class,
-        CASE WHEN class IN ('299', '399') THEN 'CONDO'
-            WHEN class IN ('211', '212') THEN 'MF'
+        par.parid,
+        par.taxyr,
+        par.class,
+        CASE WHEN par.class IN ('299', '399') THEN 'CONDO'
+            WHEN par.class IN ('211', '212') THEN 'MF'
             WHEN
-                class IN (
+                par.class IN (
                     '202', '203', '204', '205', '206', '207',
                     '208', '209', '210', '234', '278', '295'
                 )
                 THEN 'SF'
         END AS property_group
-    FROM {{ source('iasworld', 'pardat') }}
+    FROM {{ source('iasworld', 'pardat') }} AS par
+    WHERE par.cur = 'Y'
+        AND par.deactivat IS NULL
 ),
 
 townships AS (
@@ -25,6 +27,8 @@ townships AS (
         leg.taxyr,
         leg.user1 AS township_code
     FROM {{ source('iasworld', 'legdat') }} AS leg
+    WHERE leg.cur = 'Y'
+        AND leg.deactivat IS NULL
 ),
 
 town_names AS (
@@ -102,7 +106,7 @@ SELECT
     av.total AS fmv,
     vwps.sale_price,
     av.total / vwps.sale_price AS ratio
-FROM {{ ref('default.vw_pin_sale') }} AS vwps
+FROM {{ ref('default.legacy_vw_pin_sale') }} AS vwps
 LEFT JOIN classes
     ON vwps.pin = classes.parid
     AND vwps.year = classes.taxyr

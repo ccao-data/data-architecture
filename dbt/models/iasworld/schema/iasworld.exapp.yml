@@ -1,0 +1,113 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+
+    tables:
+      - name: exapp
+        description: '{{ doc("table_exapp") }}'
+
+        columns:
+          - name: apaddr1
+            description: Applicant address line 1
+          - name: apaddr2
+            description: Applicant address line 2
+          - name: apaddr3
+            description: Applicant address line 3
+          - name: apdate
+            description: Application / renewal date
+          - name: apname
+            description: Applicant name
+          - name: apphone
+            description: Applicant phone number
+          - name: appseq
+            description: Application sequence
+          - name: appstat
+            description: Application status
+          - name: apptype
+            description: Application type
+          - name: assetid
+            description: Asset ID number
+          - name: batch
+            description: Batch process id
+          - name: batchno
+            description: Batch process number
+          - name: bldgno
+            description: '{{ doc("column_bldgno") }}'
+          - name: caseno
+            description: '{{ doc("column_caseno") }}'
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: exappl
+            description: Exemption application number
+          - name: excode
+            description: '{{ doc("column_excode") }}'
+          - name: fld
+            description: Column name of data to which this exemption applies
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: imageid
+            description: Image identification number
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: lline
+            description: '{{ doc("shared_column_lline") }}'
+          - name: marstat
+            description: '{{ doc("column_marstat") }}'
+          - name: ovrclass
+            description: Override class
+          - name: ovrclass1
+            description: Original class to be overridden
+          - name: ownnum
+            description: '{{ doc("column_ownnum") }}'
+          - name: parid
+            description: '{{ doc("shared_column_pin") }}'
+          - name: perex
+            description: Percent of Exemption
+          - name: procdate
+            description: '{{ doc("column_procdate") }}'
+          - name: procname
+            description: '{{ doc("column_procname") }}'
+          - name: proofown
+            description: Proof of ownership
+          - name: proofres
+            description: Proof of residency
+          - name: rolltype
+            description: '{{ doc("column_rolltype") }}'
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: seq
+            description: '{{ doc("shared_column_seq") }}'
+          - name: statreas
+            description: Status reason code
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: taxid
+            description: Tax ID
+          - name: taxyr
+            description: '{{ doc("shared_column_year") }}'
+          - name: tble
+            description: Table name of data to which this exemption applies
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: typeown
+            description: Type of ownership
+          - name: unit
+            description: '{{ doc("column_unit") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+          - name: yrbeg
+            description: Year begin date
+          - name: yrend
+            description: Year end date

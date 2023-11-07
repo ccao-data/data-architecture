@@ -1,0 +1,1 @@
+../../../aws-athena/ctas/proximity-crosswalk_year_fill.sql

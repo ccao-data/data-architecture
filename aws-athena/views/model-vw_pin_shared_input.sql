@@ -43,6 +43,10 @@ WITH uni AS (
         AND par.taxyr = sp.year
     LEFT JOIN {{ source('spatial', 'township') }} AS twn
         ON leg.user1 = CAST(twn.township_code AS VARCHAR)
+    WHERE par.cur = 'Y'
+        AND par.deactivat IS NULL
+        AND leg.cur = 'Y'
+        AND leg.deactivat IS NULL
 ),
 
 acs5 AS (
@@ -85,6 +89,8 @@ tax_bill_amount AS (
         ON pin.tax_code_num = tax_code.tax_code_num
         AND pin.year = tax_code.year
     WHERE pin.pin IS NOT NULL
+        AND pardat.cur = 'Y'
+        AND pardat.deactivat IS NULL
 ),
 
 school_district_ratings AS (

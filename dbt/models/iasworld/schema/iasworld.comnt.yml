@@ -1,0 +1,39 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+
+    tables:
+      - name: comnt
+        description: '{{ doc("table_comnt") }}'
+
+        columns:
+          - name: caseno
+            description: '{{ doc("column_caseno") }}'
+          - name: code
+            description: Code defining comment type
+          - name: comnt
+            description: '{{ doc("column_comnt") }}'
+          - name: comnt2
+            description: Unlimited comment
+          - name: comntno
+            description: Comment number
+          - name: comntstat
+            description: Current status
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: parid
+            description: '{{ doc("shared_column_pin") }}'
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'

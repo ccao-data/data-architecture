@@ -1,6 +1,5 @@
 name: 'athena'
 version: '0.1.0'
-config-version: 2
 
 # This setting configures which "profile" dbt uses for this project.
 profile: 'athena'
@@ -28,6 +27,8 @@ clean-targets:
 models:
   athena:
     +materialized: view
+    +write_compression: zstd
+    +format: parquet
     census:
       +schema: census
     default:
@@ -42,3 +43,5 @@ models:
       +schema: reporting
     rpie:
       +schema: rpie
+    sale:
+      +schema: sale

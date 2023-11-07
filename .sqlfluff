@@ -35,3 +35,6 @@ extended_capitalisation_policy = upper
 
 [sqlfluff:rules:convention.casting_style]
 preferred_type_casting_style = cast
+
+[sqlfluff:templater:jinja]
+load_macros_from_path = dbt/macros

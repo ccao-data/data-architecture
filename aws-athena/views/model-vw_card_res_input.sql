@@ -32,6 +32,8 @@ sqft_percentiles AS (
     FROM {{ ref('default.vw_card_res_char') }} AS ch
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
         ON ch.pin = leg.parid AND ch.year = leg.taxyr
+    WHERE leg.cur = 'Y'
+        AND leg.deactivat IS NULL
     GROUP BY ch.year, leg.user1
 ),
 
@@ -59,7 +61,7 @@ forward_fill AS (
             ch.tieback_proration_rate < 1.0,
             FALSE
         ) AS ind_pin_is_prorated,
-        ch.card_protation_rate AS meta_card_protation_rate,
+        ch.card_proration_rate AS meta_card_proration_rate,
 
         -- Multicard/multi-landline related fields. Each PIN can have more than
         -- one improvement/card AND/OR more than one attached landline

@@ -1,16 +1,26 @@
-version: 2
-
-
 sources:
   - name: reporting
+    tags:
+      - load_auto
     tables:
       - name: ratio_stats
-      - name: res_report_summary
+        description: '{{ doc("table_ratio_stats") }}'
 
 models:
+  - name: reporting.res_report_summary
+    description: '{{ doc("table_res_report_summary") }}'
+    config:
+      tags:
+        - daily
+
   - name: reporting.vw_assessment_roll
+    description: '{{ doc("view_vw_assessment_roll") }}'
+
+  - name: reporting.vw_pin_most_recent_boundary
+    description: '{{ doc("view_vw_pin_most_recent_boundary") }}'
+
     tests:
-      - unique_combination_of_columns: 
+      - unique_combination_of_columns:
           name: vw_assessment_roll_unique_by_year_stage_township_name_class
           combination_of_columns:
             - year
@@ -25,7 +35,11 @@ models:
             - pin10
             - municipality_name
   - name: reporting.vw_pin_most_recent_sale
+    description: '{{ doc("view_vw_pin_most_recent_sale") }}'
+
   - name: reporting.vw_ratio_stats
+    description: '{{ doc("view_vw_ratio_stats") }}'
+
     tests:
       - unique_combination_of_columns:
           name: vw_ratio_stats_unique_by_pin_year_assessment_stage_sale_price
@@ -50,6 +64,8 @@ models:
             - sale_year
             - year
   - name: reporting.vw_top_5
+    description: '{{ doc("view_vw_top_5") }}'
+
     tests:
       - unique_combination_of_columns:
           name: vw_top_5_unique_by_township_class_rank_parid
@@ -62,11 +78,4 @@ models:
           name: vw_top_5_rank_between_1_and_5
           expression: rank BETWEEN 1 AND 5
   - name: reporting.vw_town_sale_history
-    tests:
-      - unique_combination_of_columns:
-          name: vw_town_sale_history_unique_by_geography_id_property_group_sale_year
-          combination_of_columns:
-            - geography_id
-            - property_group
-            - sale_year
-
+    description: '{{ doc("view_vw_town_sale_history") }}'

@@ -1,10 +1,16 @@
-version: 2
-
-
 sources:
   - name: other
+    tags:
+      - load_manual
     tables:
       - name: airport_noise
+        description: '{{ doc("table_airport_noise") }}'
+
       - name: flood_first_street
+        description: '{{ doc("table_flood_first_street") }}'
+
       - name: great_schools_rating
+        description: '{{ doc("table_great_schools_rating") }}'
+
       - name: ihs_index
+        description: '{{ doc("table_ihs_index") }}'

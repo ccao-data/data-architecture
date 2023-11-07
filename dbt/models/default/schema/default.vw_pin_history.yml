@@ -1,0 +1,76 @@
+models:
+  - name: default.vw_pin_history
+    description: '{{ doc("view_vw_pin_history") }}'
+
+    columns:
+      - name: board_bldg
+        description: '{{ doc("shared_column_board_bldg") }}'
+      - name: board_land
+        description: '{{ doc("shared_column_board_land") }}'
+      - name: board_tot
+        description: '{{ doc("shared_column_board_tot") }}'
+      - name: certified_bldg
+        description: '{{ doc("shared_column_certified_bldg") }}'
+      - name: certified_land
+        description: '{{ doc("shared_column_certified_land") }}'
+      - name: certified_tot
+        description: '{{ doc("shared_column_certified_tot") }}'
+      - name: class
+        description: '{{ doc("shared_column_class") }}'
+      - name: mailed_bldg
+        description: '{{ doc("shared_column_mailed_bldg") }}'
+      - name: mailed_land
+        description: '{{ doc("shared_column_mailed_land") }}'
+      - name: mailed_tot
+        description: '{{ doc("shared_column_mailed_tot") }}'
+      - name: oneyr_pri_board_bldg
+        description: '{{ doc("shared_column_board_bldg") }}'
+      - name: oneyr_pri_board_land
+        description: '{{ doc("shared_column_board_land") }}'
+      - name: oneyr_pri_board_tot
+        description: '{{ doc("shared_column_board_tot") }}'
+      - name: oneyr_pri_certified_bldg
+        description: '{{ doc("shared_column_certified_bldg") }}'
+      - name: oneyr_pri_certified_land
+        description: '{{ doc("shared_column_certified_land") }}'
+      - name: oneyr_pri_certified_tot
+        description: '{{ doc("shared_column_certified_tot") }}'
+      - name: oneyr_pri_mailed_bldg
+        description: '{{ doc("shared_column_mailed_bldg") }}'
+      - name: oneyr_pri_mailed_land
+        description: '{{ doc("shared_column_mailed_land") }}'
+      - name: oneyr_pri_mailed_tot
+        description: '{{ doc("shared_column_mailed_tot") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: township_code
+        description: '{{ doc("shared_column_township_code") }}'
+      - name: township_name
+        description: '{{ doc("shared_column_township_name") }}'
+      - name: twoyr_pri_certified_bldg
+        description: '{{ doc("shared_column_certified_bldg") }}'
+      - name: twoyr_pri_certified_land
+        description: '{{ doc("shared_column_certified_land") }}'
+      - name: twoyr_pri_certified_tot
+        description: '{{ doc("shared_column_certified_tot") }}'
+      - name: twoyr_pri_mailed_bldg
+        description: '{{ doc("shared_column_mailed_bldg") }}'
+      - name: twoyr_pri_mailed_land
+        description: '{{ doc("shared_column_mailed_land") }}'
+      - name: twoyr_pri_mailed_tot
+        description: '{{ doc("shared_column_mailed_tot") }}'
+      - name: twoyr_pri_board_bldg
+        description: '{{ doc("shared_column_board_bldg") }}'
+      - name: twoyr_pri_board_land
+        description: '{{ doc("shared_column_board_land") }}'
+      - name: twoyr_pri_board_tot
+        description: '{{ doc("shared_column_board_tot") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
+
+    tests:
+      - unique_combination_of_columns:
+          name: vw_pin_history_unique_by_14_digit_pin_and_year
+          combination_of_columns:
+            - pin
+            - year

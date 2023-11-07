@@ -1,0 +1,69 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+
+    tables:
+      - name: permit
+        description: '{{ doc("table_permit") }}'
+        freshness:
+          filter: date_format(date_parse(permdt, '%Y-%m-%d %H:%i:%s.0'), '%Y') >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 48, period: hour}
+          error_after: {count: 72, period: hour}
+
+        columns:
+          - name: addrvalid
+            description: '{{ doc("column_addrvalid") }}'
+          - name: adradd
+            description: '{{ doc("column_adradd") }}'
+          - name: adrdir
+            description: '{{ doc("column_adrdir") }}'
+          - name: adrno
+            description: '{{ doc("column_adrno") }}'
+          - name: adrstr
+            description: '{{ doc("column_adrstr") }}'
+          - name: adrsuf
+            description: '{{ doc("column_adrsuf") }}'
+          - name: adrsuf2
+            description: '{{ doc("column_adrsuf2") }}'
+          - name: amount
+            description: Amount
+          - name: certdate
+            description: Certified date
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: drawndt
+            description: Date plans were drawn
+          - name: flag
+            description: Flag
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: id1
+            description: ID field 1
+          - name: id2
+            description: ID field 2
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: longdesc
+            description: Long description
+          - name: notes
+            description: Permit notes
+          - name: num
+            description: Number
+          - name: parid
+            description: '{{ doc("shared_column_pin") }}'
+          - name: permdt
+            description: Permit date
+          - name: seq
+            description: '{{ doc("shared_column_seq") }}'
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'

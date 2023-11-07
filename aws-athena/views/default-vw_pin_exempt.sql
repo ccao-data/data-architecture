@@ -37,5 +37,10 @@ LEFT JOIN {{ source('spatial', 'township') }} AS twn
 WHERE
     --- This condition is how we determine exempt status, not through class
     own.ownnum IS NOT NULL
+    AND par.cur = 'Y'
+    AND par.deactivat IS NULL
+    AND own.cur = 'Y'
+    AND own.deactivat IS NULL
     AND leg.cur = 'Y'
+    AND leg.deactivat IS NULL
     AND par.taxyr >= '2022'

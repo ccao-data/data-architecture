@@ -51,6 +51,14 @@ SELECT
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_board_tot,
+    LAG(vwpv.mailed_bldg, 2) OVER (
+        PARTITION BY vwpv.pin
+        ORDER BY vwpv.pin, vwpv.year
+    ) AS twoyr_pri_mailed_bldg,
+    LAG(vwpv.mailed_land, 2) OVER (
+        PARTITION BY vwpv.pin
+        ORDER BY vwpv.pin, vwpv.year
+    ) AS twoyr_pri_mailed_land,
     LAG(vwpv.mailed_tot, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
@@ -89,3 +97,7 @@ LEFT JOIN {{ source('iasworld', 'pardat') }} AS par
     AND vwpv.year = par.taxyr
 LEFT JOIN {{ source('spatial', 'township') }} AS town
     ON leg.user1 = town.township_code
+WHERE leg.cur = 'Y'
+    AND leg.deactivat IS NULL
+    AND par.cur = 'Y'
+    AND par.deactivat IS NULL

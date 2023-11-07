@@ -283,6 +283,7 @@
       "RemoteRef": "HEAD",
       "RemoteSha": "01f385846ced9fc19bd551ec08a9cf154e27a414",
       "Remotes": "gitlab::ccao-data-science---modeling/packages/ccao",
+      "Remotes": "gitlab::ccao-data-science---modeling/packages/ccao",
       "Requirements": [
         "R",
         "clustMixType",
@@ -290,7 +291,7 @@
         "stats",
         "utils"
       ],
-      "Hash": "9025e171da3556544e81992556d916dc"
+      "Hash": "9e2572c96446390ece824fbb8de8267e"
     },
     "aws.s3": {
       "Package": "aws.s3",
@@ -506,6 +507,7 @@
       "RemoteRef": "HEAD",
       "RemoteSha": "69de1ec95d7848b8b17fdc9bd65a32498f4b0b55",
       "Remotes": "gitlab::ccao-data-science---modeling/packages/assessr",
+      "Remotes": "gitlab::ccao-data-science---modeling/packages/assessr",
       "Requirements": [
         "R",
         "assessr",
@@ -514,7 +516,7 @@
         "rlang",
         "tidyr"
       ],
-      "Hash": "a62510ef048d2f789fbc79602ef204d1"
+      "Hash": "405edea17a17c9a42ec8676d4fc899cc"
     },
     "cellranger": {
       "Package": "cellranger",
@@ -999,19 +1001,20 @@
       "Package": "geoarrow",
       "Version": "0.0.0.9000",
       "Source": "GitHub",
-      "Remotes": "paleolimbot/narrow",
       "RemoteType": "github",
+      "Remotes": "paleolimbot/narrow",
       "RemoteHost": "api.github.com",
       "RemoteRepo": "geoarrow",
       "RemoteUsername": "paleolimbot",
       "RemoteRef": "HEAD",
       "RemoteSha": "feebf9608b0cb3786a19e8a857479e0f50607c26",
+      "Remotes": "paleolimbot/narrow",
       "Requirements": [
         "R",
         "narrow",
         "wk"
       ],
-      "Hash": "41b0d41d7933333b5b7958f46c3e3a66"
+      "Hash": "49116e61e478f3823d7ba370c808f191"
     },
     "geodist": {
       "Package": "geodist",
@@ -2027,7 +2030,7 @@
     },
     "osmdata": {
       "Package": "osmdata",
-      "Version": "0.2.2",
+      "Version": "0.2.5",
       "Source": "Repository",
       "Repository": "CRAN",
       "Requirements": [
@@ -2044,7 +2047,7 @@
         "utils",
         "xml2"
       ],
-      "Hash": "393e194d2abaa6d10d6a2ae528494f2f"
+      "Hash": "484fb25b6267ae0a885511dbac53f193"
     },
     "paws": {
       "Package": "paws",
@@ -2407,29 +2410,6 @@
         "utils"
       ],
       "Hash": "709d852d33178db54b17c722e5b1e594"
-    },
-    "ptaxsim": {
-      "Package": "ptaxsim",
-      "Version": "0.6.0",
-      "Source": "GitLab",
-      "RemoteType": "gitlab",
-      "RemoteHost": "gitlab.com",
-      "RemoteUsername": "ccao-data-science---modeling",
-      "RemoteRepo": "packages/ptaxsim",
-      "RemoteSubdir": "",
-      "RemoteRef": "master",
-      "RemoteSha": "fa13e59cdbfa757e5249e95e6d23b3edc0a2f6af",
-      "Remotes": "github::paleolimbot/geoarrow",
-      "Remotes": "github::paleolimbot/geoarrow",
-      "Requirements": [
-        "DBI",
-        "R",
-        "RSQLite",
-        "data.table",
-        "glue",
-        "utils"
-      ],
-      "Hash": "bbfa004e647beccbf3caae1df42ef134"
     },
     "purrr": {
       "Package": "purrr",
@@ -3017,6 +2997,7 @@
       "RemoteRef": "HEAD",
       "RemoteSha": "08e3d763b7bb2becfe5fc95f800b3767ea704439",
       "Remotes": "ropensci/tabulizerjars",
+      "Remotes": "ropensci/tabulizerjars",
       "Requirements": [
         "png",
         "rJava",
@@ -3024,7 +3005,7 @@
         "tools",
         "utils"
       ],
-      "Hash": "0e051c194cb6b13b71e16d65a91a0b2b"
+      "Hash": "cddbfb62f19f59e4aa8b420156ae14b9"
     },
     "tabulizerjars": {
       "Package": "tabulizerjars",

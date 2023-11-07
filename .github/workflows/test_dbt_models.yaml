@@ -23,3 +23,20 @@ jobs:
         run: dbt test --target "$TARGET"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
+
+      - name: Get current time
+        if: failure()
+        run: echo "TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S")" >> "$GITHUB_ENV"
+        shell: bash
+
+      - name: Send failure notification
+        if: failure()
+        uses: ./.github/actions/publish_sns_topic
+        with:
+          sns_topic_arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
+          subject: "dbt tests failed for workflow run: ${{ github.run_id }}"
+          body: |
+            dbt tests failed for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
+
+            Link to failing workflow:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}

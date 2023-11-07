@@ -2,8 +2,8 @@ name: test-dbt-source-freshness
 
 on:
   schedule:
-    # Every day at 9am CST (3pm UTC)
-    - cron: '0 15 * * *'
+    # Every day at 8am (2pm UTC-5)
+    - cron: '0 13 * * *'
 
 jobs:
   test-dbt-source-freshness:

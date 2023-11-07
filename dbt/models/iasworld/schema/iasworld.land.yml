@@ -1,0 +1,196 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+      - type_land
+
+    tables:
+      - name: land
+        description: '{{ doc("table_land") }}'
+
+        columns:
+          - name: acres
+            description: '{{ doc("column_acres") }}'
+          - name: adjfact
+            description: '{{ doc("column_adjfact") }}'
+          - name: agflg
+            description: Agricultural flag
+          - name: allocpct
+            description: Allocation percentage
+          - name: bdecr
+            description: Decremental rate
+          - name: bincr
+            description: Incremental rate
+          - name: brate
+            description: Base rate
+          - name: bsize
+            description: Base size
+          - name: caascard
+            description: CAAS card number
+          - name: card
+            description: '{{ doc("column_card") }}'
+          - name: cerrate
+            description: Crop equivalent rating
+          - name: chgrsn
+            description: '{{ doc("column_chgrsn") }}'
+          - name: class
+            description: '{{ doc("shared_column_class") }}'
+          - name: code
+            description: Code
+          - name: comres
+            description: Commercial residual flag
+          - name: convland
+            description: Land value at conversion
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: depfact
+            description: Depth factor
+          - name: deptbl
+            description: Depth factor
+          - name: depth
+            description: Depth
+          - name: excess
+            description: '{{ doc("column_excess") }}'
+          - name: exmppct
+            description: '{{ doc("column_exmppct") }}'
+          - name: exmpval
+            description: '{{ doc("column_exmpval") }}'
+          - name: fldfact
+            description: Flood factor
+          - name: fronact
+            description: Actual frontage (type F)
+          - name: froneff
+            description: Effective frontage
+          - name: hectares
+            description: Stores hectare value for land
+          - name: hga
+            description: '{{ doc("column_hga") }}'
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: infl1
+            description: 'Influence Code #1'
+          - name: infl2
+            description: 'Influence Code #2'
+          - name: influ
+            description: Influence percent (+/-)
+          - name: influ2
+            description: Influence percent (+/-)
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: landid
+            description: Land Identification number
+          - name: lcodemod
+            description: Land code model
+          - name: lline
+            description: '{{ doc("shared_column_lline") }}'
+          - name: lmod
+            description: Land location model number
+          - name: locfact
+            description: Location factor
+          - name: ltype
+            description: Land type (F, S, A, G, U)
+          - name: lump1
+            description: Lump sum adjustment value 1
+          - name: lump2
+            description: Lump sum adjustment value 2
+          - name: lumpcamod
+            description: '{{ doc("column_lumpcamod") }}'
+          - name: lumpcd1
+            description: Lump sum code 1
+          - name: lumpcd2
+            description: Lump sum code 2
+          - name: mktfact
+            description: Market condition factor
+          - name: modtype
+            description: Associates land line to the specific model level in `NBHDMOD`
+          - name: nccalc
+            description: '{{ doc("column_nccalc") }}'
+          - name: ncoval
+            description: '{{ doc("column_ncoval") }}'
+          - name: nctot
+            description: '{{ doc("column_nctot") }}'
+          - name: ncval
+            description: '{{ doc("column_ncval") }}'
+          - name: nmod
+            description: Neighborhood model
+          - name: odecr
+            description: Override decremental rate
+          - name: oincr
+            description: Override incremental rate
+          - name: orate
+            description: Override base rate
+          - name: osize
+            description: Override base size
+          - name: ovrdepfact
+            description: Override depth factor
+          - name: ovrnbhd
+            description: '{{ doc("column_ovrnbhd") }}'
+          - name: ovrprice
+            description: Override price
+          - name: parid
+            description: '{{ doc("shared_column_pin") }}'
+          - name: price
+            description: Price
+          - name: recnr
+            description: '{{ doc("column_recnr") }}'
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: schedmod
+            description: Schedule model number
+          - name: seq
+            description: '{{ doc("shared_column_seq") }}'
+          - name: sf
+            description: '{{ doc("shared_column_char_land_sf") }}'
+          - name: sfact
+            description: S factor
+          - name: sizefact
+            description: Size factor
+          - name: smod
+            description: Street model number
+          - name: soil
+            description: Soil type
+          - name: soilflg
+            description: Soil rating flag
+          - name: soilmod
+            description: Soil model number
+          - name: sqmeter
+            description: Square meters
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: suppress
+            description: '{{ doc("column_suppress") }}'
+          - name: taxyr
+            description: '{{ doc("shared_column_year") }}'
+          - name: topofact
+            description: Topography Factor
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: umod
+            description: Utility model
+          - name: units
+            description: Units, instead of using square feet
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+          - name: zmod
+            description: Zone model
+          - name: zoning
+            description: Override zoning at line level
+
+        tests:
+          - unique_combination_of_columns:
+              name: land_unique_by_parid_lline_taxyr
+              combination_of_columns:
+                - parid
+                - lline
+                - taxyr

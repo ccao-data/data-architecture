@@ -1,0 +1,220 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+
+    tables:
+      - name: aprval
+        description: '{{ doc("table_aprval") }}'
+
+        columns:
+          - name: adjbldgfact
+            description: Building factor
+          - name: adjlandfact
+            description: Land factor
+          - name: apmktval
+            description: Applied market value
+          - name: aprbldg
+            description: Appraised building value
+          - name: aprdate
+            description: '`APRTOT` calc date'
+          - name: aprland
+            description: Appraised land value
+          - name: aprtot
+            description: '{{ doc("column_aprtot") }}'
+          - name: areasum
+            description: '{{ doc("column_areasum") }}'
+          - name: assmkt
+            description: Total assessed value
+          - name: auid
+            description: Appraisal unit number
+          - name: bldgval
+            description: Building value
+          - name: comincval
+            description: Commercial income value
+          - name: commktsf
+            description: Commercial market sqft value
+          - name: commktsfdate
+            description: Commercial market sqft date
+          - name: commktun
+            description: Commercial market unit value
+          - name: commktundate
+            description: Commercial market unit date
+          - name: commonbldg
+            description: Building value based on % of master condo parcel
+          - name: commonland
+            description: Land value based on % of master condo parcel
+          - name: compasmt
+            description: Comparable `ASMT` value
+          - name: compdate
+            description: Comparable `ASMT` date
+          - name: comval
+            description: Commercial building cost value
+          - name: comvalpersf
+            description: Commercial appraised value per SF
+          - name: comvalperunit
+            description: Commercial appraised value per unit
+          - name: convbldg
+            description: '{{ doc("column_convbldg") }}'
+          - name: convland
+            description: Land value at conversion
+          - name: costdt
+            description: Cost value date
+          - name: costval
+            description: Total cost value
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: dwelval
+            description: Total dwelling value
+          - name: ecf
+            description: Economic condition factor
+          - name: equflag
+            description: When appraisal values changes this is checked
+          - name: excess_improvement
+            description: Excess improvement amount
+          - name: excess_land
+            description: Excess land amount
+          - name: excess_total
+            description: Excess total amount
+          - name: exmpbldg
+            description: Exemption building value
+          - name: exmpland
+            description: Exemption land value
+          - name: exmppct
+            description: '{{ doc("column_exmppct") }}'
+          - name: exmppctb
+            description: Bldg exemption percentage. If this % is null, it will use `EXMPPCT`
+          - name: exmppctl
+            description: Land exemption percentage. If this % is null, it will use `EXMPPCT`
+          - name: exmpval
+            description: '{{ doc("column_exmpval") }}'
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: incdate
+            description: Income Value Date
+          - name: income
+            description: Total income value
+          - name: incomecost
+            description: Total value for blended INCOME and COST aproach
+          - name: incomemkt
+            description: Total value for blended INCOME and MARKET aproach
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: landpct
+            description: Land allocation percent
+          - name: landval
+            description: Total land cost value
+          - name: lastupd
+            description: Date of last change to a value field
+          - name: mandate
+            description: Manual model date
+          - name: manmodval
+            description: Manual model value
+          - name: mktcost
+            description: Total value for blended MARKET and COST aproach
+          - name: mktdt
+            description: Total market date
+          - name: mktland
+            description: Market land only
+          - name: mkttotval
+            description: Total market value
+          - name: mktval
+            description: Market value
+          - name: mraland
+            description: MRA estimate land only
+          - name: nrval
+            description: Sum of designated structure areas
+          - name: obyval
+            description: Total `OBY` value
+          - name: overridemodelid
+            description: Override model ID number
+          - name: ovrmraval
+            description: '{{ doc("column_ovrmraval") }}'
+          - name: parid
+            description: '{{ doc("shared_column_pin") }}'
+          - name: posttype
+            description: Assessment posting type
+          - name: ppcomval
+            description: Personal property commercial value
+          - name: ppdwelval
+            description: Personal property residential value
+          - name: ppobyval
+            description: Personal property `OBY` value
+          - name: procdate
+            description: '{{ doc("column_procdate") }}'
+          - name: procname
+            description: '{{ doc("column_procname") }}'
+          - name: reascd
+            description: Reason code for change in assessed value
+          - name: resgrmval
+            description: Gross rent multiplier value
+          - name: revbldg
+            description: Reviewer building value estimate
+          - name: revcode
+            description: Review code (value type)
+          - name: revdt
+            description: Review date
+          - name: revland
+            description: Reviewer land value estimate
+          - name: revmeth
+            description: Review method
+          - name: revreas
+            description: Review reason code
+          - name: revtot
+            description: Reviewer total estimate
+          - name: revwho
+            description: Reviewer name/code
+          - name: rolltype
+            description: '{{ doc("column_rolltype") }}'
+          - name: saledate
+            description: Selected sale date
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: saleprice
+            description: Selected sale price
+          - name: seq
+            description: '{{ doc("shared_column_seq") }}'
+          - name: spcflg
+            description: Special processing flag
+          - name: splitno
+            description: '{{ doc("column_splitno") }}'
+          - name: spssmrabldg
+            description: SPSS MRA building value
+          - name: spssmraland
+            description: SPSS MRA land value
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: taxyr
+            description: '{{ doc("shared_column_year") }}'
+          - name: tiebackbldg
+            description: Sum of building value for all children in the income tieback group
+          - name: tiebackland
+            description: Sum of land value for all children in the income tieback group
+          - name: tiebacktotal
+            description: Sum of total value for all children in the income tieback group
+          - name: totcomla
+            description: Total commercial living area
+          - name: totresla
+            description: Total residential living area
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+
+        tests:
+          - unique_combination_of_columns:
+              name: aprval_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
