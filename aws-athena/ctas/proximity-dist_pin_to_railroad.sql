@@ -37,50 +37,41 @@ railroad_location AS (
         ON fill_years.fill_year = fill_data.year
 ),
 
-distances AS (
+railroad_location_agg AS (
     SELECT
-        cj.*,
-        ST_DISTANCE(cj.points[1], cj.points[2]) AS distance
-    FROM (
-        SELECT
-            dp.x_3435,
-            dp.y_3435,
-            loc.name_id,
-            loc.name_anno,
-            loc.pin_year,
-            loc.year,
-            GEOMETRY_NEAREST_POINTS(
-                ST_POINT(dp.x_3435, dp.y_3435),
-                ST_GEOMFROMBINARY(loc.geometry_3435)
-            ) AS points
-        FROM distinct_pins AS dp
-        CROSS JOIN railroad_location AS loc
-    ) AS cj
+        dy.year AS pin_year,
+        MAX(df.year) AS fill_year,
+        geometry_union_agg(ST_GEOMFROMBINARY(df.geometry)) AS geom_3435
+    FROM {{ source('spatial', 'railroad') }} AS df
+    CROSS JOIN distinct_years AS dy
+    WHERE dy.year >= df.year
+    GROUP BY dy.year
+),
+
+nearest_point AS (
+    SELECT
+        dp.x_3435,
+        dp.y_3435,
+        geometry_nearest_points(
+            ST_POINT(dp.x_3435, dp.y_3435),
+            loc_agg.geom_3435
+        ) AS points
+    FROM distinct_pins AS dp
+    CROSS JOIN railroad_location_agg AS loc_agg
 ),
 
 xy_to_railroad_dist AS (
     SELECT
-        d1.x_3435,
-        d1.y_3435,
-        d1.name_id,
-        d1.name_anno,
-        d1.pin_year,
-        d1.year,
-        d2.dist_ft
-    FROM distances AS d1
-    INNER JOIN (
-        SELECT
-            x_3435,
-            y_3435,
-            pin_year,
-            MIN(distance) AS dist_ft
-        FROM distances
-        GROUP BY x_3435, y_3435, pin_year
-    ) AS d2
-        ON d1.x_3435 = d2.x_3435
-        AND d1.y_3435 = d2.y_3435
-        AND d1.pin_year = d2.pin_year
-        AND d1.distance = d2.dist_ft
+        np.x_3435,
+        np.y_3435,
+        loc.name_id,
+        loc.name_anno,
+        loc.pin_year,
+        loc.year,
+        ST_Distance(np.points[1], np.points[2]) AS dist_ft
+    FROM nearest_point AS np
+    LEFT JOIN railroad_location AS loc
+        ON ST_INTERSECTS(np.points[2], ST_GEOMFROMBINARY(loc.geometry_3435))
 )
 
 SELECT
