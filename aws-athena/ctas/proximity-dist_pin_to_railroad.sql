@@ -49,7 +49,7 @@ distances AS (
             loc.name_anno,
             loc.pin_year,
             loc.year,
-            geometry_nearest_points(
+            GEOMETRY_NEAREST_POINTS(
                 ST_POINT(dp.x_3435, dp.y_3435),
                 ST_GEOMFROMBINARY(loc.geometry_3435)
             ) AS points
