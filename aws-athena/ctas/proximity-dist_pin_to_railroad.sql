@@ -41,7 +41,7 @@ railroad_location_agg AS (
     SELECT
         dy.year AS pin_year,
         MAX(df.year) AS fill_year,
-        geometry_union_agg(ST_GEOMFROMBINARY(df.geometry_3435)) AS geom_3435
+        GEOMETRY_UNION_AGG(ST_GEOMFROMBINARY(df.geometry_3435)) AS geom_3435
     FROM {{ source('spatial', 'railroad') }} AS df
     CROSS JOIN distinct_years AS dy
     WHERE dy.year >= df.year
@@ -52,7 +52,7 @@ nearest_point AS (
     SELECT
         dp.x_3435,
         dp.y_3435,
-        geometry_nearest_points(
+        GEOMETRY_NEAREST_POINTS(
             ST_POINT(dp.x_3435, dp.y_3435),
             loc_agg.geom_3435
         ) AS points
@@ -68,7 +68,7 @@ xy_to_railroad_dist AS (
         loc.name_anno,
         loc.pin_year,
         loc.year,
-        ST_Distance(np.points[1], np.points[2]) AS dist_ft
+        ST_DISTANCE(np.points[1], np.points[2]) AS dist_ft
     FROM nearest_point AS np
     LEFT JOIN railroad_location AS loc
         ON ST_INTERSECTS(np.points[2], ST_GEOMFROMBINARY(loc.geometry_3435))
