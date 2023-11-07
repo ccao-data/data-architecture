@@ -55,6 +55,11 @@ models:
             - pin10
             - municipality_name
   - name: reporting.vw_pin_most_recent_sale
+    tests:
+      - unique_combination_of_columns:
+          name: vw_pin_most_recent_sale_unique_by_pin
+          combination_of_columns:
+            - pin
   - name: reporting.vw_ratio_stats
     tests:
       - unique_combination_of_columns:

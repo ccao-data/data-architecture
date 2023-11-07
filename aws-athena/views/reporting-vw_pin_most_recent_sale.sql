@@ -18,6 +18,7 @@ sale_rank AS (
             ORDER BY sale_date DESC
         ) AS rank
     FROM {{ ref('default.legacy_vw_pin_sale') }}
+    WHERE NOT is_multisale
 )
 
 SELECT
