@@ -111,7 +111,7 @@ iasworld_values AS (
         AND aa.deactivat IS NULL
         AND aa.valclass IS NULL
         AND tc.property_group IS NOT NULL
-        AND tc.triad_name IS NOT NULL
+        AND tc.triad IS NOT NULL
         AND aa.taxyr >= '2021'
     GROUP BY
         aa.parid,
@@ -203,7 +203,7 @@ sales AS (
     WHERE NOT vwps.is_multisale
         AND NOT vwps.sale_filter_is_outlier
         AND tc.property_group IS NOT NULL
-        AND tc.triad_name IS NOT NULL
+        AND tc.triad IS NOT NULL
 ),
 
 -- Aggregate land for all parcels
