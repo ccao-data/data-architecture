@@ -39,18 +39,23 @@ railroad_location AS (
 
 distances AS (
     SELECT
-        dp.x_3435,
-        dp.y_3435,
-        loc.name_id,
-        loc.name_anno,
-        loc.pin_year,
-        loc.year,
-        ST_DISTANCE(
-            ST_POINT(dp.x_3435, dp.y_3435),
-            ST_GEOMFROMBINARY(loc.geometry_3435)
-        ) AS distance
-    FROM distinct_pins AS dp
-    CROSS JOIN railroad_location AS loc
+        cj.*,
+        ST_DISTANCE(points[1], points[2]) AS distance
+    FROM (
+        SELECT
+            dp.x_3435,
+            dp.y_3435,
+            loc.name_id,
+            loc.name_anno,
+            loc.pin_year,
+            loc.year,
+            geometry_nearest_points(
+                ST_POINT(dp.x_3435, dp.y_3435),
+                ST_GEOMFROMBINARY(loc.geometry_3435)
+            ) AS points
+        FROM distinct_pins AS dp
+        CROSS JOIN railroad_location AS loc
+    ) AS cj
 ),
 
 xy_to_railroad_dist AS (
