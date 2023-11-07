@@ -18,7 +18,8 @@ sale_rank AS (
             ORDER BY sale_date DESC
         ) AS rank
     FROM {{ ref('default.vw_pin_sale') }}
-    WHERE NOT sale_filter_same_sale_within_365
+    WHERE NOT is_multisale
+        AND NOT sale_filter_same_sale_within_365
         AND NOT sale_filter_less_than_10k
         AND NOT sale_filter_deed_type
 )
