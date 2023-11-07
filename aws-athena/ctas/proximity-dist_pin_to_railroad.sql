@@ -41,7 +41,7 @@ railroad_location_agg AS (
     SELECT
         dy.year AS pin_year,
         MAX(df.year) AS fill_year,
-        geometry_union_agg(ST_GEOMFROMBINARY(df.geometry)) AS geom_3435
+        geometry_union_agg(ST_GEOMFROMBINARY(df.geometry_3435)) AS geom_3435
     FROM {{ source('spatial', 'railroad') }} AS df
     CROSS JOIN distinct_years AS dy
     WHERE dy.year >= df.year
