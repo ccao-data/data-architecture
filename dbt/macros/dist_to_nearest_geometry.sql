@@ -1,7 +1,7 @@
 -- Macro that takes a `source_model` containing geometries and joins it
 -- against spatial.parcel in order to generate the distance from each PIN
 -- to each geometry and year combination.
--- 
+--
 -- The `source_conditional` allows for filtering on the source table
 -- using standard SQL
 {% macro dist_to_nearest_geometry(source_model, source_conditional) %}

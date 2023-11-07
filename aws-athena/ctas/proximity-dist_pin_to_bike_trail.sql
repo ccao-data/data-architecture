@@ -16,7 +16,8 @@ SELECT
     ARBITRARY(xy.year) AS nearest_bike_trail_data_year,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
-INNER JOIN ( {{ dist_to_nearest_geometry(source('spatial', 'bike_trail')) }} ) AS xy
+INNER JOIN
+    ( {{ dist_to_nearest_geometry(source('spatial', 'bike_trail')) }} ) AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
     AND pcl.year = xy.pin_year
