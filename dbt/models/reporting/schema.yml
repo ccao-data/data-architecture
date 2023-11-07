@@ -19,6 +19,18 @@ models:
         select_columns:
           - sale_year
           - year
+    - expression_is_true:
+        name: res_report_summary_no_nulls
+        expression: >-
+          triad IS NOT NULL
+            AND geography_type IS NOT NULL
+            AND property_group IS NOT NULL
+            AND assessment_stage IS NOT NULL
+        select_columns:
+          - triad
+          - geography_type
+          - property_group
+          - assessment_stage
   - name: reporting.vw_assessment_roll
     tests:
       - unique_combination_of_columns:
