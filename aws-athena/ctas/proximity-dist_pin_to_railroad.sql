@@ -40,7 +40,7 @@ railroad_location AS (
 distances AS (
     SELECT
         cj.*,
-        ST_DISTANCE(points[1], points[2]) AS distance
+        ST_DISTANCE(cj.points[1], cj.points[2]) AS distance
     FROM (
         SELECT
             dp.x_3435,
