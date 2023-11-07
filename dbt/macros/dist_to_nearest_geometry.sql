@@ -7,7 +7,7 @@
 {% macro dist_to_nearest_geometry(source_model, source_conditional) %}
 
     with
-        -- Source table with conditional applied (if applicable)
+        -- Source table with conditional applied if applicable
         source_table as (
             select *
             from {{ source_model }}
@@ -18,7 +18,8 @@
 
         -- Universe of all possible PINs. This ignores years since PINs don't
         -- actually move very often, so unique xy coordinates are a good enough
-        -- proxy for PIN coordinates and year
+        -- proxy for PIN coordinates and year. We do this to limit the number
+        -- of parcels for which we need to perform spatial operations
         distinct_pins as (
             select distinct x_3435, y_3435 from {{ source("spatial", "parcel") }}
         ),
@@ -29,21 +30,24 @@
         -- from 2020 will be filled forward to 2023
         distinct_years as (select distinct year from {{ source("spatial", "parcel") }}),
 
-        -- Source table with forward filling applied by year. See above. This
+        -- Crosswalk of the source data and distinct years, used to perform
+        -- the forward filling described above
+        fill_years as (
+            select dy.year as pin_year, max(df.year) as fill_year
+            from source_table as df
+            cross join distinct_years as dy
+            where dy.year >= df.year
+            group by dy.year
+        ),
+
+        -- Source table with forward filling applied by year. This
         -- will result in one row per geometry per year of parcel data i.e.
         -- for hospitals, there will be one row for each hospital for each
         -- year of parcel data (up to the current year)
         location as (
-            select fill_years.pin_year, fill_data.*
-            from
-                (
-                    select dy.year as pin_year, max(df.year) as fill_year
-                    from source_table as df
-                    cross join distinct_years as dy
-                    where dy.year >= df.year
-                    group by dy.year
-                ) as fill_years
-            left join source_table as fill_data on fill_years.fill_year = fill_data.year
+            select fy.pin_year, fill_data.*
+            from fill_years as fy
+            left join source_table as fill_data on fy.fill_year = fill_data.year
         ),
 
         -- Source table with forward filling applied by year, but containing
@@ -52,22 +56,22 @@
         -- a single object
         location_agg as (
             select
-                dy.year as pin_year,
-                max(df.year) as fill_year,
-                geometry_union_agg(st_geomfrombinary(df.geometry_3435)) as geom_3435
-            from source_table as df
-            cross join distinct_years as dy
-            where dy.year >= df.year
-            group by dy.year
+                fy.pin_year,
+                max(fill_data.year) AS fill_year,
+                geometry_union(array_agg(st_geomfrombinary(fill_data.geometry_3435))) as geom_3435
+            from fill_years as fy
+            left join source_table as fill_data on fy.fill_year = fill_data.year
+            group by fy.pin_year
         ),
 
         -- For each unique PIN location, find the nearest point from each
         -- geometry set from each year. The output of geometry_nearest_points
-        -- is a pair of points, one from each geometry
+        -- is a pair of points, one from each geometry and year
         nearest_point as (
             select
                 dp.x_3435,
                 dp.y_3435,
+                loc_agg.pin_year,
                 geometry_nearest_points(
                     st_point(dp.x_3435, dp.y_3435), loc_agg.geom_3435
                 ) as points
@@ -84,4 +88,5 @@
     left join
         location as loc
         on st_intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
+        and np.pin_year = loc.pin_year
 {% endmacro %}
