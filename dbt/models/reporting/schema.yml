@@ -48,12 +48,11 @@ models:
   - name: reporting.vw_top_5
     tests:
       - unique_combination_of_columns:
-          name: vw_top_5_unique_by_township_class_rank_parid
+          name: vw_top_5_unique_by_rank_parid_year
           combination_of_columns:
-            - township
-            - class
             - rank
             - parid
+            - year
       - expression_is_true:
           name: vw_top_5_rank_between_1_and_5
           expression: rank BETWEEN 1 AND 5
