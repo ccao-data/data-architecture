@@ -9,12 +9,13 @@
     with
         -- Source table with conditional applied (if applicable)
         source_table as (
-            select * from {{ source_model }}
+            select *
+            from {{ source_model }}
             {% if source_conditional is defined %}
                 where {{ source_conditional }}
             {% endif %}
         ),
-        
+
         -- Universe of all possible PINs. This ignores years since PINs don't
         -- actually move very often, so unique xy coordinates are a good enough
         -- proxy for PIN coordinates and year
