@@ -36,7 +36,9 @@
                 ) as fill_years
             left join
                 {{ source_model }} as fill_data on fill_years.fill_year = fill_data.year
-            where {{ source_conditional }}
+            {% if source_conditional is defined %}
+                where {{ source_conditional }}
+            {% endif %}
         ),
 
         -- Source table with forward filling applied by year, but containing
@@ -50,7 +52,11 @@
                 geometry_union_agg(st_geomfrombinary(df.geometry_3435)) as geom_3435
             from {{ source_model }} as df
             cross join distinct_years as dy
-            where dy.year >= df.year and {{ source_conditional }}
+            where
+                dy.year >= df.year
+                {% if source_conditional is defined %}
+                    and {{ source_conditional }}
+                {% endif %}
             group by dy.year
         ),
 
