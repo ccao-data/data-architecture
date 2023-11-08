@@ -1,3 +1,4 @@
+library(arrow)
 library(aws.s3)
 library(dplyr)
 library(geoarrow)
@@ -8,32 +9,36 @@ library(purrr)
 library(sf)
 source("utils.R")
 
-# This script queries OpenStreetMap for secondary roads in Cook County and
-# saves them as a spatial parquet
+# This script ingests data from the AWS raw bucket, simplifies the number of
+# nodes for computational speed-up, and writes the resulting output to the
+# AWS warehouse bucket
+
+# Instantiate S3 bucket names
+AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment")
+
+# Get current year
 current_year <- strftime(Sys.Date(), "%Y")
 
-##### Secondary roads #####
-# Query OpenStreetMap API for Secondary roads in Cook
+# Ingest path
+ingest_file <- file.path(
+  AWS_S3_RAW_BUCKET,"spatial",
+  "environment", "secondary_road",
+  paste0("year=", current_year),
+  paste0("secondary_road-", current_year, ".parquet"))
+
+# Output path
 remote_file <- file.path(
-  output_bucket, "secondary_road",
+  AWS_S3_WAREHOUSE_BUCKET, "spatial",
+  "environment", "secondary_road",
   paste0("year=", current_year),
   paste0("secondary_road-", current_year, ".parquet")
 )
 
-
 if (!aws.s3::object_exists(remote_file)) {
-  osm_roads <- opq(bbox = "Cook County, IL") %>%
-    add_osm_feature(
-      key = "highway",
-      value = "secondary"
-    ) %>%
-    osmdata_sf() %>%
-    .$osm_lines %>%
-    select(osm_id, name) %>%
-    st_transform(4326) %>%
-    mutate(geometry_3435 = st_simplify(st_transform(geometry, 3435), dTolerance = 10))
 
-  geoarrow::write_geoparquet(osm_roads, remote_file)
+  simplified_data <- read_geoparquet_sf(ingest_file) %>%
+    mutate(geometry_3435 = st_simplify(geometry_3435, dTolerance = 10))
+
+  geoarrow::write_geoparquet(simplified_data, remote_file)
 }
