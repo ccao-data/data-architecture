@@ -154,15 +154,7 @@ as a base, which is itself constructed from two separate sources of MyDec data.
 Current MyDec records are ingested into `iasworld.sales` using a manual import
 process. The full data lineage looks something like:
 
-```mermaid
-flowchart LR
-    A[(MyDec)] -->|Via DS + SP| B[AS/400 + Mainframe]
-    A --> |Sales after Feb. 2021<br>via DS + MV| C[(iasworld.sales)]
-    B --> |Sales before<br>Feb. 2021| C
-    A --> |Via Data. Dept.<br> direct import| D[(sale.mydec)]
-    D --> |Used to fill<br>missing data| E[default.vw_pin_sale]
-    C --> |Default source| E
-```
+![Data Flow Diagram](./assets/sales-lineage.svg)
 
 **Primary Key**: `year`, `pin`
 {% enddocs %}
