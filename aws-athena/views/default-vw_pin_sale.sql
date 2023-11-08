@@ -214,7 +214,8 @@ mydec_sales AS (
             ) > 0 AS sale_filter_ptax_flag,
             COUNT() OVER (
                 PARTITION BY line_1_primary_pin, line_4_instrument_date
-            ) AS num_single_day_sales
+            ) AS num_single_day_sales,
+            year_of_sale
         FROM {{ source('sale', 'mydec') }}
         WHERE line_2_total_parcels = 1 -- Remove multisales
     )
