@@ -49,6 +49,8 @@ walk(2013:current_year, function(x) {
     st_read(tmp_file_coastline) %>%
       st_transform(4326) %>%
       filter(as.logical(st_intersects(geometry, cook_boundary))) %>%
+      # 2015 has superfluous coastline artifacts we need to remove
+      {if(x == 2015) .[1:3, ] else .} %>%
       mutate(
         NAME = "Lake Michigan",
         geometry_3435 = st_transform(geometry, 3435)
