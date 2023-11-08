@@ -26,7 +26,7 @@ calculated AS (
     FROM (
         SELECT DISTINCT
             parid,
-            instruno
+            NULLIF(REPLACE(instruno, 'D', ''), '') AS instruno
         FROM {{ source('iasworld', 'sales') }}
         WHERE deactivat IS NULL
             AND cur = 'Y'
