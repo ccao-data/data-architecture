@@ -154,6 +154,7 @@ mydec_sales AS (
             REPLACE(document_number, 'D', '') AS doc_no,
             REPLACE(line_1_primary_pin, '-', '') AS pin,
             DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS mydec_date,
+            line_5_instrument_type AS mydec_deed_type,
             NULLIF(TRIM(seller_name), '') AS seller_name,
             NULLIF(TRIM(buyer_name), '') AS buyer_name,
             COALESCE(line_7_property_advertised = 1, FALSE)
@@ -213,10 +214,9 @@ mydec_sales AS (
             ) > 0 AS sale_filter_ptax_flag,
             COUNT() OVER (
                 PARTITION BY line_1_primary_pin, line_4_instrument_date
-            ) AS num_cards_sale,
-            year_of_sale
-        FROM sale.mydec
-        WHERE is_earliest_within_doc_no
+            ) AS num_single_day_sales,
+        FROM {{ source('sale', 'mydec') }}
+        WHERE line_2_total_parcels = 1 -- Remove multisales
     )
     /* Some sales in mydec have multiple rows for one pin on a given sale date.
     These are likely individual cards being sold since they have different doc
@@ -224,7 +224,7 @@ mydec_sales AS (
     prior to 2021 and when joined back onto unique_sales will create duplicates
     by pin/sale date. We don't know whether these values should be summed or
     not, so we'll exclude them to avoid afore mentioned duplicates. */
-    WHERE num_cards_sale = 1
+    WHERE num_single_day_sales = 1
         OR (YEAR(mydec_date) > 2020)
 ),
 
@@ -297,6 +297,7 @@ SELECT
     -- if we want to both exclude detected outliers and include sales prior to
     -- 2014, we need to code everything NULL as FALSE.
     COALESCE(sales_val.sv_is_outlier, FALSE) AS sale_filter_is_outlier,
+    mydec_sales.mydec_deed_type,
     mydec_sales.sale_filter_ptax_flag,
     mydec_sales.mydec_property_advertised,
     mydec_sales.mydec_is_installment_contract_fulfilled,
