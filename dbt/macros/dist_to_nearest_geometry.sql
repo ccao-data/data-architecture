@@ -85,4 +85,9 @@
     inner join
         location as loc
         on st_intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
+    -- This horrifying conditional is designed to trick the Athena query
+    -- planner. For some reason, adding a true conditional to a query with a
+    -- spatial join (like the one above) results in terrible performance,
+    -- while doing a cross join then filtering the rows is much faster
+    where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
 {% endmacro %}
