@@ -4,29 +4,77 @@ sources:
       - load_manual
     tables:
       - name: class_dict
+        description: '{{ doc("table_class_dict") }}'
+        columns:
+          - name: class_code
+            description: '{{ doc("shared_column_class") }}'
 
       - name: commercial_valuation
+        description: '{{ doc("table_commercial_valuation") }}'
         tags:
           - type_ic
 
       - name: hie
+        description: '{{ doc("table_hie") }}'
         tags:
           - type_res
 
       - name: land_nbhd_rate
+        description: '{{ doc("table_land_nbhd_rate") }}'
         tags:
           - type_land
 
       - name: land_site_rate
+        description: '{{ doc("table_land_site_rate") }}'
         tags:
           - type_land
 
       - name: pin_condo_char
+        description: '{{ doc("table_pin_condo_char") }}'
         tags:
           - type_condo
+        columns:
+          - name: bedrooms
+            description: '{{ doc("shared_column_char_beds") }}'
+          - name: building_sf
+            description: '{{ doc("shared_column_char_building_sf") }}'
+          - name: full_baths
+            description: '{{ doc("shared_column_char_fbath") }}'
+          - name: half_baths
+            description: '{{ doc("shared_column_char_hbath") }}'
+          - name: parking_pin
+            description: |
+              Deeded parking/garage space or storage unit.
+
+              Detected either by valuations, CDU, or unit
+              number/proration rate heuristics.
+          - name: pin
+            description: '{{ doc("shared_column_pin") }}'
+          - name: unit_sf
+            description: '{{ doc("shared_column_char_unit_sf") }}'
+          - name: year
+            description: '{{ doc("shared_column_year") }}'
 
       - name: pin_nonlivable
+        description: '{{ doc("table_pin_nonlivable") }}'
         tags:
           - type_condo
 
       - name: pin_weird
+        description: '{{ doc("table_pin_weird") }}'
+
+exposures:
+  - name: commercial_valuation_data
+    label: Commercial Valuation Data
+    type: dashboard
+    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Commercial-Valuation-Data/csik-bsws
+    depends_on:
+      - source('ccao', 'commercial_valuation')
+    owner:
+      name: Data Department
+    description: |
+      Commercial valuation data collected and maintained by the Cook County Assessor's Office, from 2021 to present.
+
+      Notes: Refreshed annually, as data is made available by the commercial team.
+
+      Use cases: Can be used to look up the number of units in a multi-unit apartment building.

@@ -6,7 +6,7 @@ sources:
 
     tables:
       - name: htagnt
-        description: '{{ doc("htagnt") }}'
+        description: '{{ doc("table_htagnt") }}'
 
         columns:
           - name: addr1
@@ -98,7 +98,7 @@ sources:
           - name: postalcode
             description: '{{ doc("column_postalcode") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: statecode
             description: '{{ doc("column_statecode") }}'
           - name: status
@@ -108,9 +108,9 @@ sources:
           - name: unitno
             description: '{{ doc("column_unitno") }}'
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: zip1
             description: '{{ doc("column_zip1") }}'
           - name: zip2

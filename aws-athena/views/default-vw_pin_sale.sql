@@ -65,8 +65,14 @@ unique_sales AS (
                 WHEN sales.nopar > 1 THEN sales.nopar ELSE
                     calculated.nopar_calculated
             END AS num_parcels_sale,
-            NULLIF(sales.oldown, '') AS seller_name,
-            NULLIF(sales.own1, '') AS buyer_name,
+            CASE WHEN TRIM(sales.oldown) IN ('', 'MISSING SELLER NAME')
+                    THEN NULL
+                ELSE sales.oldown
+            END AS seller_name,
+            CASE WHEN TRIM(sales.own1) IN ('', 'MISSING BUYER NAME')
+                    THEN NULL
+                ELSE sales.own1
+            END AS buyer_name,
             CASE
                 WHEN sales.saletype = '0' THEN 'LAND'
                 WHEN sales.saletype = '1' THEN 'LAND AND BUILDING'
@@ -127,7 +133,6 @@ unique_sales AS (
             town_class AS tc
             ON sales.parid = tc.parid
             AND SUBSTR(sales.saledt, 1, 4) = tc.taxyr
-
         WHERE sales.instruno IS NOT NULL
         -- Indicates whether a record has been deactivated
             AND sales.deactivat IS NULL
@@ -149,6 +154,8 @@ mydec_sales AS (
             REPLACE(document_number, 'D', '') AS doc_no,
             REPLACE(line_1_primary_pin, '-', '') AS pin,
             DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS mydec_date,
+            NULLIF(TRIM(seller_name), '') AS seller_name,
+            NULLIF(TRIM(buyer_name), '') AS buyer_name,
             COALESCE(line_7_property_advertised = 1, FALSE)
                 AS mydec_property_advertised,
             COALESCE(line_10a = 1, FALSE)
@@ -277,10 +284,10 @@ SELECT
     unique_sales.sale_key,
     unique_sales.doc_no,
     unique_sales.deed_type,
-    unique_sales.seller_name,
+    COALESCE(unique_sales.seller_name, mydec_sales.seller_name) AS seller_name,
     unique_sales.is_multisale,
     unique_sales.num_parcels_sale,
-    unique_sales.buyer_name,
+    COALESCE(unique_sales.buyer_name, mydec_sales.buyer_name) AS buyer_name,
     unique_sales.sale_type,
     unique_sales.sale_filter_same_sale_within_365,
     unique_sales.sale_filter_less_than_10k,
@@ -322,6 +329,5 @@ SELECT
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
-    AND unique_sales.pin = mydec_sales.pin
 LEFT JOIN sales_val
     ON unique_sales.doc_no = sales_val.meta_sale_document_num;

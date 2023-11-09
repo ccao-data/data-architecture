@@ -6,12 +6,13 @@ sources:
 
     tables:
       - name: valclass
+        description: '{{ doc("table_valclass") }}'
 
         columns:
           - name: assess_pct
             description: Assessment percent used in calc of asmt
           - name: class
-            description: '{{ doc("column_class") }}'
+            description: '{{ doc("shared_column_class") }}'
           - name: iasw_id
             description: '{{ doc("column_iasw_id") }}'
           - name: jur
@@ -27,12 +28,12 @@ sources:
           - name: rolltype
             description: '{{ doc("column_rolltype") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: valclass
             description: '{{ doc("column_valclass") }}'
           - name: vclass
             description: Other valclass class pointing to assigned valclass
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'

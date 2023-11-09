@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: dedit
+        description: '{{ doc("table_dedit") }}'
 
         columns:
           - name: fld1
@@ -29,6 +30,6 @@ sources:
           - name: val2
             description: Value in edit field 2
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'

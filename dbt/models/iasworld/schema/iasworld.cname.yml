@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: cname
+        description: '{{ doc("table_cname") }}'
 
         columns:
           - name: addr1
@@ -119,7 +120,7 @@ sources:
           - name: rectype
             description: '{{ doc("column_rectype") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: site
             description: '{{ doc("column_site") }}'
           - name: skip_addr_validation
@@ -137,9 +138,9 @@ sources:
           - name: vldrsc
             description: No validation reason code
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: zip1
             description: '{{ doc("column_zip1") }}'
           - name: zip2

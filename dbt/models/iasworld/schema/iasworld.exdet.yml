@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: exdet
+        description: '{{ doc("table_exdet") }}'
 
         columns:
           - name: assetid
@@ -17,7 +18,7 @@ sources:
           - name: caseno
             description: '{{ doc("column_caseno") }}'
           - name: class
-            description: '{{ doc("column_class") }}'
+            description: '{{ doc("shared_column_class") }}'
           - name: codejur
             description: The Jurisdiction number that is associated with the exemption code
           - name: const1
@@ -57,13 +58,13 @@ sources:
           - name: lineno
             description: Exemption line line number for this `parid`/`excode`
           - name: lline
-            description: '{{ doc("column_lline") }}'
+            description: '{{ doc("shared_column_lline") }}'
           - name: override
             description: Override indicator
           - name: ovrval
             description: Override value
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: procdate
             description: '{{ doc("column_procdate") }}'
           - name: procname
@@ -87,13 +88,13 @@ sources:
           - name: scrn
             description: Screen name to which this exemption applies
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: statflg
             description: Status flag
           - name: status
             description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: units
@@ -105,11 +106,11 @@ sources:
           - name: valyear
             description: Valuation year
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
             description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
           - name: yrbase

@@ -334,6 +334,15 @@ Number of bedrooms in the building.
 Square footage of the building, as measured from the exterior.
 {% enddocs %}
 
+## char_bldg_is_mixed_use
+
+{% docs shared_column_char_bldg_is_mixed_use %}
+The 10-digit PIN (building) contains a 14-digit PIN that is
+neither class 299 nor 399.
+
+Applies to condos only
+{% enddocs %}
+
 ## char_bsmt
 
 {% docs shared_column_char_bsmt %}
@@ -357,6 +366,32 @@ Possible values for this variable are:
 - `1` = Finished / formal rec room (`REC`)
 - `2` = Apartment (`APT`)
 - `3` = Unfinished (`UNF`)
+{% enddocs %}
+
+## char_building_non_units
+
+{% docs shared_column_char_building_non_units %}
+Count of non-livable 14-digit PINs.
+
+Non-livable PINs are anything identified as parking spaces,
+common areas, or storage units. These PINs are identified through
+a number of validation criteria. Applies to condos only
+{% enddocs %}
+
+## char_building_pins
+
+{% docs shared_column_char_building_pins %}
+Total number of PINs associated with a building (PIN10).
+
+Includes both livable and non-livable units. Applies to condos only
+{% enddocs %}
+
+## char_building_units
+
+{% docs shared_column_char_building_units %}
+Count of livable 14-digit PINs (AKA condo units).
+
+Applies to condos only
 {% enddocs %}
 
 ## char_building_sf
@@ -690,6 +725,12 @@ percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
+## modeling_group
+
+{% docs shared_column_modeling_group %}
+Modeling group, one of: `SF`, `MF`, `CONDO`, or `BB`
+{% enddocs %}
+
 ## nbhd_code
 
 {% docs shared_column_nbhd_code %}
@@ -818,6 +859,47 @@ Username of last person to update the record.
 Changes in tandem with `updated_at`/`wen` field.
 {% enddocs %}
 
+# Other
+
+## ihs_avg_year_index
+
+{% docs shared_column_ihs_avg_year_index %}
+DePaul Institute of Housing Studies quarterly index.
+
+Averaged up to the yearly level. Unit of observation is Census PUMAs
+{% enddocs %}
+
+## school_district_elementary_avg_rating
+
+{% docs shared_column_school_district_elementary_avg_rating %}
+Average GreatSchools rating of elementary schools within the district of a given PIN.
+
+For CPS, which is a unified school district, the average of schools within attendance boundary is used
+{% enddocs %}
+
+## school_district_secondary_avg_rating
+
+{% docs shared_column_school_district_secondary_avg_rating %}
+Average GreatSchools rating of secondary schools within the district of a given PIN.
+
+For CPS, which is a unified school district, the average of schools within attendance boundary is used
+{% enddocs %}
+
+## tax_bill_rate
+
+{% docs shared_column_tax_bill_rate %}
+Tax bill rate for the taxing district containing a given PIN.
+
+For modeling, the idea is to capture any downward pressure
+on price from higher tax burdens
+{% enddocs %}
+
+## tax_bill_amount_total
+
+{% docs shared_column_tax_bill_amount_total %}
+Tax bill total amount for the tax year
+{% enddocs %}
+
 # Proration, Multi-cards, and Landlines
 
 ## card_proration_rate
@@ -907,7 +989,7 @@ prorated, but the building value is.
 {% docs shared_column_buyer_name %}
 Name of property buyer, as listed on deed.
 
-Can be truncated by myDec/IDOR. See Clerk/Recorder of Deeds for full name.
+Can be truncated by MyDec/IDOR. See Clerk/Recorder of Deeds for full name.
 {% enddocs %}
 
 ## document_number
@@ -967,7 +1049,7 @@ iasWorld internal sale identifier
 {% docs shared_column_sale_price %}
 Sale price of a PIN, as recorded on the deed.
 
-Sales are sourced from myDec/IDOR. This serves as the outcome variable in regression models
+Sales are sourced from MyDec/IDOR. This serves as the outcome variable in regression models
 {% enddocs %}
 
 ## seller_name
@@ -975,7 +1057,7 @@ Sales are sourced from myDec/IDOR. This serves as the outcome variable in regres
 {% docs shared_column_seller_name %}
 Name of property seller, as listed on deed.
 
-Can be truncated by myDec/IDOR. See Clerk/Recorder of Deeds for full name.
+Can be truncated by MyDec/IDOR. See Clerk/Recorder of Deeds for full name.
 {% enddocs %}
 
 # Sale Validation
@@ -995,6 +1077,8 @@ See [model-sales-val](https://github.com/ccao-data/model-sales-val) for full det
 {% docs shared_column_sv_is_ptax_outlier %}
 Outlier flagged due to certain answers on Q10 of the PTAX-203 form.
 
+Must have a Q10 flag _in addition to_ a statistical flag.
+
 See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more details
 {% enddocs %}
 
@@ -1006,6 +1090,15 @@ Indicates an outlier sale not used in modeling or reporting.
 This variable combines `sv_is_heuristic_outlier`
 with `sv_is_ptax_outlier` (using OR logic).
 NOTE: Outlier flags only exist for sales _after_ 2014.
+{% enddocs %}
+
+## sv_outlier_type
+
+{% docs shared_column_sv_outlier_type %}
+Heuristic or model used to flag an outlier.
+
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
+for a list of possible flags.
 {% enddocs %}
 
 ## sv_run_id
@@ -1037,6 +1130,15 @@ For example, a 2022 PIN with `census_acs5_tract_geoid` joined to it might
 have a corresponding data year of 2021. This indicates that while the
 record is for 2022, the ACS data attached to it is from 2021 (the latest
 year available)
+{% enddocs %}
+
+## geography
+
+{% docs shared_column_geography %}
+Type of geography (triad, township, neighborhood, etc.).
+
+Typically used in SQL `WHERE` clauses to filter multi-geography tables.
+Possible values depend on the particular table
 {% enddocs %}
 
 ## geometry

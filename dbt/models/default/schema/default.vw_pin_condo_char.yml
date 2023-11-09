@@ -1,15 +1,13 @@
 models:
   - name: default.vw_pin_condo_char
-    description: '{{ doc("vw_pin_condo_char") }}'
+    description: '{{ doc("view_vw_pin_condo_char") }}'
     config:
       tags:
         - type_condo
 
     columns:
       - name: bldg_is_mixed_use
-        description: |
-          The 10-digit PIN (building) contains a 14-digit PIN that is
-          neither class 299 nor 399.
+        description: '{{ doc("shared_column_char_bldg_is_mixed_use") }}'
       - name: card
         description: '{{ doc("shared_column_card") }}'
       - name: card_proration_rate
@@ -19,15 +17,9 @@ models:
       - name: char_bedrooms
         description: '{{ doc("shared_column_char_beds") }}'
       - name: char_building_non_units
-        description: |
-          The number of 14-digit PINs associated with a given
-          10-digit PIN in `iasworld.pardat` identified
-          as parking spaces, common areas, or storage units
-          through a number of validation criteria
+        description: '{{ doc("shared_column_char_building_non_units") }}'
       - name: char_building_pins
-        description: |
-          The number of 14-digit PINs associated with a given
-          10-digit PIN in `iasworld.pardat`
+        description: '{{ doc("shared_column_char_building_pins") }}'
       - name: char_building_sf
         description: '{{ doc("shared_column_char_building_sf") }}'
       - name: char_full_baths

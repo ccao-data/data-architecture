@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: addrindx
+        description: '{{ doc("table_addrindx") }}'
 
         columns:
           - name: addrsrc
@@ -67,15 +68,15 @@ sources:
           - name: jur
             description: '{{ doc("column_jur") }}'
           - name: lline
-            description: '{{ doc("column_lline") }}'
+            description: '{{ doc("shared_column_lline") }}'
           - name: loc2
             description: '{{ doc("column_loc2") }}'
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: postalcode
             description: '{{ doc("column_postalcode") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: statecode
             description: '{{ doc("column_statecode") }}'
           - name: strcd
@@ -85,7 +86,7 @@ sources:
           - name: tabseq
             description: Sort order within addresses associated with `TBLE`
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: tble
             description: Table name associated with this address
           - name: trans_id
@@ -97,9 +98,9 @@ sources:
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: xcoord
             description: '{{ doc("column_xcoord") }}'
           - name: ycoord

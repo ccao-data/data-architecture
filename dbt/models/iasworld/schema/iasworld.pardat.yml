@@ -6,7 +6,7 @@ sources:
 
     tables:
       - name: pardat
-        description: '{{ doc("pardat") }}'
+        description: '{{ doc("table_pardat") }}'
 
         columns:
           - name: acres
@@ -68,7 +68,7 @@ sources:
           - name: cityname
             description: '{{ doc("column_cityname") }}'
           - name: class
-            description: '{{ doc("column_class") }}'
+            description: '{{ doc("shared_column_class") }}'
           - name: cur
             description: '{{ doc("column_cur") }}'
           - name: deactivat
@@ -112,7 +112,7 @@ sources:
           - name: municd
             description: Jurisdictions (Municipalities) used as part of Folio number (BCA)
           - name: nbhd
-            description: Neighborhood number
+            description: '{{ doc("shared_column_nbhd_code") }}'
           - name: nbhdie
             description: Neighborhood income valuation
           - name: nonfarminc
@@ -128,7 +128,7 @@ sources:
           - name: ovrassessorid
             description: Override assessor assigned to this parcel
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: parkprox
             description: Parking proximity
           - name: parkquanit
@@ -170,7 +170,7 @@ sources:
           - name: sec_fld
             description: Security field
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: skip_addr_validation
             description: '{{ doc("column_skip_addr_validation") }}'
           - name: splitno
@@ -190,13 +190,13 @@ sources:
           - name: strreloc
             description: '{{ doc("column_strreloc") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: tieback
-            description: Parcel tieback
+            description: '{{ doc("shared_column_tieback_key_pin") }}'
           - name: tiebkcd
             description: Tieback code
           - name: tiebldgpct
-            description: Percent bldg common interest
+            description: '{{ doc("shared_column_tieback_proration_rate") }}'
           - name: tielandpct
             description: Percent land common interest
           - name: topo1
@@ -224,11 +224,11 @@ sources:
           - name: util3
             description: Utility code 3
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
             description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
           - name: zfar

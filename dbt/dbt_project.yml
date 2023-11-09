@@ -27,8 +27,8 @@ clean-targets:
 models:
   athena:
     +materialized: view
-    +write_compression: SNAPPY
-    +format: PARQUET
+    +write_compression: zstd
+    +format: parquet
     census:
       +schema: census
     default:

@@ -6,6 +6,7 @@ sources:
 
     tables:
       - name: rcoby
+        description: '{{ doc("table_rcoby") }}'
 
         columns:
           - name: altbasedate
@@ -107,6 +108,6 @@ sources:
           - name: wallhgt
             description: '{{ doc("column_wallhgt") }}'
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'

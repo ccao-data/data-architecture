@@ -1,5 +1,6 @@
 models:
   - name: default.vw_pin_exempt
+    description: '{{ doc("view_vw_pin_exempt") }}'
 
     columns:
       - name: class

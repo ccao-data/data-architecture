@@ -4,12 +4,29 @@ sources:
       - load_auto
     tables:
       - name: ratio_stats
-      - name: res_report_summary
+        description: '{{ doc("table_ratio_stats") }}'
 
 models:
+  - name: reporting.res_report_summary
+    description: '{{ doc("table_res_report_summary") }}'
+    config:
+      tags:
+        - daily
+
   - name: reporting.vw_assessment_roll
+    description: '{{ doc("view_vw_assessment_roll") }}'
+
+  - name: reporting.vw_pin_most_recent_boundary
+    description: '{{ doc("view_vw_pin_most_recent_boundary") }}'
+
   - name: reporting.vw_pin_most_recent_sale
+    description: '{{ doc("view_vw_pin_most_recent_sale") }}'
+
   - name: reporting.vw_ratio_stats
-  - name: reporting.vw_res_report_summary
+    description: '{{ doc("view_vw_ratio_stats") }}'
+
   - name: reporting.vw_top_5
+    description: '{{ doc("view_vw_top_5") }}'
+
   - name: reporting.vw_town_sale_history
+    description: '{{ doc("view_vw_town_sale_history") }}'

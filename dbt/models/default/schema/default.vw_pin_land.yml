@@ -1,6 +1,6 @@
 models:
   - name: default.vw_pin_land
-    description: '{{ doc("vw_pin_land") }}'
+    description: '{{ doc("view_vw_pin_land") }}'
     config:
       tags:
         - type_land

@@ -1,17 +1,159 @@
 sources:
   - name: sale
-    tags:
-      - load_auto
     tables:
       - name: flag
         description: '{{ doc("flag") }}'
-      - name: parameter
-        description: '{{ doc("parameter") }}'
+        tags:
+          - load_auto
+
+        columns:
+          - name: ptax_flag_original
+            description: |
+              Whether or not this sale was flagged on Q10 of the
+              PTAX-203 form (regardless of statistical deviation)
+          - name: meta_sale_document_number
+            description: '{{ doc("shared_column_document_number") }}'
+          - name: rolling_window
+            description: |
+              Rolling window period used to calculate statistics
+              for flagging this sale
+          - name: run_id
+            description: '{{ doc("shared_column_sv_run_id") }}'
+          - name: sv_is_heuristic_outlier
+            description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
+          - name: sv_is_ptax_outlier
+            description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
+          - name: sv_is_outlier
+            description: '{{ doc("shared_column_sv_is_outlier") }}'
+          - name: sv_outlier_type
+            description: '{{ doc("shared_column_sv_outlier_type") }}'
+          - name: version
+            description: '{{ doc("shared_column_sv_version") }}'
+
+      - name: foreclosure
+        description: '{{ doc("foreclosure") }}'
+        tags:
+          - load_manual
+
       - name: group_mean
         description: '{{ doc("group_mean") }}'
+        tags:
+          - load_auto
+
+        columns:
+          - name: group
+            description: |
+              Group string used as a unique identifier.
+
+              Typically a combination of year, township, and class
+          - name: group_size
+            description: Number of properties in the group
+          - name: run_id
+            description: '{{ doc("shared_column_sv_run_id") }}'
+          - name: mean_price
+            description: Mean price of the group, in FMV
+          - name: mean_price_per_sqft
+            description: Mean price per sqft (of building) of the group, in FMV
+
+      - name: parameter
+        description: '{{ doc("parameter") }}'
+        tags:
+          - load_auto
+
+        columns:
+          - name: condo_stat_groups
+            description: |
+              Groups used to calculate flagging statistics (std. dev.)
+              for condominium (class 299, 399) properties
+          - name: dev_bounds
+            description: |
+              Boundaries for standard deviation flagging.
+
+              Sales with prices beyond these boundaries are flagged.
+          - name: earliest_data_ingest
+            description: |
+              Date of earliest sale used in validation.
+
+              This inclusive of the rolling window period used for
+              calculating statistical groups. In other words, if the earliest
+              sale to-be-flagged is 2013-12-01 and the rolling window period
+              is 9 months, then the earliest sale *used* would be 2013-03-01
+          - name: iso_forest_cols
+            description: Columns used as features in the isolation forest model
+          - name: latest_data_ingest
+            description: Date of latest sale used in validation
+          - name: min_group_thresh
+            description: |
+              Minimum number of sales required for statistical flagging.
+
+              If the minimum number of sales in our group methodology
+              (township, class, rolling window) is below N, these sales
+              are not flagged and are set to `Not outlier`
+          - name: ptax_sd
+            description: |
+              Boundaries for standard deviation flagging in combination
+              with a PTAX-203 flag
+          - name: res_stat_groups
+            description: |
+              Groups used to calculate flagging statistics (std. dev.)
+              for residential (class 2) properties
+          - name: rolling_window
+            description: |
+              Rolling window size, in months.
+
+              For each target sale, calculate statistics (std. dev.,
+              group size) using all sales in the period N months prior,
+              inclusive of the month of the sale itself
+          - name: run_id
+            description: '{{ doc("shared_column_sv_run_id") }}'
+          - name: sales_flagged
+            description: |
+              Total number of sales flagged.
+
+              Inclusive of both sales flagged as outliers *and* sales
+              flagged as non-outliers
+          - name: short_term_owner_threshold
+            description: |
+              Properties with a significant price change and multiple
+              sales within this time duration (in days) are flagged
+
+
       - name: metadata
         description: '{{ doc("metadata") }}'
+        tags:
+          - load_auto
+
+        columns:
+          - name: long_commit_sha
+            description: Full commit SHA of the code used for the model run
+          - name: run_id
+            description: '{{ doc("shared_column_sv_run_id") }}'
+          - name: run_timestamp
+            description: Start timestamp of the model run
+          - name: run_type
+            description: |
+              Type of model run.
+
+              Variable can be one of `initial_flagging`, `recurring`,
+              or `manual_update`
+          - name: short_commit_sha
+            description: Short commit SHA of the code used for the model run
+
+      - name: mydec
+        description: '{{ doc("mydec") }}'
+        tags:
+          - load_manual
 
 models:
   - name: sale.vw_ias_salesval_upload
     description: '{{ doc("vw_ias_salesval_upload") }}'
+
+    columns:
+      - name: run_id
+        description: '{{ doc("shared_column_sv_run_id") }}'
+      - name: salekey
+        description: '{{ doc("shared_column_sale_key") }}'
+      - name: sv_is_outlier
+        description: '{{ doc("shared_column_sv_is_outlier") }}'
+      - name: sv_outlier_type
+        description: '{{ doc("shared_column_sv_outlier_type") }}'

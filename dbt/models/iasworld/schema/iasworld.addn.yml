@@ -7,7 +7,7 @@ sources:
 
     tables:
       - name: addn
-        description: '{{ doc("addn") }}'
+        description: '{{ doc("table_addn") }}'
 
         columns:
           - name: area
@@ -25,7 +25,7 @@ sources:
           - name: chgrsn
             description: '{{ doc("column_chgrsn") }}'
           - name: class
-            description: '{{ doc("column_class") }}'
+            description: '{{ doc("shared_column_class") }}'
           - name: convaddn
             description: Converted addition total
           - name: cur
@@ -63,7 +63,7 @@ sources:
           - name: jur
             description: '{{ doc("column_jur") }}'
           - name: lline
-            description: '{{ doc("column_lline") }}'
+            description: '{{ doc("shared_column_lline") }}'
           - name: lower
             description: Lower level addition code
           - name: mktadj
@@ -81,7 +81,7 @@ sources:
           - name: newconpct
             description: '{{ doc("column_newconpct") }}'
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: pctcomp
             description: '{{ doc("column_pctcomp") }}'
           - name: prodamage
@@ -125,11 +125,11 @@ sources:
           - name: second
             description: Second floor addition code
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: status
             description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: third
             description: Third floor addition code
           - name: trans_id
@@ -143,11 +143,11 @@ sources:
           - name: vectnotes
             description: '{{ doc("column_vectnotes") }}'
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
             description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
           - name: yrblt

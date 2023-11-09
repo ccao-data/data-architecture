@@ -1,0 +1,58 @@
+name: build-daily-dbt-models
+
+on:
+  schedule:
+    # Every day at 8am (2pm UTC-5)
+    - cron: '0 13 * * *'
+
+jobs:
+   build-daily-dbt-models:
+    runs-on: ubuntu-latest
+    # These permissions are needed to interact with GitHub's OIDC Token endpoint
+    # so that we can authenticate with AWS
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup dbt
+        uses: ./.github/actions/setup_dbt
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+          role-duration-seconds: 900
+
+      - name: Restore dbt state cache
+        id: cache
+        uses: ./.github/actions/restore_dbt_cache
+        with:
+          path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
+          key: ${{ env.CACHE_KEY }}
+
+      - name: Build daily models
+        run: dbt run -t "$TARGET" -s tag:daily --defer --state "$STATE_DIR"
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Test daily models
+        run: dbt test -t "$TARGET" -s tag:daily --defer --state "$STATE_DIR"
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Get current time
+        if: failure()
+        run: echo "TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S")" >> "$GITHUB_ENV"
+        shell: bash
+
+      - name: Send failure notification
+        if: failure()
+        uses: ./.github/actions/publish_sns_topic
+        with:
+          sns_topic_arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
+          subject: "Daily dbt model creation failed for workflow run: ${{ github.run_id }}"
+          body: |
+            Daily dbt model creation failed for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
+
+            Link to failing workflow:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}

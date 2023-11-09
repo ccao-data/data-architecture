@@ -6,7 +6,7 @@ sources:
 
     tables:
       - name: aprval
-        description: '{{ doc("aprval") }}'
+        description: '{{ doc("table_aprval") }}'
 
         columns:
           - name: adjbldgfact
@@ -134,7 +134,7 @@ sources:
           - name: ovrmraval
             description: '{{ doc("column_ovrmraval") }}'
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: posttype
             description: Assessment posting type
           - name: ppcomval
@@ -176,7 +176,7 @@ sources:
           - name: saleprice
             description: Selected sale price
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: spcflg
             description: Special processing flag
           - name: splitno
@@ -188,7 +188,7 @@ sources:
           - name: status
             description: '{{ doc("column_status") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: tiebackbldg
             description: Sum of building value for all children in the income tieback group
           - name: tiebackland
@@ -204,11 +204,11 @@ sources:
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
             description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
 

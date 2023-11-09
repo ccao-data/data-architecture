@@ -7,7 +7,7 @@ sources:
 
     tables:
       - name: dweldat
-        description: '{{ doc("dweldat") }}'
+        description: '{{ doc("table_dweldat") }}'
 
         columns:
           - name: ac
@@ -41,7 +41,7 @@ sources:
           - name: areasum
             description: '{{ doc("column_areasum") }}'
           - name: attic
-            description: Attic code
+            description: '{{ doc("shared_column_char_attic_type") }}'
           - name: atticarea
             description: Attic area
           - name: atticval
@@ -59,7 +59,7 @@ sources:
           - name: bldguse
             description: Building use
           - name: bsmt
-            description: Basement code
+            description: '{{ doc("shared_column_char_bsmt") }}'
           - name: bsmtarea
             description: Unfinished basement area
           - name: bsmtcar
@@ -79,13 +79,13 @@ sources:
           - name: cdpct
             description: Cost and Design percent
           - name: cdu
-            description: '{{ doc("column_cdu") }}'
+            description: '{{ doc("shared_column_cdu") }}'
           - name: ceiling
             description: Ceilling
           - name: chgrsn
             description: '{{ doc("column_chgrsn") }}'
           - name: class
-            description: '{{ doc("column_class") }}'
+            description: '{{ doc("shared_column_class") }}'
           - name: cline
             description: Condominium line
           - name: cndadjval
@@ -153,7 +153,7 @@ sources:
           - name: exmpval
             description: '{{ doc("column_exmpval") }}'
           - name: extwall
-            description: Exterior wall code
+            description: '{{ doc("shared_column_char_ext_wall") }}'
           - name: extwall1
             description: Exterior wall code
           - name: extwall1pct
@@ -169,7 +169,7 @@ sources:
           - name: fixaddl
             description: Number additional plumbing fixtures
           - name: fixbath
-            description: Number full bathrooms
+            description: '{{ doc("shared_column_char_fbath") }}'
           - name: fixbath1
             description: Number of full bathrooms on the first floor
           - name: fixbath2
@@ -199,7 +199,7 @@ sources:
           - name: fixbathu
             description: Number full bathrooms  in upper Floor
           - name: fixhalf
-            description: Number half bathrooms
+            description: '{{ doc("shared_column_char_hbath") }}'
           - name: fixhalf1
             description: Number of half baths on the first floor
           - name: fixhalf2
@@ -247,7 +247,7 @@ sources:
           - name: furyr
             description: Furnace year
           - name: grade
-            description: '{{ doc("column_grade") }}'
+            description: '{{ doc("shared_column_char_cnst_qlty") }}'
           - name: grdfact
             description: Grade factor
           - name: grmovr
@@ -259,7 +259,7 @@ sources:
           - name: grpadj
             description: '{{ doc("column_grpadj") }}'
           - name: heat
-            description: Heat code
+            description: '{{ doc("shared_column_char_heat") }}'
           - name: heatarea
             description: Heat area
           - name: heatsys
@@ -343,7 +343,7 @@ sources:
           - name: ovrrcnld
             description: '{{ doc("column_ovrrcnld") }}'
           - name: parid
-            description: '{{ doc("column_parid") }}'
+            description: '{{ doc("shared_column_pin") }}'
           - name: pctcomplete
             description: Percent of construction completed
           - name: plumbgrade
@@ -401,7 +401,7 @@ sources:
           - name: resmod
             description: Residential cost model
           - name: rmbed
-            description: Number bedrooms
+            description: '{{ doc("shared_column_char_beds") }}'
           - name: rmbed1
             description: Number of bedrooms on the first floor
           - name: rmbed2
@@ -461,13 +461,13 @@ sources:
           - name: rmothb
             description: Number of other rooms in the basement
           - name: rmtot
-            description: Total rooms
+            description: '{{ doc("shared_column_char_rooms") }}'
           - name: salekey
             description: '{{ doc("column_salekey") }}'
           - name: seq
-            description: '{{ doc("column_seq") }}'
+            description: '{{ doc("shared_column_seq") }}'
           - name: sfla
-            description: Total living area
+            description: '{{ doc("shared_column_char_bldg_sf") }}'
           - name: shfact
             description: Story height factor
           - name: sidpct
@@ -485,7 +485,7 @@ sources:
           - name: status
             description: '{{ doc("column_status") }}'
           - name: stories
-            description: '{{ doc("column_stories") }}'
+            description: '{{ doc("shared_column_char_type_resd") }}'
           - name: style
             description: Architectural style
           - name: subtval
@@ -493,7 +493,7 @@ sources:
           - name: suppress
             description: '{{ doc("column_suppress") }}'
           - name: taxyr
-            description: '{{ doc("column_taxyr") }}'
+            description: '{{ doc("shared_column_year") }}'
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: trimval
@@ -518,6 +518,44 @@ sources:
             description: '{{ doc("column_unitno") }}'
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
+          - name: user1
+            description: '{{ doc("shared_column_char_repair_cnd") }}'
+          - name: user2
+            description: '{{ doc("shared_column_char_site") }}'
+          - name: user3
+            description: '{{ doc("shared_column_char_renovation") }}'
+          - name: user4
+            description: '{{ doc("shared_column_char_tp_dsgn") }}'
+          - name: user5
+            description: '{{ doc("shared_column_char_tp_plan") }}'
+          - name: user6
+            description: '{{ doc("shared_column_char_attic_fnsh") }}'
+          - name: user7
+            description: '{{ doc("shared_column_char_air") }}'
+          - name: user12
+            description: '{{ doc("shared_column_char_bsmt_fin") }}'
+          - name: user13
+            description: '{{ doc("shared_column_char_roof_cnst") }}'
+          - name: user14
+            description: '{{ doc("shared_column_char_apts") }}'
+          - name: user15
+            description: '{{ doc("shared_column_char_use") }}'
+          - name: user17
+            description: Age. Deprecated, use `yrblt`
+          - name: user20
+            description: '{{ doc("shared_column_char_ncu") }}'
+          - name: user24
+            description: '{{ doc("shared_column_card_proration_rate") }}'
+          - name: user30
+            description: '{{ doc("shared_column_char_porch") }}'
+          - name: user31
+            description: '{{ doc("shared_column_char_gar_att") }}'
+          - name: user32
+            description: '{{ doc("shared_column_char_gar_area") }}'
+          - name: user33
+            description: '{{ doc("shared_column_char_gar_size") }}'
+          - name: user34
+            description: '{{ doc("shared_column_char_gar_cnst") }}'
           - name: useramt
             description: RCN value of additions
           - name: userfact
@@ -529,7 +567,7 @@ sources:
           - name: wallhgtfact
             description: Wall height factor
           - name: wbfp_o
-            description: Wood burning fireplace - number of openings
+            description: '{{ doc("shared_column_char_frpl") }}'
           - name: wbfp_pf
             description: Wood burning fireplace - prefab
           - name: wbfp_pfx
@@ -541,11 +579,11 @@ sources:
           - name: wbfpval
             description: Wood burning fireplace value
           - name: wen
-            description: '{{ doc("column_wen") }}'
+            description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
             description: '{{ doc("column_wencalc") }}'
           - name: who
-            description: '{{ doc("column_who") }}'
+            description: '{{ doc("shared_column_updated_by") }}'
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
           - name: winpct
@@ -553,7 +591,7 @@ sources:
           - name: winyr
             description: Windows year
           - name: yrblt
-            description: '{{ doc("column_yrblt") }}'
+            description: '{{ doc("shared_column_char_yrblt") }}'
           - name: yrremod
             description: Year remodeled
 
