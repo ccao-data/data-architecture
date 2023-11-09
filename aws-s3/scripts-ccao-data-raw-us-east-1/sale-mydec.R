@@ -14,7 +14,9 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "sale", "mydec")
 
 # Mydec file addresses
-files <- xml2::read_html("https://tax.illinois.gov/localgovernments/property/mydecdatafiles.html") %>%
+files <- xml2::read_html(
+  "https://tax.illinois.gov/localgovernments/property/mydecdatafiles.html"
+  ) %>%
   html_nodes("a") %>%
   html_attr("href") %>%
   str_subset("ptax203")
@@ -23,7 +25,9 @@ files <- xml2::read_html("https://tax.illinois.gov/localgovernments/property/myd
 down_up <- function(x) {
   year <- str_extract(x, pattern = "[0-9]{4}")
 
-  if (!aws.s3::object_exists(file.path(output_bucket, glue("{year}.parquet")))) {
+  if (
+    !aws.s3::object_exists(file.path(output_bucket, glue("{year}.parquet")))
+    ) {
     print(glue("Uploading data for: {year}"))
 
     tmp1 <- tempfile(fileext = ".zip")
