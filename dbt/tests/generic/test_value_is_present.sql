@@ -2,9 +2,7 @@
 {% test value_is_present(model, expression) %}
 
     select row_count
-    from (
-        select count(*) as row_count from {{ model }} where {{ expression }}
-        )
+    from (select count(*) as row_count from {{ model }} where {{ expression }})
     where row_count = 0
 
 {% endtest %}
