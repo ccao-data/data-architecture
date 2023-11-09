@@ -71,7 +71,7 @@ flood_fema_warehouse <- file.path(
 
 # Write FEMA floodplains to S3 if they don't exist
 if (
-  aws.s3::object_exists(flood_fema_raw) &
+  aws.s3::object_exists(flood_fema_raw) &&
     !aws.s3::object_exists(flood_fema_warehouse)
 ) {
   tmp_file <- tempfile(fileext = ".geojson")

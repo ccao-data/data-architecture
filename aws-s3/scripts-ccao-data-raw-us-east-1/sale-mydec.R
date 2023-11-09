@@ -33,7 +33,8 @@ down_up <- function(x) {
     tmp1 <- tempfile(fileext = ".zip")
     tmp2 <- tempfile()
 
-    # Grab zipped file - https://tax.illinois.gov/localgovernments/property/mydecdatafiles.html
+    # Grab zipped file
+    # https://tax.illinois.gov/localgovernments/property/mydecdatafiles.html
     download.file(glue("https://tax.illinois.gov{x}"), destfile = tmp1)
 
     # Unzip
