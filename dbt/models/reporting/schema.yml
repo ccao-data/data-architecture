@@ -60,6 +60,12 @@ models:
           name: vw_pin_most_recent_sale_unique_by_pin
           combination_of_columns:
             - pin
+      - value_is_present:
+          name: vw_pin_most_recent_sale_null
+          expression: sale_price IS NULL
+      - value_is_present:
+          name: vw_pin_most_recent_sale_not_null
+          expression: sale_price IS NOT NULL
   - name: reporting.vw_ratio_stats
     tests:
       - unique_combination_of_columns:
