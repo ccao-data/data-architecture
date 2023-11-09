@@ -164,6 +164,14 @@ Distance from each PIN to the nearest rail track of any kind.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
+# dist_pin_to_secondary_road
+
+{% docs table_dist_pin_to_secondary_road %}
+Distance from each PIN to the nearest secondary road.
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
 # dist_pin_to_water
 
 {% docs table_dist_pin_to_water %}
