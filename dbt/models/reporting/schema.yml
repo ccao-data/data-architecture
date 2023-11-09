@@ -60,6 +60,10 @@ models:
           name: vw_pin_most_recent_sale_unique_by_pin
           combination_of_columns:
             - pin
+      - unique_combination_of_columns:
+          name: vw_pin_most_recent_sale_unique_by_doc_no
+          combination_of_columns:
+            - doc_no
       - value_is_present:
           name: vw_pin_most_recent_sale_null
           expression: sale_price IS NULL
@@ -75,6 +79,13 @@ models:
             - year
             - assessment_stage
             - sale_price
+      - expression_is_true:
+          name: vw_ratio_stats_no_nulls
+          expression: >-
+            property_group IS NOT NULL
+              AND assessment_stage IS NOT NULL
+              AND triad IS NOT NULL
+              AND township_code IS NOT NULL
   - name: reporting.vw_top_5
     tests:
       - unique_combination_of_columns:
