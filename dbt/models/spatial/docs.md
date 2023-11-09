@@ -356,7 +356,7 @@ School locations (lat/lon) are sourced from
 **Geometry:** `POINT`
 {% enddocs %}
 
-# secondary_roads
+# secondary_road
 
 {% docs table_secondary_road %}
 
