@@ -6,14 +6,22 @@ runs:
     - name: Configure dbt environment
       run: |
         # GITHUB_HEAD_REF is only set on pull_request events, so if it's
-        # present, we must be in a PR context
-        if [ -n "$GITHUB_HEAD_REF" ]; then
+        # present, we must be in a PR context. Occasionally, we need to
+        # manually rebuild assets generated during a PR. In that case, we
+        # detect the PR context using the branch name and event
+        if [[ -n "$GITHUB_HEAD_REF" ]]; then
           echo "On pull request branch, setting dbt env to CI"
           {
             echo "TARGET=ci";
             echo "HEAD_REF=$GITHUB_HEAD_REF"
           } >> "$GITHUB_ENV"
-        elif [[ $GITHUB_REF_NAME == 'master' ]]; then
+        elif [[ "$GITHUB_REF_NAME" != 'master' && "$GITHUB_EVENT_NAME" == 'workflow_dispatch' ]]; then
+          echo "Manually dispatched from pull request branch, setting dbt env to CI"
+          {
+            echo "TARGET=ci";
+            echo "HEAD_REF=$GITHUB_REF_NAME"
+          } >> "$GITHUB_ENV"
+        elif [[ "$GITHUB_REF_NAME" == 'master' ]]; then
           echo "On master branch, setting dbt env to prod"
           {
             echo "TARGET=prod";
