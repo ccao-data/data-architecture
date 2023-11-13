@@ -1,4 +1,4 @@
--- CTAS to create a table of distance to the nearest major road for each PIN
+-- CTAS to create a table of distance to the nearest secondary road for each PIN
 {{
     config(
         materialized='table',
@@ -10,10 +10,10 @@
 
 SELECT
     pcl.pin10,
-    ARBITRARY(xy.osm_id) AS nearest_major_road_osm_id,
-    ARBITRARY(xy.name) AS nearest_major_road_name,
-    ARBITRARY(xy.dist_ft) AS nearest_major_road_dist_ft,
-    ARBITRARY(xy.year) AS nearest_major_road_data_year,
+    ARBITRARY(xy.osm_id) AS nearest_secondary_road_osm_id,
+    ARBITRARY(xy.name) AS nearest_major_secondary_name,
+    ARBITRARY(xy.dist_ft) AS nearest_secondary_road_dist_ft,
+    ARBITRARY(xy.year) AS nearest_secondary_road_data_year,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN
