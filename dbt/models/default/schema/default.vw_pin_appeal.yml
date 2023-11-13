@@ -101,5 +101,3 @@ models:
             - year
             - case_no
             - change
-          config:
-            error_if: ">43"
