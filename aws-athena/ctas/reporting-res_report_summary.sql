@@ -194,12 +194,15 @@ sales AS (
         tc.property_group,
         tc.township_code,
         vwps.nbhd AS townnbhd
-    FROM {{ ref('default.legacy_vw_pin_sale') }} AS vwps
+    FROM {{ ref('default.vw_pin_sale') }} AS vwps
     LEFT JOIN town_class AS tc
         ON vwps.pin = tc.parid
         AND vwps.year = tc.taxyr
     WHERE NOT vwps.is_multisale
         AND NOT vwps.sale_filter_is_outlier
+        AND NOT vwps.sale_filter_deed_type
+        AND NOT vwps.sale_filter_less_than_10k
+        AND NOT vwps.sale_filter_same_sale_within_365
 ),
 
 -- Aggregate land for all parcels
