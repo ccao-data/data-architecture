@@ -33,7 +33,10 @@ SELECT
     CASE
         WHEN htpar.taxyr < '2020' AND htpar.resact = 'C' THEN 'change'
         WHEN htpar.taxyr < '2020' AND htpar.resact = 'NC' THEN 'no change'
-        WHEN htpar.taxyr >= '2020' THEN LOWER(htpar.user104)
+        WHEN
+            htpar.taxyr >= '2020' AND TRIM(LOWER(htpar.user104)) = 'decrease'
+            THEN 'change'
+        WHEN htpar.taxyr >= '2020' THEN TRIM(LOWER(htpar.user104))
     END AS change,
     CASE
         WHEN htpar.taxyr < '2020'

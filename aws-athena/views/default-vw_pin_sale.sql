@@ -220,11 +220,8 @@ mydec_sales AS (
         WHERE line_2_total_parcels = 1 -- Remove multisales
     )
     /* Some sales in mydec have multiple rows for one pin on a given sale date.
-    These are likely individual cards being sold since they have different doc
-    numbers. The issue is that sometimes they have different dates than iasworld
-    prior to 2021 and when joined back onto unique_sales will create duplicates
-    by pin/sale date. We don't know whether these values should be summed or
-    not, so we'll exclude them to avoid afore mentioned duplicates. */
+    Sometimes they have different dates than iasworld prior to 2021 and when
+    joined back onto unique_sales will create duplicates by pin/sale date. */
     WHERE num_single_day_sales = 1
         OR (YEAR(mydec_date) > 2020)
 ),

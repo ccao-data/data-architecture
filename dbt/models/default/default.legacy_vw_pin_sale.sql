@@ -1,1 +1,0 @@
-../../../aws-athena/views/default-legacy_vw_pin_sale.sql
