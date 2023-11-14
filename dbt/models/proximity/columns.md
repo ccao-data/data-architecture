@@ -7,6 +7,40 @@ Schools of any type (elementary, secondary, etc.) are included.
 School ratings sourced from [GreatSchools](https://www.greatschools.org/)
 {% enddocs %}
 
+## dist_to_midway
+
+{% docs column_dist_to_midway %}
+Distance to centroid of Midway airport (feet).
+
+{% enddocs %}
+
+## dist_to_ohare
+
+{% docs column_dist_to_ohare %}
+Distance to centroid of O'Hare airport (feet).
+
+{% enddocs %}
+
+## dnl_midway
+
+{% docs column_dnl_midway %}
+Estimated contribution of Midway airport to PIN. Measured in decibels; to be
+interpreted as contribution to DNL (Day-Night Level) estimate of 24-hour average
+of decibel level. Produced by modeling noise level as inverse-square falloff 
+from a point source at the centroid of the airport.
+
+{% enddocs %}
+
+## dnl_ohare
+
+{% docs column_dnl_ohare %}
+Estimated contribution of O'Hare airport to PIN. Measured in decibels; to be
+interpreted as contribution to DNL (Day-Night Level) estimate of 24-hour average
+of decibel level. Produced by modeling noise level as inverse-square falloff 
+from a point source at the centroid of the airport.
+
+{% enddocs %}
+
 ## lake_michigan_dist_ft
 
 {% docs column_lake_michigan_dist_ft %}
@@ -379,4 +413,15 @@ Number of schools (any kind) within half mile.
 
 Includes only schools that have a GreatSchools rating. School locations
 and ratings sourced from [GreatSchools](https://www.greatschools.org/)
+{% enddocs %}
+
+## sum_airport_dnl
+
+{% docs column_sum_airport_dnl %}
+Estimated DNL for a PIN, assuming a baseline DNL of 50 ("quiet suburban") and
+adding predicted noise from O'Hare and Midway airports to that baseline.
+
+For more on DNL, see 
+https://www.faa.gov/regulations_policies/policy_guidance/noise/basics
+
 {% enddocs %}
