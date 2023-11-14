@@ -82,6 +82,17 @@ models:
               AND assessment_stage IS NOT NULL
               AND triad IS NOT NULL
               AND township_code IS NOT NULL
+      - expression_is_true:
+          name: vw_ratio_stats_sale_year_equals_year_minus_one
+          expression: CAST(sale_year AS INTEGER) = CAST(year AS INTEGER) - 1
+          select_columns:
+            - sale_year
+            - year
+      - expression_is_true:
+          name: vw_ratio_stats_ratio_greater_than_zero
+          expression: ratio >= 0
+          select_columns:
+            - ratio
   - name: reporting.vw_top_5
     tests:
       - unique_combination_of_columns:
