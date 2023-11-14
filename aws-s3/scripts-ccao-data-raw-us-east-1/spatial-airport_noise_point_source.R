@@ -47,10 +47,11 @@ midway_noise <- midway_noise %>%
     modeled_omp_build_out_values = NA,
     airport = "midway"
   ) %>%
+  # match data type of ohare_noise
   mutate(
     noise = as.numeric(noise),
     year = as.integer(year)
-  ) # %>% #match data type of ohare_noise
+  )
 
 midway_noise$geometry <- st_as_sfc(midway_noise$geometry, crs = 3435)
 midway_noise <- st_as_sf(midway_noise)
