@@ -93,6 +93,10 @@ models:
           name: vw_pin_most_recent_sale_unique_by_pin
           combination_of_columns:
             - pin
+      # These two tests make sure that the most recent sale view 1) contains
+      # sales at all and 2) allows in parcels without sales. The mosr recent
+      # sale view should contain one observation for each parcel in the county
+      # regardless of whether it has recently sold or not.
       - value_is_present:
           name: vw_pin_most_recent_sale_null
           expression: sale_price IS NULL
