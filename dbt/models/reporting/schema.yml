@@ -101,7 +101,7 @@ models:
           combination_of_columns:
             - pin
       # These two tests make sure that the most recent sale view 1) contains
-      # sales at all and 2) allows in parcels without sales. The mosr recent
+      # sales at all and 2) allows in parcels without sales. The most recent
       # sale view should contain one observation for each parcel in the county
       # regardless of whether it has recently sold or not.
       - value_is_present:
