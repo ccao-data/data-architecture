@@ -16,7 +16,7 @@ models:
       - name: is_mydec_date
         description: Indicator for whether or not the observation uses the MyDec sale date
       - name: mydec_deed_type
-        description: Deed types from MyDec, much more granular than deed types from iasWorld
+        description: Deed type from MyDec, more granular than CCAO deed type
       - name: nbhd
         description: '{{ doc("shared_column_nbhd_code") }}'
       - name: num_parcels_sale
