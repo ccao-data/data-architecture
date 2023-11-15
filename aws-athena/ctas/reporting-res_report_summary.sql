@@ -78,6 +78,7 @@ model_values AS (
         AND ap.meta_year = tc.model_join_year
     WHERE ap.run_id IN (SELECT run_id FROM model.final_model)
         AND tc.property_group IS NOT NULL
+        AND tc.triad IS NOT NULL
 ),
 
 -- Values by assessment stages available in iasWorld (not model)
@@ -110,6 +111,7 @@ iasworld_values AS (
         AND aa.deactivat IS NULL
         AND aa.valclass IS NULL
         AND tc.property_group IS NOT NULL
+        AND tc.triad IS NOT NULL
         AND aa.taxyr >= '2021'
     GROUP BY
         aa.parid,
@@ -129,7 +131,7 @@ iasworld_values AS (
 
 all_values AS (
     SELECT * FROM model_values
-    UNION
+    UNION ALL
     SELECT * FROM iasworld_values
 ),
 
@@ -203,6 +205,8 @@ sales AS (
         AND NOT vwps.sale_filter_deed_type
         AND NOT vwps.sale_filter_less_than_10k
         AND NOT vwps.sale_filter_same_sale_within_365
+        AND tc.property_group IS NOT NULL
+        AND tc.triad IS NOT NULL
 ),
 
 -- Aggregate land for all parcels
@@ -226,7 +230,7 @@ chars AS (
     WHERE cur = 'Y'
         AND deactivat IS NULL
     GROUP BY parid, taxyr
-    UNION
+    UNION ALL
     SELECT
         pin AS parid,
         year AS taxyr,
@@ -421,22 +425,22 @@ sales_nbhd_no_groups AS (
 -- Stack all the aggregated value stats
 aggregated_values AS (
     SELECT * FROM values_town_groups
-    UNION
+    UNION ALL
     SELECT * FROM values_town_no_groups
-    UNION
+    UNION ALL
     SELECT * FROM values_nbhd_groups
-    UNION
+    UNION ALL
     SELECT * FROM values_nbhd_no_groups
 ),
 
 -- Stack all the aggregated sales stats
 all_sales AS (
     SELECT * FROM sales_town_groups
-    UNION
+    UNION ALL
     SELECT * FROM sales_town_no_groups
-    UNION
+    UNION ALL
     SELECT * FROM sales_nbhd_groups
-    UNION
+    UNION ALL
     SELECT * FROM sales_nbhd_no_groups
 )
 
