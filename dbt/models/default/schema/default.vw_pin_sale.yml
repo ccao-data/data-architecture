@@ -55,25 +55,38 @@ models:
         description: '{{ doc("shared_column_year") }}'
 
     tests:
-      # Number of sales for a given time period isn't suspicious
+      # Sales should be unique by PIN, year, and deed. Deeds can have
+      # multiple PINs
       - unique_combination_of_columns:
-          name: vw_pin_sale_reasonable_number_of_sales_per_year
+          name: vw_pin_sale_unique_by_pin_year_doc_no
           combination_of_columns:
             - pin
             - year
-          allowed_duplicates: 2
+            - doc_no
           config:
-            error_if: ">4032"
+            where: |
+              NOT sale_filter_same_sale_within_365
       # No sales for same price/pin within 12 months
       - unique_combination_of_columns:
-          name: vw_pin_sale_unique_price_pin_and_year
+          name: vw_pin_sale_unique_by_pin_year_price
           combination_of_columns:
             - pin
             - year
             - sale_price
-            - sale_filter_same_sale_within_365
           config:
-            error_if: ">2079"
+            error_if: ">1547"
+            where: |
+              NOT sale_filter_same_sale_within_365
+      # Monthly sales volume within expectations
+      - row_count_by_group:
+          name: vw_pin_sale_count_by_year_and_month
+          group_by:
+            - year
+            - MONTH(DATE_PARSE(SUBSTR(saledt, 1, 10), '%Y-%m-%d')) AS month
+          config:
+            where: |
+              NOT sale_filter_same_sale_within_365
+
       # TODO: Sale is validated (after sales validation has been added to
       # iasworld)
       # TODO: Validation is catching obvious outliers

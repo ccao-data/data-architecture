@@ -6,11 +6,13 @@
 -- print the results of the query to stdout, which allows this macro to be used
 -- by scripts to return data.
 {% macro row_count_by_group(model, group_by, ordering="asc", print=False) %}
+    {%- set columns_csv = group_by | join(", ") %}
+
     {% set query %}
-        select count(*) as COUNT, {{ group_by }}
+        select count(*) as COUNT, {{ columns_csv }}
         from {{ model }}
-        group by {{ group_by }}
-        order by {{ group_by }} {{ ordering }}
+        group by {{ columns_csv }}
+        order by {{ columns_csv }} {{ ordering }}
     {% endset %}
 
     {% if print %}
