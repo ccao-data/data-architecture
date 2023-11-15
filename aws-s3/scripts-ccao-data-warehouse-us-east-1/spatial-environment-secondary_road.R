@@ -2,10 +2,7 @@ library(arrow)
 library(aws.s3)
 library(dplyr)
 library(geoarrow)
-library(glue)
-library(noctua)
 library(osmdata)
-library(purrr)
 library(sf)
 source("utils.R")
 
@@ -17,28 +14,32 @@ source("utils.R")
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 
-# Get current year
-current_year <- strftime(Sys.Date(), "%Y")
+# Get current year as an integer
+current_year <- as.integer(strftime(Sys.Date(), "%Y"))
 
-# Ingest path
-ingest_file <- file.path(
-  AWS_S3_RAW_BUCKET,"spatial",
-  "environment", "secondary_road",
-  paste0("year=", current_year),
-  paste0("secondary_road-", current_year, ".parquet"))
+# Create a sequence of years from 2014 to the current year
+years <- 2014:current_year
 
-# Output path
-remote_file <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "spatial",
-  "environment", "secondary_road",
-  paste0("year=", current_year),
-  paste0("secondary_road-", current_year, ".parquet")
-)
+# Iterate over the years
+for (year in years) {
+  # Update the ingest and output paths for each year
+  ingest_file <- file.path(
+    AWS_S3_RAW_BUCKET, "spatial",
+    "environment", "secondary_road",
+    paste0("year=", year),
+    paste0("secondary_road-", year, ".parquet"))
 
-if (!aws.s3::object_exists(remote_file)) {
+  remote_file <- file.path(
+    AWS_S3_WAREHOUSE_BUCKET, "spatial",
+    "environment", "secondary_road",
+    paste0("year=", year),
+    paste0("secondary_road-", year, ".parquet")
+  )
 
-  simplified_data <- read_geoparquet_sf(ingest_file) %>%
-    mutate(geometry_3435 = st_simplify(geometry_3435, dTolerance = 10))
+  if (!aws.s3::object_exists(remote_file)) {
+    simplified_data <- read_geoparquet_sf(ingest_file) %>%
+      mutate(geometry_3435 = st_simplify(geometry_3435, dTolerance = 10))
 
-  geoarrow::write_geoparquet(simplified_data, remote_file)
+    geoarrow::write_geoparquet(simplified_data, remote_file)
+  }
 }
