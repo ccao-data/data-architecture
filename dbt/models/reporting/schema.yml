@@ -1,7 +1,7 @@
 sources:
   - name: reporting
     tags:
-        - load_auto
+      - load_auto
     tables:
       - name: ratio_stats
         description: '{{ doc("table_ratio_stats") }}'
@@ -35,6 +35,10 @@ sources:
 
 models:
   - name: reporting.res_report_summary
+    description: '{{ doc("table_res_report_summary") }}'
+    config:
+      tags:
+        - daily
     tests:
     - unique_combination_of_columns:
         name: res_report_summary_unique_by_geography_id_property_group_assessment_stage_year
@@ -63,6 +67,7 @@ models:
           - assessment_stage
 
   - name: reporting.vw_assessment_roll
+    description: '{{ doc("view_vw_assessment_roll") }}'
     tests:
       - unique_combination_of_columns:
           name: vw_assessment_roll_unique_by_year_stage_township_name_class
@@ -80,6 +85,7 @@ models:
               AND class IS NOT NULL
 
   - name: reporting.vw_pin_most_recent_boundary
+    description: '{{ doc("view_vw_pin_most_recent_boundary") }}'
     tests:
       - unique_combination_of_columns:
           name: vw_pin_most_recent_boundary_unique_by_pin10_municipality_name
@@ -105,6 +111,7 @@ models:
           expression: sale_price IS NOT NULL
 
   - name: reporting.vw_ratio_stats
+    description: '{{ doc("view_vw_ratio_stats") }}'
     tests:
       - unique_combination_of_columns:
           name: vw_ratio_stats_unique_by_pin_year_assessment_stage_sale_price
@@ -133,6 +140,7 @@ models:
             - ratio
 
   - name: reporting.vw_top_5
+    description: '{{ doc("view_vw_top_5") }}'
     tests:
       - unique_combination_of_columns:
           name: vw_top_5_unique_by_rank_parid_year
@@ -154,6 +162,7 @@ models:
               AND stage_used IS NOT NULL
 
   - name: reporting.vw_town_sale_history
+    description: '{{ doc("view_vw_town_sale_history") }}'
     tests:
       - unique_combination_of_columns:
           name: vw_town_sale_history_unique_by_geography_id_property_group_sale_year
