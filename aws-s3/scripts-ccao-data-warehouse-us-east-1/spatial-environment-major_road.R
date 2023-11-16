@@ -7,8 +7,8 @@ library(sf)
 source("utils.R")
 
 # This script is designed to ingest spatial data on major roads for each year
-# from 2014 to the present, simplify it for efficiency, and store a deduplicated,
-# aggregated version of this data in a warehouse bucket.
+# from 2014 to the present, simplify it for efficiency, and store a
+# deduplicated, aggregated version of this data in a warehouse bucket.
 #
 # We take an additive approach here to ensure distance to these roads is
 # consistent from earlier pin-level data. If there are new major roads in 2015
