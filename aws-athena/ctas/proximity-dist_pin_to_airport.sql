@@ -1,12 +1,11 @@
 -- CTAS to create a table of distance to the airports for each PIN
-
 {{
-  config(
-    materialized='table',
-    partitioned_by=['year'],
-    bucketed_by=['pin10'],
-    bucket_count=1
-  )
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin10'],
+        bucket_count=1
+    )
 }}
 
 WITH distinct_pins AS (
@@ -54,24 +53,24 @@ airport_modeled_dnl AS (
         *,
         GREATEST(
             0,
-            10 * LOG(10, (model_output_ohare / POWER(10,-12)))
+            10 * LOG(10, (model_output_ohare / POWER(10, -12)))
         ) AS dnl_ohare,
         GREATEST(
             0,
-            10 * LOG(10, (model_output_midway / POWER(10,-12)))
+            10 * LOG(10, (model_output_midway / POWER(10, -12)))
         ) AS dnl_midway
     FROM airport_regression
 )
 
-
 SELECT
     pcl.pin10,
     pcl.year, --do we want this? 
-    dnl.dist_to_ohare,
-    dnl.dist_to_midway,
-    dnl.dnl_ohare,
-    dnl.dnl_midway,
-    dnl.dnl_ohare + dnl.dnl_midway + 50 AS sum_airport_dnl
+    dnl.airport_ohare_dist_ft,
+    dnl.airport_midway_dist_ft,
+    dnl.airport_dnl_ohare,
+    dnl.airport_dnl_midway,
+    dnl.dnl_ohare + dnl.dnl_midway + 50 AS airport_dnl_total,
+    '2019' AS airport_data_year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN airport_modeled_dnl AS dnl
     ON pcl.x_3435 = dnl.x_3435
