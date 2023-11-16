@@ -22,11 +22,11 @@ xy_to_airports_dist AS (
         ST_DISTANCE(
             ST_POINT(dp.x_3435, dp.y_3435),
             ST_POINT(1099852, 1935070) --ohare centroid
-        ) AS dist_to_ohare,
+        ) AS airport_ohare_dist_ft,
         ST_DISTANCE(
             ST_POINT(dp.x_3435, dp.y_3435),
             ST_POINT(1142843, 1864827) --midway centroid
-        ) AS dist_to_midway        
+        ) AS airport_midway_dist_ft        
     FROM distinct_pins AS dp
 ),
 
@@ -43,8 +43,8 @@ airport_regression AS (
     SELECT 
         x_3435,
         y_3435,
-        dist_to_ohare,
-        dist_to_midway,
+        airport_ohare_dist_ft,
+        airport_midway_dist_ft,
         POWER(dist_to_ohare, -2) * 0.00582564978995262 AS model_output_ohare,
         POWER(dist_to_midway, -2) * 0.00297149980129393 AS model_output_midway
     FROM xy_to_airports_dist
@@ -56,11 +56,11 @@ airport_modeled_dnl AS (
         GREATEST(
             0,
             10 * LOG(10, (model_output_ohare / POWER(10, -12)))
-        ) AS dnl_ohare,
+        ) AS airport_dnl_ohare,
         GREATEST(
             0,
             10 * LOG(10, (model_output_midway / POWER(10, -12)))
-        ) AS dnl_midway
+        ) AS airport_dnl_midway
     FROM airport_regression
 )
 SELECT
@@ -69,12 +69,11 @@ SELECT
     dnl.airport_midway_dist_ft,
     dnl.airport_dnl_ohare,
     dnl.airport_dnl_midway,
-    dnl.dnl_ohare + dnl.dnl_midway + 50 AS airport_dnl_total,
+    dnl.airport_dnl_ohare + dnl.airport_dnl_midway + 50 AS airport_dnl_total,
     '2019' AS airport_data_year,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN airport_modeled_dnl AS dnl
     ON pcl.x_3435 = dnl.x_3435
     AND pcl.y_3435 = dnl.y_3435
-ORDER BY dnl.dnl_ohare DESC 
-
+ORDER BY dnl.airport_dnl_ohare DESC 
