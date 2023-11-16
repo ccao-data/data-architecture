@@ -10,6 +10,9 @@ models:
 
   - name: proximity.crosswalk_year_fill
     description: '{{ doc("table_crosswalk_year_fill") }}'
+    
+  - name: proximity.dist_pin_to_airport
+    description: '{{ doc("table_dist_pin_to_airport") }}'
 
   - name: proximity.dist_pin_to_bike_trail
     description: '{{ doc("table_dist_pin_to_bike_trail") }}'
