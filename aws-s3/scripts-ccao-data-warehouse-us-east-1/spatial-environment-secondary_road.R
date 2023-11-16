@@ -60,34 +60,34 @@ for (year in years) {
     # Ingest Major roads data for the prior year
     major_roads_prior <- read_geoparquet_sf(ingest_file_major_prior)
 
-    # This if/else block prevents us from indexing a future
-    # year that doesn't exist yet
-    if (year < current_year) {
-      ingest_file_major_post <- file.path(
-        AWS_S3_WAREHOUSE_BUCKET, "spatial",
-        "environment", "major_road",
-        paste0("year=", year + 1),
-        paste0("major_road-", year + 1, ".parquet"))
+      # This if/else block prevents us from indexing a future
+      # year that doesn't exist yet
+      if (year < current_year) {
+        ingest_file_major_post <- file.path(
+          AWS_S3_WAREHOUSE_BUCKET, "spatial",
+          "environment", "major_road",
+          paste0("year=", year + 1),
+          paste0("major_road-", year + 1, ".parquet"))
 
-      # Ingest Major roads data for the next year
-      major_roads_post <- read_geoparquet_sf(ingest_file_major_post)
+        # Ingest Major roads data for the next year
+        major_roads_post <- read_geoparquet_sf(ingest_file_major_post)
 
-      # Apply filter for both prior and post year major roads, this filter
-      # accounts for the case where:
-      # - A previously major road becomes secondary
-      # - A secondary becomes major in the future
-      #
-      # This way we don't double count a road for both major and secondary
-      current_data <-
-        current_data %>%
-        filter(!osm_id %in% major_roads_prior$osm_id,
-               !osm_id %in% major_roads_post$osm_id)
-    } else {
-      # Apply filter only for prior year major roads
-      current_data <-
-        current_data %>%
-        filter(!osm_id %in% major_roads_prior$osm_id)
-    }
+        # Apply filter for both prior and post year major roads, this filter
+        # accounts for the case where:
+        # - A previously major road becomes secondary
+        # - A secondary becomes major in the future
+        #
+        # This way we don't double count a road for both major and secondary
+        current_data <-
+          current_data %>%
+          filter(!osm_id %in% major_roads_prior$osm_id,
+                 !osm_id %in% major_roads_post$osm_id)
+      } else {
+        # Apply filter only for prior year major roads
+        current_data <-
+          current_data %>%
+          filter(!osm_id %in% major_roads_prior$osm_id)
+      }
 
     # Create temporal column to preserve earliest data
     combined_data <- bind_rows(master_dataset,
