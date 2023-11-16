@@ -16,6 +16,8 @@ sources:
               - dbt_utils.accepted_range:
                   min_value: 0
                   max_value: 1500000
+                  config:
+                    where: cur = 'Y' AND deactivat IS NULL
           - name: area_sqm
             description: Area of this line in meters
           - name: areaid
@@ -39,7 +41,7 @@ sources:
                   to: source('ccao', 'class_dict')
                   field: class_code
                   config:
-                    where: class != 'EX'
+                    where: class != 'EX' AND cur = 'Y' AND deactivat IS NULL
           - name: convaddn
             description: Converted addition total
           - name: cur
@@ -55,6 +57,8 @@ sources:
               - dbt_utils.accepted_range:
                   min_value: 0
                   max_value: 100
+                  config:
+                    where: cur = 'Y' AND deactivat IS NULL
           - name: eff_area
             description: Support value per line
           - name: effageovr
