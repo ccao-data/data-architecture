@@ -65,6 +65,7 @@ airport_modeled_dnl AS (
         ) AS airport_dnl_midway
     FROM airport_regression
 )
+
 SELECT
     pcl.pin10,
     dnl.airport_ohare_dist_ft,

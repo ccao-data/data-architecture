@@ -3,7 +3,6 @@
 {% docs column_airport_data_year %}
 Set to year 2019 for all PINs. Note that O'Hare noise predictions 
 are built from O'Hare Modernization Program (OMP) projected values.
-
 {% enddocs %}
 
 ## airport_dnl_midway
@@ -21,6 +20,7 @@ from a point source at the centroid of the airport.
 
 {% docs column_airport_dnl_ohare %}
 Estimated contribution of O'Hare airport to PIN noise.
+
 Measured in decibels; to be interpreted as contribution to DNL
 (Day-Night Level) estimate of 24-hour average of decibel level.
 Produced by modeling noise level as inverse-square falloff 
