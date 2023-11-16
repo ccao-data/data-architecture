@@ -45,8 +45,8 @@ airport_regression AS (
         y_3435,
         airport_ohare_dist_ft,
         airport_midway_dist_ft,
-        POWER(dist_to_ohare, -2) * 0.00582564978995262 AS model_output_ohare,
-        POWER(dist_to_midway, -2) * 0.00297149980129393 AS model_output_midway
+        POWER(airport_ohare_dist_ft, -2) * 0.00582564978995262 AS model_output_ohare,
+        POWER(airport_midway_dist_ft, -2) * 0.00297149980129393 AS model_output_midway
     FROM xy_to_airports_dist
 ),
 
