@@ -26,7 +26,7 @@ xy_to_airports_dist AS (
         ST_DISTANCE(
             ST_POINT(dp.x_3435, dp.y_3435),
             ST_POINT(1142843, 1864827) --midway centroid
-        ) AS airport_midway_dist_ft        
+        ) AS airport_midway_dist_ft
     FROM distinct_pins AS dp
 ),
 
@@ -40,18 +40,20 @@ xy_to_airports_dist AS (
 --I_ZERO = POWER(10, -12)
 
 airport_regression AS (
-    SELECT 
+    SELECT
         x_3435,
         y_3435,
         airport_ohare_dist_ft,
         airport_midway_dist_ft,
-        POWER(airport_ohare_dist_ft, -2) * 0.00582564978995262 AS model_output_ohare,
-        POWER(airport_midway_dist_ft, -2) * 0.00297149980129393 AS model_output_midway
+        POWER(airport_ohare_dist_ft, -2)
+        * 0.00582564978995262 AS model_output_ohare,
+        POWER(airport_midway_dist_ft, -2)
+        * 0.00297149980129393 AS model_output_midway
     FROM xy_to_airports_dist
 ),
 
 airport_modeled_dnl AS (
-    SELECT 
+    SELECT
         *,
         GREATEST(
             0,
@@ -76,4 +78,4 @@ FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN airport_modeled_dnl AS dnl
     ON pcl.x_3435 = dnl.x_3435
     AND pcl.y_3435 = dnl.y_3435
-ORDER BY dnl.airport_dnl_ohare DESC 
+ORDER BY dnl.airport_dnl_ohare DESC
