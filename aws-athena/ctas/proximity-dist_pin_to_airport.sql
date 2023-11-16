@@ -30,8 +30,10 @@ xy_to_airports_dist AS (
     FROM distinct_pins AS dp
 ),
 
---COEFFICIENTS FROM OMP-ONLY inverse square noise falloff model for O'Hare,
--- 2019-sensor data ONLY inverse square noise falloff model for Midway:
+--Coefficients from OMP-ONLY inverse square noise falloff model for O'Hare,
+-- 2019-sensor data ONLY inverse square noise falloff model for Midway
+-- "Model 1" from spatial-airport-noise-point-source.R
+-- (Code: https://tinyurl.com/2dp96um7)
 --ohare     0.00582564978995262
 --midway    0.00297149980129393
 
@@ -63,17 +65,16 @@ airport_modeled_dnl AS (
 )
 SELECT
     pcl.pin10,
-    pcl.year, --do we want this? 
     dnl.airport_ohare_dist_ft,
     dnl.airport_midway_dist_ft,
     dnl.airport_dnl_ohare,
     dnl.airport_dnl_midway,
     dnl.dnl_ohare + dnl.dnl_midway + 50 AS airport_dnl_total,
-    '2019' AS airport_data_year
+    '2019' AS airport_data_year,
+    pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN airport_modeled_dnl AS dnl
     ON pcl.x_3435 = dnl.x_3435
     AND pcl.y_3435 = dnl.y_3435
 ORDER BY dnl.dnl_ohare DESC 
-LIMIT 1000
 
