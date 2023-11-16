@@ -41,7 +41,11 @@ sources:
                   to: source('ccao', 'class_dict')
                   field: class_code
                   config:
-                    where: class != 'EX' AND cur = 'Y' AND deactivat IS NULL
+                    where: |
+                      taxyr >= '2022'
+                      AND class != 'EX'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: convaddn
             description: Converted addition total
           - name: cur
