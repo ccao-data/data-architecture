@@ -61,7 +61,6 @@ airport_modeled_dnl AS (
         ) AS dnl_midway
     FROM airport_regression
 )
-
 SELECT
     pcl.pin10,
     pcl.year, --do we want this? 
