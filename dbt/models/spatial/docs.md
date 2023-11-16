@@ -215,10 +215,10 @@ Major roads sourced from OpenStreetMap (OSM).
 Major roads include any OSM ways tagged with
 `highway/motorway`, `highway/trunk`, or `highway/primary`
 
-Currently we have historical data for all years back to 2014
-from a timestamp of January 1st. However, there were changes 
-in OSM tags sometime after January 1st in 2023, which means we will 
-have to handle this discrepancy in 2024.
+This data covers major roads data from 2014 onwards and uses an additive
+approach for data integration. Starting from 2014, each year's data builds 
+upon the previous year, with new major road additions being added to the 
+existing dataset.
 
 **Geometry:** `MULTILINESTRING`
 {% enddocs %}
