@@ -278,9 +278,9 @@ sources:
                 error_if: ">15300"
           - row_values_match_after_join:
               name: asmt_all_class_matches_pardat_class
-              column: class
+              column: substr(model.class, 1, 3)
               external_model: source('iasworld', 'pardat')
-              external_column: class
+              external_column: substr(external_model.class, 1, 3)
               join_columns:
                 - parid
                 - taxyr

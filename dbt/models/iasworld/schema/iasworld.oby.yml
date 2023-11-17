@@ -233,9 +233,9 @@ sources:
                 - taxyr
           - row_values_match_after_join:
               name: oby_class_matches_pardat_class
-              column: class
+              column: substr(model.class, 1, 1)
               external_model: source('iasworld', 'pardat')
-              external_column: class
+              external_column: substr(external_model.class, 1, 1)
               join_columns:
                 - parid
                 - taxyr
