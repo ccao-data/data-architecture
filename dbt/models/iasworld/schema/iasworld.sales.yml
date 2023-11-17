@@ -146,7 +146,7 @@ sources:
 
         tests:
           - unique_combination_of_columns:
-              name: sales_unique_by_parid_instruno
+              name: iasworld_sales_unique_by_parid_instruno
               combination_of_columns:
                 - parid
                 - instruno

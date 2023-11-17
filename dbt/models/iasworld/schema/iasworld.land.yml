@@ -189,7 +189,7 @@ sources:
 
         tests:
           - unique_combination_of_columns:
-              name: land_unique_by_parid_lline_taxyr
+              name: iasworld_land_unique_by_parid_lline_taxyr
               combination_of_columns:
                 - parid
                 - lline

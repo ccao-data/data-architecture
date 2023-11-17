@@ -225,14 +225,14 @@ sources:
 
         tests:
           - unique_combination_of_columns:
-              name: oby_unique_by_parid_card_lline_taxyr
+              name: iasworld_oby_unique_by_parid_card_lline_taxyr
               combination_of_columns:
                 - parid
                 - card
                 - lline
                 - taxyr
           - row_values_match_after_join:
-              name: oby_class_matches_pardat_class
+              name: iasworld_oby_class_matches_pardat_class
               column: substr(model.class, 1, 1)
               external_model: source('iasworld', 'pardat')
               external_column: substr(external_model.class, 1, 1)
@@ -244,4 +244,3 @@ sources:
                   taxyr >= '2022'
                   AND cur = 'Y'
                   AND deactivat IS NULL
-                  AND class NOT IN ('288', '390', '590')

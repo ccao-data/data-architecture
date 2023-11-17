@@ -243,7 +243,7 @@ sources:
 
         tests:
           - unique_combination_of_columns:
-              name: htpar_unique_by_parid_caseno_taxyr_subkey
+              name: iasworld_htpar_unique_by_parid_caseno_taxyr_subkey
               combination_of_columns:
                 - parid
                 - caseno
