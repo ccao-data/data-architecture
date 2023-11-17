@@ -774,24 +774,96 @@ sources:
                   config: *unique-conditions
           - name: user14
             description: '{{ doc("shared_column_char_apts") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_apts_not_null
+                  config:
+                    where: |
+                      class IN ('211', '212')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+              - accepted_values:
+                  name: iasworld_dweldat_char_apts_accepted_values
+                  values: ['1', '2', '3', '4', '5', '6']
+                  config:
+                    where: |
+                      class IN ('211', '212')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: user15
             description: '{{ doc("shared_column_char_use") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_use_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_use_accepted_values
+                  values: ['1', '2']
+                  config: *unique-conditions
           - name: user17
             description: Age. Deprecated, use `yrblt`
           - name: user20
             description: '{{ doc("shared_column_char_ncu") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_ncu_not_null
+                  config: *unique-conditions
           - name: user24
             description: '{{ doc("shared_column_card_proration_rate") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_card_proration_rate_not_null
+                  config: *unique-conditions
           - name: user30
             description: '{{ doc("shared_column_char_porch") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_porch_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_porch_accepted_values
+                  values: ['0', '1', '2']
+                  config: *unique-conditions
           - name: user31
             description: '{{ doc("shared_column_char_gar_att") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_gar_att_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_gar_att_accepted_values
+                  values: ['1', '2']
+                  config: *unique-conditions
           - name: user32
             description: '{{ doc("shared_column_char_gar_area") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_gar_area_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_gar_area_accepted_values
+                  values: ['1', '2']
+                  config: *unique-conditions
           - name: user33
             description: '{{ doc("shared_column_char_gar_size") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_gar_size_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_gar_size_accepted_values
+                  values: ['1', '2', '3', '4', '5', '6', '7', '8']
+                  config: *unique-conditions
           - name: user34
             description: '{{ doc("shared_column_char_gar_cnst") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_gar_cnst_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_gar_cnst_accepted_values
+                  values: ['1', '2', '3', '4']
+                  config: *unique-conditions
           - name: useramt
             description: RCN value of additions
           - name: userfact
@@ -804,6 +876,15 @@ sources:
             description: Wall height factor
           - name: wbfp_o
             description: '{{ doc("shared_column_char_frpl") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_frpl_not_null
+                  config: *unique-conditions
+              - dbt_utils.accepted_range:
+                  name: iasworld_dweldat_char_frpl_between_0_and_6
+                  min_value: 0
+                  max_value: 6
+                  config: *unique-conditions
           - name: wbfp_pf
             description: Wood burning fireplace - prefab
           - name: wbfp_pfx
@@ -860,3 +941,21 @@ sources:
                   taxyr >= '2023'
                   AND cur = 'Y'
                   AND deactivat IS NULL
+          - expression_is_true:
+              name: iasworld_dweldat_card_proration_rate_between_0_and_100
+              expression: 'CAST(user24 AS decimal) BETWEEN 0.00 AND 100.00'
+              select_columns:
+                - parid
+                - taxyr
+                - card
+                - user24
+              config: *unique-conditions
+          - expression_is_true:
+              name: iasworld_dweldat_char_ncu_between_0_and_5
+              expression: 'CAST(user20 AS decimal) BETWEEN 0 AND 5'
+              select_columns:
+                - parid
+                - taxyr
+                - card
+                - user20
+              config: *unique-conditions
