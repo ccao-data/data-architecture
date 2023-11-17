@@ -276,3 +276,11 @@ sources:
               config:
                 where: *unique-conditions
                 error_if: ">15300"
+          - row_values_match_after_join:
+              name: asmt_all_class_matches_pardat_class
+              column: class
+              external_model: source('iasworld', 'pardat')
+              external_column: class
+              join_columns:
+                - parid
+                - taxyr
