@@ -114,6 +114,65 @@ for (year in years) {
     paste0("secondary_road-", year, ".parquet")
   )
 
-  geoarrow::write_geoparquet(data_to_write, output_file)
+  #geoarrow::write_geoparquet(data_to_write, output_file)
 
 }
+
+# IN DEVELOPMENT
+
+# Split the data into subsets based on the 'name' field
+split_data <- split(data_to_write, data_to_write$name)
+
+# Initialize an empty list to store the processed merged data
+processed_data <- list()
+
+# Begin a loop to process each group (road name) individually
+for (name in names(split_data)) {
+  # Extract the data frame for the current group
+  df <- split_data[[name]]
+
+  # Use st_intersects to determine which linestrings overlap or touch each other
+  interactions <- st_intersects(df$geometry)
+
+  # Initialize a vector to keep track of which rows (linestrings)
+  # have been processed
+  processed_indices <- rep(FALSE, nrow(df))
+
+  # Begin a loop to go through each linestring in the current group
+  for (i in seq_len(nrow(df))) {
+    # Process the linestring only if it hasn't been processed yet
+    if (!processed_indices[i]) {
+      # Identify other linestrings that intersect or touch the current one
+      connected <- unlist(interactions[i])
+      # Remove the current linestring from the list of connected linestrings
+      connected <- connected[connected != i]
+
+      # If there are connected linestrings, merge them
+      if (length(connected) > 0) {
+        # Merge the current linestring with all connected ones
+        merged_geom <- st_union(df$geometry[c(i, connected)])
+        # Add the merged geometry to the processed data list
+        processed_data[[length(processed_data) + 1]] <-
+          data.frame(name = name,
+                     geometry = merged_geom,
+                     stringsAsFactors = FALSE)
+        # Mark all involved linestrings as processed
+        processed_indices[c(i, connected)] <- TRUE
+      } else {
+        # If there are no connected linestrings, add the
+        # current linestring as is
+        processed_data[[length(processed_data) + 1]] <- df[i, , drop = FALSE]
+      }
+    }
+  }
+}
+
+processed_data <-
+  dplyr::bind_rows(processed_data) %>%
+  mutate(length = st_length(geometry)) %>%
+  st_as_sf(sf_column_name = "geometry") %>%
+  filter(!grepl("milwaukee", name, ignore.case = T))
+
+processed_data_subset_length <-
+  processed_data %>% filter(length > units::set_units(300, "m"))
+
