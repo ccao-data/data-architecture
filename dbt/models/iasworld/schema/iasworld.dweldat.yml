@@ -602,3 +602,16 @@ sources:
                 - parid
                 - taxyr
                 - card
+          - row_values_match_after_join:
+              name: dweldat_class_matches_pardat_class
+              column: class
+              external_model: source('iasworld', 'pardat')
+              external_column: class
+              join_columns:
+                - parid
+                - taxyr
+              config:
+                where: |
+                  taxyr >= '2023'
+                  AND cur = 'Y'
+                  AND deactivat IS NULL

@@ -231,3 +231,17 @@ sources:
                 - card
                 - lline
                 - taxyr
+          - row_values_match_after_join:
+              name: oby_class_matches_pardat_class
+              column: class
+              external_model: source('iasworld', 'pardat')
+              external_column: class
+              join_columns:
+                - parid
+                - taxyr
+              config:
+                where: |
+                  taxyr >= '2022'
+                  AND cur = 'Y'
+                  AND deactivat IS NULL
+                  AND class NOT IN ('288', '390', '590')

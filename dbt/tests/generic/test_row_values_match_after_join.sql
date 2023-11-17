@@ -6,11 +6,14 @@
     model, column, external_model, external_column, join_columns=[]
 ) %}
 
-    {% set join_columns_csv = join_columns | join(", ") %}
+    {%- set join_columns_csv = join_columns | join(", ") -%}
 
-    select {{ join_columns_csv }}
+    select
+        {{ join_columns_csv }},
+        array_agg(m.{{ column }}) as model_col,
+        array_agg(em.{{ external_column }}) as ext_model_col
     from {{ external_model }} as em
-    join {{ model }} as m using ({{ join_columns_csv }})
+    join (select * from {{ model }}) as m using ({{ join_columns_csv }})
     group by {{ join_columns_csv }}
     having
         sum(case when em.{{ external_column }} = m.{{ column }} then 1 else 0 end) = 0

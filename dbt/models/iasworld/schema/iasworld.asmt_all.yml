@@ -284,3 +284,5 @@ sources:
               join_columns:
                 - parid
                 - taxyr
+              config:
+                where: *unique-conditions
