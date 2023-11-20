@@ -64,7 +64,7 @@ sources:
             description: Percent good from tables (based on age+cdu)
             tests:
               - dbt_utils.accepted_range:
-                  name: iasworld_addn_depr_between_0_and_1
+                  name: iasworld_addn_depr_between_0_and_100
                   min_value: 0
                   max_value: 100
                   config:
