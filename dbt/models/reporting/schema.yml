@@ -41,14 +41,14 @@ models:
         - daily
     tests:
     - unique_combination_of_columns:
-        name: reporting_res_report_summary_unique_by_geography_id_property_group_assessment_stage_year
+        name: reporting_res_report_summary_unique_by_keys
         combination_of_columns:
           - geography_id
           - property_group
           - assessment_stage
           - year
     - expression_is_true:
-        name: reporting_res_report_summary_sale_year_equals_year_minus_one
+        name: reporting_res_report_summary_sale_year_eq_year_minus_one
         expression: CAST(sale_year AS INTEGER) = CAST(year AS INTEGER) - 1
         select_columns:
           - sale_year
@@ -70,7 +70,7 @@ models:
     description: '{{ doc("view_vw_assessment_roll") }}'
     tests:
       - unique_combination_of_columns:
-          name: reporting_vw_assessment_roll_unique_by_year_stage_township_name_class
+          name: reporting_vw_assessment_roll_unique_by_keys
           combination_of_columns:
             - year
             - stage
@@ -88,7 +88,7 @@ models:
     description: '{{ doc("view_vw_pin_most_recent_boundary") }}'
     tests:
       - unique_combination_of_columns:
-          name: reporting_vw_pin_most_recent_boundary_unique_by_pin10_municipality_name
+          name: reporting_vw_pin_most_recent_boundary_unique_by_keys
           combination_of_columns:
             - pin10
             - municipality_name
@@ -115,7 +115,7 @@ models:
     description: '{{ doc("view_vw_ratio_stats") }}'
     tests:
       - unique_combination_of_columns:
-          name: reporting_vw_ratio_stats_unique_by_pin_year_assessment_stage_sale_price
+          name: reporting_vw_ratio_stats_unique_by_keys
           combination_of_columns:
             - pin
             - year
@@ -144,7 +144,7 @@ models:
     description: '{{ doc("view_vw_top_5") }}'
     tests:
       - unique_combination_of_columns:
-          name: reporting_vw_top_5_unique_by_rank_parid_year
+          name: reporting_vw_top_5_unique_by_keys
           combination_of_columns:
             - rank
             - parid
@@ -166,7 +166,7 @@ models:
     description: '{{ doc("view_vw_town_sale_history") }}'
     tests:
       - unique_combination_of_columns:
-          name: reporting_vw_town_sale_history_unique_by_geography_id_property_group_sale_year
+          name: reporting_vw_town_sale_history_unique_by_keys
           combination_of_columns:
             - geography_id
             - property_group

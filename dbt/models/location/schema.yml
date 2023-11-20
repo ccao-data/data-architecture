@@ -239,13 +239,13 @@ models:
     tests:
       # Unique by 10-digit PIN and year
       - unique_combination_of_columns:
-          name: location_vw_pin10_location_unique_by_10_digit_pin_and_year
+          name: location_vw_pin10_location_unique_by_keys
           combination_of_columns:
             - pin10
             - year
       # GEOIDs are the correct length
       - column_length:
-          name: location_vw_pin10_location_seven_digit_geoids_are_the_correct_length
+          name: location_vw_pin10_location_7_digit_geoids_are_correct_length
           length: 7
           columns:
             - census_place_geoid

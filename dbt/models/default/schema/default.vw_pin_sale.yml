@@ -57,7 +57,7 @@ models:
     tests:
       # Number of sales for a given time period isn't suspicious
       - unique_combination_of_columns:
-          name: vw_pin_sale_reasonable_number_of_sales_per_year
+          name: default_vw_pin_sale_reasonable_number_of_sales_per_year
           combination_of_columns:
             - pin
             - year
@@ -66,7 +66,7 @@ models:
             error_if: ">4032"
       # No sales for same price/pin within 12 months
       - unique_combination_of_columns:
-          name: vw_pin_sale_unique_price_pin_and_year
+          name: default_vw_pin_sale_unique_price_pin_and_year
           combination_of_columns:
             - pin
             - year
