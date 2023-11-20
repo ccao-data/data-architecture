@@ -297,7 +297,7 @@ sources:
                 - cpaddr1
                 - cpaddr2
                 - cpaddr3
-              has_interior_space: false
+              allow_interior_space: true
               config: *unique-conditions
           - expression_is_true:
               name: iasworld_htpar_cpaddr3_length_lte_5

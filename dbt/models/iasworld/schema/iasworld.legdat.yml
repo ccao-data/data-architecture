@@ -214,8 +214,18 @@ sources:
             description: Z coordinate
           - name: zip1
             description: '{{ doc("shared_column_prop_address_zipcode_1") }}'
+            tests:
+              - dbt_utils.not_accepted_values:
+                  name: iasworld_legdat_zip1_has_no_00000_values
+                  values: ['00000']
+                  config: *unique-conditions
           - name: zip2
             description: '{{ doc("shared_column_prop_address_zipcode_2") }}'
+            tests:
+              - dbt_utils.not_accepted_values:
+                  name: iasworld_legdat_zip2_has_no_0000_values
+                  values: ['0000']
+                  config: *unique-conditions
 
         tests:
           - unique_combination_of_columns:
@@ -256,5 +266,5 @@ sources:
                 - statecode
                 - zip1
                 - zip2
-              has_interior_space: false
+              allow_interior_space: true
               config: *unique-conditions

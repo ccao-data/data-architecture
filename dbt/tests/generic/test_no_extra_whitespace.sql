@@ -1,11 +1,11 @@
 -- Test that one or more string columns do not contain extraneous whitespace
-{% test no_extra_whitespace(model, column_names, has_interior_space=false) %}
+{% test no_extra_whitespace(model, column_names, allow_interior_space=false) %}
 
     {%- set columns = column_names | join(", ") %}
 
     {%- set conditions_list = [] %}
     {%- for column_name in column_names %}
-        {%- if has_interior_space %}
+        {%- if allow_interior_space %}
             {%- set conditions_list = conditions_list.append(
                 "("
                 + column_name
