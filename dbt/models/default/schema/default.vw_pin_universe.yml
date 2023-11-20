@@ -240,7 +240,7 @@ models:
             error_if: ">24"
       # Number of towns is consistent over time
       - count_is_consistent:
-          name: default_vw_pin_universe_township_code_count_is_consistent_by_year
+          name: default_vw_pin_universe_town_count_is_consistent_by_year
           group_column: year
           count_column: township_code
       - unique_combination_of_columns:
