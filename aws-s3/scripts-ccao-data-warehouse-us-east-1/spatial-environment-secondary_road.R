@@ -71,7 +71,7 @@ for (year in years) {
 
         # Ingest Major roads data for the next year
         major_roads_post <- read_geoparquet_sf(ingest_file_major_post)
-
+# st_difference - sf
         # Apply filter for both prior and post year major roads, this filter
         # accounts for the case where:
         # - A previously major road becomes secondary
@@ -94,7 +94,7 @@ for (year in years) {
                                current_data %>% mutate(temporal = 1))
 
     # Arrange by osm_id and temporal, then deduplicate and preserve earlier data
-    data_to_write <- combined_data %>%
+    dedup_data <- combined_data %>%
       arrange(osm_id, temporal) %>%
       group_by(osm_id) %>%
       slice(1) %>%
@@ -102,8 +102,56 @@ for (year in years) {
       select(-temporal)
 
     # Reset temporal tag for the next iteration
-    master_dataset <- data_to_write %>%
+    master_dataset <- dedup_data %>%
       mutate(temporal = 0)
+
+
+    # This code is an imperfect solution to the changing osm_id problem. We
+    # condense road names into singular roads if they overlap. If they don't
+    # overlap, they remain as two distinct geometries with the same road name.
+    # This allows us to filter on distance, it doesn't catch everything, but
+    # does catch a large majority of floating geometries.
+
+    processed_data <- dedup_data %>%
+      # Group the data by the 'name' field
+      group_by(name) %>%
+      # Apply a function to each group (each unique name)
+      group_map(~ {
+        # '.x' is the subset of data for the current group
+        df <- .x
+        # Calculate intersections of geometries within each group
+        interactions <- st_intersects(df$geometry)
+
+        # Map over each row in the group's data frame
+        map_df(seq_len(nrow(df)), function(i) {
+          # If the current row does not intersect with any other,
+          # return it as is. This check avoids self-intersection
+          if (!any(interactions[[i]] != i)) {
+            return(df[i, ])
+          }
+          # Identify indices of geometries that intersect with the current one,
+          # excluding the current geometry itself
+          connected <- unlist(interactions[i]) %>% setdiff(i)
+          # If there are connected geometries, merge them
+          if (length(connected) > 0) {
+            # Merge the current geometry with all connected ones
+            merged_geom <- st_union(df$geometry[c(i, connected)])
+            # Return a tibble with the merged geometry and the group name.
+            return(tibble(name = df$name[i], geometry = merged_geom))
+          } else {
+            # If no connected geometries, return the current geometry as is
+            return(df[i, ])
+          }
+        })
+      }) %>%
+      # Combine all the processed data frames into one data frame
+      bind_rows()
+      mutate(length = st_length(geometry),
+             geometry_3435 = st_transform(geometry, 3435)) %>%
+      st_as_sf(sf_column_name = "geometry")  %>%
+      filter(length > units::set_units(250, "m")) %>%
+      select(-length)
+
   }
 
   # Define the output file path for the data to write
@@ -114,65 +162,13 @@ for (year in years) {
     paste0("secondary_road-", year, ".parquet")
   )
 
-  #geoarrow::write_geoparquet(data_to_write, output_file)
+  #geoarrow::write_geoparquet(processed_data, output_file)
 
 }
 
-# IN DEVELOPMENT
 
-# Split the data into subsets based on the 'name' field
-split_data <- split(data_to_write, data_to_write$name)
 
-# Initialize an empty list to store the processed merged data
-processed_data <- list()
 
-# Begin a loop to process each group (road name) individually
-for (name in names(split_data)) {
-  # Extract the data frame for the current group
-  df <- split_data[[name]]
 
-  # Use st_intersects to determine which linestrings overlap or touch each other
-  interactions <- st_intersects(df$geometry)
 
-  # Initialize a vector to keep track of which rows (linestrings)
-  # have been processed
-  processed_indices <- rep(FALSE, nrow(df))
-
-  # Begin a loop to go through each linestring in the current group
-  for (i in seq_len(nrow(df))) {
-    # Process the linestring only if it hasn't been processed yet
-    if (!processed_indices[i]) {
-      # Identify other linestrings that intersect or touch the current one
-      connected <- unlist(interactions[i])
-      # Remove the current linestring from the list of connected linestrings
-      connected <- connected[connected != i]
-
-      # If there are connected linestrings, merge them
-      if (length(connected) > 0) {
-        # Merge the current linestring with all connected ones
-        merged_geom <- st_union(df$geometry[c(i, connected)])
-        # Add the merged geometry to the processed data list
-        processed_data[[length(processed_data) + 1]] <-
-          data.frame(name = name,
-                     geometry = merged_geom,
-                     stringsAsFactors = FALSE)
-        # Mark all involved linestrings as processed
-        processed_indices[c(i, connected)] <- TRUE
-      } else {
-        # If there are no connected linestrings, add the
-        # current linestring as is
-        processed_data[[length(processed_data) + 1]] <- df[i, , drop = FALSE]
-      }
-    }
-  }
-}
-
-processed_data <-
-  dplyr::bind_rows(processed_data) %>%
-  mutate(length = st_length(geometry)) %>%
-  st_as_sf(sf_column_name = "geometry") %>%
-  filter(!grepl("milwaukee", name, ignore.case = T))
-
-processed_data_subset_length <-
-  processed_data %>% filter(length > units::set_units(300, "m"))
 
