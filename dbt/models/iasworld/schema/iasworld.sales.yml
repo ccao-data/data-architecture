@@ -29,6 +29,10 @@ sources:
             description: County final date
           - name: cur
             description: '{{ doc("column_cur") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_sales_cur_in_accepted_values
+                  values: ['Y', 'D']
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: deed_ref
@@ -45,6 +49,15 @@ sources:
             description: Document image number for the sale deed
           - name: instrtyp
             description: '{{ doc("shared_column_deed_type") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_sales_instrtyp_in_accepted_values
+                  values: ['01', '02', '03', '04', '05', '06', 'B']
+                  config: &unique-conditions
+                    where: |
+                      substr(saledt, 1, 4) >= '2011'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: instruno
             description: '{{ doc("shared_column_document_number") }}'
           - name: jur
@@ -79,8 +92,22 @@ sources:
             description: Time adjusted sale parent name
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
+            tests:
+              - not_null:
+                  name: iasworld_sales_parid_not_null
+              - relationships:
+                  name: iasworld_sales_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
+                  config: *unique-conditions
           - name: price
             description: '{{ doc("shared_column_sale_price") }}'
+            tests:
+              - dbt_utils.accepted_range:
+                  name: iasworld_sales_price_between_0_and_1B
+                  min_value: 0
+                  max_value: 1000000000
+                  config: *unique-conditions
           - name: recorddt
             description: Recording date
           - name: saledt
@@ -150,5 +177,12 @@ sources:
               combination_of_columns:
                 - parid
                 - instruno
-              config:
-                where: substr(saledt, 1, 4) >= '2023'
+              config: *unique-conditions
+          - expression_is_true:
+              name: iasworld_sales_saledt_lte_now
+              expression: DATE_PARSE(SUBSTR(saledt, 1, 10), '%Y-%m-%d') <= current_date
+              select_columns:
+                - parid
+                - saledt
+                - instruno
+              config: *unique-conditions
