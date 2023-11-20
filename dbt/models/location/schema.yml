@@ -245,7 +245,7 @@ models:
             - year
       # GEOIDs are the correct length
       - column_length:
-          name: location_vw_pin10_location_7_digit_geoids_are_correct_length
+          name: location_vw_pin10_location_7_digit_ids_are_correct_length
           length: 7
           columns:
             - census_place_geoid
