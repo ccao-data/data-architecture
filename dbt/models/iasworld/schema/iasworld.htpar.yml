@@ -287,3 +287,24 @@ sources:
               config:
                 <<: *unique-conditions
                 error_if: ">2"
+          - no_extra_whitespace:
+              name: iasworld_htpar_address_columns_no_whitespace
+              column_names:
+                - own1
+                # - addr1 # almost every value in this field has a trailing space
+                - addr2
+                - addr3
+                - cpaddr1
+                - cpaddr2
+                - cpaddr3
+              has_interior_space: false
+              config: *unique-conditions
+          - expression_is_true:
+              name: iasworld_htpar_cpaddr3_length_lte_5
+              expression: |
+                LENGTH(cpaddr3) = 5
+                OR (LENGTH(cpaddr3) = 10 AND cpaddr3 LIKE '%-%')
+              select_columns:
+                - parid
+                - taxyr
+                - cpaddr3

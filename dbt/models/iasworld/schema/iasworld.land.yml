@@ -271,3 +271,17 @@ sources:
                 - parid
                 - lline
                 - taxyr
+          - row_values_match_after_join:
+              name: iasworld_land_class_matches_pardat_class
+              column: substr(model.class, 1, 1)
+              external_model: source('iasworld', 'pardat')
+              external_column: substr(external_model.class, 1, 1)
+              join_columns:
+                - parid
+                - taxyr
+              config:
+                where: |
+                  taxyr >= '2022'
+                  AND class NOT IN ('EX', 'RR')
+                  AND cur = 'Y'
+                  AND deactivat IS NULL
