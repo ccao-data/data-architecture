@@ -106,7 +106,10 @@ sources:
             description: '{{ doc("column_upd_status") }}'
           - name: val01
             # Test that all val* columns are not negative. Pulled from
-            # Inquire query FP Checklist - Negative ASMT Values, Will C.
+            # the following Inquire queries via Will C:
+            # - FP Checklist - Negative ASMT Values
+            # - FP Checklist - Non-EX, RR parcels with 0 land value
+            # - FP Checklist - Non-EX, RR parcels with 0 value
             tests:
               - dbt_utils.accepted_range: &test-non-negative
                   name: iasworld_asmt_all_val01_gte_0
@@ -118,6 +121,8 @@ sources:
                       AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
                       AND deactivat IS NULL
                       AND valclass IS NULL
+                  tags:
+                    - test_qc_valuations_fp
           - name: val02
             tests:
               - dbt_utils.accepted_range:
