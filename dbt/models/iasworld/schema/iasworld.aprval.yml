@@ -36,7 +36,7 @@ sources:
                   name: iasworld_aprval_aprland_between_0_and_1B
                   min_value: 0
                   max_value: 1000000000
-                  config:
+                  config: &unique-conditions
                     where: cur = 'Y' AND deactivat IS NULL
           - name: aprtot
             description: '{{ doc("column_aprtot") }}'
@@ -45,8 +45,7 @@ sources:
                   name: iasworld_aprval_aprtot_between_0_and_2B
                   min_value: 0
                   max_value: 2000000000
-                  config:
-                    where: cur = 'Y' AND deactivat IS NULL
+                  config: *unique-conditions
           - name: areasum
             description: '{{ doc("column_areasum") }}'
           - name: assmkt
@@ -60,8 +59,7 @@ sources:
                   name: iasworld_aprval_bldgval_between_0_and_1B
                   min_value: 0
                   max_value: 1000000000
-                  config:
-                    where: cur = 'Y' AND deactivat IS NULL
+                  config: *unique-conditions
           - name: comincval
             description: Commercial income value
           - name: commktsf
@@ -147,8 +145,7 @@ sources:
                   name: iasworld_aprval_landval_between_0_and_1B
                   min_value: 0
                   max_value: 1000000000
-                  config:
-                    where: cur = 'Y' AND deactivat IS NULL
+                  config: *unique-conditions
           - name: lastupd
             description: Date of last change to a value field
           - name: mandate
