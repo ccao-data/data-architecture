@@ -27,8 +27,8 @@ library(furrr)
 
 
 
-townshipa <- "South Chicago"
-township <- "South"
+townshipa <- "West Chicago"
+township <- "West"
 
 bbox <- ccao::town_shp %>%
   filter(township_name == townshipa) %>%
@@ -56,7 +56,7 @@ highway_type <- available_tags("highway")
 town_osm <- lapply(highway_type, osm_data)
 
 town_osm_center <- town_osm$Value$osm_lines %>%
-  filter(!highway %in% c("bridleway", "construction", "corridor", "cycleway", "elevator", "service", "services", "steps"))
+  filter(!highway %in% c("bridleway", "construction", "corridor", "cycleway", "elevator", "service", "services", "steps", "platform", "motorway", "motorway_link", "pedestrian", "path"))
 
 
 # Construct the street network
@@ -74,9 +74,18 @@ network <- suppressWarnings({
 })
 
 
+# Assuming 'network' is your sfnetwork
+network_sf <- st_as_sf(network)
+
+# Write to shapefile
+st_write(network_sf, "Base Data/Streets_West_a.shp")
+
+
+ggplot() +
+  geom_sf(data = st_as_sf(town_osm_center), aes(col = highway))
 
 # Parcel data
-parcels <- st_read(
+test1 <- st_read(
   glue::glue(
     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
   )) %>%
@@ -84,13 +93,13 @@ parcels <- st_read(
 
 
 
-parcels <- test1 %>%
+test1 <- parcels %>%
   slice(1:5000)
 
 
 
 # Prepare inputs
-parcels_buffered <- test1 %>%
+parcels_buffered <- parcels %>%
   st_transform(3435) %>%
   st_buffer(dist = units::set_units(5, "m"))
 
@@ -268,9 +277,9 @@ network_trans  <- network %>%
 # dan_func_single_obs(9, parcels %>% st_transform(3435), parcels_buffered, network_trans)
 
 # 
-result <- numeric(nrow(test1))
+result <- numeric(nrow(parcels))
 # 
-for (x in 1:nrow(test1)) {
+for (x in 1:nrow(parcels)) {
   result[x] <- dan_func_single_obs(x, test1 %>% st_transform(3435), parcels_buffered, network_trans)
   cat("Iteration:", x, "/", nrow(test1), "\n")  # Print iteration progress
 }
@@ -293,9 +302,7 @@ ggplot() +
 
 
 # Define the township and file name
-file_name <- paste0(township, "1.shp")
-
-file_name <- paste0(final1, "1.shp")
+file_name <- paste0(township, "1a.shp")
 
 # Specify the directory path
 directory <- "Base Data"
@@ -304,13 +311,13 @@ directory <- "Base Data"
 output_file <- file.path(directory, file_name)
 
 # Create an sf object with your data
-sf_obj <- final1  # Replace `your_sf_object` with your actual sf object
+sf_obj <- as.sf(final1)  # Replace `your_sf_object` with your actual sf object
 
 sf_obj <- sf_obj %>%
   select(pin10, result, geometry)
 
 # Save the complete shapefile
-sf::st_write(final1, output_file, append = FALSE)
+sf::st_write(sf_obj, output_file, append = FALSE)
 
 
 
@@ -381,7 +388,7 @@ ggplot() +
 
 
 # Define the township and file name
-file_name <- paste0(township, "2.shp")
+file_name <- paste0(township, "2a.shp")
 
 # Specify the directory path
 directory <- "Base Data"
@@ -477,7 +484,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "3.shp")
+ file_name <- paste0(township, "3a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -548,7 +555,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "4.shp")
+ file_name <- paste0(township, "4a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -626,7 +633,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "5.shp")
+ file_name <- paste0(township, "5a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -705,7 +712,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "6.shp")
+ file_name <- paste0(township, "6a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -781,7 +788,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "7.shp")
+ file_name <- paste0(township, "7a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -859,7 +866,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "8.shp")
+ file_name <- paste0(township, "8a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -941,7 +948,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "9.shp")
+ file_name <- paste0(township, "9a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -1023,7 +1030,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "10.shp")
+ file_name <- paste0(township, "10a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -1109,7 +1116,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "11.shp")
+ file_name <- paste0(township, "11a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -1189,7 +1196,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "12.shp")
+ file_name <- paste0(township, "12a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -1272,7 +1279,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "13.shp")
+ file_name <- paste0(township, "13a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -1354,7 +1361,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "14.shp")
+ file_name <- paste0(township, "14a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -1434,7 +1441,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "15.shp")
+ file_name <- paste0(township, "15a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -1511,7 +1518,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "16.shp")
+ file_name <- paste0(township, "16a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -1595,7 +1602,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "17.shp")
+ file_name <- paste0(township, "17a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -1678,7 +1685,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "18.shp")
+ file_name <- paste0(township, "18a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -1758,7 +1765,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "19.shp")
+ file_name <- paste0(township, "19a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -1837,7 +1844,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "20.shp")
+ file_name <- paste0(township, "20a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -1915,7 +1922,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "21.shp")
+ file_name <- paste0(township, "21a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -1994,7 +2001,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "22.shp")
+ file_name <- paste0(township, "22a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -2074,7 +2081,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "23.shp")
+ file_name <- paste0(township, "23a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -2154,7 +2161,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "24.shp")
+ file_name <- paste0(township, "24a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -2230,7 +2237,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "25.shp")
+ file_name <- paste0(township, "25a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -2306,7 +2313,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "26.shp")
+ file_name <- paste0(township, "26a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -2385,7 +2392,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "Final.shp")
+ file_name <- paste0(township, "Finala.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -2469,7 +2476,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "28.shp")
+ file_name <- paste0(township, "28a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -2557,7 +2564,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "29.shp")
+ file_name <- paste0(township, "29a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -2645,7 +2652,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "30.shp")
+ file_name <- paste0(township, "30a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -2730,7 +2737,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "31.shp")
+ file_name <- paste0(township, "31a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -2817,7 +2824,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "32.shp")
+ file_name <- paste0(township, "32a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -2902,7 +2909,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "33.shp")
+ file_name <- paste0(township, "33a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -2984,7 +2991,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "34.shp")
+ file_name <- paste0(township, "34a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -3065,7 +3072,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "35.shp")
+ file_name <- paste0(township, "35a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -3149,7 +3156,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "36.shp")
+ file_name <- paste0(township, "36a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -3229,7 +3236,7 @@ sf::st_write(sf_obj, output_file, append = FALSE)
  
  
  # Define the township and file name
- file_name <- paste0(township, "37.shp")
+ file_name <- paste0(township, "37a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
@@ -3304,14 +3311,13 @@ sf::st_write(sf_obj, output_file, append = FALSE)
    geom_sf(data = st_as_sf(network, 'edges'), col = 'green')
  
  
- 
- 
+ Westa <- rbind(final1, final2, final3, final4, final5, final6, final7, final8, final9, final10, final11, final12, final13, final14, final15, final16, final17, final18, final19, final20, final21, final22)
  
  
  
  
  # Define the township and file name
- file_name <- paste0(township, "38.shp")
+ file_name <- paste0(township, "38a.shp")
  
  # Specify the directory path
  directory <- "Base Data"
