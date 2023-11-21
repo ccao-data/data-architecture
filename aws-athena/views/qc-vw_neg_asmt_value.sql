@@ -3,7 +3,8 @@ SELECT
     legdat.parid,
     legdat.user1 AS township_code,
     legdat.taxdist,
-    asmt_all.class,
+    pardat.class AS class,
+    asmt_all.class AS class_asmt_all,
     asmt_all.valclass,
     asmt_all.val01,
     asmt_all.val02,
@@ -72,11 +73,16 @@ SELECT
     asmt_all.valasm2,
     asmt_all.valasm3
 FROM {{ source('iasworld', 'legdat') }} AS legdat
+LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
+    ON legdat.parid = pardat.parid
+    AND legdat.taxyr = pardat.taxyr
 LEFT JOIN {{ source('iasworld', 'asmt_all') }} AS asmt_all
     ON legdat.parid = asmt_all.parid
     AND legdat.taxyr = asmt_all.taxyr
 WHERE legdat.cur = 'Y'
     AND legdat.deactivat IS NULL
+    AND pardat.cur = 'Y'
+    AND pardat.deactivat IS NULL
     AND asmt_all.procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
     AND asmt_all.rolltype != 'RR'
     AND asmt_all.deactivat IS NULL

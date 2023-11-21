@@ -1,6 +1,9 @@
 models:
   - name: qc.vw_neg_asmt_value
     description: '{{ doc("view_vw_neg_asmt_value") }}'
+    config:
+      tags:
+        - test_qc_val_first_pass
     columns:
       - name: val01
         tests:
@@ -338,6 +341,15 @@ models:
           - dbt_utils.accepted_range:
               name: qc_vw_neg_asmt_value_valasm1_gte_0
               <<: *test-non-negative
+          # Equivalent to 0 Land Value test from FP Checklist
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_valasm1_non_ex_rr_gt_0
+              min_value: 0
+              inclusive: false
+              config:
+                where: |
+                  taxyr >= '2023'
+                  AND class NOT IN ('EX', 'RR')
       - name: valasm2
         tests:
           - not_null:
