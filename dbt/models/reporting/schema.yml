@@ -150,7 +150,7 @@ models:
             - parid
             - year
       - expression_is_true:
-          name: vw_top_5_rank_between_1_and_5
+          name: reporting_vw_top_5_rank_between_1_and_5
           expression: rank BETWEEN 1 AND 5
       - expression_is_true:
           name: reporting_vw_top_5_no_nulls
