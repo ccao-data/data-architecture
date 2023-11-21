@@ -12,6 +12,12 @@ sources:
         columns:
           - name: area
             description: '{{ doc("column_area") }}'
+            tests:
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 1500000
+                  config:
+                    where: cur = 'Y' AND deactivat IS NULL
           - name: area_sqm
             description: Area of this line in meters
           - name: areaid
@@ -20,20 +26,43 @@ sources:
             description: '{{ doc("column_areasum") }}'
           - name: card
             description: '{{ doc("column_card") }}'
+            tests:
+              - not_null
+              - dbt_utils.accepted_range:
+                  min_value: 1
           - name: cdu
             description: '{{ doc("column_cdu") }}'
           - name: chgrsn
             description: '{{ doc("column_chgrsn") }}'
           - name: class
             description: '{{ doc("shared_column_class") }}'
+            tests:
+              - relationships:
+                  to: source('ccao', 'class_dict')
+                  field: class_code
+                  config:
+                    where: |
+                      taxyr >= '2022'
+                      AND class != 'EX'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: convaddn
             description: Converted addition total
           - name: cur
             description: '{{ doc("column_cur") }}'
+            tests:
+              - accepted_values:
+                  values: ['Y', 'D']
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: depr
             description: Percent good from tables (based on age+cdu)
+            tests:
+              - dbt_utils.accepted_range:
+                  min_value: 0
+                  max_value: 100
+                  config:
+                    where: cur = 'Y' AND deactivat IS NULL
           - name: eff_area
             description: Support value per line
           - name: effageovr
@@ -64,6 +93,8 @@ sources:
             description: '{{ doc("column_jur") }}'
           - name: lline
             description: '{{ doc("shared_column_lline") }}'
+            tests:
+              - not_null
           - name: lower
             description: Lower level addition code
           - name: mktadj
@@ -82,6 +113,11 @@ sources:
             description: '{{ doc("column_newconpct") }}'
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
+            tests:
+              - not_null
+              - relationships:
+                  to: source('iasworld', 'pardat')
+                  field: parid
           - name: pctcomp
             description: '{{ doc("column_pctcomp") }}'
           - name: prodamage
@@ -126,10 +162,19 @@ sources:
             description: Second floor addition code
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
+            tests:
+              - dbt_utils.sequential_values:
+                  group_by_columns:
+                    - parid
+                    - taxyr
+                    - card
+                    - lline
           - name: status
             description: '{{ doc("column_status") }}'
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
+            tests:
+              - not_null
           - name: third
             description: Third floor addition code
           - name: trans_id
