@@ -19,6 +19,14 @@ sources:
             description: '{{ doc("column_adradd") }}'
           - name: adrdir
             description: '{{ doc("shared_column_prop_address_street_dir") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_legdat_adrdir_in_accepted_values
+                  values: ['N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW']
+                  config: &unique-conditions
+                    where: 
+                      cur = 'Y'
+                      AND deactivat IS NULL 
           - name: adrid
             description: '{{ doc("column_adrid") }}'
           - name: adrno
@@ -55,6 +63,10 @@ sources:
             description: '{{ doc("column_conveyno") }}'
           - name: cur
             description: '{{ doc("column_cur") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_legdat_cur_in_accepted_values
+                  values: ['Y', 'D']
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: floorno
@@ -81,6 +93,13 @@ sources:
             description: Number of lots
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
+            tests:
+              - not_null:
+                  name: iasworld_legdat_parid_not_null
+              - relationships:
+                  name: iasworld_legdat_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
           - name: postalcode
             description: '{{ doc("column_postalcode") }}'
           - name: procdate
@@ -105,6 +124,13 @@ sources:
             description: Consolidated school district value percentage
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
+            tests:
+              - dbt_utils.sequential_values:
+                  name: iasworld_legdat_seq_all_sequential_exist
+                  group_by_columns:
+                    - parid
+                    - taxyr
+                  config: *unique-conditions
           - name: sortkey
             description: Block, lot and qualifier, reformatted for sorting
           - name: splitno
@@ -115,6 +141,11 @@ sources:
             description: Star credit flag
           - name: statecode
             description: '{{ doc("shared_column_prop_address_state") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_legdat_statecode_in_accepted_values
+                  values: ['IL']
+                  config: *unique-conditions
           - name: status
             description: '{{ doc("column_status") }}'
           - name: strcd
@@ -147,6 +178,9 @@ sources:
             description: Tax district 6
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
+            tests:
+              - not_null:
+                  name: iasworld_legdat_taxyr_not_null
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: unitdesc
@@ -157,6 +191,13 @@ sources:
             description: '{{ doc("column_upd_status") }}'
           - name: user1
             description: '{{ doc("shared_column_township_code") }}'
+            tests:
+              - not_null:
+                  name: iasworld_legdat_user1_not_null
+              - relationships:
+                  name: iasworld_legdat_user1_in_spatial_township_township_code
+                  to: source('spatial', 'township')
+                  field: township_code
           - name: wen
             description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
@@ -173,12 +214,57 @@ sources:
             description: Z coordinate
           - name: zip1
             description: '{{ doc("shared_column_prop_address_zipcode_1") }}'
+            tests:
+              - dbt_utils.not_accepted_values:
+                  name: iasworld_legdat_zip1_has_no_00000_values
+                  values: ['00000']
+                  config: *unique-conditions
           - name: zip2
             description: '{{ doc("shared_column_prop_address_zipcode_2") }}'
+            tests:
+              - dbt_utils.not_accepted_values:
+                  name: iasworld_legdat_zip2_has_no_0000_values
+                  values: ['0000']
+                  config: *unique-conditions
 
         tests:
           - unique_combination_of_columns:
-              name: legdat_unique_by_parid_taxyr
+              name: iasworld_legdat_unique_by_parid_taxyr
               combination_of_columns:
                 - parid
                 - taxyr
+          # Not using column_length here because adrno needs to be cast first
+          - expression_is_true:
+              name: iasworld_legdat_adrno_length_lte_5
+              expression: LENGTH(CAST(adrno AS varchar)) <= 5
+              select_columns:
+                - parid
+                - taxyr
+                - adrno
+              config: *unique-conditions
+          - column_length:
+              name: iasworld_legdat_adrsuf_zip1_taxdist_length_lte_5
+              columns:
+                - adrsuf
+                - zip1
+                - taxdist
+              length: 5
+              additional_select_columns:
+                - parid
+                - taxyr
+          - no_extra_whitespace:
+              name: iasworld_legdat_address_columns_no_extra_whitespace
+              column_names:
+                - adrpre
+                - adrdir
+                - adrstr
+                - adrsuf
+                - adrsuf2
+                - unitdesc
+                - unitno
+                - cityname
+                - statecode
+                - zip1
+                - zip2
+              allow_interior_space: true
+              config: *unique-conditions

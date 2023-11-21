@@ -1,19 +1,29 @@
 -- Test that one or more string columns do not contain extraneous whitespace
-{% test no_extra_whitespace(model, column_names) %}
+{% test no_extra_whitespace(model, column_names, allow_interior_space=false) %}
 
     {%- set columns = column_names | join(", ") %}
 
     {%- set conditions_list = [] %}
-    {% for column_name in column_names %}
-        {%- set conditions_list = conditions_list.append(
-            "("
-            + column_name
-            + " like '%  %' or "
-            + column_name
-            + " like '% ' or "
-            + column_name
-            + " like ' %')"
-        ) %}
+    {%- for column_name in column_names %}
+        {%- if allow_interior_space %}
+            {%- set conditions_list = conditions_list.append(
+                "("
+                + column_name
+                + " like '% ' or "
+                + column_name
+                + " like ' %')"
+            ) %}
+        {%- else %}
+            {%- set conditions_list = conditions_list.append(
+                "("
+                + column_name
+                + " like '%  %' or "
+                + column_name
+                + " like '% ' or "
+                + column_name
+                + " like ' %')"
+            ) %}
+        {% endif %}
     {%- endfor %}
     {%- set conditions = conditions_list | join(" or ") %}
 

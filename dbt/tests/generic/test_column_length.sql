@@ -11,14 +11,14 @@
     {%- set columns_csv = additional_select_columns | join(", ") %}
 
     {%- set length_columns = [] %}
-    {% for column in columns %}
+    {%- for column in columns %}
         {%- set length_columns = length_columns.append([column, "len_" + column]) %}
-    {% endfor %}
+    {%- endfor %}
 
     {%- set select_columns = additional_select_columns %}
-    {% set filter_conditions = [] %}
+    {%- set filter_conditions = [] %}
 
-    {% for column, length_column in length_columns %}
+    {%- for column, length_column in length_columns %}
         {%- set select_columns = select_columns.append(
             "length(" + column + ") as " + length_column
         ) %}
@@ -31,7 +31,7 @@
             + length
             | string + ")"
         ) %}
-    {% endfor %}
+    {%- endfor %}
 
     {%- set columns_csv = select_columns | join(", ") %}
     {%- set filter_conditions_str = filter_conditions | join(" or ") %}

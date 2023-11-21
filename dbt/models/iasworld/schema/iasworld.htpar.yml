@@ -65,6 +65,10 @@ sources:
             description: Attorney jurisdiction
           - name: cur
             description: '{{ doc("column_cur") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_htpar_cur_in_accepted_values
+                  values: ['Y', 'D']
           - name: curbldg
             description: Current building value
           - name: curland
@@ -95,6 +99,14 @@ sources:
             description: Hearing reason code
           - name: hrstatus
             description: '{{ doc("shared_column_appeal_status") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_htpar_hrstatus_in_accepted_values
+                  values: ['C', 'O', 'P', 'X']
+                  config: &unique-conditions
+                    where: |
+                      cur = 'Y'
+                      AND deactivat IS NULL
           - name: httimejur
             description: Schedule jurisdiction
           - name: iasw_id
@@ -149,6 +161,13 @@ sources:
             description: Owner phone number
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
+            tests:
+              - not_null:
+                  name: iasworld_htpar_parid_not_null
+              - relationships:
+                  name: iasworld_htpar_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
           - name: petemail
             description: Petitioner email address
           - name: petfax
@@ -203,6 +222,14 @@ sources:
             description: Schedule time
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
+            tests:
+              - dbt_utils.sequential_values:
+                  name: iasworld_htpar_seq_all_sequential_exist
+                  group_by_columns:
+                    - parid
+                    - taxyr
+                    - caseno
+                    - subkey
           - name: status
             description: '{{ doc("column_status") }}'
           - name: stipbldg
@@ -219,6 +246,9 @@ sources:
             description: Unique number to allow multiple hearings per level
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
+            tests:
+              - not_null:
+                  name: iasworld_htpar_taxyr_not_null
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: txpyval
@@ -227,6 +257,11 @@ sources:
             description: '{{ doc("column_upd_status") }}'
           - name: user38
             description: '{{ doc("shared_column_appeal_type") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_htpar_user38_in_accepted_values
+                  values: ['RS', 'IC', 'CC', 'CE', 'CI', 'CO', 'CV', 'IM', 'LD', 'OM', 'RC']
+                  config: *unique-conditions
           - name: user89
             description: '{{ doc("shared_column_reason_code") }}'
           - name: user100
@@ -243,12 +278,33 @@ sources:
 
         tests:
           - unique_combination_of_columns:
-              name: htpar_unique_by_parid_caseno_taxyr_subkey
+              name: iasworld_htpar_unique_by_parid_caseno_taxyr_subkey
               combination_of_columns:
                 - parid
                 - caseno
                 - taxyr
                 - subkey
               config:
-                where: cur = 'Y' and deactivat is null
+                <<: *unique-conditions
                 error_if: ">2"
+          - no_extra_whitespace:
+              name: iasworld_htpar_address_columns_no_whitespace
+              column_names:
+                - own1
+                # - addr1 # almost every value in this field has a trailing space
+                - addr2
+                - addr3
+                - cpaddr1
+                - cpaddr2
+                - cpaddr3
+              allow_interior_space: true
+              config: *unique-conditions
+          - expression_is_true:
+              name: iasworld_htpar_cpaddr3_length_lte_5
+              expression: |
+                LENGTH(cpaddr3) = 5
+                OR (LENGTH(cpaddr3) = 10 AND cpaddr3 LIKE '%-%')
+              select_columns:
+                - parid
+                - taxyr
+                - cpaddr3

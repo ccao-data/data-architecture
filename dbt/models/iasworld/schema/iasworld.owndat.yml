@@ -59,6 +59,10 @@ sources:
             description: '{{ doc("column_country") }}'
           - name: cur
             description: '{{ doc("column_cur") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_owndat_cur_in_accepted_values
+                  values: ['Y', 'D']
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: delinstalltype
@@ -91,6 +95,8 @@ sources:
             description: Code for predefined note
           - name: own1
             description: '{{ doc("shared_column_owner_name") }}'
+
+
           - name: own1_companyname
             description: '{{ doc("column_own1_companyname") }}'
           - name: own1_firstname
@@ -137,6 +143,13 @@ sources:
             description: '{{ doc("column_page") }}'
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
+            tests:
+              - not_null:
+                  name: iasworld_owndat_parid_not_null
+              - relationships:
+                  name: iasworld_owndat_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
           - name: partial
             description: '{{ doc("column_partial") }}'
           - name: pctown
@@ -153,6 +166,16 @@ sources:
             description: '{{ doc("column_salekey") }}'
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
+            tests:
+              - dbt_utils.sequential_values:
+                  name: iasworld_owndat_seq_all_sequential_exist
+                  group_by_columns:
+                    - parid
+                    - taxyr
+                  config: &unique-conditions
+                    where: |
+                      cur = 'Y'
+                      AND deactivat IS NULL
           - name: site
             description: '{{ doc("column_site") }}'
           - name: skip_addr_validation
@@ -185,12 +208,63 @@ sources:
             description: '{{ doc("column_whocalc") }}'
           - name: zip1
             description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
+            tests:
+              - dbt_utils.not_accepted_values:
+                  name: iasworld_owndat_zip1_has_no_00000_values
+                  values: ['00000']
+                  config: *unique-conditions
           - name: zip2
             description: '{{ doc("shared_column_mail_address_zipcode_2") }}'
+            tests:
+              - dbt_utils.not_accepted_values:
+                  name: iasworld_owndat_zip2_has_no_0000_values
+                  values: ['0000']
+                  config: *unique-conditions
 
         tests:
           - unique_combination_of_columns:
-              name: owndat_unique_by_parid_taxyr
+              name: iasworld_owndat_unique_by_parid_taxyr
               combination_of_columns:
                 - parid
                 - taxyr
+          - no_extra_whitespace:
+              name: iasworld_owndat_address_columns_no_extra_whitespace
+              column_names:
+                - own1
+                - own2
+                - addr1
+                - addr2
+                - addr3
+                - addr4
+                - addr5
+                - adrpre
+                - adrdir
+                - adrstr
+                - adrsuf
+                - unitdesc
+                - unitno
+                - cityname
+                - statecode
+                - zip1
+                - zip2
+                - user27
+              allow_interior_space: true
+              config: *unique-conditions
+          - expression_is_true:
+              name: iasworld_owndat_addr1_address_is_well_formed
+              expression: |
+                CASE
+                  WHEN LENGTH(REGEXP_EXTRACT(addr1, '^[N|S|E|W]{0,2}\s{0,1}([0-9]{1,5})',1)) <= 5 THEN TRUE
+                  WHEN REGEXP_LIKE(UPPER(addr1), '^[PO BOX|P\.O\. BOX|P O BOX|BOX|P O BX|PO BX|PO BX|P.O.BOX]') THEN TRUE
+                  WHEN REGEXP_LIKE(UPPER(addr1), '^[C\/O|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE]') THEN TRUE
+                  ELSE FALSE
+                END
+              select_columns:
+                - parid
+                - taxyr
+                - addr1
+              config:
+                where: |
+                  cur = 'Y'
+                  AND deactivat IS NULL
+                  AND addr1 IS NOT NULL

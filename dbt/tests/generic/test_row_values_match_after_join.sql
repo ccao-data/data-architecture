@@ -6,13 +6,25 @@
     model, column, external_model, external_column, join_columns=[]
 ) %}
 
-    {% set join_columns_csv = join_columns | join(", ") %}
+    {%- set join_columns_csv = join_columns | join(", ") -%}
 
-    select {{ join_columns_csv }}
-    from {{ external_model }} as em
-    join {{ model }} as m using ({{ join_columns_csv }})
+    {%- if "." in column -%} {%- set model_col = column -%}
+    {%- else -%} {%- set model_col = "model" ~ "." ~ column -%}
+    {%- endif -%}
+
+    {%- if "." in external_column -%} {%- set external_model_col = external_column -%}
+    {%- else -%}
+        {%- set external_model_col = "external_model" ~ "." ~ external_column -%}
+    {%- endif -%}
+
+    select
+        {{ join_columns_csv }},
+        array_agg({{ model_col }}) as model_col,
+        array_agg({{ external_model_col }}) as external_model_col
+    from {{ external_model }} as external_model
+    join (select * from {{ model }}) as model using ({{ join_columns_csv }})
     group by {{ join_columns_csv }}
     having
-        sum(case when em.{{ external_column }} = m.{{ column }} then 1 else 0 end) = 0
+        sum(case when {{ external_model_col }} = {{ model_col }} then 1 else 0 end) = 0
 
 {% endtest %}

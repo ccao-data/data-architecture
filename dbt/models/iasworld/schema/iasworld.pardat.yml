@@ -69,8 +69,24 @@ sources:
             description: '{{ doc("column_cityname") }}'
           - name: class
             description: '{{ doc("shared_column_class") }}'
+            tests:
+              - relationships:
+                  name: iasworld_pardat_class_in_ccao_class_dict
+                  to: source('ccao', 'class_dict')
+                  field: class_code
+                  config:
+                    where: |
+                      taxyr >= '2022'
+                      AND class NOT IN ('EX', 'RR')
+                      AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: cur
             description: '{{ doc("column_cur") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_pardat_cur_in_accepted_values
+                  values: ['Y', 'D']
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: farminc
@@ -171,6 +187,16 @@ sources:
             description: Security field
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
+            tests:
+              - dbt_utils.sequential_values:
+                  name: iasworld_pardat_seq_all_sequential_exist
+                  group_by_columns:
+                    - parid
+                    - taxyr
+                  config: &unique-conditions
+                    where: |
+                      cur = 'Y'
+                      AND deactivat IS NULL
           - name: skip_addr_validation
             description: '{{ doc("column_skip_addr_validation") }}'
           - name: splitno
@@ -240,7 +266,7 @@ sources:
 
         tests:
           - column_is_subset_of_external_column:
-              name: pardat_nbhd_matches_spatial_town_nbhd
+              name: iasworld_pardat_nbhd_matches_spatial_town_nbhd
               column: nbhd
               external_model: spatial.neighborhood
               external_column: town_nbhd
@@ -250,10 +276,19 @@ sources:
               config:
                 # Codes ending in 999 are dummy codes used for some purpose,
                 # although we do not yet know what it is
-                where: (taxyr between '2010' and '2021') and (nbhd not like '%999')
-                error_if: ">1992"
+                where: |
+                  (taxyr BETWEEN '2010' AND CAST(YEAR(NOW()) AS varchar))
+                  AND (nbhd NOT LIKE '%999')
           - unique_combination_of_columns:
-              name: pardat_unique_by_parid_taxyr
+              name: iasworld_pardat_unique_by_parid_taxyr
               combination_of_columns:
                 - parid
                 - taxyr
+          - expression_is_true:
+              name: iasworld_pardat_adrno_length_lte_5
+              expression: LENGTH(CAST(adrno AS varchar)) <= 5
+              select_columns:
+                - parid
+                - taxyr
+                - adrno
+              config: *unique-conditions
