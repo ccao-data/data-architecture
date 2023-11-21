@@ -45,3 +45,5 @@ models:
       +schema: rpie
     sale:
       +schema: sale
+    qc:
+      +schema: qc
