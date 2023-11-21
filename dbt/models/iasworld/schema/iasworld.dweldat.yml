@@ -3,6 +3,7 @@ sources:
     loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
     tags:
       - load_auto
+      - test_qc_iasworld
       - type_res
 
     tables:
@@ -42,6 +43,20 @@ sources:
             description: '{{ doc("column_areasum") }}'
           - name: attic
             description: '{{ doc("shared_column_char_attic_type") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_attic_not_null
+                  # Excludes non-regression classes, as defined in Assessor's
+                  # online PDF of all class definitions
+                  config: &unique-conditions
+                    where: | 
+                      cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
+              - accepted_values:
+                  name: iasworld_dweldat_attic_in_accepted_values
+                  values: ['1', '2', '3']
+                  config: *unique-conditions
           - name: atticarea
             description: Attic area
           - name: atticval
@@ -60,6 +75,14 @@ sources:
             description: Building use
           - name: bsmt
             description: '{{ doc("shared_column_char_bsmt") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_bsmt_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_bsmt_in_accepted_values
+                  values: ['1', '2', '3', '4']
+                  config: *unique-conditions
           - name: bsmtarea
             description: Unfinished basement area
           - name: bsmtcar
@@ -70,6 +93,12 @@ sources:
             description: Claculated effective year
           - name: card
             description: '{{ doc("column_card") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_card_not_null
+              - dbt_utils.accepted_range:
+                  name: iasworld_dweldat_card_gte_1
+                  min_value: 1
           - name: catharea
             description: Cathedral ceiling area
           - name: cathval
@@ -86,6 +115,17 @@ sources:
             description: '{{ doc("column_chgrsn") }}'
           - name: class
             description: '{{ doc("shared_column_class") }}'
+            tests:
+              - relationships:
+                  name: iasworld_dweldat_class_in_ccao_class_dict
+                  to: source('ccao', 'class_dict')
+                  field: class_code
+                  config:
+                    where: |
+                      taxyr >= '2022'
+                      AND class NOT IN ('EX', 'RR')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: cline
             description: Condominium line
           - name: cndadjval
@@ -116,6 +156,10 @@ sources:
             description: '{{ doc("column_convbldg") }}'
           - name: cur
             description: '{{ doc("column_cur") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_dweldat_cur_in_accepted_values
+                  values: ['Y', 'D']
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: degrem
@@ -154,6 +198,14 @@ sources:
             description: '{{ doc("column_exmpval") }}'
           - name: extwall
             description: '{{ doc("shared_column_char_ext_wall") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_extwall_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_extwall_in_accepted_values
+                  values: ['1', '2', '3', '4']
+                  config: *unique-conditions
           - name: extwall1
             description: Exterior wall code
           - name: extwall1pct
@@ -170,6 +222,15 @@ sources:
             description: Number additional plumbing fixtures
           - name: fixbath
             description: '{{ doc("shared_column_char_fbath") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_fixbath_not_null
+                  config: *unique-conditions
+              - dbt_utils.accepted_range:
+                  name: iasworld_dweldat_fixbath_between_1_and_16
+                  min_value: 1
+                  max_value: 16
+                  config: *unique-conditions
           - name: fixbath1
             description: Number of full bathrooms on the first floor
           - name: fixbath2
@@ -200,6 +261,15 @@ sources:
             description: Number full bathrooms  in upper Floor
           - name: fixhalf
             description: '{{ doc("shared_column_char_hbath") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_fixhalf_not_null
+                  config: *unique-conditions
+              - dbt_utils.accepted_range:
+                  name: iasworld_dweldat_fixhalf_between_0_and_6
+                  min_value: 0
+                  max_value: 6
+                  config: *unique-conditions
           - name: fixhalf1
             description: Number of half baths on the first floor
           - name: fixhalf2
@@ -260,6 +330,14 @@ sources:
             description: '{{ doc("column_grpadj") }}'
           - name: heat
             description: '{{ doc("shared_column_char_heat") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_heat_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_heat_in_accepted_values
+                  values: ['1', '2', '3', '4']
+                  config: *unique-conditions
           - name: heatarea
             description: Heat area
           - name: heatsys
@@ -344,6 +422,13 @@ sources:
             description: '{{ doc("column_ovrrcnld") }}'
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_parid_not_null
+              - relationships:
+                  name: iasworld_dweldat_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
           - name: pctcomplete
             description: Percent of construction completed
           - name: plumbgrade
@@ -402,6 +487,38 @@ sources:
             description: Residential cost model
           - name: rmbed
             description: '{{ doc("shared_column_char_beds") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_rmbed_not_null
+                  config: *unique-conditions
+              - dbt_utils.accepted_range:
+                  name: iasworld_dweldat_rmbed_sf_between_1_and_15
+                  min_value: 1
+                  max_value: 15
+                  config:
+                    where: |
+                      class NOT IN ('211', '212')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+              - dbt_utils.accepted_range:
+                  name: iasworld_dweldat_rmbed_mf_between_1_and_24
+                  min_value: 1
+                  max_value: 24
+                  config:
+                    where: |
+                      class IN ('211', '212')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+              - expression_is_true:
+                  name: iasworld_dweldat_rmbed_lte_rmtot
+                  expression: <= rmtot
+                  select_columns:
+                    - parid
+                    - taxyr
+                    - card
+                    - rmtot
+                    - rmbed
+                  config: *unique-conditions
           - name: rmbed1
             description: Number of bedrooms on the first floor
           - name: rmbed2
@@ -462,12 +579,63 @@ sources:
             description: Number of other rooms in the basement
           - name: rmtot
             description: '{{ doc("shared_column_char_rooms") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_rmtot_not_null
+                  config: *unique-conditions
+              - dbt_utils.accepted_range:
+                  name: iasworld_dweldat_rmtot_sf_between_1_and_40
+                  min_value: 1
+                  max_value: 40
+                  config:
+                    where: |
+                      class NOT IN ('211', '212')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+              - dbt_utils.accepted_range:
+                  name: iasworld_dweldat_rmtot_sf_between_1_and_50
+                  min_value: 1
+                  max_value: 50
+                  config:
+                    where: |
+                      class IN ('211', '212')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: salekey
             description: '{{ doc("column_salekey") }}'
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
+            tests:
+              - dbt_utils.sequential_values:
+                  name: iasworld_dweldat_seq_all_sequential_exist
+                  group_by_columns:
+                    - parid
+                    - taxyr
+                    - card
           - name: sfla
             description: '{{ doc("shared_column_char_bldg_sf") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_sfla_not_null
+                  config: *unique-conditions
+              - dbt_utils.accepted_range:
+                  name: iasworld_dweldat_sfla_sf_between_1_and_10000
+                  min_value: 1
+                  max_value: 10000
+                  config:
+                    where: |
+                      class NOT IN ('208', '209', '211', '212', '236', '297')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+              - dbt_utils.accepted_range:
+                  name: iasworld_dweldat_sfla_mf_between_1_and_20000
+                  min_value: 1
+                  max_value: 20000
+                  config:
+                    where: |
+                      class IN ('208', '209', '211', '212')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: shfact
             description: Story height factor
           - name: sidpct
@@ -486,6 +654,19 @@ sources:
             description: '{{ doc("column_status") }}'
           - name: stories
             description: '{{ doc("shared_column_char_type_resd") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_stories_not_null
+                  config: *unique-conditions
+              - expression_is_true:
+                  name: iasworld_dweldat_stories_in_accepted_values
+                  expression: 'IN (1.00, 2.00, 3.00, 4.00, 5.00, 9.90)'
+                  select_columns:
+                    - parid
+                    - taxyr
+                    - card
+                    - stories
+                  config: *unique-conditions
           - name: style
             description: Architectural style
           - name: subtval
@@ -494,6 +675,9 @@ sources:
             description: '{{ doc("column_suppress") }}'
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_taxyr_not_null
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: trimval
@@ -524,38 +708,163 @@ sources:
             description: '{{ doc("shared_column_char_site") }}'
           - name: user3
             description: '{{ doc("shared_column_char_renovation") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_dweldat_char_renovation_in_accepted_values
+                  values: ['0', '1']
+                  config: *unique-conditions
           - name: user4
             description: '{{ doc("shared_column_char_tp_dsgn") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_tp_dsgn_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_tp_dsgn_in_accepted_values
+                  values: ['0', '1', '2', '3']
+                  config: *unique-conditions
           - name: user5
             description: '{{ doc("shared_column_char_tp_plan") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_tp_plan_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_tp_plan_in_accepted_values
+                  values: ['0', '1', '2']
+                  config: *unique-conditions
           - name: user6
             description: '{{ doc("shared_column_char_attic_fnsh") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_attic_fnsh_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_attic_fnsh_in_accepted_values
+                  values: ['1', '2', '3']
+                  config: *unique-conditions
           - name: user7
             description: '{{ doc("shared_column_char_air") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_air_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_air_accepted_values
+                  values: ['1', '2']
+                  config: *unique-conditions
           - name: user12
             description: '{{ doc("shared_column_char_bsmt_fin") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_bsmt_fin_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_bsmt_fin_accepted_values
+                  values: ['1', '2', '3']
+                  config: *unique-conditions
           - name: user13
             description: '{{ doc("shared_column_char_roof_cnst") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_roof_cnst_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_roof_cnst_accepted_values
+                  values: ['1', '2', '3', '4', '5', '6']
+                  config: *unique-conditions
           - name: user14
             description: '{{ doc("shared_column_char_apts") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_apts_not_null
+                  config:
+                    where: |
+                      class IN ('211', '212')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+              - accepted_values:
+                  name: iasworld_dweldat_char_apts_accepted_values
+                  values: ['1', '2', '3', '4', '5', '6']
+                  config:
+                    where: |
+                      class IN ('211', '212')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: user15
             description: '{{ doc("shared_column_char_use") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_use_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_use_accepted_values
+                  values: ['1', '2']
+                  config: *unique-conditions
           - name: user17
             description: Age. Deprecated, use `yrblt`
           - name: user20
             description: '{{ doc("shared_column_char_ncu") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_ncu_not_null
+                  config: *unique-conditions
           - name: user24
             description: '{{ doc("shared_column_card_proration_rate") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_card_proration_rate_not_null
+                  config: *unique-conditions
           - name: user30
             description: '{{ doc("shared_column_char_porch") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_porch_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_porch_accepted_values
+                  values: ['0', '1', '2']
+                  config: *unique-conditions
           - name: user31
             description: '{{ doc("shared_column_char_gar_att") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_gar_att_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_gar_att_accepted_values
+                  values: ['1', '2']
+                  config: *unique-conditions
           - name: user32
             description: '{{ doc("shared_column_char_gar_area") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_gar_area_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_gar_area_accepted_values
+                  values: ['1', '2']
+                  config: *unique-conditions
           - name: user33
             description: '{{ doc("shared_column_char_gar_size") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_gar_size_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_gar_size_accepted_values
+                  values: ['1', '2', '3', '4', '5', '6', '7', '8']
+                  config: *unique-conditions
           - name: user34
             description: '{{ doc("shared_column_char_gar_cnst") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_gar_cnst_not_null
+                  config: *unique-conditions
+              - accepted_values:
+                  name: iasworld_dweldat_char_gar_cnst_accepted_values
+                  values: ['1', '2', '3', '4']
+                  config: *unique-conditions
           - name: useramt
             description: RCN value of additions
           - name: userfact
@@ -568,6 +877,15 @@ sources:
             description: Wall height factor
           - name: wbfp_o
             description: '{{ doc("shared_column_char_frpl") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_char_frpl_not_null
+                  config: *unique-conditions
+              - dbt_utils.accepted_range:
+                  name: iasworld_dweldat_char_frpl_between_0_and_6
+                  min_value: 0
+                  max_value: 6
+                  config: *unique-conditions
           - name: wbfp_pf
             description: Wood burning fireplace - prefab
           - name: wbfp_pfx
@@ -592,13 +910,53 @@ sources:
             description: Windows year
           - name: yrblt
             description: '{{ doc("shared_column_char_yrblt") }}'
+            tests:
+              - not_null:
+                  name: iasworld_dweldat_yrblt_not_null
+                  config: *unique-conditions
+              - dbt_utils.accepted_range:
+                  name: iasworld_dweldat_yrblt_between_1850_and_now
+                  min_value: 1850
+                  max_value: cast(year(current_date) as decimal)
+                  config: *unique-conditions
           - name: yrremod
             description: Year remodeled
 
         tests:
           - unique_combination_of_columns:
-              name: dweldat_unique_by_parid_card_taxyr
+              name: iasworld_dweldat_unique_by_parid_card_taxyr
               combination_of_columns:
                 - parid
                 - taxyr
                 - card
+          - row_values_match_after_join:
+              name: iasworld_dweldat_class_matches_pardat_class
+              column: class
+              external_model: source('iasworld', 'pardat')
+              external_column: class
+              join_columns:
+                - parid
+                - taxyr
+              config:
+                where: |
+                  taxyr >= '2023'
+                  AND cur = 'Y'
+                  AND deactivat IS NULL
+          - expression_is_true:
+              name: iasworld_dweldat_card_proration_rate_between_0_and_100
+              expression: 'CAST(user24 AS decimal) BETWEEN 0.00 AND 100.00'
+              select_columns:
+                - parid
+                - taxyr
+                - card
+                - user24
+              config: *unique-conditions
+          - expression_is_true:
+              name: iasworld_dweldat_char_ncu_between_0_and_5
+              expression: 'CAST(user20 AS decimal) BETWEEN 0 AND 5'
+              select_columns:
+                - parid
+                - taxyr
+                - card
+                - user20
+              config: *unique-conditions

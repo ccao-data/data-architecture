@@ -3,6 +3,7 @@ sources:
     loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
     tags:
       - load_auto
+      - test_qc_iasworld
       - type_condo
 
     tables:
@@ -20,6 +21,14 @@ sources:
             description: '{{ doc("column_altbasedate") }}'
           - name: area
             description: '{{ doc("column_area") }}'
+            tests:
+              - dbt_utils.accepted_range:
+                  name: iasworld_oby_area_gte_1
+                  min_value: 1
+                  config: &unique-conditions
+                    where: |
+                      cur = 'Y'
+                      AND deactivat IS NULL
           - name: areaid
             description: '{{ doc("column_areaid") }}'
           - name: areasum
@@ -28,6 +37,12 @@ sources:
             description: '{{ doc("column_bld_modelid") }}'
           - name: card
             description: '{{ doc("column_card") }}'
+            tests:
+              - dbt_utils.accepted_range:
+                  name: iasworld_oby_card_between_1_and_100
+                  min_value: 1
+                  max_value: 100
+                  config: *unique-conditions
           - name: cdpct
             description: Cost and design percent
           - name: chgrsn
@@ -56,6 +71,10 @@ sources:
             description: Cubic feet
           - name: cur
             description: '{{ doc("column_cur") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_oby_cur_in_accepted_values
+                  values: ['Y', 'D']
           - name: curmult
             description: Current multiplier
           - name: deactivat
@@ -100,6 +119,12 @@ sources:
             description: Factor used to calculate `RCNADJ`
           - name: lline
             description: '{{ doc("shared_column_lline") }}'
+            tests:
+              - dbt_utils.accepted_range:
+                  name: iasworld_oby_lline_between_1_and_100
+                  min_value: 1
+                  max_value: 100
+                  config: *unique-conditions
           - name: locmult
             description: Local multiplier
           - name: lumpadj
@@ -186,6 +211,14 @@ sources:
             description: '{{ doc("column_salekey") }}'
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
+            tests:
+              - dbt_utils.sequential_values:
+                  name: iasworld_oby_seq_all_sequential_exist
+                  group_by_columns:
+                    - parid
+                    - taxyr
+                    - card
+                    - lline
           - name: status
             description: '{{ doc("column_status") }}'
           - name: stories
@@ -194,6 +227,9 @@ sources:
             description: '{{ doc("column_suppress") }}'
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
+            tests:
+              - not_null:
+                  name: iasworld_oby_taxyr_not_null
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: units
@@ -220,14 +256,36 @@ sources:
             description: '{{ doc("column_whocalc") }}'
           - name: yrblt
             description: '{{ doc("shared_column_char_yrblt") }}'
+            tests:
+              - not_null:
+                  name: iasworld_oby_yrblt_not_null
+                  config: *unique-conditions
+              - dbt_utils.accepted_range:
+                  name: iasworld_oby_yrblt_between_1850_and_now
+                  min_value: 1850
+                  max_value: cast(year(current_date) as decimal)
+                  config: *unique-conditions
           - name: yrrem
             description: Year remodeled
 
         tests:
           - unique_combination_of_columns:
-              name: oby_unique_by_parid_card_lline_taxyr
+              name: iasworld_oby_unique_by_parid_card_lline_taxyr
               combination_of_columns:
                 - parid
                 - card
                 - lline
                 - taxyr
+          - row_values_match_after_join:
+              name: iasworld_oby_class_matches_pardat_class
+              column: substr(model.class, 1, 1)
+              external_model: source('iasworld', 'pardat')
+              external_column: substr(external_model.class, 1, 1)
+              join_columns:
+                - parid
+                - taxyr
+              config:
+                where: |
+                  taxyr >= '2022'
+                  AND cur = 'Y'
+                  AND deactivat IS NULL

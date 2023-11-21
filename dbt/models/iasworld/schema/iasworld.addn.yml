@@ -3,6 +3,7 @@ sources:
     loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
     tags:
       - load_auto
+      - test_qc_iasworld
       - type_res
 
     tables:
@@ -12,6 +13,13 @@ sources:
         columns:
           - name: area
             description: '{{ doc("column_area") }}'
+            tests:
+              - dbt_utils.accepted_range:
+                  name: iasworld_addn_area_between_0_and_1.5M
+                  min_value: 0
+                  max_value: 1500000
+                  config:
+                    where: cur = 'Y' AND deactivat IS NULL
           - name: area_sqm
             description: Area of this line in meters
           - name: areaid
@@ -20,20 +28,48 @@ sources:
             description: '{{ doc("column_areasum") }}'
           - name: card
             description: '{{ doc("column_card") }}'
+            tests:
+              - not_null:
+                  name: iasworld_addn_card_not_null
+              - dbt_utils.accepted_range:
+                  name: iasworld_addn_card_gte_1
+                  min_value: 1
           - name: cdu
             description: '{{ doc("column_cdu") }}'
           - name: chgrsn
             description: '{{ doc("column_chgrsn") }}'
           - name: class
             description: '{{ doc("shared_column_class") }}'
+            tests:
+              - relationships:
+                  name: iasworld_addn_class_in_ccao_class_dict
+                  to: source('ccao', 'class_dict')
+                  field: class_code
+                  config:
+                    where: |
+                      taxyr >= '2022'
+                      AND class != 'EX'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: convaddn
             description: Converted addition total
           - name: cur
             description: '{{ doc("column_cur") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_addn_cur_in_accepted_values
+                  values: ['Y', 'D']
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: depr
             description: Percent good from tables (based on age+cdu)
+            tests:
+              - dbt_utils.accepted_range:
+                  name: iasworld_addn_depr_between_0_and_100
+                  min_value: 0
+                  max_value: 100
+                  config:
+                    where: cur = 'Y' AND deactivat IS NULL
           - name: eff_area
             description: Support value per line
           - name: effageovr
@@ -64,6 +100,9 @@ sources:
             description: '{{ doc("column_jur") }}'
           - name: lline
             description: '{{ doc("shared_column_lline") }}'
+            tests:
+              - not_null:
+                  name: iasworld_addn_lline_not_null
           - name: lower
             description: Lower level addition code
           - name: mktadj
@@ -82,6 +121,13 @@ sources:
             description: '{{ doc("column_newconpct") }}'
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
+            tests:
+              - not_null:
+                  name: iasworld_addn_parid_not_null
+              - relationships:
+                  name: iasworld_addn_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
           - name: pctcomp
             description: '{{ doc("column_pctcomp") }}'
           - name: prodamage
@@ -126,10 +172,21 @@ sources:
             description: Second floor addition code
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
+            tests:
+              - dbt_utils.sequential_values:
+                  name: iasworld_addn_seq_all_sequential_exist
+                  group_by_columns:
+                    - parid
+                    - taxyr
+                    - card
+                    - lline
           - name: status
             description: '{{ doc("column_status") }}'
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
+            tests:
+              - not_null:
+                  name: iasworld_addn_taxyr_not_null
           - name: third
             description: Third floor addition code
           - name: trans_id
@@ -152,9 +209,10 @@ sources:
             description: '{{ doc("column_whocalc") }}'
           - name: yrblt
             description: '{{ doc("column_yrblt") }}'
+
         tests:
           - unique_combination_of_columns:
-              name: addn_unique_by_parid_taxyr_card_lline
+              name: iasworld_addn_unique_by_parid_taxyr_card_lline
               combination_of_columns:
                 - parid
                 - taxyr

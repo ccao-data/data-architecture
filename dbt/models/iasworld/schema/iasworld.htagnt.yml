@@ -3,6 +3,7 @@ sources:
     loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
     tags:
       - load_auto
+      - test_qc_iasworld
 
     tables:
       - name: htagnt
@@ -118,6 +119,6 @@ sources:
 
         tests:
           - unique_combination_of_columns:
-              name: htagnt_unique_by_agent
+              name: iasworld_htagnt_unique_by_agent
               combination_of_columns:
                 - agent

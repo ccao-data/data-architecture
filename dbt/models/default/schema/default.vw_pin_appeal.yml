@@ -45,7 +45,7 @@ models:
     tests:
       # If there is a `change`, the values should reflect this
       - expression_is_true:
-          name: vw_pin_appeal_change_matches_appeal_outcome
+          name: default_vw_pin_appeal_change_matches_appeal_outcome
           expression: >-
             {% set vars = [
               ('mailed_bldg', 'certified_bldg'),
@@ -94,7 +94,7 @@ models:
             error_if: ">266719"
       # `change` should be an enum
       - expression_is_true:
-          name: vw_pin_appeal_no_unexpected_change_values
+          name: default_vw_pin_appeal_no_unexpected_change_values
           expression: change is null or change in ('change', 'no change')
           select_columns:
             - pin

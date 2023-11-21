@@ -38,6 +38,11 @@ Main assessment table, union of `iasworld.asmt` and `iasworld.asmt_hist`.
 Provides the latest assessed value for each PIN and used heavily in
 Data Department views.
 
+### Nuance
+
+- Unlike most `iasworld` tables, this table _does not_ use `cur = 'Y'` to
+  identify the most recent record (it uses `procname` instead).
+
 **Primary Key**: `jur`, `rolltype`, `valclass`, `valyear`, `distcode`,
 `seq` `taxyr`, `parid`, `card`
 {% enddocs %}

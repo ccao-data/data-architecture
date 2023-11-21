@@ -1,5 +1,8 @@
 name: test-dbt-models
 
+# This workflow is not scheduled or run on PRs because it is manually triggered
+# by the Data Department's sqoop data extraction process upon completion. See
+# https://github.com/ccao-data/service-sqoop-iasworld
 on: workflow_dispatch
 
 jobs:
