@@ -95,8 +95,6 @@ sources:
             description: Code for predefined note
           - name: own1
             description: '{{ doc("shared_column_owner_name") }}'
-
-
           - name: own1_companyname
             description: '{{ doc("column_own1_companyname") }}'
           - name: own1_firstname
