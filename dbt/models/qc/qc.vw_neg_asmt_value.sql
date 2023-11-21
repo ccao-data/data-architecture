@@ -1,1 +1,0 @@
-../../../aws-athena/views/qc-vw_neg_asmt_value.sql
