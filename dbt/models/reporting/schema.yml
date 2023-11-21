@@ -5,6 +5,33 @@ sources:
     tables:
       - name: ratio_stats
         description: '{{ doc("table_ratio_stats") }}'
+        tests:
+          - expression_is_true:
+              name: ratio_stats_no_nulls
+              expression: >-
+                year IS NOT NULL
+                  AND triad IS NOT NULL
+                  AND geography_type IS NOT NULL
+                  AND property_group IS NOT NULL
+                  AND assessment_stage IS NOT NULL
+                  AND sale_year IS NOT NULL
+          - expression_is_true:
+              name: ratio_stats_metrics_are_sensible
+              expression: >-
+                cod >= 0
+                  AND prd >= 0
+                  AND prb BETWEEN -1 AND 1
+                  AND mki >= 0
+                  AND triad IS NOT NULL
+                  AND geography_type IS NOT NULL
+                  AND property_group IS NOT NULL
+                  AND assessment_stage IS NOT NULL
+                  AND sale_year IS NOT NULL
+          - expression_is_true:
+              name: ratio_stats_within_directionality
+              expression: >-
+                within_20_pct >= within_10_pct
+                  AND within_10_pct >= within_05_pct
 
 models:
   - name: reporting.res_report_summary
@@ -12,21 +39,142 @@ models:
     config:
       tags:
         - daily
+    tests:
+    - unique_combination_of_columns:
+        name: res_report_summary_unique_by_geography_id_property_group_assessment_stage_year
+        combination_of_columns:
+          - geography_id
+          - property_group
+          - assessment_stage
+          - year
+    - expression_is_true:
+        name: res_report_summary_sale_year_equals_year_minus_one
+        expression: CAST(sale_year AS INTEGER) = CAST(year AS INTEGER) - 1
+        select_columns:
+          - sale_year
+          - year
+    - expression_is_true:
+        name: res_report_summary_no_nulls
+        expression: >-
+          triad IS NOT NULL
+            AND geography_type IS NOT NULL
+            AND property_group IS NOT NULL
+            AND assessment_stage IS NOT NULL
+        select_columns:
+          - triad
+          - geography_type
+          - property_group
+          - assessment_stage
 
   - name: reporting.vw_assessment_roll
     description: '{{ doc("view_vw_assessment_roll") }}'
+    tests:
+      - unique_combination_of_columns:
+          name: vw_assessment_roll_unique_by_year_stage_township_name_class
+          combination_of_columns:
+            - year
+            - stage
+            - township_name
+            - class
+      - expression_is_true:
+          name: vw_assessment_roll_no_nulls
+          expression: >-
+            stage IS NOT NULL
+              AND township_name IS NOT NULL
+              AND triad IS NOT NULL
+              AND class IS NOT NULL
 
   - name: reporting.vw_pin_most_recent_boundary
     description: '{{ doc("view_vw_pin_most_recent_boundary") }}'
+    tests:
+      - unique_combination_of_columns:
+          name: vw_pin_most_recent_boundary_unique_by_pin10_municipality_name
+          combination_of_columns:
+            - pin10
+            - municipality_name
 
   - name: reporting.vw_pin_most_recent_sale
     description: '{{ doc("view_vw_pin_most_recent_sale") }}'
+    tests:
+      - unique_combination_of_columns:
+          name: vw_pin_most_recent_sale_unique_by_pin
+          combination_of_columns:
+            - pin
+      # These two tests make sure that the most recent sale view 1) contains
+      # sales at all and 2) allows in parcels without sales. The most recent
+      # sale view should contain one observation for each parcel in the county
+      # regardless of whether it has recently sold or not.
+      - value_is_present:
+          name: vw_pin_most_recent_sale_null
+          expression: sale_price IS NULL
+      - value_is_present:
+          name: vw_pin_most_recent_sale_not_null
+          expression: sale_price IS NOT NULL
 
   - name: reporting.vw_ratio_stats
     description: '{{ doc("view_vw_ratio_stats") }}'
+    tests:
+      - unique_combination_of_columns:
+          name: vw_ratio_stats_unique_by_pin_year_assessment_stage_sale_price
+          combination_of_columns:
+            - pin
+            - year
+            - assessment_stage
+            - sale_price
+      - expression_is_true:
+          name: vw_ratio_stats_no_nulls
+          expression: >-
+            property_group IS NOT NULL
+              AND assessment_stage IS NOT NULL
+              AND triad IS NOT NULL
+              AND township_code IS NOT NULL
+      - expression_is_true:
+          name: vw_ratio_stats_sale_year_equals_year_minus_one
+          expression: CAST(sale_year AS INTEGER) = CAST(year AS INTEGER) - 1
+          select_columns:
+            - sale_year
+            - year
+      - expression_is_true:
+          name: vw_ratio_stats_ratio_greater_than_zero
+          expression: ratio >= 0
+          select_columns:
+            - ratio
 
   - name: reporting.vw_top_5
     description: '{{ doc("view_vw_top_5") }}'
+    tests:
+      - unique_combination_of_columns:
+          name: vw_top_5_unique_by_rank_parid_year
+          combination_of_columns:
+            - rank
+            - parid
+            - year
+      - expression_is_true:
+          name: vw_top_5_rank_between_1_and_5
+          expression: rank BETWEEN 1 AND 5
+      - expression_is_true:
+          name: vw_top_5_no_nulls
+          expression: >-
+            year IS NOT NULL
+              AND township IS NOT NULL
+              AND class IS NOT NULL
+              AND rank IS NOT NULL
+              AND total_av IS NOT NULL
+              AND stage_used IS NOT NULL
 
   - name: reporting.vw_town_sale_history
     description: '{{ doc("view_vw_town_sale_history") }}'
+    tests:
+      - unique_combination_of_columns:
+          name: vw_town_sale_history_unique_by_geography_id_property_group_sale_year
+          combination_of_columns:
+            - geography_id
+            - property_group
+            - sale_year
+      - expression_is_true:
+          name: vw_town_sale_history_no_nulls
+          expression: >-
+            sale_year IS NOT NULL
+              AND property_group IS NOT NULL
+              AND geography_id IS NOT NULL
+              AND sale_median IS NOT NULL

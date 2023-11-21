@@ -106,7 +106,7 @@ SELECT
     av.total AS fmv,
     vwps.sale_price,
     av.total / vwps.sale_price AS ratio
-FROM {{ ref('default.legacy_vw_pin_sale') }} AS vwps
+FROM {{ ref('default.vw_pin_sale') }} AS vwps
 LEFT JOIN classes
     ON vwps.pin = classes.parid
     AND vwps.year = classes.taxyr
@@ -124,6 +124,9 @@ INNER JOIN all_values AS av
 LEFT JOIN parking_space AS ps
     ON av.parid = ps.pin
     AND av.year = ps.year
-WHERE vwps.is_multisale = FALSE
+WHERE NOT vwps.is_multisale
+    AND NOT vwps.sale_filter_deed_type
+    AND NOT vwps.sale_filter_less_than_10k
+    AND NOT vwps.sale_filter_same_sale_within_365
     AND classes.property_group IS NOT NULL
     AND ps.pin IS NULL

@@ -1,3 +1,54 @@
+## airport_data_year
+
+{% docs column_airport_data_year %}
+Set to year 2019 for all PINs. Note that O'Hare noise predictions 
+are built from O'Hare Modernization Program (OMP) projected values.
+{% enddocs %}
+
+## airport_dnl_midway
+
+{% docs column_airport_dnl_midway %}
+Estimated contribution of Midway airport to PIN noise.
+
+Measured in decibels; to be interpreted as contribution to DNL
+(Day-Night Level) estimate of 24-hour average of decibel level.
+Produced by modeling noise level as inverse-square falloff 
+from a point source at the centroid of the airport.
+{% enddocs %}
+
+## airport_dnl_ohare
+
+{% docs column_airport_dnl_ohare %}
+Estimated contribution of O'Hare airport to PIN noise.
+
+Measured in decibels; to be interpreted as contribution to DNL
+(Day-Night Level) estimate of 24-hour average of decibel level.
+Produced by modeling noise level as inverse-square falloff 
+from a point source at the centroid of the airport.
+{% enddocs %}
+
+## airport_dnl_total
+
+{% docs column_airport_dnl_total %}
+Estimated DNL for a PIN, assuming a baseline DNL of 50 ("quiet suburban") and
+adding predicted noise from O'Hare and Midway airports to that baseline.
+
+For more on DNL, see 
+https://www.faa.gov/regulations_policies/policy_guidance/noise/basics
+{% enddocs %}
+
+## airport_midway_dist_ft
+
+{% docs column_airport_midway_dist_ft %}
+Distance to centroid of Midway airport (feet)
+{% enddocs %}
+
+## airport_ohare_dist_ft
+
+{% docs column_airport_ohare_dist_ft %}
+Distance to centroid of O'Hare airport (feet)
+{% enddocs %}
+
 ## avg_school_rating_in_half_mile
 
 {% docs column_avg_school_rating_in_half_mile %}
