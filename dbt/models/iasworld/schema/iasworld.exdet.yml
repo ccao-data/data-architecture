@@ -3,6 +3,7 @@ sources:
     loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
     tags:
       - load_auto
+      - test_qc_iasworld
 
     tables:
       - name: exdet
