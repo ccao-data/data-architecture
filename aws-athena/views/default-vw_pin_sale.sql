@@ -11,10 +11,10 @@ WITH town_class AS (
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
         ON par.parid = leg.parid
         AND par.taxyr = leg.taxyr
-    WHERE par.cur = 'Y'
-        AND par.deactivat IS NULL
         AND leg.cur = 'Y'
         AND leg.deactivat IS NULL
+    WHERE par.cur = 'Y'
+        AND par.deactivat IS NULL
 ),
 
 -- "nopar" isn't entirely accurate for sales associated with only one parcel,
