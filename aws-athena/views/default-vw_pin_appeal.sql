@@ -1,4 +1,32 @@
 -- View containing appeals by PIN
+WITH htpar AS (
+    SELECT *
+    FROM {{ source('iasworld', 'htpar') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
+),
+
+pardat AS (
+    SELECT *
+    FROM {{ source('iasworld', 'pardat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
+),
+
+legdat AS (
+    SELECT *
+    FROM {{ source('iasworld', 'legdat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
+),
+
+htagnt AS (
+    SELECT *
+    FROM {{ source('iasworld', 'htagnt') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
+)
+
 SELECT
     htpar.parid AS pin,
     pardat.class AS class,
@@ -64,24 +92,16 @@ SELECT
         WHEN htpar.hrstatus = 'P' THEN 'pending'
         WHEN htpar.hrstatus = 'X' THEN 'closed pending c of e'
     END AS status
-FROM {{ source('iasworld', 'htpar') }} AS htpar
-LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
+FROM htpar
+LEFT JOIN pardat
     ON htpar.parid = pardat.parid
     AND htpar.taxyr = pardat.taxyr
-LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
+LEFT JOIN legdat
     ON htpar.parid = legdat.parid
     AND htpar.taxyr = legdat.taxyr
+LEFT JOIN htagnt
+    ON htpar.cpatty = htagnt.agent
 LEFT JOIN {{ ref('default.vw_pin_value') }} AS vwpv
     ON htpar.parid = vwpv.pin
     AND htpar.taxyr = vwpv.year
-LEFT JOIN {{ source('iasworld', 'htagnt') }} AS htagnt
-    ON htpar.cpatty = htagnt.agent
-WHERE htpar.cur = 'Y'
-    AND htpar.caseno IS NOT NULL
-    AND htpar.deactivat IS NULL
-    AND pardat.cur = 'Y'
-    AND pardat.deactivat IS NULL
-    AND legdat.cur = 'Y'
-    AND legdat.deactivat IS NULL
-    AND htagnt.cur = 'Y'
-    AND htagnt.deactivat IS NULL
+WHERE htpar.caseno IS NOT NULL
