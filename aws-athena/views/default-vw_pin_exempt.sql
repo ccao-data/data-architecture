@@ -21,26 +21,27 @@ SELECT
             IGNORE NULLS OVER (PARTITION BY par.parid ORDER BY par.taxyr)
     ) AS lat
 FROM {{ source('iasworld', 'pardat') }} AS par
-LEFT JOIN
-    {{ source('iasworld', 'owndat') }} AS own
-    ON par.parid = own.parid AND par.taxyr = own.taxyr
-LEFT JOIN
-    {{ source('iasworld', 'legdat') }} AS leg
-    ON par.parid = leg.parid AND par.taxyr = leg.taxyr
+LEFT JOIN {{ source('iasworld', 'owndat') }} AS own
+    ON par.parid = own.parid
+    AND par.taxyr = own.taxyr
+    AND own.cur = 'Y'
+    AND own.deactivat IS NULL
+LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
+    ON par.parid = leg.parid
+    AND par.taxyr = leg.taxyr
+    AND leg.cur = 'Y'
+    AND leg.deactivat IS NULL
 LEFT JOIN {{ ref('default.vw_pin_address') }} AS vpa
-    ON par.parid = vpa.pin AND par.taxyr = vpa.year
-LEFT JOIN
-    {{ source('spatial', 'parcel') }} AS parcel
-    ON vpa.pin10 = parcel.pin10 AND vpa.year = parcel.year
+    ON par.parid = vpa.pin
+    AND par.taxyr = vpa.year
+LEFT JOIN {{ source('spatial', 'parcel') }} AS parcel
+    ON vpa.pin10 = parcel.pin10
+    AND vpa.year = parcel.year
 LEFT JOIN {{ source('spatial', 'township') }} AS twn
     ON leg.user1 = CAST(twn.township_code AS VARCHAR)
 WHERE
-    --- This condition is how we determine exempt status, not through class
+    -- This condition is how we determine exempt status, not through class
     own.ownnum IS NOT NULL
     AND par.cur = 'Y'
     AND par.deactivat IS NULL
-    AND own.cur = 'Y'
-    AND own.deactivat IS NULL
-    AND leg.cur = 'Y'
-    AND leg.deactivat IS NULL
     AND par.taxyr >= '2022'

@@ -38,6 +38,8 @@ WITH uni AS (
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
         ON par.parid = leg.parid
         AND par.taxyr = leg.taxyr
+        AND leg.cur = 'Y'
+        AND leg.deactivat IS NULL
     LEFT JOIN {{ source('spatial', 'parcel') }} AS sp
         ON SUBSTR(par.parid, 1, 10) = sp.pin10
         AND par.taxyr = sp.year
@@ -45,8 +47,6 @@ WITH uni AS (
         ON leg.user1 = CAST(twn.township_code AS VARCHAR)
     WHERE par.cur = 'Y'
         AND par.deactivat IS NULL
-        AND leg.cur = 'Y'
-        AND leg.deactivat IS NULL
 ),
 
 acs5 AS (
