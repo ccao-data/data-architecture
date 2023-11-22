@@ -3,6 +3,7 @@ SELECT
     legdat.user1 AS township_code,
     pardat.parid,
     pardat.class,
+    pardat.luc,
     owndat.own1,
     aprval.reascd AS reason_for_change,
     aprval.who,
@@ -19,7 +20,7 @@ SELECT
     asmt.valasm2 AS cur_year_bav,
     asmt.valasm3 AS cur_year_fav
 FROM {{ source('iasworld', 'pardat') }} AS pardat
-LEFT JOIN {{ source('iasworld', 'aprval') }} AS legdat
+LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
     ON pardat.taxyr = legdat.taxyr
     AND pardat.parid = legdat.parid
 LEFT JOIN {{ source('iasworld', 'aprval') }} AS aprval
