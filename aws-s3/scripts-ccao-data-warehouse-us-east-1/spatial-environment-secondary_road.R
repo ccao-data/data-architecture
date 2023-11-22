@@ -155,7 +155,7 @@ for (year in years) {
     # Trim islands
     data_to_write <- component_sizes %>%
       filter(size > 5) %>%
-      mutate(geoemetry_3435 = st_transform(geometry, 3435)) %>%
+      mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
       select(-edge_component, -size)
 
   }
