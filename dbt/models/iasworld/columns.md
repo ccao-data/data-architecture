@@ -881,6 +881,42 @@ Address unit number
 iasWorld update status for this row
 {% enddocs %}
 
+## valapr1
+
+{% docs column_valapr1 %}
+Land market value
+{% enddocs %}
+
+## valapr2
+
+{% docs column_valapr2 %}
+Building market value
+{% enddocs %}
+
+## valapr3
+
+{% docs column_valapr2 %}
+Total market value
+{% enddocs %}
+
+## valasm1
+
+{% docs column_valasm1 %}
+Land assessed value
+{% enddocs %}
+
+## valasm2
+
+{% docs column_valasm2 %}
+Building assessed value
+{% enddocs %}
+
+## valasm3
+
+{% docs column_valasm2 %}
+Total assessed value
+{% enddocs %}
+
 ## valclass
 
 {% docs column_valclass %}

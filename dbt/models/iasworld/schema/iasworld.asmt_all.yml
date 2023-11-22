@@ -105,12 +105,18 @@ sources:
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
+          - name: valapr1
+            description: '{{ doc("column_valapr1") }}'
+          - name: valapr2
+            description: '{{ doc("column_valapr2") }}'
+          - name: valapr3
+            description: '{{ doc("column_valapr3") }}'
           - name: valasm1
-            description: Land assessed value
+            description: '{{ doc("column_valasm1") }}'
           - name: valasm2
-            description: Building assessed value
+            description: '{{ doc("column_valasm2") }}'
           - name: valasm3
-            description: Total assessed value
+            description: '{{ doc("column_valasm3") }}'
           - name: valclass
             description: '{{ doc("column_valclass") }}'
           - name: valtax
