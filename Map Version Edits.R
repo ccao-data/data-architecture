@@ -1,5 +1,3 @@
-
-
 library(osmdata)
 library(tidyverse)
 library(sf)
@@ -225,7 +223,6 @@ dan_func_single_obs <- function(x, parcels_full, parcels_buffered, network) {
     st_intersects(cross_filter$geometry, network)
   ))
   
-
   touching_unit_street <- c(touching_unit_street, rep(list(NULL), 4 - length(touching_unit_street)))
   
   touching_street_number <- sum(lengths(touching_unit_street))
@@ -244,16 +241,27 @@ dan_func_single_obs <- function(x, parcels_full, parcels_buffered, network) {
    
   back_front_indicator <- as.numeric(back_front_indicator)
   
-  if (all(touching_street_number >= 2) & all(cross_corner_number >= 1) & all(aspect_ratio < 30) & back_front_indicator == 0 ){
+  double_road_indicator <- ifelse(
+    touching_street_number > 1 &
+      (is_empty(touching_unit_street[[1]]) & is_empty(touching_unit_street[[2]]) & is_empty(touching_unit_street[[3]])) |
+      (is_empty(touching_unit_street[[2]]) & is_empty(touching_unit_street[[3]]) & is_empty(touching_unit_street[[4]])) |
+      (is_empty(touching_unit_street[[1]]) & is_empty(touching_unit_street[[3]]) & is_empty(touching_unit_street[[4]])) |
+      (is_empty(touching_unit_street[[1]]) & is_empty(touching_unit_street[[2]]) & is_empty(touching_unit_street[[4]])),
+      TRUE,
+    FALSE
+  )
+  
+  double_road_indicator <- as.numeric(double_road_indicator)
+  
+  if (all(touching_street_number >= 2) & all(cross_corner_number >= 1) & all(aspect_ratio < 30) & back_front_indicator == 0 & double_road_indicator == 0){
     return(TRUE)
   } else {
     return(FALSE)
   }
 }
 
-parcels <- parcels %>%
-  filter(pin10 == 3234203005)
-
+# parcels <- parcels %>%
+#   filter(pin10 == 3215301019)
 
 # Assuming your dataset is named 'parcels'
 chunk_size <- 5000

@@ -87,10 +87,6 @@ parcels <- st_read(
   )) %>%
   mutate(id = row_number())
 
-
-parcels <- parcels %>%
-  filter(pin10 == 3206301029)
-
 # Prepare inputs
 parcels_buffered <- parcels %>%
   st_transform(3435) %>%
@@ -103,7 +99,6 @@ network_trans  <- network %>%
   activate("edges") %>%
   st_as_sf() %>%
   st_transform(3435)
-
 
 
 
@@ -176,7 +171,8 @@ dan_func_single_obs <- function(x, parcels_full, parcels_buffered, network) {
     mutate(
       length = st_length(geometry),
       aspect_ratio = as.numeric(lag(length) / length),
-      id = rep(1:(nrow(.) / 4), each = 4)
+      id = rep(1:(nrow(.) / 4), each = 4),
+      branch = rep(1:4, length.out = n())
     ) %>%
     st_transform(3435)
   
@@ -192,7 +188,6 @@ dan_func_single_obs <- function(x, parcels_full, parcels_buffered, network) {
   neighbor_and_touching <- lapply(1:4, function(i) setdiff(intersect(touching_unit[[i]], neighbor_unit[[i]]), x))
   
   # Step 5: Remove the cross segments in the intersection of {cross_touching_unit & neighbor_unit}
-
   
   cross_int <- replace_na(imap_lgl(neighbor_and_touching, function(y, i) {
     as.logical(st_intersects(cross$geometry[i], parcels_full[i, ]))
@@ -224,11 +219,14 @@ dan_func_single_obs <- function(x, parcels_full, parcels_buffered, network) {
     st_transform(3435)
   
   
-  
+  touching_unit_street <- rep(list(NULL), 4)
   
   touching_unit_street <- suppressWarnings(suppressMessages(
     st_intersects(cross_filter$geometry, network)
   ))
+  
+  
+  touching_unit_street <- c(touching_unit_street, rep(list(NULL), 4 - length(touching_unit_street)))
   
   touching_street_number <- sum(lengths(touching_unit_street))
   
@@ -236,17 +234,28 @@ dan_func_single_obs <- function(x, parcels_full, parcels_buffered, network) {
   
   aspect_ratio <- max(cross$aspect_ratio, na.rm = TRUE)
   
+  back_front_indicator <- ifelse(
+    touching_street_number == 2 &
+      (!is_empty(touching_unit_street[[1]]) & !is_empty(touching_unit_street[[3]])) |
+      (touching_street_number == 2 & !is_empty(touching_unit_street[[2]]) & !is_empty(touching_unit_street[[4]])),
+    TRUE,
+    FALSE
+  )
   
+  back_front_indicator <- as.numeric(back_front_indicator)
   
-  if (all(touching_street_number >= 2) & all(cross_corner_number >= 1) & all(aspect_ratio < 30)) {
+  if (all(touching_street_number >= 2) & all(cross_corner_number >= 1) & all(aspect_ratio < 30) & back_front_indicator == 0 ){
     return(TRUE)
   } else {
     return(FALSE)
   }
 }
+# 
+# parcels <- parcels %>%
+#   filter(pin10 == 3206301005)
 
-
-
+parcels <- parcels %<%
+  slice(1:5000)
 # Assuming your dataset is named 'parcels'
 chunk_size <- 5000
 
@@ -281,9 +290,9 @@ final_result <- unlist(results_list)
 final <- cbind(parcels, final_result)
 
 
-file_name <- paste0(townshipa, "_11_20.shp")
+file_name <- paste0(township, "_11_20.shp")
 
-directory <- file.path("Base Data", townshipa)
+directory <- file.path("Base Data", township)
 
 output_file <- file.path(directory, file_name)
 
@@ -297,7 +306,7 @@ if (!dir.exists(directory)) {
 sf::st_write(sf_obj, output_file, append = FALSE)
 
 
-file_name <- paste0(townshipa, "_street.shp")
+file_name <- paste0(township, "_street.shp")
 
 output_file <- file.path(directory, file_name)
 
