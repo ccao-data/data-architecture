@@ -1,4 +1,11 @@
 models:
+  - name: qc.vw_com_class_mismatch
+    description: '{{ doc("view_vw_class_mismatch") }}'
+    config:
+      tags:
+        - test_qc_inquire
+      
+
   - name: qc.vw_incorrect_asmt_value
     description: '{{ doc("view_vw_incorrect_asmt_value") }}'
     config:
