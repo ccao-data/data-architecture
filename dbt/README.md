@@ -128,6 +128,7 @@ Run the following commands in this directory:
 ```
 python3 -m venv venv
 source venv/bin/activate
+pip install -U pip
 pip install -r requirements.txt
 dbt deps
 ```
@@ -256,13 +257,13 @@ dbt test --select default.vw_pin_universe
 Run only one test:
 
 ```
-dbt test --select vw_pin_universe_unique_by_14_digit_pin_and_year
+dbt test --select default_vw_pin_universe_unique_by_14_digit_pin_and_year
 ```
 
 Run a test against the prod models:
 
 ```
-dbt test --select vw_pin_universe_unique_by_14_digit_pin_and_year --target prod
+dbt test --select default_vw_pin_universe_unique_by_14_digit_pin_and_year --target prod
 ```
 
 Run tests for dbt macros:
