@@ -895,7 +895,7 @@ Building market value
 
 ## valapr3
 
-{% docs column_valapr2 %}
+{% docs column_valapr3 %}
 Total market value
 {% enddocs %}
 
@@ -913,7 +913,7 @@ Building assessed value
 
 ## valasm3
 
-{% docs column_valasm2 %}
+{% docs column_valasm3 %}
 Total assessed value
 {% enddocs %}
 
