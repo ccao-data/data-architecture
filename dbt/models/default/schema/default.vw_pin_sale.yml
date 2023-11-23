@@ -74,6 +74,9 @@ models:
             - sale_filter_same_sale_within_365
           config:
             error_if: ">2079"
+      - row_count:
+          name: default_vw_pin_sale_row_count
+          above: 2477674 # as of 2023-11-22
       # TODO: Sale is validated (after sales validation has been added to
       # iasworld)
       # TODO: Validation is catching obvious outliers

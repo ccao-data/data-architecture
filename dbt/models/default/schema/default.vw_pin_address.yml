@@ -70,5 +70,8 @@ models:
           combination_of_columns:
             - pin
             - year
+      - row_count:
+          name: default_vw_pin_address_row_count
+          above: 45079937 # as of 2023-11-22
       # TODO: Mailing address changes after validated sale(?)
       # TODO: Site addresses are all in Cook County

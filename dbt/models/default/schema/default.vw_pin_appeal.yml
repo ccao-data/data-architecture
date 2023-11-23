@@ -101,3 +101,6 @@ models:
             - year
             - case_no
             - change
+      - row_count:
+          name: default_vw_pin_appeal_row_count
+          above: 8407667 # as of 2023-11-22

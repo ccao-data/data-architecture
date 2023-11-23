@@ -74,3 +74,6 @@ models:
           combination_of_columns:
             - pin
             - year
+      - row_count:
+          name: default_vw_pin_history_row_count
+          above: 45079095 # as of 2023-11-22
