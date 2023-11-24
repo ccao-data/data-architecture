@@ -92,12 +92,12 @@ FROM {{ ref('default.vw_pin_value') }} AS vwpv
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     ON vwpv.pin = leg.parid
     AND vwpv.year = leg.taxyr
+    AND leg.cur = 'Y'
+    AND leg.deactivat IS NULL
 LEFT JOIN {{ source('iasworld', 'pardat') }} AS par
     ON vwpv.pin = par.parid
     AND vwpv.year = par.taxyr
-LEFT JOIN {{ source('spatial', 'township') }} AS town
-    ON leg.user1 = town.township_code
-WHERE leg.cur = 'Y'
-    AND leg.deactivat IS NULL
     AND par.cur = 'Y'
     AND par.deactivat IS NULL
+LEFT JOIN {{ source('spatial', 'township') }} AS town
+    ON leg.user1 = town.township_code
