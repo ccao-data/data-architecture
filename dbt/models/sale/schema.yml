@@ -147,6 +147,13 @@ sources:
           - name: short_commit_sha
             description: Short commit SHA of the code used for the model run
 
+        tests:
+          - unique:
+              name: sale_metadata_singular_initial_run
+              column_name: run_id
+              config:
+                where: run_id = 'initial_flagging'
+
       - name: mydec
         description: '{{ doc("mydec") }}'
         tags:
