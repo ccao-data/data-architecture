@@ -17,9 +17,9 @@ SELECT
     cnt_pin_num_school.avg_school_rating_in_half_mile,
     cnt_pin_num_school.num_school_data_year,
     cnt_pin_num_school.num_school_rating_data_year,
-    
+
     dist_pin_to_airport.airport_dnl_total, --new
-    
+
     dist_pin_to_bike_trail.nearest_bike_trail_id,
     dist_pin_to_bike_trail.nearest_bike_trail_name,
     dist_pin_to_bike_trail.nearest_bike_trail_dist_ft,
