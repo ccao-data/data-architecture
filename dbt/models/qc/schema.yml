@@ -1,9 +1,27 @@
 models:
-  - name: qc.vw_com_class_mismatch
+  - name: qc.vw_class_mismatch
     description: '{{ doc("view_vw_class_mismatch") }}'
     config:
       tags:
         - test_qc_inquire
+    tests:
+      - dbt_utils.expression_is_true:
+          name: qc_vw_class_mismatch_comdat_class_eq_pardat_class
+          expression: comdat_class = pardat_class
+          config:
+            where: taxyr >= '2022'
+        # Only match on major class code for the following two tests, since
+        # most of these are minor improvements
+      - dbt_utils.expression_is_true:
+          name: qc_vw_class_mismatch_dweldat_class_eq_pardat_class
+          expression: substr(dweldat_class, 1, 1) = substr(pardat_class, 1, 1)
+          config:
+            where: taxyr >= '2022'
+      - dbt_utils.expression_is_true:
+          name: qc_vw_class_mismatch_oby_class_eq_pardat_class
+          expression: substr(oby_class, 1, 1) = substr(pardat_class, 1, 1)
+          config:
+            where: taxyr >= '2022'
 
   - name: qc.vw_incorrect_asmt_value
     description: '{{ doc("view_vw_incorrect_asmt_value") }}'
