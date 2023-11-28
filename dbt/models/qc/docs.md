@@ -20,6 +20,7 @@ Pulled from the following Inquire queries:
 - `FP Checklist - Vacant Class, bldg value` (#1577) - Will C.
 - `FP Checklist - Improved class, no bldg value` (#1047) - Will C.
 - `FP Checklist - Class does not equal LUC` (#2046) - Will C.
+- `FP Checklist - 500k increase, 1m decrease` (#1673) - Will C.
 {% enddocs %}
 
 # vw_incorrect_val_method
