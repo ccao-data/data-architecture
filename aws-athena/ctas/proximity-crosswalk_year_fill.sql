@@ -20,6 +20,8 @@ WITH unfilled AS (
             AS num_school_data_year,
         MAX(cnt_pin_num_school.num_school_rating_data_year)
             AS num_school_rating_data_year,
+        MAX(dist_pin_to_airport.airport_data_year) --new
+            AS airport_data_year,
         MAX(dist_pin_to_bike_trail.nearest_bike_trail_data_year)
             AS nearest_bike_trail_data_year,
         MAX(dist_pin_to_cemetery.nearest_cemetery_data_year)
@@ -70,6 +72,12 @@ WITH unfilled AS (
             num_school_rating_data_year
         FROM {{ ref('proximity.cnt_pin_num_school') }}
     ) AS cnt_pin_num_school ON pin.year = cnt_pin_num_school.year
+    LEFT JOIN ( --new
+        SELECT DISTINCT
+            year,
+            airport_data_year
+        FROM {{ ref('proximity.dist_pin_to_airport' )}}
+    ) AS dist_pin_to_airport ON pin.year = dist_pin_to_airport.year
     LEFT JOIN (
         SELECT DISTINCT
             year,
@@ -177,6 +185,12 @@ SELECT
             IGNORE NULLS
             OVER (ORDER BY year DESC)
     ) AS num_school_rating_data_year,
+    COALESCE( --new
+        airport_data_year,
+        LAST_VALUE(airport_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY year DESC)
+    ) AS airport_data_year,
     COALESCE(
         nearest_bike_trail_data_year,
         LAST_VALUE(nearest_bike_trail_data_year)

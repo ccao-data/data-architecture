@@ -17,6 +17,8 @@ SELECT
     cnt_pin_num_school.avg_school_rating_in_half_mile,
     cnt_pin_num_school.num_school_data_year,
     cnt_pin_num_school.num_school_rating_data_year,
+    
+    dist_pin_to_airport.airport_dnl_total, --new
 
     dist_pin_to_bike_trail.nearest_bike_trail_id,
     dist_pin_to_bike_trail.nearest_bike_trail_name,
@@ -99,6 +101,10 @@ LEFT JOIN
 LEFT JOIN {{ ref('proximity.cnt_pin_num_school') }} AS cnt_pin_num_school
     ON pin.pin10 = cnt_pin_num_school.pin10
     AND pin.year = cnt_pin_num_school.year
+LEFT JOIN --new
+    {{ ref('proximity.dist_pin_to_airport') }} AS dist_pin_to_airport
+    ON pin.pin10 = dist_pin_to_airport.pin10
+    AND pin.year = dist_pin_to_airpot.year
 LEFT JOIN
     {{ ref('proximity.dist_pin_to_bike_trail') }} AS dist_pin_to_bike_trail
     ON pin.pin10 = dist_pin_to_bike_trail.pin10
