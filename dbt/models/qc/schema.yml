@@ -7,17 +7,17 @@ models:
     tests:
       # NOTE: DWELDAT has its own class mismatch test contained within
       # its schema file
-      - dbt_utils.expression_is_true:
+      - expression_is_true:
           name: qc_vw_class_mismatch_no_289s
           expression: oby_class != '289'
           config:
             where: taxyr >= '2022'
-      - dbt_utils.expression_is_true:
+      - expression_is_true:
           name: qc_vw_class_mismatch_comdat_class_eq_pardat_class
           expression: comdat_class = pardat_class
           config:
             where: taxyr >= '2022'
-      - dbt_utils.expression_is_true:
+      - expression_is_true:
           # Only match on major class code, since
           # most of these are minor improvements
           name: qc_vw_class_mismatch_oby_class_eq_pardat_class
@@ -126,7 +126,7 @@ models:
       - name: revcode
         tests:
           # Equivalent to Res parcels not set to Cost Approach from FP Checklist
-          - dbt_utils.expression_is_true:
+          - expression_is_true:
               name: qc_vw_incorrect_val_method_revcode_eq_1
               expression: IN ('1') AND revcode IS NOT NULL
               config:

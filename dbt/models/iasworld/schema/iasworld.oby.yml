@@ -47,6 +47,15 @@ sources:
             description: Cost and design percent
           - name: chgrsn
             description: '{{ doc("column_chgrsn") }}'
+            tests:
+              - expression_is_true:
+                  name: iasworld_oby_chgrsn_eq_5_mktadj_not_null
+                  expression: |
+                    != '5' OR mktadj IS NOT NULL
+                  config:
+                    where: |
+                      cur = 'Y'
+                      AND taxyr >= '2022'
           - name: class
             description: '{{ doc("shared_column_class") }}'
           - name: cline
@@ -144,7 +153,7 @@ sources:
           - name: miles
             description: Miles for railroads
           - name: mktadj
-            description: Percent good override
+            description: '{{ doc("column_mktadj") }}'
           - name: msclass
             description: Class identifier for Occupancy (CODE) from Marshall Swift
           - name: msrank

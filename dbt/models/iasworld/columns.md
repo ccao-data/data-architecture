@@ -457,6 +457,15 @@ Market modifier lumpsum value
 Marital status
 {% enddocs %}
 
+## mktadj
+
+{% docs column_mktadj %}
+Percent good override.
+
+Typically used to denote a 1-year percentage discount due to vacancy
+or similar temporary situations.
+{% enddocs %}
+
 ## nccalc
 
 {% docs column_nccalc %}

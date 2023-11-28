@@ -379,9 +379,18 @@ sources:
           - name: mgfa
             description: Main section ground floor area
           - name: mktadj
-            description: Override Percent good
+            description: '{{ doc("column_mktadj") }}'
           - name: mktrsn
             description: '{{ doc("column_chgrsn") }}'
+            tests:
+              - expression_is_true:
+                  name: iasworld_dweldat_mktrsn_eq_5_mktadj_not_null
+                  expression: |
+                    != '5' OR mktadj IS NOT NULL
+                  config:
+                    where: |
+                      cur = 'Y'
+                      AND taxyr >= '2022'
           - name: modover
             description: Residential override model
           - name: mvpattic
