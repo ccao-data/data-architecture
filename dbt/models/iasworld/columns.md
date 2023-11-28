@@ -223,7 +223,10 @@ Condition/Desirability/Utility code
 ## chgrsn
 
 {% docs column_chgrsn %}
-Reason code for change of value
+Reason code for change of value.
+
+`4` = Regular reduction (lasts until next triennial reassessment)
+`5` = One year only market value relief (occupancy/vacancy reduction)
 {% enddocs %}
 
 ## cityname
