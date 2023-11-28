@@ -28,6 +28,11 @@ sources:
             description: '{{ doc("column_adrsuf") }}'
           - name: adrsuf2
             description: '{{ doc("column_adrsuf2") }}'
+          - name: note2
+            description: '{{ doc("column_addr") }}'
+            tests:
+              - not_null:
+                  name: iasworld_permit_note2_not_null
           - name: amount
             description: Amount
           - name: certdate

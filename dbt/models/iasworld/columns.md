@@ -4,6 +4,12 @@
 Total acres
 {% enddocs %}
 
+## addr
+
+{% docs column_addr %}
+Full address
+{% enddocs %}
+
 ## addr1
 
 {% docs column_addr1 %}

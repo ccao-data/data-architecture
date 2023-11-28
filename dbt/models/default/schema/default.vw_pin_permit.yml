@@ -1,0 +1,24 @@
+models:
+  - name: default.vw_pin_permit
+    description: '{{ doc("view_vw_pin_permit") }}'
+
+    columns:
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: pin10
+        description: '{{ doc("shared_column_pin10") }}'
+      - name: permit_number
+      - name: local_permit_number
+      - name: issue_date
+        description: Date of permit issuance
+      - name: issue_year
+        description: Year of permit issuance
+      - name: amount
+        description: Permit amount
+      - name: address
+        description: Address where permitted work will take place
+      - name: contact_name
+        description: Name of the person responsible for the permit
+      - name: work_description
+        description: Short description of permitted work
+      - name: user29
