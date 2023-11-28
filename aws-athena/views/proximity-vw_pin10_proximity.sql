@@ -104,7 +104,7 @@ LEFT JOIN {{ ref('proximity.cnt_pin_num_school') }} AS cnt_pin_num_school
 LEFT JOIN --new
     {{ ref('proximity.dist_pin_to_airport') }} AS dist_pin_to_airport
     ON pin.pin10 = dist_pin_to_airport.pin10
-    AND pin.year = dist_pin_to_airpot.year
+    AND pin.year = dist_pin_to_airport.year
 LEFT JOIN
     {{ ref('proximity.dist_pin_to_bike_trail') }} AS dist_pin_to_bike_trail
     ON pin.pin10 = dist_pin_to_bike_trail.pin10
