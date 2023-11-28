@@ -46,7 +46,7 @@ models:
         tests:
           # Equivalent to Vacant Class, bldg value test from FP Checklist
           - expression_is_true:
-              name: qc_vw_incorrect_asmt_value_cur_year_bav_vacnt_class_has_value
+              name: qc_vw_incorrect_asmt_value_cur_year_bav_vact_class_has_value
               expression: '= 0'
               select_columns:
                 - taxyr
