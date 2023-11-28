@@ -19,7 +19,7 @@ SELECT
     num_school_rating.num_school_rating_data_year,
     
     dist_pin_to_airport.airport_ohare_dist_ft, --new
-    dist_pin_to_airport.airport_midway_dist_ft, 
+    dist_pin_to_airport.airport_midway_dist_ft,
     dist_pin_to_airport.airport_dnl_total,
     dist_pin_to_airport.airport_data_year,
 

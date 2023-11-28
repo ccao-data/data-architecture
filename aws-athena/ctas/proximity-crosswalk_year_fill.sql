@@ -76,7 +76,7 @@ WITH unfilled AS (
         SELECT DISTINCT
             year,
             airport_data_year
-        FROM {{ ref('proximity.dist_pin_to_airport' )}}
+        FROM {{ ref('proximity.dist_pin_to_airport' ) }}
     ) AS dist_pin_to_airport ON pin.year = dist_pin_to_airport.year
     LEFT JOIN (
         SELECT DISTINCT
