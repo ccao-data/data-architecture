@@ -23,12 +23,17 @@ FROM {{ source('iasworld', 'pardat') }} AS pardat
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
     ON pardat.taxyr = legdat.taxyr
     AND pardat.parid = legdat.parid
+    AND legdat.cur = 'Y'
+    AND legdat.deactivat IS NULL
 LEFT JOIN {{ source('iasworld', 'aprval') }} AS aprval
     ON pardat.taxyr = aprval.taxyr
     AND pardat.parid = aprval.parid
+    AND aprval.cur = 'Y'
+    AND aprval.deactivat IS NULL
 LEFT JOIN {{ source('iasworld', 'owndat') }} AS owndat
     ON pardat.taxyr = owndat.taxyr
     AND pardat.parid = owndat.parid
+    AND owndat.cur = 'Y'
 LEFT JOIN (
     -- This is intended to replicate the ASMT table since we don't
     -- actually have access to it and ASMT_ALL is just the union of
@@ -41,19 +46,14 @@ LEFT JOIN (
 ) AS asmt
     ON legdat.taxyr = asmt.taxyr
     AND legdat.parid = asmt.parid
+    AND asmt.cur = 'Y'
+    AND asmt.valclass IS NULL
 LEFT JOIN {{ source('iasworld', 'asmt_all') }} AS asmt_all
     -- Join the prior year's ASMT_ALL values
     ON asmt.taxyr = CAST(CAST(asmt_all.taxyr AS INT) + 1 AS VARCHAR)
     AND asmt.parid = asmt_all.parid
     AND asmt.rolltype = asmt_all.rolltype
-WHERE pardat.cur = 'Y'
-    AND pardat.deactivat IS NULL
-    AND legdat.cur = 'Y'
-    AND legdat.deactivat IS NULL
-    AND aprval.cur = 'Y'
-    AND aprval.deactivat IS NULL
-    AND owndat.cur = 'Y'
-    AND asmt.cur = 'Y'
-    AND asmt.valclass IS NULL
     AND asmt_all.cur = 'Y'
     AND asmt_all.valclass IS NULL
+WHERE pardat.cur = 'Y'
+    AND pardat.deactivat IS NULL

@@ -84,7 +84,7 @@ FROM (
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
     ON asmt.taxyr = legdat.taxyr
     AND asmt.parid = legdat.parid
-WHERE asmt.cur = 'Y'
-    AND asmt.deactivat IS NULL
     AND legdat.cur = 'Y'
     AND legdat.deactivat IS NULL
+WHERE asmt.cur = 'Y'
+    AND asmt.deactivat IS NULL
