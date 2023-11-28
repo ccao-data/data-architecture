@@ -5,19 +5,21 @@ models:
       tags:
         - test_qc_inquire
     tests:
+      # NOTE: DWELDAT has its own class mismatch test contained within
+      # its schema file
+      - dbt_utils.expression_is_true:
+          name: qc_vw_class_mismatch_no_289s
+          expression: oby_class != '289'
+          config:
+            where: taxyr >= '2022'
       - dbt_utils.expression_is_true:
           name: qc_vw_class_mismatch_comdat_class_eq_pardat_class
           expression: comdat_class = pardat_class
           config:
             where: taxyr >= '2022'
-        # Only match on major class code for the following two tests, since
-        # most of these are minor improvements
       - dbt_utils.expression_is_true:
-          name: qc_vw_class_mismatch_dweldat_class_eq_pardat_class
-          expression: substr(dweldat_class, 1, 1) = substr(pardat_class, 1, 1)
-          config:
-            where: taxyr >= '2022'
-      - dbt_utils.expression_is_true:
+          # Only match on major class code, since
+          # most of these are minor improvements
           name: qc_vw_class_mismatch_oby_class_eq_pardat_class
           expression: substr(oby_class, 1, 1) = substr(pardat_class, 1, 1)
           config:
@@ -103,6 +105,17 @@ models:
               expression: '= luc'
               config:
                 where: taxyr >= '2023'
+    tests:
+      - dbt_utils.expression_is_true:
+          name: qc_vw_incorrect_asmt_value_no_yoy_inc_gt_500K
+          expression: (cur_year_fmv - pri_year_fmv) <= 500000
+          config:
+            where: taxyr >= '2023'
+      - dbt_utils.expression_is_true:
+          name: qc_vw_incorrect_asmt_value_no_yoy_dec_gt_1M
+          expression: (cur_year_fmv - pri_year_fmv) >= -1000000
+          config:
+            where: taxyr >= '2023'
 
   - name: qc.vw_incorrect_val_method
     description: '{{ doc("view_vw_incorrect_val_method") }}'
