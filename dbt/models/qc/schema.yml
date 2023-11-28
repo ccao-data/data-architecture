@@ -1,0 +1,493 @@
+models:
+  - name: qc.vw_class_mismatch
+    description: '{{ doc("view_vw_class_mismatch") }}'
+    config:
+      tags:
+        - test_qc_inquire
+    tests:
+      # NOTE: DWELDAT has its own class mismatch test contained within
+      # its schema file
+      - expression_is_true:
+          name: qc_vw_class_mismatch_no_289s
+          expression: oby_class != '289'
+          config:
+            where: taxyr >= '2022'
+      - expression_is_true:
+          name: qc_vw_class_mismatch_comdat_class_eq_pardat_class
+          expression: comdat_class = pardat_class
+          config:
+            where: taxyr >= '2022'
+      - expression_is_true:
+          # Only match on major class code, since
+          # most of these are minor improvements
+          name: qc_vw_class_mismatch_oby_class_eq_pardat_class
+          expression: substr(oby_class, 1, 1) = substr(pardat_class, 1, 1)
+          config:
+            where: taxyr >= '2022'
+
+  - name: qc.vw_incorrect_asmt_value
+    description: '{{ doc("view_vw_incorrect_asmt_value") }}'
+    config:
+      tags:
+        - test_qc_inquire
+    columns:
+      - name: cur_year_lav
+        tests:
+          # Equivalent to 0 Land Value test from FP Checklist
+          - dbt_utils.accepted_range:
+              name: qc_vw_incorrect_asmt_value_cur_year_lav_non_ex_rr_gt_0
+              min_value: 0
+              inclusive: false
+              config:
+                where: |
+                  taxyr >= '2023'
+                  AND class NOT IN ('EX', 'RR')
+      - name: cur_year_bav
+        tests:
+          # Equivalent to Vacant Class, bldg value test from FP Checklist
+          - expression_is_true:
+              name: qc_vw_incorrect_asmt_value_cur_year_bav_vact_class_has_value
+              expression: '= 0'
+              select_columns:
+                - taxyr
+                - parid
+                - class
+                - cur_year_lav
+                - cur_year_bav
+                - cur_year_fav
+              config:
+                where: |
+                  taxyr >= '2023'
+                  AND class IN (
+                    '100', '200', '239', '240', '241', '300', '400', '500',
+                    '535', '550', '637', '637A', '637B', '650', '651', '651A',
+                    '651B', '700', '700A', '700B', '742', '742A', '742B',
+                    '800', '800A', '800B', '850', '850A', '850B', '900', 
+                    '999', 'EX', 'RR'
+                  )
+          # Equivalent to Improved class, no bldg value from FP Checklist
+          - expression_is_true:
+              name: qc_vw_incorrect_asmt_value_cur_year_bav_impr_class_no_value
+              expression: '!= 0'
+              select_columns:
+                - taxyr
+                - parid
+                - class
+                - cur_year_lav
+                - cur_year_bav
+                - cur_year_fav
+              config:
+                where: |
+                  taxyr >= '2023'
+                  AND class NOT IN (
+                    '100', '200', '239', '240', '241', '300', '400', '500',
+                    '535', '550', '637', '637A', '637B', '650', '651', '651A',
+                    '651B', '700', '700A', '700B', '742', '742A', '742B',
+                    '800', '800A', '800B', '850', '850A', '850B', '900', 
+                    '999', 'EX', 'RR'
+                  )
+      - name: cur_year_fav
+        tests:
+          # Equivalent to 0 Value test from FP Checklist
+          - dbt_utils.accepted_range:
+              name: qc_vw_incorrect_asmt_value_cur_year_fav_non_ex_rr_gt_0
+              min_value: 0
+              inclusive: false
+              config:
+                where: |
+                  taxyr >= '2023'
+                  AND class NOT IN ('EX', 'RR')
+      - name: class
+        tests:
+          # Equivalent to Class does not equal LUC from FP Checklist
+          - dbt_utils.expression_is_true:
+              name: qc_vw_incorrect_asmt_value_class_equals_luc
+              expression: '= luc'
+              config:
+                where: taxyr >= '2023'
+    tests:
+      - dbt_utils.expression_is_true:
+          name: qc_vw_incorrect_asmt_value_no_yoy_inc_gt_500K
+          expression: (cur_year_fmv - pri_year_fmv) <= 500000
+          config:
+            where: taxyr >= '2023'
+      - dbt_utils.expression_is_true:
+          name: qc_vw_incorrect_asmt_value_no_yoy_dec_gt_1M
+          expression: (cur_year_fmv - pri_year_fmv) >= -1000000
+          config:
+            where: taxyr >= '2023'
+
+  - name: qc.vw_incorrect_val_method
+    description: '{{ doc("view_vw_incorrect_val_method") }}'
+    config:
+      tags:
+        - test_qc_inquire
+    columns:
+      - name: revcode
+        tests:
+          # Equivalent to Res parcels not set to Cost Approach from FP Checklist
+          - expression_is_true:
+              name: qc_vw_incorrect_val_method_revcode_eq_1
+              expression: IN ('1') AND revcode IS NOT NULL
+              config:
+                where: |
+                  taxyr >= '2023'
+                  AND class LIKE '2%'
+
+  - name: qc.vw_neg_asmt_value
+    description: '{{ doc("view_vw_neg_asmt_value") }}'
+    config:
+      tags:
+        - test_qc_inquire
+    columns:
+      - name: val01
+        tests:
+          - dbt_utils.accepted_range: &test-non-negative
+              name: qc_vw_neg_asmt_value_val01_gte_0
+              min_value: 0
+              config:
+                where: taxyr >= '2023'
+      - name: val02
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val02_gte_0
+              <<: *test-non-negative
+      - name: val03
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val03_gte_0
+              <<: *test-non-negative
+      - name: val04
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val04_gte_0
+              <<: *test-non-negative
+      - name: val05
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val05_gte_0
+              <<: *test-non-negative
+      - name: val06
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val06_gte_0
+              <<: *test-non-negative
+      - name: val07
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val07_gte_0
+              <<: *test-non-negative
+      - name: val08
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val08_gte_0
+              <<: *test-non-negative
+      - name: val09
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val09_gte_0
+              <<: *test-non-negative
+      - name: val10
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val10_gte_0
+              <<: *test-non-negative
+      - name: val11
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val11_gte_0
+              <<: *test-non-negative
+      - name: val12
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val12_gte_0
+              <<: *test-non-negative
+      - name: val13
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val13_gte_0
+              <<: *test-non-negative
+      - name: val14
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val14_gte_0
+              <<: *test-non-negative
+      - name: val15
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val15_gte_0
+              <<: *test-non-negative
+      - name: val16
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val16_gte_0
+              <<: *test-non-negative
+      - name: val17
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val17_gte_0
+              <<: *test-non-negative
+      - name: val18
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val18_gte_0
+              <<: *test-non-negative
+      - name: val19
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val19_gte_0
+              <<: *test-non-negative
+      - name: val20
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val20_gte_0
+              <<: *test-non-negative
+      - name: val21
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val21_gte_0
+              <<: *test-non-negative
+      - name: val22
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val22_gte_0
+              <<: *test-non-negative
+      - name: val23
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val23_gte_0
+              <<: *test-non-negative
+      - name: val24
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val24_gte_0
+              <<: *test-non-negative
+      - name: val25
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val25_gte_0
+              <<: *test-non-negative
+      - name: val26
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val26_gte_0
+              <<: *test-non-negative
+      - name: val27
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val27_gte_0
+              <<: *test-non-negative
+      - name: val28
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val28_gte_0
+              <<: *test-non-negative
+      - name: val29
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val29_gte_0
+              <<: *test-non-negative
+      - name: val30
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val30_gte_0
+              <<: *test-non-negative
+      - name: val31
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val31_gte_0
+              <<: *test-non-negative
+      - name: val32
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val32_gte_0
+              <<: *test-non-negative
+      - name: val33
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val33_gte_0
+              <<: *test-non-negative
+      - name: val34
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val34_gte_0
+              <<: *test-non-negative
+      - name: val35
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val35_gte_0
+              <<: *test-non-negative
+      - name: val36
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val36_gte_0
+              <<: *test-non-negative
+      - name: val37
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val37_gte_0
+              <<: *test-non-negative
+      - name: val38
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val38_gte_0
+              <<: *test-non-negative
+      - name: val39
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val39_gte_0
+              <<: *test-non-negative
+      - name: val40
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val40_gte_0
+              <<: *test-non-negative
+      - name: val41
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val41_gte_0
+              <<: *test-non-negative
+      - name: val42
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val42_gte_0
+              <<: *test-non-negative
+      - name: val43
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val43_gte_0
+              <<: *test-non-negative
+      - name: val44
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val44_gte_0
+              <<: *test-non-negative
+      - name: val45
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val45_gte_0
+              <<: *test-non-negative
+      - name: val46
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val46_gte_0
+              <<: *test-non-negative
+      - name: val47
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val47_gte_0
+              <<: *test-non-negative
+      - name: val48
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val48_gte_0
+              <<: *test-non-negative
+      - name: val49
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val49_gte_0
+              <<: *test-non-negative
+      - name: val50
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val50_gte_0
+              <<: *test-non-negative
+      - name: val51
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val51_gte_0
+              <<: *test-non-negative
+      - name: val52
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val52_gte_0
+              <<: *test-non-negative
+      - name: val53
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val53_gte_0
+              <<: *test-non-negative
+      - name: val54
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val54_gte_0
+              <<: *test-non-negative
+      - name: val55
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val55_gte_0
+              <<: *test-non-negative
+      - name: val56
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val56_gte_0
+              <<: *test-non-negative
+      - name: val57
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val57_gte_0
+              <<: *test-non-negative
+      - name: val58
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val58_gte_0
+              <<: *test-non-negative
+      - name: val59
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val59_gte_0
+              <<: *test-non-negative
+      - name: val60
+        tests:
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_val60_gte_0
+              <<: *test-non-negative
+      - name: valapr1
+        tests:
+          - not_null: &test-val-non-null
+              name: qc_vw_neg_asmt_value_valapr1_not_null
+              config:
+                where: taxyr >= '2023'
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_valapr1_gte_0
+              <<: *test-non-negative
+      - name: valapr2
+        tests:
+          - not_null:
+              name: qc_vw_neg_asmt_value_valapr2_not_null
+              <<: *test-val-non-null
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_valapr2_gte_0
+              <<: *test-non-negative
+      - name: valapr3
+        tests:
+          - not_null:
+              name: qc_vw_neg_asmt_value_valapr3_not_null
+              <<: *test-val-non-null
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_valapr3_gte_0
+              <<: *test-non-negative
+      - name: valasm1
+        tests:
+          - not_null:
+              name: qc_vw_neg_asmt_value_valasm1_not_null
+              <<: *test-val-non-null
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_valasm1_gte_0
+              <<: *test-non-negative
+      - name: valasm2
+        tests:
+          - not_null:
+              name: qc_vw_neg_asmt_value_valasm2_not_null
+              <<: *test-val-non-null
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_valasm2_gte_0
+              <<: *test-non-negative
+      - name: valasm3
+        tests:
+          - not_null:
+              name: qc_vw_neg_asmt_value_valasm3_not_null
+              <<: *test-val-non-null
+          - dbt_utils.accepted_range:
+              name: qc_vw_neg_asmt_value_valasm3_gte_0
+              <<: *test-non-negative

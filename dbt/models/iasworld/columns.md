@@ -223,7 +223,10 @@ Condition/Desirability/Utility code
 ## chgrsn
 
 {% docs column_chgrsn %}
-Reason code for change of value
+Reason code for change of value.
+
+`4` = Regular reduction (lasts until next triennial reassessment)
+`5` = One year only market value relief (occupancy/vacancy reduction)
 {% enddocs %}
 
 ## cityname
@@ -452,6 +455,15 @@ Market modifier lumpsum value
 
 {% docs column_marstat %}
 Marital status
+{% enddocs %}
+
+## mktadj
+
+{% docs column_mktadj %}
+Percent good override.
+
+Typically used to denote a 1-year percentage discount due to vacancy
+or similar temporary situations.
 {% enddocs %}
 
 ## nccalc
@@ -879,6 +891,42 @@ Address unit number
 
 {% docs column_upd_status %}
 iasWorld update status for this row
+{% enddocs %}
+
+## valapr1
+
+{% docs column_valapr1 %}
+Land market value
+{% enddocs %}
+
+## valapr2
+
+{% docs column_valapr2 %}
+Building market value
+{% enddocs %}
+
+## valapr3
+
+{% docs column_valapr3 %}
+Total market value
+{% enddocs %}
+
+## valasm1
+
+{% docs column_valasm1 %}
+Land assessed value
+{% enddocs %}
+
+## valasm2
+
+{% docs column_valasm2 %}
+Building assessed value
+{% enddocs %}
+
+## valasm3
+
+{% docs column_valasm3 %}
+Total assessed value
 {% enddocs %}
 
 ## valclass

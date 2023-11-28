@@ -1,0 +1,1 @@
+../../../aws-athena/views/qc-vw_incorrect_asmt_value.sql
