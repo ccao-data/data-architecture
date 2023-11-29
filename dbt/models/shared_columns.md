@@ -4,6 +4,11 @@
 
 {% docs shared_column_mail_address_city_name %}
 City name of owner/taxpayer mailing address
+:::caution
+
+Stale since 2017
+
+:::
 {% enddocs %}
 
 ## mail_address_full
@@ -14,42 +19,77 @@ First line (no city, state, ZIP) of owner/taxpayer mailing address.
 Concatenated from other columns in the following order: `street_prefix`
 `street_number` `street_direction` `street_name` `street_suffix`
 `unit_prefix` `unit_number`
+:::caution
+
+Stale since 2017
+
+:::
 {% enddocs %}
 
 ## mail_address_name
 
 {% docs shared_column_mail_address_name %}
 Full name (single unsplit string) of owner/taxpayer mailing address
+:::caution
+
+Stale since 2017
+
+:::
 {% enddocs %}
 
 ## mail_address_state
 
 {% docs shared_column_mail_address_state %}
 State abbreviation of owner/taxpayer mailing address
+:::caution
+
+Stale since 2017
+
+:::
 {% enddocs %}
 
 ## mail_address_zipcode_1
 
 {% docs shared_column_mail_address_zipcode_1 %}
 ZIP code (first 5 digits) of owner/taxpayer mailing address
+:::caution
+
+Stale since 2017
+
+:::
 {% enddocs %}
 
 ## mail_address_zipcode_2
 
 {% docs shared_column_mail_address_zipcode_2 %}
 ZIP code (last 4 digits) of owner/taxpayer mailing address
+:::caution
+
+Stale since 2017
+
+:::
 {% enddocs %}
 
 ## owner_name
 
 {% docs shared_column_owner_name %}
 Property owner name
+:::caution
+
+Stale since 2017
+
+:::
 {% enddocs %}
 
 ## owner_num
 
 {% docs shared_column_owner_num %}
 Property owner internal iasWorld number
+:::caution
+
+Stale since 2017
+
+:::
 {% enddocs %}
 
 ## prop_address_city_name
