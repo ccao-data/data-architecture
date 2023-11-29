@@ -11,7 +11,7 @@
 SELECT
     pcl.pin10,
     ARBITRARY(xy.osm_id) AS nearest_secondary_road_osm_id,
-    ARBITRARY(xy.name) AS nearest_major_secondary_name,
+    ARBITRARY(xy.name) AS nearest_secondary_road_name,
     ARBITRARY(xy.dist_ft) AS nearest_secondary_road_dist_ft,
     ARBITRARY(xy.year) AS nearest_secondary_road_data_year,
     pcl.year
