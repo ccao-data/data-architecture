@@ -121,7 +121,7 @@ for (year in years) {
     # Use networks to trim remaining islands
     # presumably resulting from OSM tag mismatches
     # - - - - - - - - - - - - - -
-    dedup_network <- dedup_data %>% as_sfnetwork(directed=F)
+    dedup_network <- dedup_data %>% as_sfnetwork(directed = FALSE)
 
     # Identify connected components in the network
     network <- dedup_network %>%
