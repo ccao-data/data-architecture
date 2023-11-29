@@ -53,7 +53,7 @@ for (year in years) {
 
     data_to_write <- current_data
   } else {
-    # Major roads data path from 1 year before
+    # Major roads data path from 1 year before and after
     ingest_file_major_prior <- file.path(
       AWS_S3_WAREHOUSE_BUCKET, "spatial",
       "environment", "major_road",
@@ -66,7 +66,7 @@ for (year in years) {
       paste0("year=", year),
       paste0("major_road-", year, ".parquet"))
 
-    # Ingest Major roads data for the prior year
+    # Ingest Major roads data for the prior and current year
     major_roads_prior <- read_geoparquet_sf(ingest_file_major_prior)
     major_roads_current <- read_geoparquet_sf(ingest_file_major_current)
 
