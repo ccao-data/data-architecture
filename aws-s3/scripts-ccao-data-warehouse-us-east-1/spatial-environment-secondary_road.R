@@ -153,10 +153,15 @@ for (year in years) {
       summarise(size = n())
 
     # Trim islands
-    data_to_write <- component_sizes %>%
+    trimmed_data <- component_sizes %>%
       filter(size > 5) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
       select(-edge_component, -size)
+
+    # Union and intersect to restore original format
+    data_to_write <- dedup_data %>%
+      st_intersection(st_union(trimmed_data)) %>%
+      mutate(geometry = st_transform(geometry_3435, 4326))
 
   }
 
@@ -168,25 +173,5 @@ for (year in years) {
     paste0("secondary_road-", year, ".parquet")
   )
 
-  #geoarrow::write_geoparquet(data_to_write, output_file)
+  geoarrow::write_geoparquet(data_to_write, output_file)
 }
-
-
-intersected_data <- st_intersection(dedup_data, data_to_write)
-
-intersected_data_cast <- st_cast(intersected_data, "MULTIPOLYGON")
-
-
-
-
-
-# # Create an interactive map
-leaflet() %>%
-  addTiles() %>%
-  addPolylines(data = intersected_data,
-               color = "blue",
-               weight = 2,
-               opacity = 1.0) %>%
-  setView(lng = -87.6298, lat = 41.8781, zoom = 10)
-
-
