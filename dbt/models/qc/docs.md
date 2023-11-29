@@ -42,3 +42,10 @@ Pulled from the following Inquire queries:
 
 - `FP Checklist - Negative ASMT Values` (#1569) - Will C.
 {% enddocs %}
+
+# view_vw_iasworld_sales_null_values
+
+{% docs view_vw_iasworld_sales_null_values %}
+Test that deed, buyer, seller, and price `ias.sale*` columns are not null.
+
+{% enddocs %}

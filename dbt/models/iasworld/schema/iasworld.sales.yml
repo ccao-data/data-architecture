@@ -187,3 +187,7 @@ sources:
                 - saledt
                 - instruno
               config: *unique-conditions
+          - dbt_utils.equal_rowcount:
+              name: iasworld_sales_row_count_by_year_matches_with_mydec
+              compare_model: source('sale', 'mydec')
+

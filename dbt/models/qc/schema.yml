@@ -491,3 +491,21 @@ models:
           - dbt_utils.accepted_range:
               name: qc_vw_neg_asmt_value_valasm3_gte_0
               <<: *test-non-negative
+  - name: qc.vw_iasworld_sales_null_values
+    description: '{{ doc("view_vw_iasworld_sales_null_values") }}'
+    config:
+      tags:
+        - test_qc_sales
+    tests:
+      - expression_is_true:
+          name: qc_vw_iasworld_sales_null_values_deed_null_count_lte_1000
+          expression: deed_null_count < 1000
+      - expression_is_true:
+          name: qc_vw_iasworld_sales_null_values_buyer_null_count_lte_1000
+          expression: buyer_null_count < 1000
+      - expression_is_true:
+          name: qc_vw_iasworld_sales_null_values_seller_null_count_lte_1000
+          expression: seller_null_count < 1000
+      - expression_is_true:
+          name: qc_vw_iasworld_sales_null_values_price_null_count_lte_1000
+          expression: price_null_count < 1000
