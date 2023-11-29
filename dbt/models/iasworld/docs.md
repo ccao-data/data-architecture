@@ -240,6 +240,10 @@ It also stores other miscellaneous sub-PIN information like HIEs.
 {% docs table_owndat %}
 Property owner information such as name and mailing address.
 
+### Nuance
+
+- Mailing addresses and owner names have not been regularly updated since 2017.
+
 **Primary Key**: `jur`, `taxyr`, `parid`
 {% enddocs %}
 
