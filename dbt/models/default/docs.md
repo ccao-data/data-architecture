@@ -21,12 +21,9 @@ and reporting.
 Source of truth view for PIN address, both legal (property address)
 and mailing (owner/taxpayer address).
 
-### Assumptions
-
-- Mailing addresses are updated when properties transfer ownership.
-
 ### Nuance
 
+- Mailing addresses and owner names have not been regularly updated since 2017.
 - Newer properties may be missing a mailing or property address, as they
   need to be assigned one by the postal service.
 
@@ -94,6 +91,7 @@ institutions, or local governments.
 
 ### Nuance
 
+- Mailing addresses and owner names have not been regularly updated since 2017.
 - Newer properties may be missing a mailing or property address, as they
   need to be assigned one by the postal service.
 {% enddocs %}

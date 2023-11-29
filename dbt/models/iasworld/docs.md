@@ -242,8 +242,7 @@ Property owner information such as name and mailing address.
 
 ### Nuance
 
-- This table currently feeds all mailing address columns but mailing addresses
-have not been regularly updated since 2017.
+- Mailing addresses and owner names have not been regularly updated since 2017.
 
 **Primary Key**: `jur`, `taxyr`, `parid`
 {% enddocs %}
