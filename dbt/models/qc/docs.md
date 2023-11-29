@@ -49,3 +49,10 @@ Pulled from the following Inquire queries:
 Test that deed, buyer, seller, and price `ias.sale*` columns are not null.
 
 {% enddocs %}
+
+# view_vw_sale_mydec_null_values
+
+{% docs view_vw_sale_mydec_null_values %}
+Test that deed, buyer, seller, address and price `sale.mydec*` columns are not null.
+
+{% enddocs %}
