@@ -144,6 +144,7 @@ forward_fill AS (
 SELECT
     f1.meta_pin,
     f1.meta_pin10,
+    f1.meta_year,
     f1.meta_class,
     f1.meta_modeling_group,
     f1.meta_triad_name,
