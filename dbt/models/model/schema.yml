@@ -396,6 +396,7 @@ models:
     description: '{{ doc("view_vw_card_res_input") }}'
     config:
       tags:
+        - daily
         - type_res
     columns:
       # Columns inherited from vw_pin_shared_input
@@ -622,6 +623,7 @@ models:
     description: '{{ doc("view_vw_pin_condo_input") }}'
     config:
       tags:
+        - daily
         - type_condo
     columns:
       # Columns inherited from vw_pin_shared_input
