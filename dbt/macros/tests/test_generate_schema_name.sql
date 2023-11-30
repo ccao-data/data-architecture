@@ -26,7 +26,7 @@
             mock_env_var,
             exceptions.raise_compiler_error,
         ),
-        "dev_testuser_test",
+        "z_dev_testuser_test",
     ) %}
 {% endmacro %}
 
@@ -40,7 +40,7 @@
             mock_env_var,
             exceptions.raise_compiler_error,
         ),
-        "ci_testuser-feature-branch-1_test",
+        "z_ci_testuser-feature-branch-1_test",
     ) %}
 {% endmacro %}
 
