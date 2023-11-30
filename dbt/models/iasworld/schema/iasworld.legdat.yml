@@ -26,7 +26,8 @@ sources:
                   values: ['N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW']
                   config: &unique-conditions
                     where: 
-                      cur = 'Y'
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
                       AND deactivat IS NULL 
           - name: adrid
             description: '{{ doc("column_adrid") }}'
@@ -101,6 +102,7 @@ sources:
                   name: iasworld_legdat_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  config: *unique-conditions
           - name: postalcode
             description: '{{ doc("column_postalcode") }}'
           - name: procdate
@@ -195,10 +197,12 @@ sources:
             tests:
               - not_null:
                   name: iasworld_legdat_user1_not_null
+                  config: *unique-conditions
               - relationships:
                   name: iasworld_legdat_user1_in_spatial_township_township_code
                   to: source('spatial', 'township')
                   field: township_code
+                  config: *unique-conditions
           - name: wen
             description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
@@ -253,6 +257,7 @@ sources:
               additional_select_columns:
                 - parid
                 - taxyr
+              config: *unique-conditions
           - no_extra_whitespace:
               name: iasworld_legdat_address_columns_no_extra_whitespace
               column_names:

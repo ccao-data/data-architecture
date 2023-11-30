@@ -361,6 +361,19 @@ School locations (lat/lon) are sourced from
 **Geometry:** `POINT`
 {% enddocs %}
 
+# secondary_road
+
+{% docs table_secondary_road %}
+
+Secondary road locations.
+
+Secondary roads sourced from OpenStreetMap (OSM).
+Secondary roads include any OSM ways tagged with
+`highway/secondary`
+
+**Geometry:** `MULTILINESTRING`
+{% enddocs %}
+
 # special_service_area
 
 {% docs table_special_service_area %}

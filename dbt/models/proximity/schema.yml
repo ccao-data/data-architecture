@@ -59,12 +59,17 @@ models:
   - name: proximity.dist_pin_to_railroad
     description: '{{ doc("table_dist_pin_to_railroad") }}'
 
+  - name: proximity.dist_pin_to_secondary_road
+    description: '{{ doc("table_dist_pin_to_secondary_road") }}'
+
   - name: proximity.dist_pin_to_water
     description: '{{ doc("table_dist_pin_to_water") }}'
 
   - name: proximity.vw_pin10_proximity
     description: '{{ doc("view_vw_pin10_proximity") }}'
     columns: &vw_proximity_columns
+      - name: airport_dnl_total
+        description: '{{ doc("column_airport_dnl_total") }}'
       - name: avg_school_rating_in_half_mile
         description: '{{ doc("column_avg_school_rating_in_half_mile") }}'
       - name: lake_michigan_data_year

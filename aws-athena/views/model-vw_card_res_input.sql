@@ -10,9 +10,19 @@ filled with the following steps:
    PIN (ONLY for things that don't vary at the property level, such as census
    tract statistics. Property characteristics are NOT filled)
 
-WARNING: This is a very heavy view. Don't use it for anything other than making
-extracts for modeling
+This view is "materialized" (made into a table) daily in order to improve
+query performance and reduce data queried by Athena. The materialization
+is triggered by sqoop-bot (runs after Sqoop grabs iasWorld data)
 */
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['meta_pin'],
+        bucket_count=1
+    )
+}}
+
 WITH uni AS (
     SELECT * FROM {{ ref('model.vw_pin_shared_input') }}
     WHERE meta_class IN (
@@ -417,6 +427,17 @@ SELECT
     END AS prox_avg_school_rating_in_half_mile,
     CASE
         WHEN
+            f1.prox_airport_dnl_total IS NOT NULL
+            THEN f1.prox_airport_dnl_total
+        WHEN
+            f1.prox_airport_dnl_total IS NULL
+            THEN nn1.prox_airport_dnl_total
+        WHEN
+            nn1.prox_airport_dnl_total IS NULL
+            THEN nn2.prox_airport_dnl_total
+    END AS prox_airport_dnl_total,
+    CASE
+        WHEN
             f1.prox_nearest_bike_trail_dist_ft IS NOT NULL
             THEN f1.prox_nearest_bike_trail_dist_ft
         WHEN
@@ -554,7 +575,8 @@ SELECT
         WHEN
             nn1.other_school_district_secondary_avg_rating IS NULL
             THEN nn2.other_school_district_secondary_avg_rating
-    END AS other_school_district_secondary_avg_rating
+    END AS other_school_district_secondary_avg_rating,
+    f1.meta_year AS year
 FROM forward_fill AS f1
 LEFT JOIN (
     SELECT *

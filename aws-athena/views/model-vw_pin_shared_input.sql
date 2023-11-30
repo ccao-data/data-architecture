@@ -185,6 +185,7 @@ SELECT
         AS prox_avg_school_rating_in_half_mile,
 
     -- PIN proximity distance variables
+    vwpf.airport_dnl_total AS prox_airport_dnl_total, --new
     vwpf.nearest_bike_trail_dist_ft AS prox_nearest_bike_trail_dist_ft,
     vwpf.nearest_cemetery_dist_ft AS prox_nearest_cemetery_dist_ft,
     vwpf.nearest_cta_route_dist_ft AS prox_nearest_cta_route_dist_ft,

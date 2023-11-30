@@ -117,6 +117,9 @@ sources:
       - name: school_location
         description: '{{ doc("table_school_location") }}'
 
+      - name: secondary_road
+        description: '{{ doc("table_secondary_road") }}'
+
       - name: special_service_area
         description: '{{ doc("table_special_service_area") }}'
 
