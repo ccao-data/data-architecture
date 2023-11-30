@@ -417,6 +417,17 @@ SELECT
     END AS prox_avg_school_rating_in_half_mile,
     CASE
         WHEN
+            f1.prox_airport_dnl_total IS NOT NULL
+            THEN f1.prox_airport_dnl_total
+        WHEN
+            f1.prox_airport_dnl_total IS NULL
+            THEN nn1.prox_airport_dnl_total
+        WHEN
+            nn1.prox_airport_dnl_total IS NULL
+            THEN nn2.prox_airport_dnl_total
+    END AS prox_airport_dnl_total,
+    CASE
+        WHEN
             f1.prox_nearest_bike_trail_dist_ft IS NOT NULL
             THEN f1.prox_nearest_bike_trail_dist_ft
         WHEN
