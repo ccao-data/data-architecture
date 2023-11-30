@@ -17,7 +17,7 @@ is triggered by sqoop-bot (runs after Sqoop grabs iasWorld data)
 {{
     config(
         materialized='table',
-        partitioned_by=['meta_year'],
+        partitioned_by=['year'],
         bucketed_by=['meta_pin'],
         bucket_count=1
     )
@@ -144,7 +144,6 @@ forward_fill AS (
 SELECT
     f1.meta_pin,
     f1.meta_pin10,
-    f1.meta_year,
     f1.meta_class,
     f1.meta_modeling_group,
     f1.meta_triad_name,
@@ -564,7 +563,8 @@ SELECT
         WHEN
             nn1.other_school_district_secondary_avg_rating IS NULL
             THEN nn2.other_school_district_secondary_avg_rating
-    END AS other_school_district_secondary_avg_rating
+    END AS other_school_district_secondary_avg_rating,
+    f1.meta_year AS year
 FROM forward_fill AS f1
 LEFT JOIN (
     SELECT *

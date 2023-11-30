@@ -14,7 +14,7 @@ is triggered by sqoop-bot (runs after Sqoop grabs iasWorld data)
 {{
     config(
         materialized='table',
-        partitioned_by=['meta_year'],
+        partitioned_by=['year'],
         bucketed_by=['meta_pin'],
         bucket_count=1
     )
@@ -87,8 +87,8 @@ SELECT
     COALESCE(
         ch.char_land_sf >= sp.char_land_sf_95_percentile,
         FALSE
-    ) AS ind_land_gte_95_percentile
-
+    ) AS ind_land_gte_95_percentile,
+    uni.year
 FROM uni
 LEFT JOIN {{ ref('default.vw_pin_condo_char') }} AS ch
     ON uni.meta_pin = ch.pin
