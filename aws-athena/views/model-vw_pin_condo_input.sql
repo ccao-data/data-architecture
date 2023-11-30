@@ -88,7 +88,7 @@ SELECT
         ch.char_land_sf >= sp.char_land_sf_95_percentile,
         FALSE
     ) AS ind_land_gte_95_percentile,
-    uni.year
+    uni.meta_year AS year
 FROM uni
 LEFT JOIN {{ ref('default.vw_pin_condo_char') }} AS ch
     ON uni.meta_pin = ch.pin
