@@ -32,8 +32,10 @@ jobs:
         run: echo "TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S")" >> "$GITHUB_ENV"
         shell: bash
 
+      # Only triggered when called by a bot. Otherwise, notifications
+      # go to whoever called the workflow
       - name: Send failure notification
-        if: failure()
+        if: github.event_name == 'workflow_dispatch' && github.triggering_actor == 'sqoop-bot[bot]' && failure()
         uses: ./.github/actions/publish_sns_topic
         with:
           sns_topic_arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
