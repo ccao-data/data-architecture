@@ -7,9 +7,19 @@ data is filled with the following steps:
 2. Current data is filled BACKWARD to account for missing historical data.
    Again, this is only for things unlikely to change
 
-WARNING: This is a very heavy view. Don't use it for anything other than making
-extracts for modeling
+This view is "materialized" (made into a table) daily in order to improve
+query performance and reduce data queried by Athena. The materialization
+is triggered by sqoop-bot (runs after Sqoop grabs iasWorld data)
 */
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['pin'],
+        bucket_count=1
+    )
+}}
+
 WITH uni AS (
     SELECT * FROM {{ ref('model.vw_pin_shared_input') }}
     WHERE meta_class IN ('299', '399')
