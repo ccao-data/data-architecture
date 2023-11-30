@@ -91,6 +91,7 @@ models:
             - mailed_tot
             - certified_tot
           config:
+            where: year >= '2023'
             error_if: ">266719"
       # `change` should be an enum
       - expression_is_true:
@@ -101,6 +102,8 @@ models:
             - year
             - case_no
             - change
+          config:
+            where: year >= '2023'
       - row_count:
           name: default_vw_pin_appeal_row_count
           above: 8407667 # as of 2023-11-22

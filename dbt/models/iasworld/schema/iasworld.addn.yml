@@ -18,8 +18,11 @@ sources:
                   name: iasworld_addn_area_between_0_and_1.5M
                   min_value: 0
                   max_value: 1500000
-                  config:
-                    where: cur = 'Y' AND deactivat IS NULL
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: area_sqm
             description: Area of this line in meters
           - name: areaid
@@ -31,9 +34,11 @@ sources:
             tests:
               - not_null:
                   name: iasworld_addn_card_not_null
+                  config: *unique-conditions
               - dbt_utils.accepted_range:
                   name: iasworld_addn_card_gte_1
                   min_value: 1
+                  config: *unique-conditions
           - name: cdu
             description: '{{ doc("column_cdu") }}'
           - name: chgrsn
@@ -47,7 +52,7 @@ sources:
                   field: class_code
                   config:
                     where: |
-                      taxyr >= '2022'
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class != 'EX'
                       AND cur = 'Y'
                       AND deactivat IS NULL
@@ -59,6 +64,7 @@ sources:
               - accepted_values:
                   name: iasworld_addn_cur_in_accepted_values
                   values: ['Y', 'D']
+                  config: *unique-conditions
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: depr
@@ -68,8 +74,7 @@ sources:
                   name: iasworld_addn_depr_between_0_and_100
                   min_value: 0
                   max_value: 100
-                  config:
-                    where: cur = 'Y' AND deactivat IS NULL
+                  config: *unique-conditions
           - name: eff_area
             description: Support value per line
           - name: effageovr
@@ -103,6 +108,7 @@ sources:
             tests:
               - not_null:
                   name: iasworld_addn_lline_not_null
+                  config: *unique-conditions
           - name: lower
             description: Lower level addition code
           - name: mktadj
@@ -124,10 +130,12 @@ sources:
             tests:
               - not_null:
                   name: iasworld_addn_parid_not_null
+                  config: *unique-conditions
               - relationships:
                   name: iasworld_addn_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  config: *unique-conditions
           - name: pctcomp
             description: '{{ doc("column_pctcomp") }}'
           - name: prodamage
@@ -187,6 +195,7 @@ sources:
             tests:
               - not_null:
                   name: iasworld_addn_taxyr_not_null
+                  config: *unique-conditions
           - name: third
             description: Third floor addition code
           - name: trans_id

@@ -23,7 +23,7 @@ sources:
                   field: class_code
                   config:
                     where: |
-                      taxyr >= '2022'
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class NOT IN ('EX', 'RR', '999')
                       AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
                       AND rolltype != 'RR'
@@ -56,10 +56,18 @@ sources:
             tests:
               - not_null:
                   name: iasworld_asmt_all_parid_not_null
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND rolltype != 'RR'
+                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
               - relationships:
                   name: iasworld_asmt_all_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  config: *unique-conditions
           - name: procdate
             description: '{{ doc("column_procdate") }}'
           - name: procname
@@ -82,11 +90,7 @@ sources:
                     - taxyr
                     - procname
                   config:
-                    where: &unique-conditions |
-                      rolltype != 'RR'
-                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
-                      AND deactivat IS NULL 
-                      AND valclass IS NULL
+                    <<: *unique-conditions
                     error_if: ">15300"
           - name: splitno
             description: '{{ doc("column_splitno") }}'
@@ -99,6 +103,7 @@ sources:
             tests:
               - not_null:
                   name: iasworld_asmt_all_taxyr_not_null
+                  config: *unique-conditions
           - name: tottax
             description: Total tax
           - name: trans_id
@@ -143,7 +148,7 @@ sources:
                 - procname
                 - taxyr
               config:
-                where: *unique-conditions
+                <<: *unique-conditions
                 error_if: ">15300"
           - row_values_match_after_join:
               name: iasworld_asmt_all_class_matches_pardat_class
@@ -153,5 +158,4 @@ sources:
               join_columns:
                 - parid
                 - taxyr
-              config:
-                where: *unique-conditions
+              config: *unique-conditions

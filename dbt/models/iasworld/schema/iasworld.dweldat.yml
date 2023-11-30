@@ -50,7 +50,8 @@ sources:
                   # online PDF of all class definitions
                   config: &unique-conditions
                     where: | 
-                      cur = 'Y'
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
                       AND deactivat IS NULL
                       AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
               - accepted_values:
@@ -96,9 +97,11 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_card_not_null
+                  config: *unique-conditions
               - dbt_utils.accepted_range:
                   name: iasworld_dweldat_card_gte_1
                   min_value: 1
+                  config: *unique-conditions
           - name: catharea
             description: Cathedral ceiling area
           - name: cathval
@@ -122,7 +125,7 @@ sources:
                   field: class_code
                   config:
                     where: |
-                      taxyr >= '2022'
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class NOT IN ('EX', 'RR')
                       AND cur = 'Y'
                       AND deactivat IS NULL
@@ -389,8 +392,9 @@ sources:
                     != '5' OR mktadj IS NOT NULL
                   config:
                     where: |
-                      cur = 'Y'
-                      AND taxyr >= '2022'
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: modover
             description: Residential override model
           - name: mvpattic
@@ -438,6 +442,7 @@ sources:
                   name: iasworld_dweldat_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  config: *unique-conditions
           - name: pctcomplete
             description: Percent of construction completed
           - name: plumbgrade
@@ -506,7 +511,8 @@ sources:
                   max_value: 15
                   config:
                     where: |
-                      class NOT IN ('211', '212')
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND class NOT IN ('211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
               - dbt_utils.accepted_range:
@@ -515,7 +521,8 @@ sources:
                   max_value: 24
                   config:
                     where: |
-                      class IN ('211', '212')
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND class IN ('211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
               - expression_is_true:
@@ -598,7 +605,8 @@ sources:
                   max_value: 40
                   config:
                     where: |
-                      class NOT IN ('211', '212')
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND class NOT IN ('211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
               - dbt_utils.accepted_range:
@@ -607,7 +615,8 @@ sources:
                   max_value: 50
                   config:
                     where: |
-                      class IN ('211', '212')
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND class IN ('211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
           - name: salekey
@@ -633,7 +642,8 @@ sources:
                   max_value: 10000
                   config:
                     where: |
-                      class NOT IN ('208', '209', '211', '212', '236', '297')
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND class NOT IN ('208', '209', '211', '212', '236', '297')
                       AND cur = 'Y'
                       AND deactivat IS NULL
               - dbt_utils.accepted_range:
@@ -642,7 +652,8 @@ sources:
                   max_value: 20000
                   config:
                     where: |
-                      class IN ('208', '209', '211', '212')
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND class IN ('208', '209', '211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
           - name: shfact
@@ -789,7 +800,8 @@ sources:
                   name: iasworld_dweldat_char_apts_not_null
                   config:
                     where: |
-                      class IN ('211', '212')
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND class IN ('211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
               - accepted_values:
@@ -797,7 +809,8 @@ sources:
                   values: ['1', '2', '3', '4', '5', '6']
                   config:
                     where: |
-                      class IN ('211', '212')
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND class IN ('211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
           - name: user15
@@ -946,11 +959,7 @@ sources:
               join_columns:
                 - parid
                 - taxyr
-              config:
-                where: |
-                  taxyr >= '2023'
-                  AND cur = 'Y'
-                  AND deactivat IS NULL
+              config: *unique-conditions
           - expression_is_true:
               name: iasworld_dweldat_card_proration_rate_between_0_and_100
               expression: 'CAST(user24 AS decimal) BETWEEN 0.00 AND 100.00'

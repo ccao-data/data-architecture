@@ -22,6 +22,18 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
+vars:
+  # Start year for testing data using test_qc_* tagged dbt tests. Typically
+  # this should be the current year, since errors in past data cannot usually
+  # be amended once records are closed. Set as an integer for compatibility
+  # with comparison operators and SQL's BETWEEN
+  test_qc_year_start: 2023
+
+  # End year for testing data using test_qc_* tagged dbt tests. Typically set
+  # to a date in the future, but can also be use to select specific time
+  # frames for testing
+  test_qc_year_end: 2030
+
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 models:
