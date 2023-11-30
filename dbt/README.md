@@ -178,7 +178,7 @@ dbt clone --state master-cache
 ```
 
 This will copy all production views and tables into a new set of Athena schemas
-prefixed with your Unix `$USER` name (e.g. `dev_jecochr_default` for the
+prefixed with your Unix `$USER` name (e.g. `z_dev_jecochr_default` for the
 `default` schema when `dbt` is run on Jean's machine).
 
 Once you've copied prod tables and views into your development schemas, you can
@@ -203,7 +203,7 @@ dbt run --select default.*
 By default, all `dbt` commands will run against the `dev` environment (called
 a [target](https://docs.getdbt.com/reference/dbt-jinja-functions/target) in
 dbt jargon), which namespaces the resources it creates by prefixing database
-names with `dev_` and your Unix `$USER` name.
+names with `z_dev_` and your Unix `$USER` name.
 
 You should almost never have to manually build tables and views in our
 production environment, since this repository is configured to automatically
@@ -222,7 +222,7 @@ data sources tidy, you have two options: Delete all of your development Athena
 databases, or delete a selection of Athena databases.
 
 To delete all the resources in your local environment (i.e. every Athena
-database with a name matching the pattern `dev_$USER_$SCHEMA`):
+database with a name matching the pattern `z_dev_$USER_$SCHEMA`):
 
 ```
 ../.github/scripts/cleanup_dbt_resources.sh dev
@@ -232,7 +232,7 @@ To instead delete a selected database, use the [`aws glue delete-database`
 command](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/glue/delete-database.html):
 
 ```
-aws glue delete-database dev_jecochr_default
+aws glue delete-database z_dev_jecochr_default
 ```
 
 Note that these two operations will only delete Athena databases, and will leave
@@ -478,7 +478,7 @@ There are two ways to clean up a PR's resources manually:
    Athena homepage. Select `Data sources` in the sidebar. Click on the
    `AwsDataCatalog` resource. In the `Associated databases` table, select each
    data source that matches the database pattern for your pull request
-   (i.e. prefixed with `ci_` plus the name of your branch) and click the
+   (i.e. prefixed with `z_ci_` plus the name of your branch) and click the
    `Delete` button in the top right-hand corner of the table.
 2. **Using the command-line**: If the workflow has failed, it most likely means
    there is a bug in the `.github/scripts/cleanup_dbt_resources.sh` script
@@ -513,14 +513,14 @@ exist:
 
 ```
 Runtime Error in model default.vw_card_res_char (models/default/default.vw_card_res_char.sql)
-  line 24:10: Table 'awsdatacatalog.dev_jecochr_default.vw_pin_land' does not exist
+  line 24:10: Table 'awsdatacatalog.z_dev_jecochr_default.vw_pin_land' does not exist
 ```
 
 The error may look like this if an entire schema is missing:
 
 ```
 Runtime Error in model default.vw_pin_universe (models/default/default.vw_pin_universe.sql)
-  line 130:11: Schema 'dev_jecochr_location' does not exist
+  line 130:11: Schema 'z_dev_jecochr_location' does not exist
 ```
 
 To resolve this error, you can prefix your selected model's names with a plus
