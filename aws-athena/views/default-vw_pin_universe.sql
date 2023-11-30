@@ -20,7 +20,6 @@ SELECT
     sp.y_3435,
 
     -- PIN locations from spatial joins
-    vwl.census_block_group_geoid,
     vwl.census_block_geoid,
     vwl.census_congressional_district_geoid,
     vwl.census_county_subdivision_geoid,
