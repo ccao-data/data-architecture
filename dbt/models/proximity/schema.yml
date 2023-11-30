@@ -59,6 +59,9 @@ models:
   - name: proximity.dist_pin_to_railroad
     description: '{{ doc("table_dist_pin_to_railroad") }}'
 
+  - name: proximity.dist_pin_to_secondary_road
+    description: '{{ doc("table_dist_pin_to_secondary_road") }}'
+
   - name: proximity.dist_pin_to_water
     description: '{{ doc("table_dist_pin_to_water") }}'
 
