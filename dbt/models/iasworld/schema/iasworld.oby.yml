@@ -27,7 +27,8 @@ sources:
                   min_value: 1
                   config: &unique-conditions
                     where: |
-                      cur = 'Y'
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
                       AND deactivat IS NULL
           - name: areaid
             description: '{{ doc("column_areaid") }}'
@@ -52,10 +53,7 @@ sources:
                   name: iasworld_oby_chgrsn_eq_5_mktadj_not_null
                   expression: |
                     != '5' OR mktadj IS NOT NULL
-                  config:
-                    where: |
-                      cur = 'Y'
-                      AND taxyr >= '2022'
+                  config: *unique-conditions
           - name: class
             description: '{{ doc("shared_column_class") }}'
           - name: cline
@@ -293,8 +291,4 @@ sources:
               join_columns:
                 - parid
                 - taxyr
-              config:
-                where: |
-                  taxyr >= '2022'
-                  AND cur = 'Y'
-                  AND deactivat IS NULL
+              config: *unique-conditions

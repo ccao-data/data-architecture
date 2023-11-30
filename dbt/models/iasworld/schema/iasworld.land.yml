@@ -17,6 +17,11 @@ sources:
               - dbt_utils.expression_is_true:
                   name: iasworld_land_acres_is_sf_transformed
                   expression: '* 43560 BETWEEN sf - 5 AND sf + 5'
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: adjfact
             description: '{{ doc("column_adjfact") }}'
           - name: agflg
@@ -48,9 +53,10 @@ sources:
                   field: class_code
                   config:
                     where: |
-                      cur = 'Y'
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class NOT IN ('EX', 'RR', '999')
                       AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
+                      AND cur = 'Y'
                       AND deactivat IS NULL
           - name: code
             description: Code
@@ -101,10 +107,7 @@ sources:
                   name: iasworld_land_influ_between_neg_100_and_pos_100
                   min_value: -100
                   max_value: 100
-                  config:
-                    where:
-                      cur = 'Y'
-                      AND deactivat IS NULL 
+                  config: *unique-conditions
           - name: influ2
             description: Influence percent (+/-)
           - name: jur
@@ -121,10 +124,6 @@ sources:
                   group_by_columns:
                     - parid
                     - taxyr
-                  config:
-                    where:
-                      cur = 'Y'
-                      AND deactivat IS NULL 
           - name: lmod
             description: Land location model number
           - name: locfact
@@ -178,6 +177,7 @@ sources:
                   name: iasworld_land_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  config: *unique-conditions
           - name: price
             description: Price
             tests:
@@ -186,9 +186,9 @@ sources:
                   min_value: 1
                   config:
                     where:
-                      cur = 'Y'
-                      AND taxyr >= '2023'
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class NOT IN ('EX', 'RR', '999')
+                      AND cur = 'Y'
                       AND deactivat IS NULL 
           - name: recnr
             description: '{{ doc("column_recnr") }}'
@@ -215,10 +215,7 @@ sources:
               - dbt_utils.accepted_range:
                   name: iasworld_land_sf_gte_1
                   min_value: 1
-                  config:
-                    where:
-                      cur = 'Y'
-                      AND deactivat IS NULL 
+                  config: *unique-conditions
           - name: sfact
             description: S factor
           - name: sizefact
@@ -282,7 +279,7 @@ sources:
                 - taxyr
               config:
                 where: |
-                  taxyr >= '2022'
+                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                   AND class NOT IN ('EX', 'RR')
                   AND cur = 'Y'
                   AND deactivat IS NULL

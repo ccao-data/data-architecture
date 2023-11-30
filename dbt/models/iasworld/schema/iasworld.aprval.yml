@@ -23,9 +23,9 @@ sources:
                   name: iasworld_aprval_aprbldg_between_0_and_1B
                   min_value: 0
                   max_value: 1000000000
-                  config:
+                  config: &unique-conditions
                     where: |
-                      taxyr >= '2021'
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
           - name: aprdate
@@ -37,8 +37,7 @@ sources:
                   name: iasworld_aprval_aprland_between_0_and_1B
                   min_value: 0
                   max_value: 1000000000
-                  config: &unique-conditions
-                    where: cur = 'Y' AND deactivat IS NULL
+                  config: *unique-conditions
           - name: aprtot
             description: '{{ doc("column_aprtot") }}'
             tests:
@@ -178,10 +177,12 @@ sources:
             tests:
               - not_null:
                   name: iasworld_aprval_parid_not_null
+                  config: *unique-conditions
               - relationships:
                   name: iasworld_aprval_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  config: *unique-conditions
           - name: posttype
             description: Assessment posting type
           - name: ppcomval
@@ -245,6 +246,7 @@ sources:
             tests:
               - not_null:
                   name: iasworld_aprval_taxyr_not_null
+                  config: *unique-conditions
           - name: tiebackbldg
             description: Sum of building value for all children in the income tieback group
           - name: tiebackland

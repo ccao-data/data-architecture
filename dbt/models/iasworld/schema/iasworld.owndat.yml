@@ -149,6 +149,11 @@ sources:
                   name: iasworld_owndat_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: partial
             description: '{{ doc("column_partial") }}'
           - name: pctown
@@ -171,10 +176,6 @@ sources:
                   group_by_columns:
                     - parid
                     - taxyr
-                  config: &unique-conditions
-                    where: |
-                      cur = 'Y'
-                      AND deactivat IS NULL
           - name: site
             description: '{{ doc("column_site") }}'
           - name: skip_addr_validation
@@ -264,6 +265,7 @@ sources:
                 - addr1
               config:
                 where: |
-                  cur = 'Y'
+                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  AND cur = 'Y'
                   AND deactivat IS NULL
                   AND addr1 IS NOT NULL

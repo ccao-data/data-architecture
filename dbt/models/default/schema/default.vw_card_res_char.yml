@@ -116,4 +116,4 @@ models:
             - card
       - row_count:
           name: default_vw_card_res_char_row_count
-          above: 27347262 # as of 2023-11-22
+          above: 27347200 # as of 2023-11-29

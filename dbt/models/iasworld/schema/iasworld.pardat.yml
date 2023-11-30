@@ -77,7 +77,7 @@ sources:
                   field: class_code
                   config:
                     where: |
-                      taxyr >= '2022'
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class NOT IN ('EX', 'RR')
                       AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
                       AND cur = 'Y'
@@ -196,7 +196,8 @@ sources:
                     - taxyr
                   config: &unique-conditions
                     where: |
-                      cur = 'Y'
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
                       AND deactivat IS NULL
           - name: skip_addr_validation
             description: '{{ doc("column_skip_addr_validation") }}'

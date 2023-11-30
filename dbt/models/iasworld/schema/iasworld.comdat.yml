@@ -18,8 +18,11 @@ sources:
                   name: iasworld_comdat_adjfact_between_0_and_1
                   min_value: 0
                   max_value: 1
-                  config:
-                    where: cur = 'Y' AND deactivat IS NULL
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
           - name: areasum
             description: '{{ doc("column_areasum") }}'
           - name: bld_modelid
@@ -35,8 +38,7 @@ sources:
                   name: iasworld_comdat_bldgval_between_0_and_1B
                   min_value: 0
                   max_value: 1000000000
-                  config:
-                    where: cur = 'Y' AND deactivat IS NULL
+                  config: *unique-conditions
           - name: bldnum
             description: Building number
           - name: busla
@@ -48,9 +50,11 @@ sources:
             tests:
               - not_null:
                   name: iasworld_comdat_card_not_null
+                  config: *unique-conditions
               - dbt_utils.accepted_range:
                   name: iasworld_comdat_card_gte_1
                   min_value: 1
+                  config: *unique-conditions
           - name: cdu
             description: '{{ doc("column_cdu") }}'
           - name: chgrsn
@@ -60,10 +64,7 @@ sources:
                   name: iasworld_comdat_chgrsn_eq_5_mktadj_not_null
                   expression: |
                     != '5' OR mktadj IS NOT NULL
-                  config:
-                    where: |
-                      cur = 'Y'
-                      AND taxyr >= '2022'
+                  config: *unique-conditions
           - name: class
             description: '{{ doc("shared_column_class") }}'
             tests:
@@ -73,10 +74,10 @@ sources:
                   field: class_code
                   config:
                     where: |
-                      taxyr >= '2022'
-                      AND cur = 'Y'
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
                       AND class NOT IN ('EX', 'RR')
+                      AND cur = 'Y'
                       AND deactivat IS NULL
           - name: convbldg
             description: '{{ doc("column_convbldg") }}'
@@ -85,8 +86,7 @@ sources:
                   name: iasworld_comdat_convbldg_between_0_and_1B
                   min_value: 0
                   max_value: 1000000000
-                  config:
-                    where: cur = 'Y' AND deactivat IS NULL
+                  config: *unique-conditions
           - name: cubicft
             description: Cubic feet
           - name: cur
@@ -104,8 +104,7 @@ sources:
                   name: iasworld_comdat_depr_between_0_and_1
                   min_value: 0
                   max_value: 1
-                  config:
-                    where: cur = 'Y' AND deactivat IS NULL
+                  config: *unique-conditions
           - name: deprt
             description: '{{ doc("column_deprt") }}'
           - name: effageovr
@@ -121,8 +120,7 @@ sources:
                   name: iasworld_comdat_exmppct_between_0_and_100
                   min_value: 0
                   max_value: 100
-                  config:
-                    where: cur = 'Y' AND deactivat IS NULL
+                  config: *unique-conditions
           - name: exmpval
             description: '{{ doc("column_exmpval") }}'
           - name: gfact
@@ -235,12 +233,12 @@ sources:
             tests:
               - not_null:
                   name: iasworld_comdat_yrblt_not_null
+                  config: *unique-conditions
               - dbt_utils.accepted_range:
                   name: iasworld_comdat_yrblt_between_1850_and_now
                   min_value: 1850
                   max_value: cast(year(current_date) as decimal)
-                  config:
-                    where: cur = 'Y' AND deactivat IS NULL
+                  config: *unique-conditions
 
         tests:
           - unique_combination_of_columns:
@@ -257,8 +255,4 @@ sources:
               join_columns:
                 - parid
                 - taxyr
-              config:
-                where: |
-                  taxyr >= '2023'
-                  AND cur = 'Y'
-                  AND deactivat IS NULL
+              config: *unique-conditions
