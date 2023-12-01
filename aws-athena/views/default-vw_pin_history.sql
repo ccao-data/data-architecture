@@ -95,7 +95,7 @@ SELECT
     LAG(vwpv.change_reason, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
-    ) AS twoyr_pri_change_reason,
+    ) AS twoyr_pri_change_reason
 
 FROM {{ ref('default.vw_pin_value') }} AS vwpv
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
