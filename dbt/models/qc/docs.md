@@ -56,3 +56,32 @@ Test that deed, buyer, seller, and price `ias.sale*` columns are not null.
 Test that deed, buyer, seller, address and price `sale.mydec*` columns are not null.
 
 {% enddocs %}
+
+# view_vw_iasworld_change_in_low_value_sales
+
+{% docs view_vw_iasworld_change_in_low_value_sales %}
+Test that low value `ias.sale*` do not change dramatically.
+
+{% enddocs %}
+
+# view_vw_iasworld_sale_rowcount_matches_sales_mydec
+
+{% docs view_vw_iasworld_sale_rowcount_matches_sales_mydec %}
+Test that IasWorld and MyDec have similar Row Counts
+
+{% enddocs %}
+
+# view_vw_sale_mydec_change_in_high_low_value_sales
+
+{% docs view_vw_sale_mydec_change_in_high_low_value_sales %}
+Test to see if high and low value sales are consistent in MyDec
+
+{% enddocs %}
+
+# view_vw_iasworld_sale_unmatched_joins_sales_mydec
+
+{% docs view_vw_iasworld_sale_unmatched_joins_sales_mydec %}
+Test to identify years with large numbers of unmatched joins
+
+{% enddocs %}
+

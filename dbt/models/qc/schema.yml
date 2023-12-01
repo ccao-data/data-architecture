@@ -525,3 +525,49 @@ models:
       - expression_is_true:
           name: qc_vw_sale_mydec_null_values_address_null_count_lte_1000
           expression: address_null_count < 1000
+  - name: qc.vw_iasworld_change_in_low_value_sales
+    description: '{{ doc("view_vw_iasworld_change_in_low_value_sales") }}'
+    config:
+      tags:
+        - test_qc_sales
+    tests:
+      - expression_is_true:
+          name: qc_vw_iasworld_change_in_low_value_sales_ratio_check
+          expression: sales_table_n > 0.75 * prev_year_sales and sales_table_n < 1.25 * prev_year_sales
+
+  - name: qc.vw_iasworld_sale_rowcount_matches_sales_mydec
+    description: '{{ doc("view_vw_iasworld_sale_rowcount_matches_sales_mydec") }}'
+    config:
+      tags:
+        - test_qc_sales
+    tests:
+      - expression_is_true:
+          name: qc_vw_iasworld_sale_rowcount_matches_sales_mydec_check
+          expression: IasWorld_sales > 0.95 * my_dec_sales and IasWorld_sales < 1.05 * my_dec_sales
+
+  - name: qc.vw_sale_mydec_change_in_high_low_value_sales
+    description: '{{ doc("view_vw_sale_mydec_change_in_high_low_value_sales") }}'
+    config:
+      tags:
+        - test_qc_sales
+    tests:
+      - expression_is_true:
+          name: qc_vw_sale_mydec_change_in_high_low_value_sales_low_value_gt_25%
+          expression: price_less_than_10k_count > 0.75 * prev_year_price_less_than_10k_count and price_less_than_10k_count < 1.25 * prev_year_price_less_than_10k_count
+      - expression_is_true:
+          name: qc_vw_sale_mydec_change_in_high_low_value_sales_high_value_gt_25%
+          expression: price_greater_than_1m_count > 0.75 * prev_year_price_greater_than_1m_count and price_greater_than_1m_count < 1.25 * prev_year_price_greater_than_1m_count
+
+  - name: qc.vw_iasworld_sale_unmatched_joins_sales_mydec
+    description: '{{ doc("view_vw_iasworld_sale_unmatched_joins_sales_mydec") }}'
+    config:
+      tags:
+        - test_qc_sales
+    tests:
+      - expression_is_true:
+          name: qc_vw_iasworld_sale_unmatched_joins_sales_mydec_unmatched_mydec_sales_lte_1000
+          expression: my_dec_unmatched < 1000
+    tests:
+      - expression_is_true:
+          name: qc_vw_iasworld_sale_unmatched_joins_sales_mydec_unmatched_iasworld_sales_lte_1000
+          expression: IasWorld_unmatched < 1000
