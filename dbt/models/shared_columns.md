@@ -210,6 +210,67 @@ This is the value after the first round of appeals at the Assessor's
 Office **and** the second round of appeals at the Board of Review.
 {% enddocs %}
 
+## change_reason
+
+{% docs shared_column_change_reason %}
+Reason for change in assessed value. Possible values for this variable are:
+
+- Assessor Correction
+- BOR Decision
+- Data Conversion Correction
+- BOR New Construction
+- Change of Exempt Status
+- Demolition
+- Farm Valuation
+- Foresty Program
+- Partial Exempt Value
+- Model Home Approval
+- Nature Preserve
+- New Construction
+- New Construction HIE Eligible
+- Division
+- C/E Correction
+- Open Space Approval
+- Township Open
+- Township Close
+- PTAB Override
+- Reclassificiation of Use - Class Change
+- Cert of Rehab Property - Landmark
+- Removal From Farm
+- Revaluation
+- Vacancy Factor
+- Occupancy Factor
+- Land Rate Change
+- Desk Review
+- Removal From Incentive Program
+- Incentive Program
+- New Construction Partial
+- Administrative Change
+- Characteristic Update - No Value Change
+- Assessor Appeal
+- Demolition Partial
+- Certificate of Correction (CC)
+- Assessor Recommendation (AR)
+- Natural Disaster
+- Conservation Easement
+- Court Order
+- Mobile Home
+- Veteran/Fraternal
+- Omit
+- Permit
+- Owner Review Request
+- Land Bank
+- Preferential Assessment Removed
+- Recpature
+- Rollback
+- ASMT Correction
+- Fire Damage
+- Leasehold Value Update
+- New Leasehold
+- Leasehold Terminated
+- Flood Debasement
+{% enddocs %}
+
 ## certified_bldg
 
 {% docs shared_column_certified_bldg %}
