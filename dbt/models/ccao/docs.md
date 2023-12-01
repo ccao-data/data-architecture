@@ -1,3 +1,11 @@
+# aprval_reascd
+
+{% docs table_aprval_reascd %}
+Reason codes and descriptions for changes to assessed value.
+
+**Primary Key**: `reascd`
+{% enddocs %}
+
 # class_dict
 
 {% docs table_class_dict %}

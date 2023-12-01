@@ -14,6 +14,7 @@ SELECT
     vwpv.board_bldg,
     vwpv.board_land,
     vwpv.board_tot,
+    vwpv.change_reason,
     -- Add lagged values for previous two years
     LAG(vwpv.mailed_bldg) OVER (
         PARTITION BY vwpv.pin
@@ -51,6 +52,10 @@ SELECT
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_board_tot,
+    LAG(vwpv.change_reason) OVER (
+        PARTITION BY vwpv.pin
+        ORDER BY vwpv.pin, vwpv.year
+    ) AS oneyr_pri_change_reason,
     LAG(vwpv.mailed_bldg, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
@@ -86,7 +91,11 @@ SELECT
     LAG(vwpv.board_tot, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
-    ) AS twoyr_pri_board_tot
+    ) AS twoyr_pri_board_tot,
+    LAG(vwpv.change_reason, 2) OVER (
+        PARTITION BY vwpv.pin
+        ORDER BY vwpv.pin, vwpv.year
+    ) AS twoyr_pri_change_reason,
 
 FROM {{ ref('default.vw_pin_value') }} AS vwpv
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg

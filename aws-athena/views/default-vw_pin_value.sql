@@ -111,8 +111,7 @@ change_reasons AS (
 
 SELECT
     vals.*,
-    reasons.reascd AS chng_rsn_code,
-    descr.description AS chng_rsn_desc
+    descr.description AS change_reason
 FROM clean_values AS vals
 LEFT JOIN change_reasons AS reasons
     ON vals.pin = reasons.pin
