@@ -196,7 +196,7 @@ sources:
           - name: procname
             description: '{{ doc("column_procname") }}'
           - name: reascd
-            description: '{{ doc("column_reascd") }}'
+            description: '{{ doc("shared_column_change_reason") }}'
           - name: resgrmval
             description: Gross rent multiplier value
           - name: revbldg

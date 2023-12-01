@@ -215,60 +215,60 @@ Office **and** the second round of appeals at the Board of Review.
 {% docs shared_column_change_reason %}
 Reason for change in assessed value. Possible values for this variable are:
 
-- Assessor Correction
-- BOR Decision
-- Data Conversion Correction
-- BOR New Construction
-- Change of Exempt Status
-- Demolition
-- Farm Valuation
-- Foresty Program
-- Partial Exempt Value
-- Model Home Approval
-- Nature Preserve
-- New Construction
-- New Construction HIE Eligible
-- Division
-- C/E Correction
-- Open Space Approval
-- Township Open
-- Township Close
-- PTAB Override
-- Reclassificiation of Use - Class Change
-- Cert of Rehab Property - Landmark
-- Removal From Farm
-- Revaluation
-- Vacancy Factor
-- Occupancy Factor
-- Land Rate Change
-- Desk Review
-- Removal From Incentive Program
-- Incentive Program
-- New Construction Partial
-- Administrative Change
-- Characteristic Update - No Value Change
-- Assessor Appeal
-- Demolition Partial
-- Certificate of Correction (CC)
-- Assessor Recommendation (AR)
-- Natural Disaster
-- Conservation Easement
-- Court Order
-- Mobile Home
-- Veteran/Fraternal
-- Omit
-- Permit
-- Owner Review Request
-- Land Bank
-- Preferential Assessment Removed
-- Recpature
-- Rollback
-- ASMT Correction
-- Fire Damage
-- Leasehold Value Update
-- New Leasehold
-- Leasehold Terminated
-- Flood Debasement
+- `1` = Assessor Correction
+- `2` = BOR Decision
+- `3` = Data Conversion Correction
+- `4` = BOR New Construction
+- `5` = Change of Exempt Status
+- `6` = Demolition
+- `7` = Farm Valuation
+- `8` = Foresty Program
+- `9` = Partial Exempt Value
+- `10` =  Model Home Approval
+- `11` =  Nature Preserve
+- `12` =  New Construction
+- `13` =  New Construction HIE Eligible
+- `14` =  Division
+- `15` =  C/E Correction
+- `16` =  Open Space Approval
+- `17` =  Township Open
+- `18` =  Township Close
+- `19` =  PTAB Override
+- `21` =  Reclassificiation of Use - Class Change
+- `22` =  Cert of Rehab Property - Landmark
+- `23` =  Removal From Farm
+- `24` =  Revaluation
+- `25` =  Vacancy Factor
+- `26` =  Occupancy Factor
+- `27` =  Land Rate Change
+- `28` =  Desk Review
+- `29` =  Removal From Incentive Program
+- `30` =  Incentive Program
+- `31` =  New Construction Partial
+- `32` =  Administrative Change
+- `33` =  Characteristic Update - No Value Change
+- `34` =  Assessor Appeal
+- `35` =  Demolition Partial
+- `36` =  Certificate of Correction (CC)
+- `37` =  Assessor Recommendation (AR)
+- `38` =  Natural Disaster
+- `40` =  Conservation Easement
+- `43` =  Court Order
+- `50` =  Mobile Home
+- `52` =  Veteran/Fraternal
+- `80` =  Omit
+- `81` =  Permit
+- `82` =  Owner Review Request
+- `83` =  Land Bank
+- `84` =  Preferential Assessment Removed
+- `85` =  Recpature
+- `86` =  Rollback
+- `87` =  ASMT Correction
+- `88` =  Fire Damage
+- `89` =  Leasehold Value Update
+- `90` =  New Leasehold
+- `91` =  Leasehold Terminated
+- `92` =  Flood Debasement
 {% enddocs %}
 
 ## certified_bldg
