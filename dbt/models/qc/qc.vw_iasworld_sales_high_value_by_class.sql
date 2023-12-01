@@ -1,0 +1,1 @@
+../../../aws-athena/views/qc-vw_iasworld_sales_high_value_by_class.sql

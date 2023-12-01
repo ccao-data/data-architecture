@@ -85,3 +85,22 @@ Test to identify years with large numbers of unmatched joins
 
 {% enddocs %}
 
+# view_vw_iasworld_sale_day_of_month
+
+{% docs view_vw_iasworld_sale_day_of_month %}
+Test to see if sale dates are concentrated on particular days of the month.
+
+{% enddocs %}
+
+# view_vw_iasworld_sales_high_value_by_class
+
+{% docs view_vw_iasworld_sales_high_value_by_class %}
+Test to see if selected classes have unexpectedly high value sales.
+
+{% enddocs %}
+
+
+
+
+
+

@@ -571,3 +571,24 @@ models:
       - expression_is_true:
           name: qc_vw_iasworld_sale_unmatched_joins_sales_mydec_unmatched_iasworld_sales_lte_1000
           expression: IasWorld_unmatched < 1000
+
+  - name: qc.vw_iasworld_sale_day_of_month
+    description: '{{ doc("view_vw_iasworld_sale_day_of_month") }}'
+    config:
+      tags:
+        - test_qc_sales
+    tests:
+      - expression_is_true:
+          name: qc_vw_iasworld_sale_day_of_month_lte_1/10_observations
+          expression: sales_table_n < 0.1 * sum(sales_table_n)
+
+  - name: qc.vw_iasworld_sales_high_value_by_class
+    description: '{{ doc("view_vw_iasworld_sales_high_value_by_class") }}'
+    config:
+      tags:
+        - test_qc_sales
+    tests:
+      - expression_is_true:
+          name: qc_vw_iasworld_sales_high_value_by_class_lte_2000000
+          expression: price < 2000000
+          
