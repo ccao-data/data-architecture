@@ -15,6 +15,8 @@ models:
         description: '{{ doc("shared_column_certified_land") }}'
       - name: certified_tot
         description: '{{ doc("shared_column_certified_tot") }}'
+      - name: change_reason
+        description: '{{ doc("shared_column_change_reason") }}'
       - name: class
         description: '{{ doc("shared_column_class") }}'
       - name: mailed_bldg
@@ -35,6 +37,8 @@ models:
         description: '{{ doc("shared_column_certified_land") }}'
       - name: oneyr_pri_certified_tot
         description: '{{ doc("shared_column_certified_tot") }}'
+      - name: oneyr_pri_change_reason
+        description: '{{ doc("shared_column_change_reason") }}'
       - name: oneyr_pri_mailed_bldg
         description: '{{ doc("shared_column_mailed_bldg") }}'
       - name: oneyr_pri_mailed_land
@@ -53,6 +57,8 @@ models:
         description: '{{ doc("shared_column_certified_land") }}'
       - name: twoyr_pri_certified_tot
         description: '{{ doc("shared_column_certified_tot") }}'
+      - name: twoyr_pri_change_reason
+        description: '{{ doc("shared_column_change_reason") }}'
       - name: twoyr_pri_mailed_bldg
         description: '{{ doc("shared_column_mailed_bldg") }}'
       - name: twoyr_pri_mailed_land
