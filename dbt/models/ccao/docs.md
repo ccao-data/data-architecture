@@ -1,7 +1,8 @@
 # aprval_reascd
 
 {% docs table_aprval_reascd %}
-Reason codes and descriptions for changes to assessed value.
+Reason codes and descriptions for changes to assessed value. The data feeding
+this table is a static parquet file from the data warehouse.
 
 **Primary Key**: `reascd`
 {% enddocs %}
