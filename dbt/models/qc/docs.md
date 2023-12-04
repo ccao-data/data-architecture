@@ -67,42 +67,42 @@ Test that low value `ias.sale*` do not change dramatically.
 # view_vw_iasworld_sale_rowcount_matches_sales_mydec
 
 {% docs view_vw_iasworld_sale_rowcount_matches_sales_mydec %}
-Test that IasWorld and MyDec have similar Row Counts
+Test that `ias.sale*` and `sale.mydec*` have similar Row Counts
 
 {% enddocs %}
 
 # view_vw_sale_mydec_change_in_high_low_value_sales
 
 {% docs view_vw_sale_mydec_change_in_high_low_value_sales %}
-Test to see if high and low value sales are consistent in MyDec
+Test to see if high and low value sales are consistent in `sale.mydec*`
 
 {% enddocs %}
 
 # view_vw_iasworld_sale_unmatched_joins_sales_mydec
 
 {% docs view_vw_iasworld_sale_unmatched_joins_sales_mydec %}
-Test to identify years with large numbers of unmatched joins
+Test to identify years with large numbers of unmatched joins between `sale.mydec*` and `ias.sale*`.
 
 {% enddocs %}
 
 # view_vw_iasworld_sale_day_of_month
 
 {% docs view_vw_iasworld_sale_day_of_month %}
-Test to see if sale dates are concentrated on particular days of the month.
+Test to see if sale dates are concentrated on particular days of the month in `ias.sale*`. 
 
 {% enddocs %}
 
 # view_vw_iasworld_sales_high_value_by_class
 
 {% docs view_vw_iasworld_sales_high_value_by_class %}
-Test to see if selected classes have unexpectedly high value sales.
+Test to see if selected classes have unexpectedly high value sales in `ias.sale*`. 
 
 {% enddocs %}
 
 # view_vw_iasworld_sale_unmatched_sale_prices_sales_mydec
 
 {% docs view_vw_iasworld_sale_unmatched_sale_prices_sales_mydec %}
-Test to see if prices in IasWorld and MyDec match within |$1000|.
+Test to see if prices in `ias.sale*` and `sale.mydec*` match within |$1000|.
 
 {% enddocs %}
 
