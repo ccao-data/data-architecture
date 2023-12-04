@@ -21,9 +21,9 @@ mydec_cte AS (
 )
 
 SELECT
-    COALESCE(s.year, m.year) AS year,
-    COUNT(s.instruno) AS iasworld_unmatched,
-    COUNT(m.document_number) AS my_dec_unmatched
+    COALESCE(iasworld.year, mydec.year) AS year,
+    COUNT(iasworld.instruno) AS iasworld_unmatched,
+    COUNT(mydec.document_number) AS my_dec_unmatched
 FROM sales_cte AS iasworld
 FULL OUTER JOIN
     mydec_cte AS mydec
