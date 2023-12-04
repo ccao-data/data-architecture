@@ -21,14 +21,14 @@ mydec_cte AS (
 )
 
 SELECT
-    s.year AS year_sales,
-    s.price,
-    s.instruno,
-    m.year AS year_mydec,
-    m.line_11_full_consideration,
-    m.document_number
-FROM sales_cte AS s
-FULL OUTER JOIN mydec_cte AS m
-    ON s.year = m.year
-    AND s.instruno = m.document_number
-WHERE (s.price != m.line_11_full_consideration);
+    iasworld.year AS year_sales,
+    iasworld.price,
+    iasworld.instruno,
+    mydec.year AS year_mydec,
+    mydec.line_11_full_consideration,
+    mydec.document_number
+FROM sales_cte AS iasworld
+FULL OUTER JOIN mydec_cte AS mydec
+    ON iasworld.year = mydec.year
+    AND iasworld.instruno = m.document_number
+WHERE (iasworld.price != mydec.line_11_full_consideration);

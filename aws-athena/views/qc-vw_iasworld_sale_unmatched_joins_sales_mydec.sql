@@ -27,7 +27,7 @@ SELECT
 FROM sales_cte AS iasworld
 FULL OUTER JOIN
     mydec_cte AS mydec
-    ON iasworld.year = m.year AND iasworld.instruno = mydec.document_number
+    ON iasworld.year = mydec.year AND iasworld.instruno = mydec.document_number
 WHERE iasworld.instruno IS NULL OR mydec.document_number IS NULL
 GROUP BY COALESCE(iasworld.year, mydec.year)
 ORDER BY year
