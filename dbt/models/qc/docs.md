@@ -99,7 +99,12 @@ Test to see if selected classes have unexpectedly high value sales.
 
 {% enddocs %}
 
+# view_vw_iasworld_sale_unmatched_sale_prices_sales_mydec
 
+{% docs view_vw_iasworld_sale_unmatched_sale_prices_sales_mydec %}
+Test to see if prices in IasWorld and MyDec match within |$1000|.
+
+{% enddocs %}
 
 
 
