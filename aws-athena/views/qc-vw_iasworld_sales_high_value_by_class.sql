@@ -26,11 +26,11 @@ res_char AS (
 SELECT
     iasworld.parid,
     iasworld.price,
-    r.pin,
-    r.class,
-    r.year,
+    res.pin,
+    res.class,
+    res.year,
     iasworld.year_of_sale
 FROM sales_cte AS iasworld
 INNER JOIN
-    res_char AS r
-    ON iasworld.parid = r.pin AND r.year = iasworld.year_of_sale;
+    res_char AS res
+    ON iasworld.parid = res.pin AND res.year = iasworld.year_of_sale;

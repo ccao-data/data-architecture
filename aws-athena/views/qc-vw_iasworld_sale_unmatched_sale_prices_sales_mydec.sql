@@ -30,5 +30,5 @@ SELECT
 FROM sales_cte AS iasworld
 FULL OUTER JOIN mydec_cte AS mydec
     ON iasworld.year = mydec.year
-    AND iasworld.instruno = m.document_number
+    AND iasworld.instruno = mydec.document_number
 WHERE (iasworld.price != mydec.line_11_full_consideration);
