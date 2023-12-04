@@ -30,5 +30,5 @@ SELECT
     r.class,
     r.year,
     s.year_of_sale
-FROM sales_cte AS s
-INNER JOIN res_char AS r ON s.parid = r.pin AND r.year = s.year_of_sale;
+FROM sales_cte AS iasworld
+INNER JOIN res_char AS r ON iasworld.parid = r.pin AND r.year = iasworld.year_of_sale;
