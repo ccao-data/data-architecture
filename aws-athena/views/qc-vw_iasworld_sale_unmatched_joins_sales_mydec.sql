@@ -6,7 +6,7 @@ WITH sales_cte AS (
     WHERE
         deactivat IS NULL
         AND cur = 'Y'
-    AND CAST(SUBSTR(saledt, 1, 4) AS INTEGER) BETWEEN 2014 AND 2040
+        AND CAST(SUBSTR(saledt, 1, 4) AS INTEGER) BETWEEN 2014 AND 2040
     GROUP BY SUBSTR(saledt, 1, 4), instruno
 ),
 

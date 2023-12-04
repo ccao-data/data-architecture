@@ -11,7 +11,7 @@ WITH sales_cte AS (
         AND sales.cur = 'Y'
         AND sales.price IS NOT NULL
         AND sales.instruno IS NOT NULL
-    AND CAST(SUBSTR(sales.saledt, 1, 4) AS INTEGER) BETWEEN 2014 AND 2040
+        AND CAST(SUBSTR(sales.saledt, 1, 4) AS INTEGER) BETWEEN 2014 AND 2040
     GROUP BY SUBSTR(sales.saledt, 1, 4)
     ORDER BY SUBSTR(sales.saledt, 1, 4)
 )
