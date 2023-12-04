@@ -1,0 +1,1 @@
+../../../aws-athena/views/qc-vw_iasworld_change_in_high_low_value_sales.sql

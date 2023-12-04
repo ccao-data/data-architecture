@@ -57,9 +57,9 @@ Test that deed, buyer, seller, address and price `sale.mydec*` columns are not n
 
 {% enddocs %}
 
-# view_vw_iasworld_change_in_low_value_sales
+# view_vw_iasworld_change_in_high_low_value_sales
 
-{% docs view_vw_iasworld_change_in_low_value_sales %}
+{% docs view_vw_iasworld_change_in_high_low_value_sales %}
 Test that low value `ias.sale*` do not change dramatically.
 
 {% enddocs %}
