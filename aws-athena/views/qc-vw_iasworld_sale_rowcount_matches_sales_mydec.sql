@@ -31,7 +31,9 @@ comparison AS (
             WHEN
                 iasworld.iasworld_sales > 1.05 * mydec.my_dec_sales
                 THEN 'IasWorld 5% Higher'
-            WHEN mydec.my_dec_sales > 1.05 * iasworld.iasworld_sales THEN 'Mydec 5% Higher'
+            WHEN
+                mydec.my_dec_sales > 1.05 * iasworld.iasworld_sales
+                THEN 'Mydec 5% Higher'
             ELSE 'No significant difference'
         END AS comparison
     FROM iasworld_sales_cte AS iasworld

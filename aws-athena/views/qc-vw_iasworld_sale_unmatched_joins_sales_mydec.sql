@@ -24,10 +24,10 @@ SELECT
     COALESCE(s.year, m.year) AS year,
     COUNT(s.instruno) AS iasworld_unmatched,
     COUNT(m.document_number) AS my_dec_unmatched
-FROM sales_cte AS s
+FROM sales_cte AS iasworld
 FULL OUTER JOIN
-    mydec_cte AS m
-    ON s.year = m.year AND s.instruno = m.document_number
-WHERE s.instruno IS NULL OR m.document_number IS NULL
-GROUP BY COALESCE(s.year, m.year)
+    mydec_cte AS mydec
+    ON iasworld.year = m.year AND iasworld.instruno = mydec.document_number
+WHERE iasworld.instruno IS NULL OR mydec.document_number IS NULL
+GROUP BY COALESCE(iasworld.year, mydec.year)
 ORDER BY year
