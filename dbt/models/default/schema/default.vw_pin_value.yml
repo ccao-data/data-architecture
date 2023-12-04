@@ -15,6 +15,8 @@ models:
         description: '{{ doc("shared_column_certified_land") }}'
       - name: certified_tot
         description: '{{ doc("shared_column_certified_tot") }}'
+      - name: change_reason
+        description: '{{ doc("shared_column_change_reason") }}'
       - name: mailed_bldg
         description: '{{ doc("shared_column_mailed_bldg") }}'
       - name: mailed_land
@@ -33,7 +35,7 @@ models:
           Number of currently active/open stages.
 
           The possible values include:
-          
+
           - `1` = Mailed
           - `2` = Certified
           - `3` = Board
