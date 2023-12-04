@@ -20,7 +20,7 @@ res_char AS (
   FROM "default"."vw_card_res_char"
   WHERE
     CAST(year AS INTEGER) >= 2014
-    AND class = '204' 
+    AND class IN ('200', '202', '203', '204', '210')
 )
 
 SELECT
