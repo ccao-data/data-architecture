@@ -7,7 +7,7 @@ WITH iasworld_sales_cte AS (
         iasworld.sales.deactivat IS NULL
         AND iasworld.sales.cur = 'Y'
         AND iasworld.sales.instruno IS NOT NULL
-        AND CAST(SUBSTR(iasworld.sales.saledt, 1, 4) AS INTEGER) >= 2014
+    AND CAST(SUBSTR(iasworld.sales.saledt, 1, 4) AS INTEGER) BETWEEN 2014 AND 2040
     GROUP BY SUBSTR(iasworld.sales.saledt, 1, 4)
     ORDER BY SUBSTR(iasworld.sales.saledt, 1, 4)
 ),
