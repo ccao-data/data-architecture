@@ -30,7 +30,6 @@ library(nngeo)
 library(geosphere)
 library(profvis)
 library(furrr)
-library(here)
 
 # We need two slightly different representations of the township name in order
 # to satisfy the requirements of the different external systems we query.
@@ -335,7 +334,7 @@ final <- cbind(parcels, final_result)
 file_name <- paste0(township, "_11_20.shp")
 
 directory <- file.path(
-  here("aws-s3", "scripts-ccao-data-raw-us-east-1", "corner-lot-raw", township)
+  "aws-s3", "scripts-ccao-data-raw-us-east-1", "spatial-corner_lot-raw", township
 )
 
 output_file <- file.path(directory, file_name)
