@@ -494,6 +494,17 @@ SELECT
             nn1.prox_nearest_major_road_dist_ft IS NULL
             THEN nn2.prox_nearest_major_road_dist_ft
     END AS prox_nearest_major_road_dist_ft,
+    CASE
+        WHEN
+            f1.prox_nearest_secondary_road_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_secondary_road_dist_ft
+        WHEN
+            f1.prox_nearest_secondary_road_dist_ft IS NULL
+            THEN nn1.prox_nearest_secondary_road_dist_ft
+        WHEN
+            nn1.prox_nearest_secondary_road_dist_ft IS NULL
+            THEN nn2.prox_nearest_secondary_road_dist_ft
+    END AS prox_nearest_secondary_road_dist_ft,
     f1.prox_nearest_metra_route_dist_ft,
     f1.prox_nearest_metra_stop_dist_ft,
     CASE
