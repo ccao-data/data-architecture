@@ -36,8 +36,8 @@ library(furrr)
 # townshipa is used to filter our shapefiles, and should be the same as the
 # township_name in ccao::town_dict
 townshipa <- "Bloom"
-# township is used to query Cook County open data, which sometimes has a slightly
-# different format. Unfortunately there's no canonical crosswalk, so we
+# township is used to query Cook County open data, which sometimes has a
+# slightly different format. Unfortunately there's no canonical crosswalk, so we
 # typically just use trial and error, and most of the time township is
 # equivalent to townshipa
 township <- "Bloom"
@@ -46,10 +46,10 @@ bbox <- ccao::town_shp %>%
   filter(township_name == townshipa) %>%
   st_bbox()
 
-bbox[1] <- bbox[1] -.0001
-bbox[2] <- bbox[2] -.0001
-bbox[3] <- bbox[3] +.0001
-bbox[4] <- bbox[4] +.0001
+bbox[1] <- bbox[1] - .0001
+bbox[2] <- bbox[2] - .0001
+bbox[3] <- bbox[3] + .0001
+bbox[4] <- bbox[4] + .0001
 
 
 # Download Street networks from Open Street Maps.
@@ -95,12 +95,15 @@ network <- suppressWarnings({
 
 network_sf <- st_as_sf(network)
 
-# Load parcel data from the County's data portal. When trial and erroring the township,
-# you may need to modify this to include capital letters for "Town of".
+# Load parcel data from the County's data portal. When trial and erroring the
+# township, you may need to modify this to include capital letters for "Town of"
 parcels <- st_read(
   glue::glue(
+    # nolint start: line_length_linter
     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
-  )) %>%
+    # nolint end
+  )
+) %>%
   mutate(id = row_number())
 
 # Prepare inputs.
@@ -110,7 +113,7 @@ parcels_buffered <- parcels %>%
   st_transform(3435) %>%
   st_buffer(dist = units::set_units(5, "m"))
 
-network_trans  <- network %>%
+network_trans <- network %>%
   activate("edges") %>%
   activate("nodes") %>%
   filter(!node_is_isolated()) %>%
@@ -123,8 +126,8 @@ network_trans  <- network %>%
 # (`parcels_full`) and a dataframe of buffered parcels (`parcels_buffered`)
 # alongside a street network (`network`) to determine whether the parcel at
 # the given index is a corner lot or not. Returns a boolean
- parcel_is_corner <- function(x, parcels_full, parcels_buffered, network) {
-
+# nolint start: cyclocomp_linter
+parcel_is_corner <- function(x, parcels_full, parcels_buffered, network) {
   stopifnot(
     st_crs(parcels_full) == st_crs(parcels_buffered),
     st_crs(parcels_buffered) == st_crs(network)
@@ -147,7 +150,13 @@ network_trans  <- network %>%
     mutate(bearing = edge_azimuth()) %>%
     mutate(bearing = units::set_units(bearing, "degree")) %>%
     mutate(id = row_number()) %>%
-    mutate(corrected_bearing = ifelse(id %% 4 != 0, bearing, bearing + units::set_units(180, "degree"))) %>%
+    mutate(
+      corrected_bearing = ifelse(
+        id %% 4 != 0,
+        bearing,
+        bearing + units::set_units(180, "degree")
+      )
+    ) %>%
     st_as_sf()
 
 
@@ -171,7 +180,11 @@ network_trans  <- network %>%
 
 
   # Get the endpoints of the cross
-  dest <- destPoint(p = centroid, b = rectangle_network$corrected_bearing, d = rectangle_network$length)
+  dest <- destPoint(
+    p = centroid,
+    b = rectangle_network$corrected_bearing,
+    d = rectangle_network$length
+  )
 
   cross <- cbind(centroid, dest) %>%
     as.data.frame()
@@ -198,19 +211,26 @@ network_trans  <- network %>%
 
   # Step 3: Find all of the neighboring units touched by the cross.
   # Start by computing the list of parcels that are intersected by the cross
-  touching_unit <- suppressWarnings(suppressMessages(st_intersects(cross$geometry, parcels_full)))
+  touching_unit <- st_intersects(cross$geometry, parcels_full) %>%
+    suppressMessages() %>%
+    suppressWarnings()
 
   # Compute the neighbor units for a parcel
-  neighbor_unit <-
-    list(which(replace_na(as.logical(st_intersects(parcels_full, parcels_buffered[x, ])), FALSE)))
+  neighbor_unit <- st_intersects(parcels_full, parcels_buffered[x, ]) %>%
+    as.logical() %>%
+    replace_na(FALSE) %>%
+    which()
   neighbor_unit <- rep(neighbor_unit, each = 4)
 
   # Compute the intersection of {touching_unit & neighbor_unit} to find
   # neighboring units that intersect the cross
-  neighbor_and_touching <- lapply(1:4, function(i) setdiff(intersect(touching_unit[[i]], neighbor_unit[[i]]), x))
+  neighbor_and_touching <- lapply(
+    1:4,
+    function(i) setdiff(intersect(touching_unit[[i]], neighbor_unit[[i]]), x)
+  )
 
-  # Remove the cross segments from the intersection of
-  # {cross_touching_unit & neighbor_unit}
+  # Remove the cross segments from the intersection of cross_touching_unit
+  # and neighbor_unit
   cross_int <- replace_na(imap_lgl(neighbor_and_touching, function(y, i) {
     as.logical(st_intersects(cross$geometry[i], parcels_full[i, ]))
   }), FALSE)
@@ -249,11 +269,14 @@ network_trans  <- network %>%
   # Step 5: Get the number of roads that are bordering the parcel
   touching_unit_street <- rep(list(NULL), 4)
 
-  touching_unit_street <- suppressWarnings(suppressMessages(
-    st_intersects(cross_filter$geometry, network)
-  ))
+  touching_unit_street <- st_intersects(cross_filter$geometry, network) %>%
+    suppressMessages() %>%
+    suppressWarnings()
 
-  touching_unit_street <- c(touching_unit_street, rep(list(NULL), 4 - length(touching_unit_street)))
+  touching_unit_street <- c(
+    touching_unit_street,
+    rep(list(NULL), 4 - length(touching_unit_street))
+  )
 
   touching_street_number <- sum(lengths(touching_unit_street))
 
@@ -265,8 +288,15 @@ network_trans  <- network %>%
   # sides of the parcel
   back_front_indicator <- ifelse(
     touching_street_number == 2 &
-      (!is_empty(touching_unit_street[[1]]) & !is_empty(touching_unit_street[[3]])) |
-      (touching_street_number == 2 & !is_empty(touching_unit_street[[2]]) & !is_empty(touching_unit_street[[4]])),
+      (
+        !is_empty(touching_unit_street[[1]]) &
+          !is_empty(touching_unit_street[[3]])
+      ) |
+      (
+        touching_street_number == 2 &
+          !is_empty(touching_unit_street[[2]]) &
+          !is_empty(touching_unit_street[[4]])
+      ),
     TRUE,
     FALSE
   )
@@ -277,11 +307,27 @@ network_trans  <- network %>%
   # network, and so gets erroneously counted as two roads
   double_road_indicator <- ifelse(
     touching_street_number > 1 &
-      (is_empty(touching_unit_street[[1]]) & is_empty(touching_unit_street[[2]]) & is_empty(touching_unit_street[[3]])) |
-      (is_empty(touching_unit_street[[2]]) & is_empty(touching_unit_street[[3]]) & is_empty(touching_unit_street[[4]])) |
-      (is_empty(touching_unit_street[[1]]) & is_empty(touching_unit_street[[3]]) & is_empty(touching_unit_street[[4]])) |
-      (is_empty(touching_unit_street[[1]]) & is_empty(touching_unit_street[[2]]) & is_empty(touching_unit_street[[4]])),
-      TRUE,
+      (
+        is_empty(touching_unit_street[[1]]) &
+          is_empty(touching_unit_street[[2]]) &
+          is_empty(touching_unit_street[[3]])
+      ) |
+      (
+        is_empty(touching_unit_street[[2]]) &
+          is_empty(touching_unit_street[[3]]) &
+          is_empty(touching_unit_street[[4]])
+      ) |
+      (
+        is_empty(touching_unit_street[[1]]) &
+          is_empty(touching_unit_street[[3]]) &
+          is_empty(touching_unit_street[[4]])
+      ) |
+      (
+        is_empty(touching_unit_street[[1]]) &
+          is_empty(touching_unit_street[[2]]) &
+          is_empty(touching_unit_street[[4]])
+      ),
+    TRUE,
     FALSE
   )
 
@@ -289,12 +335,19 @@ network_trans  <- network %>%
 
   # Step 6: Check if the parcel meets all the necessary conditions to be counted
   # as a corner
-  if (all(touching_street_number >= 2) & all(cross_corner_number >= 1) & all(aspect_ratio < 30) & back_front_indicator == 0 & double_road_indicator == 0){
+  if (
+    all(touching_street_number >= 2) &
+      all(cross_corner_number >= 1) &
+      all(aspect_ratio < 30) &
+      back_front_indicator == 0 &
+      double_road_indicator == 0
+  ) {
     return(TRUE)
   } else {
     return(FALSE)
   }
 }
+# nolint end
 
 # Parcel data needs to be chunked in order to reduce memory use. Set the
 # size of the chunks based on the capacity of the compute environment
@@ -317,10 +370,20 @@ results_list <- map(1:num_chunks, function(chunk_number) {
 
   result <- numeric(nrow(parcel_slice))
 
+  # nolint start: seq_linter
   for (x in 1:nrow(parcel_slice)) {
-    result[x] <- parcel_is_corner(x, parcel_slice, parcels_buffered, network_trans)
-    cat("Chunk:", chunk_number, "/", num_chunks, "- Iteration:", x, "/", nrow(parcel_slice), "\n")
+    result[x] <- parcel_is_corner(
+      x,
+      parcel_slice,
+      parcels_buffered,
+      network_trans
+    )
+    cat(
+      "Chunk:", chunk_number, "/", num_chunks, "- Iteration:", x, "/",
+      nrow(parcel_slice), "\n"
+    )
   }
+  # nolint end
 
   return(result)
 })
@@ -334,7 +397,10 @@ final <- cbind(parcels, final_result)
 file_name <- paste0(township, "_11_20.shp")
 
 directory <- file.path(
-  "aws-s3", "scripts-ccao-data-raw-us-east-1", "spatial-corner_lot-raw", township
+  "aws-s3",
+  "scripts-ccao-data-raw-us-east-1",
+  "spatial-corner_lot-raw",
+  township
 )
 
 output_file <- file.path(directory, file_name)
