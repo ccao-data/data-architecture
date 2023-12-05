@@ -38,6 +38,8 @@ WITH unfilled AS (
             AS lake_michigan_data_year,
         MAX(dist_pin_to_major_road.nearest_major_road_data_year)
             AS nearest_major_road_data_year,
+        MAX(dist_pin_to_secondary_road.nearest_secondary_road_data_year)
+            AS nearest_secondary_road_data_year,
         MAX(dist_pin_to_metra_route.nearest_metra_route_data_year)
             AS nearest_metra_route_data_year,
         MAX(dist_pin_to_metra_stop.nearest_metra_stop_data_year)
@@ -127,6 +129,13 @@ WITH unfilled AS (
             nearest_major_road_data_year
         FROM {{ ref('proximity.dist_pin_to_major_road') }}
     ) AS dist_pin_to_major_road ON pin.year = dist_pin_to_major_road.year
+    LEFT JOIN (
+        SELECT DISTINCT
+            year,
+            nearest_secondary_road_data_year
+        FROM {{ ref('proximity.dist_pin_to_secondary_road') }}
+    ) AS dist_pin_to_secondary_road
+        ON pin.year = dist_pin_to_secondary_road.year
     LEFT JOIN (
         SELECT DISTINCT
             year,
@@ -238,6 +247,12 @@ SELECT
             IGNORE NULLS
             OVER (ORDER BY year DESC)
     ) AS nearest_major_road_data_year,
+    COALESCE(
+        nearest_secondary_road_data_year,
+        LAST_VALUE(nearest_secondary_road_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY year DESC)
+    ) AS nearest_secondary_road_data_year,
     COALESCE(
         nearest_metra_route_data_year,
         LAST_VALUE(nearest_metra_route_data_year)
