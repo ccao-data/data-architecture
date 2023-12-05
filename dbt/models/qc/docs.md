@@ -74,7 +74,7 @@ Test that `ias.sale*` and `sale.mydec*` have similar row counts.
 # view_vw_sale_mydec_change_in_high_low_value_sales
 
 {% docs view_vw_sale_mydec_change_in_high_low_value_sales %}
-Test to see if high and low value sales are consistent in `sale.mydec*`
+Test to see if high and low value sales are consistent in `sale.mydec*`.
 
 {% enddocs %}
 
