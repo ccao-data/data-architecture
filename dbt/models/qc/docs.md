@@ -105,7 +105,3 @@ Test to see if selected classes have unexpectedly high value sales in `ias.sale*
 Test to see if prices in `ias.sale*` and `sale.mydec*` match within |$1000|.
 
 {% enddocs %}
-
-
-
-
