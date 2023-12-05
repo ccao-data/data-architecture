@@ -41,7 +41,9 @@ import pyathena
 
 @dataclasses.dataclass
 class FailingTest:
-    test_name: str
+    name: str
+    display_name: typing.Optional[str]
+    description: typing.Optional[str]
     fieldnames: typing.List
     failing_rows: typing.Tuple
 
@@ -85,8 +87,8 @@ def main() -> None:
         if result["status"] == "fail":
             unique_id = result["unique_id"]
             # Unique ID format is:
-            # test.athena.<test_name>.<hash>
-            test_name = unique_id.split(".")[2]
+            # test.athena.<name>.<hash>
+            name = unique_id.split(".")[2]
 
             node = manifest["nodes"].get(unique_id)
             if node is None:
@@ -94,10 +96,13 @@ def main() -> None:
                     f"Missing dbt manifest node with id {unique_id}"
                 )
 
+            meta = node.get("meta", {})
+            display_name = meta.get("display_name")
+            description = meta.get("description")
             relation_name = node.get("relation_name")
             if relation_name is None:
                 raise ValueError(
-                    f"Missing relation_name for test {test_name}. Did you "
+                    f"Missing relation_name for test {name}. Did you "
                     "run `dbt test` with the --store-failures flag?"
                 )
 
@@ -109,7 +114,9 @@ def main() -> None:
             if len(failing_rows) > 0:
                 failing_tests.append(
                     FailingTest(
-                        test_name=test_name,
+                        name=name,
+                        display_name=display_name,
+                        description=description,
                         fieldnames=fieldnames,
                         failing_rows=failing_rows,
                     )
@@ -141,14 +148,23 @@ def main() -> None:
 def add_failing_test_data_to_sheet(
     sheet: openpyxl.worksheet.worksheet.Worksheet, failing_test: FailingTest
 ) -> None:
+    # `display_name` can be null, so fall back to `name`
+    test_name = failing_test.display_name or failing_test.name
     # For maximum compatibility, Excel worksheet names should not exceed
     # 31 characters
-    sheet.title = failing_test.test_name[0:31]
-    sheet.append(failing_test.fieldnames)
+    sheet.title = test_name[0:31]
+
+    # We are rolling out test descriptions incrementally, so only add a
+    # description row if a description is defined on the test
+    header_idx = 1
+    if failing_test.description is not None:
+        sheet.append([failing_test.description])
+        header_idx = 2
 
     # Style the header differently from rows so that it is visually distinct
+    sheet.append(failing_test.fieldnames)
     font = openpyxl.styles.Font(bold=True)
-    for cell in sheet[1]:
+    for cell in sheet[header_idx]:
         cell.font = font
 
     for failing_row in failing_test.failing_rows:
