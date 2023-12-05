@@ -59,3 +59,5 @@ models:
       +schema: sale
     qc:
       +schema: qc
+tests:
+  +schema: test_failure

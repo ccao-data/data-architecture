@@ -23,14 +23,47 @@ jobs:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
       - name: Test models
-        run: dbt test --target "$TARGET"
+        run: dbt test --target "$TARGET" --store-failures
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
       - name: Get current time
+        # TODO: Pull failure steps out into a separate job
         if: failure()
         run: echo "TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S")" >> "$GITHUB_ENV"
         shell: bash
+
+      - name: Generate test failure workbook
+        id: generate-workbook
+        if: failure()
+        run: |
+          FILENAME="data_test_failures_$TIMESTAMP.xlsx"
+          FILEPATH="./target/$FILENAME"
+          # TODO: Set AWS_ATHENA_S3_STAGING_DIR
+          python3 ../.github/scripts/generate_test_failure_workbook.py \
+            ./target/run_results.json \
+            ./target/manifest.json \
+            "$FILEPATH"
+          echo "filename=$FILENAME" >> "$GITHUB_OUTPUT"
+          echo "filepath=$FILEPATH" >> "$GITHUB_OUTPUT"
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Upload test failure workbook to S3
+        id: upload-workbook
+        if: failure()
+        run: |
+          # TODO: Create this bucket and give the role permissions over it
+          BUCKET="ccao-dbt-test-runs-us-east-1"
+          KEY="$TARGET/test_runs/$FILENAME"
+          S3_PATH="s3://$BUCKET/$KEY"
+          aws s3 cp "${{ steps.generate-workbook.outputs.filepath }}" "$S3_PATH"
+          CONSOLE_PATH="https://s3.console.aws.amazon.com/s3/object/$BUCKET/$KEY?region=us-east-1&tab=overview"
+          echo "console_path=$CONSOLE_PATH" >> "$GITHUB_OUTPUT"
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+        env:
+          FILENAME: ${{ steps.generate-workbook.outputs.filename }}
 
       # Only triggered when called by a bot. Otherwise, notifications
       # go to whoever called the workflow
@@ -45,3 +78,6 @@ jobs:
 
             Link to failing workflow:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+            Link to failure workbook:
+            ${{ steps.upload-workbook.outputs.console_path }}
