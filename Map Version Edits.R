@@ -52,7 +52,7 @@ bbox[3] <- bbox[3] +.0001
 bbox[4] <- bbox[4] +.0001
 
 
-# Street network data
+# Download Street networks from Open Street Maps.
 osm_data <- function(type) {
   opq(bbox = bbox) %>%
     add_osm_feature(key = "highway", value = type) %>%
@@ -61,8 +61,9 @@ osm_data <- function(type) {
     osmdata_sf()
 }
 
-# Filter the street network for only major roads, since only lots on the
-# intersection of major roads should count as corners
+# Filter the street network to remove both major and minor roads.
+# This simultaneously removes things like walking paths and highways, each
+# of which would not be understood as typical "corners".
 highway_type <- available_tags("highway")
 
 town_osm <- lapply(highway_type, osm_data)
@@ -94,7 +95,8 @@ network <- suppressWarnings({
 
 network_sf <- st_as_sf(network)
 
-# Load parcel data from the County's data portal
+# Load parcel data from the County's data portal. When trial and erroring the township,
+# you may need to modify this to include capital letters for "Town of".
 parcels <- st_read(
   glue::glue(
     "https://datacatalog.cookcountyil.gov/resource/77tz-riq7.geojson?PoliticalTownship=Town%20of%20{township}&$limit=1000000"
@@ -175,7 +177,7 @@ network_trans  <- network %>%
     as.data.frame()
 
 
-  # Draw the lines that connect the endpoints of the cross
+  # Draw the lines that connect the centroids to the endpoints of the cross
   draw_line <- function(r) st_linestring(t(matrix(unlist(r), 2, 2)))
   cross$geometry <- st_sfc(sapply(1:nrow(cross), function(i) {
     draw_line(cross[i, ])
@@ -327,7 +329,6 @@ final_result <- unlist(results_list)
 
 final <- cbind(parcels, final_result)
 
-
 # Write the parcel results to disk
 file_name <- paste0(township, "_11_20.shp")
 
@@ -345,7 +346,7 @@ if (!dir.exists(directory)) {
 sf::st_write(sf_obj, output_file, append = FALSE)
 
 
-# Write the street network to disk, to aid in debugging
+# Write the street network to disk, to aid in debugging and visualization.
 file_name <- paste0(township, "_street.shp")
 
 output_file <- file.path(directory, file_name)
