@@ -225,7 +225,8 @@ network_trans  <- network %>%
   # Step 4: Calculate the angle of cross segments in order to filter out
   # segments that are not at right angles. This is important because we don't
   # want parallel segments at opposite sides of the parcel, which would not
-  # indicate a corner
+  # indicate a corner. Note that this approach doesn't work in all cases, so
+  # we also introduce a second back_front_indicator below
   angle_diff <- function(theta1, theta2) {
     theta <- abs(theta1 - theta2) %% 360
     return(ifelse(theta > 180, 360 - theta, theta))
