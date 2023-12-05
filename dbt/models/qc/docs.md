@@ -67,7 +67,7 @@ Test that low value `ias.sale*` do not change dramatically.
 # view_vw_iasworld_sale_rowcount_matches_sales_mydec
 
 {% docs view_vw_iasworld_sale_rowcount_matches_sales_mydec %}
-Test that `ias.sale*` and `sale.mydec*` have similar Row Counts
+Test that `ias.sale*` and `sale.mydec*` have similar row counts.
 
 {% enddocs %}
 
