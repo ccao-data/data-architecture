@@ -520,6 +520,17 @@ SELECT
     END AS prox_nearest_railroad_dist_ft,
     CASE
         WHEN
+            f1.prox_nearest_secondary_road_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_secondary_road_dist_ft
+        WHEN
+            f1.prox_nearest_secondary_road_dist_ft IS NULL
+            THEN nn1.prox_nearest_secondary_road_dist_ft
+        WHEN
+            nn1.prox_nearest_secondary_road_dist_ft IS NULL
+            THEN nn2.prox_nearest_secondary_road_dist_ft
+    END AS prox_nearest_secondary_road_dist_ft,
+    CASE
+        WHEN
             f1.prox_nearest_water_dist_ft IS NOT NULL
             THEN f1.prox_nearest_water_dist_ft
         WHEN

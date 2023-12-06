@@ -1,7 +1,7 @@
 ## airport_data_year
 
 {% docs column_airport_data_year %}
-Set to year 2019 for all PINs. Note that O'Hare noise predictions 
+Set to year 2019 for all PINs. Note that O'Hare noise predictions
 are built from O'Hare Modernization Program (OMP) projected values.
 {% enddocs %}
 
@@ -12,7 +12,7 @@ Estimated contribution of Midway airport to PIN noise.
 
 Measured in decibels; to be interpreted as contribution to DNL
 (Day-Night Level) estimate of 24-hour average of decibel level.
-Produced by modeling noise level as inverse-square falloff 
+Produced by modeling noise level as inverse-square falloff
 from a point source at the centroid of the airport.
 {% enddocs %}
 
@@ -23,7 +23,7 @@ Estimated contribution of O'Hare airport to PIN noise.
 
 Measured in decibels; to be interpreted as contribution to DNL
 (Day-Night Level) estimate of 24-hour average of decibel level.
-Produced by modeling noise level as inverse-square falloff 
+Produced by modeling noise level as inverse-square falloff
 from a point source at the centroid of the airport.
 {% enddocs %}
 
@@ -33,7 +33,7 @@ from a point source at the centroid of the airport.
 Estimated DNL for a PIN, assuming a baseline DNL of 50 ("quiet suburban") and
 adding predicted noise from O'Hare and Midway airports to that baseline.
 
-For more on DNL, see 
+For more on DNL, see
 https://www.faa.gov/regulations_policies/policy_guidance/noise/basics
 {% enddocs %}
 
@@ -353,6 +353,33 @@ Nearest railroad line name, if available.
 
 Railroad locations sourced from Cook County GIS. Inclusive of any rail
 (CTA, Metra, non-passenger freight, etc.)
+{% enddocs %}
+
+## nearest_secondary_road_dist_ft
+
+{% docs column_nearest_secondary_road_dist_ft %}
+Nearest secondary road distance (feet).
+
+Secondary road locations sourced from OpenStreetMap (OSM) and include
+any OSM ways tagged with `highway/secondary`
+{% enddocs %}
+
+## nearest_secondary_road_name
+
+{% docs column_nearest_secondary_road_name %}
+Nearest secondary road name, if available.
+
+Secondary road locations sourced from OpenStreetMap (OSM) and include
+any OSM ways tagged with `highway/secondary`
+{% enddocs %}
+
+## nearest_secondary_road_osm_id
+
+{% docs column_nearest_secondary_road_osm_id %}
+Nearest secondary road OpenStreetMap ID.
+
+Secondary road locations sourced from OpenStreetMap (OSM) and include
+any OSM ways tagged with `highway/secondary`
 {% enddocs %}
 
 ## nearest_water_dist_ft
