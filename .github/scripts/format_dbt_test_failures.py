@@ -42,7 +42,7 @@
 # Example usage:
 #
 #   AWS_ATHENA_S3_STAGING_DIR=s3://foo-bar-baz/ \
-#       python3 generate_test_failure_workbook_zip.py \
+#       python3 format_dbt_test_failures.py \
 #       ./target/run_results.json \
 #       ./target/manifest.json \
 #       ./test_failures.zip
