@@ -360,8 +360,8 @@ Railroad locations sourced from Cook County GIS. Inclusive of any rail
 {% docs column_nearest_secondary_road_dist_ft %}
 Nearest secondary road distance (feet).
 
-secondary road locations sourced from OpenStreetMap (OSM).
-secondary roads include any OSM ways tagged with `highway/secondary`
+Secondary road locations sourced from OpenStreetMap (OSM) and include
+any OSM ways tagged with `highway/secondary`
 {% enddocs %}
 
 ## nearest_secondary_road_name
@@ -369,8 +369,8 @@ secondary roads include any OSM ways tagged with `highway/secondary`
 {% docs column_nearest_secondary_road_name %}
 Nearest secondary road name, if available.
 
-secondary road locations sourced from OpenStreetMap (OSM).
-secondary roads include any OSM ways tagged with `highway/secondary`
+Secondary road locations sourced from OpenStreetMap (OSM) and include
+any OSM ways tagged with `highway/secondary`
 {% enddocs %}
 
 ## nearest_secondary_road_osm_id
@@ -378,8 +378,8 @@ secondary roads include any OSM ways tagged with `highway/secondary`
 {% docs column_nearest_secondary_road_osm_id %}
 Nearest secondary road OpenStreetMap ID.
 
-secondary road locations sourced from OpenStreetMap (OSM).
-secondary roads include any OSM ways tagged with `highway/secondary`
+Secondary road locations sourced from OpenStreetMap (OSM) and include
+any OSM ways tagged with `highway/secondary`
 {% enddocs %}
 
 ## nearest_water_dist_ft

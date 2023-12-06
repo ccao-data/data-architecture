@@ -132,13 +132,6 @@ WITH unfilled AS (
     LEFT JOIN (
         SELECT DISTINCT
             year,
-            nearest_secondary_road_data_year
-        FROM {{ ref('proximity.dist_pin_to_secondary_road') }}
-    ) AS dist_pin_to_secondary_road
-        ON pin.year = dist_pin_to_secondary_road.year
-    LEFT JOIN (
-        SELECT DISTINCT
-            year,
             nearest_metra_route_data_year
         FROM {{ ref('proximity.dist_pin_to_metra_route') }}
     ) AS dist_pin_to_metra_route ON pin.year = dist_pin_to_metra_route.year
@@ -160,6 +153,13 @@ WITH unfilled AS (
             nearest_railroad_data_year
         FROM {{ ref('proximity.dist_pin_to_railroad') }}
     ) AS dist_pin_to_railroad ON pin.year = dist_pin_to_railroad.year
+    LEFT JOIN (
+        SELECT DISTINCT
+            year,
+            nearest_secondary_road_data_year
+        FROM {{ ref('proximity.dist_pin_to_secondary_road') }}
+    ) AS dist_pin_to_secondary_road
+        ON pin.year = dist_pin_to_secondary_road.year
     LEFT JOIN (
         SELECT DISTINCT
             year,
