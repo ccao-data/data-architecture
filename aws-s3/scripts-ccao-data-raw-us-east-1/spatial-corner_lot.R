@@ -2,10 +2,10 @@
 #
 # To run, set the township name variables below for the township you're
 # interested in, then run the script. The script will output shapefiles to the
-# `Base Data/` directory. These files should then be uploaded to the following
-# S3 path:
+# `spatial-corner_lot-raw/` directory. These files should then be uploaded to
+# the following S3 path:
 #
-# s3://ccao-data-raw-us-east-1/location/corner_lot/year={year}/*.shp
+# s3://ccao-data-raw-us-east-1/spatial/corner_lot/year={year}/*.shp
 #
 # At some point we may want to automate this upload, but it's manual for now.
 #
