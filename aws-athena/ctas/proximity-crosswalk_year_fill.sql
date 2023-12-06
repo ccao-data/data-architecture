@@ -248,12 +248,6 @@ SELECT
             OVER (ORDER BY year DESC)
     ) AS nearest_major_road_data_year,
     COALESCE(
-        nearest_secondary_road_data_year,
-        LAST_VALUE(nearest_secondary_road_data_year)
-            IGNORE NULLS
-            OVER (ORDER BY year DESC)
-    ) AS nearest_secondary_road_data_year,
-    COALESCE(
         nearest_metra_route_data_year,
         LAST_VALUE(nearest_metra_route_data_year)
             IGNORE NULLS
@@ -276,6 +270,12 @@ SELECT
             IGNORE NULLS
             OVER (ORDER BY year DESC)
     ) AS nearest_railroad_data_year,
+    COALESCE(
+        nearest_secondary_road_data_year,
+        LAST_VALUE(nearest_secondary_road_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY year DESC)
+    ) AS nearest_secondary_road_data_year,
     COALESCE(
         nearest_water_data_year, LAST_VALUE(nearest_water_data_year)
             IGNORE NULLS
