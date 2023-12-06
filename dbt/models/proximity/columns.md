@@ -364,6 +364,24 @@ secondary road locations sourced from OpenStreetMap (OSM).
 secondary roads include any OSM ways tagged with `highway/secondary`
 {% enddocs %}
 
+## nearest_secondary_road_name
+
+{% docs column_nearest_secondary_road_name %}
+Nearest secondary road name, if available.
+
+secondary road locations sourced from OpenStreetMap (OSM).
+secondary roads include any OSM ways tagged with `highway/secondary`
+{% enddocs %}
+
+## nearest_secondary_road_osm_id
+
+{% docs column_nearest_secondary_road_osm_id %}
+Nearest secondary road OpenStreetMap ID.
+
+secondary road locations sourced from OpenStreetMap (OSM).
+secondary roads include any OSM ways tagged with `highway/secondary`
+{% enddocs %}
+
 ## nearest_water_dist_ft
 
 {% docs column_nearest_water_dist_ft %}
