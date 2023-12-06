@@ -6,3 +6,4 @@ dbt_modules/
 dbt_packages/
 assets/*.svg
 master-cache/
+*.zip
