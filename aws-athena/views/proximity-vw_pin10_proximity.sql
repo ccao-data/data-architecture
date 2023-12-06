@@ -56,11 +56,6 @@ SELECT
     dist_pin_to_major_road.nearest_major_road_dist_ft,
     dist_pin_to_major_road.nearest_major_road_data_year,
 
-    dist_pin_to_secondary_road.nearest_secondary_road_osm_id,
-    dist_pin_to_secondary_road.nearest_secondary_road_name,
-    dist_pin_to_secondary_road.nearest_secondary_road_dist_ft,
-    dist_pin_to_secondary_road.nearest_secondary_road_data_year,
-
     dist_pin_to_metra_route.nearest_metra_route_id,
     dist_pin_to_metra_route.nearest_metra_route_name,
     dist_pin_to_metra_route.nearest_metra_route_dist_ft,
@@ -80,6 +75,11 @@ SELECT
     dist_pin_to_railroad.nearest_railroad_name,
     dist_pin_to_railroad.nearest_railroad_dist_ft,
     dist_pin_to_railroad.nearest_railroad_data_year,
+
+    dist_pin_to_secondary_road.nearest_secondary_road_osm_id,
+    dist_pin_to_secondary_road.nearest_secondary_road_name,
+    dist_pin_to_secondary_road.nearest_secondary_road_dist_ft,
+    dist_pin_to_secondary_road.nearest_secondary_road_data_year,
 
     dist_pin_to_water.nearest_water_id,
     dist_pin_to_water.nearest_water_name,
@@ -143,11 +143,6 @@ LEFT JOIN
     ON pin.pin10 = dist_pin_to_major_road.pin10
     AND pin.year = dist_pin_to_major_road.year
 LEFT JOIN
-    {{ ref('proximity.dist_pin_to_secondary_road') }}
-        AS dist_pin_to_secondary_road
-    ON pin.pin10 = dist_pin_to_secondary_road.pin10
-    AND pin.year = dist_pin_to_secondary_road.year
-LEFT JOIN
     {{ ref('proximity.dist_pin_to_metra_route') }} AS dist_pin_to_metra_route
     ON pin.pin10 = dist_pin_to_metra_route.pin10
     AND pin.year = dist_pin_to_metra_route.year
@@ -162,6 +157,11 @@ LEFT JOIN
     {{ ref('proximity.dist_pin_to_railroad') }} AS dist_pin_to_railroad
     ON pin.pin10 = dist_pin_to_railroad.pin10
     AND pin.year = dist_pin_to_railroad.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_secondary_road') }}
+        AS dist_pin_to_secondary_road
+    ON pin.pin10 = dist_pin_to_secondary_road.pin10
+    AND pin.year = dist_pin_to_secondary_road.year
 LEFT JOIN {{ ref('proximity.dist_pin_to_water') }} AS dist_pin_to_water
     ON pin.pin10 = dist_pin_to_water.pin10
     AND pin.year = dist_pin_to_water.year
