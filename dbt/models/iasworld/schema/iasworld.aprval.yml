@@ -29,7 +29,7 @@ sources:
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
-                    display_name: aprval.aprbldg between 0-1B
+                    display_name: aprbldg must be between 0-1B
           - name: aprdate
             description: '`APRTOT` calc date'
           - name: aprland
