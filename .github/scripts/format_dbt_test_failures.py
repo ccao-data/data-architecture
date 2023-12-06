@@ -58,6 +58,7 @@ import typing
 import openpyxl
 import openpyxl.styles
 import pyathena
+from openpyxl.worksheet.worksheet import Worksheet
 
 
 @dataclasses.dataclass
@@ -93,6 +94,7 @@ class FailedTestWorkbook:
         # openpyxl workbooks are created with one untitled active sheet by
         # default, so rename and fill out that sheet before creating any
         # new sheets
+        sheet: Worksheet
         if self._workbook.sheetnames == ["Sheet"]:
             sheet = self._workbook.active
         else:
@@ -119,9 +121,7 @@ class FailedTestWorkbook:
         for failed_row in failed_test.failed_rows:
             sheet.append(failed_row)
 
-    def _set_sheet_title(
-        self, sheet: openpyxl.worksheet.worksheet.Worksheet, test_name: str
-    ) -> None:
+    def _set_sheet_title(self, sheet: Worksheet, test_name: str) -> None:
         # For maximum compatibility, Excel worksheet names should not exceed
         # 31 characters
         title = test_name[:31]
@@ -208,11 +208,13 @@ def get_failed_tests_by_model(
 
             models = node.get("depends_on", {}).get("nodes", [])
             if not models:
-                breakpoint()
                 raise ValueError(
                     f"Missing depends_on.nodes attribute for test {name}"
                 )
-            model = models[0]
+            # Cross-table comparisons often involve two models; we have
+            # determined experimentally that the second one is usually
+            # the model that the test is concerned about
+            model = models[-1]
 
             relation_name = node.get("relation_name")
             if relation_name is None:
@@ -259,7 +261,7 @@ def write_output_file(
 
     for model_name, failed_tests in failed_tests_by_model.items():
         workbook = FailedTestWorkbook(model_name)
-        for idx, failed_test in enumerate(failed_tests):
+        for failed_test in failed_tests:
             workbook.add_sheet(failed_test)
         print(f"Saving workbook for {model_name}")
         workbook.save(output_dirpath)
