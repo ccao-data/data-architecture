@@ -10,7 +10,7 @@ SELECT
             WHEN LENGTH(sales.oldown) < 2 OR sales.oldown IS NULL THEN 1
         END
     ) AS seller_null_count
-FROM {{ source('iasworld', 'sales') }}
+FROM {{ source('iasworld', 'sales') }} AS sales
 WHERE
     sales.deactivat IS NULL
     AND sales.cur = 'Y'
