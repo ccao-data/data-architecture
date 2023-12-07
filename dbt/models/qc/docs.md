@@ -43,65 +43,72 @@ Pulled from the following Inquire queries:
 - `FP Checklist - Negative ASMT Values` (#1569) - Will C.
 {% enddocs %}
 
-# view_vw_iasworld_sales_null_values
+# vw_iasworld_sales_null_values
 
 {% docs view_vw_iasworld_sales_null_values %}
-Test that deed, buyer, seller, and price `ias.sale*` columns are not null.
+Test that deed, buyer, seller, and price `iasworld.sales` columns are not null.
 
 {% enddocs %}
 
-# view_vw_sale_mydec_null_values
+# vw_sale_mydec_null_values
 
 {% docs view_vw_sale_mydec_null_values %}
-Test that deed, buyer, seller, address and price `sale.mydec*` columns are not null.
+Test that deed, buyer, seller, address and price `sale.mydec` columns are not
+null.
 
 {% enddocs %}
 
-# view_vw_iasworld_change_in_high_low_value_sales
+# vw_iasworld_change_in_high_low_value_sales
 
 {% docs view_vw_iasworld_change_in_high_low_value_sales %}
-Test that low value `ias.sale*` do not change dramatically.
+Test that the number of low and high value `iasworld.sales` do not change
+dramatically YoY.
 
 {% enddocs %}
 
-# view_vw_iasworld_sale_rowcount_matches_sales_mydec
+# vw_iasworld_sale_rowcount_matches_sales_mydec
 
 {% docs view_vw_iasworld_sale_rowcount_matches_sales_mydec %}
-Test that `ias.sale*` and `sale.mydec*` have similar row counts.
+Test that `iasworld.sales` and `sale.mydec` have similar row counts.
 
 {% enddocs %}
 
-# view_vw_sale_mydec_change_in_high_low_value_sales
+# vw_sale_mydec_change_in_high_low_value_sales
 
 {% docs view_vw_sale_mydec_change_in_high_low_value_sales %}
-Test to see if high and low value sales are consistent in `sale.mydec*`.
+Test that the number of low and high value `sale.mydec` do not change
+dramatically YoY.
 
 {% enddocs %}
 
-# view_vw_iasworld_sale_unmatched_joins_sales_mydec
+# vw_iasworld_sale_unmatched_joins_sales_mydec
 
 {% docs view_vw_iasworld_sale_unmatched_joins_sales_mydec %}
-Test to identify years with large numbers of unmatched joins between `sale.mydec*` and `ias.sale*`.
+Identify years with large numbers of unmatched sales between `sale.mydec` and
+`iasworld.sales`.
 
 {% enddocs %}
 
-# view_vw_iasworld_sale_day_of_month
+# vw_iasworld_sale_day_of_month
 
 {% docs view_vw_iasworld_sale_day_of_month %}
-Test to see if sale dates are concentrated on particular days of the month in `ias.sale*`. 
+Test if sale dates are concentrated to particular days of the month in
+`iasworld.sales`.
 
 {% enddocs %}
 
-# view_vw_iasworld_sales_high_value_by_class
+# vw_iasworld_sales_high_value_by_class
 
 {% docs view_vw_iasworld_sales_high_value_by_class %}
-Test to see if selected classes have unexpectedly high value sales in `ias.sale*`. 
+Test if selected classes have sales prices greater than $20,000,000 in
+`iasworld.sales`.
 
 {% enddocs %}
 
-# view_vw_iasworld_sale_unmatched_sale_prices_sales_mydec
+# vw_iasworld_sale_unequal_sale_prices_sales_mydec
 
-{% docs view_vw_iasworld_sale_unmatched_sale_prices_sales_mydec %}
-Test to see if prices in `ias.sale*` and `sale.mydec*` match within |$1000|.
+{% docs view_vw_iasworld_sale_unequal_sale_prices_sales_mydec %}
+Test if prices in `iasworld.sales` and `sale.mydec` for matched sales are
+unequal.
 
 {% enddocs %}
