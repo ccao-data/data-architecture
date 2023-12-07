@@ -38,3 +38,4 @@ SELECT
     END AS comparison
 FROM sales_cte AS iasworld
 INNER JOIN mydec_cte AS mydec ON iasworld.year = mydec.year
+ORDER BY iasworld.year ASC
