@@ -1,36 +1,15 @@
-WITH sales_cte AS (
-    SELECT
-        parid,
-        price,
-        CAST(SUBSTR(saledt, 1, 4) AS INTEGER) AS year_of_sale
-    FROM iasworld.sales
-    WHERE
-        deactivat IS NULL
-        AND cur = 'Y'
-        AND instruno IS NOT NULL
-        AND CAST(SUBSTR(saledt, 1, 4) AS INTEGER) >= 2014
-        AND price IS NOT NULL
-),
-
-res_char AS (
-    SELECT
-        pin,
-        class,
-        CAST(year AS INTEGER) AS year
-    FROM default.vw_card_res_char
-    WHERE
-        CAST(year AS INTEGER) >= 2014
-        AND class IN ('200', '202', '203', '204', '210')
-)
-
+-- View that identifies single-family house sales over $20m.
 SELECT
-    iasworld.parid,
+    iasworld.parid AS pin,
     iasworld.price,
-    res.pin,
     res.class,
-    res.year,
-    iasworld.year_of_sale
-FROM sales_cte AS iasworld
-INNER JOIN
-    res_char AS res
-    ON iasworld.parid = res.pin AND res.year = iasworld.year_of_sale;
+    res.year
+FROM {{ source('iasworld', 'sales') }} AS iasworld
+INNER JOIN {{ ref('default.vw_card_res_char') }} AS res
+    ON iasworld.parid = res.pin AND res.year = SUBSTR(iasworld.saledt, 1, 4)
+    AND res.class IN ('200', '202', '203', '204', '210')
+WHERE iasworld.deactivat IS NULL
+    AND iasworld.cur = 'Y'
+    AND iasworld.instruno IS NOT NULL
+    AND SUBSTR(iasworld.saledt, 1, 4) >= '2014'
+    AND iasworld.price > 20000000

@@ -1,34 +1,17 @@
-WITH sales_cte AS (
-    SELECT
-        SUBSTR(saledt, 1, 4) AS year,
-        price,
-        REGEXP_REPLACE(instruno, '[^0-9]', '') AS instruno
-    FROM iasworld.sales
-    WHERE
-        deactivat IS NULL
-        AND cur = 'Y'
-        AND SUBSTR(saledt, 1, 4) >= '2014'
-        AND CAST(SUBSTR(saledt, 1, 4) AS INTEGER) >= 2014
-),
-
-mydec_cte AS (
-    SELECT
-        SUBSTR(year_of_sale, 1, 4) AS year,
-        line_11_full_consideration,
-        document_number
-    FROM sale.mydec
-    WHERE CAST(SUBSTR(year_of_sale, 1, 4) AS INTEGER) >= 2014
-)
-
+-- View that contains all matched iasWorld and MyDec sales with unequal sale
+-- prices.
 SELECT
-    iasworld.year AS year_sales,
-    iasworld.price,
-    iasworld.instruno,
-    mydec.year AS year_mydec,
-    mydec.line_11_full_consideration,
-    mydec.document_number
-FROM sales_cte AS iasworld
-FULL OUTER JOIN mydec_cte AS mydec
-    ON iasworld.year = mydec.year
-    AND iasworld.instruno = mydec.document_number
-WHERE (iasworld.price != mydec.line_11_full_consideration);
+    REGEXP_REPLACE(iasworld.instruno, '[^0-9]', '') AS document_number,
+    SUBSTR(iasworld.saledt, 1, 4) AS year_iasworld,
+    iasworld.price AS price_iasworld,
+    SUBSTR(mydec.year_of_sale, 1, 4) AS year_mydec,
+    mydec.line_11_full_consideration AS price_mydec
+FROM {{ source('iasworld', 'sales') }} AS iasworld
+FULL OUTER JOIN {{ source('sale', 'mydec') }} AS mydec
+    ON SUBSTR(iasworld.saledt, 1, 4) = SUBSTR(mydec.year_of_sale, 1, 4)
+    AND REGEXP_REPLACE(iasworld.instruno, '[^0-9]', '') = mydec.document_number
+    AND SUBSTR(mydec.year_of_sale, 1, 4) >= '2014'
+WHERE iasworld.price != mydec.line_11_full_consideration
+    AND iasworld.deactivat IS NULL
+    AND iasworld.cur = 'Y'
+    AND SUBSTR(iasworld.saledt, 1, 4) >= '2014'
