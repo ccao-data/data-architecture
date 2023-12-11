@@ -499,21 +499,18 @@ models:
               name: qc_vw_iasworld_sales_null_values_buyer_null_proportion
               at_least: 0.9
               group_by_columns: ['year']
-    columns:
       - name: deed_type
         tests:
           - dbt_utils.not_null_proportion:
               name: qc_vw_iasworld_sales_null_values_deed_type_null_proportion
               at_least: 0.9
               group_by_columns: ['year']
-    columns:
       - name: price
         tests:
           - dbt_utils.not_null_proportion:
               name: qc_vw_iasworld_sales_null_values_price_null_proportion
               at_least: 0.9
               group_by_columns: ['year']
-    columns:
       - name: seller
         tests:
           - dbt_utils.not_null_proportion:
@@ -533,28 +530,24 @@ models:
               name: qc_vw_mydec_sales_null_values_address_null_proportion
               at_least: 0.9
               group_by_columns: ['year']
-    columns:
       - name: buyer
         tests:
           - dbt_utils.not_null_proportion:
               name: qc_vw_mydec_sales_null_values_buyer_null_proportion
               at_least: 0.9
               group_by_columns: ['year']
-    columns:
       - name: deed_type
         tests:
           - dbt_utils.not_null_proportion:
               name: qc_vw_mydec_sales_null_values_deed_type_null_proportion
               at_least: 0.9
               group_by_columns: ['year']
-    columns:
       - name: price
         tests:
           - dbt_utils.not_null_proportion:
               name: qc_vw_mydec_sales_null_values_price_null_proportion
               at_least: 0.9
               group_by_columns: ['year']
-    columns:
       - name: seller
         tests:
           - dbt_utils.not_null_proportion:
@@ -570,7 +563,7 @@ models:
     tests:
       - expression_is_true:
           name: qc_vw_iasworld_sale_rowcount_matches_sales_mydec_check
-          expression: IasWorld_sales > 0.95 * my_dec_sales and IasWorld_sales < 1.05 * my_dec_sales
+          expression: comparison != 'No significant difference'
 
   - name: qc.vw_sale_mydec_change_in_high_low_value_sales
     description: '{{ doc("view_vw_sale_mydec_change_in_high_low_value_sales") }}'
@@ -580,10 +573,12 @@ models:
     tests:
       - expression_is_true:
           name: qc_vw_sale_mydec_change_in_high_low_value_sales_low_value_gt_25%
-          expression: price_less_than_10k_count > 0.75 * prev_year_price_less_than_10k_count and price_less_than_10k_count < 1.25 * prev_year_price_less_than_10k_count
+          expression: |
+            price_less_than_10k_growth_status != 'No significant change'
       - expression_is_true:
           name: qc_vw_sale_mydec_change_in_high_low_value_sales_high_value_gt_25%
-          expression: price_greater_than_1m_count > 0.75 * prev_year_price_greater_than_1m_count and price_greater_than_1m_count < 1.25 * prev_year_price_greater_than_1m_count
+          expression: |
+            price_greater_than_1m_growth_status != 'No significant change'
 
   - name: qc.vw_iasworld_sale_unmatched_joins_sales_mydec
     description: '{{ doc("view_vw_iasworld_sale_unmatched_joins_sales_mydec") }}'
@@ -594,10 +589,9 @@ models:
       - expression_is_true:
           name: qc_vw_iasworld_sale_unmatched_joins_sales_mydec_unmatched_mydec_sales_lte_1000
           expression: my_dec_unmatched < 1000
-    tests:
       - expression_is_true:
           name: qc_vw_iasworld_sale_unmatched_joins_sales_mydec_unmatched_iasworld_sales_lte_1000
-          expression: IasWorld_unmatched < 1000
+          expression: iasworld_unmatched < 1000
 
   - name: qc.vw_iasworld_sale_day_of_month
     description: '{{ doc("view_vw_iasworld_sale_day_of_month") }}'
@@ -606,8 +600,8 @@ models:
         - test_qc_sales
     tests:
       - expression_is_true:
-          name: qc_vw_iasworld_sale_day_of_month_lte_1/10_observations
-          expression: sales_by_day < 0.1 * total_sales
+          name: qc_vw_iasworld_sale_day_of_month_lte_half_observations
+          expression: sales_by_day > 0.5 * total_sales
 
   - name: qc.vw_iasworld_sales_high_value_by_class
     description: '{{ doc("view_vw_iasworld_sales_high_value_by_class") }}'
@@ -617,7 +611,7 @@ models:
     tests:
       - expression_is_true:
           name: qc_vw_iasworld_sales_high_value_by_class_lte_20000000
-          expression: price < 20000000
+          expression: price > 20000000
 
   - name: qc.vw_iasworld_sale_unequal_sale_prices_sales_mydec
     description: '{{ doc("view_vw_iasworld_sale_unequal_sale_prices_sales_mydec") }}'
@@ -625,9 +619,10 @@ models:
       tags:
         - test_qc_sales
     tests:
+      # Values of $1000 and below seem to get recoded to $1 in iasWorld
       - expression_is_true:
-          name: qc_vw_iasworld_sale_unequal_sale_prices_sales_mydec_lte_$1000_difference
-          expression: ABS(price - line_11_full_consideration) <= 1000
+          name: qc_vw_iasworld_sale_unequal_sale_prices_sales_mydec_lte_gt1000
+          expression: ABS(price_iasworld - price_mydec) > 999
 
   - name: qc.vw_iasworld_change_in_high_low_value_sales
     description: '{{ doc("view_vw_iasworld_change_in_high_low_value_sales") }}'
@@ -637,7 +632,9 @@ models:
     tests:
       - expression_is_true:
           name: qc_vw_iasworld_change_in_high_low_value_sales_ratio_check_high_value
-          expression: price_greater_than_1m_count > 0.75 * prev_year_price_greater_than_1m_count and price_greater_than_1m_count < 1.25 * prev_year_price_greater_than_1m_count
+          expression: |
+            price_less_than_10k_growth_status != 'No significant change'
       - expression_is_true:
           name: qc_vw_iasworld_change_in_high_low_value_sales_ratio_check_low_value
-          expression: price_less_than_10k_count > 0.75 * prev_year_price_less_than_10k_count and price_less_than_10k_count < 1.25 * prev_year_price_less_than_10k_count
+          expression: |
+            price_greater_than_1m_growth_status != 'No significant change'

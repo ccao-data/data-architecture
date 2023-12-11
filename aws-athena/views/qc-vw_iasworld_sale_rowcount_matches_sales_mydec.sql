@@ -2,7 +2,7 @@
 WITH sales_cte AS (
     SELECT
         SUBSTR(sales.saledt, 1, 4) AS year,
-        COUNT(DISTINCT sales.instruno) AS sales
+        COUNT(DISTINCT sales.instruno) AS iasworld_sales
     FROM {{ source('iasworld', 'sales') }} AS sales
     WHERE
         sales.deactivat IS NULL
@@ -25,7 +25,7 @@ mydec_cte AS (
 
 SELECT
     iasworld.year AS comparison_year,
-    iasworld.sales,
+    iasworld.iasworld_sales,
     mydec.my_dec_sales,
     CASE
         WHEN
