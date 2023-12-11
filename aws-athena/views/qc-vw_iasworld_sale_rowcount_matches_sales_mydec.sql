@@ -29,10 +29,10 @@ SELECT
     mydec.my_dec_sales,
     CASE
         WHEN
-            iasworld.sales > 1.05 * mydec.my_dec_sales
+            iasworld.iasworld_sales > 1.05 * mydec.my_dec_sales
             THEN 'IasWorld 5% Higher'
         WHEN
-            mydec.my_dec_sales > 1.05 * iasworld.sales
+            mydec.my_dec_sales > 1.05 * iasworld.iasworld_sales
             THEN 'Mydec 5% Higher'
         ELSE 'No significant difference'
     END AS comparison
