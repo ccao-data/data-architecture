@@ -37,12 +37,12 @@ SELECT
     CASE
         WHEN prev_year_price_less_than_10k_count IS NOT NULL
             AND price_less_than_10k_count
-            > 1.05 * prev_year_price_less_than_10k_count
-            THEN 'More than 5% growth'
+            > 2 * prev_year_price_less_than_10k_count
+            THEN 'More than 200% growth'
         WHEN prev_year_price_less_than_10k_count IS NOT NULL
             AND price_less_than_10k_count
-            < .95 * prev_year_price_less_than_10k_count
-            THEN 'More than 5% decrease'
+            < .5 * prev_year_price_less_than_10k_count
+            THEN 'More than 50% decrease'
         ELSE 'No significant change'
     END AS price_less_than_10k_growth_status,
     prev_year_price_greater_than_1m_count,
@@ -50,12 +50,12 @@ SELECT
     CASE
         WHEN prev_year_price_greater_than_1m_count IS NOT NULL
             AND price_greater_than_1m_count
-            > 1.05 * prev_year_price_greater_than_1m_count
-            THEN 'More than 5% growth'
+            > 1.1 * prev_year_price_greater_than_1m_count
+            THEN 'More than 10% growth'
         WHEN prev_year_price_greater_than_1m_count IS NOT NULL
             AND price_greater_than_1m_count
-            < .95 * prev_year_price_greater_than_1m_count
-            THEN 'More than 5% decrease'
+            < .9 * prev_year_price_greater_than_1m_count
+            THEN 'More than 1% decrease'
         ELSE 'No significant change'
     END AS price_greater_than_1m_growth_status
 FROM sales_cte
