@@ -8,9 +8,7 @@ WITH sales_cte AS (
         sales.deactivat IS NULL
         AND sales.cur = 'Y'
         AND sales.instruno IS NOT NULL
-        AND CAST(
-            SUBSTR(sales.saledt, 1, 4) AS INTEGER
-        ) BETWEEN 2014 AND 2040
+        AND SUBSTR(sales.saledt, 1, 4) >= '2014'
     GROUP BY SUBSTR(sales.saledt, 1, 4)
 ),
 
