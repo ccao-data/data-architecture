@@ -55,7 +55,7 @@ SELECT
         WHEN prev_year_price_greater_than_1m_count IS NOT NULL
             AND price_greater_than_1m_count
             < .9 * prev_year_price_greater_than_1m_count
-            THEN 'More than 1% decrease'
+            THEN 'More than 10% decrease'
         ELSE 'No significant change'
     END AS price_greater_than_1m_growth_status
 FROM sales_cte
