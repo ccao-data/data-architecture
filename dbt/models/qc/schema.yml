@@ -496,28 +496,28 @@ models:
       - name: buyer
         tests:
           - dbt_utils.not_null_proportion:
-              name: qc_vw_iasworld_sales_null_values_buyer_proportion
+              name: qc_vw_iasworld_sales_null_values_buyer_null_proportion
               at_least: 0.9
               group_by_columns: ['year']
     columns:
       - name: deed_type
         tests:
           - dbt_utils.not_null_proportion:
-              name: qc_vw_iasworld_sales_null_values_deed_type_proportion
+              name: qc_vw_iasworld_sales_null_values_deed_type_null_proportion
               at_least: 0.9
               group_by_columns: ['year']
     columns:
       - name: price
         tests:
           - dbt_utils.not_null_proportion:
-              name: qc_vw_iasworld_sales_null_values_price_proportion
+              name: qc_vw_iasworld_sales_null_values_price_null_proportion
               at_least: 0.9
               group_by_columns: ['year']
     columns:
       - name: seller
         tests:
           - dbt_utils.not_null_proportion:
-              name: qc_vw_iasworld_sales_null_values_seller_proportion
+              name: qc_vw_iasworld_sales_null_values_seller_null_proportion
               at_least: 0.9
               group_by_columns: ['year']
 
@@ -526,22 +526,41 @@ models:
     config:
       tags:
         - test_qc_sales
-    tests:
-      - expression_is_true:
-          name: qc_vw_sale_mydec_null_values_deed_null_count_lte_1000
-          expression: deed_null_count < 1000
-      - expression_is_true:
-          name: qc_vw_sale_mydec_null_values_buyer_null_count_lte_1000
-          expression: buyer_null_count < 1000
-      - expression_is_true:
-          name: qc_vw_sale_mydec_null_values_seller_null_count_lte_1000
-          expression: seller_null_count < 1000
-      - expression_is_true:
-          name: qc_vw_sale_mydec_null_values_price_null_count_lte_1000
-          expression: price_null_count < 1000
-      - expression_is_true:
-          name: qc_vw_sale_mydec_null_values_address_null_count_lte_1000
-          expression: address_null_count < 1000
+    columns:
+      - name: address
+        tests:
+          - dbt_utils.not_null_proportion:
+              name: qc_vw_mydec_sales_null_values_address_null_proportion
+              at_least: 0.9
+              group_by_columns: ['year']
+    columns:
+      - name: buyer
+        tests:
+          - dbt_utils.not_null_proportion:
+              name: qc_vw_mydec_sales_null_values_buyer_null_proportion
+              at_least: 0.9
+              group_by_columns: ['year']
+    columns:
+      - name: deed_type
+        tests:
+          - dbt_utils.not_null_proportion:
+              name: qc_vw_mydec_sales_null_values_deed_type_null_proportion
+              at_least: 0.9
+              group_by_columns: ['year']
+    columns:
+      - name: price
+        tests:
+          - dbt_utils.not_null_proportion:
+              name: qc_vw_mydec_sales_null_values_price_null_proportion
+              at_least: 0.9
+              group_by_columns: ['year']
+    columns:
+      - name: seller
+        tests:
+          - dbt_utils.not_null_proportion:
+              name: qc_vw_mydec_sales_null_values_seller_null_proportion
+              at_least: 0.9
+              group_by_columns: ['year']
 
   - name: qc.vw_iasworld_sale_rowcount_matches_sales_mydec
     description: '{{ doc("view_vw_iasworld_sale_rowcount_matches_sales_mydec") }}'
