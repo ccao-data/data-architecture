@@ -510,23 +510,22 @@ models:
     columns:
       - name: buyer
         tests:
-          - dbt_utils.not_null_proportion: &test-not-null
+          - expression_is_true: &test-not-null
               name: qc_vw_iasworld_sales_null_values_buyer_null_proportion
-              at_least: 0.9
-              group_by_columns: ['year']
+              expression: '< 0.1'
       - name: deed_type
         tests:
-          - dbt_utils.not_null_proportion:
+          - expression_is_true:
               name: qc_vw_iasworld_sales_null_values_deed_type_null_proportion
               <<: *test-not-null
       - name: price
         tests:
-          - dbt_utils.not_null_proportion:
+          - expression_is_true:
               name: qc_vw_iasworld_sales_null_values_price_null_proportion
               <<: *test-not-null
       - name: seller
         tests:
-          - dbt_utils.not_null_proportion:
+          - expression_is_true:
               name: qc_vw_iasworld_sales_null_values_seller_null_proportion
               <<: *test-not-null
 
@@ -538,27 +537,27 @@ models:
     columns:
       - name: address
         tests:
-          - dbt_utils.not_null_proportion:
+          - expression_is_true:
               name: qc_vw_mydec_sales_null_values_address_null_proportion
               <<: *test-not-null
       - name: buyer
         tests:
-          - dbt_utils.not_null_proportion:
+          - expression_is_true:
               name: qc_vw_mydec_sales_null_values_buyer_null_proportion
               <<: *test-not-null
       - name: deed_type
         tests:
-          - dbt_utils.not_null_proportion:
+          - expression_is_true:
               name: qc_vw_mydec_sales_null_values_deed_type_null_proportion
               <<: *test-not-null
       - name: price
         tests:
-          - dbt_utils.not_null_proportion:
+          - expression_is_true:
               name: qc_vw_mydec_sales_null_values_price_null_proportion
               <<: *test-not-null
       - name: seller
         tests:
-          - dbt_utils.not_null_proportion:
+          - expression_is_true:
               name: qc_vw_mydec_sales_null_values_seller_null_proportion
               <<: *test-not-null
 
@@ -580,7 +579,7 @@ models:
     tests:
       - expression_is_true:
           name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_unmatched_mydec_sales_lte_1000
-          expression: my_dec_unmatched < 1000
+          expression: mydec_unmatched < 1000
       - expression_is_true:
           name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_unmatched_iasworld_sales_lte_1000
           expression: iasworld_unmatched < 1000
