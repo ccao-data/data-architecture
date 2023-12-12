@@ -1,1 +1,0 @@
-../../../aws-athena/views/qc-vw_iasworld_sale_day_of_month.sql
