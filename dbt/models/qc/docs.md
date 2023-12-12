@@ -1,6 +1,6 @@
 # vw_change_in_high_low_value_sales
 
-{% docs view_vw_iasworld_change_in_high_low_value_sales %}
+{% docs view_vw_change_in_high_low_value_sales %}
 Test that the number of low and high value sales from `iasworld.sales` and
 `sale.mydec` do not change dramatically YoY.
 
