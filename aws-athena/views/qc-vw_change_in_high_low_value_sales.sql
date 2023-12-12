@@ -3,7 +3,7 @@
 -- for comparison.
 WITH sales_cte AS (
     SELECT
-        MAX('iasWorld') AS "table",
+        MAX('iasWorld') AS source,
         SUBSTR(sales.saledt, 1, 4) AS year,
         COUNT(CASE WHEN sales.price < 10000 THEN 1 END)
             AS price_less_than_10k_count,
@@ -31,7 +31,7 @@ WITH sales_cte AS (
     UNION ALL
 
     SELECT
-        MAX('MyDec') AS "table",
+        MAX('MyDec') AS source,
         mydec.year_of_sale AS year,
         COUNT(CASE WHEN mydec.line_11_full_consideration < 10000 THEN 1 END)
             AS price_less_than_10k_count,
@@ -53,7 +53,7 @@ WITH sales_cte AS (
 )
 
 SELECT
-    table,
+    source,
     year,
     prev_year_price_less_than_10k_count,
     price_less_than_10k_count,
