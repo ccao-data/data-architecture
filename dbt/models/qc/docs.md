@@ -96,10 +96,10 @@ Test if selected classes have sales prices greater than $20,000,000 in
 
 {% enddocs %}
 
-# vw_iasworld_sales_unequal_sale_prices_sale_mydec
+# vw_iasworld_sales_price_diff_sale_mydec
 
-{% docs view_vw_iasworld_sales_unequal_sale_prices_sale_mydec %}
+{% docs view_vw_iasworld_sales_price_diff_sale_mydec %}
 Test if prices in `iasworld.sales` and `sale.mydec` for matched sales are
-unequal.
+different.
 
 {% enddocs %}

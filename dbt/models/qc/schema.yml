@@ -45,7 +45,7 @@ models:
         tests:
           # Equivalent to Vacant Class, bldg value test from FP Checklist
           - expression_is_true:
-              name: qc_vw_incorrect_asmt_value_cur_year_bav_vact_class_has_value
+              name: qc_vw_incorrect_asmt_value_cur_year_bav_vact_class_has_val
               expression: '= 0'
               select_columns:
                 - taxyr
@@ -66,7 +66,7 @@ models:
                   )
           # Equivalent to Improved class, no bldg value from FP Checklist
           - expression_is_true:
-              name: qc_vw_incorrect_asmt_value_cur_year_bav_impr_class_no_value
+              name: qc_vw_incorrect_asmt_value_cur_year_bav_impr_class_no_val
               expression: '!= 0'
               select_columns:
                 - taxyr
@@ -494,11 +494,11 @@ models:
         - test_qc_sales
     tests:
       - expression_is_true:
-          name: qc_vw_change_in_high_low_value_sales_ratio_check_high_value
+          name: qc_vw_change_in_high_low_value_sales_ratio_high
           expression: |
             price_less_than_10k_growth_status != 'No significant change'
       - expression_is_true:
-          name: qc_vw_change_in_high_low_value_sales_ratio_check_low_value
+          name: qc_vw_change_in_high_low_value_sales_ratio_low
           expression: |
             price_greater_than_1m_growth_status != 'No significant change'
 
@@ -578,10 +578,10 @@ models:
         - test_qc_sales
     tests:
       - expression_is_true:
-          name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_unmatched_mydec_sales_lte_1000
+          name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_lte_1000
           expression: mydec_unmatched < 1000
       - expression_is_true:
-          name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_unmatched_iasworld_sales_lte_1000
+          name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_lte_1000
           expression: iasworld_unmatched < 1000
 
   - name: qc.vw_iasworld_sales_day_of_month
@@ -604,13 +604,13 @@ models:
           name: qc_vw_iasworld_sales_high_value_by_class_gt_20000000
           expression: price > 20000000
 
-  - name: qc.vw_iasworld_sales_unequal_sale_prices_sale_mydec
-    description: '{{ doc("view_vw_iasworld_sales_unequal_sale_prices_sale_mydec") }}'
+  - name: qc.vw_iasworld_sales_price_diff_sale_mydec
+    description: '{{ doc("view_vw_iasworld_sales_price_diff_sale_mydec") }}'
     config:
       tags:
         - test_qc_sales
     tests:
       # Values of $1000 and below seem to get recoded to $1 in iasWorld
       - expression_is_true:
-          name: qc_vw_iasworld_sales_unequal_sale_prices_sale_mydec_gte_1000
+          name: qc_vw_iasworld_sales_price_diff_sale_mydec_gte_1000
           expression: ABS(price_iasworld - price_mydec) > 999
