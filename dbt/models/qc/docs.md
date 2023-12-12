@@ -1,3 +1,11 @@
+# vw_change_in_high_low_value_sales
+
+{% docs view_vw_iasworld_change_in_high_low_value_sales %}
+Test that the number of low and high value sales from `iasworld.sales` and
+`sale.mydec` do not change dramatically YoY.
+
+{% enddocs %}
+
 # vw_class_mismatch
 
 {% docs view_vw_class_mismatch %}
@@ -47,7 +55,6 @@ Pulled from the following Inquire queries:
 
 {% docs view_vw_iasworld_sales_null_values %}
 Test that deed, buyer, seller, and price `iasworld.sales` columns are not null.
-
 {% enddocs %}
 
 # vw_sale_mydec_null_values
@@ -58,26 +65,10 @@ null.
 
 {% enddocs %}
 
-# vw_iasworld_change_in_high_low_value_sales
-
-{% docs view_vw_iasworld_change_in_high_low_value_sales %}
-Test that the number of low and high value `iasworld.sales` do not change
-dramatically YoY.
-
-{% enddocs %}
-
 # vw_iasworld_sale_rowcount_matches_sales_mydec
 
 {% docs view_vw_iasworld_sale_rowcount_matches_sales_mydec %}
 Test that `iasworld.sales` and `sale.mydec` have similar row counts.
-
-{% enddocs %}
-
-# vw_sale_mydec_change_in_high_low_value_sales
-
-{% docs view_vw_sale_mydec_change_in_high_low_value_sales %}
-Test that the number of low and high value `sale.mydec` do not change
-dramatically YoY.
 
 {% enddocs %}
 

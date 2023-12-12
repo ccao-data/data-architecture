@@ -1,0 +1,1 @@
+../../../aws-athena/views/qc-vw_iasworld_sales_rowcount_matches_sale_mydec.sql
