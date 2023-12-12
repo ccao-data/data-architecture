@@ -1,1 +1,0 @@
-../../../aws-athena/views/qc-vw_sale_mydec_change_in_high_low_value_sales.sql

@@ -487,6 +487,21 @@ models:
               name: qc_vw_neg_asmt_value_valasm3_gte_0
               <<: *test-non-negative
 
+  - name: qc.vw_change_in_high_low_value_sales
+    description: '{{ doc("view_vw_change_in_high_low_value_sales") }}'
+    config:
+      tags:
+        - test_qc_sales
+    tests:
+      - expression_is_true:
+          name: qc_vw_change_in_high_low_value_sales_ratio_check_high_value
+          expression: |
+            price_less_than_10k_growth_status != 'No significant change'
+      - expression_is_true:
+          name: qc_vw_change_in_high_low_value_sales_ratio_check_low_value
+          expression: |
+            price_greater_than_1m_growth_status != 'No significant change'
+
   - name: qc.vw_iasworld_sales_null_values
     description: '{{ doc("view_vw_iasworld_sales_null_values") }}'
     config:
@@ -565,21 +580,6 @@ models:
           name: qc_vw_iasworld_sale_rowcount_matches_sales_mydec_check
           expression: comparison != 'No significant difference'
 
-  - name: qc.vw_sale_mydec_change_in_high_low_value_sales
-    description: '{{ doc("view_vw_sale_mydec_change_in_high_low_value_sales") }}'
-    config:
-      tags:
-        - test_qc_sales
-    tests:
-      - expression_is_true:
-          name: qc_vw_sale_mydec_change_in_high_low_value_sales_low_value_gt_25%
-          expression: |
-            price_less_than_10k_growth_status != 'No significant change'
-      - expression_is_true:
-          name: qc_vw_sale_mydec_change_in_high_low_value_sales_high_value_gt_25%
-          expression: |
-            price_greater_than_1m_growth_status != 'No significant change'
-
   - name: qc.vw_iasworld_sale_unmatched_joins_sales_mydec
     description: '{{ doc("view_vw_iasworld_sale_unmatched_joins_sales_mydec") }}'
     config:
@@ -610,7 +610,7 @@ models:
         - test_qc_sales
     tests:
       - expression_is_true:
-          name: qc_vw_iasworld_sales_high_value_by_class_lte_20000000
+          name: qc_vw_iasworld_sales_high_value_by_class_gt_20000000
           expression: price > 20000000
 
   - name: qc.vw_iasworld_sale_unequal_sale_prices_sales_mydec
@@ -621,20 +621,5 @@ models:
     tests:
       # Values of $1000 and below seem to get recoded to $1 in iasWorld
       - expression_is_true:
-          name: qc_vw_iasworld_sale_unequal_sale_prices_sales_mydec_lte_gt1000
+          name: qc_vw_iasworld_sale_unequal_sale_prices_sales_mydec_gte_1000
           expression: ABS(price_iasworld - price_mydec) > 999
-
-  - name: qc.vw_iasworld_change_in_high_low_value_sales
-    description: '{{ doc("view_vw_iasworld_change_in_high_low_value_sales") }}'
-    config:
-      tags:
-        - test_qc_sales
-    tests:
-      - expression_is_true:
-          name: qc_vw_iasworld_change_in_high_low_value_sales_ratio_check_high_value
-          expression: |
-            price_less_than_10k_growth_status != 'No significant change'
-      - expression_is_true:
-          name: qc_vw_iasworld_change_in_high_low_value_sales_ratio_check_low_value
-          expression: |
-            price_greater_than_1m_growth_status != 'No significant change'
