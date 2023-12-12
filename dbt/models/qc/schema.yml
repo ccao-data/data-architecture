@@ -510,7 +510,7 @@ models:
     columns:
       - name: buyer
         tests:
-          - dbt_utils.not_null_proportion:
+          - dbt_utils.not_null_proportion: &test-not-null
               name: qc_vw_iasworld_sales_null_values_buyer_null_proportion
               at_least: 0.9
               group_by_columns: ['year']
@@ -518,20 +518,17 @@ models:
         tests:
           - dbt_utils.not_null_proportion:
               name: qc_vw_iasworld_sales_null_values_deed_type_null_proportion
-              at_least: 0.9
-              group_by_columns: ['year']
+              <<: *test-not-null
       - name: price
         tests:
           - dbt_utils.not_null_proportion:
               name: qc_vw_iasworld_sales_null_values_price_null_proportion
-              at_least: 0.9
-              group_by_columns: ['year']
+              <<: *test-not-null
       - name: seller
         tests:
           - dbt_utils.not_null_proportion:
               name: qc_vw_iasworld_sales_null_values_seller_null_proportion
-              at_least: 0.9
-              group_by_columns: ['year']
+              <<: *test-not-null
 
   - name: qc.vw_sale_mydec_null_values
     description: '{{ doc("view_vw_sale_mydec_null_values") }}'
@@ -543,32 +540,27 @@ models:
         tests:
           - dbt_utils.not_null_proportion:
               name: qc_vw_mydec_sales_null_values_address_null_proportion
-              at_least: 0.9
-              group_by_columns: ['year']
+              <<: *test-not-null
       - name: buyer
         tests:
           - dbt_utils.not_null_proportion:
               name: qc_vw_mydec_sales_null_values_buyer_null_proportion
-              at_least: 0.9
-              group_by_columns: ['year']
+              <<: *test-not-null
       - name: deed_type
         tests:
           - dbt_utils.not_null_proportion:
               name: qc_vw_mydec_sales_null_values_deed_type_null_proportion
-              at_least: 0.9
-              group_by_columns: ['year']
+              <<: *test-not-null
       - name: price
         tests:
           - dbt_utils.not_null_proportion:
               name: qc_vw_mydec_sales_null_values_price_null_proportion
-              at_least: 0.9
-              group_by_columns: ['year']
+              <<: *test-not-null
       - name: seller
         tests:
           - dbt_utils.not_null_proportion:
               name: qc_vw_mydec_sales_null_values_seller_null_proportion
-              at_least: 0.9
-              group_by_columns: ['year']
+              <<: *test-not-null
 
   - name: qc.vw_iasworld_sale_rowcount_matches_sales_mydec
     description: '{{ doc("view_vw_iasworld_sale_rowcount_matches_sales_mydec") }}'
