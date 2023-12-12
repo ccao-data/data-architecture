@@ -65,24 +65,24 @@ null.
 
 {% enddocs %}
 
-# vw_iasworld_sale_rowcount_matches_sales_mydec
+# vw_iasworld_sales_rowcount_matches_sale_mydec
 
-{% docs view_vw_iasworld_sale_rowcount_matches_sales_mydec %}
+{% docs view_vw_iasworld_sales_rowcount_matches_sale_mydec %}
 Test that `iasworld.sales` and `sale.mydec` have similar row counts.
 
 {% enddocs %}
 
-# vw_iasworld_sale_unmatched_joins_sales_mydec
+# vw_iasworld_sales_unmatched_joins_sale_mydec
 
-{% docs view_vw_iasworld_sale_unmatched_joins_sales_mydec %}
+{% docs view_vw_iasworld_sales_unmatched_joins_sale_mydec %}
 Identify years with large numbers of unmatched sales between `sale.mydec` and
 `iasworld.sales`.
 
 {% enddocs %}
 
-# vw_iasworld_sale_day_of_month
+# vw_iasworld_sales_day_of_month
 
-{% docs view_vw_iasworld_sale_day_of_month %}
+{% docs view_vw_iasworld_sales_day_of_month %}
 Test if sale dates are concentrated to particular days of the month in
 `iasworld.sales`.
 
@@ -96,9 +96,9 @@ Test if selected classes have sales prices greater than $20,000,000 in
 
 {% enddocs %}
 
-# vw_iasworld_sale_unequal_sale_prices_sales_mydec
+# vw_iasworld_sales_unequal_sale_prices_sale_mydec
 
-{% docs view_vw_iasworld_sale_unequal_sale_prices_sales_mydec %}
+{% docs view_vw_iasworld_sales_unequal_sale_prices_sale_mydec %}
 Test if prices in `iasworld.sales` and `sale.mydec` for matched sales are
 unequal.
 
