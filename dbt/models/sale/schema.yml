@@ -37,7 +37,6 @@ sources:
               - meta_sale_document_num
               - version
 
-
       - name: foreclosure
         description: '{{ doc("foreclosure") }}'
         tags:
