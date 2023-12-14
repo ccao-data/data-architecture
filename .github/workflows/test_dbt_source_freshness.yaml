@@ -27,3 +27,22 @@ jobs:
         run: dbt source freshness --target "$TARGET"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
+
+      - name: Get current time
+        if: failure()
+        run: echo "TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S")" >> "$GITHUB_ENV"
+        shell: bash
+
+      # Only publish to SNS on failure for scheduled runs, since other event
+      # types should notify the GitHub user who triggered the event
+      - name: Send failure notification
+        if: github.event_name == 'schedule' && failure()
+        uses: ./.github/actions/publist_sns_topic
+        with:
+          sns_topic_arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
+          subject: "dbt source freshness tests failed for workflow run: ${{ github.run_id }}"
+          body: |
+            dbt source freshness tests failed for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
+
+            Link to failing workflow:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
