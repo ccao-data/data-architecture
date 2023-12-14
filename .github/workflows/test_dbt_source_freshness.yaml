@@ -1,6 +1,7 @@
 name: test-dbt-source-freshness
 
 on:
+  workflow_dispatch:
   schedule:
     # Every day at 8am (2pm UTC-5)
     - cron: '0 13 * * *'
