@@ -45,7 +45,7 @@ models:
         tests:
           # Equivalent to Vacant Class, bldg value test from FP Checklist
           - expression_is_true:
-              name: qc_vw_incorrect_asmt_value_cur_year_bav_vact_class_has_value
+              name: qc_vw_incorrect_asmt_value_cur_year_bav_vact_class_has_val
               expression: '= 0'
               select_columns:
                 - taxyr
@@ -61,12 +61,12 @@ models:
                     '100', '200', '239', '240', '241', '300', '400', '500',
                     '535', '550', '637', '637A', '637B', '650', '651', '651A',
                     '651B', '700', '700A', '700B', '742', '742A', '742B',
-                    '800', '800A', '800B', '850', '850A', '850B', '900', 
+                    '800', '800A', '800B', '850', '850A', '850B', '900',
                     '999', 'EX', 'RR'
                   )
           # Equivalent to Improved class, no bldg value from FP Checklist
           - expression_is_true:
-              name: qc_vw_incorrect_asmt_value_cur_year_bav_impr_class_no_value
+              name: qc_vw_incorrect_asmt_value_cur_year_bav_impr_class_no_val
               expression: '!= 0'
               select_columns:
                 - taxyr
@@ -82,7 +82,7 @@ models:
                     '100', '200', '239', '240', '241', '300', '400', '500',
                     '535', '550', '637', '637A', '637B', '650', '651', '651A',
                     '651B', '700', '700A', '700B', '742', '742A', '742B',
-                    '800', '800A', '800B', '850', '850A', '850B', '900', 
+                    '800', '800A', '800B', '850', '850A', '850B', '900',
                     '999', 'EX', 'RR'
                   )
       - name: cur_year_fav
@@ -486,3 +486,131 @@ models:
           - dbt_utils.accepted_range:
               name: qc_vw_neg_asmt_value_valasm3_gte_0
               <<: *test-non-negative
+
+  - name: qc.vw_change_in_high_low_value_sales
+    description: '{{ doc("view_vw_change_in_high_low_value_sales") }}'
+    config:
+      tags:
+        - test_qc_sales
+    tests:
+      - expression_is_true:
+          name: qc_vw_change_in_high_low_value_sales_ratio_high
+          expression: |
+            price_less_than_10k_growth_status != 'No significant change'
+      - expression_is_true:
+          name: qc_vw_change_in_high_low_value_sales_ratio_low
+          expression: |
+            price_greater_than_1m_growth_status != 'No significant change'
+
+  - name: qc.vw_iasworld_sales_null_values
+    description: '{{ doc("view_vw_iasworld_sales_null_values") }}'
+    config:
+      tags:
+        - test_qc_sales
+    columns:
+      - name: buyer
+        tests:
+          - expression_is_true: &test-not-null
+              name: qc_vw_iasworld_sales_null_values_buyer_null_proportion
+              expression: '< 0.1'
+      - name: deed_type
+        tests:
+          - expression_is_true:
+              name: qc_vw_iasworld_sales_null_values_deed_type_null_proportion
+              <<: *test-not-null
+      - name: price
+        tests:
+          - expression_is_true:
+              name: qc_vw_iasworld_sales_null_values_price_null_proportion
+              <<: *test-not-null
+      - name: seller
+        tests:
+          - expression_is_true:
+              name: qc_vw_iasworld_sales_null_values_seller_null_proportion
+              <<: *test-not-null
+
+  - name: qc.vw_sale_mydec_null_values
+    description: '{{ doc("view_vw_sale_mydec_null_values") }}'
+    config:
+      tags:
+        - test_qc_sales
+    columns:
+      - name: address
+        tests:
+          - expression_is_true:
+              name: qc_vw_mydec_sales_null_values_address_null_proportion
+              <<: *test-not-null
+      - name: buyer
+        tests:
+          - expression_is_true:
+              name: qc_vw_mydec_sales_null_values_buyer_null_proportion
+              <<: *test-not-null
+      - name: deed_type
+        tests:
+          - expression_is_true:
+              name: qc_vw_mydec_sales_null_values_deed_type_null_proportion
+              <<: *test-not-null
+      - name: price
+        tests:
+          - expression_is_true:
+              name: qc_vw_mydec_sales_null_values_price_null_proportion
+              <<: *test-not-null
+      - name: seller
+        tests:
+          - expression_is_true:
+              name: qc_vw_mydec_sales_null_values_seller_null_proportion
+              <<: *test-not-null
+
+  - name: qc.vw_iasworld_sales_rowcount_matches_sale_mydec
+    description: '{{ doc("view_vw_iasworld_sales_rowcount_matches_sale_mydec") }}'
+    config:
+      tags:
+        - test_qc_sales
+    tests:
+      - expression_is_true:
+          name: qc_vw_iasworld_sales_rowcount_matches_sale_mydec_check
+          expression: comparison != 'No significant difference'
+
+  - name: qc.vw_iasworld_sales_unmatched_joins_sale_mydec
+    description: '{{ doc("view_vw_iasworld_sales_unmatched_joins_sale_mydec") }}'
+    config:
+      tags:
+        - test_qc_sales
+    tests:
+      - expression_is_true:
+          name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_lte_1000
+          expression: mydec_unmatched < 1000
+      - expression_is_true:
+          name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_lte_1000
+          expression: iasworld_unmatched < 1000
+
+  - name: qc.vw_iasworld_sales_day_of_month
+    description: '{{ doc("view_vw_iasworld_sales_day_of_month") }}'
+    config:
+      tags:
+        - test_qc_sales
+    tests:
+      - expression_is_true:
+          name: qc_vw_iasworld_sales_day_of_month_lte_half_observations
+          expression: sales_by_day > 0.5 * total_sales
+
+  - name: qc.vw_iasworld_sales_high_value_by_class
+    description: '{{ doc("view_vw_iasworld_sales_high_value_by_class") }}'
+    config:
+      tags:
+        - test_qc_sales
+    tests:
+      - expression_is_true:
+          name: qc_vw_iasworld_sales_high_value_by_class_gt_20000000
+          expression: price > 20000000
+
+  - name: qc.vw_iasworld_sales_price_diff_sale_mydec
+    description: '{{ doc("view_vw_iasworld_sales_price_diff_sale_mydec") }}'
+    config:
+      tags:
+        - test_qc_sales
+    tests:
+      # Values of $1000 and below seem to get recoded to $1 in iasWorld
+      - expression_is_true:
+          name: qc_vw_iasworld_sales_price_diff_sale_mydec_gte_1000
+          expression: ABS(price_iasworld - price_mydec) > 999
