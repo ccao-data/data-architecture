@@ -23,6 +23,10 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
+      - name: Fail the job for testing purposes
+        run: exit 1
+        shell: bash
+
       - name: Test source freshness
         run: dbt source freshness --target "$TARGET"
         working-directory: ${{ env.PROJECT_DIR }}
@@ -36,7 +40,7 @@ jobs:
       # Only publish to SNS on failure for scheduled runs, since other event
       # types should notify the GitHub user who triggered the event
       - name: Send failure notification
-        if: github.event_name == 'schedule' && failure()
+        if: github.event_name == 'workflow_dispatch' && failure()
         uses: ./.github/actions/publist_sns_topic
         with:
           sns_topic_arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
