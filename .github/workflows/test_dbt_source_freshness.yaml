@@ -41,7 +41,7 @@ jobs:
       # types should notify the GitHub user who triggered the event
       - name: Send failure notification
         if: github.event_name == 'workflow_dispatch' && failure()
-        uses: ./.github/actions/publist_sns_topic
+        uses: ./.github/actions/publish_sns_topic
         with:
           sns_topic_arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
           subject: "dbt source freshness tests failed for workflow run: ${{ github.run_id }}"
