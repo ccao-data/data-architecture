@@ -57,19 +57,10 @@ Pulled from the following Inquire queries:
 Test that deed, buyer, seller, and price `iasworld.sales` columns are not null.
 {% enddocs %}
 
-# vw_sale_mydec_null_values
-
-{% docs view_vw_sale_mydec_null_values %}
-Test that deed, buyer, seller, address and price `sale.mydec` columns are not
-null.
-
-{% enddocs %}
-
 # vw_iasworld_sales_rowcount_matches_sale_mydec
 
 {% docs view_vw_iasworld_sales_rowcount_matches_sale_mydec %}
 Test that `iasworld.sales` and `sale.mydec` have similar row counts.
-
 {% enddocs %}
 
 # vw_iasworld_sales_unmatched_joins_sale_mydec
@@ -101,5 +92,13 @@ Test if selected classes have sales prices greater than $20,000,000 in
 {% docs view_vw_iasworld_sales_price_diff_sale_mydec %}
 Test if prices in `iasworld.sales` and `sale.mydec` for matched sales are
 different.
+
+{% enddocs %}
+
+# vw_sale_mydec_null_values
+
+{% docs view_vw_sale_mydec_null_values %}
+Test that deed, buyer, seller, address and price `sale.mydec` columns are not
+null.
 
 {% enddocs %}

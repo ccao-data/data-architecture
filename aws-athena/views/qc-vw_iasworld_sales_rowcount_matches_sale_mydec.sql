@@ -1,4 +1,4 @@
--- View that compares the number of unique sales between iasWorld and myDec.
+-- View that compares the number of unique sales between iasWorld and MyDec.
 WITH sales_cte AS (
     SELECT
         SUBSTR(sales.saledt, 1, 4) AS year,

@@ -9,9 +9,7 @@ WITH sales_cte AS (
         sales.deactivat IS NULL
         AND sales.cur = 'Y'
         AND sales.instruno IS NOT NULL
-        AND CAST(SUBSTR(sales.saledt, 1, 4) AS INTEGER) BETWEEN 2014 AND YEAR(
-            CURRENT_DATE
-        )
+        AND SUBSTR(sales.saledt, 1, 4) >= '2014'
 ),
 
 mydec_cte AS (

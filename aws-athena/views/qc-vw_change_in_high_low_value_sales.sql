@@ -82,5 +82,5 @@ SELECT
         ELSE 'No significant change'
     END AS price_greater_than_1m_growth_status
 FROM sales_cte
-WHERE year > '2014'
+WHERE year >= '2014'
 ORDER BY year ASC
