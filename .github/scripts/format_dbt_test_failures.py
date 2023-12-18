@@ -18,7 +18,7 @@
 #   3. The output filepath to which the workbook should be written
 #     * If not present, defaults to './qc_test_failures_<date>.xlsx'
 #
-# Expects one environment variable to be set:
+# Expects one optional environment variable to be set:
 #
 #  1.AWS_ATHENA_S3_STAGING_DIR: Location in S3 where Athena query results
 #    should be written. If missing, defaults to the
@@ -96,13 +96,13 @@ class FailedTestGroup:
         ]
 
 
-# Struct representing a mapping of sheet names to the tests contained therein
+# Type representing a mapping of sheet names to the tests contained therein
 FailedTestsByCategory = typing.Dict[str, FailedTestGroup]
 
 
 def main() -> None:
-    """Entrypoint to this script. Parses input arguments and writes a zipfile
-    of test failures to the output path."""
+    """Entrypoint to this script. Parses dbt test failures and writes a
+    workbook of test failures to the output path."""
     try:
         run_results_filepath = sys.argv[1]
     except IndexError:
@@ -175,7 +175,8 @@ def get_failed_tests_by_category(
             models = node.get("depends_on", {}).get("nodes", [])
             if not models:
                 raise ValueError(
-                    f"Missing `depends_on.nodes` attribute for test {test_name}"
+                    "Missing `depends_on.nodes` attribute for test "
+                    f"{test_name}"
                 )
             # Cross-table comparisons often involve multiple models; we have
             # determined experimentally that the second one is usually

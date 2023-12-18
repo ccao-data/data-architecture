@@ -56,10 +56,6 @@ sources:
                       AND class != 'EX'
                       AND cur = 'Y'
                       AND deactivat IS NULL
-                  meta:
-                    description: >
-                      Test to confirm that all ADDN rows have a 'class' column
-                      value that is a valid class code.
           - name: convaddn
             description: Converted addition total
           - name: cur
