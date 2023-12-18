@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 #
-# Generates an.Excel workbook of dbt test failures that can be shared with
+# Generates an Excel workbook of dbt test failures that can be shared with
 # other teams for review and correction.
 #
 # This script assumes that it is being run in sequence after a call to
@@ -53,14 +53,15 @@ from openpyxl.worksheet.worksheet import Worksheet
 
 DEFAULT_TEST_CATEGORY = "miscellaneous"
 AWS_ATHENA_S3_STAGING_DIR = os.getenv(
-    "AWS_ATHENA_S3_STAGING_DIR",
-    "s3://ccao-athena-results-us-east-1/"
+    "AWS_ATHENA_S3_STAGING_DIR", "s3://ccao-athena-results-us-east-1/"
 )
+
 
 @dataclasses.dataclass
 class FailedTestGroup:
     """Class to store query results for a group of failed dbt tests and provide
     convenience methods for formatting those results for output to a report."""
+
     def __init__(self) -> None:
         self._rows: typing.List[typing.Dict] = []
 
