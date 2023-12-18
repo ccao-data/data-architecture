@@ -16,12 +16,13 @@
 #   2. The local path to a manifest.json file with the compiled dbt DAG
 #     * If not present, defaults to './target/manifest.json'
 #   3. The output filepath to which the workbook should be written
-#     * If not present, defaults to './qc_test_failures_<date>.zip'
+#     * If not present, defaults to './qc_test_failures_<date>.xlsx'
 #
 # Expects one environment variable to be set:
 #
 #  1.AWS_ATHENA_S3_STAGING_DIR: Location in S3 where Athena query results
-#    should be written
+#    should be written. If missing, defaults to the
+#    ccao-athena-results-us-east-1 bucket
 #
 # Each sheet in the output workbook represents a category of test, e.g.
 # "valid_range" or "not_null"; each row in a sheet represents a row in a
@@ -51,18 +52,29 @@ import pyathena.cursor
 from openpyxl.worksheet.worksheet import Worksheet
 
 DEFAULT_TEST_CATEGORY = "miscellaneous"
-
+AWS_ATHENA_S3_STAGING_DIR = os.getenv(
+    "AWS_ATHENA_S3_STAGING_DIR",
+    "s3://ccao-athena-results-us-east-1/"
+)
 
 @dataclasses.dataclass
 class FailedTestGroup:
+    """Class to store query results for a group of failed dbt tests and provide
+    convenience methods for formatting those results for output to a report."""
     def __init__(self) -> None:
         self._rows: typing.List[typing.Dict] = []
 
     def update(self, new_rows: typing.List[typing.Dict]) -> None:
+        """Add a list of new_rows to the rows of failing tests tracked by
+        this group. The new_rows list should be formatted like the rows
+        returned by a csv.DictReader or a DictCursor, i.e. a list of
+        dicts mapping `{column_name: row_value}`."""
         self._rows = [*self._rows, *new_rows]
 
     @property
     def fieldnames(self) -> typing.List[str]:
+        """Get a list of fieldnames that encapsulates all of the fieldnames
+        for all of the rows of failing tests tracked by this group."""
         fieldnames = []
         for row in self._rows:
             for column in row.keys():
@@ -72,8 +84,13 @@ class FailedTestGroup:
 
     @property
     def rows(self) -> typing.List[typing.List]:
+        """Format the rows of failing tests tracked by this group, with
+        fieldname data excluded. The combination of this property and the
+        `fieldnames` property can be used to write to a csv.Writer or
+        to an openpyxl.Workbook sheet for the tests tracked by this group."""
+        fieldnames = self.fieldnames
         return [
-            [row.get(fieldname) for fieldname in self.fieldnames]
+            [row.get(fieldname) for fieldname in fieldnames]
             for row in self._rows
         ]
 
@@ -99,7 +116,7 @@ def main() -> None:
         output_filepath = sys.argv[3]
     except IndexError:
         date_today = datetime.datetime.today().strftime("%Y-%m-%d")
-        output_filepath = f"test_failures_{date_today}.xlsx"
+        output_filepath = f"qc_test_failures_{date_today}.xlsx"
 
     with open(run_results_filepath) as run_results_fobj:
         run_results = json.load(run_results_fobj)
@@ -123,11 +140,11 @@ def get_failed_tests_by_category(
     run_results: typing.Dict, manifest: typing.Dict
 ) -> FailedTestsByCategory:
     """Given two artifacts from a `dbt test --store-failures` call (a
-    run_results.json file and a manifest.json file), generates a dict
+    run_results.json file dict and a manifest.json file dict), generates a dict
     where each key is a name of a sheet and each associated value is
     a list of failed tests for that sheet."""
     conn = pyathena.connect(
-        s3_staging_dir=os.getenv("AWS_ATHENA_S3_STAGING_DIR"),
+        s3_staging_dir=AWS_ATHENA_S3_STAGING_DIR,
         region_name="us-east-1",
         cursor_class=pyathena.cursor.DictCursor,
     )
@@ -139,8 +156,8 @@ def get_failed_tests_by_category(
         if result["status"] == "fail":
             unique_id = result["unique_id"]
             # Unique ID format is:
-            # test.athena.<name>.<hash>
-            name = unique_id.split(".")[2]
+            # test.athena.<test_name>.<hash>
+            test_name = unique_id.split(".")[2]
 
             node = manifest["nodes"].get(unique_id)
             if node is None:
@@ -157,7 +174,7 @@ def get_failed_tests_by_category(
             models = node.get("depends_on", {}).get("nodes", [])
             if not models:
                 raise ValueError(
-                    f"Missing depends_on.nodes attribute for test {name}"
+                    f"Missing `depends_on.nodes` attribute for test {test_name}"
                 )
             # Cross-table comparisons often involve multiple models; we have
             # determined experimentally that the second one is usually
@@ -166,23 +183,25 @@ def get_failed_tests_by_category(
             # to expose an override attribute
             model = models[-1]
 
+            # Reference format for models/sources is:
+            # <"model"/"source">.athena.<schema_name>.<table_name>
             table_name = model.split(".")[-1]
 
             # Get the fully-qualified name of the table that stores failures
             # for this test so that we can query it
-            relation_name = node.get("relation_name")
-            if relation_name is None:
+            test_results_relation_name = node.get("relation_name")
+            if test_results_relation_name is None:
                 raise ValueError(
-                    f"Missing relation_name attribute for test {name}. "
+                    f"Missing relation_name attribute for test {test_name}. "
                     "Did you run `dbt test` with the --store-failures flag?"
                 )
 
-            print(f"Querying failed rows from {relation_name}")
-            cursor.execute(f"select * from {relation_name}")
+            print(f"Querying failed rows from {test_results_relation_name}")
+            cursor.execute(f"select * from {test_results_relation_name}")
             query_results = cursor.fetchall()
             if len(query_results) == 0:
                 raise ValueError(
-                    f"Test {relation_name} has status 'fail' but no failures"
+                    f"Test {test_name} has status 'fail' but no failures"
                 )
 
             # Add custom fields to query results that we don't expect to be
@@ -209,7 +228,7 @@ def add_sheet_to_workbook(
     failed_test_group: FailedTestGroup,
 ) -> None:
     """Add a sheet of failed dbt tests to an openpyxl Workbook."""
-    # openpyxl workbooks are created with one untitled active sheet by
+    # openpyxl Workbooks are created with one untitled active sheet by
     # default, so rename and fill out that sheet before creating any
     # new sheets
     sheet: Worksheet
