@@ -203,7 +203,8 @@ def get_failed_tests_by_category(
             query_results = cursor.fetchall()
             if len(query_results) == 0:
                 raise ValueError(
-                    f"Test {test_name} has status 'fail' but no failures"
+                    f"Test {test_name} has status 'fail' but no failing rows "
+                    "in Athena"
                 )
 
             # Add custom fields to query results that we don't expect to be
