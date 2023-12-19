@@ -47,11 +47,17 @@ import typing
 
 import openpyxl
 import openpyxl.styles
+import openpyxl.utils
 import pyathena
 import pyathena.cursor
 from openpyxl.worksheet.worksheet import Worksheet
 
+# Tests without a config.meta.category property will be grouped in
+# this default category
 DEFAULT_TEST_CATEGORY = "miscellaneous"
+# Prefix for the URL location of a test in the dbt docs
+DOCS_URL_PREFIX = "https://ccao-data.github.io/data-architecture/#!/test"
+# The S3 bucket where Athena query results are stored
 AWS_ATHENA_S3_STAGING_DIR = os.getenv(
     "AWS_ATHENA_S3_STAGING_DIR", "s3://ccao-athena-results-us-east-1/"
 )
@@ -61,6 +67,9 @@ AWS_ATHENA_S3_STAGING_DIR = os.getenv(
 class FailedTestGroup:
     """Class to store query results for a group of failed dbt tests and provide
     convenience methods for formatting those results for output to a report."""
+
+    # Names of fields that are used for debugging
+    debugging_field_names = ["test_name", "docs_url"]
 
     def __init__(self) -> None:
         self._rows: typing.List[typing.Dict] = []
@@ -93,6 +102,17 @@ class FailedTestGroup:
         return [
             [row.get(fieldname) for fieldname in fieldnames]
             for row in self._rows
+        ]
+
+    @property
+    def debugging_field_indexes(self) -> typing.List[str]:
+        """Get a list of field indexes (e.g. ["A", "B"]) for fields that
+        are used for debugging."""
+        fieldnames = self.fieldnames
+        return [
+            # openpyxl is 1-indexed while the index() method is 0-indexed
+            openpyxl.utils.get_column_letter(fieldnames.index(name) + 1)
+            for name in self.debugging_field_names
         ]
 
 
@@ -159,6 +179,8 @@ def get_failed_tests_by_category(
             # Unique ID format is:
             # test.athena.<test_name>.<hash>
             test_name = unique_id.split(".")[2]
+            # Link to the test's page in the dbt docs, for debugging
+            test_docs_url = f"{DOCS_URL_PREFIX}/{unique_id}"
 
             node = manifest["nodes"].get(unique_id)
             if node is None:
@@ -213,6 +235,8 @@ def get_failed_tests_by_category(
                 {
                     "source_table": table_name,
                     "description": test_description,
+                    "test_name": test_name,
+                    "docs_url": test_docs_url,
                     **row,
                 }
                 for row in query_results
@@ -241,16 +265,21 @@ def add_sheet_to_workbook(
         sheet = workbook.create_sheet()
 
     sheet.title = sheet_title
+    sheet.append(failed_test_group.fieldnames)
 
     # Style the header differently from rows so that it is visually
     # distinct
-    sheet.append(failed_test_group.fieldnames)
     font = openpyxl.styles.Font(bold=True)
     for cell in sheet[1]:
         cell.font = font
 
     for row in failed_test_group.rows:
         sheet.append(row)
+
+    # Hide columns that are intended for debugging only, so that they don't
+    # get in the way of non-technical workbook consumers
+    for col_idx in failed_test_group.debugging_field_indexes:
+        sheet.column_dimensions[col_idx].hidden = True
 
 
 if __name__ == "__main__":
