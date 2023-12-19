@@ -211,7 +211,7 @@ def get_failed_tests_by_category(
             # included in the response
             failed_tests = [
                 {
-                    "iasworld_table": table_name,
+                    "source_table": table_name,
                     "description": test_description,
                     **row,
                 }
