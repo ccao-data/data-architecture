@@ -309,7 +309,10 @@ def add_sheet_to_workbook(
         cell.font = font
 
     for row in failed_test_group.rows:
-        sheet.append(row)
+        # Convert row values to string so that Excel doesn't apply
+        # autoformatting
+        output_row = [str(cell) if cell is not None else cell for cell in row]
+        sheet.append(output_row)
 
     # Hide columns that are intended for debugging only, so that they don't
     # get in the way of non-technical workbook consumers
