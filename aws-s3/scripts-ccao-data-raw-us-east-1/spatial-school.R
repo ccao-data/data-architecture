@@ -117,7 +117,7 @@ sources_list <- bind_rows(list(
   ),
   "attendance_ele_2024" = c(
     "source" = "https://data.cityofchicago.org/api/geospatial/",
-    "api_url" = "4mxu-r7ha?method=export&format=GeoJSON",
+    "api_url" = "8k6e-w34s?method=export&format=GeoJSON",
     "boundary" = "cps_attendance_elementary",
     "year" = "2023-2024"
   ),
@@ -259,7 +259,7 @@ pwalk(sources_list, function(...) {
 
 # Read privileges for the this drive location are limited.
 # Contact Cook County GIS if permissions need to be changed.
-file_path <- "//gisemcv1.ccounty.com/ArchiveServices/"
+file_path <- "//10.122.19.14/ArchiveServices"
 
 crossing(
 
