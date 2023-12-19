@@ -61,6 +61,14 @@ DOCS_URL_PREFIX = "https://ccao-data.github.io/data-architecture/#!/test"
 AWS_ATHENA_S3_STAGING_DIR = os.getenv(
     "AWS_ATHENA_S3_STAGING_DIR", "s3://ccao-athena-results-us-east-1/"
 )
+# Field names that are used in the output workbook
+SOURCE_TABLE_FIELD = "source_table"
+DESCRIPTION_FIELD = "description"
+TEST_NAME_FIELD = "test_name"
+DOCS_URL_FIELD = "docs_url"
+TAXYR_FIELD = "taxyr"
+PARID_FIELD = "parid"
+CARD_FIELD = "card"
 
 
 @dataclasses.dataclass
@@ -69,7 +77,18 @@ class FailedTestGroup:
     convenience methods for formatting those results for output to a report."""
 
     # Names of fields that are used for debugging
-    debugging_field_names = ["test_name", "docs_url"]
+    _debugging_field_names = [TEST_NAME_FIELD, DOCS_URL_FIELD]
+    # List that defines the order that diagnostic fields should appear in
+    # the output workbook
+    _diagnostic_field_order = [
+        SOURCE_TABLE_FIELD,
+        DESCRIPTION_FIELD,
+        TEST_NAME_FIELD,
+        DOCS_URL_FIELD,
+        TAXYR_FIELD,
+        PARID_FIELD,
+        CARD_FIELD,
+    ]
 
     def __init__(self) -> None:
         self._rows: typing.List[typing.Dict] = []
@@ -90,6 +109,22 @@ class FailedTestGroup:
             for column in row.keys():
                 if column not in fieldnames:
                     fieldnames.append(column)
+
+        # Reorder the list so that diagnostic fields are presented in the
+        # correct order
+        for new_idx, field in enumerate(self._diagnostic_field_order):
+            try:
+                old_idx = fieldnames.index(field)
+            except ValueError:
+                # The field must not be contained in this sheet, so skip it
+                continue
+
+            if new_idx == old_idx:
+                continue
+
+            # Move the element in the list from the old index to the new one
+            fieldnames.insert(new_idx, fieldnames.pop(old_idx))
+
         return fieldnames
 
     @property
@@ -111,8 +146,8 @@ class FailedTestGroup:
         fieldnames = self.fieldnames
         return [
             # openpyxl is 1-indexed while the index() method is 0-indexed
-            openpyxl.utils.get_column_letter(fieldnames.index(name) + 1)
-            for name in self.debugging_field_names
+            openpyxl.utils.get_column_letter(fieldnames.index(field) + 1)
+            for field in self._debugging_field_names
         ]
 
 
@@ -233,10 +268,10 @@ def get_failed_tests_by_category(
             # included in the response
             failed_tests = [
                 {
-                    "source_table": table_name,
-                    "description": test_description,
-                    "test_name": test_name,
-                    "docs_url": test_docs_url,
+                    TEST_NAME_FIELD: test_name,
+                    DESCRIPTION_FIELD: test_description,
+                    DOCS_URL_FIELD: test_docs_url,
+                    SOURCE_TABLE_FIELD: table_name,
                     **row,
                 }
                 for row in query_results
