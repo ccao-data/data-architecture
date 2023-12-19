@@ -2,8 +2,6 @@
 # in order to compile a single aggregated dataset of commercial valuation data.
 
 library(ccao)
-library(DBI)
-library(noctua)
 library(dplyr)
 library(openxlsx)
 library(readr)
@@ -115,21 +113,17 @@ temp <- list.files(
   grep(pattern = "Other", invert = TRUE, value = TRUE) %>%
   list.files(pattern = ".xlsx", full.names = TRUE) %>%
   map(function(x) {
-
     # Unfortunately, people are still working on some of these sheets which
     # means this script will error out when a file is open - `possibly` here
     # avoids that. Don't consider data final if an error is caught.
-    safe_gSN = possibly(.f = getSheetNames, otherwise = NULL)
+    safe_gSN <- possibly(.f = getSheetNames, otherwise = NULL)
 
     crossing(sheet = safe_gSN(x), file = x)
-
   }, .progress = TRUE) %>%
   bind_rows() %>%
   filter(str_detect(sheet, "Summary", negate = TRUE), !is.na(sheet)) %>%
-
   # Ingest the sheets, clean, and bind them ----
 pmap(function(...) {
-
   data <- tibble(...)
 
   read.xlsx(data$file, sheet = data$sheet) %>%
@@ -140,21 +134,22 @@ pmap(function(...) {
     mutate(
       across(.cols = everything(), as.character)
     )
-
 }, .progress = TRUE) %>%
   bind_rows() %>%
   filter(check.numeric(excesslandval)) %>%
   select(where(~ !all(is.na(.x)))) %>%
-
   # Add useful information to output and clean-up columns ----
 mutate(
   year = str_extract(file, "[0-9]{4}"),
   township = str_replace_all(
     str_extract(
       file,
-      str_remove_all(paste(ccao::town_dict$township_name, collapse = "|"), " ")
+      str_remove_all(
+        paste(ccao::town_dict$township_name, collapse = "|"), " "
+      )
     ),
-    c("ElkGrove" = "Elk Grove",
+    c(
+      "ElkGrove" = "Elk Grove",
       "HydePark" = "Hyde Park",
       "LakeView" = "Lake View",
       "NewTrier" = "New Trier",
@@ -164,7 +159,8 @@ mutate(
       "SouthChicago" = "South Chicago",
       "RiverForest" = "River Forest",
       "RogersPark" = "Rogers Park",
-      "WestChicago" = "West Chicago")
+      "WestChicago" = "West Chicago"
+    )
   ),
   across(.cols = everything(), ~ na_if(.x, "N/A")),
   # Ignore known character columns for parse_number
@@ -176,7 +172,6 @@ mutate(
     TRUE ~ yearbuilt
   ),
   tot_units = coalesce(tot_units, tot_apts, `boatslips`, `mobilehomepads`),
-  #marketvalue = coalesce(finalmarketvalue, marketvalue, marketvalue_incl_excessland),
   # Don't stack pin numbers when "Thru" is present in PIN list
   across(.cols = c(pins, `class(es)`), ~ case_when(
     grepl("thru", .x, ignore.case = TRUE) ~ str_squish(.x),
@@ -187,7 +182,7 @@ mutate(
   across(int_cols, as.integer)
 ) %>%
   # Remove empty columns
-  select(where(~!(all(is.na(.)) | all(. == "")))) %>%
+  select(where(~ !(all(is.na(.)) | all(. == "")))) %>%
   # Remove pre-declared columns
   select(!all_of(remove_cols) & !starts_with("market")) %>%
   select(all_of(sort(names(.)))) %>%
@@ -195,5 +190,3 @@ mutate(
   relocate(c(file, sheet), .after = last_col()) %>%
   group_by(year) %>%
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
-
-

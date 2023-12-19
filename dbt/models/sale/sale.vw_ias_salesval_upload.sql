@@ -1,0 +1,1 @@
+../../../aws-athena/views/sale-vw_ias_salesval_upload.sql

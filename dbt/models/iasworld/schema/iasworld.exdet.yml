@@ -1,0 +1,122 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+      - test_qc_iasworld
+
+    tables:
+      - name: exdet
+        description: '{{ doc("table_exdet") }}'
+
+        columns:
+          - name: assetid
+            description: Asset ID number
+          - name: begdt
+            description: Proration exemption start date
+          - name: card
+            description: '{{ doc("column_card") }}'
+          - name: caseno
+            description: '{{ doc("column_caseno") }}'
+          - name: class
+            description: '{{ doc("shared_column_class") }}'
+          - name: codejur
+            description: The Jurisdiction number that is associated with the exemption code
+          - name: const1
+            description: Constant value 1
+          - name: const2
+            description: Constant value 2
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: enddt
+            description: Proration exemption end date
+          - name: exbldg
+            description: Exemption building value
+          - name: exbldg2
+            description: Exemption building value 2
+          - name: excode
+            description: '{{ doc("column_excode") }}'
+          - name: exland
+            description: Exemption land value
+          - name: exland2
+            description: Exemption land value 2
+          - name: exlink
+            description: To maintain link between multiple lines of exemptions for the same owner
+          - name: exother
+            description: Exemption other value
+          - name: exother2
+            description: Exemption other value 2
+          - name: exseq
+            description: Sequence in which the exemption has to be applied within the link
+          - name: fld
+            description: Column name to which this exemption applies
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: lineno
+            description: Exemption line line number for this `parid`/`excode`
+          - name: lline
+            description: '{{ doc("shared_column_lline") }}'
+          - name: override
+            description: Override indicator
+          - name: ovrval
+            description: Override value
+          - name: parid
+            description: '{{ doc("shared_column_pin") }}'
+          - name: procdate
+            description: '{{ doc("column_procdate") }}'
+          - name: procname
+            description: '{{ doc("column_procname") }}'
+          - name: projno
+            description: Project number
+          - name: reascd
+            description: Reason code
+          - name: recipfld
+            description: Column name of value to be exempted is located
+          - name: recipline
+            description: Line number where value to be exempted is located
+          - name: reciptble
+            description: Table where value to be exempted is located
+          - name: recnr
+            description: '{{ doc("column_recnr") }}'
+          - name: rolltype
+            description: '{{ doc("column_rolltype") }}'
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: scrn
+            description: Screen name to which this exemption applies
+          - name: seq
+            description: '{{ doc("shared_column_seq") }}'
+          - name: statflg
+            description: Status flag
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: taxyr
+            description: '{{ doc("shared_column_year") }}'
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: units
+            description: Number of units
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: valclass
+            description: '{{ doc("column_valclass") }}'
+          - name: valyear
+            description: Valuation year
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+          - name: yrbase
+            description: Base year exemption
+          - name: yrbeg
+            description: Year exemption begins
+          - name: yrend
+            description: Ending year

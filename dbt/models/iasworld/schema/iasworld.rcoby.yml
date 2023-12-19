@@ -1,0 +1,114 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+      - test_qc_iasworld
+
+    tables:
+      - name: rcoby
+        description: '{{ doc("table_rcoby") }}'
+
+        columns:
+          - name: altbasedate
+            description: '{{ doc("column_altbasedate") }}'
+          - name: cdutble
+            description: CDU table
+          - name: code
+            description: OBY structure type code
+          - name: code_mvp
+            description: MSB component code
+          - name: depr_cls
+            description: Determines the `DEPRT` entry
+          - name: deprt
+            description: '{{ doc("column_deprt") }}'
+          - name: describ
+            description: Description of factor
+          - name: dim1
+            description: Abbreviation for first units entry
+          - name: dim1desc
+            description: Description for first units entry
+          - name: dim2
+            description: Abbreviation for second units entry, if applicable
+          - name: dim2desc
+            description: Description for second units entry, if applicable
+          - name: dimref
+            description: Reference to measure (`MEAS1` or `MEAS2`)
+          - name: dimrtype
+            description: Dimension reference type (R, S)
+          - name: fc
+            description: Formula number
+          - name: gradea
+            description: Grade factor for grade A
+          - name: gradeb
+            description: Grade factor for grade B
+          - name: gradec
+            description: Grade factor for grade C
+          - name: graded
+            description: Grade factor for grade D
+          - name: gradee
+            description: Grade factor for grade E
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: incuse
+            description: Income Type Use
+          - name: locmultcd
+            description: Local Multiplier Code
+          - name: maxdimr
+            description: Maximum range for `DIMREF`
+          - name: maxsize
+            description: Maximum allowable size
+          - name: mindimr
+            description: Minimum range for `DIMREF`
+          - name: minsize
+            description: Minimum allowable size
+          - name: msclass
+            description: Construction class
+          - name: mult_units
+            description: Multiple units flag
+          - name: mvpflag
+            description: MVP calculation flag
+          - name: mvpinput1
+            description: Additional input attribute for MSB components
+          - name: mvpinput2
+            description: Additional input attribute for MSB components
+          - name: mvpinput3
+            description: Additional input attribute for MSB components
+          - name: mvpinput4
+            description: Additional input attribute for MSB components
+          - name: mvpinput5
+            description: Additional input attribute for MSB components
+          - name: nam
+            description: Short version of description
+          - name: obygrp
+            description: Group for local modifier override
+          - name: occupancy
+            description: Occupancy Code used for MSB
+          - name: ppcalctype
+            description: 'Filter for allowable use in PP Cama Calculations: P=PP Only, O/Null = OBY Only, B = Both'
+          - name: r1
+            description: 'Variable to be used in cost equation: e.g. for `units = 1`, `cost = R1 + (R2*sqft(area)) + (R3*area)`'
+          - name: schedincr
+            description: Schedule display increment
+          - name: schedmax
+            description: Schedule display maximum size
+          - name: schedmin
+            description: Schedule display minimum size
+          - name: schedtype
+            description: Schedule type (`RATE` or `COST`)
+          - name: srvclife
+            description: Service life
+          - name: sumpct
+            description: Percent of area to be included in area of parcel buildings (`areasum`)
+          - name: units
+            description: Units to use for cost equation
+          - name: valmeth
+            description: Valuation Method (M(MSB))
+          - name: ver
+            description: '{{ doc("column_ver") }}'
+          - name: wallhgt
+            description: '{{ doc("column_wallhgt") }}'
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'

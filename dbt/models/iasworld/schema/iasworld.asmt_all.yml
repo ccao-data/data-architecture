@@ -1,0 +1,161 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+      - test_qc_iasworld
+
+    tables:
+      - name: asmt_all
+        description: '{{ doc("table_asmt_all") }}'
+        freshness:
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
+
+        columns:
+          - name: class
+            description: '{{ doc("shared_column_class") }}'
+            tests:
+              - relationships:
+                  name: iasworld_asmt_all_class_in_ccao_class_dict
+                  to: source('ccao', 'class_dict')
+                  field: class_code
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND class NOT IN ('EX', 'RR', '999')
+                      AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
+                      AND rolltype != 'RR'
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_asmt_all_cur_in_accepted_values
+                  values: ['Y', 'D', 'N']
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: distcode
+            description: District code
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: luc
+            description: '{{ doc("column_luc") }}'
+          - name: ovrclass
+            description: Override class
+          - name: ovrcodtax
+            description: Override code for taxes
+          - name: ovrvaltax
+            description: Override value for taxes
+          - name: parid
+            description: '{{ doc("shared_column_pin") }}'
+            tests:
+              - not_null:
+                  name: iasworld_asmt_all_parid_not_null
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND rolltype != 'RR'
+                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
+              - relationships:
+                  name: iasworld_asmt_all_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
+                  config: *unique-conditions
+          - name: procdate
+            description: '{{ doc("column_procdate") }}'
+          - name: procname
+            description: '{{ doc("column_procname") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_asmt_all_procname_in_accepted_values
+                  values: ['CCAOVALUE', 'CCAOFINAL', 'BORVALUE', 'CONVERT']
+          - name: reascd
+            description: Reason code for change in assessed value
+          - name: rolltype
+            description: '{{ doc("column_rolltype") }}'
+          - name: seq
+            description: '{{ doc("shared_column_seq") }}'
+            tests:
+              - dbt_utils.sequential_values:
+                  name: iasworld_asmt_all_seq_all_sequential_exist
+                  group_by_columns:
+                    - parid
+                    - taxyr
+                    - procname
+                  config:
+                    <<: *unique-conditions
+                    error_if: ">15300"
+          - name: splitno
+            description: '{{ doc("column_splitno") }}'
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: taxtable
+            description: Flag to indicate assessment record used in tax calculation
+          - name: taxyr
+            description: '{{ doc("shared_column_year") }}'
+            tests:
+              - not_null:
+                  name: iasworld_asmt_all_taxyr_not_null
+                  config: *unique-conditions
+          - name: tottax
+            description: Total tax
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: valapr1
+            description: '{{ doc("column_valapr1") }}'
+          - name: valapr2
+            description: '{{ doc("column_valapr2") }}'
+          - name: valapr3
+            description: '{{ doc("column_valapr3") }}'
+          - name: valasm1
+            description: '{{ doc("column_valasm1") }}'
+          - name: valasm2
+            description: '{{ doc("column_valasm2") }}'
+          - name: valasm3
+            description: '{{ doc("column_valasm3") }}'
+          - name: valclass
+            description: '{{ doc("column_valclass") }}'
+          - name: valtax
+            description: Taxes
+          - name: valyear
+            description: Valuation year
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+
+        tests:
+          # Note that this test is NOT actually the unique primary key of
+          # this table, since there doesn't seem to BE a unique combination
+          # of identifying columns
+          - unique_combination_of_columns:
+              name: iasworld_asmt_all_unique_by_parid_procname_and_taxyr
+              combination_of_columns:
+                - parid
+                - procname
+                - taxyr
+              config:
+                <<: *unique-conditions
+                error_if: ">15300"
+          - row_values_match_after_join:
+              name: iasworld_asmt_all_class_matches_pardat_class
+              column: substr(model.class, 1, 3)
+              external_model: source('iasworld', 'pardat')
+              external_column: substr(external_model.class, 1, 3)
+              join_columns:
+                - parid
+                - taxyr
+              config: *unique-conditions

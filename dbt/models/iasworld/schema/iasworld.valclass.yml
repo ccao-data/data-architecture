@@ -1,0 +1,40 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+      - test_qc_iasworld
+
+    tables:
+      - name: valclass
+        description: '{{ doc("table_valclass") }}'
+
+        columns:
+          - name: assess_pct
+            description: Assessment percent used in calc of asmt
+          - name: class
+            description: '{{ doc("shared_column_class") }}'
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: luc
+            description: '{{ doc("column_luc") }}'
+          - name: ratio1
+            description: Ratio 1
+          - name: ratio2
+            description: Ratio 2
+          - name: ratio3
+            description: Ratio 3
+          - name: rolltype
+            description: '{{ doc("column_rolltype") }}'
+          - name: taxyr
+            description: '{{ doc("shared_column_year") }}'
+          - name: valclass
+            description: '{{ doc("column_valclass") }}'
+          - name: vclass
+            description: Other valclass class pointing to assigned valclass
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'

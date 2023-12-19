@@ -29,7 +29,12 @@ jobs:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          VALIDATE_SQLFLUFF: false
           VALIDATE_MARKDOWN: false
+          # These tools are handled by pre-commit, so we don't need SuperLinter
+          # to run them as well
+          VALIDATE_SQLFLUFF: false
+          VALIDATE_PYTHON_BLACK: false
+          VALIDATE_PYTHON_FLAKE8: false
+          VALIDATE_PYTHON_ISORT: false
           LINTER_RULES_PATH: /
           YAML_CONFIG_FILE: .yamllint.yml

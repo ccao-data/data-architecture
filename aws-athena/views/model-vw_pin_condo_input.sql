@@ -7,9 +7,19 @@ data is filled with the following steps:
 2. Current data is filled BACKWARD to account for missing historical data.
    Again, this is only for things unlikely to change
 
-WARNING: This is a very heavy view. Don't use it for anything other than making
-extracts for modeling
+This view is "materialized" (made into a table) daily in order to improve
+query performance and reduce data queried by Athena. The materialization
+is triggered by sqoop-bot (runs after Sqoop grabs iasWorld data)
 */
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['meta_pin'],
+        bucket_count=1
+    )
+}}
+
 WITH uni AS (
     SELECT * FROM {{ ref('model.vw_pin_shared_input') }}
     WHERE meta_class IN ('299', '399')
@@ -23,8 +33,9 @@ sqft_percentiles AS (
             AS char_land_sf_95_percentile
     FROM {{ ref('default.vw_pin_condo_char') }} AS ch
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
-        ON ch.pin = leg.parid AND ch.year = leg.taxyr
-    WHERE leg.cur = 'Y'
+        ON ch.pin = leg.parid
+        AND ch.year = leg.taxyr
+        AND leg.cur = 'Y'
         AND leg.deactivat IS NULL
     GROUP BY ch.year, leg.user1
 )
@@ -44,7 +55,7 @@ SELECT
     ch.tieback_key_pin AS meta_tieback_key_pin,
     ch.tieback_proration_rate AS meta_tieback_proration_rate,
     COALESCE(ch.tieback_proration_rate < 1.0, FALSE) AS ind_pin_is_prorated,
-    ch.card_protation_rate AS meta_card_protation_rate,
+    ch.card_proration_rate AS meta_card_proration_rate,
 
     -- Multicard/multi-landline related fields. Each PIN can have more than
     -- one improvement/card AND/OR more than one attached landline
@@ -76,8 +87,8 @@ SELECT
     COALESCE(
         ch.char_land_sf >= sp.char_land_sf_95_percentile,
         FALSE
-    ) AS ind_land_gte_95_percentile
-
+    ) AS ind_land_gte_95_percentile,
+    uni.meta_year AS year
 FROM uni
 LEFT JOIN {{ ref('default.vw_pin_condo_char') }} AS ch
     ON uni.meta_pin = ch.pin

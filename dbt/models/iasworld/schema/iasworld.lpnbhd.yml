@@ -1,0 +1,94 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+      - test_qc_iasworld
+
+    tables:
+      - name: lpnbhd
+        description: '{{ doc("table_lpnbhd") }}'
+
+        columns:
+          - name: acmod
+            description: Type A (Acre) land model assignment
+          - name: acpct
+            description: Factor for type A (Acreage) land
+          - name: agmod
+            description: Factor for type A (Acreage) land
+          - name: agpct
+            description: Rate adjustment for agricultural model
+          - name: bldgfact
+            description: Building factor
+          - name: cdu
+            description: '{{ doc("column_cdu") }}'
+          - name: cdutble
+            description: CDU table
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: deprt
+            description: '{{ doc("column_deprt") }}'
+          - name: depthtble
+            description: Depth table assignment
+          - name: describ
+            description: Description
+          - name: dwelfact
+            description: Dwellingfactor - all classes
+          - name: grade
+            description: '{{ doc("column_grade") }}'
+          - name: grm
+            description: Gross rent multiplier
+          - name: grmflg
+            description: Gross rent multiplier flag
+          - name: grmod
+            description: Type G (Site) - land model assignment
+          - name: grpct
+            description: Factor for type G (Gross/Site) land
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: landfact
+            description: Land factor
+          - name: landpct
+            description: Percentage of Land allocation
+          - name: lcodemod
+            description: Land code model
+          - name: lotmod
+            description: Type F (Front Ft)- land model assignment
+          - name: lotpct
+            description: Factor for type F (Front Ft) land
+          - name: modelid
+            description: Linkage to Manualmod table
+          - name: nbhd
+            description: Neighborhood number
+          - name: ngroup
+            description: Neighborhood group
+          - name: obyfact
+            description: '`OBY` factor - all classes'
+          - name: rent
+            description: Default GRM rent
+          - name: resmod
+            description: Residential cost model
+          - name: revmeth
+            description: Review Method
+          - name: seq
+            description: '{{ doc("shared_column_seq") }}'
+          - name: sfmod
+            description: Type S (Sq. Ft.) - land model assignment
+          - name: sfpct
+            description: Factor for type S (Sq. Ft.) land
+          - name: unmod
+            description: Type U (Unit) - land model assignment
+          - name: unpct
+            description: Factor for type U (Unit) land
+          - name: valarea
+            description: Value area
+          - name: ver
+            description: '{{ doc("column_ver") }}'
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'

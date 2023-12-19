@@ -51,7 +51,7 @@ SELECT
         WHEN pardat.tiebldgpct IS NOT NULL THEN pardat.tiebldgpct / 100.0
         ELSE 1.0
     END AS tieback_proration_rate,
-    CAST(dwel.user24 AS DOUBLE) / 100.0 AS card_protation_rate,
+    CAST(dwel.user24 AS DOUBLE) / 100.0 AS card_proration_rate,
     multicodes.pin_is_multicard,
     multicodes.pin_num_cards,
     aggregate_land.pin_is_multiland,
@@ -135,6 +135,8 @@ FROM {{ source('iasworld', 'dweldat') }} AS dwel
 LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
     ON dwel.parid = pardat.parid
     AND dwel.taxyr = pardat.taxyr
+    AND pardat.cur = 'Y'
+    AND pardat.deactivat IS NULL
 LEFT JOIN multicodes
     ON dwel.parid = multicodes.parid
     AND dwel.taxyr = multicodes.taxyr
@@ -146,5 +148,3 @@ LEFT JOIN townships
     AND dwel.taxyr = townships.taxyr
 WHERE dwel.cur = 'Y'
     AND dwel.deactivat IS NULL
-    AND pardat.cur = 'Y'
-    AND pardat.deactivat IS NULL

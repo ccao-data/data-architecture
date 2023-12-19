@@ -52,12 +52,12 @@ FROM {{ source('iasworld', 'pardat') }} AS par
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     ON par.parid = leg.parid
     AND par.taxyr = leg.taxyr
+    AND leg.cur = 'Y'
+    AND leg.deactivat IS NULL
 LEFT JOIN {{ source('iasworld', 'owndat') }} AS own
     ON par.parid = own.parid
     AND par.taxyr = own.taxyr
-WHERE par.cur = 'Y'
-    AND par.deactivat IS NULL
-    AND leg.cur = 'Y'
-    AND leg.deactivat IS NULL
     AND own.cur = 'Y'
     AND own.deactivat IS NULL
+WHERE par.cur = 'Y'
+    AND par.deactivat IS NULL

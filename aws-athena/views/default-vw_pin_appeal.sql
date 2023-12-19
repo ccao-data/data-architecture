@@ -33,7 +33,10 @@ SELECT
     CASE
         WHEN htpar.taxyr < '2020' AND htpar.resact = 'C' THEN 'change'
         WHEN htpar.taxyr < '2020' AND htpar.resact = 'NC' THEN 'no change'
-        WHEN htpar.taxyr >= '2020' THEN LOWER(htpar.user104)
+        WHEN
+            htpar.taxyr >= '2020' AND TRIM(LOWER(htpar.user104)) = 'decrease'
+            THEN 'change'
+        WHEN htpar.taxyr >= '2020' THEN TRIM(LOWER(htpar.user104))
     END AS change,
     CASE
         WHEN htpar.taxyr < '2020'
@@ -65,20 +68,20 @@ FROM {{ source('iasworld', 'htpar') }} AS htpar
 LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
     ON htpar.parid = pardat.parid
     AND htpar.taxyr = pardat.taxyr
+    AND pardat.cur = 'Y'
+    AND pardat.deactivat IS NULL
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
     ON htpar.parid = legdat.parid
     AND htpar.taxyr = legdat.taxyr
+    AND legdat.cur = 'Y'
+    AND legdat.deactivat IS NULL
 LEFT JOIN {{ ref('default.vw_pin_value') }} AS vwpv
     ON htpar.parid = vwpv.pin
     AND htpar.taxyr = vwpv.year
 LEFT JOIN {{ source('iasworld', 'htagnt') }} AS htagnt
     ON htpar.cpatty = htagnt.agent
+    AND htagnt.cur = 'Y'
+    AND htagnt.deactivat IS NULL
 WHERE htpar.cur = 'Y'
     AND htpar.caseno IS NOT NULL
     AND htpar.deactivat IS NULL
-    AND pardat.cur = 'Y'
-    AND pardat.deactivat IS NULL
-    AND legdat.cur = 'Y'
-    AND legdat.deactivat IS NULL
-    AND htagnt.cur = 'Y'
-    AND htagnt.deactivat IS NULL

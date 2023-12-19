@@ -1,0 +1,296 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+      - test_qc_iasworld
+
+    tables:
+      - name: pardat
+        description: '{{ doc("table_pardat") }}'
+
+        columns:
+          - name: acres
+            description: '{{ doc("column_acres") }}'
+          - name: addrsrc
+            description: Address source
+          - name: addrvalid
+            description: '{{ doc("column_addrvalid") }}'
+          - name: adjfact
+            description: '{{ doc("column_adjfact") }}'
+          - name: adradd
+            description: '{{ doc("column_adradd") }}'
+          - name: adrdir
+            description: '{{ doc("column_adrdir") }}'
+          - name: adrid
+            description: '{{ doc("column_adrid") }}'
+          - name: adrno
+            description: '{{ doc("column_adrno") }}'
+          - name: adrparchild
+            description: '{{ doc("column_adrparchild") }}'
+          - name: adrpostmod
+            description: '{{ doc("column_adrpostmod") }}'
+          - name: adrpre
+            description: '{{ doc("column_adrpre") }}'
+          - name: adrpremod
+            description: '{{ doc("column_adrpremod") }}'
+          - name: adrpretype
+            description: '{{ doc("column_adrpretype") }}'
+          - name: adrstatus
+            description: '{{ doc("column_adrstatus") }}'
+          - name: adrstr
+            description: '{{ doc("column_adrstr") }}'
+          - name: adrsuf
+            description: '{{ doc("column_adrsuf") }}'
+          - name: adrsuf2
+            description: '{{ doc("column_adrsuf2") }}'
+          - name: afar
+            description: Actual FAR (calculated)
+          - name: afarsf
+            description: Square feet of actual FAR (calculated)
+          - name: aguse
+            description: Agriculture use
+          - name: alt_id
+            description: Alternate parcel identification
+          - name: areacd
+            description: Area code used as part of Folio number (BCA)
+          - name: assessorid
+            description: Assessor assigned to this parcel
+          - name: bldgros_d
+            description: Gross building description
+          - name: bldgros_v
+            description: Gross building value
+          - name: block
+            description: Parcel block
+          - name: calcacres
+            description: Total acres calculated from LAND table
+          - name: chgrsn
+            description: '{{ doc("column_chgrsn") }}'
+          - name: cityname
+            description: '{{ doc("column_cityname") }}'
+          - name: class
+            description: '{{ doc("shared_column_class") }}'
+            tests:
+              - relationships:
+                  name: iasworld_pardat_class_in_ccao_class_dict
+                  to: source('ccao', 'class_dict')
+                  field: class_code
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND class NOT IN ('EX', 'RR')
+                      AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_pardat_cur_in_accepted_values
+                  values: ['Y', 'D']
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: farminc
+            description: Farm income
+          - name: fldref
+            description: Field reference code
+          - name: floorno
+            description: '{{ doc("column_floorno") }}'
+          - name: fronting
+            description: Fronting location factor (street)
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: juris
+            description: Jurisdiction
+          - name: landisc
+            description: Landisc frame number
+          - name: livunit
+            description: Number of living units
+          - name: loc2
+            description: '{{ doc("column_loc2") }}'
+          - name: location
+            description: Location factor (area type)
+          - name: luc
+            description: '{{ doc("column_luc") }}'
+          - name: lucmult
+            description: Multiple land use flag
+          - name: mappre
+            description: Map/Routing map prefix number
+          - name: mapsuf
+            description: Map/Routing map suffix number
+          - name: mscbld_n
+            description: Number of miscellaneous buildings
+          - name: mscbld_v
+            description: Adjusted miscellaneous buildings value
+          - name: muni
+            description: Municipality
+          - name: municd
+            description: Jurisdictions (Municipalities) used as part of Folio number (BCA)
+          - name: nbhd
+            description: '{{ doc("shared_column_nbhd_code") }}'
+          - name: nbhdie
+            description: Neighborhood income valuation
+          - name: nonfarminc
+            description: Non-farm income
+          - name: notecd1
+            description: Code for predefined note 1
+          - name: notecd2
+            description: Code for predefined note 2
+          - name: nrinc
+            description: Natural resource income
+          - name: ofcard
+            description: Number of main buildings (cards)
+          - name: ovrassessorid
+            description: Override assessor assigned to this parcel
+          - name: parid
+            description: '{{ doc("shared_column_pin") }}'
+          - name: parkprox
+            description: Parking proximity
+          - name: parkquanit
+            description: Parking quantity
+          - name: parktype
+            description: Parking type
+          - name: partial
+            description: '{{ doc("column_partial") }}'
+          - name: pctown
+            description: '{{ doc("column_pctown") }}'
+          - name: pfar
+            description: Proffered FAR (user entered)
+          - name: pfarsf
+            description: Square feet of proffered FAR (user entered)
+          - name: postalcode
+            description: '{{ doc("column_postalcode") }}'
+          - name: prefactmscbld
+            description: Misc bldg value before adj factor is applied
+          - name: procdate
+            description: '{{ doc("column_procdate") }}'
+          - name: procname
+            description: '{{ doc("column_procname") }}'
+          - name: rectype
+            description: '{{ doc("column_rectype") }}'
+          - name: restrict1
+            description: Restriction 1
+          - name: restrict2
+            description: Restriction 2
+          - name: restrict3
+            description: Restriction 3
+          - name: rollno
+            description: Roll number used as part of Folio number (BCA)
+          - name: rtepre
+            description: Map/Routing routing prefix number
+          - name: rtesuf
+            description: Map/Routing routing suffix number
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: sec_fld
+            description: Security field
+          - name: seq
+            description: '{{ doc("shared_column_seq") }}'
+            tests:
+              - dbt_utils.sequential_values:
+                  name: iasworld_pardat_seq_all_sequential_exist
+                  group_by_columns:
+                    - parid
+                    - taxyr
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+          - name: skip_addr_validation
+            description: '{{ doc("column_skip_addr_validation") }}'
+          - name: splitno
+            description: '{{ doc("column_splitno") }}'
+          - name: spot
+            description: Spot location percentage adj./land value
+          - name: statecode
+            description: '{{ doc("column_statecode") }}'
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: strcd
+            description: '{{ doc("column_strcd") }}'
+          - name: street1
+            description: Street and sidewalk code 1
+          - name: street2
+            description: Street and sidewalk code 2
+          - name: strreloc
+            description: '{{ doc("column_strreloc") }}'
+          - name: taxyr
+            description: '{{ doc("shared_column_year") }}'
+          - name: tieback
+            description: '{{ doc("shared_column_tieback_key_pin") }}'
+          - name: tiebkcd
+            description: Tieback code
+          - name: tiebldgpct
+            description: '{{ doc("shared_column_tieback_proration_rate") }}'
+          - name: tielandpct
+            description: Percent land common interest
+          - name: topo1
+            description: Topography code 1
+          - name: topo2
+            description: Topography code 2
+          - name: topo3
+            description: Topography code 3
+          - name: traffic
+            description: Traffic code
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: unit
+            description: '{{ doc("column_unit") }}'
+          - name: unitdesc
+            description: '{{ doc("column_unitdesc") }}'
+          - name: unitno
+            description: '{{ doc("column_unitno") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: util1
+            description: Utility code 1
+          - name: util2
+            description: Utility code 2
+          - name: util3
+            description: Utility code 3
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+          - name: zfar
+            description: Zoned FAR, from LP53
+          - name: zip1
+            description: '{{ doc("column_zip1") }}'
+          - name: zip2
+            description: '{{ doc("column_zip2") }}'
+
+        tests:
+          - column_is_subset_of_external_column:
+              name: iasworld_pardat_nbhd_matches_spatial_town_nbhd
+              column: nbhd
+              external_model: spatial.neighborhood
+              external_column: town_nbhd
+              additional_select_columns:
+                - parid
+                - taxyr
+              config:
+                # Codes ending in 999 are dummy codes used for some purpose,
+                # although we do not yet know what it is
+                where: |
+                  (taxyr BETWEEN '2010' AND CAST(YEAR(NOW()) AS varchar))
+                  AND (nbhd NOT LIKE '%999')
+          - unique_combination_of_columns:
+              name: iasworld_pardat_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+          - expression_is_true:
+              name: iasworld_pardat_adrno_length_lte_5
+              expression: LENGTH(CAST(adrno AS varchar)) <= 5
+              select_columns:
+                - parid
+                - taxyr
+                - adrno
+              config: *unique-conditions

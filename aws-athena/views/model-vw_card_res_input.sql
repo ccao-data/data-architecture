@@ -10,9 +10,19 @@ filled with the following steps:
    PIN (ONLY for things that don't vary at the property level, such as census
    tract statistics. Property characteristics are NOT filled)
 
-WARNING: This is a very heavy view. Don't use it for anything other than making
-extracts for modeling
+This view is "materialized" (made into a table) daily in order to improve
+query performance and reduce data queried by Athena. The materialization
+is triggered by sqoop-bot (runs after Sqoop grabs iasWorld data)
 */
+{{
+    config(
+        materialized='table',
+        partitioned_by=['year'],
+        bucketed_by=['meta_pin'],
+        bucket_count=1
+    )
+}}
+
 WITH uni AS (
     SELECT * FROM {{ ref('model.vw_pin_shared_input') }}
     WHERE meta_class IN (
@@ -31,8 +41,9 @@ sqft_percentiles AS (
             AS char_land_sf_95_percentile
     FROM {{ ref('default.vw_card_res_char') }} AS ch
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
-        ON ch.pin = leg.parid AND ch.year = leg.taxyr
-    WHERE leg.cur = 'Y'
+        ON ch.pin = leg.parid
+        AND ch.year = leg.taxyr
+        AND leg.cur = 'Y'
         AND leg.deactivat IS NULL
     GROUP BY ch.year, leg.user1
 ),
@@ -61,7 +72,7 @@ forward_fill AS (
             ch.tieback_proration_rate < 1.0,
             FALSE
         ) AS ind_pin_is_prorated,
-        ch.card_protation_rate AS meta_card_protation_rate,
+        ch.card_proration_rate AS meta_card_proration_rate,
 
         -- Multicard/multi-landline related fields. Each PIN can have more than
         -- one improvement/card AND/OR more than one attached landline
@@ -416,6 +427,17 @@ SELECT
     END AS prox_avg_school_rating_in_half_mile,
     CASE
         WHEN
+            f1.prox_airport_dnl_total IS NOT NULL
+            THEN f1.prox_airport_dnl_total
+        WHEN
+            f1.prox_airport_dnl_total IS NULL
+            THEN nn1.prox_airport_dnl_total
+        WHEN
+            nn1.prox_airport_dnl_total IS NULL
+            THEN nn2.prox_airport_dnl_total
+    END AS prox_airport_dnl_total,
+    CASE
+        WHEN
             f1.prox_nearest_bike_trail_dist_ft IS NOT NULL
             THEN f1.prox_nearest_bike_trail_dist_ft
         WHEN
@@ -553,7 +575,8 @@ SELECT
         WHEN
             nn1.other_school_district_secondary_avg_rating IS NULL
             THEN nn2.other_school_district_secondary_avg_rating
-    END AS other_school_district_secondary_avg_rating
+    END AS other_school_district_secondary_avg_rating,
+    f1.meta_year AS year
 FROM forward_fill AS f1
 LEFT JOIN (
     SELECT *

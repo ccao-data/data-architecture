@@ -7,11 +7,11 @@ This directory stores the configuration for building our data catalog using
 
 ### In this document
 
-* [🖼️ Background: What does the data catalog do?](#background-what-does-the-data-catalog-do)
-* [🔨 How to rebuild models using GitHub Actions](#how-to-rebuild-models-using-github-actions)
-* [💻 How to develop the catalog](#how-to-develop-the-catalog)
-* [➕ How to add a new model](#how-to-add-a-new-model)
-* [🐛 Debugging tips](#debugging-tips)
+* [🖼️ Background: What does the data catalog do?](#%EF%B8%8F-background-what-does-the-data-catalog-do)
+* [🔨 How to rebuild models using GitHub Actions](#-how-to-rebuild-models-using-github-actions)
+* [💻 How to develop the catalog](#-how-to-develop-the-catalog)
+* [➕ How to add a new model](#-how-to-add-a-new-model)
+* [🐛 Debugging tips](#-debugging-tips)
 
 ### Outside this document
 
@@ -19,7 +19,7 @@ This directory stores the configuration for building our data catalog using
 * [📝 Design doc for our decision to develop our catalog with
   dbt](../documentation/design-docs/data-catalog.md)
 
-<h2 id="background-what-does-the-data-catalog-do">🖼️ Background: What does the data catalog do?</h2>
+## 🖼️ Background: What does the data catalog do?
 
 The data catalog accomplishes a few main goals:
 
@@ -32,7 +32,8 @@ documenting our data and rebuilding it efficiently. We use the [`dbt
 run`](https://docs.getdbt.com/reference/commands/run) command to build these
 models into views and tables in AWS Athena.
 
-Note that when we talk about "models" in these docs, we generally mean [the
+> [!NOTE]
+When we talk about "models" in these docs, we generally mean [the
 resources that dbt calls
 "models"](https://docs.getdbt.com/docs/build/models), namely the definitions of
 the tables and views in our Athena warehouse. In contrast, we will use the
@@ -79,7 +80,7 @@ our tables, views, tests, and docs. Automated tasks include:
 * Cleaning up temporary resources in our Athena warehouse whenever a pull
   request is merged into the main branch (the `cleanup-dbt-resources` workflow)
 
-<h2 id="how-to-rebuild-models-using-github-actions"> 🔨 How to rebuild models using GitHub Actions</h2>
+## 🔨 How to rebuild models using GitHub Actions
 
 GitHub Actions can be used to manually rebuild part or all of our dbt DAG.
 To use this functionality:
@@ -101,7 +102,7 @@ passed directly to `dbt run`. Model names _must include the database schema name
 
 For more possible inputs using dbt node selection, see the [documentation site](https://docs.getdbt.com/reference/node-selection/syntax#examples).
 
-<h2 id="how-to-develop-the-catalog"> 💻 How to develop the catalog </h2>
+## 💻 How to develop the catalog
 
 ### Installation
 
@@ -127,6 +128,7 @@ Run the following commands in this directory:
 ```
 python3 -m venv venv
 source venv/bin/activate
+pip install -U pip
 pip install -r requirements.txt
 dbt deps
 ```
@@ -176,7 +178,7 @@ dbt clone --state master-cache
 ```
 
 This will copy all production views and tables into a new set of Athena schemas
-prefixed with your Unix `$USER` name (e.g. `dev_jecochr_default` for the
+prefixed with your Unix `$USER` name (e.g. `z_dev_jecochr_default` for the
 `default` schema when `dbt` is run on Jean's machine).
 
 Once you've copied prod tables and views into your development schemas, you can
@@ -201,7 +203,7 @@ dbt run --select default.*
 By default, all `dbt` commands will run against the `dev` environment (called
 a [target](https://docs.getdbt.com/reference/dbt-jinja-functions/target) in
 dbt jargon), which namespaces the resources it creates by prefixing database
-names with `dev_` and your Unix `$USER` name.
+names with `z_dev_` and your Unix `$USER` name.
 
 You should almost never have to manually build tables and views in our
 production environment, since this repository is configured to automatically
@@ -220,7 +222,7 @@ data sources tidy, you have two options: Delete all of your development Athena
 databases, or delete a selection of Athena databases.
 
 To delete all the resources in your local environment (i.e. every Athena
-database with a name matching the pattern `dev_$USER_$SCHEMA`):
+database with a name matching the pattern `z_dev_$USER_$SCHEMA`):
 
 ```
 ../.github/scripts/cleanup_dbt_resources.sh dev
@@ -230,7 +232,7 @@ To instead delete a selected database, use the [`aws glue delete-database`
 command](https://awscli.amazonaws.com/v2/documentation/api/latest/reference/glue/delete-database.html):
 
 ```
-aws glue delete-database dev_jecochr_default
+aws glue delete-database z_dev_jecochr_default
 ```
 
 Note that these two operations will only delete Athena databases, and will leave
@@ -255,13 +257,13 @@ dbt test --select default.vw_pin_universe
 Run only one test:
 
 ```
-dbt test --select vw_pin_universe_unique_by_14_digit_pin_and_year
+dbt test --select default_vw_pin_universe_unique_by_14_digit_pin_and_year
 ```
 
 Run a test against the prod models:
 
 ```
-dbt test --select vw_pin_universe_unique_by_14_digit_pin_and_year --target prod
+dbt test --select default_vw_pin_universe_unique_by_14_digit_pin_and_year --target prod
 ```
 
 Run tests for dbt macros:
@@ -306,7 +308,7 @@ dbt docs serve
 
 Then, navigate to http://localhost:8080 to view the site.
 
-<h2 id="how-to-add-a-new-model"> ➕ How to add a new model </h2>
+## ➕ How to add a new model
 
 To request the addition of a new model, open an issue using the [Add a new dbt
 model](../.github/ISSUE_TEMPLATE/new-dbt-model.md) issue template. The assignee
@@ -348,23 +350,59 @@ names of tables and views in Athena
 In addition to database namespacing, views should be named with a `vw_` prefix
 (e.g. `location.vw_pin10_location`) to mark them as a view, while tables do not
 require any prefix (e.g. `location.tax`).
+
 Finally, for the sake of consistency and ease of interpretation, all tables and views should be named using the singular case e.g. `location.tax` rather than `location.taxes`.
+
+### Model location
+
+Models are generally defined in the `schema.yml` file within each database
+subdirectory. Resources related to each model should be defined inline (with
+the exception of columns, see [Column descriptions](#column-descriptions).
+
+For complicated models with *many* columns or tests, we split `schema.yml`
+files into individual files per model. These files should be contained in a
+`schema/` subdirectory within each database directory, and should be named
+using the fully namespaced model name. For example, the model definition
+for `iasworld.sales` lives in `models/iasworld/schema/iasworld.sales.yml`.
 
 ### Model description
 
 All new models should include, at minimum, a
 [description](https://docs.getdbt.com/reference/resource-properties/description)
-of the model itself. We generally store these descriptions as [docs
-blocks](https://docs.getdbt.com/reference/resource-properties/description#use-a-docs-block-in-a-description).
+of the model itself. We store these model-level descriptions as [docs
+blocks](https://docs.getdbt.com/reference/resource-properties/description#use-a-docs-block-in-a-description)
+within the `docs.md` file of each schema subdirectory.
 
-New models should also include descriptions for each column,
-implemented directly in the `schema.yml` model definition. Docs blocks are
-generally not necessary for column descriptions, since column descriptions
-should be kept short and simple so that docs readers can scan them from the
-context of the "Columns" table.
+Descriptions related to models in a `schema/` subdirectory should still live
+in `docs.md`. For example, the description for `default.vw_pin_universe` lives
+in `models/default/docs.md`.
 
-Any documentation for a column beyond its basic summary should be stored in
-a `meta.notes` attribute on the column.
+#### Column descriptions
+
+New models should also include descriptions for each column. Since the first
+few characters of a column description will be shown in the documentation in
+a dedicated column on the "Columns" table, column descriptions should always
+start with a sentence that is short and simple. This allows docs readers to
+scan the "Columns" table and understand what the column represents at a high level.
+
+Column descriptions can live in three separate places with the following hierarchy:
+
+1. `models/shared_columns.md` - Definitions shared across all databases and models
+2. `models/$DATABASE/columns.md` - Definitions shared across a single database
+3. `models/$DATABASE/schema.yml` OR `models/$DATABASE/schema/$DATABASE-$MODEL.yml` - Definitions specific to a single model
+
+We use the following pattern to determine where to define each column description:
+
+1. If a description is shared by three or more resources *across multiple
+  databases*, its text should be defined as a [docs block](https://docs.getdbt.com/reference/resource-properties/description#use-a-docs-block-in-a-description) in `models/shared_columns.md`.
+  The docs block identifier for each column should have a `shared_column_` prefix.
+2. If a description is shared by three or more resources *across multiple
+  models in the same database*, its text should be defined as a
+  [docs block](https://docs.getdbt.com/reference/resource-properties/description#use-a-docs-block-in-a-description) in `models/$DATABASE/columns.md`.
+  The docs block identifier for each column should have a `column_` prefix.
+3. If a description is shared between two or fewer columns, its text should
+  be defined inline in the `schema.yml` file under the `description` key for
+  the column.
 
 ### Model tests
 
@@ -392,7 +430,7 @@ Due to this complexity, we currently do not have a way of supporting unit
 tests, although we plan to revisit this in the future; as such, when proposing
 new tests, check to ensure that they are in fact data tests and not unit tests.
 
-<h2 id="debugging-tips"> 🐛 Debugging tips </h2>
+## 🐛 Debugging tips
 
 ### How do I debug a failing test?
 
@@ -440,7 +478,7 @@ There are two ways to clean up a PR's resources manually:
    Athena homepage. Select `Data sources` in the sidebar. Click on the
    `AwsDataCatalog` resource. In the `Associated databases` table, select each
    data source that matches the database pattern for your pull request
-   (i.e. prefixed with `ci_` plus the name of your branch) and click the
+   (i.e. prefixed with `z_ci_` plus the name of your branch) and click the
    `Delete` button in the top right-hand corner of the table.
 2. **Using the command-line**: If the workflow has failed, it most likely means
    there is a bug in the `.github/scripts/cleanup_dbt_resources.sh` script
@@ -475,14 +513,14 @@ exist:
 
 ```
 Runtime Error in model default.vw_card_res_char (models/default/default.vw_card_res_char.sql)
-  line 24:10: Table 'awsdatacatalog.dev_jecochr_default.vw_pin_land' does not exist
+  line 24:10: Table 'awsdatacatalog.z_dev_jecochr_default.vw_pin_land' does not exist
 ```
 
 The error may look like this if an entire schema is missing:
 
 ```
 Runtime Error in model default.vw_pin_universe (models/default/default.vw_pin_universe.sql)
-  line 130:11: Schema 'dev_jecochr_location' does not exist
+  line 130:11: Schema 'z_dev_jecochr_location' does not exist
 ```
 
 To resolve this error, you can prefix your selected model's names with a plus

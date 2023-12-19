@@ -1,5 +1,8 @@
 name: test-dbt-models
 
+# This workflow is not scheduled or run on PRs because it is manually triggered
+# by the Data Department's sqoop data extraction process upon completion. See
+# https://github.com/ccao-data/service-sqoop-iasworld
 on: workflow_dispatch
 
 jobs:
@@ -24,28 +27,21 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
-      - name: Create failure notification body
-        id: create-message
+      - name: Get current time
         if: failure()
-        run: |
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S")
-          {
-            echo "notification_subject=dbt tests failed for workflow run: $GITHUB_RUN_ID UTC"
-            echo "notification_body<<EOF"
-            echo "dbt tests failed for workflow $GITHUB_RUN_ID, run on $TIMESTAMP"
-            echo ""
-            echo "Link to failing workflow: \
-          https://github.com/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
+        run: echo "TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S")" >> "$GITHUB_ENV"
         shell: bash
 
-      - name: Send SNS failure notification
-        if: failure()
-        id: send-message
-        run: >
-          aws sns publish \
-            --topic-arn ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }} \
-            --subject "${{ steps.create-message.outputs.notification_subject }}" \
-            --message "${{ steps.create-message.outputs.notification_body }}"
-        shell: bash
+      # Only triggered when called by a bot. Otherwise, notifications
+      # go to whoever called the workflow
+      - name: Send failure notification
+        if: github.event_name == 'workflow_dispatch' && github.triggering_actor == 'sqoop-bot[bot]' && failure()
+        uses: ./.github/actions/publish_sns_topic
+        with:
+          sns_topic_arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
+          subject: "dbt tests failed for workflow run: ${{ github.run_id }}"
+          body: |
+            dbt tests failed for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
+
+            Link to failing workflow:
+            https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}

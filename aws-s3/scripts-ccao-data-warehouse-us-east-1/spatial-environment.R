@@ -20,7 +20,6 @@ current_year <- strftime(Sys.Date(), "%Y")
 
 ##### LAKE MICHICAN COASTLINE #####
 walk(2013:current_year, function(x) {
-
   remote_file_coastline_raw <- file.path(
     input_bucket, "coastline", paste0(x, ".geojson")
   )
@@ -34,21 +33,21 @@ walk(2013:current_year, function(x) {
 
     # We need to clip the coastlines to only include Cook County
     if (!exists("cook_boundary")) {
-
       cook_boundary <<- read_geoparquet_sf(
         file.path(
           AWS_S3_WAREHOUSE_BUCKET,
           "spatial/ccao/county/2019.parquet"
         )
-      )  %>%
+      ) %>%
         st_transform(4326) %>%
         st_buffer(1)
-
     }
 
     st_read(tmp_file_coastline) %>%
       st_transform(4326) %>%
       filter(as.logical(st_intersects(geometry, cook_boundary))) %>%
+      # 2015 has superfluous coastline artifacts we need to remove
+      filter(ifelse(x == 2015, row_number() %in% 1:3, TRUE)) %>%
       mutate(
         NAME = "Lake Michigan",
         geometry_3435 = st_transform(geometry, 3435)
@@ -56,7 +55,6 @@ walk(2013:current_year, function(x) {
       rename_with(tolower) %>%
       geoarrow::write_geoparquet(remote_file_coastline_warehouse)
   }
-
 })
 
 
@@ -70,7 +68,10 @@ flood_fema_warehouse <- file.path(
 )
 
 # Write FEMA floodplains to S3 if they don't exist
-if (aws.s3::object_exists(flood_fema_raw) & !aws.s3::object_exists(flood_fema_warehouse)) {
+if (
+  aws.s3::object_exists(flood_fema_raw) &&
+    !aws.s3::object_exists(flood_fema_warehouse)
+) {
   tmp_file <- tempfile(fileext = ".geojson")
   aws.s3::save_object(flood_fema_raw, file = tmp_file)
 
@@ -121,14 +122,17 @@ raw_files_hydro <- grep(
   "geojson",
   file.path(
     AWS_S3_RAW_BUCKET,
-    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "spatial/environment/hydrology/")$Key
+    get_bucket_df(
+      AWS_S3_RAW_BUCKET,
+      prefix = "spatial/environment/hydrology/"
+    )$Key
   ),
   value = TRUE
 )
 dest_files_hydro_prefix <- file.path(
   AWS_S3_WAREHOUSE_BUCKET,
   "spatial/environment/hydrology/"
-  )
+)
 dest_files_hydro_years <- raw_files_hydro %>%
   str_extract("[0-9]{4}") %>%
   unique()
@@ -140,7 +144,6 @@ dest_files_hydro <- file.path(
 
 # Function to pull raw data from S3 and clean
 walk(2011:current_year, function(year) {
-
   remote_files_hydro_raw <- file.path(
     input_bucket, "hydrology", c("area", "linear"), paste0(year, ".geojson")
   )
@@ -149,25 +152,22 @@ walk(2011:current_year, function(year) {
   )
 
   if (!aws.s3::object_exists(remote_file_hydro_warehouse)) {
-
     tmp_file <- tempfile(c(fileext = ".geojson", fileext = ".geojson"))
     mapply(aws.s3::save_object, remote_files_hydro_raw, file = tmp_file)
 
     names(tmp_file) <- str_extract(remote_files_hydro_raw, "linear|area")
 
     rbind(
-      st_read(tmp_file['linear']) %>%
-        mutate(hydrology_type = 'linear') %>%
+      st_read(tmp_file["linear"]) %>%
+        mutate(hydrology_type = "linear") %>%
         select(id = LINEARID, name = FULLNAME, hydrology_type, geometry),
-      st_read(tmp_file['area']) %>%
-        mutate(hydrology_type = 'area') %>%
+      st_read(tmp_file["area"]) %>%
+        mutate(hydrology_type = "area") %>%
         select(id = HYDROID, name = FULLNAME, hydrology_type, geometry)
     ) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
       geoarrow::write_geoparquet(remote_file_hydro_warehouse)
 
     file.remove(tmp_file)
-
   }
-
 })

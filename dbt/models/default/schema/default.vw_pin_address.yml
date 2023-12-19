@@ -1,0 +1,77 @@
+models:
+  - name: default.vw_pin_address
+    description: '{{ doc("view_vw_pin_address") }}'
+
+    columns:
+      - name: mail_address_city_name
+        description: '{{ doc("shared_column_mail_address_city_name") }}'
+      - name: mail_address_full
+        description: '{{ doc("shared_column_mail_address_full") }}'
+      - name: mail_address_name
+        description: '{{ doc("shared_column_mail_address_name") }}'
+      - name: mail_address_state
+        description: '{{ doc("shared_column_mail_address_state") }}'
+      - name: mail_address_zipcode_1
+        description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
+      - name: mail_address_zipcode_2
+        description: '{{ doc("shared_column_mail_address_zipcode_2") }}'
+      - name: prop_address_city_name
+        description: '{{ doc("shared_column_prop_address_city_name") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: pin10
+        description: '{{ doc("shared_column_pin10") }}'
+      - name: prop_address_full
+        description: '{{ doc("shared_column_prop_address_full") }}'
+      - name: prop_address_prefix
+        description: '{{ doc("shared_column_prop_address_prefix") }}'
+      - name: prop_address_state
+        description: '{{ doc("shared_column_prop_address_state") }}'
+      - name: prop_address_street_dir
+        description: '{{ doc("shared_column_prop_address_street_dir") }}'
+      - name: prop_address_street_name
+        description: '{{ doc("shared_column_prop_address_street_name") }}'
+      - name: prop_address_street_number
+        description: '{{ doc("shared_column_prop_address_street_number") }}'
+      - name: prop_address_suffix_1
+        description: '{{ doc("shared_column_prop_address_suffix_1") }}'
+      - name: prop_address_suffix_2
+        description: '{{ doc("shared_column_prop_address_suffix_2") }}'
+      - name: prop_address_unit_prefix
+        description: '{{ doc("shared_column_prop_address_unit_prefix") }}'
+      - name: prop_address_unit_number
+        description: '{{ doc("shared_column_prop_address_unit_number") }}'
+      - name: prop_address_zipcode_1
+        description: '{{ doc("shared_column_prop_address_zipcode_1") }}'
+      - name: prop_address_zipcode_2
+        description: '{{ doc("shared_column_prop_address_zipcode_2") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
+
+    tests:
+      # No superfluous whitespace
+      - no_extra_whitespace:
+          name: default_vw_pin_address_no_extra_whitespace
+          column_names:
+            - prop_address_full
+            - prop_address_city_name
+            - prop_address_state
+            - prop_address_zipcode_1
+            - prop_address_zipcode_2
+            - mail_address_full
+            - mail_address_city_name
+            - mail_address_state
+            - mail_address_zipcode_1
+            - mail_address_zipcode_2
+          config:
+            where: CAST(year AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+            error_if: ">900000"
+      - unique_combination_of_columns:
+          name: default_vw_pin_address_unique_by_14_digit_pin_and_year
+          combination_of_columns:
+            - pin
+            - year
+      - row_count:
+          name: default_vw_pin_address_row_count
+          above: 45079937 # as of 2023-11-22
+      # TODO: Site addresses are all in Cook County

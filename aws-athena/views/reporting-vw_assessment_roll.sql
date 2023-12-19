@@ -115,6 +115,7 @@ LEFT JOIN townships
     AND values_by_year.taxyr = townships.taxyr
 LEFT JOIN town_names
     ON townships.township_code = town_names.township_code
+WHERE town_names.township_name IS NOT NULL
 GROUP BY
     townships.township_code,
     town_names.township_name,

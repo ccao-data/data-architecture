@@ -1,0 +1,216 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+      - test_qc_iasworld
+
+    tables:
+      - name: cvown
+        description: '{{ doc("table_cvown") }}'
+
+        columns:
+          - name: addr1
+            description: '{{ doc("column_addr1") }}'
+          - name: addr2
+            description: '{{ doc("column_addr2") }}'
+          - name: addr3
+            description: '{{ doc("column_addr3") }}'
+          - name: addr4
+            description: '{{ doc("column_addr4") }}'
+          - name: addr5
+            description: '{{ doc("column_addr5") }}'
+          - name: addrtype
+            description: '{{ doc("column_addrtype") }}'
+          - name: addrvalid
+            description: '{{ doc("column_addrvalid") }}'
+          - name: adradd
+            description: '{{ doc("column_adradd") }}'
+          - name: adrdir
+            description: '{{ doc("column_adrdir") }}'
+          - name: adrgrid
+            description: '{{ doc("column_adrgrid") }}'
+          - name: adrno
+            description: '{{ doc("column_adrno") }}'
+          - name: adrpre
+            description: '{{ doc("column_adrpre") }}'
+          - name: adrstr
+            description: '{{ doc("column_adrstr") }}'
+          - name: adrsuf
+            description: '{{ doc("column_adrsuf") }}'
+          - name: adrsuf2
+            description: '{{ doc("column_adrsuf2") }}'
+          - name: attn
+            description: '{{ doc("column_attn") }}'
+          - name: book
+            description: '{{ doc("column_book") }}'
+          - name: careof
+            description: '{{ doc("column_careof") }}'
+          - name: carrier_rt
+            description: '{{ doc("column_carrier_rt") }}'
+          - name: chgrsn
+            description: '{{ doc("column_chgrsn") }}'
+          - name: cityname
+            description: '{{ doc("column_cityname") }}'
+          - name: cnamejur
+            description: Stores `CNAME.JUR` when ownnum is populated in hierarchical `jur` sites
+          - name: compartment
+            description: '{{ doc("column_compartment") }}'
+          - name: conveyno
+            description: '{{ doc("column_conveyno") }}'
+          - name: country
+            description: '{{ doc("column_country") }}'
+          - name: delflg
+            description: Delete flag
+          - name: delinstalltype
+            description: '{{ doc("column_delinstalltype") }}'
+          - name: delinstallval
+            description: '{{ doc("column_delinstallval") }}'
+          - name: delmod
+            description: '{{ doc("column_delmod") }}'
+          - name: delmodval
+            description: '{{ doc("column_delmodval") }}'
+          - name: email
+            description: '{{ doc("column_email") }}'
+          - name: fax
+            description: '{{ doc("column_fax") }}'
+          - name: floorno
+            description: '{{ doc("column_floorno") }}'
+          - name: grpflag
+            description: Grouping code for multiple owners
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: link
+            description: Owner link number
+          - name: marstat
+            description: '{{ doc("column_marstat") }}'
+          - name: notecd
+            description: Code for predefined note
+          - name: oseq
+            description: Previuos `OWNDAT` sequence
+          - name: otaxyr
+            description: Previous `OWNDAT` tax year
+          - name: own1
+            description: '{{ doc("column_own1") }}'
+          - name: own1_companyname
+            description: '{{ doc("column_own1_companyname") }}'
+          - name: own1_firstname
+            description: '{{ doc("column_own1_firstname") }}'
+          - name: own1_lastname
+            description: '{{ doc("column_own1_lastname") }}'
+          - name: own1_middlename
+            description: '{{ doc("column_own1_middlename") }}'
+          - name: own1_prefix
+            description: '{{ doc("column_own1_prefix") }}'
+          - name: own1_suffix
+            description: '{{ doc("column_own1_suffix") }}'
+          - name: own2
+            description: '{{ doc("column_own2") }}'
+          - name: own2_companyname
+            description: '{{ doc("column_own2_companyname") }}'
+          - name: own2_firstname
+            description: '{{ doc("column_own2_firstname") }}'
+          - name: own2_lastname
+            description: '{{ doc("column_own2_lastname") }}'
+          - name: own2_middlename
+            description: '{{ doc("column_own2_middlename") }}'
+          - name: own2_prefix
+            description: '{{ doc("column_own2_prefix") }}'
+          - name: own2_suffix
+            description: '{{ doc("column_own2_suffix") }}'
+          - name: ownbeg
+            description: Ownership begin date
+          - name: ownend
+            description: Ownership ending date
+          - name: ownnum
+            description: '{{ doc("column_ownnum") }}'
+          - name: ownseq
+            description: Owner sequence number
+          - name: owntype1
+            description: Type of owner(individual, guardian, etc) 1
+          - name: owntype2
+            description: Type of owner(individual, guardian, etc) 2
+          - name: owntype3
+            description: Type of owner(individual, guardian, etc) 3
+          - name: owntype4
+            description: Type of owner(individual, guardian, etc) 4
+          - name: page
+            description: '{{ doc("column_page") }}'
+          - name: partial
+            description: '{{ doc("column_partial") }}'
+          - name: pctown
+            description: '{{ doc("column_pctown") }}'
+          - name: phone
+            description: '{{ doc("column_phone") }}'
+          - name: po
+            description: Primary owner flag (1 = `OWNDAT`, 0 = `OWNMLT`)
+          - name: postal_indx
+            description: '{{ doc("column_postal_indx") }}'
+          - name: postalcode
+            description: '{{ doc("column_postalcode") }}'
+          - name: pown1
+            description: Previous owner name 1
+          - name: pown1_companyname
+            description: Previous owner 1 company name
+          - name: pown1_firstname
+            description: Previous owner 1 first name
+          - name: pown1_lastname
+            description: Previous owner 1 last name
+          - name: pown1_middlename
+            description: Previous owner 1 middle name
+          - name: pown1_prefix
+            description: Previous owner 1 prefix
+          - name: pown1_suffix
+            description: Previous owner 1 suffix
+          - name: pown2
+            description: Previous owner name 2
+          - name: pown2_companyname
+            description: Previous owner 2 company name
+          - name: pown2_firstname
+            description: Previous owner 2 first name
+          - name: pown2_lastname
+            description: Previous owner 2 last name
+          - name: pown2_middlename
+            description: Previous owner 2 middle name
+          - name: pown2_prefix
+            description: Previous owner 2 prefix
+          - name: pown2_suffix
+            description: Previous owner 2 suffix
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: site
+            description: '{{ doc("column_site") }}'
+          - name: skip_addr_validation
+            description: '{{ doc("column_skip_addr_validation") }}'
+          - name: splitno
+            description: '{{ doc("column_splitno") }}'
+          - name: statecode
+            description: '{{ doc("column_statecode") }}'
+          - name: stateid
+            description: State tax ID number
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: taxyr
+            description: '{{ doc("shared_column_year") }}'
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: unitdesc
+            description: '{{ doc("column_unitdesc") }}'
+          - name: unitno
+            description: '{{ doc("column_unitno") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+          - name: zip1
+            description: '{{ doc("column_zip1") }}'
+          - name: zip2
+            description: '{{ doc("column_zip2") }}'

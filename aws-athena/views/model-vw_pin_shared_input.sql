@@ -38,6 +38,8 @@ WITH uni AS (
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
         ON par.parid = leg.parid
         AND par.taxyr = leg.taxyr
+        AND leg.cur = 'Y'
+        AND leg.deactivat IS NULL
     LEFT JOIN {{ source('spatial', 'parcel') }} AS sp
         ON SUBSTR(par.parid, 1, 10) = sp.pin10
         AND par.taxyr = sp.year
@@ -45,8 +47,6 @@ WITH uni AS (
         ON leg.user1 = CAST(twn.township_code AS VARCHAR)
     WHERE par.cur = 'Y'
         AND par.deactivat IS NULL
-        AND leg.cur = 'Y'
-        AND leg.deactivat IS NULL
 ),
 
 acs5 AS (
@@ -185,6 +185,7 @@ SELECT
         AS prox_avg_school_rating_in_half_mile,
 
     -- PIN proximity distance variables
+    vwpf.airport_dnl_total AS prox_airport_dnl_total, --new
     vwpf.nearest_bike_trail_dist_ft AS prox_nearest_bike_trail_dist_ft,
     vwpf.nearest_cemetery_dist_ft AS prox_nearest_cemetery_dist_ft,
     vwpf.nearest_cta_route_dist_ft AS prox_nearest_cta_route_dist_ft,

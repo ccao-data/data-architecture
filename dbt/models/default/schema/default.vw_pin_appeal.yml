@@ -1,0 +1,109 @@
+models:
+  - name: default.vw_pin_appeal
+    description: '{{ doc("view_vw_pin_appeal") }}'
+
+    columns:
+      - name: agent_code
+        description: '{{ doc("shared_column_agent_code") }}'
+      - name: agent_name
+        description: '{{ doc("shared_column_agent_name") }}'
+      - name: appeal_type
+        description: '{{ doc("shared_column_appeal_type") }}'
+      - name: case_no
+        description: '{{ doc("shared_column_case_no") }}'
+      - name: certified_bldg
+        description: '{{ doc("shared_column_certified_bldg") }}'
+      - name: certified_land
+        description: '{{ doc("shared_column_certified_land") }}'
+      - name: certified_tot
+        description: '{{ doc("shared_column_certified_tot") }}'
+      - name: change
+        description: '{{ doc("shared_column_appeal_change") }}'
+      - name: class
+        description: '{{ doc("shared_column_class") }}'
+      - name: mailed_bldg
+        description: '{{ doc("shared_column_mailed_bldg") }}'
+      - name: mailed_land
+        description: '{{ doc("shared_column_mailed_land") }}'
+      - name: mailed_tot
+        description: '{{ doc("shared_column_mailed_tot") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: reason_code1
+        description: '{{ doc("shared_column_reason_code") }}'
+      - name: reason_code2
+        description: '{{ doc("shared_column_reason_code") }}'
+      - name: reason_code3
+        description: '{{ doc("shared_column_reason_code") }}'
+      - name: status
+        description: '{{ doc("shared_column_appeal_status") }}'
+      - name: township_code
+        description: '{{ doc("shared_column_township_code") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
+
+    tests:
+      # If there is a `change`, the values should reflect this
+      - expression_is_true:
+          name: default_vw_pin_appeal_change_matches_appeal_outcome
+          expression: >-
+            {% set vars = [
+              ('mailed_bldg', 'certified_bldg'),
+              ('mailed_land', 'certified_land'),
+              ('mailed_tot', 'certified_tot'),
+            ] %}
+
+            (change = 'no change' AND
+              -- Use ABS(...) <= 1 instead of equality for comparison to account
+              -- for the fact that values are not always rounded consistently
+              {% for mailed_var, certified_var in vars %}
+                {% if loop.index0 > 0 %}AND{% endif %}
+                (
+                  ({{ mailed_var }} IS NULL AND {{ certified_var }} IS NULL)
+                  OR
+                  (ABS({{ mailed_var }} - {{ certified_var }}) <= 1)
+                )
+              {% endfor %}
+            )
+            OR
+            (change = 'change' AND (
+              {% for mailed_var, certified_var in vars %}
+                {% if loop.index0 > 0 %}OR{% endif %}
+                (
+                  ({{ mailed_var }} IS NULL AND {{ certified_var }} IS NOT NULL)
+                  OR
+                  ({{ mailed_var }} IS NOT NULL AND {{ certified_var }} IS NULL)
+                  OR
+                  (ABS({{ mailed_var }} - {{ certified_var }}) > 1)
+                )
+              {% endfor %}
+            ))
+            OR
+            (change is null)
+          select_columns:
+            - pin
+            - year
+            - case_no
+            - mailed_bldg
+            - certified_bldg
+            - mailed_land
+            - certified_land
+            - mailed_tot
+            - certified_tot
+          config:
+            where: CAST(year AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+            error_if: ">266719"
+      # `change` should be an enum
+      - expression_is_true:
+          name: default_vw_pin_appeal_no_unexpected_change_values
+          expression: change is null or change in ('change', 'no change')
+          select_columns:
+            - pin
+            - year
+            - case_no
+            - change
+          config:
+            where: CAST(year AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+      - row_count:
+          name: default_vw_pin_appeal_row_count
+          above: 8407667 # as of 2023-11-22

@@ -1,0 +1,276 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+      - test_qc_iasworld
+
+    tables:
+      - name: legdat
+        description: '{{ doc("table_legdat") }}'
+
+        columns:
+          - name: acres
+            description: '{{ doc("column_acres") }}'
+          - name: actdep
+            description: Actual lot depth
+          - name: actfrt
+            description: Actual front footage
+          - name: adradd
+            description: '{{ doc("column_adradd") }}'
+          - name: adrdir
+            description: '{{ doc("shared_column_prop_address_street_dir") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_legdat_adrdir_in_accepted_values
+                  values: ['N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW']
+                  config: &unique-conditions
+                    where: 
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL 
+          - name: adrid
+            description: '{{ doc("column_adrid") }}'
+          - name: adrno
+            description: '{{ doc("shared_column_prop_address_street_number") }}'
+          - name: adrparchild
+            description: '{{ doc("column_adrparchild") }}'
+          - name: adrpostmod
+            description: '{{ doc("column_adrpostmod") }}'
+          - name: adrpre
+            description: '{{ doc("shared_column_prop_address_prefix") }}'
+          - name: adrpremod
+            description: '{{ doc("column_adrpremod") }}'
+          - name: adrpretype
+            description: '{{ doc("column_adrpretype") }}'
+          - name: adrstatus
+            description: '{{ doc("column_adrstatus") }}'
+          - name: adrstr
+            description: '{{ doc("shared_column_prop_address_street_name") }}'
+          - name: adrsuf
+            description: '{{ doc("shared_column_prop_address_suffix_1") }}'
+          - name: adrsuf2
+            description: '{{ doc("shared_column_prop_address_suffix_2") }}'
+          - name: block
+            description: Block prefix and suffix, formatted
+          - name: cityname
+            description: '{{ doc("shared_column_prop_address_city_name") }}'
+          - name: compct
+            description: Common interest
+          - name: condbdg
+            description: Condominium building number
+          - name: condunt
+            description: Condominium unit number
+          - name: conveyno
+            description: '{{ doc("column_conveyno") }}'
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_legdat_cur_in_accepted_values
+                  values: ['Y', 'D']
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: floorno
+            description: '{{ doc("column_floorno") }}'
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: legal1
+            description: Legal description line 1
+          - name: legal2
+            description: Legal description line 2
+          - name: legal3
+            description: Legal description line 3
+          - name: legdesc
+            description: Unlimited legal description
+          - name: loc2
+            description: '{{ doc("column_loc2") }}'
+          - name: lot
+            description: Lot prefix and suffix, formatted
+          - name: lotdim
+            description: Lot dimensions
+          - name: numlot
+            description: Number of lots
+          - name: parid
+            description: '{{ doc("shared_column_pin") }}'
+            tests:
+              - not_null:
+                  name: iasworld_legdat_parid_not_null
+              - relationships:
+                  name: iasworld_legdat_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
+                  config: *unique-conditions
+          - name: postalcode
+            description: '{{ doc("column_postalcode") }}'
+          - name: procdate
+            description: '{{ doc("column_procdate") }}'
+          - name: procname
+            description: '{{ doc("column_procname") }}'
+          - name: qualifier
+            description: Qualifier codes, left justified
+          - name: respct
+            description: Residential percentage
+          - name: roll_section
+            description: Roll section
+          - name: schdist
+            description: School district code
+          - name: schdist2
+            description: Consolidated School district code
+          - name: school_code
+            description: School code
+          - name: schvalpct
+            description: School district value percentage
+          - name: schvalpct2
+            description: Consolidated school district value percentage
+          - name: seq
+            description: '{{ doc("shared_column_seq") }}'
+            tests:
+              - dbt_utils.sequential_values:
+                  name: iasworld_legdat_seq_all_sequential_exist
+                  group_by_columns:
+                    - parid
+                    - taxyr
+                  config: *unique-conditions
+          - name: sortkey
+            description: Block, lot and qualifier, reformatted for sorting
+          - name: splitno
+            description: '{{ doc("column_splitno") }}'
+          - name: sqft
+            description: Deeded square foot acrage
+          - name: star_credit
+            description: Star credit flag
+          - name: statecode
+            description: '{{ doc("shared_column_prop_address_state") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_legdat_statecode_in_accepted_values
+                  values: ['IL']
+                  config: *unique-conditions
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: strcd
+            description: '{{ doc("column_strcd") }}'
+          - name: strreloc
+            description: '{{ doc("column_strreloc") }}'
+          - name: subblck
+            description: Subdivision block number
+          - name: subcode
+            description: Subdivision code
+          - name: subdiv
+            description: Subdivision name
+          - name: subdnum
+            description: Subdivision number
+          - name: sublot
+            description: Subdivision lot number
+          - name: swis_code
+            description: Swis code
+          - name: taxdist
+            description: Tax district
+          - name: taxdist2
+            description: Tax district 2
+          - name: taxdist3
+            description: Tax district 3
+          - name: taxdist4
+            description: Tax district 4
+          - name: taxdist5
+            description: Tax district 5
+          - name: taxdist6
+            description: Tax district 6
+          - name: taxyr
+            description: '{{ doc("shared_column_year") }}'
+            tests:
+              - not_null:
+                  name: iasworld_legdat_taxyr_not_null
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: unitdesc
+            description: '{{ doc("shared_column_prop_address_unit_prefix") }}'
+          - name: unitno
+            description: '{{ doc("shared_column_prop_address_unit_number") }}'
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: user1
+            description: '{{ doc("shared_column_township_code") }}'
+            tests:
+              - not_null:
+                  name: iasworld_legdat_user1_not_null
+                  config: *unique-conditions
+              - relationships:
+                  name: iasworld_legdat_user1_in_spatial_township_township_code
+                  to: source('spatial', 'township')
+                  field: township_code
+                  config: *unique-conditions
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+          - name: xcoord
+            description: '{{ doc("column_xcoord") }}'
+          - name: ycoord
+            description: '{{ doc("column_ycoord") }}'
+          - name: zcoord
+            description: Z coordinate
+          - name: zip1
+            description: '{{ doc("shared_column_prop_address_zipcode_1") }}'
+            tests:
+              - dbt_utils.not_accepted_values:
+                  name: iasworld_legdat_zip1_has_no_00000_values
+                  values: ['00000']
+                  config: *unique-conditions
+          - name: zip2
+            description: '{{ doc("shared_column_prop_address_zipcode_2") }}'
+            tests:
+              - dbt_utils.not_accepted_values:
+                  name: iasworld_legdat_zip2_has_no_0000_values
+                  values: ['0000']
+                  config: *unique-conditions
+
+        tests:
+          - unique_combination_of_columns:
+              name: iasworld_legdat_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+          # Not using column_length here because adrno needs to be cast first
+          - expression_is_true:
+              name: iasworld_legdat_adrno_length_lte_5
+              expression: LENGTH(CAST(adrno AS varchar)) <= 5
+              select_columns:
+                - parid
+                - taxyr
+                - adrno
+              config: *unique-conditions
+          - column_length:
+              name: iasworld_legdat_adrsuf_zip1_taxdist_length_lte_5
+              columns:
+                - adrsuf
+                - zip1
+                - taxdist
+              length: 5
+              additional_select_columns:
+                - parid
+                - taxyr
+              config: *unique-conditions
+          - no_extra_whitespace:
+              name: iasworld_legdat_address_columns_no_extra_whitespace
+              column_names:
+                - adrpre
+                - adrdir
+                - adrstr
+                - adrsuf
+                - adrsuf2
+                - unitdesc
+                - unitno
+                - cityname
+                - statecode
+                - zip1
+                - zip2
+              allow_interior_space: true
+              config: *unique-conditions

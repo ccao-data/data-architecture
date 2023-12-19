@@ -1,0 +1,294 @@
+sources:
+  - name: iasworld
+    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    tags:
+      - load_auto
+      - test_qc_iasworld
+      - type_condo
+
+    tables:
+      - name: oby
+        description: '{{ doc("table_oby") }}'
+
+        columns:
+          - name: adjfact
+            description: '{{ doc("column_adjfact") }}'
+          - name: adjrcn
+            description: Adjusted RCN using LCF factor
+          - name: adjrcnld
+            description: Final adjusted replacement cost new less depreciation
+          - name: altbasedate
+            description: '{{ doc("column_altbasedate") }}'
+          - name: area
+            description: '{{ doc("column_area") }}'
+            tests:
+              - dbt_utils.accepted_range:
+                  name: iasworld_oby_area_gte_1
+                  min_value: 1
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+          - name: areaid
+            description: '{{ doc("column_areaid") }}'
+          - name: areasum
+            description: '{{ doc("column_areasum") }}'
+          - name: bld_modelid
+            description: '{{ doc("column_bld_modelid") }}'
+          - name: card
+            description: '{{ doc("column_card") }}'
+            tests:
+              - dbt_utils.accepted_range:
+                  name: iasworld_oby_card_between_1_and_100
+                  min_value: 1
+                  max_value: 100
+                  config: *unique-conditions
+          - name: cdpct
+            description: Cost and design percent
+          - name: chgrsn
+            description: '{{ doc("column_chgrsn") }}'
+            tests:
+              - expression_is_true:
+                  name: iasworld_oby_chgrsn_eq_5_mktadj_not_null
+                  expression: |
+                    != '5' OR mktadj IS NOT NULL
+                  config: *unique-conditions
+          - name: class
+            description: '{{ doc("shared_column_class") }}'
+          - name: cline
+            description: Condominium line
+          - name: cndcmplx
+            description: Condominium complex
+          - name: cndflag
+            description: Condo flag
+          - name: cndtype
+            description: Condominium type code
+          - name: code
+            description: OBY type code
+          - name: cond
+            description: Condition code
+          - name: condolvl
+            description: Condominium floor level
+          - name: condovw
+            description: Condominium view
+          - name: convoby
+            description: Conveyance OBY
+          - name: cubicft
+            description: Cubic feet
+          - name: cur
+            description: '{{ doc("column_cur") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_oby_cur_in_accepted_values
+                  values: ['Y', 'D']
+          - name: curmult
+            description: Current multiplier
+          - name: deactivat
+            description: '{{ doc("column_deactivat") }}'
+          - name: depr
+            description: Percent good from table
+          - name: deprt
+            description: '{{ doc("column_deprt") }}'
+          - name: ecndep
+            description: '{{ doc("column_ecndep") }}'
+          - name: ecnrsn
+            description: '{{ doc("column_ecnrsn") }}'
+          - name: effageovr
+            description: '{{ doc("column_effageovr") }}'
+          - name: effyr
+            description: '{{ doc("shared_column_char_yrblt") }}'
+          - name: excess
+            description: '{{ doc("column_excess") }}'
+          - name: exmppct
+            description: '{{ doc("column_exmppct") }}'
+          - name: exmpval
+            description: '{{ doc("column_exmpval") }}'
+          - name: funct
+            description: Function used in computing this calcualtion
+          - name: fundep
+            description: '{{ doc("column_fundep") }}'
+          - name: funrsn
+            description: '{{ doc("column_funrsn") }}'
+          - name: grade
+            description: '{{ doc("column_grade") }}'
+          - name: grpadj
+            description: '{{ doc("column_grpadj") }}'
+          - name: hga
+            description: '{{ doc("column_hga") }}'
+          - name: iasw_id
+            description: '{{ doc("column_iasw_id") }}'
+          - name: incuse
+            description: Income type use
+          - name: jur
+            description: '{{ doc("column_jur") }}'
+          - name: lcf
+            description: Factor used to calculate `RCNADJ`
+          - name: lline
+            description: '{{ doc("shared_column_lline") }}'
+            tests:
+              - dbt_utils.accepted_range:
+                  name: iasworld_oby_lline_between_1_and_100
+                  min_value: 1
+                  max_value: 100
+                  config: *unique-conditions
+          - name: locmult
+            description: Local multiplier
+          - name: lumpadj
+            description: Lump sum dollar adjustment
+          - name: lumpcamod
+            description: '{{ doc("column_lumpcamod") }}'
+          - name: lumpcure
+            description: Cost to cure adjustment
+          - name: lumpdepr
+            description: Lump sum depreciation
+          - name: meas1
+            description: Measurement 1 for a line
+          - name: mhmake
+            description: Make of manufactured home
+          - name: mhmodel
+            description: Model of manufactured home
+          - name: miles
+            description: Miles for railroads
+          - name: mktadj
+            description: '{{ doc("column_mktadj") }}'
+          - name: msclass
+            description: Class identifier for Occupancy (CODE) from Marshall Swift
+          - name: msrank
+            description: Rank identifier for Occupancy (CODE) from Marshall Swift
+          - name: nccalc
+            description: '{{ doc("column_nccalc") }}'
+          - name: ncoval
+            description: '{{ doc("column_ncoval") }}'
+          - name: nctot
+            description: '{{ doc("column_nctot") }}'
+          - name: ncval
+            description: '{{ doc("column_ncval") }}'
+          - name: newconmo
+            description: '{{ doc("column_newconmo") }}'
+          - name: newconpct
+            description: '{{ doc("column_newconpct") }}'
+          - name: obygrp
+            description: Group for local modifier override
+          - name: obymod1
+            description: Modification code (1 of 4)
+          - name: obymod2
+            description: Modification code (2 of 4)
+          - name: obymod3
+            description: Modification code (3 of 4)
+          - name: obymod4
+            description: Modification code (4 of 4)
+          - name: ovrnbhd
+            description: '{{ doc("column_ovrnbhd") }}'
+          - name: ovrrcn
+            description: Override replacement cost new
+          - name: ovrrcnld
+            description: '{{ doc("column_ovrrcnld") }}'
+          - name: parid
+            description: '{{ doc("shared_column_pin") }}'
+          - name: pctcomp
+            description: '{{ doc("column_pctcomp") }}'
+          - name: perim
+            description: Perimeter of the building/line
+          - name: prodamage
+            description: '{{ doc("column_prodamage") }}'
+          - name: prodate
+            description: '{{ doc("column_prodate") }}'
+          - name: profact
+            description: '{{ doc("column_profact") }}'
+          - name: proprate
+            description: Investment rating
+          - name: protype
+            description: '{{ doc("column_protype") }}'
+          - name: rate
+            description: Rate (SF cost) from tables
+          - name: rateovr
+            description: Override rate
+          - name: rcn
+            description: '{{ doc("column_rcn") }}'
+          - name: rcnfact
+            description: RCN Adjustment Factor
+          - name: rcnld
+            description: '{{ doc("column_rcnld") }}'
+          - name: recnr
+            description: '{{ doc("column_recnr") }}'
+          - name: rectype
+            description: '{{ doc("column_rectype") }}'
+          - name: salekey
+            description: '{{ doc("column_salekey") }}'
+          - name: seq
+            description: '{{ doc("shared_column_seq") }}'
+            tests:
+              - dbt_utils.sequential_values:
+                  name: iasworld_oby_seq_all_sequential_exist
+                  group_by_columns:
+                    - parid
+                    - taxyr
+                    - card
+                    - lline
+          - name: status
+            description: '{{ doc("column_status") }}'
+          - name: stories
+            description: '{{ doc("column_stories") }}'
+          - name: suppress
+            description: '{{ doc("column_suppress") }}'
+          - name: taxyr
+            description: '{{ doc("shared_column_year") }}'
+            tests:
+              - not_null:
+                  name: iasworld_oby_taxyr_not_null
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
+          - name: units
+            description: Number of identical units
+          - name: upd_status
+            description: '{{ doc("column_upd_status") }}'
+          - name: user16
+            description: '{{ doc("shared_column_cdu") }}'
+          - name: valmeth
+            description: Valuation Method (R(CLT/RES) or M(MSB))
+          - name: vect
+            description: '{{ doc("column_vect") }}'
+          - name: vectnotes
+            description: '{{ doc("column_vectnotes") }}'
+          - name: wallhgt
+            description: '{{ doc("column_wallhgt") }}'
+          - name: wen
+            description: '{{ doc("shared_column_updated_at") }}'
+          - name: wencalc
+            description: '{{ doc("column_wencalc") }}'
+          - name: who
+            description: '{{ doc("shared_column_updated_by") }}'
+          - name: whocalc
+            description: '{{ doc("column_whocalc") }}'
+          - name: yrblt
+            description: '{{ doc("shared_column_char_yrblt") }}'
+            tests:
+              - not_null:
+                  name: iasworld_oby_yrblt_not_null
+                  config: *unique-conditions
+              - dbt_utils.accepted_range:
+                  name: iasworld_oby_yrblt_between_1850_and_now
+                  min_value: 1850
+                  max_value: cast(year(current_date) as decimal)
+                  config: *unique-conditions
+          - name: yrrem
+            description: Year remodeled
+
+        tests:
+          - unique_combination_of_columns:
+              name: iasworld_oby_unique_by_parid_card_lline_taxyr
+              combination_of_columns:
+                - parid
+                - card
+                - lline
+                - taxyr
+          - row_values_match_after_join:
+              name: iasworld_oby_class_matches_pardat_class
+              column: substr(model.class, 1, 1)
+              external_model: source('iasworld', 'pardat')
+              external_column: substr(external_model.class, 1, 1)
+              join_columns:
+                - parid
+                - taxyr
+              config: *unique-conditions
