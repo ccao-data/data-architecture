@@ -233,7 +233,10 @@ sources:
             tests:
               - not_null:
                   name: iasworld_comdat_yrblt_not_null
+                  select_columns: ["taxyr", "parid", "card"]
                   config: *unique-conditions
+                  meta:
+                    description: yrblt should not be null
               - dbt_utils.accepted_range:
                   name: iasworld_comdat_yrblt_between_1850_and_now
                   min_value: 1850
@@ -250,9 +253,13 @@ sources:
           - row_values_match_after_join:
               name: iasworld_comdat_class_matches_pardat_class
               column: class
+              column_name: comdat_classes
               external_model: source('iasworld', 'pardat')
               external_column: class
+              external_column_name: pardat_classes
               join_columns:
                 - parid
                 - taxyr
               config: *unique-conditions
+              meta:
+                description: Class codes should match pardat class codes

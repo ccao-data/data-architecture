@@ -46,14 +46,17 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_attic_not_null
+                  select_columns: ["taxyr", "parid", "card"]
                   # Excludes non-regression classes, as defined in Assessor's
                   # online PDF of all class definitions
                   config: &unique-conditions
-                    where: | 
+                    where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
                       AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
+                  meta:
+                    description: attic should not be null
               - accepted_values:
                   name: iasworld_dweldat_attic_in_accepted_values
                   values: ['1', '2', '3']
@@ -79,11 +82,17 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_bsmt_not_null
+                  select_columns: ["taxyr", "parid", "card"]
                   config: *unique-conditions
+                  meta:
+                    description: bsmt should not be null
               - accepted_values:
                   name: iasworld_dweldat_bsmt_in_accepted_values
                   values: ['1', '2', '3', '4']
+                  select_columns: ["taxyr", "parid", "card"]
                   config: *unique-conditions
+                  meta:
+                    description: bsmt must be '1', '2', '3', or '4'
           - name: bsmtarea
             description: Unfinished basement area
           - name: bsmtcar
@@ -758,7 +767,10 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_char_attic_fnsh_not_null
+                  select_columns: ["taxyr", "parid", "card"]
                   config: *unique-conditions
+                  meta:
+                    description: user6 should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_attic_fnsh_in_accepted_values
                   values: ['1', '2', '3']
@@ -768,7 +780,10 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_char_air_not_null
+                  select_columns: ["taxyr", "parid", "card"]
                   config: *unique-conditions
+                  meta:
+                    description: user7 should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_air_accepted_values
                   values: ['1', '2']
@@ -778,11 +793,17 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_char_bsmt_fin_not_null
+                  select_columns: ["taxyr", "parid", "card"]
                   config: *unique-conditions
+                  meta:
+                    description: user12 should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_bsmt_fin_accepted_values
                   values: ['1', '2', '3']
+                  select_columns: ["taxyr", "parid", "card"]
                   config: *unique-conditions
+                  meta:
+                    description: user12 should be an integer between 1 and 3
           - name: user13
             description: '{{ doc("shared_column_char_roof_cnst") }}'
             tests:
@@ -798,21 +819,27 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_char_apts_not_null
+                  select_columns: ["taxyr", "parid", "card"]
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class IN ('211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: user14 should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_apts_accepted_values
                   values: ['1', '2', '3', '4', '5', '6']
+                  select_columns: ["taxyr", "parid", "card"]
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class IN ('211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: user14 should be an integer between 1 and 6
           - name: user15
             description: '{{ doc("shared_column_char_use") }}'
             tests:
@@ -836,7 +863,10 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_card_proration_rate_not_null
+                  select_columns: ["taxyr", "parid", "card"]
                   config: *unique-conditions
+                  meta:
+                    description: user24 should not be null
           - name: user30
             description: '{{ doc("shared_column_char_porch") }}'
             tests:
@@ -862,7 +892,10 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_char_gar_area_not_null
+                  select_columns: ["taxyr", "parid", "card"]
                   config: *unique-conditions
+                  meta:
+                    description: user32 should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_gar_area_accepted_values
                   values: ['1', '2']
@@ -872,11 +905,17 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_char_gar_size_not_null
+                  select_columns: ["taxyr", "parid", "card"]
                   config: *unique-conditions
+                  meta:
+                    description: user33 should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_gar_size_accepted_values
                   values: ['1', '2', '3', '4', '5', '6', '7', '8']
+                  select_columns: ["taxyr", "parid", "card"]
                   config: *unique-conditions
+                  meta:
+                    description: user33 should be an integer between 1 and 8
           - name: user34
             description: '{{ doc("shared_column_char_gar_cnst") }}'
             tests:
@@ -903,11 +942,14 @@ sources:
               - not_null:
                   name: iasworld_dweldat_char_frpl_not_null
                   config: *unique-conditions
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_dweldat_char_frpl_between_0_and_6
                   min_value: 0
                   max_value: 6
+                  select_columns: ["taxyr", "parid", "card"]
                   config: *unique-conditions
+                  meta:
+                    description: wbfp_o should be between 0 and 6
           - name: wbfp_pf
             description: Wood burning fireplace - prefab
           - name: wbfp_pfx
@@ -969,6 +1011,8 @@ sources:
                 - card
                 - user24
               config: *unique-conditions
+              meta:
+                description: user24 should be between 0 and 100
           - expression_is_true:
               name: iasworld_dweldat_char_ncu_between_0_and_5
               expression: 'CAST(user20 AS decimal) BETWEEN 0 AND 5'
