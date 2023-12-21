@@ -10,19 +10,48 @@ models:
       - expression_is_true:
           name: qc_vw_class_mismatch_no_289s
           expression: oby_class != '289'
+          select_columns:
+            - taxyr
+            - parid
+            - township_code
+            - oby_class
           config: &time-filter
             where: |
               CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+          meta:
+            table_name: oby
+            category: class_code
+            description: class should not be 289
       - expression_is_true:
           name: qc_vw_class_mismatch_comdat_class_eq_pardat_class
           expression: comdat_class = pardat_class
+          select_columns:
+            - taxyr
+            - parid
+            - township_code
+            - pardat_class
+            - comdat_class
           config: *time-filter
+          meta:
+            table_name: comdat
+            category: class_code
+            description: class should match pardat class
       - expression_is_true:
           # Only match on major class code, since
           # most of these are minor improvements
           name: qc_vw_class_mismatch_oby_class_eq_pardat_class
           expression: substr(oby_class, 1, 1) = substr(pardat_class, 1, 1)
+          select_columns:
+            - taxyr
+            - parid
+            - township_code
+            - oby_class
+            - pardat_class
           config: *time-filter
+          meta:
+            table_name: oby
+            category: class
+            description: major class should match pardat major class
 
   - name: qc.vw_incorrect_asmt_value
     description: '{{ doc("view_vw_incorrect_asmt_value") }}'
@@ -497,10 +526,32 @@ models:
           name: qc_vw_change_in_high_low_value_sales_ratio_high
           expression: |
             price_less_than_10k_growth_status != 'No significant change'
+          select_columns:
+            - source
+            - year
+            - price_less_than_10k_growth_status
+            - prev_year_price_less_than_10k_count
+            - price_less_than_10k_count
+          meta:
+            table_name: sales
+            category: sales
+            description: >
+              count of sales <= $10k should not change more than 5% YoY
       - expression_is_true:
           name: qc_vw_change_in_high_low_value_sales_ratio_low
           expression: |
             price_greater_than_1m_growth_status != 'No significant change'
+          select_columns:
+            - source
+            - year
+            - price_greater_than_1m_growth_status
+            - prev_year_price_greater_than_1m_count,
+            - price_greater_than_1m_count
+          meta:
+            table_name: sales
+            category: sales
+            description: >
+              count of sales >= $1m should not change more than 5% YoY
 
   - name: qc.vw_iasworld_sales_null_values
     description: '{{ doc("view_vw_iasworld_sales_null_values") }}'
@@ -593,6 +644,16 @@ models:
       - expression_is_true:
           name: qc_vw_iasworld_sales_day_of_month_lte_half_observations
           expression: sales_by_day > 0.5 * total_sales
+          select_columns:
+            - year
+            - day_of_month
+            - sales_by_day
+            - total_sales
+          meta:
+            table_name: sales
+            category: sales
+            description: >
+              no single day of the month should have > 50% of total sales
 
   - name: qc.vw_iasworld_sales_high_value_by_class
     description: '{{ doc("view_vw_iasworld_sales_high_value_by_class") }}'
