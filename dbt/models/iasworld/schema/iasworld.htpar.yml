@@ -234,6 +234,8 @@ sources:
                     - taxyr
                     - caseno
                     - subkey
+                  meta:
+                    description: seq must be sequential
           - name: status
             description: '{{ doc("column_status") }}'
           - name: stipbldg
@@ -265,7 +267,12 @@ sources:
               - accepted_values:
                   name: iasworld_htpar_user38_in_accepted_values
                   values: ['RS', 'IC', 'CC', 'CE', 'CI', 'CO', 'CV', 'IM', 'LD', 'OM', 'RC']
+                  select_columns: ["taxyr", "parid"]
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      user38 must be one of 'RS', 'IC', 'CC', 'CE', 'CI', 'CO',
+                      'CV', 'IM', 'LD', 'OM', or 'RC'
           - name: user89
             description: '{{ doc("shared_column_reason_code") }}'
           - name: user100
@@ -294,6 +301,8 @@ sources:
           - no_extra_whitespace:
               name: iasworld_htpar_address_columns_no_whitespace
               column_names:
+                - taxyr
+                - parid
                 - own1
                 # - addr1 # almost every value in this field has a trailing space
                 - addr2
@@ -303,6 +312,9 @@ sources:
                 - cpaddr3
               allow_interior_space: true
               config: *unique-conditions
+              meta:
+                description: >
+                  Address columns should have no leading or trailing whitespace
           - expression_is_true:
               name: iasworld_htpar_cpaddr3_length_lte_5
               expression: |
@@ -313,3 +325,8 @@ sources:
                 - taxyr
                 - cpaddr3
               config: *unique-conditions
+              meta:
+                category: column_length
+                description: >
+                  cpaddr3 should be either 5 characters long  or 10 characters
+                  with a hyphen

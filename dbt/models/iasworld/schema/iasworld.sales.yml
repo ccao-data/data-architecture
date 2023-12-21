@@ -34,6 +34,9 @@ sources:
               - accepted_values:
                   name: iasworld_sales_cur_in_accepted_values
                   values: ['Y', 'D']
+                  select_columns: &select-columns ["taxyr", "parid"]
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: deed_ref
@@ -54,11 +57,16 @@ sources:
               - accepted_values:
                   name: iasworld_sales_instrtyp_in_accepted_values
                   values: ['01', '02', '03', '04', '05', '06', 'B']
+                  select_columns: *select-columns
                   config: &unique-conditions
                     where: |
                       substr(saledt, 1, 4) >= '2011'
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: >
+                      instrtyp should be '01', '02', '03', '04', '05', '06',
+                      or 'B'
           - name: instruno
             description: '{{ doc("shared_column_document_number") }}'
           - name: jur
@@ -100,7 +108,11 @@ sources:
                   name: iasworld_sales_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  select_columns: *select_columns
                   config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
           - name: price
             description: '{{ doc("shared_column_sale_price") }}'
             tests:
@@ -179,6 +191,8 @@ sources:
                 - parid
                 - instruno
               config: *unique-conditions
+              meta:
+                description: sales should be unique by parid and instruno
           - expression_is_true:
               name: iasworld_sales_saledt_lte_now
               expression: DATE_PARSE(SUBSTR(saledt, 1, 10), '%Y-%m-%d') <= current_date

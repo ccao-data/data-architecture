@@ -262,4 +262,5 @@ sources:
                 - taxyr
               config: *unique-conditions
               meta:
-                description: Class codes should match pardat class codes
+                category: class_code
+                description: class should match pardat class

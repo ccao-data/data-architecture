@@ -64,6 +64,9 @@ sources:
               - accepted_values:
                   name: iasworld_owndat_cur_in_accepted_values
                   values: ['Y', 'D']
+                  select_columns: &select-columns ["taxyr", "parid"]
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: delinstalltype
@@ -209,17 +212,23 @@ sources:
           - name: zip1
             description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
             tests:
-              - dbt_utils.not_accepted_values:
+              - not_accepted_values:
                   name: iasworld_owndat_zip1_has_no_00000_values
                   values: ['00000']
+                  select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: zip1 should not be 00000
           - name: zip2
             description: '{{ doc("shared_column_mail_address_zipcode_2") }}'
             tests:
-              - dbt_utils.not_accepted_values:
+              - not_accepted_values:
                   name: iasworld_owndat_zip2_has_no_0000_values
                   values: ['0000']
+                  select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: zip2 should not be 0000
 
         tests:
           - unique_combination_of_columns:
@@ -230,6 +239,8 @@ sources:
           - no_extra_whitespace:
               name: iasworld_owndat_address_columns_no_extra_whitespace
               column_names:
+                - taxyr
+                - parid
                 - own1
                 - own2
                 - addr1
@@ -250,6 +261,12 @@ sources:
                 - user27
               allow_interior_space: true
               config: *unique-conditions
+              meta:
+                description: >
+                  The following columns should have no leading or trailing
+                  whitespace: own1, own2, addr1, addr2, addr3, addr4, addr5,
+                  adrpre, adrdir, adrstr, adrsuf, unitdesc, unitno, cityname,
+                  statecode, zip1, zip2, user27
           - expression_is_true:
               name: iasworld_owndat_addr1_address_is_well_formed
               expression: |
@@ -269,3 +286,6 @@ sources:
                   AND cur = 'Y'
                   AND deactivat IS NULL
                   AND addr1 IS NOT NULL
+              meta:
+                category: address
+                description: addr1 should be a well formed address

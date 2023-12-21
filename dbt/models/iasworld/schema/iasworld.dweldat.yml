@@ -1062,11 +1062,14 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: yrblt should not be null
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_dweldat_yrblt_between_1850_and_now
                   min_value: 1850
                   max_value: cast(year(current_date) as decimal)
+                  select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: yrblt should be between 1850 and now
           - name: yrremod
             description: Year remodeled
 
@@ -1089,7 +1092,8 @@ sources:
                 - taxyr
               config: *unique-conditions
               meta:
-                description: Class codes should match pardat class codes
+                category: class_code
+                description: class should match pardat class
           - expression_is_true:
               name: iasworld_dweldat_card_proration_rate_between_0_and_100
               expression: 'CAST(user24 AS decimal) BETWEEN 0.00 AND 100.00'

@@ -22,14 +22,17 @@ sources:
           - name: area
             description: '{{ doc("column_area") }}'
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_oby_area_gte_1
                   min_value: 1
+                  select_columns: &select-columns ["taxyr", "parid", "card"]
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: area should be >= 1
           - name: areaid
             description: '{{ doc("column_areaid") }}'
           - name: areasum
@@ -39,11 +42,14 @@ sources:
           - name: card
             description: '{{ doc("column_card") }}'
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_oby_card_between_1_and_100
                   min_value: 1
                   max_value: 100
+                  select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: card should be between 1 and 100
           - name: cdpct
             description: Cost and design percent
           - name: chgrsn
@@ -266,12 +272,18 @@ sources:
             tests:
               - not_null:
                   name: iasworld_oby_yrblt_not_null
+                  select_columns: *select-columns
                   config: *unique-conditions
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: yrblt should not be null
+              - accepted_range:
                   name: iasworld_oby_yrblt_between_1850_and_now
                   min_value: 1850
                   max_value: cast(year(current_date) as decimal)
+                  select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: yrblt should be between 1850 and now
           - name: yrrem
             description: Year remodeled
 
@@ -286,9 +298,14 @@ sources:
           - row_values_match_after_join:
               name: iasworld_oby_class_matches_pardat_class
               column: substr(model.class, 1, 1)
+              column_name: oby_class
               external_model: source('iasworld', 'pardat')
               external_column: substr(external_model.class, 1, 1)
+              external_column_name: pardat_class
               join_columns:
                 - parid
                 - taxyr
               config: *unique-conditions
+              meta:
+                category: class_code
+                description: class should match pardat class

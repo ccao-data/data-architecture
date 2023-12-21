@@ -14,14 +14,18 @@ sources:
           - name: acres
             description: '{{ doc("column_acres") }}'
             tests:
-              - dbt_utils.expression_is_true:
+              - expression_is_true:
                   name: iasworld_land_acres_is_sf_transformed
                   expression: '* 43560 BETWEEN sf - 5 AND sf + 5'
+                  select_columns: &select-columns ["taxyr", "parid", "card"]
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    category: miscellaneous
+                    description: acres should be approximately sf * 43560
           - name: adjfact
             description: '{{ doc("column_adjfact") }}'
           - name: agflg
@@ -124,6 +128,8 @@ sources:
                   group_by_columns:
                     - parid
                     - taxyr
+                  meta:
+                    description: lline should be sequential
           - name: lmod
             description: Land location model number
           - name: locfact
@@ -177,19 +183,26 @@ sources:
                   name: iasworld_land_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
           - name: price
             description: Price
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_land_price_gte_1
                   min_value: 1
+                  select_columns: *select-columns
                   config:
                     where:
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class NOT IN ('EX', 'RR', '999')
                       AND cur = 'Y'
-                      AND deactivat IS NULL 
+                      AND deactivat IS NULL
+                  meta:
+                    description: price should be >= 1
           - name: recnr
             description: '{{ doc("column_recnr") }}'
           - name: salekey
@@ -208,14 +221,17 @@ sources:
                   config:
                     where:
                       cur = 'Y'
-                      AND deactivat IS NULL 
+                      AND deactivat IS NULL
           - name: sf
             description: '{{ doc("shared_column_char_land_sf") }}'
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_land_sf_gte_1
                   min_value: 1
+                  select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: sf should be >= 1
           - name: sfact
             description: S factor
           - name: sizefact
@@ -272,8 +288,10 @@ sources:
           - row_values_match_after_join:
               name: iasworld_land_class_matches_pardat_class
               column: substr(model.class, 1, 1)
+              column_name: land_class
               external_model: source('iasworld', 'pardat')
               external_column: substr(external_model.class, 1, 1)
+              external_column_name: pardat_class
               join_columns:
                 - parid
                 - taxyr
@@ -283,3 +301,6 @@ sources:
                   AND class NOT IN ('EX', 'RR')
                   AND cur = 'Y'
                   AND deactivat IS NULL
+              meta:
+                category: class_code
+                description: class should match pardat class
