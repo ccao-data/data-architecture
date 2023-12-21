@@ -224,7 +224,7 @@ def get_failed_tests_by_category(
                 )
 
             meta = node.get("meta", {})
-            category = meta.get("category", DEFAULT_TEST_CATEGORY)
+            category = get_category_from_node(node)
             test_description = meta.get("description")
 
             # Search for the model that is implicated in this test via the
@@ -282,6 +282,21 @@ def get_failed_tests_by_category(
             failed_tests_by_category[category].update(failed_tests)
 
     return failed_tests_by_category
+
+
+def get_category_from_node(node: typing.Dict) -> str:
+    """Given a node representing a dbt test failure, return the category
+    that the test should go in."""
+    if meta_category := node.get("meta", {}).get("category"):
+        return meta_category
+
+    for dependency_macro in node["depends_on"]["macros"]:
+        # Custom generic tests are always formatted like
+        # macro.dbt.test_<generic_name>
+        if dependency_macro.startswith("macro.athena.test_"):
+            return dependency_macro.split("macro.athena.test_")[-1]
+
+    return DEFAULT_TEST_CATEGORY
 
 
 def add_sheet_to_workbook(
