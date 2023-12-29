@@ -213,9 +213,6 @@ def get_failed_tests_by_category(
     for result in run_results["results"]:
         if result["status"] == "fail":
             unique_id = result["unique_id"]
-            # Unique ID format is:
-            # test.athena.<test_name>.<hash>
-            test_name = unique_id.split(".")[2]
             # Link to the test's page in the dbt docs, for debugging
             test_docs_url = f"{DOCS_URL_PREFIX}/{unique_id}"
 
@@ -225,28 +222,11 @@ def get_failed_tests_by_category(
                     f"Missing dbt manifest node with id {unique_id}"
                 )
 
+            test_name = node["name"]
             meta = node.get("meta", {})
             category = get_category_from_node(node)
+            tablename = get_tablename_from_node(node)
             test_description = meta.get("description")
-
-            # Search for the model that is implicated in this test via the
-            # depends_on key
-            models = node.get("depends_on", {}).get("nodes", [])
-            if not models:
-                raise ValueError(
-                    "Missing `depends_on.nodes` attribute for test "
-                    f"{test_name}"
-                )
-            # Cross-table comparisons often involve multiple models; we have
-            # determined experimentally that the second one is usually
-            # the model that the test is concerned with, although if this
-            # becomes a problem in the future we can update the test metadata
-            # to expose an override attribute
-            model = models[-1]
-
-            # Reference format for models/sources is:
-            # <"model"/"source">.athena.<schema_name>.<table_name>
-            table_name = model.split(".")[-1]
 
             # Get the fully-qualified name of the table that stores failures
             # for this test so that we can query it
@@ -273,7 +253,7 @@ def get_failed_tests_by_category(
                     TEST_NAME_FIELD: test_name,
                     DESCRIPTION_FIELD: test_description,
                     DOCS_URL_FIELD: test_docs_url,
-                    SOURCE_TABLE_FIELD: table_name,
+                    SOURCE_TABLE_FIELD: tablename,
                     **row,
                 }
                 for row in query_results
@@ -299,6 +279,34 @@ def get_category_from_node(node: typing.Dict) -> str:
             return dependency_macro.split("macro.athena.test_")[-1]
 
     return DEFAULT_TEST_CATEGORY
+
+
+def get_tablename_from_node(node: typing.Dict) -> str:
+    """Given a node representing a dbt test failure, return the name of the
+    table that the test is testing."""
+    if meta_tablename := node.get("meta", {}).get("table_name"):
+        # If meta.table_name is set, treat it as an override
+        return meta_tablename
+
+    # Search for the model that is implicated in this test via the
+    # depends_on key
+    models = node.get("depends_on", {}).get("nodes", [])
+    if not models:
+        raise ValueError(
+            "Can't infer tablename: Missing `depends_on.nodes` attribute for "
+            f"test {node['name']}. You may need to add a `meta.table_name` "
+            "attribute to the test config"
+        )
+    # Cross-table comparisons often involve multiple models; we have
+    # determined experimentally that the last one is usually
+    # the model that the test is concerned with, although if this
+    # returns incorrect results in some cases we can override them
+    # with the `meta.table_name` attribute
+    model = models[-1]
+
+    # Reference format for models/sources is:
+    # <"model"/"source">.athena.<schema_name>.<table_name>
+    return model.split(".")[-1]
 
 
 def add_sheet_to_workbook(
