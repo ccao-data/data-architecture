@@ -108,7 +108,7 @@ sources:
                   name: iasworld_sales_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
-                  select_columns: *select_columns
+                  select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     category: parid

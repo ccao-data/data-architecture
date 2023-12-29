@@ -1,10 +1,10 @@
 -- View that identifies class 2 sales over $20m.
 SELECT
-    sales.parid AS pin,
+    sales.parid,
     sales.price,
     par.class,
     COUNT(*) OVER (PARTITION BY sales.instruno) AS parcel_count,
-    par.taxyr AS year
+    par.taxyr
 FROM {{ source('iasworld', 'sales') }} AS sales
 INNER JOIN {{ source('iasworld', 'pardat') }} AS par
     ON sales.parid = par.parid AND par.taxyr = SUBSTR(sales.saledt, 1, 4)

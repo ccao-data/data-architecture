@@ -1,6 +1,6 @@
 -- View that identifies sales with null values in key fields.
 SELECT
-    SUBSTR(sales.saledt, 1, 4) AS year,
+    SUBSTR(sales.saledt, 1, 4) AS taxyr,
     CAST(
         COUNT(
             CASE WHEN sales.price IS NULL THEN 1 END
