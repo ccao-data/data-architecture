@@ -21,7 +21,7 @@ models:
           meta:
             table_name: oby
             category: class_code
-            description: class should not be 289
+            description: oby_class should not be 289
       - expression_is_true:
           name: qc_vw_class_mismatch_comdat_class_eq_pardat_class
           expression: comdat_class = pardat_class
@@ -35,7 +35,7 @@ models:
           meta:
             table_name: comdat
             category: class_code
-            description: class should match pardat class
+            description: comdat_class should match pardat class
       - expression_is_true:
           # Only match on major class code, since
           # most of these are minor improvements
@@ -51,7 +51,7 @@ models:
           meta:
             table_name: oby
             category: class
-            description: major class should match pardat major class
+            description: oby_class should match pardat_class by major class
 
   - name: qc.vw_incorrect_asmt_value
     description: '{{ doc("view_vw_incorrect_asmt_value") }}'
