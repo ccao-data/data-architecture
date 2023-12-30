@@ -575,6 +575,7 @@ sources:
                     - rmbed
                   config: *unique-conditions
                   meta:
+                    category: relationships
                     description: rmbed should be <= rmtot
           - name: rmbed1
             description: Number of bedrooms on the first floor
@@ -744,6 +745,7 @@ sources:
                     - stories
                   config: *unique-conditions
                   meta:
+                    category: accepted_values
                     description: >
                       stories should be one of 1.00, 2.00, 3.00, 4.00, 5.00, or
                       9.90
@@ -1104,6 +1106,7 @@ sources:
                 - user24
               config: *unique-conditions
               meta:
+                category: accepted_range
                 description: user24 should be between 0 and 100
           - expression_is_true:
               name: iasworld_dweldat_char_ncu_between_0_and_5

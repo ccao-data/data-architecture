@@ -24,7 +24,7 @@ sources:
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
-                    category: miscellaneous
+                    category: relationships
                     description: acres should be approximately sf * 43560
           - name: adjfact
             description: '{{ doc("column_adjfact") }}'

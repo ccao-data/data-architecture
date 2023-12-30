@@ -58,7 +58,8 @@ sources:
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
-                    description: Class code must be valid
+                    category: class_code
+                    description: class code must be valid
           - name: convaddn
             description: Converted addition total
           - name: cur

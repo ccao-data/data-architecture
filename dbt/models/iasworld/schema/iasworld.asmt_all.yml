@@ -31,7 +31,8 @@ sources:
                       AND deactivat IS NULL
                       AND valclass IS NULL
                   meta:
-                    description: Class code must be valid
+                    category: class_code
+                    description: class code must be valid
           - name: cur
             description: '{{ doc("column_cur") }}'
             tests:
