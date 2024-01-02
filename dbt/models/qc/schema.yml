@@ -61,14 +61,13 @@ models:
               name: qc_vw_incorrect_asmt_value_cur_year_lav_non_ex_rr_gt_0
               min_value: 0
               inclusive: false
-              select_columns: &select-columns-lav-bav-fav
+              select_columns:
                 - taxyr
                 - parid
                 - township_code
                 - class
                 - who
                 - wen
-                - cur_year_lav
                 - cur_year_bav
                 - cur_year_fav
               config:
@@ -81,10 +80,19 @@ models:
       - name: cur_year_bav
         tests:
           # Equivalent to Vacant Class, bldg value test from FP Checklist
-          - expression_is_true: &incorrect-asmt-value-has-val
+          - accepted_values:
               name: qc_vw_incorrect_asmt_value_cur_year_bav_vact_class_has_val
-              expression: '= 0'
-              select_columns: *select-columns-lav-bav-fav
+              values: [0]
+              quote: false
+              select_columns: &select-columns-cur-year-bav
+                - taxyr
+                - parid
+                - township_code
+                - class
+                - who
+                - wen
+                - cur_year_lav
+                - cur_year_fav
               config:
                 where: |
                   CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -97,12 +105,13 @@ models:
                   )
               meta:
                 table_name: asmt
-                category: accepted_range
                 description: current year BAV should be 0 for vacant classes
           # Equivalent to Improved class, no bldg value from FP Checklist
-          - expression_is_true:
+          - not_accepted_values:
               name: qc_vw_incorrect_asmt_value_cur_year_bav_impr_class_no_val
-              select_columns: *select-columns-lav-bav-fav
+              values: [0]
+              quote: false
+              select_columns: *select-columns-cur-year-bav
               config:
                 where: |
                   CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -116,13 +125,20 @@ models:
               meta:
                 table_name: asmt
                 description: current year BAV should not be 0 for non-vacant classes
-                <<: *incorrect-asmt-value-has-val
       - name: cur_year_fav
         tests:
           # Equivalent to 0 Value test from FP Checklist
           - accepted_range:
               name: qc_vw_incorrect_asmt_value_cur_year_fav_non_ex_rr_gt_0
-              select_columns: *select-columns-lav-bav-fav
+              select_columns:
+                - taxyr
+                - parid
+                - township_code
+                - class
+                - who
+                - wen
+                - cur_year_lav
+                - cur_year_bav
               meta:
                 table_name: asmt
                 description: current year FAV should be >=0 if class is not EX or RR
@@ -146,7 +162,7 @@ models:
                 table_name: asmt
                 description: class should be the same as luc
     tests:
-      - dbt_utils.expression_is_true:
+      - expression_is_true:
           name: qc_vw_incorrect_asmt_value_no_yoy_inc_gt_500k
           expression: (cur_year_fmv - pri_year_fmv) <= 500000
           select_columns: &select-columns-cur-and-pri-year-fmv
@@ -547,7 +563,7 @@ models:
               meta:
                 table_name: asmt
                 description: valapr1 should not be null
-          - dbt_utils.accepted_range:
+          - accepted_range:
               name: qc_vw_neg_asmt_value_valapr1_gte_0
               <<: *test-non-negative
       - name: valapr2
@@ -558,7 +574,7 @@ models:
                 table_name: asmt
                 description: valapr2 should not be null
               <<: *test-val-non-null
-          - dbt_utils.accepted_range:
+          - accepted_range:
               name: qc_vw_neg_asmt_value_valapr2_gte_0
               <<: *test-non-negative
       - name: valapr3
@@ -569,7 +585,7 @@ models:
                 table_name: asmt
                 description: valapr3 should not be null
               <<: *test-val-non-null
-          - dbt_utils.accepted_range:
+          - accepted_range:
               name: qc_vw_neg_asmt_value_valapr3_gte_0
               <<: *test-non-negative
       - name: valasm1
@@ -580,7 +596,7 @@ models:
                 table_name: asmt
                 description: valasm1 should not be null
               <<: *test-val-non-null
-          - dbt_utils.accepted_range:
+          - accepted_range:
               name: qc_vw_neg_asmt_value_valasm1_gte_0
               <<: *test-non-negative
       - name: valasm2
@@ -591,7 +607,7 @@ models:
                 table_name: asmt
                 description: valasm2 should not be null
               <<: *test-val-non-null
-          - dbt_utils.accepted_range:
+          - accepted_range:
               name: qc_vw_neg_asmt_value_valasm2_gte_0
               <<: *test-non-negative
       - name: valasm3
@@ -602,7 +618,7 @@ models:
                 table_name: asmt
                 description: valasm3 should not be null
               <<: *test-val-non-null
-          - dbt_utils.accepted_range:
+          - accepted_range:
               name: qc_vw_neg_asmt_value_valasm3_gte_0
               <<: *test-non-negative
 
@@ -614,8 +630,7 @@ models:
     tests:
       - expression_is_true:
           name: qc_vw_change_in_high_low_value_sales_ratio_high
-          expression: |
-            price_less_than_10k_growth_status = 'No significant change'
+          expression: "price_less_than_10k_growth_status = 'No significant change'"
           select_columns:
             - source
             - taxyr
@@ -629,13 +644,12 @@ models:
               count of sales <= $10k should not change more than 5% YoY
       - expression_is_true:
           name: qc_vw_change_in_high_low_value_sales_ratio_low
-          expression: |
-            price_greater_than_1m_growth_status = 'No significant change'
+          expression: "price_greater_than_1m_growth_status = 'No significant change'"
           select_columns:
             - source
             - taxyr
             - price_greater_than_1m_growth_status
-            - prev_year_price_greater_than_1m_count,
+            - prev_year_price_greater_than_1m_count
             - price_greater_than_1m_count
           meta:
             table_name: sales

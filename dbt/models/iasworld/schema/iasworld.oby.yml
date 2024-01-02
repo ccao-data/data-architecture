@@ -46,7 +46,7 @@ sources:
                   name: iasworld_oby_card_between_1_and_100
                   min_value: 1
                   max_value: 100
-                  select_columns: *select-columns
+                  select_columns: ["taxyr", "parid", "who", "wen"]
                   config: *unique-conditions
                   meta:
                     description: card should be between 1 and 100
@@ -305,7 +305,6 @@ sources:
               join_columns:
                 - parid
                 - taxyr
-              select_columns: ["card", "who", "wen"]
               config: *unique-conditions
               meta:
                 category: class_code

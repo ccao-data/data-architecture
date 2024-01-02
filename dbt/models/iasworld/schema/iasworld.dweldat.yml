@@ -1092,7 +1092,6 @@ sources:
               join_columns:
                 - parid
                 - taxyr
-              select_columns: ["who", "wen"]
               config: *unique-conditions
               meta:
                 category: class_code
