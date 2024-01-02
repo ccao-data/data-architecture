@@ -64,7 +64,7 @@ sources:
               - accepted_values:
                   name: iasworld_owndat_cur_in_accepted_values
                   values: ['Y', 'D']
-                  select_columns: &select-columns ["taxyr", "parid"]
+                  select_columns: &select-columns ["taxyr", "parid", "who", "wen"]
                   meta:
                     description: cur should be 'Y' or 'D'
           - name: deactivat
@@ -279,6 +279,8 @@ sources:
               select_columns:
                 - parid
                 - taxyr
+                - who
+                - wen
                 - addr1
               config:
                 where: |

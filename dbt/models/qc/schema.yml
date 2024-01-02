@@ -1,57 +1,52 @@
 models:
-  - name: qc.vw_class_mismatch
+  - name: qc.vw_oby_class_mismatch
     description: '{{ doc("view_vw_class_mismatch") }}'
     config:
       tags:
         - test_qc_inquire
-    tests:
-      # NOTE: DWELDAT has its own class mismatch test contained within
-      # its schema file
-      - expression_is_true:
-          name: qc_vw_class_mismatch_no_289s
-          expression: oby_class != '289'
-          select_columns:
-            - taxyr
-            - parid
-            - township_code
-            - oby_class
-          config: &time-filter
-            where: |
-              CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-          meta:
-            table_name: oby
-            category: class_code
-            description: oby_class should not be 289
-      - expression_is_true:
-          name: qc_vw_class_mismatch_comdat_class_eq_pardat_class
-          expression: comdat_class = pardat_class
-          select_columns:
-            - taxyr
-            - parid
-            - township_code
-            - pardat_class
-            - comdat_class
-          config: *time-filter
-          meta:
-            table_name: comdat
-            category: class_code
-            description: comdat_class should match pardat class
-      - expression_is_true:
-          # Only match on major class code, since
-          # most of these are minor improvements
-          name: qc_vw_class_mismatch_oby_class_eq_pardat_class
-          expression: substr(oby_class, 1, 1) = substr(pardat_class, 1, 1)
-          select_columns:
-            - taxyr
-            - parid
-            - township_code
-            - oby_class
-            - pardat_class
-          config: *time-filter
-          meta:
-            table_name: oby
-            category: class_code
-            description: oby_class should match pardat_class by major class
+    column_names:
+      - name: class
+        tests:
+          - not_accepted_values:
+              name: qc_vw_class_mismatch_no_289s
+              values: ["289"]
+              select_columns: &select-columns ["taxyr", "parid", "township_code", "who", "wen"]
+              config: &time-filter
+                where: |
+                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+              meta:
+                table_name: oby
+                category: class_code
+                description: class should not be 289
+      - name: major_class
+        tests:
+          - columns_match:
+              name: qc_vw_class_mismatch_oby_class_eq_pardat_class
+              columns: [pardat_major_class]
+              select_columns: *select-columns
+              config: *time-filter
+              meta:
+                table_name: oby
+                category: class_code
+                description: class should match pardat by major class
+
+  - name: qc.vw_comdat_class_mismatch
+    description: '{{ doc("view_vw_class_mismatch") }}'
+    config:
+      tags:
+        - test_qc_inquire
+    columns:
+      - name: class
+        tests:
+          - columns_match:
+              name: qc_vw_class_mismatch_comdat_class_eq_pardat_class
+              columns: [pardat_class]
+              select_columns: *select-columns
+              config: *time-filter
+              meta:
+                table_name: comdat
+                category: class_code
+                description: class should match pardat class
 
   - name: qc.vw_incorrect_asmt_value
     description: '{{ doc("view_vw_incorrect_asmt_value") }}'
@@ -71,6 +66,8 @@ models:
                 - parid
                 - township_code
                 - class
+                - who
+                - wen
                 - cur_year_lav
                 - cur_year_bav
                 - cur_year_fav
@@ -105,6 +102,7 @@ models:
           # Equivalent to Improved class, no bldg value from FP Checklist
           - expression_is_true:
               name: qc_vw_incorrect_asmt_value_cur_year_bav_impr_class_no_val
+              select_columns: *select-columns-lav-bav-fav
               config:
                 where: |
                   CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -124,6 +122,7 @@ models:
           # Equivalent to 0 Value test from FP Checklist
           - accepted_range:
               name: qc_vw_incorrect_asmt_value_cur_year_fav_non_ex_rr_gt_0
+              select_columns: *select-columns-lav-bav-fav
               meta:
                 table_name: asmt
                 description: current year FAV should be >=0 if class is not EX or RR
@@ -131,30 +130,42 @@ models:
       - name: class
         tests:
           # Equivalent to Class does not equal LUC from FP Checklist
-          - dbt_utils.expression_is_true:
+          - expression_is_true:
               name: qc_vw_incorrect_asmt_value_class_equals_luc
               expression: '= luc'
               select_columns:
                 - taxyr
                 - parid
                 - township_code
+                - who
+                - wen
                 - class
                 - luc
               config: *time-filter
               meta:
                 table_name: asmt
-                description: class should not be the same as luc
+                description: class should be the same as luc
     tests:
       - dbt_utils.expression_is_true:
-          name: qc_vw_incorrect_asmt_value_no_yoy_inc_gt_500K
+          name: qc_vw_incorrect_asmt_value_no_yoy_inc_gt_500k
           expression: (cur_year_fmv - pri_year_fmv) <= 500000
+          select_columns: &select-columns-cur-and-pri-year-fmv
+            - taxyr
+            - parid
+            - township_code
+            - class
+            - who
+            - wen
+            - cur_year_fmv
+            - pri_year_fmv
           config: *time-filter
           meta:
             table_name: asmt
             description: FMV should not increase more than $500k YoY
-      - dbt_utils.expression_is_true:
-          name: qc_vw_incorrect_asmt_value_no_yoy_dec_gt_1M
+      - expression_is_true:
+          name: qc_vw_incorrect_asmt_value_no_yoy_dec_gt_1m
           expression: (cur_year_fmv - pri_year_fmv) >= -1000000
+          select_columns: *select-columns-cur-and-pri-year-fmv
           config: *time-filter
           meta:
             table_name: asmt
@@ -176,6 +187,9 @@ models:
                 - taxyr
                 - parid
                 - class
+                - township_code
+                - who
+                - wen
               config:
                 where: |
                   CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -201,6 +215,8 @@ models:
                 - parid
                 - township_code
                 - class
+                - who
+                - wen
               config: *time-filter
       - name: val02
         tests:
@@ -783,11 +799,11 @@ models:
           - accepted_range:
               name: qc_vw_iasworld_sales_high_value_by_class_gt_20000000
               max_value: 20000000
-              select_columns: ["parid", "taxyr", "class"]
+              select_columns: ["parid", "taxyr", "class", "who" , "wen"]
               meta:
                 table_name: sales
                 category: sales
-                description: price should be >= $20m
+                description: price should be <= $20m
 
   - name: qc.vw_iasworld_sales_price_diff_sale_mydec
     description: '{{ doc("view_vw_iasworld_sales_price_diff_sale_mydec") }}'

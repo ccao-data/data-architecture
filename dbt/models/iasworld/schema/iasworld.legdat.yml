@@ -24,7 +24,7 @@ sources:
               - accepted_values:
                   name: iasworld_legdat_adrdir_in_accepted_values
                   values: ['N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW']
-                  select_columns: &select-columns ["taxyr", "parid"]
+                  select_columns: &select-columns ["taxyr", "parid", "who", "wen"]
                   config: &unique-conditions
                     where:
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -263,6 +263,8 @@ sources:
               select_columns:
                 - parid
                 - taxyr
+                - who
+                - wen
                 - adrno
               config: *unique-conditions
               meta:

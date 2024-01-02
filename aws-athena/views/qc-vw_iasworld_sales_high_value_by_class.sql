@@ -2,6 +2,8 @@
 SELECT
     sales.parid,
     sales.price,
+    sales.who,
+    sales.wen,
     par.class,
     COUNT(*) OVER (PARTITION BY sales.instruno) AS parcel_count,
     par.taxyr

@@ -267,7 +267,7 @@ sources:
               - accepted_values:
                   name: iasworld_htpar_user38_in_accepted_values
                   values: ['RS', 'IC', 'CC', 'CE', 'CI', 'CO', 'CV', 'IM', 'LD', 'OM', 'RC']
-                  select_columns: ["taxyr", "parid"]
+                  select_columns: ["taxyr", "parid", "who", "wen"]
                   config: *unique-conditions
                   meta:
                     description: >
@@ -323,6 +323,8 @@ sources:
               select_columns:
                 - parid
                 - taxyr
+                - who
+                - wen
                 - cpaddr3
               config: *unique-conditions
               meta:

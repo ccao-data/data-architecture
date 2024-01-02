@@ -50,7 +50,7 @@ sources:
                   name: iasworld_addn_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
                   field: class_code
-                  select_columns: ["taxyr", "parid", "card"]
+                  select_columns: ["taxyr", "parid", "card", "who", "wen"]
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}

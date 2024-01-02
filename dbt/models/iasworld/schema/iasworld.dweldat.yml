@@ -46,7 +46,7 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_attic_not_null
-                  select_columns: &select-columns ["taxyr", "parid", "card"]
+                  select_columns: &select-columns ["taxyr", "parid", "card", "who", "wen"]
                   # Excludes non-regression classes, as defined in Assessor's
                   # online PDF of all class definitions
                   config: &unique-conditions
@@ -82,10 +82,10 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_bsmt_not_null
+                  select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: bsmt should not be null
-                  select_columns: *select-columns
               - accepted_values:
                   name: iasworld_dweldat_bsmt_in_accepted_values
                   values: ['1', '2', '3', '4']
@@ -571,8 +571,9 @@ sources:
                     - parid
                     - taxyr
                     - card
+                    - who
+                    - wen
                     - rmtot
-                    - rmbed
                   config: *unique-conditions
                   meta:
                     category: relationships
@@ -738,11 +739,7 @@ sources:
               - expression_is_true:
                   name: iasworld_dweldat_stories_in_accepted_values
                   expression: 'IN (1.00, 2.00, 3.00, 4.00, 5.00, 9.90)'
-                  select_columns:
-                    - parid
-                    - taxyr
-                    - card
-                    - stories
+                  select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     category: accepted_values
@@ -925,7 +922,10 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_char_ncu_not_null
+                  select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user20 should not be null
           - name: user24
             description: '{{ doc("shared_column_card_proration_rate") }}'
             tests:
@@ -1092,6 +1092,7 @@ sources:
               join_columns:
                 - parid
                 - taxyr
+              select_columns: ["who", "wen"]
               config: *unique-conditions
               meta:
                 category: class_code
@@ -1103,6 +1104,8 @@ sources:
                 - parid
                 - taxyr
                 - card
+                - who
+                - wen
                 - user24
               config: *unique-conditions
               meta:
@@ -1115,6 +1118,8 @@ sources:
                 - parid
                 - taxyr
                 - card
+                - who
+                - wen
                 - user20
               config: *unique-conditions
               meta:

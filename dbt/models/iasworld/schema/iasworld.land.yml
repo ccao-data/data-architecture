@@ -17,7 +17,7 @@ sources:
               - expression_is_true:
                   name: iasworld_land_acres_is_sf_transformed
                   expression: '* 43560 BETWEEN sf - 5 AND sf + 5'
-                  select_columns: &select-columns ["taxyr", "parid", "card"]
+                  select_columns: &select-columns ["taxyr", "parid", "card", "who", "wen"]
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -295,6 +295,7 @@ sources:
               join_columns:
                 - parid
                 - taxyr
+              select_columns: ["who", "wen"]
               config:
                 where: |
                   CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}

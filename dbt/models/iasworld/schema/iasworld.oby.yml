@@ -25,7 +25,7 @@ sources:
               - accepted_range:
                   name: iasworld_oby_area_gte_1
                   min_value: 1
-                  select_columns: &select-columns ["taxyr", "parid", "card"]
+                  select_columns: &select-columns ["taxyr", "parid", "card", "who", "wen"]
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -305,6 +305,7 @@ sources:
               join_columns:
                 - parid
                 - taxyr
+              select_columns: ["card", "who", "wen"]
               config: *unique-conditions
               meta:
                 category: class_code

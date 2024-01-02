@@ -75,7 +75,7 @@ sources:
                   name: iasworld_pardat_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
                   field: class_code
-                  select_columns: &select-columns ["taxyr", "parid"]
+                  select_columns: &select-columns ["taxyr", "parid", "who", "wen"]
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -298,6 +298,8 @@ sources:
               select_columns:
                 - parid
                 - taxyr
+                - who
+                - wen
                 - adrno
               config: *unique-conditions
               meta:

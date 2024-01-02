@@ -9,10 +9,12 @@
     external_column,
     column_name="model_col",
     external_column_name="external_model_col",
-    join_columns=[]
+    join_columns=[],
+    select_columns=[]
 ) %}
 
     {%- set join_columns_csv = join_columns | join(", ") -%}
+    {%- set select_columns_csv = select_columns | join(", ") -%}
 
     {%- if "." in column -%} {%- set model_col = column -%}
     {%- else -%} {%- set model_col = "model" ~ "." ~ column -%}
@@ -25,6 +27,7 @@
 
     select
         {{ join_columns_csv }},
+        {% if select_columns_csv %} {{ select_columns_csv }},{% endif %}
         array_agg({{ model_col }}) as {{ column_name }},
         array_agg({{ external_model_col }}) as {{ external_column_name }}
     from {{ external_model }} as external_model

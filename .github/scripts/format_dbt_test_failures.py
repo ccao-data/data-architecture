@@ -70,6 +70,8 @@ TAXYR_FIELD = "taxyr"
 PARID_FIELD = "parid"
 CARD_FIELD = "card"
 TOWNSHIP_FIELD = "township_code"
+WHO_FIELD = "who"
+WEN_FIELD = "wen"
 
 
 @dataclasses.dataclass
@@ -90,6 +92,8 @@ class FailedTestGroup:
         PARID_FIELD,
         CARD_FIELD,
         TOWNSHIP_FIELD,
+        WHO_FIELD,
+        WEN_FIELD,
     ]
 
     def __init__(self) -> None:
