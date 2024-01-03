@@ -136,6 +136,9 @@ models:
       - &acs5_percent_mobility_no_move
         name: acs5_percent_mobility_no_move
         description: '{{ doc("column_percent_mobility_no_move") }}'
+      - &ccao_is_corner_lot
+        name: ccao_is_corner_lot
+        description: '{{ doc("shared_column_is_corner_lot") }}'
       - &loc_access_cmap_walk_nta_score
         name: loc_access_cmap_walk_nta_score
         description: '{{ doc("column_access_cmap_walk_nta_score") }}'
@@ -425,6 +428,7 @@ models:
       - *acs5_percent_mobility_moved_from_other_state
       - *acs5_percent_mobility_moved_in_county
       - *acs5_percent_mobility_no_move
+      - *ccao_is_corner_lot
       - *loc_access_cmap_walk_nta_score
       - *loc_access_cmap_walk_total_score
       - *loc_census_acs5_data_year
@@ -653,6 +657,7 @@ models:
       - *acs5_percent_mobility_moved_from_other_state
       - *acs5_percent_mobility_moved_in_county
       - *acs5_percent_mobility_no_move
+      - *ccao_is_corner_lot
       - *loc_access_cmap_walk_nta_score
       - *loc_access_cmap_walk_total_score
       - *loc_census_acs5_data_year
