@@ -28,7 +28,8 @@ from dbt.cli.main import dbtRunner
 
 # API URL and params that we can use to grab counts by year for each asset
 ASSET_API_URL = "https://datacatalog.cookcountyil.gov/resource/{asset_id}.json"
-ASSET_API_QUERY_PARAMS = {"$query": "SELECT COUNT(*),year GROUP BY year"}
+ASSET_API_QUERY = "SELECT COUNT(*),{year_field} GROUP BY {year_field}"
+DEFAULT_YEAR_FIELD = "year"
 DBT = dbtRunner()
 
 # Data for the most recent two years are permitted to be slightly different,
@@ -47,7 +48,8 @@ def main() -> None:
     diffs: typing.List[typing.List[typing.Dict]] = []
 
     for exposure in dbt_manifest_json["exposures"].values():
-        if not exposure.get("meta", {}).get("test_row_count", False):
+        exposure_meta = exposure.get("meta", {})
+        if not exposure_meta.get("test_row_count", False):
             print(
                 f"Skipping row count test for exposure `{exposure['name']}` "
                 "because it does not have an enabled `meta.test_row_count` "
@@ -58,6 +60,7 @@ def main() -> None:
         asset_name = exposure["label"]
         asset_url = exposure["url"]
         asset_id = asset_url.split("/")[-1]
+        asset_year_field = exposure_meta.get("year_field", DEFAULT_YEAR_FIELD)
 
         # For now, assume just one dependency table, since all of our open
         # data assets currently have a 1:1 relationship with a view.
@@ -70,7 +73,9 @@ def main() -> None:
         print(f"Comparing asset '{asset_name}' to model '{source_model_name}'")
 
         asset_api_url = ASSET_API_URL.format(asset_id=asset_id)
-        response = requests.get(asset_api_url, params=ASSET_API_QUERY_PARAMS)
+        asset_api_query = ASSET_API_QUERY.format(year_field=asset_year_field)
+        asset_api_params = {"$query": asset_api_query}
+        response = requests.get(asset_api_url, params=asset_api_params)
         if not response.ok:
             print("Encountered error in request to asset endpoint")
             response.raise_for_status()
@@ -108,6 +113,7 @@ def main() -> None:
             source_model_row_counts_by_year,
             asset_name,
             asset_row_counts_by_year,
+            open_data_asset_year_field=asset_year_field,
         ):
             diffs.append(diff)
 
@@ -138,6 +144,8 @@ def diff_row_counts(
     athena_model_row_counts: typing.List[typing.Dict],
     open_data_asset_name: str,
     open_data_asset_row_counts: typing.List[typing.Dict],
+    athena_model_year_field: str = DEFAULT_YEAR_FIELD,
+    open_data_asset_year_field: str = DEFAULT_YEAR_FIELD,
     current_year_buffer: float = BUFFER,
 ) -> typing.List[typing.Dict]:
     """Check whether two lists of row count dicts are the same. Applies a
@@ -147,17 +155,17 @@ def diff_row_counts(
     Returns a list of dicts representing the rows that differ in each
     dataset. If no rows differ, the return value will be an empty list.
 
-    Row count dicts are expected to have a "COUNT" key and a "year" key.
+    Row count dicts are expected to have a "COUNT" key and a `year_field` key.
     The "COUNT" key should represent an integer, but it can be a string
     representation of an int in the case of open_data_asset_row_counts,
     since that is the format returned by the Socrata API.
     """
     # We expect these lists to already be sorted, but double-check anyway
     athena_model_row_counts = sorted(
-        athena_model_row_counts, key=lambda x: x["year"]
+        athena_model_row_counts, key=lambda x: x[athena_model_year_field]
     )
     open_data_asset_row_counts = sorted(
-        open_data_asset_row_counts, key=lambda x: x["year"]
+        open_data_asset_row_counts, key=lambda x: x[open_data_asset_year_field]
     )
 
     # Extract the current and last year since we want to apply different
@@ -169,16 +177,16 @@ def diff_row_counts(
     formatted_rows: typing.List[typing.Dict] = []
 
     for model_row_count_dict in athena_model_row_counts:
-        model_year = model_row_count_dict["year"]
+        model_year = model_row_count_dict[athena_model_year_field]
         model_count = model_row_count_dict["COUNT"]
         base_formatted_row = {
-            "year": model_year,
+            athena_model_year_field: model_year,
             athena_model_name: model_count,
         }
 
         asset_count: int = 0
         for asset_row_count_dict in open_data_asset_row_counts:
-            if asset_row_count_dict["year"] == model_year:
+            if asset_row_count_dict[open_data_asset_year_field] == model_year:
                 asset_count = int(asset_row_count_dict["COUNT"])
                 break
         else:
@@ -208,18 +216,18 @@ def diff_row_counts(
     # anything that was missed in the previous iteration will be null on the
     # model side, hence a mismatch by definition
     for asset_row_count_dict in open_data_asset_row_counts:
-        asset_year = asset_row_count_dict["year"]
+        asset_year = asset_row_count_dict[open_data_asset_year_field]
         asset_count = asset_row_count_dict["COUNT"]
         base_formatted_row = {}
 
         for model_row_count_dict in athena_model_row_counts:
-            if model_row_count_dict["year"] == asset_year:
+            if model_row_count_dict[athena_model_year_field] == asset_year:
                 break
         else:
             # No matching year found, so these two datasets must be different
             formatted_rows.append(
                 {
-                    "year": asset_year,
+                    athena_model_year_field: asset_year,
                     athena_model_name: None,
                     open_data_asset_name: asset_count,
                 }
