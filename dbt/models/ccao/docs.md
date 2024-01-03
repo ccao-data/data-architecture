@@ -25,6 +25,15 @@ CCAO commercial valuation data, aggregated from the commercial team spreadsheets
 **Primary Key**: `keypin`, `year`
 {% enddocs %}
 
+# corner_lot
+
+{% docs table_corner_lot %}
+CCAO corner lot indicator. Determined algorithmically by unobstructed access to
+perpidincular streets.
+
+**Primary Key**: `pin10`
+{% enddocs %}
+
 # hie
 
 {% docs table_hie %}
