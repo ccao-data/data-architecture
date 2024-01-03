@@ -14,6 +14,16 @@ sources:
         tags:
           - type_ic
 
+      - name: corner_lot
+        description: '{{ doc("table_corner_lot") }}'
+        columns:
+          - name: pin10
+            description: '{{ doc("shared_column_pin10") }}'
+          - name: is_corner_lot
+            description: Corner lot indicator.
+          - name: township
+            description: '{{ doc("shared_column_township_code") }}'
+
       - name: hie
         description: '{{ doc("table_hie") }}'
         tags:
