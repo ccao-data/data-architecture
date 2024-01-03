@@ -786,6 +786,12 @@ percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
+## is_corner_lot
+
+{% docs shared_column_is_corner_lot %}
+Corner lot indicator.
+{% enddocs %}
+
 ## modeling_group
 
 {% docs shared_column_modeling_group %}

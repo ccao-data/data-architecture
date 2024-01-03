@@ -20,7 +20,7 @@ sources:
           - name: pin10
             description: '{{ doc("shared_column_pin10") }}'
           - name: is_corner_lot
-            description: Corner lot indicator.
+            description: '{{ doc("shared_column_is_corner_lot") }}'
           - name: township
             description: '{{ doc("shared_column_township_code") }}'
 
