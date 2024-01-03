@@ -299,5 +299,5 @@ LEFT JOIN
         WHERE district_type = 'secondary'
     ) AS sdrs
     ON vwlf.school_secondary_district_geoid = sdrs.district_geoid
-LEFT JOIN {{ source('ccao.', 'corner_lot') }} AS lot
+LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
     ON uni.pin10 = lot.pin10
