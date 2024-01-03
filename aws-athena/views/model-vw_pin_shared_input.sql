@@ -251,7 +251,7 @@ SELECT
         AS other_school_district_secondary_avg_rating,
 
     -- Corner lot indicator
-    uni.ccao_is_corner_lot,
+    lot.is_corner_lot AS ccao_is_corner_lot,
 
     -- PIN nearest neighbors, used for filling missing data
     vwpf.nearest_neighbor_1_pin10,
@@ -299,3 +299,5 @@ LEFT JOIN
         WHERE district_type = 'secondary'
     ) AS sdrs
     ON vwlf.school_secondary_district_geoid = sdrs.district_geoid
+LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
+    ON uni.pin10 = lot.pin10
