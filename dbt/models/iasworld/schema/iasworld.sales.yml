@@ -108,6 +108,15 @@ sources:
             tests:
               - not_null:
                   name: iasworld_sales_parid_not_null
+              - relationships:
+                  name: iasworld_sales_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
+                  select_columns: ["substr(saledt, 1, 4) as taxyr", "who", "wen"]
+                  config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
           - name: price
             description: '{{ doc("shared_column_sale_price") }}'
             tests:

@@ -782,25 +782,6 @@ models:
                 category: sales
                 description: iasworld should not have >1000 sales that are not in mydec
 
-  - name: qc.vw_iasworld_sales_unmatched_joins_pardat
-    description: '{{ doc("view_vw_iasworld_sales_unmatched_joins_pardat")}}'
-    config:
-      tags:
-        - test_qc_sales
-    tests:
-      - expression_is_true:
-          name: qc_vw_iasworld_sales_parid_in_pardat_parid
-          expression: true = true
-          select_columns:
-            - taxyr
-            - parid
-            - who
-            - wen
-          meta:
-            category: parid
-            table_name: sales
-            description: parid should be in pardat
-
   - name: qc.vw_iasworld_sales_day_of_month
     description: '{{ doc("view_vw_iasworld_sales_day_of_month") }}'
     config:
