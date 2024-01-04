@@ -116,20 +116,18 @@ class FailedTestGroup:
                 if column not in fieldnames:
                     fieldnames.append(column)
 
+        # Remove any diagnostic fieldnames from the ordered list that are not
+        # present in this group
+        diagnostic_field_order = [
+            field
+            for field in self._diagnostic_field_order
+            if field in fieldnames
+        ]
+
         # Reorder the list so that diagnostic fields are presented in the
         # correct order
-        for new_idx, field in enumerate(self._diagnostic_field_order):
-            try:
-                old_idx = fieldnames.index(field)
-            except ValueError:
-                # The field must not be contained in this sheet, so skip it
-                continue
-
-            if new_idx == old_idx:
-                continue
-
-            # Move the element in the list from the old index to the new one
-            fieldnames.insert(new_idx, fieldnames.pop(old_idx))
+        for field in reversed(diagnostic_field_order):
+            fieldnames.insert(0, fieldnames.pop(fieldnames.index(field)))
 
         return fieldnames
 
@@ -281,6 +279,10 @@ def get_category_from_node(node: typing.Dict) -> str:
         # macro.dbt.test_<generic_name>
         if dependency_macro.startswith("macro.athena.test_"):
             return dependency_macro.split("macro.athena.test_")[-1]
+        # dbt_utils generic tests are always formatted like
+        # macro.dbt_utils.test_<generic_name>
+        if dependency_macro.startswith("macro.dbt_utils.test_"):
+            return dependency_macro.split("macro.dbt_utils.test_")[-1]
 
     return DEFAULT_TEST_CATEGORY
 
