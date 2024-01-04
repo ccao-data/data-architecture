@@ -101,40 +101,54 @@ if (!aws.s3::object_exists(remote_file_hosp_warehouse)) {
 ##### PARK #####
 # Switched to using OSM parks because the county-provided parks file is
 # very incomplete
-remote_file_park_warehouse <- file.path(
-  output_bucket, "park", paste0("year=", current_year), "part-0.parquet"
+remote_files_park_warehouse <- file.path(
+  output_bucket,
+  paste0(
+    "park/year=",
+    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "spatial/access/park") %>%
+      pull(Key) %>%
+      str_flatten() %>%
+      str_extract_all("[0-9]{4}")
+  ),
+  "part-0.parquet"
 )
 
-if (!aws.s3::object_exists(remote_file_park_warehouse)) {
+walk(remote_files_park_warehouse, function(x) {
 
-  parks <- opq("Cook County United States") %>%
-    add_osm_feature(key = "leisure", value = "park") %>%
-    osmdata_sf()
+  if (!aws.s3::object_exists(x)) {
 
-  cook_boundary <- st_read_parquet(
-    file.path(
-      AWS_S3_WAREHOUSE_BUCKET,
-      "spatial/ccao/county/2019.parquet"
-    )
-  ) %>%
-    st_transform(4326)
+    parks <- opq("Cook County United States") %>%
+      add_osm_feature(key = "leisure", value = "park") %>%
+      osmdata_sf()
 
-  parks_df <- bind_rows(parks$osm_polygons, parks$osm_multipolygons) %>%
-    st_make_valid() %>%
-    st_cast("MULTIPOLYGON") %>%
-    st_transform(4326) %>%
-    filter(st_is_valid(.)) %>%
-    select(osm_id, name, geometry) %>%
-    mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
-    filter(
-      as.logical(st_intersects(
-        geometry,
-        cook_boundary
-      ))
-    )
+    cook_boundary <- st_read_parquet(
+      file.path(
+        AWS_S3_WAREHOUSE_BUCKET,
+        "spatial/ccao/county/2019.parquet"
+      )
+    ) %>%
+      st_transform(4326)
 
-  geoarrow::write_geoparquet(parks_df, remote_file_park_warehouse, compression = "snappy")
-}
+    parks_df <- bind_rows(parks$osm_polygons, parks$osm_multipolygons) %>%
+      st_make_valid() %>%
+      st_cast("MULTIPOLYGON") %>%
+      st_transform(4326) %>%
+      filter(st_is_valid(.)) %>%
+      select(osm_id, name, geometry) %>%
+      mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+      filter(
+        as.logical(st_intersects(
+          geometry,
+          cook_boundary
+        ))
+      )
+
+    geoarrow::write_geoparquet(parks_df, x, compression = "snappy")
+  }
+
+})
+
+
 
 
 ##### INDUSTRIAL CORRIDOR #####

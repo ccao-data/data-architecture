@@ -19,7 +19,8 @@ options(timeout = max(300, getOption("timeout")))
 # List of CTA feeds from Transit Feeds API
 cta_feed_dates_list <- c(
   "2015-10-29", "2016-09-30", "2017-10-22", "2018-10-06",
-  "2019-10-04", "2020-10-10", "2021-10-09", "2022-10-20"
+  "2019-10-04", "2020-10-10", "2021-10-09", "2022-10-20",
+  "2023-10-04"
 )
 
 # If missing feed on S3, download and remove .htm file (causes errors)
@@ -53,7 +54,8 @@ walk(cta_feed_dates_list, get_cta_feed)
 ##### Metra #####
 metra_feed_dates_list <- c(
   "2015-10-30", "2016-09-30", "2017-10-21", "2018-10-05",
-  "2019-10-04", "2020-10-10", "2021-10-08", "2022-10-21"
+  "2019-10-04", "2020-10-10", "2021-10-08", "2022-10-21",
+  "2023-10-14"
 )
 
 get_metra_feed <- function(feed_date) {
@@ -78,14 +80,26 @@ walk(metra_feed_dates_list, get_metra_feed)
 ##### Pace #####
 pace_feed_dates_list <- c(
   "2015-10-16", "2016-10-15", "2017-10-16", "2018-10-17",
-  "2019-10-22", "2020-09-23", "2021-03-15"
+  "2019-10-22", "2020-09-23", "2021-03-15", "2023-09-24"
 )
 
 get_pace_feed <- function(feed_date) {
-  feed_url <- paste0(
-    "https://transitfeeds.com/p/pace/171/",
-    str_remove_all(feed_date, "-"), "/download"
-  )
+  feed_url <- if (feed_date < "2023-09-24") {
+
+    paste0(
+      "https://transitfeeds.com/p/pace/171/",
+      str_remove_all(feed_date, "-"), "/download"
+    )
+
+  } else {
+
+    paste0(
+      "https://www.pacebus.com/sites/default/files/",
+      substr(feed_date, 1, 7),
+      "/GTFS.zip"
+    )
+
+  }
   s3_uri <- file.path(output_path, "pace", paste0(feed_date, "-gtfs.zip"))
 
   if (!aws.s3::object_exists(s3_uri)) {

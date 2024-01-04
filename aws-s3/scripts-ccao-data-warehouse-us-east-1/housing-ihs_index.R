@@ -29,4 +29,4 @@ read_parquet(raw_file) %>%
   # Upload as partitioned parquet files
   relocate(year, .after = last_col()) %>%
   group_by(year) %>%
-  write_partitions_to_s3(output_bucket, is_spatial = FALSE)
+  write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)

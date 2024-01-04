@@ -3,6 +3,7 @@ library(dplyr)
 library(purrr)
 library(sf)
 library(stringr)
+library(tidyr)
 source("utils.R")
 
 # This script retrieves school district and attendance boundaries published by
@@ -114,6 +115,12 @@ sources_list <- bind_rows(list(
     "boundary" = "cps_attendance_elementary",
     "year" = "2022-2023"
   ),
+  "attendance_ele_2024" = c(
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "api_url" = "8k6e-w34s?method=export&format=GeoJSON",
+    "boundary" = "cps_attendance_elementary",
+    "year" = "2023-2024"
+  ),
 
   # CPS ATTENDANCE - SECONDARY
   "attendance_sec_0607" = c(
@@ -218,6 +225,12 @@ sources_list <- bind_rows(list(
     "boundary" = "cps_attendance_secondary",
     "year" = "2022-2023"
   ),
+  "attendance_sec_2024" = c(
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "api_url" = "gba7-ip5a?method=export&format=GeoJSON",
+    "boundary" = "cps_attendance_secondary",
+    "year" = "2023-2024"
+  ),
 
   # LOCATION
   "locations_all_21" = c(
@@ -246,7 +259,7 @@ pwalk(sources_list, function(...) {
 
 # Read privileges for the this drive location are limited.
 # Contact Cook County GIS if permissions need to be changed.
-file_path <- "//gisemcv1.ccounty.com/ArchiveServices/"
+file_path <- "//10.122.19.14/ArchiveServices"
 
 crossing(
 

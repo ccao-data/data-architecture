@@ -42,32 +42,22 @@ pwalk(sources_list, function(...) {
 })
 
 ##### CMAP WALKABILITY #####
-raw_walk <- c(
-  "url" = "https://datahub.cmap.illinois.gov/dataset/aac0d840-77b4-4e88-8a26-7220ac6c588f/resource/8f8ff761-0c02-41e1-9877-432fd0f42b07/download/Walkability.zip",
-  "year" = "2017")
+# 2017 Data is no longer available online
+raw_walk <- data.frame(
+  "url" = "https://services5.arcgis.com/LcMXE3TFhi1BSaCY/arcgis/rest/services/Walkability/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson",
+  "year" = "2018")
 
 get_walkability <- function(url, year) {
 
   s3_uri <- file.path(output_bucket, "walkability", paste0(year, ".geojson"))
 
   if (!aws.s3::object_exists(s3_uri)) {
-    tmp_file <- tempfile(fileext = ".zip")
+
+    tmp_file <- tempfile(fileext = ".geojson")
     tmp_dir <- file.path(tempdir(), "walkability")
 
     # Grab file from CTA, recompress without .htm file
-    download.file(url, destfile = tmp_file, mode = "wb")
-    unzip(tmp_file, exdir = tmp_dir)
-    tmp_file <- file.path(tmp_dir, paste0(year, ".geojson"))
-    if (file.exists(tmp_file)) file.remove(tmp_file)
-    st_read(
-      grep("xml",
-           grep("shp",
-                list.files(tmp_dir, recursive = TRUE, full.names = TRUE),
-                value = TRUE),
-           invert = TRUE,
-           value = TRUE)
-    ) %>%
-      st_write(tmp_file)
+    st_read(url) %>% st_write(tmp_file)
     save_local_to_s3(s3_uri, tmp_file, overwrite = TRUE)
     unlink(gsub("/walkability", "", tmp_dir))
   }
