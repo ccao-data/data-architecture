@@ -71,12 +71,6 @@ Identify years with large numbers of unmatched sales between `sale.mydec` and
 
 {% enddocs %}
 
-# vw_iasworld_sales_unmatched_joins_pardat
-
-{% docs view_vw_iasworld_sales_unmatched_joins_pardat %}
-Identify sales in `iasworld.sales` with PINs that are not present in `iasworld.pardat`.
-{% enddocs %}
-
 # vw_iasworld_sales_day_of_month
 
 {% docs view_vw_iasworld_sales_day_of_month %}
