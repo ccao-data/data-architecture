@@ -50,6 +50,11 @@ aws.s3::save_object(
   file = tmp_file_nbhd_rate_2024
 )
 
+# List of regression classes
+class <- ccao::class_dict %>%
+  filter(regression_class) %>%
+  pull(class_code)
+
 # Load the raw workbooks, rename and clean up columns
 land_nbhd_rate_2022 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2022) %>%
   set_names(snakecase::to_snake_case(names(.))) %>%
@@ -67,9 +72,9 @@ land_nbhd_rate_2022 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2022) %>%
   mutate(
     across(c(township_code:town_nbhd, year), as.character),
     town_nbhd = str_remove_all(town_nbhd, "-"),
-    land_rate_per_sqft = parse_number(land_rate_per_sqft),
-    class = NA
-  )
+    land_rate_per_sqft = parse_number(land_rate_per_sqft)
+  ) %>%
+  expand_grid(class)
 
 land_nbhd_rate_2023 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2023) %>%
   set_names(snakecase::to_snake_case(names(.))) %>%
@@ -88,10 +93,8 @@ land_nbhd_rate_2023 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2023) %>%
     c(`2020`, `2023`),
     names_to = "year", values_to = "land_rate_per_sqft"
   ) %>%
-  mutate(
-    across(c(township_code:town_nbhd, year), as.character),
-    class = NA
-  )
+  mutate(across(c(township_code:town_nbhd, year), as.character)) %>%
+  expand_grid(class)
 
 land_nbhd_rate_2024 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2024) %>%
   set_names(snakecase::to_snake_case(names(.))) %>%
@@ -116,7 +119,14 @@ land_nbhd_rate_2024 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2024) %>%
     c(`2021`, `2024`),
     names_to = "year", values_to = "land_rate_per_sqft"
   ) %>%
-  mutate(across(c(township_code:town_nbhd, year), as.character))
+  mutate(across(c(township_code:town_nbhd, year), as.character)) %>%
+  expand_grid(class) %>%
+  # 2024 contains bifurcated neighborhood land rates across class
+  filter(
+    !(classes == "all other regression classes" & class %in% c("210", "295")),
+    !(classes == "2-10s/2-95s" & !(class %in% c("210", "295")))
+  ) %>%
+  select(-classes)
 
 # Write the rates to S3, partitioned by year
 bind_rows(
@@ -124,6 +134,7 @@ bind_rows(
   land_nbhd_rate_2023,
   land_nbhd_rate_2024
 ) %>%
+  relocate(land_rate_per_sqft, .after = last_col()) %>%
   group_by(year) %>%
   arrow::write_dataset(
     path = remote_file_warehouse_nbhd_rate,
