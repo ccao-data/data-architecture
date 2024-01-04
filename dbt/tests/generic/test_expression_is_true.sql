@@ -6,7 +6,7 @@
 -- array is provided, defaults to selecting the column represented by
 -- `column_name`; if `column_name` is also missing, falls back to selecting 1
 -- for failing rows.
-{% test expression_is_true(model, expression, column_name, select_columns=[]) %}
+{% test expression_is_true(model, column_name, expression, select_columns=[]) %}
     {%- set select_columns_csv = select_columns | join(", ") -%}
     {%- if column_name -%}
         {%- set columns_csv = column_name -%}
@@ -14,7 +14,7 @@
             {%- set columns_csv = columns_csv ~ ", " ~ select_columns_csv -%}
         {%- endif -%}
     {%- elif select_columns_csv -%} {%- set columns_csv = select_columns_csv -%}
-    {%- else -%} {%- set columns_csv = "1" -%}
+    {%- else -%} {%- set columns_csv = "1 AS fail" -%}
     {%- endif -%}
 
     select {{ columns_csv }}

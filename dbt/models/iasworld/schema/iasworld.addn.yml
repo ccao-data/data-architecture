@@ -14,15 +14,18 @@ sources:
           - name: area
             description: '{{ doc("column_area") }}'
             tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_addn_area_between_0_and_1.5M
+              - accepted_range:
+                  name: iasworld_addn_area_between_0_and_1.5m
                   min_value: 0
                   max_value: 1500000
+                  select_columns: &select-columns ["taxyr", "parid", "card", "who", "wen"]
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: area should be between 0 and 1.5M
           - name: area_sqm
             description: Area of this line in meters
           - name: areaid
@@ -50,7 +53,7 @@ sources:
                   name: iasworld_addn_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
                   field: class_code
-                  select_columns: ["taxyr", "parid", "card", "who", "wen"]
+                  select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}

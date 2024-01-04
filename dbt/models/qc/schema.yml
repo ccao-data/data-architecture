@@ -155,7 +155,6 @@ models:
                 - township_code
                 - who
                 - wen
-                - class
                 - luc
               config: *time-filter
               meta:

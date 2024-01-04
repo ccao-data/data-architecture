@@ -107,7 +107,7 @@ sources:
                   name: iasworld_legdat_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
-                  select_columns: *select-columns
+                  select_columns: ["taxyr", "who", "wen"]
                   config: *unique-conditions
                   meta:
                     category: parid

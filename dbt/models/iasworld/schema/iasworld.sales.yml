@@ -121,7 +121,7 @@ sources:
             description: '{{ doc("shared_column_sale_price") }}'
             tests:
               - dbt_utils.accepted_range:
-                  name: iasworld_sales_price_between_0_and_1B
+                  name: iasworld_sales_price_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
                   config: *unique-conditions

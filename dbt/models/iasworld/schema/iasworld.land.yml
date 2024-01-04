@@ -183,7 +183,7 @@ sources:
                   name: iasworld_land_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
-                  select_columns: *select-columns
+                  select_columns: ["taxyr", "card", "who", "wen"]
                   config: *unique-conditions
                   meta:
                     category: parid

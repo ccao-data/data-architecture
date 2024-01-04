@@ -6,9 +6,7 @@
 
     with
         child as (
-            select
-                {{ column_name }} as from_field
-                {%- if columns_csv %}, {{ columns_csv }}{% endif %}
+            select {{ column_name }} as from_field, *
             from {{ model }}
             where {{ column_name }} is not null
         ),
