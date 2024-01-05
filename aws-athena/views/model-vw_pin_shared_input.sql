@@ -56,7 +56,7 @@ acs5 AS (
 ),
 
 housing_index AS (
-    SELECT
+    SELECT DISTINCT
         puma.pin10,
         ihs.year,
         AVG(CAST(ihs.ihs_index AS DOUBLE)) AS ihs_avg_year_index
