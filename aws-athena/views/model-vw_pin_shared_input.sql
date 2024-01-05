@@ -63,7 +63,7 @@ housing_index AS (
     FROM {{ source('other', 'ihs_index') }} AS ihs
     LEFT JOIN {{ ref('location.pin10_2010_puma') }} AS puma
         ON ihs.geoid = puma.geoid_2010
-    GROUP BY puma.pin10, puma.geoid, ihs.year
+    GROUP BY puma.pin10, ihs.geoid, ihs.year
 ),
 
 tax_bill_amount AS (
