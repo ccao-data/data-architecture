@@ -23,7 +23,7 @@ pumas AS (
 
 SELECT DISTINCT
     dp.pin10,
-    pumas.geoid AS census_2010_puma_geoid
+    pumas.geoid AS geoid_2010
 FROM distinct_pins AS dp
 LEFT JOIN pumas
     ON ST_WITHIN(

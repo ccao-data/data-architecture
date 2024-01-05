@@ -57,11 +57,13 @@ acs5 AS (
 
 housing_index AS (
     SELECT
-        geoid,
+        pin10,
         year,
         AVG(CAST(ihs_index AS DOUBLE)) AS ihs_avg_year_index
     FROM {{ source('other', 'ihs_index') }}
-    GROUP BY geoid, year
+    LEFT JOIN {{ source('location', 'pin10_2010_puma')}} AS puma
+        ON ihs_index.geoid = puma.geoid_2010
+    GROUP BY pin10, geoid, year
 ),
 
 tax_bill_amount AS (
@@ -278,8 +280,8 @@ LEFT JOIN acs5
     ON vwlf.census_acs5_tract_geoid = acs5.geoid
     AND vwlf.year = acs5.year
 LEFT JOIN housing_index
-    ON housing_index.geoid = vwlf.census_puma_geoid
-    AND housing_index.year = vwlf.year
+    ON uni.pin10 = housing_index.pin10
+    AND uni.year = housing_index.year
 LEFT JOIN tax_bill_amount AS tbill
     ON uni.pin = tbill.pin
     AND uni.year = tbill.year
