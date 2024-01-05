@@ -77,7 +77,7 @@ Miscellaneous geographies, intersected with parcel centroids.
 2010 Census Public Use Microdata Areas joined to all unique parcel centroids.
 Used to join DePaul IHS Housing Index data to parcels.
 
-**Primary Key**: `pin10`
+**Primary Key**: `pin10`, `geoid_2010`
 {% enddocs %}
 
 # political
