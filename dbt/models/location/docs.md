@@ -19,7 +19,7 @@ parcel centroids.
 
 {% docs table_census_2010 %}
 Decennial Census geographies (tracts, block groups, etc.) intersected with
-parcel centroids. 2010 geographis only.
+parcel centroids. 2010 Census geographies only.
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
