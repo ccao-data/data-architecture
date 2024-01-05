@@ -253,10 +253,10 @@ sources:
           - row_values_match_after_join:
               name: iasworld_comdat_class_matches_pardat_class
               column: class
-              column_name: comdat_classes
+              column_name: comdat_class
               external_model: source('iasworld', 'pardat')
               external_column: class
-              external_column_name: pardat_classes
+              external_column_name: pardat_class
               join_columns:
                 - parid
                 - taxyr

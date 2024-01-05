@@ -157,10 +157,10 @@ sources:
           - row_values_match_after_join:
               name: iasworld_asmt_all_class_matches_pardat_class
               column: substr(model.class, 1, 3)
-              column_name: asmt_all_classes
+              column_name: asmt_all_class
               external_model: source('iasworld', 'pardat')
               external_column: substr(external_model.class, 1, 3)
-              external_column_name: pardat_classes
+              external_column_name: pardat_class
               join_columns:
                 - parid
                 - taxyr
