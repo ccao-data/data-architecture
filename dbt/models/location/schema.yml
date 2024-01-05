@@ -5,6 +5,9 @@ models:
   - name: location.census
     description: '{{ doc("table_census") }}'
 
+  - name: location.census_2010
+    description: '{{ doc("table_census_2010") }}'
+
   - name: location.census_acs5
     description: '{{ doc("table_census_acs5") }}'
 
@@ -22,9 +25,6 @@ models:
 
   - name: location.other
     description: '{{ doc("table_other") }}'
-
-  - name: location.pin10_2010_puma
-    description: '{{ doc("table_pin10_2010_puma") }}'
 
   - name: location.political
     description: '{{ doc("table_political") }}'

@@ -15,6 +15,15 @@ parcel centroids.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
+# census_2010
+
+{% docs table_census_2010 %}
+Decennial Census geographies (tracts, block groups, etc.) intersected with
+parcel centroids. 2010 geographis only.
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
 # census_acs5
 
 {% docs table_census_acs5 %}
@@ -69,15 +78,6 @@ Environmental factors such as flood risk, intersected with parcel centroids.
 Miscellaneous geographies, intersected with parcel centroids.
 
 **Primary Key**: `pin10`, `year`
-{% enddocs %}
-
-# pin10_2010_puma
-
-{% docs table_pin10_2010_puma %}
-2010 Census Public Use Microdata Areas joined to all unique parcel centroids.
-Used to join DePaul IHS Housing Index data to parcels.
-
-**Primary Key**: `pin10`, `geoid_2010`
 {% enddocs %}
 
 # political
