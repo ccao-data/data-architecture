@@ -23,6 +23,9 @@ models:
   - name: location.other
     description: '{{ doc("table_other") }}'
 
+  - name: location.pin10_2010_puma
+    description: '{{ doc("table_pin10_2010_puma") }}'
+
   - name: location.political
     description: '{{ doc("table_political") }}'
 

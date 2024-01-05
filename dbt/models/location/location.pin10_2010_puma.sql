@@ -1,0 +1,1 @@
+../../../aws-athena/ctas/location-pin10_2010_puma.sql
