@@ -190,10 +190,12 @@ def main() -> None:
     if not failed_tests_by_category:
         raise ValueError(f"{run_results_filepath} contains no failed rows")
 
+    print("Generating the output workbook")
     workbook = openpyxl.Workbook()
     for sheet_name, failed_test_group in failed_tests_by_category.items():
         add_sheet_to_workbook(workbook, sheet_name, failed_test_group)
     workbook.save(output_filepath)
+    print(f"Output workbook saved to {output_filepath}")
 
 
 def get_failed_tests_by_category(
@@ -240,7 +242,33 @@ def get_failed_tests_by_category(
                 )
 
             print(f"Querying failed rows from {test_results_relation_name}")
-            cursor.execute(f"select * from {test_results_relation_name}")
+            # Athena SHOW COLUMNS doesn't allow double quoted tablenames
+            relation_name_unquoted = test_results_relation_name.replace(
+                '"', "`"
+            )
+            cursor.execute(f"show columns in {relation_name_unquoted}")
+            # SHOW COLUMNS often returns field names with trailing whitespace
+            fieldnames = [row["field"].strip() for row in cursor]
+
+            test_results_query = f"select * from {test_results_relation_name}"
+            if (
+                PARID_FIELD in fieldnames
+                and TAXYR_FIELD in fieldnames
+                and TOWNSHIP_FIELD not in fieldnames
+            ):
+                # If parid and taxyr are present, try to retrieve the township
+                # code for every row. It's most efficient to do this via a
+                # join in the query rather than in a Python lookup since
+                # legdat has 43m rows
+                test_results_query = f"""
+                    select test_results.*, leg.user1 as {TOWNSHIP_FIELD}
+                    from {test_results_relation_name} as test_results
+                    left join iasworld.legdat as leg
+                        on leg.{PARID_FIELD} = test_results.{PARID_FIELD}
+                        and leg.{TAXYR_FIELD} = test_results.{TAXYR_FIELD}
+                """
+
+            cursor.execute(test_results_query)
             query_results = cursor.fetchall()
             if len(query_results) == 0:
                 raise ValueError(
