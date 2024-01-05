@@ -330,5 +330,5 @@ sources:
               meta:
                 category: column_length
                 description: >
-                  cpaddr3 should be either 5 characters long  or 10 characters
+                  cpaddr3 should be either 5 characters long or 10 characters
                   with a hyphen
