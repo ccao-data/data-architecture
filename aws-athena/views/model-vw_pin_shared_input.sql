@@ -61,7 +61,7 @@ housing_index AS (
         year,
         AVG(CAST(ihs_index AS DOUBLE)) AS ihs_avg_year_index
     FROM {{ source('other', 'ihs_index') }}
-    LEFT JOIN {{ source('location', 'pin10_2010_puma')}} AS puma
+    LEFT JOIN {{ source('z_ci_282-accommodate-ihs-housing-index-continuing-use-of-2010-pumas_location', 'pin10_2010_puma')}} AS puma -- noqa
         ON ihs_index.geoid = puma.geoid_2010
     GROUP BY pin10, geoid, year
 ),
