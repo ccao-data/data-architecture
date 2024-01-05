@@ -57,13 +57,13 @@ acs5 AS (
 
 housing_index AS (
     SELECT
-        pin10,
-        year,
-        AVG(CAST(ihs_index AS DOUBLE)) AS ihs_avg_year_index
-    FROM {{ source('other', 'ihs_index') }}
-    LEFT JOIN {{ source('z_ci_282-accommodate-ihs-housing-index-continuing-use-of-2010-pumas_location', 'pin10_2010_puma') }} AS puma -- noqa
-        ON ihs_index.geoid = puma.geoid_2010
-    GROUP BY pin10, geoid, year
+        puma.pin10,
+        ihs.year,
+        AVG(CAST(ihs.ihs_index AS DOUBLE)) AS ihs_avg_year_index
+    FROM {{ source('other', 'ihs_index') }} AS ihs
+    LEFT JOIN {{ source('location', 'pin10_2010_puma') }} AS puma
+        ON ihs.geoid = puma.geoid_2010
+    GROUP BY puma.pin10, puma.geoid, ihs.year
 ),
 
 tax_bill_amount AS (
