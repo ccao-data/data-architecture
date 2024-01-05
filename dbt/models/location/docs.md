@@ -15,6 +15,15 @@ parcel centroids.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
+# census_2010
+
+{% docs table_census_2010 %}
+Decennial Census geographies (tracts, block groups, etc.) intersected with
+parcel centroids. 2010 Census geographies only.
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
 # census_acs5
 
 {% docs table_census_acs5 %}
