@@ -15,22 +15,22 @@ WITH sales_cte AS (
 mydec_cte AS (
     SELECT
         SUBSTR(mydec.year_of_sale, 1, 4) AS year,
-        COUNT(DISTINCT mydec.document_number) AS my_dec_sales
+        COUNT(DISTINCT mydec.document_number) AS mydec_sales
     FROM {{ source('sale', 'mydec') }} AS mydec
     WHERE SUBSTR(mydec.year_of_sale, 1, 4) >= '2014'
     GROUP BY SUBSTR(mydec.year_of_sale, 1, 4)
 )
 
 SELECT
-    iasworld.year AS comparison_year,
+    iasworld.year AS taxyr,
     iasworld.iasworld_sales,
-    mydec.my_dec_sales,
+    mydec.mydec_sales,
     CASE
         WHEN
-            iasworld.iasworld_sales > 1.05 * mydec.my_dec_sales
+            iasworld.iasworld_sales > 1.05 * mydec.mydec_sales
             THEN 'IasWorld 5% Higher'
         WHEN
-            mydec.my_dec_sales > 1.05 * iasworld.iasworld_sales
+            mydec.mydec_sales > 1.05 * iasworld.iasworld_sales
             THEN 'Mydec 5% Higher'
         ELSE 'No significant difference'
     END AS comparison
