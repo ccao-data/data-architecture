@@ -366,7 +366,7 @@ def add_sheet_to_workbook(
     font = openpyxl.styles.Font(bold=True)
     for cell in sheet[1]:
         cell.font = font
-    sheet.frozen_panes = "A2"  # Freeze the header row
+    sheet.freeze_panes = "A2"  # Freeze the header row
 
     for row in failed_test_group.rows:
         # Convert row values to string so that Excel doesn't apply
