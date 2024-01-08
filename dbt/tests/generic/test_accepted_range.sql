@@ -6,10 +6,10 @@
     min_value=none,
     max_value=none,
     inclusive=true,
-    select_columns=[]
+    additional_select_columns=[]
 ) %}
 
-    {%- set columns_csv = select_columns | join(", ") %}
+    {%- set columns_csv = additional_select_columns | join(", ") %}
 
     with
         meet_condition as (

@@ -24,7 +24,11 @@ sources:
               - accepted_values:
                   name: iasworld_legdat_adrdir_in_accepted_values
                   values: ['N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW']
-                  select_columns: &select-columns ["taxyr", "parid", "who", "wen"]
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
                   config: &unique-conditions
                     where:
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -107,7 +111,7 @@ sources:
                   name: iasworld_legdat_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
-                  select_columns: ["taxyr", "who", "wen"]
+                  additional_select_columns: ["taxyr", "who", "wen"]
                   config: *unique-conditions
                   meta:
                     category: parid
@@ -206,7 +210,7 @@ sources:
             tests:
               - not_null:
                   name: iasworld_legdat_user1_not_null
-                  select_columns: *select-columns
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: user1 should not be null
@@ -235,7 +239,7 @@ sources:
               - not_accepted_values:
                   name: iasworld_legdat_zip1_has_no_00000_values
                   values: ['00000']
-                  select_columns: *select-columns
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: zip1 should not be 00000
@@ -245,7 +249,7 @@ sources:
               - not_accepted_values:
                   name: iasworld_legdat_zip2_has_no_0000_values
                   values: ['0000']
-                  select_columns: *select-columns
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: zip2 should not be 0000

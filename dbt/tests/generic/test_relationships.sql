@@ -1,8 +1,8 @@
 -- Override the built-in `relationships` generic so that it can return extra
 -- columns for debugging
-{% test relationships(model, column_name, to, field, select_columns=[]) %}
+{% test relationships(model, column_name, to, field, additional_select_columns=[]) %}
 
-    {%- set columns_csv = select_columns | join(", ") %}
+    {%- set columns_csv = additional_select_columns | join(", ") %}
 
     with
         child as (

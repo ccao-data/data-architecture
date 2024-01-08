@@ -25,7 +25,12 @@ sources:
               - accepted_range:
                   name: iasworld_oby_area_gte_1
                   min_value: 1
-                  select_columns: &select-columns ["taxyr", "parid", "card", "who", "wen"]
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -46,7 +51,7 @@ sources:
                   name: iasworld_oby_card_between_1_and_100
                   min_value: 1
                   max_value: 100
-                  select_columns: ["taxyr", "parid", "who", "wen"]
+                  additional_select_columns: ["taxyr", "parid", "who", "wen"]
                   config: *unique-conditions
                   meta:
                     description: card should be between 1 and 100
@@ -272,7 +277,7 @@ sources:
             tests:
               - not_null:
                   name: iasworld_oby_yrblt_not_null
-                  select_columns: *select-columns
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: yrblt should not be null
@@ -280,7 +285,7 @@ sources:
                   name: iasworld_oby_yrblt_between_1850_and_now
                   min_value: 1850
                   max_value: cast(year(current_date) as decimal)
-                  select_columns: *select-columns
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: yrblt should be between 1850 and now

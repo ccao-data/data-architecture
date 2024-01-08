@@ -17,7 +17,12 @@ sources:
               - expression_is_true:
                   name: iasworld_land_acres_is_sf_transformed
                   expression: '* 43560 BETWEEN sf - 5 AND sf + 5'
-                  select_columns: &select-columns ["taxyr", "parid", "card", "who", "wen"]
+                  select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -183,7 +188,7 @@ sources:
                   name: iasworld_land_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
-                  select_columns: ["taxyr", "card", "who", "wen"]
+                  additional_select_columns: ["taxyr", "card", "who", "wen"]
                   config: *unique-conditions
                   meta:
                     category: parid
@@ -194,7 +199,7 @@ sources:
               - accepted_range:
                   name: iasworld_land_price_gte_1
                   min_value: 1
-                  select_columns: *select-columns
+                  additional_select_columns: *select-columns
                   config:
                     where:
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -228,7 +233,7 @@ sources:
               - accepted_range:
                   name: iasworld_land_sf_gte_1
                   min_value: 1
-                  select_columns: *select-columns
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: sf should be >= 1

@@ -23,7 +23,11 @@ sources:
                   name: iasworld_aprval_aprbldg_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
-                  select_columns: &select-columns ["taxyr", "parid", "who", "wen"]
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -40,7 +44,7 @@ sources:
                   name: iasworld_aprval_aprland_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
-                  select_columns: *select-columns
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: aprland must be between 0 and 1 billion
@@ -151,7 +155,7 @@ sources:
                   name: iasworld_aprval_landval_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
-                  select_columns: *select-columns
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: landval must be between 0 and 1 billion

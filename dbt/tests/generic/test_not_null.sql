@@ -1,8 +1,11 @@
 -- Override built-in not_null generic so that it can return extra columns
 -- for debugging
-{% test not_null(model, column_name, select_columns=[]) %}
+{% test not_null(model, column_name, additional_select_columns=[]) %}
 
-    {%- set columns_csv = select_columns | join(", ") if select_columns else "*" %}
+    {%- set columns_csv = "*" %}
+    {%- if additional_select_columns %}
+        {%- set columns_csv = additional_select_columns | join(", ") %}
+    {%- endif %}
 
     select {{ columns_csv }}
     from {{ model }}

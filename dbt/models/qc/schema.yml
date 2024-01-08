@@ -10,7 +10,12 @@ models:
           - not_accepted_values:
               name: qc_vw_class_mismatch_no_289s
               values: ["289"]
-              select_columns: &select-columns ["taxyr", "parid", "township_code", "who", "wen"]
+              additional_select_columns: &select-columns
+                - taxyr
+                - parid
+                - township_code
+                - who
+                - wen
               config: &time-filter
                 where: |
                   CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -23,7 +28,7 @@ models:
           - columns_match:
               name: qc_vw_class_mismatch_oby_class_eq_pardat_class
               columns: [pardat_major_class]
-              select_columns: *select-columns
+              additional_select_columns: *select-columns
               config: *time-filter
               meta:
                 table_name: oby
@@ -41,7 +46,7 @@ models:
           - columns_match:
               name: qc_vw_class_mismatch_comdat_class_eq_pardat_class
               columns: [pardat_class]
-              select_columns: *select-columns
+              additional_select_columns: *select-columns
               config: *time-filter
               meta:
                 table_name: comdat
@@ -61,7 +66,7 @@ models:
               name: qc_vw_incorrect_asmt_value_cur_year_lav_non_ex_rr_gt_0
               min_value: 0
               inclusive: false
-              select_columns:
+              additional_select_columns:
                 - taxyr
                 - parid
                 - township_code
@@ -84,7 +89,7 @@ models:
               name: qc_vw_incorrect_asmt_value_cur_year_bav_vact_class_has_val
               values: [0]
               quote: false
-              select_columns: &select-columns-cur-year-bav
+              additional_select_columns: &select-columns-cur-year-bav
                 - taxyr
                 - parid
                 - township_code
@@ -111,7 +116,7 @@ models:
               name: qc_vw_incorrect_asmt_value_cur_year_bav_impr_class_no_val
               values: [0]
               quote: false
-              select_columns: *select-columns-cur-year-bav
+              additional_select_columns: *select-columns-cur-year-bav
               config:
                 where: |
                   CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -130,7 +135,7 @@ models:
           # Equivalent to 0 Value test from FP Checklist
           - accepted_range:
               name: qc_vw_incorrect_asmt_value_cur_year_fav_non_ex_rr_gt_0
-              select_columns:
+              additional_select_columns:
                 - taxyr
                 - parid
                 - township_code
@@ -159,7 +164,7 @@ models:
               config: *time-filter
               meta:
                 table_name: asmt
-                category: incorrect_values
+                category: relationships
                 description: class should be the same as luc
     tests:
       - expression_is_true:
@@ -177,6 +182,7 @@ models:
           config: *time-filter
           meta:
             table_name: asmt
+            category: relationships
             description: FMV should not increase more than $500k YoY
       - expression_is_true:
           name: qc_vw_incorrect_asmt_value_no_yoy_dec_gt_1m
@@ -185,7 +191,8 @@ models:
           config: *time-filter
           meta:
             table_name: asmt
-            description: FMV should not decreate more than $1m YoY
+            category: relationships
+            description: FMV should not decrease more than $1m YoY
 
   - name: qc.vw_incorrect_val_method
     description: '{{ doc("view_vw_incorrect_val_method") }}'
@@ -199,7 +206,7 @@ models:
           - accepted_values:
               name: qc_vw_incorrect_val_method_revcode_eq_1
               values: ['1']
-              select_columns:
+              additional_select_columns:
                 - taxyr
                 - parid
                 - class
@@ -226,7 +233,7 @@ models:
           - accepted_range: &test-non-negative
               name: qc_vw_neg_asmt_value_val01_gte_0
               min_value: 0
-              select_columns: &select-columns-neg-asmt-value
+              additional_select_columns: &select-columns-neg-asmt-value
                 - taxyr
                 - parid
                 - township_code
@@ -557,7 +564,7 @@ models:
         tests:
           - not_null: &test-val-non-null
               name: qc_vw_neg_asmt_value_valapr1_not_null
-              select_columns: *select-columns-neg-asmt-value
+              additional_select_columns: *select-columns-neg-asmt-value
               config:
                 where: taxyr >= '2023'
               meta:
@@ -639,7 +646,7 @@ models:
             - price_less_than_10k_count
           meta:
             table_name: sales
-            category: sales
+            category: sales_issues
             description: >
               count of sales <= $10k should not change more than 5% YoY
       - expression_is_true:
@@ -653,7 +660,7 @@ models:
             - price_greater_than_1m_count
           meta:
             table_name: sales
-            category: sales
+            category: sales_issues
             description: >
               count of sales >= $1m should not change more than 5% YoY
 
@@ -668,10 +675,10 @@ models:
           - accepted_range: &sales-null-values
               name: qc_vw_iasworld_sales_null_values_buyer_null_proportion
               max_value: 0.1
-              select_columns: ["taxyr"]
+              additional_select_columns: ["taxyr"]
               meta:
                 table_name: sales
-                category: sales
+                category: sales_issues
                 description: >
                   proportion of sales where buyer is null should not exceed 10%
       - name: deed_type
@@ -680,7 +687,7 @@ models:
               name: qc_vw_iasworld_sales_null_values_deed_type_null_proportion
               meta:
                 table_name: sales
-                category: sales
+                category: sales_issues
                 description: >
                   proportion of sales where deed_type is null should not exceed 10%
               <<: *sales-null-values
@@ -690,7 +697,7 @@ models:
               name: qc_vw_iasworld_sales_null_values_price_null_proportion
               meta:
                 table_name: sales
-                category: sales
+                category: sales_issues
                 description: >
                   proportion of sales where price is null should not exceed 10%
               <<: *sales-null-values
@@ -700,7 +707,7 @@ models:
               name: qc_vw_iasworld_sales_null_values_seller_null_proportion
               meta:
                 table_name: sales
-                category: sales
+                category: sales_issues
                 description: >
                   proportion of sales where seller is null should not exceed 10%
               <<: *sales-null-values
@@ -748,10 +755,10 @@ models:
           - accepted_values:
               name: qc_vw_iasworld_sales_rowcount_matches_sale_mydec_check
               values: ['No significant difference']
-              select_columns: ["taxyr", "iasworld_sales", "mydec_sales"]
+              additional_select_columns: ["taxyr", "iasworld_sales", "mydec_sales"]
               meta:
                 table_name: sales
-                category: sales
+                category: sales_issues
                 description: >
                   the number of sales in iasworld for a given year should be within 5% of mydec
 
@@ -766,20 +773,20 @@ models:
           - accepted_range:
               name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_mydec_unmatched_lte_1000
               max_value: 1000
-              select_columns: ["taxyr"]
+              additional_select_columns: ["taxyr"]
               meta:
                 table_name: sales
-                category: sales
+                category: sales_issues
                 description: mydec should not have >1000 sales that are not in iasworld
       - name: iasworld_unmatched
         tests:
           - accepted_range:
               name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_iasworld_unmatched_lte_1000
               max_value: 1000
-              select_columns: ["taxyr"]
+              additional_select_columns: ["taxyr"]
               meta:
                 table_name: sales
-                category: sales
+                category: sales_issues
                 description: iasworld should not have >1000 sales that are not in mydec
 
   - name: qc.vw_iasworld_sales_day_of_month
@@ -798,7 +805,7 @@ models:
             - total_sales
           meta:
             table_name: sales
-            category: sales
+            category: sales_issues
             description: >
               no single day of the month should have > 50% of total sales
 
@@ -813,10 +820,10 @@ models:
           - accepted_range:
               name: qc_vw_iasworld_sales_high_value_by_class_gt_20000000
               max_value: 20000000
-              select_columns: ["parid", "taxyr", "class", "who" , "wen"]
+              additional_select_columns: ["parid", "taxyr", "class", "who" , "wen"]
               meta:
                 table_name: sales
-                category: sales
+                category: sales_issues
                 description: price should be <= $20m
 
   - name: qc.vw_iasworld_sales_price_diff_sale_mydec

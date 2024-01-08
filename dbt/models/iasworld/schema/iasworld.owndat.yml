@@ -64,7 +64,11 @@ sources:
               - accepted_values:
                   name: iasworld_owndat_cur_in_accepted_values
                   values: ['Y', 'D']
-                  select_columns: &select-columns ["taxyr", "parid", "who", "wen"]
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
                   meta:
                     description: cur should be 'Y' or 'D'
           - name: deactivat
@@ -215,7 +219,7 @@ sources:
               - not_accepted_values:
                   name: iasworld_owndat_zip1_has_no_00000_values
                   values: ['00000']
-                  select_columns: *select-columns
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: zip1 should not be 00000
@@ -225,7 +229,7 @@ sources:
               - not_accepted_values:
                   name: iasworld_owndat_zip2_has_no_0000_values
                   values: ['0000']
-                  select_columns: *select-columns
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: zip2 should not be 0000

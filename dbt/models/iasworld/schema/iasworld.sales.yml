@@ -34,7 +34,7 @@ sources:
               - accepted_values:
                   name: iasworld_sales_cur_in_accepted_values
                   values: ['Y', 'D']
-                  select_columns: &select-columns
+                  additional_select_columns: &select-columns
                     - substr(saledt, 1, 4) as taxyr
                     - parid
                     - who
@@ -61,7 +61,7 @@ sources:
               - accepted_values:
                   name: iasworld_sales_instrtyp_in_accepted_values
                   values: ['01', '02', '03', '04', '05', '06', 'B']
-                  select_columns: *select-columns
+                  additional_select_columns: *select-columns
                   config: &unique-conditions
                     where: |
                       substr(saledt, 1, 4) >= '2011'
@@ -112,7 +112,10 @@ sources:
                   name: iasworld_sales_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
-                  select_columns: ["substr(saledt, 1, 4) as taxyr", "who", "wen"]
+                  additional_select_columns:
+                    - "substr(saledt, 1, 4) as taxyr"
+                    - who
+                    - wen
                   config: *unique-conditions
                   meta:
                     category: parid

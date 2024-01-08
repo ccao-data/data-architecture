@@ -233,7 +233,12 @@ sources:
             tests:
               - not_null:
                   name: iasworld_comdat_yrblt_not_null
-                  select_columns: ["taxyr", "parid", "card", "who", "wen"]
+                  additional_select_columns:
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
                   config: *unique-conditions
                   meta:
                     description: yrblt should not be null
