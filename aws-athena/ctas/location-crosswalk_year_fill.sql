@@ -46,7 +46,13 @@ WITH unfilled AS (
             AS env_flood_fs_data_year,
         MAX(environment.env_ohare_noise_contour_data_year)
             AS env_ohare_noise_contour_data_year,
-        MAX(environment.env_airport_noise_data_year)
+        MAX(
+            CASE
+                WHEN
+                    environment.env_airport_noise_data_year != 'omp'
+                    THEN environment.env_airport_noise_data_year
+            END
+        )
             AS env_airport_noise_data_year,
         MAX(school.school_data_year)
             AS school_data_year,
