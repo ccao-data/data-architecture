@@ -72,6 +72,17 @@ CARD_FIELD = "card"
 TOWNSHIP_FIELD = "township_code"
 WHO_FIELD = "who"
 WEN_FIELD = "wen"
+# Overrides for default display names for dbt tests
+CUSTOM_TEST_NAMES = {
+    "macro.athena.test_accepted_range": "incorrect_values",
+    "macro.dbt_utils.test_accepted_range": "incorrect_values",
+    "macro.athena.test_accepted_values": "incorrect_values",
+    "macro.athena.test_not_accepted_values": "incorrect_values",
+    "macro.dbt_utils.test_not_accepted_values": "incorrect_values",
+    "macro.athena.test_unique_combination_of_columns": "duplicate_records",
+    "macro.dbt_utils.test_unique_combination_of_columns": "duplicate_records",
+    "macro.athena.test_not_null": "missing_values",
+}
 
 
 @dataclasses.dataclass
@@ -303,6 +314,8 @@ def get_category_from_node(node: typing.Dict) -> str:
         return meta_category
 
     for dependency_macro in node["depends_on"]["macros"]:
+        if custom_test_name := CUSTOM_TEST_NAMES.get(dependency_macro):
+            return custom_test_name
         # Custom generic tests are always formatted like
         # macro.dbt.test_<generic_name>
         if dependency_macro.startswith("macro.athena.test_"):

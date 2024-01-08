@@ -289,5 +289,5 @@ sources:
                   AND deactivat IS NULL
                   AND addr1 IS NOT NULL
               meta:
-                category: address
+                category: address_issues
                 description: addr1 should be a well formed address

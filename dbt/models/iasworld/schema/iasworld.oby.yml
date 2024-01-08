@@ -307,5 +307,5 @@ sources:
                 - taxyr
               config: *unique-conditions
               meta:
-                category: class_code
+                category: class_mismatch_or_issue
                 description: class should match pardat class

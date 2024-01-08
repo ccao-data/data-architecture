@@ -302,5 +302,5 @@ sources:
                   AND cur = 'Y'
                   AND deactivat IS NULL
               meta:
-                category: class_code
+                category: class_mismatch_or_issue
                 description: class should match pardat class

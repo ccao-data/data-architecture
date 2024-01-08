@@ -84,7 +84,7 @@ sources:
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
-                    category: class_code
+                    category: class_mismatch_or_issue
                     description: class_code should be valid
           - name: cur
             description: '{{ doc("column_cur") }}'

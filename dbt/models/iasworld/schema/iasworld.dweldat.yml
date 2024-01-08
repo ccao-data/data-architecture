@@ -131,7 +131,7 @@ sources:
               - relationships:
                   name: iasworld_dweldat_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
-                  field: class_code
+                  field: class_mismatch_or_issue
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -1122,7 +1122,7 @@ sources:
                 - taxyr
               config: *unique-conditions
               meta:
-                category: class_code
+                category: class_mismatch_or_issue
                 description: class should match pardat class
           - expression_is_true:
               name: iasworld_dweldat_card_proration_rate_between_0_and_100
@@ -1136,7 +1136,7 @@ sources:
                 - user24
               config: *unique-conditions
               meta:
-                category: accepted_range
+                category: incorrect_values
                 description: user24 (proration rate) should be between 0 and 100
           - expression_is_true:
               name: iasworld_dweldat_char_ncu_between_0_and_5
@@ -1150,4 +1150,5 @@ sources:
                 - user20
               config: *unique-conditions
               meta:
+                category: missing_values
                 description: user24 (proration rate) should not be null

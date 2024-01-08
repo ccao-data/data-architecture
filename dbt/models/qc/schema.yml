@@ -16,7 +16,7 @@ models:
                   CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
               meta:
                 table_name: oby
-                category: class_code
+                category: class_mismatch_or_issue
                 description: class should not be 289
       - name: major_class
         tests:
@@ -27,7 +27,7 @@ models:
               config: *time-filter
               meta:
                 table_name: oby
-                category: class_code
+                category: class_mismatch_or_issue
                 description: class should match pardat by major class
 
   - name: qc.vw_comdat_class_mismatch
@@ -45,7 +45,7 @@ models:
               config: *time-filter
               meta:
                 table_name: comdat
-                category: class_code
+                category: class_mismatch_or_issue
                 description: class should match pardat class
 
   - name: qc.vw_incorrect_asmt_value
@@ -159,6 +159,7 @@ models:
               config: *time-filter
               meta:
                 table_name: asmt
+                category: incorrect_values
                 description: class should be the same as luc
     tests:
       - expression_is_true:
