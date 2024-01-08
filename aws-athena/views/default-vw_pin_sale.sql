@@ -235,7 +235,7 @@ sales_val AS (
         sf.sv_outlier_type,
         sf.run_id AS sv_run_id,
         sf.version AS sv_version
-    FROM FROM ci_model_sales_val_test_township_partition_sale.flag AS sf
+    FROM ci_model_sales_val_test_township_partition_sale.flag AS sf
 )
 
 SELECT
