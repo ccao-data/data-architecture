@@ -40,13 +40,13 @@ WITH unfilled AS (
             AS econ_industrial_growth_zone_data_year,
         MAX(economy.econ_qualified_opportunity_zone_data_year)
             AS econ_qualified_opportunity_zone_data_year,
-        MAX(environment.env_flood_fema_data_year)
+        MAX(environment1.env_flood_fema_data_year)
             AS env_flood_fema_data_year,
-        MAX(environment.env_flood_fs_data_year)
+        MAX(environment1.env_flood_fs_data_year)
             AS env_flood_fs_data_year,
-        MAX(environment.env_ohare_noise_contour_data_year)
+        MAX(environment1.env_ohare_noise_contour_data_year)
             AS env_ohare_noise_contour_data_year,
-        MAX(environment.env_airport_noise_data_year)
+        MAX(environment2.env_airport_noise_data_year)
             AS env_airport_noise_data_year,
         MAX(school.school_data_year)
             AS school_data_year,
@@ -105,14 +105,19 @@ WITH unfilled AS (
             year,
             env_flood_fema_data_year,
             env_flood_fs_data_year,
-            env_ohare_noise_contour_data_year,
+            env_ohare_noise_contour_data_year
+        FROM {{ ref('location.environment') }}
+    ) AS environment1 ON pin.year = environment1.year
+    LEFT JOIN (
+        SELECT DISTINCT
+            year,
             CASE
                 WHEN
                     env_airport_noise_data_year != 'omp'
                     THEN env_airport_noise_data_year
             END AS env_airport_noise_data_year
         FROM {{ ref('location.environment') }}
-    ) AS environment ON pin.year = environment.year
+    ) AS environment2 ON pin.year = environment2.year
     LEFT JOIN (
         SELECT DISTINCT
             year,
