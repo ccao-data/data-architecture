@@ -46,9 +46,7 @@ WITH unfilled AS (
             AS env_flood_fs_data_year,
         MAX(environment.env_ohare_noise_contour_data_year)
             AS env_ohare_noise_contour_data_year,
-        MAX(CASE WHEN environment.env_airport_noise_data_year != 'omp'
-                THEN environment.env_airport_noise_data_year
-        END)
+        MAX(environment.env_airport_noise_data_year)
             AS env_airport_noise_data_year,
         MAX(school.school_data_year)
             AS school_data_year,
@@ -108,11 +106,7 @@ WITH unfilled AS (
             env_flood_fema_data_year,
             env_flood_fs_data_year,
             env_ohare_noise_contour_data_year,
-            CASE
-                WHEN
-                    env_airport_noise_data_year != 'omp'
-                    THEN env_airport_noise_data_year
-            END AS env_airport_noise_data_year
+            env_airport_noise_data_year
         FROM {{ ref('location.environment') }}
     ) AS environment ON pin.year = environment.year
     LEFT JOIN (
@@ -244,7 +238,7 @@ SELECT
         env_airport_noise_data_year,
         LAST_VALUE(env_airport_noise_data_year)
             IGNORE NULLS
-            OVER (ORDER BY unfilled.year)
+            OVER (ORDER BY unfilled.year DESC)
     ) AS env_airport_noise_data_year,
     COALESCE(
         school_data_year, LAST_VALUE(school_data_year)
