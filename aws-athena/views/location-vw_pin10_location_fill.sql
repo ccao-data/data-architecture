@@ -1,4 +1,7 @@
 -- View containing each of the PIN-level location (spatial joins)
+
+-- Airport noise is joined differently since it's filled during ingest and
+-- values for env_airport_noise_data_year won't match values for year
 WITH cyf_alt AS (
     SELECT
         year,
@@ -182,8 +185,6 @@ LEFT JOIN {{ ref('location.environment') }} AS env_flood_fs
 LEFT JOIN {{ ref('location.environment') }} AS env_ohare_noise_contour
     ON pin.pin10 = env_ohare_noise_contour.pin10
     AND cyf.env_ohare_noise_contour_data_year = env_ohare_noise_contour.year
--- Airport noise is joined differently since it's filled during ingest and
--- values for env_airport_noise_data_year won't match values for year
 LEFT JOIN {{ ref('location.environment') }} AS env_airport_noise
     ON pin.pin10 = env_airport_noise.pin10
     AND cyf_alt.env_airport_noise_data_year = env_airport_noise.year
