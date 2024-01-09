@@ -175,12 +175,12 @@ LEFT JOIN {{ ref('location.environment') }} AS env_ohare_noise_contour
 LEFT JOIN {{ ref('location.environment') }} AS env_airport_noise
     ON pin.pin10 = env_airport_noise.pin10
     AND ((
-        cyf.data_year = env_airport_noise.year
-        AND cyf.data_year != 'opm'
+        cyf.env_airport_noise_data_year = env_airport_noise.year
+        AND cyf.env_airport_noise_data_year != 'opm'
     )
     OR (
         cyf.year = env_airport_noise.year
-        AND cyf.data_year = 'opm'
+        AND cyf.env_airport_noise_data_year = 'opm'
     ))
 LEFT JOIN {{ ref('location.school') }} AS school
     ON pin.pin10 = school.pin10
