@@ -2,7 +2,7 @@
 
 -- Airport noise is joined differently since it's filled during ingest and
 -- values for env_airport_noise_data_year won't match values for year
-WITH cyf_alt AS (
+WITH cyf_airport_noise AS (
     SELECT
         year,
         CASE
@@ -126,8 +126,8 @@ SELECT
 FROM {{ source('spatial', 'parcel') }} AS pin
 INNER JOIN {{ ref('location.crosswalk_year_fill') }} AS cyf
     ON pin.year = cyf.year
-INNER JOIN cyf_alt
-    ON pin.year = cyf_alt.year
+INNER JOIN cyf_airport_noise
+    ON pin.year = cyf_airport_noise.year
 LEFT JOIN {{ ref('location.census') }} AS census
     ON pin.pin10 = census.pin10
     AND cyf.census_data_year = census.year
@@ -187,7 +187,7 @@ LEFT JOIN {{ ref('location.environment') }} AS env_ohare_noise_contour
     AND cyf.env_ohare_noise_contour_data_year = env_ohare_noise_contour.year
 LEFT JOIN {{ ref('location.environment') }} AS env_airport_noise
     ON pin.pin10 = env_airport_noise.pin10
-    AND cyf_alt.env_airport_noise_data_year = env_airport_noise.year
+    AND cyf_airport_noise.env_airport_noise_data_year = env_airport_noise.year
 LEFT JOIN {{ ref('location.school') }} AS school
     ON pin.pin10 = school.pin10
     AND cyf.school_data_year = school.year
