@@ -174,7 +174,14 @@ LEFT JOIN {{ ref('location.environment') }} AS env_ohare_noise_contour
 -- values for env_airport_noise_data_year won't match values for year
 LEFT JOIN {{ ref('location.environment') }} AS env_airport_noise
     ON pin.pin10 = env_airport_noise.pin10
-    AND cyf.year = env_airport_noise.year
+    AND ((
+        cyf.data_year = env_airport_noise.year
+        AND cyf.data_year != 'opm'
+    )
+    OR (
+        cyf.year = env_airport_noise.year
+        AND cyf.data_year = 'opm'
+    ))
 LEFT JOIN {{ ref('location.school') }} AS school
     ON pin.pin10 = school.pin10
     AND cyf.school_data_year = school.year
