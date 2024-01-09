@@ -21,6 +21,7 @@ sources:
                   name: iasworld_asmt_all_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
                   field: class_code
+                  additional_select_columns: ["taxyr", "parid", "who", "wen"]
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -29,6 +30,9 @@ sources:
                       AND rolltype != 'RR'
                       AND deactivat IS NULL
                       AND valclass IS NULL
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class code must be valid
           - name: cur
             description: '{{ doc("column_cur") }}'
             tests:
@@ -153,9 +157,14 @@ sources:
           - row_values_match_after_join:
               name: iasworld_asmt_all_class_matches_pardat_class
               column: substr(model.class, 1, 3)
+              column_name: asmt_all_class
               external_model: source('iasworld', 'pardat')
               external_column: substr(external_model.class, 1, 3)
+              external_column_name: pardat_class
               join_columns:
                 - parid
                 - taxyr
               config: *unique-conditions
+              meta:
+                category: class_mismatch_or_issue
+                description: class should match pardat class

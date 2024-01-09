@@ -69,6 +69,20 @@ DOCS_URL_FIELD = "docs_url"
 TAXYR_FIELD = "taxyr"
 PARID_FIELD = "parid"
 CARD_FIELD = "card"
+TOWNSHIP_FIELD = "township_code"
+WHO_FIELD = "who"
+WEN_FIELD = "wen"
+# Overrides for default display names for dbt tests
+CUSTOM_TEST_NAMES = {
+    "macro.athena.test_accepted_range": "incorrect_values",
+    "macro.dbt_utils.test_accepted_range": "incorrect_values",
+    "macro.athena.test_accepted_values": "incorrect_values",
+    "macro.athena.test_not_accepted_values": "incorrect_values",
+    "macro.dbt_utils.test_not_accepted_values": "incorrect_values",
+    "macro.athena.test_unique_combination_of_columns": "duplicate_records",
+    "macro.dbt_utils.test_unique_combination_of_columns": "duplicate_records",
+    "macro.athena.test_not_null": "missing_values",
+}
 
 
 @dataclasses.dataclass
@@ -88,6 +102,9 @@ class FailedTestGroup:
         TAXYR_FIELD,
         PARID_FIELD,
         CARD_FIELD,
+        TOWNSHIP_FIELD,
+        WHO_FIELD,
+        WEN_FIELD,
     ]
 
     def __init__(self) -> None:
@@ -110,20 +127,18 @@ class FailedTestGroup:
                 if column not in fieldnames:
                     fieldnames.append(column)
 
+        # Remove any diagnostic fieldnames from the ordered list that are not
+        # present in this group
+        diagnostic_field_order = [
+            field
+            for field in self._diagnostic_field_order
+            if field in fieldnames
+        ]
+
         # Reorder the list so that diagnostic fields are presented in the
         # correct order
-        for new_idx, field in enumerate(self._diagnostic_field_order):
-            try:
-                old_idx = fieldnames.index(field)
-            except ValueError:
-                # The field must not be contained in this sheet, so skip it
-                continue
-
-            if new_idx == old_idx:
-                continue
-
-            # Move the element in the list from the old index to the new one
-            fieldnames.insert(new_idx, fieldnames.pop(old_idx))
+        for field in reversed(diagnostic_field_order):
+            fieldnames.insert(0, fieldnames.pop(fieldnames.index(field)))
 
         return fieldnames
 
@@ -186,10 +201,12 @@ def main() -> None:
     if not failed_tests_by_category:
         raise ValueError(f"{run_results_filepath} contains no failed rows")
 
+    print("Generating the output workbook")
     workbook = openpyxl.Workbook()
     for sheet_name, failed_test_group in failed_tests_by_category.items():
         add_sheet_to_workbook(workbook, sheet_name, failed_test_group)
     workbook.save(output_filepath)
+    print(f"Output workbook saved to {output_filepath}")
 
 
 def get_failed_tests_by_category(
@@ -211,9 +228,6 @@ def get_failed_tests_by_category(
     for result in run_results["results"]:
         if result["status"] == "fail":
             unique_id = result["unique_id"]
-            # Unique ID format is:
-            # test.athena.<test_name>.<hash>
-            test_name = unique_id.split(".")[2]
             # Link to the test's page in the dbt docs, for debugging
             test_docs_url = f"{DOCS_URL_PREFIX}/{unique_id}"
 
@@ -223,28 +237,11 @@ def get_failed_tests_by_category(
                     f"Missing dbt manifest node with id {unique_id}"
                 )
 
+            test_name = node["name"]
             meta = node.get("meta", {})
-            category = meta.get("category", DEFAULT_TEST_CATEGORY)
+            category = get_category_from_node(node)
+            tablename = get_tablename_from_node(node)
             test_description = meta.get("description")
-
-            # Search for the model that is implicated in this test via the
-            # depends_on key
-            models = node.get("depends_on", {}).get("nodes", [])
-            if not models:
-                raise ValueError(
-                    "Missing `depends_on.nodes` attribute for test "
-                    f"{test_name}"
-                )
-            # Cross-table comparisons often involve multiple models; we have
-            # determined experimentally that the second one is usually
-            # the model that the test is concerned with, although if this
-            # becomes a problem in the future we can update the test metadata
-            # to expose an override attribute
-            model = models[-1]
-
-            # Reference format for models/sources is:
-            # <"model"/"source">.athena.<schema_name>.<table_name>
-            table_name = model.split(".")[-1]
 
             # Get the fully-qualified name of the table that stores failures
             # for this test so that we can query it
@@ -256,7 +253,33 @@ def get_failed_tests_by_category(
                 )
 
             print(f"Querying failed rows from {test_results_relation_name}")
-            cursor.execute(f"select * from {test_results_relation_name}")
+            # Athena SHOW COLUMNS doesn't allow double quoted tablenames
+            relation_name_unquoted = test_results_relation_name.replace(
+                '"', "`"
+            )
+            cursor.execute(f"show columns in {relation_name_unquoted}")
+            # SHOW COLUMNS often returns field names with trailing whitespace
+            fieldnames = [row["field"].strip() for row in cursor]
+
+            test_results_query = f"select * from {test_results_relation_name}"
+            if (
+                PARID_FIELD in fieldnames
+                and TAXYR_FIELD in fieldnames
+                and TOWNSHIP_FIELD not in fieldnames
+            ):
+                # If parid and taxyr are present, try to retrieve the township
+                # code for every row. It's most efficient to do this via a
+                # join in the query rather than in a Python lookup since
+                # legdat has 43m rows
+                test_results_query = f"""
+                    select test_results.*, leg.user1 as {TOWNSHIP_FIELD}
+                    from {test_results_relation_name} as test_results
+                    left join iasworld.legdat as leg
+                        on leg.{PARID_FIELD} = test_results.{PARID_FIELD}
+                        and leg.{TAXYR_FIELD} = test_results.{TAXYR_FIELD}
+                """
+
+            cursor.execute(test_results_query)
             query_results = cursor.fetchall()
             if len(query_results) == 0:
                 raise ValueError(
@@ -271,7 +294,7 @@ def get_failed_tests_by_category(
                     TEST_NAME_FIELD: test_name,
                     DESCRIPTION_FIELD: test_description,
                     DOCS_URL_FIELD: test_docs_url,
-                    SOURCE_TABLE_FIELD: table_name,
+                    SOURCE_TABLE_FIELD: tablename,
                     **row,
                 }
                 for row in query_results
@@ -282,6 +305,55 @@ def get_failed_tests_by_category(
             failed_tests_by_category[category].update(failed_tests)
 
     return failed_tests_by_category
+
+
+def get_category_from_node(node: typing.Dict) -> str:
+    """Given a node representing a dbt test failure, return the category
+    that the test should go in."""
+    if meta_category := node.get("meta", {}).get("category"):
+        return meta_category
+
+    for dependency_macro in node["depends_on"]["macros"]:
+        if custom_test_name := CUSTOM_TEST_NAMES.get(dependency_macro):
+            return custom_test_name
+        # Custom generic tests are always formatted like
+        # macro.dbt.test_<generic_name>
+        if dependency_macro.startswith("macro.athena.test_"):
+            return dependency_macro.split("macro.athena.test_")[-1]
+        # dbt_utils generic tests are always formatted like
+        # macro.dbt_utils.test_<generic_name>
+        if dependency_macro.startswith("macro.dbt_utils.test_"):
+            return dependency_macro.split("macro.dbt_utils.test_")[-1]
+
+    return DEFAULT_TEST_CATEGORY
+
+
+def get_tablename_from_node(node: typing.Dict) -> str:
+    """Given a node representing a dbt test failure, return the name of the
+    table that the test is testing."""
+    if meta_tablename := node.get("meta", {}).get("table_name"):
+        # If meta.table_name is set, treat it as an override
+        return meta_tablename
+
+    # Search for the model that is implicated in this test via the
+    # depends_on key
+    models = node.get("depends_on", {}).get("nodes", [])
+    if not models:
+        raise ValueError(
+            "Can't infer tablename: Missing `depends_on.nodes` attribute for "
+            f"test {node['name']}. You may need to add a `meta.table_name` "
+            "attribute to the test config"
+        )
+    # Cross-table comparisons often involve multiple models; we have
+    # determined experimentally that the last one is usually
+    # the model that the test is concerned with, although if this
+    # returns incorrect results in some cases we can override them
+    # with the `meta.table_name` attribute
+    model = models[-1]
+
+    # Reference format for models/sources is:
+    # <"model"/"source">.athena.<schema_name>.<table_name>
+    return model.split(".")[-1]
 
 
 def add_sheet_to_workbook(
@@ -307,6 +379,7 @@ def add_sheet_to_workbook(
     font = openpyxl.styles.Font(bold=True)
     for cell in sheet[1]:
         cell.font = font
+    sheet.freeze_panes = "A2"  # Freeze the header row
 
     for row in failed_test_group.rows:
         # Convert row values to string so that Excel doesn't apply

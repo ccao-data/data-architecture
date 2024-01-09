@@ -35,7 +35,7 @@ sources:
             description: Building value
             tests:
               - dbt_utils.accepted_range:
-                  name: iasworld_comdat_bldgval_between_0_and_1B
+                  name: iasworld_comdat_bldgval_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
                   config: *unique-conditions
@@ -83,7 +83,7 @@ sources:
             description: '{{ doc("column_convbldg") }}'
             tests:
               - dbt_utils.accepted_range:
-                  name: iasworld_comdat_convbldg_between_0_and_1B
+                  name: iasworld_comdat_convbldg_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
                   config: *unique-conditions
@@ -233,7 +233,15 @@ sources:
             tests:
               - not_null:
                   name: iasworld_comdat_yrblt_not_null
+                  additional_select_columns:
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
                   config: *unique-conditions
+                  meta:
+                    description: yrblt should not be null
               - dbt_utils.accepted_range:
                   name: iasworld_comdat_yrblt_between_1850_and_now
                   min_value: 1850
@@ -250,9 +258,14 @@ sources:
           - row_values_match_after_join:
               name: iasworld_comdat_class_matches_pardat_class
               column: class
+              column_name: comdat_class
               external_model: source('iasworld', 'pardat')
               external_column: class
+              external_column_name: pardat_class
               join_columns:
                 - parid
                 - taxyr
               config: *unique-conditions
+              meta:
+                category: class_mismatch_or_issue
+                description: class should match pardat class

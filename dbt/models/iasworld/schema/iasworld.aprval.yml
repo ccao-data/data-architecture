@@ -19,30 +19,40 @@ sources:
           - name: aprbldg
             description: Appraised building value
             tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_aprval_aprbldg_between_0_and_1B
+              - accepted_range:
+                  name: iasworld_aprval_aprbldg_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: aprbldg must be between 0 and 1 billion
           - name: aprdate
             description: '`APRTOT` calc date'
           - name: aprland
             description: Appraised land value
             tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_aprval_aprland_between_0_and_1B
+              - accepted_range:
+                  name: iasworld_aprval_aprland_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: aprland must be between 0 and 1 billion
           - name: aprtot
             description: '{{ doc("column_aprtot") }}'
             tests:
               - dbt_utils.accepted_range:
-                  name: iasworld_aprval_aprtot_between_0_and_2B
+                  name: iasworld_aprval_aprtot_between_0_and_2b
                   min_value: 0
                   max_value: 2000000000
                   config: *unique-conditions
@@ -56,7 +66,7 @@ sources:
             description: Building value
             tests:
               - dbt_utils.accepted_range:
-                  name: iasworld_aprval_bldgval_between_0_and_1B
+                  name: iasworld_aprval_bldgval_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
                   config: *unique-conditions
@@ -141,11 +151,14 @@ sources:
           - name: landval
             description: Total land cost value
             tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_aprval_landval_between_0_and_1B
+              - accepted_range:
+                  name: iasworld_aprval_landval_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: landval must be between 0 and 1 billion
           - name: lastupd
             description: Date of last change to a value field
           - name: mandate
