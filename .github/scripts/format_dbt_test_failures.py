@@ -455,16 +455,39 @@ def add_sheet_to_workbook(
         cell.font = font
     sheet.freeze_panes = "A2"  # Freeze the header row
 
+    # Initialize the column dimensions based on the length of the header row
+    col_dims = {cell.column_letter: len(str(cell.value)) for cell in sheet[1]}
     for row in failed_test_group.rows:
-        # Convert row values to string so that Excel doesn't apply
-        # autoformatting
-        output_row = [str(cell) if cell is not None else cell for cell in row]
+        output_row = []
+        # Start enumeration at 1 since openpyxl columns are 1-indexed
+        for col_idx, cell in enumerate(row, 1):
+            if cell is not None:
+                cell_str = str(cell)
+                # Convert row values to string so that Excel doesn't apply
+                # autoformatting
+                output_row.append(cell_str)
+                # Check if this cell is longer than the longest cell we've seen
+                # so far, and adjust the column dimensions accordingly
+                column_letter = openpyxl.utils.get_column_letter(col_idx)
+                col_dims[column_letter] = max(
+                    col_dims.get(column_letter, 0), len(cell_str)
+                )
+
         sheet.append(output_row)
 
     # Hide columns that are intended for debugging only, so that they don't
     # get in the way of non-technical workbook consumers
     for col_idx in failed_test_group.debugging_field_indexes:
         sheet.column_dimensions[col_idx].hidden = True
+
+    # Set columns widths so that they fit the longest column
+    for (
+        col,
+        value,
+    ) in col_dims.items():
+        # Pad with an extra two characters to account for the fact that
+        # non-monospace fonts do not have consistent character widths
+        sheet.column_dimensions[col].width = value + 2
 
 
 if __name__ == "__main__":
