@@ -40,7 +40,7 @@
 
 import dataclasses
 import datetime
-import json
+import hashlib
 import os
 import sys
 import typing
@@ -50,6 +50,7 @@ import openpyxl.styles
 import openpyxl.utils
 import pyathena
 import pyathena.cursor
+import simplejson as json
 from openpyxl.worksheet.worksheet import Worksheet
 
 # Tests without a config.meta.category property will be grouped in
@@ -83,6 +84,8 @@ CUSTOM_TEST_NAMES = {
     "macro.dbt_utils.test_unique_combination_of_columns": "duplicate_records",
     "macro.athena.test_not_null": "missing_values",
 }
+# Directory to store failed test caches
+FAILED_TEST_CACHE_DIR = "failed_test_cache"
 
 
 @dataclasses.dataclass
@@ -107,22 +110,24 @@ class FailedTestGroup:
         WEN_FIELD,
     ]
 
-    def __init__(self) -> None:
-        self._rows: typing.List[typing.Dict] = []
+    def __init__(
+        self, rows: typing.Optional[typing.List[typing.Dict]] = None
+    ) -> None:
+        self.raw_rows: typing.List[typing.Dict] = rows or []
 
     def update(self, new_rows: typing.List[typing.Dict]) -> None:
         """Add a list of new_rows to the rows of failing tests tracked by
         this group. The new_rows list should be formatted like the rows
         returned by a csv.DictReader or a DictCursor, i.e. a list of
         dicts mapping `{column_name: row_value}`."""
-        self._rows = [*self._rows, *new_rows]
+        self.raw_rows = [*self.raw_rows, *new_rows]
 
     @property
     def fieldnames(self) -> typing.List[str]:
         """Get a list of fieldnames that encapsulates all of the fieldnames
         for all of the rows of failing tests tracked by this group."""
         fieldnames = []
-        for row in self._rows:
+        for row in self.raw_rows:
             for column in row.keys():
                 if column not in fieldnames:
                     fieldnames.append(column)
@@ -151,7 +156,7 @@ class FailedTestGroup:
         fieldnames = self.fieldnames
         return [
             [row.get(fieldname) for fieldname in fieldnames]
-            for row in self._rows
+            for row in self.raw_rows
         ]
 
     @property
@@ -189,6 +194,80 @@ def main() -> None:
         date_today = datetime.datetime.today().strftime("%Y-%m-%d")
         output_filepath = f"qc_test_failures_{date_today}.xlsx"
 
+    failed_test_cache_path = get_failed_test_cache_path(
+        run_results_filepath,
+        manifest_filepath,
+    )
+
+    if os.path.isfile(failed_test_cache_path):
+        print(f"Loading failed tests from cache at {failed_test_cache_path}")
+        failed_tests_by_category = get_failed_tests_by_category_from_file(
+            failed_test_cache_path
+        )
+    else:
+        print(
+            f"Failed test cache not found at {failed_test_cache_path}, "
+            "loading failed tests from Athena"
+        )
+        failed_tests_by_category = get_failed_tests_by_category_from_athena(
+            run_results_filepath,
+            manifest_filepath,
+        )
+        print(f"Saving failed tests to the cache at {failed_test_cache_path}")
+        save_failed_tests_by_category_to_file(
+            failed_tests_by_category,
+            failed_test_cache_path,
+        )
+
+    print("Generating the output workbook")
+    workbook = openpyxl.Workbook()
+    for sheet_name, failed_test_group in failed_tests_by_category.items():
+        add_sheet_to_workbook(workbook, sheet_name, failed_test_group)
+    workbook.save(output_filepath)
+    print(f"Output workbook saved to {output_filepath}")
+
+
+def get_failed_test_cache_path(
+    run_results_filepath: str, manifest_filepath: str
+) -> str:
+    with open(run_results_filepath, "rb") as run_results_file:
+        run_results_hash = hashlib.md5(run_results_file.read()).hexdigest()
+
+    with open(manifest_filepath, "rb") as manifest_file:
+        manifest_hash = hashlib.md5(manifest_file.read()).hexdigest()
+
+    return os.path.join(
+        FAILED_TEST_CACHE_DIR,
+        f"run_{run_results_hash}_manifest_{manifest_hash}.json",
+    )
+
+
+def get_failed_tests_by_category_from_file(
+    file_path: str,
+) -> FailedTestsByCategory:
+    with open(file_path) as cache_file:
+        failed_tests_dict = json.load(cache_file, use_decimal=True)
+    return {
+        category: FailedTestGroup(raw_rows)
+        for category, raw_rows in failed_tests_dict.items()
+    }
+
+
+def save_failed_tests_by_category_to_file(
+    failed_tests_by_category: FailedTestsByCategory, file_path: str
+) -> None:
+    failed_tests_dict = {
+        category: test_group.raw_rows
+        for category, test_group in failed_tests_by_category.items()
+    }
+    os.makedirs(FAILED_TEST_CACHE_DIR, exist_ok=True)
+    with open(file_path, "w") as cache_file:
+        json.dump(failed_tests_dict, cache_file, use_decimal=True)
+
+
+def get_failed_tests_by_category_from_athena(
+    run_results_filepath: str, manifest_filepath: str
+) -> FailedTestsByCategory:
     with open(run_results_filepath) as run_results_fobj:
         run_results = json.load(run_results_fobj)
 
@@ -201,12 +280,7 @@ def main() -> None:
     if not failed_tests_by_category:
         raise ValueError(f"{run_results_filepath} contains no failed rows")
 
-    print("Generating the output workbook")
-    workbook = openpyxl.Workbook()
-    for sheet_name, failed_test_group in failed_tests_by_category.items():
-        add_sheet_to_workbook(workbook, sheet_name, failed_test_group)
-    workbook.save(output_filepath)
-    print(f"Output workbook saved to {output_filepath}")
+    return failed_tests_by_category
 
 
 def get_failed_tests_by_category(
