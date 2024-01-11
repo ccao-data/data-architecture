@@ -634,6 +634,7 @@ models:
     config:
       tags:
         - test_qc_sales
+        - test_qc_exclude_from_workbook
     tests:
       - expression_is_true:
           name: qc_vw_change_in_high_low_value_sales_ratio_high
@@ -769,6 +770,7 @@ models:
     config:
       tags:
         - test_qc_sales
+        - test_qc_exclude_from_workbook
     columns:
       - name: mydec_unmatched
         tests:
@@ -796,6 +798,7 @@ models:
     config:
       tags:
         - test_qc_sales
+        - test_qc_exclude_from_workbook
     tests:
       - expression_is_true:
           name: qc_vw_iasworld_sales_day_of_month_lte_half_observations
