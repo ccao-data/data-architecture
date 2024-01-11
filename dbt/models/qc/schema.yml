@@ -717,6 +717,7 @@ models:
     config:
       tags:
         - test_qc_sales
+        - test_qc_exclude_from_workbook
     columns:
       - name: address
         tests:
@@ -749,6 +750,7 @@ models:
     config:
       tags:
         - test_qc_sales
+        - test_qc_exclude_from_workbook
     columns:
       - name: comparison
         tests:
@@ -797,7 +799,7 @@ models:
     tests:
       - expression_is_true:
           name: qc_vw_iasworld_sales_day_of_month_lte_half_observations
-          expression: sales_by_day > 0.5 * total_sales
+          expression: sales_by_day < 0.5 * total_sales
           select_columns:
             - taxyr
             - day_of_month
@@ -841,3 +843,8 @@ models:
             - document_number
             - price_iasworld
             - price_mydec
+          meta:
+            table_name: sales
+            category: sales_issues
+            description: >
+              price difference between iasworld and mydec should not exceed $1k
