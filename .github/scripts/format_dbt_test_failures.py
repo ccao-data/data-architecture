@@ -52,6 +52,7 @@ import pyathena
 import pyathena.cursor
 import simplejson as json
 from openpyxl.worksheet.worksheet import Worksheet
+from openpyxl.styles import Alignment
 
 # Tests without a config.meta.category property will be grouped in
 # this default category
@@ -95,19 +96,24 @@ class FailedTestGroup:
 
     # Names of fields that are used for debugging
     _debugging_field_names = [TEST_NAME_FIELD, DOCS_URL_FIELD]
-    # List that defines the order that diagnostic fields should appear in
-    # the output workbook
-    _diagnostic_field_order = [
-        SOURCE_TABLE_FIELD,
-        DESCRIPTION_FIELD,
-        TEST_NAME_FIELD,
-        DOCS_URL_FIELD,
+    # Names of fields that identify the failing test
+    _test_metadata_field_names = [
+        *[SOURCE_TABLE_FIELD, DESCRIPTION_FIELD],
+        *_debugging_field_names,
+    ]
+    # Names of fields that are used for diagnostics
+    _diagnostic_field_names = [
         TAXYR_FIELD,
         PARID_FIELD,
         CARD_FIELD,
         TOWNSHIP_FIELD,
         WHO_FIELD,
         WEN_FIELD,
+    ]
+    # The complete set of fixed fields
+    _fixed_field_names = [
+        *_test_metadata_field_names,
+        *_diagnostic_field_names,
     ]
 
     def __init__(
@@ -132,17 +138,17 @@ class FailedTestGroup:
                 if column not in fieldnames:
                     fieldnames.append(column)
 
-        # Remove any diagnostic fieldnames from the ordered list that are not
+        # Remove any fixed fieldnames from the ordered list that are not
         # present in this group
-        diagnostic_field_order = [
+        fixed_field_order = [
             field
-            for field in self._diagnostic_field_order
+            for field in self._fixed_field_names
             if field in fieldnames
         ]
 
-        # Reorder the list so that diagnostic fields are presented in the
+        # Reorder the fieldnames so that diagnostic fields are presented in the
         # correct order
-        for field in reversed(diagnostic_field_order):
+        for field in reversed(fixed_field_order):
             fieldnames.insert(0, fieldnames.pop(fieldnames.index(field)))
 
         return fieldnames
@@ -160,15 +166,62 @@ class FailedTestGroup:
         ]
 
     @property
-    def debugging_field_indexes(self) -> typing.List[str]:
+    def debugging_field_indexes(self) -> tuple:
         """Get a list of field indexes (e.g. ["A", "B"]) for fields that
         are used for debugging."""
         fieldnames = self.fieldnames
-        return [
+        return tuple(
             # openpyxl is 1-indexed while the index() method is 0-indexed
             openpyxl.utils.get_column_letter(fieldnames.index(field) + 1)
             for field in self._debugging_field_names
-        ]
+            )
+
+    @property
+    def test_metadata_field_names(self) -> tuple:
+        """Get a list of field indexes (e.g. ["A", "B"]) for fields that
+        are used for identifying tests."""
+        fieldnames = self.fieldnames
+        return tuple(
+            openpyxl.utils.get_column_letter(fieldnames.index(field) + 1)
+            for field in self._test_metadata_field_names
+            if field in fieldnames
+        )
+
+    @property
+    def diagnostic_field_indexes(self) -> tuple:
+        """Get a list of field indexes (e.g. ["A", "B"]) for fields that
+        are used for diagnostics."""
+        fieldnames = self.fieldnames
+        return tuple(
+            openpyxl.utils.get_column_letter(fieldnames.index(field) + 1)
+            for field in self._diagnostic_field_names
+            if field in fieldnames
+        )
+
+    @property
+    def fixed_field_indexes(self) -> tuple:
+        """Get a list of field indexes (e.g. ["A", "B"]) for fields that
+        are fixed (i.e. whose position is always at the start of the sheet,
+        for diagnostic purposes)."""
+        fieldnames = self.fieldnames
+        return tuple(
+            openpyxl.utils.get_column_letter(fieldnames.index(field) + 1)
+            for field in self._fixed_field_names
+            if field in fieldnames
+        )
+
+    @property
+    def nonfixed_field_indexes(self) -> tuple:
+        """Get a list of field indexes (e.g. ["A", "B"]) for fields that
+        are nonfixed (i.e. whose position comes after the fixed fields in the
+        sheet and are thus variable)."""
+        fieldnames = self.fieldnames
+        fixed_fieldnames = self._fixed_field_names
+        return tuple(
+            openpyxl.utils.get_column_letter(fieldnames.index(field) + 1)
+            for field in fieldnames
+            if field not in fixed_fieldnames
+        )
 
 
 # Type representing a mapping of sheet names to the tests contained therein
@@ -450,9 +503,10 @@ def add_sheet_to_workbook(
 
     # Style the header differently from rows so that it is visually
     # distinct
-    font = openpyxl.styles.Font(bold=True)
+    bold_font = openpyxl.styles.Font(bold=True)
+    italic_font = openpyxl.styles.Font(italic=True)
     for cell in sheet[1]:
-        cell.font = font
+        cell.font = bold_font
     sheet.freeze_panes = "A2"  # Freeze the header row
 
     # Initialize the column dimensions based on the length of the header row
@@ -488,6 +542,70 @@ def add_sheet_to_workbook(
         # Pad with an extra two characters to account for the fact that
         # non-monospace fonts do not have consistent character widths
         sheet.column_dimensions[col].width = value + 2
+
+    # Add filters to fixed columns
+    fixed_field_indexes = failed_test_group.fixed_field_indexes
+    min_fixed_idx = f"{fixed_field_indexes[0]}1"
+    max_fixed_idx = f"{fixed_field_indexes[-1]}{sheet.max_row}"
+    fixed_field_range = f"{min_fixed_idx}:{max_fixed_idx}"
+    sheet.auto_filter.ref = fixed_field_range
+
+    # Create groupings for columns with a special group header
+    sheet.insert_rows(1, amount=2)
+    column_groups = {
+        failed_test_group.test_metadata_field_names: {
+            "title": "Test description fields",
+            "subtitle": "These fields identify a failing test.",
+            "style": "20 % - Accent3",
+            "header_style": "Accent3",
+        },
+        failed_test_group.diagnostic_field_indexes: {
+            "title": "Unique identifier fields",
+            "subtitle": "These fields identify the row that is failing a test.",
+            "style": "20 % - Accent1",
+            "header_style": "Accent1",
+        },
+        failed_test_group.nonfixed_field_indexes: {
+            "title": "Problematic fields",
+            "subtitle": (
+                "These fields contain values that are causing the test "
+                "to fail"
+            ),
+            "style": "20 % - Accent2",
+            "header_style": "Accent2",
+        },
+    }
+    for col_group_indexes, col_metadata in column_groups.items():
+        # Sometimes there are no problematic fields for a given test;
+        # if this is the case, skip it
+        if not col_group_indexes:
+            continue
+
+        # Merge and center grouping header
+        for idx in range(1, 3):
+            sheet.merge_cells(
+                f"{col_group_indexes[0]}{idx}:{col_group_indexes[-1]}{idx}"
+            )
+            sheet[f"{col_group_indexes[0]}{idx}"].alignment = Alignment(
+                horizontal="center"
+            )
+
+        # Fill out and format grouping header
+        sheet[f"{col_group_indexes[0]}1"] = col_metadata["title"]
+        sheet[f"{col_group_indexes[0]}1"].font = bold_font
+
+        sheet[f"{col_group_indexes[0]}2"] = col_metadata["subtitle"]
+        sheet[f"{col_group_indexes[0]}2"].font = italic_font
+
+        # Give each group a dedicated color
+        for cell in sheet[
+            f"{col_group_indexes[0]}3:{col_group_indexes[-1]}3"
+        ]:
+            cell[0].style = col_metadata["header_style"]
+        for cell in sheet[
+            f"{col_group_indexes[0]}4:{col_group_indexes[-1]}{sheet.max_row}"
+        ]:
+            cell[0].style = col_metadata["style"]
 
 
 if __name__ == "__main__":
