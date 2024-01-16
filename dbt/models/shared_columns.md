@@ -463,6 +463,12 @@ Square footage of the _building_ (PIN10) containing this unit.
 Applies to condos only
 {% enddocs %}
 
+## char_class
+
+{% docs shared_column_char_class %}
+Card-level class.
+{% enddocs %}
+
 ## char_cnst_qlty
 
 {% docs shared_column_char_cnst_qlty %}

@@ -572,6 +572,8 @@ models:
         description: '{{ doc("shared_column_char_beds") }}'
       - name: char_bldg_sf
         description: '{{ doc("shared_column_char_bldg_sf") }}'
+      - name: char_class
+        description: '{{ doc("shared_column_char_class") }}'
       - name: char_cnst_qlty
         description: '{{ doc("shared_column_char_cnst_qlty") }}'
       - name: char_fbath
