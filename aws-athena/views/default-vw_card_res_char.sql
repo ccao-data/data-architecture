@@ -86,6 +86,7 @@ SELECT
     dwel.user1 AS char_repair_cnd,
     dwel.user12 AS char_bsmt_fin,
     dwel.user13 AS char_roof_cnst,
+    dwel.class AS char_class,
     dwel.user15 AS char_use,
     dwel.user17 AS char_age, -- Deprecated, use yrblt
     dwel.user2 AS char_site,

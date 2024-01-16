@@ -463,6 +463,17 @@ Square footage of the _building_ (PIN10) containing this unit.
 Applies to condos only
 {% enddocs %}
 
+## char_class
+
+{% docs shared_column_char_class %}
+Card-level property type and/or use.
+
+Designates the property type, such as vacant, residential, multi-family,
+agricultural, commercial or industrial. The classification determines the
+percentage of fair cash value at which a property is assessed for taxing
+purposes. See `ccao.class_dict` for more information
+{% enddocs %}
+
 ## char_cnst_qlty
 
 {% docs shared_column_char_cnst_qlty %}
