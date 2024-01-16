@@ -57,11 +57,13 @@ acs5 AS (
 
 housing_index AS (
     SELECT
-        geoid,
-        year,
-        AVG(CAST(ihs_index AS DOUBLE)) AS ihs_avg_year_index
-    FROM {{ source('other', 'ihs_index') }}
-    GROUP BY geoid, year
+        puma.pin10,
+        ihs.year,
+        AVG(CAST(ihs.ihs_index AS DOUBLE)) AS ihs_avg_year_index
+    FROM {{ source('other', 'ihs_index') }} AS ihs
+    LEFT JOIN {{ ref('location.census_2010') }} AS puma
+        ON ihs.geoid = puma.census_puma_geoid
+    GROUP BY puma.pin10, ihs.year
 ),
 
 tax_bill_amount AS (
@@ -198,6 +200,7 @@ SELECT
     vwpf.nearest_metra_stop_dist_ft AS prox_nearest_metra_stop_dist_ft,
     vwpf.nearest_park_dist_ft AS prox_nearest_park_dist_ft,
     vwpf.nearest_railroad_dist_ft AS prox_nearest_railroad_dist_ft,
+    vwpf.nearest_secondary_road_dist_ft AS prox_nearest_secondary_road_dist_ft,
     vwpf.nearest_water_dist_ft AS prox_nearest_water_dist_ft,
 
     -- ACS5 census data
@@ -249,6 +252,9 @@ SELECT
     sdrs.school_district_avg_rating
         AS other_school_district_secondary_avg_rating,
 
+    -- Corner lot indicator
+    lot.is_corner_lot AS ccao_is_corner_lot,
+
     -- PIN nearest neighbors, used for filling missing data
     vwpf.nearest_neighbor_1_pin10,
     vwpf.nearest_neighbor_1_dist_ft,
@@ -274,8 +280,8 @@ LEFT JOIN acs5
     ON vwlf.census_acs5_tract_geoid = acs5.geoid
     AND vwlf.year = acs5.year
 LEFT JOIN housing_index
-    ON housing_index.geoid = vwlf.census_puma_geoid
-    AND housing_index.year = vwlf.year
+    ON uni.pin10 = housing_index.pin10
+    AND uni.year = housing_index.year
 LEFT JOIN tax_bill_amount AS tbill
     ON uni.pin = tbill.pin
     AND uni.year = tbill.year
@@ -295,3 +301,5 @@ LEFT JOIN
         WHERE district_type = 'secondary'
     ) AS sdrs
     ON vwlf.school_secondary_district_geoid = sdrs.district_geoid
+LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
+    ON uni.pin10 = lot.pin10

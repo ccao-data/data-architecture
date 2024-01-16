@@ -1,0 +1,1 @@
+../../../aws-athena/views/qc-vw_sale_mydec_null_values.sql

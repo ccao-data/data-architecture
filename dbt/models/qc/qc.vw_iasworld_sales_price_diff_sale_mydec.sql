@@ -1,0 +1,1 @@
+../../../aws-athena/views/qc-vw_iasworld_sales_price_diff_sale_mydec.sql

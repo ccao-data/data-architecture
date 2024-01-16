@@ -5,6 +5,8 @@ SELECT
     legdat.taxdist,
     asmt.class,
     asmt.valclass,
+    asmt.who,
+    asmt.wen,
     asmt.val01,
     asmt.val02,
     asmt.val03,

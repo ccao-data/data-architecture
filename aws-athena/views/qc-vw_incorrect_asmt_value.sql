@@ -7,6 +7,7 @@ SELECT
     owndat.own1,
     aprval.reascd AS reason_for_change,
     aprval.who,
+    aprval.wen,
     asmt_all.valapr1 AS pri_year_lmv,
     asmt_all.valapr2 AS pri_year_bmv,
     asmt_all.valapr3 AS pri_year_fmv,

@@ -3,10 +3,18 @@
 -- from tableA is '212' and the class of PINA from tableB is '211' and '212',
 -- then tableA matches (returns no rows).
 {% test row_values_match_after_join(
-    model, column, external_model, external_column, join_columns=[]
+    model,
+    column,
+    external_model,
+    external_column,
+    column_name="model_col",
+    external_column_name="external_model_col",
+    join_columns=[],
+    additional_select_columns=[]
 ) %}
 
     {%- set join_columns_csv = join_columns | join(", ") -%}
+    {%- set additional_select_columns_csv = additional_select_columns | join(", ") -%}
 
     {%- if "." in column -%} {%- set model_col = column -%}
     {%- else -%} {%- set model_col = "model" ~ "." ~ column -%}
@@ -19,8 +27,11 @@
 
     select
         {{ join_columns_csv }},
-        array_agg({{ model_col }}) as model_col,
-        array_agg({{ external_model_col }}) as external_model_col
+        {% if additional_select_columns_csv -%}
+            {{ additional_select_columns_csv }},
+        {% endif %}
+        array_agg({{ model_col }}) as {{ column_name }},
+        array_agg({{ external_model_col }}) as {{ external_column_name }}
     from {{ external_model }} as external_model
     join (select * from {{ model }}) as model using ({{ join_columns_csv }})
     group by {{ join_columns_csv }}

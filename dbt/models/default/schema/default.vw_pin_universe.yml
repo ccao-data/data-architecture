@@ -11,6 +11,8 @@ models:
         description: '{{ doc("column_access_cmap_walk_nta_score") }}'
       - name: access_cmap_walk_total_score
         description: '{{ doc("column_access_cmap_walk_total_score") }}'
+      - name: ccao_is_corner_lot
+        description: '{{ doc("shared_column_is_corner_lot") }}'
       - name: census_acs5_congressional_district_geoid
         description: '{{ doc("column_census_congressional_district_geoid") }}'
       - name: census_acs5_county_subdivision_geoid
@@ -250,6 +252,6 @@ models:
             - year
       - row_count:
           name: default_vw_pin_universe_row_count
-          above: 45079937 # as of 2023-11-22
+          above: 45079936 # as of 2024-01-03
       # TODO: Data completeness correlates with availability of spatial data
       # by year

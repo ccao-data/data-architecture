@@ -1,0 +1,1 @@
+../../../aws-athena/ctas/location-census_2010.sql

@@ -10,7 +10,7 @@ models:
 
   - name: proximity.crosswalk_year_fill
     description: '{{ doc("table_crosswalk_year_fill") }}'
-    
+
   - name: proximity.dist_pin_to_airport
     description: '{{ doc("table_dist_pin_to_airport") }}'
 
@@ -174,6 +174,14 @@ models:
         description: '{{ doc("column_nearest_railroad_id") }}'
       - name: nearest_railroad_name
         description: '{{ doc("column_nearest_railroad_name") }}'
+      - name: nearest_secondary_road_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: nearest_secondary_road_dist_ft
+        description: '{{ doc("column_nearest_secondary_road_dist_ft") }}'
+      - name: nearest_secondary_road_name
+        description: '{{ doc("column_nearest_secondary_road_name") }}'
+      - name: nearest_secondary_road_osm_id
+        description: '{{ doc("column_nearest_secondary_road_osm_id") }}'
       - name: nearest_water_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_water_dist_ft

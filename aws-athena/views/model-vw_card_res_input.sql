@@ -107,6 +107,7 @@ forward_fill AS (
         ch.char_heat,
         ch.char_bsmt_fin,
         ch.char_roof_cnst,
+        ch.char_class,
         ch.char_use,
         ch.char_porch,
         ch.char_air,
@@ -208,6 +209,7 @@ SELECT
     f1.char_heat,
     f1.char_bsmt_fin,
     f1.char_roof_cnst,
+    f1.char_class,
     f1.char_use,
     f1.char_porch,
     f1.char_air,
@@ -520,6 +522,17 @@ SELECT
     END AS prox_nearest_railroad_dist_ft,
     CASE
         WHEN
+            f1.prox_nearest_secondary_road_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_secondary_road_dist_ft
+        WHEN
+            f1.prox_nearest_secondary_road_dist_ft IS NULL
+            THEN nn1.prox_nearest_secondary_road_dist_ft
+        WHEN
+            nn1.prox_nearest_secondary_road_dist_ft IS NULL
+            THEN nn2.prox_nearest_secondary_road_dist_ft
+    END AS prox_nearest_secondary_road_dist_ft,
+    CASE
+        WHEN
             f1.prox_nearest_water_dist_ft IS NOT NULL
             THEN f1.prox_nearest_water_dist_ft
         WHEN
@@ -576,6 +589,7 @@ SELECT
             nn1.other_school_district_secondary_avg_rating IS NULL
             THEN nn2.other_school_district_secondary_avg_rating
     END AS other_school_district_secondary_avg_rating,
+    f1.ccao_is_corner_lot,
     f1.meta_year AS year
 FROM forward_fill AS f1
 LEFT JOIN (
