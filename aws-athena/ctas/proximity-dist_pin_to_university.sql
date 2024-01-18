@@ -25,7 +25,7 @@ INNER JOIN
           school.year AS pin_year,
           ST_X(school.geometry_3435) AS x_3435, 
           ST_Y(school.geometry_3435) AS y_3435
-      FROM {{ source('spatial', 'school') }} AS school
+      FROM {{ source('spatial', 'school_location') }} AS school
       WHERE school.type = 'HigherEd'
     ) AS xy
     ON pcl.x_3435 = xy.x_3435
