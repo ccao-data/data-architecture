@@ -22,7 +22,7 @@ INNER JOIN
         SELECT
             school.gniscode,
             school.name,
-            ST_DISTANCE(school.geometry_3435, pcl.geometry_3435) AS dist_ft,
+            ST_DISTANCE(school.geometry_3435, pcl.x_3435) AS dist_ft,
             school.year AS pin_year,
             ST_X(school.geometry_3435) AS x_3435,
             ST_Y(school.geometry_3435) AS y_3435
