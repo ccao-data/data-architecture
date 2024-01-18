@@ -271,6 +271,9 @@ sources:
                   whitespace: own1, own2, addr1, addr2, addr3, addr4, addr5,
                   adrpre, adrdir, adrstr, adrsuf, unitdesc, unitno, cityname,
                   statecode, zip1, zip2, user27
+              tags:
+                # Currently too many failures for this signal to be useful
+                - test_qc_exclude_from_workbook
           - expression_is_true:
               name: iasworld_owndat_addr1_address_is_well_formed
               expression: |

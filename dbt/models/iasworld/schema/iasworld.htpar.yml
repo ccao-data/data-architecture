@@ -315,6 +315,9 @@ sources:
               meta:
                 description: >
                   Address columns should have no leading or trailing whitespace
+              tags:
+                # Currently too many failures for this signal to be useful
+                - test_qc_exclude_from_workbook
           - expression_is_true:
               name: iasworld_htpar_cpaddr3_length_lte_5
               expression: |
