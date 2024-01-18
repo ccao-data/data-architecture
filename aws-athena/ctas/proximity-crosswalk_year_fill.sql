@@ -167,6 +167,7 @@ WITH unfilled AS (
             year,
             nearest_university_data_year
         FROM {{ ref('proximity.dist_pin_to_university') }}
+    ) AS dist_pin_to_university ON pin.year = dist_pin_to_university.year
     LEFT JOIN (
         SELECT DISTINCT
             year,
