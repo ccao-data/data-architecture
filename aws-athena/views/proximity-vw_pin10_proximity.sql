@@ -162,6 +162,9 @@ LEFT JOIN
         AS dist_pin_to_secondary_road
     ON pin.pin10 = dist_pin_to_secondary_road.pin10
     AND pin.year = dist_pin_to_secondary_road.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_university') }} AS dist_pin_to_university
+    ON pin.pin10 = dist_pin_to_university.pin10
 LEFT JOIN {{ ref('proximity.dist_pin_to_water') }} AS dist_pin_to_water
     ON pin.pin10 = dist_pin_to_water.pin10
     AND pin.year = dist_pin_to_water.year
