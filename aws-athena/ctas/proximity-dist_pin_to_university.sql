@@ -22,7 +22,8 @@ INNER JOIN
     AND pcl.y_3435 = xy.y_3435
     AND pcl.year = xy.pin_year
 WHERE xy.type = 'HigherEd'
-AND xy.name = 'Illinois Institute of Technology Chicago-Kent College of Law', 'Columbia College', 'University of Illinois at Chicago College of Medicine',
-'Rush University Medical Center', 'University of Chicago', 'University of Illinois at Chicago', 'Northwestern University', 'Loyola University of Chicago', 
-'De Paul University', 'Chicago State University', 'Moraine Valley Community College'
+AND xy.name IN ('Illinois Institute of Technology Chicago-Kent College of Law', 'Columbia College', 
+'University of Illinois at Chicago College of Medicine', 'Rush University Medical Center', 'University of Chicago', 
+'University of Illinois at Chicago', 'Northwestern University', 'Loyola University of Chicago', 'De Paul University', 
+'Chicago State University', 'Moraine Valley Community College')
 GROUP BY pcl.pin10, pcl.year
