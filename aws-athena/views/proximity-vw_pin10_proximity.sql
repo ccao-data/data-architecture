@@ -81,6 +81,10 @@ SELECT
     dist_pin_to_secondary_road.nearest_secondary_road_dist_ft,
     dist_pin_to_secondary_road.nearest_secondary_road_data_year,
 
+    dist_pin_to_university.nearest_university_name,
+    dist_pin_to_university.nearest_university_dist_ft,
+    dist_pin_to_university.nearest_university_data_year,
+
     dist_pin_to_water.nearest_water_id,
     dist_pin_to_water.nearest_water_name,
     dist_pin_to_water.nearest_water_dist_ft,
