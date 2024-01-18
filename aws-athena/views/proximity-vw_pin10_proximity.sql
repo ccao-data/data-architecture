@@ -165,6 +165,7 @@ LEFT JOIN
 LEFT JOIN
     {{ ref('proximity.dist_pin_to_university') }} AS dist_pin_to_university
     ON pin.pin10 = dist_pin_to_university.pin10
+    AND pin.year = dist_pin_to_university.year
 LEFT JOIN {{ ref('proximity.dist_pin_to_water') }} AS dist_pin_to_water
     ON pin.pin10 = dist_pin_to_water.pin10
     AND pin.year = dist_pin_to_water.year
