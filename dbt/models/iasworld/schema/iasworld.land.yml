@@ -314,4 +314,5 @@ sources:
                   AND deactivat IS NULL
               meta:
                 category: class_mismatch_or_issue
-                description: class should match pardat class
+                description: >
+                  land major class (first digit) should match pardat class

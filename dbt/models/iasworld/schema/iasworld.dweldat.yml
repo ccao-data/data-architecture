@@ -1128,7 +1128,7 @@ sources:
               config: *unique-conditions
               meta:
                 category: class_mismatch_or_issue
-                description: class should match pardat class
+                description: at least one dweldat class should match pardat class
           - expression_is_true:
               name: iasworld_dweldat_card_proration_rate_between_0_and_100
               expression: 'CAST(user24 AS decimal) BETWEEN 0.00 AND 100.00'

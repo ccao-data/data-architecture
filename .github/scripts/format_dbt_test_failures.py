@@ -549,7 +549,6 @@ def add_sheet_to_workbook(
     # Create groupings for columns with a special group header
     bold_font = openpyxl.styles.Font(bold=True)
     italic_font = openpyxl.styles.Font(italic=True)
-    center_align = openpyxl.styles.Alignment(horizontal="center")
     title_row, subtitle_row, header_row, merged_cell_range = [], [], [], []
     column_groups = {
         failed_test_group.test_metadata_field_indexes: {
@@ -598,7 +597,6 @@ def add_sheet_to_workbook(
         )
         title_cell.style = "Note"
         title_cell.font = bold_font
-        title_cell.alignment = center_align
         title_row.append(title_cell)
         # Flesh out the empty title row cells that will be merged later on
         for _ in range(len(col_group_indexes) - 1):
@@ -609,7 +607,6 @@ def add_sheet_to_workbook(
         )
         subtitle_cell.style = "Note"
         subtitle_cell.font = italic_font
-        subtitle_cell.alignment = center_align
         subtitle_row.append(subtitle_cell)
         for _ in range(len(col_group_indexes) - 1):
             subtitle_row.append("")
