@@ -1,4 +1,4 @@
--- CTAS to create a table of distance to the nearest hospital for each PIN
+-- CTAS to create a table of distance to the nearest university for each PIN
 {{
     config(
         materialized='table',
@@ -20,5 +20,6 @@ INNER JOIN
         AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
-    AND pcl.year = xy.pin_year
+    AND pcl.year = xy.pin_year          
+    WHERE school.type = 'HigherEd'
 GROUP BY pcl.pin10, pcl.year
