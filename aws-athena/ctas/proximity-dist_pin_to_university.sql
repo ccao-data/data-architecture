@@ -20,7 +20,7 @@ FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN
     ( {{ dist_to_nearest_geometry(source('spatial', 'school_location')) }} )
         AS xy
-        ON CAST(pcl.x_3435 AS FLOAT) = ST_X(xy.geometry_3435)
-        AND CAST(pcl.y_3435 AS FLOAT) = ST_Y(xy.geometry_3435)
+    ON CAST(pcl.x_3435 AS FLOAT) = ST_X(xy.geometry_3435)
+    AND CAST(pcl.y_3435 AS FLOAT) = ST_Y(xy.geometry_3435)
     AND pcl.year = xy.pin_year
 GROUP BY pcl.pin10, pcl.year
