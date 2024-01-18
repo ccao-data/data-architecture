@@ -20,6 +20,6 @@ INNER JOIN
         AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
-    AND pcl.year = xy.pin_year          
-    WHERE school.type = 'HigherEd'
+    AND pcl.year = xy.pin_year
+WHERE school.type = 'HigherEd'
 GROUP BY pcl.pin10, pcl.year
