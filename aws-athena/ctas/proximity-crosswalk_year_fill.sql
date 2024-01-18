@@ -48,8 +48,8 @@ WITH unfilled AS (
             AS nearest_railroad_data_year,
         MAX(dist_pin_to_secondary_road.nearest_secondary_road_data_year)
             AS nearest_secondary_road_data_year,
-            MAX(dist_pin_to_university.nearest_university_data_year)
-        AS nearest_university_data_year,
+        MAX(dist_pin_to_university.nearest_university_data_year)
+            AS nearest_university_data_year,
         MAX(dist_pin_to_water.nearest_water_data_year)
             AS nearest_water_data_year
     FROM
