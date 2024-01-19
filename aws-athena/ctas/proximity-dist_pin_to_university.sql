@@ -19,7 +19,7 @@ INNER JOIN
     ( {{
         dist_to_nearest_geometry(
             source('spatial', 'school_location'),
-            'type = \'HigherEd\'
+            '(type = \'HigherEd\'
             AND name IN (
                 \'Illinois Institute of Technology Chicago-Kent College of Law\',
                 \'Columbia College\',
@@ -32,7 +32,7 @@ INNER JOIN
                 \'Chicago State University\',
                 \'Moraine Valley Community College\'
             )
-            OR gniscode IN (407022)'
+            OR gniscode IN (407022))'
         )
     }} ) AS xy
     ON pcl.x_3435 = xy.x_3435
