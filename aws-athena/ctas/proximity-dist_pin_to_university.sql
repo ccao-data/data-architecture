@@ -34,4 +34,5 @@ WHERE xy.type = 'HigherEd'
         'De Paul University',
         'Chicago State University', 'Moraine Valley Community College'
     )
+    AND xy.objectid NOT IN (1417, 1478)
 GROUP BY pcl.pin10, pcl.year
