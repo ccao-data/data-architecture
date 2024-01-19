@@ -16,22 +16,26 @@ SELECT
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN
-    ( {{ dist_to_nearest_geometry(source('spatial', 'school_location')) }} )
-        AS xy
+    ( {{
+        dist_to_nearest_geometry(
+            source('spatial', 'school_location'),
+            'type = \'HigherEd\'
+            AND name IN (
+                \'Illinois Institute of Technology Chicago-Kent College of Law\',
+                \'Columbia College\',
+                \'University of Illinois at Chicago College of Medicine\',
+                \'Rush University Medical Center\',
+                \'University of Chicago\',
+                \'University of Illinois at Chicago\',
+                \'Northwestern University\',
+                \'Loyola University of Chicago\',
+                \'Chicago State University\',
+                \'Moraine Valley Community College\'
+            )
+            OR gniscode IN (407022)'
+        )
+    }} ) AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
     AND pcl.year = xy.pin_year
-WHERE xy.type = 'HigherEd'
-    AND xy.name IN (
-        'Illinois Institute of Technology Chicago-Kent College of Law',
-        'Columbia College',
-        'University of Illinois at Chicago College of Medicine',
-        'Rush University Medical Center',
-        'University of Chicago',
-        'University of Illinois at Chicago',
-        'Northwestern University',
-        'Loyola University of Chicago',
-        'Chicago State University', 'Moraine Valley Community College'
-    )
-    OR xy.gniscode IN (407022)
 GROUP BY pcl.pin10, pcl.year
