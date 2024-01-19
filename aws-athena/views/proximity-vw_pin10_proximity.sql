@@ -81,6 +81,10 @@ SELECT
     dist_pin_to_secondary_road.nearest_secondary_road_dist_ft,
     dist_pin_to_secondary_road.nearest_secondary_road_data_year,
 
+    dist_pin_to_university.nearest_university_name,
+    dist_pin_to_university.nearest_university_dist_ft,
+    dist_pin_to_university.nearest_university_data_year,
+
     dist_pin_to_water.nearest_water_id,
     dist_pin_to_water.nearest_water_name,
     dist_pin_to_water.nearest_water_dist_ft,
@@ -162,6 +166,10 @@ LEFT JOIN
         AS dist_pin_to_secondary_road
     ON pin.pin10 = dist_pin_to_secondary_road.pin10
     AND pin.year = dist_pin_to_secondary_road.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_university') }} AS dist_pin_to_university
+    ON pin.pin10 = dist_pin_to_university.pin10
+    AND pin.year = dist_pin_to_university.year
 LEFT JOIN {{ ref('proximity.dist_pin_to_water') }} AS dist_pin_to_water
     ON pin.pin10 = dist_pin_to_water.pin10
     AND pin.year = dist_pin_to_water.year

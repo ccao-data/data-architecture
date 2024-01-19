@@ -382,6 +382,30 @@ Secondary road locations sourced from OpenStreetMap (OSM) and include
 any OSM ways tagged with `highway/secondary`
 {% enddocs %}
 
+## nearest_university_dist_ft
+
+{% docs column_nearest_university_dist_ft %}
+Nearest university distance (feet).
+
+University locations sourced from Cook County GIS
+{% enddocs %}
+
+## nearest_university_gnis_code
+
+{% docs column_nearest_university_gnis_code %}
+Nearest university GNIS code.
+
+University locations sourced from Cook County GIS
+{% enddocs %}
+
+## nearest_university_name
+
+{% docs column_nearest_university_name %}
+Nearest university full name.
+
+University locations sourced from Cook County GIS
+{% enddocs %}
+
 ## nearest_water_dist_ft
 
 {% docs column_nearest_water_dist_ft %}
