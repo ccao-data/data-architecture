@@ -18,14 +18,16 @@ SELECT
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN
-(SELECT * FROM {{ dist_to_nearest_geometry(source('spatial', 'parcel')) }} AS parcel
-    WHERE EXISTS (
-        SELECT 1
-        FROM default.vw_pin_universe AS universe
-        WHERE universe.pin10 = parcel.pin10
-        AND universe.class = '100' 
-    )
-) AS xy
+    (
+        SELECT * 
+        FROM {{ dist_to_nearest_geometry(source('spatial', 'parcel')) }} AS parcel
+            WHERE EXISTS (
+                SELECT 1
+                FROM default.vw_pin_universe AS universe
+                WHERE universe.pin10 = parcel.pin10
+                AND universe.class = '100' 
+)
+    ) AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
     AND pcl.year = xy.pin_year
