@@ -31,8 +31,7 @@ WHERE xy.type = 'HigherEd'
         'University of Illinois at Chicago',
         'Northwestern University',
         'Loyola University of Chicago',
-        'De Paul University',
         'Chicago State University', 'Moraine Valley Community College'
     )
-    AND xy.objectid NOT IN (1417, 1478)
+    OR xy.gniscode IN (407022)
 GROUP BY pcl.pin10, pcl.year
