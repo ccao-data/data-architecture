@@ -103,6 +103,32 @@ school_district_ratings AS (
         COUNT(*) AS num_schools_in_district
     FROM {{ source('other', 'great_schools_rating') }}
     GROUP BY district_geoid, district_type
+),
+
+exemption_features AS (
+    SELECT
+        year,
+        pin,
+        SIGN(exe_homeowner) AS ccao_is_active_exe_homeowner,
+        act AS ccao_n_years_exe_homeowner
+    FROM (
+        SELECT
+            *,
+            SUM(SIGN(exe_homeowner))
+                OVER (PARTITION BY pin, grp ORDER BY year)
+                AS act
+        FROM (
+            SELECT
+                *,
+                SUM(no_exe) OVER (PARTITION BY pin ORDER BY year) AS grp
+            FROM (
+                SELECT
+                    *,
+                    CASE WHEN exe_homeowner = 0 THEN 1 ELSE 0 END AS no_exe
+                FROM {{ source('tax', 'pin') }}
+            )
+        )
+    )
 )
 
 SELECT
@@ -253,6 +279,10 @@ SELECT
     sdrs.school_district_avg_rating
         AS other_school_district_secondary_avg_rating,
 
+    -- Exemption features
+    exemption_features.ccao_is_active_exe_homeowner,
+    exemption_features.ccao_n_years_exe_homeowner,
+
     -- Corner lot indicator
     lot.is_corner_lot AS ccao_is_corner_lot,
 
@@ -302,5 +332,8 @@ LEFT JOIN
         WHERE district_type = 'secondary'
     ) AS sdrs
     ON vwlf.school_secondary_district_geoid = sdrs.district_geoid
+LEFT JOIN exemption_features
+    ON uni.pin = exemption_features.pin
+    AND uni.year = exemption_features.year
 LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
     ON uni.pin10 = lot.pin10
