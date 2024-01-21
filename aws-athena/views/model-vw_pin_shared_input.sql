@@ -279,6 +279,10 @@ SELECT
     sdrs.school_district_avg_rating
         AS other_school_district_secondary_avg_rating,
 
+    -- Exemption features
+    exemption_features.ccao_is_exe_homeowner_active,
+    exemption_features.ccao_n_years_exe_homeowner_active,
+
     -- Corner lot indicator
     lot.is_corner_lot AS ccao_is_corner_lot,
 
@@ -328,12 +332,8 @@ LEFT JOIN
         WHERE district_type = 'secondary'
     ) AS sdrs
     ON vwlf.school_secondary_district_geoid = sdrs.district_geoid
-LEFT JOIN
-    (
-        SELECT *
-        FROM exemption_features
-    ) AS exef
-    ON uni.pin = exef.pin
-    AND uni.year = exef.year
+LEFT JOIN exemption_features
+    ON uni.pin = exemption_features.pin
+    AND uni.year = exemption_features.year
 LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
     ON uni.pin10 = lot.pin10

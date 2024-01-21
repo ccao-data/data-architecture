@@ -600,6 +600,8 @@ SELECT
             nn1.other_school_district_secondary_avg_rating IS NULL
             THEN nn2.other_school_district_secondary_avg_rating
     END AS other_school_district_secondary_avg_rating,
+    f1.ccao_is_exe_homeowner_active,
+    f1.ccao_n_years_exe_homeowner_active,
     f1.ccao_is_corner_lot,
     f1.meta_year AS year
 FROM forward_fill AS f1
