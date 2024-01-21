@@ -600,8 +600,21 @@ SELECT
             nn1.other_school_district_secondary_avg_rating IS NULL
             THEN nn2.other_school_district_secondary_avg_rating
     END AS other_school_district_secondary_avg_rating,
-    f1.ccao_is_exe_homeowner_active,
-    f1.ccao_n_years_exe_homeowner_active,
+    -- Exemptions data is usually missing for the 1 or 2 years prior
+    -- to the lien date, so we need to forward fill missing values i.e.
+    -- this assumes that people currently receiving exemptions keep them
+    COALESCE(
+        f1.ccao_is_active_exe_homeowner,
+        LAST_VALUE(f1.ccao_is_active_exe_homeowner)
+            IGNORE NULLS
+            OVER (PARTITION BY f1.meta_pin ORDER BY f1.meta_year DESC)
+    ) AS ccao_is_active_exe_homeowner,
+    COALESCE(
+        f1.ccao_n_years_exe_homeowner,
+        LAST_VALUE(f1.ccao_n_years_exe_homeowner)
+            IGNORE NULLS
+            OVER (PARTITION BY f1.meta_pin ORDER BY f1.meta_year DESC)
+    ) AS ccao_n_years_exe_homeowner,
     f1.ccao_is_corner_lot,
     f1.meta_year AS year
 FROM forward_fill AS f1

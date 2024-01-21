@@ -109,8 +109,8 @@ exemption_features AS (
     SELECT
         year,
         pin,
-        SIGN(exe_homeowner) AS ccao_is_exe_homeowner_active,
-        act AS ccao_n_years_exe_homeowner_active
+        SIGN(exe_homeowner) AS ccao_is_active_exe_homeowner,
+        act AS ccao_n_years_exe_homeowner
     FROM (
         SELECT
             *,
@@ -280,8 +280,8 @@ SELECT
         AS other_school_district_secondary_avg_rating,
 
     -- Exemption features
-    exemption_features.ccao_is_exe_homeowner_active,
-    exemption_features.ccao_n_years_exe_homeowner_active,
+    exemption_features.ccao_is_active_exe_homeowner,
+    exemption_features.ccao_n_years_exe_homeowner,
 
     -- Corner lot indicator
     lot.is_corner_lot AS ccao_is_corner_lot,
