@@ -182,10 +182,10 @@ Distance from each PIN to the nearest secondary road.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
-# dist_pin_to_vacant_land
+# dist_pin_to_university
 
-{% docs table_dist_pin_to_vacant_land %}
-Distance from each PIN to the nearest vacant land (any class 100 parcel).
+{% docs table_dist_pin_to_university %}
+Distance from each PIN to the nearest university.
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}

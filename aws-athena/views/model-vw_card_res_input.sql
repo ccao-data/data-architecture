@@ -533,6 +533,17 @@ SELECT
     END AS prox_nearest_secondary_road_dist_ft,
     CASE
         WHEN
+            f1.prox_nearest_university_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_university_dist_ft
+        WHEN
+            f1.prox_nearest_university_dist_ft IS NULL
+            THEN nn1.prox_nearest_university_dist_ft
+        WHEN
+            nn1.prox_nearest_university_dist_ft IS NULL
+            THEN nn2.prox_nearest_university_dist_ft
+    END AS prox_nearest_university_dist_ft,
+    CASE
+        WHEN
             f1.prox_nearest_water_dist_ft IS NOT NULL
             THEN f1.prox_nearest_water_dist_ft
         WHEN
@@ -589,6 +600,21 @@ SELECT
             nn1.other_school_district_secondary_avg_rating IS NULL
             THEN nn2.other_school_district_secondary_avg_rating
     END AS other_school_district_secondary_avg_rating,
+    -- Exemptions data is usually missing for the 1 or 2 years prior
+    -- to the lien date, so we need to fill missing values w/ down up fill
+    -- This assumes that people currently receiving exemptions keep them
+    COALESCE(
+        f1.ccao_is_active_exe_homeowner,
+        LAG(f1.ccao_is_active_exe_homeowner)
+            IGNORE NULLS
+            OVER (PARTITION BY f1.meta_pin ORDER BY f1.meta_year)
+    ) AS ccao_is_active_exe_homeowner,
+    COALESCE(
+        f1.ccao_n_years_exe_homeowner,
+        LAG(f1.ccao_n_years_exe_homeowner)
+            IGNORE NULLS
+            OVER (PARTITION BY f1.meta_pin ORDER BY f1.meta_year)
+    ) AS ccao_n_years_exe_homeowner,
     f1.ccao_is_corner_lot,
     f1.meta_year AS year
 FROM forward_fill AS f1
