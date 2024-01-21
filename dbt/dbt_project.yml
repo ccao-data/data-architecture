@@ -59,5 +59,7 @@ models:
       +schema: sale
     qc:
       +schema: qc
+    ephemeral:
+      +schema: ephemeral
 tests:
   +schema: test_failure

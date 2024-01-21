@@ -1,0 +1,1 @@
+../../../aws-athena/ephemeral/ephemeral-vacant_land.sql
