@@ -1,1 +1,1 @@
-../../../aws-athena/ctes/ephemeral_vacant_land.sql
+../../../aws-athena/ephemeral/ephemeral_vacant_land.sql
