@@ -7,6 +7,21 @@
     )
 }}
 
+WITH vacant_land AS (
+    SELECT
+        parcel.pin10,
+        ST_ASBINARY(ST_POINT(parcel.x_3435, parcel.y_3435)) AS geometry_3435,
+        parcel.year
+    FROM {{ source('spatial', 'parcel') }} AS parcel
+    INNER JOIN {{ source('iasworld', 'pardat') }} AS pardat
+        ON parcel.pin10 = SUBSTR(pardat.parid, 1, 10)
+        AND parcel.year = pardat.taxyr
+        AND pardat.cur = 'Y'
+        AND pardat.deactivat IS NULL
+        AND pardat.class = '100'
+        AND ST_AREA(ST_GEOMFROMBINARY(geometry_3435)) >= 1000
+)
+
 SELECT
     pcl.pin10,
     ARBITRARY(xy.pin10) AS nearest_vacant_land_pin10,
@@ -15,7 +30,7 @@ SELECT
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN
-    ( {{ dist_to_nearest_geometry(ref('ephemeral_vacant_land')) }} ) AS xy
+    ( {{ dist_to_nearest_geometry('vacant_land') }} ) AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
     AND pcl.year = xy.pin_year
