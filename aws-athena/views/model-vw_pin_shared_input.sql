@@ -228,6 +228,7 @@ SELECT
     vwpf.nearest_railroad_dist_ft AS prox_nearest_railroad_dist_ft,
     vwpf.nearest_secondary_road_dist_ft AS prox_nearest_secondary_road_dist_ft,
     vwpf.nearest_university_dist_ft AS prox_nearest_university_dist_ft,
+    vwpf.nearest_vacant_land_dist_ft AS prox_nearest_vacant_land_dist_ft,
     vwpf.nearest_water_dist_ft AS prox_nearest_water_dist_ft,
 
     -- ACS5 census data
