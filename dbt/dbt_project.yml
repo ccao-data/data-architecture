@@ -61,5 +61,6 @@ models:
       +schema: qc
     ephemeral:
       +schema: ephemeral
+      +materialized: ephemeral
 tests:
   +schema: test_failure

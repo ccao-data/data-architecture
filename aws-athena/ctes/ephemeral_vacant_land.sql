@@ -1,7 +1,3 @@
-{{
-    config(materialized='ephemeral')
-}}
-
 SELECT
     parcel.pin10,
     ST_ASBINARY(ST_POINT(parcel.x_3435, parcel.y_3435)) AS geometry_3435,
