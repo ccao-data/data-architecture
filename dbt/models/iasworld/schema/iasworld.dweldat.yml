@@ -1029,9 +1029,6 @@ sources:
                   meta:
                     description: >
                       user34 (garage ext. wall construction) should not be null
-                  tags:
-                    # Currently too many failures for this signal to be useful
-                    - test_qc_exclude_from_workbook
               - accepted_values:
                   name: iasworld_dweldat_char_gar_cnst_accepted_values
                   values: ['1', '2', '3', '4']
@@ -1041,6 +1038,9 @@ sources:
                     description: >
                       user34 (garage ext. wall construction) should be
                       an integer between 1 and 4
+                  tags:
+                    # Currently too many failures for this signal to be useful
+                    - test_qc_exclude_from_workbook
           - name: useramt
             description: RCN value of additions
           - name: userfact
