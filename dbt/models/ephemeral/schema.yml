@@ -1,3 +1,3 @@
 models:
   - name: ephemeral_vacant_land
-    description: Vacant land (class 100_ parcels greater than 1,000 sqft
+    description: Vacant land (class 100) parcels greater than 1,000 sqft
