@@ -31,8 +31,8 @@ See `location/docs.md`.
 # dist_pin_to_airport
 
 {% docs table_dist_pin_to_airport %}
-Distance from each PIN to O'Hare airport, and to Midway airport, in feet. Also 
-includes estimated DNL (noise) contribution from each airport, and predicted DNL 
+Distance from each PIN to O'Hare airport, and to Midway airport, in feet. Also
+includes estimated DNL (noise) contribution from each airport, and predicted DNL
 as a result of contributions from both airports plus baseline DNL of 50.
 
 **Primary Key**: `pin10`, `year`
@@ -186,6 +186,15 @@ Distance from each PIN to the nearest secondary road.
 
 {% docs table_dist_pin_to_university %}
 Distance from each PIN to the nearest university.
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
+# dist_pin_to_vacant_land
+
+{% docs table_dist_pin_to_vacant_land %}
+Distance from each PIN to the nearest vacant land (class 100) parcel
+larger than 1,000 square feet.
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}

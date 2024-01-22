@@ -406,6 +406,28 @@ Nearest university full name.
 University locations sourced from Cook County GIS
 {% enddocs %}
 
+## nearest_vacant_land_dist_ft
+
+{% docs column_nearest_vacant_land_dist_ft %}
+Nearest vacant land (class 100) parcel distance (feet).
+
+Note that the parcel must be larger than 1,000 square feet.
+
+Parcel locations sourced from Cook County parcel layer. Class sourced
+from `iasworld.pardat`
+{% enddocs %}
+
+## nearest_vacant_land_pin10
+
+{% docs column_nearest_vacant_land_pin10 %}
+Nearest vacant land (class 100) 10-digit PIN.
+
+Note that the parcel must be larger than 1,000 square feet.
+
+Parcel locations sourced from Cook County parcel layer. Class sourced
+from `iasworld.pardat`
+{% enddocs %}
+
 ## nearest_water_dist_ft
 
 {% docs column_nearest_water_dist_ft %}

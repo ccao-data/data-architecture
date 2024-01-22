@@ -85,6 +85,10 @@ SELECT
     dist_pin_to_university.nearest_university_dist_ft,
     dist_pin_to_university.nearest_university_data_year,
 
+    dist_pin_to_vacant_land.nearest_vacant_land_pin10,
+    dist_pin_to_vacant_land.nearest_vacant_land_dist_ft,
+    dist_pin_to_vacant_land.nearest_vacant_land_data_year,
+
     dist_pin_to_water.nearest_water_id,
     dist_pin_to_water.nearest_water_name,
     dist_pin_to_water.nearest_water_dist_ft,
@@ -170,6 +174,10 @@ LEFT JOIN
     {{ ref('proximity.dist_pin_to_university') }} AS dist_pin_to_university
     ON pin.pin10 = dist_pin_to_university.pin10
     AND pin.year = dist_pin_to_university.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_vacant_land') }} AS dist_pin_to_vacant_land
+    ON pin.pin10 = dist_pin_to_vacant_land.pin10
+    AND pin.year = dist_pin_to_vacant_land.year
 LEFT JOIN {{ ref('proximity.dist_pin_to_water') }} AS dist_pin_to_water
     ON pin.pin10 = dist_pin_to_water.pin10
     AND pin.year = dist_pin_to_water.year

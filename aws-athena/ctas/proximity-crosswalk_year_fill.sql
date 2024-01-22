@@ -50,6 +50,8 @@ WITH unfilled AS (
             AS nearest_secondary_road_data_year,
         MAX(dist_pin_to_university.nearest_university_data_year)
             AS nearest_university_data_year,
+        MAX(dist_pin_to_vacant_land.nearest_vacant_land_data_year)
+            AS nearest_vacant_land_data_year,
         MAX(dist_pin_to_water.nearest_water_data_year)
             AS nearest_water_data_year
     FROM
@@ -168,6 +170,12 @@ WITH unfilled AS (
             nearest_university_data_year
         FROM {{ ref('proximity.dist_pin_to_university') }}
     ) AS dist_pin_to_university ON pin.year = dist_pin_to_university.year
+    LEFT JOIN (
+        SELECT DISTINCT
+            year,
+            nearest_vacant_land_data_year
+        FROM {{ ref('proximity.dist_pin_to_vacant_land') }}
+    ) AS dist_pin_to_vacant_land ON pin.year = dist_pin_to_vacant_land.year
     LEFT JOIN (
         SELECT DISTINCT
             year,
@@ -290,6 +298,12 @@ SELECT
             IGNORE NULLS
             OVER (ORDER BY year DESC)
     ) AS nearest_university_data_year,
+    COALESCE(
+        nearest_vacant_land_data_year,
+        LAST_VALUE(nearest_vacant_land_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY year DESC)
+    ) AS nearest_vacant_land_data_year,
     COALESCE(
         nearest_water_data_year, LAST_VALUE(nearest_water_data_year)
             IGNORE NULLS

@@ -65,6 +65,9 @@ models:
   - name: proximity.dist_pin_to_university
     description: '{{ doc("table_dist_pin_to_university") }}'
 
+  - name: proximity.dist_pin_to_vacant_land
+    description: '{{ doc("table_dist_pin_to_vacant_land") }}'
+
   - name: proximity.dist_pin_to_water
     description: '{{ doc("table_dist_pin_to_water") }}'
 
@@ -185,6 +188,20 @@ models:
         description: '{{ doc("column_nearest_secondary_road_name") }}'
       - name: nearest_secondary_road_osm_id
         description: '{{ doc("column_nearest_secondary_road_osm_id") }}'
+      - name: nearest_university_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: nearest_university_dist_ft
+        description: '{{ doc("column_nearest_university_dist_ft") }}'
+      - name: nearest_university_gnis_code
+        description: '{{ doc("column_nearest_university_gnis_code") }}'
+      - name: nearest_university_name
+        description: '{{ doc("column_nearest_university_name") }}'
+      - name: nearest_vacant_land_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: nearest_vacant_land_dist_ft
+        description: '{{ doc("column_nearest_vacant_land_dist_ft") }}'
+      - name: nearest_vacant_land_pin10
+        description: '{{ doc("column_nearest_vacant_land_pin10") }}'
       - name: nearest_water_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_water_dist_ft

@@ -1,0 +1,1 @@
+../../../aws-athena/ctas/proximity-dist_pin_to_vacant_land.sql
