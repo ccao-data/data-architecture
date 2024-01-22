@@ -193,7 +193,8 @@ Distance from each PIN to the nearest university.
 # dist_pin_to_vacant_land
 
 {% docs table_dist_pin_to_vacant_land %}
-Distance from each PIN to the nearest vacant land (class 100 parcel).
+Distance from each PIN to the nearest vacant land (class 100) parcel
+larger than 1,000 square feet.
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
