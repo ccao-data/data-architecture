@@ -95,6 +95,14 @@ different.
 
 {% enddocs %}
 
+# vw_pardat_nbhd_town_mismatch
+
+{% docs view_vw_pardat_nbhd_town_mismatch %}
+Test if neighborhood codes in `iasworld.pardat` have a township prefix
+that matches the township code for the parcel in `iasworld.legdat`.
+
+{% enddocs %}
+
 # vw_sale_mydec_null_values
 
 {% docs view_vw_sale_mydec_null_values %}

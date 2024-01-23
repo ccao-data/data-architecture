@@ -841,3 +841,23 @@ models:
             - document_number
             - price_iasworld
             - price_mydec
+
+  - name: qc.vw_pardat_nbhd_town_mismatch
+    description: '{{ doc("view_vw_pardat_nbhd_town_mismatch") }}'
+    config:
+      tags:
+        - test_qc_iasworld
+    tests:
+      - expression_is_true:
+          name: qc_vw_pardat_nbhd_town_mismatch
+          expression: false  # All rows in the view indicate test failures
+          select_columns:
+            - taxyr
+            - parid
+            - class
+            - neighborhood_code
+            - township_code
+          meta:
+            table_name: pardat
+            category: relationships
+            description: nbhd first two numbers should match township_code

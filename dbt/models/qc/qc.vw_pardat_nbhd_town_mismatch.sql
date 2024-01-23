@@ -1,0 +1,1 @@
+../../../aws-athena/views/qc-vw_pardat_nbhd_town_mismatch.sql
