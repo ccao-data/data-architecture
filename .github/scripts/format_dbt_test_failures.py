@@ -163,9 +163,12 @@ class FailedTestGroup:
             for row in self.raw_rows
         ]
 
-    def _get_filtered_fieldnames(
+    def _filter_for_existing_fieldnames(
         self, possible_fieldnames: typing.List[str]
     ) -> typing.List[str]:
+        """Helper function to filter a list of `possible_fieldnames` for
+        only those fields that exist in the test group, returning the
+        names of the fields (e.g. ["foo", "bar"])."""
         existing_fieldnames = self.fieldnames
         return [
             field
@@ -173,9 +176,12 @@ class FailedTestGroup:
             if field in existing_fieldnames
         ]
 
-    def _get_filtered_field_indexes(
+    def __filter_for_existing_field_indexes(
         self, possible_fieldnames: typing.List[str]
     ) -> tuple:
+        """Helper function to filter a list of `possible_fieldnames` for
+        only those fields that exist in the test group, returning the
+        indexes of the fields (e.g. ["A", "B"])."""
         existing_fieldnames = self.fieldnames
         return tuple(
             openpyxl.utils.get_column_letter(
@@ -183,58 +189,70 @@ class FailedTestGroup:
                 existing_fieldnames.index(field)
                 + 1
             )
-            for field in self._get_filtered_fieldnames(possible_fieldnames)
+            for field in self._filter_for_existing_fieldnames(
+                possible_fieldnames
+            )
         )
 
     @property
     def debugging_fieldnames(self) -> typing.List[str]:
         """Get a list of fieldnames (e.g. ["foo", "bar"]) for fields that
         are used for debugging."""
-        return self._get_filtered_fieldnames(self._debugging_fieldnames)
+        return self._filter_for_existing_fieldnames(self._debugging_fieldnames)
 
     @property
     def debugging_field_indexes(self) -> tuple:
         """Get a tuple of field indexes (e.g. ["A", "B"]) for fields that
         are used for debugging."""
-        return self._get_filtered_field_indexes(self._debugging_fieldnames)
+        return self.__filter_for_existing_field_indexes(
+            self._debugging_fieldnames
+        )
 
     @property
     def test_metadata_fieldnames(self) -> typing.List[str]:
         """Get a list of fieldnames (e.g. ["foo", "bar"]) for fields that
         are used for identifying tests."""
-        return self._get_filtered_fieldnames(self._test_metadata_fieldnames)
+        return self._filter_for_existing_fieldnames(
+            self._test_metadata_fieldnames
+        )
 
     @property
     def test_metadata_field_indexes(self) -> tuple:
         """Get a tuple of field indexes (e.g. ["A", "B"]) for fields that
         are used for identifying tests."""
-        return self._get_filtered_field_indexes(self._test_metadata_fieldnames)
+        return self.__filter_for_existing_field_indexes(
+            self._test_metadata_fieldnames
+        )
 
     @property
     def diagnostic_fieldnames(self) -> typing.List[str]:
         """Get a list of fieldnames (e.g. ["foo", "bar"]) for fields that
         are used for diagnostics."""
-        return self._get_filtered_fieldnames(self._diagnostic_fieldnames)
+        return self._filter_for_existing_fieldnames(
+            self._diagnostic_fieldnames
+        )
 
     @property
     def diagnostic_field_indexes(self) -> tuple:
         """Get a tuple of field indexes (e.g. ["A", "B"]) for fields that
         are used for diagnostics."""
-        return self._get_filtered_field_indexes(self._diagnostic_fieldnames)
+        return self.__filter_for_existing_field_indexes(
+            self._diagnostic_fieldnames
+        )
 
     @property
     def fixed_fieldnames(self) -> typing.List[str]:
         """Get a list of fieldnames (e.g. ["foo", "bar"]) for fields that
         are fixed (i.e. whose position is always at the start of the sheet,
         for diagnostic purposes)."""
-        return self._get_filtered_fieldnames(self._fixed_fieldnames)
+        return self._filter_for_existing_fieldnames(self._fixed_fieldnames)
 
     @property
     def fixed_field_indexes(self) -> tuple:
         """Get a list of field indexes (e.g. ["A", "B"]) for fields that
         are fixed (i.e. whose position is always at the start of the sheet,
         for diagnostic purposes)."""
-        return self._get_filtered_field_indexes(self._fixed_fieldnames)
+        return self.__filter_for_existing_field_indexes(self._fixed_fieldnames)
 
     @property
     def nonfixed_fieldnames(self) -> typing.List[str]:
@@ -251,7 +269,7 @@ class FailedTestGroup:
         are nonfixed (i.e. whose position comes after the fixed fields in the
         sheet and are thus variable)."""
         nonfixed_fieldnames = self.nonfixed_fieldnames
-        return self._get_filtered_field_indexes(nonfixed_fieldnames)
+        return self.__filter_for_existing_field_indexes(nonfixed_fieldnames)
 
 
 # Type representing a mapping of sheet names to the tests contained therein
@@ -317,6 +335,9 @@ def main() -> None:
 def get_failed_test_cache_path(
     run_results_filepath: str, manifest_filepath: str
 ) -> str:
+    """Return the path to the cache where failed test results are stored.
+    The `run_results_filepath` and `manifest_filepath` are used to generated
+    a hash key that uniquely defines the cache key for a given test run."""
     with open(run_results_filepath, "rb") as run_results_file:
         run_results_hash = hashlib.md5(run_results_file.read()).hexdigest()
 
@@ -332,6 +353,8 @@ def get_failed_test_cache_path(
 def get_failed_tests_by_category_from_file(
     file_path: str,
 ) -> FailedTestsByCategory:
+    """Load a FailedTestsByCategory object from a cache located at
+    `file_path`."""
     with open(file_path) as cache_file:
         failed_tests_dict = json.load(cache_file, use_decimal=True)
     return {
@@ -343,6 +366,8 @@ def get_failed_tests_by_category_from_file(
 def save_failed_tests_by_category_to_file(
     failed_tests_by_category: FailedTestsByCategory, file_path: str
 ) -> None:
+    """Save a FailedTestsByCategory object to a cache located at
+    `file_path`."""
     failed_tests_dict = {
         category: test_group.raw_rows
         for category, test_group in failed_tests_by_category.items()
@@ -355,6 +380,8 @@ def save_failed_tests_by_category_to_file(
 def get_failed_tests_by_category_from_athena(
     run_results_filepath: str, manifest_filepath: str
 ) -> FailedTestsByCategory:
+    """Load a FailedTestsByCategory object by querying Athena for failed
+    test results generated from a `dbt test --store-failures` call."""
     with open(run_results_filepath) as run_results_fobj:
         run_results = json.load(run_results_fobj)
 
