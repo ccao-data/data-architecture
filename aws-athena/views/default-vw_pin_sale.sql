@@ -6,7 +6,9 @@ WITH town_class AS (
         par.class,
         par.taxyr,
         leg.user1 AS township_code,
-        CONCAT(leg.user1, SUBSTR(par.nbhd, 3, 3)) AS nbhd
+        CONCAT(
+            leg.user1, SUBSTR(REGEXP_REPLACE(par.nbhd, '([^0-9])', ''), 3, 3)
+        ) AS nbhd
     FROM {{ source('iasworld', 'pardat') }} AS par
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
         ON par.parid = leg.parid
