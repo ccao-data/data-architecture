@@ -30,7 +30,7 @@ FROM (
         nearest_pin_neighbors(
             'missing_matches',
             3,
-            10000
+            25000
         )
     }}
 )
