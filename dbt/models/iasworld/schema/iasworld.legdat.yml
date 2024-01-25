@@ -243,6 +243,9 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: zip1 should not be 00000
+                  # Currently too many failures for this signal to be useful
+                  tags:
+                    - test_qc_exclude_from_workbook
           - name: zip2
             description: '{{ doc("shared_column_prop_address_zipcode_2") }}'
             tests:
@@ -253,6 +256,9 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: zip2 should not be 0000
+                  # Currently too many failures for this signal to be useful
+                  tags:
+                    - test_qc_exclude_from_workbook
 
         tests:
           - unique_combination_of_columns:
@@ -309,3 +315,6 @@ sources:
                   The following columns should have no leading or trailing
                   whitespace: adrpre, adrdir, adrstr, adrsuf, adrsuf2, unitdesc,
                   unitno, cityname, statecode, zip1, zip2
+              tags:
+                # Currently too many failures for this signal to be useful
+                - test_qc_exclude_from_workbook

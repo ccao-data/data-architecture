@@ -154,6 +154,8 @@ sources:
               config:
                 <<: *unique-conditions
                 error_if: ">15300"
+              meta:
+                description: asmt_all should be unique by parid, procname, and taxyr
           - row_values_match_after_join:
               name: iasworld_asmt_all_class_matches_pardat_class
               column: substr(model.class, 1, 3)
