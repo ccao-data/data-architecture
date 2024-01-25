@@ -17,20 +17,9 @@
             from {{ source("spatial", "parcel") }}
         ),
 
-        most_recent_pins as (
-            -- Parcel centroids may shift very slightly over time in GIS shapefiles.
-            -- We want to make sure we only grab the most recent instance of a given
-            -- parcel to avoid duplicates caused by these slight shifts.
-            select
-                x_3435,
-                y_3435,
-                pin10,
-                rank() over (partition by pin10 order by year desc) as r
+        source_pins as (
+            select pin10, year, x_3435, y_3435, st_point(x_3435, y_3435) as point
             from {{ source_model }}
-        ),
-
-        distinct_pins as (
-            select distinct x_3435, y_3435, pin10 from most_recent_pins where r = 1
         ),
 
         pin_dists as (
@@ -46,27 +35,32 @@
                     from
                         (
                             select
-                                dp.pin10,
-                                dp.x_3435,
-                                dp.y_3435,
+                                sp.pin10,
+                                sp.x_3435,
+                                sp.y_3435,
                                 loc.year,
                                 loc.pin10 as neighbor_pin10,
                                 st_distance(
-                                    st_point(dp.x_3435, dp.y_3435), loc.point
+                                    st_point(sp.x_3435, sp.y_3435), loc.point
                                 ) as dist
-                            from distinct_pins as dp
+                            from source_pins as sp
                             inner join
                                 pin_locations as loc
                                 on st_contains(
-                                    st_buffer(
-                                        st_point(dp.x_3435, dp.y_3435), {{ radius_km }}
-                                    ),
-                                    loc.point
+                                    st_buffer(sp.point, {{ radius_km }}), loc.point
                                 )
-                                and dp.pin10 != loc.pin10
+                            -- This horrifying conditional is designed to trick the
+                            -- Athena query
+                            -- planner. For some reason, adding a true conditional to
+                            -- a query with a
+                            -- spatial join (like the one above) results in terrible
+                            -- performance,
+                            -- while doing a cross join then filtering the rows is
+                            -- much faster
+                            where abs(cast(loc.year as int) - cast(sp.year as int)) = 0
                         ) as dists
                 )
-            where row_num <= 4
+            where row_num <= {{ num_neighbors }} + 1
         )
 
     select *
@@ -89,7 +83,7 @@
         )
     where
         {% for idx in range(1, num_neighbors + 1) %}
-            {% if idx != 1 %} and{% endif %}
+            {% if idx != 1 %} and {% endif %}
             nearest_neighbor_{{ idx }}_pin10 is not null
         {% endfor %}
 {% endmacro %}
