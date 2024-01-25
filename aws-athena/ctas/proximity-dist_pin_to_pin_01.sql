@@ -1,5 +1,5 @@
 -- CTAS that finds the 3 nearest neighbor PINs for every PIN for every year
--- within a 1km radius
+-- within a 100 meter radius. Step 1 of 3
 {{
     config(
         materialized='table',
@@ -15,7 +15,7 @@ FROM (
         nearest_pin_neighbors(
             source('spatial', 'parcel'),
             3,
-            1000
+            100
         )
     }}
 )
