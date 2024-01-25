@@ -50,10 +50,13 @@ models:
   - name: proximity.dist_pin_to_pin
     description: '{{ doc("view_dist_pin_to_pin") }}'
 
-  - name: proximity.dist_pin_to_pin_1km
+  - name: proximity.dist_pin_to_pin_01
     description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
 
-  - name: proximity.dist_pin_to_pin_10km
+  - name: proximity.dist_pin_to_pin_02
+    description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
+
+  - name: proximity.dist_pin_to_pin_03
     description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
 
   - name: proximity.dist_pin_to_railroad
