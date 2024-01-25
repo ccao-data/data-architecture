@@ -29,8 +29,7 @@
                     select
                         dists.*,
                         row_number() over (
-                            partition by dists.x_3435, dists.y_3435, dists.year
-                            order by dists.dist
+                            partition by dists.pin10, dists.year order by dists.dist
                         ) as row_num
                     from
                         (
@@ -53,11 +52,18 @@
                             -- Athena query planner. For some reason, adding a true
                             -- conditional to a query with a spatial join (like the
                             -- one above) results in terrible performance, while doing
-                            -- a cross join then filtering the rows is much faster
-                            where abs(cast(loc.year as int) - cast(sp.year as int)) = 0
+                            -- a join with these contrived conditions is very fast
+                            where
+                                abs(cast(loc.year as int) - cast(sp.year as int)) = 0
+                                and abs(
+                                    cast(loc.pin10 as bigint) - cast(sp.pin10 as bigint)
+                                )
+                                != 0
+                                and abs(loc.x_3435 - sp.x_3435) != 0
+                                and abs(loc.y_3435 - sp.y_3435) != 0
                         ) as dists
                 )
-            where row_num <= {{ num_neighbors }} + 1
+            where row_num <= {{ num_neighbors }}
         )
 
     select *
@@ -67,10 +73,10 @@
                 pcl.pin10,
                 {% for idx in range(1, num_neighbors + 1) %}
                     max(
-                        case when pd.row_num = {{ idx + 1 }} then pd.neighbor_pin10 end
+                        case when pd.row_num = {{ idx }} then pd.neighbor_pin10 end
                     ) as nearest_neighbor_{{ idx }}_pin10,
                     max(
-                        case when pd.row_num = {{ idx + 1 }} then pd.dist end
+                        case when pd.row_num = {{ idx }} then pd.dist end
                     ) as nearest_neighbor_{{ idx }}_dist_ft,
                 {% endfor %}
                 pcl.year
