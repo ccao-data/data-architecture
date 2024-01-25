@@ -50,13 +50,10 @@
                                     st_buffer(sp.point, {{ radius_km }}), loc.point
                                 )
                             -- This horrifying conditional is designed to trick the
-                            -- Athena query
-                            -- planner. For some reason, adding a true conditional to
-                            -- a query with a
-                            -- spatial join (like the one above) results in terrible
-                            -- performance,
-                            -- while doing a cross join then filtering the rows is
-                            -- much faster
+                            -- Athena query planner. For some reason, adding a true
+                            -- conditional to a query with a spatial join (like the
+                            -- one above) results in terrible performance, while doing
+                            -- a cross join then filtering the rows is much faster
                             where abs(cast(loc.year as int) - cast(sp.year as int)) = 0
                         ) as dists
                 )
