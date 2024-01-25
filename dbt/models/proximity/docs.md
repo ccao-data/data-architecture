@@ -156,11 +156,13 @@ quite far (>1km) from the nearest three PINs, so we use intermediate tables
 to strike a balance between data completeness and computational efficiency.
 
 To compute the full set of distances in `proximity.dist_pin_to_pin`, we first
-generate PIN-to-PIN distances using a 1km buffer and store the results in the
-`proximity.dist_pin_to_pin_1km` table. Then, we query for PINs that did not have
-any matches within 1km and redo the distance query with an expanded 10km buffer,
-storing the results in the `proximity.dist_pin_to_pin_10km` table. Finally, the
-union of the 1km table and the 10km table is aliased to the
+generate PIN-to-PIN distances using a small buffer and store the results in the
+`proximity.dist_pin_to_pin_01` table. Then, we query for PINs that did not have
+any matches within the buffer and redo the distance query with a slightly larger
+buffer, storing the results in the `proximity.dist_pin_to_pin_02` table. The
+process repeats until neighbors are found for all PINs.
+
+Finally, the union of all the intermediate tables is aliased to the
 `proximity.dist_pin_to_pin` view for ease of querying.
 
 **Primary Key**: `pin10`, `year`
