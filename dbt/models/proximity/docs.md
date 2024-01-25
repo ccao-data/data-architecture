@@ -152,7 +152,7 @@ Intermediate table used to generate `proximity.dist_pin_to_pin`.
 The `proximity.dist_pin_to_pin` view is intended to record distances to the
 three closest PINs for all PINs in the county for all years in the data.
 This type of recursive spatial query is expensive, however, and some PINs are
-quite far (>1km) from the nearest three PINs, so we use intermediate tables
+quite far (>1mi) from the nearest three PINs, so we use intermediate tables
 to strike a balance between data completeness and computational efficiency.
 
 To compute the full set of distances in `proximity.dist_pin_to_pin`, we first

@@ -1,5 +1,5 @@
 -- CTAS that finds the 3 nearest neighbor PINs for every PIN for every year
--- within a 100 meter radius
+-- within a 100 foot radius
 {{
     config(
         materialized='table',

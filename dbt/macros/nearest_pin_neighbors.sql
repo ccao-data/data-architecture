@@ -1,7 +1,7 @@
 -- Macro that takes a `source_model` containing PIN geometries and joins it
 -- against spatial.parcel in order to generate the `num_neighbors` nearest
 -- neighbors for each PIN for each year in the data, where a "neighbor" is
--- defined as another PIN that is within `radius_km` of the given PIN.
+-- defined as another PIN that is within `radius_ft` of the given PIN.
 --
 -- The `source_model` must contain four required columns, and is modeled
 -- after spatial.parcel, which is the primary source for this macro:
@@ -10,7 +10,7 @@
 -- * year
 -- * x_3435
 -- * y_3435
-{% macro nearest_pin_neighbors(source_model, num_neighbors, radius_km) %}
+{% macro nearest_pin_neighbors(source_model, num_neighbors, radius_ft) %}
     with
         pin_locations as (
             select pin10, year, x_3435, y_3435, st_point(x_3435, y_3435) as point
@@ -47,7 +47,7 @@
                             inner join
                                 pin_locations as loc
                                 on st_contains(
-                                    st_buffer(sp.point, {{ radius_km }}), loc.point
+                                    st_buffer(sp.point, {{ radius_ft }}), loc.point
                                 )
                             -- This horrifying conditional is designed to trick the
                             -- Athena query planner. For some reason, adding a true
