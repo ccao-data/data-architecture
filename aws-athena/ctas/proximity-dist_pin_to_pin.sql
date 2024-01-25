@@ -1,6 +1,6 @@
 -- View that finds the 3 nearest neighbor PINs for every PIN for every year
-SELECT * FROM proximity.dist_pin_to_pin_01
+SELECT * FROM {{ ref('proximity.dist_pin_to_pin_01') }}
 UNION
-SELECT * FROM proximity.dist_pin_to_pin_02
+SELECT * FROM {{ ref('proximity.dist_pin_to_pin_02') }}
 UNION
-SELECT * FROM proximity.dist_pin_to_pin_03
+SELECT * FROM {{ ref('proximity.dist_pin_to_pin_03') }}
