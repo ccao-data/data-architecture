@@ -176,7 +176,7 @@ class FailedTestGroup:
             if field in existing_fieldnames
         ]
 
-    def __filter_for_existing_field_indexes(
+    def _filter_for_existing_field_indexes(
         self, possible_fieldnames: typing.List[str]
     ) -> tuple:
         """Helper function to filter a list of `possible_fieldnames` for
@@ -204,7 +204,7 @@ class FailedTestGroup:
     def debugging_field_indexes(self) -> tuple:
         """Get a tuple of field indexes (e.g. ["A", "B"]) for fields that
         are used for debugging."""
-        return self.__filter_for_existing_field_indexes(
+        return self._filter_for_existing_field_indexes(
             self._debugging_fieldnames
         )
 
@@ -220,7 +220,7 @@ class FailedTestGroup:
     def test_metadata_field_indexes(self) -> tuple:
         """Get a tuple of field indexes (e.g. ["A", "B"]) for fields that
         are used for identifying tests."""
-        return self.__filter_for_existing_field_indexes(
+        return self._filter_for_existing_field_indexes(
             self._test_metadata_fieldnames
         )
 
@@ -236,7 +236,7 @@ class FailedTestGroup:
     def diagnostic_field_indexes(self) -> tuple:
         """Get a tuple of field indexes (e.g. ["A", "B"]) for fields that
         are used for diagnostics."""
-        return self.__filter_for_existing_field_indexes(
+        return self._filter_for_existing_field_indexes(
             self._diagnostic_fieldnames
         )
 
@@ -252,7 +252,7 @@ class FailedTestGroup:
         """Get a list of field indexes (e.g. ["A", "B"]) for fields that
         are fixed (i.e. whose position is always at the start of the sheet,
         for diagnostic purposes)."""
-        return self.__filter_for_existing_field_indexes(self._fixed_fieldnames)
+        return self._filter_for_existing_field_indexes(self._fixed_fieldnames)
 
     @property
     def nonfixed_fieldnames(self) -> typing.List[str]:
@@ -269,7 +269,7 @@ class FailedTestGroup:
         are nonfixed (i.e. whose position comes after the fixed fields in the
         sheet and are thus variable)."""
         nonfixed_fieldnames = self.nonfixed_fieldnames
-        return self.__filter_for_existing_field_indexes(nonfixed_fieldnames)
+        return self._filter_for_existing_field_indexes(nonfixed_fieldnames)
 
 
 # Type representing a mapping of sheet names to the tests contained therein
