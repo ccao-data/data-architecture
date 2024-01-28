@@ -54,7 +54,7 @@ years <- dbGetQuery(
   SELECT DISTINCT year FROM ccao.pin_condo_char
   "
 ) %>%
-  as.character()
+  pull(year)
 
 # Function to grab chars data from Athena if it's already available
 athena_chars <- function(x) {
@@ -70,7 +70,7 @@ athena_chars <- function(x) {
 chars <- list()
 
 # We use tax year, valuations uses year the work was done
-for (i in c("2021", "2022")) {
+for (i in c("2021", "2022", "2023")) {
   if (!("2021" %in% years) && i == "2021") {
     # If clean 2021 data is not already in Athena, load and clean it
     chars[[i]] <- map(
@@ -92,7 +92,7 @@ for (i in c("2021", "2022")) {
       mutate(across(c(unit_sf, building_sf), ~ na_if(., "1"))) %>%
       mutate(
         across(c(building_sf, unit_sf, bedrooms), ~ gsub("[^0-9.-]", "", .))
-        ) %>%
+      ) %>%
       mutate(across(.cols = everything(), ~ trimws(., which = "both"))) %>%
       na_if("") %>%
       mutate(
@@ -176,6 +176,32 @@ for (i in c("2021", "2022")) {
       filter(row_number() == 1) %>%
       ungroup() %>%
       filter(!is.na(pin))
+  } else if (!("2023" %in% years) && i == "2023") {
+
+    chars[[i]] <- lapply(grep("2024", files, value = TRUE), function(x) {
+
+      read_parquet(x) %>%
+        select(
+          pin = "14.Digit.PIN",
+          building_sf = "Building.Square.Footage",
+          unit_sf = "Unit.Square.Footage",
+          bedrooms = "Bedrooms",
+          parking_pin = "Parking.Space.Change",
+          full_baths = "Full.Baths",
+          half_baths = "Half.Baths"
+        ) %>%
+        mutate(
+          pin = gsub("[^0-9]", "", pin),
+          parking_pin = !is.na(parking_pin),
+          year = "2023",
+          bedrooms = case_when(bedrooms > 15 ~ NA_real_, TRUE ~ bedrooms),
+          full_baths = case_when(full_baths > 10 ~ NA_real_, TRUE ~ full_baths),
+          unit_sf = case_when(unit_sf <5 ~ NA_real_, TRUE ~ unit_sf)
+        )
+
+    }) %>%
+      bind_rows()
+
   } else {
     # If data is already in Athena, just take it from there
     chars[[i]] <- athena_chars(i)
