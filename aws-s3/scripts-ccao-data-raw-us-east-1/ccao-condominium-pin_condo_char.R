@@ -47,6 +47,12 @@ read_write <- function(x) {
     )
   )
 
+  if (grepl("Lake View", x, ignore.case = TRUE)) {
+
+    destination <- str_replace(destination, "lake", "lake_view")
+
+  }
+
   if (!aws.s3::object_exists(destination)) {
 
     openxlsx::read.xlsx(x, sheet = 1) %>%
