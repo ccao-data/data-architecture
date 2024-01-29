@@ -22,7 +22,7 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial")
 
 # Read privileges for the this drive location are limited.
 # Contact Cook County GIS if permissions need to be changed.
-file_path <- "//gisemcv1.ccounty.com/ArchiveServices/"
+file_path <- "//10.122.19.14/ArchiveServices"
 
 # Paths for all relevant geodatabases
 gdb_files <- data.frame("path" = list.files(file_path, full.names = TRUE)) %>%
