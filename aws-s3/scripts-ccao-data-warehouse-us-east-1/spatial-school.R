@@ -268,7 +268,9 @@ process_cps_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
     # boundaries overlapped in 2020/2021. As
     # GAGE/BOGAN/PHILLIPS/CHICAGO VOCATIONAL were reduced in size due to school
     # closures and a new STEM school in ENGLEWOOD the new district boundaries
-    # are what we're interested in
+    # are what we're interested in. We need to be specific about which grades
+    # and years we exclude or some schools in 2017/2018 that should be ingested
+    # will not be.
     filter(
       !(str_detect(school_nm, "GAGE|BOGAN|PHILLIPS|CHICAGO VOCATIONAL") &
         boundarygr != "9, 10, 11, 12" &
