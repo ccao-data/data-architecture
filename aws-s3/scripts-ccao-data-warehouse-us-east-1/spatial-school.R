@@ -320,7 +320,7 @@ attendance_df <- pmap_dfr(
   mutate(across(everything(), unname))
 
 # Merge both datasets and write to S3
-temp <- bind_rows(
+bind_rows(
   county_districts_df,
   attendance_df
 ) %>%
