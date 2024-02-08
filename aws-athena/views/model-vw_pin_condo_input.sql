@@ -21,8 +21,25 @@ is triggered by sqoop-bot (runs after Sqoop grabs iasWorld data)
 }}
 
 WITH uni AS (
-    SELECT * FROM {{ ref('model.vw_pin_shared_input') }}
-    WHERE meta_class IN ('299', '399')
+    SELECT
+        vpsi.*,
+        -- Exemptions data is usually missing for the 1 or 2 years prior
+        -- to the lien date, so we need to fill missing values w/ down up fill
+        -- This assumes that people currently receiving exemptions keep them
+        COALESCE(
+            vpsi.ccao_is_active_exe_homeowner,
+            LAG(vpsi.ccao_is_active_exe_homeowner)
+                IGNORE NULLS
+                OVER (PARTITION BY vpsi.meta_pin ORDER BY vpsi.meta_year)
+        ) AS ccao_is_active_exe_homeowner,
+        COALESCE(
+            vpsi.ccao_n_years_exe_homeowner,
+            LAG(vpsi.ccao_n_years_exe_homeowner)
+                IGNORE NULLS
+                OVER (PARTITION BY vpsi.meta_pin ORDER BY vpsi.meta_year)
+        ) AS ccao_n_years_exe_homeowner
+    FROM {{ ref('model.vw_pin_shared_input') }} AS vpsi
+    WHERE vpsi.meta_class IN ('299', '399')
 ),
 
 sqft_percentiles AS (
