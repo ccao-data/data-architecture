@@ -157,7 +157,6 @@ chars AS (
         AND par.taxyr = com.taxyr
     LEFT JOIN {{ source('ccao', 'pin_condo_char') }} AS pin_condo_char
         ON par.parid = pin_condo_char.pin
-        AND par.taxyr = pin_condo_char.year
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
         ON par.parid = leg.parid
         AND par.taxyr = leg.taxyr
@@ -198,60 +197,12 @@ filled AS (
             note) IGNORE NULLS
         OVER (PARTITION BY pin ORDER BY year DESC)) AS note,
         -- Characteristics data gathered from MLS by valuations
-        FIRST_VALUE(char_building_sf)
-            OVER (
-                PARTITION BY pin
-                ORDER BY
-                    CASE
-                        WHEN char_building_sf IS NOT NULL THEN year ELSE '0'
-                    END DESC
-            )
-            AS char_building_sf,
-        FIRST_VALUE(char_unit_sf)
-            OVER (
-                PARTITION BY pin
-                ORDER BY
-                    CASE
-                        WHEN char_unit_sf IS NOT NULL THEN year ELSE '0'
-                    END DESC
-            )
-            AS char_unit_sf,
-        FIRST_VALUE(char_bedrooms)
-            OVER (
-                PARTITION BY pin
-                ORDER BY
-                    CASE
-                        WHEN char_bedrooms IS NOT NULL THEN year ELSE '0'
-                    END DESC
-            )
-            AS char_bedrooms,
-        FIRST_VALUE(char_half_baths)
-            OVER (
-                PARTITION BY pin
-                ORDER BY
-                    CASE
-                        WHEN char_half_baths IS NOT NULL THEN year ELSE '0'
-                    END DESC
-            )
-            AS char_half_baths,
-        FIRST_VALUE(char_full_baths)
-            OVER (
-                PARTITION BY pin
-                ORDER BY
-                    CASE
-                        WHEN char_full_baths IS NOT NULL THEN year ELSE '0'
-                    END DESC
-            )
-            AS char_full_baths,
-        FIRST_VALUE(parking_pin)
-            OVER (
-                PARTITION BY pin
-                ORDER BY
-                    CASE
-                        WHEN parking_pin IS NOT NULL THEN year ELSE '0'
-                    END DESC
-            )
-            AS parking_pin,
+        char_building_sf,
+        char_unit_sf,
+        char_bedrooms,
+        char_half_baths,
+        char_full_baths,
+        parking_pin,
         unitno,
         tiebldgpct,
         tieback_key_pin,
