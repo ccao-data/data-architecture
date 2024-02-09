@@ -912,6 +912,14 @@ will be paid in calendar year 2024
 
 # iasWorld
 
+## loaded_at
+
+{% docs shared_column_loaded_at %}
+Timestamp (UTC) of when a record was pulled from the main iasWorld database.
+
+Created by sqoop using the Oracle DB system time
+{% enddocs %}
+
 ## seq
 
 {% docs shared_column_seq %}

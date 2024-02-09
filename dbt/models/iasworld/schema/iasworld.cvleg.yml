@@ -82,6 +82,8 @@ sources:
             description: Legal description line 3
           - name: legdesc
             description: Unlimited legal description
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: loc2
             description: '{{ doc("column_loc2") }}'
           - name: lot

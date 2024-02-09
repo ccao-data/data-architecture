@@ -19,6 +19,8 @@ sources:
             description: Column name of edit field 2
           - name: iasw_id
             description: '{{ doc("column_iasw_id") }}'
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: longdesc
             description: Long description
           - name: msg

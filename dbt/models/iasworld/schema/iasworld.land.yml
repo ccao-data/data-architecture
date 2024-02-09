@@ -142,6 +142,8 @@ sources:
                     description: lline should be sequential
           - name: lmod
             description: Land location model number
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: locfact
             description: Location factor
           - name: ltype

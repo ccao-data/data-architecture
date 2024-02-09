@@ -72,6 +72,8 @@ sources:
             description: '{{ doc("column_jur") }}'
           - name: linkno
             description: Used to tie multi-parcel sales together (either instrument number, or transfer number, or book/page)
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: lots
             description: Total lots involved in this conveyance
           - name: mip

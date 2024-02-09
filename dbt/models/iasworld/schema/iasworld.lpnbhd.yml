@@ -59,6 +59,8 @@ sources:
             description: Percentage of Land allocation
           - name: lcodemod
             description: Land code model
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: lotmod
             description: Type F (Front Ft)- land model assignment
           - name: lotpct

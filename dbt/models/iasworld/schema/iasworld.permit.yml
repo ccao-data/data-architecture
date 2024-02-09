@@ -48,6 +48,8 @@ sources:
             description: ID field 2
           - name: jur
             description: '{{ doc("column_jur") }}'
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: longdesc
             description: Long description
           - name: notes

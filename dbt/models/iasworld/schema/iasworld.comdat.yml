@@ -139,6 +139,8 @@ sources:
             description: Improvement name
           - name: jur
             description: '{{ doc("column_jur") }}'
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: mktadj
             description: '{{ doc("column_mktadj") }}'
           - name: mktrsn

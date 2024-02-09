@@ -35,6 +35,8 @@ sources:
             description: Land code
           - name: lmod
             description: Land location model number
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: ltype
             description: Land type (F, S, A, G, U)
           - name: modtype

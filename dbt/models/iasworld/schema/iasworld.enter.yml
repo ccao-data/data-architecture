@@ -29,6 +29,8 @@ sources:
             description: '{{ doc("column_iasw_id") }}'
           - name: jur
             description: '{{ doc("column_jur") }}'
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
           - name: seq

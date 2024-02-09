@@ -74,6 +74,8 @@ sources:
             description: '{{ doc("column_jur") }}'
           - name: lline
             description: '{{ doc("shared_column_lline") }}'
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: loc2
             description: '{{ doc("column_loc2") }}'
           - name: parid

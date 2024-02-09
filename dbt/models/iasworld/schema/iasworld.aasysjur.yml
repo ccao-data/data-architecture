@@ -65,6 +65,8 @@ sources:
             description: Flag for Landisc `TAXYR`
           - name: legadd_inc
             description: Increment for new lines in table `LEGADD`
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: maildat_ind
             description: Flag for maildat functionality on `AA11`
           - name: max_taxyr

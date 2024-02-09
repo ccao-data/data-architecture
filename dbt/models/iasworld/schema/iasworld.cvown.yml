@@ -88,6 +88,8 @@ sources:
             description: '{{ doc("column_jur") }}'
           - name: link
             description: Owner link number
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: marstat
             description: '{{ doc("column_marstat") }}'
           - name: notecd

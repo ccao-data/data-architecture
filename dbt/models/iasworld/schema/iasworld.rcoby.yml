@@ -55,6 +55,8 @@ sources:
             description: '{{ doc("column_iasw_id") }}'
           - name: incuse
             description: Income Type Use
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: locmultcd
             description: Local Multiplier Code
           - name: maxdimr

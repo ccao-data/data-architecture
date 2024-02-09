@@ -147,6 +147,8 @@ sources:
                   min_value: 1
                   max_value: 100
                   config: *unique-conditions
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: locmult
             description: Local multiplier
           - name: lumpadj

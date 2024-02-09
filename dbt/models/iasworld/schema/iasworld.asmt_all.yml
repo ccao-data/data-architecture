@@ -47,6 +47,8 @@ sources:
             description: '{{ doc("column_iasw_id") }}'
           - name: jur
             description: '{{ doc("column_jur") }}'
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: luc
             description: '{{ doc("column_luc") }}'
           - name: ovrclass

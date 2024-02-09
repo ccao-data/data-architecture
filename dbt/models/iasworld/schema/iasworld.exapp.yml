@@ -60,6 +60,8 @@ sources:
             description: '{{ doc("column_jur") }}'
           - name: lline
             description: '{{ doc("shared_column_lline") }}'
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: marstat
             description: '{{ doc("column_marstat") }}'
           - name: ovrclass

@@ -412,6 +412,8 @@ sources:
             description: Kitchen percentage
           - name: kityr
             description: Kitchen year
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: locmult
             description: Local multiplier
           - name: lumpcamod

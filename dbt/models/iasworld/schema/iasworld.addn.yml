@@ -125,6 +125,8 @@ sources:
               - not_null:
                   name: iasworld_addn_lline_not_null
                   config: *unique-conditions
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: lower
             description: Lower level addition code
           - name: mktadj
