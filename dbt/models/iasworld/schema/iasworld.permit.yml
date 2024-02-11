@@ -9,7 +9,6 @@ sources:
       - name: permit
         description: '{{ doc("table_permit") }}'
         freshness:
-          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
           warn_after: {count: 24, period: hour}
           error_after: {count: 48, period: hour}
 

@@ -9,7 +9,6 @@ sources:
       - name: cvown
         description: '{{ doc("table_cvown") }}'
         freshness:
-          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
           warn_after: {count: 192, period: hour} # 8 days
           error_after: {count: 360, period: hour} # 15 days
 
