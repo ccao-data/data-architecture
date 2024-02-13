@@ -171,8 +171,7 @@ chars AS (
         nonlivable detection, but upon human review have been deemed livable. */
     LEFT JOIN {{ source('ccao', 'pin_nonlivable') }} AS nonlivable
         ON par.parid = nonlivable.pin
-    WHERE par.class IN ('299', '2-99', '399')
-        AND par.cur = 'Y'
+    WHERE par.cur = 'Y'
         AND par.deactivat IS NULL
         AND (oby.row_no = 1 OR com.row_no = 1)
 ),
@@ -213,6 +212,7 @@ filled AS (
             OVER (PARTITION BY pin10, year)
             AS building_pins
     FROM chars
+    WHERE class IN ('299', '2-99', '399')
 )
 
 SELECT DISTINCT
