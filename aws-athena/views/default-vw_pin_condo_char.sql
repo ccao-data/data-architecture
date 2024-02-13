@@ -228,10 +228,7 @@ SELECT DISTINCT
     filled.township_code,
     -- Count pin rather than lline here since lline can be null. It shouldn't
     -- be, but some condo PINs exist in pardat and not OBY
-    COALESCE(
-        COUNT(filled.pin) OVER (PARTITION BY filled.pin, filled.year) > 1,
-        FALSE
-    ) AS pin_is_multilline,
+    COALESCE(aggregate_land.pin_num_landlines > 1, FALSE) AS pin_is_multilline,
     COUNT(filled.pin)
         OVER (PARTITION BY filled.pin, filled.year)
         AS pin_num_lline,
