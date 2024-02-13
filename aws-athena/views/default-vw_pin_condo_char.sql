@@ -26,7 +26,10 @@ oby_filtered AS (
         *,
         ROW_NUMBER()
             OVER (PARTITION BY parid, taxyr ORDER BY lline ASC)
-            AS row_no
+            AS row_no,
+        COUNT()
+            OVER (PARTITION BY parid, taxyr)
+            AS num_lines
     FROM {{ source('iasworld', 'oby') }}
     -- We don't include DEACTIVAT IS NULL here since it can disagree with
     -- DEACTIVAT in iasworld.pardat and we'll defer to that table
@@ -39,7 +42,10 @@ comdat_filtered AS (
         *,
         ROW_NUMBER()
             OVER (PARTITION BY parid, taxyr ORDER BY card ASC)
-            AS row_no
+            AS row_no,
+        COUNT()
+            OVER (PARTITION BY parid, taxyr)
+            AS num_lines
     FROM {{ source('iasworld', 'comdat') }}
     -- We don't include DEACTIVAT IS NULL here since it can disagree with
     -- DEACTIVAT in iasworld.pardat and we'll defer to that table
@@ -77,7 +83,7 @@ chars AS (
                 THEN CAST(com.user24 AS DOUBLE) / 100.0
         END AS card_proration_rate,
         oby.lline,
-
+        COALESCE(oby.num_lines, com.num_lines) AS num_lines,
         SUBSTR(par.parid, 1, 10) AS pin10,
         par.class,
         par.taxyr AS year,
@@ -183,6 +189,7 @@ filled AS (
         pin10,
         card,
         lline,
+        num_lines,
         class,
         year,
         township_code,
@@ -226,9 +233,7 @@ SELECT DISTINCT
         ELSE filled.class
     END AS class,
     filled.township_code,
-    -- Count pin rather than lline here since lline can be null. It shouldn't
-    -- be, but some condo PINs exist in pardat and not OBY
-    COALESCE(aggregate_land.pin_num_landlines > 1, FALSE) AS pin_is_multilline,
+    num_lines > 1 AS pin_is_multilline,
     COUNT(filled.pin)
         OVER (PARTITION BY filled.pin, filled.year)
         AS pin_num_lline,
