@@ -234,9 +234,7 @@ SELECT DISTINCT
     END AS class,
     filled.township_code,
     filled.num_lines > 1 AS pin_is_multilline,
-    COUNT(filled.pin)
-        OVER (PARTITION BY filled.pin, filled.year)
-        AS pin_num_lline,
+    filled.num_lines AS pin_num_lline,
     filled.tieback_key_pin,
     filled.tieback_proration_rate,
     filled.card_proration_rate,
