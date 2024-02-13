@@ -233,7 +233,7 @@ SELECT DISTINCT
         ELSE filled.class
     END AS class,
     filled.township_code,
-    num_lines > 1 AS pin_is_multilline,
+    filled.num_lines > 1 AS pin_is_multilline,
     COUNT(filled.pin)
         OVER (PARTITION BY filled.pin, filled.year)
         AS pin_num_lline,
