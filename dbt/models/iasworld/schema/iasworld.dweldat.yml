@@ -68,8 +68,11 @@ sources:
                     description: attic (attic type) should not be null
               - accepted_values:
                   name: iasworld_dweldat_attic_in_accepted_values
-                  values: ['1', '2', '3']
+                  values: ['1', '2', '3', '4', '5']
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      attic (attic type) should be an integer between 1 and 5
           - name: atticarea
             description: Attic area
           - name: atticval
@@ -97,11 +100,12 @@ sources:
                     description: bsmt (basement type) should not be null
               - accepted_values:
                   name: iasworld_dweldat_bsmt_in_accepted_values
-                  values: ['1', '2', '3', '4']
+                  values: ['1', '2', '3', '4', '5', '6', '7']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: bsmt (basement type) must be '1', '2', '3', or '4'
+                    description: >
+                      bsmt (basement type) should be an integer between 1 and 7
           - name: bsmtarea
             description: Unfinished basement area
           - name: bsmtcar
@@ -236,8 +240,11 @@ sources:
                     description: extwall (exterior wall type) should not be null
               - accepted_values:
                   name: iasworld_dweldat_extwall_in_accepted_values
-                  values: ['1', '2', '3', '4']
+                  values: ['1', '2', '3', '4', '6', '7', '8', '9']
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      extwall (exterior wall type) should be 1, 2, 3, 4, 6, 7, 8, or 9
           - name: extwall1
             description: Exterior wall code
           - name: extwall1pct
@@ -891,12 +898,12 @@ sources:
                     description: user12 (basement finish) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_bsmt_fin_accepted_values
-                  values: ['1', '2', '3']
+                  values: ['1', '2', '3', '4', '5', '6']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: >
-                      user12 (basement finish) should be an integer between 1 and 3
+                      user12 (basement finish) should be an integer between 1 and 6
           - name: user13
             description: '{{ doc("shared_column_char_roof_cnst") }}'
             tests:
@@ -1027,12 +1034,12 @@ sources:
                     description: user33 (garage size) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_gar_size_accepted_values
-                  values: ['1', '2', '3', '4', '5', '6', '7', '8']
+                  values: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: >
-                      user33 (garage size) should be an integer between 1 and 8
+                      user33 (garage size) should be an integer between 1 and 10
           - name: user34
             description: '{{ doc("shared_column_char_gar_cnst") }}'
             tests:
