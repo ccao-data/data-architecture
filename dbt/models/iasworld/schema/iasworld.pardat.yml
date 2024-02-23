@@ -295,8 +295,7 @@ sources:
                   AND (nbhd NOT LIKE '%999')
               meta:
                 category: relationships
-                description: >
-                  nbhd must be contained in spatial.neighborhood.town_nbhd
+                description: nbhd code not valid
           - unique_combination_of_columns:
               name: iasworld_pardat_unique_by_parid_taxyr
               combination_of_columns:

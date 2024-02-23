@@ -147,6 +147,14 @@ sources:
                       AND class NOT IN ('EX', 'RR')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+              - res_class_matches_pardat:
+                  name: iasworld_dweldat_class_matches_pardat_class
+                  additional_select_columns:
+                    - max(res_child.who)
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      at least one dweldat class should match pardat class
           - name: cline
             description: Condominium line
           - name: cndadjval
@@ -1124,20 +1132,6 @@ sources:
                 - parid
                 - taxyr
                 - card
-          - row_values_match_after_join:
-              name: iasworld_dweldat_class_matches_pardat_class
-              column: class
-              column_name: dweldat_class
-              external_model: source('iasworld', 'pardat')
-              external_column: class
-              external_column_name: pardat_class
-              join_columns:
-                - parid
-                - taxyr
-              config: *unique-conditions
-              meta:
-                category: class_mismatch_or_issue
-                description: at least one dweldat class should match pardat class
           - expression_is_true:
               name: iasworld_dweldat_card_proration_rate_between_0_and_100
               expression: 'CAST(user24 AS decimal) BETWEEN 0.00 AND 100.00'

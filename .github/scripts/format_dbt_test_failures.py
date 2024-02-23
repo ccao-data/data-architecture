@@ -84,6 +84,7 @@ CUSTOM_TEST_NAMES = {
     "macro.athena.test_unique_combination_of_columns": "duplicate_records",
     "macro.dbt_utils.test_unique_combination_of_columns": "duplicate_records",
     "macro.athena.test_not_null": "missing_values",
+    "macro.athena.test_res_class_matches_pardat": "class_mismatch_or_issue",
 }
 # Directory to store failed test caches
 FAILED_TEST_CACHE_DIR = "failed_test_cache"
