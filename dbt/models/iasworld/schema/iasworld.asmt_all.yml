@@ -21,7 +21,11 @@ sources:
                   name: iasworld_asmt_all_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
                   field: class_code
-                  additional_select_columns: ["taxyr", "parid", "who", "wen"]
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -86,6 +90,18 @@ sources:
             description: Reason code for change in assessed value
           - name: rolltype
             description: '{{ doc("column_rolltype") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_asmt_all_rolltype_not_rr
+                  values: ['RR']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    description: rolltype RR should not exist
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
             tests:

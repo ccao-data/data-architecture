@@ -46,6 +46,19 @@ sources:
             description: '{{ doc("column_adrid") }}'
           - name: adrno
             description: '{{ doc("shared_column_prop_address_street_number") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_legdat_adrno_is_0_when_adrstr_is_null
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  where:
+                    CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                    AND cur = 'Y'
+                    AND deactivat IS NULL
+                    AND adrstr IS NULL
+                  meta:
+                    description: adrno must be 0 when adrstr is null
           - name: adrparchild
             description: '{{ doc("column_adrparchild") }}'
           - name: adrpostmod

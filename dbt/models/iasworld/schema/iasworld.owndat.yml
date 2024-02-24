@@ -221,17 +221,6 @@ sources:
             description: '{{ doc("column_whocalc") }}'
           - name: zip1
             description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
-            tests:
-              - not_accepted_values:
-                  name: iasworld_owndat_zip1_has_no_00000_values
-                  values: ['00000']
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: zip1 should not be 00000
-                  # Currently too many failures for this signal to be useful
-                  tags:
-                    - test_qc_exclude_from_workbook
           - name: zip2
             description: '{{ doc("shared_column_mail_address_zipcode_2") }}'
             tests:

@@ -1167,3 +1167,26 @@ sources:
               meta:
                 category: missing_values
                 description: user24 (proration rate) should not be null
+          - expression_is_true:
+              name: iasworld_dweldat_bsmt_and_user12_match_234_class
+              expression: bsmt = '3' and user12 = '1'
+              select_columns:
+                - parid
+                - taxyr
+                - card
+                - who
+                - wen
+                - class
+                - bsmt
+                - user12
+              config:
+                where: |
+                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  AND cur = 'Y'
+                  AND deactivat IS NULL
+                  AND class = '234'
+              meta:
+                category: incorrect_values
+                description: >
+                  bsmt must be 3 (partial basement) and user12 must be 1
+                  (finished basement) when class is 234 (split level)

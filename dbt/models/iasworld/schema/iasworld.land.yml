@@ -72,6 +72,18 @@ sources:
                       AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+              - test_res_class_matches_pardat:
+                  name: iasworld_land_class_matches_pardat_class
+                  major_class_only: true
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND class != 'RR'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    description: >
+                      land major class (first digit or letter) should match pardat class
           - name: code
             description: Code
           - name: comres
@@ -302,15 +314,3 @@ sources:
                 - parid
                 - lline
                 - taxyr
-          - test_res_class_matches_pardat:
-              name: iasworld_land_class_matches_pardat_class
-              major_class_only: true
-              config:
-                where: |
-                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                  AND class NOT IN ('EX', 'RR')
-                  AND cur = 'Y'
-                  AND deactivat IS NULL
-              meta:
-                description: >
-                  land major class (first digit) should match pardat class
