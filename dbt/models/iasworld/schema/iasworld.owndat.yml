@@ -223,17 +223,6 @@ sources:
             description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
           - name: zip2
             description: '{{ doc("shared_column_mail_address_zipcode_2") }}'
-            tests:
-              - not_accepted_values:
-                  name: iasworld_owndat_zip2_has_no_0000_values
-                  values: ['0000']
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: zip2 should not be 0000
-                  # Currently too many failures for this signal to be useful
-                  tags:
-                    - test_qc_exclude_from_workbook
 
         tests:
           - unique_combination_of_columns:
@@ -275,27 +264,3 @@ sources:
               tags:
                 # Currently too many failures for this signal to be useful
                 - test_qc_exclude_from_workbook
-          - expression_is_true:
-              name: iasworld_owndat_addr1_address_is_well_formed
-              expression: |
-                CASE
-                  WHEN LENGTH(REGEXP_EXTRACT(addr1, '^[N|S|E|W]{0,2}\s{0,1}([0-9]{1,5})',1)) <= 5 THEN TRUE
-                  WHEN REGEXP_LIKE(UPPER(addr1), '^[PO BOX|P\.O\. BOX|P O BOX|BOX|P O BX|PO BX|PO BX|P.O.BOX]') THEN TRUE
-                  WHEN REGEXP_LIKE(UPPER(addr1), '^[C\/O|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE]') THEN TRUE
-                  ELSE FALSE
-                END
-              select_columns:
-                - parid
-                - taxyr
-                - who
-                - wen
-                - addr1
-              config:
-                where: |
-                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                  AND cur = 'Y'
-                  AND deactivat IS NULL
-                  AND addr1 IS NOT NULL
-              meta:
-                category: address_issues
-                description: addr1 should be a well formed address

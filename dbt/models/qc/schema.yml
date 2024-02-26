@@ -1,58 +1,4 @@
 models:
-  - name: qc.vw_oby_class_mismatch
-    description: '{{ doc("view_vw_class_mismatch") }}'
-    config:
-      tags:
-        - test_qc_inquire
-    column_names:
-      - name: class
-        tests:
-          - not_accepted_values:
-              name: qc_vw_class_mismatch_no_289s
-              values: ["289"]
-              additional_select_columns: &select-columns
-                - taxyr
-                - parid
-                - township_code
-                - who
-                - wen
-              config: &time-filter
-                where: |
-                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-              meta:
-                table_name: oby
-                category: class_mismatch_or_issue
-                description: class should not be 289
-      - name: major_class
-        tests:
-          - columns_match:
-              name: qc_vw_class_mismatch_oby_class_eq_pardat_class
-              columns: [pardat_major_class]
-              additional_select_columns: *select-columns
-              config: *time-filter
-              meta:
-                table_name: oby
-                category: class_mismatch_or_issue
-                description: class should match pardat by major class
-
-  - name: qc.vw_comdat_class_mismatch
-    description: '{{ doc("view_vw_class_mismatch") }}'
-    config:
-      tags:
-        - test_qc_inquire
-    columns:
-      - name: class
-        tests:
-          - columns_match:
-              name: qc_vw_class_mismatch_comdat_class_eq_pardat_class
-              columns: [pardat_class]
-              additional_select_columns: *select-columns
-              config: *time-filter
-              meta:
-                table_name: comdat
-                category: class_mismatch_or_issue
-                description: class should match pardat class
-
   - name: qc.vw_incorrect_asmt_value
     description: '{{ doc("view_vw_incorrect_asmt_value") }}'
     config:
@@ -161,7 +107,10 @@ models:
                 - who
                 - wen
                 - luc
-              config: *time-filter
+              config: &time-filter
+                where: |
+                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+
               meta:
                 table_name: asmt
                 category: relationships

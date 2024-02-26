@@ -1,1 +1,0 @@
-../../../aws-athena/views/qc-vw_oby_class_mismatch.sql

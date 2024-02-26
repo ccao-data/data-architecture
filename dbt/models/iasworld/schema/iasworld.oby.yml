@@ -71,6 +71,31 @@ sources:
                   config: *unique-conditions
           - name: class
             description: '{{ doc("shared_column_class") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_oby_class_mismatch_no_289s
+                  values: ["289"]
+                  additional_select_columns: &select-columns-class
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class should not be 289
+              - res_class_matches_pardat:
+                  name: iasworld_oby_class_matches_pardat_class
+                  major_class_only: true
+                  additional_select_columns:
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      at least one major class (first digit) should match pardat class
           - name: cline
             description: Condominium line
           - name: cndcmplx
@@ -306,10 +331,3 @@ sources:
                 - card
                 - lline
                 - taxyr
-          - test_res_class_matches_pardat:
-              name: iasworld_oby_class_matches_pardat_class
-              major_class_only: true
-              config: *unique-conditions
-              meta:
-                description: >
-                  at least one major class (first digit) should match pardat class

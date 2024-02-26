@@ -11,11 +11,10 @@
     additional_select_columns=[]
 ) %}
 
-    {%- set columns_csv = additional_select_columns | join(", ") %}
     {%- set num_class_digits = 1 if major_class_only else 3 %}
 
     with
-        res_child as (
+        filtered_model as (
             select child.*
             from (select * from {{ model }}) as child
             left join
@@ -27,21 +26,27 @@
         )
 
     select
-        parid,
-        taxyr,
-        {%- if columns_csv %} {{ columns_csv }},{% endif %}
-        array_agg(res_child.{{ column_name }}) as {{ column_name }},
-        -- pardat is unique by (taxyr, parid) so all classes should be the same
+        array_agg(disintct(filtered_model.{{ column_name }})) as {{ column_name }},
+        {%- for col in additional_select_columns %}
+            max(filtered_model.{{ col }}) as {{ col }},
+        {%- endfor %}
         max(pardat.class) as pardat_class
-    from res_child
-    left join {{ source("iasworld", "pardat") }} as pardat using (parid, taxyr)
-    group by parid, taxyr
+    from filtered_model
+    left join
+        (
+            select *
+            from {{ source("iasworld", "pardat") }}
+            where cur = 'Y' and deactivat is null
+        ) as pardat
+        on pardat.parid = filtered_model.parid
+        and pardat.taxyr = filtered_model.taxyr
+    group by filtered_model.parid, filtered_model.taxyr
     having
         sum(
             case
                 when
                     substr(pardat.class, {{ num_class_digits }})
-                    = substr(res_child.{{ column_name }}, {{ num_class_digits }})
+                    = substr(filtered_model.{{ column_name }}, {{ num_class_digits }})
                 then 1
                 else 0
             end
