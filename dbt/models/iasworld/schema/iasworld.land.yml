@@ -42,6 +42,21 @@ sources:
             description: Agricultural flag
           - name: allocpct
             description: Allocation percentage
+            tests:
+              - not_accepted_values:
+                  name: iasworld_land_allocpct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      allocpct (land proration percentage) should not be 0
           - name: bdecr
             description: Decremental rate
           - name: bincr
@@ -218,12 +233,7 @@ sources:
               - accepted_range:
                   name: iasworld_land_price_gte_1
                   min_value: 1
-                  additional_select_columns: &select-columns
-                    - taxyr
-                    - parid
-                    - card
-                    - who
-                    - wen
+                  additional_select_columns: *select-columns
                   config:
                     where:
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}

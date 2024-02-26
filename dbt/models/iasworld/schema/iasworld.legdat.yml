@@ -47,18 +47,12 @@ sources:
           - name: adrno
             description: '{{ doc("shared_column_prop_address_street_number") }}'
             tests:
-              - accepted_values:
-                  name: iasworld_legdat_adrno_is_0_when_adrstr_is_null
-                  values: [0]
-                  quote: false
+              - not_null:
+                  name: iasworld_legdat_adrno_not_null
                   additional_select_columns: *select-columns
-                  where:
-                    CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                    AND cur = 'Y'
-                    AND deactivat IS NULL
-                    AND adrstr IS NULL
+                  config: *unique-conditions
                   meta:
-                    description: adrno must be 0 when adrstr is null
+                    description: adrno should not be null (it should be 0 if unknown)
           - name: adrparchild
             description: '{{ doc("column_adrparchild") }}'
           - name: adrpostmod
@@ -81,6 +75,13 @@ sources:
             description: Block prefix and suffix, formatted
           - name: cityname
             description: '{{ doc("shared_column_prop_address_city_name") }}'
+            tests:
+              - not_null:
+                  name: iasworld_legdat_cityname_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: cityname should not be null
           - name: compct
             description: Common interest
           - name: condbdg

@@ -48,6 +48,21 @@ sources:
             description: '{{ doc("column_areasum") }}'
           - name: bld_modelid
             description: '{{ doc("column_bld_modelid") }}'
+          - name: calc_meth
+            description: '{{ doc("shared_column_calc_meth") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_oby_calc_meth_accepted_values
+                  values: ["E"]
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND calc_meth IS NOT NULL
+                  meta:
+                    description: calc_meth should be null or 'E'
           - name: card
             description: '{{ doc("column_card") }}'
             tests:
@@ -144,6 +159,54 @@ sources:
             description: '{{ doc("column_exmppct") }}'
           - name: exmpval
             description: '{{ doc("column_exmpval") }}'
+          - name: external_calc_rcnld
+            description: '{{ doc("shared_column_external_calc_rcnld") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_oby_external_calc_rcnld_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_calc_rcnld (calculated full NMV) should not be 0
+          - name: external_occpct
+            description: '{{ doc("shared_column_external_occpct") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_oby_external_occpct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_occpct (occupancy percentage) should not be 0
+          - name: external_propct
+            description: '{{ doc("shared_column_external_propct") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_oby_external_propct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_propct (proration percentage) should not be 0
+          - name: external_rcnld
+            description: '{{ doc("shared_column_external_rcnld") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_oby_external_rcnld_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_rcnld (calculated full FMV) should not be 0
           - name: funct
             description: Function used in computing this calcualtion
           - name: fundep

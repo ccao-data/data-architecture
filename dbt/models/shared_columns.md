@@ -210,6 +210,14 @@ This is the value after the first round of appeals at the Assessor's
 Office **and** the second round of appeals at the Board of Review.
 {% enddocs %}
 
+## calc_meth
+
+{% docs shared_column_calc_meth %}
+Calculation parameter.
+
+If present, must be `E`.
+{% enddocs %}
+
 ## change_reason
 
 {% docs shared_column_change_reason %}
@@ -292,6 +300,21 @@ Certified total assessed value from year specified by column
 prefix (or year of observation if not prefixed).
 
 This is the value after the first round of appeals at the Assessor's Office.
+{% enddocs %}
+
+## external_calc_rcnld
+
+{% docs shared_column_external_calc_rcnld %}
+Calculated net market value.
+
+If there are no occupancy or proration values applicable, this number will
+match the FMV.
+{% enddocs %}
+
+## external_rcnld
+
+{% docs shared_column_external_rcnld %}
+Calculated full market value.
 {% enddocs %}
 
 ## mailed_bldg
@@ -986,7 +1009,7 @@ on price from higher tax burdens
 Tax bill total amount for the tax year
 {% enddocs %}
 
-# Proration, Multi-cards, and Landlines
+# Proration, Multi-cards, Occupancy, and Landlines
 
 ## card_proration_rate
 
@@ -995,6 +1018,24 @@ Proration rate for a card on a given PIN.
 
 Prorated cards split their total value across multiple PINs. An example is
 something like a building that crosses multiple PINs
+{% enddocs %}
+
+## external_occpct
+
+{% docs shared_column_external_occpct %}
+Calculated occupancy rate used for computing fields like `external_rcnld`.
+
+This field is used in the new system for calculating proration and occupancy,
+and we expect it to eventually become the standard.
+{% enddocs %}
+
+## external_propct
+
+{% docs shared_column_external_propct %}
+Calculated proration rate used for computing fields like `external_rcnld`.
+
+This field is used in the new system for calculating proration and occupancy,
+and we expect it to eventually become the standard.
 {% enddocs %}
 
 ## lline
