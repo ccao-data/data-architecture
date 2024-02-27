@@ -519,11 +519,21 @@ sources:
                   name: iasworld_dweldat_mktrsn_eq_5_mktadj_not_null
                   expression: |
                     != '5' OR mktadj IS NOT NULL
+                  additional_select_columns:
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
+                    - mktadj
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    category: incorrect_values
+                    description: mktrsn should be 5 if mktadj is not null
           - name: modover
             description: Residential override model
           - name: mvpattic
