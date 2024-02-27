@@ -1,8 +1,14 @@
--- Test that residential class codes match pardat. The test will compare full
--- classes unless `major_class_only=true`. "Residential" parcels are
--- determined by anti-joining against `comdat`; by default this join will be
--- performed using (parid, taxyr, card), but the join can be configured to
--- use (parid, taxyr) by setting `filter_for_res_by_card=false`
+-- For all residential parcels in a given model, test that there is at least one
+-- class code that matches a class code for that parcel in pardat.
+--
+-- By default, the test will compare the first 3 digits of each set of classes;
+-- if `major_class_only=true`, however, the test will compare the first digit
+-- only.
+--
+-- The test filters for residential parcels by anti-joining the model against
+-- `comdat`. This join will be performed using (parid, taxyr, card) by default,
+-- but the join can be configured to use (parid, taxyr) instead by setting
+-- `filter_for_res_by_card=false`.
 {% test res_class_matches_pardat(
     model,
     column_name,
@@ -26,7 +32,7 @@
         )
 
     select
-        array_agg(disintct(filtered_model.{{ column_name }})) as {{ column_name }},
+        array_agg(distinct(filtered_model.{{ column_name }})) as {{ column_name }},
         {%- for col in additional_select_columns %}
             max(filtered_model.{{ col }}) as {{ col }},
         {%- endfor %}

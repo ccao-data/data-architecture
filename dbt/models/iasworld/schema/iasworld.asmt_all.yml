@@ -37,6 +37,19 @@ sources:
                   meta:
                     category: class_mismatch_or_issue
                     description: class code must be valid
+              - res_class_matches_pardat:
+                  name: iasworld_asmt_all_class_matches_pardat_class
+                  filter_for_res_by_card: false
+                  additional_select_columns: *select-columns
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND rolltype != 'RR'
+                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
+                  meta:
+                    description: class should match pardat class
           - name: cur
             description: '{{ doc("column_cur") }}'
             tests:
@@ -66,13 +79,7 @@ sources:
             tests:
               - not_null:
                   name: iasworld_asmt_all_parid_not_null
-                  config: &unique-conditions
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND rolltype != 'RR'
-                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
-                      AND deactivat IS NULL
-                      AND valclass IS NULL
+                  config: *unique-conditions
               - relationships:
                   name: iasworld_asmt_all_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
@@ -174,8 +181,3 @@ sources:
                 error_if: ">15300"
               meta:
                 description: asmt_all should be unique by parid, procname, and taxyr
-          - test_res_class_matches_pardat:
-              name: iasworld_asmt_all_class_matches_pardat_class
-              config: *unique-conditions
-              meta:
-                description: class should match pardat class

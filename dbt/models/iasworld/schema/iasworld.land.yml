@@ -87,7 +87,7 @@ sources:
                       AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
                       AND cur = 'Y'
                       AND deactivat IS NULL
-              - test_res_class_matches_pardat:
+              - res_class_matches_pardat:
                   name: iasworld_land_class_matches_pardat_class
                   major_class_only: true
                   config:

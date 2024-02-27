@@ -170,7 +170,10 @@ sources:
               - res_class_matches_pardat:
                   name: iasworld_dweldat_class_matches_pardat_class
                   additional_select_columns:
-                    - max(res_child.who)
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
                   config: *unique-conditions
                   meta:
                     description: >
