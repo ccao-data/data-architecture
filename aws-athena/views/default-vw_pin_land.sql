@@ -17,6 +17,8 @@ WITH total_influ AS (
         SUM(CASE WHEN land.influ IS NULL THEN 0 ELSE 1 END)
             OVER (PARTITION BY land.parid, land.taxyr)
             AS non_null_influ,
+        -- Split class indicator can override the rest of the influence
+        -- factor logic
         COALESCE(land.infl1 = '35', FALSE) AS split_class,
         MAX(land.sf) OVER (PARTITION BY land.parid, land.taxyr) AS max_sf,
         MIN(land.sf) OVER (PARTITION BY land.parid, land.taxyr) AS min_sf,
