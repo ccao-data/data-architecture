@@ -49,7 +49,7 @@ sources:
                       AND deactivat IS NULL
                       AND valclass IS NULL
                   meta:
-                    description: class should match pardat class
+                    description: at least one class should match pardat class
           - name: cur
             description: '{{ doc("column_cur") }}'
             tests:

@@ -98,7 +98,7 @@ sources:
                       AND deactivat IS NULL
                   meta:
                     description: >
-                      land major class (first digit or letter) should match pardat class
+                      at least one major class (first digit) should match pardat class
           - name: code
             description: Code
           - name: comres

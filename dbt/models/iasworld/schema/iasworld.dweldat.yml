@@ -176,8 +176,7 @@ sources:
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: >
-                      at least one dweldat class should match pardat class
+                    description: at least one class should match pardat class
           - name: cline
             description: Condominium line
           - name: cndadjval
@@ -519,7 +518,7 @@ sources:
                   name: iasworld_dweldat_mktrsn_eq_5_mktadj_not_null
                   expression: |
                     != '5' OR mktadj IS NOT NULL
-                  additional_select_columns:
+                  select_columns:
                     - taxyr
                     - parid
                     - card
@@ -533,7 +532,7 @@ sources:
                       AND deactivat IS NULL
                   meta:
                     category: incorrect_values
-                    description: mktrsn should be 5 if mktadj is not null
+                    description: mktrsn should only be 5 if mktadj is not null
           - name: modover
             description: Residential override model
           - name: mvpattic

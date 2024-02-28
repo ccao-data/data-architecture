@@ -51,8 +51,9 @@
         sum(
             case
                 when
-                    substr(pardat.class, {{ num_class_digits }})
-                    = substr(filtered_model.{{ column_name }}, {{ num_class_digits }})
+                    substr(pardat.class, 1, {{ num_class_digits }}) = substr(
+                        filtered_model.{{ column_name }}, 1, {{ num_class_digits }}
+                    )
                 then 1
                 else 0
             end
