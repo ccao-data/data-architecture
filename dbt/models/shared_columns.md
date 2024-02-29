@@ -800,7 +800,7 @@ purposes. See `ccao.class_dict` for more information
 ## is_corner_lot
 
 {% docs shared_column_is_corner_lot %}
-Corner lot indicator.
+Corner lot indicator
 {% enddocs %}
 
 ## modeling_group
