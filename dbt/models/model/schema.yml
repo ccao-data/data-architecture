@@ -136,9 +136,15 @@ models:
       - &acs5_percent_mobility_no_move
         name: acs5_percent_mobility_no_move
         description: '{{ doc("column_percent_mobility_no_move") }}'
+      - &ccao_is_active_exe_homeowner
+        name: ccao_is_active_exe_homeowner
+        description: '{{ doc("shared_column_is_active_exe_homeowner") }}'
       - &ccao_is_corner_lot
         name: ccao_is_corner_lot
         description: '{{ doc("shared_column_is_corner_lot") }}'
+      - &ccao_n_years_exe_homeowner
+        name: ccao_n_years_exe_homeowner
+        description: '{{ doc("shared_column_n_years_exe_homeowner") }}'
       - &loc_access_cmap_walk_nta_score
         name: loc_access_cmap_walk_nta_score
         description: '{{ doc("column_access_cmap_walk_nta_score") }}'
@@ -337,6 +343,9 @@ models:
       - &other_tax_bill_rate
         name: other_tax_bill_rate
         description: '{{ doc("shared_column_tax_bill_rate") }}'
+      - &prox_airport_dnl_total
+        name: prox_airport_dnl_total
+        description: '{{ doc("column_airport_dnl_total") }}'
       - &prox_avg_school_rating_in_half_mile
         name: prox_avg_school_rating_in_half_mile
         description: '{{ doc("column_avg_school_rating_in_half_mile") }}'
@@ -434,7 +443,9 @@ models:
       - *acs5_percent_mobility_moved_from_other_state
       - *acs5_percent_mobility_moved_in_county
       - *acs5_percent_mobility_no_move
+      - *ccao_is_active_exe_homeowner
       - *ccao_is_corner_lot
+      - *ccao_n_years_exe_homeowner
       - *loc_access_cmap_walk_nta_score
       - *loc_access_cmap_walk_total_score
       - *loc_census_acs5_data_year
@@ -495,6 +506,7 @@ models:
       - *other_school_district_secondary_avg_rating
       - *other_tax_bill_amount_total
       - *other_tax_bill_rate
+      - *prox_airport_dnl_total
       - *prox_avg_school_rating_in_half_mile
       - *prox_lake_michigan_dist_ft
       - *prox_nearest_bike_trail_dist_ft
@@ -667,7 +679,9 @@ models:
       - *acs5_percent_mobility_moved_from_other_state
       - *acs5_percent_mobility_moved_in_county
       - *acs5_percent_mobility_no_move
+      - *ccao_is_active_exe_homeowner
       - *ccao_is_corner_lot
+      - *ccao_n_years_exe_homeowner
       - *loc_access_cmap_walk_nta_score
       - *loc_access_cmap_walk_total_score
       - *loc_census_acs5_data_year
@@ -728,6 +742,7 @@ models:
       - *other_school_district_secondary_avg_rating
       - *other_tax_bill_amount_total
       - *other_tax_bill_rate
+      - *prox_airport_dnl_total
       - *prox_avg_school_rating_in_half_mile
       - *prox_lake_michigan_dist_ft
       - *prox_nearest_bike_trail_dist_ft
