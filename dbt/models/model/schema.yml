@@ -343,6 +343,9 @@ models:
       - &other_tax_bill_rate
         name: other_tax_bill_rate
         description: '{{ doc("shared_column_tax_bill_rate") }}'
+      - &prox_airport_dnl_total
+        name: prox_airport_dnl_total
+        description: '{{ doc("column_airport_dnl_total") }}'
       - &prox_avg_school_rating_in_half_mile
         name: prox_avg_school_rating_in_half_mile
         description: '{{ doc("column_avg_school_rating_in_half_mile") }}'
@@ -503,6 +506,7 @@ models:
       - *other_school_district_secondary_avg_rating
       - *other_tax_bill_amount_total
       - *other_tax_bill_rate
+      - *prox_airport_dnl_total
       - *prox_avg_school_rating_in_half_mile
       - *prox_lake_michigan_dist_ft
       - *prox_nearest_bike_trail_dist_ft
@@ -738,6 +742,7 @@ models:
       - *other_school_district_secondary_avg_rating
       - *other_tax_bill_amount_total
       - *other_tax_bill_rate
+      - *prox_airport_dnl_total
       - *prox_avg_school_rating_in_half_mile
       - *prox_lake_michigan_dist_ft
       - *prox_nearest_bike_trail_dist_ft
