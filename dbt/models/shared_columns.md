@@ -797,6 +797,11 @@ percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
+## is_active_exe_homeowner
+{% docs shared_column_is_active_exe_homeowner %}
+Parcel has an active homeowner exemption
+{% enddocs %}
+
 ## is_corner_lot
 
 {% docs shared_column_is_corner_lot %}
@@ -807,6 +812,12 @@ Corner lot indicator
 
 {% docs shared_column_modeling_group %}
 Modeling group, one of: `SF`, `MF`, `CONDO`, or `BB`
+{% enddocs %}
+
+## n_years_exe_homeowner
+
+{% docs shared_column_n_years_exe_homeowner %}
+Number of years parcel has had an active homeowner exemption
 {% enddocs %}
 
 ## nbhd_code
