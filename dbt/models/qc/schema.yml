@@ -791,6 +791,7 @@ models:
           name: qc_vw_iasworld_sales_price_diff_sale_mydec_gte_1000
           expression: ABS(price_iasworld - price_mydec) < 999
           select_columns:
+            - parid
             - taxyr
             - document_number
             - price_iasworld
