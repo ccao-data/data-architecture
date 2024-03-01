@@ -169,7 +169,8 @@ sources:
                       AND deactivat IS NULL
               - res_class_matches_pardat:
                   name: iasworld_dweldat_class_matches_pardat_class
-                  additional_select_columns:
+                  select_columns_aggregated_with_array: ["card"]
+                  select_columns_aggregated_with_max:
                     - taxyr
                     - parid
                     - who

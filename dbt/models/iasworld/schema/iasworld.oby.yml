@@ -102,7 +102,8 @@ sources:
               - res_class_matches_pardat:
                   name: iasworld_oby_class_matches_pardat_class
                   major_class_only: true
-                  additional_select_columns:
+                  select_columns_aggregated_with_array: ["card"]
+                  select_columns_aggregated_with_max:
                     - taxyr
                     - parid
                     - who

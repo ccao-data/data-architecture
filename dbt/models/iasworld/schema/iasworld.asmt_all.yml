@@ -39,8 +39,7 @@ sources:
                     description: class code must be valid
               - res_class_matches_pardat:
                   name: iasworld_asmt_all_class_matches_pardat_class
-                  filter_for_res_by_card: false
-                  additional_select_columns: *select-columns
+                  select_columns_aggregated_with_max: *select-columns
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}

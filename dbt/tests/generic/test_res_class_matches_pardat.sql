@@ -1,41 +1,51 @@
 -- For all residential parcels in a given model, test that there is at least one
--- class code that matches a class code for that parcel in pardat.
+-- class code that matches a class code for that parcel in pardat. The test
+-- filters for residential parcels by anti-joining the model against `comdat`.
 --
 -- By default, the test will compare the first 3 digits of each set of classes;
 -- if `major_class_only=true`, however, the test will compare the first digit
 -- only.
 --
--- The test filters for residential parcels by anti-joining the model against
--- `comdat`. This join will be performed using (parid, taxyr, card) by default,
--- but the join can be configured to use (parid, taxyr) instead by setting
--- `filter_for_res_by_card=false`.
+-- Since the output is grouped by (parid, taxyr), additional columns that would
+-- normally be selected via `additional_select_columns` need to be selected
+-- with one of two aggregation methods: `select_columns_aggregated_with_array`
+-- (which uses the `array_agg()` function to select the columns) or
+-- `select_columns_aggregated_with_max` (which uses the `max()` function).
 {% test res_class_matches_pardat(
     model,
     column_name,
-    filter_for_res_by_card=true,
     major_class_only=false,
-    additional_select_columns=[]
+    select_columns_aggregated_with_array=[],
+    select_columns_aggregated_with_max=[]
 ) %}
 
     {%- set num_class_digits = 1 if major_class_only else 3 %}
 
     with
         filtered_model as (
-            select child.*
-            from (select * from {{ model }}) as child
+            select model.*
+            from (select * from {{ model }}) as model
             left join
-                {{ source("iasworld", "comdat") }} as comdat
-                on child.parid = comdat.parid
-                and child.taxyr = comdat.taxyr
-                {%- if filter_for_res_by_card %} and child.card = comdat.card{% endif %}
+                (
+                    select distinct parid, taxyr
+                    from {{ source("iasworld", "comdat") }}
+                    where comdat.cur = 'Y' and comdat.deactivat is null
+                ) as comdat
+                on model.parid = comdat.parid
+                and model.taxyr = comdat.taxyr
             where comdat.parid is null
         )
 
     select
-        array_agg(distinct(filtered_model.{{ column_name }})) as {{ column_name }},
-        {%- for col in additional_select_columns %}
+        array_agg(filtered_model.{{ column_name }}) as {{ column_name }},
+        {%- for col in select_columns_aggregated_with_array %}
+            array_agg(filtered_model.{{ col }}) as {{ col }},
+        {%- endfor %}
+        {%- for col in select_columns_aggregated_with_max %}
             max(filtered_model.{{ col }}) as {{ col }},
         {%- endfor %}
+        -- Pardat should be unique by (parid, taxyr), so we can select the
+        -- max rather than array_agg
         max(pardat.class) as pardat_class
     from filtered_model
     left join
