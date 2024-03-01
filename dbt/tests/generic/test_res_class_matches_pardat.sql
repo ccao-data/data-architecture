@@ -1,6 +1,7 @@
 -- For all residential parcels in a given model, test that there is at least one
 -- class code that matches a class code for that parcel in pardat. The test
--- filters for residential parcels by anti-joining the model against `comdat`.
+-- filters for residential parcels by anti-joining the model against `comdat`
+-- using parid and taxyr; as a result, it filters out mixed-use parcels as well.
 --
 -- By default, the test will compare the first 3 digits of each set of classes;
 -- if `major_class_only=true`, however, the test will compare the first digit
