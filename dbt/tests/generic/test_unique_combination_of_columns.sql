@@ -20,15 +20,12 @@
 
     select
         {{ columns_csv }},
-        {%- if additional_select_columns is mapping %}
-            {%- for col_name, col in additional_select_columns.items() %}
-                array_agg({{ col }}) as {{ col_name }},
-            {%- endfor %}
-        {%- else %}
-            {%- for col in additional_select_columns %}
-                array_agg({{ col }}) as {{ col }},
-            {%- endfor %}
-        {%- endif %}
+        {%- for col in additional_select_columns %}
+            {%- if col is mapping %}
+                {{ col.agg_func }} ({{ col.column }}) as {{ col.label }},
+            {%- else %} array_agg({{ col }}) as {{ col }},
+            {%- endif %}
+        {%- endfor %}
         count(*) as num_duplicates
     from {{ model }}
     group by {{ columns_csv }}

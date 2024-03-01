@@ -90,9 +90,10 @@ sources:
               - not_accepted_values:
                   name: iasworld_oby_class_mismatch_no_289s
                   values: ["289"]
-                  additional_select_columns: &select-columns-class
+                  additional_select_columns:
                     - taxyr
                     - parid
+                    - card
                     - who
                     - wen
                   config: *unique-conditions
