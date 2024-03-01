@@ -55,11 +55,14 @@ sources:
           - name: aprtot
             description: '{{ doc("column_aprtot") }}'
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_aprval_aprtot_between_0_and_2b
                   min_value: 0
                   max_value: 2000000000
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: aprtot must be between 0 and 2 billion
           - name: areasum
             description: '{{ doc("column_areasum") }}'
           - name: assmkt

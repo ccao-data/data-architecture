@@ -42,6 +42,7 @@ import dataclasses
 import datetime
 import hashlib
 import os
+import re
 import sys
 import typing
 
@@ -84,6 +85,7 @@ CUSTOM_TEST_NAMES = {
     "macro.athena.test_unique_combination_of_columns": "duplicate_records",
     "macro.dbt_utils.test_unique_combination_of_columns": "duplicate_records",
     "macro.athena.test_not_null": "missing_values",
+    "macro.athena.test_res_class_matches_pardat": "class_mismatch_or_issue",
 }
 # Directory to store failed test caches
 FAILED_TEST_CACHE_DIR = "failed_test_cache"
@@ -524,24 +526,39 @@ def get_tablename_from_node(node: typing.Dict) -> str:
         return meta_tablename
 
     # Search for the model that is implicated in this test via the
-    # depends_on key
-    models = node.get("depends_on", {}).get("nodes", [])
-    if not models:
+    # test_metadata.kwargs.model attribute. Note that it is common to use the
+    # elements in the depends_on array for this purpose, but this approach
+    # is fraught, since the order of parents for tests with multiple
+    # dependencies is not clear and can differ:
+    # https://github.com/dbt-labs/dbt-core/issues/6746#issuecomment-1829860236
+    test_metadata = node.get("test_metadata", {})
+    model_getter_str = test_metadata.get("kwargs", {}).get("model")
+    if not model_getter_str:
         raise ValueError(
-            "Can't infer tablename: Missing `depends_on.nodes` attribute for "
-            f"test {node['name']}. You may need to add a `meta.table_name` "
-            "attribute to the test config"
+            "Can't infer tablename: Missing `test_metadata.kwargs.model`"
+            f"attribute for test {node['name']}. You may need to add a "
+            "`meta.table_name` attribute to the test config to manually "
+            "specify the tablename"
         )
-    # Cross-table comparisons often involve multiple models; we have
-    # determined experimentally that the last one is usually
-    # the model that the test is concerned with, although if this
-    # returns incorrect results in some cases we can override them
-    # with the `meta.table_name` attribute
-    model = models[-1]
 
-    # Reference format for models/sources is:
-    # <"model"/"source">.athena.<schema_name>.<table_name>
-    return model.split(".")[-1]
+    # The test_metadata.kwargs.model attribute is formatted as a Jinja template
+    # call to the get_where_subquery macro, so we need to extract the ref or
+    # source tablename from that call
+    ref_match = re.search(r"ref\('(.+)'\)", model_getter_str)
+    if ref_match is not None:
+        fq_model_name = ref_match.group(1)
+        return fq_model_name.split(".")[-1]
+
+    source_match = re.search(r"source\('iasworld', '(.+)'\)", model_getter_str)
+    if source_match is not None:
+        return source_match.group(1)
+
+    raise ValueError(
+        "Can't infer tablename: Failed to parse model name from "
+        f'`test_metadata.kwargs.model` attribute "{model_getter_str}" '
+        f" for test \"{node['name']}\". Inspect the dbt manifest file "
+        "for more information"
+    )
 
 
 def add_sheet_to_workbook(

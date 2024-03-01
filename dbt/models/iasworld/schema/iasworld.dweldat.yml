@@ -68,8 +68,11 @@ sources:
                     description: attic (attic type) should not be null
               - accepted_values:
                   name: iasworld_dweldat_attic_in_accepted_values
-                  values: ['1', '2', '3']
+                  values: ['1', '2', '3', '4', '5']
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      attic (attic type) should be an integer between 1 and 5
           - name: atticarea
             description: Attic area
           - name: atticval
@@ -97,11 +100,12 @@ sources:
                     description: bsmt (basement type) should not be null
               - accepted_values:
                   name: iasworld_dweldat_bsmt_in_accepted_values
-                  values: ['1', '2', '3', '4']
+                  values: ['1', '2', '3', '4', '5', '6', '7']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: bsmt (basement type) must be '1', '2', '3', or '4'
+                    description: >
+                      bsmt (basement type) should be an integer between 1 and 7
           - name: bsmtarea
             description: Unfinished basement area
           - name: bsmtcar
@@ -109,7 +113,23 @@ sources:
           - name: bsmtval
             description: Basement value
           - name: calceffyr
-            description: Claculated effective year
+            description: Calculated effective year
+          - name: calc_meth
+            description: '{{ doc("shared_column_calc_meth") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_dweldat_calc_meth_accepted_values
+                  values: ["E"]
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
+                      AND calc_meth IS NOT NULL
+                  meta:
+                    description: calc_meth should be null or 'E'
           - name: card
             description: '{{ doc("column_card") }}'
             tests:
@@ -147,6 +167,17 @@ sources:
                       AND class NOT IN ('EX', 'RR')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+              - res_class_matches_pardat:
+                  name: iasworld_dweldat_class_matches_pardat_class
+                  select_columns_aggregated_with_array: ["card"]
+                  select_columns_aggregated_with_max:
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: at least one class should match pardat class
           - name: cline
             description: Condominium line
           - name: cndadjval
@@ -217,6 +248,54 @@ sources:
             description: Override exemption percent
           - name: exmpval
             description: '{{ doc("column_exmpval") }}'
+          - name: external_calc_rcnld
+            description: '{{ doc("shared_column_external_calc_rcnld") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_dweldat_external_calc_rcnld_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_calc_rcnld (calculated full NMV) should not be 0
+          - name: external_occpct
+            description: '{{ doc("shared_column_external_occpct") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_dweldat_external_occpct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_occpct (occupancy percentage) should not be 0
+          - name: external_propct
+            description: '{{ doc("shared_column_external_propct") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_dweldat_external_propct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_propct (proration percentage) should not be 0
+          - name: external_rcnld
+            description: '{{ doc("shared_column_external_rcnld") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_dweldat_external_rcnld_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_rcnld (calculated full FMV) should not be 0
           - name: extwall
             description: '{{ doc("shared_column_char_ext_wall") }}'
             tests:
@@ -228,8 +307,11 @@ sources:
                     description: extwall (exterior wall type) should not be null
               - accepted_values:
                   name: iasworld_dweldat_extwall_in_accepted_values
-                  values: ['1', '2', '3', '4']
+                  values: ['1', '2', '3', '4', '6', '7', '8', '9']
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      extwall (exterior wall type) should be 1, 2, 3, 4, 6, 7, 8, or 9
           - name: extwall1
             description: Exterior wall code
           - name: extwall1pct
@@ -437,11 +519,21 @@ sources:
                   name: iasworld_dweldat_mktrsn_eq_5_mktadj_not_null
                   expression: |
                     != '5' OR mktadj IS NOT NULL
+                  select_columns:
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
+                    - mktadj
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    category: incorrect_values
+                    description: mktrsn should only be 5 if mktadj is not null
           - name: modover
             description: Residential override model
           - name: mvpattic
@@ -761,6 +853,9 @@ sources:
               - not_null:
                   name: iasworld_dweldat_stories_not_null
                   config: *unique-conditions
+                  additional_select_columns: *select-columns
+                  meta:
+                    description: stories should not be null
               - expression_is_true:
                   name: iasworld_dweldat_stories_in_accepted_values
                   expression: 'IN (1.00, 2.00, 3.00, 4.00, 5.00, 9.90)'
@@ -883,12 +978,12 @@ sources:
                     description: user12 (basement finish) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_bsmt_fin_accepted_values
-                  values: ['1', '2', '3']
+                  values: ['1', '2', '3', '4', '5', '6']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: >
-                      user12 (basement finish) should be an integer between 1 and 3
+                      user12 (basement finish) should be an integer between 1 and 6
           - name: user13
             description: '{{ doc("shared_column_char_roof_cnst") }}'
             tests:
@@ -1019,12 +1114,12 @@ sources:
                     description: user33 (garage size) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_gar_size_accepted_values
-                  values: ['1', '2', '3', '4', '5', '6', '7', '8']
+                  values: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: >
-                      user33 (garage size) should be an integer between 1 and 8
+                      user33 (garage size) should be an integer between 1 and 10
           - name: user34
             description: '{{ doc("shared_column_char_gar_cnst") }}'
             tests:
@@ -1124,20 +1219,6 @@ sources:
                 - parid
                 - taxyr
                 - card
-          - row_values_match_after_join:
-              name: iasworld_dweldat_class_matches_pardat_class
-              column: class
-              column_name: dweldat_class
-              external_model: source('iasworld', 'pardat')
-              external_column: class
-              external_column_name: pardat_class
-              join_columns:
-                - parid
-                - taxyr
-              config: *unique-conditions
-              meta:
-                category: class_mismatch_or_issue
-                description: at least one dweldat class should match pardat class
           - expression_is_true:
               name: iasworld_dweldat_card_proration_rate_between_0_and_100
               expression: 'CAST(user24 AS decimal) BETWEEN 0.00 AND 100.00'
@@ -1166,3 +1247,26 @@ sources:
               meta:
                 category: missing_values
                 description: user24 (proration rate) should not be null
+          - expression_is_true:
+              name: iasworld_dweldat_bsmt_and_user12_match_234_class
+              expression: bsmt = '3' and user12 = '1'
+              select_columns:
+                - parid
+                - taxyr
+                - card
+                - who
+                - wen
+                - class
+                - bsmt
+                - user12
+              config:
+                where: |
+                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  AND cur = 'Y'
+                  AND deactivat IS NULL
+                  AND class = '234'
+              meta:
+                category: incorrect_values
+                description: >
+                  bsmt must be 3 (partial basement) and user12 must be 1
+                  (finished basement) when class is 234 (split level)

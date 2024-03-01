@@ -202,6 +202,19 @@ sources:
               combination_of_columns:
                 - parid
                 - instruno
+              additional_select_columns:
+                - column: substr(saledt, 1, 4)
+                  label: taxyr
+                  agg_func: max
+                - column: substr(saledt, 1, 4)
+                  label: sale_year
+                  agg_func: array_agg
+                - column: who
+                  label: who
+                  agg_func: array_agg
+                - column: wen
+                  label: wen
+                  agg_func: array_agg
               config: *unique-conditions
               meta:
                 description: sales should be unique by parid and instruno

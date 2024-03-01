@@ -42,6 +42,21 @@ sources:
             description: Agricultural flag
           - name: allocpct
             description: Allocation percentage
+            tests:
+              - not_accepted_values:
+                  name: iasworld_land_allocpct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      allocpct (land proration percentage) should not be 0
           - name: bdecr
             description: Decremental rate
           - name: bincr
@@ -65,6 +80,7 @@ sources:
                   name: iasworld_land_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
                   field: class_code
+                  additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -72,6 +88,26 @@ sources:
                       AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class code should be valid
+              - res_class_matches_pardat:
+                  name: iasworld_land_class_matches_pardat_class
+                  major_class_only: true
+                  select_columns_aggregated_with_max:
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND class NOT IN ('EX', 'RR')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    description: >
+                      at least one major class (first digit) should match pardat class
           - name: code
             description: Code
           - name: comres
@@ -206,12 +242,7 @@ sources:
               - accepted_range:
                   name: iasworld_land_price_gte_1
                   min_value: 1
-                  additional_select_columns: &select-columns
-                    - taxyr
-                    - parid
-                    - card
-                    - who
-                    - wen
+                  additional_select_columns: *select-columns
                   config:
                     where:
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -302,23 +333,3 @@ sources:
                 - parid
                 - lline
                 - taxyr
-          - row_values_match_after_join:
-              name: iasworld_land_class_matches_pardat_class
-              column: substr(model.class, 1, 1)
-              column_name: land_class
-              external_model: source('iasworld', 'pardat')
-              external_column: substr(external_model.class, 1, 1)
-              external_column_name: pardat_class
-              join_columns:
-                - parid
-                - taxyr
-              config:
-                where: |
-                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                  AND class NOT IN ('EX', 'RR')
-                  AND cur = 'Y'
-                  AND deactivat IS NULL
-              meta:
-                category: class_mismatch_or_issue
-                description: >
-                  land major class (first digit) should match pardat class

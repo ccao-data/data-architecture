@@ -102,3 +102,12 @@ Test that deed, buyer, seller, address and price `sale.mydec` columns are not
 null.
 
 {% enddocs %}
+
+# vw_iasworld_asmt_all_joined_to_legdat
+
+{% docs view_vw_iasworld_asmt_all_joined_to_legdat %}
+View that joins `iasworld.asmt_all` to `iasworld.legdat` to augment `asmt_all`
+with parcel legal descriptions and addresses.
+
+Both views are already filtered for current active records.
+{% enddocs %}
