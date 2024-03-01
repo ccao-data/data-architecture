@@ -165,19 +165,3 @@ sources:
             description: '{{ doc("shared_column_updated_by") }}'
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
-
-        tests:
-          # Note that this test is NOT actually the unique primary key of
-          # this table, since there doesn't seem to BE a unique combination
-          # of identifying columns
-          - unique_combination_of_columns:
-              name: iasworld_asmt_all_unique_by_parid_procname_and_taxyr
-              combination_of_columns:
-                - parid
-                - procname
-                - taxyr
-              config:
-                <<: *unique-conditions
-                error_if: ">15300"
-              meta:
-                description: asmt_all should be unique by parid, procname, and taxyr
