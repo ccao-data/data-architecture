@@ -177,9 +177,7 @@ for (i in c("2021", "2022", "2023")) {
       ungroup() %>%
       filter(!is.na(pin))
   } else if (!("2023" %in% years) && i == "2023") {
-
     chars[[i]] <- lapply(grep("2024", files, value = TRUE), function(x) {
-
       read_parquet(x) %>%
         select(
           pin = "14.Digit.PIN",
@@ -192,16 +190,16 @@ for (i in c("2021", "2022", "2023")) {
         ) %>%
         mutate(
           pin = gsub("[^0-9]", "", pin),
-          parking_pin = !is.na(parking_pin),
+          parking_pin = if_all(
+            c(unit_sf, bedrooms, full_baths, half_baths), is.na
+          ) & !is.na(parking_pin),
           year = "2023",
           bedrooms = case_when(bedrooms > 15 ~ NA_real_, TRUE ~ bedrooms),
           full_baths = case_when(full_baths > 10 ~ NA_real_, TRUE ~ full_baths),
-          unit_sf = case_when(unit_sf <5 ~ NA_real_, TRUE ~ unit_sf)
+          unit_sf = case_when(unit_sf < 5 ~ NA_real_, TRUE ~ unit_sf)
         )
-
     }) %>%
       bind_rows()
-
   } else {
     # If data is already in Athena, just take it from there
     chars[[i]] <- athena_chars(i)
