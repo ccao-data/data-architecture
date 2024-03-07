@@ -13,11 +13,7 @@
 -- (which uses the `array_agg()` function to select the columns) or
 -- `select_columns_aggregated_with_max` (which uses the `max()` function).
 {% test res_class_matches_pardat(
-    model,
-    column_name,
-    major_class_only=false,
-    select_columns_aggregated_with_array=[],
-    select_columns_aggregated_with_max=[]
+    model, column_name, major_class_only=false, additional_select_columns=[]
 ) %}
 
     {%- set num_class_digits = 1 if major_class_only else 3 %}
@@ -39,12 +35,7 @@
 
     select
         array_agg(filtered_model.{{ column_name }}) as {{ column_name }},
-        {%- for col in select_columns_aggregated_with_array %}
-            array_agg(filtered_model.{{ col }}) as {{ col }},
-        {%- endfor %}
-        {%- for col in select_columns_aggregated_with_max %}
-            max(filtered_model.{{ col }}) as {{ col }},
-        {%- endfor %}
+        {{ format_additional_select_columns(additional_select_columns) }}
         -- Pardat should be unique by (parid, taxyr), so we can select the
         -- max rather than array_agg
         max(pardat.class) as pardat_class

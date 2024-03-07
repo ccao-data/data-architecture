@@ -169,12 +169,22 @@ sources:
                       AND deactivat IS NULL
               - res_class_matches_pardat:
                   name: iasworld_dweldat_class_matches_pardat_class
-                  select_columns_aggregated_with_array: ["card"]
-                  select_columns_aggregated_with_max:
-                    - taxyr
-                    - parid
-                    - who
-                    - wen
+                  additional_select_columns:
+                    - column: filtered_model.card
+                      label: card
+                      agg_func: array_agg
+                    - column: filtered_model.taxyr
+                      label: taxyr
+                      agg_func: max
+                    - column: filtered_model.parid
+                      label: parid
+                      agg_func: max
+                    - column: filtered_model.who
+                      label: who
+                      agg_func: max
+                    - column: filtered_model.wen
+                      label: wen
+                      agg_func: max
                   config: *unique-conditions
                   meta:
                     description: at least one class should match pardat class
