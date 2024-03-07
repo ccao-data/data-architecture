@@ -519,7 +519,7 @@ sources:
                   name: iasworld_dweldat_mktrsn_eq_5_mktadj_not_null
                   expression: |
                     != '5' OR mktadj IS NOT NULL
-                  select_columns:
+                  additional_select_columns:
                     - taxyr
                     - parid
                     - card
@@ -679,7 +679,7 @@ sources:
               - expression_is_true:
                   name: iasworld_dweldat_rmbed_lte_rmtot
                   expression: <= rmtot
-                  select_columns:
+                  additional_select_columns:
                     - parid
                     - taxyr
                     - card
@@ -859,7 +859,7 @@ sources:
               - expression_is_true:
                   name: iasworld_dweldat_stories_in_accepted_values
                   expression: 'IN (1.00, 2.00, 3.00, 4.00, 5.00, 9.90)'
-                  select_columns: *select-columns
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     category: incorrect_values
@@ -1222,7 +1222,7 @@ sources:
           - expression_is_true:
               name: iasworld_dweldat_card_proration_rate_between_0_and_100
               expression: 'CAST(user24 AS decimal) BETWEEN 0.00 AND 100.00'
-              select_columns:
+              additional_select_columns:
                 - parid
                 - taxyr
                 - card
@@ -1236,7 +1236,7 @@ sources:
           - expression_is_true:
               name: iasworld_dweldat_char_ncu_between_0_and_5
               expression: 'CAST(user20 AS decimal) BETWEEN 0 AND 5'
-              select_columns:
+              additional_select_columns:
                 - parid
                 - taxyr
                 - card
@@ -1250,7 +1250,7 @@ sources:
           - expression_is_true:
               name: iasworld_dweldat_bsmt_and_user12_match_234_class
               expression: bsmt = '3' and user12 = '1'
-              select_columns:
+              additional_select_columns:
                 - parid
                 - taxyr
                 - card

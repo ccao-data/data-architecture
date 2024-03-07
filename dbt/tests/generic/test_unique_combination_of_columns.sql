@@ -20,7 +20,7 @@
 
     select
         {{ columns_csv }},
-        {{ format_additional_select_columns(additional_select_columns) }}
+        {{ format_additional_select_columns(additional_select_columns) }},
         count(*) as num_duplicates
     from {{ model }}
     group by {{ columns_csv }}

@@ -80,7 +80,7 @@ models:
             ))
             OR
             (change is null)
-          select_columns:
+          additional_select_columns:
             - pin
             - year
             - case_no
@@ -97,7 +97,7 @@ models:
       - expression_is_true:
           name: default_vw_pin_appeal_no_unexpected_change_values
           expression: change is null or change in ('change', 'no change')
-          select_columns:
+          additional_select_columns:
             - pin
             - year
             - case_no

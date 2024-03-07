@@ -21,7 +21,7 @@ sources:
               - expression_is_true:
                   name: iasworld_land_acres_is_sf_transformed
                   expression: '* 43560 BETWEEN sf - 5 AND sf + 5'
-                  select_columns:
+                  additional_select_columns:
                     - taxyr
                     - parid
                     - card

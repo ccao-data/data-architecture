@@ -14,7 +14,9 @@
 ) %}
 
     {%- set join_columns_csv = join_columns | join(", ") -%}
-    {%- set additional_select_columns_csv = additional_select_columns | join(", ") -%}
+    {%- set additional_select_columns_csv = format_additional_select_columns(
+        additional_select_columns
+    ) -%}
 
     {%- if "." in column -%} {%- set model_col = column -%}
     {%- else -%} {%- set model_col = "model" ~ "." ~ column -%}

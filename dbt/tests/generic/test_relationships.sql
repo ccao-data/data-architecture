@@ -2,7 +2,7 @@
 -- columns for debugging
 {% test relationships(model, column_name, to, field, additional_select_columns=[]) %}
 
-    {%- set columns_csv = additional_select_columns | join(", ") %}
+    {%- set columns_csv = format_additional_select_columns(additional_select_columns) %}
 
     with
         child as (

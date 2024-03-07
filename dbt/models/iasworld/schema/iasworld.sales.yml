@@ -221,7 +221,7 @@ sources:
           - expression_is_true:
               name: iasworld_sales_saledt_lte_now
               expression: DATE_PARSE(SUBSTR(saledt, 1, 10), '%Y-%m-%d') <= current_date
-              select_columns:
+              additional_select_columns:
                 - parid
                 - saledt
                 - instruno

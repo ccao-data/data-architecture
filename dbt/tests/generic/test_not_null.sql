@@ -4,7 +4,9 @@
 
     {%- set columns_csv = "*" %}
     {%- if additional_select_columns %}
-        {%- set columns_csv = additional_select_columns | join(", ") %}
+        {%- set columns_csv = format_additional_select_columns(
+            additional_select_columns
+        ) %}
     {%- endif %}
 
     select {{ columns_csv }}

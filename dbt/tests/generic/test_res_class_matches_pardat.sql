@@ -55,7 +55,7 @@
 
     select
         array_agg(filtered_model.{{ column_name }}) as {{ column_name }},
-        {{ format_additional_select_columns(processed_additional_select_columns) }}
+        {{ format_additional_select_columns(processed_additional_select_columns) }},
         -- Pardat should be unique by (parid, taxyr), so we can select the
         -- max rather than array_agg
         max(pardat.class) as pardat_class

@@ -11,9 +11,6 @@
 -- (defaults to `column`)
 -- * `agg_func` (optional string): An aggregation function to use to
 -- select the column (defaults to no aggregation)
---
--- If you call this macro, make sure not to follow it with a comma, since the
--- macro already appends a comma to the end of any lines that it formats.
 {% macro format_additional_select_columns(additional_select_columns) %}
     {{
         return(
@@ -28,6 +25,7 @@
     additional_select_columns, raise_error_func
 ) %}
     {%- for col in additional_select_columns -%}
+        {%- set trailing_comma = "" if loop.last else "," %}
         {%- if col is mapping -%}
             {%- if "column" not in col -%}
                 {{-
@@ -40,11 +38,12 @@
             {%- else -%}
                 {%- set label = col.label if col.label else col.column -%}
                 {%- if col.agg_func -%}
-                    {{- col.agg_func }} ({{ col.column }}) as {{ label }},
-                {%- else -%} {{- col.column }} as {{ label }},
+                    {{- col.agg_func }} ({{ col.column }}) as {{ label }}
+                    {{- trailing_comma }}
+                {%- else -%} {{- col.column }} as {{ label }}{{ trailing_comma }}
                 {%- endif -%}
             {%- endif -%}
-        {%- else -%} {{ col }} as {{ col }},
+        {%- else -%} {{ col }} as {{ col }}{{ trailing_comma }}
         {%- endif -%}
     {%- endfor -%}
 {% endmacro %}
