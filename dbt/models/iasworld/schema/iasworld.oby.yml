@@ -104,21 +104,11 @@ sources:
                   name: iasworld_oby_class_matches_pardat_class
                   major_class_only: true
                   additional_select_columns:
-                    - column: filtered_model.card
-                      label: card
-                      agg_func: array_agg
-                    - column: filtered_model.taxyr
-                      label: taxyr
-                      agg_func: max
-                    - column: filtered_model.parid
-                      label: parid
-                      agg_func: max
-                    - column: filtered_model.who
-                      label: who
-                      agg_func: max
-                    - column: filtered_model.wen
-                      label: wen
-                      agg_func: max
+                    - {"column": "card", "agg_func": "array_agg"}
+                    - {"column": "taxyr", "agg_func": "max"}
+                    - {"column": "parid", "agg_func": "max"}
+                    - {"column": "who", "agg_func": "max"}
+                    - {"column": "wen", "agg_func": "max"}
                   config: *unique-conditions
                   meta:
                     description: >

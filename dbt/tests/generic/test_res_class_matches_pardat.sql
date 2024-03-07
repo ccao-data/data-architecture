@@ -15,7 +15,27 @@
 {% test res_class_matches_pardat(
     model, column_name, major_class_only=false, additional_select_columns=[]
 ) %}
-
+    -- Process `additional_select_columns` to add the necessary prefix for
+    -- the filtered version of the input model. This is necessary to
+    -- disambiguate selected columns that are shared between the input model
+    -- and pardat
+    {%- set processed_additional_select_columns = [] %}
+    {%- for col in additional_select_columns %}
+        {%- if col is mapping %}
+            {%- set updated_col = {"column": "filtered_model." ~ col.column} %}
+            {%- for key, val in col.items() if key != "column" %}
+                {%- set _ = updated_col.update({key: val}) %}
+            {%- endfor %}
+            {%- if "label" not in updated_col %}
+                {%- set _ = updated_col.update({"label": col.column}) %}
+            {%- endif %}
+            {%- set _ = processed_additional_select_columns.append(updated_col) %}
+        {%- else %}
+            {%- set _ = processed_additional_select_columns.append(
+                "filtered_model." ~ col
+            ) %}
+        {%- endif %}
+    {%- endfor %}
     {%- set num_class_digits = 1 if major_class_only else 3 %}
 
     with
@@ -35,7 +55,7 @@
 
     select
         array_agg(filtered_model.{{ column_name }}) as {{ column_name }},
-        {{ format_additional_select_columns(additional_select_columns) }}
+        {{ format_additional_select_columns(processed_additional_select_columns) }}
         -- Pardat should be unique by (parid, taxyr), so we can select the
         -- max rather than array_agg
         max(pardat.class) as pardat_class
