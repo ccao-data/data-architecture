@@ -43,7 +43,7 @@
                 {%- else -%} {{- col.column }} as {{ label }}{{ trailing_comma }}
                 {%- endif -%}
             {%- endif -%}
-        {%- else -%} {{ col }} as {{ col }}{{ trailing_comma }}
+        {%- else -%} {{ col }}{{ trailing_comma }}
         {%- endif -%}
     {%- endfor -%}
 {% endmacro %}

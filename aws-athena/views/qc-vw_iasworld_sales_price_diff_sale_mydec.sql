@@ -3,6 +3,7 @@
 SELECT
     REGEXP_REPLACE(iasworld.instruno, '[^0-9]', '') AS document_number,
     SUBSTR(iasworld.saledt, 1, 4) AS taxyr,
+    iasworld.parid,
     iasworld.price AS price_iasworld,
     SUBSTR(mydec.year_of_sale, 1, 4) AS year_mydec,
     mydec.line_11_full_consideration AS price_mydec

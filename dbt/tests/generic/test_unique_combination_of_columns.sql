@@ -17,10 +17,15 @@
 ) %}
 
     {%- set columns_csv = combination_of_columns | join(", ") %}
+    {%- set additional_select_columns_csv = format_additional_select_columns(
+        additional_select_columns
+    ) %}
 
     select
         {{ columns_csv }},
-        {{ format_additional_select_columns(additional_select_columns) }},
+        {%- if additional_select_columns_csv %}
+            {{- additional_select_columns_csv }},
+        {%- endif %}
         count(*) as num_duplicates
     from {{ model }}
     group by {{ columns_csv }}
