@@ -130,7 +130,8 @@ unique_sales AS (
             ) AS sale_filter_deed_type
         FROM {{ source('iasworld', 'sales') }} AS sales
         LEFT JOIN calculated
-            ON sales.instruno = calculated.instruno
+            ON NULLIF(REPLACE(sales.instruno, 'D', ''), '')
+            = calculated.instruno
         LEFT JOIN
             town_class AS tc
             ON sales.parid = tc.parid

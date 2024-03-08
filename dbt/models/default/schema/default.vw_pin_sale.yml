@@ -77,6 +77,9 @@ models:
       - row_count:
           name: default_vw_pin_sale_row_count
           above: 2477674 # as of 2023-11-22
+      - not_null:
+          name: default_vw_pin_sale_num_parcels_sale_not_null
+          column_name: num_parcels_sale
       # TODO: Sale is validated (after sales validation has been added to
       # iasworld)
       # TODO: Validation is catching obvious outliers
