@@ -204,16 +204,16 @@ sources:
                 - instruno
               additional_select_columns:
                 - column: substr(saledt, 1, 4)
-                  label: taxyr
+                  alias: taxyr
                   agg_func: max
                 - column: substr(saledt, 1, 4)
-                  label: sale_year
+                  alias: sale_year
                   agg_func: array_agg
                 - column: who
-                  label: who
+                  alias: who
                   agg_func: array_agg
                 - column: wen
-                  label: wen
+                  alias: wen
                   agg_func: array_agg
               config: *unique-conditions
               meta:

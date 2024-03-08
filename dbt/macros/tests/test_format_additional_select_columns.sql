@@ -2,9 +2,10 @@
     {% do test_format_additional_select_columns_string_element() %}
     {% do test_format_additional_select_columns_string_list() %}
     {% do test_format_additional_select_columns_dict_element_no_column() %}
-    {% do test_format_additional_select_columns_dict_element_no_label() %}
-    {% do test_format_additional_select_columns_dict_element_with_label() %}
+    {% do test_format_additional_select_columns_dict_element_no_alias() %}
+    {% do test_format_additional_select_columns_dict_element_with_alias() %}
     {% do test_format_additional_select_columns_dict_element_array_agg() %}
+    {% do test_format_additional_select_columns_dict_element_array_w_alias() %}
 {% endmacro %}
 
 {% macro test_format_additional_select_columns_string_element() %}
@@ -12,7 +13,7 @@
         assert_equals(
             "test_format_additional_select_columns_string_element",
             format_additional_select_columns(["foo"]),
-            "foo as foo,",
+            "foo",
         )
     }}
 {% endmacro %}
@@ -22,7 +23,7 @@
         assert_equals(
             "test_format_additional_select_columns_string_element",
             format_additional_select_columns(["foo", "bar"]),
-            "foo as foo,bar as bar,",
+            "foo,bar",
         )
     }}
 {% endmacro %}
@@ -32,29 +33,29 @@
         assert_equals(
             "test_format_additional_select_columns_dict_element_no_column",
             _format_additional_select_columns(
-                [{"label": "foo"}], mock_raise_compiler_error
+                [{"alias": "foo"}], mock_raise_compiler_error
             ),
-            "Missing required \"column\" key in config: {'label': 'foo'}",
+            "Missing required \"column\" key in config: {'alias': 'foo'}",
         )
     }}
 {% endmacro %}
 
-{% macro test_format_additional_select_columns_dict_element_no_label() %}
+{% macro test_format_additional_select_columns_dict_element_no_alias() %}
     {{
         assert_equals(
-            "test_format_additional_select_columns_dict_element_no_label",
+            "test_format_additional_select_columns_dict_element_no_alias",
             format_additional_select_columns([{"column": "foo"}]),
-            "foo as foo,",
+            "foo",
         )
     }}
 {% endmacro %}
 
-{% macro test_format_additional_select_columns_dict_element_with_label() %}
+{% macro test_format_additional_select_columns_dict_element_with_alias() %}
     {{
         assert_equals(
-            "test_format_additional_select_columns_dict_element_with_label",
-            format_additional_select_columns([{"column": "foo", "label": "bar"}]),
-            "foo as bar,",
+            "test_format_additional_select_columns_dict_element_with_alias",
+            format_additional_select_columns([{"column": "foo", "alias": "bar"}]),
+            "foo as bar",
         )
     }}
 {% endmacro %}
@@ -64,7 +65,19 @@
         assert_equals(
             "test_format_additional_select_columns_dict_element_array_agg",
             format_additional_select_columns([{"column": "foo", "agg_func": "max"}]),
-            "max (foo) as foo,",
+            "max (foo) as foo",
+        )
+    }}
+{% endmacro %}
+
+{% macro test_format_additional_select_columns_dict_element_array_w_alias() %}
+    {{
+        assert_equals(
+            "test_format_additional_select_columns_dict_element_array_w_alias",
+            format_additional_select_columns([
+                {"column": "foo", "alias": "bar", "agg_func": "max"}
+            ]),
+            "max (foo) as bar",
         )
     }}
 {% endmacro %}

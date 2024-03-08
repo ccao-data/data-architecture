@@ -3,15 +3,17 @@
 -- statement.
 --
 -- If an element of the list is a string, the column it represents will
--- be selected using the name of the column as an alias. If instead the
--- element is a dictionary, it can contain the following key-value
--- pairs:
+-- be selected as-is. If instead the element is a dictionary, it can contain
+-- the following key-value pairs:
+--
 -- * `column` (required string): The name of the column to select
 -- * `alias` (optional string): The alias to use for the column
 -- (defaults to `column`)
 -- * `agg_func` (optional string): An aggregation function to use to
 -- select the column (defaults to no aggregation)
 {% macro format_additional_select_columns(additional_select_columns) %}
+    -- Pass execution off to a helper function with a configurable error
+    -- handler, to make it possible to unit test exceptions
     {{
         return(
             _format_additional_select_columns(
@@ -36,11 +38,16 @@
                     )
                 -}}
             {%- else -%}
-                {%- set label = col.label if col.label else col.column -%}
                 {%- if col.agg_func -%}
-                    {{- col.agg_func }} ({{ col.column }}) as {{ label }}
+                    {%- set alias = col.alias if col.alias else col.column -%}
+                    {{- col.agg_func }} ({{ col.column }}) as {{ alias }}
                     {{- trailing_comma }}
-                {%- else -%} {{- col.column }} as {{ label }}{{ trailing_comma }}
+                {%- else -%}
+                    {%- if col.alias -%}
+                        {{- col.column }} as {{ col.alias }}{{ trailing_comma }}
+                    {%- else -%}
+                        {{- col.column }}{{ trailing_comma }}
+                    {%- endif -%}
                 {%- endif -%}
             {%- endif -%}
         {%- else -%} {{ col }}{{ trailing_comma }}

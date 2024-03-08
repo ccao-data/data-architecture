@@ -26,8 +26,11 @@
             {%- for key, val in col.items() if key != "column" %}
                 {%- set _ = updated_col.update({key: val}) %}
             {%- endfor %}
-            {%- if "label" not in updated_col %}
-                {%- set _ = updated_col.update({"label": col.column}) %}
+            -- It's necessary to explicitly set the alias, since otherwise
+            -- it will default to `filtered_model.{column}` according to
+            -- the fallback behavior of format_additional_select_columns
+            {%- if "alias" not in updated_col %}
+                {%- set _ = updated_col.update({"alias": col.column}) %}
             {%- endif %}
             {%- set _ = processed_additional_select_columns.append(updated_col) %}
         {%- else %}
