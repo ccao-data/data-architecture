@@ -1,4 +1,11 @@
 -- Source of truth view for PIN location
+WITH par AS (
+    SELECT
+        pardat.*,
+        LENGTH(REGEXP_REPLACE(pardat.parid, '([^0-9])', '')) AS pin_length
+    FROM {{ source('iasworld', 'pardat') }} AS pardat
+)
+
 SELECT
     -- Main PIN-level attribute data from iasWorld
     par.parid AS pin,
@@ -121,7 +128,7 @@ SELECT
     vwl.access_cmap_walk_data_year,
     vwl.misc_subdivision_id,
     vwl.misc_subdivision_data_year
-FROM {{ source('iasworld', 'pardat') }} AS par
+FROM par
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     ON par.parid = leg.parid
     AND par.taxyr = leg.taxyr
@@ -140,4 +147,4 @@ LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
 
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
-    AND LENGTH(REGEXP_REPLACE(par.parid, '([^0-9])', '')) = 14
+    AND par.pin_length = 14
