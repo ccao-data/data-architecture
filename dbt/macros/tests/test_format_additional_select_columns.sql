@@ -74,9 +74,9 @@
     {{
         assert_equals(
             "test_format_additional_select_columns_dict_element_array_w_alias",
-            format_additional_select_columns([
-                {"column": "foo", "alias": "bar", "agg_func": "max"}
-            ]),
+            format_additional_select_columns(
+                [{"column": "foo", "alias": "bar", "agg_func": "max"}]
+            ),
             "max (foo) as bar",
         )
     }}

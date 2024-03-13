@@ -45,8 +45,7 @@
                 {%- else -%}
                     {%- if col.alias -%}
                         {{- col.column }} as {{ col.alias }}{{ trailing_comma }}
-                    {%- else -%}
-                        {{- col.column }}{{ trailing_comma }}
+                    {%- else -%} {{- col.column }}{{ trailing_comma }}
                     {%- endif -%}
                 {%- endif -%}
             {%- endif -%}
