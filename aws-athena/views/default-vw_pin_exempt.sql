@@ -45,3 +45,4 @@ WHERE
     AND par.cur = 'Y'
     AND par.deactivat IS NULL
     AND par.taxyr >= '2022'
+    AND par.class != '299'

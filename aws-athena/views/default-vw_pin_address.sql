@@ -61,3 +61,4 @@ LEFT JOIN {{ source('iasworld', 'owndat') }} AS own
     AND own.deactivat IS NULL
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
+    AND par.class != '999'
