@@ -239,7 +239,7 @@ models:
           group_column: year
           count_column: class
           config:
-            error_if: ">25"
+            error_if: ">24"
       # Number of towns is consistent over time
       - count_is_consistent:
           name: default_vw_pin_universe_town_count_is_consistent_by_year
