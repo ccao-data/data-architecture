@@ -82,7 +82,7 @@ models:
           column_name: num_parcels_sale
       - expression_is_true:
           name: default_vw_pin_sale_is_multisale_num_parcels_sale_align
-          expression: (num_parcels_sale > 1 and is_multisale) OR (num_parcels_sale = 1 and NOT is_multisale)
+          expression: (num_parcels_sale > 1 AND is_multisale) OR (num_parcels_sale = 1 AND NOT is_multisale)
           select_columns:
             - num_parcels_sale
             - is_multisale
