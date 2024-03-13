@@ -11,6 +11,7 @@ WITH stage_values AS (
         parid AS pin,
         taxyr AS year,
         -- Mailed values
+        MAX(CASE WHEN procname = 'CCAOVALUE' THEN class END) AS mailed_class,
         MAX(
             CASE
                 WHEN procname = 'CCAOVALUE' AND taxyr < '2020' THEN ovrvalasm2
@@ -30,6 +31,7 @@ WITH stage_values AS (
             END
         ) AS mailed_tot,
         -- Assessor certified values
+        MAX(CASE WHEN procname = 'CCAOFINAL' THEN class END) AS certified_class,
         MAX(
             CASE
                 WHEN procname = 'CCAOFINAL' AND taxyr < '2020' THEN ovrvalasm2
@@ -49,6 +51,7 @@ WITH stage_values AS (
             END
         ) AS certified_tot,
         -- Board certified values
+        MAX(CASE WHEN procname = 'BORVALUE' THEN class END) AS board_class,
         MAX(
             CASE
                 WHEN procname = 'BORVALUE' AND taxyr < '2020' THEN ovrvalasm2
