@@ -140,4 +140,5 @@ LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
 
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
-    AND LENGTH(REGEXP_REPLACE(par.parid, '([^0-9])', '')) = 14
+    -- Remove test pins
+    AND par.class != '999'
