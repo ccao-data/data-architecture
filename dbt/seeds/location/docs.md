@@ -1,6 +1,6 @@
-# neighborhood_groups
+# neighborhood_group
 
-{% docs seed_neighborhood_groups %}
+{% docs seed_neighborhood_group %}
 A mapping of neighborhood codes to groups that are used for sales
 validation.
 

@@ -1,6 +1,6 @@
 seeds:
-  - name: location.neighborhood_groups
-    description: '{{ doc("seed_neighborhood_groups") }}'
+  - name: location.neighborhood_group
+    description: '{{ doc("seed_neighborhood_group") }}'
     columns:
       - name: nbhd
         description: '{{ doc("shared_column_nbhd_code") }}'
