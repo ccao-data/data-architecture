@@ -1,0 +1,12 @@
+seeds:
+  - name: location.neighborhood_groups
+    description: '{{ doc("seed_neighborhood_groups") }}'
+    columns:
+      - name: nbhd
+        description: '{{ doc("shared_column_nbhd_code") }}'
+      - name: group_name
+        description: Name of the group that this neighborhood is in
+      - name: updated_at
+        description: Timestamp of the last record update.
+      - name: version
+        description: Incrementing version of the record

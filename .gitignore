@@ -6,7 +6,6 @@
 .DS_Store
 *.geojson
 *.parquet
-*.csv
 !open_data_info.csv
 aws-s3/parcel-tmp
 aws-s3/scripts-ccao-data-raw-us-east-1/corner-lot-raw/

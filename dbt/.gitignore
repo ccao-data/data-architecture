@@ -8,3 +8,4 @@ assets/*.svg
 master-cache/
 *.xlsx
 failed_test_cache/*.json
+column_descriptions.csv
