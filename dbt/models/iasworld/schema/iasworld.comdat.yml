@@ -88,7 +88,17 @@ sources:
                   name: iasworld_comdat_chgrsn_eq_5_mktadj_not_null
                   expression: |
                     != '5' OR mktadj IS NOT NULL
+                  additional_select_columns:
+                    - parid
+                    - taxyr
+                    - card
+                    - who
+                    - wen
+                    - mktadj
                   config: *unique-conditions
+                  meta:
+                    category: incorrect_values
+                    description: chgrsn should only be 5 if mktadj is not null
           - name: class
             description: '{{ doc("shared_column_class") }}'
             tests:
@@ -96,6 +106,7 @@ sources:
                   name: iasworld_comdat_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
                   field: class_code
+                  additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -103,6 +114,9 @@ sources:
                       AND class NOT IN ('EX', 'RR')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class code must be valid
           - name: convbldg
             description: '{{ doc("column_convbldg") }}'
             tests:
