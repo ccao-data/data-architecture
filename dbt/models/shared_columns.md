@@ -193,6 +193,16 @@ Board of Review assessed value of building from year specified by column
 prefix (or year of observation if not prefixed)
 {% enddocs %}
 
+## board_class
+{% docs shared_column_board_class %}
+Stage-level property type and/or use at the time of BOR certification.
+
+Designates the property type, such as vacant, residential, multi-family,
+agricultural, commercial or industrial. The classification determines the
+percentage of fair cash value at which a property is assessed for taxing
+purposes. See `ccao.class_dict` for more information
+{% enddocs %}
+
 ## board_land
 
 {% docs shared_column_board_land %}
@@ -216,6 +226,39 @@ Office **and** the second round of appeals at the Board of Review.
 Calculation parameter.
 
 If present, must be `E`.
+{% enddocs %}
+
+## certified_bldg
+
+{% docs shared_column_certified_bldg %}
+Certified assessed value of building from year specified by column
+prefix (or year of observation if not prefixed)
+{% enddocs %}
+
+## certified_class
+{% docs shared_column_certified_class %}
+Stage-level property type and/or use at the time of CCAO certification.
+
+Designates the property type, such as vacant, residential, multi-family,
+agricultural, commercial or industrial. The classification determines the
+percentage of fair cash value at which a property is assessed for taxing
+purposes. See `ccao.class_dict` for more information
+{% enddocs %}
+
+## certified_land
+
+{% docs shared_column_certified_land %}
+Certified assessed value of land from year specified by column
+prefix (or year of observation if not prefixed)
+{% enddocs %}
+
+## certified_tot
+
+{% docs shared_column_certified_tot %}
+Certified total assessed value from year specified by column
+prefix (or year of observation if not prefixed).
+
+This is the value after the first round of appeals at the Assessor's Office.
 {% enddocs %}
 
 ## change_reason
@@ -279,29 +322,6 @@ Reason for change in assessed value. Possible values for this variable are:
 - `92` =  Flood Debasement
 {% enddocs %}
 
-## certified_bldg
-
-{% docs shared_column_certified_bldg %}
-Certified assessed value of building from year specified by column
-prefix (or year of observation if not prefixed)
-{% enddocs %}
-
-## certified_land
-
-{% docs shared_column_certified_land %}
-Certified assessed value of land from year specified by column
-prefix (or year of observation if not prefixed)
-{% enddocs %}
-
-## certified_tot
-
-{% docs shared_column_certified_tot %}
-Certified total assessed value from year specified by column
-prefix (or year of observation if not prefixed).
-
-This is the value after the first round of appeals at the Assessor's Office.
-{% enddocs %}
-
 ## external_calc_rcnld
 
 {% docs shared_column_external_calc_rcnld %}
@@ -322,6 +342,16 @@ Calculated full market value.
 {% docs shared_column_mailed_bldg %}
 Mailed assessed value of building from year specified by column
 prefix (or year of observation if not prefixed)
+{% enddocs %}
+
+## mailed_class
+{% docs shared_column_mailed_class %}
+Stage-level property type and/or use at the time of CCAO mailing.
+
+Designates the property type, such as vacant, residential, multi-family,
+agricultural, commercial or industrial. The classification determines the
+percentage of fair cash value at which a property is assessed for taxing
+purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
 ## mailed_land

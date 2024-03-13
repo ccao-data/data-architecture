@@ -5,12 +5,16 @@ models:
     columns:
       - name: board_bldg
         description: '{{ doc("shared_column_board_bldg") }}'
+      - name: board_class
+        description: '{{ doc("shared_column_board_class") }}'
       - name: board_land
         description: '{{ doc("shared_column_board_land") }}'
       - name: board_tot
         description: '{{ doc("shared_column_board_tot") }}'
       - name: certified_bldg
         description: '{{ doc("shared_column_certified_bldg") }}'
+      - name: certified_class
+        description: '{{ doc("shared_column_certified_class") }}'
       - name: certified_land
         description: '{{ doc("shared_column_certified_land") }}'
       - name: certified_tot
@@ -21,6 +25,8 @@ models:
         description: '{{ doc("shared_column_class") }}'
       - name: mailed_bldg
         description: '{{ doc("shared_column_mailed_bldg") }}'
+      - name: mailed_class
+        description: '{{ doc("shared_column_mailed_class") }}'
       - name: mailed_land
         description: '{{ doc("shared_column_mailed_land") }}'
       - name: mailed_tot
