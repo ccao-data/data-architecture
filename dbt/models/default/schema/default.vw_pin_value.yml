@@ -49,8 +49,49 @@ models:
         description: '{{ doc("shared_column_year") }}'
 
     tests:
+      - expression_is_true:
+          name: default_vw_pin_mailed_class_no_hyphens
+          expression: mailed_class like '%-%'
+          select_columns:
+            - class
       - unique_combination_of_columns:
           name: default_vw_pin_value_unique_by_14_digit_pin_and_year
           combination_of_columns:
             - pin
             - year
+      - not_null:
+          name: default_vw_pin_value_mailed_class_not_null
+          column_name: mailed_class
+      - not_null:
+          name: default_vw_pin_value_certified_class_not_null
+          column_name: certified_class
+      - not_null:
+          name: default_vw_pin_value_board_class_not_null
+          column_name: board_class
+      - not_null:
+          name: default_vw_pin_value_mailed_bldg_not_null
+          column_name: mailed_bldg
+      - not_null:
+          name: default_vw_pin_value_mailed_land_not_null
+          column_name: mailed_land
+      - not_null:
+          name: default_vw_pin_value_mailed_tot_not_null
+          column_name: mailed_tot
+      - not_null:
+          name: default_vw_pin_value_certified_bldg_not_null
+          column_name: certified_bldg
+      - not_null:
+          name: default_vw_pin_value_certified_land_not_null
+          column_name: certified_land
+      - not_null:
+          name: default_vw_pin_value_certified_tot_not_null
+          column_name: certified_tot
+      - not_null:
+          name: default_vw_pin_value_board_bldg_not_null
+          column_name: board_bldg
+      - not_null:
+          name: default_vw_pin_value_board_land_not_null
+          column_name: board_land
+      - not_null:
+          name: default_vw_pin_value_board_tot_not_null
+          column_name: board_tot
