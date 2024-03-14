@@ -61,5 +61,7 @@ LEFT JOIN {{ source('iasworld', 'owndat') }} AS own
     AND own.deactivat IS NULL
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
-    -- Test parcels have class codes of '999' and need to be removed
-    AND par.class != '999'
+    -- Remove any parcels with non-numeric characters
+    -- or that are not 14 characters long
+    AND REGEXP_COUNT(par.parid, '[a-zA-Z]') = 0
+    AND LENGTH(par.parid) = 14

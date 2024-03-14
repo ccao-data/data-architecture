@@ -253,7 +253,7 @@ models:
       - row_count:
           name: default_vw_pin_universe_row_count
           above: 45079936 # as of 2024-01-03
-      # No nonnumeric characters in the pin field
+      # No non-numeric characters in the pin field
       - expression_is_true:
           name: default_vw_pin_universe_numeric_pin
           expression: REGEXP_COUNT(pin, '[0-9]') = 14 AND LENGTH(pin) = 14

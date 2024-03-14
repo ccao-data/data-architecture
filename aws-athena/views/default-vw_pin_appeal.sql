@@ -85,5 +85,7 @@ LEFT JOIN {{ source('iasworld', 'htagnt') }} AS htagnt
 WHERE htpar.cur = 'Y'
     AND htpar.caseno IS NOT NULL
     AND htpar.deactivat IS NULL
-    -- Test parcels have class codes of '999' and need to be removed
-    AND pardat.class != '999'
+    -- Remove any parcels with non-numeric characters
+    -- or that are not 14 characters long
+    AND REGEXP_COUNT(par.parid, '[a-zA-Z]') = 0
+    AND LENGTH(par.parid) = 14
