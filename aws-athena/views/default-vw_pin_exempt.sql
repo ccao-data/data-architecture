@@ -45,4 +45,5 @@ WHERE
     AND par.cur = 'Y'
     AND par.deactivat IS NULL
     AND par.taxyr >= '2022'
+    -- Test parcels have class codes of '999' and need to be removed
     AND par.class != '299'

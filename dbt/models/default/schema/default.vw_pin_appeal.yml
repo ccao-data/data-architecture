@@ -107,3 +107,9 @@ models:
       - row_count:
           name: default_vw_pin_appeal_row_count
           above: 8407667 # as of 2023-11-22
+      # No nonnumeric characters in the pin field
+      - expression_is_true:
+          name: default_vw_pin_appeal_numeric_pin
+          expression: REGEXP_COUNT(pin, '[0-9]') = 14
+          select_columns:
+            - pin

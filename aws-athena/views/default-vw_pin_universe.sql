@@ -140,5 +140,5 @@ LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
 
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
-    -- Remove test pins
+    -- Test parcels have class codes of '999' and need to be removed
     AND par.class != '999'
