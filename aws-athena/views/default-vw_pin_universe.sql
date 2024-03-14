@@ -140,3 +140,7 @@ LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
 
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
+    -- Remove any parcels with non-numeric characters
+    -- or that are not 14 characters long
+    AND REGEXP_COUNT(par.parid, '[a-zA-Z]') = 0
+    AND LENGTH(par.parid) = 14
