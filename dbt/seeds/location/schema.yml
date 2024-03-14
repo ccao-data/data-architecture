@@ -1,12 +1,47 @@
 seeds:
   - name: location.neighborhood_group
     description: '{{ doc("seed_neighborhood_group") }}'
+
     columns:
       - name: nbhd
         description: '{{ doc("shared_column_nbhd_code") }}'
+        tests:
+          - not_null:
+              name: seed_neighborhood_group_nbhd_not_null
+              meta:
+                description: nbhd should not be null
       - name: group_name
         description: Name of the group that this neighborhood is in.
+        tests:
+          - not_null:
+              name: seed_neighborhood_group_group_name_not_null
+              meta:
+                description: group_name should not be null
       - name: updated_at
         description: Timestamp of the last record update.
+        tests:
+          - not_null:
+              name: seed_neighborhood_group_updated_at_not_null
+              meta:
+                description: updated_at should not be null
       - name: version
         description: Incrementing version of the record.
+        tests:
+          - not_null:
+              name: seed_neighborhood_group_version_not_null
+              meta:
+                description: version should not be null
+          - accepted_range:
+              name: seed_neighborhood_group_version_gte_1
+              min_value: 1
+              meta:
+                description: version should be >= 1
+
+    tests:
+      - unique_combination_of_columns:
+          name: seed_neighborhood_group_unique_by_nbhd_and_version
+          combination_of_columns:
+            - nbhd
+            - version
+          meta:
+            description: table should be unique by nbhd and version
