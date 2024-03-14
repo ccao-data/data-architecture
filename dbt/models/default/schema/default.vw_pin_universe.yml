@@ -256,7 +256,7 @@ models:
       # No nonnumeric characters in the pin field
       - expression_is_true:
           name: default_vw_pin_universe_numeric_pin
-          expression: REGEXP_COUNT(pin, '[0-9]') = 14
+          expression: REGEXP_COUNT(pin, '[0-9]') = 14 AND LENGTH(pin) = 14
           select_columns:
             - pin
       # TODO: Data completeness correlates with availability of spatial data
