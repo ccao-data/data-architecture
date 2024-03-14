@@ -87,5 +87,5 @@ WHERE htpar.cur = 'Y'
     AND htpar.deactivat IS NULL
     -- Remove any parcels with non-numeric characters
     -- or that are not 14 characters long
-    AND REGEXP_COUNT(par.parid, '[a-zA-Z]') = 0
-    AND LENGTH(par.parid) = 14
+    AND REGEXP_COUNT(pardat.parid, '[a-zA-Z]') = 0
+    AND LENGTH(pardat.parid) = 14
