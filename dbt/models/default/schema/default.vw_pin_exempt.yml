@@ -33,5 +33,5 @@ models:
       - expression_is_true:
           name: default_vw_pin_exempt_numeric_pin
           expression: REGEXP_COUNT(pin, '[0-9]') = 14 AND LENGTH(pin) = 14
-          select_columns:
+          additional_select_columns:
             - pin
