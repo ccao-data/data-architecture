@@ -41,7 +41,7 @@ WITH stage_values AS (
             CASE
                 WHEN
                     procname = 'CCAOFINAL'
-                    THEN REGEXP_REPLACE(class, '([^0-9EXR])', '')
+                    THEN REGEXP_REPLACE(class, '[^[:alnum:]]', '')
             END
         ) AS certified_class,
         ARBITRARY(
@@ -67,7 +67,7 @@ WITH stage_values AS (
             CASE
                 WHEN
                     procname = 'BORVALUE'
-                    THEN REGEXP_REPLACE(class, '([^0-9EXR])', '')
+                    THEN REGEXP_REPLACE(class, '[^[:alnum:]]', '')
             END
         ) AS board_class,
         ARBITRARY(
