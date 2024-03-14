@@ -15,7 +15,7 @@ WITH stage_values AS (
             CASE
                 WHEN
                     procname = 'CCAOVALUE'
-                    THEN REGEXP_REPLACE(class, '([^0-9EXR])', '')
+                    THEN REGEXP_REPLACE(class, '[^[:alnum:]]', '')
             END
         ) AS mailed_class,
         ARBITRARY(
