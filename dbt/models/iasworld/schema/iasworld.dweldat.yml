@@ -174,11 +174,16 @@ sources:
               - res_class_matches_pardat:
                   name: iasworld_dweldat_class_matches_pardat_class
                   additional_select_columns:
-                    - {"column": "card", "agg_func": "array_agg"}
-                    - {"column": "taxyr", "agg_func": "max"}
-                    - {"column": "parid", "agg_func": "max"}
-                    - {"column": "who", "agg_func": "max"}
-                    - {"column": "wen", "agg_func": "max"}
+                    - column: card
+                      agg_func: array_agg
+                    - column: taxyr
+                      agg_func: max
+                    - column: parid
+                      agg_func: max
+                    - column: who
+                      agg_func: max
+                    - column: wen
+                      agg_func: max
                   config: *unique-conditions
                   meta:
                     description: at least one class should match pardat class

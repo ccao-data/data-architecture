@@ -15,10 +15,12 @@
 {% test res_class_matches_pardat(
     model, column_name, major_class_only=false, additional_select_columns=[]
 ) %}
-    -- Process `additional_select_columns` to add the necessary prefix for
-    -- the filtered version of the input model. This is necessary to
-    -- disambiguate selected columns that are shared between the input model
-    -- and pardat
+    {#-
+        Process `additional_select_columns` to add the necessary prefix for
+        the filtered version of the input model. This is necessary to
+        disambiguate selected columns that are shared between the input model
+        and pardat
+    -#}
     {%- set processed_additional_select_columns = [] %}
     {%- for col in additional_select_columns %}
         {%- if col is mapping %}
@@ -26,9 +28,11 @@
             {%- for key, val in col.items() if key != "column" %}
                 {%- set _ = updated_col.update({key: val}) %}
             {%- endfor %}
-            -- It's necessary to explicitly set the alias, since otherwise
-            -- it will default to `filtered_model.{column}` according to
-            -- the fallback behavior of format_additional_select_columns
+            {#-
+                It's necessary to explicitly set the alias, since otherwise
+                it will default to `filtered_model.{column}` according to
+                the fallback behavior of format_additional_select_columns
+            -#}
             {%- if "alias" not in updated_col %}
                 {%- set _ = updated_col.update({"alias": col.column}) %}
             {%- endif %}

@@ -1,5 +1,6 @@
 {% macro test_format_additional_select_columns() %}
     {% do test_format_additional_select_columns_string_element() %}
+    {% do test_format_additional_select_columns_string_element_with_alias() %}
     {% do test_format_additional_select_columns_string_list() %}
     {% do test_format_additional_select_columns_dict_element_no_column() %}
     {% do test_format_additional_select_columns_dict_element_no_alias() %}
@@ -14,6 +15,16 @@
             "test_format_additional_select_columns_string_element",
             format_additional_select_columns(["foo"]),
             "foo",
+        )
+    }}
+{% endmacro %}
+
+{% macro test_format_additional_select_columns_string_element_with_alias() %}
+    {{
+        assert_equals(
+            "test_format_additional_select_columns_string_element_with_alias",
+            format_additional_select_columns(["foo as bar"]),
+            "foo as bar",
         )
     }}
 {% endmacro %}

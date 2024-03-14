@@ -95,10 +95,14 @@ sources:
                   name: iasworld_land_class_matches_pardat_class
                   major_class_only: true
                   additional_select_columns:
-                    - {"column": "taxyr", "agg_func": "max"}
-                    - {"column": "parid", "agg_func": "max"}
-                    - {"column": "who", "agg_func": "max"}
-                    - {"column": "wen", "agg_func": "max"}
+                    - column: taxyr
+                      agg_func: max
+                    - column: parid
+                      agg_func: max
+                    - column: who
+                      agg_func: max
+                    - column: wen
+                      agg_func: max
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}

@@ -27,7 +27,6 @@
     additional_select_columns, raise_error_func
 ) %}
     {%- for col in additional_select_columns -%}
-        {%- set trailing_comma = "" if loop.last else "," %}
         {%- if col is mapping -%}
             {%- if "column" not in col -%}
                 {{-
@@ -41,15 +40,14 @@
                 {%- if col.agg_func -%}
                     {%- set alias = col.alias if col.alias else col.column -%}
                     {{- col.agg_func }} ({{ col.column }}) as {{ alias }}
-                    {{- trailing_comma }}
                 {%- else -%}
-                    {%- if col.alias -%}
-                        {{- col.column }} as {{ col.alias }}{{ trailing_comma }}
-                    {%- else -%} {{- col.column }}{{ trailing_comma }}
+                    {%- if col.alias -%} {{- col.column }} as {{ col.alias }}
+                    {%- else -%} {{- col.column }}
                     {%- endif -%}
                 {%- endif -%}
             {%- endif -%}
-        {%- else -%} {{ col }}{{ trailing_comma }}
+        {%- else -%} {{ col }}
         {%- endif -%}
+        {{- "" if loop.last else "," }}
     {%- endfor -%}
 {% endmacro %}
