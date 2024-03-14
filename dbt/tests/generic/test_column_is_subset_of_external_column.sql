@@ -11,7 +11,9 @@
     additional_select_columns=[]
 ) %}
 
-    {%- set additional_select_columns_csv = additional_select_columns | join(", ") %}
+    {%- set additional_select_columns_csv = format_additional_select_columns(
+        additional_select_columns
+    ) %}
     {%- set columns_csv = additional_select_columns_csv ~ ", " ~ column %}
 
     with

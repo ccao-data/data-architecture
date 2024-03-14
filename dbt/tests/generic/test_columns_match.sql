@@ -3,8 +3,8 @@
     {%- set columns_csv = columns | join(", ") -%}
     {%- set columns_csv = column_name ~ ", " ~ columns_csv -%}
     {%- if additional_select_columns -%}
-        {%- set additional_select_columns_csv = additional_select_columns | join(
-            ", "
+        {%- set additional_select_columns_csv = format_additional_select_columns(
+            additional_select_columns
         ) -%}
         {%- set columns_csv = columns_csv ~ ", " ~ additional_select_columns_csv -%}
     {%- endif -%}

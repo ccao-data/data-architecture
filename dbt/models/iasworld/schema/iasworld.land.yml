@@ -21,7 +21,7 @@ sources:
               - expression_is_true:
                   name: iasworld_land_acres_is_sf_transformed
                   expression: '* 43560 BETWEEN sf - 5 AND sf + 5'
-                  select_columns:
+                  additional_select_columns:
                     - taxyr
                     - parid
                     - card
@@ -94,11 +94,15 @@ sources:
               - res_class_matches_pardat:
                   name: iasworld_land_class_matches_pardat_class
                   major_class_only: true
-                  select_columns_aggregated_with_max:
-                    - taxyr
-                    - parid
-                    - who
-                    - wen
+                  additional_select_columns:
+                    - column: taxyr
+                      agg_func: max
+                    - column: parid
+                      agg_func: max
+                    - column: who
+                      agg_func: max
+                    - column: wen
+                      agg_func: max
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}

@@ -100,7 +100,7 @@ models:
           - expression_is_true:
               name: qc_vw_incorrect_asmt_value_class_equals_luc
               expression: '= luc'
-              select_columns:
+              additional_select_columns:
                 - taxyr
                 - parid
                 - township_code
@@ -110,7 +110,6 @@ models:
               config: &time-filter
                 where: |
                   CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-
               meta:
                 table_name: asmt
                 category: relationships
@@ -119,7 +118,7 @@ models:
       - expression_is_true:
           name: qc_vw_incorrect_asmt_value_no_yoy_inc_gt_500k
           expression: (cur_year_fmv - pri_year_fmv) <= 500000
-          select_columns: &select-columns-cur-and-pri-year-fmv
+          additional_select_columns: &select-columns-cur-and-pri-year-fmv
             - taxyr
             - parid
             - township_code
@@ -136,7 +135,7 @@ models:
       - expression_is_true:
           name: qc_vw_incorrect_asmt_value_no_yoy_dec_gt_1m
           expression: (cur_year_fmv - pri_year_fmv) >= -1000000
-          select_columns: *select-columns-cur-and-pri-year-fmv
+          additional_select_columns: *select-columns-cur-and-pri-year-fmv
           config: *time-filter
           meta:
             table_name: asmt
@@ -588,7 +587,7 @@ models:
       - expression_is_true:
           name: qc_vw_change_in_high_low_value_sales_ratio_high
           expression: "price_less_than_10k_growth_status = 'No significant change'"
-          select_columns:
+          additional_select_columns:
             - source
             - taxyr
             - price_less_than_10k_growth_status
@@ -602,7 +601,7 @@ models:
       - expression_is_true:
           name: qc_vw_change_in_high_low_value_sales_ratio_low
           expression: "price_greater_than_1m_growth_status = 'No significant change'"
-          select_columns:
+          additional_select_columns:
             - source
             - taxyr
             - price_greater_than_1m_growth_status
@@ -752,7 +751,7 @@ models:
       - expression_is_true:
           name: qc_vw_iasworld_sales_day_of_month_lte_half_observations
           expression: sales_by_day < 0.5 * total_sales
-          select_columns:
+          additional_select_columns:
             - taxyr
             - day_of_month
             - sales_by_day
@@ -790,7 +789,7 @@ models:
       - expression_is_true:
           name: qc_vw_iasworld_sales_price_diff_sale_mydec_gte_1000
           expression: ABS(price_iasworld - price_mydec) < 999
-          select_columns:
+          additional_select_columns:
             - parid
             - taxyr
             - document_number

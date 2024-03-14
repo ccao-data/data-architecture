@@ -103,12 +103,17 @@ sources:
               - res_class_matches_pardat:
                   name: iasworld_oby_class_matches_pardat_class
                   major_class_only: true
-                  select_columns_aggregated_with_array: ["card"]
-                  select_columns_aggregated_with_max:
-                    - taxyr
-                    - parid
-                    - who
-                    - wen
+                  additional_select_columns:
+                    - column: card
+                      agg_func: array_agg
+                    - column: taxyr
+                      agg_func: max
+                    - column: parid
+                      agg_func: max
+                    - column: who
+                      agg_func: max
+                    - column: wen
+                      agg_func: max
                   config: *unique-conditions
                   meta:
                     description: >

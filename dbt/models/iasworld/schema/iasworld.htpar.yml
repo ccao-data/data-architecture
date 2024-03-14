@@ -325,7 +325,7 @@ sources:
               expression: |
                 LENGTH(cpaddr3) = 5
                 OR (LENGTH(cpaddr3) = 10 AND cpaddr3 LIKE '%-%')
-              select_columns:
+              additional_select_columns:
                 - parid
                 - taxyr
                 - who

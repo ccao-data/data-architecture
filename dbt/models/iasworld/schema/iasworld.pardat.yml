@@ -304,7 +304,7 @@ sources:
           - expression_is_true:
               name: iasworld_pardat_adrno_length_lte_5
               expression: LENGTH(CAST(adrno AS varchar)) <= 5
-              select_columns:
+              additional_select_columns:
                 - parid
                 - taxyr
                 - who
