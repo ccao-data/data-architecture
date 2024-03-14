@@ -85,7 +85,3 @@ LEFT JOIN {{ source('iasworld', 'htagnt') }} AS htagnt
 WHERE htpar.cur = 'Y'
     AND htpar.caseno IS NOT NULL
     AND htpar.deactivat IS NULL
-    -- Remove any parcels with non-numeric characters
-    -- or that are not 14 characters long
-    AND REGEXP_COUNT(pardat.parid, '[a-zA-Z]') = 0
-    AND LENGTH(pardat.parid) = 14
