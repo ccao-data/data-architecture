@@ -624,7 +624,11 @@ Defined as bathrooms without a shower or bathtub
 {% docs shared_column_char_land_sf %}
 Square footage of the land (not just the building) of the property.
 
-A single PIN can have multiple "land lines", meaning it can be associated with more than one 200-class land lot
+A single parcel can have multiple "land lines", meaning it can be associated
+with more than one 200-class land lot. Land is aggregated within parcels based
+largely on "influence factors" that determine whether land lines should be given
+preference over one another or summed. Parcels with "Split Class" influence
+reasons do not heed influence factor heuristics.
 {% enddocs %}
 
 ## char_ncu

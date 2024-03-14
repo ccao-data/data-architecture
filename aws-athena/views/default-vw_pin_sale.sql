@@ -59,8 +59,8 @@ unique_sales AS (
             NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
             NULLIF(sales.instrtyp, '') AS deed_type,
             -- "nopar" is number of parcels sold
-            NOT COALESCE(
-                sales.nopar <= 1 AND calculated.nopar_calculated = 1,
+            COALESCE(
+                sales.nopar > 1 OR calculated.nopar_calculated > 1,
                 FALSE
             ) AS is_multisale,
             CASE
@@ -130,7 +130,8 @@ unique_sales AS (
             ) AS sale_filter_deed_type
         FROM {{ source('iasworld', 'sales') }} AS sales
         LEFT JOIN calculated
-            ON sales.instruno = calculated.instruno
+            ON NULLIF(REPLACE(sales.instruno, 'D', ''), '')
+            = calculated.instruno
         LEFT JOIN
             town_class AS tc
             ON sales.parid = tc.parid
