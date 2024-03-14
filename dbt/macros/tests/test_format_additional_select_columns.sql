@@ -76,7 +76,7 @@
         assert_equals(
             "test_format_additional_select_columns_dict_element_array_agg",
             format_additional_select_columns([{"column": "foo", "agg_func": "max"}]),
-            "max (foo) as foo",
+            "max (foo) as max_foo",
         )
     }}
 {% endmacro %}

@@ -8,7 +8,7 @@
 --
 -- * `column` (required string): The name of the column to select
 -- * `alias` (optional string): The alias to use for the column
--- (defaults to `column`)
+-- (defaults to `column` or `{agg_func}_{column}`)
 -- * `agg_func` (optional string): An aggregation function to use to
 -- select the column (defaults to no aggregation)
 {% macro format_additional_select_columns(additional_select_columns) %}
@@ -38,7 +38,11 @@
                 -}}
             {%- else -%}
                 {%- if col.agg_func -%}
-                    {%- set alias = col.alias if col.alias else col.column -%}
+                    {%- set alias = (
+                        col.alias
+                        if col.alias
+                        else col.agg_func ~ "_" ~ col.column
+                    ) -%}
                     {{- col.agg_func }} ({{ col.column }}) as {{ alias }}
                 {%- else -%}
                     {%- if col.alias -%} {{- col.column }} as {{ col.alias }}
