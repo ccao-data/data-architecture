@@ -194,6 +194,7 @@ prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## board_class
+
 {% docs shared_column_board_class %}
 Stage-level property type and/or use at the time of BOR certification.
 
@@ -236,6 +237,7 @@ prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## certified_class
+
 {% docs shared_column_certified_class %}
 Stage-level property type and/or use at the time of CCAO certification.
 
@@ -345,6 +347,7 @@ prefix (or year of observation if not prefixed)
 {% enddocs %}
 
 ## mailed_class
+
 {% docs shared_column_mailed_class %}
 Stage-level property type and/or use at the time of CCAO mailing.
 
