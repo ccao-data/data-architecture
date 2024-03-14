@@ -50,8 +50,8 @@ models:
 
     tests:
       - expression_is_true:
-          name: default_vw_pin_mailed_class_no_hyphens
-          expression: mailed_class like '%-%'
+          name: default_vw_pin_value_mailed_class_no_hyphens
+          expression: mailed_class LIKE '%-%'
           select_columns:
             - mailed_class
       - unique_combination_of_columns:
