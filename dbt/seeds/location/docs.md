@@ -4,6 +4,12 @@
 A mapping of neighborhood codes to groups that are used for sales
 validation.
 
+These mappings are defined by the Valuations team and then delivered to the
+Data team in the form of an Excel workbook. The data team then manually
+reformats the workbook and saves it as a CSV so that it can populate the data
+warehouse as a dbt seed. See the `Nuance` section below for detailed
+instructions on how to make changes to the CSV file.
+
 ### Nuance
 
 - The mapping table contains two rows that are used for versioning: `version` and
