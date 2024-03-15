@@ -36,7 +36,7 @@ if [ "$1" == "prod" ]; then
     exit 1
 fi
 
-schemas_json=$(dbt --quiet list --resource-type model --target "$1" \
+schemas_json=$(dbt --quiet list --resource-types model seed --target "$1" \
     --exclude config.materialized:ephemeral --output json --output-keys schema \
 ) || (\
     echo "Error in dbt call" && exit 1
