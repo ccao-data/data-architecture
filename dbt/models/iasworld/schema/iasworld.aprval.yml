@@ -38,7 +38,7 @@ sources:
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
-                    description: aprbldg must be between 0 and 1 billion
+                    description: aprbldg should be between 0 and 1 billion
           - name: aprdate
             description: '`APRTOT` calc date'
           - name: aprland
@@ -51,7 +51,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: aprland must be between 0 and 1 billion
+                    description: aprland should be between 0 and 1 billion
           - name: aprtot
             description: '{{ doc("column_aprtot") }}'
             tests:
@@ -62,7 +62,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: aprtot must be between 0 and 2 billion
+                    description: aprtot should be between 0 and 2 billion
           - name: areasum
             description: '{{ doc("column_areasum") }}'
           - name: assmkt
@@ -72,11 +72,14 @@ sources:
           - name: bldgval
             description: Building value
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_aprval_bldgval_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: bldgval should be between 0 and 1 billion
           - name: comincval
             description: Commercial income value
           - name: commktsf
@@ -115,6 +118,10 @@ sources:
               - accepted_values:
                   name: iasworld_aprval_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: dwelval
@@ -165,7 +172,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: landval must be between 0 and 1 billion
+                    description: landval should be between 0 and 1 billion
           - name: lastupd
             description: Date of last change to a value field
           - name: loaded_at
@@ -199,12 +206,22 @@ sources:
             tests:
               - not_null:
                   name: iasworld_aprval_parid_not_null
+                  additional_select_columns: &select-columns-no-parid
+                    - taxyr
+                    - who
+                    - wen
                   config: *unique-conditions
+                  meta:
+                    description: aprval should not be null
               - relationships:
                   name: iasworld_aprval_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
           - name: posttype
             description: Assessment posting type
           - name: ppcomval
@@ -248,11 +265,17 @@ sources:
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
             tests:
-              - dbt_utils.sequential_values:
+              - sequential_values:
                   name: iasworld_aprval_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: spcflg
             description: Special processing flag
           - name: splitno
@@ -268,7 +291,13 @@ sources:
             tests:
               - not_null:
                   name: iasworld_aprval_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - who
+                    - wen
                   config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
           - name: tiebackbldg
             description: Sum of building value for all children in the income tieback group
           - name: tiebackland
@@ -298,3 +327,13 @@ sources:
               combination_of_columns:
                 - parid
                 - taxyr
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: aprval should be unique by parid and taxyr
