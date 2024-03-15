@@ -51,7 +51,7 @@ models:
     tests:
       - not_accepted_values:
           name: default_vw_pin_value_mailed_class_no_hyphens
-          value: "2-99"
+          values: "2-99"
           column_name:
             - mailed_class
       - unique_combination_of_columns:
