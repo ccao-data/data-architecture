@@ -59,8 +59,8 @@ unique_sales AS (
             NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
             NULLIF(sales.instrtyp, '') AS deed_type,
             -- "nopar" is number of parcels sold
-            NOT COALESCE(
-                sales.nopar <= 1 AND calculated.nopar_calculated = 1,
+            COALESCE(
+                sales.nopar > 1 OR calculated.nopar_calculated > 1,
                 FALSE
             ) AS is_multisale,
             CASE
