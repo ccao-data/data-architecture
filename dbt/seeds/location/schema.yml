@@ -1,6 +1,10 @@
 seeds:
   - name: location.neighborhood_group
     description: '{{ doc("seed_neighborhood_group") }}'
+    config:
+      column_types:
+        # Set nbhd to varchar, or else it gets automatically parsed as integer
+        nbhd: varchar
 
     columns:
       - name: nbhd
