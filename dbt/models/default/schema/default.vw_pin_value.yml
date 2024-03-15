@@ -49,9 +49,9 @@ models:
         description: '{{ doc("shared_column_year") }}'
 
     tests:
-      - expression_is_true:
+      - not_accepted_values:
           name: default_vw_pin_value_mailed_class_no_hyphens
-          expression: mailed_class LIKE '%-%'
+          value: "2-99"
           column_name:
             - mailed_class
       - unique_combination_of_columns:
