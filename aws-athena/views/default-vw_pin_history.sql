@@ -2,7 +2,7 @@
 SELECT
     vwpv.pin,
     vwpv.year,
-    REGEXP_REPLACE(par.class, '([^0-9EXR])', '') AS class,
+    REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') AS class,
     leg.user1 AS township_code,
     town.township_name,
     vwpv.mailed_class,
