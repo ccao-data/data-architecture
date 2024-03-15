@@ -62,14 +62,14 @@ jobs:
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
             if [[ $MANUALLY_DISPATCHED == 'true' ]]; then
               echo "Running build on manually selected resources"
-              dbt run -t "$TARGET" -s ${{ inputs.models }} --defer --state "$STATE_DIR"
+              dbt build -t "$TARGET" -s ${{ inputs.models }} --defer --state "$STATE_DIR" --resource-types model seed
             else
               echo "Running build on modified/new resources only"
-              dbt run -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR"
+              dbt build -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR" --resource-types model seed
             fi
           else
             echo "Running build on all resources"
-            dbt run -t "$TARGET"
+            dbt build -t "$TARGET" --resource-types model seed
           fi
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash

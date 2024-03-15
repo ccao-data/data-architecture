@@ -61,3 +61,8 @@ models:
       +schema: qc
 tests:
   +schema: test_failure
+
+seeds:
+  athena:
+    location:
+      +schema: location
