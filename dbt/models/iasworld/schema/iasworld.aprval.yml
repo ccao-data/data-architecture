@@ -38,7 +38,7 @@ sources:
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
-                    description: aprbldg should be between 0 and 1 billion
+                    description: aprbldg should be between 0 and 1,000,000,000
           - name: aprdate
             description: '`APRTOT` calc date'
           - name: aprland
@@ -51,7 +51,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: aprland should be between 0 and 1 billion
+                    description: aprland should be between 0 and 1,000,000,000
           - name: aprtot
             description: '{{ doc("column_aprtot") }}'
             tests:
@@ -79,7 +79,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: bldgval should be between 0 and 1 billion
+                    description: bldgval should be between 0 and 1,000,000,000
           - name: comincval
             description: Commercial income value
           - name: commktsf
@@ -172,7 +172,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: landval should be between 0 and 1 billion
+                    description: landval should be between 0 and 1,000,000,000
           - name: lastupd
             description: Date of last change to a value field
           - name: loaded_at
