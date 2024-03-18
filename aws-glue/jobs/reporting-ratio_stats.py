@@ -261,7 +261,7 @@ def report_summarise(df, geography_id, geography_type):
         "sale_year",
     ]
 
-    df["geography_id"] = pull[geography_id]
+    df["geography_id"] = pull[geography_id].astype(str)
     df["geography_type"] = geography_type
 
     # Remove groups with less than three observations
