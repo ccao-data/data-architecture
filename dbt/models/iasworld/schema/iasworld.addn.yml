@@ -91,7 +91,10 @@ sources:
                   name: iasworld_addn_cur_in_accepted_values
                   values: ['Y', 'D']
                   additional_select_columns: *select-columns
-                  config: *unique-conditions
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND deactivat IS NULL
                   meta:
                     description: cur should be 'Y' or 'D'
           - name: deactivat
