@@ -96,6 +96,13 @@ sources:
               - accepted_values:
                   name: iasworld_legdat_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: *select-columns
+                  config:
+                    where:
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND deactivat IS NULL
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: floorno
@@ -127,11 +134,18 @@ sources:
             tests:
               - not_null:
                   name: iasworld_legdat_parid_not_null
+                  additional_select_columns: &select-columns-no-parid
+                    - taxyr
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: parid should not be null
               - relationships:
                   name: iasworld_legdat_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
-                  additional_select_columns: ["taxyr", "who", "wen"]
+                  additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
                   meta:
                     category: parid
@@ -161,12 +175,17 @@ sources:
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
             tests:
-              - dbt_utils.sequential_values:
+              - sequential_values:
                   name: iasworld_legdat_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
+                  additional_select_columns:
+                    - who
+                    - wen
                   config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: sortkey
             description: Block, lot and qualifier, reformatted for sorting
           - name: splitno
@@ -181,7 +200,10 @@ sources:
               - accepted_values:
                   name: iasworld_legdat_statecode_in_accepted_values
                   values: ['IL']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: statecode should be 'IL'
           - name: status
             description: '{{ doc("column_status") }}'
           - name: strcd
@@ -217,6 +239,13 @@ sources:
             tests:
               - not_null:
                   name: iasworld_legdat_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: unitdesc
@@ -233,12 +262,15 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user1 should not be null
+                    description: user1 (township code) should not be null
               - relationships:
                   name: iasworld_legdat_user1_in_spatial_township_township_code
                   to: source('spatial', 'township')
                   field: township_code
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user1 (township code) should be valid
           - name: wen
             description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
@@ -286,6 +318,16 @@ sources:
               combination_of_columns:
                 - parid
                 - taxyr
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: legdat should be unique by parid and taxyr
           # Not using column_length here because adrno needs to be cast first
           - expression_is_true:
               name: iasworld_legdat_adrno_length_lte_5

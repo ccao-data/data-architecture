@@ -73,6 +73,10 @@ sources:
                     - parid
                     - who
                     - wen
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND deactivat IS NULL
                   meta:
                     description: cur should be 'Y' or 'D'
           - name: deactivat
@@ -158,15 +162,26 @@ sources:
             tests:
               - not_null:
                   name: iasworld_owndat_parid_not_null
-              - relationships:
-                  name: iasworld_owndat_parid_in_pardat_parid
-                  to: source('iasworld', 'pardat')
-                  field: parid
+                  additional_select_columns: &select-columns-no-parid
+                    - taxyr
+                    - who
+                    - wen
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: parid should not be null
+              - relationships:
+                  name: iasworld_owndat_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
+                  additional_select_columns: *select-columns-no-parid
+                  config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
           - name: partial
             description: '{{ doc("column_partial") }}'
           - name: pctown
@@ -184,11 +199,17 @@ sources:
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
             tests:
-              - dbt_utils.sequential_values:
+              - sequential_values:
                   name: iasworld_owndat_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: site
             description: '{{ doc("column_site") }}'
           - name: skip_addr_validation
@@ -230,6 +251,16 @@ sources:
               combination_of_columns:
                 - parid
                 - taxyr
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: owndat should be unique by parid and taxyr
           - no_extra_whitespace:
               name: iasworld_owndat_address_columns_no_extra_whitespace
               column_names:

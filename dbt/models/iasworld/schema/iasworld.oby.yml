@@ -62,7 +62,7 @@ sources:
                       AND deactivat IS NULL
                       AND calc_meth IS NOT NULL
                   meta:
-                    description: calc_meth should be null or 'E'
+                    description: calc_meth should be 'E' if not null
           - name: card
             description: '{{ doc("column_card") }}'
             tests:
@@ -83,19 +83,24 @@ sources:
                   name: iasworld_oby_chgrsn_eq_5_mktadj_not_null
                   expression: |
                     != '5' OR mktadj IS NOT NULL
-                  config: *unique-conditions
-          - name: class
-            description: '{{ doc("shared_column_class") }}'
-            tests:
-              - not_accepted_values:
-                  name: iasworld_oby_class_mismatch_no_289s
-                  values: ["289"]
                   additional_select_columns:
                     - taxyr
                     - parid
                     - card
                     - who
                     - wen
+                    - mktadj
+                  config: *unique-conditions
+                  meta:
+                    category: incorrect_values
+                    description: chgrsn should only be 5 if mktadj is not null
+          - name: class
+            description: '{{ doc("shared_column_class") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_oby_class_mismatch_no_289s
+                  values: ["289"]
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     category: class_mismatch_or_issue
@@ -144,6 +149,13 @@ sources:
               - accepted_values:
                   name: iasworld_oby_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND deactivat IS NULL
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: curmult
             description: Current multiplier
           - name: deactivat
@@ -237,11 +249,14 @@ sources:
           - name: lline
             description: '{{ doc("shared_column_lline") }}'
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_oby_lline_between_1_and_100
                   min_value: 1
                   max_value: 100
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: lline should be between 1 and 100
           - name: loaded_at
             description: '{{ doc("shared_column_loaded_at") }}'
           - name: locmult
@@ -331,13 +346,19 @@ sources:
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
             tests:
-              - dbt_utils.sequential_values:
+              - sequential_values:
                   name: iasworld_oby_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
                     - card
                     - lline
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: status
             description: '{{ doc("column_status") }}'
           - name: stories
@@ -349,6 +370,14 @@ sources:
             tests:
               - not_null:
                   name: iasworld_oby_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - card
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: units
@@ -401,3 +430,14 @@ sources:
                 - card
                 - lline
                 - taxyr
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: >
+                  oby should be unique by parid, card, lline, and taxyr

@@ -70,6 +70,17 @@ sources:
               - accepted_values:
                   name: iasworld_htpar_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND deactivat IS NULL
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: curbldg
             description: Current building value
           - name: curland
@@ -104,11 +115,14 @@ sources:
               - accepted_values:
                   name: iasworld_htpar_hrstatus_in_accepted_values
                   values: ['C', 'O', 'P', 'X']
+                  additional_select_columns: *select-columns
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: hrstatus should be 'C', 'O', 'P', or 'X'
           - name: httimejur
             description: Schedule jurisdiction
           - name: iasw_id
@@ -168,12 +182,22 @@ sources:
             tests:
               - not_null:
                   name: iasworld_htpar_parid_not_null
+                  additional_select_columns: &select-columns-no-parid
+                    - taxyr
+                    - who
+                    - wen
                   config: *unique-conditions
+                  meta:
+                    description: parid should not be null
               - relationships:
                   name: iasworld_htpar_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
           - name: petemail
             description: Petitioner email address
           - name: petfax
@@ -229,13 +253,17 @@ sources:
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
             tests:
-              - dbt_utils.sequential_values:
+              - sequential_values:
                   name: iasworld_htpar_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
                     - caseno
                     - subkey
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
                   meta:
                     description: seq must be sequential
           - name: status
@@ -257,6 +285,13 @@ sources:
             tests:
               - not_null:
                   name: iasworld_htpar_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: txpyval
@@ -269,7 +304,7 @@ sources:
               - accepted_values:
                   name: iasworld_htpar_user38_in_accepted_values
                   values: ['RS', 'IC', 'CC', 'CE', 'CI', 'CO', 'CV', 'IM', 'LD', 'OM', 'RC']
-                  additional_select_columns: ["taxyr", "parid", "who", "wen"]
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: >
@@ -297,9 +332,19 @@ sources:
                 - caseno
                 - taxyr
                 - subkey
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
               config:
                 <<: *unique-conditions
                 error_if: ">2"
+              meta:
+                description: >
+                  htpar should be unique by parid, caseno, taxyr, and subkey
           - no_extra_whitespace:
               name: iasworld_htpar_address_columns_no_whitespace
               column_names:
