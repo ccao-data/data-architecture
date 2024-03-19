@@ -1343,8 +1343,9 @@ sources:
                 - user20
               config: *unique-conditions
               meta:
-                category: missing_values
-                description: user24 (proration rate) should not be null
+                category: incorrect_values
+                description: >
+                  user20 (num. commercial units) should be an integer between 0 and 5
           - expression_is_true:
               name: iasworld_dweldat_bsmt_and_user12_match_234_class
               expression: bsmt = '3' and user12 = '1'
