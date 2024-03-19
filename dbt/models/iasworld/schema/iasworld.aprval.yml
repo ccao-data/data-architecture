@@ -215,7 +215,7 @@ sources:
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: aprval should not be null
+                    description: parid should not be null
               - relationships:
                   name: iasworld_aprval_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
