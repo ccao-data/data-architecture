@@ -62,7 +62,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: aprtot should be between 0 and 2 billion
+                    description: aprtot should be between 0 and 2,000,000,000
           - name: areasum
             description: '{{ doc("column_areasum") }}'
           - name: assmkt
