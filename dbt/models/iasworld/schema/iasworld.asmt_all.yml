@@ -154,9 +154,7 @@ sources:
                   additional_select_columns:
                     - who
                     - wen
-                  config:
-                    <<: *unique-conditions
-                    error_if: ">15300"
+                  config: *unique-conditions
                   meta:
                     description: seq should be sequential
           - name: splitno
