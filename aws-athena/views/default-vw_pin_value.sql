@@ -11,57 +11,78 @@ WITH stage_values AS (
         parid AS pin,
         taxyr AS year,
         -- Mailed values
-        MAX(
+        ARBITRARY(
+            CASE
+                WHEN
+                    procname = 'CCAOVALUE'
+                    THEN REGEXP_REPLACE(class, '[^[:alnum:]]', '')
+            END
+        ) AS mailed_class,
+        ARBITRARY(
             CASE
                 WHEN procname = 'CCAOVALUE' AND taxyr < '2020' THEN ovrvalasm2
                 WHEN procname = 'CCAOVALUE' AND taxyr >= '2020' THEN valasm2
             END
         ) AS mailed_bldg,
-        MAX(
+        ARBITRARY(
             CASE
                 WHEN procname = 'CCAOVALUE' AND taxyr < '2020' THEN ovrvalasm1
                 WHEN procname = 'CCAOVALUE' AND taxyr >= '2020' THEN valasm1
             END
         ) AS mailed_land,
-        MAX(
+        ARBITRARY(
             CASE
                 WHEN procname = 'CCAOVALUE' AND taxyr < '2020' THEN ovrvalasm3
                 WHEN procname = 'CCAOVALUE' AND taxyr >= '2020' THEN valasm3
             END
         ) AS mailed_tot,
         -- Assessor certified values
-        MAX(
+        ARBITRARY(
+            CASE
+                WHEN
+                    procname = 'CCAOFINAL'
+                    THEN REGEXP_REPLACE(class, '[^[:alnum:]]', '')
+            END
+        ) AS certified_class,
+        ARBITRARY(
             CASE
                 WHEN procname = 'CCAOFINAL' AND taxyr < '2020' THEN ovrvalasm2
                 WHEN procname = 'CCAOFINAL' AND taxyr >= '2020' THEN valasm2
             END
         ) AS certified_bldg,
-        MAX(
+        ARBITRARY(
             CASE
                 WHEN procname = 'CCAOFINAL' AND taxyr < '2020' THEN ovrvalasm1
                 WHEN procname = 'CCAOFINAL' AND taxyr >= '2020' THEN valasm1
             END
         ) AS certified_land,
-        MAX(
+        ARBITRARY(
             CASE
                 WHEN procname = 'CCAOFINAL' AND taxyr < '2020' THEN ovrvalasm3
                 WHEN procname = 'CCAOFINAL' AND taxyr >= '2020' THEN valasm3
             END
         ) AS certified_tot,
         -- Board certified values
-        MAX(
+        ARBITRARY(
+            CASE
+                WHEN
+                    procname = 'BORVALUE'
+                    THEN REGEXP_REPLACE(class, '[^[:alnum:]]', '')
+            END
+        ) AS board_class,
+        ARBITRARY(
             CASE
                 WHEN procname = 'BORVALUE' AND taxyr < '2020' THEN ovrvalasm2
                 WHEN procname = 'BORVALUE' AND taxyr >= '2020' THEN valasm2
             END
         ) AS board_bldg,
-        MAX(
+        ARBITRARY(
             CASE
                 WHEN procname = 'BORVALUE' AND taxyr < '2020' THEN ovrvalasm1
                 WHEN procname = 'BORVALUE' AND taxyr >= '2020' THEN valasm1
             END
         ) AS board_land,
-        MAX(
+        ARBITRARY(
             CASE
                 WHEN procname = 'BORVALUE' AND taxyr < '2020' THEN ovrvalasm3
                 WHEN procname = 'BORVALUE' AND taxyr >= '2020' THEN valasm3
