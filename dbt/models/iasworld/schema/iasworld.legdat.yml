@@ -100,7 +100,6 @@ sources:
                   config:
                     where:
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND deactivat IS NULL
                   meta:
                     description: cur should be 'Y' or 'D'
           - name: deactivat

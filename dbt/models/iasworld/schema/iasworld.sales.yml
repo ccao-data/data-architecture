@@ -43,9 +43,7 @@ sources:
                     - who
                     - wen
                   config:
-                    where: |
-                      substr(saledt, 1, 4) >= '2011'
-                      AND deactivat IS NULL
+                    where: substr(saledt, 1, 4) >= '2011'
                   meta:
                     description: cur should be 'Y' or 'D'
           - name: deactivat
