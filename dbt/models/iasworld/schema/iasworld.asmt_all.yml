@@ -63,6 +63,12 @@ sources:
               - accepted_values:
                   name: iasworld_asmt_all_cur_in_accepted_values
                   values: ['Y', 'D', 'N']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  meta:
+                    description: cur should be 'Y', 'D', or 'N'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: distcode
@@ -86,12 +92,22 @@ sources:
             tests:
               - not_null:
                   name: iasworld_asmt_all_parid_not_null
+                  additional_select_columns: &select-columns-no-parid
+                    - taxyr
+                    - who
+                    - wen
                   config: *unique-conditions
+                  meta:
+                    description: parid should not be null
               - relationships:
                   name: iasworld_asmt_all_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
           - name: procdate
             description: '{{ doc("column_procdate") }}'
           - name: procname
@@ -100,6 +116,16 @@ sources:
               - accepted_values:
                   name: iasworld_asmt_all_procname_in_accepted_values
                   values: ['CCAOVALUE', 'CCAOFINAL', 'BORVALUE', 'CONVERT']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND rolltype != 'RR'
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
+                  meta:
+                    description: >
+                      procname should be 'CCAOVALUE', 'CCAOFINAL', 'BORVALUE', or 'CONVERT'
           - name: reascd
             description: Reason code for change in assessed value
           - name: rolltype
@@ -119,15 +145,18 @@ sources:
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
             tests:
-              - dbt_utils.sequential_values:
+              - sequential_values:
                   name: iasworld_asmt_all_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
                     - procname
-                  config:
-                    <<: *unique-conditions
-                    error_if: ">15300"
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: splitno
             description: '{{ doc("column_splitno") }}'
           - name: status
@@ -139,7 +168,13 @@ sources:
             tests:
               - not_null:
                   name: iasworld_asmt_all_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - who
+                    - wen
                   config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
           - name: tottax
             description: Total tax
           - name: trans_id

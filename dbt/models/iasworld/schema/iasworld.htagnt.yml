@@ -127,3 +127,12 @@ sources:
               name: iasworld_htagnt_unique_by_agent
               combination_of_columns:
                 - agent
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              meta:
+                description: htagnt should be unique by agent

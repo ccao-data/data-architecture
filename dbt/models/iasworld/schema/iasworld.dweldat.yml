@@ -69,6 +69,7 @@ sources:
               - accepted_values:
                   name: iasworld_dweldat_attic_in_accepted_values
                   values: ['1', '2', '3', '4', '5']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: >
@@ -135,11 +136,21 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_card_not_null
+                  additional_select_columns: &select-columns-no-card
+                    - parid
+                    - taxyr
+                    - who
+                    - wen
                   config: *unique-conditions
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: card should not be null
+              - accepted_range:
                   name: iasworld_dweldat_card_gte_1
                   min_value: 1
+                  additional_select_columns: *select-columns-no-card
                   config: *unique-conditions
+                  meta:
+                    description: card should be >= 1
           - name: catharea
             description: Cathedral ceiling area
           - name: cathval
@@ -221,6 +232,12 @@ sources:
               - accepted_values:
                   name: iasworld_dweldat_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                        CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: degrem
@@ -586,11 +603,23 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_parid_not_null
+                  additional_select_columns: &select-columns-no-parid
+                    - taxyr
+                    - card
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: parid should not be null
               - relationships:
                   name: iasworld_dweldat_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
           - name: pctcomplete
             description: Percent of construction completed
           - name: plumbgrade
@@ -798,18 +827,27 @@ sources:
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
             tests:
-              - dbt_utils.sequential_values:
+              - sequential_values:
                   name: iasworld_dweldat_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
                     - card
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: sfla
             description: '{{ doc("shared_column_char_bldg_sf") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_sfla_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: sfla should not be null
               - accepted_range:
                   name: iasworld_dweldat_sfla_sf_between_1_and_10000
                   min_value: 1
@@ -886,6 +924,14 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - card
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: trimval
@@ -920,7 +966,11 @@ sources:
               - accepted_values:
                   name: iasworld_dweldat_char_renovation_in_accepted_values
                   values: ['0', '1']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      user3 (property renovation indicator) should be '0' or '1'
           - name: user4
             description: '{{ doc("shared_column_char_tp_dsgn") }}'
             tests:
@@ -949,7 +999,10 @@ sources:
               - accepted_values:
                   name: iasworld_dweldat_char_tp_plan_in_accepted_values
                   values: ['0', '1', '2']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user5 (design plan) should be '0', '1', or '2'
           - name: user6
             description: '{{ doc("shared_column_char_attic_fnsh") }}'
             tests:
@@ -962,7 +1015,10 @@ sources:
               - accepted_values:
                   name: iasworld_dweldat_char_attic_fnsh_in_accepted_values
                   values: ['1', '2', '3']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user6 (attic finish) should be '1', '2', or '3'
           - name: user7
             description: '{{ doc("shared_column_char_air") }}'
             tests:
@@ -975,7 +1031,10 @@ sources:
               - accepted_values:
                   name: iasworld_dweldat_char_air_accepted_values
                   values: ['1', '2']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user7 (central air indicator) should be '1' or '2'
           - name: user12
             description: '{{ doc("shared_column_char_bsmt_fin") }}'
             tests:
@@ -1005,7 +1064,11 @@ sources:
               - accepted_values:
                   name: iasworld_dweldat_char_roof_cnst_accepted_values
                   values: ['1', '2', '3', '4', '5', '6']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      user13 (roof material) should be an integer between 1 and 6
           - name: user14
             description: '{{ doc("shared_column_char_apts") }}'
             tests:
@@ -1045,11 +1108,14 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      user15 (single or multi-family use) should not be null
+                      user15 (single- or multi-family use) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_use_accepted_values
                   values: ['1', '2']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user15 (single- or multi-family use) should be '1' or '2'
           - name: user17
             description: Age. Deprecated, use `yrblt`
           - name: user20
@@ -1083,7 +1149,10 @@ sources:
               - accepted_values:
                   name: iasworld_dweldat_char_porch_accepted_values
                   values: ['0', '1', '2']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user30 (porch type) should be '0', '1', or '2'
           - name: user31
             description: '{{ doc("shared_column_char_gar_att") }}'
             tests:
@@ -1097,7 +1166,11 @@ sources:
               - accepted_values:
                   name: iasworld_dweldat_char_gar_att_accepted_values
                   values: ['1', '2']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      user31 (attached garage indicator) should be '1' or '2'
           - name: user32
             description: '{{ doc("shared_column_char_gar_area") }}'
             tests:
@@ -1111,7 +1184,11 @@ sources:
               - accepted_values:
                   name: iasworld_dweldat_char_gar_area_accepted_values
                   values: ['1', '2']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      user32 (garage area inclusion indicator) should be '1' or '2'
           - name: user33
             description: '{{ doc("shared_column_char_gar_size") }}'
             tests:
@@ -1228,6 +1305,16 @@ sources:
                 - parid
                 - taxyr
                 - card
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: dweldat should be unique by parid, card, and taxyr
           - expression_is_true:
               name: iasworld_dweldat_card_proration_rate_between_0_and_100
               expression: 'CAST(user24 AS decimal) BETWEEN 0.00 AND 100.00'
@@ -1254,8 +1341,9 @@ sources:
                 - user20
               config: *unique-conditions
               meta:
-                category: missing_values
-                description: user24 (proration rate) should not be null
+                category: incorrect_values
+                description: >
+                  user20 (num. commercial units) should be an integer between 0 and 5
           - expression_is_true:
               name: iasworld_dweldat_bsmt_and_user12_match_234_class
               expression: bsmt = '3' and user12 = '1'

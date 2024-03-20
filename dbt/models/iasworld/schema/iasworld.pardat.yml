@@ -100,6 +100,12 @@ sources:
               - accepted_values:
                   name: iasworld_pardat_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: farminc
@@ -203,16 +209,21 @@ sources:
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
             tests:
-              - dbt_utils.sequential_values:
+              - sequential_values:
                   name: iasworld_pardat_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
+                  additional_select_columns:
+                    - who
+                    - wen
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: seq should be sequential
           - name: skip_addr_validation
             description: '{{ doc("column_skip_addr_validation") }}'
           - name: splitno
@@ -301,6 +312,16 @@ sources:
               combination_of_columns:
                 - parid
                 - taxyr
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: pardat should be unique by parid and taxyr
           - expression_is_true:
               name: iasworld_pardat_adrno_length_lte_5
               expression: LENGTH(CAST(adrno AS varchar)) <= 5
