@@ -6,7 +6,7 @@ SELECT
     leg.user1 AS township_code,
     own.own1 AS owner_name,
     own.ownnum AS owner_num,
-    REGEXP_REPLACE(par.class, '([^0-9EXR])', '')par. AS class,
+    REGEXP_REPLACE(par.class, '([^0-9EXR])', '') AS class,
     vpa.prop_address_full AS property_address,
     vpa.prop_address_city_name AS property_city,
     --- Forward fill lat and long
