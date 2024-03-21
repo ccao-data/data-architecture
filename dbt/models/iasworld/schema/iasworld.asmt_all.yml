@@ -189,10 +189,88 @@ sources:
             description: '{{ doc("column_valapr3") }}'
           - name: valasm1
             description: '{{ doc("column_valasm1") }}'
+            tests:
+              - accepted_range: &incorrect-asmt-value-gt-0
+                  name: iasworld_asmt_all_valasm1_non_ex_rr_gt_0
+                  min_value: 0
+                  inclusive: false
+                  additional_select_columns: &select-columns-with-class
+                    - taxyr
+                    - parid
+                    - class
+                    - who
+                    - wen
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND rolltype != 'RR'
+                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
+                      AND class NOT IN ('EX', 'RR')
+                  meta:
+                    table_name: asmt
+                    description: >
+                      valasm1 (ASMT LAND) should be >= 0 if class is not EX or RR
           - name: valasm2
             description: '{{ doc("column_valasm2") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_asmt_all_valasm2_vact_class_has_val
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND rolltype != 'RR'
+                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
+                      AND class IN (
+                        '100', '200', '239', '240', '241', '300', '400', '500',
+                        '535', '550', '637', '637A', '637B', '650', '651', '651A',
+                        '651B', '700', '700A', '700B', '742', '742A', '742B',
+                        '800', '800A', '800B', '850', '850A', '850B', '900',
+                        '999', 'EX', 'RR'
+                      )
+                  meta:
+                    table_name: asmt
+                    description: >
+                      valasm2 (ASMT BLDG) should be 0 for vacant classes
+              - not_accepted_values:
+                  name: iasworld_asmt_all_valasm2_impr_class_no_val
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND rolltype != 'RR'
+                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
+                      AND class NOT IN (
+                        '100', '200', '239', '240', '241', '300', '400', '500',
+                        '535', '550', '637', '637A', '637B', '650', '651', '651A',
+                        '651B', '700', '700A', '700B', '742', '742A', '742B',
+                        '800', '800A', '800B', '850', '850A', '850B', '900',
+                        '999', 'EX', 'RR'
+                      )
+                  meta:
+                    table_name: asmt
+                    description: >
+                      valasm2 (ASMT BLDG) should not be 0 for non-vacant classes
           - name: valasm3
             description: '{{ doc("column_valasm3") }}'
+            tests:
+              - accepted_range:
+                  name: iasworld_asmt_all_valasm3_non_ex_rr_gt_0
+                  meta:
+                    table_name: asmt
+                    description: >
+                      valasm3 (ASMT TOTAL) should be >= 0 if class is not EX or RR
+                  <<: *incorrect-asmt-value-gt-0
           - name: valclass
             description: '{{ doc("column_valclass") }}'
           - name: valtax
