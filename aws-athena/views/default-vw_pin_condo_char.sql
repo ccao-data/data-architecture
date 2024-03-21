@@ -61,7 +61,7 @@ chars AS (
         par.parid AS pin,
         CASE
             WHEN
-                REGEXP_REPLACE(par.class, '([^0-9EXR])', '') = '299'
+                REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') = '299'
                 THEN oby.card
             WHEN par.class = '399' THEN com.card
         END AS card,
@@ -78,7 +78,7 @@ chars AS (
         END AS tieback_proration_rate,
         CASE
             WHEN
-                REGEXP_REPLACE(par.class, '([^0-9EXR])', '') = '299'
+                REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') = '299'
                 THEN CAST(oby.user20 AS DOUBLE) / 100.0
             WHEN
                 par.class = '399'
@@ -87,12 +87,12 @@ chars AS (
         oby.lline,
         COALESCE(oby.num_lines, com.num_lines) AS num_lines,
         SUBSTR(par.parid, 1, 10) AS pin10,
-        REGEXP_REPLACE(par.class, '([^0-9EXR])', '') AS class,
+        REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') AS class,
         par.taxyr AS year,
         leg.user1 AS township_code,
         CASE
             WHEN
-                REGEXP_REPLACE(par.class, '([^0-9EXR])', '') = '299'
+                REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') = '299'
                 THEN oby.user16
             WHEN
                 par.class = '399' AND nonlivable.flag != '399 GR'
@@ -104,7 +104,7 @@ chars AS (
         -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
         CASE
             WHEN
-                REGEXP_REPLACE(par.class, '([^0-9EXR])', '') = '299'
+                REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') = '299'
                 THEN COALESCE(
                     oby.yrblt, oby.effyr, com.yrblt, com.effyr
                 )
@@ -117,7 +117,7 @@ chars AS (
         MAX(
             CASE
                 WHEN
-                    REGEXP_REPLACE(par.class, '([^0-9EXR])', '') = '299'
+                    REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') = '299'
                     THEN COALESCE(
                         oby.yrblt, oby.effyr, com.yrblt, com.effyr
                     )
@@ -143,7 +143,7 @@ chars AS (
         COALESCE(SUM(
             CASE
                 WHEN
-                    REGEXP_REPLACE(par.class, '([^0-9EXR])', '') NOT IN (
+                    REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') NOT IN (
                         '299', '399'
                     )
                     THEN 1

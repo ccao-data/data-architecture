@@ -6,9 +6,9 @@ WITH classes AS (
     SELECT
         par.parid,
         par.taxyr,
-        REGEXP_REPLACE(par.class, '([^0-9EXR])', '') AS class,
+        REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') AS class,
         CASE WHEN
-                REGEXP_REPLACE(par.class, '([^0-9EXR])', '') IN ('299', '399')
+                REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') IN ('299', '399')
                 THEN 'CONDO'
             WHEN par.class IN ('211', '212') THEN 'MF'
             WHEN

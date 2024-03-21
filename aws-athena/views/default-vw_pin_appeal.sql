@@ -1,7 +1,7 @@
 -- View containing appeals by PIN
 SELECT
     htpar.parid AS pin,
-    REGEXP_REPLACE(pardat.class, '([^0-9EXR])', '') AS class,
+    REGEXP_REPLACE(pardat.class, '[^[:alnum:]]', '') AS class,
     legdat.user1 AS township_code,
     htpar.taxyr AS year,
     vwpv.mailed_bldg,
@@ -15,7 +15,7 @@ SELECT
         WHEN htpar.user38 = 'CC'
             OR (
                 htpar.user38 IN ('RS', 'IC')
-                AND REGEXP_REPLACE(pardat.class, '([^0-9EXR])', '') IN (
+                AND REGEXP_REPLACE(pardat.class, '[^[:alnum:]]', '') IN (
                     '213', '297', '299', '399', '599'
                 )
             ) THEN 'condo/coop'
