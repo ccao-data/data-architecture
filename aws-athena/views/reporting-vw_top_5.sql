@@ -20,7 +20,7 @@ classes AS (
     SELECT
         parid,
         taxyr,
-        class,
+        REGEXP_REPLACE(class, '([^0-9EXR])', '') AS class,
         NULLIF(CONCAT_WS(
             ' ',
             adrpre, CAST(adrno AS VARCHAR),

@@ -85,7 +85,7 @@ chars AS (
         oby.lline,
         COALESCE(oby.num_lines, com.num_lines) AS num_lines,
         SUBSTR(par.parid, 1, 10) AS pin10,
-        par.class,
+        REGEXP_REPLACE(par.class, '([^0-9EXR])', '') AS class,
         par.taxyr AS year,
         leg.user1 AS township_code,
         CASE
@@ -228,10 +228,7 @@ SELECT DISTINCT
     filled.card,
     filled.lline,
     filled.year,
-    CASE WHEN filled.class = '2-99'
-            THEN '299'
-        ELSE filled.class
-    END AS class,
+    filled.class,
     filled.township_code,
     filled.num_lines > 1 AS pin_is_multilline,
     filled.num_lines AS pin_num_lline,
