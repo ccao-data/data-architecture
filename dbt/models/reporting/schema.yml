@@ -139,6 +139,10 @@ models:
           expression: ratio >= 0
           additional_select_columns:
             - ratio
+      - not_accepted_values:
+          name: reporting_vw_ratio_stats_class_no_hyphens
+          column_name: class
+          values: "2-99"
 
   - name: reporting.vw_top_5
     description: '{{ doc("view_vw_top_5") }}'
@@ -161,6 +165,10 @@ models:
             AND rank IS NOT NULL
             AND total_av IS NOT NULL
             AND stage_used IS NOT NULL
+      - not_accepted_values:
+          name: reporting_vw_top_5_class_no_hyphens
+          column_name: class
+          values: "2-99"
 
   - name: reporting.vw_town_sale_history
     description: '{{ doc("view_vw_town_sale_history") }}'

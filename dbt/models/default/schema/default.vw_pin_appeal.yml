@@ -107,3 +107,7 @@ models:
       - row_count:
           name: default_vw_pin_appeal_row_count
           above: 8407667 # as of 2023-11-22
+      - not_accepted_values:
+          name: default_vw_pin_appeal_class_no_hyphens
+          column_name: class
+          values: "2-99"
