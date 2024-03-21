@@ -139,10 +139,6 @@ models:
           expression: ratio >= 0
           additional_select_columns:
             - ratio
-      - not_accepted_values:
-          name: reporting_vw_ratio_stats_class_no_hyphens
-          column_name: class
-          values: "2-99"
 
   - name: reporting.vw_top_5
     description: '{{ doc("view_vw_top_5") }}'
