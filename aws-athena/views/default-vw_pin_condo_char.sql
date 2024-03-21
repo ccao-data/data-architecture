@@ -34,7 +34,7 @@ oby_filtered AS (
     -- We don't include DEACTIVAT IS NULL here since it can disagree with
     -- DEACTIVAT in iasworld.pardat and we'll defer to that table
     WHERE cur = 'Y'
-        AND class IN ('299', '2-99', '399')
+        AND class IN ('299', '399')
 ),
 
 comdat_filtered AS (
@@ -50,7 +50,7 @@ comdat_filtered AS (
     -- We don't include DEACTIVAT IS NULL here since it can disagree with
     -- DEACTIVAT in iasworld.pardat and we'll defer to that table
     WHERE cur = 'Y'
-        AND class IN ('299', '2-99', '399')
+        AND class IN ('299', '399')
 ),
 
 -- All characteristics associated with condos in
@@ -60,7 +60,9 @@ chars AS (
     SELECT
         par.parid AS pin,
         CASE
-            WHEN par.class IN ('299', '2-99') THEN oby.card
+            WHEN
+                REGEXP_REPLACE(par.class, '([^0-9EXR])', '') = '299'
+                THEN oby.card
             WHEN par.class = '399' THEN com.card
         END AS card,
         -- Proration related fields from PARDAT
@@ -76,7 +78,7 @@ chars AS (
         END AS tieback_proration_rate,
         CASE
             WHEN
-                par.class IN ('299', '2-99')
+                REGEXP_REPLACE(par.class, '([^0-9EXR])', '') = '299'
                 THEN CAST(oby.user20 AS DOUBLE) / 100.0
             WHEN
                 par.class = '399'
@@ -90,7 +92,7 @@ chars AS (
         leg.user1 AS township_code,
         CASE
             WHEN
-                par.class IN ('299', '2-99')
+                REGEXP_REPLACE(par.class, '([^0-9EXR])', '') = '299'
                 THEN oby.user16
             WHEN
                 par.class = '399' AND nonlivable.flag != '399 GR'
@@ -102,7 +104,7 @@ chars AS (
         -- Very rarely use 'effyr' rather than 'yrblt' when 'yrblt' is NULL
         CASE
             WHEN
-                par.class IN ('299', '2-99')
+                REGEXP_REPLACE(par.class, '([^0-9EXR])', '') = '299'
                 THEN COALESCE(
                     oby.yrblt, oby.effyr, com.yrblt, com.effyr
                 )
@@ -115,7 +117,7 @@ chars AS (
         MAX(
             CASE
                 WHEN
-                    par.class IN ('299', '2-99')
+                    REGEXP_REPLACE(par.class, '([^0-9EXR])', '') = '299'
                     THEN COALESCE(
                         oby.yrblt, oby.effyr, com.yrblt, com.effyr
                     )
@@ -141,7 +143,9 @@ chars AS (
         COALESCE(SUM(
             CASE
                 WHEN
-                    par.class NOT IN ('299', '2-99', '399')
+                    REGEXP_REPLACE(par.class, '([^0-9EXR])', '') NOT IN (
+                        '299', '399'
+                    )
                     THEN 1
                 ELSE 0
             END
@@ -219,7 +223,7 @@ filled AS (
             OVER (PARTITION BY pin10, year)
             AS building_pins
     FROM chars
-    WHERE class IN ('299', '2-99', '399')
+    WHERE class IN ('299', '399')
 )
 
 SELECT DISTINCT

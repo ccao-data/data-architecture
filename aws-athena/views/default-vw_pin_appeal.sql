@@ -15,7 +15,9 @@ SELECT
         WHEN htpar.user38 = 'CC'
             OR (
                 htpar.user38 IN ('RS', 'IC')
-                AND pardat.class IN ('213', '297', '299', '2-99', '399', '599')
+                AND REGEXP_REPLACE(pardat.class, '([^0-9EXR])', '') IN (
+                    '213', '297', '299', '399', '599'
+                )
             ) THEN 'condo/coop'
         WHEN htpar.user38 = 'CE' THEN 'c of e - exempt'
         WHEN htpar.user38 = 'CI' THEN 'c of e - incentive'
