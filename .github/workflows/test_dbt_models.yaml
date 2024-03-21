@@ -22,10 +22,37 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
-      - name: Test models
-        run: dbt test --target "$TARGET"
+      - name: Run tests
+        run: |
+          # dbt doesn't differentiate between test failures and errors, but we
+          # need to since we expect errors. Do this by capturing the output
+          # and checking its contents to look for errors
+          if output=$(dbt test --target "$TARGET"); then
+            echo "$output"
+          else
+            status_code="$?"
+            if [[ "$output" =~ "Runtime Error" || "$output" =~ "Compilation Error" ]]; then
+              # The presence of an error string indicates that these tests
+              # failed due to an error, so print the output and fail the
+              # pipeline
+              echo "$output"
+              exit "$status_code"
+            else
+              # The tests must have failed rather than errored out, so
+              # print the output but don't raise an error
+              echo "$output"
+            fi
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
+
+      - name: Save test results to S3
+        run: |
+          python3 ./.github/scripts/format_dbt_run_results_as_parquet.py \
+            target/run_results.json  > target/run_results.parquet
+          today=$(date -u +"%Y-%m-%d")
+          aws s3 cp \
+            target/run_results.parquet \
+            "s3://ccao-data-warehouse-us-east-1/qc/run_results/$today.parquet"
 
       - name: Get current time
         if: failure()
