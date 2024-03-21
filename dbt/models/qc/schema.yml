@@ -326,7 +326,7 @@ models:
               name: qc_vw_neg_asmt_value_val17_gte_0
               meta:
                 table_name: asmt
-                description: val17 (STATE RPT OMITTED)  should not be negative
+                description: val17 (STATE RPT OMITTED) should not be negative
               <<: *test-non-negative
       - name: val18
         tests:
