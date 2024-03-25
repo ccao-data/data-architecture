@@ -5,21 +5,21 @@
 --
 -- Optional parameters:
 --
---   * major_class_only (bool): Compare only the first digit of classes. When
---         set to False, compare the first three digits instead.
---   * parid_column_name (str): The name of the column on the base model that
---         corresponds to `parid`, in case the model uses a different name scheme.
---   * taxyr_column_name (str): The name of the column on the base model that
---         corresponds to `taxyr`, in case the model uses a different name scheme.
---   * additional_select_columns (dict): Standard parameter for selecting
---         additional columns from the base model for use in reporting failures.
---         `model.{column_name}` and `pardat.class` are already selected by
---         default and do not need to be included using this parameter.
---         See the `format_additional_select_columns` macro for more information.
---         Note that while this parameter can often be either a string or a dict,
---         a dict is required for this test and it must contain the `alias`
---         and `agg_func` parameters given that results are grouped by `parid`
---         and `taxyr`.
+-- * major_class_only (bool): Compare only the first digit of classes. When
+-- set to False, compare the first three digits instead.
+-- * parid_column_name (str): The name of the column on the base model that
+-- corresponds to `parid`, in case the model uses a different name scheme.
+-- * taxyr_column_name (str): The name of the column on the base model that
+-- corresponds to `taxyr`, in case the model uses a different name scheme.
+-- * additional_select_columns (dict): Standard parameter for selecting
+-- additional columns from the base model for use in reporting failures.
+-- `model.{column_name}` and `pardat.class` are already selected by
+-- default and do not need to be included using this parameter.
+-- See the `format_additional_select_columns` macro for more information.
+-- Note that while this parameter can often be either a string or a dict,
+-- a dict is required for this test and it must contain the `alias`
+-- and `agg_func` parameters given that results are grouped by `parid`
+-- and `taxyr`.
 --
 {% test res_class_matches_pardat(
     model,
@@ -90,8 +90,7 @@
         on filtered_model.{{ parid_column_name }} = pardat.parid
         and filtered_model.{{ taxyr_column_name }} = pardat.taxyr
     group by
-        filtered_model.{{ parid_column_name }},
-        filtered_model.{{ taxyr_column_name }}
+        filtered_model.{{ parid_column_name }}, filtered_model.{{ taxyr_column_name }}
     having
         sum(
             case

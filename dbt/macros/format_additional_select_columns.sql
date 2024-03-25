@@ -8,10 +8,10 @@
 --
 -- * `column` (required string): The name of the column to select
 -- * `alias` (optional string): The alias to use for the column
---   (defaults to `{agg_func}_{column}` if `agg_func` is set and `column`
---   otherwise)
+-- (defaults to `{agg_func}_{column}` if `agg_func` is set and `column`
+-- otherwise)
 -- * `agg_func` (optional string): An aggregation function to use to
---   select the column (defaults to no aggregation)
+-- select the column (defaults to no aggregation)
 --
 {% macro format_additional_select_columns(additional_select_columns) %}
     -- Pass execution off to a helper function with a configurable error
