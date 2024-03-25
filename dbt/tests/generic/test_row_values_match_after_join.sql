@@ -23,6 +23,8 @@
 --
 -- Optional parameters:
 --
+-- * join_type(str): The type of join to use, e.g. "inner join" or "left join".
+-- Defaults to "inner join".
 -- * column_alias (str): An alias to use when selecting the column from the
 -- base model for output. An alias is required in this case because
 -- the column must be aggregated. Defaults to "model_col".
@@ -46,6 +48,7 @@
     external_column_name,
     join_condition,
     group_by,
+    join_type="inner join",
     column_alias="model_col",
     external_column_alias="external_model_col",
     additional_select_columns=[]
@@ -81,8 +84,9 @@
         {% endif %}
         array_agg({{ model_col }}) as {{ column_alias }},
         array_agg({{ external_model_col }}) as {{ external_column_alias }}
-    from {{ external_model }} as external_model
-    join (select * from {{ model }}) as model {{ join_condition }}
+    from
+        {{ external_model }} as external_model
+        {{ join_type }} (select * from {{ model }}) as model {{ join_condition }}
     group by {{ group_by_csv }}
     having
         sum(case when {{ external_model_col }} = {{ model_col }} then 1 else 0 end) = 0
