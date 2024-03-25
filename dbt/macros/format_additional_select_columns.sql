@@ -1,4 +1,4 @@
--- Format a list of strings or objects representing columns that should be
+-- Format a list of strings or dicts representing columns that should be
 -- selected in a test, such that the columns can be templated into a SELECT
 -- statement.
 --
@@ -8,9 +8,11 @@
 --
 -- * `column` (required string): The name of the column to select
 -- * `alias` (optional string): The alias to use for the column
--- (defaults to `column` or `{agg_func}_{column}`)
+--   (defaults to `{agg_func}_{column}` if `agg_func` is set and `column`
+--   otherwise)
 -- * `agg_func` (optional string): An aggregation function to use to
--- select the column (defaults to no aggregation)
+--   select the column (defaults to no aggregation)
+--
 {% macro format_additional_select_columns(additional_select_columns) %}
     -- Pass execution off to a helper function with a configurable error
     -- handler, to make it possible to unit test exceptions

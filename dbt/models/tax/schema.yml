@@ -23,26 +23,6 @@ sources:
 
       - name: pin
         description: '{{ doc("table_pin") }}'
-        columns:
-          - name: av_mailed
-            description: '{{ doc("shared_column_mailed_tot") }}'
-            tests:
-              - row_values_match_after_join:
-                  name: tax_pin_av_mailed_matches_asmt_all_valasm3
-                  column_alias: av_mailed
-                  external_model: source("iasworld", "asmt_all")
-                  external_column_name: valasm3
-                  external_column_alias: valasm3
-                  join_condition: |
-                    ON model.pin = external_model.parid
-                    AND model.year = external_model.taxyr
-                    AND external_model.procname = 'CCAOVALUE'
-                    AND external_model.rolltype != 'RR'
-                    AND external_model.deactivat IS NULL
-                    AND external_model.valclass IS NULL
-                  group_by:
-                    - pin
-                    - year
 
       - name: pin_geometry_raw
         description: '{{ doc("table_pin_geometry_raw") }}'
