@@ -64,7 +64,6 @@ jobs:
 
           s3_path="s3://ccao-data-warehouse-us-east-1/qc/test_result/run_date=$run_date/run_id=$run_id/part-0.parquet"
           aws s3 cp "$output_file" "$s3_path"
-          echo "Uploaded run results to $s3_path"
 
           crawler_name="ccao-data-warehouse-qc-crawler"
           aws glue start-crawler --name "$crawler_name"
