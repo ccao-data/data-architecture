@@ -56,7 +56,7 @@ jobs:
           run_date=$(date -d "$run_dt" +%Y-%m-%d)
 
           output_file="target/run_results.parquet"
-          python3 ./.github/scripts/format_dbt_run_results_as_parquet.py "$run_results"  > "$output_file"
+          python3 ../.github/scripts/format_dbt_run_results.py "$run_results"  > "$output_file"
 
           s3_path="s3://ccao-data-warehouse-us-east-1/qc/test_result/run_date=$run_date/run_id=$run_id/part-0.parquet"
           aws s3 cp "$output_file" "$s3_path"
