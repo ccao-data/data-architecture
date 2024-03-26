@@ -238,11 +238,8 @@ sources:
                     table_name: asmt
                     description: >
                       valasm2 (ASMT BLDG) should be 0 for vacant classes
-              - not_accepted_values:
-                  name: iasworld_asmt_all_valasm2_impr_class_no_val
-                  values: [0]
-                  quote: false
-                  additional_select_columns: *select-columns-with-class
+              - accepted_range:
+                  name: iasworld_asmt_all_impr_class_valasm2_gt_0
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -260,7 +257,8 @@ sources:
                   meta:
                     table_name: asmt
                     description: >
-                      valasm2 (ASMT BLDG) should not be 0 for non-vacant classes
+                      valasm2 (ASMT BLDG) should be > 0 for non-vacant classes
+                  <<: *incorrect-asmt-value-gt-0
           - name: valasm3
             description: '{{ doc("column_valasm3") }}'
             tests:
