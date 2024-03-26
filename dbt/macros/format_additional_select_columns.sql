@@ -1,3 +1,5 @@
+-- fmt: off
+--
 -- Format a list of strings or dicts representing columns that should be
 -- selected in a test, such that the columns can be templated into a SELECT
 -- statement.
@@ -6,13 +8,16 @@
 -- be selected as-is. If instead the element is a dictionary, it can contain
 -- the following key-value pairs:
 --
--- * `column` (required string): The name of the column to select
--- * `alias` (optional string): The alias to use for the column
--- (defaults to `{agg_func}_{column}` if `agg_func` is set and `column`
--- otherwise)
--- * `agg_func` (optional string): An aggregation function to use to
--- select the column (defaults to no aggregation)
+--    * `column` (required string): The name of the column to select
 --
+--    * `alias` (optional string): The alias to use for the column
+--      (defaults to `{agg_func}_{column}` if `agg_func` is set and `column`
+--      otherwise)
+--
+--    * `agg_func` (optional string): An aggregation function to use to
+--      select the column (defaults to no aggregation)
+--
+-- fmt: on
 {% macro format_additional_select_columns(additional_select_columns) %}
     -- Pass execution off to a helper function with a configurable error
     -- handler, to make it possible to unit test exceptions
