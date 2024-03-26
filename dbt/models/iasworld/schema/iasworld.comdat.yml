@@ -74,7 +74,8 @@ sources:
                       AND deactivat IS NULL
                       AND calc_meth IS NOT NULL
                   meta:
-                    description: calc_meth should be 'E' if not null
+                    description: >
+                      calc_meth (Calculation Method) should be 'E' if not null
           - name: card
             description: '{{ doc("column_card") }}'
             tests:
@@ -203,7 +204,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      external_calc_rcnld (calculated full NMV) should not be 0
+                      external_calc_rcnld (Net Market Value) should not be 0
           - name: external_occpct
             description: '{{ doc("shared_column_external_occpct") }}'
             tests:
@@ -215,7 +216,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      external_occpct (occupancy percentage) should not be 0
+                      external_occpct (Occupancy %) should not be 0
           - name: external_propct
             description: '{{ doc("shared_column_external_propct") }}'
             tests:
@@ -227,7 +228,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      external_propct (proration percentage) should not be 0
+                      external_propct (Proration %) should not be 0
           - name: external_rcnld
             description: '{{ doc("shared_column_external_rcnld") }}'
             tests:
@@ -239,7 +240,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      external_rcnld (calculated full FMV) should not be 0
+                      external_rcnld (Full Market Value) should not be 0
           - name: gfact
             description: Grade factor
           - name: grade

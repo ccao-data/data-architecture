@@ -94,6 +94,23 @@ sources:
                   meta:
                     category: class_mismatch_or_issue
                     description: class_code should be valid
+              - expression_is_true:
+                  name: iasworld_pardat_class_equals_luc
+                  expression: '= luc'
+                  additional_select_columns:
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
+                    - luc
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class should be the same as luc
           - name: cur
             description: '{{ doc("column_cur") }}'
             tests:
@@ -217,11 +234,7 @@ sources:
                   additional_select_columns:
                     - who
                     - wen
-                  config: &unique-conditions
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
+                  config: *unique-conditions
                   meta:
                     description: seq should be sequential
           - name: skip_addr_validation

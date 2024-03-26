@@ -65,7 +65,7 @@ sources:
                       AND deactivat IS NULL
                       AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
                   meta:
-                    description: attic (attic type) should not be null
+                    description: attic (Attic Type) should not be null
               - accepted_values:
                   name: iasworld_dweldat_attic_in_accepted_values
                   values: ['1', '2', '3', '4', '5']
@@ -73,7 +73,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      attic (attic type) should be an integer between 1 and 5
+                      attic (Attic Type) should be an integer between 1 and 5
           - name: atticarea
             description: Attic area
           - name: atticval
@@ -98,7 +98,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: bsmt (basement type) should not be null
+                    description: bsmt (Basement Type) should not be null
               - accepted_values:
                   name: iasworld_dweldat_bsmt_in_accepted_values
                   values: ['1', '2', '3', '4', '5', '6', '7']
@@ -106,7 +106,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      bsmt (basement type) should be an integer between 1 and 7
+                      bsmt (Basement Type) should be an integer between 1 and 7
           - name: bsmtarea
             description: Unfinished basement area
           - name: bsmtcar
@@ -130,7 +130,8 @@ sources:
                       AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
                       AND calc_meth IS NOT NULL
                   meta:
-                    description: calc_meth should be null or 'E'
+                    description: >
+                      calc_meth (Calculation Method) should be null or 'E'
           - name: card
             description: '{{ doc("column_card") }}'
             tests:
@@ -285,7 +286,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      external_calc_rcnld (calculated full NMV) should not be 0
+                      external_calc_rcnld (Net Market Value) should not be 0
           - name: external_occpct
             description: '{{ doc("shared_column_external_occpct") }}'
             tests:
@@ -297,7 +298,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      external_occpct (occupancy percentage) should not be 0
+                      external_occpct (Occupancy %) should not be 0
           - name: external_propct
             description: '{{ doc("shared_column_external_propct") }}'
             tests:
@@ -309,7 +310,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      external_propct (proration percentage) should not be 0
+                      external_propct (Proration %) should not be 0
           - name: external_rcnld
             description: '{{ doc("shared_column_external_rcnld") }}'
             tests:
@@ -321,7 +322,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      external_rcnld (calculated full FMV) should not be 0
+                      external_rcnld (Full Market Value) should not be 0
           - name: extwall
             description: '{{ doc("shared_column_char_ext_wall") }}'
             tests:
@@ -330,14 +331,14 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: extwall (exterior wall type) should not be null
+                    description: extwall (Exterior Construction) should not be null
               - accepted_values:
                   name: iasworld_dweldat_extwall_in_accepted_values
                   values: ['1', '2', '3', '4', '6', '7', '8', '9']
                   config: *unique-conditions
                   meta:
                     description: >
-                      extwall (exterior wall type) should be 1, 2, 3, 4, 6, 7, 8, or 9
+                      extwall (Exterior Construction) should be 1, 2, 3, 4, 6, 7, 8, or 9
           - name: extwall1
             description: Exterior wall code
           - name: extwall1pct
@@ -361,7 +362,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      fixbath (number of full bathrooms) should not be null
+                      fixbath (Number of Full Baths) should not be null
               - accepted_range:
                   name: iasworld_dweldat_fixbath_between_1_and_16
                   min_value: 1
@@ -370,7 +371,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      fixbath (number of full bathrooms) should be between 1 and 16
+                      fixbath (Number of Full Baths) should be between 1 and 16
           - name: fixbath1
             description: Number of full bathrooms on the first floor
           - name: fixbath2
@@ -408,7 +409,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      fixhalf (number of half baths) should not be null
+                      fixhalf (Number of Half Baths) should not be null
               - accepted_range:
                   name: iasworld_dweldat_fixhalf_between_0_and_6
                   min_value: 0
@@ -417,7 +418,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      fixhalf (number of half baths) should be between 0 and 6
+                      fixhalf (Number of Half Baths) should be between 0 and 6
           - name: fixhalf1
             description: Number of half baths on the first floor
           - name: fixhalf2
@@ -485,7 +486,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      heat (interior heat type) should not be null
+                      heat (Heating) should not be null
               - accepted_values:
                   name: iasworld_dweldat_heat_in_accepted_values
                   values: ['1', '2', '3', '4']
@@ -493,7 +494,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      heat (interior heat type) should be an integer between 1 and 4
+                      heat (Heating) should be an integer between 1 and 4
           - name: heatarea
             description: Heat area
           - name: heatsys
@@ -559,7 +560,8 @@ sources:
                       AND deactivat IS NULL
                   meta:
                     category: incorrect_values
-                    description: mktrsn should only be 5 if mktadj is not null
+                    description: >
+                      mktrsn (Reason for Override) should only be 5 if mktadj is not null
           - name: modover
             description: Residential override model
           - name: mvpattic
@@ -685,7 +687,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      rmbed (number of bedrooms) should not be null
+                      rmbed (Number of Bedrooms) should not be null
               - accepted_range:
                   name: iasworld_dweldat_rmbed_sf_between_1_and_15
                   min_value: 1
@@ -699,7 +701,7 @@ sources:
                       AND deactivat IS NULL
                   meta:
                     description: >
-                      rmbed (number of bedrooms) should be between 1 and 15
+                      rmbed (Number of Bedrooms) should be between 1 and 15
               - accepted_range:
                   name: iasworld_dweldat_rmbed_mf_between_1_and_24
                   min_value: 1
@@ -713,7 +715,7 @@ sources:
                       AND deactivat IS NULL
                   meta:
                     description: >
-                      rmbed (number of bedrooms) should be between 1 and 24
+                      rmbed (Number of Bedrooms) should be between 1 and 24
               - expression_is_true:
                   name: iasworld_dweldat_rmbed_lte_rmtot
                   expression: <= rmtot
@@ -728,7 +730,7 @@ sources:
                   meta:
                     category: relationships
                     description: >
-                      rmbed (number of bedrooms) should be <= rmtot (number of rooms)
+                      rmbed (Number of Bedrooms) should be <= rmtot (Number of Rooms)
           - name: rmbed1
             description: Number of bedrooms on the first floor
           - name: rmbed2
@@ -795,7 +797,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: rmtot (number of rooms) should not be null
+                    description: rmtot (Number of Rooms) should not be null
               - accepted_range:
                   name: iasworld_dweldat_rmtot_sf_between_1_and_40
                   min_value: 1
@@ -808,7 +810,7 @@ sources:
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
-                    description: rmtot (number of rooms) should be between 1 and 40
+                    description: rmtot (Number of Rooms) should be between 1 and 40
               - accepted_range:
                   name: iasworld_dweldat_rmtot_sf_between_1_and_50
                   min_value: 1
@@ -821,7 +823,7 @@ sources:
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
-                    description: rmtot (number of rooms) should be between 1 and 50
+                    description: rmtot (Number of Rooms) should be between 1 and 50
           - name: salekey
             description: '{{ doc("column_salekey") }}'
           - name: seq
@@ -847,7 +849,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: sfla should not be null
+                    description: sfla (Building Square Footage) should not be null
               - accepted_range:
                   name: iasworld_dweldat_sfla_sf_between_1_and_10000
                   min_value: 1
@@ -861,7 +863,7 @@ sources:
                       AND deactivat IS NULL
                   meta:
                     description: >
-                      sfla (bldg. square feet) should be between 1 and 10000
+                      sfla (Building Square Footage) should be between 1 and 10000
                       for single-family properties (excl. 208 or 209)
               - accepted_range:
                   name: iasworld_dweldat_sfla_mf_between_1_and_20000
@@ -876,7 +878,7 @@ sources:
                       AND deactivat IS NULL
                   meta:
                     description: >
-                      sfla (bldg. square feet) should be between 1 and 20000
+                      sfla (Building Square Footage) should be between 1 and 20000
                       for multi-family and large single-family
           - name: shfact
             description: Story height factor
@@ -902,7 +904,7 @@ sources:
                   config: *unique-conditions
                   additional_select_columns: *select-columns
                   meta:
-                    description: stories should not be null
+                    description: stories (Type of Residence) should not be null
               - expression_is_true:
                   name: iasworld_dweldat_stories_in_accepted_values
                   expression: 'IN (1.00, 2.00, 3.00, 4.00, 5.00, 9.90)'
@@ -911,7 +913,7 @@ sources:
                   meta:
                     category: incorrect_values
                     description: >
-                      stories (type of residence) should be one of 1.00, 2.00,
+                      stories (Type of Residence) should be one of 1.00, 2.00,
                       3.00, 4.00, 5.00, or 9.90
           - name: style
             description: Architectural style
@@ -969,8 +971,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: >
-                      user3 (property renovation indicator) should be '0' or '1'
+                    description: user3 (Renovated) should be '0' or '1'
           - name: user4
             description: '{{ doc("shared_column_char_tp_dsgn") }}'
             tests:
@@ -995,14 +996,14 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user5 (design plan) should not be null
+                    description: user5 (Plan of Design) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_tp_plan_in_accepted_values
                   values: ['0', '1', '2']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user5 (design plan) should be '0', '1', or '2'
+                    description: user5 (Plan of Design) should be '0', '1', or '2'
           - name: user6
             description: '{{ doc("shared_column_char_attic_fnsh") }}'
             tests:
@@ -1011,14 +1012,14 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user6 (attic finish) should not be null
+                    description: user6 (Attic Finish) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_attic_fnsh_in_accepted_values
                   values: ['1', '2', '3']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user6 (attic finish) should be '1', '2', or '3'
+                    description: user6 (Attic Finish) should be '1', '2', or '3'
           - name: user7
             description: '{{ doc("shared_column_char_air") }}'
             tests:
@@ -1027,14 +1028,14 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user7 (central air indicator) should not be null
+                    description: user7 (Central Air Conditioning) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_air_accepted_values
                   values: ['1', '2']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user7 (central air indicator) should be '1' or '2'
+                    description: user7 (Central Air Conditioning) should be '1' or '2'
           - name: user12
             description: '{{ doc("shared_column_char_bsmt_fin") }}'
             tests:
@@ -1043,7 +1044,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user12 (basement finish) should not be null
+                    description: user12 (Basement Finished) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_bsmt_fin_accepted_values
                   values: ['1', '2', '3', '4', '5', '6']
@@ -1051,7 +1052,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      user12 (basement finish) should be an integer between 1 and 6
+                      user12 (Basement Finished) should be an integer between 1 and 6
           - name: user13
             description: '{{ doc("shared_column_char_roof_cnst") }}'
             tests:
@@ -1060,7 +1061,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user13 (roof material) should not be null
+                    description: user13 (Roof Construction) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_roof_cnst_accepted_values
                   values: ['1', '2', '3', '4', '5', '6']
@@ -1068,7 +1069,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      user13 (roof material) should be an integer between 1 and 6
+                      user13 (Roof Construction) should be an integer between 1 and 6
           - name: user14
             description: '{{ doc("shared_column_char_apts") }}'
             tests:
@@ -1082,9 +1083,7 @@ sources:
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
-                    description: >
-                      user14 (number of apts. for class 211 and 212)
-                      should not be null
+                    description: user14 (Total Number of Units) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_apts_accepted_values
                   values: ['1', '2', '3', '4', '5', '6']
@@ -1097,8 +1096,8 @@ sources:
                       AND deactivat IS NULL
                   meta:
                     description: >
-                      user14 (number of apts. for class 211 and 212)
-                      should be an integer between 1 and 6
+                      user14 (Total Number of Units) should be an integer
+                      between 1 and 6
           - name: user15
             description: '{{ doc("shared_column_char_use") }}'
             tests:
@@ -1107,15 +1106,14 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: >
-                      user15 (single- or multi-family use) should not be null
+                    description: user15 (Use) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_use_accepted_values
                   values: ['1', '2']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user15 (single- or multi-family use) should be '1' or '2'
+                    description: user15 (Use) should be '1' or '2'
           - name: user17
             description: Age. Deprecated, use `yrblt`
           - name: user20
@@ -1127,7 +1125,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      user20 (number of commercial units) should not be null
+                      user20 (No. of Commercial Units) should not be null
           - name: user24
             description: '{{ doc("shared_column_card_proration_rate") }}'
             tests:
@@ -1136,7 +1134,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user24 (proration rate) should not be null
+                    description: user24 (Proration %) should not be null
           - name: user30
             description: '{{ doc("shared_column_char_porch") }}'
             tests:
@@ -1145,14 +1143,14 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user30 (porch type) should not be null
+                    description: user30 (Porch) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_porch_accepted_values
                   values: ['0', '1', '2']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user30 (porch type) should be '0', '1', or '2'
+                    description: user30 (Porch) should be '0', '1', or '2'
           - name: user31
             description: '{{ doc("shared_column_char_gar_att") }}'
             tests:
@@ -1161,16 +1159,14 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: >
-                      user31 (attached garage indicator) should not be null
+                    description: user31 (Garage Attached) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_gar_att_accepted_values
                   values: ['1', '2']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: >
-                      user31 (attached garage indicator) should be '1' or '2'
+                    description: user31 (Garage Attached) should be '1' or '2'
           - name: user32
             description: '{{ doc("shared_column_char_gar_area") }}'
             tests:
@@ -1179,16 +1175,14 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: >
-                      user32 (garage area inclusion indicator) should not be null
+                    description: user32 (Garage in Area) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_gar_area_accepted_values
                   values: ['1', '2']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: >
-                      user32 (garage area inclusion indicator) should be '1' or '2'
+                    description: user32 (Garage in Area) should be '1' or '2'
           - name: user33
             description: '{{ doc("shared_column_char_gar_size") }}'
             tests:
@@ -1197,7 +1191,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user33 (garage size) should not be null
+                    description: user33 (Garage Size) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_gar_size_accepted_values
                   values: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
@@ -1205,7 +1199,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      user33 (garage size) should be an integer between 1 and 10
+                      user33 (Garage Size) should be an integer between 1 and 10
           - name: user34
             description: '{{ doc("shared_column_char_gar_cnst") }}'
             tests:
@@ -1214,8 +1208,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: >
-                      user34 (garage ext. wall construction) should not be null
+                    description: user34 (Garage Construction) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_gar_cnst_accepted_values
                   values: ['1', '2', '3', '4']
@@ -1223,7 +1216,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      user34 (garage ext. wall construction) should be
+                      user34 (Garage Construction) should be
                       an integer between 1 and 4
                   tags:
                     # Currently too many failures for this signal to be useful
@@ -1246,7 +1239,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: wbfp_o (number of fireplaces) should not be null
+                    description: wbfp_o (Number of Fireplaces) should not be null
               - accepted_range:
                   name: iasworld_dweldat_char_frpl_between_0_and_6
                   min_value: 0
@@ -1255,7 +1248,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      wbfp_o (number of fireplaces) should be between 0 and 6
+                      wbfp_o (Number of Fireplaces) should be between 0 and 6
           - name: wbfp_pf
             description: Wood burning fireplace - prefab
           - name: wbfp_pfx
@@ -1328,7 +1321,7 @@ sources:
               config: *unique-conditions
               meta:
                 category: incorrect_values
-                description: user24 (proration rate) should be between 0 and 100
+                description: user24 (Proration %) should be between 0 and 100
           - expression_is_true:
               name: iasworld_dweldat_char_ncu_between_0_and_5
               expression: 'CAST(user20 AS decimal) BETWEEN 0 AND 5'
@@ -1343,7 +1336,7 @@ sources:
               meta:
                 category: incorrect_values
                 description: >
-                  user20 (num. commercial units) should be an integer between 0 and 5
+                  user20 (No. of Commercial Units) should be an integer between 0 and 5
           - expression_is_true:
               name: iasworld_dweldat_bsmt_and_user12_match_234_class
               expression: bsmt = '3' and user12 = '1'
@@ -1365,5 +1358,6 @@ sources:
               meta:
                 category: incorrect_values
                 description: >
-                  bsmt must be 3 (partial basement) and user12 must be 1
-                  (finished basement) when class is 234 (split level)
+                  bsmt (Basement Type) must be 3 - PARTIAL and
+                  user12 (Basement Finished) must be 1 - FAMILY ROOM when
+                  class is 234 (split level)
