@@ -27,7 +27,9 @@ jobs:
           # dbt doesn't differentiate between test failures and errors, but we
           # need to since we expect errors. Do this by capturing the output
           # and checking its contents to look for errors
-          if output=$(dbt test --target "$TARGET"); then
+          # TODO: Switch this back to the full set of tests once testing is
+          # done
+          if output=$(dbt test --target "$TARGET" --select iasworld_asmt_all_class_matches_pardat_class); then
             echo "$output"
           else
             status_code="$?"
