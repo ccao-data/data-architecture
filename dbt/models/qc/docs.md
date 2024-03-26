@@ -16,21 +16,6 @@ Pulled from the following Inquire queries:
 - `FP Checklist--Bldg and parcel class mismatch` (#2161) - Will C.
 {% enddocs %}
 
-# vw_incorrect_asmt_value
-
-{% docs view_vw_incorrect_asmt_value %}
-Test that no `ASMT` critical column values are wrong.
-
-Pulled from the following Inquire queries:
-
-- `FP Checklist - Non-EX, RR parcels with 0 land value` (#1578) - Will C.
-- `FP Checklist - Non-EX, RR PINs with 0 value` (#1570) - Will C.
-- `FP Checklist - Vacant Class, bldg value` (#1577) - Will C.
-- `FP Checklist - Improved class, no bldg value` (#1047) - Will C.
-- `FP Checklist - Class does not equal LUC` (#2046) - Will C.
-- `FP Checklist - 500k increase, 1m decrease` (#1673) - Will C.
-{% enddocs %}
-
 # vw_incorrect_val_method
 
 {% docs view_vw_incorrect_val_method %}
