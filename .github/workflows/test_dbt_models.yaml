@@ -65,6 +65,8 @@ jobs:
           crawler_name="ccao-data-warehouse-qc-crawler"
           aws glue start-crawler --name "$crawler_name"
           echo "Triggered Glue crawler $crawler_name"
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
 
       - name: Get current time
         if: failure()
