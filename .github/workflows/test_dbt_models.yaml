@@ -22,6 +22,10 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
+      - name: Install Python requirements
+        run: pip install -r ./.github/scripts/format_dbt_run_results_requirements.txt
+        shell: bash
+
       - name: Run tests
         run: |
           # dbt doesn't differentiate between test failures and errors, but we
