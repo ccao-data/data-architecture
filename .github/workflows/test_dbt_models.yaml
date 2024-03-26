@@ -47,12 +47,21 @@ jobs:
 
       - name: Save test results to S3
         run: |
-          python3 ./.github/scripts/format_dbt_run_results_as_parquet.py \
-            target/run_results.json  > target/run_results.parquet
-          today=$(date -u +"%Y-%m-%d")
-          aws s3 cp \
-            target/run_results.parquet \
-            "s3://ccao-data-warehouse-us-east-1/qc/run_results/$today.parquet"
+          run_results="target/run_results.json"
+          run_id=$(jq -r ".metadata.invocation_id" "$run_results")
+          run_dt=$(jq -r ".metadata.generated_at" "$run_results")
+          run_date=$(date -d "$run_dt" +%Y-%m-%d)
+
+          output_file="target/run_results.parquet"
+          python3 ./.github/scripts/format_dbt_run_results_as_parquet.py "$run_results"  > "$output_file"
+
+          s3_path="s3://ccao-data-warehouse-us-east-1/qc/test_result/run_date=$run_date/run_id=$run_id/part-0.parquet"
+          aws s3 cp "$output_file" "$s3_path"
+          echo "Uploaded run results to $s3_path"
+
+          crawler_name="ccao-data-warehouse-qc-crawler"
+          aws glue start-crawler --name "$crawler_name"
+          echo "Triggered Glue crawler $crawler_name"
 
       - name: Get current time
         if: failure()
