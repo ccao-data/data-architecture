@@ -44,6 +44,7 @@ jobs:
               # print the output but don't raise an error
               echo "$output"
             fi
+          fi
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
