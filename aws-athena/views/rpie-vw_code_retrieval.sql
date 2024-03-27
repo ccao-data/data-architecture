@@ -3,7 +3,7 @@ SELECT
     pin_codes.pin,
     pin_codes.year,
     pin_codes.rpie_code,
-    pardat.class,
+    REGEXP_REPLACE(pardat.class, '[^[:alnum:]]', '') AS class,
     owndat.own1 AS mailing_name,
     owndat.addr1 AS mailing_addr1,
     CONCAT_WS(

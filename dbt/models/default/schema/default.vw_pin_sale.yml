@@ -86,6 +86,10 @@ models:
           additional_select_columns:
             - num_parcels_sale
             - is_multisale
+      - not_accepted_values:
+          name: default_vw_pin_sale_class_no_hyphens
+          column_name: class
+          values: "2-99"
       # TODO: Sale is validated (after sales validation has been added to
       # iasworld)
       # TODO: Validation is catching obvious outliers

@@ -35,3 +35,7 @@ models:
           expression: REGEXP_COUNT(pin, '[0-9]') = 14 AND LENGTH(pin) = 14
           additional_select_columns:
             - pin
+      - not_accepted_values:
+          name: default_vw_pin_exempt_class_no_hyphens
+          column_name: class
+          values: "2-99"

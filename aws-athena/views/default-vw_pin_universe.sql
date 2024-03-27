@@ -4,7 +4,7 @@ SELECT
     par.parid AS pin,
     SUBSTR(par.parid, 1, 10) AS pin10,
     par.taxyr AS year,
-    REGEXP_REPLACE(par.class, '([^0-9EXR])', '') AS class,
+    REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') AS class,
     twn.triad_name,
     twn.triad_code,
     twn.township_name,

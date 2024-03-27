@@ -21,7 +21,7 @@ WITH parcel_addressess AS (
             NULLIF(zip1, '00000'),
             NULLIF(zip2, '0000')
         ) AS property_zip,
-        class,
+        REGEXP_REPLACE(class, '[^[:alnum:]]', '') AS class,
         SUBSTR(class, 1, 1) AS major_class,
         CASE
             WHEN SUBSTR(
