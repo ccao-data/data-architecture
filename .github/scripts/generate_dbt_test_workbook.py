@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 #
 # Generates an Excel workbook of dbt test failures that can be shared with
-# other teams for review and correction.
+# other teams for review and correction, along with metadata parquet files
+# that can be uploaded to S3 for long-term result tracking.
 #
 # This script assumes that it is being run in sequence after a call to
 # `dbt test --store-failures`, since it depends on two files created by
@@ -15,14 +16,23 @@
 #     * If not present, defaults to './target/run_results.json'
 #   2. The local path to a manifest.json file with the compiled dbt DAG
 #     * If not present, defaults to './target/manifest.json'
-#   3. The output filepath to which the workbook should be written
-#     * If not present, defaults to './qc_test_failures_<date>.xlsx'
+#   3. The directory to which output artifacts should be written
+#     * If not present, defaults to './qc_test_failures_<date>/'
 #
 # Expects one optional environment variable to be set:
 #
 #  1.AWS_ATHENA_S3_STAGING_DIR: Location in S3 where Athena query results
 #    should be written. If missing, defaults to the
 #    ccao-athena-results-us-east-1 bucket
+#
+# Outputs three files:
+#
+#   1. `workbook.xlsx`: Excel workbook to share with other teams
+#   2. `run.parquet`: Metadata about this run, for upload to S3
+#   3. `run_test.parquet`: Metadata about tests (name, category, etc.)
+#      in this run, for upload to S3
+#   4. `run_test_result.parquet`: Metadata about test results (pass, fail,
+#      number of failing rows, etc.) in this run, for upload to S3
 #
 # Each sheet in the output workbook represents a category of test, e.g.
 # "valid_range" or "not_null"; each row in a sheet represents a row in a
@@ -36,12 +46,14 @@
 #       python3 generate_dbt_test_workbook.py \
 #       ./target/run_results.json \
 #       ./target/manifest.json \
-#       ./qc_test_failures.xlsx
+#       ./qc_test_failures/
 
 import dataclasses
 import datetime
+import decimal
 import hashlib
 import os
+import pathlib
 import re
 import sys
 import typing
@@ -51,9 +63,12 @@ import openpyxl.cell
 import openpyxl.styles
 import openpyxl.styles.colors
 import openpyxl.utils
+import pyarrow
+import pyarrow.parquet
 import pyathena
 import pyathena.cursor
 import simplejson as json
+import yaml
 
 # Tests without a config.meta.category property will be grouped in
 # this default category
@@ -279,8 +294,8 @@ FailedTestsByCategory = typing.Dict[str, FailedTestGroup]
 
 
 def main() -> None:
-    """Entrypoint to this script. Parses dbt test failures and writes a
-    workbook of test failures to the output path."""
+    """Entrypoint to this script. Parses dbt test failures and writes artifacts
+    to the output directory with metadata about failed tests."""
     try:
         run_results_filepath = sys.argv[1]
     except IndexError:
@@ -292,10 +307,10 @@ def main() -> None:
         manifest_filepath = os.path.join("target", "manifest.json")
 
     try:
-        output_filepath = sys.argv[3]
+        output_directory = sys.argv[3]
     except IndexError:
         date_today = datetime.datetime.today().strftime("%Y-%m-%d")
-        output_filepath = f"qc_test_failures_{date_today}.xlsx"
+        output_directory = f"qc_test_failures_{date_today}"
 
     failed_test_cache_path = get_failed_test_cache_path(
         run_results_filepath,
@@ -330,8 +345,60 @@ def main() -> None:
     for sheet_name, failed_test_group in failed_tests_by_category.items():
         print(f"Adding sheet for {sheet_name}")
         add_sheet_to_workbook(workbook, sheet_name, failed_test_group)
-    workbook.save(output_filepath)
-    print(f"Output workbook saved to {output_filepath}")
+
+    pathlib.Path(output_directory).mkdir(exist_ok=True)
+    workbook_filepath = os.path.join(output_directory, "workbook.xlsx")
+    workbook.save(workbook_filepath)
+    print(f"Output workbook saved to {workbook_filepath}")
+
+    run_metadata = get_run_metadata(run_results_filepath)
+    run_table = pyarrow.Table.from_pylist([run_metadata])
+    run_metadata_filepath = os.path.join(output_directory, "run.parquet")
+    pyarrow.parquet.write_table(run_table, run_metadata_filepath)
+    print(f"Run metadata saved to {run_metadata_filepath}")
+
+
+@dataclasses.dataclass
+class RunMetadata:
+    run_id: str
+    run_date: str
+    elapsed_time: decimal.Decimal
+    var_year_start: str
+    var_year_end: str
+
+
+def get_run_metadata(run_results_filepath: str) -> RunMetadata:
+    with open(run_results_filepath) as run_results_fobj:
+        run_results = json.load(run_results_fobj)
+
+    run_id = run_results["metadata"]["invocation_id"]
+    run_dt_str = run_results["metadata"]["generated_at"]
+    run_dt = datetime.datetime.strptime(run_dt_str, "%Y-%m-%dT%H:%M:%S.%fZ")
+    run_date = run_dt.strftime("%Y-%m-%d")
+    elapsed_time = run_results["elapsed_time"]
+
+    # Extract dbt vars
+    run_vars = run_results["args"]["vars"]
+    var_year_start = run_vars.get("test_qc_year_start")
+    var_year_end = run_vars.get("test_qc_year_start")
+
+    # If dbt vars weren't set on the command line, the defaults won't exist
+    # in run_results.json, so we have to parse them from the dbt project config
+    if not var_year_start or not var_year_end:
+        with open("dbt_project.yml") as project_fobj:
+            project = yaml.safe_load(project_fobj)
+        var_year_start = (
+            var_year_start or project["vars"]["test_qc_year_start"]
+        )
+        var_year_end = var_year_end or project["vars"]["test_qc_year_end"]
+
+    return RunMetadata(
+        run_id=run_id,
+        run_date=run_date,
+        elapsed_time=elapsed_time,
+        var_year_start=var_year_start,
+        var_year_end=var_year_end,
+    )
 
 
 def get_failed_test_cache_path(
