@@ -90,6 +90,7 @@ FROM values_by_year
 LEFT JOIN classes
     ON values_by_year.parid = classes.parid
     AND values_by_year.taxyr = classes.taxyr
+WHERE classes.township_name IS NOT NULL
 GROUP BY
     classes.township_name,
     values_by_year.taxyr,
