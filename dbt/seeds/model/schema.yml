@@ -6,7 +6,7 @@ seeds:
       - name: year
         description: '{{ doc("shared_column_year") }}'
       - name: run_id
-        description: Unique identifier for the selected model run
+        description: '{{ doc("shared_column_run_id") }}'
       - name: triad_name
         description: '{{ doc("shared_column_triad_name") }}'
       - name: type
