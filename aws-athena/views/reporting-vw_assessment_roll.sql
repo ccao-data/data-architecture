@@ -35,11 +35,13 @@ WITH values_by_year AS (
     GROUP BY parid, taxyr, procname
 ),
 
--- Add valuation class
+-- Add valuation class, townships
 classes AS (
     SELECT
-        parid,
-        taxyr,
+        pin AS parid,
+        year AS taxyr,
+        township_name,
+        triad_name AS triad,
         CASE
             WHEN class IN ('EX', 'RR') THEN class
             WHEN class IN (
@@ -52,50 +54,28 @@ classes AS (
                 ) THEN '5B'
             ELSE SUBSTR(class, 1, 1)
         END AS class
-    FROM {{ source('iasworld', 'pardat') }}
-    WHERE cur = 'Y'
-        AND deactivat IS NULL
-),
-
--- Add townships
-townships AS (
-    SELECT
-        parid,
-        taxyr,
-        user1 AS township_code
-    FROM {{ source('iasworld', 'legdat') }}
-    WHERE cur = 'Y'
-        AND deactivat IS NULL
-),
-
--- Add township name
-town_names AS (
-    SELECT
-        triad_name AS triad,
-        township_name,
-        township_code
-    FROM {{ source('spatial', 'township') }}
+    FROM {{ ref('default.vw_pin_universe') }}
 )
 
 -- Add total and median values by township
 SELECT
     values_by_year.taxyr AS year,
     values_by_year.stage,
-    town_names.township_name,
-    town_names.triad,
+    classes.township_name,
+    classes.triad,
     classes.class,
     CASE
         WHEN
             MOD(CAST(values_by_year.taxyr AS INT), 3) = 0
-            AND town_names.triad = 'North'
+            AND classes.triad = 'North'
             THEN TRUE
         WHEN
             MOD(CAST(values_by_year.taxyr AS INT), 3) = 1
-            AND town_names.triad = 'South'
+            AND classes.triad = 'South'
             THEN TRUE
         WHEN
             MOD(CAST(values_by_year.taxyr AS INT), 3) = 2
-            AND town_names.triad = 'City'
+            AND classes.triad = 'City'
             THEN TRUE
         ELSE FALSE
     END AS reassessment_year,
@@ -110,21 +90,14 @@ FROM values_by_year
 LEFT JOIN classes
     ON values_by_year.parid = classes.parid
     AND values_by_year.taxyr = classes.taxyr
-LEFT JOIN townships
-    ON values_by_year.parid = townships.parid
-    AND values_by_year.taxyr = townships.taxyr
-LEFT JOIN town_names
-    ON townships.township_code = town_names.township_code
-WHERE town_names.township_name IS NOT NULL
 GROUP BY
-    townships.township_code,
-    town_names.township_name,
+    classes.township_name,
     values_by_year.taxyr,
     classes.class,
-    town_names.triad,
+    classes.triad,
     values_by_year.stage
 ORDER BY
-    town_names.township_name,
+    classes.township_name,
     values_by_year.taxyr,
     values_by_year.stage,
     classes.class
