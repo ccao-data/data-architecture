@@ -48,8 +48,11 @@ model_values AS (
     LEFT JOIN classes
         ON ap.meta_pin = classes.parid
         AND ap.meta_year = classes.taxyr
-    WHERE ap.run_id IN (SELECT final_model.run_id FROM model.final_model)
-        AND classes.property_group IS NOT NULL
+    INNER JOIN {{ ref('model.eph_final_model_long') }} AS fm
+        ON ap.run_id = fm.run_id
+        AND ap.meta_year = fm.year
+        AND ap.township_code = fm.township_code
+    WHERE classes.property_group IS NOT NULL
 ),
 
 iasworld_values AS (
