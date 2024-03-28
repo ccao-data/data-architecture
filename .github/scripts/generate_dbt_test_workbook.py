@@ -108,11 +108,8 @@ TEST_CACHE_DIR = "test_cache"
 
 
 class Status(enum.Enum):
-    # dbt keys this as `pass`, but we use "success" instead since `pass` is a
-    # reserved keyword in Python. Keep "pass" as a value so that this enum
-    # can be instantiated directly from a value extracted from run_results.json
-    success = "pass"
-    fail = "fail"
+    PASS = "pass"
+    FAIL = "fail"
 
 
 class TestResult:
@@ -260,10 +257,30 @@ class TestCategory:
             for row in result.failing_rows
         ]
 
+    @property
+    def status(self) -> Status:
+        """Return an aggregate status for this category based on the statuses
+        of its TestResult objects."""
+        return (
+            Status.PASS
+            if all(
+                result.status == Status.PASS for result in self.test_results
+            )
+            else Status.FAIL
+        )
+
     def add_to_workbook(self, workbook: openpyxl.Workbook) -> None:
         """Add a sheet of failed dbt tests to an openpyxl Workbook using data
         from the TestCategory object. Note that we expect the workbook to be
         initialized with write_only=True."""
+        # Only add this category to the workbook if it has any failing tests
+        if self.status == Status.PASS:
+            print(
+                f"Skipping add_to_workbook for category {self.category} since "
+                f"its status is '{Status.PASS.value}'"
+            )
+            return
+
         # openpyxl Workbooks are typically created with one untitled active
         # sheet by default, but write-only sheets are an exception to this
         # rule, so we always have to create a new sheet
@@ -733,22 +750,36 @@ def get_test_categories(
     tests_by_category: typing.Dict[str, TestCategory] = {}
 
     for run_result in run_results["results"]:
-        if run_result["status"] == "fail":
-            unique_id = run_result["unique_id"]
+        unique_id = run_result["unique_id"]
+        node = manifest["nodes"].get(unique_id)
+        if node is None:
+            raise ValueError(f"Missing dbt manifest node with id {unique_id}")
+
+        test_name = node["name"]
+        status = run_result["status"]
+        execution_time = run_result["execution_time"]
+
+        meta = node.get("meta", {})
+        category = get_category_from_node(node)
+        tablename = get_tablename_from_node(node)
+        test_description = meta.get("description")
+
+        if status == Status.PASS.value:
+            test_result = TestResult(
+                name=test_name,
+                status=Status.PASS,
+                description=test_description,
+                elapsed_time=execution_time,
+                failing_rows=[],
+            )
+
+            if not tests_by_category.get(category):
+                tests_by_category[category] = TestCategory(category=category)
+            tests_by_category[category].test_results.append(test_result)
+
+        elif status == Status.FAIL.value:
             # Link to the test's page in the dbt docs, for debugging
             test_docs_url = f"{DOCS_URL_PREFIX}/{unique_id}"
-
-            node = manifest["nodes"].get(unique_id)
-            if node is None:
-                raise ValueError(
-                    f"Missing dbt manifest node with id {unique_id}"
-                )
-
-            test_name = node["name"]
-            meta = node.get("meta", {})
-            category = get_category_from_node(node)
-            tablename = get_tablename_from_node(node)
-            test_description = meta.get("description")
 
             # Get the fully-qualified name of the table that stores failures
             # for this test so that we can query it
@@ -808,15 +839,21 @@ def get_test_categories(
             ]
             test_result = TestResult(
                 name=test_name,
-                status=Status.fail,
+                status=Status.FAIL,
                 description=test_description,
-                elapsed_time=run_result["execution_time"],
+                elapsed_time=execution_time,
                 failing_rows=failing_rows,
             )
 
             if not tests_by_category.get(category):
                 tests_by_category[category] = TestCategory(category=category)
             tests_by_category[category].test_results.append(test_result)
+
+        else:
+            raise ValueError(
+                f"Got unrecognized status '{status}' for node {unique_id} "
+                "in dbt run results"
+            )
 
     # Now that we've accumulated all of the test results and they are grouped
     # into categories, we no longer need the category key in the dict, so
