@@ -66,3 +66,5 @@ seeds:
   athena:
     location:
       +schema: location
+    model:
+      +schema: model
