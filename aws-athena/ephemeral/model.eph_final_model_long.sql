@@ -2,10 +2,6 @@
 An ephemeral view that takes the nested township codes in model.final_model
 and pivots it to create a single row per year, run_id, and township_code
 */
-{{
-    config(materialized='ephemeral')
-}}
-
 WITH final_model_parsed AS (
     SELECT
         fm.year,

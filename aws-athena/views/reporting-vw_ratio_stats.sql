@@ -48,7 +48,7 @@ model_values AS (
     LEFT JOIN classes
         ON ap.meta_pin = classes.parid
         AND ap.meta_year = classes.taxyr
-    INNER JOIN {{ ref('model.eph_final_model_long') }} AS fm
+    INNER JOIN {{ ref('eph_final_model_long') }} AS fm
         ON ap.run_id = fm.run_id
         AND ap.meta_year = fm.year
         AND ap.township_code = fm.township_code
