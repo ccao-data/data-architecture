@@ -111,6 +111,9 @@ class Status(enum.Enum):
     PASS = "pass"
     FAIL = "fail"
 
+    def __repr__(self) -> str:
+        return self.value.upper()
+
 
 class TestResult:
     """Class to store results for an individual test."""
@@ -133,6 +136,14 @@ class TestResult:
         self.description = description
         self.elapsed_time = elapsed_time
         self.failing_rows: typing.List[typing.Dict] = failing_rows or []
+
+    def __repr__(self) -> str:
+        return (
+            f"TestResult(name={self.name!r}, status={self.status!r}, "
+            f"description={self.description!r}, "
+            f"elapsed_time={self.elapsed_time!r}, "
+            f"num_failing_rows={len(self.failing_rows)})"
+        )
 
     @property
     def fieldnames(self) -> typing.List[str]:
@@ -170,8 +181,8 @@ class TestResult:
 
 class TestCategory:
     """Class to store TestResult objects for a group of dbt tests that share
-    the same category, and provide convenience methods for formatting those
-    results for output to a report."""
+    the same category. Provides convenience methods for formatting those
+    results for output to a workbook and saving them to a cache."""
 
     # Names of fields that are used for debugging
     _debugging_fieldnames = [TEST_NAME_FIELD, DOCS_URL_FIELD]
@@ -209,6 +220,17 @@ class TestCategory:
             "category": self.category,
             "test_results": [result.to_dict() for result in self.test_results],
         }
+
+    def __repr__(self) -> str:
+        num_failing_rows = sum(
+            len(result.failing_rows) for result in self.test_results
+        )
+        return (
+            f"TestCategory(category={self.category!r}, "
+            f"status={self.status!r}, "
+            f"num_tests={len(self.test_results)}, "
+            f"num_failing_rows={num_failing_rows})"
+        )
 
     @classmethod
     def from_dict(cls, category_dict: typing.Dict) -> "TestCategory":
