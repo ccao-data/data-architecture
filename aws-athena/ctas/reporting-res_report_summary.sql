@@ -76,8 +76,11 @@ model_values AS (
     LEFT JOIN town_class AS tc
         ON ap.meta_pin = tc.parid
         AND ap.meta_year = tc.model_join_year
-    WHERE ap.run_id IN (SELECT run_id FROM model.final_model)
-        AND tc.property_group IS NOT NULL
+    INNER JOIN {{ ref('eph_final_model_long') }} AS fm
+        ON ap.run_id = fm.run_id
+        AND ap.meta_year = fm.year
+        AND ap.township_code = fm.township_code
+    WHERE tc.property_group IS NOT NULL
         AND tc.triad IS NOT NULL
 ),
 
