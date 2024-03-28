@@ -28,11 +28,11 @@
 # Outputs three files:
 #
 #   1. `qc_test_failures_<date>.xlsx`: Excel workbook to share with other teams
-#   2. `run.parquet`: Metadata about this run, for upload to S3
-#   3. `run_test.parquet`: Metadata about tests (name, category, etc.)
-#      in this run, for upload to S3
-#   4. `run_test_result.parquet`: Metadata about test results (pass, fail,
-#      number of failing rows, etc.) in this run, for upload to S3
+#   2. `metadata/test_run/run_id=*/*.parquet`: Metadata about this run,
+#       partitioned by run ID and prepped for upload to S3
+#   3. `metadata/test_run_result/run_id=*/*.parquet`: Metadata about test
+#      results (pass, fail, number of failing rows, etc.) in this run,
+#      partitioned by run ID and prepped for upload to S3
 #
 # Each sheet in the output workbook represents a category of test, e.g.
 # "valid_range" or "not_null"; each row in a sheet represents a row in a
@@ -121,6 +121,7 @@ class TestResult:
     def __init__(
         self,
         name: str,
+        table_name: str,
         status: Status,
         description: str,
         elapsed_time: decimal.Decimal,
@@ -132,6 +133,7 @@ class TestResult:
         dicts mapping `{column_name: row_value}`.
         """
         self.name = name
+        self.table_name = table_name
         self.status = status
         self.description = description
         self.elapsed_time = elapsed_time
@@ -139,7 +141,9 @@ class TestResult:
 
     def __repr__(self) -> str:
         return (
-            f"TestResult(name={self.name!r}, status={self.status!r}, "
+            f"TestResult(name={self.name!r}, "
+            f"table_name={self.table_name!r}, "
+            f"status={self.status!r}, "
             f"description={self.description!r}, "
             f"elapsed_time={self.elapsed_time!r}, "
             f"num_failing_rows={len(self.failing_rows)})"
@@ -161,6 +165,7 @@ class TestResult:
         """Serialize the TestResult object as a dictionary."""
         return {
             "name": self.name,
+            "table_name": self.table_name,
             "status": self.status.value,
             "description": self.description,
             "elapsed_time": self.elapsed_time,
@@ -172,6 +177,7 @@ class TestResult:
         """Deserialize a TestResult object from a dictionary."""
         return TestResult(
             name=result_dict["name"],
+            table_name=result_dict["table_name"],
             status=Status(result_dict["status"]),
             description=result_dict["description"],
             elapsed_time=result_dict["elapsed_time"],
@@ -195,6 +201,7 @@ class TestResult:
         # township code or failure status
         base_kwargs = {
             "name": self.name,
+            "table_name": self.table_name,
             "status": self.status,
             "description": self.description,
             "elapsed_time": self.elapsed_time,
@@ -710,7 +717,9 @@ def main() -> None:
         table = pyarrow.Table.from_pylist(
             [dataclasses.asdict(meta_obj) for meta_obj in metadata_list]
         )
-        metadata_root_path = os.path.join(output_directory, tablename)
+        metadata_root_path = os.path.join(
+            output_directory, "metadata", tablename
+        )
         pyarrow.parquet.write_to_dataset(
             table, metadata_root_path, partition_cols
         )
@@ -773,6 +782,7 @@ class TestRunResultMetadata:
 
     run_id: str
     test_name: str
+    table_name: str
     category: str
     description: str
     township_code: typing.Optional[str]
@@ -798,6 +808,7 @@ class TestRunResultMetadata:
             TestRunResultMetadata(
                 run_id=run_id,
                 test_name=township_result.name,
+                table_name=township_result.table_name,
                 category=test_category.category,
                 description=township_result.description,
                 township_code=township_result.township_code,
@@ -903,13 +914,18 @@ def get_test_categories(
         tablename = get_tablename_from_node(node)
         test_description = meta.get("description")
 
+        # Basic attrs for the test result that apply whether or not the test
+        # failed
+        base_result_kwargs = {
+            "name": test_name,
+            "table_name": tablename,
+            "description": test_description,
+            "elapsed_time": execution_time,
+        }
+
         if status == Status.PASS.value:
             test_result = TestResult(
-                name=test_name,
-                status=Status.PASS,
-                description=test_description,
-                elapsed_time=execution_time,
-                failing_rows=[],
+                status=Status.PASS, failing_rows=[], **base_result_kwargs
             )
 
             if not tests_by_category.get(category):
@@ -977,11 +993,9 @@ def get_test_categories(
                 for row in query_results
             ]
             test_result = TestResult(
-                name=test_name,
                 status=Status.FAIL,
-                description=test_description,
-                elapsed_time=execution_time,
                 failing_rows=failing_rows,
+                **base_result_kwargs,
             )
 
             if not tests_by_category.get(category):
