@@ -33,7 +33,7 @@ jobs:
           # and checking its contents to look for errors
           if output=$(dbt test --target "$TARGET" \
                                --select \
-                                   default_vw_pin_address_unique_by_14_digit_pin_and_year \
+                                   iasworld_addn_card_not_null \
                                    iasworld_asmt_all_class_matches_pardat_class \
                                --exclude tag:test_qc_exclude_from_workbook \
                                --store-failures); then
