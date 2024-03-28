@@ -1,6 +1,9 @@
 seeds:
   - name: model.final_model
     description: '{{ doc("seed_final_model") }}'
+    config:
+      column_types:
+        year: string
 
     columns:
       - name: year
