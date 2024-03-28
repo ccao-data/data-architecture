@@ -703,18 +703,18 @@ def main() -> None:
     test_run_result_metadata_list = TestRunResultMetadata.create_list(
         test_categories, run_results_filepath
     )
-    for metadata_list, tablename in [
-        ([test_run_metadata], "test_run"),
-        (test_run_result_metadata_list, "test_run_result"),
+    for metadata_list, tablename, partition_cols in [
+        ([test_run_metadata], "test_run", ["run_id"]),
+        (test_run_result_metadata_list, "test_run_result", ["run_id"]),
     ]:
         table = pyarrow.Table.from_pylist(
             [dataclasses.asdict(meta_obj) for meta_obj in metadata_list]
         )
-        metadata_filepath = os.path.join(
-            output_directory, f"{tablename}.parquet"
+        metadata_root_path = os.path.join(output_directory, tablename)
+        pyarrow.parquet.write_to_dataset(
+            table, metadata_root_path, partition_cols
         )
-        pyarrow.parquet.write_table(table, metadata_filepath)
-        print(f"{tablename} metadata saved to {metadata_filepath}")
+        print(f"{tablename} metadata saved to {metadata_root_path}/")
 
 
 @dataclasses.dataclass
