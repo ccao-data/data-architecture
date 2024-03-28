@@ -8,7 +8,7 @@
 # `dbt test --store-failures`, since it depends on two files created by
 # that operation (target/run_results.json and target/manifest.json).
 # It also requires Python dependencies be installed from
-# generate_dbt_test_workbook_requirements.txt.
+# extract_dbt_test_results_requirements.txt.
 #
 # Accepts three optional positional arguments:
 #
@@ -43,7 +43,7 @@
 # Example usage:
 #
 #   AWS_ATHENA_S3_STAGING_DIR=s3://foo-bar-baz/ \
-#       python3 generate_dbt_test_workbook.py \
+#       python3 extract_dbt_test_results.py \
 #       ./target/run_results.json \
 #       ./target/manifest.json \
 #       ./qc_test_results/
