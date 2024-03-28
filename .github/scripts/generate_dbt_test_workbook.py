@@ -17,7 +17,7 @@
 #   2. The local path to a manifest.json file with the compiled dbt DAG
 #     * If not present, defaults to './target/manifest.json'
 #   3. The directory to which output artifacts should be written
-#     * If not present, defaults to './qc_test_failures_<date>/'
+#     * If not present, defaults to './qc_test_results_<date>/'
 #
 # Expects one optional environment variable to be set:
 #
@@ -27,7 +27,7 @@
 #
 # Outputs three files:
 #
-#   1. `workbook.xlsx`: Excel workbook to share with other teams
+#   1. `qc_test_failures_<date>.xlsx`: Excel workbook to share with other teams
 #   2. `run.parquet`: Metadata about this run, for upload to S3
 #   3. `run_test.parquet`: Metadata about tests (name, category, etc.)
 #      in this run, for upload to S3
@@ -46,7 +46,7 @@
 #       python3 generate_dbt_test_workbook.py \
 #       ./target/run_results.json \
 #       ./target/manifest.json \
-#       ./qc_test_failures/
+#       ./qc_test_results/
 
 import dataclasses
 import datetime
@@ -103,17 +103,16 @@ CUSTOM_TEST_NAMES = {
     "macro.athena.test_res_class_matches_pardat": "class_mismatch_or_issue",
 }
 # Directory to store failed test caches
-FAILED_TEST_CACHE_DIR = "failed_test_cache"
+TEST_CACHE_DIR = "test_cache"
 
 
-@dataclasses.dataclass
-class FailedTestGroup:
-    """Class to store query results for a group of failed dbt tests and provide
+class TestCategory:
+    """Class to store results for a group of dbt tests and provide
     convenience methods for formatting those results for output to a report."""
 
     # Names of fields that are used for debugging
     _debugging_fieldnames = [TEST_NAME_FIELD, DOCS_URL_FIELD]
-    # Names of fields that identify the failing test
+    # Names of fields that identify the test
     _test_metadata_fieldnames = [
         *[SOURCE_TABLE_FIELD, DESCRIPTION_FIELD],
         *_debugging_fieldnames,
@@ -134,12 +133,15 @@ class FailedTestGroup:
     ]
 
     def __init__(
-        self, rows: typing.Optional[typing.List[typing.Dict]] = None
+        self,
+        category: str,
+        rows: typing.Optional[typing.List[typing.Dict]] = None,
     ) -> None:
+        self.category = category
         self.raw_rows: typing.List[typing.Dict] = rows or []
 
     def update(self, new_rows: typing.List[typing.Dict]) -> None:
-        """Add a list of new_rows to the rows of failing tests tracked by
+        """Add a list of new_rows to the rows of tests tracked by
         this group. The new_rows list should be formatted like the rows
         returned by a csv.DictReader or a DictCursor, i.e. a list of
         dicts mapping `{column_name: row_value}`."""
@@ -148,7 +150,7 @@ class FailedTestGroup:
     @property
     def fieldnames(self) -> typing.List[str]:
         """Get a list of fieldnames that encapsulates all of the fieldnames
-        for all of the rows of failing tests tracked by this group."""
+        for all of the rows of tests tracked by this group."""
         fieldnames = []
         for row in self.raw_rows:
             for column in row.keys():
@@ -170,7 +172,7 @@ class FailedTestGroup:
 
     @property
     def rows(self) -> typing.List[typing.List]:
-        """Format the rows of failing tests tracked by this group, with
+        """Format the rows of tests tracked by this group, with
         fieldname data excluded. The combination of this property and the
         `fieldnames` property can be used to write to a csv.Writer or
         to an openpyxl.Workbook sheet for the tests tracked by this group."""
@@ -180,36 +182,186 @@ class FailedTestGroup:
             for row in self.raw_rows
         ]
 
-    def _filter_for_existing_fieldnames(
-        self, possible_fieldnames: typing.List[str]
-    ) -> typing.List[str]:
-        """Helper function to filter a list of `possible_fieldnames` for
-        only those fields that exist in the test group, returning the
-        names of the fields (e.g. ["foo", "bar"])."""
-        existing_fieldnames = self.fieldnames
-        return [
-            field
-            for field in possible_fieldnames
-            if field in existing_fieldnames
-        ]
+    def add_to_workbook(self, workbook: openpyxl.Workbook) -> None:
+        """Add a sheet of failed dbt tests to an openpyxl Workbook using data
+        from the TestCategory object. Note that we expect the workbook to be
+        initialized with write_only=True."""
+        # openpyxl Workbooks are typically created with one untitled active
+        # sheet by default, but write-only sheets are an exception to this
+        # rule, so we always have to create a new sheet
+        sheet = workbook.create_sheet()
+        sheet.title = self.category
 
-    def _filter_for_existing_field_indexes(
-        self, possible_fieldnames: typing.List[str]
-    ) -> tuple:
-        """Helper function to filter a list of `possible_fieldnames` for
-        only those fields that exist in the test group, returning the
-        indexes of the fields (e.g. ["A", "B"])."""
-        existing_fieldnames = self.fieldnames
-        return tuple(
-            openpyxl.utils.get_column_letter(
-                # openpyxl is 1-indexed while the index() method is 0-indexed
-                existing_fieldnames.index(field)
-                + 1
-            )
-            for field in self._filter_for_existing_fieldnames(
-                possible_fieldnames
-            )
+        # Freeze the header row. The syntax for the freeze_panes attribute is
+        # undocumented, but it freezes all rows above and all columns to the
+        # left of the given cell identifier. Note that freeze operations must
+        # be performed before any data is added to a sheet in a write-only
+        # workbook
+        data_header_idx = 3  # We have 3 headers; 2 for grouping and 1 for data
+        freeze_pane_letter = openpyxl.utils.get_column_letter(
+            len(self.test_metadata_fieldnames) + 1
         )
+        freeze_pane_number = data_header_idx + 1
+        sheet.freeze_panes = f"{freeze_pane_letter}{freeze_pane_number}"
+
+        # Hide columns that are intended for debugging only, so that they don't
+        # get in the way of non-technical workbook consumers
+        for col_idx in self.debugging_field_indexes:
+            sheet.column_dimensions[col_idx].hidden = True
+
+        # Create groupings for columns with a special group header
+        bold_font = openpyxl.styles.Font(bold=True)
+        italic_font = openpyxl.styles.Font(italic=True)
+        title_row, subtitle_row, header_row, merged_cell_range = [], [], [], []
+        column_groups = {
+            self.test_metadata_field_indexes: {
+                "title": "Test description fields",
+                "subtitle": "These fields identify a failing test.",
+                "fieldnames": self.test_metadata_fieldnames,
+                "style": "20 % - Accent4",
+                "header_style": "Accent4",
+            },
+            self.diagnostic_field_indexes: {
+                "title": "Unique identifier fields",
+                "subtitle": (
+                    "These fields identify the row that is failing a test."
+                ),
+                "fieldnames": self.diagnostic_fieldnames,
+                "style": "20 % - Accent1",
+                "header_style": "Accent1",
+            },
+            self.nonfixed_field_indexes: {
+                "title": "Problematic fields",
+                "subtitle": (
+                    "These fields contain values that are causing the test "
+                    "to fail."
+                ),
+                "fieldnames": self.nonfixed_fieldnames,
+                "style": "20 % - Accent2",
+                "header_style": "Accent2",
+            },
+        }
+        for col_group_indexes, col_metadata in column_groups.items():
+            # Sometimes there are no problematic fields for a given test;
+            # if this is the case, skip it
+            if not col_group_indexes:
+                continue
+
+            # Save merged cell info
+            for cell_range in [
+                f"{col_group_indexes[0]}1:{col_group_indexes[-1]}1",
+                f"{col_group_indexes[0]}2:{col_group_indexes[-1]}2",
+            ]:
+                merged_cell_range.append(cell_range)
+
+            # Fill out and format grouping header
+            title_cell = openpyxl.cell.WriteOnlyCell(
+                sheet, value=col_metadata["title"]
+            )
+            title_cell.style = "Note"
+            title_cell.font = bold_font
+            title_row.append(title_cell)
+            # Flesh out the empty title row cells that will be merged later on
+            for _ in range(len(col_group_indexes) - 1):
+                title_row.append("")
+
+            subtitle_cell = openpyxl.cell.WriteOnlyCell(
+                sheet, value=col_metadata["subtitle"]
+            )
+            subtitle_cell.style = "Note"
+            subtitle_cell.font = italic_font
+            subtitle_row.append(subtitle_cell)
+            for _ in range(len(col_group_indexes) - 1):
+                subtitle_row.append("")
+
+            # Fill out and format the data header
+            for fieldname in col_metadata["fieldnames"]:
+                header_cell = openpyxl.cell.WriteOnlyCell(
+                    sheet, value=fieldname
+                )
+                header_cell.style = col_metadata["header_style"]
+                header_cell.font = openpyxl.styles.Font(
+                    bold=True, color=openpyxl.styles.colors.WHITE
+                )
+                header_row.append(header_cell)
+
+        # Initialize the column widths based on the length of values in
+        # the header row
+        column_widths = {
+            openpyxl.utils.get_column_letter(idx + 1): len(fieldname) + 2
+            for idx, fieldname in enumerate(self.fieldnames)
+        }
+        # Iterate the rows to extract data and optionally update the column
+        # widths if the length of the cell value exceeds the length of the
+        # header value
+        data_rows = []
+        for row in self.rows:
+            data_row = []
+            # Start enumeration at 1 since openpyxl columns are 1-indexed
+            for col_idx, cell in enumerate(row, 1):
+                # Convert row values to string so that Excel doesn't apply
+                # autoformatting
+                cell_str = str(cell) if cell is not None else ""
+                cell = openpyxl.cell.WriteOnlyCell(sheet, value=cell_str)
+
+                # Retrieve the cell style from the column groupings if one
+                # exists
+                cell_style = None
+                column_letter = openpyxl.utils.get_column_letter(col_idx)
+                for col_group_indexes, col_metadata in column_groups.items():
+                    if column_letter in col_group_indexes:
+                        cell_style = col_metadata["style"]
+                if cell_style:
+                    cell.style = cell_style
+                data_row.append(cell)
+
+                # Check if this cell is longer than the longest cell we've seen
+                # so far, and adjust the column dimensions accordingly
+                column_letter = openpyxl.utils.get_column_letter(col_idx)
+                column_widths[column_letter] = max(
+                    column_widths.get(column_letter, 0), len(cell_str)
+                )
+
+            data_rows.append(data_row)
+
+        # Update column widths so that they fit the longest column
+        for (
+            column_letter,
+            column_width,
+        ) in column_widths.items():
+            # Pad with an extra two characters to account for the fact that
+            # non-monospace fonts do not have consistent character widths,
+            # and set a hard limit of 75 characters so no one field takes over
+            # the viewport of the spreadsheet
+            width = min(column_width + 2, 75)
+            sheet.column_dimensions[column_letter].width = width
+
+        # Add filters to fixed columns (i.e. columns that appear in every sheet
+        # in the same position)
+        fixed_field_indexes = self.fixed_field_indexes
+        sheet_max_row_idx = data_header_idx + len(data_rows)
+        min_fixed_idx = f"{fixed_field_indexes[0]}{data_header_idx}"
+        max_fixed_idx = f"{fixed_field_indexes[-1]}{sheet_max_row_idx}"
+        fixed_field_range = f"{min_fixed_idx}:{max_fixed_idx}"
+        sheet.auto_filter.ref = fixed_field_range
+
+        # Add the data to the sheet. This should be one of the last steps in
+        # this function, since write-only sheets require all formatting to be
+        # set before data is added
+        sheet.append(title_row)
+        sheet.append(subtitle_row)
+        sheet.append(header_row)
+        for data_row in data_rows:
+            sheet.append(data_row)
+
+        # Merge cells in the grouping headers. This approach is a bit of a hack
+        # since merged cells are not fully supported in write-only workbooks,
+        # hence why it takes place _after_ rows have been added to the sheet
+        # whereas most formatting options for write-only workbooks need to
+        # happen _before_ data is added. See here for details:
+        # https://stackoverflow.com/a/66159254
+        for cell_range in merged_cell_range:
+            sheet.merged_cells.ranges.add(cell_range)
 
     @property
     def debugging_fieldnames(self) -> typing.List[str]:
@@ -288,14 +440,41 @@ class FailedTestGroup:
         nonfixed_fieldnames = self.nonfixed_fieldnames
         return self._filter_for_existing_field_indexes(nonfixed_fieldnames)
 
+    def _filter_for_existing_fieldnames(
+        self, possible_fieldnames: typing.List[str]
+    ) -> typing.List[str]:
+        """Helper function to filter a list of `possible_fieldnames` for
+        only those fields that exist in the test group, returning the
+        names of the fields (e.g. ["foo", "bar"])."""
+        existing_fieldnames = self.fieldnames
+        return [
+            field
+            for field in possible_fieldnames
+            if field in existing_fieldnames
+        ]
 
-# Type representing a mapping of sheet names to the tests contained therein
-FailedTestsByCategory = typing.Dict[str, FailedTestGroup]
+    def _filter_for_existing_field_indexes(
+        self, possible_fieldnames: typing.List[str]
+    ) -> tuple:
+        """Helper function to filter a list of `possible_fieldnames` for
+        only those fields that exist in the test group, returning the
+        indexes of the fields (e.g. ["A", "B"])."""
+        existing_fieldnames = self.fieldnames
+        return tuple(
+            openpyxl.utils.get_column_letter(
+                # openpyxl is 1-indexed while the index() method is 0-indexed
+                existing_fieldnames.index(field)
+                + 1
+            )
+            for field in self._filter_for_existing_fieldnames(
+                possible_fieldnames
+            )
+        )
 
 
 def main() -> None:
-    """Entrypoint to this script. Parses dbt test failures and writes artifacts
-    to the output directory with metadata about failed tests."""
+    """Entrypoint to this script. Parses dbt test results and writes artifacts
+    to the output directory with metadata about tests."""
     try:
         run_results_filepath = sys.argv[1]
     except IndexError:
@@ -310,49 +489,46 @@ def main() -> None:
         output_directory = sys.argv[3]
     except IndexError:
         date_today = datetime.datetime.today().strftime("%Y-%m-%d")
-        output_directory = f"qc_test_failures_{date_today}"
+        output_directory = f"qc_test_results_{date_today}"
 
-    failed_test_cache_path = get_failed_test_cache_path(
+    test_cache_path = get_test_cache_path(
         run_results_filepath,
         manifest_filepath,
     )
 
-    if os.path.isfile(failed_test_cache_path):
-        print(f"Loading failed tests from cache at {failed_test_cache_path}")
-        failed_tests_by_category = get_failed_tests_by_category_from_file(
-            failed_test_cache_path
-        )
+    if os.path.isfile(test_cache_path):
+        print(f"Loading test results from cache at {test_cache_path}")
+        test_categories = get_test_categories_from_file(test_cache_path)
     else:
         print(
-            f"Failed test cache not found at {failed_test_cache_path}, "
-            "loading failed tests from Athena"
+            f"Test cache not found at {test_cache_path}, loading test results "
+            "from Athena"
         )
-        failed_tests_by_category = get_failed_tests_by_category_from_athena(
+        test_categories = get_test_categories_from_athena(
             run_results_filepath,
             manifest_filepath,
         )
-        print(f"Saving failed tests to the cache at {failed_test_cache_path}")
-        save_failed_tests_by_category_to_file(
-            failed_tests_by_category,
-            failed_test_cache_path,
-        )
+        print(f"Saving test results to the cache at {test_cache_path}")
+        save_test_categories_to_file(test_categories, test_cache_path)
 
     print("Generating the output workbook")
     # It's important to use a write-only workbook here because otherwise
     # the metadata required to store cell info about a large number of failing
     # tests can cause the process to run out of memory
     workbook = openpyxl.Workbook(write_only=True)
-    for sheet_name, failed_test_group in failed_tests_by_category.items():
-        print(f"Adding sheet for {sheet_name}")
-        add_sheet_to_workbook(workbook, sheet_name, failed_test_group)
+    for test_category in test_categories:
+        print(f"Adding sheet for {test_category.category}")
+        test_category.add_to_workbook(workbook)
 
     pathlib.Path(output_directory).mkdir(exist_ok=True)
-    workbook_filepath = os.path.join(output_directory, "workbook.xlsx")
+    workbook_filepath = os.path.join(
+        output_directory, f"qc_test_failures_{date_today}.xlsx"
+    )
     workbook.save(workbook_filepath)
     print(f"Output workbook saved to {workbook_filepath}")
 
     run_metadata = get_run_metadata(run_results_filepath)
-    run_table = pyarrow.Table.from_pylist([run_metadata])
+    run_table = pyarrow.Table.from_pylist([dataclasses.asdict(run_metadata)])
     run_metadata_filepath = os.path.join(output_directory, "run.parquet")
     pyarrow.parquet.write_table(run_table, run_metadata_filepath)
     print(f"Run metadata saved to {run_metadata_filepath}")
@@ -401,10 +577,10 @@ def get_run_metadata(run_results_filepath: str) -> RunMetadata:
     )
 
 
-def get_failed_test_cache_path(
+def get_test_cache_path(
     run_results_filepath: str, manifest_filepath: str
 ) -> str:
-    """Return the path to the cache where failed test results are stored.
+    """Return the path to the cache where test results are stored.
     The `run_results_filepath` and `manifest_filepath` are used to generated
     a hash key that uniquely defines the cache key for a given test run."""
     with open(run_results_filepath, "rb") as run_results_file:
@@ -414,42 +590,42 @@ def get_failed_test_cache_path(
         manifest_hash = hashlib.md5(manifest_file.read()).hexdigest()
 
     return os.path.join(
-        FAILED_TEST_CACHE_DIR,
+        TEST_CACHE_DIR,
         f"run_{run_results_hash}_manifest_{manifest_hash}.json",
     )
 
 
-def get_failed_tests_by_category_from_file(
+def get_test_categories_from_file(
     file_path: str,
-) -> FailedTestsByCategory:
-    """Load a FailedTestsByCategory object from a cache located at
+) -> typing.List[TestCategory]:
+    """Load a list of TestCategory objects from a cache located at
     `file_path`."""
     with open(file_path) as cache_file:
-        failed_tests_dict = json.load(cache_file, use_decimal=True)
-    return {
-        category: FailedTestGroup(raw_rows)
-        for category, raw_rows in failed_tests_dict.items()
-    }
+        test_category_dict = json.load(cache_file, use_decimal=True)
+    return [
+        TestCategory(category, raw_rows)
+        for category, raw_rows in test_category_dict.items()
+    ]
 
 
-def save_failed_tests_by_category_to_file(
-    failed_tests_by_category: FailedTestsByCategory, file_path: str
+def save_test_categories_to_file(
+    test_categories: typing.List[TestCategory], file_path: str
 ) -> None:
-    """Save a FailedTestsByCategory object to a cache located at
+    """Save a list of TestCategory objects to a cache located at
     `file_path`."""
-    failed_tests_dict = {
-        category: test_group.raw_rows
-        for category, test_group in failed_tests_by_category.items()
+    test_category_dict = {
+        test_category.category: test_category.raw_rows
+        for test_category in test_categories
     }
-    os.makedirs(FAILED_TEST_CACHE_DIR, exist_ok=True)
+    os.makedirs(TEST_CACHE_DIR, exist_ok=True)
     with open(file_path, "w") as cache_file:
-        json.dump(failed_tests_dict, cache_file, use_decimal=True)
+        json.dump(test_category_dict, cache_file, use_decimal=True)
 
 
-def get_failed_tests_by_category_from_athena(
+def get_test_categories_from_athena(
     run_results_filepath: str, manifest_filepath: str
-) -> FailedTestsByCategory:
-    """Load a FailedTestsByCategory object by querying Athena for failed
+) -> typing.List[TestCategory]:
+    """Load a list of TestCategory objects by querying Athena for
     test results generated from a `dbt test --store-failures` call."""
     with open(run_results_filepath) as run_results_fobj:
         run_results = json.load(run_results_fobj)
@@ -457,22 +633,19 @@ def get_failed_tests_by_category_from_athena(
     with open(manifest_filepath) as manifest_fobj:
         manifest = json.load(manifest_fobj)
 
-    failed_tests_by_category = get_failed_tests_by_category(
-        run_results, manifest
-    )
-    if not failed_tests_by_category:
-        raise ValueError(f"{run_results_filepath} contains no failed rows")
+    test_categories = get_test_categories(run_results, manifest)
+    if not test_categories:
+        raise ValueError(f"{run_results_filepath} contains no test results")
 
-    return failed_tests_by_category
+    return test_categories
 
 
-def get_failed_tests_by_category(
+def get_test_categories(
     run_results: typing.Dict, manifest: typing.Dict
-) -> FailedTestsByCategory:
+) -> typing.List[TestCategory]:
     """Given two artifacts from a `dbt test --store-failures` call (a
-    run_results.json file dict and a manifest.json file dict), generates a dict
-    where each key is a name of a sheet and each associated value is
-    a list of failed tests for that sheet."""
+    run_results.json file dict and a manifest.json file dict), generates a list
+    of TestCategory objects storing the results of the tests."""
     conn = pyathena.connect(
         s3_staging_dir=AWS_ATHENA_S3_STAGING_DIR,
         region_name="us-east-1",
@@ -480,7 +653,7 @@ def get_failed_tests_by_category(
     )
     cursor = conn.cursor()
 
-    failed_tests_by_category: FailedTestsByCategory = {}
+    tests_by_category: typing.Dict[str, TestCategory] = {}
 
     for result in run_results["results"]:
         if result["status"] == "fail":
@@ -546,7 +719,7 @@ def get_failed_tests_by_category(
 
             # Add custom fields to query results that we don't expect to be
             # included in the response
-            failed_tests = [
+            test_results = [
                 {
                     TEST_NAME_FIELD: test_name,
                     DESCRIPTION_FIELD: test_description,
@@ -557,16 +730,19 @@ def get_failed_tests_by_category(
                 for row in query_results
             ]
 
-            if not failed_tests_by_category.get(category):
-                failed_tests_by_category[category] = FailedTestGroup()
-            failed_tests_by_category[category].update(failed_tests)
+            if not tests_by_category.get(category):
+                tests_by_category[category] = TestCategory(category=category)
+            tests_by_category[category].update(test_results)
 
-    return failed_tests_by_category
+    # Now that we've accumulated all of the test results and they are grouped
+    # into categories, we no longer need the category key in the dict, so
+    # transform the output into a list
+    return list(tests_by_category.values())
 
 
 def get_category_from_node(node: typing.Dict) -> str:
-    """Given a node representing a dbt test failure, return the category
-    that the test should go in."""
+    """Given a Node for a test extracted from a dbt manifest, return the
+    category that the test should go in."""
     if meta_category := node.get("meta", {}).get("category"):
         return meta_category
 
@@ -586,8 +762,8 @@ def get_category_from_node(node: typing.Dict) -> str:
 
 
 def get_tablename_from_node(node: typing.Dict) -> str:
-    """Given a node representing a dbt test failure, return the name of the
-    table that the test is testing."""
+    """Given a Node for a test extracted from a dbt manifest, return the name
+    of the table that the test is testing."""
     if meta_tablename := node.get("meta", {}).get("table_name"):
         # If meta.table_name is set, treat it as an override
         return meta_tablename
@@ -626,186 +802,6 @@ def get_tablename_from_node(node: typing.Dict) -> str:
         f" for test \"{node['name']}\". Inspect the dbt manifest file "
         "for more information"
     )
-
-
-def add_sheet_to_workbook(
-    workbook: openpyxl.Workbook,
-    sheet_title: str,
-    failed_test_group: FailedTestGroup,
-) -> None:
-    """Add a sheet of failed dbt tests to an openpyxl Workbook. Note that we
-    expect the workbook to be initialized with write_only=True."""
-    # openpyxl Workbooks are typically created with one untitled active sheet
-    # by default, but write-only sheets are an exception to this rule, so we
-    # always have to create a new sheet
-    sheet = workbook.create_sheet()
-    sheet.title = sheet_title
-
-    # Freeze the header row. The syntax for the freeze_panes attribute is
-    # undocumented, but it freezes all rows above and all columns to the left
-    # of the given cell identifier. Note that freeze operations must be
-    # performed before any data is added to a sheet in a write-only workbook
-    data_header_idx = 3  # We have three headers; 2 for grouping and 1 for data
-    freeze_pane_letter = openpyxl.utils.get_column_letter(
-        len(failed_test_group.test_metadata_fieldnames) + 1
-    )
-    freeze_pane_number = data_header_idx + 1
-    sheet.freeze_panes = f"{freeze_pane_letter}{freeze_pane_number}"
-
-    # Hide columns that are intended for debugging only, so that they don't
-    # get in the way of non-technical workbook consumers
-    for col_idx in failed_test_group.debugging_field_indexes:
-        sheet.column_dimensions[col_idx].hidden = True
-
-    # Create groupings for columns with a special group header
-    bold_font = openpyxl.styles.Font(bold=True)
-    italic_font = openpyxl.styles.Font(italic=True)
-    title_row, subtitle_row, header_row, merged_cell_range = [], [], [], []
-    column_groups = {
-        failed_test_group.test_metadata_field_indexes: {
-            "title": "Test description fields",
-            "subtitle": "These fields identify a failing test.",
-            "fieldnames": failed_test_group.test_metadata_fieldnames,
-            "style": "20 % - Accent4",
-            "header_style": "Accent4",
-        },
-        failed_test_group.diagnostic_field_indexes: {
-            "title": "Unique identifier fields",
-            "subtitle": (
-                "These fields identify the row that is failing a test."
-            ),
-            "fieldnames": failed_test_group.diagnostic_fieldnames,
-            "style": "20 % - Accent1",
-            "header_style": "Accent1",
-        },
-        failed_test_group.nonfixed_field_indexes: {
-            "title": "Problematic fields",
-            "subtitle": (
-                "These fields contain values that are causing the test "
-                "to fail."
-            ),
-            "fieldnames": failed_test_group.nonfixed_fieldnames,
-            "style": "20 % - Accent2",
-            "header_style": "Accent2",
-        },
-    }
-    for col_group_indexes, col_metadata in column_groups.items():
-        # Sometimes there are no problematic fields for a given test;
-        # if this is the case, skip it
-        if not col_group_indexes:
-            continue
-
-        # Save merged cell info
-        for cell_range in [
-            f"{col_group_indexes[0]}1:{col_group_indexes[-1]}1",
-            f"{col_group_indexes[0]}2:{col_group_indexes[-1]}2",
-        ]:
-            merged_cell_range.append(cell_range)
-
-        # Fill out and format grouping header
-        title_cell = openpyxl.cell.WriteOnlyCell(
-            sheet, value=col_metadata["title"]
-        )
-        title_cell.style = "Note"
-        title_cell.font = bold_font
-        title_row.append(title_cell)
-        # Flesh out the empty title row cells that will be merged later on
-        for _ in range(len(col_group_indexes) - 1):
-            title_row.append("")
-
-        subtitle_cell = openpyxl.cell.WriteOnlyCell(
-            sheet, value=col_metadata["subtitle"]
-        )
-        subtitle_cell.style = "Note"
-        subtitle_cell.font = italic_font
-        subtitle_row.append(subtitle_cell)
-        for _ in range(len(col_group_indexes) - 1):
-            subtitle_row.append("")
-
-        # Fill out and format the data header
-        for fieldname in col_metadata["fieldnames"]:
-            header_cell = openpyxl.cell.WriteOnlyCell(sheet, value=fieldname)
-            header_cell.style = col_metadata["header_style"]
-            header_cell.font = openpyxl.styles.Font(
-                bold=True, color=openpyxl.styles.colors.WHITE
-            )
-            header_row.append(header_cell)
-
-    # Initialize the column widths based on the length of values in
-    # the header row
-    column_widths = {
-        openpyxl.utils.get_column_letter(idx + 1): len(fieldname) + 2
-        for idx, fieldname in enumerate(failed_test_group.fieldnames)
-    }
-    # Iterate the rows to extract data and optionally update the column
-    # widths if the length of the cell value exceeds the length of the
-    # header value
-    data_rows = []
-    for row in failed_test_group.rows:
-        data_row = []
-        # Start enumeration at 1 since openpyxl columns are 1-indexed
-        for col_idx, cell in enumerate(row, 1):
-            # Convert row values to string so that Excel doesn't apply
-            # autoformatting
-            cell_str = str(cell) if cell is not None else ""
-            cell = openpyxl.cell.WriteOnlyCell(sheet, value=cell_str)
-
-            # Retrieve the cell style from the column groupings if one exists
-            cell_style = None
-            column_letter = openpyxl.utils.get_column_letter(col_idx)
-            for col_group_indexes, col_metadata in column_groups.items():
-                if column_letter in col_group_indexes:
-                    cell_style = col_metadata["style"]
-            if cell_style:
-                cell.style = cell_style
-            data_row.append(cell)
-
-            # Check if this cell is longer than the longest cell we've seen
-            # so far, and adjust the column dimensions accordingly
-            column_letter = openpyxl.utils.get_column_letter(col_idx)
-            column_widths[column_letter] = max(
-                column_widths.get(column_letter, 0), len(cell_str)
-            )
-
-        data_rows.append(data_row)
-
-    # Update column widths so that they fit the longest column
-    for (
-        column_letter,
-        column_width,
-    ) in column_widths.items():
-        # Pad with an extra two characters to account for the fact that
-        # non-monospace fonts do not have consistent character widths,
-        # and set a hard limit of 75 characters so no one field takes over
-        # the viewport of the spreadsheet
-        width = min(column_width + 2, 75)
-        sheet.column_dimensions[column_letter].width = width
-
-    # Add filters to fixed columns (i.e. columns that appear in every sheet
-    # in the same position)
-    fixed_field_indexes = failed_test_group.fixed_field_indexes
-    sheet_max_row_idx = data_header_idx + len(data_rows)
-    min_fixed_idx = f"{fixed_field_indexes[0]}{data_header_idx}"
-    max_fixed_idx = f"{fixed_field_indexes[-1]}{sheet_max_row_idx}"
-    fixed_field_range = f"{min_fixed_idx}:{max_fixed_idx}"
-    sheet.auto_filter.ref = fixed_field_range
-
-    # Add the data to the sheet. This should be one of the last steps in
-    # this function, since write-only sheets require all formatting to be
-    # set before data is added
-    sheet.append(title_row)
-    sheet.append(subtitle_row)
-    sheet.append(header_row)
-    for data_row in data_rows:
-        sheet.append(data_row)
-
-    # Merge cells in the grouping headers. This approach is a bit of a hack
-    # since merged cells are not fully supported in write-only workbooks, hence
-    # why it takes place _after_ rows have been added to the sheet whereas most
-    # formatting options for write-only workbooks need to happen _before_
-    # data is added. See here for details: https://stackoverflow.com/a/66159254
-    for cell_range in merged_cell_range:
-        sheet.merged_cells.ranges.add(cell_range)
 
 
 if __name__ == "__main__":
