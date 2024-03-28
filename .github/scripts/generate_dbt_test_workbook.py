@@ -51,6 +51,7 @@
 import dataclasses
 import datetime
 import decimal
+import enum
 import hashlib
 import os
 import pathlib
@@ -106,9 +107,74 @@ CUSTOM_TEST_NAMES = {
 TEST_CACHE_DIR = "test_cache"
 
 
+class Status(enum.Enum):
+    # dbt keys this as `pass`, but we use "success" instead since `pass` is a
+    # reserved keyword in Python. Keep "pass" as a value so that this enum
+    # can be instantiated directly from a value extracted from run_results.json
+    success = "pass"
+    fail = "fail"
+
+
+class TestResult:
+    """Class to store results for an individual test."""
+
+    def __init__(
+        self,
+        name: str,
+        status: Status,
+        description: str,
+        elapsed_time: decimal.Decimal,
+        failing_rows: typing.Optional[typing.List[typing.Dict]] = None,
+    ) -> None:
+        """
+        The failing_rows list should be formatted like the rows
+        returned by a csv.DictReader or a DictCursor, i.e. a list of
+        dicts mapping `{column_name: row_value}`.
+        """
+        self.name = name
+        self.status = status
+        self.description = description
+        self.elapsed_time = elapsed_time
+        self.failing_rows: typing.List[typing.Dict] = failing_rows or []
+
+    @property
+    def fieldnames(self) -> typing.List[str]:
+        """Return a list of strings representing the fieldnames for any
+        failing_rows of this test. Returns an empty list if the test
+        passed."""
+        fieldnames = []
+        for row in self.failing_rows:
+            for fieldname in row.keys():
+                if fieldname not in fieldnames:
+                    fieldnames.append(fieldname)
+        return fieldnames
+
+    def to_dict(self) -> typing.Dict:
+        """Serialize the TestResult object as a dictionary."""
+        return {
+            "name": self.name,
+            "status": self.status.value,
+            "description": self.description,
+            "elapsed_time": self.elapsed_time,
+            "failing_rows": self.failing_rows,
+        }
+
+    @classmethod
+    def from_dict(cls, result_dict: typing.Dict) -> "TestResult":
+        """Deserialize a TestResult object from a dictionary."""
+        return TestResult(
+            name=result_dict["name"],
+            status=Status(result_dict["status"]),
+            description=result_dict["description"],
+            elapsed_time=result_dict["elapsed_time"],
+            failing_rows=result_dict["failing_rows"],
+        )
+
+
 class TestCategory:
-    """Class to store results for a group of dbt tests and provide
-    convenience methods for formatting those results for output to a report."""
+    """Class to store TestResult objects for a group of dbt tests that share
+    the same category, and provide convenience methods for formatting those
+    results for output to a report."""
 
     # Names of fields that are used for debugging
     _debugging_fieldnames = [TEST_NAME_FIELD, DOCS_URL_FIELD]
@@ -135,27 +201,38 @@ class TestCategory:
     def __init__(
         self,
         category: str,
-        rows: typing.Optional[typing.List[typing.Dict]] = None,
+        results: typing.Optional[typing.List[TestResult]] = None,
     ) -> None:
         self.category = category
-        self.raw_rows: typing.List[typing.Dict] = rows or []
+        self.test_results: typing.List[TestResult] = results or []
 
-    def update(self, new_rows: typing.List[typing.Dict]) -> None:
-        """Add a list of new_rows to the rows of tests tracked by
-        this group. The new_rows list should be formatted like the rows
-        returned by a csv.DictReader or a DictCursor, i.e. a list of
-        dicts mapping `{column_name: row_value}`."""
-        self.raw_rows = [*self.raw_rows, *new_rows]
+    def to_dict(self) -> typing.Dict:
+        """Serialize the TestCategory object as a dictionary."""
+        return {
+            "category": self.category,
+            "test_results": [result.to_dict() for result in self.test_results],
+        }
+
+    @classmethod
+    def from_dict(cls, category_dict: typing.Dict) -> "TestCategory":
+        """Deserialize a TestCategory object from a dictionary."""
+        return TestCategory(
+            category=category_dict["category"],
+            results=[
+                TestResult.from_dict(result_dict)
+                for result_dict in category_dict["test_results"]
+            ],
+        )
 
     @property
     def fieldnames(self) -> typing.List[str]:
         """Get a list of fieldnames that encapsulates all of the fieldnames
         for all of the rows of tests tracked by this group."""
         fieldnames = []
-        for row in self.raw_rows:
-            for column in row.keys():
-                if column not in fieldnames:
-                    fieldnames.append(column)
+        for result in self.test_results:
+            for fieldname in result.fieldnames:
+                if fieldname not in fieldnames:
+                    fieldnames.append(fieldname)
 
         # Remove any fixed fieldnames from the ordered list that are not
         # present in this group
@@ -179,7 +256,8 @@ class TestCategory:
         fieldnames = self.fieldnames
         return [
             [row.get(fieldname) for fieldname in fieldnames]
-            for row in self.raw_rows
+            for result in self.test_results
+            for row in result.failing_rows
         ]
 
     def add_to_workbook(self, workbook: openpyxl.Workbook) -> None:
@@ -601,10 +679,10 @@ def get_test_categories_from_file(
     """Load a list of TestCategory objects from a cache located at
     `file_path`."""
     with open(file_path) as cache_file:
-        test_category_dict = json.load(cache_file, use_decimal=True)
+        test_category_dicts = json.load(cache_file, use_decimal=True)
     return [
-        TestCategory(category, raw_rows)
-        for category, raw_rows in test_category_dict.items()
+        TestCategory.from_dict(category_dict)
+        for category_dict in test_category_dicts
     ]
 
 
@@ -613,13 +691,12 @@ def save_test_categories_to_file(
 ) -> None:
     """Save a list of TestCategory objects to a cache located at
     `file_path`."""
-    test_category_dict = {
-        test_category.category: test_category.raw_rows
-        for test_category in test_categories
-    }
+    test_category_dicts = [
+        test_category.to_dict() for test_category in test_categories
+    ]
     os.makedirs(TEST_CACHE_DIR, exist_ok=True)
     with open(file_path, "w") as cache_file:
-        json.dump(test_category_dict, cache_file, use_decimal=True)
+        json.dump(test_category_dicts, cache_file, use_decimal=True)
 
 
 def get_test_categories_from_athena(
@@ -655,9 +732,9 @@ def get_test_categories(
 
     tests_by_category: typing.Dict[str, TestCategory] = {}
 
-    for result in run_results["results"]:
-        if result["status"] == "fail":
-            unique_id = result["unique_id"]
+    for run_result in run_results["results"]:
+        if run_result["status"] == "fail":
+            unique_id = run_result["unique_id"]
             # Link to the test's page in the dbt docs, for debugging
             test_docs_url = f"{DOCS_URL_PREFIX}/{unique_id}"
 
@@ -719,7 +796,7 @@ def get_test_categories(
 
             # Add custom fields to query results that we don't expect to be
             # included in the response
-            test_results = [
+            failing_rows = [
                 {
                     TEST_NAME_FIELD: test_name,
                     DESCRIPTION_FIELD: test_description,
@@ -729,10 +806,17 @@ def get_test_categories(
                 }
                 for row in query_results
             ]
+            test_result = TestResult(
+                name=test_name,
+                status=Status.fail,
+                description=test_description,
+                elapsed_time=run_result["execution_time"],
+                failing_rows=failing_rows,
+            )
 
             if not tests_by_category.get(category):
                 tests_by_category[category] = TestCategory(category=category)
-            tests_by_category[category].update(test_results)
+            tests_by_category[category].test_results.append(test_result)
 
     # Now that we've accumulated all of the test results and they are grouped
     # into categories, we no longer need the category key in the dict, so
