@@ -1016,6 +1016,18 @@ Username of last person to update the record.
 Changes in tandem with `updated_at`/`wen` field.
 {% enddocs %}
 
+# Model
+
+## run_id
+
+{% docs shared_column_run_id %}
+Unique identifier for a given valuation model run.
+
+Always uses the format, `YYYY-MM-DD-adjective-name`. The date is the date
+when the run finished. Names are sourced from current and former employees
+and interns. Adjectives are pulled from the list used by Docker.
+{% enddocs %}
+
 # Other
 
 ## ihs_avg_year_index

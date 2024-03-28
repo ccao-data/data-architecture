@@ -16,11 +16,6 @@ sources:
         tags:
           - load_auto
 
-      - name: final_model
-        description: '{{ doc("table_final_model") }}'
-        tags:
-          - load_manual
-
       - name: metadata
         description: '{{ doc("table_metadata") }}'
         tags:
