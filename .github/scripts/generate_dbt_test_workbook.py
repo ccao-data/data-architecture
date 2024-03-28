@@ -178,6 +178,60 @@ class TestResult:
             failing_rows=result_dict["failing_rows"],
         )
 
+    def split_by_township(self) -> typing.List["TownshipTestResult"]:
+        """Split out this TestResult object into one or more TestResults
+        based on the township code of each failing row. If there are no failing
+        rows, or if all the failing rows"""
+        # Split out the failing rows by township so that we know which
+        # townships are represented in this test's failures
+        failing_rows_by_township = {}
+        for row in self.failing_rows:
+            township_code = row[TOWNSHIP_FIELD]
+            if not failing_rows_by_township.get(township_code):
+                failing_rows_by_township[township_code] = []
+            failing_rows_by_township[township_code].append(row)
+
+        # These kwargs are shared by all TownshipTestResults, regardless of
+        # township code or failure status
+        base_kwargs = {
+            "name": self.name,
+            "status": self.status,
+            "description": self.description,
+            "elapsed_time": self.elapsed_time,
+        }
+
+        # If we have any failing rows, split out separate TownshipTestResult
+        # objects for each township/row group; otherwise, just create one
+        # object with a null township mapped to the passing test
+        if failing_rows_by_township:
+            return [
+                TownshipTestResult(
+                    township_code=township_code,
+                    failing_rows=rows,
+                    **base_kwargs,
+                )
+                for township_code, rows in failing_rows_by_township.items()
+            ]
+        return [
+            TownshipTestResult(
+                township_code=None, failing_rows=[], **base_kwargs
+            )
+        ]
+
+
+class TownshipTestResult(TestResult):
+    """A variant of TestResult for a test whose results all share the same
+    township. Note that township_code is only present in the case of failing
+    tests; since passing tests have no township (or, thinking of it
+    differently, passing tests encompass all of the townships), the
+    township_code will always be None in the case of a passing test."""
+
+    def __init__(
+        self, township_code: typing.Optional[str], *args, **kwargs
+    ) -> None:
+        self.township_code = township_code
+        super().__init__(*args, **kwargs)
+
 
 class TestCategory:
     """Class to store TestResult objects for a group of dbt tests that share
@@ -602,10 +656,10 @@ def main() -> None:
     except IndexError:
         manifest_filepath = os.path.join("target", "manifest.json")
 
+    date_today = datetime.datetime.today().strftime("%Y-%m-%d")
     try:
         output_directory = sys.argv[3]
     except IndexError:
-        date_today = datetime.datetime.today().strftime("%Y-%m-%d")
         output_directory = f"qc_test_results_{date_today}"
 
     test_cache_path = get_test_cache_path(
@@ -644,54 +698,117 @@ def main() -> None:
     workbook.save(workbook_filepath)
     print(f"Output workbook saved to {workbook_filepath}")
 
-    run_metadata = get_run_metadata(run_results_filepath)
-    run_table = pyarrow.Table.from_pylist([dataclasses.asdict(run_metadata)])
-    run_metadata_filepath = os.path.join(output_directory, "run.parquet")
-    pyarrow.parquet.write_table(run_table, run_metadata_filepath)
-    print(f"Run metadata saved to {run_metadata_filepath}")
+    # Generate and save metadata tables as parquet
+    test_run_metadata = TestRunMetadata.create(run_results_filepath)
+    test_run_result_metadata_list = TestRunResultMetadata.create_list(
+        test_categories, run_results_filepath
+    )
+    for metadata_list, tablename in [
+        ([test_run_metadata], "test_run"),
+        (test_run_result_metadata_list, "test_run_result"),
+    ]:
+        table = pyarrow.Table.from_pylist(
+            [dataclasses.asdict(meta_obj) for meta_obj in metadata_list]
+        )
+        metadata_filepath = os.path.join(
+            output_directory, f"{tablename}.parquet"
+        )
+        pyarrow.parquet.write_table(table, metadata_filepath)
+        print(f"{tablename} metadata saved to {metadata_filepath}")
 
 
 @dataclasses.dataclass
-class RunMetadata:
+class TestRunMetadata:
+    """Metadata object storing information about a test run."""
+
     run_id: str
     run_date: str
     elapsed_time: decimal.Decimal
     var_year_start: str
     var_year_end: str
 
+    @classmethod
+    def create(cls, run_results_filepath: str) -> "TestRunMetadata":
+        """Generate a TestRunMetadata object from a filepath to a
+        run_results.json file."""
+        with open(run_results_filepath) as run_results_fobj:
+            run_results = json.load(run_results_fobj)
 
-def get_run_metadata(run_results_filepath: str) -> RunMetadata:
-    with open(run_results_filepath) as run_results_fobj:
-        run_results = json.load(run_results_fobj)
-
-    run_id = run_results["metadata"]["invocation_id"]
-    run_dt_str = run_results["metadata"]["generated_at"]
-    run_dt = datetime.datetime.strptime(run_dt_str, "%Y-%m-%dT%H:%M:%S.%fZ")
-    run_date = run_dt.strftime("%Y-%m-%d")
-    elapsed_time = run_results["elapsed_time"]
-
-    # Extract dbt vars
-    run_vars = run_results["args"]["vars"]
-    var_year_start = run_vars.get("test_qc_year_start")
-    var_year_end = run_vars.get("test_qc_year_start")
-
-    # If dbt vars weren't set on the command line, the defaults won't exist
-    # in run_results.json, so we have to parse them from the dbt project config
-    if not var_year_start or not var_year_end:
-        with open("dbt_project.yml") as project_fobj:
-            project = yaml.safe_load(project_fobj)
-        var_year_start = (
-            var_year_start or project["vars"]["test_qc_year_start"]
+        run_id = run_results["metadata"]["invocation_id"]
+        run_dt_str = run_results["metadata"]["generated_at"]
+        run_dt = datetime.datetime.strptime(
+            run_dt_str, "%Y-%m-%dT%H:%M:%S.%fZ"
         )
-        var_year_end = var_year_end or project["vars"]["test_qc_year_end"]
+        run_date = run_dt.strftime("%Y-%m-%d")
+        elapsed_time = run_results["elapsed_time"]
 
-    return RunMetadata(
-        run_id=run_id,
-        run_date=run_date,
-        elapsed_time=elapsed_time,
-        var_year_start=var_year_start,
-        var_year_end=var_year_end,
-    )
+        # Extract dbt vars
+        run_vars = run_results["args"]["vars"]
+        var_year_start = run_vars.get("test_qc_year_start")
+        var_year_end = run_vars.get("test_qc_year_start")
+
+        # If dbt vars weren't set on the command line, the defaults won't exist
+        # in run_results.json, so we have to parse them from the dbt project
+        # config
+        if not var_year_start or not var_year_end:
+            with open("dbt_project.yml") as project_fobj:
+                project = yaml.safe_load(project_fobj)
+            var_year_start = (
+                var_year_start or project["vars"]["test_qc_year_start"]
+            )
+            var_year_end = var_year_end or project["vars"]["test_qc_year_end"]
+
+        return cls(
+            run_id=run_id,
+            run_date=run_date,
+            elapsed_time=elapsed_time,
+            var_year_start=var_year_start,
+            var_year_end=var_year_end,
+        )
+
+
+@dataclasses.dataclass
+class TestRunResultMetadata:
+    """Metadata object storing information about test results in a run."""
+
+    run_id: str
+    test_name: str
+    category: str
+    description: str
+    township_code: typing.Optional[str]
+    status: str  # Serialize Status enum to str for output to parquet
+    elapsed_time: decimal.Decimal
+    num_failing_rows: int
+
+    @classmethod
+    def create_list(
+        cls,
+        test_categories: typing.List[TestCategory],
+        run_results_filepath: str,
+    ) -> typing.List["TestRunResultMetadata"]:
+        """Generate a list of TestRunMetadata object from a list of
+        TestCategory objects representing the categories in the run and a
+        filepath to a run_results.json file."""
+        with open(run_results_filepath) as run_results_fobj:
+            run_results = json.load(run_results_fobj)
+
+        run_id = run_results["metadata"]["invocation_id"]
+
+        return [
+            TestRunResultMetadata(
+                run_id=run_id,
+                test_name=township_result.name,
+                category=test_category.category,
+                description=township_result.description,
+                township_code=township_result.township_code,
+                status=township_result.status.value,
+                elapsed_time=township_result.elapsed_time,
+                num_failing_rows=len(township_result.failing_rows),
+            )
+            for test_category in test_categories
+            for test_result in test_category.test_results
+            for township_result in test_result.split_by_township()
+        ]
 
 
 def get_test_cache_path(
