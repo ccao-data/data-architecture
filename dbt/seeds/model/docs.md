@@ -6,5 +6,5 @@ each tax year and township.
 
 Used to pull the correct model values for reporting views.
 
-**Primary Key**: `year`, `township_code_coverage`
+**Primary Key**: `year`, `run_id`, `township_code_coverage`
 {% enddocs %}

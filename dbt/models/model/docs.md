@@ -37,17 +37,6 @@ of the built-in LightGBM/XGBoost feature importance methods.
 **Primary Key**: `year`, `run_id`, `model_predictor_name_all`
 {% enddocs %}
 
-# final_model
-
-{% docs table_final_model %}
-Final model `run_id` and information for each year.
-
-This table is manually updated (edit the CSV on S3) once the residential
-and condominium models are finalized for each year.
-
-**Primary Key**: `year`, `run_id`
-{% enddocs %}
-
 # metadata
 
 {% docs table_metadata %}
