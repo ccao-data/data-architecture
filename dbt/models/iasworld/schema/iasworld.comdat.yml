@@ -153,13 +153,12 @@ sources:
                 column_alias: convbldg
                 external_column_alias: tot57
                 group_by: taxyr, parid
-                additional_select_columns:
-                  -
                 join_condition: |
                   ON  model.parid = external_model.parid
                   AND model.taxyr = external_model.taxyr
                   AND external_model.cur = 'Y'
                   AND external_model.deactivat IS NULL
+                  AND model.class LIKE 'OA%'
           - name: cubicft
             description: Cubic feet
           - name: cur
