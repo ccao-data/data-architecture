@@ -153,7 +153,7 @@ sources:
                 column_alias: convbldg
                 external_column_alias: tot57
                 group_by: taxyr, parid
-                join_condition: |
+                join_condition: 
                   ON  model.parid = external_model.parid
                   AND model.taxyr = external_model.taxyr
                   AND external_model.cur = 'Y'
