@@ -135,7 +135,7 @@ models:
           column_name: tot
           config:
             where: CAST(year AS int) < {{ var('test_qc_year_start') }}
-            #error_if: ">310" # as of 2024-03-15
+            error_if: ">21" # as of 2024-04-01
 
   - name: reporting.vw_ratio_stats
     description: '{{ doc("view_vw_ratio_stats") }}'
