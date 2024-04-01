@@ -3,11 +3,15 @@
 
 WITH townships AS (
     SELECT
-        pin AS parid,
-        year AS taxyr,
-        township_name,
-        triad_name AS triad
-    FROM {{ ref('default.vw_pin_universe') }}
+        legdat.parid AS pin,
+        legdat.taxyr AS year,
+        township.triad_name AS triad,
+        township.township_name
+    FROM {{ source('iasworld', 'legdat') }} AS legdat
+    LEFT JOIN {{ source('spatial', 'township') }} AS township
+        ON legdat.user1 = township.township_code
+    WHERE legdat.cur = 'Y'
+        AND legdat.deactivat IS NULL
 ),
 
 -- Classes can change by stage - consolidating them here allows for greater
