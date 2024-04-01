@@ -46,6 +46,11 @@ SELECT
         WHEN procname = 'CCAOFINAL' THEN 'ASSESSOR CERTIFIED'
         WHEN procname = 'BORVALUE' THEN 'BOARD CERTIFIED'
     END AS stage_name,
+    CASE
+        WHEN procname = 'CCAOVALUE' THEN 1
+        WHEN procname = 'CCAOFINAL' THEN 2
+        WHEN procname = 'BORVALUE' THEN 3
+    END AS stage_num,
     bldg,
     land,
     tot

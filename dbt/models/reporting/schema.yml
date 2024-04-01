@@ -129,7 +129,6 @@ models:
           column_name: class
           config:
             where: CAST(year AS int) < {{ var('test_qc_year_start') }}
-            #error_if: ">289" # as of 2024-03-15
       - not_null:
           name: default_vw_pin_value_long_tot_not_null
           column_name: tot

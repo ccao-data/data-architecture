@@ -1,47 +1,22 @@
 -- Gathers AVs by year, major class, assessment stage, and
 -- township for reporting
-WITH values_by_year AS (
-    SELECT
-        parid,
-        taxyr,
-        CASE
-            WHEN procname = 'CCAOVALUE' THEN 'mailed'
-            WHEN procname = 'CCAOFINAL' THEN 'assessor certified'
-            WHEN procname = 'BORVALUE' THEN 'bor certified'
-        END AS stage,
-        MAX(
-            CASE
-                WHEN taxyr < '2020' THEN ovrvalasm2
-                WHEN taxyr >= '2020' THEN valasm2
-            END
-        ) AS bldg,
-        MAX(
-            CASE
-                WHEN taxyr < '2020' THEN ovrvalasm1
-                WHEN taxyr >= '2020' THEN valasm1
-            END
-        ) AS land,
-        MAX(
-            CASE
-                WHEN taxyr < '2020' THEN ovrvalasm3
-                WHEN taxyr >= '2020' THEN valasm3
-            END
-        ) AS total
-    FROM {{ source('iasworld', 'asmt_all') }}
-    WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
-        AND rolltype != 'RR'
-        AND deactivat IS NULL
-        AND valclass IS NULL
-    GROUP BY parid, taxyr, procname
-),
 
--- Add valuation class, townships
-classes AS (
+WITH townships AS (
     SELECT
         pin AS parid,
         year AS taxyr,
         township_name,
-        triad_name AS triad,
+        triad_name AS triad
+    FROM {{ ref('default.vw_pin_universe') }}
+),
+
+-- Classes can change by stage - consolidating them here allows for greater
+-- accuracy
+stage_classes AS (
+    SELECT
+        pin,
+        year,
+        stage_name,
         CASE
             WHEN class IN ('EX', 'RR') THEN class
             WHEN class IN (
@@ -54,28 +29,28 @@ classes AS (
                 ) THEN '5B'
             ELSE SUBSTR(class, 1, 1)
         END AS class
-    FROM {{ ref('default.vw_pin_universe') }}
+    FROM {{ ref('reporting.vw_pin_value_long') }}
 )
 
 -- Add total and median values by township
 SELECT
-    values_by_year.taxyr AS year,
-    values_by_year.stage,
-    classes.township_name,
-    classes.triad,
-    classes.class,
+    values_by_year.year,
+    values_by_year.stage_name AS stage,
+    townships.township_name,
+    townships.triad,
+    stage_classes.class,
     CASE
         WHEN
-            MOD(CAST(values_by_year.taxyr AS INT), 3) = 0
-            AND classes.triad = 'North'
+            MOD(CAST(values_by_year.year AS INT), 3) = 0
+            AND townships.triad = 'North'
             THEN TRUE
         WHEN
-            MOD(CAST(values_by_year.taxyr AS INT), 3) = 1
-            AND classes.triad = 'South'
+            MOD(CAST(values_by_year.year AS INT), 3) = 1
+            AND townships.triad = 'South'
             THEN TRUE
         WHEN
-            MOD(CAST(values_by_year.taxyr AS INT), 3) = 2
-            AND classes.triad = 'City'
+            MOD(CAST(values_by_year.year AS INT), 3) = 2
+            AND townships.triad = 'City'
             THEN TRUE
         ELSE FALSE
     END AS reassessment_year,
@@ -84,21 +59,25 @@ SELECT
     CAST(APPROX_PERCENTILE(values_by_year.bldg, 0.5) AS INT) AS bldg_median,
     SUM(values_by_year.land) AS land_sum,
     CAST(APPROX_PERCENTILE(values_by_year.land, 0.5) AS INT) AS land_median,
-    SUM(values_by_year.total) AS tot_sum,
-    CAST(APPROX_PERCENTILE(values_by_year.total, 0.5) AS INT) AS tot_median
-FROM values_by_year
-LEFT JOIN classes
-    ON values_by_year.parid = classes.parid
-    AND values_by_year.taxyr = classes.taxyr
-WHERE classes.township_name IS NOT NULL
+    SUM(values_by_year.tot) AS tot_sum,
+    CAST(APPROX_PERCENTILE(values_by_year.tot, 0.5) AS INT) AS tot_median
+FROM {{ ref('reporting.vw_pin_value_long') }} AS values_by_year
+LEFT JOIN townships
+    ON values_by_year.pin = townships.parid
+    AND values_by_year.year = townships.taxyr
+LEFT JOIN stage_classes
+    ON values_by_year.pin = stage_classes.pin
+    AND values_by_year.year = stage_classes.year
+    AND values_by_year.stage_name = stage_classes.stage_name
+WHERE townships.township_name IS NOT NULL
 GROUP BY
-    classes.township_name,
-    values_by_year.taxyr,
-    classes.class,
-    classes.triad,
-    values_by_year.stage
+    townships.township_name,
+    values_by_year.year,
+    stage_classes.class,
+    townships.triad,
+    values_by_year.stage_name
 ORDER BY
-    classes.township_name,
-    values_by_year.taxyr,
-    values_by_year.stage,
-    classes.class
+    townships.township_name,
+    values_by_year.year,
+    values_by_year.stage_name,
+    stage_classes.class
