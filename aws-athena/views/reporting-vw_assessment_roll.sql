@@ -67,8 +67,8 @@ SELECT
     CAST(APPROX_PERCENTILE(values_by_year.tot, 0.5) AS INT) AS tot_median
 FROM {{ ref('reporting.vw_pin_value_long') }} AS values_by_year
 LEFT JOIN townships
-    ON values_by_year.pin = townships.parid
-    AND values_by_year.year = townships.taxyr
+    ON values_by_year.pin = townships.pin
+    AND values_by_year.year = townships.year
 LEFT JOIN stage_classes
     ON values_by_year.pin = stage_classes.pin
     AND values_by_year.year = stage_classes.year
