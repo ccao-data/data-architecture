@@ -22,7 +22,7 @@ stage_classes AS (
         year,
         stage_name,
         CASE
-            WHEN class IN ('EX', 'RR') THEN class
+            WHEN SUBSTR(class, 1, 2) IN ('EX', 'RR', 'OA') THEN class
             WHEN class IN (
                     '500', '535', '501', '516', '517', '522', '523',
                     '526', '527', '528', '529', '530', '531', '532',
