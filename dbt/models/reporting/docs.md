@@ -50,6 +50,26 @@ PINs without sales have `NULL` sale values.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_pin_value_long
+
+{% docs view_vw_pin_value_long %}
+Assessed values by PIN and year, for each assessment stage.
+
+The assessment stages are:
+
+1. `mailed` - Values initially mailed by the Assessor
+2. `certified` - Values after the Assessor has finished processing appeals
+2. `board` - Values after the Board of Review has finished their appeals
+
+### Assumptions
+
+- Taking the max value by 14-digit PIN and year is sufficient for accurate
+  values. We do this because even given the criteria to de-dupe `asmt_all`,
+  we still end up with duplicates by PIN and year.
+
+**Primary Key**: `year`, `pin`, `stage_name`
+{% enddocs %}
+
 # vw_ratio_stats
 
 {% docs view_vw_ratio_stats %}
