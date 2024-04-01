@@ -39,7 +39,7 @@ stage_classes AS (
 -- Add total and median values by township
 SELECT
     values_by_year.year,
-    values_by_year.stage_name AS stage,
+    LOWER(values_by_year.stage_name) AS stage,
     townships.township_name,
     townships.triad,
     stage_classes.class,
