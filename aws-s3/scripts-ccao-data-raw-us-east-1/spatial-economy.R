@@ -81,7 +81,8 @@ if (!aws.s3::object_exists(remote_file_central_business_district)) {
   tmp_file_central_business_district <- tempfile(fileext = ".geojson")
   download.file(
     paste0(
-      "https://data.cityofchicago.org/api/geospatial/tksj-nvsw?method=export&format=GeoJSON"
+      "https://data.cityofchicago.org/api/geospatial/",
+      "tksj-nvsw?method=export&format=GeoJSON"
     ),
     tmp_file_central_business_district
   )

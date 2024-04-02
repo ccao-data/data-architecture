@@ -120,6 +120,26 @@ clean_qualified_opportunity_zone <- function(shapefile, economic_unit) {
 
 }
 
+# Function to clean qualified opportunity zones
+clean_central_business_district <- function(shapefile, economic_unit) {
+
+  if (economic_unit == "central_business_district") {
+
+    return(
+
+      shapefile %>%
+        select(name, geometry)
+
+    )
+
+  } else {
+
+    return(shapefile)
+
+  }
+
+}
+
 # Function to pull raw data from S3 and clean
 clean_economy <- function(remote_file) {
   economic_unit <- str_split(remote_file, "/", simplify = TRUE)[1, 6]
