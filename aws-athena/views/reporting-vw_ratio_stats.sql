@@ -45,7 +45,7 @@ all_values AS (
     SELECT * FROM model_values
     UNION
     SELECT * FROM iasworld_values
-),
+)
 
 SELECT
     vwps.pin,
