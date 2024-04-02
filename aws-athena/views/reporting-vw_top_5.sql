@@ -15,88 +15,63 @@ WITH most_recent_values AS (
         OR mailed_tot IS NOT NULL
 ),
 
--- Add valuation class
-classes AS (
-    SELECT
-        parid,
-        taxyr,
-        class,
-        NULLIF(CONCAT_WS(
-            ' ',
-            adrpre, CAST(adrno AS VARCHAR),
-            adrdir, adrstr, adrsuf,
-            unitdesc, unitno
-        ), '') AS address,
-        cityname AS city
-    FROM {{ source('iasworld', 'pardat') }}
-    WHERE cur = 'Y'
-        AND deactivat IS NULL
-),
-
--- Add townships
+-- Add townships, valuation classes, mailing names
 townships AS (
     SELECT
-        parid,
-        taxyr,
-        user1 AS township_code
-    FROM {{ source('iasworld', 'legdat') }}
-    WHERE cur = 'Y'
-        AND deactivat IS NULL
-),
-
--- Add township name
-town_names AS (
-    SELECT
-        triad_name AS triad,
-        township_name,
-        township_code
-    FROM {{ source('spatial', 'township') }}
-),
-
---- Mailing name from owndat
-taxpayers AS (
-    SELECT
-        parid,
-        taxyr,
+        legdat.parid AS pin,
+        legdat.taxyr AS year,
+        REGEXP_REPLACE(pardat.class, '([^0-9EXR])', '') AS class,
+        township.triad_name AS triad,
+        township.township_name,
         NULLIF(CONCAT_WS(
             ' ',
-            own1, own2
-        ), '') AS owner_name
-    FROM {{ source('iasworld', 'owndat') }}
-    WHERE cur = 'Y'
-        AND deactivat IS NULL
+            owndat.own1, owndat.own2
+        ), '') AS owner_name,
+        NULLIF(CONCAT_WS(
+            ' ',
+            pardat.adrpre, CAST(pardat.adrno AS VARCHAR),
+            pardat.adrdir, pardat.adrstr, pardat.adrsuf,
+            pardat.unitdesc, pardat.unitno
+        ), '') AS address,
+        pardat.cityname AS city
+    FROM {{ source('iasworld', 'legdat') }} AS legdat
+    LEFT JOIN {{ source('spatial', 'township') }} AS township
+        ON legdat.user1 = township.township_code
+    LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
+        ON legdat.parid = pardat.parid
+        AND legdat.taxyr = pardat.taxyr
+    LEFT JOIN {{ source('iasworld', 'owndat') }} AS owndat
+        ON legdat.parid = owndat.parid
+        AND legdat.taxyr = owndat.taxyr
+    WHERE legdat.cur = 'Y'
+        AND pardat.deactivat IS NULL
+        AND pardat.cur = 'Y'
+        AND owndat.deactivat IS NULL
+        AND owndat.cur = 'Y'
 ),
 
 -- Create ranks
 top_5 AS (
     SELECT
         mrv.taxyr AS year,
-        town_names.township_name AS township,
-        town_names.triad,
-        classes.class,
+        townships.township_name AS township,
+        townships.triad,
+        townships.class,
         RANK() OVER (
             PARTITION BY townships.township_code, mrv.taxyr
             ORDER BY mrv.total_av DESC
         ) AS rank,
         mrv.parid,
         mrv.total_av,
-        classes.address,
-        classes.city,
-        taxpayers.owner_name,
+        townships.address,
+        townships.city,
+        townships.owner_name,
         mrv.stage_used
     FROM most_recent_values AS mrv
-    LEFT JOIN classes
-        ON mrv.parid = classes.parid
-        AND mrv.taxyr = classes.taxyr
     LEFT JOIN townships
-        ON mrv.parid = townships.parid
-        AND mrv.taxyr = townships.taxyr
-    LEFT JOIN town_names
-        ON townships.township_code = town_names.township_code
-    LEFT JOIN taxpayers
-        ON mrv.parid = taxpayers.parid
-        AND mrv.taxyr = taxpayers.taxyr
-    WHERE town_names.township_name IS NOT NULL
+        ON mrv.parid = townships.pin
+        AND mrv.taxyr = townships.year
+    WHERE townships.township_name IS NOT NULL
 )
 
 -- Only keep top 5
