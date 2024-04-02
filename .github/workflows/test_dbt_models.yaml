@@ -29,7 +29,7 @@ jobs:
       - name: Run tests
         run: |
           # dbt doesn't differentiate between test failures and errors, but we
-          # need to since we expect errors. Do this by capturing the output
+          # need to since we expect failures. Do this by capturing the output
           # and checking its contents to look for errors
           if output=$(dbt test --target "$TARGET" \
                                --select tag:test_qc_* \
