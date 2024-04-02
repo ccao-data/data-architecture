@@ -69,3 +69,25 @@ if (!aws.s3::object_exists(remote_file_qualified_opportunity_zone)) {
   save_local_to_s3(remote_file_qualified_opportunity_zone, tmp3)
   file.remove(c(tmp1, tmp3, list.files(tmp2, full.names = TRUE)))
 }
+
+##### CENTRAL BUSINESS DISTRICT
+remote_file_central_business_district <- file.path(
+  output_bucket, "central_business_district",
+  paste0(current_year, ".geojson")
+)
+
+# Write file to S3 if it doesn't already exist
+if (!aws.s3::object_exists(remote_file_central_business_district)) {
+  tmp_file_central_business_district <- tempfile(fileext = ".geojson")
+  download.file(
+    paste0(
+      "https://data.cityofchicago.org/api/geospatial/tksj-nvsw?method=export&format=GeoJSON"
+    ),
+    tmp_file_central_business_district
+  )
+  save_local_to_s3(
+    remote_file_central_business_district,
+    tmp_file_central_business_district
+  )
+  file.remove(tmp_file_central_business_district)
+}
