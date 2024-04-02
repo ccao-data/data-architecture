@@ -191,7 +191,7 @@ class TestResult:
             typing.Optional[str], typing.List[typing.Dict]
         ] = {}
         for row in self.failing_rows:
-            township_code = row[TOWNSHIP_FIELD]
+            township_code = row.get(TOWNSHIP_FIELD)
             if not failing_rows_by_township.get(township_code):
                 failing_rows_by_township[township_code] = []
             failing_rows_by_township[township_code].append(row)
