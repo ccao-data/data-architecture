@@ -165,7 +165,7 @@ central_business_district AS (
     SELECT
         dp.x_3435,
         dp.y_3435,
-        MAX(cprod.geoid) AS econ_central_business_district_num,
+        MAX(cprod.cbd_name) AS econ_central_business_district_num,
         MAX(cprod.year) AS econ_central_business_district_data_year,
         cprod.pin_year
     FROM distinct_pins AS dp
@@ -204,6 +204,8 @@ SELECT
     igz.econ_industrial_growth_zone_data_year,
     qoz.econ_qualified_opportunity_zone_num,
     qoz.econ_qualified_opportunity_zone_data_year,
+    cbd.econ_central_business_district_num,
+    cbd.econ_central_business_district_data_year,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 LEFT JOIN coordinated_care AS cc
