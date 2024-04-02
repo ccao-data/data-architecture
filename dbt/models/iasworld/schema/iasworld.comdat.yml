@@ -147,18 +147,19 @@ sources:
                     description: convbldg should be between 0 and 1,000,000,000
             tests:
               - row_values_match_after_join
-                name: iasworld_comdat_convbldg_matches_iasworld_pardat
-                external_model: source("iasworld", "pardat")
-                external_column_name: tot57
-                column_alias: convbldg
-                external_column_alias: tot57
-                group_by: taxyr, parid
-                join_condition: 
-                  ON  model.parid = external_model.parid
-                  AND model.taxyr = external_model.taxyr
-                  AND external_model.cur = 'Y'
-                  AND external_model.deactivat IS NULL
-                  AND model.class LIKE 'OA%'
+                  name: iasworld_comdat_convbldg_matches_iasworld_pardat
+                  external_model: source("iasworld", "pardat")
+                  external_column_name: tot57
+                  column_alias: convbldg
+                  external_column_alias: tot57
+                  group_by: 
+                    - taxyr
+                    - parid
+                  join_condition: 
+                    ON  model.parid = external_model.parid
+                    AND model.taxyr = external_model.taxyr
+                    AND external_model.cur = 'Y'
+                    AND external_model.deactivat IS NULL
           - name: cubicft
             description: Cubic feet
           - name: cur
