@@ -48,7 +48,12 @@ model_values AS (
     LEFT JOIN classes
         ON ap.meta_pin = classes.parid
         AND ap.meta_year = classes.taxyr
-    WHERE ap.run_id IN (SELECT final_model.run_id FROM model.final_model)
+    INNER JOIN {{ source('model', 'final_model') }} AS final_model
+        ON ap.run_id = final_model.run_id
+    -- Model runs are specific to townships
+    WHERE final_model.township_code_coverage LIKE CONCAT(
+            '%', ap.township_code, '%'
+        )
         AND classes.property_group IS NOT NULL
 ),
 
