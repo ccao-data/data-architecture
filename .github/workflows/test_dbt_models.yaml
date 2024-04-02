@@ -32,9 +32,7 @@ jobs:
           # need to since we expect errors. Do this by capturing the output
           # and checking its contents to look for errors
           if output=$(dbt test --target "$TARGET" \
-                               --select \
-                                   iasworld_addn_card_not_null \
-                                   iasworld_asmt_all_class_matches_pardat_class \
+                               --select tag:test_qc_* \
                                --exclude tag:test_qc_exclude_from_workbook \
                                --store-failures); then
             echo "$output"
