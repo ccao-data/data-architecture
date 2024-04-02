@@ -71,6 +71,8 @@ SELECT
     econ_industrial_growth_zone.econ_industrial_growth_zone_data_year,
     econ_qualified_opportunity_zone.econ_qualified_opportunity_zone_num,
     econ_qualified_opportunity_zone.econ_qualified_opportunity_zone_data_year,
+    econ_central_business_district.econ_central_business_district_num,
+    econ_central_business_district.econ_central_business_district_data_year,
 
     env_flood_fema.env_flood_fema_sfha,
     env_flood_fema.env_flood_fema_data_year,
