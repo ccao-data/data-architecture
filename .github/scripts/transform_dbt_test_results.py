@@ -714,7 +714,10 @@ def main() -> None:
         (test_run_result_metadata_list, "test_run_result", ["run_id"]),
     ]:
         table = pyarrow.Table.from_pylist(
-            [dataclasses.asdict(meta_obj) for meta_obj in metadata_list]
+            [
+                dataclasses.asdict(meta_obj)
+                for meta_obj in metadata_list  # type: ignore
+            ]
         )
         metadata_root_path = os.path.join(
             output_directory, "metadata", tablename
