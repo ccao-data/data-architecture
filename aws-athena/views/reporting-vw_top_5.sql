@@ -1,6 +1,6 @@
 --- A view to generate the top 5 parcels in a given township and year by AV
 
---- Choose most recent assessor value
+--- Choose most recent assessor value (ignore BOR)
 WITH most_recent_values AS (
     SELECT
         pin AS parid,

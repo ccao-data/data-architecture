@@ -15,6 +15,7 @@ WITH towns AS (
         AND leg.deactivat IS NULL
 ),
 
+-- Model values for corresponding triads only
 model_values AS (
     SELECT
         ap.meta_pin AS pin,
@@ -31,6 +32,7 @@ model_values AS (
         )
 ),
 
+-- Values for all stages regardless of triad
 iasworld_values AS (
     SELECT
         pin,
