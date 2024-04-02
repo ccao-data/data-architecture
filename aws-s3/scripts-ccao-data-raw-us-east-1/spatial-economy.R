@@ -73,7 +73,7 @@ if (!aws.s3::object_exists(remote_file_qualified_opportunity_zone)) {
 ##### CENTRAL BUSINESS DISTRICT
 remote_file_central_business_district <- file.path(
   output_bucket, "central_business_district",
-  paste0(current_year, ".geojson")
+  paste0(2016, ".geojson")
 )
 
 # Write file to S3 if it doesn't already exist
