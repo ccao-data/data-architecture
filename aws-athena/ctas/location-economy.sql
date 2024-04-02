@@ -165,7 +165,7 @@ central_business_district AS (
     SELECT
         dp.x_3435,
         dp.y_3435,
-        MAX(cprod.cbd_name) AS econ_central_business_district_num,
+        MAX(cprod.cbd_num) AS econ_central_business_district_num,
         MAX(cprod.year) AS econ_central_business_district_data_year,
         cprod.pin_year
     FROM distinct_pins AS dp
