@@ -108,6 +108,8 @@ TEST_CACHE_DIR = "test_cache"
 
 
 class Status(enum.Enum):
+    """Status of an individual dbt test result."""
+
     PASS = "pass"
     FAIL = "fail"
 
@@ -138,16 +140,6 @@ class TestResult:
         self.description = description
         self.elapsed_time = elapsed_time
         self.failing_rows: typing.List[typing.Dict] = failing_rows or []
-
-    def __repr__(self) -> str:
-        return (
-            f"TestResult(name={self.name!r}, "
-            f"table_name={self.table_name!r}, "
-            f"status={self.status!r}, "
-            f"description={self.description!r}, "
-            f"elapsed_time={self.elapsed_time!r}, "
-            f"num_failing_rows={len(self.failing_rows)})"
-        )
 
     @property
     def fieldnames(self) -> typing.List[str]:
@@ -184,13 +176,20 @@ class TestResult:
             failing_rows=result_dict["failing_rows"],
         )
 
+    def __repr__(self) -> str:
+        return f"TestResult({self.to_dict()!r})"
+
     def split_by_township(self) -> typing.List["TownshipTestResult"]:
-        """Split out this TestResult object into one or more TestResults
-        based on the township code of each failing row. If there are no failing
-        rows, or if all the failing rows"""
+        """Split out this TestResult object into one or more
+        TownshipTestResults based on the township code of each failing row. If
+        there are no failing rows, or if all the failing rows have a null
+        township, the return value will be a list of one TownshipTestResult
+        whose township_code is None."""
         # Split out the failing rows by township so that we know which
         # townships are represented in this test's failures
-        failing_rows_by_township = {}
+        failing_rows_by_township: typing.Dict[
+            typing.Optional[str], typing.List[typing.Dict]
+        ] = {}
         for row in self.failing_rows:
             township_code = row[TOWNSHIP_FIELD]
             if not failing_rows_by_township.get(township_code):
@@ -229,9 +228,9 @@ class TestResult:
 class TownshipTestResult(TestResult):
     """A variant of TestResult for a test whose results all share the same
     township. Note that township_code is only present in the case of failing
-    tests; since passing tests have no township (or, thinking of it
-    differently, passing tests encompass all of the townships), the
-    township_code will always be None in the case of a passing test."""
+    tests; the township_code will always be None in the case of a passing test,
+    since passing tests have no township (or, thinking of it differently,
+    passing tests encompass all of the townships)."""
 
     def __init__(
         self, township_code: typing.Optional[str], *args, **kwargs
@@ -282,17 +281,6 @@ class TestCategory:
             "test_results": [result.to_dict() for result in self.test_results],
         }
 
-    def __repr__(self) -> str:
-        num_failing_rows = sum(
-            len(result.failing_rows) for result in self.test_results
-        )
-        return (
-            f"TestCategory(category={self.category!r}, "
-            f"status={self.status!r}, "
-            f"num_tests={len(self.test_results)}, "
-            f"num_failing_rows={num_failing_rows})"
-        )
-
     @classmethod
     def from_dict(cls, category_dict: typing.Dict) -> "TestCategory":
         """Deserialize a TestCategory object from a dictionary."""
@@ -302,6 +290,17 @@ class TestCategory:
                 TestResult.from_dict(result_dict)
                 for result_dict in category_dict["test_results"]
             ],
+        )
+
+    def __repr__(self) -> str:
+        num_failing_rows = sum(
+            len(result.failing_rows) for result in self.test_results
+        )
+        return (
+            f"TestCategory(category={self.category!r}, "
+            f"status={self.status!r}, "
+            f"num_tests={len(self.test_results)}, "
+            f"num_failing_rows={num_failing_rows})"
         )
 
     @property
@@ -923,14 +922,13 @@ def get_test_categories(
             "elapsed_time": execution_time,
         }
 
+        if not tests_by_category.get(category):
+            tests_by_category[category] = TestCategory(category=category)
+
         if status == Status.PASS.value:
             test_result = TestResult(
                 status=Status.PASS, failing_rows=[], **base_result_kwargs
             )
-
-            if not tests_by_category.get(category):
-                tests_by_category[category] = TestCategory(category=category)
-            tests_by_category[category].test_results.append(test_result)
 
         elif status == Status.FAIL.value:
             # Link to the test's page in the dbt docs, for debugging
@@ -998,15 +996,13 @@ def get_test_categories(
                 **base_result_kwargs,
             )
 
-            if not tests_by_category.get(category):
-                tests_by_category[category] = TestCategory(category=category)
-            tests_by_category[category].test_results.append(test_result)
-
         else:
             raise ValueError(
                 f"Got unrecognized status '{status}' for node {unique_id} "
                 "in dbt run results"
             )
+
+        tests_by_category[category].test_results.append(test_result)
 
     # Now that we've accumulated all of the test results and they are grouped
     # into categories, we no longer need the category key in the dict, so
