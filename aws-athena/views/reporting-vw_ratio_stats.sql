@@ -6,6 +6,7 @@ WITH towns AS (
         leg.parid AS pin,
         leg.taxyr AS year,
         towns.township_name,
+        towns.township_code,
         towns.triad_name AS triad
     FROM {{ source('iasworld', 'legdat') }} AS leg
     LEFT JOIN {{ source('spatial', 'township') }} AS towns
