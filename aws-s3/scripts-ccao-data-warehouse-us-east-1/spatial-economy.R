@@ -120,7 +120,7 @@ clean_qualified_opportunity_zone <- function(shapefile, economic_unit) {
 
 }
 
-# Function to clean qualified opportunity zones
+# Function to clean the central business district
 clean_central_business_district <- function(shapefile, economic_unit) {
 
   if (economic_unit == "central_business_district") {
@@ -128,7 +128,7 @@ clean_central_business_district <- function(shapefile, economic_unit) {
     return(
 
       shapefile %>%
-        select(name, geometry)
+        select(cbd_name = name, geometry)
 
     )
 
@@ -157,6 +157,7 @@ clean_economy <- function(remote_file) {
       clean_enterprise_zone(economic_unit) %>%
       clean_industrial_growth_zone(economic_unit) %>%
       clean_qualified_opportunity_zone(economic_unit) %>%
+      clean_central_business_district(economic_unit) %>%
       standardize_expand_geo(make_valid = TRUE) %>%
       mutate(year = year)
     )
