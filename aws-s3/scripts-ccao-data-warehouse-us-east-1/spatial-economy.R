@@ -128,7 +128,7 @@ clean_central_business_district <- function(shapefile, economic_unit) {
     return(
 
       shapefile %>%
-        select(cbd_name = name, geometry)
+        select(cbd_num = objectid, cbd_name = name, geometry)
 
     )
 
