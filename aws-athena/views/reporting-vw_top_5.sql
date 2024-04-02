@@ -23,6 +23,7 @@ townships AS (
         REGEXP_REPLACE(pardat.class, '([^0-9EXR])', '') AS class,
         township.triad_name AS triad,
         township.township_name,
+        township.township_code,
         NULLIF(CONCAT_WS(
             ' ',
             owndat.own1, owndat.own2
