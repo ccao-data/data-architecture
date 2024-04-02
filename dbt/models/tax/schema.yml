@@ -44,6 +44,9 @@ sources:
                   config:
                     where:
                       CAST(year AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class code must be valid
           - name: class
             description: '{{ doc("shared_column_char_class")}}'
             tests:
@@ -57,6 +60,9 @@ sources:
                   config:
                     where:
                       CAST(year AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class code must be valid
               - relationships:
                   name: tax_pin_all_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
