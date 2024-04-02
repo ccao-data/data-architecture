@@ -7,7 +7,7 @@ WITH towns AS (
         leg.taxyr AS year,
         towns.township_name,
         towns.township_code,
-        towns.triad_name AS triad
+        towns.triad_code AS triad
     FROM {{ source('iasworld', 'legdat') }} AS leg
     LEFT JOIN {{ source('spatial', 'township') }} AS towns
         ON leg.user1 = towns.township_code
