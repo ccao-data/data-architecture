@@ -44,7 +44,7 @@ SELECT
     CASE
         WHEN procname = 'CCAOVALUE' THEN 'MAILED'
         WHEN procname = 'CCAOFINAL' THEN 'ASSESSOR CERTIFIED'
-        WHEN procname = 'BORVALUE' THEN 'BOARD CERTIFIED'
+        WHEN procname = 'BORVALUE' THEN 'BOR CERTIFIED'
     END AS stage_name,
     CASE
         WHEN procname = 'CCAOVALUE' THEN 1
