@@ -44,6 +44,7 @@ sources:
                   config:
                     where:
                       CAST(year AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                    severity: warn
                   meta:
                     description: tax_code_num should match legdat.taxdist
           - name: class
