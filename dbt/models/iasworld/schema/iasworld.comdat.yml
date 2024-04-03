@@ -54,6 +54,25 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: bldgval should be between 0 and 1,000,000,000
+            tests:
+              - row_values_match_after_join:
+                  name: iasworld_comdat_bldgval_matches_iasworld_asmt_all
+                  external_model: source("iasworld", "asmt_all")
+                  external_column_name: tot57
+                  column_alias: bldgval
+                  external_column_alias: tot57
+                  group_by: 
+                    - taxyr
+                    - parid
+                  join_condition: 
+                    ON model.parid = external_model.parid
+                    AND model.taxyr = external_model.taxyr
+                    AND model.class LIKE 'OA%'
+                  config:
+                    where:
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  meta:
+                    description: value should match pardat value
           - name: bldnum
             description: Building number
           - name: busla
@@ -146,9 +165,9 @@ sources:
                   meta:
                     description: convbldg should be between 0 and 1,000,000,000
             tests:
-              - row_values_match_after_join
-                  name: iasworld_comdat_convbldg_matches_iasworld_pardat
-                  external_model: source("iasworld", "pardat")
+              - row_values_match_after_join:
+                  name: iasworld_comdat_convbldg_matches_iasworld_asmt_all
+                  external_model: source("iasworld", "asmt_all")
                   external_column_name: tot57
                   column_alias: convbldg
                   external_column_alias: tot57
@@ -156,10 +175,14 @@ sources:
                     - taxyr
                     - parid
                   join_condition: 
-                    ON  model.parid = external_model.parid
+                    ON model.parid = external_model.parid
                     AND model.taxyr = external_model.taxyr
-                    AND external_model.cur = 'Y'
-                    AND external_model.deactivat IS NULL
+                    AND model.class LIKE 'OA%'
+                  config:
+                    where:
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  meta:
+                    description: value should match pardat value
           - name: cubicft
             description: Cubic feet
           - name: cur
