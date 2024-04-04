@@ -28,11 +28,11 @@
 # Outputs three files:
 #
 #   1. `qc_test_failures_<date>.xlsx`: Excel workbook to share with other teams
-#   2. `metadata/test_run/run_id=*/*.parquet`: Metadata about this run,
-#       partitioned by run ID and prepped for upload to S3
-#   3. `metadata/test_run_result/run_id=*/*.parquet`: Metadata about test
+#   2. `metadata/test_run/run_year=YYYY/*.parquet`: Metadata about this run,
+#       partitioned by year of run and prepped for upload to S3
+#   3. `metadata/test_run_result/run_year=YYYY/*.parquet`: Metadata about test
 #      results (pass, fail, number of failing rows, etc.) in this run,
-#      partitioned by run ID and prepped for upload to S3
+#      partitioned by year of run and prepped for upload to S3
 #
 # Each sheet in the output workbook represents a category of test, e.g.
 # "valid_range" or "not_null"; each row in a sheet represents a row in a
@@ -709,9 +709,12 @@ def main() -> None:
     test_run_result_metadata_list = TestRunResultMetadata.create_list(
         test_categories, run_results_filepath
     )
+    run_date = get_run_date_from_run_results(run_results_filepath)
+    run_id = get_run_id_from_run_results(run_results_filepath)
+
     for metadata_list, tablename, partition_cols in [
-        ([test_run_metadata], "test_run", ["run_id"]),
-        (test_run_result_metadata_list, "test_run_result", ["run_id"]),
+        ([test_run_metadata], "test_run", ["run_year"]),
+        (test_run_result_metadata_list, "test_run_result", ["run_year"]),
     ]:
         table = pyarrow.Table.from_pylist(
             [
@@ -723,7 +726,10 @@ def main() -> None:
             output_directory, "metadata", tablename
         )
         pyarrow.parquet.write_to_dataset(
-            table, metadata_root_path, partition_cols
+            table,
+            metadata_root_path,
+            partition_cols,
+            basename_template="%s_%s_{i}.parquet" % (run_date, run_id)
         )
         print(f"{tablename} metadata saved to {metadata_root_path}/")
 
@@ -734,6 +740,7 @@ class TestRunMetadata:
 
     run_id: str
     run_date: str
+    run_year: str
     elapsed_time: decimal.Decimal
     var_year_start: str
     var_year_end: str
@@ -742,19 +749,13 @@ class TestRunMetadata:
     def create(cls, run_results_filepath: str) -> "TestRunMetadata":
         """Generate a TestRunMetadata object from a filepath to a
         run_results.json file."""
-        with open(run_results_filepath) as run_results_fobj:
-            run_results = json.load(run_results_fobj)
-
-        run_id = run_results["metadata"]["invocation_id"]
-        run_dt_str = run_results["metadata"]["generated_at"]
-        run_dt = datetime.datetime.strptime(
-            run_dt_str, "%Y-%m-%dT%H:%M:%S.%fZ"
-        )
-        run_date = run_dt.strftime("%Y-%m-%d")
-        elapsed_time = run_results["elapsed_time"]
+        run_id = get_run_id_from_run_results(run_results_filepath)
+        run_date = get_run_date_from_run_results(run_results_filepath)
+        run_year = run_date[:4]
+        elapsed_time = get_key_from_run_results("elapsed_time", run_results_filepath)
 
         # Extract dbt vars
-        run_vars = run_results["args"]["vars"]
+        run_vars = get_key_from_run_results("args", run_results_filepath)["vars"]
         var_year_start = run_vars.get("test_qc_year_start")
         var_year_end = run_vars.get("test_qc_year_start")
 
@@ -771,6 +772,7 @@ class TestRunMetadata:
 
         return cls(
             run_id=run_id,
+            run_year=run_year,
             run_date=run_date,
             elapsed_time=elapsed_time,
             var_year_start=var_year_start,
@@ -783,6 +785,7 @@ class TestRunResultMetadata:
     """Metadata object storing information about test results in a run."""
 
     run_id: str
+    run_year: str
     test_name: str
     table_name: str
     category: str
@@ -804,11 +807,14 @@ class TestRunResultMetadata:
         with open(run_results_filepath) as run_results_fobj:
             run_results = json.load(run_results_fobj)
 
-        run_id = run_results["metadata"]["invocation_id"]
+        run_id = get_run_id_from_run_results(run_results_filepath)
+        run_date = get_run_date_from_run_results(run_results_filepath)
+        run_year = run_date[:4]
 
         return [
             TestRunResultMetadata(
                 run_id=run_id,
+                run_year=run_year,
                 test_name=township_result.name,
                 table_name=township_result.table_name,
                 category=test_category.category,
@@ -822,6 +828,33 @@ class TestRunResultMetadata:
             for test_result in test_category.test_results
             for township_result in test_result.split_by_township()
         ]
+
+
+def get_key_from_run_results(key: str, run_results_filepath: str) -> typing.Any:
+    """Given a path to a run_results.json file, return a key that's represented
+    in the run metadata."""
+    with open(run_results_filepath) as run_results_fobj:
+        run_results = json.load(run_results_fobj)
+
+    return run_results[key]
+
+
+def get_run_id_from_run_results(run_results_filepath: str) -> str:
+    """Given a path to a run_results.json file, return a string representation
+    of the invocation ID of the run."""
+    metadata = get_key_from_run_results("metadata", run_results_filepath)
+    return metadata["invocation_id"]
+
+
+def get_run_date_from_run_results(run_results_filepath: str) -> str:
+    """Given a path to a run_results.json file, return a string representation
+    of the date of the run formatted as YYYY-MM-DD."""
+    metadata = get_key_from_run_results("metadata", run_results_filepath)
+    run_dt_str = metadata["generated_at"]
+    run_dt = datetime.datetime.strptime(
+        run_dt_str, "%Y-%m-%dT%H:%M:%S.%fZ"
+    )
+    return run_dt.strftime("%Y-%m-%d")
 
 
 def get_test_cache_path(
