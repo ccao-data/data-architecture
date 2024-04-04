@@ -81,7 +81,14 @@ model_values AS (
         AND ap.meta_year = fm.year
         AND (
             -- If reassessment year, use different models for different towns
-            (ap.township_code = fm.township_code AND ap.triad = fm.triad_name)
+            (
+                ap.township_code = fm.township_code
+                AND CASE ap.meta_triad_code
+                    WHEN '1' THEN 'City'
+                    WHEN '2' THEN 'North'
+                    WHEN '3' THEN 'South'
+                END = fm.triad_name
+            )
             -- Otherwise, just use whichever model is "final"
             OR (ap.triad != fm.triad_name AND fm.is_final)
         )
