@@ -51,7 +51,12 @@ model_values AS (
     INNER JOIN {{ ref('eph_final_model_long') }} AS fm
         ON ap.run_id = fm.run_id
         AND ap.meta_year = fm.year
-        AND ap.township_code = fm.township_code
+        AND (
+            -- If reassessment year, use different models for different towns
+            (ap.township_code = fm.township_code AND ap.triad = fm.triad_name)
+            -- Otherwise, just use whichever model is "final"
+            OR (ap.triad != fm.triad_name AND fm.is_final)
+        )
     WHERE classes.property_group IS NOT NULL
 ),
 
