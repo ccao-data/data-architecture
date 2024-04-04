@@ -1,1 +1,1 @@
-../../../aws-athena/ephemeral/model.eph_final_model_long.sql
+../../../aws-athena/ephemeral/eph_final_model_long.sql
