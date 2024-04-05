@@ -112,6 +112,7 @@ class Status(enum.Enum):
 
     PASS = "pass"
     FAIL = "fail"
+    WARN = "warn"
 
     def __repr__(self) -> str:
         return self.value.upper()
@@ -343,12 +344,22 @@ class TestCategory:
     def status(self) -> Status:
         """Return an aggregate status for this category based on the statuses
         of its TestResult objects."""
-        return (
-            Status.PASS
-            if all(
-                result.status == Status.PASS for result in self.test_results
-            )
-            else Status.FAIL
+        statuses = set(result.status for result in self.test_results)
+        # case/match syntax doesn't work with sets, unfortunately
+        if statuses == {Status.PASS}:
+            return Status.PASS
+        if statuses == {Status.WARN}:
+            return Status.WARN
+        if statuses == {Status.FAIL}:
+            return Status.FAIL
+        if statuses == {Status.PASS, Status.WARN}:
+            return Status.WARN
+        if statuses == {Status.PASS, Status.FAIL}:
+            return Status.FAIL
+        if statuses == {Status.WARN, Status.FAIL}:
+            return Status.FAIL
+        raise ValueError(
+            f"Unexpected combination of statuses: {statuses}"
         )
 
     def add_to_workbook(self, workbook: openpyxl.Workbook) -> None:
@@ -356,10 +367,10 @@ class TestCategory:
         from the TestCategory object. Note that we expect the workbook to be
         initialized with write_only=True."""
         # Only add this category to the workbook if it has any failing tests
-        if self.status == Status.PASS:
+        if self.status in (Status.PASS, Status.WARN):
             print(
                 f"Skipping add_to_workbook for category {self.category} since "
-                f"its status is '{Status.PASS.value}'"
+                f"its status is '{self.status!r}'"
             )
             return
 
@@ -967,7 +978,7 @@ def get_test_categories(
                 status=Status.PASS, failing_rows=[], **base_result_kwargs
             )
 
-        elif status == Status.FAIL.value:
+        elif status in (Status.FAIL.value, Status.WARN.value):
             # Link to the test's page in the dbt docs, for debugging
             test_docs_url = f"{DOCS_URL_PREFIX}/{unique_id}"
 
@@ -1011,8 +1022,8 @@ def get_test_categories(
             query_results = cursor.fetchall()
             if len(query_results) == 0:
                 raise ValueError(
-                    f"Test {test_name} has status 'fail' but no failing rows "
-                    "in Athena"
+                    f"Test {test_name} has status '{status!r}' but no failing "
+                    "rows in Athena"
                 )
 
             # Add custom fields to query results that we don't expect to be
@@ -1028,7 +1039,7 @@ def get_test_categories(
                 for row in query_results
             ]
             test_result = TestResult(
-                status=Status.FAIL,
+                status=Status(status),
                 failing_rows=failing_rows,
                 **base_result_kwargs,
             )
