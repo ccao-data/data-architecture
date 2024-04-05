@@ -729,7 +729,7 @@ def main() -> None:
             table,
             metadata_root_path,
             partition_cols,
-            basename_template="%s_%s_{i}.parquet" % (run_date, run_id)
+            basename_template="%s_%s_{i}.parquet" % (run_date, run_id),
         )
         print(f"{tablename} metadata saved to {metadata_root_path}/")
 
@@ -752,10 +752,14 @@ class TestRunMetadata:
         run_id = get_run_id_from_run_results(run_results_filepath)
         run_date = get_run_date_from_run_results(run_results_filepath)
         run_year = run_date[:4]
-        elapsed_time = get_key_from_run_results("elapsed_time", run_results_filepath)
+        elapsed_time = get_key_from_run_results(
+            "elapsed_time", run_results_filepath
+        )
 
         # Extract dbt vars
-        run_vars = get_key_from_run_results("args", run_results_filepath)["vars"]
+        run_vars = get_key_from_run_results("args", run_results_filepath)[
+            "vars"
+        ]
         var_year_start = run_vars.get("test_qc_year_start")
         var_year_end = run_vars.get("test_qc_year_start")
 
@@ -804,9 +808,6 @@ class TestRunResultMetadata:
         """Generate a list of TestRunMetadata object from a list of
         TestCategory objects representing the categories in the run and a
         filepath to a run_results.json file."""
-        with open(run_results_filepath) as run_results_fobj:
-            run_results = json.load(run_results_fobj)
-
         run_id = get_run_id_from_run_results(run_results_filepath)
         run_date = get_run_date_from_run_results(run_results_filepath)
         run_year = run_date[:4]
@@ -830,7 +831,9 @@ class TestRunResultMetadata:
         ]
 
 
-def get_key_from_run_results(key: str, run_results_filepath: str) -> typing.Any:
+def get_key_from_run_results(
+    key: str, run_results_filepath: str
+) -> typing.Any:
     """Given a path to a run_results.json file, return a key that's represented
     in the run metadata."""
     with open(run_results_filepath) as run_results_fobj:
@@ -851,9 +854,7 @@ def get_run_date_from_run_results(run_results_filepath: str) -> str:
     of the date of the run formatted as YYYY-MM-DD."""
     metadata = get_key_from_run_results("metadata", run_results_filepath)
     run_dt_str = metadata["generated_at"]
-    run_dt = datetime.datetime.strptime(
-        run_dt_str, "%Y-%m-%dT%H:%M:%S.%fZ"
-    )
+    run_dt = datetime.datetime.strptime(run_dt_str, "%Y-%m-%dT%H:%M:%S.%fZ")
     return run_dt.strftime("%Y-%m-%d")
 
 
