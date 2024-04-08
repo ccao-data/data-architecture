@@ -166,8 +166,8 @@ sales AS (
         vwps.nbhd AS townnbhd
     FROM {{ ref('default.vw_pin_sale') }} AS vwps
     LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS vptc
-        ON vwps.pin = vptc.parid
-        AND vwps.year = vptc.taxyr
+        ON vwps.pin = vptc.pin
+        AND vwps.year = vptc.year
     WHERE NOT vwps.is_multisale
         AND NOT vwps.sale_filter_is_outlier
         AND NOT vwps.sale_filter_deed_type
