@@ -43,7 +43,23 @@ SELECT
                 '208', '209', '210', '234', '278', '295'
             )
             THEN 'SF'
-    END AS property_group
+    END AS property_group,
+    CASE
+        WHEN
+            MOD(CAST(values_by_year.year AS INT), 3) = 0
+            AND town.triad_name = 'North'
+            THEN TRUE
+        WHEN
+            MOD(CAST(values_by_year.year AS INT), 3) = 1
+            AND town.triad_name = 'South'
+            THEN TRUE
+        WHEN
+            MOD(CAST(values_by_year.year AS INT), 3) = 2
+            AND town.triad_name = 'City'
+            THEN TRUE
+        ELSE FALSE
+    END AS reassessment_year,
+    CAST(CAST(correct.taxyr AS INT) + 1 AS VARCHAR) AS model_year
 FROM correct_class AS correct
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     ON correct.parid = leg.parid
