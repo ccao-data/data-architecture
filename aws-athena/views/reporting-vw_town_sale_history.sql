@@ -9,7 +9,7 @@ WITH classes AS (
         vwps.township_code AS geography_id,
         town_names.triad_code
     FROM {{ ref('default.vw_pin_sale') }} AS vwps
-    LEFT JOIN {{ ref('reportinf.vw_pin_township_class') }} AS town_names
+    LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS town_names
         ON vwps.pin = town_names.pin
         AND vwps.year = town_names.year
     WHERE NOT vwps.is_multisale
