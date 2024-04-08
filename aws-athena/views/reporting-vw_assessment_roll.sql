@@ -1,22 +1,9 @@
 -- Gathers AVs by year, major class, assessment stage, and
 -- township for reporting
 
-WITH townships AS (
-    SELECT
-        legdat.parid AS pin,
-        legdat.taxyr AS year,
-        township.triad_name AS triad,
-        township.township_name
-    FROM {{ source('iasworld', 'legdat') }} AS legdat
-    LEFT JOIN {{ source('spatial', 'township') }} AS township
-        ON legdat.user1 = township.township_code
-    WHERE legdat.cur = 'Y'
-        AND legdat.deactivat IS NULL
-),
-
 -- Classes can change by stage - consolidating them here allows for greater
 -- accuracy
-stage_classes AS (
+WITH stage_classes AS (
     SELECT
         pin,
         year,
@@ -44,23 +31,9 @@ SELECT
     values_by_year.year,
     LOWER(values_by_year.stage_name) AS stage,
     townships.township_name,
-    townships.triad,
+    townships.triad_name AS triad,
     stage_classes.class,
-    CASE
-        WHEN
-            MOD(CAST(values_by_year.year AS INT), 3) = 0
-            AND townships.triad = 'North'
-            THEN TRUE
-        WHEN
-            MOD(CAST(values_by_year.year AS INT), 3) = 1
-            AND townships.triad = 'South'
-            THEN TRUE
-        WHEN
-            MOD(CAST(values_by_year.year AS INT), 3) = 2
-            AND townships.triad = 'City'
-            THEN TRUE
-        ELSE FALSE
-    END AS reassessment_year,
+    townships.reassessment_year,
     COUNT(*) AS n,
     SUM(values_by_year.bldg) AS bldg_sum,
     CAST(APPROX_PERCENTILE(values_by_year.bldg, 0.5) AS INT) AS bldg_median,
@@ -69,7 +42,7 @@ SELECT
     SUM(values_by_year.tot) AS tot_sum,
     CAST(APPROX_PERCENTILE(values_by_year.tot, 0.5) AS INT) AS tot_median
 FROM {{ ref('reporting.vw_pin_value_long') }} AS values_by_year
-LEFT JOIN townships
+LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS townships
     ON values_by_year.pin = townships.pin
     AND values_by_year.year = townships.year
 LEFT JOIN stage_classes
@@ -81,8 +54,9 @@ GROUP BY
     townships.township_name,
     values_by_year.year,
     stage_classes.class,
-    townships.triad,
-    values_by_year.stage_name
+    townships.triad_name,
+    values_by_year.stage_name,
+    townships.reassessment_year
 ORDER BY
     townships.township_name,
     values_by_year.year,
