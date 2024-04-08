@@ -94,7 +94,7 @@ iasworld_values AS (
         aa.class,
         vptc.triad_name,
         vptc.township_code,
-        vptc.townnbhd
+        CONCAT(vptc.township_code, vptc.nbhd) AS townnbhd
 ),
 
 all_values AS (
