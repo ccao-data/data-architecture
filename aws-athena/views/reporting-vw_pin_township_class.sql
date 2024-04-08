@@ -46,15 +46,15 @@ SELECT
     END AS property_group,
     CASE
         WHEN
-            MOD(CAST(values_by_year.year AS INT), 3) = 0
+            MOD(CAST(correct.taxyr AS INT), 3) = 0
             AND town.triad_name = 'North'
             THEN TRUE
         WHEN
-            MOD(CAST(values_by_year.year AS INT), 3) = 1
+            MOD(CAST(correct.taxyr AS INT), 3) = 1
             AND town.triad_name = 'South'
             THEN TRUE
         WHEN
-            MOD(CAST(values_by_year.year AS INT), 3) = 2
+            MOD(CAST(correct.taxyr AS INT), 3) = 2
             AND town.triad_name = 'City'
             THEN TRUE
         ELSE FALSE
