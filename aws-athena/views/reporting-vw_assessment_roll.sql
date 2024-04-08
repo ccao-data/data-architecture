@@ -20,10 +20,6 @@ FROM {{ ref('reporting.vw_pin_value_long') }} AS values_by_year
 LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS townships
     ON values_by_year.pin = townships.pin
     AND values_by_year.year = townships.year
-LEFT JOIN stage_classes
-    ON values_by_year.pin = stage_classes.pin
-    AND values_by_year.year = stage_classes.year
-    AND values_by_year.stage_name = stage_classes.stage_name
 WHERE townships.township_name IS NOT NULL
 GROUP BY
     townships.township_name,
