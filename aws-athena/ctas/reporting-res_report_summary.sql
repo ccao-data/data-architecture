@@ -5,7 +5,7 @@ assessment stage, property groups, year, and various geographies.
 This table takes model and assessment values from two locations on Athena and
 stacks them. Model and assessment values are gathered independently and
 aggregated via a UNION rather than a JOIN, so it's important to keep in mind
-that years for model and assessment stages do NOT need to mavptch, i.e. we can
+that years for model and assessment stages do NOT need to match, i.e. we can
 have 2023 model values in the table before there are any 2023 assessment values
 to report on. Sales are added via a lagged join, so sales_year should always =
 year - 1. It is also worth nothing that "model year" has has 1 added to it
@@ -228,10 +228,10 @@ values_town_groups AS (
         APPROX_PERCENTILE(ab.yrblt, 0.5) AS yrblt_median
     FROM all_values AS av
     LEFT JOIN aggregate_land AS al
-        ON av.parid = al.parid
+        ON av.pin = al.parid
         AND av.year = al.taxyr
     INNER JOIN chars AS ab
-        ON av.parid = ab.parid
+        ON av.pin = ab.parid
         AND av.year = ab.taxyr
     GROUP BY
         av.assessment_stage,
@@ -257,10 +257,10 @@ values_town_no_groups AS (
         APPROX_PERCENTILE(ab.yrblt, 0.5) AS yrblt_median
     FROM all_values AS av
     LEFT JOIN aggregate_land AS al
-        ON av.parid = al.parid
+        ON av.pin = al.parid
         AND av.year = al.taxyr
     INNER JOIN chars AS ab
-        ON av.parid = ab.parid
+        ON av.pin = ab.parid
         AND av.year = ab.taxyr
     GROUP BY
         av.assessment_stage,
@@ -285,10 +285,10 @@ values_nbhd_groups AS (
         APPROX_PERCENTILE(ab.yrblt, 0.5) AS yrblt_median
     FROM all_values AS av
     LEFT JOIN aggregate_land AS al
-        ON av.parid = al.parid
+        ON av.pin = al.parid
         AND av.year = al.taxyr
     INNER JOIN chars AS ab
-        ON av.parid = ab.parid
+        ON av.pin = ab.parid
         AND av.year = ab.taxyr
     GROUP BY
         av.assessment_stage,
@@ -314,10 +314,10 @@ values_nbhd_no_groups AS (
         APPROX_PERCENTILE(ab.yrblt, 0.5) AS yrblt_median
     FROM all_values AS av
     LEFT JOIN aggregate_land AS al
-        ON av.parid = al.parid
+        ON av.pin = al.parid
         AND av.year = al.taxyr
     INNER JOIN chars AS ab
-        ON av.parid = ab.parid
+        ON av.pin = ab.parid
         AND av.year = ab.taxyr
     GROUP BY
         av.assessment_stage,
