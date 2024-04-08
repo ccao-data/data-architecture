@@ -115,7 +115,7 @@ models:
     description: '{{ doc("view_vw_pin_township_class") }}'
     tests:
       - not_accepted_values:
-          name: reporting_vw_pin_township_class_mailed_class_no_hyphens
+          name: reporting_vw_pin_township_class_class_no_hyphens
           column_name: class
           values: "2-99"
       - unique_combination_of_columns:
@@ -131,6 +131,8 @@ models:
       - not_null:
           name: reporting_vw_pin_township_class_township_name_not_null
           column_name: township_name
+          config:
+            error_if: ">409" # as of 2024-04-08
       - not_null:
           name: reporting_vw_pin_township_class_reassessment_year_not_null
           column_name: reassessment_year

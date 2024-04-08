@@ -4,7 +4,7 @@ WITH correct_class AS (
     SELECT
         parid,
         taxyr,
-        REGEXP_REPLACE(class, '([^0-9EXR])', '') AS class,
+        REGEXP_REPLACE(class, '[^[:alnum:]]', '') AS class,
         nbhd,
         deactivat,
         cur
