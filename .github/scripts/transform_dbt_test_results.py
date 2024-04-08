@@ -730,7 +730,7 @@ def main() -> None:
 
     # Get run metadata from the environment
     try:
-        started_by = os.environ["USER"]
+        run_by = os.environ["USER"]
     except KeyError:
         raise ValueError("USER env variable must be set")
 
@@ -752,7 +752,7 @@ def main() -> None:
 
     # Generate and save metadata tables as parquet
     test_run_metadata = TestRunMetadata.create(
-        run_results_filepath, started_by, git_sha, git_ref, git_author
+        run_results_filepath, run_by, git_sha, git_ref, git_author
     )
     test_run_result_metadata_list = TestRunResultMetadata.create_list(
         test_categories, run_results_filepath
@@ -789,8 +789,8 @@ class TestRunMetadata:
     run_id: str
     run_date: str
     run_year: str  # Separate from run_date for partitioning
+    run_by: str
     elapsed_time: decimal.Decimal
-    started_by: str
     var_year_start: str
     var_year_end: str
     git_sha: str
@@ -801,7 +801,7 @@ class TestRunMetadata:
     def create(
         cls,
         run_results_filepath: str,
-        started_by: str,
+        run_by: str,
         git_sha: str,
         git_ref: str,
         git_author: str,
@@ -837,8 +837,8 @@ class TestRunMetadata:
             run_id=run_id,
             run_year=run_year,
             run_date=run_date,
+            run_by=run_by,
             elapsed_time=elapsed_time,
-            started_by=started_by,
             var_year_start=var_year_start,
             var_year_end=var_year_end,
             git_sha=git_sha,
