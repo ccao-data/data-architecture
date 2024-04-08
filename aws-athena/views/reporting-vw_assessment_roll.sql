@@ -1,38 +1,13 @@
 -- Gathers AVs by year, major class, assessment stage, and
 -- township for reporting
 
--- Classes can change by stage - consolidating them here allows for greater
--- accuracy
-WITH stage_classes AS (
-    SELECT
-        pin,
-        year,
-        stage_name,
-        CASE
-            WHEN SUBSTR(class, 1, 2) IN ('EX', 'RR') THEN class
-            -- OA classes contain their major class as the third and final
-            -- character
-            WHEN SUBSTR(class, 1, 2) = 'OA' THEN SUBSTR(class, 3, 1)
-            WHEN class IN (
-                    '500', '535', '501', '516', '517', '522', '523',
-                    '526', '527', '528', '529', '530', '531', '532',
-                    '533', '535', '590', '591', '592', '597', '599'
-                ) THEN '5A'
-            WHEN class IN (
-                    '550', '580', '581', '583', '587', '589', '593'
-                ) THEN '5B'
-            ELSE SUBSTR(class, 1, 1)
-        END AS class
-    FROM {{ ref('reporting.vw_pin_value_long') }}
-)
-
 -- Add total and median values by township
 SELECT
     values_by_year.year,
     LOWER(values_by_year.stage_name) AS stage,
     townships.township_name,
     townships.triad_name AS triad,
-    stage_classes.class,
+    townships.major_class AS class,
     townships.reassessment_year,
     COUNT(*) AS n,
     SUM(values_by_year.bldg) AS bldg_sum,
@@ -53,7 +28,7 @@ WHERE townships.township_name IS NOT NULL
 GROUP BY
     townships.township_name,
     values_by_year.year,
-    stage_classes.class,
+    townships.major_class,
     townships.triad_name,
     values_by_year.stage_name,
     townships.reassessment_year

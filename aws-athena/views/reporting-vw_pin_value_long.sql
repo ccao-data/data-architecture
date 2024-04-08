@@ -42,6 +42,30 @@ SELECT
     taxyr AS year,
     class,
     CASE
+        WHEN SUBSTR(class, 1, 2) IN ('EX', 'RR') THEN class
+        -- OA classes contain their major class as the third and final
+        -- character
+        WHEN SUBSTR(class, 1, 2) = 'OA' THEN SUBSTR(class, 3, 1)
+        WHEN class IN (
+                '500', '535', '501', '516', '517', '522', '523',
+                '526', '527', '528', '529', '530', '531', '532',
+                '533', '535', '590', '591', '592', '597', '599'
+            ) THEN '5A'
+        WHEN class IN (
+                '550', '580', '581', '583', '587', '589', '593'
+            ) THEN '5B'
+        ELSE SUBSTR(class, 1, 1)
+    END AS major_class,
+    CASE WHEN class IN ('299', '399') THEN 'CONDO'
+        WHEN class IN ('211', '212') THEN 'MF'
+        WHEN
+            class IN (
+                '202', '203', '204', '205', '206', '207',
+                '208', '209', '210', '234', '278', '295'
+            )
+            THEN 'SF'
+    END AS property_group,
+    CASE
         WHEN procname = 'CCAOVALUE' THEN 'MAILED'
         WHEN procname = 'CCAOFINAL' THEN 'ASSESSOR CERTIFIED'
         WHEN procname = 'BORVALUE' THEN 'BOR CERTIFIED'
