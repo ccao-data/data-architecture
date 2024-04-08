@@ -5,19 +5,13 @@ WITH classes AS (
     SELECT
         vwps.sale_price,
         vwps.year AS sale_year,
-        CASE WHEN vwps.class IN ('299', '399') THEN 'CONDO'
-            WHEN vwps.class IN ('211', '212') THEN 'MF'
-            WHEN vwps.class IN (
-                    '202', '203', '204', '205', '206', '207',
-                    '208', '209', '210', '234', '278', '295'
-                )
-                THEN 'SF'
-        END AS property_group,
+        town_names.property_group,
         vwps.township_code AS geography_id,
         town_names.triad_code
     FROM {{ ref('default.vw_pin_sale') }} AS vwps
-    LEFT JOIN {{ source('spatial', 'township') }} AS town_names
-        ON vwps.township_code = town_names.township_code
+    LEFT JOIN {{ ref('reportinf.vw_pin_township_class') }} AS town_names
+        ON vwps.pin = town_names.pin
+        AND vwps.year = town_names.year
     WHERE NOT vwps.is_multisale
         AND NOT vwps.sale_filter_is_outlier
         AND NOT vwps.sale_filter_deed_type
