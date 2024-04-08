@@ -32,4 +32,4 @@ ORDER BY
     townships.township_name,
     values_by_year.year,
     values_by_year.stage_name,
-    stage_classes.class
+    townships.major_class
