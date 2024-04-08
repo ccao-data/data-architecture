@@ -5,7 +5,7 @@ assessment stage, property groups, year, and various geographies.
 This table takes model and assessment values from two locations on Athena and
 stacks them. Model and assessment values are gathered independently and
 aggregated via a UNION rather than a JOIN, so it's important to keep in mind
-that years for model and assessment stages do NOT need to match, i.e. we can
+that years for model and assessment stages do NOT need to mavptch, i.e. we can
 have 2023 model values in the table before there are any 2023 assessment values
 to report on. Sales are added via a lagged join, so sales_year should always =
 year - 1. It is also worth nothing that "model year" has has 1 added to it
@@ -27,69 +27,37 @@ Intended to be materialized daily through a GitHub action.
     )
 }}
 
--- Valuation class and nbhd from pardat, townships from legdat
--- since pardat has some errors we can't accept for public reporting
-WITH town_class AS (
-    SELECT
-        par.parid,
-        par.taxyr,
-        town.triad_name AS triad,
-        leg.user1 AS township_code,
-        CONCAT(leg.user1, SUBSTR(par.nbhd, 3, 3)) AS townnbhd,
-        par.class,
-        CASE WHEN par.class IN ('299', '399') THEN 'CONDO'
-            WHEN par.class IN ('211', '212') THEN 'MF'
-            WHEN
-                par.class IN (
-                    '202', '203', '204', '205', '206', '207',
-                    '208', '209', '210', '234', '278', '295'
-                )
-                THEN 'SF'
-        END AS property_group,
-        CAST(CAST(par.taxyr AS INT) - 1 AS VARCHAR) AS model_join_year
-    FROM {{ source('iasworld', 'pardat') }} AS par
-    LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
-        ON par.parid = leg.parid
-        AND par.taxyr = leg.taxyr
-    LEFT JOIN {{ source('spatial', 'township') }} AS town
-        ON leg.user1 = town.township_code
-    WHERE par.cur = 'Y'
-        AND par.deactivat IS NULL
-        AND leg.cur = 'Y'
-        AND leg.deactivat IS NULL
-),
-
 -- Final model values (Add 1 to model year since '2021' correspond to '2022'
 -- mailed values in iasWorld)
-model_values AS (
+WITH model_values AS (
     SELECT
-        ap.meta_pin AS parid,
-        tc.property_group,
-        tc.class,
-        tc.triad,
-        tc.township_code,
-        tc.townnbhd,
-        tc.taxyr AS year,
+        ap.meta_pin AS pin,
+        vptc.property_group,
+        vptc.class,
+        vptc.triad_name AS triad,
+        vptc.township_code,
+        CONCAT(vptc.township_code, vptc.nbhd) AS townnbhd,
+        vptc.year,
         'model' AS assessment_stage,
         ap.pred_pin_final_fmv_round AS total
     FROM {{ source('model', 'assessment_pin') }} AS ap
-    LEFT JOIN town_class AS tc
-        ON ap.meta_pin = tc.parid
-        AND ap.meta_year = tc.model_join_year
+    LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS vptc
+        ON ap.meta_pin = vptc.pin
+        AND ap.meta_year = vptc.model_year
     WHERE ap.run_id IN (SELECT run_id FROM model.final_model)
-        AND tc.property_group IS NOT NULL
-        AND tc.triad IS NOT NULL
+        AND vptc.property_group IS NOT NULL
+        AND vptc.triad_name IS NOT NULL
 ),
 
 -- Values by assessment stages available in iasWorld (not model)
 iasworld_values AS (
     SELECT
-        aa.parid,
-        tc.property_group,
+        aa.parid AS pin,
+        vptc.property_group,
         aa.class,
-        tc.triad,
-        tc.township_code,
-        tc.townnbhd,
+        vptc.triad_name AS triad,
+        vptc.township_code,
+        CONCAT(vptc.township_code, vptc.nbhd) AS townnbhd,
         aa.taxyr AS year,
         CASE
             WHEN aa.procname = 'CCAOVALUE' THEN 'mailed'
@@ -103,30 +71,30 @@ iasworld_values AS (
             END
         ) * 10 AS total
     FROM {{ source('iasworld', 'asmt_all') }} AS aa
-    LEFT JOIN town_class AS tc
-        ON aa.parid = tc.parid
-        AND aa.taxyr = tc.taxyr
+    LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS vptc
+        ON aa.parid = vptc.pin
+        AND aa.taxyr = vptc.year
     WHERE aa.procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
         AND aa.rolltype != 'RR'
         AND aa.deactivat IS NULL
         AND aa.valclass IS NULL
-        AND tc.property_group IS NOT NULL
-        AND tc.triad IS NOT NULL
+        AND vptc.property_group IS NOT NULL
+        AND vptc.triad_name IS NOT NULL
         AND aa.taxyr >= '2021'
     GROUP BY
         aa.parid,
         aa.taxyr,
         aa.procname,
-        tc.property_group,
+        vptc.property_group,
         CASE
             WHEN aa.procname = 'CCAOVALUE' THEN 'mailed'
             WHEN aa.procname = 'CCAOFINAL' THEN 'assessor certified'
             WHEN aa.procname = 'BORVALUE' THEN 'bor certified'
         END,
         aa.class,
-        tc.triad,
-        tc.township_code,
-        tc.townnbhd
+        vptc.triad_name,
+        vptc.township_code,
+        vptc.townnbhd
 ),
 
 all_values AS (
@@ -193,20 +161,20 @@ sales AS (
     SELECT
         vwps.sale_price,
         vwps.year AS sale_year,
-        tc.property_group,
-        tc.township_code,
+        vptc.property_group,
+        vptc.township_code,
         vwps.nbhd AS townnbhd
     FROM {{ ref('default.vw_pin_sale') }} AS vwps
-    LEFT JOIN town_class AS tc
-        ON vwps.pin = tc.parid
-        AND vwps.year = tc.taxyr
+    LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS vptc
+        ON vwps.pin = vptc.parid
+        AND vwps.year = vptc.taxyr
     WHERE NOT vwps.is_multisale
         AND NOT vwps.sale_filter_is_outlier
         AND NOT vwps.sale_filter_deed_type
         AND NOT vwps.sale_filter_less_than_10k
         AND NOT vwps.sale_filter_same_sale_within_365
-        AND tc.property_group IS NOT NULL
-        AND tc.triad IS NOT NULL
+        AND vptc.property_group IS NOT NULL
+        AND vptc.triad_name IS NOT NULL
 ),
 
 -- Aggregate land for all parcels
