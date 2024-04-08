@@ -1,22 +1,8 @@
 -- View containing ratios by pin, intended to feed the
 -- glue job 'reporting-ratio_stats'.
 
-WITH towns AS (
-    SELECT
-        leg.parid AS pin,
-        leg.taxyr AS year,
-        towns.township_name,
-        towns.township_code,
-        towns.triad_code AS triad
-    FROM {{ source('iasworld', 'legdat') }} AS leg
-    LEFT JOIN {{ source('spatial', 'township') }} AS towns
-        ON leg.user1 = towns.township_code
-    WHERE leg.cur = 'Y'
-        AND leg.deactivat IS NULL
-),
-
 -- Model values for corresponding triads only
-model_values AS (
+WITH model_values AS (
     SELECT
         ap.meta_pin AS pin,
         CAST(CAST(ap.meta_year AS INT) + 1 AS VARCHAR) AS year,
@@ -54,23 +40,15 @@ SELECT
     vwps.pin,
     av.year,
     vwps.year AS sale_year,
-    CASE WHEN av.class IN ('299', '399') THEN 'CONDO'
-        WHEN av.class IN ('211', '212') THEN 'MF'
-        WHEN
-            av.class IN (
-                '202', '203', '204', '205', '206', '207',
-                '208', '209', '210', '234', '278', '295'
-            )
-            THEN 'SF'
-    END AS property_group,
+    towns.property_group,
     av.assessment_stage,
-    towns.triad,
+    towns.triad_code AS triad,
     towns.township_code,
     av.total AS fmv,
     vwps.sale_price,
     av.total / vwps.sale_price AS ratio
 FROM {{ ref('default.vw_pin_sale') }} AS vwps
-LEFT JOIN towns
+LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS towns
     ON vwps.pin = towns.pin
     AND vwps.year = towns.year
     -- Join sales so that values for a given year can be compared to a
@@ -87,8 +65,5 @@ WHERE NOT vwps.is_multisale
     AND NOT vwps.sale_filter_deed_type
     AND NOT vwps.sale_filter_less_than_10k
     AND NOT vwps.sale_filter_same_sale_within_365
-    AND av.class IN (
-        '299', '399', '211', '212', '202', '203', '204', '205', '206', '207',
-        '208', '209', '210', '234', '278', '295'
-    )
+    AND towns.property_group IS NOT NULL
     AND ps.pin IS NULL
