@@ -64,7 +64,7 @@ jobs:
         env:
           USER: CI
           GIT_SHA: ${{ github.sha }}
-          GIT_REF: ${{ github.ref }}
+          GIT_REF: ${{ github.ref_name }}
           GIT_AUTHOR: ${{ github.event.commits[0].author.name }}
 
       - name: Save test results to S3
