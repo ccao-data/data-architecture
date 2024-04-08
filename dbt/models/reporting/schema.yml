@@ -111,6 +111,9 @@ models:
           name: reporting_vw_pin_most_recent_sale_not_null
           expression: sale_price IS NOT NULL
 
+  - name: reporting.vw_pin_township_class
+    description: '{{ doc("view_vw_pin_township_class") }}'
+
   - name: reporting.vw_pin_value_long
     description: '{{ doc("view_vw_pin_value_long") }}'
     tests:

@@ -50,6 +50,15 @@ PINs without sales have `NULL` sale values.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_pin_township_class
+
+{% docs view_vw_pin_township_class %}
+View that provides pre-constructed common grouping columns across reporting
+views.
+
+**Primary Key**: `year`, `pin`
+{% enddocs %}
+
 # vw_pin_value_long
 
 {% docs view_vw_pin_value_long %}
