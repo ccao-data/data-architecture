@@ -23,7 +23,7 @@ top_5 AS (
         vptc.triad_name AS triad,
         vptc.class,
         RANK() OVER (
-            PARTITION BY vptc.township_code, mrv.taxyr
+            PARTITION BY vptc.township_code, mrv.year
             ORDER BY mrv.total_av DESC
         ) AS rank,
         mrv.pin,
@@ -35,7 +35,7 @@ top_5 AS (
     FROM most_recent_values AS mrv
     LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS vptc
         ON mrv.pin = vptc.pin
-        AND mrv.taxyr = vptc.year
+        AND mrv.year = vptc.year
     LEFT JOIN {{ ref('default.vw_pin_address') }} AS vpa
         ON mrv.pin = vpa.pin
         AND mrv.year = vpa.year
