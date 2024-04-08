@@ -25,6 +25,20 @@
 #    should be written. If missing, defaults to the
 #    ccao-athena-results-us-east-1 bucket
 #
+# Expects one required environment variable to be set:
+#
+#  1. USER: The username of the user who ran the script. This is automatically
+#     set during login on Unix systems, but should be set manually elsewhere.
+#
+# Expects three optional environment variables:
+#
+#  1. GIT_SHA: The SHA of the latest git commit (defaults to the output
+#     of `git rev-parse`)
+#  2. GIT_REF: The name of the ref for the latest git commit (defaults to
+#     the output of `git rev-parse --abbrev-ref`)
+#  3. GIT_AUTHOR: The author of the latest git commit (defaults to the output
+#     of `git log`)
+#
 # Outputs three files:
 #
 #   1. `qc_test_failures_<date>.xlsx`: Excel workbook to share with other teams
@@ -56,6 +70,7 @@ import hashlib
 import os
 import pathlib
 import re
+import subprocess
 import sys
 import typing
 
@@ -358,9 +373,7 @@ class TestCategory:
             return Status.FAIL
         if statuses == {Status.WARN, Status.FAIL}:
             return Status.FAIL
-        raise ValueError(
-            f"Unexpected combination of statuses: {statuses}"
-        )
+        raise ValueError(f"Unexpected combination of statuses: {statuses}")
 
     def add_to_workbook(self, workbook: openpyxl.Workbook) -> None:
         """Add a sheet of failed dbt tests to an openpyxl Workbook using data
@@ -715,8 +728,32 @@ def main() -> None:
     workbook.save(workbook_filepath)
     print(f"Output workbook saved to {workbook_filepath}")
 
+    # Get run metadata from the environment
+    try:
+        started_by = os.environ["USER"]
+    except KeyError:
+        raise ValueError("USER env variable must be set")
+
+    git_sha = (
+        os.environ["GIT_SHA"]
+        if os.getenv("GIT_SHA")
+        else subprocess.getoutput("git rev-parse HEAD")
+    )
+    git_ref = (
+        os.environ["GIT_REF"]
+        if os.getenv("GIT_REF")
+        else subprocess.getoutput("git rev-parse --abbrev-ref HEAD")
+    )
+    git_author = (
+        os.environ["GIT_AUTHOR"]
+        if os.getenv("GIT_AUTHOR")
+        else subprocess.getoutput("git log -1 --pretty=format:'%an <%ae>'")
+    )
+
     # Generate and save metadata tables as parquet
-    test_run_metadata = TestRunMetadata.create(run_results_filepath)
+    test_run_metadata = TestRunMetadata.create(
+        run_results_filepath, started_by, git_sha, git_ref, git_author
+    )
     test_run_result_metadata_list = TestRunResultMetadata.create_list(
         test_categories, run_results_filepath
     )
@@ -751,13 +788,24 @@ class TestRunMetadata:
 
     run_id: str
     run_date: str
-    run_year: str
+    run_year: str  # Separate from run_date for partitioning
     elapsed_time: decimal.Decimal
+    started_by: str
     var_year_start: str
     var_year_end: str
+    git_sha: str
+    git_ref: str
+    git_author: str
 
     @classmethod
-    def create(cls, run_results_filepath: str) -> "TestRunMetadata":
+    def create(
+        cls,
+        run_results_filepath: str,
+        started_by: str,
+        git_sha: str,
+        git_ref: str,
+        git_author: str,
+    ) -> "TestRunMetadata":
         """Generate a TestRunMetadata object from a filepath to a
         run_results.json file."""
         run_id = get_run_id_from_run_results(run_results_filepath)
@@ -790,8 +838,12 @@ class TestRunMetadata:
             run_year=run_year,
             run_date=run_date,
             elapsed_time=elapsed_time,
+            started_by=started_by,
             var_year_start=var_year_start,
             var_year_end=var_year_end,
+            git_sha=git_sha,
+            git_ref=git_ref,
+            git_author=git_author,
         )
 
 
@@ -800,7 +852,7 @@ class TestRunResultMetadata:
     """Metadata object storing information about test results in a run."""
 
     run_id: str
-    run_year: str
+    run_year: str  # Duplicated with TestRunMetadata for partitioning
     test_name: str
     table_name: str
     category: str

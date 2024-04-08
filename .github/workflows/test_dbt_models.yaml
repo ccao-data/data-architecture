@@ -61,6 +61,11 @@ jobs:
             ./qc_test_results/
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
+        env:
+          USER: CI
+          GIT_SHA: ${{ github.sha }}
+          GIT_REF: ${{ github.ref }}
+          GIT_AUTHOR: ${{ github.event.commits[0].author.name }}
 
       - name: Save test results to S3
         run: |
