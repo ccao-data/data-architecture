@@ -6,6 +6,7 @@ WITH final_model_parsed AS (
     SELECT
         fm.year,
         fm.run_id,
+        fm.triad_name,
         CAST(
             JSON_PARSE(fm.township_code_coverage) AS ARRAY<VARCHAR>
         ) AS townships
@@ -15,6 +16,7 @@ WITH final_model_parsed AS (
 SELECT
     final_model_parsed.year,
     final_model_parsed.run_id,
+    final_model_parsed.triad_name,
     CAST(t.township_code AS VARCHAR) AS township_code
 FROM final_model_parsed
 CROSS JOIN UNNEST(final_model_parsed.townships) AS t (township_code)
