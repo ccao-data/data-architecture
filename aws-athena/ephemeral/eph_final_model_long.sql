@@ -17,6 +17,11 @@ SELECT
     final_model_parsed.year,
     final_model_parsed.run_id,
     final_model_parsed.triad_name,
+    CASE final_model_parsed.triad_name
+        WHEN 'City' THEN '1'
+        WHEN 'North' THEN '2'
+        WHEN 'South' THEN '3'
+    END AS triad_code,
     CAST(t.township_code AS VARCHAR) AS township_code
 FROM final_model_parsed
 CROSS JOIN UNNEST(final_model_parsed.townships) AS t (township_code)
