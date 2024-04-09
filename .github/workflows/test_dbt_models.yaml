@@ -62,7 +62,7 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         env:
-          USER: CI
+          USER: ${{ github.triggering_actor }}
           GIT_SHA: ${{ github.sha }}
           GIT_REF: ${{ github.ref_name }}
           GIT_AUTHOR: ${{ github.event.commits[0].author.name }}
