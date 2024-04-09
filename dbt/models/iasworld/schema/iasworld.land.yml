@@ -187,7 +187,10 @@ sources:
                   group_by_columns:
                     - parid
                     - taxyr
-                  additional_select_columns: *select-columns
+                  additional_select_columns:
+                    - card
+                    - who
+                    - wen
                   config: *unique-conditions
                   meta:
                     description: lline should be sequential
