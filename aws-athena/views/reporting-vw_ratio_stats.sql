@@ -38,23 +38,39 @@ town_names AS (
     FROM {{ source('spatial', 'township') }}
 ),
 
+final_model_parsed AS (
+    SELECT
+        fm.year,
+        fm.run_id,
+        fm.is_final,
+        CASE fm.triad_name
+            WHEN 'City' THEN '1'
+            WHEN 'North' THEN '2'
+            WHEN 'South' THEN '3'
+        END AS triad_code,
+        CAST(
+            JSON_PARSE(fm.township_code_coverage) AS ARRAY<VARCHAR>
+        ) AS townships
+    FROM {{ ref('model.final_model') }} AS fm
+),
+
 model_values AS (
     SELECT
         ap.meta_pin AS parid,
-        CAST(CAST(ap.meta_year AS INT) + 1 AS VARCHAR) AS year,
+        ap.year,
         'model' AS assessment_stage,
         ap.pred_pin_final_fmv_round AS total
     FROM {{ source('model', 'assessment_pin') }} AS ap
     LEFT JOIN classes
         ON ap.meta_pin = classes.parid
         AND ap.meta_year = classes.taxyr
-    INNER JOIN {{ ref('eph_final_model_long') }} AS fm
+    INNER JOIN final_model_parsed AS fm
         ON ap.run_id = fm.run_id
-        AND ap.meta_year = fm.year
+        AND ap.year = fm.year
         AND (
             -- If reassessment year, use different models for different towns
             (
-                ap.township_code = fm.township_code
+                CONTAINS(fm.townships, ap.township_code)
                 AND ap.meta_triad_code = fm.triad_code
             )
             -- Otherwise, just use whichever model is "final"

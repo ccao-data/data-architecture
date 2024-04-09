@@ -59,6 +59,22 @@ WITH town_class AS (
         AND leg.deactivat IS NULL
 ),
 
+final_model_parsed AS (
+    SELECT
+        fm.year,
+        fm.run_id,
+        fm.is_final,
+        CASE fm.triad_name
+            WHEN 'City' THEN '1'
+            WHEN 'North' THEN '2'
+            WHEN 'South' THEN '3'
+        END AS triad_code,
+        CAST(
+            JSON_PARSE(fm.township_code_coverage) AS ARRAY<VARCHAR>
+        ) AS townships
+    FROM {{ ref('model.final_model') }} AS fm
+),
+
 -- Final model values (Add 1 to model year since '2021' correspond to '2022'
 -- mailed values in iasWorld)
 model_values AS (
@@ -76,13 +92,13 @@ model_values AS (
     LEFT JOIN town_class AS tc
         ON ap.meta_pin = tc.parid
         AND ap.meta_year = tc.model_join_year
-    INNER JOIN {{ ref('eph_final_model_long') }} AS fm
+    INNER JOIN final_model_parsed AS fm
         ON ap.run_id = fm.run_id
-        AND ap.meta_year = fm.year
+        AND ap.year = fm.year
         AND (
             -- If reassessment year, use different models for different towns
             (
-                ap.township_code = fm.township_code
+                CONTAINS(fm.townships, ap.township_code)
                 AND ap.meta_triad_code = fm.triad_code
             )
             -- Otherwise, just use whichever model is "final"
