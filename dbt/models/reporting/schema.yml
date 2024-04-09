@@ -198,7 +198,7 @@ models:
           name: reporting_vw_top_5_unique_by_keys
           combination_of_columns:
             - rank
-            - parid
+            - pin
             - year
       - expression_is_true:
           name: reporting_vw_top_5_rank_between_1_and_5
