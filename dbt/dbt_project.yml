@@ -45,9 +45,6 @@ models:
       +schema: census
     default:
       +schema: default
-    ephemeral:
-      +schema: ephemeral
-      +materialized: ephemeral
     location:
       +schema: location
     model:
