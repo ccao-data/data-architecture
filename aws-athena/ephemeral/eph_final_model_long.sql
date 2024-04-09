@@ -6,6 +6,7 @@ WITH final_model_parsed AS (
     SELECT
         fm.year,
         fm.run_id,
+        fm.is_final,
         fm.triad_name,
         CAST(
             JSON_PARSE(fm.township_code_coverage) AS ARRAY<VARCHAR>
@@ -16,6 +17,7 @@ WITH final_model_parsed AS (
 SELECT
     final_model_parsed.year,
     final_model_parsed.run_id,
+    final_model_parsed.is_final,
     final_model_parsed.triad_name,
     CASE final_model_parsed.triad_name
         WHEN 'City' THEN '1'
