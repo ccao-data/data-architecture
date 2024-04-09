@@ -907,14 +907,14 @@ sources:
                     description: stories (Type of Residence) should not be null
               - expression_is_true:
                   name: iasworld_dweldat_stories_in_accepted_values
-                  expression: 'IN (1.00, 2.00, 3.00, 4.00, 5.00, 9.90)'
+                  expression: 'IN (1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 9.90)'
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     category: incorrect_values
                     description: >
                       stories (Type of Residence) should be one of 1.00, 2.00,
-                      3.00, 4.00, 5.00, or 9.90
+                      3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, or 9.90
           - name: style
             description: Architectural style
           - name: subtval

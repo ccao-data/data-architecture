@@ -793,7 +793,16 @@ Possible values for this variable are:
 - `3` = 3 story or more (`3STRY+`)
 - `4` = Split level (`SPLT`)
 - `5` = 1.5 story (`1.5STRY`)
+- `6` = 1.6 story (`1.5STRY`)
+- `7` = 1.7 story (`1.5STRY`)
+- `8` = 1.8 story (`1.5STRY`)
+- `9` = 1.9 story (`1.5STRY`)
 - `9.9` = Missing (`MSSNG`)
+
+Note that while `6`, `7`, `8`, and `9` indicate specific values between 1 and
+2 stories, we currently collapse them to a single `1.5STRY` value since these
+intermediate values are rare and currently do not have enough signal to be
+useful for modeling.
 {% enddocs %}
 
 ## char_unit_sf
