@@ -40,6 +40,8 @@ WITH unfilled AS (
             AS econ_industrial_growth_zone_data_year,
         MAX(economy.econ_qualified_opportunity_zone_data_year)
             AS econ_qualified_opportunity_zone_data_year,
+        MAX(economy.econ_central_business_district_data_year)
+            AS econ_central_business_district_data_year,
         MAX(environment.env_flood_fema_data_year)
             AS env_flood_fema_data_year,
         MAX(environment.env_flood_fs_data_year)
