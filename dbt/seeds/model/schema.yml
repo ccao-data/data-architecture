@@ -28,7 +28,7 @@ seeds:
         description: |
           Townships for which the values from this model were used.
 
-          Some years may have multiple models which cover different township,
+          Some years may have multiple models which cover different townships,
           as a later model may contain a change or improvement from the
           initially used model.
       - name: reference_run_id
