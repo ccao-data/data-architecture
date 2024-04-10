@@ -73,7 +73,6 @@ final_model_parsed AS (
             JSON_PARSE(fm.township_code_coverage) AS ARRAY<VARCHAR>
         ) AS townships
     FROM {{ ref('model.final_model') }} AS fm
-    WHERE fm.year <= '2023'
 ),
 
 -- Final model values (Add 1 to model year since '2021' correspond to '2022'
