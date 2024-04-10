@@ -178,6 +178,10 @@ LEFT JOIN {{ ref('location.economy') }} AS econ_qualified_opportunity_zone
     ON pin.pin10 = econ_qualified_opportunity_zone.pin10
     AND cyf.econ_qualified_opportunity_zone_data_year
     = econ_qualified_opportunity_zone.year
+LEFT JOIN {{ ref('location.economy') }} AS econ_central_business_district
+    ON pin.pin10 = econ_central_business_district.pin10
+    AND cyf.econ_central_business_district_data_year
+    = econ_central_business_district.year
 LEFT JOIN {{ ref('location.environment') }} AS env_flood_fema
     ON pin.pin10 = env_flood_fema.pin10
     AND cyf.env_flood_fema_data_year = env_flood_fema.year
