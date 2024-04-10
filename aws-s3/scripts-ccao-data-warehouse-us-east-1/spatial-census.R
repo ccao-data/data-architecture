@@ -65,7 +65,7 @@ normalize_census_geo <- function(key) {
         lon, lat, x_3435, y_3435,
         geometry, geometry_3435
       ) %>%
-      filter(!str_detect(geoid, 'ZZZ')) %>%
+      filter(!str_detect(geoid, "ZZZ")) %>%
       write_geoparquet(remote_file, compression = "snappy")
   }
 }
