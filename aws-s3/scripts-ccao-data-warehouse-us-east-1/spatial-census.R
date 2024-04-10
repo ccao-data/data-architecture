@@ -53,6 +53,7 @@ normalize_census_geo <- function(key) {
       st_drop_geometry() %>%
       select(lon = X, lat = Y, x_3435 = `X.1`, y_3435 = `Y.1`) %>%
       cbind(df, .) %>%
+      rename_with(~ paste0("NAME"), starts_with("NAME")) %>%
       select(
         -starts_with("INTPT", ignore.case = TRUE),
         -ends_with("LSAD", ignore.case = TRUE)
@@ -64,6 +65,7 @@ normalize_census_geo <- function(key) {
         lon, lat, x_3435, y_3435,
         geometry, geometry_3435
       ) %>%
+      filter(!str_detect(geoid, 'ZZZ')) %>%
       write_geoparquet(remote_file, compression = "snappy")
   }
 }
