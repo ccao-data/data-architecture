@@ -99,9 +99,11 @@ WITH unfilled AS (
             econ_coordinated_care_area_data_year,
             econ_enterprise_zone_data_year,
             econ_industrial_growth_zone_data_year,
-            econ_qualified_opportunity_zone_data_year
+            econ_qualified_opportunity_zone_data_year,
+            econ_central_business_district_data_year
         FROM {{ ref('location.economy') }}
     ) AS economy ON pin.year = economy.year
+
     LEFT JOIN (
         SELECT DISTINCT
             year,
@@ -220,6 +222,12 @@ SELECT
             IGNORE NULLS
             OVER (ORDER BY unfilled.year DESC)
     ) AS econ_qualified_opportunity_zone_data_year,
+    COALESCE(
+        econ_central_business_district_data_year,
+        LAST_VALUE(econ_central_business_district_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY unfilled.year DESC)
+    ) AS econ_central_business_district_data_year,
     COALESCE(
         env_flood_fema_data_year, LAST_VALUE(env_flood_fema_data_year)
             IGNORE NULLS
