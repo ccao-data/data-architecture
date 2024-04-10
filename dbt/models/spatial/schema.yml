@@ -18,6 +18,9 @@ sources:
       - name: census
         description: '{{ doc("table_spatial_census") }}'
 
+      - name: central_business_district
+        description: '{{ doc("table_spatial_central_business_district") }}'
+
       - name: coastline
         description: '{{ doc("table_coastline") }}'
 
