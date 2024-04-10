@@ -23,7 +23,7 @@ sources:
 
       - name: pin
         description: '{{ doc("table_pin") }}'
-        columns:  
+        columns:
           - name: tax_code_num
             description: '{{ doc("shared_column_tax_code")}}'
             tests:
@@ -33,7 +33,7 @@ sources:
                   external_column_name: taxdist
                   column_alias: tax_code_num
                   external_column_alias: taxdist
-                  group_by: 
+                  group_by:
                     - year
                     - pin
                   join_condition:
@@ -74,7 +74,7 @@ sources:
                   meta:
                     category: class_mismatch_or_issue
                     description: class code must be valid
-    
+
       - name: pin_geometry_raw
         description: '{{ doc("table_pin_geometry_raw") }}'
 

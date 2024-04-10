@@ -31,10 +31,7 @@ jobs:
           # dbt doesn't differentiate between test failures and errors, but we
           # need to since we expect failures. Do this by capturing the output
           # and checking its contents to look for errors
-          if output=$(dbt test --target "$TARGET" \
-                               --select tag:test_qc_* \
-                               --exclude tag:test_qc_exclude_from_workbook \
-                               --store-failures); then
+          if output=$(dbt test --target "$TARGET" --selector qc_tests --store-failures); then
             echo "$output"
           else
             status_code="$?"
