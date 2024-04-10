@@ -393,7 +393,7 @@ sales_town_groups AS (
         sale_year,
         property_group,
         MIN(sale_price) AS sale_min,
-        AVG(sale_price) AS sale_median,
+        APPROX_PERCENTILE(sale_price, 0.5) AS sale_median,
         MAX(sale_price) AS sale_max,
         COUNT(*) AS sale_n
     FROM sales
@@ -407,7 +407,7 @@ sales_town_no_groups AS (
         sale_year,
         'ALL REGRESSION' AS property_group,
         MIN(sale_price) AS sale_min,
-        AVG(sale_price) AS sale_median,
+        APPROX_PERCENTILE(sale_price, 0.5) AS sale_median,
         MAX(sale_price) AS sale_max,
         COUNT(*) AS sale_n
     FROM sales
@@ -423,7 +423,7 @@ sales_nbhd_groups AS (
         sale_year,
         property_group,
         MIN(sale_price) AS sale_min,
-        AVG(sale_price) AS sale_median,
+        APPROX_PERCENTILE(sale_price, 0.5) AS sale_median,
         MAX(sale_price) AS sale_max,
         COUNT(*) AS sale_n
     FROM sales
@@ -440,7 +440,7 @@ sales_nbhd_no_groups AS (
         sale_year,
         'ALL REGRESSION' AS property_group,
         MIN(sale_price) AS sale_min,
-        AVG(sale_price) AS sale_median,
+        APPROX_PERCENTILE(sale_price, 0.5) AS sale_median,
         MAX(sale_price) AS sale_max,
         COUNT(*) AS sale_n
     FROM sales
