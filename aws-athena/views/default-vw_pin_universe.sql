@@ -75,7 +75,7 @@ SELECT
     vwl.econ_qualified_opportunity_zone_num,
     vwl.econ_qualified_opportunity_zone_data_year,
     vwl.econ_central_business_district_num,
-    vwl.econ_central_business_district_year,
+    vwl.econ_central_business_district_data_year,
     vwl.env_flood_fema_sfha,
     vwl.env_flood_fema_data_year,
     vwl.env_flood_fs_factor,
