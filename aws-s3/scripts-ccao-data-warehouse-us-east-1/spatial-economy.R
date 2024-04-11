@@ -40,8 +40,8 @@ clean_coordinated_care <- function(shapefile, economic_unit) {
                  str_to_title(
                    case_when(is.na(MUNICIPALI) ~ str_replace(AGENCY_DES, "TWP", ""),
                              TRUE ~ MUNICIPALI)
-                   )
-                 )) %>%
+                 )
+               )) %>%
         select(cc_num, cc_name, political_boundary, geometry) %>%
         ungroup()
     )
@@ -160,7 +160,7 @@ clean_economy <- function(remote_file) {
       clean_central_business_district(economic_unit) %>%
       standardize_expand_geo(make_valid = TRUE) %>%
       mutate(year = year)
-    )
+  )
 
   file.remove(tmp_file)
 
@@ -176,7 +176,8 @@ combine_upload <- function(economic_unit) {
     bind_rows() %>%
     group_by(across(contains("name"))) %>%
 
-    # Some shapefiles don't have consistent identifiers across time, create them using group IDs
+    # Some shapefiles don't have consistent identifiers across time,
+    # create them using group IDs
     mutate(across(contains("num"), ~ case_when(
       is.na(.) ~ str_pad(cur_group_id(), width = 3, side = "left", pad = "0"),
       TRUE ~ .
