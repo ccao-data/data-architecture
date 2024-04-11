@@ -38,7 +38,8 @@ clean_coordinated_care <- function(shapefile, economic_unit) {
                                               TRUE ~ "Municipality"),
                cc_name = str_squish(
                  str_to_title(
-                   case_when(is.na(MUNICIPALI) ~ str_replace(AGENCY_DES, "TWP", ""),
+                   case_when(is.na(MUNICIPALI) ~
+                               str_replace(AGENCY_DES, "TWP", ""),
                              TRUE ~ MUNICIPALI)
                  )
                )) %>%
@@ -167,7 +168,8 @@ clean_economy <- function(remote_file) {
 }
 
 # Apply function to raw_files
-cleaned_output <- sapply(raw_files, clean_economy, simplify = FALSE, USE.NAMES = TRUE)
+cleaned_output <- sapply(raw_files, clean_economy,
+                         simplify = FALSE, USE.NAMES = TRUE)
 economic_units <- unique(str_split(raw_files, "/", simplify = TRUE)[, 6])
 
 # Function to partition and upload cleaned data to S3
