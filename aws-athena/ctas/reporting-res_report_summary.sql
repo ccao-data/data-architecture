@@ -30,13 +30,13 @@ Intended to be materialized daily through a GitHub action.
 -- AVs and model values
 WITH all_fmvs AS (
     SELECT
-        assessment_pin.meta_pin AS pin,
+        ass_pin.meta_pin AS pin,
         -- Subtracting one aligns model year with tax year
-        CAST(CAST(assessment_pin.year AS INT) - 1 AS VARCHAR) AS year,
+        CAST(CAST(ass_pin.year AS INT) - 1 AS VARCHAR) AS year,
         'model' AS assessment_stage,
-        assessment_pin.pred_pin_final_fmv_round AS total
-    FROM {{ source('model', 'assessment_pin') }}
-    WHERE assessment_pin.run_id IN (SELECT run_id FROM model.final_model)
+        ass_pin.pred_pin_final_fmv_round AS total
+    FROM {{ source('model', 'assessment_pin') }} AS ass_pin
+    WHERE ass_pin.run_id IN (SELECT run_id FROM model.final_model)
 
     UNION ALL
 
@@ -109,16 +109,16 @@ sales AS (
         tc.township_code,
         vwps.nbhd AS townnbhd
     FROM {{ ref('default.vw_pin_sale') }} AS vwps
-    LEFT JOIN town_class AS tc
-        ON vwps.pin = tc.parid
-        AND vwps.year = tc.taxyr
+    LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS tc
+        ON vwps.pin = tc.pin
+        AND vwps.year = tc.year
     WHERE NOT vwps.is_multisale
         AND NOT vwps.sale_filter_is_outlier
         AND NOT vwps.sale_filter_deed_type
         AND NOT vwps.sale_filter_less_than_10k
         AND NOT vwps.sale_filter_same_sale_within_365
         AND tc.property_group IS NOT NULL
-        AND tc.triad IS NOT NULL
+        AND tc.triad_name IS NOT NULL
 ),
 
 --- AGGREGATE ---
