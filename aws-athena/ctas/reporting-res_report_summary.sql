@@ -76,8 +76,19 @@ model_values AS (
     LEFT JOIN town_class AS tc
         ON ap.meta_pin = tc.parid
         AND ap.meta_year = tc.model_join_year
-    WHERE ap.run_id IN (SELECT run_id FROM model.final_model)
-        AND tc.property_group IS NOT NULL
+    INNER JOIN {{ ref('model.final_model') }} AS fm
+        ON ap.run_id = fm.run_id
+        AND ap.year = fm.year
+        AND (
+            -- If reassessment year, use different models for different towns
+            (
+                CONTAINS(fm.township_code_coverage, ap.township_code)
+                AND ap.meta_triad_code = fm.triad_code
+            )
+            -- Otherwise, just use whichever model is "final"
+            OR (ap.meta_triad_code != fm.triad_code AND fm.is_final)
+        )
+    WHERE tc.property_group IS NOT NULL
         AND tc.triad IS NOT NULL
 ),
 
