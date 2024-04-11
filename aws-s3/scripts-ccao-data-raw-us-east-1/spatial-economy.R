@@ -58,7 +58,7 @@ if (!aws.s3::object_exists(remote_file_qualified_opportunity_zone)) {
 
   # Only keep Cook County, save as geojson
   st_read(grep(
-      "shp",
+    "shp",
       list.files(tmp2, recursive = TRUE, full.names = TRUE),
       value = TRUE
     )) %>%
