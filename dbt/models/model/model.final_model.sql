@@ -1,0 +1,1 @@
+../../../aws-athena/ctas/model.final_model.sql

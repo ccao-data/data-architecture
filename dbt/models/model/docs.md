@@ -37,6 +37,18 @@ of the built-in LightGBM/XGBoost feature importance methods.
 **Primary Key**: `year`, `run_id`, `model_predictor_name_all`
 {% enddocs %}
 
+# final_model
+
+{% docs table_final_model %}
+A table containing metadata and information about the final model used for
+each tax year and township.
+
+This is the _parsed_ version of `model.final_model_raw` and is used to pull
+the correct model values for reporting views.
+
+**Primary Key**: `year`, `run_id`, `township_code_coverage`
+{% enddocs %}
+
 # metadata
 
 {% docs table_metadata %}

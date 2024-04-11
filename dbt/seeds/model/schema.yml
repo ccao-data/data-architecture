@@ -1,47 +1,6 @@
 seeds:
-  - name: model.final_model
-    description: '{{ doc("seed_final_model") }}'
+  - name: model.final_model_raw
+    description: '{{ doc("seed_final_model_raw") }}'
     config:
       column_types:
         year: string
-
-    columns:
-      - name: year
-        description: '{{ doc("shared_column_year") }}'
-      - name: run_id
-        description: '{{ doc("shared_column_run_id") }}'
-      - name: triad_name
-        description: '{{ doc("shared_column_triad_name") }}'
-      - name: type
-        description: Model type (residential or condo)
-      - name: is_final
-        description: Was this the final model of the year?
-      - name: date_chosen
-        description: Date on which the model was selected as the final model
-      - name: date_emailed
-        description: Date on which the yearly "model email" was sent
-      - name: date_finalized
-        description: Date on which export artifacts were shared with Valuations
-      - name: reason_chosen
-        description: Reason why the model run was chosen as the final version
-      - name: township_code_coverage
-        description: |
-          Townships for which the values from this model were used.
-
-          Some years may have multiple models which cover different townships,
-          as a later model may contain a change or improvement from the
-          initially used model.
-      - name: reference_run_id
-        description: |
-          An optional run_id that this model was based on.
-
-          Typically the final model is the same as the reference run, but with
-          all feature flags enabled.
-      - name: email_title
-        description: |
-          Title of the email sent to leadership and Valuations announcing
-          the final model for the year.
-      - name: note
-        description: |
-          Any notes or caveats associated with the model run
-
