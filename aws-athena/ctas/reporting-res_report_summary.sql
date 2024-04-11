@@ -35,7 +35,7 @@ WITH all_fmvs AS (
         CAST(CAST(assessment_pin.year AS INT) - 1 AS VARCHAR) AS year,
         'model' AS assessment_stage,
         assessment_pin.pred_pin_final_fmv_round AS total
-    FROM model.assessment_pin
+    FROM {{ source('model', 'assessment_pin') }}
     WHERE assessment_pin.run_id IN (SELECT run_id FROM model.final_model)
 
     UNION ALL
@@ -45,7 +45,7 @@ WITH all_fmvs AS (
         year,
         stage_name AS assessment_stage,
         tot * 10 AS total
-    FROM vw_pin_value_long
+    FROM {{ ref('reporting.vw_pin_value_long') }}
     WHERE year >= '2021'
 ),
 
@@ -56,7 +56,7 @@ chars AS (
         taxyr AS year,
         MIN(yrblt) AS yrblt,
         SUM(sfla) AS total_bldg_sf
-    FROM iasworld.dweldat
+    FROM {{ source('iasworld', 'dweldat') }}
     WHERE cur = 'Y'
         AND deactivat IS NULL
     GROUP BY parid, taxyr
@@ -66,7 +66,7 @@ chars AS (
         year,
         char_yrblt AS yrblt,
         char_building_sf AS total_bldg_sf
-    FROM default.vw_pin_condo_char
+    FROM {{ ref('default.vw_pin_condo_char') }}
     WHERE NOT is_parking_space
         AND NOT is_common_area
 ),
