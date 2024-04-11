@@ -87,13 +87,13 @@ all_values AS (
         chars.total_bldg_sf,
         vpl.sf AS total_land_sf
     FROM all_fmvs AS fmvs
-    LEFT JOIN vw_pin_township_class AS vptc
+    LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS vptc
         ON fmvs.pin = vptc.pin
         AND fmvs.year = vptc.year
     INNER JOIN chars
         ON fmvs.pin = chars.pin
         AND fmvs.year = chars.year
-    LEFT JOIN default.vw_pin_land AS vpl
+    LEFT JOIN {{ ref('default.vw_pin_land') }} AS vpl
         ON fmvs.pin = vpl.pin
         AND fmvs.year = vpl.year
     WHERE vptc.property_group IS NOT NULL
