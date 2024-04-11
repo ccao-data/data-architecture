@@ -117,6 +117,7 @@ CUSTOM_TEST_NAMES = {
     "macro.athena.test_unique_combination_of_columns": "duplicate_records",
     "macro.dbt_utils.test_unique_combination_of_columns": "duplicate_records",
     "macro.athena.test_not_null": "missing_values",
+    "macro.athena.test_is_null": "missing_values",
     "macro.athena.test_res_class_matches_pardat": "class_mismatch_or_issue",
 }
 # Directory to store failed test caches
@@ -1061,6 +1062,8 @@ def get_test_categories(
             # source table in an attempt to rehydrate the missing columns.
             test_results_select = "select test_results.*"
             test_results_join = ""
+            # We need parid and taxyr at minimum in order to rehydrate any
+            # missing fields
             if PARID_FIELD in fieldnames and TAXYR_FIELD in fieldnames:
                 if TOWNSHIP_FIELD not in fieldnames:
                     test_results_select += f", leg.user1 AS {TOWNSHIP_FIELD}"
@@ -1073,17 +1076,23 @@ def get_test_categories(
                     """
                 if CLASS_FIELD not in fieldnames:
                     if CARD_FIELD in fieldnames:
-                        test_results_select += f", dwel.class AS {CLASS_FIELD}"
+                        # Figure out the right table to join to in order to
+                        # query the class
+                        card_join_table = "dweldat"
+                        if tablename in ["comdat", "land", "oby"]:
+                            card_join_table = tablename
+
+                        test_results_select += f", card.class AS {CLASS_FIELD}"
                         test_results_join += f"""
-                            left join iasworld.dweldat as dwel
-                                on dwel.{PARID_FIELD} =
+                            left join iasworld.{card_join_table} as card
+                                on card.{PARID_FIELD} =
                                     test_results.{PARID_FIELD}
-                                and dwel.{TAXYR_FIELD} =
+                                and card.{TAXYR_FIELD} =
                                     test_results.{TAXYR_FIELD}
-                                and dwel.{CARD_FIELD} =
+                                and card.{CARD_FIELD} =
                                     test_results.{CARD_FIELD}
-                                and dwel.cur = 'Y'
-                                and dwel.deactivat is null
+                                and card.cur = 'Y'
+                                and card.deactivat is null
                         """
                     else:
                         test_results_select += f", par.class AS {CLASS_FIELD}"

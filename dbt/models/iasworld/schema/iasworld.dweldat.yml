@@ -1120,7 +1120,9 @@ sources:
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
-                    description: user14 (Total Number of Units) should not be null
+                    description: >
+                      user14 (Total Number of Units) should not be null
+                      for class 211 and 212 properties
               - accepted_values:
                   name: iasworld_dweldat_char_apts_accepted_values
                   values: ['1', '2', '3', '4', '5', '6']
@@ -1134,7 +1136,7 @@ sources:
                   meta:
                     description: >
                       user14 (Total Number of Units) should be an integer
-                      between 1 and 6
+                      between 1 and 6 for class 211 and 212 properties
           - name: user15
             description: '{{ doc("shared_column_char_use") }}'
             tests:

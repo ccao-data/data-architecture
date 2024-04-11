@@ -24,7 +24,7 @@ sources:
                   additional_select_columns:
                     - taxyr
                     - parid
-                    - card
+                    - lline
                     - who
                     - wen
                     - sf
@@ -50,7 +50,7 @@ sources:
                   additional_select_columns: &select-columns
                     - taxyr
                     - parid
-                    - card
+                    - lline
                     - who
                     - wen
                   config: *unique-conditions
@@ -188,7 +188,6 @@ sources:
                     - parid
                     - taxyr
                   additional_select_columns:
-                    - card
                     - who
                     - wen
                   config: *unique-conditions
@@ -247,7 +246,7 @@ sources:
                   name: iasworld_land_parid_not_null
                   additional_select_columns: &select-columns-no-parid
                     - taxyr
-                    - card
+                    - lline
                     - who
                     - wen
                   config: *unique-conditions
@@ -372,9 +371,6 @@ sources:
                 - lline
                 - taxyr
               additional_select_columns:
-                - column: card
-                  alias: card
-                  agg_func: array_agg
                 - column: who
                   alias: who
                   agg_func: array_agg
