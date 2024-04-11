@@ -133,10 +133,10 @@ values_town_groups AS (
         assessment_stage,
         township_code AS geography_id,
         year,
-        APPROX_PERCENTILE(tot 0.5) AS fmv_median,
+        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
         COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(totland_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(totbldg_sf, 0.5) AS bldg_sf_median,
+        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
+        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
         APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
     FROM all_values
     GROUP BY
@@ -156,10 +156,10 @@ values_town_no_groups AS (
         assessment_stage,
         township_code AS geography_id,
         year,
-        APPROX_PERCENTILE(tot 0.5) AS fmv_median,
+        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
         COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(totland_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(totbldg_sf, 0.5) AS bldg_sf_median,
+        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
+        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
         APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
     FROM all_values
     GROUP BY
@@ -178,10 +178,10 @@ values_nbhd_groups AS (
         assessment_stage,
         townnbhd AS geography_id,
         year,
-        APPROX_PERCENTILE(tot 0.5) AS fmv_median,
+        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
         COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(totland_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(totbldg_sf, 0.5) AS bldg_sf_median,
+        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
+        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
         APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
     FROM all_values
     GROUP BY
@@ -201,10 +201,10 @@ values_nbhd_no_groups AS (
         assessment_stage,
         townnbhd AS geography_id,
         year,
-        APPROX_PERCENTILE(tot 0.5) AS fmv_median,
+        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
         COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(totland_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(totbldg_sf, 0.5) AS bldg_sf_median,
+        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
+        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
         APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
     FROM all_values
     GROUP BY
