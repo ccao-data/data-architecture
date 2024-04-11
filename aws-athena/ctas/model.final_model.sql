@@ -12,9 +12,9 @@ SELECT
     END AS triad_code,
     fmr.type,
     fmr.is_final,
-    DATE_PARSE(fmr.date_chosen, '%c/%e/%Y') AS date_chosen,
-    DATE_PARSE(fmr.date_emailed, '%c/%e/%Y') AS date_emailed,
-    DATE_PARSE(fmr.date_finalized, '%c/%e/%Y') AS date_finalized,
+    DATE(DATE_PARSE(fmr.date_chosen, '%c/%e/%Y')) AS date_chosen,
+    DATE(DATE_PARSE(fmr.date_emailed, '%c/%e/%Y')) AS date_emailed,
+    DATE(DATE_PARSE(fmr.date_finalized, '%c/%e/%Y')) AS date_finalized,
     fmr.reason_chosen,
     CAST(
         JSON_PARSE(fmr.township_code_coverage) AS ARRAY<VARCHAR>
