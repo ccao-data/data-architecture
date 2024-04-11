@@ -121,6 +121,59 @@ sales AS (
         AND tc.triad_name IS NOT NULL
 ),
 
+-- Count of each class by different reporting groups (property group,
+-- assessment stage, town/nbhd)
+class_counts AS (
+    SELECT
+        class,
+        assessment_stage,
+        township_code,
+        townnbhd,
+        year,
+        property_group,
+        COUNT(*) OVER (
+            PARTITION BY
+                assessment_stage, township_code, year, property_group, class
+        ) AS group_town_count,
+        COUNT(*) OVER (
+            PARTITION BY assessment_stage, townnbhd, year, property_group, class
+        ) AS group_townnbhd_count,
+        COUNT(*) OVER (
+            PARTITION BY assessment_stage, township_code, year, class
+        ) AS town_count,
+        COUNT(*) OVER (
+            PARTITION BY assessment_stage, townnbhd, year, class
+        ) AS townnbhd_count
+    FROM all_values
+),
+
+-- Most common class by reporting group based on class counts
+class_modes AS (
+    SELECT
+        assessment_stage,
+        township_code,
+        townnbhd,
+        year,
+        property_group,
+        FIRST_VALUE(class) OVER (
+            PARTITION BY assessment_stage, township_code, year, property_group
+            ORDER BY group_town_count DESC
+        ) AS group_town_mode,
+        FIRST_VALUE(class) OVER (
+            PARTITION BY assessment_stage, townnbhd, year, property_group
+            ORDER BY group_townnbhd_count DESC
+        ) AS group_townnbhd_mode,
+        FIRST_VALUE(class) OVER (
+            PARTITION BY assessment_stage, township_code, year
+            ORDER BY group_townnbhd_count DESC
+        ) AS town_mode,
+        FIRST_VALUE(class) OVER (
+            PARTITION BY assessment_stage, townnbhd, year
+            ORDER BY group_townnbhd_count DESC
+        ) AS townnbhd_mode
+    FROM class_counts
+),
+
 --- AGGREGATE ---
 
 -- Here we aggregate stats on AV and characteristics for each reporting group
