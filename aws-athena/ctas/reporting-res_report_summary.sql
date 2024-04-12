@@ -30,13 +30,22 @@ Intended to be materialized daily through a GitHub action.
 -- AVs and model values
 WITH all_fmvs AS (
     SELECT
-        ass_pin.meta_pin AS pin,
+        ap.meta_pin AS pin,
         -- Subtracting one aligns model year with tax year
-        CAST(CAST(ass_pin.year AS INT) - 1 AS VARCHAR) AS year,
+        CAST(CAST(ap.year AS INT) - 1 AS VARCHAR) AS year,
         'model' AS assessment_stage,
-        ass_pin.pred_pin_final_fmv_round AS total
-    FROM {{ source('model', 'assessment_pin') }} AS ass_pin
-    WHERE ass_pin.run_id IN (SELECT run_id FROM model.final_model)
+        ap.pred_pin_final_fmv_round AS total
+    FROM {{ source('model', 'assessment_pin') }} AS ap
+    LEFT JOIN {{ source('model', 'final_model') }} AS fm
+    WHERE (
+            -- If reassessment year, use different models for different towns
+            (
+                CONTAINS(fm.township_code_coverage, ap.township_code)
+                AND ap.meta_triad_code = fm.triad_code
+            )
+            -- Otherwise, just use whichever model is "final"
+            OR (ap.meta_triad_code != fm.triad_code AND fm.is_final)
+        )
 
     UNION ALL
 

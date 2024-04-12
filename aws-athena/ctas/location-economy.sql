@@ -29,6 +29,9 @@ distinct_years_rhs AS (
     UNION ALL
     SELECT DISTINCT year
     FROM {{ source('spatial', 'qualified_opportunity_zone') }}
+    UNION ALL
+    SELECT DISTINCT year
+    FROM {{ source('spatial', 'central_business_district') }}
 ),
 
 coordinated_care AS (
@@ -156,6 +159,39 @@ qualified_opportunity_zone AS (
             ST_GEOMFROMBINARY(cprod.geometry_3435)
         )
     GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
+),
+
+central_business_district AS (
+    SELECT
+        dp.x_3435,
+        dp.y_3435,
+        MAX(cprod.cbd_num) AS econ_central_business_district_num,
+        MAX(cprod.year) AS econ_central_business_district_data_year,
+        cprod.pin_year
+    FROM distinct_pins AS dp
+    LEFT JOIN (
+        SELECT
+            fill_years.pin_year,
+            fill_data.*
+        FROM (
+            SELECT
+                dy.year AS pin_year,
+                MAX(df.year) AS fill_year
+            FROM {{ source('spatial', 'central_business_district') }} AS df
+            CROSS JOIN distinct_years AS dy
+            WHERE dy.year >= df.year
+            GROUP BY dy.year
+        ) AS fill_years
+        LEFT JOIN
+            {{ source('spatial', 'central_business_district') }}
+                AS fill_data
+            ON fill_years.fill_year = fill_data.year
+    ) AS cprod
+        ON ST_WITHIN(
+            ST_POINT(dp.x_3435, dp.y_3435),
+            ST_GEOMFROMBINARY(cprod.geometry_3435)
+        )
+    GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
 )
 
 SELECT
@@ -168,6 +204,8 @@ SELECT
     igz.econ_industrial_growth_zone_data_year,
     qoz.econ_qualified_opportunity_zone_num,
     qoz.econ_qualified_opportunity_zone_data_year,
+    cbd.econ_central_business_district_num,
+    cbd.econ_central_business_district_data_year,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 LEFT JOIN coordinated_care AS cc
@@ -186,4 +224,8 @@ LEFT JOIN qualified_opportunity_zone AS qoz
     ON pcl.x_3435 = qoz.x_3435
     AND pcl.y_3435 = qoz.y_3435
     AND pcl.year = qoz.pin_year
+LEFT JOIN central_business_district AS cbd
+    ON pcl.x_3435 = cbd.x_3435
+    AND pcl.y_3435 = cbd.y_3435
+    AND pcl.year = cbd.pin_year
 WHERE pcl.year >= (SELECT MIN(year) FROM distinct_years_rhs)

@@ -10,11 +10,17 @@ WITH model_values AS (
         'model' AS assessment_stage,
         ap.pred_pin_final_fmv_round AS total
     FROM {{ source('model', 'assessment_pin') }} AS ap
-    INNER JOIN {{ source('model', 'final_model') }} AS final_model
+    INNER JOIN {{ source('model', 'final_model') }} AS fm
         ON ap.run_id = final_model.run_id
     -- Model runs are specific to townships
-    WHERE final_model.township_code_coverage LIKE CONCAT(
-            '%', ap.township_code, '%'
+    WHERE (
+            -- If reassessment year, use different models for different towns
+            (
+                CONTAINS(fm.township_code_coverage, ap.township_code)
+                AND ap.meta_triad_code = fm.triad_code
+            )
+            -- Otherwise, just use whichever model is "final"
+            OR (ap.meta_triad_code != fm.triad_code AND fm.is_final)
         )
 ),
 
