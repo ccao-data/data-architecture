@@ -262,8 +262,7 @@ sources:
             tests:
               - expression_is_true: 
                   name: iasworld_pardat_tieback_does_not_contain_hyphen
-                  expression: |
-                    not like '%-%'
+                  expression: not like '%-%'
                   additional_select_columns: 
                     - parid
                     - taxyr
