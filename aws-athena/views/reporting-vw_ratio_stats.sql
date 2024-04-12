@@ -10,7 +10,7 @@ WITH model_values AS (
         'model' AS assessment_stage,
         ap.pred_pin_final_fmv_round AS total
     FROM {{ source('model', 'assessment_pin') }} AS ap
-    INNER JOIN {{ source('model', 'final_model') }} AS fm
+    INNER JOIN {{ ref('model.final_model') }} AS fm
         ON ap.run_id = final_model.run_id
     -- Model runs are specific to townships
     WHERE (
