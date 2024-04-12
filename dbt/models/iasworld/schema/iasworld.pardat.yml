@@ -261,11 +261,12 @@ sources:
             description: '{{ doc("shared_column_tieback_key_pin") }}'
             tests:
               - expression_is_true: 
-                  name: iasworld_pardat+tieback_does_not_contain_hyphen
+                  name: iasworld_pardat_tieback_does_not_contain_hyphen
                   expression: |
                     not like '%-%'
-                  meta:
-                    description: tieback should not have any hyphens                  
+                  additional_select_columns: 
+                    - parid
+                    - taxyr
           - name: tiebkcd
             description: Tieback code
           - name: tiebldgpct
