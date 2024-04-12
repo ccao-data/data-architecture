@@ -22,6 +22,9 @@ clean-targets:
   - "target"
   - "dbt_packages"
 
+# Variables that can change with invocation of dbt commands. Note that we parse
+# these variables by name in scripts, so if you change their names, make sure
+# you check all of our scripts and adjust them accordingly
 vars:
   # Start year for testing data using test_qc_* tagged dbt tests. Typically
   # this should be the current year, since errors in past data cannot usually
