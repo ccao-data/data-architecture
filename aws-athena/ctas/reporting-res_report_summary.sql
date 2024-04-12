@@ -121,6 +121,8 @@ sales AS (
         AND tc.triad_name IS NOT NULL
 ),
 
+--- AGGREGATE ---
+
 -- Count of each class by different reporting groups (property group,
 -- assessment stage, town/nbhd)
 class_counts AS (
@@ -173,8 +175,6 @@ class_modes AS (
         ) AS townnbhd_mode
     FROM class_counts
 ),
-
---- AGGREGATE ---
 
 -- Here we aggregate stats on AV and characteristics for each reporting group
 -- By township, assessment_stage, and property group
