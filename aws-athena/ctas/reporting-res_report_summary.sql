@@ -36,7 +36,7 @@ WITH all_fmvs AS (
         'model' AS assessment_stage,
         ap.pred_pin_final_fmv_round AS total
     FROM {{ source('model', 'assessment_pin') }} AS ap
-    LEFT JOIN {{ source('model', 'final_model') }} AS fm
+    LEFT JOIN {{ ref('model.final_model') }} AS fm
     WHERE (
             -- If reassessment year, use different models for different towns
             (
