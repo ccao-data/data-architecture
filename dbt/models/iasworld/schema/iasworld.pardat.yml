@@ -259,6 +259,11 @@ sources:
             description: '{{ doc("shared_column_year") }}'
           - name: tieback
             description: '{{ doc("shared_column_tieback_key_pin") }}'
+            tests:
+              - expression_is_true: 
+                  name: iasworld_pardat_does_not_contain_hyphen
+                  expression: |
+                    not like '%-%'
           - name: tiebkcd
             description: Tieback code
           - name: tiebldgpct
