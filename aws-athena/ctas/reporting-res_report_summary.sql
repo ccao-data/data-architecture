@@ -36,8 +36,10 @@ WITH all_fmvs AS (
         'model' AS assessment_stage,
         ap.pred_pin_final_fmv_round AS total
     FROM {{ source('model', 'assessment_pin') }} AS ap
-    LEFT JOIN {{ ref('model.final_model') }} AS fm
-    WHERE (
+    INNER JOIN {{ ref('model.final_model') }} AS fm
+        ON ap.run_id = fm.run_id
+        AND ap.year = fm.year
+        AND (
             -- If reassessment year, use different models for different towns
             (
                 CONTAINS(fm.township_code_coverage, ap.township_code)

@@ -11,9 +11,9 @@ WITH model_values AS (
         ap.pred_pin_final_fmv_round AS total
     FROM {{ source('model', 'assessment_pin') }} AS ap
     INNER JOIN {{ ref('model.final_model') }} AS fm
-        ON ap.run_id = final_model.run_id
-    -- Model runs are specific to townships
-    WHERE (
+        ON ap.run_id = fm.run_id
+        -- Model runs are specific to townships
+        AND (
             -- If reassessment year, use different models for different towns
             (
                 CONTAINS(fm.township_code_coverage, ap.township_code)
