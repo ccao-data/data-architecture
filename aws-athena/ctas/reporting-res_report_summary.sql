@@ -394,7 +394,7 @@ FROM aggregated_values AS av
 -- to a complete set of sales from the previous year
 LEFT JOIN all_sales AS asl
     ON av.geography_id = asl.geography_id
-    AND CAST(av.year AS INT) = CAST(asl.sale_year AS INT) + 1
+    AND av.year = asl.sale_year
     AND av.property_group = asl.property_group
 -- Join on class modes specifically by the columns that were
 -- used to generate them
