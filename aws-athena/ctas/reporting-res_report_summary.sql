@@ -215,7 +215,7 @@ values_town_no_groups AS (
     SELECT
         triad,
         'Town' AS geography_type,
-        ' REGRESSION' AS property_group,
+        'ALL REGRESSION' AS property_group,
         assessment_stage,
         township_code AS geography_id,
         year,
@@ -260,7 +260,7 @@ values_nbhd_no_groups AS (
     SELECT
         triad,
         'TownNBHD' AS geography_type,
-        ' REGRESSION' AS property_group,
+        'ALL REGRESSION' AS property_group,
         assessment_stage,
         townnbhd AS geography_id,
         year,
@@ -394,7 +394,7 @@ FROM aggregated_values AS av
 -- to a complete set of sales from the previous year
 LEFT JOIN all_sales AS asl
     ON av.geography_id = asl.geography_id
-    AND av.year = asl.sale_year
+    AND CAST(av.year AS INT) = CAST(asl.sale_year AS INT) + 1
     AND av.property_group = asl.property_group
 -- Join on class modes specifically by the columns that were
 -- used to generate them
