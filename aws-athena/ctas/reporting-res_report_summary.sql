@@ -31,8 +31,7 @@ Intended to be materialized daily through a GitHub action.
 WITH all_fmvs AS (
     SELECT
         ap.meta_pin AS pin,
-        -- Subtracting one aligns model year with tax year
-        CAST(CAST(ap.year AS INT) - 1 AS VARCHAR) AS year,
+        ap.year,
         'model' AS assessment_stage,
         ap.pred_pin_final_fmv_round AS total
     FROM {{ source('model', 'assessment_pin') }} AS ap
