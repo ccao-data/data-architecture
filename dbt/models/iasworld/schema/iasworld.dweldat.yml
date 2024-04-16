@@ -364,14 +364,30 @@ sources:
                     description: >
                       fixbath (Number of Full Baths) should not be null
               - accepted_range:
-                  name: iasworld_dweldat_fixbath_between_1_and_16
+                  name: iasworld_dweldat_fixbath_matches_number_of_units
                   min_value: 1
-                  max_value: 16
-                  additional_select_columns: *select-columns
+                  max_value: |
+                    CASE
+                      WHEN user14 IS NULL OR user14 = '0' OR user14 = '6' THEN 7
+                      WHEN user14 = '1' THEN 14
+                      WHEN user14 = '2' THEN 21
+                      WHEN user14 = '3' THEN 28
+                      WHEN user14 = '4' THEN 35
+                      WHEN user14 = '5' THEN 42
+                      ELSE 7
+                    END
+                  additional_select_columns: &select-columns-with-num-units
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
+                    - user14
                   config: *unique-conditions
                   meta:
                     description: >
-                      fixbath (Number of Full Baths) should be between 1 and 16
+                      fixbath (Number of Full Baths) should be <= 7 times the
+                      number of units (user14)
           - name: fixbath1
             description: Number of full bathrooms on the first floor
           - name: fixbath2
@@ -422,15 +438,9 @@ sources:
                       WHEN user14 = '3' THEN 20
                       WHEN user14 = '4' THEN 25
                       WHEN user14 = '5' THEN 30
-                      ELSE 6
+                      ELSE 5
                     END
-                  additional_select_columns: &select-columns-with-num-units
-                    - taxyr
-                    - parid
-                    - card
-                    - who
-                    - wen
-                    - user14
+                  additional_select_columns: *select-columns-with-num-units
                   config: *unique-conditions
                   meta:
                     description: >
