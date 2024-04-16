@@ -61,12 +61,12 @@ chars AS (
         par.parid AS pin,
         CASE
             WHEN
+                (oby.card IS NULL OR com.card IS NULL)
+                THEN COALESCE(oby.card, com.card)
+            WHEN
                 REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') = '299'
                 THEN oby.card
             WHEN par.class = '399' THEN com.card
-            WHEN
-                (oby.card IS NULL OR com.card IS NULL)
-                THEN COALESCE(oby.card, com.card)
         END AS card,
         -- Proration related fields from PARDAT
         par.tieback AS tieback_key_pin,
@@ -80,6 +80,8 @@ chars AS (
             ELSE 1.0
         END AS tieback_proration_rate,
         CASE
+            WHEN (oby.user20 IS NULL OR com.user24 IS NULL)
+                THEN CAST(COALESCE(oby.user20, com.user24) AS DOUBLE) / 100.0
             WHEN
                 REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') = '299'
                 THEN CAST(oby.user20 AS DOUBLE) / 100.0

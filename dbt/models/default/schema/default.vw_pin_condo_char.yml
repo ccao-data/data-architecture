@@ -95,6 +95,8 @@ models:
       - not_null:
           name: default_vw_pin_condo_char_card_proration_rate_not_null
           column_name: card_proration_rate
+          config:
+            error_if: ">49999" # as of 2024-04-16
       - not_null:
           name: default_vw_pin_condo_char_char_yrblt_not_null
           column_name: char_yrblt
