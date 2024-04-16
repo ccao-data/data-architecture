@@ -40,12 +40,13 @@ of the built-in LightGBM/XGBoost feature importance methods.
 # final_model
 
 {% docs table_final_model %}
-Final model `run_id` and information for each year.
+A table containing metadata and information about the final model used for
+each tax year and township.
 
-This table is manually updated (edit the CSV on S3) once the residential
-and condominium models are finalized for each year.
+This is the _parsed_ version of `model.final_model_raw` and is used to pull
+the correct model values for reporting views.
 
-**Primary Key**: `year`, `run_id`
+**Primary Key**: `year`, `run_id`, `township_code_coverage`
 {% enddocs %}
 
 # metadata

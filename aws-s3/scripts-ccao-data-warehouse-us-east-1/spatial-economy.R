@@ -38,10 +38,11 @@ clean_coordinated_care <- function(shapefile, economic_unit) {
                                               TRUE ~ "Municipality"),
                cc_name = str_squish(
                  str_to_title(
-                   case_when(is.na(MUNICIPALI) ~ str_replace(AGENCY_DES, "TWP", ""),
+                   case_when(is.na(MUNICIPALI) ~
+                               str_replace(AGENCY_DES, "TWP", ""),
                              TRUE ~ MUNICIPALI)
-                   )
-                 )) %>%
+                 )
+               )) %>%
         select(cc_num, cc_name, political_boundary, geometry) %>%
         ungroup()
     )
@@ -120,6 +121,26 @@ clean_qualified_opportunity_zone <- function(shapefile, economic_unit) {
 
 }
 
+# Function to clean the central business district
+clean_central_business_district <- function(shapefile, economic_unit) {
+
+  if (economic_unit == "central_business_district") {
+
+    return(
+
+      shapefile %>%
+        select(cbd_num = objectid, cbd_name = name, geometry)
+
+    )
+
+  } else {
+
+    return(shapefile)
+
+  }
+
+}
+
 # Function to pull raw data from S3 and clean
 clean_economy <- function(remote_file) {
   economic_unit <- str_split(remote_file, "/", simplify = TRUE)[1, 6]
@@ -137,16 +158,18 @@ clean_economy <- function(remote_file) {
       clean_enterprise_zone(economic_unit) %>%
       clean_industrial_growth_zone(economic_unit) %>%
       clean_qualified_opportunity_zone(economic_unit) %>%
+      clean_central_business_district(economic_unit) %>%
       standardize_expand_geo(make_valid = TRUE) %>%
       mutate(year = year)
-    )
+  )
 
   file.remove(tmp_file)
 
 }
 
 # Apply function to raw_files
-cleaned_output <- sapply(raw_files, clean_economy, simplify = FALSE, USE.NAMES = TRUE)
+cleaned_output <- sapply(raw_files, clean_economy,
+                         simplify = FALSE, USE.NAMES = TRUE)
 economic_units <- unique(str_split(raw_files, "/", simplify = TRUE)[, 6])
 
 # Function to partition and upload cleaned data to S3
@@ -155,7 +178,8 @@ combine_upload <- function(economic_unit) {
     bind_rows() %>%
     group_by(across(contains("name"))) %>%
 
-    # Some shapefiles don't have consistent identifiers across time, create them using group IDs
+    # Some shapefiles don't have consistent identifiers across time,
+    # create them using group IDs
     mutate(across(contains("num"), ~ case_when(
       is.na(.) ~ str_pad(cur_group_id(), width = 3, side = "left", pad = "0"),
       TRUE ~ .

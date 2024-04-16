@@ -1,19 +1,39 @@
+-- fmt: off
+--
 -- For all residential parcels in a given model, test that there is at least one
 -- class code that matches a class code for that parcel in pardat. The test
 -- filters for residential parcels by anti-joining the model against `comdat`
 -- using parid and taxyr; as a result, it filters out mixed-use parcels as well.
 --
--- By default, the test will compare the first 3 digits of each set of classes;
--- if `major_class_only=true`, however, the test will compare the first digit
--- only.
+-- Optional parameters:
 --
--- Since the output is grouped by (parid, taxyr), additional columns that would
--- normally be selected via `additional_select_columns` need to be selected
--- with one of two aggregation methods: `select_columns_aggregated_with_array`
--- (which uses the `array_agg()` function to select the columns) or
--- `select_columns_aggregated_with_max` (which uses the `max()` function).
+--    * major_class_only (bool): Compare only the first digit of classes. When
+--    set to False, compare the first three digits instead.
+--
+--    * parid_column_name (str): The name of the column on the base model that
+--    corresponds to `parid`, in case the model uses a different name scheme.
+--
+--    * taxyr_column_name (str): The name of the column on the base model that
+--    corresponds to `taxyr`, in case the model uses a different name scheme.
+--
+--    * additional_select_columns (dict): Standard parameter for selecting
+--    additional columns from the base model for use in reporting failures.
+--    `model.{column_name}` and `pardat.class` are already selected by
+--    default and do not need to be included using this parameter.
+--    See the `format_additional_select_columns` macro for more information.
+--    Note that while this parameter can often be either a string or a dict,
+--    a dict is required for this test and it must contain the `alias`
+--    and `agg_func` parameters given that results are grouped by `parid`
+--    and `taxyr`.
+--
+-- fmt: on
 {% test res_class_matches_pardat(
-    model, column_name, major_class_only=false, additional_select_columns=[]
+    model,
+    column_name,
+    major_class_only=false,
+    parid_column_name="parid",
+    taxyr_column_name="taxyr",
+    additional_select_columns=[]
 ) %}
     {#-
         Process `additional_select_columns` to add the necessary prefix for
@@ -55,8 +75,8 @@
                     from {{ source("iasworld", "comdat") }}
                     where comdat.cur = 'Y' and comdat.deactivat is null
                 ) as comdat
-                on model.parid = comdat.parid
-                and model.taxyr = comdat.taxyr
+                on model.{{ parid_column_name }} = comdat.parid
+                and model.{{ taxyr_column_name }} = comdat.taxyr
             where comdat.parid is null
         )
 
@@ -73,9 +93,10 @@
             from {{ source("iasworld", "pardat") }}
             where cur = 'Y' and deactivat is null
         ) as pardat
-        on pardat.parid = filtered_model.parid
-        and pardat.taxyr = filtered_model.taxyr
-    group by filtered_model.parid, filtered_model.taxyr
+        on filtered_model.{{ parid_column_name }} = pardat.parid
+        and filtered_model.{{ taxyr_column_name }} = pardat.taxyr
+    group by
+        filtered_model.{{ parid_column_name }}, filtered_model.{{ taxyr_column_name }}
     having
         sum(
             case

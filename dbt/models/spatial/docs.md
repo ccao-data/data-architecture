@@ -44,6 +44,16 @@ Census geography. Sourced from Tiger/LINE files via the `tigris` R package.
 **Geometry:** `MULTIPOLYGON`
 {% enddocs %}
 
+# central_business_district
+
+{% docs table_spatial_central_business_district %}
+Chicago's central business district boundary.
+
+Sourced from the City of Chicago Data Portal.
+
+**Geometry:** `MULTIPOLYGON`
+{% enddocs %}
+
 # coastline
 
 {% docs table_coastline %}
@@ -216,8 +226,8 @@ Major roads include any OSM ways tagged with
 `highway/motorway`, `highway/trunk`, or `highway/primary`
 
 This data covers major roads data from 2014 onwards and uses an additive
-approach for data integration. Starting from 2014, each year's data builds 
-upon the previous year, with new major road additions being added to the 
+approach for data integration. Starting from 2014, each year's data builds
+upon the previous year, with new major road additions being added to the
 existing dataset.
 
 **Geometry:** `MULTILINESTRING`

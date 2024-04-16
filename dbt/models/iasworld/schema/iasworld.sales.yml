@@ -42,6 +42,8 @@ sources:
                     - parid
                     - who
                     - wen
+                  config:
+                    where: substr(saledt, 1, 4) >= '2011'
                   meta:
                     description: cur should be 'Y' or 'D'
           - name: deactivat
@@ -113,14 +115,18 @@ sources:
             tests:
               - not_null:
                   name: iasworld_sales_parid_not_null
+                  additional_select_columns: &select-columns-no-parid
+                    - substr(saledt, 1, 4) as taxyr
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: parid should not be null
               - relationships:
                   name: iasworld_sales_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
-                  additional_select_columns:
-                    - "substr(saledt, 1, 4) as taxyr"
-                    - who
-                    - wen
+                  additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
                   meta:
                     category: parid
@@ -128,11 +134,14 @@ sources:
           - name: price
             description: '{{ doc("shared_column_sale_price") }}'
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_sales_price_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: price should be between 0 and 1,000,000,000
           - name: recorddt
             description: Recording date
           - name: saledt
@@ -226,3 +235,6 @@ sources:
                 - saledt
                 - instruno
               config: *unique-conditions
+              meta:
+                category: incorrect_values
+                description: saledt should be before the current date

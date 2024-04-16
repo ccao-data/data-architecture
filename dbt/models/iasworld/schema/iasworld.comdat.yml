@@ -18,15 +18,23 @@ sources:
           - name: adjfact
             description: '{{ doc("column_adjfact") }}'
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_comdat_adjfact_between_0_and_1
                   min_value: 0
                   max_value: 1
+                  additional_select_columns: &select-columns
+                    - parid
+                    - taxyr
+                    - card
+                    - who
+                    - wen
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: adjfact should be between 0 and 1
           - name: areasum
             description: '{{ doc("column_areasum") }}'
           - name: bld_modelid
@@ -38,11 +46,14 @@ sources:
           - name: bldgval
             description: Building value
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_comdat_bldgval_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: bldgval should be between 0 and 1,000,000,000
           - name: bldnum
             description: Building number
           - name: busla
@@ -55,12 +66,7 @@ sources:
               - accepted_values:
                   name: iasworld_comdat_calc_meth_accepted_values
                   values: ["E"]
-                  additional_select_columns: &select-columns
-                    - parid
-                    - taxyr
-                    - card
-                    - who
-                    - wen
+                  additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
@@ -68,17 +74,28 @@ sources:
                       AND deactivat IS NULL
                       AND calc_meth IS NOT NULL
                   meta:
-                    description: calc_meth should be null or 'E'
+                    description: >
+                      calc_meth (Calculation Method) should be 'E' if not null
           - name: card
             description: '{{ doc("column_card") }}'
             tests:
               - not_null:
                   name: iasworld_comdat_card_not_null
+                  additional_select_columns: &select-columns-no-card
+                    - parid
+                    - taxyr
+                    - who
+                    - wen
                   config: *unique-conditions
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: card should not be null
+              - accepted_range:
                   name: iasworld_comdat_card_gte_1
                   min_value: 1
+                  additional_select_columns: *select-columns-no-card
                   config: *unique-conditions
+                  meta:
+                    description: card should be >= 1
           - name: cdu
             description: '{{ doc("column_cdu") }}'
           - name: chgrsn
@@ -120,11 +137,14 @@ sources:
           - name: convbldg
             description: '{{ doc("column_convbldg") }}'
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_comdat_convbldg_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: convbldg should be between 0 and 1,000,000,000
           - name: cubicft
             description: Cubic feet
           - name: cur
@@ -133,16 +153,25 @@ sources:
               - accepted_values:
                   name: iasworld_comdat_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: depr
             description: Percent good from tables
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_comdat_depr_between_0_and_1
                   min_value: 0
                   max_value: 1
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: depr should be between 0 and 1
           - name: deprt
             description: '{{ doc("column_deprt") }}'
           - name: effageovr
@@ -154,11 +183,14 @@ sources:
           - name: exmppct
             description: '{{ doc("column_exmppct") }}'
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_comdat_exmppct_between_0_and_100
                   min_value: 0
                   max_value: 100
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: exmppct should be between 0 and 100
           - name: exmpval
             description: '{{ doc("column_exmpval") }}'
           - name: external_calc_rcnld
@@ -172,7 +204,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      external_calc_rcnld (calculated full NMV) should not be 0
+                      external_calc_rcnld (Net Market Value) should not be 0
           - name: external_occpct
             description: '{{ doc("shared_column_external_occpct") }}'
             tests:
@@ -184,7 +216,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      external_occpct (occupancy percentage) should not be 0
+                      external_occpct (Occupancy %) should not be 0
           - name: external_propct
             description: '{{ doc("shared_column_external_propct") }}'
             tests:
@@ -196,7 +228,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      external_propct (proration percentage) should not be 0
+                      external_propct (Proration %) should not be 0
           - name: external_rcnld
             description: '{{ doc("shared_column_external_rcnld") }}'
             tests:
@@ -208,7 +240,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      external_rcnld (calculated full FMV) should not be 0
+                      external_rcnld (Full Market Value) should not be 0
           - name: gfact
             description: Grade factor
           - name: grade
@@ -284,12 +316,18 @@ sources:
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
             tests:
-              - dbt_utils.sequential_values:
+              - sequential_values:
                   name: iasworld_comdat_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
                     - card
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: status
             description: '{{ doc("column_status") }}'
           - name: structure
@@ -321,20 +359,18 @@ sources:
             tests:
               - not_null:
                   name: iasworld_comdat_yrblt_not_null
-                  additional_select_columns:
-                    - taxyr
-                    - parid
-                    - card
-                    - who
-                    - wen
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: yrblt should not be null
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_comdat_yrblt_between_1850_and_now
                   min_value: 1850
                   max_value: cast(year(current_date) as decimal)
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: yrblt should be between 1850 and now
 
         tests:
           - unique_combination_of_columns:
@@ -343,3 +379,13 @@ sources:
                 - parid
                 - taxyr
                 - card
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: comdat should be unique by parid, card, and year
