@@ -64,6 +64,9 @@ chars AS (
                 REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') = '299'
                 THEN oby.card
             WHEN par.class = '399' THEN com.card
+            WHEN
+                (par.card IS NULL OR com.card IS NULL)
+                THEN COALESCE(oby.card, com.card)
         END AS card,
         -- Proration related fields from PARDAT
         par.tieback AS tieback_key_pin,
