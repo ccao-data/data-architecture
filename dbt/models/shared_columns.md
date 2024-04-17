@@ -865,7 +865,12 @@ Parcel has an active homeowner exemption
 ## is_corner_lot
 
 {% docs shared_column_is_corner_lot %}
-Corner lot indicator
+The CCAO Corner Lot Indicator overlays the road network from
+[Open Street Maps](https://www.openstreetmap.org/) with pin10 geographies. 
+It then plots a cross from each parcel centroid and identifies if at least 
+two unobstructed arms, with an angle of 90°, intersect with a road. If this is true, 
+the value is 1 (corner lot). If this is not true, the value is 
+0 (not a corner lot).
 {% enddocs %}
 
 ## modeling_group
