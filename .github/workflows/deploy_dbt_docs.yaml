@@ -45,7 +45,8 @@ jobs:
         run: |
           dbt docs generate --target prod
           # Editing index.html to inject a custom stylesheet and change the site metadata
-          sed -i 's|<head>|<head>\n\t<link rel="stylesheet" href="./assets/ccao-style.css" />|' target/index.html
+          sed -i 's|</head>|\t<link rel="stylesheet" href="./assets/ccao-style.css" />\n</head>|' target/index.html
+          sed -i 's|</head>|\t<script src="./assets/ccao-script.js"></script>\n</head>|' target/index.html
           sed -i 's|<title>dbt Docs</title>|<title>CCAO Data Catalog</title>|' target/index.html
           sed -i 's|content="dbt Docs"|content="CCAO Data Catalog"|' target/index.html
           sed -i 's|content="documentation for dbt"|content="Cook County Assessor'\''s Office data documentation"|' target/index.html
