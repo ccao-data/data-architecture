@@ -16,6 +16,16 @@
 --    * taxyr_column_name (str): The name of the column on the base model that
 --    corresponds to `taxyr`, in case the model uses a different name scheme.
 --
+--    * join_type (str): The type of join to use when joining to pardat, e.g.
+--    "inner" or "left". Defaults to "left".
+--
+--    * additional_pardat_filter (optional str): A string representing
+--    additional conditions to apply in the WHERE clause of the subquery that
+--    selects from pardat to join to the model, e.g.
+--    "class != 'EX' AND class != 'RR'". Note that `cur = 'Y'` and
+--    `deactivat IS NULL` are already set prior to this parameter being applied,
+--    hence "additional" pardat filters.
+--
 --    * additional_select_columns (dict): Standard parameter for selecting
 --    additional columns from the base model for use in reporting failures.
 --    `model.{column_name}` and `pardat.class` are already selected by
@@ -33,6 +43,8 @@
     major_class_only=false,
     parid_column_name="parid",
     taxyr_column_name="taxyr",
+    join_type="left",
+    additional_pardat_filter=None,
     additional_select_columns=[]
 ) %}
     {#-
@@ -86,12 +98,17 @@
         -- Pardat should be unique by (parid, taxyr), so we can select the
         -- max rather than array_agg
         max(pardat.class) as pardat_class
-    from filtered_model
-    left join
+    from
+        filtered_model
+    {{ join_type }} join -- fmt: off
         (
             select *
             from {{ source("iasworld", "pardat") }}
-            where cur = 'Y' and deactivat is null
+            where
+                cur = 'Y' and deactivat is null
+                {% if additional_pardat_filter %}
+                    {{ additional_pardat_filter }}
+                {% endif %}
         ) as pardat
         on filtered_model.{{ parid_column_name }} = pardat.parid
         and filtered_model.{{ taxyr_column_name }} = pardat.taxyr
