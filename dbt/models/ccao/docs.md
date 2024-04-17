@@ -7,17 +7,6 @@ this table is a static parquet file from the data warehouse.
 **Primary Key**: `reascd`
 {% enddocs %}
 
-# ccao_corner_lot
-
-The CCAO Corner Lot Indicator overlays the road network from
-[Open Street Maps](https://www.openstreetmap.org/) with pin10 geographies. 
-It then plots a cross from each parcel centroid and identifies if at least 
-two unobstructed arms, with an angle of 90°, intersect with a road. If this is true, 
-the value is 1 (corner lot). If this is not true, the value is 
-0 (not a corner lot).
-
-{% enddocs %}
-
 # class_dict
 
 {% docs table_class_dict %}
@@ -34,6 +23,17 @@ CCAO commercial valuation data, aggregated from the commercial team spreadsheets
 [available on the Assessor's site](https://www.cookcountyassessor.com/valuation-reports).
 
 **Primary Key**: `keypin`, `year`
+{% enddocs %}
+
+# corner_lot
+
+The CCAO Corner Lot Indicator overlays the road network from
+[Open Street Maps](https://www.openstreetmap.org/) with pin10 geographies. 
+It then plots a cross from each parcel centroid and identifies if at least 
+two unobstructed arms, with an angle of 90°, intersect with a road. If this is true, 
+the value is 1 (corner lot). If this is not true, the value is 
+0 (not a corner lot).
+
 {% enddocs %}
 
 # hie
