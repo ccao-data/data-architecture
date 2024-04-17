@@ -115,6 +115,7 @@ sources:
               - res_class_matches_pardat:
                   name: iasworld_land_ex_matches_pardat_class_ex
                   major_class_only: false
+                  join_type: inner
                   additional_select_columns:
                     - column: taxyr
                       agg_func: max
@@ -132,7 +133,7 @@ sources:
                       AND deactivat IS NULL
                   meta:
                     description: >
-                      at least one major class (first digit) should match pardat class
+                      Exempt parcels in pardat should be exempt in land
           - name: code
             description: Code
           - name: comres
