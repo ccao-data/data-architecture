@@ -71,9 +71,8 @@ models:
             - pin
             - year
             - sale_price
-            - sale_filter_same_sale_within_365
           config:
-            error_if: ">2079"
+            where: NOT sale_filter_same_sale_within_365 AND NOT sale_filter_deed_type
       - row_count:
           name: default_vw_pin_sale_row_count
           above: 2477674 # as of 2023-11-22
@@ -86,6 +85,12 @@ models:
           additional_select_columns:
             - num_parcels_sale
             - is_multisale
+      - expression_is_true:
+          name: default_vw_pin_sale_sale_filter_deed_type
+          expression: NOT sale_filter_deed_type OR deed_type IN ('03', '04', '06')
+      - expression_is_true:
+          name: default_vw_pin_sale_sale_filter_less_than_10k
+          expression: NOT sale_filter_less_than_10k OR sale_price <= 10000
       # TODO: Sale is validated (after sales validation has been added to
       # iasworld)
       # TODO: Validation is catching obvious outliers
