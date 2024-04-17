@@ -93,8 +93,10 @@
         {% endif %}
         array_agg({{ model_col }}) as {{ column_alias }},
         array_agg({{ external_model_col }}) as {{ external_column_alias }}
-    from {{ external_model }} as external_model {{ join_type }}
-    join (select * from {{ model }}) as model {{ join_condition }}
+    from
+        {{ external_model }} as external_model
+    {{ join_type }} join -- fmt: off
+        (select * from {{ model }}) as model {{ join_condition }}
     group by {{ group_by_csv }}
     having
         sum(case when {{ external_model_col }} = {{ model_col }} then 1 else 0 end) = 0

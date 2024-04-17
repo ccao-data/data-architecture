@@ -95,8 +95,9 @@
         -- Pardat should be unique by (parid, taxyr), so we can select the
         -- max rather than array_agg
         max(pardat.class) as pardat_class
-    from filtered_model {{ join_type }}
-    join
+    from
+        filtered_model
+    {{ join_type }} join -- fmt: off
         (
             select *
             from {{ source("iasworld", "pardat") }}
