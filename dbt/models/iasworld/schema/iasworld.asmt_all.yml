@@ -37,6 +37,29 @@ sources:
                   meta:
                     category: class_mismatch_or_issue
                     description: class code must be valid
+              - row_values_match_after_join:
+                  name: iasworld_asmt_all_exempt_pardat_exempt
+                  external_model: source('iasworld', 'pardat')
+                  external_column_name: class
+                  column_alias: class
+                  external_column_alias: class
+                  group_by:
+                    - taxyr
+                    - parid                    
+                  join_condition:
+                    On model.parid = external_model.parid
+                    AND model.taxyr = external_model.taxyr
+                    AND external_model.cur = 'Y'
+                    AND external_model.deactivat IS NULL
+                  where:
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND rolltype != 'RR'
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
+                      AND class IN ('EX')
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: exempt values in land must be exempt
               - res_class_matches_pardat:
                   name: iasworld_asmt_all_class_matches_pardat_class
                   additional_select_columns:
