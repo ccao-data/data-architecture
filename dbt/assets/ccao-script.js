@@ -11,10 +11,14 @@ document.addEventListener('DOMContentLoaded', function () {
   if (databaseTab) {
     databaseTab.click()
   }
-  const targetTable = Array
-    .from(document.querySelectorAll('span.filename-normal'))
-    .find(span => span.textContent.trim() === 'awsdatacatalog')
-  if (targetTable) {
-    targetTable.click()
-  }
+
+  // Wait until all other JS is executed before clicking the table
+  setTimeout(function () {
+    const targetTable = Array
+      .from(document.querySelectorAll('span.filename-normal'))
+      .find(span => span.textContent.trim() === 'awsdatacatalog')
+    if (targetTable) {
+      targetTable.click()
+    }
+  }, 200)
 })
