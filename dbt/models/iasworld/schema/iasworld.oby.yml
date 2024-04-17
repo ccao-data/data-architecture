@@ -124,26 +124,28 @@ sources:
                   meta:
                     description: >
                       at least one major class (first digit) should match pardat class
-              - row_values_match_after_join:
-                  name: iasworld_oby_exempt_pardat_exempt
-                  external_model: source('iasworld', 'pardat')
-                  external_column_name: class
-                  column_alias: class
-                  external_column_alias: class
-                  group_by:
-                    - taxyr
-                    - parid                    
-                  join_condition:
-                    On model.parid = external_model.parid
-                    AND model.taxyr = external_model.taxyr
-                    AND external_model.cur = 'Y'
-                    AND external_model.deactivat IS NULL
-                  where:
+              - res_class_matches_pardat:
+                  name: iasworld_oby_matches_pardat_class_ex
+                  major_class_only: false
+                  join_type: inner
+                  additional_select_columns:
+                    - column: taxyr
+                      agg_func: max
+                    - column: parid
+                      agg_func: max
+                    - column: who
+                      agg_func: max
+                    - column: wen
+                      agg_func: max
+                  additional_pardat_filter: AND class = 'EX'
+                  config:
+                    where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND class IN ('EX')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
                   meta:
-                    category: class_mismatch_or_issue
-                    description: exempt values in land must be exempt
+                    description: >
+                      Exempt parcels in pardat should be exempt in land
           - name: cline
             description: Condominium line
           - name: cndcmplx
