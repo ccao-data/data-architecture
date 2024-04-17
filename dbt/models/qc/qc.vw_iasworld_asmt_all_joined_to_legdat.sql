@@ -1,0 +1,1 @@
+../../../aws-athena/views/qc-vw_iasworld_asmt_all_joined_to_legdat.sql

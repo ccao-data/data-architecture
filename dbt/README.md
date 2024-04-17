@@ -92,7 +92,7 @@ To use this functionality:
 
 The workflow input box expects a space-separated list of dbt model names or selectors.
 Multiple models can be passed at the same time, as the input box values are
-passed directly to `dbt run`. Model names _must include the database schema name_. Some possible inputs include:
+passed directly to `dbt build`. Model names _must include the database schema name_. Some possible inputs include:
 
 - `default.vw_pin_sale` - Rebuild a single view
 - `default.vw_pin_sale default.vw_pin_universe` - Rebuild two views at once
@@ -149,19 +149,20 @@ aws-mfa
 
 #### Build tables and views
 
-We use the [`dbt run` command](https://docs.getdbt.com/reference/commands/run)
-to build tables and views (called
-[models](https://docs.getdbt.com/docs/build/models) in dbt jargon) in our
+We use the [`dbt build`
+command](https://docs.getdbt.com/reference/commands/build) to build tables and
+views (called [models](https://docs.getdbt.com/docs/build/models) and
+[seeds](https://docs.getdbt.com/docs/build/seeds) in dbt jargon) in our
 Athena data warehouse. See the following sections for specific instructions
 on how to build [development](#build-tables-and-views-in-development) and
 [production](#build-tables-and-views-in-production) models.
 
 #### Build tables and views in development
 
-When passed no arguments, `dbt run` will default to building _all_ tables
-and views in development schemas dedicated to your user. The full build takes
-about three hours and thirty minutes, so we don't recommend running it
-from scratch.
+When passed no arguments, `dbt build` will default to building
+_all_ tables and views in development schemas dedicated to your user. The full
+build takes about three hours and thirty minutes, so we don't recommend running
+it from scratch.
 
 Instead, start by copying the production dbt state file (also known as the
 [manifest file](https://docs.getdbt.com/reference/artifacts/manifest-json)):
@@ -185,17 +186,19 @@ Once you've copied prod tables and views into your development schemas, you can
 rebuild specific tables and views using [dbt's node selection
 syntax](https://docs.getdbt.com/reference/node-selection/syntax).
 
-Use `--select` to build one specific model, or a group of models:
+Use `--select` to build one specific table/view, or a group of tables/views.
+Here are some example commands that use `--select` to build a subset of all
+tables/views:
 
 ```bash
 # This builds just the vw_pin_universe view
-dbt run --select default.vw_pin_universe
+dbt build --select default.vw_pin_universe --resource-types model
 
 # This builds vw_pin_universe as well as vw_pin10_location
-dbt run --select default.vw_pin_universe location.vw_pin10_location
+dbt build --select default.vw_pin_universe location.vw_pin10_location --resource-types model
 
-# This builds everything in the default schema
-dbt run --select default.*
+# This builds all models and seeds in the default schema
+dbt build --select default.* --resource-types model seed
 ```
 
 #### Build tables and views in production
@@ -212,7 +215,7 @@ However, in the rare case that you need to manually build models in production,
 use the `--target` option:
 
 ```
-dbt run --target prod
+dbt build --target prod --resource-types model seed
 ```
 
 #### Clean up development resources
@@ -533,5 +536,5 @@ option](https://docs.getdbt.com/reference/node-selection/exclude) to exclude
 these compute-intensive models from being rebuilt:
 
 ```
-dbt run --select +model.vw_pin_shared_input --exclude location.* proximity.*
+dbt build --select +model.vw_pin_shared_input --exclude location.* proximity.* --resource-types model seed
 ```

@@ -26,7 +26,10 @@ oby_filtered AS (
         *,
         ROW_NUMBER()
             OVER (PARTITION BY parid, taxyr ORDER BY lline ASC)
-            AS row_no
+            AS row_no,
+        COUNT()
+            OVER (PARTITION BY parid, taxyr)
+            AS num_lines
     FROM {{ source('iasworld', 'oby') }}
     -- We don't include DEACTIVAT IS NULL here since it can disagree with
     -- DEACTIVAT in iasworld.pardat and we'll defer to that table
@@ -39,7 +42,10 @@ comdat_filtered AS (
         *,
         ROW_NUMBER()
             OVER (PARTITION BY parid, taxyr ORDER BY card ASC)
-            AS row_no
+            AS row_no,
+        COUNT()
+            OVER (PARTITION BY parid, taxyr)
+            AS num_lines
     FROM {{ source('iasworld', 'comdat') }}
     -- We don't include DEACTIVAT IS NULL here since it can disagree with
     -- DEACTIVAT in iasworld.pardat and we'll defer to that table
@@ -77,7 +83,7 @@ chars AS (
                 THEN CAST(com.user24 AS DOUBLE) / 100.0
         END AS card_proration_rate,
         oby.lline,
-
+        COALESCE(oby.num_lines, com.num_lines) AS num_lines,
         SUBSTR(par.parid, 1, 10) AS pin10,
         par.class,
         par.taxyr AS year,
@@ -157,7 +163,6 @@ chars AS (
         AND par.taxyr = com.taxyr
     LEFT JOIN {{ source('ccao', 'pin_condo_char') }} AS pin_condo_char
         ON par.parid = pin_condo_char.pin
-        AND par.taxyr = pin_condo_char.year
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
         ON par.parid = leg.parid
         AND par.taxyr = leg.taxyr
@@ -172,8 +177,7 @@ chars AS (
         nonlivable detection, but upon human review have been deemed livable. */
     LEFT JOIN {{ source('ccao', 'pin_nonlivable') }} AS nonlivable
         ON par.parid = nonlivable.pin
-    WHERE par.class IN ('299', '2-99', '399')
-        AND par.cur = 'Y'
+    WHERE par.cur = 'Y'
         AND par.deactivat IS NULL
         AND (oby.row_no = 1 OR com.row_no = 1)
 ),
@@ -185,6 +189,7 @@ filled AS (
         pin10,
         card,
         lline,
+        num_lines,
         class,
         year,
         township_code,
@@ -198,60 +203,12 @@ filled AS (
             note) IGNORE NULLS
         OVER (PARTITION BY pin ORDER BY year DESC)) AS note,
         -- Characteristics data gathered from MLS by valuations
-        FIRST_VALUE(char_building_sf)
-            OVER (
-                PARTITION BY pin
-                ORDER BY
-                    CASE
-                        WHEN char_building_sf IS NOT NULL THEN year ELSE '0'
-                    END DESC
-            )
-            AS char_building_sf,
-        FIRST_VALUE(char_unit_sf)
-            OVER (
-                PARTITION BY pin
-                ORDER BY
-                    CASE
-                        WHEN char_unit_sf IS NOT NULL THEN year ELSE '0'
-                    END DESC
-            )
-            AS char_unit_sf,
-        FIRST_VALUE(char_bedrooms)
-            OVER (
-                PARTITION BY pin
-                ORDER BY
-                    CASE
-                        WHEN char_bedrooms IS NOT NULL THEN year ELSE '0'
-                    END DESC
-            )
-            AS char_bedrooms,
-        FIRST_VALUE(char_half_baths)
-            OVER (
-                PARTITION BY pin
-                ORDER BY
-                    CASE
-                        WHEN char_half_baths IS NOT NULL THEN year ELSE '0'
-                    END DESC
-            )
-            AS char_half_baths,
-        FIRST_VALUE(char_full_baths)
-            OVER (
-                PARTITION BY pin
-                ORDER BY
-                    CASE
-                        WHEN char_full_baths IS NOT NULL THEN year ELSE '0'
-                    END DESC
-            )
-            AS char_full_baths,
-        FIRST_VALUE(parking_pin)
-            OVER (
-                PARTITION BY pin
-                ORDER BY
-                    CASE
-                        WHEN parking_pin IS NOT NULL THEN year ELSE '0'
-                    END DESC
-            )
-            AS parking_pin,
+        char_building_sf,
+        char_unit_sf,
+        char_bedrooms,
+        char_half_baths,
+        char_full_baths,
+        parking_pin,
         unitno,
         tiebldgpct,
         tieback_key_pin,
@@ -262,6 +219,7 @@ filled AS (
             OVER (PARTITION BY pin10, year)
             AS building_pins
     FROM chars
+    WHERE class IN ('299', '2-99', '399')
 )
 
 SELECT DISTINCT
@@ -275,15 +233,8 @@ SELECT DISTINCT
         ELSE filled.class
     END AS class,
     filled.township_code,
-    -- Count pin rather than lline here since lline can be null. It shouldn't
-    -- be, but some condo PINs exist in pardat and not OBY
-    COALESCE(
-        COUNT(filled.pin) OVER (PARTITION BY filled.pin, filled.year) > 1,
-        FALSE
-    ) AS pin_is_multilline,
-    COUNT(filled.pin)
-        OVER (PARTITION BY filled.pin, filled.year)
-        AS pin_num_lline,
+    filled.num_lines > 1 AS pin_is_multilline,
+    filled.num_lines AS pin_num_lline,
     filled.tieback_key_pin,
     filled.tieback_proration_rate,
     filled.card_proration_rate,

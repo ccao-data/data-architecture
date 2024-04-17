@@ -6,10 +6,13 @@
 .DS_Store
 *.geojson
 *.parquet
-*.csv
 !open_data_info.csv
 aws-s3/parcel-tmp
 aws-s3/scripts-ccao-data-raw-us-east-1/corner-lot-raw/
 package*.json
 node_modules/
 logs/
+
+# Ignore most CSVs, except those that are used as dbt seeds
+*.csv
+!dbt/seeds/**/*.csv

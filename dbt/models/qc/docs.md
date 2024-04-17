@@ -16,21 +16,6 @@ Pulled from the following Inquire queries:
 - `FP Checklist--Bldg and parcel class mismatch` (#2161) - Will C.
 {% enddocs %}
 
-# vw_incorrect_asmt_value
-
-{% docs view_vw_incorrect_asmt_value %}
-Test that no `ASMT` critical column values are wrong.
-
-Pulled from the following Inquire queries:
-
-- `FP Checklist - Non-EX, RR parcels with 0 land value` (#1578) - Will C.
-- `FP Checklist - Non-EX, RR PINs with 0 value` (#1570) - Will C.
-- `FP Checklist - Vacant Class, bldg value` (#1577) - Will C.
-- `FP Checklist - Improved class, no bldg value` (#1047) - Will C.
-- `FP Checklist - Class does not equal LUC` (#2046) - Will C.
-- `FP Checklist - 500k increase, 1m decrease` (#1673) - Will C.
-{% enddocs %}
-
 # vw_incorrect_val_method
 
 {% docs view_vw_incorrect_val_method %}
@@ -101,4 +86,13 @@ different.
 Test that deed, buyer, seller, address and price `sale.mydec` columns are not
 null.
 
+{% enddocs %}
+
+# vw_iasworld_asmt_all_joined_to_legdat
+
+{% docs view_vw_iasworld_asmt_all_joined_to_legdat %}
+View that joins `iasworld.asmt_all` to `iasworld.legdat` to augment `asmt_all`
+with parcel legal descriptions and addresses.
+
+Both views are already filtered for current active records.
 {% enddocs %}

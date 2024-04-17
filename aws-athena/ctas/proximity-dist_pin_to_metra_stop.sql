@@ -8,6 +8,13 @@
     )
 }}
 
+WITH metra_stop AS (
+    SELECT *
+    FROM {{ source('spatial', 'transit_stop') }}
+    WHERE agency = 'metra'
+        AND route_type = 2
+)
+
 SELECT
     pcl.pin10,
     ARBITRARY(xy.stop_id) AS nearest_metra_stop_id,
@@ -16,12 +23,7 @@ SELECT
     ARBITRARY(xy.year) AS nearest_metra_stop_data_year,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
-INNER JOIN ( {{
-        dist_to_nearest_geometry(
-            source('spatial', 'transit_stop'),
-            'agency = \'metra\' AND route_type = 2'
-        )
-    }} ) AS xy
+INNER JOIN ( {{ dist_to_nearest_geometry('metra_stop') }} ) AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
     AND pcl.year = xy.pin_year

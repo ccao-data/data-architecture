@@ -1,6 +1,6 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
       - test_qc_iasworld
@@ -9,6 +9,10 @@ sources:
     tables:
       - name: oby
         description: '{{ doc("table_oby") }}'
+        freshness:
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
 
         columns:
           - name: adjfact
@@ -22,28 +26,55 @@ sources:
           - name: area
             description: '{{ doc("column_area") }}'
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_oby_area_gte_1
                   min_value: 1
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: area should be >= 1
           - name: areaid
             description: '{{ doc("column_areaid") }}'
           - name: areasum
             description: '{{ doc("column_areasum") }}'
           - name: bld_modelid
             description: '{{ doc("column_bld_modelid") }}'
+          - name: calc_meth
+            description: '{{ doc("shared_column_calc_meth") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_oby_calc_meth_accepted_values
+                  values: ["E"]
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND calc_meth IS NOT NULL
+                  meta:
+                    description: >
+                      calc_meth (Calculation Method) should be 'E' if not null
           - name: card
             description: '{{ doc("column_card") }}'
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_oby_card_between_1_and_100
                   min_value: 1
                   max_value: 100
+                  additional_select_columns: ["taxyr", "parid", "who", "wen"]
                   config: *unique-conditions
+                  meta:
+                    description: card should be between 1 and 100
           - name: cdpct
             description: Cost and design percent
           - name: chgrsn
@@ -53,9 +84,46 @@ sources:
                   name: iasworld_oby_chgrsn_eq_5_mktadj_not_null
                   expression: |
                     != '5' OR mktadj IS NOT NULL
+                  additional_select_columns:
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
+                    - mktadj
                   config: *unique-conditions
+                  meta:
+                    category: incorrect_values
+                    description: chgrsn should only be 5 if mktadj is not null
           - name: class
             description: '{{ doc("shared_column_class") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_oby_class_mismatch_no_289s
+                  values: ["289"]
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class should not be 289
+              - res_class_matches_pardat:
+                  name: iasworld_oby_class_matches_pardat_class
+                  major_class_only: true
+                  additional_select_columns:
+                    - column: card
+                      agg_func: array_agg
+                    - column: taxyr
+                      agg_func: max
+                    - column: parid
+                      agg_func: max
+                    - column: who
+                      agg_func: max
+                    - column: wen
+                      agg_func: max
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      at least one major class (first digit) should match pardat class
           - name: cline
             description: Condominium line
           - name: cndcmplx
@@ -82,6 +150,12 @@ sources:
               - accepted_values:
                   name: iasworld_oby_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: curmult
             description: Current multiplier
           - name: deactivat
@@ -104,6 +178,54 @@ sources:
             description: '{{ doc("column_exmppct") }}'
           - name: exmpval
             description: '{{ doc("column_exmpval") }}'
+          - name: external_calc_rcnld
+            description: '{{ doc("shared_column_external_calc_rcnld") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_oby_external_calc_rcnld_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_calc_rcnld (Net Market Value) should not be 0
+          - name: external_occpct
+            description: '{{ doc("shared_column_external_occpct") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_oby_external_occpct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_occpct (Occupancy %) should not be 0
+          - name: external_propct
+            description: '{{ doc("shared_column_external_propct") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_oby_external_propct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_propct (Proration %) should not be 0
+          - name: external_rcnld
+            description: '{{ doc("shared_column_external_rcnld") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_oby_external_rcnld_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_rcnld (Full Market Value) should not be 0
           - name: funct
             description: Function used in computing this calcualtion
           - name: fundep
@@ -127,11 +249,16 @@ sources:
           - name: lline
             description: '{{ doc("shared_column_lline") }}'
             tests:
-              - dbt_utils.accepted_range:
+              - accepted_range:
                   name: iasworld_oby_lline_between_1_and_100
                   min_value: 1
                   max_value: 100
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: lline should be between 1 and 100
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: locmult
             description: Local multiplier
           - name: lumpadj
@@ -219,13 +346,19 @@ sources:
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
             tests:
-              - dbt_utils.sequential_values:
+              - sequential_values:
                   name: iasworld_oby_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
                     - card
                     - lline
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: status
             description: '{{ doc("column_status") }}'
           - name: stories
@@ -237,6 +370,14 @@ sources:
             tests:
               - not_null:
                   name: iasworld_oby_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - card
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: units
@@ -266,12 +407,18 @@ sources:
             tests:
               - not_null:
                   name: iasworld_oby_yrblt_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: yrblt should not be null
+              - accepted_range:
                   name: iasworld_oby_yrblt_between_1850_and_now
                   min_value: 1850
                   max_value: cast(year(current_date) as decimal)
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: yrblt should be between 1850 and now
           - name: yrrem
             description: Year remodeled
 
@@ -283,12 +430,14 @@ sources:
                 - card
                 - lline
                 - taxyr
-          - row_values_match_after_join:
-              name: iasworld_oby_class_matches_pardat_class
-              column: substr(model.class, 1, 1)
-              external_model: source('iasworld', 'pardat')
-              external_column: substr(external_model.class, 1, 1)
-              join_columns:
-                - parid
-                - taxyr
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
               config: *unique-conditions
+              meta:
+                description: >
+                  oby should be unique by parid, card, lline, and taxyr

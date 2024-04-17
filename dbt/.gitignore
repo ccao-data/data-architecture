@@ -7,3 +7,4 @@ dbt_packages/
 assets/*.svg
 master-cache/
 *.xlsx
+test_cache/*.json

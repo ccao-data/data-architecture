@@ -1,10 +1,7 @@
 -- Macro that takes a `source_model` containing geometries and joins it
 -- against `spatial.parcel` in order to generate the distance from each PIN
 -- to each geometry and year combination
---
--- The `source_conditional` allows for filtering on the source table
--- using standard SQL, passed as a string
-{% macro dist_to_nearest_geometry(source_model, source_conditional) %}
+{% macro dist_to_nearest_geometry(source_model) %}
 
     with
         -- Universe of all possible PINs. This ignores years since PINs don't
@@ -27,11 +24,7 @@
             select dy.year as pin_year, max(df.year) as fill_year
             from {{ source_model }} as df
             cross join distinct_years as dy
-            where
-                dy.year >= df.year
-                {% if source_conditional is defined %}
-                    and {{ source_conditional }}
-                {% endif %}
+            where dy.year >= df.year
             group by dy.year
         ),
 
@@ -43,9 +36,6 @@
             select fy.pin_year, fill_data.*
             from fill_years as fy
             inner join {{ source_model }} as fill_data on fy.fill_year = fill_data.year
-            {% if source_conditional is defined %}
-                where {{ source_conditional }}
-            {% endif %}
         ),
 
         -- Source table with forward filling applied by year, but containing

@@ -12,10 +12,6 @@
     {% endif %}
 {% endmacro %}
 
-{% macro mock_raise_compiler_error(_error) %}
-    {{ return("Compiler error raised") }}
-{% endmacro %}
-
 {% macro test_generate_schema_name_handles_dev_env() %}
     {% do assert_equals(
         "test_generate_schema_name_handles_dev_env",
@@ -68,6 +64,10 @@
             mock_env_var,
             mock_raise_compiler_error,
         ),
-        "Compiler error raised",
+        (
+            "Missing schema definition for test. Its containing subdirectory "
+            "is probably missing a `+schema` attribute under the `models` "
+            "config in dbt_project.yml."
+        ),
     ) %}
 {% endmacro %}

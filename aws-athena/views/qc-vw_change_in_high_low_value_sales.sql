@@ -4,7 +4,7 @@
 WITH sales_cte AS (
     SELECT
         MAX('iasWorld') AS source,
-        SUBSTR(sales.saledt, 1, 4) AS year,
+        SUBSTR(sales.saledt, 1, 4) AS taxyr,
         COUNT(CASE WHEN sales.price < 10000 THEN 1 END)
             AS price_less_than_10k_count,
         COUNT(CASE WHEN sales.price > 1000000 THEN 1 END)
@@ -32,7 +32,7 @@ WITH sales_cte AS (
 
     SELECT
         MAX('MyDec') AS source,
-        mydec.year_of_sale AS year,
+        mydec.year_of_sale AS taxyr,
         COUNT(CASE WHEN mydec.line_11_full_consideration < 10000 THEN 1 END)
             AS price_less_than_10k_count,
         COUNT(CASE WHEN mydec.line_11_full_consideration > 1000000 THEN 1 END)
@@ -54,7 +54,7 @@ WITH sales_cte AS (
 
 SELECT
     source,
-    year,
+    taxyr,
     prev_year_price_less_than_10k_count,
     price_less_than_10k_count,
     CASE
@@ -82,5 +82,5 @@ SELECT
         ELSE 'No significant change'
     END AS price_greater_than_1m_growth_status
 FROM sales_cte
-WHERE year >= '2014'
-ORDER BY year ASC
+WHERE taxyr >= '2014'
+ORDER BY taxyr ASC

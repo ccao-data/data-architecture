@@ -193,6 +193,17 @@ Board of Review assessed value of building from year specified by column
 prefix (or year of observation if not prefixed)
 {% enddocs %}
 
+## board_class
+
+{% docs shared_column_board_class %}
+Stage-level property type and/or use at the time of BOR certification.
+
+Designates the property type, such as vacant, residential, multi-family,
+agricultural, commercial or industrial. The classification determines the
+percentage of fair cash value at which a property is assessed for taxing
+purposes. See `ccao.class_dict` for more information
+{% enddocs %}
+
 ## board_land
 
 {% docs shared_column_board_land %}
@@ -208,6 +219,48 @@ column prefix (or year of observation if not prefixed).
 
 This is the value after the first round of appeals at the Assessor's
 Office **and** the second round of appeals at the Board of Review.
+{% enddocs %}
+
+## calc_meth
+
+{% docs shared_column_calc_meth %}
+Calculation parameter.
+
+If present, must be `E`.
+{% enddocs %}
+
+## certified_bldg
+
+{% docs shared_column_certified_bldg %}
+Certified assessed value of building from year specified by column
+prefix (or year of observation if not prefixed)
+{% enddocs %}
+
+## certified_class
+
+{% docs shared_column_certified_class %}
+Stage-level property type and/or use at the time of CCAO certification.
+
+Designates the property type, such as vacant, residential, multi-family,
+agricultural, commercial or industrial. The classification determines the
+percentage of fair cash value at which a property is assessed for taxing
+purposes. See `ccao.class_dict` for more information
+{% enddocs %}
+
+## certified_land
+
+{% docs shared_column_certified_land %}
+Certified assessed value of land from year specified by column
+prefix (or year of observation if not prefixed)
+{% enddocs %}
+
+## certified_tot
+
+{% docs shared_column_certified_tot %}
+Certified total assessed value from year specified by column
+prefix (or year of observation if not prefixed).
+
+This is the value after the first round of appeals at the Assessor's Office.
 {% enddocs %}
 
 ## change_reason
@@ -271,27 +324,19 @@ Reason for change in assessed value. Possible values for this variable are:
 - `92` =  Flood Debasement
 {% enddocs %}
 
-## certified_bldg
+## external_calc_rcnld
 
-{% docs shared_column_certified_bldg %}
-Certified assessed value of building from year specified by column
-prefix (or year of observation if not prefixed)
+{% docs shared_column_external_calc_rcnld %}
+Calculated net market value.
+
+If there are no occupancy or proration values applicable, this number will
+match the FMV.
 {% enddocs %}
 
-## certified_land
+## external_rcnld
 
-{% docs shared_column_certified_land %}
-Certified assessed value of land from year specified by column
-prefix (or year of observation if not prefixed)
-{% enddocs %}
-
-## certified_tot
-
-{% docs shared_column_certified_tot %}
-Certified total assessed value from year specified by column
-prefix (or year of observation if not prefixed).
-
-This is the value after the first round of appeals at the Assessor's Office.
+{% docs shared_column_external_rcnld %}
+Calculated full market value.
 {% enddocs %}
 
 ## mailed_bldg
@@ -299,6 +344,17 @@ This is the value after the first round of appeals at the Assessor's Office.
 {% docs shared_column_mailed_bldg %}
 Mailed assessed value of building from year specified by column
 prefix (or year of observation if not prefixed)
+{% enddocs %}
+
+## mailed_class
+
+{% docs shared_column_mailed_class %}
+Stage-level property type and/or use at the time of CCAO mailing.
+
+Designates the property type, such as vacant, residential, multi-family,
+agricultural, commercial or industrial. The classification determines the
+percentage of fair cash value at which a property is assessed for taxing
+purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
 ## mailed_land
@@ -463,6 +519,17 @@ Square footage of the _building_ (PIN10) containing this unit.
 Applies to condos only
 {% enddocs %}
 
+## char_class
+
+{% docs shared_column_char_class %}
+Card-level property type and/or use.
+
+Designates the property type, such as vacant, residential, multi-family,
+agricultural, commercial or industrial. The classification determines the
+percentage of fair cash value at which a property is assessed for taxing
+purposes. See `ccao.class_dict` for more information
+{% enddocs %}
+
 ## char_cnst_qlty
 
 {% docs shared_column_char_cnst_qlty %}
@@ -590,7 +657,11 @@ Defined as bathrooms without a shower or bathtub
 {% docs shared_column_char_land_sf %}
 Square footage of the land (not just the building) of the property.
 
-A single PIN can have multiple "land lines", meaning it can be associated with more than one 200-class land lot
+A single parcel can have multiple "land lines", meaning it can be associated
+with more than one 200-class land lot. Land is aggregated within parcels based
+largely on "influence factors" that determine whether land lines should be given
+preference over one another or summed. Parcels with "Split Class" influence
+reasons do not heed influence factor heuristics.
 {% enddocs %}
 
 ## char_ncu
@@ -786,10 +857,32 @@ percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
+## is_active_exe_homeowner
+{% docs shared_column_is_active_exe_homeowner %}
+Parcel has an active homeowner exemption
+{% enddocs %}
+
+## is_corner_lot
+
+{% docs shared_column_is_corner_lot %}
+The CCAO Corner Lot Indicator overlays the road network from
+[Open Street Maps](https://www.openstreetmap.org/) with pin10 geographies. 
+It then plots a cross from each parcel centroid and identifies if at least 
+two unobstructed arms, with an angle of 90°, intersect with a road. If this is true, 
+the value is 1 (corner lot). If this is not true, the value is 
+0 (not a corner lot).
+{% enddocs %}
+
 ## modeling_group
 
 {% docs shared_column_modeling_group %}
 Modeling group, one of: `SF`, `MF`, `CONDO`, or `BB`
+{% enddocs %}
+
+## n_years_exe_homeowner
+
+{% docs shared_column_n_years_exe_homeowner %}
+Number of years parcel has had an active homeowner exemption
 {% enddocs %}
 
 ## nbhd_code
@@ -895,6 +988,14 @@ will be paid in calendar year 2024
 
 # iasWorld
 
+## loaded_at
+
+{% docs shared_column_loaded_at %}
+Timestamp (UTC) of when a record was pulled from the main iasWorld database.
+
+Created by sqoop using the Oracle DB system time
+{% enddocs %}
+
 ## seq
 
 {% docs shared_column_seq %}
@@ -918,6 +1019,18 @@ Changes in tandem with `updated_by`/`who` field.
 Username of last person to update the record.
 
 Changes in tandem with `updated_at`/`wen` field.
+{% enddocs %}
+
+# Model
+
+## run_id
+
+{% docs shared_column_run_id %}
+Unique identifier for a given valuation model run.
+
+Always uses the format, `YYYY-MM-DD-adjective-name`. The date is the date
+when the run finished. Names are sourced from current and former employees
+and interns. Adjectives are pulled from the list used by Docker.
 {% enddocs %}
 
 # Other
@@ -961,7 +1074,7 @@ on price from higher tax burdens
 Tax bill total amount for the tax year
 {% enddocs %}
 
-# Proration, Multi-cards, and Landlines
+# Proration, Multi-cards, Occupancy, and Landlines
 
 ## card_proration_rate
 
@@ -970,6 +1083,24 @@ Proration rate for a card on a given PIN.
 
 Prorated cards split their total value across multiple PINs. An example is
 something like a building that crosses multiple PINs
+{% enddocs %}
+
+## external_occpct
+
+{% docs shared_column_external_occpct %}
+Calculated occupancy rate used for computing fields like `external_rcnld`.
+
+This field is used in the new system for calculating proration and occupancy,
+and we expect it to eventually become the standard.
+{% enddocs %}
+
+## external_propct
+
+{% docs shared_column_external_propct %}
+Calculated proration rate used for computing fields like `external_rcnld`.
+
+This field is used in the new system for calculating proration and occupancy,
+and we expect it to eventually become the standard.
 {% enddocs %}
 
 ## lline

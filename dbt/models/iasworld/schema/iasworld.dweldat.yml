@@ -1,6 +1,6 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
       - test_qc_iasworld
@@ -9,6 +9,10 @@ sources:
     tables:
       - name: dweldat
         description: '{{ doc("table_dweldat") }}'
+        freshness:
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
 
         columns:
           - name: ac
@@ -46,18 +50,30 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_attic_not_null
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
                   # Excludes non-regression classes, as defined in Assessor's
                   # online PDF of all class definitions
                   config: &unique-conditions
-                    where: | 
+                    where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
                       AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
+                  meta:
+                    description: attic (Attic Type) should not be null
               - accepted_values:
                   name: iasworld_dweldat_attic_in_accepted_values
-                  values: ['1', '2', '3']
+                  values: ['1', '2', '3', '4', '5']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      attic (Attic Type) should be an integer between 1 and 5
           - name: atticarea
             description: Attic area
           - name: atticval
@@ -79,11 +95,18 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_bsmt_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: bsmt (Basement Type) should not be null
               - accepted_values:
                   name: iasworld_dweldat_bsmt_in_accepted_values
-                  values: ['1', '2', '3', '4']
+                  values: ['1', '2', '3', '4', '5', '6', '7']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      bsmt (Basement Type) should be an integer between 1 and 7
           - name: bsmtarea
             description: Unfinished basement area
           - name: bsmtcar
@@ -91,17 +114,44 @@ sources:
           - name: bsmtval
             description: Basement value
           - name: calceffyr
-            description: Claculated effective year
+            description: Calculated effective year
+          - name: calc_meth
+            description: '{{ doc("shared_column_calc_meth") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_dweldat_calc_meth_accepted_values
+                  values: ["E"]
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
+                      AND calc_meth IS NOT NULL
+                  meta:
+                    description: >
+                      calc_meth (Calculation Method) should be null or 'E'
           - name: card
             description: '{{ doc("column_card") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_card_not_null
+                  additional_select_columns: &select-columns-no-card
+                    - parid
+                    - taxyr
+                    - who
+                    - wen
                   config: *unique-conditions
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: card should not be null
+              - accepted_range:
                   name: iasworld_dweldat_card_gte_1
                   min_value: 1
+                  additional_select_columns: *select-columns-no-card
                   config: *unique-conditions
+                  meta:
+                    description: card should be >= 1
           - name: catharea
             description: Cathedral ceiling area
           - name: cathval
@@ -123,12 +173,32 @@ sources:
                   name: iasworld_dweldat_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
                   field: class_code
+                  additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class NOT IN ('EX', 'RR')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class code must be valid
+              - res_class_matches_pardat:
+                  name: iasworld_dweldat_class_matches_pardat_class
+                  additional_select_columns:
+                    - column: card
+                      agg_func: array_agg
+                    - column: taxyr
+                      agg_func: max
+                    - column: parid
+                      agg_func: max
+                    - column: who
+                      agg_func: max
+                    - column: wen
+                      agg_func: max
+                  config: *unique-conditions
+                  meta:
+                    description: at least one class should match pardat class
           - name: cline
             description: Condominium line
           - name: cndadjval
@@ -163,6 +233,12 @@ sources:
               - accepted_values:
                   name: iasworld_dweldat_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                        CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: degrem
@@ -199,16 +275,70 @@ sources:
             description: Override exemption percent
           - name: exmpval
             description: '{{ doc("column_exmpval") }}'
+          - name: external_calc_rcnld
+            description: '{{ doc("shared_column_external_calc_rcnld") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_dweldat_external_calc_rcnld_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_calc_rcnld (Net Market Value) should not be 0
+          - name: external_occpct
+            description: '{{ doc("shared_column_external_occpct") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_dweldat_external_occpct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_occpct (Occupancy %) should not be 0
+          - name: external_propct
+            description: '{{ doc("shared_column_external_propct") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_dweldat_external_propct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_propct (Proration %) should not be 0
+          - name: external_rcnld
+            description: '{{ doc("shared_column_external_rcnld") }}'
+            tests:
+              - not_accepted_values:
+                  name: iasworld_dweldat_external_rcnld_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_rcnld (Full Market Value) should not be 0
           - name: extwall
             description: '{{ doc("shared_column_char_ext_wall") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_extwall_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: extwall (Exterior Construction) should not be null
               - accepted_values:
                   name: iasworld_dweldat_extwall_in_accepted_values
-                  values: ['1', '2', '3', '4']
+                  values: ['1', '2', '3', '4', '6', '7', '8', '9']
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      extwall (Exterior Construction) should be 1, 2, 3, 4, 6, 7, 8, or 9
           - name: extwall1
             description: Exterior wall code
           - name: extwall1pct
@@ -228,12 +358,20 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_fixbath_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: >
+                      fixbath (Number of Full Baths) should not be null
+              - accepted_range:
                   name: iasworld_dweldat_fixbath_between_1_and_16
                   min_value: 1
                   max_value: 16
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      fixbath (Number of Full Baths) should be between 1 and 16
           - name: fixbath1
             description: Number of full bathrooms on the first floor
           - name: fixbath2
@@ -267,12 +405,20 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_fixhalf_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: >
+                      fixhalf (Number of Half Baths) should not be null
+              - accepted_range:
                   name: iasworld_dweldat_fixhalf_between_0_and_6
                   min_value: 0
                   max_value: 6
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      fixhalf (Number of Half Baths) should be between 0 and 6
           - name: fixhalf1
             description: Number of half baths on the first floor
           - name: fixhalf2
@@ -336,11 +482,19 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_heat_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      heat (Heating) should not be null
               - accepted_values:
                   name: iasworld_dweldat_heat_in_accepted_values
                   values: ['1', '2', '3', '4']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      heat (Heating) should be an integer between 1 and 4
           - name: heatarea
             description: Heat area
           - name: heatsys
@@ -367,6 +521,8 @@ sources:
             description: Kitchen percentage
           - name: kityr
             description: Kitchen year
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: locmult
             description: Local multiplier
           - name: lumpcamod
@@ -390,11 +546,22 @@ sources:
                   name: iasworld_dweldat_mktrsn_eq_5_mktadj_not_null
                   expression: |
                     != '5' OR mktadj IS NOT NULL
+                  additional_select_columns:
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
+                    - mktadj
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    category: incorrect_values
+                    description: >
+                      mktrsn (Reason for Override) should only be 5 if mktadj is not null
           - name: modover
             description: Residential override model
           - name: mvpattic
@@ -438,11 +605,23 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_parid_not_null
+                  additional_select_columns: &select-columns-no-parid
+                    - taxyr
+                    - card
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: parid should not be null
               - relationships:
                   name: iasworld_dweldat_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
           - name: pctcomplete
             description: Percent of construction completed
           - name: plumbgrade
@@ -504,37 +683,54 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_rmbed_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: >
+                      rmbed (Number of Bedrooms) should not be null
+              - accepted_range:
                   name: iasworld_dweldat_rmbed_sf_between_1_and_15
                   min_value: 1
                   max_value: 15
+                  additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class NOT IN ('211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: >
+                      rmbed (Number of Bedrooms) should be between 1 and 15
+              - accepted_range:
                   name: iasworld_dweldat_rmbed_mf_between_1_and_24
                   min_value: 1
                   max_value: 24
+                  additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class IN ('211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: >
+                      rmbed (Number of Bedrooms) should be between 1 and 24
               - expression_is_true:
                   name: iasworld_dweldat_rmbed_lte_rmtot
                   expression: <= rmtot
-                  select_columns:
+                  additional_select_columns:
                     - parid
                     - taxyr
                     - card
+                    - who
+                    - wen
                     - rmtot
-                    - rmbed
                   config: *unique-conditions
+                  meta:
+                    category: relationships
+                    description: >
+                      rmbed (Number of Bedrooms) should be <= rmtot (Number of Rooms)
           - name: rmbed1
             description: Number of bedrooms on the first floor
           - name: rmbed2
@@ -598,64 +794,92 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_rmtot_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: rmtot (Number of Rooms) should not be null
+              - accepted_range:
                   name: iasworld_dweldat_rmtot_sf_between_1_and_40
                   min_value: 1
                   max_value: 40
+                  additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class NOT IN ('211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: rmtot (Number of Rooms) should be between 1 and 40
+              - accepted_range:
                   name: iasworld_dweldat_rmtot_sf_between_1_and_50
                   min_value: 1
                   max_value: 50
+                  additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class IN ('211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: rmtot (Number of Rooms) should be between 1 and 50
           - name: salekey
             description: '{{ doc("column_salekey") }}'
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
             tests:
-              - dbt_utils.sequential_values:
+              - sequential_values:
                   name: iasworld_dweldat_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
                     - card
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: sfla
             description: '{{ doc("shared_column_char_bldg_sf") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_sfla_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: sfla (Building Square Footage) should not be null
+              - accepted_range:
                   name: iasworld_dweldat_sfla_sf_between_1_and_10000
                   min_value: 1
                   max_value: 10000
+                  additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class NOT IN ('208', '209', '211', '212', '236', '297')
                       AND cur = 'Y'
                       AND deactivat IS NULL
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between 1 and 10000
+                      for single-family properties (excl. 208 or 209)
+              - accepted_range:
                   name: iasworld_dweldat_sfla_mf_between_1_and_20000
                   min_value: 1
                   max_value: 20000
+                  additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class IN ('208', '209', '211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between 1 and 20000
+                      for multi-family and large single-family
           - name: shfact
             description: Story height factor
           - name: sidpct
@@ -678,15 +902,19 @@ sources:
               - not_null:
                   name: iasworld_dweldat_stories_not_null
                   config: *unique-conditions
+                  additional_select_columns: *select-columns
+                  meta:
+                    description: stories (Type of Residence) should not be null
               - expression_is_true:
                   name: iasworld_dweldat_stories_in_accepted_values
                   expression: 'IN (1.00, 2.00, 3.00, 4.00, 5.00, 9.90)'
-                  select_columns:
-                    - parid
-                    - taxyr
-                    - card
-                    - stories
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    category: incorrect_values
+                    description: >
+                      stories (Type of Residence) should be one of 1.00, 2.00,
+                      3.00, 4.00, 5.00, or 9.90
           - name: style
             description: Architectural style
           - name: subtval
@@ -698,6 +926,14 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - card
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: trimval
@@ -732,97 +968,152 @@ sources:
               - accepted_values:
                   name: iasworld_dweldat_char_renovation_in_accepted_values
                   values: ['0', '1']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user3 (Renovated) should be '0' or '1'
           - name: user4
             description: '{{ doc("shared_column_char_tp_dsgn") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_char_tp_dsgn_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user4 should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_tp_dsgn_in_accepted_values
                   values: ['0', '1', '2', '3']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user4 should be an integer between 0 and 3
           - name: user5
             description: '{{ doc("shared_column_char_tp_plan") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_char_tp_plan_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user5 (Plan of Design) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_tp_plan_in_accepted_values
                   values: ['0', '1', '2']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user5 (Plan of Design) should be '0', '1', or '2'
           - name: user6
             description: '{{ doc("shared_column_char_attic_fnsh") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_char_attic_fnsh_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user6 (Attic Finish) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_attic_fnsh_in_accepted_values
                   values: ['1', '2', '3']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user6 (Attic Finish) should be '1', '2', or '3'
           - name: user7
             description: '{{ doc("shared_column_char_air") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_char_air_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user7 (Central Air Conditioning) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_air_accepted_values
                   values: ['1', '2']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user7 (Central Air Conditioning) should be '1' or '2'
           - name: user12
             description: '{{ doc("shared_column_char_bsmt_fin") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_char_bsmt_fin_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user12 (Basement Finished) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_bsmt_fin_accepted_values
-                  values: ['1', '2', '3']
+                  values: ['1', '2', '3', '4', '5', '6']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      user12 (Basement Finished) should be an integer between 1 and 6
           - name: user13
             description: '{{ doc("shared_column_char_roof_cnst") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_char_roof_cnst_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user13 (Roof Construction) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_roof_cnst_accepted_values
                   values: ['1', '2', '3', '4', '5', '6']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      user13 (Roof Construction) should be an integer between 1 and 6
           - name: user14
             description: '{{ doc("shared_column_char_apts") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_char_apts_not_null
+                  additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class IN ('211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: user14 (Total Number of Units) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_apts_accepted_values
                   values: ['1', '2', '3', '4', '5', '6']
+                  additional_select_columns: *select-columns
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND class IN ('211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: >
+                      user14 (Total Number of Units) should be an integer
+                      between 1 and 6
           - name: user15
             description: '{{ doc("shared_column_char_use") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_char_use_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user15 (Use) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_use_accepted_values
                   values: ['1', '2']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user15 (Use) should be '1' or '2'
           - name: user17
             description: Age. Deprecated, use `yrblt`
           - name: user20
@@ -830,63 +1121,106 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_char_ncu_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      user20 (No. of Commercial Units) should not be null
           - name: user24
             description: '{{ doc("shared_column_card_proration_rate") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_card_proration_rate_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user24 (Proration %) should not be null
           - name: user30
             description: '{{ doc("shared_column_char_porch") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_char_porch_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user30 (Porch) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_porch_accepted_values
                   values: ['0', '1', '2']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user30 (Porch) should be '0', '1', or '2'
           - name: user31
             description: '{{ doc("shared_column_char_gar_att") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_char_gar_att_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user31 (Garage Attached) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_gar_att_accepted_values
                   values: ['1', '2']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user31 (Garage Attached) should be '1' or '2'
           - name: user32
             description: '{{ doc("shared_column_char_gar_area") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_char_gar_area_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user32 (Garage in Area) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_gar_area_accepted_values
                   values: ['1', '2']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user32 (Garage in Area) should be '1' or '2'
           - name: user33
             description: '{{ doc("shared_column_char_gar_size") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_char_gar_size_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user33 (Garage Size) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_gar_size_accepted_values
-                  values: ['1', '2', '3', '4', '5', '6', '7', '8']
+                  values: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      user33 (Garage Size) should be an integer between 1 and 10
           - name: user34
             description: '{{ doc("shared_column_char_gar_cnst") }}'
             tests:
               - not_null:
                   name: iasworld_dweldat_char_gar_cnst_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: user34 (Garage Construction) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_gar_cnst_accepted_values
                   values: ['1', '2', '3', '4']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      user34 (Garage Construction) should be
+                      an integer between 1 and 4
+                  tags:
+                    # Currently too many failures for this signal to be useful
+                    - test_qc_exclude_from_workbook
           - name: useramt
             description: RCN value of additions
           - name: userfact
@@ -902,12 +1236,19 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_char_frpl_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: wbfp_o (Number of Fireplaces) should not be null
+              - accepted_range:
                   name: iasworld_dweldat_char_frpl_between_0_and_6
                   min_value: 0
                   max_value: 6
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      wbfp_o (Number of Fireplaces) should be between 0 and 6
           - name: wbfp_pf
             description: Wood burning fireplace - prefab
           - name: wbfp_pfx
@@ -935,12 +1276,18 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_yrblt_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
-              - dbt_utils.accepted_range:
+                  meta:
+                    description: yrblt should not be null
+              - accepted_range:
                   name: iasworld_dweldat_yrblt_between_1850_and_now
                   min_value: 1850
                   max_value: cast(year(current_date) as decimal)
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: yrblt should be between 1850 and now
           - name: yrremod
             description: Year remodeled
 
@@ -951,30 +1298,66 @@ sources:
                 - parid
                 - taxyr
                 - card
-          - row_values_match_after_join:
-              name: iasworld_dweldat_class_matches_pardat_class
-              column: class
-              external_model: source('iasworld', 'pardat')
-              external_column: class
-              join_columns:
-                - parid
-                - taxyr
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
               config: *unique-conditions
+              meta:
+                description: dweldat should be unique by parid, card, and taxyr
           - expression_is_true:
               name: iasworld_dweldat_card_proration_rate_between_0_and_100
               expression: 'CAST(user24 AS decimal) BETWEEN 0.00 AND 100.00'
-              select_columns:
+              additional_select_columns:
                 - parid
                 - taxyr
                 - card
+                - who
+                - wen
                 - user24
               config: *unique-conditions
+              meta:
+                category: incorrect_values
+                description: user24 (Proration %) should be between 0 and 100
           - expression_is_true:
               name: iasworld_dweldat_char_ncu_between_0_and_5
               expression: 'CAST(user20 AS decimal) BETWEEN 0 AND 5'
-              select_columns:
+              additional_select_columns:
                 - parid
                 - taxyr
                 - card
+                - who
+                - wen
                 - user20
               config: *unique-conditions
+              meta:
+                category: incorrect_values
+                description: >
+                  user20 (No. of Commercial Units) should be an integer between 0 and 5
+          - expression_is_true:
+              name: iasworld_dweldat_bsmt_and_user12_match_234_class
+              expression: bsmt = '3' and user12 = '1'
+              additional_select_columns:
+                - parid
+                - taxyr
+                - card
+                - who
+                - wen
+                - class
+                - bsmt
+                - user12
+              config:
+                where: |
+                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  AND cur = 'Y'
+                  AND deactivat IS NULL
+                  AND class = '234'
+              meta:
+                category: incorrect_values
+                description: >
+                  bsmt (Basement Type) must be 3 - PARTIAL and
+                  user12 (Basement Finished) must be 1 - FAMILY ROOM when
+                  class is 234 (split level)

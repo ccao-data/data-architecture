@@ -6,6 +6,8 @@ library(zip)
 library(tigris)
 source("utils.R")
 
+options(timeout = 200)
+
 # This script retrieves environmental spatial data such as floodplain boundaries
 # and proximity to train tracks/major roads
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
@@ -18,18 +20,10 @@ remote_file_flood_fema <- file.path(
   paste0(current_year, ".geojson")
 )
 
-fema <- c(
-  "2021" = paste0(
-    "https://hazards.fema.gov/femaportal/NFHL/Download/",
-    "ProductsDownLoadServlet?DFIRMID=17031C&state=ILLINOIS&",
-    "county=COOK%20COUNTY&fileName=17031C_20210615.zip"
-  ),
-  "2022" = paste0(
-    "https://hazards.fema.gov/femaportal/NFHL/Download/",
-    "ProductsDownLoadServlet?DFIRMID=17031C&state=ILLINOIS&",
-    "county=COOK%20COUNTY&fileName=17031C_20221130.zip"
-  )
-)
+
+fema_url <- "https://hazards.fema.gov/femaportal/NFHL/Download/ProductsDownLoadServlet?DFIRMID=17031C&state=ILLINOIS&county=COOK%20COUNTY&fileName=17031C_" #noqa
+fema_files <- c("2021" = "20210615", "2022" = "20221130", "2023" = "20231006")
+
 
 # Write FEMA floodplains to S3 if they don't exist
 if (!aws.s3::object_exists(remote_file_flood_fema)) {
@@ -37,9 +31,10 @@ if (!aws.s3::object_exists(remote_file_flood_fema)) {
   tmp_file <- tempfile(fileext = ".zip")
   tmp_dir <- tempdir()
   download.file(
-    fema[current_year],
+    paste0(fema_url, fema_files[current_year], ".zip"),
     destfile = tmp_file,
-    mode = "wb"
+    mode = "wb",
+    timeout = 120
   )
   unzip(tmp_file, exdir = tmp_dir)
 

@@ -26,6 +26,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
+      year_field: tax_year
     description: |
       Land, building, and total assessed values for all Cook County parcels, from 1999 to present.
 

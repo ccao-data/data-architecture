@@ -35,8 +35,8 @@ census_district_files_df <- aws.s3::get_bucket_df(
   select(year, s3_uri, district_type)
 
 # Clean up and merge non-CPS district files from different years
-process_census_district_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
-
+process_census_district_file <- function(
+    s3_bucket_uri, file_year, uri, dist_type) {
   # Download S3 files to local temp dir if they don't exist
   tmp_file_local <- file.path(
     school_tmp_dir,
@@ -66,7 +66,8 @@ process_census_district_file <- function(s3_bucket_uri, file_year, uri, dist_typ
       -contains("AWATER", ignore.case = TRUE),
       -contains("ALAND", ignore.case = TRUE)
     ) %>%
-    filter(GEOID != '1729100') %>% # Oak Grove School District should only have one polygon, in NE IL
+    # Oak Grove School District should only haveone polygon, in NE IL
+    filter(GEOID != "1729100") %>%
     rename_with(tolower) %>%
     mutate(
       year = file_year,
@@ -118,8 +119,8 @@ county_district_files_df <- aws.s3::get_bucket_df(
 
 
 # Clean up and merge non-CPS district files from different years
-process_county_district_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
-
+process_county_district_file <- function(
+    s3_bucket_uri, file_year, uri, dist_type) {
   # Download S3 files to local temp dir if they don't exist
   tmp_file_local <- file.path(
     school_tmp_dir,
@@ -132,13 +133,14 @@ process_county_district_file <- function(s3_bucket_uri, file_year, uri, dist_typ
     st_make_valid() %>%
     select(contains("DESC"), geometry) %>%
     rename_with(~"school_nm", contains("DESC", ignore.case = TRUE)) %>%
-    mutate(school_nm = str_replace(school_nm, "C C", ""),
-           school_nm = str_replace(
-             school_nm,
-             "LINCOLNWAY HIGH SCHOOL 210",
-             "RICH TOWNSHIP HIGH SCHOOL 227"
-             )
-           ) %>%
+    mutate(
+      school_nm = str_replace(school_nm, "C C", ""),
+      school_nm = str_replace(
+        school_nm,
+        "LINCOLNWAY HIGH SCHOOL 210",
+        "RICH TOWNSHIP HIGH SCHOOL 227"
+      )
+    ) %>%
     mutate(school_nm = str_squish(school_nm)) %>%
     filter(str_detect(school_nm, "[:alpha:]")) %>%
     mutate(
@@ -153,19 +155,20 @@ process_county_district_file <- function(s3_bucket_uri, file_year, uri, dist_typ
     summarise() %>%
     ungroup() %>%
     st_cast("MULTIPOLYGON") %>%
-    mutate(geometry_3435 = st_transform(geometry, 3435),
-           centroid = st_centroid(st_transform(geometry, 3435)),
-           is_attendance_boundary = FALSE) %>%
+    mutate(
+      geometry_3435 = st_transform(geometry, 3435),
+      centroid = st_centroid(st_transform(geometry, 3435)),
+      is_attendance_boundary = FALSE
+    ) %>%
     cbind(
       st_coordinates(st_transform(.$centroid, 4326)),
       st_coordinates(.$centroid)
     ) %>%
-  select(
-    name = school_nm, school_num,
-    lon = X, lat = Y, x_3435 = `X.1`, y_3435 = `Y.1`,
-    year, is_attendance_boundary, district_type, geometry, geometry_3435
-  )
-
+    select(
+      name = school_nm, school_num,
+      lon = X, lat = Y, x_3435 = `X.1`, y_3435 = `Y.1`,
+      year, is_attendance_boundary, district_type, geometry, geometry_3435
+    )
 }
 
 # Apply function to all district files and merge output
@@ -186,32 +189,41 @@ unlink(file.path(school_tmp_dir, "*"))
 county_districts_df <- st_join(
   county_districts_df %>%
     filter(year %in% unique(census_districts_df$year)) %>%
-    mutate(border = geometry,
-           year = as.character(as.numeric(year) + 1)) %>%
+    mutate(
+      border = geometry,
+      year = as.character(as.numeric(year) + 1)
+    ) %>%
     st_centroid(),
   census_districts_df %>%
     select(geoid, census_year = year, census_district_type = district_type)
-
 ) %>%
   group_by(school_num, district_type, year) %>%
-  mutate(matches = sum(year == census_year & district_type == census_district_type)) %>%
-  mutate(geoid = case_when(matches == 0 ~ '',
-                           TRUE ~ geoid)) %>%
+  mutate(
+    matches = sum(year == census_year & district_type == census_district_type)
+  ) %>%
+  mutate(geoid = case_when(
+    matches == 0 ~ "",
+    TRUE ~ geoid
+  )) %>%
   ungroup() %>%
-  filter((year == census_year & district_type == census_district_type) | geoid == '') %>%
-  mutate(geoid = case_when(district_type == "unified" & school_num == '205' ~ '1713970',
-                           district_type == "elementary" & school_num == '100' ~ '1737860',
-                           district_type == "elementary" & school_num == '125' ~ '1704560',
-                           school_num == '180' ~ '1730510',
-                           school_num == '157-' ~ '1715700',
-                           school_num == '110' ~ '1737860',
-                           TRUE ~ geoid)) %>%
+  filter(
+    (year == census_year & district_type == census_district_type) | geoid == ""
+  ) %>%
+  mutate(geoid = case_when(
+    district_type == "unified" & school_num == "205" ~ "1713970",
+    district_type == "elementary" & school_num == "100" ~ "1737860",
+    district_type == "elementary" & school_num == "125" ~ "1704560",
+    school_num == "180" ~ "1730510",
+    school_num == "157-" ~ "1715700",
+    school_num == "110" ~ "1737860",
+    TRUE ~ geoid
+  )) %>%
   select(-contains("census")) %>%
   mutate(geometry = border) %>%
   select(-c(border, matches)) %>%
   distinct() %>%
   bind_rows(county_districts_df %>%
-              filter(!(year %in% unique(census_districts_df$year)))) %>%
+    filter(!(year %in% unique(census_districts_df$year)))) %>%
   select(geoid, everything())
 
 ##### CPS #####
@@ -236,7 +248,6 @@ attendance_files_df <- aws.s3::get_bucket_df(
 
 # Clean up and merge CPS boundary files from different years
 process_cps_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
-
   # Download S3 files to local temp dir if they don't exist
   tmp_file_local <- file.path(
     school_tmp_dir,
@@ -253,10 +264,18 @@ process_cps_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
         c("schoolname", "school_nm", "short_name", "school_nam")
       )
     ) %>%
-    # GAGE/BOGAN/PHILLIPS/CHICAGO VOCATIONAL and ENGLEWOOD secondary attendance boundaries overlapped in 2020/2021
-    # As GAGE/BOGAN/PHILLIPS/CHICAGO VOCATIONAL were reduced in size due to school closures and a new STEM school in ENGLEWOOD
-    # The new district boundaries are what we're interested in
-    filter(!(str_detect(school_nm, "GAGE|BOGAN|PHILLIPS|CHICAGO VOCATIONAL") & boundarygr != '9, 10, 11, 12')) %>%
+    # GAGE/BOGAN/PHILLIPS/CHICAGO VOCATIONAL and ENGLEWOOD secondary attendance
+    # boundaries overlapped in 2020/2021. As
+    # GAGE/BOGAN/PHILLIPS/CHICAGO VOCATIONAL were reduced in size due to school
+    # closures and a new STEM school in ENGLEWOOD the new district boundaries
+    # are what we're interested in. We need to be specific about which grades
+    # and years we exclude or some schools in 2017/2018 that should be ingested
+    # will not be.
+    filter(
+      !(str_detect(school_nm, "GAGE|BOGAN|PHILLIPS|CHICAGO VOCATIONAL") &
+        boundarygr != "9, 10, 11, 12" &
+        !(file_year %in% c("2017", "2018")))
+    ) %>%
     mutate(school_nm = str_replace(school_nm, "H S", "HS")) %>%
     group_by(grade_cat, school_id, school_nm) %>%
     summarise() %>%
@@ -327,7 +346,6 @@ location_files_df <- aws.s3::get_bucket_df(
 
 # Clean up school locations for each file
 process_location_file <- function(file_year, uri) {
-
   # Download S3 files to local temp dir if they don't exist
   tmp_file_local <- file.path(
     school_tmp_dir,

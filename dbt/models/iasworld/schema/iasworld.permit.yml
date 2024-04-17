@@ -1,6 +1,6 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
       - test_qc_iasworld
@@ -9,9 +9,8 @@ sources:
       - name: permit
         description: '{{ doc("table_permit") }}'
         freshness:
-          filter: date_format(date_parse(permdt, '%Y-%m-%d %H:%i:%s.0'), '%Y') >= date_format(current_date - interval '1' year, '%Y')
-          warn_after: {count: 48, period: hour}
-          error_after: {count: 72, period: hour}
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
 
         columns:
           - name: addrvalid
@@ -48,6 +47,8 @@ sources:
             description: ID field 2
           - name: jur
             description: '{{ doc("column_jur") }}'
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: longdesc
             description: Long description
           - name: notes

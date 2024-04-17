@@ -1,6 +1,6 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
       - test_qc_iasworld
@@ -8,6 +8,9 @@ sources:
     tables:
       - name: sales
         description: '{{ doc("table_sales") }}'
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
 
         columns:
           - name: adjamt
@@ -34,6 +37,15 @@ sources:
               - accepted_values:
                   name: iasworld_sales_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: &select-columns
+                    - substr(saledt, 1, 4) as taxyr
+                    - parid
+                    - who
+                    - wen
+                  config:
+                    where: substr(saledt, 1, 4) >= '2011'
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: deed_ref
@@ -54,17 +66,24 @@ sources:
               - accepted_values:
                   name: iasworld_sales_instrtyp_in_accepted_values
                   values: ['01', '02', '03', '04', '05', '06', 'B']
+                  additional_select_columns: *select-columns
                   config: &unique-conditions
                     where: |
                       substr(saledt, 1, 4) >= '2011'
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: >
+                      instrtyp should be '01', '02', '03', '04', '05', '06',
+                      or 'B'
           - name: instruno
             description: '{{ doc("shared_column_document_number") }}'
           - name: jur
             description: '{{ doc("column_jur") }}'
           - name: linkno
             description: Used to tie multi-parcel sales together (either instrument number, or transfer number, or book/page)
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: mktvalid
             description: Market validity code
           - name: newseq
@@ -96,19 +115,33 @@ sources:
             tests:
               - not_null:
                   name: iasworld_sales_parid_not_null
+                  additional_select_columns: &select-columns-no-parid
+                    - substr(saledt, 1, 4) as taxyr
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: parid should not be null
               - relationships:
                   name: iasworld_sales_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
           - name: price
             description: '{{ doc("shared_column_sale_price") }}'
             tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_sales_price_between_0_and_1B
+              - accepted_range:
+                  name: iasworld_sales_price_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: price should be between 0 and 1,000,000,000
           - name: recorddt
             description: Recording date
           - name: saledt
@@ -178,12 +211,30 @@ sources:
               combination_of_columns:
                 - parid
                 - instruno
+              additional_select_columns:
+                - column: substr(saledt, 1, 4)
+                  alias: taxyr
+                  agg_func: max
+                - column: substr(saledt, 1, 4)
+                  alias: sale_year
+                  agg_func: array_agg
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
               config: *unique-conditions
+              meta:
+                description: sales should be unique by parid and instruno
           - expression_is_true:
               name: iasworld_sales_saledt_lte_now
               expression: DATE_PARSE(SUBSTR(saledt, 1, 10), '%Y-%m-%d') <= current_date
-              select_columns:
+              additional_select_columns:
                 - parid
                 - saledt
                 - instruno
               config: *unique-conditions
+              meta:
+                category: incorrect_values
+                description: saledt should be before the current date

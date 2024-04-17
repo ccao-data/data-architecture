@@ -6,3 +6,5 @@
         ) %}
     {% endif %}
 {% endmacro %}
+
+{% macro mock_raise_compiler_error(_error) %} {{ return(_error) }} {% endmacro %}

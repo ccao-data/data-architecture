@@ -17,10 +17,13 @@ WITH total_influ AS (
         SUM(CASE WHEN land.influ IS NULL THEN 0 ELSE 1 END)
             OVER (PARTITION BY land.parid, land.taxyr)
             AS non_null_influ,
+        -- Split class indicator can override the rest of the influence
+        -- factor logic
+        COALESCE(land.infl1 = '35', FALSE) AS split_class,
         MAX(land.sf) OVER (PARTITION BY land.parid, land.taxyr) AS max_sf,
         MIN(land.sf) OVER (PARTITION BY land.parid, land.taxyr) AS min_sf,
         -- When the first landline for a pin is deactived we should take the
-        -- minimum value of lline as the top line. 
+        -- minimum value of lline as the top line.
         MIN(land.lline) OVER (PARTITION BY land.parid, land.taxyr) AS top_line
     FROM {{ source('iasworld', 'land') }} AS land
     WHERE
@@ -37,8 +40,11 @@ SELECT
         -- and all sf values are the same, we choose the topline land sf,
         -- otherwise we sum land sf.
         WHEN
-            total_influ.non_null_influ > 1
-            AND total_influ.max_sf = total_influ.min_sf
+            (
+                total_influ.non_null_influ > 1
+                AND total_influ.max_sf = total_influ.min_sf
+            )
+            OR total_influ.split_class
             THEN total_influ.sf_top
         ELSE total_influ.sf_sum
     END AS sf

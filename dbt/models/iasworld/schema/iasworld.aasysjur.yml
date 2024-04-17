@@ -1,6 +1,6 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
       - test_qc_iasworld
@@ -8,6 +8,9 @@ sources:
     tables:
       - name: aasysjur
         description: '{{ doc("table_aasysjur") }}'
+        freshness:
+          warn_after: {count: 192, period: hour} # 8 days
+          error_after: {count: 360, period: hour} # 15 days
 
         columns:
           - name: aprvalsum_ind
@@ -62,6 +65,8 @@ sources:
             description: Flag for Landisc `TAXYR`
           - name: legadd_inc
             description: Increment for new lines in table `LEGADD`
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: maildat_ind
             description: Flag for maildat functionality on `AA11`
           - name: max_taxyr

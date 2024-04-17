@@ -1,4 +1,17 @@
 -- View containing each of the PIN-level location (spatial joins)
+
+-- Airport noise is joined differently since it's filled during ingest and
+-- values for env_airport_noise_data_year won't match values for year
+WITH cyf_airport_noise AS (
+    SELECT
+        year,
+        CASE
+            WHEN env_airport_noise_data_year = 'omp' THEN year ELSE
+                env_airport_noise_data_year
+        END AS env_airport_noise_data_year
+    FROM {{ ref('location.crosswalk_year_fill') }}
+)
+
 SELECT
     pin.pin10,
     pin.year,
@@ -58,6 +71,8 @@ SELECT
     econ_industrial_growth_zone.econ_industrial_growth_zone_data_year,
     econ_qualified_opportunity_zone.econ_qualified_opportunity_zone_num,
     econ_qualified_opportunity_zone.econ_qualified_opportunity_zone_data_year,
+    econ_central_business_district.econ_central_business_district_num,
+    econ_central_business_district.econ_central_business_district_data_year,
 
     env_flood_fema.env_flood_fema_sfha,
     env_flood_fema.env_flood_fema_data_year,
@@ -113,6 +128,8 @@ SELECT
 FROM {{ source('spatial', 'parcel') }} AS pin
 INNER JOIN {{ ref('location.crosswalk_year_fill') }} AS cyf
     ON pin.year = cyf.year
+INNER JOIN cyf_airport_noise
+    ON pin.year = cyf_airport_noise.year
 LEFT JOIN {{ ref('location.census') }} AS census
     ON pin.pin10 = census.pin10
     AND cyf.census_data_year = census.year
@@ -161,6 +178,10 @@ LEFT JOIN {{ ref('location.economy') }} AS econ_qualified_opportunity_zone
     ON pin.pin10 = econ_qualified_opportunity_zone.pin10
     AND cyf.econ_qualified_opportunity_zone_data_year
     = econ_qualified_opportunity_zone.year
+LEFT JOIN {{ ref('location.economy') }} AS econ_central_business_district
+    ON pin.pin10 = econ_central_business_district.pin10
+    AND cyf.econ_central_business_district_data_year
+    = econ_central_business_district.year
 LEFT JOIN {{ ref('location.environment') }} AS env_flood_fema
     ON pin.pin10 = env_flood_fema.pin10
     AND cyf.env_flood_fema_data_year = env_flood_fema.year
@@ -172,7 +193,7 @@ LEFT JOIN {{ ref('location.environment') }} AS env_ohare_noise_contour
     AND cyf.env_ohare_noise_contour_data_year = env_ohare_noise_contour.year
 LEFT JOIN {{ ref('location.environment') }} AS env_airport_noise
     ON pin.pin10 = env_airport_noise.pin10
-    AND cyf.env_airport_noise_data_year = env_airport_noise.year
+    AND cyf_airport_noise.env_airport_noise_data_year = env_airport_noise.year
 LEFT JOIN {{ ref('location.school') }} AS school
     ON pin.pin10 = school.pin10
     AND cyf.school_data_year = school.year

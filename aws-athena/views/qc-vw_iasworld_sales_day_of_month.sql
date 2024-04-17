@@ -1,6 +1,6 @@
 -- View that counts the number of unique sales over day of month and year.
 SELECT
-    SUBSTR(sales.saledt, 1, 4) AS year,
+    SUBSTR(sales.saledt, 1, 4) AS taxyr,
     SUBSTR(sales.saledt, 9, 2) AS day_of_month,
     SUM(COUNT(DISTINCT sales.instruno))
         OVER (PARTITION BY SUBSTR(sales.saledt, 1, 4))

@@ -8,6 +8,12 @@
     )
 }}
 
+WITH parks AS (
+    SELECT *
+    FROM {{ source('spatial', 'park') }}
+    WHERE ST_AREA(ST_GEOMFROMBINARY(geometry_3435)) > 87120
+)
+
 SELECT
     pcl.pin10,
     ARBITRARY(xy.osm_id) AS nearest_park_osm_id,
@@ -16,12 +22,7 @@ SELECT
     ARBITRARY(xy.year) AS nearest_park_data_year,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
-INNER JOIN ( {{
-        dist_to_nearest_geometry(
-            source('spatial', 'park'),
-            'ST_AREA(ST_GEOMFROMBINARY(geometry_3435)) > 87120'
-        )
-    }} ) AS xy
+INNER JOIN ( {{ dist_to_nearest_geometry('parks') }} ) AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
     AND pcl.year = xy.pin_year
