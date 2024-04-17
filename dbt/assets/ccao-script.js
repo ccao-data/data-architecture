@@ -17,4 +17,4 @@ document.addEventListener('DOMContentLoaded', function() {
   if (targetTable) {
     targetTable.click()
   }
-}
+})
