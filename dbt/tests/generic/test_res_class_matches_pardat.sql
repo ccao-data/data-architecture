@@ -19,9 +19,12 @@
 --    * join_type (str): The type of join to use when joining to pardat, e.g.
 --    "inner" or "left". Defaults to "left".
 --
---    * additional_join_condition (optional str): A string representing
---    additional conditions to apply in the WHERE clause of the pardat join,
---    e.g. "class != 'EX' AND class != 'RR'".
+--    * additional_pardat_filter (optional str): A string representing
+--    additional conditions to apply in the WHERE clause of the subquery that
+--    selects from pardat to join to the model, e.g.
+--    "class != 'EX' AND class != 'RR'". Note that `cur = 'Y'` and
+--    `deactivat IS NULL` are already set prior to this parameter being applied,
+--    hence "additional" pardat filters.
 --
 --    * additional_select_columns (dict): Standard parameter for selecting
 --    additional columns from the base model for use in reporting failures.
@@ -41,7 +44,7 @@
     parid_column_name="parid",
     taxyr_column_name="taxyr",
     join_type="left",
-    additional_join_condition=None,
+    additional_pardat_filter=None,
     additional_select_columns=[]
 ) %}
     {#-
@@ -103,8 +106,8 @@
             from {{ source("iasworld", "pardat") }}
             where
                 cur = 'Y' and deactivat is null
-                {% if additional_join_condition %}
-                    {{ additional_join_condition }}
+                {% if additional_pardat_filter %}
+                    {{ additional_pardat_filter }}
                 {% endif %}
         ) as pardat
         on filtered_model.{{ parid_column_name }} = pardat.parid

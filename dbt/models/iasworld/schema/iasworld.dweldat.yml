@@ -203,7 +203,7 @@ sources:
                   name: iasworld_dweldat_exempt_classes_match_pardat_class
                   additional_select_columns: *select-columns-for-pardat-join
                   join_type: inner
-                  additional_join_condition: AND class = 'EX'
+                  additional_pardat_filter: AND class = 'EX'
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
