@@ -185,7 +185,7 @@ sources:
                     description: class code must be valid
               - res_class_matches_pardat:
                   name: iasworld_dweldat_class_matches_pardat_class
-                  additional_select_columns:
+                  additional_select_columns: &select-columns-for-pardat-join
                     - column: card
                       agg_func: array_agg
                     - column: taxyr
@@ -199,6 +199,21 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: at least one class should match pardat class
+              - res_class_matches_pardat:
+                  name: iasworld_dweldat_exempt_classes_match_pardat_class
+                  additional_select_columns: *select-columns-for-pardat-join
+                  join_type: inner
+                  additional_join_condition: and class = 'EX'
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class NOT LIKE 'OA%'
+                  meta:
+                    description: >
+                      at least one class should be exempt or omitted if pardat
+                      is exempt
           - name: cline
             description: Condominium line
           - name: cndadjval
