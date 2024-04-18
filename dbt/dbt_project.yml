@@ -67,8 +67,8 @@ tests:
 
 seeds:
   athena:
-    iasworld:
-      +schema: iasworld
+    ccao:
+      +schema: ccao
     location:
       +schema: location
     model:

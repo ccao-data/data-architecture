@@ -1,5 +1,5 @@
 seeds:
-  - name: iasworld.class_dict
+  - name: ccao.class_dict
     description: '{{ doc("seed_class_dict") }}'
     config:
       column_types:
