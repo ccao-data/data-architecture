@@ -94,7 +94,7 @@ sources:
               - res_class_matches_pardat:
                   name: iasworld_land_class_matches_pardat_class
                   major_class_only: true
-                  additional_select_columns:
+                  additional_select_columns: &select-columns-aggregated
                     - column: taxyr
                       agg_func: max
                     - column: parid
@@ -116,21 +116,9 @@ sources:
                   name: iasworld_land_ex_matches_pardat_class_ex
                   major_class_only: false
                   join_type: inner
-                  additional_select_columns:
-                    - column: taxyr
-                      agg_func: max
-                    - column: parid
-                      agg_func: max
-                    - column: who
-                      agg_func: max
-                    - column: wen
-                      agg_func: max
+                  additional_select_columns: *select-columns-aggregated
                   additional_pardat_filter: AND class = 'EX'
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
+                  config: *unique-conditions
                   meta:
                     description: >
                       Exempt parcels in pardat should be exempt in land
