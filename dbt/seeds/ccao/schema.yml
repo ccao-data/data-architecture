@@ -26,10 +26,10 @@ seeds:
       - name: class_desc
         description: Human-readable description of the property sub-class
       - name: min_size
-        description: Integer of minimum size for 200-class property codes
+        description: Double of minimum size for 200-class property codes
       - name: max_size
-        description: Integer of maximum size for 200-class property codes
+        description: Double of maximum size for 200-class property codes
       - name: min_age
-        description: Integer of minimum age for 200-class property codes
+        description: Double of minimum age for 200-class property codes
       - name: max_age
-        description: Integer of maximum age for 200-class property codes
+        description: Double of maximum age for 200-class property codes
