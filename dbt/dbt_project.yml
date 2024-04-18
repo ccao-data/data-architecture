@@ -67,9 +67,10 @@ tests:
 
 seeds:
   athena:
+    iasworld:
+      +schema: iasworld
     location:
       +schema: location
     model:
       +schema: model
-    iasworld:
-      +schema: iasworld
+
