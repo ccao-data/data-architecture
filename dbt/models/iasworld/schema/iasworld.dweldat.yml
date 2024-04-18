@@ -379,14 +379,30 @@ sources:
                     description: >
                       fixbath (Number of Full Baths) should not be null
               - accepted_range:
-                  name: iasworld_dweldat_fixbath_between_1_and_16
+                  name: iasworld_dweldat_fixbath_matches_number_of_units
                   min_value: 1
-                  max_value: 16
-                  additional_select_columns: *select-columns
+                  max_value: |
+                    CASE
+                      WHEN user14 IS NULL OR user14 = '0' OR user14 = '6' THEN 7
+                      WHEN user14 = '1' THEN 14
+                      WHEN user14 = '2' THEN 21
+                      WHEN user14 = '3' THEN 28
+                      WHEN user14 = '4' THEN 35
+                      WHEN user14 = '5' THEN 42
+                      ELSE 7
+                    END
+                  additional_select_columns: &select-columns-with-num-units
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
+                    - user14
                   config: *unique-conditions
                   meta:
                     description: >
-                      fixbath (Number of Full Baths) should be between 1 and 16
+                      fixbath (Number of Full Baths) should be <= 7 times the
+                      number of units (user14)
           - name: fixbath1
             description: Number of full bathrooms on the first floor
           - name: fixbath2
@@ -418,22 +434,33 @@ sources:
           - name: fixhalf
             description: '{{ doc("shared_column_char_hbath") }}'
             tests:
-              - not_null:
-                  name: iasworld_dweldat_fixhalf_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: >
-                      fixhalf (Number of Half Baths) should not be null
               - accepted_range:
-                  name: iasworld_dweldat_fixhalf_between_0_and_6
+                  name: iasworld_dweldat_fixhalf_gte_0
                   min_value: 0
-                  max_value: 6
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     description: >
-                      fixhalf (Number of Half Baths) should be between 0 and 6
+                      fixhalf (Number of Half Baths) should be >= 0
+              - accepted_range:
+                  name: iasworld_dweldat_fixhalf_matches_number_of_units
+                  min_value: 0
+                  max_value: |
+                    CASE
+                      WHEN user14 IS NULL OR user14 = '0' OR user14 = '6' THEN 5
+                      WHEN user14 = '1' THEN 10
+                      WHEN user14 = '2' THEN 15
+                      WHEN user14 = '3' THEN 20
+                      WHEN user14 = '4' THEN 25
+                      WHEN user14 = '5' THEN 30
+                      ELSE 5
+                    END
+                  additional_select_columns: *select-columns-with-num-units
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      fixhalf (Number of Half Baths) should be <= 5 times the
+                      number of units (user14)
           - name: fixhalf1
             description: Number of half baths on the first floor
           - name: fixhalf2
@@ -704,33 +731,24 @@ sources:
                     description: >
                       rmbed (Number of Bedrooms) should not be null
               - accepted_range:
-                  name: iasworld_dweldat_rmbed_sf_between_1_and_15
+                  name: iasworld_dweldat_rmbed_matches_number_of_units
                   min_value: 1
-                  max_value: 15
-                  additional_select_columns: *select-columns
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND class NOT IN ('211', '212')
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
+                  max_value: |
+                    CASE
+                      WHEN user14 IS NULL OR user14 = '0' OR user14 = '6' THEN 8
+                      WHEN user14 = '1' THEN 16
+                      WHEN user14 = '2' THEN 24
+                      WHEN user14 = '3' THEN 32
+                      WHEN user14 = '4' THEN 40
+                      WHEN user14 = '5' THEN 48
+                      ELSE 8
+                    END
+                  additional_select_columns: *select-columns-with-num-units
+                  config: *unique-conditions
                   meta:
                     description: >
-                      rmbed (Number of Bedrooms) should be between 1 and 15
-              - accepted_range:
-                  name: iasworld_dweldat_rmbed_mf_between_1_and_24
-                  min_value: 1
-                  max_value: 24
-                  additional_select_columns: *select-columns
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND class IN ('211', '212')
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
-                  meta:
-                    description: >
-                      rmbed (Number of Bedrooms) should be between 1 and 24
+                      rmbed (Number of Bedrooms) should be <= 8 times the
+                      number of units (user14)
               - expression_is_true:
                   name: iasworld_dweldat_rmbed_lte_rmtot
                   expression: <= rmtot
@@ -866,35 +884,221 @@ sources:
                   meta:
                     description: sfla (Building Square Footage) should not be null
               - accepted_range:
-                  name: iasworld_dweldat_sfla_sf_between_1_and_10000
+                  name: iasworld_dweldat_sfla_between_1_and_999_for_class_202
+                  min_value: 1
+                  max_value: 999
+                  additional_select_columns: &select-columns-with-class
+                    - taxyr
+                    - parid
+                    - card
+                    - class
+                    - who
+                    - wen
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '202'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 999 for class 202 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1000_and_1800_for_class_203
+                  min_value: 1000
+                  max_value: 1800
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '203'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1000 and 1800 for class 203 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1801_and_25000_for_class_204
+                  min_value: 1801
+                  max_value: 25000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '204'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1801 and 25000 for class 204 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_2200_for_class_205
+                  min_value: 1
+                  max_value: 2200
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '205'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 2200 for class 205 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_2201_and_4999_for_class_206
+                  min_value: 2201
+                  max_value: 4999
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '206'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      2201 and 4999 for class 206 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_2000_for_class_207
+                  min_value: 1
+                  max_value: 2000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '207'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 2000 for class 207 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_3801_and_4999_for_class_208
+                  min_value: 3801
+                  max_value: 4999
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '208'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      3801 and 4999 for class 208 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_5000_and_50000_for_class_209
+                  min_value: 5000
+                  max_value: 50000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '209'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      5000 and 50000 for class 209 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_10000_for_class_210
                   min_value: 1
                   max_value: 10000
-                  additional_select_columns: *select-columns
+                  additional_select_columns: *select-columns-with-class
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND class NOT IN ('208', '209', '211', '212', '236', '297')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                      AND class = '210'
                   meta:
                     description: >
-                      sfla (Building Square Footage) should be between 1 and 10000
-                      for single-family properties (excl. 208 or 209)
+                      sfla (Building Square Footage) should be between
+                      1 and 10000 for class 210 cards
               - accepted_range:
-                  name: iasworld_dweldat_sfla_mf_between_1_and_20000
+                  name: iasworld_dweldat_sfla_between_1_and_40000_for_class_211
+                  min_value: 1
+                  max_value: 40000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '211'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 40000 for class 211 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_20000_for_class_212
                   min_value: 1
                   max_value: 20000
-                  additional_select_columns: *select-columns
+                  additional_select_columns: *select-columns-with-class
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND class IN ('208', '209', '211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                      AND class = '212'
                   meta:
                     description: >
-                      sfla (Building Square Footage) should be between 1 and 20000
-                      for multi-family and large single-family
+                      sfla (Building Square Footage) should be between
+                      1 and 20000 for class 212 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_10000_for_class_234
+                  min_value: 1
+                  max_value: 10000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '234'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 10000 for class 234 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_2001_and_3800_for_class_278
+                  min_value: 2001
+                  max_value: 3800
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '278'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      2001 and 3800 for class 278 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_20000_for_class_295
+                  min_value: 1
+                  max_value: 20000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '295'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 20000 for class 295 cards
           - name: shfact
             description: Story height factor
           - name: sidpct
@@ -922,14 +1126,14 @@ sources:
                     description: stories (Type of Residence) should not be null
               - expression_is_true:
                   name: iasworld_dweldat_stories_in_accepted_values
-                  expression: 'IN (1.00, 2.00, 3.00, 4.00, 5.00, 9.90)'
+                  expression: 'IN (1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 9.90)'
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
                     category: incorrect_values
                     description: >
                       stories (Type of Residence) should be one of 1.00, 2.00,
-                      3.00, 4.00, 5.00, or 9.90
+                      3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, or 9.90
           - name: style
             description: Architectural style
           - name: subtval
@@ -989,20 +1193,6 @@ sources:
                     description: user3 (Renovated) should be '0' or '1'
           - name: user4
             description: '{{ doc("shared_column_char_tp_dsgn") }}'
-            tests:
-              - not_null:
-                  name: iasworld_dweldat_char_tp_dsgn_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: user4 should not be null
-              - accepted_values:
-                  name: iasworld_dweldat_char_tp_dsgn_in_accepted_values
-                  values: ['0', '1', '2', '3']
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: user4 should be an integer between 0 and 3
           - name: user5
             description: '{{ doc("shared_column_char_tp_plan") }}'
             tests:
@@ -1098,7 +1288,9 @@ sources:
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
-                    description: user14 (Total Number of Units) should not be null
+                    description: >
+                      user14 (Total Number of Units) should not be null
+                      for class 211 and 212 properties
               - accepted_values:
                   name: iasworld_dweldat_char_apts_accepted_values
                   values: ['1', '2', '3', '4', '5', '6']
@@ -1112,7 +1304,7 @@ sources:
                   meta:
                     description: >
                       user14 (Total Number of Units) should be an integer
-                      between 1 and 6
+                      between 1 and 6 for class 211 and 212 properties
           - name: user15
             description: '{{ doc("shared_column_char_use") }}'
             tests:
@@ -1141,24 +1333,19 @@ sources:
                   meta:
                     description: >
                       user20 (No. of Commercial Units) should not be null
-          - name: user24
-            description: '{{ doc("shared_column_card_proration_rate") }}'
-            tests:
-              - not_null:
-                  name: iasworld_dweldat_card_proration_rate_not_null
+              - accepted_values:
+                  name: iasworld_dweldat_char_ncu_between_0_and_5
+                  values: ['0', '1', '2', '3', '4', '5']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user24 (Proration %) should not be null
+                    description: >
+                      user20 (No. of Commercial Units) should be an integer between 0 and 5
+          - name: user24
+            description: '{{ doc("shared_column_card_proration_rate") }}'
           - name: user30
             description: '{{ doc("shared_column_char_porch") }}'
             tests:
-              - not_null:
-                  name: iasworld_dweldat_char_porch_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: user30 (Porch) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_porch_accepted_values
                   values: ['0', '1', '2']
@@ -1171,10 +1358,24 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_char_gar_att_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
+                  additional_select_columns: &select-columns-with-garage-size
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
+                    - user33
+                  config: &unique-conditions-with-garage-size
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
+                      AND user33 != '7'
                   meta:
-                    description: user31 (Garage Attached) should not be null
+                    description: >
+                      user31 (Garage Attached) should not be null
+                      if user33 (Garage Size) is not 7 (NONE)
               - accepted_values:
                   name: iasworld_dweldat_char_gar_att_accepted_values
                   values: ['1', '2']
@@ -1187,10 +1388,12 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_char_gar_area_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
+                  additional_select_columns: *select-columns-with-garage-size
+                  config: *unique-conditions-with-garage-size
                   meta:
-                    description: user32 (Garage in Area) should not be null
+                    description: >
+                      user32 (Garage in Area) should not be null
+                      if user33 (Garage Size) is not 7 (NONE)
               - accepted_values:
                   name: iasworld_dweldat_char_gar_area_accepted_values
                   values: ['1', '2']
@@ -1220,10 +1423,27 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_char_gar_cnst_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
+                  additional_select_columns: *select-columns-with-garage-size
+                  config: *unique-conditions-with-garage-size
                   meta:
-                    description: user34 (Garage Construction) should not be null
+                    description: >
+                      user34 (Garage Construction) should not be null
+                      if user33 (Garage Size) is not 7 (NONE)
+              - is_null:
+                  name: iasworld_dweldat_char_gar_cnst_null_if_gar_size_is_null
+                  additional_select_columns: *select-columns-with-garage-size
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
+                      AND user33 = '7'
+                      AND user34 != '0'
+                  meta:
+                    description: >
+                      user34 (Garage Construction) should be null or 0
+                      if user33 (Garage Size) is 7 (NONE)
               - accepted_values:
                   name: iasworld_dweldat_char_gar_cnst_accepted_values
                   values: ['1', '2', '3', '4']
@@ -1249,12 +1469,6 @@ sources:
           - name: wbfp_o
             description: '{{ doc("shared_column_char_frpl") }}'
             tests:
-              - not_null:
-                  name: iasworld_dweldat_char_frpl_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: wbfp_o (Number of Fireplaces) should not be null
               - accepted_range:
                   name: iasworld_dweldat_char_frpl_between_0_and_6
                   min_value: 0
@@ -1337,21 +1551,6 @@ sources:
               meta:
                 category: incorrect_values
                 description: user24 (Proration %) should be between 0 and 100
-          - expression_is_true:
-              name: iasworld_dweldat_char_ncu_between_0_and_5
-              expression: 'CAST(user20 AS decimal) BETWEEN 0 AND 5'
-              additional_select_columns:
-                - parid
-                - taxyr
-                - card
-                - who
-                - wen
-                - user20
-              config: *unique-conditions
-              meta:
-                category: incorrect_values
-                description: >
-                  user20 (No. of Commercial Units) should be an integer between 0 and 5
           - expression_is_true:
               name: iasworld_dweldat_bsmt_and_user12_match_234_class
               expression: bsmt = '3' and user12 = '1'

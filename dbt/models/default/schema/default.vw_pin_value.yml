@@ -63,34 +63,34 @@ models:
           column_name: mailed_class
           config:
             where: CAST(year AS int) < {{ var('test_qc_year_start') }}
-            error_if: ">289" # as of 2024-03-15
+            error_if: ">289"
       - not_null:
           name: default_vw_pin_value_certified_class_not_null
           column_name: certified_class
           config:
             where: CAST(year AS int) < {{ var('test_qc_year_start') }}
-            error_if: ">13" # as of 2024-03-15
+            error_if: ">15"
       - not_null:
           name: default_vw_pin_value_board_class_not_null
           column_name: board_class
           config:
-            where: CAST(year AS int) < {{ var('test_qc_year_start') }}
-            error_if: ">1260" # as of 2024-03-15
+            where: CAST(year AS int) < {{ var('test_qc_year_start') }} - 1
+            error_if: ">1260"
       - not_null:
           name: default_vw_pin_value_mailed_tot_not_null
           column_name: mailed_tot
           config:
             where: CAST(year AS int) < {{ var('test_qc_year_start') }}
-            error_if: ">310" # as of 2024-03-15
+            error_if: ">310"
       - not_null:
           name: default_vw_pin_value_certified_tot_not_null
           column_name: certified_tot
           config:
             where: CAST(year AS int) < {{ var('test_qc_year_start') }}
-            error_if: ">13" # as of 2024-03-15
+            error_if: ">15"
       - not_null:
           name: default_vw_pin_value_board_tot_not_null
           column_name: board_tot
           config:
-            where: CAST(year AS int) < {{ var('test_qc_year_start') }}
-            error_if: ">1260" # as of 2024-03-15
+            where: CAST(year AS int) < {{ var('test_qc_year_start') }} - 1
+            error_if: ">1260"

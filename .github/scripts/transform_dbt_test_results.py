@@ -103,7 +103,9 @@ DOCS_URL_FIELD = "docs_url"
 TAXYR_FIELD = "taxyr"
 PARID_FIELD = "parid"
 CARD_FIELD = "card"
+LAND_LINE_FIELD = "lline"
 TOWNSHIP_FIELD = "township_code"
+CLASS_FIELD = "class"
 WHO_FIELD = "who"
 WEN_FIELD = "wen"
 # Overrides for default display names for dbt tests
@@ -116,6 +118,7 @@ CUSTOM_TEST_NAMES = {
     "macro.athena.test_unique_combination_of_columns": "duplicate_records",
     "macro.dbt_utils.test_unique_combination_of_columns": "duplicate_records",
     "macro.athena.test_not_null": "missing_values",
+    "macro.athena.test_is_null": "missing_values",
     "macro.athena.test_res_class_matches_pardat": "class_mismatch_or_issue",
 }
 # Directory to store failed test caches
@@ -272,6 +275,8 @@ class TestCategory:
         TAXYR_FIELD,
         PARID_FIELD,
         CARD_FIELD,
+        LAND_LINE_FIELD,
+        CLASS_FIELD,
         TOWNSHIP_FIELD,
         WHO_FIELD,
         WEN_FIELD,
@@ -1052,24 +1057,85 @@ def get_test_categories(
             # SHOW COLUMNS often returns field names with trailing whitespace
             fieldnames = [row["field"].strip() for row in cursor]
 
-            test_results_query = f"select * from {test_results_relation_name}"
-            if (
-                PARID_FIELD in fieldnames
-                and TAXYR_FIELD in fieldnames
-                and TOWNSHIP_FIELD not in fieldnames
-            ):
-                # If parid and taxyr are present, try to retrieve the township
-                # code for every row. It's most efficient to do this via a
-                # join in the query rather than in a Python lookup since
-                # legdat has 43m rows
-                test_results_query = f"""
-                    select test_results.*, leg.user1 as {TOWNSHIP_FIELD}
-                    from {test_results_relation_name} as test_results
-                    left join iasworld.legdat as leg
-                        on leg.{PARID_FIELD} = test_results.{PARID_FIELD}
-                        and leg.{TAXYR_FIELD} = test_results.{TAXYR_FIELD}
-                """
+            # Construct the query to select the test results that were stored
+            # in Athena. We want to rehydrate a few fields like township_code
+            # and class without requiring that all tests select them, so
+            # check if those fields are missing and join against the correct
+            # source table in an attempt to rehydrate the missing columns.
+            #
+            # The conditionals that follow are a bit ugly, but they reflect the
+            # fact that we need to rehydrate different columns from different
+            # source tables, and that those source tables can differ based on
+            # whether the base model is keyed by card or parcel. In the future,
+            # we might consider simplifying this by joining to a helper view
+            # with a universe of township and class codes split out by table,
+            # e.g.:
+            #
+            #    pin  | card | taxyr | township_code |  table   | class
+            #   ----- | ---- | ----- | ------------- | -------- | -----
+            #   12345 | 1    | 2024  | 10            | land     | 200
+            #   12345 | 1    | 2024  | 10            | dweldat  | 211
+            test_results_select = "select test_results.*"
+            test_results_join = ""
+            # We need parid and taxyr at minimum in order to rehydrate any
+            # missing fields
+            if PARID_FIELD in fieldnames and TAXYR_FIELD in fieldnames:
+                if TOWNSHIP_FIELD not in fieldnames:
+                    test_results_select += f", leg.user1 AS {TOWNSHIP_FIELD}"
+                    test_results_join += f"""
+                        left join iasworld.legdat as leg
+                            on leg.{PARID_FIELD} = test_results.{PARID_FIELD}
+                            and leg.{TAXYR_FIELD} = test_results.{TAXYR_FIELD}
+                            and leg.cur = 'Y'
+                            and leg.deactivat is null
+                    """
+                if CLASS_FIELD not in fieldnames:
+                    if (
+                        LAND_LINE_FIELD in fieldnames
+                        or CARD_FIELD in fieldnames
+                    ):
+                        # Figure out the right table and key to join on in
+                        # order to query the class
+                        card_join_table = "dweldat"
+                        if tablename in ["comdat", "land", "oby"]:
+                            card_join_table = tablename
 
+                        card_field = (
+                            LAND_LINE_FIELD
+                            if tablename == "land"
+                            and LAND_LINE_FIELD in fieldnames
+                            else CARD_FIELD
+                        )
+
+                        test_results_select += f", card.class AS {CLASS_FIELD}"
+                        test_results_join += f"""
+                            left join iasworld.{card_join_table} as card
+                                on card.{PARID_FIELD} =
+                                    test_results.{PARID_FIELD}
+                                and card.{TAXYR_FIELD} =
+                                    test_results.{TAXYR_FIELD}
+                                and card.{card_field} =
+                                    test_results.{card_field}
+                                and card.cur = 'Y'
+                                and card.deactivat is null
+                        """
+                    else:
+                        test_results_select += f", par.class AS {CLASS_FIELD}"
+                        test_results_join += f"""
+                            left join iasworld.pardat as par
+                                on par.{PARID_FIELD} =
+                                    test_results.{PARID_FIELD}
+                                and par.{TAXYR_FIELD} =
+                                    test_results.{TAXYR_FIELD}
+                                and par.cur = 'Y'
+                                and par.deactivat is null
+                        """
+
+            test_results_query = (
+                f"{test_results_select} "
+                f"from {test_results_relation_name} as test_results "
+                f"{test_results_join}"
+            )
             cursor.execute(test_results_query)
             query_results = cursor.fetchall()
             if len(query_results) == 0:
