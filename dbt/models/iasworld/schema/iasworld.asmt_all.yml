@@ -65,7 +65,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: >
-                      Exempt parcels in pardat should be exempt in asmt all
+                      class should be EX if pardat class is EX
           - name: cur
             description: '{{ doc("column_cur") }}'
             tests:
