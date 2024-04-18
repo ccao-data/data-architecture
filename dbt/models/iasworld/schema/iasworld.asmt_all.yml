@@ -59,7 +59,6 @@ sources:
                     description: at least one class should match pardat class
               - res_class_matches_pardat:
                   name: iasworld_asmt_all_ex_matches_pardat_class_ex
-                  major_class_only: false
                   join_type: inner
                   additional_select_columns: *select-columns-aggregated
                   additional_pardat_filter: AND class = 'EX'
