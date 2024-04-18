@@ -94,7 +94,7 @@ sources:
               - res_class_matches_pardat:
                   name: iasworld_land_class_matches_pardat_class
                   major_class_only: true
-                  additional_select_columns:
+                  additional_select_columns: &select-columns-aggregated
                     - column: taxyr
                       agg_func: max
                     - column: parid
@@ -114,6 +114,16 @@ sources:
                   meta:
                     description: >
                       at least one major class (first digit) should match pardat class
+              - res_class_matches_pardat:
+                  name: iasworld_land_class_ex_matches_pardat_class_ex
+                  major_class_only: false
+                  join_type: inner
+                  additional_select_columns: *select-columns-aggregated
+                  additional_pardat_filter: AND class = 'EX'
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      class should be EX if pardat class is EX
           - name: code
             description: Code
           - name: comres
