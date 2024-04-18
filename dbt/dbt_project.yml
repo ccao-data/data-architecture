@@ -67,6 +67,8 @@ tests:
 
 seeds:
   athena:
+    ccao:
+      +schema: ccao
     location:
       +schema: location
     model:
