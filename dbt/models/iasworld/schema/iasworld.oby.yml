@@ -125,7 +125,7 @@ sources:
                     description: >
                       at least one major class (first digit) should match pardat class
               - res_class_matches_pardat:
-                  name: iasworld_oby_class_matches_pardat_class_ex
+                  name: iasworld_oby_class_ex_matches_pardat_class_ex
                   major_class_only: false
                   join_type: inner
                   additional_select_columns: *select-columns-aggregated
