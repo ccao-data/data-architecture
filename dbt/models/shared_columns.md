@@ -570,7 +570,8 @@ Defined as bathrooms with a bath or shower. If this value is missing, the defaul
 {% docs shared_column_char_frpl %}
 Number of fireplaces.
 
-Counted as the number of flues one can see from the outside of the building
+Counted as the number of flues one can see from the outside of the building.
+Note that either 0 or null can indicate no fireplaces.
 {% enddocs %}
 
 ## char_gar1_area / char_gar2_area
@@ -649,7 +650,8 @@ Possible values for this variable are:
 {% docs shared_column_char_hbath %}
 Number of half baths.
 
-Defined as bathrooms without a shower or bathtub
+Defined as bathrooms without a shower or bathtub. Note that either 0 or
+null can indicate no half baths.
 {% enddocs %}
 
 ## char_land_sf
@@ -679,6 +681,7 @@ Porch type.
 
 Possible values for this variable are:
 
+- `null` = None
 - `0` = None (`NONE`)
 - `1` = Frame enclosed (`FRAM`)
 - `2` = Masonry enclosed (`MSRY`)
