@@ -32,6 +32,7 @@ major_class_code,major_class_type,assessment_level,regression_class,modeling_gro
 2,Residential,10%,TRUE,SF,Single-Family,295,"Individually owned row houses or townhouses, up to 62 years",0,62,0,Inf
 2,Residential,10%,FALSE,,,297,Special residential improvements (May apply to condo building in first year of construction before division into individual units.),0,Inf,0,Inf
 2,Residential,10%,TRUE,CONDO,Condominium,299,Condominium,0,Inf,0,Inf
+2,Residential,10%,FALSE,,,OA2,,0,Inf,0,Inf
 3,Multi-Family,10%,FALSE,,,300,Land used in conjunction with rental apartments,,,,
 3,Multi-Family,10%,FALSE,,,301,Garage used in conjunction with rental apartments,,,,
 3,Multi-Family,10%,FALSE,,,313,"Two-or-three-story, building, seven or more units",,,,
@@ -97,6 +98,7 @@ major_class_code,major_class_type,assessment_level,regression_class,modeling_gro
 5B,Industrial,25%,FALSE,,,587,Special industrial improvement,,,,
 5B,Industrial,25%,FALSE,,,589,Industrial condominium unit,,,,
 5B,Industrial,25%,FALSE,,,593,Industrial building,,,,
+5,Industrial,25%,FALSE,,,OA5,,,,,
 6A,Industrial Incentive,,FALSE,,,650,Industrial land,,,,
 6A,Industrial Incentive,,FALSE,,,680,Industrial minor improvement,,,,
 6A,Industrial Incentive,,FALSE,,,681,Garage used in conjunction with industrial incentive improvement,,,,
