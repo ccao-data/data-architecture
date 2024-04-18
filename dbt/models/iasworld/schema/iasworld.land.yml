@@ -99,6 +99,8 @@ sources:
                       agg_func: max
                     - column: parid
                       agg_func: max
+                    - column: lline
+                      agg_func: array_agg
                     - column: who
                       agg_func: max
                     - column: wen

@@ -103,6 +103,7 @@ DOCS_URL_FIELD = "docs_url"
 TAXYR_FIELD = "taxyr"
 PARID_FIELD = "parid"
 CARD_FIELD = "card"
+LAND_LINE_FIELD = "lline"
 TOWNSHIP_FIELD = "township_code"
 CLASS_FIELD = "class"
 WHO_FIELD = "who"
@@ -274,6 +275,7 @@ class TestCategory:
         TAXYR_FIELD,
         PARID_FIELD,
         CARD_FIELD,
+        LAND_LINE_FIELD,
         CLASS_FIELD,
         TOWNSHIP_FIELD,
         WHO_FIELD,
