@@ -869,44 +869,10 @@ sources:
                   meta:
                     description: sfla (Building Square Footage) should not be null
               - accepted_range:
-                  name: iasworld_dweldat_sfla_matches_class_definition
-                  min_value: |
-                    CASE
-                      WHEN class = '202' THEN 1
-                      WHEN class = '203' THEN 1000
-                      WHEN class = '204' THEN 1801
-                      WHEN class = '205' THEN 1
-                      WHEN class = '206' THEN 2201
-                      WHEN class = '207' THEN 1
-                      WHEN class = '208' THEN 3801
-                      WHEN class = '209' THEN 5000
-                      WHEN class = '210' THEN 1
-                      WHEN class = '211' THEN 1
-                      WHEN class = '212' THEN 1
-                      WHEN class = '234' THEN 1
-                      WHEN class = '278' THEN 2001
-                      WHEN class = '295' THEN 1
-                      ELSE 1
-                    END
-                  max_value: |
-                    CASE
-                      WHEN class = '202' THEN 999
-                      WHEN class = '203' THEN 1800
-                      WHEN class = '204' THEN 10000
-                      WHEN class = '205' THEN 2200
-                      WHEN class = '206' THEN 4999
-                      WHEN class = '207' THEN 2000
-                      WHEN class = '208' THEN 4999
-                      WHEN class = '209' THEN 50000
-                      WHEN class = '210' THEN 10000
-                      WHEN class = '211' THEN 40000
-                      WHEN class = '212' THEN 40000
-                      WHEN class = '234' THEN 10000
-                      WHEN class = '278' THEN 3800
-                      WHEN class = '295' THEN 20000
-                      ELSE 20000
-                    END
-                  additional_select_columns:
+                  name: iasworld_dweldat_sfla_between_1_and_999_for_class_202
+                  min_value: 1
+                  max_value: 999
+                  additional_select_columns: &select-columns-with-class
                     - taxyr
                     - parid
                     - card
@@ -916,31 +882,208 @@ sources:
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND class IN (
-                        '202', '203', '204', '205', '206', '207', '208', '209',
-                        '210', '211', '212', '234', '278', '295'
-                      )
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                      AND class = '202'
                   meta:
                     description: >
-                      sfla (Building Square Footage) should match the class
-                      definition for class 2 regression properties
+                      sfla (Building Square Footage) should be between
+                      1 and 999 for class 202 cards
               - accepted_range:
-                  name: iasworld_dweldat_sfla_mf_between_1_and_20000
-                  min_value: 1
-                  max_value: 20000
-                  additional_select_columns: *select-columns
+                  name: iasworld_dweldat_sfla_between_1000_and_1800_for_class_203
+                  min_value: 1000
+                  max_value: 1800
+                  additional_select_columns: *select-columns-with-class
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND class IN ('208', '209', '211', '212')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                      AND class = '203'
                   meta:
                     description: >
-                      sfla (Building Square Footage) should be between 1 and 20000
-                      for multi-family and large single-family
+                      sfla (Building Square Footage) should be between
+                      1000 and 1800 for class 203 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1801_and_25000_for_class_204
+                  min_value: 1801
+                  max_value: 25000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '204'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1801 and 25000 for class 204 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_2200_for_class_205
+                  min_value: 1
+                  max_value: 2200
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '205'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 2200 for class 205 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_2201_and_4999_for_class_206
+                  min_value: 2201
+                  max_value: 4999
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '206'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      2201 and 4999 for class 206 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_2000_for_class_207
+                  min_value: 1
+                  max_value: 2000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '207'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 2000 for class 207 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_3801_and_4999_for_class_208
+                  min_value: 3801
+                  max_value: 4999
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '208'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      3801 and 4999 for class 208 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_5000_and_50000_for_class_209
+                  min_value: 5000
+                  max_value: 50000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '209'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      5000 and 50000 for class 209 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_10000_for_class_210
+                  min_value: 1
+                  max_value: 10000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '210'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 10000 for class 210 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_40000_for_class_211
+                  min_value: 1
+                  max_value: 40000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '211'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 40000 for class 211 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_20000_for_class_212
+                  min_value: 1
+                  max_value: 20000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '212'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 20000 for class 212 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_10000_for_class_234
+                  min_value: 1
+                  max_value: 10000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '234'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 10000 for class 234 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_2001_and_3800_for_class_278
+                  min_value: 2001
+                  max_value: 3800
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '278'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      2001 and 3800 for class 278 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_20000_for_class_295
+                  min_value: 1
+                  max_value: 20000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '295'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 20000 for class 295 cards
           - name: shfact
             description: Story height factor
           - name: sidpct
