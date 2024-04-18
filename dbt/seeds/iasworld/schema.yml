@@ -3,4 +3,7 @@ seeds:
     description: '{{ doc("seed_class_dict") }}'
     config:
       column_types:
-        year: string
+        Min_age: string
+        Max_age: string
+        Min_size: string
+        Max_size: string
