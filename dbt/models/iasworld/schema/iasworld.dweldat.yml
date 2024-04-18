@@ -897,13 +897,13 @@ sources:
                       WHEN class = '206' THEN 4999
                       WHEN class = '207' THEN 2000
                       WHEN class = '208' THEN 4999
-                      WHEN class = '209' THEN 20000
+                      WHEN class = '209' THEN 50000
                       WHEN class = '210' THEN 10000
-                      WHEN class = '211' THEN 20000
-                      WHEN class = '212' THEN 20000
+                      WHEN class = '211' THEN 40000
+                      WHEN class = '212' THEN 40000
                       WHEN class = '234' THEN 10000
                       WHEN class = '278' THEN 3800
-                      WHEN class = '295' THEN 10000
+                      WHEN class = '295' THEN 20000
                       ELSE 20000
                     END
                   additional_select_columns:
