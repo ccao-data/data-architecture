@@ -1,3 +1,9 @@
 seeds:
   - name: ccao.class_dict
     description: '{{ doc("seed_class_dict") }}'
+    config:
+      column_types:
+        min_age: string
+        max_age: string
+        min_size: string
+        max_size: string
