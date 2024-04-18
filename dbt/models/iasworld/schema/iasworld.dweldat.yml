@@ -869,7 +869,7 @@ sources:
                   meta:
                     description: sfla (Building Square Footage) should not be null
               - accepted_range:
-                  name: iasworld_dweldat_sfla_between_1_and_10000
+                  name: iasworld_dweldat_sfla_matches_class_definition
                   min_value: |
                     CASE
                       WHEN class = '202' THEN 1
