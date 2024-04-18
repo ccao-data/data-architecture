@@ -1062,6 +1062,19 @@ def get_test_categories(
             # and class without requiring that all tests select them, so
             # check if those fields are missing and join against the correct
             # source table in an attempt to rehydrate the missing columns.
+            #
+            # The conditionals that follow are a bit ugly, but they reflect the
+            # fact that we need to rehydrate different columns from different
+            # source tables, and that those source tables can differ based on
+            # whether the base model is keyed by card or parcel. In the future,
+            # we might consider simplifying this by joining to a helper view
+            # with a universe of township and class codes split out by table,
+            # e.g.:
+            #
+            #    pin  | card | taxyr | township_code |  table   | class
+            #   ----- | ---- | ----- | ------------- | -------- | -----
+            #   12345 | 1    | 2024  | 10            | land     | 200
+            #   12345 | 1    | 2024  | 10            | dweldat  | 211
             test_results_select = "select test_results.*"
             test_results_join = ""
             # We need parid and taxyr at minimum in order to rehydrate any
@@ -1077,12 +1090,22 @@ def get_test_categories(
                             and leg.deactivat is null
                     """
                 if CLASS_FIELD not in fieldnames:
-                    if CARD_FIELD in fieldnames:
-                        # Figure out the right table to join to in order to
-                        # query the class
+                    if (
+                        LAND_LINE_FIELD in fieldnames
+                        or CARD_FIELD in fieldnames
+                    ):
+                        # Figure out the right table and key to join on in
+                        # order to query the class
                         card_join_table = "dweldat"
                         if tablename in ["comdat", "land", "oby"]:
                             card_join_table = tablename
+
+                        card_field = (
+                            LAND_LINE_FIELD
+                            if tablename == "land"
+                            and LAND_LINE_FIELD in fieldnames
+                            else CARD_FIELD
+                        )
 
                         test_results_select += f", card.class AS {CLASS_FIELD}"
                         test_results_join += f"""
@@ -1091,8 +1114,8 @@ def get_test_categories(
                                     test_results.{PARID_FIELD}
                                 and card.{TAXYR_FIELD} =
                                     test_results.{TAXYR_FIELD}
-                                and card.{CARD_FIELD} =
-                                    test_results.{CARD_FIELD}
+                                and card.{card_field} =
+                                    test_results.{card_field}
                                 and card.cur = 'Y'
                                 and card.deactivat is null
                         """
