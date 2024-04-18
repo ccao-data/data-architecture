@@ -5,5 +5,5 @@ Table containing a translation for property class codes to human-readable class
 descriptions. Also describes which classes are included in residential
 regressions and reporting classes.
 
-**Primary Key**: `Class_code`
+**Primary Key**: `class_code`
 {% enddocs %}

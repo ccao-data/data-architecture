@@ -7,3 +7,29 @@ seeds:
         max_age: double
         min_size: double
         max_size: double
+
+    columns:
+      - name: major_class_code
+        description: First digit of class code, major class
+      - name: major_class_type
+        description: Human-readable description of the major class
+      - name: assessment_level
+        description: Level of assessment for the property class
+      - name: regression_class
+        description: Boolean indicating whether or not this class isincluded in CAMA regressions
+      - name: modeling_group
+        description: Modeling group used for internal CCAO data selection
+      - name: reporting_group
+        description: Reporting group name used for internal CCAO reportsand aggregate statistics
+      - name: class_code
+        description: Full, 3-digit class code of the property sub-class
+      - name: class_desc
+        description: Human-readable description of the property sub-class
+      - name: min_size
+        description: Integer of minimum size for 200-class property codes
+      - name: max_size
+        description: Integer of maximum size for 200-class property codes
+      - name: min_age
+        description: Integer of minimum age for 200-class property codes
+      - name: max_age
+        description: Integer of maximum age for 200-class property codes
