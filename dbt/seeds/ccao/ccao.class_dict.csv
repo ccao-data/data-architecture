@@ -3,36 +3,36 @@ major_class_code,major_class_type,assessment_level,regression_class,modeling_gro
 0,Exempt and Railroad,0%,FALSE,,,,Railroad property,,,,
 1,Vacant,10%,FALSE,,,100,Vacant land,,,,
 1,Vacant,10%,FALSE,,,190,Minor improvement on vacant land,,,,
-2,Residential,10%,FALSE,,,200,Residential land,0,Inf,0,Inf
-2,Residential,10%,FALSE,,,201,Residential garage,0,Inf,0,Inf
-2,Residential,10%,TRUE,SF,Single-Family,202,"One story residence, any age, up to 999 sq. ft.",0,Inf,0,999
-2,Residential,10%,TRUE,SF,Single-Family,203,"One story residence, any age, 1,000 to 1,800 sq. ft.",0,Inf,1000,1800
-2,Residential,10%,TRUE,SF,Single-Family,204,"One story residence, any age, 1,801 sq. ft. and over",0,Inf,1801,Inf
-2,Residential,10%,TRUE,SF,Single-Family,205,"Two or more story residence, over 62 years, up to 2,200 sq. ft",63,Inf,0,2200
-2,Residential,10%,TRUE,SF,Single-Family,206,"Two or more story residence, over 62 years, 2,201 to 4,999 sq. ft.",63,Inf,2201,4999
+2,Residential,10%,FALSE,,,200,Residential land,0,Infinity,0,Infinity
+2,Residential,10%,FALSE,,,201,Residential garage,0,Infinity,0,Infinity
+2,Residential,10%,TRUE,SF,Single-Family,202,"One story residence, any age, up to 999 sq. ft.",0,Infinity,0,999
+2,Residential,10%,TRUE,SF,Single-Family,203,"One story residence, any age, 1,000 to 1,800 sq. ft.",0,Infinity,1000,1800
+2,Residential,10%,TRUE,SF,Single-Family,204,"One story residence, any age, 1,801 sq. ft. and over",0,Infinity,1801,Infinity
+2,Residential,10%,TRUE,SF,Single-Family,205,"Two or more story residence, over 62 years, up to 2,200 sq. ft",63,Infinity,0,2200
+2,Residential,10%,TRUE,SF,Single-Family,206,"Two or more story residence, over 62 years, 2,201 to 4,999 sq. ft.",63,Infinity,2201,4999
 2,Residential,10%,TRUE,SF,Single-Family,207,"Two or more story residence, up to 62 years, up to 2,000 sq. ft.",0,62,0,2000
 2,Residential,10%,TRUE,SF,Single-Family,208,"Two or more story residence, up to 62 years, 3,801 to 4,999 sq. ft.",0,62,3801,4999
-2,Residential,10%,TRUE,SF,Single-Family,209,"Two or more story residence, any age, 5,000 sq. ft. and over",0,Inf,5000,Inf
-2,Residential,10%,TRUE,SF,Single-Family,210,"Old style townhouse, over 62 years",63,Inf,0,Inf
-2,Residential,10%,TRUE,MF,Multi-Family,211,"Two to six residential apartments, any age",0,Inf,0,Inf
-2,Residential,10%,TRUE,MF,Multi-Family,212,"Two to six mixed-use apartments, any age, up to 20,000 sq. ft.",0,Inf,0,20000
-2,Residential,10%,FALSE,,,213,Cooperative,0,Inf,0,Inf
-2,Residential,10%,TRUE,BB,Bed & Breakfast,218,A residential building licensed as a Bed & Breakfast by the municipality,0,Inf,0,Inf
-2,Residential,10%,TRUE,BB,Bed & Breakfast,219,A residential building licensed as a Bed & Breakfast by the municipality,0,Inf,0,Inf
-2,Residential,10%,FALSE,,,224,Farm building,0,Inf,0,Inf
-2,Residential,10%,FALSE,,,225,Single-room occupancy rental building,0,Inf,0,Inf
-2,Residential,10%,TRUE,SF,Single-Family,234,"Spllit level residence, with a lower level below grade, all ages, all sizes",0,Inf,0,Inf
-2,Residential,10%,FALSE,,,236,Any residence located on a parcel used primarily for commercial or industrial purposes,0,Inf,0,Inf
-2,Residential,10%,FALSE,,,239,"Non-equalized land under agricultural use, valued at farm pricing",0,Inf,0,Inf
-2,Residential,10%,FALSE,,,240,First-time agricultural use of land valued at market price,0,Inf,0,Inf
-2,Residential,10%,FALSE,,,241,Vacant land under common ownership with adjacent residence,0,Inf,0,Inf
+2,Residential,10%,TRUE,SF,Single-Family,209,"Two or more story residence, any age, 5,000 sq. ft. and over",0,Infinity,5000,Infinity
+2,Residential,10%,TRUE,SF,Single-Family,210,"Old style townhouse, over 62 years",63,Infinity,0,Infinity
+2,Residential,10%,TRUE,MF,Multi-Family,211,"Two to six residential apartments, any age",0,Infinity,0,Infinity
+2,Residential,10%,TRUE,MF,Multi-Family,212,"Two to six mixed-use apartments, any age, up to 20,000 sq. ft.",0,Infinity,0,20000
+2,Residential,10%,FALSE,,,213,Cooperative,0,Infinity,0,Infinity
+2,Residential,10%,TRUE,BB,Bed & Breakfast,218,A residential building licensed as a Bed & Breakfast by the municipality,0,Infinity,0,Infinity
+2,Residential,10%,TRUE,BB,Bed & Breakfast,219,A residential building licensed as a Bed & Breakfast by the municipality,0,Infinity,0,Infinity
+2,Residential,10%,FALSE,,,224,Farm building,0,Infinity,0,Infinity
+2,Residential,10%,FALSE,,,225,Single-room occupancy rental building,0,Infinity,0,Infinity
+2,Residential,10%,TRUE,SF,Single-Family,234,"Spllit level residence, with a lower level below grade, all ages, all sizes",0,Infinity,0,Infinity
+2,Residential,10%,FALSE,,,236,Any residence located on a parcel used primarily for commercial or industrial purposes,0,Infinity,0,Infinity
+2,Residential,10%,FALSE,,,239,"Non-equalized land under agricultural use, valued at farm pricing",0,Infinity,0,Infinity
+2,Residential,10%,FALSE,,,240,First-time agricultural use of land valued at market price,0,Infinity,0,Infinity
+2,Residential,10%,FALSE,,,241,Vacant land under common ownership with adjacent residence,0,Infinity,0,Infinity
 2,Residential,10%,TRUE,SF,Single-Family,278,"Two or more story residence, up to 62 years, 2,001 to 3,800 sq. ft.",0,62,2001,3800
-2,Residential,10%,FALSE,,,288,Home improvement,0,Inf,0,Inf
-2,Residential,10%,FALSE,,,290,Minor improvement,0,Inf,0,Inf
-2,Residential,10%,TRUE,SF,Single-Family,295,"Individually owned row houses or townhouses, up to 62 years",0,62,0,Inf
-2,Residential,10%,FALSE,,,297,Special residential improvements (May apply to condo building in first year of construction before division into individual units.),0,Inf,0,Inf
-2,Residential,10%,TRUE,CONDO,Condominium,299,Condominium,0,Inf,0,Inf
-2,Residential,10%,FALSE,,,OA2,,0,Inf,0,Inf
+2,Residential,10%,FALSE,,,288,Home improvement,0,Infinity,0,Infinity
+2,Residential,10%,FALSE,,,290,Minor improvement,0,Infinity,0,Infinity
+2,Residential,10%,TRUE,SF,Single-Family,295,"Individually owned row houses or townhouses, up to 62 years",0,62,0,Infinity
+2,Residential,10%,FALSE,,,297,Special residential improvements (May apply to condo building in first year of construction before division into individual units.),0,Infinity,0,Infinity
+2,Residential,10%,TRUE,CONDO,Condominium,299,Condominium,0,Infinity,0,Infinity
+2,Residential,10%,FALSE,,,OA2,,0,Infinity,0,Infinity
 3,Multi-Family,10%,FALSE,,,300,Land used in conjunction with rental apartments,,,,
 3,Multi-Family,10%,FALSE,,,301,Garage used in conjunction with rental apartments,,,,
 3,Multi-Family,10%,FALSE,,,313,"Two-or-three-story, building, seven or more units",,,,
