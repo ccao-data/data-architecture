@@ -73,4 +73,3 @@ seeds:
       +schema: location
     model:
       +schema: model
-
