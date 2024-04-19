@@ -167,6 +167,30 @@ sources:
             description: Jurisdictions (Municipalities) used as part of Folio number (BCA)
           - name: nbhd
             description: '{{ doc("shared_column_nbhd_code") }}'
+            tests:
+            - row_values_match_after_join:
+                name: iasworld_pardat_nbhd_matches_legdat_township
+                external_model: source('iasworld', 'legdat')
+                external_column_name: user1
+                column_alias: nbhd_code
+                external_column_alias: township_code
+                group_by:
+                  - parid
+                  - taxyr
+                join_condition:
+                  ON  substr(model.nbhd, 1, 2) != external_model.user1
+                  AND model.parid = external_model.parid
+                  AND model.taxyr = external_model.taxyr
+                  AND model.cur = 'Y'
+                  AND model.deactivat IS NULL
+                  AND external_model.cur = 'Y'
+                  AND external_model.deactivat IS NULL
+                config:
+                  where:
+                    CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                meta:
+                  category: relationships
+                  description: nbhd code first 2 digits should match legdat.user1 (township code)
           - name: nbhdie
             description: Neighborhood income valuation
           - name: nonfarminc
