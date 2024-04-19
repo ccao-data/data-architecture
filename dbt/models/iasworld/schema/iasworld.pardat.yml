@@ -174,9 +174,11 @@ sources:
                 external_column_name: user1
                 column_alias: nbhd_code
                 external_column_alias: township_code
-                group_by:
-                  - parid
-                  - taxyr
+                additional_select_columns:
+                  - model.taxyr
+                  - model.parid
+                  - model.who
+                  - model.wen
                 join_condition:
                   ON  substr(model.nbhd, 1, 2) != external_model.user1
                   AND model.parid = external_model.parid
