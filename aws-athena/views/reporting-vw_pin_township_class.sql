@@ -58,8 +58,7 @@ SELECT
             AND town.triad_name = 'City'
             THEN TRUE
         ELSE FALSE
-    END AS reassessment_year,
-    CAST(CAST(correct.taxyr AS INT) + 1 AS VARCHAR) AS model_year
+    END AS reassessment_year
 FROM correct_class AS correct
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     ON correct.parid = leg.parid
