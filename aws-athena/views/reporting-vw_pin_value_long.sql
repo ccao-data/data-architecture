@@ -49,8 +49,8 @@ SELECT
     svls.parid AS pin,
     svls.taxyr AS year,
     svls.class,
-    classes.major_class,
-    classes.property_group,
+    cls.major_class,
+    cls.property_group,
     CASE
         WHEN svls.procname = 'CCAOVALUE' THEN 'MAILED'
         WHEN svls.procname = 'CCAOFINAL' THEN 'ASSESSOR CERTIFIED'
