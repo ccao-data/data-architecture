@@ -5,7 +5,7 @@
 WITH model_values AS (
     SELECT
         ap.meta_pin AS pin,
-        CAST(CAST(ap.meta_year AS INT) + 1 AS VARCHAR) AS year,
+        ap.year,
         ap.meta_class AS class,
         'model' AS assessment_stage,
         ap.pred_pin_final_fmv_round AS total
