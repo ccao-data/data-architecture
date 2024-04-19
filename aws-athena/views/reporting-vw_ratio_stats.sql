@@ -62,7 +62,7 @@ LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS towns
 INNER JOIN all_values AS av
     ON vwps.pin = av.pin
     AND CAST(vwps.year AS INT) = CAST(av.year AS INT) - 1
-    -- Grab parking spaces and join them to aggregate stats for removal
+-- Grab parking spaces and join them to aggregate stats for removal
 LEFT JOIN {{ ref('default.vw_pin_condo_char') }} AS ps
     ON av.pin = ps.pin
     AND av.year = ps.year
