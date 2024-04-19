@@ -64,9 +64,9 @@ FROM correct_class AS correct
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     ON correct.parid = leg.parid
     AND correct.taxyr = leg.taxyr
+    AND leg.cur = 'Y'
+    AND leg.deactivat IS NULL
 LEFT JOIN {{ source('spatial', 'township') }} AS town
     ON leg.user1 = town.township_code
 WHERE correct.cur = 'Y'
     AND correct.deactivat IS NULL
-    AND leg.cur = 'Y'
-    AND leg.deactivat IS NULL

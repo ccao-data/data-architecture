@@ -72,7 +72,7 @@ The assessment stages are:
 
 ### Assumptions
 
-- Taking the max value by 14-digit PIN and year is sufficient for accurate
+- Taking an arbitrary value by 14-digit PIN and year is sufficient for accurate
   values. We do this because even given the criteria to de-dupe `asmt_all`,
   we still end up with duplicates by PIN and year.
 
