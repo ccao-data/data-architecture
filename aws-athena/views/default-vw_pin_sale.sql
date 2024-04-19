@@ -3,7 +3,7 @@
 WITH town_class AS (
     SELECT
         par.parid,
-        par.class,
+        REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') AS class,
         par.taxyr,
         leg.user1 AS township_code,
         CONCAT(

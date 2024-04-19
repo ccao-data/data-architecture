@@ -85,6 +85,10 @@ models:
           additional_select_columns:
             - num_parcels_sale
             - is_multisale
+      - not_accepted_values:
+          name: default_vw_pin_sale_class_no_hyphens
+          column_name: class
+          values: "2-99"
       - expression_is_true:
           name: default_vw_pin_sale_sale_filter_deed_type
           expression: NOT sale_filter_deed_type OR deed_type IN ('03', '04', '06')

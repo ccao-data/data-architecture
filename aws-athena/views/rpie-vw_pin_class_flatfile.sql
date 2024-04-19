@@ -3,7 +3,7 @@ WITH classes AS (
     SELECT
         parid AS pin,
         CAST(CAST(taxyr AS INT) + 1 AS VARCHAR) AS year,
-        class
+        REGEXP_REPLACE(class, '[^[:alnum:]]', '') AS class
     FROM {{ source('iasworld', 'pardat') }}
 )
 
