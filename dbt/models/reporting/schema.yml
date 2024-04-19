@@ -128,8 +128,6 @@ models:
           column_name: class
           config:
             where: CAST(year AS int) < {{ var('test_qc_year_start') }}
-          config:
-            where: CAST(year AS int) < {{ var('test_qc_year_start') }}
       - not_null:
           name: reporting_vw_pin_township_class_township_name_not_null
           column_name: township_name
