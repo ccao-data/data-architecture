@@ -49,7 +49,9 @@ SELECT
     svls.parid AS pin,
     svls.taxyr AS year,
     svls.class,
-    cls.major_class,
+    -- Unfortunately there are some classes in ASMT_ALL that are not in pardat.
+    -- We need to provide them with a major class through SUBSTR in that case.
+    COALESCE(cls.major_class, SUBSTR(svls.class, 1, 1)) AS major_class,
     cls.property_group,
     CASE
         WHEN svls.procname = 'CCAOVALUE' THEN 'MAILED'
