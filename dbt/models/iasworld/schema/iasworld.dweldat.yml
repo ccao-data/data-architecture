@@ -630,7 +630,7 @@ sources:
             description: '{{ doc("column_chgrsn") }}'
             tests:
               - accepted_values:
-                  name: iasworld_dweldat_mktrsn_eq_5_or_5b_when_mktadj_or_external_occpct_not_null
+                  name: iasworld_dweldat_mktrsn_eq_5_or_5b_when_external_occpct_or_mktadj_not_null
                   values:
                     - '5'
                     - 5B
@@ -640,19 +640,19 @@ sources:
                     - card
                     - who
                     - wen
-                    - mktadj
                     - external_occpct
+                    - mktadj
                   config:
-                    where:
+                    where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
-                      AND (mktadj IS NOT NULL OR external_occpct IS NOT NULL)
+                      AND (external_occpct IS NOT NULL OR mktadj IS NOT NULL)
                   meta:
                     description: >
                       mktrsn (Reason for Override) should be 5 or 5B
-                      if mktadj (Occupancy % [deprecated]) or external_occpct
-                      (Occupancy % [current]) is not null
+                      if external_occpct (Occupancy % [current]) or
+                      mktadj (Occupancy % [deprecated]) is not null
           - name: modover
             description: Residential override model
           - name: mvpattic
