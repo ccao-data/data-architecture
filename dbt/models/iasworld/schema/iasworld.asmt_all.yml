@@ -39,7 +39,7 @@ sources:
                     description: class code must be valid
               - res_class_matches_pardat:
                   name: iasworld_asmt_all_class_matches_pardat_class
-                  additional_select_columns:
+                  additional_select_columns: &select-columns-aggregated
                     - column: taxyr
                       agg_func: max
                     - column: parid
@@ -57,6 +57,15 @@ sources:
                       AND valclass IS NULL
                   meta:
                     description: at least one class should match pardat class
+              - res_class_matches_pardat:
+                  name: iasworld_asmt_all_class_ex_matches_pardat_class_ex
+                  join_type: inner
+                  additional_select_columns: *select-columns-aggregated
+                  additional_pardat_filter: AND class = 'EX'
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      class should be EX if pardat class is EX
           - name: cur
             description: '{{ doc("column_cur") }}'
             tests:

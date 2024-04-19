@@ -27,55 +27,14 @@ Intended to be materialized daily through a GitHub action.
     )
 }}
 
--- Valuation class and nbhd from pardat, townships from legdat
--- since pardat has some errors we can't accept for public reporting
-WITH town_class AS (
+-- AVs and model values
+WITH all_fmvs AS (
     SELECT
-        par.parid,
-        par.taxyr,
-        town.triad_name AS triad,
-        leg.user1 AS township_code,
-        CONCAT(leg.user1, SUBSTR(par.nbhd, 3, 3)) AS townnbhd,
-        par.class,
-        CASE WHEN par.class IN ('299', '399') THEN 'CONDO'
-            WHEN par.class IN ('211', '212') THEN 'MF'
-            WHEN
-                par.class IN (
-                    '202', '203', '204', '205', '206', '207',
-                    '208', '209', '210', '234', '278', '295'
-                )
-                THEN 'SF'
-        END AS property_group,
-        CAST(CAST(par.taxyr AS INT) - 1 AS VARCHAR) AS model_join_year
-    FROM {{ source('iasworld', 'pardat') }} AS par
-    LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
-        ON par.parid = leg.parid
-        AND par.taxyr = leg.taxyr
-    LEFT JOIN {{ source('spatial', 'township') }} AS town
-        ON leg.user1 = town.township_code
-    WHERE par.cur = 'Y'
-        AND par.deactivat IS NULL
-        AND leg.cur = 'Y'
-        AND leg.deactivat IS NULL
-),
-
--- Final model values (Add 1 to model year since '2021' correspond to '2022'
--- mailed values in iasWorld)
-model_values AS (
-    SELECT
-        ap.meta_pin AS parid,
-        tc.property_group,
-        tc.class,
-        tc.triad,
-        tc.township_code,
-        tc.townnbhd,
-        tc.taxyr AS year,
+        ap.meta_pin AS pin,
+        ap.year,
         'model' AS assessment_stage,
         ap.pred_pin_final_fmv_round AS total
     FROM {{ source('model', 'assessment_pin') }} AS ap
-    LEFT JOIN town_class AS tc
-        ON ap.meta_pin = tc.parid
-        AND ap.meta_year = tc.model_join_year
     INNER JOIN {{ ref('model.final_model') }} AS fm
         ON ap.run_id = fm.run_id
         AND ap.year = fm.year
@@ -88,63 +47,91 @@ model_values AS (
             -- Otherwise, just use whichever model is "final"
             OR (ap.meta_triad_code != fm.triad_code AND fm.is_final)
         )
-    WHERE tc.property_group IS NOT NULL
-        AND tc.triad IS NOT NULL
-),
 
--- Values by assessment stages available in iasWorld (not model)
-iasworld_values AS (
-    SELECT
-        aa.parid,
-        tc.property_group,
-        aa.class,
-        tc.triad,
-        tc.township_code,
-        tc.townnbhd,
-        aa.taxyr AS year,
-        CASE
-            WHEN aa.procname = 'CCAOVALUE' THEN 'mailed'
-            WHEN aa.procname = 'CCAOFINAL' THEN 'assessor certified'
-            WHEN aa.procname = 'BORVALUE' THEN 'bor certified'
-        END AS assessment_stage,
-        MAX(
-            CASE
-                WHEN aa.taxyr < '2020' THEN aa.ovrvalasm3
-                WHEN aa.taxyr >= '2020' THEN aa.valasm3
-            END
-        ) * 10 AS total
-    FROM {{ source('iasworld', 'asmt_all') }} AS aa
-    LEFT JOIN town_class AS tc
-        ON aa.parid = tc.parid
-        AND aa.taxyr = tc.taxyr
-    WHERE aa.procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
-        AND aa.rolltype != 'RR'
-        AND aa.deactivat IS NULL
-        AND aa.valclass IS NULL
-        AND tc.property_group IS NOT NULL
-        AND tc.triad IS NOT NULL
-        AND aa.taxyr >= '2021'
-    GROUP BY
-        aa.parid,
-        aa.taxyr,
-        aa.procname,
-        tc.property_group,
-        CASE
-            WHEN aa.procname = 'CCAOVALUE' THEN 'mailed'
-            WHEN aa.procname = 'CCAOFINAL' THEN 'assessor certified'
-            WHEN aa.procname = 'BORVALUE' THEN 'bor certified'
-        END,
-        aa.class,
-        tc.triad,
-        tc.township_code,
-        tc.townnbhd
-),
-
-all_values AS (
-    SELECT * FROM model_values
     UNION ALL
-    SELECT * FROM iasworld_values
+
+    SELECT
+        pin,
+        year,
+        stage_name AS assessment_stage,
+        tot * 10 AS total
+    FROM {{ ref('reporting.vw_pin_value_long') }}
+    WHERE year >= '2021'
 ),
+
+-- Combined SF/MF and condo characteristics
+chars AS (
+    SELECT
+        parid AS pin,
+        taxyr AS year,
+        MIN(yrblt) AS yrblt,
+        SUM(sfla) AS total_bldg_sf
+    FROM {{ source('iasworld', 'dweldat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
+    GROUP BY parid, taxyr
+    UNION ALL
+    SELECT
+        pin,
+        year,
+        char_yrblt AS yrblt,
+        char_building_sf AS total_bldg_sf
+    FROM {{ ref('default.vw_pin_condo_char') }}
+    WHERE NOT is_parking_space
+        AND NOT is_common_area
+),
+
+-- Join land, chars, and reporting groups to values
+all_values AS (
+    SELECT
+        fmvs.pin,
+        vptc.property_group,
+        vptc.class,
+        vptc.triad_name AS triad,
+        vptc.township_code,
+        CONCAT(vptc.township_code, vptc.nbhd) AS townnbhd,
+        fmvs.year,
+        fmvs.assessment_stage,
+        fmvs.total,
+        chars.yrblt,
+        chars.total_bldg_sf,
+        vpl.sf AS total_land_sf
+    FROM all_fmvs AS fmvs
+    LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS vptc
+        ON fmvs.pin = vptc.pin
+        AND fmvs.year = vptc.year
+    INNER JOIN chars
+        ON fmvs.pin = chars.pin
+        AND fmvs.year = chars.year
+    LEFT JOIN {{ ref('default.vw_pin_land') }} AS vpl
+        ON fmvs.pin = vpl.pin
+        AND fmvs.year = vpl.year
+    WHERE vptc.property_group IS NOT NULL
+        AND vptc.triad_name IS NOT NULL
+),
+
+-- Sales, filtered to exclude outliers and mutlisales
+sales AS (
+    SELECT
+        vwps.sale_price,
+        vwps.year AS sale_year,
+        tc.property_group,
+        tc.township_code,
+        vwps.nbhd AS townnbhd
+    FROM {{ ref('default.vw_pin_sale') }} AS vwps
+    LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS tc
+        ON vwps.pin = tc.pin
+        AND vwps.year = tc.year
+    WHERE NOT vwps.is_multisale
+        AND NOT vwps.sale_filter_is_outlier
+        AND NOT vwps.sale_filter_deed_type
+        AND NOT vwps.sale_filter_less_than_10k
+        AND NOT vwps.sale_filter_same_sale_within_365
+        AND tc.property_group IS NOT NULL
+        AND tc.triad_name IS NOT NULL
+),
+
+--- AGGREGATE ---
 
 -- Count of each class by different reporting groups (property group,
 -- assessment stage, town/nbhd)
@@ -199,174 +186,95 @@ class_modes AS (
     FROM class_counts
 ),
 
--- Sales, filtered to exclude outliers and mutlisales
-sales AS (
-    SELECT
-        vwps.sale_price,
-        vwps.year AS sale_year,
-        tc.property_group,
-        tc.township_code,
-        vwps.nbhd AS townnbhd
-    FROM {{ ref('default.vw_pin_sale') }} AS vwps
-    LEFT JOIN town_class AS tc
-        ON vwps.pin = tc.parid
-        AND vwps.year = tc.taxyr
-    WHERE NOT vwps.is_multisale
-        AND NOT vwps.sale_filter_is_outlier
-        AND NOT vwps.sale_filter_deed_type
-        AND NOT vwps.sale_filter_less_than_10k
-        AND NOT vwps.sale_filter_same_sale_within_365
-        AND tc.property_group IS NOT NULL
-        AND tc.triad IS NOT NULL
-),
-
--- Aggregate land for all parcels
-aggregate_land AS (
-    SELECT
-        pin AS parid,
-        year AS taxyr,
-        sf AS total_land_sf
-    FROM {{ ref('default.vw_pin_land') }}
-),
-
-
--- Combined SF/MF and condo characteristics
-chars AS (
-    SELECT
-        parid,
-        taxyr,
-        MIN(yrblt) AS yrblt,
-        SUM(sfla) AS total_bldg_sf
-    FROM {{ source('iasworld', 'dweldat') }}
-    WHERE cur = 'Y'
-        AND deactivat IS NULL
-    GROUP BY parid, taxyr
-    UNION ALL
-    SELECT
-        pin AS parid,
-        year AS taxyr,
-        char_yrblt AS yrblt,
-        char_building_sf AS total_bldg_sf
-    FROM {{ ref('default.vw_pin_condo_char') }}
-    WHERE NOT is_parking_space
-        AND NOT is_common_area
-),
-
---- AGGREGATE ---
-
 -- Here we aggregate stats on AV and characteristics for each reporting group
 -- By township, assessment_stage, and property group
 values_town_groups AS (
     SELECT
-        av.triad,
+        triad,
         'Town' AS geography_type,
-        av.property_group,
-        av.assessment_stage,
-        av.township_code AS geography_id,
-        av.year,
-        APPROX_PERCENTILE(av.total, 0.5) AS fmv_median,
+        property_group,
+        assessment_stage,
+        township_code AS geography_id,
+        year,
+        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
         COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(al.total_land_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(ab.total_bldg_sf, 0.5) AS bldg_sf_median,
-        APPROX_PERCENTILE(ab.yrblt, 0.5) AS yrblt_median
-    FROM all_values AS av
-    LEFT JOIN aggregate_land AS al
-        ON av.parid = al.parid
-        AND av.year = al.taxyr
-    INNER JOIN chars AS ab
-        ON av.parid = ab.parid
-        AND av.year = ab.taxyr
+        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
+        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
+        APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
+    FROM all_values
     GROUP BY
-        av.assessment_stage,
-        av.triad,
-        av.township_code,
-        av.year,
-        av.property_group
+        assessment_stage,
+        triad,
+        township_code,
+        year,
+        property_group
 ),
 
 -- By township and assessment stage
 values_town_no_groups AS (
     SELECT
-        av.triad,
+        triad,
         'Town' AS geography_type,
         'ALL REGRESSION' AS property_group,
-        av.assessment_stage,
-        av.township_code AS geography_id,
-        av.year,
-        APPROX_PERCENTILE(av.total, 0.5) AS fmv_median,
+        assessment_stage,
+        township_code AS geography_id,
+        year,
+        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
         COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(al.total_land_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(ab.total_bldg_sf, 0.5) AS bldg_sf_median,
-        APPROX_PERCENTILE(ab.yrblt, 0.5) AS yrblt_median
-    FROM all_values AS av
-    LEFT JOIN aggregate_land AS al
-        ON av.parid = al.parid
-        AND av.year = al.taxyr
-    INNER JOIN chars AS ab
-        ON av.parid = ab.parid
-        AND av.year = ab.taxyr
+        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
+        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
+        APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
+    FROM all_values
     GROUP BY
-        av.assessment_stage,
-        av.triad,
-        av.township_code,
-        av.year
+        assessment_stage,
+        triad,
+        township_code,
+        year
 ),
 
 -- By neighborhood, assessment_stage, and property group
 values_nbhd_groups AS (
     SELECT
-        av.triad,
+        triad,
         'TownNBHD' AS geography_type,
-        av.property_group,
-        av.assessment_stage,
-        av.townnbhd AS geography_id,
-        av.year,
-        APPROX_PERCENTILE(av.total, 0.5) AS fmv_median,
+        property_group,
+        assessment_stage,
+        townnbhd AS geography_id,
+        year,
+        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
         COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(al.total_land_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(ab.total_bldg_sf, 0.5) AS bldg_sf_median,
-        APPROX_PERCENTILE(ab.yrblt, 0.5) AS yrblt_median
-    FROM all_values AS av
-    LEFT JOIN aggregate_land AS al
-        ON av.parid = al.parid
-        AND av.year = al.taxyr
-    INNER JOIN chars AS ab
-        ON av.parid = ab.parid
-        AND av.year = ab.taxyr
+        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
+        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
+        APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
+    FROM all_values
     GROUP BY
-        av.assessment_stage,
-        av.triad,
-        av.townnbhd,
-        av.year,
-        av.property_group
+        assessment_stage,
+        triad,
+        townnbhd,
+        year,
+        property_group
 ),
 
 -- By neighborhood and assessment stage
 values_nbhd_no_groups AS (
     SELECT
-        av.triad,
+        triad,
         'TownNBHD' AS geography_type,
         'ALL REGRESSION' AS property_group,
-        av.assessment_stage,
-        av.townnbhd AS geography_id,
-        av.year,
-        APPROX_PERCENTILE(av.total, 0.5) AS fmv_median,
+        assessment_stage,
+        townnbhd AS geography_id,
+        year,
+        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
         COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(al.total_land_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(ab.total_bldg_sf, 0.5) AS bldg_sf_median,
-        APPROX_PERCENTILE(ab.yrblt, 0.5) AS yrblt_median
-    FROM all_values AS av
-    LEFT JOIN aggregate_land AS al
-        ON av.parid = al.parid
-        AND av.year = al.taxyr
-    INNER JOIN chars AS ab
-        ON av.parid = ab.parid
-        AND av.year = ab.taxyr
+        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
+        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
+        APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
+    FROM all_values
     GROUP BY
-        av.assessment_stage,
-        av.triad,
-        av.townnbhd,
-        av.year
+        assessment_stage,
+        triad,
+        townnbhd,
+        year
 ),
 
 -- Here we aggregate stats on sales for each reporting group

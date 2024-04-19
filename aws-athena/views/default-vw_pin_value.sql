@@ -1,9 +1,9 @@
 -- View containing values from each stage of assessment by PIN and year
 -- in wide format
 
--- CCAO mailed_tot, CCAO final, and BOR final values for each PIN by year.
--- We use MAX functions here for two reasons: 1) To flatten three stages of
--- assessment into one row, and to deduplicate PINs with multiple rows for
+-- CCAO mailed, CCAO final, and BOR final values for each PIN by year.
+-- We use ARBITRARY functions here for two reasons: 1) To flatten three stages
+-- of assessment into one row, and 2) to deduplicate PINs with multiple rows for
 -- a given stage/pin/year combination. Values are always the same within these
 -- duplicates.
 WITH stage_values AS (

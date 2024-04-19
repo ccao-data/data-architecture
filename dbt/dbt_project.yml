@@ -30,7 +30,7 @@ vars:
   # this should be the current year, since errors in past data cannot usually
   # be amended once records are closed. Set as an integer for compatibility
   # with comparison operators and SQL's BETWEEN
-  test_qc_year_start: 2023
+  test_qc_year_start: 2024
 
   # End year for testing data using test_qc_* tagged dbt tests. Typically set
   # to a date in the future, but can also be use to select specific time
@@ -67,6 +67,8 @@ tests:
 
 seeds:
   athena:
+    ccao:
+      +schema: ccao
     location:
       +schema: location
     model:

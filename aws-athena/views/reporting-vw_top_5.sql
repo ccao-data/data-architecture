@@ -1,10 +1,10 @@
 --- A view to generate the top 5 parcels in a given township and year by AV
 
---- Choose most recent assessor value
+-- Choose most recent assessor value (ignore BOR)
 WITH most_recent_values AS (
     SELECT
-        pin AS parid,
-        year AS taxyr,
+        pin,
+        year,
         COALESCE(certified_tot, mailed_tot) AS total_av,
         CASE
             WHEN certified_tot IS NULL THEN 'mailed'
@@ -15,88 +15,31 @@ WITH most_recent_values AS (
         OR mailed_tot IS NOT NULL
 ),
 
--- Add valuation class
-classes AS (
-    SELECT
-        parid,
-        taxyr,
-        REGEXP_REPLACE(class, '[^[:alnum:]]', '') AS class,
-        NULLIF(CONCAT_WS(
-            ' ',
-            adrpre, CAST(adrno AS VARCHAR),
-            adrdir, adrstr, adrsuf,
-            unitdesc, unitno
-        ), '') AS address,
-        cityname AS city
-    FROM {{ source('iasworld', 'pardat') }}
-    WHERE cur = 'Y'
-        AND deactivat IS NULL
-),
-
--- Add townships
-townships AS (
-    SELECT
-        parid,
-        taxyr,
-        user1 AS township_code
-    FROM {{ source('iasworld', 'legdat') }}
-    WHERE cur = 'Y'
-        AND deactivat IS NULL
-),
-
--- Add township name
-town_names AS (
-    SELECT
-        triad_name AS triad,
-        township_name,
-        township_code
-    FROM {{ source('spatial', 'township') }}
-),
-
---- Mailing name from owndat
-taxpayers AS (
-    SELECT
-        parid,
-        taxyr,
-        NULLIF(CONCAT_WS(
-            ' ',
-            own1, own2
-        ), '') AS owner_name
-    FROM {{ source('iasworld', 'owndat') }}
-    WHERE cur = 'Y'
-        AND deactivat IS NULL
-),
-
 -- Create ranks
 top_5 AS (
     SELECT
-        mrv.taxyr AS year,
-        town_names.township_name AS township,
-        town_names.triad,
-        classes.class,
+        mrv.year,
+        vptc.township_name AS township,
+        vptc.triad_name AS triad,
+        vptc.class,
         RANK() OVER (
-            PARTITION BY townships.township_code, mrv.taxyr
+            PARTITION BY vptc.township_code, mrv.year
             ORDER BY mrv.total_av DESC
         ) AS rank,
-        mrv.parid,
+        mrv.pin,
         mrv.total_av,
-        classes.address,
-        classes.city,
-        taxpayers.owner_name,
+        vpa.prop_address_full AS address,
+        vpa.prop_address_city_name AS city,
+        vpa.mail_address_name AS owner_name,
         mrv.stage_used
     FROM most_recent_values AS mrv
-    LEFT JOIN classes
-        ON mrv.parid = classes.parid
-        AND mrv.taxyr = classes.taxyr
-    LEFT JOIN townships
-        ON mrv.parid = townships.parid
-        AND mrv.taxyr = townships.taxyr
-    LEFT JOIN town_names
-        ON townships.township_code = town_names.township_code
-    LEFT JOIN taxpayers
-        ON mrv.parid = taxpayers.parid
-        AND mrv.taxyr = taxpayers.taxyr
-    WHERE town_names.township_name IS NOT NULL
+    LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS vptc
+        ON mrv.pin = vptc.pin
+        AND mrv.year = vptc.year
+    LEFT JOIN {{ ref('default.vw_pin_address') }} AS vpa
+        ON mrv.pin = vpa.pin
+        AND mrv.year = vpa.year
+    WHERE vptc.township_name IS NOT NULL
 )
 
 -- Only keep top 5
