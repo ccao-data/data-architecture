@@ -42,7 +42,7 @@ classes AS (
         class,
         major_class,
         property_group
-    FROM reporting.vw_pin_township_class
+    FROM {{ ref('reporting.vw_pin_township_class') }}
 )
 
 SELECT
