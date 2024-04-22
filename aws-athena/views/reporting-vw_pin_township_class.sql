@@ -45,7 +45,8 @@ LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     AND leg.deactivat IS NULL
 LEFT JOIN {{ source('spatial', 'township') }} AS town
     ON leg.user1 = town.township_code
-LEFT JOIN {{ ref('ccao.class_dict') }} AS groups
+-- We want to exclude classes without a reporting class
+INNER JOIN {{ ref('ccao.class_dict') }} AS groups
     ON correct.class = groups.class_code
 WHERE correct.cur = 'Y'
     AND correct.deactivat IS NULL

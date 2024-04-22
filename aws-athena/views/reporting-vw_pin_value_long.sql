@@ -41,7 +41,7 @@ SELECT
     svls.parid AS pin,
     svls.taxyr AS year,
     svls.class,
-    groups.major_class_code AS major_class,
+    groups.reporting_class_code AS major_class,
     groups.modeling_group AS property_group,
     CASE
         WHEN svls.procname = 'CCAOVALUE' THEN 'MAILED'
@@ -57,5 +57,6 @@ SELECT
     svls.land,
     svls.tot
 FROM stage_values AS svls
-LEFT JOIN {{ ref('ccao.class_dict') }} AS groups
+-- We want to exclude classes without a reporting class
+INNER JOIN {{ ref('ccao.class_dict') }} AS groups
     ON svls.class = groups.class_code
