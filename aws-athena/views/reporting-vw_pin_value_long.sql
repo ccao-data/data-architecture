@@ -37,22 +37,12 @@ WITH stage_values AS (
     GROUP BY parid, taxyr, procname, REGEXP_REPLACE(class, '[^[:alnum:]]', '')
 ),
 
-classes AS (
-    SELECT DISTINCT
-        class,
-        major_class,
-        property_group
-    FROM {{ ref('reporting.vw_pin_township_class') }}
-)
-
 SELECT
     svls.parid AS pin,
     svls.taxyr AS year,
     svls.class,
-    -- Unfortunately there are some classes in asmt_all that are not in pardat.
-    -- We need to provide them with a major class through SUBSTR in that case.
-    COALESCE(cls.major_class, SUBSTR(svls.class, 1, 1)) AS major_class,
-    cls.property_group,
+    groups.major_class_code AS major_class,
+    groups.modeling_group AS property_group,
     CASE
         WHEN svls.procname = 'CCAOVALUE' THEN 'MAILED'
         WHEN svls.procname = 'CCAOFINAL' THEN 'ASSESSOR CERTIFIED'
@@ -67,5 +57,5 @@ SELECT
     svls.land,
     svls.tot
 FROM stage_values AS svls
-LEFT JOIN classes AS cls
-    ON svls.class = cls.class
+LEFT JOIN {{ source('ccao', 'class_dict') }} AS groups
+    ON svls.class = groups.class_code
