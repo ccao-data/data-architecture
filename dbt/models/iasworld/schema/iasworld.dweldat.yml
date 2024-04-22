@@ -334,7 +334,7 @@ sources:
                   meta:
                     description: >
                       external_occpct (Occupancy % [current]) should not be null if
-                      mktadj (Reason for Override) is 5 or 5B and
+                      mktrsn (Reason for Override) is 5 or 5B and
                       mktadj (Occupancy % [deprecated]) is null
           - name: external_propct
             description: '{{ doc("shared_column_external_propct") }}'
@@ -624,7 +624,7 @@ sources:
                   meta:
                     description: >
                       mktadj (Occupancy % [deprecated]) should not be null if
-                      mktadj (Reason for Override) is 5 or 5B and
+                      mktrsn (Reason for Override) is 5 or 5B and
                       external_occpct (Occupancy % [current]) is null
           - name: mktrsn
             description: '{{ doc("column_chgrsn") }}'
