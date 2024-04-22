@@ -45,7 +45,7 @@ LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     AND leg.deactivat IS NULL
 LEFT JOIN {{ source('spatial', 'township') }} AS town
     ON leg.user1 = town.township_code
-LEFT JOIN {{ source('ccao', 'class_dict') }} AS groups
+LEFT JOIN {{ ref('ccao.class_dict') }} AS groups
     ON correct.class = groups.class_code
 WHERE correct.cur = 'Y'
     AND correct.deactivat IS NULL
