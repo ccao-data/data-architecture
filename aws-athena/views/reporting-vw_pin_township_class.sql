@@ -20,7 +20,7 @@ SELECT
     leg.user1 AS township_code,
     SUBSTR(correct.nbhd, 3, 3) AS nbhd,
     correct.class,
-    groups.major_class,
+    groups.major_class_code AS major_class,
     groups.modeling_group AS property_group,
     CASE
         WHEN
