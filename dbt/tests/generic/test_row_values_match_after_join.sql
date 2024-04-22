@@ -107,6 +107,8 @@
     group by {{ group_by_csv }}
     having
         sum(case when {{ external_model_col }} = {{ model_col }} then 1 else 0 end) = 0
+    {%- else %}
+    where {{ external_model_col }} != {{ model_col }}
     {%- endif %}
 
 {% endtest %}
