@@ -35,7 +35,7 @@ WITH stage_values AS (
         AND deactivat IS NULL
         AND valclass IS NULL
     GROUP BY parid, taxyr, procname, REGEXP_REPLACE(class, '[^[:alnum:]]', '')
-),
+)
 
 SELECT
     svls.parid AS pin,
