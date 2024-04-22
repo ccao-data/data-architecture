@@ -57,6 +57,6 @@ SELECT
     svls.land,
     svls.tot
 FROM stage_values AS svls
--- We want to exclude classes without a reporting class
+-- Exclude classes without a reporting class
 INNER JOIN {{ ref('ccao.class_dict') }} AS groups
     ON svls.class = groups.class_code
