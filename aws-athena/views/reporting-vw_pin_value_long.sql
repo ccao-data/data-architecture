@@ -57,5 +57,5 @@ SELECT
     svls.land,
     svls.tot
 FROM stage_values AS svls
-LEFT JOIN {{ source('ccao', 'class_dict') }} AS groups
+LEFT JOIN {{ ref('ccao.class_dict') }} AS groups
     ON svls.class = groups.class_code
