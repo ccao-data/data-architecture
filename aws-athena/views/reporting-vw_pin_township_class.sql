@@ -20,12 +20,7 @@ SELECT
     leg.user1 AS township_code,
     SUBSTR(correct.nbhd, 3, 3) AS nbhd,
     correct.class,
-    CASE
-        -- Major classes 6 and 7 are not broken out for reporting
-        WHEN SUBSTR(groups.major_class_code, 1, 1) IN ('6', '7')
-            THEN SUBSTR(groups.major_class_code, 1, 1)
-        ELSE groups.major_class_code
-    END AS major_class,
+    groups.reporting_class_code AS major_class,
     groups.modeling_group AS property_group,
     CASE
         WHEN
