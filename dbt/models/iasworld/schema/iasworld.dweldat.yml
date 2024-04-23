@@ -1517,6 +1517,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: yrblt should be between 1850 and now
+              - accepted_range:
                   name: iasworld_dweldat_yrblt_205_more_than_62_years_old
                   min_value: 1850
                   max_value: cast(year(current_date) as decimal) - 62
@@ -1529,6 +1530,7 @@ sources:
                       AND class = '205'
                   meta:
                     description: 205 should be > 62 years old
+              - accepted_range:
                   name: iasworld_dweldat_yrblt_206_more_than_62_years_old
                   min_value: 1850
                   max_value: cast(year(current_date) as decimal) - 62
@@ -1541,6 +1543,7 @@ sources:
                       AND class = '206'
                   meta:
                     description: 206 should be > 62 years old
+              - accepted_range:
                   name: iasworld_dweldat_yrblt_207_less_than_62_years_old
                   min_value: cast(year(current_date) as decimal) - 62
                   max_value: cast(year(current_date) as decimal)
@@ -1553,6 +1556,7 @@ sources:
                       AND class = '207'
                   meta:
                     description: 207 should be <= 62 years old
+              - accepted_range:
                   name: iasworld_dweldat_yrblt_208_less_than_62_years_old
                   min_value: cast(year(current_date) as decimal) - 62
                   max_value: cast(year(current_date) as decimal)
@@ -1565,6 +1569,7 @@ sources:
                       AND class = '208'
                   meta:
                     description: 208 should be <= 62 years old
+              - accepted_range:
                   name: iasworld_dweldat_yrblt_210_more_than_62_years_old
                   min_value: 1850
                   max_value: cast(year(current_date) as decimal) - 62
@@ -1577,6 +1582,7 @@ sources:
                       AND class = '210'
                   meta:
                     description: 210 should be > 62 years old
+              - accepted_range:
                   name: iasworld_dweldat_yrblt_278_less_than_62_years_old
                   min_value: cast(year(current_date) as decimal) - 62
                   max_value: cast(year(current_date) as decimal)
@@ -1589,6 +1595,7 @@ sources:
                       AND class = '278'
                   meta:
                     description: 278 should be < 62 years old
+              - accepted_range:
                   name: iasworld_dweldat_yrblt_295_less_than_62_years_old
                   min_value: cast(year(current_date) as decimal) - 62
                   max_value: cast(year(current_date) as decimal)
