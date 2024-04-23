@@ -271,7 +271,19 @@ sources:
           - name: tiebkcd
             description: Tieback code
           - name: tiebldgpct
+            description: Tieback code
+          - name: tiebldgpct
             description: '{{ doc("shared_column_tieback_proration_rate") }}'
+            tests:
+              - expression_is_true:
+                  name: iasworld_pardat_tiebldgpct_sums_to_100
+                  expression: = 1
+                  additional_select_columns: *select-columns
+                  config: 
+                    where: "CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }} AND cur = 'Y' AND deactivat IS NULL"
+                  meta:
+                    category: incorrect_values
+                    description: "and should sum to 100"
           - name: tielandpct
             description: Percent land common interest
           - name: topo1
