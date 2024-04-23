@@ -314,6 +314,28 @@ sources:
                   meta:
                     description: >
                       external_occpct (Occupancy %) should not be 0
+              - not_null:
+                  name: iasworld_dweldat_external_occpct_not_null_when_mktrsn_eq_5_or_5b_and_mktadj_is_null
+                  additional_select_columns:
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
+                    - mktrsn
+                    - mktadj
+                  config:
+                    where:
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND mktrsn IN ('5', '5B')
+                      AND mktadj IS NULL
+                  meta:
+                    description: >
+                      external_occpct (Occupancy % [current]) should not be null if
+                      mktrsn (Reason for Override) is 5 or 5B and
+                      mktadj (Occupancy % [deprecated]) is null
           - name: external_propct
             description: '{{ doc("shared_column_external_propct") }}'
             tests:
@@ -581,29 +603,56 @@ sources:
             description: Main section ground floor area
           - name: mktadj
             description: '{{ doc("column_mktadj") }}'
-          - name: mktrsn
-            description: '{{ doc("column_chgrsn") }}'
             tests:
-              - expression_is_true:
-                  name: iasworld_dweldat_mktrsn_eq_5_mktadj_not_null
-                  expression: |
-                    != '5' OR mktadj IS NOT NULL
+              - not_null:
+                  name: iasworld_dweldat_mktadj_not_null_when_mktrsn_eq_5_or_5b_and_external_occpct_is_null
                   additional_select_columns:
                     - taxyr
                     - parid
                     - card
                     - who
                     - wen
+                    - mktrsn
+                    - external_occpct
+                  config:
+                    where:
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND mktrsn IN ('5', '5B')
+                      AND external_occpct IS NULL
+                  meta:
+                    description: >
+                      mktadj (Occupancy % [deprecated]) should not be null if
+                      mktrsn (Reason for Override) is 5 or 5B and
+                      external_occpct (Occupancy % [current]) is null
+          - name: mktrsn
+            description: '{{ doc("column_chgrsn") }}'
+            tests:
+              - accepted_values:
+                  name: iasworld_dweldat_mktrsn_eq_5_or_5b_when_external_occpct_or_mktadj_not_null
+                  values:
+                    - '5'
+                    - 5B
+                  additional_select_columns:
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
+                    - external_occpct
                     - mktadj
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                      AND (external_occpct IS NOT NULL OR mktadj IS NOT NULL)
                   meta:
-                    category: incorrect_values
                     description: >
-                      mktrsn (Reason for Override) should only be 5 if mktadj is not null
+                      mktrsn (Reason for Override) should be 5 or 5B
+                      if external_occpct (Occupancy % [current]) or
+                      mktadj (Occupancy % [deprecated]) is not null
           - name: modover
             description: Residential override model
           - name: mvpattic

@@ -225,8 +225,11 @@ Condition/Desirability/Utility code
 {% docs column_chgrsn %}
 Reason code for change of value.
 
-`4` = Regular reduction (lasts until next triennial reassessment)
-`5` = One year only market value relief (occupancy/vacancy reduction)
+Possible values for this variable are:
+
+- `4` = Regular reduction (lasts until next triennial reassessment)
+- `5` = One year only market value relief (occupancy/vacancy reduction)
+- `5B` = One year only market value relief, issued by the Board of Review
 {% enddocs %}
 
 ## cityname
@@ -460,10 +463,11 @@ Marital status
 ## mktadj
 
 {% docs column_mktadj %}
-Percent good override.
+Percent good override, deprecated in 2024.
 
 Typically used to denote a 1-year percentage discount due to vacancy
-or similar temporary situations.
+or similar temporary situations. For 2023 data, check `external_occpct`
+as well. For 2024 on, use `external_occpct` instead.
 {% enddocs %}
 
 ## nccalc
