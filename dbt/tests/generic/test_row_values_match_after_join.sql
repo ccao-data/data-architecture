@@ -20,13 +20,13 @@
 --    This is not necessary in the case of USING, since USING does not
 --    refer to tablenames directly.
 --
---    * group_by (list of str): The columns from the base model to pass to the
---    GROUP BY function used in the test query. Unlike `join_condition`,
---    these column names do not have to be prefixed with `model.*`, since
---    they are assumed to come from the base model for the test and not the
---    external model.
---
 -- Optional parameters:
+--
+--    * group_by (optional list of str): The columns from the base model to
+--    pass to the GROUP BY function used in the test query. Unlike
+--    `join_condition`, these column names do not have to be prefixed with
+--    `model.*`, since they are assumed to come from the base model for the
+--    test and not the external model.
 --
 --    * join_type(str): The type of join to use, e.g. "inner" or "left".
 --    Defaults to "inner".
@@ -40,7 +40,7 @@
 --
 --    * additional_select_columns (dict): Standard parameter for selecting
 --    additional columns from the base model for use in reporting failures.
---    `model.{column_name}`, `external_model.{external_column_name`}`, and
+--    `model.{column_name}`, `external_model.{external_column_name}`, and
 --    the columns specified in the `group_by` parameter are already selected
 --    by default and do not need to be included using this parameter.
 --    See the `format_additional_select_columns` macro for more information.
@@ -87,18 +87,28 @@
     {%- endif -%}
 
     select
-        {{ group_by_csv }},
+        {%- if group_by is defined %}
+            {{ group_by_csv }},
+            array_agg({{ model_col }}) as {{ column_alias }},
+            array_agg({{ external_model_col }}) as {{ external_column_alias }}
+        {%- else %}
+            {{ model_col }} as {{ column_alias }},
+            {{ external_model_col }} as {{ external_column_alias }}
+        {%- endif %}
         {% if additional_select_columns_csv -%}
-            {{ additional_select_columns_csv }},
+            , {{ additional_select_columns_csv }}
         {% endif %}
-        array_agg({{ model_col }}) as {{ column_alias }},
-        array_agg({{ external_model_col }}) as {{ external_column_alias }}
     from
         {{ external_model }} as external_model
     {{ join_type }} join -- fmt: off
         (select * from {{ model }}) as model {{ join_condition }}
+
+    {%- if group_by is defined %}
     group by {{ group_by_csv }}
     having
         sum(case when {{ external_model_col }} = {{ model_col }} then 1 else 0 end) = 0
+    {%- else %}
+    where {{ external_model_col }} != {{ model_col }}
+    {%- endif %}
 
 {% endtest %}
