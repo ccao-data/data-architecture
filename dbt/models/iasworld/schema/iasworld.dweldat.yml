@@ -1540,7 +1540,7 @@ sources:
                       AND deactivat IS NULL
                       AND class = '206'
                   meta:
-                    description: 207 should be <= 62 years old
+                    description: 206 should be > 62 years old
                   name: iasworld_dweldat_yrblt_207_less_than_62_years_old
                   min_value: cast(year(current_date) as decimal) - 62
                   max_value: cast(year(current_date) as decimal)
@@ -1552,7 +1552,7 @@ sources:
                       AND deactivat IS NULL
                       AND class = '207'
                   meta:
-                    description: 208 should be <= 62 years old
+                    description: 207 should be <= 62 years old
                   name: iasworld_dweldat_yrblt_208_less_than_62_years_old
                   min_value: cast(year(current_date) as decimal) - 62
                   max_value: cast(year(current_date) as decimal)
@@ -1588,7 +1588,7 @@ sources:
                       AND deactivat IS NULL
                       AND class = '278'
                   meta:
-                    description: 278 should be <= 62 years old
+                    description: 278 should be < 62 years old
                   name: iasworld_dweldat_yrblt_295_less_than_62_years_old
                   min_value: cast(year(current_date) as decimal) - 62
                   max_value: cast(year(current_date) as decimal)
