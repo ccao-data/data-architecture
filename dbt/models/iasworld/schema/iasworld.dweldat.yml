@@ -1512,7 +1512,7 @@ sources:
               - accepted_range:
                   name: iasworld_dweldat_yrblt_between_1850_and_now
                   min_value: 1850
-                  max_value: cast(year(current_date) as integer)
+                  max_value: cast(year(current_date) as decimal)
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
