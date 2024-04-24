@@ -1519,7 +1519,6 @@ sources:
                     description: yrblt should be between 1850 and now
               - accepted_range:
                   name: iasworld_dweldat_yrblt_205_more_than_62_years_old
-                  min_value: 1850
                   max_value: cast(year(current_date) as decimal) - 62
                   additional_select_columns: *select-columns
                   config: 
