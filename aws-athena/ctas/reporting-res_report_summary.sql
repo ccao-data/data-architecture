@@ -169,19 +169,19 @@ class_modes AS (
         property_group,
         FIRST_VALUE(class) OVER (
             PARTITION BY assessment_stage, township_code, year, property_group
-            ORDER BY group_town_count DESC
+            ORDER BY group_town_count DESC, class DESC
         ) AS group_town_mode,
         FIRST_VALUE(class) OVER (
             PARTITION BY assessment_stage, townnbhd, year, property_group
-            ORDER BY group_townnbhd_count DESC
+            ORDER BY group_townnbhd_count DESC, class DESC
         ) AS group_townnbhd_mode,
         FIRST_VALUE(class) OVER (
             PARTITION BY assessment_stage, township_code, year
-            ORDER BY group_townnbhd_count DESC
+            ORDER BY group_townnbhd_count DESC, class DESC
         ) AS town_mode,
         FIRST_VALUE(class) OVER (
             PARTITION BY assessment_stage, townnbhd, year
-            ORDER BY group_townnbhd_count DESC
+            ORDER BY group_townnbhd_count DESC, class DESC
         ) AS townnbhd_mode
     FROM class_counts
 ),
