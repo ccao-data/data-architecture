@@ -5,11 +5,11 @@
 -- If the `print` argument is set to True (default is False), the macro will
 -- print the results of the query to stdout, which allows this macro to be used
 -- by scripts to return data.
-{% macro res_report_summarize_values(geo_type, group_prop) %}
+{% macro res_report_summarize_values(geo_type, prop_group) %}
     select
         triad,
         '{{ geo_type }}' AS geography_type,
-        {% if group_prop %}
+        {% if prop_group %}
         property_group,
         {% else %}
         'ALL REGRESSION' as property_group,
@@ -35,7 +35,7 @@
         {% elif geo_type == "TownNBHD" %}
         townnbhd,
         {% endif %}
-        {% if group_prop %}
+        {% if prop_group %}
         year,
         property_group
         {% else %}
