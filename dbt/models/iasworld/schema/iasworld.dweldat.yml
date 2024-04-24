@@ -1546,7 +1546,6 @@ sources:
               - accepted_range:
                   name: iasworld_dweldat_yrblt_207_less_than_62_years_old
                   min_value: cast(year(current_date) as decimal) - 62
-                  max_value: cast(year(current_date) as decimal)
                   additional_select_columns: *select-columns
                   config: 
                     where: |
