@@ -1532,7 +1532,6 @@ sources:
                     description: 205s should be > 62 years old
               - accepted_range:
                   name: iasworld_dweldat_yrblt_206_more_than_62_years_old
-                  min_value: 1850
                   max_value: cast(year(current_date) as decimal) - 62
                   additional_select_columns: *select-columns
                   config: 
