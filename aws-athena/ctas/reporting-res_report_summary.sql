@@ -190,22 +190,22 @@ class_modes AS (
 -- By township, assessment_stage, and property group
 values_town_groups AS (
     {{ res_report_summarize_values(geo_type = 'Town', prop_group = True) }}
-    ),
+),
 
 -- By township and assessment stage
 values_town_no_groups AS (
     {{ res_report_summarize_values(geo_type = 'Town', prop_group = False) }}
-    ),
+),
 
 -- By neighborhood, assessment_stage, and property group
 values_nbhd_groups AS (
     {{ res_report_summarize_values(geo_type = 'TownNBHD', prop_group = True) }}
-    ),
+),
 
 -- By neighborhood and assessment stage
 values_nbhd_no_groups AS (
     {{ res_report_summarize_values(geo_type = 'TownNBHD', prop_group = False) }}
-    ),
+),
 
 -- Here we aggregate stats on sales for each reporting group
 -- By township and property group
