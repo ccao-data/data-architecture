@@ -188,32 +188,18 @@ class_modes AS (
 
 -- Here we aggregate stats on AV and characteristics for each reporting group
 -- By township, assessment_stage, and property group
-values_town_groups AS (
-    {{ summarize_res_report_summary(
-        'Town', True, 'assessment_stage, triad, township_code, year, property_group'
-        ) }}
-),
+values_town_groups AS ({{ res_report_summarize_values('Town', True) }}),
 
 -- By township and assessment stage
-values_town_no_groups AS (
-    {{ summarize_res_report_summary(
-        'Town', False, 'assessment_stage, triad, township_code, year'
-        ) }}
-),
+values_town_no_groups AS ({{ res_report_summarize_values('Town', False) }}),
 
 -- By neighborhood, assessment_stage, and property group
-values_nbhd_groups AS (
-    {{ summarize_res_report_summary(
-        'TownNBHD', True, 'assessment_stage, triad, townnbhd, year, property_group'
-        ) }}
-),
+values_nbhd_groups AS ({{ res_report_summarize_values('TownNBHD', True) }}),
 
 -- By neighborhood and assessment stage
 values_nbhd_no_groups AS (
-    {{ summarize_res_report_summary(
-        'TownNBHD', False, 'assessment_stage, triad, townnbhd, year'
-        ) }}
-),
+    {{ res_report_summarize_values('TownNBHD', False) }}
+    ),
 
 -- Here we aggregate stats on sales for each reporting group
 -- By township and property group
@@ -227,7 +213,10 @@ sales_town_groups AS (
         MAX(sale_price) AS sale_max,
         COUNT(*) AS sale_n
     FROM sales
-    GROUP BY township_code, sale_year, property_group
+    GROUP BY
+        township_code,
+        sale_year,
+        property_group
 ),
 
 -- By township
