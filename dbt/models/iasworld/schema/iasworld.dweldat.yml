@@ -1529,7 +1529,7 @@ sources:
                       AND deactivat IS NULL
                       AND class = '205'
                   meta:
-                    description: 205s should be > 62 years old
+                    description: yrblt should be > 62 years old when class is 205
               - accepted_range:
                   name: iasworld_dweldat_yrblt_206_more_than_62_years_old
                   max_value: cast(year(current_date) as decimal) - 62
