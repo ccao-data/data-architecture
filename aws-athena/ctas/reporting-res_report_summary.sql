@@ -210,68 +210,22 @@ values_nbhd_no_groups AS (
 -- Here we aggregate stats on sales for each reporting group
 -- By township and property group
 sales_town_groups AS (
-    SELECT
-        township_code AS geography_id,
-        sale_year,
-        property_group,
-        MIN(sale_price) AS sale_min,
-        APPROX_PERCENTILE(sale_price, 0.5) AS sale_median,
-        MAX(sale_price) AS sale_max,
-        COUNT(*) AS sale_n
-    FROM sales
-    GROUP BY
-        township_code,
-        sale_year,
-        property_group
+    {{ res_report_summarize_sales(geo_type = 'Town', prop_group = True) }}
 ),
 
 -- By township
 sales_town_no_groups AS (
-    SELECT
-        township_code AS geography_id,
-        sale_year,
-        'ALL REGRESSION' AS property_group,
-        MIN(sale_price) AS sale_min,
-        APPROX_PERCENTILE(sale_price, 0.5) AS sale_median,
-        MAX(sale_price) AS sale_max,
-        COUNT(*) AS sale_n
-    FROM sales
-    GROUP BY
-        township_code,
-        sale_year
+    {{ res_report_summarize_sales(geo_type = 'Town', prop_group = False) }}
 ),
 
 -- By neighborhood and property group
 sales_nbhd_groups AS (
-    SELECT
-        townnbhd AS geography_id,
-        sale_year,
-        property_group,
-        MIN(sale_price) AS sale_min,
-        APPROX_PERCENTILE(sale_price, 0.5) AS sale_median,
-        MAX(sale_price) AS sale_max,
-        COUNT(*) AS sale_n
-    FROM sales
-    GROUP BY
-        townnbhd,
-        sale_year,
-        property_group
+    {{ res_report_summarize_sales(geo_type = 'TownNBHD', prop_group = True) }}
 ),
 
 -- By neighborhood
 sales_nbhd_no_groups AS (
-    SELECT
-        townnbhd AS geography_id,
-        sale_year,
-        'ALL REGRESSION' AS property_group,
-        MIN(sale_price) AS sale_min,
-        APPROX_PERCENTILE(sale_price, 0.5) AS sale_median,
-        MAX(sale_price) AS sale_max,
-        COUNT(*) AS sale_n
-    FROM sales
-    GROUP BY
-        townnbhd,
-        sale_year
+    {{ res_report_summarize_sales(geo_type = 'TownNBHD', prop_group = False) }}
 ),
 
 -- Stack all the aggregated value stats
