@@ -190,28 +190,28 @@ class_modes AS (
 -- By township, assessment_stage, and property group
 values_town_groups AS (
     {{ summarize_res_report_summary(
-        True, True, 'assessment_stage, triad, township_code, year, property_group'
+        'Town', True, 'assessment_stage, triad, township_code, year, property_group'
         ) }}
 ),
 
 -- By township and assessment stage
 values_town_no_groups AS (
     {{ summarize_res_report_summary(
-        True, False, 'assessment_stage, triad, township_code, year'
+        'Town', False, 'assessment_stage, triad, township_code, year'
         ) }}
 ),
 
 -- By neighborhood, assessment_stage, and property group
 values_nbhd_groups AS (
     {{ summarize_res_report_summary(
-        False, True, 'assessment_stage, triad, townnbhd, year, property_group'
+        'TownNBHD', True, 'assessment_stage, triad, townnbhd, year, property_group'
         ) }}
 ),
 
 -- By neighborhood and assessment stage
 values_nbhd_no_groups AS (
     {{ summarize_res_report_summary(
-        False, False, 'assessment_stage, triad, townnbhd, year'
+        'TownNBHD', False, 'assessment_stage, triad, townnbhd, year'
         ) }}
 ),
 

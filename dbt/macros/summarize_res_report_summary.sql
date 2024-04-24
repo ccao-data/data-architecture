@@ -5,24 +5,20 @@
 -- If the `print` argument is set to True (default is False), the macro will
 -- print the results of the query to stdout, which allows this macro to be used
 -- by scripts to return data.
-{% macro summarize_res_report_summary(town, prop, group_by) %}
+{% macro summarize_res_report_summary(geo_type, group_prop, group_by) %}
     select
         triad,
-        {% if town %}
-        'Town' AS geography_type,
-        {% else %}
-        'TownNBHD' AS geography_type,
-        {% endif %}
-        {% if prop %}
+        '{{ geo_type }}' AS geography_type,
+        {% if group_prop %}
         property_group,
         {% else %}
         'ALL REGRESSION' as property_group,
         {% endif %}
         assessment_stage,
-        {% if town %}
+        {% if geo_type == "Town" %}
         township_code as geography_id,
-        {% else %}
-        townnbhd AS property_group,
+        {% elif geo_type == "TownNBHD" %}
+        townnbhd as geography_id,
         {% endif %}
         year,
         APPROX_PERCENTILE(total, 0.5) as fmv_median,
