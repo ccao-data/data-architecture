@@ -1,6 +1,6 @@
 -- Macros that summarize FMVs and sales by different groupings specifically for
 -- reporting.res_report_summary.
-{% macro res_report_summarize_values(geo_type, prop_group) %}
+{% macro res_report_summarize_values(vals, geo_type, prop_group) %}
     select
         triad,
         '{{ geo_type }}' as geography_type,
@@ -17,7 +17,7 @@
         approx_percentile(total_land_sf, 0.5) as land_sf_median,
         approx_percentile(total_bldg_sf, 0.5) as bldg_sf_median,
         approx_percentile(yrblt, 0.5) as yrblt_median
-    from all_values
+    from {{ vals }}
     group by
         assessment_stage,
         triad,
@@ -29,7 +29,7 @@
         {% endif %}
 {% endmacro %}
 
-{% macro res_report_summarize_sales(geo_type, prop_group) %}
+{% macro res_report_summarize_sales(sales, geo_type, prop_group) %}
     select
         {% if geo_type == "Town" %} township_code as geography_id,
         {% elif geo_type == "TownNBHD" %} townnbhd as geography_id,
@@ -42,7 +42,7 @@
         approx_percentile(sale_price, 0.5) as sale_median,
         max(sale_price) as sale_max,
         count(*) as sale_n
-    from sales
+    from {{ sales }}
     group by
         {% if geo_type == "Town" %} township_code,
         {% elif geo_type == "TownNBHD" %} townnbhd,
