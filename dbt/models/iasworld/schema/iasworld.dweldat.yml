@@ -1519,7 +1519,7 @@ sources:
                     description: yrblt should be between 1850 and now
               - accepted_range:
                   name: iasworld_dweldat_yrblt_205_more_than_62_years_old
-                  max_value: cast(year(current_date) as decimal) - 62
+                  max_value: cast(year(current_date) as decimal) - 63
                   additional_select_columns: *select-columns
                   config: 
                     where: |
@@ -1531,7 +1531,7 @@ sources:
                     description: yrblt should be > 62 years old when class is 205
               - accepted_range:
                   name: iasworld_dweldat_yrblt_206_more_than_62_years_old
-                  max_value: cast(year(current_date) as decimal) - 62
+                  max_value: cast(year(current_date) as integer) - 63
                   additional_select_columns: *select-columns
                   config: 
                     where: |
@@ -1540,10 +1540,10 @@ sources:
                       AND deactivat IS NULL
                       AND class = '206'
                   meta:
-                    description: 206s should be > 62 years old
+                    description: yrblt should be > 62 years old when class is 206
               - accepted_range:
                   name: iasworld_dweldat_yrblt_207_less_than_62_years_old
-                  min_value: cast(year(current_date) as decimal) - 62
+                  min_value: cast(year(current_date) as integer) - 62
                   additional_select_columns: *select-columns
                   config: 
                     where: |
@@ -1552,11 +1552,10 @@ sources:
                       AND deactivat IS NULL
                       AND class = '207'
                   meta:
-                    description: 207s should be <= 62 years old
+                    description: yrblt should be <= 62 years old when class is 207
               - accepted_range:
                   name: iasworld_dweldat_yrblt_208_less_than_62_years_old
-                  min_value: cast(year(current_date) as decimal) - 62
-                  max_value: cast(year(current_date) as decimal)
+                  min_value: cast(year(current_date) as integer) - 62
                   additional_select_columns: *select-columns
                   config: 
                     where: |
@@ -1565,11 +1564,10 @@ sources:
                       AND deactivat IS NULL
                       AND class = '208'
                   meta:
-                    description: 208s should be <= 62 years old
+                    description: yrblt should be <= 62 years old when class is 208
               - accepted_range:
                   name: iasworld_dweldat_yrblt_210_more_than_62_years_old
-                  min_value: 1850
-                  max_value: cast(year(current_date) as decimal) - 62
+                  max_value: cast(year(current_date) as integer) - 63
                   additional_select_columns: *select-columns
                   config: 
                     where: |
@@ -1578,11 +1576,10 @@ sources:
                       AND deactivat IS NULL
                       AND class = '210'
                   meta:
-                    description: 210 should be > 62 years old
+                    description: yrblt should be > 62 years old when class is 210
               - accepted_range:
                   name: iasworld_dweldat_yrblt_278_less_than_62_years_old
-                  min_value: cast(year(current_date) as decimal) - 62
-                  max_value: cast(year(current_date) as decimal)
+                  min_value: cast(year(current_date) as integer) - 62
                   additional_select_columns: *select-columns
                   config: 
                     where: |
@@ -1591,11 +1588,10 @@ sources:
                       AND deactivat IS NULL
                       AND class = '278'
                   meta:
-                    description: 278s should be < 62 years old
+                    description: yrblt should be < 62 years old when class is 278
               - accepted_range:
                   name: iasworld_dweldat_yrblt_295_less_than_62_years_old
-                  min_value: cast(year(current_date) as decimal) - 62
-                  max_value: cast(year(current_date) as decimal)
+                  min_value: cast(year(current_date) as integer) - 62
                   additional_select_columns: *select-columns
                   config: 
                     where: |
@@ -1604,7 +1600,7 @@ sources:
                       AND deactivat IS NULL
                       AND class = '295'
                   meta:
-                    description: 295s should be <= 62 years old
+                    description: yrblt should be <= 62 years old when class is 295
           - name: yrremod
             description: Year remodeled
 
