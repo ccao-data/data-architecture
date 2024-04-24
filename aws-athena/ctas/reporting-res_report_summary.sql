@@ -186,68 +186,34 @@ class_modes AS (
     FROM class_counts
 ),
 
--- Here we aggregate stats on AV and characteristics for each reporting group
--- By township, assessment_stage, and property group
-values_town_groups AS (
+-- Aggregate and stack stats on AV and characteristics for each reporting group
+aggregated_values AS (
+    -- By township, assessment_stage, and property group
     {{ res_report_summarize_values(geo_type = 'Town', prop_group = True) }}
-),
-
--- By township and assessment stage
-values_town_no_groups AS (
+    UNION ALL
+    -- By township and assessment stage
     {{ res_report_summarize_values(geo_type = 'Town', prop_group = False) }}
-),
-
--- By neighborhood, assessment_stage, and property group
-values_nbhd_groups AS (
+    UNION ALL
+    -- By neighborhood, assessment_stage, and property group
     {{ res_report_summarize_values(geo_type = 'TownNBHD', prop_group = True) }}
-),
-
--- By neighborhood and assessment stage
-values_nbhd_no_groups AS (
+    UNION ALL
+    -- By neighborhood and assessment stage
     {{ res_report_summarize_values(geo_type = 'TownNBHD', prop_group = False) }}
 ),
 
--- Here we aggregate stats on sales for each reporting group
--- By township and property group
-sales_town_groups AS (
-    {{ res_report_summarize_sales(geo_type = 'Town', prop_group = True) }}
-),
-
--- By township
-sales_town_no_groups AS (
-    {{ res_report_summarize_sales(geo_type = 'Town', prop_group = False) }}
-),
-
--- By neighborhood and property group
-sales_nbhd_groups AS (
-    {{ res_report_summarize_sales(geo_type = 'TownNBHD', prop_group = True) }}
-),
-
--- By neighborhood
-sales_nbhd_no_groups AS (
-    {{ res_report_summarize_sales(geo_type = 'TownNBHD', prop_group = False) }}
-),
-
--- Stack all the aggregated value stats
-aggregated_values AS (
-    SELECT * FROM values_town_groups
-    UNION ALL
-    SELECT * FROM values_town_no_groups
-    UNION ALL
-    SELECT * FROM values_nbhd_groups
-    UNION ALL
-    SELECT * FROM values_nbhd_no_groups
-),
-
--- Stack all the aggregated sales stats
+-- Aggregate and stack stats on sales for each reporting group
 all_sales AS (
-    SELECT * FROM sales_town_groups
+    -- By township and property group
+    {{ res_report_summarize_sales(geo_type = 'Town', prop_group = True) }}
     UNION ALL
-    SELECT * FROM sales_town_no_groups
+    -- By township
+    {{ res_report_summarize_sales(geo_type = 'Town', prop_group = False) }}
     UNION ALL
-    SELECT * FROM sales_nbhd_groups
+    -- By neighborhood and property group
+    {{ res_report_summarize_sales(geo_type = 'TownNBHD', prop_group = True) }}
     UNION ALL
-    SELECT * FROM sales_nbhd_no_groups
+    -- By neighborhood
+    {{ res_report_summarize_sales(geo_type = 'TownNBHD', prop_group = False) }}
 )
 
 SELECT
