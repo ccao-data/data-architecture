@@ -12,8 +12,11 @@ regressions and reporting classes.
 
 {% docs seed_pin_test %}
 Table containing a set of PINs used for various pipeline and valuation tests.
-Mainly includes unusual PINs such as PINs with multiple cards (dwellings) _and_
-an associated tieback (proration). The possible values for `test_type` include:
+Mainly includes PINs with unusual situations, such as those with multiple cards
+(dwellings) _and_ an associated tieback (proration). The Data Department uses
+this as a repository of PINs for testing views, models, and applications.
+
+The possible values for `test_type` include:
 
 - `class_change`
 - `incorrect_char`
