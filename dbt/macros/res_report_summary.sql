@@ -1,4 +1,4 @@
--- Macros that takes summarize FMVs and sales by different groupings for
+-- Macros that summarize FMVs and sales by different groupings specifically for
 -- reporting.res_report_summary.
 {% macro res_report_summarize_values(geo_type, prop_group) %}
     select
