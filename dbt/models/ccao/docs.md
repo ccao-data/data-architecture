@@ -90,14 +90,3 @@ Collected yearly from Valuations via spreadsheets.
 
 **Primary Key**: `pin`, `year`
 {% enddocs %}
-
-# pin_weird
-
-{% docs table_pin_weird %}
-Table to collect strange, troublesome, or otherwise problematic PINs.
-
-Sourced from a manually updated CSV on S3. Download, edit, then reupload the
-CSV in order to add to the table.
-
-**Primary Key**: `pin`, `year`
-{% enddocs %}
