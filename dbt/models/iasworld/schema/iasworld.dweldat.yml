@@ -1588,7 +1588,7 @@ sources:
                       AND deactivat IS NULL
                       AND class = '278'
                   meta:
-                    description: yrblt should be < 62 years old when class is 278
+                    description: yrblt should be <= 62 years old when class is 278
               - accepted_range:
                   name: iasworld_dweldat_yrblt_295_less_than_62_years_old
                   min_value: cast(year(current_date) as integer) - 62
