@@ -1566,6 +1566,90 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: yrblt should be between 1850 and now
+              - accepted_range:
+                  name: iasworld_dweldat_yrblt_205_more_than_62_years_old
+                  max_value: cast(year(current_date) as integer) - 63
+                  additional_select_columns: *select-columns
+                  config: 
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '205'
+                  meta:
+                    description: yrblt should be > 62 years old when class is 205
+              - accepted_range:
+                  name: iasworld_dweldat_yrblt_206_more_than_62_years_old
+                  max_value: cast(year(current_date) as integer) - 63
+                  additional_select_columns: *select-columns
+                  config: 
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '206'
+                  meta:
+                    description: yrblt should be > 62 years old when class is 206
+              - accepted_range:
+                  name: iasworld_dweldat_yrblt_207_less_than_62_years_old
+                  min_value: cast(year(current_date) as integer) - 62
+                  additional_select_columns: *select-columns
+                  config: 
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '207'
+                  meta:
+                    description: yrblt should be <= 62 years old when class is 207
+              - accepted_range:
+                  name: iasworld_dweldat_yrblt_208_less_than_62_years_old
+                  min_value: cast(year(current_date) as integer) - 62
+                  additional_select_columns: *select-columns
+                  config: 
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '208'
+                  meta:
+                    description: yrblt should be <= 62 years old when class is 208
+              - accepted_range:
+                  name: iasworld_dweldat_yrblt_210_more_than_62_years_old
+                  max_value: cast(year(current_date) as integer) - 63
+                  additional_select_columns: *select-columns
+                  config: 
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '210'
+                  meta:
+                    description: yrblt should be > 62 years old when class is 210
+              - accepted_range:
+                  name: iasworld_dweldat_yrblt_278_less_than_62_years_old
+                  min_value: cast(year(current_date) as integer) - 62
+                  additional_select_columns: *select-columns
+                  config: 
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '278'
+                  meta:
+                    description: yrblt should be <= 62 years old when class is 278
+              - accepted_range:
+                  name: iasworld_dweldat_yrblt_295_less_than_62_years_old
+                  min_value: cast(year(current_date) as integer) - 62
+                  additional_select_columns: *select-columns
+                  config: 
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '295'
+                  meta:
+                    description: yrblt should be <= 62 years old when class is 295
           - name: yrremod
             description: Year remodeled
 
