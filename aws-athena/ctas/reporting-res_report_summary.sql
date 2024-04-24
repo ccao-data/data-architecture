@@ -189,92 +189,30 @@ class_modes AS (
 -- Here we aggregate stats on AV and characteristics for each reporting group
 -- By township, assessment_stage, and property group
 values_town_groups AS (
-    SELECT
-        triad,
-        'Town' AS geography_type,
-        property_group,
-        assessment_stage,
-        township_code AS geography_id,
-        year,
-        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
-        COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
-        APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
-    FROM all_values
-    GROUP BY
-        assessment_stage,
-        triad,
-        township_code,
-        year,
-        property_group
+    {{ summarize_res_report_summary(
+        True, True, 'assessment_stage, triad, township_code, year, property_group'
+        ) }}
 ),
 
 -- By township and assessment stage
 values_town_no_groups AS (
-    SELECT
-        triad,
-        'Town' AS geography_type,
-        'ALL REGRESSION' AS property_group,
-        assessment_stage,
-        township_code AS geography_id,
-        year,
-        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
-        COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
-        APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
-    FROM all_values
-    GROUP BY
-        assessment_stage,
-        triad,
-        township_code,
-        year
+    {{ summarize_res_report_summary(
+        True, False, 'assessment_stage, triad, township_code, year'
+        ) }}
 ),
 
 -- By neighborhood, assessment_stage, and property group
 values_nbhd_groups AS (
-    SELECT
-        triad,
-        'TownNBHD' AS geography_type,
-        property_group,
-        assessment_stage,
-        townnbhd AS geography_id,
-        year,
-        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
-        COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
-        APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
-    FROM all_values
-    GROUP BY
-        assessment_stage,
-        triad,
-        townnbhd,
-        year,
-        property_group
+    {{ summarize_res_report_summary(
+        False, True, 'assessment_stage, triad, townnbhd, year, property_group'
+        ) }}
 ),
 
 -- By neighborhood and assessment stage
 values_nbhd_no_groups AS (
-    SELECT
-        triad,
-        'TownNBHD' AS geography_type,
-        'ALL REGRESSION' AS property_group,
-        assessment_stage,
-        townnbhd AS geography_id,
-        year,
-        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
-        COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
-        APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
-    FROM all_values
-    GROUP BY
-        assessment_stage,
-        triad,
-        townnbhd,
-        year
+    {{ summarize_res_report_summary(
+        False, False, 'assessment_stage, triad, townnbhd, year'
+        ) }}
 ),
 
 -- Here we aggregate stats on sales for each reporting group
