@@ -1,6 +1,5 @@
 import pandas as pd
 import requests
-from openpyxl import load_workbook
 import pyarrow as pa
 import pyarrow.parquet as pq
 
