@@ -1,0 +1,50 @@
+import pandas as pd
+import requests
+from openpyxl import load_workbook
+import pyarrow as pa
+import pyarrow.parquet as pq
+
+# URL of the webpage
+url = "https://price-index.housingstudies.org"
+
+# Make a request to fetch the webpage content
+response = requests.get(url)
+content = response.text
+
+# Locate the Excel file link within the fetched HTML content
+link_start = content.find('/data/')
+link_end = content.find('.xlsx', link_start) + len('.xlsx')
+xlsx_link = content[link_start:link_end]
+
+# Form the complete URL for the Excel file
+most_recent_ihs_data_url = url + xlsx_link if xlsx_link.startswith('/') else xlsx_link
+
+# Print the URL
+print(most_recent_ihs_data_url)
+
+# Download the Excel file
+response = requests.get(most_recent_ihs_data_url)
+with open('temp.xlsx', 'wb') as f:
+    f.write(response.content)
+
+# Load the Excel file using openpyxl
+wb = load_workbook('temp.xlsx')
+sheet = wb.worksheets[1]
+data = pd.DataFrame(sheet.values)
+
+data = data.transpose()
+
+data = data.drop(1)
+data = data.drop(2)
+data = data.drop(3)
+
+data = data.replace({None: 'puma', 'YEARQ': 'name'})
+
+data = data.astype(str)
+
+data.to_csv('data.csv', index=False)
+
+data = pa.Table.from_pandas(data)
+
+pq.write_table(data, 'output.parquet')
+
