@@ -169,198 +169,67 @@ class_modes AS (
         property_group,
         FIRST_VALUE(class) OVER (
             PARTITION BY assessment_stage, township_code, year, property_group
-            ORDER BY group_town_count DESC
+            ORDER BY group_town_count DESC, class DESC
         ) AS group_town_mode,
         FIRST_VALUE(class) OVER (
             PARTITION BY assessment_stage, townnbhd, year, property_group
-            ORDER BY group_townnbhd_count DESC
+            ORDER BY group_townnbhd_count DESC, class DESC
         ) AS group_townnbhd_mode,
         FIRST_VALUE(class) OVER (
             PARTITION BY assessment_stage, township_code, year
-            ORDER BY group_townnbhd_count DESC
+            ORDER BY group_townnbhd_count DESC, class DESC
         ) AS town_mode,
         FIRST_VALUE(class) OVER (
             PARTITION BY assessment_stage, townnbhd, year
-            ORDER BY group_townnbhd_count DESC
+            ORDER BY group_townnbhd_count DESC, class DESC
         ) AS townnbhd_mode
     FROM class_counts
 ),
 
--- Here we aggregate stats on AV and characteristics for each reporting group
--- By township, assessment_stage, and property group
-values_town_groups AS (
-    SELECT
-        triad,
-        'Town' AS geography_type,
-        property_group,
-        assessment_stage,
-        township_code AS geography_id,
-        year,
-        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
-        COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
-        APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
-    FROM all_values
-    GROUP BY
-        assessment_stage,
-        triad,
-        township_code,
-        year,
-        property_group
-),
-
--- By township and assessment stage
-values_town_no_groups AS (
-    SELECT
-        triad,
-        'Town' AS geography_type,
-        'ALL REGRESSION' AS property_group,
-        assessment_stage,
-        township_code AS geography_id,
-        year,
-        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
-        COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
-        APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
-    FROM all_values
-    GROUP BY
-        assessment_stage,
-        triad,
-        township_code,
-        year
-),
-
--- By neighborhood, assessment_stage, and property group
-values_nbhd_groups AS (
-    SELECT
-        triad,
-        'TownNBHD' AS geography_type,
-        property_group,
-        assessment_stage,
-        townnbhd AS geography_id,
-        year,
-        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
-        COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
-        APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
-    FROM all_values
-    GROUP BY
-        assessment_stage,
-        triad,
-        townnbhd,
-        year,
-        property_group
-),
-
--- By neighborhood and assessment stage
-values_nbhd_no_groups AS (
-    SELECT
-        triad,
-        'TownNBHD' AS geography_type,
-        'ALL REGRESSION' AS property_group,
-        assessment_stage,
-        townnbhd AS geography_id,
-        year,
-        APPROX_PERCENTILE(total, 0.5) AS fmv_median,
-        COUNT(*) AS pin_n,
-        APPROX_PERCENTILE(total_land_sf, 0.5) AS land_sf_median,
-        APPROX_PERCENTILE(total_bldg_sf, 0.5) AS bldg_sf_median,
-        APPROX_PERCENTILE(yrblt, 0.5) AS yrblt_median
-    FROM all_values
-    GROUP BY
-        assessment_stage,
-        triad,
-        townnbhd,
-        year
-),
-
--- Here we aggregate stats on sales for each reporting group
--- By township and property group
-sales_town_groups AS (
-    SELECT
-        township_code AS geography_id,
-        sale_year,
-        property_group,
-        MIN(sale_price) AS sale_min,
-        APPROX_PERCENTILE(sale_price, 0.5) AS sale_median,
-        MAX(sale_price) AS sale_max,
-        COUNT(*) AS sale_n
-    FROM sales
-    GROUP BY township_code, sale_year, property_group
-),
-
--- By township
-sales_town_no_groups AS (
-    SELECT
-        township_code AS geography_id,
-        sale_year,
-        'ALL REGRESSION' AS property_group,
-        MIN(sale_price) AS sale_min,
-        APPROX_PERCENTILE(sale_price, 0.5) AS sale_median,
-        MAX(sale_price) AS sale_max,
-        COUNT(*) AS sale_n
-    FROM sales
-    GROUP BY
-        township_code,
-        sale_year
-),
-
--- By neighborhood and property group
-sales_nbhd_groups AS (
-    SELECT
-        townnbhd AS geography_id,
-        sale_year,
-        property_group,
-        MIN(sale_price) AS sale_min,
-        APPROX_PERCENTILE(sale_price, 0.5) AS sale_median,
-        MAX(sale_price) AS sale_max,
-        COUNT(*) AS sale_n
-    FROM sales
-    GROUP BY
-        townnbhd,
-        sale_year,
-        property_group
-),
-
--- By neighborhood
-sales_nbhd_no_groups AS (
-    SELECT
-        townnbhd AS geography_id,
-        sale_year,
-        'ALL REGRESSION' AS property_group,
-        MIN(sale_price) AS sale_min,
-        APPROX_PERCENTILE(sale_price, 0.5) AS sale_median,
-        MAX(sale_price) AS sale_max,
-        COUNT(*) AS sale_n
-    FROM sales
-    GROUP BY
-        townnbhd,
-        sale_year
-),
-
--- Stack all the aggregated value stats
+-- Aggregate and stack stats on AV and characteristics for each reporting group
 aggregated_values AS (
-    SELECT * FROM values_town_groups
+    -- By township, assessment_stage, and property group
+    {{ res_report_summarize_values(
+        from = 'all_values', geo_type = 'Town', prop_group = True
+        ) }}
     UNION ALL
-    SELECT * FROM values_town_no_groups
+    -- By township and assessment stage
+    {{ res_report_summarize_values(
+        from = 'all_values', geo_type = 'Town', prop_group = False
+        ) }}
     UNION ALL
-    SELECT * FROM values_nbhd_groups
+    -- By neighborhood, assessment_stage, and property group
+    {{ res_report_summarize_values(
+        from = 'all_values', geo_type = 'TownNBHD', prop_group = True
+        ) }}
     UNION ALL
-    SELECT * FROM values_nbhd_no_groups
+    -- By neighborhood and assessment stage
+    {{ res_report_summarize_values(
+        from = 'all_values', geo_type = 'TownNBHD', prop_group = False
+        ) }}
 ),
 
--- Stack all the aggregated sales stats
+-- Aggregate and stack stats on sales for each reporting group
 all_sales AS (
-    SELECT * FROM sales_town_groups
+    -- By township and property group
+    {{ res_report_summarize_sales(
+        from = 'sales', geo_type = 'Town', prop_group = True
+        ) }}
     UNION ALL
-    SELECT * FROM sales_town_no_groups
+    -- By township
+    {{ res_report_summarize_sales(
+        from = 'sales', geo_type = 'Town', prop_group = False
+        ) }}
     UNION ALL
-    SELECT * FROM sales_nbhd_groups
+    -- By neighborhood and property group
+    {{ res_report_summarize_sales(
+        from = 'sales', geo_type = 'TownNBHD', prop_group = True
+        ) }}
     UNION ALL
-    SELECT * FROM sales_nbhd_no_groups
+    -- By neighborhood
+    {{ res_report_summarize_sales(
+        from = 'sales', geo_type = 'TownNBHD', prop_group = False
+        ) }}
 )
 
 SELECT
