@@ -70,9 +70,6 @@ sources:
         tags:
           - type_condo
 
-      - name: pin_weird
-        description: '{{ doc("table_pin_weird") }}'
-
 exposures:
   - name: commercial_valuation_data
     label: Commercial Valuation Data
