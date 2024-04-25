@@ -190,22 +190,22 @@ class_modes AS (
 aggregated_values AS (
     -- By township, assessment_stage, and property group
     {{ res_report_summarize_values(
-        vals = 'all_values', geo_type = 'Town', prop_group = True
+        from = 'all_values', geo_type = 'Town', prop_group = True
         ) }}
     UNION ALL
     -- By township and assessment stage
     {{ res_report_summarize_values(
-        vals = 'all_values', geo_type = 'Town', prop_group = False
+        from = 'all_values', geo_type = 'Town', prop_group = False
         ) }}
     UNION ALL
     -- By neighborhood, assessment_stage, and property group
     {{ res_report_summarize_values(
-        vals = 'all_values', geo_type = 'TownNBHD', prop_group = True
+        from = 'all_values', geo_type = 'TownNBHD', prop_group = True
         ) }}
     UNION ALL
     -- By neighborhood and assessment stage
     {{ res_report_summarize_values(
-        vals = 'all_values', geo_type = 'TownNBHD', prop_group = False
+        from = 'all_values', geo_type = 'TownNBHD', prop_group = False
         ) }}
 ),
 
@@ -213,22 +213,22 @@ aggregated_values AS (
 all_sales AS (
     -- By township and property group
     {{ res_report_summarize_sales(
-        sales = 'sales', geo_type = 'Town', prop_group = True
+        from = 'sales', geo_type = 'Town', prop_group = True
         ) }}
     UNION ALL
     -- By township
     {{ res_report_summarize_sales(
-        sales = 'sales', geo_type = 'Town', prop_group = False
+        from = 'sales', geo_type = 'Town', prop_group = False
         ) }}
     UNION ALL
     -- By neighborhood and property group
     {{ res_report_summarize_sales(
-        sales = 'sales', geo_type = 'TownNBHD', prop_group = True
+        from = 'sales', geo_type = 'TownNBHD', prop_group = True
         ) }}
     UNION ALL
     -- By neighborhood
     {{ res_report_summarize_sales(
-        sales = 'sales', geo_type = 'TownNBHD', prop_group = False
+        from = 'sales', geo_type = 'TownNBHD', prop_group = False
         ) }}
 )
 
