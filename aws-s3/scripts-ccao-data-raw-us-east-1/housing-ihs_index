@@ -28,23 +28,18 @@ with open('temp.xlsx', 'wb') as f:
     f.write(response.content)
 
 # Load the Excel file using openpyxl
-wb = load_workbook('temp.xlsx')
-sheet = wb.worksheets[1]
-data = pd.DataFrame(sheet.values)
+data = pd.read_excel(response.content, engine='openpyxl', sheet_name=1)
+
+data = data.drop(columns="Unnamed: 1")
+data = data.drop(columns="Unnamed: 2")
+data = data.drop(columns="Unnamed: 3")
 
 data = data.transpose()
 
-data = data.drop(1)
-data = data.drop(2)
-data = data.drop(3)
-
-data = data.replace({None: 'puma', 'YEARQ': 'name'})
-
 data = data.astype(str)
 
-data.to_csv('data.csv', index=False)
+data.reset_index(inplace=True)
 
-data = pa.Table.from_pandas(data)
+data = data.replace({'Unnamed: 0': 'puma', 'YEARQ': 'name'})
 
-pq.write_table(data, 'output.parquet')
-
+data.to_parquet('output.parquet')
