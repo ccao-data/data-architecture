@@ -24,9 +24,8 @@
         {% if geo_type == "Town" %} township_code,
         {% elif geo_type == "TownNBHD" %} townnbhd,
         {% endif %}
-        {% if prop_group %} year, property_group
-        {% elif not prop_group %} year
-        {% endif %}
+        year
+        {% if prop_group %}, property_group{% endif %}
 {% endmacro %}
 
 {% macro res_report_summarize_sales(from, geo_type, prop_group) %}
@@ -47,7 +46,6 @@
         {% if geo_type == "Town" %} township_code,
         {% elif geo_type == "TownNBHD" %} townnbhd,
         {% endif %}
-        {% if prop_group %} sale_year, property_group
-        {% elif not prop_group %} sale_year
-        {% endif %}
+        sale_year
+        {% if prop_group %}, property_group{% endif %}
 {% endmacro %}
