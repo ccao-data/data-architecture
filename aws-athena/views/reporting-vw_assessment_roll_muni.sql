@@ -20,7 +20,7 @@ LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS townships
     ON values_by_year.pin = townships.pin
     AND values_by_year.year = townships.year
 LEFT JOIN {{ ref('location.tax') }} AS tax
-    ON SUSBTR(values_by_year.pin, 1, 10) = tax.pin10
+    ON SUBSTR(values_by_year.pin, 1, 10) = tax.pin10
     AND values_by_year.year = tax.year
 WHERE townships.township_name IS NOT NULL
 GROUP BY
