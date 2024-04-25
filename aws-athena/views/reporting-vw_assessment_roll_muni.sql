@@ -5,7 +5,7 @@
 SELECT
     values_by_year.year,
     LOWER(values_by_year.stage_name) AS stage,
-    tax.municpality_name,
+    tax.tax_municipality_name AS municipality_name,
     townships.major_class AS class,
     townships.reassessment_year,
     COUNT(*) AS n,
@@ -24,13 +24,13 @@ LEFT JOIN {{ ref('location.tax') }} AS tax
     AND values_by_year.year = tax.year
 WHERE townships.township_name IS NOT NULL
 GROUP BY
-    tax.municpality_name,
+    tax.tax_municipality_name,
     values_by_year.year,
     townships.major_class,
     values_by_year.stage_name,
     townships.reassessment_year
 ORDER BY
-    tax.municpality_name,
+    tax.tax_municipality_name,
     values_by_year.year,
     values_by_year.stage_name,
     townships.major_class

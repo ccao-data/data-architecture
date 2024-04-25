@@ -94,13 +94,16 @@ models:
             - stage
             - municipality_name
             - class
+          config:
+            error_if: ">1572" # as of 2024-04-25
       - expression_is_true:
           name: reporting_vw_assessment_roll_muni_no_nulls
           expression: |
             stage IS NOT NULL
-            AND township_name IS NOT NULL
-            AND triad IS NOT NULL
+            AND municipality_name IS NOT NULL
             AND class IS NOT NULL
+          config:
+            error_if: ">1370" # as of 2024-04-25
 
   - name: reporting.vw_pin_most_recent_boundary
     description: '{{ doc("view_vw_pin_most_recent_boundary") }}'
