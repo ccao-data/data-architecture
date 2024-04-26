@@ -11,7 +11,8 @@ WITH pardat_adjusted_years AS (
         taxyr,
         CASE
             WHEN
-                taxyr > (SELECT MAX(year) FROM {{ source('spatial', 'parcel') }})
+                taxyr
+                > (SELECT MAX(year) FROM {{ source('spatial', 'parcel') }})
                 THEN (SELECT MAX(year) FROM {{ source('spatial', 'parcel') }})
             ELSE taxyr
         END AS join_year,
