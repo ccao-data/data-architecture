@@ -14,7 +14,7 @@ WITH pardat_adjusted_years AS (
         nbhd,
         cur,
         deactivat
-    FROM iasworld.pardat
+    FROM {{ source('iasworld', 'pardat') }}
 
 )
 
