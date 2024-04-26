@@ -1,4 +1,23 @@
 -- Source of truth view for PIN location
+WITH pardat_adjusted_years AS (
+
+    SELECT
+        parid,
+        taxyr,
+        CASE
+            WHEN
+                taxyr > (SELECT MAX(year) FROM spatial.parcel)
+                THEN (SELECT MAX(year) FROM spatial.parcel)
+            ELSE taxyr
+        END AS join_year,
+        class,
+        nbhd,
+        cur,
+        deactivat
+    FROM iasworld.pardat
+
+)
+
 SELECT
     -- Main PIN-level attribute data from iasWorld
     par.parid AS pin,
@@ -123,18 +142,18 @@ SELECT
     vwl.access_cmap_walk_data_year,
     vwl.misc_subdivision_id,
     vwl.misc_subdivision_data_year
-FROM {{ source('iasworld', 'pardat') }} AS par
+FROM pardat_adjusted_years AS par
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     ON par.parid = leg.parid
-    AND par.taxyr = leg.taxyr
+    AND par.join_year = leg.taxyr
     AND leg.cur = 'Y'
     AND leg.deactivat IS NULL
 LEFT JOIN {{ source('spatial', 'parcel') }} AS sp
     ON SUBSTR(par.parid, 1, 10) = sp.pin10
-    AND par.taxyr = sp.year
+    AND par.join_year = sp.year
 LEFT JOIN {{ ref('location.vw_pin10_location') }} AS vwl
     ON SUBSTR(par.parid, 1, 10) = vwl.pin10
-    AND par.taxyr = vwl.year
+    AND par.join_year = vwl.year
 LEFT JOIN {{ source('spatial', 'township') }} AS twn
     ON leg.user1 = CAST(twn.township_code AS VARCHAR)
 LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
