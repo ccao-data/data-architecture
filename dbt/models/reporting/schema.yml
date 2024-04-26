@@ -95,7 +95,7 @@ models:
             - municipality_name
             - class
           config:
-            error_if: ">1572" # as of 2024-04-25
+            error_if: ">2229" # as of 2024-04-25
       - expression_is_true:
           name: reporting_vw_assessment_roll_muni_no_nulls
           expression: |

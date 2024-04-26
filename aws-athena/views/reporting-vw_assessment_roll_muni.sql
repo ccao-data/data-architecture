@@ -5,7 +5,7 @@
 SELECT
     vpvl.year,
     LOWER(vpvl.stage_name) AS stage,
-    tax.tax_municipality_name AS municipality_name,
+    leg.cityname AS municipality_name,
     townships.major_class AS class,
     townships.reassessment_year,
     COUNT(*) AS n,
@@ -19,24 +19,20 @@ FROM {{ ref('reporting.vw_pin_value_long') }} AS vpvl
 LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS townships
     ON vpvl.pin = townships.pin
     AND vpvl.year = townships.year
-LEFT JOIN {{ ref('location.tax') }} AS tax
-    ON SUBSTR(vpvl.pin, 1, 10) = tax.pin10
-    AND CASE
-        WHEN
-            vpvl.year > (SELECT MAX(year) FROM {{ ref('location.tax') }})
-            THEN (SELECT MAX(year) FROM {{ ref('location.tax') }})
-        ELSE vpvl.year
-    END
-    = tax.year
+LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
+    ON vpvl.pin = leg.parid
+    AND vpvl.year = leg.taxyr
+    AND leg.cur = 'Y'
+    AND leg.deactivat IS NULL
 WHERE townships.township_name IS NOT NULL
 GROUP BY
-    tax.tax_municipality_name,
+    leg.cityname,
     vpvl.year,
     townships.major_class,
     vpvl.stage_name,
     townships.reassessment_year
 ORDER BY
-    tax.tax_municipality_name,
+    leg.cityname,
     vpvl.year,
     vpvl.stage_name,
     townships.major_class
