@@ -25,7 +25,7 @@ GROUP BY
     vpvl.year,
     munis.major_class,
     munis.triad_name,
-    vpvl.stage_name,
+    vpvl.stage_name
 ORDER BY
     munis.municipality_name,
     vpvl.year,
