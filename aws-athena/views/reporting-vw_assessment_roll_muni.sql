@@ -24,7 +24,6 @@ SELECT
     pin_counts.total_n,
     CAST(COUNT(*) AS DOUBLE)
     / CAST(pin_counts.total_n AS DOUBLE) AS stage_portion,
-    AVG(CAST(munis.reassessment_year AS DOUBLE)) AS reassessment_portion,
     SUM(vpvl.bldg) AS bldg_sum,
     CAST(APPROX_PERCENTILE(vpvl.bldg, 0.5) AS INT) AS bldg_median,
     SUM(vpvl.land) AS land_sum,
