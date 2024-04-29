@@ -19,6 +19,7 @@ SELECT
     town.township_name,
     leg.user1 AS township_code,
     SUBSTR(correct.nbhd, 3, 3) AS nbhd,
+    leg.cityname AS municipality_name,
     correct.class,
     groups.reporting_class_code AS major_class,
     groups.modeling_group AS property_group,

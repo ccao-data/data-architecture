@@ -1,13 +1,13 @@
 -- Gathers AVs by year, major class, assessment stage, and
--- township for reporting
+-- municipality for reporting
 
--- Add total and median values by township
+-- Add total and median values by municipality
 SELECT
     vpvl.year,
     LOWER(vpvl.stage_name) AS stage,
-    leg.cityname AS municipality_name,
-    townships.major_class AS class,
-    townships.reassessment_year,
+    munis.municipality_name,
+    munis.major_class AS class,
+    AVG(CAST(munis.reassessment_year AS INT)) AS portion_reassessed,
     COUNT(*) AS n,
     SUM(vpvl.bldg) AS bldg_sum,
     CAST(APPROX_PERCENTILE(vpvl.bldg, 0.5) AS INT) AS bldg_median,
@@ -16,23 +16,18 @@ SELECT
     SUM(vpvl.tot) AS tot_sum,
     CAST(APPROX_PERCENTILE(vpvl.tot, 0.5) AS INT) AS tot_median
 FROM {{ ref('reporting.vw_pin_value_long') }} AS vpvl
-LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS townships
-    ON vpvl.pin = townships.pin
-    AND vpvl.year = townships.year
-LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
-    ON vpvl.pin = leg.parid
-    AND vpvl.year = leg.taxyr
-    AND leg.cur = 'Y'
-    AND leg.deactivat IS NULL
-WHERE townships.township_name IS NOT NULL
+LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS munis
+    ON vpvl.pin = munis.pin
+    AND vpvl.year = munis.year
+WHERE munis.municipality_name IS NOT NULL
 GROUP BY
-    leg.cityname,
+    munis.municipality_name,
     vpvl.year,
-    townships.major_class,
+    munis.major_class,
+    munis.triad_name,
     vpvl.stage_name,
-    townships.reassessment_year
 ORDER BY
-    leg.cityname,
+    munis.municipality_name,
     vpvl.year,
     vpvl.stage_name,
-    townships.major_class
+    munis.major_class
