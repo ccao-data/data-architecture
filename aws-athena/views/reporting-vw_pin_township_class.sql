@@ -19,7 +19,10 @@ SELECT
     town.township_name,
     leg.user1 AS township_code,
     SUBSTR(correct.nbhd, 3, 3) AS nbhd,
-    ARRAY_JOIN(tax.tax_municipality_name, ', ', NULL) AS municipality_name,
+    CASE
+        WHEN ARRAY_JOIN(tax.tax_municipality_name, ', ') = '' THEN NULL ELSE
+            ARRAY_JOIN(tax.tax_municipality_name, ', ')
+    END AS municipality_name,
     correct.class,
     groups.reporting_class_code AS major_class,
     groups.modeling_group AS property_group,
