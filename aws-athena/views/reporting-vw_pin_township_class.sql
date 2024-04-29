@@ -19,64 +19,7 @@ SELECT
     town.township_name,
     leg.user1 AS township_code,
     SUBSTR(correct.nbhd, 3, 3) AS nbhd,
-    CASE WHEN
-            UPPER(TRIM(leg.cityname)) IN (
-                'ARLNGTN HTS',
-                'ARLNGTN HGTS',
-                'ARLNGTON HGT',
-                'ARLINGTN HTS',
-                'ARLIGNTON HEIGHTS',
-                'ARLINGTON HT'
-            )
-            THEN 'ARLINGTON HEIGHTS'
-        WHEN UPPER(TRIM(leg.cityname)) = 'BEDFORD PK' THEN 'BEDFORD PARK'
-        WHEN UPPER(TRIM(leg.cityname)) = 'BERKLEY' THEN 'BERKELEY'
-        WHEN UPPER(TRIM(leg.cityname)) = 'CHGO' THEN 'CHICAGO'
-        WHEN UPPER(TRIM(leg.cityname)) = 'CHICAGO HTS' THEN 'CHICAGO HEIGHTS'
-        WHEN UPPER(TRIM(leg.cityname)) = 'CRESWTOOD' THEN 'CRESTWOOD'
-        WHEN
-            UPPER(TRIM(leg.cityname)) IN (
-                'ELK GR VILL', 'ELK GROVE VL', 'ELK GROVE VILLAGE'
-            )
-            THEN 'ELK GROVE'
-        WHEN UPPER(TRIM(leg.cityname)) = 'EVERGREEN PK' THEN 'EVERGREEN PARK'
-        WHEN UPPER(TRIM(leg.cityname)) = 'FORESTVIEW' THEN 'FOREST VIEW'
-        WHEN UPPER(TRIM(leg.cityname)) = 'HICKORY HLS' THEN 'HICKORY HILLS'
-        WHEN UPPER(TRIM(leg.cityname)) = 'HOFFMAN ESTS' THEN 'HOFFMAN ESTATES'
-        WHEN UPPER(TRIM(leg.cityname)) = 'LAGRANGE' THEN 'LA GRANGE'
-        WHEN UPPER(TRIM(leg.cityname)) = 'LA GRANGE PK' THEN 'LA GRANGE PARK'
-        WHEN
-            UPPER(TRIM(leg.cityname)) IN ('MT PROSPECT', 'MT. PROSPECT')
-            THEN 'MOUNT PROSPECT'
-        WHEN UPPER(TRIM(leg.cityname)) = 'NORTHFILED' THEN 'NORTHFIELD'
-        WHEN UPPER(TRIM(leg.cityname)) = 'OAK PK' THEN 'OAK PARK'
-        WHEN
-            UPPER(TRIM(leg.cityname)) IN ('ORLAND', 'ORLAND PK')
-            THEN 'ORLAND PARK'
-        WHEN UPPER(TRIM(leg.cityname)) = 'OLYMPIA FLDS' THEN 'OLYMPIA FIELDS'
-        WHEN UPPER(TRIM(leg.cityname)) = 'PALTINE' THEN 'PALATINE'
-        WHEN UPPER(TRIM(leg.cityname)) = 'ROLLING MEADOW' THEN 'ROLLING MEADOWS'
-        WHEN UPPER(TRIM(leg.cityname)) = 'SCHILLET PARK' THEN 'SCHILLER PARK'
-        WHEN
-            UPPER(TRIM(leg.cityname)) IN ('S. BARRINGTON', 'S BARRINGTON')
-            THEN 'SOUTH BARRINGTON'
-        WHEN UPPER(TRIM(leg.cityname)) = 'SO HOLLAND' THEN 'SOUTH HOLLAND'
-        WHEN UPPER(TRIM(leg.cityname)) = 'STONE PK' THEN 'STONE PARK'
-        WHEN UPPER(TRIM(leg.cityname)) IN ('ARGO', 'SUMMIT ARGO') THEN 'SUMMIT'
-        WHEN
-            UPPER(TRIM(leg.cityname)) IN ('TINLEY PK', 'TINELY PK')
-            THEN 'TINLEY PARK'
-        WHEN UPPER(TRIM(leg.cityname)) = 'UNIC' THEN 'UNINCORPORATED'
-        WHEN
-            UPPER(TRIM(leg.cityname)) IN (
-                'FORT WORTH', 'MINNEAPOLIS', 'PHILADELPHIA', 'PORTLAND'
-            )
-            THEN 'UNKNOWN'
-        WHEN
-            UPPER(TRIM(leg.cityname)) IN ('WESTERN SPGS', 'WESTERN SPRG')
-            THEN 'WESTERN SPRINGS'
-        ELSE UPPER(TRIM(leg.cityname))
-    END AS municipality_name,
+    ARRAY_JOIN(tax.tax_municipality_name, ', ') AS municipality_name,
     correct.class,
     groups.reporting_class_code AS major_class,
     groups.modeling_group AS property_group,
@@ -106,5 +49,13 @@ LEFT JOIN {{ source('spatial', 'township') }} AS town
 -- Exclude classes without a reporting class
 INNER JOIN {{ ref('ccao.class_dict') }} AS groups
     ON correct.class = groups.class_code
+LEFT JOIN {{ ref('location.tax') }} AS tax
+    ON SUBSTR(correct.parid, 1, 10) = tax.pin10
+    AND CASE
+        WHEN
+            correct.taxyr > (SELECT MAX(year) FROM {{ ref('location.tax') }})
+            THEN (SELECT MAX(year) FROM {{ ref('location.tax') }})
+        ELSE correct.taxyr
+    END = tax.year
 WHERE correct.cur = 'Y'
     AND correct.deactivat IS NULL
