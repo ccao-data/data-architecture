@@ -21,32 +21,51 @@ SELECT
     SUBSTR(correct.nbhd, 3, 3) AS nbhd,
     CASE WHEN
             UPPER(TRIM(leg.cityname)) IN (
-                'ARLNGTN HTS', 'ARLNGTN HGTS', 'ARLNGTON HGT', 'ARLINGTN HTS'
+                'ARLNGTN HTS',
+                'ARLNGTN HGTS',
+                'ARLNGTON HGT',
+                'ARLINGTN HTS',
+                'ARLIGNTON HEIGHTS',
+                'ARLINGTON HT'
             )
             THEN 'ARLINGTON HEIGHTS'
+        WHEN UPPER(TRIM(leg.cityname)) = 'BEDFORD PK' THEN 'BEDFORD PARK'
         WHEN UPPER(TRIM(leg.cityname)) = 'BERKLEY' THEN 'BERKELEY'
+        WHEN UPPER(TRIM(leg.cityname)) = 'CHGO' THEN 'CHICAGO'
+        WHEN UPPER(TRIM(leg.cityname)) = 'CHICAGO HTS' THEN 'CHICAGO HEIGHTS'
+        WHEN UPPER(TRIM(leg.cityname)) = 'CRESWTOOD' THEN 'CRESTWOOD'
         WHEN
             UPPER(TRIM(leg.cityname)) IN (
                 'ELK GR VILL', 'ELK GROVE VL', 'ELK GROVE VILLAGE'
             )
             THEN 'ELK GROVE'
+        WHEN UPPER(TRIM(leg.cityname)) = 'EVERGREEN PK' THEN 'EVERGREEN PARK'
+        WHEN UPPER(TRIM(leg.cityname)) = 'FORESTVIEW' THEN 'FOREST VIEW'
         WHEN UPPER(TRIM(leg.cityname)) = 'HICKORY HLS' THEN 'HICKORY HILLS'
-        WHEN UPPER(TRIM(leg.cityname)) = 'CHICAGO HTS' THEN 'CHICAGO HEIGHTS'
-        WHEN UPPER(TRIM(leg.cityname)) = 'STONE PK' THEN 'STONE PARK'
-        WHEN UPPER(TRIM(leg.cityname)) = 'CHGO' THEN 'CHICAGO'
         WHEN UPPER(TRIM(leg.cityname)) = 'HOFFMAN ESTS' THEN 'HOFFMAN ESTATES'
-        WHEN UPPER(TRIM(leg.cityname)) = 'OLYMPIA FLDS' THEN 'OLYMPIA FIELDS'
+        WHEN UPPER(TRIM(leg.cityname)) = 'LAGRANGE' THEN 'LA GRANGE'
+        WHEN UPPER(TRIM(leg.cityname)) = 'LA GRANGE PK' THEN 'LA GRANGE PARK'
+        WHEN
+            UPPER(TRIM(leg.cityname)) IN ('MT PROSPECT', 'MT. PROSPECT')
+            THEN 'MOUNT PROSPECT'
+        WHEN UPPER(TRIM(leg.cityname)) = 'NORTHFILED' THEN 'NORTHFIELD'
+        WHEN UPPER(TRIM(leg.cityname)) = 'OAK PK' THEN 'OAK PARK'
         WHEN UPPER(TRIM(leg.cityname)) = 'ORLAND PK' THEN 'ORLAND PARK'
+        WHEN UPPER(TRIM(leg.cityname)) = 'OLYMPIA FLDS' THEN 'OLYMPIA FIELDS'
+        WHEN UPPER(TRIM(leg.cityname)) = 'PALTINE' THEN 'PALATINE'
+        WHEN UPPER(TRIM(leg.cityname)) = 'ROLLING MEADOW' THEN 'ROLLING MEADOWS'
+        WHEN UPPER(TRIM(leg.cityname)) = 'SCHILLET PARK' THEN 'SCHILLER PARK'
         WHEN UPPER(TRIM(leg.cityname)) = 'S. BARRINGTON' THEN 'SOUTH BARRINGTON'
         WHEN UPPER(TRIM(leg.cityname)) = 'SO HOLLAND' THEN 'SOUTH HOLLAND'
+        WHEN UPPER(TRIM(leg.cityname)) = 'STONE PK' THEN 'STONE PARK'
+        WHEN UPPER(TRIM(leg.cityname)) = 'SUMMIT ARGO' THEN 'SUMMIT'
+        WHEN
+            UPPER(TRIM(leg.cityname)) IN ('TINLEY PK', 'TINELY PK')
+            THEN 'TINLEY PARK'
+        WHEN UPPER(TRIM(leg.cityname)) = 'UNIC' THEN 'UNINCORPORATED'
         WHEN
             UPPER(TRIM(leg.cityname)) IN ('WESTERN SPGS', 'WESTERN SPRG')
             THEN 'WESTERN SPRINGS'
-        WHEN UPPER(TRIM(leg.cityname)) = 'BEDFORD PK' THEN 'BEDFORD PARK'
-        WHEN UPPER(TRIM(leg.cityname)) = 'EVERGREEN PK' THEN 'EVERGREEN PARK'
-        WHEN UPPER(TRIM(leg.cityname)) = 'LA GRANGE PK' THEN 'LA GRANGE PARK'
-        WHEN UPPER(TRIM(leg.cityname)) = 'PALTINE' THEN 'PALATINE'
-        WHEN UPPER(TRIM(leg.cityname)) = 'TINLEY PK' THEN 'TINLEY PARK'
         ELSE UPPER(TRIM(leg.cityname))
     END AS municipality_name,
     correct.class,
