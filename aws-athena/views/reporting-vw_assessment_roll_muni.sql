@@ -44,7 +44,6 @@ GROUP BY
     munis.municipality_name,
     vpvl.year,
     munis.major_class,
-    munis.triad_name,
     vpvl.stage_name,
     pin_counts.total_n
 ORDER BY
