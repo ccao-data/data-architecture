@@ -1,14 +1,29 @@
 -- Gathers AVs by year, major class, assessment stage, and
 -- municipality for reporting
 
+WITH pin_counts AS (
+    SELECT
+        municipality_name,
+        major_class,
+        year,
+        COUNT(*) AS total_n
+    FROM {{ ref('reporting.vw_pin_township_class') }}
+    GROUP BY
+        municipality_name,
+        year,
+        major_class
+)
+
 -- Add total and median values by municipality
 SELECT
     vpvl.year,
     LOWER(vpvl.stage_name) AS stage,
     munis.municipality_name,
     munis.major_class AS class,
-    AVG(CAST(munis.reassessment_year AS INT)) AS portion_reassessed,
     COUNT(*) AS n,
+    pin_counts.total_n,
+    COUNT(*) / pin_counts.total_n AS stage_portion,
+    AVG(CAST(munis.reassessment_year AS INT)) AS reassessment_portion,
     SUM(vpvl.bldg) AS bldg_sum,
     CAST(APPROX_PERCENTILE(vpvl.bldg, 0.5) AS INT) AS bldg_median,
     SUM(vpvl.land) AS land_sum,
@@ -19,13 +34,18 @@ FROM {{ ref('reporting.vw_pin_value_long') }} AS vpvl
 LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS munis
     ON vpvl.pin = munis.pin
     AND vpvl.year = munis.year
+LEFT JOIN pin_counts
+    ON munis.municipality_name = pin_counts.municipality_name
+    AND munis.major_class = pin_counts.major_class
+    AND munis.year = pin_counts.year
 WHERE munis.municipality_name IS NOT NULL
 GROUP BY
     munis.municipality_name,
     vpvl.year,
     munis.major_class,
     munis.triad_name,
-    vpvl.stage_name
+    vpvl.stage_name,
+    pin_counts.total_n
 ORDER BY
     munis.municipality_name,
     vpvl.year,
