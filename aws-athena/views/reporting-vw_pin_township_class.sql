@@ -50,19 +50,28 @@ SELECT
             THEN 'MOUNT PROSPECT'
         WHEN UPPER(TRIM(leg.cityname)) = 'NORTHFILED' THEN 'NORTHFIELD'
         WHEN UPPER(TRIM(leg.cityname)) = 'OAK PK' THEN 'OAK PARK'
-        WHEN UPPER(TRIM(leg.cityname)) = 'ORLAND PK' THEN 'ORLAND PARK'
+        WHEN
+            UPPER(TRIM(leg.cityname)) IN ('ORLAND', 'ORLAND PK')
+            THEN 'ORLAND PARK'
         WHEN UPPER(TRIM(leg.cityname)) = 'OLYMPIA FLDS' THEN 'OLYMPIA FIELDS'
         WHEN UPPER(TRIM(leg.cityname)) = 'PALTINE' THEN 'PALATINE'
         WHEN UPPER(TRIM(leg.cityname)) = 'ROLLING MEADOW' THEN 'ROLLING MEADOWS'
         WHEN UPPER(TRIM(leg.cityname)) = 'SCHILLET PARK' THEN 'SCHILLER PARK'
-        WHEN UPPER(TRIM(leg.cityname)) = 'S. BARRINGTON' THEN 'SOUTH BARRINGTON'
+        WHEN
+            UPPER(TRIM(leg.cityname)) IN ('S. BARRINGTON', 'S BARRINGTON')
+            THEN 'SOUTH BARRINGTON'
         WHEN UPPER(TRIM(leg.cityname)) = 'SO HOLLAND' THEN 'SOUTH HOLLAND'
         WHEN UPPER(TRIM(leg.cityname)) = 'STONE PK' THEN 'STONE PARK'
-        WHEN UPPER(TRIM(leg.cityname)) = 'SUMMIT ARGO' THEN 'SUMMIT'
+        WHEN UPPER(TRIM(leg.cityname)) IN ('ARGO', 'SUMMIT ARGO') THEN 'SUMMIT'
         WHEN
             UPPER(TRIM(leg.cityname)) IN ('TINLEY PK', 'TINELY PK')
             THEN 'TINLEY PARK'
         WHEN UPPER(TRIM(leg.cityname)) = 'UNIC' THEN 'UNINCORPORATED'
+        WHEN
+            UPPER(TRIM(leg.cityname)) IN (
+                'FORT WORTH', 'MINNEAPOLIS', 'PHILADELPHIA', 'PORTLAND'
+            )
+            THEN 'UNKNOWN'
         WHEN
             UPPER(TRIM(leg.cityname)) IN ('WESTERN SPGS', 'WESTERN SPRG')
             THEN 'WESTERN SPRINGS'
