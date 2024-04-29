@@ -22,8 +22,9 @@ SELECT
     munis.major_class AS class,
     COUNT(*) AS n,
     pin_counts.total_n,
-    COUNT(*) / pin_counts.total_n AS stage_portion,
-    AVG(CAST(munis.reassessment_year AS INT)) AS reassessment_portion,
+    CAST(COUNT(*) AS DOUBLE)
+    / CAST(pin_counts.total_n AS DOUBLE) AS stage_portion,
+    AVG(CAST(munis.reassessment_year AS DOUBLE)) AS reassessment_portion,
     SUM(vpvl.bldg) AS bldg_sum,
     CAST(APPROX_PERCENTILE(vpvl.bldg, 0.5) AS INT) AS bldg_median,
     SUM(vpvl.land) AS land_sum,
