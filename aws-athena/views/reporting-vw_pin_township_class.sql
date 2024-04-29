@@ -47,6 +47,7 @@ SELECT
         WHEN UPPER(TRIM(leg.cityname)) = 'LA GRANGE PK' THEN 'LA GRANGE PARK'
         WHEN UPPER(TRIM(leg.cityname)) = 'PALTINE' THEN 'PALATINE'
         WHEN UPPER(TRIM(leg.cityname)) = 'TINLEY PK' THEN 'TINLEY PARK'
+        ELSE UPPER(TRIM(leg.cityname))
     END AS municipality_name,
     correct.class,
     groups.reporting_class_code AS major_class,
