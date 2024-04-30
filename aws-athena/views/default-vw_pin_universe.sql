@@ -2,7 +2,7 @@
 
 -- This CTE ensures the most recent year of pardat data is joined to spatial
 -- data regardless of timing. This is necessary since spatial data releases late
--- in a calendar year while the CCAO's universe of PINs is rolled-over much
+-- in a calendar year while the CCAO's universe of PINs is rolled over much
 -- sooner.
 WITH pardat_adjusted_years AS (
 
