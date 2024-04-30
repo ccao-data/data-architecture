@@ -17,10 +17,11 @@ WITH pin_counts AS (
 -- Add total and median values by municipality
 SELECT
     vpvl.year,
-    LOWER(vpvl.stage_name) AS stage,
-    munis.municipality_name,
-    munis.major_class AS class,
-    COUNT(*) AS n,
+    COALESCE(LOWER(vpvl.stage_name), 'mailed') AS stage,
+    COALESCE(munis.municipality_name = pin_counts.municipality_name)
+        AS municipality_name,
+    COALESCE(munis.major_class, pin_counts.major_class) AS class,
+    CASE WHEN COUNT(*) IS NULL THEN 0 ELSE COUNT(*) END AS n,
     pin_counts.total_n,
     CAST(COUNT(*) AS DOUBLE)
     / CAST(pin_counts.total_n AS DOUBLE) AS stage_portion,
@@ -34,7 +35,7 @@ FROM {{ ref('reporting.vw_pin_value_long') }} AS vpvl
 LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS munis
     ON vpvl.pin = munis.pin
     AND vpvl.year = munis.year
-LEFT JOIN pin_counts
+FULL OUTER JOIN pin_counts
     ON munis.municipality_name = pin_counts.municipality_name
     AND munis.major_class = pin_counts.major_class
     AND munis.year = pin_counts.year
