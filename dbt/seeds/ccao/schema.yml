@@ -34,6 +34,9 @@ seeds:
       - name: max_age
         description: Double of maximum age for 200-class property codes
 
+  - name: ccao.loa
+    description: '{{ doc("seed_loa") }}'
+
   - name: ccao.pin_test
     description: '{{ doc("seed_pin_test") }}'
     config:
