@@ -18,7 +18,7 @@ WITH pin_counts AS (
 SELECT
     vpvl.year,
     COALESCE(LOWER(vpvl.stage_name), 'mailed') AS stage,
-    COALESCE(munis.municipality_name = pin_counts.municipality_name)
+    COALESCE(munis.municipality_name, pin_counts.municipality_name)
         AS municipality_name,
     COALESCE(munis.major_class, pin_counts.major_class) AS class,
     CASE WHEN COUNT(*) IS NULL THEN 0 ELSE COUNT(*) END AS n,
