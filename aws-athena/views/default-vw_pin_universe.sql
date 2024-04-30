@@ -37,6 +37,7 @@ SELECT
     REGEXP_REPLACE(par.nbhd, '([^0-9])', '') AS nbhd_code,
     leg.taxdist AS tax_code,
     NULLIF(leg.zip1, '00000') AS zip_code,
+    par.join_year AS spatial_data_year,
 
     -- Centroid of each PIN from county parcel files
     sp.lon,
@@ -151,7 +152,7 @@ SELECT
 FROM pardat_adjusted_years AS par
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     ON par.parid = leg.parid
-    AND par.join_year = leg.taxyr
+    AND par.taxyr = leg.taxyr
     AND leg.cur = 'Y'
     AND leg.deactivat IS NULL
 LEFT JOIN {{ source('spatial', 'parcel') }} AS sp
