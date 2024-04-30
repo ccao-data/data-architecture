@@ -36,6 +36,21 @@ seeds:
 
   - name: ccao.loa
     description: '{{ doc("seed_loa") }}'
+    config:
+      column_types:
+        year: string
+        class: string
+
+    columns:
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
+      - name: class_code
+        description: '{{ doc("shared_column_class") }}'
+      - name: loa
+        description: |
+          Level of Assessment (LoA) for each year and property class. This
+          number is effectively the percentage of market/fair cash value on
+          which properties are assessed
 
   - name: ccao.pin_test
     description: '{{ doc("seed_pin_test") }}'
