@@ -39,7 +39,7 @@ seeds:
     config:
       column_types:
         year: string
-        class: string
+        class_code: string
 
     columns:
       - name: year
