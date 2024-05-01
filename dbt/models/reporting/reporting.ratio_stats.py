@@ -1,3 +1,5 @@
+sc.addPyFile("s3://ccao-athena-results-us-east-1/packages/assesspy.zip")
+
 import numpy as np
 import pandas as pd
 from assesspy import boot_ci, cod
@@ -220,14 +222,18 @@ def report_summarise(df, geography_id, geography_type):
     return df
 
 
-def model(dbt, session):
+def model(dbt, spark_session):
+    dbt.config(materialized="table")
+
     input = dbt.ref("reporting.vw_ratio_stats")
 
-    final_df = pd.concat(
+    df = pd.concat(
         [
             report_summarise(input, "triad", "Tri"),
             report_summarise(input, "township_code", "Town"),
         ]
     ).reset_index(drop=True)
 
-    return final_df
+    spark_df = spark_session.createDataFrame(df)
+
+    return spark_df
