@@ -11,6 +11,7 @@ athena:
       schema: z_static_unused-dbt-stub-database
       # "database" here corresponds to a Glue data catalog
       database: awsdatacatalog
+      spark_work_group: Spark_primary
       threads: 5
       num_retries: 1
     ci:
@@ -21,6 +22,7 @@ athena:
       region_name: us-east-1
       schema: z_static_unused-dbt-stub-database
       database: awsdatacatalog
+      spark_work_group: Spark_primary
       threads: 5
       num_retries: 1
     prod:
@@ -31,5 +33,6 @@ athena:
       region_name: us-east-1
       schema: default
       database: awsdatacatalog
+      spark_work_group: Spark_primary
       threads: 5
       num_retries: 1
