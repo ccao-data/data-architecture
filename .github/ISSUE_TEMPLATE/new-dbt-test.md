@@ -5,11 +5,8 @@ _(Brief description of the test and the motivation of the test here)_
 ## Short checklist
 
 - [ ] Create test in the `dbt/tests/generic/` directory
-- [ ] Add test to the `schema.yaml` file for a data model in `dbt/models/`
-
-## Test Example
-
 An example of a DBT test can be seen [here](https://github.com/ccao-data/data-architecture/blob/master/dbt/tests/generic/test_unique_combination_of_columns.sql).
+- [ ] Add test to the `schema.yaml` file for a data model in `dbt/models/`
 And this is an example of an implementation of this test on a specific data model, in this case the `default.vw_pin_universe` view.
 
 ```yaml
