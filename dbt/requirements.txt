@@ -1,1 +1,1 @@
-dbt-athena-community==1.7.1
+dbt-athena-community==1.7.2
