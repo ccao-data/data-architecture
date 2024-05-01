@@ -10,7 +10,7 @@ _(Brief description of the test and the motivation of the test here)_
 ## Test Example
 
 An example of a DBT test can be seen [here](https://github.com/ccao-data/data-architecture/blob/master/dbt/tests/generic/test_unique_combination_of_columns.sql).
-And this is an example of an implementation of this test on a specific data model.
+And this is an example of an implementation of this test on a specific data model, in this case the `default.vw_pin_universe` view.
 
 ```yaml
     - unique_combination_of_columns:
@@ -24,17 +24,7 @@ _Link to code [here](https://github.com/ccao-data/data-architecture/blob/66ad815
 
 ### Run tests
 
-Run tests for all models:
-
-```bash
-dbt test
-```
-
-Run all tests for one model:
-
-```bash
-dbt test --select default.vw_pin_universe
-```
+A test can be ran against development or production resources with the following bash commands.
 
 Run only one test:
 
