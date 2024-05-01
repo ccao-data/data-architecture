@@ -1,12 +1,16 @@
-sc.addPyFile("s3://ccao-athena-results-us-east-1/packages/assesspy.zip")
+sc.addPyFile(  # noqa: F821
+    "s3://ccao-dbt-athena-dev-us-east-1/packages/spark-packages.zip"
+)
 
-import numpy as np
-import pandas as pd
-from assesspy import boot_ci, cod
-from assesspy import cod_ci as cod_boot
-from assesspy import cod_met, detect_chasing, mki, mki_met, prb, prb_met, prd
-from assesspy import prd_ci as prd_boot
-from assesspy import prd_met
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
+from assesspy import boot_ci  # noqa: E402
+from assesspy import cod  # noqa: E402
+from assesspy import detect_chasing  # noqa: E402
+from assesspy import prd_met  # noqa: E402
+from assesspy import cod_ci as cod_boot  # noqa: E402
+from assesspy import cod_met, mki, mki_met, prb, prb_met, prd  # noqa: E402
+from assesspy import prd_ci as prd_boot  # noqa: E402
 
 
 def median_boot(ratio, nboot=100, alpha=0.05):
