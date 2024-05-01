@@ -1,0 +1,40 @@
+# New DBT Test
+
+_(Brief description of the test and the motivation of the test here.)
+
+## Short checklist
+
+- [ ] Create test in the `dbt/tests/generic/` directory
+- [ ] Add test to the `schema.yaml` file for a data model in
+
+### Run tests
+
+Run tests for all models:
+
+```bash
+dbt test
+```
+
+Run all tests for one model:
+
+```bash
+dbt test --select default.vw_pin_universe
+```
+
+Run only one test:
+
+```bash
+dbt test --select default_vw_pin_universe_unique_by_14_digit_pin_and_year
+```
+
+Run a test against the prod models:
+
+```bash
+dbt test --select default_vw_pin_universe_unique_by_14_digit_pin_and_year --target prod
+```
+
+Run tests for dbt macros:
+
+```bash
+dbt run-operation test_all
+```
