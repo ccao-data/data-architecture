@@ -5,7 +5,22 @@ Table containing a translation for property class codes to human-readable class
 descriptions. Also describes which classes are included in residential
 regressions and reporting classes.
 
+To find the level of assessment (LoA) for each class, see the `ccao.loa` table.
+
 **Primary Key**: `class_code`
+{% enddocs %}
+
+# loa
+
+{% docs seed_loa %}
+Table containing the Level of Assessment (LoA) for each minor property class
+for each year. LoAs change over time due to legislation, changes to Assessor
+class codes, etc.
+
+Do *not* use this table as a definitive list of existent class codes per year.
+Please use `ccao.class_dict` instead.
+
+**Primary Key**: `year`, `class_code`
 {% enddocs %}
 
 # pin_test
