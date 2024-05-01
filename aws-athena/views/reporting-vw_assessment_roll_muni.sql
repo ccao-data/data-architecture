@@ -1,29 +1,72 @@
 -- Gathers AVs by year, major class, assessment stage, and
 -- municipality for reporting
 
-WITH pin_counts AS (
+-- This CTE is just way to make sure every municipality/class/year has an row
+-- for every stage through cross joining
+WITH stages AS (
+
+    SELECT 'mailed' AS stage
+    UNION
+    SELECT 'assessor certified' AS stage
+    UNION
+    SELECT 'bor certified' AS stage
+
+),
+
+/* This CTE removes historical PINs in pardat that are not in asmt_all. These
+differences are data errors and not emblematic of what portion of a
+municipality has actually progressed through an assessment stage. It does NOT
+remove PINs from the most recent year of pardat since we expect these
+differences based on how asmt_all is populated through the year as the
+assessment cycle progresses. */
+trimmed_town_class AS (
+    SELECT vptc.*
+    FROM {{ ref('reporting.vw_pin_township_class') }} AS vptc
+    LEFT JOIN
+        (
+            SELECT DISTINCT
+                pin,
+                year
+            FROM {{ ref('reporting.vw_pin_value_long') }}
+        )
+            AS pins
+        ON vptc.pin = pins.pin
+        AND vptc.year = pins.year
+    WHERE pins.pin IS NOT NULL
+        OR vptc.year
+        = (SELECT MAX(year) FROM {{ ref('reporting.vw_pin_township_class') }})
+
+),
+
+-- Calculate the denominator for the stage_portion column. pardat serves as the
+-- universe of yearly PINs we expect to see in asmt_all.
+pin_counts AS (
     SELECT
-        municipality_name,
-        major_class,
-        year,
+        vptc.municipality_name,
+        vptc.major_class,
+        vptc.year,
+        stages.stage,
         COUNT(*) AS total_n
-    FROM {{ ref('reporting.vw_pin_township_class') }}
+    FROM trimmed_town_class AS vptc
+    CROSS JOIN stages
+    WHERE vptc.municipality_name IS NOT NULL
     GROUP BY
-        municipality_name,
-        year,
-        major_class
+        vptc.municipality_name,
+        vptc.year,
+        vptc.major_class,
+        stages.stage
 )
 
--- Add total and median values by municipality
+-- Calculate total and median values by municipality, as well as the portion of
+-- each municipality that has progressed through an assessment stage by class.
 SELECT
-    vpvl.year,
-    COALESCE(LOWER(vpvl.stage_name), 'mailed') AS stage,
-    COALESCE(munis.municipality_name, pin_counts.municipality_name)
-        AS municipality_name,
-    COALESCE(munis.major_class, pin_counts.major_class) AS class,
-    CASE WHEN COUNT(*) IS NULL THEN 0 ELSE COUNT(*) END AS n,
+    pin_counts.year,
+    pin_counts.stage,
+    pin_counts.municipality_name,
+    munis.major_class AS class,
+    SUM(CAST(vpvl.pin IS NOT NULL AS INT)) AS n,
     pin_counts.total_n,
-    CAST(COUNT(*) AS DOUBLE)
+    SUM(CAST(vpvl.pin IS NOT NULL AS DOUBLE))
     / CAST(pin_counts.total_n AS DOUBLE) AS stage_portion,
     SUM(vpvl.bldg) AS bldg_sum,
     CAST(APPROX_PERCENTILE(vpvl.bldg, 0.5) AS INT) AS bldg_median,
@@ -31,23 +74,23 @@ SELECT
     CAST(APPROX_PERCENTILE(vpvl.land, 0.5) AS INT) AS land_median,
     SUM(vpvl.tot) AS tot_sum,
     CAST(APPROX_PERCENTILE(vpvl.tot, 0.5) AS INT) AS tot_median
-FROM {{ ref('reporting.vw_pin_value_long') }} AS vpvl
-LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS munis
-    ON vpvl.pin = munis.pin
-    AND vpvl.year = munis.year
-FULL OUTER JOIN pin_counts
-    ON munis.municipality_name = pin_counts.municipality_name
-    AND munis.major_class = pin_counts.major_class
-    AND munis.year = pin_counts.year
-WHERE munis.municipality_name IS NOT NULL
+FROM pin_counts
+LEFT JOIN trimmed_town_class AS munis
+    ON pin_counts.municipality_name = munis.municipality_name
+    AND pin_counts.major_class = munis.major_class
+    AND pin_counts.year = munis.year
+LEFT JOIN {{ ref('reporting.vw_pin_value_long') }} AS vpvl
+    ON munis.pin = vpvl.pin
+    AND munis.year = vpvl.year
+    AND pin_counts.stage = LOWER(vpvl.stage_name)
 GROUP BY
-    munis.municipality_name,
-    vpvl.year,
+    pin_counts.municipality_name,
+    pin_counts.year,
     munis.major_class,
-    vpvl.stage_name,
+    pin_counts.stage,
     pin_counts.total_n
 ORDER BY
-    munis.municipality_name,
-    vpvl.year,
-    vpvl.stage_name,
-    munis.major_class
+    pin_counts.year DESC,
+    pin_counts.municipality_name ASC,
+    pin_counts.stage ASC,
+    munis.major_class ASC
