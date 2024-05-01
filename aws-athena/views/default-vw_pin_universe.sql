@@ -169,7 +169,6 @@ LEFT JOIN {{ source('spatial', 'township') }} AS twn
     ON leg.user1 = CAST(twn.township_code AS VARCHAR)
 LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
     ON SUBSTR(par.parid, 1, 10) = lot.pin10
-
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
     -- Remove any parcels with non-numeric characters
