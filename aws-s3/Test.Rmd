@@ -53,5 +53,29 @@ dweldat <- inner_join(dweldat_2023, dweldat_2018, by = "parid", "card")
 test <- left_join(result1a, dweldat, by = "parid")
 testb <- left_join(result1b, dweldat, by = "parid")
 
+length(which(testb$sfla.x != testb$sfla.y))
+length(which(testb$sfla.x == testb$sfla.y))
+length(which(test$sfla.x == test$sfla.y))
+length(which(test$sfla.x != test$sfla.y))
+
+
+```
+```{r}
+query <- "SELECT parid, card FROM iasworld.oby WHERE taxyr = '2023'"
+
+oby_2023 <- dbGetQuery(con, query)
+View(oby_2023)
+
+oby_test <- left_join(result1a, oby_2023, by = "parid")
+
+result1a_unique <- result1a %>%
+  filter(!duplicated(parid))
+
+oby_test_unique <- left_join(result1a_unique, oby_2023, by = "parid")
+```
+
+```{r}
+query <- "SELECT parid, card, mgfa, sfla, flr1area, adjarea FROM iasworld.dweldat WHERE taxyr = '2018'"
+
 ```
 

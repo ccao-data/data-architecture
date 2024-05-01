@@ -186,6 +186,14 @@ sources:
                     description: taxyr should not be null
           - name: tottax
             description: Total tax
+          - name: tot30
+            description: HIE Improvement Value
+            tests:
+              - accepted_range:
+                  name: asmt_all_tot30_less_than_7500
+                  max_value: 7500
+                  meta:
+                    description: tot30 should be <7500
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status
