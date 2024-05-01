@@ -1,7 +1,7 @@
 -- Gathers AVs by year, major class, assessment stage, and municipality for
 -- reporting
 
--- Ensure every municipality/class/year has an row for every stage through
+-- Ensure every municipality/class/year has a row for every stage through
 -- cross-joining
 WITH stages AS (
 
