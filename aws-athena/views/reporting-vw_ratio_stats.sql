@@ -1,5 +1,10 @@
 -- View containing ratios by pin, intended to feed the
 -- glue job 'reporting-ratio_stats'.
+{{
+    config(
+        materialized='table'
+    )
+}}
 
 -- Model values for corresponding triads only
 WITH model_values AS (
