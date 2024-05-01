@@ -4,10 +4,10 @@
 data regardless of timing. This is necessary since spatial data releases late in
 a calendar year while the CCAO's universe of PINs is rolled over much sooner.
 
-Specifically, the CCAO usually rolls over iasworld in January of each year while
+Specifically, the CCAO usually rolls over iasWorld in January of each year while
 spatial data (parcel, tiger/line shapefiles, etc.) do not typically become
-available until November or Decemeber of that same year. This leave almost an
-entire calendar year duing which the most recent (and relevant) year of iasworld
+available until November or Decemeber of that same year. This leaves almost an
+entire calendar year duing which the most recent (and relevant) year of iasWorld
 data is unmatched with spatial data. */
 WITH pardat_adjusted_years AS (
 
