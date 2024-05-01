@@ -5,6 +5,8 @@ Table containing a translation for property class codes to human-readable class
 descriptions. Also describes which classes are included in residential
 regressions and reporting classes.
 
+To find the level of assessment (LoA) for each class, see the `ccao.loa` table.
+
 **Primary Key**: `class_code`
 {% enddocs %}
 

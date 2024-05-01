@@ -13,8 +13,6 @@ seeds:
         description: First digit of class code, major class
       - name: major_class_type
         description: Human-readable description of the major class
-      - name: assessment_level
-        description: Level of assessment for the property class
       - name: regression_class
         description: Boolean indicating whether or not this class isincluded in CAMA regressions
       - name: modeling_group
