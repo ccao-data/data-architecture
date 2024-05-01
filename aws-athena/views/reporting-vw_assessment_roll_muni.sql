@@ -19,9 +19,10 @@ that feed these views (iasworld.pardat and iasworld.asmt_all, respectively) and
 are data errors - not emblematic of what portion of a municipality has actually
 progressed through an assessment stage.
 
-It does NOT remove PINs from the most recent year of iasworld.pardat since we
-expect these differences based on how iasworld.asmt_all is populated through the
-year as the assessment cycle progresses. */
+It does NOT remove PINs from the most recent year of
+reporting.vw_pin_township_class since we expect these differences based on how
+iasworld.asmt_all is populated through the year as the assessment cycle
+progresses. */
 trimmed_town_class AS (
     SELECT vptc.*
     FROM {{ ref('reporting.vw_pin_township_class') }} AS vptc
