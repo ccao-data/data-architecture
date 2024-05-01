@@ -13,9 +13,12 @@ WITH stages AS (
 
 ),
 
-/* This CTE removes historical PINs in iasworld.pardat that are not in
-iasworld.asmt_all. These differences are data errors and not emblematic of what
-portion of a municipality has actually progressed through an assessment stage.
+/* This CTE removes historical PINs in reporting.vw_pin_township_class that are
+not in reporting.vw_pin_value_long. These differences are inherent in the tables
+that feed these views (iasworld.pardat and iasworld.asmt_all, respectively) and
+are data errors - not emblematic of what portion of a municipality has actually
+progressed through an assessment stage.
+
 It does NOT remove PINs from the most recent year of iasworld.pardat since we
 expect these differences based on how iasworld.asmt_all is populated through the
 year as the assessment cycle progresses. */
@@ -38,9 +41,9 @@ trimmed_town_class AS (
 
 ),
 
-/* Calculate the denominator for the stage_portion column. iasworld.pardat
-(through reporting.vw_pin_township_class) serves as the universe of yearly PINs
-we expect to see in iasworld.asmt_all. */
+/* Calculate the denominator for the stage_portion column.
+reporting.vw_pin_township_class serves as the universe of yearly PINs we expect
+to see in reporting.vw_pin_value_long. */
 pin_counts AS (
     SELECT
         vptc.municipality_name,
