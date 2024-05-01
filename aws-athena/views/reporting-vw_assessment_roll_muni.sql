@@ -2,11 +2,11 @@
 -- reporting
 
 /* Ensure every municipality/class/year has a row for every stage through
-cross-joining. This is to it clear that combinations that do not yet
-exist in iasworld.asmt_all for the current year WILL exist, but have not yet
-been populated. For example, even if no class 4s in the City of Chicago have
-been mailed yet for the current assessment year, we would still like an empty
-City of Chicago/class 4 row to exist for the mailed stage. */
+cross-joining. This is to make sure that combinations that do not yet
+exist in iasworld.asmt_all for the current year will exist in the view, but have
+largely empty columns. For example: even if no class 4s in the City of Chicago
+have been mailed yet for the current assessment year, we would still like an
+empty City of Chicago/class 4 row to exist for the mailed stage. */
 WITH stages AS (
 
     SELECT 'mailed' AS stage
@@ -18,10 +18,12 @@ WITH stages AS (
 ),
 
 /* This CTE removes historical PINs in reporting.vw_pin_township_class that are
-not in reporting.vw_pin_value_long. These differences are inherent in the tables
-that feed these views (iasworld.pardat and iasworld.asmt_all, respectively) and
-are data errors - not emblematic of what portion of a municipality has actually
-progressed through an assessment stage.
+not in reporting.vw_pin_value_long. We do this to make sure the samples we
+derive the numerator and denominator from for stage_portion are the same. These
+differences are inherent in the tables that feed these views (iasworld.pardat
+and iasworld.asmt_all, respectively) and are data errors - not emblematic of
+what portion of a municipality has actually progressed through an assessment
+stage.
 
 It does NOT remove PINs from the most recent year of
 reporting.vw_pin_township_class since we expect these differences based on how
