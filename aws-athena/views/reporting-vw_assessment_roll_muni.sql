@@ -22,7 +22,13 @@ progressed through an assessment stage.
 It does NOT remove PINs from the most recent year of
 reporting.vw_pin_township_class since we expect these differences based on how
 iasworld.asmt_all is populated through the year as the assessment cycle
-progresses. */
+progresses.
+
+Starting in 2020 a small number of PINs are present in iasworld.asmt_all for
+one or two but not all three stages of assessment when we would expect all three
+stages to be present for said PINs. This is also a data error, but is NOT
+addressed in this view.
+*/
 trimmed_town_class AS (
     SELECT vptc.*
     FROM {{ ref('reporting.vw_pin_township_class') }} AS vptc
