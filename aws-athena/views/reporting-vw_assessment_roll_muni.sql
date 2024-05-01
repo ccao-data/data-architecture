@@ -1,8 +1,12 @@
 -- Gathers AVs by year, major class, assessment stage, and municipality for
 -- reporting
 
--- Ensure every municipality/class/year has a row for every stage through
--- cross-joining
+/* Ensure every municipality/class/year has a row for every stage through
+cross-joining. This is to it clear that combinations that do not yet
+exist in iasworld.asmt_all for the current year WILL exist, but have not yet
+been populated. For example, even if no class 4s in the City of Chicago have
+been mailed yet for the current assessment year, we would still like an empty
+City of Chicago/class 4 row to exist for the mailed stage. */
 WITH stages AS (
 
     SELECT 'mailed' AS stage
