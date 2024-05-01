@@ -221,8 +221,6 @@ def report_summarise(df, geography_id, geography_type):
 
 
 def model(dbt, session):
-    dbt.config(packages=["assesspy==1.1.0", "numpy==1.26.*", "pandas==2.*"])
-
     input = dbt.ref("reporting.vw_ratio_stats")
 
     final_df = pd.concat(
