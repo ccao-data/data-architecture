@@ -2,7 +2,7 @@
 
 _(Brief description of the test and the motivation of the test here)_
 
-## Short checklist
+## Checklist
 
 - [ ] Create test in the `dbt/tests/generic/` directory  
 
