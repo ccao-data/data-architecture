@@ -5,6 +5,11 @@ sources:
     tables:
       - name: ratio_stats
         description: '{{ doc("table_ratio_stats") }}'
+        config:
+          packages:
+            - "assesspy==1.1.*"
+            - "numpy==1.26.*"
+            - "pandas==2.*"
         tests:
           - expression_is_true:
               name: reporting_ratio_stats_no_nulls
