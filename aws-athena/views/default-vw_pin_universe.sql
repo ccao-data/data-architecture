@@ -42,7 +42,6 @@ SELECT
     REGEXP_REPLACE(par.nbhd, '([^0-9])', '') AS nbhd_code,
     leg.taxdist AS tax_code,
     NULLIF(leg.zip1, '00000') AS zip_code,
-    par.join_year AS spatial_data_year,
 
     -- Centroid of each PIN from county parcel files
     sp.lon,
