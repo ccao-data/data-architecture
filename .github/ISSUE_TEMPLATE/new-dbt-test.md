@@ -1,6 +1,6 @@
 # New DBT Test
 
-_(Brief description of the test and the motivation of the test here.)
+_(Brief description of the test and the motivation of the test here)_
 
 ## Short checklist
 
