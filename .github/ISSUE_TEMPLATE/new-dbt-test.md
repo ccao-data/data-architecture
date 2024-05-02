@@ -6,7 +6,7 @@ _Provide a brief description of the test and its motivation._
 
 ## Prerequisites
 
-Before proceeding, ensure you have a basic understanding of DBT tests. Review the [official DBT documentation on data tests](https://docs.getdbt.com/docs/build/data-tests) for foundational knowledge.
+Before proceeding, ensure you have a basic understanding of DBT tests. The [official DBT documentation on data tests](https://docs.getdbt.com/docs/build/data-tests) is a great resource.
 
 ## Checklist
 
