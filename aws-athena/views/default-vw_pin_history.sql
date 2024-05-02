@@ -5,6 +5,7 @@ SELECT
     REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') AS class,
     leg.user1 AS township_code,
     town.township_name,
+    REGEXP_REPLACE(par.nbhd, '([^0-9])', '') AS nbhd,
     vwpv.mailed_class,
     vwpv.mailed_bldg,
     vwpv.mailed_land,
