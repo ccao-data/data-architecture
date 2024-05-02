@@ -206,7 +206,6 @@ sources:
                   join_condition:
                     ON model.parid = external_model.parid
                     AND model.taxyr = external_model.taxyr
-                    AND model.tot30 > 0
                     AND model.tot30 < 7500
                   config: *unique-conditions
                   meta:
@@ -217,7 +216,7 @@ sources:
             tests:
                 - expression_is_true:
                     name: iasword_asmt_all_32_equals_29_minus_30_minus_31
-                    expression: = TOT29 - TOT30 - TOT31 OR TOT32 < 1
+                    expression: = TOT29 - TOT30 + TOT31 OR TOT32 < 1
                     additional_select_columns:
                       - parid
           - name: trans_id
