@@ -6,7 +6,13 @@ _Provide a brief description of the test and its motivation._
 
 ## Prerequisites
 
-Before proceeding, ensure you have a basic understanding of DBT tests. The [official DBT documentation on data tests](https://docs.getdbt.com/docs/build/data-tests) is a great resource.
+Before proceeding, make sure you've read the [official dbt documentation on data tests](https://docs.getdbt.com/docs/build/data-tests) and [our internal dbt documentation](https://github.com/ccao-data/data-architecture/blob/master/dbt/README.md) so that you know how dbt models and tests work. In particular, you should understand:
+
+* The difference between a generic test and a test that is defined on a model in a `schema.yml` file
+* How generic tests are written and extended
+* How tests defined on a model in a `schema.yml` file are written and run
+
+If you don't feel like you have a strong understanding of all of these items, ask a senior data scientist for clarification before starting.
 
 ## Checklist
 
