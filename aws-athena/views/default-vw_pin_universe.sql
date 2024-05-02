@@ -1,4 +1,34 @@
 -- Source of truth view for PIN location
+
+/* This CTE ensures the most recent year of pardat data is joined to spatial
+data regardless of timing. This is necessary since spatial data releases late in
+a calendar year while the CCAO's universe of PINs is rolled over much sooner.
+
+Specifically, the CCAO usually rolls over iasWorld in January of each year while
+spatial data (parcel, tiger/line shapefiles, etc.) do not typically become
+available until November or Decemeber of that same year. This leaves almost an
+entire calendar year duing which the most recent (and relevant) year of iasWorld
+data is unmatched with spatial data. */
+WITH pardat_adjusted_years AS (
+
+    SELECT
+        parid,
+        taxyr,
+        CASE
+            WHEN
+                taxyr
+                > (SELECT MAX(year) FROM {{ source('spatial', 'parcel') }})
+                THEN (SELECT MAX(year) FROM {{ source('spatial', 'parcel') }})
+            ELSE taxyr
+        END AS join_year,
+        class,
+        nbhd,
+        cur,
+        deactivat
+    FROM {{ source('iasworld', 'pardat') }}
+
+)
+
 SELECT
     -- Main PIN-level attribute data from iasWorld
     par.parid AS pin,
@@ -123,7 +153,7 @@ SELECT
     vwl.access_cmap_walk_data_year,
     vwl.misc_subdivision_id,
     vwl.misc_subdivision_data_year
-FROM {{ source('iasworld', 'pardat') }} AS par
+FROM pardat_adjusted_years AS par
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     ON par.parid = leg.parid
     AND par.taxyr = leg.taxyr
@@ -131,15 +161,14 @@ LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     AND leg.deactivat IS NULL
 LEFT JOIN {{ source('spatial', 'parcel') }} AS sp
     ON SUBSTR(par.parid, 1, 10) = sp.pin10
-    AND par.taxyr = sp.year
+    AND par.join_year = sp.year
 LEFT JOIN {{ ref('location.vw_pin10_location') }} AS vwl
     ON SUBSTR(par.parid, 1, 10) = vwl.pin10
-    AND par.taxyr = vwl.year
+    AND par.join_year = vwl.year
 LEFT JOIN {{ source('spatial', 'township') }} AS twn
     ON leg.user1 = CAST(twn.township_code AS VARCHAR)
 LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
     ON SUBSTR(par.parid, 1, 10) = lot.pin10
-
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
     -- Remove any parcels with non-numeric characters
