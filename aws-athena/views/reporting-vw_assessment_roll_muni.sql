@@ -26,9 +26,12 @@ emblematic of what portion of a municipality has actually progressed through an
 assessment stage.
 
 It does NOT remove PINs from the most recent year of
-reporting.vw_pin_township_class since we expect these differences based on how
+reporting.vw_pin_township_class since we expect differences based on how
 iasworld.asmt_all is populated through the year as the assessment cycle
-progresses.
+progresses. This means data errors caused by differences between iasworld.pardat
+and iasworld.asmt_all won't be addressed in the most recent year. Unfortunately,
+we can't know what those errors are (or if they even exist) until asmt_all has
+at least one fully complete stage for a given year.
 
 Starting in 2020 a small number of PINs are present in iasworld.asmt_all for
 one or two but not all three stages of assessment when we would expect all three
