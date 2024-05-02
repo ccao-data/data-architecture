@@ -1,4 +1,4 @@
-# New DBT Test
+# New dbt test
 
 ## Issue Summary
 
