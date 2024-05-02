@@ -6,7 +6,6 @@ import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 from assesspy import boot_ci  # noqa: E402
 from assesspy import cod  # noqa: E402
-from assesspy import detect_chasing  # noqa: E402
 from assesspy import prd_met  # noqa: E402
 from assesspy import cod_ci as cod_boot  # noqa: E402
 from assesspy import cod_met, mki, mki_met, prb, prb_met, prd  # noqa: E402
@@ -173,7 +172,6 @@ def report_summarise(df, geography_id, geography_type):
                 "mki": ccao_mki(fmv=x["fmv"], sale_price=x["sale_price"]),
                 "prd": ccao_prd(fmv=x["fmv"], sale_price=x["sale_price"]),
                 "prb": ccao_prb(fmv=x["fmv"], sale_price=x["sale_price"]),
-                "detect_chasing": detect_chasing(ratio=x["ratio"]),
                 "within_20_pct": sum(abs(1 - x["ratio"]) <= 0.20),
                 "within_10_pct": sum(abs(1 - x["ratio"]) <= 0.10),
                 "within_05_pct": sum(abs(1 - x["ratio"]) <= 0.05),
@@ -216,7 +214,6 @@ def report_summarise(df, geography_id, geography_type):
             "prb_n",
             "mki",
             "mki_n",
-            "detect_chasing",
             "ratio_met",
             "cod_met",
             "prd_met",
