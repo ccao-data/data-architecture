@@ -194,6 +194,26 @@ sources:
                   max_value: 7500
                   meta:
                     description: tot30 should be <7500
+              - row_values_match_after_join:
+                  name: iasworld_asmt_all_tot30_matches_oby_exempval
+                  external_model: source('iasworld', 'oby')
+                  external_column_name: OVRRCNLD / 10
+                  column_alias: exempt
+                  external_column_alias: exempt_value
+                  additional_select_columns: 
+                    - model.taxyr
+                    - model.parid
+                    - model.who
+                    - model.wen
+                  join_condition:
+                    ON model.parid = external_model.parid
+                    AND model.taxyr = external_model.taxyr
+                    AND model.tot30 > 0
+                    AND model.tot30 < 7500
+                  config: *unique-conditions
+                  meta:
+                    category: relationships
+                    description: exemption value should match
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status
