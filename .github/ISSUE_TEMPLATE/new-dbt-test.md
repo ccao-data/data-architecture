@@ -10,8 +10,9 @@ Before going through this checklist, make sure to have a basic understanding of 
 the [official documentation](https://docs.getdbt.com/docs/build/data-tests) is a great place to start.
 
 Our workflow prioritizes generalizable tests, so we create re-usable generic test templates in the `dbt/tests/generic/` directory which are then
-invoked in the `schema.yaml` file for a given data model. Before adding a test template, check to make sure it doesn't already exist as a generic test template, or than
-an existing generic test template can't be modified to meet the needed functionality.
+invoked in the `schema.yaml` file for a given data model. Before adding a test template, check to make sure that:
+- A test with the desired functionality doesn't already exist as one of our generic templates
+- An existing generic test template can't be modified to meet the needed functionality
 
 - [ ] Create test template in the `dbt/tests/generic/` directory  
 
