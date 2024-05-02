@@ -16,8 +16,8 @@ invoked in the `schema.yaml` file for a given data model. Before adding a test t
 
 - [ ] Create test template in the `dbt/tests/generic/` directory  
 
-An example of a DBT test can be seen [here](https://github.com/ccao-data/data-architecture/blob/master/dbt/tests/generic/test_unique_combination_of_columns.sql).
-We use [Jinja](https://jinja.palletsprojects.com/en/3.1.x/templates/) to make the generic test templates able to be parametrized
+An example of a DBT test template can be seen [here](https://github.com/ccao-data/data-architecture/blob/master/dbt/tests/generic/test_unique_combination_of_columns.sql).
+We use [Jinja](https://jinja.palletsprojects.com/en/3.1.x/templates/) to make the generic test templates able to be parametrized.
 
 - [ ] Add test to the `schema.yaml` file for a data model in `dbt/models/`  
 
