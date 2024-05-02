@@ -10,6 +10,15 @@ reporting Tableau dashboards.
 `property_group`
 {% enddocs %}
 
+# ratio_stats_input
+
+{% docs table_ratio_stats_input %}
+View to feed the Python dbt job that creates the `reporting.ratio_stats` table.
+Feeds public reporting assets.
+
+**Primary Key**: `year`, `pin`, `assessment_stage`
+{% enddocs %}
+
 # res_report_summary
 
 {% docs table_res_report_summary %}
@@ -77,15 +86,6 @@ The assessment stages are:
   we still end up with duplicates by PIN and year.
 
 **Primary Key**: `year`, `pin`, `stage_name`
-{% enddocs %}
-
-# vw_ratio_stats
-
-{% docs view_vw_ratio_stats %}
-View to feed the `reporting.ratio_stats` table and Glue job.
-Feeds public reporting assets.
-
-**Primary Key**: `year`, `pin`, `assessment_stage`
 {% enddocs %}
 
 # vw_res_report_summary

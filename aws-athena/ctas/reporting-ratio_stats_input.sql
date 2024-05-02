@@ -1,5 +1,5 @@
 -- View containing ratios by pin, intended to feed the
--- glue job 'reporting-ratio_stats'.
+-- ratio_stats dbt python model
 {{
     config(
         materialized='table'

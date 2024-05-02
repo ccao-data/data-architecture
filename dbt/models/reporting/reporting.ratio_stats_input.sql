@@ -1,0 +1,1 @@
+../../../aws-athena/ctas/reporting-ratio_stats_input.sql

@@ -234,7 +234,7 @@ def report_summarise(df, geography_id, geography_type):
 def model(dbt, spark_session):
     dbt.config(materialized="table")
 
-    input = dbt.ref("reporting.vw_ratio_stats")
+    input = dbt.ref("reporting.ratio_stats_input")
 
     df = pd.concat(
         [
