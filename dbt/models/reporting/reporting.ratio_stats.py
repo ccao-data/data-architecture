@@ -140,7 +140,13 @@ def ccao_prb(fmv, sale_price):
 
 
 def report_summarise(df, geography_id, geography_type):
-    # Aggregates data and calculates summary statistics for given groupings
+    """
+    Aggregates data and calculates summary statistics for given groupings
+    """
+
+    # Convert the Spark input dataframes to Pandas for compatibility
+    # with assesspy functions
+    df = df.toPandas()
 
     group_cols = [
         "year",
