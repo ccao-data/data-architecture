@@ -19,11 +19,11 @@ WITH stages AS (
 
 /* This CTE removes historical PINs in reporting.vw_pin_township_class that are
 not in reporting.vw_pin_value_long. We do this to make sure the samples we
-derive the numerator and denominator from for stage_portion are the same. These
-differences are inherent in the tables that feed these views (iasworld.pardat
-and iasworld.asmt_all, respectively) and are data errors - not emblematic of
-what portion of a municipality has actually progressed through an assessment
-stage.
+derive the numerator and denominator from for pct_pin_w_value_in_group are the
+same. These differences are inherent in the tables that feed these views
+(iasworld.pardat and iasworld.asmt_all, respectively) and are data errors - not
+emblematic of what portion of a municipality has actually progressed through an
+assessment stage.
 
 It does NOT remove PINs from the most recent year of
 reporting.vw_pin_township_class since we expect these differences based on how
@@ -33,9 +33,10 @@ progresses.
 Starting in 2020 a small number of PINs are present in iasworld.asmt_all for
 one or two but not all three stages of assessment when we would expect all three
 stages to be present for said PINs. This is also a data error, but is NOT
-addressed in this view and leads to a few instances where stage_portion ends up
-being less than 1 when it should equal 1. 16-07-219-029-1032 missing a mailed
-value but having CCAO and BOR certified values in 2021 is an example. */
+addressed in this view and leads to a few instances where
+pct_pin_w_value_in_group ends up being less than 1 when it should equal 1.
+16-07-219-029-1032 missing a mailed value but having CCAO and BOR certified
+values in 2021 is an example. */
 trimmed_town_class AS (
     SELECT vptc.*
     FROM {{ ref('reporting.vw_pin_township_class') }} AS vptc
@@ -55,7 +56,7 @@ trimmed_town_class AS (
 
 ),
 
-/* Calculate the denominator for the stage_portion column.
+/* Calculate the denominator for the pct_pin_w_value_in_group column.
 reporting.vw_pin_township_class serves as the universe of yearly PINs we expect
 to see in reporting.vw_pin_value_long. */
 pin_counts AS (
@@ -82,10 +83,10 @@ SELECT
     pin_counts.stage,
     pin_counts.municipality_name,
     munis.major_class AS class,
-    SUM(CAST(vpvl.pin IS NOT NULL AS INT)) AS n,
-    pin_counts.total_n,
+    SUM(CAST(vpvl.pin IS NOT NULL AS INT)) AS num_pin_w_value,
+    pin_counts.total_n AS num_pin_total_in_group,
     SUM(CAST(vpvl.pin IS NOT NULL AS DOUBLE))
-    / CAST(pin_counts.total_n AS DOUBLE) AS stage_portion,
+    / CAST(pin_counts.total_n AS DOUBLE) AS pct_pin_w_value_in_group,
     SUM(vpvl.bldg) AS bldg_sum,
     CAST(APPROX_PERCENTILE(vpvl.bldg, 0.5) AS INT) AS bldg_median,
     SUM(vpvl.land) AS land_sum,
