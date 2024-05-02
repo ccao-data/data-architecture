@@ -6,11 +6,12 @@ _(Brief description of the test and the motivation of the test here)_
 
 ## Checklist
 
-Before going through this checklist, make sure to have a basic understanding of DBT tests.
-The [official documentation](https://docs.getdbt.com/docs/build/data-tests) is a great place to start.
+Before going through this checklist, make sure to have a basic understanding of DBT tests,
+the [official documentation](https://docs.getdbt.com/docs/build/data-tests) is a great place to start.
 
 Our workflow prioritizes generalizable tests, so we create re-usable generic test templates in the `dbt/tests/generic/` directory which are then
-invoked in the `schema.yaml` file for a given data model. Before adding a test, check to make sure it doesn't already exist as a generic test template, or than an existing generic test template can't be modified to meet the needed functionality.
+invoked in the `schema.yaml` file for a given data model. Before adding a test template, check to make sure it doesn't already exist as a generic test template, or than
+an existing generic test template can't be modified to meet the needed functionality.
 
 - [ ] Create test template in the `dbt/tests/generic/` directory  
 
@@ -31,7 +32,7 @@ And this is an example of an implementation of this test on a specific data mode
 
 _Link to code [here](https://github.com/ccao-data/data-architecture/blob/66ad8159bcb3d96dcdc62b7355f8fbce64affc78/dbt/models/default/schema/default.vw_pin_universe.yml#L248-L252)_
 
-### Run tests
+## Run tests
 
 A test can be ran against development or production resources with the following bash commands.
 
