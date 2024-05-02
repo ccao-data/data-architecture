@@ -10,6 +10,7 @@ This directory stores the configuration for building our data catalog using
 * [🖼️ Background: What does the data catalog do?](#%EF%B8%8F-background-what-does-the-data-catalog-do)
 * [🔨 How to rebuild models using GitHub Actions](#-how-to-rebuild-models-using-github-actions)
 * [💻 How to develop the catalog](#-how-to-develop-the-catalog)
+* [📝 How to add and run tests](#-how-to-add-and-run-tests)
 * [➕ How to add a new model](#-how-to-add-a-new-model)
 * [🐛 Debugging tips](#-debugging-tips)
 
@@ -408,6 +409,12 @@ We use the following pattern to determine where to define each column descriptio
   the column.
 
 ### Model tests
+
+New models should generally be added with accompanying tests to ensure the
+underlying data and transformations are correct. For more information on
+testing, see [📝 How to add and run tests](#-how-to-add-and-run-tests).
+
+## 📝 How to add and run tests
 
 Any assumptions underlying the new model should be documented in the form of
 [dbt tests](https://docs.getdbt.com/docs/build/tests). We prefer adding tests
