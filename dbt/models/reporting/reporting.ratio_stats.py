@@ -163,6 +163,7 @@ def report_summarise(df, geography_id, geography_type):
     df["geography_type"] = geography_type
 
     # Remove groups with less than three observations
+    # TODO: Remove/upgrade detect_chasing output
     df["n"] = df.groupby(group_cols)["ratio"].transform("count")
     df = df[df["n"] > 3]
     df = df.groupby(group_cols).apply(
@@ -174,6 +175,7 @@ def report_summarise(df, geography_id, geography_type):
                 "mki": ccao_mki(fmv=x["fmv"], sale_price=x["sale_price"]),
                 "prd": ccao_prd(fmv=x["fmv"], sale_price=x["sale_price"]),
                 "prb": ccao_prb(fmv=x["fmv"], sale_price=x["sale_price"]),
+                "detect_chasing": False,
                 "within_20_pct": sum(abs(1 - x["ratio"]) <= 0.20),
                 "within_10_pct": sum(abs(1 - x["ratio"]) <= 0.10),
                 "within_05_pct": sum(abs(1 - x["ratio"]) <= 0.05),
@@ -216,6 +218,7 @@ def report_summarise(df, geography_id, geography_type):
             "prb_n",
             "mki",
             "mki_n",
+            "detect_chasing",
             "ratio_met",
             "cod_met",
             "prd_met",
