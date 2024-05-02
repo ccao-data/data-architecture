@@ -195,11 +195,9 @@ sources:
                   meta:
                     description: tot30 should be <7500
               - row_values_match_after_join:
-                  name: iasworld_asmt_all_tot30_matches_oby_exempval
+                  name: iasworld_asmt_all_tot30_matches_oby_ovrrcnld_divided_by_10
                   external_model: source('iasworld', 'oby')
                   external_column_name: OVRRCNLD / 10
-                  column_alias: exempt
-                  external_column_alias: exempt_value
                   additional_select_columns: 
                     - model.taxyr
                     - model.parid
@@ -214,6 +212,14 @@ sources:
                   meta:
                     category: relationships
                     description: exemption value should match
+          - name: tot32
+            description: Value After HIE
+            tests:
+                - expression_is_true:
+                    name: iasword_asmt_all_32_equals_29_minus_30_minus_31
+                    expression: = TOT29 - TOT30 - TOT31 OR TOT32 < 1
+                    additional_select_columns:
+                      - parid
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status
