@@ -1,3 +1,5 @@
+# type: ignore
+# pylint: skip-file
 sc.addPyFile(  # noqa: F821
     "s3://ccao-dbt-athena-dev-us-east-1/packages/spark-packages.zip"
 )
