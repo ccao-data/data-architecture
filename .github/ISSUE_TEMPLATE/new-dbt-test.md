@@ -37,7 +37,7 @@ Our workflow focuses on creating reusable generic test templates in the `dbt/tes
 
 Execute the tests against development or production environments using the following commands:
 
-Run a test against development models:
+Run your test against development models. Make sure to change the name of the test that is passed to the `--select` flag below (`default_vw_pin_universe_unique_by_14_digit_pin_and_year`) to match the name(s) of the test(s) you want to run:
 
 ```bash
 dbt test --select default_vw_pin_universe_unique_by_14_digit_pin_and_year
