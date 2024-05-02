@@ -17,7 +17,7 @@ Our workflow focuses on creating reusable generic test templates in the `dbt/tes
 2. **Create Test Template:**
    - [ ] Add a new test template in the `dbt/tests/generic/` directory.
    - Example: View an existing DBT test template [here](https://github.com/ccao-data/data-architecture/blob/master/dbt/tests/generic/test_unique_combination_of_columns.sql).
-   - Use [Jinja](https://jinja.palletsprojects.com/en/3.1.x/templates/) to parameterize the generic test templates.
+   - _We use [Jinja](https://jinja.palletsprojects.com/en/3.1.x/templates/) to parameterize the generic test templates._
 
 3. **Integrate Test with Data Model:**
    - [ ] Include the new test in the `schema.yaml` file under the `dbt/models/` directory for the specific data model.
@@ -37,7 +37,13 @@ Our workflow focuses on creating reusable generic test templates in the `dbt/tes
 
 Execute the tests against development or production environments using the following commands:
 
-- **Run a specific test:**
+Run a test against development models:
 
-  ```bash
-  dbt test --select default_vw_pin_universe_unique_by_14_digit_pin_and_year
+```bash
+dbt test --select default_vw_pin_universe_unique_by_14_digit_pin_and_year
+```
+
+Run a test against the prod models:
+
+```bash
+dbt test --select default_vw_pin_universe_unique_by_14_digit_pin_and_year --target prod
