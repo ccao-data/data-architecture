@@ -34,7 +34,8 @@ Starting in 2020 a small number of PINs are present in iasworld.asmt_all for
 one or two but not all three stages of assessment when we would expect all three
 stages to be present for said PINs. This is also a data error, but is NOT
 addressed in this view and leads to a few instances where stage_portion ends up
-being less than 1 when it should equal 1. */
+being less than 1 when it should equal 1. 16-07-219-029-1032 missing a mailed
+value but having CCAO and BOR certified values in 2021 is an example. */
 trimmed_town_class AS (
     SELECT vptc.*
     FROM {{ ref('reporting.vw_pin_township_class') }} AS vptc
