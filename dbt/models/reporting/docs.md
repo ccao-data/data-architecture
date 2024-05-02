@@ -13,7 +13,7 @@ reporting Tableau dashboards.
 # ratio_stats_input
 
 {% docs table_ratio_stats_input %}
-View to feed the Python dbt job that creates the `reporting.ratio_stats` table.
+Table to feed the Python dbt job that creates the `reporting.ratio_stats` table.
 Feeds public reporting assets.
 
 **Primary Key**: `year`, `pin`, `assessment_stage`
