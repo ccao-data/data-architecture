@@ -418,8 +418,12 @@ testing, see [📝 How to add and run tests](#-how-to-add-and-run-tests).
 
 Any assumptions underlying the new model should be documented in the form of
 [dbt tests](https://docs.getdbt.com/docs/build/tests). We prefer adding tests
-inline in `schema.yml` model properties files, as opposed to defining one-off
-tests in the `tests/` directory.
+inline in `schema.yml` config files using [generic
+tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
+rather than [singular
+tests](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
+
+### Differentiating data tests from unit tests
 
 Conceptually, there are two types of tests that we might consider for a new
 model:
