@@ -416,33 +416,132 @@ testing, see [📝 How to add and run tests](#-how-to-add-and-run-tests).
 
 ## 📝 How to add and run tests
 
-Any assumptions underlying the new model should be documented in the form of
-[dbt tests](https://docs.getdbt.com/docs/build/tests). We prefer adding tests
+We test our data and our transformations using [dbt
+tests](https://docs.getdbt.com/docs/build/tests). We prefer adding tests
 inline in `schema.yml` config files using [generic
 tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
 rather than [singular
 tests](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
 
-### Differentiating data tests from unit tests
+### Data tests vs. unit tests
 
-Conceptually, there are two types of tests that we might consider for a new
-model:
+There are two types of tests that we might consider for a model:
 
-1. **Data tests** check that the assumptions that a model makes about the raw
-   data it is transforming are correct.
-    * For example: Test that the table is unique by `pin10` and `year`.
-2. **Unit tests** check that the transformation logic itself produces
-   the correct output on a hardcoded set of input data.
+1. **Data tests** check that our assumptions about our raw data are correct
+    * For example: Test that a table is unique by `parid` and `taxyr`
+2. **Unit tests** check that transformation logic inside a model definition
+   produces the correct output on a specific set of input data
     * For example: Test that an enum column computed by a `CASE... WHEN`
-      expression produces the correct enum output for a given input string.
+      expression produces the correct output for a given input string
 
-The dbt syntax does not distinguish between data and unit tests, but it has
-emerged as a valuable distinction that we make on our side. Data tests are
-generally much easier to define and to implement, since they operate directly on
-source data and do not require hardcoded input and output values to execute.
-Due to this complexity, we currently do not have a way of supporting unit
-tests, although we plan to revisit this in the future; as such, when proposing
-new tests, check to ensure that they are in fact data tests and not unit tests.
+dbt tests are data tests by default, although a dedicated unit testing syntax
+[is coming soon](https://docs.getdbt.com/docs/build/unit-tests). Until unit
+tests are natively supported, however, we do not have a way of implementing them;
+we plan to change this once unit testing is released, but for now, make sure that
+any new tests you write are data tests and not unit tests.
+
+### Adding data tests
+
+There are two types of data tests that we support:
+
+1. **QC tests** confirm our assumptions about iasWorld data and are run at
+   scheduled intervals to confirm that iasWorld data meets spec
+2. **Non-QC tests** confirm all other assumptions about data sources outside
+   of iasWorld, and are run in an ad hoc fashion depending on the needs of
+   the transformations that sit on top of the raw data
+
+#### Adding QC tests
+
+QC tests are run on a schedule by the [`test-dbt-models`
+workflow](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml)
+and their output is interpreted by the [`transform_dbt_test_results`
+script](https://github.com/ccao-data/data-architecture/blob/master/.github/scripts/transform_dbt_test_results.py).
+This script reads the metadata for a test run and outputs an Excel
+workbook with detailed information on each failure to aid in resolving
+any data problems that the tests reveal.
+
+There are a few specific modifications a test author needs to make to
+ensure that QC tests can be run by the workflow and interpreted by the script:
+
+* One of either the test or the model that the test is defined on must be
+[tagged](https://docs.getdbt.com/reference/resource-configs/tags) with
+the tag `test_qc_iasworld`
+  * Prefer tagging the model, and fall back to tagging the test if for
+    some reason the model cannot be tagged (e.g. if it has some non-QC
+    tests defined on it)
+* The test definition must supply a few specific parameters:
+  * `name` must be set and follow the pattern
+    `iasworld_<table_name>_<test_description>`
+  * `additional_select_columns` must be set to an array of strings
+    representing any extra columns that need to be output by the test
+    for display in the workbook
+    * Generics typically select any columns mentioned by other parameters,
+      but if you are unsure which columns will be selected by default
+      (meaning they do not need to be included in `additional_select_columns`),
+      consult the macro definition for the generic that your test uses
+  * `config.where` should typically set to provide a filter expression
+    that restricts tests to unique rows and to rows matching a date range
+    set by the `test_qc_year_start` and `test_qc_year_end`
+    [project variables](https://docs.getdbt.com/docs/build/project-variables)
+  * `meta` should be set with a few specific string attributes:
+    * `description` (required): A short human-readable description of the test
+    * `category` (optional): A workbook category for the test, required if
+      a category is not defined for the test's generic in the `TEST_CATEGORIES`
+      constant in the [`transform_dbt_test_results`
+      script](https://github.com/ccao-data/data-architecture/blob/master/.github/scripts/transform_dbt_test_results.py)
+    * `table_name` (optional): The name of the table to report in the output
+      workbook, if the workbook should report a different table name than the
+      name of the model that the test is defined on
+
+See the [`iasworld_pardat_class_in_ccao_class_dict`
+test](https://github.com/ccao-data/data-architecture/blob/bd4bc1769fe33fdba1dbe827791b5c41389cf6ec/dbt/models/iasworld/schema/iasworld.pardat.yml#L78-L96)
+for an example of a test that sets these attributes.
+
+Due to the similarity of parameters defined on QC tests, we make extensive use
+of YAML anchors and aliases to define symbols for commonly-used values.
+See [here](https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/)
+for a brief explanation of the YAML anchor and alias syntax.
+
+#### Adding non-QC tests 
+
+QC tests are much more common than non-QC tests in our test suite. If you
+are being asked to add a test that appears to be a non-QC test, double
+check with the person who assigned the test to you and ask them when
+and how the test should be run so that its attributes can be set
+accordingly.
+
+### Choosing a generic test
+
+Writing a test in a `schema.yml` file requires a [generic
+test](https://docs.getdbt.com/best-practices/writing-custom-generic-tests)
+to define the underlying test logic. Our generic tests are defined
+in the `tests/generic/` directory. Before writing a test, look at
+the docstrings for the generics in that directory to see if any of them
+meet your needs.
+
+If a generic test does not meet your needs but appears like it could be
+easily extended to meet your needs (say, if it inner joins two tables
+but you would like to be able to configure it to left join those tables
+instead) you can modify the macro that defines the generic test as part
+of your PR to make the change that you need.
+
+If no generic tests meet your needs and none can be easily modified to
+do so, you have two options:
+
+1. **Define a new model in the `models/qc/` directory that _can_ use a pre-existing generic**.
+   This is a good option if, say, you need to join two or more tables in a
+   complex way that is specific to your test and not easily generalizable;
+   with this approach, you can perform that join in the model, and then
+   the generic test doesn't need to know anything about it.
+2. **Write a new generic test**. If you decide to take this approach,
+   make sure to read the docs on [writing custom generic
+   tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests)
+   and define a default category for your generic test in
+   the `TEST_CATEGORIES` constant in the [`transform_dbt_test_results`
+   script](https://github.com/ccao-data/data-architecture/blob/master/.github/scripts/transform_dbt_test_results.py).
+   This is a good option if you think that the logic you need
+   for your test will be easily generalizable to other models
+   and other tests.
 
 ## 🐛 Debugging tips
 
