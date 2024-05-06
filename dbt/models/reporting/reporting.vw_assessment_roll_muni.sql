@@ -1,0 +1,1 @@
+../../../aws-athena/views/reporting-vw_assessment_roll_muni.sql

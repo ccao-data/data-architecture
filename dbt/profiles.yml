@@ -8,7 +8,7 @@ athena:
       s3_data_naming: schema_table
       region_name: us-east-1
       # "schema" here corresponds to a Glue database
-      schema: z_static_unused-dbt-stub-database
+      schema: z_static_unused_dbt_stub_database
       # "database" here corresponds to a Glue data catalog
       database: awsdatacatalog
       threads: 5
@@ -19,7 +19,7 @@ athena:
       s3_data_dir: s3://ccao-dbt-athena-ci-us-east-1/data/
       s3_data_naming: schema_table
       region_name: us-east-1
-      schema: z_static_unused-dbt-stub-database
+      schema: z_static_unused_dbt_stub_database
       database: awsdatacatalog
       threads: 5
       num_retries: 1
