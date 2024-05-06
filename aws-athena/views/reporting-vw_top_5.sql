@@ -30,7 +30,6 @@ top_5 AS (
         mrv.total_av,
         vpa.prop_address_full AS address,
         vpa.prop_address_city_name AS city,
-        vpa.mail_address_name AS owner_name,
         mrv.stage_used
     FROM most_recent_values AS mrv
     LEFT JOIN {{ ref('reporting.vw_pin_township_class') }} AS vptc
