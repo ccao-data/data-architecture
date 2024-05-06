@@ -1,19 +1,5 @@
 --- A view to generate the top 5 parcels in a given municipality and year by AV
 
-/* Ensure every municipality/class/year has a row for every stage through
-cross-joining. This is to make sure that combinations that do not yet
-exist in iasworld.asmt_all for the current year will exist in the view, but have
-largely empty columns. For example: even if no class 4s in the City of Chicago
-have been mailed yet for the current assessment year, we would still like an
-empty City of Chicago/class 4 row to exist for the mailed stage. */
-WITH stages AS (
-
-    SELECT 'mailed' AS stage
-    UNION
-    SELECT 'certified' AS stage
-
-),
-
 /* This CTE removes historical PINs in reporting.vw_pin_township_class that are
 not in reporting.vw_pin_value_long. We do this to make sure the samples we
 derive the numerator and denominator from for pct_pin_w_value_in_group are the
@@ -37,7 +23,7 @@ addressed in this view and leads to a few instances where
 pct_pin_w_value_in_group ends up being less than 1 when it should equal 1.
 16-07-219-029-1032 missing a mailed value but having CCAO and BOR certified
 values in 2021 is an example. */
-trimmed_town_class AS (
+WITH trimmed_town_class AS (
     SELECT vptc.*
     FROM {{ ref('reporting.vw_pin_township_class') }} AS vptc
     LEFT JOIN
@@ -63,15 +49,12 @@ pin_counts AS (
     SELECT
         vptc.municipality_name AS municipality,
         vptc.year,
-        stages.stage,
         COUNT(*) AS total_n
     FROM trimmed_town_class AS vptc
-    CROSS JOIN stages
     WHERE vptc.municipality_name IS NOT NULL
     GROUP BY
         vptc.municipality_name,
-        vptc.year,
-        stages.stage
+        vptc.year
 ),
 
 -- Choose most recent assessor value (ignore BOR)
@@ -85,6 +68,10 @@ most_recent_values AS (
             ELSE 'certified'
         END AS stage_used
     FROM {{ ref('default.vw_pin_value') }}
+    /* This conditional is to make sure we only include parcels with mailed or
+    certified values, but it ends up addressing the pardat/asmt_all discrepency
+    above as well. Fine for this view, but not a recommended fix for
+    reporting.vw_assessment_roll_muni. */
     WHERE certified_tot IS NOT NULL
         OR mailed_tot IS NOT NULL
 ),
@@ -129,6 +116,5 @@ FROM top_5
 LEFT JOIN pin_counts
     ON top_5.year = pin_counts.year
     AND top_5.municipality = pin_counts.municipality
-    AND top_5.stage_used = pin_counts.stage
 WHERE top_5.rank <= 5
 ORDER BY top_5.municipality, top_5.year, top_5.class, top_5.rank
