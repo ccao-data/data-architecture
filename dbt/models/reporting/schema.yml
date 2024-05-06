@@ -232,6 +232,32 @@ models:
           column_name: class
           values: "2-99"
 
+  - name: reporting.vw_top_5_muni
+    description: '{{ doc("view_vw_top_5_muni") }}'
+    tests:
+      - unique_combination_of_columns:
+          name: reporting_vw_top_5_muni_unique_by_keys
+          combination_of_columns:
+            - rank
+            - pin
+            - year
+      - expression_is_true:
+          name: reporting_vw_top_5_muni_rank_between_1_and_5
+          expression: rank BETWEEN 1 AND 5
+      - expression_is_true:
+          name: reporting_vw_top_5_muni_no_nulls
+          expression: |
+            year IS NOT NULL
+            AND municipality IS NOT NULL
+            AND class IS NOT NULL
+            AND rank IS NOT NULL
+            AND total_av IS NOT NULL
+            AND stage_used IS NOT NULL
+      - not_accepted_values:
+          name: reporting_vw_top_5_muni_class_no_hyphens
+          column_name: class
+          values: "2-99"
+
   - name: reporting.vw_town_sale_history
     description: '{{ doc("view_vw_town_sale_history") }}'
     tests:
