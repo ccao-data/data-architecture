@@ -19,6 +19,10 @@ SELECT
     town.township_name,
     leg.user1 AS township_code,
     SUBSTR(correct.nbhd, 3, 3) AS nbhd,
+    CASE
+        WHEN ARRAY_JOIN(tax.tax_municipality_name, ', ') = '' THEN NULL ELSE
+            ARRAY_JOIN(tax.tax_municipality_name, ', ')
+    END AS municipality_name,
     correct.class,
     groups.reporting_class_code AS major_class,
     groups.modeling_group AS property_group,
@@ -48,5 +52,14 @@ LEFT JOIN {{ source('spatial', 'township') }} AS town
 -- Exclude classes without a reporting class
 INNER JOIN {{ ref('ccao.class_dict') }} AS groups
     ON correct.class = groups.class_code
+-- Tax municipality data lags iasWorld data by a year or two at any given time
+LEFT JOIN {{ ref('location.tax') }} AS tax
+    ON SUBSTR(correct.parid, 1, 10) = tax.pin10
+    AND CASE
+        WHEN
+            correct.taxyr > (SELECT MAX(year) FROM {{ ref('location.tax') }})
+            THEN (SELECT MAX(year) FROM {{ ref('location.tax') }})
+        ELSE correct.taxyr
+    END = tax.year
 WHERE correct.cur = 'Y'
     AND correct.deactivat IS NULL

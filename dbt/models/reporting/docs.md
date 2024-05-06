@@ -39,6 +39,15 @@ assessment stage, and year. Feeds public reporting assets.
 **Primary Key**: `year`, `township_name`, `class`, `stage`
 {% enddocs %}
 
+# vw_assessment_roll_muni
+
+{% docs view_vw_assessment_roll_muni %}
+View for reporting total AVs and PIN counts per major class group, municipality,
+assessment stage, and year. Feeds public reporting assets.
+
+**Primary Key**: `year`, `municipality_name`, `class`, `stage`
+{% enddocs %}
+
 # vw_pin_most_recent_boundary
 
 {% docs view_vw_pin_most_recent_boundary %}
