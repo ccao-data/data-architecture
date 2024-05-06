@@ -436,8 +436,8 @@ There are two types of tests that we might consider for a model:
 
 dbt tests are data tests by default, although a dedicated unit testing syntax
 [is coming soon](https://docs.getdbt.com/docs/build/unit-tests). Until unit
-tests are natively supported, however, we do not have a way of implementing them;
-we plan to change this once unit testing is released, but for now, make sure that
+tests are natively supported, however, we do not have a way of implementing them.
+We plan to change this once unit testing is released, but for now, make sure that
 any new tests you write are data tests and not unit tests.
 
 ### Adding data tests
@@ -478,7 +478,8 @@ the tag `test_qc_iasworld`
     * Generics typically select any columns mentioned by other parameters,
       but if you are unsure which columns will be selected by default
       (meaning they do not need to be included in `additional_select_columns`),
-      consult the macro definition for the generic that your test uses
+      consult our [documentation](./tests/generic/README.md) for the generic
+      test you're using
   * `config.where` should typically set to provide a filter expression
     that restricts tests to unique rows and to rows matching a date range
     set by the `test_qc_year_start` and `test_qc_year_end`
@@ -519,7 +520,7 @@ in the `tests/generic/` directory. Before writing a test, look at
 [the documentation for our generics](./tests/generic/README.md) to see if
 any of them meet your needs.
 
-If a generic test does not meet your needs but appears like it could be
+If a generic test does not meet your needs but seems like it could be
 easily extended to meet your needs (say, if it inner joins two tables
 but you would like to be able to configure it to left join those tables
 instead) you can modify the macro that defines the generic test as part
