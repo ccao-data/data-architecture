@@ -81,6 +81,15 @@ models:
         description: '{{ doc("column_chicago_police_district_num") }}'
       - name: class
         description: '{{ doc("shared_column_class") }}'
+        tests:
+          - count_is_consistent:
+              name: default_vw_pin_universe_class_count_is_consistent_by_year
+              group_column: year
+              config:
+                error_if: ">25"
+          - not_accepted_values:
+              name: default_vw_pin_universe_class_no_hyphens
+              values: "2-99"
       - name: cook_board_of_review_district_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: cook_board_of_review_district_num
@@ -209,6 +218,10 @@ models:
         description: '{{ doc("column_tax_district_num") }}'
       - name: township_code
         description: '{{ doc("shared_column_township_code") }}'
+        tests:
+          - count_is_consistent:
+              name: default_vw_pin_universe_town_count_is_consistent_by_year
+              group_column: year
       - name: township_name
         description: '{{ doc("shared_column_township_name") }}'
       - name: triad_code
@@ -233,18 +246,6 @@ models:
         description: ZIP code of the property
 
     tests:
-      # Number of classes is consistent over time
-      - count_is_consistent:
-          name: default_vw_pin_universe_class_count_is_consistent_by_year
-          group_column: year
-          count_column: class
-          config:
-            error_if: ">25"
-      # Number of towns is consistent over time
-      - count_is_consistent:
-          name: default_vw_pin_universe_town_count_is_consistent_by_year
-          group_column: year
-          count_column: township_code
       - unique_combination_of_columns:
           name: default_vw_pin_universe_unique_by_14_digit_pin_and_year
           combination_of_columns:
@@ -259,9 +260,5 @@ models:
           expression: REGEXP_COUNT(pin, '[0-9]') = 14 AND LENGTH(pin) = 14
           additional_select_columns:
             - pin
-      - not_accepted_values:
-          name: default_vw_pin_universe_class_no_hyphens
-          column_name: class
-          values: "2-99"
       # TODO: Data completeness correlates with availability of spatial data
       # by year

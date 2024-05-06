@@ -94,10 +94,11 @@ Asserts that two or more columns in the same relation have the same value for ea
 
 **Parameters**:
 
-* `column_names` (required list of strings): The list of columns to check for identical values.
+* `matching_column_names` (required list of strings): The list of columns to check for
+  identical values.
 * `additional_select_columns` (optional list of strings): Additional columns to select for
-  failure output. The column the test is defined on and the columns defined in `column_names`
-  will always be selected regardless of this value.
+  failure output. The column the test is defined on and the columns defined in
+  `matching_column_names` will always be selected regardless of this value.
 
 ### `test_count_is_consistent`
 

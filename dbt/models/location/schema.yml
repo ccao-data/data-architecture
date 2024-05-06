@@ -250,7 +250,7 @@ models:
       - column_length:
           name: location_vw_pin10_location_7_digit_ids_are_correct_length
           length: 7
-          columns:
+          column_names:
             - census_place_geoid
             - census_puma_geoid
             - census_school_district_elementary_geoid
