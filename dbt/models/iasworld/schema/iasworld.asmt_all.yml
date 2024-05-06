@@ -219,10 +219,9 @@ sources:
                 - expression_is_true:
                     name: iasword_asmt_all_32_equals_29_minus_30_minus_31
                     expression: = TOT29 - TOT30 - TOT31 OR TOT32 < 1
-                    additional_select_columns:
-                      - parid
-                  meta:
-                    description: tot32 should be comprised of tot29 30 and 31
+                    config: *unique-conditions
+                    meta:
+                      description: Tot32 should be comprised of tot29 30 and 31
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status
