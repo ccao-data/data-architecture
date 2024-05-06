@@ -1,45 +1,39 @@
-sources:
-  - name: reporting
-    tags:
-      - daily
-      - load_auto
-    tables:
-      - name: ratio_stats
-        description: '{{ doc("table_ratio_stats") }}'
-        config:
-          packages:
-            - "assesspy==1.1.*"
-            - "numpy==1.26.*"
-            - "pandas==2.*"
-        tests:
-          - expression_is_true:
-              name: reporting_ratio_stats_no_nulls
-              expression: |
-                year IS NOT NULL
-                AND triad IS NOT NULL
-                AND geography_type IS NOT NULL
-                AND property_group IS NOT NULL
-                AND assessment_stage IS NOT NULL
-                AND sale_year IS NOT NULL
-          - expression_is_true:
-              name: reporting_ratio_stats_metrics_are_sensible
-              expression: |
-                cod >= 0
-                AND prd >= 0
-                AND prb BETWEEN -1 AND 1
-                AND mki >= 0
-                AND triad IS NOT NULL
-                AND geography_type IS NOT NULL
-                AND property_group IS NOT NULL
-                AND assessment_stage IS NOT NULL
-                AND sale_year IS NOT NULL
-          - expression_is_true:
-              name: reporting_ratio_stats_within_directionality
-              expression: |
-                within_20_pct >= within_10_pct
-                AND within_10_pct >= within_05_pct
-
 models:
+  - name: ratio_stats
+    description: '{{ doc("table_ratio_stats") }}'
+    config:
+      packages:
+        - "assesspy==1.1.*"
+        - "numpy==1.26.*"
+        - "pandas==2.*"
+    tests:
+      - expression_is_true:
+          name: reporting_ratio_stats_no_nulls
+          expression: |
+            year IS NOT NULL
+            AND triad IS NOT NULL
+            AND geography_type IS NOT NULL
+            AND property_group IS NOT NULL
+            AND assessment_stage IS NOT NULL
+            AND sale_year IS NOT NULL
+      - expression_is_true:
+          name: reporting_ratio_stats_metrics_are_sensible
+          expression: |
+            cod >= 0
+            AND prd >= 0
+            AND prb BETWEEN -1 AND 1
+            AND mki >= 0
+            AND triad IS NOT NULL
+            AND geography_type IS NOT NULL
+            AND property_group IS NOT NULL
+            AND assessment_stage IS NOT NULL
+            AND sale_year IS NOT NULL
+      - expression_is_true:
+          name: reporting_ratio_stats_within_directionality
+          expression: |
+            within_20_pct >= within_10_pct
+            AND within_10_pct >= within_05_pct
+
   - name: reporting.res_report_summary
     description: '{{ doc("table_res_report_summary") }}'
     config:
