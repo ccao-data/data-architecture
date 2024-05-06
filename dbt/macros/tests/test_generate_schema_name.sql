@@ -6,7 +6,7 @@
 {% endmacro %}
 
 {% macro mock_env_var(var_name) %}
-    {% if var_name == "USER" %} {{ return("testuser") }}
+    {% if var_name == "USER" %} {{ return("test-user") }}
     {% elif var_name == "HEAD_REF" %} {{ return("testuser/feature-branch-1") }}
     {% else %} {{ return("") }}
     {% endif %}
@@ -22,7 +22,7 @@
             mock_env_var,
             exceptions.raise_compiler_error,
         ),
-        "z_dev_testuser_test",
+        "z_dev_test-user_test",
     ) %}
 {% endmacro %}
 
@@ -36,7 +36,7 @@
             mock_env_var,
             exceptions.raise_compiler_error,
         ),
-        "z_ci_testuser-feature-branch-1_test",
+        "z_ci_testuser_feature_branch_1_test",
     ) %}
 {% endmacro %}
 
