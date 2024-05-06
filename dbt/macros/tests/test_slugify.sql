@@ -1,5 +1,3 @@
-{% macro test_slugify() %} {% do test_slugify() %} {% endmacro %}
-
 {% macro test_slugify() %}
     {% do test_slugify_lowercases_strings() %}
     {% do test_slugify_replaces_spaces() %}
