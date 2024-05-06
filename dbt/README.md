@@ -10,8 +10,8 @@ This directory stores the configuration for building our data catalog using
 * [🖼️ Background: What does the data catalog do?](#%EF%B8%8F-background-what-does-the-data-catalog-do)
 * [🔨 How to rebuild models using GitHub Actions](#-how-to-rebuild-models-using-github-actions)
 * [💻 How to develop the catalog](#-how-to-develop-the-catalog)
-* [📝 How to add and run tests](#-how-to-add-and-run-tests)
 * [➕ How to add a new model](#-how-to-add-a-new-model)
+* [📝 How to add and run tests](#-how-to-add-and-run-tests)
 * [🐛 Debugging tips](#-debugging-tips)
 
 ### Outside this document
