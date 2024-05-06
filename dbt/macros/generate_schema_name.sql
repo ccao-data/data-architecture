@@ -27,11 +27,9 @@
     {%- set default_schema = target.schema -%}
 
     {%- if target.name == "dev" -%}
-        {%- set schema_prefix = (
-            "z_dev_" ~ dbt_utils.slugify(env_var_func("USER")) ~ "_"
-        ) -%}
+        {%- set schema_prefix = "z_dev_" ~ slugify(env_var_func("USER")) ~ "_" -%}
     {%- elif target.name == "ci" -%}
-        {%- set github_head_ref = dbt_utils.slugify(env_var_func("HEAD_REF")) -%}
+        {%- set github_head_ref = slugify(env_var_func("HEAD_REF")) -%}
         {%- set schema_prefix = "z_ci_" ~ github_head_ref ~ "_" -%}
     {%- else -%} {%- set schema_prefix = "" -%}
     {%- endif -%}
