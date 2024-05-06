@@ -207,11 +207,12 @@ sources:
                   join_condition:
                     ON model.parid = external_model.parid
                     AND model.taxyr = external_model.taxyr
+                    AND model.tot30 > 0
                     AND model.tot30 < 7500
                   config: *unique-conditions
                   meta:
                     category: relationships
-                    description: exemption value should match
+                    description: tot30 should be 10% of oby_ovrrcnld
           - name: tot32
             description: Value After HIE
             tests:
@@ -220,6 +221,8 @@ sources:
                     expression: = TOT29 - TOT30 - TOT31 OR TOT32 < 1
                     additional_select_columns:
                       - parid
+                  meta:
+                    description: tot32 should be comprised of tot29 30 and 31
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status
