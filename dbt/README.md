@@ -530,18 +530,23 @@ do so, you have two options:
 
 1. **Define a new model in the `models/qc/` directory that _can_ use a pre-existing generic**.
    This is a good option if, say, you need to join two or more tables in a
-   complex way that is specific to your test and not easily generalizable;
-   with this approach, you can perform that join in the model, and then
+   complex way that is specific to your test and not easily generalizable.
+   With this approach, you can perform that join in the model, and then
    the generic test doesn't need to know anything about it.
 2. **Write a new generic test**. If you decide to take this approach,
    make sure to read the docs on [writing custom generic
-   tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests)
-   and define a default category for your generic test in
-   the `TEST_CATEGORIES` constant in the [`transform_dbt_test_results`
-   script](https://github.com/ccao-data/data-architecture/blob/master/.github/scripts/transform_dbt_test_results.py).
+   tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests).
    This is a good option if you think that the logic you need
    for your test will be easily generalizable to other models
-   and other tests.
+   and other tests. You'll also need to follow a few extra steps that are specific
+   to our environment:
+     1. Add a default category for your generic test in
+        the `TEST_CATEGORIES` constant in the [`transform_dbt_test_results`
+        script](https://github.com/ccao-data/data-architecture/blob/master/.github/scripts/transform_dbt_test_results.py)
+     2. Make sure that your generic test supports the `additional_select_columns`
+        parameter that most of our generic tests support, making use
+        of the `format_additional_select_columns` macro to format the
+        parameter when applying it to your `SELECT` condition
 
 ## 🐛 Debugging tips
 
