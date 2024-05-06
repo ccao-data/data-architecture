@@ -516,8 +516,8 @@ Writing a test in a `schema.yml` file requires a [generic
 test](https://docs.getdbt.com/best-practices/writing-custom-generic-tests)
 to define the underlying test logic. Our generic tests are defined
 in the `tests/generic/` directory. Before writing a test, look at
-the docstrings for the generics in that directory to see if any of them
-meet your needs.
+[the documentation for our generics](./tests/generic/README.md) to see if
+any of them meet your needs.
 
 If a generic test does not meet your needs but appears like it could be
 easily extended to meet your needs (say, if it inner joins two tables
