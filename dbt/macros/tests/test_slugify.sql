@@ -11,11 +11,11 @@
 {% endmacro %}
 
 {% macro test_slugify_replaces_spaces() %}
-    {{ assert_equals("test_slugify_replaces_spaces", slugify("t e s t"), "t-e-s-t") }}
+    {{ assert_equals("test_slugify_replaces_spaces", slugify("t e s t"), "t_e_s_t") }}
 {% endmacro %}
 
 {% macro test_slugify_replaces_slashes() %}
-    {{ assert_equals("test_slugify_replaces_slashes", slugify("t/e/s/t"), "t-e-s-t") }}
+    {{ assert_equals("test_slugify_replaces_slashes", slugify("t/e/s/t"), "t_e_s_t") }}
 {% endmacro %}
 
 {% macro test_slugify_replaces_hyphens() %}
