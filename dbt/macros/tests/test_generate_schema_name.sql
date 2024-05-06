@@ -22,7 +22,7 @@
             mock_env_var,
             exceptions.raise_compiler_error,
         ),
-        "z_dev_test-user_test",
+        "z_dev_test_user_test",
     ) %}
 {% endmacro %}
 
