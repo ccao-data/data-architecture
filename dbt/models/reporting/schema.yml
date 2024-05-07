@@ -1,5 +1,5 @@
 models:
-  - name: ratio_stats
+  - name: reporting.ratio_stats
     description: '{{ doc("table_ratio_stats") }}'
     config:
       packages:
