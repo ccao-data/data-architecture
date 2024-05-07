@@ -46,6 +46,7 @@ data = data.replace({"Unnamed: 0": "puma", "YEARQ": "name"})
 
 data.to_parquet("output.parquet")
 
+
 def model(dbt, spark_session):
     dbt.config(materialized="table")
 
