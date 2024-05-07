@@ -17,9 +17,7 @@ link_end = content.find(".xlsx", link_start) + len(".xlsx")
 xlsx_link = content[link_start:link_end]
 
 # Form the complete URL for the Excel file
-most_recent_ihs_data_url = (
-    url + xlsx_link if xlsx_link.startswith("/") else xlsx_link
-)
+most_recent_ihs_data_url = url + xlsx_link if xlsx_link.startswith("/") else xlsx_link
 
 # Print the URL
 print(most_recent_ihs_data_url)
@@ -31,6 +29,8 @@ with open("temp.xlsx", "wb") as f:
 
 # Load the Excel file using openpyxl
 data = pd.read_excel(response.content, engine="openpyxl", sheet_name=1)
+
+data = data.toPandas()
 
 data = data.drop(columns="Unnamed: 1")
 data = data.drop(columns="Unnamed: 2")
@@ -45,3 +45,12 @@ data.reset_index(inplace=True)
 data = data.replace({"Unnamed: 0": "puma", "YEARQ": "name"})
 
 data.to_parquet("output.parquet")
+
+def model(dbt, spark_session):
+    dbt.config(materialized="table")
+
+    input = dbt.ref("ihs_housing_input")
+
+    spark_df = spark_session.createDataFrame(data)
+
+    return spark_df
