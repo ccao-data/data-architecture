@@ -145,10 +145,6 @@ def report_summarise(df, geography_id, geography_type):
     Aggregates data and calculates summary statistics for given groupings
     """
 
-    # Convert the Spark input dataframes to Pandas for compatibility
-    # with assesspy functions
-    df = df.toPandas()
-
     group_cols = [
         "year",
         "triad",
@@ -239,6 +235,10 @@ def model(dbt, spark_session):
 
     input = dbt.ref("reporting.ratio_stats_input")
 
+    # Convert the Spark input dataframe to Pandas for
+    # compatibility with assesspy functions
+    input = input.toPandas()
+
     df = pd.concat(
         [
             report_summarise(input, "triad", "Tri"),
@@ -246,6 +246,21 @@ def model(dbt, spark_session):
         ]
     ).reset_index(drop=True)
 
-    spark_df = spark_session.createDataFrame(df)
+    # Create a Spark schema to maintain the datatypes of the
+    # previous output (for Tableau compatibility)
+    schema = (
+        "year: bigint, triad: bigint, geography_type: string, "
+        + "property_group: string, assessment_stage: string, "
+        + "geography_id: string, sale_year: bigint, sale_n: bigint, "
+        + "median_ratio: double, median_ratio_ci: string, cod: double, "
+        + "cod_ci: string, cod_n: bigint, prd: double, prd_ci: string, "
+        + "prd_n: bigint, prb: double, prb_ci: string, prb_n: bigint, "
+        + "mki: double, mki_n: bigint, detect_chasing: boolean, "
+        + "ratio_met: boolean, cod_met: boolean, prd_met: boolean, "
+        + "prb_met: boolean, mki_met: boolean, vertical_equity_met: boolean, "
+        + "within_20_pct: bigint, within_10_pct: bigint, within_05_pct: bigint"
+    )
+
+    spark_df = spark_session.createDataFrame(df, schema=schema)
 
     return spark_df
