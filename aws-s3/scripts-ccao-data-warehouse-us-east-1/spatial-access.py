@@ -45,7 +45,46 @@ if not object_exists(AWS_S3_WAREHOUSE_BUCKET, bike_key_warehouse):
         pq.write_table(df_bike.to_parquet(), temp.name)
         upload_to_s3(temp.name, AWS_S3_WAREHOUSE_BUCKET, bike_key_warehouse)
 
-# Similar structures follow for other datasets (e.g., cemetery, hospital, park, industrial corridor, and walkability).
+##### PARK #####
+
+park_key_warehouse = f"{AWS_S3_WAREHOUSE_BUCKET}/spatial/access/park/year=2021/part-0.parquet"
+
+if not object_exists(AWS_S3_WAREHOUSE_BUCKET, park_key_warehouse):
+    with tempfile.NamedTemporaryFile(suffix=".geojson") as temp:
+        # Assuming you have the Cook County boundary file locally
+        cook_boundary_key = "spatial/ccao/county/2019.parquet"
+        s3.download_file(AWS_S3_WAREHOUSE_BUCKET, cook_boundary_key, temp.name)
+        cook_boundary = gpd.read_parquet(temp.name).to_crs(epsg=4326)
+
+        # Replace with the actual park data processing steps or access a local GeoJSON file
+        parks_df = gpd.read_file("path/to/local/park_data.geojson").to_crs(epsg=4326)
+
+        parks_df['geometry_3435'] = parks_df['geometry'].to_crs(epsg=3435)
+        parks_df_filtered = parks_df.loc[parks_df.intersects(cook_boundary.unary_union)]
+
+        pq.write_table(parks_df_filtered.to_parquet(), temp.name)
+        upload_to_s3(temp.name, AWS_S3_WAREHOUSE_BUCKET, park_key_warehouse)
+
+
+##### INDUSTRIAL CORRIDOR #####
+
+indc_key_raw = f"{AWS_S3_RAW_BUCKET}/spatial/access/industrial_corridor/2013.geojson"
+indc_key_warehouse = f"{AWS_S3_WAREHOUSE_BUCKET}/spatial/access/industrial_corridor/year=2013/part-0.parquet"
+
+if not object_exists(AWS_S3_WAREHOUSE_BUCKET, indc_key_warehouse):
+    with tempfile.NamedTemporaryFile(suffix=".geojson") as temp:
+        s3.download_file(AWS_S3_RAW_BUCKET, "spatial/access/industrial_corridor/2013.geojson", temp.name)
+        df_indc = gpd.read_file(temp.name).to_crs(epsg=4326)
+        df_indc.columns = map(str.lower, df_indc.columns)
+        df_indc['geometry_3435'] = df_indc['geometry'].to_crs(epsg=3435)
+        df_indc = df_indc.rename(columns={
+            'name': 'name',
+            'region': 'region',
+            'no': 'num',
+            'hud_qualif': 'hud_qualif'
+        }).loc[:, ['name', 'region', 'num', 'hud_qualif', 'acres', 'geometry', 'geometry_3435']]
+        pq.write_table(df_indc.to_parquet(), temp.name)
+        upload_to_s3(temp.name, AWS_S3_WAREHOUSE_BUCKET, indc_key_warehouse)
 
 ##### CEMETERY #####
 ceme_key_raw = f"{AWS_S3_RAW_BUCKET}/spatial/access/cemetery/2021.geojson"
