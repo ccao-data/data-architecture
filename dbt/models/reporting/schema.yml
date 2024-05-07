@@ -2,6 +2,8 @@ models:
   - name: reporting.ratio_stats
     description: '{{ doc("table_ratio_stats") }}'
     config:
+      tags:
+        - daily
       packages:
         - "assesspy==1.1.*"
         - "numpy==1.26.*"
@@ -39,7 +41,6 @@ models:
     config:
       tags:
         - daily
-        - load_auto
     tests:
       - unique_combination_of_columns:
           name: reporting_ratio_stats_input_unique_by_keys
