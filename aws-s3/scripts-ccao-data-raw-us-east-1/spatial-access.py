@@ -46,9 +46,7 @@ def get_data_to_s3(source, api_url, boundary, year):
     s3_path = os.path.join(output_bucket, boundary, f"{year}.geojson")
 
     try:
-        s3.put_object(
-            Bucket=os.environ["AWS_S3_RAW_BUCKET"], Key=s3_path, Body=data
-        )
+        s3.put_object(Bucket=os.environ["AWS_S3_RAW_BUCKET"], Key=s3_path, Body=data)
     except ClientError as e:
         print(e)
 

@@ -17,9 +17,7 @@ link_end = content.find(".xlsx", link_start) + len(".xlsx")
 xlsx_link = content[link_start:link_end]
 
 # Form the complete URL for the Excel file
-most_recent_ihs_data_url = (
-    url + xlsx_link if xlsx_link.startswith("/") else xlsx_link
-)
+most_recent_ihs_data_url = url + xlsx_link if xlsx_link.startswith("/") else xlsx_link
 
 # Print the URL
 print(most_recent_ihs_data_url)
