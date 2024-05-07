@@ -1,7 +1,8 @@
-import pandas as pd
-import requests
-import pyarrow as pa
-import pyarrow.parquet as pq
+import pandas as pd  # noqa: E402
+import requests  # noqa: E402
+from openpyxl import load_workbook  # noqa: E402
+import pyarrow as pa  # noqa: E402
+import pyarrow.parquet as pq  # noqa: E402
 
 # URL of the webpage
 url = "https://price-index.housingstudies.org"
