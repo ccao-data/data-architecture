@@ -1,6 +1,7 @@
-import boto3
 import os
 import re
+
+import boto3
 import pandas as pd
 import pyarrow.parquet as pq
 
@@ -12,12 +13,14 @@ output_bucket = f"{AWS_S3_WAREHOUSE_BUCKET}/housing/ihs_index"
 # Initialize S3 client
 s3 = boto3.client("s3")
 
+
 # Get the list of files from the raw S3 bucket
 def get_bucket_keys(bucket, prefix):
     response = s3.list_objects_v2(Bucket=bucket, Prefix=prefix)
     if "Contents" in response:
         return [content["Key"] for content in response["Contents"]]
     return []
+
 
 # Find the raw file
 raw_keys = get_bucket_keys(AWS_S3_RAW_BUCKET, "housing/ihs_index/")
@@ -37,9 +40,7 @@ if raw_file_key:
 
     # Convert from wide to long
     df_long = df.melt(
-        id_vars=["geoid", "name"],
-        var_name="time",
-        value_name="ihs_index"
+        id_vars=["geoid", "name"], var_name="time", value_name="ihs_index"
     )
 
     # Split 'time' column into 'year' and 'quarter'
@@ -48,6 +49,7 @@ if raw_file_key:
 
     # Reorder columns
     df_long = df_long[["geoid", "name", "ihs_index", "quarter", "year"]]
+
 
 def model(dbt, spark_session):
     dbt.config(materialized="table")
