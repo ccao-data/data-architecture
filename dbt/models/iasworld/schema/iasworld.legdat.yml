@@ -343,7 +343,7 @@ sources:
                 description: adrno should be <= 5 characters long
           - column_length:
               name: iasworld_legdat_adrsuf_zip1_taxdist_length_lte_5
-              columns:
+              column_names:
                 - adrsuf
                 - zip1
                 - taxdist

@@ -6,14 +6,14 @@
 -- If additional columns should be returned along with the length columns,
 -- e.g. to add an identifiable key for the row, use the
 -- additional_select_columns argument.
-{% test column_length(model, columns, length, additional_select_columns=[]) %}
+{% test column_length(model, column_names, length, additional_select_columns=[]) %}
 
     {%- set additional_select_columns_csv = format_additional_select_columns(
         additional_select_columns
     ) %}
 
     {%- set length_columns = [] %}
-    {%- for column in columns %}
+    {%- for column in column_names %}
         {%- set length_columns = length_columns.append([column, "len_" + column]) %}
     {%- endfor %}
 

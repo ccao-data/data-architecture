@@ -1,11 +1,11 @@
 -- Test that the count of a given column is the same when grouped by another
 -- col, for example that the number of distinct township codes is the same
 -- across years
-{% test count_is_consistent(model, group_column, count_column) %}
+{% test count_is_consistent(model, column_name, group_column) %}
 
     with
         counts as (
-            select {{ group_column }}, count(distinct({{ count_column }})) as cnt
+            select {{ group_column }}, count(distinct({{ column_name }})) as cnt
             from {{ model }}
             group by {{ group_column }}
         ),
