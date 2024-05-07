@@ -246,6 +246,11 @@ def model(dbt, spark_session):
         ]
     ).reset_index(drop=True)
 
+    # Force certain columns to datatype to maintain parity with old version
+    df[["year", "triad", "sale_year"]] = df[
+        ["year", "triad", "sale_year"]
+    ].astype(int)
+
     # Create a Spark schema to maintain the datatypes of the
     # previous output (for Tableau compatibility)
     schema = (
