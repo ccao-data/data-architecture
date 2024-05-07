@@ -30,7 +30,9 @@ def object_exists(bucket, key):
 
 ##### BIKE TRAIL #####
 bike_key_raw = f"{AWS_S3_RAW_BUCKET}/spatial/access/bike_trail/2021.geojson"
-bike_key_warehouse = f"{AWS_S3_WAREHOUSE_BUCKET}/spatial/access/bike_trail/year=2021/part-0.parquet"
+bike_key_warehouse = (
+    f"{AWS_S3_WAREHOUSE_BUCKET}/spatial/access/bike_trail/year=2021/part-0.parquet"
+)
 
 if not object_exists(AWS_S3_WAREHOUSE_BUCKET, bike_key_warehouse):
     with tempfile.NamedTemporaryFile(suffix=".geojson") as temp:
@@ -69,14 +71,10 @@ if not object_exists(AWS_S3_WAREHOUSE_BUCKET, park_key_warehouse):
         cook_boundary = gpd.read_parquet(temp.name).to_crs(epsg=4326)
 
         # Replace with the actual park data processing steps or access a local GeoJSON file
-        parks_df = gpd.read_file("path/to/local/park_data.geojson").to_crs(
-            epsg=4326
-        )
+        parks_df = gpd.read_file("path/to/local/park_data.geojson").to_crs(epsg=4326)
 
         parks_df["geometry_3435"] = parks_df["geometry"].to_crs(epsg=3435)
-        parks_df_filtered = parks_df.loc[
-            parks_df.intersects(cook_boundary.unary_union)
-        ]
+        parks_df_filtered = parks_df.loc[parks_df.intersects(cook_boundary.unary_union)]
 
         pq.write_table(parks_df_filtered.to_parquet(), temp.name)
         upload_to_s3(temp.name, AWS_S3_WAREHOUSE_BUCKET, park_key_warehouse)
@@ -84,9 +82,7 @@ if not object_exists(AWS_S3_WAREHOUSE_BUCKET, park_key_warehouse):
 
 ##### INDUSTRIAL CORRIDOR #####
 
-indc_key_raw = (
-    f"{AWS_S3_RAW_BUCKET}/spatial/access/industrial_corridor/2013.geojson"
-)
+indc_key_raw = f"{AWS_S3_RAW_BUCKET}/spatial/access/industrial_corridor/2013.geojson"
 indc_key_warehouse = f"{AWS_S3_WAREHOUSE_BUCKET}/spatial/access/industrial_corridor/year=2013/part-0.parquet"
 
 if not object_exists(AWS_S3_WAREHOUSE_BUCKET, indc_key_warehouse):
@@ -123,7 +119,9 @@ if not object_exists(AWS_S3_WAREHOUSE_BUCKET, indc_key_warehouse):
 
 ##### CEMETERY #####
 ceme_key_raw = f"{AWS_S3_RAW_BUCKET}/spatial/access/cemetery/2021.geojson"
-ceme_key_warehouse = f"{AWS_S3_WAREHOUSE_BUCKET}/spatial/access/cemetery/year=2021/part-0.parquet"
+ceme_key_warehouse = (
+    f"{AWS_S3_WAREHOUSE_BUCKET}/spatial/access/cemetery/year=2021/part-0.parquet"
+)
 
 if not object_exists(AWS_S3_WAREHOUSE_BUCKET, ceme_key_warehouse):
     with tempfile.NamedTemporaryFile(suffix=".geojson") as temp:
@@ -156,7 +154,9 @@ if not object_exists(AWS_S3_WAREHOUSE_BUCKET, ceme_key_warehouse):
 
 ##### WALKABILITY #####
 walk_key_raw = f"{AWS_S3_RAW_BUCKET}/spatial/access/walkability/2017.geojson"
-walk_key_warehouse = f"{AWS_S3_WAREHOUSE_BUCKET}/spatial/access/walkability/year=2017/part-0.parquet"
+walk_key_warehouse = (
+    f"{AWS_S3_WAREHOUSE_BUCKET}/spatial/access/walkability/year=2017/part-0.parquet"
+)
 
 if not object_exists(AWS_S3_WAREHOUSE_BUCKET, walk_key_warehouse):
     with tempfile.NamedTemporaryFile(suffix=".geojson") as temp:
@@ -167,9 +167,7 @@ if not object_exists(AWS_S3_WAREHOUSE_BUCKET, walk_key_warehouse):
         )
         df_walk = gpd.read_file(temp.name).to_crs(epsg=4326)
         df_walk.columns = map(str.lower, df_walk.columns)
-        df_walk.columns = [
-            col.replace("sc", "_score") for col in df_walk.columns
-        ]
+        df_walk.columns = [col.replace("sc", "_score") for col in df_walk.columns]
         df_walk.rename(
             columns={
                 "walkabilit": "walkability_rating",
