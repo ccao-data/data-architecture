@@ -19,7 +19,7 @@ This directory stores the configuration for building our data catalog using
 * [📖 Data documentation](https://ccao-data.github.io/data-architecture)
 * [📝 Design doc for our decision to develop our catalog with
   dbt](../documentation/design-docs/data-catalog.md)
-* [⚠ Generic tests we use for testing](./tests/generic/README.md)
+* [🧪 Generic tests we use for testing](./tests/generic/README.md)
 
 ## 🖼️ Background: What does the data catalog do?
 
