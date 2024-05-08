@@ -39,6 +39,10 @@ models:
     config:
       tags:
         - daily
+      packages:
+        - "assesspy==1.1.*"
+        - "numpy==1.26.*"
+        - "pandas==2.*"
     tests:
     - unique_combination_of_columns:
         name: reporting_res_report_summary_unique_by_keys
