@@ -127,6 +127,7 @@ while read -r item; do
     venv_name="${model_identifier}.venv"
     echo "Creating and activating virtualenv at $venv_name"
     python3 -m venv "$venv_name"
+    # shellcheck disable=SC1091
     source "${venv_name}/bin/activate"
 
     # Install dependencies into a subdirectory
