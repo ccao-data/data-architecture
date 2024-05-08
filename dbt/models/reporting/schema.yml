@@ -251,8 +251,8 @@ models:
             AND municipality IS NOT NULL
             AND class IS NOT NULL
             AND rank IS NOT NULL
-            AND total_av IS NOT NULL
-            AND stage_used IS NOT NULL
+            AND ccao_av IS NOT NULL
+            AND ccao_stage_used IS NOT NULL
       - not_accepted_values:
           name: reporting_vw_top_5_muni_class_no_hyphens
           column_name: class
