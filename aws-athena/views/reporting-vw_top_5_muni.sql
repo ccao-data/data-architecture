@@ -62,12 +62,18 @@ most_recent_values AS (
     SELECT
         pin,
         year,
-        COALESCE(certified_tot, mailed_tot) AS total_av,
+        oneyr_pri_board_tot AS prior_bor_av,
+        COALESCE(certified_tot, mailed_tot) AS ccao_av,
         CASE
             WHEN certified_tot IS NULL THEN 'mailed'
             ELSE 'certified'
-        END AS stage_used
-    FROM {{ ref('default.vw_pin_value') }}
+        END AS ccao_stage_used,
+        board_tot AS bor_av,
+        CASE
+            WHEN oneyr_pri_board_tot IN (0, NULL) THEN NULL ELSE
+                (board_tot - oneyr_pri_board_tot) / oneyr_pri_board_tot
+        END AS bor_change
+    FROM {{ ref('default.vw_pin_history') }}
     /* This conditional is to make sure we only include parcels with mailed or
     certified values, but it ends up addressing the pardat/asmt_all discrepency
     above as well. Fine for this view, but not a recommended fix for
@@ -79,20 +85,38 @@ most_recent_values AS (
 -- Create ranks
 top_5 AS (
     SELECT
-        mrv.year,
         vptc.municipality_name AS municipality,
-        vptc.triad_name AS triad,
-        vptc.class,
+        mrv.year,
         RANK() OVER (
             PARTITION BY vptc.municipality_name, mrv.year
-            ORDER BY mrv.total_av DESC
+            ORDER BY mrv.ccao_av DESC
         ) AS rank,
-        mrv.pin,
-        mrv.total_av,
+        CONCAT(
+            SUBSTR(mrv.pin, 1, 2),
+            '-',
+            SUBSTR(mrv.pin, 3, 2),
+            '-',
+            SUBSTR(mrv.pin, 5, 3),
+            '-',
+            SUBSTR(mrv.pin, 8, 3),
+            '-',
+            SUBSTR(mrv.pin, 11, 4)
+        ) AS pin,
+        vptc.major_class,
+        vptc.class,
+        mrv.prior_bor_av,
+        mrv.ccao_av,
+        mrv.ccao_stage_used,
+        mrv.bor_av,
+        mrv.bor_change,
         vpa.prop_address_full AS address,
-        vpa.prop_address_city_name AS city,
-        vpa.mail_address_name AS owner_name,
-        mrv.stage_used,
+        CASE
+            WHEN vpa.prop_address_city_name = 'Mc Cook' THEN 'McCook' WHEN
+                vpa.prop_address_city_name = 'Forestview'
+                THEN 'Forest View'
+            ELSE vpa.prop_address_city_name
+        END AS city,
+        vpa.mail_address_name AS taxpayer_name,
         COUNT() OVER (
             PARTITION BY vptc.municipality_name, mrv.year
         ) AS num_pin_w_value
