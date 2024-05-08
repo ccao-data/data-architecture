@@ -26,9 +26,10 @@ jobs:
           role-duration-seconds: 900
 
       - name: Parse requirements from dbt DAG
+        id: parse-requirements
         run: |
           # Compile the DAG
-          dbt compile -t "$TARGET"
+          dbt compile -q -t "$TARGET"
 
           # Extract config.packages attributes from models
           packages_json=$(jq '
@@ -44,11 +45,17 @@ jobs:
               )
           ' target/manifest.json)
 
+          # Set a flag to check whether any requirements were found
+          requirements_found=false
+
           # Use jq to iterate over each key-value pair representing packages
           echo "$packages_json" | \
             jq -rc 'to_entries[] | {model_name: .key, requirements: .value}' | \
             while read -r item;
           do
+            # Set the flag to confirm requirements were found
+            requirements_found=true
+
             # Extract the key and value
             model_name=$(echo "$item" | jq -r '.model_name')
             requirements=$(echo "$item" | jq -r '.requirements[]')
@@ -62,14 +69,23 @@ jobs:
             # Create the file and write the contents
             echo "$requirements" | tr ' ' '\n' > "$filename"
 
-            echo "File $filename created with contents:"
+            echo "Python requirements file $filename created with contents:"
             cat "$filename"
             echo
           done
+
+          # Push status to step output
+          echo "requirements-found=$requirements_found" >> "$GITHUB_OUTPUT"
+
+          # Log a warning if no requirements were found
+          if [ "$requirements_found" == "false" ]; then
+            echo "No Python requirements found, exiting early"
+          fi
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
-      - name: Download, install, and bundle requirements from remote repositories
+      - if: steps.parse-requirements.outputs.requirements-found == 'true'
+        name: Download, install, and bundle requirements from remote repositories
         run: |
           for requirements_file in *.requirements.txt; do
             # Extract the base name without extension and use it to define
@@ -100,9 +116,11 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
-      - name: Push requirements to S3
+      - if: steps.parse-requirements.outputs.requirements-found == 'true'
+        name: Push requirements to S3
         run: |
           for zipfile in *.zip; do
             aws s3 cp "$zipfile" "s3://ccao-dbt-athena-dev-us-east-1/packages/"
+          done
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
