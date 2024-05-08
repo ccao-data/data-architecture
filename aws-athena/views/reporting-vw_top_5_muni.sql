@@ -71,15 +71,13 @@ most_recent_values AS (
         board_tot AS bor_av,
         CASE
             WHEN oneyr_pri_board_tot IN (0, NULL) THEN NULL ELSE
-                (board_tot - oneyr_pri_board_tot) / oneyr_pri_board_tot
+                (
+                    CAST(board_tot AS DOUBLE)
+                    - CAST(oneyr_pri_board_tot AS DOUBLE)
+                )
+                / CAST(oneyr_pri_board_tot AS DOUBLE)
         END AS bor_change
     FROM {{ ref('default.vw_pin_history') }}
-    /* This conditional is to make sure we only include parcels with mailed or
-    certified values, but it ends up addressing the pardat/asmt_all discrepency
-    above as well. Fine for this view, but not a recommended fix for
-    reporting.vw_assessment_roll_muni. */
-    WHERE certified_tot IS NOT NULL
-        OR mailed_tot IS NOT NULL
 ),
 
 -- Create ranks
@@ -127,7 +125,6 @@ top_5 AS (
     LEFT JOIN {{ ref('default.vw_pin_address') }} AS vpa
         ON mrv.pin = vpa.pin
         AND mrv.year = vpa.year
-    WHERE vptc.municipality_name IS NOT NULL
 )
 
 -- Only keep top 5
@@ -141,4 +138,5 @@ LEFT JOIN pin_counts
     ON top_5.year = pin_counts.year
     AND top_5.municipality = pin_counts.municipality
 WHERE top_5.rank <= 5
+    AND top_5.municipality IS NOT NULL
 ORDER BY top_5.municipality, top_5.year, top_5.class, top_5.rank
