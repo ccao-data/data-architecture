@@ -124,7 +124,7 @@ jobs:
         name: Push dependency bundles to S3
         run: |
           for zipfile in *.zip; do
-            aws s3 cp "$zipfile" "s3://ccao-dbt-athena-dev-us-east-1/packages/"
+            aws s3 cp "$zipfile" "s3://ccao-dbt-athena-ci-us-east-1/packages/"
           done
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
