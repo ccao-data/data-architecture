@@ -239,6 +239,9 @@ def model(dbt, spark_session):
     # compatibility with assesspy functions
     input = input.toPandas()
 
+    # Replicate filtering from prior vw_ratio_stats pull
+    input = input[input.ratio > 0 & input.ratio.notnull()]
+
     df = pd.concat(
         [
             report_summarise(input, "triad", "Tri"),
