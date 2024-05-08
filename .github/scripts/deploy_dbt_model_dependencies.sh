@@ -19,8 +19,8 @@ set -euo pipefail
 # Fall back to local development if a dbt $TARGET is not specified
 target=${TARGET:-"dev"}
 
-# Set the remote location where bundled dependencies will be deployed
-base_s3_url="s3://ccao-dbt-athena-ci-us-east-1/packages/"
+# Determine the remote location where bundled dependencies will be deployed
+s3_dependency_dir=$(dbt run-operation print_s3_dependency_dir -q -t "$target")
 
 # Parse optional positional arguments representing a restricted list of
 # models for which to upload dependencies
@@ -93,7 +93,7 @@ while read -r item; do
     cat "$requirements_filename"
 
     # Check if the archive already exists on S3
-    existing_requirements_file_url=${base_s3_url}${requirements_filename}
+    existing_requirements_file_url=${s3_dependency_dir}${requirements_filename}
     if aws s3 ls "$existing_requirements_file_url" > /dev/null 2>&1; then
         echo "Diffing against $existing_requirements_file_url to check for changes"
 
@@ -141,8 +141,8 @@ while read -r item; do
 
     # Upload the archive to S3
     echo "Uploading $zip_archive_name and $requirements_filename to S3"
-    aws s3 cp "$zip_archive_name" "$base_s3_url" --no-progress
-    aws s3 cp "$requirements_filename" "$base_s3_url" --no-progress
+    aws s3 cp "$zip_archive_name" "$s3_dependency_dir" --no-progress
+    aws s3 cp "$requirements_filename" "$s3_dependency_dir" --no-progress
 
     # Cleanup the intermediate artifacts
     echo "Cleaning up intermediate artifacts"
