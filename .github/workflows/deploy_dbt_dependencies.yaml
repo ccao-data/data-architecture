@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy-dbt-requirements:
+  deploy-dbt-dependencies:
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint
     # so that we can authenticate with AWS
@@ -25,8 +25,8 @@ jobs:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
           role-duration-seconds: 900
 
-      - name: Parse requirements from dbt DAG
-        id: parse-requirements
+      - name: Parse dependencies for dbt Python models
+        id: parse-dependencies
         run: |
           # Compile the DAG
           dbt compile -q -t "$TARGET"
@@ -45,20 +45,20 @@ jobs:
               )
           ' target/manifest.json)
 
-          # Set a flag to check whether any requirements were found
-          requirements_found=false
+          # Set a flag to check whether any dependencies were found
+          dependencies_found=false
 
           # Use jq to iterate over each key-value pair representing packages
           echo "$packages_json" | \
-            jq -rc 'to_entries[] | {model_name: .key, requirements: .value}' | \
+            jq -rc 'to_entries[] | {model_name: .key, dependencies: .value}' | \
             while read -r item;
           do
-            # Set the flag to confirm requirements were found
-            requirements_found=true
+            # Set the flag to confirm dependencies were found
+            dependencies_found=true
 
             # Extract the key and value
             model_name=$(echo "$item" | jq -r '.model_name')
-            requirements=$(echo "$item" | jq -r '.requirements[]')
+            dependencies=$(echo "$item" | jq -r '.dependencies[]')
 
             # Split the key by '.' and take the last two elements
             model_identifier=$(echo "$model_name" | awk -F. '{print $(NF-1)"."$NF}')
@@ -67,7 +67,7 @@ jobs:
             filename="${model_identifier}.requirements.txt"
 
             # Create the file and write the contents
-            echo "$requirements" | tr ' ' '\n' > "$filename"
+            echo "$dependencies" | tr ' ' '\n' > "$filename"
 
             echo "Python requirements file $filename created with contents:"
             cat "$filename"
@@ -75,17 +75,17 @@ jobs:
           done
 
           # Push status to step output
-          echo "requirements-found=$requirements_found" >> "$GITHUB_OUTPUT"
+          echo "dependencies-found=$dependencies_found" >> "$GITHUB_OUTPUT"
 
-          # Log a warning if no requirements were found
-          if [ "$requirements_found" == "false" ]; then
-            echo "No Python requirements found, exiting early"
+          # Log a warning if no dependencies were found
+          if [ "$dependencies_found" == "false" ]; then
+            echo "No Python dependencies found, exiting early"
           fi
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
-      - if: steps.parse-requirements.outputs.requirements-found == 'true'
-        name: Download, install, and bundle requirements from remote repositories
+      - if: steps.parse-dependencies.outputs.dependencies-found == 'true'
+        name: Download, install, and bundle dependencies from remote repositories
         run: |
           for requirements_file in *.requirements.txt; do
             # Extract the base name without extension and use it to define
@@ -95,11 +95,11 @@ jobs:
             subdirectory_name="${base_name}/"
             zip_archive_name="${base_name}.requirements.zip"
 
-            # Create and activate a Python virtual environment for requirements
+            # Create and activate a Python virtual environment for dependencies
             python3 -m venv "$venv_name"
             source "${venv_name}/bin/activate"
 
-            # Install requirements into a subdirectory
+            # Install dependencies into a subdirectory
             mkdir -p "$subdirectory_name"
             pip install -t "$subdirectory_name" -r "$requirements_file"
 
@@ -116,8 +116,8 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
-      - if: steps.parse-requirements.outputs.requirements-found == 'true'
-        name: Push requirements to S3
+      - if: steps.parse-dependencies.outputs.dependencies-found == 'true'
+        name: Push dependency bundles to S3
         run: |
           for zipfile in *.zip; do
             aws s3 cp "$zipfile" "s3://ccao-dbt-athena-dev-us-east-1/packages/"
