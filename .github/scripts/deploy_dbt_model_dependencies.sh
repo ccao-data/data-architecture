@@ -20,7 +20,8 @@ set -euo pipefail
 target=${TARGET:-"dev"}
 
 # Determine the remote location where bundled dependencies will be deployed
-s3_dependency_dir=$(dbt run-operation print_s3_dependency_dir -q -t "$target")
+s3_dependency_dir=$(dbt run-operation print_s3_dependency_dir --quiet \
+    --target "$target")
 
 # Parse optional positional arguments representing a restricted list of
 # models for which to upload dependencies
@@ -31,7 +32,7 @@ fi
 
 # Compile the DAG so that we have up-to-date info on dependencies
 echo "Parsing dbt Python model dependencies for target '$target'"
-dbt compile -q -t "$target"
+dbt compile --quiet --target "$target"
 
 # Extract config.packages attributes from models
 packages_json=$(jq '
