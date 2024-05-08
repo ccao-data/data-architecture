@@ -25,7 +25,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
           role-duration-seconds: 900
 
-      - name: Parse, bundle, and deploy dependencies to S3
-        run: ../.github/scripts/deploy_dbt_dependencies.sh
+      - name: Parse, bundle, and deploy Python model dependencies to S3
+        run: ../.github/scripts/deploy_dbt_model_dependencies.sh
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash

@@ -1,6 +1,17 @@
 #!/usr/bin/env bash
 # Parse, bundle, and upload dbt Python model requirements to S3.
 #
+# Takes one or more optional positional arguments representing the models for
+# which you would like to upload dependencies. For example, the following
+# command will only upload dependencies for the `reporting.ratio_stats` model:
+#
+# ./deploy_dbt_model_dependencies.sh reporting.ratio_stats
+#
+# When no arguments are provided, the script will upload dependencies for all
+# models:
+#
+# ./deploy_dbt_model_dependencies.sh
+#
 # Assumes that dbt, python, and jq are installed and available on the caller's
 # path.
 set -euo pipefail
@@ -10,6 +21,13 @@ target=${TARGET:-"dev"}
 
 # Set the remote location where bundled dependencies will be deployed
 base_s3_url="s3://ccao-dbt-athena-ci-us-east-1/packages/"
+
+# Parse optional positional arguments representing a restricted list of
+# models for which to upload dependencies
+declare -a specified_models
+if [ $# -gt 0 ]; then
+    specified_models=("$@")
+fi
 
 # Compile the DAG so that we have up-to-date info on dependencies
 echo "Parsing dbt Python model dependencies for target '$target'"
@@ -38,15 +56,33 @@ dependencies_found=false
 # substitution so that we can avoid a subshell and thereby modify the
 # global $dependencies_found variable in the context of the loop
 while read -r item; do
-    # Set the flag to confirm dependencies were found
-    dependencies_found=true
-
-    # Extract the key and value
+    # Extract the model name and its list of dependencies
     model_name=$(echo "$item" | jq -r '.model_name')
     dependencies=$(echo "$item" | jq -r '.dependencies[]')
 
-    # Split the key by '.' and take the last two elements
+    # Split the model name by '.' and take the last two elements to
+    # generate an ID, since model names usually have extraneous prefixes
+    # in their DAG representation
     model_identifier=$(echo "$model_name" | awk -F. '{print $(NF-1)"."$NF}')
+
+    # If a list of models was specified in the positional args, skip
+    # any models that are not in the list
+    if [ ${#specified_models[@]} -gt 0 ]; then
+        should_process=false
+        for specified_model in "${specified_models[@]}"; do
+            if [ "$specified_model" == "$model_identifier" ]; then
+                should_process=true
+                break
+            fi
+        done
+
+        if [ "$should_process" == "false" ]; then
+            continue
+        fi
+    fi
+
+    # Set the flag to confirm dependencies were found
+    dependencies_found=true
 
     # Define the filename for the requirements file
     requirements_filename="${model_identifier}.requirements.txt"
@@ -81,6 +117,7 @@ while read -r item; do
         rm -rf "$temp_dir"
 
         if [ "$skip_upload" == "true" ]; then
+            rm "$requirements_filename"
             continue
         fi
     fi
