@@ -1,4 +1,4 @@
--- View containing ratios by pin, intended to feed the
+-- Table containing ratios by pin, intended to feed the
 -- ratio_stats dbt python model
 {{
     config(
