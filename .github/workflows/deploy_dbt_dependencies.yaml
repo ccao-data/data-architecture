@@ -48,11 +48,12 @@ jobs:
           # Set a flag to check whether any dependencies were found
           dependencies_found=false
 
-          # Use jq to iterate over each key-value pair representing packages
-          echo "$packages_json" | \
-            jq -rc 'to_entries[] | {model_name: .key, dependencies: .value}' | \
-            while read -r item;
-          do
+          # Iterate over each key-value pair representing a set of package
+          # dependencies and output those dependencies to a requirements file.
+          # Note that the input to the `read` call is passed in using process
+          # substitution so that we can avoid a subshell and thereby modify the
+          # global $dependencies_found variable in the context of the loop
+          while read -r item; do
             # Set the flag to confirm dependencies were found
             dependencies_found=true
 
@@ -72,7 +73,10 @@ jobs:
             echo "Python requirements file $filename created with contents:"
             cat "$filename"
             echo
-          done
+          done < <(
+            echo "$packages_json" | \
+              jq -rc 'to_entries[] | {model_name: .key, dependencies: .value}'
+          )
 
           # Push status to step output
           echo "dependencies-found=$dependencies_found" >> "$GITHUB_OUTPUT"
