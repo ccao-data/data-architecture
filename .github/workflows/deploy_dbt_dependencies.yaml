@@ -1,4 +1,4 @@
-name: deploy-dbt-requirements
+name: deploy-dbt-dependencies
 
 on:
   push:
@@ -25,106 +25,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
           role-duration-seconds: 900
 
-      - name: Parse dependencies for dbt Python models
-        id: parse-dependencies
-        run: |
-          # Compile the DAG
-          dbt compile -q -t "$TARGET"
-
-          # Extract config.packages attributes from models
-          packages_json=$(jq '
-            .nodes
-            | with_entries(
-                select(
-                  .value.config.packages != null and
-                  (.value.config.packages | length) > 0
-                )
-              )
-            | with_entries(
-                .value = .value.config.packages
-              )
-          ' target/manifest.json)
-
-          # Set a flag to check whether any dependencies were found
-          dependencies_found=false
-
-          # Iterate over each key-value pair representing a set of package
-          # dependencies and output those dependencies to a requirements file.
-          # Note that the input to the `read` call is passed in using process
-          # substitution so that we can avoid a subshell and thereby modify the
-          # global $dependencies_found variable in the context of the loop
-          while read -r item; do
-            # Set the flag to confirm dependencies were found
-            dependencies_found=true
-
-            # Extract the key and value
-            model_name=$(echo "$item" | jq -r '.model_name')
-            dependencies=$(echo "$item" | jq -r '.dependencies[]')
-
-            # Split the key by '.' and take the last two elements
-            model_identifier=$(echo "$model_name" | awk -F. '{print $(NF-1)"."$NF}')
-
-            # Define the filename
-            filename="${model_identifier}.requirements.txt"
-
-            # Create the file and write the contents
-            echo "$dependencies" | tr ' ' '\n' > "$filename"
-
-            echo "Python requirements file $filename created with contents:"
-            cat "$filename"
-            echo
-          done < <(
-            echo "$packages_json" | \
-              jq -rc 'to_entries[] | {model_name: .key, dependencies: .value}'
-          )
-
-          # Push status to step output
-          echo "dependencies-found=$dependencies_found" >> "$GITHUB_OUTPUT"
-
-          # Log a warning if no dependencies were found
-          if [ "$dependencies_found" == "false" ]; then
-            echo "No Python dependencies found, exiting early"
-          fi
-        working-directory: ${{ env.PROJECT_DIR }}
-        shell: bash
-
-      - if: steps.parse-dependencies.outputs.dependencies-found == 'true'
-        name: Download, install, and bundle dependencies from remote repositories
-        run: |
-          for requirements_file in *.requirements.txt; do
-            # Extract the base name without extension and use it to define
-            # filenames for some artifacts
-            base_name=$(basename "$requirements_file" .requirements.txt)
-            venv_name="${base_name}.venv"
-            subdirectory_name="${base_name}/"
-            zip_archive_name="${base_name}.requirements.zip"
-
-            # Create and activate a Python virtual environment for dependencies
-            python3 -m venv "$venv_name"
-            source "${venv_name}/bin/activate"
-
-            # Install dependencies into a subdirectory
-            mkdir -p "$subdirectory_name"
-            pip install -t "$subdirectory_name" -r "$requirements_file"
-
-            # Create a zip archive from the contents of the subdirectory
-            zip -r "$zip_archive_name" "$subdirectory_name"
-
-            # Cleanup the intermediate artifacts
-            deactivate
-            rm -rf "$venv_name"
-            rm -rf "$subdirectory_name"
-
-            echo "Created zip archive $zip_archive_name from $requirements_file"
-          done
-        working-directory: ${{ env.PROJECT_DIR }}
-        shell: bash
-
-      - if: steps.parse-dependencies.outputs.dependencies-found == 'true'
-        name: Push dependency bundles to S3
-        run: |
-          for zipfile in *.zip; do
-            aws s3 cp "$zipfile" "s3://ccao-dbt-athena-ci-us-east-1/packages/"
-          done
+      - name: Parse, bundle, and deploy dependencies to S3
+        run: ../.github/scripts/deploy_dbt_dependencies.sh
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
