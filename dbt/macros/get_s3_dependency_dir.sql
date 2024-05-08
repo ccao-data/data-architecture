@@ -4,18 +4,18 @@
     {{
         return(
             _get_s3_dependency_dir(
-                target.name,
-                target.s3_data_dir,
-                env_var("USER"),
+                target,
+                env_var,
                 exceptions.raise_compiler_error,
             )
         )
     }}
 {% endmacro %}
 
-{% macro _get_s3_dependency_dir(target_name, s3_data_dir, username, raise_error_func) %}
+{% macro _get_s3_dependency_dir(target, env_var_func, raise_error_func) %}
     {% set dir_suffix = "" %}
-    {% if target_name == "dev" %}
+    {% if target.name == "dev" %}
+        {% set username = env_var_func("USER") %}
         {% if not username %}
             {{
                 return(
@@ -24,8 +24,20 @@
             }}
         {% endif %}
         {% set dir_suffix = "/" ~ username %}
+    {% elif target.name == "ci" %}
+        {% set head_ref = slugify(env_var_func("HEAD_REF")) %}
+        {% if not head_ref %}
+            {{
+                return(
+                    raise_error_func(
+                        "HEAD_REF env var must be set when target is 'ci'"
+                    )
+                )
+            }}
+        {% endif %}
+        {% set dir_suffix = "/" ~ head_ref %}
     {% endif %}
-    {% set s3_dependency_dir = s3_data_dir ~ "packages" ~ dir_suffix %}
+    {% set s3_dependency_dir = target.s3_data_dir ~ "packages" ~ dir_suffix %}
     {{ return(s3_dependency_dir) }}
 {% endmacro %}
 

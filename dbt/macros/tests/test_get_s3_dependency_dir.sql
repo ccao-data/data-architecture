@@ -1,8 +1,9 @@
 {% macro test_get_s3_dependency_dir() %}
     {% do test_get_s3_dependency_dir_target_dev() %}
-    {% do test_get_s3_dependency_dir_target_not_dev() %}
+    {% do test_get_s3_dependency_dir_target_ci() %}
     {% do test_get_s3_dependency_dir_target_dev_raises_wo_username() %}
-    {% do test_get_s3_dependency_dir_target_not_dev_wont_raise_wo_username() %}
+    {% do test_get_s3_dependency_dir_target_ci_raises_wo_head_ref() %}
+    {% do test_get_s3_dependency_dir_target_prod_wont_raise_wo_env_vars() %}
 {% endmacro %}
 
 {% macro test_get_s3_dependency_dir_target_dev() %}
@@ -10,21 +11,25 @@
         assert_equals(
             "test_get_s3_dependency_dir_target_dev",
             _get_s3_dependency_dir(
-                "dev", "s3://bucket/", "username", exceptions.raise_compiler_error
+                {"name": "dev", "s3_data_dir": "s3://bucket/"},
+                mock_env_var,
+                exceptions.raise_compiler_error,
             ),
-            "s3://bucket/packages/username",
+            "s3://bucket/packages/test-user",
         )
     }}
 {% endmacro %}
 
-{% macro test_get_s3_dependency_dir_target_not_dev() %}
+{% macro test_get_s3_dependency_dir_target_ci() %}
     {{
         assert_equals(
-            "test_get_s3_dependency_dir_target_not_dev",
+            "test_get_s3_dependency_dir_target_ci",
             _get_s3_dependency_dir(
-                "ci", "s3://bucket/", "username", exceptions.raise_compiler_error
+                {"name": "ci", "s3_data_dir": "s3://bucket/"},
+                mock_env_var,
+                exceptions.raise_compiler_error,
             ),
-            "s3://bucket/packages",
+            "s3://bucket/packages/testuser_feature_branch_1",
         )
     }}
 {% endmacro %}
@@ -34,19 +39,37 @@
         assert_equals(
             "test_get_s3_dependency_dir_target_dev_raises_wo_username",
             _get_s3_dependency_dir(
-                "dev", "s3://bucket/", null, mock_raise_compiler_error
+                {"name": "dev", "s3_data_dir": "s3://bucket/"},
+                mock_no_env_var,
+                mock_raise_compiler_error,
             ),
             "USER env var must be set when target is 'dev'",
         )
     }}
 {% endmacro %}
 
-{% macro test_get_s3_dependency_dir_target_not_dev_wont_raise_wo_username() %}
+{% macro test_get_s3_dependency_dir_target_ci_raises_wo_head_ref() %}
     {{
         assert_equals(
-            "test_get_s3_dependency_dir_target_not_dev_wont_raise_wo_username",
+            "test_get_s3_dependency_dir_target_ci_raises_wo_username",
             _get_s3_dependency_dir(
-                "ci", "s3://bucket/", null, exceptions.raise_compiler_error
+                {"name": "ci", "s3_data_dir": "s3://bucket/"},
+                mock_no_env_var,
+                mock_raise_compiler_error,
+            ),
+            "HEAD_REF env var must be set when target is 'ci'",
+        )
+    }}
+{% endmacro %}
+
+{% macro test_get_s3_dependency_dir_target_prod_wont_raise_wo_env_vars() %}
+    {{
+        assert_equals(
+            "test_get_s3_dependency_dir_target_prod_wont_raise_wo_env_vars",
+            _get_s3_dependency_dir(
+                {"name": "prod", "s3_data_dir": "s3://bucket/"},
+                env_var,
+                exceptions.raise_compiler_error,
             ),
             "s3://bucket/packages",
         )
