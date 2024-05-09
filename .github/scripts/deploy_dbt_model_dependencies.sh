@@ -28,6 +28,8 @@ s3_dependency_dir=$(dbt run-operation print_s3_dependency_dir --quiet \
 declare -a specified_models
 if [ $# -gt 0 ]; then
     specified_models=("$@")
+else
+    specified_models=()
 fi
 
 # Compile the DAG so that we have up-to-date info on dependencies
