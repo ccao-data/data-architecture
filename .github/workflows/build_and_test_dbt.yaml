@@ -74,6 +74,10 @@ jobs:
                 tr '\n' ' '
               )
               echo "Parsed list of modified/new models: $model_names"
+              # Disable shellcheck double-quote rule for the script call
+              # since we intentionally want to split each model name into a
+              # separate argument based on spaces
+              # shellcheck disable=SC2086
               ../.github/scripts/deploy_dbt_model_dependencies.sh $model_names
             fi
           else
