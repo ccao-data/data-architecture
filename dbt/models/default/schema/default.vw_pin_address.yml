@@ -1,6 +1,11 @@
 models:
   - name: default.vw_pin_address
     description: '{{ doc("view_vw_pin_address") }}'
+    config:
+      packages:
+        - "assesspy==1.1.*"
+        - "numpy==1.26.*"
+        - "pandas==2.*"
 
     columns:
       - name: mail_address_city_name
