@@ -73,6 +73,10 @@ jobs:
                 jq -r '.name' | \
                 tr '\n' ' '
               )
+              if [ -z "$model_names" ]; then
+                echo "No modified/new resources found, skipping dependency deploy"
+                exit 0
+              fi
               echo "Parsed list of modified/new models: $model_names"
               # Disable shellcheck double-quote rule for the script call
               # since we intentionally want to split each model name into a

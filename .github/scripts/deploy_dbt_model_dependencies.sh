@@ -28,8 +28,6 @@ s3_dependency_dir=$(dbt run-operation print_s3_dependency_dir --quiet \
 declare -a specified_models
 if [ $# -gt 0 ]; then
     specified_models=("$@")
-else
-    specified_models=()
 fi
 
 # Compile the DAG so that we have up-to-date info on dependencies
@@ -69,8 +67,10 @@ while read -r item; do
     model_identifier=$(echo "$model_name" | awk -F. '{print $(NF-1)"."$NF}')
 
     # If a list of models was specified in the positional args, skip
-    # any models that are not in the list
-    if [ ${#specified_models[@]} -gt 0 ]; then
+    # any models that are not in the list.
+    # The preliminary -n check is necessary to support older versions of bash
+    # which treat empty arrays as unbound variables
+    if [ -n "${specified_models+x}" ] && [ ${#specified_models[@]} -gt 0 ]; then
         should_process=false
         for specified_model in "${specified_models[@]}"; do
             if [ "$specified_model" == "$model_identifier" ]; then
