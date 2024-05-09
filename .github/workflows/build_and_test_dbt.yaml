@@ -24,7 +24,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup dbt
         uses: ./.github/actions/setup_dbt
@@ -54,6 +54,32 @@ jobs:
 
       - name: Test dbt macros
         run: dbt run-operation test_all
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
+      - name: Deploy model dependencies
+        run: |
+          if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
+            if [[ $MANUALLY_DISPATCHED == 'true' ]]; then
+              echo "Deploying dependencies for manually selected resources"
+              ../.github/scripts/deploy_dbt_model_dependencies.sh ${{ inputs.models }}
+            else
+              echo "Deploying dependencies for modified/new resources only"
+              model_names=$(\
+                dbt list \
+                  --quiet -t "$TARGET" -s state:modified state:new \
+                  --state "$STATE_DIR" --resource-types model \
+                  --output json --output-keys name | \
+                jq -r '.name' | \
+                tr '\n' ' '
+              )
+              echo "Parsed list of modified/new models: $model_names"
+              ../.github/scripts/deploy_dbt_model_dependencies.sh $model_names
+            fi
+          else
+            echo "Deploying dependencies for all resources"
+            ../.github/scripts/deploy_dbt_model_dependencies.sh
+          fi
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
