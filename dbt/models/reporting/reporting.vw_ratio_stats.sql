@@ -1,1 +1,0 @@
-../../../aws-athena/views/reporting-vw_ratio_stats.sql

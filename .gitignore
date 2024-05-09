@@ -16,3 +16,4 @@ logs/
 # Ignore most CSVs, except those that are used as dbt seeds
 *.csv
 !dbt/seeds/**/*.csv
+venv/

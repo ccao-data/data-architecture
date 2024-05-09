@@ -1,39 +1,73 @@
-sources:
-  - name: reporting
-    tags:
-      - load_auto
-    tables:
-      - name: ratio_stats
-        description: '{{ doc("table_ratio_stats") }}'
-        tests:
-          - expression_is_true:
-              name: reporting_ratio_stats_no_nulls
-              expression: |
-                year IS NOT NULL
-                AND triad IS NOT NULL
-                AND geography_type IS NOT NULL
-                AND property_group IS NOT NULL
-                AND assessment_stage IS NOT NULL
-                AND sale_year IS NOT NULL
-          - expression_is_true:
-              name: reporting_ratio_stats_metrics_are_sensible
-              expression: |
-                cod >= 0
-                AND prd >= 0
-                AND prb BETWEEN -1 AND 1
-                AND mki >= 0
-                AND triad IS NOT NULL
-                AND geography_type IS NOT NULL
-                AND property_group IS NOT NULL
-                AND assessment_stage IS NOT NULL
-                AND sale_year IS NOT NULL
-          - expression_is_true:
-              name: reporting_ratio_stats_within_directionality
-              expression: |
-                within_20_pct >= within_10_pct
-                AND within_10_pct >= within_05_pct
-
 models:
+  - name: reporting.ratio_stats
+    description: '{{ doc("table_ratio_stats") }}'
+    config:
+      tags:
+        - daily
+      packages:
+        - "assesspy==1.1.*"
+        - "numpy==1.26.*"
+        - "pandas==2.*"
+    tests:
+      - expression_is_true:
+          name: reporting_ratio_stats_no_nulls
+          expression: |
+            year IS NOT NULL
+            AND triad IS NOT NULL
+            AND geography_type IS NOT NULL
+            AND property_group IS NOT NULL
+            AND assessment_stage IS NOT NULL
+            AND sale_year IS NOT NULL
+      - expression_is_true:
+          name: reporting_ratio_stats_metrics_are_sensible
+          expression: |
+            cod >= 0
+            AND prd >= 0
+            AND prb BETWEEN -1 AND 1
+            AND mki >= 0
+            AND triad IS NOT NULL
+            AND geography_type IS NOT NULL
+            AND property_group IS NOT NULL
+            AND assessment_stage IS NOT NULL
+            AND sale_year IS NOT NULL
+      - expression_is_true:
+          name: reporting_ratio_stats_within_directionality
+          expression: |
+            within_20_pct >= within_10_pct
+            AND within_10_pct >= within_05_pct
+
+  - name: reporting.ratio_stats_input
+    description: '{{ doc("table_ratio_stats_input") }}'
+    config:
+      tags:
+        - daily
+    tests:
+      - unique_combination_of_columns:
+          name: reporting_ratio_stats_input_unique_by_keys
+          combination_of_columns:
+            - pin
+            - year
+            - assessment_stage
+            - sale_price
+      - expression_is_true:
+          name: reporting_ratio_stats_input_no_nulls
+          expression: |
+            property_group IS NOT NULL
+            AND assessment_stage IS NOT NULL
+            AND triad IS NOT NULL
+            AND township_code IS NOT NULL
+      - expression_is_true:
+          name: reporting_ratio_stats_input_sale_year_equals_year_minus_one
+          expression: CAST(sale_year AS INTEGER) = CAST(year AS INTEGER) - 1
+          additional_select_columns:
+            - sale_year
+            - year
+      - expression_is_true:
+          name: reporting_ratio_stats_input_ratio_greater_than_zero
+          expression: ratio >= 0
+          additional_select_columns:
+            - ratio
+
   - name: reporting.res_report_summary
     description: '{{ doc("table_res_report_summary") }}'
     config:
@@ -180,35 +214,6 @@ models:
           config:
             where: CAST(year AS int) < {{ var('test_qc_year_start') }}
             error_if: ">21" # as of 2024-04-01
-
-  - name: reporting.vw_ratio_stats
-    description: '{{ doc("view_vw_ratio_stats") }}'
-    tests:
-      - unique_combination_of_columns:
-          name: reporting_vw_ratio_stats_unique_by_keys
-          combination_of_columns:
-            - pin
-            - year
-            - assessment_stage
-            - sale_price
-      - expression_is_true:
-          name: reporting_vw_ratio_stats_no_nulls
-          expression: |
-            property_group IS NOT NULL
-            AND assessment_stage IS NOT NULL
-            AND triad IS NOT NULL
-            AND township_code IS NOT NULL
-      - expression_is_true:
-          name: reporting_vw_ratio_stats_sale_year_equals_year_minus_one
-          expression: CAST(sale_year AS INTEGER) = CAST(year AS INTEGER) - 1
-          additional_select_columns:
-            - sale_year
-            - year
-      - expression_is_true:
-          name: reporting_vw_ratio_stats_ratio_greater_than_zero
-          expression: ratio >= 0
-          additional_select_columns:
-            - ratio
 
   - name: reporting.vw_top_5
     description: '{{ doc("view_vw_top_5") }}'
