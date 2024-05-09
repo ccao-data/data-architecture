@@ -94,7 +94,7 @@ while read -r item; do
     cat "$requirements_filename"
 
     # Check if the archive already exists on S3
-    existing_requirements_file_url=${s3_dependency_dir}${requirements_filename}
+    existing_requirements_file_url="${s3_dependency_dir}/${requirements_filename}"
     if aws s3 ls "$existing_requirements_file_url" > /dev/null 2>&1; then
         echo "Diffing against $existing_requirements_file_url to check for changes"
 
@@ -143,8 +143,8 @@ while read -r item; do
 
     # Upload the archive to S3
     echo "Uploading $zip_archive_name and $requirements_filename to S3"
-    aws s3 cp "$zip_archive_name" "$s3_dependency_dir" --no-progress
-    aws s3 cp "$requirements_filename" "$s3_dependency_dir" --no-progress
+    aws s3 cp "$zip_archive_name" "${s3_dependency_dir}/" --no-progress
+    aws s3 cp "$requirements_filename" "${s3_dependency_dir}/" --no-progress
 
     # Cleanup the intermediate artifacts
     echo "Cleaning up intermediate artifacts"
