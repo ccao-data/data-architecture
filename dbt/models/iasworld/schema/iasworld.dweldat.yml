@@ -1263,10 +1263,23 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_char_attic_fnsh_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
+                  additional_select_columns:
+                    - parid
+                    - taxyr
+                    - card
+                    - who
+                    - wen
+                    - attic
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
+                      AND attic != '3'
                   meta:
-                    description: user6 (Attic Finish) should not be null
+                    description: >
+                      user6 (Attic Finish) should not be null unless attic is 3 (None)
               - accepted_values:
                   name: iasworld_dweldat_char_attic_fnsh_in_accepted_values
                   values: ['1', '2', '3']
@@ -1295,10 +1308,23 @@ sources:
             tests:
               - not_null:
                   name: iasworld_dweldat_char_bsmt_fin_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
+                  additional_select_columns:
+                    - parid
+                    - taxyr
+                    - card
+                    - who
+                    - wen
+                    - bsmt
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
+                      AND bsmt != '2'
                   meta:
-                    description: user12 (Basement Finished) should not be null
+                    description: >
+                      user12 (Basement Finished) should not be null unless bsmt is 2 (Slab)
               - accepted_values:
                   name: iasworld_dweldat_char_bsmt_fin_accepted_values
                   values: ['1', '2', '3', '4', '5', '6']
@@ -1376,12 +1402,32 @@ sources:
             description: '{{ doc("shared_column_char_ncu") }}'
             tests:
               - not_null:
-                  name: iasworld_dweldat_char_ncu_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
+                  name: iasworld_dweldat_char_ncu_not_null_when_class_is_212
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '212'
                   meta:
                     description: >
                       user20 (No. of Commercial Units) should not be null
+                      when class is 212
+              - is_null:
+                  name: iasworld_dweldat_char_ncu_null_when_class_is_not_212_and_char_ncu_not_0
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class != '212'
+                      AND user20 != '0'
+                  meta:
+                    description: >
+                      user20 (No. of Commercial Units) should be null or 0
+                      when class is not 212
               - accepted_values:
                   name: iasworld_dweldat_char_ncu_between_0_and_5
                   values: ['0', '1', '2', '3', '4', '5']
@@ -1570,7 +1616,7 @@ sources:
                   name: iasworld_dweldat_yrblt_205_more_than_62_years_old
                   max_value: cast(year(current_date) as integer) - 63
                   additional_select_columns: *select-columns
-                  config: 
+                  config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
@@ -1582,7 +1628,7 @@ sources:
                   name: iasworld_dweldat_yrblt_206_more_than_62_years_old
                   max_value: cast(year(current_date) as integer) - 63
                   additional_select_columns: *select-columns
-                  config: 
+                  config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
@@ -1594,7 +1640,7 @@ sources:
                   name: iasworld_dweldat_yrblt_207_less_than_62_years_old
                   min_value: cast(year(current_date) as integer) - 62
                   additional_select_columns: *select-columns
-                  config: 
+                  config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
@@ -1606,7 +1652,7 @@ sources:
                   name: iasworld_dweldat_yrblt_208_less_than_62_years_old
                   min_value: cast(year(current_date) as integer) - 62
                   additional_select_columns: *select-columns
-                  config: 
+                  config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
@@ -1618,7 +1664,7 @@ sources:
                   name: iasworld_dweldat_yrblt_210_more_than_62_years_old
                   max_value: cast(year(current_date) as integer) - 63
                   additional_select_columns: *select-columns
-                  config: 
+                  config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
@@ -1630,7 +1676,7 @@ sources:
                   name: iasworld_dweldat_yrblt_278_less_than_62_years_old
                   min_value: cast(year(current_date) as integer) - 62
                   additional_select_columns: *select-columns
-                  config: 
+                  config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
@@ -1642,7 +1688,7 @@ sources:
                   name: iasworld_dweldat_yrblt_295_less_than_62_years_old
                   min_value: cast(year(current_date) as integer) - 62
                   additional_select_columns: *select-columns
-                  config: 
+                  config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
