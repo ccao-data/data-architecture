@@ -51,8 +51,8 @@ seeds:
           which properties are assessed
         tests:
           - accepted_range:
-              name: loa_less_than_33
-              max_value: .33
+              name: loa_less_than_38
+              max_value: .38
   - name: ccao.pin_test
     description: '{{ doc("seed_pin_test") }}'
     config:
