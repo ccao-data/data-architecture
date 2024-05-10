@@ -1404,7 +1404,7 @@ sources:
               - not_null:
                   name: iasworld_dweldat_char_ncu_not_null_when_class_is_212
                   additional_select_columns: *select-columns-with-class
-                  config:
+                  config: &unique-conditions-class-212
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
@@ -1413,6 +1413,16 @@ sources:
                   meta:
                     description: >
                       user20 (No. of Commercial Units) should not be null
+                      when class is 212
+              - not_accepted_values:
+                  name: iasworld_dweldat_char_ncu_not_0_when_class_is_212
+                  values:
+                    - 0
+                  additional_select_columns: *select-columns-with-class
+                  config: *unique-conditions-class-212
+                  meta:
+                    description: >
+                      user20 (No. of Commercial Units) should not be 0
                       when class is 212
               - is_null:
                   name: iasworld_dweldat_char_ncu_null_when_class_is_not_212_and_char_ncu_not_0
