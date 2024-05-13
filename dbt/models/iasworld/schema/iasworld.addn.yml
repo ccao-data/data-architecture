@@ -17,7 +17,7 @@ sources:
         columns:
           - name: area
             description: '{{ doc("column_area") }}'
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_addn_area_between_0_and_1.5m
                   min_value: 0
@@ -43,7 +43,7 @@ sources:
             description: '{{ doc("column_areasum") }}'
           - name: card
             description: '{{ doc("column_card") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_addn_card_not_null
                   additional_select_columns: &select-columns-no-card
@@ -67,7 +67,7 @@ sources:
             description: '{{ doc("column_chgrsn") }}'
           - name: class
             description: '{{ doc("shared_column_class") }}'
-            tests:
+            data_tests:
               - relationships:
                   name: iasworld_addn_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
@@ -86,7 +86,7 @@ sources:
             description: Converted addition total
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_addn_cur_in_accepted_values
                   values: ['Y', 'D']
@@ -100,7 +100,7 @@ sources:
             description: '{{ doc("column_deactivat") }}'
           - name: depr
             description: Percent good from tables (based on age+cdu)
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_addn_depr_between_0_and_100
                   min_value: 0
@@ -139,7 +139,7 @@ sources:
             description: '{{ doc("column_jur") }}'
           - name: lline
             description: '{{ doc("shared_column_lline") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_addn_lline_not_null
                   additional_select_columns: *select-columns
@@ -166,7 +166,7 @@ sources:
             description: '{{ doc("column_newconpct") }}'
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_addn_parid_not_null
                   additional_select_columns: &select-columns-no-parid
@@ -230,7 +230,7 @@ sources:
             description: Second floor addition code
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
+            data_tests:
               - sequential_values:
                   name: iasworld_addn_seq_all_sequential_exist
                   group_by_columns:
@@ -248,7 +248,7 @@ sources:
             description: '{{ doc("column_status") }}'
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_addn_taxyr_not_null
                   additional_select_columns:
@@ -282,7 +282,7 @@ sources:
           - name: yrblt
             description: '{{ doc("column_yrblt") }}'
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_addn_unique_by_parid_taxyr_card_lline
               combination_of_columns:

@@ -17,7 +17,7 @@ sources:
         columns:
           - name: acres
             description: '{{ doc("column_acres") }}'
-            tests:
+            data_tests:
               - expression_is_true:
                   name: iasworld_land_acres_is_sf_transformed
                   expression: '* 43560 BETWEEN sf - 5 AND sf + 5'
@@ -42,7 +42,7 @@ sources:
             description: Agricultural flag
           - name: allocpct
             description: Allocation percentage
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_land_allocpct_not_0
                   values: [0]
@@ -75,7 +75,7 @@ sources:
             description: '{{ doc("column_chgrsn") }}'
           - name: class
             description: '{{ doc("shared_column_class") }}'
-            tests:
+            data_tests:
               - relationships:
                   name: iasworld_land_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
@@ -132,7 +132,7 @@ sources:
             description: Land value at conversion
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_land_cur_in_accepted_values
                   values: ['Y', 'D']
@@ -174,7 +174,7 @@ sources:
             description: 'Influence Code #2'
           - name: influ
             description: Influence percent (+/-)
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_land_influ_between_neg_100_and_pos_100
                   min_value: -100
@@ -193,7 +193,7 @@ sources:
             description: Land code model
           - name: lline
             description: '{{ doc("shared_column_lline") }}'
-            tests:
+            data_tests:
               - sequential_values:
                   name: iasworld_land_lline_is_sequential
                   group_by_columns:
@@ -253,7 +253,7 @@ sources:
             description: Override price
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_land_parid_not_null
                   additional_select_columns: &select-columns-no-parid
@@ -275,7 +275,7 @@ sources:
                     description: parid should be in pardat
           - name: price
             description: Price
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_land_price_gte_1
                   min_value: 1
@@ -296,7 +296,7 @@ sources:
             description: Schedule model number
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
+            data_tests:
               - sequential_values:
                   name: iasworld_land_seq_all_sequential_exist
                   group_by_columns:
@@ -314,7 +314,7 @@ sources:
                     description: seq should be sequential
           - name: sf
             description: '{{ doc("shared_column_char_land_sf") }}'
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_land_sf_gte_1
                   min_value: 1
@@ -342,7 +342,7 @@ sources:
             description: '{{ doc("column_suppress") }}'
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_land_taxyr_not_null
                   additional_select_columns:
@@ -375,7 +375,7 @@ sources:
           - name: zoning
             description: Override zoning at line level
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_land_unique_by_parid_lline_taxyr
               combination_of_columns:

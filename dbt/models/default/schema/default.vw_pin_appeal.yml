@@ -42,7 +42,7 @@ models:
       - name: year
         description: '{{ doc("shared_column_year") }}'
 
-    tests:
+    data_tests:
       # If there is a `change`, the values should reflect this
       - expression_is_true:
           name: default_vw_pin_appeal_change_matches_appeal_outcome

@@ -122,7 +122,7 @@ sources:
           - name: zip2
             description: '{{ doc("column_zip2") }}'
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_htagnt_unique_by_agent
               combination_of_columns:
