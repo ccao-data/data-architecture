@@ -25,7 +25,7 @@ sources:
             description: '{{ doc("column_altbasedate") }}'
           - name: area
             description: '{{ doc("column_area") }}'
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_oby_area_gte_1
                   min_value: 1
@@ -50,7 +50,7 @@ sources:
             description: '{{ doc("column_bld_modelid") }}'
           - name: calc_meth
             description: '{{ doc("shared_column_calc_meth") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_oby_calc_meth_accepted_values
                   values: ["E"]
@@ -66,7 +66,7 @@ sources:
                       calc_meth (Calculation Method) should be 'E' if not null
           - name: card
             description: '{{ doc("column_card") }}'
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_oby_card_between_1_and_100
                   min_value: 1
@@ -79,7 +79,7 @@ sources:
             description: Cost and design percent
           - name: chgrsn
             description: '{{ doc("column_chgrsn") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_oby_chgrsn_eq_5_or_5b_when_external_occpct_or_mktadj_not_null
                   values:
@@ -106,7 +106,7 @@ sources:
                       mktadj (Occupancy % [deprecated]) is not null
           - name: class
             description: '{{ doc("shared_column_class") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_oby_class_mismatch_no_289s
                   values: ["289"]
@@ -165,7 +165,7 @@ sources:
             description: Cubic feet
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_oby_cur_in_accepted_values
                   values: ['Y', 'D']
@@ -199,7 +199,7 @@ sources:
             description: '{{ doc("column_exmpval") }}'
           - name: external_calc_rcnld
             description: '{{ doc("shared_column_external_calc_rcnld") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_oby_external_calc_rcnld_not_0
                   values: [0]
@@ -211,7 +211,7 @@ sources:
                       external_calc_rcnld (Net Market Value) should not be 0
           - name: external_occpct
             description: '{{ doc("shared_column_external_occpct") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_oby_external_occpct_not_0
                   values: [0]
@@ -245,7 +245,7 @@ sources:
                       mktadj (Occupancy % [deprecated]) is null
           - name: external_propct
             description: '{{ doc("shared_column_external_propct") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_oby_external_propct_not_0
                   values: [0]
@@ -257,7 +257,7 @@ sources:
                       external_propct (Proration %) should not be 0
           - name: external_rcnld
             description: '{{ doc("shared_column_external_rcnld") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_oby_external_rcnld_not_0
                   values: [0]
@@ -289,7 +289,7 @@ sources:
             description: Factor used to calculate `RCNADJ`
           - name: lline
             description: '{{ doc("shared_column_lline") }}'
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_oby_lline_between_1_and_100
                   min_value: 1
@@ -320,7 +320,7 @@ sources:
             description: Miles for railroads
           - name: mktadj
             description: '{{ doc("column_mktadj") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_oby_mktadj_not_null_when_chgrsn_eq_5_or_5b_and_external_occpct_is_null
                   additional_select_columns:
@@ -409,7 +409,7 @@ sources:
             description: '{{ doc("column_salekey") }}'
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
+            data_tests:
               - sequential_values:
                   name: iasworld_oby_seq_all_sequential_exist
                   group_by_columns:
@@ -431,7 +431,7 @@ sources:
             description: '{{ doc("column_suppress") }}'
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_oby_taxyr_not_null
                   additional_select_columns:
@@ -468,7 +468,7 @@ sources:
             description: '{{ doc("column_whocalc") }}'
           - name: yrblt
             description: '{{ doc("shared_column_char_yrblt") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_oby_yrblt_not_null
                   additional_select_columns: *select-columns
@@ -486,7 +486,7 @@ sources:
           - name: yrrem
             description: Year remodeled
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_oby_unique_by_parid_card_lline_taxyr
               combination_of_columns:

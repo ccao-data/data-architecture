@@ -22,7 +22,7 @@ sources:
             description: Applied market value
           - name: aprbldg
             description: Appraised building value
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_aprval_aprbldg_between_0_and_1b
                   min_value: 0
@@ -43,7 +43,7 @@ sources:
             description: '`APRTOT` calc date'
           - name: aprland
             description: Appraised land value
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_aprval_aprland_between_0_and_1b
                   min_value: 0
@@ -54,7 +54,7 @@ sources:
                     description: aprland should be between 0 and 1,000,000,000
           - name: aprtot
             description: '{{ doc("column_aprtot") }}'
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_aprval_aprtot_between_0_and_2b
                   min_value: 0
@@ -71,7 +71,7 @@ sources:
             description: Appraisal unit number
           - name: bldgval
             description: Building value
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_aprval_bldgval_between_0_and_1b
                   min_value: 0
@@ -114,7 +114,7 @@ sources:
             description: Total cost value
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_aprval_cur_in_accepted_values
                   values: ['Y', 'D']
@@ -166,7 +166,7 @@ sources:
             description: Land allocation percent
           - name: landval
             description: Total land cost value
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_aprval_landval_between_0_and_1b
                   min_value: 0
@@ -205,7 +205,7 @@ sources:
             description: '{{ doc("column_ovrmraval") }}'
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_aprval_parid_not_null
                   additional_select_columns: &select-columns-no-parid
@@ -266,7 +266,7 @@ sources:
             description: Selected sale price
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
+            data_tests:
               - sequential_values:
                   name: iasworld_aprval_seq_all_sequential_exist
                   group_by_columns:
@@ -290,7 +290,7 @@ sources:
             description: '{{ doc("column_status") }}'
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_aprval_taxyr_not_null
                   additional_select_columns:
@@ -323,7 +323,7 @@ sources:
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_aprval_unique_by_parid_taxyr
               combination_of_columns:
