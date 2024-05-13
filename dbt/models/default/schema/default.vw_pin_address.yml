@@ -48,7 +48,7 @@ models:
       - name: year
         description: '{{ doc("shared_column_year") }}'
 
-    tests:
+    data_tests:
       # No superfluous whitespace
       - no_extra_whitespace:
           name: default_vw_pin_address_no_extra_whitespace

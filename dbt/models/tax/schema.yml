@@ -26,7 +26,7 @@ sources:
         columns:
           - name: tax_code_num
             description: '{{ doc("shared_column_tax_code")}}'
-            tests:
+            data_tests:
               - row_values_match_after_join:
                   name: pin_tax_dist_matches_iasworld_legdat
                   external_model: source('iasworld', 'legdat')
@@ -49,7 +49,7 @@ sources:
                     description: tax_code_num should match legdat.taxdist
           - name: class
             description: '{{ doc("shared_column_char_class")}}'
-            tests:
+            data_tests:
               - res_class_matches_pardat:
                   name: tax_pin_class_equals_iasworld_pardat
                   parid_column_name: pin

@@ -49,7 +49,7 @@ models:
 
   - name: proximity.dist_pin_to_pin
     description: '{{ doc("view_dist_pin_to_pin") }}'
-    tests:
+    data_tests:
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_unique_by_10_digit_pin_and_year
           combination_of_columns:

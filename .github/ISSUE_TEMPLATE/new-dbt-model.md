@@ -184,7 +184,7 @@ cat dbt/models/default/default.new_model.sql
 +        description: Year
    - name: default.vw_pin_history
      description: PIN history
-     tests:
+     data_tests:
 ```
 
 - [ ] Add tests to your new model definition in `schema.yml`.
@@ -202,7 +202,7 @@ cat dbt/models/default/default.new_model.sql
          description: 10-digit PIN
        - name: year
          description: Year
-+    tests:
++    data_tests:
 +      - unique_combination_of_columns:
 +        name: new_model_unique_by_pin_and_year
 +        combination_of_columns:
@@ -210,7 +210,7 @@ cat dbt/models/default/default.new_model.sql
 +          - year
    - name: default.vw_pin_history
      description: PIN history
-     tests:
+     data_tests:
 ```
 
 - [ ] If your model definition requires any new macros, make sure those macros
