@@ -48,7 +48,7 @@ models:
       - name: year
         description: '{{ doc("shared_column_year") }}'
 
-    tests:
+    data_tests:
       - not_accepted_values:
           name: default_vw_pin_value_mailed_class_no_hyphens
           column_name: mailed_class

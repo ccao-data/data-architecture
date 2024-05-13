@@ -239,7 +239,7 @@ models:
       - name: year
         description: '{{ doc("shared_column_year") }}'
 
-    tests:
+    data_tests:
       # Unique by 10-digit PIN and year
       - unique_combination_of_columns:
           name: location_vw_pin10_location_unique_by_keys

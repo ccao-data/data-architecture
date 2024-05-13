@@ -8,7 +8,7 @@ models:
         - "assesspy==1.1.*"
         - "numpy==1.26.*"
         - "pandas==2.*"
-    tests:
+    data_tests:
       - expression_is_true:
           name: reporting_ratio_stats_no_nulls
           expression: |
@@ -41,7 +41,7 @@ models:
     config:
       tags:
         - daily
-    tests:
+    data_tests:
       - unique_combination_of_columns:
           name: reporting_ratio_stats_input_unique_by_keys
           combination_of_columns:
@@ -73,7 +73,7 @@ models:
     config:
       tags:
         - daily
-    tests:
+    data_tests:
     - unique_combination_of_columns:
         name: reporting_res_report_summary_unique_by_keys
         combination_of_columns:
@@ -102,7 +102,7 @@ models:
 
   - name: reporting.vw_assessment_roll
     description: '{{ doc("view_vw_assessment_roll") }}'
-    tests:
+    data_tests:
       - unique_combination_of_columns:
           name: reporting_vw_assessment_roll_unique_by_keys
           combination_of_columns:
@@ -120,7 +120,7 @@ models:
 
   - name: reporting.vw_assessment_roll_muni
     description: '{{ doc("view_vw_assessment_roll_muni") }}'
-    tests:
+    data_tests:
       - unique_combination_of_columns:
           name: reporting_vw_assessment_roll_muni_unique_by_keys
           combination_of_columns:
@@ -137,7 +137,7 @@ models:
 
   - name: reporting.vw_pin_most_recent_boundary
     description: '{{ doc("view_vw_pin_most_recent_boundary") }}'
-    tests:
+    data_tests:
       - unique_combination_of_columns:
           name: reporting_vw_pin_most_recent_boundary_unique_by_keys
           combination_of_columns:
@@ -146,7 +146,7 @@ models:
 
   - name: reporting.vw_pin_most_recent_sale
     description: '{{ doc("view_vw_pin_most_recent_sale") }}'
-    tests:
+    data_tests:
       - unique_combination_of_columns:
           name: reporting_vw_pin_most_recent_sale_unique_by_pin
           combination_of_columns:
@@ -164,7 +164,7 @@ models:
 
   - name: reporting.vw_pin_township_class
     description: '{{ doc("view_vw_pin_township_class") }}'
-    tests:
+    data_tests:
       - not_accepted_values:
           name: reporting_vw_pin_township_class_class_no_hyphens
           column_name: class
@@ -188,7 +188,7 @@ models:
 
   - name: reporting.vw_pin_value_long
     description: '{{ doc("view_vw_pin_value_long") }}'
-    tests:
+    data_tests:
       - not_accepted_values:
           name: reporting_vw_pin_value_long_mailed_class_no_hyphens
           column_name: class
@@ -213,7 +213,7 @@ models:
 
   - name: reporting.vw_top_5
     description: '{{ doc("view_vw_top_5") }}'
-    tests:
+    data_tests:
       - unique_combination_of_columns:
           name: reporting_vw_top_5_unique_by_keys
           combination_of_columns:
@@ -239,7 +239,7 @@ models:
 
   - name: reporting.vw_town_sale_history
     description: '{{ doc("view_vw_town_sale_history") }}'
-    tests:
+    data_tests:
       - unique_combination_of_columns:
           name: reporting_vw_town_sale_history_unique_by_keys
           combination_of_columns:

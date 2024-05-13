@@ -48,8 +48,10 @@ reason, and results.
 - Only contains appeal decisions for the Assessor's Office. Board of Review
   appeal decisions can be found on the
   [Cook County Open Data portal here](https://datacatalog.cookcountyil.gov/Property-Taxation/Board-of-Review-Appeal-Decision-History/7pny-nedm).
+- This view is _not_ unique by PIN and year, as a single PIN can have an
+  appeal and CofE/omitted assessment in a given year.
 
-**Primary Key**: `year`, `pin`
+**Primary Key**: `year`, `pin`, `case_no`
 {% enddocs %}
 
 # vw_pin_condo_char

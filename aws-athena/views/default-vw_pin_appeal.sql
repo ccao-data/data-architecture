@@ -33,30 +33,30 @@ SELECT
     -- Status, reason codes, and agent name come from different columns
     -- before and after 2020
     CASE
-        WHEN htpar.taxyr < '2020' AND htpar.resact = 'C' THEN 'change'
-        WHEN htpar.taxyr < '2020' AND htpar.resact = 'NC' THEN 'no change'
+        WHEN htpar.taxyr <= '2020' AND htpar.resact = 'C' THEN 'change'
+        WHEN htpar.taxyr <= '2020' AND htpar.resact = 'NC' THEN 'no change'
         WHEN
-            htpar.taxyr >= '2020' AND TRIM(LOWER(htpar.user104)) = 'decrease'
+            htpar.taxyr > '2020' AND TRIM(LOWER(htpar.user104)) = 'decrease'
             THEN 'change'
-        WHEN htpar.taxyr >= '2020' THEN TRIM(LOWER(htpar.user104))
+        WHEN htpar.taxyr > '2020' THEN TRIM(LOWER(htpar.user104))
     END AS change,
     CASE
-        WHEN htpar.taxyr < '2020'
+        WHEN htpar.taxyr <= '2020'
             AND TRIM(SUBSTR(htpar.user42, 1, 2)) NOT IN ('0', ':')
             THEN TRIM(SUBSTR(htpar.user42, 1, 2))
-        WHEN htpar.taxyr >= '2020' THEN htpar.user89
+        WHEN htpar.taxyr > '2020' THEN htpar.user89
     END AS reason_code1,
     CASE
-        WHEN htpar.taxyr < '2020'
+        WHEN htpar.taxyr <= '2020'
             AND TRIM(SUBSTR(htpar.user43, 1, 2)) NOT IN ('0', ':')
             THEN TRIM(SUBSTR(htpar.user42, 1, 2))
-        WHEN htpar.taxyr >= '2020' THEN htpar.user100
+        WHEN htpar.taxyr > '2020' THEN htpar.user100
     END AS reason_code2,
     CASE
-        WHEN htpar.taxyr < '2020'
+        WHEN htpar.taxyr <= '2020'
             AND TRIM(SUBSTR(htpar.user44, 1, 2)) NOT IN ('0', ':')
             THEN TRIM(SUBSTR(htpar.user42, 1, 2))
-        WHEN htpar.taxyr >= '2020' THEN htpar.user101
+        WHEN htpar.taxyr > '2020' THEN htpar.user101
     END AS reason_code3,
     htpar.cpatty AS agent_code,
     htagnt.name1 AS agent_name,

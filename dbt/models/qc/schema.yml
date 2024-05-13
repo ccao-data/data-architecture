@@ -6,7 +6,7 @@ models:
         - test_qc_inquire
     columns:
       - name: revcode
-        tests:
+        data_tests:
           # Equivalent to Res parcels not set to Cost Approach from FP Checklist
           - accepted_values:
               name: qc_vw_incorrect_val_method_revcode_eq_1
@@ -33,7 +33,7 @@ models:
         - test_qc_inquire
     columns:
       - name: val01
-        tests:
+        data_tests:
           - accepted_range: &test-non-negative
               name: qc_vw_neg_asmt_value_val01_gte_0
               min_value: 0
@@ -51,7 +51,7 @@ models:
                 table_name: asmt
                 description: val01 (FARM LAND) should not be negative
       - name: val02
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val02_gte_0
               meta:
@@ -59,7 +59,7 @@ models:
                 description: val02 (MKT LAND) should not be negative
               <<: *test-non-negative
       - name: val03
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val03_gte_0
               meta:
@@ -67,7 +67,7 @@ models:
                 description: val03 (FARM BLDGS) should not be negative
               <<: *test-non-negative
       - name: val04
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val04_gte_0
               meta:
@@ -75,7 +75,7 @@ models:
                 description: val04 (MKT BLDGS) should not be negative
               <<: *test-non-negative
       - name: val05
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val05_gte_0
               meta:
@@ -83,7 +83,7 @@ models:
                 description: val05 (TOTAL MARKET) should not be negative
               <<: *test-non-negative
       - name: val06
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val06_gte_0
               meta:
@@ -91,7 +91,7 @@ models:
                 description: val06 (ASSD MKT PREF LAND) should not be negative
               <<: *test-non-negative
       - name: val07
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val07_gte_0
               meta:
@@ -99,7 +99,7 @@ models:
                 description: val07 (ASSD FARMLAND) should not be negative
               <<: *test-non-negative
       - name: val08
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val08_gte_0
               meta:
@@ -107,7 +107,7 @@ models:
                 description: val08 (ASSD LAND) should not be negative
               <<: *test-non-negative
       - name: val09
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val09_gte_0
               meta:
@@ -115,7 +115,7 @@ models:
                 description: val09 (DUAL VAL LAND) should not be negative
               <<: *test-non-negative
       - name: val10
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val10_gte_0
               meta:
@@ -123,7 +123,7 @@ models:
                 description: val10 (ASSD FARM BLDGS) should not be negative
               <<: *test-non-negative
       - name: val11
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val11_gte_0
               meta:
@@ -131,7 +131,7 @@ models:
                 description: val11 (ASSD BLDGS) should not be negative
               <<: *test-non-negative
       - name: val12
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val12_gte_0
               meta:
@@ -139,7 +139,7 @@ models:
                 description: val12 (DUAL VAL IMPR) should not be negative
               <<: *test-non-negative
       - name: val13
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val13_gte_0
               meta:
@@ -147,7 +147,7 @@ models:
                 description: val13 (TOTAL ASSESSED) should not be negative
               <<: *test-non-negative
       - name: val14
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val14_gte_0
               meta:
@@ -155,7 +155,7 @@ models:
                 description: val14 should not be negative
               <<: *test-non-negative
       - name: val15
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val15_gte_0
               meta:
@@ -163,7 +163,7 @@ models:
                 description: val15 should not be negative
               <<: *test-non-negative
       - name: val16
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val16_gte_0
               meta:
@@ -171,7 +171,7 @@ models:
                 description: val16 (DEMOLITIONS ASSD) should not be negative
               <<: *test-non-negative
       - name: val17
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val17_gte_0
               meta:
@@ -179,7 +179,7 @@ models:
                 description: val17 (STATE RPT OMITTED) should not be negative
               <<: *test-non-negative
       - name: val18
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val18_gte_0
               meta:
@@ -187,7 +187,7 @@ models:
                 description: val18 (LOCAL EQ MKT PREF LD) should not be negative
               <<: *test-non-negative
       - name: val19
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val19_gte_0
               meta:
@@ -195,7 +195,7 @@ models:
                 description: val19 (LOCAL EQ FACT LAND) should not be negative
               <<: *test-non-negative
       - name: val20
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val20_gte_0
               meta:
@@ -203,7 +203,7 @@ models:
                 description: val20 (LOCAL EQ FACT BLDG) should not be negative
               <<: *test-non-negative
       - name: val21
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val21_gte_0
               meta:
@@ -211,7 +211,7 @@ models:
                 description: val21 (LOCALIZED ASSD L & B) should not be negative
               <<: *test-non-negative
       - name: val22
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val22_gte_0
               meta:
@@ -219,7 +219,7 @@ models:
                 description: val22 (BOR DUAL VAL LAND) should not be negative
               <<: *test-non-negative
       - name: val23
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val23_gte_0
               meta:
@@ -227,7 +227,7 @@ models:
                 description: val23 (BOR ASSD FARMLAND) should not be negative
               <<: *test-non-negative
       - name: val24
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val24_gte_0
               meta:
@@ -235,7 +235,7 @@ models:
                 description: val24 (BOR ASSD LAND) should not be negative
               <<: *test-non-negative
       - name: val25
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val25_gte_0
               meta:
@@ -243,7 +243,7 @@ models:
                 description: val25 (BOR ASSD FARM BLDGS) should not be negative
               <<: *test-non-negative
       - name: val26
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val26_gte_0
               meta:
@@ -251,7 +251,7 @@ models:
                 description: val26 (BOR ASSESSED BLDGS) should not be negative
               <<: *test-non-negative
       - name: val27
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val27_gte_0
               meta:
@@ -259,7 +259,7 @@ models:
                 description: val27 (BOR ASSESED TOTAL) should not be negative
               <<: *test-non-negative
       - name: val28
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val28_gte_0
               meta:
@@ -267,7 +267,7 @@ models:
                 description: val28 (BOR TOT EXC AG) should not be negative
               <<: *test-non-negative
       - name: val29
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val29_gte_0
               meta:
@@ -275,7 +275,7 @@ models:
                 description: val29 (ASSD TOT EXC AG) should not be negative
               <<: *test-non-negative
       - name: val30
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val30_gte_0
               meta:
@@ -283,7 +283,7 @@ models:
                 description: val30 (HIE) should not be negative
               <<: *test-non-negative
       - name: val31
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val31_gte_0
               meta:
@@ -291,7 +291,7 @@ models:
                 description: val31 (DVHE) should not be negative
               <<: *test-non-negative
       - name: val32
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val32_gte_0
               meta:
@@ -299,7 +299,7 @@ models:
                 description: val32 (ASSD TOT -(HIE-DVHE)) should not be negative
               <<: *test-non-negative
       - name: val33
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val33_gte_0
               meta:
@@ -307,7 +307,7 @@ models:
                 description: val33 (STATE EQ ASSD VALUE) should not be negative
               <<: *test-non-negative
       - name: val34
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val34_gte_0
               meta:
@@ -315,7 +315,7 @@ models:
                 description: val34 (BOR FACT MKT PREF LD) should not be negative
               <<: *test-non-negative
       - name: val35
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val35_gte_0
               meta:
@@ -323,7 +323,7 @@ models:
                 description: val35 (ASSD FARMLAND) should not be negative
               <<: *test-non-negative
       - name: val36
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val36_gte_0
               meta:
@@ -331,7 +331,7 @@ models:
                 description: val36 (.ASSD FARM BUILDING) should not be negative
               <<: *test-non-negative
       - name: val37
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val37_gte_0
               meta:
@@ -339,7 +339,7 @@ models:
                 description: val37 (STATE ASSD POLL CONT) should not be negative
               <<: *test-non-negative
       - name: val38
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val38_gte_0
               meta:
@@ -347,7 +347,7 @@ models:
                 description: val38 (STATE ASSD RAILROADS) should not be negative
               <<: *test-non-negative
       - name: val39
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val39_gte_0
               meta:
@@ -355,7 +355,7 @@ models:
                 description: val39 (BOR FACT LAND) should not be negative
               <<: *test-non-negative
       - name: val40
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val40_gte_0
               meta:
@@ -363,7 +363,7 @@ models:
                 description: val40 (TOTAL ASSESSED VALUE) should not be negative
               <<: *test-non-negative
       - name: val41
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val41_gte_0
               meta:
@@ -371,7 +371,7 @@ models:
                 description: val41 (BOR FACT BLDG) should not be negative
               <<: *test-non-negative
       - name: val42
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val42_gte_0
               meta:
@@ -379,7 +379,7 @@ models:
                 description: val42 (40. .:) should not be negative
               <<: *test-non-negative
       - name: val43
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val43_gte_0
               meta:
@@ -387,7 +387,7 @@ models:
                 description: val43 (HOMESTEADS) should not be negative
               <<: *test-non-negative
       - name: val44
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val44_gte_0
               meta:
@@ -395,7 +395,7 @@ models:
                 description: val44 (SCAFHE) should not be negative
               <<: *test-non-negative
       - name: val45
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val45_gte_0
               meta:
@@ -403,7 +403,7 @@ models:
                 description: val45 (DVSHE) should not be negative
               <<: *test-non-negative
       - name: val46
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val46_gte_0
               meta:
@@ -411,7 +411,7 @@ models:
                 description: val46 (44. .:) should not be negative
               <<: *test-non-negative
       - name: val47
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val47_gte_0
               meta:
@@ -419,7 +419,7 @@ models:
                 description: val47 (45. .:) should not be negative
               <<: *test-non-negative
       - name: val48
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val48_gte_0
               meta:
@@ -427,7 +427,7 @@ models:
                 description: val48 (46. .:) should not be negative
               <<: *test-non-negative
       - name: val49
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val49_gte_0
               meta:
@@ -435,7 +435,7 @@ models:
                 description: val49 (EXPIRED HIE) should not be negative
               <<: *test-non-negative
       - name: val50
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val50_gte_0
               meta:
@@ -443,7 +443,7 @@ models:
                 description: val50 (TAXABLE EAV) should not be negative
               <<: *test-non-negative
       - name: val51
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val51_gte_0
               meta:
@@ -451,7 +451,7 @@ models:
                 description: val51 (EXPIRED INCENTIVES) should not be negative
               <<: *test-non-negative
       - name: val52
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val52_gte_0
               meta:
@@ -459,7 +459,7 @@ models:
                 description: val52 (50. .:) should not be negative
               <<: *test-non-negative
       - name: val53
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val53_gte_0
               meta:
@@ -467,7 +467,7 @@ models:
                 description: val53 (51. .:) should not be negative
               <<: *test-non-negative
       - name: val54
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val54_gte_0
               meta:
@@ -475,7 +475,7 @@ models:
                 description: val54 (52. .:) should not be negative
               <<: *test-non-negative
       - name: val55
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val55_gte_0
               meta:
@@ -483,7 +483,7 @@ models:
                 description: val55 (53. .:) should not be negative
               <<: *test-non-negative
       - name: val56
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val56_gte_0
               meta:
@@ -491,7 +491,7 @@ models:
                 description: val56 should not be negative
               <<: *test-non-negative
       - name: val57
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val57_gte_0
               meta:
@@ -499,7 +499,7 @@ models:
                 description: val57 (OMIT TAXABLE EAV) should not be negative
               <<: *test-non-negative
       - name: val58
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val58_gte_0
               meta:
@@ -507,7 +507,7 @@ models:
                 description: val58 (ROLLBACK TAX EAV) should not be negative
               <<: *test-non-negative
       - name: val59
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val59_gte_0
               meta:
@@ -515,7 +515,7 @@ models:
                 description: val59 should not be negative
               <<: *test-non-negative
       - name: val60
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_val60_gte_0
               meta:
@@ -523,7 +523,7 @@ models:
                 description: val60 (NEW PROPERTY) should not be negative
               <<: *test-non-negative
       - name: valapr1
-        tests:
+        data_tests:
           - not_null: &test-val-non-null
               name: qc_vw_neg_asmt_value_valapr1_not_null
               additional_select_columns: *select-columns-neg-asmt-value
@@ -539,7 +539,7 @@ models:
                 description: valapr1 (MKT LAND) should not be negative
               <<: *test-non-negative
       - name: valapr2
-        tests:
+        data_tests:
           - not_null:
               name: qc_vw_neg_asmt_value_valapr2_not_null
               meta:
@@ -553,7 +553,7 @@ models:
                 description: valapr2 (MKT BLDG) should not be negative
               <<: *test-non-negative
       - name: valapr3
-        tests:
+        data_tests:
           - not_null:
               name: qc_vw_neg_asmt_value_valapr3_not_null
               meta:
@@ -567,7 +567,7 @@ models:
                 description: valapr3 (TOTAL) should not be negative
               <<: *test-non-negative
       - name: valasm1
-        tests:
+        data_tests:
           - not_null:
               name: qc_vw_neg_asmt_value_valasm1_not_null
               meta:
@@ -581,7 +581,7 @@ models:
                 description: valasm1 (ASMT LAND) should not be negative
               <<: *test-non-negative
       - name: valasm2
-        tests:
+        data_tests:
           - not_null:
               name: qc_vw_neg_asmt_value_valasm2_not_null
               meta:
@@ -595,7 +595,7 @@ models:
                 description: valasm2 (ASMT BLDG) should not be negative
               <<: *test-non-negative
       - name: valasm3
-        tests:
+        data_tests:
           - not_null:
               name: qc_vw_neg_asmt_value_valasm3_not_null
               meta:
@@ -615,7 +615,7 @@ models:
       tags:
         - test_qc_sales
         - test_qc_exclude_from_workbook
-    tests:
+    data_tests:
       - expression_is_true:
           name: qc_vw_change_in_high_low_value_sales_ratio_high
           expression: "price_less_than_10k_growth_status = 'No significant change'"
@@ -652,7 +652,7 @@ models:
         - test_qc_sales
     columns:
       - name: buyer
-        tests:
+        data_tests:
           - accepted_range: &sales-null-values
               name: qc_vw_iasworld_sales_null_values_buyer_null_proportion
               max_value: 0.1
@@ -663,7 +663,7 @@ models:
                 description: >
                   proportion of sales where buyer is null should not exceed 10%
       - name: deed_type
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_iasworld_sales_null_values_deed_type_null_proportion
               meta:
@@ -673,7 +673,7 @@ models:
                   proportion of sales where deed_type is null should not exceed 10%
               <<: *sales-null-values
       - name: price
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_iasworld_sales_null_values_price_null_proportion
               meta:
@@ -683,7 +683,7 @@ models:
                   proportion of sales where price is null should not exceed 10%
               <<: *sales-null-values
       - name: seller
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_iasworld_sales_null_values_seller_null_proportion
               meta:
@@ -701,27 +701,27 @@ models:
         - test_qc_exclude_from_workbook
     columns:
       - name: address
-        tests:
+        data_tests:
           - expression_is_true: &test-not-null
               name: qc_vw_mydec_sales_null_values_address_null_proportion
               expression: '< 0.1'
       - name: buyer
-        tests:
+        data_tests:
           - expression_is_true:
               name: qc_vw_mydec_sales_null_values_buyer_null_proportion
               <<: *test-not-null
       - name: deed_type
-        tests:
+        data_tests:
           - expression_is_true:
               name: qc_vw_mydec_sales_null_values_deed_type_null_proportion
               <<: *test-not-null
       - name: price
-        tests:
+        data_tests:
           - expression_is_true:
               name: qc_vw_mydec_sales_null_values_price_null_proportion
               <<: *test-not-null
       - name: seller
-        tests:
+        data_tests:
           - expression_is_true:
               name: qc_vw_mydec_sales_null_values_seller_null_proportion
               <<: *test-not-null
@@ -734,7 +734,7 @@ models:
         - test_qc_exclude_from_workbook
     columns:
       - name: comparison
-        tests:
+        data_tests:
           - accepted_values:
               name: qc_vw_iasworld_sales_rowcount_matches_sale_mydec_check
               values: ['No significant difference']
@@ -753,7 +753,7 @@ models:
         - test_qc_exclude_from_workbook
     columns:
       - name: mydec_unmatched
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_mydec_unmatched_lte_1000
               max_value: 1000
@@ -763,7 +763,7 @@ models:
                 category: sales_issues
                 description: mydec should not have >1000 sales that are not in iasworld
       - name: iasworld_unmatched
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_iasworld_unmatched_lte_1000
               max_value: 1000
@@ -779,7 +779,7 @@ models:
       tags:
         - test_qc_sales
         - test_qc_exclude_from_workbook
-    tests:
+    data_tests:
       - expression_is_true:
           name: qc_vw_iasworld_sales_day_of_month_lte_half_observations
           expression: sales_by_day < 0.5 * total_sales
@@ -801,7 +801,7 @@ models:
         - test_qc_sales
     columns:
       - name: price
-        tests:
+        data_tests:
           - accepted_range:
               name: qc_vw_iasworld_sales_high_value_by_class_gt_20000000
               max_value: 20000000
@@ -816,7 +816,7 @@ models:
     config:
       tags:
         - test_qc_sales
-    tests:
+    data_tests:
       # Values of $1000 and below seem to get recoded to $1 in iasWorld
       - expression_is_true:
           name: qc_vw_iasworld_sales_price_diff_sale_mydec_gte_1000
@@ -838,7 +838,7 @@ models:
     config:
       tags:
         - test_qc_iasworld
-    tests:
+    data_tests:
       - unique_combination_of_columns:
           name: iasworld_asmt_all_unique_by_parid_procname_and_taxyr
           combination_of_columns:

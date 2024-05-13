@@ -47,7 +47,7 @@ sources:
             description: '{{ doc("column_areasum") }}'
           - name: attic
             description: '{{ doc("shared_column_char_attic_type") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_attic_not_null
                   additional_select_columns: &select-columns
@@ -92,7 +92,7 @@ sources:
             description: Building use
           - name: bsmt
             description: '{{ doc("shared_column_char_bsmt") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_bsmt_not_null
                   additional_select_columns: *select-columns
@@ -117,7 +117,7 @@ sources:
             description: Calculated effective year
           - name: calc_meth
             description: '{{ doc("shared_column_calc_meth") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_dweldat_calc_meth_accepted_values
                   values: ["E"]
@@ -134,7 +134,7 @@ sources:
                       calc_meth (Calculation Method) should be null or 'E'
           - name: card
             description: '{{ doc("column_card") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_card_not_null
                   additional_select_columns: &select-columns-no-card
@@ -168,7 +168,7 @@ sources:
             description: '{{ doc("column_chgrsn") }}'
           - name: class
             description: '{{ doc("shared_column_class") }}'
-            tests:
+            data_tests:
               - relationships:
                   name: iasworld_dweldat_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
@@ -244,7 +244,7 @@ sources:
             description: '{{ doc("column_convbldg") }}'
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_dweldat_cur_in_accepted_values
                   values: ['Y', 'D']
@@ -292,7 +292,7 @@ sources:
             description: '{{ doc("column_exmpval") }}'
           - name: external_calc_rcnld
             description: '{{ doc("shared_column_external_calc_rcnld") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_dweldat_external_calc_rcnld_not_0
                   values: [0]
@@ -304,7 +304,7 @@ sources:
                       external_calc_rcnld (Net Market Value) should not be 0
           - name: external_occpct
             description: '{{ doc("shared_column_external_occpct") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_dweldat_external_occpct_not_0
                   values: [0]
@@ -338,7 +338,7 @@ sources:
                       mktadj (Occupancy % [deprecated]) is null
           - name: external_propct
             description: '{{ doc("shared_column_external_propct") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_dweldat_external_propct_not_0
                   values: [0]
@@ -350,7 +350,7 @@ sources:
                       external_propct (Proration %) should not be 0
           - name: external_rcnld
             description: '{{ doc("shared_column_external_rcnld") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_dweldat_external_rcnld_not_0
                   values: [0]
@@ -362,7 +362,7 @@ sources:
                       external_rcnld (Full Market Value) should not be 0
           - name: extwall
             description: '{{ doc("shared_column_char_ext_wall") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_extwall_not_null
                   additional_select_columns: *select-columns
@@ -392,7 +392,7 @@ sources:
             description: Number additional plumbing fixtures
           - name: fixbath
             description: '{{ doc("shared_column_char_fbath") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_fixbath_not_null
                   additional_select_columns: *select-columns
@@ -455,7 +455,7 @@ sources:
             description: Number full bathrooms  in upper Floor
           - name: fixhalf
             description: '{{ doc("shared_column_char_hbath") }}'
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_dweldat_fixhalf_gte_0
                   min_value: 0
@@ -543,7 +543,7 @@ sources:
             description: '{{ doc("column_grpadj") }}'
           - name: heat
             description: '{{ doc("shared_column_char_heat") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_heat_not_null
                   additional_select_columns: *select-columns
@@ -603,7 +603,7 @@ sources:
             description: Main section ground floor area
           - name: mktadj
             description: '{{ doc("column_mktadj") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_mktadj_not_null_when_mktrsn_eq_5_or_5b_and_external_occpct_is_null
                   additional_select_columns:
@@ -628,7 +628,7 @@ sources:
                       external_occpct (Occupancy % [current]) is null
           - name: mktrsn
             description: '{{ doc("column_chgrsn") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_dweldat_mktrsn_eq_5_or_5b_when_external_occpct_or_mktadj_not_null
                   values:
@@ -693,7 +693,7 @@ sources:
             description: '{{ doc("column_ovrrcnld") }}'
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_parid_not_null
                   additional_select_columns: &select-columns-no-parid
@@ -771,7 +771,7 @@ sources:
             description: Residential cost model
           - name: rmbed
             description: '{{ doc("shared_column_char_beds") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_rmbed_not_null
                   additional_select_columns: *select-columns
@@ -873,7 +873,7 @@ sources:
             description: Number of other rooms in the basement
           - name: rmtot
             description: '{{ doc("shared_column_char_rooms") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_rmtot_not_null
                   additional_select_columns: *select-columns
@@ -910,7 +910,7 @@ sources:
             description: '{{ doc("column_salekey") }}'
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
+            data_tests:
               - sequential_values:
                   name: iasworld_dweldat_seq_all_sequential_exist
                   group_by_columns:
@@ -925,7 +925,7 @@ sources:
                     description: seq should be sequential
           - name: sfla
             description: '{{ doc("shared_column_char_bldg_sf") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_sfla_not_null
                   additional_select_columns: *select-columns
@@ -1166,7 +1166,7 @@ sources:
             description: '{{ doc("column_status") }}'
           - name: stories
             description: '{{ doc("shared_column_char_type_resd") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_stories_not_null
                   config: *unique-conditions
@@ -1191,7 +1191,7 @@ sources:
             description: '{{ doc("column_suppress") }}'
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_taxyr_not_null
                   additional_select_columns:
@@ -1232,7 +1232,7 @@ sources:
             description: '{{ doc("shared_column_char_site") }}'
           - name: user3
             description: '{{ doc("shared_column_char_renovation") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_dweldat_char_renovation_in_accepted_values
                   values: ['0', '1']
@@ -1244,7 +1244,7 @@ sources:
             description: '{{ doc("shared_column_char_tp_dsgn") }}'
           - name: user5
             description: '{{ doc("shared_column_char_tp_plan") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_char_tp_plan_not_null
                   additional_select_columns: *select-columns
@@ -1260,7 +1260,7 @@ sources:
                     description: user5 (Plan of Design) should be '0', '1', or '2'
           - name: user6
             description: '{{ doc("shared_column_char_attic_fnsh") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_char_attic_fnsh_not_null
                   additional_select_columns: *select-columns
@@ -1276,7 +1276,7 @@ sources:
                     description: user6 (Attic Finish) should be '1', '2', or '3'
           - name: user7
             description: '{{ doc("shared_column_char_air") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_char_air_not_null
                   additional_select_columns: *select-columns
@@ -1292,7 +1292,7 @@ sources:
                     description: user7 (Central Air Conditioning) should be '1' or '2'
           - name: user12
             description: '{{ doc("shared_column_char_bsmt_fin") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_char_bsmt_fin_not_null
                   additional_select_columns: *select-columns
@@ -1309,7 +1309,7 @@ sources:
                       user12 (Basement Finished) should be an integer between 1 and 6
           - name: user13
             description: '{{ doc("shared_column_char_roof_cnst") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_char_roof_cnst_not_null
                   additional_select_columns: *select-columns
@@ -1326,7 +1326,7 @@ sources:
                       user13 (Roof Construction) should be an integer between 1 and 6
           - name: user14
             description: '{{ doc("shared_column_char_apts") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_char_apts_not_null
                   additional_select_columns: *select-columns
@@ -1356,7 +1356,7 @@ sources:
                       between 1 and 6 for class 211 and 212 properties
           - name: user15
             description: '{{ doc("shared_column_char_use") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_char_use_not_null
                   additional_select_columns: *select-columns
@@ -1374,7 +1374,7 @@ sources:
             description: Age. Deprecated, use `yrblt`
           - name: user20
             description: '{{ doc("shared_column_char_ncu") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_char_ncu_not_null
                   additional_select_columns: *select-columns
@@ -1394,7 +1394,7 @@ sources:
             description: '{{ doc("shared_column_card_proration_rate") }}'
           - name: user30
             description: '{{ doc("shared_column_char_porch") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_dweldat_char_porch_accepted_values
                   values: ['0', '1', '2']
@@ -1404,7 +1404,7 @@ sources:
                     description: user30 (Porch) should be '0', '1', or '2'
           - name: user31
             description: '{{ doc("shared_column_char_gar_att") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_char_gar_att_not_null
                   additional_select_columns: &select-columns-with-garage-size
@@ -1434,7 +1434,7 @@ sources:
                     description: user31 (Garage Attached) should be '1' or '2'
           - name: user32
             description: '{{ doc("shared_column_char_gar_area") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_char_gar_area_not_null
                   additional_select_columns: *select-columns-with-garage-size
@@ -1452,7 +1452,7 @@ sources:
                     description: user32 (Garage in Area) should be '1' or '2'
           - name: user33
             description: '{{ doc("shared_column_char_gar_size") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_char_gar_size_not_null
                   additional_select_columns: *select-columns
@@ -1469,7 +1469,7 @@ sources:
                       user33 (Garage Size) should be an integer between 1 and 10
           - name: user34
             description: '{{ doc("shared_column_char_gar_cnst") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_char_gar_cnst_not_null
                   additional_select_columns: *select-columns-with-garage-size
@@ -1517,7 +1517,7 @@ sources:
             description: Wall height factor
           - name: wbfp_o
             description: '{{ doc("shared_column_char_frpl") }}'
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_dweldat_char_frpl_between_0_and_6
                   min_value: 0
@@ -1551,7 +1551,7 @@ sources:
             description: Windows year
           - name: yrblt
             description: '{{ doc("shared_column_char_yrblt") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_dweldat_yrblt_not_null
                   additional_select_columns: *select-columns
@@ -1653,7 +1653,7 @@ sources:
           - name: yrremod
             description: Year remodeled
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_dweldat_unique_by_parid_card_taxyr
               combination_of_columns:

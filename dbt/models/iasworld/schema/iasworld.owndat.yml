@@ -64,7 +64,7 @@ sources:
             description: '{{ doc("column_country") }}'
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_owndat_cur_in_accepted_values
                   values: ['Y', 'D']
@@ -158,7 +158,7 @@ sources:
             description: '{{ doc("column_page") }}'
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_owndat_parid_not_null
                   additional_select_columns: &select-columns-no-parid
@@ -197,7 +197,7 @@ sources:
             description: '{{ doc("column_salekey") }}'
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
+            data_tests:
               - sequential_values:
                   name: iasworld_owndat_seq_all_sequential_exist
                   group_by_columns:
@@ -244,7 +244,7 @@ sources:
           - name: zip2
             description: '{{ doc("shared_column_mail_address_zipcode_2") }}'
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_owndat_unique_by_parid_taxyr
               combination_of_columns:
