@@ -15,8 +15,8 @@
 {% macro _get_s3_dependency_dir(target, env_var_func, raise_error_func) %}
     {% set dir_suffix = "" %}
     {% if target.name == "dev" %}
-        {% set username = env_var_func("USER") %}
-        {% if not username %}
+        {% set username = env_var_func("USER") | trim %}
+        {% if username is none or username == "" %}
             {{
                 return(
                     raise_error_func("USER env var must be set when target is 'dev'")
@@ -26,7 +26,7 @@
         {% set dir_suffix = "/" ~ username %}
     {% elif target.name == "ci" %}
         {% set head_ref = slugify(env_var_func("HEAD_REF")) %}
-        {% if not head_ref %}
+        {% if head_ref is none or head_ref == "" %}
             {{
                 return(
                     raise_error_func(

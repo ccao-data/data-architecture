@@ -24,3 +24,6 @@
 
 -- Mock that spoofs a situation in which all env vars are unset
 {% macro mock_no_env_var(var_name) %} {{ return("") }} {% endmacro %}
+
+-- Mock that spoofs a situation in which all env vars are set to a single space
+{% macro mock_space_env_var(var_name) %} {{ return(" ") }} {% endmacro %}
