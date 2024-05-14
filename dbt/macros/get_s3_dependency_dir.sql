@@ -4,7 +4,7 @@
     {{
         return(
             _get_s3_dependency_dir(
-                target,
+                target.name,
                 env_var,
                 exceptions.raise_compiler_error,
             )
@@ -12,9 +12,22 @@
     }}
 {% endmacro %}
 
-{% macro _get_s3_dependency_dir(target, env_var_func, raise_error_func) %}
+{% macro _get_s3_dependency_dir(target_name, env_var_func, raise_error_func) %}
+    {% if target_name not in ["dev", "ci", "prod"] %}
+        {{
+            return(
+                raise_error_func(
+                    "target '"
+                    ~ target_name
+                    ~ "' must be one of "
+                    ~ "'dev', 'ci', or 'prod'"
+                )
+            )
+        }}
+    {% endif %}
+    {% set dir_prefix = var("s3_dependency_dir_" ~ target_name) %}
     {% set dir_suffix = "" %}
-    {% if target.name == "dev" %}
+    {% if target_name == "dev" %}
         {% set username = env_var_func("USER") | trim %}
         {% if username is none or username == "" %}
             {{
@@ -24,7 +37,7 @@
             }}
         {% endif %}
         {% set dir_suffix = "/" ~ username %}
-    {% elif target.name == "ci" %}
+    {% elif target_name == "ci" %}
         {% set head_ref = slugify(env_var_func("HEAD_REF")) %}
         {% if head_ref is none or head_ref == "" %}
             {{
@@ -37,7 +50,7 @@
         {% endif %}
         {% set dir_suffix = "/" ~ head_ref %}
     {% endif %}
-    {% set s3_dependency_dir = target.s3_data_dir ~ "packages" ~ dir_suffix %}
+    {% set s3_dependency_dir = dir_prefix ~ dir_suffix %}
     {{ return(s3_dependency_dir) }}
 {% endmacro %}
 

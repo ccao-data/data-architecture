@@ -23,8 +23,8 @@ clean-targets:
   - "dbt_packages"
 
 # Variables that can change with invocation of dbt commands. Note that we parse
-# these variables by name in scripts, so if you change their names, make sure
-# you check all of our scripts and adjust them accordingly
+# the test_* variables by name in scripts, so if you change their names, make
+# sure you check all of our scripts and adjust them accordingly
 vars:
   # Start year for testing data using test_qc_* tagged dbt tests. Typically
   # this should be the current year, since errors in past data cannot usually
@@ -36,6 +36,14 @@ vars:
   # to a date in the future, but can also be use to select specific time
   # frames for testing
   test_qc_year_end: 2030
+
+  # Locations in S3 where Python model dependencies are stored. Since these
+  # locations vary by target, it would be nice if we could define them as target
+  # attributes in profiles.yml, but we can't add new profiles.yml attributes
+  # without extending dbt-athena so we define the locations here instead
+  s3_dependency_dir_dev: s3://ccao-dbt-athena-dev-us-east-1/dependencies
+  s3_dependency_dir_ci: s3://ccao-dbt-athena-ci-us-east-1/dependencies
+  s3_dependency_dir_prod: s3://ccao-athena-packages-us-east-1
 
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
