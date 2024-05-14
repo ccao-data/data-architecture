@@ -126,13 +126,13 @@ models:
           combination_of_columns:
             - year
             - stage
-            - municipality_name
+            - municipality
             - class
       - expression_is_true:
           name: reporting_vw_assessment_roll_muni_no_nulls
           expression: |
             stage IS NOT NULL
-            AND municipality_name IS NOT NULL
+            AND municipality IS NOT NULL
             AND class IS NOT NULL
 
   - name: reporting.vw_pin_most_recent_boundary
@@ -142,7 +142,7 @@ models:
           name: reporting_vw_pin_most_recent_boundary_unique_by_keys
           combination_of_columns:
             - pin10
-            - municipality_name
+            - municipality
 
   - name: reporting.vw_pin_most_recent_sale
     description: '{{ doc("view_vw_pin_most_recent_sale") }}'
