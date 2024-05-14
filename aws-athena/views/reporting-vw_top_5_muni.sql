@@ -70,13 +70,16 @@ most_recent_values AS (
         END AS ccao_stage_used,
         board_tot AS bor_av,
         CASE
-            WHEN oneyr_pri_board_tot IN (0, NULL) THEN NULL ELSE
-                (
-                    CAST(board_tot AS DOUBLE)
-                    - CAST(oneyr_pri_board_tot AS DOUBLE)
-                )
-                / CAST(oneyr_pri_board_tot AS DOUBLE)
-        END AS bor_change
+            WHEN
+                board_tot IS NOT NULL AND certified_tot IS NOT NULL
+                THEN board_tot - certified_tot
+        END AS nom_bor_change,
+        CASE
+            WHEN
+                board_tot IS NOT NULL AND certified_tot > 0
+                THEN CAST((board_tot - certified_tot) AS DOUBLE)
+                / CAST(certified_tot AS DOUBLE)
+        END AS per_bor_change
     FROM {{ ref('default.vw_pin_history') }}
 ),
 
@@ -106,7 +109,8 @@ top_5 AS (
         mrv.ccao_av,
         mrv.ccao_stage_used,
         mrv.bor_av,
-        mrv.bor_change,
+        mrv.nom_bor_change,
+        mrv.per_bor_change,
         vpa.prop_address_full AS address,
         CASE
             WHEN vpa.prop_address_city_name = 'Mc Cook' THEN 'McCook' WHEN
