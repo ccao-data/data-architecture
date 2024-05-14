@@ -142,7 +142,7 @@ models:
           name: reporting_vw_pin_most_recent_boundary_unique_by_keys
           combination_of_columns:
             - pin10
-            - municipality
+            - municipality_name
 
   - name: reporting.vw_pin_most_recent_sale
     description: '{{ doc("view_vw_pin_most_recent_sale") }}'
