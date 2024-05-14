@@ -1428,10 +1428,13 @@ sources:
                   name: iasworld_dweldat_char_ncu_null_when_class_is_not_212_and_char_ncu_not_0
                   additional_select_columns: *select-columns-with-class
                   config:
+                    # Exclude non-regression classes, exempt/RR parcels, and 212s
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                      AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
+                      AND class NOT IN ('EX', 'RR')
                       AND class != '212'
                       AND user20 != '0'
                   meta:
