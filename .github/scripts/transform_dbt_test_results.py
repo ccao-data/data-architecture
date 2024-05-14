@@ -86,9 +86,6 @@ import pyathena.cursor
 import simplejson as json
 import yaml
 
-# Tests without a config.meta.category property will be grouped in
-# this default category
-DEFAULT_TEST_CATEGORY = "miscellaneous"
 # Prefix for the URL location of a test in the dbt docs
 DOCS_URL_PREFIX = "https://ccao-data.github.io/data-architecture/#!/test"
 # The S3 bucket where Athena query results are stored
@@ -108,8 +105,9 @@ TOWNSHIP_FIELD = "township_code"
 CLASS_FIELD = "class"
 WHO_FIELD = "who"
 WEN_FIELD = "wen"
-# Overrides for default display names for dbt tests
-CUSTOM_TEST_NAMES = {
+# Mapping that defines category names that should be reported for tests
+# based on their generics
+TEST_CATEGORIES = {
     "macro.athena.test_accepted_range": "incorrect_values",
     "macro.dbt_utils.test_accepted_range": "incorrect_values",
     "macro.athena.test_accepted_values": "incorrect_values",
@@ -121,6 +119,9 @@ CUSTOM_TEST_NAMES = {
     "macro.athena.test_is_null": "missing_values",
     "macro.athena.test_res_class_matches_pardat": "class_mismatch_or_issue",
 }
+# Fallback for tests whose category we can't determine from either the
+# test name, the `meta.category` attribute, or the TEST_CATEGORIES mapping
+DEFAULT_TEST_CATEGORY = "miscellaneous"
 # Directory to store failed test caches
 TEST_CACHE_DIR = "test_cache"
 
@@ -1183,7 +1184,7 @@ def get_category_from_node(node: typing.Dict) -> str:
         return meta_category
 
     for dependency_macro in node["depends_on"]["macros"]:
-        if custom_test_name := CUSTOM_TEST_NAMES.get(dependency_macro):
+        if custom_test_name := TEST_CATEGORIES.get(dependency_macro):
             return custom_test_name
         # Custom generic tests are always formatted like
         # macro.dbt.test_<generic_name>

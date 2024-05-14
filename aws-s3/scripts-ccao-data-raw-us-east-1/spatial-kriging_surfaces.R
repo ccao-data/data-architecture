@@ -11,7 +11,7 @@ library(geoarrow)
 library(ggpubr)
 library(glue)
 library(gstat)
-library(RJDBC)
+library(noctua)
 library(stars)
 library(sf)
 library(sp)
@@ -25,32 +25,14 @@ library(viridis)
 
 #READ DATA:
 
-
 #Read clean and process midway data:
 source("scripts-ccao-data-raw-us-east-1/spatial-midway_sound_data.R")
 
-
 #Access aws:
-aws_athena_jdbc_driver <- RJDBC::JDBC(
-  driverClass = "com.simba.athena.jdbc.Driver",
-  classPath = "~/Downloads/SimbaAthenaJDBC-2.0.25.1001/AthenaJDBC42_2.0.25.1001.jar",
-  identifier.quote = "'"
-)
-
-
-AWS_ATHENA_CONN_JDBC <- dbConnect(
-  aws_athena_jdbc_driver,
-  #url = Sys.getenv("AWS_ATHENA_JDBC_URL"),
-  url = "jdbc:awsathena://athena.us-east-1.amazonaws.com:443",
-  #aws_credentials_provider_class = Sys.getenv("AWS_CREDENTIALS_PROVIDER_CLASS"),
-  aws_credentials_provider_class =
-    "com.simba.athena.amazonaws.auth.DefaultAWSCredentialsProviderChain",
-  WorkGroup = "read-only-with-scan-limit",
-  Schema = "Default"
-)
+AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena())
 
 ohare_noise <- dbGetQuery(
-  conn = AWS_ATHENA_CONN_JDBC,
+  conn = AWS_ATHENA_CONN_NOCTUA,
   "SELECT site, year, noise, modeled_omp_build_out_values,
   ST_GeomFromBinary(geometry_3435) as geometry
 
@@ -64,7 +46,7 @@ ohare_noise <- st_as_sf(ohare_noise)
 
 
 ohare_contour <- dbGetQuery(
-  conn = AWS_ATHENA_CONN_JDBC,
+  conn = AWS_ATHENA_CONN_NOCTUA,
   "SELECT airport, ST_GeomFromBinary(geometry) as geometry
   FROM spatial.ohare_noise_contour;"
 )
@@ -735,7 +717,7 @@ spatial_join_raster_pin <- function(year){
 
 
   parcels <- dbGetQuery(
-    conn = AWS_ATHENA_CONN_JDBC,
+    conn = AWS_ATHENA_CONN_NOCTUA,
     parcel_query_string
   )
   print("passed sql")
@@ -789,7 +771,7 @@ parcel_query_string <- str_c("Select pin10, x_3435, y_3435 FROM spatial.parcel
 
 
 parcels <- dbGetQuery(
-  conn = AWS_ATHENA_CONN_JDBC,
+  conn = AWS_ATHENA_CONN_NOCTUA,
   parcel_query_string
 )
 print("passed sql")

@@ -24,7 +24,7 @@ sources:
             description: '{{ doc("column_adradd") }}'
           - name: adrdir
             description: '{{ doc("shared_column_prop_address_street_dir") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_legdat_adrdir_in_accepted_values
                   values: ['N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW']
@@ -46,7 +46,7 @@ sources:
             description: '{{ doc("column_adrid") }}'
           - name: adrno
             description: '{{ doc("shared_column_prop_address_street_number") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_legdat_adrno_not_null
                   additional_select_columns: *select-columns
@@ -75,7 +75,7 @@ sources:
             description: Block prefix and suffix, formatted
           - name: cityname
             description: '{{ doc("shared_column_prop_address_city_name") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_legdat_cityname_not_null
                   additional_select_columns: *select-columns
@@ -92,7 +92,7 @@ sources:
             description: '{{ doc("column_conveyno") }}'
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_legdat_cur_in_accepted_values
                   values: ['Y', 'D']
@@ -130,7 +130,7 @@ sources:
             description: Number of lots
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_legdat_parid_not_null
                   additional_select_columns: &select-columns-no-parid
@@ -173,7 +173,7 @@ sources:
             description: Consolidated school district value percentage
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
+            data_tests:
               - sequential_values:
                   name: iasworld_legdat_seq_all_sequential_exist
                   group_by_columns:
@@ -195,7 +195,7 @@ sources:
             description: Star credit flag
           - name: statecode
             description: '{{ doc("shared_column_prop_address_state") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_legdat_statecode_in_accepted_values
                   values: ['IL']
@@ -235,7 +235,7 @@ sources:
             description: Tax district 6
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_legdat_taxyr_not_null
                   additional_select_columns:
@@ -255,7 +255,7 @@ sources:
             description: '{{ doc("column_upd_status") }}'
           - name: user1
             description: '{{ doc("shared_column_township_code") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_legdat_user1_not_null
                   additional_select_columns: *select-columns
@@ -286,7 +286,7 @@ sources:
             description: Z coordinate
           - name: zip1
             description: '{{ doc("shared_column_prop_address_zipcode_1") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_legdat_zip1_has_no_00000_values
                   values: ['00000']
@@ -299,7 +299,7 @@ sources:
                     - test_qc_exclude_from_workbook
           - name: zip2
             description: '{{ doc("shared_column_prop_address_zipcode_2") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_legdat_zip2_has_no_0000_values
                   values: ['0000']
@@ -311,7 +311,7 @@ sources:
                   tags:
                     - test_qc_exclude_from_workbook
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_legdat_unique_by_parid_taxyr
               combination_of_columns:
@@ -343,7 +343,7 @@ sources:
                 description: adrno should be <= 5 characters long
           - column_length:
               name: iasworld_legdat_adrsuf_zip1_taxdist_length_lte_5
-              columns:
+              column_names:
                 - adrsuf
                 - zip1
                 - taxdist
