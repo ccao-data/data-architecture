@@ -77,42 +77,88 @@ pin_counts AS (
         vptc.year,
         vptc.major_class,
         stages.stage
+),
+
+-- This CTE solely provides lagged values by year and stage by PIN
+vpvl AS (
+
+    SELECT
+        *,
+        LAG(tot)
+            OVER (
+                PARTITION BY
+                    pin
+                ORDER BY year ASC, stage_num ASC
+            )
+            AS tot_lag
+    FROM {{ ref('reporting.vw_pin_value_long') }}
+
+),
+
+/* Calculate total and median values by municipality, as well as the portion of
+each municipality that has progressed through an assessment stage by class. This
+is the meat of the view but needs to be a CTE since the view contains columns
+aggregated by different groupings. */
+muni_aggregated AS (
+    SELECT
+        pin_counts.year,
+        pin_counts.stage,
+        CASE
+            WHEN pin_counts.stage = 'mailed' THEN 1
+            WHEN pin_counts.stage = 'assessor certified' THEN 2
+            WHEN pin_counts.stage = 'bor certified' THEN 3
+        END AS stage_num,
+        pin_counts.municipality_name AS municipality,
+        munis.major_class AS class,
+        SUM(CAST(vpvl.pin IS NOT NULL AS INT)) AS num_pin_w_value,
+        pin_counts.total_n AS num_pin_total_in_group,
+        SUM(CAST(vpvl.pin IS NOT NULL AS DOUBLE))
+        / CAST(pin_counts.total_n AS DOUBLE) AS pct_pin_w_value_in_group,
+        SUM(vpvl.bldg) AS bldg_sum,
+        CAST(APPROX_PERCENTILE(vpvl.bldg, 0.5) AS INT) AS bldg_median,
+        SUM(vpvl.land) AS land_sum,
+        CAST(APPROX_PERCENTILE(vpvl.land, 0.5) AS INT) AS land_median,
+        SUM(vpvl.tot) AS tot_sum,
+        CAST(APPROX_PERCENTILE(vpvl.tot, 0.5) AS INT) AS tot_median,
+        CASE WHEN SUM(vpvl.tot_lag) IN (0, NULL) THEN NULL ELSE
+                CAST((SUM(vpvl.tot) - SUM(vpvl.tot_lag)) AS DOUBLE)
+                / CAST(SUM(vpvl.tot_lag) AS DOUBLE)
+        END AS delta_pct_av
+    FROM pin_counts
+    LEFT JOIN trimmed_town_class AS munis
+        ON pin_counts.municipality_name = munis.municipality_name
+        AND pin_counts.major_class = munis.major_class
+        AND pin_counts.year = munis.year
+    LEFT JOIN vpvl
+        ON munis.pin = vpvl.pin
+        AND munis.year = vpvl.year
+        AND pin_counts.stage = LOWER(vpvl.stage_name)
+    GROUP BY
+        pin_counts.municipality_name,
+        pin_counts.year,
+        munis.major_class,
+        pin_counts.stage,
+        pin_counts.total_n
+    ORDER BY
+        pin_counts.year DESC,
+        pin_counts.municipality_name ASC,
+        CASE
+            WHEN pin_counts.stage = 'mailed' THEN 1
+            WHEN pin_counts.stage = 'assessor certified' THEN 2
+            WHEN pin_counts.stage = 'bor certified' THEN 3
+        END DESC,
+        munis.major_class ASC
 )
 
--- Calculate total and median values by municipality, as well as the portion of
--- each municipality that has progressed through an assessment stage by class.
+-- We need a separate select here since we group phase columns differently than
+-- other aggreagte values.
 SELECT
-    pin_counts.year,
-    pin_counts.stage,
-    pin_counts.municipality_name,
-    munis.major_class AS class,
-    SUM(CAST(vpvl.pin IS NOT NULL AS INT)) AS num_pin_w_value,
-    pin_counts.total_n AS num_pin_total_in_group,
-    SUM(CAST(vpvl.pin IS NOT NULL AS DOUBLE))
-    / CAST(pin_counts.total_n AS DOUBLE) AS pct_pin_w_value_in_group,
-    SUM(vpvl.bldg) AS bldg_sum,
-    CAST(APPROX_PERCENTILE(vpvl.bldg, 0.5) AS INT) AS bldg_median,
-    SUM(vpvl.land) AS land_sum,
-    CAST(APPROX_PERCENTILE(vpvl.land, 0.5) AS INT) AS land_median,
-    SUM(vpvl.tot) AS tot_sum,
-    CAST(APPROX_PERCENTILE(vpvl.tot, 0.5) AS INT) AS tot_median
-FROM pin_counts
-LEFT JOIN trimmed_town_class AS munis
-    ON pin_counts.municipality_name = munis.municipality_name
-    AND pin_counts.major_class = munis.major_class
-    AND pin_counts.year = munis.year
-LEFT JOIN {{ ref('reporting.vw_pin_value_long') }} AS vpvl
-    ON munis.pin = vpvl.pin
-    AND munis.year = vpvl.year
-    AND pin_counts.stage = LOWER(vpvl.stage_name)
-GROUP BY
-    pin_counts.municipality_name,
-    pin_counts.year,
-    munis.major_class,
-    pin_counts.stage,
-    pin_counts.total_n
-ORDER BY
-    pin_counts.year DESC,
-    pin_counts.municipality_name ASC,
-    pin_counts.stage ASC,
-    munis.major_class ASC
+    *,
+    SUM(tot_sum)
+        OVER (PARTITION BY year, stage, municipality)
+        AS phase_total_av,
+    CAST(tot_sum AS DOUBLE)
+    / CAST(
+        SUM(tot_sum) OVER (PARTITION BY year, stage, municipality) AS DOUBLE
+    ) AS phase_av_share
+FROM muni_aggregated
