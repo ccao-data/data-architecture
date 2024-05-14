@@ -1,4 +1,5 @@
 ﻿year,pin,class,triad_code,township_code,is_test,test_type,description
-2022,17102060351010,299,1,74,FALSE,just_weird,The photo for this PIN used to be a picture of two guys eating lunch
-2022,16143120330000,211,1,77,TRUE,incorrect_char,This 5175 sqft 211 has 90 bedrooms
-2024,11312110190000,517,1,75,FALSE,split_class,Split 517 and 236 multi-family mixed use
+2022,1.71021E+13,299,1,74,FALSE,just_weird,The photo for this PIN used to be a picture of two guys eating lunch
+2022,1.61431E+13,211,1,77,TRUE,incorrect_char,This 5175 sqft 211 has 90 bedrooms
+2024,1.13121E+13,517,1,75,FALSE,split_class,Split 517 and 236 multi-family mixed use
+2024,2.4072E+13,EX,3,39,FALSE,just_weird,Parcel has a silly shape
