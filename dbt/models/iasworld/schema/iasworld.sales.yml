@@ -33,7 +33,7 @@ sources:
             description: County final date
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_sales_cur_in_accepted_values
                   values: ['Y', 'D']
@@ -62,7 +62,7 @@ sources:
             description: Document image number for the sale deed
           - name: instrtyp
             description: '{{ doc("shared_column_deed_type") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_sales_instrtyp_in_accepted_values
                   values: ['01', '02', '03', '04', '05', '06', 'B']
@@ -112,7 +112,7 @@ sources:
             description: Time adjusted sale parent name
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_sales_parid_not_null
                   additional_select_columns: &select-columns-no-parid
@@ -133,7 +133,7 @@ sources:
                     description: parid should be in pardat
           - name: price
             description: '{{ doc("shared_column_sale_price") }}'
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_sales_price_between_0_and_1b
                   min_value: 0
@@ -205,7 +205,7 @@ sources:
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_sales_unique_by_parid_instruno
               combination_of_columns:
