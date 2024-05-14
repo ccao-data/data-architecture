@@ -51,5 +51,12 @@ echo "$schemas"
 
 echo "$schemas" | xargs -i bash -c 'delete_database {}'
 
+s3_dependency_dir=$(dbt run-operation print_s3_dependency_dir --quiet \
+    --target "$1"
+)
+
+echo "Deleting Python model requirements at $s3_dependency_dir"
+aws s3 rm "$s3_dependency_dir" --recursive
+
 echo
 echo "Done!"
