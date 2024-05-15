@@ -34,6 +34,9 @@ jobs:
           if output=$(dbt test --target "$TARGET" --selector qc_tests --store-failures); then
             echo "$output"
           else
+            output=$(dbt test --target "$TARGET" --selector new_or_modified --store-failures); then
+            echo "$output"
+          else
             status_code="$?"
             if [[ "$output" =~ "Runtime Error" || "$output" =~ "Compilation Error" ]]; then
               # The presence of an error string indicates that these tests

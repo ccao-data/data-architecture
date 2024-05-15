@@ -13,3 +13,14 @@ selectors:
         - exclude:
           - method: tag
             value: test_qc_exclude_from_workbook
+  - name: new_or_modified_tests
+    description: Selector for running tests on new or modified dables
+    definition:
+      union:
+        - method: tag
+          value: "test_qc_*"
+          indirect_selection: cautious
+        - exclude:
+          - method: tag
+            value: new_or_modified
+
