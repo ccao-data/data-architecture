@@ -3,7 +3,7 @@ def model(dbt, spark_session):
     dbt.config(materialized="table")
 
     # Load dependency bundle so that we can import deps
-    python_model_dependency = dbt.ref("ccao.vw_python_model_dependency")
+    python_model_dependency = dbt.ref("ccao.python_model_dependency")
     s3_dependency_dir = python_model_dependency.first()["s3_dependency_dir"]
     # type: ignore
     sc.addPyFile(  # noqa: F821

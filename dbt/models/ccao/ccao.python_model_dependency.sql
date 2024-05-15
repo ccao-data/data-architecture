@@ -1,0 +1,1 @@
+../../../aws-athena/ctas/ccao-python_model_dependency.sql

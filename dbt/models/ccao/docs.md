@@ -91,18 +91,20 @@ Collected yearly from Valuations via spreadsheets.
 **Primary Key**: `pin`, `year`
 {% enddocs %}
 
-# vw_python_model_dependency
+# python_model_dependency
 
-{% docs view_python_model_dependency %}
-Internal view recording the path where S3 dependency bundles are stored for
+{% docs table_python_model_dependency %}
+Internal table recording the path where S3 dependency bundles are stored for
 Python models in the current environment.
 
-This view is a thin wrapper around the `get_s3_dependency_dir` macro. It acts
+This table is a thin wrapper around the `get_s3_dependency_dir` macro. It acts
 as a workaround for the fact that Python models
 [do not yet support code
 reuse](https://docs.getdbt.com/docs/build/python-models#code-reuse),
 so there's no way to call a version of `get_s3_dependency_dir()` in a
 Python model or even pass its return value in as a config variable. This
-solution works because views can be referenced inside the context of a Python
+solution works because tables can be referenced inside the context of a Python
 model via the `dbt.ref()` method even though macros cannot.
+`python_model_dependency` must be a table because SQL views cannot be referenced
+in Python models.
 {% enddocs %}
