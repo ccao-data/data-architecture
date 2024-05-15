@@ -7,7 +7,7 @@ def model(dbt, spark_session):
     s3_dependency_dir = python_model_dependency.first()["s3_dependency_dir"]
     # type: ignore
     sc.addPyFile(  # noqa: F821
-        f"{s3_dependency_dir}/reporting.ratio_stats.zip"
+        f"{s3_dependency_dir}/reporting.ratio_stats.requirements.zip"
     )
 
     import numpy as np  # noqa: E402
