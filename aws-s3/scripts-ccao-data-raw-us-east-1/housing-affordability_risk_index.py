@@ -1,3 +1,5 @@
+import os
+
 import boto3
 import requests
 from botocore.exceptions import NoCredentialsError
@@ -66,12 +68,12 @@ base_url = (
 most_recent_file_url = get_most_recent_ihs_data_url(base_url)
 
 # S3 Bucket and Key Prefix
-aws_s3_raw_bucket = "AWS_S3_RAW_BUCKET"
-key_prefix = "housing/ARI_index"
+AWS_S3_RAW_BUCKET = os.environ.get("AWS_S3_RAW_BUCKET")
+key_prefix = os.path.join("housing", "ari_index")
 
 if most_recent_file_url:
     result = download_and_upload_excel(
-        most_recent_file_url, aws_s3_raw_bucket, key_prefix
+        most_recent_file_url, AWS_S3_RAW_BUCKET, key_prefix
     )
     print(result)
 else:
