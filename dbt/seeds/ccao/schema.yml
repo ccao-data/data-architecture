@@ -1,4 +1,7 @@
 seeds:
+  - name: ccao.adjective
+    description: '{{ doc("seed_person") }}'
+
   - name: ccao.class_dict
     description: '{{ doc("seed_class_dict") }}'
     config:
@@ -49,6 +52,16 @@ seeds:
           Level of Assessment (LoA) for each year and property class. This
           number is effectively the percentage of market/fair cash value on
           which properties are assessed
+
+  - name: ccao.person
+    description: '{{ doc("seed_person") }}'
+
+    columns:
+      - name: person
+        description: Name of a former CCAO intern, fellow, or employee
+      - name: type
+        description: |
+          Type, one of: fte, intern, fellow
 
   - name: ccao.pin_test
     description: '{{ doc("seed_pin_test") }}'
