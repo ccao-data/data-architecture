@@ -18,7 +18,7 @@ This directory stores the configuration for building our data catalog using
 
 * [📖 Data documentation](https://ccao-data.github.io/data-architecture)
 * [📝 Design doc for our decision to develop our catalog with
-  dbt](../documentation/design-docs/data-catalog.md)
+  dbt](../docs/design-docs/data-catalog.md)
 * [🧪 Generic tests we use for testing](./tests/generic/README.md)
 
 ## 🖼️ Background: What does the data catalog do?
@@ -514,7 +514,7 @@ of YAML anchors and aliases to define symbols for commonly-used values.
 See [here](https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/)
 for a brief explanation of the YAML anchor and alias syntax.
 
-#### Adding non-QC tests 
+#### Adding non-QC tests
 
 QC tests are much more common than non-QC tests in our test suite. If you
 are being asked to add a test that appears to be a non-QC test, double
