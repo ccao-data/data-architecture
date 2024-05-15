@@ -3,11 +3,9 @@ def model(dbt, spark_session):
     dbt.config(materialized="table")
 
     # Load dependency bundle so that we can import deps
-    python_model_dependency = dbt.ref("ccao.python_model_dependency")
-    s3_dependency_dir = python_model_dependency.first()["s3_dependency_dir"]
     # type: ignore
     sc.addPyFile(  # noqa: F821
-        f"{s3_dependency_dir}/reporting.ratio_stats.requirements.zip"
+        "s3://ccao-dbt-athena-ci-us-east-1/dependencies/jeancochrane_439_refactor_reportingratio_stats_to_use_new_pattern_for_python_model_dependencies/reporting.ratio_stats.requirements.zip"  # noqa: E501
     )
 
     import numpy as np  # noqa: E402 F401
