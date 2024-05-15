@@ -172,8 +172,7 @@ SELECT
     uni.*,
 
     CASE
-        WHEN ch.is_parking_space = TRUE
-            OR ch.is_common_area = TRUE THEN 'NONLIVABLE'
+        WHEN ch.is_parking_space = TRUE THEN 'NONLIVABLE'
         ELSE 'CONDO'
     END AS meta_modeling_group,
 
