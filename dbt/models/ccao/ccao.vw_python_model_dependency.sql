@@ -1,0 +1,1 @@
+../../../aws-athena/views/ccao-vw_python_model_dependency.sql

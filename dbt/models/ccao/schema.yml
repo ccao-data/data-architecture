@@ -70,6 +70,12 @@ sources:
         tags:
           - type_condo
 
+      - name: vw_python_model_dependency
+        description: '{{ doc("view_python_model_dependency") }}'
+        columns:
+          - name: s3_dependency_dir
+            description: S3 location where dependency bundles are stored
+
 exposures:
   - name: commercial_valuation_data
     label: Commercial Valuation Data
