@@ -282,7 +282,7 @@ sources:
           - name: tieback
             description: '{{ doc("shared_column_tieback_key_pin") }}'
             data_tests:
-              - expression_is_true: 
+              - expression_is_true:
                   name: iasworld_pardat_tieback_does_not_contain_hyphen
                   expression: not like '%-%'
                   additional_select_columns: *select-columns
@@ -290,6 +290,10 @@ sources:
                   meta:
                     category: incorrect_values
                     description: tieback should not contain hyphens
+                  tags:
+                    # Valuations can't act on these failures since hyphens are
+                    # not distinguishable in the iasWorld UI
+                    - test_qc_exclude_from_workbook
           - name: tiebkcd
             description: Tieback code
           - name: tiebldgpct
