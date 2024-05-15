@@ -267,19 +267,32 @@ models:
       - expression_is_true:
           name: reporting_vw_top_5_muni_rank_between_1_and_5
           expression: rank BETWEEN 1 AND 5
+      # If ccao_stage_used = 'mailed', that indicates the current year, for
+      # which we shouldn't have bor values
+      - expression_is_true:
+          name: reporting_vw_top_5_muni_used_mailed_null_bor
+          expression: ccao_stage_used = 'certified' OR bor_av IS NULL
       - expression_is_true:
           name: reporting_vw_top_5_muni_no_nulls
           expression: |
             year IS NOT NULL
+            AND pin IS NOT NULL
             AND municipality IS NOT NULL
             AND class IS NOT NULL
             AND rank IS NOT NULL
             AND ccao_av IS NOT NULL
             AND ccao_stage_used IS NOT NULL
+            AND num_pin_w_value IS NOT NULL
+            AND num_pin_total_in_group IS NOT NULL
       - not_accepted_values:
           name: reporting_vw_top_5_muni_class_no_hyphens
           column_name: class
           values: "2-99"
+      - accepted_range:
+          name: reporting_vw_top_5_muni_pct_pin_w_value_in_group_range
+          column_name: pct_pin_w_value_in_group
+          min_value: 0
+          max_value: 1
 
   - name: reporting.vw_town_sale_history
     description: '{{ doc("view_vw_town_sale_history") }}'
