@@ -52,6 +52,12 @@ seeds:
           Level of Assessment (LoA) for each year and property class. This
           number is effectively the percentage of market/fair cash value on
           which properties are assessed
+        tests:
+          - accepted_range:
+              name: loa_less_than_.38
+              max_value: .38
+              meta:
+                description: loa should be less than .38
 
   - name: ccao.person
     description: '{{ doc("seed_person") }}'
