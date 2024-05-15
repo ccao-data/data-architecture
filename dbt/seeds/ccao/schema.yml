@@ -1,6 +1,6 @@
 seeds:
   - name: ccao.adjective
-    description: '{{ doc("seed_person") }}'
+    description: '{{ doc("seed_adjective") }}'
 
   - name: ccao.class_dict
     description: '{{ doc("seed_class_dict") }}'
