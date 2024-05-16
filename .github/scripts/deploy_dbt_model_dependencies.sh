@@ -147,50 +147,12 @@ while read -r item; do
     subdirectory_name="${model_identifier}/"
     mkdir -p "$subdirectory_name"
     echo "Installing dependencies from $requirements_filename into $subdirectory_name"
-    pip install -t "$subdirectory_name" -r "$requirements_filename"
-
-    # Remove dependencies that are already preinstalled in the Athena PySpark
-    # environment, and whose presence causes errors due to ambiguity in which
-    # version of the dependency should be used (preinstalled or pip installed).
-    # See here for docs on which packages are preinstalled:
-    # https://docs.aws.amazon.com/athena/latest/ug/notebooks-spark-preinstalled-python-libraries.html
-    preinstalled_packages=(\
-        "boto3" "botocore" "certifi" "charset-normalizer" "cycler" "cython" \
-        "docutils" "fonttools" "idna" "jmespath" "joblib" "kiwisolver" \
-        "matplotlib" "mpmath" "numpy" "packaging" "pandas" "patsy" "pillow" \
-        "plotly" "pmdarima" "pyathena" "pyparsing" "dateutil" "pytz" \
-        "requests" "s3transfer" "scikit-learn" "scipy" "seaborn" "six" \
-        "statsmodels" "sympy" "tenacity" "threadpoolctl" "urllib3" "pyarrow" \
-        # The folder names for these packages are slightly different
-        # than the package names
-        "python_dateutil" \
-    )
-    # Construct a `find` command to query for preinstalled packages in
-    # the package directory
-    find_command="find \"$subdirectory_name\" -maxdepth 1 -type d \( "
-    for package in "${preinstalled_packages[@]}"; do
-        # Glob the package name so we delete any related metadata
-        find_command+=" -name '${package}*' -o"
-    done
-
-    # Replace the trailing `-o` with a trailing close paren in the `find` command
-    find_command="${find_command% -o} \)"
-
-    preinstalled_package_dirs=$(eval "$find_command" -print)
-    if [ -n "$preinstalled_package_dirs" ]; then
-        echo "Removing directories in $subdirectory_name containing preinstalled packages:"
-        echo "$preinstalled_package_dirs"
-        # Disable shellcheck double-quote rule for this command
-        # since we intentionally want to split each directory name into a
-        # separate argument based on spaces
-        # shellcheck disable=SC2086
-        rm -r $preinstalled_package_dirs
-    fi
+    pip install -t "$subdirectory_name" -r "$requirements_filename" --no-deps
 
     # Create a zip archive from the contents of the subdirectory
     zip_archive_name="${model_identifier}.requirements.zip"
     echo "Creating zip archive $zip_archive_name from $subdirectory_name"
-    cd "$subdirectory_name" && zip -q -r "../$zip_archive_name" ./* && cd ..
+    cd "$subdirectory_name" && zip -q -r9 "../$zip_archive_name" ./* && cd ..
 
     # Upload the zip archive and the requirements file to S3
     echo "Uploading $zip_archive_name and $requirements_filename to S3"
