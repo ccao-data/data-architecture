@@ -84,11 +84,13 @@ pin_counts AS (
         stages.stage
 ),
 
-/* This CTE solely provides lagged values by year and stage by PIN. Because
-parcel universes change year-to-year (PINs are activated/deactivated, change
-class), building "prior phase" stats by aggregating lagged values will lead to
-small disagreements between a given year's "prior phase" stats for its mailed
-stage and the prior year's actual bor certified stats. */
+/* This CTE solely provides lagged AVs by year and stage by PIN. We need these
+lagged values below in order to calculate changes in AV between phases (stages).
+Because the number of parcels per class changes year-to-year (PINs are
+activated/deactivated, change class), building "prior phase" stats by
+aggregating lagged values will lead to small disagreements between "prior phase"
+AV totals for mailed stages and the actual AV total for the prior (bor
+certified) stage. */
 vpvl AS (
 
     SELECT
