@@ -82,7 +82,7 @@ pin_counts AS (
 /* This CTE solely provides lagged values by year and stage by PIN. Because
 parcel universes change year-to-year (PINs are activated/deactivated, change
 class), building "prior phase" stats by aggregating lagged values will lead to
-small disgareements between a given year's "prior phase" stats for its mailed
+small disagreements between a given year's "prior phase" stats for its mailed
 stage and the prior year's actual bor certified stats. */
 vpvl AS (
 
