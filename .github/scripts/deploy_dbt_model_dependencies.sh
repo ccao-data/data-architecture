@@ -166,7 +166,7 @@ while read -r item; do
     # Create a zip archive from the contents of the subdirectory
     zip_archive_name="${model_identifier}.requirements.zip"
     echo "Creating zip archive $zip_archive_name from $subdirectory_name"
-    cd "$subdirectory_name" && zip -q -r "../$zip_archive_name" * && cd ..
+    cd "$subdirectory_name" && zip -q -r "../$zip_archive_name" ./* && cd ..
 
     # Upload the zip archive and the requirements file to S3
     echo "Uploading $zip_archive_name and $requirements_filename to S3"
