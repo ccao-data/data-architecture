@@ -11,6 +11,13 @@ WITH correct_class AS (
     FROM {{ source('iasworld', 'pardat') }}
 ),
 
+/* This CTE creates our AHSAP indicator. It's a function of multiple columns
+from multiple iasWorld tables having a variety of values. We group by parid and
+taxyr, and use MAX() since most of these tables are NOT unique by parcel and
+year, but the view is. Therefore, if any part of a parcel (card, lline, etc.)
+triggers AHSAP status, the parcel as a whole will be identified as AHSAP (since
+TRUE > FALSE). user columns are primarily "incentive number" and "alternative
+CDU" columns. */
 ahsap AS (
     SELECT
         par.parid,
