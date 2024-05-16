@@ -15,9 +15,10 @@ modeling, reporting, and data integrity work.
 
 ## Repository Structure
 
-- [./dbt](./dbt) contains the models and tests that build our Athena data lakehouse
+- [./dbt](./dbt) contains the models and tests that build our Athena data lakehouse;
+  dbt mainly acts as a transformation and documentation layer on top of our raw data
 - [./docs](./docs) contains design documents and other supplemental documentation
-- [./etl](./etl) contains small ETL scripts used to load data in the lakehouse as
-  dbt sources
+- [./etl](./etl) contains ETL scripts used to load raw and slightly cleaned up
+  data into the lakehouse as dbt sources
 - [./socrata](./socrata) contains column transformations for the CCAO's
   [Open Data Portal](https://datacatalog.cookcountyil.gov/) assets
