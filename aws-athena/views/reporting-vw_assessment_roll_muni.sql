@@ -68,6 +68,11 @@ pin_counts AS (
         vptc.major_class,
         vptc.year,
         stages.stage,
+        CASE
+            WHEN stages.stage = 'mailed' THEN 1
+            WHEN stages.stage = 'assessor certified' THEN 2
+            WHEN stages.stage = 'bor certified' THEN 3
+        END AS stage_num,
         COUNT(*) AS total_n
     FROM trimmed_town_class AS vptc
     CROSS JOIN stages
@@ -107,17 +112,14 @@ muni_aggregated AS (
     SELECT
         pin_counts.year,
         pin_counts.stage,
-        CASE
-            WHEN pin_counts.stage = 'mailed' THEN 1
-            WHEN pin_counts.stage = 'assessor certified' THEN 2
-            WHEN pin_counts.stage = 'bor certified' THEN 3
-        END AS stage_num,
+        pin_counts.stage_num,
         pin_counts.municipality_name AS municipality,
         munis.major_class AS class,
         SUM(CAST(vpvl.pin IS NOT NULL AS INT)) AS num_pin_w_value,
-        pin_counts.total_n AS num_pin_total_in_group,
+        ARBITRARY(pin_counts.total_n) AS num_pin_total_in_group,
         SUM(CAST(vpvl.pin IS NOT NULL AS DOUBLE))
-        / CAST(pin_counts.total_n AS DOUBLE) AS pct_pin_w_value_in_group,
+        / CAST(ARBITRARY(pin_counts.total_n) AS DOUBLE)
+            AS pct_pin_w_value_in_group,
         SUM(vpvl.bldg) AS bldg_sum,
         CAST(APPROX_PERCENTILE(vpvl.bldg, 0.5) AS INT) AS bldg_median,
         SUM(vpvl.land) AS land_sum,
@@ -142,15 +144,11 @@ muni_aggregated AS (
         pin_counts.year,
         munis.major_class,
         pin_counts.stage,
-        pin_counts.total_n
+        pin_counts.stage_num
     ORDER BY
         pin_counts.year DESC,
         pin_counts.municipality_name ASC,
-        CASE
-            WHEN pin_counts.stage = 'mailed' THEN 1
-            WHEN pin_counts.stage = 'assessor certified' THEN 2
-            WHEN pin_counts.stage = 'bor certified' THEN 3
-        END DESC,
+        pin_counts.stage DESC,
         munis.major_class ASC
 )
 
