@@ -152,7 +152,11 @@ while read -r item; do
     # Remove dependencies that are already preinstalled in the Athena PySpark
     # environment, and whose presence causes errors due to ambiguity in which
     # version of the dependency should be used (preinstalled or pip installed)
-    preinstalled_package_dirs=$(find "$subdirectory_name" -type d -name 'numpy*' -maxdepth 1 -print)
+    preinstalled_package_dirs=$(\
+        find "$subdirectory_name" -type d \
+        \( -name 'numpy*' -o -name 'pandas*' \) \
+        -maxdepth 1 -print\
+    )
     if [ -n "$preinstalled_package_dirs" ]; then
         echo "Removing directories in $subdirectory_name containing preinstalled packages:"
         echo "$preinstalled_package_dirs"
