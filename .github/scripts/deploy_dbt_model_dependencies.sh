@@ -149,6 +149,20 @@ while read -r item; do
     echo "Installing dependencies from $requirements_filename into $subdirectory_name"
     pip install -t "$subdirectory_name" -r "$requirements_filename"
 
+    # Remove dependencies that are already preinstalled in the Athena PySpark
+    # environment, and whose presence causes errors due to ambiguity in which
+    # version of the dependency should be used (preinstalled or pip installed)
+    preinstalled_package_dirs=$(find "$subdirectory_name" -type d -name 'numpy*' -maxdepth 1 -print)
+    if [ -n "$preinstalled_package_dirs" ]; then
+        echo "Removing directories in $subdirectory_name containing preinstalled packages:"
+        echo "$preinstalled_package_dirs"
+        # Disable shellcheck double-quote rule for this command
+        # since we intentionally want to split each directory name into a
+        # separate argument based on spaces
+        # shellcheck disable=SC2086
+        rm -r $preinstalled_package_dirs
+    fi
+
     # Create a zip archive from the contents of the subdirectory
     zip_archive_name="${model_identifier}.requirements.zip"
     echo "Creating zip archive $zip_archive_name from $subdirectory_name"
