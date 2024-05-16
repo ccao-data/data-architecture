@@ -123,7 +123,7 @@ by year.
 View to fetch the top five largest assessed values in a given municipality
 by year.
 
-**Primary Key**: `year`, `municipality`, `parid`
+**Primary Key**: `year`, `municipality`, `pin`
 {% enddocs %}
 
 # vw_town_sale_history
