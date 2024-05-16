@@ -15,7 +15,7 @@ s3 = boto3.client("s3")
 temp_file = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
 
 # Download the file from S3 to your local system
-AWS_S3_RAW_BUCKET = os.environ.get("AWS_S3_RAW_BUCKET")
+AWS_S3_RAW_BUCKET = "s3://ccao-data-raw-us-east-1/"
 file_key = os.path.join("housing", "ari_index", "2023-ARI.xlsx")
 
 s3.download_file(AWS_S3_RAW_BUCKET, file_key, temp_file.name)
