@@ -1,1 +1,0 @@
-../../../aws-athena/views/rpie-vw_pin_mailers.sql

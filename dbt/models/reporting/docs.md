@@ -114,7 +114,16 @@ Feeds public reporting assets.
 View to fetch the top five largest assessed values in a given township
 by year.
 
-**Primary Key**: `year`, `township`, `parid`
+**Primary Key**: `year`, `township`, `pin`
+{% enddocs %}
+
+# vw_top_5_muni
+
+{% docs view_vw_top_5_muni %}
+View to fetch the top five largest assessed values in a given municipality
+by year.
+
+**Primary Key**: `year`, `municipality`, `pin`
 {% enddocs %}
 
 # vw_town_sale_history

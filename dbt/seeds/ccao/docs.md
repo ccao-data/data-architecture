@@ -1,3 +1,13 @@
+# adjective
+
+{% docs seed_adjective %}
+Table containing adjectives. These are combined with the person names in
+`ccao.person` to generate unique IDs for models and jobs. Adjectives originally
+sourced from Docker.
+
+**Primary Key**: `adjective`
+{% enddocs %}
+
 # class_dict
 
 {% docs seed_class_dict %}
@@ -21,6 +31,15 @@ Do *not* use this table as a definitive list of existent class codes per year.
 Please use `ccao.class_dict` instead.
 
 **Primary Key**: `year`, `class_code`
+{% enddocs %}
+
+# person
+
+{% docs seed_person %}
+Table containing the names of current and former CCAO Data Department interns,
+employees, and fellows. Used for unique ID generators for models and jobs.
+
+**Primary Key**: `person`
 {% enddocs %}
 
 # pin_test
