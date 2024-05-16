@@ -155,7 +155,7 @@ muni_aggregated AS (
 )
 
 -- We need a separate select here since we group phase columns differently than
--- other aggreagte values.
+-- other aggregate values.
 SELECT
     *,
     SUM(tot_sum)
