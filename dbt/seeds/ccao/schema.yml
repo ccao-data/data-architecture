@@ -1,4 +1,7 @@
 seeds:
+  - name: ccao.adjective
+    description: '{{ doc("seed_adjective") }}'
+
   - name: ccao.class_dict
     description: '{{ doc("seed_class_dict") }}'
     config:
@@ -55,6 +58,17 @@ seeds:
               max_value: .38
               meta:
                 description: loa should be less than .38
+
+  - name: ccao.person
+    description: '{{ doc("seed_person") }}'
+
+    columns:
+      - name: person
+        description: Name of a former CCAO intern, fellow, or employee
+      - name: type
+        description: |
+          Type, one of: fte, intern, fellow
+
   - name: ccao.pin_test
     description: '{{ doc("seed_pin_test") }}'
     config:
