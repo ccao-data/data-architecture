@@ -38,10 +38,3 @@ preferred_type_casting_style = cast
 
 [sqlfluff:templater:jinja]
 load_macros_from_path = dbt/macros
-
-[sqlfluff:templater:jinja:macros]
-# It appears that some common dbt variables like `target` and `exceptions` do
-# not have sqlfluff mocks builtin, so we have to mock out any macros
-# that reference those variables if they are used in code that sqlfluff
-# lints
-get_s3_dependency_dir = {% macro get_s3_dependency_dir() %}s3://bucket{% endmacro %}

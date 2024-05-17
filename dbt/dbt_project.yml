@@ -52,8 +52,6 @@ models:
     +materialized: view
     +write_compression: zstd
     +format: parquet
-    ccao:
-      +schema: ccao
     census:
       +schema: census
     default:
@@ -66,8 +64,6 @@ models:
       +schema: proximity
     reporting:
       +schema: reporting
-    rpie:
-      +schema: rpie
     sale:
       +schema: sale
     qc:
