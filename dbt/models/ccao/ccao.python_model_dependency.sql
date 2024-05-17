@@ -1,1 +1,3 @@
-../../../aws-athena/ctas/ccao-python_model_dependency.sql
+{{ config(materialized='table') }}
+
+SELECT '{{ get_s3_dependency_dir() }}' AS s3_dependency_dir
