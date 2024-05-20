@@ -4,9 +4,9 @@ sc.addPyFile(  # noqa: F821
     "s3://ccao-dbt-dependencies-us-east-1/assesspy_v1_1_0.zip"
 )
 
+import assesspy_v1_1_0 as assesspy  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
-import assesspy_v1_1_0 as assesspy  # noqa: E402
 
 
 def median_boot(ratio, nboot=100, alpha=0.05):
@@ -176,9 +176,9 @@ def report_summarise(df, geography_id, geography_type):
         )
     )
 
-    df[
-        ["median_ratio", "median_ratio_ci", "median_ratio_n"]
-    ] = pd.DataFrame(df.ratio.tolist(), index=df.index)
+    df[["median_ratio", "median_ratio_ci", "median_ratio_n"]] = pd.DataFrame(
+        df.ratio.tolist(), index=df.index
+    )
     df[["cod", "cod_ci", "cod_met", "cod_n"]] = pd.DataFrame(
         df.cod.tolist(), index=df.index
     )
