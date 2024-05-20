@@ -227,7 +227,9 @@ def report_summarise(df, geography_id, geography_type):
     return df
 
 
-def main(dbt, spark_session)
+def model(dbt, spark_session):
+    dbt.config(materialized="table")
+
     input = dbt.ref("reporting.ratio_stats_input")
 
     # Convert the Spark input dataframe to Pandas for
