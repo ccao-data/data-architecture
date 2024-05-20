@@ -5,13 +5,6 @@
     {% do test_generate_schema_name_raises_for_default_schema_name() %}
 {% endmacro %}
 
-{% macro mock_env_var(var_name) %}
-    {% if var_name == "USER" %} {{ return("test-user") }}
-    {% elif var_name == "HEAD_REF" %} {{ return("testuser/feature-branch-1") }}
-    {% else %} {{ return("") }}
-    {% endif %}
-{% endmacro %}
-
 {% macro test_generate_schema_name_handles_dev_env() %}
     {% do assert_equals(
         "test_generate_schema_name_handles_dev_env",

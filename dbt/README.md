@@ -18,7 +18,7 @@ This directory stores the configuration for building our data catalog using
 
 * [📖 Data documentation](https://ccao-data.github.io/data-architecture)
 * [📝 Design doc for our decision to develop our catalog with
-  dbt](../documentation/design-docs/data-catalog.md)
+  dbt](../docs/design-docs/data-catalog.md)
 * [🧪 Generic tests we use for testing](./tests/generic/README.md)
 
 ## 🖼️ Background: What does the data catalog do?
@@ -202,6 +202,16 @@ dbt build --select default.vw_pin_universe location.vw_pin10_location --resource
 # This builds all models and seeds in the default schema
 dbt build --select default.* --resource-types model seed
 ```
+
+> [!NOTE]
+> If you are building a [Python model](https://docs.getdbt.com/docs/build/python-models),
+> your model may require external dependencies be available on S3.
+> To make these dependencies available to your model, run
+> `../.github/scripts/deploy_dbt_model_dependencies.sh <your_model_name>`
+> in the context of the `dbt/` directory before you run `dbt build`.
+> You can also run the script with no arguments to make dependencies available
+> for all Python models in the project, but this will take a longer time to
+> complete and will use extra storage space on S3.
 
 #### Build tables and views in production
 
@@ -504,7 +514,7 @@ of YAML anchors and aliases to define symbols for commonly-used values.
 See [here](https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/)
 for a brief explanation of the YAML anchor and alias syntax.
 
-#### Adding non-QC tests 
+#### Adding non-QC tests
 
 QC tests are much more common than non-QC tests in our test suite. If you
 are being asked to add a test that appears to be a non-QC test, double
