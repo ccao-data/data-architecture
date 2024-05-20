@@ -52,8 +52,6 @@ models:
     +materialized: view
     +write_compression: zstd
     +format: parquet
-    ccao:
-      +schema: ccao
     census:
       +schema: census
     default:
