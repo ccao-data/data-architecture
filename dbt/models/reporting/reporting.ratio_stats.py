@@ -7,14 +7,19 @@ sc.addPyFile(  # noqa: F821
     "s3://ccao-athena-dependencies-us-east-1/attrs_v23_2_0.zip"
 )
 
-import assesspy  # noqa: E402
 import attrs  # noqa: E402 F401
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
+from assesspy import boot_ci  # noqa: E402
+from assesspy import cod  # noqa: E402
+from assesspy import prd_met  # noqa: E402
+from assesspy import cod_ci as cod_boot  # noqa: E402
+from assesspy import cod_met, mki, mki_met, prb, prb_met, prd  # noqa: E402
+from assesspy import prd_ci as prd_boot  # noqa: E402
 
 
 def median_boot(ratio, nboot=100, alpha=0.05):
-    return assesspy.boot_ci(np.median, nboot=nboot, alpha=alpha, ratio=ratio)
+    return boot_ci(np.median, nboot=nboot, alpha=alpha, ratio=ratio)
 
 
 def ccao_median(x):
@@ -50,8 +55,8 @@ def ccao_mki(fmv, sale_price):
     mki_n = sum(no_outliers)
 
     if mki_n >= 20:
-        mki_val = assesspy.mki(fmv_no_outliers, sale_price_no_outliers)
-        met = assesspy.mki_met(mki_val)
+        mki_val = mki(fmv_no_outliers, sale_price_no_outliers)
+        met = mki_met(mki_val)
 
         out = [mki_val, met, mki_n]
 
@@ -72,10 +77,10 @@ def ccao_cod(ratio):
     cod_n = no_outliers.size
 
     if cod_n >= 20:
-        cod_val = assesspy.cod(no_outliers)
-        cod_ci = assesspy.cod_ci(no_outliers, nboot=1000)
+        cod_val = cod(no_outliers)
+        cod_ci = cod_boot(no_outliers, nboot=1000)
         cod_ci = f"{cod_ci[0]}, {cod_ci[1]}"
-        met = assesspy.cod_met(cod_val)
+        met = cod_met(cod_val)
         out = [cod_val, cod_ci, met, cod_n]
 
     else:
@@ -98,12 +103,12 @@ def ccao_prd(fmv, sale_price):
     prd_n = sum(no_outliers)
 
     if prd_n >= 20:
-        prd_val = assesspy.prd(fmv_no_outliers, sale_price_no_outliers)
-        prd_ci = assesspy.prd_ci(
+        prd_val = prd(fmv_no_outliers, sale_price_no_outliers)
+        prd_ci = prd_boot(
             fmv_no_outliers, sale_price_no_outliers, nboot=1000
         )
         prd_ci = f"{prd_ci[0]}, {prd_ci[1]}"
-        met = assesspy.prd_met(prd_val)
+        met = prd_met(prd_val)
 
         out = [prd_val, prd_ci, met, prd_n]
 
@@ -127,11 +132,11 @@ def ccao_prb(fmv, sale_price):
     prb_n = sum(no_outliers)
 
     if prb_n >= 20:
-        prb_model = assesspy.prb(fmv_no_outliers, sale_price_no_outliers)
+        prb_model = prb(fmv_no_outliers, sale_price_no_outliers)
         prb_val = prb_model["prb"]
         prb_ci = prb_model["95% ci"]
         prb_ci = f"{prb_ci[0]}, {prb_ci[1]}"
-        met = assesspy.prb_met(prb_val)
+        met = prb_met(prb_val)
 
         out = [prb_val, prb_ci, met, prb_n]
 

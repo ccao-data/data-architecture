@@ -12,19 +12,19 @@
 # the remote dependency dir on S3, the script will skip installing, zipping,
 # and uploading that dependency version.
 #
-# When uploading dependencies, package names get cleaned in order to make them
-# fit the required format for importable Python identifiers. This process
-# involves the following transformations:
-#
-# * Hyphens ("-") and periods (".") get replaced with underscores ("_")
-# * Double equals signs ("==") get replaced with the version prefix "_v"
-#
-# For example, the string "assesspy==1.0.1" will get saved to a zip archive
-# called "assesspy_v1_0_1". This string can then be used to import the package
+# Zip archives uploaded using this script can be used to import packages
 # into a Python model script with a set of import calls like so:
 #
-#   sc.addPyFile(f"{s3_dependency_dir}/assesspy_v1_1_0.zip")
-#   import assesspy_v1_1_0 as assesspy
+#   sc.addPyFile(f"{s3_dependency_dir}/attrs==23.2.0.zip")  # noqa: F821
+#   sc.addPyFile(f"{s3_dependency_dir}/assesspy==1.1.0.zip")  # noqa: F821
+#   import attrs  # noqa: E402
+#   import assesspy  # noqa: E402
+#
+# Dependencies are installed using the `--no-deps` flag for `pip install`,
+# meaning that your dependency's dependencies will not be installed or
+# uploaded by default. Make sure you check to see what additional dependencies
+# are required for your dependency and include those in the `config.packages`
+# array.
 #
 # Assumes that dbt, python, and jq are installed and available on the caller's
 # path. Also assumes that it is being run in a directory containing a
@@ -98,17 +98,11 @@ venv_created=false
 # Iterate over each key-value pair representing a set of package
 # dependencies and output those dependencies to a requirements file
 for package_name in "${packages_array[@]}"; do
-    # Transform the package name to fit the requirements of Python imports
-    cleaned_package_name=$(\
-        echo "$package_name" | \
-            sed -e 's/-/_/g' -e 's/\./_/g' -e 's/==/_v/g' \
-    )
-    zip_archive_name="${cleaned_package_name}.zip"
-
     # Check to see if the package already exists in S3
+    zip_archive_name="${package_name}.zip"
     existing_package_url="${s3_dependency_dir}/${zip_archive_name}"
     if aws s3 ls "$existing_package_url" > /dev/null 2>&1; then
-        echo "$cleaned_package_name already exists at ${existing_package_url}, skipping upload"
+        echo "$package_name already exists at ${existing_package_url}, skipping upload"
         continue
     fi
 
@@ -127,7 +121,7 @@ for package_name in "${packages_array[@]}"; do
     fi
 
     # Install dependencies into a subdirectory that we can use for bundling
-    subdirectory_name="${cleaned_package_name}/"
+    subdirectory_name="${package_name}/"
     mkdir -p "$subdirectory_name"
     echo "Installing '${package_name}' into $subdirectory_name"
     pip install -t "$subdirectory_name" "$package_name" --no-deps
