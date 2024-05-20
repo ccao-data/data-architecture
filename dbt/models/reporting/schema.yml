@@ -6,7 +6,6 @@ models:
         - daily
       packages:
         - "assesspy==1.1.0"
-        - "attrs==23.2.0"
     data_tests:
       - expression_is_true:
           name: reporting_ratio_stats_no_nulls
@@ -40,8 +39,6 @@ models:
     config:
       tags:
         - daily
-      packages:
-        - "attrs==23.1.0"
     data_tests:
       - unique_combination_of_columns:
           name: reporting_ratio_stats_input_unique_by_keys

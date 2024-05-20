@@ -1,13 +1,9 @@
 # pylint: skip-file
 # type: ignore
 sc.addPyFile(  # noqa: F821
-    "s3://ccao-athena-dependencies-us-east-1/assesspy_v1_1_0.zip"
-)
-sc.addPyFile(  # noqa: F821
-    "s3://ccao-athena-dependencies-us-east-1/attrs_v23_2_0.zip"
+    "s3://ccao-athena-dependencies-us-east-1/assesspy==1.1.0.zip"
 )
 
-import attrs  # noqa: E402 F401
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 from assesspy import boot_ci  # noqa: E402
@@ -104,9 +100,7 @@ def ccao_prd(fmv, sale_price):
 
     if prd_n >= 20:
         prd_val = prd(fmv_no_outliers, sale_price_no_outliers)
-        prd_ci = prd_boot(
-            fmv_no_outliers, sale_price_no_outliers, nboot=1000
-        )
+        prd_ci = prd_boot(fmv_no_outliers, sale_price_no_outliers, nboot=1000)
         prd_ci = f"{prd_ci[0]}, {prd_ci[1]}"
         met = prd_met(prd_val)
 
