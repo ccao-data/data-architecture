@@ -31,7 +31,8 @@ ahsap AS (
             OR SUBSTR(com.user4, 1, 3) = 'SAP'
             OR com.user13 IN ('49', '50', '51')
             OR aprval.ecf IS NOT NULL
-            OR SUBSTR(dwel.user16, 1, 2) = 'AI', FALSE
+            OR SUBSTR(dwel.user16, 1, 2) = 'AI'
+            OR admn.excode = 'INCV', FALSE
         )) AS ahsap
     FROM {{ source('iasworld', 'pardat') }} AS par
     LEFT JOIN {{ source('iasworld', 'comdat') }} AS com
@@ -59,6 +60,11 @@ ahsap AS (
         AND par.taxyr = aprval.taxyr
         AND aprval.cur = 'Y'
         AND aprval.deactivat IS NULL
+    LEFT JOIN {{ source('iasworld', 'exadmn') }} AS admn
+        ON par.parid = admn.parid
+        AND par.taxyr = admn.taxyr
+        AND admn.cur = 'Y'
+        AND admn.deactivat IS NULL
     WHERE par.cur = 'Y'
         AND par.deactivat IS NULL
     GROUP BY par.parid, par.taxyr
