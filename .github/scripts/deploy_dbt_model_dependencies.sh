@@ -65,6 +65,10 @@ echo "$packages_json"
 # Convert the JSON array to a bash array
 mapfile -t packages_array < <(echo "$packages_json" | jq -r '.[]')
 
+# Set a flag to check whether any dependencies were found so we can log
+# a warning if none are found
+new_dependencies_found=false
+
 # Before moving forward, validate the package names to ensure that they
 # match our requirements for deterministic installation. We want to do this as
 # soon as possible to quickly return to the user in case of a formatting error
@@ -75,11 +79,16 @@ for package_name in "${packages_array[@]}"; do
         echo "Please edit the config.packages attribute containing this string and try again."
         exit 1
     fi
+    # Set the flag to confirm new dependencies were found, since if we reach
+    # this point it means that packages_array is non-empty
+    new_dependencies_found=true
 done
 
-# Set a flag to check whether any dependencies were found so we can log
-# a warning if none are found
-new_dependencies_found=false
+# Warn and exit early if no dependencies were found
+if [ "$new_dependencies_found" == "false" ]; then
+    echo "No Python model dependencies found"
+    exit 0
+fi
 
 # Define the name of the virtualenv and set a flag to record whether it
 # has been created
@@ -89,10 +98,6 @@ venv_created=false
 # Iterate over each key-value pair representing a set of package
 # dependencies and output those dependencies to a requirements file
 for package_name in "${packages_array[@]}"; do
-    # Set the flag to confirm new dependencies were found, since if we reach
-    # this point it means that packages_array is non-empty
-    new_dependencies_found=true
-
     # Transform the package name to fit the requirements of Python imports
     cleaned_package_name=$(\
         echo "$package_name" | \
@@ -135,20 +140,16 @@ for package_name in "${packages_array[@]}"; do
     echo "Uploading $zip_archive_name to S3"
     aws s3 cp "$zip_archive_name" "${s3_dependency_dir}/" --no-progress
 
-    # Clean up intermediate artifacts
+    # Clean up intermediate artifacts. This isn't important on CI but
+    # it's helpful when developing locally
     echo "Cleaning up package directory and zip archive"
     rm -rf "$subdirectory_name"
     rm "$zip_archive_name"
 done
 
-# Warn if no dependencies were found
-if [ "$new_dependencies_found" == "false" ]; then
-    echo "No Python model dependencies found"
-    exit 0
+# Cleanup the virtualenv
+if [ "$venv_created" == "true" ]; then
+    echo "Cleaning up virtualenv"
+    deactivate
+    rm -rf "$venv_name"
 fi
-
-# Cleanup the intermediate artifacts. This isn't important on CI but
-# it's helpful when developing locally
-echo "Cleaning up virtualenv"
-deactivate
-rm -rf "$venv_name"
