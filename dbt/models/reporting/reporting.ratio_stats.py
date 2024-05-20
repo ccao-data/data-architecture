@@ -3,8 +3,12 @@
 sc.addPyFile(  # noqa: F821
     "s3://ccao-athena-dependencies-us-east-1/assesspy_v1_1_0.zip"
 )
+sc.addPyFile(  # noqa: F821
+    "s3://ccao-athena-dependencies-us-east-1/attrs_v23_2_0.zip"
+)
 
-import assesspy_v1_1_0 as assesspy  # noqa: E402
+import assesspy  # noqa: E402
+import attrs  # noqa: E402 F401
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
