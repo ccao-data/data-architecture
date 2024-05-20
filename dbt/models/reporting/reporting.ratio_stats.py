@@ -12,6 +12,7 @@ import assesspy_v1_1_0 as assesspy  # noqa: E402
 def median_boot(ratio, nboot=100, alpha=0.05):
     return assesspy.boot_ci(np.median, nboot=nboot, alpha=alpha, ratio=ratio)
 
+
 def ccao_median(x):
     # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
     no_outliers = x.between(
@@ -29,6 +30,7 @@ def ccao_median(x):
     out = [median_val, median_ci, median_n]
 
     return out
+
 
 def ccao_mki(fmv, sale_price):
     ratio = fmv / sale_price
@@ -54,6 +56,7 @@ def ccao_mki(fmv, sale_price):
 
     return out
 
+
 def ccao_cod(ratio):
     # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
     no_outliers = ratio[
@@ -75,6 +78,7 @@ def ccao_cod(ratio):
         out = [None, None, None, cod_n]
 
     return out
+
 
 def ccao_prd(fmv, sale_price):
     ratio = fmv / sale_price
@@ -104,6 +108,7 @@ def ccao_prd(fmv, sale_price):
 
     return out
 
+
 def ccao_prb(fmv, sale_price):
     ratio = fmv / sale_price
 
@@ -130,6 +135,7 @@ def ccao_prb(fmv, sale_price):
         out = [None, None, None, prb_n]
 
     return out
+
 
 def report_summarise(df, geography_id, geography_type):
     """
@@ -221,9 +227,7 @@ def report_summarise(df, geography_id, geography_type):
     return df
 
 
-def model(dbt, spark_session):
-    dbt.config(materialized="table")
-
+def main(dbt, spark_session)
     input = dbt.ref("reporting.ratio_stats_input")
 
     # Convert the Spark input dataframe to Pandas for

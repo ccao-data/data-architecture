@@ -70,7 +70,6 @@ if [ "$dependencies_found" == "false" ]; then
     exit 0
 fi
 
-
 # Check if the archive already exists on S3
 existing_requirements_file_url="${s3_dependency_dir}/${requirements_filename}"
 if aws s3 ls "$existing_requirements_file_url" > /dev/null 2>&1; then
