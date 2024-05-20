@@ -20,8 +20,8 @@ TRUE > FALSE). user columns with "AI" prefixes that trigger AHSAP status are
 'alternative CDU' and user columns with "SAP" prefixes that trigger AHSAP status
 are 'incentive number'. comdat.user13 is 'subclass 2'.
 
-For an explanation of AHSAP and why it involves so many different iasWorld
-tables, see: https://www.cookcountyassessor.com/affordable-housing */
+For an explanation of AHSAP and insight into why it involves so many different
+iasWorld tables, see: https://www.cookcountyassessor.com/affordable-housing */
 ahsap AS (
     SELECT
         par.parid,
