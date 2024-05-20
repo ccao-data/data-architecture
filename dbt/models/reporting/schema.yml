@@ -6,8 +6,6 @@ models:
         - daily
       packages:
         - "assesspy==1.1.*"
-        - "numpy==1.26.*"
-        - "pandas==2.*"
     data_tests:
       - expression_is_true:
           name: reporting_ratio_stats_no_nulls

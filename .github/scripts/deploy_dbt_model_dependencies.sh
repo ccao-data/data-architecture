@@ -147,12 +147,12 @@ while read -r item; do
     subdirectory_name="${model_identifier}/"
     mkdir -p "$subdirectory_name"
     echo "Installing dependencies from $requirements_filename into $subdirectory_name"
-    pip install -t "$subdirectory_name" -r "$requirements_filename"
+    pip install -t "$subdirectory_name" -r "$requirements_filename" --no-deps
 
     # Create a zip archive from the contents of the subdirectory
     zip_archive_name="${model_identifier}.requirements.zip"
     echo "Creating zip archive $zip_archive_name from $subdirectory_name"
-    zip -q -r "$zip_archive_name" "$subdirectory_name"
+    cd "$subdirectory_name" && zip -q -r9 "../$zip_archive_name" ./* && cd ..
 
     # Upload the zip archive and the requirements file to S3
     echo "Uploading $zip_archive_name and $requirements_filename to S3"
