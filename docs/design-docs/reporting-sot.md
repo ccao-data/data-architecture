@@ -1,6 +1,6 @@
-# Design doc: Reporting source-of-truth (SoT) views
+# Design doc: Reporting source-of-truth (SoT) tables
 
-This doc describes the design of a new set of reporting SQL views that aim
+This doc describes the design of a new set of reporting SQL tables that aim
 to make the CCAO's reporting more consistent, durable, debuggable, and useful.
 
 ## Motivation
@@ -12,8 +12,8 @@ are difficult to debug and trust, because each of them is complicated in a
 slightly different way.
 
 Rather than continue to create such ad-hoc views, we should consolidate our
-reporting efforts into a few larger views that cover the majority of CCAO
-reporting needs. These new views will cover different groupings, geographies,
+reporting efforts into a few larger tables that cover the majority of CCAO
+reporting needs. These new tables will cover different groupings, geographies,
 and valuation stages, and will use a consistent methodology and schema.
 They will serve as the new "source-of-truth" for both internal and external
 CCAO reporting.
@@ -38,7 +38,7 @@ However, this constant change creates two problems:
   needs, as the available assets are often changing.
 
 Now that the pace of institutional change has slowed a bit, it's possible to
-create a more permanent set of reporting views that would help solve these
+create a more permanent set of reporting tables that would help solve these
 problems.
 
 #### Requirements
@@ -49,7 +49,7 @@ We should be able to:
   disappearing in a few years
 - Store the data in a persistent and/or fully reproducible way, such that
   there is a near-zero chance of data loss
-- Build long-term applications and extracts on top of these views (e.g. in
+- Build long-term applications and extracts on top of these tables (e.g. in
   Open Data or Tableau)
 
 ### Consistent methods over time
@@ -63,7 +63,7 @@ published ratio statistics across years is very difficult, if not impossible.
 Even aggregate statistics like counts can change over time based on what is
 or is not included in the underlying data.
 
-The goal of the new views would to be apply a single set of consistent filters,
+The goal of the new tables would to be apply a single set of consistent filters,
 methods, and SOPs, such that the resulting statistics are comparable across
 time.
 
@@ -86,7 +86,7 @@ We should be able to:
 The vast majority of Data Department reporting needs/asks are some version of,
 "Fetch an aggregate statistic by group and geography." Currently, these needs
 are met on an ad-hoc basis by individual assets, but we can likely create
-larger views that cover *most* possible geographies, groups, and aggregate
+larger tables that cover *most* possible geographies, groups, and aggregate
 statistics.
 
 #### Requirements
@@ -109,13 +109,13 @@ the time. As a result, it's difficult to know if they are perfectly accurate,
 given the necessary complexity of their underlying SQL. Their complexity and
 lack of shared schema also means they're difficult to work on for newcomers.
 
-Consolidating reporting into larger views would let us focus our debugging and
+Consolidating reporting into larger tables would let us focus our debugging and
 documentation efforts into just a few areas, rather than a dispersed set of
 assets.
 
 #### Requirements
 
-New reporting views should:
+New reporting tables should:
 
 - Have strict tests for:
   - Completeness
@@ -140,25 +140,25 @@ schema in-person and came up with the following:
 
 ### Primary key columns
 
-- **method (string)** - The method version number used for lifecycle
+- `method (string)` - The method version number used for lifecycle
   management. Hopefully set to `v1` forever, but more likely to increment for
   each breaking change
-- **year (string)** - Tax year. Should derive existence from `iasworld.pardat`
-- **geography_type (string)** - The type of geography the stat is grouped by,
+- `year (string)` - Tax year. Should derive existence from `iasworld.pardat`
+- `geography_type (string)` - The type of geography the stat is grouped by,
   e.g. municipality, triad, township, etc. Should encompass all geographies
   currently in our PIN universe
-- **geography_id (string)** - The identifier for each unit of geography,
+- `geography_id (string)` - The identifier for each unit of geography,
   e.g. for municipality this would be `Chicago`, for township this might be
   "Thornton"
-- **geography_data_year (string)** - The year of the file the geography
+- `geography_data_year (string)` - The year of the file the geography
   definition is sourced from e.g. a 2020 Census boundary would be `2020`
-- **group_type (string)** - The sub-group for aggregation within each geometry
+- `group_type (string)` - The sub-group for aggregation within each geometry
   e.g. class, modeling group, etc.
-- **group_id (string)** - The sub-group identifier e.g. for class it would be
+- `group_id (string)` - The sub-group identifier e.g. for class it would be
   `202`, `203`, etc.
-- **(optional) stage_name (string)** - Name of the assessment stage used for
+- `(optional) stage_name (string)` - Name of the assessment stage used for
   grouping, one of `mailed`, `certified`, or `board`
-- **(optional) stage_id (string)** - Numeric identifier of the assessment
+- `(optional) stage_id (string)` - Numeric identifier of the assessment
   stage, one of `1` (mailed), `2` (certified), `3` (board)
 
 #### Enumerated geography_type
@@ -215,7 +215,7 @@ stage e.g. Schaumburg class 202 mailed value statistics. Tables divided by
 stage would have their stage groups populated as each stage becomes available.
 They would also include an indicator of the *percentage of the stage complete*.
 
-The new table schema would be used for four new tables, each corresponding to
+The new table schema would cover four new tables, each corresponding to
 a **topic area**. The columns in each table would depend on the topic area. The
 topic areas and columns are:
 
@@ -465,10 +465,14 @@ appropriate). Data sets should ensure the following *at minimum*:
 - Geographies and groups contain their representative sets, i.e. the
   `municipality` geography contains all county municipalities, and `class`
   contains all CCAO class codes
+- Stages contain their representative sets, i.e. `mailed`, `certified`, and
+  `board` stages exist for each year regardless of whether or not they've
+  been finalized
 - Values fall within expected ranges
   - Counts are always greater than or equal to 0
   - FMVs and AVs are constrained by
-- No null, inf, or NaN values are present (where appropriate)
+- No null, inf, or NaN values are present (where appropriate, some nulls are
+  expected e.g. not all PINs are covered by some geography types)
 - Tables are unique by primary key
 - Tests are run daily (as part of the `build-daily-dbt-models` workflow)
 
@@ -488,7 +492,8 @@ AND group_type = 'no_group'
 ```
 
 Another common question is, "What is the percentage change in assessed value
-for small single-family homes in district X?"
+for small single-family homes in district X?" This would use the following
+query:
 
 ```sql
 SELECT *
@@ -516,11 +521,11 @@ setups:
 
 - We could try to use [dbt snapshots](https://docs.getdbt.com/docs/build/snapshots)
   to capture point-in-time versions of the tables. A big caveat here is that
-  snapshots to not yet work with Python dbt models.
+  snapshots do not yet work with Python dbt models.
 - We could use dbt snapshots to take snapshots of the underlying data, then
   use that to construct the views.
 - We could manually capture the state of the tables each day and save them to
-  a history table.
+  a history bucket, using the date as a partition key.
 
 This all begs the question: is immutability required for these tables? Or is it
 okay for the values to change slightly over time?
