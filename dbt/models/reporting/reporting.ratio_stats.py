@@ -1,7 +1,7 @@
 # pylint: skip-file
 # type: ignore
 sc.addPyFile(  # noqa: F821
-    "s3://ccao-dbt-dependencies-us-east-1/assesspy_v1_1_0.zip"
+    "s3://ccao-athena-dependencies-us-east-1/assesspy_v1_1_0.zip"
 )
 
 import assesspy_v1_1_0 as assesspy  # noqa: E402
