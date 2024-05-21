@@ -1,23 +1,25 @@
+import os
 from io import StringIO
 
+import boto3
 import pandas as pd
 import requests
 
-headers = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-        "(KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
-    )
-}
-
 
 def load_csv_from_url(url):
-    # Send a GET request to the URL
-    response = requests.get(url)
+    # Headers to simulate a browser request
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/58.0.3029.110 Safari/537.3"
+        )
+    }
+    # Send a GET request to the URL with the headers
+    response = requests.get(url, headers=headers)
     # Raise an exception if the request was unsuccessful
     response.raise_for_status()
 
-    # Use StringIO to convert the text data into a file
     data = StringIO(response.text)
     # Read the data into a DataFrame
     df = pd.read_csv(data)
@@ -25,24 +27,30 @@ def load_csv_from_url(url):
     return df
 
 
-headers = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/58.0.3029.110 Safari/537.3"
-    )
-}
+def upload_df_to_s3(df, bucket, file_name):
+    """Uploads a DataFrame to S3 as a CSV file."""
+    # Get an S3 client
+    s3 = boto3.client("s3")
+    # Create a buffer
+    csv_buffer = StringIO()
+    # Write DataFrame to buffer
+    df.to_csv(csv_buffer, index=False)
+    # Upload buffer content to S3
+    s3.put_object(Bucket=bucket, Key=file_name, Body=csv_buffer.getvalue())
+
 
 # URL of the file you want to load
 file_url = {
-    (
-        "https://eig.org/dci-maps-2023/data/"
-        "1cd12716-de4a-4ef6-884b-af6e1066b581.csv"
-    )
+    "https://eig.org/dci-maps-2023/data/"
+    "1cd12716-de4a-4ef6-884b-af6e1066b581.csv"
 }
 
 # Load the data
 df = load_csv_from_url(file_url)
 
-# Display the first few rows of the DataFrame
-print(df.head())
+# AWS S3 bucket details
+AWS_S3_RAW_BUCKET = os.environ.get("AWS_S3_RAW_BUCKET")
+file_name = os.path.join("housing", "dhi_index", "dci_index.csv")
+
+# Upload the DataFrame to S3
+upload_df_to_s3(df, AWS_S3_RAW_BUCKET, file_name)
