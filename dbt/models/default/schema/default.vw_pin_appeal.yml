@@ -107,7 +107,27 @@ models:
       - row_count:
           name: default_vw_pin_appeal_row_count
           above: 8407667 # as of 2023-11-22
-      - not_accepted_values:
-          name: default_vw_pin_appeal_class_no_hyphens
-          column_name: class
-          values: "2-99"
+
+unit_tests:
+  - name: default_vw_pin_appeal_class_strips_non_alphanumerics
+    description: class transformation should remove non-alphanumeric characters
+    model: default.vw_pin_appeal
+    given:
+      - input: source("iasworld", "pardat")
+        rows:
+          - {class: "2.1-1)A"}
+      - input: source("iasworld", "htpar")
+        rows:
+          - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null, cpatty: "1"}
+      - input: source("iasworld", "legdat")
+        rows:
+          - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null}
+      - input: ref("default.vw_pin_value")
+        rows:
+          - {pin: "123", year: "2024"}
+      - input: source("iasworld", "htagnt")
+        rows:
+          - {agent: "1", cur: "Y", deactivat: null}
+    expect:
+      rows:
+        - {class: "211A"}
