@@ -5,7 +5,7 @@ models:
       tags:
         - daily
       packages:
-        - "assesspy==1.1.*"
+        - "assesspy==1.1.0"
     data_tests:
       - expression_is_true:
           name: reporting_ratio_stats_no_nulls
