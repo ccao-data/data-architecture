@@ -99,7 +99,9 @@ Run your test against development models. Make sure to change the name of the te
 dbt test --select default_vw_pin_universe_unique_by_14_digit_pin_and_year
 ```
 
-Run a test against the prod models:
+Typically, you'll want to be running against development models. However, in the event you want to run a test against the prod models, you can specify the ` --target prod` flag:
 
 ```bash
 dbt test --select default_vw_pin_universe_unique_by_14_digit_pin_and_year --target prod
+```
+
