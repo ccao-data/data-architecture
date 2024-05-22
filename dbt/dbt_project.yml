@@ -64,8 +64,6 @@ models:
       +schema: proximity
     reporting:
       +schema: reporting
-    rpie:
-      +schema: rpie
     sale:
       +schema: sale
     qc:

@@ -1,7 +1,7 @@
-# type: ignore
 # pylint: skip-file
+# type: ignore
 sc.addPyFile(  # noqa: F821
-    "s3://ccao-dbt-athena-dev-us-east-1/packages/spark-packages.zip"
+    "s3://ccao-athena-dependencies-us-east-1/assesspy==1.1.0.zip"
 )
 
 import numpy as np  # noqa: E402
