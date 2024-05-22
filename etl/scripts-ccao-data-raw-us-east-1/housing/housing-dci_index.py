@@ -48,7 +48,7 @@ df = load_csv_from_url(file_url)
 
 load_dotenv("etl/.Renviron")
 AWS_S3_RAW_BUCKET = os.getenv("AWS_S3_RAW_BUCKET")[5:]
-file_name = os.path.join("housing", "dhi_index", "dhi_index.csv")
+file_name = os.path.join("housing", "dci_index", "dci_index.csv")
 
 
 # Upload the DataFrame to S3

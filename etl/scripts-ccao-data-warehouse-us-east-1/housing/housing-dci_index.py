@@ -13,7 +13,7 @@ temp_file = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
 # Download the file from S3 to your local system
 load_dotenv("etl/.Renviron")
 AWS_S3_RAW_BUCKET = os.getenv("AWS_S3_RAW_BUCKET")[5:]
-file_key = os.path.join("housing", "dhi_index", "dhi_index.csv")
+file_key = os.path.join("housing", "dci_index", "dci_index.csv")
 
 s3.download_file(AWS_S3_RAW_BUCKET, file_key, temp_file.name)
 
@@ -34,7 +34,7 @@ data = data[
     ]
 ]
 
-file_key = os.path.join("housing", "dhi_index", "dhi_index.parquet")
+file_key = os.path.join("housing", "dci_index", "dci_index.parquet")
 
 # Save the DataFrame to a Parquet file locally.
 data.to_parquet("temp_file.parquet")
