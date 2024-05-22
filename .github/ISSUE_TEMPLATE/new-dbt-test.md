@@ -47,7 +47,7 @@ We can either
 - [ ] Modify an existing generic test
 - [ ] Add a new generic test.
 
-Before proceeding, make sure you know whether or not you're adding a QC or a non-QC test. If you plan to add a QC test, there are a [few specific modifications needed](https://github.com/ccao-data/data-architecture/blob/master/dbt/README.md#adding-qc-tests) 
+Before proceeding, make sure you know whether you're adding a QC or a non-QC test. If you plan to add a QC test, there are a [few specific modifications needed](https://github.com/ccao-data/data-architecture/blob/master/dbt/README.md#adding-qc-tests) 
 
 ### Utilize Existing Generic Test
 
