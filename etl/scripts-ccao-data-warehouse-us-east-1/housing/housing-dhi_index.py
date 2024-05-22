@@ -10,13 +10,13 @@ s3 = boto3.client("s3")
 temp_file = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
 
 # Download the file from S3 to your local system
-AWS_S3_RAW_BUCKET = "s3://ccao-data-raw-us-east-1/"
-file_key = os.path.join("housing", "dhi_index", "dhi_index.xlsx")
+AWS_S3_RAW_BUCKET = "ccao-data-raw-us-east-1"
+file_key = os.path.join("housing", "dhi_index", "dhi_index.csv")
 
 s3.download_file(AWS_S3_RAW_BUCKET, file_key, temp_file.name)
 
 # Use pandas to read the Excel file, skipping the first two rows
-data = pd.read_excel(temp_file.name, skiprows=2, engine="openpyxl")
+data = pd.read_csv(temp_file.name)
 
 data = data[data["County"] == "Cook County, Illinois"]
 
@@ -52,4 +52,4 @@ def upload_df_to_s3_as_parquet(df, bucket, file_name):
 
 
 # Upload the Parquet file to S3
-upload_df_to_s3_as_parquet("temp_file.parquet", bucket_name, file_key)
+upload_df_to_s3_as_parquet(data, bucket_name, file_key)

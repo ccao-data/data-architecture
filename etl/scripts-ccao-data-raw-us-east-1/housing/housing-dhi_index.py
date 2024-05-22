@@ -40,17 +40,13 @@ def upload_df_to_s3(df, bucket, file_name):
 
 
 # URL of the file you want to load
-file_url = {
-    "https://eig.org/dci-maps-2023/data/"
-    "1cd12716-de4a-4ef6-884b-af6e1066b581.csv"
-}
+file_url = "https://eig.org/dci-maps-2023/data/1cd12716-de4a-4ef6-884b-af6e1066b581.csv"  # noqa: E501
 
 # Load the data
 df = load_csv_from_url(file_url)
 
-# AWS S3 bucket details
-AWS_S3_RAW_BUCKET = os.environ.get("AWS_S3_RAW_BUCKET")
-file_name = os.path.join("housing", "dhi_index", "dci_index.csv")
+AWS_S3_RAW_BUCKET = "ccao-data-raw-us-east-1/"
+file_name = os.path.join("housing", "dhi_index", "dhi_index.csv")
 
 # Upload the DataFrame to S3
 upload_df_to_s3(df, AWS_S3_RAW_BUCKET, file_name)
