@@ -6,6 +6,7 @@
 
 import os
 import tempfile
+from io import BytesIO
 
 import boto3
 import pandas as pd
@@ -24,3 +25,25 @@ s3.download_file(AWS_S3_RAW_BUCKET, file_key, temp_file.name)
 data = pd.read_excel(temp_file.name, skiprows=2, engine="openpyxl")
 
 temp_file.close()
+
+bucket_name = "ccao-data-warehouse-us-east-1"
+file_key = os.path.join("housing", "ari_index", "2021_ari_index.parquet")
+
+# Save the DataFrame to a Parquet file locally.
+data.to_parquet("temp_file.parquet")
+
+
+def upload_df_to_s3_as_parquet(df, bucket, file_name):
+    """Uploads a DataFrame to S3 as a Parquet file."""
+    # Get an S3 client
+    s3 = boto3.client("s3")
+    # Create a buffer
+    parquet_buffer = BytesIO()
+    # Write DataFrame to buffer in Parquet format
+    df.to_parquet(parquet_buffer, index=False)
+    # Upload buffer content to S3
+    s3.put_object(Bucket=bucket, Key=file_name, Body=parquet_buffer.getvalue())
+
+
+# Upload the Parquet file to S3
+upload_df_to_s3_as_parquet("temp_file.parquet", bucket_name, file_key)
