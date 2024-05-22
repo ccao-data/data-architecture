@@ -27,6 +27,8 @@ There are two types of tests that we might consider for a model:
 
 Unit tests are currently in development and until they are natively supported we do not have a way of implementing them.
 
+### Data Tests
+
 There are two types of data tests that we support:
 
 1. **QC tests** confirm our assumptions about iasWorld data and are run at
