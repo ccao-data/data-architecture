@@ -14,7 +14,7 @@ Before proceeding, make sure you've read the [official dbt documentation on data
 
 If you don't feel like you have a strong understanding of all of these items, ask a senior data scientist for clarification before starting.
 
-## Adding Tests
+## New DBT Tests
 
 Our workflow focuses on creating reusable generic test templates in the `dbt/tests/generic/` directory, which are invoked in the `schema.yaml` file for a given data model.
 We can either utilize an existing generic test or add a new one.
