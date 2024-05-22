@@ -4,12 +4,13 @@ from io import BytesIO
 
 import boto3
 import pandas as pd
+from dotenv import load_dotenv
 
 # Set up the S3 client
 s3 = boto3.client("s3")
 temp_file = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
 
-# Download the file from S3 to your local system
+load_dotenv("etl/.Renviron")
 AWS_S3_RAW_BUCKET = os.getenv("AWS_S3_RAW_BUCKET")[5:]
 file_key = os.path.join("housing", "ari_index", "2023-ARI.xlsx")
 
@@ -17,7 +18,7 @@ s3.download_file(AWS_S3_RAW_BUCKET, file_key, temp_file.name)
 
 # Use pandas to read the Excel file, skipping the first two rows
 data = pd.read_excel(temp_file.name, skiprows=2, engine="openpyxl")
-
+data = data[["Census Tract", "Total ARI Score"]]
 temp_file.close()
 
 # Save the DataFrame to a Parquet file locally.

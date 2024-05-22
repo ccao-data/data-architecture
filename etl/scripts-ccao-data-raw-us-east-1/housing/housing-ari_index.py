@@ -4,6 +4,7 @@ import boto3
 import requests
 from botocore.exceptions import NoCredentialsError
 from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 
 
 def get_most_recent_ihs_data_url(base_url):
@@ -67,7 +68,7 @@ base_url = (
 )
 most_recent_file_url = get_most_recent_ihs_data_url(base_url)
 
-# S3 Bucket and Key Prefix
+load_dotenv("etl/.Renviron")
 AWS_S3_RAW_BUCKET = os.environ.get("AWS_S3_RAW_BUCKET")[5:]
 key_prefix = os.path.join("housing", "ari_index")
 
