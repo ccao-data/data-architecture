@@ -4,6 +4,7 @@ from io import StringIO
 import boto3
 import pandas as pd
 import requests
+from dotenv import load_dotenv
 
 
 def load_csv_from_url(url):
@@ -45,8 +46,10 @@ file_url = "https://eig.org/dci-maps-2023/data/1cd12716-de4a-4ef6-884b-af6e1066b
 # Load the data
 df = load_csv_from_url(file_url)
 
-AWS_S3_RAW_BUCKET = "ccao-data-raw-us-east-1/"
+load_dotenv("etl/.Renviron")
+AWS_S3_RAW_BUCKET = os.getenv("AWS_S3_RAW_BUCKET")[5:]
 file_name = os.path.join("housing", "dhi_index", "dhi_index.csv")
+
 
 # Upload the DataFrame to S3
 upload_df_to_s3(df, AWS_S3_RAW_BUCKET, file_name)

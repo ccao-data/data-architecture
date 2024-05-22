@@ -4,13 +4,15 @@ from io import BytesIO
 
 import boto3
 import pandas as pd
+from dotenv import load_dotenv
 
 # Set up the S3 client
 s3 = boto3.client("s3")
 temp_file = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
 
 # Download the file from S3 to your local system
-AWS_S3_RAW_BUCKET = "ccao-data-raw-us-east-1"
+load_dotenv("etl/.Renviron")
+AWS_S3_RAW_BUCKET = os.getenv("AWS_S3_RAW_BUCKET")[5:]
 file_key = os.path.join("housing", "dhi_index", "dhi_index.csv")
 
 s3.download_file(AWS_S3_RAW_BUCKET, file_key, temp_file.name)
@@ -32,7 +34,6 @@ data = data[
     ]
 ]
 
-bucket_name = "ccao-data-warehouse-us-east-1"
 file_key = os.path.join("housing", "dhi_index", "dhi_index.parquet")
 
 # Save the DataFrame to a Parquet file locally.
@@ -52,4 +53,4 @@ def upload_df_to_s3_as_parquet(df, bucket, file_name):
 
 
 # Upload the Parquet file to S3
-upload_df_to_s3_as_parquet(data, bucket_name, file_key)
+upload_df_to_s3_as_parquet(data, AWS_S3_RAW_BUCKET, file_key)
