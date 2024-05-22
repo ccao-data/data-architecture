@@ -18,7 +18,7 @@ If you don't feel like you have a strong understanding of all of these items, as
 
 Our workflow focuses on creating reusable generic test templates in the `dbt/tests/generic/` directory, which are invoked in the `schema.yaml` file for a given data model.
 We can either
-- [] Utilize an existing generic test
+- [ ] Utilize an existing generic test
 - Modify an existing generic test
 - Add a new generic test.
 
