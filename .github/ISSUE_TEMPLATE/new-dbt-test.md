@@ -37,8 +37,7 @@ There are two types of data tests that we support:
    of iasWorld, and are run in an ad hoc fashion depending on the needs of
    the transformations that sit on top of the raw data
 
-For a more comprehensive explanation on the distinction between QC and Non-QC tests, you can refer to [our dbt docuementation](https://github.com/ccao-data/data-architecture/blob/master/dbt/README.md#adding-qc-tests)
-
+If you plan on adding a QC test, additional instructions are [here](https://github.com/ccao-data/data-architecture/blob/master/dbt/README.md#adding-data-tests), along with more details about the distinction between QC and non-QC tests
 
 ## Add DBT Tests
 
@@ -47,6 +46,8 @@ We can either
 - [ ] Utilize an existing generic test
 - [ ] Modify an existing generic test
 - [ ] Add a new generic test.
+
+Before proceeding, make sure you know whether or not you're adding a QC or a non-QC test. If you plan to add a QC test, there are a [few specific modifications needed](https://github.com/ccao-data/data-architecture/blob/master/dbt/README.md#adding-qc-tests) 
 
 ### Utilize Existing Generic Test
 
