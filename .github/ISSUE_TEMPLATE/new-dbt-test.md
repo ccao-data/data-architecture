@@ -42,15 +42,24 @@ We already have a number of generic test templates found in `dbt/tests/generic/`
 
 ### Modify an Existing Generic Test
 
-If an existing generic test almost meets the user's need, it can be modified in order to support a new use case.
+If a generic test does not meet your needs but seems like it could be easily extended to meet your needs (say, if it inner
+joins two tables but you would like to be able to configure it to left join those tables instead) you can modify the macro
+that defines the generic test as part of your PR to make the change that you need.
 
 ### Add a New Test
 
 1. **Check for Existing Tests:** Ensure the test or a similar functionality does not already exist among our generic templates. 
 
 2. **Create Test Template:**
-   - Add a new test template in the `dbt/tests/generic/` directory.
-   - Example: View an existing DBT test template [here](https://github.com/ccao-data/data-architecture/blob/master/dbt/tests/generic/test_unique_combination_of_columns.sql).
+   - If neither an existing generic test can be used or extended, a new generic test can be defined in `dbt/test/generics/`. [Example here](https://github.com/ccao-data/data-architecture/blob/master/dbt/tests/generic/test_unique_combination_of_columns.sql). Make sure to read the docs on [writing custom generic tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests). We'll also need to follow a few extra steps:
+     1. Add a default category for your generic test in
+        the `TEST_CATEGORIES` constant in the [`transform_dbt_test_results`
+        script](https://github.com/ccao-data/data-architecture/blob/master/.github/scripts/transform_dbt_test_results.py)
+     2. Make sure that your generic test supports the `additional_select_columns`
+        parameter that most of our generic tests support, making use
+        of the `format_additional_select_columns` macro to format the
+        parameter when applying it to your `SELECT` condition
+
 
 
 
