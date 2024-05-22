@@ -52,5 +52,7 @@ def upload_df_to_s3_as_parquet(df, bucket, file_name):
     s3.put_object(Bucket=bucket, Key=file_name, Body=parquet_buffer.getvalue())
 
 
+AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")[5:]
+
 # Upload the Parquet file to S3
 upload_df_to_s3_as_parquet(data, AWS_S3_RAW_BUCKET, file_key)
