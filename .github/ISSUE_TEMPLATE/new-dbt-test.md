@@ -28,13 +28,13 @@ We can either utilize an existing generic test or add a new one.
    - We include the test in the `schema.yaml` file under the `dbt/models/` directory for the specific data model.
    - Example: Here's how the test is implemented for the `default.vw_pin_universe` view:
 
-    ```yaml
+ ```yaml
     - unique_combination_of_columns:
         name: default_vw_pin_universe_unique_by_14_digit_pin_and_year
         combination_of_columns:
             - pin
             - year
-    ```
+ ```
    - Reference code implementation [here](https://github.com/ccao-data/data-architecture/blob/66ad8159bcb3d96dcdc62b7355f8fbce64affc78/dbt/models/default/schema/default.vw_pin_universe.yml#L248-L252).
 
 
