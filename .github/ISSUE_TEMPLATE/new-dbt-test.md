@@ -17,7 +17,7 @@ If you don't feel like you have a strong understanding of all of these items, as
 ## New DBT Tests
 
 Our workflow focuses on creating reusable generic test templates in the `dbt/tests/generic/` directory, which are invoked in the `schema.yaml` file for a given data model.
-We can either utilize an existing generic test or add a new one.
+We can either utilize an existing generic test, modify an existing generic test, or add a new generic test.
 
 ### Utilize Existing Test
 
@@ -37,10 +37,13 @@ We already have a number of generic test templates found in `dbt/tests/generic/`
  ```
    - Reference code implementation [here](https://github.com/ccao-data/data-architecture/blob/66ad8159bcb3d96dcdc62b7355f8fbce64affc78/dbt/models/default/schema/default.vw_pin_universe.yml#L248-L252).
 
+### Modify an Existing Generic Test
+
+If an existing generic test almost meets the user's need, it can be modified in order to support a new use case.
 
 ### Add a New Test
 
-1. **Check for Existing Tests:** Ensure the test or a similar functionality does not already exist among our generic templates. Consider modifying an existing template if it closely aligns with the required functionality.
+1. **Check for Existing Tests:** Ensure the test or a similar functionality does not already exist among our generic templates. 
 
 2. **Create Test Template:**
    - Add a new test template in the `dbt/tests/generic/` directory.
