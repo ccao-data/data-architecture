@@ -56,6 +56,11 @@ SELECT
     vwl.census_block_group_geoid,
     vwl.census_block_geoid,
     vwl.census_congressional_district_geoid,
+    SUBSTR(
+        vwl.census_congressional_district_geoid,
+        3,
+        LENGTH(vwl.census_congressional_district_geoid) - 2
+    ) AS census_congressional_district_num,
     vwl.census_county_subdivision_geoid,
     vwl.census_place_geoid,
     vwl.census_puma_geoid,
@@ -63,11 +68,19 @@ SELECT
     vwl.census_school_district_secondary_geoid,
     vwl.census_school_district_unified_geoid,
     vwl.census_state_representative_geoid,
+    SUBSTR(vwl.census_state_representative_geoid, 4, 2)
+        AS census_state_representative_num,
     vwl.census_state_senate_geoid,
+    SUBSTR(vwl.census_state_senate_geoid, 4, 2) AS census_state_senate_num,
     vwl.census_tract_geoid,
     vwl.census_zcta_geoid,
     vwl.census_data_year,
     vwl.census_acs5_congressional_district_geoid,
+    SUBSTR(
+        vwl.census_acs5_congressional_district_geoid,
+        3,
+        LENGTH(vwl.census_acs5_congressional_district_geoid) - 2
+    ) AS census_acs5_congressional_district_num,
     vwl.census_acs5_county_subdivision_geoid,
     vwl.census_acs5_place_geoid,
     vwl.census_acs5_puma_geoid,
@@ -75,7 +88,11 @@ SELECT
     vwl.census_acs5_school_district_secondary_geoid,
     vwl.census_acs5_school_district_unified_geoid,
     vwl.census_acs5_state_representative_geoid,
+    SUBSTR(vwl.census_acs5_state_representative_geoid, 4, 2)
+        AS census_acs5_state_representative_num,
     vwl.census_acs5_state_senate_geoid,
+    SUBSTR(vwl.census_acs5_state_senate_geoid, 4, 2)
+        AS census_acs5_state_senate_num,
     vwl.census_acs5_tract_geoid,
     vwl.census_acs5_data_year,
     vwl.cook_board_of_review_district_num,
