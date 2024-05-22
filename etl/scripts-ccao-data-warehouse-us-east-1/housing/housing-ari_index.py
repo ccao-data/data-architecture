@@ -20,9 +20,6 @@ data = pd.read_excel(temp_file.name, skiprows=2, engine="openpyxl")
 
 temp_file.close()
 
-bucket_name = "ccao-data-warehouse-us-east-1"
-file_key = os.path.join("housing", "ari_index", "2023_ARI.parquet")
-
 # Save the DataFrame to a Parquet file locally.
 data.to_parquet("temp_file.parquet")
 
