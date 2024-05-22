@@ -43,7 +43,7 @@ We already have a number of generic test templates found in `dbt/tests/generic/`
 1. **Check for Existing Tests:** Ensure the test or a similar functionality does not already exist among our generic templates. Consider modifying an existing template if it closely aligns with the required functionality.
 
 2. **Create Test Template:**
-   - [ ] Add a new test template in the `dbt/tests/generic/` directory.
+   - Add a new test template in the `dbt/tests/generic/` directory.
    - Example: View an existing DBT test template [here](https://github.com/ccao-data/data-architecture/blob/master/dbt/tests/generic/test_unique_combination_of_columns.sql).
 
 
