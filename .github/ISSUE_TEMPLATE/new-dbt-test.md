@@ -14,7 +14,31 @@ Before proceeding, make sure you've read the [official dbt documentation on data
 
 If you don't feel like you have a strong understanding of all of these items, ask a senior data scientist for clarification before starting.
 
-## New DBT Tests
+## Types of Tests
+
+There are two types of tests that we might consider for a model:
+
+1. **Data tests** check that our assumptions about our raw data are correct
+    * For example: Test that a table is unique by `parid` and `taxyr`
+2. **Unit tests** check that transformation logic inside a model definition
+   produces the correct output on a specific set of input data
+    * For example: Test that an enum column computed by a `CASE... WHEN`
+      expression produces the correct output for a given input string
+
+Unit tests are currently in development and until they are natively supported we do not have a way of implementing them.
+
+There are two types of data tests that we support:
+
+1. **QC tests** confirm our assumptions about iasWorld data and are run at
+   scheduled intervals to confirm that iasWorld data meets spec
+2. **Non-QC tests** confirm all other assumptions about data sources outside
+   of iasWorld, and are run in an ad hoc fashion depending on the needs of
+   the transformations that sit on top of the raw data
+
+For a more comprehensive explanation on the distinction between QC and Non-QC tests, you can refer to [our dbt docuementation](https://github.com/ccao-data/data-architecture/blob/master/dbt/README.md#adding-qc-tests)
+
+
+## Add DBT Tests
 
 Our workflow focuses on creating reusable generic test templates in the `dbt/tests/generic/` directory, which are invoked in the `schema.yaml` file for a given data model.
 We can either
