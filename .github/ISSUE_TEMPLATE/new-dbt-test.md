@@ -17,9 +17,12 @@ If you don't feel like you have a strong understanding of all of these items, as
 ## New DBT Tests
 
 Our workflow focuses on creating reusable generic test templates in the `dbt/tests/generic/` directory, which are invoked in the `schema.yaml` file for a given data model.
-We can either utilize an existing generic test, modify an existing generic test, or add a new generic test.
+We can either
+- [] Utilize an existing generic test
+- Modify an existing generic test
+- Add a new generic test.
 
-### Utilize Existing Test
+### Utilize Existing Generic Test
 
 We already have a number of generic test templates found in `dbt/tests/generic/`. [Here](https://github.com/ccao-data/data-architecture/blob/master/dbt/tests/generic/test_unique_combination_of_columns.sql) is an example of a DBT test template.
    - _We use [Jinja](https://jinja.palletsprojects.com/en/3.1.x/templates/) to parameterize the generic test templates._
