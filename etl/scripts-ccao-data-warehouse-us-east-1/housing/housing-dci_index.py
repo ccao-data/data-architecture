@@ -32,7 +32,12 @@ data = data[
         "Number of Zips in County",
         "Rank of Zip w/in State (1=Most Prosperous)",
     ]
-]
+].rename(
+    columns={
+        "Zip Code": "geoid",
+        "2017-2021 Final Distress Score": "dci",
+    }
+)
 
 file_key = os.path.join("housing", "dci_index", "dci_index.parquet")
 
