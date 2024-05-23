@@ -8,7 +8,7 @@
     additional_select_columns=[]
 ) %}
 
-    {%- set previous_column_name = "previous_" ~ dbt_utils.slugify(column_name) -%}
+    {%- set previous_column_name = "previous_" ~ slugify(column_name) -%}
 
     {%- if group_by_columns | length() > 0 -%}
         {%- set select_gb_cols = group_by_columns | join(",") -%}
