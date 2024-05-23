@@ -365,6 +365,9 @@ models:
       - &nearest_neighbor_3_pin10
         name: nearest_neighbor_3_pin10
         description: '{{ doc("column_nearest_neighbor_pin10") }}'
+      - &other_dci_index
+        name: other_dci_index
+        description: '{{ doc("shared_column_dci_index") }}'
       - &other_ihs_avg_year_index
         name: other_ihs_avg_year_index
         description: '{{ doc("shared_column_ihs_avg_year_index") }}'
