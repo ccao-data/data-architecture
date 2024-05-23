@@ -39,7 +39,7 @@ quarterly House Price Index.
 # dci_index
 
 {% docs table_dci_index %}
-[Illinois Housing Development Affordability Risk Index](https://www.housingstudies.org/)
+[Economic Innovation Group Affordability Risk Index](https://www.housingstudies.org/)
 
 **Primary Key**: `year`, `geoid`
 {% enddocs %}
