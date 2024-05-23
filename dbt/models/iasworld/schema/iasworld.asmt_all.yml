@@ -187,7 +187,7 @@ sources:
           - name: tottax
             description: Total tax
           - name: tot30
-            description: HIE Improvement Value
+            description: HIE AV Amount
             tests:
               - accepted_range:
                   name: asmt_all_tot30_less_than_7500
@@ -199,7 +199,7 @@ sources:
                   name: iasworld_asmt_all_tot30_matches_oby_ovrrcnld_divided_by_10
                   external_model: source('iasworld', 'oby')
                   external_column_name: OVRRCNLD / 10
-                  additional_select_columns: 
+                  additional_select_columns:
                     - model.taxyr
                     - model.parid
                     - model.who
