@@ -272,6 +272,8 @@ SELECT
 
     -- Institute for Housing Studies data
     housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
+    -- Distressed Community Index data
+    housing_index.dci_index AS other_dci_index,
     tbill.tot_tax_amt AS other_tax_bill_amount_total,
     tbill.tax_rate AS other_tax_bill_rate,
 

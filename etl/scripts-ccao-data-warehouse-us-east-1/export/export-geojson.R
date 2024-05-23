@@ -46,6 +46,32 @@ if (!aws.s3::object_exists(remote_file_tract_2022_export)) {
   save_local_to_s3(remote_file_tract_2022_export, tmp_file_geojson)
 }
 
+##### ZIP CODE #####
+remote_file_zcta_2022_warehouse <- file.path(
+  AWS_S3_WAREHOUSE_BUCKET,
+  "spatial", "census", "geography=zcta",
+  "year=2022", "zcta-2022.parquet"
+)
+remote_file_zcta_2022_export <- file.path(
+  output_bucket, "geojson", "census-zcta-2022.geojson"
+)
+
+if (!aws.s3::object_exists(remote_file_zcta_2022_export)) {
+  zcta_2022 <- read_geoparquet_sf(remote_file_zcta_2022_warehouse) %>%
+    select(geoid, geometry) %>%
+    mutate(year = "2022") %>%
+    left_join(dci_index %>% 
+    distinct(geoid, name), by = "geoid") %>%
+    st_transform(4326) %>%
+    st_intersection(cook_boundary) %>%    
+    rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE)
+
+  # Write geojson, then upload to S3
+  tmp_file_geojson <- tempfile(fileext = ".geojson")
+  st_write(zctas_2022, tmp_file_geojson)
+  save_local_to_s3(remote_file_zcta_2022_export, tmp_file_geojson)
+}
+
 
 ##### CENSUS PUMA #####
 remote_file_puma_2021_warehouse <- file.path(
