@@ -30,8 +30,16 @@ Individual school locations and ratings sourced from
 # ihs_index
 
 {% docs table_ihs_index %}
-[DePaul Institute of Housing Studies (IHS)](https://www.housingstudies.org/)
+[DePaul Institute of Housing Studies (IHS)](https://www.ihda.org/developers/market-research/affordability-risk-index/)
 quarterly House Price Index.
 
 **Primary Key**: `year`, `geoid`, `quarter`
+{% enddocs %}
+
+# dci_index
+
+{% docs table_dci_index %}
+[Illinois Housing Development Affordability Risk Index](https://www.housingstudies.org/)
+
+**Primary Key**: `year`, `geoid`
 {% enddocs %}
