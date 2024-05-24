@@ -56,11 +56,8 @@ SELECT
     vwl.census_block_group_geoid,
     vwl.census_block_geoid,
     vwl.census_congressional_district_geoid,
-    SUBSTR(
-        vwl.census_congressional_district_geoid,
-        3,
-        LENGTH(vwl.census_congressional_district_geoid) - 2
-    ) AS census_congressional_district_num,
+    SUBSTR(vwl.census_congressional_district_geoid, 3, 2)
+        AS census_congressional_district_num,
     vwl.census_county_subdivision_geoid,
     vwl.census_place_geoid,
     vwl.census_puma_geoid,
@@ -76,11 +73,8 @@ SELECT
     vwl.census_zcta_geoid,
     vwl.census_data_year,
     vwl.census_acs5_congressional_district_geoid,
-    SUBSTR(
-        vwl.census_acs5_congressional_district_geoid,
-        3,
-        LENGTH(vwl.census_acs5_congressional_district_geoid) - 2
-    ) AS census_acs5_congressional_district_num,
+    SUBSTR(vwl.census_acs5_congressional_district_geoid, 3, 2)
+        AS census_acs5_congressional_district_num,
     vwl.census_acs5_county_subdivision_geoid,
     vwl.census_acs5_place_geoid,
     vwl.census_acs5_puma_geoid,
