@@ -69,11 +69,11 @@ housing_index AS (
 distressed_communities_index AS (
     SELECT
         tract.pin10,
-        dci.year
-    FROM {{ source('other', 'dci_index') }} AS dci
+        ari.year
+    FROM {{ source('other', 'ari_index') }} AS ari
     LEFT JOIN {{ ref('location.tract_2010') }} AS tract
-        ON dci.geoid = tract.census_tract_geoid
-    GROUP BY tract.pin10, dci.year
+        ON ari.geoid = tract.census_tract_geoid
+    GROUP BY tract.pin10, ari.year
 ),
 
 tax_bill_amount AS (
@@ -282,8 +282,8 @@ SELECT
 
     -- Institute for Housing Studies data
     housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
-    -- Distressed Communities Index data
-    distressed_communities_index.dci_index
+    -- Affordability Risk Index data
+    distressed_communities_index.ari_index
         AS other_distressed_communities_index,
     tbill.tot_tax_amt AS other_tax_bill_amount_total,
     tbill.tax_rate AS other_tax_bill_rate,
