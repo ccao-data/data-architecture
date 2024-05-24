@@ -69,7 +69,7 @@ models:
       +schema: sale
     qc:
       +schema: qc
-tests:
+data_tests:
   +schema: test_failure
 
 seeds:
