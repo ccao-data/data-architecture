@@ -73,7 +73,6 @@ affordability_risk_index AS (
     FROM {{ source('other', 'ari_index') }} AS ari
     LEFT JOIN {{ ref('location.tract_2020') }} AS tract
         ON ari.geoid = tract.census_tract_geoid
-    GROUP BY tract.pin10, ari.year
 ),
 
 tax_bill_amount AS (
