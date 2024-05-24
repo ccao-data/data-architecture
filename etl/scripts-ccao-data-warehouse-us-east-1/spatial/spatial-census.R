@@ -59,7 +59,15 @@ normalize_census_geo <- function(key) {
         -ends_with("LSAD", ignore.case = TRUE)
       ) %>%
       rename_with(tolower) %>%
-      mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+      mutate(
+        geometry_3435 = st_transform(geometry, 3435),
+        geoid =
+          if (key == "spatial/census/congressional_district/2011.geojson") {
+            str_remove(geoid, "112")
+          } else {
+            geoid
+          }
+      ) %>%
       select(
         everything(),
         lon, lat, x_3435, y_3435,
