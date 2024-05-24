@@ -31,7 +31,7 @@ remote_file_tract_2022_warehouse <- file.path(
 remote_file_tract_2022_export <- file.path(
   output_bucket, "geojson", "census-tract-2022.geojson"
 )
-remote_file_ihs_warehouse <- file.path(
+remote_file_ari_warehouse <- file.path(
   AWS_S3_WAREHOUSE_BUCKET, "housing", "ari_index",
   "year=2021", "part-0.parquet"
 )
