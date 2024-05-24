@@ -53,7 +53,14 @@ normalize_census_geo <- function(key) {
       st_drop_geometry() %>%
       select(lon = X, lat = Y, x_3435 = `X.1`, y_3435 = `Y.1`) %>%
       cbind(df, .) %>%
-      rename_with(~ paste0("NAME"), starts_with("NAME")) %>%
+      # If dataframe has exactly one name column, rename it
+      {
+        if (sum(grepl("NAME", names(.))) == 1) {
+          rename_with(., ~ paste0("NAME"), starts_with("NAME"))
+        } else {
+          .
+        }
+      } %>%
       select(
         -starts_with("INTPT", ignore.case = TRUE),
         -ends_with("LSAD", ignore.case = TRUE)
@@ -73,7 +80,7 @@ normalize_census_geo <- function(key) {
         lon, lat, x_3435, y_3435,
         geometry, geometry_3435
       ) %>%
-      filter(!str_detect(geoid, "ZZZ")) %>%
+      filter(!str_detect(geoid, "Z")) %>%
       write_geoparquet(remote_file, compression = "snappy")
   }
 }
