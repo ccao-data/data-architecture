@@ -31,13 +31,20 @@ remote_file_tract_2022_warehouse <- file.path(
 remote_file_tract_2022_export <- file.path(
   output_bucket, "geojson", "census-tract-2022.geojson"
 )
+remote_file_ihs_warehouse <- file.path(
+  AWS_S3_WAREHOUSE_BUCKET, "housing", "dci_index",
+  "year=2021", "part-0.parquet"
+)
 
 if (!aws.s3::object_exists(remote_file_tract_2022_export)) {
+  dci_index <- read_parquet(remote_file_dci_warehouse)
   tracts_2022 <- read_geoparquet_sf(remote_file_tract_2022_warehouse) %>%
     filter(geoid != "17031990000") %>%
     select(geoid, geometry) %>%
     mutate(year = "2022") %>%
+    left_join(dci_index %>% distinct(geoid, name), by = "geoid") %>%
     st_transform(4326) %>%
+    st_intersection(cook_boundary) %>%
     rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE)
 
   # Write geojson, then upload to S3
