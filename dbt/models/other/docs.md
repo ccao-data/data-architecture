@@ -30,8 +30,7 @@ Individual school locations and ratings sourced from
 # ihs_index
 
 {% docs table_ihs_index %}
-[DePaul Institute of Housing Studies (IHS)](https://www.ihda.org/developers/market-research/affordability-risk-index/)
-quarterly House Price Index.
+[DePaul Institute of Housing Studies (IHS)](https://www.housingstudies.org/) quarterly House Price Index.
 
 **Primary Key**: `year`, `geoid`, `quarter`
 {% enddocs %}
