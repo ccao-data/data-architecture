@@ -66,7 +66,7 @@ housing_index AS (
     GROUP BY puma.pin10, ihs.year
 ),
 
-distressed_communities_index AS (
+affordability_risk_index AS (
     SELECT
         tract.pin10,
         ari.year
@@ -283,8 +283,8 @@ SELECT
     -- Institute for Housing Studies data
     housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
     -- Affordability Risk Index data
-    distressed_communities_index.ari_index
-        AS other_distressed_communities_index,
+    affordability_risk_index.ari_index
+        AS other_affordability_risk_index,
     tbill.tot_tax_amt AS other_tax_bill_amount_total,
     tbill.tax_rate AS other_tax_bill_rate,
 
@@ -327,9 +327,9 @@ LEFT JOIN acs5
 LEFT JOIN housing_index
     ON uni.pin10 = housing_index.pin10
     AND uni.year = housing_index.year
-LEFT JOIN distressed_communities_index
-    ON uni.pin10 = distressed_communities_index.pin10
-    AND uni.year = distressed_communities_index.year
+LEFT JOIN affordability_risk_index
+    ON uni.pin10 = affordability_risk_index.pin10
+    AND uni.year = affordability_risk_index.year
 LEFT JOIN tax_bill_amount AS tbill
     ON uni.pin = tbill.pin
     AND uni.year = tbill.year
