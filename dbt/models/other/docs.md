@@ -35,3 +35,12 @@ quarterly House Price Index.
 
 **Primary Key**: `year`, `geoid`, `quarter`
 {% enddocs %}
+
+# ihs_index
+
+{% docs table_ari_index %}
+[Illinois Housing Development Authority](https://www.ihda.org/developers/market-research/affordability-risk-index/) 
+risk index
+
+**Primary Key**: `geoid`, `year`
+{% enddocs %}
