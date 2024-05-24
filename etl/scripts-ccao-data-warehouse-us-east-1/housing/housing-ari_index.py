@@ -1,5 +1,6 @@
 import os
 import tempfile
+from datetime import datetime
 from io import BytesIO
 
 import boto3
@@ -18,7 +19,11 @@ s3.download_file(AWS_S3_RAW_BUCKET, file_key, temp_file.name)
 
 # Use pandas to read the Excel file, skipping the first two rows
 data = pd.read_excel(temp_file.name, skiprows=2, engine="openpyxl")
-data = data[["Census Tract", "Total ARI Score"]]
+current_year = datetime.now().year
+data["year"] = current_year
+data = data[["Census Tract", "Total ARI Score", "year"]].rename(
+    columns={"Census Tract": "geoid", "Total ARI Score": "ari_score"}
+)
 temp_file.close()
 
 # Save the DataFrame to a Parquet file locally.
