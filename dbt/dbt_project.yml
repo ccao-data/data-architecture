@@ -52,7 +52,6 @@ models:
     +materialized: view
     +write_compression: zstd
     +format: parquet
-    +ha: true
     census:
       +schema: census
     default:
