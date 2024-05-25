@@ -33,7 +33,7 @@ remote_file_tract_2022_export <- file.path(
 )
 remote_file_ari_warehouse <- file.path(
   AWS_S3_WAREHOUSE_BUCKET, "housing", "ari_index",
-  "year=2021", "part-0.parquet"
+  "year=2024", "part-0.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_tract_2022_export)) {
