@@ -1,5 +1,5 @@
 -- CTAS specifically to facilitate attribute joins of PRIOR YEAR ACS data to
--- current PINs. For example, 2020 ACS data is not yet release, but we do have
+-- current PINs. For example, 2020 ACS data is not yet released, but we do have
 -- current (2021) geographies and PINs. We need to join 2019 geographies to
 -- 2021 PINs to facilitate joining 2019 ACS5 data
 {{
