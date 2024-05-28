@@ -66,6 +66,16 @@ housing_index AS (
     GROUP BY puma.pin10, ihs.year
 ),
 
+distressed_communities_index AS (
+    SELECT
+        puma.pin10,
+        dci.year,
+        dci.dci
+    FROM {{ source('other', 'dci') }} AS dci
+    LEFT JOIN {{ ref('location.census_2010') }} AS puma
+        ON dci.geoid = puma.census_puma_geoid
+),
+
 tax_bill_amount AS (
     SELECT
         pardat.parid AS pin,
@@ -273,7 +283,7 @@ SELECT
     -- Institute for Housing Studies data
     housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
     -- Distressed Community Index data
-    housing_index.dci_index AS other_dci_index,
+    distressed_communities_index.dci AS other_dci,
     tbill.tot_tax_amt AS other_tax_bill_amount_total,
     tbill.tax_rate AS other_tax_bill_rate,
 
@@ -316,6 +326,9 @@ LEFT JOIN acs5
 LEFT JOIN housing_index
     ON uni.pin10 = housing_index.pin10
     AND uni.year = housing_index.year
+LEFT JOIN distressed_communities_index
+    ON uni.pin10 = distressed_communities_index.pin10
+    AND uni.year = distressed_communities_index.year
 LEFT JOIN tax_bill_amount AS tbill
     ON uni.pin = tbill.pin
     AND uni.year = tbill.year

@@ -60,7 +60,7 @@ if (!aws.s3::object_exists(remote_file_zcta_2022_export)) {
   zcta_2022 <- read_geoparquet_sf(remote_file_zcta_2022_warehouse) %>%
     select(geoid, geometry) %>%
     mutate(year = "2022") %>%
-    left_join(dci_index %>% 
+    left_join(dci %>% 
     distinct(geoid, name), by = "geoid") %>%
     st_transform(4326) %>%
     st_intersection(cook_boundary) %>%    
