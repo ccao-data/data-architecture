@@ -69,7 +69,7 @@ base_url = (
 most_recent_file_url = get_most_recent_ihs_data_url(base_url)
 
 load_dotenv("etl/.Renviron")
-AWS_S3_RAW_BUCKET = os.environ.get("AWS_S3_RAW_BUCKET")[5:]
+AWS_S3_RAW_BUCKET = os.environ.get("AWS_S3_RAW_BUCKET")[5:]  # type: ignore
 key_prefix = os.path.join("housing", "ari")
 
 if most_recent_file_url:
