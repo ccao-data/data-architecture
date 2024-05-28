@@ -1,6 +1,6 @@
 import os
 import tempfile
-from io import BytesIO
+from datetime import datetime
 
 import boto3
 import pandas as pd
@@ -12,7 +12,7 @@ temp_file = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
 
 # Download the file from S3 to your local system
 load_dotenv("etl/.Renviron")
-AWS_S3_RAW_BUCKET = os.getenv("AWS_S3_RAW_BUCKET")[5:]
+AWS_S3_RAW_BUCKET = os.getenv("AWS_S3_RAW_BUCKET")[5:]  # type: ignore
 file_key = os.path.join("housing", "dci", "dci.csv")
 
 s3.download_file(AWS_S3_RAW_BUCKET, file_key, temp_file.name)
@@ -39,25 +39,16 @@ data = data[
     }
 )
 
-file_key = os.path.join("housing", "dci", "dci.parquet")
+AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")[5:]  # type: ignore  # noqa: E501
 
-# Save the DataFrame to a Parquet file locally.
-data.to_parquet("temp_file.parquet")
+current_year = datetime.now().year
 
-
-def upload_df_to_s3_as_parquet(df, bucket, file_name):
-    """Uploads a DataFrame to S3 as a Parquet file."""
-    # Get an S3 client
-    s3 = boto3.client("s3")
-    # Create a buffer
-    parquet_buffer = BytesIO()
-    # Write DataFrame to buffer in Parquet format
-    df.to_parquet(parquet_buffer, index=False)
-    # Upload buffer content to S3
-    s3.put_object(Bucket=bucket, Key=file_name, Body=parquet_buffer.getvalue())
-
-
-AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")[5:]
-
-# Upload the Parquet file to S3
-upload_df_to_s3_as_parquet(data, AWS_S3_RAW_BUCKET, file_key)
+data.to_parquet(
+    file_key=os.path.join(
+        AWS_S3_WAREHOUSE_BUCKET,
+        "housing",
+        "dci",
+        f"{current_year}.parquet",  # noqa: E501
+    ),
+    index=False,
+)
