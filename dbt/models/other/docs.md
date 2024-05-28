@@ -35,9 +35,9 @@ Individual school locations and ratings sourced from
 **Primary Key**: `year`, `geoid`, `quarter`
 {% enddocs %}
 
-# dci_index
+# dci
 
-{% docs table_dci_index %}
+{% docs table_dci %}
 [Economic Innovation Group Affordability Risk Index](https://www.housingstudies.org/)
 
 **Primary Key**: `year`, `geoid`
