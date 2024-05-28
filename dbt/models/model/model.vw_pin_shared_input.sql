@@ -70,7 +70,7 @@ affordability_risk_index AS (
     SELECT
         tract.pin10,
         ari.year
-    FROM {{ source('other', 'ari_index') }} AS ari
+    FROM {{ source('other', 'ari') }} AS ari
     LEFT JOIN {{ ref('location.census_2010') }} AS tract
         ON ari.geoid = tract.census_tract_geoid
 ),
@@ -282,7 +282,7 @@ SELECT
     -- Institute for Housing Studies data
     housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
     -- Affordability Risk Index data
-    affordability_risk_index.ari_index
+    affordability_risk_index.ari
         AS other_affordability_risk_index,
     tbill.tot_tax_amt AS other_tax_bill_amount_total,
     tbill.tax_rate AS other_tax_bill_rate,

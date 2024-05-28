@@ -370,7 +370,7 @@ models:
         description: '{{ doc("shared_column_ihs_avg_year_index") }}'
       - &other_ari_index
         name: other_ari_index
-        description: '{{ doc("shared_column_ari_index") }}'
+        description: '{{ doc("shared_column_ari") }}'
       - &other_school_district_elementary_avg_rating
         name: other_school_district_elementary_avg_rating
         description: '{{ doc("shared_column_school_district_elementary_avg_rating") }}'
