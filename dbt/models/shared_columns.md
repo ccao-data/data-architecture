@@ -1052,7 +1052,7 @@ Averaged up to the yearly level. Unit of observation is Census PUMAs
 
 ## ari_index
 
-{% docs shared_column_ihs_avg_year_index %}
+{% docs shared_column_ari %}
 Illinois Housing Development Authority's Affordability Risk Index.
 
 Data may not be udpated regularly, so year refers to year of download
