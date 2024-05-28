@@ -48,7 +48,7 @@ data.to_parquet(
         AWS_S3_WAREHOUSE_BUCKET,
         "housing",
         "dci",
-        f"{current_year}.parquet",
+        "dci.parquet",
     ),
     index=False,
 )
