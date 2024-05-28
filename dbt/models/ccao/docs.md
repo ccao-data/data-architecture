@@ -22,8 +22,11 @@ CCAO commercial valuation data, aggregated from the commercial team spreadsheets
 # corner_lot
 
 {% docs table_corner_lot %}
-CCAO corner lot indicator. Determined algorithmically by unobstructed access to
-perpidincular streets.
+CCAO corner lot indicator. Determined algorithmically in R, a centroid
+is placed in the center of each Pin10 parcel. Four lines are extended from the 
+centroid at 90° angles. If at least two lines intersect with a road, without
+being obstructed by another parcel, and at a 90° angle (not a front and back street), 
+the parcel is classified as a corner lot.
 
 **Primary Key**: `pin10`
 {% enddocs %}
