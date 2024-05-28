@@ -71,7 +71,7 @@ affordability_risk_index AS (
         tract.pin10,
         ari.year
     FROM {{ source('other', 'ari_index') }} AS ari
-    LEFT JOIN {{ ref('location.tract_2020') }} AS tract
+    LEFT JOIN {{ ref('location.census_2010') }} AS tract
         ON ari.geoid = tract.census_tract_geoid
 ),
 
