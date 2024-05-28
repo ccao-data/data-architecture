@@ -542,7 +542,7 @@ models:
       - *meta_triad_name
       - *meta_year
       - *other_ihs_avg_year_index
-      - *other_ari_index
+      - *other_ari
       - *other_school_district_elementary_avg_rating
       - *other_school_district_secondary_avg_rating
       - *other_tax_bill_amount_total

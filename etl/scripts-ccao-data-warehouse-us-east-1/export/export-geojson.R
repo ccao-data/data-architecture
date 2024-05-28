@@ -32,17 +32,17 @@ remote_file_tract_2022_export <- file.path(
   output_bucket, "geojson", "census-tract-2022.geojson"
 )
 remote_file_ari_warehouse <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET, "housing", "ari_index",
+  AWS_S3_WAREHOUSE_BUCKET, "housing", "ari",
   "year=2024", "part-0.parquet"
 )
 
 if (!aws.s3::object_exists(remote_file_tract_2022_export)) {
-  ari_index <- read_parquet(remote_file_ari_warehouse)
+  ari <- read_parquet(remote_file_ari_warehouse)
   tracts_2022 <- read_geoparquet_sf(remote_file_tract_2022_warehouse) %>%
     filter(geoid != "17031990000") %>%
     select(geoid, geometry) %>%
     mutate(year = "2022") %>%
-    left_join(ari_index %>%
+    left_join(ari %>%
                 distinct(geoid, name), by = "geoid") %>%
     st_transform(4326) %>%
     st_intersection(cook_boundary) %>%
