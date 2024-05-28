@@ -31,7 +31,10 @@ AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")
 # Upload the Parquet file to S3
 data.to_parquet(
     os.path.join(
-        AWS_S3_WAREHOUSE_BUCKET, "housing", "ari", "2023.parquet"
-    ),  # type: ignore
+        AWS_S3_WAREHOUSE_BUCKET,  # type: ignore
+        "housing",  # type: ignore
+        "ari",  # type: ignore
+        "2023.parquet",  # type: ignore
+    ),
     index=False,
 )
