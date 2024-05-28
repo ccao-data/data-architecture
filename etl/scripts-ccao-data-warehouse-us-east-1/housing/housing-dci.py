@@ -39,7 +39,7 @@ data = data[
     }
 )
 
-file_key = os.path.join("housing", "dci_index", "dci_index.parquet")
+file_key = os.path.join("housing", "dci", "dci.parquet")
 
 # Save the DataFrame to a Parquet file locally.
 data.to_parquet("temp_file.parquet")
