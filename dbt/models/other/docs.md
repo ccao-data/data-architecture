@@ -30,7 +30,8 @@ Individual school locations and ratings sourced from
 # ihs_index
 
 {% docs table_ihs_index %}
-[DePaul Institute of Housing Studies (IHS)](https://www.housingstudies.org/) quarterly House Price Index.
+[DePaul Institute of Housing Studies (IHS)](https://www.housingstudies.org/) 
+quarterly House Price Index.
 
 **Primary Key**: `year`, `geoid`, `quarter`
 {% enddocs %}
@@ -38,7 +39,7 @@ Individual school locations and ratings sourced from
 # dci
 
 {% docs table_dci %}
-[Economic Innovation Group Affordability Risk Index](https://www.housingstudies.org/)
+[Economic Innovation Group](https://www.housingstudies.org/)  Affordability Risk Index
 
 **Primary Key**: `year`, `geoid`
 {% enddocs %}
