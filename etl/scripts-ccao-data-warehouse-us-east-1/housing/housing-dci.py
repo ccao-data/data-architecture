@@ -23,7 +23,7 @@ data = pd.read_csv(temp_file.name)
 data = data[data["State"] == "Illinois"]
 
 current_year = datetime.now().year
-data["year"] = str(current_year)
+data["year"] = str(2023)
 
 data = data[["Zip Code", "2017-2021 Final Distress Score", "year"]].rename(
     columns={
@@ -34,8 +34,6 @@ data = data[["Zip Code", "2017-2021 Final Distress Score", "year"]].rename(
 data["geoid"] = data["geoid"].astype(str)
 
 AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")
-
-current_year = datetime.now().year
 
 data.to_parquet(
     os.path.join(
