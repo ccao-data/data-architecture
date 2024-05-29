@@ -33,16 +33,16 @@ data = data[["Zip Code", "2017-2021 Final Distress Score", "year"]].rename(
 )
 data["geoid"] = data["geoid"].astype(str)
 
-AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")  # type: ignore  # noqa: E501
+AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")
 
 current_year = datetime.now().year
 
 data.to_parquet(
     os.path.join(
-        AWS_S3_WAREHOUSE_BUCKET,
-        "housing",
-        "dci",
-        "dci.parquet",
+        AWS_S3_WAREHOUSE_BUCKET,  # type: ignore
+        "housing",  # type: ignore
+        "dci",  # type: ignore
+        "dci.parquet",  # type: ignore
     ),
     index=False,
 )
