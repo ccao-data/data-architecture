@@ -72,8 +72,9 @@ distressed_communities_index AS (
         dci.year,
         dci.dci
     FROM {{ source('other', 'dci') }} AS dci
-    LEFT JOIN {{ ref('location.census_2010') }} AS zcta
+    LEFT JOIN {{ ref('location.census') }} AS zcta
         ON dci.geoid = zcta.census_zcta_geoid
+        AND dci.year = zcta.year
 ),
 
 tax_bill_amount AS (
