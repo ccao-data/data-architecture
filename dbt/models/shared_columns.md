@@ -1050,6 +1050,14 @@ DePaul Institute of Housing Studies quarterly index.
 Averaged up to the yearly level. Unit of observation is Census PUMAs
 {% enddocs %}
 
+## dci
+
+{% docs shared_column_ihs_avg_year_index %}
+Distressed Communities Index from the Economic Innovation Group
+
+
+{% enddocs %}
+
 ## school_district_elementary_avg_rating
 
 {% docs shared_column_school_district_elementary_avg_rating %}
