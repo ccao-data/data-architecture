@@ -1,5 +1,6 @@
 import os
 import tempfile
+from datetime import datetime
 
 import boto3
 import pandas as pd
@@ -21,12 +22,10 @@ data = pd.read_csv(temp_file.name)
 
 data = data[data["County"] == "Cook County, Illinois"]
 
-data = data[
-    [
-        "Zip Code",
-        "2017-2021 Final Distress Score",
-    ]
-].rename(
+current_year = datetime.now().year
+data["Year"] = current_year
+
+data = data[["Zip Code", "2017-2021 Final Distress Score", "Year"]].rename(
     columns={
         "Zip Code": "geoid",
         "2017-2021 Final Distress Score": "dci",
@@ -34,6 +33,8 @@ data = data[
 )
 
 AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")[5:]  # type: ignore  # noqa: E501
+
+current_year = datetime.now().year
 
 data.to_parquet(
     file_key=os.path.join(
