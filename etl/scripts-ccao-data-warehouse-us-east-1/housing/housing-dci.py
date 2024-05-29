@@ -25,19 +25,19 @@ data = data[data["State"] == "Illinois"]
 current_year = datetime.now().year
 data["year"] = current_year
 
-data = data[["Zip Code", "2017-2021 Final Distress Score", "Year"]].rename(
+data = data[["Zip Code", "2017-2021 Final Distress Score", "year"]].rename(
     columns={
         "Zip Code": "geoid",
         "2017-2021 Final Distress Score": "dci",
     }
 )
 
-AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")[5:]  # type: ignore  # noqa: E501
+AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")  # type: ignore  # noqa: E501
 
 current_year = datetime.now().year
 
 data.to_parquet(
-    file_key=os.path.join(
+    os.path.join(
         AWS_S3_WAREHOUSE_BUCKET,
         "housing",
         "dci",
