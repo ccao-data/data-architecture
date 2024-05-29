@@ -39,7 +39,7 @@ quarterly House Price Index.
 # dci
 
 {% docs table_dci %}
-[Economic Innovation Group](https://www.housingstudies.org/) 
+[Economic Innovation Group](https://eig.org/distressed-communities) 
 Distressed Communities Index
 
 **Primary Key**: `year`, `geoid`
