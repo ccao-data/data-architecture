@@ -23,7 +23,7 @@ data = pd.read_csv(temp_file.name)
 data = data[data["State"] == "Illinois"]
 
 current_year = datetime.now().year
-data["year"] = current_year
+data["year"] = str(current_year)
 
 data = data[["Zip Code", "2017-2021 Final Distress Score", "year"]].rename(
     columns={
@@ -31,6 +31,7 @@ data = data[["Zip Code", "2017-2021 Final Distress Score", "year"]].rename(
         "2017-2021 Final Distress Score": "dci",
     }
 )
+data["geoid"] = data["geoid"].astype(str)
 
 AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")  # type: ignore  # noqa: E501
 
