@@ -70,12 +70,10 @@ housing_index AS (
 affordability_risk_index AS (
     SELECT
         tract.pin10,
-        ari.ari_score AS ari,
-        ari.year
+        ari.ari_score AS ari
     FROM {{ source('other', 'ari') }} AS ari
     LEFT JOIN {{ ref('location.census') }} AS tract
         ON ari.geoid = tract.census_tract_geoid
-    WHERE tract.year = '2023'
 ),
 
 tax_bill_amount AS (
