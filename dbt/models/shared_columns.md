@@ -1053,7 +1053,7 @@ Averaged up to the yearly level. Unit of observation is Census PUMAs
 ## dci
 
 {% docs shared_column_dci %}
-Distressed Communities Index from the Economic Innovation Group
+Distressed Communities Index from the Economic Innovation Group.
 
 Unit of observations is Zip Code. Year refers to year of download.
 {% enddocs %}
