@@ -1,6 +1,5 @@
 import os
 import tempfile
-from datetime import datetime
 
 import boto3
 import pandas as pd
@@ -18,8 +17,7 @@ s3.download_file(AWS_S3_RAW_BUCKET, file_key, temp_file.name)
 
 # Use pandas to read the Excel file, skipping the first two rows
 data = pd.read_excel(temp_file.name, skiprows=2, engine="openpyxl")
-current_year = datetime.now().year
-data["year"] = str(current_year)
+data["year"] = str(2023)
 data = data[["Census Tract", "Total ARI Score", "year"]].rename(
     columns={"Census Tract": "geoid", "Total ARI Score": "ari_score"}
 )
