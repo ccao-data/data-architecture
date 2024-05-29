@@ -70,6 +70,7 @@ housing_index AS (
 affordability_risk_index AS (
     SELECT
         tract.pin10,
+        ari.year,
         ari.ari_score AS ari
     FROM {{ source('other', 'ari') }} AS ari
     LEFT JOIN {{ ref('location.census') }} AS tract
