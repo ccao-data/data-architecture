@@ -25,11 +25,6 @@ data = data[
     [
         "Zip Code",
         "2017-2021 Final Distress Score",
-        "Quintile (5=Distressed)",
-        "DCI Decile",
-        "Rank of Zip w/in County (1=Most Prosperous)",
-        "Number of Zips in County",
-        "Rank of Zip w/in State (1=Most Prosperous)",
     ]
 ].rename(
     columns={
