@@ -20,6 +20,8 @@ s3.download_file(AWS_S3_RAW_BUCKET, file_key, temp_file.name)
 # Use pandas to read the Excel file, skipping the first two rows
 data = pd.read_csv(temp_file.name)
 
+data = data[data["State"] == "Illinois"]
+
 current_year = datetime.now().year
 data["year"] = current_year
 

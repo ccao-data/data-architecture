@@ -39,7 +39,7 @@ quarterly House Price Index.
 # dci
 
 {% docs table_dci %}
-[Economic Innovation Group](https://www.housingstudies.org/)  Affordability Risk Index
+[Economic Innovation Group](https://www.housingstudies.org/) Affordability Risk Index
 
 **Primary Key**: `year`, `geoid`
 {% enddocs %}
