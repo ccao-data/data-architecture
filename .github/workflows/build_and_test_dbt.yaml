@@ -58,36 +58,7 @@ jobs:
         shell: bash
 
       - name: Deploy model dependencies
-        run: |
-          if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
-            if [[ $MANUALLY_DISPATCHED == 'true' ]]; then
-              echo "Deploying dependencies for manually selected resources"
-              ../.github/scripts/deploy_dbt_model_dependencies.sh ${{ inputs.models }}
-            else
-              echo "Deploying dependencies for modified/new resources only"
-              model_names=$(\
-                dbt list \
-                  --quiet -t "$TARGET" -s state:modified state:new \
-                  --state "$STATE_DIR" --resource-types model \
-                  --output json --output-keys name | \
-                jq -r '.name' | \
-                tr '\n' ' '
-              )
-              if [ -z "$model_names" ]; then
-                echo "No modified/new resources found, skipping dependency deploy"
-                exit 0
-              fi
-              echo "Parsed list of modified/new models: $model_names"
-              # Disable shellcheck double-quote rule for the script call
-              # since we intentionally want to split each model name into a
-              # separate argument based on spaces
-              # shellcheck disable=SC2086
-              ../.github/scripts/deploy_dbt_model_dependencies.sh $model_names
-            fi
-          else
-            echo "Deploying dependencies for all resources"
-            ../.github/scripts/deploy_dbt_model_dependencies.sh
-          fi
+        run: ../.github/scripts/deploy_dbt_model_dependencies.sh
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
