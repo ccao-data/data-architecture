@@ -1,3 +1,6 @@
+-- This view only exists since the IHS House Price Index continues to use 2010
+-- geoids past 2020.
+
 {{
     config(
         materialized='table',
