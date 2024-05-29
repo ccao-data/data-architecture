@@ -8,7 +8,7 @@
     )
 }}
 
-WITH cta_route AS (
+WITH cta_route AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'transit_route') }}
     WHERE agency = 'cta'

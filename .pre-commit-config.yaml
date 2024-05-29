@@ -1,7 +1,7 @@
 # All available hooks: https://pre-commit.com/hooks.html
 repos:
   - repo: https://github.com/sqlfluff/sqlfluff
-    rev: 2.1.1
+    rev: 3.0.7
     hooks:
     -   id: sqlfluff-lint
     -   id: sqlfluff-fix
