@@ -1,6 +1,5 @@
 import os
 import tempfile
-from datetime import datetime
 
 import boto3
 import pandas as pd
@@ -40,8 +39,6 @@ data = data[
 )
 
 AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")[5:]  # type: ignore  # noqa: E501
-
-current_year = datetime.now().year
 
 data.to_parquet(
     file_key=os.path.join(
