@@ -23,7 +23,7 @@ data = pd.read_csv(temp_file.name)
 data = data[data["County"] == "Cook County, Illinois"]
 
 current_year = datetime.now().year
-data["Year"] = current_year
+data["year"] = current_year
 
 data = data[["Zip Code", "2017-2021 Final Distress Score", "Year"]].rename(
     columns={

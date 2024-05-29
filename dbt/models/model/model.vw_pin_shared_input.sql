@@ -68,12 +68,12 @@ housing_index AS (
 
 distressed_communities_index AS (
     SELECT
-        puma.pin10,
+        zcta.pin10,
         dci.year,
         dci.dci
     FROM {{ source('other', 'dci') }} AS dci
-    LEFT JOIN {{ ref('location.census_2010') }} AS puma
-        ON dci.geoid = puma.census_puma_geoid
+    LEFT JOIN {{ ref('location.census_2010') }} AS zcta
+        ON dci.zcta = zcta.census_zcta_geoid
 ),
 
 tax_bill_amount AS (
