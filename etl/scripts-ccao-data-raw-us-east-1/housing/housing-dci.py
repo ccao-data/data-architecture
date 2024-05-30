@@ -40,7 +40,9 @@ def upload_df_to_s3(df, bucket, file_name):
     s3.put_object(Bucket=bucket, Key=file_name, Body=csv_buffer.getvalue())
 
 
-# URL of the file you want to load
+# URL of the file we want to upload.
+# This should be manually checked to see if data more recent
+# than 2024 is included.
 file_url = "https://eig.org/dci-maps-2023/data/1cd12716-de4a-4ef6-884b-af6e1066b581.csv"  # noqa: E501
 
 # Load the data
