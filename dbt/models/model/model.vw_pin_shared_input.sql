@@ -63,7 +63,7 @@ housing_index AS (
     FROM {{ source('other', 'ihs_index') }} AS ihs
     LEFT JOIN {{ ref('location.census') }} AS puma
         ON ihs.geoid = puma.census_puma_geoid
-        AND puma.year = '2012   '
+        AND puma.year = '2012'
     GROUP BY puma.pin10, ihs.year
 ),
 
@@ -75,6 +75,7 @@ affordability_risk_index AS (
     FROM {{ source('other', 'ari') }} AS ari
     LEFT JOIN {{ ref('location.census') }} AS tract
         ON ari.geoid = tract.census_tract_geoid
+    WHERE tract.year = 2022
 ),
 
 tax_bill_amount AS (

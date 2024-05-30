@@ -1,3 +1,4 @@
+import datetime
 import os
 
 import boto3
@@ -45,12 +46,18 @@ def download_and_upload_excel(file_url, bucket, key_prefix):
         response = requests.get(file_url, headers=headers)
         response.raise_for_status()
 
+        # Get the current year
+        current_year = datetime.datetime.now().year
+
+        # Define the filename
+        excel_filename = f"ari_{current_year}.xlsx"
+
         # Initialize a session using boto3
         session = boto3.Session()
         s3 = session.resource("s3")
 
-        # Upload directly from memory
-        object_key = f"{key_prefix}/{file_url.split('/')[-1]}"
+        # Upload the Excel file to S3
+        object_key = f"{key_prefix}/{excel_filename}"
         s3.Bucket(bucket).put_object(Key=object_key, Body=response.content)
 
         return f"File uploaded to {bucket}/{object_key}"
