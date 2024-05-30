@@ -1,4 +1,3 @@
-import datetime
 import os
 import tempfile
 
@@ -10,17 +9,19 @@ from dotenv import load_dotenv
 s3 = boto3.client("s3")
 temp_file = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
 
-current_year = datetime.datetime.now().year
 load_dotenv("etl/.Renviron")
 AWS_S3_RAW_BUCKET = os.getenv("AWS_S3_RAW_BUCKET")[5:]  # type: ignore
-file_key = os.path.join("housing", "ari", f"ari_{current_year}.xlsx")
+# Manually include the year of file construction.
+file_key = os.path.join("housing", "ari", "2023-ARI.xlsx")
 
 s3.download_file(AWS_S3_RAW_BUCKET, file_key, temp_file.name)
 
 # Use pandas to read the Excel file, skipping the first two rows
 data = pd.read_excel(temp_file.name, skiprows=2, engine="openpyxl")
 
-data["year"] = str(current_year)
+# Include a year column for the year of file construction.
+# This should be changed if a more recent data file is uploaded.
+data["year"] = str(2023)
 
 data = data[["Census Tract", "Total ARI Score", "year"]].rename(
     columns={"Census Tract": "geoid", "Total ARI Score": "ari_score"}
@@ -36,7 +37,7 @@ data.to_parquet(
         AWS_S3_WAREHOUSE_BUCKET,  # type: ignore
         "housing",  # type: ignore
         "ari",  # type: ignore
-        f"ari_{current_year}.parquet",  # type: ignore
+        "2023.parquet",  # type: ignore
     ),
     index=False,
 )
