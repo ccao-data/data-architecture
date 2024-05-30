@@ -75,7 +75,7 @@ affordability_risk_index AS (
     FROM {{ source('other', 'ari') }} AS ari
     LEFT JOIN {{ ref('location.census') }} AS tract
         ON ari.geoid = tract.census_tract_geoid
-    WHERE tract.year = 2022
+        AND tract.year = '2022'
 ),
 
 tax_bill_amount AS (
