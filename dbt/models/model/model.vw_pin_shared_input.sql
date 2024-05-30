@@ -79,7 +79,7 @@ affordability_risk_index AS (
     FROM {{ source('other', 'ari') }} AS ari
     LEFT JOIN {{ ref('location.census_acs5') }} AS tract
         ON ari.geoid = tract.census_acs5_tract_geoid
-        AND tract.year = ari.year
+        AND CAST(tract.year AS INTEGER) >= CAST(ari.year AS INTEGER)
 ),
 
 tax_bill_amount AS (
