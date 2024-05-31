@@ -7,6 +7,14 @@
 
 WITH stadiums AS (
     SELECT
+        CASE
+            WHEN pin10 = '1420227002' THEN 'Wrigley'
+            WHEN pin10 = '1718201035' THEN 'United Center'
+            WHEN pin10 = '1722110002' THEN 'Soldier Field'
+            WHEN pin10 = '1733400049' THEN 'Guaranteed Rate Field'
+            WHEN pin10 = '1722320018' THEN 'Wintrust Arena'
+            WHEN pin10 = '1717239022' THEN 'UIC Pavilion'
+        END AS stadium_name,
         pin10 AS pin10_stadium,
         x_3435 AS x_3435_stadium,
         y_3435 AS y_3435_stadium,
@@ -23,40 +31,42 @@ WITH stadiums AS (
             '1717239022'   -- UIC Pavilion
         )
         AND year = '2023'
-)
+),
 
-SELECT
-    pcl.pin10,
-    MIN(output.dist_ft) AS nearest_stadium_dist_ft,
-    CASE
-        WHEN ANY_VALUE(output.pin10_stadium) = '1420227002' THEN 'Wrigley'
-        WHEN ANY_VALUE(output.pin10_stadium) = '1718201035' THEN 'United Center'
-        WHEN ANY_VALUE(output.pin10_stadium) = '1722110002' THEN 'Soldier Field'
-        WHEN
-            ANY_VALUE(output.pin10_stadium) = '1733400049'
-            THEN 'Guaranteed Rate Field'
-        WHEN
-            ANY_VALUE(output.pin10_stadium) = '1722320018'
-            THEN 'Wintrust Arena'
-        WHEN ANY_VALUE(output.pin10_stadium) = '1717239022' THEN 'UIC Pavilion'
-        ELSE 'Unknown'
-    END AS nearest_stadium_name,
-    pcl.year
-FROM {{ source('spatial', 'parcel') }} AS pcl
-INNER JOIN (
+distances AS (
     SELECT
+        pcl.pin10,
+        st.stadium_name,
         st.pin10_stadium,
-        pcl.pin10 AS parcel_pin10,
-        st.year,
         SQRT(
             POW(st.x_3435_stadium - pcl.x_3435, 2)
             + POW(st.y_3435_stadium - pcl.y_3435, 2)
-        ) AS dist_ft
+        ) AS dist_ft,
+        pcl.year
     FROM
-        stadiums AS st, {{ source('spatial', 'parcel') }} AS pcl
+        stadiums AS st
+    CROSS JOIN {{ source('spatial', 'parcel') }} AS pcl
     WHERE
-        pcl.year >= st.year
-) AS output
-    ON pcl.pin10 = output.parcel_pin10
-    AND pcl.year >= output.year
-GROUP BY pcl.pin10, pcl.year;
+        pcl.year = st.year
+),
+
+nearest_stadiums AS (
+    SELECT
+        pin10,
+        stadium_name,
+        dist_ft,
+        year,
+        ROW_NUMBER() OVER (PARTITION BY pin10 ORDER BY dist_ft) AS rn
+    FROM
+        distances
+)
+
+SELECT
+    ns.pin10,
+    ns.dist_ft AS nearest_stadium_dist_ft,
+    ns.stadium_name AS nearest_stadium_name,
+    ns.year
+FROM
+    nearest_stadiums AS ns
+WHERE
+    ns.rn = 1
