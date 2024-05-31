@@ -70,7 +70,7 @@ jobs:
               if [ "$SELECTED_RESOURCES" == "*" ]; then
                 dbt build -t "$TARGET" --resource-types model seed
               else
-                dbt build -t "$TARGET" -s $SELECTED_RESOURCES --defer --state "$STATE_DIR" --resource-types model seed
+                dbt build -t "$TARGET" -s "$SELECTED_RESOURCES" --defer --state "$STATE_DIR" --resource-types model seed
               fi
             else
               echo "Running build on modified/new resources only"
