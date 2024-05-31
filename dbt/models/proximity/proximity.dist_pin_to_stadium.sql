@@ -1,5 +1,3 @@
--- Create a table of distance to the nearest stadium for each PIN
-
 {{ config(
     materialized='table',
     partitioned_by=['year'],
@@ -17,22 +15,32 @@ WITH stadiums AS (
         {{ source('spatial', 'parcel') }}
     WHERE
         pin10 IN (
-            '1420227002',
-            '1718201035',
-            '1722110002',
-            '1733400049',
-            '1722320018',
-            '1717239022'
+            '1420227002',  -- Wrigley
+            '1718201035',  -- United Center
+            '1722110002',  -- Soldier Field
+            '1733400049',  -- Guaranteed Rate Field
+            '1722320018',  -- Wintrust Arena
+            '1717239022'   -- UIC Pavilion
         )
-        AND year = (
-            SELECT MAX(year)
-            FROM {{ source('spatial', 'parcel') }}
-        )
+        AND year = '2023'
 )
 
 SELECT
     pcl.pin10,
     MIN(output.dist_ft) AS nearest_stadium_dist_ft,
+    CASE
+        WHEN ANY_VALUE(output.pin10_stadium) = '1420227002' THEN 'Wrigley'
+        WHEN ANY_VALUE(output.pin10_stadium) = '1718201035' THEN 'United Center'
+        WHEN ANY_VALUE(output.pin10_stadium) = '1722110002' THEN 'Soldier Field'
+        WHEN
+            ANY_VALUE(output.pin10_stadium) = '1733400049'
+            THEN 'Guaranteed Rate Field'
+        WHEN
+            ANY_VALUE(output.pin10_stadium) = '1722320018'
+            THEN 'Wintrust Arena'
+        WHEN ANY_VALUE(output.pin10_stadium) = '1717239022' THEN 'UIC Pavilion'
+        ELSE 'Unknown'
+    END AS nearest_stadium_name,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN (
@@ -47,8 +55,8 @@ INNER JOIN (
     FROM
         stadiums AS st, {{ source('spatial', 'parcel') }} AS pcl
     WHERE
-        pcl.year = st.year
+        pcl.year >= st.year
 ) AS output
     ON pcl.pin10 = output.parcel_pin10
-    AND pcl.year = output.year
+    AND pcl.year >= output.year
 GROUP BY pcl.pin10, pcl.year;
