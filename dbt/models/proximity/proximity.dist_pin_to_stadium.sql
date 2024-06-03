@@ -30,7 +30,7 @@ WITH stadiums AS (
             '1722320018',  -- Wintrust Arena
             '1717239022'   -- UIC Pavilion
         )
-        AND year = '2023'
+        AND year >= '2017'
 ),
 
 distances AS (
@@ -56,17 +56,39 @@ nearest_stadiums AS (
         stadium_name,
         dist_ft,
         year,
-        ROW_NUMBER() OVER (PARTITION BY pin10 ORDER BY dist_ft) AS rn
+        ROW_NUMBER() OVER (PARTITION BY pin10, year ORDER BY dist_ft) AS rn
     FROM
         distances
+),
+
+deduplicated AS (
+    SELECT
+        pin10,
+        nearest_stadium_dist_ft,
+        nearest_stadium_name,
+        year,
+        ROW_NUMBER()
+            OVER (PARTITION BY year ORDER BY nearest_stadium_dist_ft)
+            AS year_rn
+    FROM (
+        SELECT
+            ns.pin10,
+            ns.dist_ft AS nearest_stadium_dist_ft,
+            ns.stadium_name AS nearest_stadium_name,
+            ns.year
+        FROM
+            nearest_stadiums AS ns
+        WHERE
+            ns.rn = 1
+    ) AS base_query
 )
 
 SELECT
-    ns.pin10,
-    ns.dist_ft AS nearest_stadium_dist_ft,
-    ns.stadium_name AS nearest_stadium_name,
-    ns.year
+    pin10,
+    nearest_stadium_dist_ft,
+    nearest_stadium_name,
+    year
 FROM
-    nearest_stadiums AS ns
+    deduplicated
 WHERE
-    ns.rn = 1
+    year_rn = 1
