@@ -1,9 +1,5 @@
 {{
-    config(
-        materialized='table',
-        ha=true,
-        s3_data_naming='schema_table_unique'
-    )
+    config(materialized='table')
 }}
 
 SELECT
