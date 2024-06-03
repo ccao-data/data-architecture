@@ -8,7 +8,7 @@
     )
 }}
 
-WITH major_universities AS (
+WITH major_universities AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'school_location') }}
     WHERE type = 'HigherEd'

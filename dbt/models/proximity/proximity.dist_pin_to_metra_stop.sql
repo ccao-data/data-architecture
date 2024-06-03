@@ -8,7 +8,7 @@
     )
 }}
 
-WITH metra_stop AS (
+WITH metra_stop AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'transit_stop') }}
     WHERE agency = 'metra'

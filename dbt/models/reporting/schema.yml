@@ -255,7 +255,7 @@ models:
 
   - name: reporting.vw_top_5_muni
     description: '{{ doc("view_vw_top_5_muni") }}'
-    tests:
+    data_tests:
       - unique_combination_of_columns:
           name: reporting_vw_top_5_muni_unique_by_keys
           combination_of_columns:
