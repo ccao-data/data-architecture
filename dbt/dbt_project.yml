@@ -48,6 +48,7 @@ models:
     default:
       +schema: default
     location:
+      +ha: true
       +schema: location
     model:
       +schema: model
