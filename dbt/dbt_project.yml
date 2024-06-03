@@ -48,6 +48,8 @@ models:
     default:
       +schema: default
     location:
+      +ha: true
+      +s3_data_naming: schema_table_unique
       +schema: location
     model:
       +schema: model
