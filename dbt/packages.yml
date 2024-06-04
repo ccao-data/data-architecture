@@ -1,0 +1,3 @@
+# This file is hashed by our GitHub workflows for use as a key in the dbt deps
+# cache. The file is empty since we currently have no deps, but we need it
+# here so that we don't break the caching step.
