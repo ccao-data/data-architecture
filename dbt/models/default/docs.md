@@ -180,7 +180,7 @@ is the view you're looking for.
 # vw_pin_value
 
 {% docs view_vw_pin_value %}
-Assessed values by PIN and year, for each assessment stage.
+Assessed and market values by PIN and year, for each assessment stage.
 
 The assessment stages are:
 
@@ -193,6 +193,14 @@ The assessment stages are:
 - Taking the max value by 14-digit PIN and year is sufficient for accurate
   values. We do this because even given the criteria to de-dupe `asmt_all`,
   we still end up with duplicates by PIN and year.
+- Market value (`_mv`) columns accurately reflect incentives, statute,
+  levels of assessment, building splits, etc.
+
+### Nuance
+
+- Market values only exist for stages after and including `2020 Board`. Prior
+  to that, market values were stored/tracked in the county mainframe and are
+  not easily retrievable.
 
 **Primary Key**: `year`, `pin`
 {% enddocs %}
