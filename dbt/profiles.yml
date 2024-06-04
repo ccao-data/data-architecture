@@ -20,9 +20,9 @@ athena:
       s3_data_dir: s3://z-ci-ccao-athena-ctas-us-east-1/
       s3_data_naming: schema_table_unique
       region_name: us-east-1
-      schema: z_static_unused_dbt_stub_database
+      schema: default
       database: awsdatacatalog
-      spark_work_group: primary-spark-staging
+      spark_work_group: primary-spark
       threads: 10
       num_retries: 1
     prod:
