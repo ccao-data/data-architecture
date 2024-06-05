@@ -38,10 +38,10 @@ data["geoid"] = data["geoid"].astype(str)
 
 data.to_parquet(
     os.path.join(
-        os.environ["AWS_S3_WAREHOUSE_BUCKET"],  # type: ignore
-        "housing",  # type: ignore
-        "dci",  # type: ignore
-        "dci_2024.parquet",  # type: ignore
+        os.environ["AWS_S3_WAREHOUSE_BUCKET"],
+        "housing",
+        "dci",
+        "dci_2024.parquet",
     ),
     index=False,
 )
