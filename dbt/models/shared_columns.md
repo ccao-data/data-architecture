@@ -1055,7 +1055,7 @@ Averaged up to the yearly level. Unit of observation is Census PUMAs
 {% docs shared_column_ari %}
 Illinois Housing Development Authority's Affordability Risk Index.
 
-Data may not be udpated regularly, so year refers to year of download
+It is unclear of IHDA's data timeline. Year currently refers to year of their data construction.
 {% enddocs %}
 
 ## school_district_elementary_avg_rating
