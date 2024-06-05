@@ -5,8 +5,8 @@ import boto3
 import pandas as pd
 from dotenv import load_dotenv
 
-AWS_S3_WAREHOUSE_BUCKET = os.environ["AWS_S3_WAREHOUSE_BUCKET"]
-AWS_S3_RAW_BUCKET = os.environ("AWS_S3_RAW_BUCKET")[5:]  # type: ignore
+AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")
+AWS_S3_RAW_BUCKET = os.getenv("AWS_S3_RAW_BUCKET")[5:]  # type: ignore
 
 # Set up the S3 client
 s3 = boto3.client("s3")
@@ -34,7 +34,7 @@ temp_file.close()
 # Upload the Parquet file to S3
 data.to_parquet(
     os.path.join(
-        AWS_S3_WAREHOUSE_BUCKET,  # type: ignore
+        os.environ["AWS_S3_WAREHOUSE_BUCKET"],  # type: ignore
         "housing",  # type: ignore
         "ari",  # type: ignore
         "2023.parquet",  # type: ignore
