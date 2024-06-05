@@ -31,7 +31,6 @@ data = data[["Census Tract", "Total ARI Score", "year"]].rename(
 data["geoid"] = data["geoid"].astype(str)
 temp_file.close()
 
-
 # Upload the Parquet file to S3
 data.to_parquet(
     os.path.join(
