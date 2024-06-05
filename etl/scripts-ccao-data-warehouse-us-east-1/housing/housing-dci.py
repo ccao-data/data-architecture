@@ -11,6 +11,7 @@ temp_file = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
 
 # Download the file from S3 to your local system
 load_dotenv("etl/.Renviron")
+AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")
 AWS_S3_RAW_BUCKET = os.getenv("AWS_S3_RAW_BUCKET")[5:]  # type: ignore
 file_key = os.path.join("housing", "dci", "dci.csv")
 
@@ -35,11 +36,9 @@ data = data[["Zip Code", "2017-2021 Final Distress Score", "year"]].rename(
 )
 data["geoid"] = data["geoid"].astype(str)
 
-AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")
-
 data.to_parquet(
     os.path.join(
-        AWS_S3_WAREHOUSE_BUCKET,  # type: ignore
+        os.environ["AWS_S3_WAREHOUSE_BUCKET"],  # type: ignore
         "housing",  # type: ignore
         "dci",  # type: ignore
         "dci_2024.parquet",  # type: ignore
