@@ -3,3 +3,5 @@
 2022,16143120330000,211,1,77,TRUE,incorrect_char,This 5175 sqft 211 has 90 bedrooms
 2024,11312110190000,517,1,75,FALSE,split_class,Split 517 and 236 multi-family mixed use
 2024,24072010490000,EX,3,39,FALSE,just_weird,Parcel has a silly shape
+2024,17062000841001,299,1,77,FALSE,just_weird,Two unit condo building with parcels in different neighborhoods
+2024,17062000841002,299,1,77,FALSE,just_weird,Two unit condo building with parcels in different neighborhoods

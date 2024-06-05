@@ -107,7 +107,7 @@ LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     AND vwpv.year = leg.taxyr
     AND leg.cur = 'Y'
     AND leg.deactivat IS NULL
-LEFT JOIN {{ source('iasworld', 'pardat') }} AS par
+INNER JOIN {{ source('iasworld', 'pardat') }} AS par
     ON vwpv.pin = par.parid
     AND vwpv.year = par.taxyr
     AND par.cur = 'Y'
