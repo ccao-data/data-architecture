@@ -5,12 +5,14 @@ import boto3
 import pandas as pd
 from dotenv import load_dotenv
 
+AWS_S3_WAREHOUSE_BUCKET = os.environ["AWS_S3_WAREHOUSE_BUCKET"]
+AWS_S3_RAW_BUCKET = os.environ("AWS_S3_RAW_BUCKET")[5:]  # type: ignore
+
 # Set up the S3 client
 s3 = boto3.client("s3")
 temp_file = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
 
 load_dotenv("etl/.Renviron")
-AWS_S3_RAW_BUCKET = os.getenv("AWS_S3_RAW_BUCKET")[5:]  # type: ignore
 # Manually include the year of file construction.
 file_key = os.path.join("housing", "ari", "2023-ARI.xlsx")
 
@@ -29,7 +31,6 @@ data = data[["Census Tract", "Total ARI Score", "year"]].rename(
 data["geoid"] = data["geoid"].astype(str)
 temp_file.close()
 
-AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")
 
 # Upload the Parquet file to S3
 data.to_parquet(
