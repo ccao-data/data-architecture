@@ -387,7 +387,7 @@ any OSM ways tagged with `highway/secondary`
 {% docs column_nearest_stadium_dist_ft %}
 Nearest stadium distance (feet).
 
-University locations sourced from Cook County GIS
+Stadium locations sourced from Cook County GIS
 {% enddocs %}
 
 ## nearest_stadium_code
@@ -395,15 +395,15 @@ University locations sourced from Cook County GIS
 {% docs column_nearest_stadium_code %}
 Nearest stadium Pin10.
 
-University locations sourced from Cook County GIS
+Stadium locations sourced from Cook County GIS
 {% enddocs %}
 
 ## nearest_stadium_name
 
-{% docs column_nearest_university_name %}
+{% docs column_nearest_stadium_name %}
 Nearest stadium full name.
 
-University locations sourced from Cook County GIS
+Stadium locations sourced from Cook County GIS
 {% enddocs %}
 
 ## nearest_university_dist_ft
