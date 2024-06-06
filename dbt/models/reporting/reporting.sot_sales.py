@@ -14,7 +14,7 @@ if os.path.isfile("sot_sales.parquet.gzip"):
     df = pd.read_parquet("sot_sales.parquet.gzip")
 
 else:
-    sql = open("sot_sales.sql").read()
+    sql = open("reporting.sot_sales.sql").read()
     df = wr.athena.read_sql_query(sql, database="default", ctas_approach=False)
     df.to_parquet("sot_sales.parquet.gzip", compression="gzip")
 
@@ -112,28 +112,27 @@ agg_func_math = {
 output = pd.DataFrame()
 
 # Loop through group combinations and stack output
-for x in np.concatenate(list(geos.values())):
-    for y in geos.keys():
-        if x in geos[y]:
-            df["data_year"] = df[y]
+for key, value in geos.items():
+    df["data_year"] = df[key]
 
-    for z in groups:
-        group = [x, z, "year"]
-        summary = df.groupby(group).agg(agg_func_math).round(2)
-        summary["geography_type"] = x
-        summary["group_type"] = z
-        summary.index.names = ["geography_id", "group_id", "year"]
-        summary = summary.reset_index().set_index(
-            [
-                "geography_type",
-                "geography_id",
-                "group_type",
-                "group_id",
-                "year",
-            ]
-        )
+    for x in value:
+        for z in groups:
+            group = [x, z, "year"]
+            summary = df.groupby(group).agg(agg_func_math).round(2)
+            summary["geography_type"] = x
+            summary["group_type"] = z
+            summary.index.names = ["geography_id", "group_id", "year"]
+            summary = summary.reset_index().set_index(
+                [
+                    "geography_type",
+                    "geography_id",
+                    "group_type",
+                    "group_id",
+                    "year",
+                ]
+            )
 
-        output = pd.concat([output, summary])
+            output = pd.concat([output, summary])
 
 # Clean combined output and export
 output["sale_price", "sum"] = output["sale_price", "sum"].replace(0, np.NaN)
