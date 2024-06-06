@@ -23,10 +23,10 @@ xy_to_stadium_dist AS (
         dp.x_3435,
         dp.y_3435,
         dp.year,
-        'Soldier Field' AS stadium_name,
+        'Soldier Field' AS nearest_stadium_name,
         ST_DISTANCE(
             ST_POINT(dp.x_3435, dp.y_3435), ST_POINT(1179603, 1893122)
-        ) AS stadium_dist_ft
+        ) AS nearest_stadium_dist_ft
     FROM distinct_pins AS dp
     UNION ALL
     SELECT
@@ -34,10 +34,10 @@ xy_to_stadium_dist AS (
         dp.x_3435,
         dp.y_3435,
         dp.year,
-        'Wintrust Arena' AS stadium_name,
+        'Wintrust Arena' AS nearest_stadium_name,
         ST_DISTANCE(
             ST_POINT(dp.x_3435, dp.y_3435), ST_POINT(1178259, 1889955)
-        ) AS stadium_dist_ft
+        ) AS nearest_stadium_dist_ft
     FROM distinct_pins AS dp
     UNION ALL
     SELECT
@@ -45,10 +45,10 @@ xy_to_stadium_dist AS (
         dp.x_3435,
         dp.y_3435,
         dp.year,
-        'Guaranteed Rate Field' AS stadium_name,
+        'Guaranteed Rate Field' AS nearest_stadium_name,
         ST_DISTANCE(
             ST_POINT(dp.x_3435, dp.y_3435), ST_POINT(1174703, 1881406)
-        ) AS stadium_dist_ft
+        ) AS nearest_stadium_dist_ft
     FROM distinct_pins AS dp
     UNION ALL
     SELECT
@@ -56,10 +56,10 @@ xy_to_stadium_dist AS (
         dp.x_3435,
         dp.y_3435,
         dp.year,
-        'Wrigley Field' AS stadium_name,
+        'Wrigley Field' AS nearest_stadium_name,
         ST_DISTANCE(
             ST_POINT(dp.x_3435, dp.y_3435), ST_POINT(1168634, 1924426)
-        ) AS stadium_dist_ft
+        ) AS nearest_stadium_dist_ft
     FROM distinct_pins AS dp
     UNION ALL
     SELECT
@@ -67,10 +67,10 @@ xy_to_stadium_dist AS (
         dp.x_3435,
         dp.y_3435,
         dp.year,
-        'United Center' AS stadium_name,
+        'United Center' AS nearest_stadium_name,
         ST_DISTANCE(
             ST_POINT(dp.x_3435, dp.y_3435), ST_POINT(1163584, 1899780)
-        ) AS stadium_dist_ft
+        ) AS nearest_stadium_dist_ft
     FROM distinct_pins AS dp
     UNION ALL
     SELECT
@@ -78,31 +78,31 @@ xy_to_stadium_dist AS (
         dp.x_3435,
         dp.y_3435,
         dp.year,
-        'UIC Pavilion' AS stadium_name,
+        'UIC Pavilion' AS nearest_stadium_name,
         ST_DISTANCE(
             ST_POINT(dp.x_3435, dp.y_3435), ST_POINT(1168816, 1897726)
-        ) AS stadium_dist_ft
+        ) AS nearest_stadium_dist_ft
     FROM distinct_pins AS dp
 ),
 
-min_stadium_dist AS (
+nearest_min_stadium_dist AS (
     SELECT
         pin10,
         x_3435,
         y_3435,
         year,
-        stadium_name,
+        nearest_stadium_name,
         stadium_dist_ft,
         ROW_NUMBER()
-            OVER (PARTITION BY pin10, year ORDER BY stadium_dist_ft)
+            OVER (PARTITION BY pin10, year ORDER BY nearest_stadium_dist_ft)
             AS rnk
     FROM xy_to_stadium_dist
 )
 
 SELECT
     pin10,
-    stadium_name,
-    stadium_dist_ft AS min_stadium_dist_ft,
+    nearest_stadium_name,
+    nearest_stadium_dist_ft AS min_stadium_dist_ft,
     year
-FROM min_stadium_dist
+FROM nearest_min_stadium_dist
 WHERE rnk = 1;
