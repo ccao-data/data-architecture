@@ -877,7 +877,15 @@ Parcel has an active homeowner exemption
 ## is_corner_lot
 
 {% docs shared_column_is_corner_lot %}
-Corner lot indicator
+Binary indicator to identify if a parcel is located adjacent to two 
+openstreetmaps roads. Large roads such as highways are excluded
+from the algorithm.
+
+Possible values for this variable are:
+
+- `1` = `Corner Lot`
+- `0` = `Not a Corner Lot`
+
 {% enddocs %}
 
 ## modeling_group
