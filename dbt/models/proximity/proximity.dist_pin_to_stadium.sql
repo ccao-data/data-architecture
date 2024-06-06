@@ -100,7 +100,7 @@ min_stadium_dist AS (
 )
 
 SELECT
-    code,
+    pin10,
     stadium_name,
     stadium_dist_ft AS min_stadium_dist_ft,
     year
