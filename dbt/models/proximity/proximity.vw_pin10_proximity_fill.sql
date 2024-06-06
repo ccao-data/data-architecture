@@ -84,6 +84,11 @@ SELECT
     dist_pin_to_secondary_road.nearest_secondary_road_dist_ft,
     dist_pin_to_secondary_road.nearest_secondary_road_data_year,
 
+    dist_pin_to_stadium.nearest_stadium_id,
+    dist_pin_to_stadium.nearest_stadium_name,
+    dist_pin_to_stadium.nearest_stadium_dist_ft,
+    dist_pin_to_stadium.nearest_stadium_data_year,
+
     dist_pin_to_university.nearest_university_name,
     dist_pin_to_university.nearest_university_dist_ft,
     dist_pin_to_university.nearest_university_data_year,
@@ -181,6 +186,11 @@ LEFT JOIN
         AS dist_pin_to_secondary_road
     ON pin.pin10 = dist_pin_to_secondary_road.pin10
     AND cyf.nearest_secondary_road_data_year = dist_pin_to_secondary_road.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_stadium') }}
+        AS dist_pin_to_stadium
+    ON pin.pin10 = dist_pin_to_stadium.pin10
+    AND cyf.nearest_stadium_data_year = dist_pin_to_stadium.year
 LEFT JOIN
     {{ ref('proximity.dist_pin_to_university') }} AS dist_pin_to_university
     ON pin.pin10 = dist_pin_to_university.pin10
