@@ -75,7 +75,7 @@ SELECT
     'no_group' AS no_group,
     class_dict.major_class_type AS major_class,
     class_dict.modeling_group
-FROM vw_pin_universe AS uni
+FROM default.vw_pin_universe AS uni
 LEFT JOIN sf
     ON uni.pin = sf.pin
     AND uni.year = sf.year
@@ -84,7 +84,7 @@ LEFT JOIN ccao.class_dict
 LEFT JOIN default.vw_pin_history AS hist
     ON uni.pin = hist.pin
     AND uni.year = hist.year
-LEFT JOIN vw_pin_sale AS sales
+LEFT JOIN default.vw_pin_sale AS sales
     ON uni.pin = sales.pin
     AND uni.year = sales.year
     AND NOT sales.is_multisale

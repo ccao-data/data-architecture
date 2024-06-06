@@ -10,13 +10,13 @@ import numpy as np
 import pandas as pd
 
 # Ingest data if it is not already available
-if os.path.isfile("sales.parquet.gzip"):
-    df = pd.read_parquet("sales.parquet.gzip")
+if os.path.isfile("sot_sales.parquet.gzip"):
+    df = pd.read_parquet("sot_sales.parquet.gzip")
 
 else:
-    sql = open("sales_comprehensive.sql").read()
+    sql = open("sot_sales.sql").read()
     df = wr.athena.read_sql_query(sql, database="default", ctas_approach=False)
-    df.to_parquet("sales.parquet.gzip", compression="gzip")
+    df.to_parquet("sot_sales.parquet.gzip", compression="gzip")
 
 # Declare geographic groups and their associated data years
 geos = {
@@ -145,4 +145,4 @@ for i in ["median", "mean", "sum"]:
     output["sale_price", "delta" + i] = output["sale_price", i].diff()
     output["price_per_sf", "delta" + i] = output["price_per_sf", i].diff()
 
-output.to_csv("output.csv")
+output.to_csv("sot_sales.csv")
