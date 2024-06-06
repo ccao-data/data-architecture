@@ -92,7 +92,7 @@ nearest_min_stadium_dist AS (
         y_3435,
         year,
         nearest_stadium_name,
-        stadium_dist_ft,
+        nearest_stadium_dist_ft,
         ROW_NUMBER()
             OVER (PARTITION BY pin10, year ORDER BY nearest_stadium_dist_ft)
             AS rnk
