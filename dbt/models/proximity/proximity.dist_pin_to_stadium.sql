@@ -103,6 +103,7 @@ SELECT
     pin10,
     nearest_stadium_name,
     nearest_stadium_dist_ft AS min_stadium_dist_ft,
+    year,
     year AS nearest_stadium_data_year
 FROM nearest_min_stadium_dist
 WHERE rnk = 1;
