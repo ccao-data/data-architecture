@@ -663,3 +663,13 @@ these compute-intensive models from being rebuilt:
 ```
 dbt build --select +model.vw_pin_shared_input --exclude location.* proximity.* --resource-types model seed
 ```
+
+### How do I enable debug logging?
+
+If you'd like to know what dbt is doing under the hood, you can use [the `--log-level`
+parameter](https://docs.getdbt.com/reference/global-configs/logs#log-level) to enable debug
+logging when running dbt commands:
+
+```
+dbt --log-level debug build --select model.vw_pin_shared_input
+```
