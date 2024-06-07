@@ -62,6 +62,7 @@ sources:
           - load_auto
 
 models:
+  - name: model.final_model_ephemeral
   - name: model.final_model
     description: '{{ doc("table_final_model") }}'
     columns:

@@ -262,3 +262,39 @@ models:
             - pin
       # TODO: Data completeness correlates with availability of spatial data
       # by year
+
+unit_tests:
+  - name: default_vw_pin_universe_class_no_special_chars
+    model: default.vw_pin_universe
+    given:
+      - input: source('iasworld', 'pardat')
+        rows:
+          - parid: "00000000000000"
+            taxyr: "2024"
+            cur: "Y"
+            deactivat: null
+            class: "2-9.9"
+      - input: source('iasworld', 'legdat')
+        rows:
+          - parid: "00000000000000"
+            taxyr: "2024"
+            cur: "Y"
+            deactivat: null
+            user1: "77"
+      - input: source('spatial', 'parcel')
+        rows:
+          - pin10: "0000000000"
+            year: "2024"
+      - input: ref('location.vw_pin10_location')
+        rows:
+          - pin10: "0000000000"
+            year: "2024"
+      - input: source('spatial', 'township')
+        rows:
+          - township_code: "77"
+      - input: source('ccao', 'corner_lot')
+        rows:
+          - pin10: "0000000000"
+    expect:
+      rows:
+        - class: "299"
