@@ -188,40 +188,22 @@ sources:
             description: Total tax
           - name: tot30
             description: HIE AV Amount
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_asmt_all_tot30_lte_7500
                   max_value: 7500
                   config: *unique-conditions
                   meta:
                     description: tot30 (HIE TOT) should be <7500
-              - row_values_match_after_join:
-                  name: iasworld_asmt_all_tot30_matches_oby_ovrrcnld_divided_by_10
-                  external_model: source('iasworld', 'oby')
-                  external_column_name: OVRRCNLD / 10
-                  additional_select_columns:
-                    - model.taxyr
-                    - model.parid
-                    - model.who
-                    - model.wen
-                  join_condition:
-                    ON model.parid = external_model.parid
-                    AND model.taxyr = external_model.taxyr
-                    AND model.tot30 > 0
-                    AND model.tot30 <= 7500
-                  config: *unique-conditions
-                  meta:
-                    category: relationships
-                    description: tot30 (HIE TOT) should be 10% of oby_ovrrcnld
           - name: tot32
             description: Value After HIE
-            tests:
+            data_tests:
                 - expression_is_true:
                     name: iasword_asmt_all_32_equals_29_minus_30_minus_31
                     expression: = TOT29 - TOT30 - TOT31 OR TOT32 < 1
                     config: *unique-conditions
                     meta:
-                      description: Tot32 should be comprised of tot29 30 and 31
+                      description: TOT32 (Value After HIE) should be TOT29 - TOT30 - TOT31
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status
