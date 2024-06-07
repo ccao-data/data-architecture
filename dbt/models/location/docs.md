@@ -19,7 +19,11 @@ parcel centroids.
 
 {% docs table_census_2010 %}
 Decennial Census geographies (tracts, block groups, etc.) intersected with
-parcel centroids. 2010 Census geographies only.
+parcel centroids from *all* years, not just those that existed in 2010. In
+actuality, we use 2012 since we don't have 2010 PUMA shapefiles. The
+purpose of this table is to be able to join data that uses static census
+geography over time to parcels from all years (currently just IHS Housing
+Index data).
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}

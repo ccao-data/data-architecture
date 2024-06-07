@@ -1050,6 +1050,15 @@ DePaul Institute of Housing Studies quarterly index.
 Averaged up to the yearly level. Unit of observation is Census PUMAs
 {% enddocs %}
 
+## ari
+
+{% docs shared_column_ari %}
+Illinois Housing Development Authority's Affordability Risk Index.
+
+It is unclear of IHDA's data timeline. Year currently refers to year of their data construction.
+0's in the database refer to information without enough data
+{% enddocs %}
+
 ## school_district_elementary_avg_rating
 
 {% docs shared_column_school_district_elementary_avg_rating %}
