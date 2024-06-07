@@ -84,7 +84,6 @@ SELECT
     dist_pin_to_secondary_road.nearest_secondary_road_dist_ft,
     dist_pin_to_secondary_road.nearest_secondary_road_data_year,
 
-    dist_pin_to_stadium.nearest_stadium_pin10,
     dist_pin_to_stadium.nearest_stadium_name,
     dist_pin_to_stadium.nearest_stadium_dist_ft,
     dist_pin_to_stadium.nearest_stadium_data_year,
