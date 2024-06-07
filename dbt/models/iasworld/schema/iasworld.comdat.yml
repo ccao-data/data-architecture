@@ -17,7 +17,7 @@ sources:
         columns:
           - name: adjfact
             description: '{{ doc("column_adjfact") }}'
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_comdat_adjfact_between_0_and_1
                   min_value: 0
@@ -45,7 +45,7 @@ sources:
             description: Gross building value
           - name: bldgval
             description: Building value
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_comdat_bldgval_between_0_and_1b
                   min_value: 0
@@ -62,7 +62,7 @@ sources:
             description: Exclude this record from income calculations
           - name: calc_meth
             description: '{{ doc("shared_column_calc_meth") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_comdat_calc_meth_accepted_values
                   values: ["E"]
@@ -78,7 +78,7 @@ sources:
                       calc_meth (Calculation Method) should be 'E' if not null
           - name: card
             description: '{{ doc("column_card") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_comdat_card_not_null
                   additional_select_columns: &select-columns-no-card
@@ -100,7 +100,7 @@ sources:
             description: '{{ doc("column_cdu") }}'
           - name: chgrsn
             description: '{{ doc("column_chgrsn") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_comdat_chgrsn_eq_5_or_5b_when_external_occpct_or_mktadj_not_null
                   values:
@@ -127,7 +127,7 @@ sources:
                       mktadj (Occupancy % [deprecated]) is not null
           - name: class
             description: '{{ doc("shared_column_class") }}'
-            tests:
+            data_tests:
               - relationships:
                   name: iasworld_comdat_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
@@ -145,7 +145,7 @@ sources:
                     description: class code must be valid
           - name: convbldg
             description: '{{ doc("column_convbldg") }}'
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_comdat_convbldg_between_0_and_1b
                   min_value: 0
@@ -158,7 +158,7 @@ sources:
             description: Cubic feet
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_comdat_cur_in_accepted_values
                   values: ['Y', 'D']
@@ -172,7 +172,7 @@ sources:
             description: '{{ doc("column_deactivat") }}'
           - name: depr
             description: Percent good from tables
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_comdat_depr_between_0_and_1
                   min_value: 0
@@ -191,7 +191,7 @@ sources:
             description: '{{ doc("column_excess") }}'
           - name: exmppct
             description: '{{ doc("column_exmppct") }}'
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_comdat_exmppct_between_0_and_100
                   min_value: 0
@@ -204,7 +204,7 @@ sources:
             description: '{{ doc("column_exmpval") }}'
           - name: external_calc_rcnld
             description: '{{ doc("shared_column_external_calc_rcnld") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_comdat_external_calc_rcnld_not_0
                   values: [0]
@@ -216,7 +216,7 @@ sources:
                       external_calc_rcnld (Net Market Value) should not be 0
           - name: external_occpct
             description: '{{ doc("shared_column_external_occpct") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_comdat_external_occpct_not_0
                   values: [0]
@@ -250,7 +250,7 @@ sources:
                       mktadj (Occupancy % [deprecated]) is null
           - name: external_propct
             description: '{{ doc("shared_column_external_propct") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_comdat_external_propct_not_0
                   values: [0]
@@ -262,7 +262,7 @@ sources:
                       external_propct (Proration %) should not be 0
           - name: external_rcnld
             description: '{{ doc("shared_column_external_rcnld") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_comdat_external_rcnld_not_0
                   values: [0]
@@ -288,7 +288,7 @@ sources:
             description: '{{ doc("shared_column_loaded_at") }}'
           - name: mktadj
             description: '{{ doc("column_mktadj") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_comdat_mktadj_not_null_when_chgrsn_eq_5_or_5b_and_external_occpct_is_null
                   additional_select_columns:
@@ -369,7 +369,7 @@ sources:
             description: '{{ doc("column_salekey") }}'
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
+            data_tests:
               - sequential_values:
                   name: iasworld_comdat_seq_all_sequential_exist
                   group_by_columns:
@@ -410,7 +410,7 @@ sources:
             description: '{{ doc("column_whocalc") }}'
           - name: yrblt
             description: '{{ doc("shared_column_char_yrblt") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_comdat_yrblt_not_null
                   additional_select_columns: *select-columns
@@ -426,7 +426,7 @@ sources:
                   meta:
                     description: yrblt should be between 1850 and now
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_comdat_unique_by_parid_card_taxyr
               combination_of_columns:

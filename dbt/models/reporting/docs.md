@@ -10,6 +10,15 @@ reporting Tableau dashboards.
 `property_group`
 {% enddocs %}
 
+# ratio_stats_input
+
+{% docs table_ratio_stats_input %}
+Table to feed the Python dbt job that creates the `reporting.ratio_stats` table.
+Feeds public reporting assets.
+
+**Primary Key**: `year`, `pin`, `assessment_stage`
+{% enddocs %}
+
 # res_report_summary
 
 {% docs table_res_report_summary %}
@@ -28,6 +37,15 @@ View for reporting total AVs and PIN counts per major class group, township,
 assessment stage, and year. Feeds public reporting assets.
 
 **Primary Key**: `year`, `township_name`, `class`, `stage`
+{% enddocs %}
+
+# vw_assessment_roll_muni
+
+{% docs view_vw_assessment_roll_muni %}
+View for reporting total AVs and PIN counts per major class group, municipality,
+assessment stage, and year. Feeds public reporting assets.
+
+**Primary Key**: `year`, `municipality_name`, `class`, `stage`
 {% enddocs %}
 
 # vw_pin_most_recent_boundary
@@ -79,15 +97,6 @@ The assessment stages are:
 **Primary Key**: `year`, `pin`, `stage_name`
 {% enddocs %}
 
-# vw_ratio_stats
-
-{% docs view_vw_ratio_stats %}
-View to feed the `reporting.ratio_stats` table and Glue job.
-Feeds public reporting assets.
-
-**Primary Key**: `year`, `pin`, `assessment_stage`
-{% enddocs %}
-
 # vw_res_report_summary
 
 {% docs view_vw_res_report_summary %}
@@ -105,7 +114,16 @@ Feeds public reporting assets.
 View to fetch the top five largest assessed values in a given township
 by year.
 
-**Primary Key**: `year`, `township`, `parid`
+**Primary Key**: `year`, `township`, `pin`
+{% enddocs %}
+
+# vw_top_5_muni
+
+{% docs view_vw_top_5_muni %}
+View to fetch the top five largest assessed values in a given municipality
+by year.
+
+**Primary Key**: `year`, `municipality`, `pin`
 {% enddocs %}
 
 # vw_town_sale_history

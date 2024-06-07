@@ -1,4 +1,7 @@
 seeds:
+  - name: ccao.adjective
+    description: '{{ doc("seed_adjective") }}'
+
   - name: ccao.class_dict
     description: '{{ doc("seed_class_dict") }}'
     config:
@@ -13,8 +16,6 @@ seeds:
         description: First digit of class code, major class
       - name: major_class_type
         description: Human-readable description of the major class
-      - name: assessment_level
-        description: Level of assessment for the property class
       - name: regression_class
         description: Boolean indicating whether or not this class isincluded in CAMA regressions
       - name: modeling_group
@@ -33,6 +34,40 @@ seeds:
         description: Double of minimum age for 200-class property codes
       - name: max_age
         description: Double of maximum age for 200-class property codes
+
+  - name: ccao.loa
+    description: '{{ doc("seed_loa") }}'
+    config:
+      column_types:
+        year: string
+        class_code: string
+
+    columns:
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
+      - name: class_code
+        description: '{{ doc("shared_column_class") }}'
+      - name: loa
+        description: |
+          Level of Assessment (LoA) for each year and property class. This
+          number is effectively the percentage of market/fair cash value on
+          which properties are assessed
+        data_tests:
+          - accepted_range:
+              name: loa_less_than_.38
+              max_value: .38
+              meta:
+                description: loa should be less than .38
+
+  - name: ccao.person
+    description: '{{ doc("seed_person") }}'
+
+    columns:
+      - name: person
+        description: Name of a former CCAO intern, fellow, or employee
+      - name: type
+        description: |
+          Type, one of: fte, intern, fellow
 
   - name: ccao.pin_test
     description: '{{ doc("seed_pin_test") }}'
