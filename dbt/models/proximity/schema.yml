@@ -197,6 +197,12 @@ models:
         description: '{{ doc("column_nearest_secondary_road_name") }}'
       - name: nearest_secondary_road_osm_id
         description: '{{ doc("column_nearest_secondary_road_osm_id") }}'
+      - name: nearest_stadium_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: nearest_stadium_dist_ft
+        description: '{{ doc("column_nearest_stadium_dist_ft") }}'
+      - name: nearest_stadium_name
+        description: '{{ doc("column_nearest_stadium_name") }}'
       - name: nearest_university_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_university_dist_ft
