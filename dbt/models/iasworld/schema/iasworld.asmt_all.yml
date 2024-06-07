@@ -190,11 +190,11 @@ sources:
             description: HIE AV Amount
             tests:
               - accepted_range:
-                  name: asmt_all_tot30_less_than_7500
+                  name: iasworld_asmt_all_tot30_lte_7500
                   max_value: 7500
                   config: *unique-conditions
                   meta:
-                    description: tot30 should be <7500
+                    description: tot30 (HIE TOT) should be <7500
               - row_values_match_after_join:
                   name: iasworld_asmt_all_tot30_matches_oby_ovrrcnld_divided_by_10
                   external_model: source('iasworld', 'oby')
@@ -208,11 +208,11 @@ sources:
                     ON model.parid = external_model.parid
                     AND model.taxyr = external_model.taxyr
                     AND model.tot30 > 0
-                    AND model.tot30 < 7500
+                    AND model.tot30 <= 7500
                   config: *unique-conditions
                   meta:
                     category: relationships
-                    description: tot30 should be 10% of oby_ovrrcnld
+                    description: tot30 (HIE TOT) should be 10% of oby_ovrrcnld
           - name: tot32
             description: Value After HIE
             tests:
