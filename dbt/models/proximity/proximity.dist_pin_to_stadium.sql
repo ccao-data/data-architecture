@@ -68,8 +68,8 @@ min_stadium_dist AS (
 -- Choose closest stadium per parcel
 SELECT
     pin10,
-    stadium_name,
-    stadium_dist_ft AS min_stadium_dist_ft,
+    stadium_name AS nearest_stadium_name,
+    stadium_dist_ft AS nearest_stadium_dist_ft,
     year AS nearest_stadium_data_year,
     year
 FROM min_stadium_dist
