@@ -75,18 +75,11 @@ distressed_communities_index AS (
     SELECT
         zcta.pin10,
         dci.year,
-        dci.dci,
-        zcta.year AS census_acs_data_year
+        dci.dci
     FROM {{ source('other', 'dci') }} AS dci
-    LEFT JOIN {{ ref('location', 'census_2010') }} AS zcta
-        ON dci.geoid = zcta.census_zcta_geoid
-        AND zcta.year = (
-            CASE
-                WHEN dci.year > (SELECT MAX(year) FROM zcta)
-                    THEN (SELECT MAX(year) FROM zcta)
-                ELSE dci.year
-            END
-        )
+    LEFT JOIN {{ ref('location.census_acs5') }} AS zcta
+        ON dci.geoid = zcta.census_acs5_tract_geoid
+        AND dci.year = zcta.year
 ),
 
 affordability_risk_index AS (
@@ -98,6 +91,24 @@ affordability_risk_index AS (
     LEFT JOIN {{ ref('location.census_acs5') }} AS tract
         ON ari.geoid = tract.census_acs5_tract_geoid
         AND ari.year = tract.year
+),
+
+affordability_risk_index AS (
+    SELECT
+        tract.pin10,
+        ari.year,
+        ari.ari_score AS ari,
+        tract.year AS census_acs5_data_year
+    FROM {{ source('other', 'ari') }} AS ari
+    LEFT JOIN {{ ref('location', 'census_acs5') }} AS tract
+        ON ari.geoid = tract.census_acs5_tract_geoid
+        AND CASE
+            WHEN
+                ari.year > (SELECT MAX(year) FROM tract)
+                THEN (SELECT MAX(year) FROM tract)
+            ELSE ari.year
+        END
+        = tract.year
 ),
 
 tax_bill_amount AS (
@@ -356,11 +367,11 @@ LEFT JOIN housing_index
     AND uni.year = housing_index.year
 LEFT JOIN distressed_communities_index
     ON uni.pin10 = distressed_communities_index.pin10
-    AND vwlf.census_acs5_data_year
-    = distressed_communities_index.census_acs_data_year
+    AND uni.year = distressed_communities_index.year
 LEFT JOIN affordability_risk_index
     ON uni.pin10 = affordability_risk_index.pin10
-    AND uni.year = affordability_risk_index.year
+    AND vwlf.census_acs5_data_year
+    = affordability_risk_index.census_acs_data_year
 LEFT JOIN tax_bill_amount AS tbill
     ON uni.pin = tbill.pin
     AND uni.year = tbill.year
