@@ -390,14 +390,6 @@ Nearest stadium distance (feet).
 Stadium locations sourced from Cook County GIS
 {% enddocs %}
 
-## nearest_stadium_code
-
-{% docs column_nearest_stadium_pin10 %}
-Nearest stadium Pin10.
-
-Stadium locations sourced from Cook County GIS
-{% enddocs %}
-
 ## nearest_stadium_name
 
 {% docs column_nearest_stadium_name %}
