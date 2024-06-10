@@ -184,6 +184,14 @@ Distance from each PIN to the nearest secondary road.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
+# dist_pin_to_stadium
+
+{% docs table_dist_pin_to_stadium %}
+Distance from each PIN to the nearest sports stadium.
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
 # dist_pin_to_university
 
 {% docs table_dist_pin_to_university %}

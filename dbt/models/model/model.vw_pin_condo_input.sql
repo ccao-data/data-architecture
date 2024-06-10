@@ -97,6 +97,7 @@ WITH uni AS (
         vpsi.prox_nearest_park_dist_ft,
         vpsi.prox_nearest_railroad_dist_ft,
         vpsi.prox_nearest_secondary_road_dist_ft,
+        vpsi.prox_nearest_stadium_dist_ft,
         vpsi.prox_nearest_university_dist_ft,
         vpsi.prox_nearest_vacant_land_dist_ft,
         vpsi.prox_nearest_water_dist_ft,

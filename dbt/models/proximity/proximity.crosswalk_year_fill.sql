@@ -48,6 +48,8 @@ WITH unfilled AS (
             AS nearest_railroad_data_year,
         MAX(dist_pin_to_secondary_road.nearest_secondary_road_data_year)
             AS nearest_secondary_road_data_year,
+        MAX(dist_pin_to_stadium.nearest_stadium_data_year)
+            AS nearest_stadium_data_year,
         MAX(dist_pin_to_university.nearest_university_data_year)
             AS nearest_university_data_year,
         MAX(dist_pin_to_vacant_land.nearest_vacant_land_data_year)
@@ -164,6 +166,13 @@ WITH unfilled AS (
         FROM {{ ref('proximity.dist_pin_to_secondary_road') }}
     ) AS dist_pin_to_secondary_road
         ON pin.year = dist_pin_to_secondary_road.year
+    LEFT JOIN (
+        SELECT DISTINCT
+            year,
+            nearest_stadium_data_year
+        FROM {{ ref('proximity.dist_pin_to_stadium') }}
+    ) AS dist_pin_to_stadium
+        ON pin.year = dist_pin_to_stadium.year
     LEFT JOIN (
         SELECT DISTINCT
             year,
@@ -292,6 +301,12 @@ SELECT
             IGNORE NULLS
             OVER (ORDER BY year DESC)
     ) AS nearest_secondary_road_data_year,
+    COALESCE(
+        nearest_stadium_data_year,
+        LAST_VALUE(nearest_stadium_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY year DESC)
+    ) AS nearest_stadium_data_year,
     COALESCE(
         nearest_university_data_year,
         LAST_VALUE(nearest_university_data_year)
