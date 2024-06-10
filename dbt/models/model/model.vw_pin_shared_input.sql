@@ -75,7 +75,7 @@ distressed_communities_index AS (
     SELECT
         zcta.pin10,
         dci.year,
-        dci.distressed_communities_index
+        dci.dci
     FROM {{ source('other', 'dci') }} AS dci
     LEFT JOIN {{ ref('location.census_acs5') }} AS zcta
         ON dci.geoid = zcta.census_acs5_tract_geoid
