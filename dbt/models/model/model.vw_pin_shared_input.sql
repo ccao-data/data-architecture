@@ -77,7 +77,7 @@ distressed_communities_index AS (
         dci.year,
         dci.dci
     FROM {{ source('other', 'dci') }} AS dci
-    LEFT JOIN {{ ref('location', 'census') }} AS zcta
+    LEFT JOIN {{ ref('location.census') }} AS zcta
         ON dci.geoid = zcta.census_zcta_geoid
         AND dci.year = zcta.year
 ),
@@ -89,7 +89,7 @@ affordability_risk_index AS (
         ari.ari_score AS ari,
         tract.year AS census_acs5_data_year
     FROM {{ source('other', 'ari') }} AS ari
-    LEFT JOIN {{ ref('location', 'census_acs5') }} AS tract
+    LEFT JOIN {{ ref('location.census_acs5') }} AS tract
         ON ari.geoid = tract.census_acs5_tract_geoid
         AND CASE
             WHEN
