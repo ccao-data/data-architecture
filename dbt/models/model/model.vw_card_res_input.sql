@@ -588,6 +588,7 @@ SELECT
     f1.acs5_percent_household_total_occupied_w_sel_cond,
     f1.other_ihs_avg_year_index,
     f1.other_dci,
+    f1.other_affordability_risk_index,
     f1.other_tax_bill_amount_total,
     f1.other_tax_bill_rate,
     CASE

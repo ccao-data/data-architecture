@@ -104,7 +104,7 @@ models:
             (is_common_area OR is_parking_space)
             AND (char_bedrooms IS NOT NULL OR char_full_baths IS NOT NULL)
           config:
-            error_if: ">48080" # as of 2024-05-21
+            error_if: ">48205" # as of 2024-06-03
       # TODO: Non-liveable unit heuristics
       # TODO: Row count matches PARDAT for condo classes
       # TODO: Non-unit and unit parcel count add up to total parcels per

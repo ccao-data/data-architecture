@@ -16,7 +16,6 @@ macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 asset-paths: ["assets"]
 
-
 # Directories to be removed by `dbt clean`
 clean-targets:
   - "target"
@@ -36,14 +35,6 @@ vars:
   # to a date in the future, but can also be use to select specific time
   # frames for testing
   test_qc_year_end: 2030
-
-  # Locations in S3 where Python model dependencies are stored. Since these
-  # locations vary by target, it would be nice if we could define them as target
-  # attributes in profiles.yml, but we can't add new profiles.yml attributes
-  # without extending dbt-athena so we define the locations here instead
-  s3_dependency_dir_dev: s3://ccao-dbt-athena-dev-us-east-1/dependencies
-  s3_dependency_dir_ci: s3://ccao-dbt-athena-ci-us-east-1/dependencies
-  s3_dependency_dir_prod: s3://ccao-athena-dependencies-us-east-1
 
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
@@ -68,7 +59,7 @@ models:
       +schema: sale
     qc:
       +schema: qc
-tests:
+data_tests:
   +schema: test_failure
 
 seeds:

@@ -55,6 +55,11 @@ acs5 AS (
     WHERE geography = 'tract'
 ),
 
+/* This CTAS uses location.census_2010 rather than joining onto a specific year
+from location.census because we need to join 2010 PUMA geometry to *all*
+parcels, not just those that existed in 2010 (or, in our case, 2012 since we
+don't have 2010 PUMA shapefiles). This is specific to the IHS data since it
+exists for many years but uses static geography. */
 housing_index AS (
     SELECT
         puma.pin10,
@@ -74,7 +79,17 @@ distressed_communities_index AS (
     FROM {{ source('other', 'dci') }} AS dci
     LEFT JOIN {{ ref('location.census_acs5') }} AS zcta
         ON dci.geoid = zcta.census_acs5_tract_geoid
-        AND CAST(zcta.year AS INTEGER) >= CAST(dci.year AS INTEGER)
+        AND CAST(zcta.year AS INTEGER) >= CAST(dci.year AS INTEGER),
+  
+affordability_risk_index AS (
+    SELECT
+        tract.pin10,
+        ari.year,
+        ari.ari_score AS ari
+    FROM {{ source('other', 'ari') }} AS ari
+    LEFT JOIN {{ ref('location.census_acs5') }} AS tract
+        ON ari.geoid = tract.census_acs5_tract_geoid
+        AND CAST(tract.year AS INTEGER) >= CAST(ari.year AS INTEGER)
 ),
 
 tax_bill_amount AS (
@@ -285,6 +300,9 @@ SELECT
     housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
     -- Distressed Community Index data
     distressed_communities_index.dci AS other_dci,
+    -- Affordability Risk Index data
+    affordability_risk_index.ari
+        AS other_affordability_risk_index,
     tbill.tot_tax_amt AS other_tax_bill_amount_total,
     tbill.tax_rate AS other_tax_bill_rate,
 
@@ -330,6 +348,9 @@ LEFT JOIN housing_index
 LEFT JOIN distressed_communities_index
     ON uni.pin10 = distressed_communities_index.pin10
     AND uni.year = distressed_communities_index.year
+LEFT JOIN affordability_risk_index
+    ON uni.pin10 = affordability_risk_index.pin10
+    AND uni.year = affordability_risk_index.year
 LEFT JOIN tax_bill_amount AS tbill
     ON uni.pin = tbill.pin
     AND uni.year = tbill.year
