@@ -366,7 +366,7 @@ LEFT JOIN housing_index
 LEFT JOIN distressed_communities_index
     ON uni.pin10 = distressed_communities_index.pin10
     AND vwlf.census_data_year
-    = distressed_communities_index.census_data_year
+    = distressed_communities_index.census_acs_data_year
 LEFT JOIN affordability_risk_index
     ON uni.pin10 = affordability_risk_index.pin10
     AND vwlf.census_data_year
