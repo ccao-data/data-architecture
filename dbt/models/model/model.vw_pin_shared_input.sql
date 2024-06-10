@@ -75,10 +75,11 @@ distressed_communities_index AS (
     SELECT
         zcta.pin10,
         dci.year,
-        dci.dci
+        dci.dci,
+        zcta.year AS census_acs_data_year
     FROM {{ source('other', 'dci') }} AS dci
-    LEFT JOIN {{ ref('location.census_acs5') }} AS zcta
-        ON dci.geoid = zcta.census_acs5_tract_geoid
+    LEFT JOIN {{ ref('location.census') }} AS zcta
+        ON dci.geoid = zcta.census_zcta_geoid
         AND CASE
             WHEN
                 dci.year > (SELECT MAX(year) FROM zcta)
@@ -96,13 +97,7 @@ affordability_risk_index AS (
     FROM {{ source('other', 'ari') }} AS ari
     LEFT JOIN {{ ref('location.census_acs5') }} AS tract
         ON ari.geoid = tract.census_acs5_tract_geoid
-        AND CASE
-            WHEN
-                ari.year > (SELECT MAX(year) FROM tract)
-                THEN (SELECT MAX(year) FROM tract)
-            ELSE ari.year
-        END
-        = tract.year
+        AND ari.year = tract.year
 ),
 
 tax_bill_amount AS (
@@ -361,7 +356,8 @@ LEFT JOIN housing_index
     AND uni.year = housing_index.year
 LEFT JOIN distressed_communities_index
     ON uni.pin10 = distressed_communities_index.pin10
-    AND uni.year = distressed_communities_index.year
+    AND vwlf.census_acs5_data_year
+    = distressed_communities_index.census_acs_data_year
 LEFT JOIN affordability_risk_index
     ON uni.pin10 = affordability_risk_index.pin10
     AND uni.year = affordability_risk_index.year
