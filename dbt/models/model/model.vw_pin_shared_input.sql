@@ -81,12 +81,10 @@ distressed_communities_index AS (
     LEFT JOIN {{ ref('location.census') }} AS zcta
         ON dci.geoid = zcta.census_zcta_geoid
         AND CASE
-            WHEN
-                dci.year > (SELECT MAX(year) FROM zcta)
-                THEN (SELECT MAX(year) FROM zcta)
+            WHEN dci.year > (SELECT MAX(year) FROM {{ ref('location.census') }})
+                THEN (SELECT MAX(year) FROM {{ ref('location.census') }})
             ELSE dci.year
-        END
-        = zcta.year
+        END = zcta.year
 ),
 
 affordability_risk_index AS (
