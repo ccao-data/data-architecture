@@ -75,7 +75,7 @@ distressed_communities_index AS (
     SELECT
         zcta.pin10,
         dci.year,
-        dci.dci
+        dci.distressed_communities_index
     FROM {{ source('other', 'dci') }} AS dci
     LEFT JOIN {{ ref('location.census_acs5') }} AS zcta
         ON dci.geoid = zcta.census_acs5_tract_geoid
@@ -300,7 +300,8 @@ SELECT
     -- Institute for Housing Studies data
     housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
     -- Distressed Community Index data
-    distressed_communities_index.dci AS other_dci,
+    distressed_communities_index.dci
+        AS other_distressed_community_index,
     -- Affordability Risk Index data
     affordability_risk_index.ari
         AS other_affordability_risk_index,
