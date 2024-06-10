@@ -360,7 +360,7 @@ LEFT JOIN distressed_communities_index
     AND uni.year = distressed_communities_index.year
 LEFT JOIN affordability_risk_index
     ON uni.pin10 = affordability_risk_index.pin10
-    AND vwlf.census_acs5_data_year
+    AND vwlf.census_data_year
     = affordability_risk_index.census_acs5_data_year
 LEFT JOIN tax_bill_amount AS tbill
     ON uni.pin = tbill.pin
