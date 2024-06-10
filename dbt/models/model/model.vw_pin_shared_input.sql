@@ -76,7 +76,7 @@ distressed_communities_index AS (
         zcta.pin10,
         dci.year,
         dci.dci,
-        zcta.year AS census_acs_data_year
+        zcta.year AS census_data_year
     FROM {{ source('other', 'dci') }} AS dci
     LEFT JOIN {{ ref('location.census') }} AS zcta
         ON dci.geoid = zcta.census_zcta_geoid
@@ -366,7 +366,7 @@ LEFT JOIN housing_index
 LEFT JOIN distressed_communities_index
     ON uni.pin10 = distressed_communities_index.pin10
     AND vwlf.census_data_year
-    = distressed_communities_index.census_acs_data_year
+    = distressed_communities_index.census_data_year
 LEFT JOIN affordability_risk_index
     ON uni.pin10 = affordability_risk_index.pin10
     AND vwlf.census_data_year
