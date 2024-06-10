@@ -93,8 +93,9 @@ affordability_risk_index AS (
         ON ari.geoid = tract.census_acs5_tract_geoid
         AND CASE
             WHEN
-                ari.year > (SELECT MAX(year) FROM tract)
-                THEN (SELECT MAX(year) FROM tract)
+                ari.year
+                > (SELECT MAX(year) FROM {{ ref('location.census_acs5') }})
+                THEN (SELECT MAX(year) FROM {{ ref('location.census_acs5') }})
             ELSE ari.year
         END
         = tract.year
