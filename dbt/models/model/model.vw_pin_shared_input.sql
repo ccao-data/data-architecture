@@ -78,7 +78,7 @@ distressed_communities_index AS (
         dci.dci,
         zcta.year AS census_acs_data_year
     FROM {{ source('other', 'dci') }} AS dci
-    LEFT JOIN {{ ref('location', 'census') }} AS zcta
+    LEFT JOIN {{ ref('location', 'census_2010') }} AS zcta
         ON dci.geoid = zcta.census_zcta_geoid
         AND zcta.year = (
             CASE
