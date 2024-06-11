@@ -199,9 +199,9 @@ def model(dbt, spark_session):
   that are not [preinstalled in the Athena PySpark
   environment](https://docs.aws.amazon.com/athena/latest/ug/notebooks-spark-preinstalled-python-libraries.html),
   include them and their dependencies in the `config.packages` attribute and
-  in your model code (see [A note on third-party pure Python dependencies for Python
+  in your model code. See [A note on third-party pure Python dependencies for Python
   models](/ccao-data/data-architecture/tree/master/dbt#a-note-on-third-party-pure-python-dependencies-for-python-models)
-  for more details).
+  for more details.
 
 ```diff
 # Example
