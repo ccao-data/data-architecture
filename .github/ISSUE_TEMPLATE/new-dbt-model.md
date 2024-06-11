@@ -18,7 +18,7 @@ _(Brief description of the task here.)_
  naming](/ccao-data/data-architecture/tree/master/dbt#model-naming) for guidance.)_
 * **Model type**: _(SQL or Python? See [Model type (SQL or
   Python)](/ccao-data/data-architecture/tree/master/dbt#model-type-sql-or-python)
-  for guidance.)
+  for guidance.)_
 * **Materialization**: _(Should the model be a table or a view? See [Model
   materialization](/ccao-data/data-architecture/tree/master/dbt#model-materialization) for
   guidance.)_
@@ -110,7 +110,7 @@ touch dbt/models/proximity/proximity.new_model.py
   reference other models where possible in your query or script.
 
 ```sql
--- View or table example
+-- SQL view or table example
 -- Either dbt/models/default/default.vw_new_model.sql
 -- or dbt/models/default/default.new_model.sql
 select pin10, year
