@@ -1,22 +1,20 @@
-# This script generates aggregated summary stats on sales data across a number
-# of geographies, class combinations, and time.
-
+# This script generates aggregated summary stats on taxes and exemptions data
+# across a number of geographies, class combinations, and time.
+# %%
 import os.path
-import statistics as stats
 
 # Import libraries
 import awswrangler as wr
-import numpy as np
 import pandas as pd
 
 # Ingest data if it is not already available
-if os.path.isfile("sot_sales.parquet.gzip"):
-    df = pd.read_parquet("sot_sales.parquet.gzip")
+if os.path.isfile("sot_taxes_exemptions.parquet.gzip"):
+    df = pd.read_parquet("sot_taxes_exemptions.parquet.gzip")
 
 else:
-    sql = open("reporting.sot_sales.sql").read()
+    sql = open("reporting.sot_taxes_exemptions.sql").read()
     df = wr.athena.read_sql_query(sql, database="default", ctas_approach=False)
-    df.to_parquet("sot_sales.parquet.gzip", compression="gzip")
+    df.to_parquet("sot_taxes_exemptions.parquet.gzip", compression="gzip")
 
 # Declare geographic groups and their associated data years
 geos = {
@@ -55,6 +53,7 @@ geos = {
 groups = ["no_group", "class", "major_class", "modeling_group"]
 
 
+# %%
 # Define aggregation functions
 def q10(x):
     return x.quantile(0.1)
@@ -88,19 +87,29 @@ more_stats = [
     "sum",
 ]
 
+less_stats = ["count", "sum"]
+
 agg_func_math = {
-    "sale_price": ["size", "count"] + more_stats,
-    "price_per_sf": more_stats,
-    "char_bldg_sf": ["median"],
-    "char_land_sf": ["median"],
-    "char_yrblt": ["median"],
-    "class": [stats.multimode],
-    "data_year": [first],
+    "eq_factor_final": ["size", first],
+    "eq_factor_tentative": [first],
+    "tax_bill_total": more_stats,
+    "tax_code_rate": more_stats,
+    "av_clerk": more_stats,
+    "exe_homeowner": less_stats,
+    "exe_senior": less_stats,
+    "exe_freeze": less_stats,
+    "exe_longtime_homeowner": less_stats,
+    "exe_disabled": less_stats,
+    "exe_vet_returning": less_stats,
+    "exe_vet_dis_lt50": less_stats,
+    "exe_vet_dis_50_69": less_stats,
+    "exe_vet_dis_ge70": less_stats,
+    "exe_abate": less_stats,
 }
 
 # Create an empty dataframe to fill with output
 output = pd.DataFrame()
-
+# %%
 # Loop through group combinations and stack output
 for key, value in geos.items():
     df["data_year"] = df[key]
@@ -125,13 +134,8 @@ for key, value in geos.items():
             output = pd.concat([output, summary])
 
 # Clean combined output and export
-output["sale_price", "sum"] = output["sale_price", "sum"].replace(0, np.NaN)
-output["price_per_sf", "sum"] = output["price_per_sf", "sum"].replace(
-    0, np.NaN
-)
-
 for i in ["median", "mean", "sum"]:
-    output["sale_price", "delta" + i] = output["sale_price", i].diff()
-    output["price_per_sf", "delta" + i] = output["price_per_sf", i].diff()
+    output["tax_bill_total", "delta" + i] = output["tax_bill_total", i].diff()
 
-output.to_csv("sot_sales.csv")
+output.to_csv("sot_taxes_exemptions.csv")
+# %%
