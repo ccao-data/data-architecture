@@ -840,7 +840,7 @@ Year the property was constructed
 {% docs shared_column_card %}
 Sub-unit of a PIN.
 
-For residential properties, cards usually identify each *building*, For
+For residential properties, cards usually identify each _building_, For
 commercial properties, they can identify spaces within the same building.
 Cards also serve as the unit of observation for the residential model.
 
@@ -870,6 +870,7 @@ purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
 ## is_active_exe_homeowner
+
 {% docs shared_column_is_active_exe_homeowner %}
 Parcel has an active homeowner exemption
 {% enddocs %}
@@ -1300,9 +1301,27 @@ with `sv_is_ptax_outlier` (using OR logic).
 NOTE: Outlier flags only exist for sales _after_ 2014.
 {% enddocs %}
 
-## sv_outlier_type
+## sv_outlier_reason1
 
-{% docs shared_column_sv_outlier_type %}
+{% docs shared_column_sv_outlier_reason1 %}
+Heuristic or model used to flag an outlier.
+
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
+for a list of possible flags.
+{% enddocs %}
+
+## sv_outlier_reason2
+
+{% docs shared_column_sv_outlier_reason2 %}
+Heuristic or model used to flag an outlier.
+
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
+for a list of possible flags.
+{% enddocs %}
+
+## sv_outlier_reason3
+
+{% docs shared_column_sv_outlier_reason3 %}
 Heuristic or model used to flag an outlier.
 
 See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo

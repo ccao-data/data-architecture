@@ -25,8 +25,12 @@ sources:
             description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
           - name: sv_is_outlier
             description: '{{ doc("shared_column_sv_is_outlier") }}'
-          - name: sv_outlier_type
-            description: '{{ doc("shared_column_sv_outlier_type") }}'
+          - name: sv_outlier_reason1
+            description: '{{ doc("shared_column_sv_outlier_reason1") }}'
+          - name: sv_outlier_reason1
+            description: '{{ doc("shared_column_sv_outlier_reason2") }}'
+          - name: sv_outlier_reason1
+            description: '{{ doc("shared_column_sv_outlier_reason3") }}'
           - name: version
             description: '{{ doc("shared_column_sv_version") }}'
 
@@ -169,5 +173,9 @@ models:
         description: '{{ doc("shared_column_sale_key") }}'
       - name: sv_is_outlier
         description: '{{ doc("shared_column_sv_is_outlier") }}'
-      - name: sv_outlier_type
-        description: '{{ doc("shared_column_sv_outlier_type") }}'
+      - name: sv_outlier_reason1
+        description: '{{ doc("shared_column_sv_outlier_reason1") }}'
+      - name: sv_outlier_reason2
+        description: '{{ doc("shared_column_sv_outlier_reason2") }}'
+      - name: sv_outlier_reason3
+        description: '{{ doc("shared_column_sv_outlier_reason3") }}'
