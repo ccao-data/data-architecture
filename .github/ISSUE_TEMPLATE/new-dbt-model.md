@@ -41,7 +41,8 @@ Otherwise, delete it in favor of the long checklist in the following section.)_
 - [ ] Define the SQL query or Python script that creates the model in the model
   subdirectory, following any existing file naming schema
 - [ ] Use `source()` and `ref()` to reference other models where possible
-- [ ] Optionally configure model materialization within the query or script file
+- [ ] _[SQL models only]_ Optionally configure model materialization in the
+  query file
 - [ ] Update the `schema.yml` file in the subfolder of `dbt/models/` to point
   to the new model definition
 - [ ] _[Python models only]_ Configure any third-party pure Python packages
@@ -129,12 +130,11 @@ def model(dbt, spark_session):
     dbt.write(result[["pin10", "year"]])
 ```
 
-- [ ] Optionally configure model materialization. If the output of the query
-  should be a view, no action is necessary, since the default for all models in
-  this repository is to materialize as views; but if the output should be a
-  table, with table data stored in S3, then you'll need to add a config block
-  to the top of the view to configure materialization. Note that all Python
-  models must be materialized as tables.
+- [ ] _[SQL models only]_ Optionally configure model materialization. If the
+  output of the query should be a view, no action is necessary, since the
+  default for all models in this repository is to materialize as views; but if
+  the output should be a table, with table data stored in S3, then you'll need
+  to add a config block to the top of the view to configure materialization.
 
 ```diff
 # Table example
@@ -152,20 +152,6 @@ select pin10, year
 from {{ source('raw', 'foobar') }}
 join {{ ref('default.vw_pin_universe') }}
 using (pin10, year)
-```
-
-```diff
-# Python model example
---- dbt/models/default/default.new_model.py
-+++ dbt/models/default/default.new_model.py
-import pandas as pd
-
-def model(dbt, spark_session):
-+    dbt.config(materialized="table")
-    raw_foobar = dbt.source("raw", "foobar")
-    vw_pin_universe = dbt.ref("default.vw_pin_universe")
-    result = pd.merge(raw_foobar, vw_pin_universe, on=["pin10", "year"])
-    dbt.write(result[["pin10", "year"]])
 ```
 
 - [ ] Update the `schema.yml` file in the subfolder of `dbt/models/` where you
