@@ -44,9 +44,7 @@ Otherwise, delete it in favor of the long checklist in the following section.)_
 - [ ] Optionally configure model materialization within the query or script file
 - [ ] Update the `schema.yml` file in the subfolder of `dbt/models/` to point
   to the new model definition
-- [ ] _[Python models only]_ Configure any third-party pure Python packages in
-  the `config.packages` attribute of your model schema definition and in the
-  script file
+- [ ] _[Python models only]_ Configure any third-party pure Python packages
 - [ ] Add tests to the model schema definition in `schema.yml`
 - [ ] _[SQL models only]_ If your model definition requires any new macros, make
   sure those macros are tested in `dbt/macros/tests/test_all.sql`
@@ -198,49 +196,8 @@ def model(dbt, spark_session):
 - [ ] _[Python models only]_ If you need any third-party pure Python packages
   that are not [preinstalled in the Athena PySpark
   environment](https://docs.aws.amazon.com/athena/latest/ug/notebooks-spark-preinstalled-python-libraries.html),
-  include them and their dependencies in the `config.packages` attribute and
-  in your model code. See [A note on third-party pure Python dependencies for Python
-  models](/ccao-data/data-architecture/tree/master/dbt#a-note-on-third-party-pure-python-dependencies-for-python-models)
-  for more details.
-
-```diff
-# Example
---- a/dbt/models/default/schema.yml
-+++ b/dbt/models/default/schema.yml
- models:
-  - name: default.new_model
-    description: New model
-+    config:
-+      packages:
-+        - "assesspy==1.1.0"
-    columns:
-      - name: pin10
-        description: 10-digit PIN
-      - name: year
-        description: Year
-```
-
-```diff
-# Example
---- dbt/models/default/default.new_model.py
-+++ dbt/models/default/default.new_model.py
-+ # pylint: skip-file
-+ # type: ignore
-+ sc.addPyFile(  # noqa: F821
-+     "s3://ccao-athena-dependencies-us-east-1/assesspy==1.1.0.zip"
-+ )
-+
-+ import assesspy
-import pandas as pd
-
-def model(dbt, spark_session):
-    dbt.config(materialized="table")
-    raw_foobar = dbt.source("raw", "foobar")
-    vw_pin_universe = dbt.ref("default.vw_pin_universe")
-    result = pd.merge(raw_foobar, vw_pin_universe, on=["pin10", "year"])
-    dbt.write(result[["pin10", "year"]])
-
-```
+  follow [the docs for configuring Python model
+  dependencies](/ccao-data/data-architecture/tree/master/dbt#a-note-on-third-party-pure-python-dependencies-for-python-models).
 
 - [ ] Add tests to your new model definition in `schema.yml`.
 
