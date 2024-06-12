@@ -1,5 +1,6 @@
-# This script generates aggregated summary stats on taxes and exemptions data
-# across a number of geographies, class combinations, and time.
+# This script generates aggregated summary stats on sales data across a number
+# of geographies, class combinations, and time.
+
 import os.path
 
 # Import libraries
@@ -7,13 +8,13 @@ import awswrangler as wr
 import pandas as pd
 
 # Ingest data if it is not already available
-if os.path.isfile("sot_taxes_exemptions.parquet.gzip"):
-    df = pd.read_parquet("sot_taxes_exemptions.parquet.gzip")
+if os.path.isfile("sot_assessment_roll.parquet.gzip"):
+    df = pd.read_parquet("sot_assessment_roll.parquet.gzip")
 
 else:
-    sql = open("reporting.sot_taxes_exemptions.sql").read()
+    sql = open("reporting.sot_assessment_roll.sql").read()
     df = wr.athena.read_sql_query(sql, database="default", ctas_approach=False)
-    df.to_parquet("sot_taxes_exemptions.parquet.gzip", compression="gzip")
+    df.to_parquet("sot_assessment_roll.parquet.gzip", compression="gzip")
 
 # Declare geographic groups and their associated data years
 geos = {
@@ -49,7 +50,7 @@ geos = {
     ],
 }
 # Declare class groupings
-groups = ["no_group", "class", "major_class", "modeling_group"]
+groups = ["no_group", "class", "major_class", "modeling_group", "stage_name"]
 
 
 # Define aggregation functions
@@ -73,6 +74,27 @@ def first(x):
     return x.iloc[0]
 
 
+def aggregrate(data, geography_type, group_type):
+    print(geography_type, group_type)
+
+    group = [geography_type, group_type, "year"]
+    summary = data.groupby(group).agg(stats).round(2)
+    summary["geography_type"] = geography_type
+    summary["group_type"] = group_type
+    summary.index.names = ["geography_id", "group_id", "year"]
+    summary = summary.reset_index().set_index(
+        [
+            "geography_type",
+            "geography_id",
+            "group_type",
+            "group_id",
+            "year",
+        ]
+    )
+
+    return summary
+
+
 more_stats = [
     "min",
     q10,
@@ -85,53 +107,30 @@ more_stats = [
     "sum",
 ]
 
-less_stats = ["count", "sum"]
-
-agg_func_math = {
-    "eq_factor_final": ["size", first],
-    "eq_factor_tentative": [first],
-    "tax_bill_total": more_stats,
-    "tax_code_rate": more_stats,
-    "av_clerk": more_stats,
-    "exe_homeowner": less_stats,
-    "exe_senior": less_stats,
-    "exe_freeze": less_stats,
-    "exe_longtime_homeowner": less_stats,
-    "exe_disabled": less_stats,
-    "exe_vet_returning": less_stats,
-    "exe_vet_dis_lt50": less_stats,
-    "exe_vet_dis_50_69": less_stats,
-    "exe_vet_dis_ge70": less_stats,
-    "exe_abate": less_stats,
+stats = {
+    "size": first,
+    "tot": ["count"] + more_stats,
+    "bldg": more_stats,
+    "land": more_stats,
 }
 
 # Create an empty dataframe to fill with output
 output = pd.DataFrame()
+
 # Loop through group combinations and stack output
 for key, value in geos.items():
     df["data_year"] = df[key]
 
     for x in value:
         for z in groups:
-            group = [x, z, "year"]
-            summary = df.groupby(group).agg(agg_func_math).round(2)
-            summary["geography_type"] = x
-            summary["group_type"] = z
-            summary.index.names = ["geography_id", "group_id", "year"]
-            summary = summary.reset_index().set_index(
-                [
-                    "geography_type",
-                    "geography_id",
-                    "group_type",
-                    "group_id",
-                    "year",
-                ]
-            )
-
-            output = pd.concat([output, summary])
+            output = pd.concat([output, aggregrate(df, x, z)])
 
 # Clean combined output and export
 for i in ["median", "mean", "sum"]:
-    output["tax_bill_total", "delta" + i] = output["tax_bill_total", i].diff()
+    output["tot", "delta" + i] = output["tot", i].diff()
+    output["bldg", "delta" + i] = output["bldg", i].diff()
+    output["land", "delta" + i] = output["land", i].diff()
 
-output.to_csv("sot_taxes_exemptions.csv")
+output["tot", "pct_w_value"] = output["tot", "count"] / output["size", "first"]
+
+output.to_csv("sot_assessment_roll.csv")
