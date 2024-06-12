@@ -16,7 +16,7 @@ sources:
         columns:
           - name: class
             description: '{{ doc("shared_column_class") }}'
-            tests:
+            data_tests:
               - relationships:
                   name: iasworld_asmt_all_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
@@ -68,7 +68,7 @@ sources:
                       class should be EX if pardat class is EX
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_asmt_all_cur_in_accepted_values
                   values: ['Y', 'D', 'N']
@@ -98,7 +98,7 @@ sources:
             description: Override value for taxes
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_asmt_all_parid_not_null
                   additional_select_columns: &select-columns-no-parid
@@ -121,7 +121,7 @@ sources:
             description: '{{ doc("column_procdate") }}'
           - name: procname
             description: '{{ doc("column_procname") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_asmt_all_procname_in_accepted_values
                   values: ['CCAOVALUE', 'CCAOFINAL', 'BORVALUE', 'CONVERT']
@@ -139,7 +139,7 @@ sources:
             description: Reason code for change in assessed value
           - name: rolltype
             description: '{{ doc("column_rolltype") }}'
-            tests:
+            data_tests:
               - not_accepted_values:
                   name: iasworld_asmt_all_rolltype_not_rr
                   values: ['RR']
@@ -153,7 +153,7 @@ sources:
                     description: rolltype RR should not exist
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
+            data_tests:
               - sequential_values:
                   name: iasworld_asmt_all_seq_all_sequential_exist
                   group_by_columns:
@@ -174,7 +174,7 @@ sources:
             description: Flag to indicate assessment record used in tax calculation
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_asmt_all_taxyr_not_null
                   additional_select_columns:
@@ -186,6 +186,24 @@ sources:
                     description: taxyr should not be null
           - name: tottax
             description: Total tax
+          - name: tot30
+            description: HIE AV Amount
+            data_tests:
+              - accepted_range:
+                  name: iasworld_asmt_all_tot30_lte_7500
+                  max_value: 7500
+                  config: *unique-conditions
+                  meta:
+                    description: tot30 (HIE TOT) should be <7500
+          - name: tot32
+            description: Value After HIE
+            data_tests:
+                - expression_is_true:
+                    name: iasword_asmt_all_32_equals_29_minus_30_minus_31
+                    expression: = tot29 - tot30 - tot31 OR tot32 < 1
+                    config: *unique-conditions
+                    meta:
+                      description: TOT32 (Value After HIE) should be TOT29 - TOT30 - TOT31
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status
@@ -198,7 +216,7 @@ sources:
             description: '{{ doc("column_valapr3") }}'
           - name: valasm1
             description: '{{ doc("column_valasm1") }}'
-            tests:
+            data_tests:
               - accepted_range: &incorrect-asmt-value-gt-0
                   name: iasworld_asmt_all_valasm1_non_ex_rr_gt_0
                   min_value: 0
@@ -223,7 +241,7 @@ sources:
                       valasm1 (ASMT LAND) should be >= 0 if class is not EX or RR
           - name: valasm2
             description: '{{ doc("column_valasm2") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_asmt_all_valasm2_vact_class_has_val
                   values: [0]
@@ -270,7 +288,7 @@ sources:
                   <<: *incorrect-asmt-value-gt-0
           - name: valasm3
             description: '{{ doc("column_valasm3") }}'
-            tests:
+            data_tests:
               - accepted_range:
                   name: iasworld_asmt_all_valasm3_non_ex_rr_gt_0
                   meta:

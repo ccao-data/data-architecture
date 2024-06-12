@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # Every day at 8am (2pm UTC-5)
-    - cron: '0 13 * * *'
+    - cron: '0 12 * * *'
 
 jobs:
    build-daily-dbt-models:
@@ -22,7 +22,7 @@ jobs:
         uses: ./.github/actions/setup_dbt
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
-          role-duration-seconds: 900
+          role-duration-seconds: 14400  # Worst-case time for full build
 
       - name: Restore dbt state cache
         id: cache
@@ -30,6 +30,11 @@ jobs:
         with:
           path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
           key: ${{ env.CACHE_KEY }}
+
+      - name: Deploy model dependencies
+        run: ../.github/scripts/deploy_dbt_model_dependencies.sh
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
 
       - name: Build daily models
         run: dbt run -t "$TARGET" -s tag:daily --defer --state "$STATE_DIR"

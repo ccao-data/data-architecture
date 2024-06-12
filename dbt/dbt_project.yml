@@ -1,4 +1,4 @@
-name: 'athena'
+name: 'ccao_data_athena'
 version: '0.1.0'
 
 # This setting configures which "profile" dbt uses for this project.
@@ -16,15 +16,14 @@ macro-paths: ["macros"]
 snapshot-paths: ["snapshots"]
 asset-paths: ["assets"]
 
-
 # Directories to be removed by `dbt clean`
 clean-targets:
   - "target"
   - "dbt_packages"
 
 # Variables that can change with invocation of dbt commands. Note that we parse
-# these variables by name in scripts, so if you change their names, make sure
-# you check all of our scripts and adjust them accordingly
+# the test_* variables by name in scripts, so if you change their names, make
+# sure you check all of our scripts and adjust them accordingly
 vars:
   # Start year for testing data using test_qc_* tagged dbt tests. Typically
   # this should be the current year, since errors in past data cannot usually
@@ -40,7 +39,7 @@ vars:
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 models:
-  athena:
+  ccao_data_athena:
     +materialized: view
     +write_compression: zstd
     +format: parquet
@@ -56,17 +55,15 @@ models:
       +schema: proximity
     reporting:
       +schema: reporting
-    rpie:
-      +schema: rpie
     sale:
       +schema: sale
     qc:
       +schema: qc
-tests:
+data_tests:
   +schema: test_failure
 
 seeds:
-  athena:
+  ccao_data_athena:
     ccao:
       +schema: ccao
     location:

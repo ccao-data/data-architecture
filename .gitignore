@@ -1,18 +1,22 @@
-.Rproj.user
+# Files
 *.Rproj
-.Rhistory
-.RData
-.Ruserdata
-.DS_Store
 *.geojson
 *.parquet
-!open_data_info.csv
-aws-s3/parcel-tmp
-aws-s3/scripts-ccao-data-raw-us-east-1/corner-lot-raw/
+*.gzip
+.DS_Store
+.RData
+.Rhistory
+.Rproj.user
+.Ruserdata
 package*.json
-node_modules/
+settings.json
+
+# Directories
 logs/
+node_modules/
+venv/
 
 # Ignore most CSVs, except those that are used as dbt seeds
 *.csv
 !dbt/seeds/**/*.csv
+

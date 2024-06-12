@@ -25,7 +25,7 @@ models:
         description: '{{ doc("shared_column_township_name") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
-    tests:
+    data_tests:
       - row_count:
           name: default_vw_pin_exempt_row_count
           above: 184845 # as of 2023-11-22

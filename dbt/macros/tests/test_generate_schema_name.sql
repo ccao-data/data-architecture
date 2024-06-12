@@ -5,13 +5,6 @@
     {% do test_generate_schema_name_raises_for_default_schema_name() %}
 {% endmacro %}
 
-{% macro mock_env_var(var_name) %}
-    {% if var_name == "USER" %} {{ return("testuser") }}
-    {% elif var_name == "HEAD_REF" %} {{ return("testuser/feature-branch-1") }}
-    {% else %} {{ return("") }}
-    {% endif %}
-{% endmacro %}
-
 {% macro test_generate_schema_name_handles_dev_env() %}
     {% do assert_equals(
         "test_generate_schema_name_handles_dev_env",
@@ -22,7 +15,7 @@
             mock_env_var,
             exceptions.raise_compiler_error,
         ),
-        "z_dev_testuser_test",
+        "z_dev_test_user_test",
     ) %}
 {% endmacro %}
 
@@ -36,7 +29,7 @@
             mock_env_var,
             exceptions.raise_compiler_error,
         ),
-        "z_ci_testuser-feature-branch-1_test",
+        "z_ci_testuser_feature_branch_1_test",
     ) %}
 {% endmacro %}
 

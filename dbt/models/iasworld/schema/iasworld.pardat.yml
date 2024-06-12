@@ -74,7 +74,7 @@ sources:
             description: '{{ doc("column_cityname") }}'
           - name: class
             description: '{{ doc("shared_column_class") }}'
-            tests:
+            data_tests:
               - relationships:
                   name: iasworld_pardat_class_in_ccao_class_dict
                   to: source('ccao', 'class_dict')
@@ -113,7 +113,7 @@ sources:
                     description: class should be the same as luc
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_pardat_cur_in_accepted_values
                   values: ['Y', 'D']
@@ -167,7 +167,7 @@ sources:
             description: Jurisdictions (Municipalities) used as part of Folio number (BCA)
           - name: nbhd
             description: '{{ doc("shared_column_nbhd_code") }}'
-            tests:
+            data_tests:
             - row_values_match_after_join:
                 name: iasworld_pardat_nbhd_matches_legdat_township
                 external_model: source('iasworld', 'legdat')
@@ -247,7 +247,7 @@ sources:
             description: Security field
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
+            data_tests:
               - sequential_values:
                   name: iasworld_pardat_seq_all_sequential_exist
                   group_by_columns:
@@ -281,8 +281,8 @@ sources:
             description: '{{ doc("shared_column_year") }}'
           - name: tieback
             description: '{{ doc("shared_column_tieback_key_pin") }}'
-            tests:
-              - expression_is_true: 
+            data_tests:
+              - expression_is_true:
                   name: iasworld_pardat_tieback_does_not_contain_hyphen
                   expression: not like '%-%'
                   additional_select_columns: *select-columns
@@ -290,6 +290,10 @@ sources:
                   meta:
                     category: incorrect_values
                     description: tieback should not contain hyphens
+                  tags:
+                    # Valuations can't act on these failures since hyphens are
+                    # not distinguishable in the iasWorld UI
+                    - test_qc_exclude_from_workbook
           - name: tiebkcd
             description: Tieback code
           - name: tiebldgpct
@@ -335,7 +339,7 @@ sources:
           - name: zip2
             description: '{{ doc("column_zip2") }}'
 
-        tests:
+        data_tests:
           - column_is_subset_of_external_column:
               name: iasworld_pardat_nbhd_matches_spatial_town_nbhd
               column: nbhd
