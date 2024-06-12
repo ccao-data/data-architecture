@@ -243,7 +243,9 @@ sales_val AS (
         sf.sv_is_outlier,
         sf.sv_is_ptax_outlier,
         sf.sv_is_heuristic_outlier,
-        sf.sv_outlier_type,
+        sf.sv_outlier_reason1,
+        sf.sv_outlier_reason2,
+        sf.sv_outlier_reason3,
         sf.run_id AS sv_run_id,
         sf.version AS sv_version
     FROM {{ source('sale', 'flag') }} AS sf
@@ -325,7 +327,9 @@ SELECT
     sales_val.sv_is_outlier,
     sales_val.sv_is_ptax_outlier,
     sales_val.sv_is_heuristic_outlier,
-    sales_val.sv_outlier_type,
+    sales_val.sv_outlier_reason1,
+    sales_val.sv_outlier_reason2,
+    sales_val.sv_outlier_reason3,
     sales_val.sv_run_id,
     sales_val.sv_version
 FROM unique_sales
