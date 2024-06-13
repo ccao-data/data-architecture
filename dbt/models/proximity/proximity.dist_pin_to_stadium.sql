@@ -12,7 +12,7 @@ xy_to_stadium_dist AS (
         stadium.name AS stadium_name,
         ST_DISTANCE(
             ST_POINT(parcel.x_3435, parcel.y_3435),
-            ST_POINT(stadium.lon, stadium.lat)
+            ST_POINT(stadium.x_3435, stadium.y_3435)
         ) AS stadium_dist_ft
     FROM spatial.parcel
     CROSS JOIN stadium
