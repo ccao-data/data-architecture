@@ -226,6 +226,13 @@ models:
           config:
             where: CAST(year AS int) < {{ var('test_qc_year_start') }}
             error_if: ">21" # as of 2024-04-01
+      - not_null:
+          name: reporting_vw_pin_value_long_tot_mv_not_null
+          column_name: tot_mv
+          config:
+            where: |
+              CAST(year AS int) < {{ var('test_qc_year_start') }} AND
+              year >= '2021'
 
   - name: reporting.vw_top_5
     description: '{{ doc("view_vw_top_5") }}'

@@ -80,7 +80,10 @@ views.
 # vw_pin_value_long
 
 {% docs view_vw_pin_value_long %}
-Assessed values by PIN and year, for each assessment stage.
+Assessed and market values by PIN and year, for each assessment stage.
+
+- Market value (`_mv`) columns accurately reflect incentives, statute,
+  levels of assessment, building splits, etc.
 
 The assessment stages are:
 
