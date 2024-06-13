@@ -36,10 +36,16 @@ test <- for (year in years) {
       )) %>%
       osmdata_sf()
 
-    supermarkets <- supermarkets$osm_polygons %>%
+    supermarket_polygons <- supermarkets$osm_polygons %>%
       select(osm_id, shop, name)
 
-    geoarrow::write_geoparquet(supermarkets, remote_file)
+    supermarket_points <- supermarkets$osm_points %>%
+      select(osm_id, shop, name)
+
+    all_supermarkets <- rbind(supermarket_polygons, supermarkets_points) %>%
+      st_centroid()
+
+    geoarrow::write_geoparquet(all_supermarkets, remote_file)
     }
 }
 
