@@ -108,8 +108,7 @@ more_stats = [
 ]
 
 stats = {
-    "size": first,
-    "tot": ["count"] + more_stats,
+    "tot": ["size", "count"] + more_stats,
     "bldg": more_stats,
     "land": more_stats,
 }
@@ -131,6 +130,8 @@ for i in ["median", "mean", "sum"]:
     output["bldg", "delta" + i] = output["bldg", i].diff()
     output["land", "delta" + i] = output["land", i].diff()
 
-output["tot", "pct_w_value"] = output["tot", "count"] / output["size", "first"]
+output["tot", "pct_w_value"] = output["tot", "count"] / output["tot", "size"]
 
 output.to_csv("sot_assessment_roll.csv")
+
+# %%

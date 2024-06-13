@@ -1,34 +1,51 @@
 -- Gather parcel-level geographies and join land, sales, and class groupings
-WITH counts AS (
+
+/* Ensure every municipality/class/year has a row for every stage through
+cross-joining. This is to make sure that combinations that do not yet
+exist in iasworld.asmt_all for the current year will exist in the view, but have
+largely empty columns. For example: even if no class 4s in the City of Chicago
+have been mailed yet for the current assessment year, we would still like an
+empty City of Chicago/class 4 row to exist for the mailed stage. */
+WITH stages AS (
+
+    SELECT 'MAILED' AS stage_name
+    UNION
+    SELECT 'ASSESSOR CERTIFIED' AS stage_name
+    UNION
+    SELECT 'BOR CERTIFIED' AS stage_name
+
+),
+
+uni AS (
     SELECT
-        year,
-        COUNT(*) AS size
+        vw_pin_universe.*,
+        stages.*
     FROM default.vw_pin_universe
-    GROUP BY year
+    CROSS JOIN stages
 )
 
 SELECT
+    uni.year,
+    uni.stage_name,
+    uni.class,
     CAST(vals.tot AS INT) AS tot,
     CAST(vals.bldg AS INT) AS bldg,
     CAST(vals.land AS INT) AS land,
     CASE
         WHEN
-            MOD(CAST(vals.year AS INT), 3) = 0
+            MOD(CAST(uni.year AS INT), 3) = 0
             AND uni.triad_name = 'North'
             THEN TRUE
         WHEN
-            MOD(CAST(vals.year AS INT), 3) = 1
+            MOD(CAST(uni.year AS INT), 3) = 1
             AND uni.triad_name = 'South'
             THEN TRUE
         WHEN
-            MOD(CAST(vals.year AS INT), 3) = 2
+            MOD(CAST(uni.year AS INT), 3) = 2
             AND uni.triad_name = 'City'
             THEN TRUE
         ELSE FALSE
     END AS reassessment_year,
-    vals.class,
-    vals.stage_name,
-    vals.year,
     'Cook' AS county,
     uni.triad_name AS triad,
     uni.township_name AS township,
@@ -77,13 +94,12 @@ SELECT
     uni.tax_data_year,
     'no_group' AS no_group,
     class_dict.major_class_type AS major_class,
-    class_dict.modeling_group,
-    counts.size
-FROM default.vw_pin_universe AS uni
+    class_dict.modeling_group
+FROM uni
 LEFT JOIN reporting.vw_pin_value_long AS vals
     ON uni.pin = vals.pin
     AND uni.year = vals.year
+    AND uni.stage_name = vals.stage_name
 LEFT JOIN ccao.class_dict
-    ON vals.class = class_dict.class_code
-LEFT JOIN counts
-    ON uni.year = counts.year
+    ON uni.class = class_dict.class_code
+LIMIT 10000
