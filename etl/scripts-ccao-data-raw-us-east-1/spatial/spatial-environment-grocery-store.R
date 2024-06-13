@@ -42,3 +42,4 @@ test <- for (year in years) {
     geoarrow::write_geoparquet(supermarkets, remote_file)
     }
 }
+
