@@ -27,10 +27,3 @@ instructions on how to make changes to the CSV file.
 
 **Primary Key**: `nbhd`, `version`
 {% enddocs %}
-
-{% docs seed_stadium %}
-
-Manually created longitude and latitude indicators for active stadiums in Cook County.
-
-**Primary Key**: `name`
-{% enddocs %}

@@ -1,1 +1,1 @@
-SELECT * FROM {{ ref('location.stadium') }}
+SELECT * FROM {{ ref('spatial.stadium') }}
