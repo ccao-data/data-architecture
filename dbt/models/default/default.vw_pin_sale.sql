@@ -233,7 +233,7 @@ max_version_flag AS (
     SELECT
         meta_sale_document_num,
         MAX(version) AS max_version
-    FROM {{ source('sale', 'flag') }}
+    FROM {{ source('z_ci_0002-update-outlier-column-structure-w-iasworld-2024-update_sale', 'new_prod_data') }}
     GROUP BY meta_sale_document_num
 ),
 
@@ -248,7 +248,7 @@ sales_val AS (
         sf.sv_outlier_reason3,
         sf.run_id AS sv_run_id,
         sf.version AS sv_version
-    FROM {{ source('sale', 'flag') }} AS sf
+    FROM {{ source('z_ci_0002-update-outlier-column-structure-w-iasworld-2024-update_sale', 'new_prod_data') }} AS sf
     INNER JOIN max_version_flag AS mv
         ON sf.meta_sale_document_num = mv.meta_sale_document_num
         AND sf.version = mv.max_version
