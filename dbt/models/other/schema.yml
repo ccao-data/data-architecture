@@ -14,3 +14,6 @@ sources:
 
       - name: ihs_index
         description: '{{ doc("table_ihs_index") }}'
+
+      - name: ari
+        description: '{{ doc("table_ari") }}'

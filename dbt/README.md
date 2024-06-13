@@ -331,6 +331,79 @@ to the DAG.
 There are a few subtleties to consider when requesting a new model, outlined
 below.
 
+### Model type (SQL or Python)
+
+We default to SQL models, since they are simple and well-supported, but in
+some cases we make use of [Python
+models](https://docs.getdbt.com/docs/build/python-models) instead.
+Prefer a Python model if all of the following conditions are true:
+
+* The model requires complex transformations that are simpler to express using
+  pandas than using SQL
+* The model only depends on (i.e. joins to) other models materialized as tables,
+  and does not depend on any models materialized as views
+* The model's pandas code only imports third-party packages that are either
+  [preinstalled in the Athena PySpark
+  environment](https://docs.aws.amazon.com/athena/latest/ug/notebooks-spark-preinstalled-python-libraries.html)
+  or that are pure Python (i.e. that do not include any C extensions or code in
+  other languages)
+    * The most common packages that we need that are _not_ pure Python are
+      geospatial analysis packages like `geopandas`
+
+#### A note on third-party pure Python dependencies for Python models
+
+If your Python model needs to use a third-party pure Python package that is not
+[preinstalled in the Athena PySpark
+environment](https://docs.aws.amazon.com/athena/latest/ug/notebooks-spark-preinstalled-python-libraries.html),
+you can configure the dependency to be automatically deployed to our S3 bucket
+that stores PySpark dependencies as part of the dbt build workflow on GitHub
+Actions. Follow these steps to include your dependency:
+
+1. Update the `config.packages` array on your model definition in your
+   model's `schema.yml` file to add elements for each of the packages
+   you want to install
+     * Make sure to provide a specific version for each package so that our
+       builds are deterministic
+     * Unlike a typical `pip install` call, the dependency resolver will _not_
+       automatically install your dependency's dependencies, so check the
+       dependency's documentation to see if you need to manually specify any
+       other dependencies in order for your dependency to work
+
+```yaml
+# Example -- replace `model.name` with your model name, `dependency_name` with
+# your dependency name, and `X.Y.Z` with the version of the dependency you want
+# to install
+models:
+  - name: database_name.table_name
+    config:
+      packages:
+        - "dependency_name==X.Y.Z"
+```
+
+2. Add an `sc.addPyFile` call to the top of the Python code that represents your
+   model's query definition so that PySpark will make the dependency available
+   in the context of your code
+
+```python
+# Example -- replace `dependency_name` with your dependency name and `X.Y.Z`
+# with the version of the dependency you want to import
+# type: ignore
+sc.addPyFile(  # noqa: F821
+    "s3://ccao-athena-dependencies-us-east-1/dependency_name==X.Y.Z.zip"
+)
+```
+
+3. Call `import dependency_name` as normal in your script to make use of the
+   dependency
+
+```python
+# Example -- replace `dependency_name` with your dependency name
+import dependency_name
+```
+
+See the `reporting.ratio_stats` model for an example of this type of
+configuration.
+
 ### Model materialization
 
 There are a number of different ways of materializing tables in Athena
@@ -662,4 +735,14 @@ these compute-intensive models from being rebuilt:
 
 ```
 dbt build --select +model.vw_pin_shared_input --exclude location.* proximity.* --resource-types model seed
+```
+
+### How do I enable debug logging?
+
+If you'd like to know what dbt is doing under the hood, you can use [the `--log-level`
+parameter](https://docs.getdbt.com/reference/global-configs/logs#log-level) to enable debug
+logging when running dbt commands:
+
+```
+dbt --log-level debug build --select model.vw_pin_shared_input
 ```
