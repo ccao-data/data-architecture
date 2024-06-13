@@ -70,3 +70,5 @@ seeds:
       +schema: location
     model:
       +schema: model
+    spatial:
+      +schema: spatial
