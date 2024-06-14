@@ -1301,27 +1301,9 @@ with `sv_is_ptax_outlier` (using OR logic).
 NOTE: Outlier flags only exist for sales _after_ 2014.
 {% enddocs %}
 
-## sv_outlier_reason1
+## sv_outlier_reason
 
-{% docs shared_column_sv_outlier_reason1 %}
-Heuristic or model used to flag an outlier.
-
-See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
-for a list of possible flags.
-{% enddocs %}
-
-## sv_outlier_reason2
-
-{% docs shared_column_sv_outlier_reason2 %}
-Heuristic or model used to flag an outlier.
-
-See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
-for a list of possible flags.
-{% enddocs %}
-
-## sv_outlier_reason3
-
-{% docs shared_column_sv_outlier_reason3 %}
+{% docs shared_column_sv_outlier_reason %}
 Heuristic or model used to flag an outlier.
 
 See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
