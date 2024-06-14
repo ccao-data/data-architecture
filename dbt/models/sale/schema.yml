@@ -26,11 +26,11 @@ sources:
           - name: sv_is_outlier
             description: '{{ doc("shared_column_sv_is_outlier") }}'
           - name: sv_outlier_reason1
-            description: '{{ doc("shared_column_sv_outlier_reason1") }}'
+            description: '{{ doc("shared_column_sv_outlier_reason") }}'
           - name: sv_outlier_reason1
-            description: '{{ doc("shared_column_sv_outlier_reason2") }}'
+            description: '{{ doc("shared_column_sv_outlier_reason") }}'
           - name: sv_outlier_reason1
-            description: '{{ doc("shared_column_sv_outlier_reason3") }}'
+            description: '{{ doc("shared_column_sv_outlier_reason") }}'
           - name: version
             description: '{{ doc("shared_column_sv_version") }}'
 
