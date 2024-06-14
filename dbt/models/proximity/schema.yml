@@ -29,6 +29,9 @@ models:
   - name: proximity.dist_pin_to_golf_course
     description: '{{ doc("table_dist_pin_to_golf_course") }}'
 
+  - name: proximity.dist_pin_to_grocery_store
+    description: '{{ doc("table_dist_pin_to_grocery_store") }}'
+
   - name: proximity.dist_pin_to_hospital
     description: '{{ doc("table_dist_pin_to_hospital") }}'
 
@@ -129,6 +132,12 @@ models:
         description: '{{ doc("column_nearest_golf_course_dist_ft") }}'
       - name: nearest_golf_course_id
         description: '{{ doc("column_nearest_golf_course_id") }}'
+      - name: nearest_grocery_store_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: nearest_grocery_store_dist_ft
+        description: '{{ doc("column_nearest_grocery_store_dist_ft") }}'
+      - name: nearest_grocery_store_id
+        description: '{{ doc("column_nearest_grocery_store_id") }}'
       - name: nearest_hospital_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_hospital_dist_ft
