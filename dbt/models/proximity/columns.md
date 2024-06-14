@@ -304,21 +304,6 @@ These columns provide the three nearest neighbor PINs and their
 distance, starting with `nearest_neighbor_1_*` (which is the nearest)
 {% enddocs %}
 
-## nearest_new_construction_dist_ft
-
-{% docs column_nearest_new_construction_dist_ft %}
-Nearest new construction (feet).
-
-Buildings are counted as new construction if year built is <= 2 years old
-{% enddocs %}
-
-## nearest_new_construction_pin10
-
-{% docs column_nearest_new_construction_pin10 %}
-Nearest pin10 <= 2 years old
-
-{% enddocs %}
-
 ## nearest_park_dist_ft
 
 {% docs column_nearest_park_dist_ft %}
