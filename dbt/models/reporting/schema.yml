@@ -232,7 +232,9 @@ models:
           config:
             where: |
               CAST(year AS int) < {{ var('test_qc_year_start') }} AND
-              year >= '2021'
+              (year >= '2021' OR (
+              year = '2020' AND stage_name = 'BOR CERTIFIED')
+              )
 
   - name: reporting.vw_top_5
     description: '{{ doc("view_vw_top_5") }}'
