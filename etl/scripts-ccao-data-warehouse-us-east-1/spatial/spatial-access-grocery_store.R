@@ -40,15 +40,19 @@ for (year in years) {
       osmdata_sf()
 
     supermarkets_polygons <- supermarkets$osm_polygons %>%
-      select(osm_id, category = shop, name) %>%
+      select(osm_id, shop, name) %>%
       st_centroid()
 
     supermarkets_points <- supermarkets$osm_points %>%
-      select(osm_id, category = shop, name) %>%
+      select(osm_id, shop, name) %>%
       st_centroid()
 
     rbind(supermarkets_polygons, supermarkets_points) %>%
+      st_transform(4326) %>%
+      mutate(
+        geometry_3435 = st_transform(geometry, 3435)
+      ) %>%
+      select(osm_id, name, category = shop, geometry, geometry_3435) %>%
       geoarrow::write_geoparquet(remote_file)
   }
 }
-
