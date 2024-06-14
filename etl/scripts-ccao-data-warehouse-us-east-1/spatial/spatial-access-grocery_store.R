@@ -49,6 +49,7 @@ for (year in years) {
 
     rbind(supermarkets_polygons, supermarkets_points) %>%
       st_transform(4326) %>%
+      filter(!is.na(name)) %>%
       mutate(
         geometry_3435 = st_transform(geometry, 3435)
       ) %>%
