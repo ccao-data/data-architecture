@@ -46,7 +46,8 @@ for (year in years) {
       select(osm_id, category = shop, name)
 
     all_supermarkets <- rbind(supermarkets_polygons, supermarkets_points) %>%
-      st_centroid()
+      st_centroid() %>%
+      filter(!is.na(name))
 
     geoarrow::write_geoparquet(all_supermarkets, remote_file)
   }
