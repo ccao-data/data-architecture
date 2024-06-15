@@ -84,11 +84,6 @@ Distance from each PIN to the nearest golf course.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
-# dist_pin_to_grocery_store
-
-{% docs table_dist_pin_to_grocery_store %}
-Distance from each PIN to the nearest grocery store.
-
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
