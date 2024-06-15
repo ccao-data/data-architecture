@@ -48,7 +48,7 @@ SELECT
 
     dist_pin_to_grocery_store.nearest_grocery_store_name,
     dist_pin_to_grocery_store.nearest_grocery_store_dist_ft,
-    dist_pin_to_grocery_store.nearest_grocery_store_year,
+    dist_pin_to_grocery_store.nearest_grocery_store_data_year,
 
     dist_pin_to_hospital.nearest_hospital_gnis_code,
     dist_pin_to_hospital.nearest_hospital_name,
