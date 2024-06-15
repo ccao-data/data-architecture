@@ -28,4 +28,5 @@ FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN ( {{ dist_to_nearest_geometry('stadium') }} ) AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
+WHERE CAST(pcl.year AS INTEGER) >= CAST(xy.date_opened AS INTEGER)
 GROUP BY pcl.pin10, pcl.year;
