@@ -57,6 +57,9 @@ sources:
       - name: golf_course
         description: '{{ doc("table_golf_course") }}'
 
+      - name: grocery_store
+        description: '{{ doc("table_grocery_store") }}'
+
       - name: hospital
         description: '{{ doc("table_hospital") }}'
 
