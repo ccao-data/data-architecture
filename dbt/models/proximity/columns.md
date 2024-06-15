@@ -300,6 +300,13 @@ Nearest new construction distance (feet).
 Stop data sourced from CCAO data
 {% enddocs %}
 
+## nearest_new_construction_char_yrblt
+
+{% docs column_nearest_new_construction_char_yrblt %}
+Year built of the nearest new construction.
+Stop data sourced from CCAO data
+{% enddocs %}
+
 ## nearest_neighbor_dist_ft
 
 {% docs column_nearest_neighbor_dist_ft %}
@@ -308,6 +315,7 @@ Nearest neighboring parcel distance (feet).
 These columns provide the three nearest neighbor PINs, starting
 with `nearest_neighbor_1_dist_ft` (which is the nearest)
 {% enddocs %}
+
 
 ## nearest_neighbor_pin10
 
