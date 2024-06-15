@@ -181,14 +181,6 @@ Nearest golf course ID, either Cook County ID or OSM ID.
 Golf course data sourced from Cook County GIS and OpenStreetMap
 {% enddocs %}
 
-## nearest_grocery_store_name
-
-{% docs column_nearest_grocery_store_name %}
-Nearest grocery store name derived from OSM.
-
-Grocery store data sourced from OpenStreetMap
-{% enddocs %}
-
 ## nearest_grocery_store_dist_ft
 
 {% docs column_nearest_grocery_store_dist_ft %}
