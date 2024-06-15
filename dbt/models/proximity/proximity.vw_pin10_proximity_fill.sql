@@ -46,7 +46,7 @@ SELECT
     dist_pin_to_golf_course.nearest_golf_course_dist_ft,
     dist_pin_to_golf_course.nearest_golf_course_data_year,
 
-    dist_pin_to_grocery_store.nearest_grocery_store_id,
+    dist_pin_to_grocery_store.nearest_grocery_name,
     dist_pin_to_grocery_store.nearest_grocery_store_dist_ft,
     dist_pin_to_grocery_store.nearest_grocery_store_year,
 
