@@ -66,6 +66,11 @@ SELECT
     dist_pin_to_metra_stop.nearest_metra_stop_dist_ft,
     dist_pin_to_metra_stop.nearest_metra_stop_data_year,
 
+    dist_pin_to_new_construction.nearest_new_construction_pin10,
+    dist_pin_to_new_construction.nearest_new_construction_yrblt,
+    dist_pin_to_new_construction.nearest_new_construction_dist_ft,
+    dist_pin_to_new_construction.nearest_new_construction_data_year,
+
     dist_pin_to_park.nearest_park_osm_id,
     dist_pin_to_park.nearest_park_name,
     dist_pin_to_park.nearest_park_dist_ft,
@@ -162,6 +167,11 @@ LEFT JOIN
     {{ ref('proximity.dist_pin_to_metra_stop') }} AS dist_pin_to_metra_stop
     ON pin.pin10 = dist_pin_to_metra_stop.pin10
     AND pin.year = dist_pin_to_metra_stop.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_new_construction') }}
+        AS dist_pin_to_new_construction
+    ON pin.pin10 = dist_pin_to_new_construction.pin10
+    AND pin.year = dist_pin_to_new_construction.year
 LEFT JOIN {{ ref('proximity.dist_pin_to_park') }} AS dist_pin_to_park
     ON pin.pin10 = dist_pin_to_park.pin10
     AND pin.year = dist_pin_to_park.year
