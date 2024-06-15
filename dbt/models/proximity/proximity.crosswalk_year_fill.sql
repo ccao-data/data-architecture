@@ -32,6 +32,8 @@ WITH unfilled AS (
             AS nearest_cta_stop_data_year,
         MAX(dist_pin_to_golf_course.nearest_golf_course_data_year)
             AS nearest_golf_course_data_year,
+        MAX(dist_pin_to_grocery_store.nearest_grocery_store_data_year)
+            AS nearest_ggrocery_store_data_year,
         MAX(dist_pin_to_hospital.nearest_hospital_data_year)
             AS nearest_hospital_data_year,
         MAX(dist_pin_to_lake_michigan.lake_michigan_data_year)
@@ -116,6 +118,12 @@ WITH unfilled AS (
             nearest_golf_course_data_year
         FROM {{ ref('proximity.dist_pin_to_golf_course') }}
     ) AS dist_pin_to_golf_course ON pin.year = dist_pin_to_golf_course.year
+    LEFT JOIN (
+        SELECT DISTINCT
+            year,
+            nearest_grocery_store_data_year
+        FROM {{ ref('proximity.dist_pin_to_grocery_store') }}
+    ) AS dist_pin_to_grocery_store ON pin.year = dist_pin_to_grocery_store.year
     LEFT JOIN (
         SELECT DISTINCT
             year,
@@ -255,6 +263,12 @@ SELECT
             IGNORE NULLS
             OVER (ORDER BY year DESC)
     ) AS nearest_golf_course_data_year,
+    COALESCE(
+        nearest_grocery_store_data_year,
+        LAST_VALUE(nearest_grocery_store_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY year DESC)
+    ) AS nearest_grocery_store_data_year,
     COALESCE(
         nearest_hospital_data_year,
         LAST_VALUE(nearest_hospital_data_year)
