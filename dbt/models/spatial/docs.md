@@ -162,6 +162,14 @@ data and tagged OpenStreetMap amenities.
 **Geometry:** `MULTIPOLYGON`
 {% enddocs %}
 
+# grocery_store
+
+{% docs table_grocery_store %}
+Grocery stores. Locations sourced OpenStreetMap amenities.
+
+**Geometry:** `POINT`
+{% enddocs %}
+
 # hospital
 
 {% docs table_hospital %}
