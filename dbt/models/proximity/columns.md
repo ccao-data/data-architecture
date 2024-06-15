@@ -286,6 +286,20 @@ Nearest Metra stop full name (`LaSalle Street`, `18th Street`, etc.).
 Stops include any active Metra stops. Stop data sourced from Metra GTFS feeds
 {% enddocs %}
 
+## nearest_new_construction_pin10
+
+{% docs column_nearest_new_construction_pin10 %}
+pin10 of nearest new construction from CCAO data
+{% enddocs %}
+
+## nearest_new_construction_dist_ft
+
+{% docs column_nearest_new_construction_dist_ft %}
+Nearest new construction distance (feet).
+
+Stop data sourced from CCAO data
+{% enddocs %}
+
 ## nearest_neighbor_dist_ft
 
 {% docs column_nearest_neighbor_dist_ft %}
