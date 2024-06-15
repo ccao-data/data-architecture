@@ -1,4 +1,4 @@
--- CTAS to create a table of distance to the nearest stadium for each PIN
+-- CTAS to create a table of distance to the nearest Metra stop for each PIN
 {{
     config(
         materialized='table',
@@ -8,47 +8,24 @@
     )
 }}
 
-WITH stadium AS (
-    SELECT * FROM {{ ref('spatial.stadium') }}
-),
-
--- Calculate distance between every distinct parcel and each stadium
-xy_to_stadium_dist AS (
-    SELECT DISTINCT
-        parcel.pin10,
-        parcel.x_3435,
-        parcel.y_3435,
-        stadium.name AS stadium_name,
-        ST_DISTANCE(
-            ST_POINT(parcel.x_3435, parcel.y_3435),
-            ST_POINT(stadium.x_3435, stadium.y_3435)
-        ) AS stadium_dist_ft,
-        parcel.year
-    FROM spatial.parcel
-    CROSS JOIN stadium
-    WHERE CAST(parcel.year AS INTEGER) >= CAST(stadium.date_opened AS INTEGER)
-),
-
--- Rank distance to stadium within parcel and year
-min_stadium_dist AS (
+WITH stadium AS (  -- noqa: ST03
     SELECT
-        pin10,
-        x_3435,
-        y_3435,
-        year,
-        stadium_name,
-        stadium_dist_ft,
-        ROW_NUMBER()
-            OVER (PARTITION BY pin10, year ORDER BY stadium_dist_ft)
-            AS rnk
-    FROM xy_to_stadium_dist
+        ST_ASBINARY(ST_POINT(stadium.x_3435, stadium.y_3435)) AS geometry_3435,
+        stadium.name,  -- noqa: RF03
+        stadium.date_opened,  -- noqa: RF03
+        stadium.year  -- noqa: RF03
+    FROM {{ ref('spatial.stadium') }}
 )
 
--- Choose closest stadium per parcel per year
 SELECT
-    pin10,
-    stadium_name AS nearest_stadium_name,
-    stadium_dist_ft AS nearest_stadium_dist_ft,
-    year
-FROM min_stadium_dist
-WHERE rnk = 1;
+    pcl.pin10,
+    ARBITRARY(xy.name) AS nearest_stadium_name,
+    ARBITRARY(xy.dist_ft) AS nearest_stadium_dist_ft,
+    ARBITRARY(xy.year) AS nearest_stadium_data_year,
+    ARBITRARY(xy.date_opened) AS nearest_stadium_date_opened,
+    pcl.year
+FROM {{ source('spatial', 'parcel') }} AS pcl
+INNER JOIN ( {{ dist_to_nearest_geometry('stadium') }} ) AS xy
+    ON pcl.x_3435 = xy.x_3435
+    AND pcl.y_3435 = xy.y_3435
+GROUP BY pcl.pin10, pcl.year;
