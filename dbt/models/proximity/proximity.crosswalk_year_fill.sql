@@ -33,7 +33,7 @@ WITH unfilled AS (
         MAX(dist_pin_to_golf_course.nearest_golf_course_data_year)
             AS nearest_golf_course_data_year,
         MAX(dist_pin_to_grocery_store.nearest_grocery_store_data_year)
-            AS nearest_ggrocery_store_data_year,
+            AS nearest_grocery_store_data_year,
         MAX(dist_pin_to_hospital.nearest_hospital_data_year)
             AS nearest_hospital_data_year,
         MAX(dist_pin_to_lake_michigan.lake_michigan_data_year)
