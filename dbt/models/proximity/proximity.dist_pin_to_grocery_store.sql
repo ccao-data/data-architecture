@@ -10,10 +10,8 @@
 
 SELECT
     pcl.pin10,
-    ARBITRARY(xy.osm_id) AS nearest_grocery_store_osm_id,
     ARBITRARY(xy.name) AS nearest_grocery_store_name,
     ARBITRARY(xy.dist_ft) AS nearest_grocery_store_dist_ft,
-    ARBITRARY(xy.year) AS nearest_grocery_store_data_year,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN
