@@ -463,7 +463,6 @@ SELECT
     f1.prox_nearest_cta_route_dist_ft,
     f1.prox_nearest_cta_stop_dist_ft,
     f1.prox_nearest_golf_course_dist_ft,
-    f1.prox_nearest_grocery_store_dist_ft,
     CASE
         WHEN
             f1.prox_nearest_hospital_dist_ft IS NOT NULL

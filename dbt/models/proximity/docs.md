@@ -84,9 +84,6 @@ Distance from each PIN to the nearest golf course.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
-**Primary Key**: `pin10`, `year`
-{% enddocs %}
-
 # dist_pin_to_hospital
 
 {% docs table_dist_pin_to_hospital %}
