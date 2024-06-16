@@ -70,7 +70,7 @@ SELECT
     dist_pin_to_metra_stop.nearest_metra_stop_data_year,
 
     dist_pin_to_new_construction.nearest_new_construction_pin10,
-    dist_pin_to_new_construction.nearest_new_construction_yrblt,
+    dist_pin_to_new_construction.nearest_new_construction_char_yrblt,
     dist_pin_to_new_construction.nearest_new_construction_dist_ft,
     dist_pin_to_new_construction.nearest_new_construction_data_year,
 
