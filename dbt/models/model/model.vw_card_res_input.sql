@@ -498,6 +498,7 @@ SELECT
     END AS prox_nearest_major_road_dist_ft,
     f1.prox_nearest_metra_route_dist_ft,
     f1.prox_nearest_metra_stop_dist_ft,
+    f1.prox_nearest_new_construction_dist_ft,
     CASE
         WHEN
             f1.prox_nearest_park_dist_ft IS NOT NULL

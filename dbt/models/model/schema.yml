@@ -419,6 +419,9 @@ models:
       - &prox_nearest_metra_stop_dist_ft
         name: prox_nearest_metra_stop_dist_ft
         description: '{{ doc("column_nearest_metra_stop_dist_ft") }}'
+      - &prox_nearest_new_construction_dist_ft
+        name: prox_nearest_new_construction_dist_ft
+        description: '{{ doc("column_nearest_new_construction_dist_ft") }}'
       - &prox_nearest_park_dist_ft
         name: prox_nearest_park_dist_ft
         description: '{{ doc("column_nearest_park_dist_ft") }}'
@@ -562,6 +565,7 @@ models:
       - *prox_nearest_major_road_dist_ft
       - *prox_nearest_metra_route_dist_ft
       - *prox_nearest_metra_stop_dist_ft
+      - *prox_nearest_new_construction_dist_ft
       - *prox_nearest_park_dist_ft
       - *prox_nearest_railroad_dist_ft
       - *prox_nearest_secondary_road_dist_ft
@@ -800,6 +804,7 @@ models:
       - *prox_nearest_major_road_dist_ft
       - *prox_nearest_metra_route_dist_ft
       - *prox_nearest_metra_stop_dist_ft
+      - *prox_nearest_new_construction_dist_ft
       - *nearest_neighbor_1_dist_ft
       - *nearest_neighbor_1_pin10
       - *nearest_neighbor_2_dist_ft
