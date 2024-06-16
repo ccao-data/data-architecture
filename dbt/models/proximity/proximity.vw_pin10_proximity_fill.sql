@@ -179,7 +179,7 @@ LEFT JOIN
     {{ ref('proximity.dist_pin_to_new_construction') }}
         AS dist_pin_to_new_construction
     ON pin.pin10 = dist_pin_to_new_construction.pin10
-    AND cyf.nearest_mnew_construction_data_year
+    AND cyf.nearest_new_construction_data_year
     = dist_pin_to_new_construction.year
 LEFT JOIN {{ ref('proximity.dist_pin_to_park') }} AS dist_pin_to_park
     ON pin.pin10 = dist_pin_to_park.pin10
