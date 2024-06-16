@@ -42,6 +42,8 @@ WITH unfilled AS (
             AS nearest_metra_route_data_year,
         MAX(dist_pin_to_metra_stop.nearest_metra_stop_data_year)
             AS nearest_metra_stop_data_year,
+        MAX(dist_pin_to_new_construction.nearest_new_construction_data_year)
+            AS nearest_new_construction_data_year,
         MAX(dist_pin_to_park.nearest_park_data_year)
             AS nearest_park_data_year,
         MAX(dist_pin_to_railroad.nearest_railroad_data_year)
@@ -147,6 +149,13 @@ WITH unfilled AS (
             nearest_metra_stop_data_year
         FROM {{ ref('proximity.dist_pin_to_metra_stop') }}
     ) AS dist_pin_to_metra_stop ON pin.year = dist_pin_to_metra_stop.year
+    LEFT JOIN (
+        SELECT DISTINCT
+            year,
+            nearest_new_construction_data_year
+        FROM {{ ref('proximity.dist_pin_to_new_construction') }}
+    ) AS dist_pin_to_new_construction
+        ON pin.year = dist_pin_to_new_construction.year
     LEFT JOIN (
         SELECT DISTINCT
             year,
@@ -284,6 +293,12 @@ SELECT
             IGNORE NULLS
             OVER (ORDER BY year DESC)
     ) AS nearest_metra_stop_data_year,
+    COALESCE(
+        nearest_new_construction_data_year,
+        LAST_VALUE(nearest_new_construction_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY year DESC)
+    ) AS nearest_new_construction_data_year,
     COALESCE(
         nearest_park_data_year, LAST_VALUE(nearest_park_data_year)
             IGNORE NULLS
