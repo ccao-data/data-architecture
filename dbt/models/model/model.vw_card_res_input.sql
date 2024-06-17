@@ -474,6 +474,7 @@ SELECT
             nn1.prox_nearest_hospital_dist_ft IS NULL
             THEN nn2.prox_nearest_hospital_dist_ft
     END AS prox_nearest_hospital_dist_ft,
+    f1.prox_nearest_hie_dist_ft,
     CASE
         WHEN
             f1.prox_lake_michigan_dist_ft IS NOT NULL

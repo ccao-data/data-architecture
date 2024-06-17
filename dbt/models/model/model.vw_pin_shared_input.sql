@@ -235,6 +235,7 @@ SELECT
     vwpf.nearest_cta_route_dist_ft AS prox_nearest_cta_route_dist_ft,
     vwpf.nearest_cta_stop_dist_ft AS prox_nearest_cta_stop_dist_ft,
     vwpf.nearest_golf_course_dist_ft AS prox_nearest_golf_course_dist_ft,
+    vwpf.nearest_hie_dist_ft AS prox_nearest_hie_dist_ft,
     vwpf.nearest_hospital_dist_ft AS prox_nearest_hospital_dist_ft,
     vwpf.lake_michigan_dist_ft AS prox_lake_michigan_dist_ft,
     vwpf.nearest_major_road_dist_ft AS prox_nearest_major_road_dist_ft,
