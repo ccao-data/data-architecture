@@ -1,4 +1,4 @@
--- CTAS to create a table of distance to the nearest secondary road for each PIN
+-- CTAS to create a table of distance to the nearest grocery store for each PIN
 {{
     config(
         materialized='table',
