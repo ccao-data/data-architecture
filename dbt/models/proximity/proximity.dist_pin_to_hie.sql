@@ -22,6 +22,7 @@ WITH new_permit AS (  -- noqa: ST03
             CAST(parcel.year AS INT)
             - CAST(SUBSTRING(iasworld.permdt, 1, 4) AS INT)
         ) BETWEEN 0 AND 2
+        AND iasworld.amount >= 50000
 )
 
 SELECT
