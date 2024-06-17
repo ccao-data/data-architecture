@@ -29,9 +29,6 @@ models:
   - name: proximity.dist_pin_to_golf_course
     description: '{{ doc("table_dist_pin_to_golf_course") }}'
 
-  - name: proximity.dist_pin_to_hie
-    description: '{{ doc("table_dist_pin_to_hie") }}'
-
   - name: proximity.dist_pin_to_hospital
     description: '{{ doc("table_dist_pin_to_hospital") }}'
 
@@ -49,6 +46,9 @@ models:
 
   - name: proximity.dist_pin_to_park
     description: '{{ doc("table_dist_pin_to_park") }}'
+  
+  - name: proximity.dist_pin_to_permit
+    description: '{{ doc("table_dist_pin_to_permit") }}'
 
   - name: proximity.dist_pin_to_pin
     description: '{{ doc("view_dist_pin_to_pin") }}'
