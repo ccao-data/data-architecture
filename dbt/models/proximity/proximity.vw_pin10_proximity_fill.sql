@@ -46,6 +46,10 @@ SELECT
     dist_pin_to_golf_course.nearest_golf_course_dist_ft,
     dist_pin_to_golf_course.nearest_golf_course_data_year,
 
+    dist_pin_to_hie.nearest_hie_id,
+    dist_pin_to_hie.nearest_hie_dist_ft,
+    dist_pin_to_hie.nearest_hie_data_year,
+
     dist_pin_to_hospital.nearest_hospital_gnis_code,
     dist_pin_to_hospital.nearest_hospital_name,
     dist_pin_to_hospital.nearest_hospital_dist_ft,
@@ -154,6 +158,10 @@ LEFT JOIN
     {{ ref('proximity.dist_pin_to_golf_course') }} AS dist_pin_to_golf_course
     ON pin.pin10 = dist_pin_to_golf_course.pin10
     AND cyf.nearest_golf_course_data_year = dist_pin_to_golf_course.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_hie') }} AS dist_pin_to_hie
+    ON pin.pin10 = dist_pin_to_hie.pin10
+    AND cyf.nearest_hie_data_year = dist_pin_to_hie.year
 LEFT JOIN
     {{ ref('proximity.dist_pin_to_hospital') }} AS dist_pin_to_hospital
     ON pin.pin10 = dist_pin_to_hospital.pin10
