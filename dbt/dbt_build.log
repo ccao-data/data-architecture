@@ -1,0 +1,8 @@
+nohup: ignoring input
+[0m01:41:42  Running with dbt=1.8.1
+[0m01:41:42  Registered adapter: athena=1.8.2
+[0m01:41:43  Encountered an error:
+Compilation Error
+  dbt found two schema.yml entries for the same resource named proximity.vw_pin10_proximity_fill. Resources and their associated columns may only be described a single time. To fix this, remove one of the resource entries for proximity.vw_pin10_proximity_fill in this file:
+   - models/proximity/schema.yml
+  
