@@ -16,7 +16,7 @@ WITH new_construction AS (  -- noqa: ST03
     FROM spatial.parcel AS parcel
     INNER JOIN default.vw_card_res_char AS vw_card_res_char
         ON parcel.pin10 = vw_card_res_char.pin10
-        AND CAST(parcel.year AS INT) = CAST(vw_card_res_char.year AS INT)
+        AND parcel.year = vw_card_res_char.year
         AND CAST(parcel.year AS INT)
         <= CAST(vw_card_res_char.char_yrblt AS INT) + 2
 
