@@ -20,8 +20,10 @@ WITH new_permit AS (  -- noqa: ST03
         ON parcel.pin10 = (SUBSTRING(iasworld.parid, 1, 10))
         AND CAST(parcel.year AS INT)
         = CAST(SUBSTRING(iasworld.permdt, 1, 4) AS INT)
-        AND CAST(parcel.year AS INT)
-        <= CAST(SUBSTRING(iasworld.permdt, 1, 4) AS INT) + 2
+        AND (
+            CAST(parcel.year AS INT)
+            - CAST(SUBSTRING(iasworld.permdt, 1, 4) AS INT)
+        ) BETWEEN 0 AND 2
         AND iasworld.amount > 50000
 )
 
