@@ -76,10 +76,6 @@ SELECT
     dist_pin_to_park.nearest_park_dist_ft,
     dist_pin_to_park.nearest_park_data_year,
 
-    dist_pin_to_permit.nearest_permit_pin10,
-    dist_pin_to_permit.nearest_permit_dist_ft,
-    dist_pin_to_permit.nearest_permit_data_year,
-
     dist_pin_to_railroad.nearest_railroad_id,
     dist_pin_to_railroad.nearest_railroad_name,
     dist_pin_to_railroad.nearest_railroad_dist_ft,
@@ -179,10 +175,6 @@ LEFT JOIN
 LEFT JOIN {{ ref('proximity.dist_pin_to_park') }} AS dist_pin_to_park
     ON pin.pin10 = dist_pin_to_park.pin10
     AND pin.year = dist_pin_to_park.year
-LEFT JOIN
-    {{ ref('proximity.dist_pin_to_permit') }} AS dist_pin_to_permit
-    ON pin.pin10 = dist_pin_to_permit.pin10
-    AND pin.year = dist_pin_to_permit.year
 LEFT JOIN
     {{ ref('proximity.dist_pin_to_railroad') }} AS dist_pin_to_railroad
     ON pin.pin10 = dist_pin_to_railroad.pin10

@@ -129,12 +129,6 @@ models:
         description: '{{ doc("column_nearest_golf_course_dist_ft") }}'
       - name: nearest_golf_course_id
         description: '{{ doc("column_nearest_golf_course_id") }}'
-      - name: nearest_permit_data_year
-        description: '{{ doc("shared_column_data_year") }}'
-      - name: nearest_permit_dist_ft
-        description: '{{ doc("column_nearest_permit_dist_ft") }}'
-      - name: nearest_permit_pin10
-        description: '{{ doc("column_nearest_permit_pin10") }}'
       - name: nearest_hospital_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_hospital_dist_ft

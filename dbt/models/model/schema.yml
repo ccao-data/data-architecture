@@ -425,9 +425,6 @@ models:
       - &prox_nearest_park_dist_ft
         name: prox_nearest_park_dist_ft
         description: '{{ doc("column_nearest_park_dist_ft") }}'
-      - &prox_nearest_permit_dist_ft
-        name: prox_nearest_permit_dist_ft
-        description: '{{ doc("column_nearest_permit_dist_ft") }}'
       - &prox_nearest_railroad_dist_ft
         name: prox_nearest_railroad_dist_ft
         description: '{{ doc("column_nearest_railroad_dist_ft") }}'
@@ -570,7 +567,6 @@ models:
       - *prox_nearest_metra_stop_dist_ft
       - *prox_nearest_new_construction_dist_ft
       - *prox_nearest_park_dist_ft
-      - *prox_nearest_permit_dist_ft
       - *prox_nearest_railroad_dist_ft
       - *prox_nearest_secondary_road_dist_ft
       - *prox_nearest_stadium_dist_ft
@@ -816,7 +812,6 @@ models:
       - *nearest_neighbor_3_dist_ft
       - *nearest_neighbor_3_pin10
       - *prox_nearest_park_dist_ft
-      - *prox_nearest_permit_dist_ft
       - *prox_nearest_railroad_dist_ft
       - *prox_nearest_secondary_road_dist_ft
       - *prox_nearest_stadium_dist_ft

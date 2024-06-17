@@ -521,7 +521,6 @@ SELECT
             nn1.prox_nearest_railroad_dist_ft IS NULL
             THEN nn2.prox_nearest_railroad_dist_ft
     END AS prox_nearest_railroad_dist_ft,
-    f1.prox_nearest_permit_dist_ft,
     CASE
         WHEN
             f1.prox_nearest_secondary_road_dist_ft IS NOT NULL

@@ -181,21 +181,6 @@ Nearest golf course ID, either Cook County ID or OSM ID.
 Golf course data sourced from Cook County GIS and OpenStreetMap
 {% enddocs %}
 
-## nearest_permit_dist_ft
-
-{% docs column_nearest_permit_dist_ft %}
-Nearest home improvement exemption distance (feet).
-
-Permit data sourced from Cook County GIS and IasWorld
-{% enddocs %}
-
-## nearest_permit_pin10
-
-{% docs column_nearest_permit_pin10 %}
-Nearest home improvement exemption, derived from Cook County GIS and Iasworld
-
-{% enddocs %}
-
 ## nearest_hospital_dist_ft
 
 {% docs column_nearest_hospital_dist_ft %}

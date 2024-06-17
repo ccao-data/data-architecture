@@ -243,7 +243,6 @@ SELECT
     vwpf.nearest_new_construction_dist_ft
         AS prox_nearest_new_construction_dist_ft,
     vwpf.nearest_park_dist_ft AS prox_nearest_park_dist_ft,
-    vwpf.nearest_permit_dist_ft AS prox_nearest_permit_dist_ft,
     vwpf.nearest_railroad_dist_ft AS prox_nearest_railroad_dist_ft,
     vwpf.nearest_secondary_road_dist_ft AS prox_nearest_secondary_road_dist_ft,
     vwpf.nearest_stadium_dist_ft AS prox_nearest_stadium_dist_ft,
