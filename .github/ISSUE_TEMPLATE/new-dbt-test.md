@@ -57,14 +57,18 @@ We already have a number of generic test templates found in `dbt/tests/generic/`
 
 **Integrate Test with Data Model:**
    - We include the test in the `schema.yaml` file under the `dbt/models/` directory for the specific data model.
-   - Example: Here's how the test is implemented for the `default.vw_pin_universe` view:
+   - Example: Here's how the test is implemented for the `iasworld.dweldat` table. This test chcks to make sure there aren't null values in the `bsmt` column
 
  ```yaml
-    - unique_combination_of_columns:
-        name: default_vw_pin_universe_unique_by_14_digit_pin_and_year
-        combination_of_columns:
-            - pin
-            - year
+ - name: bsmt
+   description: '{{ doc("shared_column_char_bsmt") }}'
+   data_tests:
+        - not_null:
+            name: iasworld_dweldat_bsmt_not_null
+            additional_select_columns: *select-columns
+            config: *unique-conditions
+            meta:
+              description: bsmt (Basement Type) should not be null
  ```
    - Reference code implementation [here](https://github.com/ccao-data/data-architecture/blob/66ad8159bcb3d96dcdc62b7355f8fbce64affc78/dbt/models/default/schema/default.vw_pin_universe.yml#L248-L252).
 
@@ -97,12 +101,12 @@ When developing, we generally want to run against development resources, althoug
 Run your test against development models. Make sure to change the name of the test that is passed to the `--select` flag below (`default_vw_pin_universe_unique_by_14_digit_pin_and_year`) to match the name(s) of the test(s) you want to run:
 
 ```bash
-dbt test --select default_vw_pin_universe_unique_by_14_digit_pin_and_year
+dbt test --select iasworld_dweldat_bsmt_not_null
 ```
 
 Typically, you'll want to be running against development models. However, in the event you want to run a test against the prod models, you can specify the ` --target prod` flag:
 
 ```bash
-dbt test --select default_vw_pin_universe_unique_by_14_digit_pin_and_year --target prod
+dbt test --select diasworld_dweldat_bsmt_not_null --target prod
 ```
 
