@@ -18,8 +18,6 @@ WITH new_permit AS (  -- noqa: ST03
     FROM spatial.parcel AS parcel
     INNER JOIN iasworld.permit AS iasworld
         ON parcel.pin10 = (SUBSTRING(iasworld.parid, 1, 10))
-        AND CAST(parcel.year AS INT)
-        = CAST(SUBSTRING(iasworld.permdt, 1, 4) AS INT)
         AND (
             CAST(parcel.year AS INT)
             - CAST(SUBSTRING(iasworld.permdt, 1, 4) AS INT)
