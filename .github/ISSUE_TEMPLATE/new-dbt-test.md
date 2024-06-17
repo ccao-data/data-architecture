@@ -70,7 +70,7 @@ We already have a number of generic test templates found in `dbt/tests/generic/`
             meta:
               description: bsmt (Basement Type) should not be null
  ```
-   - Reference code implementation [here](https://github.com/ccao-data/data-architecture/blob/66ad8159bcb3d96dcdc62b7355f8fbce64affc78/dbt/models/default/schema/default.vw_pin_universe.yml#L248-L252).
+   - Reference code implementation [here]([https://github.com/ccao-data/data-architecture/blob/66ad8159bcb3d96dcdc62b7355f8fbce64affc78/dbt/models/default/schema/default.vw_pin_universe.yml#L248-L252](https://github.com/ccao-data/data-architecture/blob/bce7ae1f78c9858a937192ab009c4f873f671917/dbt/models/iasworld/schema/iasworld.dweldat.yml#L93)).
 
 ### Modify an Existing Generic Test
 
