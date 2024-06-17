@@ -46,7 +46,7 @@ SELECT
     dist_pin_to_golf_course.nearest_golf_course_dist_ft,
     dist_pin_to_golf_course.nearest_golf_course_data_year,
 
-    dist_pin_to_hie.nearest_hie_id,
+    dist_pin_to_hie.nearest_hie_pin10,
     dist_pin_to_hie.nearest_hie_dist_ft,
     dist_pin_to_hie.nearest_hie_data_year,
 
