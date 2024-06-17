@@ -133,6 +133,10 @@ models:
         description: '{{ doc("column_nearest_grocery_store_dist_ft") }}'
       - name: nearest_grocery_store_name
         description: '{{ doc("column_nearest_grocery_store_name") }}'
+      - name: nearest_grocery_store_name
+        description: '{{ doc("column_nearest_grocery_store_name") }}'
+      -name: nearest_grocery_osm_id
+        description: '{{ doc("column_nearest_grocery_osm_id") }}'
       - name: nearest_hospital_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_hospital_dist_ft
