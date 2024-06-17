@@ -19,7 +19,7 @@ If you don't feel like you have a strong understanding of all of these items, as
 There are two types of tests that we might consider for a model:
 
 1. **Data tests** check that our assumptions about our raw data are correct
-    * For example: Test that a table is unique by `parid` and `taxyr`
+    * For example: Test that a table is unique by `parid` and `taxyr` columns
 2. **Unit tests** check that transformation logic inside a model definition
    produces the correct output on a specific set of input data
     * For example: Test that an enum column computed by a `CASE... WHEN`
