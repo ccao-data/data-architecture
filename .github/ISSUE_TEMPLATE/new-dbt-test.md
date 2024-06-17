@@ -92,7 +92,7 @@ that defines the generic test as part of your PR to make the change that you nee
 
 ## Running Tests
 
-Execute the tests against development or production environments using the following commands:
+When developing, we generally want to run against development resources, although it is possible to run them against prod resources. Execute the tests against development or production environments using the following commands:
 
 Run your test against development models. Make sure to change the name of the test that is passed to the `--select` flag below (`default_vw_pin_universe_unique_by_14_digit_pin_and_year`) to match the name(s) of the test(s) you want to run:
 
