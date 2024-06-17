@@ -32,8 +32,9 @@ Unit tests are currently in development and until they are natively supported we
 There are two types of data tests that we support:
 
 1. **QC tests** confirm our assumptions about iasWorld data and are run at
-   scheduled intervals to confirm that iasWorld data meets spec
-2. **Non-QC tests** confirm all other assumptions about data sources outside
+   scheduled intervals to confirm that iasWorld data meets spec. Generally, these
+   are tests invoked on iasworld tables.
+3. **Non-QC tests** confirm all other assumptions about data sources outside
    of iasWorld, and are run in an ad hoc fashion depending on the needs of
    the transformations that sit on top of the raw data
 
