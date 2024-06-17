@@ -57,7 +57,7 @@ We already have a number of generic test templates found in `dbt/tests/generic/`
 
 **Integrate Test with Data Model:**
    - We include the test in the `schema.yaml` file under the `dbt/models/` directory for the specific data model.
-   - Example: Here's how the test is implemented for the `iasworld.dweldat` table. This test chcks to make sure there aren't null values in the `bsmt` column
+   - Example: Here's how the test is implemented for the `iasworld.dweldat` table. This test checks to make sure there aren't null values in the `bsmt` column
 
  ```yaml
  - name: bsmt
