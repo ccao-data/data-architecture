@@ -1,4 +1,4 @@
--- CTAS to create a table of distance to the nearest Metra stop for each PIN
+-- CTAS to create a table of distance to the nearest stadium each PIN
 {{
     config(
         materialized='table',
