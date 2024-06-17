@@ -46,9 +46,6 @@ models:
 
   - name: proximity.dist_pin_to_park
     description: '{{ doc("table_dist_pin_to_park") }}'
-  
-  - name: proximity.dist_pin_to_permit
-    description: '{{ doc("table_dist_pin_to_permit") }}'
 
   - name: proximity.dist_pin_to_pin
     description: '{{ doc("view_dist_pin_to_pin") }}'
