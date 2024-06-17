@@ -36,9 +36,9 @@ There are two types of data tests that we support:
    are tests invoked on iasworld tables.
 3. **Non-QC tests** confirm all other assumptions about data sources outside
    of iasWorld, and are run in an ad hoc fashion depending on the needs of
-   the transformations that sit on top of the raw data
+   the transformations that sit on top of the raw data.
 
-If you plan on adding a QC test, additional instructions are [here](https://github.com/ccao-data/data-architecture/blob/master/dbt/README.md#adding-data-tests), along with more details about the distinction between QC and non-QC tests
+If you plan on adding a QC test, additional instructions are [here](https://github.com/ccao-data/data-architecture/blob/master/dbt/README.md#adding-data-tests), along with more details about the distinction between QC and non-QC tests.
 
 ## Add DBT Tests
 
@@ -57,7 +57,7 @@ We already have a number of generic test templates found in `dbt/tests/generic/`
 
 **Integrate Test with Data Model:**
    - We include the test in the `schema.yaml` file under the `dbt/models/` directory for the specific data model.
-   - Example: Here's how the test is implemented for the `iasworld.dweldat` table. This test checks to make sure there aren't null values in the `bsmt` column
+   - Example: Here's how the test is implemented for the `iasworld.dweldat` table. This test checks to make sure there aren't null values in the `bsmt` column.
 
  ```yaml
  - name: bsmt
