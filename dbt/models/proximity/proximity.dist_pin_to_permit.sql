@@ -27,10 +27,10 @@ WITH new_permit AS (  -- noqa: ST03
 
 SELECT
     pcl.pin10,
-    ARBITRARY(xy.pin10) AS nearest_hie_pin10,
-    ARBITRARY(xy.dist_ft) AS nearest_hie_dist_ft,
-    ARBITRARY(xy.year) AS nearest_hie_data_year,
-    ARBITRARY(xy.permit_date) AS nearest_hie_date,
+    ARBITRARY(xy.pin10) AS nearest_permit_pin10,
+    ARBITRARY(xy.dist_ft) AS nearest_permit_dist_ft,
+    ARBITRARY(xy.year) AS nearest_permit_data_year,
+    ARBITRARY(xy.permit_date) AS nearest_permit_date,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN

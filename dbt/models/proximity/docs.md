@@ -84,9 +84,9 @@ Distance from each PIN to the nearest golf course.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
-# dist_pin_to_hie
+# dist_pin_to_permit
 
-{% docs table_dist_pin_to_hie %}
+{% docs table_dist_pin_to_permit %}
 Distance from each PIN to the nearest new home improvement exemption
 of less than 2 years.
 

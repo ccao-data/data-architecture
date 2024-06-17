@@ -46,10 +46,6 @@ SELECT
     dist_pin_to_golf_course.nearest_golf_course_dist_ft,
     dist_pin_to_golf_course.nearest_golf_course_data_year,
 
-    dist_pin_to_hie.nearest_hie_pin10,
-    dist_pin_to_hie.nearest_hie_dist_ft,
-    dist_pin_to_hie.nearest_hie_data_year,
-
     dist_pin_to_hospital.nearest_hospital_gnis_code,
     dist_pin_to_hospital.nearest_hospital_name,
     dist_pin_to_hospital.nearest_hospital_dist_ft,
@@ -82,6 +78,10 @@ SELECT
     dist_pin_to_park.nearest_park_name,
     dist_pin_to_park.nearest_park_dist_ft,
     dist_pin_to_park.nearest_park_data_year,
+
+    dist_pin_to_permit.nearest_permit_pin10,
+    dist_pin_to_permit.nearest_permit_dist_ft,
+    dist_pin_to_permit.nearest_permit_data_year,
 
     dist_pin_to_railroad.nearest_railroad_id,
     dist_pin_to_railroad.nearest_railroad_name,
@@ -159,10 +159,6 @@ LEFT JOIN
     ON pin.pin10 = dist_pin_to_golf_course.pin10
     AND cyf.nearest_golf_course_data_year = dist_pin_to_golf_course.year
 LEFT JOIN
-    {{ ref('proximity.dist_pin_to_hie') }} AS dist_pin_to_hie
-    ON pin.pin10 = dist_pin_to_hie.pin10
-    AND cyf.nearest_hie_data_year = dist_pin_to_hie.year
-LEFT JOIN
     {{ ref('proximity.dist_pin_to_hospital') }} AS dist_pin_to_hospital
     ON pin.pin10 = dist_pin_to_hospital.pin10
     AND cyf.nearest_hospital_data_year = dist_pin_to_hospital.year
@@ -192,6 +188,10 @@ LEFT JOIN
 LEFT JOIN {{ ref('proximity.dist_pin_to_park') }} AS dist_pin_to_park
     ON pin.pin10 = dist_pin_to_park.pin10
     AND cyf.nearest_park_data_year = dist_pin_to_park.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_permit') }} AS dist_pin_to_permit
+    ON pin.pin10 = dist_pin_to_permit.pin10
+    AND cyf.nearest_permit_data_year = dist_pin_to_permit.year
 LEFT JOIN {{ ref('proximity.dist_pin_to_pin') }} AS dist_pin_to_pin
     ON pin.pin10 = dist_pin_to_pin.pin10
     AND cyf.year = dist_pin_to_pin.year -- NOTE, doesn't need to be filled
