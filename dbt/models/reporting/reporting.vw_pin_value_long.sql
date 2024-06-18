@@ -28,7 +28,25 @@ WITH stage_values AS (
                 WHEN taxyr < '2020' THEN ovrvalasm3
                 WHEN taxyr >= '2020' THEN valasm3
             END
-        ) AS tot
+        ) AS tot,
+        ARBITRARY(
+            CASE
+                WHEN taxyr < '2020' THEN NULL
+                WHEN taxyr >= '2020' THEN valapr2
+            END
+        ) AS bldg_mv,
+        ARBITRARY(
+            CASE
+                WHEN taxyr < '2020' THEN NULL
+                WHEN taxyr >= '2020' THEN valapr1
+            END
+        ) AS land_mv,
+        ARBITRARY(
+            CASE
+                WHEN taxyr < '2020' THEN NULL
+                WHEN taxyr >= '2020' THEN valapr3
+            END
+        ) AS tot_mv
     FROM {{ source('iasworld', 'asmt_all') }}
     WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
         AND rolltype != 'RR'
@@ -55,7 +73,10 @@ SELECT
     END AS stage_num,
     svls.bldg,
     svls.land,
-    svls.tot
+    svls.tot,
+    svls.bldg_mv,
+    svls.land_mv,
+    svls.tot_mv
 FROM stage_values AS svls
 -- Exclude classes without a reporting class
 INNER JOIN {{ ref('ccao.class_dict') }} AS groups
