@@ -50,7 +50,7 @@ geos = {
     ],
 }
 # Declare class groupings
-groups = ["no_group", "class", "major_class", "modeling_group", "stage_name"]
+groups = ["no_group", "class", "major_class", "modeling_group"]
 
 
 # Define aggregation functions
@@ -77,11 +77,11 @@ def first(x):
 def aggregrate(data, geography_type, group_type):
     print(geography_type, group_type)
 
-    group = [geography_type, group_type, "year"]
+    group = [geography_type, group_type, "year", "stage_name"]
     summary = data.groupby(group).agg(stats).round(2)
     summary["geography_type"] = geography_type
     summary["group_type"] = group_type
-    summary.index.names = ["geography_id", "group_id", "year"]
+    summary.index.names = ["geography_id", "group_id", "year", "stage_name"]
     summary = summary.reset_index().set_index(
         [
             "geography_type",
@@ -89,6 +89,7 @@ def aggregrate(data, geography_type, group_type):
             "group_type",
             "group_id",
             "year",
+            "stage_name",
         ]
     )
 
@@ -133,5 +134,3 @@ for i in ["median", "mean", "sum"]:
 output["tot", "pct_w_value"] = output["tot", "count"] / output["tot", "size"]
 
 output.to_csv("sot_assessment_roll.csv")
-
-# %%

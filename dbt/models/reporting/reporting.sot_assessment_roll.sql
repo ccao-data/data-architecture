@@ -102,4 +102,3 @@ LEFT JOIN reporting.vw_pin_value_long AS vals
     AND uni.stage_name = vals.stage_name
 LEFT JOIN ccao.class_dict
     ON uni.class = class_dict.class_code
-LIMIT 10000

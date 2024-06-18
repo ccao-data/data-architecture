@@ -97,8 +97,7 @@ SELECT
     class_dict.modeling_group
 FROM uni
 LEFT JOIN
-    z_ci_508_add_mv_to_reportingvw_pin_value_long_reporting.vw_pin_value_long
-        AS vals
+    reporting.vw_pin_value_long AS vals
     ON uni.pin = vals.pin
     AND uni.year = vals.year
     AND uni.stage_name = vals.stage_name
