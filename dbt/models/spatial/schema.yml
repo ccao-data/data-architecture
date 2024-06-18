@@ -126,8 +126,8 @@ sources:
       - name: special_service_area
         description: '{{ doc("table_special_service_area") }}'
 
-      - name: spatial_stadium
-        description: '{{ doc("table_stadium") }}'
+      - name: stadium
+        description: '{{ doc("stadium") }}'
 
       - name: state_representative_district
         description: '{{ doc("table_state_representative_district") }}'
