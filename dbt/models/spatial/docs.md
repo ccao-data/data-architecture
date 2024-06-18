@@ -392,6 +392,14 @@ Cook County Special Service Area (SSA) boundaries.
 **Geometry:** `MULTIPOLYGON`
 {% enddocs %}
 
+# spatial_stadium
+
+{% docs table_stadium %}
+Stadiums derived from Cook County data
+
+**Geometry:** `POINT`
+{% enddocs %}
+
 # state_representative_district
 
 {% docs table_state_representative_district %}

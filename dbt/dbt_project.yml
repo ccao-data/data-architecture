@@ -57,6 +57,8 @@ models:
       +schema: reporting
     sale:
       +schema: sale
+    spatial:
+      +schema: spatial
     qc:
       +schema: qc
 data_tests:
