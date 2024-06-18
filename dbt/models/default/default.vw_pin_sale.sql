@@ -249,7 +249,7 @@ sales_val AS (
         sf.run_id AS sv_run_id,
         sf.version AS sv_version
     FROM {{ source('sale', 'flag') }}
-        AS sf
+            AS sf
     INNER JOIN max_version_flag AS mv
         ON sf.meta_sale_document_num = mv.meta_sale_document_num
         AND sf.version = mv.max_version
