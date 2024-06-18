@@ -131,8 +131,9 @@ pull_and_write_acs <- function(s3_bucket_uri, survey, folder, geography, year, t
       year = as.numeric(year),
       cache_table = TRUE
     )) %>%
-      rename(`GEOID` = `GEOID...1`) %>%
-      select(-starts_with("GEOID..."), -starts_with("NAME"))
+      rename(any_of(c("GEOID" = "GEOID...1"))) %>%
+      select(-starts_with("GEOID..."), -starts_with("NAME")) %>%
+      filter(!str_detect(GEOID, "Z"))
 
     # Write to S3
     arrow::write_parquet(df, remote_file)
@@ -149,4 +150,4 @@ pwalk(all_combos, function(...) {
     geography = df$geography,
     year = df$year
   )
-})
+}, .progress = TRUE)

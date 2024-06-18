@@ -55,6 +55,11 @@ acs5 AS (
     WHERE geography = 'tract'
 ),
 
+/* This CTAS uses location.census_2010 rather than joining onto a specific year
+from location.census because we need to join 2010 PUMA geometry to *all*
+parcels, not just those that existed in 2010 (or, in our case, 2012 since we
+don't have 2010 PUMA shapefiles). This is specific to the IHS data since it
+exists for many years but uses static geography. */
 housing_index AS (
     SELECT
         puma.pin10,
@@ -64,6 +69,17 @@ housing_index AS (
     LEFT JOIN {{ ref('location.census_2010') }} AS puma
         ON ihs.geoid = puma.census_puma_geoid
     GROUP BY puma.pin10, ihs.year
+),
+
+affordability_risk_index AS (
+    SELECT
+        tract.pin10,
+        ari.year,
+        ari.ari_score AS ari
+    FROM {{ source('other', 'ari') }} AS ari
+    LEFT JOIN {{ ref('location.census_acs5') }} AS tract
+        ON ari.geoid = tract.census_acs5_tract_geoid
+        AND CAST(tract.year AS INTEGER) >= CAST(ari.year AS INTEGER)
 ),
 
 tax_bill_amount AS (
@@ -227,6 +243,7 @@ SELECT
     vwpf.nearest_park_dist_ft AS prox_nearest_park_dist_ft,
     vwpf.nearest_railroad_dist_ft AS prox_nearest_railroad_dist_ft,
     vwpf.nearest_secondary_road_dist_ft AS prox_nearest_secondary_road_dist_ft,
+    vwpf.nearest_stadium_dist_ft AS prox_nearest_stadium_dist_ft,
     vwpf.nearest_university_dist_ft AS prox_nearest_university_dist_ft,
     vwpf.nearest_vacant_land_dist_ft AS prox_nearest_vacant_land_dist_ft,
     vwpf.nearest_water_dist_ft AS prox_nearest_water_dist_ft,
@@ -272,6 +289,9 @@ SELECT
 
     -- Institute for Housing Studies data
     housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
+    -- Affordability Risk Index data
+    affordability_risk_index.ari
+        AS other_affordability_risk_index,
     tbill.tot_tax_amt AS other_tax_bill_amount_total,
     tbill.tax_rate AS other_tax_bill_rate,
 
@@ -314,6 +334,9 @@ LEFT JOIN acs5
 LEFT JOIN housing_index
     ON uni.pin10 = housing_index.pin10
     AND uni.year = housing_index.year
+LEFT JOIN affordability_risk_index
+    ON uni.pin10 = affordability_risk_index.pin10
+    AND uni.year = affordability_risk_index.year
 LEFT JOIN tax_bill_amount AS tbill
     ON uni.pin = tbill.pin
     AND uni.year = tbill.year

@@ -533,6 +533,17 @@ SELECT
     END AS prox_nearest_secondary_road_dist_ft,
     CASE
         WHEN
+            f1.prox_nearest_stadium_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_stadium_dist_ft
+        WHEN
+            f1.prox_nearest_stadium_dist_ft IS NULL
+            THEN nn1.prox_nearest_stadium_dist_ft
+        WHEN
+            nn1.prox_nearest_stadium_dist_ft IS NULL
+            THEN nn2.prox_nearest_stadium_dist_ft
+    END AS prox_nearest_stadium_dist_ft,
+    CASE
+        WHEN
             f1.prox_nearest_university_dist_ft IS NOT NULL
             THEN f1.prox_nearest_university_dist_ft
         WHEN
@@ -587,6 +598,7 @@ SELECT
     f1.acs5_percent_household_owner_occupied,
     f1.acs5_percent_household_total_occupied_w_sel_cond,
     f1.other_ihs_avg_year_index,
+    f1.other_affordability_risk_index,
     f1.other_tax_bill_amount_total,
     f1.other_tax_bill_rate,
     CASE

@@ -186,6 +186,24 @@ sources:
                     description: taxyr should not be null
           - name: tottax
             description: Total tax
+          - name: tot30
+            description: HIE AV Amount
+            data_tests:
+              - accepted_range:
+                  name: iasworld_asmt_all_tot30_lte_7500
+                  max_value: 7500
+                  config: *unique-conditions
+                  meta:
+                    description: tot30 (HIE TOT) should be <7500
+          - name: tot32
+            description: Value After HIE
+            data_tests:
+                - expression_is_true:
+                    name: iasword_asmt_all_32_equals_29_minus_30_minus_31
+                    expression: = tot29 - tot30 - tot31 OR tot32 < 1
+                    config: *unique-conditions
+                    meta:
+                      description: TOT32 (Value After HIE) should be TOT29 - TOT30 - TOT31
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status

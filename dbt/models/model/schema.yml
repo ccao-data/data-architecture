@@ -368,6 +368,9 @@ models:
       - &other_ihs_avg_year_index
         name: other_ihs_avg_year_index
         description: '{{ doc("shared_column_ihs_avg_year_index") }}'
+      - &other_ari
+        name: other_ari
+        description: '{{ doc("shared_column_ari") }}'
       - &other_school_district_elementary_avg_rating
         name: other_school_district_elementary_avg_rating
         description: '{{ doc("shared_column_school_district_elementary_avg_rating") }}'
@@ -425,6 +428,9 @@ models:
       - &prox_nearest_secondary_road_dist_ft
         name: prox_nearest_secondary_road_dist_ft
         description: '{{ doc("column_nearest_secondary_road_dist_ft") }}'
+      - &prox_nearest_stadium_dist_ft
+        name: prox_nearest_stadium_dist_ft
+        description: '{{ doc("column_nearest_stadium_dist_ft") }}'
       - &prox_nearest_university_dist_ft
         name: prox_nearest_university_dist_ft
         description: '{{ doc("column_nearest_university_dist_ft") }}'
@@ -539,6 +545,7 @@ models:
       - *meta_triad_name
       - *meta_year
       - *other_ihs_avg_year_index
+      - *other_ari
       - *other_school_district_elementary_avg_rating
       - *other_school_district_secondary_avg_rating
       - *other_tax_bill_amount_total
@@ -558,6 +565,7 @@ models:
       - *prox_nearest_park_dist_ft
       - *prox_nearest_railroad_dist_ft
       - *prox_nearest_secondary_road_dist_ft
+      - *prox_nearest_stadium_dist_ft
       - *prox_nearest_university_dist_ft
       - *prox_nearest_vacant_land_dist_ft
       - *prox_nearest_water_dist_ft
@@ -775,6 +783,7 @@ models:
       - *meta_triad_name
       - *meta_year
       - *other_ihs_avg_year_index
+      - *other_ari
       - *other_school_district_elementary_avg_rating
       - *other_school_district_secondary_avg_rating
       - *other_tax_bill_amount_total
@@ -800,6 +809,7 @@ models:
       - *prox_nearest_park_dist_ft
       - *prox_nearest_railroad_dist_ft
       - *prox_nearest_secondary_road_dist_ft
+      - *prox_nearest_stadium_dist_ft
       - *prox_nearest_university_dist_ft
       - *prox_nearest_vacant_land_dist_ft
       - *prox_nearest_water_dist_ft

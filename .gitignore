@@ -2,6 +2,7 @@
 *.Rproj
 *.geojson
 *.parquet
+*.gzip
 .DS_Store
 .RData
 .Rhistory
