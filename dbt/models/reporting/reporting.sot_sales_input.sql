@@ -1,51 +1,37 @@
--- Gather parcel-level geographies and join land, sales, and class groupings
+{{
+    config(
+        materialized='table'
+    )
+}}
 
-/* Ensure every municipality/class/year has a row for every stage through
-cross-joining. This is to make sure that combinations that do not yet
-exist in iasworld.asmt_all for the current year will exist in the view, but have
-largely empty columns. For example: even if no class 4s in the City of Chicago
-have been mailed yet for the current assessment year, we would still like an
-empty City of Chicago/class 4 row to exist for the mailed stage. */
-WITH stages AS (
-
-    SELECT 'MAILED' AS stage_name
-    UNION
-    SELECT 'ASSESSOR CERTIFIED' AS stage_name
-    UNION
-    SELECT 'BOR CERTIFIED' AS stage_name
-
-),
-
-uni AS (
+-- Gather parcel-level land and yrblt
+WITH sf AS (
     SELECT
-        vw_pin_universe.*,
-        stages.*
-    FROM default.vw_pin_universe
-    CROSS JOIN stages
+        pin,
+        year,
+        SUM(char_bldg_sf) AS char_bldg_sf,
+        SUM(char_land_sf) AS char_land_sf,
+        ARBITRARY(char_yrblt) AS char_yrblt
+    FROM {{ ref('default.vw_card_res_char') }}
+    GROUP BY pin, year
 )
 
+-- Gather parcel-level geographies and join land, sales, and class groupings
 SELECT
-    CAST(sales.sale_price AS DOUBLE) AS sale_price,
+    sales.doc_no,
+    sales.sale_price,
+    CASE WHEN sf.char_bldg_sf > 0
+            THEN
+            CAST(sales.sale_price / sf.char_bldg_sf AS DOUBLE)
+    END AS price_per_sf,
+    CAST(sf.char_bldg_sf AS INT) AS char_bldg_sf,
+    CAST(sf.char_land_sf AS INT) AS char_land_sf,
+    CAST(sf.char_yrblt AS INT) AS char_yrblt,
+    CAST(hist.oneyr_pri_mailed_bldg AS DOUBLE) AS oneyr_pri_mailed_bldg,
+    CAST(hist.oneyr_pri_mailed_land AS DOUBLE) AS oneyr_pri_mailed_land,
+    CAST(hist.oneyr_pri_mailed_tot AS DOUBLE) AS oneyr_pri_mailed_tot,
     uni.year,
-    uni.stage_name,
     uni.class,
-    CAST(vals.tot_mv AS DOUBLE) AS tot_mv,
-    CAST(vals.tot_mv AS DOUBLE) / CAST(sales.sale_price AS DOUBLE) AS ratio,
-    CASE
-        WHEN
-            MOD(CAST(uni.year AS INT), 3) = 0
-            AND uni.triad_name = 'North'
-            THEN TRUE
-        WHEN
-            MOD(CAST(uni.year AS INT), 3) = 1
-            AND uni.triad_name = 'South'
-            THEN TRUE
-        WHEN
-            MOD(CAST(uni.year AS INT), 3) = 2
-            AND uni.triad_name = 'City'
-            THEN TRUE
-        ELSE FALSE
-    END AS reassessment_year,
     'Cook' AS county,
     uni.triad_name AS triad,
     uni.township_name AS township,
@@ -95,19 +81,19 @@ SELECT
     'no_group' AS no_group,
     class_dict.major_class_type AS major_class,
     class_dict.modeling_group
-FROM uni
-LEFT JOIN
-    reporting.vw_pin_value_long AS vals
-    ON uni.pin = vals.pin
-    AND uni.year = vals.year
-    AND uni.stage_name = vals.stage_name
-LEFT JOIN ccao.class_dict
+FROM {{ ref('default.vw_pin_universe') }} AS uni
+LEFT JOIN sf
+    ON uni.pin = sf.pin
+    AND uni.year = sf.year
+LEFT JOIN {{ ref('ccao.class_dict') }}
     ON uni.class = class_dict.class_code
-LEFT JOIN default.vw_pin_sale AS sales
+LEFT JOIN {{ ref('default.vw_pin_history') }} AS hist
+    ON uni.pin = hist.pin
+    AND uni.year = hist.year
+LEFT JOIN {{ ref('default.vw_pin_sale') }} AS sales
     ON uni.pin = sales.pin
     AND uni.year = sales.year
     AND NOT sales.is_multisale
     AND NOT sales.sale_filter_deed_type
     AND NOT sales.sale_filter_less_than_10k
     AND NOT sales.sale_filter_same_sale_within_365
-WHERE uni.year >= '2020'

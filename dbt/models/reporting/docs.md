@@ -30,6 +30,42 @@ Materialized to speed up queries for Tableau.
 `property_group`
 {% enddocs %}
 
+# sot_assessment_roll_input
+
+{% docs table_sot_assessment_roll_input %}
+Table to feed the Python dbt job that creates the
+`reporting.sot_assessment_roll` table. Feeds public reporting assets.
+
+**Primary Key**: `year`, `stage_name`, `geography_id`, `group_id`
+{% enddocs %}
+
+# sot_ratio_stats_input
+
+{% docs table_sot_ratio_stats_input %}
+Table to feed the Python dbt job that creates the
+`reporting.sot_ratio_stats` table. Feeds public reporting assets.
+
+**Primary Key**: `year`, `stage_name`, `geography_id`, `group_id`
+{% enddocs %}
+
+# sot_sales_input
+
+{% docs table_sot_sales_input %}
+Table to feed the Python dbt job that creates the
+`reporting.sot_sales` table. Feeds public reporting assets.
+
+**Primary Key**: `year`, `geography_id`, `group_id`
+{% enddocs %}
+
+# sot_taxes_exemptions_input
+
+{% docs table_sot_taxes_exemptions_input %}
+Table to feed the Python dbt job that creates the
+`reporting.sot_taxes_exemptions` table. Feeds public reporting assets.
+
+**Primary Key**: `year`, `geography_id`, `group_id`
+{% enddocs %}
+
 # vw_assessment_roll
 
 {% docs view_vw_assessment_roll %}

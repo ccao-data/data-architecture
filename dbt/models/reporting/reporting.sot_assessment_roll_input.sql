@@ -1,4 +1,9 @@
 -- Gather parcel-level geographies and join land, sales, and class groupings
+{{
+    config(
+        materialized='table'
+    )
+}}
 
 /* Ensure every municipality/class/year has a row for every stage through
 cross-joining. This is to make sure that combinations that do not yet
@@ -20,7 +25,7 @@ uni AS (
     SELECT
         vw_pin_universe.*,
         stages.*
-    FROM default.vw_pin_universe
+    FROM {{ ref('default.vw_pin_universe') }}
     CROSS JOIN stages
 )
 
@@ -96,9 +101,9 @@ SELECT
     class_dict.major_class_type AS major_class,
     class_dict.modeling_group
 FROM uni
-LEFT JOIN reporting.vw_pin_value_long AS vals
+LEFT JOIN {{ ref('reporting.vw_pin_value_long') }} AS vals
     ON uni.pin = vals.pin
     AND uni.year = vals.year
     AND uni.stage_name = vals.stage_name
-LEFT JOIN ccao.class_dict
+LEFT JOIN {{ ref('ccao.class_dict') }}
     ON uni.class = class_dict.class_code

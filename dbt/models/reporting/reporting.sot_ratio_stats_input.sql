@@ -1,36 +1,56 @@
--- Gather parcel-level geographies and join taxes, exemptions, and class
--- groupings
+-- Gather parcel-level geographies and join land, sales, and class groupings
+{{
+    config(
+        materialized='table'
+    )
+}}
+
+/* Ensure every municipality/class/year has a row for every stage through
+cross-joining. This is to make sure that combinations that do not yet
+exist in iasworld.asmt_all for the current year will exist in the view, but have
+largely empty columns. For example: even if no class 4s in the City of Chicago
+have been mailed yet for the current assessment year, we would still like an
+empty City of Chicago/class 4 row to exist for the mailed stage. */
+WITH stages AS (
+
+    SELECT 'MAILED' AS stage_name
+    UNION
+    SELECT 'ASSESSOR CERTIFIED' AS stage_name
+    UNION
+    SELECT 'BOR CERTIFIED' AS stage_name
+
+),
+
+uni AS (
+    SELECT
+        vw_pin_universe.*,
+        stages.*
+    FROM {{ ref('default.vw_pin_universe') }}
+    CROSS JOIN stages
+)
+
 SELECT
-    tax.year,
-    tax.av_clerk,
-    tax.tax_bill_total,
-    CASE WHEN tax.exe_homeowner = 0 THEN NULL ELSE tax.exe_homeowner END
-        AS exe_homeowner,
-    CASE WHEN tax.exe_senior = 0 THEN NULL ELSE tax.exe_senior END
-        AS exe_senior,
-    CASE WHEN tax.exe_freeze = 0 THEN NULL ELSE tax.exe_freeze END
-        AS exe_freeze,
-    CASE
-        WHEN tax.exe_longtime_homeowner = 0 THEN NULL ELSE
-            tax.exe_longtime_homeowner
-    END AS exe_longtime_homeowner,
-    CASE WHEN tax.exe_disabled = 0 THEN NULL ELSE tax.exe_disabled END
-        AS exe_disabled,
-    CASE
-        WHEN tax.exe_vet_returning = 0 THEN NULL ELSE tax.exe_vet_returning
-    END AS exe_vet_returning,
-    CASE WHEN tax.exe_vet_dis_lt50 = 0 THEN NULL ELSE tax.exe_vet_dis_lt50 END
-        AS exe_vet_dis_lt50,
-    CASE
-        WHEN tax.exe_vet_dis_50_69 = 0 THEN NULL ELSE tax.exe_vet_dis_50_69
-    END AS exe_vet_dis_50_69,
-    CASE WHEN tax.exe_vet_dis_ge70 = 0 THEN NULL ELSE tax.exe_vet_dis_ge70 END
-        AS exe_vet_dis_ge70,
-    CASE WHEN tax.exe_abate = 0 THEN NULL ELSE tax.exe_abate END AS exe_abate,
-    tcd.tax_code_rate,
-    eqf.eq_factor_tentative,
-    eqf.eq_factor_final,
+    CAST(sales.sale_price AS DOUBLE) AS sale_price,
+    uni.year,
+    uni.stage_name,
     uni.class,
+    CAST(vals.tot_mv AS DOUBLE) AS tot_mv,
+    CAST(vals.tot_mv AS DOUBLE) / CAST(sales.sale_price AS DOUBLE) AS ratio,
+    CASE
+        WHEN
+            MOD(CAST(uni.year AS INT), 3) = 0
+            AND uni.triad_name = 'North'
+            THEN TRUE
+        WHEN
+            MOD(CAST(uni.year AS INT), 3) = 1
+            AND uni.triad_name = 'South'
+            THEN TRUE
+        WHEN
+            MOD(CAST(uni.year AS INT), 3) = 2
+            AND uni.triad_name = 'City'
+            THEN TRUE
+        ELSE FALSE
+    END AS reassessment_year,
     'Cook' AS county,
     uni.triad_name AS triad,
     uni.township_name AS township,
@@ -80,14 +100,19 @@ SELECT
     'no_group' AS no_group,
     class_dict.major_class_type AS major_class,
     class_dict.modeling_group
-FROM default.vw_pin_universe AS uni
-INNER JOIN tax.pin AS tax
-    ON uni.pin = tax.pin
-    AND uni.year = tax.year
-INNER JOIN tax.eq_factor AS eqf
-    ON uni.year = eqf.year
-INNER JOIN tax.tax_code AS tcd
-    ON tax.tax_code_num = tcd.tax_code_num
-    AND tax.year = tcd.year
-INNER JOIN ccao.class_dict
+FROM uni
+LEFT JOIN
+    {{ ref('reporting.vw_pin_value_long') }} AS vals
+    ON uni.pin = vals.pin
+    AND uni.year = vals.year
+    AND uni.stage_name = vals.stage_name
+LEFT JOIN {{ ref('ccao.class_dict') }}
     ON uni.class = class_dict.class_code
+LEFT JOIN {{ ref('default.vw_pin_sale') }} AS sales
+    ON uni.pin = sales.pin
+    AND uni.year = sales.year
+    AND NOT sales.is_multisale
+    AND NOT sales.sale_filter_deed_type
+    AND NOT sales.sale_filter_less_than_10k
+    AND NOT sales.sale_filter_same_sale_within_365
+WHERE uni.year >= '2020'

@@ -34,6 +34,30 @@ models:
             within_20_pct >= within_10_pct
             AND within_10_pct >= within_05_pct
 
+  - name: reporting.sot_assessment_roll_input
+    description: '{{ doc("table_sot_assessment_roll_input") }}'
+    config:
+      tags:
+        - daily
+
+  - name: reporting.sot_ratio_stats_input
+    description: '{{ doc("table_sot_ratio_stats_input") }}'
+    config:
+      tags:
+        - daily
+
+  - name: reporting.sot_sales_input
+    description: '{{ doc("table_sot_sales_input") }}'
+    config:
+      tags:
+        - daily
+
+  - name: reporting.sot_taxes_exemptions_input
+    description: '{{ doc("table_sot_taxes_exemptions_input") }}'
+    config:
+      tags:
+        - daily
+
   - name: reporting.ratio_stats_input
     description: '{{ doc("table_ratio_stats_input") }}'
     config:
