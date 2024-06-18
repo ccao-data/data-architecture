@@ -248,7 +248,7 @@ sales_val AS (
         sf.sv_outlier_reason3,
         sf.run_id AS sv_run_id,
         sf.version AS sv_version
-    FROM 
+    FROM
         {{ source('sale', 'flag') }}
             AS sf
     INNER JOIN max_version_flag AS mv
