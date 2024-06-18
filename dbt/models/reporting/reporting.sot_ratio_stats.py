@@ -1,6 +1,5 @@
 # This script generates aggregated summary stats on sales data across a number
 # of geographies, class combinations, and time.
-
 import os.path
 
 # Import libraries
@@ -51,19 +50,23 @@ geos = {
     ],
 }
 # Declare class groupings
-groups = ["no_group", "class", "major_class", "modeling_group", "stage_name"]
+groups = ["no_group", "class", "major_class", "modeling_group"]
 
 
-# %%
 # Define aggregation functions
 def aggregrate(data, geography_type, group_type):
     print(geography_type, group_type)
 
-    group = [geography_type, group_type, "year"]
+    group = [geography_type, group_type, "year", "stage_name"]
     data["size"] = data.groupby(group)["tot_mv"].transform("size")
     data["sale_count"] = data.groupby(group)["sale_price"].transform("count")
     data["mv_count"] = data.groupby(group)["tot_mv"].transform("count")
+
+    # Remove parcels with FMVs of 0 since they screw up ratios
+    data = data[data["tot_mv"] > 0].reset_index()
     data["ratio_count"] = data.groupby(group)["ratio"].transform("count")
+
+    # Remove groups that only have one sale since we can't calculate stats
     data = data[data["ratio_count"] > 1]
 
     summary = (
@@ -118,7 +121,7 @@ for key, value in geos.items():
         for z in groups:
             output = pd.concat([output, aggregrate(df, x, z)])
 
-output.index.names = ["geography_id", "group_id", "year"]
+output.index.names = ["geography_id", "group_id", "year", "stage_name"]
 
 output = output.reset_index().set_index(
     [
@@ -127,36 +130,39 @@ output = output.reset_index().set_index(
         "group_type",
         "group_id",
         "year",
+        "stage_name",
     ]
 )
 
 # Clean combined output and export
 output["mv_delta_pct_median"] = (
     output.sort_values("year")
-    .groupby(["geography_id", "group_id"])
+    .groupby(["geography_id", "group_id", "stage_name"])
     .mv_median.diff()
 )
 output["mv_delta_pct_mean"] = (
     output.sort_values("year")
-    .groupby(["geography_id", "group_id"])
+    .groupby(["geography_id", "group_id", "stage_name"])
     .mv_mean.diff()
 )
 output["mv_delta_pct_sum"] = (
     output.sort_values("year")
-    .groupby(["geography_id", "group_id"])
+    .groupby(["geography_id", "group_id", "stage_name"])
     .mv_sum.diff()
 )
 
 output["mv_delta_pct_median"] = (
     output.sort_values("year")
-    .groupby(["geography_id", "group_id"])
+    .groupby(["geography_id", "group_id", "stage_name"])
     .mv_median.pct_change()
 )
 output["mv_delta_pct_mean"] = (
     output.sort_values("year")
-    .groupby(["geography_id", "group_id"])
+    .groupby(["geography_id", "group_id", "stage_name"])
     .mv_mean.pct_change()
 )
 
 output.dropna(how="all", axis=1, inplace=True)
 output.to_csv("sot_ratio_stats.csv")
+
+# %%
