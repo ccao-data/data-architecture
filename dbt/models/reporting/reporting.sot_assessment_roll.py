@@ -133,4 +133,7 @@ for i in ["median", "mean", "sum"]:
 
 output["tot", "pct_w_value"] = output["tot", "count"] / output["tot", "size"]
 
+output.columns = ["_".join(col) for col in output.columns]
+output.reset_index()
+
 output.to_csv("sot_assessment_roll.csv")

@@ -134,4 +134,7 @@ for i in ["median", "mean", "sum"]:
     output["sale_price", "delta" + i] = output["sale_price", i].diff()
     output["price_per_sf", "delta" + i] = output["price_per_sf", i].diff()
 
+output.columns = ["_".join(col) for col in output.columns]
+output.reset_index()
+
 output.to_csv("sot_sales.csv")

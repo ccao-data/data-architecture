@@ -134,4 +134,7 @@ for key, value in geos.items():
 for i in ["median", "mean", "sum"]:
     output["tax_bill_total", "delta" + i] = output["tax_bill_total", i].diff()
 
+output.columns = ["_".join(col) for col in output.columns]
+output.reset_index()
+
 output.to_csv("sot_taxes_exemptions.csv")
