@@ -1,5 +1,5 @@
 seeds:
-  - name: spatial.stadium
+  - name: spatial.stadium_raw
     description: '{{ doc("seed_stadium_raw") }}'
     config:
       column_types:
