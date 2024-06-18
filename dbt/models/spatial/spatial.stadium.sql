@@ -1,3 +1,7 @@
+{{
+    config(materialized='table')
+}}
+
 SELECT
     name,
     ST_ASBINARY(ST_POINT(lon, lat)) AS geometry,

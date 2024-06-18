@@ -1,4 +1,4 @@
-# stadium
+# stadium_raw
 
 {% docs seed_stadium_raw %}
 A list of stadiums and their latitude and longitude, manually constructed

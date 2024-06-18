@@ -127,7 +127,7 @@ sources:
         description: '{{ doc("table_special_service_area") }}'
 
       - name: stadium
-        description: '{{ doc("table_stadium") }}'
+        description: '{{ doc("stadium") }}'
 
       - name: state_representative_district
         description: '{{ doc("table_state_representative_district") }}'
