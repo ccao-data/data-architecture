@@ -1,12 +1,15 @@
 # pylint: skip-file
 # type: ignore
+sc.addPyFile(  # noqa: F821
+    "s3://ccao-athena-dependencies-us-east-1/assesspy==1.1.0.zip"
+)
 
 # This script generates aggregated summary stats on sales data across a number
 # of geographies, class combinations, and time.
 
 # Import libraries
-import assesspy as ass
-import pandas as pd
+import assesspy as ass  # noqa: E402
+import pandas as pd  # noqa: E402
 
 # Declare geographic groups and their associated data years
 geos = {
