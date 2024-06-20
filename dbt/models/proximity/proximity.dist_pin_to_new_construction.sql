@@ -14,7 +14,7 @@ WITH new_construction AS (  -- noqa: ST03
         parcel.year,
         vw_card_res_char.char_yrblt
     FROM spatial.parcel AS parcel
-    INNER JOIN {{ ref('vw_card_res_char') }} AS vw_card_res_char
+    INNER JOIN {{ ref('default.vw_card_res_char') }} AS vw_card_res_char
         ON parcel.pin10 = vw_card_res_char.pin10
         AND parcel.year = vw_card_res_char.year
         AND CAST(parcel.year AS INT)
