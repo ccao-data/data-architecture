@@ -18,7 +18,7 @@ WITH new_construction AS (  -- noqa: ST03
         ON parcel.pin10 = vw_card_res_char.pin10
         AND parcel.year = vw_card_res_char.year
         AND CAST(parcel.year AS INT)
-        <= CAST(vw_card_res_char.char_yrblt AS INT) + 2
+        <= CAST(vw_card_res_char.char_yrblt AS INT) + 3
 )
 
 SELECT
