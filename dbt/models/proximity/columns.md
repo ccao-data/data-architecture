@@ -192,9 +192,7 @@ Grocery store data sourced from Cook County GIS and OpenStreetMap
 ## nearest_grocery_store_name
 
 {% docs column_nearest_grocery_store_name %}
-Nearest grocery store name via OSM.
-
-Grocery store data sourced from Cook County GIS and OpenStreetMap
+Nearest grocery store name via OSM
 {% enddocs %}
 
 ## nearest_grocery_osm_id
