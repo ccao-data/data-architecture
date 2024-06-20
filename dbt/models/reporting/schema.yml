@@ -46,6 +46,12 @@ models:
       tags:
         - daily
 
+  - name: reporting.sot_ratio_stats
+    description: '{{ doc("table_sot_ratio_stats") }}'
+    config:
+      tags:
+        - daily
+
   - name: reporting.sot_ratio_stats_input
     description: '{{ doc("table_sot_ratio_stats_input") }}'
     config:

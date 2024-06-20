@@ -48,6 +48,14 @@ Table to feed the Python dbt job that creates the
 **Primary Key**: `year`, `stage_name`, `geography_id`, `group_id`
 {% enddocs %}
 
+# sot_ratio_stats
+
+{% docs table_sot_ratio_stats %}
+Feeds public reporting assets.
+
+**Primary Key**: `year`, `stage_name`, `geography_id`, `group_id`
+{% enddocs %}
+
 # sot_ratio_stats_input
 
 {% docs table_sot_ratio_stats_input %}
