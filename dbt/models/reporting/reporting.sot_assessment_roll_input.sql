@@ -110,4 +110,4 @@ LEFT JOIN {{ ref('reporting.vw_pin_value_long') }} AS vals
     AND uni.stage_name = vals.stage_name
 LEFT JOIN {{ ref('ccao.class_dict') }}
     ON uni.class = class_dict.class_code
-WHERE uni.year IN ('2022', '2023')
+WHERE uni.stage_name = 'MAILED' AND uni.class = '278'
