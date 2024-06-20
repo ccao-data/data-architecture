@@ -53,8 +53,6 @@ models:
       +schema: model
     proximity:
       +schema: proximity
-    proximity:
-      +schema: spatial
     reporting:
       +schema: reporting
     sale:
