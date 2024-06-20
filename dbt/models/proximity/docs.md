@@ -88,6 +88,8 @@ Distance from each PIN to the nearest golf course.
 
 {% docs table_dist_pin_to_grocery_store %}
 Distance from each PIN to the nearest grocery store.
+OSM tags include supermarket, wholesale, and greengrocer.
+Only attributes with valid names are kept.
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}

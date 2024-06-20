@@ -166,6 +166,8 @@ data and tagged OpenStreetMap amenities.
 
 {% docs table_grocery_store %}
 Grocery stores. Locations sourced OpenStreetMap amenities.
+OSM tags include supermarket, wholesale, and greengrocer.
+Only attributes with valid names are kept.
 
 **Geometry:** `POINT`
 {% enddocs %}
