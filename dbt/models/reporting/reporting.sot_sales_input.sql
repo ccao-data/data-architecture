@@ -53,16 +53,19 @@ SELECT
     uni.school_elementary_district_geoid AS school_elementary_district,
     uni.school_secondary_district_geoid AS school_secondary_district,
     uni.school_unified_district_geoid AS school_unified_district,
-    uni.tax_municipality_name AS tax_municipality,
-    uni.tax_park_district_name AS tax_park_district,
-    uni.tax_library_district_name AS tax_library_district,
-    uni.tax_fire_protection_district_name AS tax_fire_protection_district,
-    uni.tax_community_college_district_name
+    ARRAY_JOIN(uni.tax_municipality_name, ', ') AS tax_municipality,
+    ARRAY_JOIN(uni.tax_park_district_name, ', ') AS tax_park_district,
+    ARRAY_JOIN(uni.tax_library_district_name, ', ') AS tax_library_district,
+    ARRAY_JOIN(uni.tax_fire_protection_district_name, ', ')
+        AS tax_fire_protection_district,
+    ARRAY_JOIN(uni.tax_community_college_district_name, ', ')
         AS
         tax_community_college_district,
-    uni.tax_sanitation_district_name AS tax_sanitation_district,
-    uni.tax_special_service_area_name AS tax_special_service_area,
-    uni.tax_tif_district_name AS tax_tif_district,
+    ARRAY_JOIN(uni.tax_sanitation_district_name, ', ')
+        AS tax_sanitation_district,
+    ARRAY_JOIN(uni.tax_special_service_area_name, ', ')
+        AS tax_special_service_area,
+    ARRAY_JOIN(uni.tax_tif_district_name, ', ') AS tax_tif_district,
     uni.econ_central_business_district_num AS central_business_district,
     uni.census_data_year,
     uni.cook_board_of_review_district_data_year,
@@ -97,3 +100,4 @@ LEFT JOIN {{ ref('default.vw_pin_sale') }} AS sales
     AND NOT sales.sale_filter_deed_type
     AND NOT sales.sale_filter_less_than_10k
     AND NOT sales.sale_filter_same_sale_within_365
+WHERE uni.year = '2023'
