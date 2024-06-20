@@ -34,6 +34,12 @@ models:
             within_20_pct >= within_10_pct
             AND within_10_pct >= within_05_pct
 
+  - name: reporting.sot_assessment_roll
+    description: '{{ doc("table_sot_assessment_roll") }}'
+    config:
+      tags:
+        - daily
+
   - name: reporting.sot_assessment_roll_input
     description: '{{ doc("table_sot_assessment_roll_input") }}'
     config:

@@ -30,6 +30,15 @@ Materialized to speed up queries for Tableau.
 `property_group`
 {% enddocs %}
 
+# sot_assessment_roll
+
+{% docs table_sot_assessment_roll %}
+Table to feed the Python dbt job that creates the
+`reporting.sot_assessment_roll` table. Feeds public reporting assets.
+
+**Primary Key**: `year`, `stage_name`, `geography_id`, `group_id`
+{% enddocs %}
+
 # sot_assessment_roll_input
 
 {% docs table_sot_assessment_roll_input %}

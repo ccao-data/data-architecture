@@ -1,20 +1,11 @@
+# pylint: skip-file
+# type: ignore
+
 # This script generates aggregated summary stats on sales data across a number
 # of geographies, class combinations, and time.
 
-import os.path
-
 # Import libraries
-import awswrangler as wr
 import pandas as pd
-
-# Ingest data if it is not already available
-if os.path.isfile("sot_assessment_roll.parquet.gzip"):
-    df = pd.read_parquet("sot_assessment_roll.parquet.gzip")
-
-else:
-    sql = open("reporting.sot_assessment_roll.sql").read()
-    df = wr.athena.read_sql_query(sql, database="default", ctas_approach=False)
-    df.to_parquet("sot_assessment_roll.parquet.gzip", compression="gzip")
 
 # Declare geographic groups and their associated data years
 geos = {
@@ -74,6 +65,25 @@ def first(x):
     return x.iloc[0]
 
 
+more_stats = [
+    "min",
+    q10,
+    q25,
+    "median",
+    q75,
+    q90,
+    "max",
+    "mean",
+    "sum",
+]
+
+stats = {
+    "tot": ["size", "count"] + more_stats,
+    "bldg": more_stats,
+    "land": more_stats,
+}
+
+
 def aggregrate(data, geography_type, group_type):
     print(geography_type, group_type)
 
@@ -96,44 +106,45 @@ def aggregrate(data, geography_type, group_type):
     return summary
 
 
-more_stats = [
-    "min",
-    q10,
-    q25,
-    "median",
-    q75,
-    q90,
-    "max",
-    "mean",
-    "sum",
-]
+def assemble(df, geos, groups):
+    # Create an empty dataframe to fill with output
+    output = pd.DataFrame()
 
-stats = {
-    "tot": ["size", "count"] + more_stats,
-    "bldg": more_stats,
-    "land": more_stats,
-}
+    # Loop through group combinations and stack output
+    for key, value in geos.items():
+        df["data_year"] = df[key]
 
-# Create an empty dataframe to fill with output
-output = pd.DataFrame()
+        for x in value:
+            for z in groups:
+                output = pd.concat([output, aggregrate(df, x, z)])
 
-# Loop through group combinations and stack output
-for key, value in geos.items():
-    df["data_year"] = df[key]
+    # Clean combined output and export
+    for i in ["median", "mean", "sum"]:
+        output["tot", "delta" + i] = output["tot", i].diff()
+        output["bldg", "delta" + i] = output["bldg", i].diff()
+        output["land", "delta" + i] = output["land", i].diff()
 
-    for x in value:
-        for z in groups:
-            output = pd.concat([output, aggregrate(df, x, z)])
+    output["tot", "pct_w_value"] = (
+        output["tot", "count"] / output["tot", "size"]
+    )
 
-# Clean combined output and export
-for i in ["median", "mean", "sum"]:
-    output["tot", "delta" + i] = output["tot", i].diff()
-    output["bldg", "delta" + i] = output["bldg", i].diff()
-    output["land", "delta" + i] = output["land", i].diff()
+    output.columns = ["_".join(col) for col in output.columns]
+    output.reset_index()
 
-output["tot", "pct_w_value"] = output["tot", "count"] / output["tot", "size"]
+    return output
 
-output.columns = ["_".join(col) for col in output.columns]
-output.reset_index()
 
-output.to_csv("sot_assessment_roll.csv")
+def model(dbt, spark_session):
+    dbt.config(materialized="table")
+
+    input = dbt.ref("reporting.sot_assessment_roll_input")
+
+    # Convert the Spark input dataframe to Pandas for
+    # compatibility with assesspy functions
+    input = input.toPandas()
+
+    df = assemble(input, geos=geos, groups=groups)
+
+    spark_df = spark_session.createDataFrame(df)
+
+    return spark_df
