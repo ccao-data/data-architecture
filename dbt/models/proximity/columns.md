@@ -184,27 +184,20 @@ Golf course data sourced from Cook County GIS and OpenStreetMap
 ## nearest_grocery_store_dist_ft
 
 {% docs column_nearest_grocery_store_dist_ft %}
-Nearest grocery store distance (feet).
-
-Grocery store data sourced from Cook County GIS and OpenStreetMap
+Nearest grocery store distance (feet)
 {% enddocs %}
 
 ## nearest_grocery_store_name
 
 {% docs column_nearest_grocery_store_name %}
-Nearest grocery store name via OSM.
-
-Grocery store data sourced from Cook County GIS and OpenStreetMap
+Nearest grocery store name via OSM
 {% enddocs %}
 
 ## nearest_grocery_osm_id
 
 {% docs column_nearest_grocery_store_osm_id %}
-Nearest grocery store osm_id number via OSM.
-
-Grocery store data sourced from Cook County GIS and OpenStreetMap
+Nearest grocery store osm_id number via OSM
 {% enddocs %}
-
 
 ## nearest_hospital_dist_ft
 
