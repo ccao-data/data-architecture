@@ -301,8 +301,7 @@ Nearest new construction distance (feet)
 ## nearest_new_construction_char_yrblt
 
 {% docs column_nearest_new_construction_char_yrblt %}
-Year built of the nearest new construction.
-
+Year built of the nearest new construction
 {% enddocs %}
 
 ## nearest_neighbor_dist_ft
