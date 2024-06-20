@@ -4,9 +4,18 @@
     )
 }}
 
+WITH tcd AS (
+    SELECT DISTINCT
+        tax_code_num,
+        tax_code_rate,
+        year
+    FROM {{ source('tax', 'tax_code') }}
+)
+
 -- Gather parcel-level geographies and join taxes, exemptions, and class
 -- groupings
 SELECT
+    uni.pin,
     tax.year,
     tax.av_clerk,
     tax.tax_bill_total,
@@ -95,9 +104,9 @@ INNER JOIN {{ source('tax', 'pin') }} AS tax
     AND uni.year = tax.year
 INNER JOIN {{ source('tax', 'eq_factor') }} AS eqf
     ON uni.year = eqf.year
-INNER JOIN {{ source('tax', 'tax_code') }} AS tcd
+INNER JOIN tcd
     ON tax.tax_code_num = tcd.tax_code_num
     AND tax.year = tcd.year
 INNER JOIN {{ ref('ccao.class_dict') }}
     ON uni.class = class_dict.class_code
-WHERE uni.class = '278'
+WHERE uni.class = '206'

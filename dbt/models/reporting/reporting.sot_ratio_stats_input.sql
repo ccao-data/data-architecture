@@ -119,3 +119,4 @@ LEFT JOIN {{ ref('default.vw_pin_sale') }} AS sales
     AND NOT sales.sale_filter_less_than_10k
     AND NOT sales.sale_filter_same_sale_within_365
 WHERE uni.year >= '2020'
+    AND uni.year = '2023' AND uni.class = '278'

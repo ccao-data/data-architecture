@@ -1,3 +1,6 @@
+# pylint: skip-file
+# type: ignore
+
 # This script generates aggregated summary stats on taxes and exemptions data
 # across a number of geographies, class combinations, and time.
 
@@ -98,6 +101,7 @@ agg_func_math = {
 def assemble(df, geos, groups):
     # Create an empty dataframe to fill with output
     output = pd.DataFrame()
+
     # Loop through group combinations and stack output
     for key, value in geos.items():
         df["data_year"] = df[key]

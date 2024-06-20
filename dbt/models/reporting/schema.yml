@@ -52,8 +52,20 @@ models:
       tags:
         - daily
 
+  - name: reporting.sot_sales
+    description: '{{ doc("table_sot_sales") }}'
+    config:
+      tags:
+        - daily
+
   - name: reporting.sot_sales_input
     description: '{{ doc("table_sot_sales_input") }}'
+    config:
+      tags:
+        - daily
+
+  - name: reporting.sot_taxes_exemptions
+    description: '{{ doc("table_sot_taxes_exemptions") }}'
     config:
       tags:
         - daily

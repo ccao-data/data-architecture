@@ -57,11 +57,27 @@ Table to feed the Python dbt job that creates the
 **Primary Key**: `year`, `stage_name`, `geography_id`, `group_id`
 {% enddocs %}
 
+# sot_sales
+
+{% docs table_sot_sales %}
+Feeds public reporting assets.
+
+**Primary Key**: `year`, `geography_id`, `group_id`
+{% enddocs %}
+
 # sot_sales_input
 
 {% docs table_sot_sales_input %}
 Table to feed the Python dbt job that creates the
 `reporting.sot_sales` table. Feeds public reporting assets.
+
+**Primary Key**: `year`, `geography_id`, `group_id`
+{% enddocs %}
+
+# sot_taxes_exemptions
+
+{% docs table_sot_taxes_exemptions %}
+Feeds public reporting assets.
 
 **Primary Key**: `year`, `geography_id`, `group_id`
 {% enddocs %}
