@@ -295,8 +295,7 @@ PIN10 of nearest new construction from CCAO data
 ## nearest_new_construction_dist_ft
 
 {% docs column_nearest_new_construction_dist_ft %}
-Nearest new construction distance (feet).
-
+Nearest new construction distance (feet)
 {% enddocs %}
 
 ## nearest_new_construction_char_yrblt
