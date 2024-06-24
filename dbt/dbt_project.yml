@@ -58,6 +58,8 @@ models:
       +schema: reporting
     sale:
       +schema: sale
+    spatial:
+      +schema: spatial
     qc:
       +schema: qc
 data_tests:
@@ -71,3 +73,5 @@ seeds:
       +schema: location
     model:
       +schema: model
+    spatial:
+      +schema: spatial
