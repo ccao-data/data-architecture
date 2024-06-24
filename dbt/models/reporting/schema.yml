@@ -6,6 +6,7 @@ models:
         - daily
       packages:
         - "assesspy==1.1.0"
+        - "numba==0.60.0"
     data_tests:
       - expression_is_true:
           name: reporting_ratio_stats_no_nulls
