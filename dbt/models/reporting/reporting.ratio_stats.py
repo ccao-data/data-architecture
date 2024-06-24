@@ -4,17 +4,14 @@ sc.addPyFile(  # noqa: F821
     "s3://ccao-athena-dependencies-us-east-1/assesspy==1.1.0.zip"
 )
 
-sc.addPyFile(  # noqa: F821
-    "s3://ccao-athena-dependencies-us-east-1/dask==2024.6.2.zip"
-)
-
-import dask
+import multiprocessing as mp
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 import statsmodels.api as sm # noqa: E402
 from pandas.api.types import is_numeric_dtype # noqa: E402
 from pyspark.sql import SparkSession # noqa: E402
 from pyspark.sql.functions import count # noqa: E402
+from functools import partial
 #from assesspy import boot_ci  # noqa: E402
 #from assesspy import cod  # noqa: E402
 #from assesspy import prd_met  # noqa: E402
@@ -86,6 +83,40 @@ def prd_boot(assessed, sale_price, nboot=100, alpha=0.05):
     )
 
 
+def bootstrap_worker(data_array, fun, num_kwargs, n, nboot, start, end, result_queue):
+    ests = []
+    for _ in range(start, end):
+        sample_indices = np.random.choice(data_array.shape[0], size=n, replace=True)
+        sample_array = data_array[sample_indices]
+        if fun.__name__ == "cod" or num_kwargs == 1:
+            ests.append(fun(sample_array[:, 0]))
+        elif fun.__name__ == "prd":
+            ests.append(fun(sample_array[:, 0], sample_array[:, 1]))
+        else:
+            raise Exception("Input function should require 1 argument or be assesspy.prd.")
+    result_queue.put(ests)
+
+def parallel_bootstrap(data_array, fun, num_kwargs, n, nboot, num_processes=4):
+    processes = []
+    result_queue = mp.Queue()
+    chunk_size = nboot // num_processes
+    
+    for i in range(num_processes):
+        start = i * chunk_size
+        end = start + chunk_size if i < num_processes - 1 else nboot
+        p = mp.Process(target=bootstrap_worker, args=(data_array, fun, num_kwargs, n, nboot, start, end, result_queue))
+        processes.append(p)
+        p.start()
+    
+    results = []
+    for _ in range(num_processes):
+        results.extend(result_queue.get())
+    
+    for p in processes:
+        p.join()
+    
+    return results
+
 def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
     """
     Calculate the non-parametric bootstrap confidence interval
@@ -156,24 +187,8 @@ def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
     if not is_numeric_dtype(out):
         raise Exception("Input function outputs non-numeric datatype.")
 
-    ests = []
-
-    # Take a random sample of input, with the same number of rows as input,
-    # with replacement.
     data_array = kwargs.to_numpy()
-    for i in list(range(1, nboot)):
-        sample_indices = np.random.choice(data_array.shape[0], size=n, replace=True)
-        sample_array = data_array[sample_indices]
-        if fun.__name__ == "cod" or num_kwargs == 1:
-            # Use the first column of the sample
-            ests.append(fun(sample_array[:, 0]))
-        elif fun.__name__ == "prd":
-            # Use the first two columns of the sample
-            ests.append(fun(sample_array[:, 0], sample_array[:, 1]))
-        else:
-            raise Exception(
-                "Input function should require 1 argument or be assesspy.prd."
-            )
+    ests = parallel_bootstrap(data_array, fun, num_kwargs, n, nboot)
 
     ests = pd.Series(ests)
 
@@ -712,13 +727,9 @@ def model(dbt, spark_session):
     # Replicate filtering from prior vw_ratio_stats pull
     input = input[input.ratio > 0 & input.ratio.notnull()]
 
-    df = report_summarise(input, "triad", "Tri")
+    #df = report_summarise(input, "triad", "Tri")
 
 
-
-
-
-    """
     # Replicate filtering from prior vw_ratio_stats pull
     input = input[input.ratio > 0 & input.ratio.notnull()]
 
@@ -728,7 +739,7 @@ def model(dbt, spark_session):
             report_summarise(input, "township_code", "Town"),
         ]
     ).reset_index(drop=True)
-    """
+
 
     # Force certain columns to datatype to maintain parity with old version
     df[["year", "triad", "sale_year"]] = df[
