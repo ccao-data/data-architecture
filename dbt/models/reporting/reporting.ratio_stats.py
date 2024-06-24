@@ -8,6 +8,10 @@ sc.addPyFile(  # noqa: F821
     "s3://ccao-athena-dependencies-us-east-1/numba==0.60.0.zip"
 )
 
+sc.addPyFile(  # noqa: F821
+    "s3://ccao-athena-dependencies-us-east-1/llvmlite==0.43.0.zip"
+)
+
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 import statsmodels.api as sm # noqa: E402
