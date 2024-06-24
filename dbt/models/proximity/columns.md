@@ -307,7 +307,7 @@ Year built of the nearest new construction
 ## nearest_neighbor_dist_ft
 
 {% docs column_nearest_neighbor_dist_ft %}
-Nearest neighboring parcel distance (feet).
+Nearest neighboring parcel distance (feet)
 
 These columns provide the three nearest neighbor PINs, starting
 with `nearest_neighbor_1_dist_ft` (which is the nearest)
