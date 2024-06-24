@@ -1,6 +1,4 @@
 seeds:
-  - name: spatial.stadium
-    description: '{{ doc("seed_stadium") }}'
     config:
       column_types:
         year: string
