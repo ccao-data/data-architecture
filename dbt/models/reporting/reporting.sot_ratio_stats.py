@@ -8,7 +8,8 @@ sc.addPyFile(  # noqa: F821
 # of geographies, class combinations, and time.
 
 # Import libraries
-import assesspy as ass  # noqa: E402
+import assesspy as ass  # noqa: E402, F401
+import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
 # Declare geographic groups and their associated data years
@@ -58,45 +59,42 @@ def aggregrate(data, geography_type, group_type):
     data["mv_count"] = data.groupby(group)["tot_mv"].transform("count")
 
     # Remove parcels with FMVs of 0 since they screw up ratios
-    data = data[data["tot_mv"] > 0].reset_index()
+    data = data[data["tot_mv"] > 0]
     data["ratio_count"] = data.groupby(group)["ratio"].transform("count")
 
     # Remove groups that only have one sale since we can't calculate stats
     data = data[data["ratio_count"] >= 30]
 
-    summary = (
-        data.dropna(subset=["ratio"])
-        .groupby(group)
-        .apply(
-            lambda x: pd.Series(
-                {
-                    "size": x["size"].iloc[0],
-                    "mv_count": x["mv_count"].iloc[0],
-                    "sale_count": x["sale_count"].iloc[0],
-                    "mv_min": x["tot_mv"].min(),
-                    "mv_q10": x["tot_mv"].quantile(0.1),
-                    "mv_q25": x["tot_mv"].quantile(0.25),
-                    "mv_median": x["tot_mv"].median(),
-                    "mv_q75": x["tot_mv"].quantile(0.75),
-                    "mv_q90": x["tot_mv"].quantile(0.90),
-                    "mv_max": x["tot_mv"].max(),
-                    "mv_mean": x["tot_mv"].mean(),
-                    "mv_sum": x["tot_mv"].sum(),
-                    "ratio_min": x["ratio"].min(),
-                    "ratio_q10": x["ratio"].quantile(0.1),
-                    "ratio_q25": x["ratio"].quantile(0.25),
-                    "ratio_median": x["ratio"].median(),
-                    "ratio_q75": x["ratio"].quantile(0.75),
-                    "ratio_q90": x["ratio"].quantile(0.90),
-                    "ratio_max": x["ratio"].max(),
-                    "ratio_mean": x["ratio"].mean(),
-                    "cod": ass.cod(ratio=x["ratio"]),
-                    "prd": ass.prd(x["tot_mv"], x["sale_price"]),
-                    "prb": ass.prb(x["tot_mv"], x["sale_price"], 3)["prb"],
-                    "mki": ass.mki(x["tot_mv"], x["sale_price"]),
-                }
-            ),
-            include_groups=False,
+    data = data.dropna(subset=["ratio"])
+
+    summary = data.groupby(group).apply(
+        lambda x: pd.Series(
+            {
+                "size": x["size"].min(),
+                "mv_count": x["mv_count"].min(),
+                "sale_count": x["sale_count"].min(),
+                "mv_min": x["tot_mv"].min(),
+                "mv_q10": x["tot_mv"].quantile(0.1),
+                "mv_q25": x["tot_mv"].quantile(0.25),
+                "mv_median": x["tot_mv"].median(),
+                "mv_q75": x["tot_mv"].quantile(0.75),
+                "mv_q90": x["tot_mv"].quantile(0.90),
+                "mv_max": x["tot_mv"].max(),
+                "mv_mean": x["tot_mv"].mean(),
+                "mv_sum": x["tot_mv"].sum(),
+                "ratio_min": x["ratio"].min(),
+                "ratio_q10": x["ratio"].quantile(0.1),
+                "ratio_q25": x["ratio"].quantile(0.25),
+                "ratio_median": x["ratio"].median(),
+                "ratio_q75": x["ratio"].quantile(0.75),
+                "ratio_q90": x["ratio"].quantile(0.90),
+                "ratio_max": x["ratio"].max(),
+                "ratio_mean": x["ratio"].mean(),
+                # "cod": ass.cod(ratio=x["ratio"]),
+                # "prd": ass.prd(x["tot_mv"], x["sale_price"]),
+                # "prb": ass.prb(x["tot_mv"], x["sale_price"], 3)["prb"],
+                # "mki": ass.mki(x["tot_mv"], x["sale_price"]),
+            }
         )
     )
     summary["geography_type"] = geography_type
@@ -117,9 +115,15 @@ def assemble(df, geos, groups):
             for z in groups:
                 output = pd.concat([output, aggregrate(df, x, z)])
 
-    output.index.names = ["geography_id", "group_id", "year", "stage_name"]
+    output.dropna(how="all", axis=1, inplace=True)
 
-    output = output.reset_index().set_index(
+    return output
+
+
+def clean(dirty):
+    dirty.index.names = ["geography_id", "group_id", "year", "stage_name"]
+
+    dirty = dirty.reset_index().set_index(
         [
             "geography_type",
             "geography_id",
@@ -130,37 +134,57 @@ def assemble(df, geos, groups):
         ]
     )
 
-    # Clean combined output and export
-    output["mv_delta_pct_median"] = (
-        output.sort_values("year")
+    # Clean combined dirty and export
+    dirty["mv_delta_pct_median"] = (
+        dirty.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_median.diff()
     )
-    output["mv_delta_pct_mean"] = (
-        output.sort_values("year")
+    dirty["mv_delta_pct_mean"] = (
+        dirty.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_mean.diff()
     )
-    output["mv_delta_pct_sum"] = (
-        output.sort_values("year")
+    dirty["mv_delta_pct_sum"] = (
+        dirty.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_sum.diff()
     )
 
-    output["mv_delta_pct_median"] = (
-        output.sort_values("year")
+    dirty["mv_delta_pct_median"] = (
+        dirty.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_median.pct_change()
     )
-    output["mv_delta_pct_mean"] = (
-        output.sort_values("year")
+    dirty["mv_delta_pct_mean"] = (
+        dirty.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_mean.pct_change()
     )
 
-    output.dropna(how="all", axis=1, inplace=True)
+    dirty = dirty.reset_index()
 
-    return output
+    dirty = dirty.astype(
+        {
+            "group_id": "str",
+            "year": "str",
+            "stage_name": "str",
+            "size": np.int64,
+            "mv_count": np.int64,
+            "sale_count": np.int64,
+            "mv_min": np.int64,
+            "mv_q10": np.int64,
+            "mv_q25": np.int64,
+            "mv_median": np.int64,
+            "mv_q75": np.int64,
+            "mv_q90": np.int64,
+            "mv_max": np.int64,
+            "mv_mean": np.int64,
+            "mv_sum": np.int64,
+        }
+    )
+
+    return dirty
 
 
 def model(dbt, spark_session):
@@ -174,6 +198,22 @@ def model(dbt, spark_session):
 
     df = assemble(input, geos=geos, groups=groups)
 
-    spark_df = spark_session.createDataFrame(df)
+    df = clean(df)
+
+    schema = (
+        "geography_type: string, geography_id: string, "
+        + "group_type: string, group_id: string, year: string, "
+        + "stage_name: string, size: bigint, mv_count: bigint, "
+        + "sale_count: bigint, mv_min: bigint, mv_q10: bigint, "
+        + "mv_q25: bigint, mv_median: bigint, mv_q75: bigint, "
+        + "mv_q90: bigint, mv_max: bigint, mv_mean: bigint, "
+        + "mv_sum: bigint, ratio_min: double, ratio_q10: double, "
+        + "ratio_q25: double, ratio_median: double, ratio_q75: double, "
+        + "ratio_q90: double, ratio_max: double, ratio_mean: double, "
+        + "mv_delta_pct_median: double, mv_delta_pct_mean: double, "
+        + "mv_delta_pct_sum: double"
+    )
+
+    spark_df = spark_session.createDataFrame(df, schema=schema)
 
     return spark_df
