@@ -6,6 +6,7 @@ models:
         - daily
       packages:
         - "assesspy==1.1.0"
+        - "dask==2024.6.2"
     data_tests:
       - expression_is_true:
           name: reporting_ratio_stats_no_nulls

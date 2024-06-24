@@ -4,7 +4,11 @@ sc.addPyFile(  # noqa: F821
     "s3://ccao-athena-dependencies-us-east-1/assesspy==1.1.0.zip"
 )
 
+sc.addPyFile(  # noqa: F821
+    "s3://ccao-athena-dependencies-us-east-1/dask==2024.6.2.zip"
+)
 
+import dask
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 import statsmodels.api as sm # noqa: E402
