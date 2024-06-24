@@ -11,7 +11,6 @@ import statsmodels.api as sm # noqa: E402
 from pandas.api.types import is_numeric_dtype # noqa: E402
 from pyspark.sql import SparkSession # noqa: E402
 from pyspark.sql.functions import count # noqa: E402
-from numba import jit, prange
 #from assesspy import boot_ci  # noqa: E402
 #from assesspy import cod  # noqa: E402
 #from assesspy import prd_met  # noqa: E402
@@ -157,12 +156,16 @@ def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
 
     # Take a random sample of input, with the same number of rows as input,
     # with replacement.
+    data_array = kwargs.to_numpy()
     for i in list(range(1, nboot)):
-        sample = kwargs.sample(n=n, replace=True)
+        sample_indices = np.random.choice(data_array.shape[0], size=n, replace=True)
+        sample_array = data_array[sample_indices]
         if fun.__name__ == "cod" or num_kwargs == 1:
-            ests.append(fun(sample.iloc[:, 0]))
+            # Use the first column of the sample
+            ests.append(fun(sample_array[:, 0]))
         elif fun.__name__ == "prd":
-            ests.append(fun(sample.iloc[:, 0], sample.iloc[:, 1]))
+            # Use the first two columns of the sample
+            ests.append(fun(sample_array[:, 0], sample_array[:, 1]))
         else:
             raise Exception(
                 "Input function should require 1 argument or be assesspy.prd."
