@@ -626,15 +626,7 @@ def report_summarise(df, geography_id, geography_type):
     # Remove groups with less than three observations
     # TODO: Remove/upgrade detect_chasing output
     
-    #df["n"] = df.groupby(group_cols)["ratio"].transform("count")
-    df = spark.createDataFrame(df)
-    # Group by the specified columns and count the occurrences in each group
-    count_df = df.groupBy(group_cols).agg(count("*").alias("n"))
-    # Join the count back to the original DataFrame
-    df = df.join(count_df, on=group_cols, how="inner")
-
-    df = df.toPandas()
-
+    df["n"] = df.groupby(group_cols)["ratio"].transform("count")
     df = df[df["n"] > 3]
     df = df.groupby(group_cols).apply(
         lambda x: pd.Series(
