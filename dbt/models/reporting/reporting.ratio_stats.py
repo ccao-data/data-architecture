@@ -231,12 +231,13 @@ def cod(ratio):
     for COD depending on property class. See `IAAO Standard on Ratio Studies`_
     Section 9.1, Table 1.3 for a full list of standard COD ranges.
 
-    .. _IAAO Standard on Ratio Studies: https://www.iaao.org/media/standards/Standard_on_Ratio_Studies.pdf
+    .. _IAAO Standard on Ratio Studies:
+            https://www.iaao.org/media/standards/Standard_on_Ratio_Studies.pdf
 
     .. note::
         The IAAO recommends trimming outlier ratios before calculating COD,
-        as it is extremely sensitive to large outliers. The typical method used is
-        dropping values beyond 3 * IQR (inner-quartile range). See
+        as it is extremely sensitive to large outliers. The typical method
+        used is dropping values beyond 3 * IQR (inner-quartile range). See
         `IAAO Standard on Ratio Studies`_ Appendix B.1.
 
     :param ratio:
@@ -285,8 +286,9 @@ def mki(assessed, sale_price):
     .. Quintos, C. (2020). A Gini measure for vertical equity in property
         assessments. https://researchexchange.iaao.org/jptaa/vol17/iss2/2
 
-    .. Quintos, C. (2021). A Gini decomposition of the sources of inequality in
-        property assessments. https://researchexchange.iaao.org/jptaa/vol18/iss2/6
+    .. Quintos, C. (2021). A Gini decomposition of the sources of inequality
+    in property assessments.
+        https://researchexchange.iaao.org/jptaa/vol18/iss2/6
 
     :param assessed:
         A numeric vector of assessed values. Must be the same
@@ -327,7 +329,8 @@ def prb(assessed, sale_price, round=None):
     Section 9.2.7. Higher PRB values indicate progressivity in assessment,
     while negative values indicate regressivity.
 
-    .. _IAAO Standard on Ratio Studies: https://www.iaao.org/media/standards/Standard_on_Ratio_Studies.pdf
+    .. _IAAO Standard on Ratio Studies:
+            https://www.iaao.org/media/standards/Standard_on_Ratio_Studies.pdf
 
     .. note: PRB is significantly less sensitive to outliers than PRD or COD.
 
@@ -397,15 +400,18 @@ def prd(assessed, sale_price):
     0.98 and 1.03, as defined in the `IAAO Standard on Ratio Studies`_
     Section 9.2.7. Higher PRD values indicate regressivity in assessment.
 
-    .. _IAAO Standard on Ratio Studies: https://www.iaao.org/media/standards/Standard_on_Ratio_Studies.pdf
+    .. _IAAO Standard on Ratio Studies:
+        https://www.iaao.org/media/standards/Standard_on_Ratio_Studies.pdf
 
     .. note::
        The IAAO recommends trimming outlier ratios before calculating PRD,
-       as it is extremely sensitive to large outliers. PRD is being deprecated in
-       favor of PRB, which is less sensitive to outliers and easier to interpret.
+       as it is extremely sensitive to large outliers. PRD is being deprecated
+       in favor of PRB, which is less sensitive to outliers and easier to
+       interpret.
 
     :param assessed:
-        A numeric vector of assessed values. Must be the same length as ``sale_price``.
+        A numeric vector of assessed values. Must be the same
+        length as ``sale_price``.
     :param sale_price:
         A numeric vector of sale prices. Must be the same length
         as ``assessed``.
@@ -447,7 +453,8 @@ def prb(assessed, sale_price, round=None):
     Section 9.2.7. Higher PRB values indicate progressivity in assessment,
     while negative values indicate regressivity.
 
-    .. _IAAO Standard on Ratio Studies: https://www.iaao.org/media/standards/Standard_on_Ratio_Studies.pdf
+    .. _IAAO Standard on Ratio Studies:
+            https://www.iaao.org/media/standards/Standard_on_Ratio_Studies.pdf
 
     .. note: PRB is significantly less sensitive to outliers than PRD or COD.
 
