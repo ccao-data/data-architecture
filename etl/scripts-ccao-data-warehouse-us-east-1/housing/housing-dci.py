@@ -27,7 +27,7 @@ data = data[data["State"] == "Illinois"]
 #  has an updated dataset.
 
 data["year"] = str(2021)
-data["year_constructed"] = str(2023)
+data["data_year"] = str(2023)
 
 data = data[["Zip Code", "2017-2021 Final Distress Score", "year"]].rename(
     columns={

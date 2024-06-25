@@ -23,7 +23,7 @@ data = pd.read_excel(temp_file.name, skiprows=2, engine="openpyxl")
 
 # Include a year column for the year of file construction.
 # This should be changed if a more recent data file is uploaded.
-data["year_constructed"] = str(2023)
+data["data_year"] = str(2023)
 data["year"] = str(2021)
 
 data = data[["Census Tract", "Total ARI Score", "year"]].rename(
