@@ -4,7 +4,7 @@ sc.addPyFile(  # noqa: F821
     "s3://ccao-athena-dependencies-us-east-1/assesspy==1.1.0.zip"
 )
 
-import multiprocessing as mp # noqa
+import multiprocessing as mp  # noqa
 
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
@@ -171,7 +171,7 @@ def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
                 ests.append(fun(sample_array[:, 0], sample_array[:, 1]))
             else:
                 raise Exception(
-                    "Input function should require 1 argument or be assesspy.prd." # noqa
+                    "Input function should require 1 argument or be assesspy.prd."  # noqa
                 )
         result_queue.put(ests)
 
@@ -389,7 +389,7 @@ def prb(assessed, sale_price, round=None):
     return out
 
 
-def prd(assessed, sale_price):
+def prd(assessed, sale_price):  # noqa
     """
     PRD is the mean ratio divided by the mean ratio weighted by sale
     price. It is a measure of vertical equity in assessment. Vertical equity
