@@ -5,23 +5,22 @@ sc.addPyFile(  # noqa: F821
 )
 
 import multiprocessing as mp
+
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
-import statsmodels.api as sm # noqa: E402
-from pandas.api.types import is_numeric_dtype # noqa: E402
-from pyspark.sql import SparkSession # noqa: E402
-from pyspark.sql.functions import count # noqa: E402
-from functools import partial
-#from assesspy import boot_ci  # noqa: E402
-#from assesspy import cod  # noqa: E402
-#from assesspy import prd_met  # noqa: E402
-#from assesspy import cod_ci as cod_boot  # noqa: E402
-#from assesspy import cod_met, mki, mki_met, prb, prb_met, prd  # noqa: E402
-#from assesspy import prd_ci as prd_boot  # noqa: E402
+import statsmodels.api as sm  # noqa: E402
+from pandas.api.types import is_numeric_dtype  # noqa: E402
+
+# from assesspy import cod  # noqa: E402
+# from assesspy import prd_met  # noqa: E402
+# from assesspy import cod_ci as cod_boot  # noqa: E402
+# from assesspy import cod_met, mki, mki_met, prb, prb_met, prd  # noqa: E402
+# from assesspy import prd_ci as prd_boot  # noqa: E402
 
 # - - - -
 # Paste assesspy functions
 # - - - -
+
 
 def calculate_gini(assessed, sale_price):
     df = pd.DataFrame({"av": assessed, "sp": sale_price})
@@ -131,10 +130,12 @@ def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
         kwargs.keys()
     ):
         kwargs = (kwargs["assessed"], kwargs["sale_price"])
-    elif fun.__name__ == "prd" and not set(["assessed", "sale_price"]).issubset(
-        kwargs.keys()
-    ):
-        raise Exception("PRD function expects argurments 'assessed' and 'sale_price'.")
+    elif fun.__name__ == "prd" and not set(
+        ["assessed", "sale_price"]
+    ).issubset(kwargs.keys()):
+        raise Exception(
+            "PRD function expects argurments 'assessed' and 'sale_price'."
+        )
     else:
         kwargs = tuple(kwargs.values())
 
@@ -155,42 +156,59 @@ def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
 
     data_array = kwargs.to_numpy()
 
-
-    def bootstrap_worker(data_array, fun, num_kwargs, n, nboot, start, end, result_queue):
+    def bootstrap_worker(
+        data_array, fun, num_kwargs, n, nboot, start, end, result_queue
+    ):
         ests = []
         for _ in range(start, end):
-            sample_indices = np.random.choice(data_array.shape[0], size=n, replace=True)
+            sample_indices = np.random.choice(
+                data_array.shape[0], size=n, replace=True
+            )
             sample_array = data_array[sample_indices]
             if fun.__name__ == "cod" or num_kwargs == 1:
                 ests.append(fun(sample_array[:, 0]))
             elif fun.__name__ == "prd":
                 ests.append(fun(sample_array[:, 0], sample_array[:, 1]))
             else:
-                raise Exception("Input function should require 1 argument or be assesspy.prd.")
+                raise Exception(
+                    "Input function should require 1 argument or be assesspy.prd."
+                )
         result_queue.put(ests)
 
-
-    def parallel_bootstrap(data_array, fun, num_kwargs, n, nboot, num_processes=4):
+    def parallel_bootstrap(
+        data_array, fun, num_kwargs, n, nboot, num_processes=4
+    ):
         processes = []
         result_queue = mp.Queue()
         chunk_size = nboot // num_processes
-        
+
         for i in range(num_processes):
             start = i * chunk_size
             end = start + chunk_size if i < num_processes - 1 else nboot
-            p = mp.Process(target=bootstrap_worker, args=(data_array, fun, num_kwargs, n, nboot, start, end, result_queue))
+            p = mp.Process(
+                target=bootstrap_worker,
+                args=(
+                    data_array,
+                    fun,
+                    num_kwargs,
+                    n,
+                    nboot,
+                    start,
+                    end,
+                    result_queue,
+                ),
+            )
             processes.append(p)
             p.start()
-        
+
         results = []
         for _ in range(num_processes):
             results.extend(result_queue.get())
-        
+
         for p in processes:
             p.join()
-        
+
         return results
-    
 
     ests = parallel_bootstrap(data_array, fun, num_kwargs, n, nboot)
 
@@ -357,7 +375,10 @@ def prb(assessed, sale_price, round=None):
     prb_ci = prb_model.conf_int(alpha=0.05)[0].tolist()
 
     if round is not None:
-        out = {"prb": np.round(prb_val, round), "95% ci": np.round(prb_ci, round)}
+        out = {
+            "prb": np.round(prb_val, round),
+            "95% ci": np.round(prb_ci, round),
+        }
 
     else:
         out = {"prb": prb_val, "95% ci": prb_ci}
@@ -474,7 +495,10 @@ def prb(assessed, sale_price, round=None):
     prb_ci = prb_model.conf_int(alpha=0.05)[0].tolist()
 
     if round is not None:
-        out = {"prb": np.round(prb_val, round), "95% ci": np.round(prb_ci, round)}
+        out = {
+            "prb": np.round(prb_val, round),
+            "95% ci": np.round(prb_ci, round),
+        }
 
     else:
         out = {"prb": prb_val, "95% ci": prb_ci}
@@ -496,6 +520,7 @@ def prb_met(x):
 
 def mki_met(x):
     return 0.95 <= x <= 1.05
+
 
 # - - -
 # End assesspy paste
@@ -648,7 +673,7 @@ def report_summarise(df, geography_id, geography_type):
 
     # Remove groups with less than three observations
     # TODO: Remove/upgrade detect_chasing output
-    
+
     df["n"] = df.groupby(group_cols)["ratio"].transform("count")
     df = df[df["n"] > 3]
     df = df.groupby(group_cols).apply(
@@ -731,8 +756,7 @@ def model(dbt, spark_session):
     # Replicate filtering from prior vw_ratio_stats pull
     input = input[input.ratio > 0 & input.ratio.notnull()]
 
-    #df = report_summarise(input, "triad", "Tri")
-
+    # df = report_summarise(input, "triad", "Tri")
 
     # Replicate filtering from prior vw_ratio_stats pull
     input = input[input.ratio > 0 & input.ratio.notnull()]
@@ -743,7 +767,6 @@ def model(dbt, spark_session):
             report_summarise(input, "township_code", "Town"),
         ]
     ).reset_index(drop=True)
-
 
     # Force certain columns to datatype to maintain parity with old version
     df[["year", "triad", "sale_year"]] = df[
@@ -766,6 +789,5 @@ def model(dbt, spark_session):
     )
 
     spark_df = spark_session.createDataFrame(df, schema=schema)
-
 
     return spark_df
