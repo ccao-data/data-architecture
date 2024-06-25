@@ -26,7 +26,8 @@ data = data[data["State"] == "Illinois"]
 # should be updated if https://eig.org/distressed-communities
 #  has an updated dataset.
 
-data["year"] = str(2024)
+data["year"] = str(2021)
+data["year_constructed"] = str(2023)
 
 data = data[["Zip Code", "2017-2021 Final Distress Score", "year"]].rename(
     columns={
