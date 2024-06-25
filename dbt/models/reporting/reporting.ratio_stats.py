@@ -317,7 +317,7 @@ def mki(assessed, sale_price):
     return float(MKI)
 
 
-def prb(assessed, sale_price, round=None):  # noqa
+def prb(assessed, sale_price, round=None):
     r"""
     PRB is an index of vertical equity that quantifies the
     relationship betweem ratios and assessed values as a percentage. In
@@ -439,78 +439,6 @@ def prd(assessed, sale_price):  # noqa
     prd = ratio.mean() / np.average(a=ratio, weights=sale_price)
 
     return prd
-
-
-def prb(assessed, sale_price, round=None):
-    r"""
-    PRB is an index of vertical equity that quantifies the
-    relationship betweem ratios and assessed values as a percentage. In
-    concrete terms, a PRB of 0.02 indicates that, on average, ratios increase
-    by 2\% whenever assessed values increase by 100 percent.
-
-    PRB is centered around 0 and has a generally accepted value of between
-    -0.05 and 0.05, as defined in the `IAAO Standard on Ratio Studies`_
-    Section 9.2.7. Higher PRB values indicate progressivity in assessment,
-    while negative values indicate regressivity.
-
-    .. _IAAO Standard on Ratio Studies:
-            https://www.iaao.org/media/standards/Standard_on_Ratio_Studies.pdf
-
-    .. note: PRB is significantly less sensitive to outliers than PRD or COD.
-
-    :param assessed:
-        A numeric vector of assessed values. Must be the same
-        length as ``sale_price``.
-    :param sale_price:
-        A numeric vector of sale prices. Must be the same length
-        as ``assessed``.
-    :param round:
-        Indicate desired rounding for output.
-    :type assessed: numeric
-    :type sale_price: numeric
-    :type round: int
-
-    :return: A numeric vector containing the PRB of the input vectors.
-    :rtype: float
-
-    :Example:
-
-    .. code-block:: python
-
-        # Calculate PRB:
-        import assesspy as ap
-
-        ap.prb(ap.ratios_sample().assessed, ap.ratios_sample().sale_price)
-    """
-
-    assessed = np.array(assessed)
-    sale_price = np.array(sale_price)
-    check_inputs(assessed, sale_price)
-
-    ratio = assessed / sale_price
-    median_ratio = np.median(ratio)
-
-    lhs = (ratio - median_ratio) / median_ratio
-    rhs = np.log(((assessed / median_ratio) + sale_price) / 2) / np.log(2)
-
-    lhs = np.array(lhs)
-    rhs = np.array(rhs)
-
-    prb_model = sm.OLS(lhs, rhs).fit()
-
-    prb_val = float(prb_model.params)
-    prb_ci = prb_model.conf_int(alpha=0.05)[0].tolist()
-
-    if round is not None:
-        out = {
-            "prb": np.round(prb_val, round),
-            "95% ci": np.round(prb_ci, round),
-        }
-
-    else:
-        out = {"prb": prb_val, "95% ci": prb_ci}
-
-    return out
 
 
 def cod_met(x):
