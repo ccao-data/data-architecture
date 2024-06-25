@@ -389,7 +389,7 @@ def prb(assessed, sale_price, round=None):
     return out
 
 
-def prd(assessed, sale_price):  # noqa
+def prd(assessed, sale_price):
     """
     PRD is the mean ratio divided by the mean ratio weighted by sale
     price. It is a measure of vertical equity in assessment. Vertical equity
