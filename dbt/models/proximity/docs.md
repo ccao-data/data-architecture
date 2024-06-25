@@ -144,6 +144,15 @@ Distance from each PIN to the nearest Metra stop.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
+# dist_pin_to_new_construction
+
+{% docs table_dist_pin_to_new_construction %}
+Distance from each PIN to the nearest new construction.
+New construction is defined as being within the past 3 years.
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
 # dist_pin_to_park
 
 {% docs table_dist_pin_to_park %}

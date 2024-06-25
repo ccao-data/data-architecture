@@ -95,6 +95,7 @@ WITH uni AS (
         vpsi.prox_nearest_major_road_dist_ft,
         vpsi.prox_nearest_metra_route_dist_ft,
         vpsi.prox_nearest_metra_stop_dist_ft,
+        vpsi.prox_nearest_new_construction_dist_ft,
         vpsi.prox_nearest_park_dist_ft,
         vpsi.prox_nearest_railroad_dist_ft,
         vpsi.prox_nearest_secondary_road_dist_ft,
