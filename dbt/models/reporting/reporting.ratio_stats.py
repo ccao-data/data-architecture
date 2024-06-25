@@ -691,11 +691,6 @@ def model(dbt, spark_session):
     # Replicate filtering from prior vw_ratio_stats pull
     input = input[input.ratio > 0 & input.ratio.notnull()]
 
-    # df = report_summarise(input, "triad", "Tri")
-
-    # Replicate filtering from prior vw_ratio_stats pull
-    input = input[input.ratio > 0 & input.ratio.notnull()]
-
     df = pd.concat(
         [
             report_summarise(input, "triad", "Tri"),
