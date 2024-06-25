@@ -1041,13 +1041,12 @@ and interns. Adjectives are pulled from the list used by Docker.
 {% enddocs %}
 
 # Other
+## ari
 
-## ihs_avg_year_index
+{% docs shared_column_ari %}
+Illinois Housing Development Authority's Affordability Risk Index.
 
-{% docs shared_column_ihs_avg_year_index %}
-DePaul Institute of Housing Studies quarterly index.
-
-Averaged up to the yearly level. Unit of observation is Census PUMAs
+It is unclear of IHDA's data timeline. Year currently refers to final year of census data used.
 {% enddocs %}
 
 ## dci
@@ -1055,16 +1054,15 @@ Averaged up to the yearly level. Unit of observation is Census PUMAs
 {% docs shared_column_dci %}
 Distressed Communities Index from the Economic Innovation Group.
 
-Unit of observations is Zip Code. Year refers to year of data construction.
+Unit of observations is Zip Code. Year refers to year of final year of census data used.
 {% enddocs %}
 
-## ari
+## ihs_avg_year_index
 
-{% docs shared_column_ari %}
-Illinois Housing Development Authority's Affordability Risk Index.
+{% docs shared_column_ihs_avg_year_index %}
+DePaul Institute of Housing Studies quarterly index.
 
-It is unclear of IHDA's data timeline. Year currently refers to year of their data construction.
-0's in the database refer to information without enough data
+Averaged up to the yearly level. Unit of observation is Census PUMAs
 {% enddocs %}
 
 ## school_district_elementary_avg_rating
