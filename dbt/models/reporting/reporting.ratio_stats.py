@@ -317,7 +317,7 @@ def mki(assessed, sale_price):
     return float(MKI)
 
 
-def prb(assessed, sale_price, round=None):
+def prb(assessed, sale_price, round=None):  # noqa
     r"""
     PRB is an index of vertical equity that quantifies the
     relationship betweem ratios and assessed values as a percentage. In
