@@ -58,14 +58,8 @@ that defines the generic test as part of your PR to make the change that you nee
 
 1. **Check for Existing Tests:** Ensure the test or a similar functionality does not already exist among our generic templates. 
 
-2. **Create Test Template:** If an existing generic test cannot be used nor extended to meet the user's needs, a new generic test can be defined in `dbt/test/generics/`. [Example here](https://github.com/ccao-data/data-architecture/blob/master/dbt/tests/generic/test_unique_combination_of_columns.sql). Make sure to read the docs on [writing custom generic tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests). We'll also need to follow a few extra steps:
-   1. Add a default category for your generic test in
-        the `TEST_CATEGORIES` constant in the [`transform_dbt_test_results`
-        script](https://github.com/ccao-data/data-architecture/blob/master/.github/scripts/transform_dbt_test_results.py)
-   2. Make sure that your generic test supports the `additional_select_columns`
-        parameter that most of our generic tests support, making use
-        of the `format_additional_select_columns` macro to format the
-        parameter when applying it to your `SELECT` condition
+2. **Create Test Template:** If an existing generic test cannot be used nor extended to meet the user's needs, a new generic test can be defined in `dbt/test/generics/`. [Example here](https://github.com/ccao-data/data-architecture/blob/master/dbt/tests/generic/test_unique_combination_of_columns.sql). Make sure to read the docs on [writing custom generic tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests). We'll also need to follow [a few extra steps](https://github.com/ccao-data/data-architecture/tree/master/dbt#choosing-a-generic-test)
+
 
 
 
