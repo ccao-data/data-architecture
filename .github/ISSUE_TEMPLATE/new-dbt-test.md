@@ -11,34 +11,10 @@ Before proceeding, make sure you've read the [official dbt documentation on data
 * The difference between a generic test and a test that is defined on a model in a `schema.yml` file
 * How generic tests are written and extended
 * How tests defined on a model in a `schema.yml` file are written and run
+* The difference between a QC-test and a non-QC test
 
 If you don't feel like you have a strong understanding of all of these items, ask a senior data scientist for clarification before starting.
 
-## Types of Tests
-
-There are two types of tests that we might consider for a model:
-
-1. **Data tests** check that our assumptions about our raw data are correct
-    * For example: Test that a table is unique by `parid` and `taxyr` columns
-2. **Unit tests** check that transformation logic inside a model definition
-   produces the correct output on a specific set of input data
-    * For example: Test that an enum column computed by a `CASE... WHEN`
-      expression produces the correct output for a given input string
-
-Unit tests are currently in development and until they are natively supported we do not have a way of implementing them.
-
-### Data Tests
-
-There are two types of data tests that we support:
-
-1. **QC tests** confirm our assumptions about iasWorld data and are run at
-   scheduled intervals to confirm that iasWorld data meets spec. Generally, these
-   are tests invoked on iasworld tables.
-3. **Non-QC tests** confirm all other assumptions about data sources outside
-   of iasWorld, and are run in an ad hoc fashion depending on the needs of
-   the transformations that sit on top of the raw data.
-
-If you plan on adding a QC test, additional instructions are [here](https://github.com/ccao-data/data-architecture/blob/master/dbt/README.md#adding-data-tests), along with more details about the distinction between QC and non-QC tests.
 
 ## Add DBT Tests
 
