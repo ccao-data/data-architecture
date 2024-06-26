@@ -54,7 +54,7 @@ If a generic test does not meet your needs but seems like it could be easily ext
 joins two tables but you would like to be able to configure it to left join those tables instead) you can modify the macro
 that defines the generic test as part of your PR to make the change that you need.
 
-### Add a New Test
+### Add a New Generic Test
 
 1. **Check for Existing Tests:** Ensure the test or a similar functionality does not already exist among our generic templates. 
 
