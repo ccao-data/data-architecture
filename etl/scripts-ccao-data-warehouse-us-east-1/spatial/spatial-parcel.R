@@ -1,5 +1,6 @@
 library(arrow)
 library(aws.s3)
+library(data.table)
 library(dplyr)
 library(geoarrow)
 library(here)
@@ -179,20 +180,76 @@ process_parcel_file <- function(s3_bucket_uri,
       ungroup() %>%
       arrange(year, town_code, pin10)
 
+    spatial_df_temp <- spatial_df_merged %>%
+      sample_n(1000)
+
+    spatial_mat_coords <- spatial_df_temp %>%
+      st_set_geometry("geometry_3435") %>%
+      st_coordinates() %>%
+      as.data.table()
+
+    spatial_mat_coords[, .(Xlen = X - shift(X, type = "lag")), by = L3]
+
+    temp <- spatial_mat_coords[
+      ,
+      `:=` (
+        n = .N - 1,
+        # Distance between points using Pythagorean theorem. The first point in
+        # each group (polygon) is the same as the last point, so calculating the
+        # length between all points in a group does capture the length of all
+        # edges
+        len = sqrt(
+          (X - shift(X, type = "lag")) ^ 2 +
+            (Y - shift(Y, type = "lag")) ^ 2
+        )
+      ),
+      by = c("L1", "L2", "L3")
+    ]
+
+    spatial_df_temp %>%
+      mutate(
+        shp_parcel_num_points = spatial_mat_coords[, .(n = .N), by = L3]$n - 1,
+      )
+
+    # st_minimum_rotated_rectangle
+
     # Write local backup copy
-    write_geoparquet(spatial_df_merged, local_backup_file)
+    write_geoparquet(spatial_df_final, local_backup_file)
     tictoc::toc()
   } else {
     message("Loading processed parcels from backup for: ", file_year)
-    spatial_df_merged <- read_geoparquet_sf(local_backup_file)
+    spatial_df_final <- read_geoparquet_sf(local_backup_file)
   }
 
   # Write final dataframe to dataset on S3, partitioned by town and year
-  spatial_df_merged %>%
+  spatial_df_final %>%
     mutate(year = file_year) %>%
     group_by(year, town_code) %>%
     write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = FALSE)
   tictoc::toc()
+}
+
+calculate_angles <- function(points) {
+  # Calculate vectors between consecutive points
+  vectors <- diff(rbind(points, points[1, ]))
+
+  # Calculate angles between vectors
+  angles <- atan2(vectors[-1,2], vectors[-1,1]) - atan2(vectors[-length(vectors[,1]),2], vectors[-length(vectors[,1]),1])
+
+  # Calculate cross product of vectors
+  cross_product <- vectors[-1,1]*vectors[-length(vectors[,1]),2] - vectors[-1,2]*vectors[-length(vectors[,1]),1]
+
+  # If cross product is negative, subtract angle from 360 degrees
+  angles[cross_product < 0] <- 2*pi - angles[cross_product < 0]
+
+  # Normalize angles to [0, 2*pi]
+  angles <- ifelse(angles < 0, angles + 2*pi, angles)
+
+  # Convert angles from radians to degrees
+  angles <- angles * 180 / pi
+
+  # Return angles
+  return(angles)
 }
 
 # Apply function to all parcel files
