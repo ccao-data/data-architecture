@@ -8,7 +8,7 @@ sc.addPyFile(  # noqa: F821
 # of geographies, class combinations, and time.
 
 # Import libraries
-import assesspy as ass  # noqa: E402, F401
+import assesspy as ass  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
@@ -49,6 +49,44 @@ geos = {
 groups = ["no_group", "class", "major_class", "modeling_group"]
 
 
+def cod_safe(ratio):
+    if len(ratio) >= 1:
+        output = ass.cod(ratio)
+    else:
+        output = None
+
+    return output
+
+
+def prd_safe(assessed, sale_price):
+    if len(sale_price) >= 1:
+        output = ass.prd(assessed=assessed, sale_price=sale_price)
+    else:
+        output = None
+
+    return output
+
+
+def prb_safe(assessed, sale_price):
+    if len(sale_price) >= 1:
+        output = ass.prb(assessed=assessed, sale_price=sale_price, round=3)[
+            "prb"
+        ]
+    else:
+        output = None
+
+    return output
+
+
+def mki_safe(assessed, sale_price):
+    if len(sale_price) >= 1:
+        output = ass.mki(assessed=assessed, sale_price=sale_price)
+    else:
+        output = None
+
+    return output
+
+
 # Define aggregation functions
 def aggregrate(data, geography_type, group_type):
     print(geography_type, group_type)
@@ -60,17 +98,15 @@ def aggregrate(data, geography_type, group_type):
 
     # Remove parcels with FMVs of 0 since they screw up ratios
     data = data[data["tot_mv"] > 0]
-    data["ratio_count"] = data.groupby(group)["ratio"].transform("count")
 
     # Remove groups that only have one sale since we can't calculate stats
-    data = data[data["ratio_count"] >= 30]
-
-    data = data.dropna(subset=["ratio"])
+    data = data.dropna(subset=["sale_price"])
+    data = data[data["sale_count"] >= 20]
 
     summary = data.groupby(group).apply(
         lambda x: pd.Series(
             {
-                "size": x["size"].min(),
+                "size": np.size(x["ratio"]),
                 "mv_count": x["mv_count"].min(),
                 "sale_count": x["sale_count"].min(),
                 "mv_min": x["tot_mv"].min(),
@@ -90,10 +126,17 @@ def aggregrate(data, geography_type, group_type):
                 "ratio_q90": x["ratio"].quantile(0.90),
                 "ratio_max": x["ratio"].max(),
                 "ratio_mean": x["ratio"].mean(),
-                # "cod": ass.cod(ratio=x["ratio"]),
-                # "prd": ass.prd(x["tot_mv"], x["sale_price"]),
-                # "prb": ass.prb(x["tot_mv"], x["sale_price"], 3)["prb"],
-                # "mki": ass.mki(x["tot_mv"], x["sale_price"]),
+                # "cod": ' '.join(x['ratio'].astype(str).values),
+                "cod": cod_safe(ratio=x["ratio"]),
+                "prd": prd_safe(
+                    assessed=x["tot_mv"], sale_price=x["sale_price"]
+                ),
+                "prb": prb_safe(
+                    assessed=x["tot_mv"], sale_price=x["sale_price"]
+                ),
+                "mki": mki_safe(
+                    assessed=x["tot_mv"], sale_price=x["sale_price"]
+                ),
             }
         )
     )
@@ -210,6 +253,7 @@ def model(dbt, spark_session):
         + "mv_sum: bigint, ratio_min: double, ratio_q10: double, "
         + "ratio_q25: double, ratio_median: double, ratio_q75: double, "
         + "ratio_q90: double, ratio_max: double, ratio_mean: double, "
+        + "cod: double, prd: double, prb: double, mki: double, "
         + "mv_delta_pct_median: double, mv_delta_pct_mean: double, "
         + "mv_delta_pct_sum: double"
     )
