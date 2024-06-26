@@ -97,7 +97,9 @@ SELECT
     uni.tax_data_year,
     'no_group' AS no_group,
     class_dict.major_class_type AS major_class,
-    class_dict.modeling_group
+    class_dict.modeling_group,
+    CASE WHEN class_dict.major_class_code = '2' THEN 'RES' ELSE 'OTHER' END
+        AS res_other
 FROM {{ ref('default.vw_pin_universe') }} AS uni
 INNER JOIN {{ source('tax', 'pin') }} AS tax
     ON uni.pin = tax.pin

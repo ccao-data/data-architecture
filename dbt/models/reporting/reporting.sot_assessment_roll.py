@@ -41,7 +41,7 @@ geos = {
     ],
 }
 # Declare class groupings
-groups = ["no_group", "class", "major_class", "modeling_group"]
+groups = ["no_group", "class", "major_class", "modeling_group", "res_other"]
 
 
 # Define aggregation functions

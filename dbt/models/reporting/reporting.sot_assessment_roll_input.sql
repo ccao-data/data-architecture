@@ -102,7 +102,9 @@ SELECT
     uni.tax_data_year,
     'no_group' AS no_group,
     class_dict.major_class_type AS major_class,
-    class_dict.modeling_group
+    class_dict.modeling_group,
+    CASE WHEN class_dict.major_class_code = '2' THEN 'RES' ELSE 'OTHER' END
+        AS res_other
 FROM uni
 LEFT JOIN {{ ref('reporting.vw_pin_value_long') }} AS vals
     ON uni.pin = vals.pin
