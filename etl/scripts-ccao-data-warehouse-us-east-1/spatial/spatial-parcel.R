@@ -50,7 +50,7 @@ save_local_parcel_files <- function(year, spatial_uri, attr_uri) {
 
 # Function to calculate the interior angles of a polygon given its X and Y
 # coordinates using the directions of the vectors between each pair of points
-# See: https://stackoverflow.com/questions/12083480/finding-internal-angles-of-polygon
+# See: https://stackoverflow.com/a/12090743
 # Good example parcel for angle calc: 1418307019
 calculate_angles <- function(points) {
   vectors <- diff(rbind(points, points[2, ])) * -1
@@ -79,9 +79,15 @@ process_parcel_file <- function(s3_bucket_uri,
   save_local_parcel_files(file_year, spatial_uri, attr_uri)
 
   # Local file paths for parcel files
-  local_spatial_file <- file.path(parcel_tmp_dir, paste0(file_year, ".geojson"))
-  local_attr_file <- file.path(parcel_tmp_dir, paste0(file_year, "-attr.parquet"))
-  local_backup_file <- file.path(parcel_tmp_dir, paste0(file_year, "-proc.parquet"))
+  local_spatial_file <- file.path(
+    parcel_tmp_dir, paste0(file_year, ".geojson")
+  )
+  local_attr_file <- file.path(
+    parcel_tmp_dir, paste0(file_year, "-attr.parquet")
+  )
+  local_backup_file <- file.path(
+    parcel_tmp_dir, paste0(file_year, "-proc.parquet")
+  )
 
   # Only run processing if local backup doesn't exist
   if (!file.exists(local_backup_file)) {
@@ -175,7 +181,10 @@ process_parcel_file <- function(s3_bucket_uri,
 
     # If centroids are missing from join (invalid geom, empty, etc.)
     # fill them in with centroid of the full multipolygon
-    if (any(is.na(spatial_df_merged$lon) | any(is.na(spatial_df_merged$x_3435)))) {
+    if (any(
+      is.na(spatial_df_merged$lon) |
+        any(is.na(spatial_df_merged$x_3435))
+    )) {
       # Calculate centroids for missing
       spatial_df_missing <- spatial_df_merged %>%
         filter(is.na(lon) | is.na(x_3435)) %>%
@@ -205,7 +214,7 @@ process_parcel_file <- function(s3_bucket_uri,
     # the polygon
     spatial_mat_calc <- spatial_mat_coords[
       ,
-      `:=` (
+      `:=`(
         # Get edge length using Pythagorean theorem and a rolling lag to get
         # the distance between each pair of points
         edge_len = sqrt(
