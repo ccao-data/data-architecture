@@ -315,16 +315,16 @@ process_parcel_file <- function(s3_bucket_uri,
   }
 
   # Write final dataframe to dataset on S3, partitioned by town and year
-  # spatial_df_final %>%
-  #   mutate(year = file_year) %>%
-  #   group_by(year, town_code) %>%
-  #   write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = FALSE)
+  spatial_df_final %>%
+    mutate(year = file_year) %>%
+    group_by(year, town_code) %>%
+    write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = FALSE)
   tictoc::toc()
 }
 
 
 # Apply function to all parcel files
-pwalk(parcel_files_df[24,], function(...) {
+pwalk(parcel_files_df, function(...) {
   df <- tibble::tibble(...)
   process_parcel_file(
     s3_bucket_uri = output_bucket,
