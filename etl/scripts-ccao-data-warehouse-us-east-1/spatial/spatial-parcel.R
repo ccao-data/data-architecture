@@ -251,7 +251,7 @@ process_parcel_file <- function(s3_bucket_uri,
     spatial_mat_calc_edge <- spatial_mat_calc[
       ,
       .(
-        shp_parcel_edge_len_ft_sd = sd(tail(edge_len, -1), na.rm = TRUE),
+        shp_parcel_edge_len_ft_sd = sd(tail(edge_len, -1), na.rm = TRUE)
       ),
       by = "L3"
     ]
