@@ -48,6 +48,25 @@ save_local_parcel_files <- function(year, spatial_uri, attr_uri) {
 }
 
 
+# Function to calculate the interior angles of a polygon given its X and Y
+# coordinates using the directions of the vectors between each pair of points
+# See: https://stackoverflow.com/questions/12083480/finding-internal-angles-of-polygon
+# Good example parcel for angle calc: 1418307019
+calculate_angles <- function(points) {
+  vectors <- diff(rbind(points, points[2, ])) * -1
+
+  cross_product <- vectors[-nrow(vectors), 1] * vectors[-1, 2] -
+    vectors[-1, 1] * vectors[-nrow(vectors), 2]
+  dot_product <- vectors[-nrow(vectors), 1] * vectors[-1, 1] +
+    vectors[-nrow(vectors), 2] * vectors[-1, 2]
+
+  angle <- pi + atan2(cross_product, dot_product)
+  angles <- c(NA_real_, angle * 180 / pi)
+
+  return(angles)
+}
+
+
 # Load local parcel file, clean, extract centroids, and write to partitioned
 # dataset on S3
 process_parcel_file <- function(s3_bucket_uri,
@@ -175,43 +194,115 @@ process_parcel_file <- function(s3_bucket_uri,
         bind_rows(spatial_df_missing)
     }
 
-    # Sort by year, town code, and PIN10 for better compression
-    spatial_df_merged <- spatial_df_merged %>%
-      ungroup() %>%
-      arrange(year, town_code, pin10)
-
-    spatial_df_temp <- spatial_df_merged %>%
-      sample_n(1000)
-
-    spatial_mat_coords <- spatial_df_temp %>%
+    # Convert to a data.table of the vertices of each polygon. Using data.table
+    # here because it's much faster
+    spatial_mat_coords <- spatial_df_merged %>%
       st_set_geometry("geometry_3435") %>%
       st_coordinates() %>%
       as.data.table()
 
-    spatial_mat_coords[, .(Xlen = X - shift(X, type = "lag")), by = L3]
-
-    temp <- spatial_mat_coords[
+    # Use the vertices to calculate additional features about the shape of
+    # the polygon
+    spatial_mat_calc <- spatial_mat_coords[
       ,
       `:=` (
-        n = .N - 1,
         # Distance between points using Pythagorean theorem. The first point in
         # each group (polygon) is the same as the last point, so calculating the
         # length between all points in a group does capture the length of all
         # edges
-        len = sqrt(
+        edge_len = sqrt(
           (X - shift(X, type = "lag")) ^ 2 +
             (Y - shift(Y, type = "lag")) ^ 2
-        )
+        ),
+        # Distance between the centroid and each point in the polygon
+        dist_to_centroid = sqrt(
+          (X - mean(X)) ^ 2 +
+            (Y - mean(Y)) ^ 2
+        ),
+        # Calculate the angle between each pair of points
+        angle = calculate_angles(as.matrix(.SD))
       ),
+      .SDcols = c("X", "Y"),
       by = c("L1", "L2", "L3")
     ]
 
-    spatial_df_temp %>%
+    # Collapse the vertex-level data back to the parcel level EXCLUDING any
+    # vertices with an angle close to 180 degrees. These are likely to be
+    # artifacts of the data and not true vertices, so we don't count them in
+    # our calculations
+    spatial_mat_calc_vert <- spatial_mat_calc[
+      !data.table::between(angle, 179, 181) | is.na(angle),
+      # Number of vertices in the polygon. Minus 1 because the first and last
+      # vertex are always identical (used to close the polygon)
+      .(
+        shp_parcel_num_vertices = .N - 1,
+        # Tail is used to drop the first row of each group since it's identical
+        # to the last row (again, same reason as above)
+        shp_parcel_edge_len_ft_sd = sd(tail(edge_len, -1), na.rm = TRUE),
+        shp_parcel_interior_angle_sd = sd(tail(angle, -1), na.rm = TRUE),
+        shp_parcel_centroid_dist_ft_sd = sd(tail(dist_to_centroid, -1))
+      ),
+      by = "L3"
+    ]
+
+    # Collapse the edge-level data back to the parcel level, this time keeping
+    # the 180 degree vertices, since excluding them would drop some edges with
+    # non-zero length
+    spatial_mat_calc_edge <- spatial_mat_calc[
+      ,
+      .(
+        shp_parcel_edge_len_ft_sd = sd(tail(edge_len, -1), na.rm = TRUE),
+      ),
+      by = "L3"
+    ]
+
+    # Calculate the ratio of the parcel area to the area of its minimum bounding
+    # rectangle
+    spatial_df_rec <- spatial_df_merged %>%
+      st_drop_geometry() %>%
+      st_set_geometry("geometry_3435") %>%
+      mutate(parcel_area = st_area(geometry_3435)) %>%
+      st_minimum_rotated_rectangle() %>%
       mutate(
-        shp_parcel_num_points = spatial_mat_coords[, .(n = .N), by = L3]$n - 1,
+        shp_parcel_mrr_area_ratio = units::drop_units(
+          st_area(geometry_3435) / parcel_area
+        )
       )
 
-    # st_minimum_rotated_rectangle
+    # Calculate the ratio of the sides of the minimum bounding rectangle
+    spatial_mat_rec_coords <- spatial_df_rec %>%
+      st_coordinates() %>%
+      as.data.table()
+
+    spatial_mat_rec_calc <- spatial_mat_rec_coords[
+      ,
+      edge_len := sqrt(
+        (X - shift(X, type = "lag")) ^ 2 +
+          (Y - shift(Y, type = "lag")) ^ 2
+      ),
+      by = c("L1", "L2")
+    ][
+      ,
+      .(
+        shp_parcel_mrr_side_ratio = max(edge_len, na.rm = TRUE) /
+          min(edge_len, na.rm = TRUE)
+      ),
+      by = "L2"
+    ]
+
+    # Merge all calculated features back into the main dataframe
+    # then sort by year, town code, and PIN10 for better compression
+    spatial_df_final <- spatial_df_merged %>%
+      cbind(
+        spatial_df_rec %>%
+          select(shp_parcel_mrr_area_ratio) %>%
+          st_drop_geometry(),
+        spatial_mat_rec_calc[, 2],
+        spatial_mat_calc_edge[, 2],
+        spatial_mat_calc_vert[, 2:5]
+      ) %>%
+      ungroup() %>%
+      arrange(year, town_code, pin10)
 
     # Write local backup copy
     write_geoparquet(spatial_df_final, local_backup_file)
@@ -229,28 +320,6 @@ process_parcel_file <- function(s3_bucket_uri,
   tictoc::toc()
 }
 
-calculate_angles <- function(points) {
-  # Calculate vectors between consecutive points
-  vectors <- diff(rbind(points, points[1, ]))
-
-  # Calculate angles between vectors
-  angles <- atan2(vectors[-1,2], vectors[-1,1]) - atan2(vectors[-length(vectors[,1]),2], vectors[-length(vectors[,1]),1])
-
-  # Calculate cross product of vectors
-  cross_product <- vectors[-1,1]*vectors[-length(vectors[,1]),2] - vectors[-1,2]*vectors[-length(vectors[,1]),1]
-
-  # If cross product is negative, subtract angle from 360 degrees
-  angles[cross_product < 0] <- 2*pi - angles[cross_product < 0]
-
-  # Normalize angles to [0, 2*pi]
-  angles <- ifelse(angles < 0, angles + 2*pi, angles)
-
-  # Convert angles from radians to degrees
-  angles <- angles * 180 / pi
-
-  # Return angles
-  return(angles)
-}
 
 # Apply function to all parcel files
 pwalk(parcel_files_df, function(...) {
