@@ -153,7 +153,7 @@ process_parcel_file <- function(s3_bucket_uri,
     tictoc::toc()
 
     # Read attribute data and get unique attributes by PIN10
-    tictoc::tic(paste("Joined and wrote parquet for:", file_year))
+    tictoc::tic(paste("Merged boundary and attribute data:", file_year))
     attr_df <- read_parquet(local_attr_file) %>%
       mutate(pin10 = str_sub(pin, 1, 10)) %>%
       group_by(pin10) %>%
@@ -178,9 +178,11 @@ process_parcel_file <- function(s3_bucket_uri,
         town_code, year
       ) %>%
       distinct(pin10, .keep_all = TRUE)
+    tictoc::toc()
 
     # If centroids are missing from join (invalid geom, empty, etc.)
     # fill them in with centroid of the full multipolygon
+    tictoc::tic(paste("Repaired centroids:", file_year))
     if (any(
       is.na(spatial_df_merged$lon) |
         any(is.na(spatial_df_merged$x_3435))
@@ -202,7 +204,9 @@ process_parcel_file <- function(s3_bucket_uri,
         filter(!is.na(lon) & !is.na(x_3435)) %>%
         bind_rows(spatial_df_missing)
     }
+    tictoc::toc()
 
+    tictoc::tic(paste("Calculated shape features:", file_year))
     # Convert to a data.table of the vertices of each polygon. Using data.table
     # here because it's much faster
     spatial_mat_coords <- spatial_df_merged %>%
@@ -295,7 +299,9 @@ process_parcel_file <- function(s3_bucket_uri,
       ),
       by = "L2"
     ]
+    tictoc::toc()
 
+    tictoc::tic(paste("Finalized and wrote to file:", file_year))
     # Merge all calculated features back into the main dataframe
     # then sort by year, town code, and PIN10 for better compression
     spatial_df_final <- spatial_df_merged %>%
