@@ -209,8 +209,8 @@ process_parcel_file <- function(s3_bucket_uri,
         # Get edge length using Pythagorean theorem and a rolling lag to get
         # the distance between each pair of points
         edge_len = sqrt(
-          (X - shift(X, type = "lag")) ^ 2 +
-            (Y - shift(Y, type = "lag")) ^ 2
+          (X - data.table::shift(X, type = "lag")) ^ 2 +
+            (Y - data.table::shift(Y, type = "lag")) ^ 2
         ),
         # Distance between the centroid and each point in the polygon
         dist_to_centroid = sqrt(
@@ -236,7 +236,6 @@ process_parcel_file <- function(s3_bucket_uri,
         shp_parcel_num_vertices = .N - 1,
         # Tail is used to drop the first row of each group since it's identical
         # to the last row (again, same reason as above)
-        shp_parcel_edge_len_ft_sd = sd(tail(edge_len, -1), na.rm = TRUE),
         shp_parcel_interior_angle_sd = sd(tail(angle, -1), na.rm = TRUE),
         shp_parcel_centroid_dist_ft_sd = sd(tail(dist_to_centroid, -1))
       ),
@@ -275,8 +274,8 @@ process_parcel_file <- function(s3_bucket_uri,
     spatial_mat_rec_calc <- spatial_mat_rec_coords[
       ,
       edge_len := sqrt(
-        (X - shift(X, type = "lag")) ^ 2 +
-          (Y - shift(Y, type = "lag")) ^ 2
+        (X - data.table::shift(X, type = "lag")) ^ 2 +
+          (Y - data.table::shift(Y, type = "lag")) ^ 2
       ),
       by = c("L1", "L2")
     ][
@@ -297,10 +296,15 @@ process_parcel_file <- function(s3_bucket_uri,
           st_drop_geometry(),
         spatial_mat_rec_calc[, 2],
         spatial_mat_calc_edge[, 2],
-        spatial_mat_calc_vert[, 2:5]
+        spatial_mat_calc_vert[, 2:4]
       ) %>%
       ungroup() %>%
-      arrange(year, town_code, pin10)
+      arrange(year, town_code, pin10) %>%
+      relocate(starts_with("shp_"), .after = "y_3435") %>%
+      relocate(
+        c(shp_parcel_centroid_dist_ft_sd, shp_parcel_interior_angle_sd),
+        .after = "shp_parcel_edge_len_ft_sd"
+      )
 
     # Write local backup copy
     write_geoparquet(spatial_df_final, local_backup_file)
@@ -311,16 +315,16 @@ process_parcel_file <- function(s3_bucket_uri,
   }
 
   # Write final dataframe to dataset on S3, partitioned by town and year
-  spatial_df_final %>%
-    mutate(year = file_year) %>%
-    group_by(year, town_code) %>%
-    write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = FALSE)
+  # spatial_df_final %>%
+  #   mutate(year = file_year) %>%
+  #   group_by(year, town_code) %>%
+  #   write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = FALSE)
   tictoc::toc()
 }
 
 
 # Apply function to all parcel files
-pwalk(parcel_files_df, function(...) {
+pwalk(parcel_files_df[24,], function(...) {
   df <- tibble::tibble(...)
   process_parcel_file(
     s3_bucket_uri = output_bucket,
