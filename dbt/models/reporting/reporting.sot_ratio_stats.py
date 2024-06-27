@@ -14,6 +14,14 @@ import pandas as pd  # noqa: E402
 
 # Declare geographic groups and their associated data years
 geos = {
+    "year": [
+        "county",
+        "triad",
+        "township",
+        "nbhd",
+        "tax_code",
+        "zip_code",
+    ],
     "census_data_year": [
         "census_place",
         "census_tract",
@@ -87,6 +95,15 @@ def mki_safe(assessed, sale_price):
     return output
 
 
+def first(x):
+    if len(x) >= 1:
+        output = x.iloc[0]
+    else:
+        output = None
+
+    return output
+
+
 # Define aggregation functions
 def aggregrate(data, geography_type, group_type):
     print(geography_type, group_type)
@@ -106,6 +123,7 @@ def aggregrate(data, geography_type, group_type):
     summary = data.groupby(group).apply(
         lambda x: pd.Series(
             {
+                "triad": first(x["triad"]),
                 "size": np.size(x["ratio"]),
                 "mv_count": x["mv_count"].min(),
                 "sale_count": x["sale_count"].min(),
@@ -207,11 +225,40 @@ def clean(dirty):
 
     dirty = dirty.reset_index()
 
+    dirty["year"] = dirty["year"].astype(int)
+    dirty["triennial"] = dirty["geography_type"].isin(
+        ["triad", "township", "nbhd"]
+    )
+    dirty["reassessment_year"] = ""
+    dirty.loc[
+        (dirty["triennial"] == True), "reassessment_year"  # noqa: E712
+    ] = "No"
+    dirty.loc[
+        (dirty["year"] % 3 == 0)
+        & (dirty["triad"] == "North")
+        & (dirty["triennial"] == True),  # noqa: E712
+        "reassessment_year",
+    ] = "Yes"
+    dirty.loc[
+        (dirty["year"] % 3 == 1)
+        & (dirty["triad"] == "South")
+        & (dirty["triennial"] == True),  # noqa: E712
+        "reassessment_year",
+    ] = "Yes"
+    dirty.loc[
+        (dirty["year"] % 3 == 2)
+        & (dirty["triad"] == "City")
+        & (dirty["triennial"] == True),  # noqa: E712
+        "reassessment_year",
+    ] = "Yes"
+    dirty = dirty.drop(["triennial", "triad"], axis=1)
+
     dirty = dirty.astype(
         {
             "group_id": "str",
-            "year": "str",
+            "year": np.int64,
             "stage_name": "str",
+            "reassessment_year": "str",
             "size": np.int64,
             "mv_count": np.int64,
             "sale_count": np.int64,
@@ -245,8 +292,9 @@ def model(dbt, spark_session):
 
     schema = (
         "geography_type: string, geography_id: string, "
-        + "group_type: string, group_id: string, year: string, "
-        + "stage_name: string, size: bigint, mv_count: bigint, "
+        + "group_type: string, group_id: string, year: bigint, "
+        + "stage_name: string, size: bigint, "
+        + "mv_count: bigint, "
         + "sale_count: bigint, mv_min: bigint, mv_q10: bigint, "
         + "mv_q25: bigint, mv_median: bigint, mv_q75: bigint, "
         + "mv_q90: bigint, mv_max: bigint, mv_mean: bigint, "
@@ -255,7 +303,7 @@ def model(dbt, spark_session):
         + "ratio_q90: double, ratio_max: double, ratio_mean: double, "
         + "cod: double, prd: double, prb: double, mki: double, "
         + "mv_delta_pct_median: double, mv_delta_pct_mean: double, "
-        + "mv_delta_pct_sum: double"
+        + "mv_delta_pct_sum: double, reassessment_year: string"
     )
 
     spark_df = spark_session.createDataFrame(df, schema=schema)

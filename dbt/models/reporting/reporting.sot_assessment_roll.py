@@ -146,31 +146,32 @@ def assemble(df, geos, groups):
     output.reset_index()
 
     output["year"] = output["year"].astype(int)
-    output["temp"] = output["geography_type"].isin(
+    output["triennial"] = output["geography_type"].isin(
         ["triad", "township", "nbhd"]
     )
-    output["reassessment_year"] = None
-    output["reassessment_year"] = output["reassessment_year"].astype("boolean")
-    output.loc[(output["temp"] is True), "reassessment_year"] = False
+    output["reassessment_year"] = ""
+    output.loc[
+        (output["triennial"] == True), "reassessment_year"  # noqa: E712
+    ] = "No"
     output.loc[
         (output["year"] % 3 == 0)
         & (output["triad"] == "North")
-        & (output["temp"] is True),
+        & (output["triennial"] == True),  # noqa: E712
         "reassessment_year",
-    ] = True
+    ] = "Yes"
     output.loc[
         (output["year"] % 3 == 1)
         & (output["triad"] == "South")
-        & (output["temp"] is True),
+        & (output["triennial"] == True),  # noqa: E712
         "reassessment_year",
-    ] = True
+    ] = "Yes"
     output.loc[
         (output["year"] % 3 == 2)
         & (output["triad"] == "City")
-        & (output["temp"] is True),
+        & (output["triennial"] == True),  # noqa: E712
         "reassessment_year",
-    ] = True
-    output.drop(["temp", "triad"], axis=1)
+    ] = "Yes"
+    output = output.drop(["triennial", "triad"], axis=1)
 
     return output
 
