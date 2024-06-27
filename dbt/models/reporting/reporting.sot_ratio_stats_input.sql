@@ -36,21 +36,6 @@ SELECT
     uni.class,
     CAST(vals.tot_mv AS DOUBLE) AS tot_mv,
     CAST(vals.tot_mv AS DOUBLE) / CAST(sales.sale_price AS DOUBLE) AS ratio,
-    CASE
-        WHEN
-            MOD(CAST(uni.year AS INT), 3) = 0
-            AND uni.triad_name = 'North'
-            THEN TRUE
-        WHEN
-            MOD(CAST(uni.year AS INT), 3) = 1
-            AND uni.triad_name = 'South'
-            THEN TRUE
-        WHEN
-            MOD(CAST(uni.year AS INT), 3) = 2
-            AND uni.triad_name = 'City'
-            THEN TRUE
-        ELSE FALSE
-    END AS reassessment_year,
     'Cook' AS county,
     uni.triad_name AS triad,
     uni.township_name AS township,

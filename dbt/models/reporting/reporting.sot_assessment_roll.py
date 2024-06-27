@@ -9,6 +9,14 @@ import pandas as pd
 
 # Declare geographic groups and their associated data years
 geos = {
+    "year": [
+        "county",
+        "triad",
+        "township",
+        "nbhd",
+        "tax_code",
+        "zip_code",
+    ],
     "census_data_year": [
         "census_place",
         "census_tract",
@@ -62,7 +70,12 @@ def q90(x):
 
 
 def first(x):
-    return x.iloc[0]
+    if len(x) >= 1:
+        output = x.iloc[0]
+    else:
+        output = None
+
+    return output
 
 
 more_stats = [
@@ -81,6 +94,7 @@ stats = {
     "tot": ["size", "count"] + more_stats,
     "bldg": more_stats,
     "land": more_stats,
+    "triad": [first],
 }
 
 
@@ -130,6 +144,33 @@ def assemble(df, geos, groups):
 
     output.columns = ["_".join(col) for col in output.columns]
     output.reset_index()
+
+    output["year"] = output["year"].astype(int)
+    output["temp"] = output["geography_type"].isin(
+        ["triad", "township", "nbhd"]
+    )
+    output["reassessment_year"] = None
+    output["reassessment_year"] = output["reassessment_year"].astype("boolean")
+    output.loc[(output["temp"] is True), "reassessment_year"] = False
+    output.loc[
+        (output["year"] % 3 == 0)
+        & (output["triad"] == "North")
+        & (output["temp"] is True),
+        "reassessment_year",
+    ] = True
+    output.loc[
+        (output["year"] % 3 == 1)
+        & (output["triad"] == "South")
+        & (output["temp"] is True),
+        "reassessment_year",
+    ] = True
+    output.loc[
+        (output["year"] % 3 == 2)
+        & (output["triad"] == "City")
+        & (output["temp"] is True),
+        "reassessment_year",
+    ] = True
+    output.drop(["temp", "triad"], axis=1)
 
     return output
 

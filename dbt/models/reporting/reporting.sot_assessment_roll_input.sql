@@ -36,21 +36,6 @@ SELECT
     CAST(vals.tot AS INT) AS tot,
     CAST(vals.bldg AS INT) AS bldg,
     CAST(vals.land AS INT) AS land,
-    CASE
-        WHEN
-            MOD(CAST(uni.year AS INT), 3) = 0
-            AND uni.triad_name = 'North'
-            THEN TRUE
-        WHEN
-            MOD(CAST(uni.year AS INT), 3) = 1
-            AND uni.triad_name = 'South'
-            THEN TRUE
-        WHEN
-            MOD(CAST(uni.year AS INT), 3) = 2
-            AND uni.triad_name = 'City'
-            THEN TRUE
-        ELSE FALSE
-    END AS reassessment_year,
     'Cook' AS county,
     uni.triad_name AS triad,
     uni.township_name AS township,
