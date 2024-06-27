@@ -60,8 +60,8 @@ calculate_angles <- function(points) {
   dot_product <- vectors[-nrow(vectors), 1] * vectors[-1, 1] +
     vectors[-nrow(vectors), 2] * vectors[-1, 2]
 
-  angle <- pi + atan2(cross_product, dot_product)
-  angles <- c(NA_real_, angle * 180 / pi)
+  angles <- pi + atan2(cross_product, dot_product)
+  angles <- c(NA_real_, angles * 180 / pi)
 
   return(angles)
 }
@@ -206,10 +206,8 @@ process_parcel_file <- function(s3_bucket_uri,
     spatial_mat_calc <- spatial_mat_coords[
       ,
       `:=` (
-        # Distance between points using Pythagorean theorem. The first point in
-        # each group (polygon) is the same as the last point, so calculating the
-        # length between all points in a group does capture the length of all
-        # edges
+        # Get edge length using Pythagorean theorem and a rolling lag to get
+        # the distance between each pair of points
         edge_len = sqrt(
           (X - shift(X, type = "lag")) ^ 2 +
             (Y - shift(Y, type = "lag")) ^ 2
@@ -219,7 +217,7 @@ process_parcel_file <- function(s3_bucket_uri,
           (X - mean(X)) ^ 2 +
             (Y - mean(Y)) ^ 2
         ),
-        # Calculate the angle between each pair of points
+        # Calculate the interior angle between each pair of points
         angle = calculate_angles(as.matrix(.SD))
       ),
       .SDcols = c("X", "Y"),
