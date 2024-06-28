@@ -160,7 +160,7 @@ def model(dbt, spark_session):
 
     schema = (
         "geography_type: string, geography_id: string, group_type: string, "
-        + "group_id: string, year: bigint, sale_price_size: double, "
+        + "group_id: string, year: string, sale_price_size: double, "
         + "sale_price_count: double, sale_price_min: double, "
         + "sale_price_q10: double, sale_price_q25: double, "
         + "sale_price_median: double, sale_price_q75: double, "
@@ -172,7 +172,7 @@ def model(dbt, spark_session):
         + "price_per_sf_max: double, price_per_sf_mean: double, "
         + "price_per_sf_sum: double, char_bldg_sf_median: double, "
         + "char_land_sf_median: double, char_yrblt_median: double, "
-        + "class_multimode: array<string>, data_year_first: bigint,"
+        + "class_multimode: array<string>, data_year_first: string,"
         + "sale_price_deltamedian: double, price_per_sf_deltamedian: double, "
         + "sale_price_deltamean: double, price_per_sf_deltamean: double, "
         + "sale_price_deltasum: double, price_per_sf_deltasum: double"

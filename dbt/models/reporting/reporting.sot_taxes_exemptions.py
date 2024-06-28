@@ -164,7 +164,7 @@ def model(dbt, spark_session):
 
     schema = (
         "geography_type: string, geography_id: string, group_type: string, "
-        + "group_id: string, year: bigint, eq_factor_final_size: bigint, "
+        + "group_id: string, year: string, eq_factor_final_size: bigint, "
         + "eq_factor_final_first: double, eq_factor_tentative_first: double, "
         + "tax_bill_total_min: double, tax_bill_total_q10: double, "
         + "tax_bill_total_q25: double, tax_bill_total_median: double, "
