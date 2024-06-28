@@ -188,6 +188,26 @@ def model(dbt, spark_session):
 
     df = assemble(input, geos=geos, groups=groups)
 
-    spark_df = spark_session.createDataFrame(df)
+    schema = (
+        "geography_type: string, geography_id: string, group_type: string, "
+        + "group_id: string, year: bigint, stage_name: string, "
+        + "tot_size: bigint, tot_count: bigint, tot_min: double, "
+        + "tot_q10: double, tot_q25: double, tot_median: double, "
+        + "tot_q75: double, tot_q90: double, tot_max: double, "
+        + "tot_mean: double, tot_sum: double, bldg_min: double, "
+        + "bldg_q10: double, bldg_q25: double, bldg_median: double, "
+        + "bldg_q75: double, bldg_q90: double, bldg_max: double, "
+        + "bldg_mean: double, bldg_sum: double, land_min: double, "
+        + "land_q10: double, land_q25: double, land_median: double, "
+        + "land_q75: double, land_q90: double, land_max: double, "
+        + "land_mean: double, land_sum: double, tot_deltamedian: double, "
+        + "bldg_deltamedian: double, land_deltamedian: double, "
+        + "tot_deltamean: double, bldg_deltamean: double, "
+        + "land_deltamean: double, tot_deltasum: double, "
+        + "bldg_deltasum: double, land_deltasum: double, "
+        + "tot_pct_w_value: double, reassessment_year: string"
+    )
+
+    spark_df = spark_session.createDataFrame(df, schema=schema)
 
     return spark_df
