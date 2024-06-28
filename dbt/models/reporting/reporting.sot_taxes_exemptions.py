@@ -9,6 +9,14 @@ import pandas as pd
 
 # Declare geographic groups and their associated data years
 geos = {
+    "year": [
+        "county",
+        "triad",
+        "township",
+        "nbhd",
+        "tax_code",
+        "zip_code",
+    ],
     "census_data_year": [
         "census_place",
         "census_tract",
@@ -132,7 +140,7 @@ def assemble(df, geos, groups):
         ].diff()
 
     output.columns = ["_".join(col) for col in output.columns]
-    output.reset_index()
+    output = output.reset_index()
 
     return output
 
