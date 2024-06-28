@@ -143,7 +143,8 @@ def assemble(df, geos, groups):
     )
 
     output.columns = ["_".join(col) for col in output.columns]
-    output.reset_index()
+    output = output.reset_index()
+    output = output.rename(columns={"triad_first": "triad"})
 
     output["year"] = output["year"].astype(int)
     output["triennial"] = output["geography_type"].isin(
