@@ -207,16 +207,43 @@ process_parcel_file <- function(s3_bucket_uri,
     tictoc::toc()
 
     tictoc::tic(paste("Calculated shape features:", file_year))
-    # Convert to a data.table of the vertices of each polygon. Using data.table
-    # here because it's much faster
+    # Simplify the planar geometry to reduce noise in shape-based features
+    # calculated below. Convert to a data.table of the vertices of each polygon.
+    # Using data.table here because it's much faster than dplyr
     spatial_mat_coords <- spatial_df_merged %>%
       st_set_geometry("geometry_3435") %>%
       st_coordinates() %>%
       as.data.table()
 
-    # Use the vertices to calculate additional features about the shape of
-    # the polygon
+    # Use the coordinate vertices to calculate additional features about
+    # the shape of the polygon
     spatial_mat_calc <- spatial_mat_coords[
+      ,
+      # Calculate the interior angle between each pair of points
+      angle := calculate_angles(as.matrix(.SD)),
+      .SDcols = c("X", "Y"),
+      by = c("L1", "L2", "L3")
+    ][
+      ,
+      # Some vertex angles are close to 180 or 360 degrees, which are likely to
+      # be artifacts of the data and not true vertices. We don't want to count
+      # these straight angles in our features, BUT we also can't drop all of
+      # them since some polygons are basically just lines. So, we drop any
+      # straight angle vertices from any polygon with >= 3 non-straight angles
+      # (which is the minimum number of vertices needed to make a polygon)
+      straight_angle := (
+        (
+          data.table::between(angle, 0, 1) |
+            data.table::between(angle, 359, 360)
+        ) | data.table::between(angle, 179, 181)
+      )
+    ][
+      ,
+      num_non_straight_angle := sum(!straight_angle, na.rm = TRUE),
+      by = c("L1", "L2", "L3")
+    ][
+      !straight_angle | num_non_straight_angle < 3 | is.na(angle),
+    ][
       ,
       `:=`(
         # Get edge length using Pythagorean theorem and a rolling lag to get
@@ -229,38 +256,22 @@ process_parcel_file <- function(s3_bucket_uri,
         dist_to_centroid = sqrt(
           (X - mean(X)) ^ 2 +
             (Y - mean(Y)) ^ 2
-        ),
-        # Calculate the interior angle between each pair of points
-        angle = calculate_angles(as.matrix(.SD))
+        )
       ),
-      .SDcols = c("X", "Y"),
       by = c("L1", "L2", "L3")
     ]
 
-    # Collapse the vertex-level data back to the parcel level EXCLUDING any
-    # vertices with an angle close to 180 degrees. These are likely to be
-    # artifacts of the data and not true vertices, so we don't count them in
-    # our calculations
+    # Collapse the vertex-level data back to the parcel level
     spatial_mat_calc_vert <- spatial_mat_calc[
-      !data.table::between(angle, 179, 181) | is.na(angle),
-      # Number of vertices in the polygon. Minus 1 because the first and last
-      # vertex are always identical (used to close the polygon)
+      ,
       .(
+        # Number of vertices in the polygon. Minus 1 because the first and last
+        # vertex are always identical (used to close the polygon)
         shp_parcel_num_vertices = .N - 1,
         # Tail is used to drop the first row of each group since it's identical
         # to the last row (again, same reason as above)
         shp_parcel_interior_angle_sd = sd(tail(angle, -1), na.rm = TRUE),
-        shp_parcel_centroid_dist_ft_sd = sd(tail(dist_to_centroid, -1))
-      ),
-      by = "L3"
-    ]
-
-    # Collapse the edge-level data back to the parcel level, this time keeping
-    # the 180 degree vertices, since excluding them would drop some edges with
-    # non-zero length
-    spatial_mat_calc_edge <- spatial_mat_calc[
-      ,
-      .(
+        shp_parcel_centroid_dist_ft_sd = sd(tail(dist_to_centroid, -1)),
         shp_parcel_edge_len_ft_sd = sd(tail(edge_len, -1), na.rm = TRUE)
       ),
       by = "L3"
@@ -276,6 +287,13 @@ process_parcel_file <- function(s3_bucket_uri,
       mutate(
         shp_parcel_mrr_area_ratio = units::drop_units(
           st_area(geometry_3435) / parcel_area
+        ),
+        # Sometimes the ratio here is very slightly less than 1, even though
+        # that should be impossible. Seems to an artifact of some malformed
+        shp_parcel_mrr_area_ratio = ifelse(
+          shp_parcel_mrr_area_ratio < 1,
+          1,
+          shp_parcel_mrr_area_ratio
         )
       )
 
@@ -310,8 +328,7 @@ process_parcel_file <- function(s3_bucket_uri,
           select(shp_parcel_mrr_area_ratio) %>%
           st_drop_geometry(),
         spatial_mat_rec_calc[, 2],
-        spatial_mat_calc_edge[, 2],
-        spatial_mat_calc_vert[, 2:4]
+        spatial_mat_calc_vert[, 2:5]
       ) %>%
       ungroup() %>%
       arrange(year, town_code, pin10) %>%
