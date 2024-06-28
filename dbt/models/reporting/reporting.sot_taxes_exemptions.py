@@ -106,6 +106,27 @@ agg_func_math = {
 }
 
 
+def aggregrate(data, geography_type, group_type):
+    print(geography_type, group_type)
+
+    group = [geography_type, group_type, "year"]
+    summary = data.groupby(group).agg(agg_func_math).round(2)
+    summary["geography_type"] = geography_type
+    summary["group_type"] = group_type
+    summary.index.names = ["geography_id", "group_id", "year"]
+    summary = summary.reset_index().set_index(
+        [
+            "geography_type",
+            "geography_id",
+            "group_type",
+            "group_id",
+            "year",
+        ]
+    )
+
+    return summary
+
+
 def assemble(df, geos, groups):
     # Create an empty dataframe to fill with output
     output = pd.DataFrame()
@@ -116,22 +137,7 @@ def assemble(df, geos, groups):
 
         for x in value:
             for z in groups:
-                group = [x, z, "year"]
-                summary = df.groupby(group).agg(agg_func_math).round(2)
-                summary["geography_type"] = x
-                summary["group_type"] = z
-                summary.index.names = ["geography_id", "group_id", "year"]
-                summary = summary.reset_index().set_index(
-                    [
-                        "geography_type",
-                        "geography_id",
-                        "group_type",
-                        "group_id",
-                        "year",
-                    ]
-                )
-
-                output = pd.concat([output, summary])
+                output = pd.concat([output, aggregrate(df, x, z)])
 
     # Clean combined output and export
     for i in ["median", "mean", "sum"]:
@@ -156,6 +162,36 @@ def model(dbt, spark_session):
 
     df = assemble(input, geos=geos, groups=groups)
 
-    spark_df = spark_session.createDataFrame(df)
+    schema = (
+        "geography_type: string, geography_id: string, group_type: string, "
+        + "group_id: string, year: bigint, eq_factor_final_size: bigint, "
+        + "eq_factor_final_first: double, eq_factor_tentative_first: double, "
+        + "tax_bill_total_min: double, tax_bill_total_q10: double, "
+        + "tax_bill_total_q25: double, tax_bill_total_median: double, "
+        + "tax_bill_total_q75: double, tax_bill_total_q90: double, "
+        + "tax_bill_total_max: double, tax_bill_total_mean: double, "
+        + "tax_bill_total_sum: double, tax_code_rate_min: double, "
+        + "tax_code_rate_q10: double, tax_code_rate_q25: double, "
+        + "tax_code_rate_median: double, tax_code_rate_q75: double, "
+        + "tax_code_rate_q90: double, tax_code_rate_max: double, "
+        + "tax_code_rate_mean: double, tax_code_rate_sum: double, "
+        + "av_clerk_min: int, av_clerk_q10: double, av_clerk_q25: double, "
+        + "av_clerk_median: double, av_clerk_q75: double, "
+        + "av_clerk_q90: double, av_clerk_max: int, av_clerk_mean: double, "
+        + "av_clerk_sum: double, exe_homeowner_count: bigint, "
+        + "exe_homeowner_sum: double, exe_senior_count: bigint, "
+        + "exe_senior_sum: double, exe_freeze_count: bigint, "
+        + "exe_freeze_sum: double, exe_longtime_homeowner_count: bigint, "
+        + "exe_longtime_homeowner_sum: double, exe_disabled_count: bigint, "
+        + "exe_disabled_sum: double, exe_vet_returning_count: bigint, "
+        + "exe_vet_returning_sum: double, exe_vet_dis_lt50_count: bigint, "
+        + "exe_vet_dis_lt50_sum: double, exe_vet_dis_50_69_count: bigint, "
+        + "exe_vet_dis_50_69_sum: double, exe_vet_dis_ge70_count: bigint, "
+        + "exe_vet_dis_ge70_sum: double, exe_abate_count: bigint, "
+        + "exe_abate_sum: double, tax_bill_total_deltamedian: double, "
+        + "tax_bill_total_deltamean: double, tax_bill_total_deltasum: double"
+    )
+
+    spark_df = spark_session.createDataFrame(df, schema=schema)
 
     return spark_df

@@ -96,6 +96,27 @@ agg_func_math = {
 }
 
 
+def aggregrate(data, geography_type, group_type):
+    print(geography_type, group_type)
+
+    group = [geography_type, group_type, "year"]
+    summary = data.groupby(group).agg(agg_func_math).round(2)
+    summary["geography_type"] = geography_type
+    summary["group_type"] = group_type
+    summary.index.names = ["geography_id", "group_id", "year"]
+    summary = summary.reset_index().set_index(
+        [
+            "geography_type",
+            "geography_id",
+            "group_type",
+            "group_id",
+            "year",
+        ]
+    )
+
+    return summary
+
+
 def assemble(df, geos, groups):
     # Create an empty dataframe to fill with output
     output = pd.DataFrame()
@@ -106,22 +127,7 @@ def assemble(df, geos, groups):
 
         for x in value:
             for z in groups:
-                group = [x, z, "year"]
-                summary = df.groupby(group).agg(agg_func_math).round(2)
-                summary["geography_type"] = x
-                summary["group_type"] = z
-                summary.index.names = ["geography_id", "group_id", "year"]
-                summary = summary.reset_index().set_index(
-                    [
-                        "geography_type",
-                        "geography_id",
-                        "group_type",
-                        "group_id",
-                        "year",
-                    ]
-                )
-
-                output = pd.concat([output, summary])
+                output = pd.concat([output, aggregrate(df, x, z)])
 
     # Clean combined output and export
     output["sale_price", "sum"] = output["sale_price", "sum"].replace(
@@ -152,6 +158,26 @@ def model(dbt, spark_session):
 
     df = assemble(input, geos=geos, groups=groups)
 
-    spark_df = spark_session.createDataFrame(df)
+    schema = (
+        "geography_type: string, geography_id: string, group_type: string, "
+        + "group_id: string, year: bigint, sale_price_size: double, "
+        + "sale_price_count: double, sale_price_min: double, "
+        + "sale_price_q10: double, sale_price_q25: double, "
+        + "sale_price_median: double, sale_price_q75: double, "
+        + "sale_price_q90: double, sale_price_max: double, "
+        + "sale_price_mean: double, sale_price_sum: double, "
+        + "price_per_sf_min: double, price_per_sf_q10: double, "
+        + "price_per_sf_q25: double, price_per_sf_median: double, "
+        + "price_per_sf_q75: double, price_per_sf_q90: double, "
+        + "price_per_sf_max: double, price_per_sf_mean: double, "
+        + "price_per_sf_sum: double, char_bldg_sf_median: double, "
+        + "char_land_sf_median: double, char_yrblt_median: double, "
+        + "class_multimode: array<string>, data_year_first: bigint,"
+        + "sale_price_deltamedian: double, price_per_sf_deltamedian: double, "
+        + "sale_price_deltamean: double, price_per_sf_deltamean: double, "
+        + "sale_price_deltasum: double, price_per_sf_deltasum: double"
+    )
+
+    spark_df = spark_session.createDataFrame(df, schema=schema)
 
     return spark_df
