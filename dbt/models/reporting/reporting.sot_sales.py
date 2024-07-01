@@ -160,8 +160,8 @@ def model(dbt, spark_session):
 
     schema = (
         "geography_type: string, geography_id: string, group_type: string, "
-        + "group_id: string, year: string, sale_price_size: double, "
-        + "sale_price_count: double, sale_price_min: double, "
+        + "group_id: string, year: string, sale_price_size: bigint, "
+        + "sale_price_count: int, sale_price_min: double, "
         + "sale_price_q10: double, sale_price_q25: double, "
         + "sale_price_median: double, sale_price_q75: double, "
         + "sale_price_q90: double, sale_price_max: double, "
