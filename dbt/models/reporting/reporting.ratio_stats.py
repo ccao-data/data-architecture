@@ -157,8 +157,9 @@ def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
     data_array = kwargs.to_numpy()
 
     def bootstrap_worker(
-        data_array, fun, num_kwargs, n, nboot, start, end, result_queue
+        data_array, fun, num_kwargs, n, nboot, start, end, result_queue, seed
     ):
+        np.random.seed(seed)
         ests = []
         for _ in range(start, end):
             sample_indices = np.random.choice(
@@ -182,9 +183,16 @@ def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
         result_queue = mp.Queue()
         chunk_size = nboot // num_processes
 
+        # Generate a base seed
+        base_seed = np.random.randint(0, 2**32 - 1)
+
         for i in range(num_processes):
             start = i * chunk_size
             end = start + chunk_size if i < num_processes - 1 else nboot
+
+            # Generate a unique seed for each process
+            seed = base_seed + i
+
             p = mp.Process(
                 target=bootstrap_worker,
                 args=(
@@ -196,6 +204,7 @@ def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
                     start,
                     end,
                     result_queue,
+                    seed,
                 ),
             )
             processes.append(p)
@@ -213,6 +222,17 @@ def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
     ests = parallel_bootstrap(data_array, fun, num_kwargs, n, nboot)
 
     ests = pd.Series(ests)
+
+    # Assuming ests is already a Series
+    first_value_counts = ests.value_counts()
+    second_value_counts = first_value_counts.value_counts().sort_index()
+
+    athena_user_logger.info("Value counts of value counts:")
+    athena_user_logger.info("Frequency | Count")
+    athena_user_logger.info("----------+------")
+    for freq, count in second_value_counts.items():
+        athena_user_logger.info(f"{freq:9d} | {count}")
+    athena_user_logger.info(f"\nData type: {second_value_counts.dtype}")
 
     ci = [ests.quantile(alpha / 2), ests.quantile(1 - alpha / 2)]
 
