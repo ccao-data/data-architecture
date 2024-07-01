@@ -212,6 +212,8 @@ process_parcel_file <- function(s3_bucket_uri,
     # Using data.table here because it's much faster than dplyr
     spatial_mat_coords <- spatial_df_merged %>%
       st_set_geometry("geometry_3435") %>%
+      st_simplify(dTolerance = 1, preserveTopology = TRUE) %>%
+      st_cast("MULTIPOLYGON") %>%
       st_coordinates() %>%
       as.data.table()
 
