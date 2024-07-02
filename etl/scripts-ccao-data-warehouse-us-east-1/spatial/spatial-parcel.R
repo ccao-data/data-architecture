@@ -148,7 +148,7 @@ process_parcel_file <- function(s3_bucket_uri,
       # For each PIN10, keep the centroid of the largest polygon
       group_by(pin10) %>%
       arrange(desc(area)) %>%
-      summarize(across(c(lon, lat, x_3435, y_3435), first)) %>%
+      summarize(across(c(lon, lat, x_3435, y_3435), dplyr::first)) %>%
       ungroup()
     tictoc::toc()
 
@@ -158,32 +158,48 @@ process_parcel_file <- function(s3_bucket_uri,
       mutate(pin10 = str_sub(pin, 1, 10)) %>%
       group_by(pin10) %>%
       summarize(
-        across(c(tax_code, nbhd_code, town_code), first),
+        across(c(tax_code, nbhd_code, town_code), dplyr::first),
         year = file_year
       ) %>%
       ungroup()
 
-    # Merge spatial boundaries with attribute data
+    # Merge spatial boundaries with attribute data and drop sliver polygons
     spatial_df_merged <- spatial_df_clean %>%
       left_join(attr_df, by = "pin10") %>%
       left_join(spatial_df_centroids, by = "pin10") %>%
       mutate(
         has_attributes = !is.na(town_code),
         geometry = st_transform(geometry, 4326),
-        geometry_3435 = st_transform(geometry, 3435)
+        area = units::drop_units(st_area(geometry))
       ) %>%
+      # Drop anything with an area less than 1 sq meter, as long as it has other
+      # polygons for the same PIN10 that are larger
+      filter(!(area <= 1 & n() >= 2 & !all(area <= 1)), .by = "pin10") %>%
       select(
         pin10, tax_code, nbhd_code, has_attributes,
-        lon, lat, x_3435, y_3435, geometry, geometry_3435,
+        lon, lat, x_3435, y_3435, geometry,
         town_code, year
-      ) %>%
-      summarize(
-        across(tax_code:year, dplyr::first),
-        geometry = st_union(geometry),
-        geometry_3435 = st_union(geometry_3435),
-        .by = "pin10"
-      ) %>%
-      distinct(pin10, .keep_all = TRUE)
+      )
+    tictoc::toc()
+
+    # Aggregate PIN10s with more than one row using st_union. Split them out
+    # from the rest of the dataset because st_union is an incredibly expensive
+    # operation, so we only want to perform it on the PINs we need to
+    tictoc::tic(paste("Collapsed parcels to the PIN10 level:", file_year))
+    spatial_df_merged <- bind_rows(
+      spatial_df_merged %>%
+        filter(n() >= 2, .by = pin10) %>%
+        summarize(
+          across(tax_code:year, dplyr::first),
+          across(geometry, st_union),
+          .by = "pin10"
+        ),
+      spatial_df_merged %>%
+        filter(!(n() >= 2), .by = pin10)
+    ) %>%
+      st_cast("MULTIPOLYGON") %>%
+      mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+      relocate(geometry_3435, .after = geometry)
     tictoc::toc()
 
     # If centroids are missing from join (invalid geom, empty, etc.)
@@ -218,7 +234,7 @@ process_parcel_file <- function(s3_bucket_uri,
     # Using data.table here because it's much faster than dplyr
     spatial_mat_coords <- spatial_df_merged %>%
       st_set_geometry("geometry_3435") %>%
-      st_simplify(dTolerance = 2, preserveTopology = FALSE) %>%
+      st_simplify(dTolerance = 2, preserveTopology = TRUE) %>%
       st_cast("MULTIPOLYGON") %>%
       st_coordinates() %>%
       as.data.table()
