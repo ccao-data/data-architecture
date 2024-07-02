@@ -87,10 +87,10 @@ more_stats = [
 
 agg_func_math = {
     "sale_price": ["size", "count"] + more_stats,
-    "price_per_sf": more_stats,
-    "char_bldg_sf": ["median"],
-    "char_land_sf": ["median"],
-    "char_yrblt": ["median"],
+    "sale_price_per_sf": more_stats,
+    "sale_char_bldg_sf": ["median"],
+    "sale_char_land_sf": ["median"],
+    "sale_char_yrblt": ["median"],
     "class": [stats.multimode],
     "data_year": [first],
 }
@@ -133,16 +133,75 @@ def assemble(df, geos, groups):
     output["sale_price", "sum"] = output["sale_price", "sum"].replace(
         0, np.NaN
     )
-    output["price_per_sf", "sum"] = output["price_per_sf", "sum"].replace(
-        0, np.NaN
-    )
+    output["sale_price_per_sf", "sum"] = output[
+        "sale_price_per_sf", "sum"
+    ].replace(0, np.NaN)
 
     for i in ["median", "mean", "sum"]:
         output["sale_price", "delta" + i] = output["sale_price", i].diff()
-        output["price_per_sf", "delta" + i] = output["price_per_sf", i].diff()
+        output["sale_price_per_sf", "delta" + i] = output[
+            "sale_price_per_sf", i
+        ].diff()
 
     output.columns = ["_".join(col) for col in output.columns]
     output = output.reset_index()
+
+    output = clean_names(output)
+
+    return output
+
+
+def clean_names(x):
+    output = x.rename(
+        columns={
+            "sale_price_size": "pin_n_tot",
+            "year": "sale_year",
+            "sale_price_count": "sale_n_tot",
+            "class_multimode": "sale_class_mode",
+            "data_year_first": "data_year",
+        }
+    )
+
+    output = output[
+        [
+            "geography_type",
+            "geography_id",
+            "group_type",
+            "group_id",
+            "sale_year",
+            "pin_n_tot",
+            "sale_n_tot",
+            "sale_price_min",
+            "sale_price_q10",
+            "sale_price_q25",
+            "sale_price_median",
+            "sale_price_q75",
+            "sale_price_q90",
+            "sale_price_max",
+            "sale_price_mean",
+            "sale_price_sum",
+            "sale_price_deltamedian",
+            "sale_price_deltamean",
+            "sale_price_deltasum",
+            "sale_price_per_sf_min",
+            "sale_price_per_sf_q10",
+            "sale_price_per_sf_q25",
+            "sale_price_per_sf_median",
+            "sale_price_per_sf_q75",
+            "sale_price_per_sf_q90",
+            "sale_price_per_sf_max",
+            "sale_price_per_sf_mean",
+            "sale_price_per_sf_sum",
+            "sale_price_per_sf_deltamedian",
+            "sale_price_per_sf_deltamean",
+            "sale_price_per_sf_deltasum",
+            "sale_char_bldg_sf_median",
+            "sale_char_land_sf_median",
+            "sale_char_yrblt_median",
+            "sale_class_mode",
+            "data_year",
+        ]
+    ]
 
     return output
 
@@ -160,22 +219,25 @@ def model(dbt, spark_session):
 
     schema = (
         "geography_type: string, geography_id: string, group_type: string, "
-        + "group_id: string, year: string, sale_price_size: bigint, "
-        + "sale_price_count: int, sale_price_min: double, "
-        + "sale_price_q10: double, sale_price_q25: double, "
-        + "sale_price_median: double, sale_price_q75: double, "
-        + "sale_price_q90: double, sale_price_max: double, "
-        + "sale_price_mean: double, sale_price_sum: double, "
-        + "price_per_sf_min: double, price_per_sf_q10: double, "
-        + "price_per_sf_q25: double, price_per_sf_median: double, "
-        + "price_per_sf_q75: double, price_per_sf_q90: double, "
-        + "price_per_sf_max: double, price_per_sf_mean: double, "
-        + "price_per_sf_sum: double, char_bldg_sf_median: double, "
-        + "char_land_sf_median: double, char_yrblt_median: double, "
-        + "class_multimode: array<string>, data_year_first: string,"
-        + "sale_price_deltamedian: double, price_per_sf_deltamedian: double, "
-        + "sale_price_deltamean: double, price_per_sf_deltamean: double, "
-        + "sale_price_deltasum: double, price_per_sf_deltasum: double"
+        + "group_id: string, sale_year: string, pin_n_tot: bigint, "
+        + "sale_n_tot: int, sale_price_min: double, sale_price_q10: double, "
+        + "sale_price_q25: double, sale_price_median: double, "
+        + "sale_price_q75: double, sale_price_q90: double, "
+        + "sale_price_max: double, sale_price_mean: double, "
+        + "sale_price_sum: double, sale_price_deltamedian: double, "
+        + "sale_price_deltamean: double, sale_price_deltasum: double, "
+        + "sale_price_per_sf_min: double, sale_price_per_sf_q10: double, "
+        + "sale_price_per_sf_q25: double, sale_price_per_sf_median: double, "
+        + "sale_price_per_sf_q75: double, sale_price_per_sf_q90: double, "
+        + "sale_price_per_sf_max: double, sale_price_per_sf_mean: double, "
+        + "sale_price_per_sf_sum: double, "
+        + "sale_price_per_sf_deltamedian: double, "
+        + "sale_price_per_sf_deltamean: double, "
+        + "sale_price_per_sf_deltasum: double, "
+        + "sale_char_bldg_sf_median: double, "
+        + "sale_char_land_sf_median: double, "
+        + "sale_char_yrblt_median: double, sale_class_mode: array<string>, "
+        + "data_year: string"
     )
 
     spark_df = spark_session.createDataFrame(df, schema=schema)

@@ -23,13 +23,10 @@ SELECT
     CASE WHEN sf.char_bldg_sf > 0
             THEN
             CAST(sales.sale_price / sf.char_bldg_sf AS DOUBLE)
-    END AS price_per_sf,
-    CAST(sf.char_bldg_sf AS INT) AS char_bldg_sf,
-    CAST(sf.char_land_sf AS INT) AS char_land_sf,
-    CAST(sf.char_yrblt AS INT) AS char_yrblt,
-    CAST(hist.oneyr_pri_mailed_bldg AS DOUBLE) AS oneyr_pri_mailed_bldg,
-    CAST(hist.oneyr_pri_mailed_land AS DOUBLE) AS oneyr_pri_mailed_land,
-    CAST(hist.oneyr_pri_mailed_tot AS DOUBLE) AS oneyr_pri_mailed_tot,
+    END AS sale_price_per_sf,
+    CAST(sf.char_bldg_sf AS INT) AS sale_char_bldg_sf,
+    CAST(sf.char_land_sf AS INT) AS sale_char_land_sf,
+    CAST(sf.char_yrblt AS INT) AS sale_char_yrblt,
     uni.year,
     uni.class,
     'Cook' AS county,
@@ -92,9 +89,6 @@ LEFT JOIN sf
     AND uni.year = sf.year
 LEFT JOIN {{ ref('ccao.class_dict') }}
     ON uni.class = class_dict.class_code
-LEFT JOIN {{ ref('default.vw_pin_history') }} AS hist
-    ON uni.pin = hist.pin
-    AND uni.year = hist.year
 LEFT JOIN {{ ref('default.vw_pin_sale') }} AS sales
     ON uni.pin = sales.pin
     AND uni.year = sales.year
