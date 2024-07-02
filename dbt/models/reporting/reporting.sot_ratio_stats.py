@@ -104,6 +104,14 @@ def first(x):
     return output
 
 
+def met(x, lower_limit, upper_limit):
+    return np.logical_and(lower_limit <= x, x <= upper_limit)
+
+
+def within(x, limit):
+    return np.logical_and(1 - limit < x, x < 1 + limit)
+
+
 # Define aggregation functions
 def aggregrate(data, geography_type, group_type):
     print(geography_type, group_type)
@@ -253,6 +261,16 @@ def clean(dirty):
     ] = "Yes"
     dirty = dirty.drop(["triennial", "triad"], axis=1)
 
+    dirty["cod_met"] = met(dirty["cod"], 5, 15)
+    dirty["prd_met"] = met(dirty["prd"], 0.98, 1.03)
+    dirty["prb_met"] = met(dirty["prb"], -0.05, 0.05)
+    dirty["mki_met"] = met(dirty["mki"], 0.95, 1.05)
+
+    dirty["within_05_pct"] = within(dirty["ratio_mean"], 0.05)
+    dirty["within_10_pct"] = within(dirty["ratio_mean"], 0.1)
+    dirty["within_15_pct"] = within(dirty["ratio_mean"], 0.15)
+    dirty["within_20_pct"] = within(dirty["ratio_mean"], 0.2)
+
     dirty = dirty.astype(
         {
             "group_id": "str",
@@ -303,7 +321,11 @@ def model(dbt, spark_session):
         + "ratio_q90: double, ratio_max: double, ratio_mean: double, "
         + "cod: double, prd: double, prb: double, mki: double, "
         + "mv_delta_pct_median: double, mv_delta_pct_mean: double, "
-        + "mv_delta_pct_sum: double, reassessment_year: string"
+        + "mv_delta_pct_sum: double, reassessment_year: string, "
+        + "cod_met: boolean, prd_met: boolean, prb_met: boolean, "
+        + "mki_met: boolean, within_05_pct: boolean, "
+        + "within_10_pct: boolean, within_15_pct: boolean, "
+        + "within_20_pct: boolean"
     )
 
     spark_df = spark_session.createDataFrame(df, schema=schema)
