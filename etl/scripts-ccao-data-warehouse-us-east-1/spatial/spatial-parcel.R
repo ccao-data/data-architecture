@@ -280,8 +280,11 @@ process_parcel_file <- function(s3_bucket_uri,
         dist_to_centroid = sqrt(
           (X - mean(X)) ^ 2 +
             (Y - mean(Y)) ^ 2
-        )
+        ),
+        # Recalculate the angle after removing straight angles
+        angle = calculate_angles(as.matrix(.SD))
       ),
+      .SDcols = c("X", "Y"),
       by = c("L1", "L2", "L3")
     ]
 
