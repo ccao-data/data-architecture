@@ -42,6 +42,17 @@ SELECT
     CASE WHEN tax.exe_vet_dis_ge70 = 0 THEN NULL ELSE tax.exe_vet_dis_ge70 END
         AS exe_vet_dis_ge70,
     CASE WHEN tax.exe_abate = 0 THEN NULL ELSE tax.exe_abate END AS exe_abate,
+    CASE
+        WHEN tax.exe_homeowner + tax.exe_senior + tax.exe_freeze
+            + tax.exe_longtime_homeowner + tax.exe_disabled
+            + tax.exe_vet_returning + tax.exe_vet_dis_lt50
+            + tax.exe_vet_dis_50_69 + tax.exe_vet_dis_ge70 + tax.exe_abate = 0
+            THEN NULL ELSE
+            tax.exe_homeowner + tax.exe_senior + tax.exe_freeze
+            + tax.exe_longtime_homeowner + tax.exe_disabled
+            + tax.exe_vet_returning + tax.exe_vet_dis_lt50
+            + tax.exe_vet_dis_50_69 + tax.exe_vet_dis_ge70 + tax.exe_abate
+    END AS exe_total,
     tcd.tax_code_rate,
     eqf.eq_factor_tentative,
     eqf.eq_factor_final,

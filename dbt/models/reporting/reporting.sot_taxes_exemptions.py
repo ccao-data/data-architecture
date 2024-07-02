@@ -103,6 +103,7 @@ agg_func_math = {
     "exe_vet_dis_50_69": less_stats,
     "exe_vet_dis_ge70": less_stats,
     "exe_abate": less_stats,
+    "exe_total": less_stats,
 }
 
 
@@ -188,7 +189,8 @@ def model(dbt, spark_session):
         + "exe_vet_dis_lt50_sum: double, exe_vet_dis_50_69_count: bigint, "
         + "exe_vet_dis_50_69_sum: double, exe_vet_dis_ge70_count: bigint, "
         + "exe_vet_dis_ge70_sum: double, exe_abate_count: bigint, "
-        + "exe_abate_sum: double, tax_bill_total_deltamedian: double, "
+        + "exe_abate_sum: double, exe_total_count: bigint, "
+        + "exe_total_sum: double, tax_bill_total_deltamedian: double, "
         + "tax_bill_total_deltamean: double, tax_bill_total_deltasum: double"
     )
 
