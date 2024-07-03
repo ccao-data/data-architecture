@@ -316,7 +316,9 @@ process_parcel_file <- function(s3_bucket_uri,
           st_area(geometry_3435) / parcel_area
         ),
         # Sometimes the ratio here is very slightly less than 1, even though
-        # that should be impossible. Seems to an artifact of some malformed
+        # that should be impossible. This seems to happen mostly for extremely
+        # long, skinny triangle parcels. The error is small enough that it's
+        # probably fine to ignore for now
         shp_parcel_mrr_area_ratio = ifelse(
           shp_parcel_mrr_area_ratio < 1,
           1,
