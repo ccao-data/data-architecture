@@ -17,31 +17,32 @@ WITH tcd AS (
 SELECT
     uni.pin,
     tax.year,
-    tax.av_clerk,
+    tax.av_clerk AS tax_av,
     tax.tax_bill_total,
     CASE WHEN tax.exe_homeowner = 0 THEN NULL ELSE tax.exe_homeowner END
-        AS exe_homeowner,
+        AS tax_exe_homeowner,
     CASE WHEN tax.exe_senior = 0 THEN NULL ELSE tax.exe_senior END
-        AS exe_senior,
+        AS tax_exe_senior,
     CASE WHEN tax.exe_freeze = 0 THEN NULL ELSE tax.exe_freeze END
-        AS exe_freeze,
+        AS tax_exe_freeze,
     CASE
         WHEN tax.exe_longtime_homeowner = 0 THEN NULL ELSE
             tax.exe_longtime_homeowner
-    END AS exe_longtime_homeowner,
+    END AS tax_exe_longtime_homeowner,
     CASE WHEN tax.exe_disabled = 0 THEN NULL ELSE tax.exe_disabled END
-        AS exe_disabled,
+        AS tax_exe_disabled,
     CASE
         WHEN tax.exe_vet_returning = 0 THEN NULL ELSE tax.exe_vet_returning
-    END AS exe_vet_returning,
+    END AS tax_exe_vet_returning,
     CASE WHEN tax.exe_vet_dis_lt50 = 0 THEN NULL ELSE tax.exe_vet_dis_lt50 END
-        AS exe_vet_dis_lt50,
+        AS tax_exe_vet_dis_lt50,
     CASE
         WHEN tax.exe_vet_dis_50_69 = 0 THEN NULL ELSE tax.exe_vet_dis_50_69
-    END AS exe_vet_dis_50_69,
+    END AS tax_exe_vet_dis_50_69,
     CASE WHEN tax.exe_vet_dis_ge70 = 0 THEN NULL ELSE tax.exe_vet_dis_ge70 END
-        AS exe_vet_dis_ge70,
-    CASE WHEN tax.exe_abate = 0 THEN NULL ELSE tax.exe_abate END AS exe_abate,
+        AS tax_exe_vet_dis_ge70,
+    CASE WHEN tax.exe_abate = 0 THEN NULL ELSE tax.exe_abate END
+        AS tax_exe_abate,
     CASE
         WHEN tax.exe_homeowner + tax.exe_senior + tax.exe_freeze
             + tax.exe_longtime_homeowner + tax.exe_disabled
@@ -52,10 +53,10 @@ SELECT
             + tax.exe_longtime_homeowner + tax.exe_disabled
             + tax.exe_vet_returning + tax.exe_vet_dis_lt50
             + tax.exe_vet_dis_50_69 + tax.exe_vet_dis_ge70 + tax.exe_abate
-    END AS exe_total,
-    tcd.tax_code_rate,
-    eqf.eq_factor_tentative,
-    eqf.eq_factor_final,
+    END AS tax_exe_total,
+    tcd.tax_code_rate AS tax_rate,
+    eqf.eq_factor_tentative AS tax_eq_factor_tentative,
+    eqf.eq_factor_final AS tax_eq_factor_final,
     uni.class,
     'Cook' AS county,
     uni.triad_name AS triad,

@@ -88,22 +88,22 @@ more_stats = [
 less_stats = ["count", "sum"]
 
 agg_func_math = {
-    "eq_factor_final": ["size", first],
-    "eq_factor_tentative": [first],
+    "tax_eq_factor_final": ["size", first],
+    "tax_eq_factor_tentative": [first],
     "tax_bill_total": more_stats,
-    "tax_code_rate": more_stats,
-    "av_clerk": more_stats,
-    "exe_homeowner": less_stats,
-    "exe_senior": less_stats,
-    "exe_freeze": less_stats,
-    "exe_longtime_homeowner": less_stats,
-    "exe_disabled": less_stats,
-    "exe_vet_returning": less_stats,
-    "exe_vet_dis_lt50": less_stats,
-    "exe_vet_dis_50_69": less_stats,
-    "exe_vet_dis_ge70": less_stats,
-    "exe_abate": less_stats,
-    "exe_total": less_stats,
+    "tax_rate": more_stats,
+    "tax_av": more_stats,
+    "tax_exe_homeowner": less_stats,
+    "tax_exe_senior": less_stats,
+    "tax_exe_freeze": less_stats,
+    "tax_exe_longtime_homeowner": less_stats,
+    "tax_exe_disabled": less_stats,
+    "tax_exe_vet_returning": less_stats,
+    "tax_exe_vet_dis_lt50": less_stats,
+    "tax_exe_vet_dis_50_69": less_stats,
+    "tax_exe_vet_dis_ge70": less_stats,
+    "tax_exe_abate": less_stats,
+    "tax_exe_total": less_stats,
 }
 
 
@@ -142,13 +142,103 @@ def assemble(df, geos, groups):
 
     # Clean combined output and export
     for i in ["median", "mean", "sum"]:
-        output["tax_bill_total", "delta" + i] = output[
+        output["tax_bill_total", "delta_" + i] = output[
             "tax_bill_total", i
         ].diff()
 
     output.columns = ["_".join(col) for col in output.columns]
     output = output.reset_index()
 
+    output = clean_names(output)
+
+    return output
+
+
+def clean_names(x):
+    output = x.rename(
+        columns={
+            "tax_eq_factor_final_size": "pin_n_tot",
+            "year": "tax_year",
+            "tax_exe_homeowner_count": "tax_exe_n_homeowner",
+            "tax_exe_senior_count": "tax_exe_n_senior",
+            "tax_exe_freeze_count": "tax_exe_n_freeze",
+            "tax_exe_longtime_homeowner_count": "tax_exe_n_longtime_homeowner",
+            "tax_exe_disabled_count": "tax_exe_n_disabled",
+            "tax_exe_vet_returning_count": "tax_exe_n_vet_returning",
+            "tax_exe_vet_dis_lt50_count": "tax_exe_n_vet_dis_lt50",
+            "tax_exe_vet_dis_50_69_count": "tax_exe_n_vet_dis_50_69",
+            "tax_exe_vet_dis_ge70_count": "tax_exe_n_vet_dis_ge70",
+            "tax_exe_abate_count": "tax_exe_n_abate",
+            "tax_exe_total_count": "tax_exe_n_total",
+            "tax_eq_factor_final_first": "tax_eq_factor_final",
+            "tax_eq_factor_tentative_first": "tax_eq_factor_tentative",
+        }
+    )
+
+    output = output[
+        [
+            "geography_type",
+            "geography_id",
+            "group_type",
+            "group_id",
+            "tax_year",
+            "pin_n_tot",
+            "tax_eq_factor_final",
+            "tax_eq_factor_tentative",
+            "tax_bill_total_min",
+            "tax_bill_total_q10",
+            "tax_bill_total_q25",
+            "tax_bill_total_median",
+            "tax_bill_total_q75",
+            "tax_bill_total_q90",
+            "tax_bill_total_max",
+            "tax_bill_total_mean",
+            "tax_bill_total_sum",
+            "tax_bill_total_delta_median",
+            "tax_bill_total_delta_mean",
+            "tax_bill_total_delta_sum",
+            "tax_rate_min",
+            "tax_rate_q10",
+            "tax_rate_q25",
+            "tax_rate_median",
+            "tax_rate_q75",
+            "tax_rate_q90",
+            "tax_rate_max",
+            "tax_rate_mean",
+            "tax_rate_sum",
+            "tax_av_min",
+            "tax_av_q10",
+            "tax_av_q25",
+            "tax_av_median",
+            "tax_av_q75",
+            "tax_av_q90",
+            "tax_av_max",
+            "tax_av_mean",
+            "tax_av_sum",
+            "tax_exe_n_homeowner",
+            "tax_exe_homeowner_sum",
+            "tax_exe_n_senior",
+            "tax_exe_senior_sum",
+            "tax_exe_n_freeze",
+            "tax_exe_freeze_sum",
+            "tax_exe_n_longtime_homeowner",
+            "tax_exe_longtime_homeowner_sum",
+            "tax_exe_n_disabled",
+            "tax_exe_disabled_sum",
+            "tax_exe_n_vet_returning",
+            "tax_exe_vet_returning_sum",
+            "tax_exe_n_vet_dis_lt50",
+            "tax_exe_vet_dis_lt50_sum",
+            "tax_exe_n_vet_dis_50_69",
+            "tax_exe_vet_dis_50_69_sum",
+            "tax_exe_n_vet_dis_ge70",
+            "tax_exe_vet_dis_ge70_sum",
+            "tax_exe_n_abate",
+            "tax_exe_abate_sum",
+            "tax_exe_n_total",
+            "tax_exe_total_sum",
+        ]
+    ]
     return output
 
 
@@ -165,33 +255,35 @@ def model(dbt, spark_session):
 
     schema = (
         "geography_type: string, geography_id: string, group_type: string, "
-        + "group_id: string, year: string, eq_factor_final_size: bigint, "
-        + "eq_factor_final_first: double, eq_factor_tentative_first: double, "
+        + "group_id: string, tax_year: string, pin_n_tot: bigint, "
+        + "tax_eq_factor_final: double, tax_eq_factor_tentative: double, "
         + "tax_bill_total_min: double, tax_bill_total_q10: double, "
         + "tax_bill_total_q25: double, tax_bill_total_median: double, "
         + "tax_bill_total_q75: double, tax_bill_total_q90: double, "
         + "tax_bill_total_max: double, tax_bill_total_mean: double, "
-        + "tax_bill_total_sum: double, tax_code_rate_min: double, "
-        + "tax_code_rate_q10: double, tax_code_rate_q25: double, "
-        + "tax_code_rate_median: double, tax_code_rate_q75: double, "
-        + "tax_code_rate_q90: double, tax_code_rate_max: double, "
-        + "tax_code_rate_mean: double, tax_code_rate_sum: double, "
-        + "av_clerk_min: int, av_clerk_q10: double, av_clerk_q25: double, "
-        + "av_clerk_median: double, av_clerk_q75: double, "
-        + "av_clerk_q90: double, av_clerk_max: int, av_clerk_mean: double, "
-        + "av_clerk_sum: double, exe_homeowner_count: bigint, "
-        + "exe_homeowner_sum: double, exe_senior_count: bigint, "
-        + "exe_senior_sum: double, exe_freeze_count: bigint, "
-        + "exe_freeze_sum: double, exe_longtime_homeowner_count: bigint, "
-        + "exe_longtime_homeowner_sum: double, exe_disabled_count: bigint, "
-        + "exe_disabled_sum: double, exe_vet_returning_count: bigint, "
-        + "exe_vet_returning_sum: double, exe_vet_dis_lt50_count: bigint, "
-        + "exe_vet_dis_lt50_sum: double, exe_vet_dis_50_69_count: bigint, "
-        + "exe_vet_dis_50_69_sum: double, exe_vet_dis_ge70_count: bigint, "
-        + "exe_vet_dis_ge70_sum: double, exe_abate_count: bigint, "
-        + "exe_abate_sum: double, exe_total_count: bigint, "
-        + "exe_total_sum: double, tax_bill_total_deltamedian: double, "
-        + "tax_bill_total_deltamean: double, tax_bill_total_deltasum: double"
+        + "tax_bill_total_sum: double, tax_bill_total_delta_median: double, "
+        + "tax_bill_total_delta_mean: double, "
+        + "tax_bill_total_delta_sum: double , tax_rate_min: double, "
+        + "tax_rate_q10: double, tax_rate_q25: double, "
+        + "tax_rate_median: double, tax_rate_q75: double, "
+        + "tax_rate_q90: double, tax_rate_max: double, "
+        + "tax_rate_mean: double, tax_rate_sum: double, "
+        + "tax_av_min: int, tax_av_q10: double, tax_av_q25: double, "
+        + "tax_av_median: double, tax_av_q75: double, "
+        + "tax_av_q90: double, tax_av_max: int, tax_av_mean: double, "
+        + "tax_av_sum: double, tax_exe_n_homeowner: bigint, "
+        + "tax_exe_homeowner_sum: double, tax_exe_n_senior: bigint, "
+        + "tax_exe_senior_sum: double, tax_exe_n_freeze: bigint, "
+        + "tax_exe_freeze_sum: double, tax_exe_n_longtime_homeowner: bigint, "
+        + "tax_exe_longtime_homeowner_sum: double, "
+        + "tax_exe_n_disabled: bigint, tax_exe_disabled_sum: double, "
+        + "tax_exe_n_vet_returning: bigint, "
+        + "tax_exe_vet_returning_sum: double, tax_exe_n_vet_dis_lt50: bigint, "
+        + "tax_exe_vet_dis_lt50_sum: double, tax_exe_n_vet_dis_50_69: bigint, "
+        + "tax_exe_vet_dis_50_69_sum: double, tax_exe_n_vet_dis_ge70: bigint, "
+        + "tax_exe_vet_dis_ge70_sum: double, tax_exe_n_abate: bigint, "
+        + "tax_exe_abate_sum: double, tax_exe_n_total: bigint, "
+        + "tax_exe_total_sum: double"
     )
 
     spark_df = spark_session.createDataFrame(df, schema=schema)

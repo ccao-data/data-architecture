@@ -138,8 +138,8 @@ def assemble(df, geos, groups):
     ].replace(0, np.NaN)
 
     for i in ["median", "mean", "sum"]:
-        output["sale_price", "delta" + i] = output["sale_price", i].diff()
-        output["sale_price_per_sf", "delta" + i] = output[
+        output["sale_price", "delta_" + i] = output["sale_price", i].diff()
+        output["sale_price_per_sf", "delta_" + i] = output[
             "sale_price_per_sf", i
         ].diff()
 
@@ -180,9 +180,9 @@ def clean_names(x):
             "sale_price_max",
             "sale_price_mean",
             "sale_price_sum",
-            "sale_price_deltamedian",
-            "sale_price_deltamean",
-            "sale_price_deltasum",
+            "sale_price_delta_median",
+            "sale_price_delta_mean",
+            "sale_price_delta_sum",
             "sale_price_per_sf_min",
             "sale_price_per_sf_q10",
             "sale_price_per_sf_q25",
@@ -192,9 +192,9 @@ def clean_names(x):
             "sale_price_per_sf_max",
             "sale_price_per_sf_mean",
             "sale_price_per_sf_sum",
-            "sale_price_per_sf_deltamedian",
-            "sale_price_per_sf_deltamean",
-            "sale_price_per_sf_deltasum",
+            "sale_price_per_sf_delta_median",
+            "sale_price_per_sf_delta_mean",
+            "sale_price_per_sf_delta_sum",
             "sale_char_bldg_sf_median",
             "sale_char_land_sf_median",
             "sale_char_yrblt_median",
@@ -224,16 +224,16 @@ def model(dbt, spark_session):
         + "sale_price_q25: double, sale_price_median: double, "
         + "sale_price_q75: double, sale_price_q90: double, "
         + "sale_price_max: double, sale_price_mean: double, "
-        + "sale_price_sum: double, sale_price_deltamedian: double, "
-        + "sale_price_deltamean: double, sale_price_deltasum: double, "
+        + "sale_price_sum: double, sale_price_delta_median: double, "
+        + "sale_price_delta_mean: double, sale_price_delta_sum: double, "
         + "sale_price_per_sf_min: double, sale_price_per_sf_q10: double, "
         + "sale_price_per_sf_q25: double, sale_price_per_sf_median: double, "
         + "sale_price_per_sf_q75: double, sale_price_per_sf_q90: double, "
         + "sale_price_per_sf_max: double, sale_price_per_sf_mean: double, "
         + "sale_price_per_sf_sum: double, "
-        + "sale_price_per_sf_deltamedian: double, "
-        + "sale_price_per_sf_deltamean: double, "
-        + "sale_price_per_sf_deltasum: double, "
+        + "sale_price_per_sf_delta_median: double, "
+        + "sale_price_per_sf_delta_mean: double, "
+        + "sale_price_per_sf_delta_sum: double, "
         + "sale_char_bldg_sf_median: double, "
         + "sale_char_land_sf_median: double, "
         + "sale_char_yrblt_median: double, sale_class_mode: array<string>, "
