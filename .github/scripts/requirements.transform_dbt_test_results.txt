@@ -4,3 +4,4 @@ simplejson~=3.19.2
 lxml~=5.1.0
 numpy==1.26.4
 pyarrow==15.0.2
+click~=8.1.7
