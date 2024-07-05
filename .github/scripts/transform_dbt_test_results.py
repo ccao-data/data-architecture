@@ -22,8 +22,8 @@
 #   if the directory does not exist, it will be created
 #     * If not present, defaults to './qc_test_results_<date>/'
 #   4. --township: An optional township code which will be used to filter
-#   results
-#     * If not present, defaults to '*' (all townships)
+#   results. Can be provided multiple times to select multiple townships
+#     * If not present, defaults to all townships, including nulls
 #
 # Expects one required environment variable to be set:
 #
@@ -687,8 +687,8 @@ class TestCategory:
 @click.command()
 @click.option("--run-results", required=False, default=os.path.join("target", "run_results.json"))
 @click.option("--manifest", required=False, default=os.path.join("target", "manifest.json"))
-@click.option("--output-dir", required=False, default=None)
-@click.option("--township", required=False, default="*")
+@click.option("--output-dir", required=False)
+@click.option("--township", "-t", required=False, multiple=True)
 def main(run_results, manifest, output_dir, township) -> None:
     """Entrypoint to this script. Parses dbt test results and writes artifacts
     to the output directory with metadata about tests."""
@@ -696,7 +696,7 @@ def main(run_results, manifest, output_dir, township) -> None:
     if output_dir is None:
         output_dir = f"qc_test_results_{date_today}"
 
-    test_cache_path = get_test_cache_path(run_results, manifest)
+    test_cache_path = get_test_cache_path(run_results, manifest, township)
 
     if os.path.isfile(test_cache_path):
         print(f"Loading test results from cache at {test_cache_path}")
@@ -706,7 +706,7 @@ def main(run_results, manifest, output_dir, township) -> None:
             f"Test cache not found at {test_cache_path}, loading test results "
             "from Athena"
         )
-        test_categories = get_test_categories_from_athena(run_results, manifest)
+        test_categories = get_test_categories_from_athena(run_results, manifest, township)
         print(f"Saving test results to the cache at {test_cache_path}")
         save_test_categories_to_file(test_categories, test_cache_path)
 
@@ -920,7 +920,9 @@ def get_run_date_from_run_results(run_results_filepath: str) -> str:
 
 
 def get_test_cache_path(
-    run_results_filepath: str, manifest_filepath: str
+    run_results_filepath: str,
+    manifest_filepath: str,
+    township: typing.Tuple[str]
 ) -> str:
     """Return the path to the cache where test results are stored.
     The `run_results_filepath` and `manifest_filepath` are used to generated
@@ -931,10 +933,11 @@ def get_test_cache_path(
     with open(manifest_filepath, "rb") as manifest_file:
         manifest_hash = hashlib.md5(manifest_file.read()).hexdigest()
 
-    return os.path.join(
-        TEST_CACHE_DIR,
-        f"run_{run_results_hash}_manifest_{manifest_hash}.json",
-    )
+    base_filename = f"run_{run_results_hash}_manifest_{manifest_hash}"
+    if township:
+        base_filename += f"_township_{'_'.join(township)}"
+
+    return os.path.join(TEST_CACHE_DIR, f"{base_filename}.json")
 
 
 def get_test_categories_from_file(
@@ -964,17 +967,20 @@ def save_test_categories_to_file(
 
 
 def get_test_categories_from_athena(
-    run_results_filepath: str, manifest_filepath: str
+    run_results_filepath: str,
+    manifest_filepath: str,
+    township: typing.Tuple[str]
 ) -> typing.List[TestCategory]:
     """Load a list of TestCategory objects by querying Athena for
-    test results generated from a `dbt test --store-failures` call."""
+    test results generated from a `dbt test --store-failures` call,
+    optionally filtering results by township."""
     with open(run_results_filepath) as run_results_fobj:
         run_results = json.load(run_results_fobj)
 
     with open(manifest_filepath) as manifest_fobj:
         manifest = json.load(manifest_fobj)
 
-    test_categories = get_test_categories(run_results, manifest)
+    test_categories = get_test_categories(run_results, manifest, township)
     if not test_categories:
         raise ValueError(f"{run_results_filepath} contains no test results")
 
@@ -982,11 +988,14 @@ def get_test_categories_from_athena(
 
 
 def get_test_categories(
-    run_results: typing.Dict, manifest: typing.Dict
+    run_results: typing.Dict,
+    manifest: typing.Dict,
+    township: typing.Tuple[str]
 ) -> typing.List[TestCategory]:
     """Given two artifacts from a `dbt test --store-failures` call (a
-    run_results.json file dict and a manifest.json file dict), generates a list
-    of TestCategory objects storing the results of the tests."""
+    run_results.json file dict and a manifest.json file dict) and an optional
+    township filter, generates a list of TestCategory objects storing the
+    results of the tests."""
     conn = pyathena.connect(
         s3_staging_dir=AWS_ATHENA_S3_STAGING_DIR,
         region_name="us-east-1",
@@ -1124,36 +1133,55 @@ def get_test_categories(
                                 and par.deactivat is null
                         """
 
+            test_results_filter = ""
+            if township:
+                test_results_filter = (
+                    f" where leg.user1 in "
+                    "(" + ",".join(f"'{code}'" for code in township) + ")"
+                )
+
             test_results_query = (
                 f"{test_results_select} "
                 f"from {test_results_relation_name} as test_results "
                 f"{test_results_join}"
+                f"{test_results_filter}"
             )
             cursor.execute(test_results_query)
             query_results = cursor.fetchall()
             if len(query_results) == 0:
-                raise ValueError(
-                    f"Test {test_name} has status '{status!r}' but no failing "
+                msg = (
+                    f"Test {test_name} has status {status!r} but no failing "
                     "rows in Athena"
                 )
-
-            # Add custom fields to query results that we don't expect to be
-            # included in the response
-            failing_rows = [
-                {
-                    TEST_NAME_FIELD: test_name,
-                    DESCRIPTION_FIELD: test_description,
-                    DOCS_URL_FIELD: test_docs_url,
-                    SOURCE_TABLE_FIELD: tablename,
-                    **row,
-                }
-                for row in query_results
-            ]
-            test_result = TestResult(
-                status=Status(status),
-                failing_rows=failing_rows,
-                **base_result_kwargs,
-            )
+                if township:
+                    # Missing rows are most likely due to the township filter,
+                    # so print a warning and skip
+                    print(msg + ", possibly due to the township filter")
+                    test_result = TestResult(
+                        status=Status.PASS, failing_rows=[], **base_result_kwargs
+                    )
+                else:
+                    # If there's no township filter, the lack of rows indicates
+                    # an unexpected error
+                    raise ValueError(msg)
+            else:
+                # Add custom fields to query results that we don't expect to be
+                # included in the response
+                failing_rows = [
+                    {
+                        TEST_NAME_FIELD: test_name,
+                        DESCRIPTION_FIELD: test_description,
+                        DOCS_URL_FIELD: test_docs_url,
+                        SOURCE_TABLE_FIELD: tablename,
+                        **row,
+                    }
+                    for row in query_results
+                ]
+                test_result = TestResult(
+                    status=Status(status),
+                    failing_rows=failing_rows,
+                    **base_result_kwargs,
+                )
 
         else:
             raise ValueError(
