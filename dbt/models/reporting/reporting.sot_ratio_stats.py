@@ -18,39 +18,6 @@ geos = {
         "county",
         "triad",
         "township",
-        "nbhd",
-        "tax_code",
-        "zip_code",
-    ],
-    "census_data_year": [
-        "census_place",
-        "census_tract",
-        "census_congressional_district",
-        "census_zcta",
-    ],
-    "cook_board_of_review_district_data_year": [
-        "cook_board_of_review_district"
-    ],
-    "cook_commissioner_district_data_year": ["cook_commissioner_district"],
-    "cook_judicial_district_data_year": ["cook_judicial_district"],
-    "ward_data_year": ["ward_num"],
-    "community_area_data_year": ["community_area"],
-    "police_district_data_year": ["police_district"],
-    "central_business_district_data_year": ["central_business_district"],
-    "school_data_year": [
-        "school_elementary_district",
-        "school_secondary_district",
-        "school_unified_district",
-    ],
-    "tax_data_year": [
-        "tax_municipality",
-        "tax_park_district",
-        "tax_library_district",
-        "tax_fire_protection_district",
-        "tax_community_college_district",
-        "tax_sanitation_district",
-        "tax_special_service_area",
-        "tax_tif_district",
     ],
 }
 # Declare class groupings
@@ -373,7 +340,7 @@ def model(dbt, spark_session):
         "geography_type: string, geography_id: string, "
         + "geography_data_year: string, group_type: string, group_id: string, "
         + "year: string, reassessment_year: string, stage_name: string, "
-        + "pin_n_tot: bigint, pin_n_w_value: bigint, pin_pct_w_value: double, "
+        + "pin_n_tot: double, pin_n_w_value: bigint, pin_pct_w_value: double, "
         + "sale_n_tot: bigint, mv_min: bigint, mv_q10: bigint, "
         + "mv_q25: bigint, mv_median: bigint, mv_q75: bigint, "
         + "mv_q90: bigint, mv_max: bigint, mv_mean: bigint, mv_sum: bigint, "
