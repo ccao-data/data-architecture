@@ -104,6 +104,7 @@ agg_func_math = {
     "tax_exe_vet_dis_ge70": less_stats,
     "tax_exe_abate": less_stats,
     "tax_exe_total": less_stats,
+    "geography_data_year": [first],
 }
 
 
@@ -134,7 +135,7 @@ def assemble(df, geos, groups):
 
     # Loop through group combinations and stack output
     for key, value in geos.items():
-        df["data_year"] = df[key]
+        df["geography_data_year"] = df[key]
 
         for x in value:
             for z in groups:
@@ -172,6 +173,7 @@ def clean_names(x):
             "tax_exe_total_count": "tax_exe_n_total",
             "tax_eq_factor_final_first": "tax_eq_factor_final",
             "tax_eq_factor_tentative_first": "tax_eq_factor_tentative",
+            "geography_data_year_first": "geography_data_year",
         }
     )
 
@@ -179,7 +181,7 @@ def clean_names(x):
         [
             "geography_type",
             "geography_id",
-            "group_type",
+            "geography_data_year" "group_type",
             "group_id",
             "tax_year",
             "pin_n_tot",
@@ -254,7 +256,8 @@ def model(dbt, spark_session):
     df = assemble(input, geos=geos, groups=groups)
 
     schema = (
-        "geography_type: string, geography_id: string, group_type: string, "
+        "geography_type: string, geography_id: string, "
+        + "geography_data_year: string, group_type: string, "
         + "group_id: string, tax_year: string, pin_n_tot: bigint, "
         + "tax_eq_factor_final: double, tax_eq_factor_tentative: double, "
         + "tax_bill_total_min: double, tax_bill_total_q10: double, "

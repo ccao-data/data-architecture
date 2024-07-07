@@ -91,10 +91,11 @@ more_stats = [
 ]
 
 stats = {
-    "tot": ["size", "count"] + more_stats,
-    "bldg": more_stats,
-    "land": more_stats,
+    "av_tot": ["size", "count"] + more_stats,
+    "av_bldg": more_stats,
+    "av_land": more_stats,
     "triad": [first],
+    "geography_data_year": [first],
 }
 
 
@@ -126,7 +127,7 @@ def assemble(df, geos, groups):
 
     # Loop through group combinations and stack output
     for key, value in geos.items():
-        df["data_year"] = df[key]
+        df["geography_data_year"] = df[key]
 
         for x in value:
             for z in groups:
@@ -134,12 +135,12 @@ def assemble(df, geos, groups):
 
     # Clean combined output and export
     for i in ["median", "mean", "sum"]:
-        output["tot", "delta" + i] = output["tot", i].diff()
-        output["bldg", "delta" + i] = output["bldg", i].diff()
-        output["land", "delta" + i] = output["land", i].diff()
+        output["av_tot", "delta_" + i] = output["av_tot", i].diff()
+        output["av_bldg", "delta_" + i] = output["av_bldg", i].diff()
+        output["av_land", "delta_" + i] = output["av_land", i].diff()
 
-    output["tot", "pct_w_value"] = (
-        output["tot", "count"] / output["tot", "size"]
+    output["av_tot", "pct_w_value"] = (
+        output["av_tot", "count"] / output["av_tot", "size"]
     )
 
     output.columns = ["_".join(col) for col in output.columns]
@@ -174,6 +175,73 @@ def assemble(df, geos, groups):
     ] = "Yes"
     output = output.drop(["triennial", "triad"], axis=1)
 
+    output = clean_names(output)
+
+    return output
+
+
+def clean_names(x):
+    output = x.rename(
+        columns={
+            "av_tot_size": "pin_n_tot",
+            "av_tot_count": "pin_n_w_value",
+            "av_tot_pct_w_value": "pin_pct_w_value",
+            "geography_data_year_first": "geography_data_year",
+        }
+    )
+
+    output = output[
+        [
+            "geography_type",
+            "geography_id",
+            "geography_data_year",
+            "group_type",
+            "group_id",
+            "year",
+            "reassessment_year",
+            "stage_name",
+            "pin_n_tot",
+            "pin_n_w_value",
+            "pin_pct_w_value",
+            "av_tot_min",
+            "av_tot_q10",
+            "av_tot_q25",
+            "av_tot_median",
+            "av_tot_q75",
+            "av_tot_q90",
+            "av_tot_max",
+            "av_tot_mean",
+            "av_tot_sum",
+            "av_tot_delta_median",
+            "av_tot_delta_mean",
+            "av_tot_delta_sum",
+            "av_bldg_min",
+            "av_bldg_q10",
+            "av_bldg_q25",
+            "av_bldg_median",
+            "av_bldg_q75",
+            "av_bldg_q90",
+            "av_bldg_max",
+            "av_bldg_mean",
+            "av_bldg_sum",
+            "av_bldg_delta_median",
+            "av_bldg_delta_mean",
+            "av_bldg_delta_sum",
+            "av_land_min",
+            "av_land_q10",
+            "av_land_q25",
+            "av_land_median",
+            "av_land_q75",
+            "av_land_q90",
+            "av_land_max",
+            "av_land_mean",
+            "av_land_sum",
+            "av_land_delta_median",
+            "av_land_delta_mean",
+            "av_land_delta_sum",
+        ]
+    ]
+
     return output
 
 
@@ -189,23 +257,25 @@ def model(dbt, spark_session):
     df = assemble(input, geos=geos, groups=groups)
 
     schema = (
-        "geography_type: string, geography_id: string, group_type: string, "
-        + "group_id: string, year: bigint, stage_name: string, "
-        + "tot_size: bigint, tot_count: bigint, tot_min: double, "
-        + "tot_q10: double, tot_q25: double, tot_median: double, "
-        + "tot_q75: double, tot_q90: double, tot_max: double, "
-        + "tot_mean: double, tot_sum: double, bldg_min: double, "
-        + "bldg_q10: double, bldg_q25: double, bldg_median: double, "
-        + "bldg_q75: double, bldg_q90: double, bldg_max: double, "
-        + "bldg_mean: double, bldg_sum: double, land_min: double, "
-        + "land_q10: double, land_q25: double, land_median: double, "
-        + "land_q75: double, land_q90: double, land_max: double, "
-        + "land_mean: double, land_sum: double, tot_deltamedian: double, "
-        + "bldg_deltamedian: double, land_deltamedian: double, "
-        + "tot_deltamean: double, bldg_deltamean: double, "
-        + "land_deltamean: double, tot_deltasum: double, "
-        + "bldg_deltasum: double, land_deltasum: double, "
-        + "tot_pct_w_value: double, reassessment_year: string"
+        "geography_type: string, geography_id: string, "
+        + "geography_data_year: string, group_type: string, group_id: string, "
+        + "year: string, reassessment_year: string, stage_name: string, "
+        + "pin_n_tot: bigint, pin_n_w_value: bigint, pin_pct_w_value: double, "
+        + "av_tot_min: double, av_tot_q10: double, av_tot_q25: double, "
+        + "av_tot_median: double, av_tot_q75: double, av_tot_q90: double, "
+        + "av_tot_max: double, av_tot_mean: double, av_tot_sum: double, "
+        + "av_tot_delta_median: double, av_tot_delta_mean: double, "
+        + "av_tot_delta_sum: double, av_bldg_min: double, "
+        + "av_bldg_q10: double, av_bldg_q25: double, av_bldg_median: double, "
+        + "av_bldg_q75: double, av_bldg_q90: double, av_bldg_max: double, "
+        + "av_bldg_mean: double, av_bldg_sum: double, "
+        + "av_bldg_delta_median: double, av_bldg_delta_mean: double, "
+        + "av_bldg_delta_sum: double, av_land_min: double, "
+        + "av_land_q10: double, av_land_q25: double, av_land_median: double, "
+        + "av_land_q75: double, av_land_q90: double, av_land_max: double, "
+        + "av_land_mean: double, av_land_sum: double, "
+        + "av_land_delta_median: double, av_land_delta_mean: double, "
+        + "av_land_delta_sum: double"
     )
 
     spark_df = spark_session.createDataFrame(df, schema=schema)

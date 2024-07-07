@@ -92,7 +92,7 @@ agg_func_math = {
     "sale_char_land_sf": ["median"],
     "sale_char_yrblt": ["median"],
     "class": [stats.multimode],
-    "data_year": [first],
+    "geography_data_year": [first],
 }
 
 
@@ -123,7 +123,7 @@ def assemble(df, geos, groups):
 
     # Loop through group combinations and stack output
     for key, value in geos.items():
-        df["data_year"] = df[key]
+        df["geography_data_year"] = df[key]
 
         for x in value:
             for z in groups:
@@ -158,7 +158,7 @@ def clean_names(x):
             "year": "sale_year",
             "sale_price_count": "sale_n_tot",
             "class_multimode": "sale_class_mode",
-            "data_year_first": "data_year",
+            "geography_data_year_first": "geography_data_year",
         }
     )
 
@@ -166,6 +166,7 @@ def clean_names(x):
         [
             "geography_type",
             "geography_id",
+            "geography_data_year",
             "group_type",
             "group_id",
             "sale_year",
@@ -199,7 +200,6 @@ def clean_names(x):
             "sale_char_land_sf_median",
             "sale_char_yrblt_median",
             "sale_class_mode",
-            "data_year",
         ]
     ]
 
@@ -218,7 +218,8 @@ def model(dbt, spark_session):
     df = assemble(input, geos=geos, groups=groups)
 
     schema = (
-        "geography_type: string, geography_id: string, group_type: string, "
+        "geography_type: string, geography_id: string, "
+        + "geography_data_year: string, group_type: string, "
         + "group_id: string, sale_year: string, pin_n_tot: bigint, "
         + "sale_n_tot: int, sale_price_min: double, sale_price_q10: double, "
         + "sale_price_q25: double, sale_price_median: double, "
@@ -236,8 +237,7 @@ def model(dbt, spark_session):
         + "sale_price_per_sf_delta_sum: double, "
         + "sale_char_bldg_sf_median: double, "
         + "sale_char_land_sf_median: double, "
-        + "sale_char_yrblt_median: double, sale_class_mode: array<string>, "
-        + "data_year: string"
+        + "sale_char_yrblt_median: double, sale_class_mode: array<string>"
     )
 
     spark_df = spark_session.createDataFrame(df, schema=schema)
