@@ -129,22 +129,50 @@ def assemble(df, geos, groups):
             for z in groups:
                 output = pd.concat([output, aggregrate(df, x, z)])
 
-    # Clean combined output and export
-    output["sale_price", "sum"] = output["sale_price", "sum"].replace(
-        0, np.NaN
-    )
-    output["sale_price_per_sf", "sum"] = output[
-        "sale_price_per_sf", "sum"
-    ].replace(0, np.NaN)
-
-    for i in ["median", "mean", "sum"]:
-        output["sale_price", "delta_" + i] = output["sale_price", i].diff()
-        output["sale_price_per_sf", "delta_" + i] = output[
-            "sale_price_per_sf", i
-        ].diff()
-
     output.columns = ["_".join(col) for col in output.columns]
     output = output.reset_index()
+
+    # Clean combined output and export
+    output["sale_price_sum"] = output["sale_price_sum"].replace(0, np.NaN)
+    output["sale_price_per_sf_sum"] = output["sale_price_per_sf_sum"].replace(
+        0, np.NaN
+    )
+
+    output["sale_price_delta_median"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id"])
+        .sale_price_median.diff()
+    )
+
+    output["sale_price_delta_mean"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id"])
+        .sale_price_mean.diff()
+    )
+
+    output["sale_price_delta_sum"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id"])
+        .sale_price_sum.diff()
+    )
+
+    output["sale_price_per_sf_delta_median"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id"])
+        .sale_price_per_sf_median.diff()
+    )
+
+    output["sale_price_per_sf_delta_mean"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id"])
+        .sale_price_per_sf_mean.diff()
+    )
+
+    output["sale_price_per_sf_delta_sum"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id"])
+        .sale_price_per_sf_sum.diff()
+    )
 
     output = clean_names(output)
 

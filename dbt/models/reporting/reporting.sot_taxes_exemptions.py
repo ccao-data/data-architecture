@@ -141,14 +141,27 @@ def assemble(df, geos, groups):
             for z in groups:
                 output = pd.concat([output, aggregrate(df, x, z)])
 
-    # Clean combined output and export
-    for i in ["median", "mean", "sum"]:
-        output["tax_bill_total", "delta_" + i] = output[
-            "tax_bill_total", i
-        ].diff()
-
     output.columns = ["_".join(col) for col in output.columns]
     output = output.reset_index()
+
+    # Clean combined output and export
+    output["tax_bill_total_delta_median"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id"])
+        .tax_bill_total_median.diff()
+    )
+
+    output["tax_bill_total_delta_mean"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id"])
+        .tax_bill_total_mean.diff()
+    )
+
+    output["tax_bill_total_delta_sum"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id"])
+        .tax_bill_total_sum.diff()
+    )
 
     output = clean_names(output)
 
@@ -181,7 +194,8 @@ def clean_names(x):
         [
             "geography_type",
             "geography_id",
-            "geography_data_year" "group_type",
+            "geography_data_year",
+            "group_type",
             "group_id",
             "tax_year",
             "pin_n_tot",

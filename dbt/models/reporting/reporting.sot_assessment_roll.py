@@ -133,19 +133,122 @@ def assemble(df, geos, groups):
             for z in groups:
                 output = pd.concat([output, aggregrate(df, x, z)])
 
-    # Clean combined output and export
-    for i in ["median", "mean", "sum"]:
-        output["av_tot", "delta_" + i] = output["av_tot", i].diff()
-        output["av_bldg", "delta_" + i] = output["av_bldg", i].diff()
-        output["av_land", "delta_" + i] = output["av_land", i].diff()
-
-    output["av_tot", "pct_w_value"] = (
-        output["av_tot", "count"] / output["av_tot", "size"]
-    )
-
     output.columns = ["_".join(col) for col in output.columns]
     output = output.reset_index()
     output = output.rename(columns={"triad_first": "triad"})
+
+    # Clean combined output and export
+    output["av_tot_pct_w_value"] = (
+        output["av_tot_count"] / output["av_tot_size"]
+    )
+
+    output["av_tot_delta_median"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_tot_median.diff()
+    )
+
+    output["av_tot_delta_mean"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_tot_mean.diff()
+    )
+
+    output["av_tot_delta_sum"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_tot_sum.diff()
+    )
+
+    output["av_bldg_delta_median"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_bldg_median.diff()
+    )
+
+    output["av_bldg_delta_mean"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_bldg_mean.diff()
+    )
+
+    output["av_bldg_delta_sum"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_bldg_sum.diff()
+    )
+
+    output["av_land_delta_median"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_land_median.diff()
+    )
+
+    output["av_land_delta_mean"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_land_mean.diff()
+    )
+
+    output["av_land_delta_sum"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_land_sum.diff()
+    )
+
+    output["av_tot_delta_pct_median"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_tot_median.pct_change()
+    )
+
+    output["av_tot_delta_pct_mean"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_tot_mean.pct_change()
+    )
+
+    output["av_tot_delta_pct_sum"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_tot_sum.pct_change()
+    )
+
+    output["av_bldg_delta_pct_median"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_bldg_median.pct_change()
+    )
+
+    output["av_bldg_delta_pct_mean"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_bldg_mean.pct_change()
+    )
+
+    output["av_bldg_delta_pct_sum"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_bldg_sum.pct_change()
+    )
+
+    output["av_land_delta_pct_median"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_land_median.pct_change()
+    )
+
+    output["av_land_delta_pct_mean"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_land_mean.pct_change()
+    )
+
+    output["av_land_delta_pct_sum"] = (
+        output.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .av_land_sum.pct_change()
+    )
 
     output["year"] = output["year"].astype(int)
     output["triennial"] = output["geography_type"].isin(
@@ -215,6 +318,9 @@ def clean_names(x):
             "av_tot_delta_median",
             "av_tot_delta_mean",
             "av_tot_delta_sum",
+            "av_tot_delta_pct_median",
+            "av_tot_delta_pct_mean",
+            "av_tot_delta_pct_sum",
             "av_bldg_min",
             "av_bldg_q10",
             "av_bldg_q25",
@@ -227,6 +333,9 @@ def clean_names(x):
             "av_bldg_delta_median",
             "av_bldg_delta_mean",
             "av_bldg_delta_sum",
+            "av_bldg_delta_pct_median",
+            "av_bldg_delta_pct_mean",
+            "av_bldg_delta_pct_sum",
             "av_land_min",
             "av_land_q10",
             "av_land_q25",
@@ -239,6 +348,9 @@ def clean_names(x):
             "av_land_delta_median",
             "av_land_delta_mean",
             "av_land_delta_sum",
+            "av_land_delta_pct_median",
+            "av_land_delta_pct_mean",
+            "av_land_delta_pct_sum",
         ]
     ]
 
@@ -265,17 +377,20 @@ def model(dbt, spark_session):
         + "av_tot_median: double, av_tot_q75: double, av_tot_q90: double, "
         + "av_tot_max: double, av_tot_mean: double, av_tot_sum: double, "
         + "av_tot_delta_median: double, av_tot_delta_mean: double, "
-        + "av_tot_delta_sum: double, av_bldg_min: double, "
-        + "av_bldg_q10: double, av_bldg_q25: double, av_bldg_median: double, "
-        + "av_bldg_q75: double, av_bldg_q90: double, av_bldg_max: double, "
-        + "av_bldg_mean: double, av_bldg_sum: double, "
+        + "av_tot_delta_sum: double, av_tot_delta_pct_median: double, "
+        + "av_tot_delta_pct_mean: double, av_tot_delta_pct_sum: double, "
+        + "av_bldg_min: double, av_bldg_q10: double, av_bldg_q25: double, "
+        + "av_bldg_median: double, av_bldg_q75: double, av_bldg_q90: double, "
+        + "av_bldg_max: double, av_bldg_mean: double, av_bldg_sum: double, "
         + "av_bldg_delta_median: double, av_bldg_delta_mean: double, "
-        + "av_bldg_delta_sum: double, av_land_min: double, "
-        + "av_land_q10: double, av_land_q25: double, av_land_median: double, "
-        + "av_land_q75: double, av_land_q90: double, av_land_max: double, "
-        + "av_land_mean: double, av_land_sum: double, "
+        + "av_bldg_delta_sum: double, av_bldg_delta_pct_median: double, "
+        + "av_bldg_delta_pct_mean: double, av_bldg_delta_pct_sum: double, "
+        + "av_land_min: double, av_land_q10: double, av_land_q25: double, "
+        + "av_land_median: double, av_land_q75: double, av_land_q90: double, "
+        + "av_land_max: double, av_land_mean: double, av_land_sum: double, "
         + "av_land_delta_median: double, av_land_delta_mean: double, "
-        + "av_land_delta_sum: double"
+        + "av_land_delta_sum: double, av_land_delta_pct_median: double, "
+        + "av_land_delta_pct_mean: double, av_land_delta_pct_sum: double"
     )
 
     spark_df = spark_session.createDataFrame(df, schema=schema)
