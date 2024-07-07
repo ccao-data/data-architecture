@@ -1,6 +1,3 @@
-# pylint: skip-file
-# type: ignore
-
 # This script generates aggregated summary stats on taxes and exemptions data
 # across a number of geographies, class combinations, and time.
 
@@ -109,6 +106,11 @@ agg_func_math = {
 
 
 def aggregrate(data, geography_type, group_type):
+    """
+    Function to group a dataframe by whichever geography and group types it is
+    passed and output aggregate stats for that only for that grouping.
+    """
+
     print(geography_type, group_type)
 
     group = [geography_type, group_type, "year"]
@@ -141,10 +143,11 @@ def assemble(df, geos, groups):
             for z in groups:
                 output = pd.concat([output, aggregrate(df, x, z)])
 
+    # Flatten multi-index
     output.columns = ["_".join(col) for col in output.columns]
     output = output.reset_index()
 
-    # Clean combined output and export
+    # Create additional stat columns post-aggregation
     output["tax_bill_total_delta_median"] = (
         output.sort_values("year")
         .groupby(["geography_id", "group_id"])
@@ -169,6 +172,10 @@ def assemble(df, geos, groups):
 
 
 def clean_names(x):
+    """
+    Function to rename and reorder columns.
+    """
+
     output = x.rename(
         columns={
             "tax_eq_factor_final_size": "pin_n_tot",

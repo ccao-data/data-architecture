@@ -1,8 +1,5 @@
-# pylint: skip-file
-# type: ignore
-
-# This script generates aggregated summary stats on sales data across a number
-# of geographies, class combinations, and time.
+# This script generates aggregated summary stats on assessed values across a
+# number of geographies, class combinations, and time.
 
 # Import libraries
 import pandas as pd
@@ -100,6 +97,11 @@ stats = {
 
 
 def aggregrate(data, geography_type, group_type):
+    """
+    Function to group a dataframe by whichever geography and group types it is
+    passed and output aggregate stats for that only for that grouping.
+    """
+
     print(geography_type, group_type)
 
     group = [geography_type, group_type, "year", "stage_name"]
@@ -122,6 +124,12 @@ def aggregrate(data, geography_type, group_type):
 
 
 def assemble(df, geos, groups):
+    """
+    Function that loops over predefined geography and class groups and passes
+    them to the aggregate function. Outputs stacked aggegrated output from the
+    aggregate function.
+    """
+
     # Create an empty dataframe to fill with output
     output = pd.DataFrame()
 
@@ -133,11 +141,12 @@ def assemble(df, geos, groups):
             for z in groups:
                 output = pd.concat([output, aggregrate(df, x, z)])
 
+    # Flatten multi-index
     output.columns = ["_".join(col) for col in output.columns]
     output = output.reset_index()
     output = output.rename(columns={"triad_first": "triad"})
 
-    # Clean combined output and export
+    # Create additional stat columns post-aggregation
     output["av_tot_pct_w_value"] = (
         output["av_tot_count"] / output["av_tot_size"]
     )
@@ -254,6 +263,9 @@ def assemble(df, geos, groups):
     output["triennial"] = output["geography_type"].isin(
         ["triad", "township", "nbhd"]
     )
+
+    # Reassessment year is constructed as a string rather than a boolean to
+    # avoid PySpark errors with nullable booleans that can likely be resolved.
     output["reassessment_year"] = ""
     output.loc[
         (output["triennial"] == True), "reassessment_year"  # noqa: E712
@@ -284,6 +296,10 @@ def assemble(df, geos, groups):
 
 
 def clean_names(x):
+    """
+    Function to rename and reorder columns.
+    """
+
     output = x.rename(
         columns={
             "av_tot_size": "pin_n_tot",
