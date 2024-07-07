@@ -117,24 +117,24 @@ def aggregrate(data, geography_type, group_type):
     print(geography_type, group_type)
 
     group = [geography_type, group_type, "year", "stage_name"]
-    data["size"] = data.groupby(group)["tot_mv"].transform("size")
-    data["sale_count"] = data.groupby(group)["sale_price"].transform("count")
-    data["mv_count"] = data.groupby(group)["tot_mv"].transform("count")
+    data["pin_n_tot"] = data.groupby(group)["tot_mv"].transform("size")
+    data["sale_n_tot"] = data.groupby(group)["sale_price"].transform("count")
+    data["pin_n_w_value"] = data.groupby(group)["tot_mv"].transform("count")
 
     # Remove parcels with FMVs of 0 since they screw up ratios
     data = data[data["tot_mv"] > 0]
 
     # Remove groups that only have one sale since we can't calculate stats
     data = data.dropna(subset=["sale_price"])
-    data = data[data["sale_count"] >= 20]
+    data = data[data["sale_n_tot"] >= 20]
 
     summary = data.groupby(group).apply(
         lambda x: pd.Series(
             {
                 "triad": first(x["triad"]),
-                "size": np.size(x["ratio"]),
-                "mv_count": x["mv_count"].min(),
-                "sale_count": x["sale_count"].min(),
+                "pin_n_tot": np.size(x["ratio"]),
+                "pin_n_w_value": x["pin_n_w_value"].min(),
+                "sale_n_tot": x["sale_n_tot"].min(),
                 "mv_min": x["tot_mv"].min(),
                 "mv_q10": x["tot_mv"].quantile(0.1),
                 "mv_q25": x["tot_mv"].quantile(0.25),
@@ -152,7 +152,6 @@ def aggregrate(data, geography_type, group_type):
                 "ratio_q90": x["ratio"].quantile(0.90),
                 "ratio_max": x["ratio"].max(),
                 "ratio_mean": x["ratio"].mean(),
-                # "cod": ' '.join(x['ratio'].astype(str).values),
                 "cod": cod_safe(ratio=x["ratio"]),
                 "prd": prd_safe(
                     assessed=x["tot_mv"], sale_price=x["sale_price"]
@@ -163,6 +162,7 @@ def aggregrate(data, geography_type, group_type):
                 "mki": mki_safe(
                     assessed=x["tot_mv"], sale_price=x["sale_price"]
                 ),
+                "geography_data_year": first(x["data_year"]),
             }
         )
     )
@@ -203,18 +203,20 @@ def clean(dirty):
         ]
     )
 
+    dirty["pin_pct_w_value"] = dirty["pin_n_w_value"] / dirty["pin_n_tot"]
+
     # Clean combined dirty and export
-    dirty["mv_delta_pct_median"] = (
+    dirty["mv_delta_median"] = (
         dirty.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_median.diff()
     )
-    dirty["mv_delta_pct_mean"] = (
+    dirty["mv_delta_mean"] = (
         dirty.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_mean.diff()
     )
-    dirty["mv_delta_pct_sum"] = (
+    dirty["mv_delta_sum"] = (
         dirty.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_sum.diff()
@@ -225,10 +227,17 @@ def clean(dirty):
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_median.pct_change()
     )
+
     dirty["mv_delta_pct_mean"] = (
         dirty.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_mean.pct_change()
+    )
+
+    dirty["mv_delta_pct_sum"] = (
+        dirty.sort_values("year")
+        .groupby(["geography_id", "group_id", "stage_name"])
+        .mv_sum.pct_change()
     )
 
     dirty = dirty.reset_index()
@@ -274,12 +283,11 @@ def clean(dirty):
     dirty = dirty.astype(
         {
             "group_id": "str",
-            "year": np.int64,
+            "year": "str",
             "stage_name": "str",
             "reassessment_year": "str",
-            "size": np.int64,
-            "mv_count": np.int64,
-            "sale_count": np.int64,
+            "pin_n_w_value": np.int64,
+            "sale_n_tot": np.int64,
             "mv_min": np.int64,
             "mv_q10": np.int64,
             "mv_q25": np.int64,
@@ -291,6 +299,58 @@ def clean(dirty):
             "mv_sum": np.int64,
         }
     )
+
+    dirty = dirty[
+        [
+            "geography_type",
+            "geography_id",
+            "geography_data_year",
+            "group_type",
+            "group_id",
+            "year",
+            "reassessment_year",
+            "stage_name",
+            "pin_n_tot",
+            "pin_n_w_value",
+            "pin_pct_w_value",
+            "sale_n_tot",
+            "mv_min",
+            "mv_q10",
+            "mv_q25",
+            "mv_median",
+            "mv_q75",
+            "mv_q90",
+            "mv_max",
+            "mv_mean",
+            "mv_sum",
+            "mv_delta_median",
+            "mv_delta_mean",
+            "mv_delta_sum",
+            "mv_delta_pct_median",
+            "mv_delta_pct_mean",
+            "mv_delta_pct_sum",
+            "ratio_min",
+            "ratio_q10",
+            "ratio_q25",
+            "ratio_median",
+            "ratio_q75",
+            "ratio_q90",
+            "ratio_max",
+            "ratio_mean",
+            "cod",
+            "prd",
+            "prb",
+            "mki",
+            "cod_met",
+            "prd_met",
+            "prb_met",
+            "mki_met",
+            "within_05_pct",
+            "within_10_pct",
+            "within_15_pct",
+            "within_20_pct",
+        ]
+    ]
 
     return dirty
 
@@ -310,20 +370,20 @@ def model(dbt, spark_session):
 
     schema = (
         "geography_type: string, geography_id: string, "
-        + "group_type: string, group_id: string, year: bigint, "
-        + "stage_name: string, size: bigint, "
-        + "mv_count: bigint, "
-        + "sale_count: bigint, mv_min: bigint, mv_q10: bigint, "
+        + "geography_data_year: string, group_type: string, group_id: string, "
+        + "year: string, reassessment_year: string, stage_name: string, "
+        + "pin_n_tot: bigint, pin_n_w_value: bigint, pin_pct_w_value: double, "
+        + "sale_n_tot: bigint, mv_min: bigint, mv_q10: bigint, "
         + "mv_q25: bigint, mv_median: bigint, mv_q75: bigint, "
-        + "mv_q90: bigint, mv_max: bigint, mv_mean: bigint, "
-        + "mv_sum: bigint, ratio_min: double, ratio_q10: double, "
-        + "ratio_q25: double, ratio_median: double, ratio_q75: double, "
-        + "ratio_q90: double, ratio_max: double, ratio_mean: double, "
-        + "cod: double, prd: double, prb: double, mki: double, "
-        + "mv_delta_pct_median: double, mv_delta_pct_mean: double, "
-        + "mv_delta_pct_sum: double, reassessment_year: string, "
-        + "cod_met: boolean, prd_met: boolean, prb_met: boolean, "
-        + "mki_met: boolean, within_05_pct: boolean, "
+        + "mv_q90: bigint, mv_max: bigint, mv_mean: bigint, mv_sum: bigint, "
+        + "mv_delta_median: bigint, mv_delta_mean: bigint, "
+        + "mv_delta_sum: bigint, mv_delta_pct_median: double, "
+        + "mv_delta_pct_mean: double, mv_delta_pct_sum: double, "
+        + "ratio_min: double, ratio_q10: double, ratio_q25: double, "
+        + "ratio_median: double, ratio_q75: double, ratio_q90: double, "
+        + "ratio_max: double, ratio_mean: double, cod: double, prd: double, "
+        + "prb: double, mki: double, cod_met: boolean, prd_met: boolean, "
+        + "prb_met: boolean, mki_met: boolean, within_05_pct: boolean, "
         + "within_10_pct: boolean, within_15_pct: boolean, "
         + "within_20_pct: boolean"
     )
