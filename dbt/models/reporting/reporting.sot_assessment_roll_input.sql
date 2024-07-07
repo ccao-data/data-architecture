@@ -1,7 +1,10 @@
--- Gather parcel-level geographies and join land, sales, and class groupings
+-- This script gathers parcel-level geographies and joins them to values and
+-- class groupings. Its sole purpose is to feed reporting.sot_assessment_roll,
+-- and should not be used otherwise.
 {{
     config(
-        materialized='table'
+        materialized='table',
+        partitioned_by=['year']
     )
 }}
 
@@ -21,6 +24,8 @@ WITH stages AS (
 
 ),
 
+-- Universe of all parcels as defined by iasworld.pardat, expanded with
+-- assessment stages.
 uni AS (
     SELECT
         vw_pin_universe.*,
@@ -30,7 +35,6 @@ uni AS (
 )
 
 SELECT
-    uni.year,
     uni.stage_name,
     uni.class,
     CAST(vals.tot AS INT) AS av_tot,
@@ -89,7 +93,8 @@ SELECT
     class_dict.major_class_type AS major_class,
     class_dict.modeling_group,
     CASE WHEN class_dict.major_class_code = '2' THEN 'RES' ELSE 'OTHER' END
-        AS res_other
+        AS res_other,
+    uni.year
 FROM uni
 LEFT JOIN {{ ref('reporting.vw_pin_value_long') }} AS vals
     ON uni.pin = vals.pin
@@ -97,4 +102,5 @@ LEFT JOIN {{ ref('reporting.vw_pin_value_long') }} AS vals
     AND uni.stage_name = vals.stage_name
 LEFT JOIN {{ ref('ccao.class_dict') }}
     ON uni.class = class_dict.class_code
+-- Temporary limit on feeder table to avoid GitHub runner memory issues.
 WHERE uni.class = '278' AND uni.year IN ('2019', '2020', '2021')

@@ -1,3 +1,7 @@
+-- This script gathers parcel-level geographies and joins them to sales and
+-- class groupings. Its sole purpose is to feed reporting.sot_sales,
+-- and should not be used otherwise.
+
 {{
     config(
         materialized='table'
@@ -16,7 +20,6 @@ WITH sf AS (
     GROUP BY pin, year
 )
 
--- Gather parcel-level geographies and join land, sales, and class groupings
 SELECT
     sales.doc_no,
     sales.sale_price,
@@ -96,4 +99,5 @@ LEFT JOIN {{ ref('default.vw_pin_sale') }} AS sales
     AND NOT sales.sale_filter_deed_type
     AND NOT sales.sale_filter_less_than_10k
     AND NOT sales.sale_filter_same_sale_within_365
+-- Temporary limit on feeder table to avoid GitHub runner memory issues.
 WHERE uni.year = '2023'

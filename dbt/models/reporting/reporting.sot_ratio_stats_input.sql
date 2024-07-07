@@ -1,4 +1,7 @@
--- Gather parcel-level geographies and join land, sales, and class groupings
+/* This script gathers parcel-level geographies and joins them to values and
+sale prices, and class groupings in order to construct sales ratios. Its sole
+purpose is to feed reporting.sot_ratio_stats, and should not be used
+otherwise. */
 {{
     config(
         materialized='table'
@@ -21,6 +24,8 @@ WITH stages AS (
 
 ),
 
+-- Universe of all parcels as defined by iasworld.pardat, expanded with
+-- assessment stages.
 uni AS (
     SELECT
         vw_pin_universe.*,
@@ -105,5 +110,6 @@ LEFT JOIN {{ ref('default.vw_pin_sale') }} AS sales
     AND NOT sales.sale_filter_deed_type
     AND NOT sales.sale_filter_less_than_10k
     AND NOT sales.sale_filter_same_sale_within_365
+-- Temporary limit on feeder table to avoid GitHub runner memory issues.
 WHERE uni.year >= '2020'
     AND uni.year IN ('2022', '2023') AND uni.class IN ('278', '597')

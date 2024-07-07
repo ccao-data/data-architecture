@@ -1,9 +1,13 @@
+-- This script gathers parcel-level geographies and joins them to values, tax
+-- amounts, exemptions and class groupings. Its sole purpose is to feed
+-- reporting.sot_taxes_and_exemptions, and should not be used otherwise.
 {{
     config(
         materialized='table'
     )
 }}
 
+-- Gather unique tax codes and rates
 WITH tcd AS (
     SELECT DISTINCT
         tax_code_num,
@@ -12,13 +16,13 @@ WITH tcd AS (
     FROM {{ source('tax', 'tax_code') }}
 )
 
--- Gather parcel-level geographies and join taxes, exemptions, and class
--- groupings
 SELECT
     uni.pin,
     tax.year,
     tax.av_clerk AS tax_av,
     tax.tax_bill_total,
+    -- Setting exemptions with values of 0 allows us to count the number of
+    -- exemptions more easily and doesn't skew stats.
     CASE WHEN tax.exe_homeowner = 0 THEN NULL ELSE tax.exe_homeowner END
         AS tax_exe_homeowner,
     CASE WHEN tax.exe_senior = 0 THEN NULL ELSE tax.exe_senior END
@@ -123,4 +127,5 @@ INNER JOIN tcd
     AND tax.year = tcd.year
 INNER JOIN {{ ref('ccao.class_dict') }}
     ON uni.class = class_dict.class_code
+-- Temporary limit on feeder table to avoid GitHub runner memory issues.
 WHERE uni.class = '206'
