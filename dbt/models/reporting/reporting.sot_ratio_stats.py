@@ -287,6 +287,7 @@ def clean(dirty):
             "stage_name": "str",
             "reassessment_year": "str",
             "pin_n_w_value": np.int64,
+            "pin_n_tot": np.int64,
             "sale_n_tot": np.int64,
             "mv_min": np.int64,
             "mv_q10": np.int64,
