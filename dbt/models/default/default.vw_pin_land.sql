@@ -18,6 +18,8 @@ WITH total_influ AS (
             CASE
                 WHEN
                     (
+                        -- The field for this column changed in 2024 to allow
+                        -- greater proration precision.
                         (land.influ IS NULL AND land.taxyr < '2024')
                         OR (land.allocpct IS NULL AND land.taxyr >= '2024')
                     )
