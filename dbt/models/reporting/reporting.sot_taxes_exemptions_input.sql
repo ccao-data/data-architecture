@@ -3,7 +3,8 @@
 -- reporting.sot_taxes_and_exemptions, and should not be used otherwise.
 {{
     config(
-        materialized='table'
+        materialized='table',
+        partitioned_by=['year']
     )
 }}
 

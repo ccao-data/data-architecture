@@ -4,7 +4,8 @@ purpose is to feed reporting.sot_ratio_stats, and should not be used
 otherwise. */
 {{
     config(
-        materialized='table'
+        materialized='table',
+        partitioned_by=['year']
     )
 }}
 

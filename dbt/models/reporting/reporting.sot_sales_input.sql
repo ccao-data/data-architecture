@@ -4,7 +4,8 @@
 
 {{
     config(
-        materialized='table'
+        materialized='table',
+        partitioned_by=['year']
     )
 }}
 
