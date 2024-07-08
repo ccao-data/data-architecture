@@ -15,7 +15,7 @@ source("utils.R")
 # This script cleans historical Cook County parcel data and uploads it to S3
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel_new")
 parcel_tmp_dir <- here("parcel-tmp")
 
 # Get list of all parcel files (geojson AND attribute files) in the raw bucket
@@ -100,43 +100,39 @@ process_parcel_file <- function(s3_bucket_uri,
 
     # Clean up raw data file, dropping empty/invalid geoms and fixing PINs
     tictoc::tic(paste("Cleaned file for:", file_year))
-    if (!"pin14" %in% names(spatial_df_raw)) {
-      spatial_df_clean <- spatial_df_raw %>%
-        rename_with(tolower) %>%
-        filter(!is.na(pin10), !st_is_empty(geometry), st_is_valid(geometry)) %>%
+    spatial_df_clean <- spatial_df_raw %>%
+      rename_with(tolower) %>%
+      st_transform(3435) %>%
+      st_make_valid() %>%
+      filter(!is.na(pin10), !st_is_empty(geometry), st_is_valid(geometry)) %>%
+      st_cast("MULTIPOLYGON")
+    if (!"pin14" %in% names(spatial_df_clean)) {
+      spatial_df_clean <- spatial_df_clean %>%
         select(pin10, geometry) %>%
         mutate(
           pin10 = gsub("\\D", "", pin10),
           pin10 = str_pad(pin10, 10, "left", "0"),
           pin14 = str_pad(pin10, 14, "right", "0")
-        ) %>%
-        st_cast("MULTIPOLYGON")
+        )
     } else {
-      spatial_df_clean <- spatial_df_raw %>%
-        rename_with(tolower) %>%
-        filter(!is.na(pin10), !st_is_empty(geometry), st_is_valid(geometry)) %>%
+      spatial_df_clean <- spatial_df_clean %>%
         select(pin14, pin10, geometry) %>%
         mutate(
           across(c(pin10, pin14), ~ gsub("\\D", "", .x)),
           pin10 = str_pad(pin10, 10, "left", "0"),
           pin14 = str_pad(pin14, 14, "left", "0"),
           pin10 = ifelse(is.na(pin10), str_sub(pin14, 1, 10), pin10)
-        ) %>%
-        st_cast("MULTIPOLYGON")
+        )
     }
     tictoc::toc()
 
     # Get the centroid of the largest polygon for each parcel
     tictoc::tic(paste("Calculated centroids for:", file_year))
     spatial_df_centroids <- spatial_df_clean %>%
-      # Ensure valid geometry and dump empty geometries
-      st_make_valid() %>%
-      filter(!st_is_empty(geometry)) %>%
       # Split any multipolygon parcels into multiple rows, one for each polygon
       # https://github.com/r-spatial/sf/issues/763
       st_cast("POLYGON", warn = FALSE) %>%
       # Transform to planar geometry then calculate centroids
-      st_transform(3435) %>%
       mutate(centroid_geom = st_centroid(geometry)) %>%
       cbind(
         st_coordinates(st_transform(.$centroid_geom, 4326)),
@@ -169,7 +165,6 @@ process_parcel_file <- function(s3_bucket_uri,
       left_join(spatial_df_centroids, by = "pin10") %>%
       mutate(
         has_attributes = !is.na(town_code),
-        geometry = st_transform(geometry, 4326),
         area = units::drop_units(st_area(geometry))
       ) %>%
       # Drop anything with an area less than 1 sq meter, as long as it has other
@@ -198,8 +193,9 @@ process_parcel_file <- function(s3_bucket_uri,
         filter(!(n() >= 2), .by = pin10)
     ) %>%
       st_cast("MULTIPOLYGON") %>%
-      mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
-      relocate(geometry_3435, .after = geometry)
+      rename(geometry_3435 = geometry) %>%
+      mutate(geometry = st_transform(geometry_3435, 4326)) %>%
+      relocate(geometry, .after = geometry_3435)
     tictoc::toc()
 
     # If centroids are missing from join (invalid geom, empty, etc.)
@@ -307,6 +303,7 @@ process_parcel_file <- function(s3_bucket_uri,
     # Calculate the ratio of the parcel area to the area of its minimum bounding
     # rectangle
     spatial_df_rec <- spatial_df_merged %>%
+      st_set_geometry("geometry") %>%
       st_drop_geometry() %>%
       st_set_geometry("geometry_3435") %>%
       mutate(parcel_area = st_area(geometry_3435)) %>%
@@ -366,6 +363,22 @@ process_parcel_file <- function(s3_bucket_uri,
         c(shp_parcel_centroid_dist_ft_sd, shp_parcel_interior_angle_sd),
         .after = "shp_parcel_edge_len_ft_sd"
       )
+
+    # Check that the final number of distinct, well-formed parcels is close to
+    # the same as the number in the raw parcel file
+    num_parcel_raw <- spatial_df_raw %>%
+      rename_with(tolower) %>%
+      filter(!is.na(pin10), nchar(pin10) == "10", !st_is_empty(geometry)) %>%
+      st_drop_geometry() %>%
+      summarize(n = n_distinct(pin10)) %>%
+      pull(n)
+    num_parcel_final <- spatial_df_final %>%
+      st_drop_geometry() %>%
+      summarize(n = n_distinct(pin10)) %>%
+      pull(n)
+    if (abs(num_parcel_raw - num_parcel_final) > 10) {
+      stop("More than 10 PINs dropped during geometry processing!")
+    }
 
     # Write local backup copy
     write_geoparquet(spatial_df_final, local_backup_file)
