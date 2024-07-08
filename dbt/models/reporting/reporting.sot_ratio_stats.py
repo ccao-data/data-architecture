@@ -390,7 +390,7 @@ def model(dbt, spark_session):
         "geography_type: string, geography_id: string, "
         + "geography_data_year: string, group_type: string, group_id: string, "
         + "year: string, reassessment_year: string, stage_name: string, "
-        + "pin_n_tot: double, pin_n_w_value: bigint, pin_pct_w_value: double, "
+        + "pin_n_tot: int, pin_n_w_value: bigint, pin_pct_w_value: double, "
         + "sale_n_tot: bigint, mv_min: bigint, mv_q10: bigint, "
         + "mv_q25: bigint, mv_median: bigint, mv_q75: bigint, "
         + "mv_q90: bigint, mv_max: bigint, mv_mean: bigint, mv_sum: bigint, "
