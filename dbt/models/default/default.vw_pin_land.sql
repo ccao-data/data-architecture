@@ -1,6 +1,6 @@
 -- A view to properly aggregate land square footage at the PIN level. Parcels
 -- can have multiple land lines that are sometimes summed or ignored.
-WITH total_allocpct AS (
+WITH total_influ AS (
     SELECT
         land.parid,
         land.taxyr,
@@ -14,10 +14,20 @@ WITH total_allocpct AS (
         FIRST_VALUE(land.sf)
             OVER (PARTITION BY land.parid, land.taxyr ORDER BY land.lline)
             AS sf_top,
-        SUM(CASE WHEN land.allocpct IS NULL THEN 0 ELSE 1 END)
+        SUM(
+            CASE
+                WHEN
+                    (
+                        (land.influ IS NULL AND land.taxyr < '2024')
+                        OR (land.allocpct IS NULL AND land.taxyr >= '2024')
+                    )
+                    THEN 0
+                ELSE 1
+            END
+        )
             OVER (PARTITION BY land.parid, land.taxyr)
-            AS non_null_allocpct,
-        -- Split class indicator can override the rest of the allocpctence
+            AS non_null_influ,
+        -- Split class indicator can override the rest of the influence
         -- factor logic
         COALESCE(land.infl1 = '35', FALSE) AS split_class,
         MAX(land.sf) OVER (PARTITION BY land.parid, land.taxyr) AS max_sf,
@@ -32,21 +42,21 @@ WITH total_allocpct AS (
 )
 
 SELECT
-    total_allocpct.parid AS pin,
-    total_allocpct.taxyr AS year,
-    total_allocpct.num_landlines,
+    total_influ.parid AS pin,
+    total_influ.taxyr AS year,
+    total_influ.num_landlines,
     CASE
-        -- When there are multiple non-null values for allocpct across land
-        -- lines and all sf values are the same, we choose the topline land sf,
+        -- When there are multiple non-null values for influ across land lines
+        -- and all sf values are the same, we choose the topline land sf,
         -- otherwise we sum land sf.
         WHEN
             (
-                total_allocpct.non_null_allocpct > 1
-                AND total_allocpct.max_sf = total_allocpct.min_sf
+                total_influ.non_null_influ > 1
+                AND total_influ.max_sf = total_influ.min_sf
             )
-            OR total_allocpct.split_class
-            THEN total_allocpct.sf_top
-        ELSE total_allocpct.sf_sum
+            OR total_influ.split_class
+            THEN total_influ.sf_top
+        ELSE total_influ.sf_sum
     END AS sf
-FROM total_allocpct
-WHERE total_allocpct.lline = total_allocpct.top_line
+FROM total_influ
+WHERE total_influ.lline = total_influ.top_line
