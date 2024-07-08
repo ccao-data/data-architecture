@@ -4,8 +4,8 @@ sc.addPyFile(  # noqa: F821
     "s3://ccao-athena-dependencies-us-east-1/assesspy==1.1.0.zip"
 )
 
-# This script generates aggregated summary stats on sales data across a number
-# of geographies, class combinations, and time.
+# This script generates aggregated summary stats on sales ratios across a
+# number of geographies, class combinations, and time.
 
 # Import libraries
 import assesspy as ass  # noqa: E402
@@ -18,12 +18,46 @@ geos = {
         "county",
         "triad",
         "township",
+        "nbhd",
+        "tax_code",
+        "zip_code",
+    ],
+    "census_data_year": [
+        "census_place",
+        "census_tract",
+        "census_congressional_district",
+        "census_zcta",
+    ],
+    "cook_board_of_review_district_data_year": [
+        "cook_board_of_review_district"
+    ],
+    "cook_commissioner_district_data_year": ["cook_commissioner_district"],
+    "cook_judicial_district_data_year": ["cook_judicial_district"],
+    "ward_data_year": ["ward_num"],
+    "community_area_data_year": ["community_area"],
+    "police_district_data_year": ["police_district"],
+    "central_business_district_data_year": ["central_business_district"],
+    "school_data_year": [
+        "school_elementary_district",
+        "school_secondary_district",
+        "school_unified_district",
+    ],
+    "tax_data_year": [
+        "tax_municipality",
+        "tax_park_district",
+        "tax_library_district",
+        "tax_fire_protection_district",
+        "tax_community_college_district",
+        "tax_sanitation_district",
+        "tax_special_service_area",
+        "tax_tif_district",
     ],
 }
 # Declare class groupings
 groups = ["no_group", "class", "major_class", "modeling_group", "res_other"]
 
 
+# Wrap assesspy functions to avoid GitHub runner errors for length 0 groupings
 def cod_safe(ratio):
     if len(ratio) >= 1:
         output = ass.cod(ratio)
@@ -62,6 +96,7 @@ def mki_safe(assessed, sale_price):
     return output
 
 
+# Define aggregation functions
 def first(x):
     if len(x) >= 1:
         output = x.iloc[0]
@@ -79,8 +114,14 @@ def within(x, limit):
     return np.logical_and(1 - limit < x, x < 1 + limit)
 
 
-# Define aggregation functions
 def aggregrate(data, geography_type, group_type):
+    """
+    Function to group a dataframe by whichever geography and group types it is
+    passed and output aggregate stats for that only for that grouping. Works
+    differently than in other SoT scripts since assesspy functions need
+    multiple inputs.
+    """
+
     print(geography_type, group_type)
 
     group = [geography_type, group_type, "year", "stage_name"]
@@ -88,7 +129,7 @@ def aggregrate(data, geography_type, group_type):
     data["sale_n_tot"] = data.groupby(group)["sale_price"].transform("count")
     data["pin_n_w_value"] = data.groupby(group)["tot_mv"].transform("count")
 
-    # Remove parcels with FMVs of 0 since they screw up ratios
+    # Remove parcels with MVs of 0 since they screw up ratios
     data = data[data["tot_mv"] > 0]
 
     # Remove groups that only have one sale since we can't calculate stats
@@ -140,6 +181,12 @@ def aggregrate(data, geography_type, group_type):
 
 
 def assemble(df, geos, groups):
+    """
+    Function that loops over predefined geography and class groups and passes
+    them to the aggregate function. Outputs stacked aggegrated output from the
+    aggregate function.
+    """
+
     # Create an empty dataframe to fill with output
     output = pd.DataFrame()
 
@@ -153,13 +200,8 @@ def assemble(df, geos, groups):
 
     output.dropna(how="all", axis=1, inplace=True)
 
-    return output
-
-
-def clean(dirty):
-    dirty.index.names = ["geography_id", "group_id", "year", "stage_name"]
-
-    dirty = dirty.reset_index().set_index(
+    output.index.names = ["geography_id", "group_id", "year", "stage_name"]
+    output = output.reset_index().set_index(
         [
             "geography_type",
             "geography_id",
@@ -170,82 +212,92 @@ def clean(dirty):
         ]
     )
 
-    dirty["pin_pct_w_value"] = dirty["pin_n_w_value"] / dirty["pin_n_tot"]
+    # Create additional stat columns post-aggregation
+    output["pin_pct_w_value"] = output["pin_n_w_value"] / output["pin_n_tot"]
 
-    # Clean combined dirty and export
-    dirty["mv_delta_median"] = (
-        dirty.sort_values("year")
+    output["mv_delta_median"] = (
+        output.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_median.diff()
     )
-    dirty["mv_delta_mean"] = (
-        dirty.sort_values("year")
+    output["mv_delta_mean"] = (
+        output.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_mean.diff()
     )
-    dirty["mv_delta_sum"] = (
-        dirty.sort_values("year")
+    output["mv_delta_sum"] = (
+        output.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_sum.diff()
     )
 
-    dirty["mv_delta_pct_median"] = (
-        dirty.sort_values("year")
+    output["mv_delta_pct_median"] = (
+        output.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_median.pct_change()
     )
 
-    dirty["mv_delta_pct_mean"] = (
-        dirty.sort_values("year")
+    output["mv_delta_pct_mean"] = (
+        output.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_mean.pct_change()
     )
 
-    dirty["mv_delta_pct_sum"] = (
-        dirty.sort_values("year")
+    output["mv_delta_pct_sum"] = (
+        output.sort_values("year")
         .groupby(["geography_id", "group_id", "stage_name"])
         .mv_sum.pct_change()
     )
 
-    dirty = dirty.reset_index()
+    output = output.reset_index()
 
-    dirty["year"] = dirty["year"].astype(int)
-    dirty["triennial"] = dirty["geography_type"].isin(
+    output["year"] = output["year"].astype(int)
+    output["triennial"] = output["geography_type"].isin(
         ["triad", "township", "nbhd"]
     )
-    dirty["reassessment_year"] = ""
-    dirty.loc[
-        (dirty["triennial"] == True), "reassessment_year"  # noqa: E712
+    output["reassessment_year"] = ""
+    output.loc[
+        (output["triennial"] == True), "reassessment_year"  # noqa: E712
     ] = "No"
-    dirty.loc[
-        (dirty["year"] % 3 == 0)
-        & (dirty["triad"] == "North")
-        & (dirty["triennial"] == True),  # noqa: E712
+    output.loc[
+        (output["year"] % 3 == 0)
+        & (output["triad"] == "North")
+        & (output["triennial"] == True),  # noqa: E712
         "reassessment_year",
     ] = "Yes"
-    dirty.loc[
-        (dirty["year"] % 3 == 1)
-        & (dirty["triad"] == "South")
-        & (dirty["triennial"] == True),  # noqa: E712
+    output.loc[
+        (output["year"] % 3 == 1)
+        & (output["triad"] == "South")
+        & (output["triennial"] == True),  # noqa: E712
         "reassessment_year",
     ] = "Yes"
-    dirty.loc[
-        (dirty["year"] % 3 == 2)
-        & (dirty["triad"] == "City")
-        & (dirty["triennial"] == True),  # noqa: E712
+    output.loc[
+        (output["year"] % 3 == 2)
+        & (output["triad"] == "City")
+        & (output["triennial"] == True),  # noqa: E712
         "reassessment_year",
     ] = "Yes"
-    dirty = dirty.drop(["triennial", "triad"], axis=1)
+    output = output.drop(["triennial", "triad"], axis=1)
 
-    dirty["cod_met"] = met(dirty["cod"], 5, 15)
-    dirty["prd_met"] = met(dirty["prd"], 0.98, 1.03)
-    dirty["prb_met"] = met(dirty["prb"], -0.05, 0.05)
-    dirty["mki_met"] = met(dirty["mki"], 0.95, 1.05)
+    output["cod_met"] = met(output["cod"], 5, 15)
+    output["prd_met"] = met(output["prd"], 0.98, 1.03)
+    output["prb_met"] = met(output["prb"], -0.05, 0.05)
+    output["mki_met"] = met(output["mki"], 0.95, 1.05)
 
-    dirty["within_05_pct"] = within(dirty["ratio_mean"], 0.05)
-    dirty["within_10_pct"] = within(dirty["ratio_mean"], 0.1)
-    dirty["within_15_pct"] = within(dirty["ratio_mean"], 0.15)
-    dirty["within_20_pct"] = within(dirty["ratio_mean"], 0.2)
+    output["within_05_pct"] = within(output["ratio_mean"], 0.05)
+    output["within_10_pct"] = within(output["ratio_mean"], 0.1)
+    output["within_15_pct"] = within(output["ratio_mean"], 0.15)
+    output["within_20_pct"] = within(output["ratio_mean"], 0.2)
+
+    output = clean(output)
+
+    return output
+
+
+def clean(dirty):
+    """
+    Function to change column types and reorder them.
+    """
 
     dirty = dirty.astype(
         {
@@ -333,8 +385,6 @@ def model(dbt, spark_session):
     input = input.toPandas()
 
     df = assemble(input, geos=geos, groups=groups)
-
-    df = clean(df)
 
     schema = (
         "geography_type: string, geography_id: string, "
