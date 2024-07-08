@@ -289,6 +289,8 @@ def assemble(df, geos, groups):
     output["within_15_pct"] = within(output["ratio_mean"], 0.15)
     output["within_20_pct"] = within(output["ratio_mean"], 0.2)
 
+    output = output.replace(np.nan, None)
+
     output = clean(output)
 
     return output
