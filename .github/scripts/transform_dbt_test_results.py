@@ -4,7 +4,8 @@
 # other teams for review and correction, along with metadata parquet files
 # that can be uploaded to S3 for long-term result tracking.
 #
-# Run `python3 transform_dbt_test_results.py --help` for detailed documentation.
+# Run `python3 transform_dbt_test_results.py --help` for detailed
+# documentation.
 
 import argparse
 import dataclasses
@@ -647,7 +648,7 @@ Outputs three files to the directory specified by the `--output-dir` flag:
      partitioned by year of run and prepped for upload to S3
 
 Each sheet in the output workbook represents a category of test, e.g. "valid_range" or "not_null"; each row in a sheet represents a row in
-a database that failed a test, with enough metadata that a reader can figure out what conditions caused the test to fail and investigate the root cause."""
+a database that failed a test, with enough metadata that a reader can figure out what conditions caused the test to fail and investigate the root cause."""  # noqa: E501
 
 # Examples to use in the command line interface docstring
 CLI_EXAMPLE = """Example usage with no options provided:
@@ -664,8 +665,7 @@ Example usage with all options provided:
 
 Example usage to filter for multiple townships:
 
-    python3 transform_dbt_test_results.py --township 76 77
-"""
+    python3 transform_dbt_test_results.py --township 76 77"""  # noqa: E501
 
 
 def main() -> None:
@@ -717,7 +717,7 @@ def main() -> None:
             "One or more optional township codes which will be used to filter "
             "results. Can be provided with multiple space-separated values "
             "to select multiple townships. Defaults to all townships, "
-            "including null townships (which typically indicate invalid PINs). "
+            "including null townships (which typically indicate invalid PINs)."
         ),
     )
 
@@ -1174,7 +1174,7 @@ def get_test_categories(
             test_results_filter = ""
             if townships:
                 test_results_filter = (
-                    f" where leg.user1 in "
+                    " where leg.user1 in "
                     "(" + ",".join(f"'{code}'" for code in townships) + ")"
                 )
 
