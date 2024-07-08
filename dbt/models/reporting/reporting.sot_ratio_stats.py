@@ -289,6 +289,7 @@ def assemble(df, geos, groups):
     output["within_15_pct"] = within(output["ratio_mean"], 0.15)
     output["within_20_pct"] = within(output["ratio_mean"], 0.2)
 
+    # PySpark rejects nan, convert them to None
     output = output.replace(np.nan, None)
 
     output = clean(output)
@@ -396,8 +397,8 @@ def model(dbt, spark_session):
         + "sale_n_tot: bigint, mv_min: bigint, mv_q10: bigint, "
         + "mv_q25: bigint, mv_median: bigint, mv_q75: bigint, "
         + "mv_q90: bigint, mv_max: bigint, mv_mean: bigint, mv_sum: bigint, "
-        + "mv_delta_median: bigint, mv_delta_mean: bigint, "
-        + "mv_delta_sum: bigint, mv_delta_pct_median: double, "
+        + "mv_delta_median: double, mv_delta_mean: double, "
+        + "mv_delta_sum: double, mv_delta_pct_median: double, "
         + "mv_delta_pct_mean: double, mv_delta_pct_sum: double, "
         + "ratio_min: double, ratio_q10: double, ratio_q25: double, "
         + "ratio_median: double, ratio_q75: double, ratio_q90: double, "
