@@ -37,7 +37,6 @@ uni AS (
 
 SELECT
     CAST(sales.sale_price AS DOUBLE) AS sale_price,
-    uni.year,
     uni.stage_name,
     uni.class,
     CAST(vals.tot_mv AS DOUBLE) AS tot_mv,
@@ -95,7 +94,8 @@ SELECT
     class_dict.major_class_type AS major_class,
     class_dict.modeling_group,
     CASE WHEN class_dict.major_class_code = '2' THEN 'RES' ELSE 'OTHER' END
-        AS res_other
+        AS res_other,
+    uni.year
 FROM uni
 LEFT JOIN
     {{ ref('reporting.vw_pin_value_long') }} AS vals

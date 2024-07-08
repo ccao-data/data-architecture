@@ -31,7 +31,6 @@ SELECT
     CAST(sf.char_bldg_sf AS INT) AS sale_char_bldg_sf,
     CAST(sf.char_land_sf AS INT) AS sale_char_land_sf,
     CAST(sf.char_yrblt AS INT) AS sale_char_yrblt,
-    uni.year,
     uni.class,
     'Cook' AS county,
     uni.triad_name AS triad,
@@ -86,7 +85,8 @@ SELECT
     class_dict.major_class_type AS major_class,
     class_dict.modeling_group,
     CASE WHEN class_dict.major_class_code = '2' THEN 'RES' ELSE 'OTHER' END
-        AS res_other
+        AS res_other,
+    uni.year
 FROM {{ ref('default.vw_pin_universe') }} AS uni
 LEFT JOIN sf
     ON uni.pin = sf.pin

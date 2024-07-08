@@ -19,7 +19,6 @@ WITH tcd AS (
 
 SELECT
     uni.pin,
-    tax.year,
     tax.av_clerk AS tax_av,
     tax.tax_bill_total,
     -- Setting exemptions with values of 0 allows us to count the number of
@@ -116,7 +115,8 @@ SELECT
     class_dict.major_class_type AS major_class,
     class_dict.modeling_group,
     CASE WHEN class_dict.major_class_code = '2' THEN 'RES' ELSE 'OTHER' END
-        AS res_other
+        AS res_other,
+    tax.year
 FROM {{ ref('default.vw_pin_universe') }} AS uni
 INNER JOIN {{ source('tax', 'pin') }} AS tax
     ON uni.pin = tax.pin
