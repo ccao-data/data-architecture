@@ -1117,6 +1117,21 @@ def get_test_categories(
             #   12345 | 1    | 2024  | 10            | dweldat  | 211
             test_results_select = "select test_results.*"
             test_results_join = ""
+            # Format the townships tuple as a SQL array for filtering
+            townships_sql = (
+                "(" + ",".join(f"'{code}'" for code in townships) + ")"
+            )
+            # The correct reference for the township column varies
+            # depending on whether the original test selected a
+            # township field or not. If the township column has been
+            # selected, we can always reference it in the filter; otherwise,
+            # we need to wait to see if we can rehydrate the township based
+            # on the parid and taxyr
+            test_results_filter = (
+                f" where test_results.{TOWNSHIP_FIELD} in {townships_sql}"
+                if townships and TOWNSHIP_FIELD in fieldnames
+                else ""
+            )
             # We need parid and taxyr at minimum in order to rehydrate any
             # missing fields
             if PARID_FIELD in fieldnames and TAXYR_FIELD in fieldnames:
@@ -1129,6 +1144,10 @@ def get_test_categories(
                             and leg.cur = 'Y'
                             and leg.deactivat is null
                     """
+                    if townships:
+                        test_results_filter = (
+                            f" where leg.user1 in {townships_sql}"
+                        )
                 if CLASS_FIELD not in fieldnames:
                     if (
                         LAND_LINE_FIELD in fieldnames
@@ -1170,13 +1189,6 @@ def get_test_categories(
                                 and par.cur = 'Y'
                                 and par.deactivat is null
                         """
-
-            test_results_filter = ""
-            if townships:
-                test_results_filter = (
-                    " where leg.user1 in "
-                    "(" + ",".join(f"'{code}'" for code in townships) + ")"
-                )
 
             test_results_query = (
                 f"{test_results_select} "
