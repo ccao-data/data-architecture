@@ -110,112 +110,57 @@ def assemble(df, geos, groups):
         output["av_tot_count"] / output["av_tot_size"]
     )
 
-    output["av_tot_delta_median"] = (
-        output.sort_values("year")
+    output = output.sort_values("year")
+
+    diff_cols = [
+        "geography_id",
+        "group_id",
+        "stage_name",
+        "av_tot_median",
+        "av_tot_mean",
+        "av_tot_sum",
+        "av_bldg_median",
+        "av_bldg_mean",
+        "av_bldg_sum",
+        "av_land_median",
+        "av_land_mean",
+        "av_land_sum",
+    ]
+
+    output[
+        [
+            "av_tot_delta_median",
+            "av_tot_delta_mean",
+            "av_tot_delta_sum",
+            "av_bldg_delta_median",
+            "av_bldg_delta_mean",
+            "av_bldg_delta_sum",
+            "av_land_delta_median",
+            "av_land_delta_mean",
+            "av_land_delta_sum",
+        ]
+    ] = (
+        output[diff_cols]
         .groupby(["geography_id", "group_id", "stage_name"])
-        .av_tot_median.diff()
+        .diff()
     )
 
-    output["av_tot_delta_mean"] = (
-        output.sort_values("year")
+    output[
+        [
+            "av_tot_delta_pct_median",
+            "av_tot_delta_pct_mean",
+            "av_tot_delta_pct_sum",
+            "av_bldg_delta_pct_median",
+            "av_bldg_delta_pct_mean",
+            "av_bldg_delta_pct_sum",
+            "av_land_delta_pct_median",
+            "av_land_delta_pct_mean",
+            "av_land_delta_pct_sum",
+        ]
+    ] = (
+        output[diff_cols]
         .groupby(["geography_id", "group_id", "stage_name"])
-        .av_tot_mean.diff()
-    )
-
-    output["av_tot_delta_sum"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_tot_sum.diff()
-    )
-
-    output["av_bldg_delta_median"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_bldg_median.diff()
-    )
-
-    output["av_bldg_delta_mean"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_bldg_mean.diff()
-    )
-
-    output["av_bldg_delta_sum"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_bldg_sum.diff()
-    )
-
-    output["av_land_delta_median"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_land_median.diff()
-    )
-
-    output["av_land_delta_mean"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_land_mean.diff()
-    )
-
-    output["av_land_delta_sum"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_land_sum.diff()
-    )
-
-    output["av_tot_delta_pct_median"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_tot_median.pct_change()
-    )
-
-    output["av_tot_delta_pct_mean"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_tot_mean.pct_change()
-    )
-
-    output["av_tot_delta_pct_sum"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_tot_sum.pct_change()
-    )
-
-    output["av_bldg_delta_pct_median"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_bldg_median.pct_change()
-    )
-
-    output["av_bldg_delta_pct_mean"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_bldg_mean.pct_change()
-    )
-
-    output["av_bldg_delta_pct_sum"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_bldg_sum.pct_change()
-    )
-
-    output["av_land_delta_pct_median"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_land_median.pct_change()
-    )
-
-    output["av_land_delta_pct_mean"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_land_mean.pct_change()
-    )
-
-    output["av_land_delta_pct_sum"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .av_land_sum.pct_change()
+        .pct_change()
     )
 
     output["year"] = output["year"].astype(int)

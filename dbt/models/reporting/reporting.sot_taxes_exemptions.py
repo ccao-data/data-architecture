@@ -107,22 +107,24 @@ def assemble(df, geos, groups):
     output = output.reset_index()
 
     # Create additional stat columns post-aggregation
-    output["tax_bill_total_delta_median"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id"])
-        .tax_bill_total_median.diff()
-    )
+    output = output.sort_values("year")
 
-    output["tax_bill_total_delta_mean"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id"])
-        .tax_bill_total_mean.diff()
-    )
+    diff_cols = [
+        "geography_id",
+        "group_id",
+        "tax_bill_total_median",
+        "tax_bill_total_mean",
+        "tax_bill_total_sum",
+    ]
 
-    output["tax_bill_total_delta_sum"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id"])
-        .tax_bill_total_sum.diff()
+    output[
+        [
+            "tax_bill_total_delta_median",
+            "tax_bill_total_delta_mean",
+            "tax_bill_total_delta_sum",
+        ]
+    ] = (
+        output[diff_cols].groupby(["geography_id", "group_id"]).diff()
     )
 
     output = clean_names(output)

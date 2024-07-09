@@ -171,44 +171,45 @@ def assemble(df, geos, groups):
         ]
     )
 
+    output = output.reset_index()
+
     # Create additional stat columns post-aggregation
     output["pin_pct_w_value"] = output["pin_n_w_value"] / output["pin_n_tot"]
 
-    output["mv_delta_median"] = (
-        output.sort_values("year")
+    output = output.sort_values("year")
+
+    diff_cols = [
+        "geography_id",
+        "group_id",
+        "stage_name",
+        "mv_median",
+        "mv_mean",
+        "mv_sum",
+    ]
+
+    output[
+        [
+            "mv_delta_median",
+            "mv_delta_mean",
+            "mv_delta_sum",
+        ]
+    ] = (
+        output[diff_cols]
         .groupby(["geography_id", "group_id", "stage_name"])
-        .mv_median.diff()
-    )
-    output["mv_delta_mean"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .mv_mean.diff()
-    )
-    output["mv_delta_sum"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .mv_sum.diff()
+        .diff()
     )
 
-    output["mv_delta_pct_median"] = (
-        output.sort_values("year")
+    output[
+        [
+            "mv_delta_pct_median",
+            "mv_delta_pct_mean",
+            "mv_delta_pct_sum",
+        ]
+    ] = (
+        output[diff_cols]
         .groupby(["geography_id", "group_id", "stage_name"])
-        .mv_median.pct_change()
+        .pct_change()
     )
-
-    output["mv_delta_pct_mean"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .mv_mean.pct_change()
-    )
-
-    output["mv_delta_pct_sum"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id", "stage_name"])
-        .mv_sum.pct_change()
-    )
-
-    output = output.reset_index()
 
     output["year"] = output["year"].astype(int)
     output["triennial"] = output["geography_type"].isin(

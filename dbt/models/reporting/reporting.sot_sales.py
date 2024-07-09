@@ -108,40 +108,30 @@ def assemble(df, geos, groups):
         0, np.NaN
     )
 
-    output["sale_price_delta_median"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id"])
-        .sale_price_median.diff()
-    )
+    output = output.sort_values("year")
 
-    output["sale_price_delta_mean"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id"])
-        .sale_price_mean.diff()
-    )
+    diff_cols = [
+        "geography_id",
+        "group_id",
+        "sale_price_median",
+        "sale_price_mean",
+        "sale_price_sum",
+        "sale_price_per_sf_median",
+        "sale_price_per_sf_mean",
+        "sale_price_per_sf_sum",
+    ]
 
-    output["sale_price_delta_sum"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id"])
-        .sale_price_sum.diff()
-    )
-
-    output["sale_price_per_sf_delta_median"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id"])
-        .sale_price_per_sf_median.diff()
-    )
-
-    output["sale_price_per_sf_delta_mean"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id"])
-        .sale_price_per_sf_mean.diff()
-    )
-
-    output["sale_price_per_sf_delta_sum"] = (
-        output.sort_values("year")
-        .groupby(["geography_id", "group_id"])
-        .sale_price_per_sf_sum.diff()
+    output[
+        [
+            "sale_price_delta_median",
+            "sale_price_delta_mean",
+            "sale_price_delta_sum",
+            "sale_price_per_sf_delta_median",
+            "sale_price_per_sf_delta_mean",
+            "sale_price_per_sf_delta_sum",
+        ]
+    ] = (
+        output[diff_cols].groupby(["geography_id", "group_id"]).diff()
     )
 
     output = clean_names(output)
