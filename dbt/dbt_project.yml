@@ -71,3 +71,5 @@ seeds:
       +schema: location
     model:
       +schema: model
+    reporting:
+      +schema: reporting

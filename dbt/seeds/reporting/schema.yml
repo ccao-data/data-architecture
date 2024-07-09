@@ -1,0 +1,6 @@
+seeds:
+  - name: reporting.sot_data_years
+    description: '{{ doc("seed_sot_data_years") }}'
+    config:
+      column_types:
+        year: string

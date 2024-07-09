@@ -4,47 +4,6 @@
 # Import libraries
 import pandas as pd
 
-# Declare geographic groups and their associated data years
-geos = {
-    "year": [
-        "county",
-        "triad",
-        "township",
-        "nbhd",
-        "tax_code",
-        "zip_code",
-    ],
-    "census_data_year": [
-        "census_place",
-        "census_tract",
-        "census_congressional_district",
-        "census_zcta",
-    ],
-    "cook_board_of_review_district_data_year": [
-        "cook_board_of_review_district"
-    ],
-    "cook_commissioner_district_data_year": ["cook_commissioner_district"],
-    "cook_judicial_district_data_year": ["cook_judicial_district"],
-    "ward_data_year": ["ward_num"],
-    "community_area_data_year": ["community_area"],
-    "police_district_data_year": ["police_district"],
-    "central_business_district_data_year": ["central_business_district"],
-    "school_data_year": [
-        "school_elementary_district",
-        "school_secondary_district",
-        "school_unified_district",
-    ],
-    "tax_data_year": [
-        "tax_municipality",
-        "tax_park_district",
-        "tax_library_district",
-        "tax_fire_protection_district",
-        "tax_community_college_district",
-        "tax_sanitation_district",
-        "tax_special_service_area",
-        "tax_tif_district",
-    ],
-}
 # Declare class groupings
 groups = ["no_group", "class", "major_class", "modeling_group", "res_other"]
 
@@ -373,8 +332,26 @@ def clean_names(x):
     return output
 
 
+def ingest_geos(geos):
+    """
+    Function to convert dbt seed into a dictionary that can be iterated over.
+    """
+
+    geos = geos.toPandas()
+
+    output = {
+        k: list(geos[k].unique()[pd.notnull(geos[k].unique())])
+        for k in geos.columns
+    }
+
+    return output
+
+
 def model(dbt, spark_session):
     dbt.config(materialized="table")
+
+    # Ingest geographies and their associated data years
+    geos = ingest_geos(dbt.ref("reporting.sot_data_years"))
 
     input = dbt.ref("reporting.sot_assessment_roll_input")
 
