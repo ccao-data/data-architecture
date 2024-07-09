@@ -57,6 +57,9 @@ sources:
       - name: golf_course
         description: '{{ doc("table_golf_course") }}'
 
+      - name: grocery_store
+        description: '{{ doc("table_grocery_store") }}'
+
       - name: hospital
         description: '{{ doc("table_hospital") }}'
 
@@ -125,6 +128,9 @@ sources:
 
       - name: special_service_area
         description: '{{ doc("table_special_service_area") }}'
+
+      - name: stadium
+        description: '{{ doc("table_stadium") }}'
 
       - name: state_representative_district
         description: '{{ doc("table_state_representative_district") }}'
