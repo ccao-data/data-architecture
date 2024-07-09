@@ -338,7 +338,6 @@ def ingest_geos(geos):
     """
 
     geos = geos.toPandas()
-
     output = {
         k: list(geos[k].unique()[pd.notnull(geos[k].unique())])
         for k in geos.columns
