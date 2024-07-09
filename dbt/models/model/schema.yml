@@ -458,6 +458,24 @@ models:
       - &prox_num_school_with_rating_in_half_mile
         name: prox_num_school_with_rating_in_half_mile
         description: '{{ doc("column_num_school_with_rating_in_half_mile") }}'
+      - &shp_parcel_centroid_dist_ft_sd
+        name: shp_parcel_centroid_dist_ft_sd 
+        description: '{{ doc("column_parcel_centroid_dist_ft_sd") }}'
+      - &shp_parcel_edge_len_ft_sd
+        name: shp_parcel_edge_len_ft_sd 
+        description: '{{ doc("column_parcel_edge_len_ft_sf") }}'
+      - &shp_parcel_interior_angle_sd
+        name: shp_parcel_interior_angle_sd 
+        description: '{{ doc("column_parcel_interior_angle_sd") }}'
+      - &shp_parcel_mrr_area_ratio
+        name: shp_parcel_mrr_area_ratio 
+        description: '{{ doc("column_parcel_mrr_area_ratio") }}'
+      - &shp_parcel_mrr_side_ratio
+        name: shp_parcel_mrr_side_ratio 
+        description: '{{ doc("column_parcel_mrr_side_ratio") }}'
+      - &shp_parcel_num_vertices
+        name: shp_parcel_num_vertices 
+        description: '{{ doc("column_parcel_num_vertices") }}'
 
   - name: model.vw_card_res_input
     description: '{{ doc("view_vw_card_res_input") }}'
@@ -578,6 +596,12 @@ models:
       - *prox_num_pin_in_half_mile
       - *prox_num_school_in_half_mile
       - *prox_num_school_with_rating_in_half_mile
+      - *shp_parcel_centroid_dist_ft_sd
+      - *shp_parcel_edge_len_ft_sd
+      - *shp_parcel_interior_angle_sd
+      - *shp_parcel_mrr_area_ratio
+      - *shp_parcel_mrr_side_ratio
+      - *shp_parcel_num_vertices
 
       # Columns shared between vw_card_res_input and vw_pin_condo_input
       - &char_land_sf_95_percentile
@@ -823,6 +847,12 @@ models:
       - *prox_num_pin_in_half_mile
       - *prox_num_school_in_half_mile
       - *prox_num_school_with_rating_in_half_mile
+      - *shp_parcel_centroid_dist_ft_sd
+      - *shp_parcel_edge_len_ft_sd
+      - *shp_parcel_interior_angle_sd
+      - *shp_parcel_mrr_area_ratio
+      - *shp_parcel_mrr_side_ratio
+      - *shp_parcel_num_vertices
 
       # Columns inherited from vw_card_res_input
       - *char_land_sf_95_percentile

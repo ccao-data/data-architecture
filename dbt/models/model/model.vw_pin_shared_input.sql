@@ -32,7 +32,15 @@ WITH uni AS (
         sp.lon,
         sp.lat,
         sp.x_3435,
-        sp.y_3435
+        sp.y_3435,
+
+        -- Features based on the shape of the parcel boundary
+        sp.shp_parcel_centroid_dist_ft_sd,
+        sp.shp_parcel_edge_len_ft_sd,
+        sp.shp_parcel_interior_angle_sd,
+        sp.shp_parcel_mrr_area_ratio,
+        sp.shp_parcel_mrr_side_ratio,
+        sp.shp_parcel_num_vertices
 
     FROM {{ source('iasworld', 'pardat') }} AS par
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
