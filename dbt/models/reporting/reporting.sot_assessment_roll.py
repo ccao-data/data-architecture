@@ -175,20 +175,9 @@ def assemble(df, geos, groups):
         (output["triennial"] == True), "reassessment_year"  # noqa: E712
     ] = "No"
     output.loc[
-        (output["year"] % 3 == 0)
-        & (output["triad"] == "North")
-        & (output["triennial"] == True),  # noqa: E712
-        "reassessment_year",
-    ] = "Yes"
-    output.loc[
-        (output["year"] % 3 == 1)
-        & (output["triad"] == "South")
-        & (output["triennial"] == True),  # noqa: E712
-        "reassessment_year",
-    ] = "Yes"
-    output.loc[
-        (output["year"] % 3 == 2)
-        & (output["triad"] == "City")
+        ((output["year"] % 3 == 0) & (output["triad"] == "North"))
+        | ((output["year"] % 3 == 1) & (output["triad"] == "South"))
+        | ((output["year"] % 3 == 2) & (output["triad"] == "City"))
         & (output["triennial"] == True),  # noqa: E712
         "reassessment_year",
     ] = "Yes"
