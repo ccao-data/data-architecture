@@ -8,7 +8,8 @@ import pandas as pd
 groups = ["no_group", "class", "major_class", "modeling_group", "res_other"]
 
 
-# Define aggregation functions
+# Define aggregation functions. These are just wrappers for basic python
+# functions that make using them easier to use with pandas.agg().
 def q10(x):
     return x.quantile(0.1)
 
@@ -58,7 +59,7 @@ stats = {
 def aggregrate(data, geography_type, group_type):
     """
     Function to group a dataframe by whichever geography and group types it is
-    passed and output aggregate stats for that only for that grouping.
+    passed and output aggregate stats for that grouping.
     """
 
     print(geography_type, group_type)
@@ -85,8 +86,8 @@ def aggregrate(data, geography_type, group_type):
 def assemble(df, geos, groups):
     """
     Function that loops over predefined geography and class groups and passes
-    them to the aggregate function. Outputs stacked aggegrated output from the
-    aggregate function.
+    them to the aggregate function. Returns stacked output from the aggregate
+    function.
     """
 
     # Create an empty dataframe to fill with output
@@ -281,6 +282,9 @@ def ingest_geos(geos):
 
 
 def model(dbt, spark_session):
+    """
+    Function to build a dbt python model using PySpark.
+    """
     dbt.config(materialized="table")
 
     # Ingest geographies and their associated data years
