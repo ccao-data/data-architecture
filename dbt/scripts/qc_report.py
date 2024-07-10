@@ -1,21 +1,50 @@
-# Generate QC reports
+# Query dbt models to generate QC reports.
+#
+# Run `python scripts/qc_report.py --help` for details.
+
 import argparse
 import contextlib
 import io
 import json
 import os
+import pathlib
 import shutil
 
 import pandas as pd
 import pyathena
 from dbt.cli.main import dbtRunner
 from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.table import Table, TableStyleInfo
 
 DBT = dbtRunner()
+CLI_DESCRIPTION = """Query dbt models to generate QC reports.
+
+A few configuration values can be set on any model used to generate reports:
+
+    * config.meta.report_name (optional): The name of the report to generate.
+      This will be used to set the filename for the output report. File
+      extensions are not necessary since all reports are output as .xlsx files.
+      If unset, defaults to the name of the model.
+    * config.meta.template (optional): The filename an Excel template to use
+      when generating the report. Templates should be stored in the
+      reports/templates/ directory and should include header rows. If unset,
+      will search for a template with the same name as the model; if no
+      template is found, defaults to a naive Excel layout with filterable
+      columns.
+"""
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Output a set of QC reports")
+    parser = argparse.ArgumentParser(
+        description=CLI_DESCRIPTION,
+        epilog=(
+            "Example usage: python scripts/generate_qc_report.py --target dev "
+            "--select tag:qc_report_town_close"
+        ),
+        # Parse the description and epilog as raw text so that newlines
+        # get preserved
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
     parser.add_argument(
         "--select",
         required=True,
@@ -79,50 +108,64 @@ def main():
     )
 
     for model in models:
-        # Extract useful model metadata
+        # Extract useful model metadata from the columns we queried in
+        # the `dbt list` call above
         model_name = model["name"]
         relation_name = model["relation_name"]
-        report_name = model["config"]["meta"].get("report_name")
-        if not report_name:
-            raise ValueError(
-                f"Model {model_name} is missing required meta.report_name "
-                "attribute"
-            )
+        report_name = model["config"]["meta"].get("report_name") or model_name
+        template = (
+            model["config"]["meta"].get("template") or f"{model_name}.xlsx"
+        )
 
         # Define inputs and outputs for report based on model metadata
-        template_path = os.path.join(
-            "reports", "templates", f"{model_name}.xlsx"
-        )
-        if not template_path:
-            raise ValueError(
-                f"Missing expected report template at {template_path}"
-            )
+        template_path = os.path.join("reports", "templates", template)
+        template_exists = os.path.isfile(template_path)
         output_path = os.path.join("reports", "output", f"{report_name}.xlsx")
 
-        # Query Athena for report data
         print(f"Querying data for model {model_name}")
         model_df = pd.read_sql(f"SELECT * FROM {relation_name}", conn)
 
-        # Write report data to Excel
-        shutil.copyfile(template_path, output_path)
-        writer = pd.ExcelWriter(
-            output_path, engine="openpyxl", mode="a", if_sheet_exists="overlay"
+        # Delete the output file if one already exists
+        pathlib.Path(output_path).unlink(missing_ok=True)
+
+        if template_exists:
+            print(f"Using template file at {template_path}")
+            shutil.copyfile(template_path, output_path)
+        else:
+            print("No template file exists; creating a workbook from scratch")
+
+        writer_kwargs = (
+            {"model": "a", "if_sheet_exists": "overlay"}
+            if template_exists
+            else {}
         )
-        # TODO: Support sheet name customization
-        sheet_name = "Query Results"
-        model_df.to_excel(
-            writer,
-            sheet_name="Query Results",
-            header=False,
-            index=False,
-            startrow=1,
-        )
-        # Adjust extent of data table for filtering
-        sheet = writer.sheets[sheet_name]
-        writer.sheets[sheet_name].tables[
-            "Query_Results"
-        ].ref = f"A1:{get_column_letter(sheet.max_column)}{str(sheet.max_row)}"
-        writer.close()
+        with pd.ExcelWriter(
+            output_path, engine="openpyxl", **writer_kwargs
+        ) as writer:
+            # TODO: Support sheet name customization
+            sheet_name = "Query Results" if template_exists else "Sheet1"
+            model_df.to_excel(
+                writer,
+                sheet_name=sheet_name,
+                header=False if template_exists else True,
+                index=False,
+                startrow=1 if template_exists else 0,
+            )
+
+            # Add a table for data filtering
+            sheet = writer.sheets[sheet_name]
+            table = Table(
+                displayName="Query_Results",
+                ref=(
+                    f"A1:{get_column_letter(sheet.max_column)}"
+                    f"{str(sheet.max_row)}"
+                ),
+            )
+            table.tableStyleInfo = TableStyleInfo(
+                name="TableStyleMedium7", showRowStripes=True
+            )
+            sheet.add_table(table)
+
         print(f"Wrote report from model {model_name} to {output_path}")
 
 
