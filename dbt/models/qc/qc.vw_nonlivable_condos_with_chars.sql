@@ -3,7 +3,16 @@
 -- by data integrity.
 SELECT
     pin,
-    year
+    year,
+    tieback_proration_rate,
+    char_unit_sf,
+    char_half_baths,
+    char_full_baths,
+    note,
+    unitno,
+    is_parking_space,
+    parking_space_flag_reason,
+    is_common_area
 FROM {{ ref('default.vw_pin_condo_char') }}
 WHERE
     (is_common_area OR is_parking_space)
