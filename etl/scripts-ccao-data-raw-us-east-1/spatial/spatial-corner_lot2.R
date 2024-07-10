@@ -79,7 +79,8 @@ for (iter_year in parcel_years) {
           "service", "services", "steps", "platform", "motorway",
           "motorway_link", "pedestrian", "track", "path", "footway", "alley"
         )
-      )
+      ) %>%
+      st_transform(3435)
 
     # Step 1: Find the minimum rectangle that bounds the parcel, then use that
     # rectangle to determine the parcel's orientation and length. These values
@@ -93,7 +94,7 @@ for (iter_year in parcel_years) {
       st_cast("POINT") %>%
       mutate(
         length = st_distance(geometry, lead(geometry), by_element = TRUE) +
-          units::set_units(10, "m"),
+          units::set_units(20, "m"),
         bearing = c(
           lwgeom::st_geod_azimuth(geometry),
           units::set_units(NA, "radians")
@@ -199,6 +200,8 @@ for (iter_year in parcel_years) {
       ) %>%
       filter(max_degree == 90 | n() == 3, na.rm = TRUE) %>%
       ungroup()
+
+    temp <- st_intersects(cross_corner, osm_streets)
   }
 }
 
@@ -216,6 +219,14 @@ ggplot() +
       # filter(id %in% test_id) %>%
     aes(color = int_ind),
     alpha = 1
+  ) +
+  geom_sf(
+    data = osm_streets %>%
+      st_intersection(
+        town_parcels %>%
+          slice(1:20) %>%
+          st_buffer(500)
+      )
   )
   ggrepel::geom_text_repel(
     data = cross_filter %>%
