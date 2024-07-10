@@ -18,8 +18,15 @@ WITH total_influ AS (
             CASE
                 WHEN
                     (
-                        -- The field for this column changed in 2024 to allow
-                        -- greater proration precision.
+                        /*The new field we got in 2024 for land prorations,
+                        ALLOCPCT. This field reduces the land value by the
+                        percent entered and can provide more granular
+                        prorations (needed for condos) as it can go further
+                        than whole percentages.
+
+                        So, ahead of this assessment, we updated the split
+                        class properties to move the percentage attributable to
+                        each from the Influ field to the new ALLOCPCT field.*/
                         (land.influ IS NULL AND land.taxyr < '2024')
                         OR (land.allocpct IS NULL AND land.taxyr >= '2024')
                     )
