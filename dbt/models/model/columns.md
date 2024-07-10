@@ -12,9 +12,9 @@ The goal of this feature is to identify large parcels with extremely variable
 shapes, e.g. `12-08-100-006` (the O'Hare Airport parcel).
 {% enddocs %}
 
-## parcel_edge_len_ft_sf
+## parcel_edge_len_ft_sd
 
-{% docs column_parcel_edge_len_ft_sf %}
+{% docs column_parcel_edge_len_ft_sd %}
 Standard deviation of the edge length between parcel vertices.
 
 Vertices on straight lines or that are otherwise redundant are not considered
