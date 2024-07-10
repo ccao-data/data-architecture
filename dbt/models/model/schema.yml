@@ -463,7 +463,7 @@ models:
         description: '{{ doc("column_parcel_centroid_dist_ft_sd") }}'
       - &shp_parcel_edge_len_ft_sd
         name: shp_parcel_edge_len_ft_sd 
-        description: '{{ doc("column_parcel_edge_len_ft_sf") }}'
+        description: '{{ doc("column_parcel_edge_len_ft_sd") }}'
       - &shp_parcel_interior_angle_sd
         name: shp_parcel_interior_angle_sd 
         description: '{{ doc("column_parcel_interior_angle_sd") }}'
