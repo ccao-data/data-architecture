@@ -80,6 +80,13 @@ different.
 
 {% enddocs %}
 
+# vw_nonlivable_condos_with_chars
+
+{% docs view_vw_nonlivable_condos_with_chars %}
+Test that nonlivable condo units don't have associated characteristics.
+
+{% enddocs %}
+
 # vw_sale_mydec_null_values
 
 {% docs view_vw_sale_mydec_null_values %}
