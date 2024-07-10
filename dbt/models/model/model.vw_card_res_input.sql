@@ -577,6 +577,12 @@ SELECT
             nn1.prox_nearest_water_dist_ft IS NULL
             THEN nn2.prox_nearest_water_dist_ft
     END AS prox_nearest_water_dist_ft,
+    f1.shp_parcel_centroid_dist_ft_sd,
+    f1.shp_parcel_edge_len_ft_sd,
+    f1.shp_parcel_interior_angle_sd,
+    f1.shp_parcel_mrr_area_ratio,
+    f1.shp_parcel_mrr_side_ratio,
+    f1.shp_parcel_num_vertices,
     f1.acs5_count_sex_total,
     f1.acs5_percent_age_children,
     f1.acs5_percent_age_senior,

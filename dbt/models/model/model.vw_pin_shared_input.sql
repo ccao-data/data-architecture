@@ -32,7 +32,15 @@ WITH uni AS (
         sp.lon,
         sp.lat,
         sp.x_3435,
-        sp.y_3435
+        sp.y_3435,
+
+        -- Features based on the shape of the parcel boundary
+        sp.shp_parcel_centroid_dist_ft_sd,
+        sp.shp_parcel_edge_len_ft_sd,
+        sp.shp_parcel_interior_angle_sd,
+        sp.shp_parcel_mrr_area_ratio,
+        sp.shp_parcel_mrr_side_ratio,
+        sp.shp_parcel_num_vertices
 
     FROM {{ source('iasworld', 'pardat') }} AS par
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
@@ -250,6 +258,14 @@ SELECT
     vwpf.nearest_university_dist_ft AS prox_nearest_university_dist_ft,
     vwpf.nearest_vacant_land_dist_ft AS prox_nearest_vacant_land_dist_ft,
     vwpf.nearest_water_dist_ft AS prox_nearest_water_dist_ft,
+
+    -- Parcel shape features
+    uni.shp_parcel_centroid_dist_ft_sd,
+    uni.shp_parcel_edge_len_ft_sd,
+    uni.shp_parcel_interior_angle_sd,
+    uni.shp_parcel_mrr_area_ratio,
+    uni.shp_parcel_mrr_side_ratio,
+    uni.shp_parcel_num_vertices,
 
     -- ACS5 census data
     acs5.count_sex_total AS acs5_count_sex_total,
