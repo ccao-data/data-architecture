@@ -36,6 +36,9 @@ vars:
   # frames for testing
   test_qc_year_end: 2030
 
+  # Township code to use for filtering town close QC reports
+  qc_report_town_code: "71"  # Lake Township
+
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 models:
