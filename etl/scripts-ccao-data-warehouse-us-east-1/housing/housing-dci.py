@@ -10,7 +10,7 @@ s3 = boto3.client("s3")
 temp_file = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
 
 # Download the file from S3 to your local system
-load_dotenv("etl/.Renviron")
+load_dotenv(".Renviron")
 AWS_S3_WAREHOUSE_BUCKET = os.getenv("AWS_S3_WAREHOUSE_BUCKET")
 AWS_S3_RAW_BUCKET = os.getenv("AWS_S3_RAW_BUCKET")[5:]  # type: ignore
 file_key = os.path.join("housing", "dci", "dci.csv")

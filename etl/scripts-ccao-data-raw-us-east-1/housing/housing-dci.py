@@ -48,7 +48,7 @@ file_url = "https://eig.org/dci-maps-2023/data/1cd12716-de4a-4ef6-884b-af6e1066b
 # Load the data
 df = load_csv_from_url(file_url)
 
-load_dotenv("etl/.Renviron")
+load_dotenv(".Renviron")
 AWS_S3_RAW_BUCKET = os.getenv("AWS_S3_RAW_BUCKET")[5:]  # type: ignore
 file_name = os.path.join("housing", "dci", "dci.csv")
 
