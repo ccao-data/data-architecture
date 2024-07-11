@@ -127,7 +127,7 @@ for (iter_year in parcel_years) {
     # Draw the lines that connect the centroids to the endpoints of the cross
     draw_line <- function(r) st_linestring(t(matrix(unlist(r), 2, 2)))
     cross$geometry <- st_sfc(sapply(
-      1:nrow(cross),
+      seq_len(nrow(cross)),
       function(i) draw_line(cross[i, ]),
       simplify = FALSE
     ))
