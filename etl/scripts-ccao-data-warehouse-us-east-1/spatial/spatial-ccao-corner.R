@@ -235,4 +235,5 @@ for (iter_year in parcel_years) {
       select(-id) %>%
       write_geoparquet(remote_file)
   }
+  tictoc::toc()
 }
