@@ -42,7 +42,7 @@ for (iter_year in parcel_years) {
     remote_file <- file.path(
       output_bucket,
       glue("year={iter_year}"),
-      glue("township={iter_town}"),
+      glue("township_code={iter_town}"),
       "part-0.parquet"
     )
 
