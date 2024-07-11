@@ -1,6 +1,6 @@
 .user.yml
 *.xlsx
-!reports/templates/*.xlsx
+!export/templates/*.xlsx
 
 assets/*.svg
 test_cache/*.json

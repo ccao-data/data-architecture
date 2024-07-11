@@ -615,7 +615,7 @@ models:
       tags:
         - qc_report_town_close
     meta:
-      report_name: Negative ASMT values
+      export_name: Negative ASMT values
 
   - name: qc.vw_change_in_high_low_value_sales
     description: '{{ doc("view_vw_change_in_high_low_value_sales") }}'

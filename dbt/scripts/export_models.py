@@ -1,6 +1,6 @@
-# Export dbt models to Excel files ("reports").
+# Export dbt models to Excel files.
 #
-# Run `python scripts/qc_report.py --help` for details.
+# Run `python scripts/export_models.py --help` for details.
 
 import argparse
 import contextlib
@@ -17,20 +17,20 @@ from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
 DBT = dbtRunner()
-CLI_DESCRIPTION = """Export dbt models to Excel files ("reports").
+CLI_DESCRIPTION = """Export dbt models to Excel files.
 
-A few configuration values can be set on any model used to generate reports:
+A few configuration values can be set on any model to support exporting:
 
-    * config.meta.report_name (optional): The name of the report to generate. This will be used to set the filename for the output report. File
-      extensions are not necessary since all reports are output as .xlsx files. If unset, defaults to the name of the model.
+    * config.meta.export_name (optional): The base name of the output file that will be generated. File extensions are not necessary since all
+      models are exported as .xlsx files. If unset, defaults to the name of the model.
 
-    * config.meta.template (optional): The filename an Excel template to use when generating the report. Templates should be stored in the
-      reports/templates/ directory and should include header rows. If unset, will search for a template with the same name as the model; if no
+    * config.meta.export_template (optional): The filename of an Excel template to use when exporting a model. Templates should be stored in the
+      export/templates/ directory and should include header rows. If unset, will search for a template with the same name as the model; if no
       template is found, defaults to a simple layout with filterable columns and striped rows.
 """  # noqa: E501
 CLI_EXAMPLE = """Example usage to output the qc_report_town_close report for Hyde Park township:
 
-    python scripts/qc_report.py --select tag:qc_report_town_close --vars '{qc_report_town_code: 70}' --rebuild
+    python scripts/export_models.py --select tag:qc_report_town_close --vars '{qc_report_town_code: 70}' --rebuild
 """  # noqa: E501
 
 
@@ -46,19 +46,19 @@ def main():
         "--select",
         required=True,
         nargs="*",
-        help="One or more dbt select statements to use for filtering reports",
+        help="One or more dbt select statements to use for filtering models",
     )
     parser.add_argument(
         "--target",
         required=False,
         default="dev",
-        help="dbt target to use for querying data, defaults to 'dev'",
+        help="dbt target to use for querying model data, defaults to 'dev'",
     )
     parser.add_argument(
         "--rebuild",
         action=argparse.BooleanOptionalAction,
         default=True,
-        help="Rebuild models before exporting reports",
+        help="Rebuild models before exporting",
     )
     parser.add_argument(
         "--vars",
@@ -134,7 +134,7 @@ def main():
         raise ValueError(f"No models found for the --select value '{select}'")
 
     print(
-        "The following models will be exported to reports: "
+        "The following models will be exported: "
         f"{', '.join(model['name'] for model in models)}"
     )
 
@@ -151,15 +151,16 @@ def main():
         # the `dbt list` call above
         model_name = model["name"]
         relation_name = model["relation_name"]
-        report_name = model["config"]["meta"].get("report_name") or model_name
+        export_name = model["config"]["meta"].get("export_name") or model_name
         template = (
-            model["config"]["meta"].get("template") or f"{model_name}.xlsx"
+            model["config"]["meta"].get("export_template")
+            or f"{model_name}.xlsx"
         )
 
-        # Define inputs and outputs for report based on model metadata
-        template_path = os.path.join("reports", "templates", template)
+        # Define inputs and outputs for export based on model metadata
+        template_path = os.path.join("export", "templates", template)
         template_exists = os.path.isfile(template_path)
-        output_path = os.path.join("reports", "output", f"{report_name}.xlsx")
+        output_path = os.path.join("export", "output", f"{export_name}.xlsx")
 
         print(f"Querying data for model {model_name}")
         model_df = pd.read_sql(f"SELECT * FROM {relation_name}", conn)
@@ -181,8 +182,7 @@ def main():
         with pd.ExcelWriter(
             output_path, engine="openpyxl", **writer_kwargs
         ) as writer:
-            # TODO: Support sheet name customization
-            sheet_name = "Query Results" if template_exists else "Sheet1"
+            sheet_name = "Sheet1"
             model_df.to_excel(
                 writer,
                 sheet_name=sheet_name,
@@ -205,7 +205,7 @@ def main():
             )
             sheet.add_table(table)
 
-        print(f"Wrote report from model {model_name} to {output_path}")
+        print(f"Exported model {model_name} to {output_path}")
 
 
 if __name__ == "__main__":
