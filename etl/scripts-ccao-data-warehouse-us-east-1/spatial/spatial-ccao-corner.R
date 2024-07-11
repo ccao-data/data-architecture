@@ -213,6 +213,7 @@ for (iter_year in parcel_years) {
       ) %>%
       filter(max_degree == 90 | n() >= 3, na.rm = TRUE) %>%
       summarize(
+        is_corner_lot = TRUE,
         num_cross_branch = n(),
         geometry = st_make_valid(st_union(geometry))
       ) %>%
@@ -229,6 +230,6 @@ for (iter_year in parcel_years) {
       select(pin10, id) %>%
       inner_join(cross_final, by = "id") %>%
       select(-id) %>%
-      write_parquet(remote_file)
+      write_geoparquet(remote_file)
   }
 }
