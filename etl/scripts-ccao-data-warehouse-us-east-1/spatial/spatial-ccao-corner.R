@@ -171,10 +171,12 @@ for (iter_year in parcel_years) {
     # neighboring units that also intersect the cross
     intersects_c_and_n <- lapply(
       seq_along(intersects_cross),
-      function(i) setdiff(
-        intersect(intersects_cross[[i]], intersects_neigh[[i]]),
-        intersects_self[[i]]
-      )
+      function(i) {
+        setdiff(
+          intersect(intersects_cross[[i]], intersects_neigh[[i]]),
+          intersects_self[[i]]
+        )
+      }
     )
 
     # Remove cross segments that intersect neighboring parcels. Also remove any
