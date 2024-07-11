@@ -122,10 +122,10 @@ The algorithm is:
    streets that intersect this cross in order to determine neighbors. Use the
    bearing and length calculated in the previous step to draw the cross (i.e
    the long side of the cross is parallel to the minimum bounding rectangle).
-3. Find the arms of each cross which intersect neighboring parcels
-   which _also_ touch the cross-originating PIN. The idea here is that cross
-   cross arms that intersect neighboring (touching) parcels are likely to be
-   pointed at a building, rather than a street. Delete these arms from the
+3. Find the arms of each cross which intersect neighboring parcels, where those
+   neighboring parcels _also_ touch the cross-originating PIN. The idea here is
+   that cross arms that intersect neighboring (touching) parcels are likely to
+   be pointed at a building, rather than a street. Delete these arms from the
    cross.
 4. Find which remaining cross segments intersect streets, and keep only
    segments that _do_ intersect. This removes segments pointed at buildings,

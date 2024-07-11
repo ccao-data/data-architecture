@@ -102,6 +102,9 @@ for (iter_year in parcel_years) {
         ),
         bearing = units::set_units(bearing, "degrees")
       ) %>%
+      # Rectanges cast to points (as performed above) have an additional point
+      # to close their polygon; this step drops that point since it isn't needed
+      # for our calculation
       filter(row_number() %% 5 != 0) %>%
       # To suppress the warning about repeating constant attributes when casting
       # geometries to POINT
@@ -132,8 +135,7 @@ for (iter_year in parcel_years) {
       simplify = FALSE
     ))
 
-    # Compute the length and aspect ratio of the cross. The aspect ratio will be
-    # useful for filtering out parcels that are dramatically longer than wide
+    # Convert the cross raw geometry back to a spatial dataframe
     cross <- cross %>%
       st_set_geometry("geometry") %>%
       st_set_crs(4326) %>%

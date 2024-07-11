@@ -61,6 +61,8 @@ sources:
               Well-Known Binary (WKB) geometry (EPSG 3435) representation of
               the remaining arms of the cross used in the corner detection
               algorithm
+          - name: year
+            description: '{{ doc("shared_column_year") }}'
           - name: township_code
             description: '{{ doc("shared_column_township_code") }}'
 
