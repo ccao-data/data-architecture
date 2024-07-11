@@ -362,7 +362,13 @@ process_parcel_file <- function(s3_bucket_uri,
       relocate(
         c(shp_parcel_centroid_dist_ft_sd, shp_parcel_interior_angle_sd),
         .after = "shp_parcel_edge_len_ft_sd"
-      )
+      ) %>%
+      # st_make_valid actually uses two different methods, one for planar
+      # geometries and a different one for ellipsoidal geometries. The earlier
+      # st_make_valid call on the planar geometry (`geometry_3435`) actually
+      # still yields one or two parcels that are invalid in the ellipsoidal
+      # version, so we call st_make_valid here again just to be safe
+      mutate(across(starts_with("geometry_"), st_make_valid))
 
     # Check that the final number of distinct, well-formed parcels is close to
     # the same as the number in the raw parcel file
