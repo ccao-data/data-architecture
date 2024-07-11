@@ -235,6 +235,15 @@ models:
               (year >= '2021' OR (
               year = '2020' AND stage_name = 'BOR CERTIFIED')
               )
+      - is_null:
+          name: reporting_vw_pin_value_long_exempt_parcels_values
+          column_name: pin
+          config:
+            tags:
+              - test_qc_iasworld
+          where: |
+            class = 'EX' AND tot > 1 AND
+            CAST(year AS int) = {{ var('test_qc_year_start') }}
 
   - name: reporting.vw_top_5
     description: '{{ doc("view_vw_top_5") }}'
