@@ -204,7 +204,7 @@ for (iter_year in parcel_years) {
       return(ifelse(theta > 180, 360 - theta, theta))
     }
 
-    # Filter for only crosses with right-angle segments or three segments,
+    # Filter for only crosses with right-angle segments or gte three segments,
     # as 180 degree segments indicate a parcel sandwiched between two streets
     cross_final <- cross_filter %>%
       group_by(id) %>%
@@ -224,8 +224,7 @@ for (iter_year in parcel_years) {
       mutate(geometry = st_make_valid(st_transform(geometry_3435, 4326))) %>%
       relocate(geometry_3435, .after = geometry)
 
-    # Write the final results to a Parquet file on S3, keeping only the PIN10
-    # and a corner indicator boolean
+    # Write the final results to a Parquet file on S3
     town_parcels %>%
       mutate(id = row_number()) %>%
       st_drop_geometry() %>%
