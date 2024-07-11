@@ -9,8 +9,8 @@ library(osmdata)
 library(sf)
 library(tictoc)
 
-# This script queries OpenStreetMap for major roads in Cook County and
-# saves them as a spatial parquet
+# This script detects corner lots in Cook County parcels and saves a boolean
+# indicator as well as the cross used by the corner detection algorithm
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "ccao", "corner")
@@ -30,7 +30,7 @@ parcel_years <- parcel_years[parcel_years >= 2014]
 for (iter_year in parcel_years) {
   tictoc::tic(paste("Finished processing corners for:", iter_year))
 
-  # Load the full year's parcel file to iterate though
+  # Load the full year's parcel file to iterate though by township
   parcels <- open_dataset(parcel_path) %>%
     filter(year == iter_year) %>%
     geoarrow_collect_sf()
@@ -49,7 +49,8 @@ for (iter_year in parcel_years) {
       filter(town_code == iter_town)
 
     # Get a bounding box 3,000 feet larger than the extent of the town parcels.
-    # Used to query OSM for streets and to check for neighboring parcels
+    # Used to query OSM for streets and to ensure parcels on the "edge" of the
+    # township have their correct set of neighbors to check in Step 3 below
     town_bbox <- town_parcels %>%
       st_set_geometry("geometry_3435") %>%
       st_bbox() %>%
@@ -58,17 +59,17 @@ for (iter_year in parcel_years) {
       st_transform(4326) %>%
       st_bbox()
 
-    # Get a buffered copy of the town parcels to check the neighboring parcels
-    # at the "edges" of the township
+    # Get a buffered copy of the town parcels. This is used in Step 3 below in
+    # order to fill any tiny gaps between abutting parcels
     town_parcels_buf <- parcels %>%
       filter(
         between(lon, town_bbox$xmin, town_bbox$xmax) &
           between(lat, town_bbox$ymin, town_bbox$ymax)
       ) %>%
-      st_buffer(dist = units::set_units(1, "m"))
+      st_buffer(dist = units::set_units(2, "m"))
 
-    # Fetch the OSM street network for the township, removing any way types that
-    # don't constitute main roads
+    # Fetch the OSM street network for the township, removing any OSM way types
+    # that are not main roads
     osm_streets <- opq(bbox = town_bbox) %>%
       add_osm_feature(key = "highway") %>%
       osmdata_sf() %>%
