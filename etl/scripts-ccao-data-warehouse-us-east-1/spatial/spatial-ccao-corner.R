@@ -6,6 +6,7 @@ library(geoarrow)
 library(glue)
 library(here)
 library(osmdata)
+library(purrr)
 library(sf)
 library(tictoc)
 
