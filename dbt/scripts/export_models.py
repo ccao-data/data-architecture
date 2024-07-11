@@ -30,7 +30,7 @@ A few configuration values can be set on any model to support exporting:
 """  # noqa: E501
 CLI_EXAMPLE = """Example usage to output the qc_report_town_close report for Hyde Park township:
 
-    python scripts/export_models.py --select tag:qc_report_town_close --vars '{qc_report_town_code: 70}' --rebuild
+    python scripts/export_models.py --select tag:qc_report_town_close --vars '{qc_report_town_code: 70}'
 """  # noqa: E501
 
 
