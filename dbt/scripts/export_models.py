@@ -19,6 +19,8 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 DBT = dbtRunner()
 CLI_DESCRIPTION = """Export dbt models to Excel files.
 
+Expects dependencies from requirements.txt (dbt dependencies) and scripts/requirements.export_models.txt (script dependencies) be installed.
+
 A few configuration values can be set on any model to support exporting:
 
     * config.meta.export_name (optional): The base name of the output file that will be generated. File extensions are not necessary since all
