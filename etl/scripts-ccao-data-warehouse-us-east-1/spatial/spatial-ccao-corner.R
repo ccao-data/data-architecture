@@ -26,8 +26,8 @@ parcel_years <- open_dataset(parcel_path) %>%
 # Drop years before 2014, since OSM data for roads is spotty prior to that
 parcel_years <- parcel_years[parcel_years >= 2014]
 
-# Iterate over the years and townships, saving the results to a temporary file
-# after each iteration
+# Iterate over the years and townships, saving the results to a Parquet file
+# on S3 after each iteration
 for (iter_year in parcel_years) {
   tictoc::tic(paste("Finished processing corners for:", iter_year))
 
