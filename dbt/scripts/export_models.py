@@ -124,7 +124,7 @@ def main():
         print("Encountered error in `dbt list` call")
         raise ValueError(dbt_list_result.exception)
 
-    # Output is formatted as a list of newline-separated JON objects
+    # Output is formatted as a list of newline-separated JSON objects
     models = [
         json.loads(model_dict_str)
         for model_dict_str in dbt_output.getvalue().split("\n")
