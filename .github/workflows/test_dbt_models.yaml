@@ -3,14 +3,7 @@ name: test-dbt-models
 # This workflow is not scheduled or run on PRs because it is manually triggered
 # by the Data Department's sqoop data extraction process upon completion. See
 # https://github.com/ccao-data/service-sqoop-iasworld
-on:
-  workflow_dispatch:
-    inputs:
-      upload:
-        description: Whether to upload results to S3
-        type: boolean
-        required: false
-        default: false
+on: workflow_dispatch
 
 jobs:
   test-dbt-models:
@@ -58,7 +51,6 @@ jobs:
         shell: bash
 
       - name: Extract test results
-        if: ${{ inputs.upload == 'true' }}
         run: |
           python3 ../.github/scripts/transform_dbt_test_results.py \
             --output-dir ./qc_test_results/
@@ -71,25 +63,13 @@ jobs:
           GIT_AUTHOR: ${{ github.event.commits[0].author.name }}
 
       - name: Save test results to S3
-        if: ${{ inputs.upload == 'true' }}
         run: |
-          s3_raw_prefix="s3://ccao-data-raw-us-east-1/qc"
-          s3_warehouse_prefix="s3://ccao-data-warehouse-us-east-1/qc"
-          local_prefix="qc_test_results"
-          echo "Copying test_run metadata to S3"
-          aws s3 sync \
-            "${local_prefix}/metadata/test_run" \
-            "${s3_warehouse_prefix}/test_run"
-
-          echo "Copying test_run_result metadata to S3"
-          aws s3 sync \
-            "${local_prefix}/metadata/test_run_result" \
-            "${s3_warehouse_prefix}/test_run_result"
-
-          echo "Copying test result workbook to S3"
-          aws s3 cp \
-            "${local_prefix}/qc_test_failures_*.xlsx" \
-            "${s3_raw_prefix}/workbooks/"
+          s3_prefix="s3://ccao-data-warehouse-us-east-1/qc"
+          local_prefix="qc_test_results/metadata"
+          for dir in "test_run" "test_run_result" "test_run_failing_row"; do
+            echo "Copying ${dir} metadata to S3"
+            aws s3 sync "${local_prefix}/${dir}" "${s3_prefix}/${dir}"
+          done
 
           crawler_name="ccao-data-warehouse-qc-crawler"
           aws glue start-crawler --name "$crawler_name"
