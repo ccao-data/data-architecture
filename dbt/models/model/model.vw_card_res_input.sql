@@ -23,6 +23,7 @@ is triggered by sqoop-bot (runs after Sqoop grabs iasWorld data)
     )
 }}
 
+
 WITH uni AS (
     SELECT * FROM {{ ref('model.vw_pin_shared_input') }}
     WHERE meta_class IN (
