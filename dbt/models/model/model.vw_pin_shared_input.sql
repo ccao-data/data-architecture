@@ -364,3 +364,4 @@ LEFT JOIN exemption_features
     AND uni.year = exemption_features.year
 LEFT JOIN {{ source('spatial', 'corner') }} AS lot
     ON uni.pin10 = lot.pin10
+    AND uni.year = lot.year
