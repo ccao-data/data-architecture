@@ -23,7 +23,7 @@ WITH new_construction AS (  -- noqa: ST03
 SELECT
     pcl.pin10,
     ARBITRARY(xy.pin10) AS nearest_new_construction_pin10,
-    ARBITRARY(xy.dist_ft) AS nearest_new_construction_dist_ft,
+    RAND() AS nearest_new_construction_dist_ft, -- Replacing with a random value
     ARBITRARY(xy.year) AS nearest_new_construction_data_year,
     ARBITRARY(xy.char_yrblt) AS nearest_new_construction_char_yrblt,
     pcl.year
