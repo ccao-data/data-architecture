@@ -368,7 +368,7 @@ process_parcel_file <- function(s3_bucket_uri,
       # st_make_valid call on the planar geometry (`geometry_3435`) actually
       # still yields one or two parcels that are invalid in the ellipsoidal
       # version, so we call st_make_valid here again just to be safe
-      mutate(across(starts_with("geometry_"), st_make_valid))
+      mutate(across(starts_with("geometry"), st_make_valid))
 
     # Check that the final number of distinct, well-formed parcels is close to
     # the same as the number in the raw parcel file
