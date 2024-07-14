@@ -101,7 +101,8 @@ distressed_communities_index AS (
 affordability_risk_index AS (
     SELECT
         tract.pin10,
-        tract.year,
+        tract.year AS census_acs5_data_year,
+        ari.year,
         ari.ari_score AS ari
     FROM {{ source('other', 'ari') }} AS ari
     INNER JOIN {{ ref('location.census_acs5') }} AS tract
