@@ -102,19 +102,16 @@ affordability_risk_index AS (
     SELECT
         tract.pin10,
         ari.year,
-        ari.ari_score AS ari,
-        tract.year AS census_acs5_data_year
+        ari.ari_score AS ari
     FROM {{ source('other', 'ari') }} AS ari
     LEFT JOIN {{ ref('location.census_acs5') }} AS tract
         ON ari.geoid = tract.census_acs5_tract_geoid
-        AND CASE
-            WHEN
-                ari.year
-                > (SELECT MAX(year) FROM {{ ref('location.census_acs5') }})
-                THEN (SELECT MAX(year) FROM {{ ref('location.census_acs5') }})
-            ELSE ari.year
-        END
-        = tract.year
+        AND CAST(tract.year AS INTEGER) = (
+            SELECT MIN(CAST(ty.year AS INTEGER))
+            FROM {{ ref('location.census_acs5') }} AS ty
+            WHERE ty.census_acs5_tract_geoid = ari.geoid
+                AND CAST(ty.year AS INTEGER) >= CAST(ari.year AS INTEGER)
+        )
 ),
 
 tax_bill_amount AS (
