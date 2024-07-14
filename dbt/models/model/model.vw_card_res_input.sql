@@ -463,6 +463,7 @@ SELECT
     f1.prox_nearest_cta_route_dist_ft,
     f1.prox_nearest_cta_stop_dist_ft,
     f1.prox_nearest_golf_course_dist_ft,
+    f1.prox_nearest_grocery_store_dist_ft,
     CASE
         WHEN
             f1.prox_nearest_hospital_dist_ft IS NOT NULL
@@ -498,6 +499,7 @@ SELECT
     END AS prox_nearest_major_road_dist_ft,
     f1.prox_nearest_metra_route_dist_ft,
     f1.prox_nearest_metra_stop_dist_ft,
+    f1.prox_nearest_new_construction_dist_ft,
     CASE
         WHEN
             f1.prox_nearest_park_dist_ft IS NOT NULL
@@ -533,6 +535,17 @@ SELECT
     END AS prox_nearest_secondary_road_dist_ft,
     CASE
         WHEN
+            f1.prox_nearest_stadium_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_stadium_dist_ft
+        WHEN
+            f1.prox_nearest_stadium_dist_ft IS NULL
+            THEN nn1.prox_nearest_stadium_dist_ft
+        WHEN
+            nn1.prox_nearest_stadium_dist_ft IS NULL
+            THEN nn2.prox_nearest_stadium_dist_ft
+    END AS prox_nearest_stadium_dist_ft,
+    CASE
+        WHEN
             f1.prox_nearest_university_dist_ft IS NOT NULL
             THEN f1.prox_nearest_university_dist_ft
         WHEN
@@ -564,6 +577,12 @@ SELECT
             nn1.prox_nearest_water_dist_ft IS NULL
             THEN nn2.prox_nearest_water_dist_ft
     END AS prox_nearest_water_dist_ft,
+    f1.shp_parcel_centroid_dist_ft_sd,
+    f1.shp_parcel_edge_len_ft_sd,
+    f1.shp_parcel_interior_angle_sd,
+    f1.shp_parcel_mrr_area_ratio,
+    f1.shp_parcel_mrr_side_ratio,
+    f1.shp_parcel_num_vertices,
     f1.acs5_count_sex_total,
     f1.acs5_percent_age_children,
     f1.acs5_percent_age_senior,

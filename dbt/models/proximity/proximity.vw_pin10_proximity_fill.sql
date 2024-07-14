@@ -46,6 +46,10 @@ SELECT
     dist_pin_to_golf_course.nearest_golf_course_dist_ft,
     dist_pin_to_golf_course.nearest_golf_course_data_year,
 
+    dist_pin_to_grocery_store.nearest_grocery_store_name,
+    dist_pin_to_grocery_store.nearest_grocery_store_dist_ft,
+    dist_pin_to_grocery_store.nearest_grocery_store_data_year,
+
     dist_pin_to_hospital.nearest_hospital_gnis_code,
     dist_pin_to_hospital.nearest_hospital_name,
     dist_pin_to_hospital.nearest_hospital_dist_ft,
@@ -69,6 +73,11 @@ SELECT
     dist_pin_to_metra_stop.nearest_metra_stop_dist_ft,
     dist_pin_to_metra_stop.nearest_metra_stop_data_year,
 
+    dist_pin_to_new_construction.nearest_new_construction_pin10,
+    dist_pin_to_new_construction.nearest_new_construction_char_yrblt,
+    dist_pin_to_new_construction.nearest_new_construction_dist_ft,
+    dist_pin_to_new_construction.nearest_new_construction_data_year,
+
     dist_pin_to_park.nearest_park_osm_id,
     dist_pin_to_park.nearest_park_name,
     dist_pin_to_park.nearest_park_dist_ft,
@@ -83,6 +92,10 @@ SELECT
     dist_pin_to_secondary_road.nearest_secondary_road_name,
     dist_pin_to_secondary_road.nearest_secondary_road_dist_ft,
     dist_pin_to_secondary_road.nearest_secondary_road_data_year,
+
+    dist_pin_to_stadium.nearest_stadium_name,
+    dist_pin_to_stadium.nearest_stadium_dist_ft,
+    dist_pin_to_stadium.nearest_stadium_data_year,
 
     dist_pin_to_university.nearest_university_name,
     dist_pin_to_university.nearest_university_dist_ft,
@@ -146,6 +159,11 @@ LEFT JOIN
     ON pin.pin10 = dist_pin_to_golf_course.pin10
     AND cyf.nearest_golf_course_data_year = dist_pin_to_golf_course.year
 LEFT JOIN
+    {{ ref('proximity.dist_pin_to_grocery_store') }}
+        AS dist_pin_to_grocery_store
+    ON pin.pin10 = dist_pin_to_grocery_store.pin10
+    AND cyf.nearest_grocery_store_data_year = dist_pin_to_grocery_store.year
+LEFT JOIN
     {{ ref('proximity.dist_pin_to_hospital') }} AS dist_pin_to_hospital
     ON pin.pin10 = dist_pin_to_hospital.pin10
     AND cyf.nearest_hospital_data_year = dist_pin_to_hospital.year
@@ -166,6 +184,12 @@ LEFT JOIN
     {{ ref('proximity.dist_pin_to_metra_stop') }} AS dist_pin_to_metra_stop
     ON pin.pin10 = dist_pin_to_metra_stop.pin10
     AND cyf.nearest_metra_stop_data_year = dist_pin_to_metra_stop.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_new_construction') }}
+        AS dist_pin_to_new_construction
+    ON pin.pin10 = dist_pin_to_new_construction.pin10
+    AND cyf.nearest_new_construction_data_year
+    = dist_pin_to_new_construction.year
 LEFT JOIN {{ ref('proximity.dist_pin_to_park') }} AS dist_pin_to_park
     ON pin.pin10 = dist_pin_to_park.pin10
     AND cyf.nearest_park_data_year = dist_pin_to_park.year
@@ -181,6 +205,11 @@ LEFT JOIN
         AS dist_pin_to_secondary_road
     ON pin.pin10 = dist_pin_to_secondary_road.pin10
     AND cyf.nearest_secondary_road_data_year = dist_pin_to_secondary_road.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_stadium') }}
+        AS dist_pin_to_stadium
+    ON pin.pin10 = dist_pin_to_stadium.pin10
+    AND cyf.nearest_stadium_data_year = dist_pin_to_stadium.year
 LEFT JOIN
     {{ ref('proximity.dist_pin_to_university') }} AS dist_pin_to_university
     ON pin.pin10 = dist_pin_to_university.pin10

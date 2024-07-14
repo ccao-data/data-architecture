@@ -162,6 +162,22 @@ data and tagged OpenStreetMap amenities.
 **Geometry:** `MULTIPOLYGON`
 {% enddocs %}
 
+# grocery_store
+
+{% docs table_grocery_store %}
+Grocery stores. Locations sourced from OpenStreetMap (OSM).
+	
+	OSM tags include:
+	
+	- `shop=supermarket`
+	- `shop=wholesale`
+	- `shop=greengrocer`
+	  
+	Only attributes with valid names are kept.
+
+**Geometry:** `POINT`
+{% enddocs %}
+
 # hospital
 
 {% docs table_hospital %}
@@ -390,6 +406,14 @@ Secondary roads include any OSM ways tagged with
 Cook County Special Service Area (SSA) boundaries.
 
 **Geometry:** `MULTIPOLYGON`
+{% enddocs %}
+
+# stadium
+
+{% docs table_stadium %}
+Transformed version of the `spatial.stadium_raw` table containing binary geometry columns of stadium locations.
+
+**Geometry:** `POINT`
 {% enddocs %}
 
 # state_representative_district

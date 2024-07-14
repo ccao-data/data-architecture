@@ -129,6 +129,12 @@ models:
         description: '{{ doc("column_nearest_golf_course_dist_ft") }}'
       - name: nearest_golf_course_id
         description: '{{ doc("column_nearest_golf_course_id") }}'
+      - name: nearest_grocery_store_dist_ft
+        description: '{{ doc("column_nearest_grocery_store_dist_ft") }}'
+      - name: nearest_grocery_store_name
+        description: '{{ doc("column_nearest_grocery_store_name") }}'
+      - name: nearest_grocery_store_name
+        description: '{{ doc("column_nearest_grocery_store_name") }}'
       - name: nearest_hospital_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_hospital_dist_ft
@@ -161,6 +167,14 @@ models:
         description: '{{ doc("column_nearest_metra_stop_id") }}'
       - name: nearest_metra_stop_name
         description: '{{ doc("column_nearest_metra_stop_name") }}'
+      - name: nearest_new_construction_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: nearest_new_construction_dist_ft
+        description: '{{ doc("column_nearest_new_construction_dist_ft") }}'
+      - name: nearest_new_construction_pin10
+        description: '{{ doc("column_nearest_new_construction_pin10") }}'
+      - name: nearest_new_construction_char_yrblt
+        description: '{{ doc("column_nearest_new_construction_char_yrblt") }}'
       - name: nearest_neighbor_1_dist_ft
         description: '{{ doc("column_nearest_neighbor_dist_ft") }}'
       - name: nearest_neighbor_1_pin10
@@ -197,6 +211,12 @@ models:
         description: '{{ doc("column_nearest_secondary_road_name") }}'
       - name: nearest_secondary_road_osm_id
         description: '{{ doc("column_nearest_secondary_road_osm_id") }}'
+      - name: nearest_stadium_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: nearest_stadium_dist_ft
+        description: '{{ doc("column_nearest_stadium_dist_ft") }}'
+      - name: nearest_stadium_name
+        description: '{{ doc("column_nearest_stadium_name") }}'
       - name: nearest_university_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_university_dist_ft

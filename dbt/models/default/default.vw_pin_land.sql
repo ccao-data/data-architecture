@@ -14,7 +14,26 @@ WITH total_influ AS (
         FIRST_VALUE(land.sf)
             OVER (PARTITION BY land.parid, land.taxyr ORDER BY land.lline)
             AS sf_top,
-        SUM(CASE WHEN land.influ IS NULL THEN 0 ELSE 1 END)
+        SUM(
+            CASE
+                WHEN
+                    (
+                        /*The new field we got in 2024 for land prorations,
+                        ALLOCPCT. This field reduces the land value by the
+                        percent entered and can provide more granular
+                        prorations (needed for condos) as it can go further
+                        than whole percentages.
+
+                        So, ahead of this assessment, we updated the split
+                        class properties to move the percentage attributable to
+                        each from the Influ field to the new ALLOCPCT field.*/
+                        (land.influ IS NULL AND land.taxyr < '2024')
+                        OR (land.allocpct IS NULL AND land.taxyr >= '2024')
+                    )
+                    THEN 0
+                ELSE 1
+            END
+        )
             OVER (PARTITION BY land.parid, land.taxyr)
             AS non_null_influ,
         -- Split class indicator can override the rest of the influence
