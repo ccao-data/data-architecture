@@ -101,17 +101,12 @@ distressed_communities_index AS (
 affordability_risk_index AS (
     SELECT
         tract.pin10,
-        ari.year,
+        tract.year,
         ari.ari_score AS ari
     FROM {{ source('other', 'ari') }} AS ari
-    LEFT JOIN {{ ref('location.census_acs5') }} AS tract
+    INNER JOIN {{ ref('location.census_acs5') }} AS tract
         ON ari.geoid = tract.census_acs5_tract_geoid
-        AND CAST(tract.year AS INTEGER) = (
-            SELECT MIN(CAST(ty.year AS INTEGER))
-            FROM {{ ref('location.census_acs5') }} AS ty
-            WHERE ty.census_acs5_tract_geoid = ari.geoid
-                AND CAST(ty.year AS INTEGER) >= CAST(ari.year AS INTEGER)
-        )
+        AND CAST(tract.year AS INTEGER) > CAST(ari.year AS INTEGER)
 ),
 
 tax_bill_amount AS (
