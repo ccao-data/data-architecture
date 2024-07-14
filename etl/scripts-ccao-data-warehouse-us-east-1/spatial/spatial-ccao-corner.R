@@ -71,7 +71,11 @@ for (iter_year in parcel_years) {
 
     # Fetch the OSM street network for the township, removing any OSM way types
     # that are not main roads
-    osm_streets <- opq(bbox = town_bbox) %>%
+    osm_streets <- opq(
+      bbox = town_bbox,
+      datetime = glue("{iter_year}-01-01T00:00:00Z"),
+      timeout = 900
+    ) %>%
       add_osm_feature(key = "highway") %>%
       osmdata_sf() %>%
       .$osm_lines %>%
