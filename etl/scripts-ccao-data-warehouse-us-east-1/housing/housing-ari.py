@@ -26,7 +26,7 @@ data = pd.read_excel(temp_file.name, skiprows=2, engine="openpyxl")
 data["data_year"] = str(2023)
 data["year"] = str(2021)
 
-data = data[["Census Tract", "Total ARI Score", "year"]].rename(
+data = data[["Census Tract", "Total ARI Score", "year", "data_year"]].rename(
     columns={"Census Tract": "geoid", "Total ARI Score": "ari_score"}
 )
 data["geoid"] = data["geoid"].astype(str)

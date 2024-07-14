@@ -29,7 +29,9 @@ data = data[data["State"] == "Illinois"]
 data["year"] = str(2021)
 data["data_year"] = str(2024)
 
-data = data[["Zip Code", "2017-2021 Final Distress Score", "year"]].rename(
+data = data[
+    ["Zip Code", "2017-2021 Final Distress Score", "year", "data_year"]
+].rename(
     columns={
         "Zip Code": "geoid",
         "2017-2021 Final Distress Score": "dci",
