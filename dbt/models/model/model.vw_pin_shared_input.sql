@@ -310,7 +310,7 @@ SELECT
     -- Corner lot indicator, only filled after 2014 since that's
     -- when OpenStreetMap data begins
     CASE
-        WHEN CAST(uni.taxyr AS INT) >= 2014
+        WHEN CAST(uni.year AS INT) >= 2014
             THEN COALESCE(lot.is_corner_lot, FALSE)
     END AS ccao_is_corner_lot,
 
