@@ -21,8 +21,8 @@ s3.download_file(AWS_S3_RAW_BUCKET, file_key, temp_file.name)
 # Use pandas to read the Excel file, skipping the first two rows
 data = pd.read_excel(temp_file.name, skiprows=2, engine="openpyxl")
 
-# Include a year column for the year of file construction.
-# This should be changed if a more recent data file is uploaded.
+# Year refers to final year of census data.
+# Data_year refers to year of data construction.
 data["data_year"] = str(2023)
 data["year"] = str(2021)
 
