@@ -104,7 +104,7 @@ affordability_risk_index AS (
         tract.year,
         ari.ari_score AS ari
     FROM {{ source('other', 'ari') }} AS ari
-    INNER JOIN {{ ref('location.census_acs5') }} AS tract
+    LEFT JOIN {{ ref('location.census_acs5') }} AS tract
         ON ari.geoid = tract.census_acs5_tract_geoid
         AND CAST(tract.year AS INTEGER) > CAST(ari.year AS INTEGER)
 ),
