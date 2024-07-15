@@ -249,6 +249,10 @@ models:
             - class
             - stage_name
             - {column: year, alias: taxyr}
+          meta:
+            table_name: asmt_all
+            description: exempt parcels should not have AVs greater than 1
+            TEST_CATEGORIES: test_accepted_range
 
   - name: reporting.vw_top_5
     description: '{{ doc("view_vw_top_5") }}'
