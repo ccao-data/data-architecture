@@ -65,7 +65,7 @@ def main():
     parser.add_argument(
         "--where",
         required=False,
-        help="SQL expression representing a WHERE clause used to filter models"
+        help="SQL expression representing a WHERE clause to filter models",
     )
 
     args = parser.parse_args()
@@ -82,7 +82,7 @@ def main():
             "--select",
             *select,
         ]
-        print(f"Rebuilding models")
+        print("Rebuilding models")
         print(f"> dbt {' '.join(dbt_run_args)}")
         dbt_run_result = DBT.invoke(dbt_run_args)
         if not dbt_run_result.success:
