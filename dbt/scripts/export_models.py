@@ -32,7 +32,7 @@ A few configuration values can be set on any model to support exporting:
 """  # noqa: E501
 CLI_EXAMPLE = """Example usage to output the qc_report_town_close report for Hyde Park township:
 
-    python scripts/export_models.py --select tag:qc_report_town_close --vars '{qc_report_town_code: 70}'
+    python scripts/export_models.py --select tag:qc_report_town_close --where "township_code = '70'"
 """  # noqa: E501
 
 
@@ -59,30 +59,22 @@ def main():
     parser.add_argument(
         "--rebuild",
         action=argparse.BooleanOptionalAction,
-        default=True,
+        default=False,
         help="Rebuild models before exporting",
     )
     parser.add_argument(
-        "--vars",
+        "--where",
         required=False,
-        help=(
-            "Variable overrides to pass to `dbt build`. Expects a YAML "
-            "string. Useful for e.g. overriding the township that is used "
-            "to generate a report. Requires that --rebuild be set"
-        ),
+        help="SQL expression representing a WHERE clause used to filter models"
     )
 
     args = parser.parse_args()
     target = args.target
     select = args.select
     rebuild = args.rebuild
-    vars = args.vars
-
-    if vars and not rebuild:
-        raise ValueError("--rebuild must be set if --vars is set")
+    where = args.where
 
     if rebuild:
-        print("Rebuilding models")
         dbt_run_args = [
             "run",
             "--target",
@@ -90,35 +82,34 @@ def main():
             "--select",
             *select,
         ]
-        if vars:
-            dbt_run_args += ["--vars", vars]
-
+        print(f"Rebuilding models")
+        print(f"> dbt {' '.join(dbt_run_args)}")
         dbt_run_result = DBT.invoke(dbt_run_args)
         if not dbt_run_result.success:
             print("Encountered error in `dbt run` call")
             raise ValueError(dbt_run_result.exception)
 
     print("Listing models to select for export")
+    dbt_list_args = [
+        "--quiet",
+        "list",
+        "--target",
+        target,
+        "--resource-types",
+        "model",
+        "--output",
+        "json",
+        "--output-keys",
+        "name",
+        "config",
+        "relation_name",
+        "--select",
+        *select,
+    ]
+    print(f"> dbt {' '.join(dbt_list_args)}")
     dbt_output = io.StringIO()
     with contextlib.redirect_stdout(dbt_output):
-        dbt_list_result = DBT.invoke(
-            [
-                "--quiet",
-                "list",
-                "--target",
-                target,
-                "--resource-types",
-                "model",
-                "--output",
-                "json",
-                "--output-keys",
-                "name",
-                "config",
-                "relation_name",
-                "--select",
-                *select,
-            ]
-        )
+        dbt_list_result = DBT.invoke(dbt_list_args)
 
     if not dbt_list_result.success:
         print("Encountered error in `dbt list` call")
@@ -165,7 +156,11 @@ def main():
         output_path = os.path.join("export", "output", f"{export_name}.xlsx")
 
         print(f"Querying data for model {model_name}")
-        model_df = pd.read_sql(f"SELECT * FROM {relation_name}", conn)
+        query = f"SELECT * FROM {relation_name}"
+        if where:
+            query += f" WHERE {where}"
+        print(f"> {query}")
+        model_df = pd.read_sql(query, conn)
 
         # Delete the output file if one already exists
         pathlib.Path(output_path).unlink(missing_ok=True)

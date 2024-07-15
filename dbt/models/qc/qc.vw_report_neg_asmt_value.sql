@@ -9,14 +9,14 @@
 
 SELECT
     parid,
+    township_code,
     class,
     valclass,
 {% for column in val_columns %}
     {{ column }}{% if not loop.last %},{% endif %}
 {% endfor %}
 FROM {{ ref('qc.vw_neg_asmt_value') }}
-WHERE township_code = '{{ var("qc_report_town_code") }}'
-    AND CAST(taxyr AS INT)
+WHERE CAST(taxyr AS INT)
     BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
     AND (
         {% for column in val_columns %}
