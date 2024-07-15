@@ -27,6 +27,7 @@ import openpyxl.utils
 import pyarrow as pa
 import pyarrow.parquet
 import pyathena
+import pyathena.arrow.cursor
 import pyathena.cursor
 import simplejson as json
 import yaml
@@ -285,7 +286,9 @@ class TestCategory:
         # Remove any fixed fieldnames from the ordered list that are not
         # present in this group
         fixed_field_order = [
-            field for field in self.possible_fixed_fieldnames if field in fieldnames
+            field
+            for field in self.possible_fixed_fieldnames
+            if field in fieldnames
         ]
 
         # Reorder the fieldnames so that diagnostic fields are presented in the
@@ -521,7 +524,9 @@ class TestCategory:
     def debugging_fieldnames(self) -> typing.List[str]:
         """Get a list of fieldnames (e.g. ["foo", "bar"]) for fields that
         are used for debugging."""
-        return self._filter_for_existing_fieldnames(self.possible_debugging_fieldnames)
+        return self._filter_for_existing_fieldnames(
+            self.possible_debugging_fieldnames
+        )
 
     @property
     def debugging_field_indexes(self) -> tuple:
@@ -568,14 +573,18 @@ class TestCategory:
         """Get a list of fieldnames (e.g. ["foo", "bar"]) for fields that
         are fixed (i.e. whose position is always at the start of the sheet,
         for diagnostic purposes)."""
-        return self._filter_for_existing_fieldnames(self.possible_fixed_fieldnames)
+        return self._filter_for_existing_fieldnames(
+            self.possible_fixed_fieldnames
+        )
 
     @property
     def fixed_field_indexes(self) -> tuple:
         """Get a list of field indexes (e.g. ["A", "B"]) for fields that
         are fixed (i.e. whose position is always at the start of the sheet,
         for diagnostic purposes)."""
-        return self._filter_for_existing_field_indexes(self.possible_fixed_fieldnames)
+        return self._filter_for_existing_field_indexes(
+            self.possible_fixed_fieldnames
+        )
 
     @property
     def nonfixed_fieldnames(self) -> typing.List[str]:
@@ -809,13 +818,14 @@ def main() -> None:
     for metadata_list, tablename, partition_cols in [
         ([test_run_metadata], "test_run", ["run_year"]),
         (test_run_result_metadata_list, "test_run_result", ["run_year"]),
-        (test_run_failing_row_metadata_list, "test_run_failing_row", ["run_year"]),
+        (
+            test_run_failing_row_metadata_list,
+            "test_run_failing_row",
+            ["run_year"],
+        ),
     ]:
         table = pa.Table.from_pylist(
-            [
-                meta_obj.to_dict()
-                for meta_obj in metadata_list  # type: ignore
-            ],
+            [meta_obj.to_dict() for meta_obj in metadata_list],  # type: ignore
         )
         metadata_root_path = os.path.join(output_dir, "metadata", tablename)
         pyarrow.parquet.write_to_dataset(
@@ -993,7 +1003,7 @@ class TestRunFailingRowMetadata:
 
         def value_to_list(value):
             """Tiny helper function to convert column values to lists."""
-            if value is None or type(value) == list:
+            if value is None or type(value) is list:
                 return value
             return [value]
 
@@ -1016,14 +1026,13 @@ class TestRunFailingRowMetadata:
                 wen=value_to_list(failing_row.get(WEN_FIELD)),
                 problematic_fields={
                     key: val
-                    for key, val
-                    in failing_row.items()
+                    for key, val in failing_row.items()
                     # Use possible_fixed_fieldnames to avoid having to
                     # recompute the exact fixed fieldnames on every iteration
                     # (we could also solve this by expanding out the list
                     # comprehension, but for now this is easier)
                     if key not in test_category.possible_fixed_fieldnames
-                }
+                },
             )
             for test_category in test_categories
             for test_result in test_category.test_results
@@ -1036,6 +1045,11 @@ class TestRunFailingRowMetadata:
         output_data = dataclasses.asdict(self)
         # Serialize the "class" attribute to a more human-friendly name
         output_data["class"] = output_data.pop("class_")
+        # Dump the problematic fields to string, since parquet can't handle
+        # the notion of an untyped JSON object
+        output_data["problematic_fields"] = json.dumps(
+            output_data["problematic_fields"]
+        )
         return output_data
 
 
@@ -1146,9 +1160,14 @@ def get_test_categories(
     conn = pyathena.connect(
         s3_staging_dir=AWS_ATHENA_S3_STAGING_DIR,
         region_name="us-east-1",
-        cursor_class=pyathena.cursor.DictCursor,
     )
-    cursor = conn.cursor()
+    # Define a regular cursor for simple queries
+    dict_cursor = conn.cursor(pyathena.cursor.DictCursor)
+    # Define a cursor with unload=True which we'll use to get more detailed
+    # column information for more complex queries. This is particularly
+    # important when requesting aggregated columns, which otherwise are
+    # deserialized incorrectly by the DictCursor
+    arrow_cursor = conn.cursor(pyathena.arrow.cursor.ArrowCursor, unload=True)
 
     tests_by_category: typing.Dict[str, TestCategory] = {}
 
@@ -1204,9 +1223,9 @@ def get_test_categories(
             relation_name_unquoted = test_results_relation_name.replace(
                 '"', "`"
             )
-            cursor.execute(f"show columns in {relation_name_unquoted}")
+            dict_cursor.execute(f"show columns in {relation_name_unquoted}")
             # SHOW COLUMNS often returns field names with trailing whitespace
-            fieldnames = [row["field"].strip() for row in cursor]
+            fieldnames = [row["field"].strip() for row in dict_cursor]
 
             # Construct the query to select the test results that were stored
             # in Athena. We want to rehydrate a few fields like township_code
@@ -1307,8 +1326,10 @@ def get_test_categories(
                 f"{test_results_join}"
                 f"{test_results_filter}"
             )
-            cursor.execute(test_results_query)
-            query_results = cursor.fetchall()
+            # Use the cursor with unload=True in this query, since otherwise
+            # aggregated columns can be deserialized incorrectly
+            arrow_cursor.execute(test_results_query)
+            query_results = arrow_cursor.as_arrow().to_pylist()
             if len(query_results) == 0:
                 msg = (
                     f"Test {test_name} has status {status!r} but no failing "
