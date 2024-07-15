@@ -235,6 +235,24 @@ models:
               (year >= '2021' OR (
               year = '2020' AND stage_name = 'BOR CERTIFIED')
               )
+      - accepted_range:
+          name: reporting_vw_pin_value_long_exempt_parcels_values
+          column_name: tot
+          config:
+            tags:
+              - test_qc_iasworld
+          max_value: 1
+          where: |
+            class = 'EX' AND CAST(year AS int) = {{ var('test_qc_year_start') }}
+          additional_select_columns:
+            - {column: pin, alias: parid}
+            - class
+            - stage_name
+            - {column: year, alias: taxyr}
+          meta:
+            table_name: asmt_all
+            description: exempt parcels should not have AVs greater than 1
+            TEST_CATEGORIES: test_accepted_range
 
   - name: reporting.vw_top_5
     description: '{{ doc("view_vw_top_5") }}'
