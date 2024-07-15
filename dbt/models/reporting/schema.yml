@@ -235,7 +235,7 @@ models:
               (year >= '2021' OR (
               year = '2020' AND stage_name = 'BOR CERTIFIED')
               )
-      - accepted_range::
+      - accepted_range:
           name: reporting_vw_pin_value_long_exempt_parcels_values
           column_name: tot
           config:
