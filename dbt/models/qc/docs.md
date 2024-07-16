@@ -40,11 +40,15 @@ Pulled from the following Inquire queries:
 # vw_neg_asmt_value
 
 {% docs view_vw_neg_asmt_value %}
-Test that all `ASMT.val*` columns are not negative.
+Pull `ASMT.val*` columns to support tests confirming they are not negative.
 
 Pulled from the following Inquire queries:
 
 - `FP Checklist - Negative ASMT Values` (#1569) - Will C.
+
+In contrast to `qc.vw_report_neg_asmt_value`, this view does not perform
+any filtering for negative values. That filtering is performed in tests
+defined on the model.
 {% enddocs %}
 
 # vw_iasworld_sales_null_values
@@ -89,6 +93,19 @@ Test if selected classes have sales prices greater than $20,000,000 in
 Test if prices in `iasworld.sales` and `sale.mydec` for matched sales are
 different.
 
+{% enddocs %}
+
+# vw_report_neg_asmt_value
+
+{% docs view_vw_report_neg_asmt_value %}
+Check for `ASMT.val*` columns that are negative.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Negative ASMT Values` (#1569) - Will C.
+
+In contrast to `qc.vw_neg_asmt_value`, this view directly performs filtering
+for negative values.
 {% enddocs %}
 
 # vw_sale_mydec_null_values
