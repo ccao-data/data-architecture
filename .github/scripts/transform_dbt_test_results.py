@@ -1002,7 +1002,10 @@ class TestRunFailingRowMetadata:
         run_year = run_date[:4]
 
         def value_to_list(value):
-            """Tiny helper function to convert column values to lists."""
+            """Tiny helper function to convert not-null column values to lists.
+            Useful in cases where a column can be either a scalar, a list,
+            or a null value, in which cases we want the output to always be
+            either a null value or a list."""
             if value is None or type(value) is list:
                 return value
             return [value]
