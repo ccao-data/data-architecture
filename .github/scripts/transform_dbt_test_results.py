@@ -1160,17 +1160,14 @@ def get_test_categories(
     run_results.json file dict and a manifest.json file dict) and an optional
     township filter, generates a list of TestCategory objects storing the
     results of the tests."""
-    conn = pyathena.connect(
+    # Define a cursor with unload=True to output query results as parquet.
+    # This is particularly important when selecting aggregated columns,
+    # which are deserialized incorrectly by regular cursors
+    cursor = pyathena.connect(
         s3_staging_dir=AWS_ATHENA_S3_STAGING_DIR,
         region_name="us-east-1",
-    )
-    # Define a regular cursor for simple queries
-    dict_cursor = conn.cursor(pyathena.cursor.DictCursor)
-    # Define a cursor with unload=True which we'll use to get more detailed
-    # column information for more complex queries. This is particularly
-    # important when requesting aggregated columns, which otherwise are
-    # deserialized incorrectly by the DictCursor
-    arrow_cursor = conn.cursor(pyathena.arrow.cursor.ArrowCursor, unload=True)
+        cursor_class=pyathena.arrow.cursor.ArrowCursor,
+    ).cursor(unload=True)
 
     tests_by_category: typing.Dict[str, TestCategory] = {}
 
@@ -1226,9 +1223,9 @@ def get_test_categories(
             relation_name_unquoted = test_results_relation_name.replace(
                 '"', "`"
             )
-            dict_cursor.execute(f"show columns in {relation_name_unquoted}")
+            cursor.execute(f"show columns in {relation_name_unquoted}")
             # SHOW COLUMNS often returns field names with trailing whitespace
-            fieldnames = [row["field"].strip() for row in dict_cursor]
+            fieldnames = [row[0].strip() for row in cursor]
 
             # Construct the query to select the test results that were stored
             # in Athena. We want to rehydrate a few fields like township_code
@@ -1331,8 +1328,8 @@ def get_test_categories(
             )
             # Use the cursor with unload=True in this query, since otherwise
             # aggregated columns can be deserialized incorrectly
-            arrow_cursor.execute(test_results_query)
-            query_results = arrow_cursor.as_arrow().to_pylist()
+            cursor.execute(test_results_query)
+            query_results = cursor.as_arrow().to_pylist()
             if len(query_results) == 0:
                 msg = (
                     f"Test {test_name} has status {status!r} but no failing "
