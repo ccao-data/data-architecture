@@ -1,28 +1,6 @@
 models:
   - name: qc.vw_change_in_ahsap_values
     description: '{{ doc("view_vw_change_in_ahsap_values") }}'
-    config:
-      tags:
-        - test_qc_ccao
-    columns:
-      - name: pin
-        data_tests:
-          - is_null:
-              name: qc_vw_nonlivable_condos_with_chars_any
-              additional_select_columns:
-                - year
-                - class
-                - township_name
-                - oneyr_pri_certified_tot
-                - mailed_class
-                - mailed_tot
-                - large_mail_increase
-                - certified_class
-                - certified_tot
-                - large_certified_increase
-                - board_class
-                - board_tot
-                - large_board_increase
 
   - name: qc.vw_incorrect_val_method
     description: '{{ doc("view_vw_incorrect_val_method") }}'

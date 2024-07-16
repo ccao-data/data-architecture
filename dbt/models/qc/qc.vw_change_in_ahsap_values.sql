@@ -22,4 +22,6 @@ WHERE ahsap.ahsap
         OR hist.certified_tot > hist.mailed_tot * 1.2
         OR hist.board_tot > hist.certified_tot * 1.2
     )
-    AND hist.year >= (SELECT MAX(taxyr) FROM iasworld.asmt_all)
+    AND CAST(
+        hist.year AS INT
+    ) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
