@@ -609,6 +609,14 @@ models:
                 description: valasm3 (ASMT TOTAL) should not be negative
               <<: *test-non-negative
 
+  - name: qc.vw_report_neg_asmt_value
+    description: '{{ doc("view_vw_report_neg_asmt_value") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Negative ASMT values
+
   - name: qc.vw_change_in_high_low_value_sales
     description: '{{ doc("view_vw_change_in_high_low_value_sales") }}'
     config:
