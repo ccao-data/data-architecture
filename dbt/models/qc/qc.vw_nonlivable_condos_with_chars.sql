@@ -1,5 +1,5 @@
--- View collects condo parcels that have been identified as non-livable but
--- have associated characteristics provided by data integrity.
+-- View collects condo parcels that have been identified as nonlivable but have
+-- associated characteristics provided by data integrity.
 SELECT
     condos.pin,
     condos.year,
