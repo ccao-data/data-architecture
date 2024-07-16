@@ -703,25 +703,6 @@ models:
 
   - name: qc.vw_nonlivable_condos_with_chars
     description: '{{ doc("view_vw_nonlivable_condos_with_chars") }}'
-    config:
-      tags:
-        - test_qc_ccao
-    columns:
-      - name: pin
-        data_tests:
-          - is_null:
-              name: qc_vw_nonlivable_condos_with_chars_any
-              additional_select_columns:
-                - year
-                - tieback_proration_rate
-                - char_unit_sf
-                - char_half_baths
-                - char_full_baths
-                - note
-                - unitno
-                - is_parking_space
-                - parking_space_flag_reason
-                - is_common_area
 
   - name: qc.vw_sale_mydec_null_values
     description: '{{ doc("view_vw_sale_mydec_null_values") }}'

@@ -87,7 +87,7 @@ different.
 # vw_nonlivable_condos_with_chars
 
 {% docs view_vw_nonlivable_condos_with_chars %}
-Test that nonlivable condo units don't have associated characteristics.
+Test whether nonlivable condo units have associated characteristics.
 
 {% enddocs %}
 
