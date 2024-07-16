@@ -1,4 +1,7 @@
 models:
+  - name: qc.vw_change_in_ahsap_values
+    description: '{{ doc("view_vw_change_in_ahsap_values") }}'
+
   - name: qc.vw_incorrect_val_method
     description: '{{ doc("view_vw_incorrect_val_method") }}'
     config:

@@ -1,3 +1,14 @@
+# vw_change_in_ahsap_values
+
+{% docs view_vw_change_in_ahsap_values %}
+Test whether AHSAP properties have had large increases in AV between two
+stages. Only applies to most recent year of assessment roll.
+
+For an explanation of AHSAP and insight into why it involves so many different
+iasWorld tables, see: https://www.cookcountyassessor.com/affordable-housing
+
+{% enddocs %}
+
 # vw_change_in_high_low_value_sales
 
 {% docs view_vw_change_in_high_low_value_sales %}
