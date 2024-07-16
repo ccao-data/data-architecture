@@ -91,11 +91,6 @@ Test that nonlivable condo units don't have associated characteristics.
 
 {% enddocs %}
 
-# vw_nonlivable_condos_with_chars
-
-{% docs view_vw_nonlivable_condos_with_chars %}
-Test that nonlivable condo units don't have associated characteristics.
-
 # vw_report_neg_asmt_value
 
 {% docs view_vw_report_neg_asmt_value %}
