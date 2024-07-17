@@ -704,6 +704,9 @@ models:
                   proportion of sales where seller is null should not exceed 10%
               <<: *sales-null-values
 
+  - name: qc.vw_nonlivable_condos_with_chars
+    description: '{{ doc("view_vw_nonlivable_condos_with_chars") }}'
+
   - name: qc.vw_sale_mydec_null_values
     description: '{{ doc("view_vw_sale_mydec_null_values") }}'
     config:

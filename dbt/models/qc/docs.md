@@ -95,6 +95,15 @@ different.
 
 {% enddocs %}
 
+# vw_nonlivable_condos_with_chars
+
+{% docs view_vw_nonlivable_condos_with_chars %}
+Collects nonlivable condo units with associated characteristics. Nonlivable
+units should not have characteristics, so these discrepencies should be
+investigated.
+
+{% enddocs %}
+
 # vw_report_neg_asmt_value
 
 {% docs view_vw_report_neg_asmt_value %}
