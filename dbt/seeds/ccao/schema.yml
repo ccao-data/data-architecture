@@ -2,7 +2,7 @@ seeds:
   - name: ccao.adjective
     description: '{{ doc("seed_adjective") }}'
 
-  - name: ccao.aprvl.reascd
+  - name: ccao.aprvl_reascd
     description: '{{ doc("seed_aprval_reascd") }}'
 
   - name: ccao.class_dict
