@@ -3,12 +3,6 @@ sources:
     tags:
       - load_manual
     tables:
-      - name: class_dict
-        description: '{{ doc("table_class_dict") }}'
-        columns:
-          - name: class_code
-            description: '{{ doc("shared_column_class") }}'
-
       - name: commercial_valuation
         description: '{{ doc("table_commercial_valuation") }}'
         tags:
