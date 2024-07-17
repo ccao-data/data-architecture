@@ -195,5 +195,5 @@ LEFT JOIN change_reasons AS reasons
     ON vals.pin = reasons.pin
     AND vals.year = reasons.year
     AND vals.stage_name = reasons.stage_name
-LEFT JOIN ccao.aprval_reascd AS descr
+LEFT JOIN {{ ref('ccao.aprval_reascd') }} AS descr
     ON reasons.reascd = descr.reascd
