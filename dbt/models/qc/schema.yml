@@ -868,3 +868,10 @@ models:
               AND procdate NOT BETWEEN '2023-12-19 18:25:28.0' and '2023-12-20 15:07:44.0'
           meta:
             description: asmt_all should be unique by parid, procname, and taxyr
+
+  - name: qc.vw_0_land_value
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: 0 land value

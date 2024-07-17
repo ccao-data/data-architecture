@@ -198,7 +198,7 @@ def main():
                 ),
             )
             table.tableStyleInfo = TableStyleInfo(
-                name="TableStyleMedium7", showRowStripes=True
+                name="TableStyleMedium11", showRowStripes=True
             )
             sheet.add_table(table)
 
