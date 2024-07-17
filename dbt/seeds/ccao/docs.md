@@ -8,6 +8,15 @@ sourced from Docker.
 **Primary Key**: `adjective`
 {% enddocs %}
 
+# aprval.reascd
+
+{% docs seed_aprval.reascd %}
+Table containing descriptions for reason codes from `iasworld.aprval.reascd`.
+Reason codes pertian to changes in AV.
+
+**Primary Key**: `reascd`
+{% enddocs %}
+
 # class_dict
 
 {% docs seed_class_dict %}
