@@ -19,7 +19,7 @@ sources:
             data_tests:
               - relationships:
                   name: iasworld_asmt_all_class_in_ccao_class_dict
-                  to: source('ccao', 'class_dict')
+                  to: ref('ccao.class_dict')
                   field: class_code
                   additional_select_columns: &select-columns
                     - taxyr
