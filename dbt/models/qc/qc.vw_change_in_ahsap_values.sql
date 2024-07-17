@@ -13,8 +13,8 @@ SELECT
     hist.board_class,
     hist.board_tot,
     hist.board_tot > hist.certified_tot * 1.2 AS large_board_increase
-FROM default.vw_pin_history AS hist
-INNER JOIN reporting.vw_pin_township_class AS ahsap
+FROM {{ ref('default.vw_pin_history') }} AS hist
+INNER JOIN {{ ref('reporting.vw_pin_township_class') }} AS ahsap
     ON hist.pin = ahsap.pin AND hist.year = ahsap.year
 WHERE ahsap.ahsap
     AND (
