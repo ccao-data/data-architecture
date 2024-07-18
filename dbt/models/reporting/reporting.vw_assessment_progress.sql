@@ -50,7 +50,15 @@ trimmed_geos AS (
     SELECT
         vpu.pin,
         vpu.year,
-        vpu.tax_municipality_name AS municipality_name,
+        ARRAY_JOIN(vpu.tax_municipality_name, ', ') AS municipality_name,
+        ARRAY_JOIN(
+            vpu.tax_school_elementary_district_name, ', ') AS
+        school_elementary_district_name,
+        ARRAY_JOIN(
+            vpu.tax_school_secondary_district_name, ', ') AS
+        school_secondary_district_name,
+        ARRAY_JOIN(vpu.tax_school_unified_district_name, ', ')
+            AS school_unified_district_name,
         CASE
             WHEN
                 vpu.ward_chicago_data_year IS NOT NULL
@@ -100,14 +108,14 @@ to see in reporting.vw_pin_value_long. */
 muni_pin_counts AS (
     SELECT
         'Municipality' AS geo_type,
-        ARRAY_JOIN(vpu.municipality_name, ', ') AS geo_id,
+        vpu.municipality_name AS geo_id,
         vpu.year,
         vpu.stage_name,
         vpu.stage_num,
         COUNT(*) AS total_n,
         SUM(vpu.has_value) AS num_pin_w_value
     FROM expanded_geos2 AS vpu
-    WHERE vpu.municipality_name IS NOT NULL
+    WHERE vpu.municipality_name != ''
     GROUP BY
         vpu.municipality_name,
         vpu.year,
@@ -115,9 +123,6 @@ muni_pin_counts AS (
         vpu.stage_num
 ),
 
-/* Calculate the denominator for the pct_pin_w_value_in_group column.
-default.vw_pin_universe serves as the universe of yearly PINs we expect
-to see in reporting.vw_pin_value_long. */
 ward_pin_counts AS (
     SELECT
         'Chicago Ward' AS geo_type,
@@ -136,11 +141,71 @@ ward_pin_counts AS (
         vpu.stage_num
 ),
 
+elementary_pin_counts AS (
+    SELECT
+        'Elementary School District' AS geo_type,
+        vpu.school_elementary_district_name AS geo_id,
+        vpu.year,
+        vpu.stage_name,
+        vpu.stage_num,
+        COUNT(*) AS total_n,
+        SUM(vpu.has_value) AS num_pin_w_value
+    FROM expanded_geos2 AS vpu
+    WHERE vpu.school_elementary_district_name != ''
+    GROUP BY
+        vpu.school_elementary_district_name,
+        vpu.year,
+        vpu.stage_name,
+        vpu.stage_num
+),
+
+secondary_pin_counts AS (
+    SELECT
+        'Secondary School District' AS geo_type,
+        vpu.school_secondary_district_name AS geo_id,
+        vpu.year,
+        vpu.stage_name,
+        vpu.stage_num,
+        COUNT(*) AS total_n,
+        SUM(vpu.has_value) AS num_pin_w_value
+    FROM expanded_geos2 AS vpu
+    WHERE vpu.school_secondary_district_name != ''
+    GROUP BY
+        vpu.school_secondary_district_name,
+        vpu.year,
+        vpu.stage_name,
+        vpu.stage_num
+),
+
+unified_pin_counts AS (
+    SELECT
+        'Unified School District' AS geo_type,
+        vpu.school_unified_district_name AS geo_id,
+        vpu.year,
+        vpu.stage_name,
+        vpu.stage_num,
+        COUNT(*) AS total_n,
+        SUM(vpu.has_value) AS num_pin_w_value
+    FROM expanded_geos2 AS vpu
+    WHERE vpu.school_unified_district_name != ''
+    GROUP BY
+        vpu.school_unified_district_name,
+        vpu.year,
+        vpu.stage_name,
+        vpu.stage_num
+),
+
 pin_counts AS (
 
     SELECT * FROM muni_pin_counts
     UNION ALL
     SELECT * FROM ward_pin_counts
+    UNION ALL
+    SELECT * FROM elementary_pin_counts
+    UNION ALL
+    SELECT * FROM secondary_pin_counts
+    UNION ALL
+    SELECT * FROM unified_pin_counts
 )
 
 /* Calculate total and median values by municipality, as well as the portion of
