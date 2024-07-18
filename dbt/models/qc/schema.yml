@@ -903,3 +903,10 @@ models:
         - qc_report_town_close
     meta:
       export_name: Class does not equal LUC
+
+  - name: qc.vw_report_town_close_res_parcels_not_set_to_cost_approach
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Res parcels not set to cost approach
