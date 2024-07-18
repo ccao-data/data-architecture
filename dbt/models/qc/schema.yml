@@ -910,3 +910,10 @@ models:
         - qc_report_town_close
     meta:
       export_name: Res parcels not set to cost approach
+
+  - name: qc.vw_report_town_close_res_ovrrcnlds_to_review
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: OVRRCNLDs discrepancy checks
