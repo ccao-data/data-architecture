@@ -98,6 +98,9 @@ models:
           - property_group
           - assessment_stage
 
+  - name: reporting.vw_assessment_progress
+    description: '{{ doc("view_vw_assessment_progress") }}'
+
   - name: reporting.vw_assessment_roll
     description: '{{ doc("view_vw_assessment_roll") }}'
     data_tests:
