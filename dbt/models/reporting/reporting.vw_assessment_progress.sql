@@ -101,41 +101,40 @@ expanded_geos2 AS (
         AND expanded_geos1.stage_name = vpvl.stage_name
 ),
 
-
 /* Calculate the denominator for the pct_pin_w_value_in_group column.
 default.vw_pin_universe serves as the universe of yearly PINs we expect
 to see in reporting.vw_pin_value_long. */
-muni_pin_counts AS ({{ assessment_progress_pin_count(
-        from = 'expanded_geos2', geo_type = 'Municipality', column_name = 'municipality_name'
-        ) }}),
-
-ward_pin_counts AS ({{ assessment_progress_pin_count(
-        from = 'expanded_geos2', geo_type = 'Chicago Ward', column_name = 'chicago_ward_name'
-        ) }}),
-
-elementary_pin_counts AS ({{ assessment_progress_pin_count(
-        from = 'expanded_geos2', geo_type = 'Elementary School District', column_name = 'school_elementary_district_name'
-        ) }}),
-
-secondary_pin_counts AS ({{ assessment_progress_pin_count(
-        from = 'expanded_geos2', geo_type = 'Secondary School District', column_name = 'school_secondary_district_name'
-        ) }}),
-
-unified_pin_counts AS ({{ assessment_progress_pin_count(
-        from = 'expanded_geos2', geo_type = 'Unified School District', column_name = 'school_unified_district_name'
-        ) }}),
-
 pin_counts AS (
 
-    SELECT * FROM muni_pin_counts
+    {{ assessment_progress_pin_count(
+            from = 'expanded_geos2',
+            geo_type = 'Municipality',
+            column_name = 'municipality_name'
+            ) }}
     UNION ALL
-    SELECT * FROM ward_pin_counts
+    {{ assessment_progress_pin_count(
+            from = 'expanded_geos2',
+            geo_type = 'Chicago Ward',
+            column_name = 'chicago_ward_name'
+            ) }}
     UNION ALL
-    SELECT * FROM elementary_pin_counts
+    {{ assessment_progress_pin_count(
+            from = 'expanded_geos2',
+            geo_type = 'Elementary School District',
+            column_name = 'school_elementary_district_name'
+            ) }}
     UNION ALL
-    SELECT * FROM secondary_pin_counts
+    {{ assessment_progress_pin_count(
+            from = 'expanded_geos2',
+            geo_type = 'Secondary School District',
+            column_name = 'school_secondary_district_name'
+            ) }}
     UNION ALL
-    SELECT * FROM unified_pin_counts
+    {{ assessment_progress_pin_count(
+            from = 'expanded_geos2',
+            geo_type = 'Unified School District',
+            column_name = 'school_unified_district_name'
+            ) }}
 )
 
 /* Calculate total and median values by municipality, as well as the portion of
