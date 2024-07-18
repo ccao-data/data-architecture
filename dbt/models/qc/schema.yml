@@ -916,3 +916,10 @@ models:
         - qc_report_town_close
     meta:
       export_name: OVRRCNLDs discrepancy checks
+
+  - name: qc.vw_report_town_close_bldg_parcel_class_mismatch
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Bldg parcel class mismatch
