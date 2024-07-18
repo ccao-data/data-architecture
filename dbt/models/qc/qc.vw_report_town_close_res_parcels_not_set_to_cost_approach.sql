@@ -4,7 +4,7 @@ SELECT
     legdat.user1 AS township_code,
     pardat.class,
     aprval.revcode,
-    aprval.reascd,
+    aprval.reascd AS reason_for_change,
     aprval.aprland,
     aprval.aprbldg,
     aprval.aprtot,

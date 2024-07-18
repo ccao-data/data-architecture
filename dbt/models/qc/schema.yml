@@ -2,33 +2,6 @@ models:
   - name: qc.vw_change_in_ahsap_values
     description: '{{ doc("view_vw_change_in_ahsap_values") }}'
 
-  - name: qc.vw_incorrect_val_method
-    description: '{{ doc("view_vw_incorrect_val_method") }}'
-    config:
-      tags:
-        - test_qc_inquire
-    columns:
-      - name: revcode
-        data_tests:
-          # Equivalent to Res parcels not set to Cost Approach from FP Checklist
-          - accepted_values:
-              name: qc_vw_incorrect_val_method_revcode_eq_1
-              values: ['1']
-              additional_select_columns:
-                - taxyr
-                - parid
-                - class
-                - township_code
-                - who
-                - wen
-              config:
-                where: |
-                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                  AND class LIKE '2%'
-              meta:
-                table_name: aprval
-                description: revcode should be '1' for 200-class parcels
-
   - name: qc.vw_neg_asmt_value
     description: '{{ doc("view_vw_neg_asmt_value") }}'
     config:
@@ -910,6 +883,32 @@ models:
         - qc_report_town_close
     meta:
       export_name: Res parcels not set to cost approach
+    columns:
+      - name: revcode
+        data_tests:
+          # Equivalent to Res parcels not set to Cost Approach from FP Checklist.
+          # The is_null test works here because the view is already filtered for
+          # rows where revcode is null or != '1', and since this test is not
+          # interested in nulls, checking is_null will effectively return all
+          # rows where revcode != '1'
+          - is_null:
+              name: qc_vw_incorrect_val_method_revcode_eq_1
+              additional_select_columns:
+                - taxyr
+                - parid
+                - class
+                - township_code
+                - who
+                - wen
+              config:
+                tags:
+                  - test_qc_inquire
+                where: |
+                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+              meta:
+                table_name: aprval
+                description: revcode should be '1' for 200-class parcels
+                category: incorrect_values
 
   - name: qc.vw_report_town_close_res_ovrrcnlds_to_review
     config:
