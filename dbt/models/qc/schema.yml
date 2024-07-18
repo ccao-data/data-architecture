@@ -612,14 +612,6 @@ models:
                 description: valasm3 (ASMT TOTAL) should not be negative
               <<: *test-non-negative
 
-  - name: qc.vw_report_neg_asmt_value
-    description: '{{ doc("view_vw_report_neg_asmt_value") }}'
-    config:
-      tags:
-        - qc_report_town_close
-    meta:
-      export_name: Negative ASMT values
-
   - name: qc.vw_change_in_high_low_value_sales
     description: '{{ doc("view_vw_change_in_high_low_value_sales") }}'
     config:
@@ -869,9 +861,45 @@ models:
           meta:
             description: asmt_all should be unique by parid, procname, and taxyr
 
-  - name: qc.vw_0_land_value
+  - name: qc.vw_report_town_close_neg_asmt_value
+    description: '{{ doc("view_vw_report_town_close_neg_asmt_value") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Negative ASMT values
+
+  - name: qc.vw_report_town_close_0_land_value
     config:
       tags:
         - qc_report_town_close
     meta:
       export_name: 0 land value
+
+  - name: qc.vw_report_town_close_0_value
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: 0 value
+
+  - name: qc.vw_report_town_close_vacant_class_with_bldg_value
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Vacant class, bldg value
+
+  - name: qc.vw_report_town_close_improved_class_without_bldg_value
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Improved class, no bldg value
+
+  - name: qc.vw_report_town_close_class_does_not_equal_luc
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Class does not equal LUC

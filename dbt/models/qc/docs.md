@@ -104,10 +104,13 @@ investigated.
 
 {% enddocs %}
 
-# vw_report_neg_asmt_value
+# vw_report_town_close_neg_asmt_value
 
-{% docs view_vw_report_neg_asmt_value %}
+{% docs view_vw_report_town_close_neg_asmt_value %}
 Check for `ASMT.val*` columns that are negative.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
 
 Pulled from the following Inquire queries:
 

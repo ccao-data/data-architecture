@@ -3,6 +3,7 @@ SELECT
     asmt.taxyr,
     legdat.user1 AS township_code,
     pardat.class,
+    pardat.luc,
     owndat.own1,
     aprval.reascd,
     aprval.who,
@@ -48,5 +49,3 @@ LEFT JOIN {{ source('iasworld', 'aprval') }} AS aprval
 WHERE asmt.cur = 'Y'
     AND asmt.deactivat IS NULL
     AND asmt.valclass IS NULL
-    AND pardat.class NOT IN ('EX', 'RR')
-    AND asmt.valasm1 = 0
