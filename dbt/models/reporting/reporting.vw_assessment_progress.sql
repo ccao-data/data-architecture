@@ -105,95 +105,25 @@ expanded_geos2 AS (
 /* Calculate the denominator for the pct_pin_w_value_in_group column.
 default.vw_pin_universe serves as the universe of yearly PINs we expect
 to see in reporting.vw_pin_value_long. */
-muni_pin_counts AS (
-    SELECT
-        'Municipality' AS geo_type,
-        vpu.municipality_name AS geo_id,
-        vpu.year,
-        vpu.stage_name,
-        vpu.stage_num,
-        COUNT(*) AS total_n,
-        SUM(vpu.has_value) AS num_pin_w_value
-    FROM expanded_geos2 AS vpu
-    WHERE vpu.municipality_name != ''
-    GROUP BY
-        vpu.municipality_name,
-        vpu.year,
-        vpu.stage_name,
-        vpu.stage_num
-),
+muni_pin_counts AS ({{ assessment_progress_pin_count(
+        from = 'expanded_geos2', geo_type = 'Municipality', column_name = 'municipality_name'
+        ) }}),
 
-ward_pin_counts AS (
-    SELECT
-        'Chicago Ward' AS geo_type,
-        vpu.chicago_ward_name AS geo_id,
-        vpu.year,
-        vpu.stage_name,
-        vpu.stage_num,
-        COUNT(*) AS total_n,
-        SUM(vpu.has_value) AS num_pin_w_value
-    FROM expanded_geos2 AS vpu
-    WHERE vpu.chicago_ward_name IS NOT NULL
-    GROUP BY
-        vpu.chicago_ward_name,
-        vpu.year,
-        vpu.stage_name,
-        vpu.stage_num
-),
+ward_pin_counts AS ({{ assessment_progress_pin_count(
+        from = 'expanded_geos2', geo_type = 'Chicago Ward', column_name = 'chicago_ward_name'
+        ) }}),
 
-elementary_pin_counts AS (
-    SELECT
-        'Elementary School District' AS geo_type,
-        vpu.school_elementary_district_name AS geo_id,
-        vpu.year,
-        vpu.stage_name,
-        vpu.stage_num,
-        COUNT(*) AS total_n,
-        SUM(vpu.has_value) AS num_pin_w_value
-    FROM expanded_geos2 AS vpu
-    WHERE vpu.school_elementary_district_name != ''
-    GROUP BY
-        vpu.school_elementary_district_name,
-        vpu.year,
-        vpu.stage_name,
-        vpu.stage_num
-),
+elementary_pin_counts AS ({{ assessment_progress_pin_count(
+        from = 'expanded_geos2', geo_type = 'Elementary School District', column_name = 'school_elementary_district_name'
+        ) }}),
 
-secondary_pin_counts AS (
-    SELECT
-        'Secondary School District' AS geo_type,
-        vpu.school_secondary_district_name AS geo_id,
-        vpu.year,
-        vpu.stage_name,
-        vpu.stage_num,
-        COUNT(*) AS total_n,
-        SUM(vpu.has_value) AS num_pin_w_value
-    FROM expanded_geos2 AS vpu
-    WHERE vpu.school_secondary_district_name != ''
-    GROUP BY
-        vpu.school_secondary_district_name,
-        vpu.year,
-        vpu.stage_name,
-        vpu.stage_num
-),
+secondary_pin_counts AS ({{ assessment_progress_pin_count(
+        from = 'expanded_geos2', geo_type = 'Secondary School District', column_name = 'school_secondary_district_name'
+        ) }}),
 
-unified_pin_counts AS (
-    SELECT
-        'Unified School District' AS geo_type,
-        vpu.school_unified_district_name AS geo_id,
-        vpu.year,
-        vpu.stage_name,
-        vpu.stage_num,
-        COUNT(*) AS total_n,
-        SUM(vpu.has_value) AS num_pin_w_value
-    FROM expanded_geos2 AS vpu
-    WHERE vpu.school_unified_district_name != ''
-    GROUP BY
-        vpu.school_unified_district_name,
-        vpu.year,
-        vpu.stage_name,
-        vpu.stage_num
-),
+unified_pin_counts AS ({{ assessment_progress_pin_count(
+        from = 'expanded_geos2', geo_type = 'Unified School District', column_name = 'school_unified_district_name'
+        ) }}),
 
 pin_counts AS (
 
