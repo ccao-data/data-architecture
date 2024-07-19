@@ -8,6 +8,7 @@ import multiprocessing as mp  # noqa
 
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
+import pyspark.pandas as ps
 import statsmodels.api as sm  # noqa: E402
 from pandas.api.types import is_numeric_dtype  # noqa: E402
 
@@ -82,210 +83,40 @@ def prd_boot(assessed, sale_price, nboot=100, alpha=0.05):
     )
 
 
+# Spark API function
+# Define CCAO-specific functions that work with Spark
 def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
-    """
-    Calculate the non-parametric bootstrap confidence interval
-    for a given numeric input and a chosen function.
-
-    :param fun:
-        Function to bootstrap. Must return a single value.
-    :param nboot:
-        Default 100. Number of iterations to use to estimate
-        the output statistic confidence interval.
-    :param alpha:
-        Default 0.05. Numeric value indicating the confidence
-        interval to return. 0.05 will return the 95% confidence interval.
-    :param kwargs:
-        Arguments passed on to ``fun``.
-    :type fun: function
-    :type nboot: int
-    :type alpha: float
-    :type kwargs: numeric
-
-    .. note::
-       Input function should require 1 argument or be ``assesspy.prd()``.
-
-    :return:
-        A two-long list of floats containing the bootstrapped confidence
-        interval of the input vector(s).
-    :rtype: list[float]
-
-    :Example:
-
-    .. code-block:: python
-
-        # Calculate PRD confidence interval:
-        import assesspy as ap
-
-        ap.boot_ci(
-            ap.prd,
-            assessed = ap.ratios_sample().assessed,
-            sale_price = ap.ratios_sample().sale_price,
-            nboot = 100
-            )
-    """
-
-    # Make sure prd is passed arguments in correct order
-    if fun.__name__ == "prd" and set(["assessed", "sale_price"]).issubset(
-        kwargs.keys()
-    ):
-        kwargs = (kwargs["assessed"], kwargs["sale_price"])
-    elif fun.__name__ == "prd" and not set(
-        ["assessed", "sale_price"]
-    ).issubset(kwargs.keys()):
-        raise Exception(
-            "PRD function expects argurments 'assessed' and 'sale_price'."
-        )
-    else:
-        kwargs = tuple(kwargs.values())
-
-    check_inputs(kwargs)  # Input checking and error handling
-
     num_kwargs = len(kwargs)
-    kwargs = pd.DataFrame(kwargs).T
+    kwargs = pd.DataFrame(kwargs)
     n = len(kwargs)
 
-    # Check that the input function returns a numeric vector
-    out = (
-        fun(kwargs.iloc[:, 0])
-        if num_kwargs < 2
-        else fun(kwargs.iloc[:, 0], kwargs.iloc[:, 1])
-    )
-    if not is_numeric_dtype(out):
-        raise Exception("Input function outputs non-numeric datatype.")
-
-    data_array = kwargs.to_numpy()
-
-    def bootstrap_worker(
-        data_array, fun, num_kwargs, n, nboot, start, end, result_queue, seed
-    ):
-        np.random.seed(seed)
-        ests = []
-        for _ in range(start, end):
-            sample_indices = np.random.choice(
-                data_array.shape[0], size=n, replace=True
+    ests = []
+    for i in list(range(1, nboot)):
+        sample = kwargs.sample(n=n, replace=True)
+        if fun.__name__ == "cod" or num_kwargs == 1:
+            ests.append(fun(sample.iloc[:, 0]))
+        elif fun.__name__ in ["prd", "prb", "mki"]:
+            ests.append(fun(sample.iloc[:, 0], sample.iloc[:, 1]))
+        else:
+            raise Exception(
+                "Input function should be one of 'cod', 'prd', 'prb', or 'mki'."
             )
-            sample_array = data_array[sample_indices]
-            if fun.__name__ == "cod" or num_kwargs == 1:
-                ests.append(fun(sample_array[:, 0]))
-            elif fun.__name__ == "prd":
-                ests.append(fun(sample_array[:, 0], sample_array[:, 1]))
-            else:
-                raise Exception(
-                    "Input function should require 1 argument or be assesspy.prd."  # noqa
-                )
-        result_queue.put(ests)
-
-    def parallel_bootstrap(
-        data_array, fun, num_kwargs, n, nboot, num_processes=4
-    ):
-        processes = []
-        result_queue = mp.Queue()
-        chunk_size = nboot // num_processes
-
-        # Generate a base seed
-        base_seed = np.random.randint(0, 2**32 - 1)
-
-        for i in range(num_processes):
-            start = i * chunk_size
-            end = start + chunk_size if i < num_processes - 1 else nboot
-
-            # Generate a unique seed for each process
-            seed = base_seed + i
-
-            p = mp.Process(
-                target=bootstrap_worker,
-                args=(
-                    data_array,
-                    fun,
-                    num_kwargs,
-                    n,
-                    nboot,
-                    start,
-                    end,
-                    result_queue,
-                    seed,
-                ),
-            )
-            processes.append(p)
-            p.start()
-
-        results = []
-        for _ in range(num_processes):
-            results.extend(result_queue.get())
-
-        for p in processes:
-            p.join()
-
-        return results
-
-    ests = parallel_bootstrap(data_array, fun, num_kwargs, n, nboot)
 
     ests = pd.Series(ests)
-
-    # Assuming ests is already a Series
-    first_value_counts = ests.value_counts()
-    second_value_counts = first_value_counts.value_counts().sort_index()
-
-    athena_user_logger.info("Value counts of value counts:")
-    athena_user_logger.info("Frequency | Count")
-    athena_user_logger.info("----------+------")
-    for freq, count in second_value_counts.items():
-        athena_user_logger.info(f"{freq:9d} | {count}")
-    athena_user_logger.info(f"\nData type: {second_value_counts.dtype}")
 
     ci = [ests.quantile(alpha / 2), ests.quantile(1 - alpha / 2)]
 
     return ci
 
 
-def cod(ratio):
-    """
-    COD is the average absolute percent deviation from the
-    median ratio. It is a measure of horizontal equity in assessment.
-    Horizontal equity means properties with a similar fair market value
-    should be similarly assessed.
-
-    Lower COD indicates higher uniformity/horizontal equity in assessment.
-    The IAAO sets uniformity standards that define generally accepted ranges
-    for COD depending on property class. See `IAAO Standard on Ratio Studies`_
-    Section 9.1, Table 1.3 for a full list of standard COD ranges.
-
-    .. _IAAO Standard on Ratio Studies:
-            https://www.iaao.org/media/standards/Standard_on_Ratio_Studies.pdf
-
-    .. note::
-        The IAAO recommends trimming outlier ratios before calculating COD,
-        as it is extremely sensitive to large outliers. The typical method
-        used is dropping values beyond 3 * IQR (inner-quartile range). See
-        `IAAO Standard on Ratio Studies`_ Appendix B.1.
-
-    :param ratio:
-        A numeric vector of ratios centered around 1, where the
-        numerator of the ratio is the estimated fair market value and the
-        denominator is the actual sale price.
-    :type ratio: numeric
-
-    :return: A numeric vector containing the COD of ``ratios``.
-    :rtype: float
-
-    :Example:
-
-    .. code-block:: python
-
-        # Calculate COD:
-        import assesspy as ap
-
-        ap.cod(ap.ratios_sample().ratio)
-    """
-    check_inputs(ratio)
-
-    ratio = np.array(ratio)
-
-    n = ratio.size
-    median_ratio = np.median(ratio)
-    cod = 100 / median_ratio * (sum(abs(ratio - median_ratio)) / n)
-
+# Spark version
+def cod(x):
+    n = x.size
+    median_ratio = x.median()
+    # No numpy in here, as Spark doesn't seem to play well with it
+    ratio_minus_med = x - median_ratio
+    abs_diff_sum = ratio_minus_med.abs().sum()
+    cod = 100 / median_ratio * (abs_diff_sum / n)
     return cod
 
 
@@ -486,6 +317,7 @@ def median_boot(ratio, nboot=100, alpha=0.05):
     return boot_ci(np.median, nboot=nboot, alpha=alpha, ratio=ratio)
 
 
+# Spark compatible
 def ccao_median(x):
     # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
     no_outliers = x.between(
@@ -493,14 +325,9 @@ def ccao_median(x):
     )
 
     x_no_outliers = x[no_outliers]
-
-    median_n = sum(no_outliers)
-
-    median_val = np.median(x_no_outliers)
-    median_ci = median_boot(x_no_outliers, nboot=1000)
-    median_ci = f"{median_ci[0]}, {median_ci[1]}"
-
-    out = [median_val, median_ci, median_n]
+    median_n = x_no_outliers.size
+    median_val = x_no_outliers.median()
+    out = [median_val, median_n]
 
     return out
 
@@ -530,25 +357,23 @@ def ccao_mki(fmv, sale_price):
     return out
 
 
-def ccao_cod(ratio):
-    # Remove top and bottom 5% of ratios as per CCAO Data Department SOPs
-    no_outliers = ratio[
-        ratio.between(
-            ratio.quantile(0.05), ratio.quantile(0.95), inclusive="neither"
-        )
-    ]
+# Spark compatible
+def ccao_cod(x):
+    no_outliers = x.between(
+        x.quantile(0.05), x.quantile(0.95), inclusive="neither"
+    )
 
-    cod_n = no_outliers.size
+    x_no_outliers = x[no_outliers]
+    cod_n = x_no_outliers.size
 
     if cod_n >= 20:
-        cod_val = cod(no_outliers)
-        cod_ci = cod_boot(no_outliers, nboot=1000)
-        cod_ci = f"{cod_ci[0]}, {cod_ci[1]}"
-        met = cod_met(cod_val)
-        out = [cod_val, cod_ci, met, cod_n]
+        cod_val = cod(x_no_outliers)
+        cod_ci = cod_boot(ratio=x_no_outliers.to_numpy(), nboot=100)
+        met = 5 <= cod_val <= 15
+        out = [cod_val, cod_ci[0], cod_ci[1], met, cod_n]
 
     else:
-        out = [None, None, None, cod_n]
+        out = [None, None, None, None, cod_n]
 
     return out
 
@@ -612,7 +437,7 @@ def report_summarise(df, geography_id, geography_type):
     """
     Aggregates data and calculates summary statistics for given groupings
     """
-
+    athena_user_logger.info(f"CHeck report 1")
     group_cols = [
         "year",
         "triad",
@@ -622,32 +447,79 @@ def report_summarise(df, geography_id, geography_type):
         "geography_id",
         "sale_year",
     ]
-
+    athena_user_logger.info(f"CHeck report 2")
     df["geography_id"] = df[geography_id].astype(str)
+    athena_user_logger.info(f"CHeck report 2.5")
     df["geography_type"] = geography_type
-
+    athena_user_logger.info(f"CHeck report 2.6")
     # Remove groups with less than three observations
     # TODO: Remove/upgrade detect_chasing output
 
-    df["n"] = df.groupby(group_cols)["ratio"].transform("count")
-    df = df[df["n"] > 3]
+    # df["n"] = df.groupby(group_cols)["ratio"].transform("count")
+    athena_user_logger.info(f"CHeck report 2.7")
+    # df = df[df["n"] > 3]
+    athena_user_logger.info(f"CHeck report 3")
+
+    df = df.groupby(group_cols).apply(
+        lambda x: pd.Series(
+            {
+                "sale_n": x["triad"].size,
+                **dict(
+                    zip(["median_val", "median_n"], ccao_median(x["ratio"]))
+                ),
+                **dict(
+                    zip(
+                        [
+                            "cod_val",
+                            "cod_ci_l",
+                            "ccao_ci_u",
+                            "cod_met",
+                            "cod_n",
+                        ],
+                        ccao_cod(x["ratio"]),
+                    )
+                ),
+            }
+        )
+    )
+    athena_user_logger.info(f"CHeck report 3.1")
+
+    """
     df = df.groupby(group_cols).apply(
         lambda x: pd.Series(
             {
                 "sale_n": np.size(x["triad"]),
                 "ratio": ccao_median(x["ratio"]),
                 "cod": ccao_cod(ratio=x["ratio"]),
-                "mki": ccao_mki(fmv=x["fmv"], sale_price=x["sale_price"]),
-                "prd": ccao_prd(fmv=x["fmv"], sale_price=x["sale_price"]),
-                "prb": ccao_prb(fmv=x["fmv"], sale_price=x["sale_price"]),
+                #"mki": ccao_mki(fmv=x["fmv"], sale_price=x["sale_price"]),
+                #"prd": ccao_prd(fmv=x["fmv"], sale_price=x["sale_price"]),
+                #"prb": ccao_prb(fmv=x["fmv"], sale_price=x["sale_price"]),
                 "detect_chasing": False,
-                "within_20_pct": sum(abs(1 - x["ratio"]) <= 0.20),
-                "within_10_pct": sum(abs(1 - x["ratio"]) <= 0.10),
-                "within_05_pct": sum(abs(1 - x["ratio"]) <= 0.05),
+                #"within_20_pct": sum(abs(1 - x["ratio"]) <= 0.20),
+                #"within_10_pct": sum(abs(1 - x["ratio"]) <= 0.10),
+                #"within_05_pct": sum(abs(1 - x["ratio"]) <= 0.05),
             }
         )
     )
+    """
 
+    # Trying to get this operation to work
+    athena_user_logger.info(f"{df.columns}")
+
+    """
+    # Convert the 'ratio' column to a list of lists
+    ratio_lists = df['ratio'].apply(lambda x: [x, x, x])  # Repeating the value three times
+
+    # Create a new DataFrame from these lists
+    new_columns = ps.DataFrame(ratio_lists.tolist(), 
+                            columns=['median_ratio', 'median_ratio_ci', 'median_ratio_n'],
+                            index=df.index)
+
+    # Add these new columns to the original DataFrame
+    df = df.join(new_columns)
+    """
+
+    """
     df[["median_ratio", "median_ratio_ci", "median_ratio_n"]] = pd.DataFrame(
         df.ratio.tolist(), index=df.index
     )
@@ -665,34 +537,37 @@ def report_summarise(df, geography_id, geography_type):
     )
     df["ratio_met"] = abs(1 - df["median_ratio"]) <= 0.05
     df["vertical_equity_met"] = df.prd_met | df.prb_met
+    """
 
-    # Arrange output columns
+    athena_user_logger.info(f"{df.columns}")
+
+    # Arrange columns
     df = df[
         [
             "sale_n",
-            "median_ratio",
-            "median_ratio_ci",
-            "cod",
-            "cod_ci",
-            "cod_n",
-            "prd",
-            "prd_ci",
-            "prd_n",
-            "prb",
-            "prb_ci",
-            "prb_n",
-            "mki",
-            "mki_n",
-            "detect_chasing",
-            "ratio_met",
-            "cod_met",
-            "prd_met",
-            "prb_met",
-            "mki_met",
-            "vertical_equity_met",
-            "within_20_pct",
-            "within_10_pct",
-            "within_05_pct",
+            # "median_ratio",
+            # "median_ratio_ci",
+            # "cod",
+            # "cod_ci",
+            # "cod_n",
+            # "prd",
+            # "prd_ci",
+            # "prd_n",
+            # "prb",
+            # "prb_ci",
+            # "prb_n",
+            # "mki",
+            # "mki_n",
+            # "detect_chasing",
+            # "ratio_met",
+            # "cod_met",
+            # "prd_met",
+            # "prb_met",
+            # "mki_met",
+            # "vertical_equity_met",
+            # "within_20_pct",
+            # "within_10_pct",
+            # "within_05_pct",
         ]
     ].reset_index()
 
@@ -706,17 +581,27 @@ def model(dbt, spark_session):
 
     # Convert the Spark input dataframe to Pandas for
     # compatibility with assesspy functions
-    input = input.toPandas()
+    # input = input.toPandas()
 
     # Replicate filtering from prior vw_ratio_stats pull
-    input = input[input.ratio > 0 & input.ratio.notnull()]
-
-    df = pd.concat(
+    # input = input[input.ratio > 0 & input.ratio.notnull()]
+    athena_user_logger.info("Check 1")
+    input = ps.DataFrame(
+        input.filter(input.ratio.isNotNull()).filter(input.ratio > 0)
+    )
+    athena_user_logger.info(" ")
+    athena_user_logger.info(f"{input}")
+    # report_summarise(input, "triad", "Tri")
+    athena_user_logger.info(f"First done")
+    # report_summarise(input, "township_code", "Town")
+    athena_user_logger.info(f"Second done")
+    df = ps.concat(
         [
             report_summarise(input, "triad", "Tri"),
             report_summarise(input, "township_code", "Town"),
         ]
     ).reset_index(drop=True)
+    athena_user_logger.info(f"CHeck report 4.1")
 
     # Force certain columns to datatype to maintain parity with old version
     df[["year", "triad", "sale_year"]] = df[
