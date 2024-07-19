@@ -931,3 +931,11 @@ models:
         - qc_report_town_close
     meta:
       export_name: Bldg parcel class mismatch
+
+  - name: qc.vw_report_town_close_289s
+    description: '{{ doc("view_vw_report_town_close_289s") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: 289s

@@ -248,3 +248,16 @@ Pulled from the following Inquire queries:
 
 - `FP Checklist - Bldg and parcel class mismatch` (#2161) - Will C.
 {% enddocs %}
+
+# vw_report_town_close_289s
+
+{% docs view_vw_report_town_close_289s %}
+Check for rows in the  `OBY` table where the class is 289.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - 289s` (#1963) - Will C.
+{% enddocs %}
