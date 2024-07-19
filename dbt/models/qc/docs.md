@@ -276,3 +276,17 @@ Pulled from the following Inquire queries:
 - `FP Checklist - 500k increase, 1m decrease` (#1673) - Will C.
 - `FP Checklist - Card Code Info` (#2160) - Will C.
 {% enddocs %}
+
+# vw_report_town_close_res_multicodes
+
+{% docs view_vw_report_town_close_res_multicodes %}
+Check market and assessed values for parcels with multiple cards.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Res multicode PIN list` (#1591) - Will C.
+- `FP Checklist - Res multicode report with sales` (#1659) - Will C.
+{% enddocs %}
