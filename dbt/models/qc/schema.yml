@@ -939,3 +939,11 @@ models:
         - qc_report_town_close
     meta:
       export_name: 289s
+
+  - name: qc.vw_report_town_close_500k_increase_1m_decrease
+    description: '{{ doc("view_vw_report_town_close_500k_increase_1m_decrease") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: 500k increase, 1m decrease

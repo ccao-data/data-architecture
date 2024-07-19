@@ -261,3 +261,18 @@ Pulled from the following Inquire queries:
 
 - `FP Checklist - 289s` (#1963) - Will C.
 {% enddocs %}
+
+# vw_report_town_close_500k_increase_1m_decrease
+
+{% docs view_vw_report_town_close_500k_increase_1m_decrease %}
+Check for rows in the  `ASMT` table where an assessed value has increased
+by more than $500k or decreased by more than $1m in the past year.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - 500k increase, 1m decrease` (#1673) - Will C.
+- `FP Checklist - Card Code Info` (#2160) - Will C.
+{% enddocs %}
