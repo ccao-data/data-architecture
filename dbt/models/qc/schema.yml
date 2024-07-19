@@ -843,6 +843,7 @@ models:
       export_name: Negative ASMT values
 
   - name: qc.vw_report_town_close_0_land_value
+    description: '{{ doc("view_vw_report_town_close_0_land_value") }}'
     config:
       tags:
         - qc_report_town_close
@@ -850,6 +851,7 @@ models:
       export_name: 0 land value
 
   - name: qc.vw_report_town_close_0_value
+    description: '{{ doc("view_vw_report_town_close_0_value") }}'
     config:
       tags:
         - qc_report_town_close
@@ -857,6 +859,7 @@ models:
       export_name: 0 value
 
   - name: qc.vw_report_town_close_vacant_class_with_bldg_value
+    description: '{{ doc("view_vw_report_town_close_vacant_class_with_bldg_value") }}'
     config:
       tags:
         - qc_report_town_close
@@ -864,6 +867,7 @@ models:
       export_name: Vacant class, bldg value
 
   - name: qc.vw_report_town_close_improved_class_without_bldg_value
+    description: '{{ doc("view_vw_report_town_close_improved_class_without_bldg_value") }}'
     config:
       tags:
         - qc_report_town_close
@@ -871,6 +875,7 @@ models:
       export_name: Improved class, no bldg value
 
   - name: qc.vw_report_town_close_class_does_not_equal_luc
+    description: '{{ doc("view_vw_report_town_close_class_does_not_equal_luc") }}'
     config:
       tags:
         - qc_report_town_close
@@ -878,6 +883,7 @@ models:
       export_name: Class does not equal LUC
 
   - name: qc.vw_report_town_close_res_parcels_not_set_to_cost_approach
+    description: '{{ doc("view_vw_report_town_close_res_parcels_not_set_to_cost_approach") }}'
     config:
       tags:
         - qc_report_town_close
@@ -910,7 +916,8 @@ models:
                 description: revcode should be '1' for 200-class parcels
                 category: incorrect_values
 
-  - name: qc.vw_report_town_close_res_ovrrcnlds_to_review
+  - name: qc.vw_report_town_close_ovrrcnlds_to_review
+    description: '{{ doc("view_vw_report_town_close_ovrrcnlds_to_review") }}'
     config:
       tags:
         - qc_report_town_close
@@ -918,6 +925,7 @@ models:
       export_name: OVRRCNLDs discrepancy checks
 
   - name: qc.vw_report_town_close_bldg_parcel_class_mismatch
+    description: '{{ doc("view_vw_report_town_close_bldg_parcel_class_mismatch") }}'
     config:
       tags:
         - qc_report_town_close

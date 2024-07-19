@@ -104,6 +104,24 @@ investigated.
 
 {% enddocs %}
 
+# vw_sale_mydec_null_values
+
+{% docs view_vw_sale_mydec_null_values %}
+Test that deed, buyer, seller, address and price `sale.mydec` columns are not
+null.
+
+{% enddocs %}
+
+# vw_iasworld_asmt_all_joined_to_legdat
+
+{% docs view_vw_iasworld_asmt_all_joined_to_legdat %}
+View that joins `iasworld.asmt_all` to `iasworld.legdat` to augment `asmt_all`
+with parcel legal descriptions and addresses.
+
+Both views are already filtered for current active records.
+{% enddocs %}
+
+
 # vw_report_town_close_neg_asmt_value
 
 {% docs view_vw_report_town_close_neg_asmt_value %}
@@ -120,19 +138,113 @@ In contrast to `qc.vw_neg_asmt_value`, this view directly performs filtering
 for negative values.
 {% enddocs %}
 
-# vw_sale_mydec_null_values
+# vw_report_town_close_0_land_value
 
-{% docs view_vw_sale_mydec_null_values %}
-Test that deed, buyer, seller, address and price `sale.mydec` columns are not
-null.
+{% docs view_vw_report_town_close_0_land_value %}
+Check for parcels that have 0 land value in the `ASMT` table.
 
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Non-EX, RR parcels with 0 land value` (#1578) - Will C.
 {% enddocs %}
 
-# vw_iasworld_asmt_all_joined_to_legdat
+# vw_report_town_close_0_value
 
-{% docs view_vw_iasworld_asmt_all_joined_to_legdat %}
-View that joins `iasworld.asmt_all` to `iasworld.legdat` to augment `asmt_all`
-with parcel legal descriptions and addresses.
+{% docs view_vw_report_town_close_0_value %}
+Check for parcels that have 0 total value in the `ASMT` table.
 
-Both views are already filtered for current active records.
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Non-EX, RR parcels with 0 value` (#1570) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_vacant_class_with_bldg_value
+
+{% docs view_vw_report_town_close_vacant_class_with_bldg_value %}
+Check for parcels that have a vacant class in the `PARDAT` table, but a
+building value in the `ASMT` table.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Vacant Class, bldg value` (#1577) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_improved_class_without_bldg_value
+
+{% docs view_vw_report_town_close_improved_class_without_bldg_value %}
+Check for parcels that have a non-vacant class in the `PARDAT` table, but no
+building value in the `ASMT` table.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Improved Class, no bldg value` (#1047) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_class_does_not_equal_luc
+
+{% docs view_vw_report_town_close_class_does_not_equal_luc %}
+Check for parcels where the class does not match the land use code in
+the `PARDAT` table.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Class does not equal LUC` (#2046) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_res_parcels_not_set_to_cost_approach
+
+{% docs view_vw_report_town_close_res_parcels_not_set_to_cost_approach %}
+Check for residential class parcels where the `revcode` column in the
+`APRVAL` table is not 1.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Res parcels not set to Cost Approach` (#2114) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_ovrrcnlds_to_review
+
+{% docs view_vw_report_town_close_ovrrcnlds_to_review %}
+Check for rows in the `DWELDAT`, `COMDAT`, and `OBY` tables
+where the calculated net market value does not match the override net market
+value.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - OVRRCNLDs to review` (#2474) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_bldg_parcel_class_mismatch
+
+{% docs view_vw_report_town_close_bldg_parcel_class_mismatch %}
+Check for rows in the `DWELDAT`, `COMDAT`, and `OBY` tables
+where the class does not match the parcel's class in the `PARDAT` table.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Bldg and parcel class mismatch` (#2161) - Will C.
 {% enddocs %}
