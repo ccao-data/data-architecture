@@ -96,7 +96,10 @@ expanded_geos1 AS (
 expanded_geos2 AS (
     SELECT
         expanded_geos1.*,
-        CASE WHEN vpvl.tot IS NOT NULL THEN 1 ELSE 0 END AS has_value
+        CASE WHEN vpvl.tot IS NOT NULL THEN 1 ELSE 0 END AS has_value,
+        vpvl.bldg,
+        vpvl.land,
+        vpvl.tot
     FROM expanded_geos1
     LEFT JOIN {{ ref('reporting.vw_pin_value_long') }} AS vpvl
         ON expanded_geos1.pin = vpvl.pin
@@ -154,7 +157,13 @@ SELECT
     ROUND(
         CAST(pin_counts.num_pin_w_value AS DOUBLE)
         / CAST(pin_counts.total_n AS DOUBLE), 4
-    ) AS pct_pin_w_value_in_group
+    ) AS pct_pin_w_value_in_group,
+    pin_counts.bldg_sum,
+    pin_counts.bldg_median,
+    pin_counts.land_sum,
+    pin_counts.land_median,
+    pin_counts.tot_sum,
+    pin_counts.tot_median
 FROM pin_counts
 ORDER BY
     pin_counts.year DESC,

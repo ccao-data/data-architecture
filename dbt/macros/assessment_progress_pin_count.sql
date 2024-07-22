@@ -8,7 +8,13 @@
         stage_name,
         stage_num,
         count(*) as total_n,
-        sum(has_value) as num_pin_w_value
+        sum(has_value) as num_pin_w_value,
+        sum(bldg) as bldg_sum,
+        cast(approx_percentile(bldg, 0.5) as int) as bldg_median,
+        sum(land) as land_sum,
+        cast(approx_percentile(land, 0.5) as int) as land_median,
+        sum(tot) as tot_sum,
+        cast(approx_percentile(tot, 0.5) as int) as tot_median
     from {{ from }}
     where {{ column_name }} is not null and {{ column_name }} != ''
     group by {{ column_name }}, year, stage_name, stage_num
