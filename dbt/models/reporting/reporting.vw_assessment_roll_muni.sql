@@ -15,7 +15,8 @@ WITH muni_progress AS (
 
 )
 
--- Use lagged values to calculate change in total AV by geography
+-- Use lagged values to calculate change in total AV by geography between
+-- stages
 SELECT
     year,
     stage_name,

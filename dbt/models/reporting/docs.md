@@ -36,7 +36,7 @@ Materialized to speed up queries for Tableau.
 View for reporting total AVs and PIN counts per major class group, township,
 assessment stage, and year. Feeds public reporting assets.
 
-**Primary Key**: `year`, `stage_name`, `geo_type`, `geo_id`
+**Primary Key**: `year`, `stage_name`, `geo_id`
 {% enddocs %}
 
 # vw_assessment_roll
