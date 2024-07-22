@@ -152,12 +152,12 @@ SELECT
     pin_counts.stage_num,
     pin_counts.geo_type,
     pin_counts.geo_id,
-    pin_counts.total_n,
+    pin_counts.num_pin_total,
     pin_counts.num_pin_w_value,
     ROUND(
         CAST(pin_counts.num_pin_w_value AS DOUBLE)
         / CAST(pin_counts.total_n AS DOUBLE), 4
-    ) AS pct_pin_w_value_in_group,
+    ) AS pct_pin_w_value,
     pin_counts.bldg_sum,
     pin_counts.bldg_median,
     pin_counts.land_sum,

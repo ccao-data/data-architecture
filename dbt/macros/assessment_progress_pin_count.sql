@@ -7,7 +7,7 @@
         year,
         stage_name,
         stage_num,
-        count(*) as total_n,
+        count(*) as num_pin_total,
         sum(has_value) as num_pin_w_value,
         sum(bldg) as bldg_sum,
         cast(approx_percentile(bldg, 0.5) as int) as bldg_median,
