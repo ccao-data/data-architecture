@@ -290,3 +290,17 @@ Pulled from the following Inquire queries:
 - `FP Checklist - Res multicode PIN list` (#1591) - Will C.
 - `FP Checklist - Res multicode report with sales` (#1659) - Will C.
 {% enddocs %}
+
+# vw_report_town_close_card_code_5s_not_at_100_comdat
+
+{% docs view_vw_report_town_close_card_code_5s_not_at_100_comdat %}
+Check market and assessed values for parcels that had a card code 5 in the
+prior year and whose occupancy is not at 100% in the `COMDAT` table.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Prior Yr Card Code 5s COMDAT` (#1585) - Will C.
+{% enddocs %}

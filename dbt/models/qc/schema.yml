@@ -955,3 +955,11 @@ models:
         - qc_report_town_close
     meta:
       export_name: Res multicodes
+
+  - name: qc.vw_report_town_close_card_code_5s_not_at_100_comdat
+    description: '{{ doc("view_vw_report_town_close_card_code_5s_not_at_100_comdat") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Card code 5s possibly not at 100% (COMDAT)
