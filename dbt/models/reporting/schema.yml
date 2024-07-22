@@ -141,10 +141,6 @@ models:
             AND land_sum IS NULL
             AND tot_sum IS NULL
             AND delta_pct_av IS NULL)
-      - expression_is_true:
-          name: reporting_vw_assessment_roll_muni_tot_sum_lte_phase
-          expression: |
-            tot_sum IS NULL OR tot_sum <= phase_total_av
 
   - name: reporting.vw_pin_most_recent_boundary
     description: '{{ doc("view_vw_pin_most_recent_boundary") }}'
