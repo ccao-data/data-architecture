@@ -23,6 +23,7 @@ SELECT
     geo_id AS municipality,
     num_pin_total,
     num_pin_w_value,
+    pct_pin_w_value,
     bldg_sum,
     bldg_median,
     land_sum,
@@ -32,5 +33,5 @@ SELECT
     CASE WHEN tot_sum_lag IN (0, NULL) THEN NULL ELSE
             CAST(tot_sum - tot_sum_lag AS DOUBLE)
             / CAST(tot_sum_lag AS DOUBLE)
-    END AS delta_pct_av
+    END AS delta_pct_tot_sum
 FROM muni_progress
