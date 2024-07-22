@@ -140,7 +140,7 @@ models:
             OR (bldg_sum IS NULL
             AND land_sum IS NULL
             AND tot_sum IS NULL
-            AND delta_pct_av IS NULL)
+            AND delta_pct_tot_sum IS NULL)
 
   - name: reporting.vw_pin_most_recent_boundary
     description: '{{ doc("view_vw_pin_most_recent_boundary") }}'
