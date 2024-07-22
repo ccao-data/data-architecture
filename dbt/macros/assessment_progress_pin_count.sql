@@ -10,6 +10,6 @@
         count(*) as total_n,
         sum(has_value) as num_pin_w_value
     from {{ from }}
-    where {{ column_name }} not in ('', null)
+    where {{ column_name }} is not null and {{ column_name }} != ''
     group by {{ column_name }}, year, stage_name, stage_num
 {% endmacro %}
