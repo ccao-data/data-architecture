@@ -156,7 +156,7 @@ SELECT
     pin_counts.num_pin_w_value,
     ROUND(
         CAST(pin_counts.num_pin_w_value AS DOUBLE)
-        / CAST(pin_counts.total_n AS DOUBLE), 4
+        / CAST(pin_counts.num_pin_total AS DOUBLE), 4
     ) AS pct_pin_w_value,
     pin_counts.bldg_sum,
     pin_counts.bldg_median,
