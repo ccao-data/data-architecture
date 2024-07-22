@@ -15,8 +15,8 @@ SELECT
     asmt_prev.valapr1 AS valapr1_prev,
     asmt_prev.valapr2 AS valapr2_prev,
     asmt_prev.valapr3 AS valapr3_prev,
-    latest_sale.saledt,
-    latest_sale.price
+    sale.saledt,
+    sale.price
 FROM {{ source('iasworld', 'dweldat') }} AS dweldat
 -- Filter for only dwellings on multicard parcels
 INNER JOIN (
@@ -59,26 +59,7 @@ LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
     AND dweldat.parid = pardat.parid
     AND pardat.cur = 'Y'
     AND pardat.deactivat IS NULL
--- Get the most recent sale for each parcel, if one exists
-LEFT JOIN (
-    SELECT
-        parid,
-        saledt,
-        price
-    FROM (
-        SELECT
-            parid,
-            saledt,
-            price,
-            ROW_NUMBER()
-                OVER (PARTITION BY parid ORDER BY saledt DESC)
-                AS row_num
-        FROM {{ source('iasworld', 'sales') }}
-        WHERE saledt >= '2021-01-1'
-            AND price > 1
-    ) AS ranked_sales
-    WHERE row_num = 1
-) AS latest_sale
-    ON dweldat.parid = latest_sale.parid
+LEFT JOIN {{ ref('qc.vw_iasworld_sales_latest_sale_since_2021') }} AS sale
+    ON dweldat.parid = sale.parid
 WHERE dweldat.cur = 'Y'
     AND dweldat.deactivat IS NULL
