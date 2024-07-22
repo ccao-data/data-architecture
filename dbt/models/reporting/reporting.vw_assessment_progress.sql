@@ -82,6 +82,7 @@ trimmed_geos AS (
 
 ),
 
+-- Cross join our trimmed sample with the stages we defined above
 expanded_geos1 AS (
     SELECT
         trimmed_geos.*,
@@ -90,6 +91,8 @@ expanded_geos1 AS (
     CROSS JOIN stages
 ),
 
+-- Join on values by stage from vw_pin_value_long so we can determine which
+-- parcels have values for which stages in which years.
 expanded_geos2 AS (
     SELECT
         expanded_geos1.*,
@@ -103,7 +106,8 @@ expanded_geos2 AS (
 
 /* Calculate the denominator for the pct_pin_w_value_in_group column.
 default.vw_pin_universe serves as the universe of yearly PINs we expect
-to see in reporting.vw_pin_value_long. */
+to see in reporting.vw_pin_value_long. Loop over the different geographies
+we track progress for and then stack the output.*/
 pin_counts AS (
 
     {{ assessment_progress_pin_count(
@@ -137,10 +141,8 @@ pin_counts AS (
             ) }}
 )
 
-/* Calculate total and median values by municipality, as well as the portion of
-each municipality that has progressed through an assessment stage by class. This
-is the meat of the view but needs to be a CTE since the view contains columns
-aggregated by different groupings. */
+-- Calculate the portion of each geography that has progressed through an
+-- assessment stage by class.
 SELECT
     pin_counts.year,
     pin_counts.stage_name,
