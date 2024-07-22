@@ -291,11 +291,11 @@ Pulled from the following Inquire queries:
 - `FP Checklist - Res multicode report with sales` (#1659) - Will C.
 {% enddocs %}
 
-# vw_report_town_close_card_code_5s_not_at_100_comdat
+# vw_report_town_close_prior_year_card_code_5s_comdat
 
-{% docs view_vw_report_town_close_card_code_5s_not_at_100_comdat %}
-Check market and assessed values for parcels that had a card code 5 in the
-prior year and whose occupancy is not at 100% in the `COMDAT` table.
+{% docs view_vw_report_town_close_prior_year_card_code_5s_comdat %}
+Check market values, assessed values, and occupancy percentages for cards
+that had a card code 5 in the prior year in the `COMDAT` table.
 
 This view is exported as part of the QC report to check values prior to town
 closings.
@@ -303,4 +303,32 @@ closings.
 Pulled from the following Inquire queries:
 
 - `FP Checklist - Prior Yr Card Code 5s COMDAT` (#1585) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_prior_year_card_code_5s_dweldat
+
+{% docs view_vw_report_town_close_prior_year_card_code_5s_dweldat %}
+Check market values, assessed values, and occupancy percentages for cards
+that had a card code 5 in the prior year in the `DWELDAT` table.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Prior Yr Card Code 5s DWELDAT` (#1585) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_prior_year_card_code_5s_oby
+
+{% docs view_vw_report_town_close_prior_year_card_code_5s_oby %}
+Check market values, assessed values, and occupancy percentages for cards
+that had a card code 5 in the prior year in the `OBY` table.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Prior Yr Card Code 5s OBY` (#1585) - Will C.
 {% enddocs %}
