@@ -79,28 +79,65 @@ housing_index AS (
     GROUP BY puma.pin10, ihs.year
 ),
 
-distressed_communities_index AS (
+distressed_communities_index_temp AS (
     SELECT
         zcta.pin10,
         dci.year,
         dci.dci,
-        zcta.year AS census_data_year
+        dci.geoid,
+        zcta.year AS census_data_year,
+        ROW_NUMBER() OVER (
+            PARTITION BY zcta.pin10, zcta.census_zcta_geoid, zcta.year
+            ORDER BY dci.year DESC
+        ) AS rn
     FROM {{ source('other', 'dci') }} AS dci
     LEFT JOIN {{ ref('location.census') }} AS zcta
         ON dci.geoid = zcta.census_zcta_geoid
-        AND CAST(zcta.year AS INTEGER) >= CAST(dci.year AS INTEGER)
+    WHERE CAST(zcta.year AS INTEGER) >= CAST(dci.year AS INTEGER)
+),
+
+distressed_communities_index AS (
+    SELECT
+        pin10,
+        geoid,
+        census_data_year,
+        year,
+        dci
+    FROM
+        distressed_communities_index_temp
+    WHERE
+        rn = 1
+),
+
+temp AS (
+    SELECT
+        ari.geoid,
+        ari.year,
+        ari.ari_score AS ari,
+        tract.pin10,
+        tract.census_acs5_tract_geoid,
+        tract.year AS census_acs5_data_year,
+        ROW_NUMBER() OVER (
+            PARTITION BY tract.pin10, tract.census_acs5_tract_geoid, tract.year
+            ORDER BY ari.year DESC
+        ) AS rn
+    FROM {{ source('other', 'ari') }} AS ari
+    LEFT JOIN {{ ref('location.census_acs5') }} AS tract
+        ON ari.geoid = tract.census_acs5_tract_geoid
+    WHERE ari.year <= tract.year
 ),
 
 affordability_risk_index AS (
     SELECT
-        tract.pin10,
-        tract.year AS census_acs5_data_year,
-        ari.year,
-        ari.ari_score AS ari
-    FROM {{ source('other', 'ari') }} AS ari
-    INNER JOIN {{ ref('location.census_acs5') }} AS tract
-        ON ari.geoid = tract.census_acs5_tract_geoid
-        AND CAST(tract.year AS INTEGER) >= CAST(ari.year AS INTEGER)
+        pin10,
+        geoid,
+        census_acs5_data_year,
+        year,
+        ari
+    FROM
+        temp
+    WHERE
+        rn = 1
 ),
 
 tax_bill_amount AS (
@@ -375,8 +412,7 @@ LEFT JOIN distressed_communities_index
     = distressed_communities_index.census_data_year
 LEFT JOIN affordability_risk_index
     ON uni.pin10 = affordability_risk_index.pin10
-    AND vwlf.census_data_year
-    = affordability_risk_index.census_acs5_data_year
+    AND uni.year = affordability_risk_index.census_acs5_data_year
 LEFT JOIN tax_bill_amount AS tbill
     ON uni.pin = tbill.pin
     AND uni.year = tbill.year
