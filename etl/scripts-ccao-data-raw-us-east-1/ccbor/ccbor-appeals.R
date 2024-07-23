@@ -23,8 +23,7 @@ years <- read_json(
 
 # Gather BOR appeals data by year
 walk(years, \(x) {
-
-  remote_path <- file.path(output_bucket, paste0(x, '.parquet'))
+  remote_path <- file.path(output_bucket, paste0(x, ".parquet"))
 
   # Only gathers data if it doesn't already exist or is from the last two years
   # of data
@@ -36,8 +35,8 @@ walk(years, \(x) {
         "$select=tax_year={x}"
       ),
       app_token = Sys.getenv("SOCRATA_APP_TOKEN"),
-      email     = Sys.getenv("SOCRATA_EMAIL"),
-      password  = Sys.getenv("SOCRATA_PASSWORD")
+      email = Sys.getenv("SOCRATA_EMAIL"),
+      password = Sys.getenv("SOCRATA_PASSWORD")
     ) %>%
       write_parquet(remote_path)
   }
