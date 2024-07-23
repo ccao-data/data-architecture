@@ -23,7 +23,7 @@ raw_paths <- aws.s3::get_bucket_df(
 # partitioned by year
 map(raw_paths, \(x) {
   read_parquet(file.path(AWS_S3_RAW_BUCKET, x))
-} ) %>%
+}) %>%
   bind_rows() %>%
   select(-c(pin10:centroid_geom.coordinates)) %>%
   rename(taxyr = tax_year) %>%
