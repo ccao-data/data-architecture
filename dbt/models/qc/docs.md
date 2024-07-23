@@ -332,3 +332,19 @@ Pulled from the following Inquire queries:
 
 - `FP Checklist - Prior Yr Card Code 5s OBY` (#1585) - Will C.
 {% enddocs %}
+
+# vw_report_town_close_res_edit
+
+{% docs view_vw_report_town_close_res_edit %}
+Check detailed info for residential dwellings.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `Res Edit - ASMT Values` (#1734) - Will C.
+- `Res Edit - DWELDAT` (#1737) - Will C.
+- `Res Edit - Parcel Characteristics` (#1736) - Will C.
+- `Res Edit - Sales` (#961) - Will C.
+{% enddocs %}

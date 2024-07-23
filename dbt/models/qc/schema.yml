@@ -979,3 +979,11 @@ models:
         - qc_report_town_close
     meta:
       export_name: Card code 5s possibly not at 100% (OBY)
+
+  - name: qc.vw_report_town_close_res_edit
+    description: '{{ doc("view_vw_report_town_close_res_edit") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Res edit
