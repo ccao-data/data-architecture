@@ -97,16 +97,37 @@ SELECT
     aprval_prev.aprland AS aprland_prev,
     aprval_prev.aprbldg AS aprbldg_prev,
     aprval_prev.aprtot AS aprtot_prev,
-    -- TODO: Total % Change
+    CONCAT(
+        CAST(
+            (
+                (aprval.aprtot - aprval_prev.aprtot)
+                / CAST(aprval_prev.aprtot AS DOUBLE)
+            )
+            * 100 AS VARCHAR
+        ),
+        '%'
+    ) AS aprtot_percent_change,
     aprval.dwelval,
-    -- TODO: 2024 Dwelling Total
+    aprval.dwelval + aprval.aprland AS dweltot,
     aprval_prev.dwelval AS dwelval_prev,
-    -- TODO: 2023 Dwelling Total
-    -- TODO: Dwelling % Change
+    aprval_prev.dwelval + aprval_prev.aprland AS dweltot_prev,
+    CONCAT(
+        CAST(
+            (
+                (
+                    (aprval.dwelval + aprval.aprland)
+                    - (aprval_prev.dwelval + aprval_prev.aprland)
+                )
+                / CAST((aprval_prev.dwelval + aprval_prev.aprland) AS DOUBLE)
+            )
+            * 100 AS VARCHAR
+        ),
+        '%'
+    ) AS dweltot_percent_change,
     sale.saledt,
     sale.price,
     sale.instruno,
-    pardat.tiebldgpct,
+    COALESCE(pardat.tiebldgpct, 0) AS tiebldgpct,
     aprval.reascd,
     aprval.obyval,
     land.sf,

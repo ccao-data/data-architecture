@@ -849,6 +849,7 @@ models:
         - qc_report_town_close
     meta:
       export_name: 0 land value
+      export_template: assessed_and_market_values.xlsx
 
   - name: qc.vw_report_town_close_0_value
     description: '{{ doc("view_vw_report_town_close_0_value") }}'
@@ -857,6 +858,7 @@ models:
         - qc_report_town_close
     meta:
       export_name: 0 value
+      export_template: assessed_and_market_values.xlsx
 
   - name: qc.vw_report_town_close_vacant_class_with_bldg_value
     description: '{{ doc("view_vw_report_town_close_vacant_class_with_bldg_value") }}'
@@ -865,6 +867,7 @@ models:
         - qc_report_town_close
     meta:
       export_name: Vacant class, bldg value
+      export_template: assessed_and_market_values.xlsx
 
   - name: qc.vw_report_town_close_improved_class_without_bldg_value
     description: '{{ doc("view_vw_report_town_close_improved_class_without_bldg_value") }}'
@@ -873,6 +876,7 @@ models:
         - qc_report_town_close
     meta:
       export_name: Improved class, no bldg value
+      export_template: assessed_and_market_values.xlsx
 
   - name: qc.vw_report_town_close_class_does_not_equal_luc
     description: '{{ doc("view_vw_report_town_close_class_does_not_equal_luc") }}'
@@ -922,7 +926,7 @@ models:
       tags:
         - qc_report_town_close
     meta:
-      export_name: OVRRCNLDs discrepancy checks
+      export_name: OVRRCNLD discrepancy checks
 
   - name: qc.vw_report_town_close_bldg_parcel_class_mismatch
     description: '{{ doc("view_vw_report_town_close_bldg_parcel_class_mismatch") }}'
