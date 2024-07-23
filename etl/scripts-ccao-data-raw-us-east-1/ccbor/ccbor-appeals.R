@@ -25,8 +25,8 @@ years <- read_json(
 walk(years, \(x) {
   remote_path <- file.path(output_bucket, paste0(x, ".parquet"))
 
-  # Only gathers data if it doesn't already exist or is from the last two years
-  # of data
+  # Only gathers data if it doesn't already exist or is one of the two most
+  # recent years of available data
   if (!aws.s3::object_exists(remote_path) | x >= (max(years) - 1)) {
     print(paste0("Fetching BOR Appeals Data for ", x))
     read.socrata(
