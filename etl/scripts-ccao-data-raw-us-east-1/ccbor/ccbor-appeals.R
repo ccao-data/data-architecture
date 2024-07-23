@@ -10,6 +10,7 @@ library(RSocrata)
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccbor", "appeals")
 
+# Determine years for which data is available
 years <- read_json(
   glue(
     "https://datacatalog.cookcountyil.gov/resource/7pny-nedm.json?",
@@ -26,6 +27,7 @@ walk(years, \(x) {
   remote_path <- file.path(output_bucket, paste0(x, '.parquet'))
 
   # Only gathers data if it doesn't already exist or is from the last two years
+  # of data
   if (!aws.s3::object_exists(remote_path) | x >= (max(years) - 1)) {
     print(paste0("Fetching BOR Appeals Data for ", x))
     read.socrata(
