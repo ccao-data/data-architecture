@@ -27,12 +27,12 @@ walk(years, \(x) {
 
   # Only gathers data if it doesn't already exist or is one of the two most
   # recent years of available data
-  if (!aws.s3::object_exists(remote_path) | x >= (max(years) - 1)) {
+  if (!aws.s3::object_exists(remote_path)) {
     print(paste0("Fetching BOR Appeals Data for ", x))
     read.socrata(
       glue(
         "https://datacatalog.cookcountyil.gov/resource/7pny-nedm.json?",
-        "$select=tax_year={x}"
+        "$where=tax_year={x}"
       ),
       app_token = Sys.getenv("SOCRATA_APP_TOKEN"),
       email = Sys.getenv("SOCRATA_EMAIL"),
