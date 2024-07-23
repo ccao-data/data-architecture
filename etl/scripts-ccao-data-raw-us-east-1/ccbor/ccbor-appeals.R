@@ -27,7 +27,7 @@ walk(years, \(x) {
 
   # Only gathers data if it doesn't already exist or is one of the two most
   # recent years of available data
-  if (!aws.s3::object_exists(remote_path)) {
+  if (!aws.s3::object_exists(remote_path) | x >= (max(years) - 1)) {
     print(paste0("Fetching BOR Appeals Data for ", x))
     read.socrata(
       glue(
