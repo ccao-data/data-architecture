@@ -28,7 +28,6 @@ map(raw_paths, \(x) {
   select(
     appeal_id = appealid,
     pin,
-    taxyr = tax_year,
     class,
     township_code,
     tax_code = taxcode,
@@ -56,7 +55,8 @@ map(raw_paths, \(x) {
     attorney_id = attny,
     attorney_first_name = attorney_firstname,
     attorney_last_name = attorney_lastname,
-    attorney_firm_name = attorney_firmname
+    attorney_firm_name = attorney_firmname,
+    taxyr = tax_year
   ) %>%
   mutate(
     across(.cols = everything(), ~ na_if(.x, "N/A")),
