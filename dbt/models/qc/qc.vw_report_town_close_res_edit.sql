@@ -99,11 +99,15 @@ SELECT
     aprval_prev.aprtot AS aprtot_prev,
     CONCAT(
         CAST(
-            (
-                (aprval.aprtot - aprval_prev.aprtot)
-                / CAST(aprval_prev.aprtot AS DOUBLE)
+            ROUND(
+                (
+                    (aprval.aprtot - aprval_prev.aprtot)
+                    / CAST(aprval_prev.aprtot AS DOUBLE)
+                )
+                * 100,
+                2
             )
-            * 100 AS VARCHAR
+            AS VARCHAR
         ),
         '%'
     ) AS aprtot_percent_change,
@@ -113,14 +117,20 @@ SELECT
     aprval_prev.dwelval + aprval_prev.aprland AS dweltot_prev,
     CONCAT(
         CAST(
-            (
+            ROUND(
                 (
-                    (aprval.dwelval + aprval.aprland)
-                    - (aprval_prev.dwelval + aprval_prev.aprland)
+                    (
+                        (aprval.dwelval + aprval.aprland)
+                        - (aprval_prev.dwelval + aprval_prev.aprland)
+                    )
+                    / CAST(
+                        (aprval_prev.dwelval + aprval_prev.aprland) AS DOUBLE
+                    )
                 )
-                / CAST((aprval_prev.dwelval + aprval_prev.aprland) AS DOUBLE)
+                * 100,
+                2
             )
-            * 100 AS VARCHAR
+            AS VARCHAR
         ),
         '%'
     ) AS dweltot_percent_change,
