@@ -21,37 +21,29 @@ WITH oby_change AS (
         oby.external_occpct,
         CASE
             WHEN oby.adjrcnld != 0
-                THEN CAST(
-                    ROUND(
-                        (oby_prev.adjrcnld / CAST(oby.adjrcnld AS DOUBLE))
-                        * 100,
-                        1
-                    )
-                    AS VARCHAR
+                THEN ROUND(
+                    (oby_prev.adjrcnld / CAST(oby.adjrcnld AS DOUBLE))
+                    * 100,
+                    1
                 )
-            ELSE 'N/A'
         END AS pct_prev_of_cur_adjrcnld,
         CASE
             WHEN oby.adjrcnld != 0
-                THEN CAST(
+                THEN ROUND(
                     ROUND(
-                        ROUND(
-                            (
-                                oby_prev.adjrcnld
-                                / CAST(oby.adjrcnld AS DOUBLE)
-                            )
-                            * 100,
-                            1
+                        (
+                            oby_prev.adjrcnld
+                            / CAST(oby.adjrcnld AS DOUBLE)
                         )
-                        - COALESCE(
-                            oby_prev.external_occpct,
-                            oby_prev.mktadj
-                        ),
+                        * 100,
                         1
                     )
-                    AS VARCHAR
+                    - COALESCE(
+                        oby_prev.external_occpct,
+                        oby_prev.mktadj
+                    ),
+                    1
                 )
-            ELSE 'N/A'
         END AS difference_in_pct
     -- Select from the prior year of data as the base of the query so that we
     -- can preserve parcels that may have changed in the following year
@@ -101,4 +93,7 @@ LEFT JOIN {{ ref('qc.vw_iasworld_asmt_all_with_prior_year_values') }} AS asmt
     ON oby_change.parid = asmt.parid
     AND oby_change.taxyr = asmt.taxyr
 WHERE oby_change.chgrsn IN ('5', '5B')
-    AND oby_change.difference_in_pct != '0.0'
+    AND (
+        oby_change.difference_in_pct IS NULL
+        OR oby_change.difference_in_pct != 0
+    )

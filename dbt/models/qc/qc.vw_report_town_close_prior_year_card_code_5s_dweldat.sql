@@ -20,7 +20,18 @@ WITH dweldat_change AS (
         dweldat.external_occpct,
         CASE
             WHEN dweldat.adjrcnld != 0
-                THEN CAST(
+                THEN ROUND(
+                    (
+                        dweldat_prev.adjrcnld
+                        / CAST(dweldat.adjrcnld AS DOUBLE)
+                    )
+                    * 100,
+                    1
+                )
+        END AS pct_prev_of_cur_adjrcnld,
+        CASE
+            WHEN dweldat.adjrcnld != 0
+                THEN ROUND(
                     ROUND(
                         (
                             dweldat_prev.adjrcnld
@@ -29,31 +40,12 @@ WITH dweldat_change AS (
                         * 100,
                         1
                     )
-                    AS VARCHAR
+                    - COALESCE(
+                        dweldat_prev.external_occpct,
+                        dweldat_prev.mktadj
+                    ),
+                    1
                 )
-            ELSE 'N/A'
-        END AS pct_prev_of_cur_adjrcnld,
-        CASE
-            WHEN dweldat.adjrcnld != 0
-                THEN CAST(
-                    ROUND(
-                        ROUND(
-                            (
-                                dweldat_prev.adjrcnld
-                                / CAST(dweldat.adjrcnld AS DOUBLE)
-                            )
-                            * 100,
-                            1
-                        )
-                        - COALESCE(
-                            dweldat_prev.external_occpct,
-                            dweldat_prev.mktadj
-                        ),
-                        1
-                    )
-                    AS VARCHAR
-                )
-            ELSE 'N/A'
         END AS difference_in_pct
     -- Select from the prior year of data as the base of the query so that we
     -- can preserve parcels that may have changed in the following year
@@ -101,4 +93,7 @@ LEFT JOIN {{ ref('qc.vw_iasworld_asmt_all_with_prior_year_values') }} AS asmt
     ON dweldat_change.parid = asmt.parid
     AND dweldat_change.taxyr = asmt.taxyr
 WHERE dweldat_change.mktrsn IN ('5', '5B')
-    AND dweldat_change.difference_in_pct != '0.0'
+    AND (
+        dweldat_change.difference_in_pct IS NULL
+        OR dweldat_change.difference_in_pct != 0
+    )

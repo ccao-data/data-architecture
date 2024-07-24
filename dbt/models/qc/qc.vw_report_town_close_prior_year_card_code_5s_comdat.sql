@@ -20,37 +20,29 @@ WITH comdat_change AS (
         comdat.external_occpct,
         CASE
             WHEN comdat.bldgval != 0
-                THEN CAST(
-                    ROUND(
-                        (comdat_prev.bldgval / CAST(comdat.bldgval AS DOUBLE))
-                        * 100,
-                        1
-                    )
-                    AS VARCHAR
+                THEN ROUND(
+                    (comdat_prev.bldgval / CAST(comdat.bldgval AS DOUBLE))
+                    * 100,
+                    1
                 )
-            ELSE 'N/A'
         END AS pct_prev_of_cur_bldgval,
         CASE
             WHEN comdat.bldgval != 0
-                THEN CAST(
+                THEN ROUND(
                     ROUND(
-                        ROUND(
-                            (
-                                comdat_prev.bldgval
-                                / CAST(comdat.bldgval AS DOUBLE)
-                            )
-                            * 100,
-                            1
+                        (
+                            comdat_prev.bldgval
+                            / CAST(comdat.bldgval AS DOUBLE)
                         )
-                        - COALESCE(
-                            comdat_prev.external_occpct,
-                            comdat_prev.mktadj
-                        ),
+                        * 100,
                         1
                     )
-                    AS VARCHAR
+                    - COALESCE(
+                        comdat_prev.external_occpct,
+                        comdat_prev.mktadj
+                    ),
+                    1
                 )
-            ELSE 'N/A'
         END AS difference_in_pct
     -- Select from the prior year of data as the base of the query so that we
     -- can preserve parcels that may have changed in the following year
@@ -98,4 +90,7 @@ LEFT JOIN {{ ref('qc.vw_iasworld_asmt_all_with_prior_year_values') }} AS asmt
     ON comdat_change.parid = asmt.parid
     AND comdat_change.taxyr = asmt.taxyr
 WHERE comdat_change.chgrsn IN ('5', '5B')
-    AND comdat_change.difference_in_pct != '0.0'
+    AND (
+        comdat_change.difference_in_pct IS NULL
+        OR comdat_change.difference_in_pct != 0
+    )
