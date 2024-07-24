@@ -9,7 +9,9 @@ SELECT
     aprval.aprbldg,
     aprval.aprtot,
     aprval.who,
-    aprval.wen
+    DATE_FORMAT(
+        DATE_PARSE(aprval.wen, '%Y-%m-%d %H:%i:%S.%f'), '%c/%e/%Y %H:%i'
+    ) AS wen
 FROM {{ source('iasworld', 'aprval') }} AS aprval
 LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
     ON aprval.parid = pardat.parid
