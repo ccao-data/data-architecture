@@ -5,8 +5,8 @@ library(jsonlite)
 library(purrr)
 library(RSocrata)
 
-# This script retrieves Board of Review appeals data from the county's open
-# data portal
+# This script retrieves Board of Review appeals data from the County's Open
+# Data Portal
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccbor", "appeals")
 
