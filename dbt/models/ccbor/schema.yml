@@ -1,0 +1,7 @@
+sources:
+  - name: ccbor
+    tags:
+      - load_manual
+    tables:
+      - name: appeals
+        description: '{{ doc("table_appeals") }}'
