@@ -14,7 +14,7 @@ import pandas as pd
 import pyathena
 from dbt.cli.main import dbtRunner
 from openpyxl.styles import Alignment
-from openpyxl.utils import get_column_letter
+from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
 DBT = dbtRunner()
@@ -214,17 +214,18 @@ def main():
                         horizontal_alignment = Alignment(
                             horizontal=horiz_align_dir
                         )
-                        index = column_config.get("index")
-                        if index is None:
+                        col_letter = column_config.get("index")
+                        if col_letter is None:
                             raise ValueError(
                                 "'index' attribute is required when "
                                 "'horizontal_align' is set on "
                                 "export_format.columns config for "
                                 f"model {model_name}"
                             )
+                        idx = column_index_from_string(col_letter) - 1
                         # Skip header row
                         for row in sheet[2 : sheet.max_row]:
-                            row[index].alignment = horizontal_alignment
+                            row[idx].alignment = horizontal_alignment
 
         print(f"Exported model {model_name} to {output_path}")
 

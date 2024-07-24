@@ -1,8 +1,10 @@
 SELECT
     parid,
     instruno,
-    saledt,
-    price
+    price,
+    DATE_FORMAT(
+        DATE_PARSE(saledt, '%Y-%m-%d %H:%i:%S.%f'), '%c/%e/%Y'
+    ) AS saledt
 FROM (
     SELECT
         parid,
