@@ -951,6 +951,10 @@ models:
         - qc_report_town_close
     meta:
       export_name: 500k increase, 1m decrease
+      export_format:
+        columns:
+          - index: 12
+            horizontal_align: right
 
   - name: qc.vw_report_town_close_res_multicodes
     description: '{{ doc("view_vw_report_town_close_res_multicodes") }}'

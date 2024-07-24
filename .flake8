@@ -1,0 +1,6 @@
+[flake8]
+ignore=
+    # Whitespace before ':', incompatible with black
+    E203,
+    # Line break before binary operator, incompatible with black
+    W503

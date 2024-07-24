@@ -61,16 +61,22 @@ SELECT
     asmt.valapr2,
     asmt.valapr3,
     asmt.valapr3 - asmt_prev.valapr3 AS difference,
-    CONCAT(
-        CAST(
-            (
-                (asmt.valapr3 - asmt_prev.valapr3)
-                / CAST(asmt_prev.valapr3 AS DOUBLE)
+    CASE
+        WHEN asmt_prev.valapr3 != 0
+            THEN CONCAT(
+                CAST(
+                    ROUND(
+                        (
+                            (asmt.valapr3 - asmt_prev.valapr3)
+                            / CAST(asmt_prev.valapr3 AS DOUBLE)
+                        )
+                        * 100,
+                        2
+                    ) AS VARCHAR
+                ),
+                '%'
             )
-            * 100 AS VARCHAR
-        ),
-        '%'
-    ) AS percent_change,
+    END AS percent_change,
     code.dweldat_code_5,
     code.comdat_code_5,
     code.oby_code_5
@@ -82,8 +88,10 @@ LEFT JOIN {{ source('iasworld', 'asmt_all') }} AS asmt_prev
     AND asmt_prev.deactivat IS NULL
     AND asmt_prev.valclass IS NULL
 LEFT JOIN card_code_info AS code
-    ON asmt.parid = code.parid
-    AND asmt.taxyr = code.taxyr
+    ON asmt_prev.parid = code.parid
+    -- Join to prior year card code info, since we want to know the code value
+    -- last year
+    AND asmt_prev.taxyr = code.taxyr
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
     ON asmt.parid = legdat.parid
     AND asmt.taxyr = legdat.taxyr

@@ -13,6 +13,7 @@ import shutil
 import pandas as pd
 import pyathena
 from dbt.cli.main import dbtRunner
+from openpyxl.styles import Alignment
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
@@ -201,6 +202,29 @@ def main():
                 name="TableStyleMedium11", showRowStripes=True
             )
             sheet.add_table(table)
+
+            # Apply any column formatting that was configured
+            format_config = model["config"]["meta"].get("export_format", {})
+            if column_configs := format_config.get("columns"):
+                for column_config in column_configs:
+                    # Set horizontal alignment if config is present
+                    if horiz_align_dir := column_config.get(
+                        "horizontal_align"
+                    ):
+                        horizontal_alignment = Alignment(
+                            horizontal=horiz_align_dir
+                        )
+                        index = column_config.get("index")
+                        if index is None:
+                            raise ValueError(
+                                "'index' attribute is required when "
+                                "'horizontal_align' is set on "
+                                "export_format.columns config for "
+                                f"model {model_name}"
+                            )
+                        # Skip header row
+                        for row in sheet[2 : sheet.max_row]:
+                            row[index].alignment = horizontal_alignment
 
         print(f"Exported model {model_name} to {output_path}")
 
