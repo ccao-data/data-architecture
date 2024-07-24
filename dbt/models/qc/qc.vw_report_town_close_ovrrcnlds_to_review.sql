@@ -14,7 +14,9 @@ WITH combined_calc AS (
         dweldat.mktrsn AS card_code,
         dweldat.user16 AS alt_cdu,
         dweldat.who,
-        dweldat.wen
+        DATE_FORMAT(
+            DATE_PARSE(dweldat.wen, '%Y-%m-%d %H:%i:%S.%f'), '%c/%e/%Y %H:%i'
+        ) AS wen
     FROM {{ source('iasworld', 'dweldat') }} AS dweldat
     WHERE dweldat.cur = 'Y' AND dweldat.deactivat IS NULL
     UNION ALL
@@ -33,7 +35,9 @@ WITH combined_calc AS (
         comdat.chgrsn AS card_code,
         comdat.user16 AS alt_cdu,
         comdat.who,
-        comdat.wen
+        DATE_FORMAT(
+            DATE_PARSE(comdat.wen, '%Y-%m-%d %H:%i:%S.%f'), '%c/%e/%Y %H:%i'
+        ) AS wen
     FROM {{ source('iasworld', 'comdat') }} AS comdat
     WHERE comdat.cur = 'Y' AND comdat.deactivat IS NULL
     UNION ALL
@@ -52,7 +56,9 @@ WITH combined_calc AS (
         oby.chgrsn AS card_code,
         oby.user16 AS alt_cdu,
         oby.who,
-        oby.wen
+        DATE_FORMAT(
+            DATE_PARSE(oby.wen, '%Y-%m-%d %H:%i:%S.%f'), '%c/%e/%Y %H:%i'
+        ) AS wen
     FROM {{ source('iasworld', 'oby') }} AS oby
     WHERE oby.cur = 'Y' AND oby.deactivat IS NULL
 )
@@ -63,7 +69,8 @@ SELECT
     legdat.user1 AS township_code,
     pardat.class,
     aprval.reascd AS reason_for_change,
-    aprval.revdt,
+    DATE_FORMAT(DATE_PARSE(aprval.revdt, '%Y-%m-%d %H:%i:%S.%f'), '%c/%e/%Y')
+        AS revdt,
     aprval.aprbldg,
     aprval_prev.aprbldg AS aprbldg_prev,
     calc.table_name,
@@ -101,3 +108,4 @@ LEFT JOIN {{ source('iasworld', 'aprval') }} AS aprval_prev
     AND aprval_prev.cur = 'Y'
     AND aprval_prev.deactivat IS NULL
 WHERE calc.value_difference != 0
+    AND (aprval.reascd IS NULL OR aprval.reascd != '22')
