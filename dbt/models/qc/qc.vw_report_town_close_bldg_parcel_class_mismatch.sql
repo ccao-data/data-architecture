@@ -1,39 +1,56 @@
+{% set comparison_tables = ['comdat', 'dweldat', 'oby'] %}
+{% for tablename in comparison_tables %}
+    {% if loop.first %}WITH {% endif %}{{ tablename }}_mismatched_classes AS (
+        SELECT
+            pardat.parid,
+            pardat.taxyr,
+            ARRAY_JOIN(
+                ARRAY_AGG(DISTINCT {{ tablename }}.class),
+                ', '
+            ) AS {{ tablename }}_classes
+        FROM {{ source('iasworld', 'pardat') }} AS pardat
+        LEFT JOIN {{ source('iasworld', tablename) }} AS {{ tablename }}
+            ON pardat.parid = {{ tablename }}.parid
+            AND pardat.taxyr = {{ tablename }}.taxyr
+            AND {{ tablename }}.cur = 'Y'
+            AND {{ tablename }}.deactivat IS NULL
+        WHERE pardat.cur = 'Y'
+            AND pardat.deactivat IS NULL
+            AND pardat.class != {{ tablename }}.class
+        GROUP BY pardat.parid, pardat.taxyr
+    ){% if not loop.last %},{% endif %}
+{% endfor %}
+
 SELECT
     legdat.parid,
     legdat.taxyr,
-    -- legdat and pardat are unique by parid and taxyr, so we can select the
-    -- max and have confidence there is only one value
-    MAX(legdat.user1) AS township_code,
-    MAX(pardat.class) AS parcel_class,
-    -- comdat, dweldat, and oby can have multiple cards/lines for
-    -- one parid/taxyr combo, so we need to aggregate them into lists
-    ARRAY_AGG(DISTINCT comdat.class) AS comdat_classes,
-    ARRAY_AGG(DISTINCT dweldat.class) AS dweldat_classes,
-    ARRAY_AGG(DISTINCT oby.class) AS oby_classes
+    legdat.user1 AS township_code,
+    pardat.class AS parcel_class,
+{% for tablename in comparison_tables %}
+    {{ tablename }}.{{ tablename }}_classes{% if not loop.last %},{% endif %}
+{% endfor %}
 FROM {{ source('iasworld', 'pardat') }} AS pardat
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
     ON pardat.parid = legdat.parid
     AND pardat.taxyr = legdat.taxyr
     AND legdat.cur = 'Y'
     AND legdat.deactivat IS NULL
-LEFT JOIN {{ source('iasworld', 'comdat') }} AS comdat
-    ON pardat.parid = comdat.parid
-    AND pardat.taxyr = comdat.taxyr
-    AND comdat.cur = 'Y'
-    AND comdat.deactivat IS NULL
-LEFT JOIN {{ source('iasworld', 'dweldat') }} AS dweldat
-    ON pardat.parid = dweldat.parid
-    AND pardat.taxyr = dweldat.taxyr
-    AND dweldat.cur = 'Y'
-    AND dweldat.deactivat IS NULL
-LEFT JOIN {{ source('iasworld', 'oby') }} AS oby
-    ON pardat.parid = oby.parid
-    AND pardat.taxyr = oby.taxyr
-    AND oby.cur = 'Y'
-    AND oby.deactivat IS NULL
+{% for tablename in comparison_tables %}
+    LEFT JOIN {{ tablename }}_mismatched_classes AS {{ tablename }}
+        ON pardat.parid = {{ tablename }}.parid
+        AND pardat.taxyr = {{ tablename }}.taxyr
+{% endfor %}
 WHERE pardat.cur = 'Y'
     AND pardat.deactivat IS NULL
-    -- Trick to filter for rows where these four columns are not equal
-    AND LEAST(pardat.class, comdat.class, dweldat.class, oby.class)
-    != GREATEST(pardat.class, comdat.class, dweldat.class, oby.class)
-GROUP BY legdat.parid, legdat.taxyr
+    AND pardat.class NOT IN (
+        '100', '200', '239', '240', '241', '300', '400', '500', '535', '550'
+    )
+    AND SUBSTR(pardat.class, 1, 3) NOT IN (
+        '637', '700', '742', '800', '900'
+    )
+    AND (
+        {% for tablename in comparison_tables %}
+            {{ tablename }}.{{ tablename }}_classes IS NOT NULL
+            {% if not loop.last %}OR{% endif %}
+        {% endfor %}
+    )
