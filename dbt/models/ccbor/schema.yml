@@ -13,9 +13,9 @@ sources:
           - name: class
             description: '{{ doc("shared_column_class") }}'
           - name: township_code
-            description: '{{ docs shared_column_township_code }}'
+            description: '{{ doc("shared_column_township_code") }}'
           - name: tax_code
-            description: '{{ docs shared_column_tax_code }}'
+            description: '{{ doc("shared_column_tax_code") }}'
           - name: appeal_trk
             description: First part of the Complaint number
           - name: appeal_seq
@@ -25,17 +25,17 @@ sources:
           - name: appeal_type_desc
             description: Appeal type description
           - name: assessor_land_value
-            description: '{{ docs shared_column_certified_land }}'
+            description: '{{ doc("shared_column_certified_land") }}'
           - name: assessor_improvement_value
-            description: '{{ docs shared_column_certified_bldg }}'
+            description: '{{ doc("shared_column_certified_bldg") }}'
           - name: assessor_total_value
-            description: '{{ docs shared_column_certified_tot }}'
+            description: '{{ doc("shared_column_certified_tot") }}'
           - name: bor_land_value
-            description: '{{ docs shared_column_board_land }}'
+            description: '{{ doc("shared_column_board_land") }}'
           - name: bor_improvement_value
-            description: '{{ docs shared_column_board_bldg }}'
+            description: '{{ doc("shared_column_board_bldg") }}'
           - name: bor_total_value
-            description: '{{ docs shared_column_board_tot }}'
+            description: '{{ doc("shared_column_board_tot") }}'
           - name: result
             description: Board of Review appeal result
           - name: change_reason
@@ -67,4 +67,4 @@ sources:
           - name: attorney_firm_name
             description: Attorney firm name
           - name: taxyr
-            description: '{{ docs shared_column_year }}'
+            description: '{{ doc("shared_column_year") }}'
