@@ -58,6 +58,11 @@ map(raw_paths, \(x) {
     attorney_last_name = attorney_lastname,
     attorney_firm_name = attorney_firmname
   ) %>%
+  mutate(
+    across(.cols = everything(), ~ na_if(.x, "N/A")),
+    across(.cols = everything(), ~ na_if(.x, "")),
+    across(contains("value"), as.integer)
+  ) %>%
   group_by(taxyr) %>%
   write_partitions_to_s3(
     output_bucket,
