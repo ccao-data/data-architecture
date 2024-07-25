@@ -27,16 +27,6 @@ Pulled from the following Inquire queries:
 - `FP Checklist--Bldg and parcel class mismatch` (#2161) - Will C.
 {% enddocs %}
 
-# vw_incorrect_val_method
-
-{% docs view_vw_incorrect_val_method %}
-Test that no residential parcels are using a cost approach.
-
-Pulled from the following Inquire queries:
-
-- `FP Checklist - Res parcels not set to Cost Approach` (#1578) - Will C.
-{% enddocs %}
-
 # vw_neg_asmt_value
 
 {% docs view_vw_neg_asmt_value %}
