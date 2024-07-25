@@ -216,8 +216,7 @@ Pulled from the following Inquire queries:
 # vw_report_town_close_res_parcels_not_set_to_cost_approach
 
 {% docs view_vw_report_town_close_res_parcels_not_set_to_cost_approach %}
-Check for residential class parcels where the `revcode` column in the
-`APRVAL` table is not 1.
+Check for residential class parcels that are using a cost approach.
 
 This view is exported as part of the QC report to check values prior to town
 closings.
