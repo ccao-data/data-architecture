@@ -1,8 +1,10 @@
+-- Combine DWELDAT, COMDAT, and OBY and pull calculated fields from each
 WITH combined_calc AS (
     SELECT
         'DWELDAT' AS table_name,
         dweldat.parid,
         dweldat.card,
+        -- DWELDAT doesn't have lline but we need it for the union with OBY
         NULL AS lline,
         dweldat.taxyr,
         dweldat.external_rcnld,

@@ -1,8 +1,12 @@
+-- Calculate YoY changes to occupancy percentages in COMDAT
 WITH comdat_change AS (
     SELECT
         comdat_prev.parid,
         -- If there is a record for a card in the prior year but not in the
-        -- current year, infer the current year based on the prior year
+        -- current year, infer the current year based on the prior year.
+        -- Even though we use prior year data the rest of the identifiers that
+        -- we select, we want to select the current taxyr here since that's
+        -- what we use to filter QC reports
         COALESCE(
             comdat.taxyr,
             CAST(CAST(comdat_prev.taxyr AS INT) + 1 AS VARCHAR)
@@ -18,6 +22,9 @@ WITH comdat_change AS (
             1
         ) AS external_occpct_prev,
         comdat.external_occpct,
+        -- Avoid division by zero errors by only computing the percent change
+        -- in bldgval if current bldgval is present, otherwise fall back to a
+        -- null value
         CASE
             WHEN comdat.bldgval != 0
                 THEN ROUND(
@@ -45,7 +52,8 @@ WITH comdat_change AS (
                 )
         END AS difference_in_pct
     -- Select from the prior year of data as the base of the query so that we
-    -- can preserve parcels that may have changed in the following year
+    -- can preserve parcels that may have changed in the subsequent year
+    -- such that they don't appear in COMDAT anymore
     FROM {{ source('iasworld', 'comdat') }} AS comdat_prev
     LEFT JOIN {{ source('iasworld', 'comdat') }} AS comdat
         ON comdat_prev.parid = comdat.parid
@@ -55,6 +63,8 @@ WITH comdat_change AS (
         AND comdat.deactivat IS NULL
     WHERE comdat_prev.cur = 'Y'
         AND comdat_prev.deactivat IS NULL
+        -- Filter for prior year cards with one year market value relief
+        AND comdat_prev.chgrsn IN ('5', '5B')
 )
 
 SELECT
@@ -89,8 +99,10 @@ FROM comdat_change
 LEFT JOIN {{ ref('qc.vw_iasworld_asmt_all_with_prior_year_values') }} AS asmt
     ON comdat_change.parid = asmt.parid
     AND comdat_change.taxyr = asmt.taxyr
-WHERE comdat_change.chgrsn IN ('5', '5B')
-    AND (
-        comdat_change.difference_in_pct IS NULL
-        OR comdat_change.difference_in_pct != 0
-    )
+-- Filter out COMDAT rows that have no change. We perform this filtering
+-- in the main query rather than the subquery since it needs to operate
+-- on difference_in_pct, which is a field that the subquery computes
+WHERE (
+    comdat_change.difference_in_pct IS NULL
+    OR comdat_change.difference_in_pct != 0
+)

@@ -2,6 +2,7 @@ SELECT
     legdat.parid,
     asmt.taxyr,
     legdat.user1 AS township_code,
+    pardat.nbhd,
     pardat.class,
     pardat.luc,
     owndat.own1,

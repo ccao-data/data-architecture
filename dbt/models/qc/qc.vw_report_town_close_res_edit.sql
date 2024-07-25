@@ -1,3 +1,4 @@
+-- Get up to the first five DWELDAT cards for each parcel
 WITH first_five_dwellings AS (
     SELECT
         parid,
@@ -185,5 +186,6 @@ LEFT JOIN {{ ref('qc.vw_iasworld_sales_latest_sale_since_2021') }} AS sale
     ON pardat.parid = sale.parid
 WHERE pardat.cur = 'Y'
     AND pardat.deactivat IS NULL
+    -- Filter for only residential parcels
     AND SUBSTR(pardat.class, 1, 1) = '2'
     AND land.sf IS NOT NULL

@@ -20,6 +20,7 @@ SELECT
     valasm3
 FROM {{ ref('qc.vw_iasworld_asmt_all_with_prior_year_values') }}
 WHERE valasm2 != 0
+    -- Filter for vacant classes
     AND class IN (
         '100', '200', '239', '240', '241', '300', '400', '500', '550', '637',
         '637A', '637B', '650', '651', '651A', '651B', '700', '700A', '700B',

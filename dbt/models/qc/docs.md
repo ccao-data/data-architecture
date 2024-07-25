@@ -265,7 +265,7 @@ Pulled from the following Inquire queries:
 # vw_report_town_close_500k_increase_1m_decrease
 
 {% docs view_vw_report_town_close_500k_increase_1m_decrease %}
-Check for rows in the  `ASMT` table where an assessed value has increased
+Check for rows in the  `ASMT` table where the total market value has increased
 by more than $500k or decreased by more than $1m in the past year.
 
 This view is exported as part of the QC report to check values prior to town

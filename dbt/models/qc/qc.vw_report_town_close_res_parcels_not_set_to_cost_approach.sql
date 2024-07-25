@@ -25,5 +25,6 @@ LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
     AND legdat.deactivat IS NULL
 WHERE aprval.cur = 'Y'
     AND aprval.deactivat IS NULL
+    -- Filter for residential parcels not set to cost approach
     AND pardat.class LIKE '2%'
     AND (aprval.revcode IS NULL OR aprval.revcode != '1')
