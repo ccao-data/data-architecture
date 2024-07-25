@@ -373,7 +373,7 @@ LEFT JOIN housing_index
     AND uni.year = housing_index.year
 LEFT JOIN distressed_communities_index
     ON uni.pin10 = distressed_communities_index.pin10
-    AND uni.census_data_year
+    AND uni.year
     >= distressed_communities_index.year
 LEFT JOIN affordability_risk_index
     ON uni.pin10 = affordability_risk_index.pin10
