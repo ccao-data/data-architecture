@@ -135,7 +135,7 @@ SELECT
         ),
         '%'
     ) AS dweltot_percent_change,
-    sale.saledt,
+    sale.saledt_fmt,
     sale.price,
     sale.instruno,
     COALESCE(pardat.tiebldgpct, 0) AS tiebldgpct,
@@ -182,8 +182,10 @@ LEFT JOIN first_five_dwellings_pivoted AS dweldat
 LEFT JOIN {{ ref('default.vw_pin_land') }} AS land
     ON pardat.parid = land.pin
     AND pardat.taxyr = land.year
-LEFT JOIN {{ ref('qc.vw_iasworld_sales_latest_sale_since_2021') }} AS sale
+LEFT JOIN {{ ref('qc.vw_iasworld_sales_latest_sale') }} AS sale
     ON pardat.parid = sale.parid
+    -- Filter for only sales starting in 2021
+    AND sale.saledt >= '2021-01-01'
 WHERE pardat.cur = 'Y'
     AND pardat.deactivat IS NULL
     -- Filter for only residential parcels

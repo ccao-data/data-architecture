@@ -15,7 +15,7 @@ SELECT
     asmt.valapr1_prev,
     asmt.valapr2_prev,
     asmt.valapr3_prev,
-    sale.saledt,
+    sale.saledt_fmt,
     sale.price
 FROM {{ source('iasworld', 'dweldat') }} AS dweldat
 -- Filter for only dwellings on multicard parcels
@@ -39,7 +39,9 @@ LEFT JOIN {{ source('iasworld', 'dweldat') }} AS dweldat_prev
 LEFT JOIN {{ ref('qc.vw_iasworld_asmt_all_with_prior_year_values') }} AS asmt
     ON dweldat.parid = asmt.parid
     AND dweldat.taxyr = asmt.taxyr
-LEFT JOIN {{ ref('qc.vw_iasworld_sales_latest_sale_since_2021') }} AS sale
+LEFT JOIN {{ ref('qc.vw_iasworld_sales_latest_sale') }} AS sale
     ON dweldat.parid = sale.parid
+    -- Filter for only sales starting in 2021
+    AND sale.saledt >= '2021-01-01'
 WHERE dweldat.cur = 'Y'
     AND dweldat.deactivat IS NULL

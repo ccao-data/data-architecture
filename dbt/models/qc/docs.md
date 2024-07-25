@@ -95,6 +95,14 @@ different.
 
 {% enddocs %}
 
+# vw_iasworld_sales_latest_sale
+
+{% docs view_vw_iasworld_sales_latest_sale %}
+View that pulls the latest sale for each parcel from `iasworld.sales`.
+
+This view is used as the basis for a number of town close QC reports.
+{% enddocs %}
+
 # vw_nonlivable_condos_with_chars
 
 {% docs view_vw_nonlivable_condos_with_chars %}
@@ -121,6 +129,15 @@ with parcel legal descriptions and addresses.
 Both views are already filtered for current active records.
 {% enddocs %}
 
+# vw_iasworld_asmt_all_with_prior_year_values
+
+{% docs view_vw_iasworld_asmt_all_with_prior_year_values %}
+View that joins `iasworld.asmt_all` to its prior year values for comparison.
+Also pulls parcel data from `LEGDAT`, `PARDAT`, `OWNDAT`, and `APRVAL`
+for context.
+
+This view is used as the basis for a number of town close QC reports.
+{% enddocs %}
 
 # vw_report_town_close_neg_asmt_value
 
