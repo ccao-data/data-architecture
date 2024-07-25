@@ -1,4 +1,7 @@
 models:
+  - name: qc.vw_change_in_ahsap_values
+    description: '{{ doc("view_vw_change_in_ahsap_values") }}'
+
   - name: qc.vw_incorrect_val_method
     description: '{{ doc("view_vw_incorrect_val_method") }}'
     config:
@@ -609,6 +612,14 @@ models:
                 description: valasm3 (ASMT TOTAL) should not be negative
               <<: *test-non-negative
 
+  - name: qc.vw_report_neg_asmt_value
+    description: '{{ doc("view_vw_report_neg_asmt_value") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Negative ASMT values
+
   - name: qc.vw_change_in_high_low_value_sales
     description: '{{ doc("view_vw_change_in_high_low_value_sales") }}'
     config:
@@ -692,6 +703,9 @@ models:
                 description: >
                   proportion of sales where seller is null should not exceed 10%
               <<: *sales-null-values
+
+  - name: qc.vw_nonlivable_condos_with_chars
+    description: '{{ doc("view_vw_nonlivable_condos_with_chars") }}'
 
   - name: qc.vw_sale_mydec_null_values
     description: '{{ doc("view_vw_sale_mydec_null_values") }}'

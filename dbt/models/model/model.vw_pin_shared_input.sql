@@ -376,8 +376,12 @@ SELECT
     exemption_features.ccao_is_active_exe_homeowner,
     exemption_features.ccao_n_years_exe_homeowner,
 
-    -- Corner lot indicator
-    lot.is_corner_lot AS ccao_is_corner_lot,
+    -- Corner lot indicator, only filled after 2014 since that's
+    -- when OpenStreetMap data begins
+    CASE
+        WHEN CAST(uni.year AS INT) >= 2014
+            THEN COALESCE(lot.is_corner_lot, FALSE)
+    END AS ccao_is_corner_lot,
 
     -- PIN nearest neighbors, used for filling missing data
     vwpf.nearest_neighbor_1_pin10,
@@ -435,5 +439,6 @@ LEFT JOIN
 LEFT JOIN exemption_features
     ON uni.pin = exemption_features.pin
     AND uni.year = exemption_features.year
-LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
+LEFT JOIN {{ source('spatial', 'corner') }} AS lot
     ON uni.pin10 = lot.pin10
+    AND uni.year = lot.year

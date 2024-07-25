@@ -1,3 +1,14 @@
+# vw_change_in_ahsap_values
+
+{% docs view_vw_change_in_ahsap_values %}
+Test whether AHSAP properties have had large increases in AV between two
+stages. Only applies to most recent year of assessment roll.
+
+For an explanation of AHSAP and insight into why it involves so many different
+iasWorld tables, see: https://www.cookcountyassessor.com/affordable-housing
+
+{% enddocs %}
+
 # vw_change_in_high_low_value_sales
 
 {% docs view_vw_change_in_high_low_value_sales %}
@@ -29,11 +40,15 @@ Pulled from the following Inquire queries:
 # vw_neg_asmt_value
 
 {% docs view_vw_neg_asmt_value %}
-Test that all `ASMT.val*` columns are not negative.
+Pull `ASMT.val*` columns to support tests confirming they are not negative.
 
 Pulled from the following Inquire queries:
 
 - `FP Checklist - Negative ASMT Values` (#1569) - Will C.
+
+In contrast to `qc.vw_report_neg_asmt_value`, this view does not perform
+any filtering for negative values. That filtering is performed in tests
+defined on the model.
 {% enddocs %}
 
 # vw_iasworld_sales_null_values
@@ -78,6 +93,28 @@ Test if selected classes have sales prices greater than $20,000,000 in
 Test if prices in `iasworld.sales` and `sale.mydec` for matched sales are
 different.
 
+{% enddocs %}
+
+# vw_nonlivable_condos_with_chars
+
+{% docs view_vw_nonlivable_condos_with_chars %}
+Collects nonlivable condo units with associated characteristics. Nonlivable
+units should not have characteristics, so these discrepencies should be
+investigated.
+
+{% enddocs %}
+
+# vw_report_neg_asmt_value
+
+{% docs view_vw_report_neg_asmt_value %}
+Check for `ASMT.val*` columns that are negative.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Negative ASMT Values` (#1569) - Will C.
+
+In contrast to `qc.vw_neg_asmt_value`, this view directly performs filtering
+for negative values.
 {% enddocs %}
 
 # vw_sale_mydec_null_values
