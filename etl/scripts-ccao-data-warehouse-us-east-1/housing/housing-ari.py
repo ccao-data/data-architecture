@@ -38,7 +38,7 @@ data.to_parquet(
         os.environ["AWS_S3_WAREHOUSE_BUCKET"],
         "housing",
         "ari",
-        "2023.parquet",
+        "ari.parquet",
     ),
     index=False,
 )

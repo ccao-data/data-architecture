@@ -44,7 +44,7 @@ data.to_parquet(
         os.environ["AWS_S3_WAREHOUSE_BUCKET"],
         "housing",
         "dci",
-        "dci_2024.parquet",
+        "dci.parquet",
     ),
     index=False,
 )
