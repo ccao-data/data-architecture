@@ -725,6 +725,14 @@ models:
         description: '{{ doc("shared_column_pin_is_multicard") }}'
       - name: meta_pin_num_cards
         description: '{{ doc("shared_column_pin_num_cards") }}'
+    data_tests:
+      # Unique by PIN, card,dbt docs serve
+      - unique_combination_of_columns:
+          name: model_vw_card_res_input_unique_pin_year
+          combination_of_columns:
+            - meta_pin
+            - meta_year
+            - meta_card_num
 
   - name: model.vw_pin_condo_input
     description: '{{ doc("view_vw_pin_condo_input") }}'
@@ -903,8 +911,9 @@ models:
       - name: meta_pin_num_lline
         description: '{{ doc("shared_column_pin_num_lline") }}'
     data_tests:
+      # Unique by PIN, card, year
       - unique_combination_of_columns:
-          name: model_vw_pin_condo_input_unique_by_year_pin
+          name: model_vw_pin_res_input_unique_pin_year
           combination_of_columns:
             - meta_pin
             - meta_year
