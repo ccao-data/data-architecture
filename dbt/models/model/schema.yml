@@ -902,3 +902,9 @@ models:
         description: '{{ doc("shared_column_lline") }}'
       - name: meta_pin_num_lline
         description: '{{ doc("shared_column_pin_num_lline") }}'
+    data_tests:
+      - unique_combination_of_columns:
+          name: model_vw_pin_condo_input_unique_by_year_pin
+          combination_of_columns:
+            - meta_pin
+            - meta_year

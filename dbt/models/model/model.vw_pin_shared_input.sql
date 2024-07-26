@@ -88,7 +88,7 @@ distressed_communities_index AS (
     FROM {{ source('other', 'dci') }} AS dci
     LEFT JOIN {{ ref('location.census') }} AS zcta
         ON dci.geoid = zcta.census_zcta_geoid
-        AND CAST(zcta.year AS INTEGER) >= CAST(dci.year AS INTEGER)
+        AND zcta.year >= dci.year
 ),
 
 affordability_risk_index AS (
@@ -100,7 +100,7 @@ affordability_risk_index AS (
     FROM {{ source('other', 'ari') }} AS ari
     LEFT JOIN {{ ref('location.census_acs5') }} AS tract
         ON ari.geoid = tract.census_acs5_tract_geoid
-        AND CAST(tract.year AS INTEGER) >= CAST(ari.year AS INTEGER)
+        AND tract.year >= ari.year
 ),
 
 tax_bill_amount AS (
