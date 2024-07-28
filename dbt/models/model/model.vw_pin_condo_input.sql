@@ -132,6 +132,7 @@ WITH uni AS (
         vpsi.acs5_percent_household_owner_occupied,
         vpsi.acs5_percent_household_total_occupied_w_sel_cond,
         vpsi.other_ihs_avg_year_index,
+        vpsi.other_distressed_community_index,
         vpsi.other_affordability_risk_index,
         vpsi.other_tax_bill_amount_total,
         vpsi.other_tax_bill_rate,
