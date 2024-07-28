@@ -82,24 +82,26 @@ housing_index AS (
 distressed_communities_index AS (
     SELECT
         zcta.pin10,
-        zcta.year AS join_year,
-        dci.year,
+        zcta.year,
         dci.dci
     FROM {{ source('other', 'dci') }} AS dci
     LEFT JOIN {{ ref('location.census') }} AS zcta
         ON dci.geoid = zcta.census_zcta_geoid
+        -- DCI is only available for one year, so we join to census geoids for
+        -- all years after that
         AND zcta.year >= dci.year
 ),
 
 affordability_risk_index AS (
     SELECT
         tract.pin10,
-        ari.year,
         ari.ari_score AS ari,
-        tract.year AS join_year
+        tract.year
     FROM {{ source('other', 'ari') }} AS ari
     LEFT JOIN {{ ref('location.census_acs5') }} AS tract
         ON ari.geoid = tract.census_acs5_tract_geoid
+        -- ARI is only available for one year, so we join to census geoids for
+        -- all years after that
         AND tract.year >= ari.year
 ),
 
@@ -376,10 +378,10 @@ LEFT JOIN housing_index
 LEFT JOIN distressed_communities_index
     ON uni.pin10 = distressed_communities_index.pin10
     AND uni.year
-    = distressed_communities_index.join_year
+    = distressed_communities_index.year
 LEFT JOIN affordability_risk_index
     ON uni.pin10 = affordability_risk_index.pin10
-    AND uni.year = affordability_risk_index.join_year
+    AND uni.year = affordability_risk_index.year
 LEFT JOIN tax_bill_amount AS tbill
     ON uni.pin = tbill.pin
     AND uni.year = tbill.year
