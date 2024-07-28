@@ -7,7 +7,7 @@ sources:
         description: '{{ doc("table_appeals") }}'
         columns:
           - name: appeal_id
-            description: Appeal ID. Matches the "Complaint" value on the Board of Review Decision Search.
+            description: Appeal ID. Matches the "Complaint" value on the Board of Review Decision Search
           - name: pin
             description: '{{ doc("shared_column_pin") }}'
           - name: class
