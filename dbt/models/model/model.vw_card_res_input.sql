@@ -654,6 +654,7 @@ LEFT JOIN (
     SELECT *
     FROM forward_fill
     WHERE NOT ind_pin_is_multicard
+        AND SUBSTR(meta_pin, 11, 4) = '0000'
         AND nearest_neighbor_1_dist_ft <= 500
 ) AS nn1
     ON f1.nearest_neighbor_1_pin10 = nn1.meta_pin10
@@ -662,6 +663,7 @@ LEFT JOIN (
     SELECT *
     FROM forward_fill
     WHERE NOT ind_pin_is_multicard
+        AND SUBSTR(meta_pin, 11, 4) = '0000'
         AND nearest_neighbor_2_dist_ft <= 500
 ) AS nn2
     ON f1.nearest_neighbor_1_pin10 = nn2.meta_pin10
