@@ -24,6 +24,8 @@ INNER JOIN (
         parid,
         taxyr
     FROM {{ source('iasworld', 'dweldat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
     GROUP BY parid, taxyr
     HAVING COUNT(*) > 1
 ) AS multicard_parcel
