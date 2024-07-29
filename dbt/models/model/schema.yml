@@ -740,8 +740,6 @@ models:
             - meta_pin
             - meta_year
             - meta_card_num
-          config:
-            error_if: ">19"
 
   - name: model.vw_pin_condo_input
     description: '{{ doc("view_vw_pin_condo_input") }}'

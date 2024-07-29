@@ -654,6 +654,7 @@ LEFT JOIN (
     SELECT *
     FROM forward_fill
     WHERE NOT ind_pin_is_multicard
+        -- Some res parcels are not unique by pin10
         AND SUBSTR(meta_pin, 11, 4) = '0000'
         AND nearest_neighbor_1_dist_ft <= 500
 ) AS nn1
@@ -663,6 +664,7 @@ LEFT JOIN (
     SELECT *
     FROM forward_fill
     WHERE NOT ind_pin_is_multicard
+        -- Some res parcels are not unique by pin10
         AND SUBSTR(meta_pin, 11, 4) = '0000'
         AND nearest_neighbor_2_dist_ft <= 500
 ) AS nn2
