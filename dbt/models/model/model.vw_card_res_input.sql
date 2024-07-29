@@ -654,7 +654,11 @@ LEFT JOIN (
     SELECT *
     FROM forward_fill
     WHERE NOT ind_pin_is_multicard
-        -- Some res parcels are not unique by pin10
+        /* Unfortunately, some res parcels are not unique by pin10, card, and
+        year. This complicates one of our core assumptions about the res parcel
+        universe.
+        See https://github.com/ccao-data/data-architecture/issues/558 for more
+        information. */
         AND SUBSTR(meta_pin, 11, 4) = '0000'
         AND nearest_neighbor_1_dist_ft <= 500
 ) AS nn1
@@ -664,7 +668,6 @@ LEFT JOIN (
     SELECT *
     FROM forward_fill
     WHERE NOT ind_pin_is_multicard
-        -- Some res parcels are not unique by pin10
         AND SUBSTR(meta_pin, 11, 4) = '0000'
         AND nearest_neighbor_2_dist_ft <= 500
 ) AS nn2
