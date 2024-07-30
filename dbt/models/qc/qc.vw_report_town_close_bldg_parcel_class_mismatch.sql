@@ -4,20 +4,21 @@
         SELECT
             pardat.parid,
             pardat.taxyr,
-            ARRAY_JOIN(
-                ARRAY_AGG(DISTINCT {{ tablename }}.class),
-                ', '
-            ) AS {{ tablename }}_classes
-        FROM {{ source('iasworld', 'pardat') }} AS pardat
-        LEFT JOIN {{ source('iasworld', tablename) }} AS {{ tablename }}
+            ARRAY_JOIN({{ tablename }}.classes, ', ') AS classes
+        FROM {{ source('iasworld', 'pardat' ) }} AS pardat
+        LEFT JOIN (
+            SELECT
+                {{ tablename }}.parid,
+                {{ tablename }}.taxyr,
+                ARRAY_AGG(DISTINCT {{ tablename }}.class) AS classes
+            FROM {{ source('iasworld', tablename) }} AS {{ tablename }}
+            WHERE {{ tablename }}.cur = 'Y'
+                AND {{ tablename }}.deactivat IS NULL
+            GROUP BY {{ tablename }}.parid, {{ tablename }}.taxyr
+        ) AS {{ tablename }}
             ON pardat.parid = {{ tablename }}.parid
             AND pardat.taxyr = {{ tablename }}.taxyr
-            AND {{ tablename }}.cur = 'Y'
-            AND {{ tablename }}.deactivat IS NULL
-        WHERE pardat.cur = 'Y'
-            AND pardat.deactivat IS NULL
-            AND pardat.class != {{ tablename }}.class
-        GROUP BY pardat.parid, pardat.taxyr
+        WHERE NOT CONTAINS({{ tablename }}.classes, pardat.class)
     ){% if not loop.last %},{% endif %}
 {% endfor %}
 
@@ -27,7 +28,9 @@ SELECT
     legdat.user1 AS township_code,
     pardat.class AS parcel_class,
 {% for tablename in comparison_tables %}
-    {{ tablename }}.{{ tablename }}_classes{% if not loop.last %},{% endif %}
+    {{ tablename }}.classes AS {{ tablename }}_classes{% if not loop.last %}
+        ,
+    {% endif %}
 {% endfor %}
 FROM {{ source('iasworld', 'pardat') }} AS pardat
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
@@ -50,7 +53,7 @@ WHERE pardat.cur = 'Y'
     )
     AND (
         {% for tablename in comparison_tables %}
-            {{ tablename }}.{{ tablename }}_classes IS NOT NULL
+            {{ tablename }}.classes IS NOT NULL
             {% if not loop.last %}OR{% endif %}
         {% endfor %}
     )
