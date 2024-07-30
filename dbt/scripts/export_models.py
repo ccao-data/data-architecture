@@ -14,6 +14,7 @@ import pandas as pd
 import pyathena
 from dbt.cli.main import dbtRunner
 from openpyxl.styles import Alignment
+from openpyxl.styles.numbers import FORMAT_NUMBER
 from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
@@ -202,6 +203,19 @@ def main():
                 name="TableStyleMedium11", showRowStripes=True
             )
             sheet.add_table(table)
+
+            # If a parid column exists, format it explicitly as a number to
+            # avoid Excel converting it to scientific notation when a user
+            # edits the cell
+            if "parid" in model_df or "pin" in model_df:
+                parid_field = "parid" if "parid" in model_df else "pin"
+                parid_index = model_df.columns.get_loc(parid_field)
+                # Skip header row when applying formatting
+                for row in sheet[2 : sheet.max_row]:
+                    row[parid_index].number_format = FORMAT_NUMBER
+                    # Left align since PINs do not actually need to be compared
+                    # by order of magnitude the way that numbers do
+                    row[parid_index].alignment = Alignment(horizontal="left")
 
             # Apply any column formatting that was configured
             format_config = model["config"]["meta"].get("export_format", {})
