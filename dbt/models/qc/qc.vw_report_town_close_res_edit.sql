@@ -190,4 +190,3 @@ WHERE pardat.cur = 'Y'
     AND pardat.deactivat IS NULL
     -- Filter for only residential parcels
     AND SUBSTR(pardat.class, 1, 1) = '2'
-    AND land.sf IS NOT NULL
