@@ -196,8 +196,8 @@ def main():
             # the Excel workbook invalid
             if model_df.empty:
                 print(
-                    "Result set is empty, skipping conversion of Excel sheet "
-                    "to filterable data table"
+                    "Skipping formatting for output workbook since result set "
+                    "is empty"
                 )
             else:
                 table = Table(
@@ -212,42 +212,55 @@ def main():
                 )
                 sheet.add_table(table)
 
-            # If a parid column exists, format it explicitly as a number to
-            # avoid Excel converting it to scientific notation when a user
-            # edits the cell
-            if "parid" in model_df or "pin" in model_df:
-                parid_field = "parid" if "parid" in model_df else "pin"
-                parid_index = model_df.columns.get_loc(parid_field)
-                # Skip header row when applying formatting
-                for row in sheet[2 : sheet.max_row]:
-                    row[parid_index].number_format = FORMAT_NUMBER
-                    # Left align since PINs do not actually need to be compared
-                    # by order of magnitude the way that numbers do
-                    row[parid_index].alignment = Alignment(horizontal="left")
-
-            # Apply any column formatting that was configured
-            format_config = model["config"]["meta"].get("export_format", {})
-            if column_configs := format_config.get("columns"):
-                for column_config in column_configs:
-                    # Set horizontal alignment if config is present
-                    if horiz_align_dir := column_config.get(
-                        "horizontal_align"
-                    ):
-                        horizontal_alignment = Alignment(
-                            horizontal=horiz_align_dir
+                # If a parid column exists, format it explicitly as a number to
+                # avoid Excel converting it to scientific notation when a user
+                # edits the cell
+                if "parid" in model_df or "pin" in model_df:
+                    parid_field = "parid" if "parid" in model_df else "pin"
+                    parid_index = model_df.columns.get_loc(parid_field)
+                    # Skip header row when applying formatting. We need to
+                    # catch the special case where there is only one row, or
+                    # else we will iterate the _cells_ in that row instead of
+                    # the row when slicing it from 2 : max_row
+                    non_header_rows = (
+                        [sheet[2]]
+                        if sheet.max_row == 2
+                        else sheet[2 : sheet.max_row]
+                    )
+                    for row in non_header_rows:
+                        row[parid_index].number_format = FORMAT_NUMBER
+                        # Left align since PINs do not actually need to be
+                        # compared by order of magnitude the way that numbers
+                        # do
+                        row[parid_index].alignment = Alignment(
+                            horizontal="left"
                         )
-                        col_letter = column_config.get("index")
-                        if col_letter is None:
-                            raise ValueError(
-                                "'index' attribute is required when "
-                                "'horizontal_align' is set on "
-                                "export_format.columns config for "
-                                f"model {model_name}"
+
+                # Apply any column formatting that was configured
+                format_config = model["config"]["meta"].get(
+                    "export_format", {}
+                )
+                if column_configs := format_config.get("columns"):
+                    for column_config in column_configs:
+                        # Set horizontal alignment if config is present
+                        if horiz_align_dir := column_config.get(
+                            "horizontal_align"
+                        ):
+                            horizontal_alignment = Alignment(
+                                horizontal=horiz_align_dir
                             )
-                        idx = column_index_from_string(col_letter) - 1
-                        # Skip header row
-                        for row in sheet[2 : sheet.max_row]:
-                            row[idx].alignment = horizontal_alignment
+                            col_letter = column_config.get("index")
+                            if col_letter is None:
+                                raise ValueError(
+                                    "'index' attribute is required when "
+                                    "'horizontal_align' is set on "
+                                    "export_format.columns config for "
+                                    f"model {model_name}"
+                                )
+                            idx = column_index_from_string(col_letter) - 1
+                            # Skip header row
+                            for row in sheet[2 : sheet.max_row]:
+                                row[idx].alignment = horizontal_alignment
 
         print(f"Exported model {model_name} to {output_path}")
 
