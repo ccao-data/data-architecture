@@ -30,10 +30,19 @@ Individual school locations and ratings sourced from
 # ihs_index
 
 {% docs table_ihs_index %}
-[DePaul Institute of Housing Studies (IHS)](https://www.housingstudies.org/)
+[DePaul Institute of Housing Studies (IHS)](https://www.housingstudies.org/) 
 quarterly House Price Index.
 
 **Primary Key**: `year`, `geoid`, `quarter`
+{% enddocs %}
+
+# dci
+
+{% docs table_dci %}
+[Economic Innovation Group](https://eig.org/distressed-communities) 
+Distressed Communities Index
+
+**Primary Key**: `year`, `geoid`
 {% enddocs %}
 
 # ari

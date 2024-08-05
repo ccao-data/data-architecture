@@ -626,8 +626,7 @@ class TestCategory:
         return tuple(
             openpyxl.utils.get_column_letter(
                 # openpyxl is 1-indexed while the index() method is 0-indexed
-                existing_fieldnames.index(field)
-                + 1
+                existing_fieldnames.index(field) + 1
             )
             for field in self._filter_for_existing_fieldnames(
                 possible_fieldnames

@@ -368,6 +368,9 @@ models:
       - &other_ihs_avg_year_index
         name: other_ihs_avg_year_index
         description: '{{ doc("shared_column_ihs_avg_year_index") }}'
+      - &other_dci
+        name: other_dci
+        description: '{{ doc("shared_column_dci") }}'
       - &other_ari
         name: other_ari
         description: '{{ doc("shared_column_ari") }}'
@@ -459,23 +462,30 @@ models:
         name: prox_num_school_with_rating_in_half_mile
         description: '{{ doc("column_num_school_with_rating_in_half_mile") }}'
       - &shp_parcel_centroid_dist_ft_sd
-        name: shp_parcel_centroid_dist_ft_sd 
+        name: shp_parcel_centroid_dist_ft_sd
         description: '{{ doc("column_parcel_centroid_dist_ft_sd") }}'
       - &shp_parcel_edge_len_ft_sd
-        name: shp_parcel_edge_len_ft_sd 
+        name: shp_parcel_edge_len_ft_sd
         description: '{{ doc("column_parcel_edge_len_ft_sd") }}'
       - &shp_parcel_interior_angle_sd
-        name: shp_parcel_interior_angle_sd 
+        name: shp_parcel_interior_angle_sd
         description: '{{ doc("column_parcel_interior_angle_sd") }}'
       - &shp_parcel_mrr_area_ratio
-        name: shp_parcel_mrr_area_ratio 
+        name: shp_parcel_mrr_area_ratio
         description: '{{ doc("column_parcel_mrr_area_ratio") }}'
       - &shp_parcel_mrr_side_ratio
-        name: shp_parcel_mrr_side_ratio 
+        name: shp_parcel_mrr_side_ratio
         description: '{{ doc("column_parcel_mrr_side_ratio") }}'
       - &shp_parcel_num_vertices
-        name: shp_parcel_num_vertices 
+        name: shp_parcel_num_vertices
         description: '{{ doc("column_parcel_num_vertices") }}'
+    data_tests:
+      # Unique by PIN, card, year
+      - unique_combination_of_columns:
+          name: model_vw_pin_shared_input_unique_pin_year
+          combination_of_columns:
+            - meta_pin
+            - meta_year
 
   - name: model.vw_card_res_input
     description: '{{ doc("view_vw_card_res_input") }}'
@@ -566,6 +576,7 @@ models:
       - *meta_triad_name
       - *meta_year
       - *other_ihs_avg_year_index
+      - *other_dci
       - *other_ari
       - *other_school_district_elementary_avg_rating
       - *other_school_district_secondary_avg_rating
@@ -721,6 +732,14 @@ models:
         description: '{{ doc("shared_column_pin_is_multicard") }}'
       - name: meta_pin_num_cards
         description: '{{ doc("shared_column_pin_num_cards") }}'
+    data_tests:
+      # Unique by PIN, card, year
+      - unique_combination_of_columns:
+          name: model_vw_card_res_input_unique_pin_card_year
+          combination_of_columns:
+            - meta_pin
+            - meta_year
+            - meta_card_num
 
   - name: model.vw_pin_condo_input
     description: '{{ doc("view_vw_pin_condo_input") }}'
@@ -811,6 +830,7 @@ models:
       - *meta_triad_name
       - *meta_year
       - *other_ihs_avg_year_index
+      - *other_dci
       - *other_ari
       - *other_school_district_elementary_avg_rating
       - *other_school_district_secondary_avg_rating
@@ -897,3 +917,10 @@ models:
         description: '{{ doc("shared_column_lline") }}'
       - name: meta_pin_num_lline
         description: '{{ doc("shared_column_pin_num_lline") }}'
+    data_tests:
+      # Unique by PIN, card, year
+      - unique_combination_of_columns:
+          name: model_vw_pin_condo_input_unique_pin_year
+          combination_of_columns:
+            - meta_pin
+            - meta_year
