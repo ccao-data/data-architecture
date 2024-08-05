@@ -4,9 +4,9 @@ WITH dweldat_change AS (
         dweldat_prev.parid,
         -- If there is a record for a card in the prior year but not in the
         -- current year, infer the current year based on the prior year.
-        -- Even though we use prior year data the rest of the identifiers that
-        -- we select, we want to select the current taxyr here since that's
-        -- what we use to filter QC reports
+        -- Even though we use prior year data for the rest of the identifiers
+        -- that we select, we want to select the current taxyr here since
+        -- that's what we use to filter QC reports
         COALESCE(
             dweldat.taxyr,
             CAST(CAST(dweldat_prev.taxyr AS INT) + 1 AS VARCHAR)
