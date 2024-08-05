@@ -1,9 +1,16 @@
+-- Check dweldat, comdat, and oby for card code 5s, i.e. cards that had a
+-- one-year reduction in value that might explain a big year-over-year change
 WITH card_code_info AS (
     SELECT
         pardat.parid,
         pardat.taxyr,
         CASE
             WHEN
+                -- There can be multiple cards per parcel, and there are a
+                -- couple different codes starting with 5 that we want to
+                -- classify as "card code 5s", so we need to aggregate the card
+                -- codes into an array and then check if any of them start
+                -- with 5
                 CONTAINS(
                     ARRAY_AGG(SUBSTRING(COALESCE(dweldat.mktrsn, ''), 1, 1)),
                     '5'
