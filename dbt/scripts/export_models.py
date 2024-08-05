@@ -189,20 +189,28 @@ def main():
                 index=False,
                 startrow=1 if template_exists else 0,
             )
-
-            # Add a table for data filtering
             sheet = writer.sheets[sheet_name]
-            table = Table(
-                displayName="Query_Results",
-                ref=(
-                    f"A1:{get_column_letter(sheet.max_column)}"
-                    f"{str(sheet.max_row)}"
-                ),
-            )
-            table.tableStyleInfo = TableStyleInfo(
-                name="TableStyleMedium11", showRowStripes=True
-            )
-            sheet.add_table(table)
+
+            # Add a table for data filtering. Only do this if the result set
+            # is not empty, because otherwise the empty table will make
+            # the Excel workbook invalid
+            if model_df.empty:
+                print(
+                    "Result set is empty, skipping conversion of Excel sheet "
+                    "to filterable data table"
+                )
+            else:
+                table = Table(
+                    displayName="Query_Results",
+                    ref=(
+                        f"A1:{get_column_letter(sheet.max_column)}"
+                        f"{str(sheet.max_row)}"
+                    ),
+                )
+                table.tableStyleInfo = TableStyleInfo(
+                    name="TableStyleMedium11", showRowStripes=True
+                )
+                sheet.add_table(table)
 
             # If a parid column exists, format it explicitly as a number to
             # avoid Excel converting it to scientific notation when a user
