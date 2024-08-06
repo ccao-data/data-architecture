@@ -73,7 +73,9 @@ num_dwellings AS (
         parid,
         taxyr,
         COUNT(*) AS num_dwellings
-    FROM first_five_dwellings
+    FROM {{ source('iasworld', 'dweldat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
     GROUP BY parid, taxyr
 )
 
