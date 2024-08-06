@@ -34,7 +34,7 @@ def build_query(athena_asset, row_identifiers, years=None):
         )
     )
 
-    # Array type columns are not comatible with the json format needed for
+    # Array type columns are not compatible with the json format needed for
     # Socrata uploads. Automatically convert any array type columns to string.
     columns.loc[columns["type"] == "array(varchar)", "column"] = (
         "ARRAY_JOIN("
