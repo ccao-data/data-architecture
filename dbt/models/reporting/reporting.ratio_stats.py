@@ -470,8 +470,7 @@ def report_summarise(df, geography_id, geography_type):
                 **dict(
                     zip(
                         [
-                            "cod_val",
-                            "cod_ci_l",
+                            "cod",  # change the rest of these to match original
                             "ccao_ci_u",
                             "cod_met",
                             "cod_n",
@@ -520,6 +519,7 @@ def report_summarise(df, geography_id, geography_type):
     """
 
     """
+    TODO: get these functioning
     df[["median_ratio", "median_ratio_ci", "median_ratio_n"]] = pd.DataFrame(
         df.ratio.tolist(), index=df.index
     )
@@ -538,16 +538,17 @@ def report_summarise(df, geography_id, geography_type):
     df["ratio_met"] = abs(1 - df["median_ratio"]) <= 0.05
     df["vertical_equity_met"] = df.prd_met | df.prb_met
     """
-
+    athena_user_logger.info(f"check check check")
     athena_user_logger.info(f"{df.columns}")
 
     # Arrange columns
     df = df[
         [
             "sale_n",
+            # TODO: get these functioning
             # "median_ratio",
             # "median_ratio_ci",
-            # "cod",
+            "cod",
             # "cod_ci",
             # "cod_n",
             # "prd",
@@ -570,6 +571,9 @@ def report_summarise(df, geography_id, geography_type):
             # "within_05_pct",
         ]
     ].reset_index()
+
+    athena_user_logger.info("END OF SUMMARISE CHECK")
+    athena_user_logger.info(f"{df.columns}")
 
     return df
 
