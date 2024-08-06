@@ -6,7 +6,12 @@ SELECT
     pardat.class,
     pardat.luc,
     owndat.own1,
-    aprval.reascd,
+    CASE
+        WHEN
+            aprval.reascd IS NOT NULL AND reascd.description IS NOT NULL
+            THEN CONCAT(aprval.reascd, ': ', reascd.description)
+        ELSE aprval.reascd
+    END AS reascd,
     aprval.who,
     asmt_prev.valapr1 AS valapr1_prev,
     asmt_prev.valapr2 AS valapr2_prev,
@@ -47,6 +52,8 @@ LEFT JOIN {{ source('iasworld', 'aprval') }} AS aprval
     AND asmt.parid = aprval.parid
     AND aprval.cur = 'Y'
     AND aprval.deactivat IS NULL
+LEFT JOIN {{ ref('ccao.aprval_reascd') }} AS reascd
+    ON aprval.reascd = reascd.reascd
 WHERE asmt.cur = 'Y'
     AND asmt.deactivat IS NULL
     AND asmt.valclass IS NULL

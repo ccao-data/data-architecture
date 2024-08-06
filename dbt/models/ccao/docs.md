@@ -1,6 +1,3 @@
-**Primary Key**: `reascd`
-{% enddocs %}
-
 # class_dict
 
 {% docs table_class_dict %}
