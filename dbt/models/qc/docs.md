@@ -164,48 +164,6 @@ Pulled from the following Inquire queries:
 - `FP Checklist - Card Code Info` (#2160) - Will C.
 {% enddocs %}
 
-# vw_report_town_close_prior_year_card_code_5s_comdat
-
-{% docs view_vw_report_town_close_prior_year_card_code_5s_comdat %}
-Check market values, assessed values, and occupancy percentages for cards
-that had a card code 5 in the prior year in the `COMDAT` table.
-
-This view is exported as part of the QC report to check values prior to town
-closings.
-
-Pulled from the following Inquire queries:
-
-- `FP Checklist - Prior Yr Card Code 5s COMDAT` (#1585) - Will C.
-{% enddocs %}
-
-# vw_report_town_close_prior_year_card_code_5s_dweldat
-
-{% docs view_vw_report_town_close_prior_year_card_code_5s_dweldat %}
-Check market values, assessed values, and occupancy percentages for cards
-that had a card code 5 in the prior year in the `DWELDAT` table.
-
-This view is exported as part of the QC report to check values prior to town
-closings.
-
-Pulled from the following Inquire queries:
-
-- `FP Checklist - Prior Yr Card Code 5s DWELDAT` (#1585) - Will C.
-{% enddocs %}
-
-# vw_report_town_close_prior_year_card_code_5s_oby
-
-{% docs view_vw_report_town_close_prior_year_card_code_5s_oby %}
-Check market values, assessed values, and occupancy percentages for cards
-that had a card code 5 in the prior year in the `OBY` table.
-
-This view is exported as part of the QC report to check values prior to town
-closings.
-
-Pulled from the following Inquire queries:
-
-- `FP Checklist - Prior Yr Card Code 5s OBY` (#1585) - Will C.
-{% enddocs %}
-
 # vw_report_town_close_class_does_not_equal_luc
 
 {% docs view_vw_report_town_close_class_does_not_equal_luc %}
@@ -248,6 +206,33 @@ Pulled from the following Inquire queries:
 
 In contrast to `qc.vw_neg_asmt_value`, this view directly performs filtering
 for negative values.
+{% enddocs %}
+
+# vw_report_town_close_prior_year_card_code_5s
+
+{% docs view_vw_report_town_close_prior_year_card_code_5s %}
+Check for records that received a 1-year value reduction in the prior year
+(card code 5s) but whose value is not back up to 100% when compared to the
+prior year value and occupancy factor.
+
+One year reductions are reduced by a percentage, which is recorded in the
+occupancy field, even if it's not technically a reduction due to occupancy.
+That way the system can just use the percentage to bring the value up to 100%
+when rolling over to a new year of data. If the record was not brought back up
+to 100%, the "2023 % of 2024" column will not match the 2023 occupancy and the
+card will appear in this report.
+
+Note that in some cases there are slight discrepancies due to rounding and
+Board decisions, which are indicated by a card code 5B instead of 5.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Prior Yr Card Code 5s COMDAT` (#1585) - Will C.
+- `FP Checklist - Prior Yr Card Code 5s DWELDAT` (#1584) - Will C.
+- `FP Checklist - Prior Yr Card Code 5s OBY` (#1586) - Will C.
 {% enddocs %}
 
 # vw_report_town_close_vacant_class_with_bldg_value
