@@ -164,9 +164,6 @@ Pulled from the following Inquire queries:
 - `FP Checklist - Card Code Info` (#2160) - Will C.
 {% enddocs %}
 
-- `FP Checklist - Prior Yr Card Code 5s OBY` (#1585) - Will C.
-{% enddocs %}
-
 # vw_report_town_close_class_does_not_equal_luc
 
 {% docs view_vw_report_town_close_class_does_not_equal_luc %}
