@@ -948,6 +948,7 @@ models:
     config:
       tags:
         - qc_report_town_close
+        - test_qc_inquire
     meta:
       export_name: Res parcels not set to cost approach
     columns:
@@ -968,8 +969,6 @@ models:
                 - who
                 - wen
               config:
-                tags:
-                  - test_qc_inquire
                 where: |
                   CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
               meta:

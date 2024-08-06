@@ -308,7 +308,14 @@ Pulled from the following Inquire queries:
 # vw_report_town_close_res_parcels_not_set_to_cost_approach
 
 {% docs view_vw_report_town_close_res_parcels_not_set_to_cost_approach %}
-Check for residential class parcels that are using a cost approach.
+Check for residential class parcels that do not have "1: Cost Approach" set
+for their Valuation Method.
+
+This might seem counter-intuitive since residential parcels are not generally
+valued using a cost approach, but it stems from the fact that "1: Cost Approach"
+is actually used as a flag to indicate that we valued the parcel the normal way
+using the data in the `LAND`/`DWELDAT`/`COMDAT`/`OBY` tables rather than using
+overrides in the "Land/Building/Total Value Estimate" fields.
 
 This view is exported as part of the QC report to check values prior to town
 closings.

@@ -20,7 +20,8 @@ WITH combined_calc AS (
             DATE_PARSE(dweldat.wen, '%Y-%m-%d %H:%i:%S.%f'), '%c/%e/%Y %H:%i'
         ) AS wen
     FROM {{ source('iasworld', 'dweldat') }} AS dweldat
-    WHERE dweldat.cur = 'Y' AND dweldat.deactivat IS NULL
+    WHERE dweldat.cur = 'Y'
+        AND dweldat.deactivat IS NULL
     UNION ALL
     SELECT
         'COMDAT' AS table_name,
@@ -41,7 +42,8 @@ WITH combined_calc AS (
             DATE_PARSE(comdat.wen, '%Y-%m-%d %H:%i:%S.%f'), '%c/%e/%Y %H:%i'
         ) AS wen
     FROM {{ source('iasworld', 'comdat') }} AS comdat
-    WHERE comdat.cur = 'Y' AND comdat.deactivat IS NULL
+    WHERE comdat.cur = 'Y'
+        AND comdat.deactivat IS NULL
     UNION ALL
     SELECT
         'OBY' AS table_name,
@@ -62,7 +64,8 @@ WITH combined_calc AS (
             DATE_PARSE(oby.wen, '%Y-%m-%d %H:%i:%S.%f'), '%c/%e/%Y %H:%i'
         ) AS wen
     FROM {{ source('iasworld', 'oby') }} AS oby
-    WHERE oby.cur = 'Y' AND oby.deactivat IS NULL
+    WHERE oby.cur = 'Y'
+        AND oby.deactivat IS NULL
 )
 
 SELECT

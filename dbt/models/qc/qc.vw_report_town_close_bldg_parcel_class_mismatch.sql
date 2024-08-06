@@ -5,16 +5,10 @@ SELECT
     legdat.taxyr,
     legdat.user1 AS township_code,
     pardat.class AS parcel_class,
-    {% for tablename in comparison_tables %}
-        ARRAY_JOIN({{ tablename }}.classes, ', ')
-            AS {{ tablename }}_classes
-
-        {% if not loop.last %}
-
-            ,
-
-        {% endif %}
-    {% endfor %}
+{% for tablename in comparison_tables %}
+    ARRAY_JOIN({{ tablename }}.classes, ', ')
+        AS {{ tablename }}_classes{% if not loop.last %}, {% endif %}
+{% endfor %}
 FROM {{ source('iasworld', 'pardat') }} AS pardat
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
     ON pardat.parid = legdat.parid
