@@ -10,6 +10,7 @@
 .Ruserdata
 package*.json
 settings.json
+socrata/.Renviron
 
 # Directories
 logs/
