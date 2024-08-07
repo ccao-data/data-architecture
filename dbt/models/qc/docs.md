@@ -27,6 +27,69 @@ Pulled from the following Inquire queries:
 - `FP Checklist--Bldg and parcel class mismatch` (#2161) - Will C.
 {% enddocs %}
 
+# vw_iasworld_asmt_all_joined_to_legdat
+
+{% docs view_vw_iasworld_asmt_all_joined_to_legdat %}
+View that joins `iasworld.asmt_all` to `iasworld.legdat` to augment `asmt_all`
+with parcel legal descriptions and addresses.
+
+Both views are already filtered for current active records.
+{% enddocs %}
+
+# vw_iasworld_asmt_all_with_prior_year_values
+
+{% docs view_vw_iasworld_asmt_all_with_prior_year_values %}
+View that joins `iasworld.asmt_all` to its prior year values for comparison.
+Also pulls parcel data from `LEGDAT`, `PARDAT`, `OWNDAT`, and `APRVAL`
+for context.
+
+This view is used as the basis for a number of town close QC reports.
+{% enddocs %}
+
+# vw_iasworld_sales_day_of_month
+
+{% docs view_vw_iasworld_sales_day_of_month %}
+Test if sale dates are concentrated to particular days of the month in
+`iasworld.sales`.
+
+{% enddocs %}
+
+# vw_iasworld_sales_high_value_by_class
+
+{% docs view_vw_iasworld_sales_high_value_by_class %}
+Test if selected classes have sales prices greater than $20,000,000 in
+`iasworld.sales`.
+
+{% enddocs %}
+
+# vw_iasworld_sales_null_values
+
+{% docs view_vw_iasworld_sales_null_values %}
+Test that deed, buyer, seller, and price `iasworld.sales` columns are not null.
+{% enddocs %}
+
+# vw_iasworld_sales_price_diff_sale_mydec
+
+{% docs view_vw_iasworld_sales_price_diff_sale_mydec %}
+Test if prices in `iasworld.sales` and `sale.mydec` for matched sales are
+different.
+
+{% enddocs %}
+
+# vw_iasworld_sales_rowcount_matches_sale_mydec
+
+{% docs view_vw_iasworld_sales_rowcount_matches_sale_mydec %}
+Test that `iasworld.sales` and `sale.mydec` have similar row counts.
+{% enddocs %}
+
+# vw_iasworld_sales_unmatched_joins_sale_mydec
+
+{% docs view_vw_iasworld_sales_unmatched_joins_sale_mydec %}
+Identify years with large numbers of unmatched sales between `sale.mydec` and
+`iasworld.sales`.
+
+{% enddocs %}
+
 # vw_incorrect_val_method
 
 {% docs view_vw_incorrect_val_method %}
@@ -51,50 +114,6 @@ any filtering for negative values. That filtering is performed in tests
 defined on the model.
 {% enddocs %}
 
-# vw_iasworld_sales_null_values
-
-{% docs view_vw_iasworld_sales_null_values %}
-Test that deed, buyer, seller, and price `iasworld.sales` columns are not null.
-{% enddocs %}
-
-# vw_iasworld_sales_rowcount_matches_sale_mydec
-
-{% docs view_vw_iasworld_sales_rowcount_matches_sale_mydec %}
-Test that `iasworld.sales` and `sale.mydec` have similar row counts.
-{% enddocs %}
-
-# vw_iasworld_sales_unmatched_joins_sale_mydec
-
-{% docs view_vw_iasworld_sales_unmatched_joins_sale_mydec %}
-Identify years with large numbers of unmatched sales between `sale.mydec` and
-`iasworld.sales`.
-
-{% enddocs %}
-
-# vw_iasworld_sales_day_of_month
-
-{% docs view_vw_iasworld_sales_day_of_month %}
-Test if sale dates are concentrated to particular days of the month in
-`iasworld.sales`.
-
-{% enddocs %}
-
-# vw_iasworld_sales_high_value_by_class
-
-{% docs view_vw_iasworld_sales_high_value_by_class %}
-Test if selected classes have sales prices greater than $20,000,000 in
-`iasworld.sales`.
-
-{% enddocs %}
-
-# vw_iasworld_sales_price_diff_sale_mydec
-
-{% docs view_vw_iasworld_sales_price_diff_sale_mydec %}
-Test if prices in `iasworld.sales` and `sale.mydec` for matched sales are
-different.
-
-{% enddocs %}
-
 # vw_nonlivable_condos_with_chars
 
 {% docs view_vw_nonlivable_condos_with_chars %}
@@ -104,10 +123,82 @@ investigated.
 
 {% enddocs %}
 
-# vw_report_neg_asmt_value
+# vw_report_town_close_0_land_value
 
-{% docs view_vw_report_neg_asmt_value %}
+{% docs view_vw_report_town_close_0_land_value %}
+Check for parcels that have 0 land value in the `ASMT` table.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Non-EX, RR parcels with 0 land value` (#1578) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_0_value
+
+{% docs view_vw_report_town_close_0_value %}
+Check for parcels that have 0 total value in the `ASMT` table.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Non-EX, RR parcels with 0 value` (#1570) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_500k_increase_1m_decrease
+
+{% docs view_vw_report_town_close_500k_increase_1m_decrease %}
+Check for rows in the  `ASMT` table where the total market value has increased
+by more than $500k or decreased by more than $1m in the past year.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - 500k increase, 1m decrease` (#1673) - Will C.
+- `FP Checklist - Card Code Info` (#2160) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_class_does_not_equal_luc
+
+{% docs view_vw_report_town_close_class_does_not_equal_luc %}
+Check for parcels where the class does not match the land use code in
+the `PARDAT` table.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Class does not equal LUC` (#2046) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_improved_class_without_bldg_value
+
+{% docs view_vw_report_town_close_improved_class_without_bldg_value %}
+Check for parcels that have a non-vacant class in the `PARDAT` table, but no
+building value in the `ASMT` table.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Improved Class, no bldg value` (#1047) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_neg_asmt_value
+
+{% docs view_vw_report_town_close_neg_asmt_value %}
 Check for `ASMT.val*` columns that are negative.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
 
 Pulled from the following Inquire queries:
 
@@ -117,19 +208,24 @@ In contrast to `qc.vw_neg_asmt_value`, this view directly performs filtering
 for negative values.
 {% enddocs %}
 
+# vw_report_town_close_vacant_class_with_bldg_value
+
+{% docs view_vw_report_town_close_vacant_class_with_bldg_value %}
+Check for parcels that have a vacant class in the `PARDAT` table, but a
+building value in the `ASMT` table.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Vacant Class, bldg value` (#1577) - Will C.
+{% enddocs %}
+
 # vw_sale_mydec_null_values
 
 {% docs view_vw_sale_mydec_null_values %}
 Test that deed, buyer, seller, address and price `sale.mydec` columns are not
 null.
 
-{% enddocs %}
-
-# vw_iasworld_asmt_all_joined_to_legdat
-
-{% docs view_vw_iasworld_asmt_all_joined_to_legdat %}
-View that joins `iasworld.asmt_all` to `iasworld.legdat` to augment `asmt_all`
-with parcel legal descriptions and addresses.
-
-Both views are already filtered for current active records.
 {% enddocs %}

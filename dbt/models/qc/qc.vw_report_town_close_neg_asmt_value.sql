@@ -9,6 +9,7 @@
 
 SELECT
     parid,
+    taxyr,
     township_code,
     class,
     valclass,
@@ -16,10 +17,7 @@ SELECT
     {{ column }}{% if not loop.last %},{% endif %}
 {% endfor %}
 FROM {{ ref('qc.vw_neg_asmt_value') }}
-WHERE CAST(taxyr AS INT)
-    BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-    AND (
-        {% for column in val_columns %}
-            {{ column }} < 0{% if not loop.last %} OR{% endif %}
-        {% endfor %}
-    )
+WHERE
+{% for column in val_columns %}
+    {{ column }} < 0{% if not loop.last %} OR{% endif %}
+{% endfor %}
