@@ -10,8 +10,8 @@ modeling, reporting, and data integrity work.
   Documentation for all CCAO data lakehouse tables and views
 - [:nut_and_bolt: dbt README](/dbt/README.md) - How to develop CCAO data
   infrastructure using dbt
-- [:test_tube: dbt Test Documentation](/dbt/tests/generic/README.md) -
-  Definitions for CCAO generic dbt data tests
+- [:test_tube: dbt Generic Test Documentation](/dbt/tests/generic/README.md) -
+  Definitions for CCAO generic dbt tests, which are functions that we use to define our QC tests
 
 ## Repository Structure
 
