@@ -101,6 +101,9 @@ models:
                 category: sales_issues
                 description: price should be <= $20m
 
+  - name: qc.vw_iasworld_sales_latest_sale
+    description: '{{ doc("view_vw_iasworld_sales_latest_sale") }}'
+
   - name: qc.vw_iasworld_sales_null_values
     description: '{{ doc("view_vw_iasworld_sales_null_values") }}'
     config:
@@ -217,33 +220,6 @@ models:
                 table_name: sales
                 category: sales_issues
                 description: iasworld should not have >1000 sales that are not in mydec
-
-  - name: qc.vw_incorrect_val_method
-    description: '{{ doc("view_vw_incorrect_val_method") }}'
-    config:
-      tags:
-        - test_qc_inquire
-    columns:
-      - name: revcode
-        data_tests:
-          # Equivalent to Res parcels not set to Cost Approach from FP Checklist
-          - accepted_values:
-              name: qc_vw_incorrect_val_method_revcode_eq_1
-              values: ['1']
-              additional_select_columns:
-                - taxyr
-                - parid
-                - class
-                - township_code
-                - who
-                - wen
-              config:
-                where: |
-                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                  AND class LIKE '2%'
-              meta:
-                table_name: aprval
-                description: revcode should be '1' for 200-class parcels
 
   - name: qc.vw_neg_asmt_value
     description: '{{ doc("view_vw_neg_asmt_value") }}'
@@ -849,6 +825,14 @@ models:
       export_name: 0 value
       export_template: assessed_and_market_values.xlsx
 
+  - name: qc.vw_report_town_close_289s
+    description: '{{ doc("view_vw_report_town_close_289s") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: 289s
+
   - name: qc.vw_report_town_close_500k_increase_1m_decrease
     description: '{{ doc("view_vw_report_town_close_500k_increase_1m_decrease") }}'
     config:
@@ -861,6 +845,14 @@ models:
           - name: '% Change'
             index: M
             horizontal_align: right
+
+  - name: qc.vw_report_town_close_bldg_parcel_class_mismatch
+    description: '{{ doc("view_vw_report_town_close_bldg_parcel_class_mismatch") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Bldg parcel class mismatch
 
   - name: qc.vw_report_town_close_class_does_not_equal_luc
     description: '{{ doc("view_vw_report_town_close_class_does_not_equal_luc") }}'
@@ -887,6 +879,14 @@ models:
     meta:
       export_name: Negative ASMT values
 
+  - name: qc.vw_report_town_close_ovrrcnlds_to_review
+    description: '{{ doc("view_vw_report_town_close_ovrrcnlds_to_review") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: OVRRCNLD discrepancy checks
+
   - name: qc.vw_report_town_close_prior_year_card_code_5s_comdat
     description: '{{ doc("view_vw_report_town_close_prior_year_card_code_5s") }}'
     config:
@@ -910,6 +910,71 @@ models:
         - qc_report_town_close
     meta:
       export_name: Card code 5s possibly not at 100% (OBY)
+
+  - name: qc.vw_report_town_close_res_edit
+    description: '{{ doc("view_vw_report_town_close_res_edit") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Res edit
+      export_format:
+        columns:
+          - name: Total % Change
+            index: U
+            horizontal_align: right
+          - name: Dwelling % Change
+            index: Z
+            horizontal_align: right
+          - name: Sale Date
+            index: AA
+            horizontal_align: right
+
+  - name: qc.vw_report_town_close_res_multicodes
+    description: '{{ doc("view_vw_report_town_close_res_multicodes") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Res multicodes
+      export_format:
+        columns:
+          - name: Sale Date
+            index: Q
+            horizontal_align: right
+
+  - name: qc.vw_report_town_close_res_parcels_not_set_to_cost_approach
+    description: '{{ doc("view_vw_report_town_close_res_parcels_not_set_to_cost_approach") }}'
+    config:
+      tags:
+        - qc_report_town_close
+        - test_qc_inquire
+    meta:
+      export_name: Res parcels not set to cost approach
+    columns:
+      - name: revcode
+        data_tests:
+          # Equivalent to Res parcels not set to Cost Approach from FP Checklist.
+          # The is_null test works here because the view is already filtered for
+          # rows where revcode is null or != '1', and since this test is not
+          # interested in nulls, checking is_null will effectively return all
+          # rows where revcode != '1'
+          - is_null:
+              name: qc_vw_incorrect_val_method_revcode_eq_1
+              additional_select_columns:
+                - taxyr
+                - parid
+                - class
+                - township_code
+                - who
+                - wen
+              config:
+                where: |
+                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+              meta:
+                table_name: aprval
+                description: revcode should be '1' for 200-class parcels
+                category: incorrect_values
 
   - name: qc.vw_report_town_close_vacant_class_with_bldg_value
     description: '{{ doc("view_vw_report_town_close_vacant_class_with_bldg_value") }}'

@@ -62,6 +62,14 @@ Test if selected classes have sales prices greater than $20,000,000 in
 
 {% enddocs %}
 
+# vw_iasworld_sales_latest_sale
+
+{% docs view_vw_iasworld_sales_latest_sale %}
+View that pulls the latest sale for each parcel from `iasworld.sales`.
+
+This view is used as the basis for a number of town close QC reports.
+{% enddocs %}
+
 # vw_iasworld_sales_null_values
 
 {% docs view_vw_iasworld_sales_null_values %}
@@ -88,16 +96,6 @@ Test that `iasworld.sales` and `sale.mydec` have similar row counts.
 Identify years with large numbers of unmatched sales between `sale.mydec` and
 `iasworld.sales`.
 
-{% enddocs %}
-
-# vw_incorrect_val_method
-
-{% docs view_vw_incorrect_val_method %}
-Test that no residential parcels are using a cost approach.
-
-Pulled from the following Inquire queries:
-
-- `FP Checklist - Res parcels not set to Cost Approach` (#1578) - Will C.
 {% enddocs %}
 
 # vw_neg_asmt_value
@@ -149,10 +147,23 @@ Pulled from the following Inquire queries:
 - `FP Checklist - Non-EX, RR parcels with 0 value` (#1570) - Will C.
 {% enddocs %}
 
+# vw_report_town_close_289s
+
+{% docs view_vw_report_town_close_289s %}
+Check for rows in the `OBY` table where the class is 289.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - 289s` (#1963) - Will C.
+{% enddocs %}
+
 # vw_report_town_close_500k_increase_1m_decrease
 
 {% docs view_vw_report_town_close_500k_increase_1m_decrease %}
-Check for rows in the  `ASMT` table where the total market value has increased
+Check for rows in the `ASMT` table where the total market value has increased
 by more than $500k or decreased by more than $1m in the past year.
 
 This view is exported as part of the QC report to check values prior to town
@@ -162,6 +173,20 @@ Pulled from the following Inquire queries:
 
 - `FP Checklist - 500k increase, 1m decrease` (#1673) - Will C.
 - `FP Checklist - Card Code Info` (#2160) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_bldg_parcel_class_mismatch
+
+{% docs view_vw_report_town_close_bldg_parcel_class_mismatch %}
+Check for rows in the `DWELDAT`, `COMDAT`, and `OBY` tables
+where the class does not match the parcel's class in the `PARDAT` table.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Bldg and parcel class mismatch` (#2161) - Will C.
 {% enddocs %}
 
 # vw_report_town_close_class_does_not_equal_luc
@@ -208,6 +233,21 @@ In contrast to `qc.vw_neg_asmt_value`, this view directly performs filtering
 for negative values.
 {% enddocs %}
 
+# vw_report_town_close_ovrrcnlds_to_review
+
+{% docs view_vw_report_town_close_ovrrcnlds_to_review %}
+Check for rows in the `DWELDAT`, `COMDAT`, and `OBY` tables
+where the calculated net market value does not match the override net market
+value.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - OVRRCNLDs to review` (#2474) - Will C.
+{% enddocs %}
+
 # vw_report_town_close_prior_year_card_code_5s
 
 {% docs view_vw_report_town_close_prior_year_card_code_5s %}
@@ -233,6 +273,56 @@ Pulled from the following Inquire queries:
 - `FP Checklist - Prior Yr Card Code 5s COMDAT` (#1585) - Will C.
 - `FP Checklist - Prior Yr Card Code 5s DWELDAT` (#1584) - Will C.
 - `FP Checklist - Prior Yr Card Code 5s OBY` (#1586) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_res_edit
+
+{% docs view_vw_report_town_close_res_edit %}
+Check detailed info for residential dwellings.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `Res Edit - ASMT Values` (#1734) - Will C.
+- `Res Edit - DWELDAT` (#1737) - Will C.
+- `Res Edit - Parcel Characteristics` (#1736) - Will C.
+- `Res Edit - Sales` (#961) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_res_multicodes
+
+{% docs view_vw_report_town_close_res_multicodes %}
+Check market and assessed values for parcels with multiple cards.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Res multicode PIN list` (#1591) - Will C.
+- `FP Checklist - Res multicode report with sales` (#1659) - Will C.
+{% enddocs %}
+
+# vw_report_town_close_res_parcels_not_set_to_cost_approach
+
+{% docs view_vw_report_town_close_res_parcels_not_set_to_cost_approach %}
+Check for residential class parcels that do not have "1: Cost Approach" set
+for their Valuation Method.
+
+This might seem counter-intuitive since residential parcels are not generally
+valued using a cost approach, but it stems from the fact that "1: Cost Approach"
+is actually used as a flag to indicate that we valued the parcel the normal way
+using the data in the `LAND`/`DWELDAT`/`COMDAT`/`OBY` tables rather than using
+overrides in the "Land/Building/Total Value Estimate" fields.
+
+This view is exported as part of the QC report to check values prior to town
+closings.
+
+Pulled from the following Inquire queries:
+
+- `FP Checklist - Res parcels not set to Cost Approach` (#2114) - Will C.
 {% enddocs %}
 
 # vw_report_town_close_vacant_class_with_bldg_value
