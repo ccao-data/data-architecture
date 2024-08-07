@@ -8,10 +8,10 @@ This directory stores the configuration for building our data catalog using
 ### In this document
 
 * [🖼️ Background: What does the data catalog do?](#%EF%B8%8F-background-what-does-the-data-catalog-do)
-* [🔨 How to rebuild models using GitHub Actions](#-how-to-rebuild-models-using-github-actions)
 * [💻 How to develop the catalog](#-how-to-develop-the-catalog)
 * [➕ How to add a new model](#-how-to-add-a-new-model)
-* [📝 How to add and run tests](#-how-to-add-and-run-tests)
+* [🔨 How to rebuild models using GitHub Actions](#-how-to-rebuild-models-using-github-actions)
+* [🧪 How to add and run QC tests and reports](#-how-to-add-and-run-qc-tests-and-reports)
 * [🐛 Debugging tips](#-debugging-tips)
 
 ### Outside this document
@@ -44,8 +44,7 @@ use to predict property values.
 
 ### 2. Define integrity checks that specify the correct format for our data
 
-The tests defined in the `schema.yml` files in the `models/` directory,
-alongside some one-off tests defined in the [`tests/`](./tests/) directory,
+The tests defined in the `schema.yml` files in the `models/` directory
 set the specification for our source data and its transformations. These
 specs allow us to build confidence in the
 integrity of the data that we use and publish. We use the
@@ -81,28 +80,6 @@ our tables, views, tests, and docs. Automated tasks include:
   main branch (the `deploy-dbt-docs` workflow)
 * Cleaning up temporary resources in our Athena warehouse whenever a pull
   request is merged into the main branch (the `cleanup-dbt-resources` workflow)
-
-## 🔨 How to rebuild models using GitHub Actions
-
-GitHub Actions can be used to manually rebuild part or all of our dbt DAG.
-To use this functionality:
-
-- Go to the `build-and-test-dbt` [workflow page](https://github.com/ccao-data/data-architecture/actions/workflows/build_and_test_dbt.yaml)
-- Click the **Run workflow** dropdown on the right-hand side of the screen
-- Populate the input box following the instructions below
-- Click **Run workflow**, then click the created workflow run to view progress
-
-The workflow input box expects a space-separated list of dbt model names or selectors.
-Multiple models can be passed at the same time, as the input box values are
-passed directly to `dbt build`. Model names _must include the database schema name_. Some possible inputs include:
-
-- `default.vw_pin_sale` - Rebuild a single view
-- `default.vw_pin_sale default.vw_pin_universe` - Rebuild two views at once
-- `+default.vw_pin_history` - Rebuild a view and all its upstream dependencies
-- `location.*` - Rebuild all views under the `location` schema
-- `path:models` - Rebuild the full DAG (:warning: takes a long time!)
-
-For more possible inputs using dbt node selection, see the [documentation site](https://docs.getdbt.com/reference/node-selection/syntax#examples).
 
 ## 💻 How to develop the catalog
 
@@ -222,11 +199,8 @@ You should almost never have to manually build tables and views in our
 production environment, since this repository is configured to automatically
 deploy production models using GitHub Actions for continuous integration.
 However, in the rare case that you need to manually build models in production,
-use the `--target` option:
-
-```
-dbt build --target prod --resource-types model seed
-```
+see [🔨 How to rebuild models using GitHub
+Actions](#-how-to-rebuild-models-using-github-actions).
 
 #### Clean up development resources
 
@@ -494,37 +468,62 @@ We use the following pattern to determine where to define each column descriptio
 
 New models should generally be added with accompanying tests to ensure the
 underlying data and transformations are correct. For more information on
-testing, see [📝 How to add and run tests](#-how-to-add-and-run-tests).
+testing, see [🧪 How to add and run QC tests and reports](#-how-to-add-and-run-qc-tests-and-reports).
 
-## 📝 How to add and run tests
+## 🔨 How to rebuild models using GitHub Actions
 
-We test our data and our transformations using [dbt
+GitHub Actions can be used to manually rebuild part or all of our dbt DAG.
+To use this functionality:
+
+- Go to the `build-and-test-dbt` [workflow page](https://github.com/ccao-data/data-architecture/actions/workflows/build_and_test_dbt.yaml)
+- Click the **Run workflow** dropdown on the right-hand side of the screen
+- Populate the input box following the instructions below
+- Click **Run workflow**, then click the created workflow run to view progress
+
+The workflow input box expects a space-separated list of dbt model names or selectors.
+Multiple models can be passed at the same time, as the input box values are
+passed directly to `dbt build`. Model names _must include the database schema name_. Some possible inputs include:
+
+- `default.vw_pin_sale` - Rebuild a single view
+- `default.vw_pin_sale default.vw_pin_universe` - Rebuild two views at once
+- `+default.vw_pin_history` - Rebuild a view and all its upstream dependencies
+- `location.*` - Rebuild all views under the `location` schema
+- `path:models` - Rebuild the full DAG (:warning: takes a long time!)
+
+For more possible inputs using dbt node selection, see the [documentation site](https://docs.getdbt.com/reference/node-selection/syntax#examples).
+
+## 🧪 How to add and run QC tests and reports
+
+We test the integrity of our raw data and our transformations using a few different
+types of QC tests and reports, described below.
+
+### Different types of QC products
+
+There are three types of QC products that we use to check data integrity:
+
+1. **Data tests** check that hard-and-fast assumptions about our raw data are correct
+    * For example: Test that a table is unique by `parid` and `taxyr`
+2. **Unit tests** check that transformation logic inside a model definition
+   produces the correct output on a specific set of input data
+    * For example: Test that an enum column computed by a `CASE... WHEN`
+      expression in a view produces the correct output for a given input string
+3. **QC reports** check for suspicious cases that _might_ indicate a problem with
+   our data, but that can't be confirmed automatically
+    * For example: Query for all parcels whose market value increased by
+      more than $500k in the last year
+  
+The following sections describe how to add and run each of these types of products.
+
+### Adding data tests
+
+We implement data tests using [dbt
 tests](https://docs.getdbt.com/docs/build/tests). We prefer adding tests
 inline in `schema.yml` config files using [generic
 tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
 rather than [singular
 tests](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
 
-### Data tests vs. unit tests
-
-There are two types of tests that we might consider for a model:
-
-1. **Data tests** check that our assumptions about our raw data are correct
-    * For example: Test that a table is unique by `parid` and `taxyr`
-2. **Unit tests** check that transformation logic inside a model definition
-   produces the correct output on a specific set of input data
-    * For example: Test that an enum column computed by a `CASE... WHEN`
-      expression produces the correct output for a given input string
-
-dbt tests are data tests by default, although a dedicated unit testing syntax
-[is coming soon](https://docs.getdbt.com/docs/build/unit-tests). Until unit
-tests are natively supported, however, we do not have a way of implementing them.
-We plan to change this once unit testing is released, but for now, make sure that
-any new tests you write are data tests and not unit tests.
-
-### Adding data tests
-
-There are two types of data tests that we support:
+There are two subtypes of data tests that we support:
 
 1. **QC tests** confirm our assumptions about iasWorld data and are run at
    scheduled intervals to confirm that iasWorld data meets spec
@@ -593,9 +592,9 @@ check with the person who assigned the test to you and ask them when
 and how the test should be run so that its attributes can be set
 accordingly.
 
-### Choosing a generic test
+#### Choosing a generic test for your data test
 
-Writing a test in a `schema.yml` file requires a [generic
+Writing a data test in a `schema.yml` file requires a [generic
 test](https://docs.getdbt.com/best-practices/writing-custom-generic-tests)
 to define the underlying test logic. Our generic tests are defined
 in the `tests/generic/` directory. Before writing a test, look at
@@ -630,6 +629,18 @@ do so, you have two options:
         parameter that most of our generic tests support, making use
         of the `format_additional_select_columns` macro to format the
         parameter when applying it to your `SELECT` condition
+
+### Adding unit tests
+
+Unit testing is available in dbt as of [the 1.8
+release](https://docs.getdbt.com/docs/build/unit-tests), but it does not
+yet work with the Athena adapter that our configuration uses. Jean is
+leading the effort to add unit testing support to the Athena adapter,
+and will update this section with details once that effort is resolved.
+
+### Adding QC reports
+
+_TK_
 
 ## 🐛 Debugging tips
 
