@@ -1,4 +1,3 @@
-# %%
 import requests
 import os
 from pyathena import connect
@@ -16,8 +15,69 @@ cursor = connect(
     cursor_class=PandasCursor,
 ).cursor(unload=True)
 
+# Define open data assets and related information
+tables = {
+    "Parcel Universe": {
+        "athena_asset": "default.vw_pin_universe",
+        "asset_id": "4u8x-wdnz",
+        "primary_key": ["pin", "year"],
+    },
+    "Single and Multi-Family Improvement Characteristics": {
+        "athena_asset": "default.vw_card_res_char",
+        "asset_id": "x54s-btds",
+        "primary_key": ["pin", "card", "year"],
+    },
+    "Residential Condominium Unit Characteristics": {
+        "athena_asset": "default.vw_pin_condo_char",
+        "asset_id": "3r7i-mrz4",
+        "primary_key": ["pin", "year"],
+    },
+    "Parcel Sales": {
+        "athena_asset": "default.vw_pin_sale",
+        "asset_id": "wvhk-k5uv",
+        "primary_key": ["doc_no"],
+    },
+    "Assessed Values": {
+        "athena_asset": "default.vw_pin_history",
+        "asset_id": "uzyt-m557",
+        "primary_key": ["pin", "year"],
+    },
+    "Appeals": {
+        "athena_asset": "default.vw_pin_appeal",
+        "asset_id": "y282-6ig3",
+        "primary_key": ["pin", "year"],
+    },
+    "Parcel Addresses": {
+        "athena_asset": "default.vw_pin_address",
+        "asset_id": "3723-97qp",
+        "primary_key": ["pin", "year"],
+    },
+    "Parcel Proximity": {
+        "athena_asset": "proximity.vw_pin10_proximity",
+        "asset_id": "ydue-e5u3",
+        "primary_key": ["pin", "year"],
+    },
+    "Property Tax-Exempt Parcels": {
+        "athena_asset": "default.vw_pin_exempt",
+        "asset_id": "vgzx-68gb",
+        "primary_key": ["pin10", "year"],
+    },
+}
 
-def build_query(athena_asset, row_identifiers, years=None):
+
+def get_asset_info(socrata_asset):
+    """
+    Simple helper function to retrieve asset-specific information needed for
+    other functions.
+    """
+
+    athena_asset = tables.get(socrata_asset).get("athena_asset")
+    asset_id = tables.get(socrata_asset).get("asset_id")
+    row_identifier = tables.get(socrata_asset).get("primary_key")
+    return athena_asset, asset_id, row_identifier
+
+
+def build_query(athena_asset, row_identifier, years=None):
     """
     Build an Athena compatible SQL query. Function will append a year
     conditional if `years` is non-empty. Many of the CCAO's open data assets are
@@ -26,7 +86,8 @@ def build_query(athena_asset, row_identifiers, years=None):
     rather than overwriting data that already exists) based on the column names
     passed to `row_indetifiers`.
     """
-    row_identifier = "CONCAT(" + ", ".join(row_identifiers) + ") AS row_id,"
+
+    row_identifier = "CONCAT(" + ", ".join(row_identifier) + ") AS row_id,"
 
     # Retrieve column names and types from Athena
     columns = as_pandas(
@@ -110,9 +171,7 @@ def upload(method, asset_id, sql_query, year=None):
 
 
 def socrata_upload(
-    asset_id,
-    athena_asset,
-    row_identifiers,
+    socrata_asset,
     overwrite=False,
     years="all",
 ):
@@ -124,9 +183,12 @@ def socrata_upload(
     year. By default the function will query a given Athena asset by year for
     all years and upload via `post` (update rather than overwrite).
     """
+
+    athena_asset, asset_id, row_identifier = get_asset_info(socrata_asset)
+
     sql_query = build_query(
         athena_asset=athena_asset,
-        row_identifiers=row_identifiers,
+        row_identifier=row_identifier,
         years=years,
     )
 
@@ -174,13 +236,8 @@ def socrata_upload(
                 print(response.content)
 
 
-# %%
 socrata_upload(
-    asset_id="4u8x-wdnz",
-    athena_asset="default.vw_pin_universe",
-    row_identifiers=["pin", "year"],
+    socrata_asset="Parcel Universe",
     overwrite=True,
     years="all",
 )
-
-# %%
