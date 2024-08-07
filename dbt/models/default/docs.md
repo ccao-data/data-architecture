@@ -156,7 +156,7 @@ process. The full data lineage looks something like:
 
 ![Data Flow Diagram](./assets/sales-lineage.svg)
 
-**Primary Key**: `year`, `pin`
+**Primary Key**: `doc_no`, `pin`
 {% enddocs %}
 
 # vw_pin_universe
