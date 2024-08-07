@@ -145,6 +145,8 @@ Sourced from `iasworld.sales`, which is sourced from
 - `sale.mydec` data is given precedence over `iasworld.sales` prior to 2021
 - Multicard sales are excluded from `mydec` data because they can't be joined
   to `iasworld.sales` (which is only parcel-level) without creating duplicates
+- Sales are unique by `doc_no` if multisales are excluded. When multisales are
+  *not* excluded, sales are unique by `doc_no` and `pin`.
 
 ### Lineage
 
