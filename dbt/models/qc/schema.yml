@@ -887,6 +887,30 @@ models:
     meta:
       export_name: Negative ASMT values
 
+  - name: qc.vw_report_town_close_prior_year_card_code_5s_comdat
+    description: '{{ doc("view_vw_report_town_close_prior_year_card_code_5s") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Card code 5s possibly not at 100% (COMDAT)
+
+  - name: qc.vw_report_town_close_prior_year_card_code_5s_dweldat
+    description: '{{ doc("view_vw_report_town_close_prior_year_card_code_5s") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Card code 5s possibly not at 100% (DWELDAT)
+
+  - name: qc.vw_report_town_close_prior_year_card_code_5s_oby
+    description: '{{ doc("view_vw_report_town_close_prior_year_card_code_5s") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Card code 5s possibly not at 100% (OBY)
+
   - name: qc.vw_report_town_close_vacant_class_with_bldg_value
     description: '{{ doc("view_vw_report_town_close_vacant_class_with_bldg_value") }}'
     config:
