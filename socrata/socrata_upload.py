@@ -1,3 +1,4 @@
+# %%
 import requests
 import os
 from pyathena import connect
@@ -113,20 +114,28 @@ def socrata_upload(
     athena_asset,
     row_identifiers,
     overwrite=False,
-    years=None,
+    years="all",
 ):
     """
     Wrapper function for building SQL query, retrieving data from Athena, and
     uploading it to Socrata. Allows users to specify target Athena and Socrata
     assets, define columns to construct a `row_id`, whether the data on Socrata
     should be overwritten or updated, and whether or not to chunk the upload by
-    year.
+    year. By default the function will query a given Athena asset by year for
+    all years and upload via `post` (update rather than overwrite).
     """
     sql_query = build_query(
         athena_asset=athena_asset,
         row_identifiers=row_identifiers,
         years=years,
     )
+
+    if years == "all":
+        years = as_pandas(
+            cursor.execute(
+                "SELECT DISTINCT year FROM " + athena_asset + " ORDER BY year"
+            )
+        )["year"].to_list()
 
     count = 0
 
@@ -165,10 +174,13 @@ def socrata_upload(
                 print(response.content)
 
 
+# %%
 socrata_upload(
     asset_id="4u8x-wdnz",
     athena_asset="default.vw_pin_universe",
     row_identifiers=["pin", "year"],
-    overwrite=False,
-    years=None,
+    overwrite=True,
+    years="all",
 )
+
+# %%
