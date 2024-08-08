@@ -564,7 +564,7 @@ Since the first instance is a scheduled job that requires no intervention, the f
 steps describe how to respond to a request from Tia, Tom, or other Valuations staff for
 a fresh copy of the test failure output before town closing.
 
-Typically, Valuations staff will ask for test output for a specific townhip. We'll refer to the
+Typically, Valuations staff will ask for test output for a specific township. We'll refer to the
 [township code](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) for this township
 using the bash variable `$TOWNSHIP_CODE`.
 
@@ -601,8 +601,9 @@ the tag `test_qc_iasworld`
     some reason the model cannot be tagged (e.g. if it has some non-QC
     tests defined on it)
   * If you would like to disable a QC test but you don't want to remove it
-    altogether, you can tag it with `test_qc_exclude_from_workbook`, which
-    will prevent the test from running as part of the `qc_tests` selector
+    altogether, you can tag it or its model with `test_qc_exclude_from_workbook`,
+    which will prevent the test (or all of the model's tests, if you tagged
+    the model) from running as part of the `qc_tests` selector
 * The test definition must supply a few specific parameters:
   * `name` must be set and follow the pattern
     `iasworld_<table_name>_<test_description>`
@@ -707,7 +708,7 @@ exposes a few options that help to export the right data:
   option](https://docs.getdbt.com/reference/node-selection/syntax), and any valid
   dbt `--select` expression will work for this option.
 * **`--where`**: This option controls which rows the script will return for the selected
-  model in a similar fashion as a SQL `WHERE` clause. Any expression that could follow
+  model in a similar fashion as a SQL `WHERE` clause. Any expression that could follow a
   `WHERE` keyword in a SQL filter condition will work for this option.
 * **`--rebuild`**: This flag determines whether or not the selected models will be rebuilt
   using `dbt run` prior to export. It defaults to `False`, and is only useful in rare cases
@@ -742,7 +743,7 @@ python3 scripts/export_models.py --select qc.vw_change_in_ahsap_values --where "
 ```
 
 The script will output the reports to the `dbt/export/output/` directory, and will print the
-names of the reports that it exports during execution.
+name of the report that it exports during execution.
 
 #### Adding QC reports
 
@@ -795,8 +796,8 @@ model during and after export:
 
 #### Example: Adding a new QC report
 
-Here's an example of a model schema definition that sets all of the different formatting options
-for QC reports:
+Here's an example of a model schema definition that sets all of the different optional and required
+formatting options for a new QC report:
 
 ```yaml
 models:
