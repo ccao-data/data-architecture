@@ -1,5 +1,6 @@
-import requests
 import os
+import requests
+import time
 from pyathena import connect
 from pyathena.pandas.util import as_pandas
 from pyathena.pandas.cursor import PandasCursor
@@ -12,6 +13,8 @@ auth = (os.getenv("SOCRATA_USERNAME"), os.getenv("SOCRATA_PASSWORD"))
 cursor = connect(
     s3_staging_dir=os.getenv("AWS_ATHENA_S3_STAGING_DIR") + "/",
     region_name=os.getenv("AWS_REGION"),
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
     cursor_class=PandasCursor,
 ).cursor(unload=True)
 
@@ -35,7 +38,7 @@ tables = {
     "Parcel Sales": {
         "athena_asset": "default.vw_pin_sale",
         "asset_id": "wvhk-k5uv",
-        "primary_key": ["doc_no"],
+        "primary_key": ["doc_no", "pin"],
     },
     "Assessed Values": {
         "athena_asset": "default.vw_pin_history",
@@ -113,7 +116,6 @@ def build_query(athena_asset, row_identifier, years=None):
             + ",\n".join(columns["column"])
             + "\nFROM "
             + athena_asset
-            + "\nLIMIT 1000"
         )
 
     else:
@@ -125,13 +127,13 @@ def build_query(athena_asset, row_identifier, years=None):
             + "\nFROM "
             + athena_asset
             + "\nWHERE year = %(year)s"
-            + "\nLIMIT 1000"
+            + "\nAND township_code = %(township)s"
         )
 
     return query
 
 
-def upload(method, asset_id, sql_query, year=None):
+def upload(method, asset_id, sql_query, year=None, township=None):
     """
     Function to perform the upload to Socrata. `puts` or `posts` depending on
     user's choice to overwrite existing data.
@@ -147,7 +149,14 @@ def upload(method, asset_id, sql_query, year=None):
     if method == "put":
         print(
             "Overwriting all years for asset", asset_id
-        ) if not year else print("Overwriting", year, "for asset", asset_id)
+        ) if not year else print(
+            "Overwriting township",
+            township,
+            "year",
+            year,
+            "for asset",
+            asset_id,
+        )
         response = requests.put(
             url=url,
             data=as_pandas(cursor.execute(sql_query, {"year": year})).to_json(
@@ -157,13 +166,13 @@ def upload(method, asset_id, sql_query, year=None):
         )
     elif method == "post":
         print("Updating all years for asset", asset_id) if not year else print(
-            "Updating", year, "for asset", asset_id
+            "Updating township", township, "year", year, "for asset", asset_id
         )
         response = requests.post(
             url=url,
-            data=as_pandas(cursor.execute(sql_query, {"year": year})).to_json(
-                orient="records"
-            ),
+            data=as_pandas(
+                cursor.execute(sql_query, {"year": year, "township": township})
+            ).to_json(orient="records"),
             auth=auth,
         )
 
@@ -192,6 +201,12 @@ def socrata_upload(
         years=years,
     )
 
+    # Unfortunately the Socrata API cannot handle entire years of some larger
+    # assets, so we need to loop through both years and townships.
+    township_codes = as_pandas(
+        cursor.execute("SELECT DISTINCT township_code FROM spatial.township")
+    )["township_code"].to_list()
+
     if years == "all":
         years = as_pandas(
             cursor.execute(
@@ -199,6 +214,7 @@ def socrata_upload(
             )
         )["year"].to_list()
 
+    tic = time.perf_counter()
     count = 0
 
     if not years:
@@ -209,35 +225,53 @@ def socrata_upload(
         print(response.content)
 
     else:
+        # Combine years and township codes to loop through
+        years_towns = []
+
+        for i in range(len(years)):
+            for j in range(len(township_codes)):
+                years_towns.append((years[i], township_codes[j]))
+
         if overwrite:
-            for item in years:
+            for item in years_towns:
                 if count == 0:
                     response = upload(
                         "put",
                         asset_id=asset_id,
                         sql_query=sql_query,
-                        year=item,
+                        year=item[0],
+                        township=item[1],
                     )
                 else:
                     response = upload(
                         "post",
                         asset_id=asset_id,
                         sql_query=sql_query,
-                        year=item,
+                        year=item[0],
+                        township=item[1],
                     )
                 print(response.content)
                 count = count + 1
 
         else:
-            for item in years:
+            for item in years_towns:
                 response = upload(
-                    "post", asset_id=asset_id, sql_query=sql_query, year=item
+                    "post",
+                    asset_id=asset_id,
+                    sql_query=sql_query,
+                    year=item[0],
+                    township=item[1],
                 )
                 print(response.content)
+
+    toc = time.perf_counter()
+    print(f"Total upload in {toc - tic:0.4f} seconds")
 
 
 socrata_upload(
     socrata_asset="Parcel Universe",
-    overwrite=True,
-    years="all",
+    overwrite=False,
+    years=["2021"],
 )
+
+# %%
