@@ -511,7 +511,7 @@ There are three types of QC products that we use to check data integrity:
    our data, but that can't be confirmed automatically
     * For example: Query for all parcels whose market value increased by
       more than $500k in the last year
-  
+
 The following sections describe how to add and run each of these types of products.
 
 ### Data tests
@@ -721,7 +721,7 @@ We tag the models that comprise our town close QC reports using the `qc_report_t
 tag, and we filter them for a specific township code (like "70") and tax year during export.
 
 Here's an example of how to export those models for a township code defined by `$TOWNSHIP_CODE`
-and a tax year defined by `$TAXYR`: 
+and a tax year defined by `$TAXYR`:
 
 ```
 python3 scripts/export_models.py --select tag:qc_report_town_close --where "taxyr = '$TAXYR' and township_code = '$TOWNSHIP_CODE'"
@@ -787,7 +787,7 @@ model during and after export:
        format of the output workbook:
          * `columns` (required): A list of one or more columns to format, each of which should be
            an object with the following schema:
-             * `index` (required): The letter index of the column to be formatted, like `A` or `AB`. 
+             * `index` (required): The letter index of the column to be formatted, like `A` or `AB`.
              * `name` (optional): The name of the column as it appears in the header of the workbook.
                The script does not use this attribute and instead uses `index`, but we set it in order
                to make the column config object more readable.
