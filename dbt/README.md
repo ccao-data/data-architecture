@@ -501,20 +501,20 @@ types of QC tests and reports, described below.
 
 There are three types of QC products that we use to check data integrity:
 
-1. **Data tests** check that hard-and-fast assumptions about our raw data are correct
+1. [**Data tests**](#data-tests) check that hard-and-fast assumptions about our raw data are correct
     * For example: Test that a table is unique by `parid` and `taxyr`
-2. **Unit tests** check that transformation logic inside a model definition
+2. [**Unit tests**](#unit-tests) check that transformation logic inside a model definition
    produces the correct output on a specific set of input data
     * For example: Test that an enum column computed by a `CASE... WHEN`
       expression in a view produces the correct output for a given input string
-3. **QC reports** check for suspicious cases that _might_ indicate a problem with
+3. [**QC reports**](#qc-reports) check for suspicious cases that _might_ indicate a problem with
    our data, but that can't be confirmed automatically
     * For example: Query for all parcels whose market value increased by
       more than $500k in the last year
   
 The following sections describe how to add and run each of these types of products.
 
-### Adding data tests
+### Data tests
 
 We implement data tests using [dbt
 tests](https://docs.getdbt.com/docs/build/tests). We prefer adding tests
@@ -531,15 +531,55 @@ There are two subtypes of data tests that we support:
    of iasWorld, and are run in an ad hoc fashion depending on the needs of
    the transformations that sit on top of the raw data
 
-#### Adding QC tests
+#### Data test subtype 1: QC tests
 
-QC tests are run on a schedule by the [`test-dbt-models`
-workflow](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml)
-and their output is interpreted by the [`transform_dbt_test_results`
-script](https://github.com/ccao-data/data-architecture/blob/master/.github/scripts/transform_dbt_test_results.py).
-This script reads the metadata for a test run and outputs an Excel
-workbook with detailed information on each failure to aid in resolving
-any data problems that the tests reveal.
+QC tests can be run using the [`dbt test`
+command](https://docs.getdbt.com/reference/commands/test) and their output can be
+transformed for analysis using the [`transform_dbt_test_results`
+script](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/transform_dbt_test_results.py).
+This script reads the metadata for the most recent `dbt test` run and outputs a number of
+different artifacts with information about the tests:
+
+* An Excel workbook with detailed information on each failure to aid in resolving
+  data problems
+* Parquet files representing metadata tables that can be uploaded to S3 for aggregate
+  analysis
+
+#### Running QC tests
+
+There are two instances when QC tests typically run:
+
+1. Once per day by the [`test-dbt-models` GitHub
+   workflow](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml),
+   which pushes parquet output to S3 in order to support our analysis of test failures over time
+2. On demand by a Data team member whenever Tia, Tom, or another Valuations staff member requests
+   a copy of the Excel workbook for a township, usually right before the town closes
+
+Since the first instance is a scheduled job that requires no intervention, the following
+steps describe how to respond to a request from Tia, Tom, or other Valuations staff for
+a fresh copy of the test failure output before town closing.
+
+Typically, Valuations staff will ask for test output for a specific town. We'll refer to the
+[township code](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) for this town
+using the bash variable `$TOWNSHIP_CODE`.
+
+First, run the tests using dbt and the [QC test
+selector](https://github.com/ccao-data/data-architecture/blob/master/dbt/selectors.yml):
+
+```console
+# Make sure you're in the dbt subdirectory with the virtualenv activated
+cd dbt
+source venv/bin/activate
+
+# Run the tests and store failures in Athena
+dbt test --selector qc_tests --store-failures
+```
+
+Next, transform the results for the township that Valuations staff requested:
+
+_TK_
+
+#### Adding QC tests
 
 There are a few specific modifications a test author needs to make to
 ensure that QC tests can be run by the workflow and interpreted by the script:
@@ -570,7 +610,7 @@ the tag `test_qc_iasworld`
     * `category` (optional): A workbook category for the test, required if
       a category is not defined for the test's generic in the `TEST_CATEGORIES`
       constant in the [`transform_dbt_test_results`
-      script](https://github.com/ccao-data/data-architecture/blob/master/.github/scripts/transform_dbt_test_results.py)
+      script](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/transform_dbt_test_results.py)
     * `table_name` (optional): The name of the table to report in the output
       workbook, if the workbook should report a different table name than the
       name of the model that the test is defined on
@@ -624,7 +664,7 @@ do so, you have two options:
    to our environment:
      1. Add a default category for your generic test in
         the `TEST_CATEGORIES` constant in the [`transform_dbt_test_results`
-        script](https://github.com/ccao-data/data-architecture/blob/master/.github/scripts/transform_dbt_test_results.py)
+        script](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/transform_dbt_test_results.py)
      2. Make sure that your generic test supports the `additional_select_columns`
         parameter that most of our generic tests support, making use
         of the `format_additional_select_columns` macro to format the
