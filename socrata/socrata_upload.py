@@ -80,7 +80,7 @@ def get_asset_info(socrata_asset):
     return athena_asset, asset_id, row_identifier
 
 
-def build_query(athena_asset, row_identifier, years=None):
+def build_query(athena_asset, row_identifier, years=None, township=None):
     """
     Build an Athena compatible SQL query. Function will append a year
     conditional if `years` is non-empty. Many of the CCAO's open data assets are
@@ -118,7 +118,18 @@ def build_query(athena_asset, row_identifier, years=None):
             + athena_asset
         )
 
-    else:
+    elif years is not None and not township:
+        query = (
+            "SELECT\n"
+            + row_identifier
+            + "\n"
+            + ",\n".join(columns["column"])
+            + "\nFROM "
+            + athena_asset
+            + "\nWHERE year = %(year)s"
+        )
+
+    elif years is not None and township is not None:
         query = (
             "SELECT\n"
             + row_identifier
@@ -147,42 +158,138 @@ def upload(method, asset_id, sql_query, year=None, township=None):
     )
 
     if method == "put":
-        print(
-            "Overwriting all years for asset", asset_id
-        ) if not year else print(
-            "Overwriting township",
-            township,
-            "year",
-            year,
-            "for asset",
-            asset_id,
-        )
-        response = requests.put(
-            url=url,
-            data=as_pandas(cursor.execute(sql_query, {"year": year})).to_json(
-                orient="records"
-            ),
-            auth=auth,
-        )
+        if not year:
+            print("Overwriting all years for asset", asset_id)
+            response = requests.put(
+                url=url,
+                data=as_pandas(cursor.execute(sql_query)).to_json(
+                    orient="records"
+                ),
+                auth=auth,
+            )
+        if year is not None and not township:
+            print(year, township)
+            print(
+                "Overwriting year",
+                year,
+                "for asset",
+                asset_id,
+            )
+            response = requests.put(
+                url=url,
+                data=as_pandas(
+                    cursor.execute(sql_query, {"year": year})
+                ).to_json(orient="records"),
+                auth=auth,
+            )
+        if year is not None and township is not None:
+            print(
+                "Overwriting township",
+                township,
+                "year",
+                year,
+                "for asset",
+                asset_id,
+            )
+            response = requests.put(
+                url=url,
+                data=as_pandas(
+                    cursor.execute(
+                        sql_query, {"year": year, "township": township}
+                    )
+                ).to_json(orient="records"),
+                auth=auth,
+            )
+
     elif method == "post":
-        print("Updating all years for asset", asset_id) if not year else print(
-            "Updating township", township, "year", year, "for asset", asset_id
-        )
-        response = requests.post(
-            url=url,
-            data=as_pandas(
-                cursor.execute(sql_query, {"year": year, "township": township})
-            ).to_json(orient="records"),
-            auth=auth,
-        )
+        if not year:
+            print("Updating all years for asset", asset_id)
+            response = requests.post(
+                url=url,
+                data=as_pandas(cursor.execute(sql_query)).to_json(
+                    orient="records"
+                ),
+                auth=auth,
+            )
+        if year is not None and not township:
+            print(
+                "Updating year",
+                year,
+                "for asset",
+                asset_id,
+            )
+            response = requests.post(
+                url=url,
+                data=as_pandas(
+                    cursor.execute(sql_query, {"year": year})
+                ).to_json(orient="records"),
+                auth=auth,
+            )
+        if year is not None and township is not None:
+            print(
+                "Updating township",
+                township,
+                "year",
+                year,
+                "for asset",
+                asset_id,
+            )
+            response = requests.post(
+                url=url,
+                data=as_pandas(
+                    cursor.execute(
+                        sql_query, {"year": year, "township": township}
+                    )
+                ).to_json(orient="records"),
+                auth=auth,
+            )
 
     return response
 
 
+def generate_groups(athena_asset, years=None, by_township=False):
+    """
+    Helper function to determine what groups need to be iterated over for
+    upload.
+    """
+
+    if not years and by_township:
+        raise ValueError("Cannot set 'by_township' when 'years' is None")
+
+    if years == "all":
+        years = as_pandas(
+            cursor.execute(
+                "SELECT DISTINCT year FROM " + athena_asset + " ORDER BY year"
+            )
+        )["year"].to_list()
+
+    if by_township:
+        township_codes = as_pandas(
+            cursor.execute(
+                "SELECT DISTINCT township_code FROM spatial.township"
+            )
+        )["township_code"].to_list()
+
+        groups = []
+        for i in range(len(years)):
+            for j in range(len(township_codes)):
+                groups.append((years[i], township_codes[j]))
+
+        flag = "both"
+
+    else:
+        if not years:
+            groups = None
+            flag = None
+        else:
+            groups = years
+            flag = "years"
+
+    return flag, groups
+
+
 def socrata_upload(
-    socrata_asset,
-    overwrite=False,
-    years="all",
+    socrata_asset, overwrite=False, years=None, by_township=False
 ):
     """
     Wrapper function for building SQL query, retrieving data from Athena, and
@@ -195,45 +302,59 @@ def socrata_upload(
 
     athena_asset, asset_id, row_identifier = get_asset_info(socrata_asset)
 
+    flag, groups = generate_groups(
+        years=years, by_township=by_township, athena_asset=athena_asset
+    )
+
     sql_query = build_query(
         athena_asset=athena_asset,
         row_identifier=row_identifier,
         years=years,
     )
 
-    # Unfortunately the Socrata API cannot handle entire years of some larger
-    # assets, so we need to loop through both years and townships.
-    township_codes = as_pandas(
-        cursor.execute("SELECT DISTINCT township_code FROM spatial.township")
-    )["township_code"].to_list()
-
-    if years == "all":
-        years = as_pandas(
-            cursor.execute(
-                "SELECT DISTINCT year FROM " + athena_asset + " ORDER BY year"
-            )
-        )["year"].to_list()
-
     tic = time.perf_counter()
     count = 0
 
-    if not years:
+    if not flag:
         if overwrite:
             response = upload("put", asset_id=asset_id, sql_query=sql_query)
         else:
             response = upload("post", asset_id=asset_id, sql_query=sql_query)
         print(response.content)
 
-    else:
-        # Combine years and township codes to loop through
-        years_towns = []
-
-        for i in range(len(years)):
-            for j in range(len(township_codes)):
-                years_towns.append((years[i], township_codes[j]))
-
+    elif flag == "years":
         if overwrite:
-            for item in years_towns:
+            for item in groups:
+                if count == 0:
+                    response = upload(
+                        "put",
+                        asset_id=asset_id,
+                        sql_query=sql_query,
+                        year=item,
+                    )
+                else:
+                    response = upload(
+                        "post",
+                        asset_id=asset_id,
+                        sql_query=sql_query,
+                        year=item,
+                    )
+                print(response.content)
+                count = count + 1
+
+        else:
+            for item in groups:
+                response = upload(
+                    "post",
+                    asset_id=asset_id,
+                    sql_query=sql_query,
+                    year=item,
+                )
+                print(response.content)
+
+    elif flag == "both":
+        if overwrite:
+            for item in groups:
                 if count == 0:
                     response = upload(
                         "put",
@@ -254,7 +375,7 @@ def socrata_upload(
                 count = count + 1
 
         else:
-            for item in years_towns:
+            for item in groups:
                 response = upload(
                     "post",
                     asset_id=asset_id,
@@ -270,8 +391,7 @@ def socrata_upload(
 
 socrata_upload(
     socrata_asset="Parcel Universe",
-    overwrite=False,
-    years=["2021"],
+    overwrite=True,
+    years="all",
+    by_township=False,
 )
-
-# %%
