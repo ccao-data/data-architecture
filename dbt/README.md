@@ -706,9 +706,9 @@ exposes a few options that help to export the right data:
   equivalent to the [dbt `--select`
   option](https://docs.getdbt.com/reference/node-selection/syntax), and any valid
   dbt `--select` expression will work for this option.
-* **`--where`**: This option controls which records the script will return for the selected
-  model. Any expression that could follow `WHERE` keyword in a SQL filter condition will work
-  for this option.
+* **`--where`**: This option controls which rows the script will return for the selected
+  model in a similar fashion as a SQL `WHERE` clause. Any expression that could follow
+  `WHERE` keyword in a SQL filter condition will work for this option.
 * **`--rebuild`**: This flag determines whether or not the selected models will be rebuilt
   using `dbt run` prior to export. It defaults to `False`, and is only useful in rare cases
   where the underlying models that comprise the reports have been edited since the last run,
@@ -716,8 +716,8 @@ exposes a few options that help to export the right data:
 
 #### Example: Running town close QC reports
 
-The models that comprise our town close QC reports are defined using the `qc_report_town_close`
-tag and must be filtered for a specific township code (like "70") and tax year.
+We tag the models that comprise our town close QC reports using the `qc_report_town_close`
+tag, and we filter them for a specific township code (like "70") and tax year during export.
 
 Here's an example of how to export those models for a township code defined by `$TOWNSHIP_CODE`
 and a tax year defined by `$TAXYR`: 
@@ -726,10 +726,13 @@ and a tax year defined by `$TAXYR`:
 python3 scripts/export_models.py --select tag:qc_report_town_close --where "taxyr = '$TAXYR' and township_code = '$TOWNSHIP_CODE'"
 ```
 
+The script will output the reports to the `dbt/export/output/` directory, and will print the
+names of the reports that it exports during execution.
+
 #### Example: Running the AHSAP change in value QC report
 
-The AHSAP change in value QC report is confined to one model, `qc.vw_change_in_ahsap_values`,
-which must be filtered for a specific township name (like "Hyde Park") and tax year.
+We define the AHSAP change in value QC report using one model, `qc.vw_change_in_ahsap_values`,
+which we filter for a specific township name (like "Hyde Park") and tax year during export.
 
 Here's an example of how to export that model for a township name defined by `$TOWNSHIP_NAME`
 and a tax year defined by `$TAXYR`:
@@ -737,6 +740,88 @@ and a tax year defined by `$TAXYR`:
 ```
 python3 scripts/export_models.py --select qc.vw_change_in_ahsap_values --where "taxyr = '$TAXYR' and township_name = '$TOWNSHIP_NAME'"
 ```
+
+The script will output the reports to the `dbt/export/output/` directory, and will print the
+names of the reports that it exports during execution.
+
+#### Adding QC reports
+
+Since QC reports are built on top of models, adding a new QC report can be as simple
+as adding a new model and exporting it using the [`export_models`
+script](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/export_models.py).
+You should default to adding your model to the `qc` schema and subdirectory, unless there is
+a good reason to define it elsewhere. For details on how to add a model, see
+[➕ How to add a new model](#-how-to-add-a-new-model).
+
+There are a number of configuration options that allow you to control the format of your
+model during and after export:
+
+* **Tagging**: [Model tags](https://docs.getdbt.com/reference/resource-configs/tags) are not
+  required for QC reports, but they are helpful in cases where we need to export more than one
+  report at a time. For example, Valuations typically requests all of the town close QC
+  reports at the same time, so we tag each model with the `qc_report_town_close` tag such that
+  we can select them all at once when running the `export_models` script using
+  `--select tag:qc_report_town_close`. For consistency, prefer tags that start with the `qc_*`
+  prefix, but beware not to use the `test_qc_*` prefix, which is instead used for [QC
+  tests](#adding-qc-tests).
+* **Filtering**: Since the `export_models` script can filter your model using the `--where`
+  option, you should define your model such that it selects any fields that you want to use
+  for filtering in the `SELECT` clause. It's common to filter reports by `taxyr` and
+  one of either `township_name` or `township_code`.
+* **Formatting**: You can set a few different optional configs on the `meta` attribute of
+  your model's schema definition in order to control the format of the output workbook:
+    * **`meta.export_name`**: The base name that the script will use for the output file, not
+      including the file extension. The script will output the file to
+      `dbt/export/output/{meta.export_name}.xlsx`.
+    * **`meta.export_template`**: A path to an Excel template to populate with data, relative
+      to the [`dbt/export/templates/`
+      directory](https://github.com/ccao-data/data-architecture/tree/master/dbt/export/templates).
+      The script will read this template from `dbt/export/templates/{meta.export_template}`.
+      In contrast to `meta.export_name`, this option _does_ expect you to include the file
+      extension in the template name, to allow you more flexibility over the format of the
+      template files you use. Templates are useful if you want to apply custom headers,
+      column widths, or other column formatting to the output that are not otherwise configurable
+      by the `meta.export_format` config attribute described below.
+    *  **`meta.export_format`**: An object with the following schema that controls the
+       format of the output workbook:
+         * `columns` (required): A list of one or more columns to format, each of which should be
+           an object with the following schema:
+             * `index` (required): The letter index of the column to be formatted, like `A` or `AB`. 
+             * `name` (optional): The name of the column as it appears in the header of the workbook.
+               The script does not use this attribute and instead uses `index`, but we set it in order
+               to make the column config object more readable.
+             * `horizontal_align` (optional): The horizontal alignment to set on the column, one of
+               `left` or `right`.
+
+#### Example: Adding a new QC report
+
+Here's an example of a model schema definition that sets all of the different formatting options
+for QC reports:
+
+```yaml
+models:
+  - name: qc.vw_qc_report_new
+    description: '{{ doc("view_vw_qc_report_new") }}'
+    config:
+      tags:
+        - qc_report_new
+    meta:
+      export_name: QC Report (New)
+      export_template: qc_report_new.xslx
+      export_format:
+        columns:
+          - index: B
+            name: Class
+            horizontal_align: left
+```
+
+In the case of this model, the `export_models` script:
+
+* Will export the model if either `--select qc.vw_qc_report_new` or `--select tag:qc_report_new`
+  is set
+* Will use the template `dbt/export/templates/qc_report_new.xlsx` to populate data
+* Will export the output workbook to `dbt/export/output/QC Report (New).xlsx`
+* Will left-align column B, a column with the name `Class`
 
 ## 🐛 Debugging tips
 
