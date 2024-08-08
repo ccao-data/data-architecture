@@ -516,8 +516,8 @@ The following sections describe how to add and run each of these types of produc
 
 ### Data tests
 
-We implement data tests using [dbt
-tests](https://docs.getdbt.com/docs/build/tests). We prefer adding tests
+We implement data tests using [dbt tests](https://docs.getdbt.com/docs/build/tests)
+to check that hard-and-fast assumptions about our raw data are correct. We prefer adding tests
 inline in `schema.yml` config files using [generic
 tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
 rather than [singular
@@ -571,7 +571,7 @@ using the bash variable `$TOWNSHIP_CODE`.
 First, run the tests using dbt and the [QC test
 selector](https://github.com/ccao-data/data-architecture/blob/master/dbt/selectors.yml):
 
-```console
+```bash
 # Make sure you're in the dbt subdirectory with the virtualenv activated
 cd dbt
 source venv/bin/activate
@@ -582,7 +582,7 @@ dbt test --selector qc_tests --store-failures
 
 Next, transform the results for the township that Valuations staff requested:
 
-```console
+```bash
 python3 scripts/transform_dbt_test_results.py --township $TOWNSHIP_CODE
 ```
 
@@ -600,6 +600,9 @@ the tag `test_qc_iasworld`
   * Prefer tagging the model, and fall back to tagging the test if for
     some reason the model cannot be tagged (e.g. if it has some non-QC
     tests defined on it)
+  * If you would like to disable a QC test but you don't want to remove it
+    altogether, you can tag it with `test_qc_exclude_from_workbook`, which
+    will prevent the test from running as part of the `qc_tests` selector
 * The test definition must supply a few specific parameters:
   * `name` must be set and follow the pattern
     `iasworld_<table_name>_<test_description>`
@@ -674,15 +677,66 @@ do so, you have two options:
 
 ### Unit tests
 
-Unit testing is available in dbt as of [the 1.8
+Unit tests help ensure that the transformations we apply on top of our raw data
+do not introduce errors. Unit testing is available in dbt as of [the 1.8
 release](https://docs.getdbt.com/docs/build/unit-tests), but it does not
-yet work with the Athena adapter that our configuration uses. Jean is
-leading the effort to add unit testing support to the Athena adapter,
-and will update this section with details once that effort is resolved.
+yet work with the Athena adapter that our configuration uses, so we do not currently
+have a workflow for adding or running unit tests. Jean is leading the effort to add
+unit testing support to the Athena adapter, and will update this section with details
+once that effort is resolved.
 
 ### QC reports
 
-_TK_
+QC reports help us investigate suspicious data that _might_ indicate a problem, but
+that can't be confirmed automatically. We implement QC reports using dedicated
+dbt models that are configured with attributes that can be parsed by the
+[`export_models`
+script](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/export_models.py).
+
+#### Running QC reports
+
+We run QC reports when Valuations staff ask for them, which most often occurs before
+a major event in the Valuations calendar like the close of a township.
+
+The [`export_models`
+script](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/export_models.py)
+exposes a few options that help to export the right data:
+
+* **`--select`**: This option controls which models the script will export. This option is
+  equivalent to the [dbt `--select`
+  option](https://docs.getdbt.com/reference/node-selection/syntax), and any valid
+  dbt `--select` expression will work for this option.
+* **`--where`**: This option controls which records the script will return for the selected
+  model. Any expression that could follow `WHERE` keyword in a SQL filter condition will work
+  for this option.
+* **`--rebuild`**: This flag determines whether or not the selected models will be rebuilt
+  using `dbt run` prior to export. It defaults to `False`, and is only useful in rare cases
+  where the underlying models that comprise the reports have been edited since the last run,
+  typically during the period when a QC report is under active development.
+
+#### Example: Running town close QC reports
+
+The models that comprise our town close QC reports are defined using the `qc_report_town_close`
+tag and must be filtered for a specific township code (like "70") and tax year.
+
+Here's an example of how to export those models for a township code defined by `$TOWNSHIP_CODE`
+and a tax year defined by `$TAXYR`: 
+
+```
+python3 scripts/export_models.py --select tag:qc_report_town_close --where "taxyr = '$TAXYR' and township_code = '$TOWNSHIP_CODE'"
+```
+
+#### Example: Running the AHSAP change in value QC report
+
+The AHSAP change in value QC report is confined to one model, `qc.vw_change_in_ahsap_values`,
+which must be filtered for a specific township name (like "Hyde Park") and tax year.
+
+Here's an example of how to export that model for a township name defined by `$TOWNSHIP_NAME`
+and a tax year defined by `$TAXYR`:
+
+```
+python3 scripts/export_models.py --select qc.vw_change_in_ahsap_values --where "taxyr = '$TAXYR' and township_name = '$TOWNSHIP_NAME'"
+```
 
 ## 🐛 Debugging tips
 
