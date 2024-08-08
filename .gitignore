@@ -10,11 +10,13 @@
 .Ruserdata
 package*.json
 settings.json
+socrata/.Renviron
 
 # Directories
 logs/
 node_modules/
 venv/
+.venv/
 .ruff_cache/
 
 # Ignore most CSVs, except those that are used as dbt seeds
