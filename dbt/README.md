@@ -531,9 +531,7 @@ There are two subtypes of data tests that we support:
    of iasWorld, and are run in an ad hoc fashion depending on the needs of
    the transformations that sit on top of the raw data
 
-#### Data test subtype 1: QC tests
-
-QC tests can be run using the [`dbt test`
+**QC tests** can be run using the [`dbt test`
 command](https://docs.getdbt.com/reference/commands/test) and their output can be
 transformed for analysis using the [`transform_dbt_test_results`
 script](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/transform_dbt_test_results.py).
@@ -544,6 +542,13 @@ different artifacts with information about the tests:
   data problems
 * Parquet files representing metadata tables that can be uploaded to S3 for aggregate
   analysis
+
+**Non-QC tests** are much less common than QC tests in our test suite. We don't currently
+have a great process for handling them, so there is not much to document yet. If you
+are being asked to add a test that appears to be a non-QC test, meaning that it
+does not confirm our assumptions about iasWorld data, double check with the person who
+assigned the test to you and ask them when and how the test should be run so that its
+attributes can be set accordingly.
 
 #### Running QC tests
 
@@ -559,8 +564,8 @@ Since the first instance is a scheduled job that requires no intervention, the f
 steps describe how to respond to a request from Tia, Tom, or other Valuations staff for
 a fresh copy of the test failure output before town closing.
 
-Typically, Valuations staff will ask for test output for a specific town. We'll refer to the
-[township code](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) for this town
+Typically, Valuations staff will ask for test output for a specific townhip. We'll refer to the
+[township code](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) for this township
 using the bash variable `$TOWNSHIP_CODE`.
 
 First, run the tests using dbt and the [QC test
@@ -577,12 +582,17 @@ dbt test --selector qc_tests --store-failures
 
 Next, transform the results for the township that Valuations staff requested:
 
-_TK_
+```console
+python3 scripts/transform_dbt_test_results.py --township $TOWNSHIP_CODE
+```
+
+Finally, spot check the Excel workbook that the script produced to make sure it's formatted
+correctly, and send it to Valuations staff for review.
 
 #### Adding QC tests
 
 There are a few specific modifications a test author needs to make to
-ensure that QC tests can be run by the workflow and interpreted by the script:
+ensure that a new QC test can be run by the workflow and interpreted by the script:
 
 * One of either the test or the model that the test is defined on must be
 [tagged](https://docs.getdbt.com/reference/resource-configs/tags) with
@@ -624,14 +634,6 @@ of YAML anchors and aliases to define symbols for commonly-used values.
 See [here](https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/)
 for a brief explanation of the YAML anchor and alias syntax.
 
-#### Adding non-QC tests
-
-QC tests are much more common than non-QC tests in our test suite. If you
-are being asked to add a test that appears to be a non-QC test, double
-check with the person who assigned the test to you and ask them when
-and how the test should be run so that its attributes can be set
-accordingly.
-
 #### Choosing a generic test for your data test
 
 Writing a data test in a `schema.yml` file requires a [generic
@@ -670,7 +672,7 @@ do so, you have two options:
         of the `format_additional_select_columns` macro to format the
         parameter when applying it to your `SELECT` condition
 
-### Adding unit tests
+### Unit tests
 
 Unit testing is available in dbt as of [the 1.8
 release](https://docs.getdbt.com/docs/build/unit-tests), but it does not
@@ -678,7 +680,7 @@ yet work with the Athena adapter that our configuration uses. Jean is
 leading the effort to add unit testing support to the Athena adapter,
 and will update this section with details once that effort is resolved.
 
-### Adding QC reports
+### QC reports
 
 _TK_
 
