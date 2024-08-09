@@ -23,7 +23,8 @@ jobs:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
       - name: Install Python requirements
-        run: pip install -r ./.github/scripts/requirements.transform_dbt_test_results.txt
+        run: pip install -r scripts/requirements.transform_dbt_test_results.txt
+        working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
       - name: Run tests
@@ -52,7 +53,7 @@ jobs:
 
       - name: Extract test results
         run: |
-          python3 ../.github/scripts/transform_dbt_test_results.py \
+          python3 scripts/transform_dbt_test_results.py \
             --output-dir ./qc_test_results/
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
