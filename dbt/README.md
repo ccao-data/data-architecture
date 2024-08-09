@@ -711,10 +711,10 @@ exposes a few options that help to export the right data:
 * **`--where`**: This option controls which rows the script will return for the selected
   model in a similar fashion as a SQL `WHERE` clause. Any expression that could follow a
   `WHERE` keyword in a SQL filter condition will work for this option.
-* **`--rebuild`**: This flag determines whether or not the selected models will be rebuilt
-  using `dbt run` prior to export. It defaults to `False`, and is only useful in rare cases
-  where the underlying models that comprise the reports have been edited since the last run,
-  typically during the period when a QC report is under active development.
+* **`--rebuild` or `--no-rebuild`**: This flag determines whether or not the script will rebuild
+  the selected models using `dbt run` prior to export. It defaults to false (`--no-rebuild`) and
+  is most useful in rare cases where the underlying models that comprise the reports have been
+  edited since the last run, typically during the period when a QC report is under active development.
 
 #### Example: Running town close QC reports
 
