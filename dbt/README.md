@@ -680,11 +680,12 @@ do so, you have two options:
 
 Unit tests help ensure that the transformations we apply on top of our raw data
 do not introduce errors. Unit testing is available in dbt as of [the 1.8
-release](https://docs.getdbt.com/docs/build/unit-tests), but it does not
-yet work with the Athena adapter that our configuration uses, so we do not currently
-have a workflow for adding or running unit tests. Jean is leading the effort to add
-unit testing support to the Athena adapter, and will update this section with details
-once that effort is resolved.
+release](https://docs.getdbt.com/docs/build/unit-tests), but there is a bug that
+prevents it from working with the schema alias system that we use to namespace
+our models, so we do not yet have a process for adding or running unit tests.
+Jean is leading the effort to contribute to dbt Core in order to support unit
+tests in projects that follow our schema alias system, so she will update this
+section with documentation once that effort is resolved.
 
 ### QC reports
 
