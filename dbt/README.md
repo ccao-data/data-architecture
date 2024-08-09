@@ -756,7 +756,7 @@ a good reason to define it elsewhere. For details on how to add a model, see
 [➕ How to add a new model](#-how-to-add-a-new-model).
 
 There are a number of configuration options that allow you to control the format of your
-model during and after export:
+model during export:
 
 * **Tagging**: [Model tags](https://docs.getdbt.com/reference/resource-configs/tags) are not
   required for QC reports, but they are helpful in cases where we need to export more than one
