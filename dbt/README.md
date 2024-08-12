@@ -534,7 +534,7 @@ There are two subtypes of data tests that we support:
 **QC tests** can be run using the [`dbt test`
 command](https://docs.getdbt.com/reference/commands/test) and their output can be
 transformed for analysis using the [`transform_dbt_test_results`
-script](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/transform_dbt_test_results.py).
+script](./scripts/transform_dbt_test_results.py).
 This script reads the metadata for the most recent `dbt test` run and outputs a number of
 different artifacts with information about the tests:
 
@@ -569,7 +569,7 @@ Typically, Valuations staff will ask for test output for a specific township. We
 using the bash variable `$TOWNSHIP_CODE`.
 
 First, run the tests locally using dbt and the [QC test
-selector](https://github.com/ccao-data/data-architecture/blob/master/dbt/selectors.yml):
+selector](./selectors.yml):
 
 ```bash
 # Make sure you're in the dbt subdirectory with the virtualenv activated
@@ -624,7 +624,7 @@ the tag `test_qc_iasworld`
     * `category` (optional): A workbook category for the test, required if
       a category is not defined for the test's generic in the `TEST_CATEGORIES`
       constant in the [`transform_dbt_test_results`
-      script](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/transform_dbt_test_results.py)
+      script](./scripts/transform_dbt_test_results.py)
     * `table_name` (optional): The name of the table to report in the output
       workbook, if the workbook should report a different table name than the
       name of the model that the test is defined on
@@ -670,7 +670,7 @@ do so, you have two options:
    to our environment:
      1. Add a default category for your generic test in
         the `TEST_CATEGORIES` constant in the [`transform_dbt_test_results`
-        script](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/transform_dbt_test_results.py)
+        script](./scripts/transform_dbt_test_results.py)
      2. Make sure that your generic test supports the `additional_select_columns`
         parameter that most of our generic tests support, making use
         of the `format_additional_select_columns` macro to format the
@@ -692,16 +692,14 @@ section with documentation once that effort is resolved.
 QC reports help us investigate suspicious data that _might_ indicate a problem, but
 that can't be confirmed automatically. We implement QC reports using dedicated
 dbt models that are configured with attributes that can be parsed by the
-[`export_models`
-script](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/export_models.py).
+[`export_models` script](./scripts/export_models.py).
 
 #### Running QC reports
 
 We run QC reports when Valuations staff ask for them, which most often occurs before
 a major event in the Valuations calendar like the close of a township.
 
-The [`export_models`
-script](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/export_models.py)
+The [`export_models` script](./scripts/export_models.py)
 exposes a few options that help to export the right data:
 
 * **`--select`**: This option controls which models the script will export. This option is
@@ -750,7 +748,7 @@ name of the report that it exports during execution.
 
 Since QC reports are built on top of models, adding a new QC report can be as simple
 as adding a new model and exporting it using the [`export_models`
-script](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/export_models.py).
+script](./scripts/export_models.py).
 You should default to adding your model to the `qc` schema and subdirectory, unless there is
 a good reason to define it elsewhere. For details on how to add a model, see
 [➕ How to add a new model](#-how-to-add-a-new-model).
