@@ -772,16 +772,17 @@ model during export:
   your model's schema definition in order to control the format of the output workbook:
     * **`meta.export_name`**: The base name that the script will use for the output file, not
       including the file extension. The script will output the file to
-      `dbt/export/output/{meta.export_name}.xlsx`.
-    * **`meta.export_template`**: A path to an Excel template to populate with data, relative
-      to the [`dbt/export/templates/`
-      directory](https://github.com/ccao-data/data-architecture/tree/master/dbt/export/templates).
-      The script will read this template from `dbt/export/templates/{meta.export_template}`.
-      In contrast to `meta.export_name`, this option _does_ expect you to include the file
-      extension in the template name, to allow you more flexibility over the format of the
-      template files you use. Templates are useful if you want to apply custom headers,
-      column widths, or other column formatting to the output that are not otherwise configurable
-      by the `meta.export_format` config attribute described below.
+      `dbt/export/output/{meta.export_name}.xlsx`. If unset, defaults to the
+      name of the model.
+    * **`meta.export_template`**: The base name for an Excel file that the script will use as
+      a template to populate with data, not including the file extension. The script will
+      read this file from `dbt/export/templates/{meta.export_template}.xlsx`.
+      Templates are useful if you want to apply custom headers, column widths, or other
+      column formatting to the output that are not otherwise configurable
+      by the `meta.export_format` config attribute described below. If unset,
+      the script will search for a template with the same name as the model; if
+      it does not find a template, it will default to a simple layout with filterable
+      columns and striped rows.
     *  **`meta.export_format`**: An object with the following schema that controls the
        format of the output workbook:
          * `columns` (required): A list of one or more columns to format, each of which should be

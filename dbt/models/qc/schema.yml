@@ -814,7 +814,7 @@ models:
         - qc_report_town_close
     meta:
       export_name: 0 land value
-      export_template: assessed_and_market_values.xlsx
+      export_template: assessed_and_market_values
 
   - name: qc.vw_report_town_close_0_value
     description: '{{ doc("view_vw_report_town_close_0_value") }}'
@@ -823,7 +823,7 @@ models:
         - qc_report_town_close
     meta:
       export_name: 0 value
-      export_template: assessed_and_market_values.xlsx
+      export_template: assessed_and_market_values
 
   - name: qc.vw_report_town_close_289s
     description: '{{ doc("view_vw_report_town_close_289s") }}'
@@ -869,7 +869,7 @@ models:
         - qc_report_town_close
     meta:
       export_name: Improved class, no bldg value
-      export_template: assessed_and_market_values.xlsx
+      export_template: assessed_and_market_values
 
   - name: qc.vw_report_town_close_neg_asmt_value
     description: '{{ doc("view_vw_report_town_close_neg_asmt_value") }}'
@@ -983,7 +983,7 @@ models:
         - qc_report_town_close
     meta:
       export_name: Vacant class, bldg value
-      export_template: assessed_and_market_values.xlsx
+      export_template: assessed_and_market_values
 
   - name: qc.vw_sale_mydec_null_values
     description: '{{ doc("view_vw_sale_mydec_null_values") }}'
