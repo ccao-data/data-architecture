@@ -556,7 +556,7 @@ There are two instances when QC tests typically run:
 
 1. Once per day by the [`test-dbt-models` GitHub
    workflow](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml),
-   which pushes parquet output to S3 in order to support our analysis of test failures over time
+   which pushes Parquet output to S3 in order to support our analysis of test failures over time
 2. On demand by a Data team member whenever Tia, Tom, or another Valuations staff member requests
    a copy of the Excel workbook for a township, usually right before the town closes
 
@@ -568,7 +568,7 @@ Typically, Valuations staff will ask for test output for a specific township. We
 [township code](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) for this township
 using the bash variable `$TOWNSHIP_CODE`.
 
-First, run the tests using dbt and the [QC test
+First, run the tests locally using dbt and the [QC test
 selector](https://github.com/ccao-data/data-architecture/blob/master/dbt/selectors.yml):
 
 ```bash
