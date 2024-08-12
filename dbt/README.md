@@ -557,11 +557,11 @@ There are two instances when QC tests typically run:
 1. Once per day by the [`test-dbt-models` GitHub
    workflow](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml),
    which pushes Parquet output to S3 in order to support our analysis of test failures over time
-2. On demand by a Data team member whenever Tia, Tom, or another Valuations staff member requests
+2. On demand by a Data team member whenever a Valuations staff member requests
    a copy of the Excel workbook for a township, usually right before the town closes
 
 Since the first instance is a scheduled job that requires no intervention, the following
-steps describe how to respond to a request from Tia, Tom, or other Valuations staff for
+steps describe how to respond to a request from Valuations staff for
 a fresh copy of the test failure output before town closing.
 
 Typically, Valuations staff will ask for test output for a specific township. We'll refer to the
