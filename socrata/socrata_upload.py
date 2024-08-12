@@ -3,17 +3,13 @@ import requests
 import time
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
-from dotenv import load_dotenv
 
 # Load environmental variables and connect to Athena
-load_dotenv(".Renviron")
-app_token = os.getenv("SOCRATA_APP_TOKEN")
-auth = (os.getenv("SOCRATA_USERNAME"), os.getenv("SOCRATA_PASSWORD"))
+app_token = os.getenv("../SOCRATA_APP_TOKEN")
+auth = (os.getenv("../SOCRATA_USERNAME"), os.getenv("../SOCRATA_PASSWORD"))
 cursor = connect(
-    s3_staging_dir=os.getenv("AWS_ATHENA_S3_STAGING_DIR") + "/",
-    region_name=os.getenv("AWS_REGION"),
-    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+    s3_staging_dir=os.getenv("../AWS_ATHENA_S3_STAGING_DIR") + "/",
+    region_name=os.getenv("../AWS_REGION"),
     cursor_class=PandasCursor,
 ).cursor(unload=True)
 
