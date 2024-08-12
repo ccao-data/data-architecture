@@ -1,0 +1,66 @@
+
+name: update_socrata_asset
+
+on:
+  workflow_dispatch:
+    inputs:
+      socrata_asset:
+        type: choice
+        description: Target Socrata asset
+        options:
+        - Parcel Universe
+        - Single and Multi-Family Improvement Characteristics
+        - Residential Condominium Unit Characteristics
+        - Parcel Sales
+        - Assessed Values
+        - Appeals
+        - Parcel Addresses
+        - Parcel Proximity
+        - Property Tax-Exempt Parcels
+        default: Parcel Universe
+        required: true
+      overwrite:
+        type: boolean
+        description: Overwrite or update socrata asset
+        required: true
+      years:
+        type: string
+        description: Years to update or overwrite
+        default: 'all'
+        required: false
+      by_township:
+        type: boolean
+        description: Chunk Socrata upload by township
+        default: false
+        required: false
+
+jobs:
+  update_socrata_asset:
+    runs-on: ubuntu-latest
+    permissions:
+      # contents:read and id-token:write permissions are needed to interact
+      # with GitHub's OIDC Token endpoint so that we can authenticate with AWS
+      contents: read
+      id-token: write
+      # While packages:write is usually not required for workflows, it is
+      # required in order to allow the reusable called workflow to push to
+      # GitHub Container Registry
+      packages: write
+    uses: ccao-data/actions/.github/workflows/build-and-run-batch-job.yaml@main
+    secrets:
+      AWS_IAM_ROLE_TO_ASSUME_ARN: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
+      SOCRATA_USERNAME:  ${{ secrets.SOCRATA_USERNAME }}
+      SOCRATA_PASSWORD: ${{ secrets.SOCRATA_PASSWORD }}
+      # Set these env vars as secrets so they get masked in the GitHub
+      # Actions logs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.10 #install the python needed
+          run: |
+            python -m pip install --upgrade pip
+            pip install -r socrata/requirements.txt
+      - run: python socrata/socrata_upload.py
