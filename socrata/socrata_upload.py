@@ -8,7 +8,7 @@ from pyathena.pandas.cursor import PandasCursor
 app_token = os.getenv("../SOCRATA_APP_TOKEN")
 auth = (os.getenv("../SOCRATA_USERNAME"), os.getenv("../SOCRATA_PASSWORD"))
 cursor = connect(
-    s3_staging_dir=os.getenv("../AWS_ATHENA_S3_STAGING_DIR") + "/",
+    s3_staging_dir=(os.getenv("../AWS_ATHENA_S3_STAGING_DIR") + "/"),
     region_name=os.getenv("../AWS_REGION"),
     cursor_class=PandasCursor,
 ).cursor(unload=True)
