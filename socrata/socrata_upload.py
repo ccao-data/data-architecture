@@ -5,11 +5,11 @@ from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
 
 # Load environmental variables and connect to Athena
-app_token = os.getenv("../SOCRATA_APP_TOKEN")
-auth = (os.getenv("../SOCRATA_USERNAME"), os.getenv("../SOCRATA_PASSWORD"))
+app_token = os.getenv("SOCRATA_APP_TOKEN")
+auth = (os.getenv("SOCRATA_USERNAME"), os.getenv("SOCRATA_PASSWORD"))
 cursor = connect(
-    s3_staging_dir=os.getenv("../AWS_ATHENA_S3_STAGING_DIR") + "/",
-    region_name=os.getenv("../AWS_REGION"),
+    s3_staging_dir=os.getenv("AWS_ATHENA_S3_STAGING_DIR") + "/",
+    region_name=os.getenv("AWS_REGION"),
     cursor_class=PandasCursor,
 ).cursor(unload=True)
 
@@ -345,6 +345,6 @@ def socrata_upload(
 socrata_upload(
     socrata_asset="Parcel Universe",
     overwrite=False,
-    years=["2023", "2024"],
-    by_township=True,
+    years="all",
+    by_township=False,
 )
