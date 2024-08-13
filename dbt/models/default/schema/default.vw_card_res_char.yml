@@ -4,6 +4,13 @@ models:
     config:
       tags:
         - type_res
+    meta:
+      socrata_asset: Single and Multi-Family Improvement Characteristics
+      asset_id: x54s-btds
+      primary_key:
+        - pin
+        - card
+        - year
 
     columns:
       - name: char_air

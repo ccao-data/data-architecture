@@ -1,6 +1,12 @@
 models:
   - name: default.vw_pin_history
     description: '{{ doc("view_vw_pin_history") }}'
+    meta:
+      socrata_asset: Assessed Values
+      asset_id: uzyt-m557
+      primary_key:
+        - pin
+        - year
 
     columns:
       - name: board_bldg

@@ -1,6 +1,12 @@
 models:
   - name: default.vw_pin_universe
     description: '{{ doc("view_vw_pin_universe") }}'
+    meta:
+      socrata_asset: Parcel Universe
+      asset_id: 4u8x-wdnz
+      primary_key:
+        - pin
+        - year
 
     columns:
       - name: access_cmap_walk_data_year

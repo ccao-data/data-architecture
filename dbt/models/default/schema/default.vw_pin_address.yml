@@ -1,6 +1,12 @@
 models:
   - name: default.vw_pin_address
     description: '{{ doc("view_vw_pin_address") }}'
+    meta:
+      socrata_asset: Parcel Addresses
+      asset_id: 3723-97qp
+      primary_key:
+        - pin
+        - year
 
     columns:
       - name: mail_address_city_name

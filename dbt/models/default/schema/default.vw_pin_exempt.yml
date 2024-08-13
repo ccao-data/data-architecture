@@ -1,6 +1,12 @@
 models:
   - name: default.vw_pin_exempt
     description: '{{ doc("view_vw_pin_exempt") }}'
+    meta:
+      socrata_asset: Property Tax-Exempt Parcels
+      asset_id: vgzx-68gb
+      primary_key:
+        - pin10
+        - year
 
     columns:
       - name: class

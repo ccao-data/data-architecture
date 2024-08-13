@@ -70,7 +70,7 @@ models:
 
   - name: proximity.dist_pin_to_secondary_road
     description: '{{ doc("table_dist_pin_to_secondary_road") }}'
-    
+
   - name: proximity.dist_pin_to_university
     description: '{{ doc("table_dist_pin_to_university") }}'
 
@@ -82,6 +82,12 @@ models:
 
   - name: proximity.vw_pin10_proximity
     description: '{{ doc("view_vw_pin10_proximity") }}'
+    meta:
+      socrata_asset: Parcel Proximity
+      asset_id: vgzx-68gb
+      primary_key:
+        - pin
+        - year
     columns: &vw_proximity_columns
       - name: airport_dnl_total
         description: '{{ doc("column_airport_dnl_total") }}'
