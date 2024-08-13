@@ -1,4 +1,3 @@
-
 name: update_socrata_asset
 
 on:
@@ -48,8 +47,10 @@ jobs:
       packages: write
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup python
+        uses: actions/setup-python@v5
         with:
           python-version: 3.10 #install the python needed
       # Set these env vars as secrets so they get masked in the GitHub
