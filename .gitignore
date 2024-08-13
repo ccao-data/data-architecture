@@ -1,4 +1,5 @@
 # Files
+.env
 *.Rproj
 *.geojson
 *.parquet
