@@ -51,22 +51,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.10 #install the python needed
-          run: |
-            python -m pip install --upgrade pip
-            pip install -r socrata/requirements.txt
+      - run: pip install -r socrata/requirements.txt
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
-      - run: python socrata/socrata_upload.py
+      - name: Upload to Socrata
         secrets:
-          AWS_IAM_ROLE_TO_ASSUME_ARN: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-          AWS_ATHENA_S3_STAGING_DIR: ${{ secrets.AWS_ATHENA_S3_STAGING_DIR }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
-          SOCRATA_USERNAME:  ${{ secrets.SOCRATA_USERNAME }}
-          SOCRATA_PASSWORD: ${{ secrets.SOCRATA_PASSWORD }}
-          # Set these env vars as secrets so they get masked in the GitHub
-          # Actions logs
+            AWS_IAM_ROLE_TO_ASSUME_ARN: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+            AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+            AWS_ATHENA_S3_STAGING_DIR: ${{ secrets.AWS_ATHENA_S3_STAGING_DIR }}
+            AWS_REGION: ${{ secrets.AWS_REGION }}
+            SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
+            SOCRATA_USERNAME:  ${{ secrets.SOCRATA_USERNAME }}
+            SOCRATA_PASSWORD: ${{ secrets.SOCRATA_PASSWORD }}
+            # Set these env vars as secrets so they get masked in the GitHub
+            # Actions logs
+        run: python socrata/socrata_upload.py
