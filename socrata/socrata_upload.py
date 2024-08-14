@@ -39,7 +39,8 @@ def get_asset_info(socrata_asset):
         "meta",
     ]
 
-    dbt_output = io.StringIO(print(f"> dbt {' '.join(dbt_list_args)}"))
+    print(f"> dbt {' '.join(dbt_list_args)}")
+    dbt_output = io.StringIO()
     with contextlib.redirect_stdout(dbt_output):
         DBT.invoke(dbt_list_args)
 
