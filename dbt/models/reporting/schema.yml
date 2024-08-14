@@ -219,19 +219,19 @@ models:
           name: reporting_vw_pin_value_long_class_not_null
           column_name: class
           config:
-            where: CAST(year AS int) < {{ var('test_qc_year_start') }}
+            where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
       - not_null:
           name: reporting_vw_pin_value_long_tot_not_null
           column_name: tot
           config:
-            where: CAST(year AS int) < {{ var('test_qc_year_start') }}
+            where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
             error_if: ">21" # as of 2024-04-01
       - not_null:
           name: reporting_vw_pin_value_long_tot_mv_not_null
           column_name: tot_mv
           config:
             where: |
-              CAST(year AS int) < {{ var('test_qc_year_start') }} AND
+              CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} AND
               (year >= '2021' OR (
               year = '2020' AND stage_name = 'BOR CERTIFIED')
               )
@@ -240,10 +240,10 @@ models:
           column_name: tot
           config:
             tags:
-              - test_qc_iasworld
+              - data_test_iasworld
           max_value: 1
           where: |
-            class = 'EX' AND CAST(year AS int) = {{ var('test_qc_year_start') }}
+            class = 'EX' AND CAST(year AS int) = {{ var('data_test_iasworld_year_start') }}
           additional_select_columns:
             - {column: pin, alias: parid}
             - class

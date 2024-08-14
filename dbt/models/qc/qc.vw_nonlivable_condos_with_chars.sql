@@ -20,6 +20,3 @@ LEFT JOIN {{ source('spatial', 'township') }} AS towns
 WHERE
     (condos.is_common_area OR condos.is_parking_space)
     AND (condos.char_bedrooms IS NOT NULL OR condos.char_full_baths IS NOT NULL)
-    AND CAST(
-        condos.year AS INT
-    ) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}

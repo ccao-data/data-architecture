@@ -541,14 +541,9 @@ built for iasWorld data tests.
 
 #### Running iasWorld data tests
 
-The iasWorld data test suite can be run using the [`dbt test`
-command](https://docs.getdbt.com/reference/commands/test) with a dedicated
-[selector](https://docs.getdbt.com/reference/node-selection/yaml-selectors)
-and the [`--store-failures`
-flag](https://docs.getdbt.com/reference/resource-configs/store_failures),
-and its output can be transformed for review and analysis using the
-[`transform_dbt_test_results` script](./scripts/transform_dbt_test_results.py).
-This script reads the metadata for the most recent `dbt test` run and outputs a number of
+The iasWorld data test suite can be run using the [`run_iasworld_data_tests`
+script](./scripts/run_iasworld_data_tests.py).
+This script runs the tests and reads the metadata for the run to output a number of
 different artifacts with information about the tests:
 
 * An Excel workbook with detailed information on each failure to aid in resolving
@@ -572,22 +567,16 @@ Typically, Valuations staff will ask for test output for a specific township. We
 [township code](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) for this township
 using the bash variable `$TOWNSHIP_CODE`.
 
-First, run the tests locally using dbt and the [iasWorld data test
-selector](./selectors.yml):
+Run the tests locally using the [`run_iasworld_data_tests`
+script](./scripts/run_iasworld_data_tests.yml):
 
 ```bash
 # Make sure you're in the dbt subdirectory with the virtualenv activated
 cd dbt
 source venv/bin/activate
 
-# Run the tests and store failures in Athena
-dbt test --selector qc_tests --store-failures
-```
-
-Next, transform the results for the township that Valuations staff requested:
-
-```bash
-python3 scripts/transform_dbt_test_results.py --township $TOWNSHIP_CODE
+# Run the script
+python3 scripts/run_iasworld_data_tests.py --township $TOWNSHIP_CODE
 ```
 
 Finally, spot check the Excel workbook that the script produced to make sure it's formatted
@@ -601,14 +590,14 @@ by the script:
 
 * One of either the test or the model that the test is defined on must be
 [tagged](https://docs.getdbt.com/reference/resource-configs/tags) with
-the tag `test_qc_iasworld`
+the tag `data_test_iasworld`
   * Prefer tagging the model, and fall back to tagging the test if for
     some reason the model cannot be tagged (e.g. if it has some non-QC
     tests defined on it)
   * If you would like to disable a data test but you don't want to remove it
-    altogether, you can tag it or its model with `test_qc_exclude_from_workbook`,
+    altogether, you can tag it or its model with `data_test_iasworld_exclude_from_workbook`,
     which will prevent the test (or all of the model's tests, if you tagged
-    the model) from running as part of the `qc_tests` selector
+    the model) from running as part of the `data_test_iasworld` selector
 * The test definition must supply a few specific parameters:
   * `name` must be set and follow the pattern
     `iasworld_<table_name>_<test_description>`
@@ -622,14 +611,14 @@ the tag `test_qc_iasworld`
       test you're using
   * `config.where` should typically set to provide a filter expression
     that restricts tests to unique rows and to rows matching a date range
-    set by the `test_qc_year_start` and `test_qc_year_end`
+    set by the `data_test_iasworld_year_start` and `data_test_iasworld_year_end`
     [project variables](https://docs.getdbt.com/docs/build/project-variables)
   * `meta` should be set with a few specific string attributes:
     * `description` (required): A short human-readable description of the test
     * `category` (optional): A workbook category for the test, required if
       a category is not defined for the test's generic in the `TEST_CATEGORIES`
-      constant in the [`transform_dbt_test_results`
-      script](./scripts/transform_dbt_test_results.py)
+      constant in the [`run_iasworld_data_tests`
+      script](./scripts/run_iasworld_data_tests.py)
     * `table_name` (optional): The name of the table to report in the output
       workbook, if the workbook should report a different table name than the
       name of the model that the test is defined on
@@ -674,8 +663,8 @@ do so, you have two options:
    and other tests. You'll also need to follow a few extra steps that are specific
    to our environment:
      1. Add a default category for your generic test in
-        the `TEST_CATEGORIES` constant in the [`transform_dbt_test_results`
-        script](./scripts/transform_dbt_test_results.py)
+        the `TEST_CATEGORIES` constant in the [`run_iasworld_data_tests`
+        script](./scripts/run_iasworld_data_tests.py)
      2. Make sure that your generic test supports the `additional_select_columns`
         parameter that most of our generic tests support, making use
         of the `format_additional_select_columns` macro to format the
@@ -767,8 +756,7 @@ model during export:
   reports at the same time, so we tag each model with the `qc_report_town_close` tag such that
   we can select them all at once when running the `export_models` script using
   `--select tag:qc_report_town_close`. For consistency, prefer tags that start with the `qc_report_*`
-  prefix, but beware not to use the `test_qc_*` prefix, which is instead used for [QC
-  tests](#adding-qc-tests).
+  prefix.
 * **Filtering**: Since the `export_models` script can filter your model using the `--where`
   option, you should define your model such that it selects any fields that you want to use
   for filtering in the `SELECT` clause. It's common to filter reports by `taxyr` and
