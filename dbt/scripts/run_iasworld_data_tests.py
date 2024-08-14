@@ -766,14 +766,15 @@ def main() -> None:
         print(f"> dbt {' '.join(dbt_run_args)}")
         dbt_test_result = DBT.invoke(dbt_run_args)
 
-        test_raised_exception = dbt_test_result.exception is not None
-        test_had_error_status = any(
+        if dbt_test_result.exception is not None:
+            raise dbt_test_result.exception
+
+        if any(
             result.status == TestStatus.Error
-            for result in dbt_test_result.result.results
-        )
-        if test_raised_exception or test_had_error_status:
+            for result in getattr(dbt_test_result.result, "results", [])
+        ):
             # No need to report the exception, since the dbt process
-            # will handle that for us
+            # will have printed it already
             raise ValueError("Quitting due to error in dbt test run")
 
         print("Loading test results from Athena")
