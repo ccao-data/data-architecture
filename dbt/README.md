@@ -11,7 +11,7 @@ This directory stores the configuration for building our data catalog using
 * [💻 How to develop the catalog](#-how-to-develop-the-catalog)
 * [➕ How to add a new model](#-how-to-add-a-new-model)
 * [🔨 How to rebuild models using GitHub Actions](#-how-to-rebuild-models-using-github-actions)
-* [🧪 How to add and run QC tests and reports](#-how-to-add-and-run-qc-tests-and-reports)
+* [🧪 How to add and run tests and QC reports](#-how-to-add-and-run-tests-and-qc-reports)
 * [🐛 Debugging tips](#-debugging-tips)
 
 ### Outside this document
@@ -468,7 +468,7 @@ We use the following pattern to determine where to define each column descriptio
 
 New models should generally be added with accompanying tests to ensure the
 underlying data and transformations are correct. For more information on
-testing, see [🧪 How to add and run QC tests and reports](#-how-to-add-and-run-qc-tests-and-reports).
+testing, see [🧪 How to add and run tests and QC reports](#-how-to-add-and-run-tests-and-qc-reports).
 
 ## 🔨 How to rebuild models using GitHub Actions
 
@@ -492,25 +492,32 @@ passed directly to `dbt build`. Model names _must include the database schema na
 
 For more possible inputs using dbt node selection, see the [documentation site](https://docs.getdbt.com/reference/node-selection/syntax#examples).
 
-## 🧪 How to add and run QC tests and reports
+## 🧪 How to add and run tests and QC reports
 
 We test the integrity of our raw data and our transformations using a few different
-types of QC tests and reports, described below.
+types of tests and reports, described below.
 
-### Different types of QC products
+### Different types of tests and reports
 
-There are three types of QC products that we use to check data integrity:
+There are three types of products that we use to check the integrity of our data
+and the transformations we apply on top of that data:
 
-1. [**Data tests**](#data-tests) check that hard-and-fast assumptions about our raw data are correct
-    * For example: Test that a table is unique by `parid` and `taxyr`
-2. [**Unit tests**](#unit-tests) check that transformation logic inside a model definition
-   produces the correct output on a specific set of input data
+1. [**Data tests**](#data-tests) check that hard-and-fast assumptions about our
+   raw data are correct. These tests correspond to [dbt data
+   tests](https://docs.getdbt.com/docs/build/data-tests).
+    * For example: Test that a table is unique by `parid` and `taxyr`.
+2. [**Unit tests**](#unit-tests) check that transformation logic inside a model
+   definition produces the correct output on a specific set of input data.
+   These tests correspond to [dbt unit
+   tests](https://docs.getdbt.com/docs/build/unit-tests).
     * For example: Test that an enum column computed by a `CASE... WHEN`
-      expression in a view produces the correct output for a given input string
-3. [**QC reports**](#qc-reports) check for suspicious cases that _might_ indicate a problem with
-   our data, but that can't be confirmed automatically
+      expression in a view produces the correct output for a given input string.
+3. [**QC reports**](#qc-reports) check for suspicious cases that _might_ indicate
+   a problem with our data, but that can't be confirmed automatically. We
+   implement these reports using [dbt
+   models](https://docs.getdbt.com/docs/build/models).
     * For example: Query for all parcels whose market value increased by
-      more than $500k in the last year
+      more than $500k in the last year.
 
 The following sections describe how to add and run each of these types of products.
 
@@ -523,18 +530,24 @@ tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
 rather than [singular
 tests](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
 
-There are two subtypes of data tests that we support:
+Currently our primary use of data tests is to check assumptions about iasWorld data.
+We refer to this set of tests as "iasWorld data tests", and we've built a system
+for running and interpreting them that we will explain in the sections to follow.
+Other types of data tests do exist, and we primarily run them via automated
+GitHub workflows during CI when models change. However, we anticipate that in
+the future we will likely build out similar infrastructure for running and
+interpreting non-iasWorld data tests to accompany the infrastructure we have
+built for iasWorld data tests.
 
-1. **QC tests** confirm our assumptions about iasWorld data and are run at
-   scheduled intervals to confirm that iasWorld data meets spec
-2. **Non-QC tests** confirm all other assumptions about data sources outside
-   of iasWorld, and are run in an ad hoc fashion depending on the needs of
-   the transformations that sit on top of the raw data
+#### Running iasWorld data tests
 
-**QC tests** can be run using the [`dbt test`
-command](https://docs.getdbt.com/reference/commands/test) and their output can be
-transformed for analysis using the [`transform_dbt_test_results`
-script](./scripts/transform_dbt_test_results.py).
+The iasWorld data test suite can be run using the [`dbt test`
+command](https://docs.getdbt.com/reference/commands/test) with a dedicated
+[selector](https://docs.getdbt.com/reference/node-selection/yaml-selectors)
+and the [`--store-failures`
+flag](https://docs.getdbt.com/reference/resource-configs/store_failures),
+and its output can be transformed for review and analysis using the
+[`transform_dbt_test_results` script](./scripts/transform_dbt_test_results.py).
 This script reads the metadata for the most recent `dbt test` run and outputs a number of
 different artifacts with information about the tests:
 
@@ -543,16 +556,7 @@ different artifacts with information about the tests:
 * Parquet files representing metadata tables that can be uploaded to S3 for aggregate
   analysis
 
-**Non-QC tests** are much less common than QC tests in our test suite. We don't currently
-have a great process for handling them, so there is not much to document yet. If you
-are being asked to add a test that appears to be a non-QC test, meaning that it
-does not confirm our assumptions about iasWorld data, double check with the person who
-assigned the test to you and ask them when and how the test should be run so that its
-attributes can be set accordingly.
-
-#### Running QC tests
-
-There are two instances when QC tests typically run:
+There are two instances when iasWorld data tests typically run:
 
 1. Once per day by the [`test-dbt-models` GitHub
    workflow](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml),
@@ -568,7 +572,7 @@ Typically, Valuations staff will ask for test output for a specific township. We
 [township code](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) for this township
 using the bash variable `$TOWNSHIP_CODE`.
 
-First, run the tests locally using dbt and the [QC test
+First, run the tests locally using dbt and the [iasWorld data test
 selector](./selectors.yml):
 
 ```bash
@@ -589,10 +593,11 @@ python3 scripts/transform_dbt_test_results.py --township $TOWNSHIP_CODE
 Finally, spot check the Excel workbook that the script produced to make sure it's formatted
 correctly, and send it to Valuations staff for review.
 
-#### Adding QC tests
+#### Adding iasWorld data tests
 
 There are a few specific modifications a test author needs to make to
-ensure that a new QC test can be run by the workflow and interpreted by the script:
+ensure that a new iasWorld data test can be run by the workflow and interpreted
+by the script:
 
 * One of either the test or the model that the test is defined on must be
 [tagged](https://docs.getdbt.com/reference/resource-configs/tags) with
@@ -600,7 +605,7 @@ the tag `test_qc_iasworld`
   * Prefer tagging the model, and fall back to tagging the test if for
     some reason the model cannot be tagged (e.g. if it has some non-QC
     tests defined on it)
-  * If you would like to disable a QC test but you don't want to remove it
+  * If you would like to disable a data test but you don't want to remove it
     altogether, you can tag it or its model with `test_qc_exclude_from_workbook`,
     which will prevent the test (or all of the model's tests, if you tagged
     the model) from running as part of the `qc_tests` selector
@@ -633,7 +638,7 @@ See the [`iasworld_pardat_class_in_ccao_class_dict`
 test](https://github.com/ccao-data/data-architecture/blob/bd4bc1769fe33fdba1dbe827791b5c41389cf6ec/dbt/models/iasworld/schema/iasworld.pardat.yml#L78-L96)
 for an example of a test that sets these attributes.
 
-Due to the similarity of parameters defined on QC tests, we make extensive use
+Due to the similarity of parameters defined on iasWorld data tests, we make extensive use
 of YAML anchors and aliases to define symbols for commonly-used values.
 See [here](https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/)
 for a brief explanation of the YAML anchor and alias syntax.
@@ -761,7 +766,7 @@ model during export:
   report at a time. For example, Valuations typically requests all of the town close QC
   reports at the same time, so we tag each model with the `qc_report_town_close` tag such that
   we can select them all at once when running the `export_models` script using
-  `--select tag:qc_report_town_close`. For consistency, prefer tags that start with the `qc_*`
+  `--select tag:qc_report_town_close`. For consistency, prefer tags that start with the `qc_report_*`
   prefix, but beware not to use the `test_qc_*` prefix, which is instead used for [QC
   tests](#adding-qc-tests).
 * **Filtering**: Since the `export_models` script can filter your model using the `--where`
