@@ -1,6 +1,11 @@
 import os
 import requests
 import time
+from dbt.cli.main import dbtRunner
+import contextlib
+import io
+import json
+import pandas as pd
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
 
@@ -13,65 +18,46 @@ cursor = connect(
     cursor_class=PandasCursor,
 ).cursor(unload=True)
 
-# Define open data assets and related information
-tables = {
-    "Parcel Universe": {
-        "athena_asset": "default.vw_pin_universe",
-        "asset_id": "4u8x-wdnz",
-        "primary_key": ["pin", "year"],
-    },
-    "Single and Multi-Family Improvement Characteristics": {
-        "athena_asset": "default.vw_card_res_char",
-        "asset_id": "x54s-btds",
-        "primary_key": ["pin", "card", "year"],
-    },
-    "Residential Condominium Unit Characteristics": {
-        "athena_asset": "default.vw_pin_condo_char",
-        "asset_id": "3r7i-mrz4",
-        "primary_key": ["pin", "year"],
-    },
-    "Parcel Sales": {
-        "athena_asset": "default.vw_pin_sale",
-        "asset_id": "wvhk-k5uv",
-        "primary_key": ["doc_no", "pin"],
-    },
-    "Assessed Values": {
-        "athena_asset": "default.vw_pin_history",
-        "asset_id": "uzyt-m557",
-        "primary_key": ["pin", "year"],
-    },
-    "Appeals": {
-        "athena_asset": "default.vw_pin_appeal",
-        "asset_id": "y282-6ig3",
-        "primary_key": ["pin", "year"],
-    },
-    "Parcel Addresses": {
-        "athena_asset": "default.vw_pin_address",
-        "asset_id": "3723-97qp",
-        "primary_key": ["pin", "year"],
-    },
-    "Parcel Proximity": {
-        "athena_asset": "proximity.vw_pin10_proximity",
-        "asset_id": "ydue-e5u3",
-        "primary_key": ["pin", "year"],
-    },
-    "Property Tax-Exempt Parcels": {
-        "athena_asset": "default.vw_pin_exempt",
-        "asset_id": "vgzx-68gb",
-        "primary_key": ["pin10", "year"],
-    },
-}
-
 
 def get_asset_info(socrata_asset):
     """
-    Simple helper function to retrieve asset-specific information needed for
-    other functions.
+    Simple helper function to retrieve asset-specific information from dbt.
     """
 
-    athena_asset = tables.get(socrata_asset).get("athena_asset")
-    asset_id = tables.get(socrata_asset).get("asset_id")
-    row_identifier = tables.get(socrata_asset).get("primary_key")
+    os.chdir("./dbt")
+
+    DBT = dbtRunner()
+    dbt_list_args = [
+        "--quiet",
+        "list",
+        "--resource-types",
+        "model",
+        "--output",
+        "json",
+        "--output-keys",
+        "name",
+        "meta",
+    ]
+
+    dbt_output = io.StringIO(print(f"> dbt {' '.join(dbt_list_args)}"))
+    with contextlib.redirect_stdout(dbt_output):
+        DBT.invoke(dbt_list_args)
+
+    model = [
+        json.loads(model_dict_str)
+        for model_dict_str in dbt_output.getvalue().split("\n")
+        # Filter out empty strings caused by trailing newlines
+        if model_dict_str
+    ]
+
+    os.chdir("..")
+
+    model = pd.json_normalize(model)
+    model = model[model["meta.socrata_asset"] == socrata_asset]
+    athena_asset = model.iloc[0]["name"]
+    asset_id = model.iloc[0]["meta.asset_id"]
+    row_identifier = model.iloc[0]["meta.primary_key"]
+
     return athena_asset, asset_id, row_identifier
 
 
@@ -345,6 +331,6 @@ def socrata_upload(
 socrata_upload(
     socrata_asset="Parcel Universe",
     overwrite=False,
-    years="all",
+    years=None,
     by_township=False,
 )
