@@ -579,7 +579,7 @@ source venv/bin/activate
 python3 scripts/run_iasworld_data_tests.py --township $TOWNSHIP_CODE
 ```
 
-Finally, spot check the Excel workbook that the script produced to make sure it's formatted
+Then, check the Excel workbook that the script produced to make sure it's formatted
 correctly, and send it to Valuations staff for review.
 
 #### Adding iasWorld data tests
