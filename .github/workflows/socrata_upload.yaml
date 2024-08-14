@@ -68,6 +68,10 @@ jobs:
           AWS_ATHENA_S3_STAGING_DIR: ${{ secrets.AWS_ATHENA_S3_STAGING_DIR }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
           SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
-          SOCRATA_USERNAME:  ${{ secrets.SOCRATA_USERNAME }}
+          SOCRATA_USERNAME: ${{ secrets.SOCRATA_USERNAME }}
           SOCRATA_PASSWORD: ${{ secrets.SOCRATA_PASSWORD }}
+          SOCRATA_ASSET: ${{ inputs.socrata_asset }}
+          OVERWRITE: ${{ inputs.overwrite }}
+          YEARS: ${{ inputs.years }}
+          BY_TOWNSHIP: ${{ inputs.by_township }}
         run: python socrata/socrata_upload.py

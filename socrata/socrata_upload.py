@@ -330,8 +330,8 @@ def socrata_upload(
 
 
 socrata_upload(
-    socrata_asset="Parcel Universe",
-    overwrite=False,
-    years=None,
-    by_township=False,
+    socrata_asset=os.getenv("SOCRATA_ASSET"),
+    overwrite=os.getenv("OVERWRITE"),
+    years=os.getenv("YEARS"),
+    by_township=os.getenv("BY_TOWNSHIP"),
 )
