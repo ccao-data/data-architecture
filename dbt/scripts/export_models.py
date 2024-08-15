@@ -27,9 +27,10 @@ A few configuration values can be set on any model to support exporting:
     * config.meta.export_name (optional): The base name of the output file that will be generated. File extensions are not necessary since all
       models are exported as .xlsx files. If unset, defaults to the name of the model.
 
-    * config.meta.export_template (optional): The filename of an Excel template to use when exporting a model. Templates should be stored in the
-      export/templates/ directory and should include header rows. If unset, will search for a template with the same name as the model; if no
-      template is found, defaults to a simple layout with filterable columns and striped rows.
+    * config.meta.export_template (optional): The base name of an Excel template to use when exporting a model. File extensions are not necessary
+      since all templates are assumed to be .xlsx files. Templates should be stored in the export/templates/ directory and should include header
+      rows. If unset, will search for a template with the same name as the model; if no template is found, defaults to a simple layout with
+      filterable columns and striped rows.
 """  # noqa: E501
 CLI_EXAMPLE = """Example usage to output the qc_report_town_close report for Hyde Park township:
 
@@ -146,13 +147,10 @@ def main():
         model_name = model["name"]
         relation_name = model["relation_name"]
         export_name = model["config"]["meta"].get("export_name") or model_name
-        template = (
-            model["config"]["meta"].get("export_template")
-            or f"{model_name}.xlsx"
-        )
+        template = model["config"]["meta"].get("export_template") or model_name
 
         # Define inputs and outputs for export based on model metadata
-        template_path = os.path.join("export", "templates", template)
+        template_path = os.path.join("export", "templates", f"{template}.xlsx")
         template_exists = os.path.isfile(template_path)
         output_path = os.path.join("export", "output", f"{export_name}.xlsx")
 
