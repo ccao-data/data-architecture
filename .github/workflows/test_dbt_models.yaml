@@ -30,6 +30,7 @@ jobs:
       - name: Run tests
         run: |
           python3 scripts/run_iasworld_data_tests.py \
+            --target "$TARGET" \
             --output-dir ./qc_test_results/
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
