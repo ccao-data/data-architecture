@@ -530,7 +530,7 @@ tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
 rather than [singular
 tests](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
 
-Currently our primary use of data tests is to check assumptions about iasWorld data.
+Currently, our primary use of data tests is to check assumptions about iasWorld data.
 We refer to this set of tests as "iasWorld data tests", and we've built a system
 for running and interpreting them that we will explain in the sections to follow.
 Other types of data tests do exist, and we primarily run them via automated
