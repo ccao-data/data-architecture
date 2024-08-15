@@ -597,7 +597,7 @@ the tag `data_test_iasworld`
   * If you would like to disable a data test but you don't want to remove it
     altogether, you can tag it or its model with `data_test_iasworld_exclude_from_workbook`,
     which will prevent the test (or all of the model's tests, if you tagged
-    the model) from running as part of the `data_test_iasworld` selector
+    the model) from running as part of the `select_data_test_iasworld` selector
 * The test definition must supply a few specific parameters:
   * `name` must be set and follow the pattern
     `iasworld_<table_name>_<test_description>`

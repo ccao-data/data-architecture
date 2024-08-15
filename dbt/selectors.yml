@@ -1,5 +1,5 @@
 selectors:
-  - name: data_test_iasworld
+  - name: select_data_test_iasworld
     description: Selector for running data tests on iasWorld tables
     definition:
       union:

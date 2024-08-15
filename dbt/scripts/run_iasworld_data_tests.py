@@ -760,7 +760,7 @@ def main() -> None:
         dbt_run_args = [
             "test",
             "--selector",
-            "data_test_iasworld",
+            "select_data_test_iasworld",
             "--store-failures",
         ]
         print(f"> dbt {' '.join(dbt_run_args)}")
