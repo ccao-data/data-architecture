@@ -2,6 +2,13 @@ seeds:
   - name: ccao.adjective
     description: '{{ doc("seed_adjective") }}'
 
+  - name: ccao.aprval_reascd
+    description: '{{ doc("seed_aprval_reascd") }}'
+    config:
+      column_types:
+        reascd: string
+        description: string
+
   - name: ccao.class_dict
     description: '{{ doc("seed_class_dict") }}'
     config:
