@@ -16,8 +16,9 @@ SELECT
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN
-    ( {{ dist_to_nearest_geometry(ref('spatial.stadium')) }} )
+    ( {{ dist_to_nearest_geometry(source('spatial', 'stadium')) }} )
         AS xy
-    ON pcl.geometry_3435 = xy.geometry_3435
+    ON pcl.x_3435 = xy.x_3435
+    AND pcl.y_3435 = xy.y_3435
     AND pcl.year = xy.pin_year
 GROUP BY pcl.pin10, pcl.year
