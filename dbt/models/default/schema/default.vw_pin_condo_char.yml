@@ -98,13 +98,6 @@ models:
       - not_null:
           name: default_vw_pin_condo_char_bldg_is_mixed_use_not_null
           column_name: bldg_is_mixed_use
-      - expression_is_false:
-          name: default_vw_pin_condo_char_nonlivable_no_chars
-          expression: |
-            (is_common_area OR is_parking_space)
-            AND (char_bedrooms IS NOT NULL OR char_full_baths IS NOT NULL)
-          config:
-            error_if: ">48205" # as of 2024-06-03
       # TODO: Non-liveable unit heuristics
       # TODO: Row count matches PARDAT for condo classes
       # TODO: Non-unit and unit parcel count add up to total parcels per

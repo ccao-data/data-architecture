@@ -840,7 +840,7 @@ Year the property was constructed
 {% docs shared_column_card %}
 Sub-unit of a PIN.
 
-For residential properties, cards usually identify each *building*, For
+For residential properties, cards usually identify each _building_, For
 commercial properties, they can identify spaces within the same building.
 Cards also serve as the unit of observation for the residential model.
 
@@ -870,6 +870,7 @@ purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
 ## is_active_exe_homeowner
+
 {% docs shared_column_is_active_exe_homeowner %}
 Parcel has an active homeowner exemption
 {% enddocs %}
@@ -1041,6 +1042,21 @@ and interns. Adjectives are pulled from the list used by Docker.
 {% enddocs %}
 
 # Other
+## ari
+
+{% docs shared_column_ari %}
+Illinois Housing Development Authority's Affordability Risk Index.
+
+It is unclear of IHDA's data timeline. Year currently refers to final year of census data used.
+{% enddocs %}
+
+## dci
+
+{% docs shared_column_dci %}
+Distressed Communities Index from the Economic Innovation Group.
+
+Unit of observations is Zip Code. Year refers to year of final year of census data used.
+{% enddocs %}
 
 ## ihs_avg_year_index
 
@@ -1048,15 +1064,6 @@ and interns. Adjectives are pulled from the list used by Docker.
 DePaul Institute of Housing Studies quarterly index.
 
 Averaged up to the yearly level. Unit of observation is Census PUMAs
-{% enddocs %}
-
-## ari
-
-{% docs shared_column_ari %}
-Illinois Housing Development Authority's Affordability Risk Index.
-
-It is unclear of IHDA's data timeline. Year currently refers to year of their data construction.
-0's in the database refer to information without enough data
 {% enddocs %}
 
 ## school_district_elementary_avg_rating
@@ -1300,9 +1307,9 @@ with `sv_is_ptax_outlier` (using OR logic).
 NOTE: Outlier flags only exist for sales _after_ 2014.
 {% enddocs %}
 
-## sv_outlier_type
+## sv_outlier_reason
 
-{% docs shared_column_sv_outlier_type %}
+{% docs shared_column_sv_outlier_reason %}
 Heuristic or model used to flag an outlier.
 
 See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo

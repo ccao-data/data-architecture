@@ -84,6 +84,22 @@ Distance from each PIN to the nearest golf course.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
+# dist_pin_to_grocery_store
+
+{% docs table_dist_pin_to_grocery_store %}
+Distance from each PIN to the nearest grocery store. Locations sourced from OpenStreetMap (OSM).
+	
+	OSM tags include:
+	
+	- `shop=supermarket`
+	- `shop=wholesale`
+	- `shop=greengrocer`
+	  
+	Only attributes with valid names are kept.
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
 # dist_pin_to_hospital
 
 {% docs table_dist_pin_to_hospital %}
@@ -124,6 +140,15 @@ are not near an actual Metra stop.
 
 {% docs table_dist_pin_to_metra_stop %}
 Distance from each PIN to the nearest Metra stop.
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
+# dist_pin_to_new_construction
+
+{% docs table_dist_pin_to_new_construction %}
+Distance from each PIN to the nearest new construction.
+New construction is defined as being within the past 3 years.
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}

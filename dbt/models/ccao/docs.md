@@ -1,6 +1,3 @@
-**Primary Key**: `reascd`
-{% enddocs %}
-
 # class_dict
 
 {% docs table_class_dict %}
@@ -17,15 +14,6 @@ CCAO commercial valuation data, aggregated from the commercial team spreadsheets
 [available on the Assessor's site](https://www.cookcountyassessor.com/valuation-reports).
 
 **Primary Key**: `keypin`, `year`
-{% enddocs %}
-
-# corner_lot
-
-{% docs table_corner_lot %}
-CCAO corner lot indicator. Determined algorithmically by unobstructed access to
-perpidincular streets.
-
-**Primary Key**: `pin10`
 {% enddocs %}
 
 # hie
