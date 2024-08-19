@@ -6,8 +6,8 @@ models:
     description: '{{ doc("view_vw_change_in_high_low_value_sales") }}'
     config:
       tags:
-        - test_qc_sales
-        - test_qc_exclude_from_workbook
+        - data_test_iasworld
+        - data_test_iasworld_exclude_from_workbook
     data_tests:
       - expression_is_true:
           name: qc_vw_change_in_high_low_value_sales_ratio_high
@@ -42,7 +42,7 @@ models:
     description: '{{ doc("view_vw_iasworld_asmt_all_joined_to_legdat") }}'
     config:
       tags:
-        - test_qc_iasworld
+        - data_test_iasworld
     data_tests:
       - unique_combination_of_columns:
           name: iasworld_asmt_all_unique_by_parid_procname_and_taxyr
@@ -52,7 +52,7 @@ models:
             - taxyr
           config:
             where: |
-              CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+              CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
               -- Filter out known dupes in township 74 from one particular day
               -- that were introduced by a bulk data update error
               AND township_code != '74'
@@ -67,8 +67,8 @@ models:
     description: '{{ doc("view_vw_iasworld_sales_day_of_month") }}'
     config:
       tags:
-        - test_qc_sales
-        - test_qc_exclude_from_workbook
+        - data_test_iasworld
+        - data_test_iasworld_exclude_from_workbook
     data_tests:
       - expression_is_true:
           name: qc_vw_iasworld_sales_day_of_month_lte_half_observations
@@ -88,7 +88,7 @@ models:
     description: '{{ doc("view_vw_iasworld_sales_high_value_by_class") }}'
     config:
       tags:
-        - test_qc_sales
+        - data_test_iasworld
     columns:
       - name: price
         data_tests:
@@ -108,7 +108,7 @@ models:
     description: '{{ doc("view_vw_iasworld_sales_null_values") }}'
     config:
       tags:
-        - test_qc_sales
+        - data_test_iasworld
     columns:
       - name: buyer
         data_tests:
@@ -156,7 +156,7 @@ models:
     description: '{{ doc("view_vw_iasworld_sales_price_diff_sale_mydec") }}'
     config:
       tags:
-        - test_qc_sales
+        - data_test_iasworld
     data_tests:
       # Values of $1000 and below seem to get recoded to $1 in iasWorld
       - expression_is_true:
@@ -178,8 +178,8 @@ models:
     description: '{{ doc("view_vw_iasworld_sales_rowcount_matches_sale_mydec") }}'
     config:
       tags:
-        - test_qc_sales
-        - test_qc_exclude_from_workbook
+        - data_test_iasworld
+        - data_test_iasworld_exclude_from_workbook
     columns:
       - name: comparison
         data_tests:
@@ -197,8 +197,8 @@ models:
     description: '{{ doc("view_vw_iasworld_sales_unmatched_joins_sale_mydec") }}'
     config:
       tags:
-        - test_qc_sales
-        - test_qc_exclude_from_workbook
+        - data_test_iasworld
+        - data_test_iasworld_exclude_from_workbook
     columns:
       - name: mydec_unmatched
         data_tests:
@@ -225,7 +225,7 @@ models:
     description: '{{ doc("view_vw_neg_asmt_value") }}'
     config:
       tags:
-        - test_qc_inquire
+        - data_test_iasworld
     columns:
       - name: val01
         data_tests:
@@ -241,7 +241,7 @@ models:
                 - wen
               config:
                 where: |
-                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
               meta:
                 table_name: asmt
                 description: val01 (FARM LAND) should not be negative
@@ -948,7 +948,7 @@ models:
     config:
       tags:
         - qc_report_town_close
-        - test_qc_inquire
+        - data_test_iasworld
     meta:
       export_name: Res parcels not set to cost approach
     columns:
@@ -970,7 +970,7 @@ models:
                 - wen
               config:
                 where: |
-                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
               meta:
                 table_name: aprval
                 description: revcode should be '1' for 200-class parcels
@@ -989,8 +989,8 @@ models:
     description: '{{ doc("view_vw_sale_mydec_null_values") }}'
     config:
       tags:
-        - test_qc_sales
-        - test_qc_exclude_from_workbook
+        - data_test_iasworld
+        - data_test_iasworld_exclude_from_workbook
     columns:
       - name: address
         data_tests:

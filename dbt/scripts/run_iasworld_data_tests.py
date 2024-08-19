@@ -729,12 +729,19 @@ def main() -> None:
             "transformation steps. Defaults to False."
         ),
     )
+    parser.add_argument(
+        "--target",
+        required=False,
+        default="dev",
+        help="dbt target to use for running tests, defaults to 'dev'",
+    )
 
     args = parser.parse_args()
 
     output_dir = args.output_dir
     townships = args.township if args.township else tuple()
     use_cached = args.use_cached
+    target = args.target
 
     run_results_filepath = os.path.join("target", "run_results.json")
     manifest_filepath = os.path.join("target", "manifest.json")
@@ -759,6 +766,8 @@ def main() -> None:
         print("Running tests")
         dbt_run_args = [
             "test",
+            "--target",
+            target,
             "--selector",
             "select_data_test_iasworld",
             "--store-failures",
