@@ -8,6 +8,7 @@
 # documentation.
 
 import argparse
+import csv
 import dataclasses
 import datetime
 import decimal
@@ -96,11 +97,15 @@ class TestResult:
         description: str,
         elapsed_time: decimal.Decimal,
         failing_rows: typing.Optional[typing.List[typing.Dict]] = None,
+        notify: typing.Optional[str] = None,
     ) -> None:
         """
         The failing_rows list should be formatted like the rows
         returned by a csv.DictReader or a DictCursor, i.e. a list of
         dicts mapping `{field_name: row_value}`.
+
+        NOTE: If you add attributes here, make sure you also add them to
+        the `to_dict`, `from_dict`, and `split_by_township` methods.
         """
         self.name = name
         self.table_name = table_name
@@ -109,6 +114,7 @@ class TestResult:
         self.description = description
         self.elapsed_time = elapsed_time
         self.failing_rows: typing.List[typing.Dict] = failing_rows or []
+        self.notify = notify
 
     @property
     def fieldnames(self) -> typing.List[str]:
@@ -132,6 +138,7 @@ class TestResult:
             "description": self.description,
             "elapsed_time": self.elapsed_time,
             "failing_rows": self.failing_rows,
+            "notify": self.notify,
         }
 
     @classmethod
@@ -145,10 +152,27 @@ class TestResult:
             description=result_dict["description"],
             elapsed_time=result_dict["elapsed_time"],
             failing_rows=result_dict["failing_rows"],
+            notify=result_dict["notify"],
         )
 
     def __repr__(self) -> str:
         return f"TestResult({self.to_dict()!r})"
+
+    @property
+    def details(self) -> str:
+        """Returns a string that can be used to report on the status of
+        this test in detail. Strings are formatted like so:
+
+            * {table_name}: {description} ({status})
+              * {fail1_key1}: {fail1_value1}, {fail1_key2}: {fail1_value2}
+              * {fail2_key1}: {fail2_value1}, {fail2_key2}: {fail2_value2}
+        """
+        body = f"* {self.table_name}: {self.description} ({self.status.value})"
+        for failing_row in self.failing_rows:
+            body += "\n  * " ", ".join(
+                f"{key}: {value}" for key, value in failing_row.items()
+            )
+        return body
 
     def split_by_township(self) -> typing.List["TownshipTestResult"]:
         """Split out this TestResult object into one or more
@@ -176,6 +200,7 @@ class TestResult:
             "status": self.status,
             "description": self.description,
             "elapsed_time": self.elapsed_time,
+            "notify": self.notify,
         }
 
         # If we have any failing rows, split out separate TownshipTestResult
@@ -869,6 +894,39 @@ def main() -> None:
         )
         print(f"{tablename} metadata saved to {metadata_root_path}/")
 
+    print("Calculating failure notifications")
+    # Generate a map from SNS topic names -> list of test results that should
+    # be sent to that SNS topic
+    failures_by_topic: typing.Dict[str, typing.List[TestResult]] = {}
+    for test_category in test_categories:
+        for test_result in test_category.test_results:
+            if test_result.status == Status.FAIL and test_result.notify:
+                if test_result.notify not in failures_by_topic:
+                    failures_by_topic[test_result.notify] = []
+                failures_by_topic[test_result.notify].append(test_result)
+
+    # Generate the notification body and send it to each SNS topic
+    failure_details_by_topic: typing.Dict[str, str] = {}
+    for topic, test_results in failures_by_topic.items():
+        message = "The following tests failed:"
+        for test_result in test_results:
+            message += f"\n\n{test_result.details}"
+        failure_details_by_topic[topic] = message
+
+    if failure_details_by_topic:
+        notifications_path = os.path.join(
+            output_dir, "failure_notifications.csv"
+        )
+        print(f"Saving failure notifications to {notifications_path}")
+        with open(notifications_path, "w") as notifications_file:
+            fieldnames = ["topic", "message"]
+            writer = csv.DictWriter(notifications_file, fieldnames=fieldnames)
+            writer.writeheader()
+            for topic, message in failure_details_by_topic.items():
+                writer.writerow({"topic": topic, "message": message})
+    else:
+        print("No failure notifications are necessary")
+
 
 @dataclasses.dataclass
 class TestRunMetadata:
@@ -1228,6 +1286,7 @@ def get_test_categories(
         tablename = get_tablename_from_node(node)
         column_name = get_column_name_from_node(node)
         test_description = meta.get("description")
+        notify = meta.get("notify")
 
         # Basic attrs for the test result that apply whether or not the test
         # failed
@@ -1237,6 +1296,7 @@ def get_test_categories(
             "column_name": column_name,
             "description": test_description,
             "elapsed_time": execution_time,
+            "notify": notify,
         }
 
         if not tests_by_category.get(category):
