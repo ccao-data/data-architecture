@@ -265,6 +265,17 @@ sources:
             description: '{{ doc("column_splitno") }}'
           - name: spot
             description: Spot location percentage adj./land value
+            data_tests:
+              - is_null:
+                  name: iasworld_pardat_spot_is_null
+                  additional_select_columns: *select-columns
+                  anti_join:
+                    table_name: ref('qc.iasworld_pardat_existing_spot_not_null')
+                    join_on: parid
+                  config: *unique-conditions
+                  meta:
+                    description: spot should be null
+                    notify: '{{ var("data_test_iasworld_commercial_sns_topic") }}'
           - name: statecode
             description: '{{ doc("column_statecode") }}'
           - name: status

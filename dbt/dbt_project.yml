@@ -35,6 +35,9 @@ vars:
   # but can also be use to select specific time frames for testing
   data_test_iasworld_year_end: 2030
 
+  # SNS topic to publish to when commercial tests fail
+  data_test_iasworld_commercial_sns_topic:
+
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 models:
@@ -74,3 +77,5 @@ seeds:
       +schema: model
     spatial:
       +schema: spatial
+    qc:
+      +schema: qc

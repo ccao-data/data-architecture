@@ -1,0 +1,6 @@
+seeds:
+  - name: qc.iasworld_pardat_existing_spot_not_null
+    description: '{{ doc("seed_iasworld_pardat_existing_spot_not_null")}}'
+    config:
+      column_types:
+        parid: string
