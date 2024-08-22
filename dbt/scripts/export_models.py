@@ -9,6 +9,7 @@ import json
 import os
 import pathlib
 import shutil
+import typing
 
 import pandas as pd
 import pyathena
@@ -46,7 +47,7 @@ To output the 2024 AHSAP property report for Hyde Park:
 """  # noqa: E501
 
 
-def main():
+def parse_args():
     parser = argparse.ArgumentParser(
         description=CLI_DESCRIPTION,
         epilog=CLI_EXAMPLE,
@@ -87,13 +88,16 @@ def main():
         help="SQL expression representing a WHERE clause to filter models",
     )
 
-    args = parser.parse_args()
-    target = args.target
-    select = args.select
-    selector = args.selector
-    rebuild = args.rebuild
-    where = args.where
+    return parser.parse_args()
 
+
+def export_models(
+    target: str = "dev",
+    select: typing.List[str] | None = None,
+    selector: str | None = None,
+    rebuild: bool = False,
+    where: str | None = None,
+):
     if not select and not selector:
         raise ValueError("One of --select or --selector is required")
 
@@ -284,4 +288,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    export_models(
+        args.target, args.select, args.selector, args.rebuild, args.where
+    )
