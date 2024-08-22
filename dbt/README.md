@@ -710,18 +710,39 @@ exposes a few options that help to export the right data:
 
 #### Example: Running town close QC reports
 
-We tag the models that comprise our town close QC reports using the `qc_report_town_close`
-tag, and we filter them for a specific township code (like "70") and tax year during export.
+In general, we tag the models that comprise our town close QC reports using the
+`qc_report_town_close` tag. Models with this tag will be included in all town
+close QC reports.
 
-Here's an example of how to export those models for a township code defined by `$TOWNSHIP_CODE`
-and a tax year defined by `$TAXYR`:
+There are two types of town close reports that we run: reports for "tri towns",
+which are townships that are in the process of their triennial reassessment,
+and reports for "non-tri towns", which are not being reassessed. See our guide
+to [Townships](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md)
+for a list of townships grouped by tri. If a model should be included in town
+close reports for tri towns but not for non-tri towns, we tag it with
+`qc_report_town_close_tri` instead of the more general `qc_report_town_close`.
+Likewise, the `qc_report_town_close_non_tri` tag marks models that should be
+included in town close reports for _non-tri_ towns. In both cases, we filter
+the models for a specific township code (like "70") and tax year during export.
+
+We use [selectors](https://docs.getdbt.com/reference/node-selection/yaml-selectors)
+as an interface for exporting tri vs. non-tri town reports. Assuming a township
+code defined by `$TOWNSHIP_CODE` and a tax year defined by `$TAXYR`, this
+command will generate town close reports for a **tri town**:
 
 ```
-python3 scripts/export_models.py --select tag:qc_report_town_close --where "taxyr = '$TAXYR' and township_code = '$TOWNSHIP_CODE'"
+python3 scripts/export_models.py --selector select_qc_report_town_close_tri --where "taxyr = '$TAXYR' and township_code = '$TOWNSHIP_CODE'"
 ```
 
-The script will output the reports to the `dbt/export/output/` directory, and will print the
-names of the reports that it exports during execution.
+Use the `select_qc_report_town_close_non_tri` selector to output reports for
+a **non-tri town**:
+
+```
+python3 scripts/export_models.py --selector select_qc_report_town_close_non_tri --where "taxyr = '$TAXYR' and township_code = '$TOWNSHIP_CODE'"
+```
+
+In both cases, the script will output the reports to the `dbt/export/output/`
+directory, and will print the names of the reports that it exports during execution.
 
 #### Example: Running the AHSAP change in value QC report
 
@@ -754,9 +775,8 @@ model during export:
   required for QC reports, but they are helpful in cases where we need to export more than one
   report at a time. For example, Valuations typically requests all of the town close QC
   reports at the same time, so we tag each model with the `qc_report_town_close` tag such that
-  we can select them all at once when running the `export_models` script using
-  `--select tag:qc_report_town_close`. For consistency, prefer tags that start with the `qc_report_*`
-  prefix.
+  we can select them all at once when running the `export_models` script.
+  For consistency, prefer tags that start with the `qc_report_*` prefix.
 * **Filtering**: Since the `export_models` script can filter your model using the `--where`
   option, you should define your model such that it selects any fields that you want to use
   for filtering in the `SELECT` clause. It's common to filter reports by `taxyr` and

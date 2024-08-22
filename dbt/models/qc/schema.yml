@@ -891,7 +891,7 @@ models:
     description: '{{ doc("view_vw_report_town_close_prior_year_card_code_5s") }}'
     config:
       tags:
-        - qc_report_town_close
+        - qc_report_town_close_non_tri
     meta:
       export_name: Card code 5s possibly not at 100% (COMDAT)
 
@@ -899,7 +899,7 @@ models:
     description: '{{ doc("view_vw_report_town_close_prior_year_card_code_5s") }}'
     config:
       tags:
-        - qc_report_town_close
+        - qc_report_town_close_non_tri
     meta:
       export_name: Card code 5s possibly not at 100% (DWELDAT)
 
@@ -907,7 +907,7 @@ models:
     description: '{{ doc("view_vw_report_town_close_prior_year_card_code_5s") }}'
     config:
       tags:
-        - qc_report_town_close
+        - qc_report_town_close_non_tri
     meta:
       export_name: Card code 5s possibly not at 100% (OBY)
 

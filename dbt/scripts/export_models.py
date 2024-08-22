@@ -32,9 +32,17 @@ A few configuration values can be set on any model to support exporting:
       rows. If unset, will search for a template with the same name as the model; if no template is found, defaults to a simple layout with
       filterable columns and striped rows.
 """  # noqa: E501
-CLI_EXAMPLE = """Example usage to output the qc_report_town_close report for Hyde Park township:
+CLI_EXAMPLE = """Example usage to output the 2024 non-tri town close QC report for Leyden, which is a non-tri town in 2024:
 
-    python scripts/export_models.py --select tag:qc_report_town_close --where "township_code = '70'"
+    python scripts/export_models.py --selector select_qc_report_town_close_non_tri --where "township_code = '20' and taxyr = '2024'"
+
+To output the 2024 tri town close QC report for Hyde Park, which is a tri town in 2024:
+
+    python scripts/export_models.py --selector select_qc_report_town_close_tri --where "township_code = '70' and taxyr = '2024'"
+
+To output the 2024 AHSAP property report for Hyde Park:
+
+    python3 scripts/export_models.py --select qc.vw_change_in_ahsap_values --where "township_code = '70' and taxyr = '2024'"
 """  # noqa: E501
 
 
@@ -48,9 +56,18 @@ def main():
     )
     parser.add_argument(
         "--select",
-        required=True,
+        required=False,
         nargs="*",
         help="One or more dbt select statements to use for filtering models",
+    )
+    parser.add_argument(
+        "--selector",
+        required=False,
+        help=(
+            "A selector name to use for filtering models, as defined in "
+            "selectors.yml. One of --select or --selector must be set, "
+            "but they can't both be set"
+        ),
     )
     parser.add_argument(
         "--target",
@@ -73,17 +90,20 @@ def main():
     args = parser.parse_args()
     target = args.target
     select = args.select
+    selector = args.selector
     rebuild = args.rebuild
     where = args.where
 
+    if not select and not selector:
+        raise ValueError("One of --select or --selector is required")
+
+    if select and selector:
+        raise ValueError("--select and --selector cannot both be set")
+
+    select_args = ["--select", *select] if select else ["--selector", selector]
+
     if rebuild:
-        dbt_run_args = [
-            "run",
-            "--target",
-            target,
-            "--select",
-            *select,
-        ]
+        dbt_run_args = ["run", "--target", target, *select_args]
         print("Rebuilding models")
         print(f"> dbt {' '.join(dbt_run_args)}")
         dbt_run_result = DBT.invoke(dbt_run_args)
@@ -105,8 +125,7 @@ def main():
         "name",
         "config",
         "relation_name",
-        "--select",
-        *select,
+        *select_args,
     ]
     print(f"> dbt {' '.join(dbt_list_args)}")
     dbt_output = io.StringIO()
@@ -126,7 +145,9 @@ def main():
     ]
 
     if not models:
-        raise ValueError(f"No models found for the --select value '{select}'")
+        raise ValueError(
+            f"No models found for the select option '{' '.join(select_args)}'"
+        )
 
     print(
         "The following models will be exported: "
