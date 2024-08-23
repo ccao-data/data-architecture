@@ -686,65 +686,119 @@ section with documentation once that effort is resolved.
 QC reports help us investigate suspicious data that _might_ indicate a problem, but
 that can't be confirmed automatically. We implement QC reports using dedicated
 dbt models that are configured with attributes that can be parsed by the
-[`export_models` script](./scripts/export_models.py).
+[`export_models` script](./scripts/export_models.py) and other scripts that
+build on it for specific workflows, like the [`export_qc_town_close_reports`
+script](./scripts/export_qc_town_close_reports.py).
 
-#### Running QC reports
+#### Running QC reports with `export_models`
 
 We run QC reports when Valuations staff ask for them, which most often occurs before
 a major event in the Valuations calendar like the close of a township.
 
-The [`export_models` script](./scripts/export_models.py)
-exposes a few options that help to export the right data:
+The [`export_models` script](./scripts/export_models.py) is the foundation for
+our QC reports. The script expects certain Python requirements, which can be installed
+by running `pip install scripts/requirements.export_models.txt` in a virtual
+environment.
 
-* **`--select`**: This option controls which models the script will export. This option is
-  equivalent to the [dbt `--select`
+The script exposes a few options that help to export the right data:
+
+* **`--select`** (required unless `--selector` is set): This option can control which
+  models the script will export, along with the `--selector` option. This option
+  is equivalent to the [dbt `--select`
   option](https://docs.getdbt.com/reference/node-selection/syntax), and any valid
   dbt `--select` expression will work for this option.
-* **`--where`**: This option controls which rows the script will return for the selected
+* **`--selector`** (required unless `--select` is set): This is an alternate way to
+  control which models the script will export using a [dbt
+  selector](https://docs.getdbt.com/reference/node-selection/yaml-selectors).
+  This option is equivalent to the dbt `--selector` option. One of the `--select` or
+  `--selector` options must be set in order to run the script, but both cannot be set or
+  else the script will raise an error.
+* **`--where`** (optional): This option controls which rows the script will return for the selected
   model in a similar fashion as a SQL `WHERE` clause. Any expression that could follow a
   `WHERE` keyword in a SQL filter condition will work for this option.
-* **`--rebuild` or `--no-rebuild`**: This flag determines whether or not the script will rebuild
+* **`--rebuild` or `--no-rebuild`** (optional): This flag determines whether or not the script will rebuild
   the selected models using `dbt run` prior to export. It defaults to false (`--no-rebuild`) and
   is most useful in rare cases where the underlying models that comprise the reports have been
   edited since the last run, typically during the period when a QC report is under active development.
+* **`--target`** (optional): The name of the [dbt
+  target](https://docs.getdbt.com/reference/dbt-jinja-functions/target) to run
+  queries against. Defaults to `dev`. You should never have to set this option
+  when running the script locally.
 
-#### Example: Running town close QC reports
+Other scripts that build on `export_models` for specific workflows tend to
+expose similar options. See the documentation for these workflows below for
+more details.
 
-In general, we tag the models that comprise our town close QC reports using the
-`qc_report_town_close` tag. Models with this tag will be included in all town
-close QC reports.
+#### Running town close QC reports with `export_qc_town_close_reports`
 
-There are two types of town close reports that we run: reports for "tri towns",
-which are townships that are in the process of their triennial reassessment,
-and reports for "non-tri towns", which are not being reassessed. See our guide
-to [Townships](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md)
-for a list of townships grouped by tri. If a model should be included in town
-close reports for tri towns but not for non-tri towns, we tag it with
-`qc_report_town_close_tri` instead of the more general `qc_report_town_close`.
-Likewise, the `qc_report_town_close_non_tri` tag marks models that should be
-included in town close reports for _non-tri_ towns. In both cases, we filter
-the models for a specific township code (like "70") and tax year during export.
+We run town close reports using the [`scripts/export_qc_town_close_reports.py`
+script](./scripts/export_qc_town_close_reports.py), which builds on top of
+`export_models`. As such, `export_qc_town_close_reports` expects the same set
+of Python requirements as `export_models`, which can be installed in a virtual
+environment by running `pip install scripts/requirements.export_mod.els.txt`.
 
-We use [selectors](https://docs.getdbt.com/reference/node-selection/yaml-selectors)
-as an interface for exporting tri vs. non-tri town reports. Assuming a township
-code defined by `$TOWNSHIP_CODE` and a tax year defined by `$TAXYR`, this
-command will generate town close reports for a **tri town**:
+The script exposes the following options, many of which are the same as
+`export_models`:
+
+* **`--township`** (required): The [township
+  code](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) to use
+  for filtering results.
+* **`--year`** (optional): The year to use for filtering results. Defaults to the current year.
+* **`--target`** (optional): The name of the [dbt
+  target](https://docs.getdbt.com/reference/dbt-jinja-functions/target) to run
+  queries against. Defaults to `dev`. You should never have to set this option
+  when running the script locally.
+* **`--rebuild` or `--no-rebuild`** (optional): This flag determines whether or not the script will rebuild
+  the selected models using `dbt run` prior to export. It defaults to false (`--no-rebuild`) and
+  is most useful in rare cases where the underlying models that comprise the reports have been
+  edited since the last run, typically during the period when a QC report is under active development.
+* **`--refresh-tables`** (optional): Instructs the script to print a command that can be
+  run on the server to refresh underlying iasWorld tables. Will not export any reports
+  when set. Useful if you want to refresh iasWorld table data before running exports.
+  See [Refreshing iasWorld tables prior to running town close QC
+  reports](#refreshing-iasworld-tables-prior-to-running-town-close-qc-reports) for more
+  details.
+
+Assuming a township code defined by `$TOWNSHIP_CODE` and a tax year defined by
+`$TAXYR`, the following command will generate town close reports for the township/year combo:
 
 ```
-python3 scripts/export_models.py --selector select_qc_report_town_close_tri --where "taxyr = '$TAXYR' and township_code = '$TOWNSHIP_CODE'"
+python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE" --year "$TAXYR"
 ```
 
-Use the `select_qc_report_town_close_non_tri` selector to output reports for
-a **non-tri town**:
+You can omit the `--year` flag and the script will default to the current year of data:
 
 ```
-python3 scripts/export_models.py --selector select_qc_report_town_close_non_tri --where "taxyr = '$TAXYR' and township_code = '$TOWNSHIP_CODE'"
+python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE"
 ```
 
 In both cases, the script will output the reports to the `dbt/export/output/`
 directory, and will print the names of the reports that it exports during execution.
 
-#### Example: Running the AHSAP change in value QC report
+#### Refreshing iasWorld tables prior to running town close QC reports
+
+_TK: Move this param to `export_models`_
+
+The queries that generate town close reports run against our data warehouse, which
+ingests data from iasWorld overnight once daily. Sometimes a Valuations staff member
+will request a report during the middle of the workday, and they will need the most
+recent data, which will not exist in our warehouse yet. In these cases, you can use
+the `--refresh-tables` flag to output a command that you can run on the server to
+refresh any iasWorld tables that the town close reports rely on. Note that when
+you pass `--refresh-tables` to the script, it will _not_ export any reports, and
+will instead exit immediately after printing the refresh command.
+
+The following command will print a refresh command that can be run on the server
+to refresh the iasWorld tables that comprise our town close reports for the
+township with code `$TOWNSHIP_CODE` and the current year of data:
+
+```
+python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE" --refresh-tables
+```
+
+_TK: Example output_
+
+#### Running the AHSAP change in value QC report
 
 We define the AHSAP change in value QC report using one model, `qc.vw_change_in_ahsap_values`,
 which we filter for a specific township name (like "Hyde Park") and tax year during export.
