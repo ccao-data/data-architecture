@@ -25,14 +25,14 @@ models:
         description: '{{ doc("shared_column_pin") }}'
       - name: sale_date
         description: '{{ doc("shared_column_sale_date") }}'
-      - name: sale_filter_same_sale_within_365
-        description: Remove sale with the _same_ value (for the same PIN) within 365 days
-      - name: sale_filter_less_than_10k
-        description: Indicator for whether sale is less than $10K FMW
       - name: sale_filter_deed_type
         description: Remove quit claim, executor, beneficiary and missing deed types
       - name: sale_filter_is_outlier
         description: Same as `sv_is_outlier`, but `NULL` values are replaced with `FALSE`
+      - name: sale_filter_less_than_10k
+        description: Indicator for whether sale is less than $10K FMW
+      - name: sale_filter_same_sale_within_365
+        description: Remove sale with the _same_ value (for the same PIN) within 365 days
       - name: sale_key
         description: '{{ doc("shared_column_sale_key") }}'
       - name: sale_price
@@ -41,10 +41,10 @@ models:
         description: '{{ doc("shared_column_seller_name") }}'
       - name: sv_is_heuristic_outlier
         description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
-      - name: sv_is_ptax_outlier
-        description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
       - name: sv_is_outlier
         description: '{{ doc("shared_column_sv_is_outlier") }}'
+      - name: sv_is_ptax_outlier
+        description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
       - name: sv_run_id
         description: '{{ doc("shared_column_sv_run_id") }}'
       - name: sv_version

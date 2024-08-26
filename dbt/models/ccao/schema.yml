@@ -48,7 +48,7 @@ sources:
             description: '{{ doc("shared_column_char_unit_sf") }}'
           - name: year
             description: '{{ doc("shared_column_year") }}'
-
+          - name: zoo
       - name: pin_nonlivable
         description: '{{ doc("table_pin_nonlivable") }}'
         tags:

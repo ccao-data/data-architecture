@@ -37,14 +37,12 @@ sources:
                     description: adjfact should be between 0 and 1
           - name: areasum
             description: '{{ doc("column_areasum") }}'
-          - name: bld_modelid
-            description: '{{ doc("column_bld_modelid") }}'
-          - name: bldgros_d
-            description: Gross building description
           - name: bldgros_v
             description: Gross building value
           - name: bldgval
             description: Building value
+          - name: bld_modelid
+            description: '{{ doc("column_bld_modelid") }}'
             data_tests:
               - accepted_range:
                   name: iasworld_comdat_bldgval_between_0_and_1b

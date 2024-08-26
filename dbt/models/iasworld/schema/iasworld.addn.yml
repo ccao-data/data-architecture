@@ -35,10 +35,10 @@ sources:
                       AND deactivat IS NULL
                   meta:
                     description: area should be between 0 and 1.5M
-          - name: area_sqm
-            description: Area of this line in meters
           - name: areaid
             description: '{{ doc("column_areaid") }}'
+          - name: area_sqm
+            description: Area of this line in meters
           - name: areasum
             description: '{{ doc("column_areasum") }}'
           - name: card
@@ -109,10 +109,10 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: depr should be between 0 and 100
-          - name: eff_area
-            description: Support value per line
           - name: effageovr
             description: '{{ doc("column_effageovr") }}'
+          - name: eff_area
+            description: Support value per line
           - name: effyr
             description: '{{ doc("column_effyr") }}'
           - name: exmppct

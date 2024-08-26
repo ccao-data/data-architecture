@@ -184,8 +184,6 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: taxyr should not be null
-          - name: tottax
-            description: Total tax
           - name: tot30
             description: HIE AV Amount
             data_tests:
@@ -204,6 +202,8 @@ sources:
                     config: *unique-conditions
                     meta:
                       description: TOT32 (Value After HIE) should be TOT29 - TOT30 - TOT31
+          - name: tottax
+            description: Total tax
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status

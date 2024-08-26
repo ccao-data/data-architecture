@@ -57,6 +57,12 @@ models:
         description: '{{ doc("shared_column_township_code") }}'
       - name: township_name
         description: '{{ doc("shared_column_township_name") }}'
+      - name: twoyr_pri_board_bldg
+        description: '{{ doc("shared_column_board_bldg") }}'
+      - name: twoyr_pri_board_land
+        description: '{{ doc("shared_column_board_land") }}'
+      - name: twoyr_pri_board_tot
+        description: '{{ doc("shared_column_board_tot") }}'
       - name: twoyr_pri_certified_bldg
         description: '{{ doc("shared_column_certified_bldg") }}'
       - name: twoyr_pri_certified_land
@@ -71,12 +77,6 @@ models:
         description: '{{ doc("shared_column_mailed_land") }}'
       - name: twoyr_pri_mailed_tot
         description: '{{ doc("shared_column_mailed_tot") }}'
-      - name: twoyr_pri_board_bldg
-        description: '{{ doc("shared_column_board_bldg") }}'
-      - name: twoyr_pri_board_land
-        description: '{{ doc("shared_column_board_land") }}'
-      - name: twoyr_pri_board_tot
-        description: '{{ doc("shared_column_board_tot") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
 

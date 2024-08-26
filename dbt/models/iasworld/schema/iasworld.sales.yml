@@ -164,6 +164,12 @@ sources:
             description: '{{ doc("column_steb") }}'
           - name: stflag
             description: '{{ doc("column_stflag") }}'
+          - name: tasp1
+            description: Time adjusted sale price for roll year 1
+          - name: tasp2
+            description: Time adjusted sale price for roll year 2
+          - name: tasp3
+            description: Time adjusted sale price for roll year 3
           - name: tasp_ovr
             description: Time adjusted sale price for override roll year
           - name: tasp_ovr_year
@@ -174,12 +180,6 @@ sources:
             description: Roll year of time adjusted sale price 2
           - name: tasp_year3
             description: Roll year of time adjusted sale price 3
-          - name: tasp1
-            description: Time adjusted sale price for roll year 1
-          - name: tasp2
-            description: Time adjusted sale price for roll year 2
-          - name: tasp3
-            description: Time adjusted sale price for roll year 3
           - name: timeadjfact
             description: Time adjusted fact
           - name: timeadjsp
@@ -188,10 +188,10 @@ sources:
             description: Time adjusted valuation date
           - name: timeadjvaldt2
             description: Time adjusted valuation date 2
-          - name: trans_id
-            description: '{{ doc("column_trans_id") }}'
           - name: transdt
             description: Transaction date
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
           - name: transno
             description: Transfer number
           - name: upd_status

@@ -15,12 +15,12 @@ models:
         description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
       - name: mail_address_zipcode_2
         description: '{{ doc("shared_column_mail_address_zipcode_2") }}'
-      - name: prop_address_city_name
-        description: '{{ doc("shared_column_prop_address_city_name") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: pin10
         description: '{{ doc("shared_column_pin10") }}'
+      - name: prop_address_city_name
+        description: '{{ doc("shared_column_prop_address_city_name") }}'
       - name: prop_address_full
         description: '{{ doc("shared_column_prop_address_full") }}'
       - name: prop_address_prefix
@@ -37,10 +37,10 @@ models:
         description: '{{ doc("shared_column_prop_address_suffix_1") }}'
       - name: prop_address_suffix_2
         description: '{{ doc("shared_column_prop_address_suffix_2") }}'
-      - name: prop_address_unit_prefix
-        description: '{{ doc("shared_column_prop_address_unit_prefix") }}'
       - name: prop_address_unit_number
         description: '{{ doc("shared_column_prop_address_unit_number") }}'
+      - name: prop_address_unit_prefix
+        description: '{{ doc("shared_column_prop_address_unit_prefix") }}'
       - name: prop_address_zipcode_1
         description: '{{ doc("shared_column_prop_address_zipcode_1") }}'
       - name: prop_address_zipcode_2

@@ -86,10 +86,10 @@ sources:
             description: '`RCNLD` for main section of the dwelling'
           - name: bgarval
             description: Basement garage value
-          - name: bld_modelid
-            description: '{{ doc("column_bld_modelid") }}'
           - name: bldguse
             description: Building use
+          - name: bld_modelid
+            description: '{{ doc("column_bld_modelid") }}'
           - name: bsmt
             description: '{{ doc("shared_column_char_bsmt") }}'
             data_tests:
@@ -266,10 +266,10 @@ sources:
             description: '{{ doc("column_ecndep") }}'
           - name: ecnrsn
             description: '{{ doc("column_ecnrsn") }}'
-          - name: eff_area
-            description: Support total by card
           - name: effageovr
             description: '{{ doc("column_effageovr") }}'
+          - name: eff_area
+            description: Support total by card
           - name: effyr
             description: '{{ doc("column_effyr") }}'
           - name: effyrovr
@@ -1590,12 +1590,12 @@ sources:
             description: Wood burning fireplace - prefab
           - name: wbfp_pfx
             description: Additional stories for prefab fireplace stacks
-          - name: wbfp_s
-            description: Wood burning fireplace - number of stacks
-          - name: wbfp_x
-            description: Additional stories for wood-burning fireplace stacks
           - name: wbfpval
             description: Wood burning fireplace value
+          - name: wbfpval
+            description: Wood burning fireplace value
+          - name: wbfp_x
+            description: Additional stories for wood-burning fireplace stacks
           - name: wen
             description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc

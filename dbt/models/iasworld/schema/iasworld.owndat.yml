@@ -189,10 +189,10 @@ sources:
             description: '{{ doc("column_phone") }}'
           - name: po
             description: Primary owner flag (1 = `OWNDAT`, 0 = `OWNMLT`)
-          - name: postal_indx
-            description: '{{ doc("column_postal_indx") }}'
           - name: postalcode
             description: '{{ doc("column_postalcode") }}'
+          - name: postal_indx
+            description: '{{ doc("column_postal_indx") }}'
           - name: salekey
             description: '{{ doc("column_salekey") }}'
           - name: seq

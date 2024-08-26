@@ -368,12 +368,12 @@ models:
       - &other_ihs_avg_year_index
         name: other_ihs_avg_year_index
         description: '{{ doc("shared_column_ihs_avg_year_index") }}'
-      - &other_dci
-        name: other_dci
-        description: '{{ doc("shared_column_dci") }}'
       - &other_ari
         name: other_ari
         description: '{{ doc("shared_column_ari") }}'
+      - &other_dci
+        name: other_dci
+        description: '{{ doc("shared_column_dci") }}'
       - &other_school_district_elementary_avg_rating
         name: other_school_district_elementary_avg_rating
         description: '{{ doc("shared_column_school_district_elementary_avg_rating") }}'

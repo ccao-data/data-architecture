@@ -200,16 +200,6 @@ models:
         - data_test_iasworld
         - data_test_iasworld_exclude_from_workbook
     columns:
-      - name: mydec_unmatched
-        data_tests:
-          - accepted_range:
-              name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_mydec_unmatched_lte_1000
-              max_value: 1000
-              additional_select_columns: ["taxyr"]
-              meta:
-                table_name: sales
-                category: sales_issues
-                description: mydec should not have >1000 sales that are not in iasworld
       - name: iasworld_unmatched
         data_tests:
           - accepted_range:
@@ -220,6 +210,16 @@ models:
                 table_name: sales
                 category: sales_issues
                 description: iasworld should not have >1000 sales that are not in mydec
+      - name: mydec_unmatched
+        data_tests:
+          - accepted_range:
+              name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_mydec_unmatched_lte_1000
+              max_value: 1000
+              additional_select_columns: ["taxyr"]
+              meta:
+                table_name: sales
+                category: sales_issues
+                description: mydec should not have >1000 sales that are not in iasworld
 
   - name: qc.vw_neg_asmt_value
     description: '{{ doc("view_vw_neg_asmt_value") }}'
@@ -920,14 +920,14 @@ models:
       export_name: Res edit
       export_format:
         columns:
-          - name: Total % Change
-            index: U
-            horizontal_align: right
           - name: Dwelling % Change
             index: Z
             horizontal_align: right
           - name: Sale Date
             index: AA
+            horizontal_align: right
+          - name: Total % Change
+            index: U
             horizontal_align: right
 
   - name: qc.vw_report_town_close_res_multicodes
