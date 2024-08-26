@@ -62,7 +62,7 @@ jobs:
 
       # Only triggered when called by a bot. Otherwise, notifications
       # go to whoever called the workflow
-      - name: Send failure notification
+      - name: Send pipeline error notification
         if: github.event_name == 'workflow_dispatch' && github.triggering_actor == 'sqoop-bot[bot]' && failure()
         uses: ./.github/actions/publish_sns_topic
         with:
@@ -73,3 +73,14 @@ jobs:
 
             Link to failing workflow:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+      - name: Send data test failure notification
+        run: |
+          # TODO: Get ARNs, bodies, and subjects
+          for topic_arn in topic_arns; do
+            ./.github/actions/publish_sns_topic/publish.sh \
+              "$topic_arn" \
+              "$subject" \
+              "$body"
+          done
+        shell: bash

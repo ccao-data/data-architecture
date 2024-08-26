@@ -20,9 +20,8 @@ runs:
       shell: bash
 
     - name: Publish SNS topic
-      run: >
-        aws sns publish \
-          --topic-arn "${{ inputs.sns_topic_arn }}" \
-          --subject "${{ inputs.subject }}" \
-          --message "${{ inputs.body }}"
+      run: ./${{ github.action_path }}/publish.sh \
+          "${{ inputs.sns_topic_arn }}" \
+          "${{ inputs.subject }}" \
+          "${{ inputs.body }}"
       shell: bash
