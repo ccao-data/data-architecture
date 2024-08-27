@@ -1167,12 +1167,6 @@ sources:
           - name: stories
             description: '{{ doc("shared_column_char_type_resd") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_stories_not_null
-                  config: *unique-conditions
-                  additional_select_columns: *select-columns
-                  meta:
-                    description: stories (Type of Residence) should not be null
               - expression_is_true:
                   name: iasworld_dweldat_stories_in_accepted_values
                   expression: 'IN (1.00, 2.00, 3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, 9.90)'
@@ -1183,6 +1177,12 @@ sources:
                     description: >
                       stories (Type of Residence) should be one of 1.00, 2.00,
                       3.00, 4.00, 5.00, 6.00, 7.00, 8.00, 9.00, or 9.90
+              - not_null:
+                  name: iasworld_dweldat_stories_not_null
+                  config: *unique-conditions
+                  additional_select_columns: *select-columns
+                  meta:
+                    description: stories (Type of Residence) should not be null
           - name: style
             description: Architectural style
           - name: subtval
@@ -1245,12 +1245,6 @@ sources:
           - name: user5
             description: '{{ doc("shared_column_char_tp_plan") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_char_tp_plan_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: user5 (Plan of Design) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_tp_plan_in_accepted_values
                   values: ['0', '1', '2']
@@ -1258,9 +1252,22 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: user5 (Plan of Design) should be '0', '1', or '2'
+              - not_null:
+                  name: iasworld_dweldat_char_tp_plan_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: user5 (Plan of Design) should not be null
           - name: user6
             description: '{{ doc("shared_column_char_attic_fnsh") }}'
             data_tests:
+              - accepted_values:
+                  name: iasworld_dweldat_char_attic_fnsh_in_accepted_values
+                  values: ['1', '2', '3']
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: user6 (Attic Finish) should be '1', '2', or '3'
               - not_null:
                   name: iasworld_dweldat_char_attic_fnsh_not_null
                   additional_select_columns:
@@ -1280,22 +1287,9 @@ sources:
                   meta:
                     description: >
                       user6 (Attic Finish) should not be null unless attic is 3 (None)
-              - accepted_values:
-                  name: iasworld_dweldat_char_attic_fnsh_in_accepted_values
-                  values: ['1', '2', '3']
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: user6 (Attic Finish) should be '1', '2', or '3'
           - name: user7
             description: '{{ doc("shared_column_char_air") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_char_air_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: user7 (Central Air Conditioning) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_air_accepted_values
                   values: ['1', '2']
@@ -1303,9 +1297,23 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: user7 (Central Air Conditioning) should be '1' or '2'
+              - not_null:
+                  name: iasworld_dweldat_char_air_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: user7 (Central Air Conditioning) should not be null
           - name: user12
             description: '{{ doc("shared_column_char_bsmt_fin") }}'
             data_tests:
+              - accepted_values:
+                  name: iasworld_dweldat_char_bsmt_fin_accepted_values
+                  values: ['1', '2', '3', '4', '5', '6']
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      user12 (Basement Finished) should be an integer between 1 and 6
               - not_null:
                   name: iasworld_dweldat_char_bsmt_fin_not_null
                   additional_select_columns:
@@ -1325,23 +1333,9 @@ sources:
                   meta:
                     description: >
                       user12 (Basement Finished) should not be null unless bsmt is 2 (Slab)
-              - accepted_values:
-                  name: iasworld_dweldat_char_bsmt_fin_accepted_values
-                  values: ['1', '2', '3', '4', '5', '6']
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: >
-                      user12 (Basement Finished) should be an integer between 1 and 6
           - name: user13
             description: '{{ doc("shared_column_char_roof_cnst") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_char_roof_cnst_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: user13 (Roof Construction) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_roof_cnst_accepted_values
                   values: ['1', '2', '3', '4', '5', '6']
@@ -1350,22 +1344,15 @@ sources:
                   meta:
                     description: >
                       user13 (Roof Construction) should be an integer between 1 and 6
+              - not_null:
+                  name: iasworld_dweldat_char_roof_cnst_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: user13 (Roof Construction) should not be null
           - name: user14
             description: '{{ doc("shared_column_char_apts") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_char_apts_not_null
-                  additional_select_columns: *select-columns
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                      AND class IN ('211', '212')
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
-                  meta:
-                    description: >
-                      user14 (Total Number of Units) should not be null
-                      for class 211 and 212 properties
               - accepted_values:
                   name: iasworld_dweldat_char_apts_accepted_values
                   values: ['1', '2', '3', '4', '5', '6']
@@ -1380,15 +1367,22 @@ sources:
                     description: >
                       user14 (Total Number of Units) should be an integer
                       between 1 and 6 for class 211 and 212 properties
+              - not_null:
+                  name: iasworld_dweldat_char_apts_not_null
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND class IN ('211', '212')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    description: >
+                      user14 (Total Number of Units) should not be null
+                      for class 211 and 212 properties
           - name: user15
             description: '{{ doc("shared_column_char_use") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_char_use_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: user15 (Use) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_use_accepted_values
                   values: ['1', '2']
@@ -1396,13 +1390,29 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: user15 (Use) should be '1' or '2'
+              - not_null:
+                  name: iasworld_dweldat_char_use_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: user15 (Use) should not be null
           - name: user17
             description: Age. Deprecated, use `yrblt`
           - name: user20
             description: '{{ doc("shared_column_char_ncu") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_char_ncu_not_null_when_class_is_212
+              - accepted_values:
+                  name: iasworld_dweldat_char_ncu_between_0_and_5
+                  values: ['0', '1', '2', '3', '4', '5']
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      user20 (No. of Commercial Units) should be an integer between 0 and 5
+              - not_accepted_values:
+                  name: iasworld_dweldat_char_ncu_not_0_when_class_is_212
+                  values:
+                    - 0
                   additional_select_columns: *select-columns-with-class
                   config: &unique-conditions-class-212
                     where: |
@@ -1412,17 +1422,15 @@ sources:
                       AND class = '212'
                   meta:
                     description: >
-                      user20 (No. of Commercial Units) should not be null
+                      user20 (No. of Commercial Units) should not be 0
                       when class is 212
-              - not_accepted_values:
-                  name: iasworld_dweldat_char_ncu_not_0_when_class_is_212
-                  values:
-                    - 0
+              - not_null:
+                  name: iasworld_dweldat_char_ncu_not_null_when_class_is_212
                   additional_select_columns: *select-columns-with-class
                   config: *unique-conditions-class-212
                   meta:
                     description: >
-                      user20 (No. of Commercial Units) should not be 0
+                      user20 (No. of Commercial Units) should not be null
                       when class is 212
               - is_null:
                   name: iasworld_dweldat_char_ncu_null_when_class_is_not_212_and_char_ncu_not_0
@@ -1441,14 +1449,6 @@ sources:
                     description: >
                       user20 (No. of Commercial Units) should be null or 0
                       when class is not 212
-              - accepted_values:
-                  name: iasworld_dweldat_char_ncu_between_0_and_5
-                  values: ['0', '1', '2', '3', '4', '5']
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: >
-                      user20 (No. of Commercial Units) should be an integer between 0 and 5
           - name: user24
             description: '{{ doc("shared_column_card_proration_rate") }}'
           - name: user30
@@ -1464,6 +1464,13 @@ sources:
           - name: user31
             description: '{{ doc("shared_column_char_gar_att") }}'
             data_tests:
+              - accepted_values:
+                  name: iasworld_dweldat_char_gar_att_accepted_values
+                  values: ['1', '2']
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: user31 (Garage Attached) should be '1' or '2'
               - not_null:
                   name: iasworld_dweldat_char_gar_att_not_null
                   additional_select_columns: &select-columns-with-garage-size
@@ -1484,16 +1491,16 @@ sources:
                     description: >
                       user31 (Garage Attached) should not be null
                       if user33 (Garage Size) is not 7 (NONE)
+          - name: user32
+            description: '{{ doc("shared_column_char_gar_area") }}'
+            data_tests:
               - accepted_values:
-                  name: iasworld_dweldat_char_gar_att_accepted_values
+                  name: iasworld_dweldat_char_gar_area_accepted_values
                   values: ['1', '2']
                   additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    description: user31 (Garage Attached) should be '1' or '2'
-          - name: user32
-            description: '{{ doc("shared_column_char_gar_area") }}'
-            data_tests:
+                    description: user32 (Garage in Area) should be '1' or '2'
               - not_null:
                   name: iasworld_dweldat_char_gar_area_not_null
                   additional_select_columns: *select-columns-with-garage-size
@@ -1502,22 +1509,9 @@ sources:
                     description: >
                       user32 (Garage in Area) should not be null
                       if user33 (Garage Size) is not 7 (NONE)
-              - accepted_values:
-                  name: iasworld_dweldat_char_gar_area_accepted_values
-                  values: ['1', '2']
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: user32 (Garage in Area) should be '1' or '2'
           - name: user33
             description: '{{ doc("shared_column_char_gar_size") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_char_gar_size_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: user33 (Garage Size) should not be null
               - accepted_values:
                   name: iasworld_dweldat_char_gar_size_accepted_values
                   values: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
@@ -1526,9 +1520,27 @@ sources:
                   meta:
                     description: >
                       user33 (Garage Size) should be an integer between 1 and 10
+              - not_null:
+                  name: iasworld_dweldat_char_gar_size_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: user33 (Garage Size) should not be null
           - name: user34
             description: '{{ doc("shared_column_char_gar_cnst") }}'
             data_tests:
+              - accepted_values:
+                  name: iasworld_dweldat_char_gar_cnst_accepted_values
+                  values: ['1', '2', '3', '4']
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      user34 (Garage Construction) should be
+                      an integer between 1 and 4
+                  tags:
+                    # Currently too many failures for this signal to be useful
+                    - data_test_iasworld_exclude_from_workbook
               - not_null:
                   name: iasworld_dweldat_char_gar_cnst_not_null
                   additional_select_columns: *select-columns-with-garage-size
@@ -1552,18 +1564,6 @@ sources:
                     description: >
                       user34 (Garage Construction) should be null or 0
                       if user33 (Garage Size) is 7 (NONE)
-              - accepted_values:
-                  name: iasworld_dweldat_char_gar_cnst_accepted_values
-                  values: ['1', '2', '3', '4']
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: >
-                      user34 (Garage Construction) should be
-                      an integer between 1 and 4
-                  tags:
-                    # Currently too many failures for this signal to be useful
-                    - data_test_iasworld_exclude_from_workbook
           - name: useramt
             description: RCN value of additions
           - name: userfact
@@ -1611,20 +1611,6 @@ sources:
           - name: yrblt
             description: '{{ doc("shared_column_char_yrblt") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_yrblt_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: yrblt should not be null
-              - accepted_range:
-                  name: iasworld_dweldat_yrblt_between_1850_and_now
-                  min_value: 1850
-                  max_value: cast(year(current_date) as decimal)
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: yrblt should be between 1850 and now
               - accepted_range:
                   name: iasworld_dweldat_yrblt_205_more_than_62_years_old
                   max_value: cast(year(current_date) as integer) - 63
@@ -1709,40 +1695,24 @@ sources:
                       AND class = '295'
                   meta:
                     description: yrblt should be <= 62 years old when class is 295
+              - accepted_range:
+                  name: iasworld_dweldat_yrblt_between_1850_and_now
+                  min_value: 1850
+                  max_value: cast(year(current_date) as decimal)
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: yrblt should be between 1850 and now
+              - not_null:
+                  name: iasworld_dweldat_yrblt_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: yrblt should not be null
           - name: yrremod
             description: Year remodeled
 
         data_tests:
-          - unique_combination_of_columns:
-              name: iasworld_dweldat_unique_by_parid_card_taxyr
-              combination_of_columns:
-                - parid
-                - taxyr
-                - card
-              additional_select_columns:
-                - column: who
-                  alias: who
-                  agg_func: array_agg
-                - column: wen
-                  alias: wen
-                  agg_func: array_agg
-              config: *unique-conditions
-              meta:
-                description: dweldat should be unique by parid, card, and taxyr
-          - expression_is_true:
-              name: iasworld_dweldat_card_proration_rate_between_0_and_100
-              expression: 'CAST(user24 AS decimal) BETWEEN 0.00 AND 100.00'
-              additional_select_columns:
-                - parid
-                - taxyr
-                - card
-                - who
-                - wen
-                - user24
-              config: *unique-conditions
-              meta:
-                category: incorrect_values
-                description: user24 (Proration %) should be between 0 and 100
           - expression_is_true:
               name: iasworld_dweldat_bsmt_and_user12_match_234_class
               expression: bsmt = '3' and user12 = '1'
@@ -1767,3 +1737,34 @@ sources:
                   bsmt (Basement Type) must be 3 - PARTIAL and
                   user12 (Basement Finished) must be 1 - FAMILY ROOM when
                   class is 234 (split level)
+          - expression_is_true:
+              name: iasworld_dweldat_card_proration_rate_between_0_and_100
+              expression: 'CAST(user24 AS decimal) BETWEEN 0.00 AND 100.00'
+              additional_select_columns:
+                - parid
+                - taxyr
+                - card
+                - who
+                - wen
+                - user24
+              config: *unique-conditions
+              meta:
+                category: incorrect_values
+                description: user24 (Proration %) should be between 0 and 100
+          - unique_combination_of_columns:
+              name: iasworld_dweldat_unique_by_parid_card_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+                - card
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: dweldat should be unique by parid, card, and taxyr
+

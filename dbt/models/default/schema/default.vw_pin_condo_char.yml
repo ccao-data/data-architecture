@@ -82,6 +82,15 @@ models:
         description: '{{ doc("shared_column_year") }}'
 
     data_tests:
+      - not_null:
+          name: default_vw_pin_condo_char_bldg_is_mixed_use_not_null
+          column_name: bldg_is_mixed_use
+      - not_null:
+          name: default_vw_pin_condo_char_card_not_null
+          column_name: card
+      - not_null:
+          name: default_vw_pin_condo_char_char_yrblt_not_null
+          column_name: char_yrblt
       - unique_combination_of_columns:
           name: default_vw_pin_condo_char_unique_by_14_digit_pin_and_year
           combination_of_columns:
@@ -89,15 +98,6 @@ models:
             - year
           config:
             error_if: ">70297"
-      - not_null:
-          name: default_vw_pin_condo_char_card_not_null
-          column_name: card
-      - not_null:
-          name: default_vw_pin_condo_char_char_yrblt_not_null
-          column_name: char_yrblt
-      - not_null:
-          name: default_vw_pin_condo_char_bldg_is_mixed_use_not_null
-          column_name: bldg_is_mixed_use
       # TODO: Non-liveable unit heuristics
       # TODO: Row count matches PARDAT for condo classes
       # TODO: Non-unit and unit parcel count add up to total parcels per
