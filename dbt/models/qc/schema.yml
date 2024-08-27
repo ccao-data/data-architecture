@@ -992,16 +992,16 @@ models:
         - data_test_iasworld
         - data_test_iasworld_exclude_from_workbook
     columns:
-      - name: address
-        data_tests:
-          - expression_is_true: &test-not-null
-              name: qc_vw_mydec_sales_null_values_address_null_proportion
-              expression: '< 0.1'
       - name: buyer
         data_tests:
           - expression_is_true:
               name: qc_vw_mydec_sales_null_values_buyer_null_proportion
               <<: *test-not-null
+      - name: address
+        data_tests:
+          - expression_is_true: &test-not-null
+              name: qc_vw_mydec_sales_null_values_address_null_proportion
+              expression: '< 0.1'
       - name: deed_type
         data_tests:
           - expression_is_true:
