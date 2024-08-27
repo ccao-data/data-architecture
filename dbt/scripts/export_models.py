@@ -9,6 +9,7 @@ import json
 import os
 import pathlib
 import shutil
+import sys
 import typing
 
 import pandas as pd
@@ -18,8 +19,15 @@ from openpyxl.styles import Alignment
 from openpyxl.utils import column_index_from_string, get_column_letter
 from openpyxl.worksheet.table import Table, TableStyleInfo
 
+# Add the parent directory of `scripts` to the module search path
+# so that we can import from other modules in the `scripts` directory
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from scripts import constants
+
 DBT = dbtRunner()
-CLI_DESCRIPTION = """Export dbt models to Excel files.
+
+CLI_DESCRIPTION = f"""Export dbt models to Excel files.
 
 Expects dependencies from requirements.txt (dbt dependencies) and scripts/requirements.export_models.txt (script dependencies) be installed.
 
@@ -32,6 +40,8 @@ A few configuration values can be set on any model to support exporting:
       since all templates are assumed to be .xlsx files. Templates should be stored in the export/templates/ directory and should include header
       rows. If unset, will search for a template with the same name as the model; if no template is found, defaults to a simple layout with
       filterable columns and striped rows.
+
+{constants.REFRESH_TABLES_DESCRIPTION}
 """  # noqa: E501
 CLI_EXAMPLE = """Example usage to output the 2024 non-tri town close QC report for Leyden, which is a non-tri town in 2024:
 
@@ -43,7 +53,12 @@ To output the 2024 tri town close QC report for Hyde Park, which is a tri town i
 
 To output the 2024 AHSAP property report for Hyde Park:
 
-    python3 scripts/export_models.py --select qc.vw_change_in_ahsap_values --where "township_code = '70' and taxyr = '2024'"
+    python3 scripts/export_models.py --select qc.vw_change_in_ahsap_values --where "township_code = '70' and year = '2024'"
+
+To print a command you can run to refresh iasWorld tables prior to export for the AHSAP
+report:
+
+    python3 scripts/export_models.py --select qc.vw_change_in_ahsap_values --where "township_code = '70' and year = '2024'" --refresh-tables
 """  # noqa: E501
 
 
@@ -71,21 +86,19 @@ def parse_args():
         ),
     )
     parser.add_argument(
-        "--target",
-        required=False,
-        default="dev",
-        help="dbt target to use for querying model data, defaults to 'dev'",
+        *constants.TARGET_CLI_ARGS, **constants.TARGET_CLI_KWARGS
     )
     parser.add_argument(
-        "--rebuild",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Rebuild models before exporting",
+        *constants.REBUILD_CLI_ARGS, **constants.REBUILD_CLI_KWARGS
     )
     parser.add_argument(
         "--where",
         required=False,
         help="SQL expression representing a WHERE clause to filter models",
+    )
+    parser.add_argument(
+        *constants.REFRESH_TABLES_CLI_ARGS,
+        **constants.REFRESH_TABLES_CLI_KWARGS,
     )
 
     return parser.parse_args()
@@ -97,17 +110,80 @@ def export_models(
     selector: str | None = None,
     rebuild: bool = False,
     where: str | None = None,
+    refresh_tables: bool = False,
 ):
+    # Validate arguments
     if not select and not selector:
         raise ValueError("One of --select or --selector is required")
 
     if select and selector:
         raise ValueError("--select and --selector cannot both be set")
 
-    select_args = ["--select", *select] if select else ["--selector", selector]
+    # Selection arguments are different depending on whether the caller
+    # passed in --select or --selector
+    select_cmd = "--select" if select else "--selector"
+    select_args = select or selector
+
+    if refresh_tables:
+        # Tweak the selection args to ensure that we're querying for
+        # the parents of the models in question
+        select_args = [f"+{arg}" for arg in select_args]
+        # Use `dbt list` on parents to calculate update command for
+        # iasworld sources that are implicated by this call
+        dbt_list_args = [
+            "--quiet",
+            "list",
+            "--target",
+            args.target,
+            "--resource-types",
+            "source",
+            "--output",
+            "json",
+            "--output-keys",
+            "name",
+            "source_name",
+            select_cmd,
+            *select_args,
+        ]
+        dbt_output = io.StringIO()
+        with contextlib.redirect_stdout(dbt_output):
+            dbt_list_result = DBT.invoke(dbt_list_args)
+
+        if not dbt_list_result.success:
+            print("Encountered error in `dbt list` call")
+            raise ValueError(dbt_list_result.exception)
+
+        # Output is formatted as a list of newline-separated JSON objects
+        source_deps = [
+            json.loads(source_dict_str)
+            for source_dict_str in dbt_output.getvalue().split("\n")
+            # Filter out empty strings caused by trailing newlines
+            if source_dict_str
+        ]
+        # Generate a Spark job definition for each iasWorld table that needs
+        # to be updated. For more context on what these attributes mean, see
+        # https://github.com/ccao-data/service-spark-iasworld
+        iasworld_deps = {
+            dep["name"]: {
+                "table_name": f"iasworld.{dep['name']}",
+                "min_year": args.year - 1,  # We often join to prior year data
+                "max_year": args.year,
+            }
+            for dep in source_deps
+        }
+        print("ssh into the server and run the following commands:")
+        print()
+        print("cd /home/shiny-server/services/service-spark-iasworld")
+        print("docker-compose up -d")
+        print(
+            "docker exec spark-node-master ./submit.sh --json-string "
+            "--no-run-github-workflow "
+            f"'{json.dumps(iasworld_deps)}' "
+        )
+        return
 
     if rebuild:
-        dbt_run_args = ["run", "--target", target, *select_args]
+        dbt_run_args = ["run", "--target", target, select_cmd, *select_args]
         print("Rebuilding models")
         print(f"> dbt {' '.join(dbt_run_args)}")
         dbt_run_result = DBT.invoke(dbt_run_args)
@@ -129,6 +205,7 @@ def export_models(
         "name",
         "config",
         "relation_name",
+        select_cmd,
         *select_args,
     ]
     print(f"> dbt {' '.join(dbt_list_args)}")
@@ -150,7 +227,8 @@ def export_models(
 
     if not models:
         raise ValueError(
-            f"No models found for the select option '{' '.join(select_args)}'"
+            "No models found for the select option "
+            f"'{select_cmd} {' '.join(select_args)}'"
         )
 
     print(
@@ -161,7 +239,7 @@ def export_models(
     conn = pyathena.connect(
         s3_staging_dir=os.getenv(
             "AWS_ATHENA_S3_STAGING_DIR",
-            "s3://ccao-dbt-athena-results-us-east-1",
+            "s3://ccao-athena-results-us-east-1",
         ),
         region_name=os.getenv("AWS_ATHENA_REGION_NAME", "us-east-1"),
     )
@@ -290,5 +368,10 @@ def export_models(
 if __name__ == "__main__":
     args = parse_args()
     export_models(
-        args.target, args.select, args.selector, args.rebuild, args.where
+        target=args.target,
+        select=args.select,
+        selector=args.selector,
+        rebuild=args.rebuild,
+        where=args.where,
+        refresh_tables=args.refresh_tables,
     )

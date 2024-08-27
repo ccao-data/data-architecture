@@ -2,10 +2,7 @@
 #
 # Run `python scripts/export_qc_town_close_reports.py --help` for details.
 import argparse
-import contextlib
 import datetime
-import io
-import json
 import os
 import sys
 
@@ -15,18 +12,16 @@ from dbt.cli.main import dbtRunner
 # so that we can import from other modules in the `scripts` directory
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from scripts import constants
 from scripts.export_models import export_models
 
 DBT = dbtRunner()
 
-CLI_DESCRIPTION = """Export town close QC reports to Excel files.
+CLI_DESCRIPTION = f"""Export town close QC reports to Excel files.
 
 Expects dependencies from requirements.txt (dbt dependencies) and scripts/requirements.export_models.txt (script dependencies) be installed.
 
-The queries that generate these reports run against our data warehouse, which ingests data from iasWorld overnight once daily. Sometimes a
-staff member will request a report during the middle of the workday, and they will need the most recent data, which will not exist in
-our warehouse yet. In these cases, you can use the --refresh-tables flag to output a command that you can run on the server to refresh
-any iasWorld tables that these reports use.
+{constants.REFRESH_TABLES_DESCRIPTION}
 """  # noqa: E501
 CLI_EXAMPLE = """Example usage to output the 2024 town close QC report for Hyde Park:
 
@@ -36,7 +31,7 @@ To output the town close QC report for Hyde Park in the current year:
 
     python scripts/export_qc_town_close_reports.py --township 70
 
-To get a command to run to refresh iasWorld tables prior to export:
+To print a command you can run to refresh iasWorld tables prior to export:
 
     python scripts/export_qc_town_close_reports.py --township 70 --year 2024 --refresh-tables
 """  # noqa: E501
@@ -103,10 +98,7 @@ def parse_args() -> argparse.Namespace:
         formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument(
-        "--target",
-        required=False,
-        default="dev",
-        help="dbt target to use for querying model data, defaults to 'dev'",
+        *constants.TARGET_CLI_ARGS, **constants.TARGET_CLI_KWARGS
     )
     parser.add_argument(
         "--township",
@@ -121,92 +113,31 @@ def parse_args() -> argparse.Namespace:
         help="Tax year to use in filtering query results. Defaults to the current year",
     )
     parser.add_argument(
-        "--rebuild",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Rebuild models before exporting",
+        *constants.REBUILD_CLI_ARGS, **constants.REBUILD_CLI_KWARGS
     )
     parser.add_argument(
-        "--refresh-tables",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help=(
-            "Print a command that can be run on the server to refresh "
-            "underlying iasWorld tables and exit. Useful if you want to "
-            "refresh table data before running exports"
-        ),
+        *constants.REFRESH_TABLES_CLI_ARGS,
+        **constants.REFRESH_TABLES_CLI_KWARGS,
     )
+
     return parser.parse_args()
 
 
 def main():
     """Main entrypoint for the script"""
     args = parse_args()
+
     tag = "tag:qc_report_town_close"
     tag_suffix = "tri" if is_tri(args.township, args.year) else "non_tri"
+    where = f"township_code = '{args.township}' and taxyr = '{args.year}'"
 
-    if args.refresh_tables:
-        # Use `dbt list` on parents to calculate update command for
-        # iasworld sources that are implicated by this call
-        dbt_list_args = [
-            "--quiet",
-            "list",
-            "--target",
-            args.target,
-            "--resource-types",
-            "source",
-            "--output",
-            "json",
-            "--output-keys",
-            "name",
-            "source_name",
-            "--select",
-            f"+{tag}",
-            f"+{tag}_{tag_suffix}",
-        ]
-        dbt_output = io.StringIO()
-        with contextlib.redirect_stdout(dbt_output):
-            dbt_list_result = DBT.invoke(dbt_list_args)
-
-        if not dbt_list_result.success:
-            print("Encountered error in `dbt list` call")
-            raise ValueError(dbt_list_result.exception)
-
-        # Output is formatted as a list of newline-separated JSON objects
-        source_deps = [
-            json.loads(source_dict_str)
-            for source_dict_str in dbt_output.getvalue().split("\n")
-            # Filter out empty strings caused by trailing newlines
-            if source_dict_str
-        ]
-        # Generate a Spark job definition for each iasWorld table that needs
-        # to be updated. For more context on what these attributes mean, see
-        # https://github.com/ccao-data/service-spark-iasworld
-        iasworld_deps = {
-            dep["name"]: {
-                "table_name": f"iasworld.{dep['name']}",
-                "min_year": args.year - 1,  # We often join to prior year data
-                "max_year": args.year,
-            }
-            for dep in source_deps
-        }
-        print("ssh into the server and run the following commands:")
-        print()
-        print("cd /home/shiny-server/services/service-spark-iasworld")
-        print("docker-compose up -d")
-        print(
-            "docker exec spark-node-master ./submit.sh --json-string "
-            "--no-run-github-workflow "
-            f"'{json.dumps(iasworld_deps)}' "
-        )
-    else:
-        where = f"township_code = '{args.township}' and taxyr = '{args.year}'"
-        export_models(
-            target=args.target,
-            rebuild=args.rebuild,
-            select=[tag, f"{tag}_{tag_suffix}"],
-            where=where,
-        )
+    export_models(
+        target=args.target,
+        rebuild=args.rebuild,
+        select=[tag, f"{tag}_{tag_suffix}"],
+        where=where,
+        refresh_tables=args.refresh_tables,
+    )
 
 
 if __name__ == "__main__":
