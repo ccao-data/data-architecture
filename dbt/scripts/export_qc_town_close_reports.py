@@ -87,7 +87,10 @@ TOWNSHIP_TO_TRI = {
 def is_tri(township_code: str, year: int) -> bool:
     """Helper function to determine if a town in a given year is undergoing
     triennial reassessment"""
-    tri = TOWNSHIP_TO_TRI[township_code]
+    try:
+        tri = TOWNSHIP_TO_TRI[township_code]
+    except KeyError:
+        raise ValueError(f"'{township_code}' is not a valid township code")
     # 2024 is the City reassessment year (tri code 1), so
     # ((2024 - 2024) % 3) + 1 == 1, and so on for the other two tris
     return str((year - 2024 % 3) + 1) == tri

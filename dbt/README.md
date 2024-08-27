@@ -777,8 +777,6 @@ directory, and will print the names of the reports that it exports during execut
 
 #### Refreshing iasWorld tables prior to running town close QC reports
 
-_TK: Move this param to `export_models`_
-
 The queries that generate town close reports run against our data warehouse, which
 ingests data from iasWorld overnight once daily. Sometimes a Valuations staff member
 will request a report during the middle of the workday, and they will need the most
@@ -796,7 +794,19 @@ township with code `$TOWNSHIP_CODE` and the current year of data:
 python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE" --refresh-tables
 ```
 
-_TK: Example output_
+You should see output like this, which you can run in the context of the
+[`service-spark-iasworld`](https://github.com/ccao-data/service-spark-iasworld/)
+repo on the server in order to refresh iasWorld tables:
+
+```
+ssh into the server and run the following commands:
+
+cd /home/shiny-server/services/service-spark-iasworld
+docker-compose up -d
+docker exec spark-node-master ./submit.sh --json-string --no-run-github-workflow
+'{"aprval": {"table_name": "iasworld.aprval", "min_year": 2023, "max_year":
+2024}, ...
+```
 
 #### Running the AHSAP change in value QC report
 
