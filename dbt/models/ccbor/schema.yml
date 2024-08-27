@@ -6,10 +6,10 @@ sources:
       - name: appeals
         description: '{{ doc("table_appeals") }}'
         columns:
-          - name: appeal_id
-            description: Appeal ID. Matches the "Complaint" value on the Board of Review Decision Search
           - name: appeal_seq
             description: Second part of the Complaint number
+          - name: appeal_id
+            description: Appeal ID. Matches the "Complaint" value on the Board of Review Decision Search
           - name: appeal_trk
             description: First part of the Complaint number
           - name: appeal_type
