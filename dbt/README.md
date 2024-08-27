@@ -724,12 +724,6 @@ The script exposes a few options that help to export the right data:
   target](https://docs.getdbt.com/reference/dbt-jinja-functions/target) to run
   queries against. Defaults to `dev`. You should never have to set this option
   when running the script locally.
-* **`--refresh-tables`** (optional): Instructs the script to print a command that can be
-  run on the server to refresh underlying iasWorld tables. Will not export any reports
-  when set. Useful if you want to refresh iasWorld table data before running exports.
-  See [Refreshing iasWorld tables prior to running QC
-  reports](#refreshing-iasworld-tables-prior-to-running-qc-reports) for more
-  details.
 
 Other scripts that build on `export_models` for specific workflows tend to
 expose similar options. See the documentation for these workflows below for
@@ -761,8 +755,8 @@ The script exposes the following options, many of which are the same as
 * **`--refresh-tables`** (optional): Instructs the script to print a command that can be
   run on the server to refresh underlying iasWorld tables. Will not export any reports
   when set. Useful if you want to refresh iasWorld table data before running exports.
-  See [Refreshing iasWorld tables prior to running QC
-  reports](#refreshing-iasworld-tables-prior-to-running-qc-reports) for more
+  See [Refreshing iasWorld tables prior to running town close QC
+  reports](#refreshing-iasworld-tables-prior-to-running-town-close-qc-reports) for more
   details.
 
 Assuming a township code defined by `$TOWNSHIP_CODE` and a tax year defined by
@@ -778,38 +772,19 @@ You can omit the `--year` flag and the script will default to the current year o
 python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE"
 ```
 
-In both of the above cases, the script will output the reports to the `dbt/export/output/`
+In both cases, the script will output the reports to the `dbt/export/output/`
 directory, and will print the names of the reports that it exports during execution.
 
-Finally, you can set the `--refresh-tables` flag to print a command you can run to refresh iasWorld tables prior to export:
+#### Refreshing iasWorld tables prior to running town close QC reports
 
-```
-python scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE" --refresh-tables
-```
+_TK: Move this param to `export_models`_
 
-#### Running the AHSAP change in value QC report
-
-We define the AHSAP change in value QC report using one model, `qc.vw_change_in_ahsap_values`,
-which we filter for a specific township name (like "Hyde Park") and tax year during export.
-
-Here's an example of how to export that model for a township name defined by `$TOWNSHIP_NAME`
-and a tax year defined by `$TAXYR`:
-
-```
-python3 scripts/export_models.py --select qc.vw_change_in_ahsap_values --where "year = '$TAXYR' and township_name = '$TOWNSHIP_NAME'"
-```
-
-The script will output the reports to the `dbt/export/output/` directory, and will print the
-name of the report that it exports during execution.
-
-#### Refreshing iasWorld tables prior to running QC reports
-
-The queries that generate QC reports run against our data warehouse, which
+The queries that generate town close reports run against our data warehouse, which
 ingests data from iasWorld overnight once daily. Sometimes a Valuations staff member
 will request a report during the middle of the workday, and they will need the most
 recent data, which will not exist in our warehouse yet. In these cases, you can use
 the `--refresh-tables` flag to output a command that you can run on the server to
-refresh any iasWorld tables that the QC reports rely on. Note that when
+refresh any iasWorld tables that the town close reports rely on. Note that when
 you pass `--refresh-tables` to the script, it will _not_ export any reports, and
 will instead exit immediately after printing the refresh command.
 
@@ -822,6 +797,21 @@ python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE" --re
 ```
 
 _TK: Example output_
+
+#### Running the AHSAP change in value QC report
+
+We define the AHSAP change in value QC report using one model, `qc.vw_change_in_ahsap_values`,
+which we filter for a specific township name (like "Hyde Park") and tax year during export.
+
+Here's an example of how to export that model for a township name defined by `$TOWNSHIP_NAME`
+and a tax year defined by `$TAXYR`:
+
+```
+python3 scripts/export_models.py --select qc.vw_change_in_ahsap_values --where "taxyr = '$TAXYR' and township_name = '$TOWNSHIP_NAME'"
+```
+
+The script will output the reports to the `dbt/export/output/` directory, and will print the
+name of the report that it exports during execution.
 
 #### Adding QC reports
 
