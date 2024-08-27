@@ -31,15 +31,15 @@ seeds:
       - name: version
         description: Incrementing version of the record.
         data_tests:
-          - not_null:
-              name: seed_neighborhood_group_version_not_null
-              meta:
-                description: version should not be null
           - accepted_range:
               name: seed_neighborhood_group_version_gte_1
               min_value: 1
               meta:
                 description: version should be >= 1
+          - not_null:
+              name: seed_neighborhood_group_version_not_null
+              meta:
+                description: version should not be null
 
     data_tests:
       - unique_combination_of_columns:
