@@ -1,6 +1,7 @@
 import os
 import yaml
 import re
+from collections import defaultdict
 
 
 def normalize_string(s):
@@ -30,7 +31,7 @@ def check_data_tests(file_path):
         return [error], [file_path]  # Return as an error
 
     def check_data_tests_in_columns(
-        data, file_path, unsorted_files, parent_key=None
+        data, file_path, unsorted_files_dict, parent_key=None
     ):
         if isinstance(data, dict):
             for key, value in data.items():
@@ -62,24 +63,24 @@ def check_data_tests(file_path):
                             else:
                                 print(f"- {name}")
                         print("-" * 40)  # Separator for clarity
-                        unsorted_files.append(file_path)
+                        unsorted_files_dict[file_path] += 1  # Increment count
                 else:
                     check_data_tests_in_columns(
-                        value, file_path, unsorted_files, key
+                        value, file_path, unsorted_files_dict, key
                     )
         elif isinstance(data, list):
             for item in data:
                 check_data_tests_in_columns(
-                    item, file_path, unsorted_files, parent_key
+                    item, file_path, unsorted_files_dict, parent_key
                 )
 
-    unsorted_files = []
-    check_data_tests_in_columns(data, file_path, unsorted_files)
-    return unsorted_files, []
+    unsorted_files_dict = defaultdict(int)
+    check_data_tests_in_columns(data, file_path, unsorted_files_dict)
+    return unsorted_files_dict, []
 
 
 def check_all_yaml_files_for_data_tests(directory):
-    unsorted_files = []
+    unsorted_files_dict = defaultdict(int)
     error_files = []
     for root, _, files in os.walk(directory):
         if "venv" in root:  # Skip virtual environment directories
@@ -88,31 +89,34 @@ def check_all_yaml_files_for_data_tests(directory):
             if file.endswith(".yaml") or file.endswith(".yml"):
                 file_path = os.path.join(root, file)
                 unsorted, errors = check_data_tests(file_path)
-                if unsorted:
-                    unsorted_files.extend(unsorted)
+                for key, value in unsorted.items():
+                    unsorted_files_dict[key] += value
                 if errors:
                     error_files.extend(errors)
 
-    return unsorted_files, error_files
+    return unsorted_files_dict, error_files
 
 
 if __name__ == "__main__":
     directory = "dbt/"  # Change this to your dbt directory if different
-    unsorted_files, error_files = check_all_yaml_files_for_data_tests(
+    unsorted_files_dict, error_files = check_all_yaml_files_for_data_tests(
         directory
     )
 
-    if unsorted_files:
+    if unsorted_files_dict:
         print("The following files have unsorted data tests:")
-        for file in unsorted_files:
-            print(file)
+        for file, count in unsorted_files_dict.items():
+            if count > 1:
+                print(f"{file} ({count})")
+            else:
+                print(file)
 
     if error_files:
         print("\nThe following files could not be processed due to errors:")
         for file in error_files:
             print(file)
 
-    if unsorted_files or error_files:
+    if unsorted_files_dict or error_files:
         exit(1)  # Exit with a status code of 1 to indicate failure
     else:
         print("All files have sorted data tests and no errors.")

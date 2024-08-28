@@ -225,10 +225,10 @@ sources:
             description: Condominium complex
           - name: cnstfact
             description: Construction factor
-          - name: cnstval
-            description: Construction factor value
           - name: comwallfact
             description: Common wall factor
+          - name: cnstval
+            description: Construction factor value
           - name: comwallpct
             description: Common wall percent
           - name: cond
@@ -500,14 +500,14 @@ sources:
             description: Total plumbing fixtures
           - name: fixtotovr
             description: Bathroom fixture override
-          - name: floor
-            description: Floor
-          - name: floor1
-            description: Floor 1
           - name: floor1pct
             description: Floor percent
           - name: floorfact
             description: Floor factor
+          - name: floor
+            description: Floor
+          - name: floor1
+            description: Floor 1
           - name: flr1area
             description: Sub total value
           - name: flr1val

@@ -16,4 +16,4 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyyaml
     - name: Run YAML column sorting check
-      run: python dbt/scripts/check_sort.py .
+      run: python dbt/scripts/check_sort_column_names.py .
