@@ -17,8 +17,8 @@
         -- exist for 2020, and distinct_years goes up to 2023, then park data
         -- from 2020 will be filled forward to 2023
         -- Each year of the `source_model` needs to be a complete set of observations. 
-        -- For example, if a park is constructed in 2007, all parks from prior years 
-        -- need to be included in the 2007 data.
+        -- For example, if a park is constructed in 2020, all parks from prior years 
+        -- need to be included in the 2020 data.
         -- The `source_model` needs to have a comparable year in spatial.parcel to
         -- join (>= 2000).
         distinct_years as (select distinct year from {{ source("spatial", "parcel") }}),
