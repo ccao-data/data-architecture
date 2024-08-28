@@ -138,7 +138,11 @@ sources:
               - accepted_range:
                   name: iasworld_dweldat_card_gte_1
                   min_value: 1
-                  additional_select_columns: *select-columns-no-card
+                  additional_select_columns: &select-columns-no-card
+                    - parid
+                    - taxyr
+                    - who
+                    - wen
                   config: *unique-conditions
                   meta:
                     description: card should be >= 1
