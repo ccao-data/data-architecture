@@ -48,16 +48,15 @@ sources:
           - name: attic
             description: '{{ doc("shared_column_char_attic_type") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_attic_not_null
+              - accepted_values:
+                  name: iasworld_dweldat_attic_in_accepted_values
+                  values: ['1', '2', '3', '4', '5']
                   additional_select_columns: &select-columns
                     - taxyr
                     - parid
                     - card
                     - who
                     - wen
-                  # Excludes non-regression classes, as defined in Assessor's
-                  # online PDF of all class definitions
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
@@ -65,15 +64,16 @@ sources:
                       AND deactivat IS NULL
                       AND class NOT IN ('201', '213', '218', '219', '220', '221', '224', '225', '236', '240', '241', '290', '294', '297')
                   meta:
-                    description: attic (Attic Type) should not be null
-              - accepted_values:
-                  name: iasworld_dweldat_attic_in_accepted_values
-                  values: ['1', '2', '3', '4', '5']
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
                     description: >
                       attic (Attic Type) should be an integer between 1 and 5
+              - not_null:
+                  name: iasworld_dweldat_attic_not_null
+                  additional_select_columns: *select-columns
+                  # Excludes non-regression classes, as defined in Assessor's
+                  # online PDF of all class definitions
+                  config: *unique-conditions
+                  meta:
+                    description: attic (Attic Type) should not be null
           - name: atticarea
             description: Attic area
           - name: atticval
@@ -93,12 +93,6 @@ sources:
           - name: bsmt
             description: '{{ doc("shared_column_char_bsmt") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_bsmt_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: bsmt (Basement Type) should not be null
               - accepted_values:
                   name: iasworld_dweldat_bsmt_in_accepted_values
                   values: ['1', '2', '3', '4', '5', '6', '7']
@@ -107,6 +101,12 @@ sources:
                   meta:
                     description: >
                       bsmt (Basement Type) should be an integer between 1 and 7
+              - not_null:
+                  name: iasworld_dweldat_bsmt_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: bsmt (Basement Type) should not be null
           - name: bsmtarea
             description: Unfinished basement area
           - name: bsmtcar
@@ -135,23 +135,19 @@ sources:
           - name: card
             description: '{{ doc("column_card") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_card_not_null
-                  additional_select_columns: &select-columns-no-card
-                    - parid
-                    - taxyr
-                    - who
-                    - wen
-                  config: *unique-conditions
-                  meta:
-                    description: card should not be null
               - accepted_range:
                   name: iasworld_dweldat_card_gte_1
                   min_value: 1
-                  additional_select_columns: *select-columns-no-card
+                  additional_select_columns: &select-columns-no-card
                   config: *unique-conditions
                   meta:
                     description: card should be >= 1
+              - not_null:
+                  name: iasworld_dweldat_card_not_null
+                  additional_select_columns: *select-columns-no-card
+                  config: *unique-conditions
+                  meta:
+                    description: card should not be null
           - name: catharea
             description: Cathedral ceiling area
           - name: cathval
@@ -363,12 +359,6 @@ sources:
           - name: extwall
             description: '{{ doc("shared_column_char_ext_wall") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_extwall_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: extwall (Exterior Construction) should not be null
               - accepted_values:
                   name: iasworld_dweldat_extwall_in_accepted_values
                   values: ['1', '2', '3', '4', '6', '7', '8', '9']
@@ -376,6 +366,12 @@ sources:
                   meta:
                     description: >
                       extwall (Exterior Construction) should be 1, 2, 3, 4, 6, 7, 8, or 9
+              - not_null:
+                  name: iasworld_dweldat_extwall_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: extwall (Exterior Construction) should not be null
           - name: extwall1
             description: Exterior wall code
           - name: extwall1pct
@@ -393,13 +389,6 @@ sources:
           - name: fixbath
             description: '{{ doc("shared_column_char_fbath") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_fixbath_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: >
-                      fixbath (Number of Full Baths) should not be null
               - accepted_range:
                   name: iasworld_dweldat_fixbath_matches_number_of_units
                   min_value: 1
@@ -425,6 +414,13 @@ sources:
                     description: >
                       fixbath (Number of Full Baths) should be <= 7 times the
                       number of units (user14)
+              - not_null:
+                  name: iasworld_dweldat_fixbath_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      fixbath (Number of Full Baths) should not be null
           - name: fixbath1
             description: Number of full bathrooms on the first floor
           - name: fixbath2
@@ -544,13 +540,6 @@ sources:
           - name: heat
             description: '{{ doc("shared_column_char_heat") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_heat_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: >
-                      heat (Heating) should not be null
               - accepted_values:
                   name: iasworld_dweldat_heat_in_accepted_values
                   values: ['1', '2', '3', '4']
@@ -559,6 +548,13 @@ sources:
                   meta:
                     description: >
                       heat (Heating) should be an integer between 1 and 4
+              - not_null:
+                  name: iasworld_dweldat_heat_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      heat (Heating) should not be null
           - name: heatarea
             description: Heat area
           - name: heatsys
@@ -694,8 +690,10 @@ sources:
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_parid_not_null
+              - relationships:
+                  name: iasworld_dweldat_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
                   additional_select_columns: &select-columns-no-parid
                     - taxyr
                     - card
@@ -703,16 +701,14 @@ sources:
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: parid should not be null
-              - relationships:
-                  name: iasworld_dweldat_parid_in_pardat_parid
-                  to: source('iasworld', 'pardat')
-                  field: parid
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_dweldat_parid_not_null
                   additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
                   meta:
-                    category: parid
-                    description: parid should be in pardat
+                    description: parid should not be null
           - name: pctcomplete
             description: Percent of construction completed
           - name: plumbgrade
@@ -772,13 +768,21 @@ sources:
           - name: rmbed
             description: '{{ doc("shared_column_char_beds") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_rmbed_not_null
-                  additional_select_columns: *select-columns
+              - expression_is_true:
+                  name: iasworld_dweldat_rmbed_lte_rmtot
+                  expression: <= rmtot
+                  additional_select_columns:
+                    - parid
+                    - taxyr
+                    - card
+                    - who
+                    - wen
+                    - rmtot
                   config: *unique-conditions
                   meta:
+                    category: relationships
                     description: >
-                      rmbed (Number of Bedrooms) should not be null
+                      rmbed (Number of Bedrooms) should be <= rmtot (Number of Rooms)
               - accepted_range:
                   name: iasworld_dweldat_rmbed_matches_number_of_units
                   min_value: 1
@@ -798,21 +802,13 @@ sources:
                     description: >
                       rmbed (Number of Bedrooms) should be <= 8 times the
                       number of units (user14)
-              - expression_is_true:
-                  name: iasworld_dweldat_rmbed_lte_rmtot
-                  expression: <= rmtot
-                  additional_select_columns:
-                    - parid
-                    - taxyr
-                    - card
-                    - who
-                    - wen
-                    - rmtot
+              - not_null:
+                  name: iasworld_dweldat_rmbed_not_null
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
                   meta:
-                    category: relationships
                     description: >
-                      rmbed (Number of Bedrooms) should be <= rmtot (Number of Rooms)
+                      rmbed (Number of Bedrooms) should not be null
           - name: rmbed1
             description: Number of bedrooms on the first floor
           - name: rmbed2
@@ -926,12 +922,6 @@ sources:
           - name: sfla
             description: '{{ doc("shared_column_char_bldg_sf") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_sfla_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: sfla (Building Square Footage) should not be null
               - accepted_range:
                   name: iasworld_dweldat_sfla_between_1_and_999_for_class_202
                   min_value: 1
@@ -953,6 +943,111 @@ sources:
                     description: >
                       sfla (Building Square Footage) should be between
                       1 and 999 for class 202 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_2000_for_class_207
+                  min_value: 1
+                  max_value: 2000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '207'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 2000 for class 207 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_2200_for_class_205
+                  min_value: 1
+                  max_value: 2200
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '205'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 2200 for class 205 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_10000_for_class_210
+                  min_value: 1
+                  max_value: 10000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '210'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 10000 for class 210 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_10000_for_class_234
+                  min_value: 1
+                  max_value: 10000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '234'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 10000 for class 234 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_20000_for_class_212
+                  min_value: 1
+                  max_value: 20000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '212'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 20000 for class 212 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_20000_for_class_295
+                  min_value: 1
+                  max_value: 20000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '295'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 20000 for class 295 cards
+              - accepted_range:
+                  name: iasworld_dweldat_sfla_between_1_and_40000_for_class_211
+                  min_value: 1
+                  max_value: 40000
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND class = '211'
+                  meta:
+                    description: >
+                      sfla (Building Square Footage) should be between
+                      1 and 40000 for class 211 cards
               - accepted_range:
                   name: iasworld_dweldat_sfla_between_1000_and_1800_for_class_203
                   min_value: 1000
@@ -984,20 +1079,20 @@ sources:
                       sfla (Building Square Footage) should be between
                       1801 and 25000 for class 204 cards
               - accepted_range:
-                  name: iasworld_dweldat_sfla_between_1_and_2200_for_class_205
-                  min_value: 1
-                  max_value: 2200
+                  name: iasworld_dweldat_sfla_between_2001_and_3800_for_class_278
+                  min_value: 2001
+                  max_value: 3800
                   additional_select_columns: *select-columns-with-class
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
-                      AND class = '205'
+                      AND class = '278'
                   meta:
                     description: >
                       sfla (Building Square Footage) should be between
-                      1 and 2200 for class 205 cards
+                      2001 and 3800 for class 278 cards
               - accepted_range:
                   name: iasworld_dweldat_sfla_between_2201_and_4999_for_class_206
                   min_value: 2201
@@ -1013,21 +1108,6 @@ sources:
                     description: >
                       sfla (Building Square Footage) should be between
                       2201 and 4999 for class 206 cards
-              - accepted_range:
-                  name: iasworld_dweldat_sfla_between_1_and_2000_for_class_207
-                  min_value: 1
-                  max_value: 2000
-                  additional_select_columns: *select-columns-with-class
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
-                      AND class = '207'
-                  meta:
-                    description: >
-                      sfla (Building Square Footage) should be between
-                      1 and 2000 for class 207 cards
               - accepted_range:
                   name: iasworld_dweldat_sfla_between_3801_and_4999_for_class_208
                   min_value: 3801
@@ -1058,96 +1138,12 @@ sources:
                     description: >
                       sfla (Building Square Footage) should be between
                       5000 and 50000 for class 209 cards
-              - accepted_range:
-                  name: iasworld_dweldat_sfla_between_1_and_10000_for_class_210
-                  min_value: 1
-                  max_value: 10000
-                  additional_select_columns: *select-columns-with-class
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
-                      AND class = '210'
+              - not_null:
+                  name: iasworld_dweldat_sfla_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
                   meta:
-                    description: >
-                      sfla (Building Square Footage) should be between
-                      1 and 10000 for class 210 cards
-              - accepted_range:
-                  name: iasworld_dweldat_sfla_between_1_and_40000_for_class_211
-                  min_value: 1
-                  max_value: 40000
-                  additional_select_columns: *select-columns-with-class
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
-                      AND class = '211'
-                  meta:
-                    description: >
-                      sfla (Building Square Footage) should be between
-                      1 and 40000 for class 211 cards
-              - accepted_range:
-                  name: iasworld_dweldat_sfla_between_1_and_20000_for_class_212
-                  min_value: 1
-                  max_value: 20000
-                  additional_select_columns: *select-columns-with-class
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
-                      AND class = '212'
-                  meta:
-                    description: >
-                      sfla (Building Square Footage) should be between
-                      1 and 20000 for class 212 cards
-              - accepted_range:
-                  name: iasworld_dweldat_sfla_between_1_and_10000_for_class_234
-                  min_value: 1
-                  max_value: 10000
-                  additional_select_columns: *select-columns-with-class
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
-                      AND class = '234'
-                  meta:
-                    description: >
-                      sfla (Building Square Footage) should be between
-                      1 and 10000 for class 234 cards
-              - accepted_range:
-                  name: iasworld_dweldat_sfla_between_2001_and_3800_for_class_278
-                  min_value: 2001
-                  max_value: 3800
-                  additional_select_columns: *select-columns-with-class
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
-                      AND class = '278'
-                  meta:
-                    description: >
-                      sfla (Building Square Footage) should be between
-                      2001 and 3800 for class 278 cards
-              - accepted_range:
-                  name: iasworld_dweldat_sfla_between_1_and_20000_for_class_295
-                  min_value: 1
-                  max_value: 20000
-                  additional_select_columns: *select-columns-with-class
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
-                      AND class = '295'
-                  meta:
-                    description: >
-                      sfla (Building Square Footage) should be between
-                      1 and 20000 for class 295 cards
+                    description: sfla (Building Square Footage) should not be null
           - name: shfact
             description: Story height factor
           - name: sidpct

@@ -719,6 +719,12 @@ models:
               <<: *test-non-negative
       - name: valapr1
         data_tests:
+          - accepted_range:
+              name: qc_vw_neg_asmt_value_valapr1_gte_0
+              meta:
+                table_name: asmt
+                description: valapr1 (MKT LAND) should not be negative
+              <<: *test-non-negative
           - not_null: &test-val-non-null
               name: qc_vw_neg_asmt_value_valapr1_not_null
               additional_select_columns: *select-columns-neg-asmt-value
@@ -727,82 +733,76 @@ models:
               meta:
                 table_name: asmt
                 description: valapr1 (MKT LAND) should not be null
-          - accepted_range:
-              name: qc_vw_neg_asmt_value_valapr1_gte_0
-              meta:
-                table_name: asmt
-                description: valapr1 (MKT LAND) should not be negative
-              <<: *test-non-negative
       - name: valapr2
         data_tests:
-          - not_null:
-              name: qc_vw_neg_asmt_value_valapr2_not_null
-              meta:
-                table_name: asmt
-                description: valapr2 (MKT BLDG) should not be null
-              <<: *test-val-non-null
           - accepted_range:
               name: qc_vw_neg_asmt_value_valapr2_gte_0
               meta:
                 table_name: asmt
                 description: valapr2 (MKT BLDG) should not be negative
               <<: *test-non-negative
-      - name: valapr3
-        data_tests:
           - not_null:
-              name: qc_vw_neg_asmt_value_valapr3_not_null
+              name: qc_vw_neg_asmt_value_valapr2_not_null
               meta:
                 table_name: asmt
-                description: valapr3 (TOTAL) should not be null
+                description: valapr2 (MKT BLDG) should not be null
               <<: *test-val-non-null
+      - name: valapr3
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_valapr3_gte_0
               meta:
                 table_name: asmt
                 description: valapr3 (TOTAL) should not be negative
               <<: *test-non-negative
-      - name: valasm1
-        data_tests:
           - not_null:
-              name: qc_vw_neg_asmt_value_valasm1_not_null
+              name: qc_vw_neg_asmt_value_valapr3_not_null
               meta:
                 table_name: asmt
-                description: valasm1 (ASMT LAND) should not be null
+                description: valapr3 (TOTAL) should not be null
               <<: *test-val-non-null
+      - name: valasm1
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_valasm1_gte_0
               meta:
                 table_name: asmt
                 description: valasm1 (ASMT LAND) should not be negative
               <<: *test-non-negative
-      - name: valasm2
-        data_tests:
           - not_null:
-              name: qc_vw_neg_asmt_value_valasm2_not_null
+              name: qc_vw_neg_asmt_value_valasm1_not_null
               meta:
                 table_name: asmt
-                description: valasm2 (ASMT BLDG) should not be null
+                description: valasm1 (ASMT LAND) should not be null
               <<: *test-val-non-null
+      - name: valasm2
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_valasm2_gte_0
               meta:
                 table_name: asmt
                 description: valasm2 (ASMT BLDG) should not be negative
               <<: *test-non-negative
-      - name: valasm3
-        data_tests:
           - not_null:
-              name: qc_vw_neg_asmt_value_valasm3_not_null
+              name: qc_vw_neg_asmt_value_valasm2_not_null
               meta:
                 table_name: asmt
-                description: valasm3 (ASMT TOTAL) should not be null
+                description: valasm2 (ASMT BLDG) should not be null
               <<: *test-val-non-null
+      - name: valasm3
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_valasm3_gte_0
               meta:
                 table_name: asmt
                 description: valasm3 (ASMT TOTAL) should not be negative
               <<: *test-non-negative
+          - not_null:
+              name: qc_vw_neg_asmt_value_valasm3_not_null
+              meta:
+                table_name: asmt
+                description: valasm3 (ASMT TOTAL) should not be null
+              <<: *test-val-non-null
 
   - name: qc.vw_nonlivable_condos_with_chars
     description: '{{ doc("view_vw_nonlivable_condos_with_chars") }}'
