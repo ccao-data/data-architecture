@@ -1,6 +1,6 @@
-name: Check Sorting
+name: Check order for dbt tests
 
-on: [pull_request]
+on: [pull_request] 
 
 jobs:
   check-sorting:

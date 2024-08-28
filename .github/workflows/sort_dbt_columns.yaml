@@ -1,4 +1,4 @@
-name: Check Sorting
+name: Check order for dbt columns
 
 on: [pull_request]
 
