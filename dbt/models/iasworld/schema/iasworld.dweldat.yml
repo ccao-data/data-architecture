@@ -545,6 +545,13 @@ sources:
           - name: heat
             description: '{{ doc("shared_column_char_heat") }}'
             data_tests:
+              - not_null:
+                  name: iasworld_dweldat_heat_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      heat (Heating) should not be null
               - accepted_values:
                   name: iasworld_dweldat_heat_in_accepted_values
                   values: ['1', '2', '3', '4']
@@ -553,13 +560,6 @@ sources:
                   meta:
                     description: >
                       heat (Heating) should be an integer between 1 and 4
-              - not_null:
-                  name: iasworld_dweldat_heat_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: >
-                      heat (Heating) should not be null
           - name: heatarea
             description: Heat area
           - name: heatsys
