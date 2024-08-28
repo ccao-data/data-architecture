@@ -306,15 +306,6 @@ sources:
           - name: external_occpct
             description: '{{ doc("shared_column_external_occpct") }}'
             data_tests:
-              - not_accepted_values:
-                  name: iasworld_dweldat_external_occpct_not_0
-                  values: [0]
-                  quote: false
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: >
-                      external_occpct (Occupancy %) should not be 0
               - not_null:
                   name: iasworld_dweldat_external_occpct_not_null_when_mktrsn_eq_5_or_5b_and_mktadj_is_null
                   additional_select_columns:
@@ -337,6 +328,15 @@ sources:
                       external_occpct (Occupancy % [current]) should not be null if
                       mktrsn (Reason for Override) is 5 or 5B and
                       mktadj (Occupancy % [deprecated]) is null
+              - not_accepted_values:
+                  name: iasworld_dweldat_external_occpct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_occpct (Occupancy %) should not be 0
           - name: external_propct
             description: '{{ doc("shared_column_external_propct") }}'
             data_tests:
