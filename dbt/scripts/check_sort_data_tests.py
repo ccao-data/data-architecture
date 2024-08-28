@@ -98,7 +98,7 @@ def check_all_yaml_files_for_data_tests(directory):
 
 
 if __name__ == "__main__":
-    directory = "dbt/"  # Change this to your dbt directory if different
+    directory = "dbt/"
     unsorted_files_dict, error_files = check_all_yaml_files_for_data_tests(
         directory
     )
