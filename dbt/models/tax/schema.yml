@@ -27,7 +27,6 @@ sources:
           - name: class
             description: '{{ doc("shared_column_char_class")}}'
             data_tests:
-              - res_class_matches_pardat:
               - relationships:
                   name: tax_pin_all_class_in_ccao_class_dict
                   to: ref('ccao.class_dict')
@@ -40,6 +39,7 @@ sources:
                   meta:
                     category: class_mismatch_or_issue
                     description: class code must be valid
+              - res_class_matches_pardat:
                   name: tax_pin_class_equals_iasworld_pardat
                   parid_column_name: pin
                   taxyr_column_name: year
