@@ -169,8 +169,10 @@ class TestResult:
         """
         body = f"* {self.table_name}: {self.description} ({self.status.value})"
         for failing_row in self.failing_rows:
-            body += "\n  * " ", ".join(
-                f"{key}: {value}" for key, value in failing_row.items()
+            body += "\n  * " + ", ".join(
+                f"{key}: {value}"
+                for key, value in failing_row.items()
+                if key in TestCategory.possible_diagnostic_fieldnames
             )
         return body
 
@@ -905,13 +907,17 @@ def main() -> None:
                     failures_by_topic[test_result.notify] = []
                 failures_by_topic[test_result.notify].append(test_result)
 
-    # Generate the notification body and send it to each SNS topic
-    failure_details_by_topic: typing.Dict[str, str] = {}
+    # Generate the notification body and send it to each SNS topic. Start
+    # by parsing out a message body and subject for each group of failures
+    # by topic into a list of tuples with the structure
+    # (topic_arn, subject, body)
+    failure_details_by_topic: typing.List[typing.Tuple[str, str, str]] = []
     for topic, test_results in failures_by_topic.items():
-        message = "The following tests failed:"
+        subject = "iasWorld data tests failed"
+        body = "The following data tests failed:"
         for test_result in test_results:
-            message += f"\n\n{test_result.details}"
-        failure_details_by_topic[topic] = message
+            body += f"\n\n{test_result.details}"
+        failure_details_by_topic.append((topic, subject, body))
 
     if failure_details_by_topic:
         notifications_path = os.path.join(
@@ -919,11 +925,13 @@ def main() -> None:
         )
         print(f"Saving failure notifications to {notifications_path}")
         with open(notifications_path, "w") as notifications_file:
-            fieldnames = ["topic", "message"]
+            fieldnames = ["sns_topic_arn", "subject", "body"]
             writer = csv.DictWriter(notifications_file, fieldnames=fieldnames)
             writer.writeheader()
-            for topic, message in failure_details_by_topic.items():
-                writer.writerow({"topic": topic, "message": message})
+            for topic, subject, body in failure_details_by_topic:
+                writer.writerow(
+                    {"sns_topic_arn": topic, "subject": subject, "body": body}
+                )
     else:
         print("No failure notifications are necessary")
 
