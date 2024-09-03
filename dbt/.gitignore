@@ -11,3 +11,5 @@ target/
 dbt_modules/
 dbt_packages/
 master-cache/
+
+failure_notifications.json

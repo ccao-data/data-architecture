@@ -77,10 +77,8 @@ jobs:
       - name: Send data test failure notification
         run: |
           # TODO: Get ARNs, bodies, and subjects
-          for topic_arn in topic_arns; do
-            ./.github/actions/publish_sns_topic/publish.sh \
-              "$topic_arn" \
-              "$subject" \
-              "$body"
-          done
+          failure_notifications_file="qc_test_results/failure_notifications.json"
+          if [ -f "$failure_notifications_file" ]; then
+            bash <(jq -r '.[] | "./.github/actions/publish_sns_topic/publish.sh \(.topic_arn|@sh) \(.subject|@sh) \(.body|@sh)"' "$failure_notifications_file")
+          fi
         shell: bash

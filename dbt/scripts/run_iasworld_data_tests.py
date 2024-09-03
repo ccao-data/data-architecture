@@ -8,7 +8,6 @@
 # documentation.
 
 import argparse
-import csv
 import dataclasses
 import datetime
 import decimal
@@ -909,29 +908,28 @@ def main() -> None:
 
     # Generate the notification body and send it to each SNS topic. Start
     # by parsing out a message body and subject for each group of failures
-    # by topic into a list of tuples with the structure
-    # (topic_arn, subject, body)
-    failure_details_by_topic: typing.List[typing.Tuple[str, str, str]] = []
-    for topic, test_results in failures_by_topic.items():
-        subject = "iasWorld data tests failed"
+    # by topic into a list of objects with the keys `topic_arn`, `subject`,
+    # and `body`
+    failure_notifications: typing.List[typing.Dict] = []
+    for topic_arn, test_results in failures_by_topic.items():
         body = "The following data tests failed:"
         for test_result in test_results:
             body += f"\n\n{test_result.details}"
-        failure_details_by_topic.append((topic, subject, body))
+        failure_notifications.append(
+            {
+                "topic_arn": topic_arn,
+                "subject": "iasWorld data tests failed",
+                "body": body,
+            }
+        )
 
-    if failure_details_by_topic:
+    if failure_notifications:
         notifications_path = os.path.join(
-            output_dir, "failure_notifications.csv"
+            output_dir, "failure_notifications.json"
         )
         print(f"Saving failure notifications to {notifications_path}")
         with open(notifications_path, "w") as notifications_file:
-            fieldnames = ["sns_topic_arn", "subject", "body"]
-            writer = csv.DictWriter(notifications_file, fieldnames=fieldnames)
-            writer.writeheader()
-            for topic, subject, body in failure_details_by_topic:
-                writer.writerow(
-                    {"sns_topic_arn": topic, "subject": subject, "body": body}
-                )
+            json.dump(failure_notifications, notifications_file)
     else:
         print("No failure notifications are necessary")
 
