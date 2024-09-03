@@ -970,25 +970,12 @@ class TestRunMetadata:
         )
 
         # Extract dbt vars
-        run_vars = get_key_from_run_results("args", run_results_filepath)[
-            "vars"
-        ]
-        var_year_start = run_vars.get("data_test_iasworld_year_start")
-        var_year_end = run_vars.get("data_test_iasworld_year_end")
-
-        # If dbt vars weren't set on the command line, the defaults won't exist
-        # in run_results.json, so we have to parse them from the dbt project
-        # config
-        if not var_year_start or not var_year_end:
-            with open("dbt_project.yml") as project_fobj:
-                project = yaml.safe_load(project_fobj)
-            var_year_start = (
-                var_year_start
-                or project["vars"]["data_test_iasworld_year_start"]
-            )
-            var_year_end = (
-                var_year_end or project["vars"]["data_test_iasworld_year_end"]
-            )
+        var_year_start = get_var_value_from_run_results(
+            "data_test_iasworld_year_start", run_results_filepath
+        )
+        var_year_end = get_var_value_from_run_results(
+            "data_test_iasworld_year_end", run_results_filepath
+        )
 
         return cls(
             run_id=run_id,
@@ -1159,14 +1146,46 @@ class TestRunFailingRowMetadata:
 
 
 def get_key_from_run_results(
-    key: str, run_results_filepath: str
+    key: str, run_results: str | typing.Dict
 ) -> typing.Any:
-    """Given a path to a run_results.json file, return a key that's represented
-    in the run metadata."""
-    with open(run_results_filepath) as run_results_fobj:
-        run_results = json.load(run_results_fobj)
+    """Given a path to a run_results.json file, or a dictionary representing
+    the contents of that file, return the value of a key as defined in the run
+    metadata."""
+    # If the run_results argument is a string, that means it represents a
+    # filepath, and we need to rehydrate the results from that file
+    if isinstance(run_results, str):
+        with open(run_results) as run_results_fobj:
+            res = json.load(run_results_fobj)
+    else:
+        res = run_results
 
-    return run_results[key]
+    return res[key]
+
+
+def get_var_value_from_run_results(
+    var_name: str, run_results: str | typing.Dict
+) -> typing.Any:
+    """Given a path to a run_results.json file, or a dictionary representing
+    the contents of that file, return a dbt var value.
+
+    This function will first check the run results to see if a var was set
+    during command invocation, and will fall back to the var's value as set
+    in the dbt project file. If no var with the given name is set in either
+    place, the function will return None."""
+    # The vars key should always exist in the run results file, whether or
+    # not the caller set any vars during command invocation
+    run_vars = get_key_from_run_results("args", run_results)["vars"]
+    var_value = run_vars.get(var_name)
+
+    # If the var wasn't set on the command line, the defaults won't exist
+    # in run_results.json, so we have to parse it from the dbt project config
+    if not var_value:
+        with open("dbt_project.yml") as project_fobj:
+            project = yaml.safe_load(project_fobj)
+        var_value = var_value or project["vars"].get(var_name)
+
+    # Note that this can be None if both get() calls return None
+    return var_value
 
 
 def get_run_id_from_run_results(run_results_filepath: str) -> str:
@@ -1295,6 +1314,18 @@ def get_test_categories(
         column_name = get_column_name_from_node(node)
         test_description = meta.get("description")
         notify = meta.get("notify")
+        if notify:
+            # We can't use variables directly in dbt meta configs, because the
+            # `var()` function doesn't get called during compilation there.
+            # Instead, interpret the `notify` attribute as a string representing
+            # the name of the variable storing the SNS topic that we need
+            # to publish to
+            notify_var = get_var_value_from_run_results(notify, run_results)
+            if notify_var is None:
+                raise ValueError(
+                    f"Variable for notify value {notify} is not defined"
+                )
+            notify = notify_var
 
         # Basic attrs for the test result that apply whether or not the test
         # failed

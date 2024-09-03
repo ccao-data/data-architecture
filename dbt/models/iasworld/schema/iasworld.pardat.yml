@@ -275,8 +275,7 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: spot should be null
-                    # TODO: Is there a way we can parse this variable?
-                    notify: '{{ var("data_test_iasworld_commercial_sns_topic") }}'
+                    notify: data_test_iasworld_commercial_sns_topic
           - name: statecode
             description: '{{ doc("column_statecode") }}'
           - name: status
