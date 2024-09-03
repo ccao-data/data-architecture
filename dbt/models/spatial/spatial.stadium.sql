@@ -4,7 +4,8 @@
 
 WITH distinct_years AS (
     SELECT DISTINCT CAST(year AS INTEGER) AS year
-    FROM {{ ref('spatial.stadium_raw') }}
+    FROM {{ source('spatial', 'parcel') }}
+
 ),
 
 stadium_years AS (
