@@ -37,6 +37,8 @@ sources:
                     description: adjfact should be between 0 and 1
           - name: areasum
             description: '{{ doc("column_areasum") }}'
+          - name: bldgros_d
+            description: Gross building description
           - name: bldgros_v
             description: Gross building value
           - name: bldgval

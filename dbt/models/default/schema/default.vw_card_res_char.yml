@@ -8,6 +8,8 @@ models:
     columns:
       - name: card
         description: '{{ doc("shared_column_card") }}'
+      - name: card_proration_rate
+        description: '{{ doc("shared_column_card_proration_rate") }}'
       - name: cdu
         description: '{{ doc("shared_column_cdu") }}'
       - name: char_age
@@ -82,6 +84,8 @@ models:
         description: '{{ doc("shared_column_class") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
+      - name: pin10
+        description: '{{ doc("shared_column_pin10") }}'
       - name: pin_is_multicard
         description: '{{ doc("shared_column_pin_is_multicard") }}'
       - name: pin_is_multiland

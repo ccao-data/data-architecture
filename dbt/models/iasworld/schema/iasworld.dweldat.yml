@@ -1591,8 +1591,8 @@ sources:
             description: Wood burning fireplace - prefab
           - name: wbfp_pfx
             description: Additional stories for prefab fireplace stacks
-          - name: wbfpval
-            description: Wood burning fireplace value
+          - name: wbfp_s
+            description: Wood burning fireplace - number of stacks
           - name: wbfpval
             description: Wood burning fireplace value
           - name: wbfp_x
