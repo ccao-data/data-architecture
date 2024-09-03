@@ -28,7 +28,6 @@ def check_yaml_file(file_path):
         with open(file_path, "r") as file:
             data = yaml.safe_load(file)
     except yaml.YAMLError as error:
-        # print(f"Error loading YAML file {file_path}: {e}")
         return [error], [file_path]  # Return as an error
 
     def check_columns(data, file_path, unsorted_files_dict, parent_key=None):

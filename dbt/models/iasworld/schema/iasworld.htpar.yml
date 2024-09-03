@@ -361,7 +361,6 @@ sources:
                 description: >
                   cpaddr3 should be either 5 characters long or 10 characters
                   with a hyphen
-
           - unique_combination_of_columns:
               name: iasworld_htpar_unique_by_parid_caseno_taxyr_subkey
               combination_of_columns:
