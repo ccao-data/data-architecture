@@ -105,6 +105,3 @@ seeds:
         description: '{{ doc("shared_column_triad_code") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
-
-
-
