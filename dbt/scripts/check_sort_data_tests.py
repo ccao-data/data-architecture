@@ -117,7 +117,7 @@ if __name__ == "__main__":
             print(file)
 
     if unsorted_files_dict or error_files:
-        exit(1)  # Exit with a status code of 1 to indicate failure
-    else:
-        print("All files have sorted data tests and no errors.")
-        exit(0)  # Exit with a status code of 0 to indicate success
+        raise ValueError(
+            "Column name sort order check ran into failures, see logs above"
+        )
+    print("All files have sorted columns and no errors.")

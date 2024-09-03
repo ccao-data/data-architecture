@@ -85,6 +85,7 @@ def check_all_yaml_files(directory):
                 if file_path == os.path.join(
                     "dbt", "models", "model", "schema.yml"
                 ):
+                    print(f"{file_path} not checked")
                     continue
                 unsorted, errors = check_yaml_file(file_path)
                 for key, value in unsorted.items():
@@ -113,7 +114,7 @@ if __name__ == "__main__":
             print(file)
 
     if unsorted_files_dict or error_files:
-        exit(1)  # Exit with a status code of 1 to indicate failure
-    else:
-        print("All files have sorted columns and no errors.")
-        exit(0)  # Exit with a status code of 0 to indicate success
+        raise ValueError(
+            "Column name sort order check ran into failures, see logs above"
+        )
+    print("All files have sorted columns and no errors.")
