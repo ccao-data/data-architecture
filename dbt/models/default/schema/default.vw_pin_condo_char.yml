@@ -4,12 +4,6 @@ models:
     config:
       tags:
         - type_condo
-    meta:
-      socrata_asset: Residential Condominium Unit Characteristics
-      asset_id: 3r7i-mrz4
-      primary_key:
-        - pin
-        - year
 
     columns:
       - name: bldg_is_mixed_use

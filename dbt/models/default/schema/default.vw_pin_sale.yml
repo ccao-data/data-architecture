@@ -1,12 +1,6 @@
 models:
   - name: default.vw_pin_sale
     description: '{{ doc("view_vw_pin_sale") }}'
-    meta:
-      socrata_asset: Parcel Sales
-      asset_id: wvhk-k5uv
-      primary_key:
-        - doc_no
-        - pin
 
     columns:
       - name: buyer_name

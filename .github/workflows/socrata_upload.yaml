@@ -1,4 +1,4 @@
-name: update_socrata_asset
+name: upload-open-data-assets
 
 on:
   workflow_dispatch:
@@ -19,10 +19,12 @@ on:
         default: Parcel Universe
         required: true
       overwrite:
+        # True for overwrite, False for update
         type: boolean
         description: Overwrite or update socrata asset
         required: true
       years:
+        # Comma separated list of years
         type: string
         description: Years to update or overwrite
         default: 'all'
@@ -34,17 +36,12 @@ on:
         required: false
 
 jobs:
-  update_socrata_asset:
+  upload-open-data-assets:
     runs-on: ubuntu-latest
     permissions:
       # contents:read and id-token:write permissions are needed to interact
       # with GitHub's OIDC Token endpoint so that we can authenticate with AWS
       contents: read
-      id-token: write
-      # While packages:write is usually not required for workflows, it is
-      # required in order to allow the reusable called workflow to push to
-      # GitHub Container Registry
-      packages: write
 
     steps:
       - name: Checkout

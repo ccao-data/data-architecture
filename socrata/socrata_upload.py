@@ -31,11 +31,12 @@ def get_asset_info(socrata_asset):
         "--quiet",
         "list",
         "--resource-types",
-        "model",
+        "exposure",
         "--output",
         "json",
         "--output-keys",
         "name",
+        "label",
         "meta",
     ]
 
@@ -54,7 +55,7 @@ def get_asset_info(socrata_asset):
     os.chdir("..")
 
     model = pd.json_normalize(model)
-    model = model[model["meta.socrata_asset"] == socrata_asset]
+    model = model[model["label"] == socrata_asset]
     athena_asset = model.iloc[0]["name"]
     asset_id = model.iloc[0]["meta.asset_id"]
     row_identifier = model.iloc[0]["meta.primary_key"]

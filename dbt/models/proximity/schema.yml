@@ -82,12 +82,6 @@ models:
 
   - name: proximity.vw_pin10_proximity
     description: '{{ doc("view_vw_pin10_proximity") }}'
-    meta:
-      socrata_asset: Parcel Proximity
-      asset_id: vgzx-68gb
-      primary_key:
-        - pin
-        - year
     columns: &vw_proximity_columns
       - name: airport_dnl_total
         description: '{{ doc("column_airport_dnl_total") }}'
@@ -285,6 +279,10 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
+      asset_id: ydue-e5u3
+      primary_key:
+        - pin10
+        - year
     description: |
       Cook County 10-digit parcels with attached distances to various spatial features.
 
