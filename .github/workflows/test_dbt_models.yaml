@@ -78,7 +78,7 @@ jobs:
 
       - name: Send data test failure notification
         run: |
-          failure_notifications_file="qc_test_results/failure_notifications.json"
+          failure_notifications_file="$PROJECT_DIR/qc_test_results/failure_notifications.json"
           if [ -f "$failure_notifications_file" ]; then
             echo "Sending failure notifications"
             bash <( \
