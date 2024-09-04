@@ -104,8 +104,8 @@ def check_columns(file_path):
                                 print(f"---> {name}")
                             else:
                                 print(f"- {name}")
-                        print("-" * 40)  # Separator for clarity
-                        unsorted_files_dict[file_path] += 1  # Increment count
+                        print("-" * 40)
+                        unsorted_files_dict[file_path] += 1
                 else:
                     check_columns_in_yaml(
                         value, file_path, unsorted_files_dict, key
@@ -354,14 +354,11 @@ def check_all_files(directory):
     unsorted_columns_md_files = []
     unsorted_shared_columns_md_files = []
     for root, _, files in os.walk(directory):
-        if "venv" in root:  # Skip virtual environment directories
+        if "venv" in root:
             continue
         for file in files:
             file_path = os.path.join(root, file)
             if file.endswith(".yaml") or file.endswith(".yml"):
-                # if file_path == os.path.join("dbt", "models", "model", "schema.yml"):
-                #    print(f"{file_path} not checked")
-                #    continue
                 # Check for unsorted 'columns'
                 unsorted_columns, errors = check_columns(file_path)
                 for key, value in unsorted_columns.items():
