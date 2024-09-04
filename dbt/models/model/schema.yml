@@ -1,3 +1,4 @@
+# disable-check-sort-order
 sources:
   - name: model
     tables:

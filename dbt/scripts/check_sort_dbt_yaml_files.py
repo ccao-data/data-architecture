@@ -1,0 +1,377 @@
+import os
+import yaml
+import re
+from collections import defaultdict
+
+
+def normalize_string(s):
+    """
+    Normalize a string by removing special characters and converting to lowercase.
+
+    Args:
+        s (str): The input string to normalize.
+
+    Returns:
+        str: The normalized string.
+    """
+    return re.sub(r"[^a-zA-Z0-9]", "", s).lower()
+
+
+def alphanumeric_key(s):
+    """
+    Convert a string into a list of alphanumeric segments to facilitate sorting.
+
+    Args:
+        s (str): The input string to split into alphanumeric components.
+
+    Returns:
+        list: A list of alphanumeric components, where numeric parts are converted to integers.
+    """
+    return [
+        int(text) if text.isdigit() else text.lower()
+        for text in re.split("([0-9]+)", s)
+    ]
+
+
+def is_sorted(lst):
+    """
+    Check if a list of strings is sorted in alphanumeric order.
+
+    Args:
+        lst (list): A list of strings to check for sorted order.
+
+    Returns:
+        bool: True if the list is sorted, False otherwise.
+    """
+    normalized_list = [alphanumeric_key(normalize_string(s)) for s in lst]
+    return normalized_list == sorted(normalized_list)
+
+
+def check_columns(file_path):
+    """
+    Check if the 'columns' key in a YAML file is sorted.
+
+    Args:
+        file_path (str): The path to the YAML file to check.
+
+    Returns:
+        tuple: A tuple containing a dictionary of files with unsorted 'columns' and a list of error files.
+    """
+    try:
+        with open(file_path, "r") as file:
+            first_line = file.readline().strip()
+            if first_line == "# disable-check-sort-order":
+                return {}, []
+            data = yaml.safe_load(file)
+    except yaml.YAMLError as error:
+        return {}, [
+            f"Error processing {file_path}: {error}"
+        ]  # Return as an error
+
+    def check_columns_in_yaml(
+        data, file_path, unsorted_files_dict, parent_key=None
+    ):
+        """
+        Recursively check if the 'columns' key within a YAML structure is sorted.
+
+        Args:
+            data (dict or list): The YAML data to check.
+            file_path (str): The path to the YAML file.
+            unsorted_files_dict (dict): A dictionary to track unsorted files.
+            parent_key (str, optional): The key above 'columns' in the YAML structure.
+        """
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if key == "columns":
+                    column_names = [
+                        col.get("name")
+                        for col in value
+                        if isinstance(col, dict) and "name" in col
+                    ]
+                    if not is_sorted(column_names):
+                        print(f"In file: {file_path}")
+                        print(f"Key above 'columns': {parent_key}")
+                        print("Columns in this group:")
+                        for i, name in enumerate(column_names):
+                            normalized_name = alphanumeric_key(
+                                normalize_string(name)
+                            )
+                            if (
+                                i > 0
+                                and alphanumeric_key(
+                                    normalize_string(column_names[i - 1])
+                                )
+                                > normalized_name
+                            ):
+                                print(f"---> {name}")
+                            else:
+                                print(f"- {name}")
+                        print("-" * 40)  # Separator for clarity
+                        unsorted_files_dict[file_path] += 1  # Increment count
+                else:
+                    check_columns_in_yaml(
+                        value, file_path, unsorted_files_dict, key
+                    )
+        elif isinstance(data, list):
+            for item in data:
+                check_columns_in_yaml(
+                    item, file_path, unsorted_files_dict, parent_key
+                )
+
+    unsorted_files_dict = defaultdict(int)
+    check_columns_in_yaml(data, file_path, unsorted_files_dict)
+    return unsorted_files_dict, []
+
+
+def check_data_tests(file_path):
+    """
+    Check if the 'data_tests' key in a YAML file is sorted.
+
+    Args:
+        file_path (str): The path to the YAML file to check.
+
+    Returns:
+        tuple: A tuple containing a dictionary of files with unsorted 'data_tests' and a list of error files.
+    """
+    try:
+        with open(file_path, "r") as file:
+            data = yaml.safe_load(file)
+    except yaml.YAMLError as error:
+        return [error], [file_path]  # Return as an error
+
+    def check_data_tests_in_yaml(
+        data, file_path, unsorted_files_dict, parent_key=None
+    ):
+        """
+        Recursively check if the 'data_tests' key within a YAML structure is sorted.
+
+        Args:
+            data (dict or list): The YAML data to check.
+            file_path (str): The path to the YAML file.
+            unsorted_files_dict (dict): A dictionary to track unsorted files.
+            parent_key (str, optional): The key above 'data_tests' in the YAML structure.
+        """
+        if isinstance(data, dict):
+            for key, value in data.items():
+                if key == "data_tests" and isinstance(value, list):
+                    data_test_names = []
+                    for test in value:
+                        if isinstance(test, dict):
+                            for test_type, test_details in test.items():
+                                if (
+                                    isinstance(test_details, dict)
+                                    and "name" in test_details
+                                ):
+                                    data_test_names.append(
+                                        (test_type, test_details["name"], test)
+                                    )
+
+                    # Sort and compare
+                    sorted_tests = sorted(
+                        data_test_names,
+                        key=lambda x: alphanumeric_key(normalize_string(x[1])),
+                    )
+                    if data_test_names != sorted_tests:
+                        print(f"In file: {file_path}")
+                        print(f"Key above 'data_tests': {parent_key}")
+                        print("Data tests in this group are not sorted:")
+                        for i, (_, name, _) in enumerate(data_test_names):
+                            if name != sorted_tests[i][1]:
+                                print(f"---> {name}")
+                            else:
+                                print(f"- {name}")
+                        print("-" * 40)  # Separator for clarity
+                        unsorted_files_dict[file_path] += 1  # Increment count
+                else:
+                    check_data_tests_in_yaml(
+                        value, file_path, unsorted_files_dict, key
+                    )
+        elif isinstance(data, list):
+            for item in data:
+                check_data_tests_in_yaml(
+                    item, file_path, unsorted_files_dict, parent_key
+                )
+
+    unsorted_files_dict = defaultdict(int)
+    check_data_tests_in_yaml(data, file_path, unsorted_files_dict)
+    return unsorted_files_dict, []
+
+
+def check_md_file(file_path):
+    """
+    Check if top-level headings in a Markdown file are sorted.
+
+    Args:
+        file_path (str): The path to the Markdown file to check.
+
+    Returns:
+        str or None: The file path if unsorted headings are found, otherwise None.
+    """
+    with open(file_path, "r") as file:
+        lines = file.readlines()
+
+    headings = [
+        line.strip()
+        for line in lines
+        if line.strip().startswith("#") and line.strip().count("#") == 1
+    ]
+    if not is_sorted(headings):
+        print(f"In file: {file_path}")
+        print("Headings not sorted:")
+        for i, heading in enumerate(headings):
+            if i > 0 and alphanumeric_key(
+                normalize_string(headings[i - 1])
+            ) > alphanumeric_key(normalize_string(heading)):
+                print(f"---> {heading}")
+            else:
+                print(f"- {heading}")
+        print("-" * 40)
+        return file_path
+    return None
+
+
+def check_columns_md_file(file_path):
+    """
+    Check if '##' headings in a columns.md file are sorted.
+
+    Args:
+        file_path (str): The path to the columns.md file to check.
+
+    Returns:
+        str or None: The file path if unsorted '##' headings are found, otherwise None.
+    """
+    with open(file_path, "r") as file:
+        lines = file.readlines()
+
+    # Find '##' headings
+    headings = [
+        line.strip() for line in lines if line.strip().startswith("##")
+    ]
+    if not is_sorted(headings):
+        print(f"In file: {file_path}")
+        print("'##' Headings not sorted:")
+        for i, heading in enumerate(headings):
+            if i > 0 and alphanumeric_key(
+                normalize_string(headings[i - 1])
+            ) > alphanumeric_key(normalize_string(heading)):
+                print(f"---> {heading}")
+            else:
+                print(f"- {heading}")
+        print("-" * 40)
+        return file_path
+    return None
+
+
+def check_all_files(directory):
+    """
+    Check all relevant files in a given directory for unsorted columns, data tests, and headings.
+
+    Args:
+        directory (str): The directory path to check files within.
+
+    Returns:
+        tuple: A tuple containing dictionaries and lists for unsorted files and errors:
+            - unsorted_columns_files (dict): Files with unsorted 'columns'.
+            - unsorted_data_tests_files (dict): Files with unsorted 'data_tests'.
+            - error_files (list): Files that could not be processed due to errors.
+            - unsorted_md_files (list): Markdown files with unsorted headings.
+            - unsorted_columns_md_files (list): columns.md files with unsorted '##' headings.
+    """
+    unsorted_columns_files = defaultdict(int)
+    unsorted_data_tests_files = defaultdict(int)
+    error_files = []
+    unsorted_md_files = []
+    unsorted_columns_md_files = []
+    for root, _, files in os.walk(directory):
+        if "venv" in root:  # Skip virtual environment directories
+            continue
+        for file in files:
+            file_path = os.path.join(root, file)
+            if file.endswith(".yaml") or file.endswith(".yml"):
+                # if file_path == os.path.join("dbt", "models", "model", "schema.yml"):
+                #    print(f"{file_path} not checked")
+                #    continue
+                # Check for unsorted 'columns'
+                unsorted_columns, errors = check_columns(file_path)
+                for key, value in unsorted_columns.items():
+                    unsorted_columns_files[key] += value
+                # Check for unsorted 'data_tests'
+                unsorted_data_tests, errors = check_data_tests(file_path)
+                for key, value in unsorted_data_tests.items():
+                    unsorted_data_tests_files[key] += value
+                if errors:
+                    error_files.extend(errors)
+            elif file == "docs.md":
+                unsorted_md = check_md_file(file_path)
+                if unsorted_md:
+                    unsorted_md_files.append(unsorted_md)
+            elif file == "columns.md":
+                unsorted_columns_md = check_columns_md_file(file_path)
+                if unsorted_columns_md:
+                    unsorted_columns_md_files.append(unsorted_columns_md)
+
+    return (
+        unsorted_columns_files,
+        unsorted_data_tests_files,
+        error_files,
+        unsorted_md_files,
+        unsorted_columns_md_files,
+    )
+
+
+if __name__ == "__main__":
+    directory = "dbt/"
+    (
+        unsorted_columns_files,
+        unsorted_data_tests_files,
+        error_files,
+        unsorted_md_files,
+        unsorted_columns_md_files,
+    ) = check_all_files(directory)
+
+    if unsorted_columns_files:
+        print("The following files have unsorted columns:")
+        for file, count in unsorted_columns_files.items():
+            if count > 1:
+                print(f"{file} ({count})")
+            else:
+                print(file)
+
+    if unsorted_data_tests_files:
+        print("\nThe following files have unsorted data tests:")
+        for file, count in unsorted_data_tests_files.items():
+            if count > 1:
+                print(f"{file} ({count})")
+            else:
+                print(file)
+
+    if unsorted_md_files:
+        print("\nThe following markdown files have unsorted headings:")
+        for file in unsorted_md_files:
+            print(file)
+
+    if unsorted_columns_md_files:
+        print("\nThe following columns.md files have unsorted '##' headings:")
+        for file in unsorted_columns_md_files:
+            print(file)
+        print("\n")
+
+    if error_files:
+        print("\nThe following files could not be processed due to errors:")
+        for file in error_files:
+            print(file)
+
+    if (
+        unsorted_columns_files
+        or unsorted_data_tests_files
+        or error_files
+        or unsorted_md_files
+        or unsorted_columns_md_files
+    ):
+        raise ValueError(
+            "Column name, data test, or heading sort order check ran into failures, see logs above"
+        )
+
+    print(
+        "All files have sorted columns, data tests, headings, and no errors."
+    )
