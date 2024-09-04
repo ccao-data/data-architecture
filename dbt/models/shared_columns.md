@@ -1,4 +1,4 @@
-# DAddress
+# Address
 
 ## mail_address_city_name
 
@@ -110,16 +110,16 @@ Street suffix (Rd., Ln.) of property address
 Additional street suffix of property address
 {% enddocs %}
 
-## prop_address_unit_prefix
-
-{% docs shared_column_prop_address_unit_prefix %}
-Unit prefix (Num., Apt.) of property address
-{% enddocs %}
-
 ## prop_address_unit_number
 
 {% docs shared_column_prop_address_unit_number %}
 Unit number of property address
+{% enddocs %}
+
+## prop_address_unit_prefix
+
+{% docs shared_column_prop_address_unit_prefix %}
+Unit prefix (Num., Apt.) of property address
 {% enddocs %}
 
 ## prop_address_zipcode_1
@@ -377,6 +377,14 @@ outputs from the model
 
 # Characteristics
 
+## char_age
+
+{% docs shared_column_char_age %}
+Deprecated.
+
+Use year built (`char_yrblt`) instead
+{% enddocs %}
+
 ## char_air
 
 {% docs shared_column_char_air %}
@@ -386,14 +394,6 @@ Possible values for this variable are:
 
 - `1` = Central A/C (`YES`)
 - `2` = No central A/C (`NO`)
-{% enddocs %}
-
-## char_age
-
-{% docs shared_column_char_age %}
-Deprecated.
-
-Use year built (`char_yrblt`) instead
 {% enddocs %}
 
 ## char_apts
@@ -445,12 +445,6 @@ Possible values for this variable are:
 Number of bedrooms in the building.
 {% enddocs %}
 
-## char_bldg_sf
-
-{% docs shared_column_char_bldg_sf %}
-Square footage of the building, as measured from the exterior.
-{% enddocs %}
-
 ## char_bldg_is_mixed_use
 
 {% docs shared_column_char_bldg_is_mixed_use %}
@@ -458,6 +452,12 @@ The 10-digit PIN (building) contains a 14-digit PIN that is
 neither class 299 nor 399.
 
 Applies to condos only
+{% enddocs %}
+
+## char_bldg_sf
+
+{% docs shared_column_char_bldg_sf %}
+Square footage of the building, as measured from the exterior.
 {% enddocs %}
 
 ## char_bsmt
@@ -503,18 +503,18 @@ Total number of PINs associated with a building (PIN10).
 Includes both livable and non-livable units. Applies to condos only
 {% enddocs %}
 
-## char_building_units
-
-{% docs shared_column_char_building_units %}
-Count of livable 14-digit PINs (AKA condo units).
-
-Applies to condos only
-{% enddocs %}
-
 ## char_building_sf
 
 {% docs shared_column_char_building_sf %}
 Square footage of the _building_ (PIN10) containing this unit.
+
+Applies to condos only
+{% enddocs %}
+
+## char_building_units
+
+{% docs shared_column_char_building_units %}
+Count of livable 14-digit PINs (AKA condo units).
 
 Applies to condos only
 {% enddocs %}
@@ -632,6 +632,15 @@ Possible values for this variable are:
 - `8` = 4 cars (`4CAR`)
 {% enddocs %}
 
+## char_hbath
+
+{% docs shared_column_char_hbath %}
+Number of half baths.
+
+Defined as bathrooms without a shower or bathtub. Note that either 0 or
+null can indicate no half baths.
+{% enddocs %}
+
 ## char_heat
 
 {% docs shared_column_char_heat %}
@@ -643,15 +652,6 @@ Possible values for this variable are:
 - `2` = Steam / radiator (`STM`)
 - `3` = Electric (`ELEC`)
 - `4` = None (`NONE`)
-{% enddocs %}
-
-## char_hbath
-
-{% docs shared_column_char_hbath %}
-Number of half baths.
-
-Defined as bathrooms without a shower or bathtub. Note that either 0 or
-null can indicate no half baths.
 {% enddocs %}
 
 ## char_land_sf
@@ -887,12 +887,6 @@ Corner lot indicator
 Modeling group, one of: `SF`, `MF`, `CONDO`, or `BB`
 {% enddocs %}
 
-## n_years_exe_homeowner
-
-{% docs shared_column_n_years_exe_homeowner %}
-Number of years parcel has had an active homeowner exemption
-{% enddocs %}
-
 ## nbhd_code
 
 {% docs shared_column_nbhd_code %}
@@ -905,6 +899,12 @@ Geographic neighborhoods intended to represent relatively homogeneous
 housing sub-markets. They were created a long time ago for internal use by the
 various property tax offices. The Assessor now uses them as units of work and
 analysis. For example, land rates are usually delimited by neighborhood
+{% enddocs %}
+
+## n_years_exe_homeowner
+
+{% docs shared_column_n_years_exe_homeowner %}
+Number of years parcel has had an active homeowner exemption
 {% enddocs %}
 
 ## pin
@@ -1083,6 +1083,12 @@ Average GreatSchools rating of secondary schools within the district of a given 
 For CPS, which is a unified school district, the average of schools within attendance boundary is used
 {% enddocs %}
 
+## tax_bill_amount_total
+
+{% docs shared_column_tax_bill_amount_total %}
+Tax bill total amount for the tax year
+{% enddocs %}
+
 ## tax_bill_rate
 
 {% docs shared_column_tax_bill_rate %}
@@ -1090,12 +1096,6 @@ Tax bill rate for the taxing district containing a given PIN.
 
 For modeling, the idea is to capture any downward pressure
 on price from higher tax burdens
-{% enddocs %}
-
-## tax_bill_amount_total
-
-{% docs shared_column_tax_bill_amount_total %}
-Tax bill total amount for the tax year
 {% enddocs %}
 
 # Proration, Multi-cards, Occupancy, and Landlines
