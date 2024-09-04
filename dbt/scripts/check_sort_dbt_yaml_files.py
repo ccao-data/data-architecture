@@ -262,6 +262,78 @@ def check_columns_md_file(file_path):
     return None
 
 
+def check_shared_columns_md_file(file_path):
+    """
+    Check if headings in a shared_columns.md file are sorted:
+    - Top-level '#' headings should be sorted.
+    - Within each '#' heading, '##' headings should be sorted.
+
+    Args:
+        file_path (str): The path to the shared_columns.md file to check.
+
+    Returns:
+        str or None: The file path if unsorted headings are found, otherwise None.
+    """
+    with open(file_path, "r") as file:
+        lines = file.readlines()
+
+    # Find all headings and group '##' under their parent '#'
+    headings = []
+    current_parent = None
+    current_children = []
+
+    for line in lines:
+        stripped_line = line.strip()
+        if stripped_line.startswith("# ") and stripped_line.count("#") == 1:
+            # New parent heading
+            if current_parent is not None:
+                headings.append((current_parent, current_children))
+            current_parent = stripped_line
+            current_children = []
+        elif stripped_line.startswith("## ") and stripped_line.count("#") == 2:
+            # Child heading under the current parent
+            current_children.append(stripped_line)
+
+    # Add the last group
+    if current_parent is not None:
+        headings.append((current_parent, current_children))
+
+    # Check if parent headings are sorted
+    parent_headings = [item[0] for item in headings]
+    if not is_sorted(parent_headings):
+        print(f"In file: {file_path}")
+        print("Top-level headings ('#') not sorted:")
+        for i, heading in enumerate(parent_headings):
+            if i > 0 and alphanumeric_key(
+                normalize_string(parent_headings[i - 1])
+            ) > alphanumeric_key(normalize_string(heading)):
+                print(f"---> {heading}")
+            else:
+                print(f"- {heading}")
+        print("-" * 40)
+
+    # Check if each group's child headings ('##') are sorted
+    any_unsorted = False
+    for parent, children in headings:
+        if not is_sorted(children):
+            print(f"In file: {file_path}")
+            print(f"Under parent heading: {parent}")
+            print("Subheadings ('##') not sorted:")
+            for i, child in enumerate(children):
+                if i > 0 and alphanumeric_key(
+                    normalize_string(children[i - 1])
+                ) > alphanumeric_key(normalize_string(child)):
+                    print(f"---> {child}")
+                else:
+                    print(f"- {child}")
+            print("-" * 40)
+            any_unsorted = True
+
+    return (
+        file_path if not is_sorted(parent_headings) or any_unsorted else None
+    )
+
+
 def check_all_files(directory):
     """
     Check all relevant files in a given directory for unsorted columns, data tests, and headings.
@@ -282,6 +354,7 @@ def check_all_files(directory):
     error_files = []
     unsorted_md_files = []
     unsorted_columns_md_files = []
+    unsorted_shared_columns_md_files = []
     for root, _, files in os.walk(directory):
         if "venv" in root:  # Skip virtual environment directories
             continue
@@ -309,6 +382,14 @@ def check_all_files(directory):
                 unsorted_columns_md = check_columns_md_file(file_path)
                 if unsorted_columns_md:
                     unsorted_columns_md_files.append(unsorted_columns_md)
+            elif file == "shared_columns.md":
+                unsorted_shared_columns_md = check_shared_columns_md_file(
+                    file_path
+                )
+                if unsorted_shared_columns_md:
+                    unsorted_shared_columns_md_files.append(
+                        unsorted_shared_columns_md
+                    )
 
     return (
         unsorted_columns_files,
@@ -316,6 +397,7 @@ def check_all_files(directory):
         error_files,
         unsorted_md_files,
         unsorted_columns_md_files,
+        unsorted_shared_columns_md_files,
     )
 
 
@@ -327,6 +409,7 @@ if __name__ == "__main__":
         error_files,
         unsorted_md_files,
         unsorted_columns_md_files,
+        unsorted_shared_columns_md_files,
     ) = check_all_files(directory)
 
     if unsorted_columns_files:
@@ -361,12 +444,20 @@ if __name__ == "__main__":
         for file in error_files:
             print(file)
 
+    if unsorted_shared_columns_md_files:
+        print(
+            "\nThe following shared_columns.md files have unsorted headings:"
+        )
+        for file in unsorted_shared_columns_md_files:
+            print(file)
+        print("\n")
     if (
         unsorted_columns_files
         or unsorted_data_tests_files
         or error_files
         or unsorted_md_files
         or unsorted_columns_md_files
+        or unsorted_shared_columns_md_files
     ):
         raise ValueError(
             "Column name, data test, or heading sort order check ran into failures, see logs above"
