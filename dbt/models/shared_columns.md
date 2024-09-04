@@ -1310,7 +1310,7 @@ See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more det
 
 ## sv_outlier_reason1
 
-{% docs shared_column_sv_outlier_reason %}
+{% docs shared_column_sv_outlier_reason1 %}
 Heuristic or model used to flag an outlier.
 
 See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
@@ -1319,7 +1319,7 @@ for a list of possible flags.
 
 ## sv_outlier_reason2
 
-{% docs shared_column_sv_outlier_reason %}
+{% docs shared_column_sv_outlier_reason2 %}
 Heuristic or model used to flag an outlier.
 
 See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
@@ -1328,7 +1328,7 @@ for a list of possible flags.
 
 ## sv_outlier_reason3
 
-{% docs shared_column_sv_outlier_reason %}
+{% docs shared_column_sv_outlier_reason3 %}
 Heuristic or model used to flag an outlier.
 
 See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
