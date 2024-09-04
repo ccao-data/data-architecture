@@ -31,7 +31,8 @@ jobs:
         run: |
           python3 scripts/run_iasworld_data_tests.py \
             --target "$TARGET" \
-            --output-dir ./qc_test_results/
+            --output-dir ./qc_test_results/ \
+            --vars "{\"data_test_iasworld_commercial_sns_topic\": \"$COMMERCIAL_SNS_TOPIC\"}"
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         env:
@@ -39,6 +40,7 @@ jobs:
           GIT_SHA: ${{ github.sha }}
           GIT_REF: ${{ github.ref_name }}
           GIT_AUTHOR: ${{ github.event.commits[0].author.name }}
+          COMMERCIAL_SNS_TOPIC: ${{ secrets.AWS_SNS_COMMERCIAL_FAILURE_TOPIC_ARN }}
 
       - name: Save test results to S3
         run: |

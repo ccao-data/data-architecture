@@ -162,16 +162,18 @@ class TestResult:
         """Returns a string that can be used to report on the status of
         this test in detail. Strings are formatted like so:
 
-            * {table_name}: {description} ({status})
-              * {fail1_key1}: {fail1_value1}, {fail1_key2}: {fail1_value2}
-              * {fail2_key1}: {fail2_value1}, {fail2_key2}: {fail2_value2}
+            - {table_name}: {description} ({status})
+                * {fail1_key1}: {fail1_value1}, {fail1_key2}: {fail1_value2}
+                * {fail2_key1}: {fail2_value1}, {fail2_key2}: {fail2_value2}
         """
-        body = f"* {self.table_name}: {self.description} ({self.status.value})"
+        body = f"- {self.table_name}: {self.description} ({self.status.value})"
         for failing_row in self.failing_rows:
-            body += "\n  * " + ", ".join(
+            body += "\n    * " + ", ".join(
                 f"{key}: {value}"
                 for key, value in failing_row.items()
-                if key in TestCategory.possible_diagnostic_fieldnames
+                # Skip test metadata fields, since they won't mean anything to
+                # consumers of failure notifications
+                if key not in TestCategory.possible_test_metadata_fieldnames
             )
         return body
 
@@ -761,6 +763,14 @@ def main() -> None:
         default="dev",
         help="dbt target to use for running tests, defaults to 'dev'",
     )
+    parser.add_argument(
+        "--vars",
+        required=False,
+        help=(
+            "Supply optional variable overrides to the underlying `dbt test` "
+            "call"
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -768,6 +778,7 @@ def main() -> None:
     townships = args.township if args.township else tuple()
     use_cached = args.use_cached
     target = args.target
+    vars = args.vars
 
     run_results_filepath = os.path.join("target", "run_results.json")
     manifest_filepath = os.path.join("target", "manifest.json")
@@ -798,6 +809,9 @@ def main() -> None:
             "select_data_test_iasworld",
             "--store-failures",
         ]
+        if vars:
+            dbt_run_args += ["--vars", vars]
+
         print(f"> dbt {' '.join(dbt_run_args)}")
         dbt_test_result = DBT.invoke(dbt_run_args)
 
@@ -912,7 +926,7 @@ def main() -> None:
     # and `body`
     failure_notifications: typing.List[typing.Dict] = []
     for topic_arn, test_results in failures_by_topic.items():
-        body = "The following data tests failed:"
+        body = "The following iasWorld data tests are failing:"
         for test_result in test_results:
             body += f"\n\n{test_result.details}"
         failure_notifications.append(

@@ -35,7 +35,8 @@ vars:
   # but can also be use to select specific time frames for testing
   data_test_iasworld_year_end: 2030
 
-  # SNS topic to publish to when commercial tests fail
+  # SNS topic ARN to use for publishing commercial test failures. We keep this
+  # value empty and set it dynamically because we consider ARNs to be private
   data_test_iasworld_commercial_sns_topic:
 
 # Configuring models
