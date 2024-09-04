@@ -855,7 +855,7 @@ Condition/Desirability/Utility code.
 Code representing any number of seemingly unrelated characteristics
 associated with a PIN, ranging from condition to types of subsidies, to
 whether or not a PIN is a garage. The full list of CDU codes can be found on
-the Assessor's website
+the Assessor's site
 {% enddocs %}
 
 ## class
@@ -1056,7 +1056,7 @@ It is unclear of IHDA's data timeline. Year currently refers to final year of ce
 {% docs shared_column_dci %}
 Distressed Communities Index from the Economic Innovation Group.
 
-Unit of observations is Zip Code. Year refers to year of final year of census data used.
+Unit of observations is ZIP Code. Year refers to year of final year of census data used.
 {% enddocs %}
 
 ## ihs_avg_year_index
@@ -1214,7 +1214,7 @@ Can be truncated by MyDec/IDOR. See Clerk/Recorder of Deeds for full name.
 Deed number/document number of the sale.
 
 Serves as the unique identifier for each sale. Can be used to lookup more
-information on the Clerk/Recorder of Deeds website.
+information on the Clerk/Recorder of Deeds site.
 {% enddocs %}
 
 ## deed_type
@@ -1313,7 +1313,7 @@ See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more det
 {% docs shared_column_sv_outlier_reason1 %}
 Heuristic or model used to flag an outlier.
 
-See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repository
 for a list of possible flags.
 {% enddocs %}
 
@@ -1322,7 +1322,7 @@ for a list of possible flags.
 {% docs shared_column_sv_outlier_reason2 %}
 Heuristic or model used to flag an outlier.
 
-See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repository
 for a list of possible flags.
 {% enddocs %}
 
@@ -1331,7 +1331,7 @@ for a list of possible flags.
 {% docs shared_column_sv_outlier_reason3 %}
 Heuristic or model used to flag an outlier.
 
-See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repository
 for a list of possible flags.
 {% enddocs %}
 
