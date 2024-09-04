@@ -262,49 +262,28 @@ def socrata_upload(
                 township=by_township,
             )
 
-        if overwrite:
-            for item in groups:
-                if flag == "both":
-                    upload_args = {
-                        "asset_id": "asset_id",
-                        "sql_query": "sql_query",
-                        "overwrite": "overwrite",
-                        "year": item[0],
-                        "township": item[1],
-                    }
-                elif flag == "years":
-                    upload_args = {
-                        "asset_id": asset_id,
-                        "sql_query": sql_query,
-                        "overwrite": overwrite,
-                        "year": item,
-                    }
-                if count == 0:
-                    response = upload("put", **upload_args)
-                else:
-                    response = upload("post", **upload_args)
-                print(response.content)
-                count = count + 1
-
-        else:
-            for item in groups:
-                if flag == "both":
-                    upload_args = {
-                        "asset_id": asset_id,
-                        "sql_query": sql_query,
-                        "overwrite": overwrite,
-                        "year": item[0],
-                        "township": item[1],
-                    }
-                elif flag == "years":
-                    upload_args = {
-                        "asset_id": asset_id,
-                        "sql_query": sql_query,
-                        "overwrite": overwrite,
-                        "year": item,
-                    }
+        for item in groups:
+            if flag == "both":
+                upload_args = {
+                    "asset_id": "asset_id",
+                    "sql_query": "sql_query",
+                    "overwrite": "overwrite",
+                    "year": item[0],
+                    "township": item[1],
+                }
+            elif flag == "years":
+                upload_args = {
+                    "asset_id": asset_id,
+                    "sql_query": sql_query,
+                    "overwrite": overwrite,
+                    "year": item,
+                }
+            if count == 0 and overwrite:
+                response = upload("put", **upload_args)
+            else:
                 response = upload("post", **upload_args)
-                print(response.content)
+            print(response.content)
+            count = count + 1
 
     toc = time.perf_counter()
     print(f"Total upload in {toc - tic:0.4f} seconds")
