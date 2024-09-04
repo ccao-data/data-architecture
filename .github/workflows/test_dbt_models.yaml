@@ -80,10 +80,13 @@ jobs:
         run: |
           failure_notifications_file="qc_test_results/failure_notifications.json"
           if [ -f "$failure_notifications_file" ]; then
+            echo "Sending failure notifications"
             bash <( \
               jq -r \
               '.[] | "./.github/actions/publish_sns_topic/publish.sh \(.topic_arn|@sh) \(.subject|@sh) \(.body|@sh)"' \
               "$failure_notifications_file" \
             )
+          else
+            echo "No failure notifications need to be sent"
           fi
         shell: bash
