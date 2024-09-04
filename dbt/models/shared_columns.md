@@ -1288,16 +1288,6 @@ institutional buyer detection, etc.
 See [model-sales-val](https://github.com/ccao-data/model-sales-val) for full details
 {% enddocs %}
 
-## sv_is_ptax_outlier
-
-{% docs shared_column_sv_is_ptax_outlier %}
-Outlier flagged due to certain answers on Q10 of the PTAX-203 form.
-
-Must have a Q10 flag _in addition to_ a statistical flag.
-
-See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more details
-{% enddocs %}
-
 ## sv_is_outlier
 
 {% docs shared_column_sv_is_outlier %}
@@ -1306,6 +1296,16 @@ Indicates an outlier sale not used in modeling or reporting.
 This variable combines `sv_is_heuristic_outlier`
 with `sv_is_ptax_outlier` (using OR logic).
 NOTE: Outlier flags only exist for sales _after_ 2014.
+{% enddocs %}
+
+## sv_is_ptax_outlier
+
+{% docs shared_column_sv_is_ptax_outlier %}
+Outlier flagged due to certain answers on Q10 of the PTAX-203 form.
+
+Must have a Q10 flag _in addition to_ a statistical flag.
+
+See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more details
 {% enddocs %}
 
 ## sv_outlier_reason1
