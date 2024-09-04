@@ -1133,16 +1133,16 @@ and we expect it to eventually become the standard.
 Record number related to land or building "line".
 {% enddocs %}
 
-## pin_is_multiland
-
-{% docs shared_column_pin_is_multiland %}
-Indicates the PIN has more than one landline.
-{% enddocs %}
-
 ## pin_is_multicard
 
 {% docs shared_column_pin_is_multicard %}
 Indicates a PIN with more than one building (ADU, coach house, etc.).
+{% enddocs %}
+
+## pin_is_multiland
+
+{% docs shared_column_pin_is_multiland %}
+Indicates the PIN has more than one landline.
 {% enddocs %}
 
 ## pin_is_multilline
@@ -1308,7 +1308,25 @@ with `sv_is_ptax_outlier` (using OR logic).
 NOTE: Outlier flags only exist for sales _after_ 2014.
 {% enddocs %}
 
-## sv_outlier_reason
+## sv_outlier_reason1
+
+{% docs shared_column_sv_outlier_reason %}
+Heuristic or model used to flag an outlier.
+
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
+for a list of possible flags.
+{% enddocs %}
+
+## sv_outlier_reason2
+
+{% docs shared_column_sv_outlier_reason %}
+Heuristic or model used to flag an outlier.
+
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
+for a list of possible flags.
+{% enddocs %}
+
+## sv_outlier_reason3
 
 {% docs shared_column_sv_outlier_reason %}
 Heuristic or model used to flag an outlier.

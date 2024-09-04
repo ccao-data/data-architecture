@@ -437,7 +437,6 @@ if __name__ == "__main__":
         print("\nThe following columns.md files have unsorted '##' headings:")
         for file in unsorted_columns_md_files:
             print(file)
-        print("\n")
 
     if error_files:
         print("\nThe following files could not be processed due to errors:")
