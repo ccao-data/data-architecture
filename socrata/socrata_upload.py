@@ -1,3 +1,4 @@
+# %%
 import os
 import requests
 import time
@@ -9,9 +10,8 @@ import pandas as pd
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
 
-# Load environmental variables and connect to Athena
-app_token = os.getenv("SOCRATA_APP_TOKEN")
-auth = (os.getenv("SOCRATA_USERNAME"), os.getenv("SOCRATA_PASSWORD"))
+# %%
+# Connect to Athena
 cursor = connect(
     s3_staging_dir=str(os.getenv("AWS_ATHENA_S3_STAGING_DIR")) + "/",
     region_name=os.getenv("AWS_REGION"),
@@ -70,10 +70,10 @@ def build_query(athena_asset, row_identifier, years=None, township=None):
     too large to pass to Socrata without chunking. A `row_id` column is
     constructed in order to use Socrata's `upsert` functionalities (updating
     rather than overwriting data that already exists) based on the column names
-    passed to `row_indetifiers`.
+    passed to `row_identifiers`.
     """
 
-    row_identifier = "CONCAT(" + ", ".join(row_identifier) + ") AS row_id,"
+    row_identifier = f"CONCAT({', '.join(row_identifier)}) AS row_id,"
 
     # Retrieve column names and types from Athena
     columns = cursor.execute("show columns from " + athena_asset).as_pandas()
@@ -87,41 +87,16 @@ def build_query(athena_asset, row_identifier, years=None, township=None):
         + columns[columns["type"] == "array(varchar)"]["column"]
     )
 
+    query = f"SELECT {row_identifier}, {', '.join(columns['column'])} FROM {athena_asset}"
+
     if not years:
-        query = (
-            "SELECT\n"
-            + row_identifier
-            + "\n"
-            + ",\n".join(columns["column"])
-            + "\nFROM "
-            + athena_asset
-            + "\nLIMIT 1000"
-        )
+        query = query
 
     elif years is not None and not township:
-        query = (
-            "SELECT\n"
-            + row_identifier
-            + "\n"
-            + ",\n".join(columns["column"])
-            + "\nFROM "
-            + athena_asset
-            + "\nWHERE year = %(year)s"
-            + "\nLIMIT 1000"
-        )
+        query += " WHERE year = %(year)s"
 
     elif years is not None and township is not None:
-        query = (
-            "SELECT\n"
-            + row_identifier
-            + "\n"
-            + ",\n".join(columns["column"])
-            + "\nFROM "
-            + athena_asset
-            + "\nWHERE year = %(year)s"
-            + "\nAND township_code = %(township)s"
-            + "\nLIMIT 1000"
-        )
+        query += " WHERE year = %(year)s" + " AND township_code = %(township)s"
 
     return query
 
@@ -131,6 +106,11 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     Function to perform the upload to Socrata. `puts` or `posts` depending on
     user's choice to overwrite existing data.
     """
+
+    # Load environmental variables
+    app_token = os.getenv("SOCRATA_APP_TOKEN")
+    auth = (os.getenv("SOCRATA_USERNAME"), os.getenv("SOCRATA_PASSWORD"))
+
     url = (
         "https://datacatalog.cookcountyil.gov/resource/"
         + asset_id
