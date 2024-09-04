@@ -1,0 +1,173 @@
+---
+title: "Untitled"
+author: "Damon"
+date: "2024-09-04"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+library(DBI)
+library(dplyr)
+library(knitr)
+library(noctua)
+library(readr)
+library(stringr)
+dir.create("~/populate_211_and_212s")
+setwd("~/populate_211_and_212s")
+```
+
+
+```{r}
+AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena())
+
+missing_units <- dbGetQuery(
+  conn = AWS_ATHENA_CONN_NOCTUA, read_file("Missing_units.sql")
+) %>%
+  distinct(pin)
+
+missing_units
+```
+```{r}
+
+# Collapse the missing_units into a single string for SQL query
+pins_string <- paste(shQuote(missing_units), collapse = ", ")
+
+missing_units <- dbGetQuery(
+  conn = AWS_ATHENA_CONN_NOCTUA, read_file("sales_query.sql")
+) %>%
+  distinct(pin)
+```
+
+
+```{r}
+data_quality <- dbGetQuery(
+  conn = AWS_ATHENA_CONN_NOCTUA, read_file("MyDec_script.sql")
+) %>%
+  select(line_8_intended_number_of_apartment_units, pin) %>%
+  right_join(missing_units, by = "pin") %>%
+  distinct(pin)
+
+# Create the table
+apartment_units_table <- table(data_quality$line_8_intended_number_of_apartment_units)
+
+# Produce a kable table with a caption
+kable(apartment_units_table, caption = "Apartment Units from MyDec Sales")
+
+
+```
+```{r}
+usps_data <- read.csv("populate_211_and_212s/usps_output.csv") %>%
+  group_by(PIN) %>%
+  filter(DPVConfirmation == "Y") %>%
+  ## Some addresses are missing, so we need to filter them out
+  filter(is.na(Address1) | Address1 != "") %>%
+  summarise(
+    Address1_combined = paste(unique(Address1), collapse = ", "),
+    usps_value = n_distinct(Address1)
+  ) %>%
+  ungroup() %>%
+  # Removes the combinations which have unit A B C D E etc, since
+  # they don't seem meaningful
+  filter(!grepl("[ABCDEFG]", Address1_combined, ignore.case = TRUE)) %>%
+  rename("pin" = "PIN") %>%
+  mutate(pin = as.character(pin))
+```
+
+
+```{r}
+usps_data <- read.csv("usps_output.csv") %>%
+  group_by(PIN) %>%
+  filter(DPVConfirmation == "Y") %>%
+  filter(is.na(Address1) | Address1 != "") %>%
+  summarise(
+    Address1_combined = paste(unique(Address1), collapse = ", "),
+    usps_value = n_distinct(Address1)
+  ) %>%
+  ungroup() %>%
+  filter(!grepl("[ABCDEFG]", Address1_combined, ignore.case = TRUE)) %>%
+  rename("pin" = "PIN") %>%
+  mutate(pin = as.character(pin))
+
+usps_value_counts <- usps_data %>%
+  count(usps_value) %>%
+  kable(caption = "USPS Value Counts")
+
+print(usps_value_counts)
+
+```
+
+
+```{r}
+redfin_9_3 <- read_csv("redfin_9.3.csv",
+                       col_types = cols(pin = col_character()))
+
+
+redfin_data <- redfin_9_3 %>%
+  mutate(
+    redfin_data = ifelse(
+      is.na(char_apts_redfin) | char_apts_redfin == "",
+      char_apts_in_building,
+      char_apts_redfin
+    )
+  ) %>%
+  mutate(
+    remarks_cleaned = str_replace_all(remarks, "[,\\-\\s]", ""),  # Remove commas, hyphens, and spaces
+    string_redfin = case_when(
+      grepl("singlefamily", remarks_cleaned, ignore.case = TRUE) ~ 1,
+      grepl("duplex|twounit|2unit|twoap|2ap|twoflat|2flat",
+            remarks_cleaned, ignore.case = TRUE) ~ 2,
+      grepl("threeunit|3unit|threeap|3ap|threeflat|3flat",
+            remarks_cleaned, ignore.case = TRUE) ~ 3,
+      grepl("fourunit|4unit|fourap|4ap|fourflat|4flat",
+            remarks_cleaned, ignore.case = TRUE) ~ 4,
+      grepl("fiveunit|5unit|fiveap|5ap|fiveflat|5flat",
+            remarks_cleaned, ignore.case = TRUE) ~ 5,
+      grepl("sixunit|6unit|sixap|6ap|sixflat|6flat",
+            remarks_cleaned, ignore.case = TRUE) ~ 6,
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  select(pin,
+         redfin_data,
+         string_redfin,
+         redfin_url)
+
+redfin_counts <- redfin_data %>%
+  count(redfin_data) %>%
+  kable(caption = "Redfin Value Counts")
+
+redfin_counts
+
+```
+
+The high outliers are due to mis-identified properties. This seems to happen after a sale, and the property ID changes. I'm adding an added column with the redfin address to make sure they are removed, but the run takes a while. The table also string matches for single family units, meaning that we can identify property conversions.
+```{r}
+final <- missing_units %>%
+  distinct(pin) %>%
+  left_join(data_quality, by = "pin") %>%
+  left_join(usps_data, by = "pin") %>%
+  left_join(redfin_data, by = "pin") %>%
+  mutate(
+    final_value = ifelse(!is.na(line_8_intended_number_of_apartment_units),
+                         line_8_intended_number_of_apartment_units,
+                  ifelse(!is.na(string_redfin),
+                         string_redfin,
+                  ifelse(!is.na(redfin_data),
+                         redfin_data,
+                  usps_value)))  # Final fallback is usps_value
+  ) %>%
+  select(pin,
+         mydec_value = line_8_intended_number_of_apartment_units,
+         usps_value,
+         redfin_data,
+         string_redfin,
+         final_value) %>%
+  kable(caption = "Final Table")
+
+
+table(final$final_value)
+
+```
+
