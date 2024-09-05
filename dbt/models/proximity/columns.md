@@ -34,7 +34,7 @@ Estimated DNL for a PIN, assuming a baseline DNL of 50 ("quiet suburban") and
 adding predicted noise from O'Hare and Midway airports to that baseline.
 
 For more on DNL, see
-https://www.faa.gov/regulations_policies/policy_guidance/noise/basics
+<https://www.faa.gov/regulations_policies/policy_guidance/noise/basics>
 {% enddocs %}
 
 ## airport_midway_dist_ft
@@ -181,6 +181,12 @@ Nearest golf course ID, either Cook County ID or OSM ID.
 Golf course data sourced from Cook County GIS and OpenStreetMap
 {% enddocs %}
 
+## nearest_grocery_osm_id
+
+{% docs column_nearest_grocery_store_osm_id %}
+Nearest grocery store ID number via OSM
+{% enddocs %}
+
 ## nearest_grocery_store_dist_ft
 
 {% docs column_nearest_grocery_store_dist_ft %}
@@ -191,12 +197,6 @@ Nearest grocery store distance (feet)
 
 {% docs column_nearest_grocery_store_name %}
 Nearest grocery store name via OSM
-{% enddocs %}
-
-## nearest_grocery_osm_id
-
-{% docs column_nearest_grocery_store_osm_id %}
-Nearest grocery store ID number via OSM
 {% enddocs %}
 
 ## nearest_hospital_dist_ft
@@ -304,10 +304,10 @@ Nearest Metra stop full name (`LaSalle Street`, `18th Street`, etc.).
 Stops include any active Metra stops. Stop data sourced from Metra GTFS feeds
 {% enddocs %}
 
-## nearest_new_construction_pin10
+## nearest_new_construction_char_yrblt
 
-{% docs column_nearest_new_construction_pin10 %}
-PIN10 of nearest new construction from CCAO data
+{% docs column_nearest_new_construction_char_yrblt %}
+Year built of the nearest new construction
 {% enddocs %}
 
 ## nearest_new_construction_dist_ft
@@ -316,10 +316,10 @@ PIN10 of nearest new construction from CCAO data
 Nearest new construction distance (feet)
 {% enddocs %}
 
-## nearest_new_construction_char_yrblt
+## nearest_new_construction_pin10
 
-{% docs column_nearest_new_construction_char_yrblt %}
-Year built of the nearest new construction
+{% docs column_nearest_new_construction_pin10 %}
+PIN10 of nearest new construction from CCAO data
 {% enddocs %}
 
 ## nearest_neighbor_dist_ft

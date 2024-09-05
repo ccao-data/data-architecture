@@ -169,7 +169,20 @@ sources:
           - name: class
             description: '{{ doc("shared_column_class") }}'
             data_tests:
-
+              - relationships:
+                  name: iasworld_dweldat_class_in_ccao_class_dict
+                  to: ref('ccao.class_dict')
+                  field: class_code
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND class NOT IN ('EX', 'RR')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class code must be valid
               - res_class_matches_pardat:
                   name: iasworld_dweldat_class_matches_pardat_class
                   additional_select_columns: &select-columns-for-pardat-join
@@ -186,20 +199,6 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: at least one class should match pardat class
-              - relationships:
-                  name: iasworld_dweldat_class_in_ccao_class_dict
-                  to: ref('ccao.class_dict')
-                  field: class_code
-                  additional_select_columns: *select-columns
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
-                      AND class NOT IN ('EX', 'RR')
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
-                  meta:
-                    category: class_mismatch_or_issue
-                    description: class code must be valid
               - res_class_matches_pardat:
                   name: iasworld_dweldat_exempt_classes_match_pardat_class
                   additional_select_columns: *select-columns-for-pardat-join
@@ -223,12 +222,12 @@ sources:
             description: Main section ground floor area
           - name: cndcmplx
             description: Condominium complex
+          - name: cnstval
+            description: Construction factor value
           - name: cnstfact
             description: Construction factor
           - name: comwallfact
             description: Common wall factor
-          - name: cnstval
-            description: Construction factor value
           - name: comwallpct
             description: Common wall percent
           - name: cond
@@ -306,6 +305,15 @@ sources:
           - name: external_occpct
             description: '{{ doc("shared_column_external_occpct") }}'
             data_tests:
+              - not_accepted_values:
+                  name: iasworld_dweldat_external_occpct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_occpct (Occupancy %) should not be 0
               - not_null:
                   name: iasworld_dweldat_external_occpct_not_null_when_mktrsn_eq_5_or_5b_and_mktadj_is_null
                   additional_select_columns:
@@ -328,15 +336,6 @@ sources:
                       external_occpct (Occupancy % [current]) should not be null if
                       mktrsn (Reason for Override) is 5 or 5B and
                       mktadj (Occupancy % [deprecated]) is null
-              - not_accepted_values:
-                  name: iasworld_dweldat_external_occpct_not_0
-                  values: [0]
-                  quote: false
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: >
-                      external_occpct (Occupancy %) should not be 0
           - name: external_propct
             description: '{{ doc("shared_column_external_propct") }}'
             data_tests:
@@ -500,12 +499,12 @@ sources:
             description: Total plumbing fixtures
           - name: fixtotovr
             description: Bathroom fixture override
+          - name: floor
+            description: Floor
           - name: floor1pct
             description: Floor percent
           - name: floorfact
             description: Floor factor
-          - name: floor
-            description: Floor
           - name: floor1
             description: Floor 1
           - name: flr1area
@@ -545,13 +544,6 @@ sources:
           - name: heat
             description: '{{ doc("shared_column_char_heat") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_dweldat_heat_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: >
-                      heat (Heating) should not be null
               - accepted_values:
                   name: iasworld_dweldat_heat_in_accepted_values
                   values: ['1', '2', '3', '4']
@@ -560,6 +552,13 @@ sources:
                   meta:
                     description: >
                       heat (Heating) should be an integer between 1 and 4
+              - not_null:
+                  name: iasworld_dweldat_heat_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      heat (Heating) should not be null
           - name: heatarea
             description: Heat area
           - name: heatsys

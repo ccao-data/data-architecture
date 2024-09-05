@@ -19,6 +19,15 @@ Foreclosure data ingested from Illinois Public Records (RIS).
 **Primary Key**: `pin`, `document_number`
 {% enddocs %}
 
+# group_mean
+
+{% docs group_mean %}
+Information about groups used to calculate statistical deviations
+for sales validation.
+
+**Primary Key**: `run_id`, `group`
+{% enddocs %}
+
 # parameter
 
 {% docs parameter %}
@@ -27,15 +36,6 @@ Parameters used for each run of
 including the statistical bounds, groupings, window sizes, etc.
 
 **Primary Key**: `run_id`
-{% enddocs %}
-
-# group_mean
-
-{% docs group_mean %}
-Information about groups used to calculate statistical deviations
-for sales validation.
-
-**Primary Key**: `run_id`, `group`
 {% enddocs %}
 
 # metadata
