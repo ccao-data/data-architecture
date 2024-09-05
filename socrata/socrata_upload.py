@@ -303,6 +303,6 @@ def socrata_upload(
 socrata_upload(
     socrata_asset=os.getenv("SOCRATA_ASSET"),
     overwrite=os.getenv("OVERWRITE"),
-    years=os.getenv("YEARS").split(","),
+    years=str(os.getenv("YEARS")).split(","),
     by_township=os.getenv("BY_TOWNSHIP"),
 )
