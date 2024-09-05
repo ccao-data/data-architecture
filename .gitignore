@@ -1,4 +1,5 @@
 # Files
+.env
 *.Rproj
 *.geojson
 *.parquet
@@ -15,6 +16,8 @@ settings.json
 logs/
 node_modules/
 venv/
+.venv/
+.ruff_cache/
 
 # Ignore most CSVs, except those that are used as dbt seeds
 *.csv

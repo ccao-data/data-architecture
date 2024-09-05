@@ -1,10 +1,10 @@
 selectors:
-  - name: qc_tests
-    description: Selector for running QC tests on iasWorld tables
+  - name: select_data_test_iasworld
+    description: Selector for running data tests on iasWorld tables
     definition:
       union:
         - method: tag
-          value: "test_qc_*"
+          value: data_test_iasworld
           # Only run tests that exclusively reference selected nodes. Useful
           # for avoiding an edge case where a test whose base model is not
           # selected can run because it has an argument that references a model
@@ -12,4 +12,24 @@ selectors:
           indirect_selection: cautious
         - exclude:
           - method: tag
-            value: test_qc_exclude_from_workbook
+            value: data_test_iasworld_exclude_from_workbook
+  - name: select_qc_report_town_close_tri
+    description: Selector for exporting town close QC reports for tri towns
+    definition:
+      union:
+        - method: tag
+          value: qc_report_town_close
+          indirect_selection: cautious
+        - method: tag
+          value: qc_report_town_close_tri
+          indirect_selection: cautious
+  - name: select_qc_report_town_close_non_tri
+    description: Selector for exporting town close QC reports for non-tri towns
+    definition:
+      union:
+        - method: tag
+          value: qc_report_town_close
+          indirect_selection: cautious
+        - method: tag
+          value: qc_report_town_close_non_tri
+          indirect_selection: cautious

@@ -1,0 +1,74 @@
+name: upload-open-data-assets
+
+on:
+  workflow_dispatch:
+    inputs:
+      socrata_asset:
+        type: choice
+        description: Target Socrata asset
+        options:
+        - Parcel Universe
+        - Single and Multi-Family Improvement Characteristics
+        - Residential Condominium Unit Characteristics
+        - Parcel Sales
+        - Assessed Values
+        - Appeals
+        - Parcel Addresses
+        - Parcel Proximity
+        - Property Tax-Exempt Parcels
+        default: Parcel Universe
+        required: true
+      overwrite:
+        # True for overwrite, False for update
+        type: boolean
+        description: Overwrite or update socrata asset
+        required: true
+      years:
+        # Comma separated list of years
+        type: string
+        description: Years to update or overwrite
+        default: 'all'
+        required: false
+      by_township:
+        type: boolean
+        description: Chunk Socrata upload by township
+        default: false
+        required: false
+
+jobs:
+  upload-open-data-assets:
+    runs-on: ubuntu-latest
+    permissions:
+      # contents:read and id-token:write permissions are needed to interact
+      # with GitHub's OIDC Token endpoint so that we can authenticate with AWS
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.10 #install the python needed
+      # Set these env vars as secrets so they get masked in the GitHub
+      # Actions logs
+      - run: pip install -r socrata/requirements.txt
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: us-east-1
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+      - name: Upload to Socrata
+        env:
+          AWS_IAM_ROLE_TO_ASSUME_ARN: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_ATHENA_S3_STAGING_DIR: ${{ secrets.AWS_ATHENA_S3_STAGING_DIR }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
+          SOCRATA_USERNAME: ${{ secrets.SOCRATA_USERNAME }}
+          SOCRATA_PASSWORD: ${{ secrets.SOCRATA_PASSWORD }}
+          SOCRATA_ASSET: ${{ inputs.socrata_asset }}
+          OVERWRITE: ${{ inputs.overwrite }}
+          YEARS: ${{ inputs.years }}
+          BY_TOWNSHIP: ${{ inputs.by_township }}
+        run: python socrata/socrata_upload.py

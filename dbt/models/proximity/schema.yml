@@ -70,7 +70,7 @@ models:
 
   - name: proximity.dist_pin_to_secondary_road
     description: '{{ doc("table_dist_pin_to_secondary_road") }}'
-    
+
   - name: proximity.dist_pin_to_university
     description: '{{ doc("table_dist_pin_to_university") }}'
 
@@ -279,6 +279,10 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
+      asset_id: ydue-e5u3
+      primary_key:
+        - pin10
+        - year
     description: |
       Cook County 10-digit parcels with attached distances to various spatial features.
 

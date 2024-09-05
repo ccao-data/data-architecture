@@ -4,7 +4,7 @@
 # other teams for review and correction, along with metadata parquet files
 # that can be uploaded to S3 for long-term result tracking.
 #
-# Run `python3 transform_dbt_test_results.py --help` for detailed
+# Run `python3 run_iasworld_data_tests.py --help` for detailed
 # documentation.
 
 import argparse
@@ -24,12 +24,17 @@ import openpyxl.cell
 import openpyxl.styles
 import openpyxl.styles.colors
 import openpyxl.utils
-import pyarrow
+import pyarrow as pa
 import pyarrow.parquet
 import pyathena
+import pyathena.arrow.cursor
 import pyathena.cursor
 import simplejson as json
 import yaml
+from dbt.artifacts.schemas.results import TestStatus
+from dbt.cli.main import dbtRunner
+
+DBT = dbtRunner()
 
 # Prefix for the URL location of a test in the dbt docs
 DOCS_URL_PREFIX = "https://ccao-data.github.io/data-architecture/#!/test"
@@ -86,6 +91,7 @@ class TestResult:
         self,
         name: str,
         table_name: str,
+        column_name: typing.Optional[str],
         status: Status,
         description: str,
         elapsed_time: decimal.Decimal,
@@ -94,10 +100,11 @@ class TestResult:
         """
         The failing_rows list should be formatted like the rows
         returned by a csv.DictReader or a DictCursor, i.e. a list of
-        dicts mapping `{column_name: row_value}`.
+        dicts mapping `{field_name: row_value}`.
         """
         self.name = name
         self.table_name = table_name
+        self.column_name = column_name
         self.status = status
         self.description = description
         self.elapsed_time = elapsed_time
@@ -120,6 +127,7 @@ class TestResult:
         return {
             "name": self.name,
             "table_name": self.table_name,
+            "column_name": self.column_name,
             "status": self.status.value,
             "description": self.description,
             "elapsed_time": self.elapsed_time,
@@ -132,6 +140,7 @@ class TestResult:
         return TestResult(
             name=result_dict["name"],
             table_name=result_dict["table_name"],
+            column_name=result_dict["column_name"],
             status=Status(result_dict["status"]),
             description=result_dict["description"],
             elapsed_time=result_dict["elapsed_time"],
@@ -163,6 +172,7 @@ class TestResult:
         base_kwargs = {
             "name": self.name,
             "table_name": self.table_name,
+            "column_name": self.column_name,
             "status": self.status,
             "description": self.description,
             "elapsed_time": self.elapsed_time,
@@ -207,14 +217,14 @@ class TestCategory:
     results for output to a workbook and saving them to a cache."""
 
     # Names of fields that are used for debugging
-    _debugging_fieldnames = [TEST_NAME_FIELD, DOCS_URL_FIELD]
+    possible_debugging_fieldnames = [TEST_NAME_FIELD, DOCS_URL_FIELD]
     # Names of fields that identify the test
-    _test_metadata_fieldnames = [
+    possible_test_metadata_fieldnames = [
         *[SOURCE_TABLE_FIELD, DESCRIPTION_FIELD],
-        *_debugging_fieldnames,
+        *possible_debugging_fieldnames,
     ]
     # Names of fields that are used for diagnostics
-    _diagnostic_fieldnames = [
+    possible_diagnostic_fieldnames = [
         TAXYR_FIELD,
         PARID_FIELD,
         CARD_FIELD,
@@ -225,9 +235,9 @@ class TestCategory:
         WEN_FIELD,
     ]
     # The complete set of fixed fields
-    _fixed_fieldnames = [
-        *_test_metadata_fieldnames,
-        *_diagnostic_fieldnames,
+    possible_fixed_fieldnames = [
+        *possible_test_metadata_fieldnames,
+        *possible_diagnostic_fieldnames,
     ]
 
     def __init__(
@@ -280,7 +290,9 @@ class TestCategory:
         # Remove any fixed fieldnames from the ordered list that are not
         # present in this group
         fixed_field_order = [
-            field for field in self._fixed_fieldnames if field in fieldnames
+            field
+            for field in self.possible_fixed_fieldnames
+            if field in fieldnames
         ]
 
         # Reorder the fieldnames so that diagnostic fields are presented in the
@@ -516,14 +528,16 @@ class TestCategory:
     def debugging_fieldnames(self) -> typing.List[str]:
         """Get a list of fieldnames (e.g. ["foo", "bar"]) for fields that
         are used for debugging."""
-        return self._filter_for_existing_fieldnames(self._debugging_fieldnames)
+        return self._filter_for_existing_fieldnames(
+            self.possible_debugging_fieldnames
+        )
 
     @property
     def debugging_field_indexes(self) -> tuple:
         """Get a tuple of field indexes (e.g. ["A", "B"]) for fields that
         are used for debugging."""
         return self._filter_for_existing_field_indexes(
-            self._debugging_fieldnames
+            self.possible_debugging_fieldnames
         )
 
     @property
@@ -531,7 +545,7 @@ class TestCategory:
         """Get a list of fieldnames (e.g. ["foo", "bar"]) for fields that
         are used for identifying tests."""
         return self._filter_for_existing_fieldnames(
-            self._test_metadata_fieldnames
+            self.possible_test_metadata_fieldnames
         )
 
     @property
@@ -539,7 +553,7 @@ class TestCategory:
         """Get a tuple of field indexes (e.g. ["A", "B"]) for fields that
         are used for identifying tests."""
         return self._filter_for_existing_field_indexes(
-            self._test_metadata_fieldnames
+            self.possible_test_metadata_fieldnames
         )
 
     @property
@@ -547,7 +561,7 @@ class TestCategory:
         """Get a list of fieldnames (e.g. ["foo", "bar"]) for fields that
         are used for diagnostics."""
         return self._filter_for_existing_fieldnames(
-            self._diagnostic_fieldnames
+            self.possible_diagnostic_fieldnames
         )
 
     @property
@@ -555,7 +569,7 @@ class TestCategory:
         """Get a tuple of field indexes (e.g. ["A", "B"]) for fields that
         are used for diagnostics."""
         return self._filter_for_existing_field_indexes(
-            self._diagnostic_fieldnames
+            self.possible_diagnostic_fieldnames
         )
 
     @property
@@ -563,14 +577,18 @@ class TestCategory:
         """Get a list of fieldnames (e.g. ["foo", "bar"]) for fields that
         are fixed (i.e. whose position is always at the start of the sheet,
         for diagnostic purposes)."""
-        return self._filter_for_existing_fieldnames(self._fixed_fieldnames)
+        return self._filter_for_existing_fieldnames(
+            self.possible_fixed_fieldnames
+        )
 
     @property
     def fixed_field_indexes(self) -> tuple:
         """Get a list of field indexes (e.g. ["A", "B"]) for fields that
         are fixed (i.e. whose position is always at the start of the sheet,
         for diagnostic purposes)."""
-        return self._filter_for_existing_field_indexes(self._fixed_fieldnames)
+        return self._filter_for_existing_field_indexes(
+            self.possible_fixed_fieldnames
+        )
 
     @property
     def nonfixed_fieldnames(self) -> typing.List[str]:
@@ -578,7 +596,7 @@ class TestCategory:
         are nonfixed (i.e. whose position comes after the fixed fields in the
         sheet and are thus variable)."""
         fieldnames = self.fieldnames
-        fixed_fieldnames = self._fixed_fieldnames
+        fixed_fieldnames = self.possible_fixed_fieldnames
         return [field for field in fieldnames if field not in fixed_fieldnames]
 
     @property
@@ -612,8 +630,7 @@ class TestCategory:
         return tuple(
             openpyxl.utils.get_column_letter(
                 # openpyxl is 1-indexed while the index() method is 0-indexed
-                existing_fieldnames.index(field)
-                + 1
+                existing_fieldnames.index(field) + 1
             )
             for field in self._filter_for_existing_fieldnames(
                 possible_fieldnames
@@ -622,12 +639,10 @@ class TestCategory:
 
 
 # Help docstring for the command line interface
-CLI_DESCRIPTION = """Generates an Excel workbook of dbt test failures that can be shared with other teams for review and correction,
-along with metadata parquet files that can be uploaded to S3 for long-term result tracking.
+CLI_DESCRIPTION = """Runs iasWorld data tests and generates an Excel workbook of dbt test failures that can be shared with other teams
+for review and correction, along with metadata parquet files that can be uploaded to S3 for long-term result tracking.
 
-This script assumes that it is being run in sequence after a call to `dbt test --store-failures`, since it depends on two files created
-by that operation (target/run_results.json and target/manifest.json). It also requires Python dependencies be installed from
-requirements.transform_dbt_test_results.txt.
+This script expects that Python dependencies have been installed from requirements.run_iasworld_data_tests.txt.
 
 Expects one required environment variable to be set:
 
@@ -642,7 +657,7 @@ Expects four optional environment variables:
 
 Outputs three files to the directory specified by the `--output-dir` flag:
 
-  1. `qc_test_failures_<date>.xlsx`: Excel workbook to share with other teams
+  1. `iasworld_test_failures_<date>.xlsx`: Excel workbook to share with other teams
   2. `metadata/test_run/run_year=YYYY/*.parquet`: Metadata about this run, partitioned by year of run and prepped for upload to S3
   3. `metadata/test_run_result/run_year=YYYY/*.parquet`: Metadata about test results (pass, fail, number of failing rows, etc.) in this run,
      partitioned by year of run and prepped for upload to S3
@@ -653,24 +668,29 @@ a database that failed a test, with enough metadata that a reader can figure out
 # Examples to use in the command line interface docstring
 CLI_EXAMPLE = """Example usage with no options provided:
 
-    python3 transform_dbt_test_results.py
+    python3 run_iasworld_data_tests.py
 
 Example usage with all options provided:
 
-    AWS_ATHENA_S3_STAGING_DIR=s3://foo-bar-baz/ python3 transform_dbt_test_results.py
-        --run-results ./target/run_results.json
-        --manifest ./target/manifest.json
-        --output-dir ./qc_test_results/
+    AWS_ATHENA_S3_STAGING_DIR=s3://foo-bar-baz/ python3 run_iasworld_data_tests.py
+        --output-dir ./iasworld_test_results/
         --township 77
+        --no-use-cached
 
 Example usage to filter for multiple townships:
 
-    python3 transform_dbt_test_results.py --township 76 77"""  # noqa: E501
+    python3 run_iasworld_data_tests.py --township 76 77
+
+Example usage to skip running tests, and instead reuse results from a previous run:
+
+    python3 run_iasworld_data_tests.py --use-cached
+
+"""  # noqa: E501
 
 
 def main() -> None:
-    """Entrypoint to this script. Parses dbt test results and writes artifacts
-    to the output directory with metadata about tests."""
+    """Entrypoint to this script. Runs dbt tests and writes artifacts
+    to the output directory with metadata about test results."""
 
     parser = argparse.ArgumentParser(
         description=CLI_DESCRIPTION,
@@ -681,32 +701,12 @@ def main() -> None:
     )
 
     parser.add_argument(
-        "--run-results",
-        required=False,
-        default=os.path.join("target", "run_results.json"),
-        help=(
-            "The local path to a run_results.json file generated by a "
-            "`dbt test --store-failures` run. Defaults to "
-            "'./target/run_results.json'."
-        ),
-    )
-    parser.add_argument(
-        "--manifest",
-        required=False,
-        default=os.path.join("target", "manifest.json"),
-        help=(
-            "The local path to a manifest.json file with the compiled dbt "
-            "DAG, generated by all dbt CLI commands (including `dbt test`). "
-            "Defaults to './target/manifest.json'."
-        ),
-    )
-    parser.add_argument(
         "--output-dir",
         required=False,
         help=(
             "The directory to which output artifacts should be written; "
             "if the directory does not exist, it will be created. Defaults to "
-            "'./qc_test_results_<date>/'."
+            "'./iasworld_test_results_<date>/'."
         ),
     )
     parser.add_argument(
@@ -720,35 +720,82 @@ def main() -> None:
             "including null townships (which typically indicate invalid PINs)."
         ),
     )
+    parser.add_argument(
+        "--use-cached",
+        action=argparse.BooleanOptionalAction,
+        required=False,
+        help=(
+            "Toggle using cached results from the most recent run. Useful when debugging "
+            "transformation steps. Defaults to False."
+        ),
+    )
+    parser.add_argument(
+        "--target",
+        required=False,
+        default="dev",
+        help="dbt target to use for running tests, defaults to 'dev'",
+    )
 
     args = parser.parse_args()
 
-    run_results_filepath = args.run_results
-    manifest_filepath = args.manifest
     output_dir = args.output_dir
     townships = args.township if args.township else tuple()
+    use_cached = args.use_cached
+    target = args.target
+
+    run_results_filepath = os.path.join("target", "run_results.json")
+    manifest_filepath = os.path.join("target", "manifest.json")
 
     date_today = datetime.datetime.today().strftime("%Y-%m-%d")
     if output_dir is None:
-        output_dir = f"qc_test_results_{date_today}"
+        output_dir = f"iasworld_test_results_{date_today}"
 
-    test_cache_path = get_test_cache_path(
-        run_results_filepath, manifest_filepath, townships
-    )
-
-    if os.path.isfile(test_cache_path):
-        print(f"Loading test results from cache at {test_cache_path}")
-        test_categories = get_test_categories_from_file(test_cache_path)
-    else:
-        print(
-            f"Test cache not found at {test_cache_path}, loading test results "
-            "from Athena"
+    if use_cached:
+        test_cache_path = get_test_cache_path(
+            run_results_filepath, manifest_filepath, townships
         )
+        if os.path.isfile(test_cache_path):
+            print(f"Loading test results from cache at {test_cache_path}")
+            test_categories = get_test_categories_from_file(test_cache_path)
+        else:
+            raise ValueError(
+                f"Test cache not found at {test_cache_path}, try rerunning "
+                "without --use-cached"
+            )
+    else:
+        print("Running tests")
+        dbt_run_args = [
+            "test",
+            "--target",
+            target,
+            "--selector",
+            "select_data_test_iasworld",
+            "--store-failures",
+        ]
+        print(f"> dbt {' '.join(dbt_run_args)}")
+        dbt_test_result = DBT.invoke(dbt_run_args)
+
+        if dbt_test_result.exception is not None:
+            raise dbt_test_result.exception
+
+        if any(
+            result.status == TestStatus.Error
+            for result in getattr(dbt_test_result.result, "results", [])
+        ):
+            # No need to report the exception, since the dbt process
+            # will have printed it already
+            raise ValueError("Quitting due to error in dbt test run")
+
+        print("Loading test results from Athena")
         test_categories = get_test_categories_from_athena(
             run_results_filepath, manifest_filepath, townships
         )
-        print(f"Saving test results to the cache at {test_cache_path}")
-        save_test_categories_to_file(test_categories, test_cache_path)
+
+        new_test_cache_path = get_test_cache_path(
+            run_results_filepath, manifest_filepath, townships
+        )
+        print(f"Saving test results to the cache at {new_test_cache_path}")
+        save_test_categories_to_file(test_categories, new_test_cache_path)
 
     print("Generating the output workbook")
     # It's important to use a write-only workbook here because otherwise
@@ -761,7 +808,7 @@ def main() -> None:
 
     pathlib.Path(output_dir).mkdir(exist_ok=True)
     workbook_filepath = os.path.join(
-        output_dir, f"qc_test_failures_{date_today}.xlsx"
+        output_dir, f"iasworld_test_failures_{date_today}.xlsx"
     )
     workbook.save(workbook_filepath)
     print(f"Output workbook saved to {workbook_filepath}")
@@ -795,18 +842,23 @@ def main() -> None:
     test_run_result_metadata_list = TestRunResultMetadata.create_list(
         test_categories, run_results_filepath
     )
+    test_run_failing_row_metadata_list = TestRunFailingRowMetadata.create_list(
+        test_categories, run_results_filepath
+    )
     run_date = get_run_date_from_run_results(run_results_filepath)
     run_id = get_run_id_from_run_results(run_results_filepath)
 
     for metadata_list, tablename, partition_cols in [
         ([test_run_metadata], "test_run", ["run_year"]),
         (test_run_result_metadata_list, "test_run_result", ["run_year"]),
+        (
+            test_run_failing_row_metadata_list,
+            "test_run_failing_row",
+            ["run_year"],
+        ),
     ]:
-        table = pyarrow.Table.from_pylist(
-            [
-                dataclasses.asdict(meta_obj)
-                for meta_obj in metadata_list  # type: ignore
-            ]
+        table = pa.Table.from_pylist(
+            [meta_obj.to_dict() for meta_obj in metadata_list],  # type: ignore
         )
         metadata_root_path = os.path.join(output_dir, "metadata", tablename)
         pyarrow.parquet.write_to_dataset(
@@ -855,8 +907,8 @@ class TestRunMetadata:
         run_vars = get_key_from_run_results("args", run_results_filepath)[
             "vars"
         ]
-        var_year_start = run_vars.get("test_qc_year_start")
-        var_year_end = run_vars.get("test_qc_year_start")
+        var_year_start = run_vars.get("data_test_iasworld_year_start")
+        var_year_end = run_vars.get("data_test_iasworld_year_end")
 
         # If dbt vars weren't set on the command line, the defaults won't exist
         # in run_results.json, so we have to parse them from the dbt project
@@ -865,9 +917,12 @@ class TestRunMetadata:
             with open("dbt_project.yml") as project_fobj:
                 project = yaml.safe_load(project_fobj)
             var_year_start = (
-                var_year_start or project["vars"]["test_qc_year_start"]
+                var_year_start
+                or project["vars"]["data_test_iasworld_year_start"]
             )
-            var_year_end = var_year_end or project["vars"]["test_qc_year_end"]
+            var_year_end = (
+                var_year_end or project["vars"]["data_test_iasworld_year_end"]
+            )
 
         return cls(
             run_id=run_id,
@@ -882,15 +937,20 @@ class TestRunMetadata:
             git_author=git_author,
         )
 
+    def to_dict(self) -> typing.Dict:
+        return dataclasses.asdict(self)
+
 
 @dataclasses.dataclass
 class TestRunResultMetadata:
-    """Metadata object storing information about test results in a run."""
+    """Metadata object storing aggregated information about township-level
+    test results in a run."""
 
     run_id: str
     run_year: str  # Duplicated with TestRunMetadata for partitioning
     test_name: str
     table_name: str
+    column_name: typing.Optional[str]
     category: str
     description: str
     township_code: typing.Optional[str]
@@ -917,6 +977,7 @@ class TestRunResultMetadata:
                 run_year=run_year,
                 test_name=township_result.name,
                 table_name=township_result.table_name,
+                column_name=township_result.column_name,
                 category=test_category.category,
                 description=township_result.description,
                 township_code=township_result.township_code,
@@ -928,6 +989,107 @@ class TestRunResultMetadata:
             for test_result in test_category.test_results
             for township_result in test_result.split_by_township()
         ]
+
+    def to_dict(self) -> typing.Dict:
+        return dataclasses.asdict(self)
+
+
+@dataclasses.dataclass
+class TestRunFailingRowMetadata:
+    """Metadata object storing information about row-level individual test
+    failures in a run."""
+
+    # Fields that identify the run
+    run_id: str
+    run_year: str  # Duplicated with TestRunMetadata for partitioning
+    # Fields that identify the test
+    test_name: str
+    table_name: str
+    column_name: typing.Optional[str]
+    category: str
+    description: str
+    # Fields that identify the failing row. Some of these can occasionally
+    # be arrays for tests that query multiple rows (e.g. uniqueness tests)
+    # so for consistency we set them to always be arrays, even when there
+    # is only one value
+    parid: typing.Optional[str]
+    taxyr: typing.Optional[str]
+    card: typing.Optional[typing.List[int]]
+    lline: typing.Optional[typing.List[int]]
+    class_: typing.Optional[typing.List[str]]
+    township_code: typing.Optional[str]
+    who: typing.Optional[typing.List[str]]
+    wen: typing.Optional[typing.List[str]]
+    # Since the problematic fields can vary so widely, we store them as a
+    # JSON blob
+    problematic_fields: typing.Dict
+
+    @classmethod
+    def create_list(
+        cls,
+        test_categories: typing.List[TestCategory],
+        run_results_filepath: str,
+    ) -> typing.List["TestRunFailingRowMetadata"]:
+        """Generate a list of TestRunFailingRowMetadata object from a list of
+        TestCategory objects representing the categories in the run and a
+        filepath to a run_results.json file."""
+        run_id = get_run_id_from_run_results(run_results_filepath)
+        run_date = get_run_date_from_run_results(run_results_filepath)
+        run_year = run_date[:4]
+
+        def value_to_list(value):
+            """Tiny helper function to convert not-null column values to lists.
+            Useful in cases where a column can be either a scalar, a list,
+            or a null value, in which cases we want the output to always be
+            either a null value or a list."""
+            if value is None or type(value) is list:
+                return value
+            return [value]
+
+        return [
+            TestRunFailingRowMetadata(
+                run_id=run_id,
+                run_year=run_year,
+                test_name=township_result.name,
+                table_name=township_result.table_name,
+                column_name=township_result.column_name,
+                category=test_category.category,
+                description=township_result.description,
+                township_code=township_result.township_code,
+                parid=failing_row.get(PARID_FIELD),
+                taxyr=failing_row.get(TAXYR_FIELD),
+                card=value_to_list(failing_row.get(CARD_FIELD)),
+                lline=value_to_list(failing_row.get(LAND_LINE_FIELD)),
+                class_=value_to_list(failing_row.get(CLASS_FIELD)),
+                who=value_to_list(failing_row.get(WHO_FIELD)),
+                wen=value_to_list(failing_row.get(WEN_FIELD)),
+                problematic_fields={
+                    key: val
+                    for key, val in failing_row.items()
+                    # Use possible_fixed_fieldnames to avoid having to
+                    # recompute the exact fixed fieldnames on every iteration
+                    # (we could also solve this by expanding out the list
+                    # comprehension, but for now this is easier)
+                    if key not in test_category.possible_fixed_fieldnames
+                },
+            )
+            for test_category in test_categories
+            for test_result in test_category.test_results
+            for township_result in test_result.split_by_township()
+            for failing_row in township_result.failing_rows
+            if township_result.status == Status.FAIL
+        ]
+
+    def to_dict(self) -> typing.Dict:
+        output_data = dataclasses.asdict(self)
+        # Serialize the "class" attribute to a more human-friendly name
+        output_data["class"] = output_data.pop("class_")
+        # Dump the problematic fields to string, since parquet can't handle
+        # the notion of an untyped JSON object
+        output_data["problematic_fields"] = json.dumps(
+            output_data["problematic_fields"]
+        )
+        return output_data
 
 
 def get_key_from_run_results(
@@ -962,9 +1124,15 @@ def get_test_cache_path(
     manifest_filepath: str,
     townships: typing.Tuple[str],
 ) -> str:
-    """Return the path to the cache where test results are stored.
-    The `run_results_filepath` and `manifest_filepath` are used to generated
-    a hash key that uniquely defines the cache key for a given test run."""
+    """Return the path to the cache where test results are stored, or an
+    empty string if no cache exists yet. The `run_results_filepath` and
+    `manifest_filepath` are used to generated a hash key that uniquely defines
+    the cache key for a given test run."""
+    if not os.path.isfile(run_results_filepath) or not os.path.isfile(
+        manifest_filepath
+    ):
+        return ""
+
     with open(run_results_filepath, "rb") as run_results_file:
         run_results_hash = hashlib.md5(run_results_file.read()).hexdigest()
 
@@ -1034,12 +1202,14 @@ def get_test_categories(
     run_results.json file dict and a manifest.json file dict) and an optional
     township filter, generates a list of TestCategory objects storing the
     results of the tests."""
-    conn = pyathena.connect(
+    # Define a cursor with unload=True to output query results as parquet.
+    # This is particularly important when selecting aggregated columns,
+    # which are deserialized incorrectly by regular cursors
+    cursor = pyathena.connect(
         s3_staging_dir=AWS_ATHENA_S3_STAGING_DIR,
         region_name="us-east-1",
-        cursor_class=pyathena.cursor.DictCursor,
-    )
-    cursor = conn.cursor()
+        cursor_class=pyathena.arrow.cursor.ArrowCursor,
+    ).cursor(unload=True)
 
     tests_by_category: typing.Dict[str, TestCategory] = {}
 
@@ -1056,6 +1226,7 @@ def get_test_categories(
         meta = node.get("meta", {})
         category = get_category_from_node(node)
         tablename = get_tablename_from_node(node)
+        column_name = get_column_name_from_node(node)
         test_description = meta.get("description")
 
         # Basic attrs for the test result that apply whether or not the test
@@ -1063,6 +1234,7 @@ def get_test_categories(
         base_result_kwargs = {
             "name": test_name,
             "table_name": tablename,
+            "column_name": column_name,
             "description": test_description,
             "elapsed_time": execution_time,
         }
@@ -1095,7 +1267,7 @@ def get_test_categories(
             )
             cursor.execute(f"show columns in {relation_name_unquoted}")
             # SHOW COLUMNS often returns field names with trailing whitespace
-            fieldnames = [row["field"].strip() for row in cursor]
+            fieldnames = [row[0].strip() for row in cursor]
 
             # Construct the query to select the test results that were stored
             # in Athena. We want to rehydrate a few fields like township_code
@@ -1196,8 +1368,10 @@ def get_test_categories(
                 f"{test_results_join}"
                 f"{test_results_filter}"
             )
+            # Use the cursor with unload=True in this query, since otherwise
+            # aggregated columns can be deserialized incorrectly
             cursor.execute(test_results_query)
-            query_results = cursor.fetchall()
+            query_results = cursor.as_arrow().to_pylist()
             if len(query_results) == 0:
                 msg = (
                     f"Test {test_name} has status {status!r} but no failing "
@@ -1310,6 +1484,18 @@ def get_tablename_from_node(node: typing.Dict) -> str:
         f" for test \"{node['name']}\". Inspect the dbt manifest file "
         "for more information"
     )
+
+
+def get_column_name_from_node(node: typing.Dict) -> typing.Optional[str]:
+    """Given a Node for a test extracted from a dbt manifest, return the name
+    of the column that the test is testing. Note that the column name is not
+    always set, e.g. for tests that are defined on a table instead of on
+    a column, so the return value can be None."""
+    if meta_column_name := node.get("meta", {}).get("column_name"):
+        # If meta.column_name is set, treat it as an override
+        return meta_column_name
+
+    return node.get("column_name")
 
 
 if __name__ == "__main__":

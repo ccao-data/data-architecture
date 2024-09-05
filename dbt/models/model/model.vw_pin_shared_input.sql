@@ -79,15 +79,30 @@ housing_index AS (
     GROUP BY puma.pin10, ihs.year
 ),
 
+distressed_communities_index AS (
+    SELECT
+        zcta.pin10,
+        zcta.year,
+        dci.dci
+    FROM {{ source('other', 'dci') }} AS dci
+    LEFT JOIN {{ ref('location.census') }} AS zcta
+        ON dci.geoid = zcta.census_zcta_geoid
+        -- DCI is only available for one year, so we join to census geoids for
+        -- all years after that
+        AND zcta.year >= dci.year
+),
+
 affordability_risk_index AS (
     SELECT
         tract.pin10,
-        ari.year,
-        ari.ari_score AS ari
+        ari.ari_score AS ari,
+        tract.year
     FROM {{ source('other', 'ari') }} AS ari
     LEFT JOIN {{ ref('location.census_acs5') }} AS tract
         ON ari.geoid = tract.census_acs5_tract_geoid
-        AND CAST(tract.year AS INTEGER) >= CAST(ari.year AS INTEGER)
+        -- ARI is only available for one year, so we join to census geoids for
+        -- all years after that
+        AND tract.year >= ari.year
 ),
 
 tax_bill_amount AS (
@@ -308,6 +323,9 @@ SELECT
 
     -- Institute for Housing Studies data
     housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
+    -- Distressed Community Index data
+    distressed_communities_index.dci
+        AS other_distressed_community_index,
     -- Affordability Risk Index data
     affordability_risk_index.ari
         AS other_affordability_risk_index,
@@ -323,8 +341,12 @@ SELECT
     exemption_features.ccao_is_active_exe_homeowner,
     exemption_features.ccao_n_years_exe_homeowner,
 
-    -- Corner lot indicator
-    lot.is_corner_lot AS ccao_is_corner_lot,
+    -- Corner lot indicator, only filled after 2014 since that's
+    -- when OpenStreetMap data begins
+    CASE
+        WHEN CAST(uni.year AS INT) >= 2014
+            THEN COALESCE(lot.is_corner_lot, FALSE)
+    END AS ccao_is_corner_lot,
 
     -- PIN nearest neighbors, used for filling missing data
     vwpf.nearest_neighbor_1_pin10,
@@ -353,6 +375,10 @@ LEFT JOIN acs5
 LEFT JOIN housing_index
     ON uni.pin10 = housing_index.pin10
     AND uni.year = housing_index.year
+LEFT JOIN distressed_communities_index
+    ON uni.pin10 = distressed_communities_index.pin10
+    AND uni.year
+    = distressed_communities_index.year
 LEFT JOIN affordability_risk_index
     ON uni.pin10 = affordability_risk_index.pin10
     AND uni.year = affordability_risk_index.year
@@ -378,5 +404,6 @@ LEFT JOIN
 LEFT JOIN exemption_features
     ON uni.pin = exemption_features.pin
     AND uni.year = exemption_features.year
-LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
+LEFT JOIN {{ source('spatial', 'corner') }} AS lot
     ON uni.pin10 = lot.pin10
+    AND uni.year = lot.year
