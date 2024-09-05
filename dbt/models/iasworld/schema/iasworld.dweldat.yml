@@ -222,10 +222,10 @@ sources:
             description: Main section ground floor area
           - name: cndcmplx
             description: Condominium complex
-          - name: cnstval
-            description: Construction factor value
           - name: cnstfact
             description: Construction factor
+          - name: cnstval
+            description: Construction factor value
           - name: comwallfact
             description: Common wall factor
           - name: comwallpct
