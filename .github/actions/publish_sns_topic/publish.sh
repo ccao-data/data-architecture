@@ -2,7 +2,7 @@
 # Publish a message to an SNS topic
 #
 # Raise on all errors, and print all commands to the console
-set -euxo pipefail
+set -euo pipefail
 
 # Mask topic ARN
 echo "::add-mask::$1"
