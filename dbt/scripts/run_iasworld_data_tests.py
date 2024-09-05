@@ -805,11 +805,8 @@ def main() -> None:
             "test",
             "--target",
             target,
-            "--select",
-            "iasworld_pardat_spot_is_null",
-            "iasworld_oby_area_gte_1",
-            # "--selector",
-            # "select_data_test_iasworld",
+            "--selector",
+            "select_data_test_iasworld",
             "--store-failures",
         ]
         if vars:
