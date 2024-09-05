@@ -100,7 +100,6 @@ def build_query(athena_asset, row_identifier, years=None, township=None):
             + " LIMIT 1000"
         )
 
-    print(query)
     return query
 
 
@@ -302,8 +301,8 @@ def socrata_upload(
 
 
 socrata_upload(
-    socrata_asset="Parcel Universe",
-    overwrite=True,
-    years=["2022"],
-    by_township=True,
+    socrata_asset=os.getenv("SOCRATA_ASSET"),
+    overwrite=os.getenv("OVERWRITE"),
+    years=os.getenv("YEARS").split(","),
+    by_township=os.getenv("BY_TOWNSHIP"),
 )
