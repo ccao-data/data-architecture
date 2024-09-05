@@ -1,4 +1,5 @@
 import os
+import time
 import yaml
 import re
 from collections import defaultdict
@@ -416,6 +417,8 @@ if __name__ == "__main__":
         )
         for file in unsorted_shared_columns_md_files:
             print(f"{file} (1)")
+
+    time.sleep(2)  # Wait for 2 seconds so error message lands at bottom
 
     if (
         unsorted_columns_files

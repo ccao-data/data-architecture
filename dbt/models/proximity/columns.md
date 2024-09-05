@@ -313,6 +313,15 @@ These columns provide the three nearest neighbor PINs, starting
 with `nearest_neighbor_1_dist_ft` (which is the nearest)
 {% enddocs %}
 
+## nearest_neighbor_pin10
+
+{% docs column_nearest_neighbor_pin10 %}
+Nearest neighboring parcel ID (PIN).
+
+These columns provide the three nearest neighbor PINs and their
+distance, starting with `nearest_neighbor_1_*` (which is the nearest)
+{% enddocs %}
+
 ## nearest_new_construction_char_yrblt
 
 {% docs column_nearest_new_construction_char_yrblt %}
@@ -329,15 +338,6 @@ Nearest new construction distance (feet)
 
 {% docs column_nearest_new_construction_pin10 %}
 PIN10 of nearest new construction from CCAO data
-{% enddocs %}
-
-## nearest_neighbor_pin10
-
-{% docs column_nearest_neighbor_pin10 %}
-Nearest neighboring parcel ID (PIN).
-
-These columns provide the three nearest neighbor PINs and their
-distance, starting with `nearest_neighbor_1_*` (which is the nearest)
 {% enddocs %}
 
 ## nearest_park_dist_ft

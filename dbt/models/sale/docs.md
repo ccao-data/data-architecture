@@ -37,16 +37,6 @@ the start time and type of run.
 **Primary Key**: `run_id`
 {% enddocs %}
 
-# parameter
-
-{% docs parameter %}
-Parameters used for each run of
-[model-sales-val](https://github.com/ccao-data/model-sales-val),
-including the statistical bounds, groupings, window sizes, etc.
-
-**Primary Key**: `run_id`
-{% enddocs %}
-
 # mydec
 
 {% docs mydec %}
@@ -55,6 +45,16 @@ transfer declarations (sales) used to fill in missing data in `iasworld.sales`
 and as an input to sales validation flagging.
 
 **Primary Key**: `document_number`, `year_of_sale`
+{% enddocs %}
+
+# parameter
+
+{% docs parameter %}
+Parameters used for each run of
+[model-sales-val](https://github.com/ccao-data/model-sales-val),
+including the statistical bounds, groupings, window sizes, etc.
+
+**Primary Key**: `run_id`
 {% enddocs %}
 
 # vw_ias_salesval_upload
