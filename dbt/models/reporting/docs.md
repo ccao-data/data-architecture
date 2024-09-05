@@ -1,3 +1,13 @@
+# assessment_progress
+
+{% docs table_assessment_progress %}
+View for reporting current or final AV stats - depending on whether a township
+is open - and the proportion of parcels that have been valued per major class
+group, township, assessment stage, and year. Feeds public reporting assets.
+
+**Primary Key**: `year`, `stage_name`, `geo_id`
+{% enddocs %}
+
 # ratio_stats
 
 {% docs table_ratio_stats %}
@@ -28,15 +38,6 @@ Materialized to speed up queries for Tableau.
 
 **Primary Key**: `year`, `geography_type`, `geography_id`, `assessment_stage`,
 `property_group`
-{% enddocs %}
-
-# vw_assessment_progress
-
-{% docs view_vw_assessment_progress %}
-View for reporting total AVs and PIN counts per major class group, township,
-assessment stage, and year. Feeds public reporting assets.
-
-**Primary Key**: `year`, `stage_name`, `geo_id`
 {% enddocs %}
 
 # vw_assessment_roll

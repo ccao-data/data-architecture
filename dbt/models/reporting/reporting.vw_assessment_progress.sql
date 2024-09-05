@@ -1,5 +1,10 @@
 -- Gathers AVs by year, major class, assessment stage, and municipality for
 -- reporting
+{{
+    config(
+        materialized='table'
+    )
+}}
 
 /* Ensure every municipality/class/year has a row for every stage through
 cross-joining. This is to make sure that combinations that do not yet

@@ -1,5 +1,5 @@
--- Macros that summarize FMVs and sales by different groupings specifically for
--- reporting.res_report_summary.
+-- Macros that counts the number of the number of PINs with values and the total
+-- number of PINs by a year, stage, and a given geography.
 {% macro assessment_progress_pin_count(from, geo_type, column_name) %}
     select
         '{{ geo_type }}' as geo_type,
