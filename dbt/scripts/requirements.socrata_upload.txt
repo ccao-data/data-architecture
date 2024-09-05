@@ -1,0 +1,4 @@
+dbt-core~=1.8.6
+pandas~=2.2.2
+PyAthena~=3.9.0
+requests~=2.32.3

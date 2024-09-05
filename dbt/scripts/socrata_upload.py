@@ -22,8 +22,6 @@ def get_asset_info(socrata_asset):
     Simple helper function to retrieve asset-specific information from dbt.
     """
 
-    os.chdir("./dbt")
-
     DBT = dbtRunner()
     dbt_list_args = [
         "--quiet",
@@ -49,8 +47,6 @@ def get_asset_info(socrata_asset):
         # Filter out empty strings caused by trailing newlines
         if model_dict_str
     ]
-
-    os.chdir("..")
 
     model = pd.json_normalize(model)
     model = model[model["label"] == socrata_asset]
