@@ -752,7 +752,7 @@ The script exposes the following options, many of which are the same as
   the selected models using `dbt run` prior to export. It defaults to false (`--no-rebuild`) and
   is most useful in rare cases where the underlying models that comprise the reports have been
   edited since the last run, typically during the period when a QC report is under active development.
-* **`--refresh-tables`** (optional): Instructs the script to print a command that can be
+* **`--print-table-refresh-command`** (optional): Instructs the script to print a command that can be
   run on the server to refresh underlying iasWorld tables. Will not export any reports
   when set. Useful if you want to refresh iasWorld table data before running exports.
   See [Refreshing iasWorld tables prior to running town close QC
@@ -781,9 +781,9 @@ The queries that generate town close reports run against our data warehouse, whi
 ingests data from iasWorld overnight once daily. Sometimes a Valuations staff member
 will request a report during the middle of the workday, and they will need the most
 recent data, which will not exist in our warehouse yet. In these cases, you can use
-the `--refresh-tables` flag to output a command that you can run on the server to
+the `--print-table-refresh-command` flag to output a command that you can run on the server to
 refresh any iasWorld tables that the town close reports rely on. Note that when
-you pass `--refresh-tables` to the script, it will _not_ export any reports, and
+you pass `--print-table-refresh-command` to the script, it will _not_ export any reports, and
 will instead exit immediately after printing the refresh command.
 
 The following command will print a refresh command that can be run on the server
@@ -791,7 +791,7 @@ to refresh the iasWorld tables that comprise our town close reports for the
 township with code `$TOWNSHIP_CODE` and the current year of data:
 
 ```
-python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE" --refresh-tables
+python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE" --print-table-refresh-command
 ```
 
 You should see output like this, which you can run in the context of the
@@ -804,8 +804,7 @@ ssh into the server and run the following commands:
 cd /home/shiny-server/services/service-spark-iasworld
 docker-compose up -d
 docker exec spark-node-master ./submit.sh --json-string --no-run-github-workflow
-'{"aprval": {"table_name": "iasworld.aprval", "min_year": 2023, "max_year":
-2024}, ...
+'{"aprval": {"table_name": "iasworld.aprval", "min_year": 2024, "cur": ["Y"], ...
 ```
 
 #### Running the AHSAP change in value QC report

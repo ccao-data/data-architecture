@@ -25,7 +25,7 @@ Expects dependencies from requirements.txt (dbt dependencies) and scripts/requir
 
 The queries that generate these reports run against our data warehouse, which ingests data from iasWorld overnight once daily. Sometimes a
 staff member will request a report during the middle of the workday, and they will need the most recent data, which will not exist in
-our warehouse yet. In these cases, you can use the --refresh-tables flag to output a command that you can run on the server to refresh
+our warehouse yet. In these cases, you can use the --print-table-refresh-command flag to output a command that you can run on the server to refresh
 any iasWorld tables that these reports use.
 """  # noqa: E501
 CLI_EXAMPLE = """Example usage to output the 2024 town close QC report for Hyde Park:
@@ -38,7 +38,7 @@ To output the town close QC report for Hyde Park in the current year:
 
 To get a command to run to refresh iasWorld tables prior to export:
 
-    python scripts/export_qc_town_close_reports.py --township 70 --year 2024 --refresh-tables
+    python scripts/export_qc_town_close_reports.py --township 70 --year 2024 --print-table-refresh-command
 """  # noqa: E501
 
 # Map township codes to their triad number
@@ -130,7 +130,7 @@ def parse_args() -> argparse.Namespace:
         help="Rebuild models before exporting",
     )
     parser.add_argument(
-        "--refresh-tables",
+        "--print-table-refresh-command",
         action=argparse.BooleanOptionalAction,
         default=False,
         help=(
@@ -148,7 +148,7 @@ def main():
     tag = "tag:qc_report_town_close"
     tag_suffix = "tri" if is_tri(args.township, args.year) else "non_tri"
 
-    if args.refresh_tables:
+    if args.print_table_refresh_command:
         # Use `dbt list` on parents to calculate update command for
         # iasworld sources that are implicated by this call
         dbt_list_args = [
