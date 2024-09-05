@@ -1,0 +1,189 @@
+---
+title: "quick_report"
+format: html
+---
+---
+title: "Untitled"
+author: "Damon"
+date: "2024-09-04"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+library(DBI)
+library(dplyr)
+library(knitr)
+library(lubridate)
+library(noctua)
+library(readr)
+library(stringr)
+```
+
+
+```{r}
+AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena())
+
+missing_units <- dbGetQuery(
+  conn = AWS_ATHENA_CONN_NOCTUA, read_file("Missing_units.sql")
+) %>%
+  distinct(pin, .keep_all = TRUE)
+```
+
+```{r}
+data_quality <- dbGetQuery(
+  conn = AWS_ATHENA_CONN_NOCTUA, read_file("MyDec_script.sql")
+) %>%
+  select(line_8_intended_number_of_apartment_units, pin) %>%
+  right_join(missing_units, by = "pin") %>%
+  distinct(pin, .keep_all = TRUE)
+
+apartment_units_table <- table(data_quality$line_8_intended_number_of_apartment_units)
+
+kable(apartment_units_table, caption = "Apartment Units from MyDec Sales")
+```
+
+```{r}
+usps_data <- read.csv("usps_output.csv") %>%
+  group_by(PIN) %>%
+  filter(DPVConfirmation == "Y") %>%
+  ## Some addresses are missing, so we need to filter them out
+  filter(is.na(Address1) | Address1 != "") %>%
+  summarise(
+    Address1_combined = paste(unique(Address1), collapse = ", "),
+    usps_value = n_distinct(Address1)
+  ) %>%
+  ungroup() %>%
+  # Removes the combinations which have unit A B C D E etc, since
+  # they don't seem meaningful
+  filter(!grepl("[ABCDEFG]", Address1_combined, ignore.case = TRUE)) %>%
+  rename("pin" = "PIN") %>%
+  mutate(pin = as.character(pin))
+```
+
+
+```{r}
+usps_data <- read.csv("usps_output.csv") %>%
+  group_by(PIN) %>%
+  filter(DPVConfirmation == "Y") %>%
+  filter(is.na(Address1) | Address1 != "") %>%
+  summarise(
+    Address1_combined = paste(unique(Address1), collapse = ", "),
+    usps_value = n_distinct(Address1)
+  ) %>%
+  ungroup() %>%
+  filter(!grepl("[ABCDEFG]", Address1_combined, ignore.case = TRUE)) %>%
+  rename("pin" = "PIN") %>%
+  mutate(pin = as.character(pin))
+
+usps_value_counts <- usps_data %>%
+  count(usps_value) %>%
+  kable(caption = "USPS Value Counts")
+
+print(usps_value_counts)
+
+```
+
+
+```{r}
+redfin_9_4 <- read_csv("redfin_9.4.csv",
+                       col_types = cols(pin = col_character()))
+
+redfin_data <- redfin_9_4 %>%
+  filter(str_detect(str_replace_all(str_to_lower(redfin_address), "\\s+", ""),
+                    str_replace_all(str_to_lower(prop_address_street_name), "\\s+", ""))) %>%
+  mutate(
+    redfin_data = ifelse(
+      is.na(char_apts_redfin) | char_apts_redfin == "",
+      char_apts_in_building,
+      char_apts_redfin
+    )
+  ) %>%
+  mutate(
+    remarks_cleaned = str_replace_all(remarks, "[,\\-\\s]", ""),  # Remove commas, hyphens, and spaces
+    string_redfin = case_when(
+      grepl("singlefamily", remarks_cleaned, ignore.case = TRUE) ~ 1,
+      grepl("duplex|twounit|2unit|twoap|2ap|twoflat|2flat",
+            remarks_cleaned, ignore.case = TRUE) ~ 2,
+      grepl("threeunit|3unit|threeap|3ap|threeflat|3flat",
+            remarks_cleaned, ignore.case = TRUE) ~ 3,
+      grepl("fourunit|4unit|fourap|4ap|fourflat|4flat",
+            remarks_cleaned, ignore.case = TRUE) ~ 4,
+      grepl("fiveunit|5unit|fiveap|5ap|fiveflat|5flat",
+            remarks_cleaned, ignore.case = TRUE) ~ 5,
+      grepl("sixunit|6unit|sixap|6ap|sixflat|6flat",
+            remarks_cleaned, ignore.case = TRUE) ~ 6,
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  select(pin,
+         redfin_data,
+         string_redfin,
+         redfin_url)
+
+redfin_counts <- redfin_data %>%
+  group_by(redfin_data) %>%
+  summarise(count = n()) %>%
+  kable(caption = "Redfin Value Counts")
+
+
+redfin_counts
+
+```
+```{r}
+
+buildings <- read_csv("buildings.csv")
+
+chicago_data <- buildings %>%
+  filter(F_ADD1 == T_ADD1,
+         NO_OF_UNIT > 0) %>%
+  mutate(QC_DATE = mdy_hms(QC_DATE)) %>%  
+  arrange(desc(QC_DATE)) %>%
+  mutate(city = "CHICAGO") %>%
+  distinct(F_ADD1, ST_NAME1, .keep_all = TRUE) %>%
+  inner_join(missing_units, by = c("F_ADD1" = "prop_address_street_number",
+                                   "ST_NAME1" = "prop_address_street_name",
+                                   "city" = "prop_address_city_name")) %>%
+  distinct(pin, .keep_all = TRUE)
+
+```
+
+```{r}
+final <- missing_units %>%
+  distinct(pin) %>%
+  left_join(data_quality, by = "pin") %>%
+  left_join(usps_data, by = "pin") %>%
+  left_join(redfin_data, by = "pin") %>%
+  left_join(chicago_data, by = "pin") %>%
+  mutate(
+    final_value = ifelse(!is.na(line_8_intended_number_of_apartment_units),
+                         line_8_intended_number_of_apartment_units,
+                  ifelse(!is.na(string_redfin),
+                         string_redfin,
+                  ifelse(!is.na(redfin_data),
+                         redfin_data,
+                  ifelse(!is.na(NO_OF_UNIT),
+                         NO_OF_UNIT,
+                  ifelse(!is.na(usps_value),
+                         usps_value,
+                  NA)))))) %>%
+  select(pin,
+         number = prop_address_street_number,
+         street = prop_address_street_name,
+         city = prop_address_city_name,
+         chicago_value = NO_OF_UNIT,
+         mydec_value = line_8_intended_number_of_apartment_units,
+         usps_value,
+         redfin_value = redfin_data,
+         redfin_value_string = string_redfin, 
+         final_value)
+
+# Count the values in final_value
+table(final$final_value)
+
+# Display the final table
+kable(final, caption = "Final Table")
+
+write.csv(final, "final.csv")
+```
