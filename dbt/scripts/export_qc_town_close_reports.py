@@ -185,22 +185,29 @@ def main():
         # Generate a Spark job definition for each iasWorld table that needs
         # to be updated. For more context on what these attributes mean, see
         # https://github.com/ccao-data/service-spark-iasworld
-        iasworld_deps = {
-            dep["name"]: {
-                "table_name": f"iasworld.{dep['name']}",
-                "min_year": args.year - 1,  # We often join to prior year data
-                "max_year": args.year,
+        iasworld_deps = []
+        for dep in source_deps:
+            table_name = dep["name"]
+            formatted_dep = {
+                "table_name": f"iasworld.{table_name}",
+                "cur": ["Y"],
             }
-            for dep in source_deps
-        }
+            # We should figure out a way to programmatically determine the
+            # correct filters for each table, but in the meantime, hardcode
+            # them based on known exceptions
+            if table_name != "sales":
+                formatted_dep["min_year"] = args.year
+
+            iasworld_deps.append({table_name: formatted_dep})
+
         print("ssh into the server and run the following commands:")
         print()
         print("cd /home/shiny-server/services/service-spark-iasworld")
         print("docker-compose up -d")
         print(
-            "docker exec spark-node-master ./submit.sh --json-string "
-            "--no-run-github-workflow "
-            f"'{json.dumps(iasworld_deps)}' "
+            "docker exec spark-node-master ./submit.sh "
+            "--no-run-github-workflow --no-run-glue-crawler "
+            f"--json-string '{json.dumps(iasworld_deps)}' "
         )
     else:
         where = f"township_code = '{args.township}' and taxyr = '{args.year}'"
