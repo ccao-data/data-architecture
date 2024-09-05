@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Publish a message to an SNS topic
 #
-# Raise on all errors, and print all commands to the console
+# Raise on all errors
 set -euo pipefail
 
-# Mask topic ARN
+# Mask topic ARN in GitHub workflow
 echo "::add-mask::$1"
 
 # Publish to SNS topic
