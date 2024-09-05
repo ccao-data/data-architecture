@@ -185,20 +185,21 @@ def main():
         # Generate a Spark job definition for each iasWorld table that needs
         # to be updated. For more context on what these attributes mean, see
         # https://github.com/ccao-data/service-spark-iasworld
-        iasworld_deps = []
+        iasworld_deps = {}
         for dep in source_deps:
             table_name = dep["name"]
             formatted_dep = {
                 "table_name": f"iasworld.{table_name}",
-                "cur": ["Y"],
+                "min_year": args.year,  # Restrict to current year of data
+                "cur": ["Y"],  # Only get active records
             }
             # We should figure out a way to programmatically determine the
             # correct filters for each table, but in the meantime, hardcode
             # them based on known exceptions
-            if table_name != "sales":
-                formatted_dep["min_year"] = args.year
+            if table_name == "sales":
+                formatted_dep["min_year"] = formatted_dep["max_year"] = None
 
-            iasworld_deps.append({table_name: formatted_dep})
+            iasworld_deps[table_name] = formatted_dep
 
         print("ssh into the server and run the following commands:")
         print()
