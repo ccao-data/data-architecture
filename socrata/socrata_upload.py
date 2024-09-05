@@ -22,6 +22,8 @@ def get_asset_info(socrata_asset):
     Simple helper function to retrieve asset-specific information from dbt.
     """
 
+    os.chdir("../dbt")
+
     DBT = dbtRunner()
     dbt_list_args = [
         "--quiet",
@@ -31,9 +33,9 @@ def get_asset_info(socrata_asset):
         "--output",
         "json",
         "--output-keys",
-        "name",
         "label",
         "meta",
+        "depends_on",
     ]
 
     print(f"> dbt {' '.join(dbt_list_args)}")
@@ -48,9 +50,11 @@ def get_asset_info(socrata_asset):
         if model_dict_str
     ]
 
+    os.chdir("../socrata")
+
     model = pd.json_normalize(model)
     model = model[model["label"] == socrata_asset]
-    athena_asset = model.iloc[0]["name"]
+    athena_asset = model.iloc[0]["depends_on.nodes"][0].split(".")[-1]
     asset_id = model.iloc[0]["meta.asset_id"]
     row_identifier = model.iloc[0]["meta.primary_key"]
 
@@ -67,7 +71,7 @@ def build_query(athena_asset, row_identifier, years=None, township=None):
     passed to `row_identifiers`.
     """
 
-    row_identifier = f"CONCAT({', '.join(row_identifier)}) AS row_id,"
+    row_identifier = f"CONCAT({', '.join(row_identifier)}) AS row_id"
 
     # Retrieve column names and types from Athena
     columns = cursor.execute("show columns from " + athena_asset).as_pandas()
@@ -84,14 +88,19 @@ def build_query(athena_asset, row_identifier, years=None, township=None):
     query = f"SELECT {row_identifier}, {', '.join(columns['column'])} FROM {athena_asset}"
 
     if not years:
-        query = query
+        query = query + " LIMIT 1000"
 
     elif years is not None and not township:
-        query += " WHERE year = %(year)s"
+        query += " WHERE year = %(year)s" + " LIMIT 1000"
 
     elif years is not None and township is not None:
-        query += " WHERE year = %(year)s" + " AND township_code = %(township)s"
+        query += (
+            " WHERE year = %(year)s"
+            + " AND township_code = %(township)s"
+            + " LIMIT 1000"
+        )
 
+    print(query)
     return query
 
 
@@ -268,9 +277,9 @@ def socrata_upload(
         for item in groups:
             if flag == "both":
                 upload_args = {
-                    "asset_id": "asset_id",
-                    "sql_query": "sql_query",
-                    "overwrite": "overwrite",
+                    "asset_id": asset_id,
+                    "sql_query": sql_query,
+                    "overwrite": overwrite,
                     "year": item[0],
                     "township": item[1],
                 }
@@ -293,8 +302,8 @@ def socrata_upload(
 
 
 socrata_upload(
-    socrata_asset=os.getenv("SOCRATA_ASSET"),
-    overwrite=os.getenv("OVERWRITE"),
-    years=os.getenv("YEARS"),
-    by_township=os.getenv("BY_TOWNSHIP"),
+    socrata_asset="Parcel Universe",
+    overwrite=True,
+    years=["2022"],
+    by_township=True,
 )
