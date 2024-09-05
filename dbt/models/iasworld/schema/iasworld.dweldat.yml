@@ -501,12 +501,12 @@ sources:
             description: Bathroom fixture override
           - name: floor
             description: Floor
+          - name: floor1
+            description: Floor 1
           - name: floor1pct
             description: Floor percent
           - name: floorfact
             description: Floor factor
-          - name: floor1
-            description: Floor 1
           - name: flr1area
             description: Sub total value
           - name: flr1val

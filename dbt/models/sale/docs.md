@@ -28,21 +28,21 @@ for sales validation.
 **Primary Key**: `run_id`, `group`
 {% enddocs %}
 
+# metadata
+
+{% docs metadata %}
+Information about the code used for a sales validation run, as well as
+the start time and type of run.
+
+**Primary Key**: `run_id`
+{% enddocs %}
+
 # parameter
 
 {% docs parameter %}
 Parameters used for each run of
 [model-sales-val](https://github.com/ccao-data/model-sales-val),
 including the statistical bounds, groupings, window sizes, etc.
-
-**Primary Key**: `run_id`
-{% enddocs %}
-
-# metadata
-
-{% docs metadata %}
-Information about the code used for a sales validation run, as well as
-the start time and type of run.
 
 **Primary Key**: `run_id`
 {% enddocs %}

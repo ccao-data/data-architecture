@@ -1208,15 +1208,6 @@ Name of property buyer, as listed on deed.
 Can be truncated by MyDec/IDOR. See Clerk/Recorder of Deeds for full name.
 {% enddocs %}
 
-## document_number
-
-{% docs shared_column_document_number %}
-Deed number/document number of the sale.
-
-Serves as the unique identifier for each sale. Can be used to lookup more
-information on the Clerk/Recorder of Deeds site.
-{% enddocs %}
-
 ## deed_type
 
 {% docs shared_column_deed_type %}
@@ -1231,6 +1222,15 @@ Possible values for this variable include:
 - `05` - Other
 - `06` - Beneficiary
 - `99` - Unknown
+{% enddocs %}
+
+## document_number
+
+{% docs shared_column_document_number %}
+Deed number/document number of the sale.
+
+Serves as the unique identifier for each sale. Can be used to lookup more
+information on the Clerk/Recorder of Deeds site.
 {% enddocs %}
 
 ## num_parcels_sale
