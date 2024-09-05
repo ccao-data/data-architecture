@@ -1,4 +1,3 @@
-# %%
 import os
 import requests
 import time
@@ -10,7 +9,6 @@ import pandas as pd
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
 
-# %%
 # Connect to Athena
 cursor = connect(
     s3_staging_dir=str(os.getenv("AWS_ATHENA_S3_STAGING_DIR")) + "/",
@@ -139,6 +137,15 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
             + " for asset "
             + asset_id
         )
+
+    # Raise URL status if it's bad
+    requests.get(
+        url=url,
+        data=cursor.execute(sql_query, query_conditionals)
+        .as_pandas()
+        .to_json(orient="records"),
+        auth=auth,
+    ).raise_for_status()
 
     print(print_message)
     if method == "put":
