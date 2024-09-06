@@ -1,10 +1,11 @@
 name: check-sort-dbt-yaml-files
 
 on:
-  pull_request:
-    branches: [master]
-  push:
-    branches: [master]
+  pull_request
+  #:
+#    branches: [master]
+#  push:
+#    branches: [master]
 
 jobs:
   check-sort-dbt-yaml-files:
@@ -20,5 +21,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyyaml
     - name: Run dbt yaml sort checks
+      run: pwd
       run: python scripts/check_sort_dbt_yaml_files.py
       working_directory: dbt
