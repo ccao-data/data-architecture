@@ -20,6 +20,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyyaml
     - name: Run dbt yaml sort checks
-      run: cd  ${{ inputs.working_directory }}
+      run: ls
       run: python check_sort_dbt_yaml_files.py
       working-directory: dbt/scripts/
