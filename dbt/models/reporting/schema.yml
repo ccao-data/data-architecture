@@ -22,7 +22,6 @@ models:
           combination_of_columns:
             - year
             - stage_name
-            - geo_id
 
   - name: reporting.ratio_stats
     description: '{{ doc("table_ratio_stats") }}'
