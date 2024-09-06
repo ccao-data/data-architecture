@@ -211,7 +211,7 @@ def main():
         print("docker-compose up -d")
         print(
             "docker exec spark-node-master ./submit.sh "
-            "--no-run-github-workflow --no-run-glue-crawler "
+            "--no-run-github-workflow "
             f"--json-string '{json.dumps(iasworld_deps)}' "
         )
     else:
