@@ -1,4 +1,4 @@
-name: Check sort order for dbt yaml files
+name: check-sort-dbt-yaml-files
 
 on: [pull_request] 
 
