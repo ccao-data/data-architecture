@@ -801,7 +801,7 @@ repo on the server in order to refresh iasWorld tables:
 ```
 ssh into the server and run the following commands:
 
-cd /home/shiny-server/services/service-spark-iasworld
+cd /path/to/service-spark-iasworld/
 docker-compose up -d
 docker exec spark-node-master ./submit.sh --json-string --no-run-github-workflow
 '{"aprval": {"table_name": "iasworld.aprval", "min_year": 2024, "cur": ["Y"], ...
