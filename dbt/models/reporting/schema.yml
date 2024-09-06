@@ -306,14 +306,14 @@ models:
       - expression_is_true:
           name: reporting_vw_top_5_muni_rank_between_1_and_5
           expression: rank BETWEEN 1 AND 5
-      # If ccao_stage_used = 'mailed' that indicates the current year, for
-      # which we shouldn't have bor values
       - unique_combination_of_columns:
           name: reporting_vw_top_5_muni_unique_by_keys
           combination_of_columns:
             - rank
             - pin
             - year
+      # If ccao_stage_used = 'mailed' that indicates the current year, for
+      # which we shouldn't have bor values
       - expression_is_true:
           name: reporting_vw_top_5_muni_used_mailed_null_bor
           expression: ccao_stage_used = 'certified' OR bor_av IS NULL
