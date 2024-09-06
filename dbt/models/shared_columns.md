@@ -1248,14 +1248,6 @@ Uses dates from `sale.mydec` between 2014 and 2021. Also defaults to `sale.mydec
 any time `iasworld.sales` and `sale.mydec` disagree.
 {% enddocs %}
 
-## sale_price
-
-{% docs shared_column_sale_price %}
-Sale price of a PIN, as recorded on the deed.
-
-Sales are sourced from MyDec/IDOR. This serves as the outcome variable in regression models
-{% enddocs %}
-
 ## sale_is_multisale
 
 {% docs shared_column_sale_is_multisale %}
@@ -1266,6 +1258,14 @@ Indicates whether or not a sale involved multiple parcels
 
 {% docs shared_column_sale_key %}
 iasWorld internal sale identifier
+{% enddocs %}
+
+## sale_price
+
+{% docs shared_column_sale_price %}
+Sale price of a PIN, as recorded on the deed.
+
+Sales are sourced from MyDec/IDOR. This serves as the outcome variable in regression models
 {% enddocs %}
 
 ## seller_name
