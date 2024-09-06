@@ -62,7 +62,6 @@ def check_columns(file_path):
     try:
         with open(file_path, "r") as file:
             first_line = file.readline().strip()
-            file.seek(0)
             if first_line == "# disable-check-sort-order":
                 return {}, []
             data = yaml.safe_load(file)
@@ -383,7 +382,6 @@ def check_all_files(directory):
 
 
 if __name__ == "__main__":
-    directory = "dbt/"
     (
         unsorted_columns_files,
         unsorted_data_tests_files,
@@ -391,7 +389,7 @@ if __name__ == "__main__":
         unsorted_md_files,
         unsorted_columns_md_files,
         unsorted_shared_columns_md_files,
-    ) = check_all_files(directory)
+    ) = check_all_files(os.getcwd())
 
     if unsorted_columns_files:
         print("The following files have unsorted columns:")
@@ -420,8 +418,8 @@ if __name__ == "__main__":
         for file in unsorted_shared_columns_md_files:
             print(f"{file} (1)")
 
-    time.sleep(10)  # Wait so error message lands at bottom
-
+    time.sleep(3)  # Wait so error message lands at bottom
+    print("\n")
     if (
         unsorted_columns_files
         or unsorted_data_tests_files
