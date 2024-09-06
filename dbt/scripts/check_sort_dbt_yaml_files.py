@@ -1,6 +1,5 @@
 import os
 import re
-import time
 from collections import defaultdict
 
 import yaml
@@ -62,6 +61,11 @@ def check_columns(file_path):
     try:
         with open(file_path, "r") as file:
             first_line = file.readline().strip()
+            # This disregards files within the check_columns() function
+            # that have this tag at the top. This is limited to yaml
+            # files with column sorting, if we want to expand we will
+            # have to generalize it or manually add a check to the
+            # other functions
             if first_line == "# disable-check-sort-order":
                 return {}, []
             data = yaml.safe_load(file)
@@ -418,7 +422,6 @@ if __name__ == "__main__":
         for file in unsorted_shared_columns_md_files:
             print(f"{file} (1)")
 
-    time.sleep(3)  # Wait so error message lands at bottom
     print("\n")
     if (
         unsorted_columns_files
