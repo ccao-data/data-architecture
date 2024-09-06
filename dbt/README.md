@@ -796,7 +796,7 @@ python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE" --pr
 
 You should see output like this, which you can run in the context of the
 [`service-spark-iasworld`](https://github.com/ccao-data/service-spark-iasworld/)
-repo on the server in order to refresh iasWorld tables:
+repository on the server in order to refresh iasWorld tables:
 
 ```
 ssh into the server and run the following commands:
