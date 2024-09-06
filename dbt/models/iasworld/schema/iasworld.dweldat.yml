@@ -57,6 +57,8 @@ sources:
                     - card
                     - who
                     - wen
+                  # Excludes non-regression classes, as defined in Assessor's
+                  # online PDF of all class definitions
                   config: &unique-conditions
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
@@ -69,8 +71,6 @@ sources:
               - not_null:
                   name: iasworld_dweldat_attic_not_null
                   additional_select_columns: *select-columns
-                  # Excludes non-regression classes, as defined in Assessor's
-                  # online PDF of all class definitions
                   config: *unique-conditions
                   meta:
                     description: attic (Attic Type) should not be null
@@ -1767,4 +1767,3 @@ sources:
               config: *unique-conditions
               meta:
                 description: dweldat should be unique by parid, card, and taxyr
-
