@@ -3,7 +3,7 @@ name: check-sort-dbt-yaml-files
 on: [pull_request] 
 
 jobs:
-  check-sorting:
+  check-sort-dbt-yaml-files:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
