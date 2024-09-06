@@ -1,6 +1,10 @@
 name: check-sort-dbt-yaml-files
 
-on: [pull_request] 
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
 
 jobs:
   check-sort-dbt-yaml-files:
