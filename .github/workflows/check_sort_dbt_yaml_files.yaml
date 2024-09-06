@@ -20,5 +20,4 @@ jobs:
         python -m pip install --upgrade pip
         pip install pyyaml
     - name: Run dbt yaml sort checks
-      run: ls
       run: python dbt/scripts/check_sort_dbt_yaml_files.py
