@@ -1,8 +1,9 @@
 import os
-import time
-import yaml
 import re
+import time
 from collections import defaultdict
+
+import yaml
 
 
 def normalize_string(s):
