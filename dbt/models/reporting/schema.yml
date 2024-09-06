@@ -25,7 +25,7 @@ models:
             - geo_id
 
   - name: reporting.ratio_stats
-    description: '{{ doc("table_ratio_stats") }}'guit
+    description: '{{ doc("table_ratio_stats") }}'
     config:
       tags:
         - daily
