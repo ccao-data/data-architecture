@@ -104,7 +104,7 @@ def export_models(
     if select and selector:
         raise ValueError("--select and --selector cannot both be set")
 
-    select_args = ["--select", *select] if select else ["--selector", selector]
+    select_args = ["--select", *select] if select else ["--selector", selector]  # type: ignore
 
     if rebuild:
         dbt_run_args = ["run", "--target", target, *select_args]
