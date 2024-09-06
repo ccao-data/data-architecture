@@ -197,7 +197,11 @@ def main():
             # correct filters for each table, but in the meantime, hardcode
             # them based on known exceptions
             if table_name == "sales":
+                # The sales table doesn't have a taxyr column
                 formatted_dep["min_year"] = formatted_dep["max_year"] = None
+            if table_name == "asmt_hist":
+                # The asmt_hist table doesn't have any cur = 'Y' records
+                del formatted_dep["cur"]
 
             iasworld_deps[table_name] = formatted_dep
 
