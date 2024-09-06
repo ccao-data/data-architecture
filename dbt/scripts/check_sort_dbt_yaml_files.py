@@ -62,6 +62,7 @@ def check_columns(file_path):
     try:
         with open(file_path, "r") as file:
             first_line = file.readline().strip()
+            file.seek(0)
             if first_line == "# disable-check-sort-order":
                 return {}, []
             data = yaml.safe_load(file)
