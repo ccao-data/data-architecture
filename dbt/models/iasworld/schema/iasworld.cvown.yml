@@ -13,10 +13,10 @@ sources:
           error_after: {count: 360, period: hour} # 15 days
 
         columns:
-          - name: addr2
-            description: '{{ doc("column_addr2") }}'
           - name: addr1
             description: '{{ doc("column_addr1") }}'
+          - name: addr2
+            description: '{{ doc("column_addr2") }}'
           - name: addr3
             description: '{{ doc("column_addr3") }}'
           - name: addr4
