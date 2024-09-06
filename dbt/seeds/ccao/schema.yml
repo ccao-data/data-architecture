@@ -40,7 +40,7 @@ seeds:
       - name: regression_class
         description: Boolean indicating whether or not this class isincluded in CAMA regressions
       - name: reporting_group
-        description: Reporting group name used for internal CCAO reportsand aggregate statistics
+        description: Reporting group name used for internal CCAO reports and aggregate statistics
 
   - name: ccao.loa
     description: '{{ doc("seed_loa") }}'
