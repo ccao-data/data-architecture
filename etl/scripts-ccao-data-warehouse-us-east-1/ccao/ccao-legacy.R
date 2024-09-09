@@ -27,9 +27,9 @@ files_cc_dli_senfrr <- aws.s3::get_bucket_df(
 # They were cleaned by searching for pipes between fixed column-wise character
 # positions and replacing them with the intended character.
 # Can't be read as a FWF like the ones below because some rows have extra chars
-cc_dli_senfrr <- map_dfr(files_cc_dli_senfrr$Key, \(file) {
+cc_dli_senfrr <- map_dfr(files_cc_dli_senfrr$Key, \(f) {
   aws.s3::s3read_using(
-    object = file,
+    object = f,
     bucket = AWS_S3_RAW_BUCKET,
     FUN = readr::read_delim,
     delim = "|",
@@ -38,12 +38,13 @@ cc_dli_senfrr <- map_dfr(files_cc_dli_senfrr$Key, \(file) {
       "pin", "year", "tax_year", "tax_type", "rec_code",
       "base_value_year_manual_calculation_ind", "base_value_year",
       "base_value_year_total_eav", "cur_year_total_eav", "cur_year_final_eav",
-      "birth_date","applicant_old_name", "applicant_address", "applicant_city",
+      "birth_date", "applicant_old_name", "applicant_address", "applicant_city",
       "applicant_state", "applicant_zip", "applicant_status",
-      "first_app_received_date", "qualified_date", "homeowner_base_year_eq_factor",
-      "bldg_units", "building_shares", "base_value_year_class",
-      "num_units_w_homeowner_exemption", "num_units_w_homestead_exemption",
-      "num_shares_with_senior_freeze", "coop_senior_shares", "pct_senior_shares",
+      "first_app_received_date", "qualified_date",
+      "homeowner_base_year_eq_factor", "bldg_units", "building_shares",
+      "base_value_year_class", "num_units_w_homeowner_exemption",
+      "num_units_w_homestead_exemption", "num_shares_with_senior_freeze",
+      "coop_senior_shares", "pct_senior_shares",
       "num_shares", "pct_of_shares", "sf_percent"
     ),
     col_types = cols(
@@ -97,11 +98,10 @@ cc_dli_senfrr <- map_dfr(files_cc_dli_senfrr$Key, \(file) {
 })
 
 # Write the files to S3, partitioned by year
-remote_file_warehouse_cc_dli_senfrr <- file.path(output_bucket, "cc_dli_senfrr")
 cc_dli_senfrr %>%
   group_by(year) %>%
   arrow::write_dataset(
-    path = remote_file_warehouse_cc_dli_senfrr,
+    path = file.path(output_bucket, "cc_dli_senfrr"),
     format = "parquet",
     hive_style = TRUE,
     compression = "zstd"
@@ -116,9 +116,9 @@ files_cc_pifdb_piexemptre_sted <- aws.s3::get_bucket_df(
 ) %>%
   filter(Size > 0)
 
-cc_pifdb_piexemptre_sted <- map_dfr(files_cc_pifdb_piexemptre_sted$Key, \(file) {
+cc_pifdb_piexemptre_sted <- map_dfr(files_cc_pifdb_piexemptre_sted$Key, \(f) {
   aws.s3::s3read_using(
-    object = file,
+    object = f,
     bucket = AWS_S3_RAW_BUCKET,
     FUN = readr::read_fwf,
     trim_ws = TRUE,
@@ -179,13 +179,12 @@ cc_pifdb_piexemptre_sted <- map_dfr(files_cc_pifdb_piexemptre_sted$Key, \(file) 
 })
 
 # Write the files to S3, partitioned by year
-remote_file_warehouse_cc_pifdb_piexemptre_sted <- file.path(
-  output_bucket, "cc_pifdb_piexemptre_sted"
-)
 cc_pifdb_piexemptre_sted %>%
   group_by(year) %>%
   arrow::write_dataset(
-    path = remote_file_warehouse_cc_pifdb_piexemptre_sted,
+    path = file.path(
+      output_bucket, "cc_pifdb_piexemptre_sted"
+    ),
     format = "parquet",
     hive_style = TRUE,
     compression = "zstd"
@@ -200,9 +199,9 @@ files_cc_pifdb_piexemptre_dise <- aws.s3::get_bucket_df(
 ) %>%
   filter(Size > 0)
 
-cc_pifdb_piexemptre_dise <- map_dfr(files_cc_pifdb_piexemptre_dise$Key, \(file) {
+cc_pifdb_piexemptre_dise <- map_dfr(files_cc_pifdb_piexemptre_dise$Key, \(f) {
   aws.s3::s3read_using(
-    object = file,
+    object = f,
     bucket = AWS_S3_RAW_BUCKET,
     FUN = readr::read_fwf,
     trim_ws = TRUE,
@@ -253,13 +252,12 @@ cc_pifdb_piexemptre_dise <- map_dfr(files_cc_pifdb_piexemptre_dise$Key, \(file) 
 })
 
 # Write the files to S3, partitioned by year
-remote_file_warehouse_cc_pifdb_piexemptre_dise <- file.path(
-  output_bucket, "cc_pifdb_piexemptre_dise"
-)
 cc_pifdb_piexemptre_dise %>%
   group_by(year) %>%
   arrow::write_dataset(
-    path = remote_file_warehouse_cc_pifdb_piexemptre_dise,
+    path = file.path(
+      output_bucket, "cc_pifdb_piexemptre_dise"
+    ),
     format = "parquet",
     hive_style = TRUE,
     compression = "zstd"
