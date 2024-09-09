@@ -735,7 +735,7 @@ We run town close reports using the [`scripts/export_qc_town_close_reports.py`
 script](./scripts/export_qc_town_close_reports.py), which builds on top of
 `export_models`. As such, `export_qc_town_close_reports` expects the same set
 of Python requirements as `export_models`, which can be installed in a virtual
-environment by running `pip install scripts/requirements.export_mod.els.txt`.
+environment by running `pip install scripts/requirements.export_models.txt`.
 
 The script exposes the following options, many of which are the same as
 `export_models`:
