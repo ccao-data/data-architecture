@@ -17,6 +17,32 @@ Reason codes pertian to changes in AV.
 **Primary Key**: `reascd`
 {% enddocs %}
 
+# cc_dli_senfrr
+
+{% docs table_cc_dli_senfrr %}
+Legacy senior freeze exemption data pulled by BoT. Provided via MV 08/18/2024.
+
+**Primary Key**: `pin`, `year`
+{% enddocs %}
+
+# cc_pifdb_piexemptre_dise
+
+{% docs table_cc_pifdb_piexemptre_dise %}
+Legacy homestead (senior) exemption data pulled by BoT. Provided via
+MV 08/18/2024.
+
+**Primary Key**: `pin`, `year`
+{% enddocs %}
+
+# cc_pifdb_piexemptre_sted
+
+{% docs table_cc_pifdb_piexemptre_sted %}
+Legacy disabled persons and veterans exemption data pulled by BoT. Provided via
+MV 08/18/2024.
+
+**Primary Key**: `pin`, `year`
+{% enddocs %}
+
 # class_dict
 
 {% docs seed_class_dict %}

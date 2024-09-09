@@ -8,6 +8,15 @@ sources:
         tags:
           - type_ic
 
+      - name: cc_dli_senfrr
+        description: '{{ doc("table_cc_dli_senfrr") }}'
+
+      - name: cc_pifdb_piexemptre_dise
+        description: '{{ doc("table_cc_pifdb_piexemptre_dise") }}'
+
+      - name: cc_pifdb_piexemptre_sted
+        description: '{{ doc("table_cc_pifdb_piexemptre_sted") }}'
+
       - name: hie
         description: '{{ doc("table_hie") }}'
         tags:
