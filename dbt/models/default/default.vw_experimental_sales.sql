@@ -208,7 +208,7 @@ SELECT
     unique_sales.sale_type,
     unique_sales.sale_filter_same_sale_within_365,
     unique_sales.sale_filter_less_than_10k,
-    unique_sales.sale_filter_deed_type,
+    unique_sales.sale_filter_deed_type
     -- Our sales validation pipeline only validates sales past 2014 due to MyDec
     -- limitations. Previous to that values for sv_is_outlier will be NULL, so
     -- if we want to both exclude detected outliers and include sales prior to
