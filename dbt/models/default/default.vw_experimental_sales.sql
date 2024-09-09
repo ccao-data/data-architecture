@@ -167,7 +167,6 @@ mydec_sales AS (
     WHERE num_single_day_sales = 1
         OR (YEAR(mydec_date) > 2020)
 ),
-*/
 max_version_flag AS (
     SELECT
         meta_sale_document_num,
