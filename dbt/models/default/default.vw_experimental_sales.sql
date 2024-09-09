@@ -166,13 +166,6 @@ mydec_sales AS (
     joined back onto unique_sales will create duplicates by pin/sale date. */
     WHERE num_single_day_sales = 1
         OR (YEAR(mydec_date) > 2020)
-),
-max_version_flag AS (
-    SELECT
-        meta_sale_document_num,
-        MAX(version) AS max_version
-    FROM {{ source('sale', 'flag') }}
-    GROUP BY meta_sale_document_num
 )
 
 SELECT
@@ -220,7 +213,6 @@ SELECT
     -- limitations. Previous to that values for sv_is_outlier will be NULL, so
     -- if we want to both exclude detected outliers and include sales prior to
     -- 2014, we need to code everything NULL as FALSE.
-    COALESCE(sales_val.sv_is_outlier, FALSE) AS sale_filter_is_outlier
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no;
