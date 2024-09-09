@@ -6,16 +6,10 @@ import contextlib
 import datetime
 import io
 import json
-import os
-import sys
 
 from dbt.cli.main import dbtRunner
-
-# Add the parent directory of `scripts` to the module search path
-# so that we can import from other modules in the `scripts` directory
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from scripts.export_models import export_models
+from utils import constants
+from utils.export import export_models
 
 DBT = dbtRunner()
 
@@ -106,10 +100,10 @@ def parse_args() -> argparse.Namespace:
         formatter_class=argparse.RawTextHelpFormatter,
     )
     parser.add_argument(
-        "--target",
-        required=False,
-        default="dev",
-        help="dbt target to use for querying model data, defaults to 'dev'",
+        *constants.TARGET_ARGUMENT_ARGS, **constants.TARGET_ARGUMENT_KWARGS
+    )
+    parser.add_argument(
+        *constants.REBUILD_ARGUMENT_ARGS, **constants.REBUILD_ARGUMENT_KWARGS
     )
     parser.add_argument(
         "--township",
@@ -122,12 +116,6 @@ def parse_args() -> argparse.Namespace:
         default=datetime.datetime.now().year,
         type=int,
         help="Tax year to use in filtering query results. Defaults to the current year",
-    )
-    parser.add_argument(
-        "--rebuild",
-        action=argparse.BooleanOptionalAction,
-        default=False,
-        help="Rebuild models before exporting",
     )
     parser.add_argument(
         "--print-table-refresh-command",
