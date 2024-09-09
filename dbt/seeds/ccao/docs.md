@@ -17,38 +17,18 @@ Reason codes pertian to changes in AV.
 **Primary Key**: `reascd`
 {% enddocs %}
 
-# cc_dli_senfrr
-
-{% docs table_cc_dli_senfrr %}
-Legacy senior freeze exemption data pulled by BoT. Provided via MV 08/18/2024.
-
-**Primary Key**: `pin`, `year`
-{% enddocs %}
-
-# cc_pifdb_piexemptre_dise
-
-{% docs table_cc_pifdb_piexemptre_dise %}
-Legacy homestead (senior) exemption data pulled by BoT. Provided via
-MV 08/18/2024.
-
-**Primary Key**: `pin`, `year`
-{% enddocs %}
-
-# cc_pifdb_piexemptre_sted
-
-{% docs table_cc_pifdb_piexemptre_sted %}
-Legacy disabled persons and veterans exemption data pulled by BoT. Provided via
-MV 08/18/2024.
-
-**Primary Key**: `pin`, `year`
-{% enddocs %}
-
 # class_dict
 
 {% docs seed_class_dict %}
 Table containing a translation for property class codes to human-readable class
 descriptions. Also describes which classes are included in residential
 regressions and reporting classes.
+
+Derived from the 2023
+[PDF](https://prodassets.cookcountyassessor.com/s3fs-public/form_documents/Definitions%20for%20Classifications_2023.pdf)
+
+**Primary Key**: `class_code`
+{% enddocs %}
 
 To find the level of assessment (LoA) for each class, see the `ccao.loa` table.
 
