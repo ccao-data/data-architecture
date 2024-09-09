@@ -56,7 +56,7 @@ unique_sales AS (
         tc.township_code,
         tc.nbhd,
         tc.class,
-        COALESCE(iasw.sale_date, mydec.mydec_date) AS sale_date,
+        COALESCE(iasw.iasw_sale_date, mydec.mydec_date) AS sale_date,
         COALESCE(iasw.sale_price, mydec.sale_price) AS sale_price,
         iasw.sale_key,
         COALESCE(iasw.doc_no, mydec.doc_no) AS doc_no,
@@ -84,7 +84,7 @@ unique_sales AS (
         SELECT
             sales.parid,
             SUBSTR(sales.saledt, 1, 4) AS year,
-            DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d') AS sale_date,
+            DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d') AS iasw_sale_date,
             CAST(sales.price AS BIGINT) AS sale_price,
             sales.salekey AS sale_key,
             NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
