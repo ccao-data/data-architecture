@@ -221,7 +221,7 @@ SELECT
     -- limitations. Previous to that values for sv_is_outlier will be NULL, so
     -- if we want to both exclude detected outliers and include sales prior to
     -- 2014, we need to code everything NULL as FALSE.
-    COALESCE(sales_val.sv_is_outlier, FALSE) AS sale_filter_is_outlier,
+    COALESCE(sales_val.sv_is_outlier, FALSE) AS sale_filter_is_outlier
 FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no;
