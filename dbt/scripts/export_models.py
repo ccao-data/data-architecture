@@ -9,7 +9,6 @@ import json
 import os
 import pathlib
 import shutil
-import typing
 
 import pandas as pd
 import pyathena
@@ -93,7 +92,7 @@ def parse_args():
 
 def export_models(
     target: str = "dev",
-    select: typing.List[str] | None = None,
+    select: list[str] | None = None,
     selector: str | None = None,
     rebuild: bool = False,
     where: str | None = None,
