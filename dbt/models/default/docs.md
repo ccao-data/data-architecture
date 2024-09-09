@@ -21,6 +21,8 @@ and reporting.
 
 Experimental sales view that grabs sales from iasworld and mydec
 
+{% enddocs %}
+
 # vw_pin_address
 
 {% docs view_vw_pin_address %}
