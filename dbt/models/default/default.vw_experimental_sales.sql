@@ -157,6 +157,9 @@ mydec_sales AS (
             REPLACE(document_number, 'D', '') AS doc_no,
             REPLACE(line_1_primary_pin, '-', '') AS pin,
             DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS mydec_date,
+            COUNT() OVER (
+                PARTITION BY line_1_primary_pin, line_4_instrument_date
+            ) AS num_single_day_sales,
             year_of_sale
         FROM {{ source('sale', 'mydec') }}
         WHERE line_2_total_parcels = 1 -- Remove multisales
@@ -166,8 +169,7 @@ mydec_sales AS (
     joined back onto unique_sales will create duplicates by pin/sale date. */
     WHERE num_single_day_sales = 1
         OR (YEAR(mydec_date) > 2020)
-)
-
+),
 SELECT
     unique_sales.pin,
     -- In the past, mydec sale dates were more precise than iasworld dates
