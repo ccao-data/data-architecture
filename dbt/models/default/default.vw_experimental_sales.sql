@@ -169,7 +169,8 @@ mydec_sales AS (
     joined back onto unique_sales will create duplicates by pin/sale date. */
     WHERE num_single_day_sales = 1
         OR (YEAR(mydec_date) > 2020)
-),
+)
+
 SELECT
     unique_sales.pin,
     -- In the past, mydec sale dates were more precise than iasworld dates
