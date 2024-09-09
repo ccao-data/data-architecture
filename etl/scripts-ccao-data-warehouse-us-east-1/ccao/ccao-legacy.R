@@ -92,7 +92,7 @@ cc_dli_senfrr <- map_dfr(files_cc_dli_senfrr$Key, \(f) {
       first_app_received_date = lubridate::ymd(first_app_received_date),
       base_value_year_class = str_sub(base_value_year_class, 4, 6),
       qualified_date = lubridate::ymd(qualified_date),
-      source_file = {{ file }}
+      source_file = {{ f }}
     ) %>%
     select(-X32)
 })
@@ -173,7 +173,7 @@ cc_pifdb_piexemptre_sted <- map_dfr(files_cc_pifdb_piexemptre_sted$Key, \(f) {
       applicant_zip = str_sub(applicant_zip, 5, 9),
       birth_date = lubridate::mdy(birth_date),
       maintenance_date = na_if(maintenance_date, "000000000"),
-      source_file = {{ file }}
+      source_file = {{ f }}
     ) %>%
     select(-filler)
 })
@@ -246,7 +246,7 @@ cc_pifdb_piexemptre_dise <- map_dfr(files_cc_pifdb_piexemptre_dise$Key, \(f) {
         \(x) ifelse(substr(x, 1, 1) == "9", paste0("19", x), paste0("20", x))
       ),
       date_entered = lubridate::ymd(paste0("2", date_entered)),
-      source_file = {{ file }}
+      source_file = {{ f }}
     ) %>%
     select(-filler)
 })
