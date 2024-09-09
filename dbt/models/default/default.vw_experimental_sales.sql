@@ -157,6 +157,8 @@ mydec_sales AS (
             REPLACE(document_number, 'D', '') AS doc_no,
             REPLACE(line_1_primary_pin, '-', '') AS pin,
             DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS mydec_date,
+                        NULLIF(TRIM(seller_name), '') AS seller_name,
+            NULLIF(TRIM(buyer_name), '') AS buyer_name,
             COUNT() OVER (
                 PARTITION BY line_1_primary_pin, line_4_instrument_date
             ) AS num_single_day_sales,
