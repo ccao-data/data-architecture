@@ -15,6 +15,12 @@ and reporting.
 **Primary Key**: `year`, `pin`, `card`
 {% enddocs %}
 
+# vw_experimental_sales
+
+{% docs experimental_sales%}
+
+Experimental sales view that grabs sales from iasworld and mydec
+
 # vw_pin_address
 
 {% docs view_vw_pin_address %}
@@ -146,7 +152,7 @@ Sourced from `iasworld.sales`, which is sourced from
 - Multicard sales are excluded from `mydec` data because they can't be joined
   to `iasworld.sales` (which is only parcel-level) without creating duplicates
 - Sales are unique by `doc_no` if multisales are excluded. When multisales are
-  *not* excluded, sales are unique by `doc_no` and `pin`.
+  _not_ excluded, sales are unique by `doc_no` and `pin`.
 
 ### Lineage
 
