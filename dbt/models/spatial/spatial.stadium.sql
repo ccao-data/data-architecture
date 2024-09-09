@@ -28,4 +28,4 @@ SELECT DISTINCT
     ST_ASBINARY(ST_POINT(stadium_years.x_3435, stadium_years.y_3435))
         AS geometry_3435
 FROM stadium_years
-ORDER BY year, name;
+ORDER BY year, name
