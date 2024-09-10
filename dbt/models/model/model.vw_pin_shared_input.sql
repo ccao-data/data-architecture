@@ -344,7 +344,7 @@ SELECT
     -- Corner lot indicator, only filled after 2014 since that's
     -- when OpenStreetMap data begins
     CASE
-        WHEN CAST(uni.year AS INT) >= 2014
+        WHEN uni.year >= '2014'
             THEN COALESCE(lot.is_corner_lot, FALSE)
     END AS ccao_is_corner_lot,
 
@@ -404,6 +404,6 @@ LEFT JOIN
 LEFT JOIN exemption_features
     ON uni.pin = exemption_features.pin
     AND uni.year = exemption_features.year
-LEFT JOIN {{ source('spatial', 'corner') }} AS lot
-    ON uni.pin10 = lot.pin10
+LEFT JOIN {{ ref('default.vw_pin_status') }} AS lot
+    ON uni.pin = lot.pin
     AND uni.year = lot.year
