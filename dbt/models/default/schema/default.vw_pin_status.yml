@@ -35,7 +35,7 @@ models:
         description: '{{ doc("shared_column_parking_space_flag_reason") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
-      - name: Weirdness
+      - name: weirdness
         description: |
           Test type field from `ccao.test_pin`. Describes why a given parcel
           is used for testing.
