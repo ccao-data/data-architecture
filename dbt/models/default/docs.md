@@ -161,6 +161,15 @@ process. The full data lineage looks something like:
 **Primary Key**: `doc_no`, `pin`
 {% enddocs %}
 
+# vw_pin_status
+
+{% docs view_vw_pin_status %}
+Collection of various different PIN-level physical and assessment-related
+statuses collected and documented across the CCAO and Data department.
+
+**Primary Key**: `year`, `pin`
+{% enddocs %}
+
 # vw_pin_universe
 
 {% docs view_vw_pin_universe %}
