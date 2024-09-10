@@ -5,6 +5,10 @@ models:
     columns:
       - name: class
         description: '{{ doc("shared_column_class") }}'
+      - name: com_cdu
+        description: CDU from `iasworld.comdat` table
+      - name: dwel_cdu
+        description: CDU from `iasworld.dweldat` table
       - name: is_ahsap
         description: '{{ doc("shared_column_is_ahsap") }}'
       - name: is_corner_lot
@@ -23,8 +27,10 @@ models:
         description: '{{ doc("shared_column_is_parking_space") }}'
       - name: is_zero_bill
         description: Parcel with a $0 property tax bill indicator
-      - name: Note
+      - name: note
         description: Pardat note field 2
+      - name: oby_cdu
+        description: CDU from `iasworld.oby` table
       - name: parking_space_flag_reason
         description: '{{ doc("shared_column_parking_space_flag_reason") }}'
       - name: pin
