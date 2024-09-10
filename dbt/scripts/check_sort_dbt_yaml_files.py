@@ -60,17 +60,20 @@ def check_columns(file_path):
     """
     try:
         with open(file_path, "r") as file:
-            first_line = file.readline().strip()
             # This disregards files within the check_columns() function
             # that have this tag at the top. This is limited to yaml
             # files with column sorting, if we want to expand we will
             # have to generalize it or manually add a check to the
             # other functions
+            first_line = file.readline().strip()
             if first_line == "# disable-check-sort-order":
                 return {}, []
+            # Reset the cursor to the start of the file
+            file.seek(0)
             data = yaml.safe_load(file)
     except yaml.YAMLError as error:
         return {}, [f"Error processing {file_path}: {error}"]
+
 
     def check_columns_in_yaml(
         data, file_path, unsorted_files_dict, parent_key=None
