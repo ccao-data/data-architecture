@@ -41,3 +41,10 @@ models:
           is used for testing.
       - name: year
         description: '{{ doc("shared_column_year") }}'
+
+    data_tests:
+      - unique_combination_of_columns:
+          name: default_vw_pin_status_unique_by_14_digit_pin_and_year
+          combination_of_columns:
+            - pin
+            - year
