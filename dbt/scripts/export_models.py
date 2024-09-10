@@ -46,7 +46,7 @@ To output the 2024 AHSAP property report for Hyde Park:
 """  # noqa: E501
 
 
-def main():
+def parse_args():
     parser = argparse.ArgumentParser(
         description=CLI_DESCRIPTION,
         epilog=CLI_EXAMPLE,
@@ -87,20 +87,23 @@ def main():
         help="SQL expression representing a WHERE clause to filter models",
     )
 
-    args = parser.parse_args()
-    target = args.target
-    select = args.select
-    selector = args.selector
-    rebuild = args.rebuild
-    where = args.where
+    return parser.parse_args()
 
+
+def export_models(
+    target: str = "dev",
+    select: list[str] | None = None,
+    selector: str | None = None,
+    rebuild: bool = False,
+    where: str | None = None,
+):
     if not select and not selector:
         raise ValueError("One of --select or --selector is required")
 
     if select and selector:
         raise ValueError("--select and --selector cannot both be set")
 
-    select_args = ["--select", *select] if select else ["--selector", selector]
+    select_args = ["--select", *select] if select else ["--selector", selector]  # type: ignore
 
     if rebuild:
         dbt_run_args = ["run", "--target", target, *select_args]
@@ -284,4 +287,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    export_models(
+        args.target, args.select, args.selector, args.rebuild, args.where
+    )
