@@ -1,9 +1,15 @@
 name: test-dbt-models
 
 # This workflow is not scheduled or run on PRs because it is manually triggered
-# by the Data Department's sqoop data extraction process upon completion. See
-# https://github.com/ccao-data/service-sqoop-iasworld
-on: workflow_dispatch
+# by the Data Department's Spark data extraction process upon completion. See
+# https://github.com/ccao-data/service-spark-iasworld
+on:
+  workflow_dispatch:
+    inputs:
+      send_test_failure_notifications:
+        description: "Whether to notify SNS topic subscribers about failures"
+        required: false
+        type: boolean
 
 jobs:
   test-dbt-models:
@@ -76,7 +82,8 @@ jobs:
             Link to failing workflow:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-      - name: Send data test failure notification
+      - name: Send data test failure notifications
+        if: inputs.send_test_failure_notifications
         run: |
           failure_notifications_file="$PROJECT_DIR/qc_test_results/failure_notifications.json"
           if [ -f "$failure_notifications_file" ]; then
