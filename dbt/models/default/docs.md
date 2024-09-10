@@ -166,6 +166,7 @@ process. The full data lineage looks something like:
 {% docs view_vw_pin_status %}
 Collection of various different PIN-level physical and assessment-related
 statuses collected and documented across the CCAO and Data department.
+Constructs the Data Department's AHSAP indicator.
 
 ### Nuance
 

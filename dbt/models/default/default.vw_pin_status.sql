@@ -60,6 +60,8 @@ WITH ahsap AS (
     GROUP BY par.parid, par.taxyr
 ),
 
+-- These CTEs make it easier to work with CDUs from oby, comdat, pardat since
+-- those tables aren't unique by parid and taxyr.
 dwel_cdu AS (
     SELECT
         dwel.parid,
@@ -122,8 +124,6 @@ SELECT
 FROM {{ source('iasworld', 'pardat') }} AS pdat
 LEFT JOIN {{ source('spatial', 'corner') }} AS colo
     ON SUBSTR(pdat.parid, 1, 10) = colo.pin10
-    -- Corner lot indicator, only filled after 2014 since that's
-    -- when OpenStreetMap data begins
     AND pdat.taxyr = colo.year
 LEFT JOIN ahsap
     ON pdat.parid = ahsap.parid
