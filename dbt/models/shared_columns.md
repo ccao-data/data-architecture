@@ -1085,7 +1085,7 @@ It is unclear of IHDA's data timeline. Year currently refers to final year of ce
 {% docs shared_column_dci %}
 Distressed Communities Index from the Economic Innovation Group.
 
-Unit of observations is Zip Code. Year refers to year of final year of census data used.
+Unit of observations is ZIP Code. Year refers to year of final year of census data used.
 {% enddocs %}
 
 ## ihs_avg_year_index
