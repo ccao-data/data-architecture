@@ -25,6 +25,10 @@ models:
           a value of '8' for the 11th digit of a parcel's PIN.
       - name: is_parking_space
         description: '{{ doc("shared_column_is_parking_space") }}'
+      - name: is_weird
+        description: |
+          Test type field from `ccao.test_pin`. Describes why a given parcel
+          is used for testing.
       - name: is_zero_bill
         description: Parcel with a $0 property tax bill indicator
       - name: note
@@ -35,10 +39,6 @@ models:
         description: '{{ doc("shared_column_parking_space_flag_reason") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
-      - name: weirdness
-        description: |
-          Test type field from `ccao.test_pin`. Describes why a given parcel
-          is used for testing.
       - name: year
         description: '{{ doc("shared_column_year") }}'
 
