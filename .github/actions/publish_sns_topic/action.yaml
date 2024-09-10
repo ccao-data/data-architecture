@@ -15,9 +15,14 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Mask topic ARN
+      run: echo "::add-mask::${{ inputs.sns_topic_arn }}"
+      shell: bash
+
     - name: Publish SNS topic
-      run: ./${{ github.action_path }}/publish.sh \
-          "${{ inputs.sns_topic_arn }}" \
-          "${{ inputs.subject }}" \
-          "${{ inputs.body }}"
+      run: >
+        aws sns publish \
+          --topic-arn "${{ inputs.sns_topic_arn }}" \
+          --subject "${{ inputs.subject }}" \
+          --message "${{ inputs.body }}"
       shell: bash
