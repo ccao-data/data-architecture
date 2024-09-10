@@ -167,6 +167,10 @@ process. The full data lineage looks something like:
 Collection of various different PIN-level physical and assessment-related
 statuses collected and documented across the CCAO and Data department.
 
+### Nuance
+
+- Parcels can have different CDUs from multiple tables
+
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
