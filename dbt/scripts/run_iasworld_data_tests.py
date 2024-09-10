@@ -33,6 +33,7 @@ import simplejson as json
 import yaml
 from dbt.artifacts.schemas.results import TestStatus
 from dbt.cli.main import dbtRunner
+from utils import constants
 
 DBT = dbtRunner()
 
@@ -760,10 +761,7 @@ def main() -> None:
         ),
     )
     parser.add_argument(
-        "--target",
-        required=False,
-        default="dev",
-        help="dbt target to use for running tests, defaults to 'dev'",
+        *constants.TARGET_ARGUMENT_ARGS, **constants.TARGET_ARGUMENT_KWARGS
     )
     parser.add_argument(
         "--vars",

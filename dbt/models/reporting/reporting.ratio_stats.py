@@ -4,14 +4,21 @@ sc.addPyFile(  # noqa: F821
     "s3://ccao-athena-dependencies-us-east-1/assesspy==1.2.0.zip"
 )
 
-import numpy as np  # noqa: E402
+import numpy as np  # noqa: I001 E402
 import pandas as pd  # noqa: E402
-from assesspy import boot_ci  # noqa: E402
-from assesspy import cod  # noqa: E402
-from assesspy import prd_met  # noqa: E402
-from assesspy import cod_ci as cod_boot  # noqa: E402
-from assesspy import cod_met, mki, mki_met, prb, prb_met, prd  # noqa: E402
-from assesspy import prd_ci as prd_boot  # noqa: E402
+from assesspy import (  # noqa: E402
+    boot_ci,  # noqa: E402
+    cod,  # noqa: E402
+    cod_ci as cod_boot,  # noqa: E402
+    cod_met,  # noqa: E402
+    mki,  # noqa: E402
+    mki_met,  # noqa: E402
+    prb,  # noqa: E402
+    prb_met,  # noqa: E402
+    prd,  # noqa: E402
+    prd_met,  # noqa: E402
+    prd_ci as prd_boot,  # noqa: E402
+)
 
 
 def median_boot(ratio, nboot=100, alpha=0.05):

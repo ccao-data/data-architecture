@@ -1,0 +1,122 @@
+sources:
+  - name: iasworld_test
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
+    tags:
+      - load_auto
+      - type_res
+
+    tables:
+      - name: addn
+        description: |
+          Test environment version of the production
+          [`addn` table](#!/source/source.ccao_data_athena.iasworld.addn).
+
+      - name: addrindx
+        description: |
+          Test environment version of the production
+          [`addrindx` table](#!/source/source.ccao_data_athena.iasworld.addrindx).
+
+      - name: aprval
+        description: |
+          Test environment version of the production
+          [`aprval` table](#!/source/source.ccao_data_athena.iasworld.aprval).
+
+      - name: asmt_hist
+        description: |
+          Test environment version of the production
+          [`asmt_hist` table](#!/source/source.ccao_data_athena.iasworld.asmt_hist).
+
+      - name: cname
+        description: |
+          Test environment version of the production
+          [`cname` table](#!/source/source.ccao_data_athena.iasworld.cname).
+
+      - name: comnt
+        description: |
+          Test environment version of the production
+          [`comnt` table](#!/source/source.ccao_data_athena.iasworld.comnt).
+
+      - name: cvleg
+        description: |
+          Test environment version of the production
+          [`cvleg` table](#!/source/source.ccao_data_athena.iasworld.cvleg).
+
+      - name: cvown
+        description: |
+          Test environment version of the production
+          [`cvown` table](#!/source/source.ccao_data_athena.iasworld.cvown).
+
+      - name: cvtran
+        description: |
+          Test environment version of the production
+          [`cvtran` table](#!/source/source.ccao_data_athena.iasworld.cvtran).
+
+      - name: dweldat
+        description: |
+          Test environment version of the production
+          [`dweldat` table](#!/source/source.ccao_data_athena.iasworld.dweldat).
+
+      - name: enter
+        description: |
+          Test environment version of the production
+          [`enter` table](#!/source/source.ccao_data_athena.iasworld.enter).
+
+      - name: exadmn
+        description: |
+          Test environment version of the production
+          [`exadmn` table](#!/source/source.ccao_data_athena.iasworld.exadmn).
+
+      - name: exapp
+        description: |
+          Test environment version of the production
+          [`exapp` table](#!/source/source.ccao_data_athena.iasworld.exapp).
+
+      - name: exdet
+        description: |
+          Test environment version of the production
+          [`exdet` table](#!/source/source.ccao_data_athena.iasworld.exdet).
+
+      - name: htdates
+        description: |
+          Test environment version of the production
+          [`htdates` table](#!/source/source.ccao_data_athena.iasworld.htdates).
+
+      - name: htpar
+        description: |
+          Test environment version of the production
+          [`htpar` table](#!/source/source.ccao_data_athena.iasworld.htpar).
+
+      - name: land
+        description: |
+          Test environment version of the production
+          [`land` table](#!/source/source.ccao_data_athena.iasworld.land).
+
+      - name: legdat
+        description: |
+          Test environment version of the production
+          [`legdat` table](#!/source/source.ccao_data_athena.iasworld.legdat).
+
+      - name: oby
+        description: |
+          Test environment version of the production
+          [`oby` table](#!/source/source.ccao_data_athena.iasworld.oby).
+
+      - name: owndat
+        description: |
+          Test environment version of the production
+          [`owndat` table](#!/source/source.ccao_data_athena.iasworld.owndat).
+
+      - name: pardat
+        description: |
+          Test environment version of the production
+          [`pardat` table](#!/source/source.ccao_data_athena.iasworld.pardat).
+
+      - name: permit
+        description: |
+          Test environment version of the production
+          [`permit` table](#!/source/source.ccao_data_athena.iasworld.permit).
+
+      - name: sales
+        description: |
+          Test environment version of the production
+          [`sales` table](#!/source/source.ccao_data_athena.iasworld.sales).
