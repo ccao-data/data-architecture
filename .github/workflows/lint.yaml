@@ -39,8 +39,5 @@ jobs:
           VALIDATE_PYTHON_ISORT: false
           VALIDATE_PYTHON_PYLINT: false
           VALIDATE_PYTHON_RUFF: false
-          # The natural language check slows down our velocity and is rarely
-          # helpful
-          VALIDATE_NATURAL_LANGUAGE: false
           LINTER_RULES_PATH: /
           YAML_CONFIG_FILE: .yamllint.yml
