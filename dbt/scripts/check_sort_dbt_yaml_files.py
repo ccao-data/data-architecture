@@ -74,7 +74,6 @@ def check_columns(file_path):
     except yaml.YAMLError as error:
         return {}, [f"Error processing {file_path}: {error}"]
 
-
     def check_columns_in_yaml(
         data, file_path, unsorted_files_dict, parent_key=None
     ):
