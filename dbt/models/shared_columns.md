@@ -875,10 +875,34 @@ purposes. See `ccao.class_dict` for more information
 Parcel has an active homeowner exemption
 {% enddocs %}
 
+## is_ahsap
+
+{% docs shared_column_is_ahsap %}
+Affordable Housing Special Assessment Program indicator. For more information on
+AHSAP, see: https://www.cookcountyassessor.com/affordable-housing
+{% enddocs %}
+
+## is_common_area
+
+{% docs shared_column_is_common_area %}
+Building common area.
+
+Detected primarily through prior AV of less than $10.
+{% enddocs %}
+
 ## is_corner_lot
 
 {% docs shared_column_is_corner_lot %}
 Corner lot indicator
+{% enddocs %}
+
+## is_parking_space
+
+{% docs shared_column_is_parking_space %}
+Deeded parking/garage space or storage unit.
+
+          Detected either by valuations, CDU, or unit
+          number/proration rate heuristics.
 {% enddocs %}
 
 ## modeling_group
@@ -905,6 +929,12 @@ Geographic neighborhoods intended to represent relatively homogeneous
 housing sub-markets. They were created a long time ago for internal use by the
 various property tax offices. The Assessor now uses them as units of work and
 analysis. For example, land rates are usually delimited by neighborhood
+{% enddocs %}
+
+## parking_space_flag_reason
+
+{% docs shared_column_parking_space_flag_reason %}
+Parking space/storage unit heuristic used to flag this PIN
 {% enddocs %}
 
 ## pin

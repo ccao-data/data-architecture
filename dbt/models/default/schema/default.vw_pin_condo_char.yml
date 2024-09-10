@@ -35,21 +35,14 @@ models:
       - name: class
         description: '{{ doc("shared_column_class") }}'
       - name: is_common_area
-        description: |
-          Building common area.
-
-          Detected primarily through prior AV of less than $10.
+        description: '{{ doc("shared_column_is_common_area") }}'
       - name: is_negative_pred
         description: Indicates a negative prediction when testing models.
 
           Typically this results from mislabeled parking spaces which have
           a very low percentage of ownership.
       - name: is_parking_space
-        description: |
-          Deeded parking/garage space or storage unit.
-
-          Detected either by valuations, CDU, or unit
-          number/proration rate heuristics.
+        description: '{{ doc("shared_column_is_parking_space") }}'
       - name: is_question_garage_unit
         description: Parking/garage space or storage unit indicator
       - name: lline
@@ -57,7 +50,7 @@ models:
       - name: oneyr_pri_board_tot
         description: '{{ doc("shared_column_board_tot") }}'
       - name: parking_space_flag_reason
-        description: Parking space/storage unit heuristic used to flag this PIN
+        description: '{{ doc("shared_column_parking_space_flag_reason") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: pin10

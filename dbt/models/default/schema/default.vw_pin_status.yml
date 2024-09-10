@@ -1,0 +1,37 @@
+models:
+  - name: default.vw_pin_status
+    description: '{{ doc("view_vw_pin_status") }}'
+
+    columns:
+      - name: class
+        description: '{{ doc("shared_column_class") }}'
+      - name: is_ahsap
+        description: '{{ doc("shared_column_is_ahsap") }}'
+      - name: is_corner_lot
+        description: '{{ doc("shared_column_is_corner_lot") }}'
+      - name: is_common_area
+        description: '{{ doc("shared_column_is_common_area") }}'
+      - name: is_corner_lot
+        description: Property tax exempt parcel indicator
+      - name: is_leasehold
+        description: |
+          Leasehold parcel indicator. A leasehold is a form of land
+          tenure or property tenure where one party buys the right to occupy
+          land or a building for a given time. The CCAO records leaseholds as
+          a value of '8' for the 11th digit of a parcel's PIN.
+      - name: is_parking_space
+        description: '{{ doc("shared_column_is_parking_space") }}'
+      - name: is_zero_bill
+        description: Parcel with a $0 property tax bill indicator
+      - name: Note
+        description: Pardat note field 2
+      - name: parking_space_flag_reason
+        description: '{{ doc("shared_column_parking_space_flag_reason") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: Weirdness
+        description: |
+          Test type field from `ccao.test_pin`. Describes why a given parcel
+          is used for testing.
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
