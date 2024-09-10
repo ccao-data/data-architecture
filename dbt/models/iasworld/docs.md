@@ -137,7 +137,7 @@ Field inspection tracking table.
 {% docs table_exadmn %}
 Exemption applications table.
 
-**Primary Key**: `jur`, `taxyr`, `parid` `caseno`
+**Primary Key**: `jur`, `taxyr`, `parid`, `caseno`
 {% enddocs %}
 
 # exapp
@@ -145,7 +145,7 @@ Exemption applications table.
 {% docs table_exapp %}
 Exemption applicant information table.
 
-**Primary Key**: `jur`, `taxyr`, `parid` `caseno`
+**Primary Key**: `jur`, `taxyr`, `parid`, `caseno`
 {% enddocs %}
 
 # excode

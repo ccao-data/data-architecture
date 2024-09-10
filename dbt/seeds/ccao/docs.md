@@ -24,6 +24,12 @@ Table containing a translation for property class codes to human-readable class
 descriptions. Also describes which classes are included in residential
 regressions and reporting classes.
 
+Derived from the 2023
+[PDF](https://prodassets.cookcountyassessor.com/s3fs-public/form_documents/Definitions%20for%20Classifications_2023.pdf)
+
+**Primary Key**: `class_code`
+{% enddocs %}
+
 To find the level of assessment (LoA) for each class, see the `ccao.loa` table.
 
 **Primary Key**: `class_code`
