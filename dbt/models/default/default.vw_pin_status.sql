@@ -116,7 +116,7 @@ SELECT
     vpcc.parking_space_flag_reason,
     vpcc.is_common_area,
     SUBSTR(pdat.parid, 11, 1) = '8' AS is_leasehold,
-    ptst.test_type AS is_weird,
+    ptst.test_type AS weirdness,
     oby.cdu AS oby_cdu,
     cdat.cdu AS com_cdu,
     ddat.cdu AS dwel_cdu,
