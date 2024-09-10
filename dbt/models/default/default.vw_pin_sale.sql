@@ -257,6 +257,7 @@ sales_val AS (
 )
 
 SELECT
+    COALESCE(unique_sales.doc_no, mydec_sales.doc_no) AS doc_no,
     unique_sales.pin,
     -- In the past, mydec sale dates were more precise than iasworld dates
     -- which had been truncated
@@ -333,9 +334,14 @@ SELECT
     sales_val.sv_outlier_reason2,
     sales_val.sv_outlier_reason3,
     sales_val.sv_run_id,
-    sales_val.sv_version
+    sales_val.sv_version,
+    CASE 
+        WHEN unique_sales.doc_no IS NULL THEN 'Only in mydec_sales'
+        WHEN mydec_sales.doc_no IS NULL THEN 'Only in unique_sales'
+        ELSE 'In both'
+    END AS source_indicator
 FROM unique_sales
 FULL OUTER JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
 LEFT JOIN sales_val
-    ON unique_sales.doc_no = sales_val.meta_sale_document_num;
+    ON COALESCE(unique_sales.doc_no, mydec_sales.doc_no) = sales_val.meta_sale_document_num;
