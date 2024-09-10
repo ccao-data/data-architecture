@@ -20,7 +20,6 @@ import sys
 
 import boto3
 
-
 if __name__ == "__main__":
     filepath = sys.argv[1]
     client = boto3.client("sns")
