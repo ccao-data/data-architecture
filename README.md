@@ -24,8 +24,3 @@ modeling, reporting, and data integrity work.
   data into the lakehouse as dbt sources
 - [./socrata](./socrata) contains column transformations for the CCAO's
   [Open Data Portal](https://datacatalog.cookcountyil.gov/) assets
-
-Testing natural language check:
-
-* website
-* repo
