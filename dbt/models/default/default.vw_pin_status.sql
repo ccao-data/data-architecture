@@ -72,6 +72,34 @@ dwel_cdu AS (
         AND dwel.cur = 'Y'
         AND dwel.deactivat IS NULL
     GROUP BY dwel.parid, dwel.taxyr
+),
+
+com_cdu AS (
+    SELECT
+        com.parid,
+        com.taxyr,
+        ARRAY_JOIN(
+            ARRAY_SORT(ARRAY_DISTINCT(ARRAY_AGG(com.user16))), ', '
+        ) AS cdu
+    FROM {{ source('iasworld', 'comdat') }} AS com
+    WHERE com.user16 IS NOT NULL
+        AND com.cur = 'Y'
+        AND com.deactivat IS NULL
+    GROUP BY com.parid, com.taxyr
+),
+
+oby_cdu AS (
+    SELECT
+        oby.parid,
+        oby.taxyr,
+        ARRAY_JOIN(
+            ARRAY_SORT(ARRAY_DISTINCT(ARRAY_AGG(oby.user16))), ', '
+        ) AS cdu
+    FROM {{ source('iasworld', 'oby') }} AS oby
+    WHERE oby.user16 IS NOT NULL
+        AND oby.cur = 'Y'
+        AND oby.deactivat IS NULL
+    GROUP BY oby.parid, oby.taxyr
 )
 
 SELECT
@@ -86,8 +114,8 @@ SELECT
     vpcc.parking_space_flag_reason,
     vpcc.is_common_area,
     SUBSTR(pdat.parid, 11, 1) = '8' AS is_leasehold,
-    oby.user16 AS oby_cdu,
-    cdat.user16 AS com_cdu,
+    oby.cdu AS oby_cdu,
+    cdat.cdu AS com_cdu,
     ddat.cdu AS dwel_cdu,
     pdat.note2 AS note,
     ptst.test_type AS weirdness
@@ -109,16 +137,12 @@ LEFT JOIN {{ source('tax', 'pin') }} AS pin
 LEFT JOIN {{ ref('default.vw_pin_condo_char') }} AS vpcc
     ON pdat.parid = vpcc.pin
     AND pdat.taxyr = vpcc.year
-LEFT JOIN {{ source('iasworld', 'oby') }} AS oby
+LEFT JOIN oby_cdu AS oby
     ON pdat.parid = oby.parid
     AND pdat.taxyr = oby.taxyr
-    AND oby.cur = 'Y'
-    AND oby.deactivat IS NULL
-LEFT JOIN {{ source('iasworld', 'comdat') }} AS cdat
+LEFT JOIN com_cdu AS cdat
     ON pdat.parid = cdat.parid
     AND pdat.taxyr = cdat.taxyr
-    AND cdat.cur = 'Y'
-    AND cdat.deactivat IS NULL
 LEFT JOIN dwel_cdu AS ddat
     ON pdat.parid = ddat.parid
     AND pdat.taxyr = ddat.taxyr
