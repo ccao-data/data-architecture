@@ -257,10 +257,7 @@ sales_val AS (
 )
 
 SELECT
-    COALESCE(unique_sales.doc_no, mydec_sales.doc_no) AS doc_no,
     unique_sales.pin,
-    -- In the past, mydec sale dates were more precise than iasworld dates
-    -- which had been truncated
     CASE
         WHEN
             mydec_sales.mydec_date IS NOT NULL
@@ -271,8 +268,6 @@ SELECT
     unique_sales.township_code,
     unique_sales.nbhd,
     unique_sales.class,
-    -- In the past, mydec sale dates were more precise than iasworld dates
-    -- which had been truncated
     CASE
         WHEN
             mydec_sales.mydec_date IS NOT NULL
@@ -280,7 +275,6 @@ SELECT
             THEN mydec_sales.mydec_date
         ELSE unique_sales.sale_date
     END AS sale_date,
-    -- From 2021 on iasWorld uses precise MyDec dates
     COALESCE(
         mydec_sales.mydec_date IS NOT NULL
         OR YEAR(unique_sales.sale_date) >= 2021,
@@ -298,16 +292,12 @@ SELECT
     unique_sales.sale_filter_same_sale_within_365,
     unique_sales.sale_filter_less_than_10k,
     unique_sales.sale_filter_deed_type,
-    -- Our sales validation pipeline only validates sales past 2014 due to MyDec
-    -- limitations. Previous to that values for sv_is_outlier will be NULL, so
-    -- if we want to both exclude detected outliers and include sales prior to
-    -- 2014, we need to code everything NULL as FALSE.
     COALESCE(sales_val.sv_is_outlier, FALSE) AS sale_filter_is_outlier,
     mydec_sales.mydec_deed_type,
     mydec_sales.sale_filter_ptax_flag,
     mydec_sales.mydec_property_advertised,
     mydec_sales.mydec_is_installment_contract_fulfilled,
-    mydec_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates, -- noqa
+    mydec_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates, 
     mydec_sales.mydec_is_transfer_of_less_than_100_percent_interest,
     mydec_sales.mydec_is_court_ordered_sale,
     mydec_sales.mydec_is_sale_in_lieu_of_foreclosure,
@@ -316,7 +306,7 @@ SELECT
     mydec_sales.mydec_is_bank_reo_real_estate_owned,
     mydec_sales.mydec_is_auction_sale,
     mydec_sales.mydec_is_seller_buyer_a_relocation_company,
-    mydec_sales.mydec_is_seller_buyer_a_financial_institution_or_government_agency, -- noqa
+    mydec_sales.mydec_is_seller_buyer_a_financial_institution_or_government_agency,
     mydec_sales.mydec_is_buyer_a_real_estate_investment_trust,
     mydec_sales.mydec_is_buyer_a_pension_fund,
     mydec_sales.mydec_is_buyer_an_adjacent_property_owner,
@@ -335,13 +325,11 @@ SELECT
     sales_val.sv_outlier_reason3,
     sales_val.sv_run_id,
     sales_val.sv_version,
-    CASE 
-        WHEN unique_sales.doc_no IS NULL THEN 'Only in mydec_sales'
-        WHEN mydec_sales.doc_no IS NULL THEN 'Only in unique_sales'
-        ELSE 'In both'
-    END AS source_indicator
+    -- Add indicator columns for null document numbers
+    CASE WHEN unique_sales.doc_no IS NULL THEN 1 ELSE 0 END AS is_unique_sales_null,
+    CASE WHEN mydec_sales.doc_no IS NULL THEN 1 ELSE 0 END AS is_mydec_sales_null
 FROM unique_sales
 FULL OUTER JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
 LEFT JOIN sales_val
-    ON COALESCE(unique_sales.doc_no, mydec_sales.doc_no) = sales_val.meta_sale_document_num;
+    ON unique_sales.doc_no = sales_val.meta_sale_document_num;
