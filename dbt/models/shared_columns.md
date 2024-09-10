@@ -855,7 +855,7 @@ Condition/Desirability/Utility code.
 Code representing any number of seemingly unrelated characteristics
 associated with a PIN, ranging from condition to types of subsidies, to
 whether or not a PIN is a garage. The full list of CDU codes can be found on
-the Assessor's website
+the Assessor's site
 {% enddocs %}
 
 ## class
@@ -1243,7 +1243,7 @@ Can be truncated by MyDec/IDOR. See Clerk/Recorder of Deeds for full name.
 Deed number/document number of the sale.
 
 Serves as the unique identifier for each sale. Can be used to lookup more
-information on the Clerk/Recorder of Deeds website.
+information on the Clerk/Recorder of Deeds site.
 {% enddocs %}
 
 ## deed_type
@@ -1342,8 +1342,8 @@ NOTE: Outlier flags only exist for sales _after_ 2014.
 {% docs shared_column_sv_outlier_reason %}
 Heuristic or model used to flag an outlier.
 
-See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
-for a list of possible flags.
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val)
+repository for a list of possible flags.
 {% enddocs %}
 
 ## sv_run_id
