@@ -1,4 +1,29 @@
-WITH
+-- Class and township of associated PIN
+WITH town_class AS (
+    SELECT
+        par.parid,
+        REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') AS class,
+        par.taxyr,
+        leg.user1 AS township_code,
+        td.township_name,
+        CONCAT(
+            leg.user1, SUBSTR(REGEXP_REPLACE(par.nbhd, '([^0-9])', ''), 3, 3)
+        ) AS nbhd
+    FROM iasworld.pardat AS par
+    LEFT JOIN iasworld.legdat AS leg
+        ON par.parid = leg.parid
+        AND par.taxyr = leg.taxyr
+        AND leg.cur = 'Y'
+        AND leg.deactivat IS NULL
+    LEFT JOIN (
+        SELECT DISTINCT township_name, township_code
+        FROM default.vw_pin_universe
+    ) AS td
+        ON leg.user1 = td.township_code
+    WHERE par.cur = 'Y'
+        AND par.deactivat IS NULL
+),
+
 calculated AS (
     SELECT
         instruno,
@@ -15,11 +40,20 @@ calculated AS (
 ),
 
 ias_sales AS (
-    SELECT *
+    SELECT *,
+        -- Historically, this view excluded sales for a given pin if it had sold
+        -- within the last 12 months for the same price. This filter allows us
+        -- to filter out those sales.
+        COALESCE(
+            EXTRACT(DAY FROM sale_date - same_price_earlier_date) <= 365,
+            FALSE
+        ) AS sale_filter_same_sale_within_365
     FROM (
         SELECT
             sales.parid AS pin,
             NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
+            tc.class,
+            tc.township_code,
             DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d') AS sale_date,
             CAST(sales.price AS BIGINT) AS sale_price,
             COALESCE(
@@ -54,14 +88,30 @@ ias_sales AS (
                     sales.price > 10000
                 ORDER BY sales.saledt ASC, sales.salekey ASC
             ) AS bad_doc_no,
+                        LAG(DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) OVER (
+                PARTITION BY
+                    sales.parid,
+                    sales.price,
+                    sales.instrtyp NOT IN ('03', '04', '06')
+                ORDER BY sales.saledt ASC, sales.salekey ASC
+            ) AS same_price_earlier_date,
             sales.price <= 10000 AS sale_filter_less_than_10k
         FROM iasworld.sales AS sales
         LEFT JOIN
             calculated
             ON calculated.instruno = NULLIF(REPLACE(sales.instruno, 'D', ''), '')
+        LEFT JOIN
+            town_class AS tc
+            ON sales.parid = tc.parid
+            AND SUBSTR(sales.saledt, 1, 4) = tc.taxyr
         WHERE
             sales.deactivat IS NULL
             AND sales.cur = 'Y'
+            AND CAST(SUBSTR(sales.saledt, 1, 4) AS INT) BETWEEN 1997 AND YEAR(
+                CURRENT_DATE
+            )
+            AND tc.township_code IS NOT NULL
+            AND sales.price IS NOT NULL
     ) AS subquery
     -- Only use max price by pin/sale date
     WHERE max_price = 1
@@ -72,8 +122,10 @@ mydec_sales AS (
     SELECT *
     FROM (
         SELECT
-            REPLACE(document_number, 'D', '') AS doc_no,
             REPLACE(line_1_primary_pin, '-', '') AS pin,
+            REPLACE(document_number, 'D', '') AS doc_no,
+            tc.class,
+            tc.township_code,
             DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS sale_date,
             line_11_full_consideration AS sale_price,
             NULLIF(TRIM(seller_name), '') AS seller_name,
@@ -89,6 +141,10 @@ mydec_sales AS (
             year_of_sale,
             line_11_full_consideration <= 10000 AS sale_filter_less_than_10k
         FROM sale.mydec
+        LEFT JOIN
+            town_class AS tc
+            ON mydec.line_1_primary_pin = tc.parid
+            AND SUBSTR(mydec.line_4_instrument_date, 1, 4) = tc.taxyr
         WHERE line_2_total_parcels = 1 -- Remove multisales
     ) AS derived_table
     WHERE num_single_day_sales = 1
@@ -100,6 +156,8 @@ combined_sales AS (
     SELECT
         ias.pin,
         ias.doc_no,
+        ias.township_code,
+        ias.class,
         COALESCE(mydec.sale_date, ias.sale_date) AS sale_date,
         COALESCE(mydec.sale_date IS NOT NULL, FALSE)
             AS is_mydec_date,
@@ -119,6 +177,8 @@ combined_sales AS (
     SELECT
         mydec.pin,
         mydec.doc_no,
+        mydec.township_code,
+        mydec.class,
         mydec.sale_date,
         TRUE AS is_mydec_date,
         mydec.sale_price,
@@ -133,4 +193,4 @@ combined_sales AS (
     WHERE ias.doc_no IS NULL
 )
 
-SELECT * FROM combined_sales
+SELECT * FROM combined_sales 
