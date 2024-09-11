@@ -89,7 +89,7 @@ ias_sales AS (
                     sales.price > 10000
                 ORDER BY sales.saledt ASC, sales.salekey ASC
             ) AS bad_doc_no,
-                        LAG(DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) OVER (
+            LAG(DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) OVER (
                 PARTITION BY
                     sales.parid,
                     sales.price,
@@ -155,6 +155,32 @@ mydec_sales AS (
         OR (YEAR(sale_date) > 2020)
 ),
 
+max_version_flag AS (
+    SELECT
+        meta_sale_document_num,
+        MAX(version) AS max_version
+    FROM sale.flag
+    GROUP BY meta_sale_document_num
+),
+
+sales_val AS (
+    SELECT
+        sf.meta_sale_document_num,
+        sf.sv_is_outlier,
+        sf.sv_is_ptax_outlier,
+        sf.sv_is_heuristic_outlier,
+        sf.sv_outlier_reason1,
+        sf.sv_outlier_reason2,
+        sf.sv_outlier_reason3,
+        sf.run_id AS sv_run_id,
+        sf.version AS sv_version
+    FROM
+        sale.flag AS sf
+    INNER JOIN max_version_flag AS mv
+        ON sf.meta_sale_document_num = mv.meta_sale_document_num
+        AND sf.version = mv.max_version
+),
+
 combined_sales AS (
     -- Select all rows from ias_sales
     SELECT
@@ -172,9 +198,19 @@ combined_sales AS (
         ias.is_multisale,
         ias.num_parcels_sale,
         ias.sale_filter_less_than_10k,
-        'iasworld' AS source
+        'iasworld' AS source,
+        sales_val.sv_is_outlier,
+        sales_val.sv_is_ptax_outlier,
+        sales_val.sv_is_heuristic_outlier,
+        sales_val.sv_outlier_reason1,
+        sales_val.sv_outlier_reason2,
+        sales_val.sv_outlier_reason3,
+        sales_val.sv_run_id,
+        sales_val.sv_version
     FROM ias_sales AS ias
     LEFT JOIN mydec_sales AS mydec ON ias.doc_no = mydec.doc_no
+    LEFT JOIN sales_val
+    ON ias.doc_no = sales_val.meta_sale_document_num
 
     UNION ALL
 
@@ -193,8 +229,18 @@ combined_sales AS (
         mydec.is_multisale,
         mydec.num_parcels_sale,
         mydec.sale_filter_less_than_10k,
-        'mydec' AS source
+        'mydec' AS source,
+        sales_val.sv_is_outlier,
+        sales_val.sv_is_ptax_outlier,
+        sales_val.sv_is_heuristic_outlier,
+        sales_val.sv_outlier_reason1,
+        sales_val.sv_outlier_reason2,
+        sales_val.sv_outlier_reason3,
+        sales_val.sv_run_id,
+        sales_val.sv_version
     FROM mydec_sales AS mydec
+    LEFT JOIN sales_val
+    ON mydec.doc_no = sales_val.meta_sale_document_num
     LEFT JOIN ias_sales AS ias ON mydec.doc_no = ias.doc_no
     WHERE ias.doc_no IS NULL
 )
