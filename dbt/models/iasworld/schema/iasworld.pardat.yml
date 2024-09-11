@@ -1,13 +1,17 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: pardat
         description: '{{ doc("table_pardat") }}'
+        freshness:
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
 
         columns:
           - name: acres
@@ -70,24 +74,55 @@ sources:
             description: '{{ doc("column_cityname") }}'
           - name: class
             description: '{{ doc("shared_column_class") }}'
-            tests:
+            data_tests:
+              - expression_is_true:
+                  name: iasworld_pardat_class_equals_luc
+                  expression: '= luc'
+                  additional_select_columns:
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
+                    - luc
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class should be the same as luc
               - relationships:
                   name: iasworld_pardat_class_in_ccao_class_dict
-                  to: source('ccao', 'class_dict')
+                  to: ref('ccao.class_dict')
                   field: class_code
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
                   config:
                     where: |
-                      taxyr >= '2022'
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND class NOT IN ('EX', 'RR')
                       AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class_code should be valid
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_pardat_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: farminc
@@ -108,6 +143,8 @@ sources:
             description: Landisc frame number
           - name: livunit
             description: Number of living units
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: loc2
             description: '{{ doc("column_loc2") }}'
           - name: location
@@ -130,6 +167,28 @@ sources:
             description: Jurisdictions (Municipalities) used as part of Folio number (BCA)
           - name: nbhd
             description: '{{ doc("shared_column_nbhd_code") }}'
+            data_tests:
+            - row_values_match_after_join:
+                name: iasworld_pardat_nbhd_matches_legdat_township
+                external_model: source('iasworld', 'legdat')
+                external_column_name: user1
+                column_alias: nbhd_code
+                external_column_alias: township_code
+                additional_select_columns:
+                  - model.taxyr
+                  - model.parid
+                  - model.who
+                  - model.wen
+                join_condition:
+                  ON  substr(model.nbhd, 1, 2) != external_model.user1
+                  AND model.parid = external_model.parid
+                  AND model.taxyr = external_model.taxyr
+                  AND external_model.cur = 'Y'
+                  AND external_model.deactivat IS NULL
+                config: *unique-conditions
+                meta:
+                  category: relationships
+                  description: nbhd code first 2 digits should match legdat.user1 (township code)
           - name: nbhdie
             description: Neighborhood income valuation
           - name: nonfarminc
@@ -188,16 +247,18 @@ sources:
             description: Security field
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
-              - dbt_utils.sequential_values:
+            data_tests:
+              - sequential_values:
                   name: iasworld_pardat_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
-                  config: &unique-conditions
-                    where: |
-                      cur = 'Y'
-                      AND deactivat IS NULL
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: skip_addr_validation
             description: '{{ doc("column_skip_addr_validation") }}'
           - name: splitno
@@ -220,6 +281,19 @@ sources:
             description: '{{ doc("shared_column_year") }}'
           - name: tieback
             description: '{{ doc("shared_column_tieback_key_pin") }}'
+            data_tests:
+              - expression_is_true:
+                  name: iasworld_pardat_tieback_does_not_contain_hyphen
+                  expression: not like '%-%'
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    category: incorrect_values
+                    description: tieback should not contain hyphens
+                  tags:
+                    # Valuations can't act on these failures since hyphens are
+                    # not distinguishable in the iasWorld UI
+                    - data_test_iasworld_exclude_from_workbook
           - name: tiebkcd
             description: Tieback code
           - name: tiebldgpct
@@ -265,31 +339,47 @@ sources:
           - name: zip2
             description: '{{ doc("column_zip2") }}'
 
-        tests:
+        data_tests:
+          - expression_is_true:
+              name: iasworld_pardat_adrno_length_lte_5
+              expression: LENGTH(CAST(adrno AS varchar)) <= 5
+              additional_select_columns:
+                - parid
+                - taxyr
+                - who
+                - wen
+                - adrno
+              config: *unique-conditions
+              meta:
+                category: column_length
+                description: adrno should be <= 5 characters long
           - column_is_subset_of_external_column:
               name: iasworld_pardat_nbhd_matches_spatial_town_nbhd
               column: nbhd
               external_model: spatial.neighborhood
               external_column: town_nbhd
-              additional_select_columns:
-                - parid
-                - taxyr
+              additional_select_columns: *select-columns
               config:
                 # Codes ending in 999 are dummy codes used for some purpose,
                 # although we do not yet know what it is
                 where: |
                   (taxyr BETWEEN '2010' AND CAST(YEAR(NOW()) AS varchar))
                   AND (nbhd NOT LIKE '%999')
+              meta:
+                category: relationships
+                description: nbhd code not valid
           - unique_combination_of_columns:
               name: iasworld_pardat_unique_by_parid_taxyr
               combination_of_columns:
                 - parid
                 - taxyr
-          - expression_is_true:
-              name: iasworld_pardat_adrno_length_lte_5
-              expression: LENGTH(CAST(adrno AS varchar)) <= 5
-              select_columns:
-                - parid
-                - taxyr
-                - adrno
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
               config: *unique-conditions
+              meta:
+                description: pardat should be unique by parid and taxyr

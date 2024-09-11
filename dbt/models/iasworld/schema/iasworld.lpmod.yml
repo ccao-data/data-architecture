@@ -1,13 +1,16 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: lpmod
         description: '{{ doc("table_lpmod") }}'
+        freshness:
+          warn_after: {count: 192, period: hour} # 8 days
+          error_after: {count: 360, period: hour} # 15 days
 
         columns:
           - name: acradjflg
@@ -32,6 +35,8 @@ sources:
             description: Land code
           - name: lmod
             description: Land location model number
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: ltype
             description: Land type (F, S, A, G, U)
           - name: modtype

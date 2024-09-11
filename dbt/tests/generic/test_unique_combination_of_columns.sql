@@ -10,12 +10,23 @@
 -- Adapted from dbt_utils.unique_combination_of_columns, and adjusted to add the
 -- optional duplicate threshold and to only report one row for each dupe.
 {% test unique_combination_of_columns(
-    model, combination_of_columns, allowed_duplicates=0
+    model,
+    combination_of_columns,
+    additional_select_columns=[],
+    allowed_duplicates=0
 ) %}
 
     {%- set columns_csv = combination_of_columns | join(", ") %}
+    {%- set additional_select_columns_csv = format_additional_select_columns(
+        additional_select_columns
+    ) %}
 
-    select {{ columns_csv }}, count(*) as num_duplicates
+    select
+        {{ columns_csv }},
+        {%- if additional_select_columns_csv %}
+            {{- additional_select_columns_csv }},
+        {%- endif %}
+        count(*) as num_duplicates
     from {{ model }}
     group by {{ columns_csv }}
     having count(*) > {{ allowed_duplicates }} + 1

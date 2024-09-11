@@ -24,7 +24,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup dbt
         uses: ./.github/actions/setup_dbt
@@ -57,19 +57,24 @@ jobs:
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
+      - name: Deploy model dependencies
+        run: ../.github/scripts/deploy_dbt_model_dependencies.sh
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
+
       - name: Build models
         run: |
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
             if [[ $MANUALLY_DISPATCHED == 'true' ]]; then
               echo "Running build on manually selected resources"
-              dbt run -t "$TARGET" -s ${{ inputs.models }} --defer --state "$STATE_DIR"
+              dbt build -t "$TARGET" -s ${{ inputs.models }} --defer --state "$STATE_DIR" --resource-types model seed
             else
               echo "Running build on modified/new resources only"
-              dbt run -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR"
+              dbt build -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR" --resource-types model seed
             fi
           else
             echo "Running build on all resources"
-            dbt run -t "$TARGET"
+            dbt build -t "$TARGET" --resource-types model seed
           fi
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
@@ -79,14 +84,14 @@ jobs:
           if [[ $MODIFIED_RESOURCES_ONLY == 'true' ]]; then
             if [[ $MANUALLY_DISPATCHED == 'true' ]]; then
               echo "Running tests on manually selected resources"
-              dbt test -t "$TARGET" -s ${{ inputs.models }} --exclude "tag:test_qc*" --defer --state "$STATE_DIR"
+              dbt test -t "$TARGET" -s ${{ inputs.models }} --exclude "tag:data_test_iasworld" --defer --state "$STATE_DIR"
             else
               echo "Running tests on modified/new resources only"
-              dbt test -t "$TARGET" -s state:modified state:new --exclude "tag:test_qc*" --defer --state "$STATE_DIR"
+              dbt test -t "$TARGET" -s state:modified state:new --exclude "tag:data_test_iasworld" --defer --state "$STATE_DIR"
             fi
           else
             echo "Running tests on all resources"
-            dbt test -t "$TARGET" --exclude "tag:test_qc*"
+            dbt test -t "$TARGET" --exclude "tag:data_test_iasworld"
           fi
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash

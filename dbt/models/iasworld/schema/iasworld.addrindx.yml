@@ -1,13 +1,17 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: addrindx
         description: '{{ doc("table_addrindx") }}'
+        freshness:
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 192, period: hour} # 8 days
+          error_after: {count: 360, period: hour} # 15 days
 
         columns:
           - name: addrsrc
@@ -70,6 +74,8 @@ sources:
             description: '{{ doc("column_jur") }}'
           - name: lline
             description: '{{ doc("shared_column_lline") }}'
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: loc2
             description: '{{ doc("column_loc2") }}'
           - name: parid

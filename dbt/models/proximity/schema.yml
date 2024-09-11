@@ -10,7 +10,7 @@ models:
 
   - name: proximity.crosswalk_year_fill
     description: '{{ doc("table_crosswalk_year_fill") }}'
-    
+
   - name: proximity.dist_pin_to_airport
     description: '{{ doc("table_dist_pin_to_airport") }}'
 
@@ -49,15 +49,33 @@ models:
 
   - name: proximity.dist_pin_to_pin
     description: '{{ doc("view_dist_pin_to_pin") }}'
+    data_tests:
+      - unique_combination_of_columns:
+          name: proximity_dist_pin_to_pin_unique_by_10_digit_pin_and_year
+          combination_of_columns:
+            - pin10
+            - year
 
-  - name: proximity.dist_pin_to_pin_1km
+  - name: proximity.dist_pin_to_pin_01
     description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
 
-  - name: proximity.dist_pin_to_pin_10km
+  - name: proximity.dist_pin_to_pin_02
+    description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
+
+  - name: proximity.dist_pin_to_pin_03
     description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
 
   - name: proximity.dist_pin_to_railroad
     description: '{{ doc("table_dist_pin_to_railroad") }}'
+
+  - name: proximity.dist_pin_to_secondary_road
+    description: '{{ doc("table_dist_pin_to_secondary_road") }}'
+
+  - name: proximity.dist_pin_to_university
+    description: '{{ doc("table_dist_pin_to_university") }}'
+
+  - name: proximity.dist_pin_to_vacant_land
+    description: '{{ doc("table_dist_pin_to_vacant_land") }}'
 
   - name: proximity.dist_pin_to_water
     description: '{{ doc("table_dist_pin_to_water") }}'
@@ -65,6 +83,8 @@ models:
   - name: proximity.vw_pin10_proximity
     description: '{{ doc("view_vw_pin10_proximity") }}'
     columns: &vw_proximity_columns
+      - name: airport_dnl_total
+        description: '{{ doc("column_airport_dnl_total") }}'
       - name: avg_school_rating_in_half_mile
         description: '{{ doc("column_avg_school_rating_in_half_mile") }}'
       - name: lake_michigan_data_year
@@ -109,6 +129,12 @@ models:
         description: '{{ doc("column_nearest_golf_course_dist_ft") }}'
       - name: nearest_golf_course_id
         description: '{{ doc("column_nearest_golf_course_id") }}'
+      - name: nearest_grocery_store_dist_ft
+        description: '{{ doc("column_nearest_grocery_store_dist_ft") }}'
+      - name: nearest_grocery_store_name
+        description: '{{ doc("column_nearest_grocery_store_name") }}'
+      - name: nearest_grocery_store_name
+        description: '{{ doc("column_nearest_grocery_store_name") }}'
       - name: nearest_hospital_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_hospital_dist_ft
@@ -153,6 +179,14 @@ models:
         description: '{{ doc("column_nearest_neighbor_dist_ft") }}'
       - name: nearest_neighbor_3_pin10
         description: '{{ doc("column_nearest_neighbor_pin10") }}'
+      - name: nearest_new_construction_char_yrblt
+        description: '{{ doc("column_nearest_new_construction_char_yrblt") }}'
+      - name: nearest_new_construction_data_year  
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: nearest_new_construction_dist_ft
+        description: '{{ doc("column_nearest_new_construction_dist_ft") }}'
+      - name: nearest_new_construction_pin10
+        description: '{{ doc("column_nearest_new_construction_pin10") }}'
       - name: nearest_park_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_park_dist_ft
@@ -169,6 +203,34 @@ models:
         description: '{{ doc("column_nearest_railroad_id") }}'
       - name: nearest_railroad_name
         description: '{{ doc("column_nearest_railroad_name") }}'
+      - name: nearest_secondary_road_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: nearest_secondary_road_dist_ft
+        description: '{{ doc("column_nearest_secondary_road_dist_ft") }}'
+      - name: nearest_secondary_road_name
+        description: '{{ doc("column_nearest_secondary_road_name") }}'
+      - name: nearest_secondary_road_osm_id
+        description: '{{ doc("column_nearest_secondary_road_osm_id") }}'
+      - name: nearest_stadium_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: nearest_stadium_dist_ft
+        description: '{{ doc("column_nearest_stadium_dist_ft") }}'
+      - name: nearest_stadium_name
+        description: '{{ doc("column_nearest_stadium_name") }}'
+      - name: nearest_university_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: nearest_university_dist_ft
+        description: '{{ doc("column_nearest_university_dist_ft") }}'
+      - name: nearest_university_gnis_code
+        description: '{{ doc("column_nearest_university_gnis_code") }}'
+      - name: nearest_university_name
+        description: '{{ doc("column_nearest_university_name") }}'
+      - name: nearest_vacant_land_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: nearest_vacant_land_dist_ft
+        description: '{{ doc("column_nearest_vacant_land_dist_ft") }}'
+      - name: nearest_vacant_land_pin10
+        description: '{{ doc("column_nearest_vacant_land_pin10") }}'
       - name: nearest_water_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_water_dist_ft
@@ -217,6 +279,10 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
+      asset_id: ydue-e5u3
+      primary_key:
+        - pin10
+        - year
     description: |
       Cook County 10-digit parcels with attached distances to various spatial features.
 

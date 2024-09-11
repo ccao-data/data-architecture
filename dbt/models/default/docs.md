@@ -21,12 +21,9 @@ and reporting.
 Source of truth view for PIN address, both legal (property address)
 and mailing (owner/taxpayer address).
 
-### Assumptions
-
-- Mailing addresses are updated when properties transfer ownership.
-
 ### Nuance
 
+- Mailing addresses and owner names have not been regularly updated since 2017.
 - Newer properties may be missing a mailing or property address, as they
   need to be assigned one by the postal service.
 
@@ -51,8 +48,10 @@ reason, and results.
 - Only contains appeal decisions for the Assessor's Office. Board of Review
   appeal decisions can be found on the
   [Cook County Open Data portal here](https://datacatalog.cookcountyil.gov/Property-Taxation/Board-of-Review-Appeal-Decision-History/7pny-nedm).
+- This view is _not_ unique by PIN and year, as a single PIN can have an
+  appeal and CofE/omitted assessment in a given year.
 
-**Primary Key**: `year`, `pin`
+**Primary Key**: `year`, `pin`, `case_no`
 {% enddocs %}
 
 # vw_pin_condo_char
@@ -94,6 +93,7 @@ institutions, or local governments.
 
 ### Nuance
 
+- Mailing addresses and owner names have not been regularly updated since 2017.
 - Newer properties may be missing a mailing or property address, as they
   need to be assigned one by the postal service.
 {% enddocs %}
@@ -145,6 +145,8 @@ Sourced from `iasworld.sales`, which is sourced from
 - `sale.mydec` data is given precedence over `iasworld.sales` prior to 2021
 - Multicard sales are excluded from `mydec` data because they can't be joined
   to `iasworld.sales` (which is only parcel-level) without creating duplicates
+- Sales are unique by `doc_no` if multisales are excluded. When multisales are
+  *not* excluded, sales are unique by `doc_no` and `pin`.
 
 ### Lineage
 
@@ -156,7 +158,7 @@ process. The full data lineage looks something like:
 
 ![Data Flow Diagram](./assets/sales-lineage.svg)
 
-**Primary Key**: `year`, `pin`
+**Primary Key**: `doc_no`, `pin`
 {% enddocs %}
 
 # vw_pin_universe
@@ -180,7 +182,7 @@ is the view you're looking for.
 # vw_pin_value
 
 {% docs view_vw_pin_value %}
-Assessed values by PIN and year, for each assessment stage.
+Assessed and market values by PIN and year, for each assessment stage.
 
 The assessment stages are:
 
@@ -193,6 +195,14 @@ The assessment stages are:
 - Taking the max value by 14-digit PIN and year is sufficient for accurate
   values. We do this because even given the criteria to de-dupe `asmt_all`,
   we still end up with duplicates by PIN and year.
+- Market value (`_mv`) columns accurately reflect incentives, statute,
+  levels of assessment, building splits, etc.
+
+### Nuance
+
+- Market values only exist for stages after and including `2020 Board`. Prior
+  to that, market values were stored/tracked in the county mainframe and are
+  not easily retrievable.
 
 **Primary Key**: `year`, `pin`
 {% enddocs %}

@@ -1,13 +1,16 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: sales
         description: '{{ doc("table_sales") }}'
+        freshness:
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
 
         columns:
           - name: adjamt
@@ -30,10 +33,19 @@ sources:
             description: County final date
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_sales_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: &select-columns
+                    - substr(saledt, 1, 4) as taxyr
+                    - parid
+                    - who
+                    - wen
+                  config:
+                    where: substr(saledt, 1, 4) >= '2011'
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: deed_ref
@@ -50,21 +62,28 @@ sources:
             description: Document image number for the sale deed
           - name: instrtyp
             description: '{{ doc("shared_column_deed_type") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_sales_instrtyp_in_accepted_values
                   values: ['01', '02', '03', '04', '05', '06', 'B']
+                  additional_select_columns: *select-columns
                   config: &unique-conditions
                     where: |
                       substr(saledt, 1, 4) >= '2011'
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: >
+                      instrtyp should be '01', '02', '03', '04', '05', '06',
+                      or 'B'
           - name: instruno
             description: '{{ doc("shared_column_document_number") }}'
           - name: jur
             description: '{{ doc("column_jur") }}'
           - name: linkno
             description: Used to tie multi-parcel sales together (either instrument number, or transfer number, or book/page)
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: mktvalid
             description: Market validity code
           - name: newseq
@@ -93,22 +112,36 @@ sources:
             description: Time adjusted sale parent name
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
-              - not_null:
-                  name: iasworld_sales_parid_not_null
+            data_tests:
               - relationships:
                   name: iasworld_sales_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  additional_select_columns: &select-columns-no-parid
+                    - substr(saledt, 1, 4) as taxyr
+                    - who
+                    - wen
                   config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_sales_parid_not_null
+                  additional_select_columns: *select-columns-no-parid
+                  config: *unique-conditions
+                  meta:
+                    description: parid should not be null
           - name: price
             description: '{{ doc("shared_column_sale_price") }}'
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_sales_price_between_0_and_1B
+            data_tests:
+              - accepted_range:
+                  name: iasworld_sales_price_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: price should be between 0 and 1,000,000,000
           - name: recorddt
             description: Recording date
           - name: saledt
@@ -131,6 +164,12 @@ sources:
             description: '{{ doc("column_steb") }}'
           - name: stflag
             description: '{{ doc("column_stflag") }}'
+          - name: tasp1
+            description: Time adjusted sale price for roll year 1
+          - name: tasp2
+            description: Time adjusted sale price for roll year 2
+          - name: tasp3
+            description: Time adjusted sale price for roll year 3
           - name: tasp_ovr
             description: Time adjusted sale price for override roll year
           - name: tasp_ovr_year
@@ -141,12 +180,6 @@ sources:
             description: Roll year of time adjusted sale price 2
           - name: tasp_year3
             description: Roll year of time adjusted sale price 3
-          - name: tasp1
-            description: Time adjusted sale price for roll year 1
-          - name: tasp2
-            description: Time adjusted sale price for roll year 2
-          - name: tasp3
-            description: Time adjusted sale price for roll year 3
           - name: timeadjfact
             description: Time adjusted fact
           - name: timeadjsp
@@ -155,10 +188,10 @@ sources:
             description: Time adjusted valuation date
           - name: timeadjvaldt2
             description: Time adjusted valuation date 2
-          - name: trans_id
-            description: '{{ doc("column_trans_id") }}'
           - name: transdt
             description: Transaction date
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
           - name: transno
             description: Transfer number
           - name: upd_status
@@ -172,18 +205,36 @@ sources:
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
 
-        tests:
+        data_tests:
+          - expression_is_true:
+              name: iasworld_sales_saledt_lte_now
+              expression: DATE_PARSE(SUBSTR(saledt, 1, 10), '%Y-%m-%d') <= current_date
+              additional_select_columns:
+                - parid
+                - saledt
+                - instruno
+              config: *unique-conditions
+              meta:
+                category: incorrect_values
+                description: saledt should be before the current date
           - unique_combination_of_columns:
               name: iasworld_sales_unique_by_parid_instruno
               combination_of_columns:
                 - parid
                 - instruno
+              additional_select_columns:
+                - column: substr(saledt, 1, 4)
+                  alias: taxyr
+                  agg_func: max
+                - column: substr(saledt, 1, 4)
+                  alias: sale_year
+                  agg_func: array_agg
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
               config: *unique-conditions
-          - expression_is_true:
-              name: iasworld_sales_saledt_lte_now
-              expression: DATE_PARSE(SUBSTR(saledt, 1, 10), '%Y-%m-%d') <= current_date
-              select_columns:
-                - parid
-                - saledt
-                - instruno
-              config: *unique-conditions
+              meta:
+                description: sales should be unique by parid and instruno

@@ -1,13 +1,17 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: valclass
         description: '{{ doc("table_valclass") }}'
+        freshness:
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 192, period: hour} # 8 days
+          error_after: {count: 360, period: hour} # 15 days
 
         columns:
           - name: assess_pct
@@ -18,6 +22,8 @@ sources:
             description: '{{ doc("column_iasw_id") }}'
           - name: jur
             description: '{{ doc("column_jur") }}'
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: luc
             description: '{{ doc("column_luc") }}'
           - name: ratio1

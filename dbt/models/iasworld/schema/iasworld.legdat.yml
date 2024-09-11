@@ -1,13 +1,17 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: legdat
         description: '{{ doc("table_legdat") }}'
+        freshness:
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
 
         columns:
           - name: acres
@@ -20,18 +24,35 @@ sources:
             description: '{{ doc("column_adradd") }}'
           - name: adrdir
             description: '{{ doc("shared_column_prop_address_street_dir") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_legdat_adrdir_in_accepted_values
                   values: ['N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW']
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
                   config: &unique-conditions
-                    where: 
-                      cur = 'Y'
-                      AND deactivat IS NULL 
+                    where:
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    description: >
+                      adrdir should be one of 'N', 'S', 'E', 'W', 'NE', 'NW',
+                      'SE', or or 'SW'
           - name: adrid
             description: '{{ doc("column_adrid") }}'
           - name: adrno
             description: '{{ doc("shared_column_prop_address_street_number") }}'
+            data_tests:
+              - not_null:
+                  name: iasworld_legdat_adrno_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: adrno should not be null (it should be 0 if unknown)
           - name: adrparchild
             description: '{{ doc("column_adrparchild") }}'
           - name: adrpostmod
@@ -54,6 +75,13 @@ sources:
             description: Block prefix and suffix, formatted
           - name: cityname
             description: '{{ doc("shared_column_prop_address_city_name") }}'
+            data_tests:
+              - not_null:
+                  name: iasworld_legdat_cityname_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: cityname should not be null
           - name: compct
             description: Common interest
           - name: condbdg
@@ -64,10 +92,16 @@ sources:
             description: '{{ doc("column_conveyno") }}'
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_legdat_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: *select-columns
+                  config:
+                    where:
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: floorno
@@ -84,6 +118,8 @@ sources:
             description: Legal description line 3
           - name: legdesc
             description: Unlimited legal description
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: loc2
             description: '{{ doc("column_loc2") }}'
           - name: lot
@@ -94,13 +130,25 @@ sources:
             description: Number of lots
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
-              - not_null:
-                  name: iasworld_legdat_parid_not_null
+            data_tests:
               - relationships:
                   name: iasworld_legdat_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  additional_select_columns: &select-columns-no-parid
+                    - taxyr
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_legdat_parid_not_null
+                  additional_select_columns: *select-columns-no-parid
+                  config: *unique-conditions
+                  meta:
+                    description: parid should not be null
           - name: postalcode
             description: '{{ doc("column_postalcode") }}'
           - name: procdate
@@ -125,13 +173,18 @@ sources:
             description: Consolidated school district value percentage
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
-              - dbt_utils.sequential_values:
+            data_tests:
+              - sequential_values:
                   name: iasworld_legdat_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
+                  additional_select_columns:
+                    - who
+                    - wen
                   config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: sortkey
             description: Block, lot and qualifier, reformatted for sorting
           - name: splitno
@@ -142,11 +195,14 @@ sources:
             description: Star credit flag
           - name: statecode
             description: '{{ doc("shared_column_prop_address_state") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_legdat_statecode_in_accepted_values
                   values: ['IL']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: statecode should be 'IL'
           - name: status
             description: '{{ doc("column_status") }}'
           - name: strcd
@@ -179,9 +235,16 @@ sources:
             description: Tax district 6
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_legdat_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: unitdesc
@@ -192,13 +255,21 @@ sources:
             description: '{{ doc("column_upd_status") }}'
           - name: user1
             description: '{{ doc("shared_column_township_code") }}'
-            tests:
-              - not_null:
-                  name: iasworld_legdat_user1_not_null
+            data_tests:
               - relationships:
                   name: iasworld_legdat_user1_in_spatial_township_township_code
                   to: source('spatial', 'township')
                   field: township_code
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: user1 (township code) should be valid
+              - not_null:
+                  name: iasworld_legdat_user1_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: user1 (township code) should not be null
           - name: wen
             description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
@@ -215,47 +286,37 @@ sources:
             description: Z coordinate
           - name: zip1
             description: '{{ doc("shared_column_prop_address_zipcode_1") }}'
-            tests:
-              - dbt_utils.not_accepted_values:
+            data_tests:
+              - not_accepted_values:
                   name: iasworld_legdat_zip1_has_no_00000_values
                   values: ['00000']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: zip1 should not be 00000
+                  # Currently too many failures for this signal to be useful
+                  tags:
+                    - data_test_iasworld_exclude_from_workbook
           - name: zip2
             description: '{{ doc("shared_column_prop_address_zipcode_2") }}'
-            tests:
-              - dbt_utils.not_accepted_values:
+            data_tests:
+              - not_accepted_values:
                   name: iasworld_legdat_zip2_has_no_0000_values
                   values: ['0000']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: zip2 should not be 0000
+                  # Currently too many failures for this signal to be useful
+                  tags:
+                    - data_test_iasworld_exclude_from_workbook
 
-        tests:
-          - unique_combination_of_columns:
-              name: iasworld_legdat_unique_by_parid_taxyr
-              combination_of_columns:
-                - parid
-                - taxyr
-          # Not using column_length here because adrno needs to be cast first
-          - expression_is_true:
-              name: iasworld_legdat_adrno_length_lte_5
-              expression: LENGTH(CAST(adrno AS varchar)) <= 5
-              select_columns:
-                - parid
-                - taxyr
-                - adrno
-              config: *unique-conditions
-          - column_length:
-              name: iasworld_legdat_adrsuf_zip1_taxdist_length_lte_5
-              columns:
-                - adrsuf
-                - zip1
-                - taxdist
-              length: 5
-              additional_select_columns:
-                - parid
-                - taxyr
+        data_tests:
           - no_extra_whitespace:
               name: iasworld_legdat_address_columns_no_extra_whitespace
               column_names:
+                - taxyr
+                - parid
                 - adrpre
                 - adrdir
                 - adrstr
@@ -269,3 +330,52 @@ sources:
                 - zip2
               allow_interior_space: true
               config: *unique-conditions
+              meta:
+                description: >
+                  The following columns should have no leading or trailing
+                  whitespace: adrpre, adrdir, adrstr, adrsuf, adrsuf2, unitdesc,
+                  unitno, cityname, statecode, zip1, zip2
+              tags:
+                # Currently too many failures for this signal to be useful
+                - data_test_iasworld_exclude_from_workbook
+          # Not using column_length here because adrno needs to be cast first
+          - expression_is_true:
+              name: iasworld_legdat_adrno_length_lte_5
+              expression: LENGTH(CAST(adrno AS varchar)) <= 5
+              additional_select_columns:
+                - parid
+                - taxyr
+                - who
+                - wen
+                - adrno
+              config: *unique-conditions
+              meta:
+                category: column_length
+                description: adrno should be <= 5 characters long
+          - column_length:
+              name: iasworld_legdat_adrsuf_zip1_taxdist_length_lte_5
+              column_names:
+                - adrsuf
+                - zip1
+                - taxdist
+              length: 5
+              additional_select_columns: *select-columns
+              config: *unique-conditions
+              meta:
+                description: >
+                  adrsuf, zip1, and taxdist should be <= 5 characters long
+          - unique_combination_of_columns:
+              name: iasworld_legdat_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: legdat should be unique by parid and taxyr

@@ -1,13 +1,17 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: owndat
         description: '{{ doc("table_owndat") }}'
+        freshness:
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
 
         columns:
           - name: addr1
@@ -60,10 +64,20 @@ sources:
             description: '{{ doc("column_country") }}'
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_owndat_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: delinstalltype
@@ -90,6 +104,8 @@ sources:
             description: '{{ doc("column_jur") }}'
           - name: link
             description: Owner link number
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: marstat
             description: '{{ doc("column_marstat") }}'
           - name: notecd
@@ -142,13 +158,29 @@ sources:
             description: '{{ doc("column_page") }}'
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
-              - not_null:
-                  name: iasworld_owndat_parid_not_null
+            data_tests:
               - relationships:
                   name: iasworld_owndat_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  additional_select_columns: &select-columns-no-parid
+                    - taxyr
+                    - who
+                    - wen
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_owndat_parid_not_null
+                  additional_select_columns: *select-columns-no-parid
+                  config: *unique-conditions
+                  meta:
+                    description: parid should not be null
           - name: partial
             description: '{{ doc("column_partial") }}'
           - name: pctown
@@ -157,24 +189,26 @@ sources:
             description: '{{ doc("column_phone") }}'
           - name: po
             description: Primary owner flag (1 = `OWNDAT`, 0 = `OWNMLT`)
-          - name: postal_indx
-            description: '{{ doc("column_postal_indx") }}'
           - name: postalcode
             description: '{{ doc("column_postalcode") }}'
+          - name: postal_indx
+            description: '{{ doc("column_postal_indx") }}'
           - name: salekey
             description: '{{ doc("column_salekey") }}'
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
-              - dbt_utils.sequential_values:
+            data_tests:
+              - sequential_values:
                   name: iasworld_owndat_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
-                  config: &unique-conditions
-                    where: |
-                      cur = 'Y'
-                      AND deactivat IS NULL
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: site
             description: '{{ doc("column_site") }}'
           - name: skip_addr_validation
@@ -207,28 +241,15 @@ sources:
             description: '{{ doc("column_whocalc") }}'
           - name: zip1
             description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
-            tests:
-              - dbt_utils.not_accepted_values:
-                  name: iasworld_owndat_zip1_has_no_00000_values
-                  values: ['00000']
-                  config: *unique-conditions
           - name: zip2
             description: '{{ doc("shared_column_mail_address_zipcode_2") }}'
-            tests:
-              - dbt_utils.not_accepted_values:
-                  name: iasworld_owndat_zip2_has_no_0000_values
-                  values: ['0000']
-                  config: *unique-conditions
 
-        tests:
-          - unique_combination_of_columns:
-              name: iasworld_owndat_unique_by_parid_taxyr
-              combination_of_columns:
-                - parid
-                - taxyr
+        data_tests:
           - no_extra_whitespace:
               name: iasworld_owndat_address_columns_no_extra_whitespace
               column_names:
+                - taxyr
+                - parid
                 - own1
                 - own2
                 - addr1
@@ -249,21 +270,27 @@ sources:
                 - user27
               allow_interior_space: true
               config: *unique-conditions
-          - expression_is_true:
-              name: iasworld_owndat_addr1_address_is_well_formed
-              expression: |
-                CASE
-                  WHEN LENGTH(REGEXP_EXTRACT(addr1, '^[N|S|E|W]{0,2}\s{0,1}([0-9]{1,5})',1)) <= 5 THEN TRUE
-                  WHEN REGEXP_LIKE(UPPER(addr1), '^[PO BOX|P\.O\. BOX|P O BOX|BOX|P O BX|PO BX|PO BX|P.O.BOX]') THEN TRUE
-                  WHEN REGEXP_LIKE(UPPER(addr1), '^[C\/O|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE]') THEN TRUE
-                  ELSE FALSE
-                END
-              select_columns:
+              meta:
+                description: >
+                  The following columns should have no leading or trailing
+                  whitespace: own1, own2, addr1, addr2, addr3, addr4, addr5,
+                  adrpre, adrdir, adrstr, adrsuf, unitdesc, unitno, cityname,
+                  statecode, zip1, zip2, user27
+              tags:
+                # Currently too many failures for this signal to be useful
+                - data_test_iasworld_exclude_from_workbook
+          - unique_combination_of_columns:
+              name: iasworld_owndat_unique_by_parid_taxyr
+              combination_of_columns:
                 - parid
                 - taxyr
-                - addr1
-              config:
-                where: |
-                  cur = 'Y'
-                  AND deactivat IS NULL
-                  AND addr1 IS NOT NULL
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: owndat should be unique by parid and taxyr

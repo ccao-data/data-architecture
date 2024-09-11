@@ -1,3 +1,4 @@
+# disable-check-sort-order
 sources:
   - name: model
     tables:
@@ -15,11 +16,6 @@ sources:
         description: '{{ doc("table_feature_importance") }}'
         tags:
           - load_auto
-
-      - name: final_model
-        description: '{{ doc("table_final_model") }}'
-        tags:
-          - load_manual
 
       - name: metadata
         description: '{{ doc("table_metadata") }}'
@@ -67,6 +63,48 @@ sources:
           - load_auto
 
 models:
+  - name: model.final_model
+    description: '{{ doc("table_final_model") }}'
+    columns:
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
+      - name: run_id
+        description: '{{ doc("shared_column_run_id") }}'
+      - name: triad_name
+        description: '{{ doc("shared_column_triad_name") }}'
+      - name: type
+        description: Model type (residential or condo)
+      - name: is_final
+        description: Was this the final model of the year?
+      - name: date_chosen
+        description: Date on which the model was selected as the final model
+      - name: date_emailed
+        description: Date on which the yearly "model email" was sent
+      - name: date_finalized
+        description: Date on which export artifacts were shared with Valuations
+      - name: reason_chosen
+        description: Reason why the model run was chosen as the final version
+      - name: township_code_coverage
+        description: |
+          Townships for which the values from this model were used.
+
+          Some years may have multiple models which cover different townships,
+          as a later model may contain a change or improvement from the
+          initially used model.
+      - name: reference_run_id
+        description: |
+          An optional run_id that this model was based on.
+
+          Typically the final model is the same as the reference run, but with
+          all feature flags enabled.
+      - name: email_title
+        description: |
+          Title of the email sent to leadership and Valuations announcing
+          the final model for the year.
+      - name: note
+        description: |
+          Any notes or caveats associated with the model run
+
   - name: model.vw_pin_shared_input
     description: '{{ doc("view_vw_pin_shared_input") }}'
     columns:
@@ -136,6 +174,15 @@ models:
       - &acs5_percent_mobility_no_move
         name: acs5_percent_mobility_no_move
         description: '{{ doc("column_percent_mobility_no_move") }}'
+      - &ccao_is_active_exe_homeowner
+        name: ccao_is_active_exe_homeowner
+        description: '{{ doc("shared_column_is_active_exe_homeowner") }}'
+      - &ccao_is_corner_lot
+        name: ccao_is_corner_lot
+        description: '{{ doc("shared_column_is_corner_lot") }}'
+      - &ccao_n_years_exe_homeowner
+        name: ccao_n_years_exe_homeowner
+        description: '{{ doc("shared_column_n_years_exe_homeowner") }}'
       - &loc_access_cmap_walk_nta_score
         name: loc_access_cmap_walk_nta_score
         description: '{{ doc("column_access_cmap_walk_nta_score") }}'
@@ -301,27 +348,33 @@ models:
       - &meta_year
         name: meta_year
         description: '{{ doc("shared_column_year") }}'
-      - &nearest_neighbor_1_dist_ft 
+      - &nearest_neighbor_1_dist_ft
         name: nearest_neighbor_1_dist_ft
         description: '{{ doc("column_nearest_neighbor_dist_ft") }}'
-      - &nearest_neighbor_1_pin10 
+      - &nearest_neighbor_1_pin10
         name: nearest_neighbor_1_pin10
         description: '{{ doc("column_nearest_neighbor_pin10") }}'
-      - &nearest_neighbor_2_dist_ft 
+      - &nearest_neighbor_2_dist_ft
         name: nearest_neighbor_2_dist_ft
         description: '{{ doc("column_nearest_neighbor_dist_ft") }}'
-      - &nearest_neighbor_2_pin10 
+      - &nearest_neighbor_2_pin10
         name: nearest_neighbor_2_pin10
         description: '{{ doc("column_nearest_neighbor_pin10") }}'
-      - &nearest_neighbor_3_dist_ft 
+      - &nearest_neighbor_3_dist_ft
         name: nearest_neighbor_3_dist_ft
         description: '{{ doc("column_nearest_neighbor_dist_ft") }}'
-      - &nearest_neighbor_3_pin10 
+      - &nearest_neighbor_3_pin10
         name: nearest_neighbor_3_pin10
         description: '{{ doc("column_nearest_neighbor_pin10") }}'
       - &other_ihs_avg_year_index
         name: other_ihs_avg_year_index
         description: '{{ doc("shared_column_ihs_avg_year_index") }}'
+      - &other_ari
+        name: other_ari
+        description: '{{ doc("shared_column_ari") }}'
+      - &other_dci
+        name: other_dci
+        description: '{{ doc("shared_column_dci") }}'
       - &other_school_district_elementary_avg_rating
         name: other_school_district_elementary_avg_rating
         description: '{{ doc("shared_column_school_district_elementary_avg_rating") }}'
@@ -334,6 +387,9 @@ models:
       - &other_tax_bill_rate
         name: other_tax_bill_rate
         description: '{{ doc("shared_column_tax_bill_rate") }}'
+      - &prox_airport_dnl_total
+        name: prox_airport_dnl_total
+        description: '{{ doc("column_airport_dnl_total") }}'
       - &prox_avg_school_rating_in_half_mile
         name: prox_avg_school_rating_in_half_mile
         description: '{{ doc("column_avg_school_rating_in_half_mile") }}'
@@ -367,12 +423,27 @@ models:
       - &prox_nearest_metra_stop_dist_ft
         name: prox_nearest_metra_stop_dist_ft
         description: '{{ doc("column_nearest_metra_stop_dist_ft") }}'
+      - &prox_nearest_new_construction_dist_ft
+        name: prox_nearest_new_construction_dist_ft
+        description: '{{ doc("column_nearest_new_construction_dist_ft") }}'
       - &prox_nearest_park_dist_ft
         name: prox_nearest_park_dist_ft
         description: '{{ doc("column_nearest_park_dist_ft") }}'
       - &prox_nearest_railroad_dist_ft
         name: prox_nearest_railroad_dist_ft
         description: '{{ doc("column_nearest_railroad_dist_ft") }}'
+      - &prox_nearest_secondary_road_dist_ft
+        name: prox_nearest_secondary_road_dist_ft
+        description: '{{ doc("column_nearest_secondary_road_dist_ft") }}'
+      - &prox_nearest_stadium_dist_ft
+        name: prox_nearest_stadium_dist_ft
+        description: '{{ doc("column_nearest_stadium_dist_ft") }}'
+      - &prox_nearest_university_dist_ft
+        name: prox_nearest_university_dist_ft
+        description: '{{ doc("column_nearest_university_dist_ft") }}'
+      - &prox_nearest_vacant_land_dist_ft
+        name: prox_nearest_vacant_land_dist_ft
+        description: '{{ doc("column_nearest_vacant_land_dist_ft") }}'
       - &prox_nearest_water_dist_ft
         name: prox_nearest_water_dist_ft
         description: '{{ doc("column_nearest_water_dist_ft") }}'
@@ -391,11 +462,37 @@ models:
       - &prox_num_school_with_rating_in_half_mile
         name: prox_num_school_with_rating_in_half_mile
         description: '{{ doc("column_num_school_with_rating_in_half_mile") }}'
+      - &shp_parcel_centroid_dist_ft_sd
+        name: shp_parcel_centroid_dist_ft_sd
+        description: '{{ doc("column_parcel_centroid_dist_ft_sd") }}'
+      - &shp_parcel_edge_len_ft_sd
+        name: shp_parcel_edge_len_ft_sd
+        description: '{{ doc("column_parcel_edge_len_ft_sd") }}'
+      - &shp_parcel_interior_angle_sd
+        name: shp_parcel_interior_angle_sd
+        description: '{{ doc("column_parcel_interior_angle_sd") }}'
+      - &shp_parcel_mrr_area_ratio
+        name: shp_parcel_mrr_area_ratio
+        description: '{{ doc("column_parcel_mrr_area_ratio") }}'
+      - &shp_parcel_mrr_side_ratio
+        name: shp_parcel_mrr_side_ratio
+        description: '{{ doc("column_parcel_mrr_side_ratio") }}'
+      - &shp_parcel_num_vertices
+        name: shp_parcel_num_vertices
+        description: '{{ doc("column_parcel_num_vertices") }}'
+    data_tests:
+      # Unique by PIN, card, year
+      - unique_combination_of_columns:
+          name: model_vw_pin_shared_input_unique_pin_year
+          combination_of_columns:
+            - meta_pin
+            - meta_year
 
   - name: model.vw_card_res_input
     description: '{{ doc("view_vw_card_res_input") }}'
     config:
       tags:
+        - daily
         - type_res
     columns:
       # Columns inherited from vw_pin_shared_input
@@ -421,6 +518,9 @@ models:
       - *acs5_percent_mobility_moved_from_other_state
       - *acs5_percent_mobility_moved_in_county
       - *acs5_percent_mobility_no_move
+      - *ccao_is_active_exe_homeowner
+      - *ccao_is_corner_lot
+      - *ccao_n_years_exe_homeowner
       - *loc_access_cmap_walk_nta_score
       - *loc_access_cmap_walk_total_score
       - *loc_census_acs5_data_year
@@ -477,10 +577,13 @@ models:
       - *meta_triad_name
       - *meta_year
       - *other_ihs_avg_year_index
+      - *other_dci
+      - *other_ari
       - *other_school_district_elementary_avg_rating
       - *other_school_district_secondary_avg_rating
       - *other_tax_bill_amount_total
       - *other_tax_bill_rate
+      - *prox_airport_dnl_total
       - *prox_avg_school_rating_in_half_mile
       - *prox_lake_michigan_dist_ft
       - *prox_nearest_bike_trail_dist_ft
@@ -492,17 +595,28 @@ models:
       - *prox_nearest_major_road_dist_ft
       - *prox_nearest_metra_route_dist_ft
       - *prox_nearest_metra_stop_dist_ft
+      - *prox_nearest_new_construction_dist_ft
       - *prox_nearest_park_dist_ft
       - *prox_nearest_railroad_dist_ft
+      - *prox_nearest_secondary_road_dist_ft
+      - *prox_nearest_stadium_dist_ft
+      - *prox_nearest_university_dist_ft
+      - *prox_nearest_vacant_land_dist_ft
       - *prox_nearest_water_dist_ft
       - *prox_num_bus_stop_in_half_mile
       - *prox_num_foreclosure_per_1000_pin_past_5_years
       - *prox_num_pin_in_half_mile
       - *prox_num_school_in_half_mile
       - *prox_num_school_with_rating_in_half_mile
+      - *shp_parcel_centroid_dist_ft_sd
+      - *shp_parcel_edge_len_ft_sd
+      - *shp_parcel_interior_angle_sd
+      - *shp_parcel_mrr_area_ratio
+      - *shp_parcel_mrr_side_ratio
+      - *shp_parcel_num_vertices
 
       # Columns shared between vw_card_res_input and vw_pin_condo_input
-      - &char_land_sf_95_percentile 
+      - &char_land_sf_95_percentile
         name: char_land_sf_95_percentile
         description: |
           95th percentile of land square footage,
@@ -516,7 +630,7 @@ models:
         name: ind_pin_is_multiland
         description: '{{ doc("shared_column_pin_is_multiland") }}'
       - &ind_pin_is_prorated
-        name: ind_pin_is_prorated 
+        name: ind_pin_is_prorated
         description: |
           Indicator for whether or not a PIN is prorated.
 
@@ -563,6 +677,8 @@ models:
         description: '{{ doc("shared_column_char_beds") }}'
       - name: char_bldg_sf
         description: '{{ doc("shared_column_char_bldg_sf") }}'
+      - name: char_class
+        description: '{{ doc("shared_column_char_class") }}'
       - name: char_cnst_qlty
         description: '{{ doc("shared_column_char_cnst_qlty") }}'
       - name: char_fbath
@@ -617,11 +733,20 @@ models:
         description: '{{ doc("shared_column_pin_is_multicard") }}'
       - name: meta_pin_num_cards
         description: '{{ doc("shared_column_pin_num_cards") }}'
+    data_tests:
+      # Unique by PIN, card, year
+      - unique_combination_of_columns:
+          name: model_vw_card_res_input_unique_pin_card_year
+          combination_of_columns:
+            - meta_pin
+            - meta_year
+            - meta_card_num
 
   - name: model.vw_pin_condo_input
     description: '{{ doc("view_vw_pin_condo_input") }}'
     config:
       tags:
+        - daily
         - type_condo
     columns:
       # Columns inherited from vw_pin_shared_input
@@ -647,6 +772,9 @@ models:
       - *acs5_percent_mobility_moved_from_other_state
       - *acs5_percent_mobility_moved_in_county
       - *acs5_percent_mobility_no_move
+      - *ccao_is_active_exe_homeowner
+      - *ccao_is_corner_lot
+      - *ccao_n_years_exe_homeowner
       - *loc_access_cmap_walk_nta_score
       - *loc_access_cmap_walk_total_score
       - *loc_census_acs5_data_year
@@ -703,10 +831,13 @@ models:
       - *meta_triad_name
       - *meta_year
       - *other_ihs_avg_year_index
+      - *other_dci
+      - *other_ari
       - *other_school_district_elementary_avg_rating
       - *other_school_district_secondary_avg_rating
       - *other_tax_bill_amount_total
       - *other_tax_bill_rate
+      - *prox_airport_dnl_total
       - *prox_avg_school_rating_in_half_mile
       - *prox_lake_michigan_dist_ft
       - *prox_nearest_bike_trail_dist_ft
@@ -718,23 +849,34 @@ models:
       - *prox_nearest_major_road_dist_ft
       - *prox_nearest_metra_route_dist_ft
       - *prox_nearest_metra_stop_dist_ft
-      - *nearest_neighbor_1_dist_ft 
-      - *nearest_neighbor_1_pin10 
-      - *nearest_neighbor_2_dist_ft 
-      - *nearest_neighbor_2_pin10 
-      - *nearest_neighbor_3_dist_ft 
-      - *nearest_neighbor_3_pin10 
+      - *prox_nearest_new_construction_dist_ft
+      - *nearest_neighbor_1_dist_ft
+      - *nearest_neighbor_1_pin10
+      - *nearest_neighbor_2_dist_ft
+      - *nearest_neighbor_2_pin10
+      - *nearest_neighbor_3_dist_ft
+      - *nearest_neighbor_3_pin10
       - *prox_nearest_park_dist_ft
       - *prox_nearest_railroad_dist_ft
+      - *prox_nearest_secondary_road_dist_ft
+      - *prox_nearest_stadium_dist_ft
+      - *prox_nearest_university_dist_ft
+      - *prox_nearest_vacant_land_dist_ft
       - *prox_nearest_water_dist_ft
       - *prox_num_bus_stop_in_half_mile
       - *prox_num_foreclosure_per_1000_pin_past_5_years
       - *prox_num_pin_in_half_mile
       - *prox_num_school_in_half_mile
       - *prox_num_school_with_rating_in_half_mile
+      - *shp_parcel_centroid_dist_ft_sd
+      - *shp_parcel_edge_len_ft_sd
+      - *shp_parcel_interior_angle_sd
+      - *shp_parcel_mrr_area_ratio
+      - *shp_parcel_mrr_side_ratio
+      - *shp_parcel_num_vertices
 
       # Columns inherited from vw_card_res_input
-      - *char_land_sf_95_percentile 
+      - *char_land_sf_95_percentile
       - *ind_land_gte_95_percentile
       - *ind_pin_is_multiland
       - *ind_pin_is_prorated
@@ -776,3 +918,10 @@ models:
         description: '{{ doc("shared_column_lline") }}'
       - name: meta_pin_num_lline
         description: '{{ doc("shared_column_pin_num_lline") }}'
+    data_tests:
+      # Unique by PIN, card, year
+      - unique_combination_of_columns:
+          name: model_vw_pin_condo_input_unique_pin_year
+          combination_of_columns:
+            - meta_pin
+            - meta_year

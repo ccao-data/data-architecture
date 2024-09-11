@@ -3,16 +3,19 @@ sources:
     tags:
       - load_manual
     tables:
-      - name: class_dict
-        description: '{{ doc("table_class_dict") }}'
-        columns:
-          - name: class_code
-            description: '{{ doc("shared_column_class") }}'
-
       - name: commercial_valuation
         description: '{{ doc("table_commercial_valuation") }}'
         tags:
           - type_ic
+
+      - name: cc_dli_senfrr
+        description: '{{ doc("table_cc_dli_senfrr") }}'
+
+      - name: cc_pifdb_piexemptre_dise
+        description: '{{ doc("table_cc_pifdb_piexemptre_dise") }}'
+
+      - name: cc_pifdb_piexemptre_sted
+        description: '{{ doc("table_cc_pifdb_piexemptre_sted") }}'
 
       - name: hie
         description: '{{ doc("table_hie") }}'
@@ -59,9 +62,6 @@ sources:
         description: '{{ doc("table_pin_nonlivable") }}'
         tags:
           - type_condo
-
-      - name: pin_weird
-        description: '{{ doc("table_pin_weird") }}'
 
 exposures:
   - name: commercial_valuation_data

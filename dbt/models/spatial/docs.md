@@ -44,6 +44,16 @@ Census geography. Sourced from Tiger/LINE files via the `tigris` R package.
 **Geometry:** `MULTIPOLYGON`
 {% enddocs %}
 
+# central_business_district
+
+{% docs table_spatial_central_business_district %}
+Chicago's central business district boundary.
+
+Sourced from the City of Chicago Data Portal.
+
+**Geometry:** `MULTIPOLYGON`
+{% enddocs %}
+
 # coastline
 
 {% docs table_coastline %}
@@ -94,6 +104,39 @@ National Congressional district political boundaries.
 Cook County coordinated care area boundaries.
 
 **Geometry:** `MULTIPOLYGON`
+{% enddocs %}
+
+# corner
+
+{% docs table_corner %}
+CCAO corner lot indicator. Determined algorithmically by unobstructed access to
+perpendicular streets.
+
+The algorithm is:
+
+1. Find the minimum rectangle that bounds the parcel, then use that
+   rectangle to determine the parcel's orientation and length. These values
+   are used in the next step to draw a cross on the parcel.
+2. Draw a cross that cuts the parcel in four and extends out slightly
+   beyond the minimum rectangle of the parcel. We will look for parcels and
+   streets that intersect this cross in order to determine neighbors. Use the
+   bearing and length calculated in the previous step to draw the cross (i.e
+   the long side of the cross is parallel to the minimum bounding rectangle).
+3. Find the arms of each cross which intersect neighboring parcels, where those
+   neighboring parcels _also_ touch the cross-originating PIN. The idea here is
+   that cross arms that intersect neighboring (touching) parcels are likely to
+   be pointed at a building, rather than a street. Delete these arms from the
+   cross.
+4. Find which remaining cross segments intersect streets, and keep only
+   segments that _do_ intersect. This removes segments pointed at buildings,
+   empty space, etc.
+5. Calculate the angle of remaining cross segments in order to filter
+   out segments that are not at right angles. If a parcel >= 3 cross segments
+   remaining, it is a corner. If a parcel has 2 cross segments remaining and
+   they form a 90 degree angle, it is a corner. All other cases are not
+   corners.
+
+**Primary Key**: `pin10`
 {% enddocs %}
 
 # county
@@ -150,6 +193,22 @@ Golf course locations sourced from a combination of Cook County GIS
 data and tagged OpenStreetMap amenities.
 
 **Geometry:** `MULTIPOLYGON`
+{% enddocs %}
+
+# grocery_store
+
+{% docs table_grocery_store %}
+Grocery stores. Locations sourced from OpenStreetMap (OSM).
+
+	OSM tags include:
+
+	- `shop=supermarket`
+	- `shop=wholesale`
+	- `shop=greengrocer`
+
+	Only attributes with valid names are kept.
+
+**Geometry:** `POINT`
 {% enddocs %}
 
 # hospital
@@ -216,8 +275,8 @@ Major roads include any OSM ways tagged with
 `highway/motorway`, `highway/trunk`, or `highway/primary`
 
 This data covers major roads data from 2014 onwards and uses an additive
-approach for data integration. Starting from 2014, each year's data builds 
-upon the previous year, with new major road additions being added to the 
+approach for data integration. Starting from 2014, each year's data builds
+upon the previous year, with new major road additions being added to the
 existing dataset.
 
 **Geometry:** `MULTILINESTRING`
@@ -361,12 +420,33 @@ School locations (lat/lon) are sourced from
 **Geometry:** `POINT`
 {% enddocs %}
 
+# secondary_road
+
+{% docs table_secondary_road %}
+
+Secondary road locations.
+
+Secondary roads sourced from OpenStreetMap (OSM).
+Secondary roads include any OSM ways tagged with
+`highway/secondary`
+
+**Geometry:** `MULTILINESTRING`
+{% enddocs %}
+
 # special_service_area
 
 {% docs table_special_service_area %}
 Cook County Special Service Area (SSA) boundaries.
 
 **Geometry:** `MULTIPOLYGON`
+{% enddocs %}
+
+# stadium
+
+{% docs table_stadium %}
+Transformed version of the `spatial.stadium_raw` table containing binary geometry columns of stadium locations.
+
+**Geometry:** `POINT`
 {% enddocs %}
 
 # state_representative_district

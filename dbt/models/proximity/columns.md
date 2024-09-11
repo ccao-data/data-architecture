@@ -1,7 +1,7 @@
 ## airport_data_year
 
 {% docs column_airport_data_year %}
-Set to year 2019 for all PINs. Note that O'Hare noise predictions 
+Set to year 2019 for all PINs. Note that O'Hare noise predictions
 are built from O'Hare Modernization Program (OMP) projected values.
 {% enddocs %}
 
@@ -12,7 +12,7 @@ Estimated contribution of Midway airport to PIN noise.
 
 Measured in decibels; to be interpreted as contribution to DNL
 (Day-Night Level) estimate of 24-hour average of decibel level.
-Produced by modeling noise level as inverse-square falloff 
+Produced by modeling noise level as inverse-square falloff
 from a point source at the centroid of the airport.
 {% enddocs %}
 
@@ -23,7 +23,7 @@ Estimated contribution of O'Hare airport to PIN noise.
 
 Measured in decibels; to be interpreted as contribution to DNL
 (Day-Night Level) estimate of 24-hour average of decibel level.
-Produced by modeling noise level as inverse-square falloff 
+Produced by modeling noise level as inverse-square falloff
 from a point source at the centroid of the airport.
 {% enddocs %}
 
@@ -33,8 +33,8 @@ from a point source at the centroid of the airport.
 Estimated DNL for a PIN, assuming a baseline DNL of 50 ("quiet suburban") and
 adding predicted noise from O'Hare and Midway airports to that baseline.
 
-For more on DNL, see 
-https://www.faa.gov/regulations_policies/policy_guidance/noise/basics
+For more on DNL, see
+<https://www.faa.gov/regulations_policies/policy_guidance/noise/basics>
 {% enddocs %}
 
 ## airport_midway_dist_ft
@@ -181,6 +181,24 @@ Nearest golf course ID, either Cook County ID or OSM ID.
 Golf course data sourced from Cook County GIS and OpenStreetMap
 {% enddocs %}
 
+## nearest_grocery_osm_id
+
+{% docs column_nearest_grocery_store_osm_id %}
+Nearest grocery store ID number via OSM
+{% enddocs %}
+
+## nearest_grocery_store_dist_ft
+
+{% docs column_nearest_grocery_store_dist_ft %}
+Nearest grocery store distance (feet)
+{% enddocs %}
+
+## nearest_grocery_store_name
+
+{% docs column_nearest_grocery_store_name %}
+Nearest grocery store name via OSM
+{% enddocs %}
+
 ## nearest_hospital_dist_ft
 
 {% docs column_nearest_hospital_dist_ft %}
@@ -289,7 +307,7 @@ Stops include any active Metra stops. Stop data sourced from Metra GTFS feeds
 ## nearest_neighbor_dist_ft
 
 {% docs column_nearest_neighbor_dist_ft %}
-Nearest neighboring parcel distance (feet).
+Nearest neighboring parcel distance (feet)
 
 These columns provide the three nearest neighbor PINs, starting
 with `nearest_neighbor_1_dist_ft` (which is the nearest)
@@ -302,6 +320,24 @@ Nearest neighboring parcel ID (PIN).
 
 These columns provide the three nearest neighbor PINs and their
 distance, starting with `nearest_neighbor_1_*` (which is the nearest)
+{% enddocs %}
+
+## nearest_new_construction_char_yrblt
+
+{% docs column_nearest_new_construction_char_yrblt %}
+Year built of the nearest new construction
+{% enddocs %}
+
+## nearest_new_construction_dist_ft
+
+{% docs column_nearest_new_construction_dist_ft %}
+Nearest new construction distance (feet)
+{% enddocs %}
+
+## nearest_new_construction_pin10
+
+{% docs column_nearest_new_construction_pin10 %}
+PIN10 of nearest new construction from CCAO data
 {% enddocs %}
 
 ## nearest_park_dist_ft
@@ -353,6 +389,95 @@ Nearest railroad line name, if available.
 
 Railroad locations sourced from Cook County GIS. Inclusive of any rail
 (CTA, Metra, non-passenger freight, etc.)
+{% enddocs %}
+
+## nearest_secondary_road_dist_ft
+
+{% docs column_nearest_secondary_road_dist_ft %}
+Nearest secondary road distance (feet).
+
+Secondary road locations sourced from OpenStreetMap (OSM) and include
+any OSM ways tagged with `highway/secondary`
+{% enddocs %}
+
+## nearest_secondary_road_name
+
+{% docs column_nearest_secondary_road_name %}
+Nearest secondary road name, if available.
+
+Secondary road locations sourced from OpenStreetMap (OSM) and include
+any OSM ways tagged with `highway/secondary`
+{% enddocs %}
+
+## nearest_secondary_road_osm_id
+
+{% docs column_nearest_secondary_road_osm_id %}
+Nearest secondary road OpenStreetMap ID.
+
+Secondary road locations sourced from OpenStreetMap (OSM) and include
+any OSM ways tagged with `highway/secondary`
+{% enddocs %}
+
+## nearest_stadium_dist_ft
+
+{% docs column_nearest_stadium_dist_ft %}
+Nearest stadium distance (feet).
+
+Stadium locations sourced from Cook County GIS
+{% enddocs %}
+
+## nearest_stadium_name
+
+{% docs column_nearest_stadium_name %}
+Nearest stadium full name.
+
+Stadium locations sourced from Cook County GIS
+{% enddocs %}
+
+## nearest_university_dist_ft
+
+{% docs column_nearest_university_dist_ft %}
+Nearest university distance (feet).
+
+University locations sourced from Cook County GIS
+{% enddocs %}
+
+## nearest_university_gnis_code
+
+{% docs column_nearest_university_gnis_code %}
+Nearest university GNIS code.
+
+University locations sourced from Cook County GIS
+{% enddocs %}
+
+## nearest_university_name
+
+{% docs column_nearest_university_name %}
+Nearest university full name.
+
+University locations sourced from Cook County GIS
+{% enddocs %}
+
+## nearest_vacant_land_dist_ft
+
+{% docs column_nearest_vacant_land_dist_ft %}
+Nearest vacant land (class 100) parcel distance (feet).
+
+Note that the parcel must be larger than 1,000 square feet.
+
+Parcel locations sourced from Cook County parcel layer. Class sourced
+from `iasworld.pardat`
+{% enddocs %}
+
+## nearest_vacant_land_pin10
+
+{% docs column_nearest_vacant_land_pin10 %}
+Nearest vacant land (class 100) 10-digit PIN.
+
+Note that the parcel must be larger than 1,000 square feet.
+
+Parcel locations sourced from Cook County parcel layer. Class sourced
+from `iasworld.pardat`
 {% enddocs %}
 
 ## nearest_water_dist_ft

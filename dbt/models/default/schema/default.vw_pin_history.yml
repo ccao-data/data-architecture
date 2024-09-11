@@ -5,20 +5,28 @@ models:
     columns:
       - name: board_bldg
         description: '{{ doc("shared_column_board_bldg") }}'
+      - name: board_class
+        description: '{{ doc("shared_column_board_class") }}'
       - name: board_land
         description: '{{ doc("shared_column_board_land") }}'
       - name: board_tot
         description: '{{ doc("shared_column_board_tot") }}'
       - name: certified_bldg
         description: '{{ doc("shared_column_certified_bldg") }}'
+      - name: certified_class
+        description: '{{ doc("shared_column_certified_class") }}'
       - name: certified_land
         description: '{{ doc("shared_column_certified_land") }}'
       - name: certified_tot
         description: '{{ doc("shared_column_certified_tot") }}'
+      - name: change_reason
+        description: '{{ doc("shared_column_change_reason") }}'
       - name: class
         description: '{{ doc("shared_column_class") }}'
       - name: mailed_bldg
         description: '{{ doc("shared_column_mailed_bldg") }}'
+      - name: mailed_class
+        description: '{{ doc("shared_column_mailed_class") }}'
       - name: mailed_land
         description: '{{ doc("shared_column_mailed_land") }}'
       - name: mailed_tot
@@ -35,6 +43,8 @@ models:
         description: '{{ doc("shared_column_certified_land") }}'
       - name: oneyr_pri_certified_tot
         description: '{{ doc("shared_column_certified_tot") }}'
+      - name: oneyr_pri_change_reason
+        description: '{{ doc("shared_column_change_reason") }}'
       - name: oneyr_pri_mailed_bldg
         description: '{{ doc("shared_column_mailed_bldg") }}'
       - name: oneyr_pri_mailed_land
@@ -47,33 +57,35 @@ models:
         description: '{{ doc("shared_column_township_code") }}'
       - name: township_name
         description: '{{ doc("shared_column_township_name") }}'
-      - name: twoyr_pri_certified_bldg
-        description: '{{ doc("shared_column_certified_bldg") }}'
-      - name: twoyr_pri_certified_land
-        description: '{{ doc("shared_column_certified_land") }}'
-      - name: twoyr_pri_certified_tot
-        description: '{{ doc("shared_column_certified_tot") }}'
-      - name: twoyr_pri_mailed_bldg
-        description: '{{ doc("shared_column_mailed_bldg") }}'
-      - name: twoyr_pri_mailed_land
-        description: '{{ doc("shared_column_mailed_land") }}'
-      - name: twoyr_pri_mailed_tot
-        description: '{{ doc("shared_column_mailed_tot") }}'
       - name: twoyr_pri_board_bldg
         description: '{{ doc("shared_column_board_bldg") }}'
       - name: twoyr_pri_board_land
         description: '{{ doc("shared_column_board_land") }}'
       - name: twoyr_pri_board_tot
         description: '{{ doc("shared_column_board_tot") }}'
+      - name: twoyr_pri_certified_bldg
+        description: '{{ doc("shared_column_certified_bldg") }}'
+      - name: twoyr_pri_certified_land
+        description: '{{ doc("shared_column_certified_land") }}'
+      - name: twoyr_pri_certified_tot
+        description: '{{ doc("shared_column_certified_tot") }}'
+      - name: twoyr_pri_change_reason
+        description: '{{ doc("shared_column_change_reason") }}'
+      - name: twoyr_pri_mailed_bldg
+        description: '{{ doc("shared_column_mailed_bldg") }}'
+      - name: twoyr_pri_mailed_land
+        description: '{{ doc("shared_column_mailed_land") }}'
+      - name: twoyr_pri_mailed_tot
+        description: '{{ doc("shared_column_mailed_tot") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
 
-    tests:
+    data_tests:
+      - row_count:
+          name: default_vw_pin_history_row_count
+          above: 45079095 # as of 2023-11-22
       - unique_combination_of_columns:
           name: default_vw_pin_history_unique_by_14_digit_pin_and_year
           combination_of_columns:
             - pin
             - year
-      - row_count:
-          name: default_vw_pin_history_row_count
-          above: 45079095 # as of 2023-11-22

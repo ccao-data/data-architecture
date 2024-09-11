@@ -1,13 +1,17 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: aprval
         description: '{{ doc("table_aprval") }}'
+        freshness:
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
 
         columns:
           - name: adjbldgfact
@@ -18,35 +22,47 @@ sources:
             description: Applied market value
           - name: aprbldg
             description: Appraised building value
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_aprval_aprbldg_between_0_and_1B
+            data_tests:
+              - accepted_range:
+                  name: iasworld_aprval_aprbldg_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
-                  config:
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
+                  config: &unique-conditions
                     where: |
-                      taxyr >= '2021'
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: aprbldg should be between 0 and 1,000,000,000
           - name: aprdate
             description: '`APRTOT` calc date'
           - name: aprland
             description: Appraised land value
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_aprval_aprland_between_0_and_1B
+            data_tests:
+              - accepted_range:
+                  name: iasworld_aprval_aprland_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
-                  config: &unique-conditions
-                    where: cur = 'Y' AND deactivat IS NULL
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: aprland should be between 0 and 1,000,000,000
           - name: aprtot
             description: '{{ doc("column_aprtot") }}'
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_aprval_aprtot_between_0_and_2B
+            data_tests:
+              - accepted_range:
+                  name: iasworld_aprval_aprtot_between_0_and_2b
                   min_value: 0
                   max_value: 2000000000
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: aprtot should be between 0 and 2,000,000,000
           - name: areasum
             description: '{{ doc("column_areasum") }}'
           - name: assmkt
@@ -55,12 +71,15 @@ sources:
             description: Appraisal unit number
           - name: bldgval
             description: Building value
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_aprval_bldgval_between_0_and_1B
+            data_tests:
+              - accepted_range:
+                  name: iasworld_aprval_bldgval_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: bldgval should be between 0 and 1,000,000,000
           - name: comincval
             description: Commercial income value
           - name: commktsf
@@ -95,10 +114,16 @@ sources:
             description: Total cost value
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_aprval_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: dwelval
@@ -141,14 +166,19 @@ sources:
             description: Land allocation percent
           - name: landval
             description: Total land cost value
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_aprval_landval_between_0_and_1B
+            data_tests:
+              - accepted_range:
+                  name: iasworld_aprval_landval_between_0_and_1b
                   min_value: 0
                   max_value: 1000000000
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: landval should be between 0 and 1,000,000,000
           - name: lastupd
             description: Date of last change to a value field
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: mandate
             description: Manual model date
           - name: manmodval
@@ -175,13 +205,25 @@ sources:
             description: '{{ doc("column_ovrmraval") }}'
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
-              - not_null:
-                  name: iasworld_aprval_parid_not_null
+            data_tests:
               - relationships:
                   name: iasworld_aprval_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  additional_select_columns: &select-columns-no-parid
+                    - taxyr
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_aprval_parid_not_null
+                  additional_select_columns: *select-columns-no-parid
+                  config: *unique-conditions
+                  meta:
+                    description: parid should not be null
           - name: posttype
             description: Assessment posting type
           - name: ppcomval
@@ -195,7 +237,7 @@ sources:
           - name: procname
             description: '{{ doc("column_procname") }}'
           - name: reascd
-            description: Reason code for change in assessed value
+            description: '{{ doc("shared_column_change_reason") }}'
           - name: resgrmval
             description: Gross rent multiplier value
           - name: revbldg
@@ -224,12 +266,18 @@ sources:
             description: Selected sale price
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
-              - dbt_utils.sequential_values:
+            data_tests:
+              - sequential_values:
                   name: iasworld_aprval_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: spcflg
             description: Special processing flag
           - name: splitno
@@ -242,9 +290,16 @@ sources:
             description: '{{ doc("column_status") }}'
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_aprval_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
           - name: tiebackbldg
             description: Sum of building value for all children in the income tieback group
           - name: tiebackland
@@ -268,9 +323,19 @@ sources:
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_aprval_unique_by_parid_taxyr
               combination_of_columns:
                 - parid
                 - taxyr
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: aprval should be unique by parid and taxyr

@@ -1,9 +1,9 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: htpar
@@ -66,10 +66,20 @@ sources:
             description: Attorney jurisdiction
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_htpar_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: curbldg
             description: Current building value
           - name: curland
@@ -100,20 +110,26 @@ sources:
             description: Hearing reason code
           - name: hrstatus
             description: '{{ doc("shared_column_appeal_status") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_htpar_hrstatus_in_accepted_values
                   values: ['C', 'O', 'P', 'X']
+                  additional_select_columns: *select-columns
                   config: &unique-conditions
                     where: |
-                      cur = 'Y'
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: hrstatus should be 'C', 'O', 'P', or 'X'
           - name: httimejur
             description: Schedule jurisdiction
           - name: iasw_id
             description: '{{ doc("column_iasw_id") }}'
           - name: jur
             description: '{{ doc("column_jur") }}'
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: loc
             description: Location code
           - name: name1
@@ -162,13 +178,25 @@ sources:
             description: Owner phone number
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
-              - not_null:
-                  name: iasworld_htpar_parid_not_null
+            data_tests:
               - relationships:
                   name: iasworld_htpar_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  additional_select_columns: &select-columns-no-parid
+                    - taxyr
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_htpar_parid_not_null
+                  additional_select_columns: *select-columns-no-parid
+                  config: *unique-conditions
+                  meta:
+                    description: parid should not be null
           - name: petemail
             description: Petitioner email address
           - name: petfax
@@ -223,14 +251,20 @@ sources:
             description: Schedule time
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
-              - dbt_utils.sequential_values:
+            data_tests:
+              - sequential_values:
                   name: iasworld_htpar_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
                     - caseno
                     - subkey
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq must be sequential
           - name: status
             description: '{{ doc("column_status") }}'
           - name: stipbldg
@@ -247,9 +281,16 @@ sources:
             description: Unique number to allow multiple hearings per level
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_htpar_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: txpyval
@@ -258,11 +299,16 @@ sources:
             description: '{{ doc("column_upd_status") }}'
           - name: user38
             description: '{{ doc("shared_column_appeal_type") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_htpar_user38_in_accepted_values
                   values: ['RS', 'IC', 'CC', 'CE', 'CI', 'CO', 'CV', 'IM', 'LD', 'OM', 'RC']
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: >
+                      user38 must be one of 'RS', 'IC', 'CC', 'CE', 'CI', 'CO',
+                      'CV', 'IM', 'LD', 'OM', or 'RC'
           - name: user89
             description: '{{ doc("shared_column_reason_code") }}'
           - name: user100
@@ -277,20 +323,12 @@ sources:
             description: '{{ doc("shared_column_updated_at") }}'
           - name: who
 
-        tests:
-          - unique_combination_of_columns:
-              name: iasworld_htpar_unique_by_parid_caseno_taxyr_subkey
-              combination_of_columns:
-                - parid
-                - caseno
-                - taxyr
-                - subkey
-              config:
-                <<: *unique-conditions
-                error_if: ">2"
+        data_tests:
           - no_extra_whitespace:
               name: iasworld_htpar_address_columns_no_whitespace
               column_names:
+                - taxyr
+                - parid
                 - own1
                 # - addr1 # almost every value in this field has a trailing space
                 - addr2
@@ -300,12 +338,46 @@ sources:
                 - cpaddr3
               allow_interior_space: true
               config: *unique-conditions
+              meta:
+                description: >
+                  Address columns should have no leading or trailing whitespace
+              tags:
+                # Currently too many failures for this signal to be useful
+                - data_test_iasworld_exclude_from_workbook
           - expression_is_true:
               name: iasworld_htpar_cpaddr3_length_lte_5
               expression: |
                 LENGTH(cpaddr3) = 5
                 OR (LENGTH(cpaddr3) = 10 AND cpaddr3 LIKE '%-%')
-              select_columns:
+              additional_select_columns:
                 - parid
                 - taxyr
+                - who
+                - wen
                 - cpaddr3
+              config: *unique-conditions
+              meta:
+                category: column_length
+                description: >
+                  cpaddr3 should be either 5 characters long or 10 characters
+                  with a hyphen
+          - unique_combination_of_columns:
+              name: iasworld_htpar_unique_by_parid_caseno_taxyr_subkey
+              combination_of_columns:
+                - parid
+                - caseno
+                - taxyr
+                - subkey
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config:
+                <<: *unique-conditions
+                error_if: ">2"
+              meta:
+                description: >
+                  htpar should be unique by parid, caseno, taxyr, and subkey

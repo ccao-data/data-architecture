@@ -137,7 +137,7 @@ Field inspection tracking table.
 {% docs table_exadmn %}
 Exemption applications table.
 
-**Primary Key**: `jur`, `taxyr`, `parid` `caseno`
+**Primary Key**: `jur`, `taxyr`, `parid`, `caseno`
 {% enddocs %}
 
 # exapp
@@ -145,7 +145,7 @@ Exemption applications table.
 {% docs table_exapp %}
 Exemption applicant information table.
 
-**Primary Key**: `jur`, `taxyr`, `parid` `caseno`
+**Primary Key**: `jur`, `taxyr`, `parid`, `caseno`
 {% enddocs %}
 
 # excode
@@ -239,6 +239,10 @@ It also stores other miscellaneous sub-PIN information like HIEs.
 
 {% docs table_owndat %}
 Property owner information such as name and mailing address.
+
+### Nuance
+
+- Mailing addresses and owner names have not been regularly updated since 2017.
 
 **Primary Key**: `jur`, `taxyr`, `parid`
 {% enddocs %}

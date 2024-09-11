@@ -9,12 +9,12 @@ models:
         description: '{{ doc("shared_column_latitude") }}'
       - name: lon
         description: '{{ doc("shared_column_longitude") }}'
-      - name: pin
-        description: '{{ doc("shared_column_pin") }}'
       - name: owner_name
         description: '{{ doc("shared_column_owner_name") }}'
       - name: owner_num
         description: '{{ doc("shared_column_owner_num") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
       - name: property_address
         description: '{{ doc("shared_column_prop_address_full") }}'
       - name: property_city
@@ -25,7 +25,17 @@ models:
         description: '{{ doc("shared_column_township_name") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
-    tests:
+    data_tests:
+      - not_accepted_values:
+          name: default_vw_pin_exempt_class_no_hyphens
+          column_name: class
+          values: "2-99"
+      # No non-numeric characters in the pin field
+      - expression_is_true:
+          name: default_vw_pin_exempt_numeric_pin
+          expression: REGEXP_COUNT(pin, '[0-9]') = 14 AND LENGTH(pin) = 14
+          additional_select_columns:
+            - pin
       - row_count:
           name: default_vw_pin_exempt_row_count
           above: 184845 # as of 2023-11-22

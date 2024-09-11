@@ -1,14 +1,18 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
       - type_condo
 
     tables:
       - name: oby
         description: '{{ doc("table_oby") }}'
+        freshness:
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
 
         columns:
           - name: adjfact
@@ -21,34 +25,124 @@ sources:
             description: '{{ doc("column_altbasedate") }}'
           - name: area
             description: '{{ doc("column_area") }}'
-            tests:
-              - dbt_utils.accepted_range:
+            data_tests:
+              - accepted_range:
                   name: iasworld_oby_area_gte_1
                   min_value: 1
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
                   config: &unique-conditions
                     where: |
-                      cur = 'Y'
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    description: area should be >= 1
           - name: areaid
             description: '{{ doc("column_areaid") }}'
           - name: areasum
             description: '{{ doc("column_areasum") }}'
           - name: bld_modelid
             description: '{{ doc("column_bld_modelid") }}'
+          - name: calc_meth
+            description: '{{ doc("shared_column_calc_meth") }}'
+            data_tests:
+              - accepted_values:
+                  name: iasworld_oby_calc_meth_accepted_values
+                  values: ["E"]
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND calc_meth IS NOT NULL
+                  meta:
+                    description: >
+                      calc_meth (Calculation Method) should be 'E' if not null
           - name: card
             description: '{{ doc("column_card") }}'
-            tests:
-              - dbt_utils.accepted_range:
+            data_tests:
+              - accepted_range:
                   name: iasworld_oby_card_between_1_and_100
                   min_value: 1
                   max_value: 100
+                  additional_select_columns: ["taxyr", "parid", "who", "wen"]
                   config: *unique-conditions
+                  meta:
+                    description: card should be between 1 and 100
           - name: cdpct
             description: Cost and design percent
           - name: chgrsn
             description: '{{ doc("column_chgrsn") }}'
+            data_tests:
+              - accepted_values:
+                  name: iasworld_oby_chgrsn_eq_5_or_5b_when_external_occpct_or_mktadj_not_null
+                  values:
+                    - '5'
+                    - 5B
+                  additional_select_columns:
+                    - parid
+                    - taxyr
+                    - card
+                    - who
+                    - wen
+                    - external_occpct
+                    - mktadj
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND (external_occpct IS NOT NULL OR mktadj IS NOT NULL)
+                  meta:
+                    description: >
+                      chgrsn (Reason for Change) should be 5 or 5B
+                      if external_occpct (Occupancy % [current]) or
+                      mktadj (Occupancy % [deprecated]) is not null
           - name: class
             description: '{{ doc("shared_column_class") }}'
+            data_tests:
+              - res_class_matches_pardat:
+                  name: iasworld_oby_class_ex_matches_pardat_class_ex
+                  major_class_only: false
+                  join_type: inner
+                  additional_select_columns: &select-columns-aggregated
+                    - column: card
+                      agg_func: array_agg
+                    - column: taxyr
+                      agg_func: max
+                    - column: parid
+                      agg_func: max
+                    - column: who
+                      agg_func: max
+                    - column: wen
+                      agg_func: max
+                  additional_pardat_filter: AND class = 'EX'
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      class should be EX if pardat class is EX
+              - res_class_matches_pardat:
+                  name: iasworld_oby_class_matches_pardat_class
+                  major_class_only: true
+                  additional_select_columns: *select-columns-aggregated
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      at least one major class (first digit) should match pardat class
+              - not_accepted_values:
+                  name: iasworld_oby_class_mismatch_no_289s
+                  values: ["289"]
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class should not be 289
           - name: cline
             description: Condominium line
           - name: cndcmplx
@@ -71,10 +165,16 @@ sources:
             description: Cubic feet
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_oby_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: curmult
             description: Current multiplier
           - name: deactivat
@@ -97,6 +197,76 @@ sources:
             description: '{{ doc("column_exmppct") }}'
           - name: exmpval
             description: '{{ doc("column_exmpval") }}'
+          - name: external_calc_rcnld
+            description: '{{ doc("shared_column_external_calc_rcnld") }}'
+            data_tests:
+              - not_accepted_values:
+                  name: iasworld_oby_external_calc_rcnld_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_calc_rcnld (Net Market Value) should not be 0
+          - name: external_occpct
+            description: '{{ doc("shared_column_external_occpct") }}'
+            data_tests:
+              - not_accepted_values:
+                  name: iasworld_oby_external_occpct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_occpct (Occupancy %) should not be 0
+              - not_null:
+                  name: iasworld_oby_external_occpct_not_null_when_chgrsn_eq_5_or_5b_and_mktadj_is_null
+                  additional_select_columns:
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
+                    - chgrsn
+                    - mktadj
+                  config:
+                    where:
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND chgrsn IN ('5', '5B')
+                      AND mktadj IS NULL
+                  meta:
+                    description: >
+                      external_occpct (Occupancy % [current]) should not be null if
+                      chgrsn (Reason for Change) is 5 or 5B and
+                      mktadj (Occupancy % [deprecated]) is null
+          - name: external_propct
+            description: '{{ doc("shared_column_external_propct") }}'
+            data_tests:
+              - not_accepted_values:
+                  name: iasworld_oby_external_propct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_propct (Proration %) should not be 0
+          - name: external_rcnld
+            description: '{{ doc("shared_column_external_rcnld") }}'
+            data_tests:
+              - not_accepted_values:
+                  name: iasworld_oby_external_rcnld_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      external_rcnld (Full Market Value) should not be 0
           - name: funct
             description: Function used in computing this calcualtion
           - name: fundep
@@ -119,12 +289,17 @@ sources:
             description: Factor used to calculate `RCNADJ`
           - name: lline
             description: '{{ doc("shared_column_lline") }}'
-            tests:
-              - dbt_utils.accepted_range:
+            data_tests:
+              - accepted_range:
                   name: iasworld_oby_lline_between_1_and_100
                   min_value: 1
                   max_value: 100
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: lline should be between 1 and 100
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: locmult
             description: Local multiplier
           - name: lumpadj
@@ -144,7 +319,30 @@ sources:
           - name: miles
             description: Miles for railroads
           - name: mktadj
-            description: Percent good override
+            description: '{{ doc("column_mktadj") }}'
+            data_tests:
+              - not_null:
+                  name: iasworld_oby_mktadj_not_null_when_chgrsn_eq_5_or_5b_and_external_occpct_is_null
+                  additional_select_columns:
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
+                    - chgrsn
+                    - external_occpct
+                  config:
+                    where:
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      AND chgrsn IN ('5', '5B')
+                      AND external_occpct IS NULL
+                  meta:
+                    description: >
+                      mktadj (Occupancy % [deprecated]) should not be null if
+                      chgrsn (Reason for Change) is 5 or 5B and
+                      external_occpct (Occupancy % [current]) is null
           - name: msclass
             description: Class identifier for Occupancy (CODE) from Marshall Swift
           - name: msrank
@@ -211,14 +409,20 @@ sources:
             description: '{{ doc("column_salekey") }}'
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
-              - dbt_utils.sequential_values:
+            data_tests:
+              - sequential_values:
                   name: iasworld_oby_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
                     - card
                     - lline
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: status
             description: '{{ doc("column_status") }}'
           - name: stories
@@ -227,9 +431,17 @@ sources:
             description: '{{ doc("column_suppress") }}'
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_oby_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - card
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: units
@@ -256,19 +468,25 @@ sources:
             description: '{{ doc("column_whocalc") }}'
           - name: yrblt
             description: '{{ doc("shared_column_char_yrblt") }}'
-            tests:
-              - not_null:
-                  name: iasworld_oby_yrblt_not_null
-                  config: *unique-conditions
-              - dbt_utils.accepted_range:
+            data_tests:
+              - accepted_range:
                   name: iasworld_oby_yrblt_between_1850_and_now
                   min_value: 1850
                   max_value: cast(year(current_date) as decimal)
+                  additional_select_columns: *select-columns
                   config: *unique-conditions
+                  meta:
+                    description: yrblt should be between 1850 and now
+              - not_null:
+                  name: iasworld_oby_yrblt_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: yrblt should not be null
           - name: yrrem
             description: Year remodeled
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_oby_unique_by_parid_card_lline_taxyr
               combination_of_columns:
@@ -276,16 +494,14 @@ sources:
                 - card
                 - lline
                 - taxyr
-          - row_values_match_after_join:
-              name: iasworld_oby_class_matches_pardat_class
-              column: substr(model.class, 1, 1)
-              external_model: source('iasworld', 'pardat')
-              external_column: substr(external_model.class, 1, 1)
-              join_columns:
-                - parid
-                - taxyr
-              config:
-                where: |
-                  taxyr >= '2022'
-                  AND cur = 'Y'
-                  AND deactivat IS NULL
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: >
+                  oby should be unique by parid, card, lline, and taxyr

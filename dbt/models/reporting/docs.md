@@ -1,3 +1,13 @@
+# assessment_progress
+
+{% docs table_assessment_progress %}
+Table for reporting current or final AV stats - depending on whether a township
+is open - and the proportion of parcels that have been valued per major class
+group, township, assessment stage, and year. Feeds public reporting assets.
+
+**Primary Key**: `year`, `stage_name`, `geo_id`
+{% enddocs %}
+
 # ratio_stats
 
 {% docs table_ratio_stats %}
@@ -8,6 +18,15 @@ reporting Tableau dashboards.
 
 **Primary Key**: `year`, `geography_type`, `geography_id`, `assessment_stage`,
 `property_group`
+{% enddocs %}
+
+# ratio_stats_input
+
+{% docs table_ratio_stats_input %}
+Table to feed the Python dbt job that creates the `reporting.ratio_stats` table.
+Feeds public reporting assets.
+
+**Primary Key**: `year`, `pin`, `assessment_stage`
 {% enddocs %}
 
 # res_report_summary
@@ -30,6 +49,15 @@ assessment stage, and year. Feeds public reporting assets.
 **Primary Key**: `year`, `township_name`, `class`, `stage`
 {% enddocs %}
 
+# vw_assessment_roll_muni
+
+{% docs view_vw_assessment_roll_muni %}
+View for reporting total AVs and PIN counts per major class group, municipality,
+assessment stage, and year. Feeds public reporting assets.
+
+**Primary Key**: `year`, `municipality_name`, `class`, `stage`
+{% enddocs %}
+
 # vw_pin_most_recent_boundary
 
 {% docs view_vw_pin_most_recent_boundary %}
@@ -50,13 +78,36 @@ PINs without sales have `NULL` sale values.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
-# vw_ratio_stats
+# vw_pin_township_class
 
-{% docs view_vw_ratio_stats %}
-View to feed the `reporting.ratio_stats` table and Glue job.
-Feeds public reporting assets.
+{% docs view_vw_pin_township_class %}
+View that provides pre-constructed common grouping columns across reporting
+views.
 
-**Primary Key**: `year`, `pin`, `assessment_stage`
+**Primary Key**: `year`, `pin`
+{% enddocs %}
+
+# vw_pin_value_long
+
+{% docs view_vw_pin_value_long %}
+Assessed and market values by PIN and year, for each assessment stage.
+
+The assessment stages are:
+
+1. `mailed` - Values initially mailed by the Assessor
+2. `certified` - Values after the Assessor has finished processing appeals
+2. `board` - Values after the Board of Review has finished their appeals
+
+### Assumptions
+
+- Taking an arbitrary value by 14-digit PIN and year is sufficient for accurate
+  values. We do this because even given the criteria to de-dupe `asmt_all`,
+  we still end up with duplicates by PIN and year.
+
+- Market value (`_mv`) columns accurately reflect incentives, statute,
+  levels of assessment, building splits, etc.
+
+**Primary Key**: `year`, `pin`, `stage_name`
 {% enddocs %}
 
 # vw_res_report_summary
@@ -76,7 +127,16 @@ Feeds public reporting assets.
 View to fetch the top five largest assessed values in a given township
 by year.
 
-**Primary Key**: `year`, `township`, `parid`
+**Primary Key**: `year`, `township`, `pin`
+{% enddocs %}
+
+# vw_top_5_muni
+
+{% docs view_vw_top_5_muni %}
+View to fetch the top five largest assessed values in a given municipality
+by year.
+
+**Primary Key**: `year`, `municipality`, `pin`
 {% enddocs %}
 
 # vw_town_sale_history

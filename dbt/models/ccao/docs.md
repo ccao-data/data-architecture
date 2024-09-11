@@ -1,10 +1,27 @@
-# class_dict
+# cc_dli_senfrr
 
-{% docs table_class_dict %}
-Classification codes and descriptions for real property. Derived from the
-[public PDF](https://prodassets.cookcountyassessor.com/s3fs-public/form_documents/Definitions%20for%20Classifications_2023.pdf).
+{% docs table_cc_dli_senfrr %}
+Legacy senior freeze exemption data pulled by BoT. Provided via MV 08/18/2024.
 
-**Primary Key**: `class_code`
+**Primary Key**: `pin`, `year`
+{% enddocs %}
+
+# cc_pifdb_piexemptre_dise
+
+{% docs table_cc_pifdb_piexemptre_dise %}
+Legacy homestead (senior) exemption data pulled by BoT. Provided via
+MV 08/18/2024.
+
+**Primary Key**: `pin`, `year`
+{% enddocs %}
+
+# cc_pifdb_piexemptre_sted
+
+{% docs table_cc_pifdb_piexemptre_sted %}
+Legacy disabled persons and veterans exemption data pulled by BoT. Provided via
+MV 08/18/2024.
+
+**Primary Key**: `pin`, `year`
 {% enddocs %}
 
 # commercial_valuation
@@ -69,17 +86,6 @@ Flags for non-livable condominium units such as common areas, parking spaces,
 and storage areas.
 
 Collected yearly from Valuations via spreadsheets.
-
-**Primary Key**: `pin`, `year`
-{% enddocs %}
-
-# pin_weird
-
-{% docs table_pin_weird %}
-Table to collect strange, troublesome, or otherwise problematic PINs.
-
-Sourced from a manually updated CSV on S3. Download, edit, then reupload the
-CSV in order to add to the table.
 
 **Primary Key**: `pin`, `year`
 {% enddocs %}

@@ -1,13 +1,16 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: htagnt
         description: '{{ doc("table_htagnt") }}'
+        freshness:
+          warn_after: {count: 192, period: hour} # 8 days
+          error_after: {count: 360, period: hour} # 15 days
 
         columns:
           - name: addr1
@@ -62,6 +65,8 @@ sources:
             description: '{{ doc("column_iasw_id") }}'
           - name: jur
             description: '{{ doc("column_jur") }}'
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: name1
             description: Name line 1
           - name: name1_companyname
@@ -94,10 +99,10 @@ sources:
             description: '{{ doc("column_ownnum") }}'
           - name: phone
             description: '{{ doc("column_phone") }}'
-          - name: postal_indx
-            description: '{{ doc("column_postal_indx") }}'
           - name: postalcode
             description: '{{ doc("column_postalcode") }}'
+          - name: postal_indx
+            description: '{{ doc("column_postal_indx") }}'
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
           - name: statecode
@@ -117,8 +122,17 @@ sources:
           - name: zip2
             description: '{{ doc("column_zip2") }}'
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_htagnt_unique_by_agent
               combination_of_columns:
                 - agent
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              meta:
+                description: htagnt should be unique by agent

@@ -14,104 +14,32 @@ _(Brief description of the task here.)_
 
 ## Model attributes
 
-* **Name**: _(What should the model be called? See [Model
- naming](/ccao-data/data-architecture/tree/master/dbt#model-naming) for guidance.)_
-* **Materialization**: _(Should the model be a table or a view? See [Model
-  materialization](/ccao-data/data-architecture/tree/master/dbt#model-materialization) for
-  guidance.)_
+* **Name**: _(What should the model be called? See [Model naming](/ccao-data/data-architecture/tree/master/dbt#model-naming) for guidance.)_
+* **Model type**: _(SQL or Python? See [Model type (SQL or Python)](/ccao-data/data-architecture/tree/master/dbt#model-type-sql-or-python) for guidance.)_
+* **Materialization**: _(Should the model be a table or a view? See [Model materialization](/ccao-data/data-architecture/tree/master/dbt#model-materialization) for guidance.)_
 * **Tests**:
-  * _(Add a bulleted list of tests here. See [Model
-  tests](/ccao-data/data-architecture/tree/master/dbt#model-tests) for guidance.)_
-* **Description**: _(Provide a rich description for this model that will be
-  displayed in documentation. Markdown is supported, and encouraged for more
-  complex models. See [Model
-  description](/ccao-data/data-architecture/tree/master/dbt#model-description) for guidance.)_
+  * _(Add a bulleted list of tests here. See [Model tests](/ccao-data/data-architecture/tree/master/dbt#model-tests) for guidance.)_
+* **Description**: _(Provide a rich description for this model that will be displayed in documentation. Markdown is supported, and encouraged for more complex models. See [Model description](/ccao-data/data-architecture/tree/master/dbt#model-description) for guidance.)_
 
 ## Short checklist
 
-_(Use this checklist if the assignee already knows how to add a dbt model.
-Otherwise, delete it in favor of the long checklist in the following section.)_
+_(Use this checklist if the assignee already knows how to add a dbt model. Otherwise, delete it in favor of the long checklist in the following section.)_
 
-- [ ] Define the SQL query that creates the model in the `aws-athena/` directory
-  - [ ] Optionally configure model materialization
-- [ ] Confirm that a subdirectory for this model's database exists in
-  the `dbt/models/` directory, and if not, create one, add a new `schema.yml`
-  file, and update `dbt_project.yml` to document the `+schema`
-- [ ] Add a symlink from the appropriate subfolder of the `dbt/models/`
-  directory to the new SQL query in the `aws-athena/` directory
-- [ ] Update the `schema.yml` file in the subfolder of `dbt/models/` where you
-  created your symlink to add a definition for your model
-- [ ] Add tests to your new model definition in `schema.yml`
-- [ ] If your model definition requires any new macros, make sure those macros
-  are tested in `dbt/macros/tests/test_all.sql`
+- [ ] Confirm that a subdirectory for this model's database exists in the `dbt/models/` directory, and if not, create one, add a new `schema.yml` file, and update `dbt_project.yml` to document the `+schema`
+- [ ] Define the SQL query or Python script that creates the model in the model subdirectory, following any existing file naming schema
+- [ ] Use `source()` and `ref()` to reference other models where possible
+- [ ] _[SQL models only]_ Optionally configure model materialization in the query file
+- [ ] Update the `schema.yml` file in the subfolder of `dbt/models/` to point to the new model definition
+- [ ] _[Python models only]_ Configure any third-party pure Python packages
+- [ ] Add tests to the model schema definition in `schema.yml`
+- [ ] _[SQL models only]_ If your model definition requires any new macros, make sure those macros are tested in `dbt/macros/tests/test_all.sql`
 - [ ] Commit your changes to a branch and open a pull request
 
 ## Checklist
 
 Complete the following checklist to add the model:
 
-- [ ] Define the SQL query that creates the model in the appropriate subfolder
-  of the `aws-athena/` directory. Views should live in `aws-athena/views/`
-  while tables should live in `aws-athena/ctas/`. When naming the file for the
-  query, the period in the model name that separates the entity name from the
-  database namespace should be changed to a hyphen (e.g. `default.new_model`
-  should become `default-new_model` for the purpose of the SQL filename).
-
-
-```bash
-# View example
-touch aws-athena/views/default-vw_new_model.sql
-
-# Table example
-touch aws-athena/ctas/default-new_model.sql
-```
-
-- [ ] Use
-  [`source()`](https://docs.getdbt.com/reference/dbt-jinja-functions/source)
-  and [`ref()`](https://docs.getdbt.com/reference/dbt-jinja-functions/ref) to
-  reference other models where possible in your query.
-
-
-```sql
--- View or table example
--- Either aws-athena/views/default-vw_new_model.sql
--- or aws-athena/ctas/default-new_model.sql
-select pin10, year
-from {{ source('raw', 'foobar') }}
-join {{ ref('default.vw_pin_universe') }}
-using (pin10, year)
-```
-
-- [ ] Optionally configure model materialization. If the output of the query
-  should be a view, no action is necessary, since the default for all models in
-  this repository is to materialize as views; but if the output should be a
-  table, with table data stored in S3, then you'll need to add a config block
-  to the top of the view to configure materialization.
-
-```sql
--- Table example
--- aws-athena/ctas/default-new_model.sql
-{{
-  config(
-    materialized='table',
-    partitioned_by=['year'],
-    bucketed_by=['pin10'],
-    bucket_count=1
-  )
-}}
-select pin10, year
-from {{ source('raw', 'foobar') }}
-join {{ ref('default.vw_pin_universe') }}
-using (pin10, year)
-```
-
-- [ ] Confirm that a subdirectory for this model's database exists in
-  the `dbt/models/` directory (e.g. `dbt/models/default/` for
-  the `default.new_model` model). If a subdirectory does not yet exist, create
-  one, add a `schema.yml` file to the directory to store [model
-  properties](https://docs.getdbt.com/reference/model-properties), and update
-  `dbt_project.yml` to document the new directory under the `models.athena`
-  key with a `+schema` attribute.
+- [ ] Confirm that a subdirectory for this model's database exists in the `dbt/models/` directory (e.g. `dbt/models/default/` for the `default.new_model` model). If a subdirectory does not yet exist, create one, add a `schema.yml` file to the directory to store [model properties](https://docs.getdbt.com/reference/model-properties), and update `dbt_project.yml` to document the new directory under the `models.athena` key with a `+schema` attribute.
 
 ```yaml
 # Table example (only the model name would change for a view)
@@ -134,40 +62,64 @@ models:
        +schema: census
 ```
 
-- [ ] Add a symlink from the appropriate subfolder of the `dbt/models/`
-  directory to the SQL query you created in the `aws-athena/` directory.
-  Note that the path for the target file in the `aws-athena/` directory
-  needs to be relative to the location of the symlink, _not_ to the
-  location of the working directory where you run the `ln` command;
-  as a result, the path to the target file in the `aws-athena/` directory
-  will not autocomplete in your shell as it usually does when you use
-  the tab key.
+- [ ] Define the SQL query or Python script that creates the model in the appropriate subfolder of the `dbt/models/` directory. For example, if you're adding a view to the `default` schema, then the model definition file should live in `dbt/models/default`. The file should have the same name as the model that appears in Athena. A period in the model name should separate the entity name from the database namespace (e.g. `default.vw_pin_universe.sql`). All views should have a name prefixed with `vw_`.
 
 ```bash
-# View example
-ln -s ../../../aws-athena/views/default-vw_new_model.sql dbt/models/default/default.vw_new_model.sql
+# SQL view example
+touch dbt/models/default/default.vw_new_model.sql
 
-# Table example
-ln -s ../../../aws-athena/ctas/default-new_model.sql dbt/models/default/default.new_model.sql
+# SQL table example
+touch dbt/models/proximity/proximity.new_model.sql
+
+# Python model example
+touch dbt/models/proximity/proximity.new_model.py
 ```
 
-- [ ] The `ln` command won't raise an error if the link it creates is invalid,
-  so use `cat` to confirm that the link is pointing to the correct file.
+- [ ] Use [`source()`](https://docs.getdbt.com/reference/dbt-jinja-functions/source) and [`ref()`](https://docs.getdbt.com/reference/dbt-jinja-functions/ref) to reference other models where possible in your query or script.
 
-```bash
-# View example
-cat dbt/models/default/default.vw_new_model.sql
-
-# Table example
-cat dbt/models/default/default.new_model.sql
+```sql
+-- SQL view or table example
+-- Either dbt/models/default/default.vw_new_model.sql
+-- or dbt/models/default/default.new_model.sql
+select pin10, year
+from {{ source('raw', 'foobar') }}
+join {{ ref('default.vw_pin_universe') }}
+using (pin10, year)
 ```
 
-- [ ] Update the `schema.yml` file in the subfolder of `dbt/models/` where you
-  created your symlink to add a definition for your model. Make sure to add
-  descriptions for new entities (models, sources, columns, etc). See
-  [Model description](/ccao-data/data-architecture/tree/master/dbt#model-description)
-  and [Column descriptions](/ccao-data/data-architecture/tree/master/dbt#column-descriptions)
-  for specific guidance on doc locations and using docs blocks
+```python
+# Python model example
+# dbt/models/default/default.new_model.py
+import pandas as pd
+
+def model(dbt, spark_session):
+    raw_foobar = dbt.source("raw", "foobar")
+    vw_pin_universe = dbt.ref("default.vw_pin_universe")
+    result = pd.merge(raw_foobar, vw_pin_universe, on=["pin10", "year"])
+    dbt.write(result[["pin10", "year"]])
+```
+
+- [ ] _[SQL models only]_ Optionally configure model materialization. If the output of the query should be a view, no action is necessary, since the default for all models in this repository is to materialize as views; but if the output should be a table, with table data stored in S3, then you'll need to add a config block to the top of the view to configure materialization.
+
+```diff
+# Table example
+--- dbt/models/default/default.new_model.sql
++++ dbt/models/default/default.new_model.sql
++ {{
++   config(
++     materialized='table',
++     partitioned_by=['year'],
++     bucketed_by=['pin10'],
++     bucket_count=1
++   )
++ }}
+select pin10, year
+from {{ source('raw', 'foobar') }}
+join {{ ref('default.vw_pin_universe') }}
+using (pin10, year)
+```
+
+- [ ] Update the `schema.yml` file in the subfolder of `dbt/models/` where you created your model definition. Make sure to add descriptions for new entities (models, sources, columns, etc). See [Model description](/ccao-data/data-architecture/tree/master/dbt#model-description) and [Column descriptions](/ccao-data/data-architecture/tree/master/dbt#column-descriptions) for specific guidance on doc locations and using docs blocks.
 
 ```diff
 # Table example (only the model name would change for a view)
@@ -184,8 +136,10 @@ cat dbt/models/default/default.new_model.sql
 +        description: Year
    - name: default.vw_pin_history
      description: PIN history
-     tests:
+     data_tests:
 ```
+
+- [ ] _[Python models only]_ If you need any third-party pure Python packages that are not [preinstalled in the Athena PySpark environment](https://docs.aws.amazon.com/athena/latest/ug/notebooks-spark-preinstalled-python-libraries.html), follow [the docs for configuring Python model dependencies](/ccao-data/data-architecture/tree/master/dbt#a-note-on-third-party-pure-python-dependencies-for-python-models).
 
 - [ ] Add tests to your new model definition in `schema.yml`.
 
@@ -202,7 +156,7 @@ cat dbt/models/default/default.new_model.sql
          description: 10-digit PIN
        - name: year
          description: Year
-+    tests:
++    data_tests:
 +      - unique_combination_of_columns:
 +        name: new_model_unique_by_pin_and_year
 +        combination_of_columns:
@@ -210,12 +164,9 @@ cat dbt/models/default/default.new_model.sql
 +          - year
    - name: default.vw_pin_history
      description: PIN history
-     tests:
+     data_tests:
 ```
 
-- [ ] If your model definition requires any new macros, make sure those macros
-  are tested in `dbt/macros/tests/test_all.sql`. If any tests need implementing,
-  follow the pattern set by existing tests to implement them.
+- [ ] _[SQL models only]_ If your model definition requires any new macros, make sure those macros are tested in `dbt/macros/tests/test_all.sql`. If any tests need implementing, follow the pattern set by existing tests to implement them.
 
-- [ ] Commit your changes to a branch and open a pull request to build your
-  model and run tests in a CI environment.
+- [ ] Commit your changes to a branch and open a pull request to build your model and run tests in a CI environment.

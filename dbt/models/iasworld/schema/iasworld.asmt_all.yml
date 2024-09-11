@@ -1,9 +1,9 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: asmt_all
@@ -16,25 +16,68 @@ sources:
         columns:
           - name: class
             description: '{{ doc("shared_column_class") }}'
-            tests:
+            data_tests:
+              - res_class_matches_pardat:
+                  name: iasworld_asmt_all_class_ex_matches_pardat_class_ex
+                  join_type: inner
+                  additional_select_columns: &select-columns-aggregated
+                    - column: taxyr
+                      agg_func: max
+                    - column: parid
+                      agg_func: max
+                    - column: who
+                      agg_func: max
+                    - column: wen
+                      agg_func: max
+                  additional_pardat_filter: AND class = 'EX'
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND rolltype != 'RR'
+                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
+                  meta:
+                    description: >
+                      class should be EX if pardat class is EX
               - relationships:
                   name: iasworld_asmt_all_class_in_ccao_class_dict
-                  to: source('ccao', 'class_dict')
+                  to: ref('ccao.class_dict')
                   field: class_code
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
                   config:
                     where: |
-                      taxyr >= '2022'
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND class NOT IN ('EX', 'RR', '999')
                       AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
                       AND rolltype != 'RR'
                       AND deactivat IS NULL
                       AND valclass IS NULL
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class code must be valid
+              - res_class_matches_pardat:
+                  name: iasworld_asmt_all_class_matches_pardat_class
+                  additional_select_columns: *select-columns-aggregated
+                  config: *unique-conditions
+                  meta:
+                    description: at least one class should match pardat class
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_asmt_all_cur_in_accepted_values
                   values: ['Y', 'D', 'N']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  meta:
+                    description: cur should be 'Y', 'D', or 'N'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: distcode
@@ -43,6 +86,8 @@ sources:
             description: '{{ doc("column_iasw_id") }}'
           - name: jur
             description: '{{ doc("column_jur") }}'
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: luc
             description: '{{ doc("column_luc") }}'
           - name: ovrclass
@@ -53,41 +98,74 @@ sources:
             description: Override value for taxes
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
-              - not_null:
-                  name: iasworld_asmt_all_parid_not_null
+            data_tests:
               - relationships:
                   name: iasworld_asmt_all_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  additional_select_columns: &select-columns-no-parid
+                    - taxyr
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_asmt_all_parid_not_null
+                  additional_select_columns: *select-columns-no-parid
+                  config: *unique-conditions
+                  meta:
+                    description: parid should not be null
           - name: procdate
             description: '{{ doc("column_procdate") }}'
           - name: procname
             description: '{{ doc("column_procname") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_asmt_all_procname_in_accepted_values
                   values: ['CCAOVALUE', 'CCAOFINAL', 'BORVALUE', 'CONVERT']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND rolltype != 'RR'
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
+                  meta:
+                    description: >
+                      procname should be 'CCAOVALUE', 'CCAOFINAL', 'BORVALUE', or 'CONVERT'
           - name: reascd
             description: Reason code for change in assessed value
           - name: rolltype
             description: '{{ doc("column_rolltype") }}'
+            data_tests:
+              - not_accepted_values:
+                  name: iasworld_asmt_all_rolltype_not_rr
+                  values: ['RR']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    description: rolltype RR should not exist
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
-              - dbt_utils.sequential_values:
+            data_tests:
+              - sequential_values:
                   name: iasworld_asmt_all_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
                     - procname
-                  config:
-                    where: &unique-conditions |
-                      rolltype != 'RR'
-                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
-                      AND deactivat IS NULL 
-                      AND valclass IS NULL
-                    error_if: ">15300"
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: splitno
             description: '{{ doc("column_splitno") }}'
           - name: status
@@ -96,381 +174,128 @@ sources:
             description: Flag to indicate assessment record used in tax calculation
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_asmt_all_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
+          - name: tot30
+            description: HIE AV Amount
+            data_tests:
+              - accepted_range:
+                  name: iasworld_asmt_all_tot30_lte_7500
+                  max_value: 7500
+                  config: *unique-conditions
+                  meta:
+                    description: tot30 (HIE TOT) should be <7500
+          - name: tot32
+            description: Value After HIE
+            data_tests:
+                - expression_is_true:
+                    name: iasword_asmt_all_32_equals_29_minus_30_minus_31
+                    expression: = tot29 - tot30 - tot31 OR tot32 < 1
+                    config: *unique-conditions
+                    meta:
+                      description: TOT32 (Value After HIE) should be TOT29 - TOT30 - TOT31
           - name: tottax
             description: Total tax
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
-          - name: val01
-            # Test that all val* columns are not negative. Pulled from
-            # the following Inquire queries via Will C:
-            # - FP Checklist - Negative ASMT Values
-            # - FP Checklist - Non-EX, RR parcels with 0 land value
-            # - FP Checklist - Non-EX, RR parcels with 0 value
-            tests:
-              - dbt_utils.accepted_range: &test-non-negative
-                  name: iasworld_asmt_all_val01_gte_0
+          - name: valapr1
+            description: '{{ doc("column_valapr1") }}'
+          - name: valapr2
+            description: '{{ doc("column_valapr2") }}'
+          - name: valapr3
+            description: '{{ doc("column_valapr3") }}'
+          - name: valasm1
+            description: '{{ doc("column_valasm1") }}'
+            data_tests:
+              - accepted_range: &incorrect-asmt-value-gt-0
+                  name: iasworld_asmt_all_valasm1_non_ex_rr_gt_0
                   min_value: 0
+                  inclusive: false
+                  additional_select_columns: &select-columns-with-class
+                    - taxyr
+                    - parid
+                    - class
+                    - who
+                    - wen
                   config:
-                    where: &unique-conditions-and-recent |
-                      taxyr >= '2023'
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND rolltype != 'RR'
                       AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
                       AND deactivat IS NULL
                       AND valclass IS NULL
-                  tags:
-                    - test_qc_valuations_fp
-          - name: val02
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val02_gte_0
-                  <<: *test-non-negative
-          - name: val03
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val03_gte_0
-                  <<: *test-non-negative
-          - name: val04
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val04_gte_0
-                  <<: *test-non-negative
-          - name: val05
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val05_gte_0
-                  <<: *test-non-negative
-          - name: val06
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val06_gte_0
-                  <<: *test-non-negative
-          - name: val07
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val07_gte_0
-                  <<: *test-non-negative
-          - name: val08
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val08_gte_0
-                  <<: *test-non-negative
-          - name: val09
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val09_gte_0
-                  <<: *test-non-negative
-          - name: val10
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val10_gte_0
-                  <<: *test-non-negative
-          - name: val11
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val11_gte_0
-                  <<: *test-non-negative
-          - name: val12
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val12_gte_0
-                  <<: *test-non-negative
-          - name: val13
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val13_gte_0
-                  <<: *test-non-negative
-          - name: val14
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val14_gte_0
-                  <<: *test-non-negative
-          - name: val15
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val15_gte_0
-                  <<: *test-non-negative
-          - name: val16
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val16_gte_0
-                  <<: *test-non-negative
-          - name: val17
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val17_gte_0
-                  <<: *test-non-negative
-          - name: val18
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val18_gte_0
-                  <<: *test-non-negative
-          - name: val19
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val19_gte_0
-                  <<: *test-non-negative
-          - name: val20
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val20_gte_0
-                  <<: *test-non-negative
-          - name: val21
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val21_gte_0
-                  <<: *test-non-negative
-          - name: val22
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val22_gte_0
-                  <<: *test-non-negative
-          - name: val23
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val23_gte_0
-                  <<: *test-non-negative
-          - name: val24
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val24_gte_0
-                  <<: *test-non-negative
-          - name: val25
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val25_gte_0
-                  <<: *test-non-negative
-          - name: val26
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val26_gte_0
-                  <<: *test-non-negative
-          - name: val27
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val27_gte_0
-                  <<: *test-non-negative
-          - name: val28
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val28_gte_0
-                  <<: *test-non-negative
-          - name: val29
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val29_gte_0
-                  <<: *test-non-negative
-          - name: val30
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val30_gte_0
-                  <<: *test-non-negative
-          - name: val31
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val31_gte_0
-                  <<: *test-non-negative
-          - name: val32
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val32_gte_0
-                  <<: *test-non-negative
-          - name: val33
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val33_gte_0
-                  <<: *test-non-negative
-          - name: val34
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val34_gte_0
-                  <<: *test-non-negative
-          - name: val35
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val35_gte_0
-                  <<: *test-non-negative
-          - name: val36
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val36_gte_0
-                  <<: *test-non-negative
-          - name: val37
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val37_gte_0
-                  <<: *test-non-negative
-          - name: val38
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val38_gte_0
-                  <<: *test-non-negative
-          - name: val39
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val39_gte_0
-                  <<: *test-non-negative
-          - name: val40
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val40_gte_0
-                  <<: *test-non-negative
-          - name: val41
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val41_gte_0
-                  <<: *test-non-negative
-          - name: val42
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val42_gte_0
-                  <<: *test-non-negative
-          - name: val43
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val43_gte_0
-                  <<: *test-non-negative
-          - name: val44
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val44_gte_0
-                  <<: *test-non-negative
-          - name: val45
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val45_gte_0
-                  <<: *test-non-negative
-          - name: val46
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val46_gte_0
-                  <<: *test-non-negative
-          - name: val47
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val47_gte_0
-                  <<: *test-non-negative
-          - name: val48
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val48_gte_0
-                  <<: *test-non-negative
-          - name: val49
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val49_gte_0
-                  <<: *test-non-negative
-          - name: val50
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val50_gte_0
-                  <<: *test-non-negative
-          - name: val51
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val51_gte_0
-                  <<: *test-non-negative
-          - name: val52
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val52_gte_0
-                  <<: *test-non-negative
-          - name: val53
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val53_gte_0
-                  <<: *test-non-negative
-          - name: val54
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val54_gte_0
-                  <<: *test-non-negative
-          - name: val55
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val55_gte_0
-                  <<: *test-non-negative
-          - name: val56
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val56_gte_0
-                  <<: *test-non-negative
-          - name: val57
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val57_gte_0
-                  <<: *test-non-negative
-          - name: val58
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val58_gte_0
-                  <<: *test-non-negative
-          - name: val59
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val59_gte_0
-                  <<: *test-non-negative
-          - name: val60
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_val60_gte_0
-                  <<: *test-non-negative
-            # Also from FP Checklist - Negative ASMT Values AND the view
-            # definition used for vw_pin_value
-          - name: valapr1
-            tests:
-              - not_null: &test-val-non-null
-                  name: iasworld_asmt_all_valapr1_not_null
-                  config:
-                    where: *unique-conditions-and-recent
-                    error_if: ">702"
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_valapr1_gte_0
-                  <<: *test-non-negative
-          - name: valapr2
-            tests:
-              - not_null:
-                  name: iasworld_asmt_all_valapr2_not_null
-                  <<: *test-val-non-null
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_valapr2_gte_0
-                  <<: *test-non-negative
-          - name: valapr3
-            tests:
-              - not_null:
-                  name: iasworld_asmt_all_valapr3_not_null
-                  <<: *test-val-non-null
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_valapr3_gte_0
-                  <<: *test-non-negative
-          - name: valasm1
-            tests:
-              - not_null:
-                  name: iasworld_asmt_all_valasm1_not_null
-                  <<: *test-val-non-null
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_valasm1_gte_0
-                  <<: *test-non-negative
+                      AND class NOT IN ('EX', 'RR')
+                  meta:
+                    table_name: asmt
+                    description: >
+                      valasm1 (ASMT LAND) should be >= 0 if class is not EX or RR
           - name: valasm2
-            tests:
-              - not_null:
-                  name: iasworld_asmt_all_valasm2_not_null
-                  <<: *test-val-non-null
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_valasm2_gte_0
-                  <<: *test-non-negative
+            description: '{{ doc("column_valasm2") }}'
+            data_tests:
+              - accepted_range:
+                  name: iasworld_asmt_all_impr_class_valasm2_gt_0
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND rolltype != 'RR'
+                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
+                      AND class NOT IN (
+                        '100', '200', '239', '240', '241', '300', '400', '500',
+                        '535', '550', '637', '637A', '637B', '650', '651', '651A',
+                        '651B', '700', '700A', '700B', '742', '742A', '742B',
+                        '800', '800A', '800B', '850', '850A', '850B', '900',
+                        '999', 'EX', 'RR'
+                      )
+                  meta:
+                    table_name: asmt
+                    description: >
+                      valasm2 (ASMT BLDG) should be > 0 for non-vacant classes
+                  <<: *incorrect-asmt-value-gt-0
+              - accepted_values:
+                  name: iasworld_asmt_all_valasm2_vact_class_has_val
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND rolltype != 'RR'
+                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
+                      AND class IN (
+                        '100', '200', '239', '240', '241', '300', '400', '500',
+                        '535', '550', '637', '637A', '637B', '650', '651', '651A',
+                        '651B', '700', '700A', '700B', '742', '742A', '742B',
+                        '800', '800A', '800B', '850', '850A', '850B', '900',
+                        '999', 'EX', 'RR'
+                      )
+                  meta:
+                    table_name: asmt
+                    description: >
+                      valasm2 (ASMT BLDG) should be 0 for vacant classes
           - name: valasm3
-            tests:
-              - not_null:
-                  name: iasworld_asmt_all_valasm3_not_null
-                  <<: *test-val-non-null
-              - dbt_utils.accepted_range:
-                  name: iasworld_asmt_all_valasm3_gte_0
-                  <<: *test-non-negative
+            description: '{{ doc("column_valasm3") }}'
+            data_tests:
+              - accepted_range:
+                  name: iasworld_asmt_all_valasm3_non_ex_rr_gt_0
+                  meta:
+                    table_name: asmt
+                    description: >
+                      valasm3 (ASMT TOTAL) should be >= 0 if class is not EX or RR
+                  <<: *incorrect-asmt-value-gt-0
           - name: valclass
             description: '{{ doc("column_valclass") }}'
           - name: valtax
@@ -485,27 +310,3 @@ sources:
             description: '{{ doc("shared_column_updated_by") }}'
           - name: whocalc
             description: '{{ doc("column_whocalc") }}'
-
-        tests:
-          # Note that this test is NOT actually the unique primary key of
-          # this table, since there doesn't seem to BE a unique combination
-          # of identifying columns
-          - unique_combination_of_columns:
-              name: iasworld_asmt_all_unique_by_parid_procname_and_taxyr
-              combination_of_columns:
-                - parid
-                - procname
-                - taxyr
-              config:
-                where: *unique-conditions
-                error_if: ">15300"
-          - row_values_match_after_join:
-              name: iasworld_asmt_all_class_matches_pardat_class
-              column: substr(model.class, 1, 3)
-              external_model: source('iasworld', 'pardat')
-              external_column: substr(external_model.class, 1, 3)
-              join_columns:
-                - parid
-                - taxyr
-              config:
-                where: *unique-conditions

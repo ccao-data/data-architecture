@@ -1,79 +1,118 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
       - type_res
 
     tables:
       - name: addn
         description: '{{ doc("table_addn") }}'
+        freshness:
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
 
         columns:
           - name: area
             description: '{{ doc("column_area") }}'
-            tests:
-              - dbt_utils.accepted_range:
-                  name: iasworld_addn_area_between_0_and_1.5M
+            data_tests:
+              - accepted_range:
+                  name: iasworld_addn_area_between_0_and_1.5m
                   min_value: 0
                   max_value: 1500000
-                  config:
-                    where: cur = 'Y' AND deactivat IS NULL
-          - name: area_sqm
-            description: Area of this line in meters
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - card
+                    - who
+                    - wen
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    description: area should be between 0 and 1.5M
           - name: areaid
             description: '{{ doc("column_areaid") }}'
+          - name: area_sqm
+            description: Area of this line in meters
           - name: areasum
             description: '{{ doc("column_areasum") }}'
           - name: card
             description: '{{ doc("column_card") }}'
-            tests:
-              - not_null:
-                  name: iasworld_addn_card_not_null
-              - dbt_utils.accepted_range:
+            data_tests:
+              - accepted_range:
                   name: iasworld_addn_card_gte_1
                   min_value: 1
+                  additional_select_columns: &select-columns-no-card
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: card should be >= 1
+              - not_null:
+                  name: iasworld_addn_card_not_null
+                  additional_select_columns: *select-columns-no-card
+                  config: *unique-conditions
+                  meta:
+                    description: card should not be null
           - name: cdu
             description: '{{ doc("column_cdu") }}'
           - name: chgrsn
             description: '{{ doc("column_chgrsn") }}'
           - name: class
             description: '{{ doc("shared_column_class") }}'
-            tests:
+            data_tests:
               - relationships:
                   name: iasworld_addn_class_in_ccao_class_dict
-                  to: source('ccao', 'class_dict')
+                  to: ref('ccao.class_dict')
                   field: class_code
+                  additional_select_columns: *select-columns
                   config:
                     where: |
-                      taxyr >= '2022'
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND class != 'EX'
                       AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class code must be valid
           - name: convaddn
             description: Converted addition total
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_addn_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: depr
             description: Percent good from tables (based on age+cdu)
-            tests:
-              - dbt_utils.accepted_range:
+            data_tests:
+              - accepted_range:
                   name: iasworld_addn_depr_between_0_and_100
                   min_value: 0
                   max_value: 100
-                  config:
-                    where: cur = 'Y' AND deactivat IS NULL
-          - name: eff_area
-            description: Support value per line
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: depr should be between 0 and 100
           - name: effageovr
             description: '{{ doc("column_effageovr") }}'
+          - name: eff_area
+            description: Support value per line
           - name: effyr
             description: '{{ doc("column_effyr") }}'
           - name: exmppct
@@ -100,9 +139,15 @@ sources:
             description: '{{ doc("column_jur") }}'
           - name: lline
             description: '{{ doc("shared_column_lline") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_addn_lline_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: lline should not be null
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: lower
             description: Lower level addition code
           - name: mktadj
@@ -121,13 +166,26 @@ sources:
             description: '{{ doc("column_newconpct") }}'
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
-              - not_null:
-                  name: iasworld_addn_parid_not_null
+            data_tests:
               - relationships:
                   name: iasworld_addn_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  additional_select_columns: &select-columns-no-parid
+                    - taxyr
+                    - card
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_addn_parid_not_null
+                  additional_select_columns: *select-columns-no-parid
+                  config: *unique-conditions
+                  meta:
+                    description: parid should not be null
           - name: pctcomp
             description: '{{ doc("column_pctcomp") }}'
           - name: prodamage
@@ -172,21 +230,35 @@ sources:
             description: Second floor addition code
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
-              - dbt_utils.sequential_values:
+            data_tests:
+              - sequential_values:
                   name: iasworld_addn_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
                     - card
                     - lline
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: seq should be sequential
           - name: status
             description: '{{ doc("column_status") }}'
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_addn_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - card
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
           - name: third
             description: Third floor addition code
           - name: trans_id
@@ -210,7 +282,7 @@ sources:
           - name: yrblt
             description: '{{ doc("column_yrblt") }}'
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_addn_unique_by_parid_taxyr_card_lline
               combination_of_columns:
@@ -218,3 +290,13 @@ sources:
                 - taxyr
                 - card
                 - lline
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: addn should be unique by parid, taxyr, card, and lline

@@ -1,28 +1,62 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
       - type_land
 
     tables:
       - name: land
         description: '{{ doc("table_land") }}'
+        freshness:
+          filter: taxyr >= date_format(current_date - interval '1' year, '%Y')
+          warn_after: {count: 24, period: hour}
+          error_after: {count: 48, period: hour}
 
         columns:
           - name: acres
             description: '{{ doc("column_acres") }}'
-            tests:
-              - dbt_utils.expression_is_true:
+            data_tests:
+              - expression_is_true:
                   name: iasworld_land_acres_is_sf_transformed
                   expression: '* 43560 BETWEEN sf - 5 AND sf + 5'
+                  additional_select_columns:
+                    - taxyr
+                    - parid
+                    - lline
+                    - who
+                    - wen
+                    - sf
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    category: relationships
+                    description: acres should be approximately sf * 43560
           - name: adjfact
             description: '{{ doc("column_adjfact") }}'
           - name: agflg
             description: Agricultural flag
           - name: allocpct
             description: Allocation percentage
+            data_tests:
+              - not_accepted_values:
+                  name: iasworld_land_allocpct_not_0
+                  values: [0]
+                  quote: false
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - lline
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      allocpct (land proration percentage) should not be 0
           - name: bdecr
             description: Decremental rate
           - name: bincr
@@ -41,17 +75,55 @@ sources:
             description: '{{ doc("column_chgrsn") }}'
           - name: class
             description: '{{ doc("shared_column_class") }}'
-            tests:
+            data_tests:
+              - res_class_matches_pardat:
+                  name: iasworld_land_class_ex_matches_pardat_class_ex
+                  major_class_only: false
+                  join_type: inner
+                  additional_select_columns: &select-columns-aggregated
+                    - column: taxyr
+                      agg_func: max
+                    - column: parid
+                      agg_func: max
+                    - column: lline
+                      agg_func: array_agg
+                    - column: who
+                      agg_func: max
+                    - column: wen
+                      agg_func: max
+                  additional_pardat_filter: AND class = 'EX'
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      class should be EX if pardat class is EX
               - relationships:
                   name: iasworld_land_class_in_ccao_class_dict
-                  to: source('ccao', 'class_dict')
+                  to: ref('ccao.class_dict')
                   field: class_code
+                  additional_select_columns: *select-columns
                   config:
                     where: |
-                      cur = 'Y'
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND class NOT IN ('EX', 'RR', '999')
                       AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
+                      AND cur = 'Y'
                       AND deactivat IS NULL
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class code should be valid
+              - res_class_matches_pardat:
+                  name: iasworld_land_class_matches_pardat_class
+                  major_class_only: true
+                  additional_select_columns: *select-columns-aggregated
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND class NOT IN ('EX', 'RR')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    description: >
+                      at least one major class (first digit) should match pardat class
           - name: code
             description: Code
           - name: comres
@@ -60,10 +132,16 @@ sources:
             description: Land value at conversion
           - name: cur
             description: '{{ doc("column_cur") }}'
-            tests:
+            data_tests:
               - accepted_values:
                   name: iasworld_land_cur_in_accepted_values
                   values: ['Y', 'D']
+                  additional_select_columns: *select-columns
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  meta:
+                    description: cur should be 'Y' or 'D'
           - name: deactivat
             description: '{{ doc("column_deactivat") }}'
           - name: depfact
@@ -96,15 +174,15 @@ sources:
             description: 'Influence Code #2'
           - name: influ
             description: Influence percent (+/-)
-            tests:
-              - dbt_utils.accepted_range:
+            data_tests:
+              - accepted_range:
                   name: iasworld_land_influ_between_neg_100_and_pos_100
                   min_value: -100
                   max_value: 100
-                  config:
-                    where:
-                      cur = 'Y'
-                      AND deactivat IS NULL 
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: influ should be between -100 and 100
           - name: influ2
             description: Influence percent (+/-)
           - name: jur
@@ -115,18 +193,22 @@ sources:
             description: Land code model
           - name: lline
             description: '{{ doc("shared_column_lline") }}'
-            tests:
-              - dbt_utils.sequential_values:
+            data_tests:
+              - sequential_values:
                   name: iasworld_land_lline_is_sequential
                   group_by_columns:
                     - parid
                     - taxyr
-                  config:
-                    where:
-                      cur = 'Y'
-                      AND deactivat IS NULL 
+                  additional_select_columns:
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: lline should be sequential
           - name: lmod
             description: Land location model number
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: locfact
             description: Location factor
           - name: ltype
@@ -171,25 +253,41 @@ sources:
             description: Override price
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
-            tests:
-              - not_null:
-                  name: iasworld_land_parid_not_null
+            data_tests:
               - relationships:
                   name: iasworld_land_parid_in_pardat_parid
                   to: source('iasworld', 'pardat')
                   field: parid
+                  additional_select_columns: &select-columns-no-parid
+                    - taxyr
+                    - lline
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_land_parid_not_null
+                  additional_select_columns: *select-columns-no-parid
+                  config: *unique-conditions
+                  meta:
+                    description: parid should not be null
           - name: price
             description: Price
-            tests:
-              - dbt_utils.accepted_range:
+            data_tests:
+              - accepted_range:
                   name: iasworld_land_price_gte_1
                   min_value: 1
+                  additional_select_columns: *select-columns
                   config:
                     where:
-                      cur = 'Y'
-                      AND taxyr >= '2023'
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND class NOT IN ('EX', 'RR', '999')
-                      AND deactivat IS NULL 
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    description: price should be >= 1
           - name: recnr
             description: '{{ doc("column_recnr") }}'
           - name: salekey
@@ -198,27 +296,32 @@ sources:
             description: Schedule model number
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
-            tests:
-              - dbt_utils.sequential_values:
+            data_tests:
+              - sequential_values:
                   name: iasworld_land_seq_all_sequential_exist
                   group_by_columns:
                     - parid
                     - taxyr
                     - lline
+                  additional_select_columns:
+                    - who
+                    - wen
                   config:
                     where:
                       cur = 'Y'
-                      AND deactivat IS NULL 
+                      AND deactivat IS NULL
+                  meta:
+                    description: seq should be sequential
           - name: sf
             description: '{{ doc("shared_column_char_land_sf") }}'
-            tests:
-              - dbt_utils.accepted_range:
+            data_tests:
+              - accepted_range:
                   name: iasworld_land_sf_gte_1
                   min_value: 1
-                  config:
-                    where:
-                      cur = 'Y'
-                      AND deactivat IS NULL 
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: sf should be >= 1
           - name: sfact
             description: S factor
           - name: sizefact
@@ -239,9 +342,16 @@ sources:
             description: '{{ doc("column_suppress") }}'
           - name: taxyr
             description: '{{ doc("shared_column_year") }}'
-            tests:
+            data_tests:
               - not_null:
                   name: iasworld_land_taxyr_not_null
+                  additional_select_columns:
+                    - parid
+                    - who
+                    - wen
+                  config: *unique-conditions
+                  meta:
+                    description: taxyr should not be null
           - name: topofact
             description: Topography Factor
           - name: trans_id
@@ -265,24 +375,20 @@ sources:
           - name: zoning
             description: Override zoning at line level
 
-        tests:
+        data_tests:
           - unique_combination_of_columns:
               name: iasworld_land_unique_by_parid_lline_taxyr
               combination_of_columns:
                 - parid
                 - lline
                 - taxyr
-          - row_values_match_after_join:
-              name: iasworld_land_class_matches_pardat_class
-              column: substr(model.class, 1, 1)
-              external_model: source('iasworld', 'pardat')
-              external_column: substr(external_model.class, 1, 1)
-              join_columns:
-                - parid
-                - taxyr
-              config:
-                where: |
-                  taxyr >= '2022'
-                  AND class NOT IN ('EX', 'RR')
-                  AND cur = 'Y'
-                  AND deactivat IS NULL
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: land should be unique by parid, lline, and taxyr

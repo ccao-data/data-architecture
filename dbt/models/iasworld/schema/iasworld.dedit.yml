@@ -1,13 +1,16 @@
 sources:
   - name: iasworld
-    loaded_at_field: date_parse(wen, '%Y-%m-%d %H:%i:%s.0')
+    loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: dedit
         description: '{{ doc("table_dedit") }}'
+        freshness:
+          warn_after: {count: 192, period: hour} # 8 days
+          error_after: {count: 360, period: hour} # 15 days
 
         columns:
           - name: fld1
@@ -16,6 +19,8 @@ sources:
             description: Column name of edit field 2
           - name: iasw_id
             description: '{{ doc("column_iasw_id") }}'
+          - name: loaded_at
+            description: '{{ doc("shared_column_loaded_at") }}'
           - name: longdesc
             description: Long description
           - name: msg
