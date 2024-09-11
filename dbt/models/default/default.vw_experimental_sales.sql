@@ -54,6 +54,7 @@ ias_sales AS (
             NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
             tc.class,
             tc.township_code,
+            SUBSTR(sales.saledt, 1, 4) AS year,
             DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d') AS sale_date,
             CAST(sales.price AS BIGINT) AS sale_price,
             COALESCE(
@@ -126,6 +127,7 @@ mydec_sales AS (
             REPLACE(document_number, 'D', '') AS doc_no,
             tc.class,
             tc.township_code,
+            SUBSTR(line_4_instrument_date, 1, 4) AS year,
             DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS sale_date,
             line_11_full_consideration AS sale_price,
             NULLIF(TRIM(seller_name), '') AS seller_name,
@@ -143,9 +145,11 @@ mydec_sales AS (
         FROM sale.mydec
         LEFT JOIN
             town_class AS tc
-            ON mydec.line_1_primary_pin = tc.parid
+            ON REPLACE(line_1_primary_pin, '-', '') = tc.parid
             AND SUBSTR(mydec.line_4_instrument_date, 1, 4) = tc.taxyr
         WHERE line_2_total_parcels = 1 -- Remove multisales
+            AND tc.township_code IS NOT NULL
+            AND line_11_full_consideration IS NOT NULL
     ) AS derived_table
     WHERE num_single_day_sales = 1
         OR (YEAR(sale_date) > 2020)
@@ -158,6 +162,7 @@ combined_sales AS (
         ias.doc_no,
         ias.township_code,
         ias.class,
+        ias.year,
         COALESCE(mydec.sale_date, ias.sale_date) AS sale_date,
         COALESCE(mydec.sale_date IS NOT NULL, FALSE)
             AS is_mydec_date,
@@ -179,6 +184,7 @@ combined_sales AS (
         mydec.doc_no,
         mydec.township_code,
         mydec.class,
+        mydec.year,
         mydec.sale_date,
         TRUE AS is_mydec_date,
         mydec.sale_price,
@@ -193,4 +199,4 @@ combined_sales AS (
     WHERE ias.doc_no IS NULL
 )
 
-SELECT * FROM combined_sales 
+SELECT * FROM combined_sales
