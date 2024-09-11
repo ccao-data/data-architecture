@@ -40,11 +40,6 @@ ias_sales AS (
                     THEN NULL
                 ELSE sales.own1
             END AS buyer_name,
-            -- Sales are not entirely unique by pin/date so we group all
-            -- sales by pin/date, then order by descending price
-            -- and give the top observation a value of 1 for "max_price".
-            -- We need to order by salekey as well in case of any ties within
-            -- price, date, and pin.
             ROW_NUMBER() OVER (
                 PARTITION BY
                     sales.parid,
@@ -52,26 +47,18 @@ ias_sales AS (
                     sales.instrtyp NOT IN ('03', '04', '06')
                 ORDER BY sales.price DESC, sales.salekey ASC
             ) AS max_price,
-            -- We remove the letter 'D' that trails some document numbers in
-            -- iasworld.sales since it prevents us from joining to mydec sales.
-            -- This creates one instance where we have duplicate document
-            -- numbers, so we sort by sale date (specifically to avoid conflicts
-            -- with detecting the easliest duplicate sale when there are
-            -- multiple within one document number, within a year) within the
-            -- new doument number to identify and remove the sale causing the
-            -- duplicate document number.
             ROW_NUMBER() OVER (
                 PARTITION BY
                     NULLIF(REPLACE(sales.instruno, 'D', ''), ''),
                     sales.instrtyp NOT IN ('03', '04', '06'),
                     sales.price > 10000
                 ORDER BY sales.saledt ASC, sales.salekey ASC
-            ) AS bad_doc_no
+            ) AS bad_doc_no,
+            sales.price <= 10000 AS sale_filter_less_than_10k
         FROM iasworld.sales AS sales
         LEFT JOIN
             calculated
-            ON calculated.instruno
-            = NULLIF(REPLACE(sales.instruno, 'D', ''), '')
+            ON calculated.instruno = NULLIF(REPLACE(sales.instruno, 'D', ''), '')
         WHERE
             sales.deactivat IS NULL
             AND sales.cur = 'Y'
@@ -99,7 +86,8 @@ mydec_sales AS (
             COUNT(*) OVER (
                 PARTITION BY line_1_primary_pin, line_4_instrument_date
             ) AS num_single_day_sales,
-            year_of_sale
+            year_of_sale,
+            line_11_full_consideration <= 10000 AS sale_filter_less_than_10k
         FROM sale.mydec
         WHERE line_2_total_parcels = 1 -- Remove multisales
     ) AS derived_table
@@ -120,6 +108,7 @@ combined_sales AS (
         ias.buyer_name,
         ias.is_multisale,
         ias.num_parcels_sale,
+        ias.sale_filter_less_than_10k,
         'iasworld' AS source
     FROM ias_sales AS ias
     LEFT JOIN mydec_sales AS mydec ON ias.doc_no = mydec.doc_no
@@ -137,6 +126,7 @@ combined_sales AS (
         mydec.buyer_name,
         mydec.is_multisale,
         mydec.num_parcels_sale,
+        mydec.sale_filter_less_than_10k,
         'mydec' AS source
     FROM mydec_sales AS mydec
     LEFT JOIN ias_sales AS ias ON mydec.doc_no = ias.doc_no
