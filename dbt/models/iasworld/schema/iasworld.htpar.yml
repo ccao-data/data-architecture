@@ -179,24 +179,24 @@ sources:
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_htpar_parid_not_null
+              - relationships:
+                  name: iasworld_htpar_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
                   additional_select_columns: &select-columns-no-parid
                     - taxyr
                     - who
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: parid should not be null
-              - relationships:
-                  name: iasworld_htpar_parid_in_pardat_parid
-                  to: source('iasworld', 'pardat')
-                  field: parid
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_htpar_parid_not_null
                   additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
                   meta:
-                    category: parid
-                    description: parid should be in pardat
+                    description: parid should not be null
           - name: petemail
             description: Petitioner email address
           - name: petfax
@@ -324,26 +324,6 @@ sources:
           - name: who
 
         data_tests:
-          - unique_combination_of_columns:
-              name: iasworld_htpar_unique_by_parid_caseno_taxyr_subkey
-              combination_of_columns:
-                - parid
-                - caseno
-                - taxyr
-                - subkey
-              additional_select_columns:
-                - column: who
-                  alias: who
-                  agg_func: array_agg
-                - column: wen
-                  alias: wen
-                  agg_func: array_agg
-              config:
-                <<: *unique-conditions
-                error_if: ">2"
-              meta:
-                description: >
-                  htpar should be unique by parid, caseno, taxyr, and subkey
           - no_extra_whitespace:
               name: iasworld_htpar_address_columns_no_whitespace
               column_names:
@@ -381,3 +361,23 @@ sources:
                 description: >
                   cpaddr3 should be either 5 characters long or 10 characters
                   with a hyphen
+          - unique_combination_of_columns:
+              name: iasworld_htpar_unique_by_parid_caseno_taxyr_subkey
+              combination_of_columns:
+                - parid
+                - caseno
+                - taxyr
+                - subkey
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config:
+                <<: *unique-conditions
+                error_if: ">2"
+              meta:
+                description: >
+                  htpar should be unique by parid, caseno, taxyr, and subkey

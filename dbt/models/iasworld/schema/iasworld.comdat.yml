@@ -37,14 +37,14 @@ sources:
                     description: adjfact should be between 0 and 1
           - name: areasum
             description: '{{ doc("column_areasum") }}'
-          - name: bld_modelid
-            description: '{{ doc("column_bld_modelid") }}'
           - name: bldgros_d
             description: Gross building description
           - name: bldgros_v
             description: Gross building value
           - name: bldgval
             description: Building value
+          - name: bld_modelid
+            description: '{{ doc("column_bld_modelid") }}'
             data_tests:
               - accepted_range:
                   name: iasworld_comdat_bldgval_between_0_and_1b
@@ -79,8 +79,9 @@ sources:
           - name: card
             description: '{{ doc("column_card") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_comdat_card_not_null
+              - accepted_range:
+                  name: iasworld_comdat_card_gte_1
+                  min_value: 1
                   additional_select_columns: &select-columns-no-card
                     - parid
                     - taxyr
@@ -88,14 +89,13 @@ sources:
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: card should not be null
-              - accepted_range:
-                  name: iasworld_comdat_card_gte_1
-                  min_value: 1
+                    description: card should be >= 1
+              - not_null:
+                  name: iasworld_comdat_card_not_null
                   additional_select_columns: *select-columns-no-card
                   config: *unique-conditions
                   meta:
-                    description: card should be >= 1
+                    description: card should not be null
           - name: cdu
             description: '{{ doc("column_cdu") }}'
           - name: chgrsn
@@ -411,12 +411,6 @@ sources:
           - name: yrblt
             description: '{{ doc("shared_column_char_yrblt") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_comdat_yrblt_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: yrblt should not be null
               - accepted_range:
                   name: iasworld_comdat_yrblt_between_1850_and_now
                   min_value: 1850
@@ -425,6 +419,12 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: yrblt should be between 1850 and now
+              - not_null:
+                  name: iasworld_comdat_yrblt_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: yrblt should not be null
 
         data_tests:
           - unique_combination_of_columns:

@@ -7,13 +7,6 @@ seeds:
         nbhd: varchar
 
     columns:
-      - name: nbhd
-        description: '{{ doc("shared_column_nbhd_code") }}'
-        data_tests:
-          - not_null:
-              name: seed_neighborhood_group_nbhd_not_null
-              meta:
-                description: nbhd should not be null
       - name: group_name
         description: Name of the group that this neighborhood is in.
         data_tests:
@@ -21,6 +14,13 @@ seeds:
               name: seed_neighborhood_group_group_name_not_null
               meta:
                 description: group_name should not be null
+      - name: nbhd
+        description: '{{ doc("shared_column_nbhd_code") }}'
+        data_tests:
+          - not_null:
+              name: seed_neighborhood_group_nbhd_not_null
+              meta:
+                description: nbhd should not be null
       - name: updated_at
         description: Timestamp of the last record update.
         data_tests:
@@ -31,15 +31,15 @@ seeds:
       - name: version
         description: Incrementing version of the record.
         data_tests:
-          - not_null:
-              name: seed_neighborhood_group_version_not_null
-              meta:
-                description: version should not be null
           - accepted_range:
               name: seed_neighborhood_group_version_gte_1
               min_value: 1
               meta:
                 description: version should be >= 1
+          - not_null:
+              name: seed_neighborhood_group_version_not_null
+              meta:
+                description: version should not be null
 
     data_tests:
       - unique_combination_of_columns:

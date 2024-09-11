@@ -76,6 +76,26 @@ sources:
           - name: class
             description: '{{ doc("shared_column_class") }}'
             data_tests:
+              - res_class_matches_pardat:
+                  name: iasworld_land_class_ex_matches_pardat_class_ex
+                  major_class_only: false
+                  join_type: inner
+                  additional_select_columns: &select-columns-aggregated
+                    - column: taxyr
+                      agg_func: max
+                    - column: parid
+                      agg_func: max
+                    - column: lline
+                      agg_func: array_agg
+                    - column: who
+                      agg_func: max
+                    - column: wen
+                      agg_func: max
+                  additional_pardat_filter: AND class = 'EX'
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      class should be EX if pardat class is EX
               - relationships:
                   name: iasworld_land_class_in_ccao_class_dict
                   to: ref('ccao.class_dict')
@@ -94,17 +114,7 @@ sources:
               - res_class_matches_pardat:
                   name: iasworld_land_class_matches_pardat_class
                   major_class_only: true
-                  additional_select_columns: &select-columns-aggregated
-                    - column: taxyr
-                      agg_func: max
-                    - column: parid
-                      agg_func: max
-                    - column: lline
-                      agg_func: array_agg
-                    - column: who
-                      agg_func: max
-                    - column: wen
-                      agg_func: max
+                  additional_select_columns: *select-columns-aggregated
                   config:
                     where: |
                       CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
@@ -114,16 +124,6 @@ sources:
                   meta:
                     description: >
                       at least one major class (first digit) should match pardat class
-              - res_class_matches_pardat:
-                  name: iasworld_land_class_ex_matches_pardat_class_ex
-                  major_class_only: false
-                  join_type: inner
-                  additional_select_columns: *select-columns-aggregated
-                  additional_pardat_filter: AND class = 'EX'
-                  config: *unique-conditions
-                  meta:
-                    description: >
-                      class should be EX if pardat class is EX
           - name: code
             description: Code
           - name: comres
@@ -254,8 +254,10 @@ sources:
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_land_parid_not_null
+              - relationships:
+                  name: iasworld_land_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
                   additional_select_columns: &select-columns-no-parid
                     - taxyr
                     - lline
@@ -263,16 +265,14 @@ sources:
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: parid should not be null
-              - relationships:
-                  name: iasworld_land_parid_in_pardat_parid
-                  to: source('iasworld', 'pardat')
-                  field: parid
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_land_parid_not_null
                   additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
                   meta:
-                    category: parid
-                    description: parid should be in pardat
+                    description: parid should not be null
           - name: price
             description: Price
             data_tests:
