@@ -15,36 +15,70 @@ calculated AS (
 ),
 
 ias_sales AS (
-    SELECT
-        sales.parid AS pin,
-        NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
-        DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d') AS sale_date,
-        CAST(sales.price AS BIGINT) AS sale_price,
-        COALESCE(
-            (sales.nopar > 1 OR calculated.nopar_calculated > 1),
-            FALSE
-        ) AS is_multisale,
-        CASE
-            WHEN sales.nopar > 1 THEN sales.nopar
-            ELSE calculated.nopar_calculated
-        END AS num_parcels_sale,
-        CASE
-            WHEN TRIM(sales.oldown) IN ('', 'MISSING SELLER NAME')
-                THEN NULL
-            ELSE sales.oldown
-        END AS seller_name,
-        CASE
-            WHEN TRIM(sales.own1) IN ('', 'MISSING BUYER NAME')
-                THEN NULL
-            ELSE sales.own1
-        END AS buyer_name
-    FROM iasworld.sales AS sales
-    LEFT JOIN
-        calculated
-        ON calculated.instruno = NULLIF(REPLACE(sales.instruno, 'D', ''), '')
-    WHERE
-        sales.deactivat IS NULL
-        AND sales.cur = 'Y'
+    SELECT *
+    FROM (
+        SELECT
+            sales.parid AS pin,
+            NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
+            DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d') AS sale_date,
+            CAST(sales.price AS BIGINT) AS sale_price,
+            COALESCE(
+                (sales.nopar > 1 OR calculated.nopar_calculated > 1),
+                FALSE
+            ) AS is_multisale,
+            CASE
+                WHEN sales.nopar > 1 THEN sales.nopar
+                ELSE calculated.nopar_calculated
+            END AS num_parcels_sale,
+            CASE
+                WHEN TRIM(sales.oldown) IN ('', 'MISSING SELLER NAME')
+                    THEN NULL
+                ELSE sales.oldown
+            END AS seller_name,
+            CASE
+                WHEN TRIM(sales.own1) IN ('', 'MISSING BUYER NAME')
+                    THEN NULL
+                ELSE sales.own1
+            END AS buyer_name,
+            -- Sales are not entirely unique by pin/date so we group all
+            -- sales by pin/date, then order by descending price
+            -- and give the top observation a value of 1 for "max_price".
+            -- We need to order by salekey as well in case of any ties within
+            -- price, date, and pin.
+            ROW_NUMBER() OVER (
+                PARTITION BY
+                    sales.parid,
+                    sales.saledt,
+                    sales.instrtyp NOT IN ('03', '04', '06')
+                ORDER BY sales.price DESC, sales.salekey ASC
+            ) AS max_price,
+            -- We remove the letter 'D' that trails some document numbers in
+            -- iasworld.sales since it prevents us from joining to mydec sales.
+            -- This creates one instance where we have duplicate document
+            -- numbers, so we sort by sale date (specifically to avoid conflicts
+            -- with detecting the easliest duplicate sale when there are
+            -- multiple within one document number, within a year) within the
+            -- new doument number to identify and remove the sale causing the
+            -- duplicate document number.
+            ROW_NUMBER() OVER (
+                PARTITION BY
+                    NULLIF(REPLACE(sales.instruno, 'D', ''), ''),
+                    sales.instrtyp NOT IN ('03', '04', '06'),
+                    sales.price > 10000
+                ORDER BY sales.saledt ASC, sales.salekey ASC
+            ) AS bad_doc_no
+        FROM iasworld.sales AS sales
+        LEFT JOIN
+            calculated
+            ON calculated.instruno
+            = NULLIF(REPLACE(sales.instruno, 'D', ''), '')
+        WHERE
+            sales.deactivat IS NULL
+            AND sales.cur = 'Y'
+    ) AS subquery
+    -- Only use max price by pin/sale date
+    WHERE max_price = 1
+        AND (bad_doc_no = 1 OR is_multisale = TRUE)
 ),
 
 mydec_sales AS (
