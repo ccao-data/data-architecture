@@ -49,7 +49,7 @@ jobs:
       - name: Setup python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.10 #install the python version needed
+          python-version: 3.x #install the python version needed
       # Set these env vars as secrets so they get masked in the GitHub
       # Actions logs
       - run: pip install -r socrata/requirements.txt
