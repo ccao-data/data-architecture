@@ -42,6 +42,7 @@ jobs:
       # contents:read and id-token:write permissions are needed to interact
       # with GitHub's OIDC Token endpoint so that we can authenticate with AWS
       contents: read
+      id-token: write
 
     steps:
       - name: Checkout
