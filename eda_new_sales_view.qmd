@@ -1,0 +1,99 @@
+---
+title: "Compare sales val specs"
+execute: 
+  echo: false
+  warning: false
+format:
+  html:
+    embed-resources: true
+    toc: true
+    toc_float: true
+    fig-align: center
+    fontsize: 12pt
+knitr:
+  opts_chunk:
+    out.width: "100%"
+editor: source
+---
+
+```{r _libraries}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(here)
+library(noctua)
+```
+
+```{r _data_ingest}
+# Ingest data
+noctua_options(cache_size = 10, unload = FALSE)
+
+AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena())
+
+vw_pin_sales <- dbGetQuery(
+  conn = AWS_ATHENA_CONN_NOCTUA,
+  "select * from default.vw_pin_sale"
+)
+
+ias_sales <- dbGetQuery(
+  conn = AWS_ATHENA_CONN_NOCTUA,
+  "select * from z_ci_583_create_a_sales_view_that_combines_iasworld_mydec_and_ccrd_sales_default.vw_experimental_sales
+   where source = 'iasworld'"
+)
+
+mydec_sales <- dbGetQuery(
+  conn = AWS_ATHENA_CONN_NOCTUA,
+  "select * from z_ci_583_create_a_sales_view_that_combines_iasworld_mydec_and_ccrd_sales_default.vw_experimental_sales
+   where source = 'mydec'"
+)
+
+```
+
+
+
+```{r}
+buckets_vw_pin_sales <- vw_pin_sales %>%
+  mutate(bucket = floor(sale_price / 50000) * 50000) %>%
+  group_by(bucket) %>%
+  summarise(count = n(), .groups = 'drop')
+
+buckets_ias_sales <- ias_sales %>%
+  mutate(bucket = floor(sale_price / 50000) * 50000) %>%
+  group_by(bucket) %>%
+  summarise(count = n(), .groups = 'drop')
+
+buckets_mydec_sales <- mydec_sales %>%
+  mutate(bucket = floor(sale_price / 50000) * 50000) %>%
+  group_by(bucket) %>%
+  summarise(count = n(), .groups = 'drop')
+
+```
+
+```{r}
+percentage_zero_sales_mydec <- mydec_sales %>%
+  group_by(year) %>%
+  summarise(
+    total_count = n(),
+    zero_count = sum(sale_price == 0),
+    percentage_zero = (zero_count / total_count) * 100,
+    .groups = 'drop'
+  )
+
+percentage_under_10k_mydec <- mydec_sales %>%
+  group_by(year) %>%
+  summarise(
+    total_count = n(),
+    under10k_count_count = sum(sale_filter_less_than_10k == TRUE),
+    percentage_zero = (under10k_count_count / total_count) * 100,
+    .groups = 'drop'
+  )
+
+```
+
+
+
+
+
+
+
+
