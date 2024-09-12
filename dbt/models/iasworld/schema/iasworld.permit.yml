@@ -27,8 +27,6 @@ sources:
             description: '{{ doc("column_adrsuf") }}'
           - name: adrsuf2
             description: '{{ doc("column_adrsuf2") }}'
-          - name: note2
-            description: '{{ doc("column_addr") }}'
           - name: amount
             description: Amount
           - name: certdate
@@ -53,6 +51,8 @@ sources:
             description: '{{ doc("shared_column_loaded_at") }}'
           - name: longdesc
             description: Long description
+          - name: note2
+            description: '{{ doc("column_addr") }}'
           - name: notes
             description: Permit notes
           - name: num
