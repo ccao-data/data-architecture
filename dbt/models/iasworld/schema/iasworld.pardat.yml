@@ -363,8 +363,10 @@ sources:
                 # Codes ending in 999 are dummy codes used for some purpose,
                 # although we do not yet know what it is
                 where: |
-                  (taxyr BETWEEN '2010' AND CAST(YEAR(NOW()) AS varchar))
-                  AND (nbhd NOT LIKE '%999')
+                  CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  AND cur = 'Y'
+                  AND deactivat IS NULL
+                  AND nbhd NOT LIKE '%999'
               meta:
                 category: relationships
                 description: nbhd code not valid

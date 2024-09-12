@@ -87,7 +87,7 @@ def is_tri(township_code: str, year: int) -> bool:
         raise ValueError(f"'{township_code}' is not a valid township code")
     # 2024 is the City reassessment year (tri code 1), so
     # ((2024 - 2024) % 3) + 1 == 1, and so on for the other two tris
-    return str((year - 2024 % 3) + 1) == tri
+    return str(((year - 2024) % 3) + 1) == tri
 
 
 def parse_args() -> argparse.Namespace:
