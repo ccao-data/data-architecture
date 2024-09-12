@@ -43,8 +43,6 @@ sources:
             description: Gross building value
           - name: bldgval
             description: Building value
-          - name: bld_modelid
-            description: '{{ doc("column_bld_modelid") }}'
             data_tests:
               - accepted_range:
                   name: iasworld_comdat_bldgval_between_0_and_1b
@@ -54,6 +52,8 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: bldgval should be between 0 and 1,000,000,000
+          - name: bld_modelid
+            description: '{{ doc("column_bld_modelid") }}'
           - name: bldnum
             description: Building number
           - name: busla
