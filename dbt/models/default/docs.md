@@ -127,7 +127,7 @@ View containing aggregate land square footage for all PINs.
 {% docs view_vw_pin_permit %}
 Building permits by PIN.
 
-**Primary Key**: `pin`, `date_issued`
+**Primary Key**: `pin`, `permit_number`
 {% enddocs %}
 
 # vw_pin_sale
