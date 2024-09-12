@@ -52,7 +52,7 @@ sources:
           - name: longdesc
             description: Long description
           - name: note2
-            description: '{{ doc("column_addr") }}'
+            description: Mailing address
           - name: notes
             description: Permit notes
           - name: num

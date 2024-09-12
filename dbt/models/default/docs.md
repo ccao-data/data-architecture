@@ -125,7 +125,8 @@ View containing aggregate land square footage for all PINs.
 # vw_pin_permit
 
 {% docs view_vw_pin_permit %}
-Building permits by PIN.
+View containing building permits organized by PIN, with extra metadata
+recorded by CCAO permit specialists during the permit processing workflow.
 
 **Primary Key**: `pin`, `permit_number`
 {% enddocs %}
