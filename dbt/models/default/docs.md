@@ -122,6 +122,14 @@ View containing aggregate land square footage for all PINs.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_pin_permit
+
+{% docs view_vw_pin_permit %}
+Building permits by PIN.
+
+**Primary Key**: `pin`, `date_issued`
+{% enddocs %}
+
 # vw_pin_sale
 
 {% docs view_vw_pin_sale %}
@@ -205,14 +213,4 @@ The assessment stages are:
   not easily retrievable.
 
 **Primary Key**: `year`, `pin`
-{% enddocs %}
-
-# vw_pin_permit
-
-{% docs view_vw_pin_permit %}
-Building permits by PIN.
-
-### Nuance
-
-- `pin` and `pin10` are sometimes null, but `address` is always present
 {% enddocs %}
