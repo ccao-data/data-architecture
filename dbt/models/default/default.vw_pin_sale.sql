@@ -152,10 +152,14 @@ mydec_sales AS (
         SELECT
             REPLACE(document_number, 'D', '') AS doc_no,
             REPLACE(line_1_primary_pin, '-', '') AS pin,
-            DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS mydec_date,
+            DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS sale_date,
+            SUBSTR(line_4_instrument_date, 1, 4) AS year,
             line_5_instrument_type AS mydec_deed_type,
             NULLIF(TRIM(seller_name), '') AS seller_name,
             NULLIF(TRIM(buyer_name), '') AS buyer_name,
+            CAST(line_11_full_consideration AS BIGINT) AS sale_price,
+            line_2_total_parcels AS num_parcels_sale,
+            FALSE AS is_multisale,
             COALESCE(line_7_property_advertised = 1, FALSE)
                 AS mydec_property_advertised,
             COALESCE(line_10a = 1, FALSE)
@@ -210,13 +214,12 @@ mydec_sales AS (
             ) > 0 AS sale_filter_ptax_flag,
             COUNT() OVER (
                 PARTITION BY line_1_primary_pin, line_4_instrument_date
-            ) AS num_single_day_sales,
-            year_of_sale
+            ) AS num_single_day_sales
         FROM {{ source('sale', 'mydec') }}
         WHERE line_2_total_parcels = 1 -- Remove multisales
     )
     WHERE num_single_day_sales = 1
-        OR (YEAR(mydec_date) > 2020)
+        OR (YEAR(sale_date) > 2020)
 ),
 
 max_version_flag AS (
@@ -244,171 +247,101 @@ sales_val AS (
         ON sf.meta_sale_document_num = mv.meta_sale_document_num
         AND sf.version = mv.max_version
 ),
-
--- Identify extra sales from MyDec not present in unique_sales
-extra_mydec_sales AS (
+sales_full_outer AS (
     SELECT
-        m.pin,
-        m.year,
-        tc.township_code,
-        tc.nbhd,
-        tc.class,
-        m.sale_date,
-        m.sale_price,
-        m.sale_key,
-        m.doc_no,
-        m.deed_type,
-        m.seller_name,
-        m.is_multisale,
-        m.num_parcels_sale,
-        m.buyer_name,
-        m.sale_type,
-        'mydec' AS source,
-        -- Calculate 'same_price_earlier_date' using LAG
-        LAG(m.sale_date) OVER (
-            PARTITION BY m.pin, m.sale_price
-            ORDER BY m.sale_date ASC
-        ) AS same_price_earlier_date
-    FROM (
-        SELECT
-            REPLACE(line_1_primary_pin, '-', '') AS pin,
-            SUBSTR(line_4_instrument_date, 1, 4) AS year,
-            DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS sale_date,
-            CAST(line_11_full_consideration AS BIGINT) AS sale_price,
-            NULL AS sale_key,
-            REPLACE(document_number, 'D', '') AS doc_no,
-            line_5_instrument_type AS deed_type,
-            NULLIF(TRIM(seller_name), '') AS seller_name,
-            FALSE AS is_multisale,
-            line_2_total_parcels AS num_parcels_sale,
-            NULLIF(TRIM(buyer_name), '') AS buyer_name,
-            NULL AS sale_type
-        FROM {{ source('sale', 'mydec') }}
-        WHERE line_2_total_parcels = 1
-            AND REPLACE(document_number, 'D', '') NOT IN (SELECT doc_no FROM unique_sales)
-    ) m
-    LEFT JOIN town_class AS tc
-        ON m.pin = tc.parid
-        AND m.year = tc.taxyr
-),
-
--- Now compute the filters for extra MyDec sales
-extra_mydec_sales_with_filters AS (
-    SELECT
-        *,
-        -- Compute 'sale_filter_same_sale_within_365' as in unique_sales
-        COALESCE(
-            EXTRACT(DAY FROM sale_date - same_price_earlier_date) <= 365,
-            FALSE
-        ) AS sale_filter_same_sale_within_365,
+        COALESCE(u.pin, m.pin) AS pin,
+        COALESCE(u.year, m.year) AS year,
+        COALESCE(u.township_code, tc.township_code) AS township_code,
+        COALESCE(u.nbhd, tc.nbhd) AS nbhd,
+        COALESCE(u.class, tc.class) AS class,
+        COALESCE(u.sale_date, m.sale_date) AS sale_date,
+        COALESCE(u.sale_price, m.sale_price) AS sale_price,
+        u.sale_key,
+        COALESCE(u.doc_no, m.doc_no) AS doc_no,
+        COALESCE(u.deed_type, m.mydec_deed_type) AS deed_type,
+        COALESCE(u.seller_name, m.seller_name) AS seller_name,
+        COALESCE(u.is_multisale, m.is_multisale) AS is_multisale,
+        COALESCE(u.num_parcels_sale, m.num_parcels_sale) AS num_parcels_sale,
+        COALESCE(u.buyer_name, m.buyer_name) AS buyer_name,
+        COALESCE(u.sale_type, NULL) AS sale_type,
+        u.max_price,
+        u.bad_doc_no,
+        -- Compute 'same_price_earlier_date' for all sales
+        LAG(COALESCE(u.sale_date, m.sale_date)) OVER (
+            PARTITION BY COALESCE(u.pin, m.pin), COALESCE(u.sale_price, m.sale_price)
+            ORDER BY COALESCE(u.sale_date, m.sale_date) ASC
+        ) AS same_price_earlier_date,
         -- Compute 'sale_filter_less_than_10k'
-        sale_price <= 10000 AS sale_filter_less_than_10k,
-        FALSE AS sale_filter_deed_type,
-        NULL AS max_price,
-        NULL AS bad_doc_no
-    FROM extra_mydec_sales
-),
-
--- Combine unique_sales and extra_mydec_sales_with_filters
-all_sales AS (
-    SELECT
-        pin,
-        year,
-        township_code,
-        nbhd,
-        class,
-        sale_date,
-        sale_price,
-        sale_key,
-        doc_no,
-        deed_type,
-        seller_name,
-        is_multisale,
-        num_parcels_sale,
-        buyer_name,
-        sale_type,
-        max_price,
-        bad_doc_no,
-        same_price_earlier_date,
-        sale_filter_less_than_10k,
-        sale_filter_deed_type,
-        sale_filter_same_sale_within_365,
-        'iasworld' AS source
-    FROM unique_sales
-
-    UNION ALL
-
-    SELECT
-        pin,
-        year,
-        township_code,
-        nbhd,
-        class,
-        sale_date,
-        sale_price,
-        sale_key,
-        doc_no,
-        deed_type,
-        seller_name,
-        is_multisale,
-        num_parcels_sale,
-        buyer_name,
-        sale_type,
-        max_price,
-        bad_doc_no,
-        same_price_earlier_date,
-        sale_filter_less_than_10k,
-        sale_filter_deed_type,
-        sale_filter_same_sale_within_365,
-        source
-    FROM extra_mydec_sales_with_filters
+        (COALESCE(u.sale_price, m.sale_price) <= 10000) AS sale_filter_less_than_10k,
+        -- Compute 'sale_filter_deed_type'
+        (COALESCE(u.deed_type, m.mydec_deed_type) IN ('03', '04', '06') OR COALESCE(u.deed_type, m.mydec_deed_type) IS NULL) AS sale_filter_deed_type,
+        -- Compute 'sale_filter_same_sale_within_365'
+        CASE
+            WHEN LAG(COALESCE(u.sale_date, m.sale_date)) OVER (
+                PARTITION BY COALESCE(u.pin, m.pin), COALESCE(u.sale_price, m.sale_price)
+                ORDER BY COALESCE(u.sale_date, m.sale_date) ASC
+            ) IS NOT NULL THEN
+                EXTRACT(DAY FROM COALESCE(u.sale_date, m.sale_date) - LAG(COALESCE(u.sale_date, m.sale_date)) OVER (
+                    PARTITION BY COALESCE(u.pin, m.pin), COALESCE(u.sale_price, m.sale_price)
+                    ORDER BY COALESCE(u.sale_date, m.sale_date) ASC
+                )) <= 365
+            ELSE FALSE
+        END AS sale_filter_same_sale_within_365,
+        CASE WHEN u.doc_no IS NOT NULL THEN 'iasworld' ELSE 'mydec' END AS source,
+        m.*
+    FROM unique_sales u
+    FULL OUTER JOIN mydec_sales m ON u.doc_no = m.doc_no
+    LEFT JOIN town_class tc
+        ON COALESCE(u.pin, m.pin) = tc.parid
+        AND COALESCE(u.year, m.year) = tc.taxyr
 )
 
+
 SELECT
-    all_sales.pin,
-    all_sales.year,
-    all_sales.township_code,
-    all_sales.nbhd,
-    all_sales.class,
-    all_sales.sale_date,
-    (all_sales.source = 'mydec' OR YEAR(all_sales.sale_date) >= 2021) AS is_mydec_date,
-    all_sales.sale_price,
-    all_sales.sale_key,
-    all_sales.doc_no,
-    all_sales.deed_type,
-    COALESCE(all_sales.seller_name, mydec_sales.seller_name) AS seller_name,
-    all_sales.is_multisale,
-    all_sales.num_parcels_sale,
-    COALESCE(all_sales.buyer_name, mydec_sales.buyer_name) AS buyer_name,
-    all_sales.sale_type,
-    all_sales.sale_filter_same_sale_within_365,
-    all_sales.sale_filter_less_than_10k,
-    all_sales.sale_filter_deed_type,
+    sales_full_outer.pin,
+    sales_full_outer.year,
+    sales_full_outer.township_code,
+    sales_full_outer.nbhd,
+    sales_full_outer.class,
+    sales_full_outer.sale_date,
+    (sales_full_outer.source = 'mydec' OR YEAR(sales_full_outer.sale_date) >= 2021) AS is_mydec_date,
+    sales_full_outer.sale_price,
+    sales_full_outer.sale_key,
+    sales_full_outer.doc_no,
+    sales_full_outer.deed_type,
+    sales_full_outer.seller_name,
+    sales_full_outer.is_multisale,
+    sales_full_outer.num_parcels_sale,
+    sales_full_outer.buyer_name,
+    sales_full_outer.sale_type,
+    sales_full_outer.sale_filter_same_sale_within_365,
+    sales_full_outer.sale_filter_less_than_10k,
+    sales_full_outer.sale_filter_deed_type,
     COALESCE(sales_val.sv_is_outlier, FALSE) AS sale_filter_is_outlier,
-    mydec_sales.mydec_deed_type,
-    mydec_sales.sale_filter_ptax_flag,
-    mydec_sales.mydec_property_advertised,
-    mydec_sales.mydec_is_installment_contract_fulfilled,
-    mydec_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates,
-    mydec_sales.mydec_is_transfer_of_less_than_100_percent_interest,
-    mydec_sales.mydec_is_court_ordered_sale,
-    mydec_sales.mydec_is_sale_in_lieu_of_foreclosure,
-    mydec_sales.mydec_is_condemnation,
-    mydec_sales.mydec_is_short_sale,
-    mydec_sales.mydec_is_bank_reo_real_estate_owned,
-    mydec_sales.mydec_is_auction_sale,
-    mydec_sales.mydec_is_seller_buyer_a_relocation_company,
-    mydec_sales.mydec_is_seller_buyer_a_financial_institution_or_government_agency,
-    mydec_sales.mydec_is_buyer_a_real_estate_investment_trust,
-    mydec_sales.mydec_is_buyer_a_pension_fund,
-    mydec_sales.mydec_is_buyer_an_adjacent_property_owner,
-    mydec_sales.mydec_is_buyer_exercising_an_option_to_purchase,
-    mydec_sales.mydec_is_simultaneous_trade_of_property,
-    mydec_sales.mydec_is_sale_leaseback,
-    mydec_sales.mydec_is_homestead_exemption,
-    mydec_sales.mydec_homestead_exemption_general_alternative,
-    mydec_sales.mydec_homestead_exemption_senior_citizens,
-    mydec_sales.mydec_homestead_exemption_senior_citizens_assessment_freeze,
+    sales_full_outer.mydec_deed_type,
+    sales_full_outer.sale_filter_ptax_flag,
+    sales_full_outer.mydec_property_advertised,
+    sales_full_outer.mydec_is_installment_contract_fulfilled,
+    sales_full_outer.mydec_is_sale_between_related_individuals_or_corporate_affiliates,
+    sales_full_outer.mydec_is_transfer_of_less_than_100_percent_interest,
+    sales_full_outer.mydec_is_court_ordered_sale,
+    sales_full_outer.mydec_is_sale_in_lieu_of_foreclosure,
+    sales_full_outer.mydec_is_condemnation,
+    sales_full_outer.mydec_is_short_sale,
+    sales_full_outer.mydec_is_bank_reo_real_estate_owned,
+    sales_full_outer.mydec_is_auction_sale,
+    sales_full_outer.mydec_is_seller_buyer_a_relocation_company,
+    sales_full_outer.mydec_is_seller_buyer_a_financial_institution_or_government_agency,
+    sales_full_outer.mydec_is_buyer_a_real_estate_investment_trust,
+    sales_full_outer.mydec_is_buyer_a_pension_fund,
+    sales_full_outer.mydec_is_buyer_an_adjacent_property_owner,
+    sales_full_outer.mydec_is_buyer_exercising_an_option_to_purchase,
+    sales_full_outer.mydec_is_simultaneous_trade_of_property,
+    sales_full_outer.mydec_is_sale_leaseback,
+    sales_full_outer.mydec_is_homestead_exemption,
+    sales_full_outer.mydec_homestead_exemption_general_alternative,
+    sales_full_outer.mydec_homestead_exemption_senior_citizens,
+    sales_full_outer.mydec_homestead_exemption_senior_citizens_assessment_freeze,
     sales_val.sv_is_outlier,
     sales_val.sv_is_ptax_outlier,
     sales_val.sv_is_heuristic_outlier,
@@ -417,9 +350,7 @@ SELECT
     sales_val.sv_outlier_reason3,
     sales_val.sv_run_id,
     sales_val.sv_version,
-    all_sales.source
-FROM all_sales
-LEFT JOIN mydec_sales
-    ON all_sales.doc_no = mydec_sales.doc_no
+    sales_full_outer.source
+FROM sales_full_outer
 LEFT JOIN sales_val
-    ON all_sales.doc_no = sales_val.meta_sale_document_num;
+    ON sales_full_outer.doc_no = sales_val.meta_sale_document_num;
