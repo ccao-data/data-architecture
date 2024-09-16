@@ -261,7 +261,10 @@ table, along with `iasworld.legdat`.
 {% docs table_permit %}
 Building permit ingestion and processing.
 
-**Primary Key**: `jur`, `taxyr`, `parid`, `id1`, `id2`
+See [`default.vw_pin_permit`](/#!/model/model.ccao_data_athena.default.vw_pin_permit)
+for a view of this table that selects active rows and relevant columns.
+
+**Primary Key**: `parid`, `num`
 {% enddocs %}
 
 # rcoby

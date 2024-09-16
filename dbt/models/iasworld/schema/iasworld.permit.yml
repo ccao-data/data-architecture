@@ -51,6 +51,8 @@ sources:
             description: '{{ doc("shared_column_loaded_at") }}'
           - name: longdesc
             description: Long description
+          - name: note2
+            description: Mailing address
           - name: notes
             description: Permit notes
           - name: num
