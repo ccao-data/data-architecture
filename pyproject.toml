@@ -1,6 +1,17 @@
 [tool.ruff]
 line-length = 79
 
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[tool.ruff.lint.isort]
+# Disambiguate between the subdirectory called "dbt" and the third-party
+# package. So far we never import from the dbt/ subdirectory outside it, so
+# we instruct the linter to always treat the symbol "dbt" as a third-party
+# package. Note that this could cause problems in the future if we ever
+# decide we want to import code from dbt/ to a context outside of it
+known-third-party = ["dbt"]
+
 [tool.sqlfluff.core]
 dialect = "athena"
 exclude_rules = "ambiguous.column_count, structure.column_order, RF04, ST05"

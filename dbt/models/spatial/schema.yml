@@ -42,15 +42,6 @@ sources:
       - name: corner
         description: '{{ doc("table_corner") }}'
         columns:
-          - name: pin10
-            description: '{{ doc("shared_column_pin10") }}'
-          - name: is_corner_lot
-            description: '{{ doc("shared_column_is_corner_lot") }}'
-          - name: num_cross_branch
-            description: |
-              The number of remaining branches of the cross used to detect
-              whether the corner is a parcel. See table description for
-              details
           - name: geometry
             description: |
               Well-Known Binary (WKB) geometry (EPSG 4326) representation of
@@ -61,10 +52,19 @@ sources:
               Well-Known Binary (WKB) geometry (EPSG 3435) representation of
               the remaining arms of the cross used in the corner detection
               algorithm
-          - name: year
-            description: '{{ doc("shared_column_year") }}'
+          - name: is_corner_lot
+            description: '{{ doc("shared_column_is_corner_lot") }}'
+          - name: num_cross_branch
+            description: |
+              The number of remaining branches of the cross used to detect
+              whether the corner is a parcel. See table description for
+              details
+          - name: pin10
+            description: '{{ doc("shared_column_pin10") }}'
           - name: township_code
             description: '{{ doc("shared_column_township_code") }}'
+          - name: year
+            description: '{{ doc("shared_column_year") }}'
 
       - name: county
         description: '{{ doc("table_county") }}'

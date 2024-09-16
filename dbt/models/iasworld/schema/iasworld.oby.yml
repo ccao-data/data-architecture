@@ -107,17 +107,10 @@ sources:
           - name: class
             description: '{{ doc("shared_column_class") }}'
             data_tests:
-              - not_accepted_values:
-                  name: iasworld_oby_class_mismatch_no_289s
-                  values: ["289"]
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    category: class_mismatch_or_issue
-                    description: class should not be 289
               - res_class_matches_pardat:
-                  name: iasworld_oby_class_matches_pardat_class
-                  major_class_only: true
+                  name: iasworld_oby_class_ex_matches_pardat_class_ex
+                  major_class_only: false
+                  join_type: inner
                   additional_select_columns: &select-columns-aggregated
                     - column: card
                       agg_func: array_agg
@@ -129,20 +122,27 @@ sources:
                       agg_func: max
                     - column: wen
                       agg_func: max
-                  config: *unique-conditions
-                  meta:
-                    description: >
-                      at least one major class (first digit) should match pardat class
-              - res_class_matches_pardat:
-                  name: iasworld_oby_class_ex_matches_pardat_class_ex
-                  major_class_only: false
-                  join_type: inner
-                  additional_select_columns: *select-columns-aggregated
                   additional_pardat_filter: AND class = 'EX'
                   config: *unique-conditions
                   meta:
                     description: >
                       class should be EX if pardat class is EX
+              - res_class_matches_pardat:
+                  name: iasworld_oby_class_matches_pardat_class
+                  major_class_only: true
+                  additional_select_columns: *select-columns-aggregated
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      at least one major class (first digit) should match pardat class
+              - not_accepted_values:
+                  name: iasworld_oby_class_mismatch_no_289s
+                  values: ["289"]
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class should not be 289
           - name: cline
             description: Condominium line
           - name: cndcmplx
@@ -469,12 +469,6 @@ sources:
           - name: yrblt
             description: '{{ doc("shared_column_char_yrblt") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_oby_yrblt_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: yrblt should not be null
               - accepted_range:
                   name: iasworld_oby_yrblt_between_1850_and_now
                   min_value: 1850
@@ -483,6 +477,12 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: yrblt should be between 1850 and now
+              - not_null:
+                  name: iasworld_oby_yrblt_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: yrblt should not be null
           - name: yrrem
             description: Year remodeled
 

@@ -131,24 +131,24 @@ sources:
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_legdat_parid_not_null
+              - relationships:
+                  name: iasworld_legdat_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
                   additional_select_columns: &select-columns-no-parid
                     - taxyr
                     - who
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: parid should not be null
-              - relationships:
-                  name: iasworld_legdat_parid_in_pardat_parid
-                  to: source('iasworld', 'pardat')
-                  field: parid
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_legdat_parid_not_null
                   additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
                   meta:
-                    category: parid
-                    description: parid should be in pardat
+                    description: parid should not be null
           - name: postalcode
             description: '{{ doc("column_postalcode") }}'
           - name: procdate
@@ -256,12 +256,6 @@ sources:
           - name: user1
             description: '{{ doc("shared_column_township_code") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_legdat_user1_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: user1 (township code) should not be null
               - relationships:
                   name: iasworld_legdat_user1_in_spatial_township_township_code
                   to: source('spatial', 'township')
@@ -270,6 +264,12 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: user1 (township code) should be valid
+              - not_null:
+                  name: iasworld_legdat_user1_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: user1 (township code) should not be null
           - name: wen
             description: '{{ doc("shared_column_updated_at") }}'
           - name: wencalc
@@ -312,47 +312,6 @@ sources:
                     - data_test_iasworld_exclude_from_workbook
 
         data_tests:
-          - unique_combination_of_columns:
-              name: iasworld_legdat_unique_by_parid_taxyr
-              combination_of_columns:
-                - parid
-                - taxyr
-              additional_select_columns:
-                - column: who
-                  alias: who
-                  agg_func: array_agg
-                - column: wen
-                  alias: wen
-                  agg_func: array_agg
-              config: *unique-conditions
-              meta:
-                description: legdat should be unique by parid and taxyr
-          # Not using column_length here because adrno needs to be cast first
-          - expression_is_true:
-              name: iasworld_legdat_adrno_length_lte_5
-              expression: LENGTH(CAST(adrno AS varchar)) <= 5
-              additional_select_columns:
-                - parid
-                - taxyr
-                - who
-                - wen
-                - adrno
-              config: *unique-conditions
-              meta:
-                category: column_length
-                description: adrno should be <= 5 characters long
-          - column_length:
-              name: iasworld_legdat_adrsuf_zip1_taxdist_length_lte_5
-              column_names:
-                - adrsuf
-                - zip1
-                - taxdist
-              length: 5
-              additional_select_columns: *select-columns
-              config: *unique-conditions
-              meta:
-                description: >
-                  adrsuf, zip1, and taxdist should be <= 5 characters long
           - no_extra_whitespace:
               name: iasworld_legdat_address_columns_no_extra_whitespace
               column_names:
@@ -379,3 +338,44 @@ sources:
               tags:
                 # Currently too many failures for this signal to be useful
                 - data_test_iasworld_exclude_from_workbook
+          # Not using column_length here because adrno needs to be cast first
+          - expression_is_true:
+              name: iasworld_legdat_adrno_length_lte_5
+              expression: LENGTH(CAST(adrno AS varchar)) <= 5
+              additional_select_columns:
+                - parid
+                - taxyr
+                - who
+                - wen
+                - adrno
+              config: *unique-conditions
+              meta:
+                category: column_length
+                description: adrno should be <= 5 characters long
+          - column_length:
+              name: iasworld_legdat_adrsuf_zip1_taxdist_length_lte_5
+              column_names:
+                - adrsuf
+                - zip1
+                - taxdist
+              length: 5
+              additional_select_columns: *select-columns
+              config: *unique-conditions
+              meta:
+                description: >
+                  adrsuf, zip1, and taxdist should be <= 5 characters long
+          - unique_combination_of_columns:
+              name: iasworld_legdat_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: legdat should be unique by parid and taxyr
