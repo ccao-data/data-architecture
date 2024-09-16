@@ -3,7 +3,7 @@ from multiple iasWorld tables having a variety of values. We group by parid and
 taxyr, and use MAX() since most of these tables are NOT unique by parcel and
 year while the view is. Therefore, if any part of a parcel (card, lline, etc.)
 triggers AHSAP status, the parcel as a whole will be identified as AHSAP (since
-TRUE > FALSE). user columns with "AI" prefixes that trigger AHSAP status are
+TRUE > FALSE). User columns with "AI" prefixes that trigger AHSAP status are
 'alternative CDU' and user columns with "SAP" prefixes that trigger AHSAP status
 are 'incentive number'. comdat.user13 is 'subclass 2'.
 
