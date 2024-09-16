@@ -23,7 +23,7 @@ def get_asset_info(socrata_asset):
     Simple helper function to retrieve asset-specific information from dbt.
     """
 
-    os.chdir("../dbt")
+    os.chdir("/dbt")
 
     DBT = dbtRunner()
     dbt_list_args = [
@@ -51,7 +51,7 @@ def get_asset_info(socrata_asset):
         if model_dict_str
     ]
 
-    os.chdir("../socrata")
+    os.chdir("..")
 
     model = pd.json_normalize(model)
     model = model[model["label"] == socrata_asset]
