@@ -63,17 +63,17 @@ WITH ahsap AS (
 -- These CTEs make it easier to work with CDUs from oby, comdat, dweldat since
 -- those tables aren't unique by parid and taxyr.
 dwel_cdu AS ({{ aggregate_cdu(
-    from = source('iasworld', 'dweldat'),
+    source_model = source('iasworld', 'dweldat'),
     cdu_column = 'cdu'
     ) }}),
 
 com_cdu AS ({{ aggregate_cdu(
-    from = source('iasworld', 'comdat'),
+    source_model = source('iasworld', 'comdat'),
     cdu_column = 'user16'
     ) }}),
 
 oby_cdu AS ({{ aggregate_cdu(
-    from = source('iasworld', 'oby'),
+    source_model = source('iasworld', 'oby'),
     cdu_column = 'user16'
     ) }})
 
@@ -96,7 +96,8 @@ SELECT
     ddat.cdu AS dwel_cdu,
     pdat.note2 AS note,
     pdat.class = '999' AS filler_class,
-    pdat.parid LIKE '%999%' AS filler_pin
+    pdat.parid LIKE '%999%' AS filler_pin,
+    pdat.class = 'RR' AS is_railroad
 FROM {{ source('iasworld', 'pardat') }} AS pdat
 LEFT JOIN {{ source('spatial', 'corner') }} AS colo
     ON SUBSTR(pdat.parid, 1, 10) = colo.pin10
