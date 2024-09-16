@@ -935,6 +935,7 @@ analysis. For example, land rates are usually delimited by neighborhood
 
 {% docs shared_column_parking_space_flag_reason %}
 Parking space/storage unit heuristic used to flag this PIN
+{% enddocs %}
 
 ## pin
 
