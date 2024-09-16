@@ -21,7 +21,7 @@ on:
       overwrite:
         # True for overwrite, False for update
         type: boolean
-        description: Overwrite or update socrata asset
+        description: Overwrite socrata asset
         required: true
       years:
         # Comma separated list of years
@@ -51,9 +51,13 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: 3.x #install the python version needed
+      - name: Setup dbt
+        uses: ./.github/actions/setup_dbt
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
       # Set these env vars as secrets so they get masked in the GitHub
       # Actions logs
-      - run: pip install -r socrata/requirements.txt
+      - run: pip install -r ./socrata/requirements.txt
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -72,4 +76,4 @@ jobs:
           OVERWRITE: ${{ inputs.overwrite }}
           YEARS: ${{ inputs.years }}
           BY_TOWNSHIP: ${{ inputs.by_township }}
-        run: python socrata/socrata_upload.py
+        run: python ./socrata/socrata_upload.py
