@@ -50,18 +50,17 @@ Type of improvement indicated by the permit.
 
 Possible values for this variable are:
 
-- null: No improvement code assigned
 - `110 - NEW CONSTRUCTION - MAJOR IMPRVT`
 - `111 - NEW BUILDING`
 - `112 - ADDITIONS`
 - `113 - DORMERS`
 - `114 - OTHER - MAJOR NEW CONSTRUCTION`
 - `130 - NEW CONSTRUCTION - MINOR IMPRVMT`
-- `131 - SWIMING POOL - TENNIS COURT`
+- `131 - SWIMMING POOL - TENNIS COURT`
 - `132 - DRIVEWAYS - PATIOS - WOOD DECK`
 - `133 - FENCING (and Gates)`
 - `134 - GARAGE CARPORTS BARNS`
-- `135 - OTHER-MINOR NEW CONSTRUCTION`
+- `135 - OTHER - MINOR NEW CONSTRUCTION`
 - `151 - BASEMENT ROOM - REC ROOM`
 - `152 - ATTIC ROOM - BATHROOMS`
 - `153 - FIREPLACE-CENTRAL AIR CONDITIONING`
@@ -80,7 +79,7 @@ Possible values for this variable are:
 - `232 - DRIVEWAYS - PATIOS`
 - `233 - FENCING`
 - `234 - GARAGE-BARN-BUTLER BUILDING`
-- `235 - OTHER-MINOR NEW CONSTRUCTION`
+- `235 - OTHER - MINOR NEW CONSTRUCTION`
 - `236 - ???`
 - `251 - PARTITIONING`
 - `252 - DECONV/CONV AMT. LIV. UT.`
@@ -131,14 +130,13 @@ codes with more details on the type of job that the permit represents.
 
 Possible values for this variable are:
 
-- null: No job description assigned
-- `1: RESIDENTIAL PERMIT`
-- `2: COMMERCIAL PERMIT`
-- `3: RAILROAD PERMIT`
-- `4: EXEMPT PERMIT`
-- `5: OFFICE PERMIT`
-- `6: OCCUPANCY PERMIT`
-- `7: OTHER`
+- `1 - RESIDENTIAL PERMIT`
+- `2 - COMMERCIAL PERMIT`
+- `3 - RAILROAD PERMIT`
+- `4 - EXEMPT PERMIT`
+- `5 - OFFICE PERMIT`
+- `6 - OCCUPANCY PERMIT`
+- `7 - OTHER`
 {% enddocs %}
 
 ## permit_job_code_secondary
@@ -152,7 +150,6 @@ permit represents.
 
 Possible values for this variable are:
 
-- null: No job description assigned
 - `111 - NEW BUILDING`
 - `112 - ADDITIONS`
 - `113 - DORMERS`
@@ -166,11 +163,11 @@ Possible values for this variable are:
 - `114.7 - OTHER - MAJOR NEW CONSTRUCTION`
 - `114.8 - OTHER - MAJOR NEW CONSTRUCTION`
 - `114.9 - OTHER - MAJOR NEW CONSTRUCTION`
-- `131 - SWIMING POOL - TENNIS COURT`
-- `131.1 - SWIMING POOL - TENNIS COURT - In ground swimming pools (not assessed but recorded)`
-- `131.2 - SWIMING POOL - TENNIS COURT - hot tubs`
-- `131.3 - SWIMING POOL - TENNIS COURT - spas`
-- `131.4 - SWIMING POOL - TENNIS COURT - tennis courts`
+- `131 - SWIMMING POOL - TENNIS COURT`
+- `131.1 - SWIMMING POOL - TENNIS COURT - In ground swimming pools (not assessed but recorded)`
+- `131.2 - SWIMMING POOL - TENNIS COURT - hot tubs`
+- `131.3 - SWIMMING POOL - TENNIS COURT - spas`
+- `131.4 - SWIMMING POOL - TENNIS COURT - tennis courts`
 - `132 - DRIVEWAYS - PATIOS - WOOD DECK`
 - `132.1 - DRIVEWAYS - PATIOS - WOOD DECK - Drive ways`
 - `132.1.1 - DRIVEWAYS - PATIOS - WOOD DECK - Drive ways (concrete)`
@@ -198,14 +195,14 @@ Possible values for this variable are:
 - `134.6 - OTHER GARAGE CARPORT BARNS`
 - `134.7 - OTHER GARAGE CARPORT BARNS`
 - `134.8 - OTHER GARAGE CARPORT BARNS`
-- `135 - OTHER-MINOR NEW CONSTRUCTION`
-- `135.1 - OTHER-MINOR NEW CONSTRUCTION - lawn sprinkler systems`
-- `135.2 - OTHER-MINOR NEW CONSTRUCTION - septic systems`
-- `135.3 - OTHER-MINOR NEW CONSTRUCTION - sewer system`
-- `135.4 - OTHER-MINOR NEW CONSTRUCTION - retaining walls`
-- `135.5 - OTHER-MINOR NEW CONSTRUCTION - handicap ramps`
-- `135.6 - OTHER-MINOR NEW CONSTRUCTION - canopies`
-- `135.7 - OTHER-MINOR NEW CONSTRUCTION - water taps`
+- `135 - OTHER - MINOR NEW CONSTRUCTION`
+- `135.1 - OTHER - MINOR NEW CONSTRUCTION - lawn sprinkler systems`
+- `135.2 - OTHER - MINOR NEW CONSTRUCTION - septic systems`
+- `135.3 - OTHER - MINOR NEW CONSTRUCTION - sewer system`
+- `135.4 - OTHER - MINOR NEW CONSTRUCTION - retaining walls`
+- `135.5 - OTHER - MINOR NEW CONSTRUCTION - handicap ramps`
+- `135.6 - OTHER - MINOR NEW CONSTRUCTION - canopies`
+- `135.7 - OTHER - MINOR NEW CONSTRUCTION - water taps`
 - `151 - BASEMENT ROOM - REC ROOM`
 - `151.1 - BASEMENT ROOM - REC ROOM - Basement area being converted from unfinished to finished (including new bathrooms in the basement area)`
 - `151.2 - BASEMENT ROOM - REC ROOM - Basement finished area being remodeled`
@@ -265,22 +262,22 @@ Possible values for this variable are:
 - `234.2 - GARAGE-BARN-BUTLER BUILDING - barns`
 - `234.3 - GARAGE-BARN-BUTLER BUILDING - butler buildings`
 - `234.4 - Trash Enclosures`
-- `235 - OTHER-MINOR NEW CONSTRUCTION`
-- `235.1 - OTHER-MINOR NEW CONSTRUCTION - construction trailers`
-- `235.10 - OTHER-MINOR NEW CONSTRUCTION - tents`
-- `235.11 - OTHER-MINOR NEW CONSTRUCTION - sewer clean out`
-- `235.12 - OTHER-MINOR NEW CONSTRUCTION - ATM machines`
-- `235.12.1 - OTHER-MINOR NEW CONSTRUCTION - ATM machines -  Partitioning`
-- `235.12.2 - OTHER-MINOR NEW CONSTRUCTION - ATM machines - machine`
-- `235.13 - OTHER-MINOR NEW CONSTRUCTION - Parking Lot`
-- `235.2 - OTHER-MINOR NEW CONSTRUCTION - tanks`
-- `235.3 - OTHER-MINOR NEW CONSTRUCTION - cell tower (monopoles) pad and fencing`
-- `235.4 - OTHER-MINOR NEW CONSTRUCTION - signs`
-- `235.5 - OTHER-MINOR NEW CONSTRUCTION - canopies`
-- `235.6 - OTHER-MINOR NEW CONSTRUCTION - cell towers (monopoles)`
-- `235.7 - OTHER-MINOR NEW CONSTRUCTION - sprinkler system`
-- `235.8 - OTHER-MINOR NEW CONSTRUCTION - security system`
-- `235.9 - OTHER-MINOR NEW CONSTRUCTION - handicap ramps`
+- `235 - OTHER - MINOR NEW CONSTRUCTION`
+- `235.1 - OTHER - MINOR NEW CONSTRUCTION - construction trailers`
+- `235.10 - OTHER - MINOR NEW CONSTRUCTION - tents`
+- `235.11 - OTHER - MINOR NEW CONSTRUCTION - sewer clean out`
+- `235.12 - OTHER - MINOR NEW CONSTRUCTION - ATM machines`
+- `235.12.1 - OTHER - MINOR NEW CONSTRUCTION - ATM machines -  Partitioning`
+- `235.12.2 - OTHER - MINOR NEW CONSTRUCTION - ATM machines - machine`
+- `235.13 - OTHER - MINOR NEW CONSTRUCTION - Parking Lot`
+- `235.2 - OTHER - MINOR NEW CONSTRUCTION - tanks`
+- `235.3 - OTHER - MINOR NEW CONSTRUCTION - cell tower (monopoles) pad and fencing`
+- `235.4 - OTHER - MINOR NEW CONSTRUCTION - signs`
+- `235.5 - OTHER - MINOR NEW CONSTRUCTION - canopies`
+- `235.6 - OTHER - MINOR NEW CONSTRUCTION - cell towers (monopoles)`
+- `235.7 - OTHER - MINOR NEW CONSTRUCTION - sprinkler system`
+- `235.8 - OTHER - MINOR NEW CONSTRUCTION - security system`
+- `235.9 - OTHER - MINOR NEW CONSTRUCTION - handicap ramps`
 - `251 - PARTITIONING`
 - `252 - DECONV/CONV AMT. LIV. UT.`
 - `253 - AIR CONDITIONING - FIREPLACES`
@@ -346,24 +343,24 @@ Possible values for this variable are:
 - `519 - CONVERT TO NEW MANUAL`
 - `520 - AUDIT DEPT INCREASE TO CHART`
 - `530 - RECENT I/C SALES`
-- `549 - 1985   HISTORICAL LANDMARK`
-- `550 - 1986   HISTORICAL LANDMARK`
-- `551 - 1987   HISTORICAL LANDMARK`
-- `552 - 1988   HISTORICAL LANDMARK`
-- `553 - 1989   HISTORICAL LANDMARK`
-- `554 - 1990   HISTORICAL LANDMARK`
-- `555 - 1991   HISTORICAL LANDMARK`
-- `556 - 1992   HISTORICAL LANDMARK`
-- `557 - 1993   HISTORICAL LANDMARK`
-- `558 - 1994   HISTORICAL LANDMARK`
-- `559 - 1995   HISTORICAL LANDMARK`
-- `560 - 1996   HISTORICAL LANDMARK`
-- `561 - 1997   HISTORICAL LANDMARK`
-- `562 - 1998   HISTORICAL LANDMARK`
-- `563 - 1999   HISTORICAL LANDMARK`
-- `564 - 2000   HISTORICAL LANDMARK`
-- `565 - 2001   HISTORICAL LANDMARK`
-- `566 - 2002   HISTORICAL LANDMARK`
+- `549 - 1985 HISTORICAL LANDMARK`
+- `550 - 1986 HISTORICAL LANDMARK`
+- `551 - 1987 HISTORICAL LANDMARK`
+- `552 - 1988 HISTORICAL LANDMARK`
+- `553 - 1989 HISTORICAL LANDMARK`
+- `554 - 1990 HISTORICAL LANDMARK`
+- `555 - 1991 HISTORICAL LANDMARK`
+- `556 - 1992 HISTORICAL LANDMARK`
+- `557 - 1993 HISTORICAL LANDMARK`
+- `558 - 1994 HISTORICAL LANDMARK`
+- `559 - 1995 HISTORICAL LANDMARK`
+- `560 - 1996 HISTORICAL LANDMARK`
+- `561 - 1997 HISTORICAL LANDMARK`
+- `562 - 1998 HISTORICAL LANDMARK`
+- `563 - 1999 HISTORICAL LANDMARK`
+- `564 - 2000 HISTORICAL LANDMARK`
+- `565 - 2001 HISTORICAL LANDMARK`
+- `566 - 2002 HISTORICAL LANDMARK`
 - `911 - OCCUPANCY CODE - WILL NOT BE USED`
 {% enddocs %}
 
@@ -374,11 +371,10 @@ Status of the permit in the Assessor's permit workflow.
 
 Possible values for this variable are:
 
-- null: No status assigned
-- `C`: Closed
-- `L`: Legacy
-- `M`: Manager review
-- `O`: Open
-- `P`: Pending
-- `R`: Recheck
+- `C - CLOSED`
+- `L - LEGACY`
+- `M - MANAGER REVIEW`
+- `O - OPEN`
+- `P - PENDING`
+- `R - RECHECK`
 {% enddocs %}
