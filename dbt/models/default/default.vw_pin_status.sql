@@ -60,7 +60,7 @@ WITH ahsap AS (
     GROUP BY par.parid, par.taxyr
 ),
 
--- These CTEs make it easier to work with CDUs from oby, comdat, pardat since
+-- These CTEs make it easier to work with CDUs from oby, comdat, dweldat since
 -- those tables aren't unique by parid and taxyr.
 dwel_cdu AS (
     SELECT
