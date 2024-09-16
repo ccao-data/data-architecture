@@ -95,9 +95,9 @@ unique_sales AS (
             -- iasworld.sales since it prevents us from joining to mydec sales.
             -- This creates one instance where we have duplicate document
             -- numbers, so we sort by sale date (specifically to avoid conflicts
-            -- with detecting the easliest duplicate sale when there are
+            -- with detecting the earliest duplicate sale when there are
             -- multiple within one document number, within a year) within the
-            -- new doument number to identify and remove the sale causing the
+            -- new document number to identify and remove the sale causing the
             -- duplicate document number.
             ROW_NUMBER() OVER (
                 PARTITION BY
@@ -108,7 +108,7 @@ unique_sales AS (
             ) AS bad_doc_no,
             -- Some pins sell for the exact same price a few months after
             -- they're sold (we need to make sure to only include deed types we
-            -- want). These sales are unecessary for modeling and may be
+            -- want). These sales are unnecessary for modeling and may be
             -- duplicates. We need to order by salekey as well in case of any
             -- ties within price, date, and pin.
             LAG(DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) OVER (
@@ -137,16 +137,12 @@ unique_sales AS (
             ON sales.parid = tc.parid
             AND SUBSTR(sales.saledt, 1, 4) = tc.taxyr
         WHERE sales.instruno IS NOT NULL
-        -- Indicates whether a record has been deactivated
             AND sales.deactivat IS NULL
             AND sales.cur = 'Y'
-            AND CAST(SUBSTR(sales.saledt, 1, 4) AS INT) BETWEEN 1997 AND YEAR(
-                CURRENT_DATE
-            )
+            AND CAST(SUBSTR(sales.saledt, 1, 4) AS INT) BETWEEN 1997 AND YEAR(CURRENT_DATE)
             AND tc.township_code IS NOT NULL
             AND sales.price IS NOT NULL
     )
-    -- Only use max price by pin/sale date
     WHERE max_price = 1
         AND (bad_doc_no = 1 OR is_multisale = TRUE)
 ),
@@ -165,7 +161,7 @@ mydec_sales AS (
             COALESCE(line_10a = 1, FALSE)
                 AS mydec_is_installment_contract_fulfilled,
             COALESCE(line_10b = 1, FALSE)
-                AS mydec_is_sale_between_related_individuals_or_corporate_affiliates, -- noqa
+                AS mydec_is_sale_between_related_individuals_or_corporate_affiliates,
             COALESCE(line_10c = 1, FALSE)
                 AS mydec_is_transfer_of_less_than_100_percent_interest,
             COALESCE(line_10d = 1, FALSE)
@@ -183,7 +179,7 @@ mydec_sales AS (
             COALESCE(line_10j = 1, FALSE)
                 AS mydec_is_seller_buyer_a_relocation_company,
             COALESCE(line_10k = 1, FALSE)
-                AS mydec_is_seller_buyer_a_financial_institution_or_government_agency, -- noqa
+                AS mydec_is_seller_buyer_a_financial_institution_or_government_agency,
             COALESCE(line_10l = 1, FALSE)
                 AS mydec_is_buyer_a_real_estate_investment_trust,
             COALESCE(line_10m = 1, FALSE)
@@ -204,10 +200,7 @@ mydec_sales AS (
                 AS mydec_homestead_exemption_senior_citizens,
             line_10s_senior_citizens_assessment_freeze
                 AS mydec_homestead_exemption_senior_citizens_assessment_freeze,
-            -- Flag for booting outlier PTAX-203 sales from modeling and
-            -- reporting. Used in combination with sale_filter upper and lower,
-            -- which finds sales more than 2 SD from the year, town, and
-            -- class mean
+            -- Flag for booting outlier PTAX-203 sales from modeling and reporting
             (
                 COALESCE(line_10b, 0) + COALESCE(line_10c, 0)
                 + COALESCE(line_10d, 0) + COALESCE(line_10e, 0)
@@ -222,9 +215,6 @@ mydec_sales AS (
         FROM {{ source('sale', 'mydec') }}
         WHERE line_2_total_parcels = 1 -- Remove multisales
     )
-    /* Some sales in mydec have multiple rows for one pin on a given sale date.
-    Sometimes they have different dates than iasworld prior to 2021 and when
-    joined back onto unique_sales will create duplicates by pin/sale date. */
     WHERE num_single_day_sales = 1
         OR (YEAR(mydec_date) > 2020)
 ),
@@ -249,64 +239,100 @@ sales_val AS (
         sf.run_id AS sv_run_id,
         sf.version AS sv_version
     FROM
-        {{ source('sale', 'flag') }}
-            AS sf
+        {{ source('sale', 'flag') }} AS sf
     INNER JOIN max_version_flag AS mv
         ON sf.meta_sale_document_num = mv.meta_sale_document_num
         AND sf.version = mv.max_version
+),
+
+-- Identify extra sales from MyDec not present in unique_sales
+extra_mydec_sales AS (
+    SELECT
+        *,
+        -- Calculate 'same_price_earlier_date' using LAG
+        LAG(sale_date) OVER (
+            PARTITION BY pin, sale_price
+            ORDER BY sale_date ASC
+        ) AS same_price_earlier_date
+    FROM (
+        SELECT
+            REPLACE(line_1_primary_pin, '-', '') AS pin,
+            SUBSTR(line_4_instrument_date, 1, 4) AS year,
+            NULL AS township_code,
+            NULL AS nbhd,
+            NULL AS class,
+            DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS sale_date,
+            CAST(line_11_full_consideration AS BIGINT) AS sale_price,
+            NULL AS sale_key,
+            REPLACE(document_number, 'D', '') AS doc_no,
+            line_5_instrument_type AS deed_type,
+            NULLIF(TRIM(seller_name), '') AS seller_name,
+            FALSE AS is_multisale,
+            line_2_total_parcels AS num_parcels_sale,
+            NULLIF(TRIM(buyer_name), '') AS buyer_name,
+            NULL AS sale_type,
+            'mydec' AS source
+        FROM {{ source('sale', 'mydec') }}
+        WHERE line_2_total_parcels = 1
+            AND REPLACE(document_number, 'D', '') NOT IN (SELECT doc_no FROM unique_sales)
+    )
+),
+
+-- Now compute the filters for extra MyDec sales
+extra_mydec_sales_with_filters AS (
+    SELECT
+        *,
+        -- Compute 'sale_filter_same_sale_within_365' as in unique_sales
+        COALESCE(
+            EXTRACT(DAY FROM sale_date - same_price_earlier_date) <= 365,
+            FALSE
+        ) AS sale_filter_same_sale_within_365,
+        -- Compute 'sale_filter_less_than_10k'
+        sale_price <= 10000 AS sale_filter_less_than_10k,
+        FALSE AS sale_filter_deed_type
+    FROM extra_mydec_sales
+),
+
+-- Combine unique_sales and extra_mydec_sales_with_filters
+all_sales AS (
+    SELECT
+        unique_sales.*,
+        'iasworld' AS source
+    FROM unique_sales
+
+    UNION ALL
+
+    SELECT
+        extra_mydec_sales_with_filters.*
+    FROM extra_mydec_sales_with_filters
 )
 
 SELECT
-    unique_sales.pin,
-    -- In the past, mydec sale dates were more precise than iasworld dates
-    -- which had been truncated
-    CASE
-        WHEN
-            mydec_sales.mydec_date IS NOT NULL
-            AND mydec_sales.mydec_date != unique_sales.sale_date
-            THEN mydec_sales.year_of_sale
-        ELSE unique_sales.year
-    END AS year,
-    unique_sales.township_code,
-    unique_sales.nbhd,
-    unique_sales.class,
-    -- In the past, mydec sale dates were more precise than iasworld dates
-    -- which had been truncated
-    CASE
-        WHEN
-            mydec_sales.mydec_date IS NOT NULL
-            AND mydec_sales.mydec_date != unique_sales.sale_date
-            THEN mydec_sales.mydec_date
-        ELSE unique_sales.sale_date
-    END AS sale_date,
-    -- From 2021 on iasWorld uses precise MyDec dates
-    COALESCE(
-        mydec_sales.mydec_date IS NOT NULL
-        OR YEAR(unique_sales.sale_date) >= 2021,
-        FALSE
-    ) AS is_mydec_date,
-    unique_sales.sale_price,
-    unique_sales.sale_key,
-    unique_sales.doc_no,
-    unique_sales.deed_type,
-    COALESCE(unique_sales.seller_name, mydec_sales.seller_name) AS seller_name,
-    unique_sales.is_multisale,
-    unique_sales.num_parcels_sale,
-    COALESCE(unique_sales.buyer_name, mydec_sales.buyer_name) AS buyer_name,
-    unique_sales.sale_type,
-    unique_sales.sale_filter_same_sale_within_365,
-    unique_sales.sale_filter_less_than_10k,
-    unique_sales.sale_filter_deed_type,
-    -- Our sales validation pipeline only validates sales past 2014 due to MyDec
-    -- limitations. Previous to that values for sv_is_outlier will be NULL, so
-    -- if we want to both exclude detected outliers and include sales prior to
-    -- 2014, we need to code everything NULL as FALSE.
+    all_sales.pin,
+    all_sales.year,
+    all_sales.township_code,
+    all_sales.nbhd,
+    all_sales.class,
+    all_sales.sale_date,
+    (all_sales.source = 'mydec' OR YEAR(all_sales.sale_date) >= 2021) AS is_mydec_date,
+    all_sales.sale_price,
+    all_sales.sale_key,
+    all_sales.doc_no,
+    all_sales.deed_type,
+    COALESCE(all_sales.seller_name, mydec_sales.seller_name) AS seller_name,
+    all_sales.is_multisale,
+    all_sales.num_parcels_sale,
+    COALESCE(all_sales.buyer_name, mydec_sales.buyer_name) AS buyer_name,
+    all_sales.sale_type,
+    all_sales.sale_filter_same_sale_within_365,
+    all_sales.sale_filter_less_than_10k,
+    all_sales.sale_filter_deed_type,
     COALESCE(sales_val.sv_is_outlier, FALSE) AS sale_filter_is_outlier,
     mydec_sales.mydec_deed_type,
     mydec_sales.sale_filter_ptax_flag,
     mydec_sales.mydec_property_advertised,
     mydec_sales.mydec_is_installment_contract_fulfilled,
-    mydec_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates, -- noqa
+    mydec_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates,
     mydec_sales.mydec_is_transfer_of_less_than_100_percent_interest,
     mydec_sales.mydec_is_court_ordered_sale,
     mydec_sales.mydec_is_sale_in_lieu_of_foreclosure,
@@ -315,7 +341,7 @@ SELECT
     mydec_sales.mydec_is_bank_reo_real_estate_owned,
     mydec_sales.mydec_is_auction_sale,
     mydec_sales.mydec_is_seller_buyer_a_relocation_company,
-    mydec_sales.mydec_is_seller_buyer_a_financial_institution_or_government_agency, -- noqa
+    mydec_sales.mydec_is_seller_buyer_a_financial_institution_or_government_agency,
     mydec_sales.mydec_is_buyer_a_real_estate_investment_trust,
     mydec_sales.mydec_is_buyer_a_pension_fund,
     mydec_sales.mydec_is_buyer_an_adjacent_property_owner,
@@ -333,9 +359,10 @@ SELECT
     sales_val.sv_outlier_reason2,
     sales_val.sv_outlier_reason3,
     sales_val.sv_run_id,
-    sales_val.sv_version
-FROM unique_sales
+    sales_val.sv_version,
+    all_sales.source
+FROM all_sales
 LEFT JOIN mydec_sales
-    ON unique_sales.doc_no = mydec_sales.doc_no
+    ON all_sales.doc_no = mydec_sales.doc_no
 LEFT JOIN sales_val
-    ON unique_sales.doc_no = sales_val.meta_sale_document_num;
+    ON all_sales.doc_no = sales_val.meta_sale_document_num;
