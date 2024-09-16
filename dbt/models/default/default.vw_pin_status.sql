@@ -62,47 +62,20 @@ WITH ahsap AS (
 
 -- These CTEs make it easier to work with CDUs from oby, comdat, dweldat since
 -- those tables aren't unique by parid and taxyr.
-dwel_cdu AS (
-    SELECT
-        dwel.parid,
-        dwel.taxyr,
-        ARRAY_JOIN(
-            ARRAY_SORT(ARRAY_DISTINCT(ARRAY_AGG(dwel.cdu))), ', '
-        ) AS cdu
-    FROM {{ source('iasworld', 'dweldat') }} AS dwel
-    WHERE dwel.cdu IS NOT NULL
-        AND dwel.cur = 'Y'
-        AND dwel.deactivat IS NULL
-    GROUP BY dwel.parid, dwel.taxyr
-),
+dwel_cdu AS ({{ aggregate_cdu(
+    from = source('iasworld', 'dweldat'),
+    cdu_column = 'cdu'
+    ) }}),
 
-com_cdu AS (
-    SELECT
-        com.parid,
-        com.taxyr,
-        ARRAY_JOIN(
-            ARRAY_SORT(ARRAY_DISTINCT(ARRAY_AGG(com.user16))), ', '
-        ) AS cdu
-    FROM {{ source('iasworld', 'comdat') }} AS com
-    WHERE com.user16 IS NOT NULL
-        AND com.cur = 'Y'
-        AND com.deactivat IS NULL
-    GROUP BY com.parid, com.taxyr
-),
+com_cdu AS ({{ aggregate_cdu(
+    from = source('iasworld', 'comdat'),
+    cdu_column = 'user16'
+    ) }}),
 
-oby_cdu AS (
-    SELECT
-        oby.parid,
-        oby.taxyr,
-        ARRAY_JOIN(
-            ARRAY_SORT(ARRAY_DISTINCT(ARRAY_AGG(oby.user16))), ', '
-        ) AS cdu
-    FROM {{ source('iasworld', 'oby') }} AS oby
-    WHERE oby.user16 IS NOT NULL
-        AND oby.cur = 'Y'
-        AND oby.deactivat IS NULL
-    GROUP BY oby.parid, oby.taxyr
-)
+oby_cdu AS ({{ aggregate_cdu(
+    from = source('iasworld', 'oby'),
+    cdu_column = 'user16'
+    ) }})
 
 SELECT
     pdat.parid AS pin,
@@ -111,7 +84,7 @@ SELECT
     colo.is_corner_lot,
     ahsap.is_ahsap,
     COALESCE(vpe.pin IS NOT NULL, FALSE) AS is_exempt,
-    COALESCE(pin.tax_bill_total = 0, FALSE) AS is_zero_bill,
+    COALESCE(pin.tax_bill_total = 0, NULL) AS is_zero_bill,
     vpcc.is_parking_space,
     vpcc.parking_space_flag_reason,
     vpcc.is_common_area,

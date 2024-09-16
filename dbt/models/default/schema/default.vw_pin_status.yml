@@ -11,11 +11,11 @@ models:
         description: CDU from `iasworld.dweldat` table
       - name: is_ahsap
         description: '{{ doc("shared_column_is_ahsap") }}'
-      - name: is_corner_lot
-        description: '{{ doc("shared_column_is_corner_lot") }}'
       - name: is_common_area
         description: '{{ doc("shared_column_is_common_area") }}'
       - name: is_corner_lot
+        description: '{{ doc("shared_column_is_corner_lot") }}'
+      - name: is_exempt
         description: Property tax exempt parcel indicator
       - name: is_leasehold
         description: |

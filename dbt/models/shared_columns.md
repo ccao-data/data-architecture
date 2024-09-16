@@ -911,12 +911,6 @@ number/proration rate heuristics.
 Modeling group, one of: `SF`, `MF`, `CONDO`, or `BB`
 {% enddocs %}
 
-## n_years_exe_homeowner
-
-{% docs shared_column_n_years_exe_homeowner %}
-Number of years parcel has had an active homeowner exemption
-{% enddocs %}
-
 ## nbhd_code
 
 {% docs shared_column_nbhd_code %}
@@ -929,6 +923,12 @@ Geographic neighborhoods intended to represent relatively homogeneous
 housing sub-markets. They were created a long time ago for internal use by the
 various property tax offices. The Assessor now uses them as units of work and
 analysis. For example, land rates are usually delimited by neighborhood
+{% enddocs %}
+
+## n_years_exe_homeowner
+
+{% docs shared_column_n_years_exe_homeowner %}
+Number of years parcel has had an active homeowner exemption
 {% enddocs %}
 
 ## parking_space_flag_reason
