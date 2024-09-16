@@ -248,19 +248,31 @@ sales_val AS (
 -- Identify extra sales from MyDec not present in unique_sales
 extra_mydec_sales AS (
     SELECT
-        *,
+        m.pin,
+        m.year,
+        tc.township_code,
+        tc.nbhd,
+        tc.class,
+        m.sale_date,
+        m.sale_price,
+        m.sale_key,
+        m.doc_no,
+        m.deed_type,
+        m.seller_name,
+        m.is_multisale,
+        m.num_parcels_sale,
+        m.buyer_name,
+        m.sale_type,
+        'mydec' AS source,
         -- Calculate 'same_price_earlier_date' using LAG
-        LAG(sale_date) OVER (
-            PARTITION BY pin, sale_price
-            ORDER BY sale_date ASC
+        LAG(m.sale_date) OVER (
+            PARTITION BY m.pin, m.sale_price
+            ORDER BY m.sale_date ASC
         ) AS same_price_earlier_date
     FROM (
         SELECT
             REPLACE(line_1_primary_pin, '-', '') AS pin,
             SUBSTR(line_4_instrument_date, 1, 4) AS year,
-            NULL AS township_code,
-            NULL AS nbhd,
-            NULL AS class,
             DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS sale_date,
             CAST(line_11_full_consideration AS BIGINT) AS sale_price,
             NULL AS sale_key,
@@ -270,12 +282,14 @@ extra_mydec_sales AS (
             FALSE AS is_multisale,
             line_2_total_parcels AS num_parcels_sale,
             NULLIF(TRIM(buyer_name), '') AS buyer_name,
-            NULL AS sale_type,
-            'mydec' AS source
+            NULL AS sale_type
         FROM {{ source('sale', 'mydec') }}
         WHERE line_2_total_parcels = 1
             AND REPLACE(document_number, 'D', '') NOT IN (SELECT doc_no FROM unique_sales)
-    )
+    ) m
+    LEFT JOIN town_class AS tc
+        ON m.pin = tc.parid
+        AND m.year = tc.taxyr
 ),
 
 -- Now compute the filters for extra MyDec sales
@@ -289,21 +303,64 @@ extra_mydec_sales_with_filters AS (
         ) AS sale_filter_same_sale_within_365,
         -- Compute 'sale_filter_less_than_10k'
         sale_price <= 10000 AS sale_filter_less_than_10k,
-        FALSE AS sale_filter_deed_type
+        FALSE AS sale_filter_deed_type,
+        NULL AS max_price,
+        NULL AS bad_doc_no
     FROM extra_mydec_sales
 ),
 
 -- Combine unique_sales and extra_mydec_sales_with_filters
 all_sales AS (
     SELECT
-        unique_sales.*,
+        pin,
+        year,
+        township_code,
+        nbhd,
+        class,
+        sale_date,
+        sale_price,
+        sale_key,
+        doc_no,
+        deed_type,
+        seller_name,
+        is_multisale,
+        num_parcels_sale,
+        buyer_name,
+        sale_type,
+        max_price,
+        bad_doc_no,
+        same_price_earlier_date,
+        sale_filter_less_than_10k,
+        sale_filter_deed_type,
+        sale_filter_same_sale_within_365,
         'iasworld' AS source
     FROM unique_sales
 
     UNION ALL
 
     SELECT
-        extra_mydec_sales_with_filters.*
+        pin,
+        year,
+        township_code,
+        nbhd,
+        class,
+        sale_date,
+        sale_price,
+        sale_key,
+        doc_no,
+        deed_type,
+        seller_name,
+        is_multisale,
+        num_parcels_sale,
+        buyer_name,
+        sale_type,
+        max_price,
+        bad_doc_no,
+        same_price_earlier_date,
+        sale_filter_less_than_10k,
+        sale_filter_deed_type,
+        sale_filter_same_sale_within_365,
+        source
     FROM extra_mydec_sales_with_filters
 )
 
