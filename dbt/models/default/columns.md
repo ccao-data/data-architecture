@@ -19,7 +19,7 @@ name.
 ## permit_assessable
 
 {% docs column_permit_assessable %}
-Whether the permitted work will affect the property's assessed
+Whether the permitted work affects the property's assessed
 values.
 
 This field is set by CCAO permit specialists who review the permit's
@@ -332,16 +332,16 @@ Possible values for this variable are:
 - `515 - MANUALLY ISSUED PERMIT`
 - `516 - PRIOR YEAR RECHECK`
 - `517 - DIVISION PERMIT`
-- `517.1 -DIVISION PERMIT - Petition`
-- `517.11 -DIVISION PERMIT - Petition Leasehold`
-- `517.2 -DIVISION PERMIT - Condominimum`
-- `517.3 -DIVISION PERMIT - Subdivision`
-- `517.4 -DIVISION PERMIT - Condo Removal`
-- `517.5 -DIVISION PERMIT - Petition Road Taking`
-- `517.6 -DIVISION PERMIT - Vacation`
-- `517.7-DIVISION PERMIT - Dedication`
-- `517.8 -DIVISION PERMIT - Other`
-- `517.9 -DIVISION PERMIT - Mix Class`
+- `517.1 - DIVISION PERMIT - Petition`
+- `517.11 - DIVISION PERMIT - Petition Leasehold`
+- `517.2 - DIVISION PERMIT - Condominimum`
+- `517.3 - DIVISION PERMIT - Subdivision`
+- `517.4 - DIVISION PERMIT - Condo Removal`
+- `517.5 - DIVISION PERMIT - Petition Road Taking`
+- `517.6 - DIVISION PERMIT - Vacation`
+- `517.7 - DIVISION PERMIT - Dedication`
+- `517.8 - DIVISION PERMIT - Other`
+- `517.9 - DIVISION PERMIT - Mix Class`
 - `518 - CK BLDG. SF/UP`
 - `519 - CONVERT TO NEW MANUAL`
 - `520 - AUDIT DEPT INCREASE TO CHART`
