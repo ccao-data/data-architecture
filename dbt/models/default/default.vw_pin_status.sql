@@ -23,7 +23,36 @@ WITH ahsap AS (
             OR aprval.ecf IS NOT NULL
             OR SUBSTR(dwel.user16, 1, 2) = 'AI'
             OR admn.excode = 'INCV', FALSE
-        )) AS is_ahsap
+        )) AS is_ahsap,
+        /* This column compares classes for parcels across dweldat, comdat, and
+        oby in order to construct a mixed use indicator. Note that we do not
+        consider EX or vacant land in oby.class to determine whether a parcel is
+        residential or commercial. */
+        MAX(
+            CASE
+                /* If a parcel exists in dweldat and comdat, or dweldat and oby
+                and class in oby is not vacant land, exempt, or class 2, then
+                it's mixed use. */
+                WHEN
+                    dwel.class IS NOT NULL
+                    AND (
+                        com.parid IS NOT NULL
+                        OR (
+                            oby.class IS NOT NULL
+                            AND (SUBSTR(oby.class, 1, 1) NOT IN ('1', '2'))
+                            AND oby.class NOT IN ('OA2', 'EX')
+                        )
+                    )
+                    THEN TRUE
+                    -- If a parcel is class 2 in oby and exists in comdat, then
+                    -- it's mixed use.
+                WHEN
+                    (SUBSTR(oby.class, 1, 1) = '2' OR oby.class = 'OA2')
+                    AND com.class IS NOT NULL
+                    THEN TRUE
+                ELSE FALSE
+            END
+        ) AS is_mixed_use
     FROM {{ source('iasworld', 'pardat') }} AS par
     LEFT JOIN {{ source('iasworld', 'comdat') }} AS com
         ON par.parid = com.parid
@@ -75,70 +104,7 @@ com_cdu AS ({{ aggregate_cdu(
 oby_cdu AS ({{ aggregate_cdu(
     source_model = source('iasworld', 'oby'),
     cdu_column = 'user16'
-    ) }}),
-
-mixed_use AS (
-    SELECT
-        par.parid,
-        par.taxyr,
-        dwel.class AS dwel_class,
-        com.class AS com_class,
-        oby.class AS oby_class,
-        /* This column compares classes for parcels across dweldat, comdat, and
-        oby in order to construct a mixed use indicator. Note that we do not
-        consider EX or vacant land in oby.class to determine whether a parcel is
-        residential or commercial. */
-        CASE
-            /* If a parcel exists in dweldat and comdat, or dweldat and oby and
-            class in oby is not vacant land, exempt, or class 2, then it's
-            mixed use. */
-            WHEN
-                dwel.class IS NOT NULL
-                AND (
-                    com.parid IS NOT NULL
-                    OR (
-                        oby.class IS NOT NULL
-                        AND (SUBSTR(oby.class, 1, 1) NOT IN ('1', '2'))
-                        AND oby.class NOT IN ('OA2', 'EX')
-                    )
-                )
-                THEN TRUE
-            -- If a parcel is class 2 in oby and exists in comdat, then it's
-            -- mixed use.
-            WHEN
-                (SUBSTR(oby.class, 1, 1) = '2' OR oby.class = 'OA2')
-                AND com.class IS NOT NULL
-                THEN TRUE
-            ELSE FALSE
-        END AS is_mixed_use
-    FROM iasworld.pardat AS par
-    LEFT JOIN iasworld.dweldat AS dwel
-        ON par.parid = dwel.parid
-        AND par.taxyr = dwel.taxyr
-        AND dwel.cur = 'Y'
-        AND dwel.deactivat IS NULL
-    LEFT JOIN iasworld.comdat AS com
-        ON par.parid = com.parid
-        AND par.taxyr = com.taxyr
-        AND com.cur = 'Y'
-        AND com.deactivat IS NULL
-    LEFT JOIN iasworld.oby
-        ON par.parid = oby.parid
-        AND par.taxyr = oby.taxyr
-        AND oby.cur = 'Y'
-        AND oby.deactivat IS NULL
-    WHERE par.cur = 'Y'
-        AND par.deactivat IS NULL
-),
-
-mixed_use_agg AS (
-    SELECT
-        parid,
-        taxyr,
-        MAX(is_mixed_use) AS is_mixed_use
-    FROM mixed_use
-    GROUP BY parid, taxyr
-)
+    ) }})
 
 SELECT
     pdat.parid AS pin,
@@ -152,7 +118,7 @@ SELECT
     vpcc.parking_space_flag_reason,
     vpcc.is_common_area,
     SUBSTR(pdat.parid, 11, 1) = '8' AS is_leasehold,
-    mua.is_mixed_use,
+    ahsap.is_mixed_use,
     pdat.class = 'RR' AS is_railroad,
     ptst.test_type IS NOT NULL AS is_weird,
     ptst.test_type AS weird_reason,
@@ -190,8 +156,5 @@ LEFT JOIN dwel_cdu AS ddat
 LEFT JOIN {{ ref('ccao.pin_test') }} AS ptst
     ON pdat.parid = ptst.pin
     AND pdat.taxyr = ptst.year
-LEFT JOIN mixed_use_agg AS mua
-    ON pdat.parid = mua.parid
-    AND pdat.taxyr = mua.taxyr
 WHERE pdat.cur = 'Y'
     AND pdat.deactivat IS NULL
