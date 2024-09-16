@@ -97,7 +97,7 @@ Possible values for this variable are:
 - `310 - NEW CONST MAJOR IMPROVEMENT`
 - `311 - CARRIER - NEW MAJOR CONSTRUCTION`
 - `312 - NON-CARRIER NEW MAJOR CONSTRUCTION`
-- `330 - NEW CONSTRUCTION  MINOR IMPROVEMENT`
+- `330 - NEW CONSTRUCTION MINOR IMPROVEMENT`
 - `331 - CARRIER - REMODELING`
 - `332 - NON-CARRIER - REMODELING`
 - `350 - REMODELING`
@@ -187,11 +187,11 @@ Possible values for this variable are:
 - `133.3 - FENCING (and Gates) - wood`
 - `133.4 - FENCING (and Gates) - plastic`
 - `134 - GARAGE CARPORTS BARNS`
-- `134.1 -  GARAGE CARPORTS BARNS - garages`
-- `134.2 -  GARAGE CARPORTS BARNS - barns`
-- `134.3 -  GARAGE CARPORTS BARNS - car ports`
-- `134.4 -  GARAGE CARPORTS BARNS - gazebos`
-- `134.5 -  GARAGE CARPORTS BARNS - cement pad for miscellaneous use`
+- `134.1 - GARAGE CARPORTS BARNS - garages`
+- `134.2 - GARAGE CARPORTS BARNS - barns`
+- `134.3 - GARAGE CARPORTS BARNS - car ports`
+- `134.4 - GARAGE CARPORTS BARNS - gazebos`
+- `134.5 - GARAGE CARPORTS BARNS - cement pad for miscellaneous use`
 - `134.6 - OTHER GARAGE CARPORT BARNS`
 - `134.7 - OTHER GARAGE CARPORT BARNS`
 - `134.8 - OTHER GARAGE CARPORT BARNS`
@@ -267,7 +267,7 @@ Possible values for this variable are:
 - `235.10 - OTHER - MINOR NEW CONSTRUCTION - tents`
 - `235.11 - OTHER - MINOR NEW CONSTRUCTION - sewer clean out`
 - `235.12 - OTHER - MINOR NEW CONSTRUCTION - ATM machines`
-- `235.12.1 - OTHER - MINOR NEW CONSTRUCTION - ATM machines -  Partitioning`
+- `235.12.1 - OTHER - MINOR NEW CONSTRUCTION - ATM machines - Partitioning`
 - `235.12.2 - OTHER - MINOR NEW CONSTRUCTION - ATM machines - machine`
 - `235.13 - OTHER - MINOR NEW CONSTRUCTION - Parking Lot`
 - `235.2 - OTHER - MINOR NEW CONSTRUCTION - tanks`
