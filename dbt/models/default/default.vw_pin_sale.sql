@@ -288,14 +288,37 @@ sales_full_outer AS (
             ELSE FALSE
         END AS sale_filter_same_sale_within_365,
         CASE WHEN u.doc_no IS NOT NULL THEN 'iasworld' ELSE 'mydec' END AS source,
-        m.*
+        -- Include necessary columns from 'm' explicitly
+        m.mydec_deed_type,
+        m.sale_filter_ptax_flag,
+        m.mydec_property_advertised,
+        m.mydec_is_installment_contract_fulfilled,
+        m.mydec_is_sale_between_related_individuals_or_corporate_affiliates,
+        m.mydec_is_transfer_of_less_than_100_percent_interest,
+        m.mydec_is_court_ordered_sale,
+        m.mydec_is_sale_in_lieu_of_foreclosure,
+        m.mydec_is_condemnation,
+        m.mydec_is_short_sale,
+        m.mydec_is_bank_reo_real_estate_owned,
+        m.mydec_is_auction_sale,
+        m.mydec_is_seller_buyer_a_relocation_company,
+        m.mydec_is_seller_buyer_a_financial_institution_or_government_agency,
+        m.mydec_is_buyer_a_real_estate_investment_trust,
+        m.mydec_is_buyer_a_pension_fund,
+        m.mydec_is_buyer_an_adjacent_property_owner,
+        m.mydec_is_buyer_exercising_an_option_to_purchase,
+        m.mydec_is_simultaneous_trade_of_property,
+        m.mydec_is_sale_leaseback,
+        m.mydec_is_homestead_exemption,
+        m.mydec_homestead_exemption_general_alternative,
+        m.mydec_homestead_exemption_senior_citizens,
+        m.mydec_homestead_exemption_senior_citizens_assessment_freeze
     FROM unique_sales u
     FULL OUTER JOIN mydec_sales m ON u.doc_no = m.doc_no
     LEFT JOIN town_class tc
         ON COALESCE(u.pin, m.pin) = tc.parid
         AND COALESCE(u.year, m.year) = tc.taxyr
 )
-
 
 SELECT
     sales_full_outer.pin,
