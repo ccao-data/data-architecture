@@ -94,7 +94,9 @@ SELECT
     oby.cdu AS oby_cdu,
     cdat.cdu AS com_cdu,
     ddat.cdu AS dwel_cdu,
-    pdat.note2 AS note
+    pdat.note2 AS note,
+    pdat.class = '999' AS filler_class,
+    pdat.parid LIKE '%999%' AS filler_pin
 FROM {{ source('iasworld', 'pardat') }} AS pdat
 LEFT JOIN {{ source('spatial', 'corner') }} AS colo
     ON SUBSTR(pdat.parid, 1, 10) = colo.pin10
