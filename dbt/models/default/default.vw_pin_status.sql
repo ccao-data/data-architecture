@@ -91,8 +91,8 @@ WITH ahsap AS (
 
 SELECT
     pdat.parid AS pin,
-    pdat.class,
     pdat.taxyr AS year,
+    pdat.class,
     colo.is_corner_lot,
     ahsap.is_ahsap,
     COALESCE(vpe.pin IS NOT NULL, FALSE) AS is_exempt,
@@ -114,7 +114,18 @@ SELECT
 FROM {{ source('iasworld', 'pardat') }} AS pdat
 LEFT JOIN {{ source('spatial', 'corner') }} AS colo
     ON SUBSTR(pdat.parid, 1, 10) = colo.pin10
-    AND pdat.taxyr = colo.year
+    /* iasWorld is often a year ahead of the most up-to-date parcel shapefile,
+    which our corner lot indicator depends on. This join fills corner lot status
+    forward for any years of iasWorld data more recent than the most recent year
+    of corner lot data. */
+    AND CASE
+        WHEN
+            pdat.taxyr
+            > (SELECT MAX(year) FROM {{ source('spatial', 'corner') }})
+            THEN (SELECT MAX(year) FROM {{ source('spatial', 'corner') }})
+        ELSE pdat.taxyr
+    END
+    = colo.year
 LEFT JOIN ahsap
     ON pdat.parid = ahsap.parid
     AND pdat.taxyr = ahsap.taxyr
