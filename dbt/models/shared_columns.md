@@ -901,8 +901,8 @@ Corner lot indicator
 {% docs shared_column_is_parking_space %}
 Deeded parking/garage space or storage unit.
 
-Detected either by valuations, CDU, or unit
-number/proration rate heuristics.
+Detected either by valuations, CDU, or unit number/proration rate heuristics.
+Only applies to condo classes (299 and 399).
 {% enddocs %}
 
 ## modeling_group
