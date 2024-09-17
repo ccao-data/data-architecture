@@ -305,7 +305,6 @@ combined_sales AS (
         END AS sale_filter_same_sale_within_365,
         CASE WHEN u.doc_no IS NOT NULL THEN 'iasworld' ELSE 'mydec' END
             AS source,
-        -- Include necessary columns from 'm' explicitly
         m.mydec_deed_type,
         m.sale_filter_ptax_flag,
         m.mydec_property_advertised,
