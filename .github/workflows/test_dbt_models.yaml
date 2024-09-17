@@ -3,7 +3,13 @@ name: test-dbt-models
 # This workflow is not scheduled or run on PRs because it is manually triggered
 # by the Data Department's sqoop data extraction process upon completion. See
 # https://github.com/ccao-data/service-sqoop-iasworld
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      upload_test_results:
+        description: "Upload test results to S3"
+        required: false
+        type: boolean
 
 jobs:
   test-dbt-models:
@@ -41,6 +47,7 @@ jobs:
           GIT_AUTHOR: ${{ github.event.commits[0].author.name }}
 
       - name: Save test results to S3
+        if: inputs.upload_test_results
         run: |
           s3_prefix="s3://ccao-data-warehouse-us-east-1/qc"
           local_prefix="qc_test_results/metadata"
