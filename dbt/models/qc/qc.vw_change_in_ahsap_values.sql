@@ -16,7 +16,7 @@ SELECT
 FROM {{ ref('default.vw_pin_history') }} AS hist
 INNER JOIN {{ ref('reporting.vw_pin_township_class') }} AS ahsap
     ON hist.pin = ahsap.pin AND hist.year = ahsap.year
-WHERE ahsap.ahsap
+WHERE ahsap.is_ahsap
     AND (
         hist.mailed_tot > hist.oneyr_pri_certified_tot * 1.2
         OR hist.certified_tot > hist.mailed_tot * 1.2

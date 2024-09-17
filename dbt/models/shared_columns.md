@@ -875,10 +875,34 @@ purposes. See `ccao.class_dict` for more information
 Parcel has an active homeowner exemption
 {% enddocs %}
 
+## is_ahsap
+
+{% docs shared_column_is_ahsap %}
+Affordable Housing Special Assessment Program indicator. For more information on
+AHSAP, see: https://www.cookcountyassessor.com/affordable-housing
+{% enddocs %}
+
+## is_common_area
+
+{% docs shared_column_is_common_area %}
+Building common area.
+
+Detected primarily through prior AV of less than $10.
+{% enddocs %}
+
 ## is_corner_lot
 
 {% docs shared_column_is_corner_lot %}
 Corner lot indicator
+{% enddocs %}
+
+## is_parking_space
+
+{% docs shared_column_is_parking_space %}
+Deeded parking/garage space or storage unit.
+
+Detected either by valuations, CDU, or unit number/proration rate heuristics.
+Only applies to condo classes (299 and 399).
 {% enddocs %}
 
 ## modeling_group
@@ -905,6 +929,12 @@ analysis. For example, land rates are usually delimited by neighborhood
 
 {% docs shared_column_n_years_exe_homeowner %}
 Number of years parcel has had an active homeowner exemption
+{% enddocs %}
+
+## parking_space_flag_reason
+
+{% docs shared_column_parking_space_flag_reason %}
+Parking space/storage unit heuristic used to flag this PIN
 {% enddocs %}
 
 ## pin
@@ -1313,8 +1343,8 @@ See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more det
 {% docs shared_column_sv_outlier_reason %}
 Heuristic or model used to flag an outlier.
 
-See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repository
-for a list of possible flags.
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val)
+repository for a list of possible flags.
 {% enddocs %}
 
 ## sv_run_id
