@@ -731,6 +731,16 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--skip-artifacts",
+        action=argparse.BooleanOptionalAction,
+        required=False,
+        help=(
+            "Skip the step that parses test output and just run tests. "
+            "Ignored if --use-cached is set, since --use-cached implies "
+            "that the script should skip running tests."
+        ),
+    )
+    parser.add_argument(
         *constants.TARGET_ARGUMENT_ARGS, **constants.TARGET_ARGUMENT_KWARGS
     )
 
@@ -739,6 +749,7 @@ def main() -> None:
     output_dir = args.output_dir
     townships = args.township if args.township else tuple()
     use_cached = args.use_cached
+    skip_artifacts = args.skip_artifacts
     target = args.target
 
     run_results_filepath = os.path.join("target", "run_results.json")
@@ -768,8 +779,10 @@ def main() -> None:
             target,
             "--selector",
             "select_data_test_iasworld",
-            "--store-failures",
         ]
+        if not skip_artifacts:
+            dbt_run_args.append("--store-failures")
+
         print(f"> dbt {' '.join(dbt_run_args)}")
         dbt_test_result = DBT.invoke(dbt_run_args)
 
@@ -783,6 +796,10 @@ def main() -> None:
             # No need to report the exception, since the dbt process
             # will have printed it already
             raise ValueError("Quitting due to error in dbt test run")
+
+        if skip_artifacts:
+            print("Skipping artifact generation since --skip-artifacts is set")
+            return
 
         print("Loading test results from Athena")
         test_categories = get_test_categories_from_athena(
