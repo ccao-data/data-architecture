@@ -138,8 +138,8 @@ LEFT JOIN {{ source('tax', 'pin') }} AS pin
 LEFT JOIN {{ ref('default.vw_pin_condo_char') }} AS vpcc
     ON pdat.parid = vpcc.pin
     AND pdat.taxyr = vpcc.year
--- CDUs from oby, comdat, dweldat since those tables aren't unique by parid
--- and taxyr so we use a macro to aggregate them
+-- CDUs from oby, comdat, dweldat. Since those tables aren't unique by parid
+-- and taxyr we use a macro to aggregate them before joining.
 LEFT JOIN ({{ aggregate_cdu(
     source_model = source('iasworld', 'oby'),
     cdu_column = 'user16'
