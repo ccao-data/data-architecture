@@ -15,14 +15,6 @@ and reporting.
 **Primary Key**: `year`, `pin`, `card`
 {% enddocs %}
 
-# vw_experimental_sales
-
-{% docs experimental_sales%}
-
-Experimental sales view that grabs sales from iasworld and mydec
-
-{% enddocs %}
-
 # vw_pin_address
 
 {% docs view_vw_pin_address %}

@@ -1,3 +1,0 @@
-models:
-  - name: default.experimental_sales
-    description: '{{ doc("experimental_sales") }}'
