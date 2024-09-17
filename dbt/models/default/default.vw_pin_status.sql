@@ -104,13 +104,13 @@ SELECT
     ahsap.is_mixed_use,
     pdat.class = 'RR' AS is_railroad,
     ptst.test_type IS NOT NULL AS is_weird,
-    ptst.test_type AS weird_reason,
+    ptst.test_type AS weird_flag_reason,
     oby.cdu AS oby_cdu,
-    cdat.cdu AS com_cdu,
-    ddat.cdu AS dwel_cdu,
-    pdat.note2 AS note,
-    pdat.class = '999' AS filler_class,
-    pdat.parid LIKE '%999%' AS filler_pin
+    cdat.cdu AS comdat_cdu,
+    ddat.cdu AS dweldat_cdu,
+    pdat.note2 AS pardat_note,
+    pdat.class = '999' AS is_filler_class,
+    pdat.parid LIKE '%999%' AS is_filler_pin
 FROM {{ source('iasworld', 'pardat') }} AS pdat
 LEFT JOIN {{ source('spatial', 'corner') }} AS colo
     ON SUBSTR(pdat.parid, 1, 10) = colo.pin10
