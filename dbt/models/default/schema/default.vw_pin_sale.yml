@@ -39,6 +39,8 @@ models:
         description: '{{ doc("shared_column_sale_price") }}'
       - name: seller_name
         description: '{{ doc("shared_column_seller_name") }}'
+      - name: source
+        description: Which table the doc_no was drawn from (iasworld or mydec)
       - name: sv_is_heuristic_outlier
         description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
       - name: sv_is_ptax_outlier
