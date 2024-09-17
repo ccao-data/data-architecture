@@ -29,6 +29,6 @@
         count(*) as num_duplicates
     from {{ model }}
     group by {{ columns_csv }}
-    having count(*) > {{ allowed_duplicates }} + 1
+    having count(*) > {{ allowed_duplicates }}
 
 {% endtest %}
