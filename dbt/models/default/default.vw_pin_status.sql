@@ -93,7 +93,12 @@ SELECT
     pdat.parid AS pin,
     pdat.taxyr AS year,
     pdat.class,
-    colo.is_corner_lot,
+    CASE
+        WHEN
+            pdat.taxyr
+            >= (SELECT MIN(year) FROM {{ source('spatial', 'corner') }})
+            THEN COALESCE(colo.is_corner_lot, FALSE)
+    END AS is_corner_lot,
     ahsap.is_ahsap,
     COALESCE(vpe.pin IS NOT NULL, FALSE) AS is_exempt,
     COALESCE(pin.tax_bill_total = 0, NULL) AS is_zero_bill,
