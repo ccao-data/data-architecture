@@ -626,7 +626,7 @@ the tag `data_test_iasworld`
 
 See the [`iasworld_pardat_class_in_ccao_class_dict`
 test](https://github.com/ccao-data/data-architecture/blob/bd4bc1769fe33fdba1dbe827791b5c41389cf6ec/dbt/models/iasworld/schema/iasworld.pardat.yml#L78-L96)
-for an example of a test that sets these attributes. TODO: Example of notifs
+for an example of a test that sets these attributes.
 
 Due to the similarity of parameters defined on iasWorld data tests, we make extensive use
 of YAML anchors and aliases to define symbols for commonly-used values.
@@ -678,24 +678,28 @@ fails, a few additional configs are necessary. Notifications are optional,
 and you should only configure them if you've gotten approval from a
 stakeholder who wants to be responsible for receiving them.
 
-Set the following configs to enable email notifications for failures:
+Follow these steps to enable email notifications for test failures:
 
-1. Get or create a dbt variable representing an AWS SNS topic for the
-   stakeholders who you want to notify when the test fails
-     * If a variable/topic already exists for this group, no changes are
-       necessary; just copy the dbt variable name for the topic and move on
-       to the next step
-     * If no variable/topic combo exists yet for this group, a few configs
+1. Get or create a [dbt
+   variable](https://docs.getdbt.com/docs/build/project-variables) representing
+   an [AWS SNS topic](https://docs.aws.amazon.com/sns/latest/dg/welcome.html)
+   for the stakeholders who you want to notify when the test fails
+     * If a topic already exists for this group and it has a corresponding dbt
+       variable in `dbt_project.yml`, no changes are necessary; just copy the
+       dbt variable name for the topic and move on to the next step
+     * If no variable or topic exists yet for this group, a few steps
        are required:
          1. Create the SNS topic in the AWS console
             ([docs](https://docs.aws.amazon.com/sns/latest/dg/sns-create-topic.html#create-topic-aws-console))
-         2. Add your stakeholders to subscriptions for the SNS topic
+         2. Create subscriptions for your stakeholders using the SNS topic
             ([docs](https://docs.aws.amazon.com/sns/latest/dg/sns-create-subscribe-endpoint-to-topic.html))
          3. Persist the SNS topic in a pull request to the `aws-infrastructure`
             repo
          4. Define a new empty dbt variable in `dbt_project.yml` that will
             store the ARN for the topic
-         5. Set the topic ARN to a repo secret in this repo so that it is
+         5. Set the topic ARN to a [repo
+            secret](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository)
+            in this repo so that it is
             hidden but we can still access it from GitHub workflows
          6. Update the call to `scripts/run_iasworld_data_tests.py` in the
             `test-dbt-models` workflow to set the dbt variable you created in
@@ -708,17 +712,19 @@ Set the following configs to enable email notifications for failures:
       is necessary due to the fact that Jinja variable substitution is not
       available in dbt `meta` attributes
 
-The above configs will instruct the `test-dbt-models` workflow to send a
-notification for any failures to the subscribers of the SNS topic you
-configured. This will happen any time the `test-dbt-models` workflow runs
-with the `send_test_failure_notifications` variable set to `true`.
+The above steps will configure the `test-dbt-models` workflow to send a
+notification containing any rows that failed your test to the subscribers of
+the SNS topic. This will happen any time the `test-dbt-models` workflow runs
+with the `send_test_failure_notifications` variable set to `true`. If more than
+one test is configured to notify a given SNS topic, then the workflow will
+group all of those tests into one email to that topic.
 
 For an example of a test that is configured for email notifications, see
 `iasworld_pardat_spot_is_null`.
 
 #### Ignoring known failures for a failing test
 
-Sometimes a stakeholder will be aware of a set of rows that are failing a test,
+Sometimes a stakeholder will be aware that a set of rows is failing a test,
 but for whatever reason they can't take action on those rows. In these cases,
 they may ask you to ignore this set of known failures when generating the
 result set for a failing test.
@@ -726,13 +732,14 @@ result set for a failing test.
 You have two options for ignoring a set of known failures in a failing test:
 
 1. If the known failures follow a pattern, like "all parcels in a certain
-   township for a certain year", you can update the `config.where` clause for
-   the test definition in the `schema.yml` to filter out rows that match the
-   condition
+   township for a certain year", you can update the [`config.where`
+   clause](https://docs.getdbt.com/reference/resource-configs/where) for
+   the test definition in its `schema.yml` file to filter out rows that match
+   the condition
 2. If the known failures do not follow a pattern, you can remove them from the
    result set for a test by creating a seed containing the unique identifiers
    of the known failures and setting an `anti_join` parameter in the test
-   definition to remove any rows in the seed from the set of failures
+   definition to remove any rows in the seed from the set of failures:
      1. Add a seed representing the known failures, where the columns of the
         seed are the unique identifiers of the row (like `parid`)
           * You typically do not need to include `taxyr` in the set of unique
@@ -749,7 +756,7 @@ You have two options for ignoring a set of known failures in a failing test:
         the `anti_join` argument you added in step B and point it to the seed
         you added in step A using a `ref()` call
           * When the test runs, it will only fail for rows that do not have a
-            representation in the seed from step A
+            representation in the seed from step i
 
 For an example of a test that is configured to ignore known failures, see
 `iasworld_pardat_spot_is_null`.
