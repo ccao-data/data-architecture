@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       send_test_failure_notifications:
-        description: "Whether to notify SNS topic subscribers about failures"
+        description: Notify SNS topic subscribers about failures
         required: false
         type: boolean
 
