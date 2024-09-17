@@ -110,16 +110,16 @@ Street suffix (Rd., Ln.) of property address
 Additional street suffix of property address
 {% enddocs %}
 
-## prop_address_unit_prefix
-
-{% docs shared_column_prop_address_unit_prefix %}
-Unit prefix (Num., Apt.) of property address
-{% enddocs %}
-
 ## prop_address_unit_number
 
 {% docs shared_column_prop_address_unit_number %}
 Unit number of property address
+{% enddocs %}
+
+## prop_address_unit_prefix
+
+{% docs shared_column_prop_address_unit_prefix %}
+Unit prefix (Num., Apt.) of property address
 {% enddocs %}
 
 ## prop_address_zipcode_1
@@ -377,6 +377,14 @@ outputs from the model
 
 # Characteristics
 
+## char_age
+
+{% docs shared_column_char_age %}
+Deprecated.
+
+Use year built (`char_yrblt`) instead
+{% enddocs %}
+
 ## char_air
 
 {% docs shared_column_char_air %}
@@ -386,14 +394,6 @@ Possible values for this variable are:
 
 - `1` = Central A/C (`YES`)
 - `2` = No central A/C (`NO`)
-{% enddocs %}
-
-## char_age
-
-{% docs shared_column_char_age %}
-Deprecated.
-
-Use year built (`char_yrblt`) instead
 {% enddocs %}
 
 ## char_apts
@@ -445,12 +445,6 @@ Possible values for this variable are:
 Number of bedrooms in the building.
 {% enddocs %}
 
-## char_bldg_sf
-
-{% docs shared_column_char_bldg_sf %}
-Square footage of the building, as measured from the exterior.
-{% enddocs %}
-
 ## char_bldg_is_mixed_use
 
 {% docs shared_column_char_bldg_is_mixed_use %}
@@ -458,6 +452,12 @@ The 10-digit PIN (building) contains a 14-digit PIN that is
 neither class 299 nor 399.
 
 Applies to condos only
+{% enddocs %}
+
+## char_bldg_sf
+
+{% docs shared_column_char_bldg_sf %}
+Square footage of the building, as measured from the exterior.
 {% enddocs %}
 
 ## char_bsmt
@@ -503,18 +503,18 @@ Total number of PINs associated with a building (PIN10).
 Includes both livable and non-livable units. Applies to condos only
 {% enddocs %}
 
-## char_building_units
-
-{% docs shared_column_char_building_units %}
-Count of livable 14-digit PINs (AKA condo units).
-
-Applies to condos only
-{% enddocs %}
-
 ## char_building_sf
 
 {% docs shared_column_char_building_sf %}
 Square footage of the _building_ (PIN10) containing this unit.
+
+Applies to condos only
+{% enddocs %}
+
+## char_building_units
+
+{% docs shared_column_char_building_units %}
+Count of livable 14-digit PINs (AKA condo units).
 
 Applies to condos only
 {% enddocs %}
@@ -632,6 +632,15 @@ Possible values for this variable are:
 - `8` = 4 cars (`4CAR`)
 {% enddocs %}
 
+## char_hbath
+
+{% docs shared_column_char_hbath %}
+Number of half baths.
+
+Defined as bathrooms without a shower or bathtub. Note that either 0 or
+null can indicate no half baths.
+{% enddocs %}
+
 ## char_heat
 
 {% docs shared_column_char_heat %}
@@ -643,15 +652,6 @@ Possible values for this variable are:
 - `2` = Steam / radiator (`STM`)
 - `3` = Electric (`ELEC`)
 - `4` = None (`NONE`)
-{% enddocs %}
-
-## char_hbath
-
-{% docs shared_column_char_hbath %}
-Number of half baths.
-
-Defined as bathrooms without a shower or bathtub. Note that either 0 or
-null can indicate no half baths.
 {% enddocs %}
 
 ## char_land_sf
@@ -855,7 +855,7 @@ Condition/Desirability/Utility code.
 Code representing any number of seemingly unrelated characteristics
 associated with a PIN, ranging from condition to types of subsidies, to
 whether or not a PIN is a garage. The full list of CDU codes can be found on
-the Assessor's website
+the Assessor's site
 {% enddocs %}
 
 ## class
@@ -887,12 +887,6 @@ Corner lot indicator
 Modeling group, one of: `SF`, `MF`, `CONDO`, or `BB`
 {% enddocs %}
 
-## n_years_exe_homeowner
-
-{% docs shared_column_n_years_exe_homeowner %}
-Number of years parcel has had an active homeowner exemption
-{% enddocs %}
-
 ## nbhd_code
 
 {% docs shared_column_nbhd_code %}
@@ -905,6 +899,12 @@ Geographic neighborhoods intended to represent relatively homogeneous
 housing sub-markets. They were created a long time ago for internal use by the
 various property tax offices. The Assessor now uses them as units of work and
 analysis. For example, land rates are usually delimited by neighborhood
+{% enddocs %}
+
+## n_years_exe_homeowner
+
+{% docs shared_column_n_years_exe_homeowner %}
+Number of years parcel has had an active homeowner exemption
 {% enddocs %}
 
 ## pin
@@ -1042,6 +1042,7 @@ and interns. Adjectives are pulled from the list used by Docker.
 {% enddocs %}
 
 # Other
+
 ## ari
 
 {% docs shared_column_ari %}
@@ -1055,7 +1056,7 @@ It is unclear of IHDA's data timeline. Year currently refers to final year of ce
 {% docs shared_column_dci %}
 Distressed Communities Index from the Economic Innovation Group.
 
-Unit of observations is Zip Code. Year refers to year of final year of census data used.
+Unit of observations is ZIP Code. Year refers to year of final year of census data used.
 {% enddocs %}
 
 ## ihs_avg_year_index
@@ -1082,6 +1083,12 @@ Average GreatSchools rating of secondary schools within the district of a given 
 For CPS, which is a unified school district, the average of schools within attendance boundary is used
 {% enddocs %}
 
+## tax_bill_amount_total
+
+{% docs shared_column_tax_bill_amount_total %}
+Tax bill total amount for the tax year
+{% enddocs %}
+
 ## tax_bill_rate
 
 {% docs shared_column_tax_bill_rate %}
@@ -1089,12 +1096,6 @@ Tax bill rate for the taxing district containing a given PIN.
 
 For modeling, the idea is to capture any downward pressure
 on price from higher tax burdens
-{% enddocs %}
-
-## tax_bill_amount_total
-
-{% docs shared_column_tax_bill_amount_total %}
-Tax bill total amount for the tax year
 {% enddocs %}
 
 # Proration, Multi-cards, Occupancy, and Landlines
@@ -1132,16 +1133,16 @@ and we expect it to eventually become the standard.
 Record number related to land or building "line".
 {% enddocs %}
 
-## pin_is_multiland
-
-{% docs shared_column_pin_is_multiland %}
-Indicates the PIN has more than one landline.
-{% enddocs %}
-
 ## pin_is_multicard
 
 {% docs shared_column_pin_is_multicard %}
 Indicates a PIN with more than one building (ADU, coach house, etc.).
+{% enddocs %}
+
+## pin_is_multiland
+
+{% docs shared_column_pin_is_multiland %}
+Indicates the PIN has more than one landline.
 {% enddocs %}
 
 ## pin_is_multilline
@@ -1207,15 +1208,6 @@ Name of property buyer, as listed on deed.
 Can be truncated by MyDec/IDOR. See Clerk/Recorder of Deeds for full name.
 {% enddocs %}
 
-## document_number
-
-{% docs shared_column_document_number %}
-Deed number/document number of the sale.
-
-Serves as the unique identifier for each sale. Can be used to lookup more
-information on the Clerk/Recorder of Deeds website.
-{% enddocs %}
-
 ## deed_type
 
 {% docs shared_column_deed_type %}
@@ -1230,6 +1222,15 @@ Possible values for this variable include:
 - `05` - Other
 - `06` - Beneficiary
 - `99` - Unknown
+{% enddocs %}
+
+## document_number
+
+{% docs shared_column_document_number %}
+Deed number/document number of the sale.
+
+Serves as the unique identifier for each sale. Can be used to lookup more
+information on the Clerk/Recorder of Deeds site.
 {% enddocs %}
 
 ## num_parcels_sale
@@ -1287,16 +1288,6 @@ institutional buyer detection, etc.
 See [model-sales-val](https://github.com/ccao-data/model-sales-val) for full details
 {% enddocs %}
 
-## sv_is_ptax_outlier
-
-{% docs shared_column_sv_is_ptax_outlier %}
-Outlier flagged due to certain answers on Q10 of the PTAX-203 form.
-
-Must have a Q10 flag _in addition to_ a statistical flag.
-
-See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more details
-{% enddocs %}
-
 ## sv_is_outlier
 
 {% docs shared_column_sv_is_outlier %}
@@ -1307,12 +1298,22 @@ with `sv_is_ptax_outlier` (using OR logic).
 NOTE: Outlier flags only exist for sales _after_ 2014.
 {% enddocs %}
 
+## sv_is_ptax_outlier
+
+{% docs shared_column_sv_is_ptax_outlier %}
+Outlier flagged due to certain answers on Q10 of the PTAX-203 form.
+
+Must have a Q10 flag _in addition to_ a statistical flag.
+
+See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more details
+{% enddocs %}
+
 ## sv_outlier_reason
 
 {% docs shared_column_sv_outlier_reason %}
 Heuristic or model used to flag an outlier.
 
-See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repo
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val) repository
 for a list of possible flags.
 {% enddocs %}
 

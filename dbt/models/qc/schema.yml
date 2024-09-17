@@ -200,16 +200,6 @@ models:
         - data_test_iasworld
         - data_test_iasworld_exclude_from_workbook
     columns:
-      - name: mydec_unmatched
-        data_tests:
-          - accepted_range:
-              name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_mydec_unmatched_lte_1000
-              max_value: 1000
-              additional_select_columns: ["taxyr"]
-              meta:
-                table_name: sales
-                category: sales_issues
-                description: mydec should not have >1000 sales that are not in iasworld
       - name: iasworld_unmatched
         data_tests:
           - accepted_range:
@@ -220,6 +210,16 @@ models:
                 table_name: sales
                 category: sales_issues
                 description: iasworld should not have >1000 sales that are not in mydec
+      - name: mydec_unmatched
+        data_tests:
+          - accepted_range:
+              name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_mydec_unmatched_lte_1000
+              max_value: 1000
+              additional_select_columns: ["taxyr"]
+              meta:
+                table_name: sales
+                category: sales_issues
+                description: mydec should not have >1000 sales that are not in iasworld
 
   - name: qc.vw_neg_asmt_value
     description: '{{ doc("view_vw_neg_asmt_value") }}'
@@ -719,6 +719,12 @@ models:
               <<: *test-non-negative
       - name: valapr1
         data_tests:
+          - accepted_range:
+              name: qc_vw_neg_asmt_value_valapr1_gte_0
+              meta:
+                table_name: asmt
+                description: valapr1 (MKT LAND) should not be negative
+              <<: *test-non-negative
           - not_null: &test-val-non-null
               name: qc_vw_neg_asmt_value_valapr1_not_null
               additional_select_columns: *select-columns-neg-asmt-value
@@ -727,82 +733,76 @@ models:
               meta:
                 table_name: asmt
                 description: valapr1 (MKT LAND) should not be null
-          - accepted_range:
-              name: qc_vw_neg_asmt_value_valapr1_gte_0
-              meta:
-                table_name: asmt
-                description: valapr1 (MKT LAND) should not be negative
-              <<: *test-non-negative
       - name: valapr2
         data_tests:
-          - not_null:
-              name: qc_vw_neg_asmt_value_valapr2_not_null
-              meta:
-                table_name: asmt
-                description: valapr2 (MKT BLDG) should not be null
-              <<: *test-val-non-null
           - accepted_range:
               name: qc_vw_neg_asmt_value_valapr2_gte_0
               meta:
                 table_name: asmt
                 description: valapr2 (MKT BLDG) should not be negative
               <<: *test-non-negative
-      - name: valapr3
-        data_tests:
           - not_null:
-              name: qc_vw_neg_asmt_value_valapr3_not_null
+              name: qc_vw_neg_asmt_value_valapr2_not_null
               meta:
                 table_name: asmt
-                description: valapr3 (TOTAL) should not be null
+                description: valapr2 (MKT BLDG) should not be null
               <<: *test-val-non-null
+      - name: valapr3
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_valapr3_gte_0
               meta:
                 table_name: asmt
                 description: valapr3 (TOTAL) should not be negative
               <<: *test-non-negative
-      - name: valasm1
-        data_tests:
           - not_null:
-              name: qc_vw_neg_asmt_value_valasm1_not_null
+              name: qc_vw_neg_asmt_value_valapr3_not_null
               meta:
                 table_name: asmt
-                description: valasm1 (ASMT LAND) should not be null
+                description: valapr3 (TOTAL) should not be null
               <<: *test-val-non-null
+      - name: valasm1
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_valasm1_gte_0
               meta:
                 table_name: asmt
                 description: valasm1 (ASMT LAND) should not be negative
               <<: *test-non-negative
-      - name: valasm2
-        data_tests:
           - not_null:
-              name: qc_vw_neg_asmt_value_valasm2_not_null
+              name: qc_vw_neg_asmt_value_valasm1_not_null
               meta:
                 table_name: asmt
-                description: valasm2 (ASMT BLDG) should not be null
+                description: valasm1 (ASMT LAND) should not be null
               <<: *test-val-non-null
+      - name: valasm2
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_valasm2_gte_0
               meta:
                 table_name: asmt
                 description: valasm2 (ASMT BLDG) should not be negative
               <<: *test-non-negative
-      - name: valasm3
-        data_tests:
           - not_null:
-              name: qc_vw_neg_asmt_value_valasm3_not_null
+              name: qc_vw_neg_asmt_value_valasm2_not_null
               meta:
                 table_name: asmt
-                description: valasm3 (ASMT TOTAL) should not be null
+                description: valasm2 (ASMT BLDG) should not be null
               <<: *test-val-non-null
+      - name: valasm3
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_valasm3_gte_0
               meta:
                 table_name: asmt
                 description: valasm3 (ASMT TOTAL) should not be negative
               <<: *test-non-negative
+          - not_null:
+              name: qc_vw_neg_asmt_value_valasm3_not_null
+              meta:
+                table_name: asmt
+                description: valasm3 (ASMT TOTAL) should not be null
+              <<: *test-val-non-null
 
   - name: qc.vw_nonlivable_condos_with_chars
     description: '{{ doc("view_vw_nonlivable_condos_with_chars") }}'
@@ -920,14 +920,14 @@ models:
       export_name: Res edit
       export_format:
         columns:
-          - name: Total % Change
-            index: U
-            horizontal_align: right
           - name: Dwelling % Change
             index: Z
             horizontal_align: right
           - name: Sale Date
             index: AA
+            horizontal_align: right
+          - name: Total % Change
+            index: U
             horizontal_align: right
 
   - name: qc.vw_report_town_close_res_multicodes

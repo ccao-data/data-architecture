@@ -697,7 +697,7 @@ a major event in the Valuations calendar like the close of a township.
 
 The [`export_models` script](./scripts/export_models.py) is the foundation for
 our QC reports. The script expects certain Python requirements, which can be installed
-by running `pip install scripts/requirements.export_models.txt` in a virtual
+by running `pip install -r scripts/requirements.export_models.txt` in a virtual
 environment.
 
 The script exposes a few options that help to export the right data:
