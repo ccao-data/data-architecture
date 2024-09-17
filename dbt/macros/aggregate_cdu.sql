@@ -5,6 +5,6 @@
         taxyr,
         array_join(array_sort(array_distinct(array_agg({{ cdu_column }}))), ', ') as cdu
     from {{ source_model }}
-    where {{ cdu_column }} is not null and cur = 'y' and deactivat is null
+    where {{ cdu_column }} is not null and cur = 'Y' and deactivat is null
     group by parid, taxyr
 {% endmacro %}
