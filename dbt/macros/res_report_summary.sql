@@ -16,13 +16,7 @@
         count(*) as pin_n,
         approx_percentile(total_land_sf, 0.5) as land_sf_median,
         approx_percentile(total_bldg_sf, 0.5) as bldg_sf_median,
-        approx_percentile(yrblt, 0.5) as yrblt_median,
-        -- Mode calculation trick from: https://stackoverflow.com/a/66954462
-        map_keys(histogram(class))[
-            array_position(
-                map_values(histogram(class)), array_max(map_values(histogram(class)))
-            )
-        ] as class_mode,
+        approx_percentile(yrblt, 0.5) as yrblt_median
     from {{ from }}
     group by
         assessment_stage,
