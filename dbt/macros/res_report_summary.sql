@@ -22,7 +22,7 @@
             array_position(
                 map_values(histogram(class)), array_max(map_values(histogram(class)))
             )
-        ] as class_mode,
+        ] as class_mode
     from {{ from }}
     group by
         assessment_stage,
