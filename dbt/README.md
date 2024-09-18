@@ -903,7 +903,7 @@ In the case of this model, the `export_models` script:
   is set
 * Will use the template `dbt/export/templates/qc_report_new.xlsx` to populate data
 * Will export the output workbook to `dbt/export/output/QC Report (New).xlsx`
-* Will left-align column B, a column with the name `Class`
+* Will right-align column B, a column with the name `Percent Change`
 * Will format column B as a percentage with two decimal places
 
 ## 🐛 Debugging tips
