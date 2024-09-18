@@ -269,10 +269,12 @@ combined_sales AS (
                 )
         END AS sale_date,
         CASE
-            WHEN md_sales.sale_date < '2021-01-01' THEN TRUE
-            WHEN uq_sales.sale_date >= '2021-01-01' THEN FALSE
-            WHEN md_sales.sale_date IS NOT NULL THEN TRUE
-            WHEN uq_sales.sale_date IS NOT NULL THEN FALSE
+            WHEN (uq_sales.year < '2021' OR uq_sales.sale_date IS NULL)
+                AND md_sales.sale_date IS NOT NULL
+                THEN TRUE
+            WHEN (uq_sales.year >= '2021' OR md_sales.sale_date IS NULL)
+                AND uq_sales.sale_date IS NOT NULL
+                THEN FALSE
         END AS is_mydec_sale,
         COALESCE(uq_sales.sale_price, md_sales.sale_price) AS sale_price,
         uq_sales.sale_key,
