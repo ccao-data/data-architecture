@@ -177,54 +177,73 @@ def export_models(
                 )
                 sheet.add_table(table)
 
+                # Parse column format settings by col index. Since column
+                # formatting needs to be applied at the cell level, we'll
+                # first parse all format settings for each column, and then
+                # we'll iterate every cell once to apply all formatting at the
+                # same time
+                column_format_by_index = {}
+
                 # If a parid column exists, format it explicitly as a
                 # 14-digit number to avoid Excel converting it to scientific
                 # notation or stripping out leading zeros
                 if "parid" in model_df or "pin" in model_df:
                     parid_field = "parid" if "parid" in model_df else "pin"
                     parid_index = model_df.columns.get_loc(parid_field)
-                    # Skip header row when applying formatting. We need to
-                    # catch the special case where there is only one row, or
-                    # else we will iterate the _cells_ in that row instead of
-                    # the row when slicing it from 2 : max_row
-                    non_header_rows = (
-                        [sheet[2]]
-                        if sheet.max_row == 2
-                        else sheet[2 : sheet.max_row]
-                    )
-                    for row in non_header_rows:
-                        row[parid_index].number_format = "00000000000000"
+                    column_format_by_index[parid_index] = {
+                        "number_format": "00000000000000",
                         # Left align since PINs do not actually need to be
                         # compared by order of magnitude the way that numbers
                         # do
-                        row[parid_index].alignment = Alignment(
-                            horizontal="left"
-                        )
+                        "alignment": Alignment(horizontal="left"),
+                    }
 
-                # Apply any column formatting that was configured
+                # Parse any formatting that is configured at the column level.
+                # Note that if formatting is configured for a column that we
+                # parsed as a parid column above, these settings will override
+                # the default parid settings from the block above
                 format_config = model["config"]["meta"].get(
                     "export_format", {}
                 )
                 if column_configs := format_config.get("columns"):
                     for column_config in column_configs:
-                        # Set horizontal alignment if config is present
+                        # The column index is required in order to set any
+                        # column-level configs
+                        col_letter = column_config.get("index")
+                        if col_letter is None:
+                            raise ValueError(
+                                "'index' attribute is required in "
+                                "export_format.columns config for "
+                                f"model {model_name}"
+                            )
+                        idx = column_index_from_string(col_letter) - 1
+                        # Initialize the config dict for this column if
+                        # none exists yet
+                        column_format_by_index[idx] = {}
+                        # Parse configs if they are present
+                        if number_format := column_config.get("number_format"):
+                            column_format_by_index[idx]["number_format"] = (
+                                number_format
+                            )
                         if horiz_align_dir := column_config.get(
                             "horizontal_align"
                         ):
-                            horizontal_alignment = Alignment(
-                                horizontal=horiz_align_dir
+                            column_format_by_index[idx]["alignment"] = (
+                                Alignment(horizontal=horiz_align_dir)
                             )
-                            col_letter = column_config.get("index")
-                            if col_letter is None:
-                                raise ValueError(
-                                    "'index' attribute is required when "
-                                    "'horizontal_align' is set on "
-                                    "export_format.columns config for "
-                                    f"model {model_name}"
-                                )
-                            idx = column_index_from_string(col_letter) - 1
-                            # Skip header row
-                            for row in sheet[2 : sheet.max_row]:
-                                row[idx].alignment = horizontal_alignment
+
+                # Skip header row when applying formatting. We need to
+                # catch the special case where there is only one row, or
+                # else we will iterate the _cells_ in that row instead of
+                # the row when slicing it from 2 : max_row
+                non_header_rows = (
+                    [sheet[2]]
+                    if sheet.max_row == 2
+                    else sheet[2 : sheet.max_row]
+                )
+                for row in non_header_rows:
+                    for idx, formats in column_format_by_index.items():
+                        for attr, val in formats.items():
+                            setattr(row[idx], attr, val)
 
         print(f"Exported model {model_name} to {output_path}")

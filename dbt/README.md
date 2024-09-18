@@ -869,6 +869,10 @@ model during export:
                to make the column config object more readable.
              * `horizontal_align` (optional): The horizontal alignment to set on the column, one of
                `left` or `right`.
+             * `number_format` (optional): The number format to apply to the
+               column. See the [openpyxl source
+               code](https://openpyxl.readthedocs.io/en/stable/_modules/openpyxl/styles/numbers.html)
+               for a list of options
 
 #### Example: Adding a new QC report
 
@@ -888,8 +892,9 @@ models:
       export_format:
         columns:
           - index: B
-            name: Class
-            horizontal_align: left
+            name: Percent Change
+            horizontal_align: right
+            number_format: "0.00%"
 ```
 
 In the case of this model, the `export_models` script:
@@ -899,6 +904,7 @@ In the case of this model, the `export_models` script:
 * Will use the template `dbt/export/templates/qc_report_new.xlsx` to populate data
 * Will export the output workbook to `dbt/export/output/QC Report (New).xlsx`
 * Will left-align column B, a column with the name `Class`
+* Will format column B as a percentage with two decimal places
 
 ## 🐛 Debugging tips
 
