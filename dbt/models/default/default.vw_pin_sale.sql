@@ -265,6 +265,12 @@ combined_sales AS (
             md_sales.sale_date,
             uq_sales.sale_date
         ) AS sale_date,
+        CASE
+            WHEN md_sales.sale_date < '2021-01-01' THEN TRUE
+            WHEN uq_sales.sale_date >= '2021-01-01' THEN FALSE
+            WHEN md_sales.sale_date IS NOT NULL THEN TRUE
+            WHEN uq_sales.sale_date IS NOT NULL THEN FALSE
+        END AS is_mydec_sale,
         COALESCE(uq_sales.sale_price, md_sales.sale_price) AS sale_price,
         uq_sales.sale_key,
         COALESCE(uq_sales.doc_no, md_sales.doc_no) AS doc_no,
@@ -361,10 +367,7 @@ SELECT
     combined_sales.nbhd,
     combined_sales.class,
     combined_sales.sale_date,
-    (
-        combined_sales.source = 'mydec'
-        OR YEAR(combined_sales.sale_date) >= 2021
-    ) AS is_mydec_date,
+    combined_sales.is_mydec_date,
     combined_sales.sale_price,
     combined_sales.sale_key,
     combined_sales.doc_no,
