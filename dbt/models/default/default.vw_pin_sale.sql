@@ -161,7 +161,7 @@ mydec_sales AS (
             NULLIF(TRIM(buyer_name), '') AS buyer_name,
             CAST(line_11_full_consideration AS BIGINT) AS sale_price,
             line_2_total_parcels AS num_parcels_sale,
-            FALSE AS is_multisale,
+            COALESCE(line_2_total_parcels > 1, FALSE) AS is_multisale,
             COALESCE(line_7_property_advertised = 1, FALSE)
                 AS mydec_property_advertised,
             COALESCE(line_10a = 1, FALSE)
