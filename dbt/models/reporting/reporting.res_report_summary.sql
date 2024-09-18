@@ -133,57 +133,65 @@ sales AS (
 
 --- AGGREGATE ---
 
--- Count of each class by different reporting groups (property group,
--- assessment stage, town/nbhd)
-class_counts AS (
+-- Creates an array of counts for each class, partitioned by group. See this SO
+-- post https://stackoverflow.com/a/66954462 for why this works. Implemented
+-- because the previous COUNT/ORDER BY method was exhausting query resources 
+class_hists AS (
     SELECT
-        class,
         assessment_stage,
         township_code,
         townnbhd,
         year,
         property_group,
-        COUNT(*) OVER (
+        HISTOGRAM(class) OVER (
             PARTITION BY
-                assessment_stage, township_code, year, property_group, class
-        ) AS group_town_count,
-        COUNT(*) OVER (
-            PARTITION BY assessment_stage, townnbhd, year, property_group, class
-        ) AS group_townnbhd_count,
-        COUNT(*) OVER (
-            PARTITION BY assessment_stage, township_code, year, class
-        ) AS town_count,
-        COUNT(*) OVER (
-            PARTITION BY assessment_stage, townnbhd, year, class
-        ) AS townnbhd_count
+                assessment_stage, township_code, year, property_group
+        ) AS group_town_hist,
+        HISTOGRAM(class) OVER (
+            PARTITION BY assessment_stage, townnbhd, year, property_group
+        ) AS group_townnbhd_hist,
+        HISTOGRAM(class) OVER (
+            PARTITION BY assessment_stage, township_code, year
+        ) AS town_hist,
+        HISTOGRAM(class) OVER (
+            PARTITION BY assessment_stage, townnbhd, year
+        ) AS townnbhd_hist
     FROM all_values
 ),
 
--- Most common class by reporting group based on class counts
+-- Most common class by reporting group based on class histograms
 class_modes AS (
-    SELECT
+    SELECT DISTINCT
         assessment_stage,
         township_code,
         townnbhd,
         year,
         property_group,
-        FIRST_VALUE(class) OVER (
-            PARTITION BY assessment_stage, township_code, year, property_group
-            ORDER BY group_town_count DESC, class DESC
-        ) AS group_town_mode,
-        FIRST_VALUE(class) OVER (
-            PARTITION BY assessment_stage, townnbhd, year, property_group
-            ORDER BY group_townnbhd_count DESC, class DESC
-        ) AS group_townnbhd_mode,
-        FIRST_VALUE(class) OVER (
-            PARTITION BY assessment_stage, township_code, year
-            ORDER BY group_townnbhd_count DESC, class DESC
-        ) AS town_mode,
-        FIRST_VALUE(class) OVER (
-            PARTITION BY assessment_stage, townnbhd, year
-            ORDER BY group_townnbhd_count DESC, class DESC
-        ) AS townnbhd_mode
-    FROM class_counts
+        MAP_KEYS(group_town_hist)[
+            ARRAY_POSITION(
+                MAP_VALUES(group_town_hist),
+                ARRAY_MAX(MAP_VALUES(group_town_hist))
+            )
+        ] AS group_town_mode,
+        MAP_KEYS(group_townnbhd_hist)[
+            ARRAY_POSITION(
+                MAP_VALUES(group_townnbhd_hist),
+                ARRAY_MAX(MAP_VALUES(group_townnbhd_hist))
+            )
+        ] AS group_townnbhd_mode,
+        MAP_KEYS(town_hist)[
+            ARRAY_POSITION(
+                MAP_VALUES(town_hist),
+                ARRAY_MAX(MAP_VALUES(town_hist))
+            )
+        ] AS town_mode,
+        MAP_KEYS(townnbhd_hist)[
+            ARRAY_POSITION(
+                MAP_VALUES(townnbhd_hist),
+                ARRAY_MAX(MAP_VALUES(townnbhd_hist))
+            )
+        ] AS townnbhd_mode
+    FROM class_hists
 ),
 
 -- Aggregate and stack stats on AV and characteristics for each reporting group
@@ -268,7 +276,7 @@ LEFT JOIN all_sales AS asl
 -- Join on class modes specifically by the columns that were
 -- used to generate them
 LEFT JOIN (
-    SELECT DISTINCT
+    SELECT
         assessment_stage,
         township_code AS geography_id,
         year,
@@ -281,7 +289,7 @@ LEFT JOIN (
     AND av.year = cm1.year
     AND av.property_group = cm1.property_group
 LEFT JOIN (
-    SELECT DISTINCT
+    SELECT
         assessment_stage,
         townnbhd AS geography_id,
         year,
@@ -294,7 +302,7 @@ LEFT JOIN (
     AND av.year = cm2.year
     AND av.property_group = cm2.property_group
 LEFT JOIN (
-    SELECT DISTINCT
+    SELECT
         assessment_stage,
         township_code AS geography_id,
         year,
@@ -305,7 +313,7 @@ LEFT JOIN (
     AND av.geography_id = cm3.geography_id
     AND av.year = cm3.year
 LEFT JOIN (
-    SELECT DISTINCT
+    SELECT
         assessment_stage,
         townnbhd AS geography_id,
         year,
