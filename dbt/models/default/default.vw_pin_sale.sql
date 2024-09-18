@@ -257,7 +257,14 @@ combined_sales AS (
         COALESCE(uq_sales.township_code, tc.township_code) AS township_code,
         COALESCE(uq_sales.nbhd, tc.nbhd) AS nbhd,
         COALESCE(uq_sales.class, tc.class) AS class,
-        COALESCE(uq_sales.sale_date, md_sales.sale_date) AS sale_date,
+        COALESCE(
+            CASE
+                WHEN md_sales.sale_date < '2021-01-01' THEN md_sales.sale_date
+                WHEN uq_sales.sale_date >= '2021-01-01' THEN uq_sales.sale_date
+            END,
+            md_sales.sale_date,
+            uq_sales.sale_date
+        ) AS sale_date,
         COALESCE(uq_sales.sale_price, md_sales.sale_price) AS sale_price,
         uq_sales.sale_key,
         COALESCE(uq_sales.doc_no, md_sales.doc_no) AS doc_no,
