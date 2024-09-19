@@ -231,6 +231,12 @@ def socrata_upload(
     all years and upload via `post` (update rather than overwrite).
     """
 
+    if isinstance(overwrite, str):
+        overwrite = overwrite == "true"
+
+    if isinstance(by_township, str):
+        by_township = by_township == "true"
+
     athena_asset, asset_id, row_identifier = get_asset_info(socrata_asset)
 
     flag, groups = generate_groups(
