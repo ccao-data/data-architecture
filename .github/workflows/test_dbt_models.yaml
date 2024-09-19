@@ -40,6 +40,7 @@ jobs:
 
       - name: Run tests
         run: |
+          # shellcheck disable=SC2086
           python3 scripts/run_iasworld_data_tests.py \
             --target "$TARGET" \
             --output-dir ./qc_test_results/ \
