@@ -20,7 +20,7 @@ A few configuration values can be set on any model to support exporting:
       rows. If unset, will search for a template with the same name as the model; if no template is found, defaults to a simple layout with
       filterable columns and striped rows.
 
-    * config.meta.export_format (optional): Formatting to apply to the output workbook. Useful for specific types of formatting, like alignemnt
+    * config.meta.export_format (optional): Formatting to apply to the output workbook. Useful for specific types of formatting, like alignment
       and number formats, that Excel can only apply after populating a template with data
 """  # noqa: E501
 CLI_EXAMPLE = """Example usage to output the 2024 non-tri town close QC report for Leyden, which is a non-tri town in 2024:
