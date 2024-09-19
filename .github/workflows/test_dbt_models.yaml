@@ -15,7 +15,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup dbt
         uses: ./.github/actions/setup_dbt
@@ -23,39 +23,15 @@ jobs:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
       - name: Install Python requirements
-        run: pip install -r ./.github/scripts/requirements.transform_dbt_test_results.txt
+        run: pip install -r scripts/requirements.run_iasworld_data_tests.txt
+        working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
 
       - name: Run tests
         run: |
-          # dbt doesn't differentiate between test failures and errors, but we
-          # need to since we expect failures. Do this by capturing the output
-          # and checking its contents to look for errors
-          if output=$(dbt test --target "$TARGET" --selector qc_tests --store-failures); then
-            echo "$output"
-          else
-            status_code="$?"
-            if [[ "$output" =~ "Runtime Error" || "$output" =~ "Compilation Error" ]]; then
-              # The presence of an error string indicates that these tests
-              # failed due to an error, so print the output and fail the
-              # pipeline
-              echo "$output"
-              exit "$status_code"
-            else
-              # The tests must have failed rather than errored out, so
-              # print the output but don't raise an error
-              echo "$output"
-            fi
-          fi
-        working-directory: ${{ env.PROJECT_DIR }}
-        shell: bash
-
-      - name: Extract test results
-        run: |
-          python3 ../.github/scripts/transform_dbt_test_results.py \
-            ./target/run_results.json \
-            ./target/manifest.json \
-            ./qc_test_results/
+          python3 scripts/run_iasworld_data_tests.py \
+            --target "$TARGET" \
+            --output-dir ./qc_test_results/
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         env:
@@ -68,15 +44,10 @@ jobs:
         run: |
           s3_prefix="s3://ccao-data-warehouse-us-east-1/qc"
           local_prefix="qc_test_results/metadata"
-          echo "Copying test_run metadata to S3"
-          aws s3 sync \
-            "${local_prefix}/test_run" \
-            "${s3_prefix}/test_run"
-
-          echo "Copying test_run_result metadata to S3"
-          aws s3 sync \
-            "${local_prefix}/test_run_result" \
-            "${s3_prefix}/test_run_result"
+          for dir in "test_run" "test_run_result" "test_run_failing_row"; do
+            echo "Copying ${dir} metadata to S3"
+            aws s3 sync "${local_prefix}/${dir}" "${s3_prefix}/${dir}"
+          done
 
           crawler_name="ccao-data-warehouse-qc-crawler"
           aws glue start-crawler --name "$crawler_name"

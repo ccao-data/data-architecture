@@ -49,13 +49,12 @@ SELECT
     sp.x_3435,
     sp.y_3435,
 
-    -- Corner lot indicator
-    lot.is_corner_lot AS ccao_is_corner_lot,
-
     -- PIN locations from spatial joins
     vwl.census_block_group_geoid,
     vwl.census_block_geoid,
     vwl.census_congressional_district_geoid,
+    SUBSTR(vwl.census_congressional_district_geoid, 3, 2)
+        AS census_congressional_district_num,
     vwl.census_county_subdivision_geoid,
     vwl.census_place_geoid,
     vwl.census_puma_geoid,
@@ -63,11 +62,16 @@ SELECT
     vwl.census_school_district_secondary_geoid,
     vwl.census_school_district_unified_geoid,
     vwl.census_state_representative_geoid,
+    SUBSTR(vwl.census_state_representative_geoid, 4, 2)
+        AS census_state_representative_num,
     vwl.census_state_senate_geoid,
+    SUBSTR(vwl.census_state_senate_geoid, 4, 2) AS census_state_senate_num,
     vwl.census_tract_geoid,
     vwl.census_zcta_geoid,
     vwl.census_data_year,
     vwl.census_acs5_congressional_district_geoid,
+    SUBSTR(vwl.census_acs5_congressional_district_geoid, 3, 2)
+        AS census_acs5_congressional_district_num,
     vwl.census_acs5_county_subdivision_geoid,
     vwl.census_acs5_place_geoid,
     vwl.census_acs5_puma_geoid,
@@ -75,7 +79,11 @@ SELECT
     vwl.census_acs5_school_district_secondary_geoid,
     vwl.census_acs5_school_district_unified_geoid,
     vwl.census_acs5_state_representative_geoid,
+    SUBSTR(vwl.census_acs5_state_representative_geoid, 4, 2)
+        AS census_acs5_state_representative_num,
     vwl.census_acs5_state_senate_geoid,
+    SUBSTR(vwl.census_acs5_state_senate_geoid, 4, 2)
+        AS census_acs5_state_senate_num,
     vwl.census_acs5_tract_geoid,
     vwl.census_acs5_data_year,
     vwl.cook_board_of_review_district_num,
@@ -167,8 +175,6 @@ LEFT JOIN {{ ref('location.vw_pin10_location') }} AS vwl
     AND par.join_year = vwl.year
 LEFT JOIN {{ source('spatial', 'township') }} AS twn
     ON leg.user1 = CAST(twn.township_code AS VARCHAR)
-LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
-    ON SUBSTR(par.parid, 1, 10) = lot.pin10
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
     -- Remove any parcels with non-numeric characters

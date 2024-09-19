@@ -8,7 +8,7 @@
     )
 }}
 
-WITH cta_stop AS (
+WITH cta_stop AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'transit_stop') }}
     WHERE agency = 'cta'

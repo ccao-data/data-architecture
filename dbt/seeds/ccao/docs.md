@@ -8,12 +8,27 @@ sourced from Docker.
 **Primary Key**: `adjective`
 {% enddocs %}
 
+# aprval_reascd
+
+{% docs seed_aprval_reascd %}
+Table containing descriptions for reason codes from `iasworld.aprval.reascd`.
+Reason codes pertian to changes in AV.
+
+**Primary Key**: `reascd`
+{% enddocs %}
+
 # class_dict
 
 {% docs seed_class_dict %}
 Table containing a translation for property class codes to human-readable class
 descriptions. Also describes which classes are included in residential
 regressions and reporting classes.
+
+Derived from the 2023
+[PDF](https://prodassets.cookcountyassessor.com/s3fs-public/form_documents/Definitions%20for%20Classifications_2023.pdf)
+
+**Primary Key**: `class_code`
+{% enddocs %}
 
 To find the level of assessment (LoA) for each class, see the `ccao.loa` table.
 

@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: cvleg
@@ -103,6 +103,8 @@ sources:
             description: Number of lots
           - name: oldown
             description: '{{ doc("column_oldown") }}'
+          - name: oldown2
+            description: '{{ doc("column_oldown2") }}'
           - name: oldown_companyname
             description: Old owner company name
           - name: oldown_firstname
@@ -115,8 +117,6 @@ sources:
             description: Old owner prefix
           - name: oldown_suffix
             description: Old owner suffix
-          - name: oldown2
-            description: '{{ doc("column_oldown2") }}'
           - name: oldseq
             description: '{{ doc("column_oldseq") }}'
           - name: oldyr

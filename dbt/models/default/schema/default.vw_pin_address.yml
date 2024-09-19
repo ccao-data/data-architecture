@@ -15,12 +15,12 @@ models:
         description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
       - name: mail_address_zipcode_2
         description: '{{ doc("shared_column_mail_address_zipcode_2") }}'
-      - name: prop_address_city_name
-        description: '{{ doc("shared_column_prop_address_city_name") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: pin10
         description: '{{ doc("shared_column_pin10") }}'
+      - name: prop_address_city_name
+        description: '{{ doc("shared_column_prop_address_city_name") }}'
       - name: prop_address_full
         description: '{{ doc("shared_column_prop_address_full") }}'
       - name: prop_address_prefix
@@ -37,10 +37,10 @@ models:
         description: '{{ doc("shared_column_prop_address_suffix_1") }}'
       - name: prop_address_suffix_2
         description: '{{ doc("shared_column_prop_address_suffix_2") }}'
-      - name: prop_address_unit_prefix
-        description: '{{ doc("shared_column_prop_address_unit_prefix") }}'
       - name: prop_address_unit_number
         description: '{{ doc("shared_column_prop_address_unit_number") }}'
+      - name: prop_address_unit_prefix
+        description: '{{ doc("shared_column_prop_address_unit_prefix") }}'
       - name: prop_address_zipcode_1
         description: '{{ doc("shared_column_prop_address_zipcode_1") }}'
       - name: prop_address_zipcode_2
@@ -64,20 +64,20 @@ models:
             - mail_address_zipcode_1
             - mail_address_zipcode_2
           config:
-            where: CAST(year AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+            where: CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
             error_if: ">900000"
-      - unique_combination_of_columns:
-          name: default_vw_pin_address_unique_by_14_digit_pin_and_year
-          combination_of_columns:
-            - pin
-            - year
-      - row_count:
-          name: default_vw_pin_address_row_count
-          above: 45079937 # as of 2023-11-22
-      # No non-numeric characters in the pin field
       - expression_is_true:
           name: default_vw_pin_address_numeric_pin
           expression: REGEXP_COUNT(pin, '[0-9]') = 14 AND LENGTH(pin) = 14
           additional_select_columns:
             - pin
+      - row_count:
+          name: default_vw_pin_address_row_count
+          above: 45079937 # as of 2023-11-22
+      - unique_combination_of_columns:
+          name: default_vw_pin_address_unique_by_14_digit_pin_and_year
+          combination_of_columns:
+            - pin
+            - year
+      # No non-numeric characters in the pin field
       # TODO: Site addresses are all in Cook County

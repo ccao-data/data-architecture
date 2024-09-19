@@ -1,0 +1,70 @@
+sources:
+  - name: ccbor
+    tags:
+      - load_manual
+    tables:
+      - name: appeals
+        description: '{{ doc("table_appeals") }}'
+        columns:
+          - name: appeal_id
+            description: Appeal ID. Matches the "Complaint" value on the Board of Review Decision Search
+          - name: appeal_seq
+            description: Second part of the Complaint number
+          - name: appeal_trk
+            description: First part of the Complaint number
+          - name: appeal_type
+            description: Appeal type code
+          - name: appeal_type_desc
+            description: Appeal type description
+          - name: appellant
+            description: Appellant name
+          - name: appellant_address
+            description: Appellant street address
+          - name: appellant_city
+            description: Appellant city
+          - name: appellant_state
+            description: Appellant state
+          - name: appellant_zip
+            description: Appellant zip code
+          - name: assessor_improvement_value
+            description: '{{ doc("shared_column_certified_bldg") }}'
+          - name: assessor_land_value
+            description: '{{ doc("shared_column_certified_land") }}'
+          - name: assessor_total_value
+            description: '{{ doc("shared_column_certified_tot") }}'
+          - name: attorney_code
+            description: Attorney code; whether an attorney was used. Values are Individual/Pro Se, Exempt, or Attorney.
+          - name: attorney_firm_name
+            description: Attorney firm name
+          - name: attorney_first_name
+            description: Attorney first name
+          - name: attorney_id
+            description: Attorney ID. This can be used to join to the Attorney list dataset.
+          - name: attorney_last_name
+            description: Attorney last name
+          - name: bor_improvement_value
+            description: '{{ doc("shared_column_board_bldg") }}'
+          - name: bor_land_value
+            description: '{{ doc("shared_column_board_land") }}'
+          - name: bor_total_value
+            description: '{{ doc("shared_column_board_tot") }}'
+          - name: change_reason
+            description: Reason code for change. This is only populated starting with 2015.
+          - name: change_reason_desc
+            description: Reason description for change. This is only populated starting with 2015.
+          - name: class
+            description: '{{ doc("shared_column_class") }}'
+          - name: no_change_reason
+            description: Reason code for no change. This is only populated starting with 2015.
+          - name: no_change_reason_desc
+            description: Reason description for no change. This is only populated starting with 2015.
+          - name: pin
+            description: '{{ doc("shared_column_pin") }}'
+          - name: result
+            description: Board of Review appeal result
+          - name: tax_code
+            description: '{{ doc("shared_column_tax_code") }}'
+          - name: taxyr
+            description: '{{ doc("shared_column_year") }}'
+          - name: township_code
+            description: '{{ doc("shared_column_township_code") }}'

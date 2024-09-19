@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
       - type_res
 
     tables:
@@ -30,22 +30,23 @@ sources:
                     - wen
                   config: &unique-conditions
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
                     description: area should be between 0 and 1.5M
-          - name: area_sqm
-            description: Area of this line in meters
           - name: areaid
             description: '{{ doc("column_areaid") }}'
+          - name: area_sqm
+            description: Area of this line in meters
           - name: areasum
             description: '{{ doc("column_areasum") }}'
           - name: card
             description: '{{ doc("column_card") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_addn_card_not_null
+              - accepted_range:
+                  name: iasworld_addn_card_gte_1
+                  min_value: 1
                   additional_select_columns: &select-columns-no-card
                     - taxyr
                     - parid
@@ -53,14 +54,13 @@ sources:
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: card should not be null
-              - accepted_range:
-                  name: iasworld_addn_card_gte_1
-                  min_value: 1
+                    description: card should be >= 1
+              - not_null:
+                  name: iasworld_addn_card_not_null
                   additional_select_columns: *select-columns-no-card
                   config: *unique-conditions
                   meta:
-                    description: card should be >= 1
+                    description: card should not be null
           - name: cdu
             description: '{{ doc("column_cdu") }}'
           - name: chgrsn
@@ -70,12 +70,12 @@ sources:
             data_tests:
               - relationships:
                   name: iasworld_addn_class_in_ccao_class_dict
-                  to: source('ccao', 'class_dict')
+                  to: ref('ccao.class_dict')
                   field: class_code
                   additional_select_columns: *select-columns
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND class != 'EX'
                       AND cur = 'Y'
                       AND deactivat IS NULL
@@ -93,7 +93,7 @@ sources:
                   additional_select_columns: *select-columns
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                   meta:
                     description: cur should be 'Y' or 'D'
           - name: deactivat
@@ -109,10 +109,10 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: depr should be between 0 and 100
-          - name: eff_area
-            description: Support value per line
           - name: effageovr
             description: '{{ doc("column_effageovr") }}'
+          - name: eff_area
+            description: Support value per line
           - name: effyr
             description: '{{ doc("column_effyr") }}'
           - name: exmppct
@@ -167,8 +167,10 @@ sources:
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_addn_parid_not_null
+              - relationships:
+                  name: iasworld_addn_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
                   additional_select_columns: &select-columns-no-parid
                     - taxyr
                     - card
@@ -176,16 +178,14 @@ sources:
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: parid should not be null
-              - relationships:
-                  name: iasworld_addn_parid_in_pardat_parid
-                  to: source('iasworld', 'pardat')
-                  field: parid
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_addn_parid_not_null
                   additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
                   meta:
-                    category: parid
-                    description: parid should be in pardat
+                    description: parid should not be null
           - name: pctcomp
             description: '{{ doc("column_pctcomp") }}'
           - name: prodamage

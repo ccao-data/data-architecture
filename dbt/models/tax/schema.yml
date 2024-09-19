@@ -24,6 +24,34 @@ sources:
       - name: pin
         description: '{{ doc("table_pin") }}'
         columns:
+          - name: class
+            description: '{{ doc("shared_column_char_class")}}'
+            data_tests:
+              - relationships:
+                  name: tax_pin_all_class_in_ccao_class_dict
+                  to: ref('ccao.class_dict')
+                  field: class_code
+                  additional_select_columns: &select-columns
+                    - year
+                  config:
+                    where:
+                      CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class code must be valid
+              - res_class_matches_pardat:
+                  name: tax_pin_class_equals_iasworld_pardat
+                  parid_column_name: pin
+                  taxyr_column_name: year
+                  additional_select_columns:
+                    - agg_func: max
+                      column: year
+                  config:
+                    where:
+                      CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  meta:
+                    description: at least one class should match pardat class
+
           - name: tax_code_num
             description: '{{ doc("shared_column_tax_code")}}'
             data_tests:
@@ -43,37 +71,10 @@ sources:
                     AND external_model.deactivat IS NULL
                   config:
                     where:
-                      CAST(year AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                     severity: warn
                   meta:
                     description: tax_code_num should match legdat.taxdist
-          - name: class
-            description: '{{ doc("shared_column_char_class")}}'
-            data_tests:
-              - res_class_matches_pardat:
-                  name: tax_pin_class_equals_iasworld_pardat
-                  parid_column_name: pin
-                  taxyr_column_name: year
-                  additional_select_columns:
-                    - agg_func: max
-                      column: year
-                  config:
-                    where:
-                      CAST(year AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                  meta:
-                    description: at least one class should match pardat class
-              - relationships:
-                  name: tax_pin_all_class_in_ccao_class_dict
-                  to: source('ccao', 'class_dict')
-                  field: class_code
-                  additional_select_columns: &select-columns
-                    - year
-                  config:
-                    where:
-                      CAST(year AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                  meta:
-                    category: class_mismatch_or_issue
-                    description: class code must be valid
 
       - name: pin_geometry_raw
         description: '{{ doc("table_pin_geometry_raw") }}'

@@ -122,6 +122,15 @@ View containing aggregate land square footage for all PINs.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_pin_permit
+
+{% docs view_vw_pin_permit %}
+View containing building permits organized by PIN, with extra metadata
+recorded by CCAO permit specialists during the permit processing workflow.
+
+**Primary Key**: `pin`, `permit_number`
+{% enddocs %}
+
 # vw_pin_sale
 
 {% docs view_vw_pin_sale %}
@@ -145,6 +154,8 @@ Sourced from `iasworld.sales`, which is sourced from
 - `sale.mydec` data is given precedence over `iasworld.sales` prior to 2021
 - Multicard sales are excluded from `mydec` data because they can't be joined
   to `iasworld.sales` (which is only parcel-level) without creating duplicates
+- Sales are unique by `doc_no` if multisales are excluded. When multisales are
+  *not* excluded, sales are unique by `doc_no` and `pin`.
 
 ### Lineage
 
@@ -155,6 +166,20 @@ Current MyDec records are ingested into `iasworld.sales` using a manual import
 process. The full data lineage looks something like:
 
 ![Data Flow Diagram](./assets/sales-lineage.svg)
+
+**Primary Key**: `doc_no`, `pin`
+{% enddocs %}
+
+# vw_pin_status
+
+{% docs view_vw_pin_status %}
+Collection of various different PIN-level physical and assessment-related
+statuses collected and documented across the CCAO and Data Department.
+Constructs the Data Department's AHSAP indicator.
+
+### Nuance
+
+- Parcels can have different CDUs from multiple tables. See PIN 05272010320000.
 
 **Primary Key**: `year`, `pin`
 {% enddocs %}
@@ -180,7 +205,7 @@ is the view you're looking for.
 # vw_pin_value
 
 {% docs view_vw_pin_value %}
-Assessed values by PIN and year, for each assessment stage.
+Assessed and market values by PIN and year, for each assessment stage.
 
 The assessment stages are:
 
@@ -193,6 +218,14 @@ The assessment stages are:
 - Taking the max value by 14-digit PIN and year is sufficient for accurate
   values. We do this because even given the criteria to de-dupe `asmt_all`,
   we still end up with duplicates by PIN and year.
+- Market value (`_mv`) columns accurately reflect incentives, statute,
+  levels of assessment, building splits, etc.
+
+### Nuance
+
+- Market values only exist for stages after and including `2020 Board`. Prior
+  to that, market values were stored/tracked in the county mainframe and are
+  not easily retrievable.
 
 **Primary Key**: `year`, `pin`
 {% enddocs %}

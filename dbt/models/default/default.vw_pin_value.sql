@@ -36,6 +36,25 @@ WITH stage_values AS (
                 WHEN procname = 'CCAOVALUE' AND taxyr >= '2020' THEN valasm3
             END
         ) AS mailed_tot,
+        -- Mailed market values
+        ARBITRARY(
+            CASE
+                WHEN procname = 'CCAOVALUE' AND taxyr < '2020' THEN NULL
+                WHEN procname = 'CCAOVALUE' AND taxyr >= '2020' THEN valapr2
+            END
+        ) AS mailed_bldg_mv,
+        ARBITRARY(
+            CASE
+                WHEN procname = 'CCAOVALUE' AND taxyr < '2020' THEN NULL
+                WHEN procname = 'CCAOVALUE' AND taxyr >= '2020' THEN valapr1
+            END
+        ) AS mailed_land_mv,
+        ARBITRARY(
+            CASE
+                WHEN procname = 'CCAOVALUE' AND taxyr < '2020' THEN NULL
+                WHEN procname = 'CCAOVALUE' AND taxyr >= '2020' THEN valapr3
+            END
+        ) AS mailed_tot_mv,
         -- Assessor certified values
         ARBITRARY(
             CASE
@@ -62,6 +81,25 @@ WITH stage_values AS (
                 WHEN procname = 'CCAOFINAL' AND taxyr >= '2020' THEN valasm3
             END
         ) AS certified_tot,
+        -- Assessor certified market values
+        ARBITRARY(
+            CASE
+                WHEN procname = 'CCAOFINAL' AND taxyr < '2020' THEN NULL
+                WHEN procname = 'CCAOFINAL' AND taxyr >= '2020' THEN valapr2
+            END
+        ) AS certified_bldg_mv,
+        ARBITRARY(
+            CASE
+                WHEN procname = 'CCAOFINAL' AND taxyr < '2020' THEN NULL
+                WHEN procname = 'CCAOFINAL' AND taxyr >= '2020' THEN valapr1
+            END
+        ) AS certified_land_mv,
+        ARBITRARY(
+            CASE
+                WHEN procname = 'CCAOFINAL' AND taxyr < '2020' THEN NULL
+                WHEN procname = 'CCAOFINAL' AND taxyr >= '2020' THEN valapr3
+            END
+        ) AS certified_tot_mv,
         -- Board certified values
         ARBITRARY(
             CASE
@@ -87,7 +125,26 @@ WITH stage_values AS (
                 WHEN procname = 'BORVALUE' AND taxyr < '2020' THEN ovrvalasm3
                 WHEN procname = 'BORVALUE' AND taxyr >= '2020' THEN valasm3
             END
-        ) AS board_tot
+        ) AS board_tot,
+        -- Board certified market values
+        ARBITRARY(
+            CASE
+                WHEN procname = 'BORVALUE' AND taxyr < '2020' THEN NULL
+                WHEN procname = 'BORVALUE' AND taxyr >= '2020' THEN valapr2
+            END
+        ) AS board_bldg_mv,
+        ARBITRARY(
+            CASE
+                WHEN procname = 'BORVALUE' AND taxyr < '2020' THEN NULL
+                WHEN procname = 'BORVALUE' AND taxyr >= '2020' THEN valapr1
+            END
+        ) AS board_land_mv,
+        ARBITRARY(
+            CASE
+                WHEN procname = 'BORVALUE' AND taxyr < '2020' THEN NULL
+                WHEN procname = 'BORVALUE' AND taxyr >= '2020' THEN valapr3
+            END
+        ) AS board_tot_mv
     FROM {{ source('iasworld', 'asmt_all') }}
     WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
         AND rolltype != 'RR'
@@ -138,5 +195,5 @@ LEFT JOIN change_reasons AS reasons
     ON vals.pin = reasons.pin
     AND vals.year = reasons.year
     AND vals.stage_name = reasons.stage_name
-LEFT JOIN ccao.aprval_reascd AS descr
+LEFT JOIN {{ ref('ccao.aprval_reascd') }} AS descr
     ON reasons.reascd = descr.reascd

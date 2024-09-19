@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: aasysjur
@@ -29,14 +29,14 @@ sources:
             description: Country code
           - name: countycd
             description: County Code used for client specific calculations
-          - name: def_class
-            description: Default value class to read citax
           - name: default_jur
             description: Default value to use for column `JUR` (anywhere)
-          - name: disp_owner
-            description: Flag which determines if owner is displayed
+          - name: def_class
+            description: Default value class to read citax
           - name: display_jur
             description: Flag to display column JUR on screens, etc
+          - name: disp_owner
+            description: Flag which determines if owner is displayed
           - name: dupyr
             description: Duplicate year
           - name: edms_ind

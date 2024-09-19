@@ -16,7 +16,7 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup dbt
         uses: ./.github/actions/setup_dbt
@@ -30,6 +30,11 @@ jobs:
         with:
           path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
           key: ${{ env.CACHE_KEY }}
+
+      - name: Deploy model dependencies
+        run: ../.github/scripts/deploy_dbt_model_dependencies.sh
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
 
       - name: Build daily models
         run: dbt run -t "$TARGET" -s tag:daily --defer --state "$STATE_DIR"

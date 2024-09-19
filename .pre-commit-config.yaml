@@ -1,7 +1,7 @@
 # All available hooks: https://pre-commit.com/hooks.html
 repos:
   - repo: https://github.com/sqlfluff/sqlfluff
-    rev: 2.1.1
+    rev: 3.1.0
     hooks:
     -   id: sqlfluff-lint
     -   id: sqlfluff-fix
@@ -19,17 +19,13 @@ repos:
         files: ^dbt/
         language_version: python
         additional_dependencies: ['.[jinjafmt]']
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.5
     hooks:
-      - id: flake8
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-  # Using this mirror lets us use mypyc-compiled black, which is about 2x faster
-  - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 23.9.1
-    hooks:
-      - id: black
-        entry: black --config .python-black
+      # Python linter. Ruff recommends running this before the formatter to
+      # avoid conflicts when using the --fix flag
+      - id: ruff
+        args:
+          - --fix
+      # Formatter
+      - id: ruff-format

@@ -6,11 +6,11 @@ models:
         - type_land
 
     columns:
-      - name: sf
-        description: '{{ doc("shared_column_char_land_sf") }}'
       - name: num_landlines
         description: '{{ doc("shared_column_pin_num_landlines") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
+      - name: sf
+        description: '{{ doc("shared_column_char_land_sf") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'

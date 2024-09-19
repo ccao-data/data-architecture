@@ -8,7 +8,7 @@
     )
 }}
 
-WITH parks AS (
+WITH parks AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'park') }}
     WHERE ST_AREA(ST_GEOMFROMBINARY(geometry_3435)) > 87120

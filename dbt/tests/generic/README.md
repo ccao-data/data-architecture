@@ -12,6 +12,7 @@ to define our test suite.
 - [`test_column_length`](#test_column_length)
 - [`test_columns_match`](#test_columns_match)
 - [`test_count_is_consistent`](#test_count_is_consistent)
+- [`test_expression_is_false`](#test_expression_is_false)
 - [`test_expression_is_true`](#test_expression_is_true)
 - [`test_is_null`](#test_is_null)
 - [`test_no_extra_whitespace`](#test_no_extra_whitespace)
@@ -109,6 +110,19 @@ the grouping column and a column called `count` with the count of rows for that 
 **Parameters**:
 
 * `group_column` (required string): The column to use for grouping.
+
+### `test_expression_is_false`
+
+Asserts that a valid SQL expression is false for all rows. In other words, filters for
+rows where a given `expression` is true. Often useful for idiosyncratic comparisons
+across columns that are not easily generalized into generic tests.
+
+**Parameters**:
+
+* `expression` (required string): A valid SQL expression to apply to the column or table.
+* `additional_select_columns` (optional list of strings): Additional columns to select for
+  failure output. The column the test is defined on will always be selected regardless
+  of this value.
 
 ### `test_expression_is_true`
 
@@ -221,7 +235,7 @@ using `parid` and `taxyr`; as a result, it filters out mixed-use parcels as well
     `taxyr`.
   * `alias` (optional string): The name of the column to use for output. Necessary because
     aggregation functions as represented by `agg_func` require aliases in SQL. Defaults to
-    `<agg_func>_<column_name>`. 
+    `<agg_func>_<column_name>`.
 
 ### `test_row_count`
 
@@ -275,7 +289,7 @@ the test.
     columns specified in the `group_by` parameter.
   * `alias` (optional string): The name of the column to use for output. Necessary because
     aggregation functions as represented by `agg_func` require aliases in SQL. Defaults to
-    `<agg_func>_<column_name>`. 
+    `<agg_func>_<column_name>`.
 
 ### `test_sequential_values`
 
