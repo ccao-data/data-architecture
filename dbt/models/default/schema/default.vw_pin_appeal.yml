@@ -117,12 +117,12 @@ unit_tests:
     description: class transformation should remove non-alphanumeric characters
     model: default.vw_pin_appeal
     given:
-      - input: source("iasworld", "pardat")
-        rows:
-          - {class: "2.1-1)A"}
       - input: source("iasworld", "htpar")
         rows:
-          - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null, cpatty: "1"}
+          - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null, cpatty: "1", caseno: "1"}
+      - input: source("iasworld", "pardat")
+        rows:
+          - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null, class: "2.1-1)A"}
       - input: source("iasworld", "legdat")
         rows:
           - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null}
