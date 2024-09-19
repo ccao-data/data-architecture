@@ -46,8 +46,8 @@ def export_models(
         raise ValueError("One of --select or --selector is required")
 
     select_args = (
-        ["--selector", selector] if selector else ["--select", *select]
-    )  # type: ignore
+        ["--selector", selector] if selector else ["--select", *select]  # type: ignore
+    )
 
     if rebuild:
         dbt_run_args = ["run", "--target", target, *select_args]
