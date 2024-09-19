@@ -81,8 +81,11 @@ jobs:
           s3_prefix="s3://ccao-data-warehouse-us-east-1/qc"
           local_prefix="qc_test_results/metadata"
           for dir in "test_run" "test_run_result" "test_run_failing_row"; do
-            echo "Copying ${dir} metadata to S3"
-            aws s3 sync "${local_prefix}/${dir}" "${s3_prefix}/${dir}"
+            dirpath="${local_prefix}/${dir}"
+            if [ -e "$dirpath" ]; then
+              echo "Copying ${dirpath} metadata to S3"
+              aws s3 sync "$dirpath" "${s3_prefix}/${dir}"
+            fi
           done
 
           crawler_name="ccao-data-warehouse-qc-crawler"
