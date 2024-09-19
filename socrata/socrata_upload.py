@@ -231,6 +231,7 @@ def socrata_upload(
     all years and upload via `post` (update rather than overwrite).
     """
 
+    # Github inputs are passed as strings rather than booleans
     if isinstance(overwrite, str):
         overwrite = overwrite == "true"
 
