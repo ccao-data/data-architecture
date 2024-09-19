@@ -32,7 +32,7 @@ on:
       by_township:
         type: boolean
         description: Chunk Socrata upload by township
-        default: false
+        default: 'false'
         required: false
 
 jobs:
