@@ -49,19 +49,10 @@ def parse_args():
         *constants.REBUILD_ARGUMENT_ARGS, **constants.REBUILD_ARGUMENT_KWARGS
     )
     parser.add_argument(
-        "--select",
-        required=False,
-        nargs="*",
-        help="One or more dbt select statements to use for filtering models",
+        *constants.SELECT_ARGUMENT_ARGS, **constants.SELECT_ARGUMENT_KWARGS
     )
     parser.add_argument(
-        "--selector",
-        required=False,
-        help=(
-            "A selector name to use for filtering models, as defined in "
-            "selectors.yml. One of --select or --selector must be set, "
-            "but they can't both be set"
-        ),
+        *constants.SELECTOR_ARGUMENT_ARGS, **constants.SELECTOR_ARGUMENT_KWARGS
     )
     parser.add_argument(
         "--where",

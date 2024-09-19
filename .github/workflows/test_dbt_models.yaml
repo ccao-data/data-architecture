@@ -6,8 +6,13 @@ name: test-dbt-models
 on:
   workflow_dispatch:
     inputs:
+      select:
+        description: dbt select statement for tests to run
+        required: false
+        default: --selector select_data_test_iasworld
+        type: string
       upload_test_results:
-        description: "Upload test results to S3"
+        description: Upload test results to S3
         required: false
         type: boolean
 
@@ -38,6 +43,7 @@ jobs:
           python3 scripts/run_iasworld_data_tests.py \
             --target "$TARGET" \
             --output-dir ./qc_test_results/ \
+            $SELECT_OPTION \
             $SKIP_ARTIFACTS_OPTION
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
@@ -46,6 +52,7 @@ jobs:
           GIT_SHA: ${{ github.sha }}
           GIT_REF: ${{ github.ref_name }}
           GIT_AUTHOR: ${{ github.event.commits[0].author.name }}
+          SELECT_OPTION: ${{ inputs.select }}
           SKIP_ARTIFACTS_OPTION: ${{ inputs.upload_test_results && '--no-skip-artifacts' || '--skip-artifacts' }}
 
       - name: Save test results to S3
