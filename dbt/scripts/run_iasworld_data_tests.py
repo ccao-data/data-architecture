@@ -741,6 +741,24 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--defer",
+        action=argparse.BooleanOptionalAction,
+        required=False,
+        default=False,
+        help=(
+            "Same as the dbt --defer option, resolves unselected nodes by "
+            "deferring to the manifest within the --state directory"
+        ),
+    )
+    parser.add_argument(
+        "--state",
+        required=False,
+        help=(
+            "Same as the dbt --state option, use this state directory for "
+            "defferal"
+        ),
+    )
+    parser.add_argument(
         *constants.SELECT_ARGUMENT_ARGS, **constants.SELECT_ARGUMENT_KWARGS
     )
     parser.add_argument(
@@ -756,6 +774,8 @@ def main() -> None:
     townships = args.township if args.township else tuple()
     use_cached = args.use_cached
     skip_artifacts = args.skip_artifacts
+    defer = args.defer
+    state = args.state
     select = args.select
     selector = args.selector
     target = args.target
@@ -766,6 +786,9 @@ def main() -> None:
     date_today = datetime.datetime.today().strftime("%Y-%m-%d")
     if output_dir is None:
         output_dir = f"iasworld_test_results_{date_today}"
+
+    if (not defer and state) or (defer and not state):
+        raise ValueError("--defer and --state must be used together")
 
     select_args = ["--selector", "select_data_test_iasworld"]
     if select:
@@ -790,6 +813,8 @@ def main() -> None:
         dbt_run_args = ["test", "--target", target, *select_args]
         if not skip_artifacts:
             dbt_run_args.append("--store-failures")
+        if defer and state:
+            dbt_run_args += ["--defer", "--state", state]
 
         print(f"> dbt {' '.join(dbt_run_args)}")
         dbt_test_result = DBT.invoke(dbt_run_args)
