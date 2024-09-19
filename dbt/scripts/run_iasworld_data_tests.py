@@ -735,9 +735,9 @@ def main() -> None:
         action=argparse.BooleanOptionalAction,
         required=False,
         help=(
-            "Skip the step that parses test output and just run tests. "
+            "Just run tests and skip the step that parses test output. "
             "Ignored if --use-cached is set, since --use-cached implies "
-            "that the script should skip running tests."
+            "that the script should skip running tests"
         ),
     )
     parser.add_argument(
@@ -755,7 +755,7 @@ def main() -> None:
         required=False,
         help=(
             "Same as the dbt --state option, use this state directory for "
-            "defferal"
+            "deferral"
         ),
     )
     parser.add_argument(
