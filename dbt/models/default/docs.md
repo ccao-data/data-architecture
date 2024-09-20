@@ -122,6 +122,15 @@ View containing aggregate land square footage for all PINs.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_pin_permit
+
+{% docs view_vw_pin_permit %}
+View containing building permits organized by PIN, with extra metadata
+recorded by CCAO permit specialists during the permit processing workflow.
+
+**Primary Key**: `pin`, `permit_number`
+{% enddocs %}
+
 # vw_pin_sale
 
 {% docs view_vw_pin_sale %}
@@ -159,6 +168,20 @@ process. The full data lineage looks something like:
 ![Data Flow Diagram](./assets/sales-lineage.svg)
 
 **Primary Key**: `doc_no`, `pin`
+{% enddocs %}
+
+# vw_pin_status
+
+{% docs view_vw_pin_status %}
+Collection of various different PIN-level physical and assessment-related
+statuses collected and documented across the CCAO and Data Department.
+Constructs the Data Department's AHSAP indicator.
+
+### Nuance
+
+- Parcels can have different CDUs from multiple tables. See PIN 05272010320000.
+
+**Primary Key**: `year`, `pin`
 {% enddocs %}
 
 # vw_pin_universe
