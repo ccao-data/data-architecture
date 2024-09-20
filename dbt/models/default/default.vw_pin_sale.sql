@@ -275,7 +275,7 @@ combined_sales AS (
             WHEN (uq_sales.year >= '2021' OR md_sales.sale_date IS NULL)
                 AND uq_sales.sale_date IS NOT NULL
                 THEN FALSE
-        END AS is_mydec_sale,
+        END AS is_mydec_date,
         COALESCE(uq_sales.sale_price, md_sales.sale_price) AS sale_price,
         uq_sales.sale_key,
         COALESCE(uq_sales.doc_no, md_sales.doc_no) AS doc_no,
