@@ -307,29 +307,59 @@ combined_sales AS (
         ) AS sale_filter_deed_type,
         -- Compute 'sale_filter_same_sale_within_365'
         CASE
-            WHEN LAG(COALESCE(uq_sales.sale_date, md_sales.sale_date)) OVER (
+            -- If there is a previous sale date within the same partition, we will perform a day difference calculation --noqa
+            WHEN LAG(
+                    CASE
+                        WHEN uq_sales.year < '2021' THEN COALESCE(md_sales.sale_date, uq_sales.sale_date) --noqa
+                        ELSE COALESCE(uq_sales.sale_date, md_sales.sale_date)
+                    END
+                ) OVER (
+                    -- Define the partition or grouping for the LAG function.
+                    -- Partition by pin and sale price
                     PARTITION BY
                         COALESCE(uq_sales.pin, md_sales.pin),
                         COALESCE(uq_sales.sale_price, md_sales.sale_price)
+                    -- Order the sales by the sale date (using the same conditional logic as above) in ascending order --noqa
                     ORDER BY
-                        COALESCE(uq_sales.sale_date, md_sales.sale_date) ASC
-                ) IS NOT NULL
-                THEN
-                EXTRACT(
-                    DAY FROM COALESCE(uq_sales.sale_date, md_sales.sale_date)
-                    - LAG(COALESCE(uq_sales.sale_date, md_sales.sale_date))
-                        OVER (
-                            PARTITION BY
-                                COALESCE(uq_sales.pin, md_sales.pin),
-                                COALESCE(
-                                    uq_sales.sale_price, md_sales.sale_price
-                                )
-                            ORDER BY
-                                COALESCE(
+                        CASE
+                            WHEN uq_sales.year < '2021' THEN COALESCE(md_sales.sale_date, uq_sales.sale_date) --noqa
+                            ELSE COALESCE(
                                     uq_sales.sale_date, md_sales.sale_date
-                                ) ASC
-                        )
+                                )
+                        END ASC
+                ) IS NOT NULL
+            -- If there is a previous sale, calculate difference in days between the current sale date and the previous sale date. --noqa
+                THEN
+                    -- Use EXTRACT to compute the day difference between the current sale date and the previous sale date. --noqa
+                EXTRACT(
+                    DAY FROM
+                    -- The current sale date
+                    CASE
+                                WHEN uq_sales.year < '2021' THEN COALESCE(md_sales.sale_date, uq_sales.sale_date) --noqa
+                        ELSE COALESCE(uq_sales.sale_date, md_sales.sale_date)
+                    END
+                    -- Subtract the previous sale date, which is found using the LAG function. --noqa
+                    - LAG(
+                        CASE
+                                    WHEN uq_sales.year < '2021' THEN COALESCE(md_sales.sale_date, uq_sales.sale_date) --noqa
+                            ELSE COALESCE(
+                                    uq_sales.sale_date, md_sales.sale_date
+                                )
+                        END
+                    ) OVER (
+                        PARTITION BY
+                            COALESCE(uq_sales.pin, md_sales.pin),
+                            COALESCE(uq_sales.sale_price, md_sales.sale_price)
+                        ORDER BY
+                            CASE
+                                        WHEN uq_sales.year < '2021' THEN COALESCE(md_sales.sale_date, uq_sales.sale_date) --noqa
+                                ELSE COALESCE(
+                                        uq_sales.sale_date, md_sales.sale_date
+                                    )
+                            END ASC
+                    )
                 ) <= 365
+            -- If there is no previous sale in the same partition (first sale or no prior sale at the same price for that pin), return FALSE. --noqa
             ELSE FALSE
         END AS sale_filter_same_sale_within_365,
         CASE WHEN uq_sales.doc_no IS NOT NULL THEN 'iasworld' ELSE 'mydec' END
