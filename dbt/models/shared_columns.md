@@ -879,7 +879,7 @@ Parcel has an active homeowner exemption
 
 {% docs shared_column_is_ahsap %}
 Affordable Housing Special Assessment Program indicator. For more information on
-AHSAP, see: https://www.cookcountyassessor.com/affordable-housing
+AHSAP, see: <https://www.cookcountyassessor.com/affordable-housing>
 {% enddocs %}
 
 ## is_common_area
@@ -1325,6 +1325,12 @@ Indicates an outlier sale not used in modeling or reporting.
 
 This variable combines `sv_is_heuristic_outlier`
 with `sv_is_ptax_outlier` (using OR logic).
+
+A null value represents an observation that, due to
+filters on type of sale or time frame of sale, is
+excluded completely from the sales-val model pipeline
+and therefor does recieve a boolean value.
+
 NOTE: Outlier flags only exist for sales _after_ 2014.
 {% enddocs %}
 
@@ -1342,6 +1348,42 @@ See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more det
 
 {% docs shared_column_sv_outlier_reason %}
 Heuristic or model used to flag an outlier.
+
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val)
+repository for a list of possible flags.
+{% enddocs %}
+
+## sv_outlier_reason1
+
+{% docs shared_column_sv_outlier_reason1 %}
+One of three possible reasons that a sale is
+flagged as on outlier. The priority for
+sv_outlier_reason$n column filling is
+ptax outlier > price outlier > characteric outlier.
+
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val)
+repository for a list of possible flags.
+{% enddocs %}
+
+## sv_outlier_reason2
+
+{% docs shared_column_sv_outlier_reason2 %}
+One of three possible reasons that a sale is
+flagged as on outlier. The priority for
+sv_outlier_reason$n column filling is
+ptax outlier > price outlier > characteric outlier.
+
+See the [model-sales-val](https://github.com/ccao-data/model-sales-val)
+repository for a list of possible flags.
+{% enddocs %}
+
+## sv_outlier_reason3
+
+{% docs shared_column_sv_outlier_reason3 %}
+One of three possible reasons that a sale is
+flagged as on outlier. The priority for
+sv_outlier_reason$n column filling is
+ptax outlier > price outlier > characteric outlier.
 
 See the [model-sales-val](https://github.com/ccao-data/model-sales-val)
 repository for a list of possible flags.
