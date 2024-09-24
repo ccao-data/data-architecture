@@ -6,15 +6,21 @@ name: test-dbt-models
 on:
   workflow_dispatch:
     inputs:
-      select:
-        description: dbt select statement for tests to run
+      selector:
+        description: dbt --selector statement to use for running tests
         required: false
-        default: --selector select_data_test_iasworld
+        default: select_data_test_iasworld
+        type: string
+      select:
+        description: >
+          dbt --select statement to use for running tests (mutually exclusive
+          with selector)
+        required: false
         type: string
       upload_test_results:
         description: Upload test results to S3
         required: false
-        default: true
+        default: false
         type: boolean
 
 jobs:
@@ -28,6 +34,32 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Validate and input variables
+        id: parse-inputs
+        run: |
+          SELECT_OPTION=""
+          if [[ -n "$SELECT" ]]; then
+            if [[ -n "$SELECTOR" ]]; then
+              echo "Error: Both of the select and selector input variables cannot be set"
+              exit 1
+            fi
+            SELECT_OPTION="--select $SELECT"
+          elif [[ -n "$SELECTOR" ]]; then
+            SELECT_OPTION="--select $SELECT"
+          fi
+
+          if [[ -n "$SELECT_OPTION" ]]; then
+            echo "Setting select option to '$SELECT_OPTION'"
+            echo "select-option=$SELECT_OPTION" >> "$GITHUB_OUTPUT"
+          else
+            echo "Error: One of the select or selector input variables is required"
+            exit 1
+          fi
+        shell: bash
+        env:
+          SELECT: ${{ inputs.select }}
+          SELECTOR: ${{ inputs.selector }}
 
       - name: Setup dbt
         uses: ./.github/actions/setup_dbt
@@ -48,22 +80,17 @@ jobs:
 
       - name: Run tests
         run: |
-          if [[ $CACHE_HIT == 'true' ]]; then
-            # shellcheck disable=SC2086
-            python3 scripts/run_iasworld_data_tests.py \
-              --target "$TARGET" \
-              --output-dir ./qc_test_results/ \
-              $SELECT_OPTION \
-              $SKIP_ARTIFACTS_OPTION \
-              --defer --state "$STATE_DIR"
-          else
-            # shellcheck disable=SC2086
-            python3 scripts/run_iasworld_data_tests.py \
-              --target "$TARGET" \
-              --output-dir ./qc_test_results/ \
-              $SELECT_OPTION \
-              $SKIP_ARTIFACTS_OPTION
+          DEFER_OPTION=""
+          if [[ "$CACHE_HIT" == 'true' ]]; then
+            DEFER_OPTION="--defer --state $STATE_DIR"
           fi
+          # shellcheck disable=SC2086
+          python3 scripts/run_iasworld_data_tests.py \
+            --target "$TARGET" \
+            --output-dir ./qc_test_results/ \
+            $SELECT_OPTION \
+            $SKIP_ARTIFACTS_OPTION \
+            $DEFER_OPTION
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         env:
@@ -72,7 +99,7 @@ jobs:
           GIT_REF: ${{ github.ref_name }}
           GIT_AUTHOR: ${{ github.event.commits[0].author.name }}
           CACHE_HIT: ${{ steps.cache.outputs.cache-hit }}
-          SELECT_OPTION: ${{ inputs.select }}
+          SELECT_OPTION: ${{ steps.parse-inputs.outputs.select-option }}
           SKIP_ARTIFACTS_OPTION: ${{ inputs.upload_test_results && '--no-skip-artifacts' || '--skip-artifacts' }}
 
       - name: Save test results to S3
