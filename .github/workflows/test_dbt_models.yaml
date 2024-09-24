@@ -7,14 +7,15 @@ on:
   workflow_dispatch:
     inputs:
       selector:
-        description: dbt --selector statement to use for running tests
+        description: >
+          dbt --selector statement to use for selecting tests (leave empty to
+          run all tests)
         required: false
-        default: select_data_test_iasworld
         type: string
       select:
         description: >
-          dbt --select statement to use for running tests (mutually exclusive
-          with selector)
+          dbt --select statement to use for selecting tests (mutually exclusive
+          with --selector)
         required: false
         type: string
       upload_test_results:
@@ -35,27 +36,23 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Validate and input variables
+      - name: Validate and parse input variables
         id: parse-inputs
         run: |
-          SELECT_OPTION=""
-          if [[ -n "$SELECT" ]]; then
-            if [[ -n "$SELECTOR" ]]; then
-              echo "Error: Both of the select and selector input variables cannot be set"
+          # Default to running all tests
+          SELECT_OPTION="--selector select_data_test_iasworld"
+          if [[ -n "$SELECTOR" ]]; then
+            if [[ -n "$SELECT" ]]; then
+              echo "Error: Both the --select and --selector input variables cannot be set simultaneously"
               exit 1
             fi
-            SELECT_OPTION="--select $SELECT"
-          elif [[ -n "$SELECTOR" ]]; then
+            SELECT_OPTION="--selector $SELECTOR"
+          elif [[ -n "$SELECT" ]]; then
             SELECT_OPTION="--select $SELECT"
           fi
 
-          if [[ -n "$SELECT_OPTION" ]]; then
-            echo "Setting select option to '$SELECT_OPTION'"
-            echo "select-option=$SELECT_OPTION" >> "$GITHUB_OUTPUT"
-          else
-            echo "Error: One of the select or selector input variables is required"
-            exit 1
-          fi
+          echo "Setting select option to '$SELECT_OPTION'"
+          echo "select-option=$SELECT_OPTION" >> "$GITHUB_OUTPUT"
         shell: bash
         env:
           SELECT: ${{ inputs.select }}
