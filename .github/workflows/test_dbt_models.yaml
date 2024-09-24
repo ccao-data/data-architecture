@@ -8,14 +8,14 @@ on:
     inputs:
       selector:
         description: >
-          dbt --selector statement to use for selecting tests (leave empty to
+          A dbt selector to use for selecting tests (leave empty to
           run all tests)
         required: false
         type: string
       select:
         description: >
-          dbt --select statement to use for selecting tests (mutually exclusive
-          with --selector)
+          Space-separated list of test names to run (ignored if a selector is
+          set above)
         required: false
         type: string
       upload_test_results:
