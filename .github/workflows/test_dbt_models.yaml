@@ -6,16 +6,10 @@ name: test-dbt-models
 on:
   workflow_dispatch:
     inputs:
-      selector:
-        description: >
-          A dbt selector to use for selecting tests (leave empty to
-          run all tests)
-        required: false
-        type: string
       select:
         description: >
-          Space-separated list of test names to run (ignored if a selector is
-          set above)
+          Optional space-separated list of tests to run (defaults to all
+          iasWorld data tests)
         required: false
         type: string
       upload_test_results:
@@ -41,22 +35,14 @@ jobs:
         run: |
           # Default to running all tests
           SELECT_OPTION="--selector select_data_test_iasworld"
-          if [[ -n "$SELECTOR" ]]; then
-            if [[ -n "$SELECT" ]]; then
-              echo "Error: Both the --select and --selector input variables cannot be set simultaneously"
-              exit 1
-            fi
-            SELECT_OPTION="--selector $SELECTOR"
-          elif [[ -n "$SELECT" ]]; then
+          if [[ -n "$SELECT" ]]; then
             SELECT_OPTION="--select $SELECT"
           fi
-
           echo "Setting select option to '$SELECT_OPTION'"
           echo "select-option=$SELECT_OPTION" >> "$GITHUB_OUTPUT"
         shell: bash
         env:
           SELECT: ${{ inputs.select }}
-          SELECTOR: ${{ inputs.selector }}
 
       - name: Setup dbt
         uses: ./.github/actions/setup_dbt
