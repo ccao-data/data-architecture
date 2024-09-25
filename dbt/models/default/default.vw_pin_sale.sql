@@ -334,7 +334,7 @@ combined_sales AS (
                 DATE_DIFF(
                     'day',
                     LAG(cte_s.sale_date_coalesced) OVER (
-                        PARTITION BY
+                        PARTITION BY --noqa
                             cte_s.pin_coalesced, cte_s.sale_price_coalesced
                         ORDER BY cte_s.sale_date_coalesced ASC
                     ),
