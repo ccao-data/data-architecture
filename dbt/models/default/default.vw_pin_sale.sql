@@ -38,7 +38,11 @@ unique_sales AS (
     SELECT
         *,
         COALESCE(
-            EXTRACT(DAY FROM sale_date - same_price_earlier_date) <= 365,
+            DATE_DIFF(
+                'day',
+                same_price_earlier_date,
+                sale_date
+            ) <= 365,
             FALSE
         ) AS sale_filter_same_sale_within_365
     FROM (
@@ -288,17 +292,21 @@ combined_sales AS (
     SELECT
         cte_sales.*,
 
-        -- Simplify 'sale_filter_same_sale_within_365' using precomputed columns
+        -- Simplify 'sale_filter_same_sale_within_365' using DATE_DIFF
         CASE
             WHEN LAG(sale_date_coalesced) OVER (
                 PARTITION BY pin_coalesced, sale_price_coalesced
                 ORDER BY sale_date_coalesced ASC
             ) IS NOT NULL
             THEN
-                (sale_date_coalesced - LAG(sale_date_coalesced) OVER (
-                    PARTITION BY pin_coalesced, sale_price_coalesced
-                    ORDER BY sale_date_coalesced ASC
-                )) <= 365
+                DATE_DIFF(
+                    'day',
+                    LAG(sale_date_coalesced) OVER (
+                        PARTITION BY pin_coalesced, sale_price_coalesced
+                        ORDER BY sale_date_coalesced ASC
+                    ),
+                    sale_date_coalesced
+                ) <= 365
             ELSE FALSE
         END AS sale_filter_same_sale_within_365,
 
