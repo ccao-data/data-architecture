@@ -1,5 +1,5 @@
 -- View containing unique, filtered sales
--- Class and township of associated PIN
+
 WITH town_class AS (
     SELECT
         par.parid,
@@ -19,8 +19,6 @@ WITH town_class AS (
         AND par.deactivat IS NULL
 ),
 
--- "nopar" isn't entirely accurate for sales associated with only one parcel,
--- so we create our own counter
 calculated AS (
     SELECT
         instruno,
@@ -39,9 +37,6 @@ calculated AS (
 unique_sales AS (
     SELECT
         *,
-        -- Historically, this view excluded sales for a given pin if it had sold
-        -- within the last 12 months for the same price. This filter allows us
-        -- to filter out those sales.
         COALESCE(
             EXTRACT(DAY FROM sale_date - same_price_earlier_date) <= 365,
             FALSE
@@ -58,7 +53,6 @@ unique_sales AS (
             sales.salekey AS sale_key,
             NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
             NULLIF(sales.instrtyp, '') AS deed_type,
-            -- "nopar" is number of parcels sold
             COALESCE(
                 sales.nopar > 1 OR calculated.nopar_calculated > 1,
                 FALSE
@@ -79,11 +73,6 @@ unique_sales AS (
                 WHEN sales.saletype = '0' THEN 'LAND'
                 WHEN sales.saletype = '1' THEN 'LAND AND BUILDING'
             END AS sale_type,
-            -- Sales are not entirely unique by pin/date so we group all
-            -- sales by pin/date, then order by descending price
-            -- and give the top observation a value of 1 for "max_price".
-            -- We need to order by salekey as well in case of any ties within
-            -- price, date, and pin.
             ROW_NUMBER() OVER (
                 PARTITION BY
                     sales.parid,
@@ -91,14 +80,6 @@ unique_sales AS (
                     sales.instrtyp NOT IN ('03', '04', '06')
                 ORDER BY sales.price DESC, sales.salekey ASC
             ) AS max_price,
-            -- We remove the letter 'D' that trails some document numbers in
-            -- iasworld.sales since it prevents us from joining to mydec sales.
-            -- This creates one instance where we have duplicate document
-            -- numbers, so we sort by sale date (specifically to avoid conflicts
-            -- with detecting the earliest duplicate sale when there are
-            -- multiple within one document number, within a year) within the
-            -- new document number to identify and remove the sale causing the
-            -- duplicate document number.
             ROW_NUMBER() OVER (
                 PARTITION BY
                     NULLIF(REPLACE(sales.instruno, 'D', ''), ''),
@@ -106,11 +87,6 @@ unique_sales AS (
                     sales.price > 10000
                 ORDER BY sales.saledt ASC, sales.salekey ASC
             ) AS bad_doc_no,
-            -- Some pins sell for the exact same price a few months after
-            -- they're sold (we need to make sure to only include deed types we
-            -- want). These sales are unnecessary for modeling and may be
-            -- duplicates. We need to order by salekey as well in case of any
-            -- ties within price, date, and pin.
             LAG(DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) OVER (
                 PARTITION BY
                     sales.parid,
@@ -118,11 +94,6 @@ unique_sales AS (
                     sales.instrtyp NOT IN ('03', '04', '06')
                 ORDER BY sales.saledt ASC, sales.salekey ASC
             ) AS same_price_earlier_date,
-            -- Historically, this view filtered out sales less than $10k and
-            -- as well as quit claims, executor deeds, beneficial interests,
-            -- and NULL deed types. Now we create "legacy" filter columns so
-            -- that this filtering can reproduced while still allowing all sales
-            -- into the view.
             sales.price <= 10000 AS sale_filter_less_than_10k,
             COALESCE(
                 sales.instrtyp IN ('03', '04', '06') OR sales.instrtyp IS NULL,
@@ -167,7 +138,7 @@ mydec_sales AS (
             COALESCE(line_10a = 1, FALSE)
                 AS mydec_is_installment_contract_fulfilled,
             COALESCE(line_10b = 1, FALSE)
-                AS mydec_is_sale_between_related_individuals_or_corporate_affiliates, --noqa
+                AS mydec_is_sale_between_related_individuals_or_corporate_affiliates,
             COALESCE(line_10c = 1, FALSE)
                 AS mydec_is_transfer_of_less_than_100_percent_interest,
             COALESCE(line_10d = 1, FALSE)
@@ -185,7 +156,7 @@ mydec_sales AS (
             COALESCE(line_10j = 1, FALSE)
                 AS mydec_is_seller_buyer_a_relocation_company,
             COALESCE(line_10k = 1, FALSE)
-                AS mydec_is_seller_buyer_a_financial_institution_or_government_agency, --noqa
+                AS mydec_is_seller_buyer_a_financial_institution_or_government_agency,
             COALESCE(line_10l = 1, FALSE)
                 AS mydec_is_buyer_a_real_estate_investment_trust,
             COALESCE(line_10m = 1, FALSE)
@@ -206,7 +177,6 @@ mydec_sales AS (
                 AS mydec_homestead_exemption_senior_citizens,
             line_10s_senior_citizens_assessment_freeze
                 AS mydec_homestead_exemption_senior_citizens_assessment_freeze,
-            -- Flag for booting outlier PTAX-203 sales from modeling and reporting --noqa
             (
                 COALESCE(line_10b, 0) + COALESCE(line_10c, 0)
                 + COALESCE(line_10d, 0) + COALESCE(line_10e, 0)
@@ -218,7 +188,7 @@ mydec_sales AS (
                 PARTITION BY line_1_primary_pin, line_4_instrument_date
             ) AS num_single_day_sales
         FROM {{ source('sale', 'mydec') }}
-        WHERE line_2_total_parcels = 1 -- Remove multisales
+        WHERE line_2_total_parcels = 1
     )
     WHERE num_single_day_sales = 1
         OR (YEAR(sale_date) > 2020)
@@ -250,24 +220,19 @@ sales_val AS (
         AND sf.version = mv.max_version
 ),
 
-combined_sales AS (
+-- Introducing cte_sales to precompute the coalesced values
+cte_sales AS (
     SELECT
-        COALESCE(uq_sales.pin, md_sales.pin) AS pin,
-        COALESCE(uq_sales.year, md_sales.year) AS year,
-        COALESCE(uq_sales.township_code, tc.township_code) AS township_code,
-        COALESCE(uq_sales.nbhd, tc.nbhd) AS nbhd,
-        COALESCE(uq_sales.class, tc.class) AS class,
+        -- Precompute coalesced columns
+        COALESCE(uq_sales.pin, md_sales.pin) AS pin_coalesced,
+        COALESCE(uq_sales.year, md_sales.year) AS year_coalesced,
+        COALESCE(uq_sales.township_code, tc.township_code) AS township_code_coalesced,
+        COALESCE(uq_sales.nbhd, tc.nbhd) AS nbhd_coalesced,
+        COALESCE(uq_sales.class, tc.class) AS class_coalesced,
         CASE
-            WHEN uq_sales.year < '2021'
-                THEN COALESCE(
-                    md_sales.sale_date,
-                    uq_sales.sale_date
-                )
-            ELSE COALESCE(
-                    uq_sales.sale_date,
-                    md_sales.sale_date
-                )
-        END AS sale_date,
+            WHEN uq_sales.year < '2021' THEN COALESCE(md_sales.sale_date, uq_sales.sale_date)
+            ELSE COALESCE(uq_sales.sale_date, md_sales.sale_date)
+        END AS sale_date_coalesced,
         CASE
             WHEN (uq_sales.year < '2021' OR uq_sales.sale_date IS NULL)
                 AND md_sales.sale_date IS NOT NULL
@@ -276,99 +241,23 @@ combined_sales AS (
                 AND uq_sales.sale_date IS NOT NULL
                 THEN FALSE
         END AS is_mydec_date,
-        COALESCE(uq_sales.sale_price, md_sales.sale_price) AS sale_price,
+        COALESCE(uq_sales.sale_price, md_sales.sale_price) AS sale_price_coalesced,
         uq_sales.sale_key,
-        COALESCE(uq_sales.doc_no, md_sales.doc_no) AS doc_no,
-        COALESCE(uq_sales.deed_type, md_sales.mydec_deed_type) AS deed_type,
-        COALESCE(uq_sales.seller_name, md_sales.seller_name) AS seller_name,
-        COALESCE(uq_sales.is_multisale, md_sales.is_multisale) AS is_multisale,
-        COALESCE(uq_sales.num_parcels_sale, md_sales.num_parcels_sale) --noqa
-            AS num_parcels_sale,
-        COALESCE(uq_sales.buyer_name, md_sales.buyer_name) AS buyer_name,
-        COALESCE(uq_sales.sale_type, NULL) AS sale_type,
+        COALESCE(uq_sales.doc_no, md_sales.doc_no) AS doc_no_coalesced,
+        COALESCE(uq_sales.deed_type, md_sales.mydec_deed_type) AS deed_type_coalesced,
+        COALESCE(uq_sales.seller_name, md_sales.seller_name) AS seller_name_coalesced,
+        COALESCE(uq_sales.is_multisale, md_sales.is_multisale) AS is_multisale_coalesced,
+        COALESCE(uq_sales.num_parcels_sale, md_sales.num_parcels_sale) AS num_parcels_sale_coalesced,
+        COALESCE(uq_sales.buyer_name, md_sales.buyer_name) AS buyer_name_coalesced,
+        COALESCE(uq_sales.sale_type, NULL) AS sale_type_coalesced,
         uq_sales.max_price,
         uq_sales.bad_doc_no,
-        -- Compute 'same_price_earlier_date' for all sales
-        LAG(COALESCE(uq_sales.sale_date, md_sales.sale_date)) OVER (
-            PARTITION BY --noqa
-                COALESCE(uq_sales.pin, md_sales.pin),
-                COALESCE(uq_sales.sale_price, md_sales.sale_price)
-            ORDER BY COALESCE(uq_sales.sale_date, md_sales.sale_date) ASC
-        ) AS same_price_earlier_date,
-        -- Compute 'sale_filter_less_than_10k'
-        (COALESCE(uq_sales.sale_price, md_sales.sale_price) <= 10000)
-            AS sale_filter_less_than_10k,
-        -- Compute 'sale_filter_deed_type'
-        (
-            COALESCE(uq_sales.deed_type, md_sales.mydec_deed_type) IN (
-                '03', '04', '06'
-            )
-            OR COALESCE(uq_sales.deed_type, md_sales.mydec_deed_type) IS NULL
-        ) AS sale_filter_deed_type,
-        -- Compute 'sale_filter_same_sale_within_365'
-        CASE
-            -- If there is a previous sale date within the same partition, we will perform a day difference calculation --noqa
-            WHEN LAG(
-                    CASE
-                        WHEN uq_sales.year < '2021' THEN COALESCE(md_sales.sale_date, uq_sales.sale_date) --noqa
-                        ELSE COALESCE(uq_sales.sale_date, md_sales.sale_date)
-                    END
-                ) OVER (
-                    -- Define the partition or grouping for the LAG function.
-                    -- Partition by pin and sale price
-                    PARTITION BY
-                        COALESCE(uq_sales.pin, md_sales.pin),
-                        COALESCE(uq_sales.sale_price, md_sales.sale_price)
-                    -- Order the sales by the sale date (using the same conditional logic as above) in ascending order --noqa
-                    ORDER BY
-                        CASE
-                            WHEN uq_sales.year < '2021' THEN COALESCE(md_sales.sale_date, uq_sales.sale_date) --noqa
-                            ELSE COALESCE(
-                                    uq_sales.sale_date, md_sales.sale_date
-                                )
-                        END ASC
-                ) IS NOT NULL
-            -- If there is a previous sale, calculate difference in days between the current sale date and the previous sale date. --noqa
-                THEN
-                    -- Use EXTRACT to compute the day difference between the current sale date and the previous sale date. --noqa
-                EXTRACT(
-                    DAY FROM
-                    -- The current sale date
-                    CASE
-                                WHEN uq_sales.year < '2021' THEN COALESCE(md_sales.sale_date, uq_sales.sale_date) --noqa
-                        ELSE COALESCE(uq_sales.sale_date, md_sales.sale_date)
-                    END
-                    -- Subtract the previous sale date, which is found using the LAG function. --noqa
-                    - LAG(
-                        CASE
-                                    WHEN uq_sales.year < '2021' THEN COALESCE(md_sales.sale_date, uq_sales.sale_date) --noqa
-                            ELSE COALESCE(
-                                    uq_sales.sale_date, md_sales.sale_date
-                                )
-                        END
-                    ) OVER (
-                        PARTITION BY
-                            COALESCE(uq_sales.pin, md_sales.pin),
-                            COALESCE(uq_sales.sale_price, md_sales.sale_price)
-                        ORDER BY
-                            CASE
-                                        WHEN uq_sales.year < '2021' THEN COALESCE(md_sales.sale_date, uq_sales.sale_date) --noqa
-                                ELSE COALESCE(
-                                        uq_sales.sale_date, md_sales.sale_date
-                                    )
-                            END ASC
-                    )
-                ) <= 365
-            -- If there is no previous sale in the same partition (first sale or no prior sale at the same price for that pin), return FALSE. --noqa
-            ELSE FALSE
-        END AS sale_filter_same_sale_within_365,
-        CASE WHEN uq_sales.doc_no IS NOT NULL THEN 'iasworld' ELSE 'mydec' END
-            AS source,
+        CASE WHEN uq_sales.doc_no IS NOT NULL THEN 'iasworld' ELSE 'mydec' END AS source,
         md_sales.mydec_deed_type,
         md_sales.sale_filter_ptax_flag,
         md_sales.mydec_property_advertised,
         md_sales.mydec_is_installment_contract_fulfilled,
-        md_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates, --noqa
+        md_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates,
         md_sales.mydec_is_transfer_of_less_than_100_percent_interest,
         md_sales.mydec_is_court_ordered_sale,
         md_sales.mydec_is_sale_in_lieu_of_foreclosure,
@@ -377,7 +266,7 @@ combined_sales AS (
         md_sales.mydec_is_bank_reo_real_estate_owned,
         md_sales.mydec_is_auction_sale,
         md_sales.mydec_is_seller_buyer_a_relocation_company,
-        md_sales.mydec_is_seller_buyer_a_financial_institution_or_government_agency, --noqa
+        md_sales.mydec_is_seller_buyer_a_financial_institution_or_government_agency,
         md_sales.mydec_is_buyer_a_real_estate_investment_trust,
         md_sales.mydec_is_buyer_a_pension_fund,
         md_sales.mydec_is_buyer_an_adjacent_property_owner,
@@ -393,25 +282,54 @@ combined_sales AS (
     LEFT JOIN town_class AS tc
         ON COALESCE(uq_sales.pin, md_sales.pin) = tc.parid
         AND COALESCE(uq_sales.year, md_sales.year) = tc.taxyr
+),
+
+combined_sales AS (
+    SELECT
+        cte_sales.*,
+
+        -- Simplify 'sale_filter_same_sale_within_365' using precomputed columns
+        CASE
+            WHEN LAG(sale_date_coalesced) OVER (
+                PARTITION BY pin_coalesced, sale_price_coalesced
+                ORDER BY sale_date_coalesced ASC
+            ) IS NOT NULL
+            THEN
+                (sale_date_coalesced - LAG(sale_date_coalesced) OVER (
+                    PARTITION BY pin_coalesced, sale_price_coalesced
+                    ORDER BY sale_date_coalesced ASC
+                )) <= 365
+            ELSE FALSE
+        END AS sale_filter_same_sale_within_365,
+
+        -- Compute 'sale_filter_less_than_10k'
+        (sale_price_coalesced <= 10000) AS sale_filter_less_than_10k,
+
+        -- Compute 'sale_filter_deed_type'
+        (
+            deed_type_coalesced IN ('03', '04', '06')
+            OR deed_type_coalesced IS NULL
+        ) AS sale_filter_deed_type
+    FROM cte_sales
 )
 
 SELECT
-    combined_sales.pin,
-    combined_sales.year,
-    combined_sales.township_code,
-    combined_sales.nbhd,
-    combined_sales.class,
-    combined_sales.sale_date,
+    combined_sales.pin_coalesced AS pin,
+    combined_sales.year_coalesced AS year,
+    combined_sales.township_code_coalesced AS township_code,
+    combined_sales.nbhd_coalesced AS nbhd,
+    combined_sales.class_coalesced AS class,
+    combined_sales.sale_date_coalesced AS sale_date,
     combined_sales.is_mydec_date,
-    combined_sales.sale_price,
+    combined_sales.sale_price_coalesced AS sale_price,
     combined_sales.sale_key,
-    combined_sales.doc_no,
-    combined_sales.deed_type,
-    combined_sales.seller_name,
-    combined_sales.is_multisale,
-    combined_sales.num_parcels_sale,
-    combined_sales.buyer_name,
-    combined_sales.sale_type,
+    combined_sales.doc_no_coalesced AS doc_no,
+    combined_sales.deed_type_coalesced AS deed_type,
+    combined_sales.seller_name_coalesced AS seller_name,
+    combined_sales.is_multisale_coalesced AS is_multisale,
+    combined_sales.num_parcels_sale_coalesced AS num_parcels_sale,
+    combined_sales.buyer_name_coalesced AS buyer_name,
+    combined_sales.sale_type_coalesced AS sale_type,
     combined_sales.sale_filter_same_sale_within_365,
     combined_sales.sale_filter_less_than_10k,
     combined_sales.sale_filter_deed_type,
@@ -420,7 +338,7 @@ SELECT
     combined_sales.sale_filter_ptax_flag,
     combined_sales.mydec_property_advertised,
     combined_sales.mydec_is_installment_contract_fulfilled,
-    combined_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates, --noqa
+    combined_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates,
     combined_sales.mydec_is_transfer_of_less_than_100_percent_interest,
     combined_sales.mydec_is_court_ordered_sale,
     combined_sales.mydec_is_sale_in_lieu_of_foreclosure,
@@ -429,7 +347,7 @@ SELECT
     combined_sales.mydec_is_bank_reo_real_estate_owned,
     combined_sales.mydec_is_auction_sale,
     combined_sales.mydec_is_seller_buyer_a_relocation_company,
-    combined_sales.mydec_is_seller_buyer_a_financial_institution_or_government_agency, --noqa
+    combined_sales.mydec_is_seller_buyer_a_financial_institution_or_government_agency,
     combined_sales.mydec_is_buyer_a_real_estate_investment_trust,
     combined_sales.mydec_is_buyer_a_pension_fund,
     combined_sales.mydec_is_buyer_an_adjacent_property_owner,
@@ -451,4 +369,4 @@ SELECT
     combined_sales.source
 FROM combined_sales
 LEFT JOIN sales_val
-    ON combined_sales.doc_no = sales_val.meta_sale_document_num;
+    ON combined_sales.doc_no_coalesced = sales_val.meta_sale_document_num;
