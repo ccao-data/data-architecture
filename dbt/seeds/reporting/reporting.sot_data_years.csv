@@ -1,0 +1,9 @@
+year,census_data_year,cook_board_of_review_district_data_year,cook_commissioner_district_data_year,cook_judicial_district_data_year,ward_data_year,community_area_data_year,police_district_data_year,central_business_district_data_year,school_data_year,tax_data_year
+county,census_place,cook_board_of_review_district,cook_commissioner_district,cook_judicial_district,ward_num,community_area,police_district,central_business_district,school_elementary_district,tax_municipality
+triad,census_tract,,,,,,,,school_secondary_district,tax_park_district
+township,census_congressional_district,,,,,,,,school_unified_district,tax_library_district
+nbhd,census_zcta,,,,,,,,,tax_fire_protection_district
+tax_code,,,,,,,,,,tax_community_college_district
+zip_code,,,,,,,,,,tax_sanitation_district
+,,,,,,,,,,tax_special_service_area
+,,,,,,,,,,tax_tif_district
