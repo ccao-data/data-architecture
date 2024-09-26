@@ -23,6 +23,7 @@ def export_models(
     selector: str | None = None,
     rebuild: bool = False,
     where: str | None = None,
+    output_dir: str | None = None,
 ):
     """
     Export a group of models to Excel workbooks in the output directory
@@ -40,6 +41,8 @@ def export_models(
         * rebuild (bool): Rebuild models before exporting, defaults to False
         * where (str): Optional SQL expression representing a WHERE clause to
             filter models
+        * output_path (str): Optional Unix path to directory where output files
+            should be stored
     """
     if not select and not selector:
         raise ValueError("One of --select or --selector is required")
@@ -120,7 +123,12 @@ def export_models(
         # Define inputs and outputs for export based on model metadata
         template_path = os.path.join("export", "templates", f"{template}.xlsx")
         template_exists = os.path.isfile(template_path)
-        output_path = os.path.join("export", "output", f"{export_name}.xlsx")
+        output_dir = (
+            os.path.join("export", "output")
+            if not output_dir
+            else os.path.join(*"/".split(output_dir))
+        )
+        output_path = os.path.join(output_dir, f"{export_name}.xlsx")
 
         print(f"Querying data for model {model_name}")
         query = f"SELECT * FROM {relation_name}"

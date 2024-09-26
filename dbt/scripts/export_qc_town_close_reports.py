@@ -127,6 +127,10 @@ def parse_args() -> argparse.Namespace:
             "refresh table data before running exports"
         ),
     )
+    parser.add_argument(
+        *constants.OUTPUT_DIR_ARGUMENT_ARGS,
+        **constants.OUTPUT_DIR_ARGUMENT_KWARGS,
+    )
     return parser.parse_args()
 
 
@@ -209,6 +213,7 @@ def main():
             rebuild=args.rebuild,
             select=[tag, f"{tag}_{tag_suffix}"],
             where=where,
+            output_dir=args.output_dir,
         )
 
 
