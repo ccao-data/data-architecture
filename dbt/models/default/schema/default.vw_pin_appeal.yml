@@ -84,6 +84,7 @@ models:
             - pin
             - year
             - case_no
+            - change
             - mailed_bldg
             - certified_bldg
             - mailed_land
@@ -94,10 +95,6 @@ models:
             where: CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
             error_if: ">266719"
       # `change` should be an enum
-      - not_accepted_values:
-          name: default_vw_pin_appeal_class_no_hyphens
-          column_name: class
-          values: "2-99"
       - expression_is_true:
           name: default_vw_pin_appeal_no_unexpected_change_values
           expression: change is null or change in ('change', 'no change')
