@@ -10,8 +10,15 @@ import json
 from dbt.cli.main import dbtRunner
 from utils import constants
 from utils.export import export_models
+from utils.townships import (
+    TOWNSHIP_SCHEDULE_PATH,
+    TOWNSHIPS,
+    TOWNSHIPS_BY_CODE,
+)
 
 DBT = dbtRunner()
+CURRENT_YEAR = datetime.datetime.now().year
+CURRENT_DATE = datetime.datetime.now().date()
 
 CLI_DESCRIPTION = """Export town close QC reports to Excel files.
 
@@ -35,60 +42,6 @@ To get a command to run to refresh iasWorld tables prior to export:
     python scripts/export_qc_town_close_reports.py --township 70 --year 2024 --print-table-refresh-command
 """  # noqa: E501
 
-# Map township codes to their triad number
-TOWNSHIP_TO_TRI = {
-    "10": "2",
-    "11": "3",
-    "12": "3",
-    "13": "3",
-    "14": "3",
-    "15": "3",
-    "16": "2",
-    "17": "2",
-    "18": "2",
-    "19": "3",
-    "20": "2",
-    "21": "3",
-    "22": "2",
-    "23": "2",
-    "24": "2",
-    "25": "2",
-    "26": "2",
-    "27": "3",
-    "28": "3",
-    "29": "2",
-    "30": "3",
-    "31": "3",
-    "32": "3",
-    "33": "3",
-    "34": "3",
-    "35": "2",
-    "36": "3",
-    "37": "3",
-    "38": "2",
-    "39": "3",
-    "70": "1",
-    "71": "1",
-    "72": "1",
-    "73": "1",
-    "74": "1",
-    "75": "1",
-    "76": "1",
-    "77": "1",
-}
-
-
-def is_tri(township_code: str, year: int) -> bool:
-    """Helper function to determine if a town in a given year is undergoing
-    triennial reassessment"""
-    try:
-        tri = TOWNSHIP_TO_TRI[township_code]
-    except KeyError:
-        raise ValueError(f"'{township_code}' is not a valid township code")
-    # 2024 is the City reassessment year (tri code 1), so
-    # ((2024 - 2024) % 3) + 1 == 1, and so on for the other two tris
-    return str(((year - 2024) % 3) + 1) == tri
-
 
 def parse_args() -> argparse.Namespace:
     """Helper function to parse arguments to this script"""
@@ -107,13 +60,24 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--township",
-        required=True,
-        help="Township code to use in filtering query results",
+        required=False,
+        nargs="*",
+        help=(
+            "One or more space-separated township codes to use when filtering "
+            "query results. When missing, defaults to all towns that are "
+            "eligible for QC, i.e. towns that are currently between the field "
+            "check and completion stage of the 1st or 2nd pass valuation "
+            "cycles. This default will only work if a data file exists at "
+            "scripts/utils/town_active_schedule.csv, and will raise an error "
+            "otherwise. This behavior is intended for use in the automated "
+            "version of this script that runs on a schedule, so human callers "
+            "should generally not need it"
+        ),
     )
     parser.add_argument(
         "--year",
         required=False,
-        default=datetime.datetime.now().year,
+        default=CURRENT_YEAR,
         type=int,
         help="Tax year to use in filtering query results. Defaults to the current year",
     )
@@ -137,17 +101,50 @@ def parse_args() -> argparse.Namespace:
 def main():
     """Main entrypoint for the script"""
     args = parse_args()
-    tag = "tag:qc_report_town_close"
-    tag_suffix = "tri" if is_tri(args.township, args.year) else "non_tri"
+
+    # Determine the default set of towns based on 'active' status
+    if args.township:
+        townships = [TOWNSHIPS_BY_CODE[code] for code in args.township]
+    else:
+        if args.year != CURRENT_YEAR:
+            # We can't determine active towns for prior years, so raise an
+            # error if the caller tries to do this
+            raise ValueError(
+                "--township must be set if --year is not the current year"
+            )
+        townships = [
+            town for town in TOWNSHIPS if town.is_active_on(CURRENT_DATE)
+        ]
+        if not townships:
+            raise ValueError(
+                "No townships are active in the current year. Double check "
+                f"{TOWNSHIP_SCHEDULE_PATH.resolve()} to ensure the schedule "
+                "is correct"
+            )
+
+    # Determine which dbt tags to select based on the tri status of each town
+    base_tag = "tag:qc_report_town_close"
+    tags = {base_tag}
+    for town in townships:
+        tag_suffix = (
+            "tri" if town.is_reassessed_during(args.year) else "non_tri"
+        )
+        tags.add(f"{base_tag}_{tag_suffix}")
+    select = list(tags)
 
     if args.print_table_refresh_command:
-        # Use `dbt list` on parents to calculate update command for
-        # iasworld sources that are implicated by this call
+        # Use `dbt list` on parents to calculate the update command for
+        # iasworld sources that are dependencies for the models we want to
+        # export
         dbt_list_args = [
             "--quiet",
             "list",
             "--target",
             args.target,
+            # Filter results for sources so that the `dbt list` call only
+            # returns iasWorld assets. We'll have to tweak this if we
+            # ever introduce town close reports that depend on non-iasWorld
+            # sources, like our spatial tables
             "--resource-types",
             "source",
             "--output",
@@ -156,8 +153,9 @@ def main():
             "name",
             "source_name",
             "--select",
-            f"+{tag}",
-            f"+{tag}_{tag_suffix}",
+            # Prepending a plus sign to each element of the select list
+            # instructs dbt to select their parents as well
+            *[f"+{tag}" for tag in select],
         ]
         dbt_output = io.StringIO()
         with contextlib.redirect_stdout(dbt_output):
@@ -207,14 +205,43 @@ def main():
             f"--json-string '{json.dumps(iasworld_deps)}' "
         )
     else:
-        where = f"township_code = '{args.township}' and taxyr = '{args.year}'"
-        export_models(
-            target=args.target,
-            rebuild=args.rebuild,
-            select=[tag, f"{tag}_{tag_suffix}"],
-            where=where,
-            output_dir=args.output_dir,
-        )
+        if len(townships) > 1:
+            # Format a list of township codes for templating into a SQL array,
+            # which requires wrapping each code in single quotes
+            township_code_sql_str = "', '".join(
+                town.township_code for town in townships
+            )
+            where = (
+                f"township_code IN ('{township_code_sql_str}') "
+                f"AND taxyr = '{args.year}'"
+            )
+            export_models(
+                target=args.target,
+                rebuild=args.rebuild,
+                select=select,
+                where=where,
+                order_by=["township_code"],
+                output_dir=args.output_dir,
+            )
+        else:
+            township = townships[0]
+            where = (
+                f"township_code = '{township.township_code}' "
+                f"AND taxyr = '{args.year}'"
+            )
+            output_paths = export_models(
+                target=args.target,
+                rebuild=args.rebuild,
+                select=select,
+                where=where,
+                output_dir=args.output_dir,
+            )
+            # Rename the output files to prepend the name of the township
+            for output_path in output_paths:
+                new_filename = f"{township.township_name} {output_path.name}"
+                new_filepath = output_path.with_name(new_filename)
+                output_path.rename(new_filepath)
+                print(f"Renamed {output_path} -> {new_filepath}")
 
 
 if __name__ == "__main__":

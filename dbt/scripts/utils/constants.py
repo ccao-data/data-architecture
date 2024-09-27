@@ -27,5 +27,8 @@ REBUILD_ARGUMENT_KWARGS: AddArgumentKwargs = {
 }
 OUTPUT_DIR_ARGUMENT_ARGS = ["--output-dir"]
 OUTPUT_DIR_ARGUMENT_KWARGS: AddArgumentKwargs = {
-    "help": "Path to directory where output files will be stored",
+    "help": (
+        "Unix-formatted path to directory where output files will be stored, "
+        "defaults to export/output/"
+    ),
 }

@@ -23,8 +23,9 @@ def export_models(
     selector: str | None = None,
     rebuild: bool = False,
     where: str | None = None,
+    order_by: list[str] | None = None,
     output_dir: str | None = None,
-):
+) -> list[pathlib.Path]:
     """
     Export a group of models to Excel workbooks in the output directory
     `export/output/`.
@@ -41,8 +42,12 @@ def export_models(
         * rebuild (bool): Rebuild models before exporting, defaults to False
         * where (str): Optional SQL expression representing a WHERE clause to
             filter models
+        * order_by (list[str]): Optional list of fields to order by ascending
         * output_path (str): Optional Unix path to directory where output files
             should be stored
+
+    Returns a list of pathlib.Path objects representing the paths to the files
+    that the function created.
     """
     if not select and not selector:
         raise ValueError("One of --select or --selector is required")
@@ -112,6 +117,7 @@ def export_models(
         region_name=os.getenv("AWS_ATHENA_REGION_NAME", "us-east-1"),
     )
 
+    output_paths: list[pathlib.Path] = []
     for model in models:
         # Extract useful model metadata from the columns we queried in
         # the `dbt list` call above
@@ -123,17 +129,21 @@ def export_models(
         # Define inputs and outputs for export based on model metadata
         template_path = os.path.join("export", "templates", f"{template}.xlsx")
         template_exists = os.path.isfile(template_path)
-        output_dir = (
+        export_output_dir = (
             os.path.join("export", "output")
             if not output_dir
-            else os.path.join(*"/".split(output_dir))
+            else os.path.join(
+                *[part for part in output_dir.split("/") if part]
+            )
         )
-        output_path = os.path.join(output_dir, f"{export_name}.xlsx")
+        output_path = os.path.join(export_output_dir, f"{export_name}.xlsx")
 
         print(f"Querying data for model {model_name}")
         query = f"SELECT * FROM {relation_name}"
         if where:
             query += f" WHERE {where}"
+        if order_by:
+            query += f" ORDER BY {', '.join(order_by)}"
         print(f"> {query}")
         model_df = pd.read_sql(query, conn)
 
@@ -255,3 +265,6 @@ def export_models(
                             setattr(row[idx], attr, val)
 
         print(f"Exported model {model_name} to {output_path}")
+        output_paths.append(pathlib.Path(output_path))
+
+    return output_paths
