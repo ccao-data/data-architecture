@@ -54,7 +54,7 @@ unique_sales AS (
             tc.class,
             DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d') AS sale_date,
             CAST(sales.price AS BIGINT) AS sale_price,
-            sales.salekey AS salekey,
+            sales.salekey AS sale_key,
             NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
             NULLIF(sales.instrtyp, '') AS deed_type,
             COALESCE(
