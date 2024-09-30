@@ -335,7 +335,7 @@ combined_sales AS (
                                 cte_s.sale_price_coalesced,
                                 cte_s.deed_type_ias NOT IN ('03', '04', '06'),
                                 cte_s.source
-                            ORDER BY cte_s.sale_date_coalesced ASC, cte_s.salekey ASC
+                            ORDER BY cte_s.sale_date_coalesced ASC, cte_s.sale_key ASC
                         ) IS NOT NULL
                     THEN
                         DATE_DIFF(
@@ -346,7 +346,7 @@ combined_sales AS (
                                     cte_s.sale_price_coalesced,
                                     cte_s.deed_type_ias NOT IN ('03', '04', '06'),
                                     cte_s.source
-                                ORDER BY cte_s.sale_date_coalesced ASC, cte_s.salekey ASC
+                                ORDER BY cte_s.sale_date_coalesced ASC, cte_s.sale_key ASC
                             ),
                             cte_s.sale_date_coalesced
                         ) <= 365
