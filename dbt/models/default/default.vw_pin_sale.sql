@@ -327,33 +327,34 @@ combined_sales AS (
 
         -- Calculate 'sale_filter_same_sale_within_365' using DATE_DIFF
         CASE
-            WHEN cs.source = 'iasworld' THEN
+            WHEN cte_s.source = 'iasworld' THEN
                 CASE
-                    WHEN LAG(cs.sale_date_coalesced) OVER (
+                    WHEN LAG(cte_s.sale_date_coalesced) OVER (
                             PARTITION BY
-                                cs.pin_coalesced,
-                                cs.sale_price_coalesced,
-                                cs.deed_type_ias NOT IN ('03', '04', '06'),
-                                cs.source
-                            ORDER BY cs.sale_date_coalesced ASC, cs.salekey ASC
+                                cte_s.pin_coalesced,
+                                cte_s.sale_price_coalesced,
+                                cte_s.deed_type_ias NOT IN ('03', '04', '06'),
+                                cte_s.source
+                            ORDER BY cte_s.sale_date_coalesced ASC, cte_s.salekey ASC
                         ) IS NOT NULL
-                        THEN
+                    THEN
                         DATE_DIFF(
                             'day',
-                            LAG(cs.sale_date_coalesced) OVER (
+                            LAG(cte_s.sale_date_coalesced) OVER (
                                 PARTITION BY
-                                    cs.pin_coalesced,
-                                    cs.sale_price_coalesced,
-                                    cs.deed_type_ias NOT IN ('03', '04', '06'),
-                                    cs.source
-                                ORDER BY cs.sale_date_coalesced ASC, cs.salekey ASC
+                                    cte_s.pin_coalesced,
+                                    cte_s.sale_price_coalesced,
+                                    cte_s.deed_type_ias NOT IN ('03', '04', '06'),
+                                    cte_s.source
+                                ORDER BY cte_s.sale_date_coalesced ASC, cte_s.salekey ASC
                             ),
-                            cs.sale_date_coalesced
+                            cte_s.sale_date_coalesced
                         ) <= 365
                     ELSE FALSE
                 END
             ELSE
-                -- Original calculation or appropriate logic for other sources
+                -- For other sources, default to FALSE or use appropriate logic
+                FALSE
         END AS sale_filter_same_sale_within_365,
 
         -- Compute 'sale_filter_less_than_10k'
@@ -366,6 +367,7 @@ combined_sales AS (
         ) AS sale_filter_deed_type
     FROM cte_sales AS cte_s
 )
+
 
 SELECT
     cs.pin_coalesced AS pin,
