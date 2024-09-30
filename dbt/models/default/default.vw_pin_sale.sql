@@ -354,8 +354,7 @@ combined_sales AS (
                 END
             ELSE
                 -- Original calculation or appropriate logic for other sources
-        END AS sale_filter_same_sale_within_365
-
+        END AS sale_filter_same_sale_within_365,
 
         -- Compute 'sale_filter_less_than_10k'
         (cte_s.sale_price_coalesced <= 10000) AS sale_filter_less_than_10k,
