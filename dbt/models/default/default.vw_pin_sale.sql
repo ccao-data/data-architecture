@@ -327,7 +327,10 @@ combined_sales AS (
         -- Calculate 'sale_filter_same_sale_within_365' using DATE_DIFF
         CASE
             WHEN LAG(cte_s.sale_date_coalesced) OVER (
-                    PARTITION BY cte_s.pin_coalesced, cte_s.sale_price_coalesced
+                    PARTITION BY
+                        cte_s.pin_coalesced,
+                        cte_s.sale_price_coalesced,
+                        cte_s.instrtyp NOT IN ('03', '04', '06')
                     ORDER BY cte_s.sale_date_coalesced ASC
                 ) IS NOT NULL
                 THEN
