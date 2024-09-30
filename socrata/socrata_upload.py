@@ -12,7 +12,7 @@ from pyathena.pandas.cursor import PandasCursor
 
 # Connect to Athena
 cursor = connect(
-    s3_staging_dir=os.getenv("AWS_ATHENA_S3_STAGING_DIR"),
+    s3_staging_dir="s3://ccao-athena-results-us-east-1/",
     region_name="us-east-1",
     cursor_class=PandasCursor,
 ).cursor(unload=True)
