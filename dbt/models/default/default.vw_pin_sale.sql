@@ -275,7 +275,7 @@ cte_sales AS (
         COALESCE(uq_sales.doc_no, md_sales.doc_no) AS doc_no_coalesced, --noqa
         COALESCE(uq_sales.deed_type, md_sales.mydec_deed_type)
             AS deed_type_coalesced,
-        uq_sales.deed_type_ias,
+        uq_sales.instrtyp as deed_type_ias,
         COALESCE(uq_sales.seller_name, md_sales.seller_name)
             AS seller_name_coalesced,
         COALESCE(uq_sales.is_multisale, md_sales.is_multisale)
