@@ -54,7 +54,7 @@ unique_sales AS (
             tc.class,
             DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d') AS sale_date,
             CAST(sales.price AS BIGINT) AS sale_price,
-            sales.salekey AS sale_key,
+            sales.salekey AS salekey,
             NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
             NULLIF(sales.instrtyp, '') AS deed_type,
             COALESCE(
@@ -332,7 +332,7 @@ combined_sales AS (
                         cte_s.pin_coalesced,
                         cte_s.sale_price_coalesced,
                         cte_s.deed_type_ias NOT IN ('03', '04', '06')
-                    ORDER BY cte_s.sale_date_coalesced ASC
+                    ORDER BY cte_s.sale_date_coalesced ASC, cte_s.salekey ASC
                 ) IS NOT NULL
                 THEN
                 DATE_DIFF(
