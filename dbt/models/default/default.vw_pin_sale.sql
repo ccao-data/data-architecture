@@ -275,6 +275,7 @@ cte_sales AS (
         COALESCE(uq_sales.doc_no, md_sales.doc_no) AS doc_no_coalesced, --noqa
         COALESCE(uq_sales.deed_type, md_sales.mydec_deed_type)
             AS deed_type_coalesced,
+        uq_sales.deed_type_ias,
         COALESCE(uq_sales.seller_name, md_sales.seller_name)
             AS seller_name_coalesced,
         COALESCE(uq_sales.is_multisale, md_sales.is_multisale)
@@ -330,7 +331,7 @@ combined_sales AS (
                     PARTITION BY
                         cte_s.pin_coalesced,
                         cte_s.sale_price_coalesced,
-                        cte_s.instrtyp NOT IN ('03', '04', '06')
+                        cte_s.deed_type_ias NOT IN ('03', '04', '06')
                     ORDER BY cte_s.sale_date_coalesced ASC
                 ) IS NOT NULL
                 THEN
@@ -338,8 +339,10 @@ combined_sales AS (
                     'day',
                     LAG(cte_s.sale_date_coalesced) OVER (
                         PARTITION BY --noqa
-                            cte_s.pin_coalesced, cte_s.sale_price_coalesced
-                        ORDER BY cte_s.sale_date_coalesced ASC
+                            cte_s.pin_coalesced,
+                            cte_s.sale_price_coalesced,
+                            cte_s.instrtyp NOT IN ('03', '04', '06')
+                        ORDER BY cte_s.deed_type_ias ASC
                     ),
                     cte_s.sale_date_coalesced
                 ) <= 365
