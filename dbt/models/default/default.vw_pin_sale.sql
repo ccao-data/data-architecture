@@ -258,7 +258,7 @@ SELECT
     CASE
         WHEN
             mydec_sales.mydec_date IS NOT NULL
-            AND mydec_sales.mydec_date != unique_sales.adjusted_sale_date
+            AND mydec_sales.mydec_date != unique_sales.sale_date
             THEN mydec_sales.year_of_sale
         ELSE unique_sales.year
     END AS year,
@@ -267,11 +267,17 @@ SELECT
     unique_sales.class,
     -- In the past, mydec sale dates were more precise than iasworld dates
     -- which had been truncated
-    unique_sales.adjusted_sale_date AS sale_date,
+    CASE
+        WHEN
+            mydec_sales.mydec_date IS NOT NULL
+            AND mydec_sales.mydec_date != unique_sales.sale_date
+            THEN mydec_sales.mydec_date
+        ELSE unique_sales.sale_date
+    END AS sale_date,
     -- From 2021 on iasWorld uses precise MyDec dates
     COALESCE(
         mydec_sales.mydec_date IS NOT NULL
-        OR YEAR(unique_sales.adjusted_sale_date) >= 2021,
+        OR YEAR(unique_sales.sale_date) >= 2021,
         FALSE
     ) AS is_mydec_date,
     unique_sales.sale_price,
