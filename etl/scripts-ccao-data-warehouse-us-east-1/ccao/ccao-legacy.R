@@ -273,6 +273,7 @@ files_cc_pifdb_piexemptre_ownr <- aws.s3::get_bucket_df(
   filter(Size > 0)
 
 cc_pifdb_piexemptre_ownr <- map_dfr(files_cc_pifdb_piexemptre_ownr$Key, \(f) {
+  print(glue::glue("Transforming {f}"))
   aws.s3::s3read_using(
     object = f,
     bucket = AWS_S3_RAW_BUCKET,
