@@ -37,6 +37,9 @@ calculated AS (
 unique_sales AS (
     SELECT
         *,
+        -- Historically, this view excluded sales for a given pin if it had sold
+        -- within the last 12 months for the same price. This filter allows us
+        -- to filter out those sales.
         COALESCE(
             DATE_DIFF(
                 'day',
@@ -77,6 +80,11 @@ unique_sales AS (
                 WHEN sales.saletype = '0' THEN 'LAND'
                 WHEN sales.saletype = '1' THEN 'LAND AND BUILDING'
             END AS sale_type,
+            -- Sales are not entirely unique by pin/date so we group all
+            -- sales by pin/date, then order by descending price
+            -- and give the top observation a value of 1 for "max_price".
+            -- We need to order by salekey as well in case of any ties within
+            -- price, date, and pin.
             ROW_NUMBER() OVER (
                 PARTITION BY
                     sales.parid,
@@ -84,6 +92,14 @@ unique_sales AS (
                     sales.instrtyp NOT IN ('03', '04', '06')
                 ORDER BY sales.price DESC, sales.salekey ASC
             ) AS max_price,
+            -- We remove the letter 'D' that trails some document numbers in
+            -- iasworld.sales since it prevents us from joining to mydec sales.
+            -- This creates one instance where we have duplicate document
+            -- numbers, so we sort by sale date (specifically to avoid conflicts
+            -- with detecting the easliest duplicate sale when there are
+            -- multiple within one document number, within a year) within the
+            -- new doument number to identify and remove the sale causing the
+            -- duplicate document number.
             ROW_NUMBER() OVER (
                 PARTITION BY
                     NULLIF(REPLACE(sales.instruno, 'D', ''), ''),
@@ -91,6 +107,11 @@ unique_sales AS (
                     sales.price > 10000
                 ORDER BY sales.saledt ASC, sales.salekey ASC
             ) AS bad_doc_no,
+            -- Some pins sell for the exact same price a few months after
+            -- they're sold (we need to make sure to only include deed types we
+            -- want). These sales are unecessary for modeling and may be
+            -- duplicates. We need to order by salekey as well in case of any
+            -- ties within price, date, and pin.
             LAG(DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) OVER (
                 PARTITION BY
                     sales.parid,
@@ -238,9 +259,8 @@ sales_val AS (
         AND sf.version = mv.max_version
 ),
 
-cte_sales AS (
+combined_sales AS (
     SELECT
-        -- Precompute coalesced columns
         COALESCE(uq_sales.pin, md_sales.pin) AS pin_coalesced,
         COALESCE(uq_sales.year, md_sales.year) AS year_coalesced,
         COALESCE(uq_sales.township_code, tc.township_code)
@@ -325,12 +345,6 @@ cte_sales AS (
     LEFT JOIN town_class AS tc
         ON COALESCE(uq_sales.pin, md_sales.pin) = tc.parid
         AND COALESCE(uq_sales.year, md_sales.year) = tc.taxyr
-),
-
-combined_sales AS (
-    SELECT
-        cte_s.*
-    FROM cte_sales AS cte_s
 )
 
 SELECT
