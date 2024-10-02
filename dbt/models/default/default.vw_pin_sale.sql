@@ -189,12 +189,28 @@ unique_sales AS (
                 ORDER BY adjusted_sale_date ASC, sales.salekey ASC
             ) AS bad_doc_no,
             -- Recompute same_price_earlier_date using adjusted_sale_date
-            LAG(adjusted_sale_date) OVER (
+            LAG(
+                CASE
+                    WHEN
+                        mydec_sales.mydec_date IS NOT NULL
+                        AND mydec_sales.mydec_date != DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
+                        THEN mydec_sales.mydec_date
+                    ELSE DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
+                END
+            ) OVER (
                 PARTITION BY
                     sales.parid,
                     sales.price,
                     sales.instrtyp NOT IN ('03', '04', '06')
-                ORDER BY adjusted_sale_date ASC, sales.salekey ASC
+                ORDER BY
+                    CASE
+                        WHEN
+                            mydec_sales.mydec_date IS NOT NULL
+                            AND mydec_sales.mydec_date != DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
+                            THEN mydec_sales.mydec_date
+                        ELSE DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
+                    END ASC,
+                    sales.salekey ASC
             ) AS same_price_earlier_date,
             -- Historically, this view filtered out sales less than $10k and
             -- as well as quit claims, executor deeds, beneficial interests,
