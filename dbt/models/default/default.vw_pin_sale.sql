@@ -115,135 +115,113 @@ mydec_sales AS (
 
 unique_sales AS (
     SELECT
-        sales.parid AS pin,
-        SUBSTR(sales.saledt, 1, 4) AS year,
-        tc.township_code,
-        tc.nbhd,
-        tc.class,
-        -- Adjust sale_date using CASE logic
-        CASE
-            WHEN
-                mydec_sales.mydec_date IS NOT NULL
-                AND mydec_sales.mydec_date != DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
-                THEN mydec_sales.mydec_date
-            ELSE DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
-        END AS sale_date,
-        CAST(sales.price AS BIGINT) AS sale_price,
-        sales.salekey AS sale_key,
-        NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
-        NULLIF(sales.instrtyp, '') AS deed_type,
-        -- "nopar" is number of parcels sold
+        *,
+        -- Now we can reference 'same_price_earlier_date' here
         COALESCE(
-            sales.nopar > 1 OR calculated.nopar_calculated > 1,
+            EXTRACT(DAY FROM (adjusted_sale_date - same_price_earlier_date)) <= 365,
             FALSE
-        ) AS is_multisale,
-        CASE
-            WHEN sales.nopar > 1 THEN sales.nopar ELSE
-                calculated.nopar_calculated
-        END AS num_parcels_sale,
-        CASE WHEN TRIM(sales.oldown) IN ('', 'MISSING SELLER NAME')
-                THEN NULL
-            ELSE sales.oldown
-        END AS seller_name,
-        CASE WHEN TRIM(sales.own1) IN ('', 'MISSING BUYER NAME')
-                THEN NULL
-            ELSE sales.own1
-        END AS buyer_name,
-        CASE
-            WHEN sales.saletype = '0' THEN 'LAND'
-            WHEN sales.saletype = '1' THEN 'LAND AND BUILDING'
-        END AS sale_type,
-        -- Sales are not entirely unique by pin/date so we group all
-        -- sales by pin/date, then order by descending price
-        -- and give the top observation a value of 1 for "max_price".
-        -- We need to order by salekey as well in case of any ties within
-        -- price, date, and pin.
-        ROW_NUMBER() OVER (
-            PARTITION BY
-                sales.parid,
-                sales.saledt,
-                sales.instrtyp NOT IN ('03', '04', '06')
-            ORDER BY sales.price DESC, sales.salekey ASC
-        ) AS max_price,
-        -- We remove the letter 'D' that trails some document numbers in
-        -- iasworld.sales since it prevents us from joining to mydec sales.
-        -- This creates one instance where we have duplicate document
-        -- numbers, so we sort by sale date (specifically to avoid conflicts
-        -- with detecting the earliest duplicate sale when there are
-        -- multiple within one document number, within a year) within the
-        -- new document number to identify and remove the sale causing the
-        -- duplicate document number.
-        ROW_NUMBER() OVER (
-            PARTITION BY
-                NULLIF(REPLACE(sales.instruno, 'D', ''), ''),
-                sales.instrtyp NOT IN ('03', '04', '06'),
-                sales.price > 10000
-            ORDER BY sales.saledt ASC, sales.salekey ASC
-        ) AS bad_doc_no,
-        -- Recompute same_price_earlier_date using adjusted sale_date
-        LAG(
+        ) AS sale_filter_same_sale_within_365
+    FROM (
+        SELECT
+            sales.parid AS pin,
+            SUBSTR(sales.saledt, 1, 4) AS year,
+            tc.township_code,
+            tc.nbhd,
+            tc.class,
+            -- Adjust sale_date using CASE logic
             CASE
                 WHEN
                     mydec_sales.mydec_date IS NOT NULL
                     AND mydec_sales.mydec_date != DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
                     THEN mydec_sales.mydec_date
                 ELSE DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
-            END
-        ) OVER (
-            PARTITION BY
-                sales.parid,
-                sales.price,
-                sales.instrtyp NOT IN ('03', '04', '06')
-            ORDER BY
-                CASE
-                    WHEN
-                        mydec_sales.mydec_date IS NOT NULL
-                        AND mydec_sales.mydec_date != DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
-                        THEN mydec_sales.mydec_date
-                    ELSE DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
-                END ASC,
-                sales.salekey ASC
-        ) AS same_price_earlier_date,
-        -- Historically, this view excluded sales for a given pin if it had sold
-        -- within the last 12 months for the same price. This filter allows us
-        -- to filter out those sales.
-        COALESCE(
-            EXTRACT(DAY FROM (
-                CASE
-                    WHEN
-                        mydec_sales.mydec_date IS NOT NULL
-                        AND mydec_sales.mydec_date != DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
-                        THEN mydec_sales.mydec_date
-                    ELSE DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
-                END - same_price_earlier_date
-            )) <= 365,
-            FALSE
-        ) AS sale_filter_same_sale_within_365,
-        -- Historically, this view filtered out sales less than $10k and
-        -- as well as quit claims, executor deeds, beneficial interests,
-        -- and NULL deed types. Now we create "legacy" filter columns so
-        -- that this filtering can reproduced while still allowing all sales
-        -- into the view.
-        sales.price <= 10000 AS sale_filter_less_than_10k,
-        COALESCE(
-            sales.instrtyp IN ('03', '04', '06') OR sales.instrtyp IS NULL,
-            FALSE
-        ) AS sale_filter_deed_type
-    FROM {{ source('iasworld', 'sales') }} AS sales
-    LEFT JOIN calculated
-        ON NULLIF(REPLACE(sales.instruno, 'D', ''), '') = calculated.instruno
-    LEFT JOIN town_class AS tc
-        ON sales.parid = tc.parid
-        AND SUBSTR(sales.saledt, 1, 4) = tc.taxyr
-    -- Join mydec_sales to bring in mydec_date
-    LEFT JOIN mydec_sales
-        ON NULLIF(REPLACE(sales.instruno, 'D', ''), '') = mydec_sales.doc_no
-    WHERE sales.instruno IS NOT NULL
-        AND sales.deactivat IS NULL
-        AND sales.cur = 'Y'
-        AND CAST(SUBSTR(sales.saledt, 1, 4) AS INT) BETWEEN 1997 AND YEAR(CURRENT_DATE)
-        AND tc.township_code IS NOT NULL
-        AND sales.price IS NOT NULL
+            END AS adjusted_sale_date,
+            CAST(sales.price AS BIGINT) AS sale_price,
+            sales.salekey AS sale_key,
+            NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
+            NULLIF(sales.instrtyp, '') AS deed_type,
+            -- "nopar" is number of parcels sold
+            COALESCE(
+                sales.nopar > 1 OR calculated.nopar_calculated > 1,
+                FALSE
+            ) AS is_multisale,
+            CASE
+                WHEN sales.nopar > 1 THEN sales.nopar ELSE
+                    calculated.nopar_calculated
+            END AS num_parcels_sale,
+            CASE WHEN TRIM(sales.oldown) IN ('', 'MISSING SELLER NAME')
+                    THEN NULL
+                ELSE sales.oldown
+            END AS seller_name,
+            CASE WHEN TRIM(sales.own1) IN ('', 'MISSING BUYER NAME')
+                    THEN NULL
+                ELSE sales.own1
+            END AS buyer_name,
+            CASE
+                WHEN sales.saletype = '0' THEN 'LAND'
+                WHEN sales.saletype = '1' THEN 'LAND AND BUILDING'
+            END AS sale_type,
+            -- Sales are not entirely unique by pin/date so we group all
+            -- sales by pin/date, then order by descending price
+            -- and give the top observation a value of 1 for "max_price".
+            -- We need to order by salekey as well in case of any ties within
+            -- price, date, and pin.
+            ROW_NUMBER() OVER (
+                PARTITION BY
+                    sales.parid,
+                    sales.saledt,
+                    sales.instrtyp NOT IN ('03', '04', '06')
+                ORDER BY sales.price DESC, sales.salekey ASC
+            ) AS max_price,
+            -- We remove the letter 'D' that trails some document numbers in
+            -- iasworld.sales since it prevents us from joining to mydec sales.
+            -- This creates one instance where we have duplicate document
+            -- numbers, so we sort by sale date (specifically to avoid conflicts
+            -- with detecting the earliest duplicate sale when there are
+            -- multiple within one document number, within a year) within the
+            -- new document number to identify and remove the sale causing the
+            -- duplicate document number.
+            ROW_NUMBER() OVER (
+                PARTITION BY
+                    NULLIF(REPLACE(sales.instruno, 'D', ''), ''),
+                    sales.instrtyp NOT IN ('03', '04', '06'),
+                    sales.price > 10000
+                ORDER BY adjusted_sale_date ASC, sales.salekey ASC
+            ) AS bad_doc_no,
+            -- Recompute same_price_earlier_date using adjusted_sale_date
+            LAG(adjusted_sale_date) OVER (
+                PARTITION BY
+                    sales.parid,
+                    sales.price,
+                    sales.instrtyp NOT IN ('03', '04', '06')
+                ORDER BY adjusted_sale_date ASC, sales.salekey ASC
+            ) AS same_price_earlier_date,
+            -- Historically, this view filtered out sales less than $10k and
+            -- as well as quit claims, executor deeds, beneficial interests,
+            -- and NULL deed types. Now we create "legacy" filter columns so
+            -- that this filtering can reproduced while still allowing all sales
+            -- into the view.
+            sales.price <= 10000 AS sale_filter_less_than_10k,
+            COALESCE(
+                sales.instrtyp IN ('03', '04', '06') OR sales.instrtyp IS NULL,
+                FALSE
+            ) AS sale_filter_deed_type
+        FROM {{ source('iasworld', 'sales') }} AS sales
+        LEFT JOIN calculated
+            ON NULLIF(REPLACE(sales.instruno, 'D', ''), '') = calculated.instruno
+        LEFT JOIN town_class AS tc
+            ON sales.parid = tc.parid
+            AND SUBSTR(sales.saledt, 1, 4) = tc.taxyr
+        -- Join mydec_sales to bring in mydec_date
+        LEFT JOIN mydec_sales
+            ON NULLIF(REPLACE(sales.instruno, 'D', ''), '') = mydec_sales.doc_no
+        WHERE sales.instruno IS NOT NULL
+            AND sales.deactivat IS NULL
+            AND sales.cur = 'Y'
+            AND CAST(SUBSTR(sales.saledt, 1, 4) AS INT) BETWEEN 1997 AND YEAR(CURRENT_DATE)
+            AND tc.township_code IS NOT NULL
+            AND sales.price IS NOT NULL
+    ) us
 ),
 
 max_version_flag AS (
@@ -280,7 +258,7 @@ SELECT
     CASE
         WHEN
             mydec_sales.mydec_date IS NOT NULL
-            AND mydec_sales.mydec_date != unique_sales.sale_date
+            AND mydec_sales.mydec_date != unique_sales.adjusted_sale_date
             THEN mydec_sales.year_of_sale
         ELSE unique_sales.year
     END AS year,
@@ -289,17 +267,11 @@ SELECT
     unique_sales.class,
     -- In the past, mydec sale dates were more precise than iasworld dates
     -- which had been truncated
-    CASE
-        WHEN
-            mydec_sales.mydec_date IS NOT NULL
-            AND mydec_sales.mydec_date != unique_sales.sale_date
-            THEN mydec_sales.mydec_date
-        ELSE unique_sales.sale_date
-    END AS sale_date,
+    unique_sales.adjusted_sale_date AS sale_date,
     -- From 2021 on iasWorld uses precise MyDec dates
     COALESCE(
         mydec_sales.mydec_date IS NOT NULL
-        OR YEAR(unique_sales.sale_date) >= 2021,
+        OR YEAR(unique_sales.adjusted_sale_date) >= 2021,
         FALSE
     ) AS is_mydec_date,
     unique_sales.sale_price,
