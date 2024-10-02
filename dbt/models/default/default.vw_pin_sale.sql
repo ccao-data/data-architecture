@@ -132,8 +132,54 @@ unique_sales AS (
         sales.salekey AS sale_key,
         NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
         NULLIF(sales.instrtyp, '') AS deed_type,
-        -- [Rest of your existing columns in unique_sales]
-        
+        -- "nopar" is number of parcels sold
+        COALESCE(
+            sales.nopar > 1 OR calculated.nopar_calculated > 1,
+            FALSE
+        ) AS is_multisale,
+        CASE
+            WHEN sales.nopar > 1 THEN sales.nopar ELSE
+                calculated.nopar_calculated
+        END AS num_parcels_sale,
+        CASE WHEN TRIM(sales.oldown) IN ('', 'MISSING SELLER NAME')
+                THEN NULL
+            ELSE sales.oldown
+        END AS seller_name,
+        CASE WHEN TRIM(sales.own1) IN ('', 'MISSING BUYER NAME')
+                THEN NULL
+            ELSE sales.own1
+        END AS buyer_name,
+        CASE
+            WHEN sales.saletype = '0' THEN 'LAND'
+            WHEN sales.saletype = '1' THEN 'LAND AND BUILDING'
+        END AS sale_type,
+        -- Sales are not entirely unique by pin/date so we group all
+        -- sales by pin/date, then order by descending price
+        -- and give the top observation a value of 1 for "max_price".
+        -- We need to order by salekey as well in case of any ties within
+        -- price, date, and pin.
+        ROW_NUMBER() OVER (
+            PARTITION BY
+                sales.parid,
+                sales.saledt,
+                sales.instrtyp NOT IN ('03', '04', '06')
+            ORDER BY sales.price DESC, sales.salekey ASC
+        ) AS max_price,
+        -- We remove the letter 'D' that trails some document numbers in
+        -- iasworld.sales since it prevents us from joining to mydec sales.
+        -- This creates one instance where we have duplicate document
+        -- numbers, so we sort by sale date (specifically to avoid conflicts
+        -- with detecting the earliest duplicate sale when there are
+        -- multiple within one document number, within a year) within the
+        -- new document number to identify and remove the sale causing the
+        -- duplicate document number.
+        ROW_NUMBER() OVER (
+            PARTITION BY
+                NULLIF(REPLACE(sales.instruno, 'D', ''), ''),
+                sales.instrtyp NOT IN ('03', '04', '06'),
+                sales.price > 10000
+            ORDER BY sales.saledt ASC, sales.salekey ASC
+        ) AS bad_doc_no,
         -- Recompute same_price_earlier_date using adjusted sale_date
         LAG(
             CASE
@@ -158,8 +204,9 @@ unique_sales AS (
                 END ASC,
                 sales.salekey ASC
         ) AS same_price_earlier_date,
-        
-        -- Recalculate sale_filter_same_sale_within_365 using adjusted dates
+        -- Historically, this view excluded sales for a given pin if it had sold
+        -- within the last 12 months for the same price. This filter allows us
+        -- to filter out those sales.
         COALESCE(
             EXTRACT(DAY FROM (
                 CASE
@@ -168,16 +215,23 @@ unique_sales AS (
                         AND mydec_sales.mydec_date != DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
                         THEN mydec_sales.mydec_date
                     ELSE DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
-                END
-            ) - same_price_earlier_date) <= 365,
+                END - same_price_earlier_date
+            )) <= 365,
             FALSE
         ) AS sale_filter_same_sale_within_365,
-        
-        -- [Rest of your existing columns in unique_sales]
+        -- Historically, this view filtered out sales less than $10k and
+        -- as well as quit claims, executor deeds, beneficial interests,
+        -- and NULL deed types. Now we create "legacy" filter columns so
+        -- that this filtering can reproduced while still allowing all sales
+        -- into the view.
+        sales.price <= 10000 AS sale_filter_less_than_10k,
+        COALESCE(
+            sales.instrtyp IN ('03', '04', '06') OR sales.instrtyp IS NULL,
+            FALSE
+        ) AS sale_filter_deed_type
     FROM {{ source('iasworld', 'sales') }} AS sales
     LEFT JOIN calculated
-        ON NULLIF(REPLACE(sales.instruno, 'D', ''), '')
-        = calculated.instruno
+        ON NULLIF(REPLACE(sales.instruno, 'D', ''), '') = calculated.instruno
     LEFT JOIN town_class AS tc
         ON sales.parid = tc.parid
         AND SUBSTR(sales.saledt, 1, 4) = tc.taxyr
@@ -190,8 +244,7 @@ unique_sales AS (
         AND CAST(SUBSTR(sales.saledt, 1, 4) AS INT) BETWEEN 1997 AND YEAR(CURRENT_DATE)
         AND tc.township_code IS NOT NULL
         AND sales.price IS NOT NULL
-)
-
+),
 
 max_version_flag AS (
     SELECT
@@ -270,7 +323,7 @@ SELECT
     mydec_sales.sale_filter_ptax_flag,
     mydec_sales.mydec_property_advertised,
     mydec_sales.mydec_is_installment_contract_fulfilled,
-    mydec_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates, -- noqa
+    mydec_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates,
     mydec_sales.mydec_is_transfer_of_less_than_100_percent_interest,
     mydec_sales.mydec_is_court_ordered_sale,
     mydec_sales.mydec_is_sale_in_lieu_of_foreclosure,
@@ -279,7 +332,7 @@ SELECT
     mydec_sales.mydec_is_bank_reo_real_estate_owned,
     mydec_sales.mydec_is_auction_sale,
     mydec_sales.mydec_is_seller_buyer_a_relocation_company,
-    mydec_sales.mydec_is_seller_buyer_a_financial_institution_or_government_agency, -- noqa
+    mydec_sales.mydec_is_seller_buyer_a_financial_institution_or_government_agency,
     mydec_sales.mydec_is_buyer_a_real_estate_investment_trust,
     mydec_sales.mydec_is_buyer_a_pension_fund,
     mydec_sales.mydec_is_buyer_an_adjacent_property_owner,
@@ -302,4 +355,8 @@ FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
 LEFT JOIN sales_val
-    ON unique_sales.doc_no = sales_val.meta_sale_document_num;
+    ON unique_sales.doc_no = sales_val.meta_sale_document_num
+WHERE
+    -- Only use max price by pin/sale date
+    unique_sales.max_price = 1
+    AND (unique_sales.bad_doc_no = 1 OR unique_sales.is_multisale = TRUE);
