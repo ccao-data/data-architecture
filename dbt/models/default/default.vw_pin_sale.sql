@@ -9,8 +9,8 @@ WITH town_class AS (
         CONCAT(
             leg.user1, SUBSTR(REGEXP_REPLACE(par.nbhd, '([^0-9])', ''), 3, 3)
         ) AS nbhd
-    FROM {{ source('iasworld', 'pardat') }} AS par
-    LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
+    FROM iasworld.pardat AS par
+    LEFT JOIN iasworld.legdat AS leg
         ON par.parid = leg.parid
         AND par.taxyr = leg.taxyr
         AND leg.cur = 'Y'
@@ -27,14 +27,14 @@ calculated AS (
         SELECT DISTINCT
             parid,
             NULLIF(REPLACE(instruno, 'D', ''), '') AS instruno
-        FROM {{ source('iasworld', 'sales') }}
+        FROM iasworld.sales
         WHERE deactivat IS NULL
             AND cur = 'Y'
     )
     GROUP BY instruno
 ),
 
--- Move mydec_sales before unique_sales
+-- Move mydec_sales before unique_salesad
 mydec_sales AS (
     SELECT * FROM (
         SELECT
@@ -103,7 +103,7 @@ mydec_sales AS (
                 PARTITION BY line_1_primary_pin, line_4_instrument_date
             ) AS num_single_day_sales,
             year_of_sale
-        FROM {{ source('sale', 'mydec') }}
+        FROM sale.mydec
         WHERE line_2_total_parcels = 1 -- Remove multisales
     )
     /* Some sales in mydec have multiple rows for one pin on a given sale date.
@@ -116,7 +116,6 @@ mydec_sales AS (
 unique_sales AS (
     SELECT
         *,
-        -- Now we can reference 'same_price_earlier_date' here
         COALESCE(
             EXTRACT(DAY FROM (adjusted_sale_date - same_price_earlier_date)) <= 365,
             FALSE
@@ -136,6 +135,12 @@ unique_sales AS (
                     THEN mydec_sales.mydec_date
                 ELSE DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
             END AS adjusted_sale_date,
+                -- From 2021 on iasWorld uses precise MyDec dates
+            COALESCE(
+                mydec_sales.mydec_date IS NOT NULL
+                OR YEAR(DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) >= 2021,
+                FALSE
+            ) AS is_mydec_date,
             CAST(sales.price AS BIGINT) AS sale_price,
             sales.salekey AS sale_key,
             NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
@@ -186,7 +191,7 @@ unique_sales AS (
                     NULLIF(REPLACE(sales.instruno, 'D', ''), ''),
                     sales.instrtyp NOT IN ('03', '04', '06'),
                     sales.price > 10000
-                ORDER BY adjusted_sale_date ASC, sales.salekey ASC
+                ORDER BY sales.saledt ASC, sales.salekey ASC
             ) AS bad_doc_no,
             -- Recompute same_price_earlier_date using adjusted_sale_date
             LAG(
@@ -222,7 +227,7 @@ unique_sales AS (
                 sales.instrtyp IN ('03', '04', '06') OR sales.instrtyp IS NULL,
                 FALSE
             ) AS sale_filter_deed_type
-        FROM {{ source('iasworld', 'sales') }} AS sales
+        FROM iasworld.sales AS sales
         LEFT JOIN calculated
             ON NULLIF(REPLACE(sales.instruno, 'D', ''), '') = calculated.instruno
         LEFT JOIN town_class AS tc
@@ -244,7 +249,7 @@ max_version_flag AS (
     SELECT
         meta_sale_document_num,
         MAX(version) AS max_version
-    FROM {{ source('sale', 'flag') }}
+    FROM sale.flag
     GROUP BY meta_sale_document_num
 ),
 
@@ -260,7 +265,7 @@ sales_val AS (
         sf.run_id AS sv_run_id,
         sf.version AS sv_version
     FROM
-        {{ source('sale', 'flag') }}
+        sale.flag
             AS sf
     INNER JOIN max_version_flag AS mv
         ON sf.meta_sale_document_num = mv.meta_sale_document_num
@@ -274,7 +279,7 @@ SELECT
     CASE
         WHEN
             mydec_sales.mydec_date IS NOT NULL
-            AND mydec_sales.mydec_date != unique_sales.sale_date
+            AND mydec_sales.mydec_date != unique_sales.adjusted_sale_date
             THEN mydec_sales.year_of_sale
         ELSE unique_sales.year
     END AS year,
@@ -286,16 +291,11 @@ SELECT
     CASE
         WHEN
             mydec_sales.mydec_date IS NOT NULL
-            AND mydec_sales.mydec_date != unique_sales.sale_date
+            AND mydec_sales.mydec_date != unique_sales.adjusted_sale_date
             THEN mydec_sales.mydec_date
-        ELSE unique_sales.sale_date
+        ELSE unique_sales.adjusted_sale_date
     END AS sale_date,
-    -- From 2021 on iasWorld uses precise MyDec dates
-    COALESCE(
-        mydec_sales.mydec_date IS NOT NULL
-        OR YEAR(unique_sales.sale_date) >= 2021,
-        FALSE
-    ) AS is_mydec_date,
+    unique_sales.is_mydec_date,
     unique_sales.sale_price,
     unique_sales.sale_key,
     unique_sales.doc_no,
