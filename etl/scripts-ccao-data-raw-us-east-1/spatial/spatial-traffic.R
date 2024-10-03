@@ -1,10 +1,3 @@
-# Load necessary libraries
-if (!requireNamespace("httr", quietly = TRUE)) install.packages("httr")
-if (!requireNamespace("sf", quietly = TRUE)) install.packages("sf")
-if (!requireNamespace("tools", quietly = TRUE)) install.packages("tools")
-if (!requireNamespace("aws.s3", quietly = TRUE)) install.packages("aws.s3")
-if (!requireNamespace("arrow", quietly = TRUE)) install.packages("arrow")
-
 library(aws.s3)
 library(dplyr)
 library(purrr)
@@ -51,7 +44,7 @@ process_shapefiles_for_year <- function(year) {
       temp_parquet <- tempfile(fileext = ".parquet")
 
       # Save the shapefile as a GeoParquet file
-      sf::write_parquet(shapefile_data, temp_parquet)
+      sf::st_write_parquet(shapefile_data, temp_parquet)
 
       # Define remote file path in S3
       remote_file_path <- file.path(output_bucket, paste0("T2HWY_", year, ".parquet"))
