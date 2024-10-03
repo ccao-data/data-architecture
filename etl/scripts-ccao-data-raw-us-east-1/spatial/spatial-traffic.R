@@ -33,7 +33,7 @@ process_shapefiles_for_year <- function(year) {
 
     # List files in the unzipped directory and look for the .shp files
     unzipped_files <- list.files(temp_dir, recursive = TRUE, full.names = TRUE)
-    shp_file_for_year <- unzipped_files[grepl(paste0("T2HWY", year), unzipped_files, ignore.case = TRUE) & grepl("\\.shp$", unzipped_files)]
+    shp_file_for_year <- unzipped_files[grepl(paste0("HWY", year), unzipped_files, ignore.case = TRUE) & grepl("\\.shp$", unzipped_files)]
 
     # Process only the shapefile that matches the current year
     if (length(shp_file_for_year) == 1) {
@@ -44,7 +44,7 @@ process_shapefiles_for_year <- function(year) {
       temp_parquet <- tempfile(fileext = ".parquet")
 
       # Save the shapefile as a GeoParquet file
-      sf::st_write_parquet(shapefile_data, temp_parquet)
+      geoarrow::write_geoparquet(shapefile_data, temp_parquet)
 
       # Define remote file path in S3
       remote_file_path <- file.path(output_bucket, paste0("T2HWY_", year, ".parquet"))
