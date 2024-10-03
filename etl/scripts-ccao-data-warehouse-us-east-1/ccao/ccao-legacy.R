@@ -287,12 +287,12 @@ cc_pifdb_piexemptre_ownr <- map_dfr(files_cc_pifdb_piexemptre_ownr$Key, \(f) {
       segment_code = c(24, 24),
       printed_indicator = c(26, 26),
       response = c(28, 28),
-      year_applied = c(30, 33),  # The header file thinks this is 2 chars
+      year_applied = c(30, 33),
       maintenance_indicator = c(35, 35),
       proration_factor = c(37, 43),
-      coop_quantity = c(45, 49),  # The header file thinks this is 6 chars
-      coop_status = c(51, 51),  # The header file doesn't recognize 0 as a value
-      equalized_factor = c(53, 57),  # The header file says 4 chars
+      coop_quantity = c(45, 49),
+      coop_status = c(51, 51),
+      equalized_factor = c(53, 57),
       assessed_value = c(59, 67),
       equalized_value = c(69, 77),
       batch_number = c(79, 83),
