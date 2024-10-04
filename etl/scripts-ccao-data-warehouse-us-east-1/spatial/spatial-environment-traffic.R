@@ -3,16 +3,20 @@ library(aws.s3)
 library(dplyr)
 library(purrr)
 library(sf)
+library(geoarrow)
 
-# Define S3 bucket and paths
-AWS_S3_RAW_BUCKET <- "ccao-data-raw-us-east-1"
+# Define S3 bucket and paths for raw and warehouse
+AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+
+# Paths to raw and warehouse buckets
+raw_bucket_path <- file.path(AWS_S3_RAW_BUCKET, "spatial", "environment", "traffic")
 warehouse_bucket_path <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment", "traffic")
 
 # List files from the raw bucket
-raw_files <- get_bucket_df(bucket = AWS_S3_RAW_BUCKET, prefix = warehouse_bucket_path)
+raw_files <- get_bucket_df(bucket = AWS_S3_RAW_BUCKET, prefix = "spatial/environment/traffic/")
 
-
+# Process each file from the raw bucket
 process_files_from_raw_bucket <- map(raw_files$Key, \(file_key) {
 
   # Download the file locally for inspection
@@ -34,12 +38,11 @@ process_files_from_raw_bucket <- map(raw_files$Key, \(file_key) {
   selected_columns <- shapefile_data %>%
     select(all_of(existing_columns))
 
-  # Show the first few rows of the selected columns for inspection
-  print(paste("File:", file_key))
-  print(head(selected_columns))
-
   # Clean up the temporary local file
   unlink(local_parquet_file)
 
-})
+  # Optionally, write processed data back to warehouse bucket
+  output_file <- file.path(warehouse_bucket_path, file_key)
+  geoarrow::write_geoparquet(selected_columns, output_file)
 
+})
