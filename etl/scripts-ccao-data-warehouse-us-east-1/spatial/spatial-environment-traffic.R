@@ -7,20 +7,13 @@ library(sf)
 # Define S3 bucket and paths
 AWS_S3_RAW_BUCKET <- "ccao-data-raw-us-east-1"
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-raw_bucket_prefix <- "spatial/environment/traffic/"
 warehouse_bucket_path <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment", "traffic")
 
 # List files from the raw bucket
-raw_files <- get_bucket_df(bucket = AWS_S3_RAW_BUCKET, prefix = raw_bucket_prefix)
+raw_files <- get_bucket_df(bucket = AWS_S3_RAW_BUCKET, prefix = warehouse_bucket_path)
 
 
 process_files_from_raw_bucket <- map(raw_files$Key, \(file_key) {
-
-  # Skip if the file is not a .parquet file
-  if (!grepl("\\.parquet$", file_key)) {
-    message(paste("Skipping non-parquet file:", file_key))
-    return(NULL)
-  }
 
   # Download the file locally for inspection
   local_parquet_file <- tempfile(fileext = ".parquet")
