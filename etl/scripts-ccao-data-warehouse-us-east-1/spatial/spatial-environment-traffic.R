@@ -32,8 +32,7 @@ for (file_key in parquet_files) {
     st_transform(4326) %>%
     mutate(geometry_3435 = st_transform(geometry, 3435))
 
-  # Define the columns you want to select. We do this because some columns are not present in older
-  # versions of the data
+  # We do this because some columns are not present in older versions of the data
   required_columns <- c("LNS", "SURF_TYP", "SURF_WTH", "SRF_YR", "AADT", "CRS_WITH", "CRS_OPP", "CRS_YR",
                         "ROAD_NAME", "DTRESS_WTH", "DTRESS_OPP", "SP_LIM", "INVENTORY", "geometry_3435")
 
