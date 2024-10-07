@@ -12,21 +12,18 @@ output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment", "t
 # List all the files in the S3 folder
 files_in_s3 <- get_bucket_df(bucket = AWS_S3_RAW_BUCKET, prefix = s3_folder)
 
-# Filter for files that match a 'parquet' pattern
+# Get the 'Key' (file path) for all files
 parquet_files <- files_in_s3 %>%
-  filter(grepl("\\.parquet$", Key)) %>%
   pull(Key)
 
 # Loop through each parquet file and process it
 for (file_key in parquet_files) {
-  message("Processing file: ", file_key)
 
-  # Download the file from S3 as a raw connection into a temporary file
-  temp_file <- tempfile(fileext = ".parquet")
-  save_object(object = file_key, bucket = AWS_S3_RAW_BUCKET, file = temp_file)
+  # Read the parquet file directly from S3 using aws.s3 functions
+  obj <- get_object(object = file_key, bucket = AWS_S3_RAW_BUCKET)
 
-  # Read the downloaded file using geoarrow into the R environment
-  shapefile_data <- geoarrow::read_geoparquet(temp_file)
+  # Convert the S3 object into raw data and read using geoarrow
+  shapefile_data <- geoarrow::read_geoparquet(rawConnection(obj))
 
   # Ensure geometry column is in 'sf' format
   shapefile_data$geometry <- st_as_sfc(shapefile_data$geometry)
@@ -45,8 +42,18 @@ for (file_key in parquet_files) {
   selected_columns <- shapefile_data %>%
     select(all_of(existing_columns))
 
-  # Clean up the temporary file
-  unlink(temp_file)
-}
+  # Create a temporary file for saving the processed data
+  output_file <- tempfile(fileext = ".parquet")
 
-message("Processing completed for all files.")
+  # Write the selected columns to a new parquet file
+  geoarrow::write_geoparquet(selected_columns, output_file)
+
+  # Define the output file path in the S3 bucket
+  output_key <- file.path(output_bucket, basename(file_key))
+
+  # Upload the processed file to the S3 output bucket
+  put_object(file = output_file, object = output_key, bucket = AWS_S3_WAREHOUSE_BUCKET)
+
+  # Clean up the temporary files
+  unlink(output_file)
+}
