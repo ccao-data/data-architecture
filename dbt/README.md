@@ -799,10 +799,10 @@ You should see output like this, which you can run in the context of the
 repository on the server in order to refresh iasWorld tables:
 
 ```
-ssh into the server and run the following commands:
+Run the following commands on the Data Team server:
 
 cd /path/to/service-spark-iasworld/
-docker-compose up -d
+docker compose up -d
 docker exec spark-node-master ./submit.sh --json-string --no-run-github-workflow
 '{"aprval": {"table_name": "iasworld.aprval", "min_year": 2024, "cur": ["Y"], ...
 ```
