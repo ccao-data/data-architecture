@@ -14,16 +14,32 @@ outside Chicago. If the municipality name is missing, the address
 is either in Chicago, or we generated it based on the concatenation
 of the address component fields, which do not include municipality
 name.
+
+Municipalities are responsible for filling out this field when submitting a
+permit.
+{% enddocs %}
+
+## permit_amount
+
+{% docs column_permit_amount %}
+Amount that permitted work is estimated to cost, rounded to the nearest dollar.
+
+Municipalities are responsible for filling out this field when submitting a
+permit. For the most part they do, but this field can be null in rare cases
+where they do not.
 {% enddocs %}
 
 ## permit_assessable
 
 {% docs column_permit_assessable %}
-Whether the permitted work affects the property's assessed
-values.
+Whether the permitted work will affect the property's assessed value.
 
-This field is set by CCAO permit specialists who review the permit's
-work description to determine assessability.
+CCAO permit specialists set this field based on the `work_description` during
+the permit review process. If a permit specialist determines that the field is
+assessable, they will mark it as such, and the permit will be sent to a field
+inspector for field check. The field inspector will then make any necessary
+changes to the parcel's characteristics, or will mark the permit for recheck at
+a later date if work is still ongoing.
 
 Possible values for this variable are:
 
@@ -32,10 +48,42 @@ Possible values for this variable are:
 - `B`: Non-Assessable
 {% enddocs %}
 
+## permit_date_submitted
+
+{% docs column_permit_date_submitted %}
+Date that the municipality submitted the permit to the CCAO.
+
+This field appears inconsistently in the data, and occasionally represents a
+date that is before `date_issued`, which should not be possible. As such, we
+prefer using `date_issued` for the purposes of establishing permit timelines.
+{% enddocs %}
+
+## permit_date_updated
+
+{% docs column_permit_date_updated %}
+Most recent date that the permit was updated in the CCAO system.
+
+If the `Latest Update Date` field in iasWorld is not null, we use its value
+to populate this field. `Latest Update Date` requires users to manually fill it
+out, however, so it is often null. If it's null, this field will use the value
+of the `wen` field that iasWorld automatically updates when a user edits a
+record.
+{% enddocs %}
+
+## permit_estimated_date_of_completion
+
+{% docs column_permit_estimated_date_of_completion %}
+Estimated date that the permitted work will be complete.
+
+Municipalities are responsible for filling out this field when submitting a
+permit, but they almost never do, so it is mostly null. As such, we do not rely
+on it for establishing permit timelines.
+{% enddocs %}
+
 ## permit_filing_type
 
 {% docs column_permit_filing_type %}
-Filing type.
+Deprecated.
 
 Possible values for this variable are:
 
@@ -47,6 +95,12 @@ Possible values for this variable are:
 
 {% docs column_permit_improvement_type %}
 Type of improvement indicated by the permit.
+
+The CCAO requests that municipalities provide improvement codes as a way of
+categorizing the specific type of planned work that the permit represents.
+Not all municipalities fill out this field correctly, however, so the
+`work_description` field should be considered the source of truth about the
+type of work that a permit represents.
 
 Possible values for this variable are:
 
@@ -128,6 +182,12 @@ This field functions as a permit classification field. The
 `job_code_secondary` and `improvement_code_*` fields provide
 codes with more details on the type of job that the permit represents.
 
+The CCAO requests that municipalities provide job codes as a way of
+categorizing the specific type of planned work that the permit represents.
+Not all municipalities fill out this field correctly, however, so the
+`work_description` field should be considered the source of truth about the
+type of work that a permit represents.
+
 Possible values for this variable are:
 
 - `1 - RESIDENTIAL PERMIT`
@@ -147,6 +207,12 @@ Secondary job description.
 In conjunction with the `job_code_primary` and `improvement_code_*`
 fields, this field provides details on the type of job that the
 permit represents.
+
+The CCAO requests that municipalities provide job codes as a way of
+categorizing the specific type of planned work that the permit represents.
+Not all municipalities fill out this field correctly, however, so the
+`work_description` field should be considered the source of truth about the
+type of work that a permit represents.
 
 Possible values for this variable are:
 
@@ -364,6 +430,28 @@ Possible values for this variable are:
 - `911 - OCCUPANCY CODE - WILL NOT BE USED`
 {% enddocs %}
 
+## permit_number
+
+{% docs column_permit_number %}
+Permit number created by Smartfile during permit submission.
+
+This field can be null if the permit was not uploaded through Smartfile, so
+we do not recommend using it for establishing permit uniqueness. Instead,
+prefer the combination of the `pin` and `date_issued` fields.
+{% enddocs %}
+
+## permit_recheck_year
+
+{% docs column_permit_recheck_year %}
+Year that this permit should be rechecked, if any.
+
+Recheck occurs when a field inspector finds that permitted work is still ongoing
+such that they cannot yet update parcel characteristics. In these cases, they
+will mark the permit with a `status` of `R` (recheck), and they will
+sometimes set a recheck year to indicate when the permit should come back up
+for recheck.
+{% enddocs %}
+
 ## permit_status
 
 {% docs column_permit_status %}
@@ -371,10 +459,28 @@ Status of the permit in the Assessor's permit workflow.
 
 Possible values for this variable are:
 
-- `C - CLOSED`
-- `L - LEGACY`
-- `M - MANAGER REVIEW`
-- `O - OPEN`
-- `P - PENDING`
-- `R - RECHECK`
+- `C - CLOSED`: A permit specialist has reviewed the permit and taken all
+  necessary action on it.
+- `L - LEGACY`: Deprecated.
+- `M - MANAGER REVIEW`: A permit specialist has escalated this permit to review
+  by a manager. This typically indicates that the permit is ambiguous enough
+  that the assessability of the work requires specialized interpretation.
+- `O - OPEN`: The permit is in the work queue waiting for a permit specialist
+  to review it.
+- `P - PENDING`: The permit has been created in our system, but it has not yet
+  been reviewed by a permit specialist, and it is not yet in the work queue
+  waiting for review.
+- `R - RECHECK`: A field inspector has indicated that the work that this permit
+  represents is ongoing, so it must be rechecked at a later date once work is
+  completed.
+{% enddocs %}
+
+## permit_work_description
+
+{% docs column_permit_work_description %}
+Short description of permitted work.
+
+Municipalities are responsible for filling out this field when submitting a
+permit. It is very rarely null, so we use it as the source of truth for the
+work that a permit represents.
 {% enddocs %}

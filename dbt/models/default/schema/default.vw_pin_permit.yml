@@ -15,9 +15,7 @@ models:
       - name: address_suffix_2
         description: '{{ doc("shared_column_prop_address_suffix_2") }}'
       - name: amount
-        description: >
-          Amount that permitted work is estimated to cost, rounded to the
-          nearest dollar
+        description: '{{ doc("column_permit_amount") }}'
       - name: applicant_name
         description: Name of the person who applied for the permit
       - name: assessable
@@ -25,14 +23,14 @@ models:
       - name: assessment_year
         description: Assessment year
       - name: date_issued
-        description: Date that the permit was issued by the municipality
-      - name: date_submitted
-        description: Date that the permit was submitted to the CCAO
-      - name: date_updated
         description: >
-          Most recent date that the permit was updated in the CCAO system
+          Date that the municipality issued the permit to the applicant
+      - name: date_submitted
+        description: '{{ doc("column_permit_date_submitted") }}'
+      - name: date_updated
+        description: '{{ doc("column_permit_date_updated") }}'
       - name: estimated_date_of_completion
-        description: Estimated date that the permitted work will be complete
+        description: '{{ doc("column_permit_estimated_date_of_completion") }}'
       - name: filing_type
         description: '{{ doc("column_permit_filing_type") }}'
       - name: improvement_code_1
@@ -52,12 +50,12 @@ models:
       - name: notes
         description: Notes on this field recorded by the reviewer in iasWorld
       - name: permit_number
-        description: Permit number as recorded by iasWorld
+        description: '{{ doc("column_permit_number") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: recheck_year
-        description: Year that this permit should be rechecked, if any.
+        description: '{{ doc("column_permit_recheck_year") }}'
       - name: status
         description: '{{ doc("column_permit_status") }}'
       - name: work_description
-        description: Short description of permitted work
+        description: '{{ doc("column_permit_work_description") }}'

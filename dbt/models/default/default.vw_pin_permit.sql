@@ -29,7 +29,7 @@ SELECT
     permit.user28 AS local_permit_number,
     permit.permdt AS date_issued,
     permit.certdate AS date_submitted,
-    permit.udate3 AS date_updated,
+    COALESCE(permit.udate3, permit.wen) AS date_updated,
     permit.udate2 AS estimated_date_of_completion,
     permit.user31 AS assessment_year,
     permit.user11 AS recheck_year,
