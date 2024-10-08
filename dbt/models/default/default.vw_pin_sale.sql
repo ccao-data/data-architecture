@@ -291,9 +291,9 @@ combined_sales AS (
         COALESCE(uq_sales.pin, md_sales.pin) AS pin_coalesced,
         CASE
             WHEN
-                mydec_sales.mydec_date IS NOT NULL
-                AND mydec_sales.mydec_date != unique_sales.adjusted_sale_date
-                THEN mydec_sales.year_of_sale
+                md_sales.mydec_date IS NOT NULL
+                AND md_sales.mydec_date != unique_sales.adjusted_sale_date
+                THEN md_sales.year_of_sale
             ELSE unique_sales.year
         END AS year,
         COALESCE(uq_sales.township_code, tc.township_code)
@@ -307,9 +307,9 @@ combined_sales AS (
         END AS sale_date_coalesced,
         CASE
             WHEN
-                mydec_sales.mydec_date IS NOT NULL
-                AND mydec_sales.mydec_date != unique_sales.adjusted_sale_date
-                THEN mydec_sales.mydec_date
+                md_sales.mydec_date IS NOT NULL
+                AND md_sales.mydec_date != unique_sales.adjusted_sale_date
+                THEN md_sales.mydec_date
             ELSE unique_sales.adjusted_sale_date
         END AS sale_date,
         COALESCE(uq_sales.sale_price, md_sales.sale_price)
