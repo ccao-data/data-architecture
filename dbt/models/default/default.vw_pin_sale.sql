@@ -381,7 +381,7 @@ combined_sales AS (
 
 SELECT
     cs.pin_coalesced AS pin,
-    cs.year_coalesced AS year,
+    cs.year,
     cs.township_code_coalesced AS township_code,
     cs.nbhd_coalesced AS nbhd,
     cs.class_coalesced AS class,
