@@ -134,7 +134,7 @@ unique_sales AS (
             DATE_DIFF(
                 'day',
                 same_price_earlier_date,
-                sale_date
+                adjusted_sale_date
             ) <= 365,
             FALSE
         ) AS sale_filter_same_sale_within_365
