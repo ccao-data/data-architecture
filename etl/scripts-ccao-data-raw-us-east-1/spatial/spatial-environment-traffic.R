@@ -13,7 +13,7 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET,
 current_year <- strftime(Sys.Date(), "%Y")
 
 # Get list of available files
-years <- map(2012:year(Sys.Date()), \(x){
+years <- map(2012:year(Sys.Date()), \(x) {
   if (HEAD(paste0(
     "https://apps1.dot.illinois.gov/gist2/gisdata/all",
     x, ".zip"
@@ -33,7 +33,7 @@ process_shapefiles_for_year <- map(years, \(x) {
   if (!object_exists(remote_file_path)) {
     # Define the URL for the shapefile ZIP file, dynamically for each year
     url <- paste0(
-      "https://apps1.dot.illinois.gov/gist2/gisdata/all", x, ".zip")
+                  "https://apps1.dot.illinois.gov/gist2/gisdata/all", x, ".zip")
 
     # Create a temporary file to store the downloaded ZIP
     temp_zip <- tempfile(fileext = ".zip")
@@ -46,12 +46,15 @@ process_shapefiles_for_year <- map(years, \(x) {
 
     # Unzip the file into a temporary directory
     unzip(temp_zip, exdir = temp_dir)
-    message(paste("Shapefile for year", x, "unzipped into temporary directory."))
+    message(paste("Shapefile for year", x,
+                  "unzipped into temporary directory."))
 
     # List files in the unzipped directory and look for the .shp files
     unzipped_files <- list.files(temp_dir, recursive = TRUE, full.names = TRUE)
-    shp_file_for_year <- unzipped_files[grepl(paste0("HWY", x),
-                                              unzipped_files, ignore.case = TRUE)
+    shp_file_for_year <- unzipped_files[grepl(paste0("HWY",
+                                                     x),
+                                              unzipped_files,
+                                              ignore.case = TRUE)
                                         & grepl("\\.shp$", unzipped_files)]
 
     # Process only the shapefile that matches the current year

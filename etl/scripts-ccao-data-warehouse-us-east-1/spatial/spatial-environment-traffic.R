@@ -11,7 +11,7 @@ output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET,
                            "spatial", "environment", "traffic")
 
 files_in_s3 <- get_bucket_df(
-  bucket = AWS_S3_RAW_BUCKET, prefix = s3_folder)
+                             bucket = AWS_S3_RAW_BUCKET, prefix = s3_folder)
 
 # Get the 'Key'
 parquet_files <- files_in_s3 %>%
