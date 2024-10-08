@@ -60,7 +60,8 @@ process_shapefiles_for_year <- map(years, \(x) {
     # Process only the shapefile that matches the current year
     if (length(shp_file_for_year) == 1) {
       # Read the shapefile into the environment using sf::st_read
-      shapefile_data <- sf::st_read(shp_file_for_year)
+      shapefile_data <- sf::st_read(shp_file_for_year) %>%
+        filter(INV_CO == '016')
 
       # Save the shapefile as a GeoParquet file
       geoarrow::write_geoparquet(shapefile_data, remote_file_path)
