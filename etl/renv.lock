@@ -1943,7 +1943,7 @@
       "Source": "GitHub",
       "RemoteType": "github",
       "RemoteHost": "api.github.com",
-      "RemoteUsername": "DyfanJones",
+      "RemoteUsername": "dyfanjones",
       "RemoteRepo": "noctua",
       "RemoteRef": "master",
       "RemoteSha": "23a4cfbf537407c7a1547fc13ba771ba2eb098e0",
@@ -1957,7 +1957,7 @@
         "utils",
         "uuid"
       ],
-      "Hash": "a48e1decdd027c44ea6b97b0fe0950cb"
+      "Hash": "b3fc482d0ae2f51ed324fd3da66471b4"
     },
     "numDeriv": {
       "Package": "numDeriv",
