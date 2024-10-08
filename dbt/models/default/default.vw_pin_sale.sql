@@ -53,7 +53,7 @@ mydec_sales AS (
             SELECT
                 REPLACE(document_number, 'D', '') AS doc_no,
                 REPLACE(line_1_primary_pin, '-', '') AS pin,
-                DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS sale_date,
+                DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS mydec_date,
                 SUBSTR(line_4_instrument_date, 1, 4) AS year,
                 line_5_instrument_type AS mydec_deed_type,
                 NULLIF(TRIM(seller_name), '') AS seller_name,
