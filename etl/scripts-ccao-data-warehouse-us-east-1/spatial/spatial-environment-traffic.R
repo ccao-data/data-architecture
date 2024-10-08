@@ -32,15 +32,34 @@ walk(parquet_files, \(file_key) {
 
     # We do this because some columns are not present in
     # older versions of the data
-    required_columns <- c("LNS", "SURF_TYP", "SURF_WTH", "SRF_YR", "AADT",
+    required_columns <- c("FCNAME", "LNS", "SURF_TYP", "SURF_WTH", "SRF_YR", "AADT",
                           "CRS_WITH", "CRS_OPP", "CRS_YR",
                           "ROAD_NAME", "DTRESS_WTH", "DTRESS_OPP",
-                          "SP_LIM", "INVENTORY", "geometry_3435")
+                          "SP_LIM", "INVENTORY", "geometry_3435", "year")
 
     # Select only the non-geometry columns that exist in the dataset
     existing_columns <- intersect(required_columns, colnames(shapefile_data))
-    shapefile_data %>%
+    shapefile_data_test <- shapefile_data %>%
       select(all_of(existing_columns)) %>%
+      mutate(
+        road_type = if ("FCNAME" %in% colnames(.)) FCNAME else NA,
+        lanes = if ("LNS" %in% colnames(.)) LNS else NA,
+        surface_type = if ("SURF_TYP" %in% colnames(.)) SURF_TYP else NA,
+        surface_width = if ("SURF_WTH" %in% colnames(.)) SURF_WTH else NA,
+        surface_year = if ("SRF_YR" %in% colnames(.)) SRF_YR else NA,
+        annual_traffic = if ("AADT" %in% colnames(.)) AADT else NA,
+        condition_with = if ("CRS_WITH" %in% colnames(.)) CRS_WITH else NA,
+        condition_opposing = if ("CRS_OPP" %in% colnames(.)) CRS_OPP else NA,
+        condition_year = if ("CRS_YR" %in% colnames(.)) CRS_YR else NA,
+        road_name = if ("ROAD_NAME" %in% colnames(.)) ROAD_NAME else NA,
+        distress_with = if ("DTRESS_WTH" %in% colnames(.)) DTRESS_WTH else NA,
+        distress_opposing = if ("DTRESS_OPP" %in% colnames(.)) DTRESS_OPP else NA,
+        speed_limit = if ("SP_LIM" %in% colnames(.)) SP_LIM else NA,
+        inventory_id = if ("INVENTORY" %in% colnames(.)) INVENTORY else NA
+      ) %>%
+      select(-one_of(c("FCNAME", "LNS", "SURF_TYP", "SURF_WTH", "SRF_YR", "AADT", "CRS_WITH",
+                       "CRS_OPP", "CRS_YR", "ROAD_NAME", "DTRESS_WTH", "DTRESS_OPP",
+                       "SP_LIM", "INVENTORY"))) %>%
       geoarrow::write_geoparquet(
         file.path(AWS_S3_WAREHOUSE_BUCKET, file_key)
       )
