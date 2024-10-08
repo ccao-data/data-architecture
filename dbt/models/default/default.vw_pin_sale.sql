@@ -40,9 +40,9 @@ mydec_sales AS (
         COALESCE(
             DATE_DIFF(
                 'day',
-                LAG(sale_date) OVER (
+                LAG(mydec_date) OVER (
                     PARTITION BY pin
-                    ORDER BY sale_date ASC
+                    ORDER BY mydec_date ASC
                 ),
                 sale_date
             ) <= 365,
