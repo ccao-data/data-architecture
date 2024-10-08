@@ -7,9 +7,11 @@ library(geoarrow)
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 s3_folder <- "spatial/environment/traffic/"
-output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment", "traffic")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET,
+                           "spatial", "environment", "traffic")
 
-files_in_s3 <- get_bucket_df(bucket = AWS_S3_RAW_BUCKET, prefix = s3_folder)
+files_in_s3 <- get_bucket_df(
+  bucket = AWS_S3_RAW_BUCKET, prefix = s3_folder)
 
 # Get the 'Key'
 parquet_files <- files_in_s3 %>%
@@ -32,12 +34,16 @@ for (file_key in parquet_files) {
     st_transform(4326) %>%
     mutate(geometry_3435 = st_transform(geometry, 3435))
 
-  # We do this because some columns are not present in older versions of the data
-  required_columns <- c("LNS", "SURF_TYP", "SURF_WTH", "SRF_YR", "AADT", "CRS_WITH", "CRS_OPP", "CRS_YR",
-                        "ROAD_NAME", "DTRESS_WTH", "DTRESS_OPP", "SP_LIM", "INVENTORY", "geometry_3435")
+  # We do this because some columns are not present in
+  # older versions of the data
+  required_columns <- c("LNS", "SURF_TYP", "SURF_WTH", "SRF_YR", "AADT",
+                        "CRS_WITH", "CRS_OPP", "CRS_YR",
+                        "ROAD_NAME", "DTRESS_WTH", "DTRESS_OPP",
+                        "SP_LIM", "INVENTORY", "geometry_3435")
 
   # Select only the non-geometry columns that exist in the dataset
-  existing_columns <- intersect(required_columns, colnames(shapefile_data))
+  existing_columns <- intersect(required_columns,
+                                colnames(shapefile_data))
   selected_columns <- shapefile_data %>%
     select(all_of(existing_columns))
 
@@ -51,7 +57,8 @@ for (file_key in parquet_files) {
   output_key <- file.path(output_bucket, basename(file_key))
 
   # Upload the processed file to the S3 output bucket
-  put_object(file = output_file, object = output_key, bucket = AWS_S3_WAREHOUSE_BUCKET)
+  put_object(file = output_file, object = output_key,
+             bucket = AWS_S3_WAREHOUSE_BUCKET)
 
   # Clean up the temporary files
   unlink(output_file)

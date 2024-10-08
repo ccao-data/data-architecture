@@ -8,20 +8,23 @@ library(arrow)
 
 # Define S3 bucket and paths
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
-output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "environment", "traffic")
+output_bucket <- file.path(AWS_S3_RAW_BUCKET,
+                           "spatial", "environment", "traffic")
 current_year <- strftime(Sys.Date(), "%Y")
 
 # Get list of available files
 years <- map(2012:year(Sys.Date()), \(x){
   if (HEAD(paste0(
-    "https://apps1.dot.illinois.gov/gist2/gisdata/all", x, ".zip"
+    "https://apps1.dot.illinois.gov/gist2/gisdata/all",
+    x, ".zip"
   ))$status_code == 200) {
     x
   }
 }) %>%
   unlist()
 
-# Function to process each year and upload shapefiles for that specific year to S3
+# Function to process each year and upload shapefiles for
+# that specific year to S3
 process_shapefiles_for_year <- map(years, \(x) {
 
   remote_file_path <- file.path(output_bucket, paste0(x, ".parquet"))
@@ -29,7 +32,8 @@ process_shapefiles_for_year <- map(years, \(x) {
   # Skip everything if file already exists
   if (!object_exists(remote_file_path)) {
     # Define the URL for the shapefile ZIP file, dynamically for each year
-    url <- paste0("https://apps1.dot.illinois.gov/gist2/gisdata/all", x, ".zip")
+    url <- paste0(
+      "https://apps1.dot.illinois.gov/gist2/gisdata/all", x, ".zip")
 
     # Create a temporary file to store the downloaded ZIP
     temp_zip <- tempfile(fileext = ".zip")
@@ -46,7 +50,9 @@ process_shapefiles_for_year <- map(years, \(x) {
 
     # List files in the unzipped directory and look for the .shp files
     unzipped_files <- list.files(temp_dir, recursive = TRUE, full.names = TRUE)
-    shp_file_for_year <- unzipped_files[grepl(paste0("HWY", x), unzipped_files, ignore.case = TRUE) & grepl("\\.shp$", unzipped_files)]
+    shp_file_for_year <- unzipped_files[grepl(paste0("HWY", x),
+                                              unzipped_files, ignore.case = TRUE)
+                                        & grepl("\\.shp$", unzipped_files)]
 
     # Process only the shapefile that matches the current year
     if (length(shp_file_for_year) == 1) {
