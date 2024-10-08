@@ -19,7 +19,7 @@ parquet_files <- get_bucket_df(
 # Loop through each parquet file and process it
 walk(parquet_files, \(file_key) {
 
-  if (!aws.s3::object_exists(file.path(AWS_S3_WAREHOUSE_BUCKET, file_key))) {
+  if (!aws.s3::object_exists(file.path(AWS_S3_WAREHOUSE_BUCKET, s3_folder, file_key))) {
 
     print(paste("Cleaning", file_key))
 
