@@ -119,7 +119,7 @@ mydec_sales AS (
             WHERE line_2_total_parcels = 1
         )
         WHERE num_single_day_sales = 1
-            OR (YEAR(sale_date) > 2020)
+            OR (YEAR(mydec_date) > 2020)
     )
 ),
 
