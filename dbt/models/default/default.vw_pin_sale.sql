@@ -44,7 +44,7 @@ mydec_sales AS (
                     PARTITION BY pin
                     ORDER BY mydec_date ASC
                 ),
-                sale_date
+                mydec_date
             ) <= 365,
             FALSE
         ) AS sale_filter_same_sale_within_365
