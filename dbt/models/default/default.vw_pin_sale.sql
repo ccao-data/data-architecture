@@ -302,8 +302,8 @@ combined_sales AS (
         COALESCE(uq_sales.class, tc.class) AS class_coalesced,
         CASE
             WHEN uq_sales.year < '2021'
-                THEN COALESCE(md_sales.mydec_date, uq_sales.sale_date)
-            ELSE COALESCE(uq_sales.sale_date, md_sales.mydec_date)
+                THEN COALESCE(md_sales.mydec_date, uq_sales.adjusted_sale_date)
+            ELSE COALESCE(uq_sales.adjusted_sale_date, md_sales.mydec_date)
         END AS sale_date_coalesced,
         CASE
             WHEN
