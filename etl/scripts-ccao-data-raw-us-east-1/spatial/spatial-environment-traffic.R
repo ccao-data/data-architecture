@@ -61,7 +61,7 @@ process_shapefiles_for_year <- map(years, \(x) {
     if (length(shp_file_for_year) == 1) {
       # Read the shapefile into the environment using sf::st_read
       shapefile_data <- sf::st_read(shp_file_for_year) %>%
-        # Add filter for Cook County. The name changes in different years
+        # Add filter for Cook County. The name changes in different years.
         filter(if ("COUNTY" %in% names(.))
           COUNTY == '016' else INV_CO == '016')
 
