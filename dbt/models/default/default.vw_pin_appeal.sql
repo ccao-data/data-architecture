@@ -96,11 +96,11 @@ LEFT JOIN {{ source('iasworld', 'htagnt') }} AS htagnt
     ON reasons.cpatty = htagnt.agent
     AND htagnt.cur = 'Y'
     AND htagnt.deactivat IS NULL
-LEFT JOIN {{ source('ccao', 'htpar_reascd') }} AS reascd1
+LEFT JOIN {{ ref('ccao.htpar_reascd') }} AS reascd1
     ON reasons.reason_code1 = reascd1.reascd
-LEFT JOIN {{ source('ccao', 'htpar_reascd') }} AS reascd2
+LEFT JOIN {{ ref('ccao.htpar_reascd') }} AS reascd2
     ON reasons.reason_code2 = reascd2.reascd
-LEFT JOIN {{ source('ccao', 'htpar_reascd') }} AS reascd3
+LEFT JOIN {{ ref('ccao.htpar_reascd') }} AS reascd3
     ON reasons.reason_code3 = reascd3.reascd
 WHERE reasons.cur = 'Y'
     AND reasons.caseno IS NOT NULL
