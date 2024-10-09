@@ -293,7 +293,7 @@ combined_sales AS (
             WHEN
                 md_sales.mydec_date IS NOT NULL
                 AND md_sales.mydec_date != uq_sales.adjusted_sale_date
-                THEN md_sales.year
+                THEN md_sales.year_of_sale
             ELSE uq_sales.year
         END AS year,
         COALESCE(uq_sales.township_code, tc.township_code)
