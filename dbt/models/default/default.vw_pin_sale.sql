@@ -146,7 +146,7 @@ unique_sales AS (
             tc.nbhd,
             tc.class,
             -- Ias only sale date for calculation later
-            sales.ias_sale_date,
+            DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d') AS ias_sale_date,
             -- Adjusted sale_date that captrues nuance
             CASE
                 WHEN
