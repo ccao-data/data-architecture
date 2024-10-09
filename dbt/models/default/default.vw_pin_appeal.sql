@@ -77,11 +77,11 @@ SELECT
         WHEN reasons.taxyr > '2020' THEN TRIM(LOWER(reasons.user104))
     END AS change,
     reasons.reason_code1,
-    reascd1.description AS reason1,
+    reascd1.description AS reason_desc1,
     reasons.reason_code2,
-    reascd2.description AS reason2,
+    reascd2.description AS reason_desc2,
     reasons.reason_code3,
-    reascd3.description AS reason3,
+    reascd3.description AS reason_desc3,
     reasons.cpatty AS agent_code,
     htagnt.name1 AS agent_name,
     CASE
