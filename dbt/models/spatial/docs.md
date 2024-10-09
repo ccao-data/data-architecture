@@ -493,14 +493,6 @@ Includes townships within the City of Chicago, which are technically defunct.
 **Geometry:** `MULTIPOLYGON`
 {% enddocs %}
 
-# traffic
-
-{% docs table_traffic %}
-Locations of roads derived from the Illinois Department of Revenue website
-
-**Geometry:** `MULTILINESTRING`
-{% enddocs %}
-
 # transit_dict
 
 {% docs table_transit_dict %}
