@@ -5,20 +5,26 @@ WITH reasons AS (
         -- Reason codes come from different columns before and after 2020
         CASE
             WHEN htpar.taxyr <= '2020'
-                AND TRIM(SUBSTR(htpar.user42, 1, 2)) NOT IN ('0', ':')
-                THEN TRIM(SUBSTR(htpar.user42, 1, 2))
+                AND REPLACE(TRIM(SUBSTR(htpar.user42, 1, 2)), '.') NOT IN (
+                    '0', ':'
+                )
+                THEN REPLACE(TRIM(SUBSTR(htpar.user42, 1, 2)), '.')
             WHEN htpar.taxyr > '2020' THEN htpar.user89
         END AS reason_code1,
         CASE
             WHEN htpar.taxyr <= '2020'
-                AND TRIM(SUBSTR(htpar.user43, 1, 2)) NOT IN ('0', ':')
-                THEN TRIM(SUBSTR(htpar.user42, 1, 2))
+                AND REPLACE(TRIM(SUBSTR(htpar.user43, 1, 2)), '.') NOT IN (
+                    '0', ':'
+                )
+                THEN REPLACE(TRIM(SUBSTR(htpar.user43, 1, 2)), '.')
             WHEN htpar.taxyr > '2020' THEN htpar.user100
         END AS reason_code2,
         CASE
             WHEN htpar.taxyr <= '2020'
-                AND TRIM(SUBSTR(htpar.user44, 1, 2)) NOT IN ('0', ':')
-                THEN TRIM(SUBSTR(htpar.user42, 1, 2))
+                AND REPLACE(TRIM(SUBSTR(htpar.user44, 1, 2)), '.') NOT IN (
+                    '0', ':'
+                )
+                THEN REPLACE(TRIM(SUBSTR(htpar.user44, 1, 2)), '.')
             WHEN htpar.taxyr > '2020' THEN htpar.user101
         END AS reason_code3
     FROM {{ source('iasworld', 'htpar') }} AS htpar
