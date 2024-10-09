@@ -321,7 +321,7 @@ combined_sales AS (
             -- If uq_sales.doc_no is NULL, set is_mydec_date to TRUE
             ELSE
                 TRUE
-        END AS is_mydec_date
+        END AS is_mydec_date,
         COALESCE(uq_sales.sale_price, md_sales.sale_price)
             AS sale_price_coalesced,
         uq_sales.sale_key,
