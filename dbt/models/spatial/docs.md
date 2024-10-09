@@ -499,6 +499,14 @@ Includes townships within the City of Chicago, which are technically defunct.
 Dictionary to cleanup transit route and stop names.
 {% enddocs %}
 
+# traffic
+
+{% docs table_traffic %}
+Traffic data derived from Illinois Department of Transportation
+
+**Geometry:** `MULTILINESTRING`
+{% enddocs %}
+
 # transit_route
 
 {% docs table_transit_route %}

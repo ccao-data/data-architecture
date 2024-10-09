@@ -217,6 +217,14 @@ Distance from each PIN to the nearest sports stadium.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
+# dist_pin_to_traffic_daily_traffic
+
+{% docs table_dist_pin_to_traffic_daily_traffic %}
+Distance from each PIN to the valid value of daily traffic.
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
 # dist_pin_to_university
 
 {% docs table_dist_pin_to_university %}
