@@ -76,5 +76,3 @@ process_shapefiles_for_year <- map(years, \(x) {
   }
 
 })
-
-unlink(temp_dir, recursive = TRUE)
