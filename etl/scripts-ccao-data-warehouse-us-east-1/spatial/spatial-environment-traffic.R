@@ -76,5 +76,4 @@ walk(parquet_files, \(file_key) {
 
     }
   }
-
-})
+)
