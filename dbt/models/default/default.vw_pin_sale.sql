@@ -309,8 +309,8 @@ combined_sales AS (
             WHEN
                 md_sales.mydec_date IS NOT NULL
                 AND md_sales.mydec_date != uq_sales.adjusted_sale_date
-                THEN md_sales.mydec_date
-            ELSE uq_sales.adjusted_sale_date
+                THEN true
+            ELSE false
         END AS is_mydec_date,
         COALESCE(uq_sales.sale_price, md_sales.sale_price)
             AS sale_price_coalesced,
