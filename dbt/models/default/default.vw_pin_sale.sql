@@ -145,7 +145,9 @@ unique_sales AS (
             tc.township_code,
             tc.nbhd,
             tc.class,
-            -- Adjusted sale_date
+            -- Ias only sale date for calculation later
+            tc.ias_sale_date,
+            -- Adjusted sale_date that captrues nuance
             CASE
                 WHEN
                     mydec_sales.mydec_date IS NOT NULL
@@ -292,7 +294,7 @@ combined_sales AS (
         CASE
             WHEN
                 md_sales.mydec_date IS NOT NULL
-                AND md_sales.mydec_date != uq_sales.adjusted_sale_date
+                AND md_sales.mydec_date != uq_sales.ias_sale_date
                 THEN md_sales.year
             ELSE uq_sales.year
         END AS year,
@@ -302,13 +304,13 @@ combined_sales AS (
         COALESCE(uq_sales.class, tc.class) AS class_coalesced,
         CASE
             WHEN uq_sales.year < '2021'
-                THEN COALESCE(md_sales.mydec_date, uq_sales.adjusted_sale_date)
-            ELSE COALESCE(uq_sales.adjusted_sale_date, md_sales.mydec_date)
+                THEN COALESCE(md_sales.mydec_date, uq_sales.ias_sale_date)
+            ELSE COALESCE(uq_sales.ias_sale_date, md_sales.mydec_date)
         END AS sale_date_coalesced,
         CASE
             WHEN
                 md_sales.mydec_date IS NOT NULL
-                AND md_sales.mydec_date != uq_sales.adjusted_sale_date
+                AND md_sales.mydec_date != uq_sales.ias_sale_date
                 THEN true
             ELSE false
         END AS is_mydec_date,
