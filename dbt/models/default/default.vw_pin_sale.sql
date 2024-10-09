@@ -311,7 +311,7 @@ combined_sales AS (
             WHEN (uq_sales.year < '2021' OR uq_sales.ias_sale_date IS NULL)
                 AND md_sales.mydec_date IS NOT NULL
                 THEN TRUE
-            WHEN (uq_sales.year >= '2021' OR md_sales.ias_sale_date IS NULL)
+            WHEN (uq_sales.year >= '2021' OR md_sales.mydec_sale_date IS NULL)
                 AND uq_sales.ias_sale_date IS NOT NULL
                 THEN FALSE
         END AS is_mydec_date,
