@@ -292,10 +292,9 @@ combined_sales AS (
     SELECT
         COALESCE(uq_sales.pin, md_sales.pin) AS pin_coalesced,
         CASE
-            WHEN
-                md_sales.mydec_date IS NOT NULL
-                AND md_sales.mydec_date != uq_sales.ias_sale_date
-                THEN md_sales.year
+            WHEN md_sales.mydec_date IS NOT NULL
+                AND (uq_sales.ias_sale_date IS NULL OR md_sales.mydec_date != uq_sales.ias_sale_date)
+            THEN md_sales.year
             ELSE uq_sales.year
         END AS year,
         COALESCE(uq_sales.township_code, tc.township_code)
