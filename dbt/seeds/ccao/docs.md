@@ -35,6 +35,15 @@ To find the level of assessment (LoA) for each class, see the `ccao.loa` table.
 **Primary Key**: `class_code`
 {% enddocs %}
 
+# htpar_reascd
+
+{% docs seed_htpar_reascd %}
+Table containing descriptions for appeal decision reason codes from
+`iasworld.htpar`.
+
+**Primary Key**: `reascd`
+{% enddocs %}
+
 # loa
 
 {% docs seed_loa %}
