@@ -313,7 +313,7 @@ combined_sales AS (
                 CASE
                     WHEN COALESCE(
                             md_sales.mydec_date IS NOT NULL
-                            OR YEAR(uq_sales.sale_date) >= 2021,
+                            OR YEAR(uq_sales.ias_sale_date) >= 2021,
                             FALSE
                         ) THEN TRUE
                     ELSE FALSE
