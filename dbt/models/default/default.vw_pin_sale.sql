@@ -146,7 +146,7 @@ unique_sales AS (
             tc.nbhd,
             tc.class,
             -- Ias only sale date for calculation later
-            tc.ias_sale_date,
+            sales.ias_sale_date,
             -- Adjusted sale_date that captrues nuance
             CASE
                 WHEN
