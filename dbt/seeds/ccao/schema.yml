@@ -105,3 +105,11 @@ seeds:
         description: '{{ doc("shared_column_triad_code") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
+
+  - name: ccao.htpar_reascd
+    description: '{{ doc("seed_htpar_reascd") }}'
+    config:
+      column_types:
+        reascd: string
+        outcome: string
+        description: string
