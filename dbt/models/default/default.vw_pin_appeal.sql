@@ -1,4 +1,7 @@
 -- View containing appeals by PIN
+
+-- This CTE exists only so that we can join reason descriptions onto cleaned
+-- reason codes.
 WITH reasons AS (
     SELECT
         htpar.*,
