@@ -5,27 +5,33 @@ WITH reasons AS (
         -- Reason codes come from different columns before and after 2020
         CASE
             WHEN htpar.taxyr <= '2020'
-                AND REPLACE(TRIM(SUBSTR(htpar.user42, 1, 2)), '.') NOT IN (
+                AND TRIM(SUBSTR(htpar.user42, 1, 2)) NOT IN (
                     '0', ':'
                 )
-                THEN REPLACE(TRIM(SUBSTR(htpar.user42, 1, 2)), '.')
-            WHEN htpar.taxyr > '2020' THEN htpar.user89
+                THEN TRIM(SUBSTR(htpar.user42, 1, 2))
+            WHEN
+                htpar.taxyr > '2020'
+                THEN REGEXP_REPLACE(htpar.user89, '[^[:alnum:]]', '')
         END AS reason_code1,
         CASE
             WHEN htpar.taxyr <= '2020'
-                AND REPLACE(TRIM(SUBSTR(htpar.user43, 1, 2)), '.') NOT IN (
+                AND TRIM(SUBSTR(htpar.user43, 1, 2)) NOT IN (
                     '0', ':'
                 )
-                THEN REPLACE(TRIM(SUBSTR(htpar.user43, 1, 2)), '.')
-            WHEN htpar.taxyr > '2020' THEN htpar.user100
+                THEN TRIM(SUBSTR(htpar.user43, 1, 2))
+            WHEN
+                htpar.taxyr > '2020'
+                THEN REGEXP_REPLACE(htpar.user100, '[^[:alnum:]]', '')
         END AS reason_code2,
         CASE
             WHEN htpar.taxyr <= '2020'
-                AND REPLACE(TRIM(SUBSTR(htpar.user44, 1, 2)), '.') NOT IN (
+                AND TRIM(SUBSTR(htpar.user44, 1, 2)) NOT IN (
                     '0', ':'
                 )
-                THEN REPLACE(TRIM(SUBSTR(htpar.user44, 1, 2)), '.')
-            WHEN htpar.taxyr > '2020' THEN htpar.user101
+                THEN TRIM(SUBSTR(htpar.user44, 1, 2))
+            WHEN
+                htpar.taxyr > '2020'
+                THEN REGEXP_REPLACE(htpar.user101, '[^[:alnum:]]', '')
         END AS reason_code3
     FROM {{ source('iasworld', 'htpar') }} AS htpar
 )
