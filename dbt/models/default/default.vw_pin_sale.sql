@@ -145,9 +145,11 @@ unique_sales AS (
             tc.township_code,
             tc.nbhd,
             tc.class,
-            -- Ias only sale date for calculation later
+            -- Ias only sale date for various mydec calculations later 
             DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d') AS ias_sale_date,
-            -- Adjusted sale_date that captrues nuance
+            -- Adjusted sale_date is added here specifically so we can calculate
+            -- sale_filter_same_sale_within_365 correctly. This allows us to
+            -- use sale dates from either mydec or iasworld in the calculation
             CASE
                 WHEN
                     mydec_sales.mydec_date IS NOT NULL
@@ -210,7 +212,9 @@ unique_sales AS (
             -- they're sold (we need to make sure to only include deed types we
             -- want). These sales are unecessary for modeling and may be
             -- duplicates. We need to order by salekey as well in case of any
-            -- ties within price, date, and pin.
+            -- ties within price, date, and pin. This LAG calculation
+            -- grabs the previous sale dynamically depending on which source table
+            -- we are using for a given sale date
             LAG(
                 CASE
                     WHEN
@@ -307,7 +311,6 @@ combined_sales AS (
             ELSE COALESCE(uq_sales.ias_sale_date, md_sales.mydec_date)
         END AS sale_date_coalesced,
         CASE
-            -- If uq_sales.doc_no is not NULL, apply the COALESCE logic
             WHEN uq_sales.doc_no IS NOT NULL THEN
                 CASE
                     WHEN COALESCE(
@@ -317,7 +320,6 @@ combined_sales AS (
                         ) THEN TRUE
                     ELSE FALSE
                 END
-            -- If uq_sales.doc_no is NULL, set is_mydec_date to TRUE
             ELSE
                 TRUE
         END AS is_mydec_date,
