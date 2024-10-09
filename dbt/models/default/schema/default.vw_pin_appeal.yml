@@ -108,6 +108,7 @@ models:
             - change
           config:
             where: CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+            error_if: ">2"
       - row_count:
           name: default_vw_pin_appeal_row_count
           above: 8407667 # as of 2023-11-22
