@@ -216,7 +216,7 @@ unique_sales AS (
                 PARTITION BY
                     sales.parid,
                     sales.price,
-                    CASE WHEN COALESCE(mydec_sales.instrtyp, mydec_sales.mydec_deed_type) NOT IN ('03', '04', '06') THEN 1 ELSE 0 END
+                    CASE WHEN COALESCE(sales.instrtyp, mydec_sales.mydec_deed_type) NOT IN ('03', '04', '06') THEN 1 ELSE 0 END
                 ORDER BY
                     COALESCE(mydec_sales.mydec_date, DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) ASC,
                     sales.salekey ASC
