@@ -97,7 +97,7 @@ walk(parquet_files, \(file_key) {
         surface_type = if ("SURF_TYP" %in% colnames(.)) SURF_TYP else NA,
         surface_width = if ("SURF_WTH" %in% colnames(.)) SURF_WTH else NA,
         surface_year = if ("SURF_YR" %in% colnames(.)) SURF_YR else NA,
-        annual_traffic = if ("AADT" %in% colnames(.)) AADT else NA,
+        daily_traffic = if ("AADT" %in% colnames(.)) AADT else NA,
         condition_with = if ("CRS_WITH" %in% colnames(.)) CRS_WITH else NA,
         condition_opposing = if ("CRS_OPP" %in% colnames(.)) CRS_OPP else NA,
         condition_year = if ("CRS_YR" %in% colnames(.)) CRS_YR else NA,
@@ -115,6 +115,7 @@ walk(parquet_files, \(file_key) {
                        "SP_LIM", "INVENTORY"))) %>%
       # Replace all 0 values with NA, excluding the geometry column
       mutate(across(-geometry, ~replace(., . %in% c(0, "0000"), NA))) %>%
+      mutate(surface_year = ifelse(surface_year == 9999, NA, surface_year)) %>%
       geoarrow::write_geoparquet(
         file.path(AWS_S3_WAREHOUSE_BUCKET, file_key)
       )
