@@ -56,7 +56,7 @@ road_codes <- c(
   "782" = "Reinforced over PCC - Full reinforcement",
   "790" = "Non-Reinforced over PCC - Continuous reinforcement",
   "792" = "Reinforced over PCC - Continuous reinforcement",
-  "800" = "800 Brick, Block or Other"
+  "800" = "Brick, Block or Other"
 )
 
 
