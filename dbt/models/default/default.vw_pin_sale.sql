@@ -351,7 +351,7 @@ combined_sales AS (
         md_sales.mydec_homestead_exemption_senior_citizens,
         md_sales.mydec_homestead_exemption_senior_citizens_assessment_freeze,
         -- Include sale_filter_same_sale_within_365 from both sources
-        COALESCE(uq_sales.sale_filter_same_sale_within_365, md_sales.sale_filter_same_sale_within_365, FALSE) AS sale_filter_same_sale_within_365,
+        uq_sales.sale_filter_same_sale_within_365,
         -- Include sale_filter_less_than_10k and sale_filter_deed_type
         -- Use appropriate values based on source
         CASE
