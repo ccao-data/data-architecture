@@ -223,29 +223,18 @@ unique_sales AS (
             -- ties within price, date, and pin. This LAG calculation
             -- grabs the previous sale dynamically depending on which source table
             -- we are using for a given sale date
+            --TODO: not about ias integrity
             LAG(
-                CASE
-                    WHEN
-                        mydec_sales.mydec_date IS NOT NULL
-                        AND mydec_sales.mydec_date != DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
-                        THEN mydec_sales.mydec_date
-                    ELSE DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
-                END
+                COALESCE(mydec_sales.mydec_date, DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d'))
             ) OVER (
                 PARTITION BY
                     sales.parid,
                     sales.price,
-                    sales.instrtyp NOT IN ('03', '04', '06')
+                    CASE WHEN sales.instrtyp NOT IN ('03', '04', '06') THEN 1 ELSE 0 END
                 ORDER BY
-                    CASE
-                        WHEN
-                            mydec_sales.mydec_date IS NOT NULL
-                            AND mydec_sales.mydec_date != DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
-                            THEN mydec_sales.mydec_date
-                        ELSE DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
-                    END ASC,
+                    COALESCE(mydec_sales.mydec_date, DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) ASC,
                     sales.salekey ASC
-            ) AS same_price_earlier_date,
+            ) AS same_price_earlier_date
             sales.price <= 10000 AS sale_filter_less_than_10k,
             COALESCE(
                 sales.instrtyp IN ('03', '04', '06') OR sales.instrtyp IS NULL,
