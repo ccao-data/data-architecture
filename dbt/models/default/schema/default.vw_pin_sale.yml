@@ -39,6 +39,8 @@ models:
         description: '{{ doc("shared_column_sale_price") }}'
       - name: seller_name
         description: '{{ doc("shared_column_seller_name") }}'
+      - name: source
+        description: Which table the doc_no was drawn from (iasworld or mydec)
       - name: sv_is_heuristic_outlier
         description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
       - name: sv_is_outlier
@@ -76,7 +78,7 @@ models:
             - year
           allowed_duplicates: 2
           config:
-            error_if: ">4032"
+            error_if: ">5032"
       - row_count:
           name: default_vw_pin_sale_row_count
           above: 2477674 # as of 2023-11-22
