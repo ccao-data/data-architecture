@@ -1,5 +1,4 @@
 -- View containing unique, filtered sales
-
 WITH town_class AS (
     SELECT
         par.parid,
@@ -18,7 +17,6 @@ WITH town_class AS (
     WHERE par.cur = 'Y'
         AND par.deactivat IS NULL
 ),
-
 calculated AS (
     SELECT
         instruno,
@@ -33,102 +31,14 @@ calculated AS (
     )
     GROUP BY instruno
 ),
-
-
-mydec_sales AS (
-        SELECT * FROM (
-            SELECT
-                REPLACE(document_number, 'D', '') AS doc_no,
-                REPLACE(line_1_primary_pin, '-', '') AS pin,
-                DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS mydec_date,
-                SUBSTR(line_4_instrument_date, 1, 4) AS year,
-                CASE line_5_instrument_type
-                    WHEN 'Warranty Deed' THEN '01'
-                    WHEN 'Trustee Deed' THEN '02'
-                    WHEN 'Quit Claim Deed' THEN '03'
-                    WHEN 'Executor Deed' THEN '04'
-                    WHEN 'Other' THEN '05'
-                    WHEN 'Beneficial interest' THEN '06'
-                    ELSE line_5_instrument_type -- or NULL, depending on your preference
-                END AS mydec_deed_type,
-                NULLIF(TRIM(seller_name), '') AS seller_name,
-                NULLIF(TRIM(buyer_name), '') AS buyer_name,
-                CAST(line_11_full_consideration AS BIGINT) AS sale_price,
-                line_2_total_parcels AS num_parcels_sale,
-                COALESCE(line_2_total_parcels > 1, FALSE) AS is_multisale,
-                COALESCE(line_7_property_advertised = 1, FALSE)
-                    AS mydec_property_advertised,
-                COALESCE(line_10a = 1, FALSE)
-                    AS mydec_is_installment_contract_fulfilled,
-                COALESCE(line_10b = 1, FALSE)
-                    AS mydec_is_sale_between_related_individuals_or_corporate_affiliates,
-                COALESCE(line_10c = 1, FALSE)
-                    AS mydec_is_transfer_of_less_than_100_percent_interest,
-                COALESCE(line_10d = 1, FALSE)
-                    AS mydec_is_court_ordered_sale,
-                COALESCE(line_10e = 1, FALSE)
-                    AS mydec_is_sale_in_lieu_of_foreclosure,
-                COALESCE(line_10f = 1, FALSE)
-                    AS mydec_is_condemnation,
-                COALESCE(line_10g = 1, FALSE)
-                    AS mydec_is_short_sale,
-                COALESCE(line_10h = 1, FALSE)
-                    AS mydec_is_bank_reo_real_estate_owned,
-                COALESCE(line_10i = 1, FALSE)
-                    AS mydec_is_auction_sale,
-                COALESCE(line_10j = 1, FALSE)
-                    AS mydec_is_seller_buyer_a_relocation_company,
-                COALESCE(line_10k = 1, FALSE)
-                    AS mydec_is_seller_buyer_a_financial_institution_or_government_agency,
-                COALESCE(line_10l = 1, FALSE)
-                    AS mydec_is_buyer_a_real_estate_investment_trust,
-                COALESCE(line_10m = 1, FALSE)
-                    AS mydec_is_buyer_a_pension_fund,
-                COALESCE(line_10n = 1, FALSE)
-                    AS mydec_is_buyer_an_adjacent_property_owner,
-                COALESCE(line_10o = 1, FALSE)
-                    AS mydec_is_buyer_exercising_an_option_to_purchase,
-                COALESCE(line_10p = 1, FALSE)
-                    AS mydec_is_simultaneous_trade_of_property,
-                COALESCE(line_10q = 1, FALSE)
-                    AS mydec_is_sale_leaseback,
-                COALESCE(line_10s = 1, FALSE)
-                    AS mydec_is_homestead_exemption,
-                line_10s_generalalternative
-                    AS mydec_homestead_exemption_general_alternative,
-                line_10s_senior_citizens
-                    AS mydec_homestead_exemption_senior_citizens,
-                line_10s_senior_citizens_assessment_freeze
-                    AS mydec_homestead_exemption_senior_citizens_assessment_freeze,
-                (
-                    COALESCE(line_10b, 0) + COALESCE(line_10c, 0)
-                    + COALESCE(line_10d, 0) + COALESCE(line_10e, 0)
-                    + COALESCE(line_10f, 0) + COALESCE(line_10g, 0)
-                    + COALESCE(line_10h, 0) + COALESCE(line_10i, 0)
-                    + COALESCE(line_10k, 0)
-                ) > 0 AS sale_filter_ptax_flag,
-                COUNT() OVER (
-                    PARTITION BY line_1_primary_pin, line_4_instrument_date
-                ) AS num_single_day_sales
-            FROM {{ source('sale', 'mydec') }}
-            WHERE line_2_total_parcels = 1
-        )
-        WHERE num_single_day_sales = 1
-            OR (YEAR(mydec_date) > 2020)
-),
-
-
 unique_sales AS (
     SELECT
         *,
-        -- Historically, this view excluded sales for a given pin if it had sold
-        -- within the last 12 months for the same price. This filter allows us
-        -- to filter out those sales.
         COALESCE(
             DATE_DIFF(
                 'day',
                 same_price_earlier_date,
-                adjusted_sale_date
+                sale_date
             ) <= 365,
             FALSE
         ) AS sale_filter_same_sale_within_365
@@ -139,18 +49,7 @@ unique_sales AS (
             tc.township_code,
             tc.nbhd,
             tc.class,
-            -- Ias only sale date for various mydec calculations later 
-            DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d') AS ias_sale_date,
-            -- Adjusted sale_date is added here specifically so we can calculate
-            -- sale_filter_same_sale_within_365 correctly. This allows us to
-            -- use sale dates from either mydec or iasworld in the calculation
-            CASE
-                WHEN
-                    mydec_sales.mydec_date IS NOT NULL
-                    AND mydec_sales.mydec_date != DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
-                    THEN mydec_sales.mydec_date
-                ELSE DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')
-            END AS adjusted_sale_date,
+            DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d') AS sale_date,
             CAST(sales.price AS BIGINT) AS sale_price,
             sales.salekey AS sale_key,
             NULLIF(REPLACE(sales.instruno, 'D', ''), '') AS doc_no,
@@ -175,11 +74,6 @@ unique_sales AS (
                 WHEN sales.saletype = '0' THEN 'LAND'
                 WHEN sales.saletype = '1' THEN 'LAND AND BUILDING'
             END AS sale_type,
-            -- Sales are not entirely unique by pin/date so we group all
-            -- sales by pin/date, then order by descending price
-            -- and give the top observation a value of 1 for "max_price".
-            -- We need to order by salekey as well in case of any ties within
-            -- price, date, and pin.
             ROW_NUMBER() OVER (
                 PARTITION BY
                     sales.parid,
@@ -206,21 +100,19 @@ unique_sales AS (
             -- they're sold (we need to make sure to only include deed types we
             -- want). These sales are unecessary for modeling and may be
             -- duplicates. We need to order by salekey as well in case of any
-            -- ties within price, date, and pin. This LAG calculation
-            -- grabs the previous sale dynamically depending on which source table
-            -- we are using for a given sale date
-            --TODO: not about ias integrity
-            LAG(
-                COALESCE(mydec_sales.mydec_date, DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d'))
-            ) OVER (
+            -- ties within price, date, and pin.
+            LAG(DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) OVER (
                 PARTITION BY
                     sales.parid,
                     sales.price,
-                    CASE WHEN COALESCE(sales.instrtyp, mydec_sales.mydec_deed_type) NOT IN ('03', '04', '06') THEN 1 ELSE 0 END
-                ORDER BY
-                    COALESCE(mydec_sales.mydec_date, DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) ASC,
-                    sales.salekey ASC
+                    sales.instrtyp NOT IN ('03', '04', '06')
+                ORDER BY sales.saledt ASC, sales.salekey ASC
             ) AS same_price_earlier_date,
+            -- Historically, this view filtered out sales less than $10k and
+            -- as well as quit claims, executor deeds, beneficial interests,
+            -- and NULL deed types. Now we create "legacy" filter columns so
+            -- that this filtering can reproduced while still allowing all sales
+            -- into the view.
             sales.price <= 10000 AS sale_filter_less_than_10k,
             COALESCE(
                 sales.instrtyp IN ('03', '04', '06') OR sales.instrtyp IS NULL,
@@ -234,8 +126,6 @@ unique_sales AS (
             town_class AS tc
             ON sales.parid = tc.parid
             AND SUBSTR(sales.saledt, 1, 4) = tc.taxyr
-        LEFT JOIN mydec_sales
-            ON NULLIF(REPLACE(sales.instruno, 'D', ''), '') = mydec_sales.doc_no
         WHERE sales.instruno IS NOT NULL
             AND sales.deactivat IS NULL
             AND sales.cur = 'Y'
@@ -248,7 +138,82 @@ unique_sales AS (
     WHERE max_price = 1
         AND (bad_doc_no = 1 OR is_multisale = TRUE)
 ),
-
+mydec_sales AS (
+    SELECT * FROM (
+        SELECT
+            REPLACE(document_number, 'D', '') AS doc_no,
+            REPLACE(line_1_primary_pin, '-', '') AS pin,
+            DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS sale_date,
+            SUBSTR(line_4_instrument_date, 1, 4) AS year,
+            line_5_instrument_type AS mydec_deed_type,
+            NULLIF(TRIM(seller_name), '') AS seller_name,
+            NULLIF(TRIM(buyer_name), '') AS buyer_name,
+            CAST(line_11_full_consideration AS BIGINT) AS sale_price,
+            line_2_total_parcels AS num_parcels_sale,
+            COALESCE(line_2_total_parcels > 1, FALSE) AS is_multisale,
+            COALESCE(line_7_property_advertised = 1, FALSE)
+                AS mydec_property_advertised,
+            COALESCE(line_10a = 1, FALSE)
+                AS mydec_is_installment_contract_fulfilled,
+            COALESCE(line_10b = 1, FALSE) --noqa
+                AS mydec_is_sale_between_related_individuals_or_corporate_affiliates, --noqa
+            COALESCE(line_10c = 1, FALSE)
+                AS mydec_is_transfer_of_less_than_100_percent_interest,
+            COALESCE(line_10d = 1, FALSE)
+                AS mydec_is_court_ordered_sale,
+            COALESCE(line_10e = 1, FALSE)
+                AS mydec_is_sale_in_lieu_of_foreclosure,
+            COALESCE(line_10f = 1, FALSE)
+                AS mydec_is_condemnation,
+            COALESCE(line_10g = 1, FALSE)
+                AS mydec_is_short_sale,
+            COALESCE(line_10h = 1, FALSE)
+                AS mydec_is_bank_reo_real_estate_owned,
+            COALESCE(line_10i = 1, FALSE)
+                AS mydec_is_auction_sale,
+            COALESCE(line_10j = 1, FALSE)
+                AS mydec_is_seller_buyer_a_relocation_company,
+            COALESCE(line_10k = 1, FALSE)
+                AS mydec_is_seller_buyer_a_financial_institution_or_government_agency, --noqa
+            COALESCE(line_10l = 1, FALSE)
+                AS mydec_is_buyer_a_real_estate_investment_trust,
+            COALESCE(line_10m = 1, FALSE)
+                AS mydec_is_buyer_a_pension_fund,
+            COALESCE(line_10n = 1, FALSE)
+                AS mydec_is_buyer_an_adjacent_property_owner,
+            COALESCE(line_10o = 1, FALSE)
+                AS mydec_is_buyer_exercising_an_option_to_purchase,
+            COALESCE(line_10p = 1, FALSE)
+                AS mydec_is_simultaneous_trade_of_property,
+            COALESCE(line_10q = 1, FALSE)
+                AS mydec_is_sale_leaseback,
+            COALESCE(line_10s = 1, FALSE)
+                AS mydec_is_homestead_exemption,
+            line_10s_generalalternative
+                AS mydec_homestead_exemption_general_alternative,
+            line_10s_senior_citizens
+                AS mydec_homestead_exemption_senior_citizens,
+            line_10s_senior_citizens_assessment_freeze
+                AS mydec_homestead_exemption_senior_citizens_assessment_freeze,
+            (
+                COALESCE(line_10b, 0) + COALESCE(line_10c, 0)
+                + COALESCE(line_10d, 0) + COALESCE(line_10e, 0)
+                + COALESCE(line_10f, 0) + COALESCE(line_10g, 0)
+                + COALESCE(line_10h, 0) + COALESCE(line_10i, 0)
+                + COALESCE(line_10k, 0)
+            ) > 0 AS sale_filter_ptax_flag,
+            COUNT() OVER (
+                PARTITION BY line_1_primary_pin, line_4_instrument_date
+            ) AS num_single_day_sales
+        FROM {{ source('sale', 'mydec') }}
+        WHERE line_2_total_parcels = 1
+    )
+    /* Some sales in mydec have multiple rows for one pin on a given sale date.
+    Sometimes they have different dates than iasworld prior to 2021 and when
+    joined back onto unique_sales will create duplicates by pin/sale date. */
+    WHERE num_single_day_sales = 1
+        OR (YEAR(sale_date) > 2020)
+),
 max_version_flag AS (
     SELECT
         meta_sale_document_num,
@@ -256,7 +221,6 @@ max_version_flag AS (
     FROM {{ source('sale', 'flag') }}
     GROUP BY meta_sale_document_num
 ),
-
 sales_val AS (
     SELECT
         sf.meta_sale_document_num,
@@ -274,45 +238,36 @@ sales_val AS (
         ON sf.meta_sale_document_num = mv.meta_sale_document_num
         AND sf.version = mv.max_version
 ),
-
-combined_sales AS (
+-- Introducing cte_sales to precompute the coalesced values
+cte_sales AS (
     SELECT
+        -- Precompute coalesced columns
         COALESCE(uq_sales.pin, md_sales.pin) AS pin_coalesced,
-        CASE
-            WHEN md_sales.mydec_date IS NOT NULL
-                AND (uq_sales.ias_sale_date IS NULL OR md_sales.mydec_date != uq_sales.ias_sale_date)
-            THEN md_sales.year
-            ELSE uq_sales.year
-        END AS year,
+        COALESCE(uq_sales.year, md_sales.year) AS year_coalesced,
         COALESCE(uq_sales.township_code, tc.township_code)
-            AS township_code_coalesced,
+            AS township_code_coalesced, --noqa
         COALESCE(uq_sales.nbhd, tc.nbhd) AS nbhd_coalesced,
         COALESCE(uq_sales.class, tc.class) AS class_coalesced,
-        CASE
-            WHEN uq_sales.year < '2021'
-                THEN COALESCE(md_sales.mydec_date, uq_sales.ias_sale_date)
-            ELSE COALESCE(uq_sales.ias_sale_date, md_sales.mydec_date)
+        CASE --noqa
+            WHEN
+                uq_sales.year < '2021'
+                THEN COALESCE(md_sales.sale_date, uq_sales.sale_date)
+            ELSE COALESCE(uq_sales.sale_date, md_sales.sale_date)
         END AS sale_date_coalesced,
         CASE
-            WHEN uq_sales.doc_no IS NOT NULL THEN
-                CASE
-                    WHEN COALESCE(
-                            md_sales.mydec_date IS NOT NULL
-                            OR YEAR(uq_sales.ias_sale_date) >= 2021,
-                            FALSE
-                        ) THEN TRUE
-                    ELSE FALSE
-                END
-            ELSE
-                TRUE
+            WHEN (uq_sales.year < '2021' OR uq_sales.sale_date IS NULL)
+                AND md_sales.sale_date IS NOT NULL
+                THEN TRUE
+            WHEN (uq_sales.year >= '2021' OR md_sales.sale_date IS NULL)
+                AND uq_sales.sale_date IS NOT NULL --noqa
+                THEN FALSE
         END AS is_mydec_date,
         COALESCE(uq_sales.sale_price, md_sales.sale_price)
-            AS sale_price_coalesced,
+            AS sale_price_coalesced, --noqa
         uq_sales.sale_key,
-        COALESCE(uq_sales.doc_no, md_sales.doc_no) AS doc_no_coalesced,
+        COALESCE(uq_sales.doc_no, md_sales.doc_no) AS doc_no_coalesced, --noqa
         COALESCE(uq_sales.deed_type, md_sales.mydec_deed_type)
             AS deed_type_coalesced,
-        uq_sales.deed_type AS deed_type_ias,
         COALESCE(uq_sales.seller_name, md_sales.seller_name)
             AS seller_name_coalesced,
         COALESCE(uq_sales.is_multisale, md_sales.is_multisale)
@@ -330,7 +285,7 @@ combined_sales AS (
         md_sales.sale_filter_ptax_flag,
         md_sales.mydec_property_advertised,
         md_sales.mydec_is_installment_contract_fulfilled,
-        md_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates,
+        md_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates, --noqa
         md_sales.mydec_is_transfer_of_less_than_100_percent_interest,
         md_sales.mydec_is_court_ordered_sale,
         md_sales.mydec_is_sale_in_lieu_of_foreclosure,
@@ -339,7 +294,7 @@ combined_sales AS (
         md_sales.mydec_is_bank_reo_real_estate_owned,
         md_sales.mydec_is_auction_sale,
         md_sales.mydec_is_seller_buyer_a_relocation_company,
-        md_sales.mydec_is_seller_buyer_a_financial_institution_or_government_agency,
+        md_sales.mydec_is_seller_buyer_a_financial_institution_or_government_agency, --noqa
         md_sales.mydec_is_buyer_a_real_estate_investment_trust,
         md_sales.mydec_is_buyer_a_pension_fund,
         md_sales.mydec_is_buyer_an_adjacent_property_owner,
@@ -349,33 +304,47 @@ combined_sales AS (
         md_sales.mydec_is_homestead_exemption,
         md_sales.mydec_homestead_exemption_general_alternative,
         md_sales.mydec_homestead_exemption_senior_citizens,
-        md_sales.mydec_homestead_exemption_senior_citizens_assessment_freeze,
-        -- Include sale_filter_same_sale_within_365 from both sources
-        uq_sales.sale_filter_same_sale_within_365,
-        -- Include sale_filter_less_than_10k and sale_filter_deed_type
-        -- Use appropriate values based on source
-        CASE
-            WHEN uq_sales.doc_no IS NOT NULL THEN uq_sales.sale_filter_less_than_10k
-            ELSE (md_sales.sale_price <= 10000)
-        END AS sale_filter_less_than_10k,
-        CASE
-            WHEN uq_sales.doc_no IS NOT NULL THEN uq_sales.sale_filter_deed_type
-            ELSE (
-                md_sales.mydec_deed_type IN ('03', '04', '06')
-                OR md_sales.mydec_deed_type IS NULL
-            )
-        END AS sale_filter_deed_type
+        md_sales.mydec_homestead_exemption_senior_citizens_assessment_freeze
     FROM unique_sales AS uq_sales
-    FULL OUTER JOIN mydec_sales AS md_sales
-        ON uq_sales.doc_no = md_sales.doc_no
+    FULL OUTER JOIN mydec_sales AS md_sales ON uq_sales.doc_no = md_sales.doc_no
     LEFT JOIN town_class AS tc
         ON COALESCE(uq_sales.pin, md_sales.pin) = tc.parid
         AND COALESCE(uq_sales.year, md_sales.year) = tc.taxyr
+),
+-- Handle various filters 
+combined_sales AS (
+    SELECT
+        cte_s.*,
+        -- Calculate 'sale_filter_same_sale_within_365' using DATE_DIFF
+        CASE
+            WHEN LAG(cte_s.sale_date_coalesced) OVER (
+                    PARTITION BY cte_s.pin_coalesced, cte_s.sale_price_coalesced
+                    ORDER BY cte_s.sale_date_coalesced ASC
+                ) IS NOT NULL
+                THEN
+                DATE_DIFF(
+                    'day',
+                    LAG(cte_s.sale_date_coalesced) OVER (
+                        PARTITION BY
+                            cte_s.pin_coalesced, cte_s.sale_price_coalesced
+                        ORDER BY cte_s.sale_date_coalesced ASC
+                    ),
+                    cte_s.sale_date_coalesced
+                ) <= 365
+            ELSE FALSE
+        END AS sale_filter_same_sale_within_365,
+        -- Compute 'sale_filter_less_than_10k'
+        (cte_s.sale_price_coalesced <= 10000) AS sale_filter_less_than_10k,
+        -- Compute 'sale_filter_deed_type'
+        (
+            cte_s.deed_type_coalesced IN ('03', '04', '06')
+            OR cte_s.deed_type_coalesced IS NULL
+        ) AS sale_filter_deed_type
+    FROM cte_sales AS cte_s
 )
-
 SELECT
     cs.pin_coalesced AS pin,
-    cs.year,
+    cs.year_coalesced AS year,
     cs.township_code_coalesced AS township_code,
     cs.nbhd_coalesced AS nbhd,
     cs.class_coalesced AS class,
@@ -402,7 +371,7 @@ SELECT
     cs.sale_filter_ptax_flag,
     cs.mydec_property_advertised,
     cs.mydec_is_installment_contract_fulfilled,
-    cs.mydec_is_sale_between_related_individuals_or_corporate_affiliates,
+    cs.mydec_is_sale_between_related_individuals_or_corporate_affiliates, --noqa
     cs.mydec_is_transfer_of_less_than_100_percent_interest,
     cs.mydec_is_court_ordered_sale,
     cs.mydec_is_sale_in_lieu_of_foreclosure,
@@ -411,7 +380,7 @@ SELECT
     cs.mydec_is_bank_reo_real_estate_owned,
     cs.mydec_is_auction_sale,
     cs.mydec_is_seller_buyer_a_relocation_company,
-    cs.mydec_is_seller_buyer_a_financial_institution_or_government_agency,
+    cs.mydec_is_seller_buyer_a_financial_institution_or_government_agency, --noqa
     cs.mydec_is_buyer_a_real_estate_investment_trust,
     cs.mydec_is_buyer_a_pension_fund,
     cs.mydec_is_buyer_an_adjacent_property_owner,
