@@ -80,14 +80,6 @@ walk(parquet_files, \(file_key) {
       st_transform(4326) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435))
 
-    # Convert the S3 object into raw data and read using geoarrow
-    # shapefile_data <- geoarrow::read_geoparquet_sf(
-    #   file.path(AWS_S3_RAW_BUCKET, file_key)
-    # ) %>%
-    #   st_transform(4326) %>%
-    #   mutate(geometry_3435 = st_transform(geometry, 3435))
-
-
     # We do this because some columns are not present in
     # older versions of the data
     required_columns <- c("FCNAME", "FC_NAME", "LNS", "SURF_TYP", "SURF_WTH", "SRF_YR", "AADT",
