@@ -15,6 +15,15 @@ WITH traffic AS (  -- noqa: ST03
         road_type = 'Interstate'
         OR road_type = 'Freeway And Expressway'
     )
+),
+
+distinct_pins AS (
+    SELECT DISTINCT
+        x_3435,
+        y_3435,
+        pin10,
+        year
+    FROM {{ source('spatial', 'parcel') }}
 )
 
 SELECT
@@ -24,7 +33,7 @@ SELECT
     ARBITRARY(xy.year) AS nearest_road_data_year,
     ARBITRARY(xy.surface_width) AS nearest_surface_width,
     pcl.year
-FROM {{ source('spatial', 'parcel') }} AS pcl
+FROM distinct_pins AS pcl
 INNER JOIN ( {{ dist_to_nearest_geometry('traffic') }} ) AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
