@@ -55,7 +55,15 @@ mydec_sales AS (
                 REPLACE(line_1_primary_pin, '-', '') AS pin,
                 DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS mydec_date,
                 SUBSTR(line_4_instrument_date, 1, 4) AS year,
-                line_5_instrument_type AS mydec_deed_type,
+                CASE line_5_instrument_type
+                    WHEN '01' THEN 'Warranty'
+                    WHEN '02' THEN 'Trustee'
+                    WHEN '03' THEN 'Quit claim'
+                    WHEN '04' THEN 'Executor'
+                    WHEN '05' THEN 'Other'
+                    WHEN '06' THEN 'Beneficiary'
+                    ELSE line_5_instrument_type -- or NULL, depending on your preference
+                END AS mydec_deed_type,
                 NULLIF(TRIM(seller_name), '') AS seller_name,
                 NULLIF(TRIM(buyer_name), '') AS buyer_name,
                 CAST(line_11_full_consideration AS BIGINT) AS sale_price,
