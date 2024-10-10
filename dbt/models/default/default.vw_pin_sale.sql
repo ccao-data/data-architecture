@@ -56,12 +56,12 @@ mydec_sales AS (
                 DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS mydec_date,
                 SUBSTR(line_4_instrument_date, 1, 4) AS year,
                 CASE line_5_instrument_type
-                    WHEN 'Warranty' THEN '01'
-                    WHEN 'Trustee' THEN '02'
-                    WHEN 'Quit claim' THEN '03'
-                    WHEN 'Executor' THEN '04'
+                    WHEN 'Warranty Deed' THEN '01'
+                    WHEN 'Trustee Deed' THEN '02'
+                    WHEN 'Quit Claim Deed' THEN '03'
+                    WHEN 'Executor Deed' THEN '04'
                     WHEN 'Other' THEN '05'
-                    WHEN 'Beneficiary' THEN '06'
+                    WHEN 'Beneficial interest' THEN '06'
                     ELSE line_5_instrument_type -- or NULL, depending on your preference
                 END AS mydec_deed_type,
                 NULLIF(TRIM(seller_name), '') AS seller_name,
