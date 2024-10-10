@@ -82,7 +82,7 @@ walk(parquet_files, \(file_key) {
 
     # We do this because some columns are not present in
     # older versions of the data
-    required_columns <- c("FCNAME", "FC_NAME", "LNS", "SURF_TYP", "SURF_WTH", "SRF_YR", "AADT",
+    required_columns <- c("FCNAME", "FC_NAME", "LNS", "SURF_TYP", "SURF_WTH", "SURF_YR", "AADT",
                           "CRS_WITH", "CRS_OPP", "CRS_YR",
                           "ROAD_NAME", "DTRESS_WTH", "DTRESS_OPP",
                           "SP_LIM", "INVENTORY", "geometry_3435", "year")
@@ -96,7 +96,7 @@ walk(parquet_files, \(file_key) {
         lanes = if ("LNS" %in% colnames(.)) LNS else NA,
         surface_type = if ("SURF_TYP" %in% colnames(.)) SURF_TYP else NA,
         surface_width = if ("SURF_WTH" %in% colnames(.)) SURF_WTH else NA,
-        surface_year = if ("SRF_YR" %in% colnames(.)) SRF_YR else NA,
+        surface_year = if ("SURF_YR" %in% colnames(.)) SURF_YR else NA,
         annual_traffic = if ("AADT" %in% colnames(.)) AADT else NA,
         condition_with = if ("CRS_WITH" %in% colnames(.)) CRS_WITH else NA,
         condition_opposing = if ("CRS_OPP" %in% colnames(.)) CRS_OPP else NA,
@@ -110,7 +110,7 @@ walk(parquet_files, \(file_key) {
       # Recode surface_type based on road codes
       mutate(surface_type = road_codes[as.character(surface_type)]) %>%
       # Select and remove unnecessary columns
-      select(-one_of(c("FCNAME", "FC_NAME", "LNS", "SURF_TYP", "SURF_WTH", "SRF_YR", "AADT", "CRS_WITH",
+      select(-one_of(c("FCNAME", "FC_NAME", "LNS", "SURF_TYP", "SURF_WTH", "SURF_YR", "AADT", "CRS_WITH",
                        "CRS_OPP", "CRS_YR", "ROAD_NAME", "DTRESS_WTH", "DTRESS_OPP",
                        "SP_LIM", "INVENTORY"))) %>%
       # Replace all 0 values with NA, excluding the geometry column
