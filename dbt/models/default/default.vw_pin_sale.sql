@@ -36,19 +36,6 @@ calculated AS (
 
 
 mydec_sales AS (
-    SELECT *,
-        COALESCE(
-            DATE_DIFF(
-                'day',
-                LAG(mydec_date) OVER (
-                    PARTITION BY pin
-                    ORDER BY mydec_date ASC
-                ),
-                mydec_date
-            ) <= 365,
-            FALSE
-        ) AS sale_filter_same_sale_within_365
-    FROM (
         SELECT * FROM (
             SELECT
                 REPLACE(document_number, 'D', '') AS doc_no,
@@ -230,7 +217,7 @@ unique_sales AS (
                 PARTITION BY
                     sales.parid,
                     sales.price,
-                    CASE WHEN sales.instrtyp NOT IN ('03', '04', '06') THEN 1 ELSE 0 END
+                    CASE WHEN COALESCE(mydec_sales.instrtyp, mydec_deed_type) NOT IN ('03', '04', '06') THEN 1 ELSE 0 END
                 ORDER BY
                     COALESCE(mydec_sales.mydec_date, DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) ASC,
                     sales.salekey ASC
