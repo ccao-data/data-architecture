@@ -13,10 +13,7 @@ WITH traffic AS (  -- noqa: ST03
     FROM {{ source('spatial', 'traffic') }}
     WHERE annual_traffic > 0
         AND annual_traffic IS NOT NULL
-        AND (
-            road_type = 'Interstate'
-            OR road_type = 'Freeway And Expressway'
-        )
+        AND road_type = 'Minor Arterial'
 )
 
 SELECT
