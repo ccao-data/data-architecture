@@ -115,7 +115,6 @@ mydec_sales AS (
         )
         WHERE num_single_day_sales = 1
             OR (YEAR(mydec_date) > 2020)
-    )
 ),
 
 
