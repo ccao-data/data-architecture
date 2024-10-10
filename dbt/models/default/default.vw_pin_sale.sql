@@ -234,7 +234,7 @@ unique_sales AS (
                 ORDER BY
                     COALESCE(mydec_sales.mydec_date, DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) ASC,
                     sales.salekey ASC
-            ) AS same_price_earlier_date
+            ) AS same_price_earlier_date,
             sales.price <= 10000 AS sale_filter_less_than_10k,
             COALESCE(
                 sales.instrtyp IN ('03', '04', '06') OR sales.instrtyp IS NULL,
