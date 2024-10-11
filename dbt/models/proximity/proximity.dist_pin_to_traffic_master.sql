@@ -11,20 +11,16 @@
 WITH traffic_minor AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'traffic') }}
-    WHERE daily_traffic > 0
-        AND daily_traffic IS NOT NULL
-        AND road_type = 'Minor Arterial'
+    WHERE road_type = 'Minor Arterial'
 ),
 
 traffic_highway AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'traffic') }}
-    WHERE daily_traffic > 0
-        AND daily_traffic IS NOT NULL
-        AND (
-            road_type = 'Interstate'
-            OR road_type = 'Freeway And Expressway'
-        )
+    WHERE (
+        road_type = 'Interstate'
+        OR road_type = 'Freeway And Expressway'
+    )
 ),
 
 distinct_pins AS (
@@ -43,7 +39,7 @@ nearest_minor AS (
         ARBITRARY(xy.road_name) AS nearest_minor_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_minor_road_dist_ft,
         ARBITRARY(xy.year) AS nearest_minor_road_data_year,
-        ARBITRARY(xy.daily_traffic) AS nearest_minor_road_daily_traffic,
+        ARBITRARY(xy.surface_width) AS nearest_minor_road_surface_width,
         pcl.year
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_minor') }} ) AS xy
@@ -60,7 +56,7 @@ nearest_highway AS (
         ARBITRARY(xy.road_name) AS nearest_highway_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_highway_road_dist_ft,
         ARBITRARY(xy.year) AS nearest_highway_road_data_year,
-        ARBITRARY(xy.daily_traffic) AS nearest_highway_road_daily_traffic,
+        ARBITRARY(xy.surface_width) AS nearest_highway_road_surface_width,
         pcl.year
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_highway') }} ) AS xy
@@ -77,11 +73,11 @@ SELECT
     minor.nearest_minor_road_name,
     minor.nearest_minor_road_dist_ft,
     minor.nearest_minor_road_data_year,
-    minor.nearest_minor_road_daily_traffic,
+    minor.nearest_minor_road_surface_width,
     highway.nearest_highway_road_name,
     highway.nearest_highway_road_dist_ft,
     highway.nearest_highway_road_data_year,
-    highway.nearest_highway_road_daily_traffic
+    highway.nearest_highway_road_surface_width
 FROM nearest_minor AS minor
 FULL OUTER JOIN nearest_highway AS highway
     ON minor.pin10 = highway.pin10
