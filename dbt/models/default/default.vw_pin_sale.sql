@@ -336,6 +336,9 @@ combined_sales AS (
     SELECT
         cte_s.*,
         -- Calculate 'sale_filter_same_sale_within_365' using DATE_DIFF
+        -- Note: the sale_filter_same_sale_within_365 uses both iasworld
+        -- and mydec doc numbers for the calculation. So if we were to set
+        -- source = 'iasworld', mydec sales will still influence this filter
         CASE
             WHEN LAG(cte_s.sale_date_coalesced) OVER (
                     PARTITION BY cte_s.pin_coalesced, cte_s.sale_price_coalesced
