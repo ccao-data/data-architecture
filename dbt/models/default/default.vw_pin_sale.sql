@@ -255,12 +255,19 @@ cte_sales AS (
             ELSE COALESCE(uq_sales.sale_date, md_sales.sale_date)
         END AS sale_date_coalesced,
         CASE
-            WHEN (uq_sales.year < '2021' OR uq_sales.sale_date IS NULL)
-                AND md_sales.sale_date IS NOT NULL
-                THEN TRUE
-            WHEN (uq_sales.year >= '2021' OR md_sales.sale_date IS NULL)
-                AND uq_sales.sale_date IS NOT NULL --noqa
-                THEN FALSE
+            -- If uq_sales.doc_no is not NULL, apply the COALESCE logic
+            WHEN uq_sales.doc_no IS NOT NULL THEN
+                CASE
+                    WHEN COALESCE(
+                            md_sales.sale_date IS NOT NULL
+                            OR YEAR(uq_sales.sale_date) >= 2021,
+                            FALSE
+                        ) THEN TRUE
+                    ELSE FALSE
+                END
+            -- If uq_sales.doc_no is NULL, set is_mydec_date to TRUE
+            ELSE
+                TRUE
         END AS is_mydec_date,
         COALESCE(uq_sales.sale_price, md_sales.sale_price)
             AS sale_price_coalesced, --noqa
@@ -342,6 +349,7 @@ combined_sales AS (
         ) AS sale_filter_deed_type
     FROM cte_sales AS cte_s
 )
+
 SELECT
     cs.pin_coalesced AS pin,
     cs.year_coalesced AS year,
