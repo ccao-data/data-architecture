@@ -11,8 +11,8 @@
 WITH traffic AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'traffic') }}
-    WHERE annual_traffic > 0
-        AND annual_traffic IS NOT NULL
+    WHERE daily_traffic > 0
+        AND daily_traffic IS NOT NULL
         AND (
             road_type = 'Interstate'
             OR road_type = 'Freeway And Expressway'
@@ -33,7 +33,7 @@ SELECT
     MIN(xy.road_name) AS nearest_road_name,  -- Using MIN() as a placeholder
     MIN(xy.dist_ft) AS nearest_road_dist_ft,
     MIN(xy.year) AS nearest_road_data_year,
-    MIN(xy.annual_traffic) AS nearest_road_annual_traffic,
+    MIN(xy.daily_traffic) AS nearest_road_daily_traffic,
     pcl.year
 FROM distinct_pins AS pcl
 INNER JOIN ( {{ dist_to_nearest_geometry('traffic') }} ) AS xy
