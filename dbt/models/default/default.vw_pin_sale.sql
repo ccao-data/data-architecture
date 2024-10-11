@@ -17,6 +17,7 @@ WITH town_class AS (
     WHERE par.cur = 'Y'
         AND par.deactivat IS NULL
 ),
+
 calculated AS (
     SELECT
         instruno,
@@ -31,6 +32,7 @@ calculated AS (
     )
     GROUP BY instruno
 ),
+
 unique_sales AS (
     SELECT
         *,
@@ -138,6 +140,7 @@ unique_sales AS (
     WHERE max_price = 1
         AND (bad_doc_no = 1 OR is_multisale = TRUE)
 ),
+
 mydec_sales AS (
     SELECT * FROM (
         SELECT
@@ -214,6 +217,7 @@ mydec_sales AS (
     WHERE num_single_day_sales = 1
         OR (YEAR(sale_date) > 2020)
 ),
+
 max_version_flag AS (
     SELECT
         meta_sale_document_num,
@@ -221,6 +225,7 @@ max_version_flag AS (
     FROM {{ source('sale', 'flag') }}
     GROUP BY meta_sale_document_num
 ),
+
 sales_val AS (
     SELECT
         sf.meta_sale_document_num,
@@ -238,15 +243,18 @@ sales_val AS (
         ON sf.meta_sale_document_num = mv.meta_sale_document_num
         AND sf.version = mv.max_version
 ),
+
 -- Introducing cte_sales to precompute the coalesced values
 cte_sales AS (
     SELECT
-        -- Precompute coalesced columns
         COALESCE(uq_sales.pin, md_sales.pin) AS pin_coalesced,
-       CASE
+        CASE
             WHEN md_sales.sale_date IS NOT NULL
-                AND (uq_sales.sale_date IS NULL OR md_sales.sale_date != uq_sales.sale_date)
-            THEN md_sales.year
+                AND (
+                    uq_sales.sale_date IS NULL
+                    OR md_sales.sale_date != uq_sales.sale_date
+                )
+                THEN md_sales.year
             ELSE uq_sales.year
         END AS year_coalesced,
         --COALESCE(uq_sales.year, md_sales.year) AS year_coalesced,
@@ -262,15 +270,13 @@ cte_sales AS (
         END AS sale_date_coalesced,
         CASE
             -- If uq_sales.doc_no is not NULL, apply the COALESCE logic
-            WHEN uq_sales.doc_no IS NOT NULL THEN
-                CASE
-                    WHEN COALESCE(
-                            md_sales.sale_date IS NOT NULL
-                            OR YEAR(uq_sales.sale_date) >= 2021,
-                            FALSE
-                        ) THEN TRUE
-                    ELSE FALSE
-                END
+            WHEN uq_sales.doc_no IS NOT NULL
+                THEN
+                COALESCE(COALESCE(
+                    md_sales.sale_date IS NOT NULL
+                    OR YEAR(uq_sales.sale_date) >= 2021,
+                    FALSE
+                ), FALSE)
             -- If uq_sales.doc_no is NULL, set is_mydec_date to TRUE
             ELSE
                 TRUE
@@ -324,6 +330,7 @@ cte_sales AS (
         ON COALESCE(uq_sales.pin, md_sales.pin) = tc.parid
         AND COALESCE(uq_sales.year, md_sales.year) = tc.taxyr
 ),
+
 -- Handle various filters 
 combined_sales AS (
     SELECT
