@@ -69,7 +69,6 @@ nearest_highway AS (
 -- Join the results based on pin10 and year
 SELECT
     COALESCE(minor.pin10, highway.pin10) AS pin10,
-    COALESCE(minor.year, highway.year) AS year,
     minor.nearest_minor_road_name,
     minor.nearest_minor_road_dist_ft,
     minor.nearest_minor_road_data_year,
@@ -77,7 +76,8 @@ SELECT
     highway.nearest_highway_road_name,
     highway.nearest_highway_road_dist_ft,
     highway.nearest_highway_road_data_year,
-    highway.nearest_highway_road_surface_width
+    highway.nearest_highway_road_surface_width,
+    COALESCE(minor.year, highway.year) AS year
 FROM nearest_minor AS minor
 FULL OUTER JOIN nearest_highway AS highway
     ON minor.pin10 = highway.pin10
