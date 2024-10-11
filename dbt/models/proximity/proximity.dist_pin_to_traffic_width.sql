@@ -12,6 +12,15 @@ WITH traffic AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'traffic') }}
     WHERE road_type = 'Local Road or Street'
+),
+
+distinct_pins AS (
+    SELECT DISTINCT
+        x_3435,
+        y_3435,
+        pin10,
+        year
+    FROM {{ source('spatial', 'parcel') }}
 )
 
 SELECT
@@ -20,8 +29,9 @@ SELECT
     ARBITRARY(xy.dist_ft) AS nearest_road_dist_ft,
     ARBITRARY(xy.year) AS nearest_road_data_year,
     ARBITRARY(xy.surface_width) AS nearest_surface_width,
+    ARBITRARY(xy.surface_type) AS nearest_surface_type,
     pcl.year
-FROM {{ source('spatial', 'parcel') }} AS pcl
+FROM distinct_pins AS pcl
 INNER JOIN ( {{ dist_to_nearest_geometry('traffic') }} ) AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
