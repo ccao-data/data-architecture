@@ -30,10 +30,10 @@ distinct_pins AS (
 
 SELECT
     pcl.pin10,
-    MIN(xy.road_name) AS nearest_road_name,  -- Using MIN() as a placeholder
-    MIN(xy.dist_ft) AS nearest_road_dist_ft,
-    MIN(xy.year) AS nearest_road_data_year,
-    MIN(xy.daily_traffic) AS nearest_road_daily_traffic,
+    ARBITRARY(xy.road_name) AS nearest_road_name,
+    ARBITRARY(xy.dist_ft) AS nearest_road_dist_ft,
+    ARBITRARY(xy.year) AS nearest_road_data_year,
+    ARBITRARY(xy.daily_traffic) AS nearest_road_daily_traffic,
     pcl.year
 FROM distinct_pins AS pcl
 INNER JOIN ( {{ dist_to_nearest_geometry('traffic') }} ) AS xy
