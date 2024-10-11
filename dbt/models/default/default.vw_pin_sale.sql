@@ -243,7 +243,13 @@ cte_sales AS (
     SELECT
         -- Precompute coalesced columns
         COALESCE(uq_sales.pin, md_sales.pin) AS pin_coalesced,
-        COALESCE(uq_sales.year, md_sales.year) AS year_coalesced,
+       CASE
+            WHEN md_sales.sale_date IS NOT NULL
+                AND (uq_sales.sale_date IS NULL OR md_sales.sale_date != uq_sales.sale_date)
+            THEN md_sales.year
+            ELSE uq_sales.year
+        END AS year,
+        --COALESCE(uq_sales.year, md_sales.year) AS year_coalesced,
         COALESCE(uq_sales.township_code, tc.township_code)
             AS township_code_coalesced, --noqa
         COALESCE(uq_sales.nbhd, tc.nbhd) AS nbhd_coalesced,
