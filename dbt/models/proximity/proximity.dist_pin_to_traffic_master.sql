@@ -42,6 +42,7 @@ traffic_minor_collector AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'traffic') }}
     WHERE road_type = 'Minor Collector'
+        AND year >= 2014
 ),
 
 distinct_pins AS (
