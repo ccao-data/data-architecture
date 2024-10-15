@@ -1,4 +1,5 @@
 -- View containing unique, filtered sales
+-- Class and township of associated PIN
 WITH town_class AS (
     SELECT
         par.parid,
@@ -18,6 +19,8 @@ WITH town_class AS (
         AND par.deactivat IS NULL
 ),
 
+-- "nopar" isn't entirely accurate for sales associated with only one parcel,
+-- so we create our own counter
 calculated AS (
     SELECT
         instruno,
@@ -36,6 +39,9 @@ calculated AS (
 unique_sales AS (
     SELECT
         *,
+        -- Historically, this view excluded sales for a given pin if it had sold
+        -- within the last 12 months for the same price. This filter allows us
+        -- to filter out those sales.
         COALESCE(
             DATE_DIFF(
                 'day',
@@ -60,6 +66,7 @@ unique_sales AS (
                 sales.nopar > 1 OR calculated.nopar_calculated > 1,
                 FALSE
             ) AS is_multisale,
+            -- "nopar" is number of parcels sold
             CASE
                 WHEN sales.nopar > 1 THEN sales.nopar ELSE
                     calculated.nopar_calculated
@@ -76,6 +83,11 @@ unique_sales AS (
                 WHEN sales.saletype = '0' THEN 'LAND'
                 WHEN sales.saletype = '1' THEN 'LAND AND BUILDING'
             END AS sale_type,
+            -- Sales are not entirely unique by pin/date so we group all
+            -- sales by pin/date, then order by descending price
+            -- and give the top observation a value of 1 for "max_price".
+            -- We need to order by salekey as well in case of any ties within
+            -- price, date, and pin.
             ROW_NUMBER() OVER (
                 PARTITION BY
                     sales.parid,
@@ -147,7 +159,6 @@ mydec_sales AS (
             REPLACE(document_number, 'D', '') AS doc_no,
             REPLACE(line_1_primary_pin, '-', '') AS pin,
             DATE_PARSE(line_4_instrument_date, '%Y-%m-%d') AS sale_date,
-            SUBSTR(line_4_instrument_date, 1, 4) AS year,
             line_5_instrument_type AS mydec_deed_type,
             NULLIF(TRIM(seller_name), '') AS seller_name,
             NULLIF(TRIM(buyer_name), '') AS buyer_name,
@@ -207,7 +218,8 @@ mydec_sales AS (
             ) > 0 AS sale_filter_ptax_flag,
             COUNT() OVER (
                 PARTITION BY line_1_primary_pin, line_4_instrument_date
-            ) AS num_single_day_sales
+            ) AS num_single_day_sales,
+            year_of_sale as year
         FROM {{ source('sale', 'mydec') }}
         WHERE line_2_total_parcels = 1
     )
@@ -244,7 +256,12 @@ sales_val AS (
         AND sf.version = mv.max_version
 ),
 
--- Introducing csales to precompute the coalesced values
+-- For many of the fields we used  simple coalesce statement,
+-- but some data is a bit more complicated. Prior to 2021,
+-- mydec sales and iasworld sales used different sale dates.
+-- We preference the mydec sale as they are believed to be more
+-- accurate. As of 2021, iasworld utilizes mydec sales, which means
+-- we can prioritize iasworld data instead of mydec data.
 combined_sales AS (
     SELECT
         COALESCE(uq_sales.pin, md_sales.pin) AS pin_coalesced,
@@ -257,7 +274,6 @@ combined_sales AS (
                 THEN md_sales.year
             ELSE uq_sales.year
         END AS year_coalesced,
-        --COALESCE(uq_sales.year, md_sales.year) AS year_coalesced,
         COALESCE(uq_sales.township_code, tc.township_code)
             AS township_code_coalesced, --noqa
         COALESCE(uq_sales.nbhd, tc.nbhd) AS nbhd_coalesced,
