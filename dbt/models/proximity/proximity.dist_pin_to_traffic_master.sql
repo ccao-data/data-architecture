@@ -38,13 +38,6 @@ traffic_major_collector AS (  -- noqa: ST03
     WHERE road_type = 'Major Collector'
 ),
 
-traffic_minor_collector AS (  -- noqa: ST03
-    SELECT *
-    FROM {{ source('spatial', 'traffic') }}
-    WHERE road_type = 'Minor Collector'
-        AND year >= 2014
-),
-
 distinct_pins AS (
     SELECT DISTINCT
         x_3435,
@@ -141,25 +134,6 @@ nearest_major_collector AS (
     GROUP BY pcl.pin10, pcl.year
 ),
 
--- Select nearest road from Minor Collector
-nearest_minor_collector AS (
-    SELECT
-        pcl.pin10,
-        ARBITRARY(xy.road_name) AS nearest_minor_collector_road_name,
-        ARBITRARY(xy.dist_ft) AS nearest_minor_collector_road_dist_ft,
-        ARBITRARY(xy.year) AS nearest_minor_collector_road_data_year,
-        ARBITRARY(xy.surface_width)
-            AS nearest_minor_collector_road_surface_width,
-        pcl.year
-    FROM distinct_pins AS pcl
-    INNER JOIN
-        ( {{ dist_to_nearest_geometry('traffic_minor_collector') }} ) AS xy
-        ON pcl.x_3435 = xy.x_3435
-        AND pcl.y_3435 = xy.y_3435
-        AND pcl.year = xy.pin_year
-    GROUP BY pcl.pin10, pcl.year
-)
-
 -- Join the results based on pin10 and year
 SELECT
     COALESCE(
@@ -167,8 +141,7 @@ SELECT
         interstate.pin10,
         freeway.pin10,
         principal.pin10,
-        major_collector.pin10,
-        minor_collector.pin10
+        major_collector.pin10
     ) AS pin10,
     minor.nearest_minor_road_name,
     minor.nearest_minor_road_dist_ft,
@@ -190,17 +163,12 @@ SELECT
     major_collector.nearest_major_collector_road_dist_ft,
     major_collector.nearest_major_collector_road_data_year,
     major_collector.nearest_major_collector_road_surface_width,
-    minor_collector.nearest_minor_collector_road_name,
-    minor_collector.nearest_minor_collector_road_dist_ft,
-    minor_collector.nearest_minor_collector_road_data_year,
-    minor_collector.nearest_minor_collector_road_surface_width,
     COALESCE(
         minor.year,
         interstate.year,
         freeway.year,
         principal.year,
-        major_collector.year,
-        minor_collector.year
+        major_collector.year
     ) AS year
 FROM nearest_minor AS minor
 FULL OUTER JOIN nearest_interstate AS interstate
@@ -211,5 +179,3 @@ FULL OUTER JOIN nearest_principal AS principal
     ON minor.pin10 = principal.pin10 AND minor.year = principal.year
 FULL OUTER JOIN nearest_major_collector AS major_collector
     ON minor.pin10 = major_collector.pin10 AND minor.year = major_collector.year
-FULL OUTER JOIN nearest_minor_collector AS minor_collector
-    ON minor.pin10 = minor_collector.pin10 AND minor.year = minor_collector.year
