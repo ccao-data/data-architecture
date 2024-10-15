@@ -219,7 +219,7 @@ mydec_sales AS (
             COUNT() OVER (
                 PARTITION BY line_1_primary_pin, line_4_instrument_date
             ) AS num_single_day_sales,
-            year_of_sale as year
+            year_of_sale AS year
         FROM {{ source('sale', 'mydec') }}
         WHERE line_2_total_parcels = 1
     )
@@ -256,15 +256,17 @@ sales_val AS (
         AND sf.version = mv.max_version
 ),
 
--- For many of the fields we used  simple coalesce statement,
--- but some data is a bit more complicated. Prior to 2021,
--- mydec sales and iasworld sales used different sale dates.
--- We preference the mydec sale as they are believed to be more
--- accurate. As of 2021, iasworld utilizes mydec sales, which means
--- we can prioritize iasworld data instead of mydec data.
+-- CTE to coalesce iasworld and mydec values prior to
+-- constructing filters that depend on coalesced fields
 combined_sales AS (
     SELECT
         COALESCE(uq_sales.pin, md_sales.pin) AS pin_coalesced,
+        -- For many of the fields we used  simple coalesce statement,
+        -- but some data is a bit more complicated. Prior to 2021,
+        -- mydec sales and iasworld sales used different sale dates.
+        -- We preference the mydec sale as they are believed to be more
+        -- accurate. As of 2021, iasworld utilizes mydec sales, which means
+        -- we can prioritize iasworld data instead of mydec data.
         CASE
             WHEN md_sales.sale_date IS NOT NULL
                 AND (
@@ -341,6 +343,9 @@ combined_sales AS (
         md_sales.mydec_homestead_exemption_senior_citizens,
         md_sales.mydec_homestead_exemption_senior_citizens_assessment_freeze
     FROM unique_sales AS uq_sales
+    -- If a doc_no exists in iasworld and mydec, we prioritize iasworld,
+    -- if it only exists in mydec, we will grab the doc_no from mydec. The
+    -- 'source' column lets us know which table the doc_no came from.
     FULL OUTER JOIN mydec_sales AS md_sales ON uq_sales.doc_no = md_sales.doc_no
     LEFT JOIN town_class AS tc
         ON COALESCE(uq_sales.pin, md_sales.pin) = tc.parid
