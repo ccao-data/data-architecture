@@ -159,7 +159,7 @@ LEFT JOIN ({{ aggregate_cdu(
     AND pdat.taxyr = cdat.taxyr
 LEFT JOIN ({{ aggregate_cdu(
     source_model = source('iasworld', 'dweldat'),
-    cdu_column = 'cdu'
+    cdu_column = 'user16'
     ) }}) AS ddat
     ON pdat.parid = ddat.parid
     AND pdat.taxyr = ddat.taxyr
