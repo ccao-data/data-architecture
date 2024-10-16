@@ -13,6 +13,12 @@ WITH traffic_minor AS (  -- noqa: ST03
     WHERE road_type = 'Minor Arterial'
 ),
 
+traffic_minor_collector AS (  -- noqa: ST03
+    SELECT *
+    FROM {{ source('spatial', 'traffic') }}
+    WHERE road_type = 'Minor Collector'
+),
+
 traffic_interstate AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'traffic') }}
