@@ -180,7 +180,9 @@ FULL OUTER JOIN nearest_principal AS principal
     ON COALESCE(minor.pin10, interstate.pin10, freeway.pin10) = principal.pin10
     AND COALESCE(minor.year, interstate.year, freeway.year) = principal.year
 FULL OUTER JOIN nearest_major_collector AS major_collector
-    ON COALESCE(minor.pin10, interstate.pin10, freeway.pin10, principal.pin10)
-    = major_collector.pin10
-    AND COALESCE(minor.year, interstate.year, freeway.year, principal.year)
-    = major_collector.year
+    ON COALESCE(
+        minor.pin10, interstate.pin10, freeway.pin10, principal.pin10
+    ) = major_collector.pin10
+    AND COALESCE(
+        minor.year, interstate.year, freeway.year, principal.year
+    ) = major_collector.year
