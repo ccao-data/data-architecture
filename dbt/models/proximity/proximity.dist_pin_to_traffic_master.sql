@@ -52,7 +52,7 @@ nearest_minor AS (
         xy.year,
         ARBITRARY(xy.road_name) AS nearest_minor_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_minor_road_dist_ft,
-        ARBITRARY(xy.year) AS data_year,
+        ARBITRARY(xy.year) AS nearest_minor_road_data_year,
         ARBITRARY(xy.surface_width) AS nearest_minor_road_surface_width
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_minor') }} ) AS xy
@@ -68,7 +68,7 @@ nearest_interstate AS (
         xy.year,
         ARBITRARY(xy.road_name) AS nearest_interstate_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_interstate_road_dist_ft,
-        ARBITRARY(xy.year) AS data_year,
+        ARBITRARY(xy.year) AS nearest_interstate_road_data_year,
         ARBITRARY(xy.surface_width) AS nearest_interstate_road_surface_width
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_interstate') }} ) AS xy
@@ -84,7 +84,7 @@ nearest_freeway AS (
         xy.year,
         ARBITRARY(xy.road_name) AS nearest_freeway_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_freeway_road_dist_ft,
-        ARBITRARY(xy.year) AS data_year,
+        ARBITRARY(xy.year) AS nearest_freeway_road_data_year,
         ARBITRARY(xy.surface_width) AS nearest_freeway_road_surface_width
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_freeway') }} ) AS xy
@@ -100,7 +100,7 @@ nearest_major_collector AS (
         xy.year,
         ARBITRARY(xy.road_name) AS nearest_major_collector_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_major_collector_road_dist_ft,
-        ARBITRARY(xy.year) AS data_year,
+        ARBITRARY(xy.year) AS nearest_major_collector_road_data_year,
         ARBITRARY(xy.surface_width)
             AS nearest_major_collector_road_surface_width
     FROM distinct_pins AS pcl
