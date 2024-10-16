@@ -53,7 +53,6 @@ nearest_minor AS (
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_minor') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
-        AND pcl.year = xy.pin_year
     GROUP BY pcl.pin10, pcl.year
 ),
 
@@ -70,7 +69,6 @@ nearest_interstate AS (
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_interstate') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
-        AND pcl.year = xy.pin_year
     GROUP BY pcl.pin10, pcl.year
 ),
 
@@ -87,7 +85,6 @@ nearest_freeway AS (
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_freeway') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
-        AND pcl.year = xy.pin_year
     GROUP BY pcl.pin10, pcl.year
 ),
 
@@ -106,7 +103,6 @@ nearest_major_collector AS (
         ( {{ dist_to_nearest_geometry('traffic_major_collector') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
-        AND pcl.year = xy.pin_year
     GROUP BY pcl.pin10, pcl.year
 )
 
