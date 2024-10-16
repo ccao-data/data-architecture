@@ -1,4 +1,3 @@
--- CTAS to create a table of distance to the nearest road for each PIN
 {{
     config(
         materialized='table',
@@ -40,58 +39,68 @@ distinct_pins AS (
     FROM {{ source('spatial', 'parcel') }}
 ),
 
--- Select nearest road from Minor Arterial
+distinct_years_rhs AS (
+    SELECT DISTINCT year
+    FROM {{ source('spatial', 'traffic') }}
+    WHERE road_type IS NOT NULL
+),
+
+-- Calculate nearest Minor Arterial road per pin
 nearest_minor AS (
     SELECT
         pcl.pin10,
+        xy.year,
         ARBITRARY(xy.road_name) AS nearest_minor_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_minor_road_dist_ft,
-        ARBITRARY(xy.year) AS nearest_minor_road_data_year,
+        ARBITRARY(xy.year) AS data_year,
         ARBITRARY(xy.surface_width) AS nearest_minor_road_surface_width
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_minor') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
-    GROUP BY pcl.pin10
+    GROUP BY pcl.pin10, xy.year
 ),
 
--- Select nearest road from Interstate
+-- Calculate nearest Interstate road per pin
 nearest_interstate AS (
     SELECT
         pcl.pin10,
+        xy.year,
         ARBITRARY(xy.road_name) AS nearest_interstate_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_interstate_road_dist_ft,
-        ARBITRARY(xy.year) AS nearest_interstate_road_data_year,
+        ARBITRARY(xy.year) AS data_year,
         ARBITRARY(xy.surface_width) AS nearest_interstate_road_surface_width
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_interstate') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
-    GROUP BY pcl.pin10
+    GROUP BY pcl.pin10, xy.year
 ),
 
--- Select nearest road from Freeway And Expressway
+-- Calculate nearest Freeway or Expressway road per pin
 nearest_freeway AS (
     SELECT
         pcl.pin10,
+        xy.year,
         ARBITRARY(xy.road_name) AS nearest_freeway_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_freeway_road_dist_ft,
-        ARBITRARY(xy.year) AS nearest_freeway_road_data_year,
+        ARBITRARY(xy.year) AS data_year,
         ARBITRARY(xy.surface_width) AS nearest_freeway_road_surface_width
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_freeway') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
-    GROUP BY pcl.pin10
+    GROUP BY pcl.pin10, xy.year
 ),
 
--- Select nearest road from Major Collector
+-- Calculate nearest Major Collector road per pin
 nearest_major_collector AS (
     SELECT
         pcl.pin10,
+        xy.year,
         ARBITRARY(xy.road_name) AS nearest_major_collector_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_major_collector_road_dist_ft,
-        ARBITRARY(xy.year) AS nearest_major_collector_road_data_year,
+        ARBITRARY(xy.year) AS data_year,
         ARBITRARY(xy.surface_width)
             AS nearest_major_collector_road_surface_width
     FROM distinct_pins AS pcl
@@ -99,10 +108,10 @@ nearest_major_collector AS (
         ( {{ dist_to_nearest_geometry('traffic_major_collector') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
-    GROUP BY pcl.pin10
+    GROUP BY pcl.pin10, xy.year
 )
 
--- Join the results based on pin10 and year
+-- Join all nearest roads by pin10 and year
 SELECT
     COALESCE(
         minor.pin10, interstate.pin10, freeway.pin10, major_collector.pin10
@@ -122,12 +131,19 @@ SELECT
     major_collector.nearest_major_collector_road_name,
     major_collector.nearest_major_collector_road_dist_ft,
     major_collector.nearest_major_collector_road_data_year,
-    major_collector.nearest_major_collector_road_surface_width
+    major_collector.nearest_major_collector_road_surface_width,
+    COALESCE(minor.year, interstate.year, freeway.year, major_collector.year)
+        AS year
 FROM nearest_minor AS minor
 FULL OUTER JOIN nearest_interstate AS interstate
-    ON minor.pin10 = interstate.pin10
+    ON minor.pin10 = interstate.pin10 AND minor.year = interstate.year
 FULL OUTER JOIN nearest_freeway AS freeway
     ON COALESCE(minor.pin10, interstate.pin10) = freeway.pin10
+    AND COALESCE(minor.year, interstate.year) = freeway.year
 FULL OUTER JOIN nearest_major_collector AS major_collector
     ON COALESCE(minor.pin10, interstate.pin10, freeway.pin10)
     = major_collector.pin10
+    AND COALESCE(minor.year, interstate.year, freeway.year)
+    = major_collector.year
+WHERE COALESCE(minor.year, interstate.year, freeway.year, major_collector.year)
+    >= (SELECT MIN(year) FROM distinct_years_rhs)
