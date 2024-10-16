@@ -47,13 +47,12 @@ nearest_minor AS (
         ARBITRARY(xy.road_name) AS nearest_minor_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_minor_road_dist_ft,
         ARBITRARY(xy.year) AS nearest_minor_road_data_year,
-        ARBITRARY(xy.surface_width) AS nearest_minor_road_surface_width,
-        pcl.year
+        ARBITRARY(xy.surface_width) AS nearest_minor_road_surface_width
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_minor') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
-    GROUP BY pcl.pin10, pcl.year
+    GROUP BY pcl.pin10
 ),
 
 -- Select nearest road from Interstate
@@ -63,13 +62,12 @@ nearest_interstate AS (
         ARBITRARY(xy.road_name) AS nearest_interstate_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_interstate_road_dist_ft,
         ARBITRARY(xy.year) AS nearest_interstate_road_data_year,
-        ARBITRARY(xy.surface_width) AS nearest_interstate_road_surface_width,
-        pcl.year
+        ARBITRARY(xy.surface_width) AS nearest_interstate_road_surface_width
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_interstate') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
-    GROUP BY pcl.pin10, pcl.year
+    GROUP BY pcl.pin10
 ),
 
 -- Select nearest road from Freeway And Expressway
@@ -79,13 +77,12 @@ nearest_freeway AS (
         ARBITRARY(xy.road_name) AS nearest_freeway_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_freeway_road_dist_ft,
         ARBITRARY(xy.year) AS nearest_freeway_road_data_year,
-        ARBITRARY(xy.surface_width) AS nearest_freeway_road_surface_width,
-        pcl.year
+        ARBITRARY(xy.surface_width) AS nearest_freeway_road_surface_width
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_freeway') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
-    GROUP BY pcl.pin10, pcl.year
+    GROUP BY pcl.pin10
 ),
 
 -- Select nearest road from Major Collector
@@ -96,14 +93,13 @@ nearest_major_collector AS (
         ARBITRARY(xy.dist_ft) AS nearest_major_collector_road_dist_ft,
         ARBITRARY(xy.year) AS nearest_major_collector_road_data_year,
         ARBITRARY(xy.surface_width)
-            AS nearest_major_collector_road_surface_width,
-        pcl.year
+            AS nearest_major_collector_road_surface_width
     FROM distinct_pins AS pcl
     INNER JOIN
         ( {{ dist_to_nearest_geometry('traffic_major_collector') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
-    GROUP BY pcl.pin10, pcl.year
+    GROUP BY pcl.pin10
 )
 
 -- Join the results based on pin10 and year
