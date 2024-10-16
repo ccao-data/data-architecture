@@ -122,17 +122,12 @@ SELECT
     major_collector.nearest_major_collector_road_name,
     major_collector.nearest_major_collector_road_dist_ft,
     major_collector.nearest_major_collector_road_data_year,
-    major_collector.nearest_major_collector_road_surface_width,
-    COALESCE(minor.year, interstate.year, freeway.year, major_collector.year)
-        AS year
+    major_collector.nearest_major_collector_road_surface_width
 FROM nearest_minor AS minor
 FULL OUTER JOIN nearest_interstate AS interstate
-    ON minor.pin10 = interstate.pin10 AND minor.year = interstate.year
+    ON minor.pin10 = interstate.pin10
 FULL OUTER JOIN nearest_freeway AS freeway
     ON COALESCE(minor.pin10, interstate.pin10) = freeway.pin10
-    AND COALESCE(minor.year, interstate.year) = freeway.year
 FULL OUTER JOIN nearest_major_collector AS major_collector
     ON COALESCE(minor.pin10, interstate.pin10, freeway.pin10)
     = major_collector.pin10
-    AND COALESCE(minor.year, interstate.year, freeway.year)
-    = major_collector.year
