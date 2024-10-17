@@ -67,9 +67,7 @@ parquet_files <- get_bucket_df(
 
 # Loop through each parquet file and process it
 walk(parquet_files, \(file_key) {
-
   if (!aws.s3::object_exists(file.path(AWS_S3_WAREHOUSE_BUCKET, file_key))) {
-
     print(paste("Cleaning", file_key))
 
     # Convert the S3 object into raw data and read using geoarrow
@@ -106,7 +104,7 @@ walk(parquet_files, \(file_key) {
       mutate(
         surface_type = road_codes[as.character(surface_type)],
         speed_limit = as.numeric(speed_limit),
-        road_name = str_to_lower(road_name),           # Convert to lowercase
+        road_name = str_to_lower(road_name), # Convert to lowercase
         road_name = gsub("[[:punct:]]", "", road_name), # Remove punctuation like . / etc.
 
         # Remove standalone directional indicators (N, S, E, W)
@@ -129,101 +127,101 @@ walk(parquet_files, \(file_key) {
         # Remove extra spaces that may result from replacements
         road_name = str_trim(road_name)
       ) %>%
-      select(-one_of(required_columns)) %>%  # Drop unnecessary columns
-      mutate(across(-geometry, ~replace(., . %in% c(0, "0000"), NA))) %>%  # Replace 0 and '0000' with NA
-      mutate(surface_year = ifelse(surface_year == 9999, NA, surface_year)) %>%  # Replace 9999 with NA
+      select(-one_of(required_columns)) %>% # Drop unnecessary columns
+      mutate(across(-geometry, ~ replace(., . %in% c(0, "0000"), NA))) %>% # Replace 0 and '0000' with NA
+      mutate(surface_year = ifelse(surface_year == 9999, NA, surface_year)) %>% # Replace 9999 with NA
       group_by(road_name, speed_limit, lanes, surface_type, daily_traffic) %>%
       summarize(geometry = st_union(geometry), .groups = "drop") %>%
       mutate(geometry_3435 = st_transform(geometry, 3435))
 
-      # Helper function to calculate averages based on intersections
-      calculate_traffic_averages <- function(data) {
-        # Create an intersection matrix
-        intersection_matrix <- st_intersects(data)
+    # Helper function to calculate averages based on intersections
+    calculate_traffic_averages <- function(data) {
+      # Create an intersection matrix
+      intersection_matrix <- st_intersects(data)
 
-        # Create intersecting pairs
-        intersecting_pairs <- do.call(rbind, lapply(seq_along(intersection_matrix), function(i) {
-          data.frame(polygon_1 = i, polygon_2 = intersection_matrix[[i]])
-        })) %>%
-          filter(polygon_1 != polygon_2)  # Remove self-matches
+      # Create intersecting pairs
+      intersecting_pairs <- do.call(rbind, lapply(seq_along(intersection_matrix), function(i) {
+        data.frame(polygon_1 = i, polygon_2 = intersection_matrix[[i]])
+      })) %>%
+        filter(polygon_1 != polygon_2) # Remove self-matches
 
-        # Add polygon IDs and relevant columns for merging
-        data_with_ids <- data %>%
-          mutate(polygon_id = row_number()) %>%
-          select(polygon_id, road_name, daily_traffic, speed_limit, lanes)
+      # Add polygon IDs and relevant columns for merging
+      data_with_ids <- data %>%
+        mutate(polygon_id = row_number()) %>%
+        select(polygon_id, road_name, daily_traffic, speed_limit, lanes)
 
-        # Join intersecting pairs with their respective polygon data
-        averages <- intersecting_pairs %>%
-          left_join(
-            data_with_ids %>%
-              rename(
-                road_name_1 = road_name,
-                daily_traffic_1 = daily_traffic,
-                speed_limit_1 = speed_limit,
-                lanes_1 = lanes
-              ),
-            by = c("polygon_1" = "polygon_id")
-          ) %>%
-          left_join(
-            data_with_ids %>%
-              rename(
-                road_name_2 = road_name,
-                daily_traffic_2 = daily_traffic,
-                speed_limit_2 = speed_limit,
-                lanes_2 = lanes
-              ),
-            by = c("polygon_2" = "polygon_id")
-          ) %>%
-          filter(road_name_1 == road_name_2) %>%  # Keep only matching road names
-          group_by(polygon_1) %>%
-          summarize(
-            average_daily_traffic = mean(daily_traffic_2, na.rm = TRUE),
-            average_speed_limit = mean(speed_limit_2, na.rm = TRUE),
-            average_lanes = mean(lanes_2, na.rm = TRUE),
-            .groups = 'drop'
-          )
-
-        # Update the original data with averages where needed
-        shapefile_data_final <- data %>%
-          mutate(polygon_id = row_number()) %>%
-          left_join(averages, by = c("polygon_id" = "polygon_1")) %>%
-          mutate(
-            daily_traffic = if_else(is.na(daily_traffic), average_daily_traffic, daily_traffic),
-            speed_limit = if_else(is.na(speed_limit), average_speed_limit, speed_limit),
-            lanes = if_else(is.na(lanes), average_lanes, lanes)
-          ) %>%
-          select(-c(average_daily_traffic, average_speed_limit, average_lanes, polygon_id))
-
-        return(shapefile_data_final)
-      }
-
-      # Run the function
-      # Initialize with placeholder to ensure the first iteration runs
-      previous_na_counts <- list(
-        daily_traffic_na = -1,  # Placeholder different from any real NA count
-        speed_limit_na = -1      # Same here
-      )
-
-      # Loop until no changes in NA counts
-      repeat {
-        # Calculate current NA counts
-        current_na_counts <- list(
-          daily_traffic_na = sum(is.na(shapefile_data$daily_traffic)),
-          speed_limit_na = sum(is.na(shapefile_data$speed_limit))
+      # Join intersecting pairs with their respective polygon data
+      averages <- intersecting_pairs %>%
+        left_join(
+          data_with_ids %>%
+            rename(
+              road_name_1 = road_name,
+              daily_traffic_1 = daily_traffic,
+              speed_limit_1 = speed_limit,
+              lanes_1 = lanes
+            ),
+          by = c("polygon_1" = "polygon_id")
+        ) %>%
+        left_join(
+          data_with_ids %>%
+            rename(
+              road_name_2 = road_name,
+              daily_traffic_2 = daily_traffic,
+              speed_limit_2 = speed_limit,
+              lanes_2 = lanes
+            ),
+          by = c("polygon_2" = "polygon_id")
+        ) %>%
+        filter(road_name_1 == road_name_2) %>% # Keep only matching road names
+        group_by(polygon_1) %>%
+        summarize(
+          average_daily_traffic = mean(daily_traffic_2, na.rm = TRUE),
+          average_speed_limit = mean(speed_limit_2, na.rm = TRUE),
+          average_lanes = mean(lanes_2, na.rm = TRUE),
+          .groups = "drop"
         )
 
-        # Check if NA counts have changed
-        if (!identical(current_na_counts, previous_na_counts)) {
-          print("NA values have changed, recalculating traffic averages.")
-          shapefile_data <- calculate_traffic_averages(shapefile_data)
+      # Update the original data with averages where needed
+      shapefile_data_final <- data %>%
+        mutate(polygon_id = row_number()) %>%
+        left_join(averages, by = c("polygon_id" = "polygon_1")) %>%
+        mutate(
+          daily_traffic = if_else(is.na(daily_traffic), average_daily_traffic, daily_traffic),
+          speed_limit = if_else(is.na(speed_limit), average_speed_limit, speed_limit),
+          lanes = if_else(is.na(lanes), average_lanes, lanes)
+        ) %>%
+        select(-c(average_daily_traffic, average_speed_limit, average_lanes, polygon_id))
 
-          # Update previous NA counts for the next iteration
-          previous_na_counts <- current_na_counts
-        } else {
-          print("No further NA changes detected, stopping recalculation.")
-          break
-        }
+      return(shapefile_data_final)
+    }
+
+    # Run the function
+    # Initialize with placeholder to ensure the first iteration runs
+    previous_na_counts <- list(
+      daily_traffic_na = -1, # Placeholder different from any real NA count
+      speed_limit_na = -1 # Same here
+    )
+
+    # Loop until no changes in NA counts
+    repeat {
+      # Calculate current NA counts
+      current_na_counts <- list(
+        daily_traffic_na = sum(is.na(shapefile_data$daily_traffic)),
+        speed_limit_na = sum(is.na(shapefile_data$speed_limit))
+      )
+
+      # Check if NA counts have changed
+      if (!identical(current_na_counts, previous_na_counts)) {
+        print("NA values have changed, recalculating traffic averages.")
+        shapefile_data <- calculate_traffic_averages(shapefile_data)
+
+        # Update previous NA counts for the next iteration
+        previous_na_counts <- current_na_counts
+      } else {
+        print("No further NA changes detected, stopping recalculation.")
+        break
       }
+    }
 
     output_path <- file.path(output_bucket, basename(file_key))
     geoarrow::write_geoparquet(shapefile_data_final, output_path)
@@ -231,4 +229,3 @@ walk(parquet_files, \(file_key) {
     print(paste(file_key, "cleaned and uploaded."))
   }
 })
-
