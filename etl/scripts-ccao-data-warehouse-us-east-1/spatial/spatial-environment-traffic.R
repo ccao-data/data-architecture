@@ -59,7 +59,6 @@ road_codes <- c(
   "800" = "Brick, Block or Other"
 )
 
-
 # Get the 'Key'
 parquet_files <- get_bucket_df(
   bucket = AWS_S3_RAW_BUCKET, prefix = s3_folder
@@ -80,16 +79,14 @@ walk(parquet_files, \(file_key) {
       st_transform(4326) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435))
 
-    # We do this because some columns are not present in
-    # older versions of the data
-    required_columns <- c("FCNAME", "FC_NAME", "LNS", "SURF_TYP", "SURF_WTH", "SURF_YR", "AADT",
-                          "CRS_WITH", "CRS_OPP", "CRS_YR",
-                          "ROAD_NAME", "DTRESS_WTH", "DTRESS_OPP",
-                          "SP_LIM", "INVENTORY", "geometry_3435", "year")
+    required_columns <- c(
+      "FCNAME", "FC_NAME", "LNS", "SURF_TYP", "SURF_WTH", "SURF_YR", "AADT",
+      "CRS_WITH", "CRS_OPP", "CRS_YR", "ROAD_NAME", "DTRESS_WTH", "DTRESS_OPP",
+      "SP_LIM", "INVENTORY", "geometry_3435", "year"
+    )
 
-    # Select only the non-geometry columns that exist in the dataset
     existing_columns <- intersect(required_columns, colnames(shapefile_data))
-    shapefile_data %>%
+    shapefile_data <- shapefile_data %>%
       select(all_of(existing_columns)) %>%
       mutate(
         road_type = if ("FCNAME" %in% colnames(.)) FCNAME else if ("FC_NAME" %in% colnames(.)) FC_NAME else NA,
@@ -107,21 +104,107 @@ walk(parquet_files, \(file_key) {
         speed_limit = if ("SP_LIM" %in% colnames(.)) SP_LIM else NA,
         inventory_id = if ("INVENTORY" %in% colnames(.)) INVENTORY else NA
       ) %>%
-      # Recode surface_type based on road codes
-      mutate(surface_type = road_codes[as.character(surface_type)]) %>%
-      # Select and remove unnecessary columns
-      select(-one_of(c("FCNAME", "FC_NAME", "LNS", "SURF_TYP", "SURF_WTH", "SURF_YR", "AADT", "CRS_WITH",
-                       "CRS_OPP", "CRS_YR", "ROAD_NAME", "DTRESS_WTH", "DTRESS_OPP",
-                       "SP_LIM", "INVENTORY"))) %>%
-      # Replace all 0 values with NA, excluding the geometry column
+      mutate(surface_type = road_codes[as.character(surface_type)],
+             speed_limit = as.numeric(speed_limit)) %>%
+      select(-one_of(required_columns)) %>%
       mutate(across(-geometry, ~replace(., . %in% c(0, "0000"), NA))) %>%
       mutate(surface_year = ifelse(surface_year == 9999, NA, surface_year)) %>%
-      geoarrow::write_geoparquet(
-        file.path(AWS_S3_WAREHOUSE_BUCKET, file_key)
-      )
+      group_by(road_name, speed_limit, lanes, surface_type, daily_traffic) %>%
+      summarize(geometry = st_union(geometry)) %>%
+      ungroup()
+
+    # Function to create the intersection matrix and compute average traffic
+    calculate_traffic_averages <- function(shapefile_data) {
+      # Create an intersection matrix for averages
+      intersection_matrix <- st_intersects(shapefile_data)
+
+      # Create intersecting pairs
+      intersecting_pairs <- do.call(rbind, lapply(seq_along(intersection_matrix), function(i) {
+        data.frame(polygon_1 = i, polygon_2 = intersection_matrix[[i]])
+      })) %>%
+        filter(polygon_1 != polygon_2)  # Remove self-matches
+
+      # Add polygon ID and relevant columns to shapefile data
+      shapefile_with_ids <- shapefile_data %>%
+        mutate(polygon_id = row_number()) %>%
+        select(polygon_id, road_name, daily_traffic, speed_limit, lanes)
+
+      # Join intersecting pairs with matching street names
+      averages <- intersecting_pairs %>%
+        left_join(
+          shapefile_with_ids %>%
+            rename(
+              road_name_1 = road_name,
+              daily_traffic_1 = daily_traffic,
+              speed_limit_1 = speed_limit,
+              lanes_1 = lanes
+            ),
+          by = c("polygon_1" = "polygon_id")
+        ) %>%
+        left_join(
+          shapefile_with_ids %>%
+            rename(
+              road_name_2 = road_name,
+              daily_traffic_2 = daily_traffic,
+              speed_limit_2 = speed_limit,
+              lanes_2 = lanes
+            ),
+          by = c("polygon_2" = "polygon_id")
+        ) %>%
+        filter(road_name_1 == road_name_2) %>%  # Keep only matching road names
+        group_by(polygon_1) %>%
+        summarize(
+          average_daily_traffic = mean(daily_traffic_2, na.rm = TRUE),
+          average_speed_limit = mean(speed_limit_2, na.rm = TRUE),
+          average_lanes = mean(lanes_2, na.rm = TRUE),
+          .groups = 'drop'
+        )
+
+      # Update traffic, speed limit, and lanes with averages if needed
+      shapefile_data <- shapefile_data %>%
+        mutate(polygon_id = row_number()) %>%
+        left_join(averages, by = c("polygon_id" = "polygon_1")) %>%
+        mutate(
+          daily_traffic = if_else(is.na(daily_traffic), average_daily_traffic, daily_traffic),
+          speed_limit = if_else(is.na(speed_limit), average_speed_limit, speed_limit),
+          num_lanes = if_else(is.na(lanes), average_lanes, lanes)
+        )
+
+      return(shapefile_data)
+    }
+
+
+    # Loop until no changes are made
+    shapefile_data_final <- shapefile_data
+    calculate_traffic_with_loop <- function(shapefile_data) {
+      # Initialize final shapefile data
+      shapefile_data_final <- shapefile_data
+
+      repeat {
+        # Save current values to compare changes
+        previous_traffic <- shapefile_data_final$daily_traffic
+        previous_speed <- shapefile_data_final$speed_limit
+        previous_lanes <- shapefile_data_final$num_lanes
+
+        # Recalculate averages and update shapefile data
+        shapefile_data_final <- calculate_traffic_averages(shapefile_data_final)
+
+        # Check if all values remain unchanged
+        if (all(previous_traffic == shapefile_data_final$daily_traffic, na.rm = TRUE) &&
+            all(previous_speed == shapefile_data_final$speed_limit, na.rm = TRUE) &&
+            all(previous_lanes == shapefile_data_final$num_lanes, na.rm = TRUE)) {
+          break  # Exit loop if no changes were made
+        }
+      }
+
+      return(shapefile_data_final)
+    }
+
+
+    output_path <- file.path(output_bucket, basename(file_key))
+    geoarrow::write_geoparquet(shapefile_data_final, output_path)
 
     print(paste(file_key, "cleaned and uploaded."))
-
   }
-}
-)
+})
+
