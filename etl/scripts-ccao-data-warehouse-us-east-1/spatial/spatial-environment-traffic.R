@@ -101,7 +101,8 @@ walk(parquet_files, \(file_key) {
     shapefile_data <- shapefile_data %>%
       select(all_of(existing_columns)) %>%
       mutate(
-        road_type = if ("FCNAME" %in% colnames(.)) FCNAME else if ("FC_NAME" %in% colnames(.)) FC_NAME else NA,
+        road_type = if ("FCNAME" %in% colnames(.)) FCNAME
+        else if ("FC_NAME" %in% colnames(.)) FC_NAME else NA,
         lanes = if ("LNS" %in% colnames(.)) LNS else NA,
         surface_type = if ("SURF_TYP" %in% colnames(.)) SURF_TYP else NA,
         surface_width = if ("SURF_WTH" %in% colnames(.)) SURF_WTH else NA,
@@ -112,7 +113,8 @@ walk(parquet_files, \(file_key) {
         condition_year = if ("CRS_YR" %in% colnames(.)) CRS_YR else NA,
         road_name = if ("ROAD_NAME" %in% colnames(.)) ROAD_NAME else NA,
         distress_with = if ("DTRESS_WTH" %in% colnames(.)) DTRESS_WTH else NA,
-        distress_opposing = if ("DTRESS_OPP" %in% colnames(.)) DTRESS_OPP else NA,
+        distress_opposing = if ("DTRESS_OPP" %in%
+                                  colnames(.)) DTRESS_OPP else NA,
         speed_limit = if ("SP_LIM" %in% colnames(.)) SP_LIM else NA,
         inventory_id = if ("INVENTORY" %in% colnames(.)) INVENTORY else NA
       ) %>%
@@ -120,7 +122,7 @@ walk(parquet_files, \(file_key) {
         surface_type = road_codes[as.character(surface_type)],
         speed_limit = as.numeric(speed_limit),
         road_name = str_to_lower(road_name), # Convert to lowercase
-        road_name = gsub("[[:punct:]]", "", road_name), # Remove punctuation like . / etc.
+        road_name = gsub("[[:punct:]]", "", road_name), # Remove punctuation
 
         # Remove standalone directional indicators (N, S, E, W)
         road_name = gsub("\\b(n|s|e|w)\\b", "", road_name),
@@ -143,8 +145,8 @@ walk(parquet_files, \(file_key) {
         road_name = str_trim(road_name)
       ) %>%
       select(-one_of(required_columns)) %>% # Drop unnecessary columns
-      mutate(across(-geometry, ~ replace(., . %in% c(0, "0000"), NA))) %>% # Replace 0 and '0000' with NA
-      mutate(surface_year = ifelse(surface_year == 9999, NA, surface_year)) %>% # Replace 9999 with NA
+      mutate(across(-geometry, ~ replace(., . %in% c(0, "0000"), NA))) %>%
+      mutate(surface_year = ifelse(surface_year == 9999, NA, surface_year)) %>%
       group_by(road_name, speed_limit, lanes, surface_type, daily_traffic) %>%
       summarize(geometry = st_union(geometry), .groups = "drop") %>%
       mutate(geometry_3435 = st_transform(geometry, 3435))
@@ -155,11 +157,16 @@ walk(parquet_files, \(file_key) {
       intersection_matrix <- st_intersects(data)
 
       # Create intersecting pairs
-      intersecting_pairs <- do.call(rbind, lapply(seq_along(intersection_matrix), function(i) {
-        data.frame(polygon_1 = i, polygon_2 = intersection_matrix[[i]])
-      })) %>%
-        filter(polygon_1 != polygon_2) # Remove self-matches
-
+      intersecting_pairs <- do.call(
+        rbind,
+        lapply(seq_along(intersection_matrix), function(i) {
+          data.frame(
+            polygon_1 = i,
+            polygon_2 = intersection_matrix[[i]]
+          )
+        })
+      ) %>%
+        filter(polygon_1 != polygon_2)  # Remove self-matches
       # Add polygon IDs and relevant columns for merging
       data_with_ids <- data %>%
         mutate(polygon_id = row_number()) %>%
@@ -201,11 +208,14 @@ walk(parquet_files, \(file_key) {
         mutate(polygon_id = row_number()) %>%
         left_join(averages, by = c("polygon_id" = "polygon_1")) %>%
         mutate(
-          daily_traffic = if_else(is.na(daily_traffic), average_daily_traffic, daily_traffic),
-          speed_limit = if_else(is.na(speed_limit), average_speed_limit, speed_limit),
+          daily_traffic = if_else(is.na(daily_traffic), average_daily_traffic,
+                                  daily_traffic),
+          speed_limit = if_else(is.na(speed_limit), average_speed_limit,
+                                speed_limit),
           lanes = if_else(is.na(lanes), average_lanes, lanes)
         ) %>%
-        select(-c(average_daily_traffic, average_speed_limit, average_lanes, polygon_id))
+        select(-c(average_daily_traffic, average_speed_limit,
+                  average_lanes, polygon_id))
 
       return(shapefile_data_final)
     }
