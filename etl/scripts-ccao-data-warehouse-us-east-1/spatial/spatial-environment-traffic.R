@@ -5,7 +5,7 @@ library(sf)
 library(geoarrow)
 
 # Define the S3 bucket and folder path
-AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+AWS_S3_RAW_BUCKET <- "s3://ccao-data-raw-us-east-1"
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 s3_folder <- "spatial/environment/traffic/"
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, s3_folder)
@@ -205,7 +205,7 @@ walk(parquet_files, \(file_key) {
     }
 
     output_path <- file.path(output_bucket, basename(file_key))
-    geoarrow::write_geoparquet(shapefile_data_final, output_path)
+    # geoarrow::write_geoparquet(shapefile_data_final, output_path)
 
     print(paste(file_key, "cleaned and uploaded."))
   }
