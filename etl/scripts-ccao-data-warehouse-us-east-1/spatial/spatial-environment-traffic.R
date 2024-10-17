@@ -124,15 +124,17 @@ walk(parquet_files, \(file_key) {
       })) %>%
         filter(polygon_1 != polygon_2)  # Remove self-matches
 
-      # Add polygon ID and relevant columns to shapefile data
+      # Add polygon ID and relevant columns to shapefile data. This allows us to later merge
+      # data with the intersection pairs above.
       shapefile_with_ids <- shapefile_data %>%
         mutate(polygon_id = row_number()) %>%
         select(polygon_id, road_name, daily_traffic, speed_limit, lanes)
 
-      # Join intersecting pairs with matching street names
+      # Join intersecting pairs with matching street IDs
       averages <- intersecting_pairs %>%
         left_join(
           shapefile_with_ids %>%
+            # Create IDs for the "home" street
             rename(
               road_name_1 = road_name,
               daily_traffic_1 = daily_traffic,
@@ -143,6 +145,7 @@ walk(parquet_files, \(file_key) {
         ) %>%
         left_join(
           shapefile_with_ids %>%
+            # Create IDs for the neighboring streets
             rename(
               road_name_2 = road_name,
               daily_traffic_2 = daily_traffic,
@@ -153,6 +156,7 @@ walk(parquet_files, \(file_key) {
         ) %>%
         filter(road_name_1 == road_name_2) %>%  # Keep only matching road names
         group_by(polygon_1) %>%
+        # Create averages
         summarize(
           average_daily_traffic = mean(daily_traffic_2, na.rm = TRUE),
           average_speed_limit = mean(speed_limit_2, na.rm = TRUE),
@@ -160,7 +164,7 @@ walk(parquet_files, \(file_key) {
           .groups = 'drop'
         )
 
-      # Update traffic, speed limit, and lanes with averages if needed
+      # Update traffic, speed limit, and lanes with averages
       shapefile_data <- shapefile_data %>%
         mutate(polygon_id = row_number()) %>%
         left_join(averages, by = c("polygon_id" = "polygon_1")) %>%
@@ -199,7 +203,6 @@ walk(parquet_files, \(file_key) {
 
       return(shapefile_data_final)
     }
-
 
     output_path <- file.path(output_bucket, basename(file_key))
     geoarrow::write_geoparquet(shapefile_data_final, output_path)
