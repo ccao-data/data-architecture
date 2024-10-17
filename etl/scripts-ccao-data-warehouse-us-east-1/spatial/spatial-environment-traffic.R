@@ -76,8 +76,7 @@ walk(parquet_files, \(file_key) {
     shapefile_data <- geoarrow::read_geoparquet_sf(
       file.path(AWS_S3_RAW_BUCKET, file_key)
     ) %>%
-      st_transform(4326) %>%
-      mutate(geometry_3435 = st_transform(geometry, 3435))
+      st_transform(4326)
 
     required_columns <- c(
       "FCNAME", "FC_NAME", "LNS", "SURF_TYP", "SURF_WTH", "SURF_YR", "AADT",
@@ -104,19 +103,33 @@ walk(parquet_files, \(file_key) {
         speed_limit = if ("SP_LIM" %in% colnames(.)) SP_LIM else NA,
         inventory_id = if ("INVENTORY" %in% colnames(.)) INVENTORY else NA
       ) %>%
-      mutate(surface_type = road_codes[as.character(surface_type)],
-             speed_limit = as.numeric(speed_limit),
-             road_name = str_to_lower(road_name),           # Convert to lowercase
-             road_name = gsub("[[:punct:]]", "", road_name)) %>% # Remove punctuation like . / etc.
-             select(-one_of(required_columns)) %>%
-      mutate(across(-geometry, ~replace(., . %in% c(0, "0000"), NA))) %>%
-      mutate(surface_year = ifelse(surface_year == 9999, NA, surface_year)) %>%
-      group_by(road_name, speed_limit, lanes, surface_type, daily_traffic) %>%
-      summarize(geometry = st_union(geometry)) %>%
-      ungroup()
+      mutate(
+        surface_type = road_codes[as.character(surface_type)],
+        speed_limit = as.numeric(speed_limit),
+        road_name = str_to_lower(road_name),           # Convert to lowercase
+        road_name = gsub("[[:punct:]]", "", road_name), # Remove punctuation like . / etc.
 
-    # Function to compute traffic averages with a loop until no changes are made
-    calculate_traffic_data <- function(shapefile_data) {
+        # Replace full street name words with abbreviations
+        road_name = gsub("\\bavenue\\b", "ave", road_name),
+        road_name = gsub("\\bav\\b", "ave", road_name),
+        road_name = gsub("\\bstreet\\b", "st", road_name),
+        road_name = gsub("\\bcourt\\b", "ct", road_name),
+        road_name = gsub("\\broad\\b", "rd", road_name),
+        road_name = gsub("\\bdrive\\b", "dr", road_name),
+        road_name = gsub("\\bplace\\b", "pl", road_name),
+        road_name = gsub("\\blane\\b", "ln", road_name),
+        road_name = gsub("\\btrail\\b", "trl", road_name),
+        road_name = gsub("\\bparkway\\b", "pkwy", road_name),
+        road_name = gsub("\\bhighway\\b", "hwy", road_name),
+        road_name = gsub("\\bexpressway\\b", "expy", road_name)
+      ) %>%
+      select(-one_of(required_columns)) %>%  # Drop unnecessary columns
+      mutate(across(-geometry, ~replace(., . %in% c(0, "0000"), NA))) %>%  # Replace 0 and '0000' with NA
+      mutate(surface_year = ifelse(surface_year == 9999, NA, surface_year)) %>%  # Replace 9999 with NA
+      group_by(road_name, speed_limit, lanes, surface_type, daily_traffic) %>%
+      summarize(geometry = st_union(geometry), .groups = "drop") %>%
+      mutate(geometry_3435 = st_transform(geometry, 3435))
+
       # Helper function to calculate averages based on intersections
       calculate_traffic_averages <- function(data) {
         # Create an intersection matrix
@@ -165,56 +178,46 @@ walk(parquet_files, \(file_key) {
           )
 
         # Update the original data with averages where needed
-        updated_data <- data %>%
+        shapefile_data_final <- data %>%
           mutate(polygon_id = row_number()) %>%
           left_join(averages, by = c("polygon_id" = "polygon_1")) %>%
           mutate(
             daily_traffic = if_else(is.na(daily_traffic), average_daily_traffic, daily_traffic),
             speed_limit = if_else(is.na(speed_limit), average_speed_limit, speed_limit),
             lanes = if_else(is.na(lanes), average_lanes, lanes)
-          )
+          ) %>%
+          select(-c(average_daily_traffic, average_speed_limit, average_lanes, polygon_id))
 
-        return(updated_data)
+        return(shapefile_data_final)
       }
 
-      # Initialize loop
-      shapefile_data_final <- shapefile_data
+      # Run the function
+      # Initialize with placeholder to ensure the first iteration runs
+      previous_na_counts <- list(
+        daily_traffic_na = -1,  # Placeholder different from any real NA count
+        speed_limit_na = -1      # Same here
+      )
+
+      # Loop until no changes in NA counts
       repeat {
-        # Save current NA counts to compare changes
-        previous_na_traffic <- sum(is.na(shapefile_data_final$daily_traffic))
-        previous_na_speed <- sum(is.na(shapefile_data_final$speed_limit))
-        previous_na_lanes <- sum(is.na(shapefile_data_final$lanes))
+        # Calculate current NA counts
+        current_na_counts <- list(
+          daily_traffic_na = sum(is.na(shapefile_data$daily_traffic)),
+          speed_limit_na = sum(is.na(shapefile_data$speed_limit))
+        )
 
-        # Save the current state to track changes
-        previous_traffic <- shapefile_data_final$daily_traffic
-        previous_speed <- shapefile_data_final$speed_limit
-        previous_lanes <- shapefile_data_final$lanes
+        # Check if NA counts have changed
+        if (!identical(current_na_counts, previous_na_counts)) {
+          print("NA values have changed, recalculating traffic averages.")
+          shapefile_data <- calculate_traffic_averages(shapefile_data)
 
-        # Recalculate averages and update the data
-        shapefile_data_final <- calculate_traffic_averages(shapefile_data_final) %>%
-          select(-average_intersect_value)
-
-        # Calculate current NA counts after updating
-        current_na_traffic <- sum(is.na(shapefile_data_final$daily_traffic))
-        current_na_speed <- sum(is.na(shapefile_data_final$speed_limit))
-        current_na_lanes <- sum(is.na(shapefile_data_final$lanes))
-
-        # Exit loop if no changes in NA counts are detected
-        if (current_na_traffic >= previous_na_traffic &&
-            current_na_speed >= previous_na_speed &&
-            current_na_lanes >= previous_na_lanes) {
-          cat("No reduction in NA counts detected. Exiting loop.\n")
+          # Update previous NA counts for the next iteration
+          previous_na_counts <- current_na_counts
+        } else {
+          print("No further NA changes detected, stopping recalculation.")
           break
         }
       }
-
-
-      return(shapefile_data_final)
-    }
-
-    # Run the function
-    calculate_traffic_data(shapefile_data)
-
 
     output_path <- file.path(output_bucket, basename(file_key))
     geoarrow::write_geoparquet(shapefile_data_final, output_path)
