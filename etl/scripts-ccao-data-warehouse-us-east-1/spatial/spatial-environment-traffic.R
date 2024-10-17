@@ -109,6 +109,9 @@ walk(parquet_files, \(file_key) {
         road_name = str_to_lower(road_name),           # Convert to lowercase
         road_name = gsub("[[:punct:]]", "", road_name), # Remove punctuation like . / etc.
 
+        # Remove standalone directional indicators (N, S, E, W)
+        road_name = gsub("\\b(n|s|e|w)\\b", "", road_name),
+
         # Replace full street name words with abbreviations
         road_name = gsub("\\bavenue\\b", "ave", road_name),
         road_name = gsub("\\bav\\b", "ave", road_name),
@@ -121,7 +124,10 @@ walk(parquet_files, \(file_key) {
         road_name = gsub("\\btrail\\b", "trl", road_name),
         road_name = gsub("\\bparkway\\b", "pkwy", road_name),
         road_name = gsub("\\bhighway\\b", "hwy", road_name),
-        road_name = gsub("\\bexpressway\\b", "expy", road_name)
+        road_name = gsub("\\bexpressway\\b", "expy", road_name),
+
+        # Remove extra spaces that may result from replacements
+        road_name = str_trim(road_name)
       ) %>%
       select(-one_of(required_columns)) %>%  # Drop unnecessary columns
       mutate(across(-geometry, ~replace(., . %in% c(0, "0000"), NA))) %>%  # Replace 0 and '0000' with NA
