@@ -204,6 +204,8 @@ walk(parquet_files, \(file_key) {
       return(shapefile_data_final)
     }
 
+    calculate_traffic_with_loop(shapefile_data)
+
     output_path <- file.path(output_bucket, basename(file_key))
     # geoarrow::write_geoparquet(shapefile_data_final, output_path)
 
