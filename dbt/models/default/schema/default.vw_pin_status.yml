@@ -5,10 +5,14 @@ models:
     columns:
       - name: class
         description: '{{ doc("shared_column_class") }}'
-      - name: comdat_cdu
+      - name: comdat_cdu_code
         description: CDU from `iasworld.comdat` table
-      - name: dweldat_cdu
+      - name: comdat_cdu_description
+        description: CDU code description for `comdat_cdu_description`
+      - name: dweldat_cdu_code
         description: CDU from `iasworld.dweldat` table
+      - name: dweldat_cdu_description
+        description: CDU code description for `dweldat_cdu_description`
       - name: is_ahsap
         description: '{{ doc("shared_column_is_ahsap") }}'
       - name: is_common_area
@@ -40,8 +44,10 @@ models:
         description: Parcel is in `ccao.pin_test`
       - name: is_zero_bill
         description: Parcel with a $0 property tax bill indicator
-      - name: oby_cdu
+      - name: oby_cdu_code
         description: CDU from `iasworld.oby` table
+      - name: oby_cdu_description
+        description: CDU code description for `oby_cdu_code`
       - name: pardat_note
         description: Pardat note field 2
       - name: parking_space_flag_reason
