@@ -171,7 +171,7 @@ walk(parquet_files, \(file_key) {
         mutate(
           daily_traffic = if_else(is.na(daily_traffic), average_daily_traffic, daily_traffic),
           speed_limit = if_else(is.na(speed_limit), average_speed_limit, speed_limit),
-          num_lanes = if_else(is.na(lanes), average_lanes, lanes)
+          lanes = if_else(is.na(lanes), average_lanes, lanes)
         )
 
       return(shapefile_data)
@@ -188,7 +188,7 @@ walk(parquet_files, \(file_key) {
         # Save current values to compare changes
         previous_traffic <- shapefile_data_final$daily_traffic
         previous_speed <- shapefile_data_final$speed_limit
-        previous_lanes <- shapefile_data_final$num_lanes
+        previous_lanes <- shapefile_data_final$lanes
 
         # Recalculate averages and update shapefile data
         shapefile_data_final <- calculate_traffic_averages(shapefile_data_final)
