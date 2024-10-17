@@ -25,16 +25,25 @@ road_codes <- c(
   "501" = "Over PCC - Rubblized - Reinforcement unknown",
   "510" = "Over PCC - Rubblized - No reinforcement",
   "520" = "Over PCC - Rubblized - Partial reinforcement",
-  "525" = "Over PCC - Rubblized - With No or Partial Reinforcement - But having Hinged Joints",
+  "525" = paste(
+    "Over PCC - Rubblized - With No or Partial Reinforcement -",
+    "But having Hinged Joints"
+  ),
   "530" = "Over PCC - Rubblized - Full reinforcement",
   "540" = "Over PCC - Rubblized - Continuous reinforcement",
   "550" = "Bituminous Concrete (other than Class I)",
   "560" = "Bituminous Concrete Pavement (Full-Depth)",
   "600" = "Over PCC - Reinforcement unknown",
   "610" = "Over PCC - No reinforcement",
-  "615" = "Over PCC - No reinforcement but having short panels and dowels",
+  "615" = paste(
+    "Over PCC - No reinforcement but having short panels",
+    "and dowels"
+  ),
   "620" = "Over PCC - Partial reinforcement",
-  "625" = "Over PCC - With No or Partial Reinforcement - But having Hinged Joints",
+  "625" = paste(
+    "Over PCC - With No or Partial Reinforcement -",
+    "But having Hinged Joints"
+  ),
   "630" = "Over PCC - Full reinforcement",
   "640" = "Over PCC - Continuous reinforcement",
   "650" = "Over Brick, Block, Steel, or similar material",
@@ -50,8 +59,14 @@ road_codes <- c(
   "767" = "Reinforced over PCC - No reinforcement",
   "770" = "Non-Reinforced over PCC - Partial reinforcement",
   "772" = "Reinforced over PCC - Partial reinforcement",
-  "775" = "Non-Reinforced over PCC - With No or Partial reinforcement but having Hinged Joints",
-  "777" = "Reinforced over PCC - With No or Partial reinforcement but having Hinged Joints",
+  "775" = paste(
+    "Non-Reinforced over PCC - With No or Partial reinforcement",
+    "but having Hinged Joints"
+  ),
+  "777" = paste(
+    "Reinforced over PCC - With No or Partial reinforcement",
+    "but having Hinged Joints"
+  ),
   "780" = "Non-Reinforced over PCC - Full reinforcement",
   "782" = "Reinforced over PCC - Full reinforcement",
   "790" = "Non-Reinforced over PCC - Continuous reinforcement",
