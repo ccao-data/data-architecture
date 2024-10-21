@@ -91,6 +91,8 @@ walk(parquet_files, \(file_key) {
     ) %>%
       st_transform(4326)
 
+    # Because column names change, we can't just select, but create an intersection
+    # of columns we want and the renamed columns.
     required_columns <- c(
       "FCNAME", "FC_NAME", "LNS", "SURF_TYP", "SURF_WTH", "SURF_YR", "AADT",
       "CRS_WITH", "CRS_OPP", "CRS_YR", "ROAD_NAME", "DTRESS_WTH", "DTRESS_OPP",
@@ -147,11 +149,15 @@ walk(parquet_files, \(file_key) {
       select(-one_of(required_columns)) %>% # Drop unnecessary columns
       mutate(across(-geometry, ~ replace(., . %in% c(0, "0000"), NA))) %>%
       mutate(surface_year = ifelse(surface_year == 9999, NA, surface_year)) %>%
+      # Group by the characteristics that we want
       group_by(road_name, speed_limit, lanes, surface_type, daily_traffic) %>%
+      # Create a union of the streets based on the summarized features
       summarize(geometry = st_union(geometry), .groups = "drop") %>%
-      mutate(geometry_3435 = st_transform(geometry, 3435))
+      mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
+      ungroup()
 
-    # Helper function to calculate averages based on intersections
+    # Helper function to calculate averages based on intersections of streets with the
+    # same name and overlapping spatial features.
     calculate_traffic_averages <- function(data) {
       # Create an intersection matrix
       intersection_matrix <- st_intersects(data)
