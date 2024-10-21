@@ -21,7 +21,7 @@ Reason codes pertian to changes in AV.
 
 {% docs seed_cdu %}
 Table containing CDU (Condition, Desirability, and Utility) codes and
-descriptions. CDUs come the `user16` columns in `comdat`, `dweldat`, and `oby`
+descriptions. CDUs come from the `user16` columns in `comdat`, `dweldat`, and `oby`
 tables in `iasworld`.
 
 **Primary Key**: `cdu_code`
