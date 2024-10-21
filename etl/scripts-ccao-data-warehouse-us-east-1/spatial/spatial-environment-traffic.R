@@ -9,7 +9,7 @@ library(stringr)
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 s3_folder <- "spatial/environment/traffic"
-output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, s3_folder)
+output_bucket <- sub("/$", "", file.path(AWS_S3_WAREHOUSE_BUCKET, s3_folder))
 
 # Recoding of road type
 road_codes <- c(
