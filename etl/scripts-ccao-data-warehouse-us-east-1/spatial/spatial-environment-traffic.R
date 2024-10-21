@@ -249,7 +249,7 @@ walk(parquet_files, \(file_key) {
     }
 
     output_path <- file.path(output_bucket, basename(file_key))
-    geoarrow::write_geoparquet(shapefile_data_final, output_path)
+    geoarrow::write_geoparquet(shapefile_data, output_path)
 
     print(paste(file_key, "cleaned and uploaded."))
   }
