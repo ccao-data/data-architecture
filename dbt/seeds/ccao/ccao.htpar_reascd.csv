@@ -11,7 +11,7 @@ reascd,outcome,description
 18,No Change,This is due to lack of data having been submitted for our review.
 19,No Change,This is due to insufficient data having been submitted for our review.
 1A,Change,This is the result of an equity analysis of comparable properties.
-2,Change,This is the result of an analysis of comparable properties.  The decrease includes an update of your property's characteristics.
+2,Change,This is the result of an analysis of comparable properties. The decrease includes an update of your property's characteristics.
 20,No Change,This is due to the absence of or an incomplete Attorney/Representative Authorization form.
 21,No Change,"This is due to the sale of the property not having been disclosed or incomplete sale data submitted. (i.e. closing statement, deed.)"
 22,No Change,"This is due to income, market or cost analysis supporting the assessment."
@@ -51,6 +51,7 @@ reascd,outcome,description
 45A,No Change,The documents required to apply the affordable housing program reduction to your property were missing from your submission.
 46,No Change,The property is railroad operational.
 47,No Change,The property is currently partially exempt.
+47A,Change,The property has been granted partial exempt status.
 48,No Change,This result is based on consideration of submitted appraisal and an analysis of comparable properties.
 48A,No Change,This result is based upon consideration of the appraisal submitted and an analysis of recent comparable property sales.
 49,No Change,This is a result of a market analysis of your property as well as an analysis of comparable properties.
@@ -93,8 +94,9 @@ reascd,outcome,description
 83,No Change,"This is the result of market and comparable analysis of your property, which includes a home improvement exemption."
 84,No Change,No evidence provided to warrant a field inspection.
 85,No Change,Evidence provided contradicts recent field inspection.
+86,Change,Cancellation of omitted assessment values as a result of a granted appeal.
 88,No Change,Due to Legal Defense Denial.
-88,No Change,Due to not submitting an appeal.
+89,No Change,Due to not submitting an appeal.
 9,Change,This is the result of a sale analysis of your property.
 90,Change,This is the result of a special reduction reason.
 9A,Change,This is the result of a comparable sales analysis of your property.

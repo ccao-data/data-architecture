@@ -110,6 +110,6 @@ seeds:
     description: '{{ doc("seed_htpar_reascd") }}'
     config:
       column_types:
-        reascd: string
-        outcome: string
         description: string
+        outcome: string
+        reascd: string
