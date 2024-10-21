@@ -17,6 +17,16 @@ Reason codes pertian to changes in AV.
 **Primary Key**: `reascd`
 {% enddocs %}
 
+# cdu
+
+{% docs seed_cdu %}
+Table containing CDU (Condition, Desirability, and Utility) codes and
+descriptions. CDUs come from the `user16` columns in `comdat`, `dweldat`, and `oby`
+tables in `iasworld`.
+
+**Primary Key**: `cdu_code`
+{% enddocs %}
+
 # class_dict
 
 {% docs seed_class_dict %}
