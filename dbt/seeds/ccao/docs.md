@@ -35,6 +35,16 @@ To find the level of assessment (LoA) for each class, see the `ccao.loa` table.
 **Primary Key**: `class_code`
 {% enddocs %}
 
+# htpar_reascd
+
+{% docs seed_htpar_reascd %}
+Table containing descriptions for appeal decision reason codes from
+`iasworld.htpar`. These codes are sourced directly from the iasWorld interface.
+Many (but not all) are documented on the [Assessor's website](https://www.cookcountyassessor.com/form-document/assessor-reason-codes).
+
+**Primary Key**: `reascd`
+{% enddocs %}
+
 # loa
 
 {% docs seed_loa %}
