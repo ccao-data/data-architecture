@@ -77,7 +77,10 @@ SELECT
         WHEN
             reasons.taxyr > '2020' AND TRIM(LOWER(reasons.user104)) = 'decrease'
             THEN 'change'
-        WHEN reasons.taxyr > '2020' THEN TRIM(LOWER(reasons.user104))
+        WHEN
+            reasons.taxyr > '2020'
+            AND TRIM(LOWER(reasons.user104)) IN ('change', 'no change')
+            THEN TRIM(LOWER(reasons.user104))
     END AS change,
     reasons.reason_code1,
     reascd1.description AS reason_desc1,
