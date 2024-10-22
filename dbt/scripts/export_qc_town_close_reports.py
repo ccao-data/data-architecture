@@ -122,7 +122,11 @@ def main():
                 "is correct"
             )
 
-    # Determine which dbt tags to select based on the tri status of each town
+    # Determine which dbt tags to select based on the tri status of each town.
+    # Note that if the caller passed in two towns that have different tri
+    # statuses, i.e. one tri and one not tri, we will select tags for both
+    # types of towns, which might not be the caller's intended effect since
+    # tri towns require a different set of reports from non-tri towns.
     base_tag = "tag:qc_report_town_close"
     tags = {base_tag}
     for town in townships:

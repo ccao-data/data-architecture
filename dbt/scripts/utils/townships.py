@@ -24,7 +24,7 @@ class Township:
 
     def is_reassessed_during(self, year: int) -> bool:
         """Helper function to determine if a town in a given year is undergoing
-        triennial reassessment during a given year"""
+        triennial reassessment"""
         # 2024 is the City reassessment year (tri code 1), so
         # ((2024 - 2024) % 3) + 1 == 1, and so on for the other two tris
         return str(((year - 2024) % 3) + 1) == self.tri_code
