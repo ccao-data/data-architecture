@@ -11,7 +11,7 @@ AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 s3_folder <- "spatial/environment/traffic"
 output_bucket <- sub("/$", "", file.path(AWS_S3_WAREHOUSE_BUCKET, s3_folder))
 
-# Recoding of road type
+# Re-coding of road type
 road_codes <- c(
   "010" = "Unimproved",
   "020" = "Graded and Drained",
@@ -124,10 +124,16 @@ walk(parquet_files, \(file_key) {
       mutate(
         surface_type = road_codes[as.character(surface_type)],
         speed_limit = as.numeric(speed_limit),
+        # For testing
+        road_name_preserved = road_name,
         road_name = str_to_lower(road_name), # Convert to lowercase
         road_name = gsub("[[:punct:]]", "", road_name), # Remove punctuation
 
         # Remove standalone directional indicators (N, S, E, W)
+        # I wouldn't remove North South East west, so that streets like North
+        # Ave become empty. I also discovered that TH is not universally applied.
+        # For example, you can see 100TH st. I don't think the added value
+        # of removing TH is worth the risk of complicating valid street names.
         road_name = gsub("\\b(n|s|e|w)\\b", "", road_name),
 
         # Replace full street name words with abbreviations
@@ -147,11 +153,12 @@ walk(parquet_files, \(file_key) {
         # Remove extra spaces that may result from replacements
         road_name = str_trim(road_name)
       ) %>%
-      select(-one_of(required_columns)) %>% # Drop unnecessary columns
+      # Remove duplicated columns except for year
+      select(-one_of(required_columns[required_columns != "year"])) %>%
       mutate(across(-geometry, ~ replace(., . %in% c(0, "0000"), NA))) %>%
       mutate(surface_year = ifelse(surface_year == 9999, NA, surface_year)) %>%
       # Group by the characteristics that we want
-      group_by(road_name, speed_limit, lanes, surface_type, daily_traffic) %>%
+      group_by(road_name, speed_limit, lanes, surface_type, daily_traffic, year, road_type) %>%
       # Create a union of the streets based on the summarized features
       summarize(geometry = st_union(geometry), .groups = "drop") %>%
       mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
@@ -254,6 +261,9 @@ walk(parquet_files, \(file_key) {
         break
       }
     }
+
+    shapefile_data <- shapefile_data %>%
+      mutate(across(-geometry, ~ ifelse(is.nan(.), NA, .)))
 
     output_path <- file.path(output_bucket, basename(file_key))
     geoarrow::write_geoparquet(shapefile_data, output_path)
