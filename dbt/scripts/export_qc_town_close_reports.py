@@ -209,40 +209,29 @@ def main():
             f"--json-string '{json.dumps(iasworld_deps)}' "
         )
     else:
-        if len(townships) > 1:
-            # Format a list of township codes for templating into a SQL array,
-            # which requires wrapping each code in single quotes
-            township_code_sql_str = "', '".join(
-                town.township_code for town in townships
-            )
-            where = (
-                f"township_code IN ('{township_code_sql_str}') "
-                f"AND taxyr = '{args.year}'"
-            )
-            export_models(
-                target=args.target,
-                rebuild=args.rebuild,
-                select=select,
-                where=where,
-                order_by=["township_code"],
-                output_dir=args.output_dir,
-            )
-        else:
-            township = townships[0]
-            where = (
-                f"township_code = '{township.township_code}' "
-                f"AND taxyr = '{args.year}'"
-            )
-            output_paths = export_models(
-                target=args.target,
-                rebuild=args.rebuild,
-                select=select,
-                where=where,
-                output_dir=args.output_dir,
-            )
+        # Format a list of township codes for templating into a SQL array,
+        # which requires wrapping each code in single quotes
+        township_code_sql_str = "', '".join(
+            town.township_code for town in townships
+        )
+        where = (
+            f"township_code IN ('{township_code_sql_str}') "
+            f"AND taxyr = '{args.year}'"
+        )
+        output_paths = export_models(
+            target=args.target,
+            rebuild=args.rebuild,
+            select=select,
+            where=where,
+            order_by=["township_code"],
+            output_dir=args.output_dir,
+        )
+        if len(townships) == 1:
             # Rename the output files to prepend the name of the township
             for output_path in output_paths:
-                new_filename = f"{township.township_name} {output_path.name}"
+                new_filename = (
+                    f"{townships[0].township_name} {output_path.name}"
+                )
                 new_filepath = output_path.with_name(new_filename)
                 output_path.rename(new_filepath)
                 print(f"Renamed {output_path} -> {new_filepath}")
