@@ -25,3 +25,10 @@ REBUILD_ARGUMENT_KWARGS: AddArgumentKwargs = {
     "default": False,
     "help": "Rebuild models prior to export",
 }
+OUTPUT_DIR_ARGUMENT_ARGS = ["--output-dir"]
+OUTPUT_DIR_ARGUMENT_KWARGS: AddArgumentKwargs = {
+    "help": (
+        "Unix-formatted path to directory where output files will be stored, "
+        "defaults to export/output/"
+    ),
+}
