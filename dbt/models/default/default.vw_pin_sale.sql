@@ -226,7 +226,7 @@ mydec_sales AS (
     Sometimes they have different dates than iasworld prior to 2021 and when
     joined back onto unique_sales will create duplicates by pin/sale date. */
     WHERE num_single_day_sales = 1
-        OR YEAR(year) > 2020
+        OR YEAR(DATE_PARSE(year, '%Y')) > 2020
 ),
 
 max_version_flag AS (
