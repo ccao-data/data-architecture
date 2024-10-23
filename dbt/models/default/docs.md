@@ -156,6 +156,9 @@ Sourced from `iasworld.sales`, which is sourced from
   to `iasworld.sales` (which is only parcel-level) without creating duplicates
 - Sales are unique by `doc_no` if multisales are excluded. When multisales are
   _not_ excluded, sales are unique by `doc_no` and `pin`.
+- We include iasworld sales and mydec sales only if the mydec sale isn't already
+  present in iasworld (calculated by doc_no). This allows us to use mydec sales
+  for analysis or modeling if the iasworld sales ingest is lags behind mydec.
 
 ### Lineage
 
