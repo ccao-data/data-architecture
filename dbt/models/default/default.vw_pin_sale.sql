@@ -342,9 +342,12 @@ combined_sales AS (
         md_sales.mydec_homestead_exemption_senior_citizens,
         md_sales.mydec_homestead_exemption_senior_citizens_assessment_freeze
     FROM unique_sales AS uq_sales
+    -- This logic brings in mydec sales that aren't in iasworld.
     -- If a doc_no exists in iasworld and mydec, we prioritize iasworld,
     -- if it only exists in mydec, we will grab the doc_no from mydec. The
-    -- 'source' column lets us know which table the doc_no came from.
+    -- 'source' column lets us know which table the doc_no came from and allows
+    -- us to filter for only iasworld sales or for mydec sales that aren't in
+    -- iasworld already.
     FULL OUTER JOIN mydec_sales AS md_sales ON uq_sales.doc_no = md_sales.doc_no
     LEFT JOIN town_class AS tc
         ON COALESCE(uq_sales.pin, md_sales.pin) = tc.parid
