@@ -40,10 +40,11 @@ class Township:
 # Get a list of townships with their code and schedule, either from a schedule
 # file if one exists or from a static definition
 TOWNSHIP_SCHEDULE_PATH = pathlib.Path("scripts/utils/town_active_schedule.csv")
+TOWNSHIPS: list[Township]
 if TOWNSHIP_SCHEDULE_PATH.is_file():
     with open(TOWNSHIP_SCHEDULE_PATH.resolve()) as town_schedule_fobj:
         date_format = "%m/%d/%Y"
-        TOWNSHIPS: list[Township] = [
+        TOWNSHIPS = [
             Township(
                 township_code=town["township_code"],
                 township_name=town["township_name"],
@@ -69,7 +70,7 @@ if TOWNSHIP_SCHEDULE_PATH.is_file():
 else:
     # Instantiate the list of townships with no active/inactive date data,
     # so that the script still works without access to the town_active_schedule
-    TOWNSHIPS: list[Township] = [
+    TOWNSHIPS = [
         Township(
             township_code="10",
             township_name="Barrington",
