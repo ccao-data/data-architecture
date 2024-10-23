@@ -188,7 +188,7 @@ Reason for change or no change
 
 ## alternative_cdu
 
-{% docs shared_column_cdu %}
+{% docs shared_column_alternative_cdu %}
 Condition/Desirability/Utility code.
 
 Code representing any number of seemingly unrelated characteristics
