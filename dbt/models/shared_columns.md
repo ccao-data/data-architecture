@@ -186,6 +186,17 @@ Reason for change or no change
 
 # Assessed / Market Values
 
+## alternative_cdu
+
+{% docs shared_column_alternative_cdu %}
+Condition/Desirability/Utility code.
+
+Code representing any number of seemingly unrelated characteristics
+associated with a PIN, ranging from condition to types of subsidies, to
+whether or not a PIN is a garage. The full list of CDU codes can be found in
+`ccao.cdu`. For "condition", see the `cdu` column.
+{% enddocs %}
+
 ## board_bldg
 
 {% docs shared_column_board_bldg %}
@@ -852,10 +863,8 @@ Equivalent to legacy `MLT_CD` (multicode) value
 {% docs shared_column_cdu %}
 Condition/Desirability/Utility code.
 
-Code representing any number of seemingly unrelated characteristics
-associated with a PIN, ranging from condition to types of subsidies, to
-whether or not a PIN is a garage. The full list of CDU codes can be found on
-the Assessor's site
+The `cdu` column only documents "condition". See `user16` for what the
+Assessor's office typically considers the Condition/Desirability/Utility code.
 {% enddocs %}
 
 ## class
