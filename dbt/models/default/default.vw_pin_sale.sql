@@ -221,13 +221,12 @@ mydec_sales AS (
             ) AS num_single_day_sales,
             year_of_sale AS year
         FROM {{ source('sale', 'mydec') }}
-        WHERE line_2_total_parcels = 1
     )
     /* Some sales in mydec have multiple rows for one pin on a given sale date.
     Sometimes they have different dates than iasworld prior to 2021 and when
     joined back onto unique_sales will create duplicates by pin/sale date. */
     WHERE num_single_day_sales = 1
-        OR (YEAR(sale_date) > 2020)
+        OR year > 2020
 ),
 
 max_version_flag AS (
