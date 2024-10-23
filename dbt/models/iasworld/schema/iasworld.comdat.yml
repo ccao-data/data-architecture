@@ -396,10 +396,10 @@ sources:
             description: Number of units
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
-          - name: useradj
-            description: Override to comdat userdef adjustment factor
           - name: user16
             description: '{{ doc("shared_column_alternative_cdu") }}'
+          - name: useradj
+            description: Override to comdat userdef adjustment factor
           - name: valmeth
             description: Valuation method (`MAN`/`CLT`)
           - name: wen
