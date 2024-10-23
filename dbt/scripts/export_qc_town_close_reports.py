@@ -102,10 +102,10 @@ def main():
     """Main entrypoint for the script"""
     args = parse_args()
 
-    # Determine the default set of towns based on 'active' status
     if args.township:
         townships = [TOWNSHIPS_BY_CODE[code] for code in args.township]
     else:
+        # Determine the default set of towns based on 'active' status
         if args.year != CURRENT_YEAR:
             # We can't determine active towns for prior years, so raise an
             # error if the caller tries to do this

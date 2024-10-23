@@ -743,7 +743,13 @@ The script exposes the following options, many of which are the same as
 * **`--township`** (optional): One or more space-separated [township
   codes](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) to use
   for filtering results. If you omit this parameter, the script will default to
-  exporting reports for all towns that are currently eligible for QC.
+  exporting reports for all towns that are currently eligible for QC, as
+  defined in the configuration file `scripts/utils/town_active_schedule.csv`.
+  This default behavior enables us to automate report export for active towns,
+  and human callers should generally not need to use it; as such, if you call
+  the script with no `--township` param and no
+  `scripts/utils/town_active_schedule.csv` config file, the script will raise
+  an error.
 * **`--year`** (optional): The year to use for filtering results. Defaults to the current year.
 * **`--target`** (optional): The name of the [dbt
   target](https://docs.getdbt.com/reference/dbt-jinja-functions/target) to run
