@@ -193,8 +193,8 @@ Condition/Desirability/Utility code.
 
 Code representing any number of seemingly unrelated characteristics
 associated with a PIN, ranging from condition to types of subsidies, to
-whether or not a PIN is a garage. The full list of CDU codes can be found on
-the Assessor's site. For "condition", see the `cdu` column.
+whether or not a PIN is a garage. The full list of CDU codes can be found in
+`ccao.cdu`. For "condition", see the `cdu` column.
 {% enddocs %}
 
 ## board_bldg
