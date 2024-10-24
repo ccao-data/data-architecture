@@ -50,12 +50,14 @@ WITH ranking AS (
     WHERE info.major_type = 'SCHOOL'
 ),
 
+-- We need to use array_agg for this CTE since some parcels can be in multiple
+-- SSAs
 tif_ssa AS (
     SELECT
         pin.pin,
         pin.year,
-        info.agency_name,
-        info.minor_type
+        info.minor_type,
+        ARRAY_AGG(info.agency_name) AS agency_name
     FROM {{ source('tax', 'pin') }} AS pin
     LEFT JOIN {{ source('tax', 'tax_code') }} AS code
         ON pin.tax_code_num = code.tax_code_num
@@ -63,6 +65,7 @@ tif_ssa AS (
     INNER JOIN
         {{ source('tax', 'agency_info') }} AS info
         ON code.agency_num = info.agency_num
+    GROUP BY pin.pin, pin.year, info.minor_type
 )
 
 SELECT
