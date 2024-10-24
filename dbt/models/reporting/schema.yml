@@ -206,17 +206,18 @@ models:
   - name: reporting.vw_pin_school_impact
     description: '{{ doc("view_vw_pin_school_impact") }}'
     data_tests:
+      - accepted_range:
+          name: reporting_vw_school_impact_uav_board_rank_range
+          column_name: phase_av_share
+          min_value: 1
+          max_value: 10
       - unique_combination_of_columns:
           name: reporting_vw_school_impact_unique_by_agency_num_pin_year
           combination_of_columns:
             - agency_num
             - pin
             - year
-      - accepted_range:
-            name: reporting_vw_school_impact_uav_board_rank_range
-            column_name: phase_av_share
-            min_value: 1
-            max_value: 10
+
 
   - name: reporting.vw_pin_township_class
     description: '{{ doc("view_vw_pin_township_class") }}'
