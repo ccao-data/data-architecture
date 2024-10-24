@@ -22,7 +22,7 @@ traffic_interstate AS (  -- noqa: ST03
 traffic_freeway AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'traffic') }}
-    WHERE road_type = 'Freeway And Expressway'
+    WHERE road_type = 'Freeway and Expressway'
 ),
 
 traffic_major_collector AS (  -- noqa: ST03
