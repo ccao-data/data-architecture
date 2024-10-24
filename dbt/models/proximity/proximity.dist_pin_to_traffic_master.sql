@@ -158,16 +158,17 @@ SELECT
     major_collector.nearest_major_collector_lanes,
     COALESCE(minor.year, interstate.year, freeway.year, major_collector.year)
         AS year
-FROM nearest_minor AS minor
+FROM distinct_pins AS distinct_pins
+FULL OUTER JOIN nearest_minor AS minor
+    ON distinct_pins.pin10 = minor.pin10
+    AND distinct_pins.year = minor.year
 FULL OUTER JOIN nearest_interstate AS interstate
-    ON minor.pin10 = interstate.pin10 AND minor.year = interstate.year
+    ON distinct_pins.pin10 = interstate.pin10
+    AND distinct_pins.year = interstate.year
 FULL OUTER JOIN nearest_freeway AS freeway
-    ON COALESCE(minor.pin10, interstate.pin10) = freeway.pin10
-    AND COALESCE(minor.year, interstate.year) = freeway.year
+    ON distinct_pins.pin10 = freeway.pin10
+    AND distinct_pins.year = freeway.year
 FULL OUTER JOIN nearest_major_collector AS major_collector
-    ON COALESCE(minor.pin10, interstate.pin10, freeway.pin10)
-    = major_collector.pin10
-    AND COALESCE(minor.year, interstate.year, freeway.year)
-    = major_collector.year
-WHERE COALESCE(minor.year, interstate.year, freeway.year, major_collector.year)
-    >= (SELECT MIN(year) FROM distinct_years)
+    ON distinct_pins.pin10 = major_collector.pin10
+    AND distinct_pins.year = major_collector.year
+WHERE minor.year >= (SELECT MIN(year) FROM distinct_years)
