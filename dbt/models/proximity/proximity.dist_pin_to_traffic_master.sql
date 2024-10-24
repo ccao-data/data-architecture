@@ -99,6 +99,7 @@ nearest_minor_collector AS (
         ( {{ dist_to_nearest_geometry('traffic_minor_collector') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
+        AND pcl.year >= 2014
     GROUP BY pcl.pin10, xy.year
 ),
 
