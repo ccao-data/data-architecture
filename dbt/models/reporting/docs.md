@@ -81,9 +81,9 @@ PINs without sales have `NULL` sale values.
 # vw_pin_school_impact
 
 {% docs view_vw_pin_school_impact %}
-View to get the 10 highest AVs by school district.
+View to get the 10 highest AVs by school district taxing agency and year.
 
-**Primary Key**: `year`, `agency_num`, `av_board_rank`
+**Primary Key**: `year`, `agency_num`, `pin`
 {% enddocs %}
 
 # vw_pin_township_class
