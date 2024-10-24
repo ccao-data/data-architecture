@@ -28,7 +28,7 @@ traffic_freeway AS (  -- noqa: ST03
 traffic_major_collector AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'traffic') }}
-    WHERE road_type = 'Major Collector'
+    WHERE road_type = 'Local Road or Street'
 ),
 
 distinct_pins AS (
