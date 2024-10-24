@@ -13,6 +13,12 @@ WITH traffic_minor AS (  -- noqa: ST03
     WHERE road_type = 'Minor Arterial'
 ),
 
+traffic_minor_collector AS (  -- noqa: ST03
+    SELECT *
+    FROM {{ source('spatial', 'traffic') }}
+    WHERE road_type = 'Minor Collector'
+),
+
 traffic_interstate AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'traffic') }}
@@ -71,6 +77,26 @@ nearest_minor AS (
         ARBITRARY(xy.lanes) AS nearest_minor_lanes
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_minor') }} ) AS xy
+        ON pcl.x_3435 = xy.x_3435
+        AND pcl.y_3435 = xy.y_3435
+    GROUP BY pcl.pin10, xy.year
+),
+
+-- Calculate nearest Minor Collector road per pin
+nearest_minor_collector AS (
+    SELECT
+        pcl.pin10,
+        xy.year,
+        ARBITRARY(xy.road_name) AS nearest_minor_collector_road_name,
+        ARBITRARY(xy.dist_ft) AS nearest_minor_collector_road_dist_ft,
+        ARBITRARY(xy.year) AS nearest_minor_collector_road_data_year,
+        ARBITRARY(xy.daily_traffic) AS nearest_minor_collector_daily_traffic,
+        ARBITRARY(xy.speed_limit) AS nearest_minor_collector_road_speed_limit,
+        ARBITRARY(xy.surface_type) AS nearest_minor_collector_surface_type,
+        ARBITRARY(xy.lanes) AS nearest_minor_collector_lanes
+    FROM distinct_pins AS pcl
+    INNER JOIN
+        ( {{ dist_to_nearest_geometry('traffic_minor_collector') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
     GROUP BY pcl.pin10, xy.year
@@ -175,7 +201,7 @@ nearest_other AS (
 -- Join all nearest roads by pin10 and year
 SELECT
     COALESCE(
-        minor.pin10, interstate.pin10, freeway.pin10,
+        minor.pin10, minor_collector.pin10, interstate.pin10, freeway.pin10,
         local_road.pin10, major_collector.pin10
     ) AS pin10,
     minor.nearest_minor_road_name,
@@ -185,6 +211,13 @@ SELECT
     minor.nearest_minor_road_speed_limit,
     minor.nearest_minor_surface_type,
     minor.nearest_minor_lanes,
+    minor_collector.nearest_minor_collector_road_name,
+    minor_collector.nearest_minor_collector_road_dist_ft,
+    minor_collector.nearest_minor_collector_road_data_year,
+    minor_collector.nearest_minor_collector_daily_traffic,
+    minor_collector.nearest_minor_collector_road_speed_limit,
+    minor_collector.nearest_minor_collector_surface_type,
+    minor_collector.nearest_minor_collector_lanes,
     interstate.nearest_interstate_road_name,
     interstate.nearest_interstate_road_dist_ft,
     interstate.nearest_interstate_road_data_year,
@@ -221,7 +254,7 @@ SELECT
     other.nearest_other_surface_type,
     other.nearest_other_lanes,
     COALESCE(
-        minor.year, interstate.year, freeway.year,
+        minor.year, minor_collector.year interstate.year, freeway.year,
         local_road.year, major_collector.year, other.year)
         AS year
 FROM nearest_minor AS minor
@@ -257,8 +290,19 @@ FULL OUTER JOIN nearest_other AS other
         major_collector.year
     )
     = other.year
-WHERE COALESCE(
+FULL OUTER JOIN nearest_minor_collector AS minor_collector
+    ON COALESCE(
+        minor.pin10, interstate.pin10, freeway.pin10,
+        local_road.pin10, major_collector.pin10, other.pin10
+    )
+    = minor_collector.pin10
+    AND COALESCE(
         minor.year, interstate.year, freeway.year,
+        local_road.year, major_collector.year, other.year
+    )
+    = minor_collector.year
+WHERE COALESCE(
+        minor.year, minor_collector.year, interstate.year, freeway.year,
         local_road.year, major_collector.year,
         other.year
     )
