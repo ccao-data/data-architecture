@@ -294,13 +294,12 @@ FULL OUTER JOIN nearest_minor_collector AS minor_collector
     ON COALESCE(
         minor.pin10, interstate.pin10, freeway.pin10,
         local_road.pin10, major_collector.pin10, other.pin10
-    )
-    = minor_collector.pin10
+    ) = minor_collector.pin10
     AND COALESCE(
         minor.year, interstate.year, freeway.year,
         local_road.year, major_collector.year, other.year
-    )
-    = minor_collector.year
+    ) = minor_collector.year
+    AND minor_collector.year >= 2014
 WHERE COALESCE(
         minor.year, minor_collector.year, interstate.year, freeway.year,
         local_road.year, major_collector.year,
