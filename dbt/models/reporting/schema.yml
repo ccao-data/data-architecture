@@ -203,6 +203,9 @@ models:
           combination_of_columns:
             - pin
 
+  - name: reporting.vw_pin_school_impact
+    description: '{{ doc("view_vw_pin_school_impact") }}'
+
   - name: reporting.vw_pin_township_class
     description: '{{ doc("view_vw_pin_township_class") }}'
     data_tests:
