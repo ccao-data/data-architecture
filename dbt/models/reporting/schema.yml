@@ -212,6 +212,8 @@ models:
             - agency_num
             - av_board_rank
             - year
+          config:
+            error_if: ">28"
 
   - name: reporting.vw_pin_township_class
     description: '{{ doc("view_vw_pin_township_class") }}'
