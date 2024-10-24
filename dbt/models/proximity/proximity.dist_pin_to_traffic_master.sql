@@ -53,7 +53,7 @@ nearest_minor AS (
         ARBITRARY(xy.road_name) AS nearest_minor_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_minor_road_dist_ft,
         ARBITRARY(xy.year) AS nearest_minor_road_data_year,
-        ARBITRARY(xy.surface_width) AS nearest_minor_road_surface_width,
+        ARBITRARY(xy.speed_limit) AS nearest_minor_road_speed_limit,
         ARBITRARY(xy.surface_type) AS nearest_minor_surface_type,
         ARBITRARY(xy.lanes) AS nearest_minor_lanes
     FROM distinct_pins AS pcl
@@ -71,7 +71,7 @@ nearest_interstate AS (
         ARBITRARY(xy.road_name) AS nearest_interstate_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_interstate_road_dist_ft,
         ARBITRARY(xy.year) AS nearest_interstate_road_data_year,
-        ARBITRARY(xy.surface_width) AS nearest_interstate_road_surface_width,
+        ARBITRARY(xy.speed_limit) AS nearest_interstate_road_speed_limit,
         ARBITRARY(xy.surface_type) AS nearest_interstate_surface_type,
         ARBITRARY(xy.lanes) AS nearest_interstate_lanes
     FROM distinct_pins AS pcl
@@ -89,7 +89,7 @@ nearest_freeway AS (
         ARBITRARY(xy.road_name) AS nearest_freeway_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_freeway_road_dist_ft,
         ARBITRARY(xy.year) AS nearest_freeway_road_data_year,
-        ARBITRARY(xy.surface_width) AS nearest_freeway_road_surface_width,
+        ARBITRARY(xy.speed_limit) AS nearest_freeway_road_speed_limit,
         ARBITRARY(xy.surface_type) AS nearest_freeway_surface_type,
         ARBITRARY(xy.lanes) AS nearest_freeway_lanes
     FROM distinct_pins AS pcl
@@ -107,8 +107,8 @@ nearest_major_collector AS (
         ARBITRARY(xy.road_name) AS nearest_major_collector_road_name,
         ARBITRARY(xy.dist_ft) AS nearest_major_collector_road_dist_ft,
         ARBITRARY(xy.year) AS nearest_major_collector_road_data_year,
-        ARBITRARY(xy.surface_width)
-            AS nearest_major_collector_road_surface_width,
+        ARBITRARY(xy.speed_limit)
+            AS nearest_major_collector_road_speed_limit,
         ARBITRARY(xy.surface_type) AS nearest_major_collector_surface_type,
         ARBITRARY(xy.lanes) AS nearest_major_collector_lanes
     FROM distinct_pins AS pcl
@@ -127,25 +127,25 @@ SELECT
     minor.nearest_minor_road_name,
     minor.nearest_minor_road_dist_ft,
     minor.nearest_minor_road_data_year,
-    minor.nearest_minor_road_surface_width,
+    minor.nearest_minor_road_speed_limit,
     minor.nearest_minor_surface_type,
     minor.nearest_minor_lanes,
     interstate.nearest_interstate_road_name,
     interstate.nearest_interstate_road_dist_ft,
     interstate.nearest_interstate_road_data_year,
-    interstate.nearest_interstate_road_surface_width,
+    interstate.nearest_interstate_road_speed_limit,
     interstate.nearest_interstate_surface_type,
     interstate.nearest_interstate_lanes,
     freeway.nearest_freeway_road_name,
     freeway.nearest_freeway_road_dist_ft,
     freeway.nearest_freeway_road_data_year,
-    freeway.nearest_freeway_road_surface_width,
+    freeway.nearest_freeway_road_speed_limit,
     freeway.nearest_freeway_surface_type,
     freeway.nearest_freeway_lanes,
     major_collector.nearest_major_collector_road_name,
     major_collector.nearest_major_collector_road_dist_ft,
     major_collector.nearest_major_collector_road_data_year,
-    major_collector.nearest_major_collector_road_surface_width,
+    major_collector.nearest_major_collector_road_speed_limit,
     major_collector.nearest_major_collector_surface_type,
     major_collector.nearest_major_collector_lanes,
     COALESCE(minor.year, interstate.year, freeway.year, major_collector.year)
