@@ -207,8 +207,8 @@ models:
     description: '{{ doc("view_vw_pin_school_impact") }}'
     data_tests:
       - accepted_range:
-          name: reporting_vw_school_impact_uav_board_rank_range
-          column_name: phase_av_share
+          name: reporting_vw_school_impact_av_board_rank_range
+          column_name: av_board_rank
           min_value: 1
           max_value: 10
       - unique_combination_of_columns:
