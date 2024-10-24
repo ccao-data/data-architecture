@@ -48,6 +48,7 @@ WITH ranking AS (
         ON code.agency_num = info.agency_num
     LEFT JOIN {{ source('tax', 'eq_factor') }} AS fact ON pin.year = fact.year
     WHERE info.major_type = 'SCHOOL'
+        AND pin.class != '0'
 ),
 
 -- We need to use array_agg for this CTE since some parcels can be in multiple
