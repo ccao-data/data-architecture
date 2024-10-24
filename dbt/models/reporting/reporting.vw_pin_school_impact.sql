@@ -36,7 +36,7 @@ WITH ranking AS (
                 pin.year
             ORDER BY pin.tax_bill_total DESC
         ) AS bill_rank,
-        code.tax_code,
+        code.tax_code_num,
         code.tax_code_rate,
         pin.year
     FROM {{ source('tax', 'pin') }} AS pin
