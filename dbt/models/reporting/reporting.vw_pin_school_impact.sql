@@ -1,3 +1,5 @@
+-- Script that returns the 10 PINs with the highest AV per school district
+-- taxing agency, by year.
 WITH ranking AS (
     SELECT
         info.agency_name,
@@ -48,6 +50,8 @@ WITH ranking AS (
         ON code.agency_num = info.agency_num
     LEFT JOIN {{ source('tax', 'eq_factor') }} AS fact ON pin.year = fact.year
     WHERE info.major_type = 'SCHOOL'
+        -- Class 0 PINs have 0 AV but can lead to huge ties if there are many in
+        -- a district with few PINs
         AND pin.class != '0'
 ),
 
