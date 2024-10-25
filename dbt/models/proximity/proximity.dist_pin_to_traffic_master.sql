@@ -174,7 +174,6 @@ nearest_other AS (
     GROUP BY pcl.pin10, xy.year
 )
 
--- Join all nearest roads by pin10 and year
 SELECT
     COALESCE(
         minor.pin10, interstate.pin10, freeway.pin10,
@@ -224,8 +223,8 @@ SELECT
     other.nearest_other_lanes,
     COALESCE(
         minor.year, interstate.year, freeway.year,
-        local_road.year, collector.year, other.year)
-        AS year
+        local_road.year, collector.year, other.year
+    ) AS year
 FROM nearest_minor AS minor
 FULL OUTER JOIN nearest_interstate AS interstate
     ON minor.pin10 = interstate.pin10 AND minor.year = interstate.year
@@ -233,10 +232,8 @@ FULL OUTER JOIN nearest_freeway AS freeway
     ON COALESCE(minor.pin10, interstate.pin10) = freeway.pin10
     AND COALESCE(minor.year, interstate.year) = freeway.year
 FULL OUTER JOIN nearest_local AS local_road
-    ON COALESCE(minor.pin10, interstate.pin10, freeway.pin10)
-    = local_road.pin10
-    AND COALESCE(minor.year, interstate.year, freeway.year)
-    = local_road.year
+    ON COALESCE(minor.pin10, interstate.pin10, freeway.pin10) = local_road.pin10
+    AND COALESCE(minor.year, interstate.year, freeway.year) = local_road.year
 FULL OUTER JOIN nearest_collector AS collector
     ON COALESCE(minor.pin10, interstate.pin10, freeway.pin10, local_road.pin10)
     = collector.pin10
@@ -244,24 +241,14 @@ FULL OUTER JOIN nearest_collector AS collector
     = collector.year
 FULL OUTER JOIN nearest_other AS other
     ON COALESCE(
-        minor.pin10,
-        interstate.pin10,
-        freeway.pin10,
-        local_road.pin10,
-        collector.pin10
-    )
-    = other.pin10
+        minor.pin10, interstate.pin10, freeway.pin10,
+        local_road.pin10, collector.pin10
+    ) = other.pin10
     AND COALESCE(
-        minor.year,
-        interstate.year,
-        freeway.year,
-        local_road.year,
-        collector.year
-    )
-    = other.year
+        minor.year, interstate.year, freeway.year,
+        local_road.year, collector.year
+    ) = other.year
 WHERE COALESCE(
         minor.year, interstate.year, freeway.year,
-        local_road.year, collector.year,
-        other.year
-    )
-    >= (SELECT MIN(year) FROM distinct_years)
+        local_road.year, collector.year, other.year
+    ) >= (SELECT MIN(year) FROM distinct_years)

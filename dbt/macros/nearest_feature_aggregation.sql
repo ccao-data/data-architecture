@@ -1,36 +1,41 @@
-{% macro aggregate_lowest_distance(table_name) %}
+{% macro aggregate_smallest_feature(table_name, feature_suffix="dist_ft") %}
     with
-        distances as (
-            -- Unpivot all "dist_ft" columns for comparison
+        columns as (
+            -- Get column names that contain the suffix
+            select column_name
+            from information_schema.columns
+            where
+                table_name = lower('{{ table_name }}')
+                and column_name like '%' || '{{ feature_suffix }}'
+        ),
+        feature as (
+            -- Unpivot all matching columns for comparison
             select
-                *,
+                t.*,
                 unnest(
                     array[
-                        {% for column in dbt_utils.get_filtered_columns_in_relation(
-                            table_name, "dist_ft"
-                        ) %}
-                            ({{ column }}, '{{ column }}')
+                        {% for column in columns %}
+                            (t.{{ column.column_name }}, '{{ column.column_name }}')
                         {% endfor %}
                     ]
-                ) as (distance_value, distance_column)
-            from {{ table_name }}
+                ) as (feature_value, feature_column)
+            from {{ table_name }} t
         ),
-        min_distances as (
-            -- Identify the lowest distance and corresponding column for each row
+        min_feature as (
+            -- Identify the lowest feature and corresponding column for each row
             select
                 *,
-                min(distance_value) over (partition by id) as min_distance,
-                array_agg(distance_column) filter (
-                    where distance_value = min(distance_value) over (partition by id)
+                min(feature_value) over (partition by id) as min_feature,
+                array_agg(feature_column) filter (
+                    where feature_value = min(feature_value) over (partition by id)
                 ) as matching_columns
-            from distances
+            from feature
         ),
         aggregated as (
-            -- Extract the prefix before the first underscore and rename it with
-            -- "aggregated_"
+            -- Extract prefix before first underscore and rename with "aggregated_"
             select
                 id,
-                min_distance,
+                min_feature,
                 array_agg(
                     distinct regexp_extract(column_name, '^(.*?)_')
                 ) as original_prefixes,
@@ -39,10 +44,9 @@
                 ) as aggregated_prefixes
             from
                 (
-                    select id, unnest(matching_columns) as column_name
-                    from min_distances
+                    select id, unnest(matching_columns) as column_name from min_feature
                 ) prefix_agg
-            group by id, min_distance
+            group by id, min_feature
         )
     select *
     from aggregated
