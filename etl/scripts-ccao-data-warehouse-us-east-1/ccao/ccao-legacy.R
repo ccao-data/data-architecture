@@ -272,6 +272,9 @@ files_cc_pifdb_piexemptre_ownr <- aws.s3::get_bucket_df(
 ) %>%
   filter(Size > 0)
 
+# Read the files into a single tibble. NOTE: these files are fixed-width
+# and have been MANUALLY CLEANED to remove some ASCII null characters that were
+# being used instead of spaces in the base year field
 cc_pifdb_piexemptre_ownr <- map_dfr(files_cc_pifdb_piexemptre_ownr$Key, \(f) {
   print(glue::glue("Transforming {f}"))
   aws.s3::s3read_using(
