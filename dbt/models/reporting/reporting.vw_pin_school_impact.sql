@@ -15,22 +15,18 @@ WITH ranking AS (
         pin.av_mailed,
         pin.av_certified,
         pin.av_board,
-        CAST(
-            (
-                pin.av_board - (
-                    pin.exe_homeowner
-                    + pin.exe_senior
-                    + pin.exe_freeze
-                    + pin.exe_longtime_homeowner
-                    + pin.exe_disabled
-                    + pin.exe_vet_returning
-                    + pin.exe_vet_dis_lt50
-                    + pin.exe_vet_dis_50_69
-                    + pin.exe_vet_dis_ge70
-                    + pin.exe_abate
-                )
-            ) * fact.eq_factor_final AS INT
-        ) AS eav,
+        CAST((pin.av_board * fact.eq_factor_final) - (
+            pin.exe_homeowner
+            + pin.exe_senior
+            + pin.exe_freeze
+            + pin.exe_longtime_homeowner
+            + pin.exe_disabled
+            + pin.exe_vet_returning
+            + pin.exe_vet_dis_lt50
+            + pin.exe_vet_dis_50_69
+            + pin.exe_vet_dis_ge70
+            + pin.exe_abate
+        ) AS INT) AS taxable_eav,
         pin.tax_bill_total,
         RANK() OVER (
             PARTITION BY
