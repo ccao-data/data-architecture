@@ -115,7 +115,7 @@ nearest_freeway AS (
     GROUP BY pcl.pin10, xy.year
 ),
 
-nearest_local AS (
+nearest_local_step_1 AS (
     SELECT
         pcl.pin10,
         xy.year,
@@ -133,6 +133,39 @@ nearest_local AS (
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
     GROUP BY pcl.pin10, xy.year
+),
+
+missing_matches AS (
+    SELECT
+        pcl.pin10,
+        pcl.year,
+        pcl.x_3435,
+        pcl.y_3435
+    FROM {{ source('spatial', 'parcel') }} AS pcl
+    LEFT JOIN nearest_local_step_1 AS nl
+        ON pcl.pin10 = nl.pin10
+        AND pcl.year = nl.nearest_local_road_data_year
+    WHERE nl.pin10 IS NULL
+),
+
+nearest_local AS (
+    SELECT
+        mm.pin10,
+        xy.year,
+        ARBITRARY(xy.road_name) AS nearest_local_road_name,
+        ARBITRARY(xy.dist_ft) AS nearest_local_road_dist_ft,
+        ARBITRARY(xy.year) AS nearest_local_road_data_year,
+        ARBITRARY(xy.daily_traffic) AS nearest_local_daily_traffic,
+        ARBITRARY(xy.speed_limit) AS nearest_local_road_speed_limit,
+        ARBITRARY(xy.surface_type) AS nearest_local_surface_type,
+        ARBITRARY(xy.lanes) AS nearest_local_lanes
+    FROM missing_matches AS mm
+    INNER JOIN (
+        {{ nearest_pin_neighbors('missing_matches', 1, 10000) }}
+    ) AS xy
+        ON mm.x_3435 = xy.x_3435
+        AND mm.y_3435 = xy.y_3435
+    GROUP BY mm.pin10, xy.year
 ),
 
 -- Calculate nearest Major Collector road per pin
