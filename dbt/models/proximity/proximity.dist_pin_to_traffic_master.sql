@@ -29,7 +29,6 @@ traffic_local AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'traffic') }}
     WHERE road_type = 'Local Road or Street'
-        AND daily_traffic IS NOT NULL
 ),
 
 traffic_collector AS (  -- noqa: ST03
@@ -128,7 +127,9 @@ nearest_local AS (
         ARBITRARY(xy.surface_type) AS nearest_local_surface_type,
         ARBITRARY(xy.lanes) AS nearest_local_lanes
     FROM distinct_pins AS pcl
-    INNER JOIN ( {{ dist_to_nearest_geometry('traffic_local') }} ) AS xy
+    INNER JOIN (
+        {{ nearest_pin_neighbors('traffic_local', 1, 100) }}
+    ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
     GROUP BY pcl.pin10, xy.year
