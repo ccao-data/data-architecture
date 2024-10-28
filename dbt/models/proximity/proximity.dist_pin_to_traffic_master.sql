@@ -275,10 +275,48 @@ final_aggregation AS (
 
 SELECT
     pin10,
+    nearest_minor_road_name,
     nearest_minor_road_dist_ft,
-    nearest_other_road_dist_ft,
+    nearest_minor_road_data_year,
+    nearest_minor_road_daily_traffic,
+    nearest_minor_road_speed_limit,
+    nearest_minor_road_surface_type,
+    nearest_minor_road_lanes,
+    nearest_interstate_road_name,
     nearest_interstate_road_dist_ft,
-
+    nearest_interstate_road_data_year,
+    nearest_interstate_road_daily_traffic,
+    nearest_interstate_road_speed_limit,
+    nearest_interstate_road_surface_type,
+    nearest_interstate_road_lanes,
+    nearest_freeway_road_name,
+    nearest_freeway_road_dist_ft,
+    nearest_freeway_road_data_year,
+    nearest_freeway_road_daily_traffic,
+    nearest_freeway_road_speed_limit,
+    nearest_freeway_road_surface_type,
+    nearest_freeway_road_lanes,
+    nearest_local_road_name,
+    nearest_local_road_dist_ft,
+    nearest_local_road_data_year,
+    nearest_local_road_daily_traffic,
+    nearest_local_road_speed_limit,
+    nearest_local_road_surface_type,
+    nearest_local_road_lanes,
+    nearest_collector_road_name,
+    nearest_collector_road_dist_ft,
+    nearest_collector_road_data_year,
+    nearest_collector_road_daily_traffic,
+    nearest_collector_road_speed_limit,
+    nearest_collector_road_surface_type,
+    nearest_collector_road_lanes,
+    nearest_other_road_name,
+    nearest_other_road_dist_ft,
+    nearest_other_road_data_year,
+    nearest_other_road_daily_traffic,
+    nearest_other_road_speed_limit,
+    nearest_other_road_surface_type,
+    nearest_other_road_lanes,
     {{ nearest_feature_aggregation(
         [
             "nearest_minor_road_dist_ft", 
@@ -299,4 +337,4 @@ SELECT
         ]
     ) }}
     year
-FROM final_aggregation;
+FROM final_aggregation
