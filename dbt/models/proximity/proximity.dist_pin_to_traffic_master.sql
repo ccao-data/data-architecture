@@ -128,12 +128,12 @@ nearest_local AS (
         pcl.pin10,
         xy.year,
         ARBITRARY(xy.road_name) AS nearest_local_road_name,
-        ARBITRARY(xy.dist_ft) AS nearest_local_dist_ft,
+        ARBITRARY(xy.dist_ft) AS nearest_local_road_dist_ft,
         ARBITRARY(xy.year) AS nearest_local_road_data_year,
-        ARBITRARY(xy.daily_traffic) AS nearest_local_daily_traffic,
-        ARBITRARY(xy.speed_limit) AS nearest_local_speed_limit,
-        ARBITRARY(xy.surface_type) AS nearest_local_surface_type,
-        ARBITRARY(xy.lanes) AS nearest_local_lanes
+        ARBITRARY(xy.daily_traffic) AS nearest_local_road_daily_traffic,
+        ARBITRARY(xy.speed_limit) AS nearest_local_road_speed_limit,
+        ARBITRARY(xy.surface_type) AS nearest_local_road_surface_type,
+        ARBITRARY(xy.lanes) AS nearest_local_road_lanes
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_local') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
@@ -146,12 +146,12 @@ nearest_local AS (
         pcl.pin10,
         xy.year,
         ARBITRARY(xy.road_name) AS nearest_local_road_name,
-        ARBITRARY(xy.dist_ft) AS nearest_local_dist_ft,
+        ARBITRARY(xy.dist_ft) AS nearest_local_road_dist_ft,
         ARBITRARY(xy.year) AS nearest_local_road_data_year,
-        ARBITRARY(xy.daily_traffic) AS nearest_local_daily_traffic,
-        ARBITRARY(xy.speed_limit) AS nearest_local_speed_limit,
-        ARBITRARY(xy.surface_type) AS nearest_local_surface_type,
-        ARBITRARY(xy.lanes) AS nearest_local_lanes
+        ARBITRARY(xy.daily_traffic) AS nearest_local_road_daily_traffic,
+        ARBITRARY(xy.speed_limit) AS nearest_local_road_speed_limit,
+        ARBITRARY(xy.surface_type) AS nearest_local_road_surface_type,
+        ARBITRARY(xy.lanes) AS nearest_local_road_lanes
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_local_null') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
