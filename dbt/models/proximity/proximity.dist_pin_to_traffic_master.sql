@@ -32,13 +32,6 @@ traffic_local AS (  -- noqa: ST03
         AND daily_traffic IS NOT NULL
 ),
 
-traffic_local_null AS (  -- noqa: ST03
-    SELECT *
-    FROM {{ source('spatial', 'traffic') }}
-    WHERE road_type = 'Local Road or Street'
-        AND daily_traffic IS NULL
-),
-
 traffic_collector AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'traffic') }}
@@ -136,24 +129,6 @@ nearest_local AS (
         ARBITRARY(xy.lanes) AS nearest_local_road_lanes
     FROM distinct_pins AS pcl
     INNER JOIN ( {{ dist_to_nearest_geometry('traffic_local') }} ) AS xy
-        ON pcl.x_3435 = xy.x_3435
-        AND pcl.y_3435 = xy.y_3435
-    GROUP BY pcl.pin10, xy.year
-
-    UNION ALL
-
-    SELECT
-        pcl.pin10,
-        xy.year,
-        ARBITRARY(xy.road_name) AS nearest_local_road_name,
-        ARBITRARY(xy.dist_ft) AS nearest_local_road_dist_ft,
-        ARBITRARY(xy.year) AS nearest_local_road_data_year,
-        ARBITRARY(xy.daily_traffic) AS nearest_local_road_daily_traffic,
-        ARBITRARY(xy.speed_limit) AS nearest_local_road_speed_limit,
-        ARBITRARY(xy.surface_type) AS nearest_local_road_surface_type,
-        ARBITRARY(xy.lanes) AS nearest_local_road_lanes
-    FROM distinct_pins AS pcl
-    INNER JOIN ( {{ dist_to_nearest_geometry('traffic_local_null') }} ) AS xy
         ON pcl.x_3435 = xy.x_3435
         AND pcl.y_3435 = xy.y_3435
     GROUP BY pcl.pin10, xy.year
@@ -296,6 +271,7 @@ final_aggregation AS (
         )
         >= (SELECT MIN(year) FROM distinct_years)
 )
+
 
 SELECT
     pin10,
