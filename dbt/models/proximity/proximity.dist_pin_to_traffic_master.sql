@@ -36,7 +36,7 @@ traffic_local_null AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'traffic') }}
     WHERE road_type = 'Local Road or Street'
-        AND daily_traffic IS NOT NULL
+        AND daily_traffic IS NULL
 ),
 
 traffic_collector AS (  -- noqa: ST03
