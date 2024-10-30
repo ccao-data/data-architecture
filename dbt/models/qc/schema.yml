@@ -807,6 +807,9 @@ models:
   - name: qc.vw_nonlivable_condos_with_chars
     description: '{{ doc("view_vw_nonlivable_condos_with_chars") }}'
 
+  - name: qc.vw_pin_appeal_mismatched_assessed_values
+    description: '{{ doc("view_vw_pin_appeal_mismatched_assessed_values") }}'
+
   - name: qc.vw_report_town_close_0_land_value
     description: '{{ doc("view_vw_report_town_close_0_land_value") }}'
     config:
