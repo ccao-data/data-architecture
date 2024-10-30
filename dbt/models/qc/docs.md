@@ -133,7 +133,25 @@ return the appeal. Likewise, if an appeal has a "no change" value for `change`
 but the certified assessed value of its PIN is different from its mailed
 value, this view will also return the appeal.
 
-This view is currently not in use in any QC workflows.
+This view is not currently in use in any QC workflows.
+{% enddocs %}
+
+# vw_pin_sale_high_number_of_sales_per_year
+
+{% docs view_vw_pin_sale_high_number_of_sales_per_year %}
+View that selects PINs with more than 3 sales per year, which may indicate
+duplicate sales.
+
+This view is not currently in use in any QC workflows.
+{% enddocs %}
+
+# vw_pin_value_null_values
+
+{% docs view_vw_pin_value_null_values %}
+View that selects PINs with unexpected null assessed values or assessment
+classes.
+
+This view is not currently in use in any QC workflows.
 {% enddocs %}
 
 # vw_report_town_close_0_land_value

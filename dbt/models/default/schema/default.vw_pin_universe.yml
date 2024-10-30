@@ -83,6 +83,8 @@ models:
           - count_is_consistent:
               name: default_vw_pin_universe_class_count_is_consistent_by_year
               group_column: year
+              min_value: 100
+              max_value: 200
               config:
                 error_if: ">25"
           - not_accepted_values:
