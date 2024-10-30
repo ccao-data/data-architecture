@@ -104,7 +104,7 @@ def export_models(
     conn = pyathena.connect(
         s3_staging_dir=os.getenv(
             "AWS_ATHENA_S3_STAGING_DIR",
-            "s3://ccao-dbt-athena-results-us-east-1",
+            "s3://ccao-athena-results-us-east-1",
         ),
         region_name=os.getenv("AWS_ATHENA_REGION_NAME", "us-east-1"),
     )

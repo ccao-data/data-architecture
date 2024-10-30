@@ -186,6 +186,17 @@ Reason for change or no change
 
 # Assessed / Market Values
 
+## alternative_cdu
+
+{% docs shared_column_alternative_cdu %}
+Condition/Desirability/Utility code.
+
+Code representing any number of seemingly unrelated characteristics
+associated with a PIN, ranging from condition to types of subsidies, to
+whether or not a PIN is a garage. The full list of CDU codes can be found in
+`ccao.cdu`. For "condition", see the `cdu` column.
+{% enddocs %}
+
 ## board_bldg
 
 {% docs shared_column_board_bldg %}
@@ -852,10 +863,8 @@ Equivalent to legacy `MLT_CD` (multicode) value
 {% docs shared_column_cdu %}
 Condition/Desirability/Utility code.
 
-Code representing any number of seemingly unrelated characteristics
-associated with a PIN, ranging from condition to types of subsidies, to
-whether or not a PIN is a garage. The full list of CDU codes can be found on
-the Assessor's site
+The `cdu` column only documents "condition". See `user16` for what the
+Assessor's office typically considers the Condition/Desirability/Utility code.
 {% enddocs %}
 
 ## class
@@ -879,7 +888,7 @@ Parcel has an active homeowner exemption
 
 {% docs shared_column_is_ahsap %}
 Affordable Housing Special Assessment Program indicator. For more information on
-AHSAP, see: https://www.cookcountyassessor.com/affordable-housing
+AHSAP, see: <https://www.cookcountyassessor.com/affordable-housing>
 {% enddocs %}
 
 ## is_common_area
@@ -1325,7 +1334,14 @@ Indicates an outlier sale not used in modeling or reporting.
 
 This variable combines `sv_is_heuristic_outlier`
 with `sv_is_ptax_outlier` (using OR logic).
-NOTE: Outlier flags only exist for sales _after_ 2014.
+
+A null value represents an observation that, due to
+filters on type of sale or time frame of sale, is
+excluded completely from the sales-val model pipeline
+and therefore does receive a boolean value.
+
+NOTE: Outlier flags only exist for sales _after_ 2013.
+Sales before 2014 will have a null value for this column.
 {% enddocs %}
 
 ## sv_is_ptax_outlier
@@ -1341,7 +1357,11 @@ See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more det
 ## sv_outlier_reason
 
 {% docs shared_column_sv_outlier_reason %}
-Heuristic or model used to flag an outlier.
+
+One of three possible reasons that a sale is
+flagged as on outlier. The priority for
+sv_outlier_reason$n column filling is
+ptax outlier > price outlier > characteristic outlier.
 
 See the [model-sales-val](https://github.com/ccao-data/model-sales-val)
 repository for a list of possible flags.

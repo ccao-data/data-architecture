@@ -193,10 +193,10 @@ def main():
 
             iasworld_deps[table_name] = formatted_dep
 
-        print("ssh into the server and run the following commands:")
+        print("Run the following commands on the Data Team server:")
         print()
         print("cd /home/shiny-server/services/service-spark-iasworld")
-        print("docker-compose up -d")
+        print("docker compose up -d")
         print(
             "docker exec spark-node-master ./submit.sh "
             "--no-run-github-workflow "
