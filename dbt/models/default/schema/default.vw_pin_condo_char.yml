@@ -89,11 +89,3 @@ models:
           combination_of_columns:
             - pin
             - year
-          config:
-            error_if: ">70297"
-      # TODO: Non-liveable unit heuristics
-      # TODO: Row count matches PARDAT for condo classes
-      # TODO: Non-unit and unit parcel count add up to total parcels per
-      # 10-digit PIN
-      # TODO: Sum of proration rate never exceeds 1 per 10-digit PIN
-      # TODO: Characteristics columns should adhere to pre-determined criteria

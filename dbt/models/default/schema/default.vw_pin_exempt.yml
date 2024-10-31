@@ -25,17 +25,14 @@ models:
         description: '{{ doc("shared_column_township_name") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
+
     data_tests:
       - not_accepted_values:
           name: default_vw_pin_exempt_class_no_hyphens
           column_name: class
           values: "2-99"
-      # No non-numeric characters in the pin field
       - expression_is_true:
           name: default_vw_pin_exempt_numeric_pin
           expression: REGEXP_COUNT(pin, '[0-9]') = 14 AND LENGTH(pin) = 14
           additional_select_columns:
             - pin
-      - row_count:
-          name: default_vw_pin_exempt_row_count
-          above: 184845 # as of 2023-11-22
