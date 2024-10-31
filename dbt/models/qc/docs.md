@@ -121,9 +121,9 @@ investigated.
 
 {% enddocs %}
 
-# vw_pin_appeal_mismatched_assessed_values
+# vw_pin_appeal_mismatched_outcomes
 
-{% docs view_vw_pin_appeal_mismatched_assessed_values %}
+{% docs view_vw_pin_appeal_mismatched_outcomes %}
 View that selects appeals from `default.vw_pin_appeal` whose `change` value
 does not match the certified and mailed assessed values for the PIN.
 
