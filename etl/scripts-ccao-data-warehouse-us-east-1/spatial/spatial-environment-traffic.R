@@ -92,8 +92,9 @@ walk(parquet_files, \(file_key) {
     ) %>%
       st_transform(4326)
 
-    # Because column names change, we can't just select, but create an intersection
-    # of columns we want and the renamed columns.
+    # Because column names change, we can't just select,
+    # but create an intersection of columns we want
+    # and the renamed columns.
     required_columns <- c(
       "FCNAME", "FC_NAME", "LNS", "SURF_TYP", "SURF_WTH", "SURF_YR", "AADT",
       "CRS_WITH", "CRS_OPP", "CRS_YR", "ROAD_NAME", "DTRESS_WTH", "DTRESS_OPP",
@@ -131,8 +132,10 @@ walk(parquet_files, \(file_key) {
 
         # Remove standalone directional indicators (N, S, E, W)
         # I wouldn't remove North South East west, so that streets like North
-        # Ave become empty. I also discovered that TH is not universally applied.
-        # For example, you can see 100TH st. I don't think the added value
+        # Ave become empty. I also discovered that
+        # TH is not universally applied.
+        # For example, you can look at 100TH st.
+        # I don't think the added value
         # of removing TH is worth the risk of complicating valid street names.
         road_name = gsub("\\b(n|s|e|w)\\b", "", road_name),
 
@@ -158,14 +161,16 @@ walk(parquet_files, \(file_key) {
       mutate(across(-geometry, ~ replace(., . %in% c(0, "0000"), NA))) %>%
       mutate(surface_year = ifelse(surface_year == 9999, NA, surface_year)) %>%
       # Group by the characteristics that we want
-      group_by(road_name, speed_limit, lanes, surface_type, daily_traffic, year, road_type) %>%
+      group_by(road_name, speed_limit, lanes,
+               surface_type, daily_traffic, year, road_type) %>%
       # Create a union of the streets based on the summarized features
       summarize(geometry = st_union(geometry), .groups = "drop") %>%
       mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
       ungroup()
 
-    # Helper function to calculate averages based on intersections of streets with the
-    # same name and overlapping spatial features.
+    # Helper function to calculate averages based on intersections
+    # of streets with the same name
+    # and overlapping spatial features.
     calculate_traffic_averages <- function(data) {
       # Create an intersection matrix
       intersection_matrix <- st_intersects(data)
