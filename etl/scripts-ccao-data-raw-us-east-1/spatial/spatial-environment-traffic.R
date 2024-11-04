@@ -12,7 +12,6 @@ output_bucket <- file.path(
   AWS_S3_RAW_BUCKET,
   "spatial", "environment", "traffic"
 )
-current_year <- strftime(Sys.Date(), "%Y")
 
 # Get list of available files
 years <- map(2012:year(Sys.Date()), \(x) {
