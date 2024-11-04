@@ -253,7 +253,8 @@ walk(parquet_files, \(file_key) {
 
     # Run the function
     # Initialize with placeholder to ensure the first iteration runs
-    # Initialize previous NA counts with values that differ from any real NA count
+    # Initialize previous NA counts with values that
+    # differ from any real NA count
     previous_na_counts <- list(
       daily_traffic_na = -1,
       speed_limit_na = -1
@@ -282,7 +283,8 @@ walk(parquet_files, \(file_key) {
 
 
     shapefile_data <- shapefile_data %>%
-      mutate(across(-c(geometry, geometry_3435), ~ ifelse(is.nan(.), NA, .))) %>%
+      mutate(across(-c(geometry, geometry_3435),
+                    ~ ifelse(is.nan(.), NA, .))) %>%
       relocate(year, .after = last_col())
 
     output_path <- file.path(output_bucket, basename(file_key))
