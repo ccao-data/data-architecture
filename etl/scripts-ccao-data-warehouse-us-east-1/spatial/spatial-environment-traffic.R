@@ -96,9 +96,10 @@ walk(parquet_files, \(file_key) {
     # but create an intersection of columns we want
     # and the renamed columns.
     required_columns <- c(
-      "FCNAME", "FC_NAME", "LNS", "SURF_TYP", "SURF_WTH", "SURF_YR", "AADT",
-      "CRS_WITH", "CRS_OPP", "CRS_YR", "ROAD_NAME", "DTRESS_WTH", "DTRESS_OPP",
-      "SP_LIM", "INVENTORY", "geometry_3435", "year"
+      "road_type", "lanes", "surface_type", "surface_width", "surface_year",
+      "daily_traffic", "speed_limit", "condition_with", "condition_opposing",
+      "condition_year", "road_name", "distress_with", "distress_opposing",
+      "inventory", "geometry_3435", "year"
     )
 
     renames <- c(
@@ -119,17 +120,15 @@ walk(parquet_files, \(file_key) {
     )
 
     shapefile_data <- shapefile_data %>%
-      rename_with(~ renames[.x], .cols = intersect(names(.), names(renames)))
+      rename_with(~ str_replace_all(.x, renames))
 
-    # Create a list of required columns based on the rename mappings
-    required_columns <- unique(unname(renames))
+    missing_columns <- setdiff(required_columns, names(shapefile_data))
 
-    # Identify missing renamed columns and add them with NA values
-    missing_columns <- setdiff(required_columns, colnames(shapefile_data))
+    # Add missing columns with NA values directly
     shapefile_data[missing_columns] <- NA
 
-
     shapefile_data <- shapefile_data %>%
+      select(all_of(required_columns)) %>%
       mutate(
         surface_type = road_codes[as.character(surface_type)],
         speed_limit = as.numeric(speed_limit),
@@ -283,7 +282,8 @@ walk(parquet_files, \(file_key) {
 
 
     shapefile_data <- shapefile_data %>%
-      mutate(across(-c(geometry, geometry_3435), ~ ifelse(is.nan(.), NA, .)))
+      mutate(across(-c(geometry, geometry_3435), ~ ifelse(is.nan(.), NA, .))) %>%
+      relocate(year, .after = last_col())
 
     output_path <- file.path(output_bucket, basename(file_key))
     geoarrow::write_geoparquet(shapefile_data, output_path)
