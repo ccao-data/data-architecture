@@ -267,13 +267,9 @@ combined_sales AS (
         -- accurate. As of 2021, iasworld utilizes mydec sales, which means
         -- we can prioritize iasworld data instead of mydec data.
         CASE
-            WHEN md_sales.sale_date IS NOT NULL
-                AND (
-                    uq_sales.sale_date IS NULL
-                    OR md_sales.sale_date != uq_sales.sale_date
-                )
-                THEN md_sales.year
-            ELSE uq_sales.year
+            WHEN uq_sales.year < '2021'
+                THEN COALESCE(md_sales.year, uq_sales.year)
+            ELSE COALESCE(uq_sales.year, md_sales.year)
         END AS year_coalesced,
         COALESCE(uq_sales.township_code, tc.township_code)
             AS township_code_coalesced, --noqa
