@@ -500,7 +500,6 @@ Includes townships within the City of Chicago, which are technically defunct.
 Illinois Department of Transportation data source from
 [https://apps1.dot.illinois.gov/gist2/](https://apps1.dot.illinois.gov/gist2/).
 
-
 **Geometry:** `MULTILINESTRING`
 {% enddocs %}
 
