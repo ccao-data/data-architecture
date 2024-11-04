@@ -6,7 +6,7 @@ library(sf)
 library(stringr)
 
 # Define the S3 bucket and folder path
-AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+AWS_S3_RAW_BUCKET <- "s3://ccao-data-raw-us-east-1"
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 s3_folder <- "spatial/environment/traffic"
 output_bucket <- sub("/$", "", file.path(AWS_S3_WAREHOUSE_BUCKET, s3_folder))
@@ -101,40 +101,36 @@ walk(parquet_files, \(file_key) {
       "SP_LIM", "INVENTORY", "geometry_3435", "year"
     )
 
+    # Define the renaming mapping
+    renames <- c(
+      "FCNAME" = "road_type",
+      "FC_NAME" = "road_type",
+      "LNS" = "lanes",
+      "SURF_TYP" = "surface_type",
+      "SURF_WTH" = "surface_width",
+      "SURF_YR" = "surface_year",
+      "AADT" = "daily_traffic",
+      "CRS_WITH" = "condition_with",
+      "CRS_OPP" = "condition_opposing",
+      "CRS_YR" = "condition_year",
+      "ROAD_NAME" = "road_name",
+      "DTRESS_WTH" = "distress_with",
+      "DTRESS_OPP" = "distress_opposing"
+    )
+
+
     existing_columns <- intersect(required_columns, colnames(shapefile_data))
     shapefile_data <- shapefile_data %>%
       select(all_of(existing_columns)) %>%
-      mutate(
-        road_type = if ("FCNAME" %in% colnames(.)) {
-          FCNAME
-        } else if ("FC_NAME" %in% colnames(.)) FC_NAME else NA,
-        lanes = if ("LNS" %in% colnames(.)) LNS else NA,
-        surface_type = if ("SURF_TYP" %in% colnames(.)) SURF_TYP else NA,
-        surface_width = if ("SURF_WTH" %in% colnames(.)) SURF_WTH else NA,
-        surface_year = if ("SURF_YR" %in% colnames(.)) SURF_YR else NA,
-        daily_traffic = if ("AADT" %in% colnames(.)) AADT else NA,
-        condition_with = if ("CRS_WITH" %in% colnames(.)) CRS_WITH else NA,
-        condition_opposing = if ("CRS_OPP" %in% colnames(.)) CRS_OPP else NA,
-        condition_year = if ("CRS_YR" %in% colnames(.)) CRS_YR else NA,
-        road_name = if ("ROAD_NAME" %in% colnames(.)) ROAD_NAME else NA,
-        distress_with = if ("DTRESS_WTH" %in% colnames(.)) DTRESS_WTH else NA,
-        distress_opposing = if ("DTRESS_OPP" %in%
-          colnames(.)) {
-          DTRESS_OPP
-        } else {
-          NA
-        },
-        speed_limit = if ("SP_LIM" %in% colnames(.)) SP_LIM else NA,
-        inventory_id = if ("INVENTORY" %in% colnames(.)) INVENTORY else NA
-      ) %>%
-      mutate(
+      # Dynamically rename and select columns based on the existing names in the dataset
+      rename_with(~ renames[.x], .cols = intersect(names(.), names(renames))) %>%
+      mutate(across(all_of(renames), ~ ifelse(is.na(.), NA, .)),
         surface_type = road_codes[as.character(surface_type)],
         speed_limit = as.numeric(speed_limit),
         # For testing
         road_name_preserved = road_name,
         road_name = str_to_lower(road_name), # Convert to lowercase
         road_name = gsub("[[:punct:]]", "", road_name), # Remove punctuation
-
         # Remove standalone directional indicators (N, S, E, W)
         # I wouldn't remove North South East west, so that streets like North
         # Ave become empty. I also discovered that
@@ -256,13 +252,14 @@ road_name = str_replace_all(
 
     # Run the function
     # Initialize with placeholder to ensure the first iteration runs
+    # Initialize previous NA counts with values that differ from any real NA count
     previous_na_counts <- list(
-      daily_traffic_na = -1, # Placeholder different from any real NA count
-      speed_limit_na = -1 # Same here
+      daily_traffic_na = -1,
+      speed_limit_na = -1
     )
 
-    # Loop until no changes in NA counts
-    repeat {
+    # Loop until there are no changes in NA counts
+    while (TRUE) {
       # Calculate current NA counts
       current_na_counts <- list(
         daily_traffic_na = sum(is.na(shapefile_data$daily_traffic)),
@@ -281,6 +278,7 @@ road_name = str_replace_all(
         break
       }
     }
+
 
     shapefile_data <- shapefile_data %>%
       mutate(across(-c(geometry, geometry_3435), ~ ifelse(is.nan(.), NA, .)))
