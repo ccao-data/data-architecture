@@ -145,18 +145,22 @@ walk(parquet_files, \(file_key) {
         road_name = gsub("\\b(n|s|e|w)\\b", "", road_name),
 
         # Replace full street name words with abbreviations
-        road_name = gsub("\\bavenue\\b", "ave", road_name),
-        road_name = gsub("\\bav\\b", "ave", road_name),
-        road_name = gsub("\\bstreet\\b", "st", road_name),
-        road_name = gsub("\\bcourt\\b", "ct", road_name),
-        road_name = gsub("\\broad\\b", "rd", road_name),
-        road_name = gsub("\\bdrive\\b", "dr", road_name),
-        road_name = gsub("\\bplace\\b", "pl", road_name),
-        road_name = gsub("\\blane\\b", "ln", road_name),
-        road_name = gsub("\\btrail\\b", "trl", road_name),
-        road_name = gsub("\\bparkway\\b", "pkwy", road_name),
-        road_name = gsub("\\bhighway\\b", "hwy", road_name),
-        road_name = gsub("\\bexpressway\\b", "expy", road_name),
+road_name = str_replace_all(
+          road_name,
+          c("\\bavenue\\b" = "ave",
+            "\\bav\\b" = "ave",
+            "\\bstreet\\b" = "st",
+            "\\bcourt\\b" = "ct",
+            "\\broad\\b" = "rd",
+            "\\bdrive\\b" = "dr",
+            "\\bplace\\b" = "pl",
+            "\\blane\\b" = "ln",
+            "\\btrail\\b" = "trl",
+            "\\bparkway\\b" = "pkwy",
+            "\\bhighway\\b" = "hwy",
+            "\\bexpressway\\b" = "expy"
+          )
+        ),
 
         # Remove extra spaces that may result from replacements
         road_name = str_trim(road_name)
