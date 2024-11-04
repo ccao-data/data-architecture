@@ -290,4 +290,4 @@ walk(parquet_files, \(file_key) {
 
     print(paste(file_key, "cleaned and uploaded."))
   }
-}
+})
