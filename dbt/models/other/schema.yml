@@ -17,6 +17,6 @@ sources:
 
       - name: dci
         description: '{{ doc("table_dci") }}'
-        
+
       - name: ari
         description: '{{ doc("table_ari") }}'

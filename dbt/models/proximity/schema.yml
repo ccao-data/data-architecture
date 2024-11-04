@@ -181,7 +181,7 @@ models:
         description: '{{ doc("column_nearest_neighbor_pin10") }}'
       - name: nearest_new_construction_char_yrblt
         description: '{{ doc("column_nearest_new_construction_char_yrblt") }}'
-      - name: nearest_new_construction_data_year  
+      - name: nearest_new_construction_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_new_construction_dist_ft
         description: '{{ doc("column_nearest_new_construction_dist_ft") }}'
