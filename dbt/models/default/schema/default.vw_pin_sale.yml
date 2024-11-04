@@ -55,6 +55,10 @@ models:
         description: '{{ doc("shared_column_year") }}'
 
     data_tests:
+      # It would be nice to move this to a unit test, but we currently can't do
+      # so due to a bug in dbt unit tests: sale.mydec contains identifiers
+      # that start with digits, but dbt doesn't double-quote identifiers when
+      # building fixtures, so Athena raises an error during fixture setup
       - not_accepted_values:
           name: default_vw_pin_sale_class_no_hyphens
           column_name: class

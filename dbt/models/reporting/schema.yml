@@ -308,6 +308,9 @@ models:
   - name: reporting.vw_top_5_muni
     description: '{{ doc("view_vw_top_5_muni") }}'
     data_tests:
+      # It would be nice to move hyphen checks to unit tests, but the fixture
+      # definitions would be extremely complicated, so for now we leave them
+      # as data tests
       - not_accepted_values:
           name: reporting_vw_top_5_muni_class_no_hyphens
           column_name: class

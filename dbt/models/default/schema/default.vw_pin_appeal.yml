@@ -62,6 +62,9 @@ unit_tests:
       - input: source("iasworld", "htagnt")
         rows:
           - {agent: "1", cur: "Y", deactivat: null}
+      - input: ref("ccao.htpar_reascd")
+        rows:
+          - {reascd: "28"}
     expect:
       rows:
         - {class: "211A"}

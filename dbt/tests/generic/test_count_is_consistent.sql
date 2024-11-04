@@ -6,7 +6,9 @@
 -- a valid range for the counts. If neither of these parameters are present,
 -- the test will default to checking that all counts are the same, regardless
 -- of the count value
-{% test count_is_consistent(model, column_name, group_column, min_value = None, max_value = None) %}
+{% test count_is_consistent(
+    model, column_name, group_column, min_value=None, max_value=None
+) %}
 
     with
         counts as (
@@ -24,10 +26,8 @@
     -- range of values
     {% if min_value and max_value %}
         where not cnt between {{ min_value }} and {{ max_value }}
-    {% elif min_value and not max_value %}
-        where cnt < min_value
-    {% elif not min_value and max_value %}
-        where cnt > max_value
+    {% elif min_value and not max_value %} where cnt < min_value
+    {% elif not min_value and max_value %} where cnt > max_value
     {% else %}
         -- If all rows have the same count, they should all have a rank of 1 when
         -- ranked according to count
