@@ -148,7 +148,8 @@ walk(parquet_files, \(file_key) {
         # Replace full street name words with abbreviations
         road_name = str_replace_all(
           road_name,
-          c("\\bavenue\\b" = "ave",
+          c(
+            "\\bavenue\\b" = "ave",
             "\\bav\\b" = "ave",
             "\\bstreet\\b" = "st",
             "\\bcourt\\b" = "ct",
@@ -283,8 +284,10 @@ walk(parquet_files, \(file_key) {
 
 
     shapefile_data <- shapefile_data %>%
-      mutate(across(-c(geometry, geometry_3435),
-                    ~ ifelse(is.nan(.), NA, .))) %>%
+      mutate(across(
+        -c(geometry, geometry_3435),
+        ~ ifelse(is.nan(.), NA, .)
+      )) %>%
       relocate(year, .after = last_col())
 
     output_path <- file.path(output_bucket, basename(file_key))
