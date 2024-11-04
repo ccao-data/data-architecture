@@ -101,7 +101,6 @@ walk(parquet_files, \(file_key) {
       "SP_LIM", "INVENTORY", "geometry_3435", "year"
     )
 
-    # Define the renaming mapping
     renames <- c(
       "FCNAME" = "road_type",
       "FC_NAME" = "road_type",
@@ -110,6 +109,7 @@ walk(parquet_files, \(file_key) {
       "SURF_WTH" = "surface_width",
       "SURF_YR" = "surface_year",
       "AADT" = "daily_traffic",
+      "SP_LIM" = "speed_limit",
       "CRS_WITH" = "condition_with",
       "CRS_OPP" = "condition_opposing",
       "CRS_YR" = "condition_year",
@@ -118,13 +118,19 @@ walk(parquet_files, \(file_key) {
       "DTRESS_OPP" = "distress_opposing"
     )
 
-
-    existing_columns <- intersect(required_columns, colnames(shapefile_data))
     shapefile_data <- shapefile_data %>%
-      select(all_of(existing_columns)) %>%
-      # Dynamically rename and select columns based on the existing names in the dataset
-      rename_with(~ renames[.x], .cols = intersect(names(.), names(renames))) %>%
-      mutate(across(all_of(renames), ~ ifelse(is.na(.), NA, .)),
+      rename_with(~ renames[.x], .cols = intersect(names(.), names(renames)))
+
+    # Create a list of required columns based on the rename mappings
+    required_columns <- unique(unname(renames))
+
+    # Identify missing renamed columns and add them with NA values
+    missing_columns <- setdiff(required_columns, colnames(shapefile_data))
+    shapefile_data[missing_columns] <- NA
+
+
+    shapefile_data <- shapefile_data %>%
+      mutate(
         surface_type = road_codes[as.character(surface_type)],
         speed_limit = as.numeric(speed_limit),
         # For testing
@@ -132,16 +138,16 @@ walk(parquet_files, \(file_key) {
         road_name = str_to_lower(road_name), # Convert to lowercase
         road_name = gsub("[[:punct:]]", "", road_name), # Remove punctuation
         # Remove standalone directional indicators (N, S, E, W)
-        # I wouldn't remove North South East west, so that streets like North
+        # I wouldn't remove North South East West, so that streets like North
         # Ave become empty. I also discovered that
-        # TH is not universally applied.
-        # For example, you can look at 100TH st.
+        # TH is not universally applied. An example is 100th St.
         # I don't think the added value
         # of removing TH is worth the risk of complicating valid street names.
+        # Once again, ending in th would change North Ave.
         road_name = gsub("\\b(n|s|e|w)\\b", "", road_name),
 
         # Replace full street name words with abbreviations
-road_name = str_replace_all(
+        road_name = str_replace_all(
           road_name,
           c("\\bavenue\\b" = "ave",
             "\\bav\\b" = "ave",
@@ -161,8 +167,6 @@ road_name = str_replace_all(
         # Remove extra spaces that may result from replacements
         road_name = str_trim(road_name)
       ) %>%
-      # Remove duplicated columns except for year
-      select(-one_of(required_columns[required_columns != "year"])) %>%
       mutate(across(-geometry, ~ replace(., . %in% c(0, "0000"), NA))) %>%
       mutate(surface_year = ifelse(surface_year == 9999, NA, surface_year)) %>%
       # Group by the characteristics that we want
@@ -183,15 +187,13 @@ road_name = str_replace_all(
       intersection_matrix <- st_intersects(data)
 
       # Create intersecting pairs
-      intersecting_pairs <- do.call(
-        rbind,
-        lapply(seq_along(intersection_matrix), function(i) {
-          data.frame(
-            polygon_1 = i,
-            polygon_2 = intersection_matrix[[i]]
-          )
-        })
-      ) %>%
+      intersecting_pairs <- map(seq_along(intersection_matrix), \(x) {
+        data.frame(
+          polygon_1 = x,
+          polygon_2 = intersection_matrix[[x]]
+        )
+      }) %>%
+        bind_rows() %>%
         filter(polygon_1 != polygon_2) # Remove self-matches
       # Add polygon IDs and relevant columns for merging
       data_with_ids <- data %>%
