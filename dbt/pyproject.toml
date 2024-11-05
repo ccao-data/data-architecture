@@ -1,0 +1,30 @@
+[project]
+name = "dbt"
+version = "0.0.1"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "dbt-athena-community==1.8.2",
+  "dbt-core==1.8.3",
+]
+
+[project.optional-dependencies]
+export_models = [
+  "PyAthena~=3.8.3",
+  "lxml~=5.1.0",
+  "numpy==1.26.4",
+  "openpyxl~=3.1.5",
+  "pandas~=2.2.2",
+  "pyarrow==15.0.2",
+  "pyathena~=3.8.3",
+  "simplejson~=3.19.2",
+]
+socrata = [
+  "PyAthena~=3.9.0",
+  "pandas~=2.2.2",
+  "pyarrow~=17.0.0",
+  "requests~=2.32.3",
+]
+
+[tool.setuptools]
+packages = []
