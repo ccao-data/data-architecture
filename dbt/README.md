@@ -108,7 +108,7 @@ Run the following commands in this directory:
 python3 -m venv venv
 source venv/bin/activate
 pip install -U pip
-pip install -r requirements.txt
+pip install .
 dbt deps
 ```
 
@@ -697,7 +697,7 @@ a major event in the Valuations calendar like the close of a township.
 
 The [`export_models` script](./scripts/export_models.py) is the foundation for
 our QC reports. The script expects certain Python requirements, which can be installed
-by running `pip install -r scripts/requirements.export_models.txt` in a virtual
+by running `pip install .[export_models]` in a virtual
 environment.
 
 The script exposes a few options that help to export the right data:
@@ -735,7 +735,7 @@ We run town close reports using the [`scripts/export_qc_town_close_reports.py`
 script](./scripts/export_qc_town_close_reports.py), which builds on top of
 `export_models`. As such, `export_qc_town_close_reports` expects the same set
 of Python requirements as `export_models`, which can be installed in a virtual
-environment by running `pip install scripts/requirements.export_models.txt`.
+environment by running `pip install .[export_models]`.
 
 The script exposes the following options, many of which are the same as
 `export_models`:

@@ -23,9 +23,9 @@ jobs:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
       - name: Install Python requirements
-        run: pip install -r scripts/requirements.run_iasworld_data_tests.txt
-        working-directory: ${{ env.PROJECT_DIR }}
+        working-directory: ${{ env.PROJECT_DIR }}/dbt
         shell: bash
+        run: pip install .[export_models]
 
       - name: Run tests
         run: |
