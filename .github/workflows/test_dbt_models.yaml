@@ -25,7 +25,9 @@ jobs:
       - name: Install Python requirements
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
-        run: pip install .[dbt_tests]
+        run: |
+          # shellcheck disable=SC2102
+          pip install .[dbt_tests]
 
       - name: Run tests
         run: |
