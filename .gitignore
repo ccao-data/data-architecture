@@ -18,8 +18,8 @@ node_modules/
 venv/
 .venv/
 .ruff_cache/
+*.egg-info/
 
 # Ignore most CSVs, except those that are used as dbt seeds
 *.csv
 !dbt/seeds/**/*.csv
-
