@@ -23,7 +23,7 @@ jobs:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
       - name: Install Python requirements
-        working-directory: ${{ env.PROJECT_DIR }}/dbt
+        working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         run: pip install .[dbt_tests]
 
