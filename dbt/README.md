@@ -530,14 +530,29 @@ tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
 rather than [singular
 tests](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
 
-Currently, our primary use of data tests is to check assumptions about iasWorld data.
-We refer to this set of tests as "iasWorld data tests", and we've built a system
-for running and interpreting them that we will explain in the sections to follow.
-Other types of data tests do exist, and we primarily run them via automated
-GitHub workflows during CI when models change. However, we anticipate that in
-the future we will likely build out similar infrastructure for running and
-interpreting non-iasWorld data tests to accompany the infrastructure we have
-built for iasWorld data tests.
+We have two main types of data tests:
+
+* Tests that check assumptions about **iasWorld data**, so that iasWorld data
+  owners can fix the source data
+* Tests that check assumptions about **non-iasWorld data**, to alert us to
+  potential problems with our raw data or our transformations
+
+There are slightly different requirements for these two types of data tests,
+since we run them at different times using different infrastructure. As such,
+different sections below explain these two types of data tests:
+
+* [About iasWorld data tests](#about-iasworld-data-tests)
+* [About non-iasWorld data tests](#about-non-iasworld-data-tests)
+
+#### About iasWorld data tests
+
+Our iasWorld data test suite checks that hard-and-fast assumptions about data
+in our iasWorld system of record are correct.
+
+For help running iasWorld data tests, see [Running iasWorld data
+tests](#running-iasworld-data-tests). For help adding iasWorld data tests, see
+[Adding iasWorld data tests](#adding-iasworld-data-tests) and [Choosing a
+generic test for your data test](#choosing-a-generic-test-for-your-data-test).
 
 #### Running iasWorld data tests
 
@@ -670,16 +685,91 @@ do so, you have two options:
         of the `format_additional_select_columns` macro to format the
         parameter when applying it to your `SELECT` condition
 
+#### About non-iasWorld data tests
+
+Non-iasWorld data tests check hard-and-fast assumptions about all of our data
+outside of iasWorld. This includes data that come from external sources like
+seeds or third-party data providers, as well as the views that we define as
+transformations on top of iasWorld data sources to clean them up and join them
+to non-iasWorld data.
+
+Some examples of non-iasWorld data tests include:
+
+* Check that the `default.vw_card_res_char` view is unique by the columns `pin`,
+  `year`, and `card`
+  ([`default_vw_card_res_char_unique_by_card_pin_and_year`](models/default/schema/default.vw_card_res_char.yml))
+* Check that our transformations of condo characteristic data in the
+  `default.vw_pin_condo_char` view don't ever produce a `null` value for `card`
+  ([`default_vw_pin_condo_char_card_not_null`](models/default/schema/default.vw_pin_condo_char.yml))
+* Check that GEOIDs are the correct length in the `location.vw_pin10_location`
+  view ([`locaion_vw_pin10_location_7_digit_ids_are_correct_length`](dbt/models/location/schema.yml))
+
+The "non-iasWorld data test" category tends to act as a catch-all for tests
+that do not fit well into any of our other QC categories ([iasWorld data
+tests](#about-iasworld-data-tests), [unit tests](#unit-tests), and [QC
+reports](#qc-reports)). As such, it can be tricky sometimes to tell when it
+would be most appropriate to define a test as a non-iasWorld data test rather
+than one of these other QC categories. We use the following heuristic to
+resolve ambiguous cases:
+
+* If you can express the test's logic exclusively in the context of an iasWorld
+  table, and if you think an iasWorld data owner could immediately act on the
+  results of the test without having to know any additional context other than
+  attributes of the row in the iasWorld table that failed the test, you should
+  define the test as an [**iasWorld data test**](#about-iasworld-data-tests).
+* If the test is checking that a transformation produces a correct value, and
+  if you can represent the full universe of possible raw values that could
+  produce the transformed value in a few simple examples, you should define
+  the test as a [**unit test**](#unit-tests).
+* If you can't be sure whether a failure indicates a data problem, and if you
+  have partnered with a stakeholder who is committed to reviewing the
+  failures, you should define the check as a [**QC report**](#qc-reports).
+* In all other cases, you should define the test as a *non-iasWorld data test*.
+
+#### Running non-iasWorld data tests
+
+Non-iasWorld data tests currently only run in the `build-and-test-dbt` GitHub
+workflow as part of our CI suite when their model or test definition changes
+during a PR or commit to the main branch. In the future, we plan to schedule a
+workflow to run these tests on a weekly basis so that we get alerted to
+failures faster.
+
+Run the tests locally using the `select_test_non_iasworld` selector:
+
+```bash
+dbt test --selector select_test_non_iasworld
+```
+
+#### Adding non-iasWorld data tests
+
+In contrast to [iasWorld data tests](#adding-iasworld-data-tests), non-iasWorld
+data tests do not require any special tags or attributes because we do not
+process their results in a structured fashion.
+
+See [Choosing a generic test for your data
+test](#choosing-a-generic-test-for-your-data-test) for help with choosing a
+generic test.
+
 ### Unit tests
 
 Unit tests help ensure that the transformations we apply on top of our raw data
-do not introduce errors. Unit testing is available in dbt as of [the 1.8
-release](https://docs.getdbt.com/docs/build/unit-tests), but there is a bug that
-prevents it from working with the schema alias system that we use to namespace
-our models, so we do not yet have a process for adding or running unit tests.
-Jean is leading the effort to contribute to dbt Core in order to support unit
-tests in projects that follow our schema alias system, so she will update this
-section with documentation once that effort is resolved.
+do not introduce errors. We use dbt's [unit
+testing](https://docs.getdbt.com/docs/build/unit-tests) feature to implement
+these tests. Unit tests currently do not require any special tags or
+attributes, although this may change in the future as we build out a more
+extensive suite of tests.
+
+Unit tests run during the `build-and-test-dbt` GitHub workflow as part of
+our CI suite whenever a PR or commit to the main branch adds or modifies a
+model or unit test. As such, unit tests will only run automatically in cases
+where it's possible that a code change might accidentally violate the
+assumptions of the test.
+
+Run the unit tests locally using the `unit_test` resource type:
+
+```bash
+dbt test --select resource_type:unit_test
+```
 
 ### QC reports
 
