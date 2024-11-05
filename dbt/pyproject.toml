@@ -9,7 +9,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-export_models = [
+dbt_tests = [
   "PyAthena~=3.8.3",
   "lxml~=5.1.0",
   "numpy==1.26.4",

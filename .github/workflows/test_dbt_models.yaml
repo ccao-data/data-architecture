@@ -25,7 +25,7 @@ jobs:
       - name: Install Python requirements
         working-directory: ${{ env.PROJECT_DIR }}/dbt
         shell: bash
-        run: pip install .[export_models]
+        run: pip install .[dbt_tests]
 
       - name: Run tests
         run: |

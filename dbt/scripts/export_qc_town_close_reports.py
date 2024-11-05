@@ -15,7 +15,7 @@ DBT = dbtRunner()
 
 CLI_DESCRIPTION = """Export town close QC reports to Excel files.
 
-Expects dependencies from [project].dependencies (dbt dependencies) and [project.optional-dependencies].export_models (script dependencies) be installed.
+Expects dependencies from [project].dependencies (dbt dependencies) and [project.optional-dependencies].dbt_tests (script dependencies) be installed.
 
 The queries that generate these reports run against our data warehouse, which ingests data from iasWorld overnight once daily. Sometimes a
 staff member will request a report during the middle of the workday, and they will need the most recent data, which will not exist in

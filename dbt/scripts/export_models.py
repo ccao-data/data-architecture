@@ -8,7 +8,7 @@ from utils.export import export_models
 
 CLI_DESCRIPTION = """Export dbt models to Excel files.
 
-Expects dependencies from [project].dependencies (dbt dependencies) and [project.optional-dependencies].export_models (script dependencies) be installed.
+Expects dependencies from [project].dependencies (dbt dependencies) and [project.optional-dependencies].dbt_tests (script dependencies) be installed.
 
 A few configuration values can be set on any model to support exporting:
 
