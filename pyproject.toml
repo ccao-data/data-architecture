@@ -2,7 +2,7 @@
 name = "data-architecture"
 version = "0.0.1"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 
 [tool.pyright]
 reportUnusedImport = false
