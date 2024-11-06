@@ -5,14 +5,12 @@
 *.parquet
 *.gzip
 .DS_Store
-.python-version
 .RData
 .Rhistory
 .Rproj.user
 .Ruserdata
 package*.json
 settings.json
-uv.lock
 
 # Directories
 *.egg-info/
