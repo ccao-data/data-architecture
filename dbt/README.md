@@ -94,7 +94,7 @@ care of that for you.)
 
 #### Requirements
 
-* Python3 with venv installed (`sudo apt install python3-venv`)
+* Python3 with `uv` installed (pre-installed on the CCAO server)
 * [AWS CLI installed
   locally](https://github.com/ccao-data/wiki/blob/master/How-To/Connect-to-AWS-Resources.md)
   * You'll also need permissions for Athena, Glue, and S3
@@ -104,11 +104,11 @@ care of that for you.)
 
 Run the following commands in this directory:
 
-```
-python3 -m venv venv
-source venv/bin/activate
-pip install -U pip
-pip install .
+```bash
+uv venv
+source .venv/bin/activate
+uv python install
+uv pip install .
 dbt deps
 ```
 
@@ -116,13 +116,13 @@ dbt deps
 
 To run dbt commands, make sure you have the virtual environment activated:
 
-```
-source venv/bin/activate
+```bash
+source .venv/bin/activate
 ```
 
 You must also authenticate with AWS using MFA if you haven't already today:
 
-```
+```bash
 aws-mfa
 ```
 
@@ -146,14 +146,14 @@ it from scratch.
 Instead, start by copying the production dbt state file (also known as the
 [manifest file](https://docs.getdbt.com/reference/artifacts/manifest-json)):
 
-```
+```bash
 aws s3 cp s3://ccao-dbt-cache-us-east-1/master-cache/manifest.json master-cache/manifest.json
 ```
 
 Then, use [`dbt clone`](https://docs.getdbt.com/reference/commands/clone) to
 clone the production tables and views into your development environment:
 
-```
+```bash
 dbt clone --state master-cache
 ```
 
@@ -697,7 +697,7 @@ a major event in the Valuations calendar like the close of a township.
 
 The [`export_models` script](./scripts/export_models.py) is the foundation for
 our QC reports. The script expects certain Python requirements, which can be installed
-by running `pip install .[dbt_tests]` in a virtual
+by running `uv pip install .[dbt_tests]` in a virtual
 environment.
 
 The script exposes a few options that help to export the right data:
@@ -735,7 +735,7 @@ We run town close reports using the [`scripts/export_qc_town_close_reports.py`
 script](./scripts/export_qc_town_close_reports.py), which builds on top of
 `export_models`. As such, `export_qc_town_close_reports` expects the same set
 of Python requirements as `export_models`, which can be installed in a virtual
-environment by running `pip install .[dbt_tests]`.
+environment by running `uv pip install .[dbt_tests]`.
 
 The script exposes the following options, many of which are the same as
 `export_models`:
