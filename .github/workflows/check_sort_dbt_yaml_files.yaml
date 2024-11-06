@@ -6,6 +6,9 @@ on:
   push:
     branches: [master]
 
+env:
+  UV_SYSTEM_PYTHON: 1
+
 jobs:
   check-sort-dbt-yaml-files:
     runs-on: ubuntu-latest
@@ -13,17 +16,24 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Setup Python
-      uses: actions/setup-python@v4
+    - name: Install uv
+      uses: astral-sh/setup-uv@v3
       with:
-        python-version: '3.11'
-        cache: pip
+        enable-cache: true
+        cache-dependency-glob: |
+          dbt/pyproject.toml
+          dbt/uv.lock
+
+    - name: Install Python
+      uses: actions/setup-python@v5
+      with:
+        python-version-file: dbt/.python-version
 
     - name: Install Python dependencies
       working-directory: dbt
       shell: bash
-      run: pip install ".[ci_checks]"
+      run: uv pip install ".[ci_checks]"
 
     - name: Run dbt yaml sort checks
+      working-directory: dbt
       run: python scripts/check_sort_dbt_yaml_files.py
-      working-directory: ./dbt
