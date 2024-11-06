@@ -3,15 +3,20 @@
 # Run `python scripts/export_qc_town_close_reports.py --help` for details.
 import argparse
 import contextlib
+import dataclasses
 import datetime
 import io
 import json
+import pathlib
 
 from dbt.cli.main import dbtRunner
 from utils import constants
-from utils.export import export_models
+from utils.export import (
+    ModelForExport,
+    query_models_for_export,
+    save_model_to_workbook,
+)
 from utils.townships import (
-    TOWNSHIP_SCHEDULE_PATH,
     TOWNSHIPS,
     TOWNSHIPS_BY_CODE,
 )
@@ -64,14 +69,7 @@ def parse_args() -> argparse.Namespace:
         nargs="*",
         help=(
             "One or more space-separated township codes to use when filtering "
-            "query results. When missing, defaults to all towns that are "
-            "eligible for QC, i.e. towns that are currently between the field "
-            "check and completion stage of the 1st or 2nd pass valuation "
-            "cycles. This default will only work if a data file exists at "
-            "scripts/utils/town_active_schedule.csv, and will raise an error "
-            "otherwise. This behavior is intended for use in the automated "
-            "version of this script that runs on a schedule, so human callers "
-            "should generally not need it"
+            "query results. When missing, defaults to all towns."
         ),
     )
     parser.add_argument(
@@ -102,31 +100,13 @@ def main():
     """Main entrypoint for the script"""
     args = parse_args()
 
-    if args.township:
-        townships = [TOWNSHIPS_BY_CODE[code] for code in args.township]
-    else:
-        # Determine the default set of towns based on 'active' status
-        if args.year != CURRENT_YEAR:
-            # We can't determine active towns for prior years, so raise an
-            # error if the caller tries to do this
-            raise ValueError(
-                "--township must be set if --year is not the current year"
-            )
-        townships = [
-            town for town in TOWNSHIPS if town.is_active_on(CURRENT_DATE)
-        ]
-        if not townships:
-            raise ValueError(
-                "No townships are active in the current year. Double check "
-                f"{TOWNSHIP_SCHEDULE_PATH.resolve()} to ensure the schedule "
-                "is correct"
-            )
+    townships = (
+        [TOWNSHIPS_BY_CODE[code] for code in args.township]
+        if args.township
+        else TOWNSHIPS
+    )
 
-    # Determine which dbt tags to select based on the tri status of each town.
-    # Note that if the caller passed in two towns that have different tri
-    # statuses, i.e. one tri and one not tri, we will select tags for both
-    # types of towns, which might not be the caller's intended effect since
-    # tri towns require a different set of reports from non-tri towns.
+    # Determine which dbt tags to select based on the tri status of each town
     base_tag = "tag:qc_report_town_close"
     tags = {base_tag}
     for town in townships:
@@ -209,32 +189,62 @@ def main():
             f"--json-string '{json.dumps(iasworld_deps)}' "
         )
     else:
-        # Format a list of township codes for templating into a SQL array,
-        # which requires wrapping each code in single quotes
-        township_code_sql_str = "', '".join(
-            town.township_code for town in townships
-        )
-        where = (
-            f"township_code IN ('{township_code_sql_str}') "
-            f"AND taxyr = '{args.year}'"
-        )
-        output_paths = export_models(
+        models_for_export = query_models_for_export(
             target=args.target,
             rebuild=args.rebuild,
             select=select,
-            where=where,
-            order_by=["township_code"],
-            output_dir=args.output_dir,
+            where=f"taxyr = '{args.year}'",
         )
-        if len(townships) == 1:
-            # Rename the output files to prepend the name of the township
-            for output_path in output_paths:
-                new_filename = (
-                    f"{townships[0].township_name} {output_path.name}"
+        output_dir = args.output_dir or "export/output/"
+        for model in models_for_export:
+            for town in townships:
+                # Only produce an export for this town if the report model
+                # is configured for its reassessment year
+                town_is_tri = town.is_reassessed_during(args.year)
+                if f"{base_tag}_tri" in model.tags and not town_is_tri:
+                    print(
+                        f"Skipping {model.name} for {town.township_name} "
+                        "because the report is only for tri towns"
+                    )
+                    continue
+                elif f"{base_tag}_non_tri" in model.tags and town_is_tri:
+                    print(
+                        f"Skipping {model.name} for {town.township_name} "
+                        "because the report is only for non-tri towns"
+                    )
+                    continue
+
+                # Filter the query results for only this town, but only if the
+                # query results are not empty, since otherwise they will have
+                # no columns
+                town_df = (
+                    model.df
+                    if model.df.empty
+                    else model.df[
+                        model.df["township_code"] == town.township_code
+                    ]
                 )
-                new_filepath = output_path.with_name(new_filename)
-                output_path.rename(new_filepath)
-                print(f"Renamed {output_path} -> {new_filepath}")
+                town_export_filename = (
+                    f"{town.township_name} {model.export_filename}"
+                )
+                town_model_args = {
+                    **dataclasses.asdict(model),
+                    "df": town_df,
+                    "export_filename": town_export_filename,
+                }
+                town_model = ModelForExport(**town_model_args)
+
+                # Save query results to file
+                print(f"Exporting {model.name} for {town.township_name}")
+                town_output_dirpath = (
+                    pathlib.Path(output_dir)
+                    if len(townships) < 2
+                    else pathlib.Path(output_dir) / town.township_name
+                )
+                town_output_dirpath.mkdir(parents=True, exist_ok=True)
+                save_model_to_workbook(
+                    town_model, town_output_dirpath.as_posix()
+                )
 
 
 if __name__ == "__main__":
