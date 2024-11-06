@@ -283,13 +283,15 @@ combined_sales AS (
         END AS sale_date_coalesced,
         CASE
             -- If uq_sales.doc_no is not NULL, apply the COALESCE logic
-            WHEN uq_sales.doc_no IS NOT NULL
-                THEN
-                COALESCE(COALESCE(
-                    md_sales.sale_date IS NOT NULL
-                    OR YEAR(uq_sales.sale_date) >= 2021,
-                    FALSE
-                ), FALSE)
+            WHEN uq_sales.doc_no IS NOT NULL THEN
+                CASE
+                    WHEN COALESCE(
+                            md_sales.sale_date IS NOT NULL
+                            OR YEAR(uq_sales.sale_date) >= 2021,
+                            FALSE
+                        ) THEN TRUE
+                    ELSE FALSE
+                END
             -- If uq_sales.doc_no is NULL, set is_mydec_date to TRUE
             ELSE
                 TRUE
