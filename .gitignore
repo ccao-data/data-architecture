@@ -5,21 +5,23 @@
 *.parquet
 *.gzip
 .DS_Store
+.python-version
 .RData
 .Rhistory
 .Rproj.user
 .Ruserdata
 package*.json
 settings.json
+uv.lock
 
 # Directories
+*.egg-info/
+.ruff_cache/
+.venv/
 logs/
 node_modules/
 venv/
-.venv/
-.ruff_cache/
 
 # Ignore most CSVs, except those that are used as dbt seeds
 *.csv
 !dbt/seeds/**/*.csv
-

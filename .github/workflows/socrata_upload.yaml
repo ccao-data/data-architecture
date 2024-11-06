@@ -46,22 +46,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup python
+
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.x #install the python version needed
+          python-version: '3.11'
+          cache: pip
+
       - name: Setup dbt
         uses: ./.github/actions/setup_dbt
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+
       # Set these env vars as secrets so they get masked in the GitHub
       # Actions logs
-      - run: pip install -r ./socrata/requirements.txt
+      - name: Install Socrata deps
+        working-directory: socrata
+        shell: bash
+        run: pip install .
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+
       - name: Upload to Socrata
         env:
           AWS_IAM_ROLE_TO_ASSUME_ARN: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}

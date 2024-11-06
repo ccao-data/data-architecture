@@ -5,10 +5,6 @@ inputs:
     description: Path to the directory containing the dbt project.
     required: false
     default: ./dbt
-  requirements_file_path:
-    description: Path to Python requirements file.
-    required: false
-    default: ./dbt/requirements.txt
 runs:
   using: composite
   steps:
@@ -19,11 +15,12 @@ runs:
           cache: pip
 
       - name: Install python requirements
-        run: python -m pip install -r ${{ inputs.requirements_file_path }}
+        working-directory: dbt
         shell: bash
+        run: python -m pip install .
 
       - name: Cache dbt requirements
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ inputs.dbt_project_dir }}/dbt_packages
           key: dbt-${{ hashFiles(format('{0}/packages.yml', inputs.dbt_project_dir)) }}
