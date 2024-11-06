@@ -10,7 +10,7 @@ library(stringr)
 library(varhandle)
 source("utils.R")
 
-# This script cleans and uploads condo parking space data for the warehouse
+# Declare output paths
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(
   AWS_S3_WAREHOUSE_BUCKET,
@@ -32,7 +32,11 @@ char_cols <- c(
   "ceilingheight",
   "2023permit/partial/demovalue",
   "file",
-  "sheet"
+  "sheet",
+  "model",
+  "subclass2",
+  "permit/partial/demovaluereason",
+  "townregion"
 )
 
 # Declare known integer columns
@@ -67,6 +71,7 @@ remove_cols <- c(
 # Declare all regex syntax for renaming sheet column names as they're ingested
 renames <- c(
   "\\.|2021|\\$|\\?" = "",
+  "\\.|2024|\\$|\\?" = "",
   "(^adj)(.*rent.*)" = "adj_rent/sf",
   "adjsales" = "adjsale",
   "hotelclass" = "hotel",
@@ -74,7 +79,7 @@ renames <- c(
   "cost\\\\" = "cost",
   "^costapp.*" = "costapproach/sf",
   "(.*bed.*)(.*day.*)" = "revenuebed/day",
-  ".*class.*" = "class(es)",
+  "^(?!.*sub).*class.*" = "class(es)",
   "(^exc)(.*val.*)|surpluslandvalue" = "excesslandval",
   "^exp%|^%exp|totalexp%" = "exp",
   "approxcommsf|apprxtotalsfcomm|commsf" = "aprx_comm_sf",
@@ -102,16 +107,14 @@ renames <- c(
 )
 
 # Compile a filtered list of excel workbooks and worksheets to ingest ----
-temp <- list.files(
+list.files(
   "G:/1st Pass spreadsheets",
   pattern = "[0-9]{4} Valuation",
   full.names = TRUE
 ) %>%
   file.path("PublicVersions") %>%
-  list.files(ignore.case = TRUE, full.names = TRUE) %>%
-  # Ignore files that are currently open
+  list.files(pattern = ".xlsx", full.names = TRUE, recursive = TRUE) %>%
   grep(pattern = "Other", invert = TRUE, value = TRUE) %>%
-  list.files(pattern = ".xlsx", full.names = TRUE) %>%
   map(function(x) {
     # Unfortunately, people are still working on some of these sheets which
     # means this script will error out when a file is open - `possibly` here
