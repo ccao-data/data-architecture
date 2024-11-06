@@ -226,7 +226,7 @@ mydec_sales AS (
     Sometimes they have different dates than iasworld prior to 2021 and when
     joined back onto unique_sales will create duplicates by pin/sale date. */
     WHERE num_single_day_sales = 1
-        OR year > '2020'
+        OR YEAR(DATE_PARSE(year, '%Y')) > 2020
 ),
 
 max_version_flag AS (
@@ -267,9 +267,13 @@ combined_sales AS (
         -- accurate. As of 2021, iasworld utilizes mydec sales, which means
         -- we can prioritize iasworld data instead of mydec data.
         CASE
-            WHEN uq_sales.year < '2021'
-                THEN COALESCE(md_sales.year, uq_sales.year)
-            ELSE COALESCE(uq_sales.year, md_sales.year)
+            WHEN md_sales.sale_date IS NOT NULL
+                AND (
+                    uq_sales.sale_date IS NULL
+                    OR md_sales.sale_date != uq_sales.sale_date
+                )
+                THEN md_sales.year
+            ELSE uq_sales.year
         END AS year_coalesced,
         COALESCE(uq_sales.township_code, tc.township_code)
             AS township_code_coalesced, --noqa
@@ -282,12 +286,17 @@ combined_sales AS (
             ELSE COALESCE(uq_sales.sale_date, md_sales.sale_date)
         END AS sale_date_coalesced,
         CASE
-            WHEN (uq_sales.year < '2021' OR uq_sales.sale_date IS NULL)
-                AND md_sales.sale_date IS NOT NULL
-                THEN TRUE
-            WHEN (uq_sales.year >= '2021' OR md_sales.sale_date IS NULL)
-                AND uq_sales.sale_date IS NOT NULL --noqa
-                THEN FALSE
+            -- If uq_sales.doc_no is not NULL, apply the COALESCE logic
+            WHEN uq_sales.doc_no IS NOT NULL
+                THEN
+                COALESCE(COALESCE(
+                    md_sales.sale_date IS NOT NULL
+                    OR YEAR(uq_sales.sale_date) >= 2021,
+                    FALSE
+                ), FALSE)
+            -- If uq_sales.doc_no is NULL, set is_mydec_date to TRUE
+            ELSE
+                TRUE
         END AS is_mydec_date,
         COALESCE(uq_sales.sale_price, md_sales.sale_price)
             AS sale_price_coalesced, --noqa
