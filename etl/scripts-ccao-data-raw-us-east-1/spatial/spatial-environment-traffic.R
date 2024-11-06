@@ -26,7 +26,7 @@ years <- map(2012:year(Sys.Date()), \(x) {
 
 # Function to process each year and upload shapefiles for
 # that specific year to S3
-process_shapefiles_for_year <- map(years, \(x) {
+walk(years, \(x) {
   remote_file_path <- file.path(output_bucket, paste0(x, ".parquet"))
 
   # Skip everything if file already exists
