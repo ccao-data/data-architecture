@@ -22,9 +22,7 @@ jobs:
     - name: Install Python dependencies
       working-directory: dbt
       shell: bash
-      run: |
-        # shellcheck disable=SC2102
-        pip install .[ci_checks]
+      run: pip install ".[ci_checks]"
 
     - name: Run dbt yaml sort checks
       run: python scripts/check_sort_dbt_yaml_files.py
