@@ -24,6 +24,11 @@ jobs:
           dbt/pyproject.toml
           dbt/uv.lock
 
+    - name: Install Python
+      uses: actions/setup-python@v5
+      with:
+        python-version-file: dbt/.python-version
+
     - name: Install Python dependencies
       working-directory: dbt
       shell: bash

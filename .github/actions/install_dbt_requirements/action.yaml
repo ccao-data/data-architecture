@@ -16,6 +16,11 @@ runs:
             ${{ inputs.dbt_project_dir }}/pyproject.toml
             ${{ inputs.dbt_project_dir }}/uv.lock
 
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ${{ inputs.dbt_project_dir }}/.python-version
+
       - name: Install Python dependencies
         working-directory: ${{ inputs.dbt_project_dir }}
         shell: bash

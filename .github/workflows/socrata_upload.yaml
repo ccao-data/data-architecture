@@ -58,6 +58,11 @@ jobs:
             socrata/pyproject.toml
             socrata/uv.lock
 
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: socrata/.python-version
+
       - name: Setup dbt
         uses: ./.github/actions/setup_dbt
         with:
