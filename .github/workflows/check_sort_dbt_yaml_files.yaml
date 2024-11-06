@@ -20,6 +20,8 @@ jobs:
         cache: pip
 
     - name: Install Python dependencies
+      working-directory: dbt
+      shell: bash
       run: |
         # shellcheck disable=SC2102
         pip install .[ci_checks]
