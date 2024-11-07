@@ -8,7 +8,7 @@ from utils.export import export_models
 
 CLI_DESCRIPTION = """Export dbt models to Excel files.
 
-Expects dependencies from requirements.txt (dbt dependencies) and scripts/requirements.export_models.txt (script dependencies) be installed.
+Expects dependencies from [project].dependencies (dbt dependencies) and [project.optional-dependencies].dbt_tests (script dependencies) be installed.
 
 A few configuration values can be set on any model to support exporting:
 
@@ -52,24 +52,19 @@ def parse_args():
         *constants.REBUILD_ARGUMENT_ARGS, **constants.REBUILD_ARGUMENT_KWARGS
     )
     parser.add_argument(
-        "--select",
-        required=False,
-        nargs="*",
-        help="One or more dbt select statements to use for filtering models",
+        *constants.SELECT_ARGUMENT_ARGS, **constants.SELECT_ARGUMENT_KWARGS
     )
     parser.add_argument(
-        "--selector",
-        required=False,
-        help=(
-            "A selector name to use for filtering models, as defined in "
-            "selectors.yml. One of --select or --selector must be set, "
-            "but they can't both be set"
-        ),
+        *constants.SELECTOR_ARGUMENT_ARGS, **constants.SELECTOR_ARGUMENT_KWARGS
     )
     parser.add_argument(
         "--where",
         required=False,
         help="SQL expression representing a WHERE clause to filter models",
+    )
+    parser.add_argument(
+        *constants.OUTPUT_DIR_ARGUMENT_ARGS,
+        **constants.OUTPUT_DIR_ARGUMENT_KWARGS,
     )
 
     return parser.parse_args()
@@ -78,5 +73,10 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
     export_models(
-        args.target, args.select, args.selector, args.rebuild, args.where
+        args.target,
+        args.select,
+        args.selector,
+        args.rebuild,
+        args.where,
+        args.output_dir,
     )
