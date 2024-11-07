@@ -16,14 +16,12 @@ selectors:
           - method: tag
             value: data_test_iasworld_exclude_from_workbook
 
-  - name: select_test_non_iasworld
+  - name: select_data_test_non_iasworld
     description: Selector for running non-iasWorld data tests and unit tests
     definition:
       union:
         - method: resource_type
           value: test
-        - method: resource_type
-          value: unit_test
         - exclude:
           - method: tag
             value: data_test_iasworld

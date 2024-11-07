@@ -734,10 +734,10 @@ during a PR or commit to the main branch. In the future, we plan to schedule a
 workflow to run these tests on a weekly basis so that we get alerted to
 failures faster.
 
-Run the tests locally using the `select_test_non_iasworld` selector:
+Run the tests locally using the `select_data_test_non_iasworld` selector:
 
 ```bash
-dbt test --selector select_test_non_iasworld
+dbt test --selector select_data_test_non_iasworld
 ```
 
 #### Adding non-iasWorld data tests
