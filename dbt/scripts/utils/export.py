@@ -41,10 +41,11 @@ def export_models(
         * target (str): dbt target to use for querying model data, defaults to
             "dev"
         * select (list[str]): One or more dbt --select statements to
-            use for filtering models
+            use for filtering models. One of --select or --selector is
+            required, and if both are set, --selector takes precedence
         * selector (str): A selector name to use for filtering
-            models, as defined in selectors.yml. One of `select` or `selector`
-            must be set, but they can't both be set
+            models, as defined in selectors.yml. Takes precedence over
+            --select if both are set
         * rebuild (bool): Rebuild models before exporting, defaults to False
         * where (str): Optional SQL expression representing a WHERE clause to
             filter models
@@ -115,10 +116,9 @@ def query_models_for_export(
     if not select and not selector:
         raise ValueError("One of --select or --selector is required")
 
-    if select and selector:
-        raise ValueError("--select and --selector cannot both be set")
-
-    select_args = ["--select", *select] if select else ["--selector", selector]  # type: ignore
+    select_args = (
+        ["--selector", selector] if selector else ["--select", *select]  # type: ignore
+    )
 
     if rebuild:
         dbt_run_args = ["run", "--target", target, *select_args]
