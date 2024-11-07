@@ -12,8 +12,8 @@ from pyathena.pandas.cursor import PandasCursor
 
 # Connect to Athena
 cursor = connect(
-    s3_staging_dir=str(os.getenv("AWS_ATHENA_S3_STAGING_DIR")) + "/",
-    region_name=os.getenv("AWS_REGION"),
+    s3_staging_dir="s3://ccao-athena-results-us-east-1/",
+    region_name="us-east-1",
     cursor_class=PandasCursor,
 ).cursor(unload=True)
 
@@ -23,7 +23,7 @@ def get_asset_info(socrata_asset):
     Simple helper function to retrieve asset-specific information from dbt.
     """
 
-    os.chdir("../dbt")
+    os.chdir("./dbt")
 
     DBT = dbtRunner()
     dbt_list_args = [
@@ -51,7 +51,7 @@ def get_asset_info(socrata_asset):
         if model_dict_str
     ]
 
-    os.chdir("../socrata")
+    os.chdir("..")
 
     model = pd.json_normalize(model)
     model = model[model["label"] == socrata_asset]
@@ -89,17 +89,13 @@ def build_query(athena_asset, row_identifier, years=None, township=None):
     query = f"SELECT {row_identifier}, {', '.join(columns['column'])} FROM {athena_asset}"
 
     if not years:
-        query = query + " LIMIT 1000"
+        query = query
 
     elif years is not None and not township:
-        query += " WHERE year = %(year)s" + " LIMIT 1000"
+        query += " WHERE year = %(year)s"
 
     elif years is not None and township is not None:
-        query += (
-            " WHERE year = %(year)s"
-            + " AND township_code = %(township)s"
-            + " LIMIT 1000"
-        )
+        query += " WHERE year = %(year)s" + " AND township_code = %(township)s"
 
     return query
 
@@ -230,6 +226,13 @@ def socrata_upload(
     year. By default the function will query a given Athena asset by year for
     all years and upload via `post` (update rather than overwrite).
     """
+
+    # Github inputs are passed as strings rather than booleans
+    if isinstance(overwrite, str):
+        overwrite = overwrite == "true"
+
+    if isinstance(by_township, str):
+        by_township = by_township == "true"
 
     athena_asset, asset_id, row_identifier = get_asset_info(socrata_asset)
 

@@ -5,6 +5,9 @@ name: test-dbt-models
 # https://github.com/ccao-data/service-sqoop-iasworld
 on: workflow_dispatch
 
+env:
+  UV_SYSTEM_PYTHON: 1
+
 jobs:
   test-dbt-models:
     runs-on: ubuntu-latest
@@ -22,14 +25,14 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
-      - name: Install Python requirements
-        run: pip install -r scripts/requirements.run_iasworld_data_tests.txt
+      - name: Install Python dependencies
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
+        run: uv pip install ".[dbt_tests]"
 
       - name: Run tests
         run: |
-          python3 scripts/run_iasworld_data_tests.py \
+          python scripts/run_iasworld_data_tests.py \
             --target "$TARGET" \
             --output-dir ./qc_test_results/
         working-directory: ${{ env.PROJECT_DIR }}

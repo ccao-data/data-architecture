@@ -643,7 +643,7 @@ class TestCategory:
 CLI_DESCRIPTION = """Runs iasWorld data tests and generates an Excel workbook of dbt test failures that can be shared with other teams
 for review and correction, along with metadata parquet files that can be uploaded to S3 for long-term result tracking.
 
-This script expects that Python dependencies have been installed from requirements.run_iasworld_data_tests.txt.
+This script expects that Python dependencies have been installed from [project.optional-dependencies].dbt_tests.
 
 Expects one required environment variable to be set:
 

@@ -1,6 +1,0 @@
-openpyxl~=3.1.2
-PyAthena~=3.0.8
-simplejson~=3.19.2
-lxml~=5.1.0
-numpy==1.26.4
-pyarrow==15.0.2
