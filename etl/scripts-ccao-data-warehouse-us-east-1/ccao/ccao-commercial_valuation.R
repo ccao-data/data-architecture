@@ -30,13 +30,15 @@ char_cols <- c(
   "f/r",
   "carwash",
   "ceilingheight",
-  "2023permit/partial/demovalue",
+  "permit/partial/demovalue",
   "file",
   "sheet",
   "model",
   "subclass2",
   "permit/partial/demovaluereason",
-  "townregion"
+  "townregion",
+  "year",
+  "taxdist"
 )
 
 # Declare known integer columns
@@ -51,8 +53,8 @@ int_cols <- c(
   "landsf",
   "studiounits",
   "tot_units",
-  "total2019revreported",
-  "total2020revreported"
+  "totalrevreported",
+  "totallandval"
 )
 
 # Declare columns to remove
@@ -70,8 +72,8 @@ remove_cols <- c(
 
 # Declare all regex syntax for renaming sheet column names as they're ingested
 renames <- c(
-  "\\.|2021|\\$|\\?" = "",
-  "\\.|2024|\\$|\\?" = "",
+  "\\.|[0-9]{4}|\\$|\\?" = "",
+  "additional" = "excess",
   "(^adj)(.*rent.*)" = "adj_rent/sf",
   "adjsales" = "adjsale",
   "hotelclass" = "hotel",
@@ -142,7 +144,7 @@ pmap(function(...) {
   filter(check.numeric(excesslandval)) %>%
   select(where(~ !all(is.na(.x)))) %>%
   # Add useful information to output and clean-up columns ----
-mutate(
+  mutate(
   year = str_extract(file, "[0-9]{4}"),
   township = str_replace_all(
     str_extract(
@@ -165,6 +167,7 @@ mutate(
       "WestChicago" = "West Chicago"
     )
   ),
+  township = coalesce(township, ccao::town_convert(substr(taxdist, 1, 2))),
   across(.cols = everything(), ~ na_if(.x, "N/A")),
   # Ignore known character columns for parse_number
   across(.cols = !char_cols, parse_number),
@@ -181,8 +184,8 @@ mutate(
     .x == "0" ~ NA,
     TRUE ~ str_replace_all(str_squish(.x), " ", ", ")
   )),
-  taxdist = as.character(taxdist),
-  across(int_cols, as.integer)
+  across(int_cols, as.integer),
+  across(char_cols, as.character)
 ) %>%
   # Remove empty columns
   select(where(~ !(all(is.na(.)) | all(. == "")))) %>%
