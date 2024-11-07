@@ -62,6 +62,10 @@ def parse_args():
         required=False,
         help="SQL expression representing a WHERE clause to filter models",
     )
+    parser.add_argument(
+        *constants.OUTPUT_DIR_ARGUMENT_ARGS,
+        **constants.OUTPUT_DIR_ARGUMENT_KWARGS,
+    )
 
     return parser.parse_args()
 
@@ -69,5 +73,10 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
     export_models(
-        args.target, args.select, args.selector, args.rebuild, args.where
+        args.target,
+        args.select,
+        args.selector,
+        args.rebuild,
+        args.where,
+        args.output_dir,
     )

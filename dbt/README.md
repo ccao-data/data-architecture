@@ -740,9 +740,10 @@ environment by running `uv pip install .[dbt_tests]`.
 The script exposes the following options, many of which are the same as
 `export_models`:
 
-* **`--township`** (required): The [township
-  code](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) to use
-  for filtering results.
+* **`--township`** (optional): One or more space-separated [township
+  codes](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) to use
+  for filtering results. If you omit this parameter, the script will default to
+  exporting reports for all towns.
 * **`--year`** (optional): The year to use for filtering results. Defaults to the current year.
 * **`--target`** (optional): The name of the [dbt
   target](https://docs.getdbt.com/reference/dbt-jinja-functions/target) to run
@@ -758,6 +759,8 @@ The script exposes the following options, many of which are the same as
   See [Refreshing iasWorld tables prior to running town close QC
   reports](#refreshing-iasworld-tables-prior-to-running-town-close-qc-reports) for more
   details.
+* **`output-dir`** (optional): The Unix-formatted path to the directory where
+  the script will store output files. Defaults to `./export/output/`.
 
 Assuming a township code defined by `$TOWNSHIP_CODE` and a tax year defined by
 `$TAXYR`, the following command will generate town close reports for the township/year combo:
@@ -770,6 +773,12 @@ You can omit the `--year` flag and the script will default to the current year o
 
 ```
 python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE"
+```
+
+Omit all options to generate reports for all towns in the current year:
+
+```
+python3 scripts/export_qc_town_close_reports.py
 ```
 
 In both cases, the script will output the reports to the `dbt/export/output/`
