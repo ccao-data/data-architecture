@@ -15,6 +15,14 @@ MV 08/18/2024.
 **Primary Key**: `pin`, `year`
 {% enddocs %}
 
+# cc_pifdb_piexemptre_ownr
+
+{% docs table_cc_pifdb_piexemptre_ownr %}
+Legacy homestead exemption data pulled by BoT. Provided via MV 10/01/2024.
+
+**Primary Key**: `pin`, `year`
+{% enddocs %}
+
 # cc_pifdb_piexemptre_sted
 
 {% docs table_cc_pifdb_piexemptre_sted %}

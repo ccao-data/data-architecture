@@ -923,12 +923,14 @@ models:
           - name: Dwelling % Change
             index: Z
             horizontal_align: right
+            number_format: "0.00%"
           - name: Sale Date
             index: AA
             horizontal_align: right
           - name: Total % Change
             index: U
             horizontal_align: right
+            number_format: "0.00%"
 
   - name: qc.vw_report_town_close_res_multicodes
     description: '{{ doc("view_vw_report_town_close_res_multicodes") }}'

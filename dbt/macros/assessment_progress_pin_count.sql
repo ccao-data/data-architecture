@@ -1,4 +1,4 @@
--- Macros that counts the number of the number of PINs with values and the total
+-- Macro that counts the number of the number of PINs with values and the total
 -- number of PINs by a year, stage, and a given geography.
 {% macro assessment_progress_pin_count(from, geo_type, column_name) %}
     select

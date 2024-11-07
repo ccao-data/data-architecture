@@ -9,68 +9,6 @@ WITH correct_class AS (
         deactivat,
         cur
     FROM {{ source('iasworld', 'pardat') }}
-),
-
-/* This CTE creates our AHSAP indicator. It's a function of multiple columns
-from multiple iasWorld tables having a variety of values. We group by parid and
-taxyr, and use MAX() since most of these tables are NOT unique by parcel and
-year while the view is. Therefore, if any part of a parcel (card, lline, etc.)
-triggers AHSAP status, the parcel as a whole will be identified as AHSAP (since
-TRUE > FALSE). user columns with "AI" prefixes that trigger AHSAP status are
-'alternative CDU' and user columns with "SAP" prefixes that trigger AHSAP status
-are 'incentive number'. comdat.user13 is 'subclass 2'.
-
-For an explanation of AHSAP and insight into why it involves so many different
-iasWorld tables, see: https://www.cookcountyassessor.com/affordable-housing */
-ahsap AS (
-    SELECT
-        par.parid,
-        par.taxyr,
-        MAX(COALESCE(
-            land.infl1 IN ('30', '31', '32') OR SUBSTR(land.user7, 1, 3) = 'SAP'
-            OR SUBSTR(oby.user16, 1, 2) = 'AI'
-            OR SUBSTR(oby.user3, 1, 3) = 'SAP'
-            OR SUBSTR(com.user16, 1, 2) = 'AI'
-            OR SUBSTR(com.user4, 1, 3) = 'SAP'
-            OR com.user13 IN ('49', '50', '51')
-            OR aprval.ecf IS NOT NULL
-            OR SUBSTR(dwel.user16, 1, 2) = 'AI'
-            OR admn.excode = 'INCV', FALSE
-        )) AS ahsap
-    FROM {{ source('iasworld', 'pardat') }} AS par
-    LEFT JOIN {{ source('iasworld', 'comdat') }} AS com
-        ON par.parid = com.parid
-        AND par.taxyr = com.taxyr
-        AND com.cur = 'Y'
-        AND com.deactivat IS NULL
-    LEFT JOIN {{ source('iasworld', 'dweldat') }} AS dwel
-        ON par.parid = dwel.parid
-        AND par.taxyr = dwel.taxyr
-        AND dwel.cur = 'Y'
-        AND dwel.deactivat IS NULL
-    LEFT JOIN {{ source('iasworld', 'oby') }} AS oby
-        ON par.parid = oby.parid
-        AND par.taxyr = oby.taxyr
-        AND oby.cur = 'Y'
-        AND oby.deactivat IS NULL
-    LEFT JOIN {{ source('iasworld', 'land') }} AS land
-        ON par.parid = land.parid
-        AND par.taxyr = land.taxyr
-        AND land.cur = 'Y'
-        AND land.deactivat IS NULL
-    LEFT JOIN {{ source('iasworld', 'aprval') }} AS aprval
-        ON par.parid = aprval.parid
-        AND par.taxyr = aprval.taxyr
-        AND aprval.cur = 'Y'
-        AND aprval.deactivat IS NULL
-    LEFT JOIN {{ source('iasworld', 'exadmn') }} AS admn
-        ON par.parid = admn.parid
-        AND par.taxyr = admn.taxyr
-        AND admn.cur = 'Y'
-        AND admn.deactivat IS NULL
-    WHERE par.cur = 'Y'
-        AND par.deactivat IS NULL
-    GROUP BY par.parid, par.taxyr
 )
 
 SELECT
@@ -88,7 +26,7 @@ SELECT
     correct.class,
     groups.reporting_class_code AS major_class,
     groups.modeling_group AS property_group,
-    ahsap.ahsap,
+    ahsap.is_ahsap,
     CASE
         WHEN
             MOD(CAST(correct.taxyr AS INT), 3) = 0
@@ -105,9 +43,9 @@ SELECT
         ELSE FALSE
     END AS reassessment_year
 FROM correct_class AS correct
-LEFT JOIN ahsap
-    ON correct.parid = ahsap.parid
-    AND correct.taxyr = ahsap.taxyr
+LEFT JOIN {{ ref('default.vw_pin_status') }} AS ahsap
+    ON correct.parid = ahsap.pin
+    AND correct.taxyr = ahsap.year
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     ON correct.parid = leg.parid
     AND correct.taxyr = leg.taxyr

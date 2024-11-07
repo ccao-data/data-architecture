@@ -15,7 +15,7 @@ DBT = dbtRunner()
 
 CLI_DESCRIPTION = """Export town close QC reports to Excel files.
 
-Expects dependencies from requirements.txt (dbt dependencies) and scripts/requirements.export_models.txt (script dependencies) be installed.
+Expects dependencies from [project].dependencies (dbt dependencies) and [project.optional-dependencies].dbt_tests (script dependencies) be installed.
 
 The queries that generate these reports run against our data warehouse, which ingests data from iasWorld overnight once daily. Sometimes a
 staff member will request a report during the middle of the workday, and they will need the most recent data, which will not exist in
@@ -193,10 +193,10 @@ def main():
 
             iasworld_deps[table_name] = formatted_dep
 
-        print("ssh into the server and run the following commands:")
+        print("Run the following commands on the Data Team server:")
         print()
         print("cd /home/shiny-server/services/service-spark-iasworld")
-        print("docker-compose up -d")
+        print("docker compose up -d")
         print(
             "docker exec spark-node-master ./submit.sh "
             "--no-run-github-workflow "
