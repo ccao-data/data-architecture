@@ -32,7 +32,9 @@ def export_models(
     `export/output/`.
 
     Convenience function that wraps the lower-level `query_models_for_export`
-    and `save_model_to_workbook` functions.
+    and `save_model_to_workbook` functions. Use those functions directly if
+    you would like to further modify query results or output configurations
+    between the query step and the save step.
 
     Arguments:
 
@@ -60,7 +62,8 @@ def export_models(
     )
     output_paths: list[pathlib.Path] = []
     for model in models_for_export:
-        output_paths.append(save_model_to_workbook(model, output_dir))
+        output_path = save_model_to_workbook(model, output_dir)
+        output_paths.append(output_path)
     return output_paths
 
 
@@ -177,6 +180,7 @@ def query_models_for_export(
         ),
         region_name=os.getenv("AWS_ATHENA_REGION_NAME", "us-east-1"),
         cursor_class=pyathena.pandas.cursor.PandasCursor,
+        # Unload query results to speed up execution times
     ).cursor(unload=True)
 
     models_for_export: list[ModelForExport] = []
@@ -242,7 +246,7 @@ def save_model_to_workbook(
     )
     output_path = output_dirpath / model.export_filename
 
-    # Delete the output file if one already exists
+    # Delete the old version of the output file if one already exists
     output_path.unlink(missing_ok=True)
 
     template_exists = os.path.isfile(model.template_path)

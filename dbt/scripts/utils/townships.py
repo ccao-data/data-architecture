@@ -19,7 +19,7 @@ class Township:
         return str(((year - 2024) % 3) + 1) == self.tri_code
 
 
-# Instantiate a list of townships
+# Instantiate a canonical list of townships
 township_attrs = [
     # township_code, township_name, tri_code, tri_name
     ("10", "Barrington", "2", "North"),

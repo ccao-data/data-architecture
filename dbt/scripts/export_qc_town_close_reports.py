@@ -22,8 +22,6 @@ from utils.townships import (
 )
 
 DBT = dbtRunner()
-CURRENT_YEAR = datetime.datetime.now().year
-CURRENT_DATE = datetime.datetime.now().date()
 
 CLI_DESCRIPTION = """Export town close QC reports to Excel files.
 
@@ -75,7 +73,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--year",
         required=False,
-        default=CURRENT_YEAR,
+        default=datetime.datetime.now().year,
         type=int,
         help="Tax year to use in filtering query results. Defaults to the current year",
     )
@@ -107,6 +105,10 @@ def main():
     )
 
     # Determine which dbt tags to select based on the tri status of each town
+    # (i.e. whether the town is up for reassessment in the given year).
+    # Models that apply to both tri and non-tri towns use the tag
+    # `qc_report_town_close`, while tri and non-tri towns add a suffix to this
+    # base tag (`_tri` and `_non_tri`, respectively)
     base_tag = "tag:qc_report_town_close"
     tags = {base_tag}
     for town in townships:
@@ -118,7 +120,7 @@ def main():
 
     if args.print_table_refresh_command:
         # Use `dbt list` on parents to calculate the update command for
-        # iasworld sources that are dependencies for the models we want to
+        # iasWorld sources that are dependencies for the models we want to
         # export
         dbt_list_args = [
             "--quiet",
@@ -234,7 +236,8 @@ def main():
                 }
                 town_model = ModelForExport(**town_model_args)
 
-                # Save query results to file
+                # Save query results to file, with a dedicated subdirectory
+                # for each town if we're exporting more than one town
                 print(f"Exporting {model.name} for {town.township_name}")
                 town_output_dirpath = (
                     pathlib.Path(output_dir)
