@@ -3,7 +3,7 @@ name: build-daily-dbt-models
 on:
   workflow_dispatch:
   schedule:
-    # Every day at 8am (2pm UTC-5)
+    # Every day at 12pm UTC (7am UTC-5)
     - cron: '0 12 * * *'
 
 jobs:
