@@ -728,13 +728,16 @@ resolve ambiguous cases:
 
 #### Running non-iasWorld data tests
 
-Non-iasWorld data tests currently only run in the `build-and-test-dbt` GitHub
-workflow as part of our CI suite when their model or test definition changes
-during a PR or commit to the main branch. In the future, we plan to schedule a
-workflow to run these tests on a weekly basis so that we get alerted to
-failures faster.
+There are two different times in which non-iasWorld data tests run
+automatically:
 
-Run the tests locally using the `select_data_test_non_iasworld` selector:
+1. In the `build-and-test-dbt` GitHub workflow as part of our CI suite when
+   a test's model changes, or when the test itself changes
+2. Once per week in the `test-dbt-models` GitHub workflow, to proactively warn
+   the team about any data problems that we need to fix
+
+You can also run the tests locally using the `select_data_test_non_iasworld`
+selector:
 
 ```bash
 dbt test --selector select_data_test_non_iasworld
