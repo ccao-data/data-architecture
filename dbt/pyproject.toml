@@ -4,8 +4,8 @@ version = "0.0.1"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-  "dbt-athena-community==1.8.2",
-  "dbt-core==1.8.3",
+  "dbt-athena-community==1.8.4",
+  "dbt-core==1.8.8",
 ]
 
 [project.optional-dependencies]
