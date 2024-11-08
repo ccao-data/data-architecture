@@ -24,23 +24,30 @@ distinct_pins AS (
 ),
 
 ranked_nearest_local AS (
-    SELECT
-        pcl.pin10,
-        xy.year,
-        xy.road_name AS nearest_local_road_name,
-        xy.dist_ft AS nearest_local_road_dist_ft,
-        xy.year AS nearest_local_road_data_year,
-        xy.daily_traffic AS nearest_local_road_daily_traffic,
-        xy.speed_limit AS nearest_local_road_speed_limit,
-        xy.surface_type AS nearest_local_road_surface_type,
-        xy.lanes AS nearest_local_road_lanes,
-        ROW_NUMBER()
-            OVER (PARTITION BY pcl.pin10, xy.year ORDER BY xy.dist_ft)
-            AS row_num
-    FROM distinct_pins AS pcl
-    INNER JOIN ( {{ dist_to_nearest_geometry('traffic_local') }} ) AS xy
-        ON pcl.x_3435 = xy.x_3435
-        AND pcl.y_3435 = xy.y_3435
+    {% for partition_num in range(1, 21) %}
+        SELECT
+            pcl.pin10,
+            xy.year,
+            xy.road_name AS nearest_local_road_name,
+            xy.dist_ft AS nearest_local_road_dist_ft,
+            xy.year AS nearest_local_road_data_year,
+            xy.daily_traffic AS nearest_local_road_daily_traffic,
+            xy.speed_limit AS nearest_local_road_speed_limit,
+            xy.surface_type AS nearest_local_road_surface_type,
+            xy.lanes AS nearest_local_road_lanes,
+            ROW_NUMBER()
+                OVER (PARTITION BY pcl.pin10, xy.year ORDER BY xy.dist_ft)
+                AS row_num
+        FROM distinct_pins AS pcl
+        INNER JOIN (
+            {{ dist_to_nearest_geometry('traffic_local') }}
+        ) AS xy
+            ON pcl.x_3435 = xy.x_3435
+            AND pcl.y_3435 = xy.y_3435
+        WHERE xy.partition_num = {{ partition_num }}
+
+        {% if not loop.last %} UNION ALL {% endif %}
+    {% endfor %}
 ),
 
 nearest_local AS (
@@ -58,4 +65,4 @@ nearest_local AS (
     WHERE row_num = 1
 )
 
-SELECT * FROM nearest_local;
+SELECT * FROM nearest_local
