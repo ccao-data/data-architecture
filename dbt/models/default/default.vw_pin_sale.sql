@@ -296,7 +296,8 @@ combined_sales AS (
             OR YEAR(uq_sales.sale_date) >= 2021,
             FALSE
         ) AS is_mydec_date,
-        COALESCE(uq_sales.sale_filter_same_iasworld_sale_within_365, FALSE) AS sale_filter_same_iasworld_sale_within_365,
+        COALESCE(uq_sales.sale_filter_same_iasworld_sale_within_365, FALSE)
+            AS sale_filter_same_iasworld_sale_within_365,
         COALESCE(uq_sales.sale_price, md_sales.sale_price)
             AS sale_price_coalesced, --noqa
         uq_sales.sale_key,
