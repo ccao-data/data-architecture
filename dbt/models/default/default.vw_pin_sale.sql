@@ -427,6 +427,7 @@ SELECT
     afs.buyer_name_coalesced AS buyer_name,
     afs.sale_type_coalesced AS sale_type,
     afs.sale_filter_same_sale_within_365,
+    sale_filter_same_iasworld_sale_within_365,
     afs.sale_filter_less_than_10k,
     afs.sale_filter_deed_type,
     -- Our sales validation pipeline only validates sales past 2014 due to MyDec
