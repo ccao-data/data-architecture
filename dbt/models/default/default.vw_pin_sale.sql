@@ -369,28 +369,28 @@ add_filter_sales AS (
             ELSE FALSE
         END AS sale_filter_same_sale_within_365,
         CASE
-            WHEN cte_s.source = 'iasworld' THEN
+            WHEN cs.source = 'iasworld' THEN
                 CASE
-                    WHEN LAG(cte_s.sale_date_coalesced) OVER (
+                    WHEN LAG(cs.sale_date_coalesced) OVER (
                             PARTITION BY
-                                cte_s.pin_coalesced,
-                                cte_s.sale_price_coalesced,
-                                cte_s.deed_type_ias NOT IN ('03', '04', '06'),
-                                cte_s.source
-                            ORDER BY cte_s.sale_date_coalesced ASC, cte_s.sale_key ASC
+                                cs.pin_coalesced,
+                                cs.sale_price_coalesced,
+                                cs.deed_type_ias NOT IN ('03', '04', '06'),
+                                cs.source
+                            ORDER BY cs.sale_date_coalesced ASC, cs.sale_key ASC
                         ) IS NOT NULL
                     THEN
                         DATE_DIFF(
                             'day',
-                            LAG(cte_s.sale_date_coalesced) OVER (
+                            LAG(cs.sale_date_coalesced) OVER (
                                 PARTITION BY
-                                    cte_s.pin_coalesced,
-                                    cte_s.sale_price_coalesced,
-                                    cte_s.deed_type_ias NOT IN ('03', '04', '06'),
-                                    cte_s.source
-                                ORDER BY cte_s.sale_date_coalesced ASC, cte_s.sale_key ASC
+                                    cs.pin_coalesced,
+                                    cs.sale_price_coalesced,
+                                    cs.deed_type_ias NOT IN ('03', '04', '06'),
+                                    cs.source
+                                ORDER BY cs.sale_date_coalesced ASC, cs.sale_key ASC
                             ),
-                            cte_s.sale_date_coalesced
+                            cs.sale_date_coalesced
                         ) <= 365
                     ELSE FALSE
                 END
