@@ -344,26 +344,14 @@ combined_sales AS (
         AND COALESCE(uq_sales.year, md_sales.year) = tc.taxyr
 ),
 
--- Create CTE with iasworld data and compute lag
-iasworld_sales_with_lag AS (
-    SELECT
-        cs_iasworld.*,
-        LAG(cs_iasworld.sale_date_coalesced) OVER (
-            PARTITION BY
-                cs_iasworld.pin_coalesced,
-                cs_iasworld.sale_price_coalesced,
-                cs_iasworld.deed_type_ias NOT IN ('03', '04', '06')
-            ORDER BY cs_iasworld.sale_date_coalesced ASC, cs_iasworld.sale_key ASC
-        ) AS previous_sale_date_iasworld
-    FROM combined_sales AS cs_iasworld
-    WHERE cs_iasworld.source = 'iasworld'
-),
-
--- Adjust add_filter_sales CTE
+-- Handle various filters 
 add_filter_sales AS (
     SELECT
         cs.*,
-        -- Existing calculations for sale_filter_same_sale_within_365
+        -- Calculate 'sale_filter_same_sale_within_365' using DATE_DIFF
+        -- Note: the sale_filter_same_sale_within_365 uses both iasworld
+        -- and mydec doc numbers for the calculation. So if we were to set
+        -- source = 'iasworld', mydec sales will still influence this filter
         CASE
             WHEN LAG(cs.sale_date_coalesced) OVER (
                     PARTITION BY cs.pin_coalesced, cs.sale_price_coalesced
@@ -381,37 +369,45 @@ add_filter_sales AS (
                 ) <= 365
             ELSE FALSE
         END AS sale_filter_same_sale_within_365,
-        -- Use previous_sale_date_iasworld from the new CTE
         CASE
             WHEN cs.source = 'iasworld' THEN
                 CASE
-                    WHEN ias.previous_sale_date_iasworld IS NOT NULL
+                    WHEN LAG(cs.sale_date_coalesced) OVER (
+                            PARTITION BY
+                                cs.pin_coalesced,
+                                cs.sale_price_coalesced,
+                                cs.deed_type_ias NOT IN ('03', '04', '06'),
+                                cs.source
+                            ORDER BY cs.sale_date_coalesced ASC, cs.sale_key ASC
+                        ) IS NOT NULL
                     THEN
                         DATE_DIFF(
                             'day',
-                            ias.previous_sale_date_iasworld,
+                            LAG(cs.sale_date_coalesced) OVER (
+                                PARTITION BY
+                                    cs.pin_coalesced,
+                                    cs.sale_price_coalesced,
+                                    cs.deed_type_ias NOT IN ('03', '04', '06'),
+                                    cs.source
+                                ORDER BY cs.sale_date_coalesced ASC, cs.sale_key ASC
+                            ),
                             cs.sale_date_coalesced
                         ) <= 365
                     ELSE FALSE
                 END
             ELSE
+                -- For other sources, default to FALSE or use appropriate logic
                 FALSE
         END AS sale_filter_same_iasworld_sale_within_365,
-        -- Other existing computations
+        -- Compute 'sale_filter_less_than_10k'
         (cs.sale_price_coalesced <= 10000) AS sale_filter_less_than_10k,
+        -- Compute 'sale_filter_deed_type'
         (
             cs.deed_type_coalesced IN ('03', '04', '06')
             OR cs.deed_type_coalesced IS NULL
         ) AS sale_filter_deed_type
     FROM combined_sales AS cs
-    LEFT JOIN iasworld_sales_with_lag AS ias
-        ON cs.pin_coalesced = ias.pin_coalesced
-        AND cs.sale_date_coalesced = ias.sale_date_coalesced
-        AND cs.sale_price_coalesced = ias.sale_price_coalesced
-        AND cs.deed_type_ias = ias.deed_type_ias
-        AND cs.sale_key = ias.sale_key
 )
-
 
 SELECT
     afs.pin_coalesced AS pin,
