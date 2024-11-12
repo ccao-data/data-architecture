@@ -49,7 +49,16 @@ unique_sales AS (
                 sale_date
             ) <= 365,
             FALSE
-        ) AS sale_filter_same_sale_within_365
+        ) AS sale_filter_same_sale_within_365,
+        -- Compute sale_filter_same_iasworld_sale_within_365 using the same logic
+        COALESCE(
+            DATE_DIFF(
+                'day',
+                same_price_earlier_date,
+                sale_date
+            ) <= 365,
+            FALSE
+        ) AS sale_filter_same_iasworld_sale_within_365
     FROM (
         SELECT
             sales.parid AS pin,
@@ -99,9 +108,9 @@ unique_sales AS (
             -- iasworld.sales since it prevents us from joining to mydec sales.
             -- This creates one instance where we have duplicate document
             -- numbers, so we sort by sale date (specifically to avoid conflicts
-            -- with detecting the easliest duplicate sale when there are
+            -- with detecting the earliest duplicate sale when there are
             -- multiple within one document number, within a year) within the
-            -- new doument number to identify and remove the sale causing the
+            -- new document number to identify and remove the sale causing the
             -- duplicate document number.
             ROW_NUMBER() OVER (
                 PARTITION BY
@@ -112,7 +121,7 @@ unique_sales AS (
             ) AS bad_doc_no,
             -- Some pins sell for the exact same price a few months after
             -- they're sold (we need to make sure to only include deed types we
-            -- want). These sales are unecessary for modeling and may be
+            -- want). These sales are unnecessary for modeling and may be
             -- duplicates. We need to order by salekey as well in case of any
             -- ties within price, date, and pin.
             LAG(DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) OVER (
@@ -287,6 +296,7 @@ combined_sales AS (
             OR YEAR(uq_sales.sale_date) >= 2021,
             FALSE
         ) AS is_mydec_date,
+        COALESCE(uq_sales.sale_filter_same_iasworld_sale_within_365, FALSE) AS sale_filter_same_iasworld_sale_within_365,
         COALESCE(uq_sales.sale_price, md_sales.sale_price)
             AS sale_price_coalesced, --noqa
         uq_sales.sale_key,
@@ -369,36 +379,6 @@ add_filter_sales AS (
                 ) <= 365
             ELSE FALSE
         END AS sale_filter_same_sale_within_365,
-        CASE
-            WHEN cs.source = 'iasworld' THEN
-                CASE
-                    WHEN LAG(cs.sale_date_coalesced) OVER (
-                            PARTITION BY
-                                cs.pin_coalesced,
-                                cs.sale_price_coalesced,
-                                cs.deed_type_ias NOT IN ('03', '04', '06'),
-                                cs.source
-                            ORDER BY cs.sale_date_coalesced ASC, cs.sale_key ASC
-                        ) IS NOT NULL
-                    THEN
-                        DATE_DIFF(
-                            'day',
-                            LAG(cs.sale_date_coalesced) OVER (
-                                PARTITION BY
-                                    cs.pin_coalesced,
-                                    cs.sale_price_coalesced,
-                                    cs.deed_type_ias NOT IN ('03', '04', '06'),
-                                    cs.source
-                                ORDER BY cs.sale_date_coalesced ASC, cs.sale_key ASC
-                            ),
-                            cs.sale_date_coalesced
-                        ) <= 365
-                    ELSE FALSE
-                END
-            ELSE
-                -- For other sources, default to FALSE or use appropriate logic
-                FALSE
-        END AS sale_filter_same_iasworld_sale_within_365,
         -- Compute 'sale_filter_less_than_10k'
         (cs.sale_price_coalesced <= 10000) AS sale_filter_less_than_10k,
         -- Compute 'sale_filter_deed_type'
