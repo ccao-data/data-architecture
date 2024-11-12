@@ -368,6 +368,36 @@ add_filter_sales AS (
                 ) <= 365
             ELSE FALSE
         END AS sale_filter_same_sale_within_365,
+        CASE
+            WHEN cte_s.source = 'iasworld' THEN
+                CASE
+                    WHEN LAG(cte_s.sale_date_coalesced) OVER (
+                            PARTITION BY
+                                cte_s.pin_coalesced,
+                                cte_s.sale_price_coalesced,
+                                cte_s.deed_type_ias NOT IN ('03', '04', '06'),
+                                cte_s.source
+                            ORDER BY cte_s.sale_date_coalesced ASC, cte_s.sale_key ASC
+                        ) IS NOT NULL
+                    THEN
+                        DATE_DIFF(
+                            'day',
+                            LAG(cte_s.sale_date_coalesced) OVER (
+                                PARTITION BY
+                                    cte_s.pin_coalesced,
+                                    cte_s.sale_price_coalesced,
+                                    cte_s.deed_type_ias NOT IN ('03', '04', '06'),
+                                    cte_s.source
+                                ORDER BY cte_s.sale_date_coalesced ASC, cte_s.sale_key ASC
+                            ),
+                            cte_s.sale_date_coalesced
+                        ) <= 365
+                    ELSE FALSE
+                END
+            ELSE
+                -- For other sources, default to FALSE or use appropriate logic
+                FALSE
+        END AS sale_filter_same_iasworld_sale_within_365,
         -- Compute 'sale_filter_less_than_10k'
         (cs.sale_price_coalesced <= 10000) AS sale_filter_less_than_10k,
         -- Compute 'sale_filter_deed_type'
