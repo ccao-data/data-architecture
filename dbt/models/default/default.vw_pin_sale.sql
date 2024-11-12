@@ -50,7 +50,7 @@ unique_sales AS (
             ) <= 365,
             FALSE
         ) AS sale_filter_same_sale_within_365,
-        -- Compute sale_filter_same_iasworld_sale_within_365 using the same logic
+        -- Compute sale_filter_same_iasworld_sale_within_365 using the same logic --noqa
         COALESCE(
             DATE_DIFF(
                 'day',
@@ -58,7 +58,7 @@ unique_sales AS (
                 sale_date
             ) <= 365,
             FALSE
-        ) AS sale_filter_same_iasworld_sale_within_365
+        ) AS sale_filter_same_iasworld_sale_within_365 --noqa
     FROM (
         SELECT
             sales.parid AS pin,
@@ -410,12 +410,12 @@ SELECT
     afs.buyer_name_coalesced AS buyer_name,
     afs.sale_type_coalesced AS sale_type,
     afs.sale_filter_same_sale_within_365,
-    sale_filter_same_iasworld_sale_within_365,
+    afs.sale_filter_same_iasworld_sale_within_365,
     afs.sale_filter_less_than_10k,
     afs.sale_filter_deed_type,
     -- Our sales validation pipeline only validates sales past 2014 due to MyDec
     -- limitations. Previous to that values for sv_is_outlier will be NULL, so
-    -- if we want to both exclude detected outliers and include sales prior to
+    -- if we want to both exclude detected outliers and include ssales prior to
     -- 2014, we need to code everything NULL as FALSE.
     COALESCE(sales_val.sv_is_outlier, FALSE) AS sale_filter_is_outlier,
     afs.mydec_deed_type,
