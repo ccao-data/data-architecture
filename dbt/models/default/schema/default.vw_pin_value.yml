@@ -23,6 +23,11 @@ models:
         description: '{{ doc("shared_column_certified_bldg") }}'
       - name: certified_class
         description: '{{ doc("shared_column_certified_class") }}'
+        data_tests:
+          - is_null:
+              name: default_vw_pin_value_certified_class_is_null_when_pre_certified
+              config:
+                where: stage_name = 'ASSESSOR PRE-CERTIFIED'
       - name: certified_land
         description: '{{ doc("shared_column_certified_land") }}'
       - name: certified_land_mv
@@ -39,6 +44,15 @@ models:
         description: '{{ doc("shared_column_mailed_bldg") }}'
       - name: mailed_class
         description: '{{ doc("shared_column_mailed_class") }}'
+        data_tests:
+          - is_null:
+              name: default_vw_pin_value_mailed_class_is_null_when_pre_mailed
+              config:
+                where: stage_name = 'PRE-MAILED'
+          - not_null:
+              name: default_vw_pin_value_mailed_class_not_null_when_pre_certified
+              config:
+                where: stage_name = 'ASSESSOR PRE-CERTIFIED'
       - name: mailed_land
         description: '{{ doc("shared_column_mailed_land") }}'
       - name: mailed_land_mv
@@ -53,16 +67,27 @@ models:
         description: |
           Name of currently active/open stages.
 
-          One of `MAILED`, `ASSESSOR CERTIFIED`, or `BOARD CERTIFIED`
+          The possible values include:
+
+          - `PRE-MAILED`
+          - `MAILED`
+          - `ASSESSOR PRE-CERTIFIED`
+          - `ASSESSOR CERTIFIED`
+          - `BOARD CERTIFIED`
+        data_tests:
+          - not_null:
+              name: default_vw_pin_value_stage_name_not_null
       - name: stage_num
         description: |
           Number of currently active/open stages.
 
           The possible values include:
 
+          - `0` = Pre-mailed
           - `1` = Mailed
-          - `2` = Certified
-          - `3` = Board
+          - `1.5` = Assessor pre-certified
+          - `2` = Assessor certified
+          - `3` = Board certified
       - name: year
         description: '{{ doc("shared_column_year") }}'
 
@@ -136,3 +161,24 @@ models:
         combination_of_columns:
           - pin
           - year
+    - expression_is_true:
+        name: default_vw_pin_value_class_is_null_when_values_are_null
+        expression: |
+          {% set stages = ['pre_mailed', 'mailed', 'pre_certified', 'certified', 'board'] %}
+          {% set cols = ['bldg', 'land', 'tot', 'bldg_mv', 'land_mv', 'tot_mv'] %}
+
+          {% for stage in  stages %}
+            {% for null_status in ['IS NULL', 'IS NOT NULL'] %}
+              (
+                {{ stage }}_class {{ null_status }}
+                AND (
+                  {% for col in cols %}
+                    {{ stage }}_{{ col }} {{ null_status }}
+                    {% if not loop.last %}AND{% endif %}
+                  {% endfor %}
+                )
+              )
+              {% if not loop.last %}OR{% endif %}
+            {% endfor %}
+            {% if not loop.last %}OR{% endif %}
+          {% endfor %}
