@@ -1,6 +1,0 @@
-pandas~=2.2.2
-pyarrow~=17.0.0
-PyAthena~=3.9.0
-requests~=2.32.3
-dbt-athena-community~=1.8.4
-dbt-core~=1.8.6
