@@ -11,7 +11,7 @@
 -- Get a list of completed stages for all PINs in all years. This will allow us
 -- to disambiguate pre-mailed values from pre-certified values based on which
 -- stages are present for which PINs (i.e. if CCAOVALUE is present, the value
--- cannot be pre-mail)
+-- cannot be pre-mail, since we have already mailed a value for the PIN)
 WITH stages AS (
     SELECT
         parid,

@@ -134,6 +134,11 @@ models:
           error_if: ">15"
     - expression_is_true:
         name: default_vw_pin_value_class_is_null_when_values_are_null
+        meta:
+          description: >
+            Test that the 'class' column for each assessment stage is null
+            whenever the value columns for that stage are null, which is an
+            assumption that downstream consumers of this view depend upon
         expression: |
           {% set stages = ['pre_mailed', 'mailed', 'pre_certified', 'certified', 'board'] %}
           {% set cols = ['bldg', 'land', 'tot', 'bldg_mv', 'land_mv', 'tot_mv'] %}

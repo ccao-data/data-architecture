@@ -3,7 +3,7 @@
 
 -- List of types of columns that we will extract when pivoting vw_pin_value
 -- from wide to long
-{% set coltypes = [
+{% set cols = [
     "class", "bldg", "land", "tot", "bldg_mv", "land_mv", "tot_mv"
 ] %}
 
@@ -31,19 +31,19 @@ WITH stage_values AS (
                 'ASSESSOR PRE-CERTIFIED',
                 'ASSESSOR CERTIFIED',
                 -- This is a slightly different stage name from the name that
-                -- we use in vw_pin-value ('BOARD CERTIFIED'). At some point
+                -- we use in vw_pin_value ('BOARD CERTIFIED'). At some point
                 -- we may want to align these names, but for now we maintain
-                -- the difference for the sake of downstream data consumers
+                -- the difference for legacy compatibility
                 'BOR CERTIFIED'
             ],
             ARRAY[0, 1, 1.5, 2, 3],
-            {% for coltype in coltypes %}
+            {% for col in cols %}
                 ARRAY[
-                    pre_mailed_{{ coltype }},
-                    mailed_{{ coltype }},
-                    pre_certified_{{ coltype }},
-                    certified_{{ coltype }},
-                    board_{{ coltype }}
+                    pre_mailed_{{ col }},
+                    mailed_{{ col }},
+                    pre_certified_{{ col }},
+                    certified_{{ col }},
+                    board_{{ col }}
                 ]
                 {% if not loop.last %},{% endif %}
             {% endfor %}
@@ -51,8 +51,8 @@ WITH stage_values AS (
             AS t2 (
                 stage_name,
                 stage_num,
-                {% for coltype in coltypes %}
-                    {{ coltype }}{% if not loop.last %},{% endif %}
+                {% for col in cols %}
+                    {{ col }}{% if not loop.last %},{% endif %}
                 {% endfor %}
             )
     -- Since we're enumerating the valid stage names by hand, rather than
@@ -61,7 +61,9 @@ WITH stage_values AS (
     -- have a value for a particular stage in a given year. Checking for a null
     -- class is one way of doing that, since it means the `pre_{stage}_class`
     -- column is null, which should only be possible in cases where that stage
-    -- doesn't exist for the PIN/year
+    -- doesn't exist for the PIN/year. Note that we test this assumption with
+    -- a data test (`default_vw_pin_value_class_is_null_when_values_are_null`)
+    -- to ensure that it doesn't change in the future
     WHERE t2.class IS NOT NULL
 )
 
