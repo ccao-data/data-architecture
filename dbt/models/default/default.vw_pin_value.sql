@@ -384,8 +384,26 @@ stage_values AS (
         ON asmt.parid = stages.parid
         AND asmt.taxyr = stages.taxyr
     WHERE (
-        (asmt.cur = 'Y' AND asmt.procname IS NULL)
-        OR asmt.procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+        -- Check for two possible situations: Either the record is stamped
+        -- with a procname corresponding to a stage, in which case the record
+        -- corresponds to a final value for a stage, or the procname is null
+        -- and other fields indicate that it is a provisional value for an
+        -- upcoming stage
+        asmt.procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+        OR (
+            asmt.procname IS NULL
+            AND asmt.cur = 'Y'
+            AND (
+                -- If the PIN has no stages but its year is not the current
+                -- assessment year, it is likely a data error from a prior
+                -- year that we don't want to include in our results. In
+                -- contrast, if the PIN is in the current year but has no
+                -- stages, it is most likely a provisional value for a PIN
+                -- that has not mailed yet
+                CARDINALITY(stages.procnames) != 0
+                OR asmt.taxyr = DATE_FORMAT(NOW(), '%Y')
+            )
+        )
     )
     AND asmt.rolltype != 'RR'
     AND asmt.deactivat IS NULL
