@@ -1,76 +1,69 @@
 -- View containing values from each stage of assessment by PIN and year
 -- in long format
 
--- CCAO mailed, CCAO final, and BOR final values for each PIN by year.
--- We use ARBITRARY functions here to deduplicate PINs with multiple rows for
--- a given stage/pin/year combination. Values are always the same within these
--- duplicates.
+-- List of types of columns that we will extract when pivoting vw_pin_value
+-- from wide to long
+{% set coltypes = [
+    "class", "bldg", "land", "tot", "bldg_mv", "land_mv", "tot_mv"
+] %}
+
+-- Pivot vw_pin_value from wide to long, so that we create one row for each
+-- assessment stage with values pulled from the column types we defined above
 WITH stage_values AS (
     SELECT
-        parid,
-        taxyr,
-        REGEXP_REPLACE(class, '[^[:alnum:]]', '') AS class,
-        procname,
-        ARBITRARY(
-            CASE
-                WHEN taxyr < '2020' THEN ovrvalasm2
-                WHEN taxyr >= '2020' THEN valasm2
-            END
-        ) AS bldg,
-        ARBITRARY(
-            CASE
-                WHEN taxyr < '2020' THEN ovrvalasm1
-                WHEN taxyr >= '2020' THEN valasm1
-            END
-        ) AS land,
-        ARBITRARY(
-            CASE
-                WHEN taxyr < '2020' THEN ovrvalasm3
-                WHEN taxyr >= '2020' THEN valasm3
-            END
-        ) AS tot,
-        ARBITRARY(
-            CASE
-                WHEN taxyr < '2020' THEN NULL
-                WHEN taxyr >= '2020' THEN valapr2
-            END
-        ) AS bldg_mv,
-        ARBITRARY(
-            CASE
-                WHEN taxyr < '2020' THEN NULL
-                WHEN taxyr >= '2020' THEN valapr1
-            END
-        ) AS land_mv,
-        ARBITRARY(
-            CASE
-                WHEN taxyr < '2020' THEN NULL
-                WHEN taxyr >= '2020' THEN valapr3
-            END
-        ) AS tot_mv
-    FROM {{ source('iasworld', 'asmt_all') }}
-    WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
-        AND rolltype != 'RR'
-        AND deactivat IS NULL
-        AND valclass IS NULL
-    GROUP BY parid, taxyr, procname, REGEXP_REPLACE(class, '[^[:alnum:]]', '')
+        t1.pin,
+        t1.year,
+        t2.class,
+        t2.stage_name,
+        t2.stage_num,
+        t2.bldg,
+        t2.land,
+        t2.tot,
+        t2.bldg_mv,
+        t2.land_mv,
+        t2.tot_mv
+    FROM {{ ref("default.vw_pin_value") }} AS t1
+    CROSS JOIN
+        UNNEST(
+            ARRAY[
+                'PRE-MAILED',
+                'MAILED',
+                'ASSESSOR PRE-CERTIFIED',
+                'ASSESSOR CERTIFIED',
+                'BOARD CERTIFIED'
+            ],
+            ARRAY[0, 1, 1.5, 2, 3],
+            {% for coltype in coltypes %}
+                ARRAY[
+                    pre_mailed_{{ coltype }},
+                    mailed_{{ coltype }},
+                    pre_certified_{{ coltype }},
+                    certified_{{ coltype }},
+                    board_{{ coltype }}
+                ]
+                {% if not loop.last %},{% endif %}
+            {% endfor %}
+        )
+            AS t2 (
+                stage_name,
+                stage_num,
+                {% for coltype in coltypes %}
+                    {{ coltype }}{% if not loop.last %},{% endif %}
+                {% endfor %}
+            )
+    -- Null classes indicate that there are no corresponding values for a
+    -- given stage, so filter out rows that match this condition
+    WHERE t2.class IS NOT NULL
 )
 
 SELECT
-    svls.parid AS pin,
-    svls.taxyr AS year,
+    svls.pin,
+    svls.year,
     svls.class,
     groups.reporting_class_code AS major_class,
     groups.modeling_group AS property_group,
-    CASE
-        WHEN svls.procname = 'CCAOVALUE' THEN 'MAILED'
-        WHEN svls.procname = 'CCAOFINAL' THEN 'ASSESSOR CERTIFIED'
-        WHEN svls.procname = 'BORVALUE' THEN 'BOR CERTIFIED'
-    END AS stage_name,
-    CASE
-        WHEN svls.procname = 'CCAOVALUE' THEN 1
-        WHEN svls.procname = 'CCAOFINAL' THEN 2
-        WHEN svls.procname = 'BORVALUE' THEN 3
-    END AS stage_num,
+    svls.stage_name,
+    svls.stage_num,
     svls.bldg,
     svls.land,
     svls.tot,
