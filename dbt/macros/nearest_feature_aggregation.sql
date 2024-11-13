@@ -6,6 +6,6 @@
                 then {{ base.replace("dist_ft", characteristic) }}
             {%- endfor %}
             else null
-        end as closest_{{ characteristic }},
+        end as closest_road_{{ characteristic }},
     {%- endfor %}
 {% endmacro %}
