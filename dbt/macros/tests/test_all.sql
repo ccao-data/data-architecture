@@ -5,4 +5,5 @@
     {% do test_generate_schema_name() %}
     {% do test_generate_alias_name() %}
     {% do test_format_additional_select_columns() %}
+    {% do test_pre_stage_filters() %}
 {% endmacro %}
