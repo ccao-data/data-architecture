@@ -30,7 +30,11 @@ WITH stage_values AS (
                 'MAILED',
                 'ASSESSOR PRE-CERTIFIED',
                 'ASSESSOR CERTIFIED',
-                'BOARD CERTIFIED'
+                -- This is a slightly different stage name from the name that
+                -- we use in vw_pin-value ('BOARD CERTIFIED'). At some point
+                -- we may want to align these names, but for now we maintain
+                -- the difference for the sake of downstream data consumers
+                'BOR CERTIFIED'
             ],
             ARRAY[0, 1, 1.5, 2, 3],
             {% for coltype in coltypes %}
@@ -51,8 +55,13 @@ WITH stage_values AS (
                     {{ coltype }}{% if not loop.last %},{% endif %}
                 {% endfor %}
             )
-    -- Null classes indicate that there are no corresponding values for a
-    -- given stage, so filter out rows that match this condition
+    -- Since we're enumerating the valid stage names by hand, rather than
+    -- pulling them from the values that are present in the underlying
+    -- vw_pin_value view, we need some way of determining when a PIN does not
+    -- have a value for a particular stage in a given year. Checking for a null
+    -- class is one way of doing that, since it means the `pre_{stage}_class`
+    -- column is null, which should only be possible in cases where that stage
+    -- doesn't exist for the PIN/year
     WHERE t2.class IS NOT NULL
 )
 
