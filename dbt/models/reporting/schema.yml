@@ -247,9 +247,6 @@ models:
     description: '{{ doc("view_vw_pin_value_long") }}'
     data_tests:
       - not_null:
-          name: reporting_vw_pin_value_long_stage_name_not_null
-          column_name: stage_name
-      - not_null:
           name: reporting_vw_pin_value_long_class_not_null
           column_name: class
           config:
@@ -275,6 +272,9 @@ models:
           name: reporting_vw_pin_value_long_mailed_class_no_hyphens
           column_name: class
           values: "2-99"
+      - not_null:
+          name: reporting_vw_pin_value_long_stage_name_not_null
+          column_name: stage_name
       - not_null:
           name: reporting_vw_pin_value_long_tot_mv_not_null
           column_name: tot_mv

@@ -132,6 +132,27 @@ models:
         config:
           where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
           error_if: ">15"
+    - expression_is_true:
+        name: default_vw_pin_value_class_is_null_when_values_are_null
+        expression: |
+          {% set stages = ['pre_mailed', 'mailed', 'pre_certified', 'certified', 'board'] %}
+          {% set cols = ['bldg', 'land', 'tot', 'bldg_mv', 'land_mv', 'tot_mv'] %}
+
+          {% for stage in  stages %}
+            {% for null_status in ['IS NULL', 'IS NOT NULL'] %}
+              (
+                {{ stage }}_class {{ null_status }}
+                AND (
+                  {% for col in cols %}
+                    {{ stage }}_{{ col }} {{ null_status }}
+                    {% if not loop.last %}AND{% endif %}
+                  {% endfor %}
+                )
+              )
+              {% if not loop.last %}OR{% endif %}
+            {% endfor %}
+            {% if not loop.last %}OR{% endif %}
+          {% endfor %}
     - not_accepted_values:
         name: default_vw_pin_value_mailed_class_no_hyphens
         column_name: mailed_class
@@ -161,24 +182,3 @@ models:
         combination_of_columns:
           - pin
           - year
-    - expression_is_true:
-        name: default_vw_pin_value_class_is_null_when_values_are_null
-        expression: |
-          {% set stages = ['pre_mailed', 'mailed', 'pre_certified', 'certified', 'board'] %}
-          {% set cols = ['bldg', 'land', 'tot', 'bldg_mv', 'land_mv', 'tot_mv'] %}
-
-          {% for stage in  stages %}
-            {% for null_status in ['IS NULL', 'IS NOT NULL'] %}
-              (
-                {{ stage }}_class {{ null_status }}
-                AND (
-                  {% for col in cols %}
-                    {{ stage }}_{{ col }} {{ null_status }}
-                    {% if not loop.last %}AND{% endif %}
-                  {% endfor %}
-                )
-              )
-              {% if not loop.last %}OR{% endif %}
-            {% endfor %}
-            {% if not loop.last %}OR{% endif %}
-          {% endfor %}
