@@ -94,7 +94,7 @@ care of that for you.)
 
 #### Requirements
 
-* Python3 with venv installed (`sudo apt install python3-venv`)
+* Python3 with `uv` installed (pre-installed on the CCAO server)
 * [AWS CLI installed
   locally](https://github.com/ccao-data/wiki/blob/master/How-To/Connect-to-AWS-Resources.md)
   * You'll also need permissions for Athena, Glue, and S3
@@ -104,11 +104,11 @@ care of that for you.)
 
 Run the following commands in this directory:
 
-```
-python3 -m venv venv
-source venv/bin/activate
-pip install -U pip
-pip install -r requirements.txt
+```bash
+uv venv
+source .venv/bin/activate
+uv python install
+uv pip install .
 dbt deps
 ```
 
@@ -116,13 +116,13 @@ dbt deps
 
 To run dbt commands, make sure you have the virtual environment activated:
 
-```
-source venv/bin/activate
+```bash
+source .venv/bin/activate
 ```
 
 You must also authenticate with AWS using MFA if you haven't already today:
 
-```
+```bash
 aws-mfa
 ```
 
@@ -146,14 +146,14 @@ it from scratch.
 Instead, start by copying the production dbt state file (also known as the
 [manifest file](https://docs.getdbt.com/reference/artifacts/manifest-json)):
 
-```
+```bash
 aws s3 cp s3://ccao-dbt-cache-us-east-1/master-cache/manifest.json master-cache/manifest.json
 ```
 
 Then, use [`dbt clone`](https://docs.getdbt.com/reference/commands/clone) to
 clone the production tables and views into your development environment:
 
-```
+```bash
 dbt clone --state master-cache
 ```
 
@@ -697,7 +697,7 @@ a major event in the Valuations calendar like the close of a township.
 
 The [`export_models` script](./scripts/export_models.py) is the foundation for
 our QC reports. The script expects certain Python requirements, which can be installed
-by running `pip install -r scripts/requirements.export_models.txt` in a virtual
+by running `uv pip install .[dbt_tests]` in a virtual
 environment.
 
 The script exposes a few options that help to export the right data:
@@ -735,14 +735,15 @@ We run town close reports using the [`scripts/export_qc_town_close_reports.py`
 script](./scripts/export_qc_town_close_reports.py), which builds on top of
 `export_models`. As such, `export_qc_town_close_reports` expects the same set
 of Python requirements as `export_models`, which can be installed in a virtual
-environment by running `pip install scripts/requirements.export_models.txt`.
+environment by running `uv pip install .[dbt_tests]`.
 
 The script exposes the following options, many of which are the same as
 `export_models`:
 
-* **`--township`** (required): The [township
-  code](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) to use
-  for filtering results.
+* **`--township`** (optional): One or more space-separated [township
+  codes](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) to use
+  for filtering results. If you omit this parameter, the script will default to
+  exporting reports for all towns.
 * **`--year`** (optional): The year to use for filtering results. Defaults to the current year.
 * **`--target`** (optional): The name of the [dbt
   target](https://docs.getdbt.com/reference/dbt-jinja-functions/target) to run
@@ -758,6 +759,8 @@ The script exposes the following options, many of which are the same as
   See [Refreshing iasWorld tables prior to running town close QC
   reports](#refreshing-iasworld-tables-prior-to-running-town-close-qc-reports) for more
   details.
+* **`output-dir`** (optional): The Unix-formatted path to the directory where
+  the script will store output files. Defaults to `./export/output/`.
 
 Assuming a township code defined by `$TOWNSHIP_CODE` and a tax year defined by
 `$TAXYR`, the following command will generate town close reports for the township/year combo:
@@ -770,6 +773,12 @@ You can omit the `--year` flag and the script will default to the current year o
 
 ```
 python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE"
+```
+
+Omit all options to generate reports for all towns in the current year:
+
+```
+python3 scripts/export_qc_town_close_reports.py
 ```
 
 In both cases, the script will output the reports to the `dbt/export/output/`

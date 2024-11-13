@@ -142,6 +142,20 @@
       ],
       "Hash": "ae4a925e0f6bb1b7e5fa96b739c5221a"
     },
+    "RSocrata": {
+      "Package": "RSocrata",
+      "Version": "1.7.15-1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "httr",
+        "jsonlite",
+        "mime",
+        "plyr"
+      ],
+      "Hash": "435ebea3fa736ab1317c79a5fa34fa55"
+    },
     "Rcpp": {
       "Package": "Rcpp",
       "Version": "1.0.12",
@@ -1926,8 +1940,13 @@
     "noctua": {
       "Package": "noctua",
       "Version": "2.6.2",
-      "Source": "Repository",
-      "Repository": "CRAN",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "dyfanjones",
+      "RemoteRepo": "noctua",
+      "RemoteRef": "master",
+      "RemoteSha": "23a4cfbf537407c7a1547fc13ba771ba2eb098e0",
       "Requirements": [
         "DBI",
         "R",
@@ -1938,7 +1957,7 @@
         "utils",
         "uuid"
       ],
-      "Hash": "c03d73125d695e80b35b4bb3eacf0358"
+      "Hash": "b3fc482d0ae2f51ed324fd3da66471b4"
     },
     "numDeriv": {
       "Package": "numDeriv",
@@ -2275,6 +2294,17 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "09eb987710984fc2905c7129c7d85e65"
+    },
+    "plyr": {
+      "Package": "plyr",
+      "Version": "1.8.9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "Rcpp"
+      ],
+      "Hash": "6b8177fd19982f0020743fadbfdbd933"
     },
     "png": {
       "Package": "png",
