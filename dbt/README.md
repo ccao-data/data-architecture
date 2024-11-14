@@ -714,7 +714,7 @@ Some examples of data integrity tests include:
   `default.vw_pin_condo_char` view don't ever produce a `null` value for `card`
   ([`default_vw_pin_condo_char_card_not_null`](models/default/schema/default.vw_pin_condo_char.yml))
 * Check that GEOIDs are the correct length in the `location.vw_pin10_location`
-  view ([`locaion_vw_pin10_location_7_digit_ids_are_correct_length`](dbt/models/location/schema.yml))
+  view ([`location_vw_pin10_location_7_digit_ids_are_correct_length`](models/location/schema.yml))
 
 #### Running data integrity tests
 
