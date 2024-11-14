@@ -79,6 +79,8 @@ unit_tests:
     model: default.vw_pin_value
     given:
       - input: source("iasworld", "asmt_all")
+        # `class` is the important column here, and all other columns are only
+        # provided to ensure proper joins when creating the dummy table
         rows:
           - {parid: "123", taxyr: "2024", procname: "CCAOVALUE", rolltype: "RP", valasm3: 10, class: "2.1-1)A"}
       - input: source("iasworld", "aprval")

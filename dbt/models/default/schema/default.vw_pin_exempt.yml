@@ -32,6 +32,8 @@ unit_tests:
     model: default.vw_pin_exempt
     given:
       - input: source("iasworld", "pardat")
+        # `class` is the important column here, and all other columns are
+        # only set to ensure proper joins when creating the dummy tables
         rows:
           - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null, class: "2.1-1)A"}
       - input: source("iasworld", "owndat")
@@ -59,6 +61,8 @@ unit_tests:
     given:
       - input: source("iasworld", "pardat")
         rows:
+          # `class` is the important column here, and all other columns are
+          # only set to ensure proper joins when creating the dummy tables
           - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null}
           - {parid: "0", taxyr: "2024", cur: "Y", deactivat: null}
           - {parid: "A", taxyr: "2024", cur: "Y", deactivat: null}
