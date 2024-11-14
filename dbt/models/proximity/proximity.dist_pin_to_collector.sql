@@ -24,7 +24,7 @@ SELECT
     ARBITRARY(xy.speed_limit) AS nearest_collector_road_speed_limit,
     ARBITRARY(xy.surface_type) AS nearest_collector_road_surface_type,
     ARBITRARY(xy.lanes) AS nearest_collector_road_lanes
-FROM distinct_pins AS pcl
+FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN ( {{ dist_to_nearest_geometry('collector') }} ) AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
