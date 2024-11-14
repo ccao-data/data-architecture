@@ -28,4 +28,5 @@ FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN ( {{ dist_to_nearest_geometry('highway') }} ) AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
+    AND pcl.year = xy.pin_year
 GROUP BY pcl.pin10, xy.year
