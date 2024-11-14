@@ -269,7 +269,8 @@ final_aggregation AS (
             local_road.year, collector.year,
             other.year
         )
-        >= (SELECT MIN(year) FROM distinct_years)
+        >= (SELECT MIN(year) FROM "awsdatacatalog"."spatial"."traffic"
+    WHERE road_type IS NOT NULL)
 )
 
 
