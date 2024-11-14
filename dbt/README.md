@@ -495,68 +495,65 @@ For more possible inputs using dbt node selection, see the [documentation site](
 ## 🧪 How to add and run tests and QC reports
 
 We test the integrity of our raw data and our transformations using a few different
-types of tests and reports, described below.
+types of tests and reports:
 
-### Different types of tests and reports
+| Test type          | Description | Implemented with | Runs on | Runs when | Outputs | Fails on | Who fixes | Use when |
+| ------------------ | ----------- | ---------------- | ------- | --------- | ------- | -------- | --------- | -------- |
+| [**iasWorld tests**](#iasworld-tests) | Test that hard-and-fast assumptions about iasWorld tables are correct. | [dbt data tests](https://docs.getdbt.com/docs/build/data-tests) | [GitHub Actions](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml), or [command line](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/run_iasworld_data_tests.py) | Daily after Spark ingest, or on demand | Excel workbook and metadata parquet files | Doesn't fail unless tests encounter an error | Valuations | Test logic exclusively references iasWorld tables, and test failures indicate clear, fixable problems |
+| [**Unit tests**](#unit-tests) | Test that the transformation logic inside a model definition produces the correct output on a specific set of hypothetical input data. | [dbt unit tests](https://docs.getdbt.com/docs/build/unit-tests) | [GitHub Actions](https://github.com/ccao-data/data-architecture/actions/workflows/build_and_test_dbt.yaml) | Every PR or commits to main branch that modify models/tests | GitHub Actions failure notification | Any test failure | Data | Test logic is checking transformation behavior and the full universe of possible input values is easy to express in a few examples |
+| [**Data integrity tests**](#data-integrity-tests) | Test that hard-and-fast assumptions about non-iasWorld tables, or tables that merge iasWorld and non-iasWorld data, are correct. | [dbt data tests](https://docs.getdbt.com/docs/build/data-tests) | [GitHub Actions](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml) | Weekly on a schedule, or on PRs and commits to main branch that modify models/tests | GitHub Actions failure notification | Any test failure | Data | Test logic references data outside iasWorld, or the full universe of possible input values cannot be easily expressed in a few examples |
+| [**QC reports**](#qc-reports) | Query for suspicious cases that _might_ indicate a problem with our data, but that can't be confirmed automatically. | [dbt models](https://docs.getdbt.com/docs/build/models) | [Command line](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/export_models.py) | On demand | One or more Excel workbooks | Doesn't fail unless queries encounter an error | Valuations | Failures do not necessarily indicate data problems, and a stakeholder has agreed to review output |
 
-There are three types of products that we use to check the integrity of our data
-and the transformations we apply on top of that data:
+The distinctions between these types of tests and reports can be subtle. Here
+is a rough guide to how we think about choosing the right type of test or
+report for a given task:
 
-1. [**Data tests**](#data-tests) check that hard-and-fast assumptions about our
-   raw data are correct. These tests correspond to [dbt data
-   tests](https://docs.getdbt.com/docs/build/data-tests).
-    * For example: Test that a table is unique by `parid` and `taxyr`.
-2. [**Unit tests**](#unit-tests) check that transformation logic inside a model
-   definition produces the correct output on a specific set of input data.
-   These tests correspond to [dbt unit
-   tests](https://docs.getdbt.com/docs/build/unit-tests).
-    * For example: Test that an enum column computed by a `CASE... WHEN`
-      expression in a view produces the correct output for a given input string.
-3. [**QC reports**](#qc-reports) check for suspicious cases that _might_ indicate
-   a problem with our data, but that can't be confirmed automatically. We
-   implement these reports using [dbt
-   models](https://docs.getdbt.com/docs/build/models).
-    * For example: Query for all parcels whose market value increased by
-      more than $500k in the last year.
+* If you can express the test's logic exclusively in the context of an iasWorld
+  table, and if you think an iasWorld data owner could immediately act on the
+  results of the test without having to know any additional context other than
+  attributes of the row in the iasWorld table that failed the test, you should
+  define the test as an [**iasWorld test**](#iasworld-tests).
+* If the test is checking that a transformation produces a correct value, and
+  if you can represent the full universe of possible raw values that could
+  produce the transformed value in a few simple examples, you should define
+  the test as a [**unit test**](#unit-tests).
+* If you can't be sure whether a failure indicates a data problem, and if you
+  have partnered with a stakeholder who is committed to reviewing the
+  failures, you should define the check as a [**QC report**](#qc-reports).
+* In all other cases, you should define the test as a [**data integrity
+  test**](#data-integrity-tests).
 
-The following sections describe how to add and run each of these types of products.
+Here are some real-world examples of each type of test or report:
 
-### Data tests
+* **iasWorld tests**: Test that the Basement Type column in the
+  `iasworld.dweldat` table is not null
+    * [`iasworld_dweldat_bsmt_not_null`](models/iasworld/schema/iasworld.dweldat.yml)
+* **Unit tests**: Test that the `default.vw_pin_appeal` view strips
+  non-alphanumeric characters from the class code
+    * [`default_vw_pin_appeal_class_strips_non_alphanumerics`](models/default/schema/default.vw_pin_appeal.yml)
+* **Data integrity tests**: Test that the `default.vw_pin_condo_char` view is
+  unique by PIN and year
+    * [`default_vw_pin_condo_char_unique_by_14_digit_pin_and_year`](models/default/schema/default.vw_pin_condo_char.yml)
+* **QC reports**: Query for condo PINs that are nonlivable but that have
+  characteristics corresponding a livable unit
+    * [`qc.vw_pin_appeal_mismatched_outcomes`](models/qc/schema.yml)
 
-We implement data tests using [dbt tests](https://docs.getdbt.com/docs/build/tests)
-to check that hard-and-fast assumptions about our raw data are correct. We prefer adding tests
-inline in `schema.yml` config files using [generic
-tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
-rather than [singular
-tests](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
+The following sections describe how to add and run each of these types of
+tests and reports.
 
-We have two main types of data tests:
-
-* Tests that check assumptions about **iasWorld data**, so that iasWorld data
-  owners can fix the source data
-* Tests that check assumptions about **non-iasWorld data**, to alert us to
-  potential problems with our raw data or our transformations
-
-There are slightly different requirements for these two types of data tests,
-since we run them at different times using different infrastructure. As such,
-different sections below explain these two types of data tests:
-
-* [About iasWorld data tests](#about-iasworld-data-tests)
-* [About non-iasWorld data tests](#about-non-iasworld-data-tests)
-
-#### About iasWorld data tests
+### iasWorld tests
 
 Our iasWorld data test suite checks that hard-and-fast assumptions about data
 in our iasWorld system of record are correct.
 
-For help running iasWorld data tests, see [Running iasWorld data
-tests](#running-iasworld-data-tests). For help adding iasWorld data tests, see
-[Adding iasWorld data tests](#adding-iasworld-data-tests) and [Choosing a
+For help running iasWorld tests, see [Running iasWorld
+tests](#running-iasworld-tests). For help adding iasWorld tests, see
+[Adding iasWorld tests](#adding-iasworld-tests) and [Choosing a
 generic test for your data test](#choosing-a-generic-test-for-your-data-test).
 
-#### Running iasWorld data tests
+#### Running iasWorld tests
 
-The iasWorld data test suite can be run using the [`run_iasworld_data_tests`
+The iasWorld test suite can be run using the [`run_iasworld_data_tests`
 script](./scripts/run_iasworld_data_tests.py).
 This script runs the tests and reads the metadata for the run to output a number of
 different artifacts with information about the tests:
@@ -566,7 +563,7 @@ different artifacts with information about the tests:
 * Parquet files representing metadata tables that can be uploaded to S3 for aggregate
   analysis
 
-There are two instances when iasWorld data tests typically run:
+There are two instances when iasWorld tests typically run:
 
 1. Once per day by the [`test-dbt-models` GitHub
    workflow](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml),
@@ -597,11 +594,18 @@ python3 scripts/run_iasworld_data_tests.py --township $TOWNSHIP_CODE
 Then, check the Excel workbook that the script produced to make sure it's formatted
 correctly, and send it to Valuations staff for review.
 
-#### Adding iasWorld data tests
+#### Adding iasWorld tests
+
+We implement iasWorld tests using [dbt tests](https://docs.getdbt.com/docs/build/tests)
+to check that hard-and-fast assumptions about our raw iasWorld data are correct.
+We prefer adding tests inline in `schema.yml` config files using [generic
+tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
+rather than [singular
+tests](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
 
 There are a few specific modifications a test author needs to make to
-ensure that a new iasWorld data test can be run by the workflow and interpreted
-by the script:
+ensure that the `run_iasworld_data_tests` script can properly run the test and
+interpret its results:
 
 * One of either the test or the model that the test is defined on must be
 [tagged](https://docs.getdbt.com/reference/resource-configs/tags) with
@@ -642,7 +646,7 @@ See the [`iasworld_pardat_class_in_ccao_class_dict`
 test](https://github.com/ccao-data/data-architecture/blob/bd4bc1769fe33fdba1dbe827791b5c41389cf6ec/dbt/models/iasworld/schema/iasworld.pardat.yml#L78-L96)
 for an example of a test that sets these attributes.
 
-Due to the similarity of parameters defined on iasWorld data tests, we make extensive use
+Due to the similarity of parameters defined on iasWorld tests, we make extensive use
 of YAML anchors and aliases to define symbols for commonly-used values.
 See [here](https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/)
 for a brief explanation of the YAML anchor and alias syntax.
@@ -685,15 +689,23 @@ do so, you have two options:
         of the `format_additional_select_columns` macro to format the
         parameter when applying it to your `SELECT` condition
 
-#### About non-iasWorld data tests
+### Data integrity tests
 
-Non-iasWorld data tests check hard-and-fast assumptions about all of our data
+Data integrity tests check hard-and-fast assumptions about all of our data
 outside of iasWorld. This includes data that come from external sources like
 seeds or third-party data providers, as well as the views that we define as
 transformations on top of iasWorld data sources to clean them up and join them
 to non-iasWorld data.
 
-Some examples of non-iasWorld data tests include:
+We implement data integrity tests using [dbt
+tests](https://docs.getdbt.com/docs/build/tests). As with our
+[iasWorld tests](#iasworld-tests), we prefer adding data tests inline in
+`schema.yml` config files using [generic
+tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
+rather than [singular
+tests](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
+
+Some examples of data integrity tests include:
 
 * Check that the `default.vw_card_res_char` view is unique by the columns `pin`,
   `year`, and `card`
@@ -704,32 +716,9 @@ Some examples of non-iasWorld data tests include:
 * Check that GEOIDs are the correct length in the `location.vw_pin10_location`
   view ([`locaion_vw_pin10_location_7_digit_ids_are_correct_length`](dbt/models/location/schema.yml))
 
-The "non-iasWorld data test" category tends to act as a catch-all for tests
-that do not fit well into any of our other QC categories ([iasWorld data
-tests](#about-iasworld-data-tests), [unit tests](#unit-tests), and [QC
-reports](#qc-reports)). As such, it can be tricky sometimes to tell when it
-would be most appropriate to define a test as a non-iasWorld data test rather
-than one of these other QC categories. We use the following heuristic to
-resolve ambiguous cases:
+#### Running data integrity tests
 
-* If you can express the test's logic exclusively in the context of an iasWorld
-  table, and if you think an iasWorld data owner could immediately act on the
-  results of the test without having to know any additional context other than
-  attributes of the row in the iasWorld table that failed the test, you should
-  define the test as an [**iasWorld data test**](#about-iasworld-data-tests).
-* If the test is checking that a transformation produces a correct value, and
-  if you can represent the full universe of possible raw values that could
-  produce the transformed value in a few simple examples, you should define
-  the test as a [**unit test**](#unit-tests).
-* If you can't be sure whether a failure indicates a data problem, and if you
-  have partnered with a stakeholder who is committed to reviewing the
-  failures, you should define the check as a [**QC report**](#qc-reports).
-* In all other cases, you should define the test as a *non-iasWorld data test*.
-
-#### Running non-iasWorld data tests
-
-There are two different times in which non-iasWorld data tests run
-automatically:
+There are two different times in which data integrity tests run automatically:
 
 1. In the `build-and-test-dbt` GitHub workflow as part of our CI suite when
    a test's model changes, or when the test itself changes
@@ -743,11 +732,11 @@ selector:
 dbt test --selector select_data_test_non_iasworld
 ```
 
-#### Adding non-iasWorld data tests
+#### Adding data integrity tests
 
-In contrast to [iasWorld data tests](#adding-iasworld-data-tests), non-iasWorld
-data tests do not require any special tags or attributes because we do not
-process their results in a structured fashion.
+In contrast to [iasWorld tests](#iasworld-tests), data integrity tests do not
+require any special tags or attributes because we do not process their results
+in a structured fashion.
 
 See [Choosing a generic test for your data
 test](#choosing-a-generic-test-for-your-data-test) for help with choosing a
