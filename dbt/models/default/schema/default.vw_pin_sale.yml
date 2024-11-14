@@ -63,6 +63,9 @@ models:
           name: default_vw_pin_sale_class_no_hyphens
           column_name: class
           values: "2-99"
+      - row_count:
+          name: default_vw_pin_sale_row_count
+          above: 2496073 # as of 2024-11-14
       - expression_is_true:
           name: default_vw_pin_sale_is_multisale_num_parcels_sale_align
           expression: (num_parcels_sale > 1 AND is_multisale) OR (num_parcels_sale = 1 AND NOT is_multisale)

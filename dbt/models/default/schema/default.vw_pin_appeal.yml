@@ -42,6 +42,11 @@ models:
       - name: year
         description: '{{ doc("shared_column_year") }}'
 
+    data_tests:
+      - row_count:
+          name: default_vw_pin_appeal_row_count
+          above: 8815299 # as of 2024-11-14
+
 unit_tests:
   - name: default_vw_pin_appeal_class_strips_non_alphanumerics
     description: class transformation should remove non-alphanumeric characters
