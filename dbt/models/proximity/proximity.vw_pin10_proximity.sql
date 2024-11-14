@@ -19,6 +19,15 @@ SELECT
     cnt_pin_num_school.num_school_rating_data_year,
 
     dist_pin_to_airport.airport_dnl_total,
+
+    dist_pin_to_arterial_road.nearest_arterial_road_name,
+    dist_pin_to_arterial_road.nearest_arterial_road_daily_traffic,
+    dist_pin_to_arterial_road.nearest_arterial_road_speed_limit,
+    dist_pin_to_arterial_road.nearest_arterial_road_surface_type,
+    dist_pin_to_arterial_road.nearest_arterial_road_lanes,
+    dist_pin_to_arterial_road.nearest_arterial_road_dist_ft,
+    dist_pin_to_arterial_road.nearest_arterial_road_data_year,
+
     dist_pin_to_bike_trail.nearest_bike_trail_id,
     dist_pin_to_bike_trail.nearest_bike_trail_name,
     dist_pin_to_bike_trail.nearest_bike_trail_dist_ft,
@@ -28,6 +37,14 @@ SELECT
     dist_pin_to_cemetery.nearest_cemetery_name,
     dist_pin_to_cemetery.nearest_cemetery_dist_ft,
     dist_pin_to_cemetery.nearest_cemetery_data_year,
+
+    dist_pin_to_collector_road.nearest_collector_road_name,
+    dist_pin_to_collector_road.nearest_collector_road_daily_traffic,
+    dist_pin_to_collector_road.nearest_collector_road_speed_limit,
+    dist_pin_to_collector_road.nearest_collector_road_surface_type,
+    dist_pin_to_collector_road.nearest_collector_road_lanes,
+    dist_pin_to_collector_road.nearest_collector_road_dist_ft,
+    dist_pin_to_collector_road.nearest_collector_road_data_year,
 
     dist_pin_to_cta_route.nearest_cta_route_id,
     dist_pin_to_cta_route.nearest_cta_route_name,
@@ -46,6 +63,14 @@ SELECT
     dist_pin_to_grocery_store.nearest_grocery_store_name,
     dist_pin_to_grocery_store.nearest_grocery_store_dist_ft,
     dist_pin_to_grocery_store.nearest_grocery_store_data_year,
+
+    dist_pin_to_highway_road.nearest_highway_road_name,
+    dist_pin_to_highway_road.nearest_highway_road_daily_traffic,
+    dist_pin_to_highway_road.nearest_highway_road_speed_limit,
+    dist_pin_to_highway_road.nearest_highway_road_surface_type,
+    dist_pin_to_highway_road.nearest_highway_road_lanes,
+    dist_pin_to_highway_road.nearest_highway_road_dist_ft,
+    dist_pin_to_highway_road.nearest_highway_road_data_year,
 
     dist_pin_to_hospital.nearest_hospital_gnis_code,
     dist_pin_to_hospital.nearest_hospital_name,
@@ -131,6 +156,11 @@ LEFT JOIN
     ON pin.pin10 = dist_pin_to_airport.pin10
     AND pin.year = dist_pin_to_airport.year
 LEFT JOIN
+    {{ ref('proximity.dist_pin_to_arterial_road') }}
+        AS dist_pin_to_arterial_road
+    ON pin.pin10 = dist_pin_to_arterial_road.pin10
+    AND pin.year = dist_pin_to_arterial_road.year
+LEFT JOIN
     {{ ref('proximity.dist_pin_to_bike_trail') }} AS dist_pin_to_bike_trail
     ON pin.pin10 = dist_pin_to_bike_trail.pin10
     AND pin.year = dist_pin_to_bike_trail.year
@@ -138,6 +168,11 @@ LEFT JOIN
     {{ ref('proximity.dist_pin_to_cemetery') }} AS dist_pin_to_cemetery
     ON pin.pin10 = dist_pin_to_cemetery.pin10
     AND pin.year = dist_pin_to_cemetery.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_collector_road') }}
+        AS dist_pin_to_collector_road
+    ON pin.pin10 = dist_pin_to_collector_road.pin10
+    AND pin.year = dist_pin_to_collector_road.year
 LEFT JOIN
     {{ ref('proximity.dist_pin_to_cta_route') }} AS dist_pin_to_cta_route
     ON pin.pin10 = dist_pin_to_cta_route.pin10
@@ -155,6 +190,11 @@ LEFT JOIN
         AS dist_pin_to_grocery_store
     ON pin.pin10 = dist_pin_to_grocery_store.pin10
     AND pin.year = dist_pin_to_grocery_store.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_highway_road') }}
+        AS dist_pin_to_highway_road
+    ON pin.pin10 = dist_pin_to_highway_road.pin10
+    AND pin.year = dist_pin_to_highway_road.year
 LEFT JOIN
     {{ ref('proximity.dist_pin_to_hospital') }} AS dist_pin_to_hospital
     ON pin.pin10 = dist_pin_to_hospital.pin10
