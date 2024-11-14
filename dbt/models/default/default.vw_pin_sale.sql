@@ -235,7 +235,8 @@ mydec_sales AS (
     /* Some sales in mydec have multiple rows for one pin on a given sale date.
     Sometimes they have different dates than iasworld prior to 2021 and when
     joined back onto unique_sales will create duplicates by pin/sale date. */
-    WHERE year > '2020'--num_single_day_sales = 1
+    WHERE num_single_day_sales = 1
+        AND year > '2020'
 ),
 
 max_version_flag AS (
