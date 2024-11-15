@@ -253,7 +253,7 @@ SELECT
 
     -- PIN proximity distance variables
     vwpf.airport_dnl_total AS prox_airport_dnl_total, --new
-    vwpf.arterial_road_dist_ft AS prox_arterial_road_dist_ft,
+    vwpf.nearest_arterial_road_dist_ft AS prox_nearest_arterial_road_dist_ft,
     vwpf.nearest_bike_trail_dist_ft AS prox_nearest_bike_trail_dist_ft,
     vwpf.nearest_cemetery_dist_ft AS prox_nearest_cemetery_dist_ft,
     vwpf.nearest_collector_dist_ft AS prox_nearest_collector_dist_ft,
