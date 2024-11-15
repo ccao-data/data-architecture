@@ -49,6 +49,15 @@ Distance to centroid of Midway airport (feet)
 Distance to centroid of O'Hare airport (feet)
 {% enddocs %}
 
+## avg_school_rating_in_half_mile
+
+{% docs column_avg_school_rating_in_half_mile %}
+Average school rating of schools within half mile.
+
+Schools of any type (elementary, secondary, etc.) are included.
+School ratings sourced from [GreatSchools](https://www.greatschools.org/)
+{% enddocs %}
+
 ## nearest_arterial_road_daily_traffic
 
 {% docs column_nearest_arterial_road_daily_traffic %}
@@ -89,23 +98,12 @@ Speed limit for the nearest arterial road
 Road data sourced from Illinois Department of Transportation
 {% enddocs %}
 
-
 ## nearest_arterial_road_surface type
 
 {% docs column_nearest_arterial_road_daily_traffic %}
 Surface type for the nearest arterial road (for example brick, stone, etc.).
 
 Road data sourced from Illinois Department of Transportation.
-{% enddocs %}
-
-
-## avg_school_rating_in_half_mile
-
-{% docs column_avg_school_rating_in_half_mile %}
-Average school rating of schools within half mile.
-
-Schools of any type (elementary, secondary, etc.) are included.
-School ratings sourced from [GreatSchools](https://www.greatschools.org/)
 {% enddocs %}
 
 ## lake_michigan_dist_ft
