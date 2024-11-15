@@ -22,14 +22,14 @@ WITH unfilled AS (
             AS num_school_rating_data_year,
         MAX(dist_pin_to_airport.airport_data_year)
             AS airport_data_year,
-        MAX(dist_pin_to_arterial_road.arterial_road_data_year)
-            AS arterial_road_data_year,
+        MAX(dist_pin_to_arterial_road.nearest_arterial_road_data_year)
+            AS nearest_arterial_road_data_year,
         MAX(dist_pin_to_bike_trail.nearest_bike_trail_data_year)
             AS nearest_bike_trail_data_year,
         MAX(dist_pin_to_cemetery.nearest_cemetery_data_year)
             AS nearest_cemetery_data_year,
-        MAX(dist_pin_to_collector_road.collector_road_data_year)
-            AS collector_road_data_year,
+        MAX(dist_pin_to_collector_road.nearest_collector_road_data_year)
+            AS nearest_collector_road_data_year,
         MAX(dist_pin_to_cta_route.nearest_cta_route_data_year)
             AS nearest_cta_route_data_year,
         MAX(dist_pin_to_cta_stop.nearest_cta_stop_data_year)
@@ -38,8 +38,8 @@ WITH unfilled AS (
             AS nearest_golf_course_data_year,
         MAX(dist_pin_to_grocery_store.nearest_grocery_store_data_year)
             AS nearest_grocery_store_data_year,
-        MAX(dist_pin_to_highway_road.highway_road_data_year)
-            AS highway_road_data_year,
+        MAX(dist_pin_to_highway_road.nearest_highway_road_data_year)
+            AS nearest_highway_road_data_year,
         MAX(dist_pin_to_hospital.nearest_hospital_data_year)
             AS nearest_hospital_data_year,
         MAX(dist_pin_to_lake_michigan.lake_michigan_data_year)
