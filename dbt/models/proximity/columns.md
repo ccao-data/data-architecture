@@ -180,7 +180,7 @@ Road data sourced from Illinois Department of Transportation.
 
 ## nearest_collector_road_lanes
 
-{% docs column_nearest_collector_road_daily_traffic %}
+{% docs column_nearest_collector_road_lanes %}
 Number of lanes for the nearest collector road.
 
 Road data sourced from Illinois Department of Transportation.
@@ -196,7 +196,7 @@ Road data sourced from Illinois Department of Transportation.
 
 ## nearest_collector_road_speed_limit
 
-{% docs column_nearest_collector_road_daily_traffic %}
+{% docs column_nearest_collector_road_speed_limit %}
 Speed limit for the nearest collector road
 
 Road data sourced from Illinois Department of Transportation
@@ -204,7 +204,7 @@ Road data sourced from Illinois Department of Transportation
 
 ## nearest_collector_road_surface_type
 
-{% docs column_nearest_collector_road_daily_traffic %}
+{% docs column_nearest_collector_road_surface_type %}
 Surface type for the nearest collector road (for example brick, stone, etc.).
 
 Road data sourced from Illinois Department of Transportation.
@@ -329,7 +329,7 @@ Road data sourced from Illinois Department of Transportation.
 
 ## nearest_highway_road_speed_limit
 
-{% docs column_nearest_highway_road_daily_traffic %}
+{% docs column_nearest_highway_speed_limit %}
 Speed limit for the nearest highway road.
 
 Road data sourced from Illinois Department of Transportation.
@@ -337,7 +337,7 @@ Road data sourced from Illinois Department of Transportation.
 
 ## nearest_highway_road_surface type
 
-{% docs column_nearest_highway_road_daily_traffic %}
+{% docs column_nearest_highway_road_surface_type %}
 Surface type for the nearest highway road (for example brick, stone, etc.).
 
 Road data sourced from Illinois Department of Transportation.
