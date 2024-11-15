@@ -49,10 +49,10 @@ Distance to centroid of Midway airport (feet)
 Distance to centroid of O'Hare airport (feet)
 {% enddocs %}
 
-## nearest_arterial_road_name
+## nearest_arterial_road_daily_traffic
 
-{% docs column_nearest_arterial_road_name %}
-Nearest arterial road name.
+{% docs column_nearest_arterial_road_daily_traffic %}
+Daily traffic of nearest arterial road.
 
 Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
@@ -65,14 +65,6 @@ Distance to nearest arterial road.
 Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
 
-## nearest_arterial_road_daily_traffic
-
-{% docs column_nearest_arterial_road_daily_traffic %}
-Daily traffic of nearest arterial road.
-
-Road data sourced from Illinois Department of Transportation.
-{% enddocs %}
-
 ## nearest_arterial_road_lanes
 
 {% docs column_nearest_arterial_road_daily_traffic %}
@@ -81,10 +73,10 @@ Number of lanes for the nearest arterial road.
 Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
 
-## nearest_arterial_road_surface type
+## nearest_arterial_road_name
 
-{% docs column_nearest_arterial_road_daily_traffic %}
-Surface type for the nearest arterial road (for example brick, stone, etc.).
+{% docs column_nearest_arterial_road_name %}
+Nearest arterial road name.
 
 Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
@@ -96,6 +88,16 @@ Speed limit for the nearest arterial road
 
 Road data sourced from Illinois Department of Transportation
 {% enddocs %}
+
+
+## nearest_arterial_road_surface type
+
+{% docs column_nearest_arterial_road_daily_traffic %}
+Surface type for the nearest arterial road (for example brick, stone, etc.).
+
+Road data sourced from Illinois Department of Transportation.
+{% enddocs %}
+
 
 ## avg_school_rating_in_half_mile
 
@@ -162,10 +164,10 @@ Nearest cemetery name.
 Cemetery data sourced from Cook County GIS
 {% enddocs %}
 
-## nearest_collector_road_name
+## nearest_collector_road_daily_traffic
 
-{% docs column_nearest_collector_road_name %}
-Nearest collector road name.
+{% docs column_nearest_collector_road_daily_traffic %}
+Daily traffic of nearest collector road.
 
 Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
@@ -178,14 +180,6 @@ Distance to nearest collector road.
 Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
 
-## nearest_collector_road_daily_traffic
-
-{% docs column_nearest_collector_road_daily_traffic %}
-Daily traffic of nearest collector road.
-
-Road data sourced from Illinois Department of Transportation.
-{% enddocs %}
-
 ## nearest_collector_road_lanes
 
 {% docs column_nearest_collector_road_daily_traffic %}
@@ -194,10 +188,10 @@ Number of lanes for the nearest collector road.
 Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
 
-## nearest_collector_road_surface type
+## nearest_collector_road_name
 
-{% docs column_nearest_collector_road_daily_traffic %}
-Surface type for the nearest collector road (for example brick, stone, etc.).
+{% docs column_nearest_collector_road_name %}
+Nearest collector road name.
 
 Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
@@ -209,6 +203,15 @@ Speed limit for the nearest collector road
 
 Road data sourced from Illinois Department of Transportation
 {% enddocs %}
+
+## nearest_collector_road_surface_type
+
+{% docs column_nearest_collector_road_daily_traffic %}
+Surface type for the nearest collector road (for example brick, stone, etc.).
+
+Road data sourced from Illinois Department of Transportation.
+{% enddocs %}
+
 ## nearest_cta_route_dist_ft
 
 {% docs column_nearest_cta_route_dist_ft %}
@@ -294,11 +297,10 @@ Nearest grocery store distance (feet)
 Nearest grocery store name via OSM
 {% enddocs %}
 
+## nearest_highway_road_daily_traffic
 
-## nearest_highway_road_name
-
-{% docs column_nearest_highway_road_name %}
-Nearest highway road name.
+{% docs column_nearest_highway_road_daily_traffic %}
+Daily traffic of nearest highway road.
 
 Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
@@ -311,18 +313,18 @@ Distance to nearest highway road.
 Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
 
-## nearest_highway_road_daily_traffic
-
-{% docs column_nearest_highway_road_daily_traffic %}
-Daily traffic of nearest highway road.
-
-Road data sourced from Illinois Department of Transportation.
-{% enddocs %}
-
 ## nearest_highway_road_lanes
 
 {% docs column_nearest_arterial_road_daily_traffic %}
 Number of lanes for the nearest highway road.
+
+Road data sourced from Illinois Department of Transportation.
+{% enddocs %}
+
+## nearest_highway_road_name
+
+{% docs column_nearest_highway_road_name %}
+Nearest highway road name.
 
 Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
@@ -338,9 +340,9 @@ Road data sourced from Illinois Department of Transportation.
 ## nearest_highway_road_speed_limit
 
 {% docs column_nearest_highway_road_daily_traffic %}
-Speed limit for the nearest highway road
+Speed limit for the nearest highway road.
 
-Road data sourced from Illinois Department of Transportation
+Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
 
 
