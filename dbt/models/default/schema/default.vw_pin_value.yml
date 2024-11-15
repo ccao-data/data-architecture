@@ -61,6 +61,34 @@ models:
         description: '{{ doc("shared_column_mailed_tot") }}'
       - name: mailed_tot_mv
         description: '{{ doc("shared_column_mailed_tot") }}'
+      - name: pre_certified_bldg
+        description: '{{ doc("shared_column_pre_certified_bldg") }}'
+      - name: pre_certified_bldg_mv
+        description: '{{ doc("shared_column_pre_certified_bldg") }}'
+      - name: pre_certified_class
+        description: '{{ doc("shared_column_pre_certified_class") }}'
+      - name: pre_certified_land
+        description: '{{ doc("shared_column_pre_certified_land") }}'
+      - name: pre_certified_land_mv
+        description: '{{ doc("shared_column_pre_certified_land") }}'
+      - name: pre_certified_tot
+        description: '{{ doc("shared_column_pre_certified_tot") }}'
+      - name: pre_certified_tot_mv
+        description: '{{ doc("shared_column_pre_certified_land") }}'
+      - name: pre_mailed_bldg
+        description: '{{ doc("shared_column_pre_mailed_bldg") }}'
+      - name: pre_mailed_bldg_mv
+        description: '{{ doc("shared_column_pre_mailed_bldg") }}'
+      - name: pre_mailed_class
+        description: '{{ doc("shared_column_pre_mailed_class") }}'
+      - name: pre_mailed_land
+        description: '{{ doc("shared_column_pre_mailed_land") }}'
+      - name: pre_mailed_land_mv
+        description: '{{ doc("shared_column_pre_mailed_land") }}'
+      - name: pre_mailed_tot
+        description: '{{ doc("shared_column_pre_mailed_tot") }}'
+      - name: pre_mailed_tot_mv
+        description: '{{ doc("shared_column_pre_mailed_land") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: stage_name

@@ -386,6 +386,117 @@ However, this value is post-Desk Review and so may not perfectly match
 outputs from the model
 {% enddocs %}
 
+## pre_certified_bldg
+
+{% docs shared_column_pre_certified_bldg %}
+Provisional certified assessed/market value of building from year specified by
+column prefix (or year of observation if not prefixed).
+
+Provisional certified values are not final, and are only present in the
+data for the current assessment year up until the moment when appeals are
+finalized. At that point the `pre_certified` values disappear and `certified`
+values replace them
+{% enddocs %}
+
+## pre_certified_class
+
+{% docs shared_column_pre_certified_class %}
+Provisional stage-level property type and/or use at the time of CCAO
+certification.
+
+Designates the property type, such as vacant, residential, multi-family,
+agricultural, commercial or industrial. The classification determines the
+percentage of fair cash value at which a property is assessed for taxing
+purposes. See `ccao.class_dict` for more information.
+
+Provisional certified values are not final, and are only present in the
+data for the current assessment year up until the moment when appeals are
+finalized. At that point the `pre_certified` values disappear and `certified`
+values replace them
+{% enddocs %}
+
+## pre_certified_land
+
+{% docs shared_column_pre_certified_land %}
+Provisional certified assessed/market value of land from year specified by
+column prefix (or year of observation if not prefixed).
+
+Provisional certified values are not final, and are only present in the
+data for the current assessment year up until the moment when appeals are
+finalized. At that point the `pre_certified` values disappear and `certified`
+values replace them
+{% enddocs %}
+
+## pre_certified_tot
+
+{% docs shared_column_pre_certified_tot %}
+Provisional certified total assessed/market value from year specified by column
+prefix (or year of observation if not prefixed).
+
+This is the value after the first round of appeals at the Assessor's Office.
+
+Provisional certified values are not final, and are only present in the
+data for the current assessment year up until the moment when appeals are
+finalized. At that point the `pre_certified` values disappear and `certified`
+values replace them
+{% enddocs %}
+
+## pre_mailed_bldg
+
+{% docs shared_column_pre_mailed_bldg %}
+Provisional mailed assessed/market value of building from year specified by
+column prefix (or year of observation if not prefixed).
+
+Provisional mailed values are not final, and are only present in the
+data for the current assessment year up until the moment when values go out to
+mail. At that point the `pre_mailed` values disappear and `mailed` values
+replace them
+{% enddocs %}
+
+## pre_mailed_class
+
+{% docs shared_column_pre_mailed_class %}
+Provisional stage-level property type and/or use at the time of CCAO mailing.
+
+Designates the property type, such as vacant, residential, multi-family,
+agricultural, commercial or industrial. The classification determines the
+percentage of fair cash value at which a property is assessed for taxing
+purposes. See `ccao.class_dict` for more information.
+
+Provisional mailed values are not final, and are only present in the
+data for the current assessment year up until the moment when values go out to
+mail. At that point the `pre_mailed` values disappear and `mailed` values
+replace them
+{% enddocs %}
+
+## pre_mailed_land
+
+{% docs shared_column_pre_mailed_land %}
+Provisional mailed assessed/market value of land from year specified by column
+prefix (or year of observation if not prefixed).
+
+Provisional mailed values are not final, and are only present in the
+data for the current assessment year up until the moment when values go out to
+mail. At that point the `pre_mailed` values disappear and `mailed` values
+replace them
+{% enddocs %}
+
+## pre_mailed_tot
+
+{% docs shared_column_pre_mailed_tot %}
+Provisional mailed total assessed/market value from year specified by column
+prefix (or year of observation if not prefixed).
+
+This the pre-appeal value that is initially mailed to taxpayers.
+However, this value is post-Desk Review and so may not perfectly match
+outputs from the model.
+
+Provisional mailed values are not final, and are only present in the
+data for the current assessment year up until the moment when values go out to
+mail. At that point the `pre_mailed` values disappear and `mailed` values
+replace them
+{% enddocs %}
+
 # Characteristics
 
 ## char_age
