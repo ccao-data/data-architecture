@@ -99,7 +99,7 @@ WITH unfilled AS (
     LEFT JOIN (
         SELECT DISTINCT
             year,
-            arterial_road_data_year
+            nearest_arterial_road_data_year
         FROM {{ ref('proximity.dist_pin_to_arterial_road' ) }}
     ) AS dist_pin_to_arterial_road ON pin.year = dist_pin_to_arterial_road.year
     LEFT JOIN (
@@ -117,7 +117,7 @@ WITH unfilled AS (
     LEFT JOIN (
         SELECT DISTINCT
             year,
-            collector_road_data_year
+            nearest_collector_road_data_year
         FROM {{ ref('proximity.dist_pin_to_collector_road' ) }}
     ) AS dist_pin_to_collector_road
         ON pin.year = dist_pin_to_collector_road.year
@@ -148,7 +148,7 @@ WITH unfilled AS (
     LEFT JOIN (
         SELECT DISTINCT
             year,
-            highway_road_data_year
+            nearest_highway_road_data_year
         FROM {{ ref('proximity.dist_pin_to_highway_road' ) }}
     ) AS dist_pin_to_highway_road ON pin.year = dist_pin_to_highway_road.year
     LEFT JOIN (
