@@ -437,7 +437,7 @@ clean_values AS (
             WHEN stage_values.certified_tot IS NOT NULL THEN 2
             WHEN stage_values.pre_certified_tot IS NOT NULL THEN 1.5
             WHEN stage_values.mailed_tot IS NOT NULL THEN 1
-            WHEN stage_values.pre_mailed_tot IS NOT NULL THEN 0
+            WHEN stage_values.pre_mailed_tot IS NOT NULL THEN 0.5
         END AS stage_num
     FROM stage_values
 ),

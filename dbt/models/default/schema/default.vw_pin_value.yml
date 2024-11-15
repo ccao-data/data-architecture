@@ -83,7 +83,7 @@ models:
 
           The possible values include:
 
-          - `0` = Pre-mailed
+          - `0.5` = Pre-mailed
           - `1` = Mailed
           - `1.5` = Assessor pre-certified
           - `2` = Assessor certified

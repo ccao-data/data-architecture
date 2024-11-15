@@ -36,7 +36,7 @@ WITH stage_values AS (
                 -- the difference for legacy compatibility
                 'BOR CERTIFIED'
             ],
-            ARRAY[0, 1, 1.5, 2, 3],
+            ARRAY[0.5, 1, 1.5, 2, 3],
             {% for col in cols %}
                 ARRAY[
                     pre_mailed_{{ col }},
