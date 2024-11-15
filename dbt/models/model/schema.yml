@@ -595,12 +595,15 @@ models:
       - *prox_airport_dnl_total
       - *prox_avg_school_rating_in_half_mile
       - *prox_lake_michigan_dist_ft
+      - *prox_nearest_arterial_road_dist_ft
       - *prox_nearest_bike_trail_dist_ft
       - *prox_nearest_cemetery_dist_ft
+      - *prox_nearest_connector_road_dist_ft
       - *prox_nearest_cta_route_dist_ft
       - *prox_nearest_cta_stop_dist_ft
       - *prox_nearest_golf_course_dist_ft
       - *prox_nearest_hospital_dist_ft
+      - *prox_nearest_highway_road_dist_ft
       - *prox_nearest_major_road_dist_ft
       - *prox_nearest_metra_route_dist_ft
       - *prox_nearest_metra_stop_dist_ft
