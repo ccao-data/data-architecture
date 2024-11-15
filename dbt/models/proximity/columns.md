@@ -58,6 +58,14 @@ Schools of any type (elementary, secondary, etc.) are included.
 School ratings sourced from [GreatSchools](https://www.greatschools.org/)
 {% enddocs %}
 
+## lake_michigan_dist_ft
+
+{% docs column_lake_michigan_dist_ft %}
+Distance to Lake Michigan shoreline (feet).
+
+Shoreline sourced from Census hydrography files
+{% enddocs %}
+
 ## nearest_arterial_road_daily_traffic
 
 {% docs column_nearest_arterial_road_daily_traffic %}
@@ -104,14 +112,6 @@ Road data sourced from Illinois Department of Transportation
 Surface type for the nearest arterial road (for example brick, stone, etc.).
 
 Road data sourced from Illinois Department of Transportation.
-{% enddocs %}
-
-## lake_michigan_dist_ft
-
-{% docs column_lake_michigan_dist_ft %}
-Distance to Lake Michigan shoreline (feet).
-
-Shoreline sourced from Census hydrography files
 {% enddocs %}
 
 ## nearest_bike_trail_dist_ft
@@ -327,14 +327,6 @@ Nearest highway road name.
 Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
 
-## nearest_highway_road_surface type
-
-{% docs column_nearest_highway_road_daily_traffic %}
-Surface type for the nearest highway road (for example brick, stone, etc.).
-
-Road data sourced from Illinois Department of Transportation.
-{% enddocs %}
-
 ## nearest_highway_road_speed_limit
 
 {% docs column_nearest_highway_road_daily_traffic %}
@@ -343,6 +335,13 @@ Speed limit for the nearest highway road.
 Road data sourced from Illinois Department of Transportation.
 {% enddocs %}
 
+## nearest_highway_road_surface type
+
+{% docs column_nearest_highway_road_daily_traffic %}
+Surface type for the nearest highway road (for example brick, stone, etc.).
+
+Road data sourced from Illinois Department of Transportation.
+{% enddocs %}
 
 ## nearest_hospital_dist_ft
 
