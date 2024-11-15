@@ -411,6 +411,8 @@ stage_values AS (
     GROUP BY asmt.parid, asmt.taxyr
 ),
 
+-- Add stage names and stage numbers to the values based on the columns that
+-- are present
 clean_values AS (
     SELECT
         stage_values.*,
@@ -442,6 +444,8 @@ clean_values AS (
     FROM stage_values
 ),
 
+-- Query change reason codes for each PIN so that we can add it to the stage
+-- values for context
 change_reasons AS (
     SELECT
         aprval.parid AS pin,
