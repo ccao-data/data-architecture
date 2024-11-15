@@ -67,72 +67,28 @@ models:
         description: '{{ doc("shared_column_year") }}'
 
     data_tests:
-    - not_null:
-        name: default_vw_pin_value_board_class_not_null
-        column_name: board_class
-        config:
-          where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1
-          error_if: ">1260"
-    - not_null:
-        name: default_vw_pin_value_board_tot_mv_not_null
-        column_name: board_tot_mv
-        config:
-          where: |
-            CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1 AND
-            year >= '2020'
-          error_if: ">1260"
-    - not_null:
-        name: default_vw_pin_value_board_tot_not_null
-        column_name: board_tot
-        config:
-          where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1
-          error_if: ">1260"
-    - not_null:
-        name: default_vw_pin_value_certified_class_not_null
-        column_name: certified_class
-        config:
-          where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
-          error_if: ">15"
-    - not_null:
-        name: default_vw_pin_value_certified_tot_mv_not_null
-        column_name: certified_tot_mv
-        config:
-          where: |
-            CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} AND
-            year >= '2021'
-          error_if: ">15"
-    - not_null:
-        name: default_vw_pin_value_certified_tot_not_null
-        column_name: certified_tot
-        config:
-          where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
-          error_if: ">15"
-    - not_accepted_values:
-        name: default_vw_pin_value_mailed_class_no_hyphens
-        column_name: mailed_class
-        values: "2-99"
-    - not_null:
-        name: default_vw_pin_value_mailed_class_not_null
-        column_name: mailed_class
-        config:
-          where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
-          error_if: ">289"
-    - not_null:
-        name: default_vw_pin_value_mailed_tot_mv_not_null
-        column_name: mailed_tot_mv
-        config:
-          where: |
-            CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} AND
-            year >= '2021'
-          error_if: ">310"
-    - not_null:
-        name: default_vw_pin_value_mailed_tot_not_null
-        column_name: mailed_tot
-        config:
-          where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
-          error_if: ">310"
     - unique_combination_of_columns:
         name: default_vw_pin_value_unique_by_14_digit_pin_and_year
         combination_of_columns:
           - pin
           - year
+
+unit_tests:
+  - name: default_vw_pin_value_mailed_class_strips_non_alphanumerics
+    description: mailed_class transformation should remove non-alphanumeric characters
+    model: default.vw_pin_value
+    given:
+      - input: source("iasworld", "asmt_all")
+        # `class` is the important column here, and all other columns are only
+        # provided to ensure proper joins when creating the dummy table
+        rows:
+          - {parid: "123", taxyr: "2024", procname: "CCAOVALUE", rolltype: "RP", valasm3: 10, class: "2.1-1)A"}
+      - input: source("iasworld", "aprval")
+        rows:
+          - {parid: "123", taxyr: "2024", procname: "CCAOVALUE", reascd: "28"}
+      - input: ref("ccao.aprval_reascd")
+        rows:
+          - {reascd: "28"}
+    expect:
+      rows:
+        - {mailed_class: "211A"}

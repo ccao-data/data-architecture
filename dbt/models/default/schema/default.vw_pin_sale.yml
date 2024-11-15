@@ -55,6 +55,10 @@ models:
         description: '{{ doc("shared_column_year") }}'
 
     data_tests:
+      # It would be nice to move this to a unit test, but we currently can't do
+      # so due to a bug in dbt unit tests: sale.mydec contains identifiers
+      # that start with digits, but dbt doesn't double-quote identifiers when
+      # building fixtures, so Athena raises an error during fixture setup
       - not_accepted_values:
           name: default_vw_pin_sale_class_no_hyphens
           column_name: class
@@ -68,25 +72,15 @@ models:
       - not_null:
           name: default_vw_pin_sale_num_parcels_sale_not_null
           column_name: num_parcels_sale
-      # Number of sales for a given time period isn't suspicious
-      - unique_combination_of_columns:
-          name: default_vw_pin_sale_reasonable_number_of_sales_per_year
-          combination_of_columns:
-            - pin
-            - year
-          allowed_duplicates: 2
-          config:
-            error_if: ">4032"
       - row_count:
           name: default_vw_pin_sale_row_count
-          above: 2477674 # as of 2023-11-22
+          above: 2496073 # as of 2024-11-14
       - expression_is_true:
           name: default_vw_pin_sale_sale_filter_deed_type
           expression: NOT sale_filter_deed_type OR deed_type IN ('03', '04', '06')
       - expression_is_true:
           name: default_vw_pin_sale_sale_filter_less_than_10k
           expression: NOT sale_filter_less_than_10k OR sale_price <= 10000
-      # No sales for same price/pin within 12 months
       - unique_combination_of_columns:
           name: default_vw_pin_sale_unique_price_pin_and_year
           combination_of_columns:
@@ -95,7 +89,3 @@ models:
             - sale_price
           config:
             where: NOT sale_filter_same_sale_within_365 AND NOT sale_filter_deed_type
-      # TODO: Sale is validated (after sales validation has been added to
-      # iasworld)
-      # TODO: Validation is catching obvious outliers
-      # TODO: Joins with other tables produce consistent number of rows

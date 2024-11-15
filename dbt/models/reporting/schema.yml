@@ -236,7 +236,9 @@ models:
           name: reporting_vw_pin_township_class_township_name_not_null
           column_name: township_name
           config:
-            error_if: ">409" # as of 2024-04-08
+            where: >
+              CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }}
+              AND {{ var('data_test_iasworld_year_end') }}
       - unique_combination_of_columns:
           name: reporting_vw_pin_township_class_unique_by_14_digit_pin_year_stage
           combination_of_columns:
@@ -286,7 +288,6 @@ models:
           column_name: tot
           config:
             where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
-            error_if: ">21" # as of 2024-04-01
       - unique_combination_of_columns:
           name: reporting_vw_pin_value_long_unique_by_14_digit_pin_year_stage
           combination_of_columns:
@@ -323,6 +324,9 @@ models:
   - name: reporting.vw_top_5_muni
     description: '{{ doc("view_vw_top_5_muni") }}'
     data_tests:
+      # It would be nice to move hyphen checks to unit tests, but the fixture
+      # definitions would be extremely complicated, so for now we leave them
+      # as data tests
       - not_accepted_values:
           name: reporting_vw_top_5_muni_class_no_hyphens
           column_name: class

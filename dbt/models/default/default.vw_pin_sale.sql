@@ -338,4 +338,4 @@ FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
 LEFT JOIN sales_val
-    ON unique_sales.doc_no = sales_val.meta_sale_document_num;
+    ON unique_sales.doc_no = sales_val.meta_sale_document_num

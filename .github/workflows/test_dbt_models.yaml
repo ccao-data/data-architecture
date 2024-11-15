@@ -1,15 +1,28 @@
 name: test-dbt-models
 
-# This workflow is not scheduled or run on PRs because it is manually triggered
-# by the Data Department's sqoop data extraction process upon completion. See
-# https://github.com/ccao-data/service-sqoop-iasworld
+# This workflow is not configured to run on PRs, because PRs have their own CI
+# process defined by the `build-and-test-dbt` workflow. It runs under two
+# circumstances:
+#
+#   1. When manually triggered by the Data Department's Spark data extraction
+#      process upon completion. This process runs iasWorld data tests. See
+#      https://github.com/ccao-data/service-sqoop-iasworld
+#
+#   2. On the cron schedule set below, which runs non-iasWorld data tests on
+#      a weekly schedule to alert the team of any problems proactively
 on:
   workflow_dispatch:
     inputs:
       select:
         description: >
           Optional space-separated list of tests to run (defaults to all
-          iasWorld data tests)
+          non-iasWorld data tests)
+        required: false
+        type: string
+      selector:
+        description: >
+          Optional dbt selector representing tests to run (takes precedence
+          over the above list of tests if both are present)
         required: false
         type: string
       upload_test_results:
@@ -17,6 +30,9 @@ on:
         required: false
         default: false
         type: boolean
+  schedule:
+    # Every Monday at 11am UTC (6am UTC-5)
+    - cron: '0 11 * * 1'
 
 env:
   UV_SYSTEM_PYTHON: 1
@@ -37,8 +53,10 @@ jobs:
         id: parse-inputs
         run: |
           # Default to running all tests
-          SELECT_OPTION="--selector select_data_test_iasworld"
-          if [[ -n "$SELECT" ]]; then
+          SELECT_OPTION="--selector select_data_test_non_iasworld"
+          if [[ -n "$SELECTOR" ]]; then
+            SELECT_OPTION="--selector $SELECTOR"
+          elif [[ -n "$SELECT" ]]; then
             SELECT_OPTION="--select $SELECT"
           fi
           echo "Setting select option to '$SELECT_OPTION'"
@@ -46,6 +64,7 @@ jobs:
         shell: bash
         env:
           SELECT: ${{ inputs.select }}
+          SELECTOR: ${{ inputs.selector }}
 
       - name: Setup dbt
         uses: ./.github/actions/setup_dbt
