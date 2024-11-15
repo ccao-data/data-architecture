@@ -11,6 +11,7 @@ repos:
       - id: sqlfmt
         entry: >-
           sqlfmt -v dbt
+            --exclude dbt/venv/**/*
             --exclude dbt/.venv/**/*
             --exclude dbt/models/**/*
             --exclude dbt/target/**/*
