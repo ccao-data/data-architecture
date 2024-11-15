@@ -268,6 +268,12 @@ SELECT
             OVER (ORDER BY year DESC)
     ) AS airport_data_year,
     COALESCE(
+        nearest_arterial_road_data_year,
+        LAST_VALUE(nearest_arterial_road_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY year DESC)
+    ) AS nearest_arterial_road_data_year,
+    COALESCE(
         nearest_bike_trail_data_year,
         LAST_VALUE(nearest_bike_trail_data_year)
             IGNORE NULLS
@@ -292,6 +298,12 @@ SELECT
             OVER (ORDER BY year DESC)
     ) AS nearest_cta_stop_data_year,
     COALESCE(
+        nearest_collector_road_data_year,
+        LAST_VALUE(nearest_collector_road_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY year DESC)
+    ) AS nearest_collector_road_data_year,
+    COALESCE(
         nearest_golf_course_data_year,
         LAST_VALUE(nearest_golf_course_data_year)
             IGNORE NULLS
@@ -303,6 +315,12 @@ SELECT
             IGNORE NULLS
             OVER (ORDER BY year DESC)
     ) AS nearest_grocery_store_data_year,
+    COALESCE(
+        nearest_highway_road_data_year,
+        LAST_VALUE(nearest_highway_road_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY year DESC)
+    ) AS nearest_highway_road_data_year,
     COALESCE(
         nearest_hospital_data_year,
         LAST_VALUE(nearest_hospital_data_year)
