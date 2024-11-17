@@ -256,7 +256,7 @@ SELECT
     vwpf.nearest_arterial_road_dist_ft AS prox_nearest_arterial_road_dist_ft,
     vwpf.nearest_bike_trail_dist_ft AS prox_nearest_bike_trail_dist_ft,
     vwpf.nearest_cemetery_dist_ft AS prox_nearest_cemetery_dist_ft,
-    vwpf.nearest_collector_dist_ft AS prox_nearest_collector_dist_ft,
+    vwpf.nearest_connector_road_dist_ft AS prox_nearest_connector_road_dist_ft,
     vwpf.nearest_cta_route_dist_ft AS prox_nearest_cta_route_dist_ft,
     vwpf.nearest_cta_stop_dist_ft AS prox_nearest_cta_stop_dist_ft,
     vwpf.nearest_golf_course_dist_ft AS prox_nearest_golf_course_dist_ft,
