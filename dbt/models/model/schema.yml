@@ -396,9 +396,9 @@ models:
       - &prox_lake_michigan_dist_ft
         name: prox_lake_michigan_dist_ft
         description: '{{ doc("column_lake_michigan_dist_ft") }}'
-      - &prox_nearest_arterial_road_average_traffic
-        name: prox_nearest_arterial_road_average_traffic
-        description: '{{ doc("column_nearest_arterial_road_average_traffic") }}'
+      - &prox_nearest_arterial_road_daily_traffic
+        name: prox_nearest_arterial_road_daily_traffic
+        description: '{{ doc("column_nearest_arterial_road_daily_traffic") }}'
       - &prox_nearest_arterial_road_dist_ft
         name: prox_nearest_arterial_road_dist_ft
         description: '{{ doc("column_nearest_arterial_road_dist_ft") }}'
@@ -417,9 +417,9 @@ models:
       - &prox_nearest_cemetery_dist_ft
         name: prox_nearest_cemetery_dist_ft
         description: '{{ doc("column_nearest_cemetery_dist_ft") }}'
-      - &prox_nearest_collector_road_average_traffic
-        name: prox_nearest_collector_road_average_traffic
-        description: '{{ doc("column_nearest_collector_road_average_traffic") }}'
+      - &prox_nearest_collector_road_daily_traffic
+        name: prox_nearest_collector_road_daily_traffic
+        description: '{{ doc("column_nearest_collector_road_daily_traffic") }}'
       - &prox_nearest_collector_road_dist_ft
         name: prox_nearest_collector_road_dist_ft
         description: '{{ doc("column_nearest_collector_road_dist_ft") }}'
@@ -441,9 +441,9 @@ models:
       - &prox_nearest_golf_course_dist_ft
         name: prox_nearest_golf_course_dist_ft
         description: '{{ doc("column_nearest_golf_course_dist_ft") }}'
-      - &prox_nearest_highway_road_average_traffic
-        name: prox_nearest_highway_road_average_traffic
-        description: '{{ doc("column_nearest_highway_road_average_traffic") }}'
+      - &prox_nearest_highway_road_daily_traffic
+        name: prox_nearest_highway_road_daily_traffic
+        description: '{{ doc("column_nearest_highway_road_daily_traffic") }}'
       - &prox_nearest_highway_road_dist_ft
         name: prox_nearest_highway_road_dist_ft
         description: '{{ doc("column_nearest_highway_road_dist_ft") }}'
