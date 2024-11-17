@@ -10,7 +10,7 @@ library(arrow)
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(
   AWS_S3_RAW_BUCKET,
-  "spatial", "environment", "roads"
+  "spatial", "environment", "traffic"
 )
 
 # Get list of available files

@@ -8,7 +8,7 @@ library(stringr)
 # Define the S3 bucket and folder path
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-s3_folder <- "spatial/environment/roads"
+s3_folder <- "spatial/environment/traffic"
 output_bucket <- sub("/$", "", file.path(AWS_S3_WAREHOUSE_BUCKET, s3_folder))
 
 # Re-coding of road type
