@@ -440,6 +440,17 @@ SELECT
     END AS prox_airport_dnl_total,
     CASE
         WHEN
+            f1.prox_nearest_arterial_road_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_arterial_road_dist_ft
+        WHEN
+            f1.prox_nearest_arterial_road_dist_ft IS NULL
+            THEN nn1.prox_nearest_arterial_road_dist_ft
+        WHEN
+            nn1.prox_nearest_arterial_road_dist_ft IS NULL
+            THEN nn2.prox_nearest_arterial_road_dist_ft
+    END AS prox_nearest_arterial_road_dist_ft,
+    CASE
+        WHEN
             f1.prox_nearest_bike_trail_dist_ft IS NOT NULL
             THEN f1.prox_nearest_bike_trail_dist_ft
         WHEN
@@ -462,8 +473,30 @@ SELECT
     END AS prox_nearest_cemetery_dist_ft,
     f1.prox_nearest_cta_route_dist_ft,
     f1.prox_nearest_cta_stop_dist_ft,
+    CASE
+        WHEN
+            f1.prox_nearest_collector_road_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_collector_road_dist_ft
+        WHEN
+            f1.prox_nearest_collector_road_dist_ft IS NULL
+            THEN nn1.prox_nearest_collector_road_dist_ft
+        WHEN
+            nn1.prox_nearest_collector_road_dist_ft IS NULL
+            THEN nn2.prox_nearest_collector_road_dist_ft
+    END AS prox_nearest_collector_road_dist_ft,
     f1.prox_nearest_golf_course_dist_ft,
     f1.prox_nearest_grocery_store_dist_ft,
+    CASE
+        WHEN
+            f1.prox_nearest_highway_road_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_highway_road_dist_ft
+        WHEN
+            f1.prox_nearest_highway_road_dist_ft IS NULL
+            THEN nn1.prox_nearest_highway_road_dist_ft
+        WHEN
+            nn1.prox_nearest_highway_road_dist_ft IS NULL
+            THEN nn2.prox_nearest_highway_road_dist_ft
+    END AS prox_nearest_highway_road_dist_ft,
     CASE
         WHEN
             f1.prox_nearest_hospital_dist_ft IS NOT NULL
