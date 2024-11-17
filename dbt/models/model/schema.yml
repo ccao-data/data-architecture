@@ -398,7 +398,7 @@ models:
         description: '{{ doc("column_lake_michigan_dist_ft") }}'
       - &prox_nearest_arterial_road_dist_ft
         name: prox_nearest_arterial_road_dist_ft
-        description: '{{ doc("column_prox_nearest_arterial_road_dist_ft") }}'
+        description: '{{ doc("column_nearest_arterial_road_dist_ft") }}'
       - &prox_nearest_bike_trail_dist_ft
         name: prox_nearest_bike_trail_dist_ft
         description: '{{ doc("column_nearest_bike_trail_dist_ft") }}'
@@ -407,7 +407,7 @@ models:
         description: '{{ doc("column_nearest_cemetery_dist_ft") }}'
       - &prox_nearest_connector_road_dist_ft
         name: prox_nearest_connector_road_dist_ft
-        description: '{{ doc("column_prox_nearest_connector_road_dist_ft") }}'
+        description: '{{ doc("column_nearest_connector_road_dist_ft") }}'
       - &prox_nearest_cta_route_dist_ft
         name: prox_nearest_cta_route_dist_ft
         description: '{{ doc("column_nearest_cta_route_dist_ft") }}'
@@ -419,7 +419,7 @@ models:
         description: '{{ doc("column_nearest_golf_course_dist_ft") }}'
       - &prox_nearest_highway_road_dist_ft
         name: prox_nearest_highway_road_dist_ft
-        description: '{{ doc("column_prox_nearest_highway_road_dist_ft") }}'
+        description: '{{ doc("column_nearest_highway_road_dist_ft") }}'
       - &prox_nearest_hospital_dist_ft
         name: prox_nearest_hospital_dist_ft
         description: '{{ doc("column_nearest_hospital_dist_ft") }}'
