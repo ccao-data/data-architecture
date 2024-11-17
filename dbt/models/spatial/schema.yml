@@ -174,8 +174,8 @@ sources:
       - name: township
         description: '{{ doc("table_township") }}'
 
-      - name: traffic
-        description: '{{ doc("table_traffic") }}'
+      - name: roads
+        description: '{{ doc("table_roads") }}'
 
       - name: transit_dict
         description: '{{ doc("table_transit_dict") }}'
