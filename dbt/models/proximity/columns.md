@@ -329,7 +329,7 @@ Road data sourced from Illinois Department of Transportation.
 
 ## nearest_highway_road_speed_limit
 
-{% docs column_nearest_highway_speed_limit %}
+{% docs column_nearest_highway_road_speed_limit %}
 Speed limit for the nearest highway road.
 
 Road data sourced from Illinois Department of Transportation.
