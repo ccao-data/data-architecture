@@ -405,9 +405,9 @@ models:
       - &prox_nearest_cemetery_dist_ft
         name: prox_nearest_cemetery_dist_ft
         description: '{{ doc("column_nearest_cemetery_dist_ft") }}'
-      - &prox_nearest_connector_road_dist_ft
-        name: prox_nearest_connector_road_dist_ft
-        description: '{{ doc("column_nearest_connector_road_dist_ft") }}'
+      - &prox_nearest_collector_road_dist_ft
+        name: prox_nearest_collector_road_dist_ft
+        description: '{{ doc("column_nearest_collector_road_dist_ft") }}'
       - &prox_nearest_cta_route_dist_ft
         name: prox_nearest_cta_route_dist_ft
         description: '{{ doc("column_nearest_cta_route_dist_ft") }}'
@@ -598,7 +598,7 @@ models:
       - *prox_nearest_arterial_road_dist_ft
       - *prox_nearest_bike_trail_dist_ft
       - *prox_nearest_cemetery_dist_ft
-      - *prox_nearest_connector_road_dist_ft
+      - *prox_nearest_collector_road_dist_ft
       - *prox_nearest_cta_route_dist_ft
       - *prox_nearest_cta_stop_dist_ft
       - *prox_nearest_golf_course_dist_ft
@@ -855,7 +855,7 @@ models:
       - *prox_nearest_arterial_road_dist_ft
       - *prox_nearest_bike_trail_dist_ft
       - *prox_nearest_cemetery_dist_ft
-      - *prox_nearest_connector_road_dist_ft
+      - *prox_nearest_collector_road_dist_ft
       - *prox_nearest_cta_route_dist_ft
       - *prox_nearest_cta_stop_dist_ft
       - *prox_nearest_golf_course_dist_ft
