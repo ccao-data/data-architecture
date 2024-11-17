@@ -253,15 +253,36 @@ SELECT
 
     -- PIN proximity distance variables
     vwpf.airport_dnl_total AS prox_airport_dnl_total, --new
+    vwpf.nearest_arterial_road_daily_traffic
+        AS prox_nearest_arterial_road_daily_traffic,
     vwpf.nearest_arterial_road_dist_ft AS prox_nearest_arterial_road_dist_ft,
+    vwpf.nearest_arterial_road_lanes AS prox_nearest_arterial_road_lanes,
+    vwpf.nearest_arterial_road_speed_limit
+        AS prox_nearest_arterial_road_speed_limit,
+    vwpf.nearest_arterial_road_surface_type
+        AS prox_nearest_arterial_road_surface_type,
     vwpf.nearest_bike_trail_dist_ft AS prox_nearest_bike_trail_dist_ft,
     vwpf.nearest_cemetery_dist_ft AS prox_nearest_cemetery_dist_ft,
+    vwpf.nearest_collector_road_daily_traffic
+        AS prox_nearest_collector_road_daily_traffic,
     vwpf.nearest_collector_road_dist_ft AS prox_nearest_collector_road_dist_ft,
+    vwpf.nearest_collector_road_lanes AS prox_nearest_collector_road_lanes,
+    vwpf.nearest_collector_road_speed_limit
+        AS prox_nearest_collector_road_speed_limit,
+    vwpf.nearest_collector_road_surface_type
+        AS prox_nearest_collector_road_surface_type,
     vwpf.nearest_cta_route_dist_ft AS prox_nearest_cta_route_dist_ft,
     vwpf.nearest_cta_stop_dist_ft AS prox_nearest_cta_stop_dist_ft,
     vwpf.nearest_golf_course_dist_ft AS prox_nearest_golf_course_dist_ft,
     vwpf.nearest_grocery_store_dist_ft AS prox_nearest_grocery_store_dist_ft,
+    vwpf.nearest_highway_road_daily_traffic
+        AS prox_nearest_highway_road_daily_traffic,
     vwpf.nearest_highway_road_dist_ft AS prox_nearest_highway_road_dist_ft,
+    vwpf.nearest_highway_road_lanes AS prox_nearest_highway_road_lanes,
+    vwpf.nearest_highway_road_speed_limit
+        AS prox_nearest_highway_road_speed_limit,
+    vwpf.nearest_highway_road_surface_type
+        AS prox_nearest_highway_road_surface_type,
     vwpf.nearest_hospital_dist_ft AS prox_nearest_hospital_dist_ft,
     vwpf.lake_michigan_dist_ft AS prox_lake_michigan_dist_ft,
     vwpf.nearest_major_road_dist_ft AS prox_nearest_major_road_dist_ft,
