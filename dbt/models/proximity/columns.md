@@ -106,7 +106,7 @@ Speed limit for the nearest arterial road
 Road data sourced from Illinois Department of Transportation
 {% enddocs %}
 
-## nearest_arterial_road_surface type
+## nearest_arterial_road_surface_type
 
 {% docs column_nearest_arterial_road_surface_type %}
 Surface type for the nearest arterial road (for example brick, stone, etc.).
