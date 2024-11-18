@@ -128,65 +128,83 @@ list.files(
   bind_rows() %>%
   filter(str_detect(sheet, "Summary", negate = TRUE), !is.na(sheet)) %>%
   # Ingest the sheets, clean, and bind them ----
-  pmap(function(...) {
-    data <- tibble(...)
+pmap(function(...) {
+  data <- tibble(...)
 
-    read.xlsx(data$file, sheet = data$sheet) %>%
-      mutate(file = data$file, sheet = data$sheet) %>%
-      rename_with(tolower) %>%
-      set_names(str_replace_all(names(.), renames)) %>%
-      select(-starts_with("X"), -contains("age2")) %>%
-      mutate(
-        across(.cols = everything(), as.character)
-      )
-  }, .progress = TRUE) %>%
+  read.xlsx(data$file, sheet = data$sheet) %>%
+    mutate(file = data$file, sheet = data$sheet) %>%
+    rename_with(tolower) %>%
+    set_names(str_replace_all(names(.), renames)) %>%
+    select(-starts_with("X"), -contains("age2")) %>%
+    mutate(
+      across(.cols = everything(), as.character)
+    )
+}, .progress = TRUE) %>%
   bind_rows() %>%
-  filter(check.numeric(excesslandval)) %>%
+  filter(
+    check.numeric(excesslandval),
+    !is.na(keypin),
+    !str_detect(keypin, "[:alpha:]"),
+    keypin != '0'
+  ) %>%
   select(where(~ !all(is.na(.x)))) %>%
   # Add useful information to output and clean-up columns ----
-  mutate(
-    year = str_extract(file, "[0-9]{4}"),
-    township = str_replace_all(
-      str_extract(
-        file,
-        str_remove_all(
-          paste(ccao::town_dict$township_name, collapse = "|"), " "
-        )
-      ),
-      c(
-        "ElkGrove" = "Elk Grove",
-        "HydePark" = "Hyde Park",
-        "LakeView" = "Lake View",
-        "NewTrier" = "New Trier",
-        "NorthChicago" = "North Chicago",
-        "NorwoodPark" = "Norwood Park",
-        "OakPark" = "Oak Park",
-        "SouthChicago" = "South Chicago",
-        "RiverForest" = "River Forest",
-        "RogersPark" = "Rogers Park",
-        "WestChicago" = "West Chicago"
+mutate(
+  keypin = str_pad(keypin, side = "left", width = 14, pad = "0"),
+  keypin = ifelse(
+    nchar(keypin) == 14,
+    paste(
+      substr(keypin, 1, 2),
+      substr(keypin, 3, 4),
+      substr(keypin, 5, 7),
+      substr(keypin, 8, 10),
+      substr(keypin, 11, 14),
+      sep = "-"
+    ),
+    keypin
+    ),
+  year = str_extract(file, "[0-9]{4}"),
+  township = str_replace_all(
+    str_extract(
+      file,
+      str_remove_all(
+        paste(ccao::town_dict$township_name, collapse = "|"), " "
       )
     ),
-    township = coalesce(township, ccao::town_convert(substr(taxdist, 1, 2))),
-    across(.cols = everything(), ~ na_if(.x, "N/A")),
-    # Ignore known character columns for parse_number
-    across(.cols = !char_cols, parse_number),
-    # Columns that can be numeric should be
-    across(where(~ all(check.numeric(.x))), as.numeric),
-    yearbuilt = case_when(
-      is.na(yearbuilt) & age < 1000 ~ (year - age),
-      TRUE ~ yearbuilt
-    ),
-    tot_units = coalesce(tot_units, tot_apts, `boatslips`, `mobilehomepads`),
-    # Don't stack pin numbers when "Thru" is present in PIN list
-    across(.cols = c(pins, `class(es)`), ~ case_when(
-      grepl("thru", .x, ignore.case = TRUE) ~ str_squish(.x),
-      .x == "0" ~ NA,
-      TRUE ~ str_replace_all(str_squish(.x), " ", ", ")
-    )),
-    across(int_cols, as.integer),
-    across(char_cols, as.character)
-  ) %>%
+    c(
+      "ElkGrove" = "Elk Grove",
+      "HydePark" = "Hyde Park",
+      "LakeView" = "Lake View",
+      "NewTrier" = "New Trier",
+      "NorthChicago" = "North Chicago",
+      "NorwoodPark" = "Norwood Park",
+      "OakPark" = "Oak Park",
+      "SouthChicago" = "South Chicago",
+      "RiverForest" = "River Forest",
+      "RogersPark" = "Rogers Park",
+      "WestChicago" = "West Chicago"
+    )
+  ),
+  township = coalesce(township, ccao::town_convert(substr(taxdist, 1, 2))),
+  across(.cols = everything(), ~ na_if(.x, "N/A")),
+  # Ignore known character columns for parse_number
+  across(.cols = !char_cols, parse_number),
+  # Columns that can be numeric should be
+  across(where(~ all(check.numeric(.x))), as.numeric),
+  yearbuilt = case_when(
+    is.na(yearbuilt) & age < 1000 ~ (year - age),
+    TRUE ~ yearbuilt
+  ),
+  tot_units = coalesce(tot_units, tot_apts, `boatslips`, `mobilehomepads`),
+  # Don't stack pin numbers when "Thru" is present in PIN list
+  across(.cols = c(pins, `class(es)`), ~ case_when(
+    grepl("thru", .x, ignore.case = TRUE) ~ str_squish(.x),
+    .x == "0" ~ NA,
+    TRUE ~ str_replace_all(str_squish(.x), " ", ", ")
+  )),
+  across(int_cols, as.integer),
+  across(char_cols, as.character)
+) %>%
   # Remove empty columns
   select(where(~ !(all(is.na(.)) | all(. == "")))) %>%
   # Remove pre-declared columns
