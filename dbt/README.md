@@ -890,12 +890,13 @@ You should see output like this, which you can run in the context of the
 repository on the server in order to refresh iasWorld tables:
 
 ```
-Run the following commands on the Data Team server:
+Run the following commands on the Data Team server as the shiny-server user:
 
 cd /path/to/service-spark-iasworld/
-docker compose up -d
-docker exec spark-node-master ./submit.sh --json-string --no-run-github-workflow
-'{"aprval": {"table_name": "iasworld.aprval", "min_year": 2024, "cur": ["Y"], ...
+docker compose --profile prod up -d
+docker exec spark-node-master-prod ./submit.sh
+    --upload-data --upload-logs --run-glue-crawler
+    --json-string {"aprval": {"table_name": "iasworld.aprval", "min_year": 2024, "cur": ["Y"], ...
 ```
 
 #### Running the AHSAP change in value QC report
