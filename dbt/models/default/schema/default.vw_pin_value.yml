@@ -61,6 +61,8 @@ models:
         description: '{{ doc("shared_column_mailed_tot") }}'
       - name: mailed_tot_mv
         description: '{{ doc("shared_column_mailed_tot") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
       - name: pre_certified_bldg
         description: '{{ doc("shared_column_pre_certified_bldg") }}'
       - name: pre_certified_bldg_mv
@@ -89,8 +91,6 @@ models:
         description: '{{ doc("shared_column_pre_mailed_tot") }}'
       - name: pre_mailed_tot_mv
         description: '{{ doc("shared_column_pre_mailed_land") }}'
-      - name: pin
-        description: '{{ doc("shared_column_pin") }}'
       - name: stage_name
         description: |
           Name of currently active/open stages.
