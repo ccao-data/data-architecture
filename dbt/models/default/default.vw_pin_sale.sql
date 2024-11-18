@@ -18,7 +18,6 @@ WITH town_class AS (
     WHERE par.cur = 'Y'
         AND par.deactivat IS NULL
 ),
-
 -- "nopar" isn't entirely accurate for sales associated with only one parcel,
 -- so we create our own counter
 calculated AS (
@@ -35,7 +34,6 @@ calculated AS (
     )
     GROUP BY instruno
 ),
-
 unique_sales AS (
     SELECT
         *,
@@ -49,16 +47,7 @@ unique_sales AS (
                 sale_date
             ) <= 365,
             FALSE
-        ) AS sale_filter_same_sale_within_365,
-        -- Compute sale_filter_same_iasworld_sale_within_365 using the same logic --noqa
-        COALESCE(
-            DATE_DIFF(
-                'day',
-                same_price_earlier_date,
-                sale_date
-            ) <= 365,
-            FALSE
-        ) AS sale_filter_same_iasworld_sale_within_365 --noqa
+        ) AS sale_filter_same_sale_within_365
     FROM (
         SELECT
             sales.parid AS pin,
@@ -108,9 +97,9 @@ unique_sales AS (
             -- iasworld.sales since it prevents us from joining to mydec sales.
             -- This creates one instance where we have duplicate document
             -- numbers, so we sort by sale date (specifically to avoid conflicts
-            -- with detecting the earliest duplicate sale when there are
+            -- with detecting the easliest duplicate sale when there are
             -- multiple within one document number, within a year) within the
-            -- new document number to identify and remove the sale causing the
+            -- new doument number to identify and remove the sale causing the
             -- duplicate document number.
             ROW_NUMBER() OVER (
                 PARTITION BY
@@ -121,7 +110,7 @@ unique_sales AS (
             ) AS bad_doc_no,
             -- Some pins sell for the exact same price a few months after
             -- they're sold (we need to make sure to only include deed types we
-            -- want). These sales are unnecessary for modeling and may be
+            -- want). These sales are unecessary for modeling and may be
             -- duplicates. We need to order by salekey as well in case of any
             -- ties within price, date, and pin.
             LAG(DATE_PARSE(SUBSTR(sales.saledt, 1, 10), '%Y-%m-%d')) OVER (
@@ -161,7 +150,6 @@ unique_sales AS (
     WHERE max_price = 1
         AND (bad_doc_no = 1 OR is_multisale = TRUE)
 ),
-
 mydec_sales AS (
     SELECT * FROM (
         SELECT
@@ -230,15 +218,14 @@ mydec_sales AS (
             ) AS num_single_day_sales,
             year_of_sale AS year
         FROM {{ source('sale', 'mydec') }}
-        --WHERE line_2_total_parcels < 2
+        WHERE line_2_total_parcels = 1
     )
     /* Some sales in mydec have multiple rows for one pin on a given sale date.
     Sometimes they have different dates than iasworld prior to 2021 and when
     joined back onto unique_sales will create duplicates by pin/sale date. */
     WHERE num_single_day_sales = 1
-        AND year > '2020'
+        OR year > '2020'
 ),
-
 max_version_flag AS (
     SELECT
         meta_sale_document_num,
@@ -246,7 +233,6 @@ max_version_flag AS (
     FROM {{ source('sale', 'flag') }}
     GROUP BY meta_sale_document_num
 ),
-
 sales_val AS (
     SELECT
         sf.meta_sale_document_num,
@@ -264,7 +250,6 @@ sales_val AS (
         ON sf.meta_sale_document_num = mv.meta_sale_document_num
         AND sf.version = mv.max_version
 ),
-
 -- CTE to coalesce iasworld and mydec values prior to
 -- constructing filters that depend on coalesced fields
 combined_sales AS (
@@ -296,15 +281,12 @@ combined_sales AS (
             OR YEAR(uq_sales.sale_date) >= 2021,
             FALSE
         ) AS is_mydec_date,
-        COALESCE(uq_sales.sale_filter_same_iasworld_sale_within_365, FALSE)
-            AS sale_filter_same_iasworld_sale_within_365,
         COALESCE(uq_sales.sale_price, md_sales.sale_price)
             AS sale_price_coalesced, --noqa
         uq_sales.sale_key,
         COALESCE(uq_sales.doc_no, md_sales.doc_no) AS doc_no_coalesced, --noqa
         COALESCE(uq_sales.deed_type, md_sales.mydec_deed_type)
             AS deed_type_coalesced,
-        uq_sales.deed_type AS deed_type_ias,
         COALESCE(uq_sales.seller_name, md_sales.seller_name)
             AS seller_name_coalesced,
         COALESCE(uq_sales.is_multisale, md_sales.is_multisale)
@@ -349,14 +331,11 @@ combined_sales AS (
     -- 'source' column lets us know which table the doc_no came from and allows
     -- us to filter for only iasworld sales or for mydec sales that aren't in
     -- iasworld already.
-    FULL OUTER JOIN mydec_sales AS md_sales
-        ON uq_sales.doc_no = md_sales.doc_no
-        AND md_sales.is_multisale = FALSE
+    FULL OUTER JOIN mydec_sales AS md_sales ON uq_sales.doc_no = md_sales.doc_no
     LEFT JOIN town_class AS tc
         ON COALESCE(uq_sales.pin, md_sales.pin) = tc.parid
         AND COALESCE(uq_sales.year, md_sales.year) = tc.taxyr
 ),
-
 -- Handle various filters 
 add_filter_sales AS (
     SELECT
@@ -391,7 +370,6 @@ add_filter_sales AS (
         ) AS sale_filter_deed_type
     FROM combined_sales AS cs
 )
-
 SELECT
     afs.pin_coalesced AS pin,
     afs.year_coalesced AS year,
@@ -410,12 +388,11 @@ SELECT
     afs.buyer_name_coalesced AS buyer_name,
     afs.sale_type_coalesced AS sale_type,
     afs.sale_filter_same_sale_within_365,
-    afs.sale_filter_same_iasworld_sale_within_365,
     afs.sale_filter_less_than_10k,
     afs.sale_filter_deed_type,
     -- Our sales validation pipeline only validates sales past 2014 due to MyDec
     -- limitations. Previous to that values for sv_is_outlier will be NULL, so
-    -- if we want to both exclude detected outliers and include ssales prior to
+    -- if we want to both exclude detected outliers and include sales prior to
     -- 2014, we need to code everything NULL as FALSE.
     COALESCE(sales_val.sv_is_outlier, FALSE) AS sale_filter_is_outlier,
     afs.mydec_deed_type,
