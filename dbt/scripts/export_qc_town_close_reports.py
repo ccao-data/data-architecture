@@ -3,19 +3,29 @@
 # Run `python scripts/export_qc_town_close_reports.py --help` for details.
 import argparse
 import contextlib
+import dataclasses
 import datetime
 import io
 import json
+import pathlib
 
 from dbt.cli.main import dbtRunner
 from utils import constants
-from utils.export import export_models
+from utils.export import (
+    ModelForExport,
+    query_models_for_export,
+    save_model_to_workbook,
+)
+from utils.townships import (
+    TOWNSHIPS,
+    TOWNSHIPS_BY_CODE,
+)
 
 DBT = dbtRunner()
 
 CLI_DESCRIPTION = """Export town close QC reports to Excel files.
 
-Expects dependencies from requirements.txt (dbt dependencies) and scripts/requirements.export_models.txt (script dependencies) be installed.
+Expects dependencies from [project].dependencies (dbt dependencies) and [project.optional-dependencies].dbt_tests (script dependencies) be installed.
 
 The queries that generate these reports run against our data warehouse, which ingests data from iasWorld overnight once daily. Sometimes a
 staff member will request a report during the middle of the workday, and they will need the most recent data, which will not exist in
@@ -35,60 +45,6 @@ To get a command to run to refresh iasWorld tables prior to export:
     python scripts/export_qc_town_close_reports.py --township 70 --year 2024 --print-table-refresh-command
 """  # noqa: E501
 
-# Map township codes to their triad number
-TOWNSHIP_TO_TRI = {
-    "10": "2",
-    "11": "3",
-    "12": "3",
-    "13": "3",
-    "14": "3",
-    "15": "3",
-    "16": "2",
-    "17": "2",
-    "18": "2",
-    "19": "3",
-    "20": "2",
-    "21": "3",
-    "22": "2",
-    "23": "2",
-    "24": "2",
-    "25": "2",
-    "26": "2",
-    "27": "3",
-    "28": "3",
-    "29": "2",
-    "30": "3",
-    "31": "3",
-    "32": "3",
-    "33": "3",
-    "34": "3",
-    "35": "2",
-    "36": "3",
-    "37": "3",
-    "38": "2",
-    "39": "3",
-    "70": "1",
-    "71": "1",
-    "72": "1",
-    "73": "1",
-    "74": "1",
-    "75": "1",
-    "76": "1",
-    "77": "1",
-}
-
-
-def is_tri(township_code: str, year: int) -> bool:
-    """Helper function to determine if a town in a given year is undergoing
-    triennial reassessment"""
-    try:
-        tri = TOWNSHIP_TO_TRI[township_code]
-    except KeyError:
-        raise ValueError(f"'{township_code}' is not a valid township code")
-    # 2024 is the City reassessment year (tri code 1), so
-    # ((2024 - 2024) % 3) + 1 == 1, and so on for the other two tris
-    return str(((year - 2024) % 3) + 1) == tri
-
 
 def parse_args() -> argparse.Namespace:
     """Helper function to parse arguments to this script"""
@@ -107,8 +63,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--township",
-        required=True,
-        help="Township code to use in filtering query results",
+        required=False,
+        nargs="*",
+        help=(
+            "One or more space-separated township codes to use when filtering "
+            "query results. When missing, defaults to all towns."
+        ),
     )
     parser.add_argument(
         "--year",
@@ -127,23 +87,50 @@ def parse_args() -> argparse.Namespace:
             "refresh table data before running exports"
         ),
     )
+    parser.add_argument(
+        *constants.OUTPUT_DIR_ARGUMENT_ARGS,
+        **constants.OUTPUT_DIR_ARGUMENT_KWARGS,
+    )
     return parser.parse_args()
 
 
 def main():
     """Main entrypoint for the script"""
     args = parse_args()
-    tag = "tag:qc_report_town_close"
-    tag_suffix = "tri" if is_tri(args.township, args.year) else "non_tri"
+
+    townships = (
+        [TOWNSHIPS_BY_CODE[code] for code in args.township]
+        if args.township
+        else TOWNSHIPS
+    )
+
+    # Determine which dbt tags to select based on the tri status of each town
+    # (i.e. whether the town is up for reassessment in the given year).
+    # Models that apply to both tri and non-tri towns use the tag
+    # `qc_report_town_close`, while tri and non-tri towns add a suffix to this
+    # base tag (`_tri` and `_non_tri`, respectively)
+    base_tag = "tag:qc_report_town_close"
+    tags = {base_tag}
+    for town in townships:
+        tag_suffix = (
+            "tri" if town.is_reassessed_during(args.year) else "non_tri"
+        )
+        tags.add(f"{base_tag}_{tag_suffix}")
+    select = list(tags)
 
     if args.print_table_refresh_command:
-        # Use `dbt list` on parents to calculate update command for
-        # iasworld sources that are implicated by this call
+        # Use `dbt list` on parents to calculate the update command for
+        # iasWorld sources that are dependencies for the models we want to
+        # export
         dbt_list_args = [
             "--quiet",
             "list",
             "--target",
             args.target,
+            # Filter results for sources so that the `dbt list` call only
+            # returns iasWorld assets. We'll have to tweak this if we
+            # ever introduce town close reports that depend on non-iasWorld
+            # sources, like our spatial tables
             "--resource-types",
             "source",
             "--output",
@@ -152,8 +139,9 @@ def main():
             "name",
             "source_name",
             "--select",
-            f"+{tag}",
-            f"+{tag}_{tag_suffix}",
+            # Prepending a plus sign to each element of the select list
+            # instructs dbt to select their parents as well
+            *[f"+{tag}" for tag in select],
         ]
         dbt_output = io.StringIO()
         with contextlib.redirect_stdout(dbt_output):
@@ -193,23 +181,76 @@ def main():
 
             iasworld_deps[table_name] = formatted_dep
 
-        print("ssh into the server and run the following commands:")
+        print(
+            "Run the following commands on the Data Team",
+            "server as the shiny-server user:",
+        )
         print()
         print("cd /home/shiny-server/services/service-spark-iasworld")
-        print("docker-compose up -d")
+        print("docker compose --profile prod up -d")
         print(
-            "docker exec spark-node-master ./submit.sh "
-            "--no-run-github-workflow "
-            f"--json-string '{json.dumps(iasworld_deps)}' "
+            "docker exec spark-node-master-prod ./submit.sh",
+            "--upload-data --upload-logs --run-glue-crawler",
+            f"--json-string '{json.dumps(iasworld_deps)}'",
         )
     else:
-        where = f"township_code = '{args.township}' and taxyr = '{args.year}'"
-        export_models(
+        models_for_export = query_models_for_export(
             target=args.target,
             rebuild=args.rebuild,
-            select=[tag, f"{tag}_{tag_suffix}"],
-            where=where,
+            select=select,
+            where=f"taxyr = '{args.year}'",
         )
+        output_dir = args.output_dir or "export/output/"
+        for model in models_for_export:
+            for town in townships:
+                # Only produce an export for this town if the report model
+                # is configured for its reassessment year
+                town_is_tri = town.is_reassessed_during(args.year)
+                if f"{base_tag}_tri" in model.tags and not town_is_tri:
+                    print(
+                        f"Skipping {model.name} for {town.township_name} "
+                        "because the report is only for tri towns"
+                    )
+                    continue
+                elif f"{base_tag}_non_tri" in model.tags and town_is_tri:
+                    print(
+                        f"Skipping {model.name} for {town.township_name} "
+                        "because the report is only for non-tri towns"
+                    )
+                    continue
+
+                # Filter the query results for only this town, but only if the
+                # query results are not empty, since otherwise they will have
+                # no columns
+                town_df = (
+                    model.df
+                    if model.df.empty
+                    else model.df[
+                        model.df["township_code"] == town.township_code
+                    ]
+                )
+                town_export_filename = (
+                    f"{town.township_name} {model.export_filename}"
+                )
+                town_model_args = {
+                    **dataclasses.asdict(model),
+                    "df": town_df,
+                    "export_filename": town_export_filename,
+                }
+                town_model = ModelForExport(**town_model_args)
+
+                # Save query results to file, with a dedicated subdirectory
+                # for each town if we're exporting more than one town
+                print(f"Exporting {model.name} for {town.township_name}")
+                town_output_dirpath = (
+                    pathlib.Path(output_dir)
+                    if len(townships) < 2
+                    else pathlib.Path(output_dir) / town.township_name
+                )
+                town_output_dirpath.mkdir(parents=True, exist_ok=True)
+                save_model_to_workbook(
+                    town_model, town_output_dirpath.as_posix()
+                )
 
 
 if __name__ == "__main__":

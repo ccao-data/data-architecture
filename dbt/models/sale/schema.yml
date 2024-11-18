@@ -15,8 +15,9 @@ sources:
               PTAX-203 form (regardless of statistical deviation)
           - name: rolling_window
             description: |
-              Rolling window period used to calculate statistics
-              for flagging this sale
+              Rolling window period used to calculate grouping statistics
+              for flagging this sale. As of Sep 2024, ~1 year is the rolling window.
+              The month of the sale and the prior 11 months are used.
           - name: run_id
             description: '{{ doc("shared_column_sv_run_id") }}'
           - name: sv_is_heuristic_outlier

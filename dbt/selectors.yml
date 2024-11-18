@@ -3,6 +3,8 @@ selectors:
     description: Selector for running data tests on iasWorld tables
     definition:
       union:
+        - method: resource_type
+          value: test
         - method: tag
           value: data_test_iasworld
           # Only run tests that exclusively reference selected nodes. Useful
@@ -13,3 +15,13 @@ selectors:
         - exclude:
           - method: tag
             value: data_test_iasworld_exclude_from_workbook
+
+  - name: select_data_test_non_iasworld
+    description: Selector for running non-iasWorld data tests and unit tests
+    definition:
+      union:
+        - method: resource_type
+          value: test
+        - exclude:
+          - method: tag
+            value: data_test_iasworld

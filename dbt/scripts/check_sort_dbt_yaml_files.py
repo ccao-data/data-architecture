@@ -1,5 +1,23 @@
+# Script that acts as a linter to check that our dbt assets are ordered
+# alphabetically. Attributes that we check for ordering include:
+#
+# * `columns`, `data_tests`, and `unit_tests` in `schema.yml` files
+# * Headings in all docs Markdown files, with special cases for `columns.md`
+#   and `shared_columns.md` files that have specific sub-headings
+#
+# When positional arguments are present, the script interprets them as a list of
+# filepaths to lint. When no positional arguments are present, the script will
+# list all files recursively under the current working directory and lint
+# everything it finds with a filename or file extension that matches the assets
+# listed above.
+#
+# We primarily run this script via pre-commit, which automatically passes in
+# names of files that have changed. The default behavior when no arguments are
+# present exists to support running this script outside the context of
+# pre-commit.
 import os
 import re
+import sys
 from collections import defaultdict
 
 import yaml
@@ -129,9 +147,10 @@ def check_columns(file_path):
     return unsorted_files_dict, []
 
 
-def check_data_tests(file_path):
+def check_tests(file_path):
     """
-    Check if the 'data_tests' sections in a YAML file are sorted.
+    Check if the 'data_tests' and 'unit_tests' sections in a YAML file are
+    sorted.
 
     Args:
         file_path (str): The path to the YAML file to check.
@@ -145,11 +164,12 @@ def check_data_tests(file_path):
     except yaml.YAMLError as error:
         return [error], [file_path]
 
-    def check_data_tests_in_yaml(
+    def check_tests_in_yaml(
         data, file_path, unsorted_files_dict, parent_key=None
     ):
         """
-        Recursively check the 'data_tests' sections in a YAML structure for sorting.
+        Recursively check the 'data_tests' and 'unit_tests' sections in a YAML
+        structure for sorting.
 
         Args:
             data (dict or list): The YAML data to check.
@@ -159,46 +179,60 @@ def check_data_tests(file_path):
         """
         if isinstance(data, dict):
             for key, value in data.items():
-                if key == "data_tests" and isinstance(value, list):
-                    data_test_names = []
+                if key in ("data_tests", "unit_tests") and isinstance(
+                    value, list
+                ):
+                    test_names = []
                     for test in value:
                         if isinstance(test, dict):
-                            for test_type, test_details in test.items():
-                                if (
-                                    isinstance(test_details, dict)
-                                    and "name" in test_details
-                                ):
-                                    data_test_names.append(
-                                        (test_type, test_details["name"], test)
-                                    )
+                            # Unit tests have 'name' as a top-level attribute,
+                            # while data tests nest it inside the value keyed to
+                            # the name of the generic test. Hence if 'name' is
+                            # present, it means we're dealing with a unit test,
+                            # and otherwise we need to dig further to get the
+                            # name
+                            if "name" in test:
+                                test_names.append(test["name"])
+                            else:
+                                for test_type, test_details in test.items():
+                                    if (
+                                        isinstance(test_details, dict)
+                                        and "name" in test_details
+                                    ):
+                                        test_names.append(test_details["name"])
 
                     sorted_tests = sorted(
-                        data_test_names,
-                        key=lambda x: alphanumeric_key(normalize_string(x[1])),
+                        test_names,
+                        key=lambda x: alphanumeric_key(normalize_string(x)),
                     )
-                    if data_test_names != sorted_tests:
+                    if test_names != sorted_tests:
                         print(f"In file: {file_path}")
-                        print(f"Key above 'data_tests': {parent_key}")
-                        print("Data tests in this group are not sorted:")
-                        for i, (_, name, _) in enumerate(data_test_names):
-                            if name != sorted_tests[i][1]:
-                                print(f"---> {name}")
+                        # Unit tests are top-level attributes, so there will be
+                        # no parent key in their case
+                        if parent_key:
+                            print(f"Top level: {parent_key}")
+                        print(f"{key} in this group are not sorted:")
+                        for test_name, sorted_test_name in zip(
+                            test_names, sorted_tests
+                        ):
+                            if test_name != sorted_test_name:
+                                print(f"---> {test_name}")
                             else:
-                                print(f"- {name}")
+                                print(f"- {test_name}")
                         print("-" * 40)
                         unsorted_files_dict[file_path] += 1
                 else:
-                    check_data_tests_in_yaml(
+                    check_tests_in_yaml(
                         value, file_path, unsorted_files_dict, key
                     )
         elif isinstance(data, list):
             for item in data:
-                check_data_tests_in_yaml(
+                check_tests_in_yaml(
                     item, file_path, unsorted_files_dict, parent_key
                 )
 
     unsorted_files_dict = defaultdict(int)
-    check_data_tests_in_yaml(data, file_path, unsorted_files_dict)
+    check_tests_in_yaml(data, file_path, unsorted_files_dict)
     return unsorted_files_dict, []
 
 
@@ -340,46 +374,72 @@ def check_all_files(directory):
     Returns:
         tuple: Results of unsorted files and errors for different checks.
     """
-    unsorted_columns_files = defaultdict(int)
-    unsorted_data_tests_files = defaultdict(int)
-    error_files = []
-    unsorted_md_files = []
-    unsorted_columns_md_files = []
-    unsorted_shared_columns_md_files = []
+    file_paths_to_check = []
     for root, _, files in os.walk(directory):
         if "venv" in root:
             continue
         for file in files:
-            file_path = os.path.join(root, file)
-            if file.endswith(".yaml") or file.endswith(".yml"):
-                unsorted_columns, errors = check_columns(file_path)
-                for key, value in unsorted_columns.items():
-                    unsorted_columns_files[key] += value
-                unsorted_data_tests, errors = check_data_tests(file_path)
-                for key, value in unsorted_data_tests.items():
-                    unsorted_data_tests_files[key] += value
-                if errors:
-                    error_files.extend(errors)
-            elif file == "docs.md":
-                unsorted_md = check_md_file(file_path)
-                if unsorted_md:
-                    unsorted_md_files.append(unsorted_md)
-            elif file == "columns.md":
-                unsorted_columns_md = check_columns_md_file(file_path)
-                if unsorted_columns_md:
-                    unsorted_columns_md_files.append(unsorted_columns_md)
-            elif file == "shared_columns.md":
-                unsorted_shared_columns_md = check_shared_columns_md_file(
-                    file_path
+            if (
+                file.endswith(".yaml")
+                or file.endswith(".yml")
+                or (file in ("docs.md", "columns.md", "shared_columns.md"))
+            ):
+                file_paths_to_check.append(os.path.join(root, file))
+
+    return check_files(file_paths_to_check)
+
+
+def check_files(file_paths: list[str]):
+    """
+    Check all files in a list of filepaths for sorted YAML keys and markdown
+    headings.
+
+    Args:
+        file_paths (list[str]): The list of files to check
+
+    Returns:
+        tuple: Results of unsorted files and errors for different checks.
+    """
+    unsorted_columns_files: dict[str, int] = defaultdict(int)
+    unsorted_tests_files: dict[str, int] = defaultdict(int)
+    error_files = []
+    unsorted_md_files = []
+    unsorted_columns_md_files = []
+    unsorted_shared_columns_md_files = []
+    for file_path in file_paths:
+        if not os.path.isfile(file_path):
+            raise ValueError(
+                f"check_files got a filepath that doesn't exist: {file_path}"
+            )
+        if file_path.endswith(".yaml") or file_path.endswith(".yml"):
+            unsorted_columns, errors = check_columns(file_path)
+            for key, value in unsorted_columns.items():
+                unsorted_columns_files[key] += value
+            unsorted_tests, errors = check_tests(file_path)
+            for key, value in unsorted_tests.items():
+                unsorted_tests_files[key] += value
+            if errors:
+                error_files.extend(errors)
+        elif os.path.basename(file_path) == "docs.md":
+            unsorted_md = check_md_file(file_path)
+            if unsorted_md:
+                unsorted_md_files.append(unsorted_md)
+        elif os.path.basename(file_path) == "columns.md":
+            unsorted_columns_md = check_columns_md_file(file_path)
+            if unsorted_columns_md:
+                unsorted_columns_md_files.append(unsorted_columns_md)
+        elif os.path.basename(file_path) == "shared_columns.md":
+            unsorted_shared_columns_md = check_shared_columns_md_file(
+                file_path
+            )
+            if unsorted_shared_columns_md:
+                unsorted_shared_columns_md_files.append(
+                    unsorted_shared_columns_md
                 )
-                if unsorted_shared_columns_md:
-                    unsorted_shared_columns_md_files.append(
-                        unsorted_shared_columns_md
-                    )
 
     return (
         unsorted_columns_files,
-        unsorted_data_tests_files,
+        unsorted_tests_files,
         error_files,
         unsorted_md_files,
         unsorted_columns_md_files,
@@ -388,23 +448,34 @@ def check_all_files(directory):
 
 
 if __name__ == "__main__":
-    (
-        unsorted_columns_files,
-        unsorted_data_tests_files,
-        error_files,
-        unsorted_md_files,
-        unsorted_columns_md_files,
-        unsorted_shared_columns_md_files,
-    ) = check_all_files(os.getcwd())
+    args = sys.argv[1:]
+    if args:
+        (
+            unsorted_columns_files,
+            unsorted_tests_files,
+            error_files,
+            unsorted_md_files,
+            unsorted_columns_md_files,
+            unsorted_shared_columns_md_files,
+        ) = check_files(args)
+    else:
+        (
+            unsorted_columns_files,
+            unsorted_tests_files,
+            error_files,
+            unsorted_md_files,
+            unsorted_columns_md_files,
+            unsorted_shared_columns_md_files,
+        ) = check_all_files(os.getcwd())
 
     if unsorted_columns_files:
         print("The following files have unsorted columns:")
         for file, count in unsorted_columns_files.items():
             print(f"{file} ({count})")
 
-    if unsorted_data_tests_files:
-        print("\nThe following files have unsorted data tests:")
-        for file, count in unsorted_data_tests_files.items():
+    if unsorted_tests_files:
+        print("\nThe following files have unsorted tests:")
+        for file, count in unsorted_tests_files.items():
             print(f"{file} ({count})")
 
     if unsorted_md_files:
@@ -427,16 +498,14 @@ if __name__ == "__main__":
     print("\n")
     if (
         unsorted_columns_files
-        or unsorted_data_tests_files
+        or unsorted_tests_files
         or error_files
         or unsorted_md_files
         or unsorted_columns_md_files
         or unsorted_shared_columns_md_files
     ):
         raise ValueError(
-            "Column name, data test, or heading sort order check ran into failures, see logs above"
+            "Column name, test, or heading sort order check ran into failures, see logs above"
         )
 
-    print(
-        "All files have sorted columns, data tests, headings, and no errors."
-    )
+    print("All files have sorted columns, tests, headings, and no errors.")

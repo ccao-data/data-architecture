@@ -9,6 +9,13 @@ seeds:
         reascd: string
         description: string
 
+  - name: ccao.cdu
+    description: '{{ doc("seed_cdu") }}'
+    config:
+      column_types:
+        cdu_code: string
+        cdu_description: string
+
   - name: ccao.class_dict
     description: '{{ doc("seed_class_dict") }}'
     config:
@@ -59,7 +66,7 @@ seeds:
           which properties are assessed
         data_tests:
           - accepted_range:
-              name: loa_less_than_.38
+              name: loa_less_than_38
               max_value: .38
               meta:
                 description: loa should be less than .38
@@ -105,3 +112,11 @@ seeds:
         description: '{{ doc("shared_column_triad_code") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
+
+  - name: ccao.htpar_reascd
+    description: '{{ doc("seed_htpar_reascd") }}'
+    config:
+      column_types:
+        description: string
+        outcome: string
+        reascd: string

@@ -643,7 +643,7 @@ class TestCategory:
 CLI_DESCRIPTION = """Runs iasWorld data tests and generates an Excel workbook of dbt test failures that can be shared with other teams
 for review and correction, along with metadata parquet files that can be uploaded to S3 for long-term result tracking.
 
-This script expects that Python dependencies have been installed from requirements.run_iasworld_data_tests.txt.
+This script expects that Python dependencies have been installed from [project.optional-dependencies].dbt_tests.
 
 Expects one required environment variable to be set:
 
@@ -731,6 +731,40 @@ def main() -> None:
         ),
     )
     parser.add_argument(
+        "--skip-artifacts",
+        action=argparse.BooleanOptionalAction,
+        required=False,
+        help=(
+            "Just run tests and skip the step that parses test output. "
+            "Ignored if --use-cached is set, since --use-cached implies "
+            "that the script should skip running tests"
+        ),
+    )
+    parser.add_argument(
+        "--defer",
+        action=argparse.BooleanOptionalAction,
+        required=False,
+        default=False,
+        help=(
+            "Same as the dbt --defer option, resolves unselected nodes by "
+            "deferring to the manifest within the --state directory"
+        ),
+    )
+    parser.add_argument(
+        "--state",
+        required=False,
+        help=(
+            "Same as the dbt --state option, use this state directory for "
+            "deferral"
+        ),
+    )
+    parser.add_argument(
+        *constants.SELECT_ARGUMENT_ARGS, **constants.SELECT_ARGUMENT_KWARGS
+    )
+    parser.add_argument(
+        *constants.SELECTOR_ARGUMENT_ARGS, **constants.SELECTOR_ARGUMENT_KWARGS
+    )
+    parser.add_argument(
         *constants.TARGET_ARGUMENT_ARGS, **constants.TARGET_ARGUMENT_KWARGS
     )
 
@@ -739,6 +773,11 @@ def main() -> None:
     output_dir = args.output_dir
     townships = args.township if args.township else tuple()
     use_cached = args.use_cached
+    skip_artifacts = args.skip_artifacts
+    defer = args.defer
+    state = args.state
+    select = args.select
+    selector = args.selector
     target = args.target
 
     run_results_filepath = os.path.join("target", "run_results.json")
@@ -747,6 +786,15 @@ def main() -> None:
     date_today = datetime.datetime.today().strftime("%Y-%m-%d")
     if output_dir is None:
         output_dir = f"iasworld_test_results_{date_today}"
+
+    if (not defer and state) or (defer and not state):
+        raise ValueError("--defer and --state must be used together")
+
+    select_args = ["--selector", "select_data_test_iasworld"]
+    if select:
+        select_args = ["--select", *select]
+    if selector:
+        select_args = ["--selector", selector]
 
     if use_cached:
         test_cache_path = get_test_cache_path(
@@ -762,14 +810,12 @@ def main() -> None:
             )
     else:
         print("Running tests")
-        dbt_run_args = [
-            "test",
-            "--target",
-            target,
-            "--selector",
-            "select_data_test_iasworld",
-            "--store-failures",
-        ]
+        dbt_run_args = ["test", "--target", target, *select_args]
+        if not skip_artifacts:
+            dbt_run_args.append("--store-failures")
+        if defer and state:
+            dbt_run_args += ["--defer", "--state", state]
+
         print(f"> dbt {' '.join(dbt_run_args)}")
         dbt_test_result = DBT.invoke(dbt_run_args)
 
@@ -783,6 +829,10 @@ def main() -> None:
             # No need to report the exception, since the dbt process
             # will have printed it already
             raise ValueError("Quitting due to error in dbt test run")
+
+        if skip_artifacts:
+            print("Skipping artifact generation since --skip-artifacts is set")
+            return
 
         print("Loading test results from Athena")
         test_categories = get_test_categories_from_athena(
@@ -855,6 +905,10 @@ def main() -> None:
             ["run_year"],
         ),
     ]:
+        if not metadata_list:
+            print(f"{tablename} is empty, skipping metadata output")
+            continue
+
         table = pa.Table.from_pylist(
             [meta_obj.to_dict() for meta_obj in metadata_list],  # type: ignore
         )

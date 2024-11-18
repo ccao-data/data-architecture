@@ -1,9 +1,41 @@
 name: test-dbt-models
 
-# This workflow is not scheduled or run on PRs because it is manually triggered
-# by the Data Department's sqoop data extraction process upon completion. See
-# https://github.com/ccao-data/service-sqoop-iasworld
-on: workflow_dispatch
+# This workflow is not configured to run on PRs, because PRs have their own CI
+# process defined by the `build-and-test-dbt` workflow. It runs under two
+# circumstances:
+#
+#   1. When manually triggered by the Data Department's Spark data extraction
+#      process upon completion. This process runs iasWorld data tests. See
+#      https://github.com/ccao-data/service-sqoop-iasworld
+#
+#   2. On the cron schedule set below, which runs non-iasWorld data tests on
+#      a weekly schedule to alert the team of any problems proactively
+on:
+  workflow_dispatch:
+    inputs:
+      select:
+        description: >
+          Optional space-separated list of tests to run (defaults to all
+          non-iasWorld data tests)
+        required: false
+        type: string
+      selector:
+        description: >
+          Optional dbt selector representing tests to run (takes precedence
+          over the above list of tests if both are present)
+        required: false
+        type: string
+      upload_test_results:
+        description: Upload test results to S3
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # Every Monday at 11am UTC (6am UTC-5)
+    - cron: '0 11 * * 1'
+
+env:
+  UV_SYSTEM_PYTHON: 1
 
 jobs:
   test-dbt-models:
@@ -17,21 +49,53 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Validate and parse input variables
+        id: parse-inputs
+        run: |
+          # Default to running all tests
+          SELECT_OPTION="--selector select_data_test_non_iasworld"
+          if [[ -n "$SELECTOR" ]]; then
+            SELECT_OPTION="--selector $SELECTOR"
+          elif [[ -n "$SELECT" ]]; then
+            SELECT_OPTION="--select $SELECT"
+          fi
+          echo "Setting select option to '$SELECT_OPTION'"
+          echo "select-option=$SELECT_OPTION" >> "$GITHUB_OUTPUT"
+        shell: bash
+        env:
+          SELECT: ${{ inputs.select }}
+          SELECTOR: ${{ inputs.selector }}
+
       - name: Setup dbt
         uses: ./.github/actions/setup_dbt
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
-      - name: Install Python requirements
-        run: pip install -r scripts/requirements.run_iasworld_data_tests.txt
+      - name: Restore dbt state cache
+        id: cache
+        uses: ./.github/actions/restore_dbt_cache
+        with:
+          path: ${{ env.PROJECT_DIR }}/${{ env.STATE_DIR }}
+          key: ${{ env.CACHE_KEY }}
+
+      - name: Install Python dependencies
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
+        run: uv pip install ".[dbt_tests]"
 
       - name: Run tests
         run: |
-          python3 scripts/run_iasworld_data_tests.py \
+          DEFER_OPTION=""
+          if [[ "$CACHE_HIT" == 'true' ]]; then
+            DEFER_OPTION="--defer --state $STATE_DIR"
+          fi
+          # shellcheck disable=SC2086
+          python scripts/run_iasworld_data_tests.py \
             --target "$TARGET" \
-            --output-dir ./qc_test_results/
+            --output-dir ./qc_test_results/ \
+            $SELECT_OPTION \
+            $SKIP_ARTIFACTS_OPTION \
+            $DEFER_OPTION
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         env:
@@ -39,14 +103,21 @@ jobs:
           GIT_SHA: ${{ github.sha }}
           GIT_REF: ${{ github.ref_name }}
           GIT_AUTHOR: ${{ github.event.commits[0].author.name }}
+          CACHE_HIT: ${{ steps.cache.outputs.cache-hit }}
+          SELECT_OPTION: ${{ steps.parse-inputs.outputs.select-option }}
+          SKIP_ARTIFACTS_OPTION: ${{ inputs.upload_test_results && '--no-skip-artifacts' || '--skip-artifacts' }}
 
       - name: Save test results to S3
+        if: inputs.upload_test_results
         run: |
           s3_prefix="s3://ccao-data-warehouse-us-east-1/qc"
           local_prefix="qc_test_results/metadata"
           for dir in "test_run" "test_run_result" "test_run_failing_row"; do
-            echo "Copying ${dir} metadata to S3"
-            aws s3 sync "${local_prefix}/${dir}" "${s3_prefix}/${dir}"
+            dirpath="${local_prefix}/${dir}"
+            if [ -e "$dirpath" ]; then
+              echo "Copying ${dirpath} metadata to S3"
+              aws s3 sync "$dirpath" "${s3_prefix}/${dir}"
+            fi
           done
 
           crawler_name="ccao-data-warehouse-qc-crawler"

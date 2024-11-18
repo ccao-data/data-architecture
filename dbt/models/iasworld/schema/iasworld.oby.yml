@@ -449,7 +449,7 @@ sources:
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
           - name: user16
-            description: '{{ doc("shared_column_cdu") }}'
+            description: '{{ doc("shared_column_alternative_cdu") }}'
           - name: valmeth
             description: Valuation Method (R(CLT/RES) or M(MSB))
           - name: vect

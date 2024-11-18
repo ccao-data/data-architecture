@@ -454,3 +454,4 @@ SELECT
 FROM add_filter_sales AS afs
 LEFT JOIN sales_val
     ON afs.doc_no_coalesced = sales_val.meta_sale_document_num;
+

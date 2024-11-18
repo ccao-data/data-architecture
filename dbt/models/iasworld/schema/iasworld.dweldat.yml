@@ -1396,6 +1396,8 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: user15 (Use) should not be null
+          - name: user16
+            description: '{{ doc("shared_column_alternative_cdu") }}'
           - name: user17
             description: Age. Deprecated, use `yrblt`
           - name: user20

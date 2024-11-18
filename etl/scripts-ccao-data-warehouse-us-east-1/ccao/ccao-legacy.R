@@ -262,3 +262,91 @@ cc_pifdb_piexemptre_dise %>%
     hive_style = TRUE,
     compression = "zstd"
   )
+
+
+##### CC_PIFDB_PIEXEMPTRE_OWNR #####
+files_cc_pifdb_piexemptre_ownr <- aws.s3::get_bucket_df(
+  bucket = AWS_S3_RAW_BUCKET,
+  prefix = "ccao/legacy/CC_PIFDB_PIEXEMPTRE_OWNR",
+  max = Inf
+) %>%
+  filter(Size > 0)
+
+# Read the files into a single tibble. NOTE: these files are fixed-width
+# and have been MANUALLY CLEANED to remove some ASCII null characters that were
+# being used instead of spaces in the base year field
+cc_pifdb_piexemptre_ownr <- map_dfr(files_cc_pifdb_piexemptre_ownr$Key, \(f) {
+  print(glue::glue("Transforming {f}"))
+  aws.s3::s3read_using(
+    object = f,
+    bucket = AWS_S3_RAW_BUCKET,
+    FUN = readr::read_fwf,
+    trim_ws = TRUE,
+    col_positions = readr::fwf_cols(
+      pin = c(1, 14),
+      year = c(16, 17),
+      tax_year = c(19, 20),
+      tax_type = c(22, 22),
+      segment_code = c(24, 24),
+      printed_indicator = c(26, 26),
+      response = c(28, 28),
+      year_applied = c(30, 33),
+      maintenance_indicator = c(35, 35),
+      proration_factor = c(37, 43),
+      coop_quantity = c(45, 49),
+      coop_status = c(51, 51),
+      equalized_factor = c(53, 57),
+      assessed_value = c(59, 67),
+      equalized_value = c(69, 77),
+      batch_number = c(79, 83),
+      occupancy_factor = c(85, 89),
+      exemption_amount = c(91, 99),
+      exemption_base_year = c(101, 104),
+      exemption_status = c(106, 107),
+      filler = c(109, 234)
+    ),
+    col_types = cols(
+      pin = col_character(),
+      year = col_character(),
+      tax_year = col_character(),
+      tax_type = col_character(),
+      segment_code = col_character(),
+      printed_indicator = col_character(),
+      response = col_character(),
+      year_applied = col_character(),
+      maintenance_indicator = col_character(),
+      proration_factor = col_integer(),
+      coop_quantity = col_integer(),
+      coop_status = col_character(),
+      equalized_factor = col_integer(),
+      assessed_value = col_integer(),
+      equalized_value = col_integer(),
+      batch_number = col_integer(),
+      occupancy_factor = col_integer(),
+      exemption_amount = col_integer(),
+      exemption_base_year = col_character(),
+      exemption_status = col_character(),
+      filler = col_character()
+    )
+  ) %>%
+    mutate(
+      across(
+        c(year, tax_year),
+        \(x) ifelse(substr(x, 1, 1) == "9", paste0("19", x), paste0("20", x))
+      ),
+      source_file = {{ f }}
+    ) %>%
+    select(-filler)
+})
+
+# Write the files to S3, partitioned by year
+cc_pifdb_piexemptre_ownr %>%
+  group_by(year) %>%
+  arrow::write_dataset(
+    path = file.path(
+      output_bucket, "cc_pifdb_piexemptre_ownr"
+    ),
+    format = "parquet",
+    hive_style = TRUE,
+    compression = "zstd"
+  )

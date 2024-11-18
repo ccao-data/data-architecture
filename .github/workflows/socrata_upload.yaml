@@ -21,7 +21,7 @@ on:
       overwrite:
         # True for overwrite, False for update
         type: boolean
-        description: Overwrite or update socrata asset
+        description: Overwrite socrata asset
         required: true
       years:
         # Comma separated list of years
@@ -32,8 +32,10 @@ on:
       by_township:
         type: boolean
         description: Chunk Socrata upload by township
-        default: false
         required: false
+
+env:
+  UV_SYSTEM_PYTHON: 1
 
 jobs:
   upload-open-data-assets:
@@ -42,28 +44,48 @@ jobs:
       # contents:read and id-token:write permissions are needed to interact
       # with GitHub's OIDC Token endpoint so that we can authenticate with AWS
       contents: read
+      id-token: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Setup python
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: |
+            socrata/pyproject.toml
+            socrata/uv.lock
+
+      - name: Install Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.10 #install the python needed
+          python-version-file: socrata/.python-version
+
+      - name: Setup dbt
+        uses: ./.github/actions/setup_dbt
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+
       # Set these env vars as secrets so they get masked in the GitHub
       # Actions logs
-      - run: pip install -r socrata/requirements.txt
+      - name: Install Python dependencies
+        working-directory: socrata
+        shell: bash
+        run: uv pip install .
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+
       - name: Upload to Socrata
         env:
           AWS_IAM_ROLE_TO_ASSUME_ARN: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-          AWS_ATHENA_S3_STAGING_DIR: ${{ secrets.AWS_ATHENA_S3_STAGING_DIR }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
+          AWS_ATHENA_S3_STAGING_DIR: ${{ vars.AWS_ATHENA_S3_STAGING_DIR }}
           SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
           SOCRATA_USERNAME: ${{ secrets.SOCRATA_USERNAME }}
           SOCRATA_PASSWORD: ${{ secrets.SOCRATA_PASSWORD }}
@@ -71,4 +93,4 @@ jobs:
           OVERWRITE: ${{ inputs.overwrite }}
           YEARS: ${{ inputs.years }}
           BY_TOWNSHIP: ${{ inputs.by_township }}
-        run: python socrata/socrata_upload.py
+        run: python ./socrata/socrata_upload.py

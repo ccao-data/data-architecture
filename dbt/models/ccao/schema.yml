@@ -14,6 +14,9 @@ sources:
       - name: cc_pifdb_piexemptre_dise
         description: '{{ doc("table_cc_pifdb_piexemptre_dise") }}'
 
+      - name: cc_pifdb_piexemptre_ownr
+        description: '{{ doc("table_cc_pifdb_piexemptre_ownr") }}'
+
       - name: cc_pifdb_piexemptre_sted
         description: '{{ doc("table_cc_pifdb_piexemptre_sted") }}'
 

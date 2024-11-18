@@ -12,6 +12,7 @@ repos:
         entry: >-
           sqlfmt -v dbt
             --exclude dbt/venv/**/*
+            --exclude dbt/.venv/**/*
             --exclude dbt/models/**/*
             --exclude dbt/target/**/*
             --exclude dbt/dbt_packages/**/*
@@ -29,3 +30,12 @@ repos:
           - --fix
       # Formatter
       - id: ruff-format
+  - repo: local
+    hooks:
+      - id: check-sort-dbt-yaml-files
+        name: check-sort-dbt-yaml-files
+        entry: python3 dbt/scripts/check_sort_dbt_yaml_files.py
+        language: system
+        types_or: [yaml, markdown]
+        files: ^dbt/
+        exclude: venv/

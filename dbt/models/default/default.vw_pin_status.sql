@@ -110,9 +110,12 @@ SELECT
     pdat.class = 'RR' AS is_railroad,
     ptst.test_type IS NOT NULL AS is_weird,
     ptst.test_type AS weird_flag_reason,
-    oby.cdu AS oby_cdu,
-    cdat.cdu AS comdat_cdu,
-    ddat.cdu AS dweldat_cdu,
+    oby.cdu_code AS oby_cdu_code,
+    oby.cdu_description AS oby_cdu_description,
+    cdat.cdu_code AS comdat_cdu_code,
+    cdat.cdu_description AS comdat_cdu_description,
+    ddat.cdu_code AS dweldat_cdu_code,
+    ddat.cdu_description AS dweldat_cdu_description,
     pdat.note2 AS pardat_note,
     pdat.class = '999' AS is_filler_class,
     pdat.parid LIKE '%999%' AS is_filler_pin
@@ -159,7 +162,7 @@ LEFT JOIN ({{ aggregate_cdu(
     AND pdat.taxyr = cdat.taxyr
 LEFT JOIN ({{ aggregate_cdu(
     source_model = source('iasworld', 'dweldat'),
-    cdu_column = 'cdu'
+    cdu_column = 'user16'
     ) }}) AS ddat
     ON pdat.parid = ddat.parid
     AND pdat.taxyr = ddat.taxyr

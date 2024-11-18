@@ -186,6 +186,17 @@ Reason for change or no change
 
 # Assessed / Market Values
 
+## alternative_cdu
+
+{% docs shared_column_alternative_cdu %}
+Condition/Desirability/Utility code.
+
+Code representing any number of seemingly unrelated characteristics
+associated with a PIN, ranging from condition to types of subsidies, to
+whether or not a PIN is a garage. The full list of CDU codes can be found in
+`ccao.cdu`. For "condition", see the `cdu` column.
+{% enddocs %}
+
 ## board_bldg
 
 {% docs shared_column_board_bldg %}
@@ -373,6 +384,117 @@ prefix (or year of observation if not prefixed).
 This the pre-appeal value that is initially mailed to taxpayers.
 However, this value is post-Desk Review and so may not perfectly match
 outputs from the model
+{% enddocs %}
+
+## pre_certified_bldg
+
+{% docs shared_column_pre_certified_bldg %}
+Provisional certified assessed/market value of building from year specified by
+column prefix (or year of observation if not prefixed).
+
+Provisional certified values are not final, and are only present in the
+data for the current assessment year up until the moment when appeals are
+finalized. At that point the `pre_certified` values disappear and `certified`
+values replace them
+{% enddocs %}
+
+## pre_certified_class
+
+{% docs shared_column_pre_certified_class %}
+Provisional stage-level property type and/or use at the time of CCAO
+certification.
+
+Designates the property type, such as vacant, residential, multi-family,
+agricultural, commercial or industrial. The classification determines the
+percentage of fair cash value at which a property is assessed for taxing
+purposes. See `ccao.class_dict` for more information.
+
+Provisional certified values are not final, and are only present in the
+data for the current assessment year up until the moment when appeals are
+finalized. At that point the `pre_certified` values disappear and `certified`
+values replace them
+{% enddocs %}
+
+## pre_certified_land
+
+{% docs shared_column_pre_certified_land %}
+Provisional certified assessed/market value of land from year specified by
+column prefix (or year of observation if not prefixed).
+
+Provisional certified values are not final, and are only present in the
+data for the current assessment year up until the moment when appeals are
+finalized. At that point the `pre_certified` values disappear and `certified`
+values replace them
+{% enddocs %}
+
+## pre_certified_tot
+
+{% docs shared_column_pre_certified_tot %}
+Provisional certified total assessed/market value from year specified by column
+prefix (or year of observation if not prefixed).
+
+This is the value after the first round of appeals at the Assessor's Office.
+
+Provisional certified values are not final, and are only present in the
+data for the current assessment year up until the moment when appeals are
+finalized. At that point the `pre_certified` values disappear and `certified`
+values replace them
+{% enddocs %}
+
+## pre_mailed_bldg
+
+{% docs shared_column_pre_mailed_bldg %}
+Provisional mailed assessed/market value of building from year specified by
+column prefix (or year of observation if not prefixed).
+
+Provisional mailed values are not final, and are only present in the
+data for the current assessment year up until the moment when values go out to
+mail. At that point the `pre_mailed` values disappear and `mailed` values
+replace them
+{% enddocs %}
+
+## pre_mailed_class
+
+{% docs shared_column_pre_mailed_class %}
+Provisional stage-level property type and/or use at the time of CCAO mailing.
+
+Designates the property type, such as vacant, residential, multi-family,
+agricultural, commercial or industrial. The classification determines the
+percentage of fair cash value at which a property is assessed for taxing
+purposes. See `ccao.class_dict` for more information.
+
+Provisional mailed values are not final, and are only present in the
+data for the current assessment year up until the moment when values go out to
+mail. At that point the `pre_mailed` values disappear and `mailed` values
+replace them
+{% enddocs %}
+
+## pre_mailed_land
+
+{% docs shared_column_pre_mailed_land %}
+Provisional mailed assessed/market value of land from year specified by column
+prefix (or year of observation if not prefixed).
+
+Provisional mailed values are not final, and are only present in the
+data for the current assessment year up until the moment when values go out to
+mail. At that point the `pre_mailed` values disappear and `mailed` values
+replace them
+{% enddocs %}
+
+## pre_mailed_tot
+
+{% docs shared_column_pre_mailed_tot %}
+Provisional mailed total assessed/market value from year specified by column
+prefix (or year of observation if not prefixed).
+
+This the pre-appeal value that is initially mailed to taxpayers.
+However, this value is post-Desk Review and so may not perfectly match
+outputs from the model.
+
+Provisional mailed values are not final, and are only present in the
+data for the current assessment year up until the moment when values go out to
+mail. At that point the `pre_mailed` values disappear and `mailed` values
+replace them
 {% enddocs %}
 
 # Characteristics
@@ -852,10 +974,8 @@ Equivalent to legacy `MLT_CD` (multicode) value
 {% docs shared_column_cdu %}
 Condition/Desirability/Utility code.
 
-Code representing any number of seemingly unrelated characteristics
-associated with a PIN, ranging from condition to types of subsidies, to
-whether or not a PIN is a garage. The full list of CDU codes can be found on
-the Assessor's site
+The `cdu` column only documents "condition". See `user16` for what the
+Assessor's office typically considers the Condition/Desirability/Utility code.
 {% enddocs %}
 
 ## class
@@ -879,7 +999,7 @@ Parcel has an active homeowner exemption
 
 {% docs shared_column_is_ahsap %}
 Affordable Housing Special Assessment Program indicator. For more information on
-AHSAP, see: https://www.cookcountyassessor.com/affordable-housing
+AHSAP, see: <https://www.cookcountyassessor.com/affordable-housing>
 {% enddocs %}
 
 ## is_common_area
@@ -1325,7 +1445,14 @@ Indicates an outlier sale not used in modeling or reporting.
 
 This variable combines `sv_is_heuristic_outlier`
 with `sv_is_ptax_outlier` (using OR logic).
-NOTE: Outlier flags only exist for sales _after_ 2014.
+
+A null value represents an observation that, due to
+filters on type of sale or time frame of sale, is
+excluded completely from the sales-val model pipeline
+and therefore does receive a boolean value.
+
+NOTE: Outlier flags only exist for sales _after_ 2013.
+Sales before 2014 will have a null value for this column.
 {% enddocs %}
 
 ## sv_is_ptax_outlier
@@ -1341,7 +1468,11 @@ See [model-sales-val](https://github.com/ccao-data/model-sales-val) for more det
 ## sv_outlier_reason
 
 {% docs shared_column_sv_outlier_reason %}
-Heuristic or model used to flag an outlier.
+
+One of three possible reasons that a sale is
+flagged as on outlier. The priority for
+sv_outlier_reason$n column filling is
+ptax outlier > price outlier > characteristic outlier.
 
 See the [model-sales-val](https://github.com/ccao-data/model-sales-val)
 repository for a list of possible flags.

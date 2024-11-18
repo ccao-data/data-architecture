@@ -1,5 +1,6 @@
 # Shared utilities for exporting models
 import contextlib
+import dataclasses
 import io
 import json
 import os
@@ -8,6 +9,7 @@ import shutil
 
 import pandas as pd
 import pyathena
+import pyathena.pandas.cursor
 from dbt.cli.main import dbtRunner
 from openpyxl.styles import Alignment
 from openpyxl.utils import column_index_from_string, get_column_letter
@@ -23,10 +25,77 @@ def export_models(
     selector: str | None = None,
     rebuild: bool = False,
     where: str | None = None,
-):
+    output_dir: str | None = None,
+) -> list[pathlib.Path]:
     """
     Export a group of models to Excel workbooks in the output directory
     `export/output/`.
+
+    Convenience function that wraps the lower-level `query_models_for_export`
+    and `save_model_to_workbook` functions. Use those functions directly if
+    you would like to further modify query results or output configurations
+    between the query step and the save step.
+
+    Arguments:
+
+        * target (str): dbt target to use for querying model data, defaults to
+            "dev"
+        * select (list[str]): One or more dbt --select statements to
+            use for filtering models. One of --select or --selector is
+            required, and if both are set, --selector takes precedence
+        * selector (str): A selector name to use for filtering
+            models, as defined in selectors.yml. Takes precedence over
+            --select if both are set
+        * rebuild (bool): Rebuild models before exporting, defaults to False
+        * where (str): Optional SQL expression representing a WHERE clause to
+            filter models
+        * output_dir (str): Optional Unix path to directory where output files
+            should be stored
+
+    Returns a list of pathlib.Path objects representing the paths to the files
+    that the function created.
+    """
+    models_for_export = query_models_for_export(
+        select=select,
+        selector=selector,
+        rebuild=rebuild,
+        where=where,
+    )
+    output_paths: list[pathlib.Path] = []
+    for model in models_for_export:
+        output_path = save_model_to_workbook(model, output_dir)
+        output_paths.append(output_path)
+    return output_paths
+
+
+@dataclasses.dataclass
+class ModelForExport:
+    """Object containing row-level data and table-level metadata for a model
+    providing for its export to an Excel workbook."""
+
+    # Model name
+    name: str
+    # Model dbt tags
+    tags: list[str]
+    # Dataframe containing model data
+    df: pd.DataFrame
+    # Optional configs for modifying the display of data in Excel workbook
+    export_format: dict
+    # Filename for the output file
+    export_filename: str
+    # Unix-formatted path to a workbook to use as a template
+    template_path: str
+
+
+def query_models_for_export(
+    target: str = "dev",
+    select: list[str] | None = None,
+    selector: str | None = None,
+    rebuild: bool = False,
+    where: str | None = None,
+) -> list[ModelForExport]:
+    """
+    Get data and export metadata for a group of models to export.
 
     Arguments:
 
@@ -40,14 +109,16 @@ def export_models(
         * rebuild (bool): Rebuild models before exporting, defaults to False
         * where (str): Optional SQL expression representing a WHERE clause to
             filter models
+
+    Returns a list of ModelForExport objects that provide the information
+    necessary to save a workbook containing model data.
     """
     if not select and not selector:
         raise ValueError("One of --select or --selector is required")
 
-    if select and selector:
-        raise ValueError("--select and --selector cannot both be set")
-
-    select_args = ["--select", *select] if select else ["--selector", selector]  # type: ignore
+    select_args = (
+        ["--selector", selector] if selector else ["--select", *select]  # type: ignore
+    )
 
     if rebuild:
         dbt_run_args = ["run", "--target", target, *select_args]
@@ -72,6 +143,7 @@ def export_models(
         "name",
         "config",
         "relation_name",
+        "tags",
         *select_args,
     ]
     print(f"> dbt {' '.join(dbt_list_args)}")
@@ -101,149 +173,190 @@ def export_models(
         f"{', '.join(model['name'] for model in models)}"
     )
 
-    conn = pyathena.connect(
+    cursor = pyathena.connect(
         s3_staging_dir=os.getenv(
             "AWS_ATHENA_S3_STAGING_DIR",
-            "s3://ccao-dbt-athena-results-us-east-1",
+            "s3://ccao-athena-results-us-east-1/",
         ),
         region_name=os.getenv("AWS_ATHENA_REGION_NAME", "us-east-1"),
-    )
+        cursor_class=pyathena.pandas.cursor.PandasCursor,
+        # Unload query results to speed up execution times
+    ).cursor(unload=True)
 
+    models_for_export: list[ModelForExport] = []
     for model in models:
         # Extract useful model metadata from the columns we queried in
         # the `dbt list` call above
         model_name = model["name"]
+        tags = model["tags"]
         relation_name = model["relation_name"]
         export_name = model["config"]["meta"].get("export_name") or model_name
         template = model["config"]["meta"].get("export_template") or model_name
 
         # Define inputs and outputs for export based on model metadata
         template_path = os.path.join("export", "templates", f"{template}.xlsx")
-        template_exists = os.path.isfile(template_path)
-        output_path = os.path.join("export", "output", f"{export_name}.xlsx")
 
         print(f"Querying data for model {model_name}")
         query = f"SELECT * FROM {relation_name}"
         if where:
             query += f" WHERE {where}"
         print(f"> {query}")
-        model_df = pd.read_sql(query, conn)
+        model_df = cursor.execute(query).as_pandas()
 
-        # Delete the output file if one already exists
-        pathlib.Path(output_path).unlink(missing_ok=True)
-
-        if template_exists:
-            print(f"Using template file at {template_path}")
-            shutil.copyfile(template_path, output_path)
-        else:
-            print("No template file exists; creating a workbook from scratch")
-
-        writer_kwargs = (
-            {"mode": "a", "if_sheet_exists": "overlay"}
-            if template_exists
-            else {}
-        )
-        with pd.ExcelWriter(
-            output_path, engine="openpyxl", **writer_kwargs
-        ) as writer:
-            sheet_name = "Sheet1"
-            model_df.to_excel(
-                writer,
-                sheet_name=sheet_name,
-                header=False if template_exists else True,
-                index=False,
-                startrow=1 if template_exists else 0,
+        models_for_export.append(
+            ModelForExport(
+                name=model_name,
+                tags=tags,
+                df=model_df,
+                export_format=(
+                    model["config"]["meta"].get("export_format", {})
+                ),
+                export_filename=f"{export_name}.xlsx",
+                template_path=template_path,
             )
-            sheet = writer.sheets[sheet_name]
+        )
 
-            # Add a table for data filtering. Only do this if the result set
-            # is not empty, because otherwise the empty table will make
-            # the Excel workbook invalid
-            if model_df.empty:
-                print(
-                    "Skipping formatting for output workbook since result set "
-                    "is empty"
-                )
-            else:
-                table = Table(
-                    displayName="Query_Results",
-                    ref=(
-                        f"A1:{get_column_letter(sheet.max_column)}"
-                        f"{str(sheet.max_row)}"
-                    ),
-                )
-                table.tableStyleInfo = TableStyleInfo(
-                    name="TableStyleMedium11", showRowStripes=True
-                )
-                sheet.add_table(table)
+    return models_for_export
 
-                # Parse column format settings by col index. Since column
-                # formatting needs to be applied at the cell level, we'll
-                # first parse all format settings for each column, and then
-                # we'll iterate every cell once to apply all formatting at the
-                # same time
-                column_format_by_index = {}
 
-                # If a parid column exists, format it explicitly as a
-                # 14-digit number to avoid Excel converting it to scientific
-                # notation or stripping out leading zeros
-                if "parid" in model_df or "pin" in model_df:
-                    parid_field = "parid" if "parid" in model_df else "pin"
-                    parid_index = model_df.columns.get_loc(parid_field)
-                    column_format_by_index[parid_index] = {
-                        "number_format": "00000000000000",
-                        # Left align since PINs do not actually need to be
-                        # compared by order of magnitude the way that numbers
-                        # do
-                        "alignment": Alignment(horizontal="left"),
-                    }
+def save_model_to_workbook(
+    model: ModelForExport,
+    output_dir: str | None = None,
+) -> pathlib.Path:
+    """
+    Given a ModelForExport object containing row-level data and table-level
+    metadata for a model, process that model and save its data to the
+    configured location on disk.
 
-                # Parse any formatting that is configured at the column level.
-                # Note that if formatting is configured for a column that we
-                # parsed as a parid column above, these settings will override
-                # the default parid settings from the block above
-                format_config = model["config"]["meta"].get(
-                    "export_format", {}
-                )
-                if column_configs := format_config.get("columns"):
-                    for column_config in column_configs:
-                        # The column index is required in order to set any
-                        # column-level configs
-                        col_letter = column_config.get("index")
-                        if col_letter is None:
-                            raise ValueError(
-                                "'index' attribute is required in "
-                                "export_format.columns config for "
-                                f"model {model_name}"
-                            )
-                        idx = column_index_from_string(col_letter) - 1
-                        # Initialize the config dict for this column if
-                        # none exists yet
-                        column_format_by_index[idx] = {}
-                        # Parse configs if they are present
-                        if number_format := column_config.get("number_format"):
-                            column_format_by_index[idx]["number_format"] = (
-                                number_format
-                            )
-                        if horiz_align_dir := column_config.get(
-                            "horizontal_align"
-                        ):
-                            column_format_by_index[idx]["alignment"] = (
-                                Alignment(horizontal=horiz_align_dir)
-                            )
+    Arguments:
 
-                # Skip header row when applying formatting. We need to
-                # catch the special case where there is only one row, or
-                # else we will iterate the _cells_ in that row instead of
-                # the row when slicing it from 2 : max_row
-                non_header_rows = (
-                    [sheet[2]]
-                    if sheet.max_row == 2
-                    else sheet[2 : sheet.max_row]
-                )
-                for row in non_header_rows:
-                    for idx, formats in column_format_by_index.items():
-                        for attr, val in formats.items():
-                            setattr(row[idx], attr, val)
+        * model_for_export (ModelForExport): Object containing row-level model
+            data and table-level metadata about models that should be saved
+        * output_dir (str): Optional Unix path to directory where output files
+            should be stored
 
-        print(f"Exported model {model_name} to {output_path}")
+    Returns a pathlib.Path object representing the path to the file that the
+    function created.
+    """
+    # Compute the full filepath for the output
+    output_dirpath = (
+        pathlib.Path(output_dir)
+        if output_dir
+        else pathlib.Path("export/output")
+    )
+    output_path = output_dirpath / model.export_filename
+
+    # Delete the old version of the output file if one already exists
+    output_path.unlink(missing_ok=True)
+
+    template_exists = os.path.isfile(model.template_path)
+    if template_exists:
+        print(f"Using template file at {model.template_path}")
+        shutil.copyfile(model.template_path, output_path)
+    else:
+        print("No template file exists; creating a workbook from scratch")
+
+    writer_kwargs = (
+        {"mode": "a", "if_sheet_exists": "overlay"} if template_exists else {}
+    )
+    with pd.ExcelWriter(
+        output_path, engine="openpyxl", **writer_kwargs
+    ) as writer:
+        sheet_name = "Sheet1"
+        model.df.to_excel(
+            writer,
+            sheet_name=sheet_name,
+            header=False if template_exists else True,
+            index=False,
+            startrow=1 if template_exists else 0,
+        )
+        sheet = writer.sheets[sheet_name]
+
+        # Add a table for data filtering. Only do this if the result set
+        # is not empty, because otherwise the empty table will make
+        # the Excel workbook invalid
+        if model.df.empty:
+            print(
+                "Skipping formatting for output workbook since result set "
+                "is empty"
+            )
+        else:
+            table = Table(
+                displayName="Query_Results",
+                ref=(
+                    f"A1:{get_column_letter(sheet.max_column)}"
+                    f"{str(sheet.max_row)}"
+                ),
+            )
+            table.tableStyleInfo = TableStyleInfo(
+                name="TableStyleMedium11", showRowStripes=True
+            )
+            sheet.add_table(table)
+
+            # Parse column format settings by col index. Since column
+            # formatting needs to be applied at the cell level, we'll
+            # first parse all format settings for each column, and then
+            # we'll iterate every cell once to apply all formatting at the
+            # same time
+            column_format_by_index = {}
+
+            # If a parid column exists, format it explicitly as a
+            # 14-digit number to avoid Excel converting it to scientific
+            # notation or stripping out leading zeros
+            if "parid" in model.df or "pin" in model.df:
+                parid_field = "parid" if "parid" in model.df else "pin"
+                parid_index = model.df.columns.get_loc(parid_field)
+                column_format_by_index[parid_index] = {
+                    "number_format": "00000000000000",
+                    # Left align since PINs do not actually need to be
+                    # compared by order of magnitude the way that numbers
+                    # do
+                    "alignment": Alignment(horizontal="left"),
+                }
+
+            # Parse any formatting that is configured at the column level.
+            # Note that if formatting is configured for a column that we
+            # parsed as a parid column above, these settings will override
+            # the default parid settings from the block above
+            format_config = model.export_format
+            if column_configs := format_config.get("columns"):
+                for column_config in column_configs:
+                    # The column index is required in order to set any
+                    # column-level configs
+                    col_letter = column_config.get("index")
+                    if col_letter is None:
+                        raise ValueError(
+                            "'index' attribute is required in "
+                            "export_format.columns config for "
+                            f"model {model.name}"
+                        )
+                    idx = column_index_from_string(col_letter) - 1
+                    # Initialize the config dict for this column if
+                    # none exists yet
+                    column_format_by_index[idx] = {}
+                    # Parse configs if they are present
+                    if number_format := column_config.get("number_format"):
+                        column_format_by_index[idx]["number_format"] = (
+                            number_format
+                        )
+                    if horiz_align_dir := column_config.get(
+                        "horizontal_align"
+                    ):
+                        column_format_by_index[idx]["alignment"] = Alignment(
+                            horizontal=horiz_align_dir
+                        )
+
+            # Skip header row when applying formatting. We need to
+            # catch the special case where there is only one row, or
+            # else we will iterate the _cells_ in that row instead of
+            # the row when slicing it from 2 : max_row
+            non_header_rows = (
+                [sheet[2]] if sheet.max_row == 2 else sheet[2 : sheet.max_row]
+            )
+            for row in non_header_rows:
+                for idx, formats in column_format_by_index.items():
+                    for attr, val in formats.items():
+                        setattr(row[idx], attr, val)
+
+        print(f"Exported model {model.name} to {output_path}")
+        return output_path

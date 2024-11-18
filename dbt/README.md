@@ -94,7 +94,7 @@ care of that for you.)
 
 #### Requirements
 
-* Python3 with venv installed (`sudo apt install python3-venv`)
+* Python3 with `uv` installed (pre-installed on the CCAO server)
 * [AWS CLI installed
   locally](https://github.com/ccao-data/wiki/blob/master/How-To/Connect-to-AWS-Resources.md)
   * You'll also need permissions for Athena, Glue, and S3
@@ -104,11 +104,11 @@ care of that for you.)
 
 Run the following commands in this directory:
 
-```
-python3 -m venv venv
-source venv/bin/activate
-pip install -U pip
-pip install -r requirements.txt
+```bash
+uv venv
+source .venv/bin/activate
+uv python install
+uv pip install .
 dbt deps
 ```
 
@@ -116,13 +116,13 @@ dbt deps
 
 To run dbt commands, make sure you have the virtual environment activated:
 
-```
-source venv/bin/activate
+```bash
+source .venv/bin/activate
 ```
 
 You must also authenticate with AWS using MFA if you haven't already today:
 
-```
+```bash
 aws-mfa
 ```
 
@@ -146,14 +146,14 @@ it from scratch.
 Instead, start by copying the production dbt state file (also known as the
 [manifest file](https://docs.getdbt.com/reference/artifacts/manifest-json)):
 
-```
+```bash
 aws s3 cp s3://ccao-dbt-cache-us-east-1/master-cache/manifest.json master-cache/manifest.json
 ```
 
 Then, use [`dbt clone`](https://docs.getdbt.com/reference/commands/clone) to
 clone the production tables and views into your development environment:
 
-```
+```bash
 dbt clone --state master-cache
 ```
 
@@ -495,53 +495,65 @@ For more possible inputs using dbt node selection, see the [documentation site](
 ## 🧪 How to add and run tests and QC reports
 
 We test the integrity of our raw data and our transformations using a few different
-types of tests and reports, described below.
+types of tests and reports:
 
-### Different types of tests and reports
+| Test type          | Description | Implemented with | Runs on | Runs when | Outputs | Fails on | Who fixes | Use when |
+| ------------------ | ----------- | ---------------- | ------- | --------- | ------- | -------- | --------- | -------- |
+| [**iasWorld tests**](#iasworld-tests) | Test that hard-and-fast assumptions about iasWorld tables are correct. | [dbt data tests](https://docs.getdbt.com/docs/build/data-tests) | [GitHub Actions](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml), or [command line](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/run_iasworld_data_tests.py) | Daily after Spark ingest, or on demand | Excel workbook and metadata parquet files | Doesn't fail unless tests encounter an error | Valuations | Test logic exclusively references iasWorld tables, and test failures indicate clear, fixable problems |
+| [**Unit tests**](#unit-tests) | Test that the transformation logic inside a model definition produces the correct output on a specific set of hypothetical input data. | [dbt unit tests](https://docs.getdbt.com/docs/build/unit-tests) | [GitHub Actions](https://github.com/ccao-data/data-architecture/actions/workflows/build_and_test_dbt.yaml) | Every PR or commits to main branch that modify models/tests | GitHub Actions failure notification | Any test failure | Data | Test logic is checking transformation behavior and the full universe of possible input values is easy to express in a few examples |
+| [**Data integrity tests**](#data-integrity-tests) | Test that hard-and-fast assumptions about non-iasWorld tables, or tables that merge iasWorld and non-iasWorld data, are correct. | [dbt data tests](https://docs.getdbt.com/docs/build/data-tests) | [GitHub Actions](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml) | Weekly on a schedule, or on PRs and commits to main branch that modify models/tests | GitHub Actions failure notification | Any test failure | Data | Test logic references data outside iasWorld, or the full universe of possible input values cannot be easily expressed in a few examples |
+| [**QC reports**](#qc-reports) | Query for suspicious cases that _might_ indicate a problem with our data, but that can't be confirmed automatically. | [dbt models](https://docs.getdbt.com/docs/build/models) | [Command line](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/export_models.py) | On demand | One or more Excel workbooks | Doesn't fail unless queries encounter an error | Valuations | Failures do not necessarily indicate data problems, and a stakeholder has agreed to review output |
 
-There are three types of products that we use to check the integrity of our data
-and the transformations we apply on top of that data:
+The distinctions between these types of tests and reports can be subtle. Here
+is a rough guide to how we think about choosing the right type of test or
+report for a given task:
 
-1. [**Data tests**](#data-tests) check that hard-and-fast assumptions about our
-   raw data are correct. These tests correspond to [dbt data
-   tests](https://docs.getdbt.com/docs/build/data-tests).
-    * For example: Test that a table is unique by `parid` and `taxyr`.
-2. [**Unit tests**](#unit-tests) check that transformation logic inside a model
-   definition produces the correct output on a specific set of input data.
-   These tests correspond to [dbt unit
-   tests](https://docs.getdbt.com/docs/build/unit-tests).
-    * For example: Test that an enum column computed by a `CASE... WHEN`
-      expression in a view produces the correct output for a given input string.
-3. [**QC reports**](#qc-reports) check for suspicious cases that _might_ indicate
-   a problem with our data, but that can't be confirmed automatically. We
-   implement these reports using [dbt
-   models](https://docs.getdbt.com/docs/build/models).
-    * For example: Query for all parcels whose market value increased by
-      more than $500k in the last year.
+* If you can express the test's logic exclusively in the context of an iasWorld
+  table, and if you think an iasWorld data owner could immediately act on the
+  results of the test without having to know any additional context other than
+  attributes of the row in the iasWorld table that failed the test, you should
+  define the test as an [**iasWorld test**](#iasworld-tests).
+* If the test is checking that a transformation produces a correct value, and
+  if you can represent the full universe of possible raw values that could
+  produce the transformed value in a few simple examples, you should define
+  the test as a [**unit test**](#unit-tests).
+* If you can't be sure whether a failure indicates a data problem, and if you
+  have partnered with a stakeholder who is committed to reviewing the
+  failures, you should define the check as a [**QC report**](#qc-reports).
+* In all other cases, you should define the test as a [**data integrity
+  test**](#data-integrity-tests).
 
-The following sections describe how to add and run each of these types of products.
+Here are some real-world examples of each type of test or report:
 
-### Data tests
+* **iasWorld tests**: Test that the Basement Type column in the
+  `iasworld.dweldat` table is not null
+    * [`iasworld_dweldat_bsmt_not_null`](models/iasworld/schema/iasworld.dweldat.yml)
+* **Unit tests**: Test that the `default.vw_pin_appeal` view strips
+  non-alphanumeric characters from the class code
+    * [`default_vw_pin_appeal_class_strips_non_alphanumerics`](models/default/schema/default.vw_pin_appeal.yml)
+* **Data integrity tests**: Test that the `default.vw_pin_condo_char` view is
+  unique by PIN and year
+    * [`default_vw_pin_condo_char_unique_by_14_digit_pin_and_year`](models/default/schema/default.vw_pin_condo_char.yml)
+* **QC reports**: Query for condo PINs that are nonlivable but that have
+  characteristics corresponding a livable unit
+    * [`qc.vw_pin_appeal_mismatched_outcomes`](models/qc/schema.yml)
 
-We implement data tests using [dbt tests](https://docs.getdbt.com/docs/build/tests)
-to check that hard-and-fast assumptions about our raw data are correct. We prefer adding tests
-inline in `schema.yml` config files using [generic
-tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
-rather than [singular
-tests](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
+The following sections describe how to add and run each of these types of
+tests and reports.
 
-Currently, our primary use of data tests is to check assumptions about iasWorld data.
-We refer to this set of tests as "iasWorld data tests", and we've built a system
-for running and interpreting them that we will explain in the sections to follow.
-Other types of data tests do exist, and we primarily run them via automated
-GitHub workflows during CI when models change. However, we anticipate that in
-the future we will likely build out similar infrastructure for running and
-interpreting non-iasWorld data tests to accompany the infrastructure we have
-built for iasWorld data tests.
+### iasWorld tests
 
-#### Running iasWorld data tests
+Our iasWorld data test suite checks that hard-and-fast assumptions about data
+in our iasWorld system of record are correct.
 
-The iasWorld data test suite can be run using the [`run_iasworld_data_tests`
+For help running iasWorld tests, see [Running iasWorld
+tests](#running-iasworld-tests). For help adding iasWorld tests, see
+[Adding iasWorld tests](#adding-iasworld-tests) and [Choosing a
+generic test for your data test](#choosing-a-generic-test-for-your-data-test).
+
+#### Running iasWorld tests
+
+The iasWorld test suite can be run using the [`run_iasworld_data_tests`
 script](./scripts/run_iasworld_data_tests.py).
 This script runs the tests and reads the metadata for the run to output a number of
 different artifacts with information about the tests:
@@ -551,7 +563,7 @@ different artifacts with information about the tests:
 * Parquet files representing metadata tables that can be uploaded to S3 for aggregate
   analysis
 
-There are two instances when iasWorld data tests typically run:
+There are two instances when iasWorld tests typically run:
 
 1. Once per day by the [`test-dbt-models` GitHub
    workflow](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml),
@@ -582,11 +594,18 @@ python3 scripts/run_iasworld_data_tests.py --township $TOWNSHIP_CODE
 Then, check the Excel workbook that the script produced to make sure it's formatted
 correctly, and send it to Valuations staff for review.
 
-#### Adding iasWorld data tests
+#### Adding iasWorld tests
+
+We implement iasWorld tests using [dbt tests](https://docs.getdbt.com/docs/build/tests)
+to check that hard-and-fast assumptions about our raw iasWorld data are correct.
+We prefer adding tests inline in `schema.yml` config files using [generic
+tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
+rather than [singular
+tests](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
 
 There are a few specific modifications a test author needs to make to
-ensure that a new iasWorld data test can be run by the workflow and interpreted
-by the script:
+ensure that the `run_iasworld_data_tests` script can properly run the test and
+interpret its results:
 
 * One of either the test or the model that the test is defined on must be
 [tagged](https://docs.getdbt.com/reference/resource-configs/tags) with
@@ -627,7 +646,7 @@ See the [`iasworld_pardat_class_in_ccao_class_dict`
 test](https://github.com/ccao-data/data-architecture/blob/bd4bc1769fe33fdba1dbe827791b5c41389cf6ec/dbt/models/iasworld/schema/iasworld.pardat.yml#L78-L96)
 for an example of a test that sets these attributes.
 
-Due to the similarity of parameters defined on iasWorld data tests, we make extensive use
+Due to the similarity of parameters defined on iasWorld tests, we make extensive use
 of YAML anchors and aliases to define symbols for commonly-used values.
 See [here](https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/)
 for a brief explanation of the YAML anchor and alias syntax.
@@ -670,16 +689,79 @@ do so, you have two options:
         of the `format_additional_select_columns` macro to format the
         parameter when applying it to your `SELECT` condition
 
+### Data integrity tests
+
+Data integrity tests check hard-and-fast assumptions about all of our data
+outside of iasWorld. This includes data that come from external sources like
+seeds or third-party data providers, as well as the views that we define as
+transformations on top of iasWorld data sources to clean them up and join them
+to non-iasWorld data.
+
+We implement data integrity tests using [dbt
+tests](https://docs.getdbt.com/docs/build/tests). As with our
+[iasWorld tests](#iasworld-tests), we prefer adding data tests inline in
+`schema.yml` config files using [generic
+tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
+rather than [singular
+tests](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
+
+Some examples of data integrity tests include:
+
+* Check that the `default.vw_card_res_char` view is unique by the columns `pin`,
+  `year`, and `card`
+  ([`default_vw_card_res_char_unique_by_card_pin_and_year`](models/default/schema/default.vw_card_res_char.yml))
+* Check that our transformations of condo characteristic data in the
+  `default.vw_pin_condo_char` view don't ever produce a `null` value for `card`
+  ([`default_vw_pin_condo_char_card_not_null`](models/default/schema/default.vw_pin_condo_char.yml))
+* Check that GEOIDs are the correct length in the `location.vw_pin10_location`
+  view ([`location_vw_pin10_location_7_digit_ids_are_correct_length`](models/location/schema.yml))
+
+#### Running data integrity tests
+
+There are two different times in which data integrity tests run automatically:
+
+1. In the `build-and-test-dbt` GitHub workflow as part of our CI suite when
+   a test's model changes, or when the test itself changes
+2. Once per week in the `test-dbt-models` GitHub workflow, to proactively warn
+   the team about any data problems that we need to fix
+
+You can also run the tests locally using the `select_data_test_non_iasworld`
+selector:
+
+```bash
+dbt test --selector select_data_test_non_iasworld
+```
+
+#### Adding data integrity tests
+
+In contrast to [iasWorld tests](#iasworld-tests), data integrity tests do not
+require any special tags or attributes because we do not process their results
+in a structured fashion.
+
+See [Choosing a generic test for your data
+test](#choosing-a-generic-test-for-your-data-test) for help with choosing a
+generic test.
+
 ### Unit tests
 
 Unit tests help ensure that the transformations we apply on top of our raw data
-do not introduce errors. Unit testing is available in dbt as of [the 1.8
-release](https://docs.getdbt.com/docs/build/unit-tests), but there is a bug that
-prevents it from working with the schema alias system that we use to namespace
-our models, so we do not yet have a process for adding or running unit tests.
-Jean is leading the effort to contribute to dbt Core in order to support unit
-tests in projects that follow our schema alias system, so she will update this
-section with documentation once that effort is resolved.
+do not introduce errors. We use dbt's [unit
+testing](https://docs.getdbt.com/docs/build/unit-tests) feature to implement
+these tests. Unit tests currently do not require any special tags or
+attributes, although this may change in the future as we build out a more
+extensive suite of tests.
+
+Unit tests run during the `build-and-test-dbt` GitHub workflow as part of
+our CI suite whenever a PR or commit to the main branch adds or modifies a
+model or unit test. As such, unit tests will only run automatically in cases
+where it's possible that a code change might accidentally violate the
+assumptions of the test.
+
+Run the unit tests locally using the `unit_test` resource type:
+
+```bash
+dbt test --select resource_type:unit_test
+```
 
 ### QC reports
 
@@ -697,7 +779,7 @@ a major event in the Valuations calendar like the close of a township.
 
 The [`export_models` script](./scripts/export_models.py) is the foundation for
 our QC reports. The script expects certain Python requirements, which can be installed
-by running `pip install -r scripts/requirements.export_models.txt` in a virtual
+by running `uv pip install .[dbt_tests]` in a virtual
 environment.
 
 The script exposes a few options that help to export the right data:
@@ -735,14 +817,15 @@ We run town close reports using the [`scripts/export_qc_town_close_reports.py`
 script](./scripts/export_qc_town_close_reports.py), which builds on top of
 `export_models`. As such, `export_qc_town_close_reports` expects the same set
 of Python requirements as `export_models`, which can be installed in a virtual
-environment by running `pip install scripts/requirements.export_models.txt`.
+environment by running `uv pip install .[dbt_tests]`.
 
 The script exposes the following options, many of which are the same as
 `export_models`:
 
-* **`--township`** (required): The [township
-  code](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) to use
-  for filtering results.
+* **`--township`** (optional): One or more space-separated [township
+  codes](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) to use
+  for filtering results. If you omit this parameter, the script will default to
+  exporting reports for all towns.
 * **`--year`** (optional): The year to use for filtering results. Defaults to the current year.
 * **`--target`** (optional): The name of the [dbt
   target](https://docs.getdbt.com/reference/dbt-jinja-functions/target) to run
@@ -758,6 +841,8 @@ The script exposes the following options, many of which are the same as
   See [Refreshing iasWorld tables prior to running town close QC
   reports](#refreshing-iasworld-tables-prior-to-running-town-close-qc-reports) for more
   details.
+* **`output-dir`** (optional): The Unix-formatted path to the directory where
+  the script will store output files. Defaults to `./export/output/`.
 
 Assuming a township code defined by `$TOWNSHIP_CODE` and a tax year defined by
 `$TAXYR`, the following command will generate town close reports for the township/year combo:
@@ -770,6 +855,12 @@ You can omit the `--year` flag and the script will default to the current year o
 
 ```
 python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE"
+```
+
+Omit all options to generate reports for all towns in the current year:
+
+```
+python3 scripts/export_qc_town_close_reports.py
 ```
 
 In both cases, the script will output the reports to the `dbt/export/output/`
@@ -799,12 +890,13 @@ You should see output like this, which you can run in the context of the
 repository on the server in order to refresh iasWorld tables:
 
 ```
-ssh into the server and run the following commands:
+Run the following commands on the Data Team server as the shiny-server user:
 
 cd /path/to/service-spark-iasworld/
-docker-compose up -d
-docker exec spark-node-master ./submit.sh --json-string --no-run-github-workflow
-'{"aprval": {"table_name": "iasworld.aprval", "min_year": 2024, "cur": ["Y"], ...
+docker compose --profile prod up -d
+docker exec spark-node-master-prod ./submit.sh
+    --upload-data --upload-logs --run-glue-crawler
+    --json-string {"aprval": {"table_name": "iasworld.aprval", "min_year": 2024, "cur": ["Y"], ...
 ```
 
 #### Running the AHSAP change in value QC report

@@ -23,6 +23,11 @@ models:
         description: '{{ doc("shared_column_certified_bldg") }}'
       - name: certified_class
         description: '{{ doc("shared_column_certified_class") }}'
+        data_tests:
+          - is_null:
+              name: default_vw_pin_value_certified_class_is_null_when_pre_certified
+              config:
+                where: stage_name = 'ASSESSOR PRE-CERTIFIED'
       - name: certified_land
         description: '{{ doc("shared_column_certified_land") }}'
       - name: certified_land_mv
@@ -39,6 +44,15 @@ models:
         description: '{{ doc("shared_column_mailed_bldg") }}'
       - name: mailed_class
         description: '{{ doc("shared_column_mailed_class") }}'
+        data_tests:
+          - is_null:
+              name: default_vw_pin_value_mailed_class_is_null_when_pre_mailed
+              config:
+                where: stage_name = 'PRE-MAILED'
+          - not_null:
+              name: default_vw_pin_value_mailed_class_not_null_when_pre_certified
+              config:
+                where: stage_name = 'ASSESSOR PRE-CERTIFIED'
       - name: mailed_land
         description: '{{ doc("shared_column_mailed_land") }}'
       - name: mailed_land_mv
@@ -49,20 +63,59 @@ models:
         description: '{{ doc("shared_column_mailed_tot") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
+      - name: pre_certified_bldg
+        description: '{{ doc("shared_column_pre_certified_bldg") }}'
+      - name: pre_certified_bldg_mv
+        description: '{{ doc("shared_column_pre_certified_bldg") }}'
+      - name: pre_certified_class
+        description: '{{ doc("shared_column_pre_certified_class") }}'
+      - name: pre_certified_land
+        description: '{{ doc("shared_column_pre_certified_land") }}'
+      - name: pre_certified_land_mv
+        description: '{{ doc("shared_column_pre_certified_land") }}'
+      - name: pre_certified_tot
+        description: '{{ doc("shared_column_pre_certified_tot") }}'
+      - name: pre_certified_tot_mv
+        description: '{{ doc("shared_column_pre_certified_land") }}'
+      - name: pre_mailed_bldg
+        description: '{{ doc("shared_column_pre_mailed_bldg") }}'
+      - name: pre_mailed_bldg_mv
+        description: '{{ doc("shared_column_pre_mailed_bldg") }}'
+      - name: pre_mailed_class
+        description: '{{ doc("shared_column_pre_mailed_class") }}'
+      - name: pre_mailed_land
+        description: '{{ doc("shared_column_pre_mailed_land") }}'
+      - name: pre_mailed_land_mv
+        description: '{{ doc("shared_column_pre_mailed_land") }}'
+      - name: pre_mailed_tot
+        description: '{{ doc("shared_column_pre_mailed_tot") }}'
+      - name: pre_mailed_tot_mv
+        description: '{{ doc("shared_column_pre_mailed_land") }}'
       - name: stage_name
         description: |
           Name of currently active/open stages.
 
-          One of `MAILED`, `ASSESSOR CERTIFIED`, or `BOARD CERTIFIED`
+          The possible values include:
+
+          - `PRE-MAILED`
+          - `MAILED`
+          - `ASSESSOR PRE-CERTIFIED`
+          - `ASSESSOR CERTIFIED`
+          - `BOARD CERTIFIED`
+        data_tests:
+          - not_null:
+              name: default_vw_pin_value_stage_name_not_null
       - name: stage_num
         description: |
           Number of currently active/open stages.
 
           The possible values include:
 
+          - `0.5` = Pre-mailed
           - `1` = Mailed
-          - `2` = Certified
-          - `3` = Board
+          - `1.5` = Assessor pre-certified
+          - `2` = Assessor certified
+          - `3` = Board certified
       - name: year
         description: '{{ doc("shared_column_year") }}'
 
@@ -107,6 +160,32 @@ models:
         config:
           where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
           error_if: ">15"
+    - expression_is_true:
+        name: default_vw_pin_value_class_is_null_when_values_are_null
+        meta:
+          description: >
+            Test that the 'class' column for each assessment stage is null
+            whenever the value columns for that stage are null, which is an
+            assumption that downstream consumers of this view depend upon
+        expression: |
+          {% set stages = ['pre_mailed', 'mailed', 'pre_certified', 'certified', 'board'] %}
+          {% set cols = ['bldg', 'land', 'tot', 'bldg_mv', 'land_mv', 'tot_mv'] %}
+
+          {% for stage in  stages %}
+            {% for null_status in ['IS NULL', 'IS NOT NULL'] %}
+              (
+                {{ stage }}_class {{ null_status }}
+                AND (
+                  {% for col in cols %}
+                    {{ stage }}_{{ col }} {{ null_status }}
+                    {% if not loop.last %}AND{% endif %}
+                  {% endfor %}
+                )
+              )
+              {% if not loop.last %}OR{% endif %}
+            {% endfor %}
+            {% if not loop.last %}OR{% endif %}
+          {% endfor %}
     - not_accepted_values:
         name: default_vw_pin_value_mailed_class_no_hyphens
         column_name: mailed_class
@@ -136,3 +215,23 @@ models:
         combination_of_columns:
           - pin
           - year
+
+unit_tests:
+  - name: default_vw_pin_value_mailed_class_strips_non_alphanumerics
+    description: mailed_class transformation should remove non-alphanumeric characters
+    model: default.vw_pin_value
+    given:
+      - input: source("iasworld", "asmt_all")
+        # `class` is the important column here, and all other columns are only
+        # provided to ensure proper joins when creating the dummy table
+        rows:
+          - {parid: "123", taxyr: "2024", procname: "CCAOVALUE", rolltype: "RP", valasm3: 10, class: "2.1-1)A"}
+      - input: source("iasworld", "aprval")
+        rows:
+          - {parid: "123", taxyr: "2024", procname: "CCAOVALUE", reascd: "28"}
+      - input: ref("ccao.aprval_reascd")
+        rows:
+          - {reascd: "28"}
+    expect:
+      rows:
+        - {mailed_class: "211A"}

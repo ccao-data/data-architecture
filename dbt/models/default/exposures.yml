@@ -94,7 +94,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: 4u8x-wdnz
+      asset_id: nj4t-kc8j
       primary_key:
         - pin
         - year

@@ -396,6 +396,8 @@ sources:
             description: Number of units
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
+          - name: user16
+            description: '{{ doc("shared_column_alternative_cdu") }}'
           - name: useradj
             description: Override to comdat userdef adjustment factor
           - name: valmeth

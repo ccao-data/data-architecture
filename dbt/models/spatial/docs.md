@@ -493,6 +493,22 @@ Includes townships within the City of Chicago, which are technically defunct.
 **Geometry:** `MULTIPOLYGON`
 {% enddocs %}
 
+# traffic
+
+{% docs table_traffic %}
+
+Illinois Department of Transportation data source from
+[https://apps1.dot.illinois.gov/gist2/](https://apps1.dot.illinois.gov/gist2/).
+Data focuses on five features; lanes, speed limits, traffic count, road type,
+and surface type. Some columns are not present in all years of data (for example
+speed limit in 2012) Data for columns is not universally present so we average
+numeric values for roads which overlap and have a matching name. For example,
+if segment B touches segment A and C with speed limits of 25 and 30, the speed
+limit for segment B will be 27.5.
+
+**Geometry:** `MULTILINESTRING`
+{% enddocs %}
+
 # transit_dict
 
 {% docs table_transit_dict %}

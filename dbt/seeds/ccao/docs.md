@@ -17,6 +17,16 @@ Reason codes pertian to changes in AV.
 **Primary Key**: `reascd`
 {% enddocs %}
 
+# cdu
+
+{% docs seed_cdu %}
+Table containing CDU (Condition, Desirability, and Utility) codes and
+descriptions. CDUs come from the `user16` columns in `comdat`, `dweldat`, and `oby`
+tables in `iasworld`.
+
+**Primary Key**: `cdu_code`
+{% enddocs %}
+
 # class_dict
 
 {% docs seed_class_dict %}
@@ -33,6 +43,16 @@ Derived from the 2023
 To find the level of assessment (LoA) for each class, see the `ccao.loa` table.
 
 **Primary Key**: `class_code`
+{% enddocs %}
+
+# htpar_reascd
+
+{% docs seed_htpar_reascd %}
+Table containing descriptions for appeal decision reason codes from
+`iasworld.htpar`. These codes are sourced directly from the iasWorld interface.
+Many (but not all) are documented on the [Assessor's website](https://www.cookcountyassessor.com/form-document/assessor-reason-codes).
+
+**Primary Key**: `reascd`
 {% enddocs %}
 
 # loa

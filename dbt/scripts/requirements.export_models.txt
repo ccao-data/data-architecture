@@ -1,3 +1,0 @@
-pandas~=2.2.2
-pyathena~=3.8.3
-openpyxl~=3.1.5
