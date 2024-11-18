@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 from collections import defaultdict
 
 import yaml
@@ -340,42 +341,68 @@ def check_all_files(directory):
     Returns:
         tuple: Results of unsorted files and errors for different checks.
     """
+    file_paths_to_check = []
+    for root, _, files in os.walk(directory):
+        if "venv" in root:
+            continue
+        for file in files:
+            if (
+                file.endswith(".yaml")
+                or file.endswith(".yml")
+                or (file in ("docs.md", "columns.md", "shared_columns.md"))
+            ):
+                file_paths_to_check.append(os.path.join(root, file))
+
+    return check_files(file_paths_to_check)
+
+
+def check_files(file_paths: list[str]):
+    """
+    Check all files in a list of filepaths for sorted YAML keys and markdown
+    headings.
+
+    Args:
+        file_paths (list[str]): The list of files to check
+
+    Returns:
+        tuple: Results of unsorted files and errors for different checks.
+    """
     unsorted_columns_files = defaultdict(int)
     unsorted_data_tests_files = defaultdict(int)
     error_files = []
     unsorted_md_files = []
     unsorted_columns_md_files = []
     unsorted_shared_columns_md_files = []
-    for root, _, files in os.walk(directory):
-        if "venv" in root:
-            continue
-        for file in files:
-            file_path = os.path.join(root, file)
-            if file.endswith(".yaml") or file.endswith(".yml"):
-                unsorted_columns, errors = check_columns(file_path)
-                for key, value in unsorted_columns.items():
-                    unsorted_columns_files[key] += value
-                unsorted_data_tests, errors = check_data_tests(file_path)
-                for key, value in unsorted_data_tests.items():
-                    unsorted_data_tests_files[key] += value
-                if errors:
-                    error_files.extend(errors)
-            elif file == "docs.md":
-                unsorted_md = check_md_file(file_path)
-                if unsorted_md:
-                    unsorted_md_files.append(unsorted_md)
-            elif file == "columns.md":
-                unsorted_columns_md = check_columns_md_file(file_path)
-                if unsorted_columns_md:
-                    unsorted_columns_md_files.append(unsorted_columns_md)
-            elif file == "shared_columns.md":
-                unsorted_shared_columns_md = check_shared_columns_md_file(
-                    file_path
+    for file_path in file_paths:
+        if not os.path.isfile(file_path):
+            raise ValueError(
+                f"check_files got a filepath that doesn't exist: {file_path}"
+            )
+        if file_path.endswith(".yaml") or file_path.endswith(".yml"):
+            unsorted_columns, errors = check_columns(file_path)
+            for key, value in unsorted_columns.items():
+                unsorted_columns_files[key] += value
+            unsorted_data_tests, errors = check_data_tests(file_path)
+            for key, value in unsorted_data_tests.items():
+                unsorted_data_tests_files[key] += value
+            if errors:
+                error_files.extend(errors)
+        elif os.path.basename(file_path) == "docs.md":
+            unsorted_md = check_md_file(file_path)
+            if unsorted_md:
+                unsorted_md_files.append(unsorted_md)
+        elif os.path.basename(file_path) == "columns.md":
+            unsorted_columns_md = check_columns_md_file(file_path)
+            if unsorted_columns_md:
+                unsorted_columns_md_files.append(unsorted_columns_md)
+        elif os.path.basename(file_path) == "shared_columns.md":
+            unsorted_shared_columns_md = check_shared_columns_md_file(
+                file_path
+            )
+            if unsorted_shared_columns_md:
+                unsorted_shared_columns_md_files.append(
+                    unsorted_shared_columns_md
                 )
-                if unsorted_shared_columns_md:
-                    unsorted_shared_columns_md_files.append(
-                        unsorted_shared_columns_md
-                    )
 
     return (
         unsorted_columns_files,
@@ -388,14 +415,25 @@ def check_all_files(directory):
 
 
 if __name__ == "__main__":
-    (
-        unsorted_columns_files,
-        unsorted_data_tests_files,
-        error_files,
-        unsorted_md_files,
-        unsorted_columns_md_files,
-        unsorted_shared_columns_md_files,
-    ) = check_all_files(os.getcwd())
+    args = sys.argv[1:]
+    if args:
+        (
+            unsorted_columns_files,
+            unsorted_data_tests_files,
+            error_files,
+            unsorted_md_files,
+            unsorted_columns_md_files,
+            unsorted_shared_columns_md_files,
+        ) = check_files(args)
+    else:
+        (
+            unsorted_columns_files,
+            unsorted_data_tests_files,
+            error_files,
+            unsorted_md_files,
+            unsorted_columns_md_files,
+            unsorted_shared_columns_md_files,
+        ) = check_all_files(os.getcwd())
 
     if unsorted_columns_files:
         print("The following files have unsorted columns:")

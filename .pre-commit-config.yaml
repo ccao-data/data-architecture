@@ -36,4 +36,6 @@ repos:
         name: check-sort-dbt-yaml-files
         entry: python3 dbt/scripts/check_sort_dbt_yaml_files.py
         language: system
-        pass_filenames: false
+        types_or: [yaml, markdown]
+        files: ^dbt/
+        exclude: venv
