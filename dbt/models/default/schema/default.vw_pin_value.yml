@@ -215,3 +215,23 @@ models:
         combination_of_columns:
           - pin
           - year
+
+unit_tests:
+  - name: default_vw_pin_value_mailed_class_strips_non_alphanumerics
+    description: mailed_class transformation should remove non-alphanumeric characters
+    model: default.vw_pin_value
+    given:
+      - input: source("iasworld", "asmt_all")
+        # `class` is the important column here, and all other columns are only
+        # provided to ensure proper joins when creating the dummy table
+        rows:
+          - {parid: "123", taxyr: "2024", procname: "CCAOVALUE", rolltype: "RP", valasm3: 10, class: "2.1-1)A"}
+      - input: source("iasworld", "aprval")
+        rows:
+          - {parid: "123", taxyr: "2024", procname: "CCAOVALUE", reascd: "28"}
+      - input: ref("ccao.aprval_reascd")
+        rows:
+          - {reascd: "28"}
+    expect:
+      rows:
+        - {mailed_class: "211A"}

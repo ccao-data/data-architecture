@@ -64,13 +64,13 @@ SELECT
     address.address_suffix_1,
     address.address_suffix_2,
     permit.user21 AS applicant_name,
-    permit.user42 AS job_code,
+    permit.why AS job_code_primary,
+    permit.user42 AS job_code_secondary,
     permit.user43 AS work_description,
     permit.user6 AS improvement_code_1,
     permit.user7 AS improvement_code_2,
     permit.user8 AS improvement_code_3,
     permit.user9 AS improvement_code_4,
-    permit.why AS permit_type,
     permit.id1 AS filing_type,
     permit.note3 AS notes
 FROM active_permits AS permit

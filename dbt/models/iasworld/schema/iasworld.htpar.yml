@@ -381,3 +381,16 @@ sources:
               meta:
                 description: >
                   htpar should be unique by parid, caseno, taxyr, and subkey
+          - expression_is_true:
+              name: iasworld_htpar_user104_in_accepted_values
+              expression: lower(trim(user104)) in ('change', 'no change')
+              additional_select_columns:
+                - user104
+                - taxyr
+                - parid
+                - who
+                - wen
+              config: *unique-conditions
+              meta:
+                description: user104 must be 'change' or 'no change'
+                category: incorrect_values
