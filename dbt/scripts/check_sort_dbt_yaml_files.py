@@ -1,3 +1,20 @@
+# Script that acts as a linter to check that our dbt assets are ordered
+# alphabetically. Attributes that we check for ordering include:
+#
+# * `columns`, `data_tests`, and `unit_tests` in `schema.yml` files
+# * Headings in all docs Markdown files, with special cases for `columns.md`
+#   and `shared_columns.md` files that have specific sub-headings
+#
+# When positional arguments are present, the script interprets them as a list of
+# filepaths to lint. When no positional arguments are present, the script will
+# list all files recursively under the current working directory and lint
+# everything it finds with a filename or file extension that matches the assets
+# listed above.
+#
+# We primarily run this script via pre-commit, which automatically passes in
+# names of files that have changed. The default behavior when no arguments are
+# present exists to support running this script outside the context of
+# pre-commit.
 import os
 import re
 import sys
