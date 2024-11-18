@@ -275,6 +275,9 @@ models:
           column_name: class
           values: "2-99"
       - not_null:
+          name: reporting_vw_pin_value_long_stage_name_not_null
+          column_name: stage_name
+      - not_null:
           name: reporting_vw_pin_value_long_tot_mv_not_null
           column_name: tot_mv
           config:
