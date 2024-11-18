@@ -189,9 +189,9 @@ def main():
         print("cd /home/shiny-server/services/service-spark-iasworld")
         print("docker compose --profile prod up -d")
         print(
-            "docker exec spark-node-master-prod ./submit.sh"
-            "--upload-data --upload-logs --run-glue-crawler"
-            f"--json-string '{json.dumps(iasworld_deps)}'"
+            "docker exec spark-node-master-prod ./submit.sh",
+            "--upload-data --upload-logs --run-glue-crawler",
+            f"--json-string '{json.dumps(iasworld_deps)}'",
         )
     else:
         models_for_export = query_models_for_export(
