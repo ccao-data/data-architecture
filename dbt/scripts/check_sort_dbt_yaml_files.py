@@ -367,8 +367,8 @@ def check_files(file_paths: list[str]):
     Returns:
         tuple: Results of unsorted files and errors for different checks.
     """
-    unsorted_columns_files = defaultdict(int)
-    unsorted_data_tests_files = defaultdict(int)
+    unsorted_columns_files: dict[str, int] = defaultdict(int)
+    unsorted_data_tests_files: dict[str, int] = defaultdict(int)
     error_files = []
     unsorted_md_files = []
     unsorted_columns_md_files = []
