@@ -18,6 +18,7 @@ WITH uni AS (
         -- Main PIN-level attribute data from iasWorld
         par.parid AS pin,
         SUBSTR(par.parid, 1, 10) AS pin10,
+        SUBSTR(par.parid, 1, 5) AS pin5,
         par.taxyr AS year,
         REGEXP_REPLACE(par.class, '[^[:alnum:]]', '') AS class,
         twn.triad_name,
