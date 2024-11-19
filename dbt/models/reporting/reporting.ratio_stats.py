@@ -260,12 +260,24 @@ def report_summarise(df, geography_id, geography_type):
         "sale_year",
     ]
 
+    schema = (
+        "year: bigint, triad: bigint, geography_type: string, "
+        "property_group: string, assessment_stage: string, "
+        "geography_id: string, sale_year: bigint, sale_n: bigint, "
+        "median_ratio: double, median_ratio_ci_l: double, median_ratio_ci_u: double, "
+        "cod: double, cod_ci_l: double, cod_ci_u: double, cod_n: bigint, cod_met: boolean, "
+        "prd: double, prd_ci_l: double, prd_ci_u: double, prd_n: bigint, prd_met: boolean, "
+        "prb: double, prb_ci_l: double, prb_ci_u: double, prb_n: bigint, prb_met: boolean, "
+        "mki: double, mki_met: boolean, mki_n: bigint, "
+        "within_20_pct: bigint, within_10_pct: bigint, within_05_pct: bigint"
+    )
+
     df["geography_id"] = df[geography_id].astype(str)
     df["geography_type"] = geography_type
 
     df = (
         df.groupby(group_cols)
-        .apply(
+        .applyInPandas(
             lambda x: pd.Series(
                 {
                     "sale_n": x["triad"].size,
@@ -326,7 +338,8 @@ def report_summarise(df, geography_id, geography_type):
                     "within_10_pct": sum(abs(1 - x["ratio"]) <= 0.10),
                     "within_05_pct": sum(abs(1 - x["ratio"]) <= 0.05),
                 }
-            )
+            ),
+            schema=schema,
         )
         .reset_index()
     )
@@ -338,28 +351,7 @@ def model(dbt, spark_session):
     dbt.config(materialized="table")
 
     input = dbt.ref("reporting.ratio_stats_input")
-
-    # Convert the Spark input dataframe to Pandas for
-    # compatibility with assesspy functions
-    # input = input.toPandas()
-
-    # Replicate filtering from prior vw_ratio_stats pull
-    # input = input[input.ratio > 0 & input.ratio.notnull()]
-    athena_user_logger.info("Check 1")
-    input = ps.DataFrame(
-        input.filter(input.ratio.isNotNull()).filter(input.ratio > 0)
-    )
-    athena_user_logger.info(" ")
-    athena_user_logger.info(f"{input}")
-
-    athena_user_logger.info(
-        f"{report_summarise(input, 'triad', 'Tri').dtypes}"
-    )
-    athena_user_logger.info(
-        f"{report_summarise(input, 'township_code', 'Town').dtypes}"
-    )
-
-    athena_user_logger.info("Post types - pre concat")
+    input = input.filter(input.ratio.isNotNull()).filter(input.ratio > 0)
 
     df = ps.concat(
         [
@@ -412,30 +404,24 @@ def model(dbt, spark_session):
         ]
     ]
 
-    # df = df[
-    #    [
-    #        'year'
-    #       ]].reset_index(drop=True)
-
     athena_user_logger.info(f"{df.dtypes}")
     athena_user_logger.info(f"{type(df)}")
-    # athena_user_logger.info(df.index)
 
     # Create a Spark schema to maintain the datatypes of the
     # previous output (for Tableau compatibility)
-    """schema = (
-        "year: bigint, triad: bigint, geography_type: string, "
-        + "property_group: string, assessment_stage: string, "
-        + "geography_id: string, sale_year: bigint, sale_n: bigint, "
-        + "median_ratio: double, median_ratio_ci_l: double, median_ratio_ci_u: double, cod: double, "
-        + "cod_ci_l: double, cod_ci_u: double, cod_n: bigint, prd: double, prd_ci: string, "
-        + "prd_n: bigint, prb: double, prb_ci_l: double, prb_ci_u: double, prb_n: bigint, "
-        + "mki: double, mki_n: bigint, "
-        + "ratio_met: boolean, cod_met: boolean, prd_met: boolean, "
-        + "prb_met: boolean, mki_met: boolean, vertical_equity_met: boolean, "
-        + "within_20_pct: bigint, within_10_pct: bigint, within_05_pct: bigint"
-    )
-    """
+    # schema = (
+    #     "year: bigint, triad: bigint, geography_type: string, "
+    #     "property_group: string, assessment_stage: string, "
+    #     "geography_id: string, sale_year: bigint, sale_n: bigint, "
+    #     "median_ratio: double, median_ratio_ci_l: double, median_ratio_ci_u: double, cod: double, "
+    #     "cod_ci_l: double, cod_ci_u: double, cod_n: bigint, prd: double, prd_ci: string, "
+    #     "prd_n: bigint, prb: double, prb_ci_l: double, prb_ci_u: double, prb_n: bigint, "
+    #     "mki: double, mki_n: bigint, "
+    #     "ratio_met: boolean, cod_met: boolean, prd_met: boolean, "
+    #     "prb_met: boolean, mki_met: boolean, vertical_equity_met: boolean, "
+    #     "within_20_pct: bigint, within_10_pct: bigint, within_05_pct: bigint"
+    # )
+
     df = df.to_spark()
     # schema = ("year: bigint")
 
