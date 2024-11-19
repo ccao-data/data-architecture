@@ -132,9 +132,9 @@ def ccao_prd(df):
         prd_ci_l, prd_ci_u = prd_ci[0], prd_ci[1]
         prd_met = 0.98 <= prd_val <= 1.03
 
-        out = [prd_val, prd_ci_l, prd_ci_u, prd_n, prd_met]
+        out = [prd_val, prd_ci_l, prd_ci_u, prd_met, prd_n]
     else:
-        out = [None, None, None, prd_n, None]
+        out = [None, None, None, None, prd_n]
 
     return out
 
@@ -181,7 +181,6 @@ def ccao_mki(df):
         mki_met = 0.95 <= mki_val <= 1.05
 
         out = [mki_val, mki_met, mki_n]
-        # out = [mki_val, mki_n]
 
     else:
         out = [None, None, mki_n]
@@ -261,15 +260,15 @@ def report_summarise(df, geography_id, geography_type):
     ]
 
     schema = (
-        "year: bigint, triad: bigint, geography_type: string, "
-        "property_group: string, assessment_stage: string, "
-        "geography_id: string, sale_year: bigint, sale_n: bigint, "
-        "median_ratio: double, median_ratio_ci_l: double, median_ratio_ci_u: double, "
-        "cod: double, cod_ci_l: double, cod_ci_u: double, cod_n: bigint, cod_met: boolean, "
-        "prd: double, prd_ci_l: double, prd_ci_u: double, prd_n: bigint, prd_met: boolean, "
-        "prb: double, prb_ci_l: double, prb_ci_u: double, prb_n: bigint, prb_met: boolean, "
-        "mki: double, mki_met: boolean, mki_n: bigint, "
-        "within_20_pct: bigint, within_10_pct: bigint, within_05_pct: bigint"
+        "year bigint, triad bigint, geography_type string, "
+        "property_group string, assessment_stage string, "
+        "geography_id string, sale_year bigint, sale_n bigint, "
+        "median_ratio double, median_ratio_ci_l double, median_ratio_ci_u double, median_n bigint, "
+        "cod double, cod_ci_l double, cod_ci_u double, cod_met boolean, cod_n bigint, "
+        "prd double, prd_ci_l double, prd_ci_u double, prd_met boolean, prd_n bigint, "
+        "prb double, prb_ci_l double, prb_ci_u double, prb_met boolean, prb_n bigint, "
+        "mki double, mki_met boolean, mki_n bigint, "
+        "within_20_pct bigint, within_10_pct bigint, within_05_pct bigint"
     )
 
     df["geography_id"] = df[geography_id].astype(str)
@@ -310,8 +309,8 @@ def report_summarise(df, geography_id, geography_type):
                                 "prd",
                                 "prd_ci_l",
                                 "prd_ci_u",
-                                "prd_n",
                                 "prd_met",
+                                "prd_n",
                             ],
                             ccao_prd(x[["fmv", "sale_price"]]),
                         )
