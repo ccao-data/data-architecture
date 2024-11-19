@@ -6,7 +6,7 @@
 {% set stage_name_mailed = 'MAILED' %}
 {% set stage_name_pre_certified = 'ASSESSOR PRE-CERTIFIED' %}
 {% set stage_name_certified = 'ASSESSOR CERTIFIED' %}
-{% set stage_name_board = 'BOARD CERTIFIED' %}
+{% set stage_name_board = 'BOARD CERTIFIED TEST' %}
 
 -- Get a list of completed stages for all PINs in all years. This will allow us
 -- to disambiguate pre-mailed values from pre-certified values based on which
