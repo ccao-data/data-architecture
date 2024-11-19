@@ -9,7 +9,6 @@ import pyspark.pandas as ps
 import statsmodels.api as sm
 
 
-# boot_ci
 def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
     num_kwargs = len(kwargs)
     kwargs = pd.DataFrame(kwargs)
@@ -307,7 +306,7 @@ def report_summarise(df, geography_id, geography_type):
                     ),
                     **dict(
                         zip(
-                            ["mki_val", "mki_met", "mki_n"],
+                            ["mki", "mki_met", "mki_n"],
                             ccao_mki(x[["fmv", "sale_price"]]),
                         )
                     ),
@@ -377,6 +376,7 @@ def model(dbt, spark_session):
     # Arrange output columns
     df = df[
         [
+            "year",
             "triad",
             "geography_type",
             "property_group",
@@ -398,7 +398,7 @@ def model(dbt, spark_session):
             "prd_ci_u",
             "prd_n",
             "prd_met",
-            "mki_val",
+            "mki",
             "mki_met",
             "mki_n",
             "prb",
