@@ -11,8 +11,6 @@ models:
         description: '{{ doc("column_access_cmap_walk_nta_score") }}'
       - name: access_cmap_walk_total_score
         description: '{{ doc("column_access_cmap_walk_total_score") }}'
-      - name: ccao_is_corner_lot
-        description: '{{ doc("shared_column_is_corner_lot") }}'
       - name: census_acs5_congressional_district_geoid
         description: '{{ doc("column_census_congressional_district_geoid") }}'
       - name: census_acs5_county_subdivision_geoid
@@ -85,11 +83,10 @@ models:
           - count_is_consistent:
               name: default_vw_pin_universe_class_count_is_consistent_by_year
               group_column: year
-              config:
-                error_if: ">25"
-          - not_accepted_values:
-              name: default_vw_pin_universe_class_no_hyphens
-              values: "2-99"
+              # Counts vary a bit from year to year, so set a generous range
+              # that lets us see if counts are way off of what we expect
+              min_value: 100
+              max_value: 200
       - name: cook_board_of_review_district_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: cook_board_of_review_district_num
@@ -246,19 +243,68 @@ models:
         description: ZIP code of the property
 
     data_tests:
+      - row_count:
+          name: default_vw_pin_universe_row_count
+          above: 46944042 # as of 2024-11-14
       - unique_combination_of_columns:
           name: default_vw_pin_universe_unique_by_14_digit_pin_and_year
           combination_of_columns:
             - pin
             - year
-      - row_count:
-          name: default_vw_pin_universe_row_count
-          above: 45079936 # as of 2024-01-03
-      # No non-numeric characters in the pin field
-      - expression_is_true:
-          name: default_vw_pin_universe_numeric_pin
-          expression: REGEXP_COUNT(pin, '[0-9]') = 14 AND LENGTH(pin) = 14
-          additional_select_columns:
-            - pin
-      # TODO: Data completeness correlates with availability of spatial data
-      # by year
+
+unit_tests:
+  - name: default_vw_pin_universe_class_strips_non_alphanumerics
+    description: class transformation should remove non-alphanumeric characters
+    model: default.vw_pin_universe
+    given:
+      - input: source("iasworld", "pardat")
+        rows:
+          # `class` is the important column here, and all other columns are
+          # only set to ensure proper joins when creating the dummy tables
+          - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null, class: "2.1-1)A"}
+      - input: source("iasworld", "legdat")
+        rows:
+          - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null, user1: "70"}
+      - input: source("spatial", "parcel")
+        rows:
+          - {pin10: "0000000000", year: "2024"}
+      - input: ref("location.vw_pin10_location")
+        rows:
+          - {pin10: "0000000000", year: "2024"}
+      - input: source("spatial", "township")
+        rows:
+          - {township_code: 70}
+    expect:
+      rows:
+        - {class: "211A"}
+
+  - name: default_vw_pin_universe_filters_invalid_pins
+    description: view should filter for only 14-digit numeric PINs
+    model: default.vw_pin_universe
+    given:
+      - input: source("iasworld", "pardat")
+        rows:
+          # `class` is the important column here, and all other columns are
+          # only set to ensure proper joins when creating the dummy tables
+          - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null}
+          - {parid: "0", taxyr: "2024", cur: "Y", deactivat: null}
+          - {parid: "A", taxyr: "2024", cur: "Y", deactivat: null}
+      - input: source("iasworld", "legdat")
+        rows:
+          - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null, user1: "70"}
+          - {parid: "0", taxyr: "2024", cur: "Y", deactivat: null, user1: "70"}
+          - {parid: "A", taxyr: "2024", cur: "Y", deactivat: null, user1: "70"}
+      - input: source("spatial", "parcel")
+        rows:
+          - {pin10: "0000000000", year: "2024"}
+          - {pin10: "0", year: "2024"}
+          - {pin10: "A", year: "2024"}
+      - input: ref("location.vw_pin10_location")
+        rows:
+          - {pin10: "0000000000", year: "2024"}
+      - input: source("spatial", "township")
+        rows:
+          - {township_code: 70}
+    expect:
+      rows:
+        - {pin: "00000000000000"}

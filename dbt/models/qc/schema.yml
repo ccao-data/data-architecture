@@ -1,36 +1,231 @@
 models:
-  - name: qc.vw_incorrect_val_method
-    description: '{{ doc("view_vw_incorrect_val_method") }}'
+  - name: qc.vw_change_in_ahsap_values
+    description: '{{ doc("view_vw_change_in_ahsap_values") }}'
+
+  - name: qc.vw_change_in_high_low_value_sales
+    description: '{{ doc("view_vw_change_in_high_low_value_sales") }}'
     config:
       tags:
-        - test_qc_inquire
+        - data_test_iasworld
+        - data_test_iasworld_exclude_from_workbook
+    data_tests:
+      - expression_is_true:
+          name: qc_vw_change_in_high_low_value_sales_ratio_high
+          expression: "price_less_than_10k_growth_status = 'No significant change'"
+          additional_select_columns:
+            - source
+            - taxyr
+            - price_less_than_10k_growth_status
+            - prev_year_price_less_than_10k_count
+            - price_less_than_10k_count
+          meta:
+            table_name: sales
+            category: sales_issues
+            description: >
+              count of sales <= $10k should not change more than 5% YoY
+      - expression_is_true:
+          name: qc_vw_change_in_high_low_value_sales_ratio_low
+          expression: "price_greater_than_1m_growth_status = 'No significant change'"
+          additional_select_columns:
+            - source
+            - taxyr
+            - price_greater_than_1m_growth_status
+            - prev_year_price_greater_than_1m_count
+            - price_greater_than_1m_count
+          meta:
+            table_name: sales
+            category: sales_issues
+            description: >
+              count of sales >= $1m should not change more than 5% YoY
+
+  - name: qc.vw_iasworld_asmt_all_joined_to_legdat
+    description: '{{ doc("view_vw_iasworld_asmt_all_joined_to_legdat") }}'
+    config:
+      tags:
+        - data_test_iasworld
+    data_tests:
+      - unique_combination_of_columns:
+          name: iasworld_asmt_all_unique_by_parid_procname_and_taxyr
+          combination_of_columns:
+            - parid
+            - procname
+            - taxyr
+          config:
+            where: |
+              CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+              -- Filter out known dupes in township 74 from one particular day
+              -- that were introduced by a bulk data update error
+              AND township_code != '74'
+              AND procdate NOT BETWEEN '2023-12-19 18:25:28.0' and '2023-12-20 15:07:44.0'
+          meta:
+            description: asmt_all should be unique by parid, procname, and taxyr
+
+  - name: qc.vw_iasworld_asmt_all_with_prior_year_values
+    description: '{{ doc("view_vw_iasworld_asmt_all_with_prior_year_values") }}'
+
+  - name: qc.vw_iasworld_sales_day_of_month
+    description: '{{ doc("view_vw_iasworld_sales_day_of_month") }}'
+    config:
+      tags:
+        - data_test_iasworld
+        - data_test_iasworld_exclude_from_workbook
+    data_tests:
+      - expression_is_true:
+          name: qc_vw_iasworld_sales_day_of_month_lte_half_observations
+          expression: sales_by_day < 0.5 * total_sales
+          additional_select_columns:
+            - taxyr
+            - day_of_month
+            - sales_by_day
+            - total_sales
+          meta:
+            table_name: sales
+            category: sales_issues
+            description: >
+              no single day of the month should have > 50% of total sales
+
+  - name: qc.vw_iasworld_sales_high_value_by_class
+    description: '{{ doc("view_vw_iasworld_sales_high_value_by_class") }}'
+    config:
+      tags:
+        - data_test_iasworld
     columns:
-      - name: revcode
+      - name: price
         data_tests:
-          # Equivalent to Res parcels not set to Cost Approach from FP Checklist
-          - accepted_values:
-              name: qc_vw_incorrect_val_method_revcode_eq_1
-              values: ['1']
-              additional_select_columns:
-                - taxyr
-                - parid
-                - class
-                - township_code
-                - who
-                - wen
-              config:
-                where: |
-                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                  AND class LIKE '2%'
+          - accepted_range:
+              name: qc_vw_iasworld_sales_high_value_by_class_gt_20000000
+              max_value: 20000000
+              additional_select_columns: ["parid", "taxyr", "class", "who" , "wen"]
               meta:
-                table_name: aprval
-                description: revcode should be '1' for 200-class parcels
+                table_name: sales
+                category: sales_issues
+                description: price should be <= $20m
+
+  - name: qc.vw_iasworld_sales_latest_sale
+    description: '{{ doc("view_vw_iasworld_sales_latest_sale") }}'
+
+  - name: qc.vw_iasworld_sales_null_values
+    description: '{{ doc("view_vw_iasworld_sales_null_values") }}'
+    config:
+      tags:
+        - data_test_iasworld
+    columns:
+      - name: buyer
+        data_tests:
+          - accepted_range: &sales-null-values
+              name: qc_vw_iasworld_sales_null_values_buyer_null_proportion
+              max_value: 0.1
+              additional_select_columns: ["taxyr"]
+              meta:
+                table_name: sales
+                category: sales_issues
+                description: >
+                  proportion of sales where buyer is null should not exceed 10%
+      - name: deed_type
+        data_tests:
+          - accepted_range:
+              name: qc_vw_iasworld_sales_null_values_deed_type_null_proportion
+              meta:
+                table_name: sales
+                category: sales_issues
+                description: >
+                  proportion of sales where deed_type is null should not exceed 10%
+              <<: *sales-null-values
+      - name: price
+        data_tests:
+          - accepted_range:
+              name: qc_vw_iasworld_sales_null_values_price_null_proportion
+              meta:
+                table_name: sales
+                category: sales_issues
+                description: >
+                  proportion of sales where price is null should not exceed 10%
+              <<: *sales-null-values
+      - name: seller
+        data_tests:
+          - accepted_range:
+              name: qc_vw_iasworld_sales_null_values_seller_null_proportion
+              meta:
+                table_name: sales
+                category: sales_issues
+                description: >
+                  proportion of sales where seller is null should not exceed 10%
+              <<: *sales-null-values
+
+  - name: qc.vw_iasworld_sales_price_diff_sale_mydec
+    description: '{{ doc("view_vw_iasworld_sales_price_diff_sale_mydec") }}'
+    config:
+      tags:
+        - data_test_iasworld
+    data_tests:
+      # Values of $1000 and below seem to get recoded to $1 in iasWorld
+      - expression_is_true:
+          name: qc_vw_iasworld_sales_price_diff_sale_mydec_gte_1000
+          expression: ABS(price_iasworld - price_mydec) < 999
+          additional_select_columns:
+            - parid
+            - taxyr
+            - document_number
+            - price_iasworld
+            - price_mydec
+          meta:
+            table_name: sales
+            category: sales_issues
+            description: >
+              price difference between iasworld and mydec should not exceed $1k
+
+  - name: qc.vw_iasworld_sales_rowcount_matches_sale_mydec
+    description: '{{ doc("view_vw_iasworld_sales_rowcount_matches_sale_mydec") }}'
+    config:
+      tags:
+        - data_test_iasworld
+        - data_test_iasworld_exclude_from_workbook
+    columns:
+      - name: comparison
+        data_tests:
+          - accepted_values:
+              name: qc_vw_iasworld_sales_rowcount_matches_sale_mydec_check
+              values: ['No significant difference']
+              additional_select_columns: ["taxyr", "iasworld_sales", "mydec_sales"]
+              meta:
+                table_name: sales
+                category: sales_issues
+                description: >
+                  the number of sales in iasworld for a given year should be within 5% of mydec
+
+  - name: qc.vw_iasworld_sales_unmatched_joins_sale_mydec
+    description: '{{ doc("view_vw_iasworld_sales_unmatched_joins_sale_mydec") }}'
+    config:
+      tags:
+        - data_test_iasworld
+        - data_test_iasworld_exclude_from_workbook
+    columns:
+      - name: iasworld_unmatched
+        data_tests:
+          - accepted_range:
+              name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_iasworld_unmatched_lte_1000
+              max_value: 1000
+              additional_select_columns: ["taxyr"]
+              meta:
+                table_name: sales
+                category: sales_issues
+                description: iasworld should not have >1000 sales that are not in mydec
+      - name: mydec_unmatched
+        data_tests:
+          - accepted_range:
+              name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_mydec_unmatched_lte_1000
+              max_value: 1000
+              additional_select_columns: ["taxyr"]
+              meta:
+                table_name: sales
+                category: sales_issues
+                description: mydec should not have >1000 sales that are not in iasworld
 
   - name: qc.vw_neg_asmt_value
     description: '{{ doc("view_vw_neg_asmt_value") }}'
     config:
       tags:
-        - test_qc_inquire
+        - data_test_iasworld
     columns:
       - name: val01
         data_tests:
@@ -46,7 +241,7 @@ models:
                 - wen
               config:
                 where: |
-                  CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                  CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
               meta:
                 table_name: asmt
                 description: val01 (FARM LAND) should not be negative
@@ -524,6 +719,12 @@ models:
               <<: *test-non-negative
       - name: valapr1
         data_tests:
+          - accepted_range:
+              name: qc_vw_neg_asmt_value_valapr1_gte_0
+              meta:
+                table_name: asmt
+                description: valapr1 (MKT LAND) should not be negative
+              <<: *test-non-negative
           - not_null: &test-val-non-null
               name: qc_vw_neg_asmt_value_valapr1_not_null
               additional_select_columns: *select-columns-neg-asmt-value
@@ -532,173 +733,275 @@ models:
               meta:
                 table_name: asmt
                 description: valapr1 (MKT LAND) should not be null
-          - accepted_range:
-              name: qc_vw_neg_asmt_value_valapr1_gte_0
-              meta:
-                table_name: asmt
-                description: valapr1 (MKT LAND) should not be negative
-              <<: *test-non-negative
       - name: valapr2
         data_tests:
-          - not_null:
-              name: qc_vw_neg_asmt_value_valapr2_not_null
-              meta:
-                table_name: asmt
-                description: valapr2 (MKT BLDG) should not be null
-              <<: *test-val-non-null
           - accepted_range:
               name: qc_vw_neg_asmt_value_valapr2_gte_0
               meta:
                 table_name: asmt
                 description: valapr2 (MKT BLDG) should not be negative
               <<: *test-non-negative
-      - name: valapr3
-        data_tests:
           - not_null:
-              name: qc_vw_neg_asmt_value_valapr3_not_null
+              name: qc_vw_neg_asmt_value_valapr2_not_null
               meta:
                 table_name: asmt
-                description: valapr3 (TOTAL) should not be null
+                description: valapr2 (MKT BLDG) should not be null
               <<: *test-val-non-null
+      - name: valapr3
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_valapr3_gte_0
               meta:
                 table_name: asmt
                 description: valapr3 (TOTAL) should not be negative
               <<: *test-non-negative
-      - name: valasm1
-        data_tests:
           - not_null:
-              name: qc_vw_neg_asmt_value_valasm1_not_null
+              name: qc_vw_neg_asmt_value_valapr3_not_null
               meta:
                 table_name: asmt
-                description: valasm1 (ASMT LAND) should not be null
+                description: valapr3 (TOTAL) should not be null
               <<: *test-val-non-null
+      - name: valasm1
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_valasm1_gte_0
               meta:
                 table_name: asmt
                 description: valasm1 (ASMT LAND) should not be negative
               <<: *test-non-negative
-      - name: valasm2
-        data_tests:
           - not_null:
-              name: qc_vw_neg_asmt_value_valasm2_not_null
+              name: qc_vw_neg_asmt_value_valasm1_not_null
               meta:
                 table_name: asmt
-                description: valasm2 (ASMT BLDG) should not be null
+                description: valasm1 (ASMT LAND) should not be null
               <<: *test-val-non-null
+      - name: valasm2
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_valasm2_gte_0
               meta:
                 table_name: asmt
                 description: valasm2 (ASMT BLDG) should not be negative
               <<: *test-non-negative
-      - name: valasm3
-        data_tests:
           - not_null:
-              name: qc_vw_neg_asmt_value_valasm3_not_null
+              name: qc_vw_neg_asmt_value_valasm2_not_null
               meta:
                 table_name: asmt
-                description: valasm3 (ASMT TOTAL) should not be null
+                description: valasm2 (ASMT BLDG) should not be null
               <<: *test-val-non-null
+      - name: valasm3
+        data_tests:
           - accepted_range:
               name: qc_vw_neg_asmt_value_valasm3_gte_0
               meta:
                 table_name: asmt
                 description: valasm3 (ASMT TOTAL) should not be negative
               <<: *test-non-negative
+          - not_null:
+              name: qc_vw_neg_asmt_value_valasm3_not_null
+              meta:
+                table_name: asmt
+                description: valasm3 (ASMT TOTAL) should not be null
+              <<: *test-val-non-null
 
-  - name: qc.vw_change_in_high_low_value_sales
-    description: '{{ doc("view_vw_change_in_high_low_value_sales") }}'
+  - name: qc.vw_nonlivable_condos_with_chars
+    description: '{{ doc("view_vw_nonlivable_condos_with_chars") }}'
+
+  - name: qc.vw_pin_appeal_mismatched_outcomes
+    description: '{{ doc("view_vw_pin_appeal_mismatched_outcomes") }}'
+
+  - name: qc.vw_pin_sale_high_number_of_sales_per_year
+    description: '{{ doc("view_vw_pin_sale_high_number_of_sales_per_year") }}'
+
+  - name: qc.vw_pin_value_null_values
+    description: '{{ doc("view_vw_pin_value_null_values") }}'
+
+  - name: qc.vw_report_town_close_0_land_value
+    description: '{{ doc("view_vw_report_town_close_0_land_value") }}'
     config:
       tags:
-        - test_qc_sales
-        - test_qc_exclude_from_workbook
-    data_tests:
-      - expression_is_true:
-          name: qc_vw_change_in_high_low_value_sales_ratio_high
-          expression: "price_less_than_10k_growth_status = 'No significant change'"
-          additional_select_columns:
-            - source
-            - taxyr
-            - price_less_than_10k_growth_status
-            - prev_year_price_less_than_10k_count
-            - price_less_than_10k_count
-          meta:
-            table_name: sales
-            category: sales_issues
-            description: >
-              count of sales <= $10k should not change more than 5% YoY
-      - expression_is_true:
-          name: qc_vw_change_in_high_low_value_sales_ratio_low
-          expression: "price_greater_than_1m_growth_status = 'No significant change'"
-          additional_select_columns:
-            - source
-            - taxyr
-            - price_greater_than_1m_growth_status
-            - prev_year_price_greater_than_1m_count
-            - price_greater_than_1m_count
-          meta:
-            table_name: sales
-            category: sales_issues
-            description: >
-              count of sales >= $1m should not change more than 5% YoY
+        - qc_report_town_close
+    meta:
+      export_name: 0 land value
+      export_template: assessed_and_market_values
 
-  - name: qc.vw_iasworld_sales_null_values
-    description: '{{ doc("view_vw_iasworld_sales_null_values") }}'
+  - name: qc.vw_report_town_close_0_value
+    description: '{{ doc("view_vw_report_town_close_0_value") }}'
     config:
       tags:
-        - test_qc_sales
+        - qc_report_town_close
+    meta:
+      export_name: 0 value
+      export_template: assessed_and_market_values
+
+  - name: qc.vw_report_town_close_289s
+    description: '{{ doc("view_vw_report_town_close_289s") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: 289s
+
+  - name: qc.vw_report_town_close_500k_increase_1m_decrease
+    description: '{{ doc("view_vw_report_town_close_500k_increase_1m_decrease") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: 500k increase, 1m decrease
+      export_format:
+        columns:
+          - name: '% Change'
+            index: M
+            horizontal_align: right
+
+  - name: qc.vw_report_town_close_bldg_parcel_class_mismatch
+    description: '{{ doc("view_vw_report_town_close_bldg_parcel_class_mismatch") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Bldg parcel class mismatch
+
+  - name: qc.vw_report_town_close_class_does_not_equal_luc
+    description: '{{ doc("view_vw_report_town_close_class_does_not_equal_luc") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Class does not equal LUC
+
+  - name: qc.vw_report_town_close_improved_class_without_bldg_value
+    description: '{{ doc("view_vw_report_town_close_improved_class_without_bldg_value") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Improved class, no bldg value
+      export_template: assessed_and_market_values
+
+  - name: qc.vw_report_town_close_neg_asmt_value
+    description: '{{ doc("view_vw_report_town_close_neg_asmt_value") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Negative ASMT values
+
+  - name: qc.vw_report_town_close_ovrrcnlds_to_review
+    description: '{{ doc("view_vw_report_town_close_ovrrcnlds_to_review") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: OVRRCNLD discrepancy checks
+
+  - name: qc.vw_report_town_close_prior_year_card_code_5s_comdat
+    description: '{{ doc("view_vw_report_town_close_prior_year_card_code_5s") }}'
+    config:
+      tags:
+        - qc_report_town_close_non_tri
+    meta:
+      export_name: Card code 5s possibly not at 100% (COMDAT)
+
+  - name: qc.vw_report_town_close_prior_year_card_code_5s_dweldat
+    description: '{{ doc("view_vw_report_town_close_prior_year_card_code_5s") }}'
+    config:
+      tags:
+        - qc_report_town_close_non_tri
+    meta:
+      export_name: Card code 5s possibly not at 100% (DWELDAT)
+
+  - name: qc.vw_report_town_close_prior_year_card_code_5s_oby
+    description: '{{ doc("view_vw_report_town_close_prior_year_card_code_5s") }}'
+    config:
+      tags:
+        - qc_report_town_close_non_tri
+    meta:
+      export_name: Card code 5s possibly not at 100% (OBY)
+
+  - name: qc.vw_report_town_close_res_edit
+    description: '{{ doc("view_vw_report_town_close_res_edit") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Res edit
+      export_format:
+        columns:
+          - name: Dwelling % Change
+            index: Z
+            horizontal_align: right
+            number_format: "0.00%"
+          - name: Sale Date
+            index: AA
+            horizontal_align: right
+          - name: Total % Change
+            index: U
+            horizontal_align: right
+            number_format: "0.00%"
+
+  - name: qc.vw_report_town_close_res_multicodes
+    description: '{{ doc("view_vw_report_town_close_res_multicodes") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Res multicodes
+      export_format:
+        columns:
+          - name: Sale Date
+            index: Q
+            horizontal_align: right
+
+  - name: qc.vw_report_town_close_res_parcels_not_set_to_cost_approach
+    description: '{{ doc("view_vw_report_town_close_res_parcels_not_set_to_cost_approach") }}'
+    config:
+      tags:
+        - qc_report_town_close
+        - data_test_iasworld
+    meta:
+      export_name: Res parcels not set to cost approach
     columns:
-      - name: buyer
+      - name: revcode
         data_tests:
-          - accepted_range: &sales-null-values
-              name: qc_vw_iasworld_sales_null_values_buyer_null_proportion
-              max_value: 0.1
-              additional_select_columns: ["taxyr"]
+          # Equivalent to Res parcels not set to Cost Approach from FP Checklist.
+          # The is_null test works here because the view is already filtered for
+          # rows where revcode is null or != '1', and since this test is not
+          # interested in nulls, checking is_null will effectively return all
+          # rows where revcode != '1'
+          - is_null:
+              name: qc_vw_incorrect_val_method_revcode_eq_1
+              additional_select_columns:
+                - taxyr
+                - parid
+                - class
+                - township_code
+                - who
+                - wen
+              config:
+                where: |
+                  CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
               meta:
-                table_name: sales
-                category: sales_issues
-                description: >
-                  proportion of sales where buyer is null should not exceed 10%
-      - name: deed_type
-        data_tests:
-          - accepted_range:
-              name: qc_vw_iasworld_sales_null_values_deed_type_null_proportion
-              meta:
-                table_name: sales
-                category: sales_issues
-                description: >
-                  proportion of sales where deed_type is null should not exceed 10%
-              <<: *sales-null-values
-      - name: price
-        data_tests:
-          - accepted_range:
-              name: qc_vw_iasworld_sales_null_values_price_null_proportion
-              meta:
-                table_name: sales
-                category: sales_issues
-                description: >
-                  proportion of sales where price is null should not exceed 10%
-              <<: *sales-null-values
-      - name: seller
-        data_tests:
-          - accepted_range:
-              name: qc_vw_iasworld_sales_null_values_seller_null_proportion
-              meta:
-                table_name: sales
-                category: sales_issues
-                description: >
-                  proportion of sales where seller is null should not exceed 10%
-              <<: *sales-null-values
+                table_name: aprval
+                description: revcode should be '1' for 200-class parcels
+                category: incorrect_values
+
+  - name: qc.vw_report_town_close_vacant_class_with_bldg_value
+    description: '{{ doc("view_vw_report_town_close_vacant_class_with_bldg_value") }}'
+    config:
+      tags:
+        - qc_report_town_close
+    meta:
+      export_name: Vacant class, bldg value
+      export_template: assessed_and_market_values
 
   - name: qc.vw_sale_mydec_null_values
     description: '{{ doc("view_vw_sale_mydec_null_values") }}'
     config:
       tags:
-        - test_qc_sales
-        - test_qc_exclude_from_workbook
+        - data_test_iasworld
+        - data_test_iasworld_exclude_from_workbook
     columns:
       - name: address
         data_tests:
@@ -725,132 +1028,3 @@ models:
           - expression_is_true:
               name: qc_vw_mydec_sales_null_values_seller_null_proportion
               <<: *test-not-null
-
-  - name: qc.vw_iasworld_sales_rowcount_matches_sale_mydec
-    description: '{{ doc("view_vw_iasworld_sales_rowcount_matches_sale_mydec") }}'
-    config:
-      tags:
-        - test_qc_sales
-        - test_qc_exclude_from_workbook
-    columns:
-      - name: comparison
-        data_tests:
-          - accepted_values:
-              name: qc_vw_iasworld_sales_rowcount_matches_sale_mydec_check
-              values: ['No significant difference']
-              additional_select_columns: ["taxyr", "iasworld_sales", "mydec_sales"]
-              meta:
-                table_name: sales
-                category: sales_issues
-                description: >
-                  the number of sales in iasworld for a given year should be within 5% of mydec
-
-  - name: qc.vw_iasworld_sales_unmatched_joins_sale_mydec
-    description: '{{ doc("view_vw_iasworld_sales_unmatched_joins_sale_mydec") }}'
-    config:
-      tags:
-        - test_qc_sales
-        - test_qc_exclude_from_workbook
-    columns:
-      - name: mydec_unmatched
-        data_tests:
-          - accepted_range:
-              name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_mydec_unmatched_lte_1000
-              max_value: 1000
-              additional_select_columns: ["taxyr"]
-              meta:
-                table_name: sales
-                category: sales_issues
-                description: mydec should not have >1000 sales that are not in iasworld
-      - name: iasworld_unmatched
-        data_tests:
-          - accepted_range:
-              name: qc_vw_iasworld_sales_unmatched_joins_sale_mydec_iasworld_unmatched_lte_1000
-              max_value: 1000
-              additional_select_columns: ["taxyr"]
-              meta:
-                table_name: sales
-                category: sales_issues
-                description: iasworld should not have >1000 sales that are not in mydec
-
-  - name: qc.vw_iasworld_sales_day_of_month
-    description: '{{ doc("view_vw_iasworld_sales_day_of_month") }}'
-    config:
-      tags:
-        - test_qc_sales
-        - test_qc_exclude_from_workbook
-    data_tests:
-      - expression_is_true:
-          name: qc_vw_iasworld_sales_day_of_month_lte_half_observations
-          expression: sales_by_day < 0.5 * total_sales
-          additional_select_columns:
-            - taxyr
-            - day_of_month
-            - sales_by_day
-            - total_sales
-          meta:
-            table_name: sales
-            category: sales_issues
-            description: >
-              no single day of the month should have > 50% of total sales
-
-  - name: qc.vw_iasworld_sales_high_value_by_class
-    description: '{{ doc("view_vw_iasworld_sales_high_value_by_class") }}'
-    config:
-      tags:
-        - test_qc_sales
-    columns:
-      - name: price
-        data_tests:
-          - accepted_range:
-              name: qc_vw_iasworld_sales_high_value_by_class_gt_20000000
-              max_value: 20000000
-              additional_select_columns: ["parid", "taxyr", "class", "who" , "wen"]
-              meta:
-                table_name: sales
-                category: sales_issues
-                description: price should be <= $20m
-
-  - name: qc.vw_iasworld_sales_price_diff_sale_mydec
-    description: '{{ doc("view_vw_iasworld_sales_price_diff_sale_mydec") }}'
-    config:
-      tags:
-        - test_qc_sales
-    data_tests:
-      # Values of $1000 and below seem to get recoded to $1 in iasWorld
-      - expression_is_true:
-          name: qc_vw_iasworld_sales_price_diff_sale_mydec_gte_1000
-          expression: ABS(price_iasworld - price_mydec) < 999
-          additional_select_columns:
-            - parid
-            - taxyr
-            - document_number
-            - price_iasworld
-            - price_mydec
-          meta:
-            table_name: sales
-            category: sales_issues
-            description: >
-              price difference between iasworld and mydec should not exceed $1k
-
-  - name: qc.vw_iasworld_asmt_all_joined_to_legdat
-    description: '{{ doc("view_vw_iasworld_asmt_all_joined_to_legdat") }}'
-    config:
-      tags:
-        - test_qc_iasworld
-    data_tests:
-      - unique_combination_of_columns:
-          name: iasworld_asmt_all_unique_by_parid_procname_and_taxyr
-          combination_of_columns:
-            - parid
-            - procname
-            - taxyr
-          config:
-            where: |
-              CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-              -- Filter out known dupes in township 74 from one particular day
-              -- that were introduced by a bulk data update error
-              AND township_code != '74'
-              AND procdate NOT BETWEEN '2023-12-19 18:25:28.0' and '2023-12-20 15:07:44.0'
-          meta:
-            description: asmt_all should be unique by parid, procname, and taxyr

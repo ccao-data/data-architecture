@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: exadmn
@@ -46,16 +46,16 @@ sources:
             description: '{{ doc("column_bldgno") }}'
           - name: caseno
             description: '{{ doc("column_caseno") }}'
+          - name: contact1
+            description: Contact name 1
+          - name: contact2
+            description: Contact name 2
           - name: contact_addr1
             description: Contact address line 1
           - name: contact_addr2
             description: Contact address line 2
           - name: contact_addr3
             description: Contact address line 3
-          - name: contact1
-            description: Contact name 1
-          - name: contact2
-            description: Contact name 2
           - name: cur
             description: '{{ doc("column_cur") }}'
           - name: deactivat
@@ -78,8 +78,6 @@ sources:
             description: '{{ doc("shared_column_loaded_at") }}'
           - name: ownnum
             description: '{{ doc("column_ownnum") }}'
-          - name: ownnum10
-            description: Owner number 10
           - name: ownnum2
             description: Owner number 2
           - name: ownnum3
@@ -96,6 +94,8 @@ sources:
             description: Owner number 8
           - name: ownnum9
             description: Owner number 9
+          - name: ownnum10
+            description: Owner number 10
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
           - name: reascd

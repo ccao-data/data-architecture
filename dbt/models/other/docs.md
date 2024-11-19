@@ -9,6 +9,24 @@ monitors around each major airport.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
+# ari
+
+{% docs table_ari %}
+[Illinois Housing Development Authority](https://www.ihda.org/developers/market-research/affordability-risk-index/)
+affordability risk index
+
+**Primary Key**: `geoid`, `year`
+{% enddocs %}
+
+# dci
+
+{% docs table_dci %}
+[Economic Innovation Group](https://eig.org/distressed-communities)
+Distressed Communities Index
+
+**Primary Key**: `year`, `geoid`
+{% enddocs %}
+
 # flood_first_street
 
 {% docs table_flood_first_street %}
@@ -34,13 +52,4 @@ Individual school locations and ratings sourced from
 quarterly House Price Index.
 
 **Primary Key**: `year`, `geoid`, `quarter`
-{% enddocs %}
-
-# ari
-
-{% docs table_ari %}
-[Illinois Housing Development Authority](https://www.ihda.org/developers/market-research/affordability-risk-index/)
-affordability risk index
-
-**Primary Key**: `geoid`, `year`
 {% enddocs %}

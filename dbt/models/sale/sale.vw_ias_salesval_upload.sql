@@ -18,7 +18,9 @@ max_version AS (
 SELECT
     ias_sales.salekey,
     sf.sv_is_outlier,
-    sf.sv_outlier_type,
+    sf.sv_outlier_reason1,
+    sf.sv_outlier_reason2,
+    sf.sv_outlier_reason3,
     sf.run_id
 FROM ias_sales
 INNER JOIN {{ source('sale', 'flag') }} AS sf

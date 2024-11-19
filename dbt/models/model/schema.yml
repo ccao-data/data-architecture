@@ -1,3 +1,4 @@
+# disable-check-sort-order
 sources:
   - name: model
     tables:
@@ -371,6 +372,9 @@ models:
       - &other_ari
         name: other_ari
         description: '{{ doc("shared_column_ari") }}'
+      - &other_dci
+        name: other_dci
+        description: '{{ doc("shared_column_dci") }}'
       - &other_school_district_elementary_avg_rating
         name: other_school_district_elementary_avg_rating
         description: '{{ doc("shared_column_school_district_elementary_avg_rating") }}'
@@ -419,6 +423,9 @@ models:
       - &prox_nearest_metra_stop_dist_ft
         name: prox_nearest_metra_stop_dist_ft
         description: '{{ doc("column_nearest_metra_stop_dist_ft") }}'
+      - &prox_nearest_new_construction_dist_ft
+        name: prox_nearest_new_construction_dist_ft
+        description: '{{ doc("column_nearest_new_construction_dist_ft") }}'
       - &prox_nearest_park_dist_ft
         name: prox_nearest_park_dist_ft
         description: '{{ doc("column_nearest_park_dist_ft") }}'
@@ -455,6 +462,30 @@ models:
       - &prox_num_school_with_rating_in_half_mile
         name: prox_num_school_with_rating_in_half_mile
         description: '{{ doc("column_num_school_with_rating_in_half_mile") }}'
+      - &shp_parcel_centroid_dist_ft_sd
+        name: shp_parcel_centroid_dist_ft_sd
+        description: '{{ doc("column_parcel_centroid_dist_ft_sd") }}'
+      - &shp_parcel_edge_len_ft_sd
+        name: shp_parcel_edge_len_ft_sd
+        description: '{{ doc("column_parcel_edge_len_ft_sd") }}'
+      - &shp_parcel_interior_angle_sd
+        name: shp_parcel_interior_angle_sd
+        description: '{{ doc("column_parcel_interior_angle_sd") }}'
+      - &shp_parcel_mrr_area_ratio
+        name: shp_parcel_mrr_area_ratio
+        description: '{{ doc("column_parcel_mrr_area_ratio") }}'
+      - &shp_parcel_mrr_side_ratio
+        name: shp_parcel_mrr_side_ratio
+        description: '{{ doc("column_parcel_mrr_side_ratio") }}'
+      - &shp_parcel_num_vertices
+        name: shp_parcel_num_vertices
+        description: '{{ doc("column_parcel_num_vertices") }}'
+    data_tests:
+      - unique_combination_of_columns:
+          name: model_vw_pin_shared_input_unique_pin_year
+          combination_of_columns:
+            - meta_pin
+            - meta_year
 
   - name: model.vw_card_res_input
     description: '{{ doc("view_vw_card_res_input") }}'
@@ -545,6 +576,7 @@ models:
       - *meta_triad_name
       - *meta_year
       - *other_ihs_avg_year_index
+      - *other_dci
       - *other_ari
       - *other_school_district_elementary_avg_rating
       - *other_school_district_secondary_avg_rating
@@ -562,6 +594,7 @@ models:
       - *prox_nearest_major_road_dist_ft
       - *prox_nearest_metra_route_dist_ft
       - *prox_nearest_metra_stop_dist_ft
+      - *prox_nearest_new_construction_dist_ft
       - *prox_nearest_park_dist_ft
       - *prox_nearest_railroad_dist_ft
       - *prox_nearest_secondary_road_dist_ft
@@ -574,6 +607,12 @@ models:
       - *prox_num_pin_in_half_mile
       - *prox_num_school_in_half_mile
       - *prox_num_school_with_rating_in_half_mile
+      - *shp_parcel_centroid_dist_ft_sd
+      - *shp_parcel_edge_len_ft_sd
+      - *shp_parcel_interior_angle_sd
+      - *shp_parcel_mrr_area_ratio
+      - *shp_parcel_mrr_side_ratio
+      - *shp_parcel_num_vertices
 
       # Columns shared between vw_card_res_input and vw_pin_condo_input
       - &char_land_sf_95_percentile
@@ -693,6 +732,13 @@ models:
         description: '{{ doc("shared_column_pin_is_multicard") }}'
       - name: meta_pin_num_cards
         description: '{{ doc("shared_column_pin_num_cards") }}'
+    data_tests:
+      - unique_combination_of_columns:
+          name: model_vw_card_res_input_unique_pin_card_year
+          combination_of_columns:
+            - meta_pin
+            - meta_year
+            - meta_card_num
 
   - name: model.vw_pin_condo_input
     description: '{{ doc("view_vw_pin_condo_input") }}'
@@ -783,6 +829,7 @@ models:
       - *meta_triad_name
       - *meta_year
       - *other_ihs_avg_year_index
+      - *other_dci
       - *other_ari
       - *other_school_district_elementary_avg_rating
       - *other_school_district_secondary_avg_rating
@@ -800,6 +847,7 @@ models:
       - *prox_nearest_major_road_dist_ft
       - *prox_nearest_metra_route_dist_ft
       - *prox_nearest_metra_stop_dist_ft
+      - *prox_nearest_new_construction_dist_ft
       - *nearest_neighbor_1_dist_ft
       - *nearest_neighbor_1_pin10
       - *nearest_neighbor_2_dist_ft
@@ -818,6 +866,12 @@ models:
       - *prox_num_pin_in_half_mile
       - *prox_num_school_in_half_mile
       - *prox_num_school_with_rating_in_half_mile
+      - *shp_parcel_centroid_dist_ft_sd
+      - *shp_parcel_edge_len_ft_sd
+      - *shp_parcel_interior_angle_sd
+      - *shp_parcel_mrr_area_ratio
+      - *shp_parcel_mrr_side_ratio
+      - *shp_parcel_num_vertices
 
       # Columns inherited from vw_card_res_input
       - *char_land_sf_95_percentile
@@ -862,3 +916,9 @@ models:
         description: '{{ doc("shared_column_lline") }}'
       - name: meta_pin_num_lline
         description: '{{ doc("shared_column_pin_num_lline") }}'
+    data_tests:
+      - unique_combination_of_columns:
+          name: model_vw_pin_condo_input_unique_pin_year
+          combination_of_columns:
+            - meta_pin
+            - meta_year

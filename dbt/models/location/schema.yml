@@ -240,13 +240,6 @@ models:
         description: '{{ doc("shared_column_year") }}'
 
     data_tests:
-      # Unique by 10-digit PIN and year
-      - unique_combination_of_columns:
-          name: location_vw_pin10_location_unique_by_keys
-          combination_of_columns:
-            - pin10
-            - year
-      # GEOIDs are the correct length
       - column_length:
           name: location_vw_pin10_location_7_digit_ids_are_correct_length
           length: 7
@@ -262,8 +255,11 @@ models:
           additional_select_columns:
             - pin10
             - year
-      # TODO: Columns specific to certain locations only have values for that
-      # location
+      - unique_combination_of_columns:
+          name: location_vw_pin10_location_unique_by_keys
+          combination_of_columns:
+            - pin10
+            - year
 
   - name: location.vw_pin10_location_fill
     description: '{{ doc("view_vw_pin10_location_fill") }}'

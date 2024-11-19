@@ -9,6 +9,10 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
+      asset_id: y282-6ig3
+      primary_key:
+        - pin
+        - year
     description: |
       Land, building, and total assessed values, pre and post-appeal with the Cook County Assessor’s office, for all Cook County parcels, from 1999 to present.
 
@@ -27,6 +31,10 @@ exposures:
     meta:
       test_row_count: true
       year_field: tax_year
+      asset_id: uzyt-m557
+      primary_key:
+        - pin
+        - year
     description: |
       Land, building, and total assessed values for all Cook County parcels, from 1999 to present.
 
@@ -44,6 +52,10 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
+      asset_id: 3723-97qp
+      primary_key:
+        - pin
+        - year
     description: |
       Situs and mailing addresses of Cook County parcels.
 
@@ -61,6 +73,10 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
+      asset_id: wvhk-k5uv
+      primary_key:
+        - doc_no
+        - pin
     description: |
       Parcel sales for real property in Cook County, from 1999 to present.
 
@@ -78,6 +94,10 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
+      asset_id: nj4t-kc8j
+      primary_key:
+        - pin
+        - year
     description: |
       A complete, historic universe of Cook County parcels with attached geographic, governmental, and spatial data.
 
@@ -95,6 +115,10 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
+      asset_id: vgzx-68gb
+      primary_key:
+        - pin10
+        - year
     description: |
       Parcels with property tax-exempt status across all of Cook County per tax year, from Tax Year 2022 on, with geographic coordinates and addresses.
 
@@ -114,6 +138,10 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
+      asset_id: 3r7i-mrz4
+      primary_key:
+        - pin
+        - year
     description: |
       Residential condominium unit characteristics collected and maintained by the Assessor's office for all of Cook County, from 1999 to present.
 
@@ -135,6 +163,11 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
+      asset_id: x54s-btds
+      primary_key:
+        - pin
+        - card
+        - year
     description: |
       Single and multi-family (less than 7 units) property characteristics collected and maintained by the Assessor's Office for all of Cook County, from 1999 to present.
 

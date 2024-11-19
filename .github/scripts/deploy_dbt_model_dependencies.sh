@@ -16,7 +16,7 @@
 # into a Python model script with a set of import calls like so:
 #
 #   sc.addPyFile(f"{s3_dependency_dir}/attrs==23.2.0.zip")  # noqa: F821
-#   sc.addPyFile(f"{s3_dependency_dir}/assesspy==1.1.0.zip")  # noqa: F821
+#   sc.addPyFile(f"{s3_dependency_dir}/assesspy==1.2.0.zip")  # noqa: F821
 #   import attrs  # noqa: E402
 #   import assesspy  # noqa: E402
 #

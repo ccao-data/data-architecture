@@ -70,7 +70,7 @@ models:
 
   - name: proximity.dist_pin_to_secondary_road
     description: '{{ doc("table_dist_pin_to_secondary_road") }}'
-    
+
   - name: proximity.dist_pin_to_university
     description: '{{ doc("table_dist_pin_to_university") }}'
 
@@ -129,6 +129,12 @@ models:
         description: '{{ doc("column_nearest_golf_course_dist_ft") }}'
       - name: nearest_golf_course_id
         description: '{{ doc("column_nearest_golf_course_id") }}'
+      - name: nearest_grocery_store_dist_ft
+        description: '{{ doc("column_nearest_grocery_store_dist_ft") }}'
+      - name: nearest_grocery_store_name
+        description: '{{ doc("column_nearest_grocery_store_name") }}'
+      - name: nearest_grocery_store_name
+        description: '{{ doc("column_nearest_grocery_store_name") }}'
       - name: nearest_hospital_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_hospital_dist_ft
@@ -173,6 +179,14 @@ models:
         description: '{{ doc("column_nearest_neighbor_dist_ft") }}'
       - name: nearest_neighbor_3_pin10
         description: '{{ doc("column_nearest_neighbor_pin10") }}'
+      - name: nearest_new_construction_char_yrblt
+        description: '{{ doc("column_nearest_new_construction_char_yrblt") }}'
+      - name: nearest_new_construction_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: nearest_new_construction_dist_ft
+        description: '{{ doc("column_nearest_new_construction_dist_ft") }}'
+      - name: nearest_new_construction_pin10
+        description: '{{ doc("column_nearest_new_construction_pin10") }}'
       - name: nearest_park_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_park_dist_ft
@@ -265,6 +279,10 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
+      asset_id: ydue-e5u3
+      primary_key:
+        - pin10
+        - year
     description: |
       Cook County 10-digit parcels with attached distances to various spatial features.
 

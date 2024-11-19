@@ -342,7 +342,7 @@ FROM filled
 LEFT JOIN aggregate_land
     ON filled.pin = aggregate_land.parid
     AND filled.year = aggregate_land.taxyr
-LEFT JOIN default.vw_pin_history AS vph
+LEFT JOIN {{ ref('default.vw_pin_history') }} AS vph
     ON filled.pin = vph.pin
     AND filled.year = vph.year
 LEFT JOIN {{ source('ccao', 'pin_nonlivable') }} AS nonlivable

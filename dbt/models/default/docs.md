@@ -122,6 +122,15 @@ View containing aggregate land square footage for all PINs.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_pin_permit
+
+{% docs view_vw_pin_permit %}
+View containing building permits organized by PIN, with extra metadata
+recorded by CCAO permit specialists during the permit processing workflow.
+
+**Primary Key**: `pin`, `date_issued`
+{% enddocs %}
+
 # vw_pin_sale
 
 {% docs view_vw_pin_sale %}
@@ -145,6 +154,8 @@ Sourced from `iasworld.sales`, which is sourced from
 - `sale.mydec` data is given precedence over `iasworld.sales` prior to 2021
 - Multicard sales are excluded from `mydec` data because they can't be joined
   to `iasworld.sales` (which is only parcel-level) without creating duplicates
+- Sales are unique by `doc_no` if multisales are excluded. When multisales are
+  *not* excluded, sales are unique by `doc_no` and `pin`.
 
 ### Lineage
 
@@ -155,6 +166,20 @@ Current MyDec records are ingested into `iasworld.sales` using a manual import
 process. The full data lineage looks something like:
 
 ![Data Flow Diagram](./assets/sales-lineage.svg)
+
+**Primary Key**: `doc_no`, `pin`
+{% enddocs %}
+
+# vw_pin_status
+
+{% docs view_vw_pin_status %}
+Collection of various different PIN-level physical and assessment-related
+statuses collected and documented across the CCAO and Data Department.
+Constructs the Data Department's AHSAP indicator.
+
+### Nuance
+
+- Parcels can have different CDUs from multiple tables. See PIN 05272010320000.
 
 **Primary Key**: `year`, `pin`
 {% enddocs %}

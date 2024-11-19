@@ -1,13 +1,35 @@
-**Primary Key**: `reascd`
+# cc_dli_senfrr
+
+{% docs table_cc_dli_senfrr %}
+Legacy senior freeze exemption data pulled by BoT. Provided via MV 08/18/2024.
+
+**Primary Key**: `pin`, `year`
 {% enddocs %}
 
-# class_dict
+# cc_pifdb_piexemptre_dise
 
-{% docs table_class_dict %}
-Classification codes and descriptions for real property. Derived from the
-[public PDF](https://prodassets.cookcountyassessor.com/s3fs-public/form_documents/Definitions%20for%20Classifications_2023.pdf).
+{% docs table_cc_pifdb_piexemptre_dise %}
+Legacy homestead (senior) exemption data pulled by BoT. Provided via
+MV 08/18/2024.
 
-**Primary Key**: `class_code`
+**Primary Key**: `pin`, `year`
+{% enddocs %}
+
+# cc_pifdb_piexemptre_ownr
+
+{% docs table_cc_pifdb_piexemptre_ownr %}
+Legacy homestead exemption data pulled by BoT. Provided via MV 10/01/2024.
+
+**Primary Key**: `pin`, `year`
+{% enddocs %}
+
+# cc_pifdb_piexemptre_sted
+
+{% docs table_cc_pifdb_piexemptre_sted %}
+Legacy disabled persons and veterans exemption data pulled by BoT. Provided via
+MV 08/18/2024.
+
+**Primary Key**: `pin`, `year`
 {% enddocs %}
 
 # commercial_valuation
@@ -17,15 +39,6 @@ CCAO commercial valuation data, aggregated from the commercial team spreadsheets
 [available on the Assessor's site](https://www.cookcountyassessor.com/valuation-reports).
 
 **Primary Key**: `keypin`, `year`
-{% enddocs %}
-
-# corner_lot
-
-{% docs table_corner_lot %}
-CCAO corner lot indicator. Determined algorithmically by unobstructed access to
-perpidincular streets.
-
-**Primary Key**: `pin10`
 {% enddocs %}
 
 # hie

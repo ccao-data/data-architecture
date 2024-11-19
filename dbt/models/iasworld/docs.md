@@ -137,7 +137,7 @@ Field inspection tracking table.
 {% docs table_exadmn %}
 Exemption applications table.
 
-**Primary Key**: `jur`, `taxyr`, `parid` `caseno`
+**Primary Key**: `jur`, `taxyr`, `parid`, `caseno`
 {% enddocs %}
 
 # exapp
@@ -145,7 +145,7 @@ Exemption applications table.
 {% docs table_exapp %}
 Exemption applicant information table.
 
-**Primary Key**: `jur`, `taxyr`, `parid` `caseno`
+**Primary Key**: `jur`, `taxyr`, `parid`, `caseno`
 {% enddocs %}
 
 # excode
@@ -261,7 +261,10 @@ table, along with `iasworld.legdat`.
 {% docs table_permit %}
 Building permit ingestion and processing.
 
-**Primary Key**: `jur`, `taxyr`, `parid`, `id1`, `id2`
+See [`default.vw_pin_permit`](/#!/model/model.ccao_data_athena.default.vw_pin_permit)
+for a view of this table that selects active rows and relevant columns.
+
+**Primary Key**: `parid`, `num`
 {% enddocs %}
 
 # rcoby

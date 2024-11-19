@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: rcoby

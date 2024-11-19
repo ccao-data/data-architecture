@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
       - type_ic
 
     tables:
@@ -30,15 +30,13 @@ sources:
                     - wen
                   config: &unique-conditions
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
                     description: adjfact should be between 0 and 1
           - name: areasum
             description: '{{ doc("column_areasum") }}'
-          - name: bld_modelid
-            description: '{{ doc("column_bld_modelid") }}'
           - name: bldgros_d
             description: Gross building description
           - name: bldgros_v
@@ -54,6 +52,8 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: bldgval should be between 0 and 1,000,000,000
+          - name: bld_modelid
+            description: '{{ doc("column_bld_modelid") }}'
           - name: bldnum
             description: Building number
           - name: busla
@@ -69,7 +69,7 @@ sources:
                   additional_select_columns: *select-columns
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
                       AND calc_meth IS NOT NULL
@@ -79,8 +79,9 @@ sources:
           - name: card
             description: '{{ doc("column_card") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_comdat_card_not_null
+              - accepted_range:
+                  name: iasworld_comdat_card_gte_1
+                  min_value: 1
                   additional_select_columns: &select-columns-no-card
                     - parid
                     - taxyr
@@ -88,14 +89,13 @@ sources:
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: card should not be null
-              - accepted_range:
-                  name: iasworld_comdat_card_gte_1
-                  min_value: 1
+                    description: card should be >= 1
+              - not_null:
+                  name: iasworld_comdat_card_not_null
                   additional_select_columns: *select-columns-no-card
                   config: *unique-conditions
                   meta:
-                    description: card should be >= 1
+                    description: card should not be null
           - name: cdu
             description: '{{ doc("column_cdu") }}'
           - name: chgrsn
@@ -116,7 +116,7 @@ sources:
                     - mktadj
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
                       AND (external_occpct IS NOT NULL OR mktadj IS NOT NULL)
@@ -130,12 +130,12 @@ sources:
             data_tests:
               - relationships:
                   name: iasworld_comdat_class_in_ccao_class_dict
-                  to: source('ccao', 'class_dict')
+                  to: ref('ccao.class_dict')
                   field: class_code
                   additional_select_columns: *select-columns
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
                       AND class NOT IN ('EX', 'RR')
                       AND cur = 'Y'
@@ -165,7 +165,7 @@ sources:
                   additional_select_columns: *select-columns
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                   meta:
                     description: cur should be 'Y' or 'D'
           - name: deactivat
@@ -238,7 +238,7 @@ sources:
                     - mktadj
                   config:
                     where:
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
                       AND chgrsn IN ('5', '5B')
@@ -301,7 +301,7 @@ sources:
                     - external_occpct
                   config:
                     where:
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
                       AND chgrsn IN ('5', '5B')
@@ -396,6 +396,8 @@ sources:
             description: Number of units
           - name: upd_status
             description: '{{ doc("column_upd_status") }}'
+          - name: user16
+            description: '{{ doc("shared_column_alternative_cdu") }}'
           - name: useradj
             description: Override to comdat userdef adjustment factor
           - name: valmeth
@@ -411,12 +413,6 @@ sources:
           - name: yrblt
             description: '{{ doc("shared_column_char_yrblt") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_comdat_yrblt_not_null
-                  additional_select_columns: *select-columns
-                  config: *unique-conditions
-                  meta:
-                    description: yrblt should not be null
               - accepted_range:
                   name: iasworld_comdat_yrblt_between_1850_and_now
                   min_value: 1850
@@ -425,6 +421,12 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: yrblt should be between 1850 and now
+              - not_null:
+                  name: iasworld_comdat_yrblt_not_null
+                  additional_select_columns: *select-columns
+                  config: *unique-conditions
+                  meta:
+                    description: yrblt should not be null
 
         data_tests:
           - unique_combination_of_columns:

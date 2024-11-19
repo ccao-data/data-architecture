@@ -15,5 +15,8 @@ sources:
       - name: ihs_index
         description: '{{ doc("table_ihs_index") }}'
 
+      - name: dci
+        description: '{{ doc("table_dci") }}'
+
       - name: ari
         description: '{{ doc("table_ari") }}'

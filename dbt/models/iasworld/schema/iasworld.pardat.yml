@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: pardat
@@ -75,25 +75,6 @@ sources:
           - name: class
             description: '{{ doc("shared_column_class") }}'
             data_tests:
-              - relationships:
-                  name: iasworld_pardat_class_in_ccao_class_dict
-                  to: source('ccao', 'class_dict')
-                  field: class_code
-                  additional_select_columns: &select-columns
-                    - taxyr
-                    - parid
-                    - who
-                    - wen
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND class NOT IN ('EX', 'RR')
-                      AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
-                  meta:
-                    category: class_mismatch_or_issue
-                    description: class_code should be valid
               - expression_is_true:
                   name: iasworld_pardat_class_equals_luc
                   expression: '= luc'
@@ -105,12 +86,31 @@ sources:
                     - luc
                   config: &unique-conditions
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
                     category: class_mismatch_or_issue
                     description: class should be the same as luc
+              - relationships:
+                  name: iasworld_pardat_class_in_ccao_class_dict
+                  to: ref('ccao.class_dict')
+                  field: class_code
+                  additional_select_columns: &select-columns
+                    - taxyr
+                    - parid
+                    - who
+                    - wen
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND class NOT IN ('EX', 'RR')
+                      AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class_code should be valid
           - name: cur
             description: '{{ doc("column_cur") }}'
             data_tests:
@@ -120,7 +120,7 @@ sources:
                   additional_select_columns: *select-columns
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                   meta:
                     description: cur should be 'Y' or 'D'
           - name: deactivat
@@ -293,7 +293,7 @@ sources:
                   tags:
                     # Valuations can't act on these failures since hyphens are
                     # not distinguishable in the iasWorld UI
-                    - test_qc_exclude_from_workbook
+                    - data_test_iasworld_exclude_from_workbook
           - name: tiebkcd
             description: Tieback code
           - name: tiebldgpct
@@ -340,6 +340,19 @@ sources:
             description: '{{ doc("column_zip2") }}'
 
         data_tests:
+          - expression_is_true:
+              name: iasworld_pardat_adrno_length_lte_5
+              expression: LENGTH(CAST(adrno AS varchar)) <= 5
+              additional_select_columns:
+                - parid
+                - taxyr
+                - who
+                - wen
+                - adrno
+              config: *unique-conditions
+              meta:
+                category: column_length
+                description: adrno should be <= 5 characters long
           - column_is_subset_of_external_column:
               name: iasworld_pardat_nbhd_matches_spatial_town_nbhd
               column: nbhd
@@ -350,8 +363,10 @@ sources:
                 # Codes ending in 999 are dummy codes used for some purpose,
                 # although we do not yet know what it is
                 where: |
-                  (taxyr BETWEEN '2010' AND CAST(YEAR(NOW()) AS varchar))
-                  AND (nbhd NOT LIKE '%999')
+                  CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                  AND cur = 'Y'
+                  AND deactivat IS NULL
+                  AND nbhd NOT LIKE '%999'
               meta:
                 category: relationships
                 description: nbhd code not valid
@@ -370,16 +385,3 @@ sources:
               config: *unique-conditions
               meta:
                 description: pardat should be unique by parid and taxyr
-          - expression_is_true:
-              name: iasworld_pardat_adrno_length_lte_5
-              expression: LENGTH(CAST(adrno AS varchar)) <= 5
-              additional_select_columns:
-                - parid
-                - taxyr
-                - who
-                - wen
-                - adrno
-              config: *unique-conditions
-              meta:
-                category: column_length
-                description: adrno should be <= 5 characters long

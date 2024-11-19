@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: sales
@@ -113,24 +113,24 @@ sources:
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_sales_parid_not_null
+              - relationships:
+                  name: iasworld_sales_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
                   additional_select_columns: &select-columns-no-parid
                     - substr(saledt, 1, 4) as taxyr
                     - who
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: parid should not be null
-              - relationships:
-                  name: iasworld_sales_parid_in_pardat_parid
-                  to: source('iasworld', 'pardat')
-                  field: parid
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_sales_parid_not_null
                   additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
                   meta:
-                    category: parid
-                    description: parid should be in pardat
+                    description: parid should not be null
           - name: price
             description: '{{ doc("shared_column_sale_price") }}'
             data_tests:
@@ -164,6 +164,12 @@ sources:
             description: '{{ doc("column_steb") }}'
           - name: stflag
             description: '{{ doc("column_stflag") }}'
+          - name: tasp1
+            description: Time adjusted sale price for roll year 1
+          - name: tasp2
+            description: Time adjusted sale price for roll year 2
+          - name: tasp3
+            description: Time adjusted sale price for roll year 3
           - name: tasp_ovr
             description: Time adjusted sale price for override roll year
           - name: tasp_ovr_year
@@ -174,12 +180,6 @@ sources:
             description: Roll year of time adjusted sale price 2
           - name: tasp_year3
             description: Roll year of time adjusted sale price 3
-          - name: tasp1
-            description: Time adjusted sale price for roll year 1
-          - name: tasp2
-            description: Time adjusted sale price for roll year 2
-          - name: tasp3
-            description: Time adjusted sale price for roll year 3
           - name: timeadjfact
             description: Time adjusted fact
           - name: timeadjsp
@@ -188,10 +188,10 @@ sources:
             description: Time adjusted valuation date
           - name: timeadjvaldt2
             description: Time adjusted valuation date 2
-          - name: trans_id
-            description: '{{ doc("column_trans_id") }}'
           - name: transdt
             description: Transaction date
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
           - name: transno
             description: Transfer number
           - name: upd_status
@@ -206,6 +206,17 @@ sources:
             description: '{{ doc("column_whocalc") }}'
 
         data_tests:
+          - expression_is_true:
+              name: iasworld_sales_saledt_lte_now
+              expression: DATE_PARSE(SUBSTR(saledt, 1, 10), '%Y-%m-%d') <= current_date
+              additional_select_columns:
+                - parid
+                - saledt
+                - instruno
+              config: *unique-conditions
+              meta:
+                category: incorrect_values
+                description: saledt should be before the current date
           - unique_combination_of_columns:
               name: iasworld_sales_unique_by_parid_instruno
               combination_of_columns:
@@ -227,14 +238,3 @@ sources:
               config: *unique-conditions
               meta:
                 description: sales should be unique by parid and instruno
-          - expression_is_true:
-              name: iasworld_sales_saledt_lte_now
-              expression: DATE_PARSE(SUBSTR(saledt, 1, 10), '%Y-%m-%d') <= current_date
-              additional_select_columns:
-                - parid
-                - saledt
-                - instruno
-              config: *unique-conditions
-              meta:
-                category: incorrect_values
-                description: saledt should be before the current date

@@ -8,6 +8,25 @@ sourced from Docker.
 **Primary Key**: `adjective`
 {% enddocs %}
 
+# aprval_reascd
+
+{% docs seed_aprval_reascd %}
+Table containing descriptions for reason codes from `iasworld.aprval.reascd`.
+Reason codes pertian to changes in AV.
+
+**Primary Key**: `reascd`
+{% enddocs %}
+
+# cdu
+
+{% docs seed_cdu %}
+Table containing CDU (Condition, Desirability, and Utility) codes and
+descriptions. CDUs come from the `user16` columns in `comdat`, `dweldat`, and `oby`
+tables in `iasworld`.
+
+**Primary Key**: `cdu_code`
+{% enddocs %}
+
 # class_dict
 
 {% docs seed_class_dict %}
@@ -15,9 +34,25 @@ Table containing a translation for property class codes to human-readable class
 descriptions. Also describes which classes are included in residential
 regressions and reporting classes.
 
+Derived from the 2023
+[PDF](https://prodassets.cookcountyassessor.com/s3fs-public/form_documents/Definitions%20for%20Classifications_2023.pdf)
+
+**Primary Key**: `class_code`
+{% enddocs %}
+
 To find the level of assessment (LoA) for each class, see the `ccao.loa` table.
 
 **Primary Key**: `class_code`
+{% enddocs %}
+
+# htpar_reascd
+
+{% docs seed_htpar_reascd %}
+Table containing descriptions for appeal decision reason codes from
+`iasworld.htpar`. These codes are sourced directly from the iasWorld interface.
+Many (but not all) are documented on the [Assessor's website](https://www.cookcountyassessor.com/form-document/assessor-reason-codes).
+
+**Primary Key**: `reascd`
 {% enddocs %}
 
 # loa

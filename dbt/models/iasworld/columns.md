@@ -762,7 +762,14 @@ Value category: P (`PP11`) or R (`CA11`)
 ## rolltype
 
 {% docs column_rolltype %}
-Tax roll name
+Tax roll name.
+
+- RP = Real property
+- RR = Railroad
+
+All records (absent 2021 and some in 2022) should be only RP or have minimally
+a single RP record. There should no longer he any active RR records for
+2023 and later.
 {% enddocs %}
 
 ## salekey

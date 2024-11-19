@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: cvtran
@@ -98,18 +98,6 @@ sources:
             description: Sales comments
           - name: oldown
             description: '{{ doc("column_oldown") }}'
-          - name: oldown_companyname
-            description: Old owner company name
-          - name: oldown_firstname
-            description: Old owner first name
-          - name: oldown_lastname
-            description: Old owner last name
-          - name: oldown_middlename
-            description: Old owner middle name
-          - name: oldown_prefix
-            description: Old owner prefix
-          - name: oldown_suffix
-            description: Old owner suffix
           - name: oldown2
             description: '{{ doc("column_oldown2") }}'
           - name: oldown2_companyname
@@ -124,6 +112,18 @@ sources:
             description: Old owner 2 prefix
           - name: oldown2_suffix
             description: Old owner 2 suffix
+          - name: oldown_companyname
+            description: Old owner company name
+          - name: oldown_firstname
+            description: Old owner first name
+          - name: oldown_lastname
+            description: Old owner last name
+          - name: oldown_middlename
+            description: Old owner middle name
+          - name: oldown_prefix
+            description: Old owner prefix
+          - name: oldown_suffix
+            description: Old owner suffix
           - name: oldseq
             description: '{{ doc("column_oldseq") }}'
           - name: oldyr
@@ -196,10 +196,10 @@ sources:
             description: Escrow Company Code
           - name: tnn
             description: Transfer not necessary indicator
-          - name: trans_id
-            description: '{{ doc("column_trans_id") }}'
           - name: transdt
             description: Transaction date
+          - name: trans_id
+            description: '{{ doc("column_trans_id") }}'
           - name: upd_owndat
             description: Flag to update `OWNDAT`
           - name: upd_ownmlt

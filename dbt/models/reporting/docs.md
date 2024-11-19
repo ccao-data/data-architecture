@@ -1,3 +1,13 @@
+# assessment_progress
+
+{% docs table_assessment_progress %}
+Table for reporting current or final AV stats - depending on whether a township
+is open - and the proportion of parcels that have been valued per major class
+group, township, assessment stage, and year. Feeds public reporting assets.
+
+**Primary Key**: `year`, `stage_name`, `geo_id`
+{% enddocs %}
+
 # ratio_stats
 
 {% docs table_ratio_stats %}
@@ -68,6 +78,14 @@ PINs without sales have `NULL` sale values.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_pin_school_impact
+
+{% docs view_vw_pin_school_impact %}
+View to get the 10 highest AVs by school district taxing agency and year.
+
+**Primary Key**: `year`, `agency_num`, `pin`
+{% enddocs %}
+
 # vw_pin_township_class
 
 {% docs view_vw_pin_township_class %}
@@ -80,19 +98,24 @@ views.
 # vw_pin_value_long
 
 {% docs view_vw_pin_value_long %}
-Assessed values by PIN and year, for each assessment stage.
+Assessed and market values by PIN and year, for each assessment stage.
 
 The assessment stages are:
 
-1. `mailed` - Values initially mailed by the Assessor
-2. `certified` - Values after the Assessor has finished processing appeals
-2. `board` - Values after the Board of Review has finished their appeals
+1. `PRE-MAILED` - Provisional values that are slated to be mailed by the
+   Assessor once first-pass desk review completes
+2. `MAILED` - Values initially mailed by the Assessor
+3. `ASSESSOR PRE-CERTIFIED` - Provisional values that are slated to be set by
+   the Assessor once appeals are finished
+4. `ASSESSOR CERTIFIED` - Values after the Assessor has finished processing
+   appeals
+5. `BOARD CERTIFIED` - Values after the Board of Review has finished their
+   appeals
 
 ### Assumptions
 
-- Taking an arbitrary value by 14-digit PIN and year is sufficient for accurate
-  values. We do this because even given the criteria to de-dupe `asmt_all`,
-  we still end up with duplicates by PIN and year.
+- Market value (`_mv`) columns accurately reflect incentives, statute,
+  levels of assessment, building splits, etc.
 
 **Primary Key**: `year`, `pin`, `stage_name`
 {% enddocs %}

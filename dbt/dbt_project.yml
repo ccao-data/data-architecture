@@ -22,19 +22,18 @@ clean-targets:
   - "dbt_packages"
 
 # Variables that can change with invocation of dbt commands. Note that we parse
-# the test_* variables by name in scripts, so if you change their names, make
-# sure you check all of our scripts and adjust them accordingly
+# the data_test_iasworld_* variables by name in scripts, so if you change their
+# names, make sure you check all of our scripts and adjust them accordingly
 vars:
-  # Start year for testing data using test_qc_* tagged dbt tests. Typically
-  # this should be the current year, since errors in past data cannot usually
-  # be amended once records are closed. Set as an integer for compatibility
-  # with comparison operators and SQL's BETWEEN
-  test_qc_year_start: 2024
+  # Start year for iasWorld data tests. Typically this should be the current
+  # year, since errors in past data cannot usually be amended once records are
+  # closed. Set as an integer for compatibility with comparison operators and
+  # SQL's BETWEEN
+  data_test_iasworld_year_start: 2024
 
-  # End year for testing data using test_qc_* tagged dbt tests. Typically set
-  # to a date in the future, but can also be use to select specific time
-  # frames for testing
-  test_qc_year_end: 2030
+  # End year for iasWorld data tests. Typically set to a date in the future,
+  # but can also be use to select specific time frames for testing
+  data_test_iasworld_year_end: 2030
 
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
@@ -43,6 +42,7 @@ models:
     +materialized: view
     +write_compression: zstd
     +format: parquet
+    +ha: true
     census:
       +schema: census
     default:
@@ -57,6 +57,8 @@ models:
       +schema: reporting
     sale:
       +schema: sale
+    spatial:
+      +schema: spatial
     qc:
       +schema: qc
 data_tests:
@@ -70,3 +72,5 @@ seeds:
       +schema: location
     model:
       +schema: model
+    spatial:
+      +schema: spatial

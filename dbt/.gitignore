@@ -1,5 +1,6 @@
 .user.yml
 *.xlsx
+!export/templates/*.xlsx
 
 assets/*.svg
 test_cache/*.json
@@ -10,3 +11,5 @@ target/
 dbt_modules/
 dbt_packages/
 master-cache/
+
+__pycache__
