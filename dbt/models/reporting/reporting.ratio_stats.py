@@ -5,8 +5,8 @@ sc.addPyFile("s3://ccao-athena-dependencies-us-east-1/assesspy==1.2.0.zip")
 import math
 
 import pandas as pd
-import pyspark.pandas as ps
 import statsmodels.api as sm
+from pyspark.sql.functions import col, lit
 
 
 def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
@@ -260,10 +260,10 @@ def report_summarise(df, geography_id, geography_type):
     ]
 
     schema = (
-        "year bigint, triad bigint, geography_type string, "
+        "year string, triad string, geography_type string, "
         "property_group string, assessment_stage string, "
-        "geography_id string, sale_year bigint, sale_n bigint, "
-        "median_ratio double, median_ratio_ci_l double, median_ratio_ci_u double, median_n bigint, "
+        "geography_id string, sale_year string, sale_n bigint, "
+        "median_ratio double, median_ci_l double, median_ci_u double, median_n bigint, "
         "cod double, cod_ci_l double, cod_ci_u double, cod_met boolean, cod_n bigint, "
         "prd double, prd_ci_l double, prd_ci_u double, prd_met boolean, prd_n bigint, "
         "prb double, prb_ci_l double, prb_ci_u double, prb_met boolean, prb_n bigint, "
@@ -271,79 +271,80 @@ def report_summarise(df, geography_id, geography_type):
         "within_20_pct bigint, within_10_pct bigint, within_05_pct bigint"
     )
 
-    df["geography_id"] = df[geography_id].astype(str)
-    df["geography_type"] = geography_type
-
-    df = (
-        df.groupby(group_cols)
+    out = (
+        df.withColumn("geography_id", col(geography_id).cast("string"))
+        .withColumn("geography_type", lit(geography_type))
+        .groupby(group_cols)
         .applyInPandas(
-            lambda x: pd.Series(
-                {
-                    "sale_n": x["triad"].size,
-                    **dict(
-                        zip(
-                            [
-                                "median_ratio",
-                                "median_ci_l",
-                                "median_ci_u",
-                                "median_n",
-                            ],
-                            ccao_median(x["ratio"]),
-                        )
-                    ),
-                    **dict(
-                        zip(
-                            [
-                                "cod",
-                                "cod_ci_l",
-                                "cod_ci_u",
-                                "cod_met",
-                                "cod_n",
-                            ],
-                            ccao_cod(x["ratio"]),
-                        )
-                    ),
-                    **dict(
-                        zip(
-                            [
-                                "prd",
-                                "prd_ci_l",
-                                "prd_ci_u",
-                                "prd_met",
-                                "prd_n",
-                            ],
-                            ccao_prd(x[["fmv", "sale_price"]]),
-                        )
-                    ),
-                    **dict(
-                        zip(
-                            ["mki", "mki_met", "mki_n"],
-                            ccao_mki(x[["fmv", "sale_price"]]),
-                        )
-                    ),
-                    **dict(
-                        zip(
-                            [
-                                "prb",
-                                "prb_ci_l",
-                                "prb_ci_u",
-                                "prb_met",
-                                "prb_n",
-                            ],
-                            ccao_prb(x[["fmv", "sale_price"]]),
-                        )
-                    ),
-                    "within_20_pct": sum(abs(1 - x["ratio"]) <= 0.20),
-                    "within_10_pct": sum(abs(1 - x["ratio"]) <= 0.10),
-                    "within_05_pct": sum(abs(1 - x["ratio"]) <= 0.05),
-                }
+            lambda x: pd.DataFrame(
+                [
+                    {
+                        **dict(zip(group_cols, x[group_cols])),
+                        "sale_n": x["triad"].size,
+                        **dict(
+                            zip(
+                                [
+                                    "median_ratio",
+                                    "median_ci_l",
+                                    "median_ci_u",
+                                    "median_n",
+                                ],
+                                ccao_median(x["ratio"]),
+                            )
+                        ),
+                        **dict(
+                            zip(
+                                [
+                                    "cod",
+                                    "cod_ci_l",
+                                    "cod_ci_u",
+                                    "cod_met",
+                                    "cod_n",
+                                ],
+                                ccao_cod(x["ratio"]),
+                            )
+                        ),
+                        **dict(
+                            zip(
+                                [
+                                    "prd",
+                                    "prd_ci_l",
+                                    "prd_ci_u",
+                                    "prd_met",
+                                    "prd_n",
+                                ],
+                                ccao_prd(x[["fmv", "sale_price"]]),
+                            )
+                        ),
+                        **dict(
+                            zip(
+                                ["mki", "mki_met", "mki_n"],
+                                ccao_mki(x[["fmv", "sale_price"]]),
+                            )
+                        ),
+                        **dict(
+                            zip(
+                                [
+                                    "prb",
+                                    "prb_ci_l",
+                                    "prb_ci_u",
+                                    "prb_met",
+                                    "prb_n",
+                                ],
+                                ccao_prb(x[["fmv", "sale_price"]]),
+                            )
+                        ),
+                        "within_20_pct": sum(abs(1 - x["ratio"]) <= 0.20),
+                        "within_10_pct": sum(abs(1 - x["ratio"]) <= 0.10),
+                        "within_05_pct": sum(abs(1 - x["ratio"]) <= 0.05),
+                    }
+                ]
             ),
             schema=schema,
         )
-        .reset_index()
     )
 
-    return df
+    return out
 
 
 def model(dbt, spark_session):
@@ -352,78 +353,51 @@ def model(dbt, spark_session):
     input = dbt.ref("reporting.ratio_stats_input")
     input = input.filter(input.ratio.isNotNull()).filter(input.ratio > 0)
 
-    df = ps.concat(
-        [
-            report_summarise(input, "triad", "Tri"),
-            report_summarise(input, "township_code", "Town"),
-        ]
-    ).reset_index(drop=True)
+    df_tri = report_summarise(input, "triad", "Tri")
+    df_town = report_summarise(input, "township_code", "Town")
+    df = df_tri.unionByName(df_town)
 
     # Force certain columns to datatype to maintain parity with old version
-    df[["year", "triad", "sale_year"]] = df[
-        ["year", "triad", "sale_year"]
-    ].astype(int)
+    df = df.withColumn("year", col("year").cast("int"))
+    df = df.withColumn("triad", col("triad").cast("int"))
+    df = df.withColumn("sale_year", col("sale_year").cast("int"))
     athena_user_logger.info("Pre-column arrange")
+
     # Arrange output columns
-    df = df[
-        [
-            "year",
-            "triad",
-            "geography_type",
-            "property_group",
-            "assessment_stage",
-            "geography_id",
-            "sale_year",
-            "sale_n",
-            "median_ratio",
-            "median_ci_l",
-            "median_ci_u",
-            "median_n",
-            "cod",
-            "cod_ci_l",
-            "cod_ci_u",
-            "cod_met",
-            "cod_n",
-            "prd",
-            "prd_ci_l",
-            "prd_ci_u",
-            "prd_n",
-            "prd_met",
-            "mki",
-            "mki_met",
-            "mki_n",
-            "prb",
-            "prb_ci_l",
-            "prb_ci_u",
-            "prb_met",
-            "prb_n",
-            "within_20_pct",
-            "within_10_pct",
-            "within_05_pct",
-        ]
-    ]
-
-    athena_user_logger.info(f"{df.dtypes}")
-    athena_user_logger.info(f"{type(df)}")
-
-    # Create a Spark schema to maintain the datatypes of the
-    # previous output (for Tableau compatibility)
-    # schema = (
-    #     "year: bigint, triad: bigint, geography_type: string, "
-    #     "property_group: string, assessment_stage: string, "
-    #     "geography_id: string, sale_year: bigint, sale_n: bigint, "
-    #     "median_ratio: double, median_ratio_ci_l: double, median_ratio_ci_u: double, cod: double, "
-    #     "cod_ci_l: double, cod_ci_u: double, cod_n: bigint, prd: double, prd_ci: string, "
-    #     "prd_n: bigint, prb: double, prb_ci_l: double, prb_ci_u: double, prb_n: bigint, "
-    #     "mki: double, mki_n: bigint, "
-    #     "ratio_met: boolean, cod_met: boolean, prd_met: boolean, "
-    #     "prb_met: boolean, mki_met: boolean, vertical_equity_met: boolean, "
-    #     "within_20_pct: bigint, within_10_pct: bigint, within_05_pct: bigint"
-    # )
-
-    df = df.to_spark()
-    # schema = ("year: bigint")
-
-    # spark_df = spark_session.createDataFrame(df, schema=schema)
+    df = df.select(
+        col("year"),
+        col("triad"),
+        col("geography_type"),
+        col("property_group"),
+        col("assessment_stage"),
+        col("geography_id"),
+        col("sale_year"),
+        col("sale_n"),
+        col("median_ratio"),
+        col("median_ci_l"),
+        col("median_ci_u"),
+        col("median_n"),
+        col("cod"),
+        col("cod_ci_l"),
+        col("cod_ci_u"),
+        col("cod_met"),
+        col("cod_n"),
+        col("prd"),
+        col("prd_ci_l"),
+        col("prd_ci_u"),
+        col("prd_n"),
+        col("prd_met"),
+        col("mki"),
+        col("mki_met"),
+        col("mki_n"),
+        col("prb"),
+        col("prb_ci_l"),
+        col("prb_ci_u"),
+        col("prb_met"),
+        col("prb_n"),
+        col("within_20_pct"),
+        col("within_10_pct"),
+        col("within_05_pct"),
+    )
 
     return df
