@@ -78,7 +78,7 @@ jobs:
               # can't accidentally modify downstream model schemas without
               # those child models _also_ being modified
               echo "Running build on modified/new resources and their children"
-              dbt build -t "$TARGET" -s state:modified+ state:new --defer --state "$STATE_DIR" --resource-types model seed
+              dbt build -t "$TARGET" -s state:modified+ state:new --state "$STATE_DIR" --resource-types model seed
             else
               echo "Running build on modified/new resources only"
               dbt build -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR" --resource-types model seed
