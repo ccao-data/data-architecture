@@ -348,7 +348,7 @@ def report_summarise(df, geography_id, geography_type):
 
 
 def model(dbt, spark_session):
-    dbt.config(materialized="table")
+    dbt.config(materialized="table", engine_config={"MaxConcurrentDpus": 40})
 
     input = dbt.ref("reporting.ratio_stats_input")
     input = input.filter(input.ratio.isNotNull()).filter(input.ratio > 0)
