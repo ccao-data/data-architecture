@@ -9,7 +9,7 @@ import statsmodels.api as sm
 from pyspark.sql.functions import col, lit
 
 
-def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
+def boot_ci(fun, nboot=1000, alpha=0.05, **kwargs):
     num_kwargs = len(kwargs)
     kwargs = pd.DataFrame(kwargs)
     n = len(kwargs)
@@ -34,7 +34,7 @@ def boot_ci(fun, nboot=100, alpha=0.05, **kwargs):
 
 
 # - - - - COD functions - - -
-def cod_boot(ratio, nboot=100, alpha=0.05):
+def cod_boot(ratio, nboot=1000, alpha=0.05):
     return boot_ci(cod, ratio=ratio, nboot=nboot, alpha=alpha)
 
 
@@ -58,7 +58,7 @@ def ccao_cod(x):
 
     if cod_n >= 20:
         cod_val = cod(x_no_outliers)
-        cod_ci = cod_boot(ratio=x_no_outliers.to_numpy(), nboot=100)
+        cod_ci = cod_boot(ratio=x_no_outliers.to_numpy(), nboot=1000)
 
         met = 5 <= cod_val <= 15
         out = [cod_val, cod_ci[0], cod_ci[1], met, cod_n]
@@ -74,7 +74,7 @@ def calculate_median(series):
     return series.median()
 
 
-def median_boot(ratio, nboot=100, alpha=0.05):
+def median_boot(ratio, nboot=1000, alpha=0.05):
     return boot_ci(calculate_median, nboot=nboot, alpha=alpha, ratio=ratio)
 
 
@@ -88,7 +88,7 @@ def ccao_median(x):
     median_n = x_no_outliers.size
     median_ratio = x_no_outliers.median()
 
-    median_ci = median_boot(x_no_outliers, nboot=100)
+    median_ci = median_boot(x_no_outliers, nboot=1000)
     median_ci_l = median_ci[0]
     median_ci_u = median_ci[1]
 
@@ -103,7 +103,7 @@ def prd(assessed, sale_price):
     return prd
 
 
-def prd_boot(assessed, sale_price, nboot=100, alpha=0.05):
+def prd_boot(assessed, sale_price, nboot=1000, alpha=0.05):
     return boot_ci(
         prd, assessed=assessed, sale_price=sale_price, nboot=nboot, alpha=alpha
     )
@@ -127,7 +127,7 @@ def ccao_prd(df):
     if prd_n >= 20:
         prd_val = prd(df_no_outliers["fmv"], df_no_outliers["sale_price"])
         prd_ci = prd_boot(
-            df_no_outliers["fmv"], df_no_outliers["sale_price"], nboot=100
+            df_no_outliers["fmv"], df_no_outliers["sale_price"], nboot=1000
         )
         prd_ci_l, prd_ci_u = prd_ci[0], prd_ci[1]
         prd_met = 0.98 <= prd_val <= 1.03
