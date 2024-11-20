@@ -22,14 +22,10 @@ WITH unfilled AS (
             AS num_school_rating_data_year,
         MAX(dist_pin_to_airport.airport_data_year)
             AS airport_data_year,
-        MAX(dist_pin_to_arterial_road.nearest_arterial_road_data_year)
-            AS nearest_arterial_road_data_year,
         MAX(dist_pin_to_bike_trail.nearest_bike_trail_data_year)
             AS nearest_bike_trail_data_year,
         MAX(dist_pin_to_cemetery.nearest_cemetery_data_year)
             AS nearest_cemetery_data_year,
-        MAX(dist_pin_to_collector_road.nearest_collector_road_data_year)
-            AS nearest_collector_road_data_year,
         MAX(dist_pin_to_cta_route.nearest_cta_route_data_year)
             AS nearest_cta_route_data_year,
         MAX(dist_pin_to_cta_stop.nearest_cta_stop_data_year)
@@ -38,8 +34,6 @@ WITH unfilled AS (
             AS nearest_golf_course_data_year,
         MAX(dist_pin_to_grocery_store.nearest_grocery_store_data_year)
             AS nearest_grocery_store_data_year,
-        MAX(dist_pin_to_highway_road.nearest_highway_road_data_year)
-            AS nearest_highway_road_data_year,
         MAX(dist_pin_to_hospital.nearest_hospital_data_year)
             AS nearest_hospital_data_year,
         MAX(dist_pin_to_lake_michigan.lake_michigan_data_year)
@@ -56,6 +50,12 @@ WITH unfilled AS (
             AS nearest_park_data_year,
         MAX(dist_pin_to_railroad.nearest_railroad_data_year)
             AS nearest_railroad_data_year,
+        MAX(dist_pin_to_road_arterial.nearest_road_arterial_data_year)
+            AS nearest_road_arterial_data_year,
+        MAX(dist_pin_to_road_collector.nearest_road_collector_data_year)
+            AS nearest_road_collector_data_year,
+        MAX(dist_pin_to_road_highway.nearest_road_highway_data_year)
+            AS nearest_road_highway_data_year,
         MAX(dist_pin_to_secondary_road.nearest_secondary_road_data_year)
             AS nearest_secondary_road_data_year,
         MAX(dist_pin_to_stadium.nearest_stadium_data_year)
@@ -99,12 +99,6 @@ WITH unfilled AS (
     LEFT JOIN (
         SELECT DISTINCT
             year,
-            nearest_arterial_road_data_year
-        FROM {{ ref('proximity.dist_pin_to_arterial_road' ) }}
-    ) AS dist_pin_to_arterial_road ON pin.year = dist_pin_to_arterial_road.year
-    LEFT JOIN (
-        SELECT DISTINCT
-            year,
             nearest_bike_trail_data_year
         FROM {{ ref('proximity.dist_pin_to_bike_trail') }}
     ) AS dist_pin_to_bike_trail ON pin.year = dist_pin_to_bike_trail.year
@@ -114,13 +108,6 @@ WITH unfilled AS (
             nearest_cemetery_data_year
         FROM {{ ref('proximity.dist_pin_to_cemetery') }}
     ) AS dist_pin_to_cemetery ON pin.year = dist_pin_to_cemetery.year
-    LEFT JOIN (
-        SELECT DISTINCT
-            year,
-            nearest_collector_road_data_year
-        FROM {{ ref('proximity.dist_pin_to_collector_road' ) }}
-    ) AS dist_pin_to_collector_road
-        ON pin.year = dist_pin_to_collector_road.year
     LEFT JOIN (
         SELECT DISTINCT
             year,
@@ -145,12 +132,6 @@ WITH unfilled AS (
             nearest_grocery_store_data_year
         FROM {{ ref('proximity.dist_pin_to_grocery_store') }}
     ) AS dist_pin_to_grocery_store ON pin.year = dist_pin_to_grocery_store.year
-    LEFT JOIN (
-        SELECT DISTINCT
-            year,
-            nearest_highway_road_data_year
-        FROM {{ ref('proximity.dist_pin_to_highway_road' ) }}
-    ) AS dist_pin_to_highway_road ON pin.year = dist_pin_to_highway_road.year
     LEFT JOIN (
         SELECT DISTINCT
             year,
@@ -201,6 +182,25 @@ WITH unfilled AS (
             nearest_railroad_data_year
         FROM {{ ref('proximity.dist_pin_to_railroad') }}
     ) AS dist_pin_to_railroad ON pin.year = dist_pin_to_railroad.year
+    LEFT JOIN (
+        SELECT DISTINCT
+            year,
+            nearest_road_collector_data_year
+        FROM {{ ref('proximity.dist_pin_to_road_collector' ) }}
+    ) AS dist_pin_to_road_collector
+        ON pin.year = dist_pin_to_road_collector.year
+    LEFT JOIN (
+        SELECT DISTINCT
+            year,
+            nearest_road_arterial_data_year
+        FROM {{ ref('proximity.dist_pin_to_road_arterial' ) }}
+    ) AS dist_pin_to_road_arterial ON pin.year = dist_pin_to_road_arterial.year
+    LEFT JOIN (
+        SELECT DISTINCT
+            year,
+            nearest_highway_road_data_year
+        FROM {{ ref('proximity.dist_pin_to_road_highway' ) }}
+    ) AS dist_pin_to_road_highway ON pin.year = dist_pin_to_road_highway.year
     LEFT JOIN (
         SELECT DISTINCT
             year,
@@ -268,12 +268,6 @@ SELECT
             OVER (ORDER BY year DESC)
     ) AS airport_data_year,
     COALESCE(
-        nearest_arterial_road_data_year,
-        LAST_VALUE(nearest_arterial_road_data_year)
-            IGNORE NULLS
-            OVER (ORDER BY year DESC)
-    ) AS nearest_arterial_road_data_year,
-    COALESCE(
         nearest_bike_trail_data_year,
         LAST_VALUE(nearest_bike_trail_data_year)
             IGNORE NULLS
@@ -315,6 +309,12 @@ SELECT
             IGNORE NULLS
             OVER (ORDER BY year DESC)
     ) AS nearest_grocery_store_data_year,
+    COALESCE(
+        nearest_road_arterial_data_year,
+        LAST_VALUE(nearest_road_arterial_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY year DESC)
+    ) AS nearest_road_arterial_data_year,
     COALESCE(
         nearest_highway_road_data_year,
         LAST_VALUE(nearest_highway_road_data_year)

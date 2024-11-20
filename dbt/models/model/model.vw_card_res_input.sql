@@ -440,61 +440,6 @@ SELECT
     END AS prox_airport_dnl_total,
     CASE
         WHEN
-            f1.prox_nearest_arterial_road_daily_traffic IS NOT NULL
-            THEN f1.prox_nearest_arterial_road_daily_traffic
-        WHEN
-            f1.prox_nearest_arterial_road_daily_traffic IS NULL
-            THEN nn1.prox_nearest_arterial_road_daily_traffic
-        WHEN
-            nn1.prox_nearest_arterial_road_daily_traffic IS NULL
-            THEN nn2.prox_nearest_arterial_road_daily_traffic
-    END AS prox_nearest_arterial_road_daily_traffic,
-    CASE
-        WHEN
-            f1.prox_nearest_arterial_road_dist_ft IS NOT NULL
-            THEN f1.prox_nearest_arterial_road_dist_ft
-        WHEN
-            f1.prox_nearest_arterial_road_dist_ft IS NULL
-            THEN nn1.prox_nearest_arterial_road_dist_ft
-        WHEN
-            nn1.prox_nearest_arterial_road_dist_ft IS NULL
-            THEN nn2.prox_nearest_arterial_road_dist_ft
-    END AS prox_nearest_arterial_road_dist_ft,
-    CASE
-        WHEN
-            f1.prox_nearest_arterial_road_lanes IS NOT NULL
-            THEN f1.prox_nearest_arterial_road_lanes
-        WHEN
-            f1.prox_nearest_arterial_road_lanes IS NULL
-            THEN nn1.prox_nearest_arterial_road_lanes
-        WHEN
-            nn1.prox_nearest_arterial_road_lanes IS NULL
-            THEN nn2.prox_nearest_arterial_road_lanes
-    END AS prox_nearest_arterial_road_lanes,
-    CASE
-        WHEN
-            f1.prox_nearest_arterial_road_speed_limit IS NOT NULL
-            THEN f1.prox_nearest_arterial_road_speed_limit
-        WHEN
-            f1.prox_nearest_arterial_road_speed_limit IS NULL
-            THEN nn1.prox_nearest_arterial_road_speed_limit
-        WHEN
-            nn1.prox_nearest_arterial_road_speed_limit IS NULL
-            THEN nn2.prox_nearest_arterial_road_speed_limit
-    END AS prox_nearest_arterial_road_speed_limit,
-    CASE
-        WHEN
-            f1.prox_nearest_arterial_road_surface_type IS NOT NULL
-            THEN f1.prox_nearest_arterial_road_surface_type
-        WHEN
-            f1.prox_nearest_arterial_road_surface_type IS NULL
-            THEN nn1.prox_nearest_arterial_road_surface_type
-        WHEN
-            nn1.prox_nearest_arterial_road_surface_type IS NULL
-            THEN nn2.prox_nearest_arterial_road_surface_type
-    END AS prox_nearest_arterial_road_surface_type,
-    CASE
-        WHEN
             f1.prox_nearest_bike_trail_dist_ft IS NOT NULL
             THEN f1.prox_nearest_bike_trail_dist_ft
         WHEN
@@ -517,118 +462,8 @@ SELECT
     END AS prox_nearest_cemetery_dist_ft,
     f1.prox_nearest_cta_route_dist_ft,
     f1.prox_nearest_cta_stop_dist_ft,
-    CASE
-        WHEN
-            f1.prox_nearest_collector_road_daily_traffic IS NOT NULL
-            THEN f1.prox_nearest_collector_road_daily_traffic
-        WHEN
-            f1.prox_nearest_collector_road_daily_traffic IS NULL
-            THEN nn1.prox_nearest_collector_road_daily_traffic
-        WHEN
-            nn1.prox_nearest_collector_road_daily_traffic IS NULL
-            THEN nn2.prox_nearest_collector_road_daily_traffic
-    END AS prox_nearest_collector_road_daily_traffic,
-    CASE
-        WHEN
-            f1.prox_nearest_collector_road_dist_ft IS NOT NULL
-            THEN f1.prox_nearest_collector_road_dist_ft
-        WHEN
-            f1.prox_nearest_collector_road_dist_ft IS NULL
-            THEN nn1.prox_nearest_collector_road_dist_ft
-        WHEN
-            nn1.prox_nearest_collector_road_dist_ft IS NULL
-            THEN nn2.prox_nearest_collector_road_dist_ft
-    END AS prox_nearest_collector_road_dist_ft,
-    CASE
-        WHEN
-            f1.prox_nearest_collector_road_lanes IS NOT NULL
-            THEN f1.prox_nearest_collector_road_lanes
-        WHEN
-            f1.prox_nearest_collector_road_lanes IS NULL
-            THEN nn1.prox_nearest_collector_road_lanes
-        WHEN
-            nn1.prox_nearest_collector_road_lanes IS NULL
-            THEN nn2.prox_nearest_collector_road_lanes
-    END AS prox_nearest_collector_road_lanes,
-    CASE
-        WHEN
-            f1.prox_nearest_collector_road_speed_limit IS NOT NULL
-            THEN f1.prox_nearest_collector_road_speed_limit
-        WHEN
-            f1.prox_nearest_collector_road_speed_limit IS NULL
-            THEN nn1.prox_nearest_collector_road_speed_limit
-        WHEN
-            nn1.prox_nearest_collector_road_speed_limit IS NULL
-            THEN nn2.prox_nearest_collector_road_speed_limit
-    END AS prox_nearest_collector_road_speed_limit,
-    CASE
-        WHEN
-            f1.prox_nearest_collector_road_surface_type IS NOT NULL
-            THEN f1.prox_nearest_collector_road_surface_type
-        WHEN
-            f1.prox_nearest_collector_road_surface_type IS NULL
-            THEN nn1.prox_nearest_collector_road_surface_type
-        WHEN
-            nn1.prox_nearest_collector_road_surface_type IS NULL
-            THEN nn2.prox_nearest_collector_road_surface_type
-    END AS prox_nearest_collector_road_surface_type,
     f1.prox_nearest_golf_course_dist_ft,
     f1.prox_nearest_grocery_store_dist_ft,
-    CASE
-        WHEN
-            f1.prox_nearest_highway_road_daily_traffic IS NOT NULL
-            THEN f1.prox_nearest_highway_road_daily_traffic
-        WHEN
-            f1.prox_nearest_highway_road_daily_traffic IS NULL
-            THEN nn1.prox_nearest_highway_road_daily_traffic
-        WHEN
-            nn1.prox_nearest_highway_road_daily_traffic IS NULL
-            THEN nn2.prox_nearest_highway_road_daily_traffic
-    END AS prox_nearest_highway_road_daily_traffic,
-    CASE
-        WHEN
-            f1.prox_nearest_highway_road_dist_ft IS NOT NULL
-            THEN f1.prox_nearest_highway_road_dist_ft
-        WHEN
-            f1.prox_nearest_highway_road_dist_ft IS NULL
-            THEN nn1.prox_nearest_highway_road_dist_ft
-        WHEN
-            nn1.prox_nearest_highway_road_dist_ft IS NULL
-            THEN nn2.prox_nearest_highway_road_dist_ft
-    END AS prox_nearest_highway_road_dist_ft,
-    CASE
-        WHEN
-            f1.prox_nearest_highway_road_lanes IS NOT NULL
-            THEN f1.prox_nearest_highway_road_lanes
-        WHEN
-            f1.prox_nearest_highway_road_lanes IS NULL
-            THEN nn1.prox_nearest_highway_road_lanes
-        WHEN
-            nn1.prox_nearest_highway_road_lanes IS NULL
-            THEN nn2.prox_nearest_highway_road_lanes
-    END AS prox_nearest_highway_road_lanes,
-    CASE
-        WHEN
-            f1.prox_nearest_highway_road_speed_limit IS NOT NULL
-            THEN f1.prox_nearest_highway_road_speed_limit
-        WHEN
-            f1.prox_nearest_highway_road_speed_limit IS NULL
-            THEN nn1.prox_nearest_highway_road_speed_limit
-        WHEN
-            nn1.prox_nearest_highway_road_speed_limit IS NULL
-            THEN nn2.prox_nearest_highway_road_speed_limit
-    END AS prox_nearest_highway_road_speed_limit,
-    CASE
-        WHEN
-            f1.prox_nearest_highway_road_surface_type IS NOT NULL
-            THEN f1.prox_nearest_highway_road_surface_type
-        WHEN
-            f1.prox_nearest_highway_road_surface_type IS NULL
-            THEN nn1.prox_nearest_highway_road_surface_type
-        WHEN
-            nn1.prox_nearest_highway_road_surface_type IS NULL
-            THEN nn2.prox_nearest_highway_road_surface_type
-    END AS prox_nearest_highway_road_surface_type,
     CASE
         WHEN
             f1.prox_nearest_hospital_dist_ft IS NOT NULL
@@ -687,6 +522,171 @@ SELECT
             nn1.prox_nearest_railroad_dist_ft IS NULL
             THEN nn2.prox_nearest_railroad_dist_ft
     END AS prox_nearest_railroad_dist_ft,
+    CASE
+        WHEN
+            f1.prox_nearest_road_arterial_daily_traffic IS NOT NULL
+            THEN f1.prox_nearest_road_arterial_daily_traffic
+        WHEN
+            f1.prox_nearest_road_arterial_daily_traffic IS NULL
+            THEN nn1.prox_nearest_road_arterial_daily_traffic
+        WHEN
+            nn1.prox_nearest_road_arterial_daily_traffic IS NULL
+            THEN nn2.prox_nearest_road_arterial_daily_traffic
+    END AS prox_nearest_road_arterial_daily_traffic,
+    CASE
+        WHEN
+            f1.prox_nearest_road_arterial_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_road_arterial_dist_ft
+        WHEN
+            f1.prox_nearest_road_arterial_dist_ft IS NULL
+            THEN nn1.prox_nearest_road_arterial_dist_ft
+        WHEN
+            nn1.prox_nearest_road_arterial_dist_ft IS NULL
+            THEN nn2.prox_nearest_road_arterial_dist_ft
+    END AS prox_nearest_road_arterial_dist_ft,
+    CASE
+        WHEN
+            f1.prox_nearest_road_arterial_lanes IS NOT NULL
+            THEN f1.prox_nearest_road_arterial_lanes
+        WHEN
+            f1.prox_nearest_road_arterial_lanes IS NULL
+            THEN nn1.prox_nearest_road_arterial_lanes
+        WHEN
+            nn1.prox_nearest_road_arterial_lanes IS NULL
+            THEN nn2.prox_nearest_road_arterial_lanes
+    END AS prox_nearest_road_arterial_lanes,
+    CASE
+        WHEN
+            f1.prox_nearest_road_arterial_speed_limit IS NOT NULL
+            THEN f1.prox_nearest_road_arterial_speed_limit
+        WHEN
+            f1.prox_nearest_road_arterial_speed_limit IS NULL
+            THEN nn1.prox_nearest_road_arterial_speed_limit
+        WHEN
+            nn1.prox_nearest_road_arterial_speed_limit IS NULL
+            THEN nn2.prox_nearest_road_arterial_speed_limit
+    END AS prox_nearest_road_arterial_speed_limit,
+    CASE
+        WHEN
+            f1.prox_nearest_road_arterial_surface_type IS NOT NULL
+            THEN f1.prox_nearest_road_arterial_surface_type
+        WHEN
+            f1.prox_nearest_road_arterial_surface_type IS NULL
+            THEN nn1.prox_nearest_road_arterial_surface_type
+        WHEN
+            nn1.prox_nearest_road_arterial_surface_type IS NULL
+            THEN nn2.prox_nearest_road_arterial_surface_type
+    END AS prox_nearest_road_arterial_surface_type,
+    CASE
+        WHEN
+            f1.prox_nearest_road_collector_daily_traffic IS NOT NULL
+            THEN f1.prox_nearest_road_collector_daily_traffic
+        WHEN
+            f1.prox_nearest_road_collector_daily_traffic IS NULL
+            THEN nn1.prox_nearest_road_collector_daily_traffic
+        WHEN
+            nn1.prox_nearest_road_collector_daily_traffic IS NULL
+            THEN nn2.prox_nearest_road_collector_daily_traffic
+    END AS prox_nearest_road_collector_daily_traffic,
+    CASE
+        WHEN
+            f1.prox_nearest_road_collector_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_road_collector_dist_ft
+        WHEN
+            f1.prox_nearest_road_collector_dist_ft IS NULL
+            THEN nn1.prox_nearest_road_collector_dist_ft
+        WHEN
+            nn1.prox_nearest_road_collector_dist_ft IS NULL
+            THEN nn2.prox_nearest_road_collector_dist_ft
+    END AS prox_nearest_road_collector_dist_ft,
+    CASE
+        WHEN
+            f1.prox_nearest_road_collector_lanes IS NOT NULL
+            THEN f1.prox_nearest_road_collector_lanes
+        WHEN
+            f1.prox_nearest_road_collector_lanes IS NULL
+            THEN nn1.prox_nearest_road_collector_lanes
+        WHEN
+            nn1.prox_nearest_road_collector_lanes IS NULL
+            THEN nn2.prox_nearest_road_collector_lanes
+    END AS prox_nearest_road_collector_lanes,
+    CASE
+        WHEN
+            f1.prox_nearest_road_collector_speed_limit IS NOT NULL
+            THEN f1.prox_nearest_road_collector_speed_limit
+        WHEN
+            f1.prox_nearest_road_collector_speed_limit IS NULL
+            THEN nn1.prox_nearest_road_collector_speed_limit
+        WHEN
+            nn1.prox_nearest_road_collector_speed_limit IS NULL
+            THEN nn2.prox_nearest_road_collector_speed_limit
+    END AS prox_nearest_road_collector_speed_limit,
+    CASE
+        WHEN
+            f1.prox_nearest_road_collector_surface_type IS NOT NULL
+            THEN f1.prox_nearest_road_collector_surface_type
+        WHEN
+            f1.prox_nearest_road_collector_surface_type IS NULL
+            THEN nn1.prox_nearest_road_collector_surface_type
+        WHEN
+            nn1.prox_nearest_road_collector_surface_type IS NULL
+            THEN nn2.prox_nearest_road_collector_surface_type
+    END AS prox_nearest_road_collector_surface_type,
+    CASE
+        WHEN
+            f1.prox_nearest_road_highway_daily_traffic IS NOT NULL
+            THEN f1.prox_nearest_road_highway_daily_traffic
+        WHEN
+            f1.prox_nearest_road_highway_daily_traffic IS NULL
+            THEN nn1.prox_nearest_road_highway_daily_traffic
+        WHEN
+            nn1.prox_nearest_road_highway_daily_traffic IS NULL
+            THEN nn2.prox_nearest_road_highway_daily_traffic
+    END AS prox_nearest_road_highway_daily_traffic,
+    CASE
+        WHEN
+            f1.prox_nearest_road_highway_dist_ft IS NOT NULL
+            THEN f1.prox_nearest_road_highway_dist_ft
+        WHEN
+            f1.prox_nearest_road_highway_dist_ft IS NULL
+            THEN nn1.prox_nearest_road_highway_dist_ft
+        WHEN
+            nn1.prox_nearest_road_highway_dist_ft IS NULL
+            THEN nn2.prox_nearest_road_highway_dist_ft
+    END AS prox_nearest_road_highway_dist_ft,
+    CASE
+        WHEN
+            f1.prox_nearest_road_highway_lanes IS NOT NULL
+            THEN f1.prox_nearest_road_highway_lanes
+        WHEN
+            f1.prox_nearest_road_highway_lanes IS NULL
+            THEN nn1.prox_nearest_road_highway_lanes
+        WHEN
+            nn1.prox_nearest_road_highway_lanes IS NULL
+            THEN nn2.prox_nearest_road_highway_lanes
+    END AS prox_nearest_road_highway_lanes,
+    CASE
+        WHEN
+            f1.prox_nearest_road_highway_speed_limit IS NOT NULL
+            THEN f1.prox_nearest_road_highway_speed_limit
+        WHEN
+            f1.prox_nearest_road_highway_speed_limit IS NULL
+            THEN nn1.prox_nearest_road_highway_speed_limit
+        WHEN
+            nn1.prox_nearest_road_highway_speed_limit IS NULL
+            THEN nn2.prox_nearest_road_highway_speed_limit
+    END AS prox_nearest_road_highway_speed_limit,
+    CASE
+        WHEN
+            f1.prox_nearest_road_highway_surface_type IS NOT NULL
+            THEN f1.prox_nearest_road_highway_surface_type
+        WHEN
+            f1.prox_nearest_road_highway_surface_type IS NULL
+            THEN nn1.prox_nearest_road_highway_surface_type
+        WHEN
+            nn1.prox_nearest_road_highway_surface_type IS NULL
+            THEN nn2.prox_nearest_road_highway_surface_type
+    END AS prox_nearest_road_highway_surface_type,
     CASE
         WHEN
             f1.prox_nearest_secondary_road_dist_ft IS NOT NULL

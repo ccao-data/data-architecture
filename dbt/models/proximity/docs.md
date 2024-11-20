@@ -38,19 +38,6 @@ as a result of contributions from both airports plus baseline DNL of 50.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
-# dist_pin_to_arterial_road
-
-{% docs table_dist_pin_to_arterial_road %}
-Distance from each PIN to the nearest arterial road. Data is derived from Illinois Department of Transportation
-	Added features include 
-	- lanes
-	- average daily traffic
-	- speed limit
-	- road surface
-
-**Primary Key**: `pin10`, `year`
-{% enddocs %}
-
 # dist_pin_to_bike_trail
 
 {% docs table_dist_pin_to_bike_trail %}
@@ -63,19 +50,6 @@ Distance from each PIN to the nearest bike trail.
 
 {% docs table_dist_pin_to_cemetery %}
 Distance from each PIN to the nearest cemetery.
-
-**Primary Key**: `pin10`, `year`
-{% enddocs %}
-
-# dist_pin_to_collector_road
-
-{% docs table_dist_pin_to_collector_road %}
-Distance from each PIN to the nearest collector road. Data is derived from Illinois Department of Transportation
-	Added features include 
-	- lanes
-	- average daily traffic
-	- speed limit
-	- road surface
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
@@ -123,19 +97,6 @@ Distance from each PIN to the nearest grocery store. Locations sourced from Open
 	- `shop=greengrocer`
 	  
 	Only attributes with valid names are kept.
-
-**Primary Key**: `pin10`, `year`
-{% enddocs %}
-
-# dist_pin_to_highway_road
-
-{% docs table_dist_pin_to_highway_road %}
-Distance from each PIN to the nearest highway. Data is derived from Illinois Department of Transportation
-	Added features include 
-	- lanes
-	- average daily traffic
-	- speed limit
-	- road surface
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
@@ -240,6 +201,46 @@ Distance from each PIN to the nearest rail track of any kind.
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
+
+# dist_pin_to_road_arterial
+
+{% docs table_dist_pin_to_road_arterial %}
+Distance from each PIN to the nearest arterial road. Data is derived from Illinois Department of Transportation
+	Added features include 
+	- lanes
+	- average daily traffic
+	- speed limit
+	- road surface
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
+# dist_pin_to_road_collector
+
+{% docs table_dist_pin_to_road_collector %}
+Distance from each PIN to the nearest collector road. Data is derived from Illinois Department of Transportation
+	Added features include 
+	- lanes
+	- average daily traffic
+	- speed limit
+	- road surface
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
+# dist_pin_to_road_highway
+
+{% docs table_dist_pin_to_road_highway %}
+Distance from each PIN to the nearest highway. Data is derived from Illinois Department of Transportation
+	Added features include 
+	- lanes
+	- average daily traffic
+	- speed limit
+	- road surface
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
 
 # dist_pin_to_secondary_road
 
