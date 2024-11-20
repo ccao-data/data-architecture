@@ -279,7 +279,9 @@ def report_summarise(df, geography_id, geography_type):
             lambda x: pd.DataFrame(
                 [
                     {
-                        **dict(zip(group_cols, x[group_cols])),
+                        **dict(
+                            zip(group_cols, [x[c].iloc[0] for c in group_cols])
+                        ),
                         "sale_n": x["triad"].size,
                         **dict(
                             zip(
