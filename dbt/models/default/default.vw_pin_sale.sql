@@ -226,7 +226,10 @@ mydec_sales AS (
                 + COALESCE(line_10k, 0)
             ) > 0 AS sale_filter_ptax_flag,
             COUNT() OVER (
-                PARTITION BY line_1_primary_pin, line_4_instrument_date
+                PARTITION BY
+                    line_1_primary_pin,
+                    line_4_instrument_date,
+                    line_2_total_parcels
             ) AS num_single_day_sales,
             year_of_sale AS year
         FROM {{ source('sale', 'mydec') }}
@@ -235,7 +238,7 @@ mydec_sales AS (
     /* Some sales in mydec have multiple rows for one pin on a given sale date.
     Sometimes they have different dates than iasworld prior to 2021 and when
     joined back onto unique_sales will create duplicates by pin/sale date. */
-    WHERE num_single_day_sales = 1
+    WHERE (num_single_day_sales = 1 OR is_multisale)
         OR year > '2020'
 ),
 
@@ -357,7 +360,7 @@ combined_sales AS (
         AND COALESCE(uq_sales.year, md_sales.year) = tc.taxyr
 ),
 
--- Handle various filters 
+-- Handle various filters
 add_filter_sales AS (
     SELECT
         cs.*,
@@ -454,4 +457,3 @@ SELECT
 FROM add_filter_sales AS afs
 LEFT JOIN sales_val
     ON afs.doc_no_coalesced = sales_val.meta_sale_document_num;
-
