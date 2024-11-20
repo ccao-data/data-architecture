@@ -198,7 +198,7 @@ WITH unfilled AS (
     LEFT JOIN (
         SELECT DISTINCT
             year,
-            nearest_highway_road_data_year
+            nearest_road_highway_data_year
         FROM {{ ref('proximity.dist_pin_to_road_highway' ) }}
     ) AS dist_pin_to_road_highway ON pin.year = dist_pin_to_road_highway.year
     LEFT JOIN (
