@@ -9,7 +9,7 @@
 
 WITH collector AS (  -- noqa: ST03
     SELECT *
-    FROM {{ source('spatial', 'traffic') }}
+    FROM {{ source('spatial', 'roads') }}
     WHERE road_type = 'Major Collector'
         OR road_type = 'Minor Collector'
 )
