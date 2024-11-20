@@ -14,17 +14,11 @@ models:
   - name: proximity.dist_pin_to_airport
     description: '{{ doc("table_dist_pin_to_airport") }}'
 
-  - name: proximity.dist_pin_to_arterial_road
-    description: '{{ doc("table_dist_pin_to_arterial_road") }}'
-
   - name: proximity.dist_pin_to_bike_trail
     description: '{{ doc("table_dist_pin_to_bike_trail") }}'
 
   - name: proximity.dist_pin_to_cemetery
     description: '{{ doc("table_dist_pin_to_cemetery") }}'
-
-  - name: proximity.dist_pin_to_collector_road
-    description: '{{ doc("table_dist_pin_to_collector_road") }}'
 
   - name: proximity.dist_pin_to_cta_route
     description: '{{ doc("table_dist_pin_to_cta_route") }}'
@@ -34,9 +28,6 @@ models:
 
   - name: proximity.dist_pin_to_golf_course
     description: '{{ doc("table_dist_pin_to_golf_course") }}'
-
-  - name: proximity.dist_pin_to_highway_road
-    description: '{{ doc("table_dist_pin_to_highway_road") }}'
 
   - name: proximity.dist_pin_to_hospital
     description: '{{ doc("table_dist_pin_to_hospital") }}'
@@ -76,6 +67,15 @@ models:
 
   - name: proximity.dist_pin_to_railroad
     description: '{{ doc("table_dist_pin_to_railroad") }}'
+
+  - name: proximity.dist_pin_to_road_arterial
+    description: '{{ doc("table_dist_pin_to_road_arterial") }}'
+  
+  - name: proximity.dist_pin_to_road_collector
+    description: '{{ doc("table_dist_pin_to_road_collector") }}'
+
+  - name: proximity.dist_pin_to_road_highway
+    description: '{{ doc("table_dist_pin_to_road_highway") }}'
 
   - name: proximity.dist_pin_to_secondary_road
     description: '{{ doc("table_dist_pin_to_secondary_road") }}'

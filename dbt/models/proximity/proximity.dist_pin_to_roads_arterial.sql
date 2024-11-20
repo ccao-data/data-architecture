@@ -16,13 +16,13 @@ WITH arterial AS (  -- noqa: ST03
 
 SELECT
     pcl.pin10,
-    ARBITRARY(xy.road_name) AS nearest_arterial_road_name,
-    ARBITRARY(xy.dist_ft) AS nearest_arterial_road_dist_ft,
-    ARBITRARY(xy.daily_traffic) AS nearest_arterial_road_daily_traffic,
-    ARBITRARY(xy.speed_limit) AS nearest_arterial_road_speed_limit,
-    ARBITRARY(xy.surface_type) AS nearest_arterial_road_surface_type,
-    ARBITRARY(xy.lanes) AS nearest_arterial_road_lanes,
-    ARBITRARY(xy.year) AS nearest_arterial_road_data_year,
+    ARBITRARY(xy.road_name) AS nearest_road_arterial_name,
+    ARBITRARY(xy.dist_ft) AS nearest_road_arterial_dist_ft,
+    ARBITRARY(xy.daily_traffic) AS nearest_road_arterial_daily_traffic,
+    ARBITRARY(xy.speed_limit) AS nearest_road_arterial_speed_limit,
+    ARBITRARY(xy.surface_type) AS nearest_road_arterial_surface_type,
+    ARBITRARY(xy.lanes) AS nearest_road_arterial_lanes,
+    ARBITRARY(xy.year) AS nearest_road_arterial_data_year,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN ( {{ dist_to_nearest_geometry('arterial') }} ) AS xy
