@@ -237,10 +237,10 @@ walk(parquet_files, \(file_key) {
         left_join(averages, by = c("polygon_id" = "polygon_1")) %>%
         mutate(
           daily_traffic = if_else(is.na(daily_traffic), average_daily_traffic,
-            daily_traffic
+                                  daily_traffic
           ),
           speed_limit = if_else(is.na(speed_limit), average_speed_limit,
-            speed_limit
+                                speed_limit
           ),
           lanes = if_else(is.na(lanes), average_lanes, lanes)
         ) %>%
@@ -288,9 +288,9 @@ walk(parquet_files, \(file_key) {
         -c(geometry, geometry_3435),
         ~ ifelse(is.nan(.), NA, .)
       )) %>%
-      relocate(year, .after = last_col())
+      select(-year)
 
-    output_path <- file.path(output_bucket, basename(file_key))
+    output_path <- file.path(output_bucket, paste0("year=", tools::file_path_sans_ext(basename(file_key))), "part-0.parquet")
     geoarrow::write_geoparquet(shapefile_data, output_path)
 
     print(paste(file_key, "cleaned and uploaded."))
