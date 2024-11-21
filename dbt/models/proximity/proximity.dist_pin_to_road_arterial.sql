@@ -9,7 +9,7 @@
 
 WITH arterial AS (  -- noqa: ST03
     SELECT *
-    FROM {{ source('spatial', 'roads') }}
+    FROM {{ source('spatial', 'road') }}
     WHERE road_type = 'Minor Arterial'
         OR road_type = 'Other Principal Arterial'
 )

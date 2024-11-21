@@ -141,8 +141,8 @@ sources:
       - name: railroad
         description: '{{ doc("table_railroad") }}'
 
-      - name: roads
-        description: '{{ doc("table_roads") }}'
+      - name: road
+        description: '{{ doc("table_road") }}'
 
       - name: sanitation_district
         description: '{{ doc("table_sanitation_district") }}'
