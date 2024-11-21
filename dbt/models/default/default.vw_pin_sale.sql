@@ -225,6 +225,10 @@ mydec_sales AS (
                 + COALESCE(line_10h, 0) + COALESCE(line_10i, 0)
                 + COALESCE(line_10k, 0)
             ) > 0 AS sale_filter_ptax_flag,
+            /* We partition by line_2_total_parcels as well as pin and date here
+            since we historically excluded multisales from construction of mydec
+            sales sample. Here we can let in mydec multisales, but not let them
+            count towards the number of sales a pin has per day. */
             COUNT() OVER (
                 PARTITION BY
                     line_1_primary_pin,
