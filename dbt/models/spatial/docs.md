@@ -391,9 +391,9 @@ Rail locations sourced from Cook County GIS.
 **Geometry:** `MULTILINESTRING`
 {% enddocs %}
 
-# roads
+# road
 
-{% docs table_roads %}
+{% docs table_road %}
 
 Illinois Department of Transportation data source from
 [https://apps1.dot.illinois.gov/gist2/](https://apps1.dot.illinois.gov/gist2/).
