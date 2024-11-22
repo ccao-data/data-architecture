@@ -359,6 +359,8 @@ combined_sales AS (
     FULL OUTER JOIN mydec_sales AS md_sales
         ON uq_sales.doc_no = md_sales.doc_no
         AND md_sales.is_multisale = FALSE
+    -- This is an inner join because there seem to be some sales in mydec
+    -- that don't have a corresponding taxyr entry in pardat
     INNER JOIN town_class AS tc
         ON COALESCE(uq_sales.pin, md_sales.pin) = tc.parid
         AND COALESCE(uq_sales.year, md_sales.year) = tc.taxyr
