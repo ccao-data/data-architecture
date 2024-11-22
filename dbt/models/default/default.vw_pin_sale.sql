@@ -359,7 +359,7 @@ combined_sales AS (
     FULL OUTER JOIN mydec_sales AS md_sales
         ON uq_sales.doc_no = md_sales.doc_no
         AND md_sales.is_multisale = FALSE
-    LEFT JOIN town_class AS tc
+    INNER JOIN town_class AS tc
         ON COALESCE(uq_sales.pin, md_sales.pin) = tc.parid
         AND COALESCE(uq_sales.year, md_sales.year) = tc.taxyr
 ),
