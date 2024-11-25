@@ -206,21 +206,23 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
 
 def model(dbt, spark_session):
     dbt.config(materialized="table", engine_config={"MaxConcurrentDpus": 40})
+    athena_user_logger.info("Loading ratio stats input table")
 
     input = dbt.ref("reporting.ratio_stats_input")
     input = input.filter(input.ratio.isNotNull()).filter(input.ratio > 0)
 
+    athena_user_logger.info("Calculating triad-level statistics")
     df_tri = calc_summary(input, "triad", "Tri")
+
+    athena_user_logger.info("Calculating township-level statistics")
     df_town = calc_summary(input, "township_code", "Town")
     df = df_tri.unionByName(df_town)
 
     # Force certain column types to maintain parity with old version
+    athena_user_logger.info("Cleaning up and arranging columns")
     df = df.withColumn("year", col("year").cast("int"))
     df = df.withColumn("triad", col("triad").cast("int"))
     df = df.withColumn("sale_year", col("sale_year").cast("int"))
-    athena_user_logger.info("Pre-column arrange")
-
-    # Arrange output columns
     df = df.select(
         col("year"),
         col("triad"),
