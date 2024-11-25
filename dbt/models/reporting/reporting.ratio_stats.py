@@ -2,6 +2,8 @@
 # type: ignore
 sc.addPyFile("s3://ccao-athena-dependencies-us-east-1/assesspy==2.0.0.zip")
 
+from typing import Union
+
 import assesspy as ap
 import pandas as pd
 from pyspark.sql.functions import col, lit
@@ -12,8 +14,8 @@ CCAO_MIN_SAMPLE_SIZE = 0.95
 
 
 def ccao_drop_outliers(
-    estimate: list[int] | list[float] | pd.Series,
-    sale_price: list[int] | list[float] | pd.Series,
+    estimate: Union[list[int], list[float], pd.Series],
+    sale_price: Union[list[int], list[float], pd.Series],
 ) -> tuple[pd.Series, pd.Series, float]:
     """
     Helper function to drop the top and bottom N% (usually 5%) of the input
@@ -35,9 +37,9 @@ def ccao_drop_outliers(
 
 def ccao_metric(
     fun: callable,
-    estimate: list[int] | list[float] | pd.Series,
-    sale_price: list[int] | list[float] | pd.Series,
-) -> list[float | None]:
+    estimate: Union[list[int], list[float], pd.Series],
+    sale_price: Union[list[int], list[float], pd.Series],
+) -> list[Union[float, None]]:
     """
     Helper function to calculate a metric, its confidence interval, and
     whether the metric meets the IAAO/Quintos standard. Also checks if the
@@ -63,8 +65,8 @@ def ccao_metric(
 
 
 def ccao_median(
-    estimate: list[int] | list[float] | pd.Series,
-    sale_price: list[int] | list[float] | pd.Series,
+    estimate: Union[list[int], list[float], pd.Series],
+    sale_price: Union[list[int], list[float], pd.Series],
 ) -> list[float]:
     """
     Calculates the median ratio of estimate to sale price, excluding outliers.
