@@ -9,8 +9,8 @@ import pandas as pd
 from pyspark.sql.functions import col, lit
 
 CCAO_LOWER_QUANTILE = 0.05
-CCAO_UPPER_QUANTILE = 0.05
-CCAO_MIN_SAMPLE_SIZE = 0.95
+CCAO_UPPER_QUANTILE = 0.95
+CCAO_MIN_SAMPLE_SIZE = 20.0
 
 
 def ccao_drop_outliers(
