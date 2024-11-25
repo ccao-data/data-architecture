@@ -70,7 +70,7 @@ def ccao_median(
 ) -> list[float]:
     """
     Calculates the median ratio of estimate to sale price, excluding outliers.
-    Ignores the CCAO minimum sample size requirement.
+    Ignores the CCAO minimum sample size requirement (only needs 2 values).
     """
     est_no_out, sale_no_out, n = ccao_drop_outliers(estimate, sale_price)
 
@@ -78,11 +78,15 @@ def ccao_median(
         ratio = estimate / sale_price
         return ratio.median()
 
-    val = median_val(est_no_out, sale_no_out)
-    ci_l, ci_u = ap.boot_ci(
-        median_val, estimate=est_no_out, sale_price=sale_no_out
-    )
-    out = [val, ci_l, ci_u, n]
+    if n >= 2:
+        val = median_val(est_no_out, sale_no_out)
+        ci_l, ci_u = ap.boot_ci(
+            median_val, estimate=est_no_out, sale_price=sale_no_out
+        )
+        out = [val, ci_l, ci_u, n]
+    else:
+        val = median_val(est_no_out, sale_no_out)
+        out = [val, None, None, n]
 
     return out
 
