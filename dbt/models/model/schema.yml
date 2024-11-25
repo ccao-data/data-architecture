@@ -432,6 +432,51 @@ models:
       - &prox_nearest_railroad_dist_ft
         name: prox_nearest_railroad_dist_ft
         description: '{{ doc("column_nearest_railroad_dist_ft") }}'
+      - &prox_nearest_road_arterial_daily_traffic
+        name: prox_nearest_road_arterial_daily_traffic
+        description: '{{ doc("column_nearest_road_arterial_daily_traffic") }}'
+      - &prox_nearest_road_arterial_dist_ft
+        name: prox_nearest_road_arterial_dist_ft
+        description: '{{ doc("column_nearest_road_arterial_dist_ft") }}'
+      - &prox_nearest_road_arterial_lanes
+        name: prox_nearest_road_arterial_lanes
+        description: '{{ doc("column_nearest_road_arterial_lanes") }}'
+      - &prox_nearest_road_arterial_speed_limit
+        name: prox_nearest_road_arterial_speed_limit
+        description: '{{ doc("column_nearest_road_arterial_speed_limit") }}'
+      - &prox_nearest_road_arterial_surface_type
+        name: prox_nearest_road_arterial_surface_type
+        description: '{{ doc("column_nearest_road_arterial_surface_type") }}'
+      - &prox_nearest_road_collector_daily_traffic
+        name: prox_nearest_road_collector_daily_traffic
+        description: '{{ doc("column_nearest_road_collector_daily_traffic") }}'
+      - &prox_nearest_road_collector_dist_ft
+        name: prox_nearest_road_collector_dist_ft
+        description: '{{ doc("column_nearest_road_collector_dist_ft") }}'
+      - &prox_nearest_road_collector_lanes
+        name: prox_nearest_road_collector_lanes
+        description: '{{ doc("column_nearest_road_collector_lanes") }}'
+      - &prox_nearest_road_collector_speed_limit
+        name: prox_nearest_road_collector_speed_limit
+        description: '{{ doc("column_nearest_road_collector_speed_limit") }}'
+      - &prox_nearest_road_collector_surface_type
+        name: prox_nearest_road_collector_surface_type
+        description: '{{ doc("column_nearest_road_collector_surface_type") }}'
+      - &prox_nearest_road_highway_daily_traffic
+        name: prox_nearest_road_highway_daily_traffic
+        description: '{{ doc("column_nearest_road_highway_daily_traffic") }}'
+      - &prox_nearest_road_highway_dist_ft
+        name: prox_nearest_road_highway_dist_ft
+        description: '{{ doc("column_nearest_road_highway_dist_ft") }}'
+      - &prox_nearest_road_highway_lanes
+        name: prox_nearest_road_highway_lanes
+        description: '{{ doc("column_nearest_road_highway_lanes") }}'
+      - &prox_nearest_road_highway_speed_limit
+        name: prox_nearest_road_highway_speed_limit
+        description: '{{ doc("column_nearest_road_highway_speed_limit") }}'
+      - &prox_nearest_road_highway_surface_type
+        name: prox_nearest_road_highway_surface_type
+        description: '{{ doc("column_nearest_road_highway_surface_type") }}'
       - &prox_nearest_secondary_road_dist_ft
         name: prox_nearest_secondary_road_dist_ft
         description: '{{ doc("column_nearest_secondary_road_dist_ft") }}'
@@ -597,6 +642,21 @@ models:
       - *prox_nearest_new_construction_dist_ft
       - *prox_nearest_park_dist_ft
       - *prox_nearest_railroad_dist_ft
+      - *prox_nearest_road_arterial_daily_traffic
+      - *prox_nearest_road_arterial_dist_ft
+      - *prox_nearest_road_arterial_lanes
+      - *prox_nearest_road_arterial_speed_limit
+      - *prox_nearest_road_arterial_surface_type
+      - *prox_nearest_road_collector_daily_traffic
+      - *prox_nearest_road_collector_dist_ft
+      - *prox_nearest_road_collector_lanes
+      - *prox_nearest_road_collector_speed_limit
+      - *prox_nearest_road_collector_surface_type
+      - *prox_nearest_road_highway_daily_traffic
+      - *prox_nearest_road_highway_dist_ft
+      - *prox_nearest_road_highway_lanes
+      - *prox_nearest_road_highway_speed_limit
+      - *prox_nearest_road_highway_surface_type
       - *prox_nearest_secondary_road_dist_ft
       - *prox_nearest_stadium_dist_ft
       - *prox_nearest_university_dist_ft
@@ -856,6 +916,21 @@ models:
       - *nearest_neighbor_3_pin10
       - *prox_nearest_park_dist_ft
       - *prox_nearest_railroad_dist_ft
+      - *prox_nearest_road_arterial_dist_ft
+      - *prox_nearest_road_arterial_daily_traffic
+      - *prox_nearest_road_arterial_lanes
+      - *prox_nearest_road_arterial_speed_limit
+      - *prox_nearest_road_arterial_surface_type
+      - *prox_nearest_road_collector_dist_ft
+      - *prox_nearest_road_collector_daily_traffic
+      - *prox_nearest_road_collector_lanes
+      - *prox_nearest_road_collector_speed_limit
+      - *prox_nearest_road_collector_surface_type
+      - *prox_nearest_road_highway_daily_traffic
+      - *prox_nearest_road_highway_dist_ft
+      - *prox_nearest_road_highway_lanes
+      - *prox_nearest_road_highway_speed_limit
+      - *prox_nearest_road_highway_surface_type
       - *prox_nearest_secondary_road_dist_ft
       - *prox_nearest_stadium_dist_ft
       - *prox_nearest_university_dist_ft

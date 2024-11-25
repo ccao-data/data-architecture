@@ -8,7 +8,7 @@ library(stringr)
 # Define the S3 bucket and folder path
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-s3_folder <- "spatial/environment/traffic"
+s3_folder <- "spatial/environment/road"
 output_bucket <- sub("/$", "", file.path(AWS_S3_WAREHOUSE_BUCKET, s3_folder))
 
 # Re-coding of road type
@@ -288,9 +288,9 @@ walk(parquet_files, \(file_key) {
         -c(geometry, geometry_3435),
         ~ ifelse(is.nan(.), NA, .)
       )) %>%
-      relocate(year, .after = last_col())
+      select(-year)
 
-    output_path <- file.path(output_bucket, basename(file_key))
+    output_path <- file.path(output_bucket, paste0("year=", tools::file_path_sans_ext(basename(file_key))), "part-0.parquet")
     geoarrow::write_geoparquet(shapefile_data, output_path)
 
     print(paste(file_key, "cleaned and uploaded."))
