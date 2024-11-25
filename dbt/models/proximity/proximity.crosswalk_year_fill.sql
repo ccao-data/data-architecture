@@ -50,6 +50,12 @@ WITH unfilled AS (
             AS nearest_park_data_year,
         MAX(dist_pin_to_railroad.nearest_railroad_data_year)
             AS nearest_railroad_data_year,
+        MAX(dist_pin_to_road_arterial.nearest_road_arterial_data_year)
+            AS nearest_road_arterial_data_year,
+        MAX(dist_pin_to_road_collector.nearest_road_collector_data_year)
+            AS nearest_road_collector_data_year,
+        MAX(dist_pin_to_road_highway.nearest_road_highway_data_year)
+            AS nearest_road_highway_data_year,
         MAX(dist_pin_to_secondary_road.nearest_secondary_road_data_year)
             AS nearest_secondary_road_data_year,
         MAX(dist_pin_to_stadium.nearest_stadium_data_year)
@@ -176,6 +182,25 @@ WITH unfilled AS (
             nearest_railroad_data_year
         FROM {{ ref('proximity.dist_pin_to_railroad') }}
     ) AS dist_pin_to_railroad ON pin.year = dist_pin_to_railroad.year
+    LEFT JOIN (
+        SELECT DISTINCT
+            year,
+            nearest_road_arterial_data_year
+        FROM {{ ref('proximity.dist_pin_to_road_arterial' ) }}
+    ) AS dist_pin_to_road_arterial ON pin.year = dist_pin_to_road_arterial.year
+    LEFT JOIN (
+        SELECT DISTINCT
+            year,
+            nearest_road_collector_data_year
+        FROM {{ ref('proximity.dist_pin_to_road_collector' ) }}
+    ) AS dist_pin_to_road_collector
+        ON pin.year = dist_pin_to_road_collector.year
+    LEFT JOIN (
+        SELECT DISTINCT
+            year,
+            nearest_road_highway_data_year
+        FROM {{ ref('proximity.dist_pin_to_road_highway' ) }}
+    ) AS dist_pin_to_road_highway ON pin.year = dist_pin_to_road_highway.year
     LEFT JOIN (
         SELECT DISTINCT
             year,
@@ -324,6 +349,24 @@ SELECT
             IGNORE NULLS
             OVER (ORDER BY year DESC)
     ) AS nearest_railroad_data_year,
+    COALESCE(
+        nearest_road_arterial_data_year,
+        LAST_VALUE(nearest_road_arterial_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY year DESC)
+    ) AS nearest_road_arterial_data_year,
+    COALESCE(
+        nearest_road_collector_data_year,
+        LAST_VALUE(nearest_road_collector_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY year DESC)
+    ) AS nearest_road_collector_data_year,
+    COALESCE(
+        nearest_road_highway_data_year,
+        LAST_VALUE(nearest_road_highway_data_year)
+            IGNORE NULLS
+            OVER (ORDER BY year DESC)
+    ) AS nearest_road_highway_data_year,
     COALESCE(
         nearest_secondary_road_data_year,
         LAST_VALUE(nearest_secondary_road_data_year)

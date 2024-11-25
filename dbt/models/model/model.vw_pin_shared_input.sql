@@ -268,6 +268,30 @@ SELECT
         AS prox_nearest_new_construction_dist_ft,
     vwpf.nearest_park_dist_ft AS prox_nearest_park_dist_ft,
     vwpf.nearest_railroad_dist_ft AS prox_nearest_railroad_dist_ft,
+    vwpf.nearest_road_arterial_daily_traffic
+        AS prox_nearest_road_arterial_daily_traffic,
+    vwpf.nearest_road_arterial_dist_ft AS prox_nearest_road_arterial_dist_ft,
+    vwpf.nearest_road_arterial_lanes AS prox_nearest_road_arterial_lanes,
+    vwpf.nearest_road_arterial_speed_limit
+        AS prox_nearest_road_arterial_speed_limit,
+    vwpf.nearest_road_arterial_surface_type
+        AS prox_nearest_road_arterial_surface_type,
+    vwpf.nearest_road_collector_daily_traffic
+        AS prox_nearest_road_collector_daily_traffic,
+    vwpf.nearest_road_collector_dist_ft AS prox_nearest_road_collector_dist_ft,
+    vwpf.nearest_road_collector_lanes AS prox_nearest_road_collector_lanes,
+    vwpf.nearest_road_collector_speed_limit
+        AS prox_nearest_road_collector_speed_limit,
+    vwpf.nearest_road_collector_surface_type
+        AS prox_nearest_road_collector_surface_type,
+    vwpf.nearest_road_highway_daily_traffic
+        AS prox_nearest_road_highway_daily_traffic,
+    vwpf.nearest_road_highway_dist_ft AS prox_nearest_road_highway_dist_ft,
+    vwpf.nearest_road_highway_lanes AS prox_nearest_road_highway_lanes,
+    vwpf.nearest_road_highway_speed_limit
+        AS prox_nearest_road_highway_speed_limit,
+    vwpf.nearest_road_highway_surface_type
+        AS prox_nearest_road_highway_surface_type,
     vwpf.nearest_secondary_road_dist_ft AS prox_nearest_secondary_road_dist_ft,
     vwpf.nearest_stadium_dist_ft AS prox_nearest_stadium_dist_ft,
     vwpf.nearest_university_dist_ft AS prox_nearest_university_dist_ft,

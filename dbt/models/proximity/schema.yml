@@ -68,6 +68,15 @@ models:
   - name: proximity.dist_pin_to_railroad
     description: '{{ doc("table_dist_pin_to_railroad") }}'
 
+  - name: proximity.dist_pin_to_road_arterial
+    description: '{{ doc("table_dist_pin_to_road_arterial") }}'
+  
+  - name: proximity.dist_pin_to_road_collector
+    description: '{{ doc("table_dist_pin_to_road_collector") }}'
+
+  - name: proximity.dist_pin_to_road_highway
+    description: '{{ doc("table_dist_pin_to_road_highway") }}'
+
   - name: proximity.dist_pin_to_secondary_road
     description: '{{ doc("table_dist_pin_to_secondary_road") }}'
 

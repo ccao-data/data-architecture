@@ -3,15 +3,16 @@ selectors:
     description: Selector for running data tests on iasWorld tables
     definition:
       union:
-        - method: resource_type
-          value: test
-        - method: tag
-          value: data_test_iasworld
-          # Only run tests that exclusively reference selected nodes. Useful
-          # for avoiding an edge case where a test whose base model is not
-          # selected can run because it has an argument that references a model
-          # that _is_ selected.
-          indirect_selection: cautious
+        - intersection:
+          - method: resource_type
+            value: test
+          - method: tag
+            value: data_test_iasworld
+            # Only run tests that exclusively reference selected nodes. Useful
+            # for avoiding an edge case where a test whose base model is not
+            # selected can run because it has an argument that references a model
+            # that _is_ selected.
+            indirect_selection: cautious
         - exclude:
           - method: tag
             value: data_test_iasworld_exclude_from_workbook
