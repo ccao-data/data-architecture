@@ -60,7 +60,7 @@ Materialized once per day to speed up queries for Tableau.
 Input table for `reporting.res_report_summary` that produces the raw
 sales data that `res_report_summary` aggregates.
 
-We split these input data out into a separate table to speed up query time for
+We split these input data out into a separate table to reduce resource use in
 `res_report_summary`, since otherwise it needs to rerun the query logic
 for every possible geography and reporting group combination.
 
@@ -73,7 +73,7 @@ for every possible geography and reporting group combination.
 Input table for `reporting.res_report_summary` that produces the raw
 characteristic and value data that `res_report_summary` aggregates.
 
-We split these input data out into a separate table to speed up query time for
+We split these input data out into a separate table to reduce resource use in
 `res_report_summary`, since otherwise it needs to rerun the query logic
 for every possible geography and reporting group combination.
 
