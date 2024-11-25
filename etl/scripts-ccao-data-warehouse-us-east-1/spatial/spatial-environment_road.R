@@ -237,10 +237,10 @@ walk(parquet_files, \(file_key) {
         left_join(averages, by = c("polygon_id" = "polygon_1")) %>%
         mutate(
           daily_traffic = if_else(is.na(daily_traffic), average_daily_traffic,
-                                  daily_traffic
+            daily_traffic
           ),
           speed_limit = if_else(is.na(speed_limit), average_speed_limit,
-                                speed_limit
+            speed_limit
           ),
           lanes = if_else(is.na(lanes), average_lanes, lanes)
         ) %>%
