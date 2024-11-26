@@ -154,7 +154,9 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
                         **ccao_metric("mki", x["fmv"], x["sale_price"]),
                         "is_sales_chased": ap.is_sales_chased(
                             x["fmv"] / x["sale_price"]
-                        ),
+                        )
+                        if x["fmv"].size >= CCAO_MIN_SAMPLE_SIZE
+                        else None,
                         "within_20_pct": sum(abs(1 - x["ratio"]) <= 0.20),
                         "within_10_pct": sum(abs(1 - x["ratio"]) <= 0.10),
                         "within_05_pct": sum(abs(1 - x["ratio"]) <= 0.05),
