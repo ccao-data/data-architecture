@@ -95,10 +95,13 @@ def build_query(athena_asset, row_identifier, years=None, township=None):
         query = query
 
     elif years is not None and not township:
-        query += " WHERE year = %(year)s"
+        query += " WHERE year = %(year)s LIMIT 10000"
 
     elif years is not None and township is not None:
-        query += " WHERE year = %(year)s" + " AND township_code = %(township)s"
+        query += (
+            " WHERE year = %(year)s"
+            + " AND township_code = %(township)s LIMIT 10000"
+        )
 
     return query
 
