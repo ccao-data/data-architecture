@@ -12,6 +12,19 @@ CCAO_LOWER_QUANTILE = 0.05
 CCAO_UPPER_QUANTILE = 0.95
 CCAO_MIN_SAMPLE_SIZE = 20.0
 
+# The schema definition used within applyInPandas (where it is required) and
+# to determine the final column output
+SPARK_SCHEMA = (
+    "year string, triad string, geography_type string, property_group string, "
+    "assessment_stage string, geography_id string, sale_year string, sale_n bigint, "
+    "med_ratio double, med_ratio_ci_l double, med_ratio_ci_u double, med_ratio_n bigint, "
+    "cod double, cod_ci_l double, cod_ci_u double, cod_met boolean, cod_n bigint, "
+    "prd double, prd_ci_l double, prd_ci_u double, prd_met boolean, prd_n bigint, "
+    "prb double, prb_ci_l double, prb_ci_u double, prb_met boolean, prb_n bigint, "
+    "mki double, mki_ci_l double, mki_ci_u double, mki_met boolean, mki_n bigint, "
+    "within_20_pct bigint, within_10_pct bigint, within_05_pct bigint"
+)
+
 
 def ccao_drop_outliers(
     estimate: Union[list[int], list[float], pd.Series],
@@ -39,7 +52,7 @@ def ccao_metric(
     fun: callable,
     estimate: Union[list[int], list[float], pd.Series],
     sale_price: Union[list[int], list[float], pd.Series],
-) -> list[Union[float, None]]:
+) -> dict:
     """
     Helper function to calculate a metric, its confidence interval, and
     whether the metric meets the IAAO/Quintos standard. Also checks if the
@@ -61,13 +74,18 @@ def ccao_metric(
     else:
         out = [None, None, None, None, n]
 
-    return out
+    # Zip into a dictionary for use with the calc_summary function below
+    out_dict = dict(
+        zip([fun, f"{fun}_ci_l", f"{fun}_ci_u", f"{fun}_met", f"{fun}_n"], out)
+    )
+
+    return out_dict
 
 
 def ccao_median(
     estimate: Union[list[int], list[float], pd.Series],
     sale_price: Union[list[int], list[float], pd.Series],
-) -> list[float]:
+) -> dict:
     """
     Calculates the median ratio of estimate to sale price, excluding outliers.
     Ignores the CCAO minimum sample size requirement (only needs 2 values).
@@ -88,7 +106,14 @@ def ccao_median(
         val = median_val(est_no_out, sale_no_out)
         out = [val, None, None, n]
 
-    return out
+    out_dict = dict(
+        zip(
+            ["med_ratio", "med_ratio_ci_l", "med_ratio_ci_u", "med_ratio_n"],
+            out,
+        )
+    )
+
+    return out_dict
 
 
 def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
@@ -106,19 +131,6 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
         "sale_year",
     ]
 
-    # The applyInPandas function used below requires a pre-specified schema
-    schema = (
-        "year string, triad string, geography_type string, "
-        "property_group string, assessment_stage string, "
-        "geography_id string, sale_year string, sale_n bigint, "
-        "med_ratio double, med_ratio_ci_l double, med_ratio_ci_u double, med_ratio_n bigint, "
-        "cod double, cod_ci_l double, cod_ci_u double, cod_met boolean, cod_n bigint, "
-        "prd double, prd_ci_l double, prd_ci_u double, prd_met boolean, prd_n bigint, "
-        "prb double, prb_ci_l double, prb_ci_u double, prb_met boolean, prb_n bigint, "
-        "mki double, mki_ci_l double, mki_ci_u double, mki_met boolean, mki_n bigint, "
-        "within_20_pct bigint, within_10_pct bigint, within_05_pct bigint"
-    )
-
     out = (
         df.withColumn("geography_id", col(geography_id).cast("string"))
         .withColumn("geography_type", lit(geography_type))
@@ -132,72 +144,18 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
                             zip(group_cols, [x[c].iloc[0] for c in group_cols])
                         ),
                         "sale_n": x["triad"].size,
-                        **dict(
-                            zip(
-                                [
-                                    "med_ratio",
-                                    "med_ratio_ci_l",
-                                    "med_ratio_ci_u",
-                                    "med_ratio_n",
-                                ],
-                                ccao_median(x["fmv"], x["sale_price"]),
-                            )
-                        ),
-                        **dict(
-                            zip(
-                                [
-                                    "cod",
-                                    "cod_ci_l",
-                                    "cod_ci_u",
-                                    "cod_met",
-                                    "cod_n",
-                                ],
-                                ccao_metric("cod", x["fmv"], x["sale_price"]),
-                            )
-                        ),
-                        **dict(
-                            zip(
-                                [
-                                    "prd",
-                                    "prd_ci_l",
-                                    "prd_ci_u",
-                                    "prd_met",
-                                    "prd_n",
-                                ],
-                                ccao_metric("prd", x["fmv"], x["sale_price"]),
-                            )
-                        ),
-                        **dict(
-                            zip(
-                                [
-                                    "prb",
-                                    "prb_ci_l",
-                                    "prb_ci_u",
-                                    "prb_met",
-                                    "prb_n",
-                                ],
-                                ccao_metric("prb", x["fmv"], x["sale_price"]),
-                            )
-                        ),
-                        **dict(
-                            zip(
-                                [
-                                    "mki",
-                                    "mki_ci_l",
-                                    "mki_ci_u",
-                                    "mki_met",
-                                    "mki_n",
-                                ],
-                                ccao_metric("mki", x["fmv"], x["sale_price"]),
-                            )
-                        ),
+                        **ccao_median(x["fmv"], x["sale_price"]),
+                        **ccao_metric("cod", x["fmv"], x["sale_price"]),
+                        **ccao_metric("prd", x["fmv"], x["sale_price"]),
+                        **ccao_metric("prb", x["fmv"], x["sale_price"]),
+                        **ccao_metric("mki", x["fmv"], x["sale_price"]),
                         "within_20_pct": sum(abs(1 - x["ratio"]) <= 0.20),
                         "within_10_pct": sum(abs(1 - x["ratio"]) <= 0.10),
                         "within_05_pct": sum(abs(1 - x["ratio"]) <= 0.05),
                     }
                 ]
             ),
-            schema=schema,
+            schema=SPARK_SCHEMA,
         )
     )
 
@@ -211,52 +169,19 @@ def model(dbt, spark_session):
     input = dbt.ref("reporting.ratio_stats_input")
     input = input.filter(input.ratio.isNotNull()).filter(input.ratio > 0)
 
-    athena_user_logger.info("Calculating triad-level statistics")
+    athena_user_logger.info("Calculating group-level statistics")
     df_tri = calc_summary(input, "triad", "Tri")
-
-    athena_user_logger.info("Calculating township-level statistics")
     df_town = calc_summary(input, "township_code", "Town")
     df = df_tri.unionByName(df_town)
 
-    # Force certain column types to maintain parity with old version
+    def schema_to_spark_cols(schema: str):
+        columns = []
+        for col_def in schema.split(", "):
+            col_name = col_def.split(" ")[0]
+            columns.append(col(col_name))
+        return columns
+
     athena_user_logger.info("Cleaning up and arranging columns")
-    df = df.withColumn("year", col("year").cast("int"))
-    df = df.withColumn("triad", col("triad").cast("int"))
-    df = df.withColumn("sale_year", col("sale_year").cast("int"))
-    df = df.select(
-        col("year"),
-        col("triad"),
-        col("geography_type"),
-        col("property_group"),
-        col("assessment_stage"),
-        col("geography_id"),
-        col("sale_year"),
-        col("sale_n"),
-        col("med_ratio"),
-        col("med_ratio_ci_l"),
-        col("med_ratio_ci_u"),
-        col("med_ratio_n"),
-        col("cod"),
-        col("cod_ci_l"),
-        col("cod_ci_u"),
-        col("cod_met"),
-        col("cod_n"),
-        col("prd"),
-        col("prd_ci_l"),
-        col("prd_ci_u"),
-        col("prd_n"),
-        col("prd_met"),
-        col("prb"),
-        col("prb_ci_l"),
-        col("prb_ci_u"),
-        col("prb_met"),
-        col("prb_n"),
-        col("mki"),
-        col("mki_met"),
-        col("mki_n"),
-        col("within_20_pct"),
-        col("within_10_pct"),
-        col("within_05_pct"),
-    )
+    df = df.select(*schema_to_spark_cols(SPARK_SCHEMA))
 
     return df
