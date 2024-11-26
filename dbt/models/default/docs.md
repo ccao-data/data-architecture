@@ -147,25 +147,6 @@ Sourced from `iasworld.sales`, which is sourced from
 - Some parcels are sold for the exact same price soon after an initial sale -
   we ignore duplicate prices for PINs if they've sold in the last 12 months.
 
-# vw_pin_sale_combined
-
-{% docs view_vw_pin_sale_combined %}
-View containing cleaned and deduplicated PIN-level sales. This view additionally
-allows in IDOR MyDec sales that don't have a matching sale document number in
-`iasworld.sales`. Setting `source = 'iasworld'` allows this view to replicate
-`vw_pin_sale`.
-
-Sourced from `iasworld.sales`, which is sourced from
-[MyDec](https://mytax.illinois.gov/MyDec/_/). See below for lineage details.
-
-### Assumptions
-
-- `deactivat` properly indicates sales that should and shouldn't be included.
-- For sales not unique by pin and sale date, the most expensive sale for a
-  given day/PIN is used.
-- Some parcels are sold for the exact same price soon after an initial sale -
-  we ignore duplicate prices for PINs if they've sold in the last 12 months.
-
 ### Nuance
 
 - `nopar` is inaccurate: it excludes quit claims, executor deeds,
@@ -188,6 +169,32 @@ Current MyDec records are ingested into `iasworld.sales` using a manual import
 process. The full data lineage looks something like:
 
 ![Data Flow Diagram](./assets/sales-lineage.svg)
+
+**Primary Key**: `doc_no`, `pin`
+{% enddocs %}
+
+# vw_pin_sale_combined
+
+{% docs view_vw_pin_sale_combined %}
+View containing cleaned and deduplicated PIN-level sales. This view additionally
+allows in IDOR MyDec sales that don't have a matching sale document number in
+`iasworld.sales`. Setting `source = 'iasworld'` allows this view to replicate
+`vw_pin_sale`.
+
+Sourced from `iasworld.sales`, which is sourced from
+[MyDec](https://mytax.illinois.gov/MyDec/_/). See below for lineage details.
+
+### Assumptions
+
+See `vw_pin_sale`
+
+### Nuance
+
+See `vw_pin_sale`
+
+### Lineage
+
+See `vw_pin_sale`
 
 **Primary Key**: `doc_no`, `pin`
 {% enddocs %}
