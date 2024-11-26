@@ -72,7 +72,10 @@ def build_query(athena_asset, row_identifier, years=None, township=None):
     passed to `row_identifiers`.
     """
 
-    row_identifier = f"CONCAT(CAST({' AS varchar), CAST('.join(row_identifier)} AS varchar)) AS row_id"
+    if len(row_identifier) > 1:
+        row_identifier = f"CONCAT(CAST({' AS varchar), CAST('.join(row_identifier)} AS varchar)) AS row_id"
+    else:
+        row_identifier = f"CAST({row_identifier[0]} AS varchar) AS row_id"
 
     # Retrieve column names and types from Athena
     columns = cursor.execute("show columns from " + athena_asset).as_pandas()
