@@ -9,6 +9,8 @@ reportUnusedImport = false
 
 [tool.ruff]
 line-length = 79
+# Ignores objects created by Spark on Athena
+builtins = ["_", "sc", "athena_user_logger"]
 
 [tool.ruff.lint]
 extend-select = ["I"]
@@ -20,6 +22,9 @@ extend-select = ["I"]
 # package. Note that this could cause problems in the future if we ever
 # decide we want to import code from dbt/ to a context outside of it
 known-third-party = ["dbt"]
+
+[tool.ruff.lint.per-file-ignores]
+"dbt/models/**.py" = ["E402"]
 
 [tool.sqlfluff.core]
 dialect = "athena"
