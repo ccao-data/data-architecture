@@ -13,7 +13,7 @@ CCAO_UPPER_QUANTILE = 0.95
 CCAO_MIN_SAMPLE_SIZE = 20.0
 
 # The schema definition used within applyInPandas (where it is required) and
-# to determine the final column output
+# to determine the final column order
 SPARK_SCHEMA = (
     "year string, triad string, geography_type string, property_group string, "
     "assessment_stage string, geography_id string, sale_year string, sale_n bigint, "
@@ -66,7 +66,9 @@ def ccao_metric(
         # MKI doesn't have a _ci function, so we need a check here to return
         # None if it is called
         try:
-            ci_l, ci_u = getattr(ap, f"{fun}_ci")(est_no_out, sale_no_out)
+            ci_l, ci_u = getattr(ap, f"{fun}_ci")(
+                est_no_out, sale_no_out, nboot=300
+            )
         except AttributeError:
             ci_l, ci_u = None, None
         met = getattr(ap, f"{fun}_met")(val)
@@ -74,7 +76,8 @@ def ccao_metric(
     else:
         out = [None, None, None, None, n]
 
-    # Zip into a dictionary for use with the calc_summary function below
+    # Zip into a dictionary for use with the calc_summary function below,
+    # which expects a dict to expand into a DataFrame
     out_dict = dict(
         zip([fun, f"{fun}_ci_l", f"{fun}_ci_u", f"{fun}_met", f"{fun}_n"], out)
     )
@@ -99,7 +102,7 @@ def ccao_median(
     if n >= 2:
         val = median_val(est_no_out, sale_no_out)
         ci_l, ci_u = ap.boot_ci(
-            median_val, estimate=est_no_out, sale_price=sale_no_out
+            median_val, estimate=est_no_out, sale_price=sale_no_out, nboot=300
         )
         out = [val, ci_l, ci_u, n]
     else:
