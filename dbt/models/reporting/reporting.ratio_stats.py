@@ -22,7 +22,7 @@ SPARK_SCHEMA = (
     "prd double, prd_ci_l double, prd_ci_u double, prd_met boolean, prd_n bigint, "
     "prb double, prb_ci_l double, prb_ci_u double, prb_met boolean, prb_n bigint, "
     "mki double, mki_ci_l double, mki_ci_u double, mki_met boolean, mki_n bigint, "
-    "is_sales_chased bool, within_20_pct bigint, within_10_pct bigint, within_05_pct bigint"
+    "is_sales_chased boolean, within_20_pct bigint, within_10_pct bigint, within_05_pct bigint"
 )
 
 
