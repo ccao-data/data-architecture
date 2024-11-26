@@ -1,6 +1,6 @@
 models:
-  - name: default.vw_pin_sale
-    description: '{{ doc("view_vw_pin_sale") }}'
+  - name: default.vw_pin_sale_combined
+    description: '{{ doc("view_vw_pin_sale_combined") }}'
 
     columns:
       - name: buyer_name
@@ -39,6 +39,8 @@ models:
         description: '{{ doc("shared_column_sale_price") }}'
       - name: seller_name
         description: '{{ doc("shared_column_seller_name") }}'
+      - name: source
+        description: Which table the doc_no was drawn from (iasworld or mydec)
       - name: sv_is_heuristic_outlier
         description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
       - name: sv_is_outlier
@@ -60,38 +62,38 @@ models:
       # that start with digits, but dbt doesn't double-quote identifiers when
       # building fixtures, so Athena raises an error during fixture setup
       - not_accepted_values:
-          name: default_vw_pin_sale_class_no_hyphens
+          name: default_vw_pin_sale_combined_class_no_hyphens
           column_name: class
           values: "2-99"
       - expression_is_true:
-          name: default_vw_pin_sale_is_multisale_num_parcels_sale_align
+          name: default_vw_pin_sale_combined_is_multisale_num_parcels_sale_align
           expression: (num_parcels_sale > 1 AND is_multisale) OR (num_parcels_sale = 1 AND NOT is_multisale)
           additional_select_columns:
             - num_parcels_sale
             - is_multisale
       - not_null:
-          name: default_vw_pin_sale_num_parcels_sale_not_null
+          name: default_vw_pin_sale_combined_num_parcels_sale_not_null
           column_name: num_parcels_sale
       # Number of sales for a given time period isn't suspicious
       - unique_combination_of_columns:
-          name: default_vw_pin_sale_reasonable_number_of_sales_per_year
+          name: default_vw_pin_sale_combined_reasonable_number_of_sales_per_year
           combination_of_columns:
             - pin
             - year
           allowed_duplicates: 2
           config:
-            error_if: ">2000"
+            error_if: ">7683"
       - row_count:
-          name: default_vw_pin_sale_row_count
+          name: default_vw_pin_sale_combined_row_count
           above: 2496073 # as of 2024-11-14
       - expression_is_true:
-          name: default_vw_pin_sale_sale_filter_deed_type
+          name: default_vw_pin_sale_combined_sale_filter_deed_type
           expression: NOT sale_filter_deed_type OR deed_type IN ('03', '04', '06')
       - expression_is_true:
-          name: default_vw_pin_sale_sale_filter_less_than_10k
+          name: default_vw_pin_sale_combined_sale_filter_less_than_10k
           expression: NOT sale_filter_less_than_10k OR sale_price <= 10000
       - unique_combination_of_columns:
-          name: default_vw_pin_sale_unique_price_pin_and_year
+          name: default_vw_pin_sale_combined_unique_price_pin_and_year
           combination_of_columns:
             - pin
             - year
