@@ -123,6 +123,18 @@ models:
           - assessment_stage
           - year
 
+  - name: reporting.res_report_summary_sales_input
+    description: '{{ doc("table_res_report_summary_sales_input") }}'
+    config:
+      tags:
+        - daily
+
+  - name: reporting.res_report_summary_values_input
+    description: '{{ doc("table_res_report_summary_values_input") }}'
+    config:
+      tags:
+        - daily
+
   - name: reporting.vw_assessment_roll
     description: '{{ doc("view_vw_assessment_roll") }}'
     data_tests:
