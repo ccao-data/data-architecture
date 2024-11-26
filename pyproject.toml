@@ -24,7 +24,7 @@ extend-select = ["I"]
 known-third-party = ["dbt"]
 
 [tool.ruff.lint.per-file-ignores]
-"dbt/models/reporting/reporting.ratio_stats.py" = ["E402"]
+"dbt/models/**.py" = ["E402"]
 
 [tool.sqlfluff.core]
 dialect = "athena"
