@@ -31,7 +31,6 @@ WITH pardat_adjusted_years AS (
 
 SELECT
     -- Main PIN-level attribute data from iasWorld
-    CONCAT(par.parid, par.taxyr) AS row_id,
     par.parid AS pin,
     SUBSTR(par.parid, 1, 10) AS pin10,
     par.taxyr AS year,
