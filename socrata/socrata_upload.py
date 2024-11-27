@@ -89,9 +89,7 @@ def build_query(
         + asset_id
         + ".json?$limit=1"
     )
-    print(asset_url)
     asset_columns = requests.get(asset_url).json()[0].keys()
-
     columns = columns[columns["column"].isin(asset_columns)]
 
     # Array type columns are not compatible with the json format needed for
