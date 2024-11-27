@@ -68,6 +68,17 @@ jobs:
             if [[ $MANUALLY_DISPATCHED == 'true' ]]; then
               echo "Running build on manually selected resources"
               dbt build -t "$TARGET" -s ${{ inputs.models }} --defer --state "$STATE_DIR" --resource-types model seed
+            elif [[ $TARGET == 'prod' ]]; then
+              # Rebuild children of modified resources in prod, since schema
+              # changes might cause those children to become stale.
+              # Note that we only rebuild children if we're in prod, since
+              # otherwise we might end up running unnecessary builds of
+              # big downstream tables on every commit. We also only do this for
+              # modified resources and not new resources, since new resources
+              # can't accidentally modify downstream model schemas without
+              # those child models _also_ being modified
+              echo "Running build on modified/new resources and their children"
+              dbt build -t "$TARGET" -s state:modified+ state:new --state "$STATE_DIR" --resource-types model seed
             else
               echo "Running build on modified/new resources only"
               dbt build -t "$TARGET" -s state:modified state:new --defer --state "$STATE_DIR" --resource-types model seed
