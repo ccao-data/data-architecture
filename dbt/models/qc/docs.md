@@ -5,7 +5,7 @@ Test whether AHSAP properties have had large increases in AV between two
 stages. Only applies to most recent year of assessment roll.
 
 For an explanation of AHSAP and insight into why it involves so many different
-iasWorld tables, see: https://www.cookcountyassessor.com/affordable-housing
+iasWorld tables, see: <https://www.cookcountyassessor.com/affordable-housing>
 
 {% enddocs %}
 
@@ -132,6 +132,15 @@ assessed value of its PIN is the same as its mailed value, this view will
 return the appeal. Likewise, if an appeal has a "no change" value for `change`
 but the certified assessed value of its PIN is different from its mailed
 value, this view will also return the appeal.
+
+This view is not currently in use in any QC workflows.
+{% enddocs %}
+
+# vw_pin_sale_combined_high_number_of_sales_per_year
+
+{% docs view_vw_pin_sale_combined_high_number_of_sales_per_year %}
+View that selects PINs with more than 3 sales per year, which may indicate
+duplicate sales.
 
 This view is not currently in use in any QC workflows.
 {% enddocs %}
