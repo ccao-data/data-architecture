@@ -63,7 +63,9 @@ def get_asset_info(socrata_asset):
     return athena_asset, asset_id, row_identifier
 
 
-def build_query(athena_asset, row_identifier, years=None, township=None):
+def build_query(
+    athena_asset, asset_id, row_identifier, years=None, township=None
+):
     """
     Build an Athena compatible SQL query. Function will append a year
     conditional if `years` is non-empty. Many of the CCAO's open data assets are
@@ -81,28 +83,15 @@ def build_query(athena_asset, row_identifier, years=None, township=None):
     # Retrieve column names and types from Athena
     columns = cursor.execute("show columns from " + athena_asset).as_pandas()
 
-    new_columns = [
-        "pin",
-        "year",
-        "township_code",
-        "nbhd",
-        "class",
-        "sale_date",
-        "is_mydec_date",
-        "sale_price",
-        "doc_no",
-        "deed_type",
-        "mydec_deed_type",
-        "seller_name",
-        "is_multisale",
-        "num_parcels_sale",
-        "buyer_name",
-        "sale_filter_same_sale_within_365",
-        "sale_filter_less_than_10k",
-        "sale_filter_deed_type",
-    ]
+    # Limit pull to columns present in open data asset
+    new_url = (
+        "https://datacatalog.cookcountyil.gov/resource/"
+        + asset_id
+        + ".json?$limit=1"
+    )
+    asset_columns = requests.get(new_url).json()[0].keys()
 
-    columns = columns[columns["column"].isin(new_columns)]
+    columns = columns[columns["column"].isin(asset_columns)]
 
     # Array type columns are not compatible with the json format needed for
     # Socrata uploads. Automatically convert any array type columns to string.
@@ -276,6 +265,7 @@ def socrata_upload(
     if not flag:
         sql_query = build_query(
             athena_asset=athena_asset,
+            asset_id=asset_id,
             row_identifier=row_identifier,
         )
 
@@ -295,6 +285,7 @@ def socrata_upload(
         if flag == "years":
             sql_query = build_query(
                 athena_asset=athena_asset,
+                asset_id=asset_id,
                 row_identifier=row_identifier,
                 years=years,
             )
@@ -302,6 +293,7 @@ def socrata_upload(
         if flag == "both":
             sql_query = build_query(
                 athena_asset=athena_asset,
+                asset_id=asset_id,
                 row_identifier=row_identifier,
                 years=years,
                 township=by_township,
