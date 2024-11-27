@@ -35,7 +35,7 @@ models:
         description: >
           Remove sale with the _same_ value (for the same PIN) within 365 days.
           This column is calculated only with sales from iasworld. This filter can be used instead of
-          `sale_filter_same_sale_within_365` to exclude mydec sale influence, in the case that we want to use ias sales as a source of truth.
+          `sale_filter_same_sale_within_365` to exclude mydec sale influence, in the case that we want to use ias sales as a source of truth or to replicate the behavior of `sale_filter_same_sale_within_365` in `default.vw_pin_sale`.
       - name: sale_filter_same_sale_within_365
         description: >
           Remove sale with the _same_ value (for the same PIN) within 365 days. This column uses both iasworld and mydec sales in the calculation.
