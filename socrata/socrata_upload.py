@@ -84,12 +84,12 @@ def build_query(
     columns = cursor.execute("show columns from " + athena_asset).as_pandas()
 
     # Limit pull to columns present in open data asset
-    new_url = (
+    asset_url = (
         "https://datacatalog.cookcountyil.gov/resource/"
         + asset_id
         + ".json?$limit=1"
     )
-    asset_columns = requests.get(new_url).json()[0].keys()
+    asset_columns = requests.get(asset_url).json()[0].keys()
 
     columns = columns[columns["column"].isin(asset_columns)]
 
