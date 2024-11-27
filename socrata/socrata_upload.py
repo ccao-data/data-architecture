@@ -1,3 +1,4 @@
+# %%
 import contextlib
 import io
 import json
@@ -79,6 +80,29 @@ def build_query(athena_asset, row_identifier, years=None, township=None):
 
     # Retrieve column names and types from Athena
     columns = cursor.execute("show columns from " + athena_asset).as_pandas()
+
+    new_columns = [
+        "pin",
+        "year",
+        "township_code",
+        "nbhd",
+        "class",
+        "sale_date",
+        "is_mydec_date",
+        "sale_price",
+        "doc_no",
+        "deed_type",
+        "mydec_deed_type",
+        "seller_name",
+        "is_multisale",
+        "num_parcels_sale",
+        "buyer_name",
+        "sale_filter_same_sale_within_365",
+        "sale_filter_less_than_10k",
+        "sale_filter_deed_type",
+    ]
+
+    columns = columns[columns["column"].isin(new_columns)]
 
     # Array type columns are not compatible with the json format needed for
     # Socrata uploads. Automatically convert any array type columns to string.
@@ -310,6 +334,7 @@ def socrata_upload(
     print(f"Total upload in {toc - tic:0.4f} seconds")
 
 
+# %%
 socrata_upload(
     socrata_asset=os.getenv("SOCRATA_ASSET"),
     overwrite=os.getenv("OVERWRITE"),
