@@ -31,8 +31,15 @@ models:
         description: Same as `sv_is_outlier`, but `NULL` values are replaced with `FALSE`
       - name: sale_filter_less_than_10k
         description: Indicator for whether sale is less than $10K FMW
+      - name: sale_filter_same_iasworld_sale_within_365
+        description: >
+          Remove sale with the _same_ value (for the same PIN) within 365 days.
+          This column is calculated only with sales from iasworld. This filter can be used instead of
+          `sale_filter_same_sale_within_365` to exclude mydec sale influence, in the case that we want to use ias sales as a source of truth.
       - name: sale_filter_same_sale_within_365
-        description: Remove sale with the _same_ value (for the same PIN) within 365 days
+        description: >
+          Remove sale with the _same_ value (for the same PIN) within 365 days. This column uses both iasworld and mydec sales in the calculation.
+          See sale_filter_same_iasworld_sale_within_365 for more information about this distinction.
       - name: sale_key
         description: '{{ doc("shared_column_sale_key") }}'
       - name: sale_price
