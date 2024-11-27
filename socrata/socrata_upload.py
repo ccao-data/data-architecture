@@ -24,7 +24,7 @@ def get_asset_info(socrata_asset):
     Simple helper function to retrieve asset-specific information from dbt.
     """
 
-    os.chdir("../dbt")
+    os.chdir("./dbt")
 
     DBT = dbtRunner()
     dbt_list_args = [
@@ -329,10 +329,8 @@ def socrata_upload(
 
 # %%
 socrata_upload(
-    socrata_asset="Parcel Sales",
-    overwrite="false",
-    years="2023",
-    by_township="true",
+    socrata_asset=os.getenv("SOCRATA_ASSET"),
+    overwrite=os.getenv("OVERWRITE"),
+    years=str(os.getenv("YEARS")).split(","),
+    by_township=os.getenv("BY_TOWNSHIP"),
 )
-
-# %%
