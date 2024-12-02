@@ -1,4 +1,3 @@
-# %%
 import contextlib
 import io
 import json
@@ -75,10 +74,15 @@ def build_query(
     passed to `row_identifiers`.
     """
 
-    if len(row_identifier) > 1:
-        row_identifier = f"CONCAT(CAST({' AS varchar), CAST('.join(row_identifier)} AS varchar)) AS row_id"
-    else:
-        row_identifier = f"CAST({row_identifier[0]} AS varchar) AS row_id"
+    row_identifier_sql_parts = [
+        f"CAST({col} AS varchar)" for col in row_identifier
+    ]
+    row_identifier_sql_joined = (
+        row_identifier_sql_parts[0]
+        if len(row_identifier_sql_parts) == 1
+        else f"CONCAT({', '.join(row_identifier_sql_parts)})"
+    )
+    row_identifier = f"{row_identifier_sql_joined} AS row_id"
 
     # Retrieve column names and types from Athena
     columns = cursor.execute("show columns from " + athena_asset).as_pandas()
@@ -332,7 +336,6 @@ def socrata_upload(
     print(f"Total upload in {toc - tic:0.4f} seconds")
 
 
-# %%
 socrata_upload(
     socrata_asset=os.getenv("SOCRATA_ASSET"),
     overwrite=os.getenv("OVERWRITE"),
