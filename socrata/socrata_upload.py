@@ -114,13 +114,10 @@ def build_query(
         query = query
 
     elif years is not None and not township:
-        query += " WHERE year = %(year)s LIMIT 10000"
+        query += " WHERE year = %(year)s"
 
     elif years is not None and township is not None:
-        query += (
-            " WHERE year = %(year)s"
-            + " AND township_code = %(township)s LIMIT 10000"
-        )
+        query += " WHERE year = %(year)s" + " AND township_code = %(township)s"
 
     return query
 
