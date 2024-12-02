@@ -167,8 +167,9 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     # We grab the data before uploading it so we can make sure timestamps are
     # properly formatted
     input_data = cursor.execute(sql_query, query_conditionals).as_pandas()
-    input_data = input_data.select_dtypes(include="datetime").applymap(
-        lambda x: x.strftime("%Y-%m-%d %X")
+    date_columns = input_data.select_dtypes(include="datetime").columns
+    input_data[date_columns] = input_data[date_columns].map(
+        lambda x: x.strftime("%Y-%m-%dT%X")
     )
     input_data = input_data.to_json(orient="records")
 
