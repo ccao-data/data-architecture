@@ -157,12 +157,18 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
             + asset_id
         )
 
+    # We grab the data before uploading it so we can make sure timestamps are
+    # properly formatted
+    input_data = cursor.execute(sql_query, query_conditionals).as_pandas()
+    input_data = input_data.select_dtypes(include="datetime").applymap(
+        lambda x: x.strftime("%Y-%m-%d %X")
+    )
+    input_data = input_data.to_json(orient="records")
+
     # Raise URL status if it's bad
     requests.get(
         url=url,
-        data=cursor.execute(sql_query, query_conditionals)
-        .as_pandas()
-        .to_json(orient="records"),
+        data=input_data,
         auth=auth,
     ).raise_for_status()
 
@@ -170,18 +176,14 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     if method == "put":
         response = requests.put(
             url=url,
-            data=cursor.execute(sql_query, query_conditionals)
-            .as_pandas()
-            .to_json(orient="records"),
+            data=input_data,
             auth=auth,
         )
 
     elif method == "post":
         response = requests.post(
             url=url,
-            data=cursor.execute(sql_query, query_conditionals)
-            .as_pandas()
-            .to_json(orient="records"),
+            data=input_data,
             auth=auth,
         )
 
