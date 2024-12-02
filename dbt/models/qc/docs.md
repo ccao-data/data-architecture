@@ -136,15 +136,6 @@ value, this view will also return the appeal.
 This view is not currently in use in any QC workflows.
 {% enddocs %}
 
-# vw_pin_sale_combined_high_number_of_sales_per_year
-
-{% docs view_vw_pin_sale_combined_high_number_of_sales_per_year %}
-View that selects PINs with more than 3 sales per year, which may indicate
-duplicate sales.
-
-This view is not currently in use in any QC workflows.
-{% enddocs %}
-
 # vw_pin_sale_high_number_of_sales_per_year
 
 {% docs view_vw_pin_sale_high_number_of_sales_per_year %}
