@@ -228,8 +228,15 @@ Reason code for change of value.
 Possible values for this variable are:
 
 - `4` = Regular reduction (lasts until next triennial reassessment)
-- `5` = One year only market value relief (occupancy/vacancy reduction)
-- `5B` = One year only market value relief, issued by the Board of Review
+- `4B` = Regular reduction issued by the Board of Review (lasts until next
+  triennial reassessment)
+- `5` = One year only market value relief, implemented as an occupancy/vacancy
+  reduction
+- `5B` = One year only market value relief, implemented as an occupancy/vacancy
+  reduction, and issued by the Board of Review
+- `5C` = One year only market value relief, _not_ implemented as an
+  occupancy/vacancy reduction, and issued by the Board of Review
+
 {% enddocs %}
 
 ## cityname
