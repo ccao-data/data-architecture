@@ -62,7 +62,9 @@ def get_asset_info(socrata_asset):
     return athena_asset, asset_id, row_identifier
 
 
-def build_query(athena_asset, row_identifier, years=None, township=None):
+def build_query(
+    athena_asset, asset_id, row_identifier, years=None, township=None
+):
     """
     Build an Athena compatible SQL query. Function will append a year
     conditional if `years` is non-empty. Many of the CCAO's open data assets are
@@ -72,10 +74,34 @@ def build_query(athena_asset, row_identifier, years=None, township=None):
     passed to `row_identifiers`.
     """
 
-    row_identifier = f"CONCAT({', '.join(row_identifier)}) AS row_id"
+    row_identifier_sql_parts = [
+        f"CAST({col} AS varchar)" for col in row_identifier
+    ]
+    row_identifier_sql_joined = (
+        row_identifier_sql_parts[0]
+        if len(row_identifier_sql_parts) == 1
+        else f"CONCAT({', '.join(row_identifier_sql_parts)})"
+    )
+    row_identifier = f"{row_identifier_sql_joined} AS row_id"
 
     # Retrieve column names and types from Athena
     columns = cursor.execute("show columns from " + athena_asset).as_pandas()
+
+    # Limit pull to columns present in open data asset
+    asset_url = (
+        "https://datacatalog.cookcountyil.gov/resource/"
+        + asset_id
+        + ".json?$limit=1"
+    )
+
+    asset_columns = (
+        requests.get(
+            asset_url, headers={"X-App-Token": os.getenv("SOCRATA_APP_TOKEN")}
+        )
+        .json()[0]
+        .keys()
+    )
+    columns = columns[columns["column"].isin(asset_columns)]
 
     # Array type columns are not compatible with the json format needed for
     # Socrata uploads. Automatically convert any array type columns to string.
@@ -139,12 +165,19 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
             + asset_id
         )
 
+    # We grab the data before uploading it so we can make sure timestamps are
+    # properly formatted
+    input_data = cursor.execute(sql_query, query_conditionals).as_pandas()
+    date_columns = input_data.select_dtypes(include="datetime").columns
+    input_data[date_columns] = input_data[date_columns].map(
+        lambda x: x.strftime("%Y-%m-%dT%X")
+    )
+    input_data = input_data.to_json(orient="records")
+
     # Raise URL status if it's bad
     requests.get(
         url=url,
-        data=cursor.execute(sql_query, query_conditionals)
-        .as_pandas()
-        .to_json(orient="records"),
+        data=input_data,
         auth=auth,
     ).raise_for_status()
 
@@ -152,18 +185,14 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     if method == "put":
         response = requests.put(
             url=url,
-            data=cursor.execute(sql_query, query_conditionals)
-            .as_pandas()
-            .to_json(orient="records"),
+            data=input_data,
             auth=auth,
         )
 
     elif method == "post":
         response = requests.post(
             url=url,
-            data=cursor.execute(sql_query, query_conditionals)
-            .as_pandas()
-            .to_json(orient="records"),
+            data=input_data,
             auth=auth,
         )
 
@@ -246,6 +275,7 @@ def socrata_upload(
     if not flag:
         sql_query = build_query(
             athena_asset=athena_asset,
+            asset_id=asset_id,
             row_identifier=row_identifier,
         )
 
@@ -265,6 +295,7 @@ def socrata_upload(
         if flag == "years":
             sql_query = build_query(
                 athena_asset=athena_asset,
+                asset_id=asset_id,
                 row_identifier=row_identifier,
                 years=years,
             )
@@ -272,6 +303,7 @@ def socrata_upload(
         if flag == "both":
             sql_query = build_query(
                 athena_asset=athena_asset,
+                asset_id=asset_id,
                 row_identifier=row_identifier,
                 years=years,
                 township=by_township,
