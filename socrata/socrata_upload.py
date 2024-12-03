@@ -2,7 +2,6 @@ import contextlib
 import io
 import json
 import os
-import socket
 import time
 
 import pandas as pd
@@ -10,17 +9,9 @@ import requests
 from dbt.cli.main import dbtRunner
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
-from urllib3.connection import HTTPConnection
 
-HTTPConnection.default_socket_options = (
-    HTTPConnection.default_socket_options
-    + [
-        (socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1),
-        (socket.SOL_TCP, socket.TCP_KEEPIDLE, 45),
-        (socket.SOL_TCP, socket.TCP_KEEPINTVL, 10),
-        (socket.SOL_TCP, socket.TCP_KEEPCNT, 6),
-    ]
-)
+s = requests.Session()
+s.verify = True
 
 # Connect to Athena
 cursor = connect(
@@ -107,7 +98,7 @@ def build_query(
     )
 
     asset_columns = (
-        requests.get(
+        s.get(
             asset_url, headers={"X-App-Token": os.getenv("SOCRATA_APP_TOKEN")}
         )
         .json()[0]
@@ -187,7 +178,7 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     input_data = input_data.to_json(orient="records")
 
     # Raise URL status if it's bad
-    requests.get(
+    s.get(
         url=url,
         data=input_data,
         auth=auth,
@@ -195,14 +186,14 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
 
     print(print_message)
     if method == "put":
-        response = requests.put(
+        response = s.put(
             url=url,
             data=input_data,
             auth=auth,
         )
 
     elif method == "post":
-        response = requests.post(
+        response = s.post(
             url=url,
             data=input_data,
             auth=auth,
