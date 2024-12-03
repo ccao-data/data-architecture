@@ -1,4 +1,3 @@
-# %%
 import contextlib
 import io
 import json
@@ -27,7 +26,6 @@ cursor = connect(
 ).cursor(unload=True)
 
 
-# %%
 def get_asset_info(socrata_asset):
     """
     Simple helper function to retrieve asset-specific information from dbt.
@@ -181,28 +179,56 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     input_data[date_columns] = input_data[date_columns].map(
         lambda x: x.strftime("%Y-%m-%dT%X")
     )
-    input_data = input_data.to_json(orient="records")
 
-    # Raise URL status if it's bad
-    s.get(
-        url=url,
-        data=input_data,
-    ).raise_for_status()
+    if input_data.shape[0] > 10000:
+        for i in range(0, input_data.shape[0], 10000):
+            print([i, i + 10000])
+            # Raise URL status if it's bad
+            s.get(
+                url=url,
+                data=input_data.iloc[i : i + 10000].to_json(orient="records"),
+            ).raise_for_status()
 
-    print(print_message)
-    if method == "put":
-        response = s.put(
+            print(print_message)
+            if method == "put":
+                response = s.put(
+                    url=url,
+                    data=input_data.iloc[i : i + 10000].to_json(
+                        orient="records"
+                    ),
+                )
+
+            elif method == "post":
+                response = s.post(
+                    url=url,
+                    data=input_data.iloc[i : i + 10000].to_json(
+                        orient="records"
+                    ),
+                )
+
+            print(response.content)
+
+    else:
+        # Raise URL status if it's bad
+        s.get(
             url=url,
-            data=input_data,
-        )
+            data=input_data.to_json(orient="records"),
+        ).raise_for_status()
 
-    elif method == "post":
-        response = s.post(
-            url=url,
-            data=input_data,
-        )
+        print(print_message)
+        if method == "put":
+            response = s.put(
+                url=url,
+                data=input_data.to_json(orient="records"),
+            )
 
-    return response
+        elif method == "post":
+            response = s.post(
+                url=url,
+                data=input_data.to_json(orient="records"),
+            )
+
+        print(response.content)
 
 
 def generate_groups(athena_asset, years=None, by_township=False):
@@ -292,10 +318,9 @@ def socrata_upload(
         }
 
         if overwrite:
-            response = upload("put", **upload_args)
+            upload("put", **upload_args)
         else:
-            response = upload("post", **upload_args)
-        print(response.content)
+            upload("post", **upload_args)
 
     else:
         if flag == "years":
@@ -332,10 +357,9 @@ def socrata_upload(
                     "year": item,
                 }
             if count == 0 and overwrite:
-                response = upload("put", **upload_args)
+                upload("put", **upload_args)
             else:
-                response = upload("post", **upload_args)
-            print(response.content)
+                upload("post", **upload_args)
             count = count + 1
 
     toc = time.perf_counter()
