@@ -10,8 +10,10 @@ from dbt.cli.main import dbtRunner
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
 
+# Create a session object so HTTP requests can be pooled
 s = requests.Session()
 s.verify = True
+s.auth = (os.getenv("SOCRATA_USERNAME"), os.getenv("SOCRATA_PASSWORD"))
 
 # Connect to Athena
 cursor = connect(
@@ -137,7 +139,6 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
 
     # Load environmental variables
     app_token = os.getenv("SOCRATA_APP_TOKEN")
-    auth = (os.getenv("SOCRATA_USERNAME"), os.getenv("SOCRATA_PASSWORD"))
 
     url = (
         "https://datacatalog.cookcountyil.gov/resource/"
@@ -181,7 +182,6 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     s.get(
         url=url,
         data=input_data,
-        auth=auth,
     ).raise_for_status()
 
     print(print_message)
@@ -189,14 +189,12 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
         response = s.put(
             url=url,
             data=input_data,
-            auth=auth,
         )
 
     elif method == "post":
         response = s.post(
             url=url,
             data=input_data,
-            auth=auth,
         )
 
     return response
