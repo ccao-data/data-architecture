@@ -1,3 +1,4 @@
+# %%
 import contextlib
 import io
 import json
@@ -13,7 +14,10 @@ from pyathena.pandas.cursor import PandasCursor
 # Create a session object so HTTP requests can be pooled
 s = requests.Session()
 s.verify = True
-s.auth = (os.getenv("SOCRATA_USERNAME"), os.getenv("SOCRATA_PASSWORD"))
+s.auth = (
+    str(os.getenv("SOCRATA_USERNAME")),
+    str(os.getenv("SOCRATA_PASSWORD")),
+)
 
 # Connect to Athena
 cursor = connect(
@@ -23,6 +27,7 @@ cursor = connect(
 ).cursor(unload=True)
 
 
+# %%
 def get_asset_info(socrata_asset):
     """
     Simple helper function to retrieve asset-specific information from dbt.
