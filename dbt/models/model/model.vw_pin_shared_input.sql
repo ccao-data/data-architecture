@@ -80,6 +80,8 @@ housing_index AS (
     FROM {{ ref('location.census_2020') }}) AS puma
     LEFT JOIN {{ source('other', 'ihs_index') }} AS ihs
         ON puma.census_puma_geoid = ihs.geoid
+    -- Use ihs.year since the IHS time horizon is larger than that for available
+    -- census shapefiles
     GROUP BY puma.pin10, ihs.year
 ),
 
