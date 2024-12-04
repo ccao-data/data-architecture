@@ -75,9 +75,12 @@ housing_index AS (
         -- This is quarterly data and needs to be averaged annually
         AVG(CAST(ihs.ihs_index AS DOUBLE)) AS ihs_avg_year_index
     FROM {{ source('other', 'ihs_index') }} AS ihs
-    LEFT JOIN {{ ref('location.census_2020') }} AS puma
+    LEFT JOIN
+        (SELECT DISTINCT
+            pin10,
+            census_puma_geoid
+        FROM {{ ref('location.census_2020') }}) AS puma
         ON ihs.geoid = puma.census_puma_geoid
-        AND ihs.year = puma.year
     GROUP BY puma.pin10, ihs.year
 ),
 
@@ -91,7 +94,7 @@ distressed_communities_index AS (
         ON dci.geoid = zcta.census_zcta_geoid
         -- DCI is only available for one year, so we join to census geoids for
         -- all years after that
-        AND zcta.year >= dci.year
+        AND dci.year <= zcta.year
 ),
 
 affordability_risk_index AS (
@@ -104,7 +107,7 @@ affordability_risk_index AS (
         ON ari.geoid = tract.census_acs5_tract_geoid
         -- ARI is only available for one year, so we join to census geoids for
         -- all years after that
-        AND tract.year >= ari.year
+        AND ari.year <= tract.year
 ),
 
 tax_bill_amount AS (
