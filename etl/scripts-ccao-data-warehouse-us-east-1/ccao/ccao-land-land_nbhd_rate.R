@@ -1,6 +1,7 @@
 library(arrow)
 library(aws.s3)
 library(dplyr)
+library(noctua)
 library(openxlsx)
 library(purrr)
 library(readr)
@@ -15,6 +16,8 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 input_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "land")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "ccao", "land")
+
+AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena(), rstudio_conn_tab = FALSE)
 
 # Location of remote files
 remote_file_raw_nbhd_rate_2022 <- file.path(
@@ -51,8 +54,10 @@ aws.s3::save_object(
 )
 
 # List of regression classes
-class <- ccao::class_dict %>%
-  filter(regression_class) %>%
+class <- dbGetQuery(
+  AWS_ATHENA_CONN_NOCTUA,
+  "SELECT class_code FROM ccao.class_dict WHERE regression_class"
+) %>%
   pull(class_code)
 
 # Load the raw workbooks, rename and clean up columns
