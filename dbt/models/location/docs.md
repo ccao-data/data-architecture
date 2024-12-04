@@ -15,15 +15,13 @@ parcel centroids.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
-# census_2010
+# census_2020
 
-{% docs table_census_2010 %}
+{% docs table_census_2020 %}
 Decennial Census geographies (tracts, block groups, etc.) intersected with
-parcel centroids from *all* years, not just those that existed in 2010. In
-actuality, we use 2012 since we don't have 2010 PUMA shapefiles. The
-purpose of this table is to be able to join data that uses static census
-geography over time to parcels from all years (currently just IHS Housing
-Index data).
+parcel centroids from *all* years, not just those that existed in 2020. In
+actuality, we use 2022 geoids didn't update until then (currently applies just
+to IHS Housing Index data).
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}

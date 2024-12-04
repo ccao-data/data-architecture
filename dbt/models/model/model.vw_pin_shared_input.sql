@@ -63,19 +63,21 @@ acs5 AS (
     WHERE geography = 'tract'
 ),
 
-/* This CTAS uses location.census_2010 rather than joining onto a specific year
-from location.census because we need to join 2010 PUMA geometry to *all*
-parcels, not just those that existed in 2010 (or, in our case, 2012 since we
-don't have 2010 PUMA shapefiles). This is specific to the IHS data since it
+/* This CTAS uses location.census_2020 rather than joining onto a specific year
+from location.census because we need to join 2020 PUMA geometry to *all*
+parcels, not just those that existed in 2020 (or, in our case, 2022 since we
+don't have 2020 PUMA shapefiles). This is specific to the IHS data since it
 exists for many years but uses static geography. */
 housing_index AS (
     SELECT
         puma.pin10,
         ihs.year,
+        -- This is quarterly data and needs to be averaged annually
         AVG(CAST(ihs.ihs_index AS DOUBLE)) AS ihs_avg_year_index
     FROM {{ source('other', 'ihs_index') }} AS ihs
-    LEFT JOIN {{ ref('location.census_2010') }} AS puma
+    LEFT JOIN {{ ref('location.census_2020') }} AS puma
         ON ihs.geoid = puma.census_puma_geoid
+        AND ihs.year = puma.year
     GROUP BY puma.pin10, ihs.year
 ),
 
