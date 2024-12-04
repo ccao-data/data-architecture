@@ -174,8 +174,8 @@ mydec_sales AS (
                 AS mydec_line_9_new_construction,
             COALESCE(line_9_other_change = 1, FALSE)
                 AS mydec_line_9_other_change,
-            COALESCE(line_9_other_description, FALSE)
-                AS mydec_line_9_other_description,
+            COALESCE(line_9_other_change_description, FALSE)
+                AS mydec_line_9_other_change_description,
             COALESCE(line_9_date_of_significant_change, FALSE)
                 AS mydec_line_9_date_of_significant_change,
             COALESCE(line_10a = 1, FALSE)
@@ -327,7 +327,7 @@ SELECT
     mydec_sales.mydec_line_9_major_remodeling,
     mydec_sales.mydec_line_9_new_construction,
     mydec_sales.mydec_line_9_other_change,
-    mydec_sales.mydec_line_9_other_description,
+    mydec_sales.mydec_line_9_other_change_description,
     mydec_sales.mydec_line_9_date_of_significant_change,
     mydec_sales.mydec_is_installment_contract_fulfilled,
     mydec_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates, -- noqa
