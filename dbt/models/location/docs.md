@@ -20,8 +20,8 @@ parcel centroids.
 {% docs table_census_2020 %}
 Decennial Census geographies (tracts, block groups, etc.) intersected with
 parcel centroids from *all* years, not just those that existed in 2020. In
-actuality, we use 2022 geoids didn't update until then (currently applies just
-to IHS Housing Index data).
+actuality, we use 2022 since geoids didn't update until then (currently applies
+just to IHS Housing Index data).
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
