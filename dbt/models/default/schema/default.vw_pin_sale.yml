@@ -17,6 +17,22 @@ models:
         description: Indicator for whether or not the observation uses the MyDec sale date
       - name: mydec_deed_type
         description: Deed type from MyDec, more granular than CCAO deed type
+      - name: mydec_line_9_additions
+        description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
+      - name: mydec_line_9_date_of_significant_change
+        description: The date of the change to the property.
+      - name: mydec_line_9_demolition_damage
+        description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
+      - name: mydec_line_9_major_remodeling
+        description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
+      - name: mydec_line_9_new_construction
+        description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
+      - name: mydec_line_9_no_changes
+        description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
+      - name: mydec_line_9_other_change
+        description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
+      - name: mydec_line_9_other_description
+        description: This field is used to describe the work done from mydec_line_9_other_change.
       - name: nbhd
         description: '{{ doc("shared_column_nbhd_code") }}'
       - name: num_parcels_sale
