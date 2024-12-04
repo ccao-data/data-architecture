@@ -9,7 +9,7 @@
         assert_equals(
             "test_insert_hyphens_one_position",
             insert_hyphens("class", 1),
-            "CONCAT(SUBSTR(class, 1, 1),'-',SUBSTR(class, 2))"
+            "concat(substr(class, 1, 1),'-',substr(class, 2))",
         )
     }}
 {% endmacro %}
@@ -19,7 +19,7 @@
         assert_equals(
             "test_insert_hyphens_multiple_positions",
             insert_hyphens("pin", 2, 4, 7, 10),
-            "CONCAT(SUBSTR(pin, 1, 2),'-',SUBSTR(pin, 3, 2),'-',SUBSTR(pin, 5, 3),'-',SUBSTR(pin, 8, 3),'-',SUBSTR(pin, 11))"
+            "concat(substr(pin, 1, 2),'-',substr(pin, 3, 2),'-',substr(pin, 5, 3),'-',substr(pin, 8, 3),'-',substr(pin, 11))",
         )
     }}
 {% endmacro %}
@@ -29,7 +29,7 @@
         assert_equals(
             "test_insert_hyphens_raises_when_missing_arguments",
             _insert_hyphens("pin", [], mock_raise_compiler_error),
-            "insert_hyphens expects one or more positional arguments"
+            "insert_hyphens expects one or more positional arguments",
         )
     }}
 {% endmacro %}
