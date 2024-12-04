@@ -74,13 +74,12 @@ housing_index AS (
         ihs.year,
         -- This is quarterly data and needs to be averaged annually
         AVG(CAST(ihs.ihs_index AS DOUBLE)) AS ihs_avg_year_index
-    FROM {{ source('other', 'ihs_index') }} AS ihs
-    LEFT JOIN
-        (SELECT DISTINCT
-            pin10,
-            census_puma_geoid
-        FROM {{ ref('location.census_2020') }}) AS puma
-        ON ihs.geoid = puma.census_puma_geoid
+    FROM (SELECT DISTINCT
+        pin10,
+        census_puma_geoid
+    FROM {{ ref('location.census_2020') }}) AS puma
+    LEFT JOIN {{ source('other', 'ihs_index') }} AS ihs
+        ON puma.census_puma_geoid = ihs.geoid
     GROUP BY puma.pin10, ihs.year
 ),
 
