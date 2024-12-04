@@ -180,14 +180,21 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
         lambda x: x.strftime("%Y-%m-%dT%X")
     )
 
+    # Raise URL status if it's bad
+    s.get(
+        (
+            "https://datacatalog.cookcountyil.gov/resource/"
+            + asset_id
+            + ".json?$limit=1"
+        ),
+        headers={"X-App-Token": os.getenv("SOCRATA_APP_TOKEN")},
+    ).raise_for_status()
+
+    s.get(url=url).raise_for_status()
+
     if input_data.shape[0] > 10000:
         for i in range(0, input_data.shape[0], 10000):
             print([i, i + 10000])
-            # Raise URL status if it's bad
-            s.get(
-                url=url,
-                data=input_data.iloc[i : i + 10000].to_json(orient="records"),
-            ).raise_for_status()
 
             print(print_message)
             if method == "put":
@@ -209,12 +216,6 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
             print(response.content)
 
     else:
-        # Raise URL status if it's bad
-        s.get(
-            url=url,
-            data=input_data.to_json(orient="records"),
-        ).raise_for_status()
-
         print(print_message)
         if method == "put":
             response = s.put(
