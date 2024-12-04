@@ -194,9 +194,8 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
 
     if input_data.shape[0] > 10000:
         for i in range(0, input_data.shape[0], 10000):
-            print([i, i + 10000])
-
             print(print_message)
+            print(f"Rows {i} - {i + 10000}.")
             if method == "put":
                 response = s.put(
                     url=url,
