@@ -26,6 +26,8 @@ on:
         required: false
         default: false
         type: boolean
+  pull_request:
+    branches: [main, master]
 
 env:
   PYTHONUNBUFFERED: "1"
