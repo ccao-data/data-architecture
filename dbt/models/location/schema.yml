@@ -5,8 +5,8 @@ models:
   - name: location.census
     description: '{{ doc("table_census") }}'
 
-  - name: location.census_2010
-    description: '{{ doc("table_census_2010") }}'
+  - name: location.census_2020
+    description: '{{ doc("table_census_2020") }}'
 
   - name: location.census_acs5
     description: '{{ doc("table_census_acs5") }}'
