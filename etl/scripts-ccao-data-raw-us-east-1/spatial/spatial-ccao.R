@@ -45,6 +45,7 @@ gdb_files <- data.frame("path" = list.files(file_path, full.names = TRUE)) %>%
   filter(
     str_detect(path, "Current", negate = TRUE) &
       str_detect(path, "20") &
+      # We detect parcel GDBs, but will extract the township layer
       str_detect(path, "Parcels")
   )
 
