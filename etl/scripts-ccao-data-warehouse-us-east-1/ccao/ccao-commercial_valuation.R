@@ -150,19 +150,12 @@ list.files(
   select(where(~ !all(is.na(.x)))) %>%
   # Add useful information to output and clean-up columns ----
   mutate(
+    keypin = str_trim(keypin),
     keypin = str_pad(keypin, side = "left", width = 14, pad = "0"),
-    keypin = ifelse(
-      nchar(keypin) == 14,
-      paste(
-        substr(keypin, 1, 2),
-        substr(keypin, 3, 4),
-        substr(keypin, 5, 7),
-        substr(keypin, 8, 10),
-        substr(keypin, 11, 14),
-        sep = "-"
-      ),
-      keypin
-    ),
+    keypin = map(keypin, \(x) {
+      ifelse(nchar(x) == 14, pin_format_pretty(x, full_length = TRUE), x)
+    }),
+    keypin = str_pad(keypin, side = "right", width = 18, pad = "0")),
     year = str_extract(file, "[0-9]{4}"),
     township = str_replace_all(
       str_extract(
