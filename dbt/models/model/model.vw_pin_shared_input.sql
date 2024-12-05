@@ -9,9 +9,19 @@ consistency. Missing data is filled with the following steps:
 2. Current data is filled BACKWARD to account for missing historical data.
    Again, this is only for things unlikely to change
 
-WARNING: This is a very heavy view. Don't use it for anything other than making
-extracts for modeling
+This view is "materialized" (made into a table) daily in order to improve
+query performance and reduce data queried by Athena. The materialization
+is triggered by sqoop-bot (runs after Sqoop grabs iasWorld data)
 */
+{{
+    config(
+        materialized='table',
+        partitioned_by=['meta_year'],
+        bucketed_by=['meta_pin'],
+        bucket_count=1
+    )
+}}
+
 WITH uni AS (
 
     SELECT
@@ -179,7 +189,6 @@ exemption_features AS (
 SELECT
     uni.pin AS meta_pin,
     uni.pin10 AS meta_pin10,
-    uni.year AS meta_year,
     uni.class AS meta_class,
     uni.triad_name AS meta_triad_name,
     uni.triad_code AS meta_triad_code,
@@ -384,7 +393,10 @@ SELECT
     vwpf.nearest_neighbor_2_pin10,
     vwpf.nearest_neighbor_2_dist_ft,
     vwpf.nearest_neighbor_3_pin10,
-    vwpf.nearest_neighbor_3_dist_ft
+    vwpf.nearest_neighbor_3_dist_ft,
+
+    -- Year should be listed last, for partitioning
+    uni.year AS meta_year
 
 FROM uni
 LEFT JOIN {{ ref('location.vw_pin10_location_fill') }} AS vwlf
