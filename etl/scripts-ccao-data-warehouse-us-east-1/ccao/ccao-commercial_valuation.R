@@ -155,7 +155,7 @@ list.files(
     keypin = map(keypin, \(x) {
       ifelse(nchar(x) == 14, pin_format_pretty(x, full_length = TRUE), x)
     }),
-    keypin = str_pad(keypin, side = "right", width = 18, pad = "0")),
+    keypin = str_pad(keypin, side = "right", width = 18, pad = "0"),
     year = str_extract(file, "[0-9]{4}"),
     township = str_replace_all(
       str_extract(
