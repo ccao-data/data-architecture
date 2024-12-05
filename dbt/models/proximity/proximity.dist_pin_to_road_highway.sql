@@ -10,8 +10,7 @@
 WITH highway AS (  -- noqa: ST03
     SELECT *
     FROM {{ source('spatial', 'road') }}
-    WHERE road_type = 'Interstate'
-        OR road_type = 'Freeway and Expressway'
+    WHERE road_type IN ('Interstate', 'Freeway and Expressway')
 )
 
 SELECT

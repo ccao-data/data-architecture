@@ -155,7 +155,10 @@ Sourced from `iasworld.sales`, which is sourced from
 - Multicard sales are excluded from `mydec` data because they can't be joined
   to `iasworld.sales` (which is only parcel-level) without creating duplicates
 - Sales are unique by `doc_no` if multisales are excluded. When multisales are
-  *not* excluded, sales are unique by `doc_no` and `pin`.
+  _not_ excluded, sales are unique by `doc_no` and `pin`.
+- We include iasworld sales and mydec sales only if the mydec sale isn't already
+  present in iasworld (calculated by doc_no). This allows us to use mydec sales
+  for analysis or modeling if the iasworld sales ingest is lags behind mydec.
 
 ### Lineage
 
@@ -166,6 +169,32 @@ Current MyDec records are ingested into `iasworld.sales` using a manual import
 process. The full data lineage looks something like:
 
 ![Data Flow Diagram](./assets/sales-lineage.svg)
+
+**Primary Key**: `doc_no`, `pin`
+{% enddocs %}
+
+# vw_pin_sale_combined
+
+{% docs view_vw_pin_sale_combined %}
+View containing cleaned and deduplicated PIN-level sales. This view additionally
+allows in IDOR MyDec sales that don't have a matching sale document number in
+`iasworld.sales`. Setting `source = 'iasworld'` allows this view to replicate
+`vw_pin_sale`.
+
+Sourced from `iasworld.sales`, which is sourced from
+[MyDec](https://mytax.illinois.gov/MyDec/_/). See below for lineage details.
+
+### Assumptions
+
+See `vw_pin_sale`
+
+### Nuance
+
+See `vw_pin_sale`
+
+### Lineage
+
+See `vw_pin_sale`
 
 **Primary Key**: `doc_no`, `pin`
 {% enddocs %}

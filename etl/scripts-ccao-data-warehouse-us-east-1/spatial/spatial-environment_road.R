@@ -288,9 +288,9 @@ walk(parquet_files, \(file_key) {
         -c(geometry, geometry_3435),
         ~ ifelse(is.nan(.), NA, .)
       )) %>%
-      relocate(year, .after = last_col())
+      select(-year)
 
-    output_path <- file.path(output_bucket, basename(file_key))
+    output_path <- file.path(output_bucket, paste0("year=", tools::file_path_sans_ext(basename(file_key))), "part-0.parquet")
     geoarrow::write_geoparquet(shapefile_data, output_path)
 
     print(paste(file_key, "cleaned and uploaded."))

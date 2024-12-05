@@ -75,8 +75,7 @@ exposures:
       test_row_count: true
       asset_id: wvhk-k5uv
       primary_key:
-        - doc_no
-        - pin
+        - sale_key
     description: |
       Parcel sales for real property in Cook County, from 1999 to present.
 
