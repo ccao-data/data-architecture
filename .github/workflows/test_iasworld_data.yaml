@@ -1,26 +1,18 @@
-name: test-dbt-models
+name: test-iasworld-data
 
 # This workflow is not configured to run on PRs, because PRs have their own CI
-# process defined by the `build-and-test-dbt` workflow. It runs under two
-# circumstances:
+# process defined by the `build-and-test-dbt` workflow. Instead, the Data
+# Department's Spark data extraction process dispatches it via API once per
+# day after finishing the daily ingest of iasWorld data. For more detail, see:
 #
-#   1. When manually triggered by a Data Department team member, in order to
-#      run specific dbt tests using the `select` or `selector` input (runs all
-#      data integriy tests by default, if both `select` and `selector`
-#      are blank)
-#
-#   2. On the cron schedule set below, which runs data integrity tests
-#      weekly in order to proactively alert the team of any problems. Since
-#      the cron schedule cannot pass input variables to the workflow, we
-#      configure the input variables to fall back to defaults that support
-#      the scheduled job, namely the data integrity tests
+# https://github.com/ccao-data/service-spark-iasworld
 on:
   workflow_dispatch:
     inputs:
       select:
         description: >
           Optional space-separated list of tests to run (defaults to all
-          non-iasWorld data tests)
+          iasWorld data tests)
         required: false
         type: string
       selector:
@@ -29,16 +21,18 @@ on:
           over the above list of tests if both are present)
         required: false
         type: string
-  schedule:
-    # Every Monday at 11am UTC (6am UTC-5)
-    - cron: '0 11 * * 1'
+      upload_test_results:
+        description: Upload test results to S3
+        required: false
+        default: false
+        type: boolean
 
 env:
   PYTHONUNBUFFERED: "1"
   UV_SYSTEM_PYTHON: 1
 
 jobs:
-  test-dbt-models:
+  test-iasworld-data:
     runs-on: ubuntu-latest
     # These permissions are needed to interact with GitHub's OIDC Token endpoint
     # so that we can authenticate with AWS
@@ -52,8 +46,9 @@ jobs:
       - name: Validate and parse input variables
         id: parse-inputs
         run: |
-          # Default to running all non-iasWorld data tests
-          SELECT_OPTION="--selector select_data_test_non_iasworld"
+          # Default to no select option, which will fall back to the default
+          # behavior of the underlying Python script
+          SELECT_OPTION=""
           if [[ -n "$SELECTOR" ]]; then
             SELECT_OPTION="--selector $SELECTOR"
           elif [[ -n "$SELECT" ]]; then
@@ -90,30 +85,57 @@ jobs:
             DEFER_OPTION="--defer --state $STATE_DIR"
           fi
           # shellcheck disable=SC2086
-          dbt test --target "$TARGET" \
+          python scripts/run_iasworld_data_tests.py \
+            --target "$TARGET" \
+            --output-dir ./qc_test_results/ \
             $SELECT_OPTION \
+            $SKIP_ARTIFACTS_OPTION \
             $DEFER_OPTION
         working-directory: ${{ env.PROJECT_DIR }}
         shell: bash
         env:
+          USER: ${{ github.triggering_actor }}
+          GIT_SHA: ${{ github.sha }}
+          GIT_REF: ${{ github.ref_name }}
+          GIT_AUTHOR: ${{ github.event.commits[0].author.name }}
           CACHE_HIT: ${{ steps.cache.outputs.cache-hit }}
           SELECT_OPTION: ${{ steps.parse-inputs.outputs.select-option }}
+          SKIP_ARTIFACTS_OPTION: ${{ inputs.upload_test_results && '--no-skip-artifacts' || '--skip-artifacts' }}
+
+      - name: Save test results to S3
+        if: inputs.upload_test_results
+        run: |
+          s3_prefix="s3://ccao-data-warehouse-us-east-1/qc"
+          local_prefix="qc_test_results/metadata"
+          for dir in "test_run" "test_run_result" "test_run_failing_row"; do
+            dirpath="${local_prefix}/${dir}"
+            if [ -e "$dirpath" ]; then
+              echo "Copying ${dirpath} metadata to S3"
+              aws s3 sync "$dirpath" "${s3_prefix}/${dir}"
+            fi
+          done
+
+          crawler_name="ccao-data-warehouse-qc-crawler"
+          aws glue start-crawler --name "$crawler_name"
+          echo "Triggered Glue crawler $crawler_name"
+        working-directory: ${{ env.PROJECT_DIR }}
+        shell: bash
 
       - name: Get current time
         if: failure()
         run: echo "TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S")" >> "$GITHUB_ENV"
         shell: bash
 
-      # Only triggered when run on a schedule. Otherwise, notifications go to
-      # whoever dispatched the workflow
+      # Only triggered when called by a bot. Otherwise, notifications
+      # go to whoever called the workflow
       - name: Send failure notification
-        if: github.event_name == 'schedule' && failure()
+        if: github.event_name == 'workflow_dispatch' && github.triggering_actor == 'sqoop-bot[bot]' && failure()
         uses: ./.github/actions/publish_sns_topic
         with:
           sns_topic_arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
-          subject: "dbt tests failed for workflow run: ${{ github.run_id }}"
+          subject: "iasWorld data tests errored for workflow run: ${{ github.run_id }}"
           body: |
-            dbt tests failed for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
+            iasWorld data tests raised an error for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
 
             Link to failing workflow:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
