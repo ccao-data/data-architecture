@@ -141,10 +141,21 @@ list.files(
       )
   }, .progress = TRUE) %>%
   bind_rows() %>%
-  filter(check.numeric(excesslandval)) %>%
+  filter(
+    check.numeric(excesslandval),
+    !is.na(keypin),
+    !str_detect(keypin, "[:alpha:]"),
+    keypin != "0"
+  ) %>%
   select(where(~ !all(is.na(.x)))) %>%
   # Add useful information to output and clean-up columns ----
   mutate(
+    keypin = str_trim(keypin),
+    keypin = str_pad(keypin, side = "left", width = 14, pad = "0"),
+    keypin = map(keypin, \(x) {
+      ifelse(nchar(x) == 14, pin_format_pretty(x, full_length = TRUE), x)
+    }),
+    keypin = str_pad(keypin, side = "right", width = 18, pad = "0"),
     year = str_extract(file, "[0-9]{4}"),
     township = str_replace_all(
       str_extract(
@@ -194,5 +205,6 @@ list.files(
   select(all_of(sort(names(.)))) %>%
   relocate(c(keypin, pins, township, year)) %>%
   relocate(c(file, sheet), .after = last_col()) %>%
+  distinct() %>%
   group_by(year) %>%
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
