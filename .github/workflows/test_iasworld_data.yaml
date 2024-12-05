@@ -133,9 +133,9 @@ jobs:
         uses: ./.github/actions/publish_sns_topic
         with:
           sns_topic_arn: ${{ secrets.AWS_SNS_NOTIFICATION_TOPIC_ARN }}
-          subject: "iasWorld data tests errored for workflow run: ${{ github.run_id }}"
+          subject: "iasWorld tests errored for workflow run: ${{ github.run_id }}"
           body: |
-            iasWorld data tests raised an error for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
+            iasWorld tests raised an error for workflow ${{ github.run_id }}, run on ${{ env.TIMESTAMP }} UTC
 
             Link to failing workflow:
             https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
