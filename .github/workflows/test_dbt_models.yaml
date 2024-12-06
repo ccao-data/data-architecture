@@ -104,8 +104,8 @@ jobs:
         run: echo "TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%S")" >> "$GITHUB_ENV"
         shell: bash
 
-      # Only triggered when run on a schedule. Otherwise, notifications go to
-      # whoever dispatched the workflow
+      # Only triggered when run on a schedule. Otherwise, whoever dispatched the
+      # workflow is notified via GitHub (instead of SNS)
       - name: Send failure notification
         if: github.event_name == 'schedule' && failure()
         uses: ./.github/actions/publish_sns_topic
