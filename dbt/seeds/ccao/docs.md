@@ -12,7 +12,7 @@ sourced from Docker.
 
 {% docs seed_aprval_reascd %}
 Table containing descriptions for reason codes from `iasworld.aprval.reascd`.
-Reason codes pertian to changes in AV.
+Reason codes pertain to changes in AV.
 
 **Primary Key**: `reascd`
 {% enddocs %}
@@ -51,6 +51,15 @@ To find the level of assessment (LoA) for each class, see the `ccao.loa` table.
 Table containing descriptions for appeal decision reason codes from
 `iasworld.htpar`. These codes are sourced directly from the iasWorld interface.
 Many (but not all) are documented on the [Assessor's website](https://www.cookcountyassessor.com/form-document/assessor-reason-codes).
+
+**Primary Key**: `reascd`
+{% enddocs %}
+
+# infl_reascd
+
+{% docs seed_infl_reascd %}
+Table containing descriptions for reason codes from `iasworld.land.infl1`
+and `iasworld.land.infl2`. Reason codes pertain to influence factors.
 
 **Primary Key**: `reascd`
 {% enddocs %}

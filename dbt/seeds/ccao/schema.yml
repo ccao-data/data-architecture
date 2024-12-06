@@ -49,6 +49,13 @@ seeds:
       - name: reporting_group
         description: Reporting group name used for internal CCAO reports and aggregate statistics
 
+  - name: ccao.infl_reascd
+    description: '{{ doc("seed_infl_reascd") }}'
+    config:
+      column_types:
+        reascd: string
+        description: string
+
   - name: ccao.loa
     description: '{{ doc("seed_loa") }}'
     config:

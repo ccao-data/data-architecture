@@ -1,3 +1,28 @@
+-- fmt: off
+--
+-- Insert hyphens into a string.
+--
+-- Pass the index positions of the string where the hyphens should occur as one
+-- or more positional arguments to this macro. The macro expects positions to
+-- be 1-indexed, and expects the index to describe the position of the
+-- character *after which* the hyphen should occur.
+--
+-- For example, to perform this string transformation:
+--
+--     "123456789" -> "12-34-567-89"
+--
+-- Call the macro like so:
+--
+--     insert_hyphens("'123456798'", 2, 4, 7)
+--
+-- Remember to wrap any identifiers in strings before passing them to the
+-- macro, since otherwise the jinja parser won't be able to resolve the
+-- reference. For example, if you wanted to transform a column named
+-- `database.column`, you would call the macro like so:
+--
+--     insert_hyphens("database.column", 2, 4, 7)
+--
+-- fmt: on
 {%- macro insert_hyphens(str) -%}
     {{ return(_insert_hyphens(str, varargs, exceptions.raise_compiler_error)) }}
 {%- endmacro -%}

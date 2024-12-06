@@ -73,3 +73,4 @@ load_macros_from_path = "dbt/macros"
 # that reference those variables if they are used in code that sqlfluff
 # lints
 get_s3_dependency_dir = "{% macro get_s3_dependency_dir() %}s3://bucket{% endmacro %}"
+insert_hyphnes = "{% macro insert_hyphens(str) %}{% set _ = varargs %}'{{ str }}'{% endmacro %}"

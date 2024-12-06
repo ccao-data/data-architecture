@@ -425,6 +425,14 @@ Homesite indicator
 iasWorld unique row identifier
 {% enddocs %}
 
+## infl
+
+{% docs column_infl %}
+Influence reason code.
+
+Join to `ccao.infl_reascd` to get descriptions for each code.
+{% enddocs %}
+
 ## instrtyp
 
 {% docs column_instrtyp %}
