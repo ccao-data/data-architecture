@@ -11,7 +11,7 @@ case
 
 case
     when `assessable` = 'A' then 'Assessable'
-    when `assessable` = 'B' then 'Non-Assessable'
+    when `assessable` = 'N' then 'Non-Assessable'
     else null end
 
 case

@@ -128,7 +128,7 @@ View containing aggregate land square footage for all PINs.
 View containing building permits organized by PIN, with extra metadata
 recorded by CCAO permit specialists during the permit processing workflow.
 
-**Primary Key**: `pin`, `date_issued`
+**Primary Key**: `pin`, `date_issued`, `permit_number`
 {% enddocs %}
 
 # vw_pin_sale
