@@ -101,8 +101,17 @@ Identify years with large numbers of unmatched sales between `sale.mydec` and
 # vw_ic_reference_all_non_res_land_details
 
 {% docs view_vw_ic_reference_all_non_res_land_details %}
-Detailed land information for non-residential parcels. Used to power Commercial
-QC workbooks.
+Detailed land information for non-residential parcels.
+
+Used to power Commercial QC workbooks.
+{% enddocs %}
+
+# vw_ic_reference_all_non_res_pin_level_prior_year_vals
+
+{% docs view_vw_ic_reference_all_non_res_pin_level_prior_year_vals %}
+Pulls all non-residential parcels with prior-year values.
+
+Used to power Commercial QC workbooks.
 {% enddocs %}
 
 # vw_neg_asmt_value
