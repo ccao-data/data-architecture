@@ -111,7 +111,9 @@ SELECT
         WHEN reasons.hrstatus = 'X' THEN 'closed pending c of e'
     END AS status
 FROM reasons
-LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
+-- This is an INNER JOIN since there are apparently parcels in htpar that are
+-- not in pardat. See 31051000511064, 2008.
+INNER JOIN {{ source('iasworld', 'pardat') }} AS pardat
     ON reasons.parid = pardat.parid
     AND reasons.taxyr = pardat.taxyr
     AND pardat.cur = 'Y'
