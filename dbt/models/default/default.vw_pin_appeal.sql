@@ -1,6 +1,7 @@
 -- View containing appeals by PIN
 
--- CTE so that we can join reason descriptions onto cleaned reason codes.
+-- CTE so that we can join reason descriptions onto cleaned reason codes and
+-- drop some dupes from htpar.
 WITH reasons AS (
     SELECT DISTINCT
         htpar.parid,
@@ -49,6 +50,7 @@ WITH reasons AS (
     WHERE htpar.cur = 'Y'
         AND htpar.deactivat IS NULL
         AND htpar.caseno IS NOT NULL
+        AND htpar.heartyp IN ('A', 'C')
 
 )
 
