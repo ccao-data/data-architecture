@@ -106,10 +106,18 @@ Detailed land information for non-residential parcels.
 Used to power Commercial QC workbooks.
 {% enddocs %}
 
+# vw_ic_reference_all_non_res_pin_level_data
+
+{% docs view_vw_ic_reference_all_non_res_pin_level_data %}
+Pulls all non-residential parcels with current year values.
+
+Used to power Commercial QC workbooks.
+{% enddocs %}
+
 # vw_ic_reference_all_non_res_pin_level_prior_year_vals
 
 {% docs view_vw_ic_reference_all_non_res_pin_level_prior_year_vals %}
-Pulls all non-residential parcels with prior-year values.
+Pulls all non-residential parcels with prior year values.
 
 Used to power Commercial QC workbooks.
 {% enddocs %}

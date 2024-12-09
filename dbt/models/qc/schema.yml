@@ -239,6 +239,14 @@ models:
             horizontal_align: right
             number_format: "0.####"
 
+  - name: qc.vw_ic_reference_all_non_res_pin_level_data
+    description: '{{ doc("view_vw_ic_reference_all_non_res_pin_level_data") }}'
+    config:
+      tags:
+        - qc_report_ic_reference
+    meta:
+      export_name: AllNonRes_PINLevelData
+
   - name: qc.vw_ic_reference_all_non_res_pin_level_prior_year_vals
     description: '{{ doc("view_vw_ic_reference_all_non_res_pin_level_prior_year_vals") }}'
     config:
