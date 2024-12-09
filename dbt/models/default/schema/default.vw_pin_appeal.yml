@@ -65,7 +65,7 @@ unit_tests:
           - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null, class: "2.1-1)A"}
       - input: source("iasworld", "htpar")
         rows:
-          - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null, cpatty: "1", caseno: "1"}
+          - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null, cpatty: "1", caseno: "1", heartyp: "A", user125: "A", user38: "CC", user104: "A", resact: "A", hrstatus: "A", user100: "A", user101: "A", user89: "A"}
       - input: source("iasworld", "legdat")
         rows:
           - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null}
