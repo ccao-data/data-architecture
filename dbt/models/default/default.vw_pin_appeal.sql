@@ -123,4 +123,6 @@ LEFT JOIN {{ ref('ccao.htpar_reascd') }} AS reascd3
 WHERE reasons.cur = 'Y'
     AND reasons.caseno IS NOT NULL
     AND reasons.deactivat IS NULL
-    AND reasons.heartyp IN ('O', 'E', 'EE', 'P', 'S')
+    AND (
+        reasons.heartyp IN ('O', 'E', 'EE', 'P', 'S') OR reasons.heartyp IS NULL
+    )
