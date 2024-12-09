@@ -52,7 +52,6 @@ models:
             - pin
             - year
             - case_no
-            - appeal_type
 
 unit_tests:
   - name: default_vw_pin_appeal_class_strips_non_alphanumerics

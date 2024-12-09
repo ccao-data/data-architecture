@@ -51,7 +51,7 @@ reason, and results.
 - This view is _not_ unique by PIN and year, as a single PIN can have an
   appeal and CofE/omitted assessment in a given year.
 
-**Primary Key**: `year`, `pin`, `case_no`, `appeal_type`
+**Primary Key**: `year`, `pin`, `case_no`
 {% enddocs %}
 
 # vw_pin_condo_char
