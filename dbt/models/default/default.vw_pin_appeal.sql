@@ -49,7 +49,6 @@ WITH reasons AS (
     WHERE htpar.cur = 'Y'
         AND htpar.deactivat IS NULL
         AND htpar.caseno IS NOT NULL
-        AND htpar.heartyp IN ('A', 'C')
 
 )
 
