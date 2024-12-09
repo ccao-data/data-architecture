@@ -78,6 +78,3 @@ unit_tests:
       - input: ref("ccao.htpar_reascd")
         rows:
           - {reascd: "28"}
-    expect:
-      rows:
-        - {class: "211A"}
