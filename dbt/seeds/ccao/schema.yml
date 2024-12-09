@@ -49,6 +49,20 @@ seeds:
       - name: reporting_group
         description: Reporting group name used for internal CCAO reports and aggregate statistics
 
+  - name: ccao.commercial_subclass_1
+    description: '{{ doc("seed_commercial_subclass_1") }}'
+    config:
+      column_types:
+        code: string
+        description: string
+
+  - name: ccao.commercial_subclass_2
+    description: '{{ doc("seed_commercial_subclass_2") }}'
+    config:
+      column_types:
+        code: string
+        description: string
+
   - name: ccao.infl_reascd
     description: '{{ doc("seed_infl_reascd") }}'
     config:

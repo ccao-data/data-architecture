@@ -255,6 +255,32 @@ models:
     meta:
       export_name: AllNonRes_PINLevel.PriorYearVals
 
+  - name: qc.vw_ic_reference_all_towns_com_bldg_detail
+    description: '{{ doc("view_vw_ic_reference_all_towns_com_bldg_detail") }}'
+    config:
+      tags:
+        - qc_report_ic_reference
+    meta:
+      export_name: AllTowns_ComBldgDetail
+      export_format:
+        columns:
+          - name: EXMPPCT
+            index: BJ
+            horizontal_align: right
+            number_format: "0.####"  # Strip insignificant 0s
+          - name: EXTERNAL OCCPCT
+            index: U
+            horizontal_align: right
+            number_format: "0.####"
+          - name: EXTERNAL PROPCT
+            index: V
+            horizontal_align: right
+            number_format: "0.####"
+          - name: Occ %
+            index: N
+            horizontal_align: right
+            number_format: "0.####"
+
   - name: qc.vw_neg_asmt_value
     description: '{{ doc("view_vw_neg_asmt_value") }}'
     config:

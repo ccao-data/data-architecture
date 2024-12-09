@@ -122,6 +122,14 @@ Pulls all non-residential parcels with prior year values.
 Used to power Commercial QC workbooks.
 {% enddocs %}
 
+# vw_ic_reference_all_towns_com_bldg_detail
+
+{% docs view_vw_ic_reference_all_towns_com_bldg_detail %}
+Pulls commercial building characteristics for all non-residential cards.
+
+Used to power Commercial QC workbooks.
+{% enddocs %}
+
 # vw_neg_asmt_value
 
 {% docs view_vw_neg_asmt_value %}
