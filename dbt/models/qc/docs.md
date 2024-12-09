@@ -130,6 +130,14 @@ Pulls commercial building characteristics for all non-residential cards.
 Used to power Commercial QC workbooks.
 {% enddocs %}
 
+# vw_ic_reference_all_towns_oby_detail
+
+{% docs view_vw_ic_reference_all_towns_oby_detail %}
+Pulls commercial outbuilding characteristics for all non-residential cards.
+
+Used to power Commercial QC workbooks.
+{% enddocs %}
+
 # vw_neg_asmt_value
 
 {% docs view_vw_neg_asmt_value %}
