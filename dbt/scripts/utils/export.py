@@ -6,6 +6,7 @@ import json
 import os
 import pathlib
 import shutil
+import typing
 
 import pandas as pd
 import pyathena
@@ -359,6 +360,7 @@ def save_model_to_workbook(
                             horizontal=horiz_align_dir
                         )
                     if data_type := column_config.get("data_type"):
+                        type_func: typing.Callable
                         if data_type == "int":
                             type_func = int
                         elif data_type == "float":
