@@ -78,7 +78,7 @@ pwalk(sources_list, function(...) {
 
 ##### MICROSOFT FOOTPRINTS #####
 remote_file_microsoft <- file.path(
-  output_bucket,  "microsoft", "2019.geojson"
+  output_bucket, "microsoft", "2019.geojson"
 )
 
 if (!aws.s3::object_exists(remote_file_microsoft)) {

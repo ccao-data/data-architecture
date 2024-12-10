@@ -17,23 +17,22 @@ remote_file <- file.path(
 )
 
 data.frame(
-
-  "address" = c("3701 S. 58th Ct. Cicero IL",
-                "5159 1/2 S. Kenneth Ave. Chicago IL",
-                "4504 1/2 W. 65th St. Chicago IL",
-                "5701 1/2 W. 64th St. Chicago IL",
-                "5359 S. Newland Ave. Chicago IL",
-                "5159 1/2 S. Menard Ave. Chicago IL",
-                "3457 1/2 W. 76th Place Chicago IL",
-                "8056 1/2 Lockwood Ave. Burbank IL",
-                "8052 1/2 S. Oketo Ave. Bridgeview IL",
-                "7517 W. 61st St. Summit IL",
-                "4308 Wenonah Ave. Stickney IL",
-                "5250 1/2 S. Homan Ave. Chicago IL",
-                "3942 S. Albany Ave. Chicago IL"),
-
+  "address" = c(
+    "3701 S. 58th Ct. Cicero IL",
+    "5159 1/2 S. Kenneth Ave. Chicago IL",
+    "4504 1/2 W. 65th St. Chicago IL",
+    "5701 1/2 W. 64th St. Chicago IL",
+    "5359 S. Newland Ave. Chicago IL",
+    "5159 1/2 S. Menard Ave. Chicago IL",
+    "3457 1/2 W. 76th Place Chicago IL",
+    "8056 1/2 Lockwood Ave. Burbank IL",
+    "8052 1/2 S. Oketo Ave. Bridgeview IL",
+    "7517 W. 61st St. Summit IL",
+    "4308 Wenonah Ave. Stickney IL",
+    "5250 1/2 S. Homan Ave. Chicago IL",
+    "3942 S. Albany Ave. Chicago IL"
+  ),
   "location" = c(301, 302, 303, 304, 305, 306, 308, 309, 310, 311, 312, 313, 314),
-
   "2007" = c(53.4, 70.2, 66.3, 73.7, 58.6, 67.8, 63.7, 54.4, 60.7, 57.1, 50.4, 59.9, NA),
   "2008" = c(51.4, 69.0, 66.3, 71.0, 58.2, 68.1, 63.9, 45.5, 60.2, 58.2, 52.3, 58.2, NA),
   "2009" = c(51.6, 68.6, 69.6, 73.3, 59.8, 66.7, 62.1, 44.3, 61.9, 54.2, 51.5, 58.6, NA),
@@ -49,12 +48,13 @@ data.frame(
   "2019" = c(55.1, 70.9, 65.5, 71.4, 54.6, 69.2, 60.9, 55.2, 60.3, 55.0, 50.8, 59.0, 61.1),
   "2020" = c(52.4, 66.7, 61.9, 67.3, 51.9, 64.1, 58.5, 50.9, 56.6, 52.1, 48.4, 54.3, 58.2),
   "2021" = c(50.7, 70.1, 63.1, 72.8, 55.8, 65.6, 58.8, 53.9, 58.7, 53.1, 51.1, 58.1, 59.0)
-
 ) %>%
   pivot_longer(!c(address, location), names_to = "year", values_to = "avg_noise_level") %>%
-  geocode(address, method = 'arcgis', lat = latitude , long = longitude) %>%
+  geocode(address, method = "arcgis", lat = latitude, long = longitude) %>%
   st_as_sf(coords = c("longitude", "latitude")) %>%
   st_set_crs(4326) %>%
-  mutate(geometry_3435 = st_transform(geometry, 3435),
-         year = str_replace(year, "X", "")) %>%
+  mutate(
+    geometry_3435 = st_transform(geometry, 3435),
+    year = str_replace(year, "X", "")
+  ) %>%
   write_geoparquet(remote_file)

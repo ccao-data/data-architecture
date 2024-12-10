@@ -114,9 +114,7 @@ remote_files_park_warehouse <- file.path(
 )
 
 walk(remote_files_park_warehouse, function(x) {
-
   if (!aws.s3::object_exists(x)) {
-
     parks <- opq("Cook County United States") %>%
       add_osm_feature(key = "leisure", value = "park") %>%
       osmdata_sf()
@@ -145,7 +143,6 @@ walk(remote_files_park_warehouse, function(x) {
 
     geoarrow::write_geoparquet(parks_df, x, compression = "snappy")
   }
-
 })
 
 
@@ -196,7 +193,7 @@ if (!aws.s3::object_exists(remote_file_walk_warehouse)) {
     st_transform(4326) %>%
     rename_with(tolower) %>%
     rename_with(~ gsub("sc$|sco|scor|score", "_score", .x)) %>%
-    rename_with(~ "walk_num", contains("subzone")) %>%
+    rename_with(~"walk_num", contains("subzone")) %>%
     rename(walkability_rating = walkabilit, amenities_score = amenities, transitaccess = transitacc) %>%
     standardize_expand_geo() %>%
     select(-contains("shape")) %>%

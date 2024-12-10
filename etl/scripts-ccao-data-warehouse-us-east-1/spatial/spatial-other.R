@@ -26,7 +26,6 @@ subdivisions_raw <- grep(
 
 # Function to extract and transform geometry from shapefiles
 walk(subdivisions_raw, function(shapefile_path) {
-
   dest_path <- file.path(
     AWS_S3_WAREHOUSE_BUCKET, "spatial", "other", "subdivision",
     paste0("year=", str_extract(shapefile_path, "[0-9]{4}")),
@@ -34,7 +33,6 @@ walk(subdivisions_raw, function(shapefile_path) {
   )
 
   if (!aws.s3::object_exists(dest_path)) {
-
     tmp_file <- tempfile(fileext = ".geojson")
     aws.s3::save_object(shapefile_path, file = tmp_file)
 
@@ -45,11 +43,9 @@ walk(subdivisions_raw, function(shapefile_path) {
       mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
       select(pagesubref, geometry, geometry_3435) %>%
       geoarrow::write_geoparquet(dest_path)
-
   }
 
   file.remove(tmp_file)
-
 })
 
 

@@ -44,14 +44,13 @@ data.frame("path" = list.files(file_path, full.names = TRUE)) %>%
       str_detect(path, "20") &
       str_detect(path, "Parcel")
   ) %>%
-
-# Function to call referenced GDBs, pull requested data, and write it to S3
-pwalk(function(...) {
-  df <- tibble::tibble(...)
-  county_gdb_to_s3(
-    s3_bucket_uri = output_bucket,
-    dir_name = "subdivision",
-    file_path = df$path,
-    layer = "Subdivision"
-  )
-})
+  # Function to call referenced GDBs, pull requested data, and write it to S3
+  pwalk(function(...) {
+    df <- tibble::tibble(...)
+    county_gdb_to_s3(
+      s3_bucket_uri = output_bucket,
+      dir_name = "subdivision",
+      file_path = df$path,
+      layer = "Subdivision"
+    )
+  })

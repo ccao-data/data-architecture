@@ -32,12 +32,11 @@ source_files <- grep(
 
 # Function to retrieve data and write to S3
 read_write <- function(x) {
-
   destination <- tolower(
     str_replace(
       file.path(
         output_bucket,
-        str_extract(x, '[0-9]{4}'),
+        str_extract(x, "[0-9]{4}"),
         paste0(
           str_extract(x, paste(ccao::town_dict$township_name, collapse = "|")),
           ".parquet"
@@ -48,19 +47,13 @@ read_write <- function(x) {
   )
 
   if (grepl("Lake View", x, ignore.case = TRUE)) {
-
     destination <- str_replace(destination, "lake", "lake_view")
-
   }
 
   if (!aws.s3::object_exists(destination)) {
-
     openxlsx::read.xlsx(x, sheet = 1) %>%
       write_parquet(destination)
-
   }
-
-
 }
 
 # Apply function to foreclosure data

@@ -33,7 +33,8 @@ for (year in 2010:2021) {
     # Recode some neighborhoods that don't exist/are wrong
     mutate(
       town_nbhd = recode(
-        town_nbhd, "20371" = "20100"
+        town_nbhd,
+        "20371" = "20100"
       )
     ) %>%
     group_by(town_nbhd) %>%

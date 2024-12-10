@@ -85,20 +85,16 @@ pace_feed_dates_list <- c(
 
 get_pace_feed <- function(feed_date) {
   feed_url <- if (feed_date < "2023-09-24") {
-
     paste0(
       "https://transitfeeds.com/p/pace/171/",
       str_remove_all(feed_date, "-"), "/download"
     )
-
   } else {
-
     paste0(
       "https://www.pacebus.com/sites/default/files/",
       substr(feed_date, 1, 7),
       "/GTFS.zip"
     )
-
   }
   s3_uri <- file.path(output_path, "pace", paste0(feed_date, "-gtfs.zip"))
 

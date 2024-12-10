@@ -45,14 +45,13 @@ pwalk(sources_list, function(...) {
 # 2017 Data is no longer available online
 raw_walk <- data.frame(
   "url" = "https://services5.arcgis.com/LcMXE3TFhi1BSaCY/arcgis/rest/services/Walkability/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson",
-  "year" = "2018")
+  "year" = "2018"
+)
 
 get_walkability <- function(url, year) {
-
   s3_uri <- file.path(output_bucket, "walkability", paste0(year, ".geojson"))
 
   if (!aws.s3::object_exists(s3_uri)) {
-
     tmp_file <- tempfile(fileext = ".geojson")
     tmp_dir <- file.path(tempdir(), "walkability")
 
