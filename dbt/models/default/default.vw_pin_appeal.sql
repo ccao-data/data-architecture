@@ -3,6 +3,8 @@
 -- CTE so that we can join reason descriptions onto cleaned reason codes and
 -- drop some dupes from htpar.
 WITH reasons AS (
+    -- Select distinct rows to deduplicate a few appeals that got published twice by accident,
+    -- otherwise we wouldn't expect any dupes in this query
     SELECT DISTINCT
         htpar.parid,
         htpar.taxyr,
