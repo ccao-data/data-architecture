@@ -345,6 +345,20 @@ def save_model_to_workbook(
                         column_format_by_index[idx]["alignment"] = Alignment(
                             horizontal=horiz_align_dir
                         )
+                    if data_type := column_config.get("data_type"):
+                        if data_type == "int":
+                            type_func = int
+                        elif data_type == "float":
+                            type_func = float
+                        elif data_type == "str":
+                            type_func = str
+                        else:
+                            raise ValueError(
+                                f"data_type '{data_type}' in export_format "
+                                f"for model {model.name} is not recognized, "
+                                "must be one of 'int', 'float', or 'str'"
+                            )
+                        column_format_by_index[idx]["data_type"] = type_func
 
             # Skip header row when applying formatting. We need to
             # catch the special case where there is only one row, or
@@ -356,7 +370,14 @@ def save_model_to_workbook(
             for row in non_header_rows:
                 for idx, formats in column_format_by_index.items():
                     for attr, val in formats.items():
-                        setattr(row[idx], attr, val)
+                        if attr == "data_type":
+                            row[idx].value = (
+                                val(row[idx].value)
+                                if row[idx].value != ""
+                                else None
+                            )
+                        else:
+                            setattr(row[idx], attr, val)
 
         print(f"Exported model {model.name} to {output_path}")
         return output_path

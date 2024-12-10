@@ -232,12 +232,25 @@ models:
         columns:
           - name: ACRES
             index: J
-            horizontal_align: right
-            number_format: "0.####"  # Strip insignificant 0s
+            data_type: float
           - name: ALLOCPCT
             index: T
-            horizontal_align: right
-            number_format: "0.####"
+            data_type: float
+          - name: BRATE
+            index: N
+            data_type: float
+          - name: Exemption
+            index: AB
+            data_type: float
+          - name: ORATE
+            index: L
+            data_type: float
+          - name: Override Decr
+            index: AA
+            data_type: float
+          - name: Override Incr
+            index: Z
+            data_type: float
 
   - name: qc.vw_ic_reference_all_non_res_pin_level_data
     description: '{{ doc("view_vw_ic_reference_all_non_res_pin_level_data") }}'
@@ -266,20 +279,16 @@ models:
         columns:
           - name: EXMPPCT
             index: BJ
-            horizontal_align: right
-            number_format: "0.####"  # Strip insignificant 0s
+            data_type: float
           - name: EXTERNAL OCCPCT
             index: U
-            horizontal_align: right
-            number_format: "0.####"
+            data_type: float
           - name: EXTERNAL PROPCT
             index: V
-            horizontal_align: right
-            number_format: "0.####"
+            data_type: float
           - name: Occ %
             index: N
-            horizontal_align: right
-            number_format: "0.####"
+            data_type: float
 
   - name: qc.vw_ic_reference_all_towns_oby_detail
     description: '{{ doc("view_vw_ic_reference_all_towns_oby_detail") }}'
