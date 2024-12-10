@@ -353,20 +353,66 @@ models:
     config: *qc_report_ic_reference_tags
     meta:
       export_name: AllTowns_ComBldgDetail
+      export_template: *qc_report_ic_reference_export_template
       export_format:
         columns:
-          - name: EXMPPCT
+          - name: Basement Area
+            index: AD
+            data_type: int
+          - name: CARD
+            index: M
+            data_type: int
+          - name: CONVBLDG
+            index: O
+            data_type: int
+          - name: Effective Year
+            index: Q
+            data_type: int
+          - name: Exemption %
             index: BJ
             data_type: float
+          - name: EXTERNAL CALC RCNLD
+            index: T
+            data_type: int
           - name: EXTERNAL OCCPCT
             index: U
             data_type: float
           - name: EXTERNAL PROPCT
             index: V
             data_type: float
+          - name: EXTERNAL RCNLD
+            index: W
+            data_type: int
+          - name: Gross Building Area
+            index: Z
+            data_type: int
+          - name: Net Rentable Area
+            index: AC
+            data_type: int
           - name: Occ %
             index: N
             data_type: float
+          - name: OVRRCNLD
+            index: J
+            data_type: int
+          - name: Parking Spaces
+            index: AF
+            data_type: int
+          - name: Proration %
+            index: K
+            data_type: float
+          - name: TAXYR
+            index: B
+            data_type: int
+          - name: UNITS
+            index: AB
+            data_type: int
+          - name: USERVAL4
+            index: S
+            data_type: int
+          - name: YRBLT
+            index: P
+            data_type: int
 
   - name: qc.vw_ic_reference_all_towns_oby_detail
     description: '{{ doc("view_vw_ic_reference_all_towns_oby_detail") }}'
