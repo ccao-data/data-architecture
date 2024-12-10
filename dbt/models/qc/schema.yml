@@ -240,20 +240,44 @@ models:
             index: T
             data_type: float
           - name: BRATE
-            index: N
+            index: M
             data_type: float
           - name: Exemption
-            index: AB
-            data_type: float
-          - name: ORATE
-            index: L
-            data_type: float
-          - name: Override Decr
             index: AA
             data_type: float
-          - name: Override Incr
+          - name: INFLU
+            index: Q
+            data_type: int
+          - name: INFLU2
+            index: U
+            data_type: int
+          - name: LLINE
+            index: I
+            data_type: int
+          - name: ORATE
+            index: K
+            data_type: float
+          - name: OSIZE
+            index: AB
+            data_type: float
+          - name: Override Decr
             index: Z
             data_type: float
+          - name: Override Incr
+            index: Y
+            data_type: float
+          - name: OVRPRICE
+            index: O
+            data_type: int
+          - name: PRICE
+            index: N
+            data_type: int
+          - name: SF
+            index: L
+            data_type: int
+          - name: TAXYR
+            index: B
+            data_type: int
 
   - name: qc.vw_ic_reference_all_non_res_pin_level_data
     description: '{{ doc("view_vw_ic_reference_all_non_res_pin_level_data") }}'
