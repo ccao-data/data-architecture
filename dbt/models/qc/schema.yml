@@ -371,16 +371,16 @@ models:
           - name: Exemption %
             index: BJ
             data_type: float
-          - name: EXTERNAL CALC RCNLD
+          - name: EXTERNAL_CALC_RCNLD
             index: T
             data_type: int
-          - name: EXTERNAL OCCPCT
+          - name: EXTERNAL_OCCPCT
             index: U
             data_type: float
-          - name: EXTERNAL PROPCT
+          - name: EXTERNAL_PROPCT
             index: V
             data_type: float
-          - name: EXTERNAL RCNLD
+          - name: EXTERNAL_RCNLD
             index: W
             data_type: int
           - name: Gross Building Area
@@ -419,6 +419,45 @@ models:
     config: *qc_report_ic_reference_tags
     meta:
       export_name: AllTowns_OBYDetails
+      export_template: *qc_report_ic_reference_export_template
+      export_format:
+        columns:
+          - name: CARD
+            index: G
+            data_type: int
+          - name: CONVOBY
+            index: N
+            data_type: int
+          - name: EXTERNAL_CALC_RCNLD
+            index: R
+            data_type: int
+          - name: EXTERNAL_OCCPCT
+            index: S
+            data_type: float
+          - name: EXTERNAL_PROPCT
+            index: T
+            data_type: float
+          - name: EXTERNAL_RCNLD
+            index: U
+            data_type: int
+          - name: Held Market Value
+            index: Q
+            data_type: int
+          - name: LLINE
+            index: H
+            data_type: int
+          - name: OVRRCNLD
+            index: J
+            data_type: int
+          - name: Proration %
+            index: K
+            data_type: float
+          - name: TAXYR
+            index: B
+            data_type: int
+          - name: YRBLT
+            index: O
+            data_type: int
 
   - name: qc.vw_neg_asmt_value
     description: '{{ doc("view_vw_neg_asmt_value") }}'
