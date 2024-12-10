@@ -413,6 +413,23 @@ Grade
 Group adjustment value
 {% enddocs %}
 
+## heartyp
+
+{% docs column_heartyp %}
+Appeal hearing type.
+
+Possible values for this variable are:
+
+- `A` = Current year appeal
+- `C` = Current appeal & certificate of error
+- `O` = Omitted Assessment
+- `E` = Certificate of error only
+- `EE` = Erroneous Exemptions
+- `P` = PTAB Refund
+- `S` = Specific Objection
+
+{% enddocs %}
+
 ## hga
 
 {% docs column_hga %}
