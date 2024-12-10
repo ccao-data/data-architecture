@@ -43,7 +43,7 @@ process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
     paste0(date, "-gtfs.parquet")
   )
 
-  if (!object_exists(remote_file_stop) | !object_exists(remote_file_route)) {
+  if (!object_exists(remote_file_stop) || !object_exists(remote_file_route)) {
     tmp_file <- tempfile(fileext = ".zip")
     tmp_feed_file <- aws.s3::save_object(feed_url, file = tmp_file)
     gtfs_feed <- read_gtfs(tmp_feed_file)

@@ -122,7 +122,7 @@ airport_clean <- airport %>%
   mutate(year = as.numeric(year)) %>%
   filter(year >= 2011 & year <= 2019) %>%
   group_by(site) %>%
-  summarize(noise = mean(noise, na.rm = T))
+  summarize(noise = mean(noise, na.rm = TRUE))
 
 
 
@@ -278,7 +278,7 @@ idw_tune_hyper <- function(data, target_var, idw_params, sub) {
   results_rmse <- vector(length = length(idw_params))
   results_mae <- vector(length = length(idw_params))
   print(length(idw_params))
-  for (i in 1:length(idw_params)) {
+  for (i in seq_along(1:length(idw_params))) {
     print(i)
     out <- compute_idw_rmse(data, target_var, idw_params[i], sub)
     rmse <- out[1]

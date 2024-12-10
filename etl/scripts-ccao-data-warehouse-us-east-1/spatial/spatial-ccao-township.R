@@ -41,7 +41,10 @@ if (!aws.s3::object_exists(remote_file_town_warehouse)) {
         TRUE ~ township_name
       )
     ) %>%
-    left_join(ccao::town_dict %>% select("township_name", "township_code", "triad_name", "triad_code")) %>%
+    left_join(
+      ccao::town_dict %>%
+                select("township_name", "township_code", "triad_name", "triad_code")
+      ) %>%
     mutate(
       geometry_3435 = st_transform(geometry, 3435),
       across(township_code:triad_code, as.character)
