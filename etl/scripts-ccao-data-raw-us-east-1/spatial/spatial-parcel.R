@@ -100,9 +100,7 @@ parcels_current_remote_attr <- file.path(
 
 # Query iasWorld via Athena to get attribute data we can pre-join
 walk(parcels_current_remote_attr, function(x) {
-
   if (!aws.s3::object_exists(x)) {
-
     year <- str_sub(x, -17, -14)
 
     AWS_ATHENA_CONN_NOCTUA <- dbConnect(noctua::athena())
@@ -132,9 +130,7 @@ walk(parcels_current_remote_attr, function(x) {
       select(pin, class, tax_code, nbhd_code, town_code, taxyr) %>%
       as.data.frame() %>%
       write_parquet(x)
-
   }
-
 })
 
 

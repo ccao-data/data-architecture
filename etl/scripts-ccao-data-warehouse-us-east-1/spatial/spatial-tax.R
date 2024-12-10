@@ -26,29 +26,25 @@ districts <- c(
 )
 
 raw_files <- lapply(districts, function(x) {
-
   file.path(
     AWS_S3_RAW_BUCKET,
     aws.s3::get_bucket_df(
-      AWS_S3_RAW_BUCKET, prefix = file.path('spatial/tax', x)
+      AWS_S3_RAW_BUCKET,
+      prefix = file.path("spatial/tax", x)
     )$Key
   )
-
 }) %>%
   unlist() %>%
   sapply(function(x) {
-
     tmp_file <- tempfile(fileext = ".geojson")
     aws.s3::save_object(x, file = tmp_file)
 
     st_read(tmp_file)
-
   }, simplify = TRUE, USE.NAMES = TRUE)
 
 
 # Function to clean shapefiles
 clean_files <- sapply(names(raw_files), function(x) {
-
   message(paste0("processing "), x)
 
   new_cols <- c(paste0(basename(dirname(x)), c("_num", "_name")))
@@ -58,7 +54,7 @@ clean_files <- sapply(names(raw_files), function(x) {
     st_transform(4326) %>%
     rename_all(tolower) %>%
     select(contains("agency") & !contains("num")) %>%
-    rename_with(.cols = contains("agency"), ~ new_cols) %>%
+    rename_with(.cols = contains("agency"), ~new_cols) %>%
     drop_na() %>%
     filter_at(vars(new_cols[2]), all_vars(str_squish(.) != "")) %>%
     group_by_at(new_cols[1:2]) %>%
@@ -70,25 +66,21 @@ clean_files <- sapply(names(raw_files), function(x) {
       geometry_3435 = st_transform(geometry, 3435),
       year = str_extract(x, "[0-9]{4}")
     )
-
 }, simplify = FALSE, USE.NAMES = TRUE)
 
 # Upload to S3 by district
 districts %>%
   walk(function(x) {
-
     message(x)
 
     bind_rows(clean_files[grepl(x, names(clean_files))]) %>%
       group_by_at(vars(starts_with(x))) %>%
       mutate(across(ends_with("num"), ~ min(.x))) %>%
       group_by(year) %>%
-
       # Upload to s3
       write_partitions_to_s3(
         file.path(output_bucket, x),
         is_spatial = TRUE,
         overwrite = TRUE
       )
-
   })

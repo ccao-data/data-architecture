@@ -24,15 +24,14 @@ raw_files <- grep(
 )
 
 clean_validated <- function(raw_file) {
-
   tmp_file <- tempfile(fileext = ".xlsx")
   aws.s3::save_object(raw_file, file = tmp_file)
 
   temp <- read.xlsx(tmp_file, sheet = 1) %>%
-    rename_with( ~ tolower(gsub("\\?|\\,|\\'", "", gsub("\\.", "_", .x)))) %>%
+    rename_with(~ tolower(gsub("\\?|\\,|\\'", "", gsub("\\.", "_", .x)))) %>%
     rename(
       deed_number = `deed_number`,
-      valid =  `arms_length_transaction`,
+      valid = `arms_length_transaction`,
       comments = `notes`,
       year_of_sale = sale_year
     ) %>%
@@ -50,7 +49,8 @@ clean_validated <- function(raw_file) {
     select(
       pin, deed_number, reason_for_flag, condition,
       interior_pictures, renovated, demolished_new_house,
-      characteristics_match_up, if_not_what_is_different, valid, comments, year_of_sale) %>%
+      characteristics_match_up, if_not_what_is_different, valid, comments, year_of_sale
+    ) %>%
     distinct() %>%
     group_by(year_of_sale) %>%
     write_partitions_to_s3(
@@ -58,7 +58,6 @@ clean_validated <- function(raw_file) {
       is_spatial = FALSE,
       overwrite = TRUE
     )
-
 }
 
 walk(raw_files, clean_validated)

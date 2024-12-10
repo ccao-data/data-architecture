@@ -25,7 +25,6 @@ pull_and_write_ohare_noise <- function(x) {
 
   # Check to see if file already exists on S3; if it does, skip it
   if (!aws.s3::object_exists(remote_file)) {
-
     # Grab files
     tmp_file <- tempfile(fileext = ".pdf")
     tmp_dir <- tempdir()

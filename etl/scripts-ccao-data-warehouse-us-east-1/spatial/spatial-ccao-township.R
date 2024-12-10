@@ -33,7 +33,7 @@ if (!aws.s3::object_exists(remote_file_town_warehouse)) {
   st_read(tmp_file_town) %>%
     st_transform(4326) %>%
     select("township_name" = "NAME", "geometry") %>%
-    filter(township_name != '') %>%
+    filter(township_name != "") %>%
     mutate(
       township_name = str_to_title(township_name),
       township_name = case_when(

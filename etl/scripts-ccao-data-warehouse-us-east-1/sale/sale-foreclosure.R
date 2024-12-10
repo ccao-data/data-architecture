@@ -36,8 +36,8 @@ cook_bbox <- st_as_sfc(st_bbox(c(
   xmin = -88.351,
   xmax = -87.0299,
   ymax = 42.3395,
-  ymin = 41.4625), crs = st_crs(4326)
-))
+  ymin = 41.4625
+), crs = st_crs(4326)))
 
 # Load raw files, cleanup, then write to warehouse S3
 map(files, read_parquet) %>%

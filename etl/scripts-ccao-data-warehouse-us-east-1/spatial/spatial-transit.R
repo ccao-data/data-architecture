@@ -29,7 +29,6 @@ gtfs_feeds_df <- aws.s3::get_bucket_df(
   )
 
 process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
-
   # Construct dest paths from input
   remote_file_stop <- file.path(
     s3_bucket_uri, "transit_stop",

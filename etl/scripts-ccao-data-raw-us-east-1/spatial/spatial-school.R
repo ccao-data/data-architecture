@@ -296,10 +296,8 @@ crossing(
       "UnitSchlTaxDist"
     )
   )
-
 ) %>%
   arrange(dir_name, path) %>%
-
   # Function to call referenced GDBs, pull requested data, and write it to S3
   pwalk(function(...) {
     df <- tibble::tibble(...)

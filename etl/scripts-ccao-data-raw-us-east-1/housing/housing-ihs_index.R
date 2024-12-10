@@ -15,8 +15,8 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "housing", "ihs_index")
 
 # Scrape main page for .xlsx, which should be most recent release
 most_recent_ihs_data_url <- rvest::read_html(
-    "https://price-index.housingstudies.org/"
-  ) %>%
+  "https://price-index.housingstudies.org/"
+) %>%
   rvest::html_nodes(xpath = ".//a[contains(@href, '.xlsx')]") %>%
   rvest::html_attr("href") %>%
   sprintf("https://price-index.housingstudies.org%s", .)
