@@ -262,6 +262,35 @@ models:
         - qc_report_ic_reference
     meta:
       export_name: AllNonRes_PINLevelData
+      export_template:
+        start_row: 3
+        add_table: false
+      export_format:
+        columns:
+          - name: ADRNO
+            index: L
+            data_type: int
+          - name: APRBLDG
+            index: J
+            data_type: int
+          - name: APRLAND
+            index: H
+            data_type: int
+          - name: APRTOT
+            index: I
+            data_type: int
+          - name: COMVAL
+            index: F
+            data_type: int
+          - name: DWELVAL
+            index: K
+            data_type: int
+          - name: OBYVAL
+            index: G
+            data_type: int
+          - name: TAXYR
+            index: B
+            data_type: int
 
   - name: qc.vw_ic_reference_all_non_res_pin_level_prior_year_vals
     description: '{{ doc("view_vw_ic_reference_all_non_res_pin_level_prior_year_vals") }}'
