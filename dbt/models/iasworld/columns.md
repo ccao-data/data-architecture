@@ -424,9 +424,9 @@ Possible values for this variable are:
 - `C` = Current appeal & certificate of error
 - `O` = Omitted Assessment
 - `E` = Certificate of error only
-- `EE` = Erroneous Exemptions
-- `P` = PTAB Refund
-- `S` = Specific Objection
+- `EE` = Erroneous exemption
+- `P` = PTAB refund
+- `S` = Specific objection
 
 {% enddocs %}
 
