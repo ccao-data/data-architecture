@@ -69,8 +69,9 @@ if (!aws.s3::object_exists(remote_file_puma_2021_export)) {
     mutate(year = "2021") %>%
     left_join(
       ihs_index %>%
-        distinct(geoid, name), by = "geoid"
-      ) %>%
+        distinct(geoid, name),
+      by = "geoid"
+    ) %>%
     st_transform(4326) %>%
     st_intersection(cook_boundary) %>%
     rmapshaper::ms_simplify(keep = 0.7, keep_shapes = TRUE)

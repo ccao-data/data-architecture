@@ -449,7 +449,7 @@ krige_tune_hyper <- function(data,
   # Outputs:
   # res_df (dataframe) - Column 1 indicates idw power and column 2 shows rmse
   l <- length(formula_list)
-  # print(l)
+  # print(l) # nolint
   results_rmse <- vector(length = l)
   results_mae <- vector(length = l)
   names <- vector(length = l)
