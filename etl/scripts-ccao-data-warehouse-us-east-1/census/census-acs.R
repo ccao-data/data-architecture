@@ -23,7 +23,7 @@ census_tables <- c(
   "Median Age by Sex" = "B01002",
   "Race" = "B02001",
   "Hispanic or Latino Origin" = "B03003",
-  "Geographical Mobility in the Past Year by Sex for Current Residence in the United States" = "B07003",
+  "Geographical Mobility in the Past Year by Sex for Current Residence in the United States" = "B07003", # nolint
   "Household Type" = "B11001",
   "Sex by Educational Attainment" = "B15002",
   "Poverty Status by Sex by Age" = "B17001",
@@ -96,7 +96,9 @@ all_combos <- expand.grid(
 
 # Function to loop through rows in all_combos, grab census data,
 # and write it to a parquet file on S3 if it doesn't already exist
-pull_and_write_acs <- function(s3_bucket_uri, survey, folder, geography, year, tables = census_tables) {
+pull_and_write_acs <- function(
+    s3_bucket_uri, survey, folder, geography, year, tables = census_tables
+    ) {
   remote_file <- file.path(
     s3_bucket_uri, survey,
     paste0("geography=", folder),

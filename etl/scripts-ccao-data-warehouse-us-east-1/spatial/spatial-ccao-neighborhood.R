@@ -24,8 +24,8 @@ for (year in 2010:2021) {
     paste0("s3://ccao-data-warehouse-us-east-1/spatial/parcel/year=", year)
   ))
 
-  # Use a positive then negative buffer trick to get orthogonal polygons for each
-  # neighborhood. Taken from: https://github.com/hdus/pgtools
+  # Use a positive then negative buffer trick to get orthogonal polygons for
+  # each neighborhood. Taken from: https://github.com/hdus/pgtools
   parcels_ortho <- parcels %>%
     st_set_geometry(.$geometry_3435) %>%
     filter(!nbhd_code %in% c("000", "999", "599"), !is.na(nbhd_code)) %>%
@@ -98,8 +98,8 @@ for (year in 2010:2021) {
     select(-rmapshaperid) %>%
     st_transform(3435)
 
-  # To fill any remaining gaps, especially around the county edges, we can get the
-  # boundary of the whole county, divide it into a grid, get the difference
+  # To fill any remaining gaps, especially around the county edges, we can get
+  # the boundary of the whole county, divide it into a grid, get the difference
   # between the neighborhoods and the grid, the merge the diff'd grid squares to
   # the neighborhoods
   cook_boundary <- read_geoparquet_sf(file.path(

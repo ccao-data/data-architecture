@@ -11,7 +11,8 @@ source("utils.R")
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "environment")
 
-web_page <- "https://www.flychicago.com/community/MDWnoise/ANMS/Pages/ANMSreports.aspx"
+web_page <-
+  "https://www.flychicago.com/community/MDWnoise/ANMS/Pages/ANMSreports.aspx"
 
 # Retrieve URLs and preferred file names for .pdf files
 files <- data.frame(
@@ -32,7 +33,9 @@ files <- data.frame(
 down_up <- function(url, file_name) {
   print(glue("Uploading data for: {file_name}"))
 
-  remote_file <- file.path(output_bucket, "midway_noise_monitor", glue("{file_name}.pdf"))
+  remote_file <- file.path(
+    output_bucket, "midway_noise_monitor", glue("{file_name}.pdf")
+    )
 
   if (!aws.s3::object_exists(remote_file)) {
     tmp_file <- tempfile(fileext = ".pdf")

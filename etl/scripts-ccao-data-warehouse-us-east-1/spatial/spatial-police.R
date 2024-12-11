@@ -57,7 +57,8 @@ combine_upload <- function(economic_unit) {
   cleaned_output[grep(economic_unit, names(cleaned_output))] %>%
     bind_rows() %>%
     group_by(across(contains("name"))) %>%
-    # Some shapefiles don't have consistent identifiers across time, create them using group IDs
+    # Some shapefiles don't have consistent identifiers across time, create them
+    # using group IDs
     mutate(across(contains("num"), ~ case_when(
       is.na(.) ~ str_pad(cur_group_id(), width = 3, side = "left", pad = "0"),
       TRUE ~ .

@@ -37,7 +37,8 @@ if (!aws.s3::object_exists(remote_file_town_warehouse)) {
     mutate(
       township_name = str_to_title(township_name),
       township_name = case_when(
-        township_name %in% c("North", "South", "West") ~ paste(township_name, "Chicago"),
+        township_name %in% c("North", "South", "West") ~
+          paste(township_name, "Chicago"),
         TRUE ~ township_name
       )
     ) %>%

@@ -36,7 +36,8 @@ walk(subdivisions_raw, function(shapefile_path) {
     tmp_file <- tempfile(fileext = ".geojson")
     aws.s3::save_object(shapefile_path, file = tmp_file)
 
-    # All we need is geometry column for this data, the other columns aren't useful
+    # All we need is geometry column for this data, the other columns aren't
+    # useful
     st_read(tmp_file) %>%
       rename(pagesubref = starts_with("PAGE")) %>%
       filter(st_is_valid(geometry) & !is.na(pagesubref)) %>%
@@ -68,7 +69,8 @@ clean_comm_areas <- function(shapefile_path) {
   tmp_file <- tempfile(fileext = ".geojson")
   aws.s3::save_object(shapefile_path, file = tmp_file)
 
-  # All we need is geometry column for this data, the other columns aren't useful
+  # All we need is geometry column for this data, the other columns aren't
+  # useful
   st_read(tmp_file) %>%
     st_transform(4326) %>%
     mutate(geometry_3435 = st_transform(geometry, 3435)) %>%

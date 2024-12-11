@@ -21,7 +21,7 @@ remote_file_flood_fema <- file.path(
 )
 
 
-fema_url <- "https://hazards.fema.gov/femaportal/NFHL/Download/ProductsDownLoadServlet?DFIRMID=17031C&state=ILLINOIS&county=COOK%20COUNTY&fileName=17031C_" # noqa
+fema_url <- "https://hazards.fema.gov/femaportal/NFHL/Download/ProductsDownLoadServlet?DFIRMID=17031C&state=ILLINOIS&county=COOK%20COUNTY&fileName=17031C_" # nolint
 fema_files <- c("2021" = "20210615", "2022" = "20221130", "2023" = "20231006")
 
 

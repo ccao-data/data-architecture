@@ -342,7 +342,7 @@ compute_krige_rmse <- function(data,
                                no_print = TRUE,
                                subtractor = 0) {
   # Function to compute RMSE and MAE of krige model and prints surface is
-  # no_print = FALSE
+  # no_print = FALSE # nolint
 
   # Function takes spatial point data with a target column and makes n
   # IDW surfaces where n=number of rows in data

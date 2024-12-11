@@ -14,7 +14,7 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "condominium")
 ##### QUESTIONABLE GARAGE UNITS #####
 
 openxlsx::read.xlsx(
-  "O:/Condo Worksheets/Condo 2022/2022 Desk Review - Questionable Garage Units.xlsx", # styler: off
+  "O:/Condo Worksheets/Condo 2022/2022 Desk Review - Questionable Garage Units.xlsx", # nolint
   sheet = 1
 ) %>%
   write_parquet(
