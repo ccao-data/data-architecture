@@ -11,7 +11,7 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "ccao")
 
 # Read privileges for the this drive location are limited.
 # Contact Cook County GIS if permissions need to be changed.
-file_path <- "\\gisemcv1.ccounty.com\ArchiveServices"
+file_path <- "\\gisemcv1.ccounty.com\ArchiveServices" # nolint
 
 sources_list <- bind_rows(list(
   # NEIGHBORHOOD

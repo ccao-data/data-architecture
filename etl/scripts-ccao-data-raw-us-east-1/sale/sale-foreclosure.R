@@ -17,7 +17,6 @@ files <- list.files("O:/CCAODATA/data/foreclosures", recursive = TRUE)
 
 # Function to retrieve data and write to S3
 walk(files, \(x) {
-
   output_dest <- file.path(output_bucket, glue(parse_number(x), ".parquet"))
 
   if (!object_exists(output_dest)) {
@@ -29,5 +28,4 @@ walk(files, \(x) {
     ) %>%
       write_parquet(output_dest)
   }
-
 })
