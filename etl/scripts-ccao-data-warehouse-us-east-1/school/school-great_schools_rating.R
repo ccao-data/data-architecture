@@ -53,8 +53,8 @@ clean_great_schools_rating <- function(file) {
       ),
       complete_case =
         as.numeric(!is.na(`universal-id`)) * 3 +
-          as.numeric(!is.na(`nces-id`)) * 2 +
-          as.numeric(!is.na(`state-id`)) * 1
+        as.numeric(!is.na(`nces-id`)) * 2 +
+        as.numeric(!is.na(`state-id`)) * 1
     ) %>%
     # Some duplicate rows appear in the raw data. We want to keep only the row
     # per school with the most complete data
