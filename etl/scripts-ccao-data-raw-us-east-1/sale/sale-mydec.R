@@ -16,7 +16,7 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "sale", "mydec")
 # Mydec file addresses
 files <- xml2::read_html(
   "https://tax.illinois.gov/localgovernments/property/mydecdatafiles.html"
-  ) %>%
+) %>%
   html_nodes("a") %>%
   html_attr("href") %>%
   str_subset("ptax203")
@@ -27,7 +27,7 @@ down_up <- function(x) {
 
   if (
     !aws.s3::object_exists(file.path(output_bucket, glue("{year}.parquet")))
-    ) {
+  ) {
     print(glue("Uploading data for: {year}"))
 
     tmp1 <- tempfile(fileext = ".zip")

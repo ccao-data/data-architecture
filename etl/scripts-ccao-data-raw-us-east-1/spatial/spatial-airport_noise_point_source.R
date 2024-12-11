@@ -352,10 +352,7 @@ airport_all_factor$added_intensity <- decibel_to_intensity(
 )
 
 ohare_model3_intensity <- lm(
-  added_intensity ~
-    0 +
-      isq_dist_ohare +
-      factor(year),
+  added_intensity ~ 0 + isq_dist_ohare + factor(year),
   data = airport_all_factor %>%
     filter(airport == "ohare")
 )
@@ -363,10 +360,7 @@ summary(ohare_model3_intensity)
 # Adjusted R-squared: 0.3585
 
 midway_model3_intensity <- lm(
-  added_intensity ~
-    0 +
-      isq_dist_midway +
-      factor(year),
+  added_intensity ~ 0 + isq_dist_midway + factor(year),
   data = airport_all_factor %>%
     filter(airport == "midway")
 )

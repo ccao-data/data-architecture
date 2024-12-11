@@ -124,10 +124,10 @@ for (iter_year in parcel_years) {
       st_coordinates()
 
     cross <- geosphere::destPoint(
-        p = town_parcels_centroid,
-        b = town_mrr$bearing,
-        d = town_mrr$length
-      ) %>%
+      p = town_parcels_centroid,
+      b = town_mrr$bearing,
+      d = town_mrr$length
+    ) %>%
       cbind(town_parcels_centroid) %>%
       as.data.frame()
 

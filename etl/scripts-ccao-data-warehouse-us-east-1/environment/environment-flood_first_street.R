@@ -31,10 +31,11 @@ flood_fs <- read_parquet(file.path(input_bucket, "2019.parquet")) %>%
 # Load cleaned parcels to fill in missing flood data
 parcels_df <- dbGetQuery(
   AWS_ATHENA_CONN_NOCTUA, glue(
-  "SELECT pin10, x_3435, y_3435, year
+    "SELECT pin10, x_3435, y_3435, year
   FROM spatial.parcel
   WHERE year = '2019'"
-))
+  )
+)
 
 # Merge FS data to parcel data
 merged_df <- parcels_df %>%
@@ -52,12 +53,11 @@ merged_fill <- merged_missing_df %>%
   mutate(nearest = st_nearest_feature(geometry, merged_nonmissing_df)) %>%
   st_drop_geometry() %>%
   cbind(., merged_nonmissing_df[.$nearest, ] %>%
-          st_drop_geometry() %>%
-          select(
-            fill_fs_ff = fs_flood_factor,
-            fill_fs_rd = fs_flood_risk_direction
-          )
-  ) %>%
+    st_drop_geometry() %>%
+    select(
+      fill_fs_ff = fs_flood_factor,
+      fill_fs_rd = fs_flood_risk_direction
+    )) %>%
   select(-fs_flood_factor, -fs_flood_risk_direction)
 
 # Merge filled data to initial dataframe
