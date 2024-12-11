@@ -121,6 +121,7 @@ pwalk(gtfs_feeds_df, function(...) {
 
 # Create dictionary for GTFS numeric codes
 # See: https://developers.google.com/transit/gtfs/reference
+# nolint start
 transit_dict <- tribble(
   ~"field_name", ~"field_code", ~"field_label", ~"field_label_long",
   "route_type", 0, "streetcar", "Tram, Streetcar, Light rail. Any light rail or street level system within a metropolitan area.",
@@ -134,6 +135,7 @@ transit_dict <- tribble(
   "route_type", 11, "trolleybus", "Trolleybus. Electric buses that draw power from overhead wires using poles.",
   "route_type", 12, "monorail", "Monorail. Railway in which the track consists of a single rail or a beam."
 ) %>%
+  # nolint end
   mutate(field_code = as.integer(field_code))
 
 # Write dict to parquet

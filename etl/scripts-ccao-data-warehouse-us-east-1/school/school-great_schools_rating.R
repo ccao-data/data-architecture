@@ -21,7 +21,10 @@ source_files <- grep(
   "parquet",
   file.path(
     AWS_S3_RAW_BUCKET,
-    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "school/great_schools_rating/")$Key
+    get_bucket_df(
+      AWS_S3_RAW_BUCKET,
+      prefix = "school/great_schools_rating/"
+    )$Key
   ),
   value = TRUE
 )

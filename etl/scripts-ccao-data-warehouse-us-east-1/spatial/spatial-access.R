@@ -176,8 +176,8 @@ if (!aws.s3::object_exists(remote_file_indc_warehouse)) {
 
 ##### WALKABILITY #####
 # data dictionary located on page 7 at
-# https://datahub.cmap.illinois.gov/dataset/aac0d840-77b4-4e88-8a26-7220ac6c588f/
-# resource/7f0d890f-e678-46f8-9a6e-8d0b6ad04ae7/download/WalkabilityMethodology.pdf
+# https://datahub.cmap.illinois.gov/dataset/aac0d840-77b4-4e88-8a26-7220ac6c588f/ # nolint
+# resource/7f0d890f-e678-46f8-9a6e-8d0b6ad04ae7/download/WalkabilityMethodology.pdf# nolint
 remote_file_walk_raw <- file.path(
   input_bucket, "walkability", "2017.geojson"
 )
@@ -194,7 +194,11 @@ if (!aws.s3::object_exists(remote_file_walk_warehouse)) {
     rename_with(tolower) %>%
     rename_with(~ gsub("sc$|sco|scor|score", "_score", .x)) %>%
     rename_with(~"walk_num", contains("subzone")) %>%
-    rename(walkability_rating = walkabilit, amenities_score = amenities, transitaccess = transitacc) %>%
+    rename(
+      walkability_rating = walkabilit,
+      amenities_score = amenities,
+      transitaccess = transitacc
+    ) %>%
     standardize_expand_geo() %>%
     select(-contains("shape")) %>%
     mutate(year = "2017") %>%

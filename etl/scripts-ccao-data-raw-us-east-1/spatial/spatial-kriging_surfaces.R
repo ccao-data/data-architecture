@@ -1,6 +1,7 @@
 # Create spatial interpolation surfaces
 # Gabe Morrison
-# Note: This script is a more succinct version of an Rmd attached to the 77 issue
+# Note: This script is a more succinct version of an Rmd attached to the 77
+# issue
 
 
 library(arrow)
@@ -70,7 +71,10 @@ town_shp <- st_transform(ccao::town_shp, 3435)
 
 midway <- mdw
 mdw_long <- midway %>%
-  pivot_longer(-c(locations, address, geometry), names_to = "year", values_to = "noise") %>%
+  pivot_longer(
+    -c(locations, address, geometry),
+    names_to = "year", values_to = "noise"
+  ) %>%
   rename("site" = "locations") %>%
   select(-address) %>%
   mutate(
@@ -127,8 +131,18 @@ airport_clean <- airport %>%
 
 
 # Create new dataset with Airports included:
-ohare <- c(site = "ohare", noise = "90", longitude = 41.97857577880779, latitude = -87.90817373313197)
-midway <- c(site = "midway", noise = "90", longitude = 41.78512649107475, latitude = -87.75182050036706)
+ohare <- c(
+  site = "ohare",
+  noise = "90",
+  longitude = 41.97857577880779,
+  latitude = -87.90817373313197
+)
+midway <- c(
+  site = "midway",
+  noise = "90",
+  longitude = 41.78512649107475,
+  latitude = -87.75182050036706
+)
 aps <- as.data.frame(rbind(ohare, midway))
 aps <- st_as_sf(aps, coords = c("latitude", "longitude"))
 aps <- st_set_crs(aps, 4326)
@@ -155,7 +169,11 @@ md_name <- rep(c("midway_border"), 9)
 
 
 ohare_bound_sound <- cbind(site = oh_name, noise = sound, ohare_points_bbox)
-midway_bound_sound <- cbind(site = md_name, noise = sound_md, midway_points_bbox)
+midway_bound_sound <- cbind(
+  site = md_name,
+  noise = sound_md,
+  midway_points_bbox
+)
 
 air_bound_sound <- rbind(ohare_bound_sound, midway_bound_sound) %>%
   rename(geometry = x) %>%
@@ -212,7 +230,8 @@ plot_surface <- function(data) {
 
 
 # Create crossvalidation code for IDW:
-# Code strongly influenced by: https://mgimond.github.io/Spatial/interpolation-in-r.html
+# Code strongly influenced by:
+# https://mgimond.github.io/Spatial/interpolation-in-r.html
 
 
 compute_idw_rmse <- function(data, target_var, power, sub) {
@@ -224,8 +243,8 @@ compute_idw_rmse <- function(data, target_var, power, sub) {
 
   # Inputs:
   #  data: (sf) - spatial POINT dataframe
-  # target_var (string) - refers to a column in sf that has values to interpolate
-  # power (int) - the power of the IDW measure to use
+  # target_var (string) - refers to a column in sf that has values to
+  # interpolate power (int) - the power of the IDW measure to use
   # sub (int) - the number of coluns from the bottom of the dataframe
   #             not to use
 
@@ -268,9 +287,10 @@ idw_tune_hyper <- function(data, target_var, idw_params, sub) {
   # Function to compute rmse's for all idw's inputed
   # Inputs:
   #  data: (sf) - spatial POINT dataframe
-  # target_var (string) - refers to a column in sf that has values to interpolate
-  # idw_params (vector of int) - a vector containing the power of the IDW measure to test
-  # sub (int) - the number of rows taht are not true data
+  # target_var (string) - refers to a column in sf that has values to
+  # interpolate idw_params (vector of int) - a vector containing the power of
+  # the IDW measure to test sub (int) - the number of rows taht are not true
+  # data
 
   # Outputs:
   # res_df (dataframe) - Column 1 indicates idw power and column 2 shows rmse
@@ -321,7 +341,8 @@ compute_krige_rmse <- function(data,
                                funct_form,
                                no_print = TRUE,
                                subtractor = 0) {
-  # Function to compute RMSE and MAE of krige model and prints surface is no_print = FALSE
+  # Function to compute RMSE and MAE of krige model and prints surface is
+  # no_print = FALSE
 
   # Function takes spatial point data with a target column and makes n
   # IDW surfaces where n=number of rows in data
@@ -333,9 +354,9 @@ compute_krige_rmse <- function(data,
   #               sound recording stations must be the last rows of the
   #               dataframe
 
-  # target_var (string) - refers to a column in sf that has values to interpolate
-  # feature_vector (vector of strings) - vector containing specific hyper-
-  #                                     parameters to test
+  # target_var (string) - refers to a column in sf that has values to
+  # interpolate feature_vector (vector of strings) - vector containing specific
+  # hyper-parameters to test
   #               Components inside feature_vector:
   #                    equation (string): equation to detrend data
   #                    cutoff (float): cutoff of distance above which to ignore
@@ -434,13 +455,13 @@ krige_tune_hyper <- function(data,
   # Function to compute rmse's for all idw's inputed
   # Inputs:
   #  data: (sf) - spatial POINT dataframe
-  # target_var (string) - refers to a column in sf that has values to interpolate
-  # *_list (vectors of various types) - all must be same length:
+  # target_var (string) - refers to a column in sf that has values to
+  # interpolate *_list (vectors of various types) - all must be same length:
   #     formula (string): formula for spatial model specifications
   #     cutoff (float): to check different cutoffs
   #     width (float): to check different widths
-  #     funct_form_list (string): characterize functional form of fitted variogram
-  #     sub (int) - the number of additional points added to the data
+  #     funct_form_list (string): characterize functional form of fitted
+  #     variogram sub (int) - the number of additional points added to the data
   #                 0 if nothing
   #                 2 if just airports
   #                 15 if airports and boundary data
@@ -590,8 +611,8 @@ create_year_kriging <- function(data, year_num, raster_file) {
   # Data: likely "airport" it should be a sf dataframe with columns
   # "site" and "noise"
   # year_num - string - the year of the data to use. EX: "2012"
-  # raster_file - starts raster object - likely either "rasters" or "rasters_100"
-  #           this needs to be an underlying set of cells to predict on
+  # raster_file - starts raster object - likely either "rasters" or
+  # "rasters_100" this needs to be an underlying set of cells to predict on
 
   # Output:
   # Returns the surface with predictions from the krige surface
@@ -632,8 +653,8 @@ create_av_kriging <- function(data, raster_file) {
   # Inputs:
   # Data: likely "airport" it should be a sf dataframe with columns
   # "site" and "noise"
-  # raster_file - starts raster object - likely either "rasters" or "rasters_100"
-  #           this needs to be an underlying set of cells to predict on
+  # raster_file - starts raster object - likely either "rasters" or
+  # "rasters_100" this needs to be an underlying set of cells to predict on
 
   # Output:
   # Returns the surface with predictions from the krige surface
@@ -665,7 +686,10 @@ years <- c(
   "2018", "2019", "2020"
 )
 
-out <- lapply(years, create_year_kriging, raster_file = rasters_100, data = airport)
+out <- lapply(
+  years, create_year_kriging,
+  raster_file = rasters_100, data = airport
+)
 
 # Demo from 2010:
 # plot_surface(out[[1]]) # nolint
@@ -861,10 +885,12 @@ write.csv(ag_stats_parcels_21, "exposure_DNL_21.csv")
 
 
 # Notes on DNL:
-#  From FAA: https://www.faa.gov/regulations_policies/policy_guidance/noise/community/
+#  From FAA:
+#  https://www.faa.gov/regulations_policies/policy_guidance/noise/community/
 #  They describe a quiet suburban neighborhood as having a DNL of 50.
 
-# Also from FAA: https://www.faa.gov/regulations_policies/policy_guidance/noise/basics/
+# Also from FAA:
+# https://www.faa.gov/regulations_policies/policy_guidance/noise/basics/
 #  between 25 and 30 - library/bedroom at night
 # between 55 and 60 - inside with a laundry machine going in the next room
 # between 70 and 75 - busy highway 50 ft away
