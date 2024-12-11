@@ -81,3 +81,31 @@ unit_tests:
     expect:
       rows:
         - {class: "211A"}
+  - name: default_vw_pin_appeal_pin_strips_non_numerics
+    description: pin transformation should remove non-numeric characters
+    model: default.vw_pin_appeal
+    given:
+      - input: source("iasworld", "htpar")
+        rows:
+          # `parid` is the important column here, and all other columns are
+          # only set to ensure proper joins and filters when creating the
+          # dummy tables
+          - {parid: "1-2.3)", taxyr: "2024", cur: "Y", deactivat: null, cpatty: "1", caseno: "1", heartyp: "A"}
+      - input: source("iasworld", "pardat")
+        rows:
+          - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null}
+      - input: source("iasworld", "legdat")
+        rows:
+          - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null}
+      - input: ref("default.vw_pin_value")
+        rows:
+          - {pin: "123", year: "2024"}
+      - input: source("iasworld", "htagnt")
+        rows:
+          - {agent: "1", cur: "Y", deactivat: null}
+      - input: ref("ccao.htpar_reascd")
+        rows:
+          - {reascd: "28"}
+    expect:
+      rows:
+        - {pin: "123"}

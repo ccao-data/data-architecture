@@ -6,7 +6,7 @@ WITH reasons AS (
     -- Select distinct rows to deduplicate a few appeals that got published
     -- twice by accident, otherwise we wouldn't expect any dupes in this query
     SELECT DISTINCT
-        htpar.parid,
+        REGEXP_REPLACE(htpar.parid, '[^0-9]', '') AS parid,
         htpar.taxyr,
         htpar.caseno,
         htpar.user38,
