@@ -1,7 +1,7 @@
 # These rules are required to support sqlfmt. See:
 # https://docs.sqlfmt.com/integrations/sqlfluff
 [sqlfluff]
-exclude_rules = layout.indent, layout.cte_bracket, layout.select_targets, ambiguous.column_count, structure.column_order, RF04, ST05
+exclude_rules = layout.indent, layout.cte_bracket, layout.select_targets, layout.end_of_file, ambiguous.column_count, structure.column_order, RF04, ST05
 max_line_length = 88
 
 [sqlfluff:rules]

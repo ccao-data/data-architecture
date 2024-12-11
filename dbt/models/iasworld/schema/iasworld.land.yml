@@ -169,9 +169,9 @@ sources:
           - name: iasw_id
             description: '{{ doc("column_iasw_id") }}'
           - name: infl1
-            description: 'Influence Code #1'
+            description: '{{ doc("column_infl") }}'
           - name: infl2
-            description: 'Influence Code #2'
+            description: '{{ doc("column_infl") }}'
           - name: influ
             description: Influence percent (+/-)
             data_tests:
