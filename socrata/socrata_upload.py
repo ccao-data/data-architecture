@@ -10,6 +10,14 @@ from dbt.cli.main import dbtRunner
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
 
+# Create a session object so HTTP requests can be pooled
+s = requests.Session()
+s.verify = True
+s.auth = (
+    str(os.getenv("SOCRATA_USERNAME")),
+    str(os.getenv("SOCRATA_PASSWORD")),
+)
+
 # Connect to Athena
 cursor = connect(
     s3_staging_dir="s3://ccao-athena-results-us-east-1/",
@@ -95,7 +103,7 @@ def build_query(
     )
 
     asset_columns = (
-        requests.get(
+        s.get(
             asset_url, headers={"X-App-Token": os.getenv("SOCRATA_APP_TOKEN")}
         )
         .json()[0]
@@ -134,7 +142,6 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
 
     # Load environmental variables
     app_token = os.getenv("SOCRATA_APP_TOKEN")
-    auth = (os.getenv("SOCRATA_USERNAME"), os.getenv("SOCRATA_PASSWORD"))
 
     url = (
         "https://datacatalog.cookcountyil.gov/resource/"
@@ -172,31 +179,56 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     input_data[date_columns] = input_data[date_columns].map(
         lambda x: x.strftime("%Y-%m-%dT%X")
     )
-    input_data = input_data.to_json(orient="records")
 
     # Raise URL status if it's bad
-    requests.get(
-        url=url,
-        data=input_data,
-        auth=auth,
+    s.get(
+        (
+            "https://datacatalog.cookcountyil.gov/resource/"
+            + asset_id
+            + ".json?$limit=1"
+        ),
+        headers={"X-App-Token": os.getenv("SOCRATA_APP_TOKEN")},
     ).raise_for_status()
 
-    print(print_message)
-    if method == "put":
-        response = requests.put(
-            url=url,
-            data=input_data,
-            auth=auth,
-        )
+    s.get(url=url).raise_for_status()
 
-    elif method == "post":
-        response = requests.post(
-            url=url,
-            data=input_data,
-            auth=auth,
-        )
+    if input_data.shape[0] > 10000:
+        for i in range(0, input_data.shape[0], 10000):
+            print(print_message)
+            print(f"Rows {i + 1}-{i + 10000}")
+            if method == "put":
+                response = s.put(
+                    url=url,
+                    data=input_data.iloc[i : i + 10000].to_json(
+                        orient="records"
+                    ),
+                )
 
-    return response
+            elif method == "post":
+                response = s.post(
+                    url=url,
+                    data=input_data.iloc[i : i + 10000].to_json(
+                        orient="records"
+                    ),
+                )
+
+            print(response.content)
+
+    else:
+        print(print_message)
+        if method == "put":
+            response = s.put(
+                url=url,
+                data=input_data.to_json(orient="records"),
+            )
+
+        elif method == "post":
+            response = s.post(
+                url=url,
+                data=input_data.to_json(orient="records"),
+            )
+
+        print(response.content)
 
 
 def generate_groups(athena_asset, years=None, by_township=False):
@@ -286,10 +318,9 @@ def socrata_upload(
         }
 
         if overwrite:
-            response = upload("put", **upload_args)
+            upload("put", **upload_args)
         else:
-            response = upload("post", **upload_args)
-        print(response.content)
+            upload("post", **upload_args)
 
     else:
         if flag == "years":
@@ -326,10 +357,9 @@ def socrata_upload(
                     "year": item,
                 }
             if count == 0 and overwrite:
-                response = upload("put", **upload_args)
+                upload("put", **upload_args)
             else:
-                response = upload("post", **upload_args)
-            print(response.content)
+                upload("post", **upload_args)
             count = count + 1
 
     toc = time.perf_counter()
