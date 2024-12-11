@@ -13,17 +13,19 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "ccao")
 # Contact Cook County GIS if permissions need to be changed.
 file_path <- "\\gisemcv1.ccounty.com\ArchiveServices" # nolint
 
-sources_list <- bind_rows(list(
-  # NEIGHBORHOOD
-  "neighborhood" = c(
-    "url" = paste0(
-      "https://gitlab.com/ccao-data-science---modeling/packages/ccao",
-      "/-/raw/master/data-raw/nbhd_shp.geojson"
-    ),
-    "boundary" = "neighborhood",
-    "year" = "2021"
+sources_list <- bind_rows(
+  list(
+    # NEIGHBORHOOD
+    "neighborhood" = c(
+      "url" = paste0(
+        "https://gitlab.com/ccao-data-science---modeling/packages/ccao",
+        "/-/raw/master/data-raw/nbhd_shp.geojson"
+      ),
+      "boundary" = "neighborhood",
+      "year" = "2021"
+    )
   )
-))
+)
 
 # Function to call referenced API, pull requested data, and write it to S3
 pwalk(sources_list, function(...) {
