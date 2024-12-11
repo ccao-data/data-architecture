@@ -82,7 +82,7 @@ mdw_long <- midway %>%
   mutate(noise = as.numeric(noise))
 
 
-
+# nolint start
 # Visualize airport trends over time:
 # Key finding: big drop in 2020 (COVID STOPPING FLIGHTS)
 # av_sound_by_year <- ohare_noise %>%
@@ -98,7 +98,7 @@ mdw_long <- midway %>%
 #  xlab("Year") +
 #  ylab("Sound (DNL)") +
 #  ggtitle("The areas surrounding O'Hare have become quieter over time")
-
+# nolint end
 
 # Create airport bounding boxes:
 airport <- rbind(ohare_noise, mdw_long)
@@ -261,7 +261,7 @@ compute_idw_rmse <- function(data, target_var, power, sub) {
 }
 
 # Check code:
-# r <- compute_idw_rmse(airport_clean, "noise", 2, sub = 0)
+# r <- compute_idw_rmse(airport_clean, "noise", 2, sub = 0) # nolint
 
 
 idw_tune_hyper <- function(data, target_var, idw_params, sub) {
@@ -278,7 +278,7 @@ idw_tune_hyper <- function(data, target_var, idw_params, sub) {
   results_rmse <- vector(length = length(idw_params))
   results_mae <- vector(length = length(idw_params))
   print(length(idw_params))
-  for (i in seq_along(1:length(idw_params))) {
+  for (i in seq_along(idw_params)) {
     print(i)
     out <- compute_idw_rmse(data, target_var, idw_params[i], sub)
     rmse <- out[1]
@@ -398,7 +398,7 @@ compute_krige_rmse <- function(data,
   if (no_print == FALSE) {
     v <- variogram(eq, data, cutoff = cutoff, width = width)
     v.m <- fit.variogram(v, vgm(1, funct_form, 50000, 1))
-    # v.m = fit.variogram(v, vgm(funct_form))
+    # v.m = fit.variogram(v, vgm(funct_form)) # nolint
     k <- krige(eq, data, rasters, v.m)
 
     surface <- plot_surface(k)
@@ -407,7 +407,7 @@ compute_krige_rmse <- function(data,
   return(c(rmse, mae))
 }
 
-
+# nolint start
 # Proof of concept test runs:
 # proof_of_concept <- compute_krige_rmse(airport_clean, "noise", "noise~1",  200000, 3000, "Gau", no_print = FALSE)
 
@@ -422,7 +422,7 @@ compute_krige_rmse <- function(data,
 #                                        "Gau",
 #                                        no_print = FALSE,
 #                                        subtractor = 15)
-
+# nolint end
 
 krige_tune_hyper <- function(data,
                              target_var,
@@ -612,12 +612,13 @@ create_year_kriging <- function(data, year_num, raster_file) {
   v <- variogram(noise ~ 1, clean_data, cutoff = 200000, width = 500)
   v.m <- fit.variogram(v, vgm(1, "Gau", 5000, 1))
   k <- krige(noise ~ 1, clean_data, raster_file, v.m)
+  # nolint start
   # pdf(str_c("output/krig_demo/", year_num, ".pdf"), width = 11, height = 8.5)
 
   # plot_surface(k)
 
   # dev.off()
-
+  # # nolint end
   return(k)
 }
 
@@ -667,7 +668,7 @@ years <- c(
 out <- lapply(years, create_year_kriging, raster_file = rasters_100, data = airport)
 
 # Demo from 2010:
-# plot_surface(out[[1]])
+# plot_surface(out[[1]]) # nolint
 
 
 # Create surface for 2019 Midway and OMP modelled out Ohare as a final surface:
@@ -721,8 +722,8 @@ spatial_join_raster_pin <- function(year) {
 
 
 
-  # raster_location <- str_c("output/kriging_surfaces/rasters/", year, ".tif")
-  # raster_file <- read_stars(raster_location)
+  # raster_location <- str_c("output/kriging_surfaces/rasters/", year, ".tif") # nolint
+  # raster_file <- read_stars(raster_location) # nolint
   ind <- as.numeric(year) - 2009
 
   raster_file <- out[[ind]]

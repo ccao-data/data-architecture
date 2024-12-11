@@ -54,9 +54,11 @@ for (year in 2010:2021) {
       st_set_geometry(.$geometry_3435) %>%
       mutate(town_nbhd = paste0(town_code, nbhd_code)) %>%
       filter(
-        town_nbhd %in% (parcels_ortho %>%
-          filter(st_is_empty(geometry)) %>%
-          pull(town_nbhd))
+        town_nbhd %in% (
+          parcels_ortho %>%
+            filter(st_is_empty(geometry)) %>%
+            pull(town_nbhd)
+        )
       ) %>%
       group_by(town_nbhd) %>%
       summarize(geometry = st_union(geometry)) %>%
