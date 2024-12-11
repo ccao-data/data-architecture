@@ -91,8 +91,9 @@ map(files, read_parquet) %>%
   filter(as.logical(st_within(geometry, cook_bbox)), year_of_sale >= "2013") %>%
   mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
   separate(
-    bankruptcy_filed, sep = " - Chapter ", into = c(NA, "bankruptcy_chapter")
-    ) %>%
+    bankruptcy_filed,
+    sep = " - Chapter ", into = c(NA, "bankruptcy_chapter")
+  ) %>%
   select(pin, everything(), geometry, geometry_3435, year_of_sale) %>%
   group_by(year_of_sale) %>%
   write_partitions_to_s3(output_bucket, is_spatial = TRUE, overwrite = TRUE)

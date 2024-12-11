@@ -13,7 +13,7 @@ source("utils.R")
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(
   AWS_S3_RAW_BUCKET, "ccao", "condominium", "pin_condo_char"
-  )
+)
 
 # Get local file addresses
 source_paths <- c(

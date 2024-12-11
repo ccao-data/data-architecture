@@ -98,8 +98,7 @@ all_combos <- expand.grid(
 # Function to loop through rows in all_combos, grab census data,
 # and write it to a parquet file on S3 if it doesn't already exist
 pull_and_write_acs <- function(
-    s3_bucket_uri, survey, folder, geography, year, tables = census_tables
-    ) {
+    s3_bucket_uri, survey, folder, geography, year, tables = census_tables) {
   remote_file <- file.path(
     s3_bucket_uri, survey,
     paste0("geography=", folder),

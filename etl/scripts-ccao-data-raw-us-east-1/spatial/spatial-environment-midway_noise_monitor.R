@@ -35,7 +35,7 @@ down_up <- function(url, file_name) {
 
   remote_file <- file.path(
     output_bucket, "midway_noise_monitor", glue("{file_name}.pdf")
-    )
+  )
 
   if (!aws.s3::object_exists(remote_file)) {
     tmp_file <- tempfile(fileext = ".pdf")
