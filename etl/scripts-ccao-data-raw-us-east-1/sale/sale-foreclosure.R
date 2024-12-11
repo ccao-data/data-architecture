@@ -21,7 +21,6 @@ walk(files, \(x) {
   output_dest <- file.path(output_bucket, glue(parse_number(x), ".parquet"))
 
   if (!object_exists(output_dest)) {
-
     print(output_dest)
 
     readr::read_delim(
@@ -29,7 +28,6 @@ walk(files, \(x) {
       delim = ","
     ) %>%
       write_parquet(output_dest)
-
   }
 
 })

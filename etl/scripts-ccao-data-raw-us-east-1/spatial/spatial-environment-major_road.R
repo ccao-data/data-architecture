@@ -26,9 +26,11 @@ for (year in years) {
 
   if (!aws.s3::object_exists(remote_file)) {
     # Update the datetime in the opq function
-    osm_roads <- opq(bbox = "Cook County, IL",
-                     datetime = paste0(year, "-01-01T00:00:00Z"),
-                     timeout = 900) %>%
+    osm_roads <- opq(
+      bbox = "Cook County, IL",
+      datetime = paste0(year, "-01-01T00:00:00Z"),
+      timeout = 900
+    ) %>%
       add_osm_feature(
         key = "highway",
         value = c("motorway", "trunk", "primary")
