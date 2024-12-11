@@ -12,6 +12,8 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "access")
 # List APIs from city site
 sources_list <- bind_rows(list(
   # INDUSTRIAL CORRIDORS
+  # See https://data.cityofchicago.org/Community-Economic-Development/IndustrialCorridor_Jan2013/3tu3-iesz/about_data # nolint
+  # for more information
   "ind_2013" = c(
     "source" = "https://data.cityofchicago.org/api/geospatial/",
     "api_url" = "e6xh-nr8w?method=export&format=GeoJSON",
