@@ -15,7 +15,8 @@ output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "census")
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
 # Declare years we'd like to grab census data for
-census_years <- Sys.getenv("CENSUS_ACS_MIN_YEAR"):Sys.getenv("CENSUS_ACS_MAX_YEAR")
+census_years <-
+  Sys.getenv("CENSUS_ACS_MIN_YEAR"):Sys.getenv("CENSUS_ACS_MAX_YEAR")
 
 # Census tables we want to grab. Taken from: https://censusreporter.org/topics/
 census_tables <- c(

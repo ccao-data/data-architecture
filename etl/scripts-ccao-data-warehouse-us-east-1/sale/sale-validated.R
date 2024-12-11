@@ -49,7 +49,8 @@ clean_validated <- function(raw_file) {
     select(
       pin, deed_number, reason_for_flag, condition,
       interior_pictures, renovated, demolished_new_house,
-      characteristics_match_up, if_not_what_is_different, valid, comments, year_of_sale
+      characteristics_match_up, if_not_what_is_different,
+      valid, comments, year_of_sale
     ) %>%
     distinct() %>%
     group_by(year_of_sale) %>%

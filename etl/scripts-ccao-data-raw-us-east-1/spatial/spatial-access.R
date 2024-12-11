@@ -44,7 +44,7 @@ pwalk(sources_list, function(...) {
 ##### CMAP WALKABILITY #####
 # 2017 Data is no longer available online
 raw_walk <- data.frame(
-  "url" = "https://services5.arcgis.com/LcMXE3TFhi1BSaCY/arcgis/rest/services/Walkability/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson",
+  "url" = "https://services5.arcgis.com/LcMXE3TFhi1BSaCY/arcgis/rest/services/Walkability/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson", # nolint
   "year" = "2018"
 )
 

@@ -20,7 +20,7 @@ output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "sale", "foreclosure")
 # Destination for upload
 dest_file <- file.path(
   AWS_S3_WAREHOUSE_BUCKET,
-  max(aws.s3::get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "sale/foreclosure/")$Key)
+  max(get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "sale/foreclosure/")$Key)
 )
 
 # Get S3 file addresses
@@ -28,7 +28,7 @@ files <- grep(
   ".parquet",
   file.path(
     AWS_S3_RAW_BUCKET,
-    aws.s3::get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "sale/foreclosure/")$Key
+    get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "sale/foreclosure/")$Key
   ),
   value = TRUE
 )
@@ -90,7 +90,9 @@ map(files, read_parquet) %>%
   st_as_sf(coords = c("global_x", "global_y"), crs = 4326) %>%
   filter(as.logical(st_within(geometry, cook_bbox)), year_of_sale >= "2013") %>%
   mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
-  separate(bankruptcy_filed, sep = " - Chapter ", into = c(NA, "bankruptcy_chapter")) %>%
+  separate(
+    bankruptcy_filed, sep = " - Chapter ", into = c(NA, "bankruptcy_chapter")
+    ) %>%
   select(pin, everything(), geometry, geometry_3435, year_of_sale) %>%
   group_by(year_of_sale) %>%
   write_partitions_to_s3(output_bucket, is_spatial = TRUE, overwrite = TRUE)
