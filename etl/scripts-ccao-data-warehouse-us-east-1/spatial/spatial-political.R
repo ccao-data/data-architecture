@@ -87,15 +87,15 @@ clean_files <- mapply(function(x, y) {
     if (str_detect(y, "municipality")) {
       x <- x %>% mutate(
         district_num = case_when(
-          (is.na(district_name) |
-            district_name == "1" |
-            district_name == "Unincorp") ~ NA_integer_,
+          (
+            is.na(district_name) | district_name %in% c("1", "Unincorp")
+          ) ~ NA_integer_,
           TRUE ~ district_num
         ),
         district_name = case_when(
-          (is.na(district_name) |
-            district_name == "1" |
-            district_name == "Unincorp") ~ "Unincorporated",
+          (
+            is.na(district_name) | district_name %in% c("1", "Unincorp")
+          ) ~ "Unincorporated",
           TRUE ~ str_to_title(district_name)
         )
       )
