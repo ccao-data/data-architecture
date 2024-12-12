@@ -126,7 +126,7 @@ remote_file <- file.path(
   AWS_S3_WAREHOUSE_BUCKET, "spatial", "environment",
   "ohare_noise_monitor", "ohare_noise_monitor.parquet"
 )
-write_geoparquet(noise_addresses_clean, remote_file)
+geoparquet_to_s3(noise_addresses_clean, remote_file)
 file.remove(tmp_file)
 
 
@@ -153,4 +153,4 @@ ohare_noise_contour <- st_read(tmp_file) %>%
     geometry_3435 = st_transform(geom, 3435)
   ) %>%
   select(airport, decibels, geometry = geom, geometry_3435) %>%
-  write_geoparquet(remote_file)
+  geoparquet_to_s3(remote_file)

@@ -77,7 +77,7 @@ walk(years, \(x) {
         mutate(year = as.character(x))
 
       # Save the shapefile as a GeoParquet file
-      geoarrow::write_geoparquet(shapefile_data, remote_file_path)
+      geoparquet_to_s3(shapefile_data, remote_file_path)
     } else {
       message(paste("No shapefile found for year", x, "."))
     }

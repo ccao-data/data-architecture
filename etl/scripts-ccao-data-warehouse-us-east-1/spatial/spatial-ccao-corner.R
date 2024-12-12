@@ -237,7 +237,7 @@ for (iter_year in parcel_years) {
       select(pin10, id) %>%
       inner_join(cross_final, by = "id") %>%
       select(-id) %>%
-      write_geoparquet(remote_file)
+      geoparquet_to_s3(remote_file)
   }
   tictoc::toc()
 }
