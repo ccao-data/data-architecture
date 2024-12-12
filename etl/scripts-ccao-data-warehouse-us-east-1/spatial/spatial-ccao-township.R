@@ -50,6 +50,5 @@ if (!aws.s3::object_exists(remote_file_town_warehouse)) {
       geometry_3435 = st_transform(geometry, 3435),
       across(township_code:triad_code, as.character)
     ) %>%
-    mutate(loaded_at = as.character(Sys.time())) %>%
-    geoarrow::write_geoparquet(remote_file_town_warehouse)
+    geoparquet_to_s3(remote_file_town_warehouse)
 }

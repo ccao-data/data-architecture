@@ -196,9 +196,7 @@ for (year in 2010:2021) {
       township_name, township_code, triad_name, triad_code,
       nbhd, town_nbhd, geometry, geometry_3435
     ) %>%
-    mutate(loaded_at = as.character(Sys.time())) %>%
-    write_geoparquet(
-      file.path(output_bucket, paste0("year=", year), "part-0.parquet"),
-      compression = "snappy"
+    geoparquet_to_s3(
+      file.path(output_bucket, paste0("year=", year), "part-0.parquet")
     )
 }

@@ -169,5 +169,5 @@ county_gdb_to_s3 <- function(
 geoparquet_to_s3 <- function(spatial_df, s3_uri) {
   spatial_df %>%
     mutate(loaded_at = as.character(Sys.time())) %>%
-    geoarrow::write_geoparquet(s3_uri)
+    geoarrow::write_geoparquet(s3_uri, compression = "snappy")
 }
