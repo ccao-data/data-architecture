@@ -61,10 +61,10 @@ walk(2013:current_year, function(x) {
 
 ##### FEMA FLOODPLAINS #####
 flood_fema_raw <- file.path(
-  input_bucket, "flood_fema", "2023.geojson"
+  input_bucket, "flood_fema", "2024.geojson"
 )
 flood_fema_warehouse <- file.path(
-  output_bucket, "flood_fema", "year=2023", "part-0.parquet"
+  output_bucket, "flood_fema", "year=2024", "part-0.parquet"
 )
 
 # Write FEMA floodplains to S3 if they don't exist
