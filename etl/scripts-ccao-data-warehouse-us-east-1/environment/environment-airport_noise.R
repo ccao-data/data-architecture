@@ -84,6 +84,7 @@ pins %>%
   select(pin10, airport_noise_dnl) %>%
   mutate(airport_noise_dnl = replace_na(airport_noise_dnl, 52.5)) %>%
   st_drop_geometry() %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
   write_parquet(
     file.path(output_bucket, paste0("year=omp"), "part-0.parquet")
   )

@@ -209,6 +209,7 @@ for (i in c("2021", "2022", "2023")) {
 # Upload cleaned data to S3
 chars %>%
   bind_rows() %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
   arrow::write_dataset(
     path = output_bucket,
