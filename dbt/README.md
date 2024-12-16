@@ -760,7 +760,7 @@ assumptions of the test.
 Run the unit tests locally using the `unit_test` resource type:
 
 ```bash
-dbt test --select resource_type:unit_test
+dbt test --resource-type unit_test
 ```
 
 ### QC reports
