@@ -31,7 +31,9 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Install docs build dependencies
-        run: npm install -g @mermaid-js/mermaid-cli
+        run: |
+          npm install -g @mermaid-js/mermaid-cli
+          npx puppeteer browsers install chrome-headless-shell
 
       - name: Prepare Mermaid assets for docs
         run: |
