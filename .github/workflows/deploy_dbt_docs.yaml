@@ -38,7 +38,7 @@ jobs:
           for file in assets/*.mmd; do
             # Confine the mermaid process to an AppArmor profile, necessary on
             # Ubuntu >= 23.10 to work around new AppArmor rules that block the
-            # Puppeteer sanbox (used by mermaid) from working. See:
+            # Puppeteer sandbox (used by mermaid) from working. See:
             # https://github.com/mermaid-js/mermaid-cli/issues/730#issuecomment-2408615110
             aa-exec --profile=chrome mmdc -i "$file" -o "${file/.mmd/.svg}"
           done
