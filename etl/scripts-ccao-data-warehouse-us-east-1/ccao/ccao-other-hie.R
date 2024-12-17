@@ -95,6 +95,7 @@ hie_clean <- hie %>%
 
 # Save HIE data to warehouse, partitioned by year
 hie_clean %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
   arrow::write_dataset(
     path = output_bucket,
