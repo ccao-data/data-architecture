@@ -79,7 +79,7 @@ hie_clean <- hie %>%
       c(QU_TOWN:QU_NUM_APTS, QU_CLASS, QU_TYPE_OF_RES, TAX_YEAR),
       as.character
     ),
-    across(everything(), na_if, " "),
+    across(where(is.character), na_if, " "),
     QU_CLASS = na_if(QU_CLASS, "0"),
     # Convert upload date to date format and if missing, set as the earliest
     # date for the year
