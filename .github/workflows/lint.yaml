@@ -23,6 +23,10 @@ jobs:
           # list of changed files within `super-linter`
           fetch-depth: 0
 
+      - name: Disable renv
+        shell: bash
+        run: rm etl/.Rprofile
+
       - name: Lint
         uses: github/super-linter@v6
         env:
