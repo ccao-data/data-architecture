@@ -68,7 +68,7 @@ write_partitions_to_s3 <- function(df,
   df <- df %>% mutate(loaded_at = as.character(Sys.time()))
   dplyr::group_walk(df, ~ {
     partitions_df <- purrr::map_dfr(
-      .y, replace_na, "__HIVE_DEFAULT_PARTITION__"
+      .y, tidyr::replace_na, "__HIVE_DEFAULT_PARTITION__"
     )
     partition_path <- paste0(purrr::map2_chr(
       names(partitions_df),

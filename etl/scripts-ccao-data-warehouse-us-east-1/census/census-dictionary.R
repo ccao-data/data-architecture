@@ -61,6 +61,7 @@ census_dec_tables <-
 
 # Combine table defs and write to dataset
 census_tables <- bind_rows(census_acs_tables_df, census_dec_tables) %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(survey) %>%
   select(variable_table_code, variable_table_title, survey)
 remote_path_tables <- file.path(output_bucket, "table_dict")
@@ -130,6 +131,7 @@ census_dec_vars <- load_variables(2020, "pl", cache = TRUE) %>%
 
 # Combine ACS and decennial
 census_vars_merged <- bind_rows(census_vars, census_dec_vars) %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(survey)
 
 # Write final data to S3

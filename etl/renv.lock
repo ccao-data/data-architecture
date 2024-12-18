@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.4.2",
+    "Version": "4.4.1",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -2807,6 +2807,19 @@
         "utils"
       ],
       "Hash": "ad57b543f7c3fca05213ba78ff63df9b"
+    },
+    "sfarrow": {
+      "Package": "sfarrow",
+      "Version": "0.4.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "arrow",
+        "dplyr",
+        "jsonlite",
+        "sf"
+      ],
+      "Hash": "b320f164b1d7bb7e4582b841e22d15a0"
     },
     "sfheaders": {
       "Package": "sfheaders",
