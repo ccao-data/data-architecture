@@ -51,6 +51,7 @@ land_site_rate <- openxlsx::read.xlsx(tmp_file_site_rate_2022) %>%
     land_rate_per_pin = as.integer(land_rate_per_pin)
   ) %>%
   drop_na(pin, land_rate_per_pin) %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
   write_partitions_to_s3(
     remote_file_warehouse_site_rate,

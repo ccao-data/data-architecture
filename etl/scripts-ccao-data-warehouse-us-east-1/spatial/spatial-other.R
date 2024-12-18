@@ -43,7 +43,7 @@ walk(subdivisions_raw, function(shapefile_path) {
       filter(st_is_valid(geometry) & !is.na(pagesubref)) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
       select(pagesubref, geometry, geometry_3435) %>%
-      geoarrow::write_geoparquet(dest_path)
+      geoparquet_to_s3(dest_path)
   }
 
   file.remove(tmp_file)
@@ -79,7 +79,7 @@ clean_comm_areas <- function(shapefile_path) {
       area_number = area_numbe,
       geometry, geometry_3435
     ) %>%
-    geoarrow::write_geoparquet(
+    geoparquet_to_s3(
       file.path(
         AWS_S3_WAREHOUSE_BUCKET, "spatial", "other", "community_area",
         paste0("year=", str_extract(shapefile_path, "[0-9]{4}")),
