@@ -132,7 +132,9 @@ sources:
                 - num_quantile
                 - quantile
               meta:
-                description: performance quantile should be unique by year, run_id, stage, triad_code, geography_type, geography_id, class, num_quantile, and quantile
+                description: >
+                  performance quantile should be unique by year, run_id, stage, triad_code,
+                  geography_type, geography_id, class, num_quantile, and quantile
         tags:
           - load_auto
 
