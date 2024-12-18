@@ -6,59 +6,152 @@ sources:
         description: '{{ doc("table_assessment_card") }}'
         tags:
           - load_auto
-
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_assessment_card_unique_by_pin_card_and_year
+              combination_of_columns:
+                - meta_pin
+                - meta_card_num
+                - meta_year
+                - run_id
+                
       - name: assessment_pin
         description: '{{ doc("table_assessment_pin") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_assessment_pin_unique_by_pin_and_year
+              combination_of_columns:
+                - meta_pin
+                - meta_year
+                - run_id
         tags:
           - load_auto
 
       - name: feature_importance
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_feature_importance_unique_by_pin_and_year_model_predictor_all_name
+              combination_of_columns:
+                - year
+                - run_id
+                - model_predictor_all_name
         description: '{{ doc("table_feature_importance") }}'
         tags:
           - load_auto
 
       - name: metadata
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_metadata_unique_by_pin_and_year_township_code_coverage
+              combination_of_columns:
+                - year
+                - run_id
         description: '{{ doc("table_metadata") }}'
         tags:
           - load_auto
 
       - name: parameter_final
         description: '{{ doc("table_parameter_final") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_parameter_final_unique_by_year_and_run_id
+              combination_of_columns:
+                - year
+                - run_id
         tags:
           - load_auto
 
       - name: parameter_range
         description: '{{ doc("table_parameter_range") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_parameter_range_unique_by_year_run_id
+              combination_of_columns:
+                - year
+                - run_id
         tags:
           - load_auto
 
       - name: parameter_search
         description: '{{ doc("table_parameter_search") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_parameter_search_unique_by_year_and_run_id
+              combination_of_columns:
+                - year
+                - run_id
+                - iteration
         tags:
           - load_auto
 
       - name: performance
         description: '{{ doc("table_performance") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_performance_unique_by_year_run_id_stage_triad_code_geography_type_geography_id_class
+              combination_of_columns:
+                - year
+                - run_id
+                - stage
+                - triad_code
+                - geography_type
+                - geography_id
+                - class
         tags:
           - load_auto
 
       - name: performance_quantile
         description: '{{ doc("table_performance_quantile") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_performance_quantile_unique_by_year_run_id_stage_triad_code_geography_type_geography_id_class_quantile_num_quantile
+              combination_of_columns:
+                - year
+                - run_id
+                - triad_code
+                - stage
+                - geography_type
+                - geography_id
+                - class
+                - num_quantile
+                - quantile
         tags:
           - load_auto
 
       - name: shap
         description: '{{ doc("table_shap") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_shap_unique_by_year_run_id_meta_pin_meta_card_num
+              combination_of_columns:
+                - year
+                - run_id
+                - meta_pin
+                - meta_card_num
         tags:
           - load_auto
 
       - name: test_card
         description: '{{ doc("table_test_card") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_test_card_unique_by_year_run_id_meta_pin_meta_card_num
+              combination_of_columns:
+                - year
+                - run_id
+                - meta_pin
+                - meta_card_num
         tags:
           - load_auto
 
       - name: timing
         description: '{{ doc("table_timing") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_timing_unique_by_year_run_id
+              combination_of_columns:
+                - year
+                - run_id
         tags:
           - load_auto
 
@@ -104,7 +197,6 @@ models:
       - name: note
         description: |
           Any notes or caveats associated with the model run
-
   - name: model.vw_pin_shared_input
     description: '{{ doc("view_vw_pin_shared_input") }}'
     columns:
