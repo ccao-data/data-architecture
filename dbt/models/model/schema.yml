@@ -14,7 +14,6 @@ sources:
                 - meta_card_num
                 - meta_year
                 - run_id
-                
       - name: assessment_pin
         description: '{{ doc("table_assessment_pin") }}'
         data_tests:
@@ -26,7 +25,6 @@ sources:
                 - run_id
         tags:
           - load_auto
-
       - name: feature_importance
         data_tests:
           - unique_combination_of_columns:
@@ -38,7 +36,6 @@ sources:
         description: '{{ doc("table_feature_importance") }}'
         tags:
           - load_auto
-
       - name: metadata
         data_tests:
           - unique_combination_of_columns:
@@ -49,7 +46,6 @@ sources:
         description: '{{ doc("table_metadata") }}'
         tags:
           - load_auto
-
       - name: parameter_final
         description: '{{ doc("table_parameter_final") }}'
         data_tests:
@@ -60,7 +56,6 @@ sources:
                 - run_id
         tags:
           - load_auto
-
       - name: parameter_range
         description: '{{ doc("table_parameter_range") }}'
         data_tests:
@@ -71,7 +66,6 @@ sources:
                 - run_id
         tags:
           - load_auto
-
       - name: parameter_search
         description: '{{ doc("table_parameter_search") }}'
         data_tests:
@@ -83,7 +77,6 @@ sources:
                 - iteration
         tags:
           - load_auto
-
       - name: performance
         description: '{{ doc("table_performance") }}'
         data_tests:
@@ -99,7 +92,6 @@ sources:
                 - class
         tags:
           - load_auto
-
       - name: performance_quantile
         description: '{{ doc("table_performance_quantile") }}'
         data_tests:
@@ -117,7 +109,6 @@ sources:
                 - quantile
         tags:
           - load_auto
-
       - name: shap
         description: '{{ doc("table_shap") }}'
         data_tests:
@@ -130,7 +121,6 @@ sources:
                 - meta_card_num
         tags:
           - load_auto
-
       - name: test_card
         description: '{{ doc("table_test_card") }}'
         data_tests:
@@ -144,7 +134,6 @@ sources:
                 - meta_sale_document_num
         tags:
           - load_auto
-
       - name: timing
         description: '{{ doc("table_timing") }}'
         data_tests:
