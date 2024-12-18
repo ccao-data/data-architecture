@@ -120,7 +120,7 @@ sources:
         description: '{{ doc("table_performance_quantile") }}'
         data_tests:
           - unique_combination_of_columns:
-              name: model_performance_quantile_unique_by_year_run_id_stage_triad_code_geography_type_geography_id_class_quantile_num_quantile
+              name: model_performance_quantile_unique_by_year_run_id_stage_triad_code_geography_type_geography_id_quantile
               combination_of_columns:
                 - year
                 - run_id
@@ -128,13 +128,11 @@ sources:
                 - stage
                 - geography_type
                 - geography_id
-                - class
-                - num_quantile
                 - quantile
               meta:
                 description: >
                   performance quantile should be unique by year, run_id, stage, triad_code,
-                  geography_type, geography_id, class, num_quantile, and quantile
+                  geography_type, geography_id, and quantile
         tags:
           - load_auto
 

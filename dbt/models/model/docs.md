@@ -113,7 +113,7 @@ The stages are:
 Identical to `model.performance`, but additionally broken out by quantile.
 
 **Primary Key**: `year`, `run_id`, `stage`, `triad_code`, `geography_type`,
-`geography_id`, `class`, `quantile`, `num_quantile`
+`geography_id`, `quantile`
 {% enddocs %}
 
 # shap
