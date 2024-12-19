@@ -16,7 +16,7 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "sale", "foreclosure")
 files <- list.files("O:/CCAODATA/data/foreclosures", recursive = TRUE)
 
 # Function to retrieve data and write to S3
-read_write <- function(files, x) {
+read_write <- function(x) {
   output_dest <- file.path(output_bucket, glue(parse_number(x), ".parquet"))
 
   if (!object_exists(output_dest)) {
