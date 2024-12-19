@@ -38,7 +38,7 @@ sources:
       - name: feature_importance
         data_tests:
           - unique_combination_of_columns:
-              name: model_feature_importance_unique_by_pin_and_year_model_predictor_all_name
+              name: model_feature_importance_unique
               combination_of_columns:
                 - year
                 - run_id
@@ -110,7 +110,7 @@ sources:
         description: '{{ doc("table_performance") }}'
         data_tests:
           - unique_combination_of_columns:
-              name: model_performance_unique_by_year_run_id_stage_triad_code_geography_type_geography_id_class
+              name: model_performance_unique
               combination_of_columns:
                 - year
                 - run_id
@@ -128,7 +128,7 @@ sources:
         description: '{{ doc("table_performance_quantile") }}'
         data_tests:
           - unique_combination_of_columns:
-              name: model_performance_quantile_unique_by_year_run_id_stage_triad_code_geography_type_geography_id_class_num_quantile_quantile
+              name: model_performance_quantile_unique
               combination_of_columns:
                 - year
                 - run_id
@@ -167,7 +167,7 @@ sources:
         description: '{{ doc("table_test_card") }}'
         data_tests:
           - unique_combination_of_columns:
-              name: model_test_card_unique_by_year_run_id_meta_pin_meta_card_num
+              name: model_test_card_unique
               combination_of_columns:
                 - year
                 - run_id
