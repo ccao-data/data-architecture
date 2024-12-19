@@ -28,6 +28,16 @@
 {%- endmacro -%}
 
 {%- macro _insert_hyphens(str, positions, raise_error_func) -%}
+    {#- Validate arguments -#}
+    {%- if str is not string -%}
+        {{
+            return(
+                raise_error_func(
+                    "insert_hyphens expects the first argument to be a string to insert hyphens into"
+                )
+            )
+        }}
+    {%- endif -%}
     {%- if not positions -%}
         {{
             return(
@@ -37,6 +47,17 @@
             )
         }}
     {%- endif -%}
+    {%- for position in positions -%}
+        {%- if position is not integer -%}
+            {{
+                return(
+                    raise_error_func(
+                        "insert_hyphens expects all positional arguments to be integers"
+                    )
+                )
+            }}
+        {%- endif -%}
+    {%- endfor -%}
 
     {#-
         Start the positions at 0 to generalize the later logic that computes
