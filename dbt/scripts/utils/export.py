@@ -1,6 +1,7 @@
 # Shared utilities for exporting models
 import contextlib
 import dataclasses
+import decimal
 import io
 import json
 import os
@@ -365,6 +366,8 @@ def save_model_to_workbook(
                             type_func = int
                         elif data_type == "float":
                             type_func = float
+                        elif data_type == "decimal":
+                            type_func = decimal.Decimal
                         elif data_type == "str":
                             type_func = str
                         else:
