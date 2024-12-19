@@ -34,7 +34,7 @@ Overall feature importance by model run (`run_id`).
 Includes metrics such as gain, cover, and frequency. This is the output
 of the built-in LightGBM/XGBoost feature importance methods.
 
-**Primary Key**: `year`, `run_id`, `model_predictor_name_all`
+**Primary Key**: `year`, `run_id`, `model_predictor_all_name`
 {% enddocs %}
 
 # final_model
