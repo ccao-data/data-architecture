@@ -99,6 +99,7 @@ cc_dli_senfrr <- map_dfr(files_cc_dli_senfrr$Key, \(f) {
 
 # Write the files to S3, partitioned by year
 cc_dli_senfrr %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
   arrow::write_dataset(
     path = file.path(output_bucket, "cc_dli_senfrr"),
@@ -180,6 +181,7 @@ cc_pifdb_piexemptre_sted <- map_dfr(files_cc_pifdb_piexemptre_sted$Key, \(f) {
 
 # Write the files to S3, partitioned by year
 cc_pifdb_piexemptre_sted %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
   arrow::write_dataset(
     path = file.path(
@@ -253,6 +255,7 @@ cc_pifdb_piexemptre_dise <- map_dfr(files_cc_pifdb_piexemptre_dise$Key, \(f) {
 
 # Write the files to S3, partitioned by year
 cc_pifdb_piexemptre_dise %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
   arrow::write_dataset(
     path = file.path(
@@ -341,6 +344,7 @@ cc_pifdb_piexemptre_ownr <- map_dfr(files_cc_pifdb_piexemptre_ownr$Key, \(f) {
 
 # Write the files to S3, partitioned by year
 cc_pifdb_piexemptre_ownr %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
   arrow::write_dataset(
     path = file.path(

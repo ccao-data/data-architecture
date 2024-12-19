@@ -53,7 +53,7 @@ walk(2013:current_year, function(x) {
         geometry_3435 = st_transform(geometry, 3435)
       ) %>%
       rename_with(tolower) %>%
-      geoarrow::write_geoparquet(remote_file_coastline_warehouse)
+      geoparquet_to_s3(remote_file_coastline_warehouse)
   }
 })
 
@@ -61,10 +61,10 @@ walk(2013:current_year, function(x) {
 
 ##### FEMA FLOODPLAINS #####
 flood_fema_raw <- file.path(
-  input_bucket, "flood_fema", "2023.geojson"
+  input_bucket, "flood_fema", "2024.geojson"
 )
 flood_fema_warehouse <- file.path(
-  output_bucket, "flood_fema", "year=2023", "part-0.parquet"
+  output_bucket, "flood_fema", "year=2024", "part-0.parquet"
 )
 
 # Write FEMA floodplains to S3 if they don't exist
@@ -87,7 +87,7 @@ if (
       fema_special_flood_hazard_area = SFHA_TF,
       geometry, geometry_3435
     ) %>%
-    geoarrow::write_geoparquet(flood_fema_warehouse)
+    geoparquet_to_s3(flood_fema_warehouse)
   file.remove(tmp_file)
 }
 
@@ -113,7 +113,7 @@ if (!aws.s3::object_exists(remote_file_rail_warehouse)) {
     mutate(
       geometry_3435 = st_transform(geometry, 3435)
     ) %>%
-    geoarrow::write_geoparquet(remote_file_rail_warehouse)
+    geoparquet_to_s3(remote_file_rail_warehouse)
 }
 
 
@@ -166,7 +166,7 @@ walk(2011:current_year, function(year) {
         select(id = HYDROID, name = FULLNAME, hydrology_type, geometry)
     ) %>%
       mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
-      geoarrow::write_geoparquet(remote_file_hydro_warehouse)
+      geoparquet_to_s3(remote_file_hydro_warehouse)
 
     file.remove(tmp_file)
   }

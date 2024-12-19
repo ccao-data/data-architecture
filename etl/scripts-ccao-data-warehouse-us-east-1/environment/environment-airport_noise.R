@@ -3,6 +3,7 @@ library(aws.s3)
 library(dplyr)
 library(purrr)
 library(sf)
+library(sfarrow)
 library(stars)
 library(stringr)
 library(tidyr)
@@ -40,7 +41,7 @@ merge_pins_with_raster <- function(raw_file) {
   message("Now processing:", year)
 
   rast <- stars::read_stars(tmp_file)
-  pins <- read_sf_dataset(arrow::open_dataset(paste0(
+  pins <- sfarrow::read_sf_dataset(arrow::open_dataset(paste0(
     "s3://ccao-data-warehouse-us-east-1/spatial/parcel/year=",
     year
   ))) %>%
@@ -55,6 +56,7 @@ merge_pins_with_raster <- function(raw_file) {
     select(pin10, airport_noise_dnl) %>%
     mutate(airport_noise_dnl = replace_na(airport_noise_dnl, 52.5)) %>%
     st_drop_geometry() %>%
+    mutate(loaded_at = as.character(Sys.time())) %>%
     write_parquet(
       file.path(output_bucket, paste0("year=", year), "part-0.parquet")
     )
@@ -84,6 +86,7 @@ pins %>%
   select(pin10, airport_noise_dnl) %>%
   mutate(airport_noise_dnl = replace_na(airport_noise_dnl, 52.5)) %>%
   st_drop_geometry() %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
   write_parquet(
     file.path(output_bucket, paste0("year=omp"), "part-0.parquet")
   )

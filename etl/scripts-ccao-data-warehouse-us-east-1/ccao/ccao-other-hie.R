@@ -79,7 +79,7 @@ hie_clean <- hie %>%
       c(QU_TOWN:QU_NUM_APTS, QU_CLASS, QU_TYPE_OF_RES, TAX_YEAR),
       as.character
     ),
-    across(everything(), na_if, " "),
+    across(where(is.character), na_if, " "),
     QU_CLASS = na_if(QU_CLASS, "0"),
     # Convert upload date to date format and if missing, set as the earliest
     # date for the year
@@ -95,6 +95,7 @@ hie_clean <- hie %>%
 
 # Save HIE data to warehouse, partitioned by year
 hie_clean %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
   arrow::write_dataset(
     path = output_bucket,
