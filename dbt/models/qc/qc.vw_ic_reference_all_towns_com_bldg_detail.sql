@@ -2,8 +2,8 @@ SELECT
     pardat.jur,
     pardat.taxyr,
     pardat.parid,
-    {{ insert_hyphens('pardat.class', 1) }} AS pardat_class,
-    {{ insert_hyphens('pardat.tieback', 2, 4, 7, 10) }} AS tieback,
+    {{ insert_hyphens("pardat.class", 1) }} AS pardat_class,
+    {{ insert_hyphens("pardat.tieback", 2, 4, 7, 10) }} AS tieback,
     comdat.bldnum,
     comdat.class,
     CONCAT(
