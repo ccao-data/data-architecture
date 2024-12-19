@@ -227,7 +227,7 @@ models:
       tags:
         - qc_report_ic_reference
     meta:
-      export_name: AllNonRes_LandDetails
+      export_name: AllNonRes_LandDetails.Query
       export_template: &qc_report_ic_reference_export_template
         start_row: 3
         add_table: false
@@ -283,7 +283,7 @@ models:
     description: '{{ doc("view_vw_ic_reference_all_non_res_pin_level_data") }}'
     config: *qc_report_ic_reference_tags
     meta:
-      export_name: AllNonRes_PINLevelData
+      export_name: AllNonRes_PINLevel.Query
       export_template: *qc_report_ic_reference_export_template
       export_format:
         columns:
@@ -316,7 +316,7 @@ models:
     description: '{{ doc("view_vw_ic_reference_all_non_res_pin_level_prior_year_vals") }}'
     config: *qc_report_ic_reference_tags
     meta:
-      export_name: AllNonRes_PINLevel.PriorYearVals
+      export_name: AllNonRes_PINLevelPriorYearVals.Query
       export_template: *qc_report_ic_reference_export_template
       export_format:
         columns:
@@ -352,7 +352,7 @@ models:
     description: '{{ doc("view_vw_ic_reference_all_towns_com_bldg_detail") }}'
     config: *qc_report_ic_reference_tags
     meta:
-      export_name: AllTowns_ComBldgDetail
+      export_name: AllTowns_ComDatDetails.Query
       export_template: *qc_report_ic_reference_export_template
       export_format:
         columns:
@@ -418,7 +418,7 @@ models:
     description: '{{ doc("view_vw_ic_reference_all_towns_oby_detail") }}'
     config: *qc_report_ic_reference_tags
     meta:
-      export_name: AllTowns_OBYDetails
+      export_name: AllTowns_OBYDetails.Query
       export_template: *qc_report_ic_reference_export_template
       export_format:
         columns:
