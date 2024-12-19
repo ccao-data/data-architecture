@@ -22,7 +22,7 @@ files <- xml2::read_html(
   str_subset("ptax203")
 
 # Function to scrape IDOR data and write to S3
-walk(files, \(x) {
+down_up <- function(x) {
   year <- str_extract(x, pattern = "[0-9]{4}")
 
   if (
@@ -44,4 +44,7 @@ walk(files, \(x) {
     readr::read_delim(list.files(tmp2, full.names = TRUE), delim = "\t") %>%
       write_parquet(file.path(output_bucket, glue("{year}.parquet")))
   }
-})
+}
+
+# Apply function to foreclosure data
+walk(files, down_up)
