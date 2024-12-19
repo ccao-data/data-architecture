@@ -99,7 +99,7 @@ Includes breakouts for many levels of geography, as well as different "stages".
 The stages are:
 
 - `test` - Performance on the out-of-sample test set (typically the
-  most recent 10% of sales)
+  most recent 10% of sales)s
 - `assessment` - Performance on the most recent year of sales (after being
   trained on all sales, so in-sample)
 
@@ -113,7 +113,7 @@ The stages are:
 Identical to `model.performance`, but additionally broken out by quantile.
 
 **Primary Key**: `year`, `run_id`, `stage`, `triad_code`, `geography_type`,
-`geography_id`, `by_class`, `quantile`
+`geography_id`, `by_class`, `num_quantile`, `quantile`
 {% enddocs %}
 
 # shap
