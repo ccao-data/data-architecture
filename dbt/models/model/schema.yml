@@ -1,4 +1,5 @@
 # disable-check-sort-order
+# disable ANSIBLE
 sources:
   - name: model
     tables:
