@@ -442,7 +442,7 @@ models:
             data_type: int
           - name: Held Market Value
             index: Q
-            data_type: int
+            data_type: decimal
           - name: LLINE
             index: H
             data_type: int
