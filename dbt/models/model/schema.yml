@@ -12,6 +12,8 @@ sources:
                 - meta_card_num
                 - meta_year
                 - run_id
+              config:
+                  error_if: ">5748"
               meta:
                 description: assessment card should be unique by pin, card, year, and run_id
         tags:
@@ -26,6 +28,8 @@ sources:
                 - meta_pin
                 - meta_year
                 - run_id
+              config:
+                  error_if: ">2016"
               meta:
                 description: assessment pin should be unique by pin, year, and run_id
         tags:
@@ -79,6 +83,8 @@ sources:
               combination_of_columns:
                 - year
                 - run_id
+              config:
+                  error_if: ">84"
               meta:
                 description: parameter range should be unique by year and run_id
         tags:
@@ -93,6 +99,8 @@ sources:
                 - year
                 - run_id
                 - iteration
+              config:
+                  error_if: ">2136"
               meta:
                 description: parameter search should be unique by year, run_id, and iteration
         tags:
@@ -146,6 +154,8 @@ sources:
                 - run_id
                 - meta_pin
                 - meta_card_num
+              config:
+                  error_if: ">524"
               meta:
                 description: shap should be unique by year, run_id, meta_pin, and meta_card_num
         tags:
@@ -162,6 +172,8 @@ sources:
                 - meta_pin
                 - meta_card_num
                 - meta_sale_document_num
+              config:
+                  error_if: ">102422"
               meta:
                 description: test card should be unique by year, run_id, meta_pin, meta_card_num, and meta_sale_document_num
         tags:
