@@ -77,7 +77,7 @@ If hyperparameters are blank for a given run, then that parameter was not used.
 Range of hyperparameters searched by a given model run (`run_id`)
 during cross-validation.
 
-**Primary Key**: `year`, `run_id`
+**Primary Key**: `year`, `run_id`, `parameter_name`
 {% enddocs %}
 
 # parameter_search
