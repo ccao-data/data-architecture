@@ -158,7 +158,7 @@ gdb_files <- data.frame("path" = list.files(file_path, full.names = TRUE)) %>%
   )
 
 # Function to call referenced API, pull requested data, and write it to S3
-pwalk(function(...) {
+pwalk(gdb_files, function(...) {
   df <- tibble::tibble(...)
   county_gdb_to_s3(
     s3_bucket_uri = output_bucket,
