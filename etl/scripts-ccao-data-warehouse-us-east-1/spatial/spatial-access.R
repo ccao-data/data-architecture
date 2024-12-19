@@ -201,6 +201,5 @@ if (!aws.s3::object_exists(remote_file_walk_warehouse)) {
     rename_with(~"walk_num", contains("subzone")) %>%
     standardize_expand_geo() %>%
     select(-contains("shape")) %>%
-    mutate(year = "2017") %>%
     geoparquet_to_s3(remote_file_walk_warehouse)
 }

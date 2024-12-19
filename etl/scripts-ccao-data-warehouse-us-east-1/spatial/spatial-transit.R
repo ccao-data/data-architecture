@@ -117,7 +117,7 @@ pwalk(gtfs_feeds_df, function(...) {
     agency = df$agency,
     feed_url = df$raw_feed_url
   )
-})
+}, .progress = TRUE)
 
 # Create dictionary for GTFS numeric codes
 # See: https://developers.google.com/transit/gtfs/reference
@@ -136,7 +136,10 @@ transit_dict <- tribble(
   "route_type", 12, "monorail", "Monorail. Railway in which the track consists of a single rail or a beam."
 ) %>%
   # nolint end
-  mutate(field_code = as.integer(field_code))
+  mutate(
+    field_code = as.integer(field_code),
+    loaded_at = as.character(Sys.time())
+    )
 
 # Write dict to parquet
 remote_file_dict <- file.path(
