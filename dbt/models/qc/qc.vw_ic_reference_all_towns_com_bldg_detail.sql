@@ -9,13 +9,13 @@ SELECT
     CONCAT(
         COALESCE(comdat.user12, ''),
         CASE WHEN comdat.user12 IS NOT NULL THEN ':' ELSE '' END,
-        COALESCE(subclass_1.description, '')
-    ) AS subclass_1,
+        COALESCE(major_subclass.description, '')
+    ) AS major_subclass,
     CONCAT(
         COALESCE(comdat.user13, ''),
         CASE WHEN comdat.user13 IS NOT NULL THEN ':' ELSE '' END,
-        COALESCE(subclass_2.description, '')
-    ) AS subclass_2,
+        COALESCE(minor_subclass.description, '')
+    ) AS minor_subclass,
     comdat.ovrrcnld,
     comdat.user24 AS proration_percent,
     comdat.user16 AS alt_cdu,
@@ -81,10 +81,10 @@ LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
     AND comdat.taxyr = pardat.taxyr
     AND pardat.cur = 'Y'
     AND pardat.deactivat IS NULL
-LEFT JOIN {{ ref('ccao.commercial_subclass_1') }} AS subclass_1
-    ON comdat.user12 = subclass_1.code
-LEFT JOIN {{ ref('ccao.commercial_subclass_2') }} AS subclass_2
-    ON comdat.user12 = subclass_2.code
+LEFT JOIN {{ ref('ccao.commercial_major_subclass') }} AS major_subclass
+    ON comdat.user12 = major_subclass.code
+LEFT JOIN {{ ref('ccao.commercial_minor_subclass') }} AS minor_subclass
+    ON comdat.user12 = minor_subclass.code
 WHERE comdat.cur = 'Y'
     AND comdat.deactivat IS NULL
     AND pardat.class NOT BETWEEN '200' AND '299'

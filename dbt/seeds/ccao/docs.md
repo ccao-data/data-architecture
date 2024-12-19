@@ -42,17 +42,17 @@ To find the level of assessment (LoA) for each class, see the `ccao.loa` table.
 **Primary Key**: `class_code`
 {% enddocs %}
 
-# commercial_subclass_1
+# commercial_major_subclass
 
-{% docs seed_commercial_subclass_1 %}
+{% docs seed_commercial_major_subclass %}
 Major subclass for commercial buildings, e.g. `Hotels`, `Retail`, etc.
 
 **Primary Key**: `code`
 {% enddocs %}
 
-# commercial_subclass_2
+# commercial_minor_subclass
 
-{% docs seed_commercial_subclass_2 %}
+{% docs seed_commercial_minor_subclass %}
 Minor subclass for commercial buildings, e.g. `HOTELS-CONVENTION CENTER`,
 `RETAIL-BANKS`, etc.
 
