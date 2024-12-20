@@ -34,7 +34,7 @@ Overall feature importance by model run (`run_id`).
 Includes metrics such as gain, cover, and frequency. This is the output
 of the built-in LightGBM/XGBoost feature importance methods.
 
-**Primary Key**: `year`, `run_id`, `model_predictor_name_all`
+**Primary Key**: `year`, `run_id`, `model_predictor_all_name`
 {% enddocs %}
 
 # final_model
@@ -77,7 +77,7 @@ If hyperparameters are blank for a given run, then that parameter was not used.
 Range of hyperparameters searched by a given model run (`run_id`)
 during cross-validation.
 
-**Primary Key**: `year`, `run_id`
+**Primary Key**: `year`, `run_id`, `parameter_name`
 {% enddocs %}
 
 # parameter_search
@@ -99,7 +99,7 @@ Includes breakouts for many levels of geography, as well as different "stages".
 The stages are:
 
 - `test` - Performance on the out-of-sample test set (typically the
-  most recent 10% of sales)
+  most recent 10% of sales)s
 - `assessment` - Performance on the most recent year of sales (after being
   trained on all sales, so in-sample)
 
@@ -113,7 +113,7 @@ The stages are:
 Identical to `model.performance`, but additionally broken out by quantile.
 
 **Primary Key**: `year`, `run_id`, `stage`, `triad_code`, `geography_type`,
-`geography_id`, `by_class`, `quantile`
+`geography_id`, `by_class`, `num_quantile`, `quantile`
 {% enddocs %}
 
 # shap
