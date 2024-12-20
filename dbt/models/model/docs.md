@@ -99,7 +99,7 @@ Includes breakouts for many levels of geography, as well as different "stages".
 The stages are:
 
 - `test` - Performance on the out-of-sample test set (typically the
-  most recent 10% of sales)s
+  most recent 10% of sales)
 - `assessment` - Performance on the most recent year of sales (after being
   trained on all sales, so in-sample)
 

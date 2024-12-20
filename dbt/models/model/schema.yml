@@ -235,7 +235,7 @@ models:
       - name: note
         description: |
           Any notes or caveats associated with the model run
-          
+
   - name: model.vw_pin_shared_input
     description: '{{ doc("view_vw_pin_shared_input") }}'
     columns:
