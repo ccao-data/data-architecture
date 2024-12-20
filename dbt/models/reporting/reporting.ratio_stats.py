@@ -4,9 +4,10 @@ sc.addPyFile("s3://ccao-athena-dependencies-us-east-1/assesspy==2.0.0.zip")
 
 from typing import Union
 
-import assesspy as ap
 import pandas as pd
 from pyspark.sql.functions import col, lit
+
+import assesspy as ap
 
 CCAO_LOWER_QUANTILE = 0.05
 CCAO_UPPER_QUANTILE = 0.95

@@ -4,61 +4,192 @@ sources:
     tables:
       - name: assessment_card
         description: '{{ doc("table_assessment_card") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_assessment_card_unique_by_pin_card_and_year
+              combination_of_columns:
+                - meta_pin
+                - meta_card_num
+                - meta_year
+                - run_id
+              config:
+                  error_if: ">5748"
+              meta:
+                description: assessment card should be unique by pin, card, year, and run_id
         tags:
           - load_auto
 
       - name: assessment_pin
         description: '{{ doc("table_assessment_pin") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_assessment_pin_unique_by_pin_and_year
+              combination_of_columns:
+                - meta_pin
+                - meta_year
+                - run_id
+              config:
+                  error_if: ">2016"
+              meta:
+                description: assessment pin should be unique by pin, year, and run_id
         tags:
           - load_auto
 
       - name: feature_importance
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_feature_importance_unique
+              combination_of_columns:
+                - year
+                - run_id
+                - model_predictor_all_name
+              meta:
+                description: feature importance should be unique by year, run_id, and model_predictor_all_name
         description: '{{ doc("table_feature_importance") }}'
         tags:
           - load_auto
 
       - name: metadata
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_metadata_unique_by_year_and_run_id
+              combination_of_columns:
+                - year
+                - run_id
+              meta:
+                description: metadata should be unique by year and run_id
         description: '{{ doc("table_metadata") }}'
         tags:
           - load_auto
 
       - name: parameter_final
         description: '{{ doc("table_parameter_final") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_parameter_final_unique_by_year_and_run_id
+              combination_of_columns:
+                - year
+                - run_id
+              meta:
+                description: parameter final should be unique by year and run_id
         tags:
           - load_auto
 
       - name: parameter_range
         description: '{{ doc("table_parameter_range") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_parameter_range_unique_by_year_run_id_and_parameter_name
+              combination_of_columns:
+                - year
+                - run_id
+                - parameter_name
+              meta:
+                description: parameter range should be unique by year and run_id
         tags:
           - load_auto
 
       - name: parameter_search
         description: '{{ doc("table_parameter_search") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_parameter_search_unique_by_year_run_id_and_iteration
+              combination_of_columns:
+                - year
+                - run_id
+                - iteration
+              config:
+                  error_if: ">2136"
+              meta:
+                description: parameter search should be unique by year, run_id, and iteration
         tags:
           - load_auto
 
       - name: performance
         description: '{{ doc("table_performance") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_performance_unique
+              combination_of_columns:
+                - year
+                - run_id
+                - stage
+                - triad_code
+                - geography_type
+                - geography_id
+                - class
+              meta:
+                description: performance should be unique by year, run_id, stage, triad_code, geography_type, geography_id, and class
         tags:
           - load_auto
 
       - name: performance_quantile
         description: '{{ doc("table_performance_quantile") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_performance_quantile_unique
+              combination_of_columns:
+                - year
+                - run_id
+                - triad_code
+                - stage
+                - geography_type
+                - geography_id
+                - class
+                - num_quantile
+                - quantile
+              meta:
+                description: >
+                  performance quantile should be unique by year, run_id, stage, triad_code,
+                  geography_type, by_class, geography_id, num_quantile, and quantile
         tags:
           - load_auto
 
       - name: shap
         description: '{{ doc("table_shap") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_shap_unique_by_year_run_id_meta_pin_meta_and_card_num
+              combination_of_columns:
+                - year
+                - run_id
+                - meta_pin
+                - meta_card_num
+              config:
+                  error_if: ">524"
+              meta:
+                description: shap should be unique by year, run_id, meta_pin, and meta_card_num
         tags:
           - load_auto
 
       - name: test_card
         description: '{{ doc("table_test_card") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_test_card_unique
+              combination_of_columns:
+                - year
+                - run_id
+                - meta_pin
+                - meta_card_num
+                - meta_sale_document_num
+              config:
+                  error_if: ">102422"
+              meta:
+                description: test card should be unique by year, run_id, meta_pin, meta_card_num, and meta_sale_document_num
         tags:
           - load_auto
 
       - name: timing
         description: '{{ doc("table_timing") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_timing_unique_by_year_run_id
+              combination_of_columns:
+                - year
+                - run_id
+              meta:
+                description: timing should be unique by year and run_id
         tags:
           - load_auto
 
@@ -104,7 +235,7 @@ models:
       - name: note
         description: |
           Any notes or caveats associated with the model run
-
+          
   - name: model.vw_pin_shared_input
     description: '{{ doc("view_vw_pin_shared_input") }}'
     columns:
