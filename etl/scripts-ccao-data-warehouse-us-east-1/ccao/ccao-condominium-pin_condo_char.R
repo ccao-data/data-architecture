@@ -206,19 +206,22 @@ for (i in c("2021", "2022", "2023")) {
   }
 }
 
-# At the end of 2024 valuations revisted some old condos and updated their
+# At the end of 2024 valuations revisited some old condos and updated their
 # characteristics
-updates <- read_parquet(
+updates <- map(
   file.path(
-    AWS_S3_RAW_BUCKET,
-    "ccao/condominium/pin_condo_char/2025/wheeling.parquet"
-  )
-) %>%
+    "s3://ccao-data-raw-us-east-1",
+    aws.s3::get_bucket_df(
+      AWS_S3_RAW_BUCKET,
+      prefix = "ccao/condominium/pin_condo_char/2025"
+    )$Key),
+  \(x) {
+    read_parquet(x) %>%
+      mutate(across(.cols = everything(), as.character))
+  }) %>%
+  bind_rows() %>%
   rename_with(~gsub("\\.", "_", tolower(.x)), .cols = everything()) %>%
-  select(
-    "pin",
-    starts_with("new")
-  ) %>%
+  select("pin", starts_with("new")) %>%
   mutate(
     pin = gsub("-", "", pin),
     across(starts_with("new"), as.numeric),
