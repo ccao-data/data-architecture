@@ -1,5 +1,5 @@
--- This view only exists since the IHS House Price Index continues to use 2010
--- geoids past 2020.
+-- This view only exists since the IHS House Price Index uses 2020 geoids for
+-- for all years.
 
 {{
     config(
@@ -67,7 +67,7 @@ distinct_joined AS (
             ST_POINT(dp.x_3435, dp.y_3435),
             ST_GEOMFROMBINARY(cen.geometry_3435)
         )
-    WHERE cen.year = '2012' -- PUMA spatial data isn't available before 2012
+    WHERE cen.year = '2022' -- PUMA geoids changed in 2022
     GROUP BY dp.x_3435, dp.y_3435, cen.year
 )
 

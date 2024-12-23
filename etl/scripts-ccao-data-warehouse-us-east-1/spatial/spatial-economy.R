@@ -24,44 +24,40 @@ raw_files <- grep(
 
 # Function to clean consolidated care districts
 clean_coordinated_care <- function(shapefile, economic_unit) {
-
   if (economic_unit == "coordinated_care") {
-
     return(
-
       shapefile %>%
         mutate(AGENCY_DES = str_replace(AGENCY_DES, "PROVISIO", "PROVISO")) %>%
         group_by(AGENCY_DES, MUNICIPALI) %>%
         summarise() %>%
-        mutate(cc_num = as.character(NA),
-               political_boundary = case_when(is.na(MUNICIPALI) ~ "Township",
-                                              TRUE ~ "Municipality"),
-               cc_name = str_squish(
-                 str_to_title(
-                   case_when(is.na(MUNICIPALI) ~
-                               str_replace(AGENCY_DES, "TWP", ""),
-                             TRUE ~ MUNICIPALI)
-                 )
-               )) %>%
+        mutate(
+          cc_num = as.character(NA),
+          political_boundary = case_when(
+            is.na(MUNICIPALI) ~ "Township",
+            TRUE ~ "Municipality"
+          ),
+          cc_name = str_squish(
+            str_to_title(
+              case_when(
+                is.na(MUNICIPALI) ~
+                  str_replace(AGENCY_DES, "TWP", ""),
+                TRUE ~ MUNICIPALI
+              )
+            )
+          )
+        ) %>%
         select(cc_num, cc_name, political_boundary, geometry) %>%
         ungroup()
     )
-
   } else {
-
     return(shapefile)
-
   }
-
 }
 
 # Function to clean enterprise zones
 clean_enterprise_zone <- function(shapefile, economic_unit) {
-
   if (economic_unit == "enterprise_zone") {
-
     return(
-
       shapefile %>%
         filter(str_detect(County, "Will", negate = TRUE)) %>%
         group_by(Name) %>%
@@ -69,76 +65,47 @@ clean_enterprise_zone <- function(shapefile, economic_unit) {
         mutate(ez_num = as.character(NA)) %>%
         select(ez_num, ez_name = Name, geometry) %>%
         ungroup()
-
     )
-
   } else {
-
     return(shapefile)
-
   }
-
 }
 
 # Function to clean industrial growth zones
 clean_industrial_growth_zone <- function(shapefile, economic_unit) {
-
   if (economic_unit == "industrial_growth_zone") {
-
     return(
-
       shapefile %>%
         mutate(igz_num = as.character(NA)) %>%
         select(igz_num, igz_name = Name, geometry)
-
     )
-
   } else {
-
     return(shapefile)
-
   }
-
 }
 
 # Function to clean qualified opportunity zones
 clean_qualified_opportunity_zone <- function(shapefile, economic_unit) {
-
   if (economic_unit == "qualified_opportunity_zone") {
-
     return(
-
       shapefile %>%
         select(geoid = CENSUSTRAC, geometry)
-
     )
-
   } else {
-
     return(shapefile)
-
   }
-
 }
 
 # Function to clean the central business district
 clean_central_business_district <- function(shapefile, economic_unit) {
-
   if (economic_unit == "central_business_district") {
-
     return(
-
       shapefile %>%
         select(cbd_num = objectid, cbd_name = name, geometry)
-
     )
-
   } else {
-
     return(shapefile)
-
   }
-
 }
 
 # Function to pull raw data from S3 and clean
@@ -152,7 +119,6 @@ clean_economy <- function(remote_file) {
   aws.s3::save_object(remote_file, file = tmp_file)
 
   return(
-
     st_read(tmp_file) %>%
       clean_coordinated_care(economic_unit) %>%
       clean_enterprise_zone(economic_unit) %>%
@@ -164,12 +130,12 @@ clean_economy <- function(remote_file) {
   )
 
   file.remove(tmp_file)
-
 }
 
 # Apply function to raw_files
 cleaned_output <- sapply(raw_files, clean_economy,
-                         simplify = FALSE, USE.NAMES = TRUE)
+  simplify = FALSE, USE.NAMES = TRUE
+)
 economic_units <- unique(str_split(raw_files, "/", simplify = TRUE)[, 6])
 
 # Function to partition and upload cleaned data to S3
@@ -177,7 +143,6 @@ combine_upload <- function(economic_unit) {
   cleaned_output[grep(economic_unit, names(cleaned_output))] %>%
     bind_rows() %>%
     group_by(across(contains("name"))) %>%
-
     # Some shapefiles don't have consistent identifiers across time,
     # create them using group IDs
     mutate(across(contains("num"), ~ case_when(

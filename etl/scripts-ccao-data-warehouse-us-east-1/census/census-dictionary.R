@@ -16,26 +16,27 @@ tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
 ##### Tables #####
 # Years for which to grab variables
-census_acs_years <- Sys.getenv("CENSUS_ACS_MIN_YEAR"):Sys.getenv("CENSUS_ACS_MAX_YEAR")
+census_acs_years <-
+  Sys.getenv("CENSUS_ACS_MIN_YEAR"):Sys.getenv("CENSUS_ACS_MAX_YEAR")
 census_acs_tables <- c(
-  "Sex by Age"                                                    = "B01001",
-  "Median Age by Sex"                                             = "B01002",
-  "Race"                                                          = "B02001",
-  "Hispanic or Latino Origin"                                     = "B03003",
-  "Geographical Mobility in the Past Year by Sex for Current Residence in the United States" = "B07003",
-  "Household Type"                                                = "B11001",
-  "Sex by Educational Attainment"                                 = "B15002",
-  "Poverty Status by Sex by Age"                                  = "B17001",
-  "Household Income"                                              = "B19001",
-  "Median Household Income"                                       = "B19013",
-  "Per Capita Income"                                             = "B19301",
-  "Receipt of Food Stamps/SNAP by Poverty Status for Households"  = "B22003",
-  "Employment Status"                                             = "B23025",
-  "Tenure"                                                        = "B25003",
-  "Median Year Structure Built by Tenure"                         = "B25037",
-  "Median Gross Rent (Dollars)"                                   = "B25064",
-  "Median Value (Dollars)"                                        = "B25077",
-  "Tenure by Selected Physical and Financial Conditions"          = "B25123"
+  "Sex by Age" = "B01001",
+  "Median Age by Sex" = "B01002",
+  "Race" = "B02001",
+  "Hispanic or Latino Origin" = "B03003",
+  "Geographical Mobility in the Past Year by Sex for Current Residence in the United States" = "B07003", # nolint
+  "Household Type" = "B11001",
+  "Sex by Educational Attainment" = "B15002",
+  "Poverty Status by Sex by Age" = "B17001",
+  "Household Income" = "B19001",
+  "Median Household Income" = "B19013",
+  "Per Capita Income" = "B19301",
+  "Receipt of Food Stamps/SNAP by Poverty Status for Households" = "B22003",
+  "Employment Status" = "B23025",
+  "Tenure" = "B25003",
+  "Median Year Structure Built by Tenure" = "B25037",
+  "Median Gross Rent (Dollars)" = "B25064",
+  "Median Value (Dollars)" = "B25077",
+  "Tenure by Selected Physical and Financial Conditions" = "B25123"
 )
 
 census_acs_tables_df <- census_acs_tables %>%
@@ -53,7 +54,7 @@ census_dec_tables <-
     "P1", "Race",
     "P2", "Hispanic Or Latino, And Not Hispanic Or Latino By Race",
     "P3", "Race For The Population 18 Years And Over",
-    "P4", "Hispanic Or Latino, And Not Hispanic Or Latino By Race For The Population 18 Years And Over",
+    "P4", "Hispanic Or Latino, And Not Hispanic Or Latino By Race For The Population 18 Years And Over", # nolint
     "P5", "Group Quarters Population By Major Group Quarters Type"
   ) %>%
   mutate(survey = "decennial")

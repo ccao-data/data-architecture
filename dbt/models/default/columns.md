@@ -45,7 +45,7 @@ Possible values for this variable are:
 
 - null: The permit has not been reviewed yet
 - `A`: Assessable
-- `B`: Non-Assessable
+- `N`: Non-Assessable
 {% enddocs %}
 
 ## permit_date_submitted

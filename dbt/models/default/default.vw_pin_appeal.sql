@@ -1,10 +1,22 @@
 -- View containing appeals by PIN
 
--- This CTE exists only so that we can join reason descriptions onto cleaned
--- reason codes.
+-- CTE so that we can join reason descriptions onto cleaned reason codes and
+-- drop some dupes from htpar.
 WITH reasons AS (
-    SELECT
-        htpar.*,
+    -- Select distinct rows to deduplicate a few appeals that got published
+    -- twice by accident, otherwise we wouldn't expect any dupes in this query
+    SELECT DISTINCT
+        htpar.parid,
+        htpar.taxyr,
+        htpar.caseno,
+        htpar.user38,
+        htpar.user104,
+        htpar.resact,
+        htpar.hrstatus,
+        htpar.cpatty,
+        -- user125 isn't used in the view, but it's FilingID and we want to
+        -- include it to make sure we're only dropping true dupes using DISTINCT
+        htpar.user125,
         -- Reason codes come from different columns before and after 2020
         CASE
             WHEN htpar.taxyr <= '2020'
@@ -37,6 +49,11 @@ WITH reasons AS (
                 THEN REGEXP_REPLACE(htpar.user101, '[^[:alnum:]]', '')
         END AS reason_code3
     FROM {{ source('iasworld', 'htpar') }} AS htpar
+    WHERE htpar.cur = 'Y'
+        AND htpar.deactivat IS NULL
+        AND htpar.caseno IS NOT NULL
+        AND htpar.heartyp IN ('A', 'C')
+
 )
 
 SELECT
@@ -97,7 +114,9 @@ SELECT
         WHEN reasons.hrstatus = 'X' THEN 'closed pending c of e'
     END AS status
 FROM reasons
-LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
+-- This is an INNER JOIN since there are apparently parcels in htpar that are
+-- not in pardat. See 31051000511064, 2008.
+INNER JOIN {{ source('iasworld', 'pardat') }} AS pardat
     ON reasons.parid = pardat.parid
     AND reasons.taxyr = pardat.taxyr
     AND pardat.cur = 'Y'
@@ -120,6 +139,3 @@ LEFT JOIN {{ ref('ccao.htpar_reascd') }} AS reascd2
     ON reasons.reason_code2 = reascd2.reascd
 LEFT JOIN {{ ref('ccao.htpar_reascd') }} AS reascd3
     ON reasons.reason_code3 = reascd3.reascd
-WHERE reasons.cur = 'Y'
-    AND reasons.caseno IS NOT NULL
-    AND reasons.deactivat IS NULL

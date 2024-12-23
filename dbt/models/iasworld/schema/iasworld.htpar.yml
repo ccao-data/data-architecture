@@ -101,7 +101,7 @@ sources:
           - name: hearoff
             description: Hearing official code
           - name: heartyp
-            description: Hearing type
+            description: '{{ doc("column_heartyp") }}'
           - name: heartypjur
             description: Hearing type jurisdiction
           - name: hrmult
