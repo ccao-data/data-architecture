@@ -206,9 +206,42 @@ for (i in c("2021", "2022", "2023")) {
   }
 }
 
+# At the end of 2024 valuations revisted some old condos and updated their
+# characteristics
+updates <- read_parquet(
+  file.path(
+    AWS_S3_RAW_BUCKET,
+    "ccao/condominium/pin_condo_char/2025/wheeling.parquet"
+  )
+) %>%
+  rename_with(~gsub("\\.", "_", tolower(.x)), .cols = everything()) %>%
+  select(
+    "pin",
+    starts_with("new")
+  ) %>%
+  mutate(
+    pin = gsub("-", "", pin),
+    across(starts_with("new"), as.numeric),
+    # Three units with 100 for unit sqft
+    new_unit_sf = ifelse(new_unit_sf == 100, 1000, new_unit_sf)
+  ) %>%
+  filter(!if_all(starts_with("new"), is.na))
+
+# Update parcels with new column values
+chars <- chars %>%
+  bind_rows() %>%
+  left_join(updates, by = "pin") %>%
+  mutate(
+    building_sf = coalesce(new_building_sf, building_sf),
+    unit_sf = coalesce(new_unit_sf, unit_sf),
+    bedrooms = coalesce(new_bedrooms, bedrooms),
+    full_baths = coalesce(new_full_baths, full_baths),
+    half_baths = coalesce(new_half_baths, half_baths)
+  ) %>%
+  select(!starts_with("new"))
+
 # Upload cleaned data to S3
 chars %>%
-  bind_rows() %>%
   mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
   arrow::write_dataset(
