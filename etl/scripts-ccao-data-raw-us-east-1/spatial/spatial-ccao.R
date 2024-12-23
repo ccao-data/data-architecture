@@ -16,8 +16,7 @@ file_path <- "//gisemcv1.ccounty.com/ArchiveServices/" # nolint
 sources_list <- data.frame(
   # NEIGHBORHOOD
   "url" = paste0(
-    "https://gitlab.com/ccao-data-science---modeling/packages/ccao",
-    "/-/raw/master/data-raw/nbhd_shp.geojson"
+    "https://github.com/ccao-data/ccao/blob/master/data-raw/nbhd_shp.geojson"
   ),
   "boundary" = "neighborhood",
   "year" = "2021"
