@@ -63,7 +63,7 @@ noise_levels <- noise_levels %>%
   mutate(
     across(where(is.character), ~ na_if(.x, "n/a")),
     across(where(is.character), ~ na_if(.x, "--"))
-    ) %>%
+  ) %>%
   filter(!Site %in% c("6", "9", "36", "45"))
 
 # Grab sensor addresses pdf
