@@ -139,7 +139,7 @@ transit_dict <- tribble(
   mutate(
     field_code = as.integer(field_code),
     loaded_at = as.character(Sys.time())
-    )
+  )
 
 # Write dict to parquet
 remote_file_dict <- file.path(
