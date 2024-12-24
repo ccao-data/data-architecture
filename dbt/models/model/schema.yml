@@ -13,9 +13,10 @@ sources:
                 - meta_year
                 - run_id
               config:
+                # We add a fixed level of errors since duplicated data exists before
+                # these tests were implemented. If duplicated data is added after 12/24/2024,
+                # warnings will transition to errors.
                   error_if: ">5748"
-              meta:
-                description: assessment card should be unique by pin, card, year, and run_id
         tags:
           - load_auto
 
@@ -30,8 +31,6 @@ sources:
                 - run_id
               config:
                   error_if: ">2016"
-              meta:
-                description: assessment pin should be unique by pin, year, and run_id
         tags:
           - load_auto
 
@@ -43,8 +42,6 @@ sources:
                 - year
                 - run_id
                 - model_predictor_all_name
-              meta:
-                description: feature importance should be unique by year, run_id, and model_predictor_all_name
         description: '{{ doc("table_feature_importance") }}'
         tags:
           - load_auto
@@ -56,8 +53,6 @@ sources:
               combination_of_columns:
                 - year
                 - run_id
-              meta:
-                description: metadata should be unique by year and run_id
         description: '{{ doc("table_metadata") }}'
         tags:
           - load_auto
@@ -70,8 +65,6 @@ sources:
               combination_of_columns:
                 - year
                 - run_id
-              meta:
-                description: parameter final should be unique by year and run_id
         tags:
           - load_auto
 
@@ -84,8 +77,6 @@ sources:
                 - year
                 - run_id
                 - parameter_name
-              meta:
-                description: parameter range should be unique by year, run_id, and parameter_name
         tags:
           - load_auto
 
@@ -100,8 +91,6 @@ sources:
                 - iteration
               config:
                   error_if: ">2136"
-              meta:
-                description: parameter search should be unique by year, run_id, and iteration
         tags:
           - load_auto
 
@@ -118,8 +107,6 @@ sources:
                 - geography_type
                 - geography_id
                 - class
-              meta:
-                description: performance should be unique by year, run_id, stage, triad_code, geography_type, geography_id, and class
         tags:
           - load_auto
 
@@ -138,10 +125,6 @@ sources:
                 - class
                 - num_quantile
                 - quantile
-              meta:
-                description: >
-                  performance quantile should be unique by year, run_id, stage, triad_code,
-                  geography_type, class, geography_id, num_quantile, and quantile
         tags:
           - load_auto
 
@@ -157,8 +140,6 @@ sources:
                 - meta_card_num
               config:
                   error_if: ">524"
-              meta:
-                description: shap should be unique by year, run_id, meta_pin, and meta_card_num
         tags:
           - load_auto
 
@@ -172,11 +153,8 @@ sources:
                 - run_id
                 - meta_pin
                 - meta_card_num
-                - meta_sale_document_num
               config:
                   error_if: ">102422"
-              meta:
-                description: test card should be unique by year, run_id, meta_pin, meta_card_num, and meta_sale_document_num
         tags:
           - load_auto
 
@@ -188,8 +166,6 @@ sources:
               combination_of_columns:
                 - year
                 - run_id
-              meta:
-                description: timing should be unique by year and run_id
         tags:
           - load_auto
 

@@ -165,7 +165,7 @@ data cached by DVC when possible. See
 [model-res-avm#getting-data](https://github.com/ccao-data/model-res-avm#getting-data)
 for more information.
 
-**Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`
+**Primary Key**: `year`, `meta_pin`, `meta_card_num`
 {% enddocs %}
 
 # vw_pin_condo_input
@@ -178,7 +178,7 @@ Observations are at the PIN-14 (condo unit) level. Unlike the residential
 input view, this view does not perform filling. Instead condo characteristics
 are backfilled in `default.vw_pin_condo_char`.
 
-**Primary Key**: `year`, `run_id`, `meta_pin`
+**Primary Key**: `year`, `meta_pin`
 {% enddocs %}
 
 # vw_pin_shared_input
@@ -187,5 +187,5 @@ are backfilled in `default.vw_pin_condo_char`.
 View to compile PIN-level model inputs shared between the residential
 (`model.vw_card_res_input`) and condo (`model.vw_pin_condo_input`) model views.
 
-**Primary Key**: `year`, `run_id`, `meta_pin`
+**Primary Key**: `year`, `meta_pin`
 {% enddocs %}
