@@ -23,7 +23,7 @@ sources:
         description: '{{ doc("table_assessment_pin") }}'
         data_tests:
           - unique_combination_of_columns:
-              name: model_assessment_pin_unique_by_pin_and_year
+              name: model_assessment_pin_unique_by_pin_year_and_run_id
               combination_of_columns:
                 - meta_pin
                 - meta_year
@@ -85,7 +85,7 @@ sources:
                 - run_id
                 - parameter_name
               meta:
-                description: parameter range should be unique by year and run_id
+                description: parameter range should be unique by year run_id and parameter_name
         tags:
           - load_auto
 
@@ -141,7 +141,7 @@ sources:
               meta:
                 description: >
                   performance quantile should be unique by year, run_id, stage, triad_code,
-                  geography_type, by_class, geography_id, num_quantile, and quantile
+                  geography_type, class, geography_id, num_quantile, and quantile
         tags:
           - load_auto
 
