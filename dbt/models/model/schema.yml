@@ -85,7 +85,7 @@ sources:
                 - run_id
                 - parameter_name
               meta:
-                description: parameter range should be unique by year run_id and parameter_name
+                description: parameter range should be unique by year, run_id, and parameter_name
         tags:
           - load_auto
 
