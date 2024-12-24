@@ -65,6 +65,7 @@ nonlivable[["neg_pred"]] <- map(
 # Upload all nonlivable spaces to nonlivable table
 nonlivable %>%
   bind_rows() %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
   arrow::write_dataset(
     path = output_bucket,

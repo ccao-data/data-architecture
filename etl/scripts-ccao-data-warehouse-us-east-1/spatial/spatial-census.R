@@ -81,7 +81,7 @@ normalize_census_geo <- function(key) {
         geometry, geometry_3435
       ) %>%
       filter(!str_detect(geoid, "Z")) %>%
-      write_geoparquet(remote_file, compression = "snappy")
+      geoparquet_to_s3(remote_file)
   }
 }
 

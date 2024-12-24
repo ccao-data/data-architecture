@@ -43,5 +43,5 @@ if (!aws.s3::object_exists(remote_file_golf_course_warehouse)) {
       geometry_3435 = st_transform(geometry, 3435)
     ) %>%
     select(-touches) %>%
-    geoarrow::write_geoparquet(remote_file_golf_course_warehouse)
+    geoparquet_to_s3(remote_file_golf_course_warehouse)
 }

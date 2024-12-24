@@ -133,10 +133,11 @@ pull_and_write_acs <- function(
     )) %>%
       rename(any_of(c("GEOID" = "GEOID...1"))) %>%
       select(-starts_with("GEOID..."), -starts_with("NAME")) %>%
-      filter(!str_detect(GEOID, "Z"))
+      filter(!str_detect(GEOID, "Z")) %>%
+      mutate(loaded_at = as.character(Sys.time()))
 
     # Write to S3
-    arrow::write_parquet(df, remote_file)
+    write_parquet(df, remote_file)
   }
 }
 

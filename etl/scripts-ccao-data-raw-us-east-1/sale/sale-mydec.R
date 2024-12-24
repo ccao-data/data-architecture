@@ -46,6 +46,5 @@ down_up <- function(x) {
   }
 }
 
-
 # Apply function to foreclosure data
 walk(files, down_up)
