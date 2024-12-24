@@ -86,7 +86,7 @@ during cross-validation.
 Hyperparameters used for _every_ cross-validation iteration, along with
 the corresponding performance statistics.
 
-**Primary Key**: `year`, `run_id`, `iteration`
+**Primary Key**: `year`, `run_id`, `iteration`, `configuration`, `fold_id`
 {% enddocs %}
 
 # performance
@@ -138,7 +138,7 @@ The test set is the out-of-sample data used to evaluate model performance.
 Predictions in this table are trained using only data _not in this set
 of sales_.
 
-**Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`
+**Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`, `document_number`
 {% enddocs %}
 
 # timing

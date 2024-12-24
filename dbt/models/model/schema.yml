@@ -84,13 +84,15 @@ sources:
         description: '{{ doc("table_parameter_search") }}'
         data_tests:
           - unique_combination_of_columns:
-              name: model_parameter_search_unique_by_year_run_id_and_iteration
+              name: model_parameter_search_unique
               combination_of_columns:
                 - year
                 - run_id
                 - iteration
+                - configuration
+                - fold_id
               config:
-                  error_if: ">2136"
+                  error_if: ">400"
         tags:
           - load_auto
 
@@ -153,6 +155,7 @@ sources:
                 - run_id
                 - meta_pin
                 - meta_card_num
+                - meta_sale_document_num
               config:
                   error_if: ">102422"
         tags:
