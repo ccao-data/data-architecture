@@ -20,7 +20,7 @@ source_paths <- c(
   "//fileserver/ocommon/2022 Data Collection/Condo Project/William Approved Layout North Tri Condo Project FINAL COMPLETED/", # nolint
   "//fileserver/ocommon/2023 Data Collection/South Tri Condo Project COMPLETED",
   "//fileserver/ocommon/2024 Data Collection/City Tri Condo Characteristics COMPLETED", # nolint
-  "O:/CCAODATA/data/condo_chars_2025_completed" # Local copy of sharepoint file
+  "//fileserver/ocommon/CCAODATA/data/condo_chars_2025_completed" # Local copy of sharepoint file
 )
 
 source_files <- grep(
