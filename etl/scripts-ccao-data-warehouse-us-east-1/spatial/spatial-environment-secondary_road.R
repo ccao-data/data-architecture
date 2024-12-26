@@ -185,5 +185,5 @@ for (year in years) {
     paste0("secondary_road-", year, ".parquet")
   )
 
-  geoarrow::write_geoparquet(data_to_write, output_file)
+  geoparquet_to_s3(data_to_write, output_file)
 }

@@ -23,6 +23,13 @@ jobs:
           # list of changed files within `super-linter`
           fetch-depth: 0
 
+      # Superlinter will load renv if .Rprofile is present - it will then fail
+      # because the renv environment doesn't have lintr. Removing the .Rprofile
+      # file loads the default superlinter R environment.
+      - name: Disable renv
+        shell: bash
+        run: rm etl/.Rprofile
+
       - name: Lint
         uses: github/super-linter@v6
         env:

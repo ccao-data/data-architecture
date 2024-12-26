@@ -121,6 +121,12 @@ sources_list <- bind_rows(list(
     "boundary" = "cps_attendance_elementary",
     "year" = "2023-2024"
   ),
+  "attendance_ele_2025" = c(
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "api_url" = "5ihw-cbdn?method=export&format=GeoJSON",
+    "boundary" = "cps_attendance_elementary",
+    "year" = "2024-2025"
+  ),
 
   # CPS ATTENDANCE - SECONDARY
   "attendance_sec_0607" = c(
@@ -230,6 +236,12 @@ sources_list <- bind_rows(list(
     "api_url" = "gba7-ip5a?method=export&format=GeoJSON",
     "boundary" = "cps_attendance_secondary",
     "year" = "2023-2024"
+  ),
+  "attendance_sec_2025" = c(
+    "source" = "https://data.cityofchicago.org/api/geospatial/",
+    "api_url" = "4kfz-zr3a?method=export&format=GeoJSON",
+    "boundary" = "cps_attendance_secondary",
+    "year" = "2024-2025"
   ),
 
   # LOCATION

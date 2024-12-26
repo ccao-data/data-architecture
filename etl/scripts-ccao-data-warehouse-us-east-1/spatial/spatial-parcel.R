@@ -387,7 +387,7 @@ process_parcel_file <- function(s3_bucket_uri,
     }
 
     # Write local backup copy
-    write_geoparquet(spatial_df_final, local_backup_file)
+    geoparquet_to_s3(spatial_df_final, local_backup_file)
     tictoc::toc()
   } else {
     message("Loading processed parcels from backup for: ", file_year)
