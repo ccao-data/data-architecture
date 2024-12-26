@@ -1,6 +1,6 @@
 models:
-  - name: open_data.vw_pin_universe
-    description: '{{ doc("view_vw_pin_universe") }}'
+  - name: open_data.vw_parcel_universe
+    description: '{{ doc("view_vw_parcel_universe") }}'
 
     columns:
       - name: access_cmap_walk_data_year
@@ -79,14 +79,6 @@ models:
         description: '{{ doc("column_chicago_police_district_num") }}'
       - name: class
         description: '{{ doc("shared_column_class") }}'
-        data_tests:
-          - count_is_consistent:
-              name: default_vw_pin_universe_class_count_is_consistent_by_year
-              group_column: year
-              # Counts vary a bit from year to year, so set a generous range
-              # that lets us see if counts are way off of what we expect
-              min_value: 100
-              max_value: 200
       - name: cook_board_of_review_district_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: cook_board_of_review_district_num
@@ -215,10 +207,6 @@ models:
         description: '{{ doc("column_tax_district_num") }}'
       - name: township_code
         description: '{{ doc("shared_column_township_code") }}'
-        data_tests:
-          - count_is_consistent:
-              name: default_vw_pin_universe_town_count_is_consistent_by_year
-              group_column: year
       - name: township_name
         description: '{{ doc("shared_column_township_name") }}'
       - name: triad_code

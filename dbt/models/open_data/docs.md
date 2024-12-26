@@ -1,6 +1,6 @@
-# vw_pin_universe
+# vw_parcel_universe
 
-{% docs view_vw_pin_universe %}
+{% docs view_vw_parcel_universe %}
 PIN-level geographic location and spatially joined locations. Limited to most
 recent year only. Mirrors `default.vw_pin_universe`.
 
