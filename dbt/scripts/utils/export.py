@@ -58,6 +58,7 @@ def export_models(
     that the function created.
     """
     models_for_export = query_models_for_export(
+        target=target,
         select=select,
         selector=selector,
         rebuild=rebuild,
