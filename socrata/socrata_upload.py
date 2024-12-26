@@ -95,19 +95,16 @@ def build_query(
     # Retrieve column names and types from Athena
     columns = cursor.execute("show columns from " + athena_asset).as_pandas()
 
-    # Limit pull to columns present in open data asset
-    asset_url = (
-        "https://datacatalog.cookcountyil.gov/resource/"
-        + asset_id
-        + ".json?$limit=1"
-    )
-
+    # Limit pull to columns present in open data asset - shouldn't change anything, but prevents failure if columns have become misaligned.
     asset_columns = (
-        s.get(
-            asset_url, headers={"X-App-Token": os.getenv("SOCRATA_APP_TOKEN")}
+        requests.get(
+            f"https://datacatalog.cookcountyil.gov/resource/{asset_id}"
         )
-        .json()[0]
-        .keys()
+        .headers["X-SODA2-Fields"]
+        .replace('"', "")
+        .strip("[")
+        .strip("]")
+        .split(",")
     )
     columns = columns[columns["column"].isin(asset_columns)]
 
