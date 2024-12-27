@@ -84,7 +84,7 @@ LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
 LEFT JOIN {{ ref('ccao.commercial_major_subclass') }} AS major_subclass
     ON comdat.user12 = major_subclass.code
 LEFT JOIN {{ ref('ccao.commercial_minor_subclass') }} AS minor_subclass
-    ON comdat.user12 = minor_subclass.code
+    ON comdat.user13 = minor_subclass.code
 WHERE comdat.cur = 'Y'
     AND comdat.deactivat IS NULL
     AND pardat.class NOT BETWEEN '200' AND '299'
