@@ -1,5 +1,5 @@
-{{ 
-    config(materialized='table') 
+{{
+    config(materialized='table')
 }}
 
 WITH distinct_years AS (
@@ -26,6 +26,7 @@ SELECT DISTINCT
     CAST(stadium_years.year AS VARCHAR) AS year,
     ST_ASBINARY(ST_POINT(stadium_years.lon, stadium_years.lat)) AS geometry,
     ST_ASBINARY(ST_POINT(stadium_years.x_3435, stadium_years.y_3435))
-        AS geometry_3435
+        AS geometry_3435,
+    DATE_FORMAT(CURRENT_TIMESTAMP, '%Y-%m-%d %H:%i:%s.%f') AS loaded_at
 FROM stadium_years
 ORDER BY year, name

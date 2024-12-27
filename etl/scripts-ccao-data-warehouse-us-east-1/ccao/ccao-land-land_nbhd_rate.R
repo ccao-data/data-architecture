@@ -140,6 +140,7 @@ bind_rows(
   land_nbhd_rate_2024
 ) %>%
   relocate(land_rate_per_sqft, .after = last_col()) %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
   group_by(year) %>%
   arrow::write_dataset(
     path = remote_file_warehouse_nbhd_rate,

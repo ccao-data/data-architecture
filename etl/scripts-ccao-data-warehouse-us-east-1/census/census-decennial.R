@@ -110,7 +110,8 @@ pull_and_write_dec <- function(s3_bucket_uri, survey, folder, geography, year) {
       cache_table = TRUE
     ) %>%
       select(-NAME) %>%
-      rename_with(~ rename_to_2020(.x, year), .cols = !GEOID)
+      rename_with(~ rename_to_2020(.x, year), .cols = !GEOID) %>%
+      mutate(loaded_at = as.character(Sys.time()))
 
     # Write to S3
     arrow::write_parquet(df, remote_file)

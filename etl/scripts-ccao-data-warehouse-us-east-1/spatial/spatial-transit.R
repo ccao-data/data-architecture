@@ -70,7 +70,7 @@ process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
           any_of(c("location_type", "parent_station", "wheelchair_boarding")),
           any_of(c("feed_pull_date", "geometry", "geometry_3435"))
         ) %>%
-        write_geoparquet(remote_file_stop)
+        geoparquet_to_s3(remote_file_stop)
     }
 
     # Now create route geometries and save. Skip PACE since they have no geoms
@@ -101,7 +101,7 @@ process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
             route_color, route_text_color,
             feed_pull_date, geometry, geometry_3435
           ) %>%
-          write_geoparquet(remote_file_route)
+          geoparquet_to_s3(remote_file_route)
       }
     }
   }
@@ -117,7 +117,7 @@ pwalk(gtfs_feeds_df, function(...) {
     agency = df$agency,
     feed_url = df$raw_feed_url
   )
-})
+}, .progress = TRUE)
 
 # Create dictionary for GTFS numeric codes
 # See: https://developers.google.com/transit/gtfs/reference
@@ -136,7 +136,10 @@ transit_dict <- tribble(
   "route_type", 12, "monorail", "Monorail. Railway in which the track consists of a single rail or a beam."
 ) %>%
   # nolint end
-  mutate(field_code = as.integer(field_code))
+  mutate(
+    field_code = as.integer(field_code),
+    loaded_at = as.character(Sys.time())
+  )
 
 # Write dict to parquet
 remote_file_dict <- file.path(

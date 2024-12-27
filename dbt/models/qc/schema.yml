@@ -221,6 +221,244 @@ models:
                 category: sales_issues
                 description: mydec should not have >1000 sales that are not in iasworld
 
+  - name: qc.vw_ic_reference_all_non_res_land_details
+    description: '{{ doc("view_vw_ic_reference_all_non_res_land_details") }}'
+    config: &qc_report_ic_reference_tags
+      tags:
+        - qc_report_ic_reference
+    meta:
+      export_name: AllNonRes_LandDetails.Query
+      export_template: &qc_report_ic_reference_export_template
+        start_row: 3
+        add_table: false
+      export_format:
+        columns:
+          - name: ACRES
+            index: J
+            data_type: float
+          - name: ALLOCPCT
+            index: T
+            data_type: float
+          - name: BRATE
+            index: M
+            data_type: float
+          - name: Exemption
+            index: AA
+            data_type: float
+          - name: INFLU
+            index: Q
+            data_type: int
+          - name: INFLU2
+            index: U
+            data_type: int
+          - name: LLINE
+            index: I
+            data_type: int
+          - name: ORATE
+            index: K
+            data_type: float
+          - name: OSIZE
+            index: AB
+            data_type: float
+          - name: Override Decr
+            index: Z
+            data_type: float
+          - name: Override Incr
+            index: Y
+            data_type: float
+          - name: OVRPRICE
+            index: O
+            data_type: int
+          - name: PRICE
+            index: N
+            data_type: int
+          - name: SF
+            index: L
+            data_type: int
+          - name: TAXYR
+            index: B
+            data_type: int
+
+  - name: qc.vw_ic_reference_all_non_res_pin_level_data
+    description: '{{ doc("view_vw_ic_reference_all_non_res_pin_level_data") }}'
+    config: *qc_report_ic_reference_tags
+    meta:
+      export_name: AllNonRes_PINLevel.Query
+      export_template: *qc_report_ic_reference_export_template
+      export_format:
+        columns:
+          - name: ADRNO
+            index: L
+            data_type: int
+          - name: APRBLDG
+            index: J
+            data_type: int
+          - name: APRLAND
+            index: H
+            data_type: int
+          - name: APRTOT
+            index: I
+            data_type: int
+          - name: COMVAL
+            index: F
+            data_type: int
+          - name: DWELVAL
+            index: K
+            data_type: int
+          - name: OBYVAL
+            index: G
+            data_type: int
+          - name: TAXYR
+            index: B
+            data_type: int
+
+  - name: qc.vw_ic_reference_all_non_res_pin_level_prior_year_vals
+    description: '{{ doc("view_vw_ic_reference_all_non_res_pin_level_prior_year_vals") }}'
+    config: *qc_report_ic_reference_tags
+    meta:
+      export_name: AllNonRes_PINLevelPriorYearVals.Query
+      export_template: *qc_report_ic_reference_export_template
+      export_format:
+        columns:
+          - name: ADRNO
+            index: L
+            data_type: int
+          - name: APRBLDG
+            index: J
+            data_type: int
+          - name: APRLAND
+            index: H
+            data_type: int
+          - name: APRTOT
+            index: I
+            data_type: int
+          - name: COMVAL
+            index: F
+            data_type: int
+          - name: DWELVAL
+            index: K
+            data_type: int
+          - name: OBYVAL
+            index: G
+            data_type: int
+          - name: TAXYR
+            index: B
+            data_type: int
+          - name: VALASM3
+            index: T
+            data_type: int
+
+  - name: qc.vw_ic_reference_all_towns_com_bldg_detail
+    description: '{{ doc("view_vw_ic_reference_all_towns_com_bldg_detail") }}'
+    config: *qc_report_ic_reference_tags
+    meta:
+      export_name: AllTowns_ComDatDetails.Query
+      export_template: *qc_report_ic_reference_export_template
+      export_format:
+        columns:
+          - name: Basement Area
+            index: AD
+            data_type: int
+          - name: CARD
+            index: M
+            data_type: int
+          - name: CONVBLDG
+            index: O
+            data_type: int
+          - name: Effective Year
+            index: Q
+            data_type: int
+          - name: Exemption %
+            index: BJ
+            data_type: float
+          - name: EXTERNAL_CALC_RCNLD
+            index: T
+            data_type: int
+          - name: EXTERNAL_OCCPCT
+            index: U
+            data_type: float
+          - name: EXTERNAL_PROPCT
+            index: V
+            data_type: float
+          - name: EXTERNAL_RCNLD
+            index: W
+            data_type: int
+          - name: Gross Building Area
+            index: Z
+            data_type: int
+          - name: Net Rentable Area
+            index: AC
+            data_type: decimal
+          - name: Occ %
+            index: N
+            data_type: float
+          - name: OVRRCNLD
+            index: J
+            data_type: int
+          - name: Parking Spaces
+            index: AF
+            data_type: int
+          - name: Proration %
+            index: K
+            data_type: float
+          - name: TAXYR
+            index: B
+            data_type: int
+          - name: UNITS
+            index: AB
+            data_type: int
+          - name: USERVAL4
+            index: S
+            data_type: int
+          - name: YRBLT
+            index: P
+            data_type: int
+
+  - name: qc.vw_ic_reference_all_towns_oby_detail
+    description: '{{ doc("view_vw_ic_reference_all_towns_oby_detail") }}'
+    config: *qc_report_ic_reference_tags
+    meta:
+      export_name: AllTowns_OBYDetails.Query
+      export_template: *qc_report_ic_reference_export_template
+      export_format:
+        columns:
+          - name: CARD
+            index: G
+            data_type: int
+          - name: CONVOBY
+            index: N
+            data_type: int
+          - name: EXTERNAL_CALC_RCNLD
+            index: R
+            data_type: int
+          - name: EXTERNAL_OCCPCT
+            index: S
+            data_type: float
+          - name: EXTERNAL_PROPCT
+            index: T
+            data_type: float
+          - name: EXTERNAL_RCNLD
+            index: U
+            data_type: int
+          - name: Held Market Value
+            index: Q
+            data_type: decimal
+          - name: LLINE
+            index: H
+            data_type: int
+          - name: OVRRCNLD
+            index: J
+            data_type: int
+          - name: Proration %
+            index: K
+            data_type: float
+          - name: TAXYR
+            index: B
+            data_type: int
+          - name: YRBLT
+            index: O
+            data_type: int
+
   - name: qc.vw_neg_asmt_value
     description: '{{ doc("view_vw_neg_asmt_value") }}'
     config:
@@ -823,7 +1061,8 @@ models:
         - qc_report_town_close
     meta:
       export_name: 0 land value
-      export_template: assessed_and_market_values
+      export_template:
+        name: assessed_and_market_values
 
   - name: qc.vw_report_town_close_0_value
     description: '{{ doc("view_vw_report_town_close_0_value") }}'
@@ -832,7 +1071,8 @@ models:
         - qc_report_town_close
     meta:
       export_name: 0 value
-      export_template: assessed_and_market_values
+      export_template:
+        name: assessed_and_market_values
 
   - name: qc.vw_report_town_close_289s
     description: '{{ doc("view_vw_report_town_close_289s") }}'
@@ -878,7 +1118,8 @@ models:
         - qc_report_town_close
     meta:
       export_name: Improved class, no bldg value
-      export_template: assessed_and_market_values
+      export_template:
+        name: assessed_and_market_values
 
   - name: qc.vw_report_town_close_neg_asmt_value
     description: '{{ doc("view_vw_report_town_close_neg_asmt_value") }}'
@@ -994,7 +1235,8 @@ models:
         - qc_report_town_close
     meta:
       export_name: Vacant class, bldg value
-      export_template: assessed_and_market_values
+      export_template:
+        name: assessed_and_market_values
 
   - name: qc.vw_sale_mydec_null_values
     description: '{{ doc("view_vw_sale_mydec_null_values") }}'

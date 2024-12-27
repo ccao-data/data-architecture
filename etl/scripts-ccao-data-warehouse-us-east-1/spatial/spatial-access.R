@@ -42,7 +42,7 @@ if (!aws.s3::object_exists(remote_file_bike_warehouse)) {
       trail_width = trailwdth, trail_type = trailtype,
       trail_surface = trailsurfa
     ) %>%
-    geoarrow::write_geoparquet(remote_file_bike_warehouse)
+    geoparquet_to_s3(remote_file_bike_warehouse)
 }
 
 
@@ -68,7 +68,7 @@ if (!aws.s3::object_exists(remote_file_ceme_warehouse)) {
       name = cfname, address, gniscode, source, community, comment, mergeid,
       geometry, geometry_3435
     ) %>%
-    geoarrow::write_geoparquet(remote_file_ceme_warehouse)
+    geoparquet_to_s3(remote_file_ceme_warehouse)
 }
 
 
@@ -94,7 +94,7 @@ if (!aws.s3::object_exists(remote_file_hosp_warehouse)) {
       name = cfname, address, gniscode, source, community, comment, mergeid,
       geometry, geometry_3435
     ) %>%
-    geoarrow::write_geoparquet(remote_file_hosp_warehouse)
+    geoparquet_to_s3(remote_file_hosp_warehouse)
 }
 
 
@@ -119,7 +119,7 @@ walk(remote_files_park_warehouse, function(x) {
       add_osm_feature(key = "leisure", value = "park") %>%
       osmdata_sf()
 
-    cook_boundary <- st_read_parquet(
+    cook_boundary <- geoarrow::read_geoparquet_sf(
       file.path(
         AWS_S3_WAREHOUSE_BUCKET,
         "spatial/ccao/county/2019.parquet"
@@ -141,7 +141,7 @@ walk(remote_files_park_warehouse, function(x) {
         ))
       )
 
-    geoarrow::write_geoparquet(parks_df, x, compression = "snappy")
+    geoparquet_to_s3(parks_df, x)
   }
 })
 
@@ -171,7 +171,7 @@ if (!aws.s3::object_exists(remote_file_indc_warehouse)) {
       num = no, hud_qualif, acres,
       geometry, geometry_3435
     ) %>%
-    geoarrow::write_geoparquet(remote_file_indc_warehouse)
+    geoparquet_to_s3(remote_file_indc_warehouse)
 }
 
 ##### WALKABILITY #####
@@ -189,18 +189,17 @@ if (!aws.s3::object_exists(remote_file_walk_warehouse)) {
   tmp_file_walk <- tempfile(fileext = ".geojson")
   aws.s3::save_object(remote_file_walk_raw, file = tmp_file_walk)
 
-  temp <- st_read(tmp_file_walk) %>%
+  st_read(tmp_file_walk) %>%
     st_transform(4326) %>%
+    rename(
+      walkability_rating = Walkabilit,
+      amenities_score = Amenities,
+      transitaccess = TransitAcc
+    ) %>%
     rename_with(tolower) %>%
     rename_with(~ gsub("sc$|sco|scor|score", "_score", .x)) %>%
     rename_with(~"walk_num", contains("subzone")) %>%
-    rename(
-      walkability_rating = walkabilit,
-      amenities_score = amenities,
-      transitaccess = transitacc
-    ) %>%
     standardize_expand_geo() %>%
     select(-contains("shape")) %>%
-    mutate(year = "2017") %>%
-    geoarrow::write_geoparquet(remote_file_walk_warehouse)
+    geoparquet_to_s3(remote_file_walk_warehouse)
 }

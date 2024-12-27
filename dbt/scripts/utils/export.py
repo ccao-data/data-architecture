@@ -1,11 +1,13 @@
 # Shared utilities for exporting models
 import contextlib
 import dataclasses
+import decimal
 import io
 import json
 import os
 import pathlib
 import shutil
+import typing
 
 import pandas as pd
 import pyathena
@@ -56,6 +58,7 @@ def export_models(
     that the function created.
     """
     models_for_export = query_models_for_export(
+        target=target,
         select=select,
         selector=selector,
         rebuild=rebuild,
@@ -85,6 +88,10 @@ class ModelForExport:
     export_filename: str
     # Unix-formatted path to a workbook to use as a template
     template_path: str
+    # 1-indexed position of the first non-header row
+    start_row: int
+    # Whether or not to add a data table for sorting and filtering
+    add_table: bool
 
 
 def query_models_for_export(
@@ -191,10 +198,15 @@ def query_models_for_export(
         tags = model["tags"]
         relation_name = model["relation_name"]
         export_name = model["config"]["meta"].get("export_name") or model_name
-        template = model["config"]["meta"].get("export_template") or model_name
+        template_config = model["config"]["meta"].get("export_template", {})
+        template_name = template_config.get("name") or model_name
+        start_row = template_config.get("start_row") or 2
+        add_table = template_config.get("add_table") or False
 
         # Define inputs and outputs for export based on model metadata
-        template_path = os.path.join("export", "templates", f"{template}.xlsx")
+        template_path = os.path.join(
+            "export", "templates", f"{template_name}.xlsx"
+        )
 
         print(f"Querying data for model {model_name}")
         query = f"SELECT * FROM {relation_name}"
@@ -213,6 +225,8 @@ def query_models_for_export(
                 ),
                 export_filename=f"{export_name}.xlsx",
                 template_path=template_path,
+                start_row=start_row,
+                add_table=add_table,
             )
         )
 
@@ -268,7 +282,8 @@ def save_model_to_workbook(
             sheet_name=sheet_name,
             header=False if template_exists else True,
             index=False,
-            startrow=1 if template_exists else 0,
+            # Startrow is 0-indexed, whereas the config is 1-indexed
+            startrow=model.start_row - 1 if template_exists else 0,
         )
         sheet = writer.sheets[sheet_name]
 
@@ -281,17 +296,18 @@ def save_model_to_workbook(
                 "is empty"
             )
         else:
-            table = Table(
-                displayName="Query_Results",
-                ref=(
-                    f"A1:{get_column_letter(sheet.max_column)}"
-                    f"{str(sheet.max_row)}"
-                ),
-            )
-            table.tableStyleInfo = TableStyleInfo(
-                name="TableStyleMedium11", showRowStripes=True
-            )
-            sheet.add_table(table)
+            if model.add_table:
+                table = Table(
+                    displayName="Query_Results",
+                    ref=(
+                        f"A1:{get_column_letter(sheet.max_column)}"
+                        f"{str(sheet.max_row)}"
+                    ),
+                )
+                table.tableStyleInfo = TableStyleInfo(
+                    name="TableStyleMedium11", showRowStripes=True
+                )
+                sheet.add_table(table)
 
             # Parse column format settings by col index. Since column
             # formatting needs to be applied at the cell level, we'll
@@ -345,18 +361,45 @@ def save_model_to_workbook(
                         column_format_by_index[idx]["alignment"] = Alignment(
                             horizontal=horiz_align_dir
                         )
+                    if data_type := column_config.get("data_type"):
+                        type_func: typing.Callable
+                        if data_type == "int":
+                            type_func = int
+                        elif data_type == "float":
+                            type_func = float
+                        elif data_type == "decimal":
+                            type_func = decimal.Decimal
+                        elif data_type == "str":
+                            type_func = str
+                        else:
+                            raise ValueError(
+                                f"data_type '{data_type}' in export_format "
+                                f"for model {model.name} is not recognized, "
+                                "must be one of 'int', 'float', or 'str'"
+                            )
+                        column_format_by_index[idx]["data_type"] = type_func
 
             # Skip header row when applying formatting. We need to
             # catch the special case where there is only one row, or
             # else we will iterate the _cells_ in that row instead of
             # the row when slicing it from 2 : max_row
             non_header_rows = (
-                [sheet[2]] if sheet.max_row == 2 else sheet[2 : sheet.max_row]
+                [sheet[model.start_row]]
+                if sheet.max_row == model.start_row
+                else sheet[model.start_row : sheet.max_row]
             )
             for row in non_header_rows:
                 for idx, formats in column_format_by_index.items():
                     for attr, val in formats.items():
-                        setattr(row[idx], attr, val)
+                        if attr == "data_type":
+                            row[idx].value = (
+                                val(row[idx].value)
+                                if row[idx].value != ""
+                                and row[idx].value is not None
+                                else None
+                            )
+                        else:
+                            setattr(row[idx], attr, val)
 
         print(f"Exported model {model.name} to {output_path}")
         return output_path
