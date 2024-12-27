@@ -1,6 +1,6 @@
 # pylint: skip-file
 # type: ignore
-sc.addPyFile("s3://ccao-athena-dependencies-us-east-1/assesspy==2.0.0.zip")
+sc.addPyFile("s3://ccao-athena-dependencies-us-east-1/assesspy==2.0.1.zip")
 
 from typing import Union
 
