@@ -138,7 +138,7 @@ The test set is the out-of-sample data used to evaluate model performance.
 Predictions in this table are trained using only data _not in this set
 of sales_.
 
-**Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`, `document_number`
+**Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`, `meta_sale_document_num`
 {% enddocs %}
 
 # timing
