@@ -1,5 +1,5 @@
 exposures:
-  - name: parcel_universe_current
+  - name: parcel_universe_current_year
     label: Parcel Universe (Current Year)
     type: dashboard
     url: https://datacatalog.cookcountyil.gov/dataset/Assessor-Parcel-Universe-Current-Year-/pabr-t5kh
