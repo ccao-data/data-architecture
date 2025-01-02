@@ -4,7 +4,7 @@ exposures:
     type: dashboard
     url: https://datacatalog.cookcountyil.gov/dataset/Assessor-Parcel-Universe-Current-Year-/pabr-t5kh
     depends_on:
-      - ref('z_ci_652_create_current_year_only_parcel_universe_asset_on_open_data_open_data.vw_parcel_universe')
+      - ref('open_data.vw_parcel_universe')
     owner:
       name: Data Department
     meta:
