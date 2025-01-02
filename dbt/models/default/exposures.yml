@@ -85,7 +85,7 @@ exposures:
       Use cases: Alone, sales data can be used to characterize real estate markets. Sales paired with characteristics can be used to find comparable properties or as an input to an automated modeling application. Sales paired with assessments can be used to calculate sales ratio statistics. Outliers can be easily removed using filters constructed from class, township, and year variables.
 
   - name: parcel_universe
-    label: Parcel Universe
+    label: Parcel Universe (Historic)
     type: dashboard
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Universe/nj4t-kc8j
     depends_on:
