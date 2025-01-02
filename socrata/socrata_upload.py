@@ -10,6 +10,13 @@ from dbt.cli.main import dbtRunner
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
 
+# Create a session object so HTTP requests can be pooled
+session = requests.Session()
+session.auth = (
+    str(os.getenv("SOCRATA_USERNAME")),
+    str(os.getenv("SOCRATA_PASSWORD")),
+)
+
 # Connect to Athena
 cursor = connect(
     s3_staging_dir="s3://ccao-athena-results-us-east-1/",
@@ -87,19 +94,16 @@ def build_query(
     # Retrieve column names and types from Athena
     columns = cursor.execute("show columns from " + athena_asset).as_pandas()
 
-    # Limit pull to columns present in open data asset
-    asset_url = (
-        "https://datacatalog.cookcountyil.gov/resource/"
-        + asset_id
-        + ".json?$limit=1"
-    )
-
+    # Limit pull to columns present in open data asset - shouldn't change anything, but prevents failure if columns have become misaligned.
     asset_columns = (
         requests.get(
-            asset_url, headers={"X-App-Token": os.getenv("SOCRATA_APP_TOKEN")}
+            f"https://datacatalog.cookcountyil.gov/resource/{asset_id}"
         )
-        .json()[0]
-        .keys()
+        .headers["X-SODA2-Fields"]
+        .replace('"', "")
+        .strip("[")
+        .strip("]")
+        .split(",")
     )
     columns = columns[columns["column"].isin(asset_columns)]
 
@@ -134,14 +138,8 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
 
     # Load environmental variables
     app_token = os.getenv("SOCRATA_APP_TOKEN")
-    auth = (os.getenv("SOCRATA_USERNAME"), os.getenv("SOCRATA_PASSWORD"))
 
-    url = (
-        "https://datacatalog.cookcountyil.gov/resource/"
-        + asset_id
-        + ".json?$$app_token="
-        + app_token
-    )
+    url = "https://datacatalog.cookcountyil.gov/resource/" + asset_id + ".json"
 
     print_message = "Overwriting" if overwrite else "Updating"
 
@@ -172,31 +170,29 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     input_data[date_columns] = input_data[date_columns].map(
         lambda x: x.strftime("%Y-%m-%dT%X")
     )
-    input_data = input_data.to_json(orient="records")
 
     # Raise URL status if it's bad
-    requests.get(
-        url=url,
-        data=input_data,
-        auth=auth,
+    session.get(
+        (
+            "https://datacatalog.cookcountyil.gov/resource/"
+            + asset_id
+            + ".json?$limit=1"
+        ),
+        headers={"X-App-Token": app_token},
     ).raise_for_status()
 
-    print(print_message)
-    if method == "put":
-        response = requests.put(
+    session.get(url=url, headers={"X-App-Token": app_token}).raise_for_status()
+
+    for i in range(0, input_data.shape[0], 10000):
+        print(print_message)
+        print(f"Rows {i + 1}-{i + 10000}")
+        response = getattr(session, method)(
             url=url,
-            data=input_data,
-            auth=auth,
+            data=input_data.iloc[i : i + 10000].to_json(orient="records"),
+            headers={"X-App-Token": app_token},
         )
 
-    elif method == "post":
-        response = requests.post(
-            url=url,
-            data=input_data,
-            auth=auth,
-        )
-
-    return response
+        print(response.content)
 
 
 def generate_groups(athena_asset, years=None, by_township=False):
@@ -286,10 +282,9 @@ def socrata_upload(
         }
 
         if overwrite:
-            response = upload("put", **upload_args)
+            upload("put", **upload_args)
         else:
-            response = upload("post", **upload_args)
-        print(response.content)
+            upload("post", **upload_args)
 
     else:
         if flag == "years":
@@ -326,10 +321,9 @@ def socrata_upload(
                     "year": item,
                 }
             if count == 0 and overwrite:
-                response = upload("put", **upload_args)
+                upload("put", **upload_args)
             else:
-                response = upload("post", **upload_args)
-            print(response.content)
+                upload("post", **upload_args)
             count = count + 1
 
     toc = time.perf_counter()
