@@ -12,7 +12,6 @@ from pyathena.pandas.cursor import PandasCursor
 
 # Create a session object so HTTP requests can be pooled
 session = requests.Session()
-session.verify = True
 session.auth = (
     str(os.getenv("SOCRATA_USERNAME")),
     str(os.getenv("SOCRATA_PASSWORD")),
