@@ -62,7 +62,7 @@ def get_asset_info(socrata_asset):
 
     model = pd.json_normalize(model)
     model = model[model["label"] == socrata_asset]
-    athena_asset = model.iloc[0]["depends_on.nodes"][0].split(".")[-1]
+    athena_asset = model.iloc[0]["depends_on.nodes"][0].split(".", 2)[-1]
     asset_id = model.iloc[0]["meta.asset_id"]
     row_identifier = model.iloc[0]["meta.primary_key"]
 
@@ -96,7 +96,7 @@ def build_query(
 
     # Limit pull to columns present in open data asset - shouldn't change anything, but prevents failure if columns have become misaligned.
     asset_columns = (
-        requests.get(
+        session.get(
             f"https://datacatalog.cookcountyil.gov/resource/{asset_id}"
         )
         .headers["X-SODA2-Fields"]
