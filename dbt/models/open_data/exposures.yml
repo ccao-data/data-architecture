@@ -14,7 +14,7 @@ exposures:
         - pin
         - year
     description: |
-      A complete, historic universe of Cook County parcels with attached geographic, governmental, and spatial data.
+      Most recent year universe of Cook County parcels with attached geographic, governmental, and spatial data.
 
       Notes: Contains a cornucopia of locational and spatial data for all parcels in Cook County.
 
