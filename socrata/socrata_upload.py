@@ -139,12 +139,7 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     # Load environmental variables
     app_token = os.getenv("SOCRATA_APP_TOKEN")
 
-    url = (
-        "https://datacatalog.cookcountyil.gov/resource/"
-        + asset_id
-        + ".json?$$app_token="
-        + app_token
-    )
+    url = "https://datacatalog.cookcountyil.gov/resource/" + asset_id + ".json"
 
     print_message = "Overwriting" if overwrite else "Updating"
 
@@ -186,7 +181,7 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
         headers={"X-App-Token": app_token},
     ).raise_for_status()
 
-    session.get(url=url).raise_for_status()
+    session.get(url=url, headers={"X-App-Token": app_token}).raise_for_status()
 
     if input_data.shape[0] > 10000:
         for i in range(0, input_data.shape[0], 10000):
@@ -198,6 +193,7 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
                     data=input_data.iloc[i : i + 10000].to_json(
                         orient="records"
                     ),
+                    headers={"X-App-Token": app_token},
                 )
 
             elif method == "post":
@@ -206,6 +202,7 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
                     data=input_data.iloc[i : i + 10000].to_json(
                         orient="records"
                     ),
+                    headers={"X-App-Token": app_token},
                 )
 
             print(response.content)
@@ -216,12 +213,14 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
             response = session.put(
                 url=url,
                 data=input_data.to_json(orient="records"),
+                headers={"X-App-Token": app_token},
             )
 
         elif method == "post":
             response = session.post(
                 url=url,
                 data=input_data.to_json(orient="records"),
+                headers={"X-App-Token": app_token},
             )
 
         print(response.content)
