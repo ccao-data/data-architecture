@@ -184,7 +184,7 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
             + asset_id
             + ".json?$limit=1"
         ),
-        headers={"X-App-Token": os.getenv("SOCRATA_APP_TOKEN")},
+        headers={"X-App-Token": app_token},
     ).raise_for_status()
 
     session.get(url=url).raise_for_status()
