@@ -11,9 +11,9 @@ from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
 
 # Create a session object so HTTP requests can be pooled
-s = requests.Session()
-s.verify = True
-s.auth = (
+session = requests.Session()
+session.verify = True
+session.auth = (
     str(os.getenv("SOCRATA_USERNAME")),
     str(os.getenv("SOCRATA_PASSWORD")),
 )
@@ -178,7 +178,7 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     )
 
     # Raise URL status if it's bad
-    s.get(
+    session.get(
         (
             "https://datacatalog.cookcountyil.gov/resource/"
             + asset_id
@@ -187,14 +187,14 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
         headers={"X-App-Token": os.getenv("SOCRATA_APP_TOKEN")},
     ).raise_for_status()
 
-    s.get(url=url).raise_for_status()
+    session.get(url=url).raise_for_status()
 
     if input_data.shape[0] > 10000:
         for i in range(0, input_data.shape[0], 10000):
             print(print_message)
             print(f"Rows {i + 1}-{i + 10000}")
             if method == "put":
-                response = s.put(
+                response = session.put(
                     url=url,
                     data=input_data.iloc[i : i + 10000].to_json(
                         orient="records"
@@ -202,7 +202,7 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
                 )
 
             elif method == "post":
-                response = s.post(
+                response = session.post(
                     url=url,
                     data=input_data.iloc[i : i + 10000].to_json(
                         orient="records"
@@ -214,13 +214,13 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     else:
         print(print_message)
         if method == "put":
-            response = s.put(
+            response = session.put(
                 url=url,
                 data=input_data.to_json(orient="records"),
             )
 
         elif method == "post":
-            response = s.post(
+            response = session.post(
                 url=url,
                 data=input_data.to_json(orient="records"),
             )
