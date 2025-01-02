@@ -187,41 +187,21 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
         for i in range(0, input_data.shape[0], 10000):
             print(print_message)
             print(f"Rows {i + 1}-{i + 10000}")
-            if method == "put":
-                response = session.put(
-                    url=url,
-                    data=input_data.iloc[i : i + 10000].to_json(
-                        orient="records"
-                    ),
-                    headers={"X-App-Token": app_token},
-                )
-
-            elif method == "post":
-                response = session.post(
-                    url=url,
-                    data=input_data.iloc[i : i + 10000].to_json(
-                        orient="records"
-                    ),
-                    headers={"X-App-Token": app_token},
-                )
+            response = getattr(session, method)(
+                url=url,
+                data=input_data.iloc[i : i + 10000].to_json(orient="records"),
+                headers={"X-App-Token": app_token},
+            )
 
             print(response.content)
 
     else:
         print(print_message)
-        if method == "put":
-            response = session.put(
-                url=url,
-                data=input_data.to_json(orient="records"),
-                headers={"X-App-Token": app_token},
-            )
-
-        elif method == "post":
-            response = session.post(
-                url=url,
-                data=input_data.to_json(orient="records"),
-                headers={"X-App-Token": app_token},
-            )
+        response = getattr(session, method)(
+            url=url,
+            data=input_data.to_json(orient="records"),
+            headers={"X-App-Token": app_token},
+        )
 
         print(response.content)
 
