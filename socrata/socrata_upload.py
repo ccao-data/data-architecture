@@ -183,23 +183,12 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
 
     session.get(url=url, headers={"X-App-Token": app_token}).raise_for_status()
 
-    if input_data.shape[0] > 10000:
-        for i in range(0, input_data.shape[0], 10000):
-            print(print_message)
-            print(f"Rows {i + 1}-{i + 10000}")
-            response = getattr(session, method)(
-                url=url,
-                data=input_data.iloc[i : i + 10000].to_json(orient="records"),
-                headers={"X-App-Token": app_token},
-            )
-
-            print(response.content)
-
-    else:
+    for i in range(0, input_data.shape[0], 10000):
         print(print_message)
+        print(f"Rows {i + 1}-{i + 10000}")
         response = getattr(session, method)(
             url=url,
-            data=input_data.to_json(orient="records"),
+            data=input_data.iloc[i : i + 10000].to_json(orient="records"),
             headers={"X-App-Token": app_token},
         )
 
