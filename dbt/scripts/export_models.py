@@ -15,10 +15,12 @@ A few configuration values can be set on any model to support exporting:
     * config.meta.export_name (optional): The base name of the output file that will be generated. File extensions are not necessary since all
       models are exported as .xlsx files. If unset, defaults to the name of the model.
 
-    * config.meta.export_template (optional): The base name of an Excel template to use when exporting a model. File extensions are not necessary
-      since all templates are assumed to be .xlsx files. Templates should be stored in the export/templates/ directory and should include header
-      rows. If unset, will search for a template with the same name as the model; if no template is found, defaults to a simple layout with
-      filterable columns and striped rows.
+    * config.meta.export_template (optional): Configs that apply to an optional Excel template that the script will populate with data. Attributes include:
+        * name (optional): The base name of the template file. File extensions are not necessary since all templates are assumed to be .xlsx files. Templates should
+          be stored in the export/templates/ directory and should include header rows. If unset, will search for a template with the same name as the
+          model; if no template is found or if the attribute is not present, defaults to a simple layout with filterable columns and striped rows.
+        * start_row (optional): The 1-indexed position of the row in the sheet that should be the first non-header row, i.e. the start row for the data.
+        * add_table (optional): Whether to add a data table for sorting and filtering. Defaults to True.
 
     * config.meta.export_format (optional): Formatting to apply to the output workbook. Useful for specific types of formatting, like alignment
       and number formats, that Excel can only apply after populating a template with data
