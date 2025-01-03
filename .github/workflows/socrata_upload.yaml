@@ -19,7 +19,7 @@ on:
         - Parcel Universe (Current Year)
         - Residential Condominium Unit Characteristics
         - Single and Multi-Family Improvement Characteristics
-        default: Parcel Universe
+        default: Parcel Universe (Current Year)
         required: true
       overwrite:
         # True for overwrite, False for update
