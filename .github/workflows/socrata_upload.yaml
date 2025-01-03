@@ -12,6 +12,8 @@ on:
         - Parcel Addresses
         - Parcel Proximity
         - Parcel Sales
+        - Parcel Status
+        - Permits
         - Property Tax-Exempt Parcels
         - Parcel Universe
         - Parcel Universe (Current Year)
