@@ -1,5 +1,6 @@
 import os
 import tempfile
+from datetime import datetime
 
 import boto3
 import pandas as pd
@@ -33,6 +34,7 @@ data["geoid"] = data["geoid"].astype(str)
 temp_file.close()
 
 # Upload the Parquet file to S3
+data["loaded_at"] = str(datetime.now())
 data.to_parquet(
     os.path.join(
         os.environ["AWS_S3_WAREHOUSE_BUCKET"],

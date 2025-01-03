@@ -32,7 +32,8 @@ for (year in years) {
     AWS_S3_RAW_BUCKET, "spatial",
     "environment", "major_road",
     paste0("year=", year),
-    paste0("major_road-", year, ".parquet"))
+    paste0("major_road-", year, ".parquet")
+  )
 
   # Simplify linestrings
   current_data <- read_geoparquet_sf(ingest_file) %>%
@@ -46,8 +47,10 @@ for (year in years) {
     data_to_write <- current_data
   } else {
     # Create temporal column to preserve earliest data
-    combined_data <- bind_rows(master_dataset,
-                               current_data %>% mutate(temporal = 1))
+    combined_data <- bind_rows(
+      master_dataset,
+      current_data %>% mutate(temporal = 1)
+    )
 
     # Arrange by osm_id and temporal, then deduplicate and preserve earlier data
     data_to_write <- combined_data %>%
@@ -70,6 +73,5 @@ for (year in years) {
     paste0("major_road-", year, ".parquet")
   )
 
-  geoarrow::write_geoparquet(data_to_write, output_file)
-
+  geoparquet_to_s3(data_to_write, output_file)
 }

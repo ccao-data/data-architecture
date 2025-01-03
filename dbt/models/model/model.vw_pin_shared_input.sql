@@ -9,9 +9,19 @@ consistency. Missing data is filled with the following steps:
 2. Current data is filled BACKWARD to account for missing historical data.
    Again, this is only for things unlikely to change
 
-WARNING: This is a very heavy view. Don't use it for anything other than making
-extracts for modeling
+This view is "materialized" (made into a table) daily in order to improve
+query performance and reduce data queried by Athena. The materialization
+is triggered by sqoop-bot (runs after Sqoop grabs iasWorld data)
 */
+{{
+    config(
+        materialized='table',
+        partitioned_by=['meta_year'],
+        bucketed_by=['meta_pin'],
+        bucket_count=1
+    )
+}}
+
 WITH uni AS (
 
     SELECT
@@ -63,19 +73,25 @@ acs5 AS (
     WHERE geography = 'tract'
 ),
 
-/* This CTAS uses location.census_2010 rather than joining onto a specific year
-from location.census because we need to join 2010 PUMA geometry to *all*
-parcels, not just those that existed in 2010 (or, in our case, 2012 since we
-don't have 2010 PUMA shapefiles). This is specific to the IHS data since it
+/* This CTAS uses location.census_2020 rather than joining onto a specific year
+from location.census because we need to join 2020 PUMA geometry to *all*
+parcels, not just those that existed in 2020 (or, in our case, 2022 since we
+don't have 2020 PUMA shapefiles). This is specific to the IHS data since it
 exists for many years but uses static geography. */
 housing_index AS (
     SELECT
         puma.pin10,
         ihs.year,
+        -- This is quarterly data and needs to be averaged annually
         AVG(CAST(ihs.ihs_index AS DOUBLE)) AS ihs_avg_year_index
-    FROM {{ source('other', 'ihs_index') }} AS ihs
-    LEFT JOIN {{ ref('location.census_2010') }} AS puma
-        ON ihs.geoid = puma.census_puma_geoid
+    FROM (SELECT DISTINCT
+        pin10,
+        census_puma_geoid
+    FROM {{ ref('location.census_2020') }}) AS puma
+    LEFT JOIN {{ source('other', 'ihs_index') }} AS ihs
+        ON puma.census_puma_geoid = ihs.geoid
+    -- Use ihs.year since the IHS time horizon is larger than that for available
+    -- census shapefiles
     GROUP BY puma.pin10, ihs.year
 ),
 
@@ -89,7 +105,7 @@ distressed_communities_index AS (
         ON dci.geoid = zcta.census_zcta_geoid
         -- DCI is only available for one year, so we join to census geoids for
         -- all years after that
-        AND zcta.year >= dci.year
+        AND dci.year <= zcta.year
 ),
 
 affordability_risk_index AS (
@@ -102,7 +118,7 @@ affordability_risk_index AS (
         ON ari.geoid = tract.census_acs5_tract_geoid
         -- ARI is only available for one year, so we join to census geoids for
         -- all years after that
-        AND tract.year >= ari.year
+        AND ari.year <= tract.year
 ),
 
 tax_bill_amount AS (
@@ -173,7 +189,6 @@ exemption_features AS (
 SELECT
     uni.pin AS meta_pin,
     uni.pin10 AS meta_pin10,
-    uni.year AS meta_year,
     uni.class AS meta_class,
     uni.triad_name AS meta_triad_name,
     uni.triad_code AS meta_triad_code,
@@ -378,7 +393,10 @@ SELECT
     vwpf.nearest_neighbor_2_pin10,
     vwpf.nearest_neighbor_2_dist_ft,
     vwpf.nearest_neighbor_3_pin10,
-    vwpf.nearest_neighbor_3_dist_ft
+    vwpf.nearest_neighbor_3_dist_ft,
+
+    -- Year should be listed last, for partitioning
+    uni.year AS meta_year
 
 FROM uni
 LEFT JOIN {{ ref('location.vw_pin10_location_fill') }} AS vwlf

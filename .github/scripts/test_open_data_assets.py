@@ -31,6 +31,7 @@ ASSET_API_URL = "https://datacatalog.cookcountyil.gov/resource/{asset_id}.json"
 ASSET_API_QUERY = "SELECT COUNT(*),{year_field} GROUP BY {year_field}"
 DEFAULT_YEAR_FIELD = "year"
 DBT = dbtRunner()
+REQUESTS = requests.Session()
 
 # Data for the most recent two years are permitted to be slightly different,
 # according to this buffer value. This is because we expect some level of
@@ -75,7 +76,7 @@ def main() -> None:
         asset_api_url = ASSET_API_URL.format(asset_id=asset_id)
         asset_api_query = ASSET_API_QUERY.format(year_field=asset_year_field)
         asset_api_params = {"$query": asset_api_query}
-        response = requests.get(asset_api_url, params=asset_api_params)
+        response = REQUESTS.get(asset_api_url, params=asset_api_params)
         if not response.ok:
             print("Encountered error in request to asset endpoint")
             response.raise_for_status()

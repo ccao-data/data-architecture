@@ -269,13 +269,13 @@ process_parcel_file <- function(s3_bucket_uri,
         # Get edge length using Pythagorean theorem and a rolling lag to get
         # the distance between each pair of points
         edge_len = sqrt(
-          (X - data.table::shift(X, type = "lag")) ^ 2 +
-            (Y - data.table::shift(Y, type = "lag")) ^ 2
+          (X - data.table::shift(X, type = "lag"))^2 +
+            (Y - data.table::shift(Y, type = "lag"))^2
         ),
         # Distance between the centroid and each point in the polygon
         dist_to_centroid = sqrt(
-          (X - mean(X)) ^ 2 +
-            (Y - mean(Y)) ^ 2
+          (X - mean(X))^2 +
+            (Y - mean(Y))^2
         ),
         # Recalculate the angle after removing straight angles
         angle = calculate_angles(as.matrix(.SD))
@@ -331,8 +331,8 @@ process_parcel_file <- function(s3_bucket_uri,
     spatial_mat_rec_calc <- spatial_mat_rec_coords[
       ,
       edge_len := sqrt(
-        (X - data.table::shift(X, type = "lag")) ^ 2 +
-          (Y - data.table::shift(Y, type = "lag")) ^ 2
+        (X - data.table::shift(X, type = "lag"))^2 +
+          (Y - data.table::shift(Y, type = "lag"))^2
       ),
       by = c("L1", "L2")
     ][
@@ -387,7 +387,7 @@ process_parcel_file <- function(s3_bucket_uri,
     }
 
     # Write local backup copy
-    write_geoparquet(spatial_df_final, local_backup_file)
+    geoparquet_to_s3(spatial_df_final, local_backup_file)
     tictoc::toc()
   } else {
     message("Loading processed parcels from backup for: ", file_year)

@@ -40,7 +40,8 @@ for (year in years) {
     AWS_S3_RAW_BUCKET, "spatial",
     "environment", "secondary_road",
     paste0("year=", year),
-    paste0("secondary_road-", year, ".parquet"))
+    paste0("secondary_road-", year, ".parquet")
+  )
 
   # Simplify linestrings
   current_data <- read_geoparquet_sf(ingest_file_secondary) %>%
@@ -58,52 +59,61 @@ for (year in years) {
       AWS_S3_WAREHOUSE_BUCKET, "spatial",
       "environment", "major_road",
       paste0("year=", year - 1),
-      paste0("major_road-", year - 1, ".parquet"))
+      paste0("major_road-", year - 1, ".parquet")
+    )
 
     ingest_file_major_current <- file.path(
       AWS_S3_WAREHOUSE_BUCKET, "spatial",
       "environment", "major_road",
       paste0("year=", year),
-      paste0("major_road-", year, ".parquet"))
+      paste0("major_road-", year, ".parquet")
+    )
 
     # Ingest Major roads data for the prior and current year
     major_roads_prior <- read_geoparquet_sf(ingest_file_major_prior)
     major_roads_current <- read_geoparquet_sf(ingest_file_major_current)
 
-      # This if/else block prevents us from indexing a future
-      # year that doesn't exist yet
-      if (year < current_year) {
-        ingest_file_major_post <- file.path(
-          AWS_S3_WAREHOUSE_BUCKET, "spatial",
-          "environment", "major_road",
-          paste0("year=", year + 1),
-          paste0("major_road-", year + 1, ".parquet"))
+    # This if/else block prevents us from indexing a future
+    # year that doesn't exist yet
+    if (year < current_year) {
+      ingest_file_major_post <- file.path(
+        AWS_S3_WAREHOUSE_BUCKET, "spatial",
+        "environment", "major_road",
+        paste0("year=", year + 1),
+        paste0("major_road-", year + 1, ".parquet")
+      )
 
-        # Ingest Major roads data for the next year
-        major_roads_post <- read_geoparquet_sf(ingest_file_major_post)
+      # Ingest Major roads data for the next year
+      major_roads_post <- read_geoparquet_sf(ingest_file_major_post)
 
-        # Apply filter for both prior and post year major roads, this filter
-        # accounts for the case where:
-        # - A previously major road becomes secondary
-        # - A secondary becomes major in the future
-        #
-        # This way we don't double count a road for both major and secondary
-        current_data <-
-          current_data %>%
-          filter(!osm_id %in% major_roads_prior$osm_id,
-                 !osm_id %in% major_roads_post$osm_id,
-                 !name %in% major_roads_current$name)
-      } else {
-        # Apply filter only for prior year major roads
-        current_data <-
-          current_data %>%
-          filter(!osm_id %in% major_roads_prior$osm_id,
-                 !name %in% major_roads_current$name)
-      }
+      # Apply filter for both prior and post year major roads, this filter
+      # accounts for the case where:
+      # - A previously major road becomes secondary
+      # - A secondary becomes major in the future
+      #
+      # This way we don't double count a road for both major and secondary
+      current_data <-
+        current_data %>%
+        filter(
+          !osm_id %in% major_roads_prior$osm_id,
+          !osm_id %in% major_roads_post$osm_id,
+          !name %in% major_roads_current$name
+        )
+    } else {
+      # Apply filter only for prior year major roads
+      current_data <-
+        current_data %>%
+        filter(
+          !osm_id %in% major_roads_prior$osm_id,
+          !name %in% major_roads_current$name
+        )
+    }
 
     # Create temporal column to preserve earliest data
-    combined_data <- bind_rows(master_dataset,
-                               current_data %>% mutate(temporal = 1))
+    combined_data <- bind_rows(
+      master_dataset,
+      current_data %>% mutate(temporal = 1)
+    )
 
     # Arrange by osm_id and temporal, then deduplicate and preserve earlier data
     dedup_data <- combined_data %>%
@@ -134,14 +144,17 @@ for (year in years) {
     # Map component data to edges
     network <- network %>%
       activate(edges) %>%
-      mutate(from_component = node_component$component[from],
-             to_component = node_component$component[to])
+      mutate(
+        from_component = node_component$component[from],
+        to_component = node_component$component[to]
+      )
 
     # Here we assume that an edge belongs to a component if both its nodes do
     network <- network %>%
       mutate(edge_component = ifelse(from_component == to_component,
-                                     from_component,
-                                     NA))
+        from_component,
+        NA
+      ))
 
     # First convert the network with edge components into a regular tibble
     network_edges <- as_tibble(network, active = "edges")
@@ -162,7 +175,6 @@ for (year in years) {
     data_to_write <- dedup_data %>%
       st_intersection(st_union(trimmed_data)) %>%
       mutate(geometry = st_transform(geometry_3435, 4326))
-
   }
 
   # Define the output file path for the data to write
@@ -173,5 +185,5 @@ for (year in years) {
     paste0("secondary_road-", year, ".parquet")
   )
 
-  geoarrow::write_geoparquet(data_to_write, output_file)
+  geoparquet_to_s3(data_to_write, output_file)
 }

@@ -54,6 +54,6 @@ for (year in years) {
         geometry_3435 = st_transform(geometry, 3435)
       ) %>%
       select(osm_id, name, category = shop, geometry, geometry_3435) %>%
-      geoarrow::write_geoparquet(remote_file)
+      geoparquet_to_s3(remote_file)
   }
 }

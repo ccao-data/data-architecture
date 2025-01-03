@@ -124,10 +124,10 @@ for (iter_year in parcel_years) {
       st_coordinates()
 
     cross <- geosphere::destPoint(
-        p = town_parcels_centroid,
-        b = town_mrr$bearing,
-        d = town_mrr$length
-      ) %>%
+      p = town_parcels_centroid,
+      b = town_mrr$bearing,
+      d = town_mrr$length
+    ) %>%
       cbind(town_parcels_centroid) %>%
       as.data.frame()
 
@@ -237,7 +237,7 @@ for (iter_year in parcel_years) {
       select(pin10, id) %>%
       inner_join(cross_final, by = "id") %>%
       select(-id) %>%
-      write_geoparquet(remote_file)
+      geoparquet_to_s3(remote_file)
   }
   tictoc::toc()
 }

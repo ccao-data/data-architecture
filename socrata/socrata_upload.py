@@ -10,6 +10,13 @@ from dbt.cli.main import dbtRunner
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
 
+# Create a session object so HTTP requests can be pooled
+session = requests.Session()
+session.auth = (
+    str(os.getenv("SOCRATA_USERNAME")),
+    str(os.getenv("SOCRATA_PASSWORD")),
+)
+
 # Connect to Athena
 cursor = connect(
     s3_staging_dir="s3://ccao-athena-results-us-east-1/",
@@ -55,14 +62,16 @@ def get_asset_info(socrata_asset):
 
     model = pd.json_normalize(model)
     model = model[model["label"] == socrata_asset]
-    athena_asset = model.iloc[0]["depends_on.nodes"][0].split(".")[-1]
+    athena_asset = model.iloc[0]["depends_on.nodes"][0].split(".", 2)[-1]
     asset_id = model.iloc[0]["meta.asset_id"]
     row_identifier = model.iloc[0]["meta.primary_key"]
 
     return athena_asset, asset_id, row_identifier
 
 
-def build_query(athena_asset, row_identifier, years=None, township=None):
+def build_query(
+    athena_asset, asset_id, row_identifier, years=None, township=None
+):
     """
     Build an Athena compatible SQL query. Function will append a year
     conditional if `years` is non-empty. Many of the CCAO's open data assets are
@@ -72,10 +81,31 @@ def build_query(athena_asset, row_identifier, years=None, township=None):
     passed to `row_identifiers`.
     """
 
-    row_identifier = f"CONCAT({', '.join(row_identifier)}) AS row_id"
+    row_identifier_sql_parts = [
+        f"CAST({col} AS varchar)" for col in row_identifier
+    ]
+    row_identifier_sql_joined = (
+        row_identifier_sql_parts[0]
+        if len(row_identifier_sql_parts) == 1
+        else f"CONCAT({', '.join(row_identifier_sql_parts)})"
+    )
+    row_identifier = f"{row_identifier_sql_joined} AS row_id"
 
     # Retrieve column names and types from Athena
     columns = cursor.execute("show columns from " + athena_asset).as_pandas()
+
+    # Limit pull to columns present in open data asset - shouldn't change anything, but prevents failure if columns have become misaligned.
+    asset_columns = (
+        session.get(
+            f"https://datacatalog.cookcountyil.gov/resource/{asset_id}"
+        )
+        .headers["X-SODA2-Fields"]
+        .replace('"', "")
+        .strip("[")
+        .strip("]")
+        .split(",")
+    )
+    columns = columns[columns["column"].isin(asset_columns)]
 
     # Array type columns are not compatible with the json format needed for
     # Socrata uploads. Automatically convert any array type columns to string.
@@ -108,14 +138,8 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
 
     # Load environmental variables
     app_token = os.getenv("SOCRATA_APP_TOKEN")
-    auth = (os.getenv("SOCRATA_USERNAME"), os.getenv("SOCRATA_PASSWORD"))
 
-    url = (
-        "https://datacatalog.cookcountyil.gov/resource/"
-        + asset_id
-        + ".json?$$app_token="
-        + app_token
-    )
+    url = "https://datacatalog.cookcountyil.gov/resource/" + asset_id + ".json"
 
     print_message = "Overwriting" if overwrite else "Updating"
 
@@ -139,35 +163,36 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
             + asset_id
         )
 
+    # We grab the data before uploading it so we can make sure timestamps are
+    # properly formatted
+    input_data = cursor.execute(sql_query, query_conditionals).as_pandas()
+    date_columns = input_data.select_dtypes(include="datetime").columns
+    input_data[date_columns] = input_data[date_columns].map(
+        lambda x: x.strftime("%Y-%m-%dT%X")
+    )
+
     # Raise URL status if it's bad
-    requests.get(
-        url=url,
-        data=cursor.execute(sql_query, query_conditionals)
-        .as_pandas()
-        .to_json(orient="records"),
-        auth=auth,
+    session.get(
+        (
+            "https://datacatalog.cookcountyil.gov/resource/"
+            + asset_id
+            + ".json?$limit=1"
+        ),
+        headers={"X-App-Token": app_token},
     ).raise_for_status()
 
-    print(print_message)
-    if method == "put":
-        response = requests.put(
+    session.get(url=url, headers={"X-App-Token": app_token}).raise_for_status()
+
+    for i in range(0, input_data.shape[0], 10000):
+        print(print_message)
+        print(f"Rows {i + 1}-{i + 10000}")
+        response = getattr(session, method)(
             url=url,
-            data=cursor.execute(sql_query, query_conditionals)
-            .as_pandas()
-            .to_json(orient="records"),
-            auth=auth,
+            data=input_data.iloc[i : i + 10000].to_json(orient="records"),
+            headers={"X-App-Token": app_token},
         )
 
-    elif method == "post":
-        response = requests.post(
-            url=url,
-            data=cursor.execute(sql_query, query_conditionals)
-            .as_pandas()
-            .to_json(orient="records"),
-            auth=auth,
-        )
-
-    return response
+        print(response.content)
 
 
 def generate_groups(athena_asset, years=None, by_township=False):
@@ -246,6 +271,7 @@ def socrata_upload(
     if not flag:
         sql_query = build_query(
             athena_asset=athena_asset,
+            asset_id=asset_id,
             row_identifier=row_identifier,
         )
 
@@ -256,15 +282,15 @@ def socrata_upload(
         }
 
         if overwrite:
-            response = upload("put", **upload_args)
+            upload("put", **upload_args)
         else:
-            response = upload("post", **upload_args)
-        print(response.content)
+            upload("post", **upload_args)
 
     else:
         if flag == "years":
             sql_query = build_query(
                 athena_asset=athena_asset,
+                asset_id=asset_id,
                 row_identifier=row_identifier,
                 years=years,
             )
@@ -272,6 +298,7 @@ def socrata_upload(
         if flag == "both":
             sql_query = build_query(
                 athena_asset=athena_asset,
+                asset_id=asset_id,
                 row_identifier=row_identifier,
                 years=years,
                 township=by_township,
@@ -294,10 +321,9 @@ def socrata_upload(
                     "year": item,
                 }
             if count == 0 and overwrite:
-                response = upload("put", **upload_args)
+                upload("put", **upload_args)
             else:
-                response = upload("post", **upload_args)
-            print(response.content)
+                upload("post", **upload_args)
             count = count + 1
 
     toc = time.perf_counter()
