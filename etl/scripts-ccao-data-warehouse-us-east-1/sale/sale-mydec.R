@@ -95,6 +95,7 @@ map(files, clean_up) %>%
   # Because MyDec variables can be different across duplicate sales doc #s,
   # we'll take the max values
   mutate(across(all_of(mydec_vars), ~ max(.x, na.rm = TRUE))) %>%
+  mutate(across(all_of(mydec_vars), ~ na_if(.x, -Inf))) %>%
   distinct(
     document_number,
     line_7_property_advertised,
