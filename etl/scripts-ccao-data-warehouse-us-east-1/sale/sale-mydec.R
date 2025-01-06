@@ -95,6 +95,10 @@ map(files, clean_up) %>%
   # Because MyDec variables can be different across duplicate sales doc #s,
   # we'll take the max values
   mutate(across(all_of(mydec_vars), ~ max(.x, na.rm = TRUE))) %>%
+  # The max of an empty set is `-Inf`, but we want it to be null instead
+  # since `-Inf` is not semantically meaningful in our output data.
+  # Cast all `-Inf`s to null in case all values of a MyDec field were null
+  # across all dupes ahead of the `max()` call above
   mutate(across(all_of(mydec_vars), ~ na_if(.x, -Inf))) %>%
   distinct(
     document_number,
