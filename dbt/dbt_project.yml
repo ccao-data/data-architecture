@@ -35,6 +35,16 @@ vars:
   # but can also be use to select specific time frames for testing
   data_test_iasworld_year_end: 2030
 
+  # Latest year of iasWorld data available. Necessary since iasWorld does
+  # not rollover into the new year on January 1st, so the latest ias year lags
+  # the calendar year by a small amount. Use this instead of YEAR(CURRENT_DATE)
+  # if you want to query for the latest year of iasWorld data.
+  #
+  # WARNING: Be sure to rebuild all models that depend on this variable when
+  # you bump its value, since otherwise they will be stuck querying the prior
+  # year of data
+  latest_iasworld_data_year: 2024
+
 # Configuring models
 # Full documentation: https://docs.getdbt.com/docs/configuring-models
 models:
