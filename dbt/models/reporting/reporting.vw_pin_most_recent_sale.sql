@@ -4,9 +4,14 @@
 WITH all_pins AS (
     SELECT DISTINCT parid
     FROM {{ source('iasworld', 'pardat') }}
-    WHERE taxyr = '{{ var("latest_iasworld_data_year") }}'
-        AND cur = 'Y'
+    WHERE cur = 'Y'
         AND deactivat IS NULL
+        -- noqa: disable=RF02
+        AND taxyr = (
+            SELECT MAX(taxyr)
+            FROM {{ source('iasworld', 'pardat') }}
+        )
+        -- noqa: enable=RF02
 ),
 
 -- Order PINs by sale date descending and rank them

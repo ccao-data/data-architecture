@@ -211,7 +211,10 @@ models:
               FROM {{ source('iasworld', 'pardat') }}
               WHERE cur = 'Y'
                 AND deactivat IS NULL
-                AND taxyr = '{{ var("latest_iasworld_data_year") }}'
+                AND taxyr = (
+                  SELECT MAX(taxyr)
+                  FROM {{ source('iasworld', 'pardat') }}
+                )
             )
       - unique_combination_of_columns:
           name: reporting_vw_pin_most_recent_sale_unique_by_pin
