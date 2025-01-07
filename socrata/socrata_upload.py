@@ -206,7 +206,7 @@ def generate_groups(athena_asset, years=None, by_township=False):
     if not years and by_township:
         raise ValueError("Cannot set 'by_township' when 'years' is None")
 
-    if years == "all":
+    if years == ["all"]:
         years = (
             cursor.execute(
                 "SELECT DISTINCT year FROM " + athena_asset + " ORDER BY year"
