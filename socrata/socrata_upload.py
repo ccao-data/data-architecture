@@ -116,6 +116,8 @@ def build_query(
         + columns[columns["type"] == "array(varchar)"]["column"]
     )
 
+    print(f"The following columns will be updated: {columns}")
+
     query = f"SELECT {row_identifier}, {', '.join(columns['column'])} FROM {athena_asset}"
 
     if not years:
