@@ -200,16 +200,22 @@ models:
   - name: reporting.vw_pin_most_recent_sale
     description: '{{ doc("view_vw_pin_most_recent_sale") }}'
     data_tests:
-      # These two tests make sure that the most recent sale view 1) contains
-      # sales at all and 2) allows in parcels without sales. The most recent
-      # sale view should contain one observation for each parcel in the county
-      # regardless of whether it has recently sold or not.
-      - value_is_present:
-          name: reporting_vw_pin_most_recent_sale_not_null
-          expression: sale_price IS NOT NULL
-      - value_is_present:
-          name: reporting_vw_pin_most_recent_sale_null
-          expression: sale_price IS NULL
+      - row_count:
+          name: reporting_vw_pin_most_recent_sale_rowcount
+          # Rowcount will typically exceed iasworld.pardat due to sales with
+          # PINs that are not in pardat, but at a minimum we want one row
+          # for each PIN that we know about in pardat
+          above: >
+            (
+              SELECT COUNT(DISTINCT parid)
+              FROM {{ source('iasworld', 'pardat') }}
+              WHERE cur = 'Y'
+                AND deactivat IS NULL
+                AND taxyr = (
+                  SELECT MAX(taxyr)
+                  FROM {{ source('iasworld', 'pardat') }}
+                )
+            )
       - unique_combination_of_columns:
           name: reporting_vw_pin_most_recent_sale_unique_by_pin
           combination_of_columns:
