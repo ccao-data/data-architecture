@@ -32,6 +32,10 @@ models:
           Binary indicator on the ptax-203 form. Indicates "no changes to the property" when coded as 1. A value of 0 may indicate either
           the presence of changes (subcategories coded as 1) or an unclear status, as many cases have no subcategories coded as 1 despite
           this being 0.
+      - name: mydec_line_9_other_change
+        description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
+      - name: mydec_line_9_other_description
+        description: This field is used to describe the work done from mydec_line_9_other_change.
       - name: nbhd
         description: '{{ doc("shared_column_nbhd_code") }}'
       - name: num_parcels_sale
