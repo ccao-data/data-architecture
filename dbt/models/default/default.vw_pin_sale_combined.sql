@@ -188,9 +188,9 @@ mydec_sales AS (
                 AS mydec_line_9_new_construction,
             COALESCE(line_9_other_change = 1, FALSE)
                 AS mydec_line_9_other_change,
-            COALESCE(line_9_other_change_description, NULL)
+            line_9_other_change_description
                 AS mydec_line_9_other_change_description,
-            COALESCE(line_9_date_of_significant_change, NULL)
+            line_9_date_of_significant_change
                 AS mydec_line_9_date_of_significant_change,
             COALESCE(line_10a = 1, FALSE)
                 AS mydec_is_installment_contract_fulfilled,
