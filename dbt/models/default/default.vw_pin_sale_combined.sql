@@ -176,6 +176,22 @@ mydec_sales AS (
             COALESCE(line_2_total_parcels > 1, FALSE) AS is_multisale,
             COALESCE(line_7_property_advertised = 1, FALSE)
                 AS mydec_property_advertised,
+            COALESCE(line_9_no_changes = 1, FALSE)
+                AS mydec_line_9_no_changes,
+            COALESCE(line_9_demolitiondamage = 1, FALSE)
+                AS mydec_line_9_demolition_damage,
+            COALESCE(line_9_additions = 1, FALSE)
+                AS mydec_line_9_additions,
+            COALESCE(line_9_major_remodeling = 1, FALSE)
+                AS mydec_line_9_major_remodeling,
+            COALESCE(line_9_new_construction = 1, FALSE)
+                AS mydec_line_9_new_construction,
+            COALESCE(line_9_other_change = 1, FALSE)
+                AS mydec_line_9_other_change,
+            COALESCE(line_9_other_change_description, NULL)
+                AS mydec_line_9_other_change_description,
+            COALESCE(line_9_date_of_significant_change, NULL)
+                AS mydec_line_9_date_of_significant_change,
             COALESCE(line_10a = 1, FALSE)
                 AS mydec_is_installment_contract_fulfilled,
             COALESCE(line_10b = 1, FALSE) --noqa
@@ -328,6 +344,14 @@ combined_sales AS (
         md_sales.mydec_deed_type,
         md_sales.sale_filter_ptax_flag,
         md_sales.mydec_property_advertised,
+        mydec_sales.mydec_line_9_no_changes,
+        mydec_sales.mydec_line_9_demolition_damage,
+        mydec_sales.mydec_line_9_additions,
+        mydec_sales.mydec_line_9_major_remodeling,
+        mydec_sales.mydec_line_9_new_construction,
+        mydec_sales.mydec_line_9_other_change,
+        mydec_sales.mydec_line_9_other_change_description,
+        mydec_sales.mydec_line_9_date_of_significant_change,
         md_sales.mydec_is_installment_contract_fulfilled,
         md_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates, --noqa
         md_sales.mydec_is_transfer_of_less_than_100_percent_interest,
@@ -430,6 +454,14 @@ SELECT
     afs.mydec_deed_type,
     afs.sale_filter_ptax_flag,
     afs.mydec_property_advertised,
+    afs.mydec_line_9_no_changes,
+    afs.mydec_line_9_demolition_damage,
+    afs.mydec_line_9_additions,
+    afs.mydec_line_9_major_remodeling,
+    afs.mydec_line_9_new_construction,
+    afs.mydec_line_9_other_change,
+    afs.mydec_line_9_other_change_description,
+    afs.mydec_line_9_date_of_significant_change,
     afs.mydec_is_installment_contract_fulfilled,
     afs.mydec_is_sale_between_related_individuals_or_corporate_affiliates, --noqa
     afs.mydec_is_transfer_of_less_than_100_percent_interest,
