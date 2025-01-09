@@ -216,7 +216,7 @@ def generate_groups(athena_asset, years=None, by_township=False):
         )
 
     # Ensure township codes aren't available if they shouldn't be
-    township_codes = None
+    township_codes = []
     if by_township:
         township_codes = (
             cursor.execute(
