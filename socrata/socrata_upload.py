@@ -11,6 +11,8 @@ from dbt.cli.main import dbtRunner
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
 
+pd.set_option("display.max_rows", None)
+
 # Create a session object so HTTP requests can be pooled
 session = requests.Session()
 session.auth = (
