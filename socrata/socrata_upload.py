@@ -110,7 +110,13 @@ def build_query(
     )
     asset_columns.sort()
 
-    # If Athena and Socrata columns don't match, abort upload and inform user of discrepancies.
+    # If there are columns on Socrata that are not in Athena, abort upload and
+    # inform user of discrepancies. The script should not run at all in this
+    # circumstance since it will update some but not all columns in the open
+    # data asset.
+    # If there are columns in Athena but not on Socrata, it may be the case that
+    # they should be added, but there are also cases when not all columns for an
+    # Athena view that feeds an open data asset need to be part of that asset.
     if athena_columns != asset_columns:
         columns_not_on_socrata = list(set(athena_columns) - set(asset_columns))
         columns_not_in_athena = list(set(asset_columns) - set(athena_columns))
