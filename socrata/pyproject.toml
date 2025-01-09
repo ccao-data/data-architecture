@@ -4,7 +4,7 @@ version = "0.0.1"
 requires-python = ">=3.11"
 dependencies = [
   "PyAthena~=3.9.0",
-  "ndg-httpsclient>=0.5.1",
+  "ndg-httpsclient~=0.5.1",
   "pandas~=2.2.2",
   "pyarrow~=17.0.0",
   "requests~=2.32.3",

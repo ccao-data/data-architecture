@@ -443,7 +443,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "ndg-httpsclient", specifier = ">=0.5.1" },
+    { name = "ndg-httpsclient", specifier = "~=0.5.1" },
     { name = "pandas", specifier = "~=2.2.2" },
     { name = "pyarrow", specifier = "~=17.0.0" },
     { name = "pyathena", specifier = "~=3.9.0" },
