@@ -11,6 +11,7 @@ from dbt.cli.main import dbtRunner
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
 
+# Allow python to print full length dataframes for logging
 pd.set_option("display.max_rows", None)
 
 # Create a session object so HTTP requests can be pooled
