@@ -118,8 +118,8 @@ def build_query(
     # they should be added, but there are also cases when not all columns for an
     # Athena view that feeds an open data asset need to be part of that asset.
     if athena_columns != asset_columns:
-        columns_not_on_socrata = list(set(athena_columns) - set(asset_columns))
-        columns_not_in_athena = list(set(asset_columns) - set(athena_columns))
+        columns_not_on_socrata = set(athena_columns) - set(asset_columns)
+        columns_not_in_athena = set(asset_columns) - set(athena_columns)
         exception_message = (
             f"Columns on Socrata and in Athena do not match for {athena_asset}"
         )
