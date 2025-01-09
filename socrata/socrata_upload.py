@@ -364,5 +364,3 @@ socrata_upload(
     years=str(os.getenv("YEARS")).replace(" ", "").split(","),
     by_township=os.getenv("BY_TOWNSHIP"),
 )
-
-# %%
