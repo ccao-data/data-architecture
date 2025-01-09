@@ -131,6 +131,9 @@ def build_query(
             exception_message += f"\nColumns on Socrata but not in Athena: {columns_not_in_athena}"
             raise Exception(exception_message)
 
+    # Limit pull to columns present in open data asset
+    columns = columns[columns["column"].isin(asset_columns)]
+
     # Array type columns are not compatible with the json format needed for
     # Socrata uploads. Automatically convert any array type columns to string.
     columns.loc[columns["type"] == "array(varchar)", "column"] = (
