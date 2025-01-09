@@ -93,8 +93,10 @@ def build_query(
 
     # Retrieve column names and types from Athena
     columns = cursor.execute("show columns from " + athena_asset).as_pandas()
+    athena_columns = columns["column"].tolist()
+    athena_columns.sort()
 
-    # Limit pull to columns present in open data asset - shouldn't change anything, but prevents failure if columns have become misaligned.
+    # Retrieve column names from Socrata
     asset_columns = (
         session.get(
             f"https://datacatalog.cookcountyil.gov/resource/{asset_id}"
@@ -105,7 +107,20 @@ def build_query(
         .strip("]")
         .split(",")
     )
-    columns = columns[columns["column"].isin(asset_columns)]
+    asset_columns.sort()
+
+    # If Athena and Socrata columns don't match, abort upload and inform user of discrepancies.
+    if athena_columns != asset_columns:
+        columns_not_on_socrata = list(set(athena_columns) - set(asset_columns))
+        columns_not_in_athena = list(set(asset_columns) - set(athena_columns))
+        exception_message = (
+            f"Columns on Socrata and in Athena do not match for {athena_asset}"
+        )
+        if len(columns_not_on_socrata) > 1:
+            exception_message += f"\nColumns in Athena but not on Socrata: {columns_not_on_socrata}"
+        if len(columns_not_in_athena) > 1:
+            exception_message += f"\nColumns on Socrata but not in Athena: {columns_not_in_athena}"
+        raise Exception(exception_message)
 
     # Array type columns are not compatible with the json format needed for
     # Socrata uploads. Automatically convert any array type columns to string.
