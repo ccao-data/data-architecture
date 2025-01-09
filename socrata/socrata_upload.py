@@ -116,6 +116,8 @@ def build_query(
         + columns[columns["type"] == "array(varchar)"]["column"]
     )
 
+    print(f"The following columns will be updated: {columns}")
+
     query = f"SELECT {row_identifier}, {', '.join(columns['column'])} FROM {athena_asset}"
 
     if not years:
@@ -204,7 +206,7 @@ def generate_groups(athena_asset, years=None, by_township=False):
     if not years and by_township:
         raise ValueError("Cannot set 'by_township' when 'years' is None")
 
-    if years == "all":
+    if years == ["all"]:
         years = (
             cursor.execute(
                 "SELECT DISTINCT year FROM " + athena_asset + " ORDER BY year"
@@ -213,6 +215,8 @@ def generate_groups(athena_asset, years=None, by_township=False):
             .to_list()
         )
 
+    # Ensure township codes aren't available if they shouldn't be
+    township_codes = []
     if by_township:
         township_codes = (
             cursor.execute(
@@ -333,6 +337,6 @@ def socrata_upload(
 socrata_upload(
     socrata_asset=os.getenv("SOCRATA_ASSET"),
     overwrite=os.getenv("OVERWRITE"),
-    years=str(os.getenv("YEARS")).split(","),
+    years=str(os.getenv("YEARS")).replace(" ", "").split(","),
     by_township=os.getenv("BY_TOWNSHIP"),
 )
