@@ -1,6 +1,7 @@
 import contextlib
 import io
 import json
+import logging
 import os
 import time
 
@@ -116,11 +117,13 @@ def build_query(
         exception_message = (
             f"Columns on Socrata and in Athena do not match for {athena_asset}"
         )
-        if len(columns_not_on_socrata) > 1:
+
+        if len(columns_not_on_socrata) > 0:
             exception_message += f"\nColumns in Athena but not on Socrata: {columns_not_on_socrata}"
-        if len(columns_not_in_athena) > 1:
+            logging.warning(exception_message)
+        if len(columns_not_in_athena) > 0:
             exception_message += f"\nColumns on Socrata but not in Athena: {columns_not_in_athena}"
-        raise Exception(exception_message)
+            raise Exception(exception_message)
 
     # Array type columns are not compatible with the json format needed for
     # Socrata uploads. Automatically convert any array type columns to string.
@@ -355,3 +358,5 @@ socrata_upload(
     years=str(os.getenv("YEARS")).replace(" ", "").split(","),
     by_township=os.getenv("BY_TOWNSHIP"),
 )
+
+# %%
