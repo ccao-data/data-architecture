@@ -11,6 +11,8 @@ from dbt.cli.main import dbtRunner
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
 
+logger = logging.getLogger(__name__)
+
 # Allow python to print full length dataframes for logging
 pd.set_option("display.max_rows", None)
 
@@ -129,7 +131,7 @@ def build_query(
 
         if len(columns_not_on_socrata) > 0:
             exception_message += f"\nColumns in Athena but not on Socrata: {columns_not_on_socrata}"
-            logging.warning(exception_message)
+            logger.warning(exception_message)
         if len(columns_not_in_athena) > 0:
             exception_message += f"\nColumns on Socrata but not in Athena: {columns_not_in_athena}"
             raise Exception(exception_message)
