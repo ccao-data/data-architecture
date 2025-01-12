@@ -16,3 +16,33 @@ is the view you're looking for.
 
 **Primary Key**: `year`, `pin`
 {% enddocs %}
+
+# vw_res_condo_unit_char
+
+{% docs view_vw_res_condo_unit_char %}
+View containing cleaned, filled data for condo modeling. Missing data is
+filled as follows:
+
+Condo characteristics are filled with whatever the most recent non-`NULL`
+value is. This assumes that new condo data is more accurate than older
+data, not that it represents a change in a unit's characteristics. This
+should only be the case while condo characteristics are pulled from Excel
+workbooks rather than iasWorld.
+
+### Assumptions
+
+- A null proration rate for condo unit indicates the condo isn't associated
+  with other units.
+- Proration rates in `oby` and `comdat` are parcel-level.
+- `effyr` is equivalent to `yrblt` when `yrblt` is `NULL`.
+- The most recent value for CDU is most relevant if it has
+  been re-coded to `NULL`
+
+### Nuance
+
+- Land is parcel-level.
+- Condo parcels can exist in `pardat` but not `comdat` (this is probably a
+  reclassification issue).
+
+**Primary Key**: `year`, `pin`
+{% enddocs %}

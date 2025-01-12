@@ -19,3 +19,28 @@ exposures:
       Notes: Contains a cornucopia of locational and spatial data for all parcels in Cook County.
 
       Use cases: Joining parcel-level data to this dataset allows analysis and reporting across a number of different political, tax, Census, and other boundaries.
+
+  - name: residential_condominium_unit_characteristics
+    label: Residential Condominium Unit Characteristics
+    type: dashboard
+    tags:
+      - type_condo
+    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Residential-Condominium-Unit-Characteri/3r7i-mrz4
+    depends_on:
+      - ref('open_data.vw_res_condo_unit_char')
+    owner:
+      name: Data Department
+    meta:
+      test_row_count: true
+      asset_id: 3r7i-mrz4
+      primary_key:
+        - pin
+        - year
+    description: |
+      Residential condominium unit characteristics collected and maintained by the Assessor's office for all of Cook County, from 1999 to present.
+
+      Use cases: This data describes the location and physical characteristics of all condominium units in the county. Condominium units are associated with substantially less characteristic data than single and multi-family improvements. It can be:
+
+        * Used on its own to characterize the housing stock in a specific location
+        * Joined to assessments for analysis of assessments across geographies and housing types
+        * Joined to sales for the construction of hedonic home value estimates

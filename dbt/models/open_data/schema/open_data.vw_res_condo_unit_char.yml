@@ -1,0 +1,60 @@
+models:
+  - name: open_data.vw_res_condo_unit_char
+    description: '{{ doc("view_vw_res_condo_unit_char") }}'
+    config:
+      tags:
+        - type_condo
+
+    columns:
+      - name: bldg_is_mixed_use
+        description: '{{ doc("shared_column_char_bldg_is_mixed_use") }}'
+      - name: card
+        description: '{{ doc("shared_column_card") }}'
+      - name: card_proration_rate
+        description: '{{ doc("shared_column_card_proration_rate") }}'
+      - name: cdu
+        description: '{{ doc("shared_column_cdu") }}'
+      - name: char_bedrooms
+        description: '{{ doc("shared_column_char_beds") }}'
+      - name: char_building_non_units
+        description: '{{ doc("shared_column_char_building_non_units") }}'
+      - name: char_building_pins
+        description: '{{ doc("shared_column_char_building_pins") }}'
+      - name: char_building_sf
+        description: '{{ doc("shared_column_char_building_sf") }}'
+      - name: char_land_sf
+        description: '{{ doc("shared_column_char_land_sf") }}'
+      - name: char_unit_sf
+        description: '{{ doc("shared_column_char_unit_sf") }}'
+      - name: char_yrblt
+        description: '{{ doc("shared_column_char_yrblt") }}'
+      - name: class
+        description: '{{ doc("shared_column_class") }}'
+      - name: is_common_area
+        description: '{{ doc("shared_column_is_common_area") }}'
+      - name: is_parking_space
+        description: '{{ doc("shared_column_is_parking_space") }}'
+      - name: num_full_baths
+        description: '{{ doc("shared_column_char_fbath") }}'
+      - name: num_half_baths
+        description: '{{ doc("shared_column_char_hbath") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: pin10
+        description: '{{ doc("shared_column_pin10") }}'
+      - name: pin_is_multilline
+        description: '{{ doc("shared_column_pin_is_multilline") }}'
+      - name: pin_num_landlines
+        description: '{{ doc("shared_column_pin_num_landlines") }}'
+      - name: pin_num_lline
+        description: '{{ doc("shared_column_pin_num_lline") }}'
+      - name: tieback_key_pin
+        description: '{{ doc("shared_column_tieback_key_pin") }}'
+      - name: tieback_proration_rate
+        description: '{{ doc("shared_column_tieback_proration_rate") }}'
+      - name: township_code
+        description: '{{ doc("shared_column_township_code") }}'
+      - name: unitno
+        description: Condo unit number
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
