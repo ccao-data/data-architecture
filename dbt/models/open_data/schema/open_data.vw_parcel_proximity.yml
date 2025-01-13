@@ -1,101 +1,9 @@
 models:
-  - name: proximity.cnt_pin_num_bus_stop
-    description: '{{ doc("table_cnt_pin_num_bus_stop") }}'
-
-  - name: proximity.cnt_pin_num_foreclosure
-    description: '{{ doc("table_cnt_pin_num_foreclosure") }}'
-
-  - name: proximity.cnt_pin_num_school
-    description: '{{ doc("table_cnt_pin_num_school") }}'
-
-  - name: proximity.crosswalk_year_fill
-    description: '{{ doc("table_crosswalk_year_fill") }}'
-
-  - name: proximity.dist_pin_to_airport
-    description: '{{ doc("table_dist_pin_to_airport") }}'
-
-  - name: proximity.dist_pin_to_bike_trail
-    description: '{{ doc("table_dist_pin_to_bike_trail") }}'
-
-  - name: proximity.dist_pin_to_cemetery
-    description: '{{ doc("table_dist_pin_to_cemetery") }}'
-
-  - name: proximity.dist_pin_to_cta_route
-    description: '{{ doc("table_dist_pin_to_cta_route") }}'
-
-  - name: proximity.dist_pin_to_cta_stop
-    description: '{{ doc("table_dist_pin_to_cta_stop") }}'
-
-  - name: proximity.dist_pin_to_golf_course
-    description: '{{ doc("table_dist_pin_to_golf_course") }}'
-
-  - name: proximity.dist_pin_to_hospital
-    description: '{{ doc("table_dist_pin_to_hospital") }}'
-
-  - name: proximity.dist_pin_to_lake_michigan
-    description: '{{ doc("table_dist_pin_to_lake_michigan") }}'
-
-  - name: proximity.dist_pin_to_major_road
-    description: '{{ doc("table_dist_pin_to_major_road") }}'
-
-  - name: proximity.dist_pin_to_metra_route
-    description: '{{ doc("table_dist_pin_to_metra_route") }}'
-
-  - name: proximity.dist_pin_to_metra_stop
-    description: '{{ doc("table_dist_pin_to_metra_stop") }}'
-
-  - name: proximity.dist_pin_to_park
-    description: '{{ doc("table_dist_pin_to_park") }}'
-
-  - name: proximity.dist_pin_to_pin
-    description: '{{ doc("view_dist_pin_to_pin") }}'
-    data_tests:
-      - unique_combination_of_columns:
-          name: proximity_dist_pin_to_pin_unique_by_10_digit_pin_and_year
-          combination_of_columns:
-            - pin10
-            - year
-
-  - name: proximity.dist_pin_to_pin_01
-    description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
-
-  - name: proximity.dist_pin_to_pin_02
-    description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
-
-  - name: proximity.dist_pin_to_pin_03
-    description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
-
-  - name: proximity.dist_pin_to_railroad
-    description: '{{ doc("table_dist_pin_to_railroad") }}'
-
-  - name: proximity.dist_pin_to_road_arterial
-    description: '{{ doc("table_dist_pin_to_road_arterial") }}'
-
-  - name: proximity.dist_pin_to_road_collector
-    description: '{{ doc("table_dist_pin_to_road_collector") }}'
-
-  - name: proximity.dist_pin_to_road_highway
-    description: '{{ doc("table_dist_pin_to_road_highway") }}'
-
-  - name: proximity.dist_pin_to_secondary_road
-    description: '{{ doc("table_dist_pin_to_secondary_road") }}'
-
-  - name: proximity.dist_pin_to_university
-    description: '{{ doc("table_dist_pin_to_university") }}'
-
-  - name: proximity.dist_pin_to_vacant_land
-    description: '{{ doc("table_dist_pin_to_vacant_land") }}'
-
-  - name: proximity.dist_pin_to_water
-    description: '{{ doc("table_dist_pin_to_water") }}'
-
-  - name: proximity.vw_pin10_proximity
-    description: '{{ doc("view_vw_pin10_proximity") }}'
+  - name: open_data.vw_parcel_proximity
+    description: '{{ doc("view_vw_parcel_proximity") }}'
     columns: &vw_proximity_columns
       - name: airport_dnl_total
         description: '{{ doc("column_airport_dnl_total") }}'
-      - name: avg_school_rating_in_half_mile
-        description: '{{ doc("column_avg_school_rating_in_half_mile") }}'
       - name: lake_michigan_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: lake_michigan_dist_ft
@@ -138,12 +46,6 @@ models:
         description: '{{ doc("column_nearest_golf_course_dist_ft") }}'
       - name: nearest_golf_course_id
         description: '{{ doc("column_nearest_golf_course_id") }}'
-      - name: nearest_grocery_store_dist_ft
-        description: '{{ doc("column_nearest_grocery_store_dist_ft") }}'
-      - name: nearest_grocery_store_name
-        description: '{{ doc("column_nearest_grocery_store_name") }}'
-      - name: nearest_grocery_store_name
-        description: '{{ doc("column_nearest_grocery_store_name") }}'
       - name: nearest_hospital_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_hospital_dist_ft
@@ -152,14 +54,6 @@ models:
         description: '{{ doc("column_nearest_hospital_gnis_code") }}'
       - name: nearest_hospital_name
         description: '{{ doc("column_nearest_hospital_name") }}'
-      - name: nearest_major_road_data_year
-        description: '{{ doc("shared_column_data_year") }}'
-      - name: nearest_major_road_dist_ft
-        description: '{{ doc("column_nearest_major_road_dist_ft") }}'
-      - name: nearest_major_road_name
-        description: '{{ doc("column_nearest_major_road_name") }}'
-      - name: nearest_major_road_osm_id
-        description: '{{ doc("column_nearest_major_road_osm_id") }}'
       - name: nearest_metra_route_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_metra_route_dist_ft
@@ -212,34 +106,6 @@ models:
         description: '{{ doc("column_nearest_railroad_id") }}'
       - name: nearest_railroad_name
         description: '{{ doc("column_nearest_railroad_name") }}'
-      - name: nearest_secondary_road_data_year
-        description: '{{ doc("shared_column_data_year") }}'
-      - name: nearest_secondary_road_dist_ft
-        description: '{{ doc("column_nearest_secondary_road_dist_ft") }}'
-      - name: nearest_secondary_road_name
-        description: '{{ doc("column_nearest_secondary_road_name") }}'
-      - name: nearest_secondary_road_osm_id
-        description: '{{ doc("column_nearest_secondary_road_osm_id") }}'
-      - name: nearest_stadium_data_year
-        description: '{{ doc("shared_column_data_year") }}'
-      - name: nearest_stadium_dist_ft
-        description: '{{ doc("column_nearest_stadium_dist_ft") }}'
-      - name: nearest_stadium_name
-        description: '{{ doc("column_nearest_stadium_name") }}'
-      - name: nearest_university_data_year
-        description: '{{ doc("shared_column_data_year") }}'
-      - name: nearest_university_dist_ft
-        description: '{{ doc("column_nearest_university_dist_ft") }}'
-      - name: nearest_university_gnis_code
-        description: '{{ doc("column_nearest_university_gnis_code") }}'
-      - name: nearest_university_name
-        description: '{{ doc("column_nearest_university_name") }}'
-      - name: nearest_vacant_land_data_year
-        description: '{{ doc("shared_column_data_year") }}'
-      - name: nearest_vacant_land_dist_ft
-        description: '{{ doc("column_nearest_vacant_land_dist_ft") }}'
-      - name: nearest_vacant_land_pin10
-        description: '{{ doc("column_nearest_vacant_land_pin10") }}'
       - name: nearest_water_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: nearest_water_dist_ft
@@ -264,15 +130,9 @@ models:
         description: '{{ doc("shared_column_data_year") }}'
       - name: num_school_in_half_mile
         description: '{{ doc("column_num_school_in_half_mile") }}'
-      - name: num_school_rating_data_year
-        description: '{{ doc("shared_column_data_year") }}'
-      - name: num_school_with_rating_in_half_mile
-        description: '{{ doc("column_num_school_with_rating_in_half_mile") }}'
       - name: pin10
         description: '{{ doc("shared_column_pin10") }}'
+      - name: row_id
+        description: '{{ doc("shared_column_row_id") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
-
-  - name: proximity.vw_pin10_proximity_fill
-    description: '{{ doc("view_vw_pin10_proximity_fill") }}'
-    columns: *vw_proximity_columns

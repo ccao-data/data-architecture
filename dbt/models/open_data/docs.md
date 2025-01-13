@@ -48,6 +48,18 @@ and mailing (owner/taxpayer address).
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_parcel_proximity
+
+{% docs view_vw_parcel_proximity %}
+View combining all other `proximity.*` tables. Adds column-level descriptions
+to every variable.
+
+This is essentially the entire universe of Data Department proximity metrics
+(distance to amenities, counts of nearby things, etc.).
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
 # vw_parcel_sale
 
 {% docs view_vw_parcel_sale %}
