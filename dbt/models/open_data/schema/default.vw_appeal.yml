@@ -35,6 +35,8 @@ models:
         description: '{{ doc("shared_column_reason_code") }}'
       - name: reason_code3
         description: '{{ doc("shared_column_reason_code") }}'
+      - name: row_id
+        description: '{{ doc("shared_column_row_id") }}'
       - name: status
         description: '{{ doc("shared_column_appeal_status") }}'
       - name: township_code
