@@ -1,3 +1,4 @@
+# %%
 import contextlib
 import io
 import json
@@ -36,7 +37,7 @@ def get_asset_info(socrata_asset):
     Simple helper function to retrieve asset-specific information from dbt.
     """
 
-    os.chdir("./dbt")
+    os.chdir("../dbt")
 
     DBT = dbtRunner()
     dbt_list_args = [
@@ -366,6 +367,7 @@ def socrata_upload(
     print(f"Total upload in {toc - tic:0.4f} seconds")
 
 
+# %%
 socrata_upload(
     socrata_asset=os.getenv("SOCRATA_ASSET"),
     overwrite=os.getenv("OVERWRITE"),
