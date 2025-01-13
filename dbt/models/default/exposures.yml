@@ -1,24 +1,4 @@
 exposures:
-  - name: parcel_sales
-    label: Parcel Sales
-    type: dashboard
-    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Sales/wvhk-k5uv
-    depends_on:
-      - ref('default.vw_pin_sale')
-    owner:
-      name: Data Department
-    meta:
-      test_row_count: true
-      asset_id: wvhk-k5uv
-      primary_key:
-        - sale_key
-    description: |
-      Parcel sales for real property in Cook County, from 1999 to present.
-
-      Notes: Refreshed monthly, though data may only change roughly quarterly depending on how often new sales are added to iasWorld.
-
-      Use cases: Alone, sales data can be used to characterize real estate markets. Sales paired with characteristics can be used to find comparable properties or as an input to an automated modeling application. Sales paired with assessments can be used to calculate sales ratio statistics. Outliers can be easily removed using filters constructed from class, township, and year variables.
-
   - name: property_tax_exempt_parcels
     label: Property Tax-Exempt Parcels
     type: dashboard

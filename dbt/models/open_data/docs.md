@@ -48,6 +48,48 @@ and mailing (owner/taxpayer address).
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_parcel_sale
+
+{% docs view_vw_parcel_sale %}
+View containing cleaned and deduplicated PIN-level sales.
+
+Sourced from `iasworld.sales`, which is sourced from
+[MyDec](https://mytax.illinois.gov/MyDec/_/). See below for lineage details.
+
+### Assumptions
+
+- `deactivat` properly indicates sales that should and shouldn't be included.
+- For sales not unique by pin and sale date, the most expensive sale for a
+  given day/PIN is used.
+- Some parcels are sold for the exact same price soon after an initial sale -
+  we ignore duplicate prices for PINs if they've sold in the last 12 months.
+
+### Nuance
+
+- `nopar` is inaccurate: it excludes quit claims, executor deeds,
+  and beneficial interests.
+- `sale.mydec` data is given precedence over `iasworld.sales` prior to 2021
+- Multicard sales are excluded from `mydec` data because they can't be joined
+  to `iasworld.sales` (which is only parcel-level) without creating duplicates
+- Sales are unique by `doc_no` if multisales are excluded. When multisales are
+  _not_ excluded, sales are unique by `doc_no` and `pin`.
+- We include iasworld sales and mydec sales only if the mydec sale isn't already
+  present in iasworld (calculated by doc_no). This allows us to use mydec sales
+  for analysis or modeling if the iasworld sales ingest is lags behind mydec.
+
+### Lineage
+
+This view is constructed from [MyDec](https://mytax.illinois.gov/MyDec/_/) data
+gathered and filtered by numerous parties. It uses the `iasworld.sales` table
+as a base, which is itself constructed from two separate sources of MyDec data.
+Current MyDec records are ingested into `iasworld.sales` using a manual import
+process. The full data lineage looks something like:
+
+![Data Flow Diagram](./assets/sales-lineage.svg)
+
+**Primary Key**: `doc_no`, `pin`
+{% enddocs %}
+
 # vw_parcel_universe_current
 
 {% docs view_vw_parcel_universe_current %}
