@@ -1,0 +1,98 @@
+models:
+  - name: open_data.vw_mf_sf_improvement_char
+    description: '{{ doc("view_vw_mf_sf_improvement_char") }}'
+    config:
+      tags:
+        - type_res
+
+    columns:
+      - name: card
+        description: '{{ doc("shared_column_card") }}'
+      - name: card_proration_rate
+        description: '{{ doc("shared_column_card_proration_rate") }}'
+      - name: cdu
+        description: '{{ doc("shared_column_cdu") }}'
+      - name: char_air
+        description: '{{ doc("shared_column_char_air") }}'
+      - name: char_apts
+        description: '{{ doc("shared_column_char_apts") }}'
+      - name: char_attic_fnsh
+        description: '{{ doc("shared_column_char_attic_fnsh") }}'
+      - name: char_attic_type
+        description: '{{ doc("shared_column_char_attic_type") }}'
+      - name: char_beds
+        description: '{{ doc("shared_column_char_beds") }}'
+      - name: char_bldg_sf
+        description: '{{ doc("shared_column_char_bldg_sf") }}'
+      - name: char_bsmt
+        description: '{{ doc("shared_column_char_bsmt") }}'
+      - name: char_bsmt_fin
+        description: '{{ doc("shared_column_char_bsmt_fin") }}'
+      - name: char_cnst_qlty
+        description: '{{ doc("shared_column_char_cnst_qlty") }}'
+      - name: char_ext_wall
+        description: '{{ doc("shared_column_char_ext_wall") }}'
+      - name: char_fbath
+        description: '{{ doc("shared_column_char_fbath") }}'
+      - name: char_frpl
+        description: '{{ doc("shared_column_char_frpl") }}'
+      - name: char_gar1_area
+        description: '{{ doc("shared_column_char_gar_area") }}'
+      - name: char_gar1_att
+        description: '{{ doc("shared_column_char_gar_att") }}'
+      - name: char_gar1_cnst
+        description: '{{ doc("shared_column_char_gar_cnst") }}'
+      - name: char_gar1_size
+        description: '{{ doc("shared_column_char_gar_size") }}'
+      - name: char_hbath
+        description: '{{ doc("shared_column_char_hbath") }}'
+      - name: char_heat
+        description: '{{ doc("shared_column_char_heat") }}'
+      - name: char_land_sf
+        description: '{{ doc("shared_column_char_land_sf") }}'
+      - name: char_ncu
+        description: '{{ doc("shared_column_char_ncu") }}'
+      - name: char_porch
+        description: '{{ doc("shared_column_char_porch") }}'
+      - name: char_renovation
+        description: '{{ doc("shared_column_char_renovation") }}'
+      - name: char_repair_cnd
+        description: '{{ doc("shared_column_char_repair_cnd") }}'
+      - name: char_roof_cnst
+        description: '{{ doc("shared_column_char_roof_cnst") }}'
+      - name: char_rooms
+        description: '{{ doc("shared_column_char_rooms") }}'
+      - name: char_site
+        description: '{{ doc("shared_column_char_site") }}'
+      - name: char_tp_plan
+        description: '{{ doc("shared_column_char_tp_plan") }}'
+      - name: char_type_resd
+        description: '{{ doc("shared_column_char_type_resd") }}'
+      - name: char_use
+        description: '{{ doc("shared_column_char_use") }}'
+      - name: char_yrblt
+        description: '{{ doc("shared_column_char_yrblt") }}'
+      - name: class
+        description: '{{ doc("shared_column_class") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: pin_is_multicard
+        description: '{{ doc("shared_column_pin_is_multicard") }}'
+      - name: pin_is_multiland
+        description: '{{ doc("shared_column_pin_is_multiland") }}'
+      - name: pin_num_cards
+        description: '{{ doc("shared_column_pin_num_cards") }}'
+      - name: pin_num_landlines
+        description: '{{ doc("shared_column_pin_num_landlines") }}'
+      - name: recent_renovation
+        description: '{{ doc("shared_column_char_recent_renovation") }}'
+      - name: row_id
+        description: '{{ doc("shared_column_row_id") }}'
+      - name: tieback_key_pin
+        description: '{{ doc("shared_column_tieback_key_pin") }}'
+      - name: tieback_proration_rate
+        description: '{{ doc("shared_column_tieback_proration_rate") }}'
+      - name: township_code
+        description: '{{ doc("shared_column_township_code") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
