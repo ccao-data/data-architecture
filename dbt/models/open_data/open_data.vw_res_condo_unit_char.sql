@@ -15,7 +15,6 @@ SELECT
     year,
     class,
     township_code,
-    pin_is_multilline,
     tieback_key_pin,
     tieback_proration_rate,
     card_proration_rate,
@@ -29,9 +28,9 @@ SELECT
     char_building_pins,
     char_land_sf,
     cdu,
-    unitno,
     bldg_is_mixed_use,
     is_parking_space,
     is_common_area,
+    pin_is_multiland,
     pin_num_landlines
 FROM {{ ref('default.vw_pin_condo_char') }}
