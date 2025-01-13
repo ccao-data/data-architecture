@@ -44,3 +44,31 @@ exposures:
         * Used on its own to characterize the housing stock in a specific location
         * Joined to assessments for analysis of assessments across geographies and housing types
         * Joined to sales for the construction of hedonic home value estimates
+
+  - name: single_and_multi_family_improvement_characteristics
+    label: Single and Multi-Family Improvement Characteristics
+    type: dashboard
+    tags:
+      - type_res
+    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Single-and-Multi-Family-Improvement-Chara/x54s-btds
+    depends_on:
+      - ref('open_data.vw_sf_mf_improvement_char')
+    owner:
+      name: Data Department
+    meta:
+      test_row_count: true
+      asset_id: x54s-btds
+      primary_key:
+        - pin
+        - card
+        - year
+    description: |
+      Single and multi-family (less than 7 units) property characteristics collected and maintained by the Assessor's Office for all of Cook County, from 1999 to present.
+
+      Notes: Residential PINs with multiple improvements (living structures) will have one card for each improvement.
+
+      Use cases: This data describes the location and physical characteristics of all single and multi-family improvements in the county. It can be:
+
+        * Used on its own to characterize the housing stock in a specific location
+        * Joined to assessments for analysis of assessments across geographies and housing types
+        * Joined to sales for the construction of hedonic home value estimates
