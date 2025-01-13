@@ -20,6 +20,28 @@ exposures:
 
       Use cases: Joining parcel-level data to this dataset allows analysis and reporting across a number of different political, tax, Census, and other boundaries.
 
+  - name: parcel_universe_historic
+    label: Parcel Universe (Historic)
+    type: dashboard
+    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Universe/nj4t-kc8j
+    depends_on:
+      - ref('open_data.vw_parcel_universe_historic')
+    owner:
+      name: Data Department
+    meta:
+      test_row_count: true
+      asset_id: nj4t-kc8j
+      primary_key:
+        - pin
+        - year
+    description: |
+      A complete, historic universe of Cook County parcels with attached geographic, governmental, and spatial data.
+
+      Notes: Contains a cornucopia of locational and spatial data for all parcels in Cook County.
+
+      Use cases: Joining parcel-level data to this dataset allows analysis and reporting across a number of different political, tax, Census, and other boundaries.
+
+
   - name: residential_condominium_unit_characteristics
     label: Residential Condominium Unit Characteristics
     type: dashboard
