@@ -46,3 +46,20 @@ workbooks rather than iasWorld.
 
 **Primary Key**: `year`, `pin`
 {% enddocs %}
+
+# vw_sf_mf_improvement_char
+
+{% docs view_vw_sf_mf_improvement_char %}
+View to standardize residential property characteristics for use in modeling
+and reporting.
+
+### Nuance
+
+- Only contains characteristics for "regression class" residential properties,
+  see `ccao.class_dict` for details.
+- Observations are card-level, i.e. each row is one building. Note that a
+  card does not necessarily equal a PIN.
+- Land is parcel-level, not card-level.
+
+**Primary Key**: `year`, `pin`, `card`
+{% enddocs %}
