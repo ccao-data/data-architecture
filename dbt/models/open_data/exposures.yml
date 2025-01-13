@@ -128,6 +128,27 @@ exposures:
 
       Use cases: Joining parcel-level data to this dataset allows analysis and reporting across a number of different political, tax, Census, and other boundaries.
 
+  - name: property_tax_exempt_parcels
+    label: Property Tax-Exempt Parcels
+    type: dashboard
+    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Property-Tax-Exempt-Parcels/vgzx-68gb
+    depends_on:
+      - ref('open_data.vw_property_tax_exempt_parcel')
+    owner:
+      name: Data Department
+    meta:
+      test_row_count: true
+      asset_id: vgzx-68gb
+      primary_key:
+        - pin10
+        - year
+    description: |
+      Parcels with property tax-exempt status across all of Cook County per tax year, from Tax Year 2022 on, with geographic coordinates and addresses.
+
+      Notes: Refreshed monthly, data is updated when necessary as PINs are re-classified.
+
+      Use cases: Can be used to study parcels that are exempted from paying property taxes.
+
 
   - name: residential_condominium_unit_characteristics
     label: Residential Condominium Unit Characteristics

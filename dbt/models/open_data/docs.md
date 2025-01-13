@@ -127,6 +127,20 @@ is the view you're looking for.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_property_tax_exempt_parcel
+
+{% docs view_vw_property_tax_exempt_parcel %}
+Parcels with property tax-exempt status across all of Cook County per tax year,
+from 2022 on. Exempt parcels are typically owned by non-profits, religious
+institutions, or local governments.
+
+### Nuance
+
+- Mailing addresses and owner names have not been regularly updated since 2017.
+- Newer properties may be missing a mailing or property address, as they
+  need to be assigned one by the postal service.
+{% enddocs %}
+
 # vw_res_condo_unit_char
 
 {% docs view_vw_res_condo_unit_char %}
