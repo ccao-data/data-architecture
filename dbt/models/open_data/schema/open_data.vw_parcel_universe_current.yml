@@ -1,6 +1,6 @@
 models:
-  - name: open_data.vw_parcel_universe
-    description: '{{ doc("view_vw_parcel_universe") }}'
+  - name: open_data.vw_parcel_universe_current
+    description: '{{ doc("view_vw_parcel_universe_current") }}'
 
     columns:
       - name: access_cmap_walk_data_year
