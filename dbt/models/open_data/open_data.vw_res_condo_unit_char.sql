@@ -1,13 +1,5 @@
-/*
-View containing cleaned, filled data for condo modeling. Missing data is
-filled as follows:
-
-Condo characteristics are filled with whatever the most recent non-NULL
-value is. This assumes that new condo data is more accurate than older
-data, not that it represents a change in a unit's characteristics. This
-should only be the case while condo characteristics are pulled from excel
-workbooks rather than iasWorld.
-*/
+-- Copy of default.vw_pin_condo_char that feeds the "Residential Condominium
+-- Unit Characteristics" open data asset.
 SELECT
     CONCAT(pin, year) AS row_id,
     pin,

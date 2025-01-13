@@ -1,7 +1,5 @@
-/* Most-recent-year-only version of defualt.vw_pin_universe. This view exists
-for two reasons - to rename columns so that they align with Socrata API names
-for easy updating, and to limit the scope of the Parcel Universe asset to
-something Socrata's backend can handle. */
+-- Most-recent-year-only copy of defualt.vw_pin_universe. Feed the "Parcel
+-- Universe (Current Year)" open data asset.
 SELECT
     CONCAT(pin, year) AS row_id,
     pin,

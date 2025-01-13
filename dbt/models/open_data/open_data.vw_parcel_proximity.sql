@@ -1,5 +1,5 @@
--- View containing each of the PIN-level proximity/distance measurements
--- in the proximity database
+-- Copy of proximity.vw_pin_proximity that feeds the "Parcel Proximity" open
+-- data asset.
 SELECT
     CONCAT(pin10, year) AS row_id,
     pin10,

@@ -1,5 +1,5 @@
-/*  This view exists to rename columns so that they align with Socrata API names
-for easy updating. */
+-- Copy of default.vw_pin_universe that feeds the "Parcel Universe (Historic)"
+-- open data asset.
 SELECT
     CONCAT(pin, year) AS row_id,
     pin,

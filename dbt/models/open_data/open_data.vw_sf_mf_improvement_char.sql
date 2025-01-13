@@ -1,5 +1,5 @@
--- View to standardize residential property characteristics for use in
--- modeling and reporting
+-- Copy of default.vw_card_res_char that feeds the "Single and Multi-Family
+-- Improvement Characteristics" open data asset.
 SELECT
     pin || CAST(card AS VARCHAR) || year AS row_id,
     pin,

@@ -1,4 +1,5 @@
--- Source of truth view for PIN address, both legal and mailing
+-- Copy of default.vw_pin_address that feeds the "Parcel Addresses" open data
+-- asset.
 SELECT
     CONCAT(pin, year) AS row_id,
     pin,

@@ -1,4 +1,5 @@
--- View to collect currently exempt properties
+-- Copy of default.vw_pin_exempt that feeds the "Property Tax-Exempt Parcels"
+-- open data asset.
 SELECT
     CONCAT(pin, year) AS row_id,
     pin,

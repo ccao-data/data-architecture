@@ -1,5 +1,4 @@
--- View containing unique, filtered sales
--- Class and township of associated PIN
+-- Copy of default.vw_pin_sale that feeds the "Parcel Sales" open data asset.
 SELECT
     sale_key AS row_id,
     pin,

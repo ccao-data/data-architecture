@@ -1,7 +1,4 @@
--- View containing appeals by PIN
-
--- CTE so that we can join reason descriptions onto cleaned reason codes and
--- drop some dupes from htpar.
+-- Copy of default.vw_pin_appeal that feeds the "Appeals" open data asset.
 SELECT
     pin || year || case_no AS row_id,
     pin,

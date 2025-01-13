@@ -1,4 +1,5 @@
--- View containing current and prior years' assessments by PIN in wide format
+-- Copy of default.vw_pin_history that feeds the "Assessed Values" open data
+-- asset.
 SELECT
     CONCAT(pin, year) AS row_id,
     pin,
