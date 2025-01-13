@@ -1,4 +1,3 @@
-# %%
 import contextlib
 import io
 import json
@@ -367,7 +366,6 @@ def socrata_upload(
     print(f"Total upload in {toc - tic:0.4f} seconds")
 
 
-# %%
 socrata_upload(
     socrata_asset=os.getenv("SOCRATA_ASSET"),
     overwrite=os.getenv("OVERWRITE"),
