@@ -21,28 +21,6 @@ exposures:
 
       Use cases: Alone, can be used to investigate appeal trends. Can be combined with geographies to see how AV shifts around the county between mailing and assessor certified stages.
 
-  - name: assessed_values
-    label: Assessed Values
-    type: dashboard
-    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Assessed-Values/uzyt-m557
-    depends_on:
-      - ref('default.vw_pin_history')
-    owner:
-      name: Data Department
-    meta:
-      test_row_count: true
-      year_field: tax_year
-      asset_id: uzyt-m557
-      primary_key:
-        - pin
-        - year
-    description: |
-      Land, building, and total assessed values for all Cook County parcels, from 1999 to present.
-
-      Notes: Refreshed monthly, data is updated as towns are mailed/certified by Valuations and the Board of Review.
-
-      Use cases: Alone, can characterize assessments in a given area. Can be combined with characteristic data to make more nuanced generalizations about assessments. Can be combined with sales data to conduct ratio studies.
-
   - name: parcel_sales
     label: Parcel Sales
     type: dashboard

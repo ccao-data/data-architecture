@@ -1,3 +1,14 @@
+# vw_assessed_value
+
+{% docs view_vw_assessed_value %}
+Current and prior years' assessments by PIN in wide format.
+
+Assessed values are only populated once townships are "closed" and their
+corresponding `procname` value is updated in `iasworld.asmt_all`.
+
+**Primary Key**: `year`, `pin`
+{% enddocs %}
+
 # vw_parcel_address
 
 {% docs view_vw_parcel_address %}
