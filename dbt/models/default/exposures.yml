@@ -1,26 +1,4 @@
 exposures:
-  - name: appeals
-    label: Appeals
-    type: dashboard
-    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Appeals/y282-6ig3
-    depends_on:
-      - ref('default.vw_pin_appeal')
-    owner:
-      name: Data Department
-    meta:
-      test_row_count: true
-      asset_id: y282-6ig3
-      primary_key:
-        - case_no
-        - pin
-        - year
-    description: |
-      Land, building, and total assessed values, pre and post-appeal with the Cook County Assessor’s office, for all Cook County parcels, from 1999 to present.
-
-      Notes: Refreshed monthly, data is updated as towns are mailed/certified by Valuations.
-
-      Use cases: Alone, can be used to investigate appeal trends. Can be combined with geographies to see how AV shifts around the county between mailing and assessor certified stages.
-
   - name: parcel_sales
     label: Parcel Sales
     type: dashboard

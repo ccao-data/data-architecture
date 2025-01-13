@@ -1,3 +1,27 @@
+# vw_appeal
+
+{% docs view_vw_appeal %}
+View of assessment appeals by stage (wide format). Shows appeal decision,
+reason, and results.
+
+### Assumptions
+
+- Appeal types coding is static.
+- Status coding is static.
+- Condo/co-op appeal type is new, so we have to assume which classes fit the
+  category prior to 2021.
+
+### Nuance
+
+- Only contains appeal decisions for the Assessor's Office. Board of Review
+  appeal decisions can be found on the
+  [Cook County Open Data portal here](https://datacatalog.cookcountyil.gov/Property-Taxation/Board-of-Review-Appeal-Decision-History/7pny-nedm).
+- This view is _not_ unique by PIN and year, as a single PIN can have an
+  appeal and CofE/omitted assessment in a given year.
+
+**Primary Key**: `year`, `pin`, `case_no`
+{% enddocs %}
+
 # vw_assessed_value
 
 {% docs view_vw_assessed_value %}

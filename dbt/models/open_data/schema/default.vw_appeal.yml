@@ -1,0 +1,43 @@
+models:
+  - name: default.vw_appeal
+    description: '{{ doc("view_vw_appeal") }}'
+
+    columns:
+      - name: agent_code
+        description: '{{ doc("shared_column_agent_code") }}'
+      - name: agent_name
+        description: '{{ doc("shared_column_agent_name") }}'
+      - name: appeal_type
+        description: '{{ doc("shared_column_appeal_type") }}'
+      - name: case_no
+        description: '{{ doc("shared_column_case_no") }}'
+      - name: certified_bldg
+        description: '{{ doc("shared_column_certified_bldg") }}'
+      - name: certified_land
+        description: '{{ doc("shared_column_certified_land") }}'
+      - name: certified_tot
+        description: '{{ doc("shared_column_certified_tot") }}'
+      - name: change
+        description: '{{ doc("shared_column_appeal_change") }}'
+      - name: class
+        description: '{{ doc("shared_column_class") }}'
+      - name: mailed_bldg
+        description: '{{ doc("shared_column_mailed_bldg") }}'
+      - name: mailed_land
+        description: '{{ doc("shared_column_mailed_land") }}'
+      - name: mailed_tot
+        description: '{{ doc("shared_column_mailed_tot") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: reason_code1
+        description: '{{ doc("shared_column_reason_code") }}'
+      - name: reason_code2
+        description: '{{ doc("shared_column_reason_code") }}'
+      - name: reason_code3
+        description: '{{ doc("shared_column_reason_code") }}'
+      - name: status
+        description: '{{ doc("shared_column_appeal_status") }}'
+      - name: township_code
+        description: '{{ doc("shared_column_township_code") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
