@@ -1,0 +1,41 @@
+models:
+  - name: open_data.vw_parcel_sale
+    description: '{{ doc("view_vw_parcel_sale") }}'
+
+    columns:
+      - name: buyer_name
+        description: '{{ doc("shared_column_buyer_name") }}'
+      - name: class
+        description: '{{ doc("shared_column_class") }}'
+      - name: deed_type
+        description: '{{ doc("shared_column_deed_type") }}'
+      - name: doc_no
+        description: '{{ doc("shared_column_document_number") }}'
+      - name: is_multisale
+        description: '{{ doc("shared_column_sale_is_multisale") }}'
+      - name: is_mydec_date
+        description: Indicator for whether or not the observation uses the MyDec sale date
+      - name: nbhd
+        description: '{{ doc("shared_column_nbhd_code") }}'
+      - name: num_parcels_sale
+        description: '{{ doc("shared_column_num_parcels_sale") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: row_id
+        description: '{{ doc("shared_column_row_id") }}'
+      - name: sale_date
+        description: '{{ doc("shared_column_sale_date") }}'
+      - name: sale_filter_deed_type
+        description: Remove quit claim, executor, beneficiary and missing deed types
+      - name: sale_filter_less_than_10k
+        description: Indicator for whether sale is less than $10K FMW
+      - name: sale_filter_same_sale_within_365
+        description: Remove sale with the _same_ value (for the same PIN) within 365 days
+      - name: sale_price
+        description: '{{ doc("shared_column_sale_price") }}'
+      - name: seller_name
+        description: '{{ doc("shared_column_seller_name") }}'
+      - name: township_code
+        description: '{{ doc("shared_column_township_code") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
