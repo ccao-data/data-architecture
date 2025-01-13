@@ -97,6 +97,8 @@ def build_query(athena_asset, asset_id, years=None, township=None):
         .strip("]")
         .split(",")
     )
+    # row id won't show up here since it's hidden on the open data portal assets
+    asset_columns += ["row_id"]
     asset_columns.sort()
 
     # If there are columns on Socrata that are not in Athena, abort upload and
@@ -106,9 +108,7 @@ def build_query(athena_asset, asset_id, years=None, township=None):
     # If there are columns in Athena but not on Socrata, it may be the case that
     # they should be added, but there are also cases when not all columns for an
     # Athena view that feeds an open data asset need to be part of that asset.
-    if athena_columns != asset_columns and set(asset_columns) - set(
-        athena_columns
-    ) != {"row_id"}:
+    if athena_columns != asset_columns:
         columns_not_on_socrata = set(athena_columns) - set(asset_columns)
         columns_not_in_athena = set(asset_columns) - set(athena_columns)
         exception_message = (
