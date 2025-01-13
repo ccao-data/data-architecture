@@ -1,6 +1,6 @@
 -- View to collect currently exempt properties
 SELECT
-    CONCAT(pin10, year) AS row_id,
+    CONCAT(pin, year) AS row_id,
     pin,
     year,
     township_name,

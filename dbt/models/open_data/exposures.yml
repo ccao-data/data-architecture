@@ -140,7 +140,7 @@ exposures:
       test_row_count: true
       asset_id: vgzx-68gb
       primary_key:
-        - pin10
+        - pin
         - year
     description: |
       Parcels with property tax-exempt status across all of Cook County per tax year, from Tax Year 2022 on, with geographic coordinates and addresses.
