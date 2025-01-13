@@ -48,6 +48,8 @@ models:
         description: '{{ doc("shared_column_pin_num_landlines") }}'
       - name: pin_num_lline
         description: '{{ doc("shared_column_pin_num_lline") }}'
+      - name: row_id
+        description: '{{ doc("shared_column_row_id") }}'
       - name: tieback_key_pin
         description: '{{ doc("shared_column_tieback_key_pin") }}'
       - name: tieback_proration_rate

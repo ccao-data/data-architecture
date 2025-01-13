@@ -1,4 +1,25 @@
 exposures:
+  - name: parcel_addresses
+    label: Parcel Addresses
+    type: dashboard
+    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Addresses/3723-97qp
+    depends_on:
+      - ref('open_data.vw_parcel_address')
+    owner:
+      name: Data Department
+    meta:
+      test_row_count: true
+      asset_id: 3723-97qp
+      primary_key:
+        - pin
+        - year
+    description: |
+      Situs and mailing addresses of Cook County parcels.
+
+      Notes: Refreshed monthly, data is updated as towns are mailed/certified by Valuations.
+
+      Use cases: Can be used for geocoding or joining address-level data to other datasets.
+
   - name: parcel_universe_current_year
     label: Parcel Universe (Current Year)
     type: dashboard

@@ -1,3 +1,18 @@
+# vw_parcel_address
+
+{% docs view_vw_parcel_address %}
+Source of truth view for PIN address, both legal (property address)
+and mailing (owner/taxpayer address).
+
+### Nuance
+
+- Mailing addresses and owner names have not been regularly updated since 2017.
+- Newer properties may be missing a mailing or property address, as they
+  need to be assigned one by the postal service.
+
+**Primary Key**: `year`, `pin`
+{% enddocs %}
+
 # vw_parcel_universe_current
 
 {% docs view_vw_parcel_universe_current %}

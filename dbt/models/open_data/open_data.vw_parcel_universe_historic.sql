@@ -1,6 +1,7 @@
 /*  This view exists to rename columns so that they align with Socrata API names
 for easy updating. */
 SELECT
+    CONCAT(pin, year) AS row_id,
     pin,
     pin10,
     year,

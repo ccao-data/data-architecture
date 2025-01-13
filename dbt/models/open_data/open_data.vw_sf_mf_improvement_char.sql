@@ -1,6 +1,7 @@
 -- View to standardize residential property characteristics for use in
 -- modeling and reporting
 SELECT
+    pin || CAST(card AS VARCHAR) || year AS row_id,
     pin,
     --pin10,
     year,

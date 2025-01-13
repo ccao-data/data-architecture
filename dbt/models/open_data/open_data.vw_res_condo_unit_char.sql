@@ -9,6 +9,7 @@ should only be the case while condo characteristics are pulled from excel
 workbooks rather than iasWorld.
 */
 SELECT
+    CONCAT(pin, year) AS row_id,
     pin,
     pin10,
     card,

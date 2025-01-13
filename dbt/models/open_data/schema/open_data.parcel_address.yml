@@ -1,0 +1,31 @@
+models:
+  - name: open_data.vw_parcel_address
+    description: '{{ doc("view_vw_parcel_address") }}'
+
+    columns:
+      - name: mail_address_city_name
+        description: '{{ doc("shared_column_mail_address_city_name") }}'
+      - name: mail_address_full
+        description: '{{ doc("shared_column_mail_address_full") }}'
+      - name: mail_address_name
+        description: '{{ doc("shared_column_mail_address_name") }}'
+      - name: mail_address_state
+        description: '{{ doc("shared_column_mail_address_state") }}'
+      - name: mail_address_zipcode_1
+        description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: pin10
+        description: '{{ doc("shared_column_pin10") }}'
+      - name: prop_address_city_name
+        description: '{{ doc("shared_column_prop_address_city_name") }}'
+      - name: prop_address_full
+        description: '{{ doc("shared_column_prop_address_full") }}'
+      - name: prop_address_state
+        description: '{{ doc("shared_column_prop_address_state") }}'
+      - name: prop_address_zipcode_1
+        description: '{{ doc("shared_column_prop_address_zipcode_1") }}'
+      - name: row_id
+        description: '{{ doc("shared_column_row_id") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'

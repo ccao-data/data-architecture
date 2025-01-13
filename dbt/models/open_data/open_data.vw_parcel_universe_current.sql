@@ -3,6 +3,7 @@ for two reasons - to rename columns so that they align with Socrata API names
 for easy updating, and to limit the scope of the Parcel Universe asset to
 something Socrata's backend can handle. */
 SELECT
+    CONCAT(pin, year) AS row_id,
     pin,
     pin10,
     year,

@@ -141,6 +141,8 @@ models:
         description: '{{ doc("shared_column_pin") }}'
       - name: pin10
         description: '{{ doc("shared_column_pin10") }}'
+      - name: row_id
+        description: '{{ doc("shared_column_row_id") }}'
       - name: school_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: school_elementary_district_geoid
