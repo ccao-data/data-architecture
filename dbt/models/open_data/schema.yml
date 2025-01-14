@@ -1,0 +1,36 @@
+models:
+  - name: open_data.vw_appeal
+    description: '{{ doc("view_vw_appeal") }}'
+
+  - name: open_data.vw_assessed_value
+    description: '{{ doc("view_vw_assessed_value") }}'
+
+  - name: open_data.vw_parcel_address
+    description: '{{ doc("view_vw_parcel_address") }}'
+
+  - name: open_data.vw_parcel_proximity
+    description: '{{ doc("view_vw_parcel_proximity") }}'
+
+  - name: open_data.vw_parcel_sale
+    description: '{{ doc("view_vw_parcel_sale") }}'
+
+  - name: open_data.vw_parcel_status
+    description: '{{ doc("view_vw_parcel_status") }}'
+
+  - name: open_data.vw_parcel_universe_current
+    description: '{{ doc("view_vw_parcel_universe_current") }}'
+
+  - name: open_data.vw_parcel_universe_historic
+    description: '{{ doc("view_vw_parcel_universe_historic") }}'
+
+  - name: open_data.vw_permit
+    description: '{{ doc("view_vw_permit") }}'
+
+  - name: open_data.vw_property_tax_exempt_parcel
+    description: '{{ doc("view_vw_property_tax_exempt_parcel") }}'
+
+  - name: open_data.vw_res_condo_unit_char
+    description: '{{ doc("view_vw_res_condo_unit_char") }}'
+
+  - name: open_data.vw_sf_mf_improvement_char
+    description: '{{ doc("view_vw_sf_mf_improvement_char") }}'

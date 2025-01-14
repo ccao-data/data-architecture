@@ -7,16 +7,19 @@ on:
         type: choice
         description: Target Socrata asset
         options:
-        - Parcel Universe
-        - Single and Multi-Family Improvement Characteristics
-        - Residential Condominium Unit Characteristics
-        - Parcel Sales
-        - Assessed Values
         - Appeals
+        - Assessed Values
         - Parcel Addresses
         - Parcel Proximity
+        - Parcel Sales
+        - Parcel Status
+        - Permits
         - Property Tax-Exempt Parcels
-        default: Parcel Universe
+        - Parcel Universe (Historic)
+        - Parcel Universe (Current Year)
+        - Residential Condominium Unit Characteristics
+        - Single and Multi-Family Improvement Characteristics
+        default: Parcel Universe (Current Year)
         required: true
       overwrite:
         # True for overwrite, False for update

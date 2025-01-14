@@ -51,6 +51,8 @@ models:
       +schema: location
     model:
       +schema: model
+    open_data:
+      +schema: open_data
     proximity:
       +schema: proximity
     reporting:

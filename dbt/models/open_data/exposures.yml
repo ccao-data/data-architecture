@@ -4,7 +4,7 @@ exposures:
     type: dashboard
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Appeals/y282-6ig3
     depends_on:
-      - ref('default.vw_pin_appeal')
+      - ref('open_data.vw_appeal')
     owner:
       name: Data Department
     meta:
@@ -26,7 +26,7 @@ exposures:
     type: dashboard
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Assessed-Values/uzyt-m557
     depends_on:
-      - ref('default.vw_pin_history')
+      - ref('open_data.vw_assessed_value')
     owner:
       name: Data Department
     meta:
@@ -43,12 +43,13 @@ exposures:
 
       Use cases: Alone, can characterize assessments in a given area. Can be combined with characteristic data to make more nuanced generalizations about assessments. Can be combined with sales data to conduct ratio studies.
 
+
   - name: parcel_addresses
     label: Parcel Addresses
     type: dashboard
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Addresses/3723-97qp
     depends_on:
-      - ref('default.vw_pin_address')
+      - ref('open_data.vw_parcel_address')
     owner:
       name: Data Department
     meta:
@@ -64,12 +65,33 @@ exposures:
 
       Use cases: Can be used for geocoding or joining address-level data to other datasets.
 
+  - name: parcel_proximity
+    label: Parcel Proximity
+    type: dashboard
+    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Proximity/ydue-e5u3
+    depends_on:
+      - ref('open_data.vw_parcel_proximity')
+    owner:
+      name: Data Department
+    meta:
+      test_row_count: true
+      asset_id: ydue-e5u3
+      primary_key:
+        - pin10
+        - year
+    description: |
+      Cook County 10-digit parcels with attached distances to various spatial features.
+
+      Notes: Refreshed monthly, data is updated yearly as spatial files are made available.
+
+      Use cases: Can be used to isolate parcels by distance to specific spatial features.
+
   - name: parcel_sales
     label: Parcel Sales
     type: dashboard
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Sales/wvhk-k5uv
     depends_on:
-      - ref('default.vw_pin_sale')
+      - ref('open_data.vw_parcel_sale')
     owner:
       name: Data Department
     meta:
@@ -84,12 +106,52 @@ exposures:
 
       Use cases: Alone, sales data can be used to characterize real estate markets. Sales paired with characteristics can be used to find comparable properties or as an input to an automated modeling application. Sales paired with assessments can be used to calculate sales ratio statistics. Outliers can be easily removed using filters constructed from class, township, and year variables.
 
-  - name: parcel_universe
-    label: Parcel Universe
+  - name: parcel_status
+    label: Parcel Status
+    type: dashboard
+    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Status/uuu4-fqy8
+    depends_on:
+      - ref('open_data.vw_parcel_status')
+    owner:
+      name: Data Department
+    meta:
+      test_row_count: true
+      asset_id: uuu4-fqy8
+      primary_key:
+        - pin
+        - year
+    description: |
+      Collection of various different PIN-level physical and assessment-related
+      statuses collected and documented across the CCAO and Data Department.
+      Constructs the Data Department's AHSAP indicator.
+
+  - name: parcel_universe_current_year
+    label: Parcel Universe (Current Year)
+    type: dashboard
+    url: https://datacatalog.cookcountyil.gov/dataset/Assessor-Parcel-Universe-Current-Year-/pabr-t5kh
+    depends_on:
+      - ref('open_data.vw_parcel_universe_current')
+    owner:
+      name: Data Department
+    meta:
+      test_row_count: true
+      asset_id: pabr-t5kh
+      primary_key:
+        - pin
+        - year
+    description: |
+      Most recent year universe of Cook County parcels with attached geographic, governmental, and spatial data.
+
+      Notes: Contains a cornucopia of locational and spatial data for all parcels in Cook County.
+
+      Use cases: Joining parcel-level data to this dataset allows analysis and reporting across a number of different political, tax, Census, and other boundaries.
+
+  - name: parcel_universe_historic
+    label: Parcel Universe (Historic)
     type: dashboard
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Universe/nj4t-kc8j
     depends_on:
-      - ref('default.vw_pin_universe')
+      - ref('open_data.vw_parcel_universe_historic')
     owner:
       name: Data Department
     meta:
@@ -105,19 +167,37 @@ exposures:
 
       Use cases: Joining parcel-level data to this dataset allows analysis and reporting across a number of different political, tax, Census, and other boundaries.
 
+  - name: permits
+    label: Permits
+    type: dashboard
+    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Permits/6yjf-dfxs
+    depends_on:
+      - ref('open_data.vw_permit')
+    owner:
+      name: Data Department
+    meta:
+      test_row_count: true
+      asset_id: 6yjf-dfxs
+      primary_key:
+        - pin
+        - permit_number
+    description: |
+      Building permits organized by PIN, with extra metadata recorded by CCAO
+      permit specialists during the permit processing workflow.
+
   - name: property_tax_exempt_parcels
     label: Property Tax-Exempt Parcels
     type: dashboard
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Property-Tax-Exempt-Parcels/vgzx-68gb
     depends_on:
-      - ref('default.vw_pin_exempt')
+      - ref('open_data.vw_property_tax_exempt_parcel')
     owner:
       name: Data Department
     meta:
       test_row_count: true
       asset_id: vgzx-68gb
       primary_key:
-        - pin10
+        - pin
         - year
     description: |
       Parcels with property tax-exempt status across all of Cook County per tax year, from Tax Year 2022 on, with geographic coordinates and addresses.
@@ -126,6 +206,7 @@ exposures:
 
       Use cases: Can be used to study parcels that are exempted from paying property taxes.
 
+
   - name: residential_condominium_unit_characteristics
     label: Residential Condominium Unit Characteristics
     type: dashboard
@@ -133,7 +214,7 @@ exposures:
       - type_condo
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Residential-Condominium-Unit-Characteri/3r7i-mrz4
     depends_on:
-      - ref('default.vw_pin_condo_char')
+      - ref('open_data.vw_res_condo_unit_char')
     owner:
       name: Data Department
     meta:
@@ -158,7 +239,7 @@ exposures:
       - type_res
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Single-and-Multi-Family-Improvement-Chara/x54s-btds
     depends_on:
-      - ref('default.vw_card_res_char')
+      - ref('open_data.vw_sf_mf_improvement_char')
     owner:
       name: Data Department
     meta:

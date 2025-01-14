@@ -70,32 +70,16 @@ def get_asset_info(socrata_asset):
     model = model[model["label"] == socrata_asset]
     athena_asset = model.iloc[0]["depends_on.nodes"][0].split(".", 2)[-1]
     asset_id = model.iloc[0]["meta.asset_id"]
-    row_identifier = model.iloc[0]["meta.primary_key"]
 
-    return athena_asset, asset_id, row_identifier
+    return athena_asset, asset_id
 
 
-def build_query(
-    athena_asset, asset_id, row_identifier, years=None, township=None
-):
+def build_query(athena_asset, asset_id, years=None, township=None):
     """
     Build an Athena compatible SQL query. Function will append a year
     conditional if `years` is non-empty. Many of the CCAO's open data assets are
-    too large to pass to Socrata without chunking. A `row_id` column is
-    constructed in order to use Socrata's `upsert` functionalities (updating
-    rather than overwriting data that already exists) based on the column names
-    passed to `row_identifiers`.
+    too large to pass to Socrata without chunking.
     """
-
-    row_identifier_sql_parts = [
-        f"CAST({col} AS varchar)" for col in row_identifier
-    ]
-    row_identifier_sql_joined = (
-        row_identifier_sql_parts[0]
-        if len(row_identifier_sql_parts) == 1
-        else f"CONCAT({', '.join(row_identifier_sql_parts)})"
-    )
-    row_identifier = f"{row_identifier_sql_joined} AS row_id"
 
     # Retrieve column names and types from Athena
     columns = cursor.execute("show columns from " + athena_asset).as_pandas()
@@ -113,6 +97,8 @@ def build_query(
         .strip("]")
         .split(",")
     )
+    # row id won't show up here since it's hidden on the open data portal assets
+    asset_columns += ["row_id"]
     asset_columns.sort()
 
     # If there are columns on Socrata that are not in Athena, abort upload and
@@ -150,7 +136,7 @@ def build_query(
 
     print(f"The following columns will be updated: {columns}")
 
-    query = f"SELECT {row_identifier}, {', '.join(columns['column'])} FROM {athena_asset}"
+    query = f"SELECT {', '.join(columns['column'])} FROM {athena_asset}"
 
     if not years:
         query = query
@@ -282,10 +268,10 @@ def socrata_upload(
     """
     Wrapper function for building SQL query, retrieving data from Athena, and
     uploading it to Socrata. Allows users to specify target Athena and Socrata
-    assets, define columns to construct a `row_id`, whether the data on Socrata
-    should be overwritten or updated, and whether or not to chunk the upload by
-    year. By default the function will query a given Athena asset by year for
-    all years and upload via `post` (update rather than overwrite).
+    assets, whether the data on Socrata should be overwritten or updated, and
+    whether or not to chunk the upload by year. By default the function will
+    query a given Athena asset by year for all years and upload via `post`
+    (update rather than overwrite).
     """
 
     # Github inputs are passed as strings rather than booleans
@@ -295,7 +281,7 @@ def socrata_upload(
     if isinstance(by_township, str):
         by_township = by_township == "true"
 
-    athena_asset, asset_id, row_identifier = get_asset_info(socrata_asset)
+    athena_asset, asset_id = get_asset_info(socrata_asset)
 
     flag, groups = generate_groups(
         years=years, by_township=by_township, athena_asset=athena_asset
@@ -308,7 +294,6 @@ def socrata_upload(
         sql_query = build_query(
             athena_asset=athena_asset,
             asset_id=asset_id,
-            row_identifier=row_identifier,
         )
 
         upload_args = {
@@ -327,7 +312,6 @@ def socrata_upload(
             sql_query = build_query(
                 athena_asset=athena_asset,
                 asset_id=asset_id,
-                row_identifier=row_identifier,
                 years=years,
             )
 
@@ -335,7 +319,6 @@ def socrata_upload(
             sql_query = build_query(
                 athena_asset=athena_asset,
                 asset_id=asset_id,
-                row_identifier=row_identifier,
                 years=years,
                 township=by_township,
             )
