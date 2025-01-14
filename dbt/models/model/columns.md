@@ -39,22 +39,28 @@ angles in their geometry, e.g. `04-11-501-003` (a rhombus-shaped parcel).
 ## parcel_mrr_area_ratio
 
 {% docs column_parcel_mrr_area_ratio %}
-Ratio of the parcel's area to the area of its
-[minimum rotated bounding rectangle](https://en.wikipedia.org/wiki/Minimum_bounding_rectangle).
+Ratio of the parcel's area to the area of its minimum rotated bounding
+rectangle.
 
 The goal of this feature is to identify parcels with interior holes or strange
 concave shapes, e.g. `16-01-402-008` (basically a right angle parcel).
+
+[See here](https://en.wikipedia.org/wiki/Minimum_bounding_rectangle) for an
+explanation of minimum rotated bounding rectangles.
 {% enddocs %}
 
 ## parcel_mrr_side_ratio
 
 {% docs column_parcel_mrr_side_ratio %}
-Ratio of the longest to the shortest side of the parcel's
-[minimum rotated bounding rectangle](https://en.wikipedia.org/wiki/Minimum_bounding_rectangle).
+Ratio of the longest to the shortest side of the parcel's minimum rotated
+bounding rectangle.
 
 The goal of this feature is to identify parcels with consistent, square shapes.
 In practice, parcels with a high ratio tend to have long, extraneous
 elements/slivers, e.g. `02-23-311-027`.
+
+[See here](https://en.wikipedia.org/wiki/Minimum_bounding_rectangle) for an
+explanation of minimum rotated bounding rectangles.
 {% enddocs %}
 
 ## parcel_num_vertices

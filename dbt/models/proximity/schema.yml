@@ -70,7 +70,7 @@ models:
 
   - name: proximity.dist_pin_to_road_arterial
     description: '{{ doc("table_dist_pin_to_road_arterial") }}'
-  
+
   - name: proximity.dist_pin_to_road_collector
     description: '{{ doc("table_dist_pin_to_road_collector") }}'
 
@@ -276,25 +276,3 @@ models:
   - name: proximity.vw_pin10_proximity_fill
     description: '{{ doc("view_vw_pin10_proximity_fill") }}'
     columns: *vw_proximity_columns
-
-exposures:
-  - name: parcel_proximity
-    label: Parcel Proximity
-    type: dashboard
-    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Proximity/ydue-e5u3
-    depends_on:
-      - ref('proximity.vw_pin10_proximity')
-    owner:
-      name: Data Department
-    meta:
-      test_row_count: true
-      asset_id: ydue-e5u3
-      primary_key:
-        - pin10
-        - year
-    description: |
-      Cook County 10-digit parcels with attached distances to various spatial features.
-
-      Notes: Refreshed monthly, data is updated yearly as spatial files are made available.
-
-      Use cases: Can be used to isolate parcels by distance to specific spatial features.
