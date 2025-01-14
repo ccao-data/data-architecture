@@ -172,7 +172,7 @@ exposures:
     type: dashboard
     url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Permits/6yjf-dfxs
     depends_on:
-      - ref('default.vw_pin_permit')
+      - ref('open_data.vw_permit')
     owner:
       name: Data Department
     meta:
