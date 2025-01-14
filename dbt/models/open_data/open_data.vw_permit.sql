@@ -4,6 +4,7 @@
 currently hidden:
     date_updated
     filing_type
+    notes
 */
 
 SELECT
@@ -32,6 +33,5 @@ SELECT
     improvement_code_1,
     improvement_code_2,
     improvement_code_3,
-    improvement_code_4,
-    notes
+    improvement_code_4
 FROM {{ ref('default.vw_pin_permit') }}
