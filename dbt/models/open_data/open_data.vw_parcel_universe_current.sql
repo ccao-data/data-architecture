@@ -1,5 +1,11 @@
 -- Most-recent-year-only copy of defualt.vw_pin_universe. Feed the "Parcel
 -- Universe (Current Year)" open data asset.
+
+/* The following columns are not included in the open data asset, or are
+currently hidden:
+    ward_name
+*/
+
 SELECT
     CONCAT(pin, year) AS row_id,
     pin,
@@ -55,7 +61,6 @@ SELECT
     cook_judicial_district_num,
     cook_judicial_district_data_year,
     ward_num,
-    -- ward_name,
     ward_chicago_data_year,
     ward_evanston_data_year,
     chicago_community_area_num,

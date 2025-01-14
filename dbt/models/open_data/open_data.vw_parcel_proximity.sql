@@ -1,5 +1,50 @@
 -- Copy of proximity.vw_pin_proximity that feeds the "Parcel Proximity" open
 -- data asset.
+
+/* The following columns are not included in the open data asset, or are
+currently hidden:
+    num_school_with_rating_in_half_mile
+    avg_school_rating_in_half_mile
+    num_school_rating_data_year
+    nearest_grocery_store_name
+    nearest_grocery_store_dist_ft
+    nearest_grocery_store_data_year
+    nearest_new_construction_pin10
+    nearest_new_construction_char_yrblt
+    nearest_new_construction_dist_ft
+    nearest_new_construction_data_year
+    nearest_road_arterial_name
+    nearest_road_arterial_daily_traffic
+    nearest_road_arterial_speed_limit
+    nearest_road_arterial_surface_type
+    nearest_road_arterial_lanes
+    nearest_road_arterial_dist_ft
+    nearest_road_arterial_data_year
+    nearest_road_collector_name
+    nearest_road_collector_daily_traffic
+    nearest_road_collector_speed_limit
+    nearest_road_collector_surface_type
+    nearest_road_collector_lanes
+    nearest_road_collector_dist_ft
+    nearest_road_collector_data_year
+    nearest_road_highway_name
+    nearest_road_highway_daily_traffic
+    nearest_road_highway_speed_limit
+    nearest_road_highway_surface_type
+    nearest_road_highway_lanes
+    nearest_road_highway_dist_ft
+    nearest_road_highway_data_year
+    nearest_stadium_name
+    nearest_stadium_dist_ft
+    nearest_stadium_data_year
+    nearest_university_name
+    nearest_university_dist_ft
+    nearest_university_data_year
+    nearest_vacant_land_pin10
+    nearest_vacant_land_dist_ft
+    nearest_vacant_land_data_year
+*/
+
 SELECT
     CONCAT(pin10, year) AS row_id,
     pin10,
@@ -11,10 +56,7 @@ SELECT
     num_foreclosure_per_1000_pin_past_5_years,
     num_foreclosure_data_year,
     num_school_in_half_mile,
-    --num_school_with_rating_in_half_mile,
-    --avg_school_rating_in_half_mile,
     num_school_data_year,
-    --num_school_rating_data_year,
     airport_dnl_total,
     nearest_bike_trail_id,
     nearest_bike_trail_name,
@@ -35,9 +77,6 @@ SELECT
     nearest_golf_course_id,
     nearest_golf_course_dist_ft,
     nearest_golf_course_data_year,
-    --nearest_grocery_store_name,
-    --nearest_grocery_store_dist_ft,
-    --nearest_grocery_store_data_year,
     nearest_hospital_gnis_code,
     nearest_hospital_name,
     nearest_hospital_dist_ft,
@@ -56,10 +95,6 @@ SELECT
     nearest_metra_stop_name,
     nearest_metra_stop_dist_ft,
     nearest_metra_stop_data_year,
-    --nearest_new_construction_pin10,
-    --nearest_new_construction_char_yrblt,
-    --nearest_new_construction_dist_ft,
-    --nearest_new_construction_data_year,
     nearest_park_osm_id,
     nearest_park_name,
     nearest_park_dist_ft,
@@ -68,40 +103,10 @@ SELECT
     nearest_railroad_name,
     nearest_railroad_dist_ft,
     nearest_railroad_data_year,
-    --nearest_road_arterial_name,
-    --nearest_road_arterial_daily_traffic,
-    --nearest_road_arterial_speed_limit,
-    --nearest_road_arterial_surface_type,
-    --nearest_road_arterial_lanes,
-    --nearest_road_arterial_dist_ft,
-    --nearest_road_arterial_data_year,
-    --nearest_road_collector_name,
-    --nearest_road_collector_daily_traffic,
-    --nearest_road_collector_speed_limit,
-    --nearest_road_collector_surface_type,
-    --nearest_road_collector_lanes,
-    --nearest_road_collector_dist_ft,
-    --nearest_road_collector_data_year,
-    --nearest_road_highway_name,
-    --nearest_road_highway_daily_traffic,
-    --nearest_road_highway_speed_limit,
-    --nearest_road_highway_surface_type,
-    --nearest_road_highway_lanes,
-    --nearest_road_highway_dist_ft,
-    --nearest_road_highway_data_year,
     nearest_secondary_road_osm_id,
     nearest_secondary_road_name,
     nearest_secondary_road_dist_ft,
     nearest_secondary_road_data_year,
-    --nearest_stadium_name,
-    --nearest_stadium_dist_ft,
-    --nearest_stadium_data_year,
-    --nearest_university_name,
-    --nearest_university_dist_ft,
-    --nearest_university_data_year,
-    --nearest_vacant_land_pin10,
-    --nearest_vacant_land_dist_ft,
-    --nearest_vacant_land_data_year,
     nearest_water_id,
     nearest_water_name,
     nearest_water_dist_ft,

@@ -1,16 +1,27 @@
 -- Copy of default.vw_pin_condo_char that feeds the "Residential Condominium
 -- Unit Characteristics" open data asset.
+
+/* The following columns are not included in the open data asset, or are
+currently hidden:
+    lline
+    pin_is_multilline
+    pin_num_lline
+    note
+    unitno
+    oneyr_pri_board_tot
+    parking_space_flag_reason
+    is_question_garage_unit
+    is_negative_pred
+*/
+
 SELECT
     CONCAT(pin, year) AS row_id,
     pin,
     pin10,
     card,
-    --lline,
     year,
     class,
     township_code,
-    --pin_is_multilline,
-    --pin_num_lline,
     tieback_key_pin,
     tieback_proration_rate,
     card_proration_rate,
@@ -24,15 +35,9 @@ SELECT
     char_building_pins,
     char_land_sf,
     cdu,
-    --note,
-    --unitno,
     bldg_is_mixed_use,
-    --oneyr_pri_board_tot,
     is_parking_space,
-    --parking_space_flag_reason,
     is_common_area,
-    --is_question_garage_unit,
-    --is_negative_pred,
     pin_is_multiland,
     pin_num_landlines
 FROM {{ ref('default.vw_pin_condo_char') }}

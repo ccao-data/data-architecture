@@ -1,14 +1,22 @@
 -- Copy of default.vw_card_res_char that feeds the "Single and Multi-Family
 -- Improvement Characteristics" open data asset.
+
+/* The following columns are not included in the open data asset, or are
+currently hidden:
+    pin10
+    seq
+    updated_by
+    updated_at
+    char_tp_dsgn
+    char_class
+    char_age
+*/
+
 SELECT
     pin || CAST(card AS VARCHAR) || year AS row_id,
     pin,
-    --pin10,
     year,
     card,
-    --seq,
-    --updated_by,
-    --updated_at,
     class,
     township_code,
     cdu,
@@ -30,7 +38,6 @@ SELECT
     char_type_resd,
     char_cnst_qlty,
     char_apts,
-    --char_tp_dsgn,
     char_attic_fnsh,
     char_gar1_att,
     char_gar1_area,
@@ -43,9 +50,7 @@ SELECT
     char_repair_cnd,
     char_bsmt_fin,
     char_roof_cnst,
-    --char_class,
     char_use,
-    --char_age,
     char_site,
     char_ncu,
     char_renovation,
