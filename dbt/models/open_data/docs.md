@@ -7,7 +7,7 @@ Thin wrapper around `default.vw_pin_appeal` that powers the `Appeals` open data 
 # vw_assessed_value
 
 {% docs view_vw_assessed_value %}
-Thin wrapper around `default.vw_pin_history` that powers the `Assess Values` open data asset
+Thin wrapper around `default.vw_pin_history` that powers the `Assessed Values` open data asset
 {% enddocs %}
 
 # vw_parcel_address
