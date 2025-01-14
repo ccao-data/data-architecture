@@ -27,7 +27,6 @@ SELECT
     --note,
     --unitno,
     bldg_is_mixed_use,
-    oneyr_pri_board_tot,
     --oneyr_pri_board_tot,
     is_parking_space,
     --parking_space_flag_reason,
