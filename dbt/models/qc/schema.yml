@@ -231,6 +231,7 @@ models:
       export_template: &qc_report_ic_reference_export_template
         start_row: 3
         add_table: false
+        sheet_name: Query Results
       export_format:
         format_blanks_as_empty_string: true
         columns:

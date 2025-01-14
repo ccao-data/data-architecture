@@ -92,6 +92,8 @@ class ModelForExport:
     start_row: int
     # Whether or not to add a data table for sorting and filtering
     add_table: bool
+    # The name of the sheet in the workbook to populate with data
+    sheet_name: str
 
 
 def query_models_for_export(
@@ -200,6 +202,7 @@ def query_models_for_export(
         export_name = model["config"]["meta"].get("export_name") or model_name
         template_config = model["config"]["meta"].get("export_template", {})
         template_name = template_config.get("name") or model_name
+        sheet_name = template_config.get("sheet_name") or "Sheet1"
         start_row = template_config.get("start_row") or 2
         add_table = template_config.get("add_table") or False
 
@@ -227,6 +230,7 @@ def query_models_for_export(
                 template_path=template_path,
                 start_row=start_row,
                 add_table=add_table,
+                sheet_name=sheet_name,
             )
         )
 
@@ -276,16 +280,15 @@ def save_model_to_workbook(
     with pd.ExcelWriter(
         output_path, engine="openpyxl", **writer_kwargs
     ) as writer:
-        sheet_name = "Sheet1"
         model.df.to_excel(
             writer,
-            sheet_name=sheet_name,
+            sheet_name=model.sheet_name,
             header=False if template_exists else True,
             index=False,
             # Startrow is 0-indexed, whereas the config is 1-indexed
             startrow=model.start_row - 1 if template_exists else 0,
         )
-        sheet = writer.sheets[sheet_name]
+        sheet = writer.sheets[model.sheet_name]
 
         # Add a table for data filtering. Only do this if the result set
         # is not empty, because otherwise the empty table will make
