@@ -106,6 +106,24 @@ exposures:
 
       Use cases: Alone, sales data can be used to characterize real estate markets. Sales paired with characteristics can be used to find comparable properties or as an input to an automated modeling application. Sales paired with assessments can be used to calculate sales ratio statistics. Outliers can be easily removed using filters constructed from class, township, and year variables.
 
+  - name: parcel_status
+    label: Parcel Status
+    type: dashboard
+    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Parcel-Status/uuu4-fqy8
+    depends_on:
+      - ref('open_data.vw_parcel_status')
+    owner:
+      name: Data Department
+    meta:
+      test_row_count: true
+      asset_id: uuu4-fqy8
+      primary_key:
+        - pin
+        - year
+    description: |
+      Collection of various different PIN-level physical and assessment-related
+      statuses collected and documented across the CCAO and Data Department.
+      Constructs the Data Department's AHSAP indicator.
 
   - name: parcel_universe_current_year
     label: Parcel Universe (Current Year)

@@ -1,4 +1,4 @@
--- Most-recent-year-only copy of defualt.vw_pin_universe. Feed the "Parcel
+-- Most-recent-year-only copy of defualt.vw_pin_universe. Feeds the "Parcel
 -- Universe (Current Year)" open data asset.
 
 /* The following columns are not included in the open data asset, or are

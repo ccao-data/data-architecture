@@ -28,6 +28,12 @@ Thin wrapper around `proximity.vw_pin10_proximity` that powers the `Parcel Proxi
 Thin wrapper around `default.vw_pin_sale` that powers the `Parcel Sales` open data asset
 {% enddocs %}
 
+# vw_parcel_status
+
+{% docs view_vw_parcel_status %}
+Thin wrapper around `default.vw_pin_status` that powers the `Parcel Status` open data asset
+{% enddocs %}
+
 # vw_parcel_universe_current
 
 {% docs view_vw_parcel_universe_current %}
