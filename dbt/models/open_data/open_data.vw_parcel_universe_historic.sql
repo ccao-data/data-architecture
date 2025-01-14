@@ -1,10 +1,6 @@
 -- Copy of default.vw_pin_universe that feeds the "Parcel Universe (Historic)"
 -- open data asset.
-
-/* The following columns are not included in the open data asset, or are
-currently hidden:
-    ward_name
-*/
+-- Some columns from the feeder view may not be present in this view.
 
 SELECT
     CONCAT(pin, year) AS row_id,

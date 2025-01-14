@@ -1,9 +1,5 @@
 -- Copy of defualt.vw_pin_status that feeds the "Parcel Status" open data asset.
-
-/* The following columns are not included in the open data asset, or are
-currently hidden:
-    ward_name
-*/
+-- Some columns from the feeder view may not be present in this view.
 
 SELECT
     CONCAT(pin, year) AS row_id,

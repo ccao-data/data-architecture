@@ -1,18 +1,6 @@
 -- Copy of default.vw_pin_condo_char that feeds the "Residential Condominium
 -- Unit Characteristics" open data asset.
-
-/* The following columns are not included in the open data asset, or are
-currently hidden:
-    lline
-    pin_is_multilline
-    pin_num_lline
-    note
-    unitno
-    oneyr_pri_board_tot
-    parking_space_flag_reason
-    is_question_garage_unit
-    is_negative_pred
-*/
+-- Some columns from the feeder view may not be present in this view.
 
 SELECT
     CONCAT(pin, year) AS row_id,

@@ -1,16 +1,6 @@
 -- Copy of default.vw_card_res_char that feeds the "Single and Multi-Family
 -- Improvement Characteristics" open data asset.
-
-/* The following columns are not included in the open data asset, or are
-currently hidden:
-    pin10
-    seq
-    updated_by
-    updated_at
-    char_tp_dsgn
-    char_class
-    char_age
-*/
+-- Some columns from the feeder view may not be present in this view.
 
 SELECT
     pin || CAST(card AS VARCHAR) || year AS row_id,

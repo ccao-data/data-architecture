@@ -1,11 +1,5 @@
 -- Copy of default.vw_pin_appeal that feeds the "Appeals" open data asset.
-
-/* The following columns are not included in the open data asset, or are
-currently hidden:
-    date_updated
-    filing_type
-    notes
-*/
+-- Some columns from the feeder view may not be present in this view.
 
 SELECT
     CONCAT(pin, permit_number) AS row_id,

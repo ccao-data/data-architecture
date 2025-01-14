@@ -1,19 +1,6 @@
 -- Copy of default.vw_pin_address that feeds the "Parcel Addresses" open data
 -- asset.
-
-/* The following columns are not included in the open data asset, or are
-currently hidden:
-    prop_address_prefix
-    prop_address_street_number
-    prop_address_street_dir
-    prop_address_street_name
-    prop_address_suffix_1
-    prop_address_suffix_2
-    prop_address_unit_prefix
-    prop_address_unit_number
-    prop_address_zipcode_2
-    mail_address_zipcode_2
-*/
+-- Some columns from the feeder view may not be present in this view.
 
 SELECT
     CONCAT(pin, year) AS row_id,

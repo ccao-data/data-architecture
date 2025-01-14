@@ -1,4 +1,6 @@
 -- Copy of default.vw_pin_appeal that feeds the "Appeals" open data asset.
+-- Some columns from the feeder view may not be present in this view.
+
 SELECT
     pin || year || case_no AS row_id,
     pin,
