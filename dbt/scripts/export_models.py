@@ -24,6 +24,7 @@ A few configuration values can be set on any model to support exporting:
 
     * config.meta.export_format (optional): Formatting to apply to the output workbook. Useful for specific types of formatting, like alignment
       and number formats, that Excel can only apply after populating a template with data
+        * format_blanks_as_empty_string (optional): When True, indicates to the script to export blanks as empty strings instead of nulls. Defaults to False.
 """  # noqa: E501
 CLI_EXAMPLE = """Example usage to output the 2024 non-tri town close QC report for Leyden, which is a non-tri town in 2024:
 

@@ -232,6 +232,7 @@ models:
         start_row: 3
         add_table: false
       export_format:
+        format_blanks_as_empty_string: true
         columns:
           - name: ACRES
             index: J
@@ -286,6 +287,7 @@ models:
       export_name: AllNonRes_PINLevel.Query
       export_template: *qc_report_ic_reference_export_template
       export_format:
+        format_blanks_as_empty_string: true
         columns:
           - name: ADRNO
             index: L
@@ -319,6 +321,7 @@ models:
       export_name: AllNonRes_PINLevelPriorYearVals.Query
       export_template: *qc_report_ic_reference_export_template
       export_format:
+        format_blanks_as_empty_string: true
         columns:
           - name: ADRNO
             index: L
@@ -355,6 +358,7 @@ models:
       export_name: AllTowns_ComDatDetails.Query
       export_template: *qc_report_ic_reference_export_template
       export_format:
+        format_blanks_as_empty_string: true
         columns:
           - name: Basement Area
             index: AD
@@ -421,6 +425,7 @@ models:
       export_name: AllTowns_OBYDetails.Query
       export_template: *qc_report_ic_reference_export_template
       export_format:
+        format_blanks_as_empty_string: true
         columns:
           - name: CARD
             index: G
