@@ -46,6 +46,12 @@ Thin wrapper around `default.vw_pin_universe` that powers the `Parcel Universe (
 Thin wrapper around `default.vw_pin_universe` that powers the `Parcel Universe (Historic)` open data asset
 {% enddocs %}
 
+# vw_permit
+
+{% docs view_vw_permit %}
+Thin wrapper around `default.vw_pin_permit` that powers the `Permits` open data asset
+{% enddocs %}
+
 # vw_property_tax_exempt_parcel
 
 {% docs view_vw_property_tax_exempt_parcel %}

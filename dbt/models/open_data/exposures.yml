@@ -167,6 +167,24 @@ exposures:
 
       Use cases: Joining parcel-level data to this dataset allows analysis and reporting across a number of different political, tax, Census, and other boundaries.
 
+  - name: permits
+    label: Permits
+    type: dashboard
+    url: https://datacatalog.cookcountyil.gov/Property-Taxation/Assessor-Permits/6yjf-dfxs
+    depends_on:
+      - ref('default.vw_pin_permit')
+    owner:
+      name: Data Department
+    meta:
+      test_row_count: true
+      asset_id: 6yjf-dfxs
+      primary_key:
+        - pin
+        - permit_number
+    description: |
+      Building permits organized by PIN, with extra metadata recorded by CCAO
+      permit specialists during the permit processing workflow.
+
   - name: property_tax_exempt_parcels
     label: Property Tax-Exempt Parcels
     type: dashboard
