@@ -422,5 +422,5 @@ def save_model_to_workbook(
                             else:
                                 setattr(cell, attr, val)
 
-        print(f"Exported model {model.name} to {output_path}")
-        return output_path
+    print(f"Exported model {model.name} to {output_path}")
+    return output_path
