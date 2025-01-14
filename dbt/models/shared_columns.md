@@ -1079,13 +1079,6 @@ Useful for identifying individual condominium buildings since the last 4
 digits of a PIN identifies individual units
 {% enddocs %}
 
-## row_id
-
-{% docs shared_column_row_id %}
-Uniqe row identifier. Servese as a primary key if needed. Varies by table and
-view.
-{% enddocs %}
-
 ## tax_code
 
 {% docs shared_column_tax_code %}
