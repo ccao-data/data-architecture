@@ -136,9 +136,7 @@ def build_query(athena_asset, asset_id, years=None, township=None):
 
     print(f"The following columns will be updated: {columns}")
 
-    query = (
-        f"SELECT row_id, {', '.join(columns['column'])} FROM {athena_asset}"
-    )
+    query = f"SELECT {', '.join(columns['column'])} FROM {athena_asset}"
 
     if not years:
         query = query
