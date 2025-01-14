@@ -232,7 +232,7 @@ models:
         start_row: 3
         add_table: false
         sheet_name: Query Results
-      export_format:
+      export_format: &qc_report_ic_reference_export_format
         format_blanks_as_empty_string: true
         columns:
           - name: ACRES
@@ -288,7 +288,6 @@ models:
       export_name: AllNonRes_PINLevel.Query
       export_template: *qc_report_ic_reference_export_template
       export_format:
-        format_blanks_as_empty_string: true
         columns:
           - name: ADRNO
             index: L
@@ -314,6 +313,7 @@ models:
           - name: TAXYR
             index: B
             data_type: int
+        <<: *qc_report_ic_reference_export_format
 
   - name: qc.vw_ic_reference_all_non_res_pin_level_prior_year_vals
     description: '{{ doc("view_vw_ic_reference_all_non_res_pin_level_prior_year_vals") }}'
@@ -322,7 +322,6 @@ models:
       export_name: AllNonRes_PINLevelPriorYearVals.Query
       export_template: *qc_report_ic_reference_export_template
       export_format:
-        format_blanks_as_empty_string: true
         columns:
           - name: ADRNO
             index: L
@@ -351,6 +350,7 @@ models:
           - name: VALASM3
             index: T
             data_type: int
+        <<: *qc_report_ic_reference_export_format
 
   - name: qc.vw_ic_reference_all_towns_com_bldg_detail
     description: '{{ doc("view_vw_ic_reference_all_towns_com_bldg_detail") }}'
@@ -359,7 +359,6 @@ models:
       export_name: AllTowns_ComDatDetails.Query
       export_template: *qc_report_ic_reference_export_template
       export_format:
-        format_blanks_as_empty_string: true
         columns:
           - name: Basement Area
             index: AD
@@ -418,6 +417,7 @@ models:
           - name: YRBLT
             index: P
             data_type: int
+        <<: *qc_report_ic_reference_export_format
 
   - name: qc.vw_ic_reference_all_towns_oby_detail
     description: '{{ doc("view_vw_ic_reference_all_towns_oby_detail") }}'
@@ -426,7 +426,6 @@ models:
       export_name: AllTowns_OBYDetails.Query
       export_template: *qc_report_ic_reference_export_template
       export_format:
-        format_blanks_as_empty_string: true
         columns:
           - name: CARD
             index: G
@@ -464,6 +463,7 @@ models:
           - name: YRBLT
             index: O
             data_type: int
+        <<: *qc_report_ic_reference_export_format
 
   - name: qc.vw_neg_asmt_value
     description: '{{ doc("view_vw_neg_asmt_value") }}'
