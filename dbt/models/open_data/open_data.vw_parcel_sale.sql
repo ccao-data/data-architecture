@@ -2,7 +2,7 @@
 -- Some columns from the feeder view may not be present in this view.
 
 SELECT
-    sale_key AS row_id,
+    CAST(sale_key AS VARCHAR) AS row_id,
     pin,
     year,
     township_code,
