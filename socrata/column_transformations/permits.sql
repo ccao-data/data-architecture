@@ -24,6 +24,7 @@ case
     when `job_code_primary` = '7' then 'OTHER'
     else null end
 
+-- job_code_secondary is not currently being recoded because it breaks Socrata
 case
     when `job_code_secondary` = '111' then 'NEW BUILDING'
     when `job_code_secondary` = '112' then 'ADDITIONS'
