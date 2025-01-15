@@ -162,11 +162,12 @@ land_nbhd_rate_2025 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2025) %>%
     names_to = "year", values_to = "land_rate_per_sqft"
   ) %>%
   mutate(across(c(township_code:town_nbhd, year), as.character)) %>%
+  mutate(land_rate_per_sqft = as.numeric(land_rate_per_sqft)) %>%
   expand_grid(class) %>%
   # 2024 contains bifurcated neighborhood land rates across class
   filter(
-    !(classes == "all other regression classes" & class %in% c("210", "225")),
-    !(classes == "2-10s/2-25s" & !(class %in% c("210", "225")))
+    !(classes == "all other regression classes" & class %in% c("210", "295")),
+    !(classes == "2-10s/2-95s" & !(class %in% c("210", "295")))
   ) %>%
   select(-classes)
 
