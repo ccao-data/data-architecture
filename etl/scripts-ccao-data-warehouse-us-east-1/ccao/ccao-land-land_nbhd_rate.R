@@ -1,5 +1,6 @@
 library(arrow)
 library(aws.s3)
+library(ccao)
 library(dplyr)
 library(noctua)
 library(openxlsx)
@@ -12,8 +13,8 @@ source("utils.R")
 
 # This script retrieves and cleans land value spreadsheets provided by
 # the Valuations department and formats them for use in Athena
-AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
-AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+# AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+# AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 input_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "land")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "ccao", "land")
 
@@ -29,6 +30,9 @@ remote_file_raw_nbhd_rate_2023 <- file.path(
 remote_file_raw_nbhd_rate_2024 <- file.path(
   input_bucket, "nbhd_rate", "2024.xlsx"
 )
+remote_file_raw_nbhd_rate_2025 <- file.path(
+  input_bucket, "nbhd_rate", "2025.xlsx"
+)
 remote_file_warehouse_nbhd_rate <- file.path(
   output_bucket, "land_nbhd_rate"
 )
@@ -38,6 +42,7 @@ remote_file_warehouse_nbhd_rate <- file.path(
 tmp_file_nbhd_rate_2022 <- tempfile(fileext = ".xlsx")
 tmp_file_nbhd_rate_2023 <- tempfile(fileext = ".xlsx")
 tmp_file_nbhd_rate_2024 <- tempfile(fileext = ".xlsx")
+tmp_file_nbhd_rate_2025 <- tempfile(fileext = ".xlsx")
 
 # Grab the workbook from the raw S3 bucket
 aws.s3::save_object(
@@ -51,6 +56,10 @@ aws.s3::save_object(
 aws.s3::save_object(
   object = remote_file_raw_nbhd_rate_2024,
   file = tmp_file_nbhd_rate_2024
+)
+aws.s3::save_object(
+  object = remote_file_raw_nbhd_rate_2025,
+  file = tmp_file_nbhd_rate_2025
 )
 
 # List of regression classes
@@ -133,11 +142,40 @@ land_nbhd_rate_2024 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2024) %>%
   ) %>%
   select(-classes)
 
+land_nbhd_rate_2025 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2025) %>%
+  set_names(snakecase::to_snake_case(names(.))) %>%
+  select(
+    town_nbhd = twp_nbhd,
+    classes = bifurcated_rate,
+    `2022` = "2022_rate",
+    `2025` = "proposed_2025_rate"
+  ) %>%
+  mutate(
+    town_nbhd = gsub("\\D", "", town_nbhd),
+    township_code = substr(town_nbhd, 1, 2),
+    township_name = ccao::town_convert(township_code),
+    `2025` = as.character('2025')
+  ) %>%
+  relocate(c(township_code, township_name)) %>%
+  pivot_longer(
+    c(`2022`, `2025`),
+    names_to = "year", values_to = "land_rate_per_sqft"
+  ) %>%
+  mutate(across(c(township_code:town_nbhd, year), as.character)) %>%
+  expand_grid(class) %>%
+  # 2024 contains bifurcated neighborhood land rates across class
+  filter(
+    !(classes == "all other regression classes" & class %in% c("210", "225")),
+    !(classes == "2-10s/2-25s" & !(class %in% c("210", "225")))
+  ) %>%
+  select(-classes)
+
 # Write the rates to S3, partitioned by year
 bind_rows(
   land_nbhd_rate_2022,
   land_nbhd_rate_2023,
-  land_nbhd_rate_2024
+  land_nbhd_rate_2024,
+  land_nbhd_rate_2025
 ) %>%
   relocate(land_rate_per_sqft, .after = last_col()) %>%
   mutate(loaded_at = as.character(Sys.time())) %>%
