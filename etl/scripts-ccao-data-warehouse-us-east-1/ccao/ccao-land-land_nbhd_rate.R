@@ -87,7 +87,7 @@ land_nbhd_rate_2022 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2022) %>%
     across(c(township_code:town_nbhd, year), as.character),
     town_nbhd = str_remove_all(town_nbhd, "-"),
     land_rate_per_sqft = parse_number(land_rate_per_sqft),
-    data_year = '2022'
+    data_year = "2022"
   ) %>%
   expand_grid(class)
 
@@ -109,7 +109,7 @@ land_nbhd_rate_2023 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2023) %>%
     names_to = "year", values_to = "land_rate_per_sqft"
   ) %>%
   mutate(across(c(township_code:town_nbhd, year), as.character),
-         data_year = '2023') %>%
+         data_year = "2023") %>%
   expand_grid(class)
 
 land_nbhd_rate_2024 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2024) %>%
@@ -136,7 +136,7 @@ land_nbhd_rate_2024 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2024) %>%
     names_to = "year", values_to = "land_rate_per_sqft"
   ) %>%
   mutate(across(c(township_code:town_nbhd, year), as.character),
-         data_year = '2024') %>%
+         data_year = "2024") %>%
   expand_grid(class) %>%
   # 2024 contains bifurcated neighborhood land rates across class
   filter(
@@ -168,7 +168,7 @@ land_nbhd_rate_2025 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2025) %>%
   # Value for NBHD 35100 is ALL EX in 2022
   # Re-codes to NA with warning
   mutate(land_rate_per_sqft = as.numeric(land_rate_per_sqft),
-         data_year = '2025') %>%
+         data_year = "2025") %>%
   expand_grid(class) %>%
   # 2025 contains bifurcated neighborhood land rates across class
   # Make sure to change the text in future years, since they are not static.
