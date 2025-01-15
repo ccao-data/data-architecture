@@ -11,6 +11,7 @@ library(stringr)
 library(tidyr)
 source("utils.R")
 
+
 # This script retrieves and cleans land value spreadsheets provided by
 # the Valuations department and formats them for use in Athena
 # AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
