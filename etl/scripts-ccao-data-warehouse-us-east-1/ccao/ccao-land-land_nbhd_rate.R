@@ -166,6 +166,7 @@ land_nbhd_rate_2025 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2025) %>%
   ) %>%
   mutate(across(c(township_code:town_nbhd, year), as.character)) %>%
   # Value for NBHD 35100 is ALL EX in 2022
+  filter(land_rate_per_sqft != 'All EX') %>%
   # Re-codes to NA with warning
   mutate(land_rate_per_sqft = as.numeric(land_rate_per_sqft),
          data_year = '2025') %>%
@@ -195,6 +196,7 @@ bind_rows(
   # was that a handful of neighborhoods were removed from the file.
   # But, we prioritize the most recent dataset.
   filter(data_year == max(data_year)) %>%
+  select(-data_year) %>%
   arrow::write_dataset(
     path = remote_file_warehouse_nbhd_rate,
     format = "parquet",
