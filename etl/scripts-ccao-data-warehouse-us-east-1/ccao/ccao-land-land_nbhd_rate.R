@@ -154,7 +154,7 @@ land_nbhd_rate_2025 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2025) %>%
     town_nbhd = gsub("\\D", "", town_nbhd),
     township_code = substr(town_nbhd, 1, 2),
     township_name = ccao::town_convert(township_code),
-    `2025` = as.character('2025')
+    `2025` = as.character(`2025`)
   ) %>%
   relocate(c(township_code, township_name)) %>%
   pivot_longer(
@@ -164,7 +164,7 @@ land_nbhd_rate_2025 <- openxlsx::read.xlsx(tmp_file_nbhd_rate_2025) %>%
   mutate(across(c(township_code:town_nbhd, year), as.character)) %>%
   mutate(land_rate_per_sqft = as.numeric(land_rate_per_sqft)) %>%
   expand_grid(class) %>%
-  # 2024 contains bifurcated neighborhood land rates across class
+  # 2025 contains bifurcated neighborhood land rates across class
   filter(
     !(classes == "all other regression classes" & class %in% c("210", "295")),
     !(classes == "2-10s/2-95s" & !(class %in% c("210", "295")))
