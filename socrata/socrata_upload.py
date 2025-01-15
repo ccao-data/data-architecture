@@ -134,7 +134,8 @@ def build_query(athena_asset, asset_id, years=None, township=None):
         + columns[columns["type"] == "array(varchar)"]["column"]
     )
 
-    print(f"The following columns will be updated: {columns}")
+    print("The following columns will be updated:")
+    print(columns)
 
     query = f"SELECT {', '.join(columns['column'])} FROM {athena_asset}"
 
