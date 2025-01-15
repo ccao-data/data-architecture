@@ -14,8 +14,8 @@ source("utils.R")
 
 # This script retrieves and cleans land value spreadsheets provided by
 # the Valuations department and formats them for use in Athena
-# AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
-# AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 input_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "land")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "ccao", "land")
 
