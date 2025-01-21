@@ -429,6 +429,7 @@ SELECT
         WHEN job_code_secondary = '565' THEN '2001 HISTORICAL LANDMARK'
         WHEN job_code_secondary = '566' THEN '2002 HISTORICAL LANDMARK'
         WHEN job_code_secondary = '911' THEN 'OCCUPANCY CODE WILL NOT BE USED'
+        ELSE job_code_secondary
     END AS job_code_secondary,
     work_description,
     CASE
