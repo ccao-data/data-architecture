@@ -2,7 +2,9 @@
 -- Some columns from the feeder view may not be present in this view.
 
 SELECT
-    CONCAT(pin, permit_number) AS row_id,
+    CONCAT(
+        pin, COALESCE(permit_number, '')
+    ) AS row_id,
     pin,
     permit_number,
     local_permit_number,
