@@ -31,6 +31,17 @@ cursor = connect(
 ).cursor(unload=True)
 
 
+def parse_years(years):
+    """
+    Make sure the years environmental variable is formatted correctly.
+    """
+
+    if years is not None:
+        years = str(years).replace(" ", "").split(",")
+
+    return years
+
+
 def get_asset_info(socrata_asset):
     """
     Simple helper function to retrieve asset-specific information from dbt.
@@ -352,6 +363,6 @@ def socrata_upload(
 socrata_upload(
     socrata_asset=os.getenv("SOCRATA_ASSET"),
     overwrite=os.getenv("OVERWRITE"),
-    years=str(os.getenv("YEARS")).replace(" ", "").split(","),
+    years=parse_years(os.getenv("YEARS")),
     by_township=os.getenv("BY_TOWNSHIP"),
 )
