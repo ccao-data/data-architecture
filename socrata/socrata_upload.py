@@ -188,9 +188,8 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     # properly formatted
     input_data = cursor.execute(sql_query, query_conditionals).as_pandas()
     date_columns = input_data.select_dtypes(include="datetime").columns
-    input_data[date_columns] = input_data[date_columns].map(
-        lambda x: x.strftime("%Y-%m-%dT%X")
-    )
+    for i in date_columns:
+        input_data[i] = input_data[i].fillna("").dt.strftime("%Y-%m-%dT%X")
 
     # Raise URL status if it's bad
     session.get(
