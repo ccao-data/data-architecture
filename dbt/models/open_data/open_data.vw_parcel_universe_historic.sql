@@ -95,28 +95,42 @@ SELECT
     school_unified_district_name,
     school_school_year,
     school_data_year,
-    tax_municipality_num,
-    tax_municipality_name,
-    tax_school_elementary_district_num,
-    tax_school_elementary_district_name,
-    tax_school_secondary_district_num,
-    tax_school_secondary_district_name,
-    tax_school_unified_district_num,
-    tax_school_unified_district_name,
-    tax_community_college_district_num,
-    tax_community_college_district_name,
-    tax_fire_protection_district_num,
-    tax_fire_protection_district_name,
-    tax_library_district_num,
-    tax_library_district_name,
-    tax_park_district_num,
-    tax_park_district_name,
-    tax_sanitation_district_num,
-    tax_sanitation_district_name,
-    tax_special_service_area_num,
-    tax_special_service_area_name,
-    tax_tif_district_num,
-    tax_tif_district_name,
+    ARRAY_JOIN(tax_municipality_num, ', ') AS tax_municipality_num,
+    ARRAY_JOIN(tax_municipality_name, ', ') AS tax_municipality_name,
+    ARRAY_JOIN(tax_school_elementary_district_num, ', ')
+        AS tax_school_elementary_district_num,
+    ARRAY_JOIN(tax_school_elementary_district_name, ', ')
+        AS tax_school_elementary_district_name,
+    ARRAY_JOIN(tax_school_secondary_district_num, ', ')
+        AS tax_school_secondary_district_num,
+    ARRAY_JOIN(tax_school_secondary_district_name, ', ')
+        AS tax_school_secondary_district_name,
+    ARRAY_JOIN(tax_school_unified_district_num, ', ')
+        AS tax_school_unified_district_num,
+    ARRAY_JOIN(tax_school_unified_district_name, ', ')
+        AS tax_school_unified_district_name,
+    ARRAY_JOIN(tax_community_college_district_num, ', ')
+        AS tax_community_college_district_num,
+    ARRAY_JOIN(tax_community_college_district_name, ', ')
+        AS tax_community_college_district_name,
+    ARRAY_JOIN(tax_fire_protection_district_num, ', ')
+        AS tax_fire_protection_district_num,
+    ARRAY_JOIN(tax_fire_protection_district_name, ', ')
+        AS tax_fire_protection_district_name,
+    ARRAY_JOIN(tax_library_district_num, ', ') AS tax_library_district_num,
+    ARRAY_JOIN(tax_library_district_name, ', ') AS tax_library_district_name,
+    ARRAY_JOIN(tax_park_district_num, ', ') AS tax_park_district_num,
+    ARRAY_JOIN(tax_park_district_name, ', ') AS tax_park_district_name,
+    ARRAY_JOIN(tax_sanitation_district_num, ', ')
+        AS tax_sanitation_district_num,
+    ARRAY_JOIN(tax_sanitation_district_name, ', ')
+        AS tax_sanitation_district_name,
+    ARRAY_JOIN(tax_special_service_area_num, ', ')
+        AS tax_special_service_area_num,
+    ARRAY_JOIN(tax_special_service_area_name, ', ')
+        AS tax_special_service_area_name,
+    ARRAY_JOIN(tax_tif_district_num, ', ') AS tax_tif_district_num,
+    ARRAY_JOIN(tax_tif_district_name, ', ') AS tax_tif_district_name,
     tax_data_year,
     access_cmap_walk_id,
     access_cmap_walk_nta_score,
