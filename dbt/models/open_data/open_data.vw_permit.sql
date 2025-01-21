@@ -56,7 +56,7 @@ SELECT
             THEN 'OTHER MAJOR NEW CONSTRUCTION structural changes'
         WHEN
             job_code_secondary = '114.4'
-            THEN 'OTHER MAJOR NEW CONSTRUCTION seasonal rooms that are conventionally heated (forced hot air, radiant, etc.) such as Florida Rooms or Sun Rooms.' -- noqa
+            THEN 'OTHER MAJOR NEW CONSTRUCTION seasonal rooms that are conventionally heated (forced hot air, radiant, etc.) such as Florida Rooms or Sun Rooms.' -- noqa: LT05
         WHEN job_code_secondary = '114.5' THEN 'OTHER MAJOR NEW CONSTRUCTION'
         WHEN job_code_secondary = '114.6' THEN 'OTHER MAJOR NEW CONSTRUCTION'
         WHEN job_code_secondary = '114.7' THEN 'OTHER MAJOR NEW CONSTRUCTION'
@@ -65,7 +65,7 @@ SELECT
         WHEN job_code_secondary = '131' THEN 'SWIMMING POOL TENNIS COURT'
         WHEN
             job_code_secondary = '131.1'
-            THEN 'SWIMMING POOL TENNIS COURT In ground swimming pools (not assessed but recorded)' -- noqa
+            THEN 'SWIMMING POOL TENNIS COURT In ground swimming pools (not assessed but recorded)' -- noqa: LT05
         WHEN
             job_code_secondary = '131.2'
             THEN 'SWIMMING POOL TENNIS COURT hot tubs'
@@ -151,14 +151,14 @@ SELECT
         WHEN job_code_secondary = '151' THEN 'BASEMENT ROOM REC ROOM'
         WHEN
             job_code_secondary = '151.1'
-            THEN 'BASEMENT ROOM REC ROOM Basement area being converted from unfinished to finished (including new bathrooms in the basement area)' -- noqa
+            THEN 'BASEMENT ROOM REC ROOM Basement area being converted from unfinished to finished (including new bathrooms in the basement area)' -- noqa: LT05
         WHEN
             job_code_secondary = '151.2'
             THEN 'BASEMENT ROOM REC ROOM Basement finished area being remodeled'
         WHEN job_code_secondary = '152' THEN 'ATTIC ROOM BATHROOMS'
         WHEN
             job_code_secondary = '152.1'
-            THEN 'ATTIC ROOM BATHROOMS Attic area being converted from unfinished to finished (including new bathrooms in the basement area)' -- noqa
+            THEN 'ATTIC ROOM BATHROOMS Attic area being converted from unfinished to finished (including new bathrooms in the basement area)' -- noqa: LT05
         WHEN
             job_code_secondary = '152.2'
             THEN 'ATTIC ROOM BATHROOMS Attic finished area being remodeled'
@@ -173,12 +173,12 @@ SELECT
             THEN 'FIREPLACE-CENTRAL AIR CONDITIONING central air conditioning'
         WHEN
             job_code_secondary = '153.3'
-            THEN 'FIREPLACE-CENTRAL AIR CONDITIONING replacement central air conditioning' -- noqa
+            THEN 'FIREPLACE-CENTRAL AIR CONDITIONING replacement central air conditioning' -- noqa: LT05
         WHEN job_code_secondary = '154' THEN 'OTHER REMODELING'
         WHEN job_code_secondary = '154.1' THEN 'OTHER REMODELING renovation'
         WHEN
             job_code_secondary = '154.11'
-            THEN 'OTHER REMODELING water taps (should be verified that they are not for new construction)' -- noqa
+            THEN 'OTHER REMODELING water taps (should be verified that they are not for new construction)' -- noqa: LT05
         WHEN
             job_code_secondary = '154.2'
             THEN 'OTHER REMODELING general repairs'
@@ -190,7 +190,7 @@ SELECT
         WHEN job_code_secondary = '154.6' THEN 'OTHER REMODELING canopies'
         WHEN
             job_code_secondary = '154.7'
-            THEN 'OTHER REMODELING water taps (should be verified that they are not for new construction)' -- noqa
+            THEN 'OTHER REMODELING water taps (should be verified that they are not for new construction)' -- noqa: LT05
         WHEN
             job_code_secondary = '154.8'
             THEN 'OTHER REMODELING fire & flood alarms'
@@ -290,7 +290,7 @@ SELECT
             THEN 'OTHER MINOR NEW CONSTRUCTION tanks'
         WHEN
             job_code_secondary = '235.3'
-            THEN 'OTHER MINOR NEW CONSTRUCTION cell tower (monopoles) pad and fencing' -- noqa
+            THEN 'OTHER MINOR NEW CONSTRUCTION cell tower (monopoles) pad and fencing' -- noqa: LT05
         WHEN
             job_code_secondary = '235.4'
             THEN 'OTHER MINOR NEW CONSTRUCTION signs'
@@ -343,10 +343,10 @@ SELECT
             THEN 'REPLACE-REPAIR BUILDING FACTORY replacement minor'
         WHEN
             job_code_secondary = '255.5'
-            THEN 'REPLACE-REPAIR BUILDING FACTORY repair to existing building major' -- noqa
+            THEN 'REPLACE-REPAIR BUILDING FACTORY repair to existing building major' -- noqa: LT05
         WHEN
             job_code_secondary = '255.6'
-            THEN 'REPLACE-REPAIR BUILDING FACTORY repair to existing building minor' -- noqa
+            THEN 'REPLACE-REPAIR BUILDING FACTORY repair to existing building minor' -- noqa: LT05
         WHEN job_code_secondary = '256' THEN 'OTHER REMODELING'
         WHEN job_code_secondary = '256.1' THEN 'OTHER REMODELING elevators'
         WHEN job_code_secondary = '256.2' THEN 'OTHER REMODELING escalators'
