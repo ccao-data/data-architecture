@@ -30,6 +30,9 @@ cursor = connect(
     cursor_class=PandasCursor,
 ).cursor(unload=True)
 
+# Set global counter value
+count = 0
+
 
 def parse_years(years):
     """
@@ -159,6 +162,8 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     user's choice to overwrite existing data.
     """
 
+    global count
+
     # Load environmental variables
     app_token = os.getenv("SOCRATA_APP_TOKEN")
 
@@ -208,12 +213,14 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     for i in range(0, input_data.shape[0], 10000):
         print(print_message)
         print(f"Rows {i + 1}-{i + 10000}")
+        if count > 0:
+            method = "post"
         response = getattr(session, method)(
             url=url,
             data=input_data.iloc[i : i + 10000].to_json(orient="records"),
             headers={"X-App-Token": app_token},
         )
-
+        count += 1
         print(response.content)
 
 
@@ -290,7 +297,7 @@ def socrata_upload(
     )
 
     tic = time.perf_counter()
-    count = 0
+    global count
 
     if not flag:
         sql_query = build_query(
@@ -345,7 +352,7 @@ def socrata_upload(
                 upload("put", **upload_args)
             else:
                 upload("post", **upload_args)
-            count = count + 1
+            count += 1
 
     toc = time.perf_counter()
     print(f"Total upload in {toc - tic:0.4f} seconds")
