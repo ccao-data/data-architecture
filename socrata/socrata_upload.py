@@ -136,15 +136,6 @@ def build_query(athena_asset, asset_id, years=None, township=None):
     # Limit pull to columns present in open data asset
     columns = columns[columns["column"].isin(asset_columns)]
 
-    # Array type columns are not compatible with the json format needed for
-    # Socrata uploads. Automatically convert any array type columns to string.
-    columns.loc[columns["type"] == "array(varchar)", "column"] = (
-        "ARRAY_JOIN("
-        + columns[columns["type"] == "array(varchar)"]["column"]
-        + ", ', ') AS "
-        + columns[columns["type"] == "array(varchar)"]["column"]
-    )
-
     print("The following columns will be updated:")
     print(columns)
 
