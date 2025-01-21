@@ -27,7 +27,6 @@ case
     when `char_apts` = '6' then 'None'
     else null end
 
-***wut***
 case
     when `char_tp_dsgn` = '1' then 'Yes'
     when `char_tp_dsgn` = '2' then 'No'
