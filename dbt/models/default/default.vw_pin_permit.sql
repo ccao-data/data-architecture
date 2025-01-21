@@ -32,7 +32,7 @@ SELECT
     COALESCE(permit.udate3, permit.wen) AS date_updated,
     permit.udate2 AS estimated_date_of_completion,
     permit.user31 AS assessment_year,
-    CAST(NULLIF(REGEXP_REPLACE(permit.recheck_year, '([^0-9])', ''), '') AS INT)
+    CAST(NULLIF(REGEXP_REPLACE(permit.user11, '([^0-9])', ''), '') AS INT)
         AS recheck_year,
     permit.flag AS status,
     permit.user18 AS assessable,
