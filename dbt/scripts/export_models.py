@@ -21,9 +21,11 @@ A few configuration values can be set on any model to support exporting:
           model; if no template is found or if the attribute is not present, defaults to a simple layout with filterable columns and striped rows.
         * start_row (optional): The 1-indexed position of the row in the sheet that should be the first non-header row, i.e. the start row for the data.
         * add_table (optional): Whether to add a data table for sorting and filtering. Defaults to True.
+        * sheet_name (optional): The name of the sheet in the workbook to populate with data. Defaults to "Sheet1".
 
     * config.meta.export_format (optional): Formatting to apply to the output workbook. Useful for specific types of formatting, like alignment
       and number formats, that Excel can only apply after populating a template with data
+        * format_blanks_as_empty_string (optional): When True, indicates to the script to export blanks as empty strings instead of nulls. Defaults to False.
 """  # noqa: E501
 CLI_EXAMPLE = """Example usage to output the 2024 non-tri town close QC report for Leyden, which is a non-tri town in 2024:
 
