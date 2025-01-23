@@ -227,9 +227,9 @@ is the view you're looking for.
   for current year can be relatively sparse or missing. Parcel shapefiles
   typically become available to populate this view at the end of each year.
 - There are some parcels in `iasworld.pardat` that have *never* been present in
-  `spatial.parcel`. This means these parcels will be missing spatial data since
-  they cannot be spatially joined or filled forward. The number of discrepancies
-  seems to vary randomly by year.
+  `spatial.parcel`. These parcels are missing spatial data since they cannot be
+  spatially joined *nor* filled forward. The number of discrepancies seems to
+  vary randomly by year.
 - `spatial.township` is not yearly.
 
 **Primary Key**: `year`, `pin`
