@@ -31,6 +31,17 @@ cursor = connect(
 ).cursor(unload=True)
 
 
+def parse_years(years):
+    """
+    Make sure the years environmental variable is formatted correctly.
+    """
+
+    if years is not None:
+        years = str(years).replace(" ", "").split(",")
+
+    return years
+
+
 def get_asset_info(socrata_asset):
     """
     Simple helper function to retrieve asset-specific information from dbt.
@@ -125,15 +136,6 @@ def build_query(athena_asset, asset_id, years=None, township=None):
     # Limit pull to columns present in open data asset
     columns = columns[columns["column"].isin(asset_columns)]
 
-    # Array type columns are not compatible with the json format needed for
-    # Socrata uploads. Automatically convert any array type columns to string.
-    columns.loc[columns["type"] == "array(varchar)", "column"] = (
-        "ARRAY_JOIN("
-        + columns[columns["type"] == "array(varchar)"]["column"]
-        + ", ', ') AS "
-        + columns[columns["type"] == "array(varchar)"]["column"]
-    )
-
     print("The following columns will be updated:")
     print(columns)
 
@@ -151,7 +153,9 @@ def build_query(athena_asset, asset_id, years=None, township=None):
     return query
 
 
-def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
+def upload(
+    method, asset_id, sql_query, overwrite, count, year=None, township=None
+):
     """
     Function to perform the upload to Socrata. `puts` or `posts` depending on
     user's choice to overwrite existing data.
@@ -188,9 +192,8 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     # properly formatted
     input_data = cursor.execute(sql_query, query_conditionals).as_pandas()
     date_columns = input_data.select_dtypes(include="datetime").columns
-    input_data[date_columns] = input_data[date_columns].map(
-        lambda x: x.strftime("%Y-%m-%dT%X")
-    )
+    for i in date_columns:
+        input_data[i] = input_data[i].fillna("").dt.strftime("%Y-%m-%dT%X")
 
     # Raise URL status if it's bad
     session.get(
@@ -207,12 +210,14 @@ def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
     for i in range(0, input_data.shape[0], 10000):
         print(print_message)
         print(f"Rows {i + 1}-{i + 10000}")
+        if count > 0:
+            method = "post"
         response = getattr(session, method)(
             url=url,
             data=input_data.iloc[i : i + 10000].to_json(orient="records"),
             headers={"X-App-Token": app_token},
         )
-
+        count += 1
         print(response.content)
 
 
@@ -301,6 +306,7 @@ def socrata_upload(
             "asset_id": asset_id,
             "sql_query": sql_query,
             "overwrite": overwrite,
+            "count": count,
         }
 
         if overwrite:
@@ -330,6 +336,7 @@ def socrata_upload(
                     "asset_id": asset_id,
                     "sql_query": sql_query,
                     "overwrite": overwrite,
+                    "count": count,
                     "year": item[0],
                     "township": item[1],
                 }
@@ -338,13 +345,13 @@ def socrata_upload(
                     "asset_id": asset_id,
                     "sql_query": sql_query,
                     "overwrite": overwrite,
+                    "count": count,
                     "year": item,
                 }
             if count == 0 and overwrite:
                 upload("put", **upload_args)
             else:
                 upload("post", **upload_args)
-            count = count + 1
 
     toc = time.perf_counter()
     print(f"Total upload in {toc - tic:0.4f} seconds")
@@ -353,6 +360,6 @@ def socrata_upload(
 socrata_upload(
     socrata_asset=os.getenv("SOCRATA_ASSET"),
     overwrite=os.getenv("OVERWRITE"),
-    years=str(os.getenv("YEARS")).replace(" ", "").split(","),
+    years=parse_years(os.getenv("YEARS")),
     by_township=os.getenv("BY_TOWNSHIP"),
 )
