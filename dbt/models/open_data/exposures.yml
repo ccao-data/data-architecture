@@ -181,6 +181,7 @@ exposures:
       primary_key:
         - pin
         - permit_number
+        - date_issued
     description: |
       Building permits organized by PIN, with extra metadata recorded by CCAO
       permit specialists during the permit processing workflow.

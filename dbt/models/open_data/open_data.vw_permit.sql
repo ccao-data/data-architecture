@@ -3,7 +3,7 @@
 
 SELECT
     CONCAT(
-        pin, COALESCE(permit_number, '')
+        pin, COALESCE(permit_number, ''), COALESCE(date_issued, '')
     ) AS row_id,
     pin,
     permit_number,
@@ -46,343 +46,361 @@ SELECT
         WHEN job_code_secondary = '111' THEN 'NEW BUILDING'
         WHEN job_code_secondary = '112' THEN 'ADDITIONS'
         WHEN job_code_secondary = '113' THEN 'DORMERS'
-        WHEN job_code_secondary = '114' THEN 'OTHER MAJOR NEW CONSTRUCTION'
+        WHEN job_code_secondary = '114' THEN 'OTHER - MAJOR NEW CONSTRUCTION'
         WHEN
             job_code_secondary = '114.1'
-            THEN 'OTHER MAJOR NEW CONSTRUCTION foundations'
+            THEN 'OTHER - MAJOR NEW CONSTRUCTION - foundations'
         WHEN
             job_code_secondary = '114.2'
-            THEN 'OTHER MAJOR NEW CONSTRUCTION mobile home cement pads'
+            THEN 'OTHER - MAJOR NEW CONSTRUCTION - mobile home cement pads'
         WHEN
             job_code_secondary = '114.3'
-            THEN 'OTHER MAJOR NEW CONSTRUCTION structural changes'
+            THEN 'OTHER - MAJOR NEW CONSTRUCTION - structural changes'
         WHEN
             job_code_secondary = '114.4'
-            THEN 'OTHER MAJOR NEW CONSTRUCTION seasonal rooms that are conventionally heated (forced hot air, radiant, etc.) such as Florida Rooms or Sun Rooms.' -- noqa: LT05
-        WHEN job_code_secondary = '114.5' THEN 'OTHER MAJOR NEW CONSTRUCTION'
-        WHEN job_code_secondary = '114.6' THEN 'OTHER MAJOR NEW CONSTRUCTION'
-        WHEN job_code_secondary = '114.7' THEN 'OTHER MAJOR NEW CONSTRUCTION'
-        WHEN job_code_secondary = '114.8' THEN 'OTHER MAJOR NEW CONSTRUCTION'
-        WHEN job_code_secondary = '114.9' THEN 'OTHER MAJOR NEW CONSTRUCTION'
-        WHEN job_code_secondary = '131' THEN 'SWIMMING POOL TENNIS COURT'
+            THEN 'OTHER - MAJOR NEW CONSTRUCTION - seasonal rooms that are conventionally heated (forced hot air, radiant, etc.) such as Florida Rooms or Sun Rooms.' -- noqa: LT05
+        WHEN job_code_secondary = '114.5' THEN 'OTHER - MAJOR NEW CONSTRUCTION'
+        WHEN job_code_secondary = '114.6' THEN 'OTHER - MAJOR NEW CONSTRUCTION'
+        WHEN job_code_secondary = '114.7' THEN 'OTHER - MAJOR NEW CONSTRUCTION'
+        WHEN job_code_secondary = '114.8' THEN 'OTHER - MAJOR NEW CONSTRUCTION'
+        WHEN job_code_secondary = '114.9' THEN 'OTHER - MAJOR NEW CONSTRUCTION'
+        WHEN job_code_secondary = '131' THEN 'SWIMMING POOL - TENNIS COURT'
         WHEN
             job_code_secondary = '131.1'
-            THEN 'SWIMMING POOL TENNIS COURT In ground swimming pools (not assessed but recorded)' -- noqa: LT05
+            THEN 'SWIMMING POOL - TENNIS COURT - In ground swimming pools (not assessed but recorded)' -- noqa: LT05
         WHEN
             job_code_secondary = '131.2'
-            THEN 'SWIMMING POOL TENNIS COURT hot tubs'
-        WHEN job_code_secondary = '131.3' THEN 'SWIMMING POOL TENNIS COURT spas'
+            THEN 'SWIMMING POOL - TENNIS COURT - hot tubs'
+        WHEN
+            job_code_secondary = '131.3'
+            THEN 'SWIMMING POOL - TENNIS COURT - spas'
         WHEN
             job_code_secondary = '131.4'
-            THEN 'SWIMMING POOL TENNIS COURT tennis courts'
-        WHEN job_code_secondary = '132' THEN 'DRIVEWAYS PATIOS WOOD DECK'
+            THEN 'SWIMMING POOL - TENNIS COURT - tennis courts'
+        WHEN job_code_secondary = '132' THEN 'DRIVEWAYS - PATIOS - WOOD DECK'
         WHEN
             job_code_secondary = '132.1'
-            THEN 'DRIVEWAYS PATIOS WOOD DECK Drive ways'
+            THEN 'DRIVEWAYS - PATIOS - WOOD DECK - Drive ways'
         WHEN
             job_code_secondary = '132.1.1'
-            THEN '1 DRIVEWAYS PATIOS WOOD DECK Drive ways (concrete)'
+            THEN 'DRIVEWAYS - PATIOS - WOOD DECK - Drive ways (concrete)'
         WHEN
             job_code_secondary = '132.1.2'
-            THEN '2 DRIVEWAYS PATIOS WOOD DECK Drive ways (asphalt)'
+            THEN 'DRIVEWAYS - PATIOS - WOOD DECK - Drive ways (asphalt)'
         WHEN
             job_code_secondary = '132.1.3'
-            THEN '3 DRIVEWAYS PATIOS WOOD DECK Drive ways (brick)'
-        WHEN job_code_secondary = '132.2' THEN 'DRIVEWAYS PATIOS WOOD DECK deck'
+            THEN 'DRIVEWAYS - PATIOS - WOOD DECK - Drive ways (brick)'
+        WHEN
+            job_code_secondary = '132.2'
+            THEN 'DRIVEWAYS - PATIOS - WOOD DECK - deck'
         WHEN
             job_code_secondary = '132.3'
-            THEN 'DRIVEWAYS PATIOS WOOD DECK porches'
+            THEN 'DRIVEWAYS - PATIOS - WOOD DECK - porches'
         WHEN
             job_code_secondary = '132.3.1'
-            THEN '1 DRIVEWAYS PATIOS WOOD DECK porches (standard)'
+            THEN 'DRIVEWAYS - PATIOS - WOOD DECK - porches (standard)'
         WHEN
             job_code_secondary = '132.3.2'
-            THEN '2 DRIVEWAYS PATIOS WOOD DECK porches (screen in porches)'
+            THEN 'DRIVEWAYS - PATIOS - WOOD DECK - porches (screen in porches)'
         WHEN
             job_code_secondary = '132.3.3'
-            THEN '3 DRIVEWAYS PATIOS WOOD DECK porches (wrap around porches)'
+            THEN 'DRIVEWAYS - PATIOS - WOOD DECK - porches (wrap around porches)' -- noqa: LT05
         WHEN
             job_code_secondary = '132.3.4'
-            THEN '4 DRIVEWAYS PATIOS WOOD DECK PORCHES (ENCLOSED)'
+            THEN 'DRIVEWAYS - PATIOS - WOOD DECK - PORCHES (ENCLOSED)'
         WHEN
             job_code_secondary = '132.4'
-            THEN 'DRIVEWAYS PATIOS WOOD DECK patios'
+            THEN 'DRIVEWAYS - PATIOS - WOOD DECK - patios'
         WHEN
             job_code_secondary = '132.5'
-            THEN 'DRIVEWAYS PATIOS WOOD DECK balconies'
+            THEN 'DRIVEWAYS - PATIOS - WOOD DECK - balconies'
         WHEN job_code_secondary = '133' THEN 'FENCING (and Gates)'
         WHEN
             job_code_secondary = '133.1'
-            THEN 'FENCING (and Gates) wrought iron'
-        WHEN job_code_secondary = '133.2' THEN 'FENCING (and Gates) aluminum'
-        WHEN job_code_secondary = '133.3' THEN 'FENCING (and Gates) wood'
-        WHEN job_code_secondary = '133.4' THEN 'FENCING (and Gates) plastic'
+            THEN 'FENCING (and Gates) - wrought iron'
+        WHEN job_code_secondary = '133.2' THEN 'FENCING (and Gates) - aluminum'
+        WHEN job_code_secondary = '133.3' THEN 'FENCING (and Gates) - wood'
+        WHEN job_code_secondary = '133.4' THEN 'FENCING (and Gates) - plastic'
         WHEN job_code_secondary = '134' THEN 'GARAGE CARPORTS BARNS'
-        WHEN job_code_secondary = '134.1' THEN 'GARAGE CARPORTS BARNS garages'
-        WHEN job_code_secondary = '134.2' THEN 'GARAGE CARPORTS BARNS barns'
-        WHEN job_code_secondary = '134.3' THEN 'GARAGE CARPORTS BARNS car ports'
-        WHEN job_code_secondary = '134.4' THEN 'GARAGE CARPORTS BARNS gazebos'
+        WHEN job_code_secondary = '134.1' THEN 'GARAGE CARPORTS BARNS - garages'
+        WHEN job_code_secondary = '134.2' THEN 'GARAGE CARPORTS BARNS - barns'
+        WHEN
+            job_code_secondary = '134.3'
+            THEN 'GARAGE CARPORTS BARNS - car ports'
+        WHEN job_code_secondary = '134.4' THEN 'GARAGE CARPORTS BARNS - gazebos'
         WHEN
             job_code_secondary = '134.5'
-            THEN 'GARAGE CARPORTS BARNS cement pad for miscellaneous use'
+            THEN 'GARAGE CARPORTS BARNS - cement pad for miscellaneous use'
         WHEN job_code_secondary = '134.6' THEN 'OTHER GARAGE CARPORT BARNS'
         WHEN job_code_secondary = '134.7' THEN 'OTHER GARAGE CARPORT BARNS'
         WHEN job_code_secondary = '134.8' THEN 'OTHER GARAGE CARPORT BARNS'
-        WHEN job_code_secondary = '135' THEN 'OTHER MINOR NEW CONSTRUCTION'
+        WHEN job_code_secondary = '135' THEN 'OTHER - MINOR NEW CONSTRUCTION'
         WHEN
             job_code_secondary = '135.1'
-            THEN 'OTHER MINOR NEW CONSTRUCTION lawn sprinkler systems'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - lawn sprinkler systems'
         WHEN
             job_code_secondary = '135.2'
-            THEN 'OTHER MINOR NEW CONSTRUCTION septic systems'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - septic systems'
         WHEN
             job_code_secondary = '135.3'
-            THEN 'OTHER MINOR NEW CONSTRUCTION sewer system'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - sewer system'
         WHEN
             job_code_secondary = '135.4'
-            THEN 'OTHER MINOR NEW CONSTRUCTION retaining walls'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - retaining walls'
         WHEN
             job_code_secondary = '135.5'
-            THEN 'OTHER MINOR NEW CONSTRUCTION handicap ramps'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - handicap ramps'
         WHEN
             job_code_secondary = '135.6'
-            THEN 'OTHER MINOR NEW CONSTRUCTION canopies'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - canopies'
         WHEN
             job_code_secondary = '135.7'
-            THEN 'OTHER MINOR NEW CONSTRUCTION water taps'
-        WHEN job_code_secondary = '151' THEN 'BASEMENT ROOM REC ROOM'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - water taps'
+        WHEN job_code_secondary = '151' THEN 'BASEMENT ROOM - REC ROOM'
         WHEN
             job_code_secondary = '151.1'
-            THEN 'BASEMENT ROOM REC ROOM Basement area being converted from unfinished to finished (including new bathrooms in the basement area)' -- noqa: LT05
+            THEN 'BASEMENT ROOM - REC ROOM - Basement area being converted from unfinished to finished (including new bathrooms in the basement area)' -- noqa: LT05
         WHEN
             job_code_secondary = '151.2'
-            THEN 'BASEMENT ROOM REC ROOM Basement finished area being remodeled'
-        WHEN job_code_secondary = '152' THEN 'ATTIC ROOM BATHROOMS'
+            THEN 'BASEMENT ROOM - REC ROOM - Basement finished area being remodeled' -- noqa: LT05
+        WHEN job_code_secondary = '152' THEN 'ATTIC ROOM - BATHROOMS'
         WHEN
             job_code_secondary = '152.1'
-            THEN 'ATTIC ROOM BATHROOMS Attic area being converted from unfinished to finished (including new bathrooms in the basement area)' -- noqa: LT05
+            THEN 'ATTIC ROOM - BATHROOMS - Attic area being converted from unfinished to finished (including new bathrooms in the basement area)' -- noqa: LT05
         WHEN
             job_code_secondary = '152.2'
-            THEN 'ATTIC ROOM BATHROOMS Attic finished area being remodeled'
+            THEN 'ATTIC ROOM - BATHROOMS - Attic finished area being remodeled'
         WHEN
             job_code_secondary = '153'
             THEN 'FIREPLACE-CENTRAL AIR CONDITIONING'
         WHEN
             job_code_secondary = '153.1'
-            THEN 'FIREPLACE-CENTRAL AIR CONDITIONING fireplace'
+            THEN 'FIREPLACE-CENTRAL AIR CONDITIONING - fireplace'
         WHEN
             job_code_secondary = '153.2'
-            THEN 'FIREPLACE-CENTRAL AIR CONDITIONING central air conditioning'
+            THEN 'FIREPLACE-CENTRAL AIR CONDITIONING - central air conditioning'
         WHEN
             job_code_secondary = '153.3'
-            THEN 'FIREPLACE-CENTRAL AIR CONDITIONING replacement central air conditioning' -- noqa: LT05
-        WHEN job_code_secondary = '154' THEN 'OTHER REMODELING'
-        WHEN job_code_secondary = '154.1' THEN 'OTHER REMODELING renovation'
+            THEN 'FIREPLACE-CENTRAL AIR CONDITIONING - replacement central air conditioning' -- noqa: LT05
+        WHEN job_code_secondary = '154' THEN 'OTHER - REMODELING'
+        WHEN job_code_secondary = '154.1' THEN 'OTHER - REMODELING - renovation'
         WHEN
             job_code_secondary = '154.11'
-            THEN 'OTHER REMODELING water taps (should be verified that they are not for new construction)' -- noqa: LT05
+            THEN 'OTHER - REMODELING - water taps - (should be verified that they are not for new construction)' -- noqa: LT05
         WHEN
             job_code_secondary = '154.2'
-            THEN 'OTHER REMODELING general repairs'
-        WHEN job_code_secondary = '154.3' THEN 'OTHER REMODELING elevators'
-        WHEN job_code_secondary = '154.4' THEN 'OTHER REMODELING handicap ramps'
+            THEN 'OTHER - REMODELING - general repairs'
+        WHEN job_code_secondary = '154.3' THEN 'OTHER - REMODELING - elevators'
+        WHEN
+            job_code_secondary = '154.4'
+            THEN 'OTHER - REMODELING - handicap ramps'
         WHEN
             job_code_secondary = '154.5'
-            THEN 'OTHER REMODELING fire & flood alarms'
-        WHEN job_code_secondary = '154.6' THEN 'OTHER REMODELING canopies'
+            THEN 'OTHER - REMODELING - fire & flood alarms'
+        WHEN job_code_secondary = '154.6' THEN 'OTHER - REMODELING - canopies'
         WHEN
             job_code_secondary = '154.7'
-            THEN 'OTHER REMODELING water taps (should be verified that they are not for new construction)' -- noqa: LT05
+            THEN 'OTHER - REMODELING - water taps - (should be verified that they are not for new construction)' -- noqa: LT05
         WHEN
             job_code_secondary = '154.8'
-            THEN 'OTHER REMODELING fire & flood alarms'
-        WHEN job_code_secondary = '154.9' THEN 'OTHER REMODELING canopies'
-        WHEN job_code_secondary = '171' THEN 'MAJOR IMPROVEMENT WRECK'
+            THEN 'OTHER - REMODELING - fire & flood alarms'
+        WHEN job_code_secondary = '154.9' THEN 'OTHER - REMODELING - canopies'
+        WHEN job_code_secondary = '171' THEN 'MAJOR IMPROVEMENT - WRECK'
         WHEN
             job_code_secondary = '171.1'
-            THEN 'MAJOR IMPROVEMENT WRECK major demolition'
+            THEN 'MAJOR IMPROVEMENT - WRECK - major demolition'
         WHEN
             job_code_secondary = '171.2'
-            THEN 'MAJOR IMPROVEMENT WRECK house moving'
-        WHEN job_code_secondary = '172' THEN 'MINOR IMPROVEMENT WRECK'
-        WHEN job_code_secondary = '172.1' THEN 'MINOR IMPROVEMENT WRECK garages'
-        WHEN job_code_secondary = '172.2' THEN 'MINOR IMPROVEMENT WRECK sheds'
+            THEN 'MAJOR IMPROVEMENT - WRECK - house moving'
+        WHEN job_code_secondary = '172' THEN 'MINOR IMPROVEMENT - WRECK'
+        WHEN
+            job_code_secondary = '172.1'
+            THEN 'MINOR IMPROVEMENT - WRECK - garages'
+        WHEN
+            job_code_secondary = '172.2'
+            THEN 'MINOR IMPROVEMENT - WRECK - sheds'
         WHEN
             job_code_secondary = '172.3'
-            THEN 'MINOR IMPROVEMENT WRECK debris removal'
-        WHEN job_code_secondary = '191' THEN 'MAJOR IMPROVEMENT BURNOUT'
-        WHEN job_code_secondary = '192' THEN 'MINOR IMPROVEMENT BURNOUT'
+            THEN 'MINOR IMPROVEMENT - WRECK - debris removal'
+        WHEN job_code_secondary = '191' THEN 'MAJOR IMPROVEMENT - BURNOUT'
+        WHEN job_code_secondary = '192' THEN 'MINOR IMPROVEMENT - BURNOUT'
         WHEN
             job_code_secondary = '192.1'
-            THEN 'MINOR IMPROVEMENT BURNOUT garage'
-        WHEN job_code_secondary = '192.2' THEN 'MINOR IMPROVEMENT BURNOUT shed'
+            THEN 'MINOR IMPROVEMENT - BURNOUT - garage'
+        WHEN
+            job_code_secondary = '192.2'
+            THEN 'MINOR IMPROVEMENT - BURNOUT - shed'
         WHEN job_code_secondary = '211' THEN 'NEW BUILDING'
         WHEN job_code_secondary = '212' THEN 'ADDITIONS'
-        WHEN job_code_secondary = '213' THEN 'OTHER MAJOR NEW CONSTRUCTION'
+        WHEN job_code_secondary = '213' THEN 'OTHER - MAJOR NEW CONSTRUCTION'
         WHEN
             job_code_secondary = '213.1'
-            THEN 'OTHER MAJOR NEW CONSTRUCTION foundations'
+            THEN 'OTHER - MAJOR NEW CONSTRUCTION - foundations'
         WHEN
             job_code_secondary = '213.2'
-            THEN 'OTHER MAJOR NEW CONSTRUCTION build-outs'
+            THEN 'OTHER - MAJOR NEW CONSTRUCTION - build-outs'
         WHEN
             job_code_secondary = '213.3'
-            THEN 'OTHER MAJOR NEW CONSTRUCTION cement pads'
+            THEN 'OTHER - MAJOR NEW CONSTRUCTION - cement pads'
         WHEN
             job_code_secondary = '213.4'
-            THEN 'OTHER MAJOR NEW CONSTRUCTION loading dock'
-        WHEN job_code_secondary = '231' THEN 'SWIMMING POOL TENNIS COURT'
+            THEN 'OTHER - MAJOR NEW CONSTRUCTION - loading dock'
+        WHEN job_code_secondary = '231' THEN 'SWIMMING POOL - TENNIS COURT'
         WHEN
             job_code_secondary = '231.1'
-            THEN 'SWIMMING POOL TENNIS COURT tennis courts'
+            THEN 'SWIMMING POOL - TENNIS COURT - tennis courts'
         WHEN
             job_code_secondary = '231.2'
-            THEN 'SWIMMING POOL TENNIS COURT swimming pools'
+            THEN 'SWIMMING POOL - TENNIS COURT - swimming pools'
         WHEN
             job_code_secondary = '231.3'
-            THEN 'SWIMMING POOL TENNIS COURT recreation improvements'
-        WHEN job_code_secondary = '232' THEN 'DRIVEWAYS PATIOS'
-        WHEN job_code_secondary = '232.1' THEN 'DRIVEWAYS PATIOS rock'
-        WHEN job_code_secondary = '232.2' THEN 'DRIVEWAYS PATIOS asphalt'
-        WHEN job_code_secondary = '232.3' THEN 'DRIVEWAYS PATIOS cement'
-        WHEN job_code_secondary = '232.4' THEN 'DRIVEWAYS PATIOS crushed rock'
-        WHEN job_code_secondary = '232.5' THEN 'DRIVEWAYS PATIOS pavers'
+            THEN 'SWIMMING POOL - TENNIS COURT - recreation improvements'
+        WHEN job_code_secondary = '232' THEN 'DRIVEWAYS - PATIOS'
+        WHEN job_code_secondary = '232.1' THEN 'DRIVEWAYS - PATIOS - rock'
+        WHEN job_code_secondary = '232.2' THEN 'DRIVEWAYS - PATIOS - asphalt'
+        WHEN job_code_secondary = '232.3' THEN 'DRIVEWAYS - PATIOS - cement'
+        WHEN
+            job_code_secondary = '232.4'
+            THEN 'DRIVEWAYS - PATIOS - crushed rock'
+        WHEN job_code_secondary = '232.5' THEN 'DRIVEWAYS - PATIOS - pavers'
         WHEN job_code_secondary = '233' THEN 'COMMERICAL FENCING'
-        WHEN job_code_secondary = '233.1' THEN 'FENCING wrought iron'
-        WHEN job_code_secondary = '233.2' THEN 'FENCING security'
-        WHEN job_code_secondary = '233.3' THEN 'FENCING wood'
-        WHEN job_code_secondary = '233.4' THEN 'FENCING chain link'
+        WHEN job_code_secondary = '233.1' THEN 'FENCING - wrought iron'
+        WHEN job_code_secondary = '233.2' THEN 'FENCING - security'
+        WHEN job_code_secondary = '233.3' THEN 'FENCING - wood'
+        WHEN job_code_secondary = '233.4' THEN 'FENCING - chain link'
         WHEN
             job_code_secondary = '234'
             THEN 'GARAGE-BARN-BUTLER-TRASH ENCLOSURES BUILDING'
         WHEN
             job_code_secondary = '234.1'
-            THEN 'GARAGE-BARN-BUTLER BUILDING garages'
+            THEN 'GARAGE-BARN-BUTLER BUILDING - garages'
         WHEN
             job_code_secondary = '234.2'
-            THEN 'GARAGE-BARN-BUTLER BUILDING barns'
+            THEN 'GARAGE-BARN-BUTLER BUILDING - barns'
         WHEN
             job_code_secondary = '234.3'
-            THEN 'GARAGE-BARN-BUTLER BUILDING butler buildings'
+            THEN 'GARAGE-BARN-BUTLER BUILDING - butler buildings'
         WHEN job_code_secondary = '234.4' THEN 'Trash Enclosures'
-        WHEN job_code_secondary = '235' THEN 'OTHER MINOR NEW CONSTRUCTION'
+        WHEN job_code_secondary = '235' THEN 'OTHER - MINOR NEW CONSTRUCTION'
         WHEN
             job_code_secondary = '235.1'
-            THEN 'OTHER MINOR NEW CONSTRUCTION construction trailers'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - construction trailers'
         WHEN
             job_code_secondary = '235.10'
-            THEN 'OTHER MINOR NEW CONSTRUCTION tents'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - tents'
         WHEN
             job_code_secondary = '235.11'
-            THEN 'OTHER MINOR NEW CONSTRUCTION sewer clean out'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - sewer clean out'
         WHEN
             job_code_secondary = '235.12'
-            THEN 'OTHER MINOR NEW CONSTRUCTION ATM machines'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - ATM machines'
         WHEN
             job_code_secondary = '235.12.1'
-            THEN 'OTHER MINOR NEW CONSTRUCTION ATM machines Partitioning'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - ATM machines - Partitioning'
         WHEN
             job_code_secondary = '235.12.2'
-            THEN 'OTHER MINOR NEW CONSTRUCTION ATM machines machine'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - ATM machines - machine'
         WHEN
             job_code_secondary = '235.13'
-            THEN 'OTHER MINOR NEW CONSTRUCTION Parking Lot'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - Parking Lot'
         WHEN
             job_code_secondary = '235.2'
-            THEN 'OTHER MINOR NEW CONSTRUCTION tanks'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - tanks'
         WHEN
             job_code_secondary = '235.3'
-            THEN 'OTHER MINOR NEW CONSTRUCTION cell tower (monopoles) pad and fencing' -- noqa: LT05
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - cell tower (monopoles) pad and fencing' -- noqa: LT05
         WHEN
             job_code_secondary = '235.4'
-            THEN 'OTHER MINOR NEW CONSTRUCTION signs'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - signs'
         WHEN
             job_code_secondary = '235.5'
-            THEN 'OTHER MINOR NEW CONSTRUCTION canopies'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - canopies'
         WHEN
             job_code_secondary = '235.6'
-            THEN 'OTHER MINOR NEW CONSTRUCTION cell towers (monopoles)'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - cell towers (monopoles)'
         WHEN
             job_code_secondary = '235.7'
-            THEN 'OTHER MINOR NEW CONSTRUCTION sprinkler system'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - sprinkler system'
         WHEN
             job_code_secondary = '235.8'
-            THEN 'OTHER MINOR NEW CONSTRUCTION security system'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - security system'
         WHEN
             job_code_secondary = '235.9'
-            THEN 'OTHER MINOR NEW CONSTRUCTION handicap ramps'
+            THEN 'OTHER - MINOR NEW CONSTRUCTION - handicap ramps'
         WHEN job_code_secondary = '251' THEN 'PARTITIONING'
         WHEN job_code_secondary = '252' THEN 'DECONV/CONV AMT. LIV. UT.'
-        WHEN job_code_secondary = '253' THEN 'AIR CONDITIONING FIREPLACES'
+        WHEN job_code_secondary = '253' THEN 'AIR CONDITIONING - FIREPLACES'
         WHEN
             job_code_secondary = '253.1'
-            THEN 'AIR CONDITIONING FIREPLACES fireplaces'
+            THEN 'AIR CONDITIONING - FIREPLACES - fireplaces'
         WHEN
             job_code_secondary = '253.2'
-            THEN 'AIR CONDITIONING FIREPLACES air conditioning'
+            THEN 'AIR CONDITIONING - FIREPLACES - air conditioning'
         WHEN job_code_secondary = '254' THEN 'BASEMENT-ATTIC ROOM BATH'
         WHEN
             job_code_secondary = '254.1'
-            THEN 'BASEMENT-ATTIC ROOM BATH basement rooms'
+            THEN 'BASEMENT-ATTIC ROOM BATH - basement rooms'
         WHEN
             job_code_secondary = '254.2'
-            THEN 'BASEMENT-ATTIC ROOM BATH bathrooms'
+            THEN 'BASEMENT-ATTIC ROOM BATH - bathrooms'
         WHEN
             job_code_secondary = '254.3'
-            THEN 'BASEMENT-ATTIC ROOM BATH attic rooms'
-        WHEN job_code_secondary = '255' THEN 'REPLACE-REPAIR BUILDING FACTORY'
+            THEN 'BASEMENT-ATTIC ROOM BATH - attic rooms'
+        WHEN job_code_secondary = '255' THEN 'REPLACE-REPAIR BUILDING - FACTORY'
         WHEN
             job_code_secondary = '255.1'
-            THEN 'REPLACE-REPAIR BUILDING FACTORY rehab'
+            THEN 'REPLACE-REPAIR BUILDING - FACTORY - rehab'
         WHEN
             job_code_secondary = '255.2'
-            THEN 'REPLACE-REPAIR BUILDING FACTORY replacement'
+            THEN 'REPLACE-REPAIR BUILDING - FACTORY - replacement'
         WHEN
             job_code_secondary = '255.3'
-            THEN 'REPLACE-REPAIR BUILDING FACTORY repair to existing building'
+            THEN 'REPLACE-REPAIR BUILDING - FACTORY - repair to existing building' -- noqa: LT05
         WHEN
             job_code_secondary = '255.4'
-            THEN 'REPLACE-REPAIR BUILDING FACTORY replacement minor'
+            THEN 'REPLACE-REPAIR BUILDING - FACTORY - replacement minor'
         WHEN
             job_code_secondary = '255.5'
-            THEN 'REPLACE-REPAIR BUILDING FACTORY repair to existing building major' -- noqa: LT05
+            THEN 'REPLACE-REPAIR BUILDING - FACTORY - repair to existing building major' -- noqa: LT05
         WHEN
             job_code_secondary = '255.6'
-            THEN 'REPLACE-REPAIR BUILDING FACTORY repair to existing building minor' -- noqa: LT05
+            THEN 'REPLACE-REPAIR BUILDING - FACTORY - repair to existing building minor' -- noqa: LT05
         WHEN job_code_secondary = '256' THEN 'OTHER REMODELING'
-        WHEN job_code_secondary = '256.1' THEN 'OTHER REMODELING elevators'
-        WHEN job_code_secondary = '256.2' THEN 'OTHER REMODELING escalators'
-        WHEN job_code_secondary = '256.3' THEN 'OTHER REMODELING handicap ramps'
-        WHEN job_code_secondary = '256.4' THEN 'OTHER REMODELING awnings'
-        WHEN job_code_secondary = '256.5' THEN 'OTHER REMODELING fire alarms'
+        WHEN job_code_secondary = '256.1' THEN 'OTHER REMODELING - elevators'
+        WHEN job_code_secondary = '256.2' THEN 'OTHER REMODELING - escalators'
+        WHEN
+            job_code_secondary = '256.3'
+            THEN 'OTHER REMODELING - handicap ramps'
+        WHEN job_code_secondary = '256.4' THEN 'OTHER REMODELING - awnings'
+        WHEN job_code_secondary = '256.5' THEN 'OTHER REMODELING - fire alarms'
         WHEN
             job_code_secondary = '256.6'
-            THEN 'OTHER REMODELING security alarms'
+            THEN 'OTHER REMODELING - security alarms'
         WHEN
             job_code_secondary = '256.7'
-            THEN 'OTHER REMODELING fire alarms Hood Suppression System'
+            THEN 'OTHER REMODELING - fire alarms - Hood Suppression System'
         WHEN
             job_code_secondary = '256.8'
-            THEN 'OTHER REMODELING fire alarms Sprinkler for Fire'
+            THEN 'OTHER REMODELING - fire alarms - Sprinkler for Fire'
         WHEN
             job_code_secondary = '256.9'
-            THEN 'OTHER REMODELING fire alarms Security alarms'
-        WHEN job_code_secondary = '271' THEN 'MAJOR IMPROVEMENT WRECK'
-        WHEN job_code_secondary = '272' THEN 'MINOR IMPROVEMENT WRECK'
-        WHEN job_code_secondary = '291' THEN 'MAJOR IMPROVEMENT BURNOUT'
-        WHEN job_code_secondary = '292' THEN 'MINOR IMPROVEMENT BURNOUT'
-        WHEN job_code_secondary = '311' THEN 'CARRIER NEW MAJOR CONSTRUCTION'
+            THEN 'OTHER REMODELING - fire alarms - Security alarms'
+        WHEN job_code_secondary = '271' THEN 'MAJOR IMPROVEMENT - WRECK'
+        WHEN job_code_secondary = '272' THEN 'MINOR IMPROVEMENT - WRECK'
+        WHEN job_code_secondary = '291' THEN 'MAJOR IMPROVEMENT - BURNOUT'
+        WHEN job_code_secondary = '292' THEN 'MINOR IMPROVEMENT - BURNOUT'
+        WHEN job_code_secondary = '311' THEN 'CARRIER - NEW MAJOR CONSTRUCTION'
         WHEN
             job_code_secondary = '312'
             THEN 'NON-CARRIER NEW MAJOR CONSTRUCTION'
-        WHEN job_code_secondary = '331' THEN 'CARRIER REMODELING'
-        WHEN job_code_secondary = '332' THEN 'NON-CARRIER REMODELING'
-        WHEN job_code_secondary = '351' THEN 'CARRIER REMODELING'
-        WHEN job_code_secondary = '352' THEN 'NON-CARRIER REMODELING'
+        WHEN job_code_secondary = '331' THEN 'CARRIER - REMODELING'
+        WHEN job_code_secondary = '332' THEN 'NON-CARRIER - REMODELING'
+        WHEN job_code_secondary = '351' THEN 'CARRIER - REMODELING'
+        WHEN job_code_secondary = '352' THEN 'NON-CARRIER - REMODELING'
         WHEN job_code_secondary = '371' THEN 'MAJOR IMPROVEMENT WRECK'
-        WHEN job_code_secondary = '372' THEN 'MINOR IMPROVEMENT WRECK'
-        WHEN job_code_secondary = '391' THEN 'MAJOR IMPROVEMENT BURNOUT'
-        WHEN job_code_secondary = '392' THEN 'MINOR IMPROVEMENT BURNOUT'
+        WHEN job_code_secondary = '372' THEN 'MINOR IMPROVEMENT - WRECK'
+        WHEN job_code_secondary = '391' THEN 'MAJOR IMPROVEMENT - BURNOUT'
+        WHEN job_code_secondary = '392' THEN 'MINOR IMPROVEMENT - BURNOUT'
         WHEN job_code_secondary = '400' THEN 'EXEMPT PROPERTIES'
         WHEN job_code_secondary = '411' THEN 'LEASEHOLD'
         WHEN job_code_secondary = '500' THEN 'OFFICE PERMITS'
@@ -394,20 +412,20 @@ SELECT
         WHEN job_code_secondary = '515' THEN 'MANUALLY ISSUED PERMIT'
         WHEN job_code_secondary = '516' THEN 'PRIOR YEAR RECHECK'
         WHEN job_code_secondary = '517' THEN 'DIVISION PERMIT'
-        WHEN job_code_secondary = '517.1' THEN 'DIVISION PERMIT Petition'
+        WHEN job_code_secondary = '517.1' THEN 'DIVISION PERMIT - Petition'
         WHEN
             job_code_secondary = '517.11'
-            THEN 'DIVISION PERMIT Petition Leasehold'
-        WHEN job_code_secondary = '517.2' THEN 'DIVISION PERMIT Condominimum'
-        WHEN job_code_secondary = '517.3' THEN 'DIVISION PERMIT Subdivision'
-        WHEN job_code_secondary = '517.4' THEN 'DIVISION PERMIT Condo Removal'
+            THEN 'DIVISION PERMIT - Petition Leasehold'
+        WHEN job_code_secondary = '517.2' THEN 'DIVISION PERMIT - Condominimum'
+        WHEN job_code_secondary = '517.3' THEN 'DIVISION PERMIT - Subdivision'
+        WHEN job_code_secondary = '517.4' THEN 'DIVISION PERMIT - Condo Removal'
         WHEN
             job_code_secondary = '517.5'
-            THEN 'DIVISION PERMIT Petition Road Taking'
-        WHEN job_code_secondary = '517.6' THEN 'DIVISION PERMIT Vacation'
-        WHEN job_code_secondary = '517.7' THEN 'DIVISION PERMIT Dedication'
-        WHEN job_code_secondary = '517.8' THEN 'DIVISION PERMIT Other'
-        WHEN job_code_secondary = '517.9' THEN 'DIVISION PERMIT Mix Class'
+            THEN 'DIVISION PERMIT - Petition Road Taking'
+        WHEN job_code_secondary = '517.6' THEN 'DIVISION PERMIT - Vacation'
+        WHEN job_code_secondary = '517.7' THEN 'DIVISION PERMIT - Dedication'
+        WHEN job_code_secondary = '517.8' THEN 'DIVISION PERMIT - Other'
+        WHEN job_code_secondary = '517.9' THEN 'DIVISION PERMIT - Mix Class'
         WHEN job_code_secondary = '518' THEN 'CK BLDG. SF/UP'
         WHEN job_code_secondary = '519' THEN 'CONVERT TO NEW MANUAL'
         WHEN job_code_secondary = '520' THEN 'AUDIT DEPT INCREASE TO CHART'
@@ -430,7 +448,7 @@ SELECT
         WHEN job_code_secondary = '564' THEN '2000 HISTORICAL LANDMARK'
         WHEN job_code_secondary = '565' THEN '2001 HISTORICAL LANDMARK'
         WHEN job_code_secondary = '566' THEN '2002 HISTORICAL LANDMARK'
-        WHEN job_code_secondary = '911' THEN 'OCCUPANCY CODE WILL NOT BE USED'
+        WHEN job_code_secondary = '911' THEN 'OCCUPANCY CODE - WILL NOT BE USED'
     END AS job_code_secondary,
     work_description,
     CASE
