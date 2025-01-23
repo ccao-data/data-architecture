@@ -65,3 +65,4 @@ models:
           combination_of_columns:
             - pin
             - permit_number
+            - date_issued
