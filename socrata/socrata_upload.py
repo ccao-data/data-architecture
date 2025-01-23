@@ -30,9 +30,6 @@ cursor = connect(
     cursor_class=PandasCursor,
 ).cursor(unload=True)
 
-# Set global counter value
-count = 0
-
 
 def parse_years(years):
     """
@@ -156,13 +153,13 @@ def build_query(athena_asset, asset_id, years=None, township=None):
     return query
 
 
-def upload(method, asset_id, sql_query, overwrite, year=None, township=None):
+def upload(
+    method, asset_id, sql_query, overwrite, count, year=None, township=None
+):
     """
     Function to perform the upload to Socrata. `puts` or `posts` depending on
     user's choice to overwrite existing data.
     """
-
-    global count
 
     # Load environmental variables
     app_token = os.getenv("SOCRATA_APP_TOKEN")
@@ -297,7 +294,7 @@ def socrata_upload(
     )
 
     tic = time.perf_counter()
-    global count
+    count = 0
 
     if not flag:
         sql_query = build_query(
@@ -309,6 +306,7 @@ def socrata_upload(
             "asset_id": asset_id,
             "sql_query": sql_query,
             "overwrite": overwrite,
+            "count": count,
         }
 
         if overwrite:
@@ -338,6 +336,7 @@ def socrata_upload(
                     "asset_id": asset_id,
                     "sql_query": sql_query,
                     "overwrite": overwrite,
+                    "count": count,
                     "year": item[0],
                     "township": item[1],
                 }
@@ -346,6 +345,7 @@ def socrata_upload(
                     "asset_id": asset_id,
                     "sql_query": sql_query,
                     "overwrite": overwrite,
+                    "count": count,
                     "year": item,
                 }
             if count == 0 and overwrite:
