@@ -43,6 +43,8 @@ models:
     +write_compression: zstd
     +format: parquet
     +ha: true
+    ccao:
+      +schema: ccao
     census:
       +schema: census
     default:

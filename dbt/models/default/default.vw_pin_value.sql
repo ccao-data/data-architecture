@@ -416,7 +416,10 @@ stage_values AS (
                 -- stages, it is most likely a provisional value for a PIN
                 -- that has not mailed yet
                 CARDINALITY(stages.procnames) != 0
-                OR asmt.taxyr = DATE_FORMAT(NOW(), '%Y')
+                OR asmt.taxyr = DATE_FORMAT(
+                    (SELECT date_today FROM {{ ref("ccao.vw_time_util") }}),
+                    '%Y'
+                )
             )
         )
     )
