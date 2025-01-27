@@ -14,5 +14,5 @@
     {{ tablename }}.procname is null
     and {{ tablename }}.cur = 'Y'
     and cardinality(stages.procnames) > 0
-    and not contains(stages.procnames, 'CCAOVALUE')
+    and not contains(stages.procnames, 'CCAOFINAL')
 {% endmacro %}
