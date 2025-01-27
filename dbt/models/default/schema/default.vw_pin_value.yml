@@ -128,7 +128,7 @@ models:
         column_name: board_class
         config:
           where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1
-          error_if: ">1260"
+          error_if: ">1261"
     - not_null:
         name: default_vw_pin_value_board_tot_mv_not_null
         column_name: board_tot_mv
@@ -136,13 +136,13 @@ models:
           where: |
             CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1 AND
             year >= '2020'
-          error_if: ">1260"
+          error_if: ">1261"
     - not_null:
         name: default_vw_pin_value_board_tot_not_null
         column_name: board_tot
         config:
           where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1
-          error_if: ">1260"
+          error_if: ">1261"
     - not_null:
         name: default_vw_pin_value_certified_class_not_null
         column_name: certified_class

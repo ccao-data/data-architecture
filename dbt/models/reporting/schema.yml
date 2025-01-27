@@ -344,6 +344,16 @@ models:
 
   - name: reporting.vw_top_5_muni
     description: '{{ doc("view_vw_top_5_muni") }}'
+    columns:
+      - name: ccao_stage_used
+        data_tests:
+          - accepted_values:
+              name: reporting_vw_top_5_muni_ccao_stage_used_certified_in_prior_years
+              values:
+                - certified
+              config:
+                where: >
+                  CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
     data_tests:
       # It would be nice to move hyphen checks to unit tests, but the fixture
       # definitions would be extremely complicated, so for now we leave them

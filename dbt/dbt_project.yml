@@ -29,7 +29,7 @@ vars:
   # year, since errors in past data cannot usually be amended once records are
   # closed. Set as an integer for compatibility with comparison operators and
   # SQL's BETWEEN
-  data_test_iasworld_year_start: 2024
+  data_test_iasworld_year_start: 2025
 
   # End year for iasWorld data tests. Typically set to a date in the future,
   # but can also be use to select specific time frames for testing
