@@ -1,3 +1,7 @@
+models:
+  - name: ccao.vw_time_util
+    description: '{{ doc("view_vw_time_util") }}'
+
 sources:
   - name: ccao
     tags:
