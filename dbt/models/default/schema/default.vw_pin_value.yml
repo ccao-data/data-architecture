@@ -118,6 +118,9 @@ models:
           - `3` = Board certified
       - name: year
         description: '{{ doc("shared_column_year") }}'
+        data_tests:
+          - not_null:
+              name: default_vw_pin_value_stage_num_not_null
 
     data_tests:
     - not_null:

@@ -16,10 +16,25 @@ WITH stages AS (
     SELECT
         parid,
         taxyr,
-        ARRAY_AGG(procname) AS procnames
+        -- Force an empty array representing the procnames for any PIN/year
+        -- combo that has no procnames yet, so that our `CONTAINS()` check
+        -- in subsequent queries that join to this stage do not have to worry
+        -- about side effects from null comparisons
+        ARRAY_REMOVE(
+            ARRAY_AGG(
+                CASE
+                    WHEN procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                        THEN procname
+                    -- Can't use null to indicate missing data here, since a
+                    -- null comparison in the outer `ARRAY_REMOVE` call would
+                    -- always cast the array to null
+                    ELSE ''
+                END
+            ),
+            ''
+        ) AS procnames
     FROM {{ source('iasworld', 'asmt_all') }}
-    WHERE procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
-        AND rolltype != 'RR'
+    WHERE rolltype != 'RR'
         AND deactivat IS NULL
         AND valclass IS NULL
     GROUP BY parid, taxyr
