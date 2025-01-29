@@ -118,6 +118,9 @@ models:
           - `3` = Board certified
       - name: year
         description: '{{ doc("shared_column_year") }}'
+        data_tests:
+          - not_null:
+              name: default_vw_pin_value_stage_num_not_null
 
     data_tests:
     - not_null:
@@ -125,7 +128,7 @@ models:
         column_name: board_class
         config:
           where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1
-          error_if: ">1260"
+          error_if: ">1261"
     - not_null:
         name: default_vw_pin_value_board_tot_mv_not_null
         column_name: board_tot_mv
@@ -133,13 +136,13 @@ models:
           where: |
             CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1 AND
             year >= '2020'
-          error_if: ">1260"
+          error_if: ">1261"
     - not_null:
         name: default_vw_pin_value_board_tot_not_null
         column_name: board_tot
         config:
           where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1
-          error_if: ">1260"
+          error_if: ">1261"
     - not_null:
         name: default_vw_pin_value_certified_class_not_null
         column_name: certified_class
@@ -226,12 +229,58 @@ unit_tests:
         # provided to ensure proper joins when creating the dummy table
         rows:
           - {parid: "123", taxyr: "2024", procname: "CCAOVALUE", rolltype: "RP", valasm3: 10, class: "2.1-1)A"}
+      # The input tables below are not important, and are only included for the
+      # sake of completing the joins that construct the view
       - input: source("iasworld", "aprval")
         rows:
           - {parid: "123", taxyr: "2024", procname: "CCAOVALUE", reascd: "28"}
       - input: ref("ccao.aprval_reascd")
         rows:
           - {reascd: "28"}
+      - input: ref("ccao.vw_time_util")
+        rows:
+          - {date_today: "2024-01-01"}
     expect:
       rows:
         - {mailed_class: "211A"}
+  - name: default_vw_pin_value_stage_name_matches_procname
+    description: stage_name should match the set of procnames for a PIN
+    model: default.vw_pin_value
+    given:
+      - input: source("iasworld", "asmt_all")
+        rows:
+          # `cur` and `procname` are the important fields that determine the
+          # stage, everything else in these inputs is just for joins
+          - {parid: "pre-mailed", taxyr: "2024", cur: "Y", procname: null, rolltype: "RP", valasm3: 10}
+          - {parid: "mailed", taxyr: "2024", procname: "CCAOVALUE", rolltype: "RP", valasm3: 10}
+          # Pre-certified needs an extra row so that the history filter can see
+          # that there has already been a mailed value
+          - {parid: "pre-certified", taxyr: "2024", procname: "CCAOVALUE", rolltype: "RP", valasm3: 10}
+          - {parid: "pre-certified", taxyr: "2024", cur: "Y", procname: null, rolltype: "RP", valasm3: 10}
+          - {parid: "ccao-certified", taxyr: "2024", procname: "CCAOFINAL", rolltype: "RP", valasm3: 10}
+          - {parid: "bor-certified", taxyr: "2024", procname: "BORVALUE", rolltype: "RP", valasm3: 10}
+      # Reason codes are not important, and we only include them to complete
+      # the joins that are required to construct the view
+      - input: source("iasworld", "aprval")
+        rows:
+          - {parid: "pre-mailed", taxyr: "2024", procname: null, reascd: "28"}
+          - {parid: "mailed", taxyr: "2024", procname: "CCAOVALUE", reascd: "28"}
+          - {parid: "pre-certified", taxyr: "2024", procname: null, reascd: "28"}
+          - {parid: "ccao-certified", taxyr: "2024", procname: "CCAOFINAL", reascd: "28"}
+          - {parid: "bor-certified", taxyr: "2024", procname: "BORVALUE", reascd: "28"}
+      - input: ref("ccao.aprval_reascd")
+        rows:
+          - {reascd: "28"}
+      - input: ref("ccao.vw_time_util")
+        rows:
+          # This mock is important, since otherwise the view's dynamic
+          # reference to the current year could become out of date with this
+          # test
+          - {date_today: "2024-01-01"}
+    expect:
+      rows:
+        - {stage_name: "PRE-MAILED"}
+        - {stage_name: "MAILED"}
+        - {stage_name: "ASSESSOR PRE-CERTIFIED"}
+        - {stage_name: "ASSESSOR CERTIFIED"}
+        - {stage_name: "BOARD CERTIFIED"}
