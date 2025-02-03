@@ -264,3 +264,50 @@ models:
   - name: location.vw_pin10_location_fill
     description: '{{ doc("view_vw_pin10_location_fill") }}'
     columns: *vw_location_columns
+
+
+unit_tests:
+  - name: location_vw_pin10_location_fill_should_fill_missing_years
+    description: view should fill missing years of data with nearest year
+    model: location.vw_pin10_location_fill
+    given:
+      - input: source("spatial", "parcel")
+        rows: &unit-test-pin-and-year
+          - {pin10: "0123456789", year: "2015"}
+      - input: ref("location.crosswalk_year_fill")
+        rows:
+          - year: "2015"
+            access_cmap_walk_data_year: "2017"
+            access_cmap_walk_fill_year: "2015"
+      # It doesn't matter which table we use here, we just need a fixture for
+      # one of the tables that we merge together in the fill view
+      - input: ref("location.access")
+        rows:
+          - pin10: "0123456789"
+            year: "2015"
+            access_cmap_walk_data_year: "2017"
+            access_cmap_walk_total_score: 100
+      # Everything below is just boilerplate to get the joins to work in the
+      # view. The table values don't really matter because we don't need any
+      # of the data from these tables
+      - input: ref("location.census")
+        rows: *unit-test-pin-and-year
+      - input: ref("location.census_acs5")
+        rows: *unit-test-pin-and-year
+      - input: ref("location.political")
+        rows: *unit-test-pin-and-year
+      - input: ref("location.chicago")
+        rows: *unit-test-pin-and-year
+      - input: ref("location.economy")
+        rows: *unit-test-pin-and-year
+      - input: ref("location.environment")
+        rows: *unit-test-pin-and-year
+      - input: ref("location.school")
+        rows: *unit-test-pin-and-year
+      - input: ref("location.tax")
+        rows: *unit-test-pin-and-year
+      - input: ref("location.other")
+        rows: *unit-test-pin-and-year
+    expect:
+      rows:
+        - {pin10: "0123456789", year: "2015", access_cmap_walk_total_score: 100}
