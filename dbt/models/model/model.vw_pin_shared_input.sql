@@ -242,7 +242,8 @@ SELECT
     )
         AS loc_school_elementary_district_geoid,
     COALESCE(
-        vwlf.school_secondary_district_geoid, vwlf.school_unified_district_geoid
+        vwlf.school_secondary_district_geoid,
+        vwlf.school_unified_district_geoid
     )
         AS loc_school_secondary_district_geoid,
     vwlf.school_unified_district_geoid AS loc_school_unified_district_geoid,
