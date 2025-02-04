@@ -31,7 +31,6 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      year_field: tax_year
       asset_id: uzyt-m557
       primary_key:
         - pin
@@ -177,6 +176,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
+      year_field: assessment_year
       asset_id: 6yjf-dfxs
       primary_key:
         - pin
