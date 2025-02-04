@@ -107,15 +107,33 @@ WITH unfilled AS (
             {%- set outer_loop_last = loop.last %}
             {% for fieldname in fieldnames %}
                 {%- set inner_loop_last = loop.last %}
-                    {#-
-                        Use MAX to remove nulls in cases of years where some PINs
-                        have no match in the external data, since the DISTINCT
-                        subqueries in the list of joins below will still return
-                        those nulls
-                    -#}
-                MAX({{ tablename }}.year) AS {{ fieldname }}_fill_year,
+                {#
+                    Use MAX to remove nulls in cases of years where some PINs
+                    have no match in the external data, since the DISTINCT
+                    subqueries in the list of joins below will still return
+                    those nulls
+                #}
                 MAX({{ tablename }}.{{ fieldname }}_data_year)
-                    AS {{ fieldname }}_data_year
+                    AS {{ fieldname }}_data_year,
+                {#
+                    Only pull the year as the fill year for years where we also
+                    have a data year, since otherwise we risk pulling fill
+                    years for years that don't actually have data. This is
+                    a particular risk for tables that contain multiple
+                    data fields (i.e. `location.political`) because it's
+                    possible for one field to have data for a year while
+                    another field does not, in which case a naive `MAX(year)`
+                    call would pull a fill year for the first field even though
+                    data only exists for that year in the second field
+                #}
+                MAX(
+                    CASE
+                        WHEN {{ tablename }}.{{ fieldname }}_data_year
+                            IS NOT NULL
+                            THEN {{ tablename }}.year
+                        ELSE NULL
+                    END
+                ) AS {{ fieldname }}_fill_year
                 {%- if not outer_loop_last or not inner_loop_last -%}
                     ,
                 {%- endif -%}
