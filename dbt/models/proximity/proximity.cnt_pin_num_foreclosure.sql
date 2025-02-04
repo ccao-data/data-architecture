@@ -38,10 +38,9 @@ pins_in_buffers AS (
     SELECT
         pl.pin10,
         pl.year,
-        COUNT(loc.foreclosure_recording_date)
-            AS num_foreclosure_in_half_mile_past_5_years
+        COUNT(*) AS num_foreclosure_in_half_mile_past_5_years
     FROM pin_locations AS pl
-    LEFT JOIN foreclosure_locations AS loc
+    INNER JOIN foreclosure_locations AS loc
         ON YEAR(loc.foreclosure_recording_date)
         BETWEEN CAST(pl.year AS INT) - 5 AND CAST(pl.year AS INT)
         AND ST_CONTAINS(loc.buffer, pl.point)
@@ -64,7 +63,10 @@ pin_counts_in_half_mile AS (
 
 SELECT
     pl.pin10,
-    pib.num_foreclosure_in_half_mile_past_5_years,
+    COALESCE(
+        pib.num_foreclosure_in_half_mile_past_5_years,
+        0
+    ) AS num_foreclosure_in_half_mile_past_5_years,
     COALESCE(pc.num_pin_in_half_mile, 1) AS num_pin_in_half_mile,
     CASE
         WHEN
