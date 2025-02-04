@@ -24,6 +24,7 @@ distinct_pins AS (
         x_3435,
         y_3435
     FROM pin_locations
+    LIMIT 1000
 ),
 
 foreclosure_locations AS (
@@ -37,9 +38,10 @@ pins_in_buffers AS (
     SELECT
         pl.pin10,
         pl.year,
-        COUNT(*) AS num_foreclosure_in_half_mile_past_5_years
+        COUNT(loc.foreclosure_recording_date)
+            AS num_foreclosure_in_half_mile_past_5_years
     FROM pin_locations AS pl
-    INNER JOIN foreclosure_locations AS loc
+    LEFT JOIN foreclosure_locations AS loc
         ON YEAR(loc.foreclosure_recording_date)
         BETWEEN CAST(pl.year AS INT) - 5 AND CAST(pl.year AS INT)
         AND ST_CONTAINS(loc.buffer, pl.point)
@@ -62,17 +64,13 @@ pin_counts_in_half_mile AS (
 
 SELECT
     pl.pin10,
-    COALESCE(pib.num_foreclosure_in_half_mile_past_5_years, 0)
-        AS num_foreclosure_in_half_mile_past_5_years,
-    COALESCE(pc.num_pin_in_half_mile, 0) AS num_pin_in_half_mile,
-    CASE
-        WHEN COALESCE(pc.num_pin_in_half_mile, 0) = 0 THEN 0
-        ELSE ROUND(
-                CAST(pib.num_foreclosure_in_half_mile_past_5_years AS DOUBLE)
-                / (CAST(pc.num_pin_in_half_mile AS DOUBLE) / 1000),
-                2
-            )
-    END AS num_foreclosure_per_1000_pin_past_5_years,
+    pib.num_foreclosure_in_half_mile_past_5_years,
+    COALESCE(pc.num_pin_in_half_mile, 1) AS num_pin_in_half_mile,
+    ROUND(
+        CAST(pib.num_foreclosure_in_half_mile_past_5_years AS DOUBLE) / (
+            CAST(pc.num_pin_in_half_mile AS DOUBLE) / 1000
+        ), 2
+    ) AS num_foreclosure_per_1000_pin_past_5_years,
     CONCAT(
         CAST(CAST(pl.year AS INT) - 5 AS VARCHAR),
         ' - ',
