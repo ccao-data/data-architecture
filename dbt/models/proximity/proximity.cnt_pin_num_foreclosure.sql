@@ -24,7 +24,6 @@ distinct_pins AS (
         x_3435,
         y_3435
     FROM pin_locations
-    LIMIT 1000
 ),
 
 foreclosure_locations AS (
