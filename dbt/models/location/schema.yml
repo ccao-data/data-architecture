@@ -330,6 +330,9 @@ unit_tests:
             chicago_community_area_data_year: null
             chicago_industrial_corridor_data_year: null
             chicago_police_district_data_year: null
+      # All of the input tables from here on down are just boilerplate to get
+      # the joins to work in the model. The values for these input tables don't
+      # really matter because we don't need any of the data in the tables
       - input: ref("location.census_acs5")
         rows: *crosswalk-location-fill-unit-test-pin-and-year
       - input: ref("location.political")
@@ -375,6 +378,7 @@ unit_tests:
           chicago_industrial_corridor_data_year: "2020"
           chicago_police_district_fill_year: "2021"
           chicago_police_district_data_year: "2021"
+
   - name: location_vw_pin10_location_fill_should_fill_missing_years
     description: view should fill missing years of data with nearest year
     model: location.vw_pin10_location_fill
@@ -395,9 +399,9 @@ unit_tests:
             year: "2015"
             access_cmap_walk_data_year: "2017"
             access_cmap_walk_total_score: 100
-      # Everything below is just boilerplate to get the joins to work in the
-      # view. The table values don't really matter because we don't need any
-      # of the data from these tables
+      # All of the input tables from here on down are just boilerplate to get
+      # the joins to work in the model. The values for these input tables don't
+      # really matter because we don't need any of the data in the tables
       - input: ref("location.census")
         rows: *unit-test-pin-and-year
       - input: ref("location.census_acs5")
