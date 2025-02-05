@@ -276,3 +276,210 @@ models:
   - name: proximity.vw_pin10_proximity_fill
     description: '{{ doc("view_vw_pin10_proximity_fill") }}'
     columns: *vw_proximity_columns
+
+unit_tests:
+  - name: proximity_crosswalk_year_fill_should_create_proper_fill_and_data_years
+    description: view should define correct fill and data years
+    model: proximity.crosswalk_year_fill
+    given:
+      - input: source("spatial", "parcel")
+        rows: &proximity-crosswalk-year-fill-unit-test-pin-and-year
+          # Two PINs, one for each year from 2019-2021
+          - {pin10: "0123456789", year: "2019"}
+          - {pin10: "1234567890", year: "2019"}
+          - {pin10: "0123456789", year: "2020"}
+          - {pin10: "1234567890", year: "2020"}
+          - {pin10: "0123456789", year: "2021"}
+          - {pin10: "1234567890", year: "2021"}
+      # Test bus stop table as an example of a table with only one variable
+      - input: ref("proximity.cnt_pin_num_bus_stop")
+        rows:
+          # Make sure that the data start in 2020, one year after the first
+          # parcel year (2019), so that we can test that the year will still
+          # get a representation in the output using the earliest year of data
+          - {pin10: "0123456789", year: "2020", num_bus_stop_data_year: "2020"}
+          # Add missing data for 2020 to test that we properly remove nulls
+          # when pulling the full set of years
+          - {pin10: "1234567890", year: "2020", num_bus_stop_data_year: null}
+          # Add a row for 2021 with data that comes from 2020 to test that
+          # the output will have a fill_year of 2021 in spite of the earlier
+          # data year
+          - {pin10: "0123456789", year: "2021", num_bus_stop_data_year: "2020"}
+          - {pin10: "1234567890", year: "2021", num_bus_stop_data_year: null}
+      # Test school table as an example of a table with multiple variables.
+      # The different types of rows are the same as we configured for the
+      # single-variable case above, we just need multiple columns in each case
+      # to account for the multiple variables
+      - input: ref("proximity.cnt_pin_num_school")
+        rows:
+          - pin10: "0123456789"
+            year: "2019"
+            num_school_data_year: null
+            num_school_rating_data_year: null
+          - pin10: "0123456789"
+            year: "2020"
+            num_school_data_year: "2020"
+            num_school_rating_data_year: null
+          - pin10: "0123456789"
+            year: "2020"
+            num_school_data_year: null
+            num_school_rating_data_year: null
+          - pin10: "0123456789"
+            year: "2021"
+            num_school_data_year: "2020"
+            num_school_rating_data_year: "2021"
+          - pin10: "0123456789"
+            year: "2021"
+            num_school_data_year: null
+            num_school_rating_data_year: null
+      # All of the input tables from here on down are just boilerplate to get
+      # the joins to work in the model. The values for these input tables don't
+      # really matter because we don't need any of the data in the tables
+      - input: ref("proximity.cnt_pin_num_foreclosure")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_airport")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_bike_trail")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_cemetery")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_cta_route")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_cta_stop")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_golf_course")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_grocery_store")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_hospital")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_lake_michigan")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_major_road")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_metra_route")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_metra_stop")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_new_construction")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_park")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_railroad")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_road_arterial")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_road_collector")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_road_highway")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_secondary_road")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_stadium")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_university")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_vacant_land")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_water")
+        rows: *proximity-crosswalk-year-fill-unit-test-pin-and-year
+    expect:
+      rows:
+        - year: "2019"
+          num_bus_stop_fill_year: "2020"
+          num_bus_stop_data_year: "2020"
+          num_school_fill_year: "2020"
+          num_school_data_year: "2020"
+          num_school_rating_fill_year: "2021"
+          num_school_rating_data_year: "2021"
+        - year: "2020"
+          num_bus_stop_fill_year: "2020"
+          num_bus_stop_data_year: "2020"
+          num_school_fill_year: "2020"
+          num_school_data_year: "2020"
+          num_school_rating_fill_year: "2021"
+          num_school_rating_data_year: "2021"
+        - year: "2020"
+          num_bus_stop_fill_year: "2021"
+          num_bus_stop_data_year: "2020"
+          num_school_fill_year: "2021"
+          num_school_data_year: "2020"
+          num_school_rating_fill_year: "2021"
+          num_school_rating_data_year: "2021"
+
+  - name: proximity_vw_pin10_proximity_fill_should_fill_missing_years
+    description: view should fill missing years of data with nearest year
+    model: proximity.vw_pin10_proximity_fill
+    given:
+      - input: source("spatial", "parcel")
+        rows: &proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+          - {pin10: "0123456789", year: "2015"}
+      - input: ref("proximity.crosswalk_year_fill")
+        rows:
+          - year: "2015"
+            num_bus_stop_fill_year: "2016"
+            num_bus_stop_data_year: "2017"
+      # It doesn't matter which table we use here, we just need a fixture for
+      # one of the tables that we merge together in the fill view
+      - input: ref("proximity.cnt_pin_num_bus_stop")
+        rows:
+          - pin10: "0123456789"
+            year: "2016"
+            num_bus_stop_data_year: "2017"
+            num_bus_stop_in_half_mile: 5
+      # All of the input tables from here on down are just boilerplate to get
+      # the joins to work in the model. The values for these input tables don't
+      # really matter because we don't need any of the data in the tables
+      - input: ref("proximity.cnt_pin_num_foreclosure")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.cnt_pin_num_school")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_airport")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_bike_trail")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_cemetery")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_cta_route")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_cta_stop")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_golf_course")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_grocery_store")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_hospital")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_lake_michigan")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_major_road")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_metra_route")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_metra_stop")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_new_construction")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_park")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_railroad")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_road_arterial")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_road_collector")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_road_highway")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_secondary_road")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_stadium")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_university")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_vacant_land")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_water")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+    expect:
+      rows:
+        - {pin10: "0123456789", year: "2015", access_cmap_walk_total_score: 100}

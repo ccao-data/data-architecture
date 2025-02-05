@@ -271,7 +271,7 @@ unit_tests:
     model: location.crosswalk_year_fill
     given:
       - input: source("spatial", "parcel")
-        rows: &crosswalk-location-fill-unit-test-pin-and-year
+        rows: &location-crosswalk-fill-year-unit-test-pin-and-year
           # Two PINs, one for each year from 2019-2021
           - {pin10: "0123456789", year: "2019"}
           - {pin10: "1234567890", year: "2019"}
@@ -334,21 +334,21 @@ unit_tests:
       # the joins to work in the model. The values for these input tables don't
       # really matter because we don't need any of the data in the tables
       - input: ref("location.census_acs5")
-        rows: *crosswalk-location-fill-unit-test-pin-and-year
+        rows: *location-crosswalk-fill-year-unit-test-pin-and-year
       - input: ref("location.political")
-        rows: *crosswalk-location-fill-unit-test-pin-and-year
+        rows: *location-crosswalk-fill-year-unit-test-pin-and-year
       - input: ref("location.economy")
-        rows: *crosswalk-location-fill-unit-test-pin-and-year
+        rows: *location-crosswalk-fill-year-unit-test-pin-and-year
       - input: ref("location.environment")
-        rows: *crosswalk-location-fill-unit-test-pin-and-year
+        rows: *location-crosswalk-fill-year-unit-test-pin-and-year
       - input: ref("location.school")
-        rows: *crosswalk-location-fill-unit-test-pin-and-year
+        rows: *location-crosswalk-fill-year-unit-test-pin-and-year
       - input: ref("location.tax")
-        rows: *crosswalk-location-fill-unit-test-pin-and-year
+        rows: *location-crosswalk-fill-year-unit-test-pin-and-year
       - input: ref("location.access")
-        rows: *crosswalk-location-fill-unit-test-pin-and-year
+        rows: *location-crosswalk-fill-year-unit-test-pin-and-year
       - input: ref("location.other")
-        rows: *crosswalk-location-fill-unit-test-pin-and-year
+        rows: *location-crosswalk-fill-year-unit-test-pin-and-year
     expect:
       rows:
         - year: "2019"
@@ -384,42 +384,42 @@ unit_tests:
     model: location.vw_pin10_location_fill
     given:
       - input: source("spatial", "parcel")
-        rows: &unit-test-pin-and-year
+        rows: &location-vw-pin10-location-fill-test-pin-and-year
           - {pin10: "0123456789", year: "2015"}
       - input: ref("location.crosswalk_year_fill")
         rows:
           - year: "2015"
+            access_cmap_walk_fill_year: "2016"
             access_cmap_walk_data_year: "2017"
-            access_cmap_walk_fill_year: "2015"
       # It doesn't matter which table we use here, we just need a fixture for
       # one of the tables that we merge together in the fill view
       - input: ref("location.access")
         rows:
           - pin10: "0123456789"
-            year: "2015"
+            year: "2016"
             access_cmap_walk_data_year: "2017"
             access_cmap_walk_total_score: 100
       # All of the input tables from here on down are just boilerplate to get
       # the joins to work in the model. The values for these input tables don't
       # really matter because we don't need any of the data in the tables
       - input: ref("location.census")
-        rows: *unit-test-pin-and-year
+        rows: *location-vw-pin10-location-fill-test-pin-and-year
       - input: ref("location.census_acs5")
-        rows: *unit-test-pin-and-year
+        rows: *location-vw-pin10-location-fill-test-pin-and-year
       - input: ref("location.political")
-        rows: *unit-test-pin-and-year
+        rows: *location-vw-pin10-location-fill-test-pin-and-year
       - input: ref("location.chicago")
-        rows: *unit-test-pin-and-year
+        rows: *location-vw-pin10-location-fill-test-pin-and-year
       - input: ref("location.economy")
-        rows: *unit-test-pin-and-year
+        rows: *location-vw-pin10-location-fill-test-pin-and-year
       - input: ref("location.environment")
-        rows: *unit-test-pin-and-year
+        rows: *location-vw-pin10-location-fill-test-pin-and-year
       - input: ref("location.school")
-        rows: *unit-test-pin-and-year
+        rows: *location-vw-pin10-location-fill-test-pin-and-year
       - input: ref("location.tax")
-        rows: *unit-test-pin-and-year
+        rows: *location-vw-pin10-location-fill-test-pin-and-year
       - input: ref("location.other")
-        rows: *unit-test-pin-and-year
+        rows: *location-vw-pin10-location-fill-test-pin-and-year
     expect:
       rows:
         - {pin10: "0123456789", year: "2015", access_cmap_walk_total_score: 100}
