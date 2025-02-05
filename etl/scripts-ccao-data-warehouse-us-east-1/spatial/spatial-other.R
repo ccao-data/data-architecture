@@ -45,7 +45,7 @@ walk(subdivisions_raw, function(shapefile_path) {
       select(pagesubref, geometry, geometry_3435) %>%
       geoparquet_to_s3(dest_path)
 
-      file.remove(tmp_file)
+    file.remove(tmp_file)
   }
 
 })
