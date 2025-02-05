@@ -230,3 +230,4 @@ LEFT JOIN wide
             ELSE pcl.year
         END = wide.year
     )
+WHERE pcl.year >= (SELECT MIN(year) FROM wide)
