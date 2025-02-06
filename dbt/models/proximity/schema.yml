@@ -399,7 +399,7 @@ unit_tests:
           num_school_data_year: "2020"
           num_school_rating_fill_year: "2021"
           num_school_rating_data_year: "2021"
-        - year: "2020"
+        - year: "2021"
           num_bus_stop_fill_year: "2021"
           num_bus_stop_data_year: "2020"
           num_school_fill_year: "2021"
@@ -480,6 +480,8 @@ unit_tests:
         rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
       - input: ref("proximity.dist_pin_to_water")
         rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
+      - input: ref("proximity.dist_pin_to_pin")
+        rows: *proximity-vw-pin10-proximity-fill-unit-test-pin-and-year
     expect:
       rows:
-        - {pin10: "0123456789", year: "2015", access_cmap_walk_total_score: 100}
+        - {pin10: "0123456789", year: "2015", num_bus_stop_in_half_mile: 5}
