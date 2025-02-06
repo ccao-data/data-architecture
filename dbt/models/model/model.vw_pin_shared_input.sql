@@ -236,9 +236,15 @@ SELECT
     vwlf.chicago_community_area_name AS loc_chicago_community_area_name,
 
     -- Location data used for spatial fixed effects
-    vwlf.school_elementary_district_geoid
+    COALESCE(
+        vwlf.school_elementary_district_geoid,
+        vwlf.school_unified_district_geoid
+    )
         AS loc_school_elementary_district_geoid,
-    vwlf.school_secondary_district_geoid
+    COALESCE(
+        vwlf.school_secondary_district_geoid,
+        vwlf.school_unified_district_geoid
+    )
         AS loc_school_secondary_district_geoid,
     vwlf.school_unified_district_geoid AS loc_school_unified_district_geoid,
     vwlf.tax_special_service_area_num AS loc_tax_special_service_area_num,
