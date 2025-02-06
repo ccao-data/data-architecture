@@ -68,7 +68,9 @@ SELECT
     ) AS num_foreclosure_in_half_mile_past_5_years,
     COALESCE(pc.num_pin_in_half_mile, 1) AS num_pin_in_half_mile,
     ROUND(
-        CAST(COALESCE(pib.num_foreclosure_in_half_mile_past_5_years, 0) AS DOUBLE)
+        CAST(
+            COALESCE(pib.num_foreclosure_in_half_mile_past_5_years, 0) AS DOUBLE
+        )
         / (CAST(pc.num_pin_in_half_mile AS DOUBLE) / 1000),
         2
     ) AS num_foreclosure_per_1000_pin_past_5_years,
