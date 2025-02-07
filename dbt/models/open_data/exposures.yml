@@ -31,7 +31,6 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      year_field: tax_year
       asset_id: uzyt-m557
       primary_key:
         - pin
@@ -115,7 +114,8 @@ exposures:
     owner:
       name: Data Department
     meta:
-      test_row_count: true
+      # Disabled until the asset is public
+      test_row_count: false
       asset_id: uuu4-fqy8
       primary_key:
         - pin
@@ -134,7 +134,8 @@ exposures:
     owner:
       name: Data Department
     meta:
-      test_row_count: true
+      # Disabled until the asset is public
+      test_row_count: false
       asset_id: pabr-t5kh
       primary_key:
         - pin
@@ -176,7 +177,9 @@ exposures:
     owner:
       name: Data Department
     meta:
-      test_row_count: true
+      # Disabled until the asset is public
+      test_row_count: false
+      year_field: assessment_year
       asset_id: 6yjf-dfxs
       primary_key:
         - pin
