@@ -217,6 +217,9 @@ models:
 
   - name: model.vw_pin_shared_input
     description: '{{ doc("view_vw_pin_shared_input") }}'
+    config:
+      tags:
+        - daily
     columns:
       - &acs5_count_sex_total
         name: acs5_count_sex_total
