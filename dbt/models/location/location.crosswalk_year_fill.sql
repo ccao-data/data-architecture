@@ -50,7 +50,7 @@ Take this hypothetical row as an example:
 | ---- | ---------------- | ---------------- |
 | 2019 | 2015             | 2017             |
 
-This row means that for a PIN in year 2010, a data consumer can get a filled
+This row means that for a PIN in year 2019, a data consumer can get a filled
 value for a `location.census` feature by joining to the representation of that
 PIN in the `location.census` table with year 2015, and that this particular row
 of data in `location.census` uses a value that was recorded in the raw data in
