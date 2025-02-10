@@ -37,7 +37,10 @@ models:
           expression: |
             cod >= 0
             AND prd >= 0
-            AND prb BETWEEN -1 AND 1
+            AND (
+            (prb BETWEEN -1 AND 1 AND assessment_stage != 'pre-mailed') OR
+            (prb BETWEEN -1.5 AND 1.5 AND assessment_stage = 'pre-mailed')
+            )
             AND mki >= 0
             AND triad IS NOT NULL
             AND geography_type IS NOT NULL
