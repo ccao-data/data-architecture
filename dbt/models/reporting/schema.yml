@@ -34,12 +34,15 @@ models:
     data_tests:
       - expression_is_true:
           name: reporting_ratio_stats_metrics_are_sensible
+          # pre-mailed values exhibit variance that makes applying the same
+          # constraints as other assessment stages trigger a test failure too
+          # often to be helpful
           expression: |
             cod >= 0
             AND prd >= 0
             AND (
-            (prb BETWEEN -1 AND 1 AND assessment_stage != 'pre-mailed') OR
-            (prb BETWEEN -1.5 AND 1.5 AND assessment_stage = 'pre-mailed')
+              (prb BETWEEN -1 AND 1 AND assessment_stage != 'pre-mailed')
+              OR (prb BETWEEN -1.5 AND 1.5 AND assessment_stage = 'pre-mailed')
             )
             AND mki >= 0
             AND triad IS NOT NULL
