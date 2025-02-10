@@ -34,7 +34,7 @@ models:
     data_tests:
       - expression_is_true:
           name: reporting_ratio_stats_metrics_are_sensible
-          # pre-mailed values exhibit variance that makes applying the same
+          # pre-mailed values exhibit variance that makes applying the same prb
           # constraints as other assessment stages trigger a test failure too
           # often to be helpful
           expression: |
