@@ -22,6 +22,9 @@ models:
           on December 31st of the parcel year. For example, for a parcel
           with year 2024, this column will count all assessable permits
           issued between January 1st, 2022, and December 31st, 2024.
+        data_tests:
+          - not_null:
+              name: default_vw_pin_status_has_recent_assessable_permit_not_null
       - name: is_ahsap
         description: '{{ doc("shared_column_is_ahsap") }}'
       - name: is_common_area
