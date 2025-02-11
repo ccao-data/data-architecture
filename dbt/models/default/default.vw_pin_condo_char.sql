@@ -254,7 +254,7 @@ SELECT DISTINCT
     -- Count of non-unit PINs by pin10
     SUM(CASE
         WHEN (
-            filled.cdu = 'GR'
+            filled.cdu IN ('GR', 'PS')
             OR (
                 SUBSTR(filled.unitno, 1, 1) = 'P'
                 AND SUBSTR(filled.unitno, 1, 2) != 'PH'
@@ -286,7 +286,7 @@ SELECT DISTINCT
     filled.bldg_is_mixed_use,
     vph.oneyr_pri_board_tot,
     COALESCE((
-        filled.cdu = 'GR'
+        filled.cdu IN ('GR', 'PS')
         OR (
             SUBSTR(filled.unitno, 1, 1) = 'P'
             AND SUBSTR(filled.unitno, 1, 2) != 'PH'
@@ -313,7 +313,7 @@ SELECT DISTINCT
         WHEN filled.note = 'PARKING/STORAGE/COMMON UNIT'
             OR filled.parking_pin = TRUE
             THEN 'identified by valuations as non-unit'
-        WHEN filled.cdu = 'GR' THEN 'cdu'
+        WHEN filled.cdu IN ('GR', 'PS') THEN 'cdu'
         WHEN (
             SUBSTR(filled.unitno, 1, 1) = 'P'
             AND SUBSTR(filled.unitno, 1, 2) != 'PH'
