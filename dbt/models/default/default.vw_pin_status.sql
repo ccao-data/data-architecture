@@ -142,7 +142,7 @@ SELECT
     pdat.note2 AS pardat_note,
     pdat.class = '999' AS is_filler_class,
     pdat.parid LIKE '%999%' AS is_filler_pin,
-    permit.num_assessable_permits > 0 AS has_assessable_permit_past_3_years
+    permit.num_assessable_permits > 0 AS has_recent_assessable_permit
 FROM {{ source('iasworld', 'pardat') }} AS pdat
 LEFT JOIN {{ source('spatial', 'corner') }} AS colo
     ON SUBSTR(pdat.parid, 1, 10) = colo.pin10

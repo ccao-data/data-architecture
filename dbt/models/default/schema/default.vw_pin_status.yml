@@ -13,6 +13,15 @@ models:
         description: CDU from `iasworld.dweldat` table
       - name: dweldat_cdu_description
         description: CDU code description for `dweldat_cdu_description`
+      - name: has_recent_assessable_permit
+        description: |
+          Parcel has at least one assessable permit in the prior 3 years.
+
+          The date range that defines "the prior 3 years" starts on
+          January 1st of the year 2 years before the parcel year, and ends
+          on December 31st of the parcel year. For example, for a parcel
+          with year 2024, this column will count all assessable permits
+          issued between January 1st, 2022, and December 31st, 2024.
       - name: is_ahsap
         description: '{{ doc("shared_column_is_ahsap") }}'
       - name: is_common_area
