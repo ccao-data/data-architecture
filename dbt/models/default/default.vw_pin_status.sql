@@ -87,6 +87,29 @@ WITH ahsap AS (
     WHERE par.cur = 'Y'
         AND par.deactivat IS NULL
     GROUP BY par.parid, par.taxyr
+),
+
+assessable_permits_past_3_years AS (
+    SELECT
+        pardat.parid AS pin,
+        pardat.taxyr AS year,
+        SUM(
+            CASE WHEN permit.year IS NULL THEN 0 ELSE 1 END
+        ) AS num_assessable_permits
+    FROM {{ source('iasworld', 'pardat') }} AS pardat
+    LEFT JOIN (
+        SELECT
+            pin,
+            SUBSTR(date_issued, 1, 4) AS year
+        FROM {{ ref('default.vw_pin_permit') }}
+        WHERE assessable = 'A'
+            AND date_issued IS NOT NULL
+        GROUP BY pin, SUBSTR(date_issued, 1, 4)
+    ) AS permit
+        ON pardat.parid = permit.pin
+        AND CAST(permit.year AS INT)
+        BETWEEN CAST(pardat.taxyr AS INT) - 2 AND CAST(pardat.taxyr AS INT)
+    GROUP BY pardat.parid, pardat.taxyr
 )
 
 SELECT
@@ -118,7 +141,8 @@ SELECT
     ddat.cdu_description AS dweldat_cdu_description,
     pdat.note2 AS pardat_note,
     pdat.class = '999' AS is_filler_class,
-    pdat.parid LIKE '%999%' AS is_filler_pin
+    pdat.parid LIKE '%999%' AS is_filler_pin,
+    permit.num_assessable_permits > 0 AS has_assessable_permit_past_3_years
 FROM {{ source('iasworld', 'pardat') }} AS pdat
 LEFT JOIN {{ source('spatial', 'corner') }} AS colo
     ON SUBSTR(pdat.parid, 1, 10) = colo.pin10
@@ -169,5 +193,8 @@ LEFT JOIN ({{ aggregate_cdu(
 LEFT JOIN {{ ref('ccao.pin_test') }} AS ptst
     ON pdat.parid = ptst.pin
     AND pdat.taxyr = ptst.year
+LEFT JOIN assessable_permits_past_3_years AS permit
+    ON pdat.parid = permit.pin
+    AND pdat.taxyr = permit.year
 WHERE pdat.cur = 'Y'
     AND pdat.deactivat IS NULL
