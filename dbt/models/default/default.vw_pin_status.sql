@@ -89,12 +89,15 @@ WITH ahsap AS (
     GROUP BY par.parid, par.taxyr
 ),
 
+-- Get a table with the number of assessable permits in the past 3 years for
+-- all PINs in all years, which we use to power a "recent assessable permit"
+-- flag
 assessable_permits_past_3_years AS (
     SELECT
         pardat.parid AS pin,
         pardat.taxyr AS year,
         SUM(
-            CASE WHEN permit.year IS NULL THEN 0 ELSE 1 END
+            CASE WHEN assessable_permit.year IS NULL THEN 0 ELSE 1 END
         ) AS num_assessable_permits
     FROM {{ source('iasworld', 'pardat') }} AS pardat
     LEFT JOIN (
@@ -104,10 +107,9 @@ assessable_permits_past_3_years AS (
         FROM {{ ref('default.vw_pin_permit') }}
         WHERE assessable = 'A'
             AND date_issued IS NOT NULL
-        GROUP BY pin, SUBSTR(date_issued, 1, 4)
-    ) AS permit
-        ON pardat.parid = permit.pin
-        AND CAST(permit.year AS INT)
+    ) AS assessable_permit
+        ON pardat.parid = assessable_permit.pin
+        AND CAST(assessable_permit.year AS INT)
         BETWEEN CAST(pardat.taxyr AS INT) - 2 AND CAST(pardat.taxyr AS INT)
     GROUP BY pardat.parid, pardat.taxyr
 )
