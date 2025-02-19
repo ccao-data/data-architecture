@@ -42,6 +42,21 @@ def parse_years(years):
     return years
 
 
+def check_overwrite(overwrite):
+    """
+    Make sure overwrite environmental variable is typed correctly.
+    """
+
+    if not overwrite:
+        overwrite = False
+
+    # Github inputs are passed as strings rather than booleans
+    if isinstance(overwrite, str):
+        overwrite = overwrite == "true"
+
+    return overwrite
+
+
 def get_asset_info(socrata_asset):
     """
     Simple helper function to retrieve asset-specific information from dbt.
@@ -241,10 +256,6 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
     (update rather than overwrite).
     """
 
-    # Github inputs are passed as strings rather than booleans
-    if isinstance(overwrite, str):
-        overwrite = overwrite == "true"
-
     athena_asset, asset_id = get_asset_info(socrata_asset)
 
     groups = generate_groups(years=years, athena_asset=athena_asset)
@@ -296,6 +307,6 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
 
 socrata_upload(
     socrata_asset=os.getenv("SOCRATA_ASSET"),
-    overwrite=os.getenv("OVERWRITE"),
+    overwrite=check_overwrite(os.getenv("OVERWRITE")),
     years=parse_years(os.getenv("YEARS")),
 )
