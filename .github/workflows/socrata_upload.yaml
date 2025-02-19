@@ -32,10 +32,7 @@ on:
         description: Years to update or overwrite
         default: 'all'
         required: false
-      by_township:
-        type: boolean
-        description: Chunk Socrata upload by township
-        required: false
+
 
 env:
   UV_SYSTEM_PYTHON: 1
@@ -95,5 +92,4 @@ jobs:
           SOCRATA_ASSET: ${{ inputs.socrata_asset }}
           OVERWRITE: ${{ inputs.overwrite }}
           YEARS: ${{ inputs.years }}
-          BY_TOWNSHIP: ${{ inputs.by_township }}
         run: python ./socrata/socrata_upload.py

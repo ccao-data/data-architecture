@@ -85,7 +85,7 @@ def get_asset_info(socrata_asset):
     return athena_asset, asset_id
 
 
-def build_query(athena_asset, asset_id, years=None, township=None):
+def build_query(athena_asset, asset_id, years=None):
     """
     Build an Athena compatible SQL query. Function will append a year
     conditional if `years` is non-empty. Many of the CCAO's open data assets are
@@ -144,18 +144,13 @@ def build_query(athena_asset, asset_id, years=None, township=None):
     if not years:
         query = query
 
-    elif years is not None and not township:
+    elif years is not None:
         query += " WHERE year = %(year)s"
-
-    elif years is not None and township is not None:
-        query += " WHERE year = %(year)s" + " AND township_code = %(township)s"
 
     return query
 
 
-def upload(
-    method, asset_id, sql_query, overwrite, count, year=None, township=None
-):
+def upload(method, asset_id, sql_query, overwrite, count, year=None):
     """
     Function to perform the upload to Socrata. `puts` or `posts` depending on
     user's choice to overwrite existing data.
@@ -171,21 +166,10 @@ def upload(
     if not year:
         query_conditionals = {}
         print_message = print_message + " all years for asset " + asset_id
-    if year is not None and not township:
+    if year is not None:
         query_conditionals = {"year": year}
         print_message = (
             print_message + " year: " + year + " for asset " + asset_id
-        )
-    if year is not None and township is not None:
-        query_conditionals = {"year": year, "township": township}
-        print_message = (
-            print_message
-            + " township: "
-            + township
-            + ", year: "
-            + year
-            + " for asset "
-            + asset_id
         )
 
     # We grab the data before uploading it so we can make sure timestamps are
@@ -221,14 +205,11 @@ def upload(
         print(response.content)
 
 
-def generate_groups(athena_asset, years=None, by_township=False):
+def generate_groups(athena_asset, years=None):
     """
     Helper function to determine what groups need to be iterated over for
     upload.
     """
-
-    if not years and by_township:
-        raise ValueError("Cannot set 'by_township' when 'years' is None")
 
     if years == ["all"]:
         years = (
@@ -239,38 +220,23 @@ def generate_groups(athena_asset, years=None, by_township=False):
             .to_list()
         )
 
-    # Ensure township codes aren't available if they shouldn't be
-    township_codes = []
-    if by_township:
-        township_codes = (
-            cursor.execute(
-                "SELECT DISTINCT township_code FROM spatial.township"
-            )
-            .as_pandas()["township_code"]
-            .to_list()
-        )
-
         groups = []
         for i in range(len(years)):
-            for j in range(len(township_codes)):
-                groups.append((years[i], township_codes[j]))
+            groups.append(years[i])
 
         flag = "both"
 
+    elif not years:
+        groups = None
+        flag = None
     else:
-        if not years:
-            groups = None
-            flag = None
-        else:
-            groups = years
-            flag = "years"
+        groups = years
+        flag = "years"
 
     return flag, groups
 
 
-def socrata_upload(
-    socrata_asset, overwrite=False, years=None, by_township=False
-):
+def socrata_upload(socrata_asset, overwrite=False, years=None):
     """
     Wrapper function for building SQL query, retrieving data from Athena, and
     uploading it to Socrata. Allows users to specify target Athena and Socrata
@@ -284,14 +250,9 @@ def socrata_upload(
     if isinstance(overwrite, str):
         overwrite = overwrite == "true"
 
-    if isinstance(by_township, str):
-        by_township = by_township == "true"
-
     athena_asset, asset_id = get_asset_info(socrata_asset)
 
-    flag, groups = generate_groups(
-        years=years, by_township=by_township, athena_asset=athena_asset
-    )
+    flag, groups = generate_groups(years=years, athena_asset=athena_asset)
 
     tic = time.perf_counter()
     count = 0
@@ -327,7 +288,6 @@ def socrata_upload(
                 athena_asset=athena_asset,
                 asset_id=asset_id,
                 years=years,
-                township=by_township,
             )
 
         for item in groups:
@@ -338,7 +298,6 @@ def socrata_upload(
                     "overwrite": overwrite,
                     "count": count,
                     "year": item[0],
-                    "township": item[1],
                 }
             elif flag == "years":
                 upload_args = {
@@ -361,5 +320,4 @@ socrata_upload(
     socrata_asset=os.getenv("SOCRATA_ASSET"),
     overwrite=os.getenv("OVERWRITE"),
     years=parse_years(os.getenv("YEARS")),
-    by_township=os.getenv("BY_TOWNSHIP"),
 )
