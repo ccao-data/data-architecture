@@ -294,7 +294,7 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
                 "sql_query": sql_query,
                 "overwrite": overwrite,
                 "count": count,
-                "year": item[0],
+                "year": item,
             }
             if count == 0 and overwrite:
                 upload("put", **upload_args)
