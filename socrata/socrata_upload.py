@@ -166,7 +166,7 @@ def upload(method, asset_id, sql_query, overwrite, count, year=None):
     if not year:
         query_conditionals = {}
         print_message = print_message + " all years for asset " + asset_id
-    if year is not None:
+    else:
         query_conditionals = {"year": year}
         print_message = (
             print_message + " year: " + year + " for asset " + asset_id
@@ -211,29 +211,24 @@ def generate_groups(athena_asset, years=None):
     upload.
     """
 
-    if years == ["all"]:
-        years = (
-            cursor.execute(
-                "SELECT DISTINCT year FROM " + athena_asset + " ORDER BY year"
+    if years is not None:
+        if years == ["all"]:
+            groups = (
+                cursor.execute(
+                    "SELECT DISTINCT year FROM "
+                    + athena_asset
+                    + " ORDER BY year"
+                )
+                .as_pandas()["year"]
+                .to_list()
             )
-            .as_pandas()["year"]
-            .to_list()
-        )
+        else:
+            groups = years
 
-        groups = []
-        for i in range(len(years)):
-            groups.append(years[i])
-
-        flag = "both"
-
-    elif not years:
-        groups = None
-        flag = None
     else:
-        groups = years
-        flag = "years"
+        groups = None
 
-    return flag, groups
+    return groups
 
 
 def socrata_upload(socrata_asset, overwrite=False, years=None):
@@ -252,12 +247,12 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
 
     athena_asset, asset_id = get_asset_info(socrata_asset)
 
-    flag, groups = generate_groups(years=years, athena_asset=athena_asset)
+    groups = generate_groups(years=years, athena_asset=athena_asset)
 
     tic = time.perf_counter()
     count = 0
 
-    if not flag:
+    if not years:
         sql_query = build_query(
             athena_asset=athena_asset,
             asset_id=asset_id,
@@ -275,38 +270,21 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
         else:
             upload("post", **upload_args)
 
-    else:
-        if flag == "years":
-            sql_query = build_query(
-                athena_asset=athena_asset,
-                asset_id=asset_id,
-                years=years,
-            )
-
-        if flag == "both":
-            sql_query = build_query(
-                athena_asset=athena_asset,
-                asset_id=asset_id,
-                years=years,
-            )
+    elif groups is not None:
+        sql_query = build_query(
+            athena_asset=athena_asset,
+            asset_id=asset_id,
+            years=years,
+        )
 
         for item in groups:
-            if flag == "both":
-                upload_args = {
-                    "asset_id": asset_id,
-                    "sql_query": sql_query,
-                    "overwrite": overwrite,
-                    "count": count,
-                    "year": item[0],
-                }
-            elif flag == "years":
-                upload_args = {
-                    "asset_id": asset_id,
-                    "sql_query": sql_query,
-                    "overwrite": overwrite,
-                    "count": count,
-                    "year": item,
-                }
+            upload_args = {
+                "asset_id": asset_id,
+                "sql_query": sql_query,
+                "overwrite": overwrite,
+                "count": count,
+                "year": item[0],
+            }
             if count == 0 and overwrite:
                 upload("put", **upload_args)
             else:
