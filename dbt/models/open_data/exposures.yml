@@ -199,7 +199,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: vgzx-68gb
+      asset_id: a8dq-ppc7
       primary_key:
         - pin
         - year
