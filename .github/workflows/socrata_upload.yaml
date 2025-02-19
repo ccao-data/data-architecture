@@ -29,7 +29,7 @@ on:
       years:
         # Comma separated list of years
         type: string
-        description: Years to update or overwrite
+        description: Years to update or overwrite (comma separated)
         default: 'all'
         required: false
 
