@@ -300,6 +300,7 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
                 upload("put", **upload_args)
             else:
                 upload("post", **upload_args)
+            count += 1
 
     toc = time.perf_counter()
     print(f"Total upload in {toc - tic:0.4f} seconds")
