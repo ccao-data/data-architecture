@@ -219,16 +219,20 @@ def upload(method, asset_id, sql_query, overwrite, count, year=None):
         count += 1
         print(response.content)
 
+    # Return the updated count so that if this function is called in a loop
+    # the updated count persists.
+    return count
 
-def generate_groups(athena_asset, years=None):
+
+def parse_years_list(athena_asset, years=None):
     """
-    Helper function to determine what groups need to be iterated over for
+    Helper function to determine what years need to be iterated over for
     upload.
     """
 
     if years is not None:
         if years == ["all"]:
-            groups = (
+            years_list = (
                 cursor.execute(
                     "SELECT DISTINCT year FROM "
                     + athena_asset
@@ -238,12 +242,12 @@ def generate_groups(athena_asset, years=None):
                 .to_list()
             )
         else:
-            groups = years
+            years_list = years
 
     else:
-        groups = None
+        years_list = None
 
-    return groups
+    return years_list
 
 
 def socrata_upload(socrata_asset, overwrite=False, years=None):
@@ -258,12 +262,12 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
 
     athena_asset, asset_id = get_asset_info(socrata_asset)
 
-    groups = generate_groups(years=years, athena_asset=athena_asset)
+    years_list = parse_years_list(years=years, athena_asset=athena_asset)
 
     tic = time.perf_counter()
     count = 0
 
-    if not years:
+    if not years_list:
         sql_query = build_query(
             athena_asset=athena_asset,
             asset_id=asset_id,
@@ -281,26 +285,26 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
         else:
             upload("post", **upload_args)
 
-    elif groups is not None:
+    else:
         sql_query = build_query(
             athena_asset=athena_asset,
             asset_id=asset_id,
             years=years,
         )
 
-        for item in groups:
+        for year in years_list:
             upload_args = {
                 "asset_id": asset_id,
                 "sql_query": sql_query,
                 "overwrite": overwrite,
                 "count": count,
-                "year": item,
+                "year": year,
             }
+            # Perform the upload and update the counter
             if count == 0 and overwrite:
-                upload("put", **upload_args)
+                count = upload("put", **upload_args)
             else:
-                upload("post", **upload_args)
-            count += 1
+                count = upload("post", **upload_args)
 
     toc = time.perf_counter()
     print(f"Total upload in {toc - tic:0.4f} seconds")
