@@ -50,17 +50,17 @@ SELECT
         WHEN char_apts = '6' THEN 'None'
     END AS char_apts,
     CASE
-        WHEN char_attic_fnsh = "1" THEN "Living Area"
-        WHEN char_attic_fnsh = "2" THEN "Partial"
-        WHEN char_attic_fnsh = "3" THEN "None"
+        WHEN char_attic_fnsh = '1' THEN 'Living Area'
+        WHEN char_attic_fnsh = '2' THEN 'Partial'
+        WHEN char_attic_fnsh = '3' THEN 'None'
     END AS char_attic_fnsh,
     CASE
         WHEN char_gar1_att = '1' THEN 'Yes'
         WHEN char_gar1_att = '2' THEN 'No'
     END AS char_gar1_att,
     CASE
-        WHEN char_gar1_area = "1" THEN "Yes"
-        WHEN char_gar1_area = "2" THEN "No"
+        WHEN char_gar1_area = '1' THEN 'Yes'
+        WHEN char_gar1_area = '2' THEN 'No'
     END AS char_gar1_area,
     CASE
         WHEN char_gar1_size = '1' THEN '1 cars'
