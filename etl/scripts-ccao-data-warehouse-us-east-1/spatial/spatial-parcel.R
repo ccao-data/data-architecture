@@ -10,11 +10,10 @@ library(sf)
 library(stringr)
 library(tictoc)
 library(tidyr)
-source("utils.R")
 
 # This script cleans historical Cook County parcel data and uploads it to S3
-AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
-AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+AWS_S3_RAW_BUCKET <- "s3://ccao-data-raw-us-east-1"
+AWS_S3_WAREHOUSE_BUCKET <- "s3://ccao-data-warehouse-us-east-1"
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
 parcel_tmp_dir <- here("parcel-tmp")
 
@@ -66,6 +65,14 @@ calculate_angles <- function(points) {
   return(angles)
 }
 
+
+parcel_files_df <- parcel_files_df %>%
+  filter(year == '2016')
+
+s3_bucket_uri <- output_bucket
+file_year <- "2016"
+attr_uri <- "s3://ccao-data-raw-us-east-1/spatial/parcel/2016-attr.parquet"
+spatial_uri <- "s3://ccao-data-raw-us-east-1/spatial/parcel/2016.geojson"
 
 # Load local parcel file, clean, extract centroids, and write to partitioned
 # dataset on S3
@@ -395,11 +402,11 @@ process_parcel_file <- function(s3_bucket_uri,
   }
 
   # Write final dataframe to dataset on S3, partitioned by town and year
-  spatial_df_final %>%
-    mutate(year = file_year) %>%
-    group_by(year, town_code) %>%
-    write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = FALSE)
-  tictoc::toc()
+  # spatial_df_final %>%
+  #   mutate(year = file_year) %>%
+  #   group_by(year, town_code) %>%
+  #   write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = FALSE)
+  # tictoc::toc()
 }
 
 

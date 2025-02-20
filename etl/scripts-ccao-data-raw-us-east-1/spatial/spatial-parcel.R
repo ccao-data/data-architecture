@@ -11,11 +11,37 @@ library(sf)
 library(stringr)
 source("utils.R")
 
+noctua_options(unload = TRUE)
+AWS_ATHENA_CONN_NOCTUA <- dbConnect(
+  noctua::athena(),
+  rstudio_conn_tab = FALSE
+)
+query <- glue("SELECT
+par.parid AS unmatched_pin,
+par.taxyr AS year
+FROM iasworld.pardat AS par
+LEFT JOIN spatial.parcel AS sp
+ON substr(par.parid, 1, 10) = sp.pin10
+AND par.taxyr = sp.year
+WHERE par.cur = 'Y'
+AND par.deactivat IS NULL
+AND sp.pin10 IS NULL
+AND par.taxyr = '2016'"
+)
+
+unmatched_pins <- dbGetQuery(AWS_ATHENA_CONN_NOCTUA, query)
+
+unmatched_pins <- unmatched_pins %>%
+  mutate(
+    pin10 = substr(unmatched_pin, 1, 10))
+
+test <- left_join(unmatched_pins, spatial_df_raw, by = c("pin10" = "PIN10"))
+
 # This script retrieves the historical parcel files from Cook Central
 # and saves them as geojson on S3
 # It also cleans the most recent parcel file (before it's publicly
 # available) and adds some attribute data)
-AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+AWS_S3_RAW_BUCKET <- "s3://ccao-data-raw-us-east-1"
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial")
 
 ##### HISTORICAL PARCELS #####
