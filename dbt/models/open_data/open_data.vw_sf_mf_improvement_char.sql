@@ -49,12 +49,19 @@ SELECT
         WHEN char_apts = '5' THEN 'Six'
         WHEN char_apts = '6' THEN 'None'
     END AS char_apts,
-    char_attic_fnsh,
+    CASE
+        WHEN char_attic_fnsh = "1" THEN "Living Area"
+        WHEN char_attic_fnsh = "2" THEN "Partial"
+        WHEN char_attic_fnsh = "3" THEN "None"
+    END AS char_attic_fnsh,
     CASE
         WHEN char_gar1_att = '1' THEN 'Yes'
         WHEN char_gar1_att = '2' THEN 'No'
     END AS char_gar1_att,
-    char_gar1_area,
+    CASE
+        WHEN char_gar1_area = "1" THEN "Yes"
+        WHEN char_gar1_area = "2" THEN "No"
+    END AS char_gar1_area,
     CASE
         WHEN char_gar1_size = '1' THEN '1 cars'
         WHEN char_gar1_size = '2' THEN '1.5 cars'
@@ -122,11 +129,6 @@ SELECT
         WHEN char_site = '3' THEN 'Detracts From Value'
     END AS char_site,
     char_ncu,
-    CASE
-        WHEN char_renovation = '1' THEN 'Yes'
-        WHEN char_renovation = '2' THEN 'No'
-    END AS char_renovation,
-    char_recent_renovation AS recent_renovation,
     CASE
         WHEN char_porch = '0' THEN 'None'
         WHEN char_porch = '1' THEN 'Frame Enclosed'
