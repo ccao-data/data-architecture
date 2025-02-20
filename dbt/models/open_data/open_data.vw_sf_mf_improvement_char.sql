@@ -130,6 +130,10 @@ SELECT
     END AS char_site,
     char_ncu,
     CASE
+        WHEN char_renovation = '1' THEN 'Yes'
+        WHEN char_renovation = '2' THEN 'No'
+    END AS char_renovation,
+    CASE
         WHEN char_porch = '0' THEN 'None'
         WHEN char_porch = '1' THEN 'Frame Enclosed'
         WHEN char_porch = '2' THEN 'Masonry Enclosed'
