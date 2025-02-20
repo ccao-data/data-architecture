@@ -42,6 +42,32 @@ def parse_years(years):
     return years
 
 
+def parse_years_list(athena_asset, years=None):
+    """
+    Helper function to determine what years need to be iterated over for
+    upload.
+    """
+
+    if years is not None:
+        if years == ["all"]:
+            years_list = (
+                cursor.execute(
+                    "SELECT DISTINCT year FROM "
+                    + athena_asset
+                    + " ORDER BY year"
+                )
+                .as_pandas()["year"]
+                .to_list()
+            )
+        else:
+            years_list = years
+
+    else:
+        years_list = None
+
+    return years_list
+
+
 def check_overwrite(overwrite):
     """
     Make sure overwrite environmental variable is typed correctly.
@@ -222,32 +248,6 @@ def upload(method, asset_id, sql_query, overwrite, count, year=None):
     # Return the updated count so that if this function is called in a loop
     # the updated count persists.
     return count
-
-
-def parse_years_list(athena_asset, years=None):
-    """
-    Helper function to determine what years need to be iterated over for
-    upload.
-    """
-
-    if years is not None:
-        if years == ["all"]:
-            years_list = (
-                cursor.execute(
-                    "SELECT DISTINCT year FROM "
-                    + athena_asset
-                    + " ORDER BY year"
-                )
-                .as_pandas()["year"]
-                .to_list()
-            )
-        else:
-            years_list = years
-
-    else:
-        years_list = None
-
-    return years_list
 
 
 def socrata_upload(socrata_asset, overwrite=False, years=None):
