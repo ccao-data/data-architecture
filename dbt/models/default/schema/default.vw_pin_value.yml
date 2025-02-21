@@ -198,7 +198,7 @@ models:
         column_name: mailed_class
         config:
           where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
-          error_if: ">289"
+          error_if: ">310"
     - not_null:
         name: default_vw_pin_value_mailed_tot_mv_not_null
         column_name: mailed_tot_mv

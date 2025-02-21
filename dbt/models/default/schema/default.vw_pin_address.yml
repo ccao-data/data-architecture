@@ -67,9 +67,9 @@ unit_tests:
         rows: &invalid-pin-rows
           # `parid` is the important column here, and all other columns are
           # only set to ensure proper joins when creating the dummy tables
-          - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null}
-          - {parid: "0", taxyr: "2024", cur: "Y", deactivat: null}
-          - {parid: "A", taxyr: "2024", cur: "Y", deactivat: null}
+          - {parid: "00000000000000", taxyr: "2024", class: '200', cur: "Y", deactivat: null}
+          - {parid: "0", taxyr: "2024", class: '200', cur: "Y", deactivat: null}
+          - {parid: "A", taxyr: "2024", class: '200', cur: "Y", deactivat: null}
       - input: source("iasworld", "legdat")
         rows: *invalid-pin-rows
       - input: source("iasworld", "owndat")
