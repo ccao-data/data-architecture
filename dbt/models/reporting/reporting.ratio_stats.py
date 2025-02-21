@@ -1,12 +1,14 @@
 # pylint: skip-file
 # type: ignore
+
 sc.addPyFile("s3://ccao-athena-dependencies-us-east-1/assesspy==2.0.1.zip")
 
 from typing import Union
 
-import assesspy as ap
 import pandas as pd
 from pyspark.sql.functions import col, lit
+
+import assesspy as ap
 
 CCAO_LOWER_QUANTILE = 0.05
 CCAO_UPPER_QUANTILE = 0.95
@@ -16,11 +18,14 @@ CCAO_MIN_SAMPLE_SIZE = 20.0
 # to determine the final column order
 SPARK_SCHEMA = (
     "year string, triad string, geography_type string, property_group string, "
-    "assessment_stage string, geography_id string, sale_year string, sale_n bigint, "
-    "med_ratio double, med_ratio_ci_l double, med_ratio_ci_u double, med_ratio_n bigint, "
+    "assessment_stage string, geography_id string, sale_year string, "
+    "sales_non_outliers bigint, sales_outliers bigint, "
+    "med_ratio double, med_ratio_ci_l double, med_ratio_ci_u double, "
+    "med_ratio_met booleon, med_ratio_n bigint, "
     "cod double, cod_ci_l double, cod_ci_u double, cod_met boolean, cod_n bigint, "
     "prd double, prd_ci_l double, prd_ci_u double, prd_met boolean, prd_n bigint, "
     "prb double, prb_ci_l double, prb_ci_u double, prb_met boolean, prb_n bigint, "
+    "vertical_equity_met boolean, "
     "mki double, mki_ci_l double, mki_ci_u double, mki_met boolean, mki_n bigint, "
     "is_sales_chased boolean, within_20_pct bigint, within_10_pct bigint, within_05_pct bigint"
 )
@@ -29,12 +34,24 @@ SPARK_SCHEMA = (
 def ccao_drop_outliers(
     estimate: Union[list[int], list[float], pd.Series],
     sale_price: Union[list[int], list[float], pd.Series],
-) -> tuple[pd.Series, pd.Series, float]:
+) -> tuple[pd.Series, pd.Series, float, float]:
     """
     Helper function to drop the top and bottom N% (usually 5%) of the input
     ratios, per CCAO SOPs and IAAO recommendation.
+
+    Returns:
+        - estimate_no_outliers: Filtered estimate values.
+        - sale_price_no_outliers: Filtered sale price values.
+        - n_remaining: Number of remaining values after removing outliers.
+        - n_removed: Number of outliers removed.
     """
+    estimate = pd.Series(estimate) if isinstance(estimate, list) else estimate
+    sale_price = (
+        pd.Series(sale_price) if isinstance(sale_price, list) else sale_price
+    )
+
     ratio: pd.Series = estimate / sale_price
+
     ratio_not_outlier = ratio.between(
         ratio.quantile(CCAO_LOWER_QUANTILE),
         ratio.quantile(CCAO_UPPER_QUANTILE),
@@ -43,9 +60,16 @@ def ccao_drop_outliers(
 
     estimate_no_outliers = estimate[ratio_not_outlier]
     sale_price_no_outliers = sale_price[ratio_not_outlier]
-    n: float = float(estimate_no_outliers.size)
 
-    return estimate_no_outliers, sale_price_no_outliers, n
+    sales_non_outliers: float = float(estimate_no_outliers.size)
+    sales_outliers: float = float(estimate.size - sales_non_outliers)
+
+    return (
+        estimate_no_outliers,
+        sale_price_no_outliers,
+        sales_non_outliers,
+        sales_outliers,
+    )
 
 
 def ccao_metric(
@@ -104,14 +128,21 @@ def ccao_median(
         ci_l, ci_u = ap.boot_ci(
             median_val, estimate=est_no_out, sale_price=sale_no_out, nboot=300
         )
-        out = [val, ci_l, ci_u, n]
+        met = ap.median_met(val)
+        out = [val, ci_l, ci_u, met, n]
     else:
         val = median_val(est_no_out, sale_no_out)
-        out = [val, None, None, n]
+        out = [val, None, None, None, n]
 
     out_dict = dict(
         zip(
-            ["med_ratio", "med_ratio_ci_l", "med_ratio_ci_u", "med_ratio_n"],
+            [
+                "med_ratio",
+                "med_ratio_ci_l",
+                "med_ratio_ci_u",
+                "med_ratio_met",
+                "med_ratio_n",
+            ],
             out,
         )
     )
@@ -119,7 +150,7 @@ def ccao_median(
     return out_dict
 
 
-def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
+def calc_summary(df: pd.DataFrame, geography_id: str, geography_type: str):
     """
     Calculate ratio summary statistics for a given geography and geography type.
     Takes a DataFrame as input and returns a single row DataFrame of stats.
@@ -134,7 +165,7 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
         "sale_year",
     ]
 
-    out = (
+    df = (
         df.withColumn("geography_id", col(geography_id).cast("string"))
         .withColumn("geography_type", lit(geography_type))
         .groupby(group_cols)
@@ -142,7 +173,6 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
             lambda x: pd.DataFrame(
                 [
                     {
-                        # Include the grouping column values in the output
                         **dict(
                             zip(group_cols, [x[c].iloc[0] for c in group_cols])
                         ),
@@ -152,6 +182,8 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
                         **ccao_metric("prd", x["fmv"], x["sale_price"]),
                         **ccao_metric("prb", x["fmv"], x["sale_price"]),
                         **ccao_metric("mki", x["fmv"], x["sale_price"]),
+                        "vertical_equity_met": x["prd_met"].any()
+                        or x["prb_met"].any(),
                         "is_sales_chased": ap.is_sales_chased(x["ratio"])
                         if x["ratio"].size >= CCAO_MIN_SAMPLE_SIZE
                         else None,
@@ -164,8 +196,7 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
             schema=SPARK_SCHEMA,
         )
     )
-
-    return out
+    return df
 
 
 def model(dbt, spark_session):
