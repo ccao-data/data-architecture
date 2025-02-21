@@ -10,6 +10,18 @@ from pyspark.sql.functions import col, lit
 
 import assesspy as ap
 
+
+def med_ratio_met(x: float) -> bool:
+    """
+    Check whether median_ratio meets IAAO standards (between .9 and 1.1, inclusive).
+    :param x: A single float value containing the median_ratio.
+    :type x: float
+    :return: A boolean value indicating whether the median_ratio meets IAAO standards.
+    :rtype: bool
+    """
+    return 0.9 < x <= 1.1
+
+
 CCAO_LOWER_QUANTILE = 0.05
 CCAO_UPPER_QUANTILE = 0.95
 CCAO_MIN_SAMPLE_SIZE = 20.0
