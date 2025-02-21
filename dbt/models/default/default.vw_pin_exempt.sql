@@ -49,3 +49,4 @@ WHERE
     -- or that are not 14 characters long
     AND REGEXP_COUNT(par.parid, '[a-zA-Z]') = 0
     AND LENGTH(par.parid) = 14
+    AND par.class NOT IN ('999')

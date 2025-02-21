@@ -426,6 +426,7 @@ stage_values AS (
     AND asmt.rolltype != 'RR'
     AND asmt.deactivat IS NULL
     AND asmt.valclass IS NULL
+    AND asmt.class NOT IN ('999')
     GROUP BY asmt.parid, asmt.taxyr
 ),
 
