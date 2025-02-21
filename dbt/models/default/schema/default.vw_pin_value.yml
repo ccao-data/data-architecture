@@ -228,7 +228,7 @@ unit_tests:
         # `class` is the important column here, and all other columns are only
         # provided to ensure proper joins when creating the dummy table
         rows:
-          - {parid: "123", taxyr: "2024", procname: "CCAOVALUE", rolltype: "RP", valasm3: 10, class: "2.1-1)A"}
+          - {parid: "123", taxyr: "2024", class: '200', procname: "CCAOVALUE", rolltype: "RP", valasm3: 10, class: "2.1-1)A"}
       # The input tables below are not important, and are only included for the
       # sake of completing the joins that construct the view
       - input: source("iasworld", "aprval")
@@ -251,7 +251,7 @@ unit_tests:
         rows:
           # `cur` and `procname` are the important fields that determine the
           # stage, everything else in these inputs is just for joins
-          - {parid: "pre-mailed", taxyr: "2024", cur: "Y", procname: null, rolltype: "RP", valasm3: 10}
+          - {parid: "pre-mailed", taxyr: "2024", class: '200', cur: "Y", procname: null, rolltype: "RP", valasm3: 10}
           - {parid: "mailed", taxyr: "2024", procname: "CCAOVALUE", rolltype: "RP", valasm3: 10}
           # Pre-certified needs an extra row so that the history filter can see
           # that there has already been a mailed value
