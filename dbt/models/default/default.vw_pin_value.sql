@@ -37,6 +37,7 @@ WITH stages AS (
     WHERE rolltype != 'RR'
         AND deactivat IS NULL
         AND valclass IS NULL
+        AND class NOT IN ('999')
     GROUP BY parid, taxyr
 ),
 
