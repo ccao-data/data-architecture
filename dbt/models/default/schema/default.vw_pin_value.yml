@@ -252,13 +252,13 @@ unit_tests:
           # `cur` and `procname` are the important fields that determine the
           # stage, everything else in these inputs is just for joins
           - {parid: "pre-mailed", taxyr: "2024", class: '200', cur: "Y", procname: null, rolltype: "RP", valasm3: 10}
-          - {parid: "mailed", taxyr: "2024", procname: "CCAOVALUE", rolltype: "RP", valasm3: 10}
+          - {parid: "mailed", taxyr: "2024", class: '200', procname: "CCAOVALUE", rolltype: "RP", valasm3: 10}
           # Pre-certified needs an extra row so that the history filter can see
           # that there has already been a mailed value
-          - {parid: "pre-certified", taxyr: "2024", procname: "CCAOVALUE", rolltype: "RP", valasm3: 10}
-          - {parid: "pre-certified", taxyr: "2024", cur: "Y", procname: null, rolltype: "RP", valasm3: 10}
-          - {parid: "ccao-certified", taxyr: "2024", procname: "CCAOFINAL", rolltype: "RP", valasm3: 10}
-          - {parid: "bor-certified", taxyr: "2024", procname: "BORVALUE", rolltype: "RP", valasm3: 10}
+          - {parid: "pre-certified", taxyr: "2024", class: '200', procname: "CCAOVALUE", rolltype: "RP", valasm3: 10}
+          - {parid: "pre-certified", taxyr: "2024", class: '200', cur: "Y", procname: null, rolltype: "RP", valasm3: 10}
+          - {parid: "ccao-certified", taxyr: "2024", class: '200', procname: "CCAOFINAL", rolltype: "RP", valasm3: 10}
+          - {parid: "bor-certified", taxyr: "2024", class: '200', procname: "BORVALUE", rolltype: "RP", valasm3: 10}
       # Reason codes are not important, and we only include them to complete
       # the joins that are required to construct the view
       - input: source("iasworld", "aprval")
