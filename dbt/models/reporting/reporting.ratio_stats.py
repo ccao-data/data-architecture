@@ -23,6 +23,7 @@ SPARK_SCHEMA = (
     "prd double, prd_ci_l double, prd_ci_u double, prd_met boolean, prd_n bigint, "
     "prb double, prb_ci_l double, prb_ci_u double, prb_met boolean, prb_n bigint, "
     "mki double, mki_ci_l double, mki_ci_u double, mki_met boolean, mki_n bigint, "
+    "veritcal_equity_met, booleon, "
     "is_sales_chased boolean, within_20_pct bigint, within_10_pct bigint, within_05_pct bigint"
 )
 
@@ -153,6 +154,12 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
                         **ccao_metric("prd", x["fmv"], x["sale_price"]),
                         **ccao_metric("prb", x["fmv"], x["sale_price"]),
                         **ccao_metric("mki", x["fmv"], x["sale_price"]),
+                        "vertical_equity_met": (
+                            x["prd_met"].iloc[0] or x["prb_met"].iloc[0]
+                        )
+                        if not x["prd_met"].isna().all()
+                        and not x["prb_met"].isna().all()
+                        else None,
                         "is_sales_chased": ap.is_sales_chased(x["ratio"])
                         if x["ratio"].size >= CCAO_MIN_SAMPLE_SIZE
                         else None,
