@@ -6,6 +6,8 @@ WITH all_pins AS (
     FROM {{ source('iasworld', 'pardat') }}
     WHERE cur = 'Y'
         AND deactivat IS NULL
+        -- Class 999 are test pins
+        AND class NOT IN ('999')
         -- noqa: disable=RF02
         AND taxyr = (
             SELECT MAX(taxyr)

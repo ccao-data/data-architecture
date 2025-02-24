@@ -67,3 +67,5 @@ LEFT JOIN {{ ref('location.tax') }} AS tax
     END = tax.year
 WHERE correct.cur = 'Y'
     AND correct.deactivat IS NULL
+    -- Class 999 are test pins
+    AND correct.class NOT IN ('999')
