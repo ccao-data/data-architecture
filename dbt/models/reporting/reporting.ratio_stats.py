@@ -17,13 +17,13 @@ CCAO_MIN_SAMPLE_SIZE = 20.0
 # to determine the final column order
 SPARK_SCHEMA = (
     "year string, triad string, geography_type string, property_group string, "
-    "assessment_stage string, geography_id string, sale_year string, "
-    "sale_n bigint, sale_removed bigint"
+    "assessment_stage string, geography_id string, sale_year string, sale_n bigint, "
     "med_ratio double, med_ratio_ci_l double, med_ratio_ci_u double, med_ratio_n bigint, "
     "cod double, cod_ci_l double, cod_ci_u double, cod_met boolean, cod_n bigint, "
     "prd double, prd_ci_l double, prd_ci_u double, prd_met boolean, prd_n bigint, "
     "prb double, prb_ci_l double, prb_ci_u double, prb_met boolean, prb_n bigint, "
     "mki double, mki_ci_l double, mki_ci_u double, mki_met boolean, mki_n bigint, "
+    "vertical_equity_met boolean, "
     "is_sales_chased boolean, within_20_pct bigint, within_10_pct bigint, within_05_pct bigint"
 )
 
@@ -31,32 +31,23 @@ SPARK_SCHEMA = (
 def ccao_drop_outliers(
     estimate: Union[list[int], list[float], pd.Series],
     sale_price: Union[list[int], list[float], pd.Series],
-) -> tuple[pd.Series, pd.Series, int, int]:
+) -> tuple[pd.Series, pd.Series, float]:
     """
     Helper function to drop the top and bottom N% (usually 5%) of the input
     ratios, per CCAO SOPs and IAAO recommendation.
-
-    Returns:
-        estimate_no_outliers: pd.Series - Estimate values without outliers
-        sale_price_no_outliers: pd.Series - Sale price values without outliers
-        sale_n: int - Number of remaining sales after removing outliers
-        sale_removed: int - Number of removed sales
     """
-    ratio: pd.Series = pd.Series(estimate) / pd.Series(sale_price)
-
+    ratio: pd.Series = estimate / sale_price
     ratio_not_outlier = ratio.between(
         ratio.quantile(CCAO_LOWER_QUANTILE),
         ratio.quantile(CCAO_UPPER_QUANTILE),
         inclusive="neither",
-    )
+    ).reset_index(drop=True)
 
-    estimate_no_outliers = pd.Series(estimate)[ratio_not_outlier]
-    sale_price_no_outliers = pd.Series(sale_price)[ratio_not_outlier]
+    estimate_no_outliers = estimate[ratio_not_outlier]
+    sale_price_no_outliers = sale_price[ratio_not_outlier]
+    n: float = float(estimate_no_outliers.size)
 
-    sale_n = int(estimate_no_outliers.size)
-    sale_removed = int(len(estimate) - sale_n)
-
-    return estimate_no_outliers, sale_price_no_outliers, sale_n, sale_removed
+    return estimate_no_outliers, sale_price_no_outliers, n
 
 
 def ccao_metric(
@@ -169,6 +160,14 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
                         "within_20_pct": sum(abs(1 - x["ratio"]) <= 0.20),
                         "within_10_pct": sum(abs(1 - x["ratio"]) <= 0.10),
                         "within_05_pct": sum(abs(1 - x["ratio"]) <= 0.05),
+                        "vertical_equity_met": bool(
+                            ccao_metric("prb", x["fmv"], x["sale_price"])[
+                                "prb_met"
+                            ]
+                            or ccao_metric("prd", x["fmv"], x["sale_price"])[
+                                "prd_met"
+                            ]
+                        ),
                     }
                 ]
             ),
