@@ -65,6 +65,8 @@ WITH uni AS (
         ON leg.user1 = CAST(twn.township_code AS VARCHAR)
     WHERE par.cur = 'Y'
         AND par.deactivat IS NULL
+        -- Class 999 are test pins
+        AND par.class NOT IN ('999')
 ),
 
 acs5 AS (
@@ -148,6 +150,8 @@ tax_bill_amount AS (
     WHERE pin.pin IS NOT NULL
         AND pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
+        -- Class 999 are test pins
+        AND pardat.class NOT IN ('999')
 ),
 
 school_district_ratings AS (
