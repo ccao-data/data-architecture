@@ -2,12 +2,23 @@
 # type: ignore
 sc.addPyFile("s3://ccao-athena-dependencies-us-east-1/assesspy==2.0.1.zip")
 
+
+def med_ratio_met(x: float) -> bool:
+    """
+    Check whether median_ratio meets IAAO standards (between .9 and 1.1, inclusive).
+    :param x: A single float value containing the median_ratio.
+    :type x: float
+    :return: A boolean value indicating whether the median_ratio meets IAAO standards.
+    :rtype: bool
+    """
+    return 0.9 < x <= 1.1
+
+
 from typing import Union
 
+import assesspy as ap
 import pandas as pd
 from pyspark.sql.functions import col, lit
-
-import assesspy as ap
 
 CCAO_LOWER_QUANTILE = 0.05
 CCAO_UPPER_QUANTILE = 0.95
@@ -19,7 +30,8 @@ SPARK_SCHEMA = (
     "year string, triad string, geography_type string, property_group string, "
     "assessment_stage string, geography_id string, sale_year string, sale_n bigint, "
     "sales_removed bigint, "
-    "med_ratio double, med_ratio_ci_l double, med_ratio_ci_u double, med_ratio_n bigint, "
+    "med_ratio double, med_ratio_ci_l double, med_ratio_ci_u double, "
+    "med_ratio_met boolean, med_ratio_n bigint, "
     "cod double, cod_ci_l double, cod_ci_u double, cod_met boolean, cod_n bigint, "
     "prd double, prd_ci_l double, prd_ci_u double, prd_met boolean, prd_n bigint, "
     "prb double, prb_ci_l double, prb_ci_u double, prb_met boolean, prb_n bigint, "
@@ -107,14 +119,21 @@ def ccao_median(
         ci_l, ci_u = ap.boot_ci(
             median_val, estimate=est_no_out, sale_price=sale_no_out, nboot=300
         )
-        out = [val, ci_l, ci_u, n]
+        med_met = med_ratio_met(val)
+        out = [val, ci_l, ci_u, med_met, n]
     else:
         val = median_val(est_no_out, sale_no_out)
-        out = [val, None, None, n]
+        out = [val, None, None, None, n]
 
     out_dict = dict(
         zip(
-            ["med_ratio", "med_ratio_ci_l", "med_ratio_ci_u", "med_ratio_n"],
+            [
+                "med_ratio",
+                "med_ratio_ci_l",
+                "med_ratio_ci_u",
+                "med_ratio_met",
+                "med_ratio_n",
+            ],
             out,
         )
     )
