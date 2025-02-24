@@ -18,6 +18,7 @@ CCAO_MIN_SAMPLE_SIZE = 20.0
 SPARK_SCHEMA = (
     "year string, triad string, geography_type string, property_group string, "
     "assessment_stage string, geography_id string, sale_year string, sale_n bigint, "
+    "sales_removed bigint, "
     "med_ratio double, med_ratio_ci_l double, med_ratio_ci_u double, med_ratio_n bigint, "
     "cod double, cod_ci_l double, cod_ci_u double, cod_met boolean, cod_n bigint, "
     "prd double, prd_ci_l double, prd_ci_u double, prd_met boolean, prd_n bigint, "
@@ -168,6 +169,8 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
                                 "prd_met"
                             ]
                         ),
+                        "sales_removed": x["triad"].size
+                        - ccao_drop_outliers(x["fmv"], x["sale_price"])[2],
                     }
                 ]
             ),
