@@ -37,6 +37,7 @@ WITH stages AS (
     WHERE rolltype != 'RR'
         AND deactivat IS NULL
         AND valclass IS NULL
+        -- Class 999 are test pins
         AND class NOT IN ('999')
     GROUP BY parid, taxyr
 ),
@@ -427,6 +428,7 @@ stage_values AS (
     AND asmt.rolltype != 'RR'
     AND asmt.deactivat IS NULL
     AND asmt.valclass IS NULL
+    -- Class 999 are test pins
     AND asmt.class NOT IN ('999')
     GROUP BY asmt.parid, asmt.taxyr
 ),
