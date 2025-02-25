@@ -4,12 +4,15 @@ import json
 import logging
 import os
 import time
+from concurrent.futures import as_completed
+from pprint import pprint
 
 import pandas as pd
 import requests
 from dbt.cli.main import dbtRunner
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
+from requests_futures.sessions import FuturesSession
 
 logger = logging.getLogger(__name__)
 
@@ -17,11 +20,12 @@ logger = logging.getLogger(__name__)
 pd.set_option("display.max_rows", None)
 
 # Create a session object so HTTP requests can be pooled
-session = requests.Session()
+session = requests.session()
 session.auth = (
     str(os.getenv("SOCRATA_USERNAME")),
     str(os.getenv("SOCRATA_PASSWORD")),
 )
+future_session = FuturesSession(session=session)
 
 # Connect to Athena
 cursor = connect(
@@ -221,29 +225,37 @@ def upload(method, asset_id, sql_query, overwrite, count, year=None):
         input_data[i] = input_data[i].fillna("").dt.strftime("%Y-%m-%dT%X")
 
     # Raise URL status if it's bad
-    session.get(
-        (
-            "https://datacatalog.cookcountyil.gov/resource/"
-            + asset_id
-            + ".json?$limit=1"
-        ),
-        headers={"X-App-Token": app_token},
-    ).raise_for_status()
-
     session.get(url=url, headers={"X-App-Token": app_token}).raise_for_status()
 
+    futures = []
     for i in range(0, input_data.shape[0], 10000):
         print(print_message)
         print(f"Rows {i + 1}-{i + 10000}")
         if count > 0:
             method = "post"
-        response = getattr(session, method)(
+        future = getattr(future_session, method)(
             url=url,
             data=input_data.iloc[i : i + 10000].to_json(orient="records"),
             headers={"X-App-Token": app_token},
         )
+        # while future.result().json()['Errors'] != 0:
+        #    future = getattr(future_session, method)(
+        #        url=url,
+        #        data=input_data.iloc[i : i + 10000].to_json(orient="records"),
+        #        headers={"X-App-Token": app_token},
+        #    )
+        future.i = i
+        futures.append(future)
         count += 1
-        print(response.content)
+
+    for future in as_completed(futures):
+        resp = future.result()
+        pprint(
+            {
+                #'i': future.i,
+                "content": resp.json(),
+            }
+        )
 
     # Return the updated count so that if this function is called in a loop
     # the updated count persists.
