@@ -177,8 +177,16 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
                         "within_20_pct": sum(abs(1 - x["ratio"]) <= 0.20),
                         "within_10_pct": sum(abs(1 - x["ratio"]) <= 0.10),
                         "within_05_pct": sum(abs(1 - x["ratio"]) <= 0.05),
-                        "vertical_equity_met": bool(
-                            prb_metrics["prb_met"] or prd_metrics["prd_met"]
+                        "vertical_equity_met": (
+                            None
+                            if (
+                                prb_metrics.get("prb_met") is None
+                                and prd_metrics.get("prd_met") is None
+                            )
+                            else bool(
+                                prb_metrics.get("prb_met")
+                                or prd_metrics.get("prd_met")
+                            )
                         ),
                         "sales_removed": x["triad"].size
                         - ccao_drop_outliers(x["fmv"], x["sale_price"])[2],
