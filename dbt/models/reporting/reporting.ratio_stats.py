@@ -18,7 +18,7 @@ CCAO_MIN_SAMPLE_SIZE = 20.0
 # to determine the final column order
 SPARK_SCHEMA = (
     "year string, triad string, geography_type string, property_group string, "
-    "assessment_stage string, geography_id string, sale_year string, total_sales_n bigint, "
+    "assessment_stage string, geography_id string, sale_year string, sale_n bigint, "
     "sales_excluded_n bigint, "
     "med_ratio double, med_ratio_ci_l double, med_ratio_ci_u double, "
     "med_ratio_met boolean, med_ratio_n bigint, "
@@ -157,7 +157,7 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
                         **dict(
                             zip(group_cols, [x[c].iloc[0] for c in group_cols])
                         ),
-                        "total_sales_n": x["triad"].size,
+                        "sale_n": x["triad"].size,
                         **ccao_median(x["fmv"], x["sale_price"]),
                         **(
                             prb_metrics := ccao_metric(
