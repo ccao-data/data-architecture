@@ -164,15 +164,22 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
             lambda x: pd.DataFrame(
                 [
                     {
-                        # Include the grouping column values in the output
                         **dict(
                             zip(group_cols, [x[c].iloc[0] for c in group_cols])
                         ),
                         "sale_n": x["triad"].size,
                         **ccao_median(x["fmv"], x["sale_price"]),
+                        **(
+                            prb_metrics := ccao_metric(
+                                "prb", x["fmv"], x["sale_price"]
+                            )
+                        ),
+                        **(
+                            prd_metrics := ccao_metric(
+                                "prd", x["fmv"], x["sale_price"]
+                            )
+                        ),
                         **ccao_metric("cod", x["fmv"], x["sale_price"]),
-                        **ccao_metric("prd", x["fmv"], x["sale_price"]),
-                        **ccao_metric("prb", x["fmv"], x["sale_price"]),
                         **ccao_metric("mki", x["fmv"], x["sale_price"]),
                         "is_sales_chased": ap.is_sales_chased(x["ratio"])
                         if x["ratio"].size >= CCAO_MIN_SAMPLE_SIZE
@@ -181,12 +188,7 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
                         "within_10_pct": sum(abs(1 - x["ratio"]) <= 0.10),
                         "within_05_pct": sum(abs(1 - x["ratio"]) <= 0.05),
                         "vertical_equity_met": bool(
-                            ccao_metric("prb", x["fmv"], x["sale_price"])[
-                                "prb_met"
-                            ]
-                            or ccao_metric("prd", x["fmv"], x["sale_price"])[
-                                "prd_met"
-                            ]
+                            prb_metrics["prb_met"] or prd_metrics["prd_met"]
                         ),
                         "sales_removed": x["triad"].size
                         - ccao_drop_outliers(x["fmv"], x["sale_price"])[2],
