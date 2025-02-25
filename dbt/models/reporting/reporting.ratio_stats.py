@@ -1,17 +1,7 @@
 # pylint: skip-file
 # type: ignore
-sc.addPyFile("s3://ccao-athena-dependencies-us-east-1/assesspy==2.0.1.zip")
 
-
-def med_ratio_met(x: float) -> bool:
-    """
-    Check whether median_ratio meets IAAO standards (between .9 and 1.1, inclusive).
-    :param x: A single float value containing the median_ratio.
-    :type x: float
-    :return: A boolean value indicating whether the median_ratio meets IAAO standards.
-    :rtype: bool
-    """
-    return 0.9 < x <= 1.1
+sc.addPyFile("s3://ccao-athena-dependencies-us-east-1/assesspy==2.0.2.zip")
 
 
 from typing import Union
@@ -119,7 +109,7 @@ def ccao_median(
         ci_l, ci_u = ap.boot_ci(
             median_val, estimate=est_no_out, sale_price=sale_no_out, nboot=300
         )
-        med_met = med_ratio_met(val)
+        med_met = ap.med_ratio_met(val)
         out = [val, ci_l, ci_u, med_met, n]
     else:
         val = median_val(est_no_out, sale_no_out)
