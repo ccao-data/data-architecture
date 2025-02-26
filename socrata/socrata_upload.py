@@ -276,6 +276,3 @@ socrata_upload(
     overwrite=check_overwrite(os.getenv("OVERWRITE")),
     years=parse_years(os.getenv("YEARS")),
 )
-
-
-# %%
