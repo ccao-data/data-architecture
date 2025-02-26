@@ -221,15 +221,6 @@ def upload(method, asset_id, sql_query, overwrite, count, year=None):
         input_data[i] = input_data[i].fillna("").dt.strftime("%Y-%m-%dT%X")
 
     # Raise URL status if it's bad
-    session.get(
-        (
-            "https://datacatalog.cookcountyil.gov/resource/"
-            + asset_id
-            + ".json?$limit=1"
-        ),
-        headers={"X-App-Token": app_token},
-    ).raise_for_status()
-
     session.get(url=url, headers={"X-App-Token": app_token}).raise_for_status()
 
     for i in range(0, input_data.shape[0], 10000):
