@@ -187,6 +187,7 @@ def build_query(athena_asset, asset_id, years=None):
 
     query = f"SELECT {', '.join(columns['column'])} FROM {athena_asset}"
 
+    # Build a dictionary with queries for each year requested, or no years
     if not years:
         query = {None: query}
 
