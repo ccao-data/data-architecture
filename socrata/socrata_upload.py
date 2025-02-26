@@ -133,8 +133,7 @@ def get_asset_info(socrata_asset):
 
 def build_query(athena_asset, asset_id, years=None):
     """
-    Build an Athena compatible SQL query. Function will append a year
-    conditional if `years` is non-empty. Many of the CCAO's open data assets are
+    Build a dictionary of Athena compatible SQL queries and their associated years. Many of the CCAO's open data assets are
     too large to pass to Socrata without chunking.
     """
 

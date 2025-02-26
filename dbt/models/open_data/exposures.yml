@@ -199,7 +199,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: vgzx-68gb
+      asset_id: 3sp4-s4qg
       primary_key:
         - pin
         - year
