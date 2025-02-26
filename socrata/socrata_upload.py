@@ -222,8 +222,7 @@ def upload(asset_id, sql_query, overwrite):
             print_message = (
                 print_message + " year: " + year + " for asset " + asset_id
             )
-        print(year)
-        print(query)
+
         input_data = cursor.execute(query).as_pandas()
         date_columns = input_data.select_dtypes(include="datetime").columns
         for i in date_columns:
