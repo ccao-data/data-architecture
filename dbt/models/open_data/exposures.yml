@@ -180,7 +180,7 @@ exposures:
       # Disabled until the asset is public
       test_row_count: false
       year_field: assessment_year
-      asset_id: 6yjf-dfxs
+      asset_id: tqd2-4zjs
       primary_key:
         - pin
         - permit_number
