@@ -100,9 +100,6 @@ def get_asset_info(socrata_asset):
     Simple helper function to retrieve asset-specific information from dbt.
     """
 
-    if not os.path.isdir("./dbt"):
-        os.chdir("..")
-
     os.chdir("./dbt")
 
     DBT = dbtRunner()
