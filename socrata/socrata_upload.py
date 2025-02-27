@@ -144,8 +144,9 @@ def get_asset_info(socrata_asset):
 
 def build_query(athena_asset, asset_id, years=None):
     """
-    Build a dictionary of Athena compatible SQL queries and their associated years. Many of the CCAO's open data assets are
-    too large to pass to Socrata without chunking.
+    Build a dictionary of Athena compatible SQL queries and their associated
+    years. Many of the CCAO's open data assets are too large to pass to Socrata
+    without chunking.
     """
 
     # Retrieve column names and types from Athena
