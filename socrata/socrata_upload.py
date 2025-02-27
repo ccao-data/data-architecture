@@ -280,6 +280,7 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
     print(f"Total upload in {toc - tic:0.4f} seconds")
 
 
+# Retrieve asset(s)
 all_assets = parse_assets(os.getenv("SOCRATA_ASSET"))
 
 for asset in all_assets:
@@ -288,4 +289,3 @@ for asset in all_assets:
         overwrite=check_overwrite(os.getenv("OVERWRITE")),
         years=parse_years(os.getenv("YEARS")),
     )
-# %%
