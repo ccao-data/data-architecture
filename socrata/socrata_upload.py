@@ -42,7 +42,7 @@ def parse_assets(assets):
     return assets
 
 
-def parse_years(years):
+def parse_years(years=None):
     """
     Make sure the years environmental variable is formatted correctly.
     """
@@ -81,7 +81,7 @@ def parse_years_list(athena_asset, years=None):
     return years_list
 
 
-def check_overwrite(overwrite):
+def check_overwrite(overwrite=False):
     """
     Make sure overwrite environmental variable is typed correctly.
     """
