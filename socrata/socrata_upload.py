@@ -60,7 +60,7 @@ def parse_years_list(athena_asset, years=None):
     Helper function to determine what years need to be iterated over for
     upload.
     """
-
+    print(years)
     if years is not None:
         if years == ["all"]:
             years_list = (
@@ -78,6 +78,7 @@ def parse_years_list(athena_asset, years=None):
     else:
         years_list = None
 
+    print(years_list)
     return years_list
 
 
@@ -197,7 +198,7 @@ def build_query(athena_asset, asset_id, years=None):
     print(columns)
 
     query = f"SELECT {', '.join(columns['column'])} FROM {athena_asset}"
-    print(years)
+
     # Build a dictionary with queries for each year requested, or no years
     if not years:
         query = {None: query}
