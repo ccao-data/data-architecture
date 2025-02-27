@@ -6,19 +6,19 @@ on:
       socrata_asset:
         type: string
         description: |
-          Target Socrata asset. Options are:
-          - Appeals
-          - Assessed Values
-          - Parcel Addresses
-          - Parcel Proximity
-          - Parcel Sales
-          - Parcel Status
-          - Permits
-          - Property Tax-Exempt Parcels
-          - Parcel Universe (Historic)
-          - Parcel Universe (Current Year)
-          - Residential Condominium Unit Characteristics
-          - Single and Multi-Family Improvement Characteristics
+          Target Socrata asset. Options are:\n
+          * Appeals\n
+          * Assessed Values\n
+          * Parcel Addresses\n
+          * Parcel Proximity\n
+          * Parcel Sales\n
+          * Parcel Status\n
+          * Permits\n
+          * Property Tax-Exempt Parcels\n
+          * Parcel Universe (Historic)\n
+          * Parcel Universe (Current Year)\n
+          * Residential Condominium Unit Characteristics\n
+          * Single and Multi-Family Improvement Characteristics
         required: true
       overwrite:
         # True for overwrite, False for update
