@@ -31,6 +31,16 @@ cursor = connect(
 ).cursor(unload=True)
 
 
+def parse_assets(assets):
+    """
+    Make sure the asset environmental variable is formatted correctly.
+    """
+
+    assets = str(assets).replace(" ", "").split(",")
+
+    return assets
+
+
 def parse_years(years):
     """
     Make sure the years environmental variable is formatted correctly.
@@ -270,8 +280,12 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
     print(f"Total upload in {toc - tic:0.4f} seconds")
 
 
-socrata_upload(
-    socrata_asset=os.getenv("SOCRATA_ASSET"),
-    overwrite=check_overwrite(os.getenv("OVERWRITE")),
-    years=parse_years(os.getenv("YEARS")),
-)
+all_assets = parse_assets(os.getenv("SOCRATA_ASSET"))
+
+for asset in all_assets:
+    socrata_upload(
+        socrata_asset=asset,
+        overwrite=check_overwrite(os.getenv("OVERWRITE")),
+        years=parse_years(os.getenv("YEARS")),
+    )
+# %%
