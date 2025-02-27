@@ -36,7 +36,8 @@ def parse_assets(assets):
     Make sure the asset environmental variable is formatted correctly.
     """
 
-    assets = str(assets).replace(" ", "").split(",")
+    assets = str(assets).split(",")
+    assets = [i.strip() for i in assets]
 
     return assets
 
@@ -99,6 +100,9 @@ def get_asset_info(socrata_asset):
     """
     Simple helper function to retrieve asset-specific information from dbt.
     """
+
+    if not os.path.isdir("./dbt"):
+        os.chdir("..")
 
     os.chdir("./dbt")
 
@@ -188,7 +192,7 @@ def build_query(athena_asset, asset_id, years=None):
     # Limit pull to columns present in open data asset
     columns = columns[columns["column"].isin(asset_columns)]
 
-    print("The following columns will be updated:")
+    print(f"The following columns will be updated for {athena_asset}:")
     print(columns)
 
     query = f"SELECT {', '.join(columns['column'])} FROM {athena_asset}"
