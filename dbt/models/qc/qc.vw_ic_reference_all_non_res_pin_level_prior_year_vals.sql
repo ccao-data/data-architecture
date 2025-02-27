@@ -40,8 +40,8 @@ LEFT JOIN (
     EXCEPT
     SELECT asmt_hist.* FROM {{ source('iasworld', 'asmt_hist') }} AS asmt_hist
 ) AS asmt
-    ON pardat.parid = asmt.parid
-    AND pardat.taxyr = asmt.taxyr
+    ON aprval.parid = asmt.parid
+    AND aprval.taxyr = asmt.taxyr
     AND asmt.cur = 'Y'
     AND asmt.deactivat IS NULL
     AND asmt.valclass IS NULL
