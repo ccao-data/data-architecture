@@ -25,7 +25,7 @@ permit_addresses AS (
 
 SELECT
     permit.parid AS pin,
-    YEAR(CAST(permit.permdt AS TIMESTAMP)) AS year,
+    SUBSTR(permit.permdt, 1, 4) AS year,
     permit.num AS permit_number,
     permit.user28 AS local_permit_number,
     permit.permdt AS date_issued,
