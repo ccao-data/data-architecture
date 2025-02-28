@@ -82,7 +82,7 @@ def parse_years_list(athena_asset, years=None):
     return years_list
 
 
-def check_overwrite(overwrite=False):
+def check_overwrite(overwrite):
     """
     Make sure overwrite environmental variable is typed correctly.
     """
@@ -285,10 +285,12 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
 
 # Retrieve asset(s)
 all_assets = parse_assets(os.getenv("SOCRATA_ASSET"))
+overwrite = check_overwrite(os.getenv("OVERWRITE"))
+years = parse_years(os.getenv("YEARS"))
 
 for asset in all_assets:
     socrata_upload(
         socrata_asset=asset,
-        overwrite=check_overwrite(os.getenv("OVERWRITE")),
-        years=parse_years(os.getenv("YEARS")),
+        overwrite=overwrite,
+        years=years,
     )
