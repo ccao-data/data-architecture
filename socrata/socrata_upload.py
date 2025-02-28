@@ -289,6 +289,7 @@ overwrite = check_overwrite(os.getenv("OVERWRITE"))
 years = parse_years(os.getenv("YEARS"))
 
 for asset in all_assets:
+    print(years)
     socrata_upload(
         socrata_asset=asset,
         overwrite=overwrite,
