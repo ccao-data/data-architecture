@@ -4,34 +4,35 @@ on:
   workflow_dispatch:
     inputs:
       socrata_asset:
-        type: choice
-        description: Target Socrata asset
-        options:
-        - Appeals
-        - Assessed Values
-        - Parcel Addresses
-        - Parcel Proximity
-        - Parcel Sales
-        - Parcel Status
-        - Permits
-        - Property Tax-Exempt Parcels
-        - Parcel Universe (Historic)
-        - Parcel Universe (Current Year)
-        - Residential Condominium Unit Characteristics
-        - Single and Multi-Family Improvement Characteristics
-        default: Parcel Universe (Current Year)
+        type: string
+        description: >
+          Comma-separated Socrata assets to update. Options are:
+          Appeals |
+          Assessed Values |
+          Parcel Addresses |
+          Parcel Proximity |
+          Parcel Sales |
+          Parcel Status |
+          Permits |
+          Property Tax-Exempt Parcels |
+          Parcel Universe (Historic) |
+          Parcel Universe (Current Year) |
+          Residential Condominium Unit Characteristics |
+          Single and Multi-Family Improvement Characteristics
         required: true
+      years:
+        # Comma separated list of years
+        type: string
+        description: >
+          Years to update or overwrite (comma-separated). Leaving this field
+          blank will upload an entire asset in one piece. Enter 'all' to upload
+          all years individually.
+        required: false
       overwrite:
         # True for overwrite, False for update
         type: boolean
         description: Overwrite socrata asset
         required: true
-      years:
-        # Comma separated list of years
-        type: string
-        description: Years to update or overwrite (comma-separated)
-        default: 'all'
-        required: false
 
 
 env:
