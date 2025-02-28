@@ -180,7 +180,7 @@ exposures:
       # Disabled until the asset is public
       test_row_count: false
       year_field: assessment_year
-      asset_id: tqd2-4zjs
+      asset_id: 6yjf-dfxs
       primary_key:
         - pin
         - permit_number
@@ -199,7 +199,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: 3sp4-s4qg
+      asset_id: vgzx-68gb
       primary_key:
         - pin
         - year
