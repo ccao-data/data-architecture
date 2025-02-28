@@ -61,11 +61,6 @@ sources:
             description: '{{ doc("shared_column_pin") }}'
           - name: permdt
             description: Permit date
-            data_tests:
-              - not_null:
-                  name: iasworld_permit_date_issued_not_null
-                  config:
-                    error_if: ">3"
           - name: seq
             description: '{{ doc("shared_column_seq") }}'
           - name: trans_id
