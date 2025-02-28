@@ -20,16 +20,19 @@ on:
           Residential Condominium Unit Characteristics |
           Single and Multi-Family Improvement Characteristics
         required: true
+      years:
+        # Comma separated list of years
+        type: string
+        description: >
+          Years to update or overwrite (comma-separated). Leaving this field
+          blank will upload an entire asset in one piece. Enter 'all' to upload
+          all years individually.
+        required: false
       overwrite:
         # True for overwrite, False for update
         type: boolean
         description: Overwrite socrata asset
         required: true
-      years:
-        # Comma separated list of years
-        type: string
-        description: Years to update or overwrite (comma-separated). Enter 'all' to upload all years individually.
-        required: false
 
 
 env:

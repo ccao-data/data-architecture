@@ -60,7 +60,7 @@ def parse_years_list(athena_asset, years=None):
     Helper function to determine what years need to be iterated over for
     upload.
     """
-    print(years)
+
     if years is not None:
         if years == ["all"]:
             years_list = (
@@ -78,7 +78,6 @@ def parse_years_list(athena_asset, years=None):
     else:
         years_list = None
 
-    print(years_list)
     return years_list
 
 
@@ -285,13 +284,11 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
 
 # Retrieve asset(s)
 all_assets = parse_assets(os.getenv("SOCRATA_ASSET"))
-overwrite = check_overwrite(os.getenv("OVERWRITE"))
-years = parse_years(os.getenv("YEARS"))
+
 
 for asset in all_assets:
-    print(years)
     socrata_upload(
         socrata_asset=asset,
-        overwrite=overwrite,
-        years=years,
+        overwrite=check_overwrite(os.getenv("OVERWRITE")),
+        years=parse_years(os.getenv("YEARS")),
     )
