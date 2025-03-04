@@ -6,19 +6,9 @@ on:
       socrata_asset:
         type: string
         description: >
-          Comma-separated Socrata assets to update. Options are:
-          Appeals |
-          Assessed Values |
-          Parcel Addresses |
-          Parcel Proximity |
-          Parcel Sales |
-          Parcel Status |
-          Permits |
-          Property Tax-Exempt Parcels |
-          Parcel Universe (Historic) |
-          Parcel Universe (Current Year) |
-          Residential Condominium Unit Characteristics |
-          Single and Multi-Family Improvement Characteristics
+          Comma-separated Socrata assets to update. Run
+          `dbt list --resource-types exposure --output json --output-keys label`
+          to see options.
         required: true
       years:
         # Comma separated list of years
