@@ -25,6 +25,11 @@ models:
       - name: date_issued
         description: >
           Date that the municipality issued the permit to the applicant
+        data_tests:
+          - not_null:
+              name: default_vw_pin_permit_date_issued_not_null
+              config:
+                error_if: ">3"
       - name: date_submitted
         description: '{{ doc("column_permit_date_submitted") }}'
       - name: date_updated
