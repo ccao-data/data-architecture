@@ -58,8 +58,6 @@ def parse_years(years=None):
     return years
 
 
-# %%
-# %%
 def parse_years_list(athena_asset, years=None):
     """
     Helper function to determine what years need to be iterated over for
