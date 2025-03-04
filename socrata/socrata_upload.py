@@ -48,18 +48,18 @@ def parse_years(years=None):
     if years == "":
         years = None
     if years is not None:
-        years = str(years).replace(" ", "").split(",")
-
         # Only allow anticipated values
         years = [
             re.sub("[^0-9]", "", year)
-            for year in years
+            for year in str(years).split(",")
             if re.sub("[^0-9]", "", year)
         ]
 
     return years
 
 
+# %%
+# %%
 def parse_years_list(athena_asset, years=None):
     """
     Helper function to determine what years need to be iterated over for
