@@ -6,9 +6,9 @@ on:
       socrata_asset:
         type: string
         description: >
-          Comma-separated Socrata assets to update. Run
-          `dbt list --resource-types exposure --output json --output-keys label`
-          to see options.
+          Comma-separated list of names of Socrata assets to update.
+          Asset names are the same as the asset title in Socrata (or dbt
+          exposure labels), minus the "Assessor - " prefix.
         required: true
       years:
         # Comma separated list of years
