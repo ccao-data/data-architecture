@@ -199,13 +199,12 @@ def build_query_dict(athena_asset, asset_id, years=None):
 
     # Build a dictionary with queries for each year requested, or no years
     if not years:
-        query = {None: query}
+        query_dict = {None: query}
 
     else:
-        query = [query + " WHERE year = '" + year + "'" for year in years]
-        query = dict([(k, v) for k, v in zip(years, query)])
+        query_dict = {year: f"{query} WHERE year = '{year}'" for year in years}
 
-    return query
+    return query_dict
 
 
 def upload(asset_id, sql_query, overwrite):
