@@ -101,6 +101,8 @@ def get_asset_info(socrata_asset):
     Simple helper function to retrieve asset-specific information from dbt.
     """
 
+    # When running locally, we will probably be inside the socrata/ dir, so
+    # switch back out to find the dbt/ dir
     if not os.path.isdir("./dbt"):
         os.chdir("..")
 
