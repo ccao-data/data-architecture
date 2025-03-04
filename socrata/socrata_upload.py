@@ -215,8 +215,6 @@ def build_query_dict(athena_asset, asset_id, years=None):
     return query_dict
 
 
-# %%
-# %%
 def upload(asset_id, sql_query, overwrite):
     """
     Function to perform the upload to Socrata. `puts` or `posts` depending on
