@@ -3,6 +3,7 @@ import io
 import json
 import logging
 import os
+import re
 import time
 
 import pandas as pd
@@ -48,6 +49,13 @@ def parse_years(years=None):
         years = None
     if years is not None:
         years = str(years).replace(" ", "").split(",")
+
+        # Only allow anticipated values
+        years = [
+            re.sub("[^0-9]", "", year)
+            for year in years
+            if re.sub("[^0-9]", "", year)
+        ]
 
     return years
 
@@ -207,6 +215,8 @@ def build_query_dict(athena_asset, asset_id, years=None):
     return query_dict
 
 
+# %%
+# %%
 def upload(asset_id, sql_query, overwrite):
     """
     Function to perform the upload to Socrata. `puts` or `posts` depending on
