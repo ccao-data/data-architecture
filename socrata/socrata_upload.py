@@ -36,10 +36,7 @@ def parse_assets(assets):
     Make sure the asset environmental variable is formatted correctly.
     """
 
-    assets = str(assets).split(",")
-    assets = [i.strip() for i in assets]
-
-    return assets
+    return [asset.strip() for asset in str(assets).split(",")]
 
 
 def parse_years(years=None):
