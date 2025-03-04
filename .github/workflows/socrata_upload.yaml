@@ -25,8 +25,8 @@ on:
         type: string
         description: >
           Years to update or overwrite (comma-separated). Leaving this field
-          blank will upload an entire asset in one piece. Enter 'all' to upload
-          all years individually.
+          blank will upload an entire asset in one piece. Enter 'all' to chunk
+          the upload by year for all years.
         required: false
       overwrite:
         # True for overwrite, False for update
