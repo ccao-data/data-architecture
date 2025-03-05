@@ -86,4 +86,5 @@ jobs:
           SOCRATA_ASSET: ${{ inputs.socrata_asset }}
           OVERWRITE: ${{ inputs.overwrite }}
           YEARS: ${{ inputs.years }}
+          WORKFLOW: ${{ GITHUB_EVENT_NAME }}
         run: python ./socrata/socrata_upload.py

@@ -37,6 +37,7 @@ def parse_assets(assets=None):
     Make sure the asset environmental variable is formatted correctly.
     """
 
+    # If no assets are entered run script for all assets
     if not assets:
         # When running locally, we will probably be inside the socrata/ dir, so
         # switch back out to find the dbt/ dir
@@ -118,6 +119,9 @@ def parse_years_list(athena_asset, years=None):
             )
         else:
             years_list = years
+
+    elif not years and os.getenv("OVERWRITE") == "schedule":
+        years_list = ["2025"]
 
     else:
         years_list = None
