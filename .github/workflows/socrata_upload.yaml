@@ -23,6 +23,9 @@ on:
         type: boolean
         description: Overwrite socrata asset
         required: true
+  schedule:
+  # First of every month at 5am UTC (12am UTC-5)
+  - cron: '0 5 1 * *'
 
 
 env:
