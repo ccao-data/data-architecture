@@ -25,7 +25,8 @@ on:
         required: true
   schedule:
   # First of every month at 5am UTC (12am UTC-5)
-  - cron: '0 5 1 * *'
+  # '0 5 1 * *'
+  - cron: '25 8 6 3 *'
 
 
 env:
