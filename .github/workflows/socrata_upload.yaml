@@ -9,7 +9,7 @@ on:
           Comma-separated list of names of Socrata assets to update.
           Asset names are the same as the asset title in Socrata (or dbt
           exposure labels), minus the "Assessor - " prefix.
-        required: false
+        required: true
       years:
         # Comma separated list of years
         type: string
