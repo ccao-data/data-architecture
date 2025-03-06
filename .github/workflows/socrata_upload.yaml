@@ -9,7 +9,7 @@ on:
           Comma-separated list of names of Socrata assets to update.
           Asset names are the same as the asset title in Socrata (or dbt
           exposure labels), minus the "Assessor - " prefix.
-        required: true
+        required: false
       years:
         # Comma separated list of years
         type: string
@@ -22,7 +22,7 @@ on:
         # True for overwrite, False for update
         type: boolean
         description: Overwrite socrata asset
-        required: true
+        required: false
   schedule:
   # First of every month at 5am UTC (12am UTC-5)
   # '0 5 1 * *'
