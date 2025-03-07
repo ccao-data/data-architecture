@@ -1,0 +1,251 @@
+---
+title: "Test of geocoding"
+format: html
+output: html_document
+
+---
+
+# This is a test of two geocoding techniques. 
+
+## Problem Statement
+
+Between 2015 and our current datset there are 15676 missing geographies. We are attempting to geocode these geographies, using 
+
+
+```{r}
+library(DBI)
+library(dplyr)
+library(noctua)
+library(tidygeocoder)
+library(readr)
+library(sf)
+library(leaflet)
+library(purrr)
+
+
+AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
+
+
+AWS_ATHENA_CONN_NOCTUA <- dbConnect(
+  noctua::athena()
+)
+
+# Pull missing geographies and the information for the year prior and following.
+
+missing_geographies <- dbGetQuery(
+  AWS_ATHENA_CONN_NOCTUA,
+  "SELECT
+    m.pin,
+    m.year AS missing_year,
+    m.x_3435 AS missing_x,
+    m.y_3435 AS missing_y,
+    p.year AS previous_year,
+    p.x_3435 AS previous_x,
+    p.y_3435 AS previous_y,
+    n.year AS following_year,
+    n.x_3435 AS following_x,
+    n.y_3435 AS following_y,
+    -- Address fields for the missing year
+    addr_m.prop_address_full AS missing_prop_address_full,
+    addr_m.prop_address_city_name AS missing_prop_address_city_name,
+    addr_m.prop_address_state AS missing_prop_address_state,
+    addr_m.prop_address_zipcode_1 AS missing_prop_address_zipcode_1,
+    -- Address fields for the previous year
+    addr_p.prop_address_full AS previous_prop_address_full,
+    addr_p.prop_address_city_name AS previous_prop_address_city_name,
+    addr_p.prop_address_state AS previous_prop_address_state,
+    addr_p.prop_address_zipcode_1 AS previous_prop_address_zipcode_1,
+    -- Address fields for the following year
+    addr_n.prop_address_full AS following_prop_address_full,
+    addr_n.prop_address_city_name AS following_prop_address_city_name,
+    addr_n.prop_address_state AS following_prop_address_state,
+    addr_n.prop_address_zipcode_1 AS following_prop_address_zipcode_1
+  FROM default.vw_pin_universe m
+  -- Join for previous year record
+  LEFT JOIN default.vw_pin_universe p
+    ON m.pin = p.pin AND CAST(p.year AS integer) = CAST(m.year AS integer) - 1
+  -- Join for following year record
+  LEFT JOIN default.vw_pin_universe n
+    ON m.pin = n.pin AND CAST(n.year AS integer) = CAST(m.year AS integer) + 1
+  -- Join to get address for missing year
+  LEFT JOIN vw_pin_address addr_m
+    ON m.pin = addr_m.pin AND m.year = addr_m.year
+  -- Join to get address for previous year
+  LEFT JOIN vw_pin_address addr_p
+    ON p.pin = addr_p.pin AND p.year = addr_p.year
+  -- Join to get address for following year
+  LEFT JOIN vw_pin_address addr_n
+    ON n.pin = addr_n.pin AND n.year = addr_n.year
+  WHERE (m.x_3435 IS NULL OR m.y_3435 IS NULL)
+    AND CAST(m.year AS integer) >= 2015")
+
+
+# Concatenate addresses into a single value
+missing_geographies <- missing_geographies %>%
+  mutate(
+    missing_prop_address_full = paste(
+      missing_prop_address_full,
+      missing_prop_address_city_name,
+      missing_prop_address_state,
+      missing_prop_address_zipcode_1,
+      sep = " "
+    ),
+    previous_prop_address_full = paste(
+      previous_prop_address_full,
+      previous_prop_address_city_name,
+      previous_prop_address_state,
+      previous_prop_address_zipcode_1,
+      sep = " "
+    ),
+    following_prop_address_full = paste(
+      following_prop_address_full,
+      following_prop_address_city_name,
+      following_prop_address_state,
+      following_prop_address_zipcode_1,
+      sep = " "
+    )
+  )
+```
+
+
+```{r}
+# Identify missing geographies that can be imputed by averaging the previous and following years
+# We use a small window .0001 difference in both Latitude and longitude for this
+missing_geographies_imputed <- missing_geographies %>%
+  mutate(
+    both_missing = is.na(missing_x) & is.na(missing_y) &
+      !is.na(previous_x) & !is.na(previous_y) &
+      !is.na(following_x) & !is.na(following_y) &
+      abs(previous_x - following_x) <= 0.0001 &
+      abs(previous_y - following_y) <= 0.0001,
+    missing_x = if_else(both_missing, (previous_x + following_x) / 2, missing_x),
+    missing_y = if_else(both_missing, (previous_y + following_y) / 2, missing_y)
+  ) %>%
+  select(-both_missing)
+
+# Goecoding requires batches of 1000 to do, so we create a function
+batch_list <- split(missing_geographies_imputed,
+                    ceiling(seq_len(nrow(missing_geographies_imputed)) / 1000))
+
+geocode_batch <- function(batch) {
+  batch %>%
+    geocode(
+      street = missing_prop_address_full,
+      city   = missing_prop_address_city_name,
+      state  = missing_prop_address_state,
+      method = "census"
+    ) %>%
+    filter(!is.na(long) & !is.na(lat)) %>%
+    st_as_sf(coords = c("long", "lat")) %>%
+    st_set_crs(4326) %>%
+    st_transform(3435)
+}
+
+missing_geographies_geocoded <- map(batch_list, geocode_batch) %>%
+  do.call(rbind, .)
+
+missing_geographies_imputed_sf <- missing_geographies_imputed %>%
+  filter(!is.na(missing_x) & !is.na(missing_y)) %>%
+  st_as_sf(coords = c("missing_x", "missing_y"), crs = 3435) %>%
+  mutate(
+    technique = "imputed",
+    current_year_address = paste(missing_prop_address_full,
+                                 missing_prop_address_city_name,
+                                 missing_prop_address_state, sep = ", ")
+  )
+
+missing_geographies_geocoded <- missing_geographies_geocoded %>%
+  mutate(
+    technique = "geocoded",
+    current_year_address = paste(missing_prop_address_full,
+                                 missing_prop_address_city_name,
+                                 missing_prop_address_state, sep = ", ")
+  )
+
+# Bind them back to one dataset
+combined_geographies <- bind_rows(
+  missing_geographies_imputed_sf,
+  missing_geographies_geocoded
+)
+
+```
+
+Number of geographies filled by imputing is `r nrow(missing_geographies_imputed_sf)` and number of geographies filled by geocoding is `r nrow(missing_geographies_geocoded)`.
+
+To test how these work, we join them back together again and create a distance in ft column.
+```{r}
+combined_geographies <- combined_geographies %>%
+  group_by(pin) %>%
+  filter(n() == 2) %>%  # keep only pins that have both techniques
+  ungroup() %>%
+  st_transform(crs = 3435) %>%
+  group_by(pin) %>%
+  mutate(distance_ft = as.numeric(st_distance(first(geometry), last(geometry)))) %>%
+  ungroup() %>%
+  st_transform(crs = 4326)
+
+pal <- colorFactor(palette = "Set1", domain = combined_geographies$technique)
+```
+
+## Map of all pins with 2 techniques
+
+```{r}
+leaflet(data = combined_geographies) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    color = ~pal(technique),
+    popup = ~paste(
+      "<strong>Technique:</strong>", technique, "<br>",
+      "<strong>Address:</strong>", current_year_address, "<br>",
+      ifelse(!is.na(distance_ft),
+             paste("<strong>Distance (ft):</strong>", round(distance_ft, 2)),
+             "")
+    )
+  )
+```
+## Pins with Long Distances (>1000 ft)
+
+```{r}
+# Look at long distance pins
+subset <- combined_geographies %>%
+  filter(distance_ft > 1000)
+
+
+leaflet(data = subset) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    color = ~pal(technique),
+    popup = ~paste(
+      "<strong>Technique:</strong>", technique, "<br>",
+      "<strong>Address:</strong>", current_year_address, "<br>",
+      ifelse(!is.na(distance_ft),
+             paste("<strong>Distance (ft):</strong>", round(distance_ft, 2)),
+             "")
+    )
+  )
+```
+
+
+## Histogram of Distance (ft) Between Techniques
+The vast majority of pins are within 300 feet of eachother. 
+```{r}
+combined_geographies <- combined_geographies %>%
+  mutate(distance_ft = as.numeric(as.character(distance_ft))) %>%
+  filter(distance_ft < 1000)
+
+p <- ggplot(combined_geographies, aes(x = distance_ft)) +
+  geom_histogram(binwidth = 100, fill = "steelblue", color = "white") +
+  labs(
+    title = "Histogram of Distance (ft) Between Techniques",
+    x = "Distance (ft)",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+
+print(p)
+
+```
+# Conclusion:
+In general, the two techniques are very similar. I'd have to go through them a bit more in depth, but at the moment, the geocoding looks a bit more accurate. This mostly comes from looking at the long distance pin map.
+
