@@ -1,15 +1,22 @@
 ---
 title: "Test of geocoding"
 format: html
-output: html_document
-
+execute:
+  echo: false
+  warning: false
+  message: false
 ---
-
 # This is a test of two geocoding techniques. 
 
 ## Problem Statement
 
-Between 2015 and our current datset there are 15676 missing geographies. We are attempting to geocode these geographies, using 
+Between 2015 and our current datset there are 15676 missing geographies. We are attempting to geocode these geographies, using two different methods.
+
+## Technique 1
+If a value for x and y is present for the proceeding and following year & both those values are within .0001 of eachother, we use the average of those two values. (imputed)
+
+## Technique 2
+We geocode the addresses from openstreet maps. (geocoding)
 
 
 ```{r}
@@ -19,12 +26,9 @@ library(noctua)
 library(tidygeocoder)
 library(readr)
 library(sf)
+library(ggplot2)
 library(leaflet)
 library(purrr)
-
-
-AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
 
 
 AWS_ATHENA_CONN_NOCTUA <- dbConnect(
@@ -32,7 +36,6 @@ AWS_ATHENA_CONN_NOCTUA <- dbConnect(
 )
 
 # Pull missing geographies and the information for the year prior and following.
-
 missing_geographies <- dbGetQuery(
   AWS_ATHENA_CONN_NOCTUA,
   "SELECT
@@ -173,7 +176,8 @@ combined_geographies <- bind_rows(
 
 Number of geographies filled by imputing is `r nrow(missing_geographies_imputed_sf)` and number of geographies filled by geocoding is `r nrow(missing_geographies_geocoded)`.
 
-To test how these work, we join them back together again and create a distance in ft column.
+To test how these work, we join them back together again and create a distance in ft collumn. This is the difference between observations with both imputed and geocoded techniques.
+
 ```{r}
 combined_geographies <- combined_geographies %>%
   group_by(pin) %>%
@@ -204,8 +208,9 @@ leaflet(data = combined_geographies) %>%
     )
   )
 ```
-## Pins with Long Distances (>1000 ft)
+## Pins with Long Distances ( > 1000 ft)
 
+The main issue which I saw was that directions of streets were not correct (359 W Ohio is likely 359 E Ohio).
 ```{r}
 # Look at long distance pins
 subset <- combined_geographies %>%
@@ -228,7 +233,10 @@ leaflet(data = subset) %>%
 
 
 ## Histogram of Distance (ft) Between Techniques
-The vast majority of pins are within 300 feet of eachother. 
+
+The vast majority of pins are within 300 feet of eachother. This represents maybe a parcel or two of difference, a good portion of which is often between the centroid of the PIN and being directly on the road.
+
+It does not directly answer if having both indicators is representative of more stability, although there is no reason to believe that it wouldn't be.
 ```{r}
 combined_geographies <- combined_geographies %>%
   mutate(distance_ft = as.numeric(as.character(distance_ft))) %>%
@@ -247,5 +255,4 @@ print(p)
 
 ```
 # Conclusion:
-In general, the two techniques are very similar. I'd have to go through them a bit more in depth, but at the moment, the geocoding looks a bit more accurate. This mostly comes from looking at the long distance pin map.
-
+In general, the two techniques are very similar. I'd have to go through them a bit more in depth, but at the moment, the geocoding looks a bit better, specifically because it fills more observations. On the other hand, the imputed values are more likely to be correct, as we know we have some issues with our address data. 
