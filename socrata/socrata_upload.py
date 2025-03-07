@@ -32,12 +32,54 @@ cursor = connect(
 ).cursor(unload=True)
 
 
-def parse_assets(assets):
+def parse_assets(assets=None):
     """
     Make sure the asset environmental variable is formatted correctly.
     """
 
-    return [asset.strip() for asset in str(assets).split(",")]
+    # If no assets are entered run script for all assets
+    if not assets:
+        # When running locally, we will probably be inside the socrata/ dir, so
+        # switch back out to find the dbt/ dir
+        if not os.path.isdir("./dbt"):
+            os.chdir("..")
+
+        os.chdir("./dbt")
+
+        DBT = dbtRunner()
+        dbt_list_args = [
+            "--quiet",
+            "list",
+            "--select",
+            "open_data.*",
+            "--resource-types",
+            "exposure",
+            "--output",
+            "json",
+            "--output-keys",
+            "label",
+        ]
+
+        print(f"> dbt {' '.join(dbt_list_args)}")
+        dbt_output = io.StringIO()
+        with contextlib.redirect_stdout(dbt_output):
+            DBT.invoke(dbt_list_args)
+
+        model = [
+            json.loads(model_dict_str)
+            for model_dict_str in dbt_output.getvalue().split("\n")
+            # Filter out empty strings caused by trailing newlines
+            if model_dict_str
+        ]
+
+        os.chdir("..")
+
+        assets = pd.json_normalize(model)["label"].tolist()
+
+    else:
+        assets = [asset.strip() for asset in str(assets).split(",")]
+
+    return assets
 
 
 def parse_years(years=None):
@@ -78,13 +120,16 @@ def parse_years_list(athena_asset, years=None):
         else:
             years_list = years
 
+    elif not years and os.getenv("OVERWRITE") == "schedule":
+        years_list = ["2025"]
+
     else:
         years_list = None
 
     return years_list
 
 
-def check_overwrite(overwrite):
+def check_overwrite(overwrite=None):
     """
     Make sure overwrite environmental variable is typed correctly.
     """
