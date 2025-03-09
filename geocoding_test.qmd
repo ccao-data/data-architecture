@@ -166,7 +166,6 @@ missing_geographies_geocoded <- missing_geographies_geocoded %>%
                                  missing_prop_address_state, sep = ", ")
   )
 
-# Bind them back to one dataset
 combined_geographies <- bind_rows(
   missing_geographies_imputed_sf,
   missing_geographies_geocoded
@@ -176,23 +175,59 @@ combined_geographies <- bind_rows(
 
 Number of geographies filled by imputing is `r nrow(missing_geographies_imputed_sf)` and number of geographies filled by geocoding is `r nrow(missing_geographies_geocoded)`.
 
-To test how these work, we join them back together again and create a distance in ft collumn. This is the difference between observations with both imputed and geocoded techniques.
+## Imputed PINs
+
+```{r}
+
+combined_geographies <- combined_geographies %>%
+    st_transform(crs = 4326)
+
+# Create a map for points with "imputed" technique
+imputed_map <- leaflet(data = subset(combined_geographies, technique == "imputed")) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    color = ~pal(technique),
+    popup = ~paste(
+      "<strong>Technique:</strong>", technique, "<br>",
+      "<strong>Address:</strong>", current_year_address, "<br>"
+    ),
+    clusterOptions = markerClusterOptions()
+  )
+
+imputed_map
+```
+## Geocoded PINs
+
+```{r}
+geocoded_map <- leaflet(data = subset(combined_geographies, technique == "geocoded")) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    color = ~pal(technique),
+    popup = ~paste(
+      "<strong>Technique:</strong>", technique, "<br>",
+      "<strong>Address:</strong>", current_year_address, "<br>"
+    ),
+    clusterOptions = markerClusterOptions()
+  )
+
+geocoded_map
+
+```
+
 
 ```{r}
 combined_geographies <- combined_geographies %>%
   group_by(pin) %>%
-  filter(n() == 2) %>%  # keep only pins that have both techniques
+  filter(any(technique == "imputed") & any(technique == "geocoded")) %>%
   ungroup() %>%
-  st_transform(crs = 3435) %>%
   group_by(pin) %>%
-  mutate(distance_ft = as.numeric(st_distance(first(geometry), last(geometry)))) %>%
-  ungroup() %>%
-  st_transform(crs = 4326)
+  mutate(distance_ft = as.numeric(st_distance(first(geometry), last(geometry))))
 
 pal <- colorFactor(palette = "Set1", domain = combined_geographies$technique)
 ```
 
 ## Map of all pins with 2 techniques
+To test how these work, we join them back together again and create a distance in ft collumn. This is the difference between observations with both imputed and geocoded techniques. The result shows that both techniques are very similar, although there are some differences.
 
 ```{r}
 leaflet(data = combined_geographies) %>%
@@ -205,12 +240,14 @@ leaflet(data = combined_geographies) %>%
       ifelse(!is.na(distance_ft),
              paste("<strong>Distance (ft):</strong>", round(distance_ft, 2)),
              "")
-    )
+    ),
+    clusterOptions = markerClusterOptions()
   )
+
 ```
 ## Pins with Long Distances ( > 1000 ft)
 
-The main issue which I saw was that directions of streets were not correct (359 W Ohio is likely 359 E Ohio).
+The main (fixable) issue that I saw here was that directions of streets were not correct (359 W Ohio is likely 359 E Ohio).
 ```{r}
 # Look at long distance pins
 subset <- combined_geographies %>%
@@ -234,9 +271,10 @@ leaflet(data = subset) %>%
 
 ## Histogram of Distance (ft) Between Techniques
 
-The vast majority of pins are within 300 feet of eachother. This represents maybe a parcel or two of difference, a good portion of which is often between the centroid of the PIN and being directly on the road.
+The vast majority of pins are within 300 feet of eachother. An example of this would be Address: 1346 W CULLERTON ST 3 CHICAGO IL 60608, CHICAGO, IL. These are 185 feet apart, and three houses apart. While not ideal, it definetely seems to be an improvement over no information. 
 
-It does not directly answer if having both indicators is representative of more stability, although there is no reason to believe that it wouldn't be.
+What this does not answer is if PINs which have only one one technique are harder to code (weirder addresses). There is no intuitive reason why this would be the case, but it is something we should think about. 
+
 ```{r}
 combined_geographies <- combined_geographies %>%
   mutate(distance_ft = as.numeric(as.character(distance_ft))) %>%
@@ -255,4 +293,5 @@ print(p)
 
 ```
 # Conclusion:
-In general, the two techniques are very similar. I'd have to go through them a bit more in depth, but at the moment, the geocoding looks a bit better, specifically because it fills more observations. On the other hand, the imputed values are more likely to be correct, as we know we have some issues with our address data. 
+
+In general, the two techniques produce similar results. I'd have to go through them a bit more in depth, but at the moment, the geocoding looks a bit better, specifically because it fills more observations. On the other hand, the imputed values are more likely to be correct, as we know we have some issues with our address data. 
