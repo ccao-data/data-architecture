@@ -128,8 +128,8 @@ missing_geographies_imputed <- missing_geographies %>%
   select(-both_missing)
 
 # Goecoding requires batches of 1000 to do, so we create a function
-batch_list <- split(missing_geographies_imputed,
-                    ceiling(seq_len(nrow(missing_geographies_imputed)) / 1000))
+batch_list <- split(missing_geographies,
+                    ceiling(seq_len(nrow(missing_geographies)) / 1000))
 
 geocode_batch <- function(batch) {
   batch %>%
