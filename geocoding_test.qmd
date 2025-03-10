@@ -22,13 +22,15 @@ We geocode the addresses from openstreet maps. (geocoding)
 ```{r}
 library(DBI)
 library(dplyr)
-library(noctua)
-library(tidygeocoder)
-library(readr)
-library(sf)
 library(ggplot2)
 library(leaflet)
+library(noctua)
 library(purrr)
+library(RColorBrewer)
+library(readr)
+library(sf)
+library(tidygeocoder)
+
 
 
 AWS_ATHENA_CONN_NOCTUA <- dbConnect(
@@ -178,11 +180,11 @@ Number of geographies filled by imputing is `r nrow(missing_geographies_imputed_
 ## Imputed PINs
 
 ```{r}
-
 combined_geographies <- combined_geographies %>%
     st_transform(crs = 4326)
 
-# Create a map for points with "imputed" technique
+pal <- colorFactor(palette = "Set1", domain = combined_geographies$technique)
+
 imputed_map <- leaflet(data = subset(combined_geographies, technique == "imputed")) %>%
   addTiles() %>%
   addCircleMarkers(
@@ -196,6 +198,7 @@ imputed_map <- leaflet(data = subset(combined_geographies, technique == "imputed
 
 imputed_map
 ```
+
 ## Geocoded PINs
 
 ```{r}
@@ -223,7 +226,6 @@ combined_geographies <- combined_geographies %>%
   group_by(pin) %>%
   mutate(distance_ft = as.numeric(st_distance(first(geometry), last(geometry))))
 
-pal <- colorFactor(palette = "Set1", domain = combined_geographies$technique)
 ```
 
 ## Map of all pins with 2 techniques
