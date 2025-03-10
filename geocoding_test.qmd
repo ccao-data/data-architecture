@@ -1,10 +1,11 @@
 ---
 title: "Test of geocoding"
-format: html
-execute:
-  echo: false
-  warning: false
-  message: false
+format: 
+  html:
+    self_contained: true
+    embed-resources: true
+    warning: false
+    echo: false
 ---
 
 ## Problem Statement:
