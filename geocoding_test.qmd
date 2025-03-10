@@ -6,16 +6,15 @@ execute:
   warning: false
   message: false
 ---
-# This is a test of two geocoding techniques. 
 
-## Problem Statement
+## Problem Statement:
 
 Between 2015 and our current datset there are 15676 missing geographies. We are attempting to geocode these geographies, using two different methods.
 
-## Technique 1
+## Technique 1:
 If a value for x and y is present for the proceeding and following year & both those values are within .0001 of eachother, we use the average of those two values. (imputed)
 
-## Technique 2
+## Technique 2:
 We geocode the addresses from openstreet maps. (geocoding)
 
 
@@ -30,8 +29,6 @@ library(RColorBrewer)
 library(readr)
 library(sf)
 library(tidygeocoder)
-
-
 
 AWS_ATHENA_CONN_NOCTUA <- dbConnect(
   noctua::athena()
@@ -175,9 +172,11 @@ combined_geographies <- bind_rows(
 
 ```
 
-Number of geographies filled by imputing is `r nrow(missing_geographies_imputed_sf)` and number of geographies filled by geocoding is `r nrow(missing_geographies_geocoded)`.
+## Results:
 
-## Imputed PINs
+The number of geographies filled by imputing is `r nrow(missing_geographies_imputed_sf)` and the number of geographies filled by geocoding is `r nrow(missing_geographies_geocoded)`.
+
+## Imputed PINs:
 
 ```{r}
 combined_geographies <- combined_geographies %>%
@@ -199,7 +198,7 @@ imputed_map <- leaflet(data = subset(combined_geographies, technique == "imputed
 imputed_map
 ```
 
-## Geocoded PINs
+## Geocoded PINs:
 
 ```{r}
 geocoded_map <- leaflet(data = subset(combined_geographies, technique == "geocoded")) %>%
@@ -228,7 +227,7 @@ combined_geographies <- combined_geographies %>%
 
 ```
 
-## Map of all pins with 2 techniques
+## Map of all PINs with results from both techniques:
 To test how these work, we join them back together again and create a distance in ft collumn. This is the difference between observations with both imputed and geocoded techniques. The result shows that both techniques are very similar, although there are some differences.
 
 ```{r}
@@ -247,7 +246,8 @@ leaflet(data = combined_geographies) %>%
   )
 
 ```
-## Pins with Long Distances ( > 1000 ft)
+
+## Pins with Long Distances ( > 1000 ft):
 
 The main (fixable) issue that I saw here was that directions of streets were not correct (359 W Ohio is likely 359 E Ohio).
 ```{r}
@@ -294,6 +294,7 @@ p <- ggplot(combined_geographies, aes(x = distance_ft)) +
 print(p)
 
 ```
+
 # Conclusion:
 
 In general, the two techniques produce similar results. I'd have to go through them a bit more in depth, but at the moment, the geocoding looks a bit better, specifically because it fills more observations. On the other hand, the imputed values are more likely to be correct, as we know we have some issues with our address data. 
