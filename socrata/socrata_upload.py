@@ -283,7 +283,7 @@ def socrata_upload(asset_info, overwrite=False, years=None):
     (update rather than overwrite).
     """
 
-    asset_id, athena_asset = asset_info.values()
+    athena_asset, asset_id = asset_info["athena_asset"], asset_info["asset_id"]
 
     years_list = parse_years_list(years=years, athena_asset=athena_asset)
 
