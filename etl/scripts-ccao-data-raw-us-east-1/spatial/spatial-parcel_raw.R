@@ -20,7 +20,7 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial_raw")
 
 ##### HISTORICAL PARCELS #####
 
-# Read privileges for the this drive location are limited.
+# Read privileges for this drive location are limited.
 # Contact Cook County GIS if permissions need to be changed.
 file_path <- "//10.122.19.14/ArchiveServices"
 
@@ -55,7 +55,7 @@ CCAODATA <- odbc::dbConnect(
 # Server. Useful for historical PINs for which data is hard-to-find
 pull_sql_and_write <- function(year) {
   remote_file_attr <- file.path(
-    output_bucket, "parcel_raw",
+    output_bucket, "spatial_raw",
     paste0(year, "-attr.parquet")
   )
 
@@ -94,7 +94,7 @@ walk(2000:2020, pull_sql_and_write)
 ##### MODERN PARCELS #####
 iasworld_years <- unique(2021:format(Sys.Date(), "%Y"))
 parcels_current_remote_attr <- file.path(
-  output_bucket, "parcel_raw",
+  output_bucket, "spatial_raw",
   paste0(iasworld_years, "-attr.parquet")
 )
 
