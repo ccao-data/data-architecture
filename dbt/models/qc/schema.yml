@@ -389,7 +389,7 @@ models:
             data_type: int
           - name: Gross Building Area
             index: Z
-            data_type: int
+            data_type: float
           - name: Net Rentable Area
             index: AC
             data_type: decimal
