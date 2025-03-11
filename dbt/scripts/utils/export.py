@@ -20,6 +20,15 @@ from openpyxl.worksheet.table import Table, TableStyleInfo
 # Shared object for running dbt CLI commands
 DBT = dbtRunner()
 
+# Config object that maps string data type keys to callables that we can use to
+# format output cells of a given data type
+DATA_TYPE_FUNC_MAP: dict[str, typing.Callable] = {
+    "int": int,
+    "float": float,
+    "decimal": decimal.Decimal,
+    "str": str,
+}
+
 
 def export_models(
     target: str = "dev",
@@ -365,20 +374,12 @@ def save_model_to_workbook(
                             horizontal=horiz_align_dir
                         )
                     if data_type := column_config.get("data_type"):
-                        type_func: typing.Callable
-                        if data_type == "int":
-                            type_func = int
-                        elif data_type == "float":
-                            type_func = float
-                        elif data_type == "decimal":
-                            type_func = decimal.Decimal
-                        elif data_type == "str":
-                            type_func = str
-                        else:
+                        type_func = DATA_TYPE_FUNC_MAP.get(data_type)
+                        if type_func is None:
                             raise ValueError(
                                 f"data_type '{data_type}' in export_format "
                                 f"for model {model.name} is not recognized, "
-                                "must be one of 'int', 'float', or 'str'"
+                                f"must be one of: {DATA_TYPE_FUNC_MAP.keys()}"
                             )
                         column_format_by_index[idx]["data_type"] = type_func
 
