@@ -120,7 +120,7 @@ def parse_years_list(athena_asset, years=None):
         else:
             years_list = years
 
-    elif not years and os.getenv("OVERWRITE") == "schedule":
+    elif not years and os.getenv("WORKFLOW_EVENT_NAME") == "schedule":
         years_list = ["2025"]
 
     else:
