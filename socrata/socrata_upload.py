@@ -90,7 +90,7 @@ def parse_assets(assets=None):
     if assets is not None:
         assets = [asset.strip() for asset in str(assets).split(",")]
 
-        all_assets[all_assets["label"].isin(assets)]
+        all_assets = all_assets[all_assets["label"].isin(assets)]
 
     # Return a dict with labels as keys
     all_assets = all_assets.set_index("label").to_dict("index")
