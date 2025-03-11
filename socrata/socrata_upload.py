@@ -37,49 +37,65 @@ def parse_assets(assets=None):
     Make sure the asset environmental variable is formatted correctly.
     """
 
-    # If no assets are entered run script for all assets
-    if not assets:
-        # When running locally, we will probably be inside the socrata/ dir, so
-        # switch back out to find the dbt/ dir
-        if not os.path.isdir("./dbt"):
-            os.chdir("..")
-
-        os.chdir("./dbt")
-
-        DBT = dbtRunner()
-        dbt_list_args = [
-            "--quiet",
-            "list",
-            "--select",
-            "open_data.*",
-            "--resource-types",
-            "exposure",
-            "--output",
-            "json",
-            "--output-keys",
-            "label",
-        ]
-
-        print(f"> dbt {' '.join(dbt_list_args)}")
-        dbt_output = io.StringIO()
-        with contextlib.redirect_stdout(dbt_output):
-            DBT.invoke(dbt_list_args)
-
-        model = [
-            json.loads(model_dict_str)
-            for model_dict_str in dbt_output.getvalue().split("\n")
-            # Filter out empty strings caused by trailing newlines
-            if model_dict_str
-        ]
-
+    # When running locally, we will probably be inside the socrata/ dir, so
+    # switch back out to find the dbt/ dir
+    if not os.path.isdir("./dbt"):
         os.chdir("..")
 
-        assets = pd.json_normalize(model)["label"].tolist()
+    os.chdir("./dbt")
 
-    else:
+    DBT = dbtRunner()
+    dbt_list_args = [
+        "--quiet",
+        "list",
+        "--select",
+        "open_data.*",
+        "--resource-types",
+        "exposure",
+        "--output",
+        "json",
+        "--output-keys",
+        "label",
+        "meta",
+        "depends_on",
+    ]
+
+    print(f"> dbt {' '.join(dbt_list_args)}")
+    dbt_output = io.StringIO()
+    with contextlib.redirect_stdout(dbt_output):
+        DBT.invoke(dbt_list_args)
+
+    model = [
+        json.loads(model_dict_str)
+        for model_dict_str in dbt_output.getvalue().split("\n")
+        # Filter out empty strings caused by trailing newlines
+        if model_dict_str
+    ]
+
+    os.chdir("..")
+
+    all_assets = pd.json_normalize(model)
+
+    # Split the
+    all_assets["athena_asset"] = (
+        all_assets["depends_on.nodes"].str[0].str.split(pat=".", n=2).str[-1]
+    )
+
+    all_assets = all_assets[["label", "meta.asset_id", "athena_asset"]].rename(
+        columns={"meta.asset_id": "asset_id"}
+    )
+
+    # If no assets are entered run script for all assets otherwise filter by
+    # provided assets
+    if assets is not None:
         assets = [asset.strip() for asset in str(assets).split(",")]
 
-    return assets
+        all_assets[all_assets["label"].isin(assets)]
+
+    # Return a dict with labels as keys
+    all_assets = all_assets.set_index("label").to_dict("index")
+
+    return all_assets
 
 
 def parse_years(years=None):
@@ -142,54 +158,6 @@ def check_overwrite(overwrite=None):
         overwrite = overwrite == "true"
 
     return overwrite
-
-
-def get_asset_info(socrata_asset):
-    """
-    Simple helper function to retrieve asset-specific information from dbt.
-    """
-
-    # When running locally, we will probably be inside the socrata/ dir, so
-    # switch back out to find the dbt/ dir
-    if not os.path.isdir("./dbt"):
-        os.chdir("..")
-
-    os.chdir("./dbt")
-
-    DBT = dbtRunner()
-    dbt_list_args = [
-        "--quiet",
-        "list",
-        "--resource-types",
-        "exposure",
-        "--output",
-        "json",
-        "--output-keys",
-        "label",
-        "meta",
-        "depends_on",
-    ]
-
-    print(f"> dbt {' '.join(dbt_list_args)}")
-    dbt_output = io.StringIO()
-    with contextlib.redirect_stdout(dbt_output):
-        DBT.invoke(dbt_list_args)
-
-    model = [
-        json.loads(model_dict_str)
-        for model_dict_str in dbt_output.getvalue().split("\n")
-        # Filter out empty strings caused by trailing newlines
-        if model_dict_str
-    ]
-
-    os.chdir("..")
-
-    model = pd.json_normalize(model)
-    model = model[model["label"] == socrata_asset]
-    athena_asset = model.iloc[0]["depends_on.nodes"][0].split(".", 2)[-1]
-    asset_id = model.iloc[0]["meta.asset_id"]
-
-    return athena_asset, asset_id
 
 
 def build_query_dict(athena_asset, asset_id, years=None):
@@ -304,7 +272,7 @@ def upload(asset_id, sql_query, overwrite):
         overwrite = False
 
 
-def socrata_upload(socrata_asset, overwrite=False, years=None):
+def socrata_upload(asset_info, overwrite=False, years=None):
     """
     Wrapper function for building SQL query, retrieving data from Athena, and
     uploading it to Socrata. Allows users to specify target Athena and Socrata
@@ -314,7 +282,7 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
     (update rather than overwrite).
     """
 
-    athena_asset, asset_id = get_asset_info(socrata_asset)
+    asset_id, athena_asset = asset_info.values()
 
     years_list = parse_years_list(years=years, athena_asset=athena_asset)
 
@@ -335,9 +303,9 @@ if __name__ == "__main__":
     # Retrieve asset(s)
     all_assets = parse_assets(os.getenv("SOCRATA_ASSET"))
 
-    for asset in all_assets:
+    for asset_info in all_assets.values():
         socrata_upload(
-            socrata_asset=asset,
+            asset_info=asset_info,
             overwrite=check_overwrite(os.getenv("OVERWRITE")),
             years=parse_years(os.getenv("YEARS")),
         )
