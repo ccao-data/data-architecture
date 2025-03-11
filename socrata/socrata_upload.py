@@ -77,7 +77,7 @@ def parse_assets(assets=None):
 
     all_assets = pd.json_normalize(model)
 
-    # Split the
+    # Split names of views in athena to remove extaneous db prefixes
     all_assets["athena_asset"] = (
         all_assets["depends_on.nodes"].str[0].str.split(pat=".", n=2).str[-1]
     )
