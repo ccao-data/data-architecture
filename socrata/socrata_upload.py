@@ -34,7 +34,8 @@ cursor = connect(
 
 def parse_assets(assets=None):
     """
-    Make sure the asset environmental variable is formatted correctly.
+    Retrieve metadata for all socrata assets and filter that data based
+    on parsed input assets names.
     """
 
     # When running locally, we will probably be inside the socrata/ dir, so
@@ -85,8 +86,8 @@ def parse_assets(assets=None):
         columns={"meta.asset_id": "asset_id"}
     )
 
-    # If no assets are entered run script for all assets otherwise filter by
-    # provided assets
+    # If no assets are entered return metadata for all assets otherwise filter
+    # by provided assets
     if assets is not None:
         assets = [asset.strip() for asset in str(assets).split(",")]
 
