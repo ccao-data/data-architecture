@@ -27,12 +27,7 @@ SELECT
         WHEN assessable = 'N' THEN 'Non-Assessable'
     END AS assessable,
     amount,
-    address_full,
-    address_street_dir,
-    address_street_number,
-    address_street_name,
-    address_suffix_1,
-    address_suffix_2,
+    address_full AS address,
     applicant_name,
     CASE
         WHEN job_code_primary = '1' THEN 'RESIDENTIAL PERMIT'

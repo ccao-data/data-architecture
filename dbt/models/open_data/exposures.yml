@@ -126,7 +126,7 @@ exposures:
       Constructs the Data Department's AHSAP indicator.
 
   - name: parcel_universe_current_year
-    label: Parcel Universe (Current Year)
+    label: Parcel Universe (Current Year Only)
     type: dashboard
     url: https://datacatalog.cookcountyil.gov/dataset/Assessor-Parcel-Universe-Current-Year-/pabr-t5kh
     depends_on:
