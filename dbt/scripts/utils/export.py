@@ -379,7 +379,8 @@ def save_model_to_workbook(
                             raise ValueError(
                                 f"data_type '{data_type}' in export_format "
                                 f"for model {model.name} is not recognized, "
-                                f"must be one of: {DATA_TYPE_FUNC_MAP.keys()}"
+                                "must be one of: "
+                                f"{', '.join(DATA_TYPE_FUNC_MAP.keys())}"
                             )
                         column_format_by_index[idx]["data_type"] = type_func
 
