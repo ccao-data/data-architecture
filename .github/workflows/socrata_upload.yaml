@@ -22,7 +22,12 @@ on:
         # True for overwrite, False for update
         type: boolean
         description: Overwrite socrata asset
-        required: true
+        required: false
+  schedule:
+  # First of every month at 5am UTC (12am UTC-5)
+  # '0 5 1 * *'
+  # Temporarily set to UTC 2:55pm, 9:55pm CDT
+  - cron: '05 15 12 3 *'
 
 
 env:
@@ -83,4 +88,5 @@ jobs:
           SOCRATA_ASSET: ${{ inputs.socrata_asset }}
           OVERWRITE: ${{ inputs.overwrite }}
           YEARS: ${{ inputs.years }}
+          WORKFLOW_EVENT_NAME: ${{ github.event_name }}
         run: python ./socrata/socrata_upload.py
