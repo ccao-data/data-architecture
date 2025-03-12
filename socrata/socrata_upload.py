@@ -38,6 +38,9 @@ def parse_assets(assets=None):
     on parsed input assets names.
     """
 
+    if assets == "":
+        assets = None
+
     # When running locally, we will probably be inside the socrata/ dir, so
     # switch back out to find the dbt/ dir
     if not os.path.isdir("./dbt"):
@@ -92,6 +95,9 @@ def parse_assets(assets=None):
         assets = [asset.strip() for asset in str(assets).split(",")]
 
         all_assets = all_assets[all_assets["label"].isin(assets)]
+
+    print("Assets that will be updated:")
+    print(all_assets["label"])
 
     # Return a dict with labels as keys
     all_assets = all_assets.set_index("label").to_dict("index")
@@ -151,7 +157,7 @@ def check_overwrite(overwrite=None):
     Make sure overwrite environmental variable is typed correctly.
     """
 
-    if not overwrite:
+    if not overwrite or overwrite == "":
         overwrite = False
 
     # Github inputs are passed as strings rather than booleans
@@ -301,6 +307,8 @@ def socrata_upload(asset_info, overwrite=False, years=None):
 
 
 if __name__ == "__main__":
+    print(f"Running upload for event type: {os.getenv('WORKFLOW_EVENT_NAME')}")
+
     # Retrieve asset(s)
     all_assets = parse_assets(os.getenv("SOCRATA_ASSET"))
 
