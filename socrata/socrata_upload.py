@@ -93,6 +93,9 @@ def parse_assets(assets=None):
 
         all_assets = all_assets[all_assets["label"].isin(assets)]
 
+    print("Assets that will be updated:")
+    print(all_assets["label"])
+
     # Return a dict with labels as keys
     all_assets = all_assets.set_index("label").to_dict("index")
 
@@ -301,6 +304,8 @@ def socrata_upload(asset_info, overwrite=False, years=None):
 
 
 if __name__ == "__main__":
+    print(f"Running upload for event type: {os.getenv('WORKFLOW_EVENT_NAME')}")
+
     # Retrieve asset(s)
     all_assets = parse_assets(os.getenv("SOCRATA_ASSET"))
 
