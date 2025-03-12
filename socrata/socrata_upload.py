@@ -38,6 +38,9 @@ def parse_assets(assets=None):
     on parsed input assets names.
     """
 
+    if assets == "":
+        assets = None
+
     # When running locally, we will probably be inside the socrata/ dir, so
     # switch back out to find the dbt/ dir
     if not os.path.isdir("./dbt"):
@@ -154,7 +157,7 @@ def check_overwrite(overwrite=None):
     Make sure overwrite environmental variable is typed correctly.
     """
 
-    if not overwrite:
+    if not overwrite or overwrite == "":
         overwrite = False
 
     # Github inputs are passed as strings rather than booleans
