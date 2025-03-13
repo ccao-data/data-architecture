@@ -461,9 +461,9 @@ process_parcel_file <- function(s3_bucket_uri,
     group_by(prop_address_full, pin10) %>%
     arrange(year) %>%
     fill(x_3435_imputed, y_3435_imputed, lon_imputed, lat_imputed, .direction = "updown") %>%
+    ungroup() %>%
     distinct(pin10, year, .keep_all = TRUE) %>%
     filter(is.na(x_3435) | is.na(y_3435)) %>%
-    ungroup() %>%
     select(c("year", "pin10", "x_3435_imputed", "y_3435_imputed", "lon_imputed", "lat_imputed"))
 
   # This filters out all missing geography features, removing the years which we use to impute
@@ -474,11 +474,11 @@ process_parcel_file <- function(s3_bucket_uri,
     # removes missing columns since geocoding duplicates lat
     select(-c("x_3435", "y_3435", "lon", "lat"))
 
-  # Split the missing coordinates into batches of 1000 rows for the geocodding function
+  # Split the missing coordinates into batches of 1000 rows for tidygeocoder
   batch_list <- split(missing_geographies,
                       ceiling(seq_len(nrow(missing_geographies)) / 1000))
 
-  # Function to geocode each batch and convert to EPSG:3435
+  # Function to geocode each batch
   geocode_batch <- function(batch) {
     batch %>%
       geocode(
@@ -500,6 +500,7 @@ process_parcel_file <- function(s3_bucket_uri,
     do.call(rbind, .)
 
   # Addresses are on PIN level, so we create the PIN10 average
+  # This is mostly for complexes
   geocoded_data <- geocoded_data %>%
     group_by(pin10, year) %>%
     summarise(
@@ -511,7 +512,7 @@ process_parcel_file <- function(s3_bucket_uri,
     ungroup() %>%
     select(-geometry)
 
-  # Merge the geocoded data back and transform imputed coordinates to get lon_imputed & lat_imputed
+  # Join the geocoded and imputed datasets
   missing_geographies <- full_join(missing_geographies_imputed, geocoded_data, by = c("pin10", "year")) %>%
     select(pin10, year, avg_lon_geocoded, avg_lat_geocoded,
            avg_x_3435_geocoded, avg_y_3435_geocoded, x_3435_imputed, y_3435_imputed, lon_imputed, lat_imputed)
@@ -550,20 +551,26 @@ process_parcel_file <- function(s3_bucket_uri,
         coalesce(lat_imputed, avg_lat_geocoded)
       ),
 
-      # Create a column to indicate which technique was used
       technique = if_else(
         !is.na(x_3435_imputed) & !is.na(avg_x_3435_geocoded),
         if_else(distance <= 1000, "imputed", "none"),
-        if_else(!is.na(x_3435_imputed), "imputed only", "geocoded only")
-      )
-    ) %>%
-    select(pin10, year, x_3435, y_3435, lon, lat, technique) %>%
-    filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat))
+        if_else(!is.na(x_3435_imputed), "imputed",
+                if_else(!is.na(avg_x_3435_geocoded), "geocoded", "none"))
+          )
+        ) %>%
+        select(pin10, year, x_3435, y_3435, lon, lat, technique) %>%
+        filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat))
 
+    spatial_df_final <- bind_rows(spatial_df_final, missing_geographies)
 
-  spatial_df_final <- spatial_df_final %>%
-    full_join(missing_geographies, by = c("pin10", "year"))
+    # Test to make sure we don't duplicate any pins
+    duplicate_keys <- spatial_df_final %>%
+      group_by(pin10, year) %>%
+      filter(n() > 1)
 
+    if(nrow(duplicate_keys) > 0) {
+      warning("Duplicate rows found pin10 and year combinations. Check rbind")
+    }
 
   # Write final dataframe to dataset on S3, partitioned by town and year
   spatial_df_final %>%
@@ -572,7 +579,6 @@ process_parcel_file <- function(s3_bucket_uri,
     write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = FALSE)
   tictoc::toc()
 }
-
 
 # Apply function to all parcel files
 pwalk(parcel_files_df, function(...) {
