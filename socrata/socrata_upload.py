@@ -145,6 +145,7 @@ def parse_years_list(athena_asset, years=None):
             years_list = years
 
     elif not years and os.getenv("WORKFLOW_EVENT_NAME") == "schedule":
+        # Update current and prior year only on scheduled workflow
         years_list = [
             str(year)
             for year in [datetime.now().year - 1, datetime.now().year]
