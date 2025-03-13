@@ -26,8 +26,8 @@ on:
   schedule:
   # First of every month at 5am UTC (12am UTC-5)
   # '0 5 1 * *'
-  # Temporarily set to UTC 5:30pm, 12:30pm CDT
-  - cron: '30 17 12 3 *'
+  # Temporarily set to UTC 4:30pm, 11:30pm CDT
+  - cron: '30 16 13 3 *'
 
 
 env:
