@@ -9,7 +9,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: 4twp-awh5
+      asset_id: y282-6ig3
       primary_key:
         - case_no
         - pin
@@ -31,7 +31,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: 7ivu-4hej
+      asset_id: uzyt-m557
       primary_key:
         - pin
         - year
@@ -53,7 +53,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: wk57-hnd6
+      asset_id: 3723-97qp
       primary_key:
         - pin
         - year
@@ -74,7 +74,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: 5dxt-dddu
+      asset_id: ydue-e5u3
       primary_key:
         - pin10
         - year
@@ -95,7 +95,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: fay2-3mbm
+      asset_id: wvhk-k5uv
       primary_key:
         - sale_key
     description: |
@@ -116,7 +116,7 @@ exposures:
     meta:
       # Disabled until the asset is public
       test_row_count: false
-      asset_id: d8ym-ekeq
+      asset_id: uuu4-fqy8
       primary_key:
         - pin
         - year
@@ -136,7 +136,7 @@ exposures:
     meta:
       # Disabled until the asset is public
       test_row_count: false
-      asset_id: k2vi-7nc8
+      asset_id: pabr-t5kh
       primary_key:
         - pin
         - year
@@ -157,7 +157,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: 3wth-sp2h
+      asset_id: nj4t-kc8j
       primary_key:
         - pin
         - year
@@ -180,7 +180,7 @@ exposures:
       # Disabled until the asset is public
       test_row_count: false
       year_field: assessment_year
-      asset_id: f7dv-crpg
+      asset_id: 6yjf-dfxs
       primary_key:
         - pin
         - permit_number
@@ -199,7 +199,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: bsqb-jra6
+      asset_id: vgzx-68gb
       primary_key:
         - pin
         - year
@@ -223,7 +223,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: qsfh-kfup
+      asset_id: 3r7i-mrz4
       primary_key:
         - pin
         - year
@@ -248,7 +248,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: m6et-6ibj
+      asset_id: x54s-btds
       primary_key:
         - pin
         - card
