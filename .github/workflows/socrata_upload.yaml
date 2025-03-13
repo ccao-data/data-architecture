@@ -71,12 +71,6 @@ jobs:
         shell: bash
         run: uv pip install .
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-1
-          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
-
       - name: Upload to Socrata
         env:
           AWS_IAM_ROLE_TO_ASSUME_ARN: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
