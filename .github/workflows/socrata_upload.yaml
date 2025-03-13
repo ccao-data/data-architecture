@@ -31,6 +31,7 @@ on:
 
 
 env:
+  PYTHONUNBUFFERED: "1"
   UV_SYSTEM_PYTHON: 1
 
 jobs:

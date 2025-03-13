@@ -11,7 +11,6 @@ import requests
 from dbt.cli.main import dbtRunner
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
-from pyathena.util import RetryConfig
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,6 @@ cursor = connect(
     s3_staging_dir="s3://ccao-athena-results-us-east-1/",
     region_name="us-east-1",
     cursor_class=PandasCursor,
-    retry_config=RetryConfig(attempt=1),
 ).cursor(unload=True)
 
 
