@@ -26,8 +26,8 @@ on:
   schedule:
   # First of every month at 5am UTC (12am UTC-5)
   # '0 5 1 * *'
-  # Temporarily set to UTC 4:30pm, 11:30pm CDT
-  - cron: '30 16 13 3 *'
+  # Temporarily set to UTC 8:00pm, 3:00pm CDT
+  - cron: '0 20 13 3 *'
 
 
 env:
@@ -64,6 +64,7 @@ jobs:
         uses: ./.github/actions/setup_dbt
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+          role-duration-seconds: 14400
 
       # Set these env vars as secrets so they get masked in the GitHub
       # Actions logs
