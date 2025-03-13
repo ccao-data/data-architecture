@@ -43,7 +43,7 @@ CCAO commercial valuation data, aggregated from the commercial team spreadsheets
 - The table is _not_ unique by its intended primary keys and should not be
 aggregated or used for anlyses, only provided in raw.
 
-**Primary Key**: `keypin`, `year`, `class(es)`, sheet
+**Primary Key**: `keypin`, `year`, `class(es)`, `sheet`
 {% enddocs %}
 
 # hie
