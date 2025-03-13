@@ -26,11 +26,12 @@ on:
   schedule:
   # First of every month at 5am UTC (12am UTC-5)
   # '0 5 1 * *'
-  # Temporarily set to UTC 5:30pm, 12:30pm CDT
-  - cron: '30 17 12 3 *'
+  # Temporarily set to UTC 4:30pm, 11:30pm CDT
+  - cron: '30 16 13 3 *'
 
 
 env:
+  PYTHONUNBUFFERED: "1"
   UV_SYSTEM_PYTHON: 1
 
 jobs:
@@ -70,12 +71,6 @@ jobs:
         working-directory: socrata
         shell: bash
         run: uv pip install .
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-region: us-east-1
-          role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
 
       - name: Upload to Socrata
         env:
