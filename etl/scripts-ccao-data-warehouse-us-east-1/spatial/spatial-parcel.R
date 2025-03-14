@@ -12,7 +12,7 @@ library(stringr)
 library(tictoc)
 library(tidyr)
 library(tidygeocoder)
-# source("utils.R")
+source("utils.R")
 
 
 # This script cleans historical Cook County parcel data and uploads it to S3
@@ -68,7 +68,7 @@ calculate_angles <- function(points) {
   angles <- pi + atan2(cross_product, dot_product)
   angles <- c(NA_real_, angles * 180 / pi)
 
-  return(angles)
+  angles
 }
 
 
@@ -440,15 +440,18 @@ process_parcel_file <- function(s3_bucket_uri,
     ) %>%
     group_by(prop_address_full, pin10) %>%
     arrange(year) %>%
-    fill(x_3435_imputed, y_3435_imputed, lon_imputed, lat_imputed, .direction = "updown") %>%
+    fill(x_3435_imputed, y_3435_imputed, lon_imputed,
+         lat_imputed, .direction = "updown") %>%
     ungroup() %>%
     # We want pins for addresses, but location data is on the pin10 level
     distinct(pin10, year, .keep_all = TRUE) %>%
     # We don't replace x_3435 yet, so we keep data which was originally missing
     filter(is.na(x_3435) | is.na(y_3435)) %>%
-    select(c("year", "pin10", "x_3435_imputed", "y_3435_imputed", "lon_imputed", "lat_imputed"))
+    select(c("year", "pin10", "x_3435_imputed",
+             "y_3435_imputed", "lon_imputed", "lat_imputed"))
 
-  # This selects only missing geography features, removing the years which we use to impute
+  # This selects only missing geography features,
+  # removing the years which we use to impute
   # the missing values in step 1.
   missing_geographies <- missing_geographies %>%
     filter(is.na(x_3435) | is.na(y_3435)) %>%
@@ -466,8 +469,8 @@ process_parcel_file <- function(s3_bucket_uri,
     "select *
    from spatial.county"
   ) %>%
-  st_as_sf() %>%
-  st_set_crs(3435)
+    st_as_sf() %>%
+    st_set_crs(3435)
 
 
   # Function to geocode each batch
@@ -507,9 +510,11 @@ process_parcel_file <- function(s3_bucket_uri,
     select(-geometry)
 
   # Join the geocoded and imputed datasets
-  missing_geographies <- full_join(missing_geographies_imputed, geocoded_data, by = c("pin10", "year")) %>%
+  missing_geographies <- full_join(missing_geographies_imputed,
+                                   geocoded_data, by = c("pin10", "year")) %>%
     select(pin10, year, avg_lon_geocoded, avg_lat_geocoded,
-           avg_x_3435_geocoded, avg_y_3435_geocoded, x_3435_imputed, y_3435_imputed, lon_imputed, lat_imputed)
+           avg_x_3435_geocoded, avg_y_3435_geocoded,
+           x_3435_imputed, y_3435_imputed, lon_imputed, lat_imputed)
 
   missing_geographies <- missing_geographies %>%
     mutate(
@@ -517,21 +522,25 @@ process_parcel_file <- function(s3_bucket_uri,
       distance = sqrt((x_3435_imputed - avg_x_3435_geocoded)^2 +
                         (y_3435_imputed - avg_y_3435_geocoded)^2),
 
-      # Replace x_3435 with the imputed value if both available and within 1000 feet, else choose available value or NA
+      # Replace x_3435 with the imputed value if both available
+      # and within 1000 feet, else choose available value or NA
       x_3435 = if_else(
         !is.na(x_3435_imputed) & !is.na(avg_x_3435_geocoded),
         if_else(distance <= 1000, x_3435_imputed, NA_real_),
         coalesce(x_3435_imputed, avg_x_3435_geocoded)
       ),
 
-      # Replace y_3435 with the imputed value if both available and within 1000 feet, else choose available value or NA
+      # Replace y_3435 with the imputed value if both available
+      #and within 1000 feet, else choose available value or NA
       y_3435 = if_else(
         !is.na(y_3435_imputed) & !is.na(avg_y_3435_geocoded),
         if_else(distance <= 1000, y_3435_imputed, NA_real_),
         coalesce(y_3435_imputed, avg_y_3435_geocoded)
       ),
 
-      # Create lon using lon_imputed and lon_geocoded; if both exist and distance is within threshold, choose imputed; otherwise use available value or NA
+      # Create lon using lon_imputed and lon_geocoded; if both
+      # exist and distance is within threshold, choose imputed
+      # otherwise use available value or NA
       lon = if_else(
         !is.na(lon_imputed) & !is.na(avg_lon_geocoded),
         if_else(distance <= 1000, lon_imputed, NA_real_),
@@ -550,24 +559,24 @@ process_parcel_file <- function(s3_bucket_uri,
         if_else(distance <= 1000, "imputed", "none"),
         if_else(!is.na(x_3435_imputed), "imputed",
                 if_else(!is.na(avg_x_3435_geocoded), "geocoded", "none"))
-          )
-        ) %>%
-        select(pin10, year, x_3435, y_3435, lon, lat, source) %>%
-        filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat))
+      )
+    ) %>%
+    select(pin10, year, x_3435, y_3435, lon, lat, source) %>%
+    filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat))
 
-    spatial_df_final <- spatial_df_final %>%
-      mutate(source = "raw")
+  spatial_df_final <- spatial_df_final %>%
+    mutate(source = "raw")
 
-    spatial_df_final <- bind_rows(spatial_df_final, missing_geographies)
+  spatial_df_final <- bind_rows(spatial_df_final, missing_geographies)
 
-    # Test to make sure we don't duplicate any pins
-    duplicate_keys <- spatial_df_final %>%
-      group_by(pin10, year) %>%
-      filter(n() > 1)
+  # Test to make sure we don't duplicate any pins
+  duplicate_keys <- spatial_df_final %>%
+    group_by(pin10, year) %>%
+    filter(n() > 1)
 
-    if(nrow(duplicate_keys) > 0) {
-      warning("Duplicate rows found pin10 and year combinations. Check rbind")
-    }
+  if (nrow(duplicate_keys) > 0) {
+    warning("Duplicate rows found pin10 and year combinations. Check rbind")
+  }
 
 
   # Write final dataframe to dataset on S3, partitioned by town and year
