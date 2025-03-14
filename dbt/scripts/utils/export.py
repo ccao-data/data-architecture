@@ -213,7 +213,7 @@ def query_models_for_export(
         template_name = template_config.get("name") or model_name
         sheet_name = template_config.get("sheet_name") or "Sheet1"
         start_row = template_config.get("start_row") or 2
-        add_table = template_config.get("add_table") or False
+        add_table = template_config.get("add_table", True)
 
         # Define inputs and outputs for export based on model metadata
         template_path = os.path.join(
