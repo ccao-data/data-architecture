@@ -1,23 +1,3 @@
-
-install.packages(
-  c(
-    "paws@0.7.0",
-    "paws.common@0.7.7",
-    "paws.analytics@0.7.0",
-    "paws.application.integration@0.7.0",
-    "paws.compute@0.7.0",
-    "paws.cost.management@0.7.0",
-    "paws.customer.engagement@0.7.0",
-    "paws.database@0.7.0",
-    "paws.developer.tools@0.7.0",
-    "paws.end.user.computing@0.7.0",
-    "paws.machine.learning@0.7.0",
-    "paws.management@0.7.0",
-    "paws.networking@0.7.0",
-    "paws.security.identity@0.7.0",
-    "paws.storage@0.7.0"
-  )
-)
 library(arrow)
 library(aws.s3)
 library(data.table)
@@ -448,7 +428,7 @@ process_parcel_file <- function(s3_bucket_uri,
   )
 
   # We impute geographies based on a matching address and pin10
-  # This is forward backward filled, meaning that if the information
+  # This is forward-backward filled, meaning that if the information
   # is missing for 2015, it pulls 2016 then 2014, 2017, etc.
   missing_geographies_imputed <- missing_geographies %>%
     mutate(
@@ -462,14 +442,17 @@ process_parcel_file <- function(s3_bucket_uri,
     arrange(year) %>%
     fill(x_3435_imputed, y_3435_imputed, lon_imputed, lat_imputed, .direction = "updown") %>%
     ungroup() %>%
+    # We want pins for addresses, but location data is on the pin10 level
     distinct(pin10, year, .keep_all = TRUE) %>%
+    # We don't replace x_3435 yet, so we keep data which was originally missing
     filter(is.na(x_3435) | is.na(y_3435)) %>%
     select(c("year", "pin10", "x_3435_imputed", "y_3435_imputed", "lon_imputed", "lat_imputed"))
 
-  # This filters out all missing geography features, removing the years which we use to impute
-  # the missing values in step1.
+  # This selects only missing geography features, removing the years which we use to impute
+  # the missing values in step 1.
   missing_geographies <- missing_geographies %>%
     filter(is.na(x_3435) | is.na(y_3435)) %>%
+    # Keep pin since address will be coded to that level
     distinct(pin, year, .keep_all = TRUE) %>%
     # removes missing columns since geocoding duplicates lat
     select(-c("x_3435", "y_3435", "lon", "lat"))
@@ -477,6 +460,15 @@ process_parcel_file <- function(s3_bucket_uri,
   # Split the missing coordinates into batches of 1000 rows for tidygeocoder
   batch_list <- split(missing_geographies,
                       ceiling(seq_len(nrow(missing_geographies)) / 1000))
+
+  cook_county <- dbGetQuery(
+    conn = con,
+    "select *
+   from spatial.county"
+  ) %>%
+  st_as_sf() %>%
+  st_set_crs(3435)
+
 
   # Function to geocode each batch
   geocode_batch <- function(batch) {
@@ -491,6 +483,8 @@ process_parcel_file <- function(s3_bucket_uri,
       st_as_sf(coords = c("long", "lat"), remove = FALSE) %>%
       st_set_crs(4326) %>%
       st_transform(3435) %>%
+      # One known property is outside of Cook County
+      st_join(cook_county) %>%
       mutate(x_3435 = st_coordinates(.)[, 1],
              y_3435 = st_coordinates(.)[, 2])
   }
@@ -500,7 +494,7 @@ process_parcel_file <- function(s3_bucket_uri,
     do.call(rbind, .)
 
   # Addresses are on PIN level, so we create the PIN10 average
-  # This is mostly for complexes
+  # This is mostly for housing complexes
   geocoded_data <- geocoded_data %>%
     group_by(pin10, year) %>%
     summarise(
@@ -523,14 +517,14 @@ process_parcel_file <- function(s3_bucket_uri,
       distance = sqrt((x_3435_imputed - avg_x_3435_geocoded)^2 +
                         (y_3435_imputed - avg_y_3435_geocoded)^2),
 
-      # Replace x_3435 with the imputed value if both available and within 100 feet, else choose available value or NA
+      # Replace x_3435 with the imputed value if both available and within 1000 feet, else choose available value or NA
       x_3435 = if_else(
         !is.na(x_3435_imputed) & !is.na(avg_x_3435_geocoded),
         if_else(distance <= 1000, x_3435_imputed, NA_real_),
         coalesce(x_3435_imputed, avg_x_3435_geocoded)
       ),
 
-      # Replace y_3435 with the imputed value if both available and within 100 feet, else choose available value or NA
+      # Replace y_3435 with the imputed value if both available and within 1000 feet, else choose available value or NA
       y_3435 = if_else(
         !is.na(y_3435_imputed) & !is.na(avg_y_3435_geocoded),
         if_else(distance <= 1000, y_3435_imputed, NA_real_),
@@ -551,15 +545,18 @@ process_parcel_file <- function(s3_bucket_uri,
         coalesce(lat_imputed, avg_lat_geocoded)
       ),
 
-      technique = if_else(
+      source = if_else(
         !is.na(x_3435_imputed) & !is.na(avg_x_3435_geocoded),
         if_else(distance <= 1000, "imputed", "none"),
         if_else(!is.na(x_3435_imputed), "imputed",
                 if_else(!is.na(avg_x_3435_geocoded), "geocoded", "none"))
           )
         ) %>%
-        select(pin10, year, x_3435, y_3435, lon, lat, technique) %>%
+        select(pin10, year, x_3435, y_3435, lon, lat, source) %>%
         filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat))
+
+    spatial_df_final <- spatial_df_final %>%
+      mutate(source = "raw")
 
     spatial_df_final <- bind_rows(spatial_df_final, missing_geographies)
 
@@ -571,6 +568,7 @@ process_parcel_file <- function(s3_bucket_uri,
     if(nrow(duplicate_keys) > 0) {
       warning("Duplicate rows found pin10 and year combinations. Check rbind")
     }
+
 
   # Write final dataframe to dataset on S3, partitioned by town and year
   spatial_df_final %>%
