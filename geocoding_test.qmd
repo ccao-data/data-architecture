@@ -72,12 +72,16 @@ missing_geographies_imputed <- missing_geographies %>%
   group_by(prop_address_full, pin10) %>%
   arrange(year) %>%
   fill(x_3435_imputed, y_3435_imputed, lon_imputed,
-       lat_imputed, .direction = "updown") %>%
+    lat_imputed,
+    .direction = "updown"
+  ) %>%
   ungroup() %>%
   distinct(pin10, year, .keep_all = TRUE) %>%
   filter(is.na(x_3435) | is.na(y_3435)) %>%
-  select(c("year", "pin10", "x_3435_imputed", "y_3435_imputed",
-           "lon_imputed", "lat_imputed", "prop_address_full"))
+  select(c(
+    "year", "pin10", "x_3435_imputed", "y_3435_imputed",
+    "lon_imputed", "lat_imputed", "prop_address_full"
+  ))
 
 # This filters out all missing geography features,
 # removing the years which we use to impute
@@ -89,8 +93,10 @@ missing_geographies <- missing_geographies %>%
   select(-c("x_3435", "y_3435", "lon", "lat"))
 
 # Split the missing coordinates into batches of 1000 rows for tidygeocoder
-batch_list <- split(missing_geographies,
-                    ceiling(seq_len(nrow(missing_geographies)) / 1000))
+batch_list <- split(
+  missing_geographies,
+  ceiling(seq_len(nrow(missing_geographies)) / 1000)
+)
 
 # Function to geocode each batch
 geocode_batch <- function(batch) {
@@ -105,8 +111,10 @@ geocode_batch <- function(batch) {
     st_as_sf(coords = c("long", "lat"), remove = FALSE) %>%
     st_set_crs(4326) %>%
     st_transform(3435) %>%
-    mutate(x_3435 = st_coordinates(.)[, 1],
-           y_3435 = st_coordinates(.)[, 2])
+    mutate(
+      x_3435 = st_coordinates(.)[, 1],
+      y_3435 = st_coordinates(.)[, 2]
+    )
 }
 
 # Apply geocoding to each batch and combine results
@@ -118,11 +126,11 @@ geocoded_data <- map(batch_list, geocode_batch) %>%
 geocoded_data <- geocoded_data %>%
   group_by(pin10, year) %>%
   summarise(
-    avg_lon_geocoded   = mean(long, na.rm = TRUE),
-    avg_lat_geocoded   = mean(lat, na.rm = TRUE),
+    avg_lon_geocoded = mean(long, na.rm = TRUE),
+    avg_lat_geocoded = mean(lat, na.rm = TRUE),
     avg_x_3435_geocoded = mean(x_3435, na.rm = TRUE),
     avg_y_3435_geocoded = mean(y_3435, na.rm = TRUE),
-    prop_address_full  = first(prop_address_full)
+    prop_address_full = first(prop_address_full)
   ) %>%
   ungroup() %>%
   select(-geometry)
@@ -134,10 +142,14 @@ geocoded_data <- geocoded_data %>%
 
 # Join the geocoded and imputed datasets
 final <- full_join(missing_geographies_imputed,
-                   geocoded_data, by = c("pin10", "year")) %>%
-  select(pin10, year, avg_lon_geocoded, avg_lat_geocoded,
-         avg_x_3435_geocoded, avg_y_3435_geocoded,
-         x_3435_imputed, y_3435_imputed, lon_imputed, lat_imputed)
+  geocoded_data,
+  by = c("pin10", "year")
+) %>%
+  select(
+    pin10, year, avg_lon_geocoded, avg_lat_geocoded,
+    avg_x_3435_geocoded, avg_y_3435_geocoded,
+    x_3435_imputed, y_3435_imputed, lon_imputed, lat_imputed
+  )
 
 final <- final %>%
   mutate(
@@ -176,12 +188,12 @@ final <- final %>%
       if_else(distance <= 1000, lat_imputed, NA_real_),
       coalesce(lat_imputed, avg_lat_geocoded)
     ),
-
     source = if_else(
       !is.na(x_3435_imputed) & !is.na(avg_x_3435_geocoded),
       if_else(distance <= 1000, "imputed", "none"),
       if_else(!is.na(x_3435_imputed), "imputed",
-              if_else(!is.na(avg_x_3435_geocoded), "geocoded", "none"))
+        if_else(!is.na(avg_x_3435_geocoded), "geocoded", "none")
+      )
     )
   ) %>%
   select(pin10, year, x_3435, y_3435, lon, lat, source) %>%
@@ -196,8 +208,10 @@ The number of PIN10 geographies filled by imputing is `r nrow(missing_geographie
 
 ```{r}
 geocoded_data <- geocoded_data %>%
-  st_as_sf(coords = c("avg_lon_geocoded", "avg_lat_geocoded"),
-           remove = FALSE) %>%
+  st_as_sf(
+    coords = c("avg_lon_geocoded", "avg_lat_geocoded"),
+    remove = FALSE
+  ) %>%
   st_transform(crs = 4326) %>%
   st_cast("POINT")
 
@@ -209,7 +223,7 @@ missing_geographies_imputed <- missing_geographies_imputed %>%
 imputed_map <- leaflet(data = subset(missing_geographies_imputed)) %>%
   addTiles() %>%
   addCircleMarkers(
-    popup = ~paste(
+    popup = ~ paste(
       "<strong>Address:</strong>", prop_address_full, "<br>",
       "<strong>PIN10:</strong>", pin10, "<br>",
       "<strong>Year:</strong>", year
@@ -218,21 +232,22 @@ imputed_map <- leaflet(data = subset(missing_geographies_imputed)) %>%
   )
 
 imputed_map
-
 ```
 
 ## Geocoded PINs:
 
 ```{r}
 geocoded_data <- geocoded_data %>%
-  st_as_sf(coords = c("avg_lon_geocoded", "avg_lat_geocoded"),
-           remove = FALSE, crs = 4326) %>%
-  st_cast("POINT")  # Ensure geometry is of type POINT
+  st_as_sf(
+    coords = c("avg_lon_geocoded", "avg_lat_geocoded"),
+    remove = FALSE, crs = 4326
+  ) %>%
+  st_cast("POINT") # Ensure geometry is of type POINT
 
 geocoded_map <- leaflet(data = geocoded_data) %>%
   addTiles() %>%
   addCircleMarkers(
-    popup = ~paste(
+    popup = ~ paste(
       "<strong>Address:</strong>", prop_address_full, "<br>",
       "<strong>PIN10:</strong>", pin10, "<br>",
       "<strong>Year:</strong>", year
@@ -241,14 +256,14 @@ geocoded_map <- leaflet(data = geocoded_data) %>%
   )
 
 geocoded_map
-
 ```
 
 
 ```{r}
-
-combined_geographies <- bind_rows(missing_geographies_imputed,
-                                  geocoded_data) %>%
+combined_geographies <- bind_rows(
+  missing_geographies_imputed,
+  geocoded_data
+) %>%
   st_cast("POINT") %>%
   st_transform(crs = 4326) %>%
   st_set_crs(4326) %>%
@@ -265,11 +280,11 @@ distance_by_group <- combined_geographies %>%
   ) %>%
   filter(!is.na(imputed_geom) & !is.na(geocoded_geom)) %>%
   st_cast("POINT") %>%
-  mutate(distance_ft = st_distance(imputed_geom,
-                                   geocoded_geom)[1, 1] * 3.28084) %>%
+  mutate(distance_ft = st_distance(
+    imputed_geom,
+    geocoded_geom
+  )[1, 1] * 3.28084) %>%
   ungroup()
-
-
 ```
 
 ## Map of all PINs with results from both techniques:
@@ -284,13 +299,12 @@ pal <- colorFactor(
 leaflet(data = combined_geographies) %>%
   addTiles() %>%
   addCircleMarkers(
-    color = ~pal(technique),
-    popup = ~paste(
+    color = ~ pal(technique),
+    popup = ~ paste(
       "<strong>Technique:</strong>", technique, "<br>",
       "<strong>Address:</strong>", prop_address_full
     )
   )
-
 ```
 
 ## Pins with Long Distances ( > 1000 ft):
@@ -306,13 +320,14 @@ subset <- distance_by_group %>%
 leaflet(data = subset) %>%
   addTiles() %>%
   addCircleMarkers(
-    color = ~pal(technique),
-    popup = ~paste(
+    color = ~ pal(technique),
+    popup = ~ paste(
       "<strong>Technique:</strong>", technique, "<br>",
       "<strong>Address:</strong>", current_year_address, "<br>",
       ifelse(!is.na(distance_ft),
-             paste("<strong>Distance (ft):</strong>", round(distance_ft, 2)),
-             "")
+        paste("<strong>Distance (ft):</strong>", round(distance_ft, 2)),
+        ""
+      )
     )
   )
 ```

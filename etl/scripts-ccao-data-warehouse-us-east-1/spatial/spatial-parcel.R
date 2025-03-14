@@ -441,14 +441,18 @@ process_parcel_file <- function(s3_bucket_uri,
     group_by(prop_address_full, pin10) %>%
     arrange(year) %>%
     fill(x_3435_imputed, y_3435_imputed, lon_imputed,
-         lat_imputed, .direction = "updown") %>%
+      lat_imputed,
+      .direction = "updown"
+    ) %>%
     ungroup() %>%
     # We want pins for addresses, but location data is on the pin10 level
     distinct(pin10, year, .keep_all = TRUE) %>%
     # We don't replace x_3435 yet, so we keep data which was originally missing
     filter(is.na(x_3435) | is.na(y_3435)) %>%
-    select(c("year", "pin10", "x_3435_imputed",
-             "y_3435_imputed", "lon_imputed", "lat_imputed"))
+    select(c(
+      "year", "pin10", "x_3435_imputed",
+      "y_3435_imputed", "lon_imputed", "lat_imputed"
+    ))
 
   # This selects only missing geography features,
   # removing the years which we use to impute
@@ -461,8 +465,10 @@ process_parcel_file <- function(s3_bucket_uri,
     select(-c("x_3435", "y_3435", "lon", "lat"))
 
   # Split the missing coordinates into batches of 1000 rows for tidygeocoder
-  batch_list <- split(missing_geographies,
-                      ceiling(seq_len(nrow(missing_geographies)) / 1000))
+  batch_list <- split(
+    missing_geographies,
+    ceiling(seq_len(nrow(missing_geographies)) / 1000)
+  )
 
   cook_county <- dbGetQuery(
     conn = con,
@@ -488,8 +494,10 @@ process_parcel_file <- function(s3_bucket_uri,
       st_transform(3435) %>%
       # One known property is outside of Cook County
       st_join(cook_county) %>%
-      mutate(x_3435 = st_coordinates(.)[, 1],
-             y_3435 = st_coordinates(.)[, 2])
+      mutate(
+        x_3435 = st_coordinates(.)[, 1],
+        y_3435 = st_coordinates(.)[, 2]
+      )
   }
 
   # Apply geocoding to each batch and combine results
@@ -501,8 +509,8 @@ process_parcel_file <- function(s3_bucket_uri,
   geocoded_data <- geocoded_data %>%
     group_by(pin10, year) %>%
     summarise(
-      avg_lon_geocoded   = mean(long, na.rm = TRUE),
-      avg_lat_geocoded   = mean(lat, na.rm = TRUE),
+      avg_lon_geocoded = mean(long, na.rm = TRUE),
+      avg_lat_geocoded = mean(lat, na.rm = TRUE),
       avg_x_3435_geocoded = mean(x_3435, na.rm = TRUE),
       avg_y_3435_geocoded = mean(y_3435, na.rm = TRUE)
     ) %>%
@@ -511,10 +519,14 @@ process_parcel_file <- function(s3_bucket_uri,
 
   # Join the geocoded and imputed datasets
   missing_geographies <- full_join(missing_geographies_imputed,
-                                   geocoded_data, by = c("pin10", "year")) %>%
-    select(pin10, year, avg_lon_geocoded, avg_lat_geocoded,
-           avg_x_3435_geocoded, avg_y_3435_geocoded,
-           x_3435_imputed, y_3435_imputed, lon_imputed, lat_imputed)
+    geocoded_data,
+    by = c("pin10", "year")
+  ) %>%
+    select(
+      pin10, year, avg_lon_geocoded, avg_lat_geocoded,
+      avg_x_3435_geocoded, avg_y_3435_geocoded,
+      x_3435_imputed, y_3435_imputed, lon_imputed, lat_imputed
+    )
 
   missing_geographies <- missing_geographies %>%
     mutate(
@@ -531,7 +543,7 @@ process_parcel_file <- function(s3_bucket_uri,
       ),
 
       # Replace y_3435 with the imputed value if both available
-      #and within 1000 feet, else choose available value or NA
+      # and within 1000 feet, else choose available value or NA
       y_3435 = if_else(
         !is.na(y_3435_imputed) & !is.na(avg_y_3435_geocoded),
         if_else(distance <= 1000, y_3435_imputed, NA_real_),
@@ -553,12 +565,12 @@ process_parcel_file <- function(s3_bucket_uri,
         if_else(distance <= 1000, lat_imputed, NA_real_),
         coalesce(lat_imputed, avg_lat_geocoded)
       ),
-
       source = if_else(
         !is.na(x_3435_imputed) & !is.na(avg_x_3435_geocoded),
         if_else(distance <= 1000, "imputed", "none"),
         if_else(!is.na(x_3435_imputed), "imputed",
-                if_else(!is.na(avg_x_3435_geocoded), "geocoded", "none"))
+          if_else(!is.na(avg_x_3435_geocoded), "geocoded", "none")
+        )
       )
     ) %>%
     select(pin10, year, x_3435, y_3435, lon, lat, source) %>%
