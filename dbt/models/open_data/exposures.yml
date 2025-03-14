@@ -134,8 +134,7 @@ exposures:
     owner:
       name: Data Department
     meta:
-      # Disabled until the asset is public
-      test_row_count: false
+      test_row_count: true
       asset_id: pabr-t5kh
       primary_key:
         - pin
