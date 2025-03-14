@@ -97,6 +97,14 @@ batch_list <- split(
   missing_geographies,
   ceiling(seq_len(nrow(missing_geographies)) / 1000)
 )
+cook_county <- dbGetQuery(
+  conn = con,
+  "select *
+ from spatial.county"
+) %>%
+  st_as_sf() %>%
+  st_set_crs(3435)
+
 
 # Function to geocode each batch
 geocode_batch <- function(batch) {
@@ -111,6 +119,8 @@ geocode_batch <- function(batch) {
     st_as_sf(coords = c("long", "lat"), remove = FALSE) %>%
     st_set_crs(4326) %>%
     st_transform(3435) %>%
+    # One known property is outside of Cook County
+    st_join(cook_county) %>%
     mutate(
       x_3435 = st_coordinates(.)[, 1],
       y_3435 = st_coordinates(.)[, 2]
@@ -155,7 +165,7 @@ final <- final %>%
   mutate(
     # Calculate Euclidean distance using the projected coordinates
     distance = sqrt((x_3435_imputed - avg_x_3435_geocoded)^2 +
-                      (y_3435_imputed - avg_y_3435_geocoded)^2),
+      (y_3435_imputed - avg_y_3435_geocoded)^2),
 
     # Replace x_3435 with the imputed value if both available
     # and within 100 feet, else choose available value or NA
@@ -271,19 +281,18 @@ combined_geographies <- bind_rows(
     technique = if_else(!is.na(x_3435_imputed), "imputed", "geocoded")
   )
 
-distance_by_group <- combined_geographies %>%
+combined_geographies <- combined_geographies %>%
   group_by(pin10, year) %>%
-  summarise(
-    imputed_geom = first(geometry[technique == "imputed"]),
-    geocoded_geom = first(geometry[technique == "geocoded"]),
-    address = first(prop_address_full)
+  filter(n() == 2, all(c("imputed", "geocoded") %in% technique)) %>%
+  mutate(
+    distance_ft = as.numeric(
+      st_distance(
+        geometry[technique == "imputed"],
+        geometry[technique == "geocoded"]
+      )
+    )
+    * 3.28084
   ) %>%
-  filter(!is.na(imputed_geom) & !is.na(geocoded_geom)) %>%
-  st_cast("POINT") %>%
-  mutate(distance_ft = st_distance(
-    imputed_geom,
-    geocoded_geom
-  )[1, 1] * 3.28084) %>%
   ungroup()
 ```
 
@@ -309,21 +318,47 @@ leaflet(data = combined_geographies) %>%
 
 ## Pins with Long Distances ( > 1000 ft):
 
-The main (fixable) issue that I saw here was that directions of streets were not correct (359 W Ohio is likely 359 E Ohio).
 ```{r}
-# Look at long distance pins
-subset <- distance_by_group %>%
+subset <- combined_geographies %>%
   mutate(distance_ft = as.numeric(distance_ft)) %>%
   filter(distance_ft > 1000)
 
+subset_post_2015 <- combined_geographies %>%
+  filter(year >= 2015)
+```
 
+
+There are `r nrow(subset)` matched geographies over 1,000 ft apart out of `r nrow(combined_geographies)`. Of these, only `r nrow(subset_post_2015)` are from 2015 or later.
+
+The main (fixable) issue that I saw here was that directions of streets were not correct (359 W Ohio is likely 359 E Ohio).
+```{r}
 leaflet(data = subset) %>%
   addTiles() %>%
   addCircleMarkers(
     color = ~ pal(technique),
     popup = ~ paste(
+      "<strong>PIN10:</strong>", pin10, "<br>",
       "<strong>Technique:</strong>", technique, "<br>",
-      "<strong>Address:</strong>", current_year_address, "<br>",
+      "<strong>Address:</strong>", prop_address_full, "<br>",
+      "<strong>year:</strong>", year, "<br>",
+      ifelse(!is.na(distance_ft),
+        paste("<strong>Distance (ft):</strong>", round(distance_ft, 2)),
+        ""
+      )
+    )
+  )
+```
+## Data post 2015
+```{r}
+leaflet(data = subset_post_2015) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    color = ~ pal(technique),
+    popup = ~ paste(
+      "<strong>PIN10:</strong>", pin10, "<br>",
+      "<strong>Technique:</strong>", technique, "<br>",
+      "<strong>Address:</strong>", prop_address_full, "<br>",
+      "<strong>year:</strong>", year, "<br>",
       ifelse(!is.na(distance_ft),
         paste("<strong>Distance (ft):</strong>", round(distance_ft, 2)),
         ""
@@ -332,17 +367,40 @@ leaflet(data = subset) %>%
   )
 ```
 
+## Example of large parcel pin
+
+The biggest issue were pins like this, which are on very large parcels. I'm still doing some QC on them, but this is a pretty expected outcome between the two techniques, where geocoding seems to put a parcel directly on the street, and imputing in the center of the pin. 
+```{r}
+subset_a <- subset %>%
+  filter(pin10 == "0609200026")
+
+leaflet(data = subset_a) %>%
+  addTiles() %>%
+  addCircleMarkers(
+    color = ~ pal(technique),
+    popup = ~ paste(
+      "<strong>PIN10:</strong>", pin10, "<br>",
+      "<strong>Technique:</strong>", technique, "<br>",
+      "<strong>Address:</strong>", prop_address_full, "<br>",
+      ifelse(!is.na(distance_ft),
+        paste("<strong>Distance (ft):</strong>", round(distance_ft, 2)),
+        ""
+      )
+    )
+  )
+```
 
 ## Histogram of Distance (ft) Between Techniques
 
-The vast majority of pins are within 300 feet of eachother. An example of this would be Address: 1346 W CULLERTON ST 3 CHICAGO IL 60608, CHICAGO, IL. These are 185 feet apart, and three houses apart. While not ideal, it definetely seems to be an improvement over no information. 
+The vast majority of pins are within 300 feet of eachother. An example of this would be Address: 1346 W CULLERTON ST 3 CHICAGO IL 60608, CHICAGO, IL. These are 185 feet apart, and three houses apart. While not ideal, it definetely seems to be an improvement over no information. The selection of 5,000 ft difference was largely arbitrary, but shows that data seems pretty consistent.
 
 What this does not answer is if PINs which have only one one technique are harder to code (weirder addresses). There is no intuitive reason why this would be the case, but it is something we should think about. 
 
 ```{r}
-distance_by_group <- distance_by_group %>%
+distance_by_group <- combined_geographies %>%
+  distinct(pin10, year, .keep_all = TRUE) %>%
   mutate(distance_ft = as.numeric(as.character(distance_ft))) %>%
-  filter(distance_ft < 1000)
+  filter(distance_ft < 5000)
 
 p <- ggplot(distance_by_group, aes(x = distance_ft)) +
   geom_histogram(binwidth = 100, fill = "steelblue", color = "white") +
@@ -359,3 +417,4 @@ print(p)
 # Conclusion:
 
 In general, the two techniques produce similar results. I'd have to go through them a bit more in depth, but at the moment, the geocoding looks a bit better, specifically because it fills more observations. On the other hand, the imputed values are more likely to be correct, as we know we have some issues with our address data. 
+
