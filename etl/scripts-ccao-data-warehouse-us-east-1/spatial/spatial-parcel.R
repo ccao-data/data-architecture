@@ -16,8 +16,8 @@ source("utils.R")
 
 
 # This script cleans historical Cook County parcel data and uploads it to S3
-AWS_S3_RAW_BUCKET <- "s3://ccao-data-raw-us-east-1"
-AWS_S3_WAREHOUSE_BUCKET <- "s3://ccao-data-warehouse-us-east-1"
+AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
 parcel_tmp_dir <- here("parcel-tmp")
 con <- dbConnect(noctua::athena())
