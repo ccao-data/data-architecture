@@ -110,10 +110,16 @@ models:
           name: default_vw_pin_sale_sale_filter_less_than_10k
           expression: NOT sale_filter_less_than_10k OR sale_price <= 10000
       - unique_combination_of_columns:
-          name: default_vw_pin_sale_unique_price_pin_and_year
+          name: default_vw_pin_sale_unique_doc_no
+          combination_of_columns:
+            - doc_no
+          config:
+            where: NOT is_multisale
+      - unique_combination_of_columns:
+          name: default_vw_pin_sale_unique_price_pin_and_doc_no
           combination_of_columns:
             - pin
-            - year
+            - doc_no
             - sale_price
           config:
-            where: NOT sale_filter_same_sale_within_365 AND NOT sale_filter_deed_type
+            where: NOT sale_filter_same_sale_within_365

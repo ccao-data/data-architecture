@@ -66,7 +66,7 @@ These rates are applied during the modeling process in order to disaggregate
 the value of land from the total PIN value. They are provided yearly prior
 to modeling.
 
-**Primary Key**: `town_nbhd`, `year`
+**Primary Key**: `town_nbhd`, `year`, `class`
 {% enddocs %}
 
 # land_site_rate
