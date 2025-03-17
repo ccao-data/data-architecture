@@ -165,7 +165,10 @@ Sourced from `iasworld.sales`, which is sourced from
         - The reason `sale_price` is necessary here is to handle some known
           duplicates in the source data. To remove these duplicates and make
           multisales unique by `pin` and `doc_no`, group your query by `pin`
-          and `doc_no` and select `MAX(sale_price)`
+          and `doc_no` and select either the maximum or minimum sale price.
+          We tend to prefer the maximum, but there is no inherent correctness
+          to this choice, and the correct sale price to choose will depend
+          on how you want to use the sales
 
 ### Lineage
 
