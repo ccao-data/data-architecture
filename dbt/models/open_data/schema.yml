@@ -20,8 +20,8 @@ models:
   - name: open_data.vw_parcel_universe_current
     description: '{{ doc("view_vw_parcel_universe_current") }}'
 
-  - name: open_data.vw_parcel_universe_historic
-    description: '{{ doc("view_vw_parcel_universe_historic") }}'
+  - name: open_data.vw_parcel_universe_historical
+    description: '{{ doc("view_vw_parcel_universe_historical") }}'
 
   - name: open_data.vw_permit
     description: '{{ doc("view_vw_permit") }}'
