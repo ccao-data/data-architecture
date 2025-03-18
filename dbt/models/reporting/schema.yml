@@ -77,26 +77,26 @@ models:
       tags:
         - daily
 
-  - name: reporting.sot_ratio_stats
-    description: '{{ doc("table_sot_ratio_stats") }}'
+  - name: reporting.sot_ratio_stat
+    description: '{{ doc("table_sot_ratio_stat") }}'
     config:
       tags:
         - daily
 
-  - name: reporting.sot_ratio_stats_input
-    description: '{{ doc("table_sot_ratio_stats_input") }}'
+  - name: reporting.sot_ratio_stat_input
+    description: '{{ doc("table_sot_ratio_stat_input") }}'
     config:
       tags:
         - daily
 
-  - name: reporting.sot_sales
-    description: '{{ doc("table_sot_sales") }}'
+  - name: reporting.sot_sale
+    description: '{{ doc("table_sot_sale") }}'
     config:
       tags:
         - daily
 
-  - name: reporting.sot_sales_input
-    description: '{{ doc("table_sot_sales_input") }}'
+  - name: reporting.sot_sale_input
+    description: '{{ doc("table_sot_sale_input") }}'
     config:
       tags:
         - daily

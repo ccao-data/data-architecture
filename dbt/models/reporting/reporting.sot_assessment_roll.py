@@ -56,7 +56,7 @@ stats = {
 }
 
 
-def aggregrate(data, geography_type, group_type):
+def aggregrate(data, geography_type, group_type, stats):
     """
     Function to group a dataframe by whichever geography and group types it is
     passed and output aggregate stats for that grouping.
@@ -99,7 +99,7 @@ def assemble(df, geos, groups):
 
         for x in value:
             for z in groups:
-                output = pd.concat([output, aggregrate(df, x, z)])
+                output = pd.concat([output, aggregrate(df, x, z, stats=stats)])
 
     # Flatten multi-index
     output.columns = ["_".join(col) for col in output.columns]

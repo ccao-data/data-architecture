@@ -88,20 +88,20 @@ for every possible geography and reporting group combination.
 {% docs table_sot_assessment_roll_input %}
 {% enddocs %}
 
-# sot_ratio_stats
-{% docs table_sot_ratio_stats %}
+# sot_ratio_stat
+{% docs table_sot_ratio_stat %}
 {% enddocs %}
 
-# sot_ratio_stats_input
-{% docs table_sot_ratio_stats_input %}
+# sot_ratio_stat_input
+{% docs table_sot_ratio_stat_input %}
 {% enddocs %}
 
-# sot_sales
-{% docs table_sot_sales %}
+# sot_sale
+{% docs table_sot_sale %}
 {% enddocs %}
 
-# sot_sales_input
-{% docs table_sot_sales_input %}
+# sot_sale_input
+{% docs table_sot_sale_input %}
 {% enddocs %}
 
 # sot_taxes_exemptions

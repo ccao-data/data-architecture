@@ -1,5 +1,5 @@
 -- This script gathers parcel-level geographies and joins them to sales and
--- class groupings. Its sole purpose is to feed reporting.sot_sales,
+-- class groupings. Its sole purpose is to feed reporting.sot_sale,
 -- and should not be used otherwise.
 
 {{

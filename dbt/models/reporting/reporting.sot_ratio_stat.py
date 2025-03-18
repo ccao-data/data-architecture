@@ -350,7 +350,7 @@ def model(dbt, spark_session):
     # Ingest geographies and their associated data years
     geos = ingest_geos(dbt.ref("reporting.sot_data_years"))
 
-    input = dbt.ref("reporting.sot_ratio_stats_input")
+    input = dbt.ref("reporting.sot_ratio_stat_input")
 
     # Convert the Spark input dataframe to Pandas for
     # compatibility with assesspy functions

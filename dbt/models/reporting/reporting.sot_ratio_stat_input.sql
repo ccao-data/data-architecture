@@ -1,6 +1,6 @@
 /* This script gathers parcel-level geographies and joins them to values and
 sale prices, and class groupings in order to construct sales ratios. Its sole
-purpose is to feed reporting.sot_ratio_stats, and should not be used
+purpose is to feed reporting.sot_ratio_stat, and should not be used
 otherwise. */
 {{
     config(
@@ -50,9 +50,7 @@ SELECT
     uni.chicago_community_area_name AS community_area,
     uni.census_place_geoid AS census_place,
     uni.census_tract_geoid AS census_tract,
-    uni.census_congressional_district_geoid
-        AS
-        census_congressional_district,
+    uni.census_congressional_district_geoid AS census_congressional_district,
     uni.census_zcta_geoid AS census_zcta,
     uni.cook_board_of_review_district_num AS cook_board_of_review_district,
     uni.cook_commissioner_district_num AS cook_commissioner_district,
