@@ -162,6 +162,22 @@ mydec_sales AS (
             NULLIF(TRIM(buyer_name), '') AS buyer_name,
             COALESCE(line_7_property_advertised = 1, FALSE)
                 AS mydec_property_advertised,
+            COALESCE(line_9_no_changes = 1, FALSE)
+                AS mydec_line_9_no_changes,
+            COALESCE(line_9_demolitiondamage = 1, FALSE)
+                AS mydec_line_9_demolition_damage,
+            COALESCE(line_9_additions = 1, FALSE)
+                AS mydec_line_9_additions,
+            COALESCE(line_9_major_remodeling = 1, FALSE)
+                AS mydec_line_9_major_remodeling,
+            COALESCE(line_9_new_construction = 1, FALSE)
+                AS mydec_line_9_new_construction,
+            COALESCE(line_9_other_change = 1, FALSE)
+                AS mydec_line_9_other_change,
+            line_9_other_change_description
+                AS mydec_line_9_other_change_description,
+            line_9_date_of_significant_change
+                AS mydec_line_9_date_of_significant_change,
             COALESCE(line_10a = 1, FALSE)
                 AS mydec_is_installment_contract_fulfilled,
             COALESCE(line_10b = 1, FALSE)
@@ -305,6 +321,14 @@ SELECT
     mydec_sales.mydec_deed_type,
     mydec_sales.sale_filter_ptax_flag,
     mydec_sales.mydec_property_advertised,
+    mydec_sales.mydec_line_9_no_changes,
+    mydec_sales.mydec_line_9_demolition_damage,
+    mydec_sales.mydec_line_9_additions,
+    mydec_sales.mydec_line_9_major_remodeling,
+    mydec_sales.mydec_line_9_new_construction,
+    mydec_sales.mydec_line_9_other_change,
+    mydec_sales.mydec_line_9_other_change_description,
+    mydec_sales.mydec_line_9_date_of_significant_change,
     mydec_sales.mydec_is_installment_contract_fulfilled,
     mydec_sales.mydec_is_sale_between_related_individuals_or_corporate_affiliates, -- noqa
     mydec_sales.mydec_is_transfer_of_less_than_100_percent_interest,
@@ -338,4 +362,4 @@ FROM unique_sales
 LEFT JOIN mydec_sales
     ON unique_sales.doc_no = mydec_sales.doc_no
 LEFT JOIN sales_val
-    ON unique_sales.doc_no = sales_val.meta_sale_document_num;
+    ON unique_sales.doc_no = sales_val.meta_sale_document_num

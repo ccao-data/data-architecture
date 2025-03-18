@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: owndat
@@ -75,7 +75,7 @@ sources:
                     - wen
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                   meta:
                     description: cur should be 'Y' or 'D'
           - name: deactivat
@@ -159,28 +159,28 @@ sources:
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_owndat_parid_not_null
+              - relationships:
+                  name: iasworld_owndat_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
                   additional_select_columns: &select-columns-no-parid
                     - taxyr
                     - who
                     - wen
                   config: &unique-conditions
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
-                    description: parid should not be null
-              - relationships:
-                  name: iasworld_owndat_parid_in_pardat_parid
-                  to: source('iasworld', 'pardat')
-                  field: parid
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_owndat_parid_not_null
                   additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
                   meta:
-                    category: parid
-                    description: parid should be in pardat
+                    description: parid should not be null
           - name: partial
             description: '{{ doc("column_partial") }}'
           - name: pctown
@@ -189,10 +189,10 @@ sources:
             description: '{{ doc("column_phone") }}'
           - name: po
             description: Primary owner flag (1 = `OWNDAT`, 0 = `OWNMLT`)
-          - name: postal_indx
-            description: '{{ doc("column_postal_indx") }}'
           - name: postalcode
             description: '{{ doc("column_postalcode") }}'
+          - name: postal_indx
+            description: '{{ doc("column_postal_indx") }}'
           - name: salekey
             description: '{{ doc("column_salekey") }}'
           - name: seq
@@ -245,21 +245,6 @@ sources:
             description: '{{ doc("shared_column_mail_address_zipcode_2") }}'
 
         data_tests:
-          - unique_combination_of_columns:
-              name: iasworld_owndat_unique_by_parid_taxyr
-              combination_of_columns:
-                - parid
-                - taxyr
-              additional_select_columns:
-                - column: who
-                  alias: who
-                  agg_func: array_agg
-                - column: wen
-                  alias: wen
-                  agg_func: array_agg
-              config: *unique-conditions
-              meta:
-                description: owndat should be unique by parid and taxyr
           - no_extra_whitespace:
               name: iasworld_owndat_address_columns_no_extra_whitespace
               column_names:
@@ -293,4 +278,19 @@ sources:
                   statecode, zip1, zip2, user27
               tags:
                 # Currently too many failures for this signal to be useful
-                - test_qc_exclude_from_workbook
+                - data_test_iasworld_exclude_from_workbook
+          - unique_combination_of_columns:
+              name: iasworld_owndat_unique_by_parid_taxyr
+              combination_of_columns:
+                - parid
+                - taxyr
+              additional_select_columns:
+                - column: who
+                  alias: who
+                  agg_func: array_agg
+                - column: wen
+                  alias: wen
+                  agg_func: array_agg
+              config: *unique-conditions
+              meta:
+                description: owndat should be unique by parid and taxyr

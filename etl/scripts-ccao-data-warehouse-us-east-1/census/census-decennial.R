@@ -73,7 +73,6 @@ all_combos <- expand.grid(
 # Function to loop through rows in all_combos, grab census data,
 # and write it to a parquet file on S3 if it doesn't already exist
 pull_and_write_dec <- function(s3_bucket_uri, survey, folder, geography, year) {
-
   remote_file <- file.path(
     output_bucket, survey,
     paste0("geography=", folder),
@@ -83,7 +82,6 @@ pull_and_write_dec <- function(s3_bucket_uri, survey, folder, geography, year) {
 
   # Check to see if file already exists on S3; if it does, skip it
   if (!aws.s3::object_exists(remote_file)) {
-
     # Print file being written
     message(Sys.time(), " - ", remote_file)
 
@@ -112,7 +110,8 @@ pull_and_write_dec <- function(s3_bucket_uri, survey, folder, geography, year) {
       cache_table = TRUE
     ) %>%
       select(-NAME) %>%
-      rename_with(~ rename_to_2020(.x, year), .cols = !GEOID)
+      rename_with(~ rename_to_2020(.x, year), .cols = !GEOID) %>%
+      mutate(loaded_at = as.character(Sys.time()))
 
     # Write to S3
     arrow::write_parquet(df, remote_file)

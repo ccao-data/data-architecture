@@ -1,13 +1,35 @@
-**Primary Key**: `reascd`
+# cc_dli_senfrr
+
+{% docs table_cc_dli_senfrr %}
+Legacy senior freeze exemption data pulled by BoT. Provided via MV 08/18/2024.
+
+**Primary Key**: `pin`, `year`
 {% enddocs %}
 
-# class_dict
+# cc_pifdb_piexemptre_dise
 
-{% docs table_class_dict %}
-Classification codes and descriptions for real property. Derived from the
-[public PDF](https://prodassets.cookcountyassessor.com/s3fs-public/form_documents/Definitions%20for%20Classifications_2023.pdf).
+{% docs table_cc_pifdb_piexemptre_dise %}
+Legacy homestead (senior) exemption data pulled by BoT. Provided via
+MV 08/18/2024.
 
-**Primary Key**: `class_code`
+**Primary Key**: `pin`, `year`
+{% enddocs %}
+
+# cc_pifdb_piexemptre_ownr
+
+{% docs table_cc_pifdb_piexemptre_ownr %}
+Legacy homestead exemption data pulled by BoT. Provided via MV 10/01/2024.
+
+**Primary Key**: `pin`, `year`
+{% enddocs %}
+
+# cc_pifdb_piexemptre_sted
+
+{% docs table_cc_pifdb_piexemptre_sted %}
+Legacy disabled persons and veterans exemption data pulled by BoT. Provided via
+MV 08/18/2024.
+
+**Primary Key**: `pin`, `year`
 {% enddocs %}
 
 # commercial_valuation
@@ -16,16 +38,12 @@ Classification codes and descriptions for real property. Derived from the
 CCAO commercial valuation data, aggregated from the commercial team spreadsheets
 [available on the Assessor's site](https://www.cookcountyassessor.com/valuation-reports).
 
-**Primary Key**: `keypin`, `year`
-{% enddocs %}
+### Nuance
 
-# corner_lot
+- The table is _not_ unique by its intended primary keys and should not be
+aggregated or used for analyses, only provided in raw.
 
-{% docs table_corner_lot %}
-CCAO corner lot indicator. Determined algorithmically by unobstructed access to
-perpidincular streets.
-
-**Primary Key**: `pin10`
+**Primary Key**: `keypin`, `year`, `class(es)`, `sheet`
 {% enddocs %}
 
 # hie
@@ -48,7 +66,7 @@ These rates are applied during the modeling process in order to disaggregate
 the value of land from the total PIN value. They are provided yearly prior
 to modeling.
 
-**Primary Key**: `town_nbhd`, `year`
+**Primary Key**: `town_nbhd`, `year`, `class`
 {% enddocs %}
 
 # land_site_rate
@@ -83,4 +101,13 @@ and storage areas.
 Collected yearly from Valuations via spreadsheets.
 
 **Primary Key**: `pin`, `year`
+{% enddocs %}
+
+# vw_time_util
+
+{% docs view_vw_time_util %}
+View that supplies dynamic datetime values in a way that we can mock for unit
+tests.
+
+See: <https://discourse.getdbt.com/t/dynamic-dates-in-unit-tests/16883/2?>
 {% enddocs %}

@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: aprval
@@ -34,7 +34,7 @@ sources:
                     - wen
                   config: &unique-conditions
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
@@ -121,7 +121,7 @@ sources:
                   additional_select_columns: *select-columns
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                   meta:
                     description: cur should be 'Y' or 'D'
           - name: deactivat
@@ -206,24 +206,24 @@ sources:
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_aprval_parid_not_null
+              - relationships:
+                  name: iasworld_aprval_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
                   additional_select_columns: &select-columns-no-parid
                     - taxyr
                     - who
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: parid should not be null
-              - relationships:
-                  name: iasworld_aprval_parid_in_pardat_parid
-                  to: source('iasworld', 'pardat')
-                  field: parid
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_aprval_parid_not_null
                   additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
                   meta:
-                    category: parid
-                    description: parid should be in pardat
+                    description: parid should not be null
           - name: posttype
             description: Assessment posting type
           - name: ppcomval

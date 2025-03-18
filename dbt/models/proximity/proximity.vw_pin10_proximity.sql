@@ -19,6 +19,7 @@ SELECT
     cnt_pin_num_school.num_school_rating_data_year,
 
     dist_pin_to_airport.airport_dnl_total,
+
     dist_pin_to_bike_trail.nearest_bike_trail_id,
     dist_pin_to_bike_trail.nearest_bike_trail_name,
     dist_pin_to_bike_trail.nearest_bike_trail_dist_ft,
@@ -84,6 +85,30 @@ SELECT
     dist_pin_to_railroad.nearest_railroad_name,
     dist_pin_to_railroad.nearest_railroad_dist_ft,
     dist_pin_to_railroad.nearest_railroad_data_year,
+
+    dist_pin_to_road_arterial.nearest_road_arterial_name,
+    dist_pin_to_road_arterial.nearest_road_arterial_daily_traffic,
+    dist_pin_to_road_arterial.nearest_road_arterial_speed_limit,
+    dist_pin_to_road_arterial.nearest_road_arterial_surface_type,
+    dist_pin_to_road_arterial.nearest_road_arterial_lanes,
+    dist_pin_to_road_arterial.nearest_road_arterial_dist_ft,
+    dist_pin_to_road_arterial.nearest_road_arterial_data_year,
+
+    dist_pin_to_road_collector.nearest_road_collector_name,
+    dist_pin_to_road_collector.nearest_road_collector_daily_traffic,
+    dist_pin_to_road_collector.nearest_road_collector_speed_limit,
+    dist_pin_to_road_collector.nearest_road_collector_surface_type,
+    dist_pin_to_road_collector.nearest_road_collector_lanes,
+    dist_pin_to_road_collector.nearest_road_collector_dist_ft,
+    dist_pin_to_road_collector.nearest_road_collector_data_year,
+
+    dist_pin_to_road_highway.nearest_road_highway_name,
+    dist_pin_to_road_highway.nearest_road_highway_daily_traffic,
+    dist_pin_to_road_highway.nearest_road_highway_speed_limit,
+    dist_pin_to_road_highway.nearest_road_highway_surface_type,
+    dist_pin_to_road_highway.nearest_road_highway_lanes,
+    dist_pin_to_road_highway.nearest_road_highway_dist_ft,
+    dist_pin_to_road_highway.nearest_road_highway_data_year,
 
     dist_pin_to_secondary_road.nearest_secondary_road_osm_id,
     dist_pin_to_secondary_road.nearest_secondary_road_name,
@@ -188,6 +213,21 @@ LEFT JOIN
     {{ ref('proximity.dist_pin_to_railroad') }} AS dist_pin_to_railroad
     ON pin.pin10 = dist_pin_to_railroad.pin10
     AND pin.year = dist_pin_to_railroad.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_road_arterial') }}
+        AS dist_pin_to_road_arterial
+    ON pin.pin10 = dist_pin_to_road_arterial.pin10
+    AND pin.year = dist_pin_to_road_arterial.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_road_collector') }}
+        AS dist_pin_to_road_collector
+    ON pin.pin10 = dist_pin_to_road_collector.pin10
+    AND pin.year = dist_pin_to_road_collector.year
+LEFT JOIN
+    {{ ref('proximity.dist_pin_to_road_highway') }}
+        AS dist_pin_to_road_highway
+    ON pin.pin10 = dist_pin_to_road_highway.pin10
+    AND pin.year = dist_pin_to_road_highway.year
 LEFT JOIN
     {{ ref('proximity.dist_pin_to_secondary_road') }}
         AS dist_pin_to_secondary_road

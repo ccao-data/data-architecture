@@ -1,28 +1,59 @@
 models:
+  - name: reporting.assessment_progress
+    description: '{{ doc("table_assessment_progress") }}'
+    config:
+      tags:
+        - daily
+    data_tests:
+      - expression_is_true:
+          name: reporting_assessment_progress_no_nulls
+          expression: |
+            stage_name IS NOT NULL
+            AND geo_id IS NOT NULL
+      - expression_is_true:
+          name: reporting_assessment_progress_no_vals_for_empty_stages
+          expression: |
+            num_pin_w_value != 0
+            OR (bldg_sum IS NULL
+            AND land_sum IS NULL
+            AND tot_sum IS NULL)
+      - unique_combination_of_columns:
+          name: reporting_assessment_progress_unique_by_keys
+          combination_of_columns:
+            - year
+            - stage_name
+            - geo_id
+
   - name: reporting.ratio_stats
     description: '{{ doc("table_ratio_stats") }}'
     config:
       tags:
         - daily
       packages:
-        - "assesspy==1.1.0"
+        - "assesspy==2.0.1"
     data_tests:
       - expression_is_true:
-          name: reporting_ratio_stats_no_nulls
+          name: reporting_ratio_stats_metrics_are_sensible
+          # pre-mailed values exhibit variance that makes applying the same prb
+          # constraints as other assessment stages trigger a test failure too
+          # often to be helpful
           expression: |
-            year IS NOT NULL
+            cod >= 0
+            AND prd >= 0
+            AND (
+              (prb BETWEEN -1 AND 1 AND assessment_stage != 'pre-mailed')
+              OR (prb BETWEEN -1.5 AND 1.5 AND assessment_stage = 'pre-mailed')
+            )
+            AND mki >= 0
             AND triad IS NOT NULL
             AND geography_type IS NOT NULL
             AND property_group IS NOT NULL
             AND assessment_stage IS NOT NULL
             AND sale_year IS NOT NULL
       - expression_is_true:
-          name: reporting_ratio_stats_metrics_are_sensible
+          name: reporting_ratio_stats_no_nulls
           expression: |
-            cod >= 0
-            AND prd >= 0
-            AND prb BETWEEN -1 AND 1
-            AND mki >= 0
+            year IS NOT NULL
             AND triad IS NOT NULL
             AND geography_type IS NOT NULL
             AND property_group IS NOT NULL
@@ -88,13 +119,6 @@ models:
       tags:
         - daily
     data_tests:
-      - unique_combination_of_columns:
-          name: reporting_ratio_stats_input_unique_by_keys
-          combination_of_columns:
-            - pin
-            - year
-            - assessment_stage
-            - sale_price
       - expression_is_true:
           name: reporting_ratio_stats_input_no_nulls
           expression: |
@@ -103,16 +127,23 @@ models:
             AND triad IS NOT NULL
             AND township_code IS NOT NULL
       - expression_is_true:
+          name: reporting_ratio_stats_input_ratio_greater_than_zero
+          expression: ratio >= 0
+          additional_select_columns:
+            - ratio
+      - expression_is_true:
           name: reporting_ratio_stats_input_sale_year_equals_year_minus_one
           expression: CAST(sale_year AS INTEGER) = CAST(year AS INTEGER) - 1
           additional_select_columns:
             - sale_year
             - year
-      - expression_is_true:
-          name: reporting_ratio_stats_input_ratio_greater_than_zero
-          expression: ratio >= 0
-          additional_select_columns:
-            - ratio
+      - unique_combination_of_columns:
+          name: reporting_ratio_stats_input_unique_by_keys
+          combination_of_columns:
+            - pin
+            - year
+            - assessment_stage
+            - sale_price
 
   - name: reporting.res_report_summary
     description: '{{ doc("table_res_report_summary") }}'
@@ -120,19 +151,6 @@ models:
       tags:
         - daily
     data_tests:
-    - unique_combination_of_columns:
-        name: reporting_res_report_summary_unique_by_keys
-        combination_of_columns:
-          - geography_id
-          - property_group
-          - assessment_stage
-          - year
-    - expression_is_true:
-        name: reporting_res_report_summary_sale_year_eq_year_minus_one
-        expression: CAST(sale_year AS INTEGER) = CAST(year AS INTEGER) - 1
-        additional_select_columns:
-          - sale_year
-          - year
     - expression_is_true:
         name: reporting_res_report_summary_no_nulls
         expression: |
@@ -145,17 +163,35 @@ models:
           - geography_type
           - property_group
           - assessment_stage
+    - expression_is_true:
+        name: reporting_res_report_summary_sale_year_eq_year_minus_one
+        expression: CAST(sale_year AS INTEGER) = CAST(year AS INTEGER) - 1
+        additional_select_columns:
+          - sale_year
+          - year
+    - unique_combination_of_columns:
+        name: reporting_res_report_summary_unique_by_keys
+        combination_of_columns:
+          - geography_id
+          - property_group
+          - assessment_stage
+          - year
+
+  - name: reporting.res_report_summary_sales_input
+    description: '{{ doc("table_res_report_summary_sales_input") }}'
+    config:
+      tags:
+        - daily
+
+  - name: reporting.res_report_summary_values_input
+    description: '{{ doc("table_res_report_summary_values_input") }}'
+    config:
+      tags:
+        - daily
 
   - name: reporting.vw_assessment_roll
     description: '{{ doc("view_vw_assessment_roll") }}'
     data_tests:
-      - unique_combination_of_columns:
-          name: reporting_vw_assessment_roll_unique_by_keys
-          combination_of_columns:
-            - year
-            - stage
-            - township_name
-            - class
       - expression_is_true:
           name: reporting_vw_assessment_roll_no_nulls
           expression: |
@@ -163,41 +199,48 @@ models:
             AND township_name IS NOT NULL
             AND triad IS NOT NULL
             AND class IS NOT NULL
+      - unique_combination_of_columns:
+          name: reporting_vw_assessment_roll_unique_by_keys
+          combination_of_columns:
+            - year
+            - stage
+            - township_name
+            - class
 
   - name: reporting.vw_assessment_roll_muni
     description: '{{ doc("view_vw_assessment_roll_muni") }}'
     data_tests:
-      - unique_combination_of_columns:
-          name: reporting_vw_assessment_roll_muni_unique_by_keys
-          combination_of_columns:
-            - year
-            - stage
-            - municipality
-            - class
-      - expression_is_true:
-          name: reporting_vw_assessment_roll_muni_no_nulls
-          expression: |
-            stage IS NOT NULL
-            AND municipality IS NOT NULL
-            AND class IS NOT NULL
-      - expression_is_true:
-          name: reporting_vw_assessment_roll_muni_no_vals_for_empty_stages
-          expression: |
-            num_pin_w_value != 0
-            OR (bldg_sum IS NULL
-            AND land_sum IS NULL
-            AND tot_sum IS NULL
-            AND delta_pct_av IS NULL
-            AND phase_av_share IS NULL)
-      - expression_is_true:
-          name: reporting_vw_assessment_roll_muni_tot_sum_lte_phase
-          expression: |
-            tot_sum IS NULL OR tot_sum <= phase_total_av
-      - accepted_range:
-          name: reporting_vw_assessment_roll_muni_phase_av_share_range
-          column_name: phase_av_share
-          min_value: 0
-          max_value: 1
+        - expression_is_true:
+            name: reporting_vw_assessment_roll_muni_no_nulls
+            expression: |
+              stage IS NOT NULL
+              AND municipality IS NOT NULL
+              AND class IS NOT NULL
+        - expression_is_true:
+            name: reporting_vw_assessment_roll_muni_no_vals_for_empty_stages
+            expression: |
+              num_pin_w_value != 0
+              OR (bldg_sum IS NULL
+              AND land_sum IS NULL
+              AND tot_sum IS NULL
+              AND delta_pct_av IS NULL
+              AND phase_av_share IS NULL)
+        - accepted_range:
+            name: reporting_vw_assessment_roll_muni_phase_av_share_range
+            column_name: phase_av_share
+            min_value: 0
+            max_value: 1
+        - expression_is_true:
+            name: reporting_vw_assessment_roll_muni_tot_sum_lte_phase
+            expression: |
+              tot_sum IS NULL OR tot_sum <= phase_total_av
+        - unique_combination_of_columns:
+            name: reporting_vw_assessment_roll_muni_unique_by_keys
+            combination_of_columns:
+              - year
+              - stage
+              - municipality
+              - class
 
   - name: reporting.vw_pin_most_recent_boundary
     description: '{{ doc("view_vw_pin_most_recent_boundary") }}'
@@ -211,20 +254,42 @@ models:
   - name: reporting.vw_pin_most_recent_sale
     description: '{{ doc("view_vw_pin_most_recent_sale") }}'
     data_tests:
+      - row_count:
+          name: reporting_vw_pin_most_recent_sale_rowcount
+          # Rowcount will typically exceed iasworld.pardat due to sales with
+          # PINs that are not in pardat, but at a minimum we want one row
+          # for each PIN that we know about in pardat
+          above: >
+            (
+              SELECT COUNT(DISTINCT parid)
+              FROM {{ source('iasworld', 'pardat') }}
+              WHERE cur = 'Y'
+                AND deactivat IS NULL
+                AND taxyr = (
+                  SELECT MAX(taxyr)
+                  FROM {{ source('iasworld', 'pardat') }}
+                )
+            )
       - unique_combination_of_columns:
           name: reporting_vw_pin_most_recent_sale_unique_by_pin
           combination_of_columns:
             - pin
-      # These two tests make sure that the most recent sale view 1) contains
-      # sales at all and 2) allows in parcels without sales. The most recent
-      # sale view should contain one observation for each parcel in the county
-      # regardless of whether it has recently sold or not.
-      - value_is_present:
-          name: reporting_vw_pin_most_recent_sale_null
-          expression: sale_price IS NULL
-      - value_is_present:
-          name: reporting_vw_pin_most_recent_sale_not_null
-          expression: sale_price IS NOT NULL
+
+  - name: reporting.vw_pin_school_impact
+    description: '{{ doc("view_vw_pin_school_impact") }}'
+    data_tests:
+      - accepted_range:
+          name: reporting_vw_school_impact_av_board_rank_range
+          column_name: av_board_rank
+          min_value: 1
+          max_value: 10
+      - unique_combination_of_columns:
+          name: reporting_vw_school_impact_unique_by_agency_num_pin_year
+          combination_of_columns:
+            - agency_num
+            - pin
+            - year
+
 
   - name: reporting.vw_pin_township_class
     description: '{{ doc("view_vw_pin_township_class") }}'
@@ -233,69 +298,86 @@ models:
           name: reporting_vw_pin_township_class_class_no_hyphens
           column_name: class
           values: "2-99"
+      - not_null:
+          name: reporting_vw_pin_township_class_class_not_null
+          column_name: class
+      - not_null:
+          name: reporting_vw_pin_township_class_reassessment_year_not_null
+          column_name: reassessment_year
+      - not_null:
+          name: reporting_vw_pin_township_class_township_name_not_null
+          column_name: township_name
+          config:
+            where: >
+              CAST(year AS int) BETWEEN {{ var('data_test_iasworld_year_start') }}
+              AND {{ var('data_test_iasworld_year_end') }}
+            error_if: ">5"
       - unique_combination_of_columns:
           name: reporting_vw_pin_township_class_unique_by_14_digit_pin_year_stage
           combination_of_columns:
             - pin
             - year
-      - not_null:
-          name: reporting_vw_pin_township_class_class_not_null
-          column_name: class
-      - not_null:
-          name: reporting_vw_pin_township_class_township_name_not_null
-          column_name: township_name
-          config:
-            error_if: ">409" # as of 2024-04-08
-      - not_null:
-          name: reporting_vw_pin_township_class_reassessment_year_not_null
-          column_name: reassessment_year
 
   - name: reporting.vw_pin_value_long
     description: '{{ doc("view_vw_pin_value_long") }}'
     data_tests:
+      - not_null:
+          name: reporting_vw_pin_value_long_class_not_null
+          column_name: class
+          config:
+            where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
+      - accepted_range:
+          name: reporting_vw_pin_value_long_exempt_parcels_values
+          column_name: tot
+          config:
+            tags:
+              - data_test_iasworld
+          max_value: 1
+          where: |
+            class = 'EX' AND CAST(year AS int) = {{ var('data_test_iasworld_year_start') }}
+          additional_select_columns:
+            - {column: pin, alias: parid}
+            - class
+            - stage_name
+            - {column: year, alias: taxyr}
+          meta:
+            table_name: asmt_all
+            description: exempt parcels should not have AVs greater than 1
       - not_accepted_values:
           name: reporting_vw_pin_value_long_mailed_class_no_hyphens
           column_name: class
           values: "2-99"
+      - not_null:
+          name: reporting_vw_pin_value_long_stage_name_not_null
+          column_name: stage_name
+      - not_null:
+          name: reporting_vw_pin_value_long_tot_mv_not_null
+          column_name: tot_mv
+          config:
+            where: |
+              CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} AND
+              (year >= '2021' OR (
+              year = '2020' AND stage_name = 'BOR CERTIFIED')
+              )
+      - not_null:
+          name: reporting_vw_pin_value_long_tot_not_null
+          column_name: tot
+          config:
+            where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
       - unique_combination_of_columns:
           name: reporting_vw_pin_value_long_unique_by_14_digit_pin_year_stage
           combination_of_columns:
             - pin
             - year
             - stage_name
-      - not_null:
-          name: reporting_vw_pin_value_long_class_not_null
-          column_name: class
-          config:
-            where: CAST(year AS int) < {{ var('test_qc_year_start') }}
-      - not_null:
-          name: reporting_vw_pin_value_long_tot_not_null
-          column_name: tot
-          config:
-            where: CAST(year AS int) < {{ var('test_qc_year_start') }}
-            error_if: ">21" # as of 2024-04-01
-      - not_null:
-          name: reporting_vw_pin_value_long_tot_mv_not_null
-          column_name: tot_mv
-          config:
-            where: |
-              CAST(year AS int) < {{ var('test_qc_year_start') }} AND
-              (year >= '2021' OR (
-              year = '2020' AND stage_name = 'BOR CERTIFIED')
-              )
 
   - name: reporting.vw_top_5
     description: '{{ doc("view_vw_top_5") }}'
     data_tests:
-      - unique_combination_of_columns:
-          name: reporting_vw_top_5_unique_by_keys
-          combination_of_columns:
-            - rank
-            - pin
-            - year
-      - expression_is_true:
-          name: reporting_vw_top_5_rank_between_1_and_5
-          expression: rank BETWEEN 1 AND 5
+      - not_accepted_values:
+          name: reporting_vw_top_5_class_no_hyphens
+          column_name: class
+          values: "2-99"
       - expression_is_true:
           name: reporting_vw_top_5_no_nulls
           expression: |
@@ -305,28 +387,36 @@ models:
             AND rank IS NOT NULL
             AND total_av IS NOT NULL
             AND stage_used IS NOT NULL
-      - not_accepted_values:
-          name: reporting_vw_top_5_class_no_hyphens
-          column_name: class
-          values: "2-99"
-
-  - name: reporting.vw_top_5_muni
-    description: '{{ doc("view_vw_top_5_muni") }}'
-    data_tests:
+      - expression_is_true:
+          name: reporting_vw_top_5_rank_between_1_and_5
+          expression: rank BETWEEN 1 AND 5
       - unique_combination_of_columns:
-          name: reporting_vw_top_5_muni_unique_by_keys
+          name: reporting_vw_top_5_unique_by_keys
           combination_of_columns:
             - rank
             - pin
             - year
-      - expression_is_true:
-          name: reporting_vw_top_5_muni_rank_between_1_and_5
-          expression: rank BETWEEN 1 AND 5
-      # If ccao_stage_used = 'mailed' that indicates the current year, for
-      # which we shouldn't have bor values
-      - expression_is_true:
-          name: reporting_vw_top_5_muni_used_mailed_null_bor
-          expression: ccao_stage_used = 'certified' OR bor_av IS NULL
+
+  - name: reporting.vw_top_5_muni
+    description: '{{ doc("view_vw_top_5_muni") }}'
+    columns:
+      - name: ccao_stage_used
+        data_tests:
+          - accepted_values:
+              name: reporting_vw_top_5_muni_ccao_stage_used_certified_in_prior_years
+              values:
+                - certified
+              config:
+                where: >
+                  CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
+    data_tests:
+      # It would be nice to move hyphen checks to unit tests, but the fixture
+      # definitions would be extremely complicated, so for now we leave them
+      # as data tests
+      - not_accepted_values:
+          name: reporting_vw_top_5_muni_class_no_hyphens
+          column_name: class
+          values: "2-99"
       - expression_is_true:
           name: reporting_vw_top_5_muni_no_nulls
           expression: |
@@ -339,25 +429,29 @@ models:
             AND ccao_stage_used IS NOT NULL
             AND num_pin_w_value IS NOT NULL
             AND num_pin_total_in_group IS NOT NULL
-      - not_accepted_values:
-          name: reporting_vw_top_5_muni_class_no_hyphens
-          column_name: class
-          values: "2-99"
       - accepted_range:
           name: reporting_vw_top_5_muni_pct_pin_w_value_in_group_range
           column_name: pct_pin_w_value_in_group
           min_value: 0
           max_value: 1
+      - expression_is_true:
+          name: reporting_vw_top_5_muni_rank_between_1_and_5
+          expression: rank BETWEEN 1 AND 5
+      - unique_combination_of_columns:
+          name: reporting_vw_top_5_muni_unique_by_keys
+          combination_of_columns:
+            - rank
+            - pin
+            - year
+      # If ccao_stage_used = 'mailed' that indicates the current year, for
+      # which we shouldn't have bor values
+      - expression_is_true:
+          name: reporting_vw_top_5_muni_used_mailed_null_bor
+          expression: ccao_stage_used = 'certified' OR bor_av IS NULL
 
   - name: reporting.vw_town_sale_history
     description: '{{ doc("view_vw_town_sale_history") }}'
     data_tests:
-      - unique_combination_of_columns:
-          name: reporting_vw_town_sale_history_unique_by_keys
-          combination_of_columns:
-            - geography_id
-            - property_group
-            - sale_year
       - expression_is_true:
           name: reporting_vw_town_sale_history_no_nulls
           expression: |
@@ -365,3 +459,9 @@ models:
             AND property_group IS NOT NULL
             AND geography_id IS NOT NULL
             AND sale_median IS NOT NULL
+      - unique_combination_of_columns:
+          name: reporting_vw_town_sale_history_unique_by_keys
+          combination_of_columns:
+            - geography_id
+            - property_group
+            - sale_year

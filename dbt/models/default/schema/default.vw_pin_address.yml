@@ -15,12 +15,12 @@ models:
         description: '{{ doc("shared_column_mail_address_zipcode_1") }}'
       - name: mail_address_zipcode_2
         description: '{{ doc("shared_column_mail_address_zipcode_2") }}'
-      - name: prop_address_city_name
-        description: '{{ doc("shared_column_prop_address_city_name") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: pin10
         description: '{{ doc("shared_column_pin10") }}'
+      - name: prop_address_city_name
+        description: '{{ doc("shared_column_prop_address_city_name") }}'
       - name: prop_address_full
         description: '{{ doc("shared_column_prop_address_full") }}'
       - name: prop_address_prefix
@@ -37,10 +37,10 @@ models:
         description: '{{ doc("shared_column_prop_address_suffix_1") }}'
       - name: prop_address_suffix_2
         description: '{{ doc("shared_column_prop_address_suffix_2") }}'
-      - name: prop_address_unit_prefix
-        description: '{{ doc("shared_column_prop_address_unit_prefix") }}'
       - name: prop_address_unit_number
         description: '{{ doc("shared_column_prop_address_unit_number") }}'
+      - name: prop_address_unit_prefix
+        description: '{{ doc("shared_column_prop_address_unit_prefix") }}'
       - name: prop_address_zipcode_1
         description: '{{ doc("shared_column_prop_address_zipcode_1") }}'
       - name: prop_address_zipcode_2
@@ -49,35 +49,34 @@ models:
         description: '{{ doc("shared_column_year") }}'
 
     data_tests:
-      # No superfluous whitespace
-      - no_extra_whitespace:
-          name: default_vw_pin_address_no_extra_whitespace
-          column_names:
-            - prop_address_full
-            - prop_address_city_name
-            - prop_address_state
-            - prop_address_zipcode_1
-            - prop_address_zipcode_2
-            - mail_address_full
-            - mail_address_city_name
-            - mail_address_state
-            - mail_address_zipcode_1
-            - mail_address_zipcode_2
-          config:
-            where: CAST(year AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-            error_if: ">900000"
+      - row_count:
+          name: default_vw_pin_address_row_count
+          above: 46944042 # as of 2024-11-14
       - unique_combination_of_columns:
           name: default_vw_pin_address_unique_by_14_digit_pin_and_year
           combination_of_columns:
             - pin
             - year
-      - row_count:
-          name: default_vw_pin_address_row_count
-          above: 45079937 # as of 2023-11-22
-      # No non-numeric characters in the pin field
-      - expression_is_true:
-          name: default_vw_pin_address_numeric_pin
-          expression: REGEXP_COUNT(pin, '[0-9]') = 14 AND LENGTH(pin) = 14
-          additional_select_columns:
-            - pin
-      # TODO: Site addresses are all in Cook County
+
+unit_tests:
+  - name: default_vw_pin_address_filters_invalid_pins
+    description: view should filter for only 14-digit numeric PINs
+    model: default.vw_pin_address
+    given:
+      - input: source("iasworld", "pardat")
+        rows:
+          # `parid` is the important column here, and all other columns are
+          # only set to ensure proper joins when creating the dummy tables
+          - {parid: "00000000000000", taxyr: "2024", class: "200", cur: "Y", deactivat: null}
+          - {parid: "0", taxyr: "2024", class: "200", cur: "Y", deactivat: null}
+          - {parid: "A", taxyr: "2024", class: "200", cur: "Y", deactivat: null}
+      - input: source("iasworld", "legdat")
+        rows: &invalid-pin-rows
+          - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null}
+          - {parid: "0", taxyr: "2024", cur: "Y", deactivat: null}
+          - {parid: "A", taxyr: "2024", cur: "Y", deactivat: null}
+      - input: source("iasworld", "owndat")
+        rows: *invalid-pin-rows
+    expect:
+      rows:
+        - {pin: "00000000000000"}

@@ -14,7 +14,7 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "condominium")
 ##### QUESTIONABLE GARAGE UNITS #####
 
 openxlsx::read.xlsx(
-  "O:/Condo Worksheets/Condo 2022/2022 Desk Review - Questionable Garage Units.xlsx", # styler: off
+  "O:/Condo Worksheets/Condo 2022/2022 Desk Review - Questionable Garage Units.xlsx", # nolint
   sheet = 1
 ) %>%
   write_parquet(
@@ -34,16 +34,12 @@ openxlsx::read.xlsx(
 file_path <- "O:/CCAODATA/data/condos"
 source_files <- file_path_sans_ext(list.files(file_path))
 walk(source_files, function(x) {
-
   if (!aws.s3::object_exists(file.path(output_bucket, x, "2023.parquet"))) {
-
     read_delim(
       file.path(file_path, paste0(x, ".csv")),
       delim = ",",
       col_types = rep("c", 3)
     ) %>%
       write_parquet(file.path(output_bucket, x, "2023.parquet"))
-
   }
-
 })

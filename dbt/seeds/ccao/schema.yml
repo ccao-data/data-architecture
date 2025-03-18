@@ -2,6 +2,20 @@ seeds:
   - name: ccao.adjective
     description: '{{ doc("seed_adjective") }}'
 
+  - name: ccao.aprval_reascd
+    description: '{{ doc("seed_aprval_reascd") }}'
+    config:
+      column_types:
+        reascd: string
+        description: string
+
+  - name: ccao.cdu
+    description: '{{ doc("seed_cdu") }}'
+    config:
+      column_types:
+        cdu_code: string
+        cdu_description: string
+
   - name: ccao.class_dict
     description: '{{ doc("seed_class_dict") }}'
     config:
@@ -12,28 +26,49 @@ seeds:
         max_size: double
 
     columns:
-      - name: major_class_code
-        description: First digit of class code, major class
-      - name: major_class_type
-        description: Human-readable description of the major class
-      - name: regression_class
-        description: Boolean indicating whether or not this class isincluded in CAMA regressions
-      - name: modeling_group
-        description: Modeling group used for internal CCAO data selection
-      - name: reporting_group
-        description: Reporting group name used for internal CCAO reportsand aggregate statistics
       - name: class_code
         description: Full, 3-digit class code of the property sub-class
       - name: class_desc
         description: Human-readable description of the property sub-class
-      - name: min_size
-        description: Double of minimum size for 200-class property codes
+      - name: major_class_code
+        description: First digit of class code, major class
+      - name: major_class_type
+        description: Human-readable description of the major class
+      - name: max_age
+        description: Double of maximum age for 200-class property codes
       - name: max_size
         description: Double of maximum size for 200-class property codes
       - name: min_age
         description: Double of minimum age for 200-class property codes
-      - name: max_age
-        description: Double of maximum age for 200-class property codes
+      - name: min_size
+        description: Double of minimum size for 200-class property codes
+      - name: modeling_group
+        description: Modeling group used for internal CCAO data selection
+      - name: regression_class
+        description: Boolean indicating whether or not this class isincluded in CAMA regressions
+      - name: reporting_group
+        description: Reporting group name used for internal CCAO reports and aggregate statistics
+
+  - name: ccao.commercial_major_subclass
+    description: '{{ doc("seed_commercial_major_subclass") }}'
+    config:
+      column_types:
+        code: string
+        description: string
+
+  - name: ccao.commercial_minor_subclass
+    description: '{{ doc("seed_commercial_minor_subclass") }}'
+    config:
+      column_types:
+        code: string
+        description: string
+
+  - name: ccao.infl_reascd
+    description: '{{ doc("seed_infl_reascd") }}'
+    config:
+      column_types:
+        reascd: string
+        description: string
 
   - name: ccao.loa
     description: '{{ doc("seed_loa") }}'
@@ -43,8 +78,6 @@ seeds:
         class_code: string
 
     columns:
-      - name: year
-        description: '{{ doc("shared_column_year") }}'
       - name: class_code
         description: '{{ doc("shared_column_class") }}'
       - name: loa
@@ -54,10 +87,12 @@ seeds:
           which properties are assessed
         data_tests:
           - accepted_range:
-              name: loa_less_than_.38
+              name: loa_less_than_38
               max_value: .38
               meta:
                 description: loa should be less than .38
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
 
   - name: ccao.person
     description: '{{ doc("seed_person") }}'
@@ -73,28 +108,36 @@ seeds:
     description: '{{ doc("seed_pin_test") }}'
     config:
       column_types:
-        year: string
-        pin: string
         class: string
-        triad_code: string
+        pin: string
         township_code: string
+        triad_code: string
+        year: string
 
     columns:
-      - name: year
-        description: '{{ doc("shared_column_year") }}'
-      - name: pin
-        description: '{{ doc("shared_column_pin") }}'
       - name: class
         description: '{{ doc("shared_column_class") }}'
-      - name: triad_code
-        description: '{{ doc("shared_column_triad_code") }}'
-      - name: township_code
-        description: '{{ doc("shared_column_township_code") }}'
-      - name: is_test
-        description: |
-          Boolean for whether or not the PIN is useful for integration testing
-      - name: test_type
-        description: Type of integration test this PIN is useful for
       - name: description
         description: |
           Short description of the issue, use, or situation with this PIN
+      - name: is_test
+        description: |
+          Boolean for whether or not the PIN is useful for integration testing
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: test_type
+        description: Type of integration test this PIN is useful for
+      - name: township_code
+        description: '{{ doc("shared_column_township_code") }}'
+      - name: triad_code
+        description: '{{ doc("shared_column_triad_code") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
+
+  - name: ccao.htpar_reascd
+    description: '{{ doc("seed_htpar_reascd") }}'
+    config:
+      column_types:
+        description: string
+        outcome: string
+        reascd: string

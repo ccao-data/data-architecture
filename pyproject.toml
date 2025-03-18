@@ -1,0 +1,76 @@
+[project]
+name = "data-architecture"
+version = "0.0.1"
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.pyright]
+reportUnusedImport = false
+
+[tool.ruff]
+line-length = 79
+# Ignores objects created by Spark on Athena
+builtins = ["_", "sc", "athena_user_logger"]
+
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[tool.ruff.lint.isort]
+# Disambiguate between the subdirectory called "dbt" and the third-party
+# package. So far we never import from the dbt/ subdirectory outside it, so
+# we instruct the linter to always treat the symbol "dbt" as a third-party
+# package. Note that this could cause problems in the future if we ever
+# decide we want to import code from dbt/ to a context outside of it
+known-third-party = ["dbt"]
+
+[tool.ruff.lint.per-file-ignores]
+"dbt/models/**.py" = ["E402"]
+
+[tool.sqlfluff.core]
+dialect = "athena"
+exclude_rules = "ambiguous.column_count, structure.column_order, RF04, ST05"
+large_file_skip_byte_limit = 0
+processes = -1
+
+[tool.sqlfluff.indentation]
+indent_unit = "space"
+tab_space_size = 4
+indented_joins = false
+indented_using_on = true
+indented_on_contents = false
+indented_ctes = false
+indented_then = true
+indented_then_contents = false
+allow_implicit_indents = true
+
+[tool.sqlfluff.rules.aliasing.table]
+aliasing = "explicit"
+[tool.sqlfluff.rules.aliasing.column]
+aliasing = "explicit"
+[tool.sqlfluff.rules.aliasing.length]
+min_alias_length = 2
+
+[tool.sqlfluff.rules.capitalisation.keywords]
+capitalisation_policy = "upper"
+[tool.sqlfluff.rules.capitalisation.identifiers]
+capitalisation_policy = "upper"
+[tool.sqlfluff.rules.capitalisation.functions]
+extended_capitalisation_policy = "upper"
+[tool.sqlfluff.rules.capitalisation.literals]
+capitalisation_policy = "upper"
+[tool.sqlfluff.rules.capitalisation.types]
+extended_capitalisation_policy = "upper"
+
+[tool.sqlfluff.rules.convention.casting_style]
+preferred_type_casting_style = "cast"
+
+[tool.sqlfluff.templater.jinja]
+load_macros_from_path = "dbt/macros"
+
+[tool.sqlfluff.templater.jinja.macros]
+# It appears that some common dbt variables like `target` and `exceptions` do
+# not have sqlfluff mocks builtin, so we have to mock out any macros
+# that reference those variables if they are used in code that sqlfluff
+# lints
+get_s3_dependency_dir = "{% macro get_s3_dependency_dir() %}s3://bucket{% endmacro %}"
+insert_hyphens = "{% macro insert_hyphens(str) %}{% set _ = varargs %}'{{ str }}'{% endmacro %}"

@@ -1,0 +1,102 @@
+reascd,outcome,description
+1,Change,This is the result of an analysis of comparable properties.
+10,Change,"This is the result of a development incentive grant including an income, market or cost analysis."
+11,Change,"This is the result of an income, market or cost analysis."
+12,Change,This is the result of a change in classification.
+13,Change,"This is the result of a change in classification including an income, market or cost analysis."
+14,Change,This is the result of a change in classification including total or partial occupancy.
+15,Change,This is the result of a Property Tax Appeal Board Decision
+16,No Change,This is due to your property's uniformity with comparable properties.
+17,No Change,This is due to your property's uniformity with comparable properties. The analysis included an update of your property's characteristics.
+18,No Change,This is due to lack of data having been submitted for our review.
+19,No Change,This is due to insufficient data having been submitted for our review.
+1A,Change,This is the result of an equity analysis of comparable properties.
+2,Change,This is the result of an analysis of comparable properties. The decrease includes an update of your property's characteristics.
+20,No Change,This is due to the absence of or an incomplete Attorney/Representative Authorization form.
+21,No Change,"This is due to the sale of the property not having been disclosed or incomplete sale data submitted. (i.e. closing statement, deed.)"
+22,No Change,"This is due to income, market or cost analysis supporting the assessment."
+23,No Change,This is due to conflict between characteristics provided and our recent field inspection.
+24,No Change,This is due to the absence of or an incomplete Property Summary Sheet.
+26,No Change,This is due to a development incentive grant.
+26A,No Change,This is due to an incentive class being applied.
+27,No Change,This is due to an analysis of the sale of the property.
+27A,No Change,This is due to an analysis of the actual sale transaction of the property.
+28,No Change,This is due to a Board of Review decision or reduction.
+28A,Change,This is due to a prior year Board of Review decision or reduction.
+29,No Change,This is due to a factual change in your property characteristics and a valuation analysis.
+29A,No Change,"This is due to a factual change in your property characteristics, class change was applied and no assessed value reduction is warranted."
+2A,Change,"This is the result of an analysis of comparable properties, including an update due to a change in your property characteristics."
+3,Change,This is the result of a factual change in your property records.
+30,,This is a letter/Unique Property.
+31,,This is a letter/Unique Property on Re-review.
+32,No Change,"This is due to the absence and/or incompleteness of an income statement, a rent roll, Real Property Income and Expense Form."
+33,No Change,This is due to the absence of a vacancy affidavit and/or the lack of documentation required for vacancy relief.
+34,No Change,Insufficient or no data was provided to substantiate a field check at the time the appeal was filed.
+35,No Change,This is the result of a Property Tax Freeze Program for Historic Residences posted deadlines
+35A,No Change,This is the result of a Property Tax Freeze Program for Historic Residences.
+36,Change,This result is based on consideration of submitted appraisal and an analysis of comparable properties.
+36A,Change,This result is based on consideration of submitted appraisal and an analysis of comparable sales of like properties.
+37,Change,"This is the result of an income, market or cost analysis in support of a decrease and in the absence of compliance of Incentive eligibility requirements."
+38,Change,This is a result of a market analysis of your property as well as an analysis of comparable properties.
+3A,Change,"This is the result of a factual change in your property records, resulting in a reduction in your assessed value."
+4,Change,"This is the result of a factual change in your property records including an income, market or cost analysis."
+40,No Change,This appeal has been withdrawn due to a petitioner request.
+41,No Change,"This appeal has been terminated because the property is exempt. If you have any questions, please contact our Exempt Department at (312) 603-7567."
+41A,No Change,This property is currently exempt.
+42,No Change,The Assessment reflects a prior valuation analysis. Amendments to the Classification Ordinance (10% & 25%) do not warrant additional relief.
+43,No Change,Incentive improvements were not assessed for the current year.
+44,No Change,"The Filing Fee, the Municipal Resolution and/or the Living Wage Affidavit were not submitted."
+44A,No Change,The documents required to apply the incentive to your property were missing from your submission.
+45,No Change,The substantial rehabilitation did not yield any incremental value for incentive action.
+45A,No Change,The documents required to apply the affordable housing program reduction to your property were missing from your submission.
+46,No Change,The property is railroad operational.
+47,No Change,The property is currently partially exempt.
+47A,Change,The property has been granted partial exempt status.
+48,No Change,This result is based on consideration of submitted appraisal and an analysis of comparable properties.
+48A,No Change,This result is based upon consideration of the appraisal submitted and an analysis of recent comparable property sales.
+49,No Change,This is a result of a market analysis of your property as well as an analysis of comparable properties.
+4A,Change,"This is the result of a factual change in your property records and an income, market or cost analysis."
+5,Change,This is the result of the partial occupancy of your property.
+50,No Change,This increase is due to a valuation analysis.
+51,No Change,Due to Non-Compliance to the Cook County Board of Commissioners recent amendments to the Tax incentive ordinance.
+52,No Change,This is due to conflict between documentation submitted and our recent field inspection.
+53,No Change,"The submitted appraisal was not for current year, did not meet acceptable standards, and/or not prepared for the purpose of valuation."
+54,No Change,This is due to the failure to abide by the official rules posted by the CCAO.
+55,No Change,Flood Damage.
+56,No Change,This is due to the removal of the Incentive based on Non-Industrial use or Continuous Substantial Vacancy.
+57,No Change,Incentive classification denied due to Non-Industrial use.
+58,No Change,This is due to a change in classification but no change in value.
+59,No Change,This is due to the Appeal Fee not being submitted.
+6,Change,"This is the result of the partial occupancy of your property along with an income, market or cost analysis."
+60,No Change,Market Value maintained; increase was due to ramp-up of level of assessment due to non-renewal of Incentive.
+61,No Change,Failure to abide by CCAO rule 10- failure to file anonymously.
+62,No Change,Failure to abide by CCAO rule 20- missing or incomplete utility bills.
+64,No Change,"Failure to abide by CCAO rule 19- missing or incomplete 3 years of income/expense records, RPIE forms, or Schedule E."
+65,No Change,Failure to abide by CCAO rule 17- failure to produce all required sales documentation.
+66,No Change,Failure to abide by CCAO rule 15- failure to submit a recent original and clear picture of the front of the property (with the exception of Class 2) .
+67,No Change,Failure to abide by CCAO rule 21- missing or incomplete evidence of demolition .
+68,No Change,"This is the result of a recent field inspection and market, income, and/or comparable market analysis of your property."
+69,Change,"This is the result of a recent field inspection and market, income, and/or comparable market analysis of your property."
+7,Change,This is the result of the total vacancy of your property.
+70,Change,This is a result of the renewal of the Incentive (only).
+71,Change,This is a result of the renewal of Incentive and value change.
+72,Change,This is a result of the vacancy of your property and the removal of the Incentive due to Continuous Substantial Vacancy.
+73,Change,The Property is Railroad Operational.
+74,Change,This is a result of a One-Year Only reduction due to vacancy; Incentive not applied due to non-compliance of Incentive requirements.
+75,No Change,You have exceeded the number of years of vacancy reduction under our policy and no additional vacancy benefit can be granted.
+78,Change,This is the result of a Property Tax Freeze Program for Historic Residences.
+79,Change,This is the result of a market and comparable analysis of your multi-improvement property. One (1) or more of your improvements have a decreased assessed value.
+79B,No Change,This is the result of a market and comparable analysis of your multi-improvement property. Your case has been reviewed and we concluded a value change was not in order.
+8,Change,"This is the result of the total vacancy of your property along with an income, market or cost analysis."
+80,Change,This is the result of the total vacancy of your property. Your parcel falls into year two (2) of the CCAO vacancy policy.
+81,Change,This is the result of the partial vacancy of your property. Your parcel falls into year two (2) of the CCAO vacancy policy.
+82,Change,"This is the result of market and comparable analysis of your property, which includes a home improvement exemption."
+83,No Change,"This is the result of market and comparable analysis of your property, which includes a home improvement exemption."
+84,No Change,No evidence provided to warrant a field inspection.
+85,No Change,Evidence provided contradicts recent field inspection.
+86,Change,Cancellation of omitted assessment values as a result of a granted appeal.
+88,No Change,Due to Legal Defense Denial.
+89,No Change,Due to not submitting an appeal.
+9,Change,This is the result of a sale analysis of your property.
+90,Change,This is the result of a special reduction reason.
+9A,Change,This is the result of a comparable sales analysis of your property.

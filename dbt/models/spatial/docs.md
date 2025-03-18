@@ -106,6 +106,39 @@ Cook County coordinated care area boundaries.
 **Geometry:** `MULTIPOLYGON`
 {% enddocs %}
 
+# corner
+
+{% docs table_corner %}
+CCAO corner lot indicator. Determined algorithmically by unobstructed access to
+perpendicular streets.
+
+The algorithm is:
+
+1. Find the minimum rectangle that bounds the parcel, then use that
+   rectangle to determine the parcel's orientation and length. These values
+   are used in the next step to draw a cross on the parcel.
+2. Draw a cross that cuts the parcel in four and extends out slightly
+   beyond the minimum rectangle of the parcel. We will look for parcels and
+   streets that intersect this cross in order to determine neighbors. Use the
+   bearing and length calculated in the previous step to draw the cross (i.e
+   the long side of the cross is parallel to the minimum bounding rectangle).
+3. Find the arms of each cross which intersect neighboring parcels, where those
+   neighboring parcels _also_ touch the cross-originating PIN. The idea here is
+   that cross arms that intersect neighboring (touching) parcels are likely to
+   be pointed at a building, rather than a street. Delete these arms from the
+   cross.
+4. Find which remaining cross segments intersect streets, and keep only
+   segments that _do_ intersect. This removes segments pointed at buildings,
+   empty space, etc.
+5. Calculate the angle of remaining cross segments in order to filter
+   out segments that are not at right angles. If a parcel >= 3 cross segments
+   remaining, it is a corner. If a parcel has 2 cross segments remaining and
+   they form a 90 degree angle, it is a corner. All other cases are not
+   corners.
+
+**Primary Key**: `pin10`
+{% enddocs %}
+
 # county
 
 {% docs table_county %}
@@ -166,13 +199,13 @@ data and tagged OpenStreetMap amenities.
 
 {% docs table_grocery_store %}
 Grocery stores. Locations sourced from OpenStreetMap (OSM).
-	
+
 	OSM tags include:
-	
+
 	- `shop=supermarket`
 	- `shop=wholesale`
 	- `shop=greengrocer`
-	  
+
 	Only attributes with valid names are kept.
 
 **Geometry:** `POINT`
@@ -358,6 +391,22 @@ Rail locations sourced from Cook County GIS.
 **Geometry:** `MULTILINESTRING`
 {% enddocs %}
 
+# road
+
+{% docs table_road %}
+
+Illinois Department of Transportation data source from
+[https://apps1.dot.illinois.gov/gist2/](https://apps1.dot.illinois.gov/gist2/).
+Data focuses on five features; lanes, speed limits, traffic count, road type,
+and surface type. Some columns are not present in all years of data (for example
+speed limit in 2012) Data for columns is not universally present so we average
+numeric values for roads which overlap and have a matching name. For example,
+if segment B touches segment A and C with speed limits of 25 and 30, the speed
+limit for segment B will be 27.5.
+
+**Geometry:** `MULTILINESTRING`
+{% enddocs %}
+
 # sanitation_district
 
 {% docs table_sanitation_district %}
@@ -459,6 +508,7 @@ Includes townships within the City of Chicago, which are technically defunct.
 
 **Geometry:** `MULTIPOLYGON`
 {% enddocs %}
+
 
 # transit_dict
 

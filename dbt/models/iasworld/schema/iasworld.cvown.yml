@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: cvown
@@ -151,10 +151,10 @@ sources:
             description: '{{ doc("column_phone") }}'
           - name: po
             description: Primary owner flag (1 = `OWNDAT`, 0 = `OWNMLT`)
-          - name: postal_indx
-            description: '{{ doc("column_postal_indx") }}'
           - name: postalcode
             description: '{{ doc("column_postalcode") }}'
+          - name: postal_indx
+            description: '{{ doc("column_postal_indx") }}'
           - name: pown1
             description: Previous owner name 1
           - name: pown1_companyname

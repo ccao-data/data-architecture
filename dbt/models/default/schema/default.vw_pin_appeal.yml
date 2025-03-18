@@ -43,71 +43,41 @@ models:
         description: '{{ doc("shared_column_year") }}'
 
     data_tests:
-      # If there is a `change`, the values should reflect this
-      - expression_is_true:
-          name: default_vw_pin_appeal_change_matches_appeal_outcome
-          expression: >-
-            {% set vars = [
-              ('mailed_bldg', 'certified_bldg'),
-              ('mailed_land', 'certified_land'),
-              ('mailed_tot', 'certified_tot'),
-            ] %}
-
-            (change = 'no change' AND
-              -- Use ABS(...) <= 1 instead of equality for comparison to account
-              -- for the fact that values are not always rounded consistently
-              {% for mailed_var, certified_var in vars %}
-                {% if loop.index0 > 0 %}AND{% endif %}
-                (
-                  ({{ mailed_var }} IS NULL AND {{ certified_var }} IS NULL)
-                  OR
-                  (ABS({{ mailed_var }} - {{ certified_var }}) <= 1)
-                )
-              {% endfor %}
-            )
-            OR
-            (change = 'change' AND (
-              {% for mailed_var, certified_var in vars %}
-                {% if loop.index0 > 0 %}OR{% endif %}
-                (
-                  ({{ mailed_var }} IS NULL AND {{ certified_var }} IS NOT NULL)
-                  OR
-                  ({{ mailed_var }} IS NOT NULL AND {{ certified_var }} IS NULL)
-                  OR
-                  (ABS({{ mailed_var }} - {{ certified_var }}) > 1)
-                )
-              {% endfor %}
-            ))
-            OR
-            (change is null)
-          additional_select_columns:
-            - pin
-            - year
-            - case_no
-            - mailed_bldg
-            - certified_bldg
-            - mailed_land
-            - certified_land
-            - mailed_tot
-            - certified_tot
-          config:
-            where: CAST(year AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-            error_if: ">266719"
-      # `change` should be an enum
-      - expression_is_true:
-          name: default_vw_pin_appeal_no_unexpected_change_values
-          expression: change is null or change in ('change', 'no change')
-          additional_select_columns:
-            - pin
-            - year
-            - case_no
-            - change
-          config:
-            where: CAST(year AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
       - row_count:
           name: default_vw_pin_appeal_row_count
-          above: 8407667 # as of 2023-11-22
-      - not_accepted_values:
-          name: default_vw_pin_appeal_class_no_hyphens
-          column_name: class
-          values: "2-99"
+          above: 8755522 # as of 2024-12-09
+      - unique_combination_of_columns:
+          name: default_vw_pin_appeal_unique_by_14_digit_pin_year_caseno
+          combination_of_columns:
+            - case_no
+            - pin
+            - year
+
+unit_tests:
+  - name: default_vw_pin_appeal_class_strips_non_alphanumerics
+    description: class transformation should remove non-alphanumeric characters
+    model: default.vw_pin_appeal
+    given:
+      - input: source("iasworld", "pardat")
+        rows:
+          # `class` is the important column here, and all other columns are
+          # only set to ensure proper joins when creating the dummy tables
+          - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null, class: "2.1-1)A"}
+      - input: source("iasworld", "htpar")
+        rows:
+          - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null, cpatty: "1", caseno: "1", heartyp: "A"}
+      - input: source("iasworld", "legdat")
+        rows:
+          - {parid: "123", taxyr: "2024", cur: "Y", deactivat: null}
+      - input: ref("default.vw_pin_value")
+        rows:
+          - {pin: "123", year: "2024"}
+      - input: source("iasworld", "htagnt")
+        rows:
+          - {agent: "1", cur: "Y", deactivat: null}
+      - input: ref("ccao.htpar_reascd")
+        rows:
+          - {reascd: "28"}
+    expect:
+      rows:
+        - {class: "211A"}

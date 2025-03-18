@@ -34,7 +34,7 @@ Overall feature importance by model run (`run_id`).
 Includes metrics such as gain, cover, and frequency. This is the output
 of the built-in LightGBM/XGBoost feature importance methods.
 
-**Primary Key**: `year`, `run_id`, `model_predictor_name_all`
+**Primary Key**: `year`, `run_id`, `model_predictor_all_name`
 {% enddocs %}
 
 # final_model
@@ -77,7 +77,7 @@ If hyperparameters are blank for a given run, then that parameter was not used.
 Range of hyperparameters searched by a given model run (`run_id`)
 during cross-validation.
 
-**Primary Key**: `year`, `run_id`
+**Primary Key**: `year`, `run_id`, `parameter_name`
 {% enddocs %}
 
 # parameter_search
@@ -86,7 +86,7 @@ during cross-validation.
 Hyperparameters used for _every_ cross-validation iteration, along with
 the corresponding performance statistics.
 
-**Primary Key**: `year`, `run_id`, `iteration`
+**Primary Key**: `year`, `run_id`, `iteration`, `configuration`, `fold_id`
 {% enddocs %}
 
 # performance
@@ -113,7 +113,7 @@ The stages are:
 Identical to `model.performance`, but additionally broken out by quantile.
 
 **Primary Key**: `year`, `run_id`, `stage`, `triad_code`, `geography_type`,
-`geography_id`, `by_class`, `quantile`
+`geography_id`, `by_class`, `num_quantile`, `quantile`
 {% enddocs %}
 
 # shap
@@ -138,7 +138,7 @@ The test set is the out-of-sample data used to evaluate model performance.
 Predictions in this table are trained using only data _not in this set
 of sales_.
 
-**Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`
+**Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`, `meta_sale_document_num`
 {% enddocs %}
 
 # timing
@@ -165,7 +165,7 @@ data cached by DVC when possible. See
 [model-res-avm#getting-data](https://github.com/ccao-data/model-res-avm#getting-data)
 for more information.
 
-**Primary Key**: `year`, `run_id`, `meta_pin`, `meta_card_num`
+**Primary Key**: `year`, `meta_pin`, `meta_card_num`
 {% enddocs %}
 
 # vw_pin_condo_input
@@ -178,7 +178,7 @@ Observations are at the PIN-14 (condo unit) level. Unlike the residential
 input view, this view does not perform filling. Instead condo characteristics
 are backfilled in `default.vw_pin_condo_char`.
 
-**Primary Key**: `year`, `run_id`, `meta_pin`
+**Primary Key**: `year`, `meta_pin`
 {% enddocs %}
 
 # vw_pin_shared_input
@@ -187,5 +187,5 @@ are backfilled in `default.vw_pin_condo_char`.
 View to compile PIN-level model inputs shared between the residential
 (`model.vw_card_res_input`) and condo (`model.vw_pin_condo_input`) model views.
 
-**Primary Key**: `year`, `run_id`, `meta_pin`
+**Primary Key**: `year`, `meta_pin`
 {% enddocs %}

@@ -29,7 +29,6 @@ gtfs_feeds_df <- aws.s3::get_bucket_df(
   )
 
 process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
-
   # Construct dest paths from input
   remote_file_stop <- file.path(
     s3_bucket_uri, "transit_stop",
@@ -44,7 +43,7 @@ process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
     paste0(date, "-gtfs.parquet")
   )
 
-  if (!object_exists(remote_file_stop) | !object_exists(remote_file_route)) {
+  if (!object_exists(remote_file_stop) || !object_exists(remote_file_route)) {
     tmp_file <- tempfile(fileext = ".zip")
     tmp_feed_file <- aws.s3::save_object(feed_url, file = tmp_file)
     gtfs_feed <- read_gtfs(tmp_feed_file)
@@ -71,7 +70,7 @@ process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
           any_of(c("location_type", "parent_station", "wheelchair_boarding")),
           any_of(c("feed_pull_date", "geometry", "geometry_3435"))
         ) %>%
-        write_geoparquet(remote_file_stop)
+        geoparquet_to_s3(remote_file_stop)
     }
 
     # Now create route geometries and save. Skip PACE since they have no geoms
@@ -102,7 +101,7 @@ process_gtfs_feed <- function(s3_bucket_uri, date, year, agency, feed_url) {
             route_color, route_text_color,
             feed_pull_date, geometry, geometry_3435
           ) %>%
-          write_geoparquet(remote_file_route)
+          geoparquet_to_s3(remote_file_route)
       }
     }
   }
@@ -118,10 +117,11 @@ pwalk(gtfs_feeds_df, function(...) {
     agency = df$agency,
     feed_url = df$raw_feed_url
   )
-})
+}, .progress = TRUE)
 
 # Create dictionary for GTFS numeric codes
 # See: https://developers.google.com/transit/gtfs/reference
+# nolint start
 transit_dict <- tribble(
   ~"field_name", ~"field_code", ~"field_label", ~"field_label_long",
   "route_type", 0, "streetcar", "Tram, Streetcar, Light rail. Any light rail or street level system within a metropolitan area.",
@@ -135,7 +135,11 @@ transit_dict <- tribble(
   "route_type", 11, "trolleybus", "Trolleybus. Electric buses that draw power from overhead wires using poles.",
   "route_type", 12, "monorail", "Monorail. Railway in which the track consists of a single rail or a beam."
 ) %>%
-  mutate(field_code = as.integer(field_code))
+  # nolint end
+  mutate(
+    field_code = as.integer(field_code),
+    loaded_at = as.character(Sys.time())
+  )
 
 # Write dict to parquet
 remote_file_dict <- file.path(

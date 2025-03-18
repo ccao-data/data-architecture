@@ -12,6 +12,8 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "access")
 # List APIs from city site
 sources_list <- bind_rows(list(
   # INDUSTRIAL CORRIDORS
+  # See https://data.cityofchicago.org/Community-Economic-Development/IndustrialCorridor_Jan2013/3tu3-iesz/about_data # nolint
+  # for more information
   "ind_2013" = c(
     "source" = "https://data.cityofchicago.org/api/geospatial/",
     "api_url" = "e6xh-nr8w?method=export&format=GeoJSON",
@@ -44,15 +46,14 @@ pwalk(sources_list, function(...) {
 ##### CMAP WALKABILITY #####
 # 2017 Data is no longer available online
 raw_walk <- data.frame(
-  "url" = "https://services5.arcgis.com/LcMXE3TFhi1BSaCY/arcgis/rest/services/Walkability/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson",
-  "year" = "2018")
+  "url" = "https://services5.arcgis.com/LcMXE3TFhi1BSaCY/arcgis/rest/services/Walkability/FeatureServer/0/query?outFields=*&where=1%3D1&f=geojson", # nolint
+  "year" = "2018"
+)
 
 get_walkability <- function(url, year) {
-
   s3_uri <- file.path(output_bucket, "walkability", paste0(year, ".geojson"))
 
   if (!aws.s3::object_exists(s3_uri)) {
-
     tmp_file <- tempfile(fileext = ".geojson")
     tmp_dir <- file.path(tempdir(), "walkability")
 

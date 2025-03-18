@@ -15,8 +15,8 @@ output_bucket <- file.path(AWS_S3_RAW_BUCKET, "housing", "ihs_index")
 
 # Scrape main page for .xlsx, which should be most recent release
 most_recent_ihs_data_url <- rvest::read_html(
-    "https://price-index.housingstudies.org/"
-  ) %>%
+  "https://price-index.housingstudies.org/"
+) %>%
   rvest::html_nodes(xpath = ".//a[contains(@href, '.xlsx')]") %>%
   rvest::html_attr("href") %>%
   sprintf("https://price-index.housingstudies.org%s", .)
@@ -26,13 +26,13 @@ remote_file <- file.path(output_bucket, paste0("ihs_price_index_data.parquet"))
 
 # Grab the data, clean it just a bit, and write if it doesn't already exist
 data.frame(t(
-  openxlsx::read.xlsx(most_recent_ihs_data_url, sheet = 2) %>%
-    dplyr::select(-c("X2", "X3", "X4"))
+  read.xlsx(most_recent_ihs_data_url, sheet = 2) %>%
+    select(-c("X2", "X3", "X4"))
 )) %>%
   # Names and columns are kind of a mess after the transpose,
   # shift up first row, shift over column names
-  janitor::row_to_names(1) %>%
-  dplyr::mutate(puma = rownames(.)) %>%
-  dplyr::relocate(puma, .before = "YEARQ") %>%
-  dplyr::rename(name = "YEARQ") %>%
-  arrow::write_parquet(remote_file)
+  row_to_names(1) %>%
+  mutate(puma = rownames(.)) %>%
+  relocate(puma, .before = "YEARQ") %>%
+  rename(name = "YEARQ") %>%
+  write_parquet(remote_file)

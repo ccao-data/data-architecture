@@ -8,10 +8,10 @@ This directory stores the configuration for building our data catalog using
 ### In this document
 
 * [🖼️ Background: What does the data catalog do?](#%EF%B8%8F-background-what-does-the-data-catalog-do)
-* [🔨 How to rebuild models using GitHub Actions](#-how-to-rebuild-models-using-github-actions)
 * [💻 How to develop the catalog](#-how-to-develop-the-catalog)
 * [➕ How to add a new model](#-how-to-add-a-new-model)
-* [📝 How to add and run tests](#-how-to-add-and-run-tests)
+* [🔨 How to rebuild models using GitHub Actions](#-how-to-rebuild-models-using-github-actions)
+* [🧪 How to add and run tests and QC reports](#-how-to-add-and-run-tests-and-qc-reports)
 * [🐛 Debugging tips](#-debugging-tips)
 
 ### Outside this document
@@ -44,8 +44,7 @@ use to predict property values.
 
 ### 2. Define integrity checks that specify the correct format for our data
 
-The tests defined in the `schema.yml` files in the `models/` directory,
-alongside some one-off tests defined in the [`tests/`](./tests/) directory,
+The tests defined in the `schema.yml` files in the `models/` directory
 set the specification for our source data and its transformations. These
 specs allow us to build confidence in the
 integrity of the data that we use and publish. We use the
@@ -82,28 +81,6 @@ our tables, views, tests, and docs. Automated tasks include:
 * Cleaning up temporary resources in our Athena warehouse whenever a pull
   request is merged into the main branch (the `cleanup-dbt-resources` workflow)
 
-## 🔨 How to rebuild models using GitHub Actions
-
-GitHub Actions can be used to manually rebuild part or all of our dbt DAG.
-To use this functionality:
-
-- Go to the `build-and-test-dbt` [workflow page](https://github.com/ccao-data/data-architecture/actions/workflows/build_and_test_dbt.yaml)
-- Click the **Run workflow** dropdown on the right-hand side of the screen
-- Populate the input box following the instructions below
-- Click **Run workflow**, then click the created workflow run to view progress
-
-The workflow input box expects a space-separated list of dbt model names or selectors.
-Multiple models can be passed at the same time, as the input box values are
-passed directly to `dbt build`. Model names _must include the database schema name_. Some possible inputs include:
-
-- `default.vw_pin_sale` - Rebuild a single view
-- `default.vw_pin_sale default.vw_pin_universe` - Rebuild two views at once
-- `+default.vw_pin_history` - Rebuild a view and all its upstream dependencies
-- `location.*` - Rebuild all views under the `location` schema
-- `path:models` - Rebuild the full DAG (:warning: takes a long time!)
-
-For more possible inputs using dbt node selection, see the [documentation site](https://docs.getdbt.com/reference/node-selection/syntax#examples).
-
 ## 💻 How to develop the catalog
 
 ### Installation
@@ -117,7 +94,7 @@ care of that for you.)
 
 #### Requirements
 
-* Python3 with venv installed (`sudo apt install python3-venv`)
+* Python3 with `uv` installed (pre-installed on the CCAO server)
 * [AWS CLI installed
   locally](https://github.com/ccao-data/wiki/blob/master/How-To/Connect-to-AWS-Resources.md)
   * You'll also need permissions for Athena, Glue, and S3
@@ -127,11 +104,11 @@ care of that for you.)
 
 Run the following commands in this directory:
 
-```
-python3 -m venv venv
-source venv/bin/activate
-pip install -U pip
-pip install -r requirements.txt
+```bash
+uv venv
+source .venv/bin/activate
+uv python install
+uv pip install .
 dbt deps
 ```
 
@@ -139,13 +116,13 @@ dbt deps
 
 To run dbt commands, make sure you have the virtual environment activated:
 
-```
-source venv/bin/activate
+```bash
+source .venv/bin/activate
 ```
 
 You must also authenticate with AWS using MFA if you haven't already today:
 
-```
+```bash
 aws-mfa
 ```
 
@@ -169,14 +146,14 @@ it from scratch.
 Instead, start by copying the production dbt state file (also known as the
 [manifest file](https://docs.getdbt.com/reference/artifacts/manifest-json)):
 
-```
+```bash
 aws s3 cp s3://ccao-dbt-cache-us-east-1/master-cache/manifest.json master-cache/manifest.json
 ```
 
 Then, use [`dbt clone`](https://docs.getdbt.com/reference/commands/clone) to
 clone the production tables and views into your development environment:
 
-```
+```bash
 dbt clone --state master-cache
 ```
 
@@ -222,11 +199,8 @@ You should almost never have to manually build tables and views in our
 production environment, since this repository is configured to automatically
 deploy production models using GitHub Actions for continuous integration.
 However, in the rare case that you need to manually build models in production,
-use the `--target` option:
-
-```
-dbt build --target prod --resource-types model seed
-```
+see [🔨 How to rebuild models using GitHub
+Actions](#-how-to-rebuild-models-using-github-actions).
 
 #### Clean up development resources
 
@@ -494,63 +468,155 @@ We use the following pattern to determine where to define each column descriptio
 
 New models should generally be added with accompanying tests to ensure the
 underlying data and transformations are correct. For more information on
-testing, see [📝 How to add and run tests](#-how-to-add-and-run-tests).
+testing, see [🧪 How to add and run tests and QC reports](#-how-to-add-and-run-tests-and-qc-reports).
 
-## 📝 How to add and run tests
+## 🔨 How to rebuild models using GitHub Actions
 
-We test our data and our transformations using [dbt
-tests](https://docs.getdbt.com/docs/build/tests). We prefer adding tests
-inline in `schema.yml` config files using [generic
+GitHub Actions can be used to manually rebuild part or all of our dbt DAG.
+To use this functionality:
+
+- Go to the `build-and-test-dbt` [workflow page](https://github.com/ccao-data/data-architecture/actions/workflows/build_and_test_dbt.yaml)
+- Click the **Run workflow** dropdown on the right-hand side of the screen
+- Populate the input box following the instructions below
+- Click **Run workflow**, then click the created workflow run to view progress
+
+The workflow input box expects a space-separated list of dbt model names or selectors.
+Multiple models can be passed at the same time, as the input box values are
+passed directly to `dbt build`. Model names _must include the database schema name_. Some possible inputs include:
+
+- `default.vw_pin_sale` - Rebuild a single view
+- `default.vw_pin_sale default.vw_pin_universe` - Rebuild two views at once
+- `+default.vw_pin_history` - Rebuild a view and all its upstream dependencies
+- `location.*` - Rebuild all views under the `location` schema
+- `path:models` - Rebuild the full DAG (:warning: takes a long time!)
+
+For more possible inputs using dbt node selection, see the [documentation site](https://docs.getdbt.com/reference/node-selection/syntax#examples).
+
+## 🧪 How to add and run tests and QC reports
+
+We test the integrity of our raw data and our transformations using a few different
+types of tests and reports:
+
+| Test type          | Description | Implemented with | Runs on | Runs when | Outputs | Fails on | Who fixes | Use when |
+| ------------------ | ----------- | ---------------- | ------- | --------- | ------- | -------- | --------- | -------- |
+| [**iasWorld tests**](#iasworld-tests) | Test that hard-and-fast assumptions about iasWorld tables are correct. | [dbt data tests](https://docs.getdbt.com/docs/build/data-tests) | [GitHub Actions](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml), or [command line](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/run_iasworld_data_tests.py) | Daily after Spark ingest, or on demand | Excel workbook and metadata parquet files | Doesn't fail unless tests encounter an error | Valuations | Test logic exclusively references iasWorld tables, and test failures indicate clear, fixable problems |
+| [**Unit tests**](#unit-tests) | Test that the transformation logic inside a model definition produces the correct output on a specific set of hypothetical input data. | [dbt unit tests](https://docs.getdbt.com/docs/build/unit-tests) | [GitHub Actions](https://github.com/ccao-data/data-architecture/actions/workflows/build_and_test_dbt.yaml) | Every PR or commits to main branch that modify models/tests | GitHub Actions failure notification | Any test failure | Data | Test logic is checking transformation behavior and the full universe of possible input values is easy to express in a few examples |
+| [**Data integrity tests**](#data-integrity-tests) | Test that hard-and-fast assumptions about non-iasWorld tables, or tables that merge iasWorld and non-iasWorld data, are correct. | [dbt data tests](https://docs.getdbt.com/docs/build/data-tests) | [GitHub Actions](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml) | Weekly on a schedule, or on PRs and commits to main branch that modify models/tests | GitHub Actions failure notification | Any test failure | Data | Test logic references data outside iasWorld, or the full universe of possible input values cannot be easily expressed in a few examples |
+| [**QC reports**](#qc-reports) | Query for suspicious cases that _might_ indicate a problem with our data, but that can't be confirmed automatically. | [dbt models](https://docs.getdbt.com/docs/build/models) | [Command line](https://github.com/ccao-data/data-architecture/blob/master/dbt/scripts/export_models.py) | On demand | One or more Excel workbooks | Doesn't fail unless queries encounter an error | Valuations | Failures do not necessarily indicate data problems, and a stakeholder has agreed to review output |
+
+The distinctions between these types of tests and reports can be subtle. Here
+is a rough guide to how we think about choosing the right type of test or
+report for a given task:
+
+* If you can express the test's logic exclusively in the context of an iasWorld
+  table, and if you think an iasWorld data owner could immediately act on the
+  results of the test without having to know any additional context other than
+  attributes of the row in the iasWorld table that failed the test, you should
+  define the test as an [**iasWorld test**](#iasworld-tests).
+* If the test is checking that a transformation produces a correct value, and
+  if you can represent the full universe of possible raw values that could
+  produce the transformed value in a few simple examples, you should define
+  the test as a [**unit test**](#unit-tests).
+* If you can't be sure whether a failure indicates a data problem, and if you
+  have partnered with a stakeholder who is committed to reviewing the
+  failures, you should define the check as a [**QC report**](#qc-reports).
+* In all other cases, you should define the test as a [**data integrity
+  test**](#data-integrity-tests).
+
+Here are some real-world examples of each type of test or report:
+
+* **iasWorld tests**: Test that the Basement Type column in the
+  `iasworld.dweldat` table is not null
+    * [`iasworld_dweldat_bsmt_not_null`](models/iasworld/schema/iasworld.dweldat.yml)
+* **Unit tests**: Test that the `default.vw_pin_appeal` view strips
+  non-alphanumeric characters from the class code
+    * [`default_vw_pin_appeal_class_strips_non_alphanumerics`](models/default/schema/default.vw_pin_appeal.yml)
+* **Data integrity tests**: Test that the `default.vw_pin_condo_char` view is
+  unique by PIN and year
+    * [`default_vw_pin_condo_char_unique_by_14_digit_pin_and_year`](models/default/schema/default.vw_pin_condo_char.yml)
+* **QC reports**: Query for condo PINs that are nonlivable but that have
+  characteristics corresponding a livable unit
+    * [`qc.vw_pin_appeal_mismatched_outcomes`](models/qc/schema.yml)
+
+The following sections describe how to add and run each of these types of
+tests and reports.
+
+### iasWorld tests
+
+Our iasWorld data test suite checks that hard-and-fast assumptions about data
+in our iasWorld system of record are correct.
+
+For help running iasWorld tests, see [Running iasWorld
+tests](#running-iasworld-tests). For help adding iasWorld tests, see
+[Adding iasWorld tests](#adding-iasworld-tests) and [Choosing a
+generic test for your data test](#choosing-a-generic-test-for-your-data-test).
+
+#### Running iasWorld tests
+
+The iasWorld test suite can be run using the [`run_iasworld_data_tests`
+script](./scripts/run_iasworld_data_tests.py).
+This script runs the tests and reads the metadata for the run to output a number of
+different artifacts with information about the tests:
+
+* An Excel workbook with detailed information on each failure to aid in resolving
+  data problems
+* Parquet files representing metadata tables that can be uploaded to S3 for aggregate
+  analysis
+
+There are two instances when iasWorld tests typically run:
+
+1. Once per day by the [`test-dbt-models` GitHub
+   workflow](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml),
+   which pushes Parquet output to S3 in order to support our analysis of test failures over time
+2. On demand by a Data team member whenever a Valuations staff member requests
+   a copy of the Excel workbook for a township, usually right before the town closes
+
+Since the first instance is a scheduled job that requires no intervention, the following
+steps describe how to respond to a request from Valuations staff for
+a fresh copy of the test failure output before town closing.
+
+Typically, Valuations staff will ask for test output for a specific township. We'll refer to the
+[township code](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) for this township
+using the bash variable `$TOWNSHIP_CODE`.
+
+Run the tests locally using the [`run_iasworld_data_tests`
+script](./scripts/run_iasworld_data_tests.yml):
+
+```bash
+# Make sure you're in the dbt subdirectory with the virtualenv activated
+cd dbt
+source venv/bin/activate
+
+# Run the script
+python3 scripts/run_iasworld_data_tests.py --township $TOWNSHIP_CODE
+```
+
+Then, check the Excel workbook that the script produced to make sure it's formatted
+correctly, and send it to Valuations staff for review.
+
+#### Adding iasWorld tests
+
+We implement iasWorld tests using [dbt tests](https://docs.getdbt.com/docs/build/tests)
+to check that hard-and-fast assumptions about our raw iasWorld data are correct.
+We prefer adding tests inline in `schema.yml` config files using [generic
 tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
 rather than [singular
 tests](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
 
-### Data tests vs. unit tests
-
-There are two types of tests that we might consider for a model:
-
-1. **Data tests** check that our assumptions about our raw data are correct
-    * For example: Test that a table is unique by `parid` and `taxyr`
-2. **Unit tests** check that transformation logic inside a model definition
-   produces the correct output on a specific set of input data
-    * For example: Test that an enum column computed by a `CASE... WHEN`
-      expression produces the correct output for a given input string
-
-dbt tests are data tests by default, although a dedicated unit testing syntax
-[is coming soon](https://docs.getdbt.com/docs/build/unit-tests). Until unit
-tests are natively supported, however, we do not have a way of implementing them.
-We plan to change this once unit testing is released, but for now, make sure that
-any new tests you write are data tests and not unit tests.
-
-### Adding data tests
-
-There are two types of data tests that we support:
-
-1. **QC tests** confirm our assumptions about iasWorld data and are run at
-   scheduled intervals to confirm that iasWorld data meets spec
-2. **Non-QC tests** confirm all other assumptions about data sources outside
-   of iasWorld, and are run in an ad hoc fashion depending on the needs of
-   the transformations that sit on top of the raw data
-
-#### Adding QC tests
-
-QC tests are run on a schedule by the [`test-dbt-models`
-workflow](https://github.com/ccao-data/data-architecture/actions/workflows/test_dbt_models.yaml)
-and their output is interpreted by the [`transform_dbt_test_results`
-script](https://github.com/ccao-data/data-architecture/blob/master/.github/scripts/transform_dbt_test_results.py).
-This script reads the metadata for a test run and outputs an Excel
-workbook with detailed information on each failure to aid in resolving
-any data problems that the tests reveal.
-
 There are a few specific modifications a test author needs to make to
-ensure that QC tests can be run by the workflow and interpreted by the script:
+ensure that the `run_iasworld_data_tests` script can properly run the test and
+interpret its results:
 
 * One of either the test or the model that the test is defined on must be
 [tagged](https://docs.getdbt.com/reference/resource-configs/tags) with
-the tag `test_qc_iasworld`
+the tag `data_test_iasworld`
   * Prefer tagging the model, and fall back to tagging the test if for
     some reason the model cannot be tagged (e.g. if it has some non-QC
     tests defined on it)
+  * If you would like to disable a data test but you don't want to remove it
+    altogether, you can tag it or its model with `data_test_iasworld_exclude_from_workbook`,
+    which will prevent the test (or all of the model's tests, if you tagged
+    the model) from running as part of the `select_data_test_iasworld` selector
 * The test definition must supply a few specific parameters:
   * `name` must be set and follow the pattern
     `iasworld_<table_name>_<test_description>`
@@ -564,14 +630,14 @@ the tag `test_qc_iasworld`
       test you're using
   * `config.where` should typically set to provide a filter expression
     that restricts tests to unique rows and to rows matching a date range
-    set by the `test_qc_year_start` and `test_qc_year_end`
+    set by the `data_test_iasworld_year_start` and `data_test_iasworld_year_end`
     [project variables](https://docs.getdbt.com/docs/build/project-variables)
   * `meta` should be set with a few specific string attributes:
     * `description` (required): A short human-readable description of the test
     * `category` (optional): A workbook category for the test, required if
       a category is not defined for the test's generic in the `TEST_CATEGORIES`
-      constant in the [`transform_dbt_test_results`
-      script](https://github.com/ccao-data/data-architecture/blob/master/.github/scripts/transform_dbt_test_results.py)
+      constant in the [`run_iasworld_data_tests`
+      script](./scripts/run_iasworld_data_tests.py)
     * `table_name` (optional): The name of the table to report in the output
       workbook, if the workbook should report a different table name than the
       name of the model that the test is defined on
@@ -580,22 +646,14 @@ See the [`iasworld_pardat_class_in_ccao_class_dict`
 test](https://github.com/ccao-data/data-architecture/blob/bd4bc1769fe33fdba1dbe827791b5c41389cf6ec/dbt/models/iasworld/schema/iasworld.pardat.yml#L78-L96)
 for an example of a test that sets these attributes.
 
-Due to the similarity of parameters defined on QC tests, we make extensive use
+Due to the similarity of parameters defined on iasWorld tests, we make extensive use
 of YAML anchors and aliases to define symbols for commonly-used values.
 See [here](https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/)
 for a brief explanation of the YAML anchor and alias syntax.
 
-#### Adding non-QC tests
+#### Choosing a generic test for your data test
 
-QC tests are much more common than non-QC tests in our test suite. If you
-are being asked to add a test that appears to be a non-QC test, double
-check with the person who assigned the test to you and ask them when
-and how the test should be run so that its attributes can be set
-accordingly.
-
-### Choosing a generic test
-
-Writing a test in a `schema.yml` file requires a [generic
+Writing a data test in a `schema.yml` file requires a [generic
 test](https://docs.getdbt.com/best-practices/writing-custom-generic-tests)
 to define the underlying test logic. Our generic tests are defined
 in the `tests/generic/` directory. Before writing a test, look at
@@ -624,12 +682,321 @@ do so, you have two options:
    and other tests. You'll also need to follow a few extra steps that are specific
    to our environment:
      1. Add a default category for your generic test in
-        the `TEST_CATEGORIES` constant in the [`transform_dbt_test_results`
-        script](https://github.com/ccao-data/data-architecture/blob/master/.github/scripts/transform_dbt_test_results.py)
+        the `TEST_CATEGORIES` constant in the [`run_iasworld_data_tests`
+        script](./scripts/run_iasworld_data_tests.py)
      2. Make sure that your generic test supports the `additional_select_columns`
         parameter that most of our generic tests support, making use
         of the `format_additional_select_columns` macro to format the
         parameter when applying it to your `SELECT` condition
+
+### Data integrity tests
+
+Data integrity tests check hard-and-fast assumptions about all of our data
+outside of iasWorld. This includes data that come from external sources like
+seeds or third-party data providers, as well as the views that we define as
+transformations on top of iasWorld data sources to clean them up and join them
+to non-iasWorld data.
+
+We implement data integrity tests using [dbt
+tests](https://docs.getdbt.com/docs/build/tests). As with our
+[iasWorld tests](#iasworld-tests), we prefer adding data tests inline in
+`schema.yml` config files using [generic
+tests](https://docs.getdbt.com/best-practices/writing-custom-generic-tests),
+rather than [singular
+tests](https://docs.getdbt.com/docs/build/data-tests#singular-data-tests).
+
+Some examples of data integrity tests include:
+
+* Check that the `default.vw_card_res_char` view is unique by the columns `pin`,
+  `year`, and `card`
+  ([`default_vw_card_res_char_unique_by_card_pin_and_year`](models/default/schema/default.vw_card_res_char.yml))
+* Check that our transformations of condo characteristic data in the
+  `default.vw_pin_condo_char` view don't ever produce a `null` value for `card`
+  ([`default_vw_pin_condo_char_card_not_null`](models/default/schema/default.vw_pin_condo_char.yml))
+* Check that GEOIDs are the correct length in the `location.vw_pin10_location`
+  view ([`location_vw_pin10_location_7_digit_ids_are_correct_length`](models/location/schema.yml))
+
+#### Running data integrity tests
+
+There are two different times in which data integrity tests run automatically:
+
+1. In the `build-and-test-dbt` GitHub workflow as part of our CI suite when
+   a test's model changes, or when the test itself changes
+2. Once per week in the `test-dbt-models` GitHub workflow, to proactively warn
+   the team about any data problems that we need to fix
+
+You can also run the tests locally using the `select_data_test_non_iasworld`
+selector:
+
+```bash
+dbt test --selector select_data_test_non_iasworld
+```
+
+#### Adding data integrity tests
+
+In contrast to [iasWorld tests](#iasworld-tests), data integrity tests do not
+require any special tags or attributes because we do not process their results
+in a structured fashion.
+
+See [Choosing a generic test for your data
+test](#choosing-a-generic-test-for-your-data-test) for help with choosing a
+generic test.
+
+### Unit tests
+
+Unit tests help ensure that the transformations we apply on top of our raw data
+do not introduce errors. We use dbt's [unit
+testing](https://docs.getdbt.com/docs/build/unit-tests) feature to implement
+these tests. Unit tests currently do not require any special tags or
+attributes, although this may change in the future as we build out a more
+extensive suite of tests.
+
+Unit tests run during the `build-and-test-dbt` GitHub workflow as part of
+our CI suite whenever a PR or commit to the main branch adds or modifies a
+model or unit test. As such, unit tests will only run automatically in cases
+where it's possible that a code change might accidentally violate the
+assumptions of the test.
+
+Run the unit tests locally using the `unit_test` resource type:
+
+```bash
+dbt test --resource-type unit_test
+```
+
+### QC reports
+
+QC reports help us investigate suspicious data that _might_ indicate a problem, but
+that can't be confirmed automatically. We implement QC reports using dedicated
+dbt models that are configured with attributes that can be parsed by the
+[`export_models` script](./scripts/export_models.py) and other scripts that
+build on it for specific workflows, like the [`export_qc_town_close_reports`
+script](./scripts/export_qc_town_close_reports.py).
+
+#### Running QC reports with `export_models`
+
+We run QC reports when Valuations staff ask for them, which most often occurs before
+a major event in the Valuations calendar like the close of a township.
+
+The [`export_models` script](./scripts/export_models.py) is the foundation for
+our QC reports. The script expects certain Python requirements, which can be installed
+by running `uv pip install .[dbt_tests]` in a virtual
+environment.
+
+The script exposes a few options that help to export the right data:
+
+* **`--select`** (required unless `--selector` is set): This option can control which
+  models the script will export, along with the `--selector` option. This option
+  is equivalent to the [dbt `--select`
+  option](https://docs.getdbt.com/reference/node-selection/syntax), and any valid
+  dbt `--select` expression will work for this option.
+* **`--selector`** (required unless `--select` is set): This is an alternate way to
+  control which models the script will export using a [dbt
+  selector](https://docs.getdbt.com/reference/node-selection/yaml-selectors).
+  This option is equivalent to the dbt `--selector` option. One of the `--select` or
+  `--selector` options must be set in order to run the script, but both cannot be set or
+  else the script will raise an error.
+* **`--where`** (optional): This option controls which rows the script will return for the selected
+  model in a similar fashion as a SQL `WHERE` clause. Any expression that could follow a
+  `WHERE` keyword in a SQL filter condition will work for this option.
+* **`--rebuild` or `--no-rebuild`** (optional): This flag determines whether or not the script will rebuild
+  the selected models using `dbt run` prior to export. It defaults to false (`--no-rebuild`) and
+  is most useful in rare cases where the underlying models that comprise the reports have been
+  edited since the last run, typically during the period when a QC report is under active development.
+* **`--target`** (optional): The name of the [dbt
+  target](https://docs.getdbt.com/reference/dbt-jinja-functions/target) to run
+  queries against. Defaults to `dev`. You should never have to set this option
+  when running the script locally.
+
+Other scripts that build on `export_models` for specific workflows tend to
+expose similar options. See the documentation for these workflows below for
+more details.
+
+#### Running town close QC reports with `export_qc_town_close_reports`
+
+We run town close reports using the [`scripts/export_qc_town_close_reports.py`
+script](./scripts/export_qc_town_close_reports.py), which builds on top of
+`export_models`. As such, `export_qc_town_close_reports` expects the same set
+of Python requirements as `export_models`, which can be installed in a virtual
+environment by running `uv pip install .[dbt_tests]`.
+
+The script exposes the following options, many of which are the same as
+`export_models`:
+
+* **`--township`** (optional): One or more space-separated [township
+  codes](https://github.com/ccao-data/wiki/blob/master/Data/Townships.md) to use
+  for filtering results. If you omit this parameter, the script will default to
+  exporting reports for all towns.
+* **`--year`** (optional): The year to use for filtering results. Defaults to the current year.
+* **`--target`** (optional): The name of the [dbt
+  target](https://docs.getdbt.com/reference/dbt-jinja-functions/target) to run
+  queries against. Defaults to `dev`. You should never have to set this option
+  when running the script locally.
+* **`--rebuild` or `--no-rebuild`** (optional): This flag determines whether or not the script will rebuild
+  the selected models using `dbt run` prior to export. It defaults to false (`--no-rebuild`) and
+  is most useful in rare cases where the underlying models that comprise the reports have been
+  edited since the last run, typically during the period when a QC report is under active development.
+* **`--print-table-refresh-command`** (optional): Instructs the script to print a command that can be
+  run on the server to refresh underlying iasWorld tables. Will not export any reports
+  when set. Useful if you want to refresh iasWorld table data before running exports.
+  See [Refreshing iasWorld tables prior to running town close QC
+  reports](#refreshing-iasworld-tables-prior-to-running-town-close-qc-reports) for more
+  details.
+* **`output-dir`** (optional): The Unix-formatted path to the directory where
+  the script will store output files. Defaults to `./export/output/`.
+
+Assuming a township code defined by `$TOWNSHIP_CODE` and a tax year defined by
+`$TAXYR`, the following command will generate town close reports for the township/year combo:
+
+```
+python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE" --year "$TAXYR"
+```
+
+You can omit the `--year` flag and the script will default to the current year of data:
+
+```
+python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE"
+```
+
+Omit all options to generate reports for all towns in the current year:
+
+```
+python3 scripts/export_qc_town_close_reports.py
+```
+
+In both cases, the script will output the reports to the `dbt/export/output/`
+directory, and will print the names of the reports that it exports during execution.
+
+#### Refreshing iasWorld tables prior to running town close QC reports
+
+The queries that generate town close reports run against our data warehouse, which
+ingests data from iasWorld overnight once daily. Sometimes a Valuations staff member
+will request a report during the middle of the workday, and they will need the most
+recent data, which will not exist in our warehouse yet. In these cases, you can use
+the `--print-table-refresh-command` flag to output a command that you can run on the server to
+refresh any iasWorld tables that the town close reports rely on. Note that when
+you pass `--print-table-refresh-command` to the script, it will _not_ export any reports, and
+will instead exit immediately after printing the refresh command.
+
+The following command will print a refresh command that can be run on the server
+to refresh the iasWorld tables that comprise our town close reports for the
+township with code `$TOWNSHIP_CODE` and the current year of data:
+
+```
+python3 scripts/export_qc_town_close_reports.py --township "$TOWNSHIP_CODE" --print-table-refresh-command
+```
+
+You should see output like this, which you can run in the context of the
+[`service-spark-iasworld`](https://github.com/ccao-data/service-spark-iasworld/)
+repository on the server in order to refresh iasWorld tables:
+
+```
+Run the following commands on the Data Team server as the shiny-server user:
+
+cd /path/to/service-spark-iasworld/
+docker compose --profile prod up -d
+docker exec spark-node-master-prod ./submit.sh
+    --upload-data --upload-logs --run-glue-crawler
+    --json-string {"aprval": {"table_name": "iasworld.aprval", "min_year": 2024, "cur": ["Y"], ...
+```
+
+#### Running the AHSAP change in value QC report
+
+We define the AHSAP change in value QC report using one model, `qc.vw_change_in_ahsap_values`,
+which we filter for a specific township name (like "Hyde Park") and tax year during export.
+
+Here's an example of how to export that model for a township name defined by `$TOWNSHIP_NAME`
+and a tax year defined by `$TAXYR`:
+
+```
+python3 scripts/export_models.py --select qc.vw_change_in_ahsap_values --where "taxyr = '$TAXYR' and township_name = '$TOWNSHIP_NAME'"
+```
+
+The script will output the reports to the `dbt/export/output/` directory, and will print the
+name of the report that it exports during execution.
+
+#### Adding QC reports
+
+Since QC reports are built on top of models, adding a new QC report can be as simple
+as adding a new model and exporting it using the [`export_models`
+script](./scripts/export_models.py).
+You should default to adding your model to the `qc` schema and subdirectory, unless there is
+a good reason to define it elsewhere. For details on how to add a model, see
+[➕ How to add a new model](#-how-to-add-a-new-model).
+
+There are a number of configuration options that allow you to control the format of your
+model during export:
+
+* **Tagging**: [Model tags](https://docs.getdbt.com/reference/resource-configs/tags) are not
+  required for QC reports, but they are helpful in cases where we need to export more than one
+  report at a time. For example, Valuations typically requests all of the town close QC
+  reports at the same time, so we tag each model with the `qc_report_town_close` tag such that
+  we can select them all at once when running the `export_models` script.
+  For consistency, prefer tags that start with the `qc_report_*` prefix.
+* **Filtering**: Since the `export_models` script can filter your model using the `--where`
+  option, you should define your model such that it selects any fields that you want to use
+  for filtering in the `SELECT` clause. It's common to filter reports by `taxyr` and
+  one of either `township_name` or `township_code`.
+* **Formatting**: You can set a few different optional configs on the `meta` attribute of
+  your model's schema definition in order to control the format of the output workbook:
+    * **`meta.export_name`**: The base name that the script will use for the output file, not
+      including the file extension. The script will output the file to
+      `dbt/export/output/{meta.export_name}.xlsx`. If unset, defaults to the
+      name of the model.
+    * **`meta.export_template`**: The base name for an Excel file that the script will use as
+      a template to populate with data, not including the file extension. The script will
+      read this file from `dbt/export/templates/{meta.export_template}.xlsx`.
+      Templates are useful if you want to apply custom headers, column widths, or other
+      column formatting to the output that are not otherwise configurable
+      by the `meta.export_format` config attribute described below. If unset,
+      the script will search for a template with the same name as the model; if
+      it does not find a template, it will default to a simple layout with filterable
+      columns and striped rows.
+    *  **`meta.export_format`**: An object with the following schema that controls the
+       format of the output workbook:
+         * `columns` (required): A list of one or more columns to format, each of which should be
+           an object with the following schema:
+             * `index` (required): The letter index of the column to be formatted, like `A` or `AB`.
+             * `name` (optional): The name of the column as it appears in the header of the workbook.
+               The script does not use this attribute and instead uses `index`, but we set it in order
+               to make the column config object more readable.
+             * `horizontal_align` (optional): The horizontal alignment to set on the column, one of
+               `left` or `right`.
+             * `number_format` (optional): The number format to apply to the
+               column. See the [openpyxl source
+               code](https://openpyxl.readthedocs.io/en/stable/_modules/openpyxl/styles/numbers.html)
+               for a list of options
+
+#### Example: Adding a new QC report
+
+Here's an example of a model schema definition that sets all of the different optional and required
+formatting options for a new QC report:
+
+```yaml
+models:
+  - name: qc.vw_qc_report_new
+    description: '{{ doc("view_vw_qc_report_new") }}'
+    config:
+      tags:
+        - qc_report_new
+    meta:
+      export_name: QC Report (New)
+      export_template: qc_report_new.xslx
+      export_format:
+        columns:
+          - index: B
+            name: Percent Change
+            horizontal_align: right
+            number_format: "0.00%"
+```
+
+In the case of this model, the `export_models` script:
+
+* Will export the model if either `--select qc.vw_qc_report_new` or `--select tag:qc_report_new`
+  is set
+* Will use the template `dbt/export/templates/qc_report_new.xlsx` to populate data
+* Will export the output workbook to `dbt/export/output/QC Report (New).xlsx`
+* Will right-align column B, a column with the name `Percent Change`
+* Will format column B as a percentage with two decimal places
 
 ## 🐛 Debugging tips
 

@@ -17,14 +17,21 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # Full git history is needed to get a proper
           # list of changed files within `super-linter`
           fetch-depth: 0
 
+      # Superlinter will load renv if .Rprofile is present - it will then fail
+      # because the renv environment doesn't have lintr. Removing the .Rprofile
+      # file loads the default superlinter R environment.
+      - name: Disable renv
+        shell: bash
+        run: rm etl/.Rprofile
+
       - name: Lint
-        uses: github/super-linter@v4
+        uses: github/super-linter@v6
         env:
           VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: master
@@ -32,9 +39,15 @@ jobs:
           VALIDATE_MARKDOWN: false
           # These tools are handled by pre-commit, so we don't need SuperLinter
           # to run them as well
+          VALIDATE_CHECKOV: false
           VALIDATE_SQLFLUFF: false
           VALIDATE_PYTHON_BLACK: false
           VALIDATE_PYTHON_FLAKE8: false
           VALIDATE_PYTHON_ISORT: false
+          VALIDATE_PYTHON_PYLINT: false
+          VALIDATE_PYTHON_RUFF: false
+          # The natural language check slows down our velocity and is rarely
+          # helpful
+          VALIDATE_NATURAL_LANGUAGE: false
           LINTER_RULES_PATH: /
           YAML_CONFIG_FILE: .yamllint.yml

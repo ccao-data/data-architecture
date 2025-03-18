@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: htpar
@@ -77,7 +77,7 @@ sources:
                     - wen
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                   meta:
                     description: cur should be 'Y' or 'D'
           - name: curbldg
@@ -101,7 +101,7 @@ sources:
           - name: hearoff
             description: Hearing official code
           - name: heartyp
-            description: Hearing type
+            description: '{{ doc("column_heartyp") }}'
           - name: heartypjur
             description: Hearing type jurisdiction
           - name: hrmult
@@ -117,7 +117,7 @@ sources:
                   additional_select_columns: *select-columns
                   config: &unique-conditions
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
@@ -179,24 +179,24 @@ sources:
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_htpar_parid_not_null
+              - relationships:
+                  name: iasworld_htpar_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
                   additional_select_columns: &select-columns-no-parid
                     - taxyr
                     - who
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: parid should not be null
-              - relationships:
-                  name: iasworld_htpar_parid_in_pardat_parid
-                  to: source('iasworld', 'pardat')
-                  field: parid
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_htpar_parid_not_null
                   additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
                   meta:
-                    category: parid
-                    description: parid should be in pardat
+                    description: parid should not be null
           - name: petemail
             description: Petitioner email address
           - name: petfax
@@ -324,6 +324,43 @@ sources:
           - name: who
 
         data_tests:
+          - no_extra_whitespace:
+              name: iasworld_htpar_address_columns_no_whitespace
+              column_names:
+                - taxyr
+                - parid
+                - own1
+                # - addr1 # almost every value in this field has a trailing space
+                - addr2
+                - addr3
+                - cpaddr1
+                - cpaddr2
+                - cpaddr3
+              allow_interior_space: true
+              config: *unique-conditions
+              meta:
+                description: >
+                  Address columns should have no leading or trailing whitespace
+              tags:
+                # Currently too many failures for this signal to be useful
+                - data_test_iasworld_exclude_from_workbook
+          - expression_is_true:
+              name: iasworld_htpar_cpaddr3_length_lte_5
+              expression: |
+                LENGTH(cpaddr3) = 5
+                OR (LENGTH(cpaddr3) = 10 AND cpaddr3 LIKE '%-%')
+              additional_select_columns:
+                - parid
+                - taxyr
+                - who
+                - wen
+                - cpaddr3
+              config: *unique-conditions
+              meta:
+                category: column_length
+                description: >
+                  cpaddr3 should be either 5 characters long or 10 characters
+                  with a hyphen
           - unique_combination_of_columns:
               name: iasworld_htpar_unique_by_parid_caseno_taxyr_subkey
               combination_of_columns:
@@ -344,40 +381,16 @@ sources:
               meta:
                 description: >
                   htpar should be unique by parid, caseno, taxyr, and subkey
-          - no_extra_whitespace:
-              name: iasworld_htpar_address_columns_no_whitespace
-              column_names:
-                - taxyr
-                - parid
-                - own1
-                # - addr1 # almost every value in this field has a trailing space
-                - addr2
-                - addr3
-                - cpaddr1
-                - cpaddr2
-                - cpaddr3
-              allow_interior_space: true
-              config: *unique-conditions
-              meta:
-                description: >
-                  Address columns should have no leading or trailing whitespace
-              tags:
-                # Currently too many failures for this signal to be useful
-                - test_qc_exclude_from_workbook
           - expression_is_true:
-              name: iasworld_htpar_cpaddr3_length_lte_5
-              expression: |
-                LENGTH(cpaddr3) = 5
-                OR (LENGTH(cpaddr3) = 10 AND cpaddr3 LIKE '%-%')
+              name: iasworld_htpar_user104_in_accepted_values
+              expression: lower(trim(user104)) in ('change', 'no change')
               additional_select_columns:
-                - parid
+                - user104
                 - taxyr
+                - parid
                 - who
                 - wen
-                - cpaddr3
               config: *unique-conditions
               meta:
-                category: column_length
-                description: >
-                  cpaddr3 should be either 5 characters long or 10 characters
-                  with a hyphen
+                description: user104 must be 'change' or 'no change'
+                category: incorrect_values

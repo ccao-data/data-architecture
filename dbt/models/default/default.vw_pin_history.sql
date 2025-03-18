@@ -6,6 +6,12 @@ SELECT
     leg.user1 AS township_code,
     town.township_name,
     REGEXP_REPLACE(par.nbhd, '([^0-9])', '') AS nbhd,
+    -- Add pre-mailed values to cover us for the period after the rollover but
+    -- before the year's assessment cycle starts
+    vwpv.pre_mailed_class,
+    vwpv.pre_mailed_bldg,
+    vwpv.pre_mailed_land,
+    vwpv.pre_mailed_tot,
     vwpv.mailed_class,
     vwpv.mailed_bldg,
     vwpv.mailed_land,

@@ -21,7 +21,7 @@ remote_file_flood_fema <- file.path(
 )
 
 
-fema_url <- "https://hazards.fema.gov/femaportal/NFHL/Download/ProductsDownLoadServlet?DFIRMID=17031C&state=ILLINOIS&county=COOK%20COUNTY&fileName=17031C_" #noqa
+fema_url <- "https://hazards.fema.gov/femaportal/NFHL/Download/ProductsDownLoadServlet?DFIRMID=17031C&state=ILLINOIS&county=COOK%20COUNTY&fileName=17031C_" # nolint
 fema_files <- c("2021" = "20210615", "2022" = "20221130", "2023" = "20231006")
 
 
@@ -48,7 +48,6 @@ if (!aws.s3::object_exists(remote_file_flood_fema)) {
 
 ##### LAKE MICHICAN COASTLINE #####
 walk(2013:current_year, function(i) {
-
   remote_file_coastline <- file.path(
     output_bucket, "coastline",
     paste0(i, ".geojson")
@@ -65,13 +64,11 @@ walk(2013:current_year, function(i) {
     save_local_to_s3(remote_file_coastline, tmp_file)
     file.remove(tmp_file)
   }
-
 })
 
 
 ##### COOK COUNTY HYDROLOGY #####
 walk(2011:current_year, function(i) {
-
   remote_file_hydrology_area <- file.path(
     output_bucket, "hydrology", "area",
     paste0(i, ".geojson")
@@ -105,7 +102,6 @@ walk(2011:current_year, function(i) {
     save_local_to_s3(remote_file_hydrology_linear, tmp_file)
     file.remove(tmp_file)
   }
-
 })
 
 
@@ -117,18 +113,18 @@ remote_file_railroad <- file.path(
 
 # Write railroads to S3 if they don't exist
 if (!aws.s3::object_exists(remote_file_railroad)) {
-
   tmp_file <- tempfile(fileext = ".geojson")
   tmp_dir <- tempdir()
   download.file(
-paste0("https://opendata.arcgis.com/api/v3/",
-       "datasets/dfa393be3a104c33a2ae95455c916ccd_3/downloads/",
-       "data?format=geojson&spatialRefId=4326&where=1%3D1"),
+    paste0(
+      "https://opendata.arcgis.com/api/v3/",
+      "datasets/dfa393be3a104c33a2ae95455c916ccd_3/downloads/",
+      "data?format=geojson&spatialRefId=4326&where=1%3D1"
+    ),
     destfile = tmp_file,
     mode = "wb"
   )
 
   save_local_to_s3(remote_file_railroad, tmp_file)
   file.remove(tmp_file)
-
 }

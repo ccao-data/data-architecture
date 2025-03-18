@@ -33,18 +33,22 @@ if (!aws.s3::object_exists(remote_file_town_warehouse)) {
   st_read(tmp_file_town) %>%
     st_transform(4326) %>%
     select("township_name" = "NAME", "geometry") %>%
-    filter(township_name != '') %>%
+    filter(township_name != "") %>%
     mutate(
       township_name = str_to_title(township_name),
       township_name = case_when(
-        township_name %in% c("North", "South", "West") ~ paste(township_name, "Chicago"),
+        township_name %in% c("North", "South", "West") ~
+          paste(township_name, "Chicago"),
         TRUE ~ township_name
       )
     ) %>%
-    left_join(ccao::town_dict %>% select("township_name", "township_code", "triad_name", "triad_code")) %>%
+    left_join(
+      ccao::town_dict %>%
+        select("township_name", "township_code", "triad_name", "triad_code")
+    ) %>%
     mutate(
       geometry_3435 = st_transform(geometry, 3435),
       across(township_code:triad_code, as.character)
     ) %>%
-    geoarrow::write_geoparquet(remote_file_town_warehouse)
+    geoparquet_to_s3(remote_file_town_warehouse)
 }

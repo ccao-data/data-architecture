@@ -39,6 +39,33 @@ sources:
       - name: coordinated_care
         description: '{{ doc("table_coordinated_care") }}'
 
+      - name: corner
+        description: '{{ doc("table_corner") }}'
+        columns:
+          - name: geometry
+            description: |
+              Well-Known Binary (WKB) geometry (EPSG 4326) representation of
+              the remaining arms of the cross used in the corner detection
+              algorithm
+          - name: geometry_3435
+            description: |
+              Well-Known Binary (WKB) geometry (EPSG 3435) representation of
+              the remaining arms of the cross used in the corner detection
+              algorithm
+          - name: is_corner_lot
+            description: '{{ doc("shared_column_is_corner_lot") }}'
+          - name: num_cross_branch
+            description: |
+              The number of remaining branches of the cross used to detect
+              whether the corner is a parcel. See table description for
+              details
+          - name: pin10
+            description: '{{ doc("shared_column_pin10") }}'
+          - name: township_code
+            description: '{{ doc("shared_column_township_code") }}'
+          - name: year
+            description: '{{ doc("shared_column_year") }}'
+
       - name: county
         description: '{{ doc("table_county") }}'
 
@@ -113,6 +140,9 @@ sources:
 
       - name: railroad
         description: '{{ doc("table_railroad") }}'
+
+      - name: road
+        description: '{{ doc("table_road") }}'
 
       - name: sanitation_district
         description: '{{ doc("table_sanitation_district") }}'

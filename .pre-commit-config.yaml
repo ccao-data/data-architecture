@@ -1,7 +1,7 @@
 # All available hooks: https://pre-commit.com/hooks.html
 repos:
   - repo: https://github.com/sqlfluff/sqlfluff
-    rev: 3.0.7
+    rev: 3.1.0
     hooks:
     -   id: sqlfluff-lint
     -   id: sqlfluff-fix
@@ -12,6 +12,7 @@ repos:
         entry: >-
           sqlfmt -v dbt
             --exclude dbt/venv/**/*
+            --exclude dbt/.venv/**/*
             --exclude dbt/models/**/*
             --exclude dbt/target/**/*
             --exclude dbt/dbt_packages/**/*
@@ -19,17 +20,22 @@ repos:
         files: ^dbt/
         language_version: python
         additional_dependencies: ['.[jinjafmt]']
-  - repo: https://github.com/pycqa/flake8
-    rev: 6.1.0
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.5.5
     hooks:
-      - id: flake8
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
+      # Python linter. Ruff recommends running this before the formatter to
+      # avoid conflicts when using the --fix flag
+      - id: ruff
+        args:
+          - --fix
+      # Formatter
+      - id: ruff-format
+  - repo: local
     hooks:
-      - id: isort
-  # Using this mirror lets us use mypyc-compiled black, which is about 2x faster
-  - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 23.9.1
-    hooks:
-      - id: black
-        entry: black --config .python-black
+      - id: check-sort-dbt-yaml-files
+        name: check-sort-dbt-yaml-files
+        entry: python3 dbt/scripts/check_sort_dbt_yaml_files.py
+        language: system
+        types_or: [yaml, markdown]
+        files: ^dbt/
+        exclude: venv/

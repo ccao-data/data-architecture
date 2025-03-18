@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
       - type_land
 
     tables:
@@ -30,7 +30,7 @@ sources:
                     - sf
                   config: &unique-conditions
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
@@ -76,24 +76,10 @@ sources:
           - name: class
             description: '{{ doc("shared_column_class") }}'
             data_tests:
-              - relationships:
-                  name: iasworld_land_class_in_ccao_class_dict
-                  to: source('ccao', 'class_dict')
-                  field: class_code
-                  additional_select_columns: *select-columns
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND class NOT IN ('EX', 'RR', '999')
-                      AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
-                  meta:
-                    category: class_mismatch_or_issue
-                    description: class code should be valid
               - res_class_matches_pardat:
-                  name: iasworld_land_class_matches_pardat_class
-                  major_class_only: true
+                  name: iasworld_land_class_ex_matches_pardat_class_ex
+                  major_class_only: false
+                  join_type: inner
                   additional_select_columns: &select-columns-aggregated
                     - column: taxyr
                       agg_func: max
@@ -105,25 +91,39 @@ sources:
                       agg_func: max
                     - column: wen
                       agg_func: max
+                  additional_pardat_filter: AND class = 'EX'
+                  config: *unique-conditions
+                  meta:
+                    description: >
+                      class should be EX if pardat class is EX
+              - relationships:
+                  name: iasworld_land_class_in_ccao_class_dict
+                  to: ref('ccao.class_dict')
+                  field: class_code
+                  additional_select_columns: *select-columns
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND class NOT IN ('EX', 'RR', '999')
+                      AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    category: class_mismatch_or_issue
+                    description: class code should be valid
+              - res_class_matches_pardat:
+                  name: iasworld_land_class_matches_pardat_class
+                  major_class_only: true
+                  additional_select_columns: *select-columns-aggregated
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND class NOT IN ('EX', 'RR')
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
                     description: >
                       at least one major class (first digit) should match pardat class
-              - res_class_matches_pardat:
-                  name: iasworld_land_class_ex_matches_pardat_class_ex
-                  major_class_only: false
-                  join_type: inner
-                  additional_select_columns: *select-columns-aggregated
-                  additional_pardat_filter: AND class = 'EX'
-                  config: *unique-conditions
-                  meta:
-                    description: >
-                      class should be EX if pardat class is EX
           - name: code
             description: Code
           - name: comres
@@ -139,7 +139,7 @@ sources:
                   additional_select_columns: *select-columns
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                   meta:
                     description: cur should be 'Y' or 'D'
           - name: deactivat
@@ -169,9 +169,9 @@ sources:
           - name: iasw_id
             description: '{{ doc("column_iasw_id") }}'
           - name: infl1
-            description: 'Influence Code #1'
+            description: '{{ doc("column_infl") }}'
           - name: infl2
-            description: 'Influence Code #2'
+            description: '{{ doc("column_infl") }}'
           - name: influ
             description: Influence percent (+/-)
             data_tests:
@@ -254,8 +254,10 @@ sources:
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_land_parid_not_null
+              - relationships:
+                  name: iasworld_land_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
                   additional_select_columns: &select-columns-no-parid
                     - taxyr
                     - lline
@@ -263,16 +265,14 @@ sources:
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: parid should not be null
-              - relationships:
-                  name: iasworld_land_parid_in_pardat_parid
-                  to: source('iasworld', 'pardat')
-                  field: parid
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_land_parid_not_null
                   additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
                   meta:
-                    category: parid
-                    description: parid should be in pardat
+                    description: parid should not be null
           - name: price
             description: Price
             data_tests:
@@ -282,7 +282,7 @@ sources:
                   additional_select_columns: *select-columns
                   config:
                     where:
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND class NOT IN ('EX', 'RR', '999')
                       AND cur = 'Y'
                       AND deactivat IS NULL

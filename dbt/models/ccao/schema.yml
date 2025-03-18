@@ -1,28 +1,28 @@
+models:
+  - name: ccao.vw_time_util
+    description: '{{ doc("view_vw_time_util") }}'
+
 sources:
   - name: ccao
     tags:
       - load_manual
     tables:
-      - name: class_dict
-        description: '{{ doc("table_class_dict") }}'
-        columns:
-          - name: class_code
-            description: '{{ doc("shared_column_class") }}'
-
       - name: commercial_valuation
         description: '{{ doc("table_commercial_valuation") }}'
         tags:
           - type_ic
 
-      - name: corner_lot
-        description: '{{ doc("table_corner_lot") }}'
-        columns:
-          - name: pin10
-            description: '{{ doc("shared_column_pin10") }}'
-          - name: is_corner_lot
-            description: '{{ doc("shared_column_is_corner_lot") }}'
-          - name: township
-            description: '{{ doc("shared_column_township_code") }}'
+      - name: cc_dli_senfrr
+        description: '{{ doc("table_cc_dli_senfrr") }}'
+
+      - name: cc_pifdb_piexemptre_dise
+        description: '{{ doc("table_cc_pifdb_piexemptre_dise") }}'
+
+      - name: cc_pifdb_piexemptre_ownr
+        description: '{{ doc("table_cc_pifdb_piexemptre_ownr") }}'
+
+      - name: cc_pifdb_piexemptre_sted
+        description: '{{ doc("table_cc_pifdb_piexemptre_sted") }}'
 
       - name: hie
         description: '{{ doc("table_hie") }}'

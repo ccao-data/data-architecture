@@ -228,8 +228,15 @@ Reason code for change of value.
 Possible values for this variable are:
 
 - `4` = Regular reduction (lasts until next triennial reassessment)
-- `5` = One year only market value relief (occupancy/vacancy reduction)
-- `5B` = One year only market value relief, issued by the Board of Review
+- `4B` = Regular reduction issued by the Board of Review (lasts until next
+  triennial reassessment)
+- `5` = One year only market value relief, implemented as an occupancy/vacancy
+  reduction
+- `5B` = One year only market value relief, implemented as an occupancy/vacancy
+  reduction, and issued by the Board of Review
+- `5C` = One year only market value relief, _not_ implemented as an
+  occupancy/vacancy reduction, and issued by the Board of Review
+
 {% enddocs %}
 
 ## cityname
@@ -406,6 +413,23 @@ Grade
 Group adjustment value
 {% enddocs %}
 
+## heartyp
+
+{% docs column_heartyp %}
+Appeal hearing type.
+
+Possible values for this variable are:
+
+- `A` = Current year appeal
+- `C` = Current appeal & certificate of error
+- `O` = Omitted Assessment
+- `E` = Certificate of error only
+- `EE` = Erroneous exemption
+- `P` = PTAB refund
+- `S` = Specific objection
+
+{% enddocs %}
+
 ## hga
 
 {% docs column_hga %}
@@ -416,6 +440,14 @@ Homesite indicator
 
 {% docs column_iasw_id %}
 iasWorld unique row identifier
+{% enddocs %}
+
+## infl
+
+{% docs column_infl %}
+Influence reason code.
+
+Join to `ccao.infl_reascd` to get descriptions for each code.
 {% enddocs %}
 
 ## instrtyp
@@ -762,7 +794,14 @@ Value category: P (`PP11`) or R (`CA11`)
 ## rolltype
 
 {% docs column_rolltype %}
-Tax roll name
+Tax roll name.
+
+- RP = Real property
+- RR = Railroad
+
+All records (absent 2021 and some in 2022) should be only RP or have minimally
+a single RP record. There should no longer he any active RR records for
+2023 and later.
 {% enddocs %}
 
 ## salekey

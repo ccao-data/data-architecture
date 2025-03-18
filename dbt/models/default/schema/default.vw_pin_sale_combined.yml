@@ -1,0 +1,128 @@
+models:
+  - name: default.vw_pin_sale_combined
+    description: '{{ doc("view_vw_pin_sale_combined") }}'
+
+    columns:
+      - name: buyer_name
+        description: '{{ doc("shared_column_buyer_name") }}'
+      - name: class
+        description: '{{ doc("shared_column_class") }}'
+      - name: deed_type
+        description: '{{ doc("shared_column_deed_type") }}'
+      - name: doc_no
+        description: '{{ doc("shared_column_document_number") }}'
+      - name: is_multisale
+        description: '{{ doc("shared_column_sale_is_multisale") }}'
+      - name: is_mydec_date
+        description: Indicator for whether or not the observation uses the MyDec sale date
+      - name: mydec_deed_type
+        description: Deed type from MyDec, more granular than CCAO deed type
+      - name: mydec_line_9_additions
+        description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
+      - name: mydec_line_9_date_of_significant_change
+        description: The date of the change to the property.
+      - name: mydec_line_9_demolition_damage
+        description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
+      - name: mydec_line_9_major_remodeling
+        description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
+      - name: mydec_line_9_new_construction
+        description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
+      - name: mydec_line_9_no_changes
+        description: >
+          Binary indicator on the ptax-203 form. Indicates "no changes to the property" when coded as 1. A value of 0 may indicate either
+          the presence of changes (subcategories coded as 1) or an unclear status, as many cases have no subcategories coded as 1 despite
+          this being 0.
+      - name: mydec_line_9_other_change
+        description: Binary indicator on the ptax-203 form. A subsection of a question about significant physical changes to the property.
+      - name: mydec_line_9_other_description
+        description: This field describes the work done from mydec_line_9_other_change.
+      - name: nbhd
+        description: '{{ doc("shared_column_nbhd_code") }}'
+      - name: num_parcels_sale
+        description: '{{ doc("shared_column_num_parcels_sale") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: sale_date
+        description: '{{ doc("shared_column_sale_date") }}'
+      - name: sale_filter_deed_type
+        description: Remove quit claim, executor, beneficiary and missing deed types
+      - name: sale_filter_is_outlier
+        description: Same as `sv_is_outlier`, but `NULL` values are replaced with `FALSE`
+      - name: sale_filter_less_than_10k
+        description: Indicator for whether sale is less than $10K FMW
+      - name: sale_filter_same_iasworld_sale_within_365
+        description: >
+          Remove sale with the _same_ value (for the same PIN) within 365 days.
+          This column is calculated only with sales from iasworld. This filter can be used instead of
+          `sale_filter_same_sale_within_365` to exclude mydec sale influence, in the case that we want to use ias sales as a source of truth or to replicate the behavior of `sale_filter_same_sale_within_365` in `default.vw_pin_sale`.
+      - name: sale_filter_same_sale_within_365
+        description: >
+          Remove sale with the _same_ value (for the same PIN) within 365 days. This column uses both iasworld and mydec sales in the calculation.
+          See sale_filter_same_iasworld_sale_within_365 for more information about this distinction.
+      - name: sale_key
+        description: '{{ doc("shared_column_sale_key") }}'
+      - name: sale_price
+        description: '{{ doc("shared_column_sale_price") }}'
+      - name: seller_name
+        description: '{{ doc("shared_column_seller_name") }}'
+      - name: source
+        description: Which table the doc_no was drawn from (iasworld or mydec)
+      - name: sv_is_heuristic_outlier
+        description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
+      - name: sv_is_outlier
+        description: '{{ doc("shared_column_sv_is_outlier") }}'
+      - name: sv_is_ptax_outlier
+        description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
+      - name: sv_run_id
+        description: '{{ doc("shared_column_sv_run_id") }}'
+      - name: sv_version
+        description: '{{ doc("shared_column_sv_version") }}'
+      - name: township_code
+        description: '{{ doc("shared_column_township_code") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
+
+    data_tests:
+      # It would be nice to move this to a unit test, but we currently can't do
+      # so due to a bug in dbt unit tests: sale.mydec contains identifiers
+      # that start with digits, but dbt doesn't double-quote identifiers when
+      # building fixtures, so Athena raises an error during fixture setup
+      - not_accepted_values:
+          name: default_vw_pin_sale_combined_class_no_hyphens
+          column_name: class
+          values: "2-99"
+      - expression_is_true:
+          name: default_vw_pin_sale_combined_is_multisale_num_parcels_sale_align
+          expression: (num_parcels_sale > 1 AND is_multisale) OR (num_parcels_sale = 1 AND NOT is_multisale)
+          additional_select_columns:
+            - num_parcels_sale
+            - is_multisale
+      - not_null:
+          name: default_vw_pin_sale_combined_num_parcels_sale_not_null
+          column_name: num_parcels_sale
+      # Number of sales for a given time period isn't suspicious
+      - unique_combination_of_columns:
+          name: default_vw_pin_sale_combined_reasonable_number_of_sales_per_year
+          combination_of_columns:
+            - pin
+            - year
+          allowed_duplicates: 5
+          config:
+            error_if: ">1500"
+      - row_count:
+          name: default_vw_pin_sale_combined_row_count
+          above: 2496073 # as of 2024-11-14
+      - expression_is_true:
+          name: default_vw_pin_sale_combined_sale_filter_deed_type
+          expression: NOT sale_filter_deed_type OR deed_type IN ('03', '04', '06')
+      - expression_is_true:
+          name: default_vw_pin_sale_combined_sale_filter_less_than_10k
+          expression: NOT sale_filter_less_than_10k OR sale_price <= 10000
+      - unique_combination_of_columns:
+          name: default_vw_pin_sale_combined_unique_price_pin_and_year
+          combination_of_columns:
+            - pin
+            - year
+            - sale_price
+          config:
+            where: NOT sale_filter_same_sale_within_365 AND NOT sale_filter_deed_type

@@ -49,9 +49,6 @@ SELECT
     sp.x_3435,
     sp.y_3435,
 
-    -- Corner lot indicator
-    lot.is_corner_lot AS ccao_is_corner_lot,
-
     -- PIN locations from spatial joins
     vwl.census_block_group_geoid,
     vwl.census_block_geoid,
@@ -178,11 +175,11 @@ LEFT JOIN {{ ref('location.vw_pin10_location') }} AS vwl
     AND par.join_year = vwl.year
 LEFT JOIN {{ source('spatial', 'township') }} AS twn
     ON leg.user1 = CAST(twn.township_code AS VARCHAR)
-LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
-    ON SUBSTR(par.parid, 1, 10) = lot.pin10
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
     -- Remove any parcels with non-numeric characters
     -- or that are not 14 characters long
     AND REGEXP_COUNT(par.parid, '[a-zA-Z]') = 0
     AND LENGTH(par.parid) = 14
+    -- Class 999 are test pins
+    AND par.class NOT IN ('999')

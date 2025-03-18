@@ -1,17 +1,5 @@
 -- View containing each of the PIN-level location (spatial joins)
 
--- Airport noise is joined differently since it's filled during ingest and
--- values for env_airport_noise_data_year won't match values for year
-WITH cyf_airport_noise AS (
-    SELECT
-        year,
-        CASE
-            WHEN env_airport_noise_data_year = 'omp' THEN year ELSE
-                env_airport_noise_data_year
-        END AS env_airport_noise_data_year
-    FROM {{ ref('location.crosswalk_year_fill') }}
-)
-
 SELECT
     pin.pin10,
     pin.year,
@@ -83,7 +71,13 @@ SELECT
     env_ohare_noise_contour.env_ohare_noise_contour_half_mile_buffer_bool,
     env_ohare_noise_contour.env_ohare_noise_contour_data_year,
     env_airport_noise.env_airport_noise_dnl,
-    env_airport_noise.env_airport_noise_data_year,
+    -- Handle special indicator values for data years in our airport noise
+    -- source
+    CASE
+        WHEN env_airport_noise.env_airport_noise_data_year = 'omp'
+            THEN env_airport_noise.year
+        ELSE env_airport_noise.env_airport_noise_data_year
+    END AS env_airport_noise_data_year,
 
     school.school_elementary_district_geoid,
     school.school_elementary_district_name,
@@ -128,81 +122,79 @@ SELECT
 FROM {{ source('spatial', 'parcel') }} AS pin
 INNER JOIN {{ ref('location.crosswalk_year_fill') }} AS cyf
     ON pin.year = cyf.year
-INNER JOIN cyf_airport_noise
-    ON pin.year = cyf_airport_noise.year
 LEFT JOIN {{ ref('location.census') }} AS census
     ON pin.pin10 = census.pin10
-    AND cyf.census_data_year = census.year
+    AND cyf.census_fill_year = census.year
 LEFT JOIN {{ ref('location.census_acs5') }} AS census_acs5
     ON pin.pin10 = census_acs5.pin10
-    AND cyf.census_acs5_data_year = census_acs5.year
+    AND cyf.census_acs5_fill_year = census_acs5.year
 LEFT JOIN {{ ref('location.political') }} AS cook_board_of_review_district
     ON pin.pin10 = cook_board_of_review_district.pin10
-    AND cyf.cook_board_of_review_district_data_year
+    AND cyf.cook_board_of_review_district_fill_year
     = cook_board_of_review_district.year
 LEFT JOIN {{ ref('location.political') }} AS cook_commissioner_district
     ON pin.pin10 = cook_commissioner_district.pin10
-    AND cyf.cook_commissioner_district_data_year
+    AND cyf.cook_commissioner_district_fill_year
     = cook_commissioner_district.year
 LEFT JOIN {{ ref('location.political') }} AS cook_judicial_district
     ON pin.pin10 = cook_judicial_district.pin10
-    AND cyf.cook_judicial_district_data_year = cook_judicial_district.year
+    AND cyf.cook_judicial_district_fill_year = cook_judicial_district.year
 LEFT JOIN {{ ref('location.political') }} AS ward_chicago
     ON pin.pin10 = ward_chicago.pin10
-    AND cyf.ward_chicago_data_year = ward_chicago.year
+    AND cyf.ward_chicago_fill_year = ward_chicago.year
 LEFT JOIN {{ ref('location.political') }} AS ward_evanston
     ON pin.pin10 = ward_evanston.pin10
-    AND cyf.ward_evanston_data_year = ward_evanston.year
+    AND cyf.ward_evanston_fill_year = ward_evanston.year
 LEFT JOIN {{ ref('location.chicago') }} AS chicago_community_area
     ON pin.pin10 = chicago_community_area.pin10
-    AND cyf.chicago_community_area_data_year = chicago_community_area.year
+    AND cyf.chicago_community_area_fill_year = chicago_community_area.year
 LEFT JOIN {{ ref('location.chicago') }} AS chicago_industrial_corridor
     ON pin.pin10 = chicago_industrial_corridor.pin10
-    AND cyf.chicago_industrial_corridor_data_year
+    AND cyf.chicago_industrial_corridor_fill_year
     = chicago_industrial_corridor.year
 LEFT JOIN {{ ref('location.chicago') }} AS chicago_police_district
     ON pin.pin10 = chicago_police_district.pin10
-    AND cyf.chicago_police_district_data_year = chicago_police_district.year
+    AND cyf.chicago_police_district_fill_year = chicago_police_district.year
 LEFT JOIN {{ ref('location.economy') }} AS econ_coordinated_care_area
     ON pin.pin10 = econ_coordinated_care_area.pin10
-    AND cyf.econ_coordinated_care_area_data_year
+    AND cyf.econ_coordinated_care_area_fill_year
     = econ_coordinated_care_area.year
 LEFT JOIN {{ ref('location.economy') }} AS econ_enterprise_zone
     ON pin.pin10 = econ_enterprise_zone.pin10
-    AND cyf.econ_enterprise_zone_data_year = econ_enterprise_zone.year
+    AND cyf.econ_enterprise_zone_fill_year = econ_enterprise_zone.year
 LEFT JOIN {{ ref('location.economy') }} AS econ_industrial_growth_zone
     ON pin.pin10 = econ_industrial_growth_zone.pin10
-    AND cyf.econ_industrial_growth_zone_data_year
+    AND cyf.econ_industrial_growth_zone_fill_year
     = econ_industrial_growth_zone.year
 LEFT JOIN {{ ref('location.economy') }} AS econ_qualified_opportunity_zone
     ON pin.pin10 = econ_qualified_opportunity_zone.pin10
-    AND cyf.econ_qualified_opportunity_zone_data_year
+    AND cyf.econ_qualified_opportunity_zone_fill_year
     = econ_qualified_opportunity_zone.year
 LEFT JOIN {{ ref('location.economy') }} AS econ_central_business_district
     ON pin.pin10 = econ_central_business_district.pin10
-    AND cyf.econ_central_business_district_data_year
+    AND cyf.econ_central_business_district_fill_year
     = econ_central_business_district.year
 LEFT JOIN {{ ref('location.environment') }} AS env_flood_fema
     ON pin.pin10 = env_flood_fema.pin10
-    AND cyf.env_flood_fema_data_year = env_flood_fema.year
+    AND cyf.env_flood_fema_fill_year = env_flood_fema.year
 LEFT JOIN {{ ref('location.environment') }} AS env_flood_fs
     ON pin.pin10 = env_flood_fs.pin10
-    AND cyf.env_flood_fs_data_year = env_flood_fs.year
+    AND cyf.env_flood_fs_fill_year = env_flood_fs.year
 LEFT JOIN {{ ref('location.environment') }} AS env_ohare_noise_contour
     ON pin.pin10 = env_ohare_noise_contour.pin10
-    AND cyf.env_ohare_noise_contour_data_year = env_ohare_noise_contour.year
+    AND cyf.env_ohare_noise_contour_fill_year = env_ohare_noise_contour.year
 LEFT JOIN {{ ref('location.environment') }} AS env_airport_noise
     ON pin.pin10 = env_airport_noise.pin10
-    AND cyf_airport_noise.env_airport_noise_data_year = env_airport_noise.year
+    AND cyf.env_airport_noise_fill_year = env_airport_noise.year
 LEFT JOIN {{ ref('location.school') }} AS school
     ON pin.pin10 = school.pin10
-    AND cyf.school_data_year = school.year
+    AND cyf.school_fill_year = school.year
 LEFT JOIN {{ ref('location.tax') }} AS tax
     ON pin.pin10 = tax.pin10
-    AND cyf.tax_data_year = tax.year
+    AND cyf.tax_fill_year = tax.year
 LEFT JOIN {{ ref('location.access') }} AS access
     ON pin.pin10 = access.pin10
-    AND cyf.access_cmap_walk_data_year = access.year
+    AND cyf.access_cmap_walk_fill_year = access.year
 LEFT JOIN {{ ref('location.other') }} AS other
     ON pin.pin10 = other.pin10
-    AND cyf.misc_subdivision_data_year = other.year
+    AND cyf.misc_subdivision_fill_year = other.year

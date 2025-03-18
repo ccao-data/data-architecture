@@ -15,28 +15,29 @@ output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "census")
 tidycensus::census_api_key(key = Sys.getenv("CENSUS_API_KEY"))
 
 # Declare years we'd like to grab census data for
-census_years <- Sys.getenv("CENSUS_ACS_MIN_YEAR"):Sys.getenv("CENSUS_ACS_MAX_YEAR")
+census_years <-
+  Sys.getenv("CENSUS_ACS_MIN_YEAR"):Sys.getenv("CENSUS_ACS_MAX_YEAR")
 
 # Census tables we want to grab. Taken from: https://censusreporter.org/topics/
 census_tables <- c(
-  "Sex by Age"                                                    = "B01001",
-  "Median Age by Sex"                                             = "B01002",
-  "Race"                                                          = "B02001",
-  "Hispanic or Latino Origin"                                     = "B03003",
-  "Geographical Mobility in the Past Year by Sex for Current Residence in the United States" = "B07003",
-  "Household Type"                                                = "B11001",
-  "Sex by Educational Attainment"                                 = "B15002",
-  "Poverty Status by Sex by Age"                                  = "B17001",
-  "Household Income"                                              = "B19001",
-  "Median Household Income"                                       = "B19013",
-  "Per Capita Income"                                             = "B19301",
-  "Receipt of Food Stamps/SNAP by Poverty Status for Households"  = "B22003",
-  "Employment Status"                                             = "B23025",
-  "Tenure"                                                        = "B25003",
-  "Median Year Structure Built by Tenure"                         = "B25037",
-  "Median Gross Rent (Dollars)"                                   = "B25064",
-  "Median Value (Dollars)"                                        = "B25077",
-  "Tenure by Selected Physical and Financial Conditions"          = "B25123"
+  "Sex by Age" = "B01001",
+  "Median Age by Sex" = "B01002",
+  "Race" = "B02001",
+  "Hispanic or Latino Origin" = "B03003",
+  "Geographical Mobility in the Past Year by Sex for Current Residence in the United States" = "B07003", # nolint
+  "Household Type" = "B11001",
+  "Sex by Educational Attainment" = "B15002",
+  "Poverty Status by Sex by Age" = "B17001",
+  "Household Income" = "B19001",
+  "Median Household Income" = "B19013",
+  "Per Capita Income" = "B19301",
+  "Receipt of Food Stamps/SNAP by Poverty Status for Households" = "B22003",
+  "Employment Status" = "B23025",
+  "Tenure" = "B25003",
+  "Median Year Structure Built by Tenure" = "B25037",
+  "Median Gross Rent (Dollars)" = "B25064",
+  "Median Value (Dollars)" = "B25077",
+  "Tenure by Selected Physical and Financial Conditions" = "B25123"
 )
 
 # Declare geographies we'd like to query
@@ -96,8 +97,8 @@ all_combos <- expand.grid(
 
 # Function to loop through rows in all_combos, grab census data,
 # and write it to a parquet file on S3 if it doesn't already exist
-pull_and_write_acs <- function(s3_bucket_uri, survey, folder, geography, year, tables = census_tables) {
-
+pull_and_write_acs <- function(
+    s3_bucket_uri, survey, folder, geography, year, tables = census_tables) {
   remote_file <- file.path(
     s3_bucket_uri, survey,
     paste0("geography=", folder),
@@ -107,7 +108,6 @@ pull_and_write_acs <- function(s3_bucket_uri, survey, folder, geography, year, t
 
   # Check to see if file already exists on S3; if it does, skip it
   if (!aws.s3::object_exists(remote_file)) {
-
     # Print file being written
     message(Sys.time(), " - ", remote_file)
 
@@ -133,10 +133,11 @@ pull_and_write_acs <- function(s3_bucket_uri, survey, folder, geography, year, t
     )) %>%
       rename(any_of(c("GEOID" = "GEOID...1"))) %>%
       select(-starts_with("GEOID..."), -starts_with("NAME")) %>%
-      filter(!str_detect(GEOID, "Z"))
+      filter(!str_detect(GEOID, "Z")) %>%
+      mutate(loaded_at = as.character(Sys.time()))
 
     # Write to S3
-    arrow::write_parquet(df, remote_file)
+    write_parquet(df, remote_file)
   }
 }
 

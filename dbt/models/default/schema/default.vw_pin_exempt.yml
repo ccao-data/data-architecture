@@ -9,12 +9,12 @@ models:
         description: '{{ doc("shared_column_latitude") }}'
       - name: lon
         description: '{{ doc("shared_column_longitude") }}'
-      - name: pin
-        description: '{{ doc("shared_column_pin") }}'
       - name: owner_name
         description: '{{ doc("shared_column_owner_name") }}'
       - name: owner_num
         description: '{{ doc("shared_column_owner_num") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
       - name: property_address
         description: '{{ doc("shared_column_prop_address_full") }}'
       - name: property_city
@@ -25,17 +25,73 @@ models:
         description: '{{ doc("shared_column_township_name") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
+
     data_tests:
       - row_count:
           name: default_vw_pin_exempt_row_count
-          above: 184845 # as of 2023-11-22
-      # No non-numeric characters in the pin field
-      - expression_is_true:
-          name: default_vw_pin_exempt_numeric_pin
-          expression: REGEXP_COUNT(pin, '[0-9]') = 14 AND LENGTH(pin) = 14
-          additional_select_columns:
-            - pin
-      - not_accepted_values:
-          name: default_vw_pin_exempt_class_no_hyphens
-          column_name: class
-          values: "2-99"
+          above: 278178 # as of 2024-11-14
+
+unit_tests:
+  - name: default_vw_pin_exempt_class_strips_non_alphanumerics
+    description: class transformation should remove non-alphanumeric characters
+    model: default.vw_pin_exempt
+    given:
+      - input: source("iasworld", "pardat")
+        # `class` is the important column here, and all other columns are
+        # only set to ensure proper joins when creating the dummy tables
+        rows:
+          - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null, class: "2.1-1)A"}
+      - input: source("iasworld", "owndat")
+        rows:
+          - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null, ownnum: "1"}
+      - input: source("iasworld", "legdat")
+        rows:
+          - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null, user1: "70"}
+      - input: ref("default.vw_pin_address")
+        rows:
+          - {pin: "00000000000000", pin10: "0000000000", year: "2024"}
+      - input: source("spatial", "parcel")
+        rows:
+          - {pin10: "0000000000", year: "2024"}
+      - input: source("spatial", "township")
+        rows:
+          - {township_code: 70}
+    expect:
+      rows:
+        - {class: "211A"}
+
+  - name: default_vw_pin_exempt_filters_invalid_pins
+    description: view should filter for only 14-digit numeric PINs
+    model: default.vw_pin_exempt
+    given:
+      - input: source("iasworld", "pardat")
+        rows:
+          # `class` is the important column here, and all other columns are
+          # only set to ensure proper joins when creating the dummy tables
+          - {parid: "00000000000000", taxyr: "2024", class: "200", cur: "Y", deactivat: null}
+          - {parid: "0", taxyr: "2024", class: "200", cur: "Y", deactivat: null}
+          - {parid: "A", taxyr: "2024", class: "200", cur: "Y", deactivat: null}
+      - input: source("iasworld", "owndat")
+        rows:
+          - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null, ownnum: "1"}
+          - {parid: "0", taxyr: "2024", cur: "Y", deactivat: null, ownnum: "1"}
+          - {parid: "A", taxyr: "2024", cur: "Y", deactivat: null, ownnum: "1"}
+      - input: source("iasworld", "legdat")
+        rows:
+          - {parid: "00000000000000", taxyr: "2024", cur: "Y", deactivat: null, user1: "70"}
+          - {parid: "0", taxyr: "2024", cur: "Y", deactivat: null, user1: "70"}
+          - {parid: "A", taxyr: "2024", cur: "Y", deactivat: null, user1: "70"}
+      - input: ref("default.vw_pin_address")
+        rows:
+          - {pin: "00000000000000", pin10: "0000000000", year: "2024"}
+          - {pin: "0", pin10: "0000000000", year: "2024"}
+          - {pin: "A", pin10: "0000000000", year: "2024"}
+      - input: source("spatial", "parcel")
+        rows:
+          - {pin10: "0000000000", year: "2024"}
+      - input: source("spatial", "township")
+        rows:
+          - {township_code: 70}
+    expect:
+      rows:
+        - {pin: "00000000000000"}

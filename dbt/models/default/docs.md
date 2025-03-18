@@ -96,6 +96,8 @@ institutions, or local governments.
 - Mailing addresses and owner names have not been regularly updated since 2017.
 - Newer properties may be missing a mailing or property address, as they
   need to be assigned one by the postal service.
+
+**Primary Key**: `year`, `pin`
 {% enddocs %}
 
 # vw_pin_history
@@ -122,6 +124,15 @@ View containing aggregate land square footage for all PINs.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_pin_permit
+
+{% docs view_vw_pin_permit %}
+View containing building permits organized by PIN, with extra metadata
+recorded by CCAO permit specialists during the permit processing workflow.
+
+**Primary Key**: `pin`, `permit_number`, `date_issued`
+{% enddocs %}
+
 # vw_pin_sale
 
 {% docs view_vw_pin_sale %}
@@ -132,9 +143,8 @@ Sourced from `iasworld.sales`, which is sourced from
 
 ### Assumptions
 
-- `deactivat` properly indicates sales that should and shouldn't be included.
-- For sales not unique by pin and sale date, the most expensive sale for a
-  given day/PIN is used.
+- `iasworld.sale.deactivat` properly indicates sales that should and shouldn't
+  be included.
 - Some parcels are sold for the exact same price soon after an initial sale -
   we ignore duplicate prices for PINs if they've sold in the last 12 months.
 
@@ -145,6 +155,20 @@ Sourced from `iasworld.sales`, which is sourced from
 - `sale.mydec` data is given precedence over `iasworld.sales` prior to 2021
 - Multicard sales are excluded from `mydec` data because they can't be joined
   to `iasworld.sales` (which is only parcel-level) without creating duplicates
+- Row uniqueness is complicated, and depends on the type of data you are
+  interested in:
+    - If you exclude sales of multiple PINs ("multisales") by filtering where
+      `not is_multisale`, sales are unique by `doc_no`
+    - If you include multisales but filter where
+      `not sale_filter_same_sale_within_365`, sales are unique by `pin`,
+      `doc_no`, and `sale_price`
+        - The reason `sale_price` is necessary here is to handle some known
+          duplicates in the source data. To remove these duplicates and make
+          multisales unique by `pin` and `doc_no`, group your query by `pin`
+          and `doc_no` and select either the maximum or minimum sale price.
+          We tend to prefer the maximum, but there is no inherent correctness
+          to this choice, and the correct sale price to choose will depend
+          on how you want to use the sales
 
 ### Lineage
 
@@ -155,6 +179,46 @@ Current MyDec records are ingested into `iasworld.sales` using a manual import
 process. The full data lineage looks something like:
 
 ![Data Flow Diagram](./assets/sales-lineage.svg)
+
+**Primary Key**: `doc_no`, `pin`, `sale_price`
+{% enddocs %}
+
+# vw_pin_sale_combined
+
+{% docs view_vw_pin_sale_combined %}
+View containing cleaned and deduplicated PIN-level sales. This view additionally
+allows in IDOR MyDec sales that don't have a matching sale document number in
+`iasworld.sales`. Setting `source = 'iasworld'` allows this view to replicate
+`vw_pin_sale`.
+
+Sourced from `iasworld.sales`, which is sourced from
+[MyDec](https://mytax.illinois.gov/MyDec/_/). See below for lineage details.
+
+### Assumptions
+
+See `vw_pin_sale`
+
+### Nuance
+
+See `vw_pin_sale`
+
+### Lineage
+
+See `vw_pin_sale`
+
+**Primary Key**: `doc_no`, `pin`
+{% enddocs %}
+
+# vw_pin_status
+
+{% docs view_vw_pin_status %}
+Collection of various different PIN-level physical and assessment-related
+statuses collected and documented across the CCAO and Data Department.
+Constructs the Data Department's AHSAP indicator.
+
+### Nuance
+
+- Parcels can have different CDUs from multiple tables. See PIN 05272010320000.
 
 **Primary Key**: `year`, `pin`
 {% enddocs %}
@@ -172,6 +236,10 @@ is the view you're looking for.
 - `spatial.parcel` typically lags behind `iasworld.pardat` by a year, so data
   for current year can be relatively sparse or missing. Parcel shapefiles
   typically become available to populate this view at the end of each year.
+- There are some parcels in `iasworld.pardat` that have *never* been present in
+  `spatial.parcel`. These parcels are missing spatial data since they cannot be
+  spatially joined *nor* filled forward. The number of discrepancies seems to
+  vary randomly by year.
 - `spatial.township` is not yearly.
 
 **Primary Key**: `year`, `pin`

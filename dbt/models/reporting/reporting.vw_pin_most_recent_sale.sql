@@ -4,9 +4,16 @@
 WITH all_pins AS (
     SELECT DISTINCT parid
     FROM {{ source('iasworld', 'pardat') }}
-    WHERE taxyr = CAST(YEAR(CURRENT_DATE) AS VARCHAR)
-        AND cur = 'Y'
+    WHERE cur = 'Y'
         AND deactivat IS NULL
+        -- Class 999 are test pins
+        AND class NOT IN ('999')
+        -- noqa: disable=RF02
+        AND taxyr = (
+            SELECT MAX(taxyr)
+            FROM {{ source('iasworld', 'pardat') }}
+        )
+        -- noqa: enable=RF02
 ),
 
 -- Order PINs by sale date descending and rank them

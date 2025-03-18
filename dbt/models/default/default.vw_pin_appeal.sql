@@ -1,89 +1,141 @@
 -- View containing appeals by PIN
+
+-- CTE so that we can join reason descriptions onto cleaned reason codes and
+-- drop some dupes from htpar.
+WITH reasons AS (
+    -- Select distinct rows to deduplicate a few appeals that got published
+    -- twice by accident, otherwise we wouldn't expect any dupes in this query
+    SELECT DISTINCT
+        htpar.parid,
+        htpar.taxyr,
+        htpar.caseno,
+        htpar.user38,
+        htpar.user104,
+        htpar.resact,
+        htpar.hrstatus,
+        htpar.cpatty,
+        -- user125 isn't used in the view, but it's FilingID and we want to
+        -- include it to make sure we're only dropping true dupes using DISTINCT
+        htpar.user125,
+        -- Reason codes come from different columns before and after 2020
+        CASE
+            WHEN htpar.taxyr <= '2020'
+                AND TRIM(SUBSTR(htpar.user42, 1, 2)) NOT IN (
+                    '0', ':'
+                )
+                THEN TRIM(SUBSTR(htpar.user42, 1, 2))
+            WHEN
+                htpar.taxyr > '2020'
+                THEN REGEXP_REPLACE(htpar.user89, '[^[:alnum:]]', '')
+        END AS reason_code1,
+        CASE
+            WHEN htpar.taxyr <= '2020'
+                AND TRIM(SUBSTR(htpar.user43, 1, 2)) NOT IN (
+                    '0', ':'
+                )
+                THEN TRIM(SUBSTR(htpar.user43, 1, 2))
+            WHEN
+                htpar.taxyr > '2020'
+                THEN REGEXP_REPLACE(htpar.user100, '[^[:alnum:]]', '')
+        END AS reason_code2,
+        CASE
+            WHEN htpar.taxyr <= '2020'
+                AND TRIM(SUBSTR(htpar.user44, 1, 2)) NOT IN (
+                    '0', ':'
+                )
+                THEN TRIM(SUBSTR(htpar.user44, 1, 2))
+            WHEN
+                htpar.taxyr > '2020'
+                THEN REGEXP_REPLACE(htpar.user101, '[^[:alnum:]]', '')
+        END AS reason_code3
+    FROM {{ source('iasworld', 'htpar') }} AS htpar
+    WHERE htpar.cur = 'Y'
+        AND htpar.deactivat IS NULL
+        AND htpar.caseno IS NOT NULL
+        AND htpar.heartyp IN ('A', 'C')
+
+)
+
 SELECT
-    htpar.parid AS pin,
+    reasons.parid AS pin,
     REGEXP_REPLACE(pardat.class, '[^[:alnum:]]', '') AS class,
     legdat.user1 AS township_code,
-    htpar.taxyr AS year,
+    reasons.taxyr AS year,
     vwpv.mailed_bldg,
     vwpv.mailed_land,
     vwpv.mailed_tot,
     vwpv.certified_bldg,
     vwpv.certified_land,
     vwpv.certified_tot,
-    htpar.caseno AS case_no,
+    reasons.caseno AS case_no,
     CASE
-        WHEN htpar.user38 = 'CC'
+        WHEN reasons.user38 = 'CC'
             OR (
-                htpar.user38 IN ('RS', 'IC')
+                reasons.user38 IN ('RS', 'IC')
                 AND REGEXP_REPLACE(pardat.class, '[^[:alnum:]]', '') IN (
                     '213', '297', '299', '399', '599'
                 )
             ) THEN 'condo/coop'
-        WHEN htpar.user38 = 'CE' THEN 'c of e - exempt'
-        WHEN htpar.user38 = 'CI' THEN 'c of e - incentive'
-        WHEN htpar.user38 = 'CO' THEN 'c of e - omitted'
-        WHEN htpar.user38 = 'CV' THEN 'c of e - valuations'
-        WHEN htpar.user38 = 'IC' THEN 'commercial'
-        WHEN htpar.user38 = 'IN' THEN 'incentive'
-        WHEN htpar.user38 = 'LD' THEN 'land'
-        WHEN htpar.user38 = 'OM' THEN 'omitted assessment'
-        WHEN htpar.user38 = 'RS' THEN 'residential'
+        WHEN reasons.user38 = 'CE' THEN 'c of e - exempt'
+        WHEN reasons.user38 = 'CI' THEN 'c of e - incentive'
+        WHEN reasons.user38 = 'CO' THEN 'c of e - omitted'
+        WHEN reasons.user38 = 'CV' THEN 'c of e - valuations'
+        WHEN reasons.user38 = 'IC' THEN 'commercial'
+        WHEN reasons.user38 = 'IN' THEN 'incentive'
+        WHEN reasons.user38 = 'LD' THEN 'land'
+        WHEN reasons.user38 = 'OM' THEN 'omitted assessment'
+        WHEN reasons.user38 = 'RS' THEN 'residential'
     END AS appeal_type,
 
-    -- Status, reason codes, and agent name come from different columns
-    -- before and after 2020
+    -- Status and agent name come from different columns before and after 2020
     CASE
-        WHEN htpar.taxyr <= '2020' AND htpar.resact = 'C' THEN 'change'
-        WHEN htpar.taxyr <= '2020' AND htpar.resact = 'NC' THEN 'no change'
+        WHEN reasons.taxyr <= '2020' AND reasons.resact = 'C' THEN 'change'
+        WHEN reasons.taxyr <= '2020' AND reasons.resact = 'NC' THEN 'no change'
         WHEN
-            htpar.taxyr > '2020' AND TRIM(LOWER(htpar.user104)) = 'decrease'
+            reasons.taxyr > '2020' AND TRIM(LOWER(reasons.user104)) = 'decrease'
             THEN 'change'
-        WHEN htpar.taxyr > '2020' THEN TRIM(LOWER(htpar.user104))
+        WHEN
+            reasons.taxyr > '2020'
+            AND TRIM(LOWER(reasons.user104)) IN ('change', 'no change')
+            THEN TRIM(LOWER(reasons.user104))
     END AS change,
-    CASE
-        WHEN htpar.taxyr <= '2020'
-            AND TRIM(SUBSTR(htpar.user42, 1, 2)) NOT IN ('0', ':')
-            THEN TRIM(SUBSTR(htpar.user42, 1, 2))
-        WHEN htpar.taxyr > '2020' THEN htpar.user89
-    END AS reason_code1,
-    CASE
-        WHEN htpar.taxyr <= '2020'
-            AND TRIM(SUBSTR(htpar.user43, 1, 2)) NOT IN ('0', ':')
-            THEN TRIM(SUBSTR(htpar.user42, 1, 2))
-        WHEN htpar.taxyr > '2020' THEN htpar.user100
-    END AS reason_code2,
-    CASE
-        WHEN htpar.taxyr <= '2020'
-            AND TRIM(SUBSTR(htpar.user44, 1, 2)) NOT IN ('0', ':')
-            THEN TRIM(SUBSTR(htpar.user42, 1, 2))
-        WHEN htpar.taxyr > '2020' THEN htpar.user101
-    END AS reason_code3,
-    htpar.cpatty AS agent_code,
+    reasons.reason_code1,
+    reascd1.description AS reason_desc1,
+    reasons.reason_code2,
+    reascd2.description AS reason_desc2,
+    reasons.reason_code3,
+    reascd3.description AS reason_desc3,
+    reasons.cpatty AS agent_code,
     htagnt.name1 AS agent_name,
     CASE
-        WHEN htpar.hrstatus = 'C' THEN 'closed'
-        WHEN htpar.hrstatus = 'O' THEN 'open'
-        WHEN htpar.hrstatus = 'P' THEN 'pending'
-        WHEN htpar.hrstatus = 'X' THEN 'closed pending c of e'
+        WHEN reasons.hrstatus = 'C' THEN 'closed'
+        WHEN reasons.hrstatus = 'O' THEN 'open'
+        WHEN reasons.hrstatus = 'P' THEN 'pending'
+        WHEN reasons.hrstatus = 'X' THEN 'closed pending c of e'
     END AS status
-FROM {{ source('iasworld', 'htpar') }} AS htpar
-LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
-    ON htpar.parid = pardat.parid
-    AND htpar.taxyr = pardat.taxyr
+FROM reasons
+-- This is an INNER JOIN since there are apparently parcels in htpar that are
+-- not in pardat. See 31051000511064, 2008.
+INNER JOIN {{ source('iasworld', 'pardat') }} AS pardat
+    ON reasons.parid = pardat.parid
+    AND reasons.taxyr = pardat.taxyr
     AND pardat.cur = 'Y'
     AND pardat.deactivat IS NULL
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
-    ON htpar.parid = legdat.parid
-    AND htpar.taxyr = legdat.taxyr
+    ON reasons.parid = legdat.parid
+    AND reasons.taxyr = legdat.taxyr
     AND legdat.cur = 'Y'
     AND legdat.deactivat IS NULL
 LEFT JOIN {{ ref('default.vw_pin_value') }} AS vwpv
-    ON htpar.parid = vwpv.pin
-    AND htpar.taxyr = vwpv.year
+    ON reasons.parid = vwpv.pin
+    AND reasons.taxyr = vwpv.year
 LEFT JOIN {{ source('iasworld', 'htagnt') }} AS htagnt
-    ON htpar.cpatty = htagnt.agent
+    ON reasons.cpatty = htagnt.agent
     AND htagnt.cur = 'Y'
     AND htagnt.deactivat IS NULL
-WHERE htpar.cur = 'Y'
-    AND htpar.caseno IS NOT NULL
-    AND htpar.deactivat IS NULL
+LEFT JOIN {{ ref('ccao.htpar_reascd') }} AS reascd1
+    ON reasons.reason_code1 = reascd1.reascd
+LEFT JOIN {{ ref('ccao.htpar_reascd') }} AS reascd2
+    ON reasons.reason_code2 = reascd2.reascd
+LEFT JOIN {{ ref('ccao.htpar_reascd') }} AS reascd3
+    ON reasons.reason_code3 = reascd3.reascd

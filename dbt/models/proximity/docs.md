@@ -54,6 +54,7 @@ Distance from each PIN to the nearest cemetery.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
+
 # dist_pin_to_cta_route
 
 {% docs table_dist_pin_to_cta_route %}
@@ -201,6 +202,46 @@ Distance from each PIN to the nearest rail track of any kind.
 **Primary Key**: `pin10`, `year`
 {% enddocs %}
 
+# dist_pin_to_road_arterial
+
+{% docs table_dist_pin_to_road_arterial %}
+Distance from each PIN to the nearest arterial road. Data is derived from Illinois Department of Transportation
+	Added features include 
+	- lanes
+	- average daily traffic
+	- speed limit
+	- road surface
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
+# dist_pin_to_road_collector
+
+{% docs table_dist_pin_to_road_collector %}
+Distance from each PIN to the nearest collector road. Data is derived from Illinois Department of Transportation
+	Added features include 
+	- lanes
+	- average daily traffic
+	- speed limit
+	- road surface
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
+# dist_pin_to_road_highway
+
+{% docs table_dist_pin_to_road_highway %}
+Distance from each PIN to the nearest highway. Data is derived from Illinois Department of Transportation
+	Added features include 
+	- lanes
+	- average daily traffic
+	- speed limit
+	- road surface
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
+
 # dist_pin_to_secondary_road
 
 {% docs table_dist_pin_to_secondary_road %}
@@ -213,6 +254,14 @@ Distance from each PIN to the nearest secondary road.
 
 {% docs table_dist_pin_to_stadium %}
 Distance from each PIN to the nearest sports stadium.
+
+**Primary Key**: `pin10`, `year`
+{% enddocs %}
+
+# dist_pin_to_traffic_daily_traffic
+
+{% docs table_dist_pin_to_traffic_daily_traffic %}
+Distance from each PIN to the valid value of daily traffic.
 
 **Primary Key**: `pin10`, `year`
 {% enddocs %}

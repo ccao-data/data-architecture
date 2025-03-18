@@ -9,9 +9,19 @@ consistency. Missing data is filled with the following steps:
 2. Current data is filled BACKWARD to account for missing historical data.
    Again, this is only for things unlikely to change
 
-WARNING: This is a very heavy view. Don't use it for anything other than making
-extracts for modeling
+This view is "materialized" (made into a table) daily in order to improve
+query performance and reduce data queried by Athena. The materialization
+is triggered by sqoop-bot (runs after Sqoop grabs iasWorld data)
 */
+{{
+    config(
+        materialized='table',
+        partitioned_by=['meta_year'],
+        bucketed_by=['meta_pin'],
+        bucket_count=1
+    )
+}}
+
 WITH uni AS (
 
     SELECT
@@ -32,7 +42,15 @@ WITH uni AS (
         sp.lon,
         sp.lat,
         sp.x_3435,
-        sp.y_3435
+        sp.y_3435,
+
+        -- Features based on the shape of the parcel boundary
+        sp.shp_parcel_centroid_dist_ft_sd,
+        sp.shp_parcel_edge_len_ft_sd,
+        sp.shp_parcel_interior_angle_sd,
+        sp.shp_parcel_mrr_area_ratio,
+        sp.shp_parcel_mrr_side_ratio,
+        sp.shp_parcel_num_vertices
 
     FROM {{ source('iasworld', 'pardat') }} AS par
     LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
@@ -47,6 +65,8 @@ WITH uni AS (
         ON leg.user1 = CAST(twn.township_code AS VARCHAR)
     WHERE par.cur = 'Y'
         AND par.deactivat IS NULL
+        -- Class 999 are test pins
+        AND par.class NOT IN ('999')
 ),
 
 acs5 AS (
@@ -55,31 +75,52 @@ acs5 AS (
     WHERE geography = 'tract'
 ),
 
-/* This CTAS uses location.census_2010 rather than joining onto a specific year
-from location.census because we need to join 2010 PUMA geometry to *all*
-parcels, not just those that existed in 2010 (or, in our case, 2012 since we
-don't have 2010 PUMA shapefiles). This is specific to the IHS data since it
+/* This CTAS uses location.census_2020 rather than joining onto a specific year
+from location.census because we need to join 2020 PUMA geometry to *all*
+parcels, not just those that existed in 2020 (or, in our case, 2022 since we
+don't have 2020 PUMA shapefiles). This is specific to the IHS data since it
 exists for many years but uses static geography. */
 housing_index AS (
     SELECT
         puma.pin10,
         ihs.year,
+        -- This is quarterly data and needs to be averaged annually
         AVG(CAST(ihs.ihs_index AS DOUBLE)) AS ihs_avg_year_index
-    FROM {{ source('other', 'ihs_index') }} AS ihs
-    LEFT JOIN {{ ref('location.census_2010') }} AS puma
-        ON ihs.geoid = puma.census_puma_geoid
+    FROM (SELECT DISTINCT
+        pin10,
+        census_puma_geoid
+    FROM {{ ref('location.census_2020') }}) AS puma
+    LEFT JOIN {{ source('other', 'ihs_index') }} AS ihs
+        ON puma.census_puma_geoid = ihs.geoid
+    -- Use ihs.year since the IHS time horizon is larger than that for available
+    -- census shapefiles
     GROUP BY puma.pin10, ihs.year
+),
+
+distressed_communities_index AS (
+    SELECT
+        zcta.pin10,
+        zcta.year,
+        dci.dci
+    FROM {{ source('other', 'dci') }} AS dci
+    LEFT JOIN {{ ref('location.census') }} AS zcta
+        ON dci.geoid = zcta.census_zcta_geoid
+        -- DCI is only available for one year, so we join to census geoids for
+        -- all years after that
+        AND dci.year <= zcta.year
 ),
 
 affordability_risk_index AS (
     SELECT
         tract.pin10,
-        ari.year,
-        ari.ari_score AS ari
+        ari.ari_score AS ari,
+        tract.year
     FROM {{ source('other', 'ari') }} AS ari
     LEFT JOIN {{ ref('location.census_acs5') }} AS tract
         ON ari.geoid = tract.census_acs5_tract_geoid
-        AND CAST(tract.year AS INTEGER) >= CAST(ari.year AS INTEGER)
+        -- ARI is only available for one year, so we join to census geoids for
+        -- all years after that
+        AND ari.year <= tract.year
 ),
 
 tax_bill_amount AS (
@@ -109,6 +150,8 @@ tax_bill_amount AS (
     WHERE pin.pin IS NOT NULL
         AND pardat.cur = 'Y'
         AND pardat.deactivat IS NULL
+        -- Class 999 are test pins
+        AND pardat.class NOT IN ('999')
 ),
 
 school_district_ratings AS (
@@ -150,7 +193,6 @@ exemption_features AS (
 SELECT
     uni.pin AS meta_pin,
     uni.pin10 AS meta_pin10,
-    uni.year AS meta_year,
     uni.class AS meta_class,
     uni.triad_name AS meta_triad_name,
     uni.triad_code AS meta_triad_code,
@@ -198,9 +240,15 @@ SELECT
     vwlf.chicago_community_area_name AS loc_chicago_community_area_name,
 
     -- Location data used for spatial fixed effects
-    vwlf.school_elementary_district_geoid
+    COALESCE(
+        vwlf.school_elementary_district_geoid,
+        vwlf.school_unified_district_geoid
+    )
         AS loc_school_elementary_district_geoid,
-    vwlf.school_secondary_district_geoid
+    COALESCE(
+        vwlf.school_secondary_district_geoid,
+        vwlf.school_unified_district_geoid
+    )
         AS loc_school_secondary_district_geoid,
     vwlf.school_unified_district_geoid AS loc_school_unified_district_geoid,
     vwlf.tax_special_service_area_num AS loc_tax_special_service_area_num,
@@ -245,11 +293,43 @@ SELECT
         AS prox_nearest_new_construction_dist_ft,
     vwpf.nearest_park_dist_ft AS prox_nearest_park_dist_ft,
     vwpf.nearest_railroad_dist_ft AS prox_nearest_railroad_dist_ft,
+    vwpf.nearest_road_arterial_daily_traffic
+        AS prox_nearest_road_arterial_daily_traffic,
+    vwpf.nearest_road_arterial_dist_ft AS prox_nearest_road_arterial_dist_ft,
+    vwpf.nearest_road_arterial_lanes AS prox_nearest_road_arterial_lanes,
+    vwpf.nearest_road_arterial_speed_limit
+        AS prox_nearest_road_arterial_speed_limit,
+    vwpf.nearest_road_arterial_surface_type
+        AS prox_nearest_road_arterial_surface_type,
+    vwpf.nearest_road_collector_daily_traffic
+        AS prox_nearest_road_collector_daily_traffic,
+    vwpf.nearest_road_collector_dist_ft AS prox_nearest_road_collector_dist_ft,
+    vwpf.nearest_road_collector_lanes AS prox_nearest_road_collector_lanes,
+    vwpf.nearest_road_collector_speed_limit
+        AS prox_nearest_road_collector_speed_limit,
+    vwpf.nearest_road_collector_surface_type
+        AS prox_nearest_road_collector_surface_type,
+    vwpf.nearest_road_highway_daily_traffic
+        AS prox_nearest_road_highway_daily_traffic,
+    vwpf.nearest_road_highway_dist_ft AS prox_nearest_road_highway_dist_ft,
+    vwpf.nearest_road_highway_lanes AS prox_nearest_road_highway_lanes,
+    vwpf.nearest_road_highway_speed_limit
+        AS prox_nearest_road_highway_speed_limit,
+    vwpf.nearest_road_highway_surface_type
+        AS prox_nearest_road_highway_surface_type,
     vwpf.nearest_secondary_road_dist_ft AS prox_nearest_secondary_road_dist_ft,
     vwpf.nearest_stadium_dist_ft AS prox_nearest_stadium_dist_ft,
     vwpf.nearest_university_dist_ft AS prox_nearest_university_dist_ft,
     vwpf.nearest_vacant_land_dist_ft AS prox_nearest_vacant_land_dist_ft,
     vwpf.nearest_water_dist_ft AS prox_nearest_water_dist_ft,
+
+    -- Parcel shape features
+    uni.shp_parcel_centroid_dist_ft_sd,
+    uni.shp_parcel_edge_len_ft_sd,
+    uni.shp_parcel_interior_angle_sd,
+    uni.shp_parcel_mrr_area_ratio,
+    uni.shp_parcel_mrr_side_ratio,
+    uni.shp_parcel_num_vertices,
 
     -- ACS5 census data
     acs5.count_sex_total AS acs5_count_sex_total,
@@ -292,6 +372,9 @@ SELECT
 
     -- Institute for Housing Studies data
     housing_index.ihs_avg_year_index AS other_ihs_avg_year_index,
+    -- Distressed Community Index data
+    distressed_communities_index.dci
+        AS other_distressed_community_index,
     -- Affordability Risk Index data
     affordability_risk_index.ari
         AS other_affordability_risk_index,
@@ -307,8 +390,12 @@ SELECT
     exemption_features.ccao_is_active_exe_homeowner,
     exemption_features.ccao_n_years_exe_homeowner,
 
-    -- Corner lot indicator
-    lot.is_corner_lot AS ccao_is_corner_lot,
+    -- Corner lot indicator, only filled after 2014 since that's
+    -- when OpenStreetMap data begins
+    CASE
+        WHEN uni.year >= '2014'
+            THEN COALESCE(lot.is_corner_lot, FALSE)
+    END AS ccao_is_corner_lot,
 
     -- PIN nearest neighbors, used for filling missing data
     vwpf.nearest_neighbor_1_pin10,
@@ -316,7 +403,10 @@ SELECT
     vwpf.nearest_neighbor_2_pin10,
     vwpf.nearest_neighbor_2_dist_ft,
     vwpf.nearest_neighbor_3_pin10,
-    vwpf.nearest_neighbor_3_dist_ft
+    vwpf.nearest_neighbor_3_dist_ft,
+
+    -- Year should be listed last, for partitioning
+    uni.year AS meta_year
 
 FROM uni
 LEFT JOIN {{ ref('location.vw_pin10_location_fill') }} AS vwlf
@@ -337,6 +427,10 @@ LEFT JOIN acs5
 LEFT JOIN housing_index
     ON uni.pin10 = housing_index.pin10
     AND uni.year = housing_index.year
+LEFT JOIN distressed_communities_index
+    ON uni.pin10 = distressed_communities_index.pin10
+    AND uni.year
+    = distressed_communities_index.year
 LEFT JOIN affordability_risk_index
     ON uni.pin10 = affordability_risk_index.pin10
     AND uni.year = affordability_risk_index.year
@@ -362,5 +456,6 @@ LEFT JOIN
 LEFT JOIN exemption_features
     ON uni.pin = exemption_features.pin
     AND uni.year = exemption_features.year
-LEFT JOIN {{ source('ccao', 'corner_lot') }} AS lot
-    ON uni.pin10 = lot.pin10
+LEFT JOIN {{ ref('default.vw_pin_status') }} AS lot
+    ON uni.pin = lot.pin
+    AND uni.year = lot.year

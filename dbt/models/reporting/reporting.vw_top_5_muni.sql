@@ -63,8 +63,11 @@ most_recent_values AS (
         pin,
         year,
         oneyr_pri_board_tot AS prior_bor_av,
-        COALESCE(certified_tot, mailed_tot) AS ccao_av,
+        COALESCE(certified_tot, mailed_tot, pre_mailed_tot) AS ccao_av,
         CASE
+            WHEN
+                (certified_tot IS NULL AND mailed_tot IS NULL)
+                THEN 'pre-mailed'
             WHEN certified_tot IS NULL THEN 'mailed'
             ELSE 'certified'
         END AS ccao_stage_used,

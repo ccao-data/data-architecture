@@ -35,7 +35,7 @@ def upload_to_s3(file_content, bucket, key_prefix, file_name):
         raise Exception(f"An error occurred: {e}")
 
 
-load_dotenv("etl/.Renviron")
+load_dotenv(".Renviron")
 AWS_S3_RAW_BUCKET = os.environ.get("AWS_S3_RAW_BUCKET")[5:]  # type: ignore
 key_prefix = os.path.join("housing", "ari")
 

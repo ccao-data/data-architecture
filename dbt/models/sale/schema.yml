@@ -7,29 +7,30 @@ sources:
           - load_auto
 
         columns:
+          - name: meta_sale_document_number
+            description: '{{ doc("shared_column_document_number") }}'
           - name: ptax_flag_original
             description: |
               Whether or not this sale was flagged on Q10 of the
               PTAX-203 form (regardless of statistical deviation)
-          - name: meta_sale_document_number
-            description: '{{ doc("shared_column_document_number") }}'
           - name: rolling_window
             description: |
-              Rolling window period used to calculate statistics
-              for flagging this sale
+              Rolling window period used to calculate grouping statistics
+              for flagging this sale. As of Sep 2024, ~1 year is the rolling window.
+              The month of the sale and the prior 11 months are used.
           - name: run_id
             description: '{{ doc("shared_column_sv_run_id") }}'
           - name: sv_is_heuristic_outlier
             description: '{{ doc("shared_column_sv_is_heuristic_outlier") }}'
-          - name: sv_is_ptax_outlier
-            description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
           - name: sv_is_outlier
             description: '{{ doc("shared_column_sv_is_outlier") }}'
+          - name: sv_is_ptax_outlier
+            description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
           - name: sv_outlier_reason1
             description: '{{ doc("shared_column_sv_outlier_reason") }}'
-          - name: sv_outlier_reason1
+          - name: sv_outlier_reason2
             description: '{{ doc("shared_column_sv_outlier_reason") }}'
-          - name: sv_outlier_reason1
+          - name: sv_outlier_reason3
             description: '{{ doc("shared_column_sv_outlier_reason") }}'
           - name: version
             description: '{{ doc("shared_column_sv_version") }}'
@@ -59,12 +60,12 @@ sources:
               Typically a combination of year, township, and class
           - name: group_size
             description: Number of properties in the group
-          - name: run_id
-            description: '{{ doc("shared_column_sv_run_id") }}'
           - name: mean_price
             description: Mean price of the group, in FMV
           - name: mean_price_per_sqft
             description: Mean price per sqft (of building) of the group, in FMV
+          - name: run_id
+            description: '{{ doc("shared_column_sv_run_id") }}'
 
       - name: parameter
         description: '{{ doc("parameter") }}'

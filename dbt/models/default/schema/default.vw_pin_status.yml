@@ -1,0 +1,81 @@
+models:
+  - name: default.vw_pin_status
+    description: '{{ doc("view_vw_pin_status") }}'
+
+    columns:
+      - name: class
+        description: '{{ doc("shared_column_class") }}'
+      - name: comdat_cdu_code
+        description: CDU from `iasworld.comdat` table
+      - name: comdat_cdu_description
+        description: CDU code description for `comdat_cdu_description`
+      - name: dweldat_cdu_code
+        description: CDU from `iasworld.dweldat` table
+      - name: dweldat_cdu_description
+        description: CDU code description for `dweldat_cdu_description`
+      - name: has_recent_assessable_permit
+        description: |
+          Parcel has at least one assessable permit in the prior 3 years.
+
+          The date range that defines "the prior 3 years" starts on
+          January 1st of the year 2 years before the parcel year, and ends
+          on December 31st of the parcel year. For example, for a parcel
+          with year 2024, this column will count all assessable permits
+          issued between January 1st, 2022, and December 31st, 2024.
+        data_tests:
+          - not_null:
+              name: default_vw_pin_status_has_recent_assessable_permit_not_null
+      - name: is_ahsap
+        description: '{{ doc("shared_column_is_ahsap") }}'
+      - name: is_common_area
+        description: '{{ doc("shared_column_is_common_area") }}'
+      - name: is_corner_lot
+        description: '{{ doc("shared_column_is_corner_lot") }}'
+      - name: is_exempt
+        description: Property tax exempt parcel indicator
+      - name: is_filler_class
+        description: Parcel has a placeholder class of '999'
+      - name: is_filler_pin
+        description: Parcel has a placeholder PIN that contains '999'
+      - name: is_leasehold
+        description: |
+          Leasehold parcel indicator. A leasehold is a form of land
+          tenure or property tenure where one party buys the right to occupy
+          land or a building for a given time. The CCAO records leaseholds as
+          a value of '8' for the 11th digit of a parcel's PIN.
+      - name: is_mixed_use
+        description: |
+          Parcel has both an explicitly residental class in dweldat or oby and a
+          commercial class in comdat, or a residential class in dweldat and a
+          commercial class in oby.
+      - name: is_parking_space
+        description: '{{ doc("shared_column_is_parking_space") }}'
+      - name: is_railroad
+        description: Parcel is class 'RR'
+      - name: is_weird
+        description: Parcel is in `ccao.pin_test`
+      - name: is_zero_bill
+        description: Parcel with a $0 property tax bill indicator
+      - name: oby_cdu_code
+        description: CDU from `iasworld.oby` table
+      - name: oby_cdu_description
+        description: CDU code description for `oby_cdu_code`
+      - name: pardat_note
+        description: Pardat note field 2
+      - name: parking_space_flag_reason
+        description: '{{ doc("shared_column_parking_space_flag_reason") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: weird_flag_reason
+        description: |
+          Test type field from `ccao.test_pin`. Describes why a given parcel
+          is used for testing.
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
+
+    data_tests:
+      - unique_combination_of_columns:
+          name: default_vw_pin_status_unique_by_14_digit_pin_and_year
+          combination_of_columns:
+            - pin
+            - year

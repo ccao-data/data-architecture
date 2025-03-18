@@ -15,10 +15,10 @@
 # Zip archives uploaded using this script can be used to import packages
 # into a Python model script with a set of import calls like so:
 #
-#   sc.addPyFile(f"{s3_dependency_dir}/attrs==23.2.0.zip")  # noqa: F821
-#   sc.addPyFile(f"{s3_dependency_dir}/assesspy==1.1.0.zip")  # noqa: F821
-#   import attrs  # noqa: E402
-#   import assesspy  # noqa: E402
+#   sc.addPyFile(f"{s3_dependency_dir}/attrs==23.2.0.zip")
+#   sc.addPyFile(f"{s3_dependency_dir}/assesspy==2.0.1.zip")
+#   import attrs
+#   import assesspy
 #
 # Dependencies are installed using the `--no-deps` flag for `pip install`,
 # meaning that your dependency's dependencies will not be installed or

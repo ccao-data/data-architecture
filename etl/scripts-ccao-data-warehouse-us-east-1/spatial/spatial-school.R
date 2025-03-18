@@ -202,12 +202,12 @@ county_districts_df <- st_join(
     matches = sum(year == census_year & district_type == census_district_type)
   ) %>%
   mutate(geoid = case_when(
-    matches == 0 ~ "",
+    matches == 0 ~ NA,
     TRUE ~ geoid
   )) %>%
   ungroup() %>%
   filter(
-    (year == census_year & district_type == census_district_type) | geoid == ""
+    (year == census_year & district_type == census_district_type) | is.na(geoid)
   ) %>%
   mutate(geoid = case_when(
     district_type == "unified" & school_num == "205" ~ "1713970",

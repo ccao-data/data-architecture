@@ -3,7 +3,7 @@ sources:
     loaded_at_field: date_parse(loaded_at, '%Y-%m-%d %H:%i:%S.%f')
     tags:
       - load_auto
-      - test_qc_iasworld
+      - data_test_iasworld
 
     tables:
       - name: asmt_all
@@ -17,9 +17,32 @@ sources:
           - name: class
             description: '{{ doc("shared_column_class") }}'
             data_tests:
+              - res_class_matches_pardat:
+                  name: iasworld_asmt_all_class_ex_matches_pardat_class_ex
+                  join_type: inner
+                  additional_select_columns: &select-columns-aggregated
+                    - column: taxyr
+                      agg_func: max
+                    - column: parid
+                      agg_func: max
+                    - column: who
+                      agg_func: max
+                    - column: wen
+                      agg_func: max
+                  additional_pardat_filter: AND class = 'EX'
+                  config: &unique-conditions
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND rolltype != 'RR'
+                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
+                  meta:
+                    description: >
+                      class should be EX if pardat class is EX
               - relationships:
                   name: iasworld_asmt_all_class_in_ccao_class_dict
-                  to: source('ccao', 'class_dict')
+                  to: ref('ccao.class_dict')
                   field: class_code
                   additional_select_columns: &select-columns
                     - taxyr
@@ -28,7 +51,7 @@ sources:
                     - wen
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND class NOT IN ('EX', 'RR', '999')
                       AND NOT REGEXP_LIKE(class, '[0-9]{3}[A|B]')
                       AND rolltype != 'RR'
@@ -39,33 +62,10 @@ sources:
                     description: class code must be valid
               - res_class_matches_pardat:
                   name: iasworld_asmt_all_class_matches_pardat_class
-                  additional_select_columns: &select-columns-aggregated
-                    - column: taxyr
-                      agg_func: max
-                    - column: parid
-                      agg_func: max
-                    - column: who
-                      agg_func: max
-                    - column: wen
-                      agg_func: max
-                  config: &unique-conditions
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND rolltype != 'RR'
-                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
-                      AND deactivat IS NULL
-                      AND valclass IS NULL
-                  meta:
-                    description: at least one class should match pardat class
-              - res_class_matches_pardat:
-                  name: iasworld_asmt_all_class_ex_matches_pardat_class_ex
-                  join_type: inner
                   additional_select_columns: *select-columns-aggregated
-                  additional_pardat_filter: AND class = 'EX'
                   config: *unique-conditions
                   meta:
-                    description: >
-                      class should be EX if pardat class is EX
+                    description: at least one class should match pardat class
           - name: cur
             description: '{{ doc("column_cur") }}'
             data_tests:
@@ -75,7 +75,7 @@ sources:
                   additional_select_columns: *select-columns
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                   meta:
                     description: cur should be 'Y', 'D', or 'N'
           - name: deactivat
@@ -99,24 +99,24 @@ sources:
           - name: parid
             description: '{{ doc("shared_column_pin") }}'
             data_tests:
-              - not_null:
-                  name: iasworld_asmt_all_parid_not_null
+              - relationships:
+                  name: iasworld_asmt_all_parid_in_pardat_parid
+                  to: source('iasworld', 'pardat')
+                  field: parid
                   additional_select_columns: &select-columns-no-parid
                     - taxyr
                     - who
                     - wen
                   config: *unique-conditions
                   meta:
-                    description: parid should not be null
-              - relationships:
-                  name: iasworld_asmt_all_parid_in_pardat_parid
-                  to: source('iasworld', 'pardat')
-                  field: parid
+                    category: parid
+                    description: parid should be in pardat
+              - not_null:
+                  name: iasworld_asmt_all_parid_not_null
                   additional_select_columns: *select-columns-no-parid
                   config: *unique-conditions
                   meta:
-                    category: parid
-                    description: parid should be in pardat
+                    description: parid should not be null
           - name: procdate
             description: '{{ doc("column_procdate") }}'
           - name: procname
@@ -128,7 +128,7 @@ sources:
                   additional_select_columns: *select-columns
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND rolltype != 'RR'
                       AND deactivat IS NULL
                       AND valclass IS NULL
@@ -146,7 +146,7 @@ sources:
                   additional_select_columns: *select-columns
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND cur = 'Y'
                       AND deactivat IS NULL
                   meta:
@@ -184,8 +184,6 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: taxyr should not be null
-          - name: tottax
-            description: Total tax
           - name: tot30
             description: HIE AV Amount
             data_tests:
@@ -204,6 +202,8 @@ sources:
                     config: *unique-conditions
                     meta:
                       description: TOT32 (Value After HIE) should be TOT29 - TOT30 - TOT31
+          - name: tottax
+            description: Total tax
           - name: trans_id
             description: '{{ doc("column_trans_id") }}'
           - name: upd_status
@@ -229,7 +229,7 @@ sources:
                     - wen
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND rolltype != 'RR'
                       AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
                       AND deactivat IS NULL
@@ -242,34 +242,11 @@ sources:
           - name: valasm2
             description: '{{ doc("column_valasm2") }}'
             data_tests:
-              - accepted_values:
-                  name: iasworld_asmt_all_valasm2_vact_class_has_val
-                  values: [0]
-                  quote: false
-                  additional_select_columns: *select-columns-with-class
-                  config:
-                    where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
-                      AND rolltype != 'RR'
-                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
-                      AND deactivat IS NULL
-                      AND valclass IS NULL
-                      AND class IN (
-                        '100', '200', '239', '240', '241', '300', '400', '500',
-                        '535', '550', '637', '637A', '637B', '650', '651', '651A',
-                        '651B', '700', '700A', '700B', '742', '742A', '742B',
-                        '800', '800A', '800B', '850', '850A', '850B', '900',
-                        '999', 'EX', 'RR'
-                      )
-                  meta:
-                    table_name: asmt
-                    description: >
-                      valasm2 (ASMT BLDG) should be 0 for vacant classes
               - accepted_range:
                   name: iasworld_asmt_all_impr_class_valasm2_gt_0
                   config:
                     where: |
-                      CAST(taxyr AS int) BETWEEN {{ var('test_qc_year_start') }} AND {{ var('test_qc_year_end') }}
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
                       AND rolltype != 'RR'
                       AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
                       AND deactivat IS NULL
@@ -286,6 +263,29 @@ sources:
                     description: >
                       valasm2 (ASMT BLDG) should be > 0 for non-vacant classes
                   <<: *incorrect-asmt-value-gt-0
+              - accepted_values:
+                  name: iasworld_asmt_all_valasm2_vact_class_has_val
+                  values: [0]
+                  quote: false
+                  additional_select_columns: *select-columns-with-class
+                  config:
+                    where: |
+                      CAST(taxyr AS int) BETWEEN {{ var('data_test_iasworld_year_start') }} AND {{ var('data_test_iasworld_year_end') }}
+                      AND rolltype != 'RR'
+                      AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                      AND deactivat IS NULL
+                      AND valclass IS NULL
+                      AND class IN (
+                        '100', '200', '239', '240', '241', '300', '400', '500',
+                        '535', '550', '637', '637A', '637B', '650', '651', '651A',
+                        '651B', '700', '700A', '700B', '742', '742A', '742B',
+                        '800', '800A', '800B', '850', '850A', '850B', '900',
+                        '999', 'EX', 'RR'
+                      )
+                  meta:
+                    table_name: asmt
+                    description: >
+                      valasm2 (ASMT BLDG) should be 0 for vacant classes
           - name: valasm3
             description: '{{ doc("column_valasm3") }}'
             data_tests:

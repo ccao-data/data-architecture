@@ -2,7 +2,7 @@
 
 {% docs seed_stadium_raw %}
 A list of stadiums and their latitude and longitude, manually constructed
-by CCAO staff
+by CCAO staff.
 
 **Primary Key**: `name`
 {% enddocs %}
