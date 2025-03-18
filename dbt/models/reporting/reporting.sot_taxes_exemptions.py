@@ -129,9 +129,7 @@ def assemble(df, geos, groups):
             "tax_bill_total_delta_mean",
             "tax_bill_total_delta_sum",
         ]
-    ] = (
-        output[diff_cols].groupby(["geography_id", "group_id"]).diff()
-    )
+    ] = output[diff_cols].groupby(["geography_id", "group_id"]).diff()
 
     output = clean_names(output)
 

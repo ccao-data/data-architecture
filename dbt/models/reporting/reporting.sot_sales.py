@@ -131,9 +131,7 @@ def assemble(df, geos, groups):
             "sale_price_per_sf_delta_mean",
             "sale_price_per_sf_delta_sum",
         ]
-    ] = (
-        output[diff_cols].groupby(["geography_id", "group_id"]).diff()
-    )
+    ] = output[diff_cols].groupby(["geography_id", "group_id"]).diff()
 
     output = clean_names(output)
 

@@ -80,6 +80,38 @@ for every possible geography and reporting group combination.
 **Primary Key**: `pin`, `year`
 {% enddocs %}
 
+# sot_assessment_roll
+{% docs table_sot_assessment_roll %}
+{% enddocs %}
+
+# sot_assessment_roll_input
+{% docs table_sot_assessment_roll_input %}
+{% enddocs %}
+
+# sot_ratio_stats
+{% docs table_sot_ratio_stats %}
+{% enddocs %}
+
+# sot_ratio_stats_input
+{% docs table_sot_ratio_stats_input %}
+{% enddocs %}
+
+# sot_sales
+{% docs table_sot_sales %}
+{% enddocs %}
+
+# sot_sales_input
+{% docs table_sot_sales_input %}
+{% enddocs %}
+
+# sot_taxes_exemptions
+{% docs table_sot_taxes_exemptions %}
+{% enddocs %}
+
+# sot_taxes_exemptions_input
+{% docs table_sot_taxes_exemptions_input %}
+{% enddocs %}
+
 # vw_assessment_roll
 
 {% docs view_vw_assessment_roll %}
