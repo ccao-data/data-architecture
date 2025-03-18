@@ -1,7 +1,7 @@
 # pylint: skip-file
 # type: ignore
 sc.addPyFile(  # noqa: F821
-    "s3://ccao-athena-dependencies-us-east-1/assesspy==1.1.0.zip"
+    "s3://ccao-athena-dependencies-us-east-1/assesspy==2.0.2.zip"
 )
 
 # This script generates aggregated summary stats on sales ratios across a
