@@ -17,9 +17,9 @@ groups = ["no_group", "class", "major_class", "modeling_group", "res_other"]
 
 
 # Wrap assesspy functions to avoid GitHub runner errors for length 0 groupings
-def cod_safe(ratio):
-    if len(ratio) >= 1:
-        output = ass.cod(ratio)
+def cod_safe(assessed, sale_price):
+    if len(sale_price) >= 1:
+        output = ass.cod(estimate=assessed, sale_price=sale_price)
     else:
         output = None
 
@@ -28,7 +28,7 @@ def cod_safe(ratio):
 
 def prd_safe(assessed, sale_price):
     if len(sale_price) >= 1:
-        output = ass.prd(assessed=assessed, sale_price=sale_price)
+        output = ass.prd(estimate=assessed, sale_price=sale_price)
     else:
         output = None
 
@@ -37,9 +37,7 @@ def prd_safe(assessed, sale_price):
 
 def prb_safe(assessed, sale_price):
     if len(sale_price) >= 1:
-        output = ass.prb(assessed=assessed, sale_price=sale_price, round=3)[
-            "prb"
-        ]
+        output = ass.prb(estimate=assessed, sale_price=sale_price)
     else:
         output = None
 
@@ -48,7 +46,7 @@ def prb_safe(assessed, sale_price):
 
 def mki_safe(assessed, sale_price):
     if len(sale_price) >= 1:
-        output = ass.mki(assessed=assessed, sale_price=sale_price)
+        output = ass.mki(estimate=assessed, sale_price=sale_price)
     else:
         output = None
 
@@ -119,7 +117,9 @@ def aggregrate(data, geography_type, group_type):
                 "ratio_q90": x["ratio"].quantile(0.90),
                 "ratio_max": x["ratio"].max(),
                 "ratio_mean": x["ratio"].mean(),
-                "cod": cod_safe(ratio=x["ratio"]),
+                "cod": cod_safe(
+                    assessed=x["tot_mv"], sale_price=x["sale_price"]
+                ),
                 "prd": prd_safe(
                     assessed=x["tot_mv"], sale_price=x["sale_price"]
                 ),
