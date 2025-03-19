@@ -48,8 +48,8 @@ more_stats = [
 agg_func_math = {
     "sale_price": ["size", "count"] + more_stats,
     "sale_price_per_sf": more_stats,
-    "sale_char_bldg_sf": ["median"],
-    "sale_char_land_sf": ["median"],
+    "sale_char_tot_bldg_sf": ["median"],
+    "sale_char_tot_land_sf": ["median"],
     "sale_char_yrblt": ["median"],
     "sale_is_outlier": ["sum"],
     "class": [stats.multimode],
@@ -189,8 +189,8 @@ def clean_names(x):
             "sale_price_per_sf_delta_median",
             "sale_price_per_sf_delta_mean",
             "sale_price_per_sf_delta_sum",
-            "sale_char_bldg_sf_median",
-            "sale_char_land_sf_median",
+            "sale_char_tot_bldg_sf_median",
+            "sale_char_tot_land_sf_median",
             "sale_char_yrblt_median",
             "sale_class_mode",
             "sale_n_outlier_excluded",
@@ -249,8 +249,8 @@ def model(dbt, spark_session):
         + "sale_price_per_sf_delta_median: double, "
         + "sale_price_per_sf_delta_mean: double, "
         + "sale_price_per_sf_delta_sum: double, "
-        + "sale_char_bldg_sf_median: double, "
-        + "sale_char_land_sf_median: double, "
+        + "sale_char_tot_bldg_sf_median: double, "
+        + "sale_char_tot_land_sf_median: double, "
         + "sale_char_yrblt_median: double, sale_class_mode: array<string>, "
         + "sale_n_outlier_excluded: bigint"
     )

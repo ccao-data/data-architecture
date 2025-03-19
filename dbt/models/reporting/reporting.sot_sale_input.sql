@@ -32,8 +32,8 @@ SELECT
             THEN
             CAST(sales.sale_price / sf.char_bldg_sf AS DOUBLE)
     END AS sale_price_per_sf,
-    CAST(sf.char_bldg_sf AS INT) AS sale_char_bldg_sf,
-    CAST(sf.char_land_sf AS INT) AS sale_char_land_sf,
+    CAST(sf.char_bldg_sf AS INT) AS sale_char_tot_bldg_sf,
+    CAST(sf.char_land_sf AS INT) AS sale_char_tot_land_sf,
     CAST(sf.char_yrblt AS INT) AS sale_char_yrblt,
     uni.class,
     'Cook' AS county,
