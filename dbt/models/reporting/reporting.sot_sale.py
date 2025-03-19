@@ -51,6 +51,7 @@ agg_func_math = {
     "sale_char_bldg_sf": ["median"],
     "sale_char_land_sf": ["median"],
     "sale_char_yrblt": ["median"],
+    "sale_is_outlier": ["sum"],
     "class": [stats.multimode],
     "geography_data_year": [first],
 }
@@ -148,6 +149,7 @@ def clean_names(x):
             "sale_price_size": "pin_n_tot",
             "year": "sale_year",
             "sale_price_count": "sale_n_tot",
+            "sale_is_outlier_sum": "sale_n_outlier_excluded",
             "class_multimode": "sale_class_mode",
             "geography_data_year_first": "geography_data_year",
         }
@@ -191,6 +193,7 @@ def clean_names(x):
             "sale_char_land_sf_median",
             "sale_char_yrblt_median",
             "sale_class_mode",
+            "sale_n_outlier_excluded",
         ]
     ]
 
@@ -248,7 +251,8 @@ def model(dbt, spark_session):
         + "sale_price_per_sf_delta_sum: double, "
         + "sale_char_bldg_sf_median: double, "
         + "sale_char_land_sf_median: double, "
-        + "sale_char_yrblt_median: double, sale_class_mode: array<string>"
+        + "sale_char_yrblt_median: double, sale_class_mode: array<string>, "
+        + "sale_n_outlier_excluded: bigint"
     )
 
     spark_df = spark_session.createDataFrame(df, schema=schema)

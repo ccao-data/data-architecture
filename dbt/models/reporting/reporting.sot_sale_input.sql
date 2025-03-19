@@ -23,7 +23,11 @@ WITH sf AS (
 
 SELECT
     sales.doc_no,
-    sales.sale_price,
+    -- Code outlier sale prices as NULL so they won't be part of aggregated sale
+    -- stats, but we can count the number of outliers
+    CASE WHEN sales.sv_is_outlier THEN NULL ELSE sales.sale_price END
+        AS sale_price,
+    COALESCE(sales.sv_is_outlier, FALSE) AS sale_is_outlier,
     CASE WHEN sf.char_bldg_sf > 0
             THEN
             CAST(sales.sale_price / sf.char_bldg_sf AS DOUBLE)
@@ -100,6 +104,5 @@ LEFT JOIN {{ ref('default.vw_pin_sale') }} AS sales
     AND NOT sales.sale_filter_deed_type
     AND NOT sales.sale_filter_less_than_10k
     AND NOT sales.sale_filter_same_sale_within_365
-    AND COALESCE(sales.sv_is_outlier, FALSE) = FALSE
 -- Temporary limit on feeder table to avoid GitHub runner memory issues.
 WHERE uni.year = '2023'
