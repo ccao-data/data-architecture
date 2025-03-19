@@ -261,40 +261,72 @@ def model(dbt, spark_session):
 
     df = assemble(input, geos=geos, groups=groups)
 
-    schema = (
-        "geography_type: string, geography_id: string, "
-        + "geography_data_year: string, group_type: string, "
-        + "group_id: string, tax_year: string, pin_n_tot: bigint, "
-        + "tax_eq_factor_final: double, tax_eq_factor_tentative: double, "
-        + "tax_bill_total_min: double, tax_bill_total_q10: double, "
-        + "tax_bill_total_q25: double, tax_bill_total_median: double, "
-        + "tax_bill_total_q75: double, tax_bill_total_q90: double, "
-        + "tax_bill_total_max: double, tax_bill_total_mean: double, "
-        + "tax_bill_total_sum: double, tax_bill_total_delta_median: double, "
-        + "tax_bill_total_delta_mean: double, "
-        + "tax_bill_total_delta_sum: double , tax_rate_min: double, "
-        + "tax_rate_q10: double, tax_rate_q25: double, "
-        + "tax_rate_median: double, tax_rate_q75: double, "
-        + "tax_rate_q90: double, tax_rate_max: double, "
-        + "tax_rate_mean: double, tax_rate_sum: double, "
-        + "tax_av_min: int, tax_av_q10: double, tax_av_q25: double, "
-        + "tax_av_median: double, tax_av_q75: double, "
-        + "tax_av_q90: double, tax_av_max: int, tax_av_mean: double, "
-        + "tax_av_sum: double, tax_exe_n_homeowner: bigint, "
-        + "tax_exe_homeowner_sum: double, tax_exe_n_senior: bigint, "
-        + "tax_exe_senior_sum: double, tax_exe_n_freeze: bigint, "
-        + "tax_exe_freeze_sum: double, tax_exe_n_longtime_homeowner: bigint, "
-        + "tax_exe_longtime_homeowner_sum: double, "
-        + "tax_exe_n_disabled: bigint, tax_exe_disabled_sum: double, "
-        + "tax_exe_n_vet_returning: bigint, "
-        + "tax_exe_vet_returning_sum: double, tax_exe_n_vet_dis_lt50: bigint, "
-        + "tax_exe_vet_dis_lt50_sum: double, tax_exe_n_vet_dis_50_69: bigint, "
-        + "tax_exe_vet_dis_50_69_sum: double, tax_exe_n_vet_dis_ge70: bigint, "
-        + "tax_exe_vet_dis_ge70_sum: double, tax_exe_n_abate: bigint, "
-        + "tax_exe_abate_sum: double, tax_exe_n_total: bigint, "
-        + "tax_exe_total_sum: double"
-    )
+    schema = {
+        "geography_type": "string",
+        "geography_id": "string",
+        "geography_data_year": "string",
+        "group_type": "string",
+        "group_id": "string",
+        "tax_year": "string",
+        "pin_n_tot": "bigint",
+        "tax_eq_factor_final": "double",
+        "tax_eq_factor_tentative": "double",
+        "tax_bill_total_min": "double",
+        "tax_bill_total_q10": "double",
+        "tax_bill_total_q25": "double",
+        "tax_bill_total_median": "double",
+        "tax_bill_total_q75": "double",
+        "tax_bill_total_q90": "double",
+        "tax_bill_total_max": "double",
+        "tax_bill_total_mean": "double",
+        "tax_bill_total_sum": "double",
+        "tax_bill_total_delta_median": "double",
+        "tax_bill_total_delta_mean": "double",
+        "tax_bill_total_delta_sum": "double ",
+        "tax_rate_min": "double",
+        "tax_rate_q10": "double",
+        "tax_rate_q25": "double",
+        "tax_rate_median": "double",
+        "tax_rate_q75": "double",
+        "tax_rate_q90": "double",
+        "tax_rate_max": "double",
+        "tax_rate_mean": "double",
+        "tax_rate_sum": "double",
+        "tax_av_min": "int",
+        "tax_av_q10": "double",
+        "tax_av_q25": "double",
+        "tax_av_median": "double",
+        "tax_av_q75": "double",
+        "tax_av_q90": "double",
+        "tax_av_max": "int",
+        "tax_av_mean": "double",
+        "tax_av_sum": "double",
+        "tax_exe_n_homeowner": "bigint",
+        "tax_exe_homeowner_sum": "double",
+        "tax_exe_n_senior": "bigint",
+        "tax_exe_senior_sum": "double",
+        "tax_exe_n_freeze": "bigint",
+        "tax_exe_freeze_sum": "double",
+        "tax_exe_n_longtime_homeowner": "bigint",
+        "tax_exe_longtime_homeowner_sum": "double",
+        "tax_exe_n_disabled": "bigint",
+        "tax_exe_disabled_sum": "double",
+        "tax_exe_n_vet_returning": "bigint",
+        "tax_exe_vet_returning_sum": "double",
+        "tax_exe_n_vet_dis_lt50": "bigint",
+        "tax_exe_vet_dis_lt50_sum": "double",
+        "tax_exe_n_vet_dis_50_69": "bigint",
+        "tax_exe_vet_dis_50_69_sum": "double",
+        "tax_exe_n_vet_dis_ge70": "bigint",
+        "tax_exe_vet_dis_ge70_sum": "double",
+        "tax_exe_n_abate": "bigint",
+        "tax_exe_abate_sum": "double",
+        "tax_exe_n_total": "bigint",
+        "tax_exe_total_sum": "double",
+    }
 
-    spark_df = spark_session.createDataFrame(df, schema=schema)
+    spark_df = spark_session.createDataFrame(
+        df, schema=", ".join(f"{key}: {val}" for key, val in schema.items())
+    )
 
     return spark_df

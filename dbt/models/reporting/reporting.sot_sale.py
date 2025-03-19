@@ -231,30 +231,48 @@ def model(dbt, spark_session):
 
     df = assemble(input, geos=geos, groups=groups)
 
-    schema = (
-        "geography_type: string, geography_id: string, "
-        + "geography_data_year: string, group_type: string, "
-        + "group_id: string, sale_year: string, pin_n_tot: bigint, "
-        + "sale_n_tot: int, sale_price_min: double, sale_price_q10: double, "
-        + "sale_price_q25: double, sale_price_median: double, "
-        + "sale_price_q75: double, sale_price_q90: double, "
-        + "sale_price_max: double, sale_price_mean: double, "
-        + "sale_price_sum: double, sale_price_delta_median: double, "
-        + "sale_price_delta_mean: double, sale_price_delta_sum: double, "
-        + "sale_price_per_sf_min: double, sale_price_per_sf_q10: double, "
-        + "sale_price_per_sf_q25: double, sale_price_per_sf_median: double, "
-        + "sale_price_per_sf_q75: double, sale_price_per_sf_q90: double, "
-        + "sale_price_per_sf_max: double, sale_price_per_sf_mean: double, "
-        + "sale_price_per_sf_sum: double, "
-        + "sale_price_per_sf_delta_median: double, "
-        + "sale_price_per_sf_delta_mean: double, "
-        + "sale_price_per_sf_delta_sum: double, "
-        + "sale_char_tot_bldg_sf_median: double, "
-        + "sale_char_tot_land_sf_median: double, "
-        + "sale_char_yrblt_median: double, sale_class_mode: array<string>, "
-        + "sale_n_outlier_excluded: bigint"
-    )
+    schema = {
+        "geography_type": "string",
+        "geography_id": "string",
+        "geography_data_year": "string",
+        "group_type": "string",
+        "group_id": "string",
+        "sale_year": "string",
+        "pin_n_tot": "bigint",
+        "sale_n_tot": "int",
+        "sale_price_min": "double",
+        "sale_price_q10": "double",
+        "sale_price_q25": "double",
+        "sale_price_median": "double",
+        "sale_price_q75": "double",
+        "sale_price_q90": "double",
+        "sale_price_max": "double",
+        "sale_price_mean": "double",
+        "sale_price_sum": "double",
+        "sale_price_delta_median": "double",
+        "sale_price_delta_mean": "double",
+        "sale_price_delta_sum": "double",
+        "sale_price_per_sf_min": "double",
+        "sale_price_per_sf_q10": "double",
+        "sale_price_per_sf_q25": "double",
+        "sale_price_per_sf_median": "double",
+        "sale_price_per_sf_q75": "double",
+        "sale_price_per_sf_q90": "double",
+        "sale_price_per_sf_max": "double",
+        "sale_price_per_sf_mean": "double",
+        "sale_price_per_sf_sum": "double",
+        "sale_price_per_sf_delta_median": "double",
+        "sale_price_per_sf_delta_mean": "double",
+        "sale_price_per_sf_delta_sum": "double",
+        "sale_char_tot_bldg_sf_median": "double",
+        "sale_char_tot_land_sf_median": "double",
+        "sale_char_yrblt_median": "double",
+        "sale_class_mode": "array<string>",
+        "sale_n_outlier_excluded": "bigint",
+    }
 
-    spark_df = spark_session.createDataFrame(df, schema=schema)
+    spark_df = spark_session.createDataFrame(
+        df, schema=", ".join(f"{key}: {val}" for key, val in schema.items())
+    )
 
     return spark_df

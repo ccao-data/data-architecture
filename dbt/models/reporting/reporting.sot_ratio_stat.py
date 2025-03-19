@@ -358,26 +358,58 @@ def model(dbt, spark_session):
 
     df = assemble(input, geos=geos, groups=groups)
 
-    schema = (
-        "geography_type: string, geography_id: string, "
-        + "geography_data_year: string, group_type: string, group_id: string, "
-        + "year: string, reassessment_year: string, stage_name: string, "
-        + "pin_n_tot: int, pin_n_w_value: bigint, pin_pct_w_value: double, "
-        + "sale_n_tot: bigint, mv_min: bigint, mv_q10: bigint, "
-        + "mv_q25: bigint, mv_median: bigint, mv_q75: bigint, "
-        + "mv_q90: bigint, mv_max: bigint, mv_mean: bigint, mv_sum: bigint, "
-        + "mv_delta_median: double, mv_delta_mean: double, "
-        + "mv_delta_sum: double, mv_delta_pct_median: double, "
-        + "mv_delta_pct_mean: double, mv_delta_pct_sum: double, "
-        + "ratio_min: double, ratio_q10: double, ratio_q25: double, "
-        + "ratio_median: double, ratio_q75: double, ratio_q90: double, "
-        + "ratio_max: double, ratio_mean: double, cod: double, prd: double, "
-        + "prb: double, mki: double, cod_met: boolean, prd_met: boolean, "
-        + "prb_met: boolean, mki_met: boolean, within_05_pct: boolean, "
-        + "within_10_pct: boolean, within_15_pct: boolean, "
-        + "within_20_pct: boolean"
-    )
+    schema = {
+        "geography_type": "string",
+        "geography_id": "string",
+        "geography_data_year": "string",
+        "group_type": "string",
+        "group_id": "string",
+        "year": "string",
+        "reassessment_year": "string",
+        "stage_name": "string",
+        "pin_n_tot": "int",
+        "pin_n_w_value": "bigint",
+        "pin_pct_w_value": "double",
+        "sale_n_tot": "bigint",
+        "mv_min": "bigint",
+        "mv_q10": "bigint",
+        "mv_q25": "bigint",
+        "mv_median": "bigint",
+        "mv_q75": "bigint",
+        "mv_q90": "bigint",
+        "mv_max": "bigint",
+        "mv_mean": "bigint",
+        "mv_sum": "bigint",
+        "mv_delta_median": "double",
+        "mv_delta_mean": "double",
+        "mv_delta_sum": "double",
+        "mv_delta_pct_median": "double",
+        "mv_delta_pct_mean": "double",
+        "mv_delta_pct_sum": "double",
+        "ratio_min": "double",
+        "ratio_q10": "double",
+        "ratio_q25": "double",
+        "ratio_median": "double",
+        "ratio_q75": "double",
+        "ratio_q90": "double",
+        "ratio_max": "double",
+        "ratio_mean": "double",
+        "cod": "double",
+        "prd": "double",
+        "prb": "double",
+        "mki": "double",
+        "cod_met": "boolean",
+        "prd_met": "boolean",
+        "prb_met": "boolean",
+        "mki_met": "boolean",
+        "within_05_pct": "boolean",
+        "within_10_pct": "boolean",
+        "within_15_pct": "boolean",
+        "within_20_pct": "boolean",
+    }
 
-    spark_df = spark_session.createDataFrame(df, schema=schema)
+    spark_df = spark_session.createDataFrame(
+        df, schema=", ".join(f"{key}: {val}" for key, val in schema.items())
+    )
 
     return spark_df
