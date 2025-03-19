@@ -82,8 +82,8 @@ for every possible geography and reporting group combination.
 
 # sot_assessment_roll
 {% docs table_sot_assessment_roll %}
-Table to feed the Python dbt job that creates the
-`reporting.sot_assessment_roll` table. Feeds public reporting assets.
+Aggregated summary stats of assessed values across a number of geographies,
+class combinations, and time.
 
 **Primary Key**: `year`, `stage_name`, `geography_id`, `group_id`
 {% enddocs %}
@@ -98,7 +98,8 @@ Table to feed the Python dbt job that creates the
 
 # sot_ratio_stat
 {% docs table_sot_ratio_stat %}
-Feeds public reporting assets.
+Aggregated summary stats of sales ratios across a number of geographies, class
+combinations, and time.
 
 **Primary Key**: `year`, `stage_name`, `geography_id`, `group_id`
 {% enddocs %}
@@ -113,7 +114,8 @@ Table to feed the Python dbt job that creates the
 
 # sot_sale
 {% docs table_sot_sale %}
-Feeds public reporting assets.
+Aggregated summary stats of sales across a number of geographies, class
+combinations, and time.
 
 **Primary Key**: `year`, `geography_id`, `group_id`
 {% enddocs %}
@@ -128,7 +130,8 @@ Table to feed the Python dbt job that creates the
 
 # sot_taxes_exemptions
 {% docs table_sot_taxes_exemptions %}
-Feeds public reporting assets.
+Aggregated summary stats of taxes and exemptions data across a number of
+geographies, class combinations, and time.
 
 **Primary Key**: `year`, `geography_id`, `group_id`
 {% enddocs %}
