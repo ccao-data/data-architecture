@@ -297,32 +297,68 @@ def model(dbt, spark_session):
     input = input.toPandas()
 
     df = assemble(input, geos=geos, groups=groups)
-
-    schema = (
-        "geography_type: string, geography_id: string, "
-        + "geography_data_year: string, group_type: string, group_id: string, "
-        + "year: string, reassessment_year: string, stage_name: string, "
-        + "pin_n_tot: bigint, pin_n_w_value: bigint, pin_pct_w_value: double, "
-        + "av_tot_min: double, av_tot_q10: double, av_tot_q25: double, "
-        + "av_tot_median: double, av_tot_q75: double, av_tot_q90: double, "
-        + "av_tot_max: double, av_tot_mean: double, av_tot_sum: double, "
-        + "av_tot_delta_median: double, av_tot_delta_mean: double, "
-        + "av_tot_delta_sum: double, av_tot_delta_pct_median: double, "
-        + "av_tot_delta_pct_mean: double, av_tot_delta_pct_sum: double, "
-        + "av_bldg_min: double, av_bldg_q10: double, av_bldg_q25: double, "
-        + "av_bldg_median: double, av_bldg_q75: double, av_bldg_q90: double, "
-        + "av_bldg_max: double, av_bldg_mean: double, av_bldg_sum: double, "
-        + "av_bldg_delta_median: double, av_bldg_delta_mean: double, "
-        + "av_bldg_delta_sum: double, av_bldg_delta_pct_median: double, "
-        + "av_bldg_delta_pct_mean: double, av_bldg_delta_pct_sum: double, "
-        + "av_land_min: double, av_land_q10: double, av_land_q25: double, "
-        + "av_land_median: double, av_land_q75: double, av_land_q90: double, "
-        + "av_land_max: double, av_land_mean: double, av_land_sum: double, "
-        + "av_land_delta_median: double, av_land_delta_mean: double, "
-        + "av_land_delta_sum: double, av_land_delta_pct_median: double, "
-        + "av_land_delta_pct_mean: double, av_land_delta_pct_sum: double"
+    # %%
+    schema = {
+        "geography_type": "string",
+        "geography_id": "string",
+        "geography_data_year": "string",
+        "group_type": "string",
+        "group_id": "string",
+        "year": "string",
+        "reassessment_year": "string",
+        "stage_name": "string",
+        "pin_n_tot": "bigint",
+        "pin_n_w_value": "bigint",
+        "pin_pct_w_value": "double",
+        "av_tot_min": "double",
+        "av_tot_q10": "double",
+        "av_tot_q25": "double",
+        "av_tot_median": "double",
+        "av_tot_q75": "double",
+        "av_tot_q90": "double",
+        "av_tot_max": "double",
+        "av_tot_mean": "double",
+        "av_tot_sum": "double",
+        "av_tot_delta_median": "double",
+        "av_tot_delta_mean": "double",
+        "av_tot_delta_sum": "double",
+        "av_tot_delta_pct_median": "double",
+        "av_tot_delta_pct_mean": "double",
+        "av_tot_delta_pct_sum": "double",
+        "av_bldg_min": "double",
+        "av_bldg_q10": "double",
+        "av_bldg_q25": "double",
+        "av_bldg_median": "double",
+        "av_bldg_q75": "double",
+        "av_bldg_q90": "double",
+        "av_bldg_max": "double",
+        "av_bldg_mean": "double",
+        "av_bldg_sum": "double",
+        "av_bldg_delta_median": "double",
+        "av_bldg_delta_mean": "double",
+        "av_bldg_delta_sum": "double",
+        "av_bldg_delta_pct_median": "double",
+        "av_bldg_delta_pct_mean": "double",
+        "av_bldg_delta_pct_sum": "double",
+        "av_land_min": "double",
+        "av_land_q10": "double",
+        "av_land_q25": "double",
+        "av_land_median": "double",
+        "av_land_q75": "double",
+        "av_land_q90": "double",
+        "av_land_max": "double",
+        "av_land_mean": "double",
+        "av_land_sum": "double",
+        "av_land_delta_median": "double",
+        "av_land_delta_mean": "double",
+        "av_land_delta_sum": "double",
+        "av_land_delta_pct_median": "double",
+        "av_land_delta_pct_mean": "double",
+        "av_land_delta_pct_sum": "double",
+    }
+    # %%
+    spark_df = spark_session.createDataFrame(
+        df, schema=", ".join(f"{key}: {val}" for key, val in schema.items())
     )
-
-    spark_df = spark_session.createDataFrame(df, schema=schema)
 
     return spark_df
