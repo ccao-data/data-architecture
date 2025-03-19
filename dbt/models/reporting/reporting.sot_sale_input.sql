@@ -100,5 +100,6 @@ LEFT JOIN {{ ref('default.vw_pin_sale') }} AS sales
     AND NOT sales.sale_filter_deed_type
     AND NOT sales.sale_filter_less_than_10k
     AND NOT sales.sale_filter_same_sale_within_365
+    AND COALESCE(sales.sv_is_outlier, FALSE) = FALSE
 -- Temporary limit on feeder table to avoid GitHub runner memory issues.
 WHERE uni.year = '2023'

@@ -89,7 +89,7 @@ def aggregrate(data, geography_type, group_type):
     # Remove parcels with MVs of 0 since they screw up ratios
     data = data[data["tot_mv"] > 0]
 
-    # Remove groups that only have one sale since we can't calculate stats
+    # Remove groups with 20 or less sales
     data = data.dropna(subset=["sale_price"])
     data = data[data["sale_n_tot"] >= 20]
 
