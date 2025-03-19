@@ -92,11 +92,6 @@ SELECT
         AS res_other,
     uni.year
 FROM {{ ref('default.vw_pin_universe') }} AS uni
-LEFT JOIN sf
-    ON uni.pin = sf.pin
-    AND uni.year = sf.year
-LEFT JOIN {{ ref('ccao.class_dict') }}
-    ON uni.class = class_dict.class_code
 LEFT JOIN {{ ref('default.vw_pin_sale') }} AS sales
     ON uni.pin = sales.pin
     AND uni.year = sales.year
@@ -104,5 +99,12 @@ LEFT JOIN {{ ref('default.vw_pin_sale') }} AS sales
     AND NOT sales.sale_filter_deed_type
     AND NOT sales.sale_filter_less_than_10k
     AND NOT sales.sale_filter_same_sale_within_365
+LEFT JOIN sf
+    ON uni.pin = sf.pin
+    AND uni.year = sf.year
+    -- Don't join characteristics onto outliers
+    AND NOT COALESCE(sales.sv_is_outlier, FALSE)
+LEFT JOIN {{ ref('ccao.class_dict') }}
+    ON uni.class = class_dict.class_code
 -- Temporary limit on feeder table to avoid GitHub runner memory issues.
 WHERE uni.year = '2023'
