@@ -416,28 +416,20 @@ left join iasworld.pardat pd
 where vpa.year >= '2000'
   ")
 
-  files <- list.files(pattern = "^parcel_\\d{4}\\.parquet$")
-
-  # Read each file into a list of data frames
-  spatial_df_list <- map(files, ~ read_parquet(.x))
-
-  # Combine all data frames into a single data frame
-  spatial_df_final <- bind_rows(spatial_df_list)
-
-  rm(spatial_df_list)
-
-  all_geographies <- read_parquet("missing_geographies.parquet")
-
   all_geographies <- all_geographies %>%
+    filter(year <= max(df$year, na.rm = TRUE)) %>%
     mutate(pin10 = substr(parid, 1, 10))
 
   missing_geographies <- anti_join(all_geographies, spatial_df_final, by = c("pin10", "year"))
 
-  rm(all_geographies)
-
-  # Grab only the parcels which are missing in any year.
+  # Grab all years of data for parcels which are missing in any year
   spatial_subset <- spatial_df_final %>%
-    filter(pin10 %in% missing_geographies$pin10)
+    filter(pin10 %in% missing_geographies$pin10) %>%
+    # Add property address to the subset to make sure PINs are consistent.
+    # This will expand the dataset since prop_addresses are not unique
+    # by PIN10.
+    left_join(all_geographies %>% select(year, pin10, prop_address_full),
+              by = c("year", "pin10"))
 
   imputed <- bind_rows(spatial_subset, missing_geographies)
 
@@ -445,19 +437,25 @@ where vpa.year >= '2000'
   # This is forward-backward filled, meaning that if the information
   # is missing for 2015, it pulls 2016 then 2014, 2017, etc.
   imputed <- imputed %>%
-    group_by(prop_address_full, pin10) %>%
+    group_by(pin10, prop_address_full) %>%
     mutate(missing = is.na(x_3435) | is.na(y_3435)) %>%
     arrange(year) %>%
     fill(x_3435, y_3435, lon, lat, .direction = "updown") %>%
     ungroup() %>%
-    # Remove duplicate rows based on pin10 and year, keeping all columns
+    # Remove duplicate rows based on pin10 and year
     distinct(pin10, year, .keep_all = TRUE) %>%
     # Only keep rows where none of the four fields are missing
     filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat)) %>%
+    # Keep observations which were originally missing
     filter(missing) %>%
-    # Select only the desired columns
     select(year, pin10, x_3435, y_3435, lon, lat) %>%
-    mutate(source = "imputed")
+    # directly code one pin where geocoding produces a value outside of Cook County
+    mutate(
+      lat    = if_else(pin10 == "1819200021" & year == "2000", as.numeric("-87.896805"), lat),
+      lon    = if_else(pin10 == "1819200021" & year == "2000", as.numeric("41.766003"), lon),
+      x_3435 = if_else(pin10 == "1819200021" & year == "2000", as.numeric("1573797"), x_3435),
+      y_3435 = if_else(pin10 == "1819200021" & year == "2000", as.numeric("-46628780"), y_3435)
+    )
 
   missing_geographies <- missing_geographies %>%
     # Remove rows that were handled in the imputed data frame.
@@ -509,7 +507,7 @@ where vpa.year >= '2000'
     st_drop_geometry()
 
   spatial_df_final <- spatial_df_final %>%
-    mutate(source = "clerk")
+    mutate(source = "raw")
 
   spatial_df_final <- bind_rows(spatial_df_final, imputed, geocoded)
 
