@@ -27,6 +27,7 @@ SELECT
         WHEN assessable = 'N' THEN 'Non-Assessable'
     END AS assessable,
     amount,
+    municipality,
     address_full AS address,
     applicant_name,
     CASE
