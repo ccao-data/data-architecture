@@ -13,7 +13,7 @@ sources:
               - pin
               - taxyr
             meta:
-              description: table should be unique by appeal_id, pin, and taxyr
+              description: ccbor appeals should be unique by appeal_id, pin, and taxyr
         columns:
           - name: appeal_id
             description: Appeal ID. Matches the "Complaint" value on the Board of Review Decision Search
