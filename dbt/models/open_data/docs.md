@@ -40,9 +40,9 @@ Thin wrapper around `default.vw_pin_status` that powers the `Parcel Status` open
 Thin wrapper around `default.vw_pin_universe` that powers the `Parcel Universe (Current Year)` open data asset
 {% enddocs %}
 
-# vw_parcel_universe_historic
+# vw_parcel_universe_historical
 
-{% docs view_vw_parcel_universe_historic %}
+{% docs view_vw_parcel_universe_historical %}
 Thin wrapper around `default.vw_pin_universe` that powers the `Parcel Universe (Historic)` open data asset
 {% enddocs %}
 
