@@ -90,6 +90,12 @@ sources:
             combination_of_columns:
               - pin
               - year
+        columns:
+          - name: flag
+            data_tests:
+              - accepted_values:
+                  name: ccao_pin_nonlivable_flag_accepted_values
+                  values: ["questionable", "negative pred", "399 GR"]
 
 exposures:
   - name: commercial_valuation_data
