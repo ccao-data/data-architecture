@@ -400,29 +400,32 @@ process_parcel_file <- function(s3_bucket_uri,
   # Get missing geographies and all matching pin address combinations
   # We remove info from before 2000 since almost all lon/lat information
   # is missing
-  all_geographies <- dbGetQuery(
-    conn = con,
-    "select distinct
-       vpa.year,
-       vpa.prop_address_full,
-       vpa.prop_address_city_name,
-       vpa.prop_address_state,
-       vpa.prop_address_zipcode_1,
-       pd.class,
-       pd.parid
-from default.vw_pin_address vpa
-left join iasworld.pardat pd
-  on vpa.pin = pd.parid and vpa.year = pd.taxyr
-where vpa.year >= '2000'
-  ")
+  all_geographies <-
+    dbGetQuery(
+               conn = con,
+               "select distinct
+               vpa.year,
+               vpa.prop_address_full,
+               vpa.prop_address_city_name,
+               vpa.prop_address_state,
+               vpa.prop_address_zipcode_1,
+               pd.class,
+               pd.parid
+            from default.vw_pin_address vpa
+            left join iasworld.pardat pd
+              on vpa.pin = pd.parid and vpa.year = pd.taxyr
+            where vpa.year >= '2000'
+              ")
 
   # This will be larger than the parcel dataframe since it's on PIN level
   all_geographies <- all_geographies %>%
-    # We can have data from current year before parcels are uploaded for that year
+    # We can have data from current year before parcels
+    # are uploaded for that year
     filter(year <= max(spatial_df_final$year, na.rm = TRUE)) %>%
     mutate(pin10 = substr(parid, 1, 10))
 
-  missing_geographies <- anti_join(all_geographies, spatial_df_final, by = c("pin10", "year"))
+  missing_geographies <- anti_join(all_geographies,
+                                   Sspatial_df_final, by = c("pin10", "year"))
 
   # Grab all years of data for parcels which are missing in any year
   spatial_subset <- spatial_df_final %>%
@@ -446,12 +449,17 @@ where vpa.year >= '2000'
     ungroup() %>%
     # Remove duplicate rows based on pin10 and year
     distinct(pin10, year, .keep_all = TRUE) %>%
-    # directly code one pin where geocoding produces a value outside of Cook County
+    # directly code one pin where geocoding produces a
+    # value outside of Cook County
     mutate(
-      lat    = if_else(pin10 == "1819200021" & year == "2000", as.numeric("-87.896805"), lat),
-      lon    = if_else(pin10 == "1819200021" & year == "2000", as.numeric("41.766003"), lon),
-      x_3435 = if_else(pin10 == "1819200021" & year == "2000", as.numeric("1573797"), x_3435),
-      y_3435 = if_else(pin10 == "1819200021" & year == "2000", as.numeric("-46628780"), y_3435)
+      lat    = if_else(pin10 == "1819200021" &
+                         year == "2000", as.numeric("-87.896805"), lat),
+      lon    = if_else(pin10 == "1819200021" &
+                         year == "2000", as.numeric("41.766003"), lon),
+      x_3435 = if_else(pin10 == "1819200021" &
+                         year == "2000", as.numeric("1573797"), x_3435),
+      y_3435 = if_else(pin10 == "1819200021" &
+                         year == "2000", as.numeric("-46628780"), y_3435)
     ) %>%
     # Only keep rows where none of the four fields are missing
     filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat)) %>%
@@ -478,16 +486,16 @@ where vpa.year >= '2000'
         street = prop_address_full,
         city   = prop_address_city_name,
         state  = prop_address_state,
-        method = 'census'
+        method = "census"
       ) %>%
       filter(!is.na(long) & !is.na(lat)) %>%
       st_as_sf(coords = c("long", "lat"), remove = FALSE) %>%
       st_set_crs(4326) %>%
       st_transform(3435) %>%
       mutate(
-      x_3435 = st_coordinates(.)[, 1],
-      y_3435 = st_coordinates(.)[, 2]
-    )
+        x_3435 = st_coordinates(.)[, 1],
+        y_3435 = st_coordinates(.)[, 2]
+      )
   }
 
   # Apply geocoding to each batch and combine results
