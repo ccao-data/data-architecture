@@ -84,6 +84,12 @@ sources:
         description: '{{ doc("table_pin_nonlivable") }}'
         tags:
           - type_condo
+        data_tests:
+        - unique_combination_of_columns:
+            name: ccao_pin_nonlivable_unique_by_pin_and_year
+            combination_of_columns:
+              - pin
+              - year
 
 exposures:
   - name: commercial_valuation_data
