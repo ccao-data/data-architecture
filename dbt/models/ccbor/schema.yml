@@ -5,6 +5,15 @@ sources:
     tables:
       - name: appeals
         description: '{{ doc("table_appeals") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: ccbor_appeals_unique_by_appeal_id_pin_taxyr
+            combination_of_columns:
+              - appeal_id
+              - pin
+              - taxyr
+            meta:
+              description: table should be unique by appeal_id, pin, and taxyr
         columns:
           - name: appeal_id
             description: Appeal ID. Matches the "Complaint" value on the Board of Review Decision Search
