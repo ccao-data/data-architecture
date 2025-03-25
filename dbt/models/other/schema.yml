@@ -5,18 +5,66 @@ sources:
     tables:
       - name: airport_noise
         description: '{{ doc("table_airport_noise") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: other_airport_noise_unique_by_pin_10_and_year
+            combination_of_columns:
+              - pin10
+              - year
+            meta:
+              description: airport_noise should be unique by pin10 and year
 
       - name: flood_first_street
         description: '{{ doc("table_flood_first_street") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: other_flood_first_street_unique_by_pin_10_and_year
+            combination_of_columns:
+              - pin10
+              - year
+            meta:
+              description: flood_first_street should be unique by pin10 and year
 
       - name: great_schools_rating
         description: '{{ doc("table_great_schools_rating") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: other_great_school_rating_unique_by_pin_10_and_year
+            combination_of_columns:
+              - pin10
+              - year
+            meta:
+              description: great_school_rating should be unique by pin10 and year
 
       - name: ihs_index
         description: '{{ doc("table_ihs_index") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: other_ihs_index_unique_by_pin_10_and_year
+            combination_of_columns:
+              - pin10
+              - year
+            meta:
+              description: ihs_index should be unique by pin10 and year
 
       - name: dci
         description: '{{ doc("table_dci") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: other_dci_unique_by_pin_10_and_year
+            combination_of_columns:
+              - pin10
+              - year
+            meta:
+              description: dci should be unique by pin10 and year
 
       - name: ari
         description: '{{ doc("table_ari") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: other_ari_unique_by_pin_10_and_year
+            combination_of_columns:
+              - pin10
+              - year
+            meta:
+              description: ari should be unique by pin10 and year
