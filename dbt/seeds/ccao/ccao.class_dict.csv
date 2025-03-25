@@ -38,7 +38,7 @@ major_class_code,major_class_type,regression_class,modeling_group,reporting_grou
 3,Multi-Family,FALSE,,,3,313,"Two-or-three-story, building, seven or more units",,,,
 3,Multi-Family,FALSE,,,3,314,"Two-or-three-story, non-fireproof building with corridor apartment or California type apartments, no corridors exterior entrance",,,,
 3,Multi-Family,FALSE,,,3,315,"Two-or-three-story, non-fireproof corridor apartments or California type apartments, interior entrance",,,,
-3,Multi-Family,FALSE,,,3,318,"Mixed-use commercial/residential building with apartments and commercial area totaling seven units or more with a square-foot area of over 20,000 square feet",,,,
+3,Multi-Family,FALSE,,,3,318,"All mixed-use commercial/residential buildings under 20,000 square feet of area with 7 units or more and mixed use commercial/residential buildings with an area of 20,000 to 99,999 square feet where no more than 60% of the building is used for commercial purposes. (For mixed-use buildings that do not meet the parameters of this subcategory or qualify as Class 2 property, the portion of the building used for residential purposes will be assessed as the appropriate subcategory of residential property and the commercially used portion will be assessed as commercial property.)",,,,
 3,Multi-Family,FALSE,,,3,390,Other minor improvement related to rental use,,,,
 3,Multi-Family,FALSE,,,3,391,"Apartment building over three stories, seven or more units",,,,
 3,Multi-Family,FALSE,,,3,396,"Rented modern row houses, seven or more units in a single development or one or more contiguous parcels in common ownership",,,,
