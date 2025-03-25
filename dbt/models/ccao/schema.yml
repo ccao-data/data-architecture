@@ -33,6 +33,13 @@ sources:
         description: '{{ doc("table_land_nbhd_rate") }}'
         tags:
           - type_land
+        data_tests:
+          - unique_combination_of_columns:
+              name: land_nbhd_rate_unique_by_town_nbhd_class_and_year
+              combination_of_columns:
+                - town_nbhd
+                - class
+                - year
 
       - name: land_site_rate
         description: '{{ doc("table_land_site_rate") }}'
