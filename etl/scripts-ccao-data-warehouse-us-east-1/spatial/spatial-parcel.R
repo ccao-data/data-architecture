@@ -416,8 +416,10 @@ left join iasworld.pardat pd
 where vpa.year >= '2000'
   ")
 
+  # This will be larger than the parcel dataframe since it's on PIN level
   all_geographies <- all_geographies %>%
-    filter(year <= max(df$year, na.rm = TRUE)) %>%
+    # We can have data from current year before parcels are uploaded for that year
+    filter(year <= max(spatial_df_final$year, na.rm = TRUE)) %>%
     mutate(pin10 = substr(parid, 1, 10))
 
   missing_geographies <- anti_join(all_geographies, spatial_df_final, by = c("pin10", "year"))
@@ -444,18 +446,18 @@ where vpa.year >= '2000'
     ungroup() %>%
     # Remove duplicate rows based on pin10 and year
     distinct(pin10, year, .keep_all = TRUE) %>%
-    # Only keep rows where none of the four fields are missing
-    filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat)) %>%
-    # Keep observations which were originally missing
-    filter(missing) %>%
-    select(year, pin10, x_3435, y_3435, lon, lat) %>%
     # directly code one pin where geocoding produces a value outside of Cook County
     mutate(
       lat    = if_else(pin10 == "1819200021" & year == "2000", as.numeric("-87.896805"), lat),
       lon    = if_else(pin10 == "1819200021" & year == "2000", as.numeric("41.766003"), lon),
       x_3435 = if_else(pin10 == "1819200021" & year == "2000", as.numeric("1573797"), x_3435),
       y_3435 = if_else(pin10 == "1819200021" & year == "2000", as.numeric("-46628780"), y_3435)
-    )
+    ) %>%
+    # Only keep rows where none of the four fields are missing
+    filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat)) %>%
+    # Keep observations which were originally missing
+    filter(missing) %>%
+    select(year, pin10, x_3435, y_3435, lon, lat)
 
   missing_geographies <- missing_geographies %>%
     # Remove rows that were handled in the imputed data frame.
