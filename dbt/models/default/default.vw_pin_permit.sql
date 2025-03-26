@@ -38,6 +38,7 @@ SELECT
     permit.flag AS status,
     permit.user18 AS assessable,
     permit.amount,
+    NULLIF(ARRAY_JOIN(vpu.tax_municipality_name, ', '), '') AS municipality,
     -- When note2 is filled out and present, it represents the full
     -- concatenated street address. When not present, we need to
     -- reconstruct it from the detailed address fields
@@ -80,3 +81,6 @@ FROM active_permits AS permit
 -- so we can use it as a basis for joining permits to themselves
 INNER JOIN permit_addresses AS address
     ON permit.iasw_id = address.iasw_id
+LEFT JOIN {{ ref('default.vw_pin_universe') }} AS vpu
+    ON permit.parid = vpu.pin
+    AND SUBSTR(permit.permdt, 1, 4) = vpu.year

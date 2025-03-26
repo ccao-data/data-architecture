@@ -52,6 +52,8 @@ models:
         description: '{{ doc("column_permit_job_code_secondary") }}'
       - name: local_permit_number
         description: Permit number as recorded by the municipality
+      - name: municipality
+        description: '{{ doc("column_tax_district_name") }}'
       - name: notes
         description: Notes on this field recorded by the reviewer in iasWorld
       - name: permit_number
