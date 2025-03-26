@@ -154,10 +154,33 @@ sources:
 
       - name: tif
         description: '{{ doc("table_tif") }}'
-        
+        data_tests:
+        - unique_combination_of_columns:
+            name: tax_tif_unique_by_year_agency_num
+            combination_of_columns:
+              - year
+              - agency_num
+            meta:
+              description: tif is unique by year and agency_num
 
       - name: tif_crosswalk
         description: '{{ doc("table_tif_crosswalk") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: tax_tif_crosswalk_unique_by_year
+            combination_of_columns:
+              - year
+            meta:
+              description: tif_crosswalk is unique by year
 
       - name: tif_distribution
         description: '{{ doc("table_tif_distribution") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: tax_tif_distribution_unique_by_year_agency_num_tax_code_num
+            combination_of_columns:
+              - year
+              - agency_num
+              - tax_code_num
+            meta:
+              description: tif_distribution is unique by year, agency_num, and tax_code_num
