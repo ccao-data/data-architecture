@@ -133,12 +133,11 @@ sources:
         description: '{{ doc("table_pin_geometry_raw") }}'
         data_tests:
         - unique_combination_of_columns:
-            name: tax_pin_geometry_raw_unique_by_year_pin
+            name: tax_pin_geometry_raw_unique_by_pin
             combination_of_columns:
-              - year
               - pin
             meta:
-              description: pin_geometry_raw is unique by year and pin
+              description: pin_geometry_raw is unique by pin
 
       - name: tax_code
         description: '{{ doc("table_tax_code") }}'
