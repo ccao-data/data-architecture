@@ -166,12 +166,12 @@ sources:
         description: '{{ doc("table_tif_crosswalk") }}'
         data_tests:
         - unique_combination_of_columns:
-            name: tax_tif_crosswalk_unique_by_year_agency_num_final
+            name: tax_tif_crosswalk_unique_by_year_agency_num_dist
             combination_of_columns:
               - year
-              - agency_num_final
+              - agency_num_dist
             meta:
-              description: tif_crosswalk is unique by year and ageagency_num_final
+              description: tif_crosswalk is unique by year and agency_num_dist
 
       - name: tif_distribution
         description: '{{ doc("table_tif_distribution") }}'
