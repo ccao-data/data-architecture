@@ -41,6 +41,13 @@ sources:
 
       - name: corner
         description: '{{ doc("table_corner") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: spatial_corner_unique_by_year
+            combination_of_columns:
+              - pin10
+            meta:
+              description: corner unique by pin10
         columns:
           - name: geometry
             description: |
