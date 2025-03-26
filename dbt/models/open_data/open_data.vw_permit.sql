@@ -12,7 +12,6 @@ SELECT
     CAST(date_issued AS TIMESTAMP) AS date_issued,
     CAST(date_submitted AS TIMESTAMP) AS date_submitted,
     estimated_date_of_completion,
-    assessment_year,
     recheck_year,
     CASE
         WHEN status = 'C' THEN 'CLOSED'
