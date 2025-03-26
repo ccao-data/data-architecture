@@ -5,24 +5,77 @@ sources:
     tables:
       - name: agency
         description: '{{ doc("table_agency") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: tax_agnency_unique_by_year_agency_num
+            combination_of_columns:
+              - year
+              - agency_num
+            meta:
+              description: agency is unique by year and agency_num
 
       - name: agency_fund
         description: '{{ doc("table_agency_fund") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: tax_agency_fund_unique_by_year_agency_num_fund_num
+            combination_of_columns:
+              - year
+              - agency_num
+              - fund_num
+            meta:
+              description: agency_fund is unique by year, agency_num and fund_num
 
       - name: agency_fund_info
         description: '{{ doc("table_agency_fund_info") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: tax_agency_fund_info_unique_by_fund_num
+            combination_of_columns:
+              - fund_num
+            meta:
+              description: agency_fund_info is unique by fund_num
 
       - name: agency_info
         description: '{{ doc("table_agency_info") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: tax_agency_info_unique_by_agency_num
+            combination_of_columns:
+              - agency_num
+            meta:
+              description: agency_info is unique by agency_num
 
       - name: cpi
         description: '{{ doc("table_cpi") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: tax_cpi_unique_by_levy_year
+            combination_of_columns:
+              - levy_year
+            meta:
+              description: cpi is unique by levy_year
 
       - name: eq_factor
         description: '{{ doc("table_eq_factor") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: tax_eq_factor_unique_by_year
+            combination_of_columns:
+              - year
+            meta:
+              description: eq_factor is unique by year
 
       - name: pin
         description: '{{ doc("table_pin") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: tax_pin_unique_by_year_pin
+            combination_of_columns:
+              - year
+              - pin
+            meta:
+              description: pin is unique by year and pin
         columns:
           - name: class
             description: '{{ doc("shared_column_char_class")}}'
@@ -78,12 +131,30 @@ sources:
 
       - name: pin_geometry_raw
         description: '{{ doc("table_pin_geometry_raw") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: tax_pin_geometry_raw_unique_by_year_pin
+            combination_of_columns:
+              - year
+              - pin
+            meta:
+              description: pin_geometry_raw is unique by year and pin
 
       - name: tax_code
         description: '{{ doc("table_tax_code") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: tax_tax_code_unique_by_year_agency_num_tax_code_num
+            combination_of_columns:
+              - year
+              - agency_num
+              - tax_code_num
+            meta:
+              description: tax_code is unique by year, agency_num, and tax_code_num
 
       - name: tif
         description: '{{ doc("table_tif") }}'
+        
 
       - name: tif_crosswalk
         description: '{{ doc("table_tif_crosswalk") }}'
