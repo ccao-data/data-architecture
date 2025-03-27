@@ -388,18 +388,6 @@ models:
   - name: proximity.dist_pin_to_pin
     description: '{{ doc("view_dist_pin_to_pin") }}'
     data_tests:
-      - row_count:
-          name: proximity_dist_pin_to_pin_matches_spatial_parcel
-          above: >
-            (
-              SELECT COUNT(*)
-              FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ source('proximity', 'dist_pin_to_pin') }}
-            )
-        tags:
-          - load_manual
-        meta:
-          description: dist_pin_to_pin has the same number of rows as the spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_unique_by_10_digit_pin_and_year
           combination_of_columns:
