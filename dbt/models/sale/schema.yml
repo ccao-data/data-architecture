@@ -44,11 +44,27 @@ sources:
 
       - name: foreclosure
         description: '{{ doc("foreclosure") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: sale_foreclosure_unique_by_document_number_pin
+            combination_of_columns:
+              - document_number
+              - pin
+            meta:
+              description: foreclosure is unique by document_number and pin
         tags:
           - load_manual
 
       - name: group_mean
         description: '{{ doc("group_mean") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: sale_group_mean_unique_by_group_run_id
+            combination_of_columns:
+              - group
+              - run_id
+            meta:
+              description: group_mean is unique by group and run_id
         tags:
           - load_auto
 
@@ -69,6 +85,13 @@ sources:
 
       - name: parameter
         description: '{{ doc("parameter") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: sale_parameter_unique_by_run_id
+            combination_of_columns:
+              - run_id
+            meta:
+              description: parameter is unique by run_id
         tags:
           - load_auto
 
@@ -132,6 +155,13 @@ sources:
 
       - name: metadata
         description: '{{ doc("metadata") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: sale_metadata_unique_by_run_id
+            combination_of_columns:
+              - run_id
+            meta:
+              description: metadata is unique by run_id
         tags:
           - load_auto
 
@@ -160,12 +190,28 @@ sources:
 
       - name: mydec
         description: '{{ doc("mydec") }}'
+        data_tests:
+        - unique_combination_of_columns:
+            name: sale_mydec_unique_by_document_number_year_of_sale
+            combination_of_columns:
+              - document_number
+              - year_of_sale
+            meta:
+              description: mydec is unique by document_number and year_of_sale
         tags:
           - load_manual
 
 models:
   - name: sale.vw_ias_salesval_upload
     description: '{{ doc("vw_ias_salesval_upload") }}'
+    data_tests:
+    - unique_combination_of_columns:
+        name: sale_vw_ias_salesval_upload_unique_by_sale_key_run_id
+        combination_of_columns:
+          - sale_key
+          - run_id
+        meta:
+          description: vw_ias_salesval_upload is unique by sale_key and run_id
 
     columns:
       - name: run_id
