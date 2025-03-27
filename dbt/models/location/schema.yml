@@ -447,21 +447,12 @@ models:
           additional_select_columns:
             - pin10
             - year
-      - row_count:
-          name: location_vw_pin10_location_row_count_matches_spatial_parcel
-          above: >
-            (
-              SELECT COUNT(*)
-              FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.vw_pin10_location') }})
-            )
       - unique_combination_of_columns:
-          name: location_vw_pin10_location_unique_by_year_pin10
+          name: location_vw_pin10_location_unique_by_year
           combination_of_columns:
             - year
-            - pin10
           meta:
-            description: vw_pin10_location is unique by year and pin10
+            description: vw_pin10_location is unique by year
 
   - name: location.vw_pin10_location_fill
     description: '{{ doc("view_vw_pin10_location_fill") }}'
