@@ -23,6 +23,14 @@ models:
   - name: proximity.cnt_pin_num_foreclosure
     description: '{{ doc("table_cnt_pin_num_foreclosure") }}'
     data_tests:
+    - row_count:
+        name: cnt_pin_num_foreclosure_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.cnt_pin_num_foreclosure') }})
+          )
     - unique_combination_of_columns:
         name: proximity_cnt_pin_num_foreclosure_unique_by_pin10_and_year
         combination_of_columns:
@@ -36,6 +44,14 @@ models:
   - name: proximity.cnt_pin_num_school
     description: '{{ doc("table_cnt_pin_num_school") }}'
     data_tests:
+    - row_count:
+        name: cnt_pin_num_school_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.cnt_pin_num_school') }})
+          )
     - unique_combination_of_columns:
         name: proximity_cnt_pin_num_school_unique_by_pin10_and_year
         combination_of_columns:
@@ -49,6 +65,14 @@ models:
   - name: proximity.crosswalk_year_fill
     description: '{{ doc("table_crosswalk_year_fill") }}'
     data_tests:
+    - row_count:
+        name: crosswalk_year_fill_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.crosswalk_year_fill') }})
+          )
     - unique_combination_of_columns:
         name: proximity_crosswalk_year_fill_unique_by_year
         combination_of_columns:
@@ -61,6 +85,14 @@ models:
   - name: proximity.dist_pin_to_airport
     description: '{{ doc("table_dist_pin_to_airport") }}'
     data_tests:
+    - row_count:
+        name: dist_pin_to_airport_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_airport') }})
+          )
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_airport_unique_by_pin10_and_year
         combination_of_columns:
@@ -74,6 +106,14 @@ models:
   - name: proximity.dist_pin_to_bike_trail
     description: '{{ doc("table_dist_pin_to_bike_trail") }}'
     data_tests:
+    - row_count:
+        name: dist_pin_to_bike_trail_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_bike_trail') }})
+          )
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_bike_trail_unique_by_pin10_and_year
         combination_of_columns:
@@ -87,6 +127,14 @@ models:
   - name: proximity.dist_pin_to_cemetery
     description: '{{ doc("table_dist_pin_to_cemetery") }}'
     data_tests:
+    - row_count:
+        name: dist_pin_to_cemetery_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_cemetery') }})
+          )
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_cemetery_unique_by_pin10_and_year
         combination_of_columns:
@@ -100,6 +148,14 @@ models:
   - name: proximity.dist_pin_to_cta_route
     description: '{{ doc("table_dist_pin_to_cta_route") }}'
     data_tests:
+    - row_count:
+        name: dist_pin_to_cta_route_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_cta_route') }})
+          )
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_cta_route_unique_by_pin10_and_year
         combination_of_columns:
