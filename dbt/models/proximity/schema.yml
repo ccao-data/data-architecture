@@ -394,7 +394,7 @@ models:
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_pin') }})
+              WHERE year >= (SELECT MIN(year) FROM {{ source('proximity', 'dist_pin_to_pin') }}
             )
         tags:
           - load_manual
