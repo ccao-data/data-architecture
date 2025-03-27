@@ -50,6 +50,7 @@ sources:
             combination_of_columns:
               - document_number
               - pin
+              - case_number
             meta:
               description: foreclosure is unique by document_number and pin
         tags:
