@@ -20,36 +20,212 @@ models:
 
   - name: location.census
     description: '{{ doc("table_census") }}'
+    data_tests:
+      - row_count:
+          name: location_census_row_count_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.census') }})
+            )
+      - unique_combination_of_columns:
+          name: location_census_unique_by_year_pin10
+          combination_of_columns:
+            - year
+            - pin10
+          meta:
+            description: census is unique by year and pin10
 
   - name: location.census_2020
     description: '{{ doc("table_census_2020") }}'
+    data_tests:
+      - row_count:
+          name: location_census_2020_row_count_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.census_2020') }})
+            )
+      - unique_combination_of_columns:
+          name: location_census_2020_unique_by_year_pin10
+          combination_of_columns:
+            - year
+            - pin10
+          meta:
+            description: census_2020 is unique by year and pin10
 
   - name: location.census_acs5
     description: '{{ doc("table_census_acs5") }}'
+    data_tests:
+      - row_count:
+          name: location_census_acs5_row_count_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.census_acs5') }})
+            )
+      - unique_combination_of_columns:
+          name: location_census_acs5_unique_by_year_pin10
+          combination_of_columns:
+            - year
+            - pin10
+          meta:
+            description: census_acs5 is unique by year and pin10
 
   - name: location.chicago
     description: '{{ doc("table_chicago") }}'
+    data_tests:
+      - row_count:
+          name: location_chicago_row_count_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.chicago') }})
+            )
+      - unique_combination_of_columns:
+          name: location_chicago_unique_by_year_pin10
+          combination_of_columns:
+            - year
+            - pin10
+          meta:
+            description: chicago is unique by year and pin10
 
   - name: location.crosswalk_year_fill
     description: '{{ doc("table_crosswalk_year_fill") }}'
+    data_tests:
+      - row_count:
+          name: location_crosswalk_year_fill_row_count_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.crosswalk_year_fill') }})
+            )
+      - unique_combination_of_columns:
+          name: location_crosswalk_year_fill_unique_by_year_pin10
+          combination_of_columns:
+            - year
+            - pin10
+          meta:
+            description: crosswalk_year_fill is unique by year and pin10
 
   - name: location.economy
     description: '{{ doc("table_economy") }}'
+    data_tests:
+      - row_count:
+          name: location_economy_row_count_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.economy') }})
+            )
+      - unique_combination_of_columns:
+          name: location_economy_unique_by_year_pin10
+          combination_of_columns:
+            - year
+            - pin10
+          meta:
+            description: economy is unique by year and pin10
 
   - name: location.environment
     description: '{{ doc("table_environment") }}'
+    data_tests:
+      - row_count:
+          name: location_environment_row_count_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.environment') }})
+            )
+      - unique_combination_of_columns:
+          name: location_environment_unique_by_year_pin10
+          combination_of_columns:
+            - year
+            - pin10
+          meta:
+            description: environment is unique by year and pin10
 
   - name: location.other
     description: '{{ doc("table_other") }}'
+    data_tests:
+      - row_count:
+          name: location_other_row_count_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.other') }})
+            )
+      - unique_combination_of_columns:
+          name: location_other_unique_by_year_pin10
+          combination_of_columns:
+            - year
+            - pin10
+          meta:
+            description: other is unique by year and pin10
 
   - name: location.political
     description: '{{ doc("table_political") }}'
+    data_tests:
+      - row_count:
+          name: location_political_row_count_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.political') }})
+            )
+      - unique_combination_of_columns:
+          name: location_political_unique_by_year_pin10
+          combination_of_columns:
+            - year
+            - pin10
+          meta:
+            description: political is unique by year and pin10
 
   - name: location.school
     description: '{{ doc("table_school") }}'
+    data_tests:
+      - row_count:
+          name: location_school_row_count_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.school') }})
+            )
+      - unique_combination_of_columns:
+          name: location_school_unique_by_year_pin10
+          combination_of_columns:
+            - year
+            - pin10
+          meta:
+            description: school is unique by year and pin10
 
   - name: location.tax
     description: '{{ doc("table_tax") }}'
+    data_tests:
+      - row_count:
+          name: location_tax_row_count_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.tax') }})
+            )
+      - unique_combination_of_columns:
+          name: location_tax_unique_by_year_pin10
+          combination_of_columns:
+            - year
+            - pin10
+          meta:
+            description: tax is unique by year and pin10
 
   - name: location.vw_pin10_location
     description: '{{ doc("view_vw_pin10_location") }}'
@@ -271,15 +447,41 @@ models:
           additional_select_columns:
             - pin10
             - year
+      - row_count:
+          name: location_vw_pin10_location_row_count_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.vw_pin10_location') }})
+            )
       - unique_combination_of_columns:
-          name: location_vw_pin10_location_unique_by_keys
+          name: location_vw_pin10_location_unique_by_year_pin10
           combination_of_columns:
-            - pin10
             - year
+            - pin10
+          meta:
+            description: vw_pin10_location is unique by year and pin10
 
   - name: location.vw_pin10_location_fill
     description: '{{ doc("view_vw_pin10_location_fill") }}'
     columns: *vw_location_columns
+    data_tests:
+      - row_count:
+          name: location_vw_pin10_location_fill_row_count_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.vw_pin10_location') }})
+            )
+      - unique_combination_of_columns:
+          name: location_vw_pin10_location_fill_unique_by_year_pin10
+          combination_of_columns:
+            - year
+            - pin10
+          meta:
+            description: vw_pin10_location is unique by year and pin10
 
 unit_tests:
   - name: location_crosswalk_year_fill_should_create_proper_fill_and_data_years
