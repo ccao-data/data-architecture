@@ -63,7 +63,7 @@ sources:
         - unique_combination_of_columns:
             name: sale_group_mean_unique_by_group_run_id
             combination_of_columns:
-              - '"group"'
+              - "group"
               - run_id
             meta:
               description: group_mean is unique by group and run_id
