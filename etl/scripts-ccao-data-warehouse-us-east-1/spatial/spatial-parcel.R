@@ -419,8 +419,8 @@ process_parcel_file <- function(s3_bucket_uri,
 
   # This will be larger than the parcel dataframe since it's on PIN level
   all_geographies <- all_geographies %>%
-    # We can have data from current year before parcels
-    # are uploaded for that year
+    # We can have address data from current year before parcel shapes
+    # are available for that year
     filter(year <= max(spatial_df_final$year, na.rm = TRUE)) %>%
     mutate(pin10 = substr(parid, 1, 10))
 
