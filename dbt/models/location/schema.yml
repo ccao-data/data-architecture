@@ -2,6 +2,14 @@ models:
   - name: location.access
     description: '{{ doc("table_access") }}'
     data_tests:
+      - row_count:
+          name: location_access_row_count_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ source('location', 'access') }})
+            )
       - unique_combination_of_columns:
           name: location_access_unique_by_year_pin10
           combination_of_columns:
