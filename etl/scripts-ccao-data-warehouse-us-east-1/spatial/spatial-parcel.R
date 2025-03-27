@@ -425,7 +425,7 @@ process_parcel_file <- function(s3_bucket_uri,
     mutate(pin10 = substr(parid, 1, 10))
 
   missing_geographies <- anti_join(all_geographies,
-                                   Sspatial_df_final, by = c("pin10", "year"))
+                                   spatial_df_final, by = c("pin10", "year"))
 
   # Grab all years of data for parcels which are missing in any year
   spatial_subset <- spatial_df_final %>%
