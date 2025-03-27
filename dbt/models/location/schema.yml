@@ -439,11 +439,12 @@ models:
             - pin10
             - year
       - unique_combination_of_columns:
-          name: location_vw_pin10_location_unique_by_year
+          name: location_vw_pin10_location_unique_by_year_pin10
           combination_of_columns:
             - year
+            - pin10
           meta:
-            description: vw_pin10_location is unique by year
+            description: vw_pin10_location is unique by year and pin10
 
   - name: location.vw_pin10_location_fill
     description: '{{ doc("view_vw_pin10_location_fill") }}'
