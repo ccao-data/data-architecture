@@ -206,12 +206,12 @@ models:
     description: '{{ doc("vw_ias_salesval_upload") }}'
     data_tests:
     - unique_combination_of_columns:
-        name: sale_vw_ias_salesval_upload_unique_by_sale_key_run_id
+        name: sale_vw_ias_salesval_upload_unique_by_salekey_run_id
         combination_of_columns:
-          - sale_key
+          - salekey
           - run_id
         meta:
-          description: vw_ias_salesval_upload is unique by sale_key and run_id
+          description: vw_ias_salesval_upload is unique by salekey and run_id
 
     columns:
       - name: run_id
