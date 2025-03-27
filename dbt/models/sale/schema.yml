@@ -50,11 +50,12 @@ sources:
             combination_of_columns:
               - document_number
               - pin
-              - case_number
             meta:
               description: foreclosure is unique by document_number and pin
-        tags:
-          - load_manual
+            config:
+              warn
+        config:
+          error_if: ">4430"
 
       - name: group_mean
         description: '{{ doc("group_mean") }}'
