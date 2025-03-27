@@ -46,16 +46,16 @@ sources:
         description: '{{ doc("foreclosure") }}'
         data_tests:
         - unique_combination_of_columns:
-            name: sale_foreclosure_unique_by_document_number_pin
+            name: sale_foreclosure_unique
             combination_of_columns:
-              - document_number
+              - case_number
               - pin
+              - sale_results
+              - date_of_sale
             meta:
-              description: foreclosure is unique by document_number and pin
+              description: foreclosure is unique by case_number, pin, sale_results and date_of_sale
             config:
-              warn
-        config:
-          error_if: ">4430"
+              error_if: ">1"
 
       - name: group_mean
         description: '{{ doc("group_mean") }}'
