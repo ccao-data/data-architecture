@@ -914,7 +914,6 @@ models:
             - load_manual
           meta:
             description: vw_pin10_proximity_fill should be unique by pin10 and year
-
     columns: *vw_proximity_columns
 
 unit_tests:
