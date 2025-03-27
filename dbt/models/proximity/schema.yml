@@ -10,6 +10,10 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.cnt_pin_num_bus_stop') }})
           )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_bike_trail should be match spatial_parcel
   - unique_combination_of_columns:
         name: proximity_cnt_pin_num_bus_stop_unique_by_pin10_and_year
         combination_of_columns:
@@ -31,6 +35,10 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.cnt_pin_num_foreclosure') }})
           )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_bike_trail should be match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_cnt_pin_num_foreclosure_unique_by_pin10_and_year
         combination_of_columns:
@@ -52,6 +60,10 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.cnt_pin_num_school') }})
           )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_bike_trail should be match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_cnt_pin_num_school_unique_by_pin10_and_year
         combination_of_columns:
@@ -73,6 +85,10 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.crosswalk_year_fill') }})
           )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_bike_trail should be match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_crosswalk_year_fill_unique_by_year
         combination_of_columns:
@@ -93,6 +109,10 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_airport') }})
           )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_bike_trail should be match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_airport_unique_by_pin10_and_year
         combination_of_columns:
@@ -114,6 +134,10 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_bike_trail') }})
           )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_bike_trail should be match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_bike_trail_unique_by_pin10_and_year
         combination_of_columns:
