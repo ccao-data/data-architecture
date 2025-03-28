@@ -1,6 +1,23 @@
 seeds:
   - name: model.final_model_raw
     description: '{{ doc("seed_final_model_raw") }}'
+    tags:
+      - load_manual
+    data_tests:
+      - unique_combination_of_columns:
+          name: model_final_model_unique_by_run_id
+          combination_of_columns:
+            - run_id
+          meta:
+            description: Final model is unique by run_id
+      - unique_combination_of_columns:
+          name: model_final_model_unique_by_year_type_is_final
+          combination_of_columns:
+            - year
+            - type
+            - is_final
+          meta:
+            description: Final model is unique by year, type and is_final
     config:
       column_types:
         year: string

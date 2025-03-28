@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: sale
+    data_tests:
+      - not_null:
+          name: sale_flag_not_null_when_sv_is_outlier
+          where: sv_is_outlier
+      - unique_combination_of_columns:
+          name: sale_flag_unique_by_doc_num_version
+          combination_of_columns:
+            - meta_sale_document_num
+            - version
