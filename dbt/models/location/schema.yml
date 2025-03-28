@@ -188,6 +188,7 @@ models:
                 UNION ALL
                 SELECT year FROM {{ source('spatial', 'enterprise_zone') }}
               ) unioned_years
+              )
             )
       - unique_combination_of_columns:
           name: location_other_unique_by_year_pin10
