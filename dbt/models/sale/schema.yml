@@ -56,6 +56,8 @@ sources:
               description: foreclosure is unique by case_number, pin, sale_results and date_of_sale
             config:
               error_if: ">1"
+        tags:
+          - load_manual
 
       - name: group_mean
         description: '{{ doc("group_mean") }}'
