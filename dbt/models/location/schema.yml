@@ -207,7 +207,18 @@ models:
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.political') }})
+              WHERE year >= (
+              SELECT MIN(year)
+              FROM (
+                SELECT year FROM {{ source('spatial', 'board_of_review_district') }}
+                UNION ALL
+                SELECT year FROM {{ source('spatial', 'commissioner_district') }}
+                UNION ALL
+                SELECT year FROM {{ source('spatial', 'judicial_district') }}
+                UNION ALL
+                SELECT year FROM {{ source('spatial', 'ward') }}
+              ) unioned_years
+              )
             )
       - unique_combination_of_columns:
           name: location_political_unique_by_year_pin10
@@ -227,6 +238,7 @@ models:
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
               WHERE year >= (SELECT MIN(year) FROM {{ ref('location.school') }})
+              AND geoid IS NOT NULL
             )
       - unique_combination_of_columns:
           name: location_school_unique_by_year_pin10
