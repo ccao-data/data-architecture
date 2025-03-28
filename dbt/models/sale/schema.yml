@@ -36,11 +36,18 @@ sources:
             description: '{{ doc("shared_column_sv_version") }}'
 
         data_tests:
+        - not_null:
+            name: sale_flag_not_null_when_sv_is_outlier
+            where: sv_is_outlier
+            meta:
+              description: sv_is_outlier is not null when sv_is_outlier
         - unique_combination_of_columns:
             name: sale_flag_unique_by_doc_num_version
             combination_of_columns:
               - meta_sale_document_num
               - version
+            meta:
+              description: flag is unique by meta_sale_document_num and version
 
       - name: foreclosure
         description: '{{ doc("foreclosure") }}'
