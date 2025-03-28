@@ -122,7 +122,20 @@ models:
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.economy') }})
+              WHERE year >= (
+                SELECT MIN(year)
+                FROM (
+              SELECT year FROM {{ source('spatial', 'coordinated_care') }}
+              UNION ALL
+              SELECT year FROM {{ source('spatial', 'enterprise_zone') }}
+              UNION ALL
+              SELECT year FROM {{ source('spatial', 'industrial_growth_zone') }}
+              UNION ALL
+              SELECT year FROM {{ source('spatial', 'qualified_opportunity_zone') }}
+              UNION ALL
+              SELECT year FROM {{ source('spatial', 'central_business_district') }}
+                ) unioned_years
+              )
             )
       - unique_combination_of_columns:
           name: location_economy_unique_by_year_pin10
@@ -140,7 +153,15 @@ models:
           above: >
             (
               SELECT COUNT(*)
-              FROM {{ source('spatial', 'parcel') }}
+              FROM (
+              SELECT year FROM {{ source('spatial', 'flood_fema') }}
+              UNION ALL
+              SELECT year FROM {{ source('other', 'flood_first_street') }}
+              UNION ALL
+              SELECT year FROM {{ source('spatial', 'ohare_noise_contour') }}
+              UNION ALL
+              SELECT year FROM {{ source('other', 'airport_noise') }}
+              ) unioned_years
               WHERE year >= (SELECT MIN(year) FROM {{ ref('location.environment') }})
             )
       - unique_combination_of_columns:
@@ -160,7 +181,13 @@ models:
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.other') }})
+              WHERE year >= (
+              SELECT MIN(year)
+              FROM (
+                SELECT year FROM {{ source('spatial', 'subdivision') }}
+                UNION ALL
+                SELECT year FROM {{ source('spatial', 'enterprise_zone') }}
+              ) unioned_years
             )
       - unique_combination_of_columns:
           name: location_other_unique_by_year_pin10
