@@ -206,6 +206,7 @@ models:
               meta:
                 description: Accepted values for triad name
         description: Model type (residential or condo)
+      - name: type
       - name: is_final
         description: Was this the final model of the year?
       - name: date_chosen
