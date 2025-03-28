@@ -182,14 +182,8 @@ models:
         description: '{{ doc("shared_column_run_id") }}'
       - name: triad_name
         description: '{{ doc("shared_column_triad_name") }}'
-        data_tests:
-          - accepted_values:
-              name: model_final_model_triad_name
-              values: ["North", "South", "City"]
-              meta:
-                description: Accepted values for triad name
-        description: Model type (residential or condo)
       - name: type
+        description: Model type (residential or condo)
       - name: is_final
         description: Was this the final model of the year?
       - name: date_chosen

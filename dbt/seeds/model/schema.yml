@@ -18,6 +18,12 @@ seeds:
             - is_final
           meta:
             description: Final model is unique by year, type and is_final
+      - accepted_values:
+          name: model_final_triad_name_accepted_values
+          column_name: triad_name
+          values: ["North", "South", "City"]
+          meta:
+            description: Accepted values for triad name
     config:
       column_types:
         year: string
