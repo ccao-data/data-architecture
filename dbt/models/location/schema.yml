@@ -84,7 +84,16 @@ models:
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.chicago') }})
+              WHERE year >= (
+                SELECT MIN(year)
+                FROM (
+                  SELECT year FROM {{ source('spatial', 'police_district') }}
+                  UNION ALL
+                  SELECT year FROM {{ source('spatial', 'community_area') }}
+                  UNION ALL
+                  SELECT year FROM {{ source('spatial', 'industrial_corridor') }}
+                ) unioned_years
+              )
             )
       - unique_combination_of_columns:
           name: location_chicago_unique_by_year_pin10
