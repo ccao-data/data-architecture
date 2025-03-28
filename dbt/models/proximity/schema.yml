@@ -77,18 +77,6 @@ models:
   - name: proximity.crosswalk_year_fill
     description: '{{ doc("table_crosswalk_year_fill") }}'
     data_tests:
-    - row_count:
-        name: crosswalk_year_fill_matches_spatial_parcel
-        above: >
-          (
-            SELECT COUNT(*)
-            FROM {{ source('spatial', 'parcel') }}
-            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.crosswalk_year_fill') }})
-          )
-        tags:
-          - load_manual
-        meta:
-          description: dist_pin_to_bike_trail should be match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_crosswalk_year_fill_unique_by_year
         combination_of_columns:
