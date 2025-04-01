@@ -30,7 +30,7 @@ models:
       tags:
         - daily
       packages:
-        - "assesspy==2.0.1"
+        - "assesspy==2.0.2"
     data_tests:
       - expression_is_true:
           name: reporting_ratio_stats_metrics_are_sensible
