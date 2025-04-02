@@ -14,11 +14,11 @@ major_class_code,major_class_type,regression_class,modeling_group,reporting_grou
 2,Residential,TRUE,SF,Single-Family,2,208,"Two or more story residence, up to 62 years, 3,801 to 4,999 sq. ft.",0,62,3801,4999
 2,Residential,TRUE,SF,Single-Family,2,209,"Two or more story residence, any age, 5,000 sq. ft. and over",0,Infinity,5000,Infinity
 2,Residential,TRUE,SF,Single-Family,2,210,"Old style townhouse, over 62 years",63,Infinity,0,Infinity
-2,Residential,TRUE,MF,Multi-Family,2,211,"Two to six residential apartments, any age",0,Infinity,0,Infinity
+2,Residential,TRUE,MF,Multi-Family,2,211,"Apartment building with 2 to 6 units, any age",0,Infinity,0,Infinity
 2,Residential,TRUE,MF,Multi-Family,2,212,"Two to six mixed-use apartments, any age, up to 20,000 sq. ft.",0,Infinity,0,20000
 2,Residential,FALSE,,,2,213,Cooperative,0,Infinity,0,Infinity
-2,Residential,TRUE,BB,Bed & Breakfast,2,218,A residential building licensed as a Bed & Breakfast by the municipality,0,Infinity,0,Infinity
-2,Residential,TRUE,BB,Bed & Breakfast,2,219,A residential building licensed as a Bed & Breakfast by the municipality,0,Infinity,0,Infinity
+2,Residential,TRUE,BB,Bed & Breakfast,2,218,"A residential building licensed as a Bed & Breakfast by the municipality, County of Cook, or registered as a Bed & Breakfast with the State of Illinois under 50 ILCS 820/1 et seq., with six or fewer rentable units and where one unit is owner occupied and is entitled to a homeowner’s exemption under the Property Tax Code",0,Infinity,0,Infinity
+2,Residential,TRUE,BB,Bed & Breakfast,2,219,"A residential building licensed as a Bed & Breakfast by the municipality, County of Cook, or registered as a Bed & Breakfast with the State of Illinois under 50 ILCS 820/1 et seq., with six or fewer rentable units and where none of the units are owner occupied and no homeowner’s exemption is allowed under the Property Tax Code",0,Infinity,0,Infinity
 2,Residential,FALSE,,,2,224,Farm building,0,Infinity,0,Infinity
 2,Residential,FALSE,,,2,225,Single-room occupancy rental building,0,Infinity,0,Infinity
 2,Residential,TRUE,SF,Single-Family,2,234,"Spllit level residence, with a lower level below grade, all ages, all sizes",0,Infinity,0,Infinity
@@ -38,7 +38,7 @@ major_class_code,major_class_type,regression_class,modeling_group,reporting_grou
 3,Multi-Family,FALSE,,,3,313,"Two-or-three-story, building, seven or more units",,,,
 3,Multi-Family,FALSE,,,3,314,"Two-or-three-story, non-fireproof building with corridor apartment or California type apartments, no corridors exterior entrance",,,,
 3,Multi-Family,FALSE,,,3,315,"Two-or-three-story, non-fireproof corridor apartments or California type apartments, interior entrance",,,,
-3,Multi-Family,FALSE,,,3,318,"Mixed-use commercial/residential building with apartments and commercial area totaling seven units or more with a square-foot area of over 20,000 square feet",,,,
+3,Multi-Family,FALSE,,,3,318,"All mixed-use commercial/residential buildings under 20,000 square feet of area with 7 units or more and mixed use commercial/residential buildings with an area of 20,000 to 99,999 square feet where no more than 60% of the building is used for commercial purposes. (For mixed-use buildings that do not meet the parameters of this subcategory or qualify as Class 2 property, the portion of the building used for residential purposes will be assessed as the appropriate subcategory of residential property and the commercially used portion will be assessed as commercial property.)",,,,
 3,Multi-Family,FALSE,,,3,390,Other minor improvement related to rental use,,,,
 3,Multi-Family,FALSE,,,3,391,"Apartment building over three stories, seven or more units",,,,
 3,Multi-Family,FALSE,,,3,396,"Rented modern row houses, seven or more units in a single development or one or more contiguous parcels in common ownership",,,,
@@ -241,14 +241,14 @@ major_class_code,major_class_type,regression_class,modeling_group,reporting_grou
 8,Commercial/Industrial Incentive,FALSE,,,8,899,Commercial/Industrial condominium unit/garage,,,,
 8,Commercial/Industrial Incentive,FALSE,,,8,899A,Commercial/Industrial condominium unit/garage,,,,
 8,Commercial/Industrial Incentive,FALSE,,,8,899B,Commercial/Industrial condominium unit/garage,,,,
-9,Multi-Family Incentive,FALSE,,,9,900,Land used in conjunction with incentive rental apartments,,,,
-9,Multi-Family Incentive,FALSE,,,9,901,Garage used in conjunction with incentive rental apartment,,,,
-9,Multi-Family Incentive,FALSE,,,9,913,"Two-or-three-story apartment building, seven or more units",,,,
-9,Multi-Family Incentive,FALSE,,,9,914,"Two-or-three-story, non-fireproof court and corridor apartments or California type apartments, no corridors, exterior entrance",,,,
-9,Multi-Family Incentive,FALSE,,,9,915,"Two-or-three-story, non-fireproof corridor apartments, or California type apartments, interior entrance",,,,
-9,Multi-Family Incentive,FALSE,,,9,918,Mixed use commercial/residential building with apartments and commercial area where the commercial area is granted an incentive use,,,,
-9,Multi-Family Incentive,FALSE,,,9,959,Rental condominium unit,,,,
-9,Multi-Family Incentive,FALSE,,,9,990,Other minor improvements,,,,
-9,Multi-Family Incentive,FALSE,,,9,991,Apartment buildings over three stories,,,,
-9,Multi-Family Incentive,FALSE,,,9,996,"Rented modern row houses, seven or more units in a single development or one or more contiguous parcels in common ownership",,,,
-9,Multi-Family Incentive,FALSE,,,9,997,Special rental structure,,,,
+9,Class 3 Multi-Family Residential Real Estate Incentive,FALSE,,,9,900,Land used in conjunction with incentive rental apartments,,,,
+9,Class 3 Multi-Family Residential Real Estate Incentive,FALSE,,,9,901,Garage used in conjunction with incentive rental apartment,,,,
+9,Class 3 Multi-Family Residential Real Estate Incentive,FALSE,,,9,913,"Two-or-three-story apartment building, seven or more units",,,,
+9,Class 3 Multi-Family Residential Real Estate Incentive,FALSE,,,9,914,"Two-or-three-story, non-fireproof court and corridor apartments or California type apartments, no corridors, exterior entrance",,,,
+9,Class 3 Multi-Family Residential Real Estate Incentive,FALSE,,,9,915,"Two-or-three-story, non-fireproof corridor apartments, or California type apartments, interior entrance",,,,
+9,Class 3 Multi-Family Residential Real Estate Incentive,FALSE,,,9,918,Mixed use commercial/residential building with apartments and commercial area where the commercial area is granted an incentive use,,,,
+9,Class 3 Multi-Family Residential Real Estate Incentive,FALSE,,,9,959,Rental condominium unit,,,,
+9,Class 3 Multi-Family Residential Real Estate Incentive,FALSE,,,9,990,Other minor improvements,,,,
+9,Class 3 Multi-Family Residential Real Estate Incentive,FALSE,,,9,991,Apartment buildings over three stories,,,,
+9,Class 3 Multi-Family Residential Real Estate Incentive,FALSE,,,9,996,"Rented modern row houses, seven or more units in a single development or one or more contiguous parcels in common ownership",,,,
+9,Class 3 Multi-Family Residential Real Estate Incentive,FALSE,,,9,997,Special rental structure,,,,
