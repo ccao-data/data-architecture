@@ -16,6 +16,9 @@ selectors:
         - exclude:
           - method: tag
             value: data_test_iasworld_exclude_from_workbook
+            value: load_manual
+          - method: resource_type
+            value: seed
 
   - name: select_data_test_non_iasworld
     description: Selector for running non-iasWorld data tests and unit tests
@@ -26,3 +29,11 @@ selectors:
         - exclude:
           - method: tag
             value: data_test_iasworld
+  - name: select_data_test_load_manual
+    description: Selector for running data tests tagged with load_manual
+    definition:
+      intersection:
+        - method: resource_type
+          value: test
+        - method: tag
+          value: load_manual
