@@ -56,6 +56,8 @@ def parse_assets(assets=None):
         "open_data.*",
         "--resource-types",
         "exposure",
+        "--exclude",
+        "tag:inactive",
         "--output",
         "json",
         "--output-keys",
