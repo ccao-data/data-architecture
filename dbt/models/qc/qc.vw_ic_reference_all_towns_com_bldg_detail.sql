@@ -69,6 +69,11 @@ SELECT
     comdat.note1,
     comdat.note2,
     comdat.exmppct,
+    CONCAT(
+        COALESCE(comdat.user29, ''),
+        CASE WHEN comdat.user29 IS NOT NULL THEN ':' ELSE '' END,
+        COALESCE(model_group.description, '')
+    ) AS model_group,
     legdat.user1 AS township_code
 FROM {{ source('iasworld', 'comdat') }} AS comdat
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
@@ -85,6 +90,8 @@ LEFT JOIN {{ ref('ccao.commercial_major_subclass') }} AS major_subclass
     ON comdat.user12 = major_subclass.code
 LEFT JOIN {{ ref('ccao.commercial_minor_subclass') }} AS minor_subclass
     ON comdat.user13 = minor_subclass.code
+LEFT JOIN {{ ref('ccao.commercial_model_group') }} AS model_group
+    ON comdat.user29 = model_group.code
 WHERE comdat.cur = 'Y'
     AND comdat.deactivat IS NULL
     AND pardat.class NOT BETWEEN '200' AND '299'

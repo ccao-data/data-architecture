@@ -59,6 +59,17 @@ Minor subclass for commercial buildings, e.g. `HOTELS-CONVENTION CENTER`,
 **Primary Key**: `code`
 {% enddocs %}
 
+# commercial_model_group
+
+{% docs seed_commercial_model_group %}
+Table containing descriptions for commercial building model groups from
+`iasworld.comdat`, e.g. `Condos`, `Multifamily`, etc. These codes are sourced
+directly from the iasWorld interface.
+
+**Primary Key**: `code`
+{% enddocs %}
+
+
 # htpar_reascd
 
 {% docs seed_htpar_reascd %}
