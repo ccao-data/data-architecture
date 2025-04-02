@@ -220,17 +220,6 @@ models:
               ) unioned_years
               )
             )
-      - row_count:
-          name: location_political_row_count_matches_spatial_school_district
-          above: >
-            (
-              SELECT COUNT(*)
-                      FROM {{ source('spatial', 'parcel') }}
-                      WHERE year >= (SELECT MIN(year) FROM {{ source('spatial', 'school_district') }})
-                      AND geoid IS NOT NULL
-                      )
-          meta:
-            description: political row count matches spatial_school_district
       - unique_combination_of_columns:
           name: location_political_unique_by_year_pin10
           combination_of_columns:
@@ -242,6 +231,18 @@ models:
   - name: location.school
     description: '{{ doc("table_school") }}'
     data_tests:
+      - row_count:
+          name: location_school_row_count_matches_spatial_school_district
+          above: >
+            (
+              SELECT COUNT(*)
+                      FROM {{ source('spatial', 'parcel') }}
+                      WHERE year >= (SELECT MIN(year) FROM
+                      {{ source('spatial', 'school_district') }}
+                      WHERE geoid IS NOT NULL)
+                      )
+          meta:
+            description: school row count matches spatial_school_district
       - unique_combination_of_columns:
           name: location_school_unique_by_year_pin10
           combination_of_columns:
