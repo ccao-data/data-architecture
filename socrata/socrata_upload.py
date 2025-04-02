@@ -146,7 +146,7 @@ def parse_years_list(athena_asset, years=None):
     elif not years and os.getenv("WORKFLOW_EVENT_NAME") == "schedule":
         # Update most recent year only on scheduled workflow
         years_list = (
-            cursor.execute("SELECT MAX(year) FROM " + athena_asset)
+            cursor.execute("SELECT MAX(year) AS year FROM " + athena_asset)
             .as_pandas()["year"]
             .to_list()
         )
