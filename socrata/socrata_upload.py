@@ -156,7 +156,7 @@ def parse_years_list(athena_asset, years=None):
             .to_list()
         )
         years_list.append(str(datetime.now().year))
-        years_list = min(years_list)
+        years_list = [min(years_list)]
 
     else:
         years_list = None
