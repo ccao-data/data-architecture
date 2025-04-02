@@ -226,7 +226,7 @@ models:
             (
               SELECT COUNT(*)
                       FROM {{ source('spatial', 'parcel') }}
-                      WHERE year >= (SELECT MIN(year) FROM {{ source('spatial.school_district') }})
+                      WHERE year >= (SELECT MIN(year) FROM {{ source('spatial', 'school_district') }})
                       AND geoid IS NOT NULL
                       )
           meta:
