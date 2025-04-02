@@ -9,7 +9,7 @@ models:
           name: default_vw_pin_land_matches_iasworld_pardat
           above: >
             (
-              SELECT COUNT(*)
+              SELECT COUNT(DISTINCT pin, year)
               FROM {{ source('iasworld', 'land') }}
               WHERE cur = 'Y'
                 AND deactivat IS NULL
