@@ -48,7 +48,7 @@ sources:
               - pin10
               - year
             meta:
-              description: corner unique by pin10
+              description: corner unique by pin10 and year
         columns:
           - name: geometry
             description: |
