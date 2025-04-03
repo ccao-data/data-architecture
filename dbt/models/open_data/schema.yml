@@ -12,109 +12,109 @@ models:
   - name: open_data.vw_assessed_value
     description: '{{ doc("view_vw_assessed_value") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: open_data_vw_assessed_value_unique_by_row_id
-        combination_of_columns:
-          - row_id
-        meta:
-          description: vw_assessed_value is unique by row id
+      - unique_combination_of_columns:
+          name: open_data_vw_assessed_value_unique_by_row_id
+          combination_of_columns:
+            - row_id
+          meta:
+            description: vw_assessed_value is unique by row id
 
   - name: open_data.vw_parcel_address
     description: '{{ doc("view_vw_parcel_address") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: open_data_vw_parcel_address_unique_by_row_id
-        combination_of_columns:
-          - row_id
-        meta:
-          description: vw_parcel_address is unique by row id
+      - unique_combination_of_columns:
+          name: open_data_vw_parcel_address_unique_by_row_id
+          combination_of_columns:
+            - row_id
+          meta:
+            description: vw_parcel_address is unique by row id
 
   - name: open_data.vw_parcel_proximity
     description: '{{ doc("view_vw_parcel_proximity") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: open_data_vw_parcel_proximity_unique_by_row_id
-        combination_of_columns:
-          - row_id
-        meta:
-          description: vw_parcel_proximity is unique by row id
+      - unique_combination_of_columns:
+          name: open_data_vw_parcel_proximity_unique_by_row_id
+          combination_of_columns:
+            - row_id
+          meta:
+            description: vw_parcel_proximity is unique by row id
 
   - name: open_data.vw_parcel_sale
     description: '{{ doc("view_vw_parcel_sale") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: open_data_vw_parcel_sale_unique_by_row_id
-        combination_of_columns:
-          - row_id
-        meta:
-          description: vw_parcel_sale is unique by row id
+      - unique_combination_of_columns:
+          name: open_data_vw_parcel_sale_unique_by_row_id
+          combination_of_columns:
+            - row_id
+          meta:
+            description: vw_parcel_sale is unique by row id
 
   - name: open_data.vw_parcel_status
     description: '{{ doc("view_vw_parcel_status") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: open_data_vw_parcel_status_unique_by_row_id
-        combination_of_columns:
-          - row_id
-        meta:
-          description: vw_parcel_status is unique by row id
+      - unique_combination_of_columns:
+          name: open_data_vw_parcel_status_unique_by_row_id
+          combination_of_columns:
+            - row_id
+          meta:
+            description: vw_parcel_status is unique by row id
 
   - name: open_data.vw_parcel_universe_current
     description: '{{ doc("view_vw_parcel_universe_current") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: open_data_vw_parcel_universe_current_unique_by_row_id
-        combination_of_columns:
-          - row_id
-        meta:
-          description: vw_parcel_universe_current is unique by row id
+      - unique_combination_of_columns:
+          name: open_data_vw_parcel_universe_current_unique_by_row_id
+          combination_of_columns:
+            - row_id
+          meta:
+            description: vw_parcel_universe_current is unique by row id
 
   - name: open_data.vw_parcel_universe_historical
     description: '{{ doc("view_vw_parcel_universe_historical") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: open_data_vw_parcel_universe_historical_unique_by_row_id
-        combination_of_columns:
-          - row_id
-        meta:
-          description: vw_parcel_universe_historical is unique by row id
+      - unique_combination_of_columns:
+          name: open_data_vw_parcel_universe_historical_unique_by_row_id
+          combination_of_columns:
+            - row_id
+          meta:
+            description: vw_parcel_universe_historical is unique by row id
 
   - name: open_data.vw_permit
     description: '{{ doc("view_vw_permit") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: open_data_vw_permit_unique_by_row_id
-        combination_of_columns:
-          - row_id
-        meta:
-          description: vw_permit is unique by row id
+      - unique_combination_of_columns:
+          name: open_data_vw_permit_unique_by_row_id
+          combination_of_columns:
+            - row_id
+          meta:
+            description: vw_permit is unique by row id
 
   - name: open_data.vw_property_tax_exempt_parcel
     description: '{{ doc("view_vw_property_tax_exempt_parcel") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: open_data_vw_property_tax_exempt_parcel_unique_by_row_id
-        combination_of_columns:
-          - row_id
-        meta:
-          description: vw_property_tax_exempt_parcel is unique by row id
+      - unique_combination_of_columns:
+          name: open_data_vw_property_tax_exempt_parcel_unique_by_row_id
+          combination_of_columns:
+            - row_id
+          meta:
+            description: vw_property_tax_exempt_parcel is unique by row id
 
   - name: open_data.vw_res_condo_unit_char
     description: '{{ doc("view_vw_res_condo_unit_char") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: open_data_vw_res_condo_unit_char_unique_by_row_id
-        combination_of_columns:
-          - row_id
-        meta:
-          description: vw_res_condo_unit_char is unique by row id
+      - unique_combination_of_columns:
+          name: open_data_vw_res_condo_unit_char_unique_by_row_id
+          combination_of_columns:
+            - row_id
+          meta:
+            description: vw_res_condo_unit_char is unique by row id
 
   - name: open_data.vw_sf_mf_improvement_char
     description: '{{ doc("view_vw_sf_mf_improvement_char") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: open_data_vw_sf_mf_improvement_char_unique_by_row_id
-        combination_of_columns:
-          - row_id
-        meta:
-          description: vw_sf_mf_improvement_char is unique by row id
+      - unique_combination_of_columns:
+          name: open_data_vw_sf_mf_improvement_char_unique_by_row_id
+          combination_of_columns:
+            - row_id
+          meta:
+            description: vw_sf_mf_improvement_char is unique by row id
