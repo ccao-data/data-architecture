@@ -124,15 +124,15 @@ models:
               WHERE year >= (
                 SELECT MIN(year)
                 FROM (
-              SELECT year FROM {{ source('spatial', 'coordinated_care') }}
-              UNION ALL
-              SELECT year FROM {{ source('spatial', 'enterprise_zone') }}
-              UNION ALL
-              SELECT year FROM {{ source('spatial', 'industrial_growth_zone') }}
-              UNION ALL
-              SELECT year FROM {{ source('spatial', 'qualified_opportunity_zone') }}
-              UNION ALL
-              SELECT year FROM {{ source('spatial', 'central_business_district') }}
+                  SELECT year FROM {{ source('spatial', 'coordinated_care') }}
+                  UNION ALL
+                  SELECT year FROM {{ source('spatial', 'enterprise_zone') }}
+                  UNION ALL
+                  SELECT year FROM {{ source('spatial', 'industrial_growth_zone') }}
+                  UNION ALL
+                  SELECT year FROM {{ source('spatial', 'qualified_opportunity_zone') }}
+                  UNION ALL
+                  SELECT year FROM {{ source('spatial', 'central_business_district') }}
                 ) unioned_years
               )
             )
