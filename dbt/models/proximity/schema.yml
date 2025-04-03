@@ -3,7 +3,7 @@ models:
     description: '{{ doc("table_cnt_pin_num_bus_stop") }}'
     data_tests:
     - row_count:
-        name: cnt_pin_num_bus_stop_matches_spatial_parcel
+        name: proximity_cnt_pin_num_bus_stop_matches_spatial_parcel
         above: >
           (
             SELECT COUNT(*)
@@ -28,7 +28,7 @@ models:
     description: '{{ doc("table_cnt_pin_num_foreclosure") }}'
     data_tests:
     - row_count:
-        name: cnt_pin_num_foreclosure_matches_spatial_parcel
+        name: proximity_cnt_pin_num_foreclosure_matches_spatial_parcel
         above: >
           (
             SELECT COUNT(*)
@@ -53,7 +53,7 @@ models:
     description: '{{ doc("table_cnt_pin_num_school") }}'
     data_tests:
     - row_count:
-        name: cnt_pin_num_school_matches_spatial_parcel
+        name: proximity_cnt_pin_num_school_matches_spatial_parcel
         above: >
           (
             SELECT COUNT(*)
@@ -90,7 +90,7 @@ models:
     description: '{{ doc("table_dist_pin_to_airport") }}'
     data_tests:
     - row_count:
-        name: dist_pin_to_airport_matches_spatial_parcel
+        name: proximity_dist_pin_to_airport_matches_spatial_parcel
         above: >
           (
             SELECT COUNT(*)
@@ -115,7 +115,7 @@ models:
     description: '{{ doc("table_dist_pin_to_bike_trail") }}'
     data_tests:
     - row_count:
-        name: dist_pin_to_bike_trail_matches_spatial_parcel
+        name: proximity_dist_pin_to_bike_trail_matches_spatial_parcel
         above: >
           (
             SELECT COUNT(*)
@@ -140,7 +140,7 @@ models:
     description: '{{ doc("table_dist_pin_to_cemetery") }}'
     data_tests:
     - row_count:
-        name: dist_pin_to_cemetery_matches_spatial_parcel
+        name: proximity_dist_pin_to_cemetery_matches_spatial_parcel
         above: >
           (
             SELECT COUNT(*)
@@ -194,6 +194,18 @@ models:
   - name: proximity.dist_pin_to_golf_course
     description: '{{ doc("table_dist_pin_to_golf_course") }}'
     data_tests:
+    - row_count:
+        name: dist_pin_to_golf_course_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_golf_course') }})
+          )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_golf_course should be match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_golf_course_unique_by_pin10_and_year
         combination_of_columns:
@@ -207,6 +219,18 @@ models:
   - name: proximity.dist_pin_to_hospital
     description: '{{ doc("table_dist_pin_to_hospital") }}'
     data_tests:
+    - row_count:
+        name: dist_pin_to_hospital_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_hospital') }})
+          )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_hospital should be match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_hospital_unique_by_pin10_and_year
         combination_of_columns:
@@ -220,6 +244,18 @@ models:
   - name: proximity.dist_pin_to_lake_michigan
     description: '{{ doc("table_dist_pin_to_lake_michigan") }}'
     data_tests:
+    - row_count:
+        name: dist_pin_to_lake_michigan_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_lake_michigan') }})
+          )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_lake_michigan should be match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_lake_michigan_unique_by_pin10_and_year
         combination_of_columns:
@@ -233,6 +269,18 @@ models:
   - name: proximity.dist_pin_to_major_road
     description: '{{ doc("table_dist_pin_to_major_road") }}'
     data_tests:
+    - row_count:
+        name: dist_pin_to_major_road_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_major_road') }})
+          )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_major_road should be match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_major_road_unique_by_pin10_and_year
         combination_of_columns:
@@ -246,6 +294,18 @@ models:
   - name: proximity.dist_pin_to_metra_route
     description: '{{ doc("table_dist_pin_to_metra_route") }}'
     data_tests:
+    - row_count:
+        name: proximity_dist_pin_to_metra_route_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_metra_route') }})
+          )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_metra_route should be match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_metra_route_unique_by_pin10_and_year
         combination_of_columns:
@@ -259,6 +319,18 @@ models:
   - name: proximity.dist_pin_to_metra_stop
     description: '{{ doc("table_dist_pin_to_metra_stop") }}'
     data_tests:
+    - row_count:
+        name: proximity_dist_pin_to_metra_stop_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_metra_stop') }})
+          )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_metra_stop should be match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_metra_stop_unique_by_pin10_and_year
         combination_of_columns:
@@ -272,6 +344,18 @@ models:
   - name: proximity.dist_pin_to_park
     description: '{{ doc("table_dist_pin_to_park") }}'
     data_tests:
+    - row_count:
+        name: proximity_dist_pin_to_park_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_park') }})
+          )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_park should be match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_park_unique_by_pin10_and_year
         combination_of_columns:
@@ -285,6 +369,18 @@ models:
   - name: proximity.dist_pin_to_pin
     description: '{{ doc("view_dist_pin_to_pin") }}'
     data_tests:
+      - row_count:
+          name: proximity_dist_pin_to_pin_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_pin') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_pin should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_unique_by_10_digit_pin_and_year
           combination_of_columns:
@@ -294,6 +390,18 @@ models:
   - name: proximity.dist_pin_to_pin_01
     description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
     data_tests:
+      - row_count:
+          name: proximity_dist_pin_to_pin_01_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_pin_01') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_pin_01 should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_01_unique_by_pin10_and_year
           combination_of_columns:
@@ -307,6 +415,18 @@ models:
   - name: proximity.dist_pin_to_pin_02
     description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
     data_tests:
+      - row_count:
+          name: proximity_dist_pin_to_pin_02_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_pin_02') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_pin_02 should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_02_unique_by_pin10_and_year
           combination_of_columns:
@@ -320,6 +440,18 @@ models:
   - name: proximity.dist_pin_to_pin_03
     description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
     data_tests:
+      - row_count:
+          name: proximity_dist_pin_to_pin_03_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_pin_03') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_pin_03 should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_03_unique_by_pin10_and_year
           combination_of_columns:
@@ -333,110 +465,218 @@ models:
   - name: proximity.dist_pin_to_railroad
     description: '{{ doc("table_dist_pin_to_railroad") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: proximity_dist_pin_to_railroad_unique_by_pin10_and_year
-        combination_of_columns:
-          - pin10
-          - year
-        tags:
-          - load_manual
-        meta:
-          description: dist_pin_to_railroad should be unique by pin10 and year
+      - row_count:
+          name: proximity_dist_pin_to_railroad_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_railroad') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_railroad should be match spatial_parcel
+      - unique_combination_of_columns:
+          name: proximity_dist_pin_to_railroad_unique_by_pin10_and_year
+          combination_of_columns:
+            - pin10
+            - year
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_railroad should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_road_arterial
     description: '{{ doc("table_dist_pin_to_road_arterial") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: proximity_dist_pin_to_road_arterial_unique_by_pin10_and_year
-        combination_of_columns:
-          - pin10
-          - year
-        tags:
-          - load_manual
-        meta:
-          description: dist_pin_to_road_arterial should be unique by pin10 and year
+      - row_count:
+          name: proximity_dist_pin_to_road_arterial_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_road_arterial') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_road_arterial should be match spatial_parcel
+      - unique_combination_of_columns:
+          name: proximity_dist_pin_to_road_arterial_unique_by_pin10_and_year
+          combination_of_columns:
+            - pin10
+            - year
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_road_arterial should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_road_collector
     description: '{{ doc("table_dist_pin_to_road_collector") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: proximity_dist_pin_to_road_collector_unique_by_pin10_and_year
-        combination_of_columns:
-          - pin10
-          - year
-        tags:
-          - load_manual
-        meta:
-          description: dist_pin_to_road_collector should be unique by pin10 and year
+      - row_count:
+          name: proximity_dist_pin_to_road_collector_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_road_collector') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_road_collector should be match spatial_parcel
+      - unique_combination_of_columns:
+          name: proximity_dist_pin_to_road_collector_unique_by_pin10_and_year
+          combination_of_columns:
+            - pin10
+            - year
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_road_collector should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_road_highway
     description: '{{ doc("table_dist_pin_to_road_highway") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: proximity_dist_pin_to_road_highway_unique_by_pin10_and_year
-        combination_of_columns:
-          - pin10
-          - year
-        tags:
-          - load_manual
-        meta:
-          description: dist_pin_to_road_highway should be unique by pin10 and year
+      - row_count:
+          name: proximity_dist_pin_to_road_highway_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_road_highway') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_road_highway should be match spatial_parcel
+      - unique_combination_of_columns:
+          name: proximity_dist_pin_to_road_highway_unique_by_pin10_and_year
+          combination_of_columns:
+            - pin10
+            - year
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_road_highway should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_secondary_road
     description: '{{ doc("table_dist_pin_to_secondary_road") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: proximity_dist_pin_to_secondary_road_unique_by_pin10_and_year
-        combination_of_columns:
-          - pin10
-          - year
-        tags:
-          - load_manual
-        meta:
-          description: dist_pin_to_secondary_road should be unique by pin10 and year
+      - row_count:
+          name: proximity_dist_pin_to_secondary_road_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_secondary_road') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_secondary_road should be match spatial_parcel
+      - unique_combination_of_columns:
+          name: proximity_dist_pin_to_secondary_road_unique_by_pin10_and_year
+          combination_of_columns:
+            - pin10
+            - year
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_secondary_road should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_university
     description: '{{ doc("table_dist_pin_to_university") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: proximity_dist_pin_to_university_unique_by_pin10_and_year
-        combination_of_columns:
-          - pin10
-          - year
-        tags:
-          - load_manual
-        meta:
-          description: dist_pin_to_university should be unique by pin10 and year
+      - row_count:
+          name: proximity_dist_pin_to_university_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_university') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_university should be match spatial_parcel
+      - unique_combination_of_columns:
+          name: proximity_dist_pin_to_university_unique_by_pin10_and_year
+          combination_of_columns:
+            - pin10
+            - year
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_university should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_vacant_land
     description: '{{ doc("table_dist_pin_to_vacant_land") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: proximity_dist_pin_to_vacant_land_unique_by_pin10_and_year
-        combination_of_columns:
-          - pin10
-          - year
-        tags:
-          - load_manual
-        meta:
-          description: dist_pin_to_vacant_land should be unique by pin10 and year
+      - row_count:
+          name: proximity_dist_pin_to_vacant_land_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_vacant_land') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_vacant_land should be match spatial_parcel
+      - unique_combination_of_columns:
+          name: proximity_dist_pin_to_vacant_land_unique_by_pin10_and_year
+          combination_of_columns:
+            - pin10
+            - year
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_vacant_land should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_water
     description: '{{ doc("table_dist_pin_to_water") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: proximity_dist_pin_to_water_unique_by_pin10_and_year
-        combination_of_columns:
-          - pin10
-          - year
-        tags:
-          - load_manual
-        meta:
-          description: dist_pin_to_water should be unique by pin10 and year
+      - row_count:
+          name: proximity_dist_pin_to_water_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_water') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_water should be match spatial_parcel
+      - unique_combination_of_columns:
+          name: proximity_dist_pin_to_water_unique_by_pin10_and_year
+          combination_of_columns:
+            - pin10
+            - year
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_water should be unique by pin10 and year
 
   - name: proximity.vw_pin10_proximity
     description: '{{ doc("view_vw_pin10_proximity") }}'
     data_tests:
+      - row_count:
+          name: proximity_vw_pin10_proximity_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.vw_pin10_proximity') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: vw_pin10_proximity should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_vw_pin10_proximity_unique_by_pin10_and_year
           combination_of_columns:
