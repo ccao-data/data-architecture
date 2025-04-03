@@ -253,7 +253,7 @@ models:
                 AND deactivat IS NULL
                 AND LENGTH(parid) = 14
                 AND REGEXP_COUNT(par.parid, '[a-zA-Z]') = 0
-                AND class  NOT IN ('999')
+                AND class NOT IN ('999')
             )
           meta:
             description: vw_pin_universe row count should equal iasworld pardat
