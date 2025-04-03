@@ -30,7 +30,7 @@ sources:
             description: '{{ doc("shared_column_sv_outlier_reason") }}'
             data_tests:
               - not_null:
-                  name: sale_flag_not_null_when_sv_is_outlier
+                  name: sale_flag_sv_outlier_reason1_not_null_when_sv_is_outlier
                   config: 
                     where: sv_is_outlier
                   meta:
