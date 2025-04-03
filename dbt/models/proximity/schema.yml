@@ -216,6 +216,31 @@ models:
         meta:
           description: dist_pin_to_golf_course should be unique by pin10 and year
 
+  - name: proximity.dist_pin_to_grocery_store
+    description: '{{ doc("table_dist_pin_to_grocery_store") }}'
+    data_tests:
+    - row_count:
+        name: dist_pin_to_grocery_store_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_grocery_store') }})
+          )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_grocery_store should be match spatial_parcel
+    - unique_combination_of_columns:
+        name: proximity_dist_pin_to_grocery_store_unique_by_pin10_and_year
+        combination_of_columns:
+          - pin10
+          - year
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_grocery_store should be unique by pin10 and year
+
   - name: proximity.dist_pin_to_hospital
     description: '{{ doc("table_dist_pin_to_hospital") }}'
     data_tests:
@@ -269,18 +294,6 @@ models:
   - name: proximity.dist_pin_to_major_road
     description: '{{ doc("table_dist_pin_to_major_road") }}'
     data_tests:
-    - row_count:
-        name: dist_pin_to_major_road_matches_spatial_parcel
-        above: >
-          (
-            SELECT COUNT(*)
-            FROM {{ source('spatial', 'parcel') }}
-            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_major_road') }})
-          )
-        tags:
-          - load_manual
-        meta:
-          description: dist_pin_to_major_road should be match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_major_road_unique_by_pin10_and_year
         combination_of_columns:
@@ -340,6 +353,32 @@ models:
           - load_manual
         meta:
           description: dist_pin_to_metra_stop should be unique by pin10 and year
+
+
+  - name: proximity.dist_pin_to_nearest_grocery_store
+    description: '{{ doc("table_dist_pin_to_dist_pin_to_nearest_grocery_store") }}'
+    data_tests:
+      - row_count:
+          name: proximity_dist_pin_to_dist_pin_to_nearest_grocery_store_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_dist_pin_to_nearest_grocery_store') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_dist_pin_to_nearest_grocery_store should be match spatial_parcel
+      - unique_combination_of_columns:
+          name: proximity_dist_pin_to_dist_pin_to_nearest_grocery_store_unique_by_pin10_and_year
+          combination_of_columns:
+            - pin10
+            - year
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_nearest_grocery_store should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_park
     description: '{{ doc("table_dist_pin_to_park") }}'
@@ -565,18 +604,6 @@ models:
   - name: proximity.dist_pin_to_secondary_road
     description: '{{ doc("table_dist_pin_to_secondary_road") }}'
     data_tests:
-      - row_count:
-          name: proximity_dist_pin_to_secondary_road_matches_spatial_parcel
-          above: >
-            (
-              SELECT COUNT(*)
-              FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_secondary_road') }})
-            )
-          tags:
-            - load_manual
-          meta:
-            description: dist_pin_to_secondary_road should be match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_secondary_road_unique_by_pin10_and_year
           combination_of_columns:
@@ -586,6 +613,31 @@ models:
             - load_manual
           meta:
             description: dist_pin_to_secondary_road should be unique by pin10 and year
+
+  - name: proximity.dist_pin_to_stadium
+    description: '{{ doc("table_dist_pin_to_stadium") }}'
+    data_tests:
+      - row_count:
+          name: proximity_dist_pin_to_stadium_matches_spatial_parcel
+          above: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_stadium') }})
+            )
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_stadium should be match spatial_parcel
+      - unique_combination_of_columns:
+          name: proximity_dist_pin_to_stadium_unique_by_pin10_and_year
+          combination_of_columns:
+            - pin10
+            - year
+          tags:
+            - load_manual
+          meta:
+            description: dist_pin_to_stadium should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_university
     description: '{{ doc("table_dist_pin_to_university") }}'
