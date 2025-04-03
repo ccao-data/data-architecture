@@ -518,7 +518,7 @@ models:
             - year
             - pin10
           meta:
-            description: vw_pin10_location is unique by year and pin10
+            description: vw_pin10_location_fill is unique by year and pin10
 
 unit_tests:
   - name: location_crosswalk_year_fill_should_create_proper_fill_and_data_years
