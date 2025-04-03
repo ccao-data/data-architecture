@@ -262,7 +262,7 @@ models:
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.tax') }})
+              WHERE year >= (SELECT MIN(year) FROM {{ source('tax', 'tax_code') }})
             )
       - unique_combination_of_columns:
           name: location_tax_unique_by_year_pin10
