@@ -27,7 +27,7 @@ models:
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ ref('location.census') }})
+              WHERE year >= (SELECT MIN(year) FROM {{ source('spatial', 'census') }})
             )
       - unique_combination_of_columns:
           name: location_census_unique_by_year_pin10
