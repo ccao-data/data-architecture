@@ -2,12 +2,12 @@ models:
   - name: open_data.vw_appeal
     description: '{{ doc("view_vw_appeal") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: open_data_vw_appeal_unique_by_row_id
-        combination_of_columns:
-          - row_id
-        meta:
-          description: vw_appeal is unique by row id
+      - unique_combination_of_columns:
+          name: open_data_vw_appeal_unique_by_row_id
+          combination_of_columns:
+            - row_id
+          meta:
+            description: vw_appeal is unique by row id
 
   - name: open_data.vw_assessed_value
     description: '{{ doc("view_vw_assessed_value") }}'

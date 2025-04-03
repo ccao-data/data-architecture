@@ -210,16 +210,16 @@ models:
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
               WHERE year >= (
-              SELECT MIN(year)
-              FROM (
-                SELECT year FROM {{ source('spatial', 'board_of_review_district') }}
-                UNION ALL
-                SELECT year FROM {{ source('spatial', 'commissioner_district') }}
-                UNION ALL
-                SELECT year FROM {{ source('spatial', 'judicial_district') }}
-                UNION ALL
-                SELECT year FROM {{ source('spatial', 'ward') }}
-              ) unioned_years
+                SELECT MIN(year)
+                FROM (
+                  SELECT year FROM {{ source('spatial', 'board_of_review_district') }}
+                  UNION ALL
+                  SELECT year FROM {{ source('spatial', 'commissioner_district') }}
+                  UNION ALL
+                  SELECT year FROM {{ source('spatial', 'judicial_district') }}
+                  UNION ALL
+                  SELECT year FROM {{ source('spatial', 'ward') }}
+                ) unioned_years
               )
             )
       - unique_combination_of_columns:
@@ -238,11 +238,13 @@ models:
           above: >
             (
               SELECT COUNT(*)
-                      FROM {{ source('spatial', 'parcel') }}
-                      WHERE year >= (SELECT MIN(year) FROM
-                      {{ source('spatial', 'school_district') }}
-                      WHERE geoid IS NOT NULL)
-                      )
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (
+                SELECT MIN(year)
+                FROM {{ source('spatial', 'school_district') }}
+                WHERE geoid IS NOT NULL
+              )
+            )
           meta:
             description: school row count matches spatial_school_district
       - unique_combination_of_columns:
@@ -257,7 +259,7 @@ models:
     description: '{{ doc("table_tax") }}'
     data_tests:
       - row_count:
-          name: location_tax_row_count_matches_spatial_parcel
+          name: location_tax_row_count_matches_tax_code
           above: >
             (
               SELECT COUNT(*)
