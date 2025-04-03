@@ -21,7 +21,10 @@ seeds:
       - accepted_values:
           name: model_final_model_triad_name_accepted_values
           column_name: triad_name
-          values: ["North", "South", "City"]
+          values:
+            - North
+            - South
+            - City
           meta:
             description: Accepted values for triad name
     config:
