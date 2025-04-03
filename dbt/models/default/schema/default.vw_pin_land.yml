@@ -6,7 +6,7 @@ models:
         - type_land
     data_tests:
       - row_count:
-          name: default_vw_pin_land_matches_iasworld_pardat
+          name: default_vw_pin_land_matches_iasworld_land
           above: >
             (
               SELECT COUNT(DISTINCT pin, year)
