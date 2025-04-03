@@ -195,7 +195,15 @@ seeds:
         data_tests:
           - accepted_values:
               name: ccao_pin_test_test_type_accepted_values
-              values: ['class_change', 'incorrect_char', 'just_weird', 'multi_card', 'multi_card_prorated', 'omitted_assessment', 'prorated', 'split_class']
+              values:
+                - class_change
+                - incorrect_char
+                - just_weird
+                - multi_card
+                - multi_card_prorated
+                - omitted_assessment
+                - prorated
+                - split_class
       - name: township_code
         description: '{{ doc("shared_column_township_code") }}'
       - name: triad_code
