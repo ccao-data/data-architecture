@@ -110,7 +110,7 @@ models:
           combination_of_columns:
             - year
           meta:
-            description: crosswalk_year_fill is unique by year
+            description: location crosswalk_year_fill is unique by year
 
   - name: location.economy
     description: '{{ doc("table_economy") }}'
