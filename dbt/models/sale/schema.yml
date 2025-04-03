@@ -78,7 +78,6 @@ sources:
                 - run_id
               meta:
                 description: group_mean is unique by group and run_id
-
         tags:
           - load_auto
 
