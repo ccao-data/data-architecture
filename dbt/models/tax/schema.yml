@@ -7,7 +7,7 @@ sources:
         description: '{{ doc("table_agency") }}'
         data_tests:
         - unique_combination_of_columns:
-            name: tax_agnency_unique_by_year_agency_num
+            name: tax_agency_unique_by_year_agency_num
             combination_of_columns:
               - year
               - agency_num
