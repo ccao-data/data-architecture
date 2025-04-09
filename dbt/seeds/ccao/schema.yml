@@ -151,8 +151,9 @@ seeds:
         name: ccao_person_unique_by_person
         combination_of_columns:
           - person
+          - type
         meta:
-          description: person is unique by person
+          description: person is unique by person and type
 
     columns:
       - name: person
