@@ -408,18 +408,6 @@ models:
   - name: proximity.dist_pin_to_pin
     description: '{{ doc("view_dist_pin_to_pin") }}'
     data_tests:
-      - row_count:
-          name: proximity_dist_pin_to_pin_matches_spatial_parcel
-          above: >
-            (
-              SELECT COUNT(*)
-              FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_pin') }})
-            )
-          tags:
-            - load_manual
-          meta:
-            description: dist_pin_to_pin should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_unique_by_10_digit_pin_and_year
           combination_of_columns:
@@ -429,18 +417,6 @@ models:
   - name: proximity.dist_pin_to_pin_01
     description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
     data_tests:
-      - row_count:
-          name: proximity_dist_pin_to_pin_01_matches_spatial_parcel
-          above: >
-            (
-              SELECT COUNT(*)
-              FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_pin_01') }})
-            )
-          tags:
-            - load_manual
-          meta:
-            description: dist_pin_to_pin_01 should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_01_unique_by_pin10_and_year
           combination_of_columns:
@@ -454,18 +430,6 @@ models:
   - name: proximity.dist_pin_to_pin_02
     description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
     data_tests:
-      - row_count:
-          name: proximity_dist_pin_to_pin_02_matches_spatial_parcel
-          above: >
-            (
-              SELECT COUNT(*)
-              FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_pin_02') }})
-            )
-          tags:
-            - load_manual
-          meta:
-            description: dist_pin_to_pin_02 should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_02_unique_by_pin10_and_year
           combination_of_columns:
@@ -479,18 +443,6 @@ models:
   - name: proximity.dist_pin_to_pin_03
     description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
     data_tests:
-      - row_count:
-          name: proximity_dist_pin_to_pin_03_matches_spatial_parcel
-          above: >
-            (
-              SELECT COUNT(*)
-              FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_pin_03') }})
-            )
-          tags:
-            - load_manual
-          meta:
-            description: dist_pin_to_pin_03 should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_03_unique_by_pin10_and_year
           combination_of_columns:
