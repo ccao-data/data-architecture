@@ -4,7 +4,7 @@
 SELECT
     CAST(sale_key AS VARCHAR) AS row_id,
     pin,
-    year,
+    CAST(year AS INT) AS year,
     township_code,
     nbhd,
     class,

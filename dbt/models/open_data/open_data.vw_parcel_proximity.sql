@@ -5,7 +5,7 @@
 SELECT
     CONCAT(pin10, year) AS row_id,
     pin10,
-    year,
+    CAST(year AS INT) AS year,
     num_pin_in_half_mile,
     num_bus_stop_in_half_mile,
     num_bus_stop_data_year,

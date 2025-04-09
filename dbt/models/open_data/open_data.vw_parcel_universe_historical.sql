@@ -6,7 +6,7 @@ SELECT
     CONCAT(pin, year) AS row_id,
     pin,
     pin10,
-    year,
+    CAST(year AS INT) AS year,
     class,
     triad_name,
     triad_code,

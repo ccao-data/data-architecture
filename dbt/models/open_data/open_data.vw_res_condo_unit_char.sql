@@ -7,7 +7,7 @@ SELECT
     pin,
     pin10,
     card,
-    year,
+    CAST(year AS INT) AS year,
     class,
     township_code,
     tieback_key_pin,

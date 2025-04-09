@@ -4,7 +4,7 @@
 SELECT
     CONCAT(pin, year) AS row_id,
     pin,
-    year,
+    CAST(year AS INT) AS year,
     class,
     is_corner_lot,
     is_ahsap,

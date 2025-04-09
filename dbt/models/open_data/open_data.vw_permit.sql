@@ -6,7 +6,7 @@ SELECT
         pin, COALESCE(permit_number, ''), COALESCE(date_issued, '')
     ) AS row_id,
     pin,
-    year,
+    CAST(year AS INT) AS year,
     permit_number,
     local_permit_number,
     CAST(date_issued AS TIMESTAMP) AS date_issued,

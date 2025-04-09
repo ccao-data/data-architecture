@@ -6,7 +6,7 @@ SELECT
     CONCAT(pin, year) AS row_id,
     pin,
     pin10,
-    year,
+    CAST(year AS INT) AS year,
     prop_address_full,
     prop_address_city_name,
     prop_address_state,
