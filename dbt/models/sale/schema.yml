@@ -65,8 +65,8 @@ sources:
                 description: foreclosure is unique by case_number, pin, sale_results and date_of_sale
               config:
                 error_if: ">1"
-          tags:
-            - load_manual
+        tags:
+          - load_manual
 
       - name: group_mean
         description: '{{ doc("group_mean") }}'
@@ -105,8 +105,8 @@ sources:
                 - run_id
               meta:
                 description: parameter is unique by run_id
-          tags:
-            - load_auto
+        tags:
+          - load_auto
 
         columns:
           - name: condo_stat_groups
@@ -175,8 +175,8 @@ sources:
                 - run_id
               meta:
                 description: metadata is unique by run_id
-          tags:
-            - load_auto
+        tags:
+          - load_auto
 
         columns:
           - name: long_commit_sha
@@ -211,8 +211,8 @@ sources:
                 - year_of_sale
               meta:
                 description: mydec is unique by document_number and year_of_sale
-          tags:
-            - load_manual
+        tags:
+          - load_manual
 
 models:
   - name: sale.vw_ias_salesval_upload
