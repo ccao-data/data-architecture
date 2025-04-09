@@ -183,7 +183,7 @@ models:
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= 2014
+              WHERE year >= '2014'
             )
       - unique_combination_of_columns:
           name: location_other_unique_by_year_pin10
