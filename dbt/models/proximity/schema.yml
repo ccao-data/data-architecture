@@ -380,6 +380,31 @@ models:
           meta:
             description: dist_pin_to_nearest_grocery_store should be unique by pin10 and year
 
+  - name: proximity.dist_pin_to_new_construction_store
+    description: '{{ doc("table_dist_pin_to_new_construction_store") }}'
+    data_tests:
+    - row_count:
+        name: dist_pin_to_new_construction_store_matches_spatial_parcel
+        above: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_new_construction_store') }})
+          )
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_new_construction should be match spatial_parcel
+    - unique_combination_of_columns:
+        name: proximity_dist_pin_to_new_construction_unique_by_pin10_and_year
+        combination_of_columns:
+          - pin10
+          - year
+        tags:
+          - load_manual
+        meta:
+          description: dist_pin_to_new_construction should be unique by pin10 and year
+
   - name: proximity.dist_pin_to_park
     description: '{{ doc("table_dist_pin_to_park") }}'
     data_tests:
