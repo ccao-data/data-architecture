@@ -1,6 +1,8 @@
 models:
   - name: proximity.cnt_pin_num_bus_stop
     description: '{{ doc("table_cnt_pin_num_bus_stop") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: proximity_cnt_pin_num_bus_stop_matches_spatial_transit_stop
@@ -14,8 +16,6 @@ models:
               WHERE route_type = 3
             )
           )
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_bike_trail should match spatial_parcel
     - unique_combination_of_columns:
@@ -23,13 +23,13 @@ models:
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: cnt_pin_num_bus_stop should be unique by pin10 and year
 
   - name: proximity.cnt_pin_num_foreclosure
     description: '{{ doc("table_cnt_pin_num_foreclosure") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: proximity_cnt_pin_num_foreclosure_matches_spatial_parcel
@@ -39,8 +39,6 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.cnt_pin_num_foreclosure') }})
           )
-        tags:
-          - load_manual
         meta:
           description: cnt_pin_num_foreclosure should match spatial_parcel
     - unique_combination_of_columns:
@@ -48,13 +46,13 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: cnt_pin_num_foreclosure should be unique by pin10 and year
 
   - name: proximity.cnt_pin_num_school
     description: '{{ doc("table_cnt_pin_num_school") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: proximity_cnt_pin_num_school_matches_spatial_parcel
@@ -64,8 +62,6 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.cnt_pin_num_school') }})
           )
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_bike_trail should match spatial_parcel
     - unique_combination_of_columns:
@@ -73,25 +69,25 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: cnt_pin_num_school should be unique by pin10 and year
 
   - name: proximity.crosswalk_year_fill
     description: '{{ doc("table_crosswalk_year_fill") }}'
+    tags:
+      - load_manual
     data_tests:
     - unique_combination_of_columns:
         name: proximity_crosswalk_year_fill_unique_by_year
         combination_of_columns:
           - year
-        tags:
-          - load_manual
         meta:
           description: crosswalk_year_fill should be unique by year
 
   - name: proximity.dist_pin_to_airport
     description: '{{ doc("table_dist_pin_to_airport") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: proximity_dist_pin_to_airport_matches_spatial_parcel
@@ -101,8 +97,6 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_airport') }})
           )
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_bike_trail should match spatial_parcel
     - unique_combination_of_columns:
@@ -110,13 +104,13 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_airport should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_bike_trail
     description: '{{ doc("table_dist_pin_to_bike_trail") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: proximity_dist_pin_to_bike_trail_matches_spatial_parcel
@@ -126,8 +120,6 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_bike_trail') }})
           )
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_bike_trail should match spatial_parcel
     - unique_combination_of_columns:
@@ -135,13 +127,13 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_bike_trail should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_cemetery
     description: '{{ doc("table_dist_pin_to_cemetery") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: proximity_dist_pin_to_cemetery_matches_spatial_parcel
@@ -156,13 +148,13 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_cemetery should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_cta_route
     description: '{{ doc("table_dist_pin_to_cta_route") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: dist_pin_to_cta_route_matches_spatial_parcel
@@ -177,8 +169,6 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_cta_route should be unique by pin10 and year
 
@@ -190,13 +180,13 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_cta_stop should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_golf_course
     description: '{{ doc("table_dist_pin_to_golf_course") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: dist_pin_to_golf_course_matches_spatial_parcel
@@ -206,8 +196,6 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_golf_course') }})
           )
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_golf_course should match spatial_parcel
     - unique_combination_of_columns:
@@ -215,13 +203,13 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_golf_course should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_grocery_store
     description: '{{ doc("table_dist_pin_to_grocery_store") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: dist_pin_to_grocery_store_matches_spatial_parcel
@@ -231,8 +219,6 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_grocery_store') }})
           )
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_grocery_store should match spatial_parcel
     - unique_combination_of_columns:
@@ -240,13 +226,13 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_grocery_store should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_hospital
     description: '{{ doc("table_dist_pin_to_hospital") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: dist_pin_to_hospital_matches_spatial_parcel
@@ -256,8 +242,6 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_hospital') }})
           )
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_hospital should match spatial_parcel
     - unique_combination_of_columns:
@@ -265,13 +249,13 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_hospital should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_lake_michigan
     description: '{{ doc("table_dist_pin_to_lake_michigan") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: dist_pin_to_lake_michigan_matches_spatial_parcel
@@ -281,8 +265,6 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_lake_michigan') }})
           )
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_lake_michigan should match spatial_parcel
     - unique_combination_of_columns:
@@ -290,26 +272,26 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_lake_michigan should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_major_road
     description: '{{ doc("table_dist_pin_to_major_road") }}'
+    tags:
+      - load_manual
     data_tests:
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_major_road_unique_by_pin10_and_year
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_major_road should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_metra_route
     description: '{{ doc("table_dist_pin_to_metra_route") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: proximity_dist_pin_to_metra_route_matches_spatial_parcel
@@ -319,8 +301,6 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_metra_route') }})
           )
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_metra_route should match spatial_parcel
     - unique_combination_of_columns:
@@ -328,13 +308,13 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_metra_route should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_metra_stop
     description: '{{ doc("table_dist_pin_to_metra_stop") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: proximity_dist_pin_to_metra_stop_matches_spatial_parcel
@@ -344,8 +324,6 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_metra_stop') }})
           )
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_metra_stop should match spatial_parcel
     - unique_combination_of_columns:
@@ -353,13 +331,13 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_metra_stop should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_new_construction
     description: '{{ doc("table_dist_pin_to_new_construction") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: dist_pin_to_new_construction_matches_spatial_parcel
@@ -378,13 +356,13 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_new_construction should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_park
     description: '{{ doc("table_dist_pin_to_park") }}'
+    tags:
+      - load_manual
     data_tests:
     - row_count:
         name: proximity_dist_pin_to_park_matches_spatial_parcel
@@ -394,8 +372,6 @@ models:
             FROM {{ source('spatial', 'parcel') }}
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_park') }})
           )
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_park should match spatial_parcel
     - unique_combination_of_columns:
@@ -403,13 +379,13 @@ models:
         combination_of_columns:
           - pin10
           - year
-        tags:
-          - load_manual
         meta:
           description: dist_pin_to_park should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_pin
     description: '{{ doc("view_dist_pin_to_pin") }}'
+    tags:
+      - load_manual
     data_tests:
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_unique_by_10_digit_pin_and_year
@@ -419,45 +395,47 @@ models:
 
   - name: proximity.dist_pin_to_pin_01
     description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
+    tags:
+      - load_manual
     data_tests:
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_01_unique_by_pin10_and_year
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_pin_01 should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_pin_02
     description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
+    tags:
+      - load_manual
     data_tests:
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_02_unique_by_pin10_and_year
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_pin_02 should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_pin_03
     description: '{{ doc("table_dist_pin_to_pin_intermediate") }}'
+    tags:
+      - load_manual
     data_tests:
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_03_unique_by_pin10_and_year
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_pin_03 should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_railroad
     description: '{{ doc("table_dist_pin_to_railroad") }}'
+    tags:
+      - load_manual
     data_tests:
       - row_count:
           name: proximity_dist_pin_to_railroad_matches_spatial_parcel
@@ -467,8 +445,6 @@ models:
               FROM {{ source('spatial', 'parcel') }}
               WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_railroad') }})
             )
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_railroad should match spatial_parcel
       - unique_combination_of_columns:
@@ -476,13 +452,13 @@ models:
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_railroad should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_road_arterial
     description: '{{ doc("table_dist_pin_to_road_arterial") }}'
+    tags:
+      - load_manual
     data_tests:
       - row_count:
           name: proximity_dist_pin_to_road_arterial_matches_spatial_parcel
@@ -492,8 +468,6 @@ models:
               FROM {{ source('spatial', 'parcel') }}
               WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_road_arterial') }})
             )
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_road_arterial should match spatial_parcel
       - unique_combination_of_columns:
@@ -501,13 +475,13 @@ models:
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_road_arterial should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_road_collector
     description: '{{ doc("table_dist_pin_to_road_collector") }}'
+    tags:
+      - load_manual
     data_tests:
       - row_count:
           name: proximity_dist_pin_to_road_collector_matches_spatial_parcel
@@ -517,8 +491,6 @@ models:
               FROM {{ source('spatial', 'parcel') }}
               WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_road_collector') }})
             )
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_road_collector should match spatial_parcel
       - unique_combination_of_columns:
@@ -526,13 +498,13 @@ models:
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_road_collector should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_road_highway
     description: '{{ doc("table_dist_pin_to_road_highway") }}'
+    tags:
+      - load_manual
     data_tests:
       - row_count:
           name: proximity_dist_pin_to_road_highway_matches_spatial_parcel
@@ -542,8 +514,6 @@ models:
               FROM {{ source('spatial', 'parcel') }}
               WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_road_highway') }})
             )
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_road_highway should match spatial_parcel
       - unique_combination_of_columns:
@@ -551,21 +521,19 @@ models:
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_road_highway should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_secondary_road
     description: '{{ doc("table_dist_pin_to_secondary_road") }}'
+    tags:
+      - load_manual
     data_tests:
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_secondary_road_unique_by_pin10_and_year
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_secondary_road should be unique by pin10 and year
 
@@ -580,8 +548,6 @@ models:
               FROM {{ source('spatial', 'parcel') }}
               WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_stadium') }})
             )
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_stadium should match spatial_parcel
       - unique_combination_of_columns:
@@ -589,13 +555,13 @@ models:
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_stadium should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_university
     description: '{{ doc("table_dist_pin_to_university") }}'
+    tags:
+      - load_manual
     data_tests:
       - row_count:
           name: proximity_dist_pin_to_university_matches_spatial_parcel
@@ -605,8 +571,6 @@ models:
               FROM {{ source('spatial', 'parcel') }}
               WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_university') }})
             )
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_university should match spatial_parcel
       - unique_combination_of_columns:
@@ -614,13 +578,13 @@ models:
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_university should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_vacant_land
     description: '{{ doc("table_dist_pin_to_vacant_land") }}'
+    tags:
+      - load_manual
     data_tests:
       - row_count:
           name: proximity_dist_pin_to_vacant_land_matches_spatial_parcel
@@ -639,21 +603,18 @@ models:
             SELECT COUNT(*)
             FROM filtered_parcel
             WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_vacant_land') }})
-          tags:
-            - load_manual
-
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_vacant_land_unique_by_pin10_and_year
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_vacant_land should be unique by pin10 and year
 
   - name: proximity.dist_pin_to_water
     description: '{{ doc("table_dist_pin_to_water") }}'
+    tags:
+      - load_manual
     data_tests:
       - row_count:
           name: proximity_dist_pin_to_water_matches_spatial_parcel
@@ -663,8 +624,6 @@ models:
               FROM {{ source('spatial', 'parcel') }}
               WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_water') }})
             )
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_water should match spatial_parcel
       - unique_combination_of_columns:
@@ -672,13 +631,13 @@ models:
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: dist_pin_to_water should be unique by pin10 and year
 
   - name: proximity.vw_pin10_proximity
     description: '{{ doc("view_vw_pin10_proximity") }}'
+    tags:
+      - load_manual
     data_tests:
       - row_count:
           name: proximity_vw_pin10_proximity_matches_spatial_parcel
@@ -688,8 +647,6 @@ models:
               FROM {{ source('spatial', 'parcel') }}
               WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.vw_pin10_proximity') }})
             )
-          tags:
-            - load_manual
           meta:
             description: vw_pin10_proximity should match spatial_parcel
       - unique_combination_of_columns:
@@ -697,8 +654,6 @@ models:
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: vw_pin10_proximity should be unique by pin10 and year
     columns: &vw_proximity_columns
@@ -885,14 +840,14 @@ models:
 
   - name: proximity.vw_pin10_proximity_fill
     description: '{{ doc("view_vw_pin10_proximity_fill") }}'
+    tags:
+      - load_manual
     data_tests:
       - unique_combination_of_columns:
           name: proximity_vw_pin10_proximity_fill_unique_by_pin10_and_year
           combination_of_columns:
             - pin10
             - year
-          tags:
-            - load_manual
           meta:
             description: vw_pin10_proximity_fill should be unique by pin10 and year
     columns: *vw_proximity_columns
