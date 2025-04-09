@@ -183,14 +183,7 @@ models:
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (
-              SELECT MIN(year)
-              FROM (
-                SELECT year FROM {{ source('spatial', 'subdivision') }}
-                UNION ALL
-                SELECT year FROM {{ source('spatial', 'enterprise_zone') }}
-              ) unioned_years
-              )
+              WHERE year >= 2014
             )
       - unique_combination_of_columns:
           name: location_other_unique_by_year_pin10
