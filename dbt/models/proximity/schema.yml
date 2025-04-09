@@ -3,7 +3,7 @@ models:
     description: '{{ doc("table_cnt_pin_num_bus_stop") }}'
     data_tests:
     - row_count:
-        name: proximity_cnt_pin_num_bus_stop_matches_spatial_parcel
+        name: proximity_cnt_pin_num_bus_stop_matches_spatial_transit_stop
         above: >
           (
             SELECT COUNT(*)
