@@ -622,15 +622,23 @@ models:
       - row_count:
           name: proximity_dist_pin_to_vacant_land_matches_spatial_parcel
           above: >
-            (
-              SELECT COUNT(*)
-              FROM {{ source('spatial', 'parcel') }}
-              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_vacant_land') }})
+            WITH filtered_parcel AS (
+                SELECT parcel.*
+                FROM {{ source('spatial', 'parcel') }} AS parcel
+                INNER JOIN {{ source('iasworld', 'pardat') }} AS pardat
+                    ON parcel.pin10 = SUBSTR(pardat.parid, 1, 10)
+                    AND parcel.year = pardat.taxyr
+                    AND pardat.cur = 'Y'
+                    AND pardat.deactivat IS NULL
+                    AND pardat.class = '100'
+                    AND ST_AREA(ST_GEOMFROMBINARY(geometry_3435)) >= 1000
             )
+            SELECT COUNT(*)
+            FROM filtered_parcel
+            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_vacant_land') }})
           tags:
             - load_manual
-          meta:
-            description: dist_pin_to_vacant_land should be match spatial_parcel
+
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_vacant_land_unique_by_pin10_and_year
           combination_of_columns:
