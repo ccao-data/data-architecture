@@ -99,14 +99,14 @@ sources:
       - name: parameter
         description: '{{ doc("parameter") }}'
         data_tests:
-        - unique_combination_of_columns:
-            name: sale_parameter_unique_by_run_id
-            combination_of_columns:
-              - run_id
-            meta:
-              description: parameter is unique by run_id
-        tags:
-          - load_auto
+          - unique_combination_of_columns:
+              name: sale_parameter_unique_by_run_id
+              combination_of_columns:
+                - run_id
+              meta:
+                description: parameter is unique by run_id
+          tags:
+            - load_auto
 
         columns:
           - name: condo_stat_groups
