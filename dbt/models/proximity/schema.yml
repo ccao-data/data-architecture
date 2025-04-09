@@ -8,7 +8,11 @@ models:
           (
             SELECT COUNT(*)
             FROM {{ source('spatial', 'parcel') }}
-            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.cnt_pin_num_bus_stop') }})
+            WHERE year >= (
+              SELECT MIN(year)
+              FROM {{ source('spatial', 'transit_stop') }}
+              WHERE route_type = 3
+            )
           )
         tags:
           - load_manual
