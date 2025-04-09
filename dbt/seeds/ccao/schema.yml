@@ -2,12 +2,12 @@ seeds:
   - name: ccao.adjective
     description: '{{ doc("seed_adjective") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: ccao_adjective_unique_by_adjective
-        combination_of_columns:
-          - adjective
-        meta:
-          description: adjective is unique by adjective
+      - unique_combination_of_columns:
+          name: ccao_adjective_unique_by_adjective
+          combination_of_columns:
+            - adjective
+          meta:
+            description: adjective is unique by adjective
 
   - name: ccao.aprval_reascd
     description: '{{ doc("seed_aprval_reascd") }}'
@@ -19,12 +19,12 @@ seeds:
   - name: ccao.cdu
     description: '{{ doc("seed_cdu") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: ccao_cdu_unique_by_cdu_code
-        combination_of_columns:
-          - cdu_code
-        meta:
-          description: cdu is unique by cdu_code
+      - unique_combination_of_columns:
+          name: ccao_cdu_unique_by_cdu_code
+          combination_of_columns:
+            - cdu_code
+          meta:
+            description: cdu is unique by cdu_code
     config:
       column_types:
         cdu_code: string
@@ -33,12 +33,12 @@ seeds:
   - name: ccao.class_dict
     description: '{{ doc("seed_class_dict") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: ccao_class_dict_unique_by_class_code
-        combination_of_columns:
-          - class_code
-        meta:
-          description: class_dict is unique by class_code
+      - unique_combination_of_columns:
+          name: ccao_class_dict_unique_by_class_code
+          combination_of_columns:
+            - class_code
+          meta:
+            description: class_dict is unique by class_code
     config:
       column_types:
         min_age: double
@@ -73,12 +73,12 @@ seeds:
   - name: ccao.commercial_major_subclass
     description: '{{ doc("seed_commercial_major_subclass") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: ccao_commercial_major_subclass_unique_by_code
-        combination_of_columns:
-          - code
-        meta:
-          description: commercial_major_subclass is unique by code
+      - unique_combination_of_columns:
+          name: ccao_commercial_major_subclass_unique_by_code
+          combination_of_columns:
+            - code
+          meta:
+            description: commercial_major_subclass is unique by code
     config:
       column_types:
         code: string
@@ -87,12 +87,12 @@ seeds:
   - name: ccao.commercial_minor_subclass
     description: '{{ doc("seed_commercial_minor_subclass") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: ccao_commercial_minor_subclass_unique_by_code
-        combination_of_columns:
-          - code
-        meta:
-          description: commercial_minor_subclass is unique by code
+      - unique_combination_of_columns:
+          name: ccao_commercial_minor_subclass_unique_by_code
+          combination_of_columns:
+            - code
+          meta:
+            description: commercial_minor_subclass is unique by code
     config:
       column_types:
         code: string
@@ -101,12 +101,12 @@ seeds:
   - name: ccao.infl_reascd
     description: '{{ doc("seed_infl_reascd") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: ccao_infl_reascd_unique_by_reascd
-        combination_of_columns:
-          - reascd
-        meta:
-          description: infl_reascd is unique by reascd
+      - unique_combination_of_columns:
+          name: ccao_infl_reascd_unique_by_reascd
+          combination_of_columns:
+            - reascd
+          meta:
+            description: infl_reascd is unique by reascd
     config:
       column_types:
         reascd: string
@@ -115,13 +115,13 @@ seeds:
   - name: ccao.loa
     description: '{{ doc("seed_loa") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: ccao_loa_unique_by_year_class_code
-        combination_of_columns:
-          - year
-          - class_code
-        meta:
-          description: loa is unique by year and class_code
+      - unique_combination_of_columns:
+          name: ccao_loa_unique_by_year_class_code
+          combination_of_columns:
+            - year
+            - class_code
+          meta:
+            description: loa is unique by year and class_code
     config:
       column_types:
         year: string
