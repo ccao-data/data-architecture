@@ -136,7 +136,7 @@ sources:
             name: tax_pin_geometry_raw_unique_by_pin10_start_year
             combination_of_columns:
               - pin10
-              - start_year
+              - end_year
             meta:
               description: pin_geometry_raw is unique by pin10 and start_year
 
