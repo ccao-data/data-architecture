@@ -83,6 +83,13 @@ def main() -> None:
 
         asset_row_counts_by_year = response.json()
 
+        # Socrata won't return a year column for rows with no year, so we need to add a None year value to the list of rows with no year. This is a bit of a hack, but it works for now.
+        [
+            year.update({"year": None})
+            for year in asset_row_counts_by_year
+            if "year" not in year
+        ]
+
         dbt_output = io.StringIO()
         with contextlib.redirect_stdout(dbt_output):
             dbt_result = DBT.invoke(
@@ -163,10 +170,18 @@ def diff_row_counts(
     """
     # We expect these lists to already be sorted, but double-check anyway
     athena_model_row_counts = sorted(
-        athena_model_row_counts, key=lambda x: x[athena_model_year_field]
+        athena_model_row_counts,
+        key=lambda x: (
+            [athena_model_year_field] == None,  # noqa: E711
+            [athena_model_year_field],
+        ),
     )
     open_data_asset_row_counts = sorted(
-        open_data_asset_row_counts, key=lambda x: x[open_data_asset_year_field]
+        open_data_asset_row_counts,
+        key=lambda x: (
+            [open_data_asset_year_field] == None,  # noqa: E711)
+            [open_data_asset_year_field],
+        ),
     )
 
     # Extract the current and last year since we want to apply different
