@@ -17,7 +17,7 @@ models:
         tags:
           - load_manual
         meta:
-          description: dist_pin_to_bike_trail should be match spatial_parcel
+          description: dist_pin_to_bike_trail should match spatial_parcel
     - unique_combination_of_columns:
           name: proximity_cnt_pin_num_bus_stop_unique_by_pin10_and_year
           combination_of_columns:
@@ -42,7 +42,7 @@ models:
         tags:
           - load_manual
         meta:
-          description: cnt_pin_num_foreclosure should be match spatial_parcel
+          description: cnt_pin_num_foreclosure should match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_cnt_pin_num_foreclosure_unique_by_pin10_and_year
         combination_of_columns:
@@ -67,7 +67,7 @@ models:
         tags:
           - load_manual
         meta:
-          description: dist_pin_to_bike_trail should be match spatial_parcel
+          description: dist_pin_to_bike_trail should match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_cnt_pin_num_school_unique_by_pin10_and_year
         combination_of_columns:
@@ -104,7 +104,7 @@ models:
         tags:
           - load_manual
         meta:
-          description: dist_pin_to_bike_trail should be match spatial_parcel
+          description: dist_pin_to_bike_trail should match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_airport_unique_by_pin10_and_year
         combination_of_columns:
@@ -129,7 +129,7 @@ models:
         tags:
           - load_manual
         meta:
-          description: dist_pin_to_bike_trail should be match spatial_parcel
+          description: dist_pin_to_bike_trail should match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_bike_trail_unique_by_pin10_and_year
         combination_of_columns:
@@ -209,7 +209,7 @@ models:
         tags:
           - load_manual
         meta:
-          description: dist_pin_to_golf_course should be match spatial_parcel
+          description: dist_pin_to_golf_course should match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_golf_course_unique_by_pin10_and_year
         combination_of_columns:
@@ -234,7 +234,7 @@ models:
         tags:
           - load_manual
         meta:
-          description: dist_pin_to_grocery_store should be match spatial_parcel
+          description: dist_pin_to_grocery_store should match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_grocery_store_unique_by_pin10_and_year
         combination_of_columns:
@@ -259,7 +259,7 @@ models:
         tags:
           - load_manual
         meta:
-          description: dist_pin_to_hospital should be match spatial_parcel
+          description: dist_pin_to_hospital should match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_hospital_unique_by_pin10_and_year
         combination_of_columns:
@@ -284,7 +284,7 @@ models:
         tags:
           - load_manual
         meta:
-          description: dist_pin_to_lake_michigan should be match spatial_parcel
+          description: dist_pin_to_lake_michigan should match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_lake_michigan_unique_by_pin10_and_year
         combination_of_columns:
@@ -322,7 +322,7 @@ models:
         tags:
           - load_manual
         meta:
-          description: dist_pin_to_metra_route should be match spatial_parcel
+          description: dist_pin_to_metra_route should match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_metra_route_unique_by_pin10_and_year
         combination_of_columns:
@@ -347,7 +347,7 @@ models:
         tags:
           - load_manual
         meta:
-          description: dist_pin_to_metra_stop should be match spatial_parcel
+          description: dist_pin_to_metra_stop should match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_metra_stop_unique_by_pin10_and_year
         combination_of_columns:
@@ -365,14 +365,13 @@ models:
         name: dist_pin_to_new_construction_matches_spatial_parcel
         above: >
           (
-            SELECT COUNT(*)
-            FROM {{ source('spatial', 'parcel') }}
-            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_new_construction') }})
+            SELECT COUNT(DISTINCT(parcel.pin10, parcel.year))
+            FROM {{ source('spatial', 'parcel') }} AS parcel
+            INNER JOIN {{ ref('default.vw_card_res_char') }} AS vw_card_res_char
+              ON parcel.pin10 = vw_card_res_char.pin10
           )
-        tags:
-          - load_manual
         meta:
-          description: dist_pin_to_new_construction should be match spatial_parcel
+          description: dist_pin_to_new_construction should match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_new_construction_unique_by_pin10_and_year
         combination_of_columns:
@@ -397,7 +396,7 @@ models:
         tags:
           - load_manual
         meta:
-          description: dist_pin_to_park should be match spatial_parcel
+          description: dist_pin_to_park should match spatial_parcel
     - unique_combination_of_columns:
         name: proximity_dist_pin_to_park_unique_by_pin10_and_year
         combination_of_columns:
@@ -470,7 +469,7 @@ models:
           tags:
             - load_manual
           meta:
-            description: dist_pin_to_railroad should be match spatial_parcel
+            description: dist_pin_to_railroad should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_railroad_unique_by_pin10_and_year
           combination_of_columns:
@@ -495,7 +494,7 @@ models:
           tags:
             - load_manual
           meta:
-            description: dist_pin_to_road_arterial should be match spatial_parcel
+            description: dist_pin_to_road_arterial should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_road_arterial_unique_by_pin10_and_year
           combination_of_columns:
@@ -520,7 +519,7 @@ models:
           tags:
             - load_manual
           meta:
-            description: dist_pin_to_road_collector should be match spatial_parcel
+            description: dist_pin_to_road_collector should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_road_collector_unique_by_pin10_and_year
           combination_of_columns:
@@ -545,7 +544,7 @@ models:
           tags:
             - load_manual
           meta:
-            description: dist_pin_to_road_highway should be match spatial_parcel
+            description: dist_pin_to_road_highway should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_road_highway_unique_by_pin10_and_year
           combination_of_columns:
@@ -583,7 +582,7 @@ models:
           tags:
             - load_manual
           meta:
-            description: dist_pin_to_stadium should be match spatial_parcel
+            description: dist_pin_to_stadium should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_stadium_unique_by_pin10_and_year
           combination_of_columns:
@@ -608,7 +607,7 @@ models:
           tags:
             - load_manual
           meta:
-            description: dist_pin_to_university should be match spatial_parcel
+            description: dist_pin_to_university should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_university_unique_by_pin10_and_year
           combination_of_columns:
@@ -666,7 +665,7 @@ models:
           tags:
             - load_manual
           meta:
-            description: dist_pin_to_water should be match spatial_parcel
+            description: dist_pin_to_water should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_water_unique_by_pin10_and_year
           combination_of_columns:
