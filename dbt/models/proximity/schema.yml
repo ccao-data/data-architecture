@@ -365,10 +365,11 @@ models:
         name: dist_pin_to_new_construction_matches_spatial_parcel
         above: >
           (
-            SELECT COUNT(DISTINCT(parcel.pin10, parcel.year))
+            SELECT COUNT(*)
             FROM {{ source('spatial', 'parcel') }} AS parcel
             INNER JOIN {{ ref('default.vw_card_res_char') }} AS vw_card_res_char
               ON parcel.pin10 = vw_card_res_char.pin10
+              and parcel.year = vw_card_res_char.year
           )
         meta:
           description: dist_pin_to_new_construction should match spatial_parcel
