@@ -147,13 +147,13 @@ seeds:
   - name: ccao.person
     description: '{{ doc("seed_person") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: ccao_person_unique_by_person
-        combination_of_columns:
-          - person
-          - type
-        meta:
-          description: person is unique by person and type
+      - unique_combination_of_columns:
+          name: ccao_person_unique_by_person
+          combination_of_columns:
+            - person
+            - type
+          meta:
+            description: person is unique by person and type
 
     columns:
       - name: person
@@ -165,13 +165,13 @@ seeds:
   - name: ccao.pin_test
     description: '{{ doc("seed_pin_test") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: ccao_pin_test_unique_by_year_pin
-        combination_of_columns:
-          - year
-          - pin
-        meta:
-          description: pin_test is unique by year and pin
+      - unique_combination_of_columns:
+          name: ccao_pin_test_unique_by_year_pin
+          combination_of_columns:
+            - year
+            - pin
+          meta:
+            description: pin_test is unique by year and pin
     config:
       column_types:
         class: string
@@ -215,12 +215,12 @@ seeds:
   - name: ccao.htpar_reascd
     description: '{{ doc("seed_htpar_reascd") }}'
     data_tests:
-    - unique_combination_of_columns:
-        name: ccao_htpar_reascd_unique_by_reascd
-        combination_of_columns:
-          - reascd
-        meta:
-          description: htpar_reascd is unique by reascd
+      - unique_combination_of_columns:
+          name: ccao_htpar_reascd_unique_by_reascd
+          combination_of_columns:
+            - reascd
+          meta:
+            description: htpar_reascd is unique by reascd
     config:
       column_types:
         description: string
