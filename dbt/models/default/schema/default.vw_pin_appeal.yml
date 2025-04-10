@@ -48,7 +48,7 @@ models:
           above: >
             (
               SELECT COUNT(*)
-              FROM {{ source('iasworld', 'htpar') }}
+              FROM {{ source('iasworld', 'pardat') }}
               WHERE cur = 'Y'
                 AND deactivat IS NULL
             )
