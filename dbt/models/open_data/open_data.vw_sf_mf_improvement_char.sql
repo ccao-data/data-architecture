@@ -5,7 +5,7 @@
 SELECT
     pin || CAST(card AS VARCHAR) || year AS row_id,
     pin,
-    year,
+    CAST(year AS INT) AS year,
     card,
     class,
     township_code,
