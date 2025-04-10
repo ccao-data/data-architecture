@@ -400,7 +400,7 @@ process_parcel_file <- function(s3_bucket_uri,
   # Get missing geographies and all matching pin address combinations
   # We remove info from before 2000 since almost all lon/lat information
   # is missing
-  all_geographies <-
+  all_addresses <-
     dbGetQuery(
                conn = con,
                "select distinct
@@ -417,14 +417,15 @@ process_parcel_file <- function(s3_bucket_uri,
             where vpa.year >= '2000'
               ")
 
-  # This will be larger than the parcel dataframe since it's on PIN level
-  all_geographies <- all_geographies %>%
-    # We can have address data from current year before parcel shapes
-    # are available for that year
+  # This will be larger than the parcel dataframe since it's on PIN level.
+  # Parcels dataframe is on Pin10 level.
+  all_addresses <- all_addresses %>%
+    # We can have address data from current year we upload parcel data
+    # are available.
     filter(year <= max(spatial_df_final$year, na.rm = TRUE)) %>%
     mutate(pin10 = substr(parid, 1, 10))
 
-  missing_geographies <- anti_join(all_geographies,
+  missing_geographies <- anti_join(all_addresses,
                                    spatial_df_final, by = c("pin10", "year"))
 
   # Grab all years of data for parcels which are missing in any year
@@ -433,7 +434,7 @@ process_parcel_file <- function(s3_bucket_uri,
     # Add property address to the subset to make sure PINs are consistent.
     # This will expand the dataset since prop_addresses are not unique
     # by PIN10.
-    left_join(all_geographies %>% select(year, pin10, prop_address_full),
+    left_join(all_addresses %>% select(year, pin10, prop_address_full),
               by = c("year", "pin10"))
 
   imputed <- bind_rows(spatial_subset, missing_geographies)
