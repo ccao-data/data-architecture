@@ -342,12 +342,10 @@ models:
       - row_count:
           name: dist_pin_to_new_construction_matches_spatial_parcel
           above: >
-            (
+           (
               SELECT COUNT(*)
-              FROM {{ source('spatial', 'parcel') }} AS parcel
-              INNER JOIN {{ ref('default.vw_card_res_char') }} AS vw_card_res_char
-                ON parcel.pin10 = vw_card_res_char.pin10
-                and parcel.year = vw_card_res_char.year
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_new_construction') }})
             )
           meta:
             description: dist_pin_to_new_construction should match spatial_parcel
@@ -589,20 +587,11 @@ models:
       - row_count:
           name: proximity_dist_pin_to_vacant_land_matches_spatial_parcel
           above: >
-            WITH filtered_parcel AS (
-                SELECT parcel.*
-                FROM {{ source('spatial', 'parcel') }} AS parcel
-                INNER JOIN {{ source('iasworld', 'pardat') }} AS pardat
-                    ON parcel.pin10 = SUBSTR(pardat.parid, 1, 10)
-                    AND parcel.year = pardat.taxyr
-                    AND pardat.cur = 'Y'
-                    AND pardat.deactivat IS NULL
-                    AND pardat.class = '100'
-                    AND ST_AREA(ST_GEOMFROMBINARY(geometry_3435)) >= 1000
+            (
+              SELECT COUNT(*)
+              FROM {{ source('spatial', 'parcel') }}
+              WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_vacant_land') }})
             )
-            SELECT COUNT(*)
-            FROM filtered_parcel
-            WHERE year >= (SELECT MIN(year) FROM {{ ref('proximity.dist_pin_to_vacant_land') }})
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_vacant_land_unique_by_pin10_and_year
           combination_of_columns:
