@@ -122,7 +122,7 @@ corrected variants.
 
 Used within the [PTAXSIM](https://github.com/ccao-data/ptaxsim) package and database.
 
-**Primary Key**: `year`
+**Primary Key**: `year`, `agency_num_dist`
 {% enddocs %}
 
 # tif_distribution

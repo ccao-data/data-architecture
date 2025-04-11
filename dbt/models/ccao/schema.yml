@@ -33,6 +33,15 @@ sources:
         description: '{{ doc("table_land_nbhd_rate") }}'
         tags:
           - type_land
+        data_tests:
+          - unique_combination_of_columns:
+              name: ccao_land_nbhd_rate_unique_by_town_nbhd_class_and_year
+              combination_of_columns:
+                - town_nbhd
+                - class
+                - year
+              meta:
+                description: ccao land nbhd rate should be unique by town_nbhd, class, and year
 
       - name: land_site_rate
         description: '{{ doc("table_land_site_rate") }}'
@@ -43,6 +52,16 @@ sources:
         description: '{{ doc("table_pin_condo_char") }}'
         tags:
           - type_condo
+        data_tests:
+          - unique_combination_of_columns:
+              name: ccao_pin_condo_char_unique_by_pin_and_year
+              combination_of_columns:
+                - pin
+                - year
+              config:
+                error_if: ">1"
+              meta:
+                description: ccao pin condo char should be unique by pin and year
         columns:
           - name: bedrooms
             description: '{{ doc("shared_column_char_beds") }}'
@@ -69,6 +88,22 @@ sources:
         description: '{{ doc("table_pin_nonlivable") }}'
         tags:
           - type_condo
+        data_tests:
+          - unique_combination_of_columns:
+              name: ccao_pin_nonlivable_unique_by_pin_and_year
+              combination_of_columns:
+                - pin
+                - year
+              meta: 
+                description: pin nonlivable should be unique by pin and year
+        columns:
+          - name: flag
+            data_tests:
+              - accepted_values:
+                  name: ccao_pin_nonlivable_flag_accepted_values
+                  values: ["questionable", "negative pred", "399 GR"]
+            meta:
+              description: pin nonlivable flag should have values of questionable, negative pre or 399 GR
 
 exposures:
   - name: commercial_valuation_data
