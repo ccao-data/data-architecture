@@ -83,7 +83,8 @@ def main() -> None:
 
         asset_row_counts_by_year = response.json()
 
-        # Socrata won't return a year column for rows with no year, so we need to add a None year value to the list of rows with no year. This is a bit of a hack, but it works for now.
+        # Socrata won't return a year column for rows with no year, so we need
+        # to add None as the year value to the dict with no year.
         [
             year.update({asset_year_field: None})
             for year in asset_row_counts_by_year
