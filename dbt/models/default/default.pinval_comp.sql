@@ -17,7 +17,7 @@ raw_comp AS (
     FROM "model"."comp"
     WHERE run_id IN (SELECT run_id FROM run_ids_to_include)
     -- subset to test for now
-        AND pin IN ('08102100010000', '06272070290000', '12364100170000')
+        ---AND pin IN ('08102100010000', '06272070290000', '12364100170000')
 ),
 
 -- Pivot comp_pin
