@@ -83,6 +83,24 @@ def main() -> None:
 
         asset_row_counts_by_year = response.json()
 
+        # Socrata won't return a year column for rows with no year, so we need
+        # to add None as the year value to the dict with no year.
+        [
+            year.update({asset_year_field: None})
+            for year in asset_row_counts_by_year
+            if asset_year_field not in year
+        ]
+
+        # Socrata returns year columns as strings even though they're typed as
+        # numbers. It's unlcear why this is the case, but it seems to be a quirk
+        # of the API. We need to convert them to int so that we can compare them
+        # to Athena data.
+        for index, value in enumerate(asset_row_counts_by_year):
+            if value[asset_year_field] is not None:
+                asset_row_counts_by_year[index][asset_year_field] = int(
+                    value[asset_year_field]
+                )
+
         dbt_output = io.StringIO()
         with contextlib.redirect_stdout(dbt_output):
             dbt_result = DBT.invoke(
@@ -163,10 +181,18 @@ def diff_row_counts(
     """
     # We expect these lists to already be sorted, but double-check anyway
     athena_model_row_counts = sorted(
-        athena_model_row_counts, key=lambda x: x[athena_model_year_field]
+        athena_model_row_counts,
+        key=lambda x: (
+            [athena_model_year_field] == [None],
+            [athena_model_year_field],
+        ),
     )
     open_data_asset_row_counts = sorted(
-        open_data_asset_row_counts, key=lambda x: x[open_data_asset_year_field]
+        open_data_asset_row_counts,
+        key=lambda x: (
+            [open_data_asset_year_field] == [None],
+            [open_data_asset_year_field],
+        ),
     )
 
     # Extract the current and last year since we want to apply different
