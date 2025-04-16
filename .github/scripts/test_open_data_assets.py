@@ -90,6 +90,10 @@ def main() -> None:
             if asset_year_field not in year
         ]
 
+        # Socrata returns year columns as strings even though they're typed as
+        # numbers. It's unlcear why this is the case, but it seems to be a quirk
+        # of the API. We need to convert them to int so that we can compare them
+        # to Athena data.
         for index, value in enumerate(asset_row_counts_by_year):
             if value[asset_year_field] is not None:
                 asset_row_counts_by_year[index][asset_year_field] = int(
