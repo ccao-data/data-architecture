@@ -14,7 +14,7 @@ WITH run_ids_to_include AS (
 
 raw_comp AS (
     SELECT *
-    FROM {{ ref('model.comp') }}
+    FROM 'model.comp'
     WHERE run_id IN (SELECT run_id FROM run_ids_to_include)
     -- subset to test for now
         AND pin IN ('08102100010000', '06272070290000', '12364100170000')
