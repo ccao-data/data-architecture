@@ -14,7 +14,7 @@ WITH run_ids_to_include AS (
 
 raw_comp AS (
     SELECT *
-    FROM {{ source('model', 'comp') }}
+    FROM {{ ref('model.comp') }}
     WHERE run_id IN (SELECT run_id FROM run_ids_to_include)
     -- subset to test for now
         AND pin IN ('08102100010000', '06272070290000', '12364100170000')
@@ -170,7 +170,7 @@ comp_with_training_chars AS (
         pc.card,
         pc.comp_pin,
         pc.comp_document_num,
-        COALESCE (pc.pin = pc.comp_pin, FALSE) AS is_subject_pin_sale,
+        COALESCE(pc.pin = pc.comp_pin, FALSE) AS is_subject_pin_sale,
         CASE
             WHEN t.ind_pin_is_multicard = TRUE THEN 'Subject card'
             ELSE 'Subject property'
