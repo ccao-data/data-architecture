@@ -158,7 +158,7 @@ school_data AS (
         year,
         school_elementary_district_name,
         school_secondary_district_name
-    FROM 'location.school'
+    FROM "location"."school"
     WHERE year > '2014'
 ),
 
@@ -285,7 +285,7 @@ comp_with_training_chars AS (
         school.school_secondary_district_name
             AS loc_school_secondary_district_name
     FROM pivoted_comp AS pc
-    LEFT JOIN 'model.pinval_test_training_data' AS t
+    LEFT JOIN "model"."pinval_test_training_data" AS t
         ON pc.comp_pin = t.meta_pin
         AND pc.comp_document_num = t.meta_sale_document_num
     LEFT JOIN school_data AS school
