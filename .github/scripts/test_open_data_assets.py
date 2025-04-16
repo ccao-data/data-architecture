@@ -90,6 +90,12 @@ def main() -> None:
             if asset_year_field not in year
         ]
 
+        for index, value in enumerate(asset_row_counts_by_year):
+            if value[asset_year_field] is not None:
+                asset_row_counts_by_year[index][asset_year_field] = int(
+                    value[asset_year_field]
+                )
+
         dbt_output = io.StringIO()
         with contextlib.redirect_stdout(dbt_output):
             dbt_result = DBT.invoke(
@@ -202,13 +208,7 @@ def diff_row_counts(
 
         asset_count: int = 0
         for asset_row_count_dict in open_data_asset_row_counts:
-            if (
-                asset_row_count_dict[open_data_asset_year_field]
-                == str(model_year)
-            ) or (
-                asset_row_count_dict[open_data_asset_year_field] is None
-                and model_year is None
-            ):
+            if asset_row_count_dict[open_data_asset_year_field] == model_year:
                 asset_count = int(asset_row_count_dict["COUNT"])
                 break
         else:
@@ -243,13 +243,7 @@ def diff_row_counts(
         base_formatted_row = {}
 
         for model_row_count_dict in athena_model_row_counts:
-            if (
-                str(model_row_count_dict[athena_model_year_field])
-                == asset_year
-            ) or (
-                model_row_count_dict[athena_model_year_field] is None
-                and asset_year is None
-            ):
+            if model_row_count_dict[athena_model_year_field] == asset_year:
                 break
         else:
             # No matching year found, so these two datasets must be different
