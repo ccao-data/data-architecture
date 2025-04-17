@@ -188,6 +188,7 @@ comp_with_training_chars AS (
         t.loc_longitude,
         t.loc_latitude,
         t.meta_sale_price AS sale_price,
+        t.meta_sale_date AS sale_date,
         CAST(ROUND(t.meta_sale_price / 1000) AS VARCHAR)
         || 'K' AS sale_price_short,
         ROUND(t.meta_sale_price / NULLIF(t.char_bldg_sf, 0))
