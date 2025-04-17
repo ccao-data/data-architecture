@@ -105,7 +105,7 @@ st_read(tmp_file) %>%
   # within them
   st_buffer(10) %>%
   st_buffer(-10) %>%
-  st_transform(crs = 3426) %>%
+  st_transform(crs = 4326) %>%
   mutate(
     geometry_3435 = st_transform(geometry, 3435),
     year = "2025"
