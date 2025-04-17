@@ -112,4 +112,6 @@ st_read(tmp_file) %>%
     geometry_3435 = st_transform(geometry, 3435),
     year = "2025"
   ) %>%
-  geoparquet_to_s3(file.path(output_bucket, "sidwell_grid", "sidwell_grid.parquet"))
+  geoparquet_to_s3(
+    file.path(output_bucket, "sidwell_grid", "sidwell_grid.parquet")
+    )
