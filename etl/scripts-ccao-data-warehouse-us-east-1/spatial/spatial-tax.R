@@ -85,3 +85,29 @@ districts %>%
         overwrite = TRUE
       )
   })
+
+# Sidwell grid, originally formatted as Cook County Clerk tax map pages, which
+# are Sidwell grid sections divided into eighths. We dissolve these pages into
+# sections.
+tmp_file <- tempfile(fileext = ".geojson")
+aws.s3::save_object(
+  file.path(AWS_S3_RAW_BUCKET, "spatial/tax/sidwell_grid/sidwell_grid.geojson"),
+  file = tmp_file
+  )
+st_read(tmp_file) %>%
+  # Make sure to perform union on projected rather than geographic coordinate
+  # system
+  st_transform(crs = 3435) %>%
+  mutate(section = substr(PAGE, 1, 4)) %>%
+  group_by(section) %>%
+  summarise() %>%
+  # Buffering the polygons very slightly removes a lot of odd artifacts from
+  # within them
+  st_buffer(10) %>%
+  st_buffer(-10) %>%
+  st_transform(crs = 3426) %>%
+  mutate(
+    geometry_3435 = st_transform(geometry, 3435),
+    year = "2025"
+  ) %>%
+  geoparquet_to_s3(file.path(output_bucket, "sidwell_grid", "sidwell_grid.parquet"))
