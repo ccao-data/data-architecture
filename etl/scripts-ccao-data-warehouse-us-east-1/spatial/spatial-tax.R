@@ -86,9 +86,11 @@ districts %>%
       )
   })
 
-# Sidwell grid, originally formatted as Cook County Clerk tax map pages, which
-# are Sidwell grid sections divided into eighths. We dissolve these pages into
-# sections.
+# Sidwell grid: Originally formatted as Cook County Clerk tax map pages which
+# are Sidwell grid "sections" divided into eighths. We dissolve these pages back
+# into sections. Sections are 1-mile square subdivisions of "areas" (townships,
+# but with sidwell's numbering system rather than the county's) and are
+# identified by the first four digits of any PIN.
 tmp_file <- tempfile(fileext = ".geojson")
 aws.s3::save_object(
   file.path(AWS_S3_RAW_BUCKET, "spatial/tax/sidwell_grid/sidwell_grid.geojson"),
