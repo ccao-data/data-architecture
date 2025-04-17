@@ -95,7 +95,7 @@ tmp_file <- tempfile(fileext = ".geojson")
 aws.s3::save_object(
   file.path(AWS_S3_RAW_BUCKET, "spatial/tax/sidwell_grid/sidwell_grid.geojson"),
   file = tmp_file
-  )
+)
 st_read(tmp_file) %>%
   # Make sure to perform union on projected rather than geographic coordinate
   # system
