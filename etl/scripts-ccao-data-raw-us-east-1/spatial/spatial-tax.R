@@ -97,3 +97,11 @@ crossing(
       layer = df$layer
     )
   })
+
+# Sidwell grid, originally formatted as Cook County Clerk tax map pages, which
+# are Sidwell grid sections divided into eighths.
+save_local_to_s3(
+  s3_uri = file.path(output_bucket, "sidwell_grid", "sidwell_grid.geojson"),
+  path = "O:/AndrewGIS/TaxMaps/TaxMapSheetIndex.geojson",
+  overwrite = FALSE
+)
