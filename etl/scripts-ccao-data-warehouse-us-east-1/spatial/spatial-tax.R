@@ -114,4 +114,4 @@ st_read(tmp_file) %>%
   ) %>%
   geoparquet_to_s3(
     file.path(output_bucket, "sidwell_grid", "sidwell_grid.parquet")
-    )
+  )
