@@ -252,8 +252,8 @@ SELECT
 
     -- joined field
     ap.pred_pin_final_fmv_round
-from model"."assessment_card ac
-left join model"."assessment_pin ap
+from model.assessment_card ac
+left join model.assessment_pin ap
     on ac.meta_pin = ap.meta_pin
     and ac.run_id = ap.run_id
 where ac.run_id IN (select run_id from run_ids_to_include)
