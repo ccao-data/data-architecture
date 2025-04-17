@@ -14,10 +14,10 @@ WITH run_ids_to_include AS (
 
 raw_comp AS (
     SELECT *
-    FROM "model"."comp"
+    FROM model.comp
     WHERE run_id IN (SELECT run_id FROM run_ids_to_include)
     -- subset to test for now
-        ---AND pin IN ('08102100010000', '06272070290000', '12364100170000')
+---AND pin IN ('08102100010000', '06272070290000', '12364100170000')
 ),
 
 -- Pivot comp_pin
@@ -158,7 +158,7 @@ school_data AS (
         year,
         school_elementary_district_name,
         school_secondary_district_name
-    FROM "location"."school"
+    FROM location.school
     WHERE year > '2014'
 ),
 
@@ -181,8 +181,8 @@ comp_with_training_chars AS (
         t.meta_class AS char_class,
         t.meta_nbhd_code,
         t.char_yrblt,
-        t.char_bldg_sf AS bldg_sf,
-        t.char_land_sf AS land_sf,
+        t.char_bldg_sf,
+        t.char_land_sf,
         t.char_beds,
         t.char_fbath,
         t.char_hbath,
@@ -243,6 +243,9 @@ comp_with_training_chars AS (
         t.prox_nearest_metra_stop_dist_ft,
         t.prox_nearest_park_dist_ft,
         t.prox_nearest_railroad_dist_ft,
+        t.prox_nearest_road_highway_dist_ft,
+        t.prox_nearest_road_arterial_dist_ft,
+        t.prox_nearest_road_collector_dist_ft,
         t.prox_nearest_secondary_road_dist_ft,
         t.prox_nearest_university_dist_ft,
         t.prox_nearest_vacant_land_dist_ft,
@@ -288,7 +291,7 @@ comp_with_training_chars AS (
         school.school_secondary_district_name
             AS loc_school_secondary_district_name
     FROM pivoted_comp AS pc
-    LEFT JOIN "model"."pinval_test_training_data" AS t
+    LEFT JOIN model.pinval_test_training_data AS t
         ON pc.comp_pin = t.meta_pin
         AND pc.comp_document_num = t.meta_sale_document_num
     LEFT JOIN school_data AS school
