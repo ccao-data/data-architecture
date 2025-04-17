@@ -170,6 +170,7 @@ comp_with_training_chars AS (
         pc.card,
         pc.comp_pin,
         pc.comp_document_num,
+        pc.year,
         COALESCE(pc.pin = pc.comp_pin, FALSE) AS is_subject_pin_sale,
         CASE
             WHEN t.ind_pin_is_multicard = TRUE THEN 'Subject card'
