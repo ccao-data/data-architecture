@@ -168,6 +168,7 @@ comp_with_training_chars AS (
         pc.run_id,
         pc.pin,
         pc.card,
+        pc.comp_num,
         pc.comp_pin,
         pc.comp_document_num,
         pc.year,
