@@ -260,7 +260,7 @@ comp_with_training_chars AS (
         t.shp_parcel_interior_angle_sd,
         t.shp_parcel_mrr_area_ratio,
         t.shp_parcel_mrr_side_ratio,
-        t.shp_parcel_num_vertices
+        t.shp_parcel_num_vertices,
         t.acs5_percent_age_children,
         t.acs5_percent_age_senior,
         t.acs5_median_age_total,
