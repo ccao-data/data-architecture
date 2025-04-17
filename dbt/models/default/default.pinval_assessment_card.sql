@@ -10,7 +10,17 @@ WITH run_ids_to_include AS (
     -- This will eventually grab all run_ids where
     -- run_type == comps
     WHERE run_id = '2025-02-11-charming-eric'
-)
+),
+
+school_data AS (
+    SELECT
+        pin10 AS school_pin,
+        year,
+        school_elementary_district_name,
+        school_secondary_district_name
+    FROM location.school
+    WHERE year > '2014'
+),
 
 SELECT
     --ac.meta_year as year,
@@ -251,9 +261,18 @@ SELECT
     ac.township_code,
 
     -- joined field
-    ap.pred_pin_final_fmv_round
+    ap.pred_pin_final_fmv_round,
+
+    school.school_elementary_district_name
+        AS loc_school_elementary_district_name,
+    school.school_secondary_district_name
+        AS loc_school_secondary_district_name
+    
 from model.assessment_card ac
 left join model.assessment_pin ap
     on ac.meta_pin = ap.meta_pin
     and ac.run_id = ap.run_id
+LEFT JOIN school_data AS school
+    ON SUBSTRING(ac.pin, 1, 10) = school.school_pin
+    AND t.meta_year = school.year
 where ac.run_id IN (select run_id from run_ids_to_include)
