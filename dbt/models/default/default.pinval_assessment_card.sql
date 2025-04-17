@@ -20,7 +20,7 @@ school_data AS (
         school_secondary_district_name
     FROM location.school
     WHERE year > '2014'
-),
+)
 
 SELECT
     --ac.meta_year as year,
