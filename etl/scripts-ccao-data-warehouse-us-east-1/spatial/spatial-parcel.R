@@ -397,140 +397,6 @@ process_parcel_file <- function(s3_bucket_uri,
     spatial_df_final <- read_geoparquet_sf(local_backup_file)
   }
 
-  # Get missing geographies and all matching pin address combinations
-  # We remove info from before 2000 since almost all lon/lat information
-  # is missing
-  all_addresses <-
-    dbGetQuery(
-               conn = con,
-               "select distinct
-               vpa.year,
-               vpa.prop_address_full,
-               vpa.prop_address_city_name,
-               vpa.prop_address_state,
-               vpa.prop_address_zipcode_1,
-               pd.class,
-               pd.parid
-            from default.vw_pin_address vpa
-            left join iasworld.pardat pd
-              on vpa.pin = pd.parid and vpa.year = pd.taxyr
-            where vpa.year >= '2000'
-              ")
-
-  # This will be larger than the parcel dataframe since it's on PIN level.
-  # Parcels dataframe is on Pin10 level.
-  all_addresses <- all_addresses %>%
-    # We can have address data from current year we upload parcel data
-    # are available.
-    filter(year <= max(spatial_df_final$year, na.rm = TRUE)) %>%
-    mutate(pin10 = substr(parid, 1, 10))
-
-  missing_geographies <- anti_join(all_addresses,
-                                   spatial_df_final, by = c("pin10", "year"))
-
-  # Grab all years of data for parcels which are missing in any year
-  spatial_subset <- spatial_df_final %>%
-    filter(pin10 %in% missing_geographies$pin10) %>%
-    # Add property address to the subset to make sure PINs are consistent.
-    # This will expand the dataset since prop_addresses are not unique
-    # by PIN10.
-    left_join(all_addresses %>% select(year, pin10, prop_address_full),
-              by = c("year", "pin10"))
-
-  imputed <- bind_rows(spatial_subset, missing_geographies)
-
-  # We impute geographies based on a matching address and pin10
-  # This is forward-backward filled, meaning that if the information
-  # is missing for 2015, it pulls 2016 then 2014, 2017, etc.
-  imputed <- imputed %>%
-    group_by(pin10, prop_address_full) %>%
-    mutate(missing = is.na(x_3435) | is.na(y_3435)) %>%
-    arrange(year) %>%
-    fill(x_3435, y_3435, lon, lat, .direction = "updown") %>%
-    ungroup() %>%
-    # Remove duplicate rows based on pin10 and year
-    distinct(pin10, year, .keep_all = TRUE) %>%
-    # directly code one pin where geocoding produces a
-    # value outside of Cook County
-    mutate(
-      lat    = if_else(pin10 == "1819200021" &
-                         year == "2000", as.numeric("-87.896805"), lat),
-      lon    = if_else(pin10 == "1819200021" &
-                         year == "2000", as.numeric("41.766003"), lon),
-      x_3435 = if_else(pin10 == "1819200021" &
-                         year == "2000", as.numeric("1573797"), x_3435),
-      y_3435 = if_else(pin10 == "1819200021" &
-                         year == "2000", as.numeric("-46628780"), y_3435)
-    ) %>%
-    # Only keep rows where none of the four fields are missing
-    filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat)) %>%
-    # Keep observations which were originally missing
-    filter(missing) %>%
-    select(year, pin10, x_3435, y_3435, lon, lat)
-
-  missing_geographies <- missing_geographies %>%
-    # Remove rows that were handled in the imputed data frame.
-    anti_join(imputed, by = c("pin10" = "pin10", "year" = "year")) %>%
-    # Keep distinct pin but not pin10 since geocoding is on address level
-    distinct(parid, year, .keep_all = TRUE)
-
-  # Split the missing coordinates into batches of 1000 rows for tidygeocoder
-  batch_list <- split(
-    missing_geographies,
-    ceiling(seq_len(nrow(missing_geographies)) / 1000)
-  )
-
-  # Function to geocode each batch
-  geocode_batch <- function(batch) {
-    batch %>%
-      geocode(
-        street = prop_address_full,
-        city   = prop_address_city_name,
-        state  = prop_address_state,
-        method = "census"
-      ) %>%
-      filter(!is.na(long) & !is.na(lat)) %>%
-      st_as_sf(coords = c("long", "lat"), remove = FALSE) %>%
-      st_set_crs(4326) %>%
-      st_transform(3435) %>%
-      mutate(
-        x_3435 = st_coordinates(.)[, 1],
-        y_3435 = st_coordinates(.)[, 2]
-      )
-  }
-
-  # Apply geocoding to each batch and combine results
-  geocoded <- map(batch_list, geocode_batch) %>%
-    do.call(rbind, .)
-
-  # Addresses are on PIN level, so we create the PIN10 average
-  # This is mostly for housing complexes
-  geocoded <- geocoded %>%
-    group_by(pin10, year) %>%
-    summarise(
-      lon = mean(long, na.rm = TRUE),
-      lat = mean(lat, na.rm = TRUE),
-      x_3435 = mean(x_3435, na.rm = TRUE),
-      y_3435 = mean(y_3435, na.rm = TRUE)
-    ) %>%
-    ungroup() %>%
-    mutate(source = "geocoded") %>%
-    st_drop_geometry()
-
-  spatial_df_final <- spatial_df_final %>%
-    mutate(source = "raw")
-
-  spatial_df_final <- bind_rows(spatial_df_final, imputed, geocoded)
-
-  # Test to make sure we don't duplicate any pins
-  duplicate_keys <- spatial_df_final %>%
-    group_by(pin10, year) %>%
-    filter(n() > 1)
-
-  if (nrow(duplicate_keys) > 0) {
-    warning("Duplicate rows found pin10 and year combinations. Check rbind")
-  }
-
   # Write final dataframe to dataset on S3, partitioned by town and year
   spatial_df_final %>%
     mutate(year = file_year) %>%
@@ -549,3 +415,169 @@ pwalk(parcel_files_df, function(...) {
     spatial_uri = df$spatial
   )
 })
+
+# List parquet files from S3
+geocoding_files <- aws.s3::get_bucket_df(
+  bucket = AWS_S3_WAREHOUSE_BUCKET,
+  prefix = file.path("spatial", "parcel")
+) %>%
+  filter(Size > 0, str_detect(Key, "\\.parquet$")) %>%
+  mutate(
+    year = str_extract(Key, "year=\\d{4}") %>% str_remove("year=")
+  )
+
+# Read and append all data with year column
+pre_geocoding_data <- geocoding_files %>%
+  select(Key, year) %>%
+  pmap_dfr(~{
+    message("Reading file: ", ..1)
+    df <- s3read_using(
+      FUN = read_parquet,
+      object = ..1,
+      bucket = AWS_S3_WAREHOUSE_BUCKET
+    )
+    df$year <- ..2
+    df
+  })
+
+pre_geocoding_data <- pre_geocoding_data %>%
+  mutate(source = "raw",
+  uploaded_before_geocoding = TRUE)
+
+# Get missing geographies and all matching pin address combinations
+# We remove info from before 2000 since almost all lon/lat information
+# is missing
+all_addresses <-
+  dbGetQuery(
+    conn = con,
+    "select distinct
+               vpa.year,
+               vpa.prop_address_full,
+               vpa.prop_address_city_name,
+               vpa.prop_address_state,
+               vpa.prop_address_zipcode_1,
+               pd.class,
+               pd.parid
+            from default.vw_pin_address vpa
+            left join iasworld.pardat pd
+              on vpa.pin = pd.parid and vpa.year = pd.taxyr
+            where vpa.year >= '2000'
+              ")
+
+# This will be larger than the parcel dataframe since it's on PIN level.
+# Parcels dataframe is on Pin10 level.
+all_addresses <- all_addresses %>%
+  # We can have address data from current year, before parcel data
+  # is available.
+  filter(year <= max(pre_geocoding_data$year, na.rm = TRUE)) %>%
+  mutate(pin10 = substr(parid, 1, 10))
+
+missing_geographies <- anti_join(all_addresses,
+                                 pre_geocoding_data, by = c("pin10", "year"))
+
+# Grab all years of data for parcels which are missing in any year
+spatial_subset <- pre_geocoding_data %>%
+  filter(pin10 %in% missing_geographies$pin10) %>%
+  # Add property address to the subset to make sure PINs are consistent.
+  # This will expand the dataset since prop_addresses are not unique
+  # by PIN10.
+  left_join(all_addresses %>% select(year, pin10, prop_address_full),
+            by = c("year", "pin10"))
+
+imputed <- bind_rows(spatial_subset, missing_geographies)
+
+# We impute geographies based on a matching address and pin10
+# This is forward-backward filled, meaning that if the information
+# is missing for 2015, it pulls 2016 then 2014, 2017, etc.
+imputed <- imputed %>%
+  group_by(pin10, prop_address_full) %>%
+  mutate(missing = is.na(x_3435) | is.na(y_3435)) %>%
+  arrange(year) %>%
+  fill(x_3435, y_3435, lon, lat, .direction = "updown") %>%
+  ungroup() %>%
+  # Remove duplicate rows based on pin10 and year
+  distinct(pin10, year, .keep_all = TRUE) %>%
+  # directly code one pin where geocoding produces a
+  # value outside of Cook County
+  mutate(
+    lat    = if_else(pin10 == "1819200021" &
+                       year == "2000", as.numeric("-87.896805"), lat),
+    lon    = if_else(pin10 == "1819200021" &
+                       year == "2000", as.numeric("41.766003"), lon),
+    x_3435 = if_else(pin10 == "1819200021" &
+                       year == "2000", as.numeric("1573797"), x_3435),
+    y_3435 = if_else(pin10 == "1819200021" &
+                       year == "2000", as.numeric("-46628780"), y_3435)
+  ) %>%
+  # Only keep rows where none of the four fields are missing
+  filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat)) %>%
+  # Keep observations which were originally missing
+  filter(missing) %>%
+  select(year, pin10, x_3435, y_3435, lon, lat)
+
+missing_geographies <- missing_geographies %>%
+  # Remove rows that were handled in the imputed data frame.
+  anti_join(imputed, by = c("pin10" = "pin10", "year" = "year")) %>%
+  # Keep distinct pin but not pin10 since geocoding is on address level
+  distinct(parid, year, .keep_all = TRUE)
+
+# Split the missing coordinates into batches of 1000 rows for tidygeocoder
+batch_list <- split(
+  missing_geographies,
+  ceiling(seq_len(nrow(missing_geographies)) / 1000)
+)
+
+# Function to geocode each batch
+geocode_batch <- function(batch) {
+  batch %>%
+    geocode(
+      street = prop_address_full,
+      city   = prop_address_city_name,
+      state  = prop_address_state,
+      method = "census"
+    ) %>%
+    filter(!is.na(long) & !is.na(lat)) %>%
+    st_as_sf(coords = c("long", "lat"), remove = FALSE) %>%
+    st_set_crs(4326) %>%
+    st_transform(3435) %>%
+    mutate(
+      x_3435 = st_coordinates(.)[, 1],
+      y_3435 = st_coordinates(.)[, 2]
+    )
+}
+
+# Apply geocoding to each batch and combine results
+geocoded <- map(batch_list, geocode_batch) %>%
+  do.call(rbind, .)
+
+# Addresses are on PIN level, so we create the PIN10 average
+# This is mostly for housing complexes
+geocoded <- geocoded %>%
+  group_by(pin10, year) %>%
+  summarise(
+    lon = mean(long, na.rm = TRUE),
+    lat = mean(lat, na.rm = TRUE),
+    x_3435 = mean(x_3435, na.rm = TRUE),
+    y_3435 = mean(y_3435, na.rm = TRUE)
+  ) %>%
+  ungroup() %>%
+  mutate(source = "geocoded") %>%
+  st_drop_geometry()
+
+post_geocoding_data <- bind_rows(pre_geocoding_data, imputed, geocoded)
+
+# Test to make sure we don't duplicate any pins
+duplicate_keys <- post_geocoding_data %>%
+  group_by(pin10, year) %>%
+  filter(n() > 1)
+
+if (nrow(duplicate_keys) > 0) {
+  warning("Duplicate rows found pin10 and year combinations. Check rbind")
+}
+
+# Write final dataframe to dataset on S3, partitioned by town and year
+post_geocoding_data %>%
+  mutate(uploaded_before_geocoding = FALSE) %>%
+  group_by(year, town_code) %>%
+  write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = TRUE)
+tictoc::toc()
