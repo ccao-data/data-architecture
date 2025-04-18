@@ -578,6 +578,7 @@ if (nrow(duplicate_keys) > 0) {
 # Write final dataframe to dataset on S3, partitioned by town and year
 post_geocoding_data %>%
   mutate(uploaded_before_geocoding = FALSE) %>%
-  group_by(year, town_code) %>%
+  relocate(year, town_code, .after = last_col()) %>%
+  group_by(year, town_code)%>%
   write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = TRUE)
 tictoc::toc()
