@@ -268,7 +268,7 @@ SELECT
             x -> concat(upper(substr(x, 1, 1)), substr(x, 2))
         ),
         ' '
-    ) AS loc_property_address,
+    ) AS property_address,
 
     school.school_elementary_district_name
         AS loc_school_elementary_district_name,
