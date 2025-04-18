@@ -419,7 +419,7 @@ pwalk(parcel_files_df, function(...) {
 # List parquet files from S3
 geocoding_files <- aws.s3::get_bucket_df(
   bucket = AWS_S3_WAREHOUSE_BUCKET,
-  prefix = file.path("spatial", "parcel")
+  prefix = file.path("spatial", "parcel/")
 ) %>%
   filter(Size > 0, str_detect(Key, "\\.parquet$")) %>%
   mutate(
@@ -579,6 +579,6 @@ if (nrow(duplicate_keys) > 0) {
 post_geocoding_data %>%
   mutate(uploaded_before_geocoding = FALSE) %>%
   relocate(year, town_code, .after = last_col()) %>%
-  group_by(year, town_code)%>%
+  group_by(year, town_code) %>%
   write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = TRUE)
 tictoc::toc()
