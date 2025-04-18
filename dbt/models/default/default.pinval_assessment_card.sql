@@ -262,7 +262,7 @@ SELECT
 
     -- joined field
     ap.pred_pin_final_fmv_round,
-    ap.property_address,
+    INITCAP(LOWER(ap.loc_property_address)) AS property_address,
 
     school.school_elementary_district_name
         AS loc_school_elementary_district_name,
