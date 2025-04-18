@@ -1,6 +1,7 @@
 {{
     config(
-        materialized='table'
+        materialized='table',
+        partition_by=['township_code', 'year']
     )
 }}
 
