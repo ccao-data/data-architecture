@@ -260,7 +260,8 @@ SELECT
     ac.run_id,
     ac.township_code,
 
-    -- joined field
+    -- This is just a fancy way to capitalize the first letter of each word
+    -- since `initcap` doesn't seem to work in athena
     ap.pred_pin_final_fmv_round,
     array_join(
         transform(
