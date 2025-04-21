@@ -24,7 +24,7 @@ school_data AS (
 
 SELECT
     --ac.meta_year as year,
-    ac.meta_pin as pin,
+    ac.meta_pin AS pin,
     ac.meta_class,
     ac.meta_card_num,
     ac.meta_card_pct_total_fmv,
@@ -234,7 +234,7 @@ SELECT
     ac.permit_amount,
     ac.permit_binary,
     ac.meta_pin_num_cards,
-    ac.floor,
+    ac."floor",
     ac.time_sale_roll_mean_nbhd_sf_t0_w1,
     ac.time_sale_roll_mean_nbhd_sf_t0_w2,
     ac.time_sale_roll_mean_nbhd_sf_t0_w3,
@@ -263,10 +263,10 @@ SELECT
     -- This is just a fancy way to capitalize the first letter of each word
     -- since `initcap` doesn't seem to work in athena
     ap.pred_pin_final_fmv_round,
-    array_join(
-        transform(
-            split(lower(ap.loc_property_address), ' '),
-            x -> concat(upper(substr(x, 1, 1)), substr(x, 2))
+    ARRAY_JOIN(
+        TRANSFORM(
+            SPLIT(LOWER(ap.loc_property_address), ' '),
+            x -> CONCAT(UPPER(SUBSTR(x, 1, 1)), SUBSTR(x, 2))
         ),
         ' '
     ) AS property_address,
@@ -275,12 +275,12 @@ SELECT
         AS loc_school_elementary_district_name,
     school.school_secondary_district_name
         AS loc_school_secondary_district_name
-    
-from model.assessment_card ac
-left join model.assessment_pin ap
-    on ac.meta_pin = ap.meta_pin
-    and ac.run_id = ap.run_id
+
+FROM model.assessment_card AS ac
+LEFT JOIN model.assessment_pin AS ap
+    ON ac.meta_pin = ap.meta_pin
+    AND ac.run_id = ap.run_id
 LEFT JOIN school_data AS school
     ON SUBSTRING(ac.meta_pin, 1, 10) = school.school_pin
     AND ac.meta_year = school.year
-where ac.run_id IN (select run_id from run_ids_to_include)
+WHERE ac.run_id IN (SELECT run_id FROM run_ids_to_include)
