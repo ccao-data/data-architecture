@@ -1,2 +1,12 @@
 models:
   - name: default.pinval_assessment_card
+    data_tests:
+        - unique_combination_of_columns:
+          name: default_pinval_assessment_card_unique_run_id_pin_card
+          combination_of_columns:
+            - run_id
+            - pin
+            - card
+          allowed_duplicates: 0
+          config:
+            error_if: ">1"
