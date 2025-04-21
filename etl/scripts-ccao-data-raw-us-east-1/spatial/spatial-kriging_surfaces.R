@@ -113,7 +113,7 @@ create_ap_bbox <- function(airport_points, mult) {
 
   bbox_final <- st_buffer(bbox_sf, 5280 * mult) # 2 mile buffer
 
-  return(bbox_final)
+  bbox_final
 }
 
 ohare_bbox <- create_ap_bbox(ohare_noise, 2)
@@ -276,7 +276,7 @@ compute_idw_rmse <- function(data, target_var, power, sub) {
   rmse <- sqrt(mean((out - tv)^2))
   mae <- mean(abs(out - tv))
 
-  return(c(rmse, mae))
+  c(rmse, mae)
 }
 
 # Check code:
@@ -309,7 +309,7 @@ idw_tune_hyper <- function(data, target_var, idw_params, sub) {
   }
   res_df <- cbind(idw_params, results_rmse, results_mae)
 
-  return(res_df)
+  res_df
 }
 
 # Test IDW with different exponents (no extra data):
@@ -425,7 +425,7 @@ compute_krige_rmse <- function(data,
     surface <- plot_surface(k)
   }
 
-  return(c(rmse, mae))
+  c(rmse, mae)
 }
 
 # nolint start
@@ -506,7 +506,7 @@ krige_tune_hyper <- function(data,
 
   res_df <- cbind(names, results_rmse, results_mae)
 
-  return(res_df)
+  res_df
 }
 
 
@@ -640,7 +640,7 @@ create_year_kriging <- function(data, year_num, raster_file) {
 
   # dev.off()
   # # nolint end
-  return(k)
+  k
 }
 
 
@@ -676,7 +676,7 @@ create_av_kriging <- function(data, raster_file) {
   v.m <- fit.variogram(v, vgm(1, "Gau", 5000, 1))
   k <- krige(noise ~ 1, clean_data, raster_file, v.m)
 
-  return(k)
+  k
 }
 
 
