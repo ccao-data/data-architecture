@@ -147,8 +147,9 @@ pivoted_comp AS (
         up_comp_doc.comp_document_num
     FROM unpivoted_comp_pin AS up_comp_pin
     INNER JOIN unpivoted_comp_score AS up_comp_score
-        ON up_comp_pin.pin = up_comp_score.pin AND up_comp_pin.comp_num = up_comp_score.comp_num
-    INNER JOIN unpivoted_comp_document_num
+        ON up_comp_pin.pin = up_comp_score.pin
+        AND up_comp_pin.comp_num = up_comp_score.comp_num
+    INNER JOIN unpivoted_comp_document_num AS up_comp_doc
         ON up_comp_pin.pin = up_comp_doc.pin
         AND up_comp_pin.comp_num = up_comp_doc.comp_num
 ),
