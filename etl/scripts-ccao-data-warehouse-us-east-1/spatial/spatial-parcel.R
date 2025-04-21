@@ -442,26 +442,26 @@ pre_geocoding_data <- geocoding_files %>%
 
 pre_geocoding_data <- pre_geocoding_data %>%
   mutate(source = "raw",
-  uploaded_before_geocoding = TRUE)
+         uploaded_before_geocoding = TRUE)
 
 # Get missing geographies and all matching pin address combinations
 # We remove info from before 2000 since almost all lon/lat information
 # is missing
 all_addresses <-
   dbGetQuery(
-    conn = con,
-    "select distinct
-               vpa.year,
-               vpa.prop_address_full,
-               vpa.prop_address_city_name,
-               vpa.prop_address_state,
-               vpa.prop_address_zipcode_1,
-               pd.class,
-               pd.parid
-            from default.vw_pin_address vpa
-            left join iasworld.pardat pd
+             conn = con,
+             "select distinct
+              vpa.year,
+              vpa.prop_address_full,
+              vpa.prop_address_city_name,
+              vpa.prop_address_state,
+              vpa.prop_address_zipcode_1,
+              pd.class,
+              pd.parid
+              from default.vw_pin_address vpa
+              left join iasworld.pardat pd
               on vpa.pin = pd.parid and vpa.year = pd.taxyr
-            where vpa.year >= '2000'
+              where vpa.year >= '2000'
               ")
 
 # This will be larger than the parcel dataframe since it's on PIN level.
