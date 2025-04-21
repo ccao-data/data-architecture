@@ -41,7 +41,7 @@ models:
       - name: local_permit_number
         description: Permit number as recorded by the municipality
       - name: mailing_address
-        description: '{{ doc("docs shared_column_mail_address_full") }}'
+        description: '{{ doc("shared_column_mail_address_full") }}'
       - name: municipality
         description: '{{ doc("column_tax_district_name") }}'
       - name: notes
