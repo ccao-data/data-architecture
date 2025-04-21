@@ -249,7 +249,7 @@ walk(parquet_files, \(file_key) {
           average_lanes, polygon_id
         ))
 
-      return(shapefile_data_final)
+      shapefile_data_final
     }
 
     # Run the function
