@@ -24,21 +24,56 @@ pivoted_comp AS (
     SELECT  pin,
             card,
             1 AS comp_num,
-            comp_pin_1           AS comp_pin,
-            comp_score_1         AS comp_score,
-            comp_document_num_1  AS comp_document_num,
+            comp_pin_1          AS comp_pin,
+            comp_score_1        AS comp_score,
+            comp_document_num_1 AS comp_document_num,
             year,
             run_id
     FROM raw_comp
 
     UNION ALL
-    SELECT  pin, card, 2, comp_pin_2, comp_score_2, comp_document_num_2, year, run_id
+    SELECT  pin,
+            card,
+            2 AS comp_num,
+            comp_pin_2,
+            comp_score_2,
+            comp_document_num_2,
+            year,
+            run_id
+    FROM raw_comp
+
     UNION ALL
-    SELECT  pin, card, 3, comp_pin_3, comp_score_3, comp_document_num_3, year, run_id
+    SELECT  pin,
+            card,
+            3 AS comp_num,
+            comp_pin_3,
+            comp_score_3,
+            comp_document_num_3,
+            year,
+            run_id
+    FROM raw_comp
+
     UNION ALL
-    SELECT  pin, card, 4, comp_pin_4, comp_score_4, comp_document_num_4, year, run_id
+    SELECT  pin,
+            card,
+            4 AS comp_num,
+            comp_pin_4,
+            comp_score_4,
+            comp_document_num_4,
+            year,
+            run_id
+    FROM raw_comp
+
     UNION ALL
-    SELECT  pin, card, 5, comp_pin_5, comp_score_5, comp_document_num_5, year, run_id
+    SELECT  pin,
+            card,
+            5 AS comp_num,
+            comp_pin_5,
+            comp_score_5,
+            comp_document_num_5,
+            year,
+            run_id
+    FROM raw_comp
 ),
 
 school_data AS (
