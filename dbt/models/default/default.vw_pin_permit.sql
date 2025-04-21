@@ -40,33 +40,28 @@ SELECT
     permit.amount,
     vpu.township_name AS township,
     NULLIF(ARRAY_JOIN(vpu.tax_municipality_name, ', '), '') AS municipality,
-    -- When note2 is filled out and present, it represents the full
-    -- concatenated street address. When not present, we need to
-    -- reconstruct it from the detailed address fields
-    COALESCE(
-        -- Replace double commas that are present in the note2 field. We need
-        -- to get rid of two types of double commas: trailing double commas,
-        -- which need to be removed, and double commas inside an address
-        -- string, which should be replaced with a single comma
-        REPLACE(
-            REGEXP_REPLACE(permit.note2, ',,$'),
-            ',,',
-            ', '
-        ),
-        CONCAT_WS(
-            ' ',
-            CAST(address.address_street_number AS VARCHAR),
-            address.address_street_dir,
-            address.address_street_name,
-            address.address_suffix_1,
-            address.address_suffix_2
-        )
-    ) AS address_full,
-    address.address_street_dir,
-    address.address_street_number,
-    address.address_street_name,
-    address.address_suffix_1,
-    address.address_suffix_2,
+    CONCAT_WS(
+        ' ',
+        CAST(address.address_street_number AS VARCHAR),
+        address.address_street_dir,
+        address.address_street_name,
+        address.address_suffix_1,
+        address.address_suffix_2
+    ) AS location_address_full,
+    address.address_street_dir AS location_address_street_dir,
+    address.address_street_number AS location_address_street_number,
+    address.address_street_name AS location_address_street_name,
+    address.address_suffix_1 AS location_address_suffix_1,
+    address.address_suffix_2 AS location_address_suffix_2,
+    -- Replace double commas that are present in the note2 field. We need
+    -- to get rid of two types of double commas: trailing double commas,
+    -- which need to be removed, and double commas inside an address
+    -- string, which should be replaced with a single comma
+    REPLACE(
+        REGEXP_REPLACE(permit.note2, ',,$'),
+        ',,',
+        ', '
+    ) AS mailing_address,
     permit.user21 AS applicant_name,
     permit.why AS job_code_primary,
     permit.user42 AS job_code_secondary,

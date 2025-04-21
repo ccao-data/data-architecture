@@ -3,12 +3,6 @@
 {% docs column_permit_address_full %}
 Address where permitted work will take place.
 
-This field combines the "mailing address" field in the source data
-with the concatenated output of the address component fields like
-`address_street_dir`, `address_street_name`, etc. We prefer the
-mailing address if it exists, and otherwise we substitute the
-concatenated address components.
-
 This field usually includes the municipality name for municipalities
 outside Chicago. If the municipality name is missing, the address
 is either in Chicago, or we generated it based on the concatenation
