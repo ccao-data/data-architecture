@@ -5,7 +5,8 @@ library(purrr)
 library(tidyr)
 source("utils.R")
 
-# This script cleans a hedonic price index sourced from the DePaul Institute for Housing Studies
+# This script cleans a hedonic price index sourced from the DePaul Institute for
+# Housing Studies
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "housing", "ihs_index")
