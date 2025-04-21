@@ -6,7 +6,7 @@ models:
           combination_of_columns:
             - run_id
             - pin
-            - card
+            - meta_card_num
           allowed_duplicates: 0
           config:
             error_if: ">1"
