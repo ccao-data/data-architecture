@@ -38,6 +38,7 @@ SELECT
     permit.flag AS status,
     permit.user18 AS assessable,
     permit.amount,
+    vpu.township,
     NULLIF(ARRAY_JOIN(vpu.tax_municipality_name, ', '), '') AS municipality,
     -- When note2 is filled out and present, it represents the full
     -- concatenated street address. When not present, we need to
