@@ -40,18 +40,6 @@ models:
         description: '{{ doc("column_permit_job_code_secondary") }}'
       - name: local_permit_number
         description: Permit number as recorded by the municipality
-      - name: location_address_full
-        description: '{{ doc("column_permit_address_full") }}'
-      - name: location_address_street_dir
-        description: '{{ doc("shared_column_prop_address_street_dir") }}'
-      - name: location_address_street_name
-        description: '{{ doc("shared_column_prop_address_street_name") }}'
-      - name: location_address_street_number
-        description: '{{ doc("shared_column_prop_address_street_number") }}'
-      - name: location_address_suffix_1
-        description: '{{ doc("shared_column_prop_address_suffix_1") }}'
-      - name: location_address_suffix_2
-        description: '{{ doc("shared_column_prop_address_suffix_2") }}'
       - name: mailing_address
         description: '{{ doc("docs shared_column_mail_address_full") }}'
       - name: municipality
@@ -62,6 +50,18 @@ models:
         description: '{{ doc("column_permit_number") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
+      - name: prop_address_full
+        description: '{{ doc("column_permit_address_full") }}'
+      - name: prop_address_street_dir
+        description: '{{ doc("shared_column_prop_address_street_dir") }}'
+      - name: prop_address_street_name
+        description: '{{ doc("shared_column_prop_address_street_name") }}'
+      - name: prop_address_street_number
+        description: '{{ doc("shared_column_prop_address_street_number") }}'
+      - name: prop_address_suffix_1
+        description: '{{ doc("shared_column_prop_address_suffix_1") }}'
+      - name: prop_address_suffix_2
+        description: '{{ doc("shared_column_prop_address_suffix_2") }}'
       - name: recheck_year
         description: '{{ doc("column_permit_recheck_year") }}'
       - name: status

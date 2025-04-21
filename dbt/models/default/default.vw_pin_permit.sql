@@ -47,12 +47,12 @@ SELECT
         address.address_street_name,
         address.address_suffix_1,
         address.address_suffix_2
-    ) AS location_address_full,
-    address.address_street_dir AS location_address_street_dir,
-    address.address_street_number AS location_address_street_number,
-    address.address_street_name AS location_address_street_name,
-    address.address_suffix_1 AS location_address_suffix_1,
-    address.address_suffix_2 AS location_address_suffix_2,
+    ) AS prop_address_full,
+    address.address_street_dir AS prop_address_street_dir,
+    address.address_street_number AS prop_address_street_number,
+    address.address_street_name AS prop_address_street_name,
+    address.address_suffix_1 AS prop_address_suffix_1,
+    address.address_suffix_2 AS prop_address_suffix_2,
     -- Replace double commas that are present in the note2 field. We need
     -- to get rid of two types of double commas: trailing double commas,
     -- which need to be removed, and double commas inside an address
