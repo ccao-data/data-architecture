@@ -47,7 +47,6 @@ walk(subdivisions_raw, function(shapefile_path) {
 
     file.remove(tmp_file)
   }
-
 })
 
 
