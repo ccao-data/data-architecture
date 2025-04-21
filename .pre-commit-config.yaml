@@ -1,12 +1,12 @@
 # All available hooks: https://pre-commit.com/hooks.html
 repos:
   - repo: https://github.com/sqlfluff/sqlfluff
-    rev: 3.4.0
+    rev: 3.1.0
     hooks:
     -   id: sqlfluff-lint
     -   id: sqlfluff-fix
   - repo: https://github.com/tconbeer/sqlfmt
-    rev: v0.26.0
+    rev: v0.19.2
     hooks:
       - id: sqlfmt
         entry: >-
