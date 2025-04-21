@@ -40,7 +40,7 @@ models:
         description: '{{ doc("column_permit_job_code_secondary") }}'
       - name: local_permit_number
         description: Permit number as recorded by the municipality
-      - name: mailing_address
+      - name: mail_address
         description: '{{ doc("shared_column_mail_address_full") }}'
       - name: municipality
         description: '{{ doc("column_tax_district_name") }}'

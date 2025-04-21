@@ -61,7 +61,7 @@ SELECT
         REGEXP_REPLACE(permit.note2, ',,$'),
         ',,',
         ', '
-    ) AS mailing_address,
+    ) AS mail_address,
     permit.user21 AS applicant_name,
     permit.why AS job_code_primary,
     permit.user42 AS job_code_secondary,
