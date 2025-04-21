@@ -66,6 +66,8 @@ models:
         description: '{{ doc("column_permit_recheck_year") }}'
       - name: status
         description: '{{ doc("column_permit_status") }}'
+      - name: township
+        description: '{{ doc("shared_column_township_name") }}'
       - name: work_description
         description: '{{ doc("column_permit_work_description") }}'
       - name: year
