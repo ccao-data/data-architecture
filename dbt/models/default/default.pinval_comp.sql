@@ -190,7 +190,8 @@ comp_with_training_chars AS (
         t.loc_latitude,
         t.meta_sale_price AS sale_price,
         t.meta_sale_date AS sale_date,
-        CAST(CAST(t.meta_sale_price / 1000 AS BIGINT) AS VARCHAR) || 'K' AS sale_price_short,
+        CAST(CAST(t.meta_sale_price / 1000 AS BIGINT) AS VARCHAR)
+        || 'K' AS sale_price_short,
         ROUND(t.meta_sale_price / NULLIF(t.char_bldg_sf, 0))
             AS sale_price_per_sq_ft,
 
