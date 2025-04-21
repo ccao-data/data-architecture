@@ -19,137 +19,26 @@ raw_comp AS (
 ),
 
 -- Pivot comp_pin
-unpivoted_comp_pin AS (
-    SELECT
-        pin,
-        card,
-        1 AS comp_num,
-        comp_pin_1 AS comp_pin,
-        year,
-        run_id
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        card,
-        2 AS comp_num,
-        comp_pin_2,
-        year,
-        run_id
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        card,
-        3 AS comp_num,
-        comp_pin_3,
-        year,
-        run_id
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        card,
-        4 AS comp_num,
-        comp_pin_4,
-        year,
-        run_id
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        card,
-        5 AS comp_num,
-        comp_pin_5,
-        year,
-        run_id
-    FROM raw_comp
-),
-
--- Pivot comp_score
-unpivoted_comp_score AS (
-    SELECT
-        pin,
-        1 AS comp_num,
-        comp_score_1 AS comp_score
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        2 AS comp_num,
-        comp_score_2
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        3 AS comp_num,
-        comp_score_3
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        4 AS comp_num,
-        comp_score_4
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        5 AS comp_num,
-        comp_score_5
-    FROM raw_comp
-),
-
--- Pivot comp_document_num
-unpivoted_comp_document_num AS (
-    SELECT
-        pin,
-        1 AS comp_num,
-        comp_document_num_1 AS comp_document_num
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        2 AS comp_num,
-        comp_document_num_2
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        3 AS comp_num,
-        comp_document_num_3
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        4 AS comp_num,
-        comp_document_num_4
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        5 AS comp_num,
-        comp_document_num_5
-    FROM raw_comp
-),
-
--- Combine all pivoted data
 pivoted_comp AS (
-    SELECT
-        up_comp_pin.pin,
-        up_comp_pin.card,
-        up_comp_pin.comp_num,
-        up_comp_pin.comp_pin,
-        up_comp_pin.year,
-        up_comp_pin.run_id,
-        up_comp_score.comp_score,
-        up_comp_doc.comp_document_num
-    FROM unpivoted_comp_pin AS up_comp_pin
-    INNER JOIN unpivoted_comp_score AS up_comp_score
-        ON up_comp_pin.pin = up_comp_score.pin
-        AND up_comp_pin.comp_num = up_comp_score.comp_num
-    INNER JOIN unpivoted_comp_document_num AS up_comp_doc
-        ON up_comp_pin.pin = up_comp_doc.pin
-        AND up_comp_pin.comp_num = up_comp_doc.comp_num
+
+    SELECT  pin,
+            card,
+            1 AS comp_num,
+            comp_pin_1           AS comp_pin,
+            comp_score_1         AS comp_score,
+            comp_document_num_1  AS comp_document_num,
+            year,
+            run_id
+    FROM raw_comp
+
+    UNION ALL
+    SELECT  pin, card, 2, comp_pin_2, comp_score_2, comp_document_num_2, year, run_id
+    UNION ALL
+    SELECT  pin, card, 3, comp_pin_3, comp_score_3, comp_document_num_3, year, run_id
+    UNION ALL
+    SELECT  pin, card, 4, comp_pin_4, comp_score_4, comp_document_num_4, year, run_id
+    UNION ALL
+    SELECT  pin, card, 5, comp_pin_5, comp_score_5, comp_document_num_5, year, run_id
 ),
 
 school_data AS (
