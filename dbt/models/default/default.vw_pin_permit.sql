@@ -38,8 +38,9 @@ SELECT
     permit.flag AS status,
     permit.user18 AS assessable,
     permit.amount,
-    vpu.township_name AS township_name,
-    NULLIF(ARRAY_JOIN(vpu.tax_municipality_name, ', '), '') AS tax_municipality_name,
+    vpu.township_name,
+    NULLIF(ARRAY_JOIN(vpu.tax_municipality_name, ', '), '')
+        AS tax_municipality_name,
     CONCAT_WS(
         ' ',
         CAST(address.address_street_number AS VARCHAR),
