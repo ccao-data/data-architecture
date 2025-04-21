@@ -5,9 +5,7 @@ Address where permitted work will take place.
 
 This field usually includes the municipality name for municipalities
 outside Chicago. If the municipality name is missing, the address
-is either in Chicago, or we generated it based on the concatenation
-of the address component fields, which do not include municipality
-name.
+is in Chicago.
 
 Municipalities are responsible for filling out this field when submitting a
 permit.
