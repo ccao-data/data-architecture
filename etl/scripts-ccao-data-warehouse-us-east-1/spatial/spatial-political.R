@@ -120,7 +120,7 @@ clean_files <- mapply(function(x, y) {
     mutate(geometry_3435 = st_transform(geometry, 3435)) %>%
     arrange(district_num)
 
-  return(x)
+  x
 }, raw_files, names(columns), SIMPLIFY = FALSE, USE.NAMES = TRUE)
 
 # For the sake of convenience, Chicago and Evanston wards are combined
