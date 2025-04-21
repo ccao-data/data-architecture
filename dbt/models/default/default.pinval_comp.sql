@@ -16,8 +16,6 @@ raw_comp AS (
     SELECT *
     FROM model.comp
     WHERE run_id IN (SELECT run_id FROM run_ids_to_include)
-    -- subset to test for now
----AND pin IN ('08102100010000', '06272070290000', '12364100170000')
 ),
 
 -- Pivot comp_pin
@@ -196,8 +194,6 @@ comp_with_training_chars AS (
         || 'K' AS sale_price_short,
         ROUND(train.meta_sale_price / NULLIF(train.char_bldg_sf, 0))
             AS sale_price_per_sq_ft,
-
-        -- All other columns from train.*
         train.meta_township_code,
         train.meta_sale_count_past_n_years,
         train.char_air,
@@ -311,5 +307,4 @@ comp_with_training_chars AS (
         AND train.meta_year = school.year
 )
 
---select distinct school_pin from school_data where year = '2024';
 SELECT * FROM comp_with_training_chars

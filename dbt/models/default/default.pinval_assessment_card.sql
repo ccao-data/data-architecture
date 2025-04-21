@@ -23,7 +23,6 @@ school_data AS (
 )
 
 SELECT
-    --ac.meta_year as year,
     ac.meta_pin AS pin,
     ac.meta_class,
     ac.meta_card_num,
@@ -234,7 +233,7 @@ SELECT
     ac.permit_amount,
     ac.permit_binary,
     ac.meta_pin_num_cards,
-    ac."floor",
+    ac."floor", -- this is a reserved word in SQL
     ac.time_sale_roll_mean_nbhd_sf_t0_w1,
     ac.time_sale_roll_mean_nbhd_sf_t0_w2,
     ac.time_sale_roll_mean_nbhd_sf_t0_w3,
