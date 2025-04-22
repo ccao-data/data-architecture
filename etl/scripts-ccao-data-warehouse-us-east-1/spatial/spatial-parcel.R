@@ -399,8 +399,13 @@ process_parcel_file <- function(s3_bucket_uri,
 
   # Write final dataframe to dataset on S3, partitioned by town and year
   spatial_df_final %>%
-    mutate(year = file_year) %>%
-    group_by(year, town_code) %>%
+    mutate(
+      source = "raw",
+      uploaded_before_geocoding = TRUE,
+      year = file_year
+    ) %>%
+    relocate(year, town_code, .after = last_col()) %>%
+    group_by(year, town_code)
     write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = FALSE)
   tictoc::toc()
 }
@@ -439,10 +444,6 @@ pre_geocoding_data <- geocoding_files %>%
     df$year <- ..2
     df
   })
-
-pre_geocoding_data <- pre_geocoding_data %>%
-  mutate(source = "raw",
-         uploaded_before_geocoding = TRUE)
 
 # Get missing geographies and all matching pin address combinations
 # We remove info from before 2000 since almost all lon/lat information
