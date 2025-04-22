@@ -17,7 +17,7 @@ source("utils.R")
 # This script cleans historical Cook County parcel data and uploads it to S3
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel_test")
 parcel_tmp_dir <- here("parcel-tmp")
 con <- dbConnect(noctua::athena())
 
@@ -206,7 +206,7 @@ process_parcel_file <- function(s3_bucket_uri,
     tictoc::tic(paste("Repaired centroids:", file_year))
     if (any(
       is.na(spatial_df_merged$lon) |
-        any(is.na(spatial_df_merged$x_3435))
+      any(is.na(spatial_df_merged$x_3435))
     )) {
       # Calculate centroids for missing
       spatial_df_missing <- spatial_df_merged %>%
@@ -405,7 +405,7 @@ process_parcel_file <- function(s3_bucket_uri,
       year = file_year
     ) %>%
     relocate(year, town_code, .after = last_col()) %>%
-    group_by(year, town_code)
+    group_by(year, town_code) %>%
     write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = FALSE)
   tictoc::toc()
 }
@@ -424,7 +424,7 @@ pwalk(parcel_files_df, function(...) {
 # List parquet files from S3
 geocoding_files <- aws.s3::get_bucket_df(
   bucket = AWS_S3_WAREHOUSE_BUCKET,
-  prefix = file.path("spatial", "parcel/")
+  prefix = file.path("spatial", "parcel_test/")
 ) %>%
   filter(Size > 0, str_detect(Key, "\\.parquet$")) %>%
   mutate(
@@ -441,6 +441,7 @@ pre_geocoding_data <- geocoding_files %>%
       object = ..1,
       bucket = AWS_S3_WAREHOUSE_BUCKET
     )
+    df$town_code = str_extract(..1, "[0-9]{2}")
     df$year <- ..2
     df
   })
@@ -450,8 +451,8 @@ pre_geocoding_data <- geocoding_files %>%
 # is missing
 all_addresses <-
   dbGetQuery(
-             conn = con,
-             "select distinct
+    conn = con,
+    "select distinct
               vpa.year,
               vpa.prop_address_full,
               vpa.prop_address_city_name,
@@ -484,6 +485,8 @@ spatial_subset <- pre_geocoding_data %>%
   # by PIN10.
   left_join(all_addresses %>% select(year, pin10, prop_address_full),
             by = c("year", "pin10"))
+
+rm(all_addresses)
 
 imputed <- bind_rows(spatial_subset, missing_geographies)
 
