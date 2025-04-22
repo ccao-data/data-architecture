@@ -513,7 +513,8 @@ imputed <- imputed %>%
   filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat)) %>%
   # Keep observations which were originally missing
   filter(missing) %>%
-  select(year, pin10, x_3435, y_3435, lon, lat)
+  mutate(source = "imputed") %>%
+  select(year, pin10, x_3435, y_3435, lon, lat, source)
 
 missing_geographies <- missing_geographies %>%
   # Remove rows that were handled in the imputed data frame.
