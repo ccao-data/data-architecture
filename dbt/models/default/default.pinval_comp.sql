@@ -106,7 +106,6 @@ comp_with_training_chars AS (
             WHEN train.ind_pin_is_multicard = TRUE THEN 'Subject card'
             ELSE 'Subject property'
         END AS property_label,
-        --train.loc_property_address AS property_address,
         -- Fancy way to capitalize the first letter of each word
         -- since `initcap` doesn't seem to work in athena
         ARRAY_JOIN(
