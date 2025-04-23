@@ -126,7 +126,7 @@ comp_with_training_chars AS (
         train.loc_longitude,
         train.loc_latitude,
         train.meta_sale_price AS sale_price,
-        train.meta_sale_date AS sale_date,
+        train.meta_sale_date,
         CAST(CAST(train.meta_sale_price / 1000 AS BIGINT) AS VARCHAR)
         || 'K' AS sale_price_short,
         ROUND(train.meta_sale_price / NULLIF(train.char_bldg_sf, 0))
