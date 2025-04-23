@@ -6,7 +6,7 @@ models:
           name: default_pinval_assessment_card_unique_run_id_pin_card
           combination_of_columns:
             - run_id
-            - pin
+            - meta_pin
             - meta_card_num
           allowed_duplicates: 0
           config:
