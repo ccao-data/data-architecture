@@ -4,7 +4,7 @@
     )
 }}
 
-WITH metadata_filtered AS (
+WITH runs_to_include AS (
     SELECT
         run_id,
         model_predictor_all_name
@@ -37,14 +37,13 @@ SELECT
     school.school_elementary_district_name
         AS loc_school_elementary_district_name,
     school.school_secondary_district_name AS loc_school_secondary_district_name,
-    meta.model_predictor_all_name
-FROM model.assessment_card AS ac
+    run.model_predictor_all_name
+FROM runs_to_include AS run
+INNER JOIN model.assessment_card AS ac
+    ON run.run_id = ac.run_id
 LEFT JOIN model.assessment_pin AS ap
     ON ac.meta_pin = ap.meta_pin
     AND ac.run_id = ap.run_id
 LEFT JOIN school_data AS school
     ON SUBSTRING(ac.meta_pin, 1, 10) = school.school_pin
     AND ac.meta_year = school.year
-LEFT JOIN metadata_filtered AS meta
-    ON ac.run_id = meta.run_id
-WHERE ac.run_id IN (SELECT run_id FROM metadata_filtered)
