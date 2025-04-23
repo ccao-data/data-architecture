@@ -183,9 +183,10 @@ def diff_row_counts(
     athena_model_row_counts = sorted(
         athena_model_row_counts,
         key=lambda x: (
-            [athena_model_year_field] == [None],
-            [athena_model_year_field],
-        ),
+            x[athena_model_year_field]
+            if x[athena_model_year_field] is not None
+            else 0
+    ),
     )
     open_data_asset_row_counts = sorted(
         open_data_asset_row_counts,
