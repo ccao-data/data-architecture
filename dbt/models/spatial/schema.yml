@@ -156,6 +156,9 @@ sources:
       - name: secondary_road
         description: '{{ doc("table_secondary_road") }}'
 
+      - name: sidwell_grid
+        description: '{{ doc("table_sidwell_grid") }}'
+
       - name: special_service_area
         description: '{{ doc("table_special_service_area") }}'
 

@@ -449,6 +449,21 @@ Secondary roads include any OSM ways tagged with
 **Geometry:** `MULTILINESTRING`
 {% enddocs %}
 
+# sidwell_grid
+
+{% docs table_sidwell_grid %}
+
+Sidwell grid sections.
+
+Originally formatted as Cook County Clerk tax map pages which
+are Sidwell grid "sections" divided into eighths. We dissolve these pages back
+into sections. Sections are 1-mile square subdivisions of "areas" (townships,
+but with sidwell's numbering system rather than the county's) and are
+identified by the first four digits of any PIN.
+
+**Geometry:** `POLYGON`
+{% enddocs %}
+
 # special_service_area
 
 {% docs table_special_service_area %}
