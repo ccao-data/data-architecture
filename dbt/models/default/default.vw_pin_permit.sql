@@ -41,13 +41,16 @@ SELECT
     vpu.township_name,
     NULLIF(ARRAY_JOIN(vpu.tax_municipality_name, ', '), '')
         AS tax_municipality_name,
-    CONCAT_WS(
-        ' ',
-        CAST(address.address_street_number AS VARCHAR),
-        address.address_street_dir,
-        address.address_street_name,
-        address.address_suffix_1,
-        address.address_suffix_2
+    NULLIF(
+        CONCAT_WS(
+            ' ',
+            CAST(address.address_street_number AS VARCHAR),
+            address.address_street_dir,
+            address.address_street_name,
+            address.address_suffix_1,
+            address.address_suffix_2
+        ),
+        ''
     ) AS prop_address_full,
     address.address_street_dir AS prop_address_street_dir,
     address.address_street_number AS prop_address_street_number,
