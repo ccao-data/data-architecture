@@ -208,7 +208,7 @@ for (iter_year in parcel_years) {
     angle_diff <- function(theta1, theta2) {
       theta <- abs(theta1 - theta2) %% 360
 
-      ifelse(theta > 180, 360 - theta, theta)
+      return(ifelse(theta > 180, 360 - theta, theta))
     }
 
     # Filter for only crosses with right-angle segments or gte three segments,

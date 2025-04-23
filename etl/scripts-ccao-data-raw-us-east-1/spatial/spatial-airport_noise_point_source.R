@@ -119,11 +119,11 @@ I_ZERO <- 1e-12
 
 # https://tinyurl.com/bde8b7jw
 decibel_to_intensity <- function(decibel) {
-  10^(decibel / 10) * I_ZERO
+  return(10^(decibel / 10) * I_ZERO)
 }
 
 intensity_to_decibel <- function(I) {
-  10 * log10(I / I_ZERO)
+  return(10 * log10(I / I_ZERO))
 }
 
 airport_clean_averaged$total_intensity <-

@@ -63,7 +63,7 @@ calculate_angles <- function(points) {
   angles <- pi + atan2(cross_product, dot_product)
   angles <- c(NA_real_, angles * 180 / pi)
 
-  angles
+  return(angles)
 }
 
 
