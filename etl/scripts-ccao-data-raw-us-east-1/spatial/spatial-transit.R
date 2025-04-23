@@ -69,7 +69,6 @@ metra_feed_dates_list <- c(
 )
 
 get_metra_feed <- function(feed_date) {
-
   feed_url <- ifelse(
     substr(feed_date, 1, 4) <= "2023",
     paste0(

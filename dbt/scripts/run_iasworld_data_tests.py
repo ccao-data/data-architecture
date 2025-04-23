@@ -1533,7 +1533,7 @@ def get_tablename_from_node(node: typing.Dict) -> str:
     raise ValueError(
         "Can't infer tablename: Failed to parse model name from "
         f'`test_metadata.kwargs.model` attribute "{model_getter_str}" '
-        f" for test \"{node['name']}\". Inspect the dbt manifest file "
+        f'for test "{node["name"]}". Inspect the dbt manifest file '
         "for more information"
     )
 

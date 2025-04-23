@@ -214,13 +214,15 @@ updates <- map(
     aws.s3::get_bucket_df(
       AWS_S3_RAW_BUCKET,
       prefix = "ccao/condominium/pin_condo_char/2025"
-    )$Key),
+    )$Key
+  ),
   \(x) {
     read_parquet(x) %>%
       mutate(across(.cols = everything(), as.character))
-  }) %>%
+  }
+) %>%
   bind_rows() %>%
-  rename_with(~gsub("\\.", "_", tolower(.x)), .cols = everything()) %>%
+  rename_with(~ gsub("\\.", "_", tolower(.x)), .cols = everything()) %>%
   select("pin", starts_with("new")) %>%
   mutate(
     pin = gsub("-", "", pin),

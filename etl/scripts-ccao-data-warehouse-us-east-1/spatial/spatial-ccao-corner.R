@@ -207,6 +207,7 @@ for (iter_year in parcel_years) {
     # not indicate a corner
     angle_diff <- function(theta1, theta2) {
       theta <- abs(theta1 - theta2) %% 360
+
       return(ifelse(theta > 180, 360 - theta, theta))
     }
 
