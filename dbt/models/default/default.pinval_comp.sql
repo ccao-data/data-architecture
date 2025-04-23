@@ -88,6 +88,7 @@ school_data AS (
 
 comp_with_training_chars AS (
     SELECT
+        pc.year as comp_year,
         pc.*,
         COALESCE(pc.pin = pc.comp_pin, FALSE) AS is_subject_pin_sale,
         CASE
