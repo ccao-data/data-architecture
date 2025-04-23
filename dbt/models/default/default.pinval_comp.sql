@@ -26,7 +26,6 @@ pivoted_comp AS (
         comp_pin_1 AS comp_pin,
         comp_score_1 AS comp_score,
         comp_document_num_1 AS comp_document_num,
-        year,
         run_id
     FROM raw_comp
 
@@ -38,7 +37,6 @@ pivoted_comp AS (
         comp_pin_2,
         comp_score_2,
         comp_document_num_2,
-        year,
         run_id
     FROM raw_comp
     UNION ALL
@@ -49,7 +47,6 @@ pivoted_comp AS (
         comp_pin_3,
         comp_score_3,
         comp_document_num_3,
-        year,
         run_id
     FROM raw_comp
     UNION ALL
@@ -60,7 +57,6 @@ pivoted_comp AS (
         comp_pin_4,
         comp_score_4,
         comp_document_num_4,
-        year,
         run_id
     FROM raw_comp
     UNION ALL
@@ -71,7 +67,6 @@ pivoted_comp AS (
         comp_pin_5,
         comp_score_5,
         comp_document_num_5,
-        year,
         run_id
     FROM raw_comp
 ),
@@ -88,14 +83,12 @@ school_data AS (
 
 comp_with_training_chars AS (
     SELECT
-        pc.year as comp_year,
         pc.*,
         COALESCE(pc.pin = pc.comp_pin, FALSE) AS is_subject_pin_sale,
         CASE
             WHEN train.ind_pin_is_multicard = TRUE THEN 'Subject card'
             ELSE 'Subject property'
         END AS property_label,
-
         ARRAY_JOIN(
             TRANSFORM(
                 SPLIT(LOWER(train.loc_property_address), ' '),
