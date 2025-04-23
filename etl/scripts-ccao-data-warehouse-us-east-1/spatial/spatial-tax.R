@@ -110,6 +110,8 @@ st_read(tmp_file) %>%
   st_transform(crs = 4326) %>%
   mutate(
     geometry_3435 = st_transform(geometry, 3435),
+    # This year is arbitrary -- we don't know what year these data were
+    # created, so we default to the year we received them
     year = "2025"
   ) %>%
   geoparquet_to_s3(
