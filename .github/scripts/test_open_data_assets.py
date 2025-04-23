@@ -191,8 +191,9 @@ def diff_row_counts(
     open_data_asset_row_counts = sorted(
         open_data_asset_row_counts,
         key=lambda x: (
-            [open_data_asset_year_field] == [None],
-            [open_data_asset_year_field],
+            x[open_data_asset_year_field]
+            if x[open_data_asset_year_field] is not None
+            else 0
         ),
     )
 
