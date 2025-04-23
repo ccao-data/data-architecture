@@ -18,7 +18,7 @@ school_data AS (
         year,
         school_elementary_district_name,
         school_secondary_district_name
-    FROM {{ ref('location.school' }}
+    FROM {{ ref('location.school') }}
     WHERE year > '2014'
 )
 
