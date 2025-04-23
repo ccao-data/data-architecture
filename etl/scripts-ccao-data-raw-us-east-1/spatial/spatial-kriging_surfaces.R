@@ -425,7 +425,7 @@ compute_krige_rmse <- function(data,
     surface <- plot_surface(k)
   }
 
-  c(rmse, mae)
+  return(c(rmse, mae))
 }
 
 # nolint start
