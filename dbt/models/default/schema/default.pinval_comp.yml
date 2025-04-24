@@ -11,4 +11,4 @@ models:
             - comp_num
           allowed_duplicates: 0
           config:
-            error_if: ">1"
+            error_if: ">0"
