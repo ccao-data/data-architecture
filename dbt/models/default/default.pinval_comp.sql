@@ -20,56 +20,20 @@ raw_comp AS (
 ),
 
 pivoted_comp AS (
-    SELECT
-        pin,
-        card,
-        1 AS comp_num,
-        comp_pin_1 AS comp_pin,
-        comp_score_1 AS comp_score,
-        comp_document_num_1 AS comp_document_num,
-        run_id
-    FROM raw_comp
-
-    UNION ALL
-    SELECT
-        pin,
-        card,
-        2 AS comp_num,
-        comp_pin_2,
-        comp_score_2,
-        comp_document_num_2,
-        run_id
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        card,
-        3 AS comp_num,
-        comp_pin_3,
-        comp_score_3,
-        comp_document_num_3,
-        run_id
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        card,
-        4 AS comp_num,
-        comp_pin_4,
-        comp_score_4,
-        comp_document_num_4,
-        run_id
-    FROM raw_comp
-    UNION ALL
-    SELECT
-        pin,
-        card,
-        5 AS comp_num,
-        comp_pin_5,
-        comp_score_5,
-        comp_document_num_5,
-        run_id
-    FROM raw_comp
+    {% for i in range(1, 6) %}
+        SELECT
+            pin,
+            card,
+            {{ i }} AS comp_num,
+            comp_pin_{{ i }} AS comp_pin,
+            comp_score_{{ i }} AS comp_score,
+            comp_document_num_{{ i }} AS comp_document_num,
+            run_id
+        FROM raw_comp
+        {% if not loop.last %}
+            UNION ALL
+        {% endif %}
+    {% endfor %}
 ),
 
 school_data AS (
