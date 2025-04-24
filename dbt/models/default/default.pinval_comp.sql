@@ -33,7 +33,7 @@ pivoted_comp AS (
     SELECT
         pin,
         card,
-        2,
+        2 AS comp_num,
         comp_pin_2,
         comp_score_2,
         comp_document_num_2,
@@ -43,7 +43,7 @@ pivoted_comp AS (
     SELECT
         pin,
         card,
-        3,
+        3 AS comp_num,
         comp_pin_3,
         comp_score_3,
         comp_document_num_3,
@@ -53,7 +53,7 @@ pivoted_comp AS (
     SELECT
         pin,
         card,
-        4,
+        4 as comp_num,
         comp_pin_4,
         comp_score_4,
         comp_document_num_4,
@@ -63,7 +63,7 @@ pivoted_comp AS (
     SELECT
         pin,
         card,
-        5,
+        5 as comp_num,
         comp_pin_5,
         comp_score_5,
         comp_document_num_5,
