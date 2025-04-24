@@ -4,7 +4,7 @@
     )
 }}
 
-WITH metadata_filtered AS (
+WITH runs_to_include AS (
     SELECT
         run_id,
         model_predictor_all_name
@@ -13,9 +13,10 @@ WITH metadata_filtered AS (
 ),
 
 raw_comp AS (
-    SELECT *
-    FROM model.comp
-    WHERE run_id IN (SELECT run_id FROM metadata_filtered)
+    SELECT comp.*
+    FROM model.comp AS comp
+    INNER JOIN runs_to_include AS run
+        ON comp.run_id = run.run_id
 ),
 
 pivoted_comp AS (
@@ -113,7 +114,7 @@ comp_with_training_chars AS (
     LEFT JOIN school_data AS school
         ON SUBSTRING(pc.comp_pin, 1, 10) = school.school_pin
         AND train.meta_year = school.year
-    LEFT JOIN metadata_filtered AS meta
+    LEFT JOIN runs_to_include AS meta
         ON pc.run_id = meta.run_id
 )
 
