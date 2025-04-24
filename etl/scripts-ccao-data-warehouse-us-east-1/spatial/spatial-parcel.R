@@ -76,16 +76,14 @@ process_parcel_file <- function(s3_bucket_uri,
                                 file_year,
                                 attr_uri,
                                 spatial_uri) {
-
   file_year_processed <- aws.s3::get_bucket_df(
     bucket = AWS_S3_WAREHOUSE_BUCKET,
     prefix = file.path("spatial", "parcel_test")
   ) %>%
-    filter(Size > 0, str_detect(Key, file_year), !str_detect(Key, 'test2'))
+    filter(Size > 0, str_detect(Key, file_year), !str_detect(Key, "test2"))
 
   # Skip processing if expected data already exists in warehouse
   if (nrow(file_year_processed) != 39) {
-
     tictoc::tic(paste("Finished processing parcel file for:", file_year))
 
     # Download S3 files to local temp dir if they don't exist
@@ -180,8 +178,8 @@ process_parcel_file <- function(s3_bucket_uri,
           has_attributes = !is.na(town_code),
           area = units::drop_units(st_area(geometry))
         ) %>%
-        # Drop anything with an area less than 1 sq meter, as long as it has other
-        # polygons for the same PIN10 that are larger
+        # Drop anything with an area less than 1 sq meter, as long as it has
+        # other polygons for the same PIN10 that are larger
         filter(!(area <= 1 & n() >= 2 & !all(area <= 1)), .by = "pin10") %>%
         select(
           pin10, tax_code, nbhd_code, has_attributes,
@@ -216,7 +214,7 @@ process_parcel_file <- function(s3_bucket_uri,
       tictoc::tic(paste("Repaired centroids:", file_year))
       if (any(
         is.na(spatial_df_merged$lon) |
-        any(is.na(spatial_df_merged$x_3435))
+          any(is.na(spatial_df_merged$x_3435))
       )) {
         # Calculate centroids for missing
         spatial_df_missing <- spatial_df_merged %>%
@@ -239,8 +237,8 @@ process_parcel_file <- function(s3_bucket_uri,
 
       tictoc::tic(paste("Calculated shape features:", file_year))
       # Simplify the planar geometry to reduce noise in shape-based features
-      # calculated below. Convert to a data.table of the vertices of each polygon.
-      # Using data.table here because it's much faster than dplyr
+      # calculated below. Convert to a data.table of the vertices of each
+      # polygon. Using data.table here because it's much faster than dplyr
       spatial_mat_coords <- spatial_df_merged %>%
         st_set_geometry("geometry_3435") %>%
         st_simplify(dTolerance = 2, preserveTopology = TRUE) %>%
@@ -258,12 +256,13 @@ process_parcel_file <- function(s3_bucket_uri,
         by = c("L1", "L2", "L3")
       ][
         ,
-        # Some vertex angles are close to 180 or 360 degrees, which are likely to
-        # be artifacts of the data and not true vertices. We don't want to count
-        # these straight angles in our features, BUT we also can't drop all of
-        # them since some polygons are basically just lines. So, we drop any
-        # straight angle vertices from any polygon with >= 3 non-straight angles
-        # (which is the minimum number of vertices needed to make a polygon)
+        # Some vertex angles are close to 180 or 360 degrees, which are likely
+        # to be artifacts of the data and not true vertices. We don't want to
+        # count these straight angles in our features, BUT we also can't drop
+        # all of them since some polygons are basically just lines. So, we drop
+        # any straight angle vertices from any polygon with >= 3 non-straight
+        # angles (which is the minimum number of vertices needed to make a
+        # polygon)
         straight_angle := (
           (
             data.table::between(angle, 0, 1) |
@@ -301,11 +300,11 @@ process_parcel_file <- function(s3_bucket_uri,
       spatial_mat_calc_vert <- spatial_mat_calc[
         ,
         .(
-          # Number of vertices in the polygon. Minus 1 because the first and last
-          # vertex are always identical (used to close the polygon)
+          # Number of vertices in the polygon. Minus 1 because the first and
+          # last vertex are always identical (used to close the polygon)
           shp_parcel_num_vertices = .N - 1,
-          # Tail is used to drop the first row of each group since it's identical
-          # to the last row (again, same reason as above)
+          # Tail is used to drop the first row of each group since it's
+          # identical to the last row (again, same reason as above)
           shp_parcel_interior_angle_sd = sd(tail(angle, -1), na.rm = TRUE),
           shp_parcel_centroid_dist_ft_sd = sd(tail(dist_to_centroid, -1)),
           shp_parcel_edge_len_ft_sd = sd(tail(edge_len, -1), na.rm = TRUE)
@@ -313,8 +312,8 @@ process_parcel_file <- function(s3_bucket_uri,
         by = "L3"
       ]
 
-      # Calculate the ratio of the parcel area to the area of its minimum bounding
-      # rectangle
+      # Calculate the ratio of the parcel area to the area of its minimum
+      # bounding rectangle
       spatial_df_rec <- spatial_df_merged %>%
         st_set_geometry("geometry") %>%
         st_drop_geometry() %>%
@@ -416,13 +415,15 @@ process_parcel_file <- function(s3_bucket_uri,
       ) %>%
       relocate(year, town_code, .after = last_col()) %>%
       group_by(year, town_code) %>%
-      write_partitions_to_s3(s3_bucket_uri, is_spatial = TRUE, overwrite = FALSE)
+      write_partitions_to_s3(
+        s3_bucket_uri,
+        is_spatial = TRUE,
+        overwrite = FALSE
+      )
     tictoc::toc()
-
   } else {
     message("Skipping already processed data for: ", file_year)
   }
-
 }
 
 # Apply function to all parcel files
@@ -441,7 +442,7 @@ gc()
 # Ingest processed parcel files into one dataframe
 pre_geocoding_data <- open_dataset(
   file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel_test")
-  ) %>%
+) %>%
   collect() %>%
   # Ensure previously geocoded/imputed parcels don't interfere with geocoding
   # and imputing for any new years of data
@@ -452,7 +453,7 @@ pre_geocoding_data <- open_dataset(
 # is missing
 all_addresses <-
   dbGetQuery(
-    conn = con,"
+    conn = con, "
     SELECT DISTINCT
         pd.parid,
         vpa.year,
@@ -468,7 +469,8 @@ all_addresses <-
         AND pd.cur = 'Y'
         AND pd.deactivat IS NULL
     WHERE vpa.year >= '2000'
-              ")
+              "
+  )
 
 # This will be larger than the parcel dataframe since it's on PIN level.
 # Parcels dataframe is on Pin10 level.
@@ -482,7 +484,7 @@ missing_geographies <- anti_join(
   all_addresses,
   pre_geocoding_data,
   by = c("pin10", "year")
-  )
+)
 
 # Grab all years of data for parcels which are missing in any year
 spatial_subset <- pre_geocoding_data %>%
@@ -493,7 +495,7 @@ spatial_subset <- pre_geocoding_data %>%
   left_join(
     all_addresses %>% select(year, pin10, prop_address_full),
     by = c("year", "pin10")
-    )
+  )
 
 rm(all_addresses)
 
@@ -513,14 +515,14 @@ imputed <- imputed %>%
   # directly code one pin where geocoding produces a
   # value outside of Cook County
   mutate(
-    lat    = if_else(pin10 == "1819200021" &
-                       year == "2000", as.numeric("-87.896805"), lat),
-    lon    = if_else(pin10 == "1819200021" &
-                       year == "2000", as.numeric("41.766003"), lon),
+    lat = if_else(pin10 == "1819200021" &
+      year == "2000", as.numeric("-87.896805"), lat),
+    lon = if_else(pin10 == "1819200021" &
+      year == "2000", as.numeric("41.766003"), lon),
     x_3435 = if_else(pin10 == "1819200021" &
-                       year == "2000", as.numeric("1573797"), x_3435),
+      year == "2000", as.numeric("1573797"), x_3435),
     y_3435 = if_else(pin10 == "1819200021" &
-                       year == "2000", as.numeric("-46628780"), y_3435)
+      year == "2000", as.numeric("-46628780"), y_3435)
   ) %>%
   # Only keep rows where none of the four fields are missing
   filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat)) %>%
@@ -598,5 +600,5 @@ post_geocoding_data %>%
     "s3://ccao-data-warehouse-us-east-1/spatial/parcel_test2",
     is_spatial = TRUE,
     overwrite = TRUE
-    )
+  )
 tictoc::toc()
