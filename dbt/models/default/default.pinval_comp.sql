@@ -53,7 +53,7 @@ pivoted_comp AS (
     SELECT
         pin,
         card,
-        4 as comp_num,
+        4 AS comp_num,
         comp_pin_4,
         comp_score_4,
         comp_document_num_4,
@@ -63,7 +63,7 @@ pivoted_comp AS (
     SELECT
         pin,
         card,
-        5 as comp_num,
+        5 AS comp_num,
         comp_pin_5,
         comp_score_5,
         comp_document_num_5,
