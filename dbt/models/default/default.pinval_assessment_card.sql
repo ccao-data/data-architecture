@@ -27,13 +27,7 @@ school_data AS (
 SELECT
     ac.*,
     ap.pred_pin_final_fmv_round,
-    ARRAY_JOIN(
-        TRANSFORM(
-            SPLIT(LOWER(ap.loc_property_address), ' '),
-            x -> CONCAT(UPPER(SUBSTR(x, 1, 1)), SUBSTR(x, 2))
-        ),
-        ' '
-    ) AS property_address,
+    ap.property_address,
     school.school_elementary_district_name
         AS loc_school_elementary_district_name,
     school.school_secondary_district_name AS loc_school_secondary_district_name,
