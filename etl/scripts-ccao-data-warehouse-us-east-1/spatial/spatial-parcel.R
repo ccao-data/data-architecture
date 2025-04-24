@@ -421,49 +421,36 @@ pwalk(parcel_files_df, function(...) {
   )
 })
 
-# List parquet files from S3
-geocoding_files <- aws.s3::get_bucket_df(
-  bucket = AWS_S3_WAREHOUSE_BUCKET,
-  prefix = file.path("spatial", "parcel_test/")
-) %>%
-  filter(Size > 0, str_detect(Key, "\\.parquet$")) %>%
-  mutate(
-    year = str_extract(Key, "year=\\d{4}") %>% str_remove("year=")
-  )
+gc()
 
-# Read and append all data with year column
-pre_geocoding_data <- geocoding_files %>%
-  select(Key, year) %>%
-  pmap_dfr(~{
-    message("Reading file: ", ..1)
-    df <- s3read_using(
-      FUN = read_parquet,
-      object = ..1,
-      bucket = AWS_S3_WAREHOUSE_BUCKET
-    )
-    df$town_code = str_extract(..1, "[0-9]{2}")
-    df$year <- ..2
-    df
-  })
+# Ingest processed parcel files into one dataframe
+pre_geocoding_data <- open_dataset(
+  file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel_test")
+  ) %>%
+  collect() %>%
+  filter(source == "raw")
 
 # Get missing geographies and all matching pin address combinations
 # We remove info from before 2000 since almost all lon/lat information
 # is missing
 all_addresses <-
   dbGetQuery(
-    conn = con,
-    "select distinct
-              vpa.year,
-              vpa.prop_address_full,
-              vpa.prop_address_city_name,
-              vpa.prop_address_state,
-              vpa.prop_address_zipcode_1,
-              pd.class,
-              pd.parid
-              from default.vw_pin_address vpa
-              left join iasworld.pardat pd
-              on vpa.pin = pd.parid and vpa.year = pd.taxyr
-              where vpa.year >= '2000'
+    conn = con,"
+    SELECT DISTINCT
+        pd.parid,
+        vpa.year,
+        vpa.prop_address_full,
+        vpa.prop_address_city_name,
+        vpa.prop_address_state,
+        vpa.prop_address_zipcode_1,
+        pd.class
+    FROM default.vw_pin_address vpa
+    LEFT JOIN iasworld.pardat pd
+        ON vpa.pin = pd.parid
+        AND vpa.year = pd.taxyr
+        AND pd.cur = 'Y'
+        AND pd.deactivat IS NULL
+    WHERE vpa.year >= '2000'
               ")
 
 # This will be larger than the parcel dataframe since it's on PIN level.
@@ -474,8 +461,11 @@ all_addresses <- all_addresses %>%
   filter(year <= max(pre_geocoding_data$year, na.rm = TRUE)) %>%
   mutate(pin10 = substr(parid, 1, 10))
 
-missing_geographies <- anti_join(all_addresses,
-                                 pre_geocoding_data, by = c("pin10", "year"))
+missing_geographies <- anti_join(
+  all_addresses,
+  pre_geocoding_data,
+  by = c("pin10", "year")
+  )
 
 # Grab all years of data for parcels which are missing in any year
 spatial_subset <- pre_geocoding_data %>%
@@ -483,8 +473,10 @@ spatial_subset <- pre_geocoding_data %>%
   # Add property address to the subset to make sure PINs are consistent.
   # This will expand the dataset since prop_addresses are not unique
   # by PIN10.
-  left_join(all_addresses %>% select(year, pin10, prop_address_full),
-            by = c("year", "pin10"))
+  left_join(
+    all_addresses %>% select(year, pin10, prop_address_full),
+    by = c("year", "pin10")
+    )
 
 rm(all_addresses)
 
@@ -577,7 +569,7 @@ duplicate_keys <- post_geocoding_data %>%
   filter(n() > 1)
 
 if (nrow(duplicate_keys) > 0) {
-  warning("Duplicate rows found pin10 and year combinations. Check rbind")
+  stop("Duplicate rows found pin10 and year combinations. Check rbind")
 }
 
 # Write final dataframe to dataset on S3, partitioned by town and year
@@ -585,5 +577,9 @@ post_geocoding_data %>%
   mutate(uploaded_before_geocoding = FALSE) %>%
   relocate(year, town_code, .after = last_col()) %>%
   group_by(year, town_code) %>%
-  write_partitions_to_s3(output_bucket, is_spatial = TRUE, overwrite = TRUE)
+  write_partitions_to_s3(
+    "s3://ccao-data-warehouse-us-east-1/spatial/parcel_test2",
+    is_spatial = TRUE,
+    overwrite = TRUE
+    )
 tictoc::toc()
