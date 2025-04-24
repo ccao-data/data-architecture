@@ -7,7 +7,8 @@
 WITH runs_to_include AS (
     SELECT
         run_id,
-        model_predictor_all_name
+        model_predictor_all_name,
+        year
     FROM {{ source('model', 'metadata') }}
     -- This will eventually grab all run_ids where
     -- run_type == comps
