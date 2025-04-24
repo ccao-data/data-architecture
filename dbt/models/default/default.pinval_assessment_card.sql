@@ -29,7 +29,7 @@ final_model_run AS (
     SELECT
         year,
         SUBSTRING(run_id, 1, 10) AS final_model_run_date
-    FROM model.final_model
+    FROM {{ source('model', 'final_model') }}
     WHERE type = 'res'
         AND is_final
 )
@@ -54,4 +54,4 @@ LEFT JOIN school_data AS school
     ON SUBSTRING(ac.meta_pin, 1, 10) = school.school_pin
     AND ac.meta_year = school.year
 LEFT JOIN final_model_run AS final
-    ON run.assessment_year = final.year
+    ON run._year = final.year
