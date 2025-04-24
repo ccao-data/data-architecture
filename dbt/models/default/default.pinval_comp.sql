@@ -54,13 +54,7 @@ comp_with_training_chars AS (
             WHEN train.ind_pin_is_multicard = TRUE THEN 'Subject card'
             ELSE 'Subject property'
         END AS property_label,
-        ARRAY_JOIN(
-            TRANSFORM(
-                SPLIT(LOWER(train.loc_property_address), ' '),
-                x -> CONCAT(UPPER(SUBSTR(x, 1, 1)), SUBSTR(x, 2))
-            ),
-            ' '
-        ) AS property_address,
+        train.loc_property_address AS property_address,
         CAST(CAST(train.meta_sale_price / 1000 AS BIGINT) AS VARCHAR)
         || 'K' AS sale_price_short,
         ROUND(train.meta_sale_price / NULLIF(train.char_bldg_sf, 0))
