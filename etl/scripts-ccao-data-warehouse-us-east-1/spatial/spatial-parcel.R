@@ -455,13 +455,13 @@ all_addresses <- dbGetQuery(
   conn = con,
   "
     SELECT
-      vpa.year,
-      vpa.prop_address_full,
-      vpa.prop_address_city_name,
-      vpa.prop_address_state,
-      vpa.prop_address_zipcode_1
-    FROM default.vw_pin_address vpa
-    WHERE vpa.year >= '2000'
+      year,
+      prop_address_full,
+      prop_address_city_name,
+      prop_address_state,
+      prop_address_zipcode_1
+    FROM default.vw_pin_address
+    WHERE year >= '2000'
   "
 )
 
