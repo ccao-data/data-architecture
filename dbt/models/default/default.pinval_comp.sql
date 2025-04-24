@@ -96,6 +96,10 @@ comp_with_training_chars AS (
             ),
             ' '
         ) AS property_address,
+        CAST(CAST(train.meta_sale_price / 1000 AS BIGINT) AS VARCHAR)
+        || 'K' AS sale_price_short,
+        ROUND(train.meta_sale_price / NULLIF(train.char_bldg_sf, 0))
+            AS sale_price_per_sq_ft,
         train.*,
         school.school_elementary_district_name
             AS loc_school_elementary_district_name,
