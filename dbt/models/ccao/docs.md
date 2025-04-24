@@ -38,7 +38,12 @@ MV 08/18/2024.
 CCAO commercial valuation data, aggregated from the commercial team spreadsheets
 [available on the Assessor's site](https://www.cookcountyassessor.com/valuation-reports).
 
-**Primary Key**: `keypin`, `year`
+### Nuance
+
+- The table is _not_ unique by its intended primary keys and should not be
+aggregated or used for analyses, only provided in raw.
+
+**Primary Key**: `keypin`, `year`, `class(es)`, `sheet`
 {% enddocs %}
 
 # hie
@@ -61,7 +66,7 @@ These rates are applied during the modeling process in order to disaggregate
 the value of land from the total PIN value. They are provided yearly prior
 to modeling.
 
-**Primary Key**: `town_nbhd`, `year`
+**Primary Key**: `town_nbhd`, `year`, `class`
 {% enddocs %}
 
 # land_site_rate

@@ -16,7 +16,7 @@
 # into a Python model script with a set of import calls like so:
 #
 #   sc.addPyFile(f"{s3_dependency_dir}/attrs==23.2.0.zip")
-#   sc.addPyFile(f"{s3_dependency_dir}/assesspy==2.0.1.zip")
+#   sc.addPyFile(f"{s3_dependency_dir}/assesspy==2.0.2.zip")
 #   import attrs
 #   import assesspy
 #

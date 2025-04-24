@@ -5,6 +5,7 @@ import logging
 import os
 import re
 import time
+from datetime import datetime
 
 import pandas as pd
 import requests
@@ -32,12 +33,79 @@ cursor = connect(
 ).cursor(unload=True)
 
 
-def parse_assets(assets):
+def parse_assets(assets=None):
     """
-    Make sure the asset environmental variable is formatted correctly.
+    Retrieve metadata for all socrata assets and filter that data based
+    on parsed input assets names.
     """
 
-    return [asset.strip() for asset in str(assets).split(",")]
+    if assets == "":
+        assets = None
+
+    # When running locally, we will probably be inside the socrata/ dir, so
+    # switch back out to find the dbt/ dir
+    if not os.path.isdir("./dbt"):
+        os.chdir("..")
+
+    os.chdir("./dbt")
+
+    DBT = dbtRunner()
+    dbt_list_args = [
+        "--quiet",
+        "list",
+        "--select",
+        "open_data.*",
+        "--resource-types",
+        "exposure",
+        "--exclude",
+        "tag:inactive",
+        "--output",
+        "json",
+        "--output-keys",
+        "label",
+        "meta",
+        "depends_on",
+    ]
+
+    print(f"> dbt {' '.join(dbt_list_args)}")
+    dbt_output = io.StringIO()
+    with contextlib.redirect_stdout(dbt_output):
+        DBT.invoke(dbt_list_args)
+
+    model = [
+        json.loads(model_dict_str)
+        for model_dict_str in dbt_output.getvalue().split("\n")
+        # Filter out empty strings caused by trailing newlines
+        if model_dict_str
+    ]
+
+    os.chdir("..")
+
+    all_assets = pd.json_normalize(model)
+
+    # Split names of views in athena to remove extaneous db prefixes
+    all_assets["athena_asset"] = (
+        all_assets["depends_on.nodes"].str[0].str.split(pat=".", n=2).str[-1]
+    )
+
+    all_assets = all_assets[["label", "meta.asset_id", "athena_asset"]].rename(
+        columns={"meta.asset_id": "asset_id"}
+    )
+
+    # If no assets are entered return metadata for all assets otherwise filter
+    # by provided assets
+    if assets is not None:
+        assets = [asset.strip() for asset in str(assets).split(",")]
+
+        all_assets = all_assets[all_assets["label"].isin(assets)]
+
+    print("Assets that will be updated:")
+    print(all_assets["label"])
+
+    # Return a dict with labels as keys
+    all_assets = all_assets.set_index("label").to_dict("index")
+
+    return all_assets
 
 
 def parse_years(years=None):
@@ -78,18 +146,30 @@ def parse_years_list(athena_asset, years=None):
         else:
             years_list = years
 
+    elif not years and os.getenv("WORKFLOW_EVENT_NAME") == "schedule":
+        # Update most recent year only on scheduled workflow. In some
+        # cases the max year is incorrectly in the future, so we
+        # append the current year to the list and take the minimum.
+        years_list = (
+            cursor.execute("SELECT MAX(year) AS year FROM " + athena_asset)
+            .as_pandas()["year"]
+            .to_list()
+        )
+        years_list.append(str(datetime.now().year))
+        years_list = [min(years_list)]
+
     else:
         years_list = None
 
     return years_list
 
 
-def check_overwrite(overwrite):
+def check_overwrite(overwrite=None):
     """
     Make sure overwrite environmental variable is typed correctly.
     """
 
-    if not overwrite:
+    if not overwrite or overwrite == "":
         overwrite = False
 
     # Github inputs are passed as strings rather than booleans
@@ -97,54 +177,6 @@ def check_overwrite(overwrite):
         overwrite = overwrite == "true"
 
     return overwrite
-
-
-def get_asset_info(socrata_asset):
-    """
-    Simple helper function to retrieve asset-specific information from dbt.
-    """
-
-    # When running locally, we will probably be inside the socrata/ dir, so
-    # switch back out to find the dbt/ dir
-    if not os.path.isdir("./dbt"):
-        os.chdir("..")
-
-    os.chdir("./dbt")
-
-    DBT = dbtRunner()
-    dbt_list_args = [
-        "--quiet",
-        "list",
-        "--resource-types",
-        "exposure",
-        "--output",
-        "json",
-        "--output-keys",
-        "label",
-        "meta",
-        "depends_on",
-    ]
-
-    print(f"> dbt {' '.join(dbt_list_args)}")
-    dbt_output = io.StringIO()
-    with contextlib.redirect_stdout(dbt_output):
-        DBT.invoke(dbt_list_args)
-
-    model = [
-        json.loads(model_dict_str)
-        for model_dict_str in dbt_output.getvalue().split("\n")
-        # Filter out empty strings caused by trailing newlines
-        if model_dict_str
-    ]
-
-    os.chdir("..")
-
-    model = pd.json_normalize(model)
-    model = model[model["label"] == socrata_asset]
-    athena_asset = model.iloc[0]["depends_on.nodes"][0].split(".", 2)[-1]
-    asset_id = model.iloc[0]["meta.asset_id"]
-
-    return athena_asset, asset_id
 
 
 def build_query_dict(athena_asset, asset_id, years=None):
@@ -259,7 +291,7 @@ def upload(asset_id, sql_query, overwrite):
         overwrite = False
 
 
-def socrata_upload(socrata_asset, overwrite=False, years=None):
+def socrata_upload(asset_info, overwrite=False, years=None):
     """
     Wrapper function for building SQL query, retrieving data from Athena, and
     uploading it to Socrata. Allows users to specify target Athena and Socrata
@@ -269,7 +301,7 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
     (update rather than overwrite).
     """
 
-    athena_asset, asset_id = get_asset_info(socrata_asset)
+    athena_asset, asset_id = asset_info["athena_asset"], asset_info["asset_id"]
 
     years_list = parse_years_list(years=years, athena_asset=athena_asset)
 
@@ -287,12 +319,14 @@ def socrata_upload(socrata_asset, overwrite=False, years=None):
 
 
 if __name__ == "__main__":
+    print(f"Running upload for event type: {os.getenv('WORKFLOW_EVENT_NAME')}")
+
     # Retrieve asset(s)
     all_assets = parse_assets(os.getenv("SOCRATA_ASSET"))
 
-    for asset in all_assets:
+    for asset_info in all_assets.values():
         socrata_upload(
-            socrata_asset=asset,
+            asset_info=asset_info,
             overwrite=check_overwrite(os.getenv("OVERWRITE")),
             years=parse_years(os.getenv("YEARS")),
         )

@@ -1,6 +1,8 @@
 # pylint: skip-file
 # type: ignore
-sc.addPyFile("s3://ccao-athena-dependencies-us-east-1/assesspy==2.0.1.zip")
+
+sc.addPyFile("s3://ccao-athena-dependencies-us-east-1/assesspy==2.0.2.zip")
+
 
 from typing import Union
 
@@ -17,11 +19,14 @@ CCAO_MIN_SAMPLE_SIZE = 20.0
 SPARK_SCHEMA = (
     "year string, triad string, geography_type string, property_group string, "
     "assessment_stage string, geography_id string, sale_year string, sale_n bigint, "
-    "med_ratio double, med_ratio_ci_l double, med_ratio_ci_u double, med_ratio_n bigint, "
+    "sales_excluded_n bigint, "
+    "med_ratio double, med_ratio_ci_l double, med_ratio_ci_u double, "
+    "med_ratio_met boolean, med_ratio_n bigint, "
     "cod double, cod_ci_l double, cod_ci_u double, cod_met boolean, cod_n bigint, "
     "prd double, prd_ci_l double, prd_ci_u double, prd_met boolean, prd_n bigint, "
     "prb double, prb_ci_l double, prb_ci_u double, prb_met boolean, prb_n bigint, "
     "mki double, mki_ci_l double, mki_ci_u double, mki_met boolean, mki_n bigint, "
+    "vertical_equity_met boolean, "
     "is_sales_chased boolean, within_20_pct bigint, within_10_pct bigint, within_05_pct bigint"
 )
 
@@ -104,14 +109,21 @@ def ccao_median(
         ci_l, ci_u = ap.boot_ci(
             median_val, estimate=est_no_out, sale_price=sale_no_out, nboot=300
         )
-        out = [val, ci_l, ci_u, n]
+        med_met = ap.med_ratio_met(val)
+        out = [val, ci_l, ci_u, med_met, n]
     else:
         val = median_val(est_no_out, sale_no_out)
-        out = [val, None, None, n]
+        out = [val, None, None, None, n]
 
     out_dict = dict(
         zip(
-            ["med_ratio", "med_ratio_ci_l", "med_ratio_ci_u", "med_ratio_n"],
+            [
+                "med_ratio",
+                "med_ratio_ci_l",
+                "med_ratio_ci_u",
+                "med_ratio_met",
+                "med_ratio_n",
+            ],
             out,
         )
     )
@@ -142,15 +154,22 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
             lambda x: pd.DataFrame(
                 [
                     {
-                        # Include the grouping column values in the output
                         **dict(
                             zip(group_cols, [x[c].iloc[0] for c in group_cols])
                         ),
                         "sale_n": x["triad"].size,
                         **ccao_median(x["fmv"], x["sale_price"]),
+                        **(
+                            prb_metrics := ccao_metric(
+                                "prb", x["fmv"], x["sale_price"]
+                            )
+                        ),
+                        **(
+                            prd_metrics := ccao_metric(
+                                "prd", x["fmv"], x["sale_price"]
+                            )
+                        ),
                         **ccao_metric("cod", x["fmv"], x["sale_price"]),
-                        **ccao_metric("prd", x["fmv"], x["sale_price"]),
-                        **ccao_metric("prb", x["fmv"], x["sale_price"]),
                         **ccao_metric("mki", x["fmv"], x["sale_price"]),
                         "is_sales_chased": ap.is_sales_chased(x["ratio"])
                         if x["ratio"].size >= CCAO_MIN_SAMPLE_SIZE
@@ -158,6 +177,19 @@ def calc_summary(df: pd.Series, geography_id: str, geography_type: str):
                         "within_20_pct": sum(abs(1 - x["ratio"]) <= 0.20),
                         "within_10_pct": sum(abs(1 - x["ratio"]) <= 0.10),
                         "within_05_pct": sum(abs(1 - x["ratio"]) <= 0.05),
+                        "vertical_equity_met": (
+                            None
+                            if (
+                                prb_metrics.get("prb_met") is None
+                                and prd_metrics.get("prd_met") is None
+                            )
+                            else bool(
+                                prb_metrics.get("prb_met")
+                                or prd_metrics.get("prd_met")
+                            )
+                        ),
+                        "sales_excluded_n": x["triad"].size
+                        - ccao_drop_outliers(x["fmv"], x["sale_price"])[2],
                     }
                 ]
             ),

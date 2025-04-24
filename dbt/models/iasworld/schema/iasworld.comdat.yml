@@ -398,6 +398,8 @@ sources:
             description: '{{ doc("column_upd_status") }}'
           - name: user16
             description: '{{ doc("shared_column_alternative_cdu") }}'
+          - name: user29
+            description: Model group
           - name: useradj
             description: Override to comdat userdef adjustment factor
           - name: valmeth
