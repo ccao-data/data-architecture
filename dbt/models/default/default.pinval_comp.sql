@@ -44,36 +44,32 @@ school_data AS (
         school_secondary_district_name
     FROM location.school
     WHERE year > '2014'
-),
-
-comp_with_training_chars AS (
-    SELECT
-        pc.*,
-        COALESCE(pc.pin = pc.comp_pin, FALSE) AS is_subject_pin_sale,
-        CASE
-            WHEN train.ind_pin_is_multicard = TRUE THEN 'Subject card'
-            ELSE 'Subject property'
-        END AS property_label,
-        train.loc_property_address AS property_address,
-        CAST(CAST(train.meta_sale_price / 1000 AS BIGINT) AS VARCHAR)
-        || 'K' AS sale_price_short,
-        ROUND(train.meta_sale_price / NULLIF(train.char_bldg_sf, 0))
-            AS sale_price_per_sq_ft,
-        train.*,
-        school.school_elementary_district_name
-            AS loc_school_elementary_district_name,
-        school.school_secondary_district_name
-            AS loc_school_secondary_district_name,
-        meta.model_predictor_all_name
-    FROM pivoted_comp AS pc
-    LEFT JOIN {{ source('model', 'pinval_test_training_data') }} AS train
-        ON pc.comp_pin = train.meta_pin
-        AND pc.comp_document_num = train.meta_sale_document_num
-    LEFT JOIN school_data AS school
-        ON SUBSTRING(pc.comp_pin, 1, 10) = school.school_pin
-        AND train.meta_year = school.year
-    LEFT JOIN runs_to_include AS meta
-        ON pc.run_id = meta.run_id
 )
 
-SELECT * FROM comp_with_training_chars
+SELECT
+    pc.*,
+    COALESCE(pc.pin = pc.comp_pin, FALSE) AS is_subject_pin_sale,
+    CASE
+        WHEN train.ind_pin_is_multicard = TRUE THEN 'Subject card'
+        ELSE 'Subject property'
+    END AS property_label,
+    train.loc_property_address AS property_address,
+    CAST(CAST(train.meta_sale_price / 1000 AS BIGINT) AS VARCHAR)
+    || 'K' AS sale_price_short,
+    ROUND(train.meta_sale_price / NULLIF(train.char_bldg_sf, 0))
+        AS sale_price_per_sq_ft,
+    train.*,
+    school.school_elementary_district_name
+        AS loc_school_elementary_district_name,
+    school.school_secondary_district_name
+        AS loc_school_secondary_district_name,
+    meta.model_predictor_all_name
+FROM pivoted_comp AS pc
+LEFT JOIN {{ source('model', 'pinval_test_training_data') }} AS train
+    ON pc.comp_pin = train.meta_pin
+    AND pc.comp_document_num = train.meta_sale_document_num
+LEFT JOIN school_data AS school
+    ON SUBSTRING(pc.comp_pin, 1, 10) = school.school_pin
+    AND train.meta_year = school.year
+LEFT JOIN runs_to_include AS meta
+    ON pc.run_id = meta.run_id
