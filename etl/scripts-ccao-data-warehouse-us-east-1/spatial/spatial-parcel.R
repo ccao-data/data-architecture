@@ -451,26 +451,19 @@ pre_geocoding_data <- open_dataset(
 # Get missing geographies and all matching pin address combinations
 # We remove info from before 2000 since almost all lon/lat information
 # is missing
-all_addresses <-
-  dbGetQuery(
-    conn = con, "
-    SELECT DISTINCT
-        pd.parid,
-        vpa.year,
-        vpa.prop_address_full,
-        vpa.prop_address_city_name,
-        vpa.prop_address_state,
-        vpa.prop_address_zipcode_1,
-        pd.class
+all_addresses <- dbGetQuery(
+  conn = con,
+  "
+    SELECT
+      vpa.year,
+      vpa.prop_address_full,
+      vpa.prop_address_city_name,
+      vpa.prop_address_state,
+      vpa.prop_address_zipcode_1
     FROM default.vw_pin_address vpa
-    LEFT JOIN iasworld.pardat pd
-        ON vpa.pin = pd.parid
-        AND vpa.year = pd.taxyr
-        AND pd.cur = 'Y'
-        AND pd.deactivat IS NULL
     WHERE vpa.year >= '2000'
-              "
-  )
+  "
+)
 
 # This will be larger than the parcel dataframe since it's on PIN level.
 # Parcels dataframe is on Pin10 level.
