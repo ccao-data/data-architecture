@@ -28,7 +28,7 @@ final_model_run AS (
     SELECT
         year,
         SUBSTRING(run_id, 1, 10) AS final_model_run_date
-    FROM {{ source('model', 'final_model') }}
+    FROM model.final_model
     WHERE type = 'res'
         AND is_final
 )
