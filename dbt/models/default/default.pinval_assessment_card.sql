@@ -22,7 +22,17 @@ school_data AS (
         school_secondary_district_name
     FROM {{ ref('location.school') }}
     WHERE year > '2014'
+),
+
+final_model_run AS (
+    SELECT
+        year,
+        SUBSTRING(run_id, 1, 10) AS final_model_run_date
+    FROM {{ source('model', 'final_model') }}
+    WHERE type = 'res'
+        AND is_final
 )
+
 
 SELECT
     ac.*,
@@ -31,7 +41,8 @@ SELECT
     school.school_elementary_district_name
         AS loc_school_elementary_district_name,
     school.school_secondary_district_name AS loc_school_secondary_district_name,
-    run.model_predictor_all_name
+    run.model_predictor_all_name,
+    final.final_model_run_date
 FROM runs_to_include AS run
 INNER JOIN model.assessment_card AS ac
     ON run.run_id = ac.run_id
@@ -41,3 +52,5 @@ LEFT JOIN model.assessment_pin AS ap
 LEFT JOIN school_data AS school
     ON SUBSTRING(ac.meta_pin, 1, 10) = school.school_pin
     AND ac.meta_year = school.year
+LEFT JOIN final_model_run AS final
+    ON run.assessment_year = final.year
