@@ -458,6 +458,8 @@ all_addresses <- dbGetQuery(
   "
     SELECT
       year,
+      pin,
+      pin10,
       prop_address_full,
       prop_address_city_name,
       prop_address_state,
@@ -480,8 +482,7 @@ cook_county <- dbGetQuery(
 all_addresses <- all_addresses %>%
   # We can have address data from current year, before parcel data
   # is available.
-  filter(year <= max(pre_geocoding_data$year, na.rm = TRUE)) %>%
-  mutate(pin10 = substr(parid, 1, 10))
+  filter(year <= max(pre_geocoding_data$year, na.rm = TRUE))
 
 missing_geographies <- anti_join(
   all_addresses,
@@ -526,7 +527,7 @@ missing_geographies <- missing_geographies %>%
   # Remove rows that were handled in the imputed data frame.
   anti_join(imputed, by = c("pin10" = "pin10", "year" = "year")) %>%
   # Keep distinct pin but not pin10 since geocoding is on address level
-  distinct(parid, year, .keep_all = TRUE)
+  distinct(pin, year, .keep_all = TRUE)
 
 # Split the missing coordinates into batches of 1000 rows for tidygeocoder
 batch_list <- split(
