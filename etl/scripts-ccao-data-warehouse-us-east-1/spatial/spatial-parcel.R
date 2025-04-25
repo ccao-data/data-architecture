@@ -448,7 +448,8 @@ pre_geocoding_data <- open_dataset(
   collect() %>%
   # Ensure previously geocoded/imputed parcels don't interfere with geocoding
   # and imputing for any new years of data
-  filter(source == "raw")
+  filter(source == "raw") %>%
+  mutate(year = as.character(year))
 
 # Get missing geographies and all matching pin address combinations
 # We remove info from before 2000 since almost all lon/lat information
@@ -468,6 +469,9 @@ all_addresses <- dbGetQuery(
     WHERE year >= '2000'
   "
 )
+
+all_addresses <- all_addresses %>%
+  mutate(year = as.character(year))
 
 cook_county <- dbGetQuery(
   conn = con,
@@ -562,7 +566,9 @@ geocoded <- map(batch_list, geocode_batch) %>%
   do.call(rbind, .)
 
 # Addresses are on PIN level, so we create the PIN10 average
-# This is mostly for housing complexes
+# This is mostly for housing complexes.
+# We don't create geographies since these are shapes for other
+# parcels and we only have centroids for these.
 geocoded <- geocoded %>%
   group_by(pin10, year) %>%
   summarise(
