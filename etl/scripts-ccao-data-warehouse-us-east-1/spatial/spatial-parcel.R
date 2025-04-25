@@ -140,7 +140,8 @@ process_parcel_file <- function(s3_bucket_uri,
       # Get the centroid of the largest polygon for each parcel
       tictoc::tic(paste("Calculated centroids for:", file_year))
       spatial_df_centroids <- spatial_df_clean %>%
-        # Split any multipolygon parcels into multiple rows, one for each polygon
+        # Split any multipolygon parcels into multiple rows, one for each
+        # polygon
         # https://github.com/r-spatial/sf/issues/763
         st_cast("POLYGON", warn = FALSE) %>%
         # Transform to planar geometry then calculate centroids
