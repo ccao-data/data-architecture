@@ -1,5 +1,6 @@
 library(arrow)
 library(aws.s3)
+library(ccao)
 library(data.table)
 library(dplyr)
 library(geoarrow)
@@ -466,6 +467,14 @@ all_addresses <- dbGetQuery(
   "
 )
 
+cook_county <- dbGetQuery(
+  conn = con,
+  "select *
+   from spatial.county"
+) %>%
+  st_as_sf() %>%
+  st_set_crs(3435)
+
 # This will be larger than the parcel dataframe since it's on PIN level.
 # Parcels dataframe is on Pin10 level.
 all_addresses <- all_addresses %>%
@@ -506,18 +515,6 @@ imputed <- imputed %>%
   ungroup() %>%
   # Remove duplicate rows based on pin10 and year
   distinct(pin10, year, .keep_all = TRUE) %>%
-  # directly code one pin where geocoding produces a
-  # value outside of Cook County
-  mutate(
-    lat = if_else(pin10 == "1819200021" &
-      year == "2000", as.numeric("-87.896805"), lat),
-    lon = if_else(pin10 == "1819200021" &
-      year == "2000", as.numeric("41.766003"), lon),
-    x_3435 = if_else(pin10 == "1819200021" &
-      year == "2000", as.numeric("1573797"), x_3435),
-    y_3435 = if_else(pin10 == "1819200021" &
-      year == "2000", as.numeric("-46628780"), y_3435)
-  ) %>%
   # Only keep rows where none of the four fields are missing
   filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat)) %>%
   # Keep observations which were originally missing
@@ -550,6 +547,9 @@ geocode_batch <- function(batch) {
     st_as_sf(coords = c("long", "lat"), remove = FALSE) %>%
     st_set_crs(4326) %>%
     st_transform(3435) %>%
+    # Check that properties are in Cook County Boundaries.
+    # This arose due to one known error.
+    st_intersection(cook_county) %>%
     mutate(
       x_3435 = st_coordinates(.)[, 1],
       y_3435 = st_coordinates(.)[, 2]
