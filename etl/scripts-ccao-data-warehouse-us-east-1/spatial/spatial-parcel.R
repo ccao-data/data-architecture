@@ -475,11 +475,11 @@ all_addresses <- all_addresses %>%
 
 cook_county <- dbGetQuery(
   conn = con,
-  "select *
-   from spatial.county"
+  "SELECT * FROM spatial.county"
 ) %>%
-  st_as_sf() %>%
-  st_set_crs(3435)
+  mutate(geometry = st_as_sfc(geometry_3435, EWKB = TRUE)) %>%
+  st_as_sf(crs = 3435)
+
 
 # This will be larger than the parcel dataframe since it's on PIN level.
 # Parcels dataframe is on Pin10 level.
@@ -552,9 +552,6 @@ geocode_batch <- function(batch) {
     st_as_sf(coords = c("long", "lat"), remove = FALSE) %>%
     st_set_crs(4326) %>%
     st_transform(3435) %>%
-    # Check that properties are in Cook County Boundaries.
-    # This arose due to one known error.
-    st_intersection(cook_county) %>%
     mutate(
       x_3435 = st_coordinates(.)[, 1],
       y_3435 = st_coordinates(.)[, 2]
@@ -570,6 +567,9 @@ geocoded <- map(batch_list, geocode_batch) %>%
 # We don't create geographies since these are shapes for other
 # parcels and we only have centroids for these.
 geocoded <- geocoded %>%
+  # Check that properties are in Cook County Boundaries.
+  # This arose due to one known error.
+  st_intersection(cook_county) %>%
   group_by(pin10, year) %>%
   summarise(
     lon = mean(long, na.rm = TRUE),
