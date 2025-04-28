@@ -94,12 +94,12 @@ def main() -> None:
         # numbers. It's unclear why this is the case, but it seems to be a quirk
         # of the API. We need to convert them to int so that we can compare them
         # to Athena data.
-        asset_row_counts_by_year = [
-            int(year_count[asset_year_field])
-            if year_count[asset_year_field] is not None
-            else None
-            for year_count in asset_row_counts_by_year
-        ]
+
+        for year_count in asset_row_counts_by_year:
+            if year_count[asset_year_field] is not None:
+                year_count[asset_year_field] = int(
+                    year_count[asset_year_field]
+                )
 
         dbt_output = io.StringIO()
         with contextlib.redirect_stdout(dbt_output):
