@@ -84,22 +84,19 @@ def main() -> None:
         asset_row_counts_by_year = response.json()
 
         # Socrata won't return a year column for rows with no year, so we need
-        # to add None as the year value to any rows with no year.
+        # to add None as the year value to any rows with no year. Also,
+        # Socrata returns year columns as strings even though they're typed as
+        # numbers (it's not clear why the API behaves this way), so we need to
+        # convert them to int in order to compare them to Athena data.
         asset_row_counts_by_year = [
-            {asset_year_field: None, **year_count}
+            {
+                **year_count,
+                asset_year_field: int(year_count[asset_year_field])
+                if year_count.get(asset_year_field) is not None
+                else None
+            }
             for year_count in asset_row_counts_by_year
         ]
-
-        # Socrata returns year columns as strings even though they're typed as
-        # numbers. It's unclear why this is the case, but it seems to be a quirk
-        # of the API. We need to convert them to int so that we can compare them
-        # to Athena data.
-
-        for year_count in asset_row_counts_by_year:
-            if year_count[asset_year_field] is not None:
-                year_count[asset_year_field] = int(
-                    year_count[asset_year_field]
-                )
 
         dbt_output = io.StringIO()
         with contextlib.redirect_stdout(dbt_output):
