@@ -2,7 +2,7 @@ WITH runs_to_include AS (
     SELECT
         run_id,
         model_predictor_all_name,
-        year
+        assessment_year
     FROM {{ source('model', 'metadata') }}
     -- This will eventually grab all run_ids where
     -- run_type == comps
@@ -48,4 +48,4 @@ LEFT JOIN school_data AS school
     ON SUBSTRING(ac.meta_pin, 1, 10) = school.school_pin
     AND ac.meta_year = school.year
 LEFT JOIN final_model_run AS final
-    ON run.year = final.year
+    ON run.assessment_year = final.year
