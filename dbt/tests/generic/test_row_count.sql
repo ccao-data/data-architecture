@@ -10,7 +10,7 @@
     {%- elif above is not none and equals is not none -%}
         {{
             exceptions.raise_compiler_error(
-                "The arguments 'above' or 'equals' cannot both be set"
+                "The arguments 'above' and 'equals' cannot both be set"
             )
         }}
     {%- endif -%}
