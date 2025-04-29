@@ -15,12 +15,16 @@ library(tidyr)
 library(tidygeocoder)
 source("utils.R")
 
+noctua_options(unload = TRUE)
+
 # This script cleans historical Cook County parcel data and uploads it to S3
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel_test")
 parcel_tmp_dir <- here("parcel-tmp")
-con <- dbConnect(noctua::athena())
+con <- dbConnect(noctua::athena(), rstudio_conn_tab = FALSE)
+
+# PARCEL CLEANING ----
 
 # Get list of all parcel files (geojson AND attribute files) in the raw bucket
 parcel_files_df <- aws.s3::get_bucket_df(
@@ -440,6 +444,8 @@ pwalk(parcel_files_df, function(...) {
 })
 
 gc()
+
+# PARCEL FILLING AND GECODING ----
 
 # Ingest processed parcel files into one dataframe
 pre_geocoding_data <- open_dataset(
