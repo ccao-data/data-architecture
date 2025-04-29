@@ -1,19 +1,3 @@
-# table_pinval_assessment_card
-
-{% docs pinval_assessment_card %}
-Table that holds card level data for subject PINs for PINVAL.
-
-**Primary Key**: `run_id`, `pin`, `meta_card_num`
-{% enddocs %}
-
-# table_pinval_comp
-
-{% docs pinval_comp %}
-Table that holds card level data for comparables for PINVAL.
-
-**Primary Key**: `run_id`, `pin`, `meta_card_num`, `comp_num`
-{% enddocs %}
-
 # vw_card_res_char
 
 {% docs view_vw_card_res_char %}
