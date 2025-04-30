@@ -4,7 +4,7 @@ models:
     data_tests:
       - row_count:
           name: location_access_row_count_matches_spatial_parcel
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
@@ -23,7 +23,7 @@ models:
     data_tests:
       - row_count:
           name: location_census_row_count_matches_spatial_parcel
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
@@ -42,7 +42,7 @@ models:
     data_tests:
       - row_count:
           name: location_census_2020_row_count_matches_spatial_parcel
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
@@ -60,7 +60,7 @@ models:
     data_tests:
       - row_count:
           name: location_census_acs5_row_count_matches_spatial_parcel
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
@@ -79,7 +79,7 @@ models:
     data_tests:
       - row_count:
           name: location_chicago_row_count_matches_spatial_parcel
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
@@ -117,7 +117,7 @@ models:
     data_tests:
       - row_count:
           name: location_economy_row_count_matches_spatial_parcel
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
@@ -149,7 +149,7 @@ models:
     data_tests:
       - row_count:
           name: location_environment_row_count_matches_spatial_parcel
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
@@ -179,7 +179,7 @@ models:
     data_tests:
       - row_count:
           name: location_other_row_count_matches_spatial_parcel
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
@@ -198,7 +198,7 @@ models:
     data_tests:
       - row_count:
           name: location_political_row_count_matches_spatial_parcel
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
@@ -228,7 +228,7 @@ models:
     data_tests:
       - row_count:
           name: location_school_row_count_matches_spatial_school_district
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
@@ -253,7 +253,7 @@ models:
     data_tests:
       - row_count:
           name: location_tax_row_count_matches_tax_code
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
@@ -489,7 +489,7 @@ models:
             - year
       - row_count:
           name: location_vw_pin10_location_row_count_matches_spatial_parcel
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
@@ -508,7 +508,7 @@ models:
     data_tests:
       - row_count:
           name: location_vw_pin10_location_fill_row_count_matches_spatial_parcel
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('spatial', 'parcel') }}
