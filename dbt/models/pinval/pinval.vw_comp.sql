@@ -10,7 +10,7 @@ WITH runs_to_include AS (
 
 raw_comp AS (
     SELECT comp.*
-    FROM model.comp AS comp
+    FROM {{ source('model', 'comp') }} AS comp
     INNER JOIN runs_to_include AS run
         ON comp.run_id = run.run_id
 ),
