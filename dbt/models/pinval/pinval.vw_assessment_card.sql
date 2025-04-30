@@ -4,8 +4,6 @@ WITH runs_to_include AS (
         model_predictor_all_name,
         assessment_year
     FROM {{ source('model', 'metadata') }}
-    -- This will eventually grab all run_ids where
-    -- run_type == comps
     WHERE run_id = '2025-02-11-charming-eric'
 ),
 
@@ -22,12 +20,12 @@ school_data AS (
 final_model_run AS (
     SELECT
         year,
+        triad_code,
         SUBSTRING(run_id, 1, 10) AS final_model_run_date
     FROM {{ ref('model.final_model') }}
     WHERE type = 'res'
         AND is_final
 )
-
 
 SELECT
     ac.*,
@@ -49,3 +47,4 @@ LEFT JOIN school_data AS school
     AND ac.meta_year = school.year
 LEFT JOIN final_model_run AS final
     ON run.assessment_year = final.year
+WHERE ap.meta_triad_code = final.triad_code
