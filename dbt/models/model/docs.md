@@ -31,7 +31,13 @@ PIN-level predicted values, etc. Predicted values are aggregated from
 {% docs table_comp %}
 
 Table containing comparable sales along with similarity scores
-for each comparable sale.
+for each comparable sale extracted from the structure of the
+tree model.
+
+These comparable sales are experimental and not yet public.
+For details on our current approach to extracting comparable
+sales from the model, see [this
+vignette](https://ccao-data.github.io/lightsnip/articles/finding-comps.html).
 
 **Primary Key**: `pin`, `card`, `run_id`
 {% enddocs %}
