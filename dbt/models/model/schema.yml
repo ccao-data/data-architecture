@@ -59,6 +59,15 @@ sources:
 
       - name: comp
         description: '{{ doc("table_comp") }}'
+        tags:
+          - load_auto
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_comp_unique_pin_card_run_id
+              combination_of_columns:
+                - pin
+                - card
+                - run_id
 
       - name: parameter_final
         description: '{{ doc("table_parameter_final") }}'
