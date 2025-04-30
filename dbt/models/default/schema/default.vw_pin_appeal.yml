@@ -45,7 +45,8 @@ models:
     data_tests:
       - row_count:
           name: default_vw_pin_appeal_row_count
-          above: 8000000  # Arbitrary, since exact row count is too complex 
+          # The exact row count is too complex to compute, so approximate it
+          above: 8000000
       - unique_combination_of_columns:
           name: default_vw_pin_appeal_unique_by_14_digit_pin_year_caseno
           combination_of_columns:
