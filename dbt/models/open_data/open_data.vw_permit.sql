@@ -26,7 +26,10 @@ SELECT
         WHEN assessable = 'N' THEN 'Non-Assessable'
     END AS assessable,
     amount,
-    address_full AS address,
+    tax_municipality_name AS municipality,
+    township_name AS township,
+    prop_address_full AS property_address,
+    mail_address AS mailing_address,
     applicant_name,
     CASE
         WHEN job_code_primary = '1' THEN 'RESIDENTIAL PERMIT'

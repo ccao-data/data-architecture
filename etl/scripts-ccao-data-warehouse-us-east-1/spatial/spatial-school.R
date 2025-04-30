@@ -222,8 +222,10 @@ county_districts_df <- st_join(
   mutate(geometry = border) %>%
   select(-c(border, matches)) %>%
   distinct() %>%
-  bind_rows(county_districts_df %>%
-    filter(!(year %in% unique(census_districts_df$year)))) %>%
+  bind_rows(
+    county_districts_df %>%
+      filter(!(year %in% unique(census_districts_df$year)))
+  ) %>%
   select(geoid, everything())
 
 ##### CPS #####
@@ -271,11 +273,11 @@ process_cps_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
     # are what we're interested in. We need to be specific about which grades
     # and years we exclude or some schools in 2017/2018 that should be ingested
     # will not be.
-    filter(
-      !(str_detect(school_nm, "GAGE|BOGAN|PHILLIPS|CHICAGO VOCATIONAL") &
+    filter(!(
+      str_detect(school_nm, "GAGE|BOGAN|PHILLIPS|CHICAGO VOCATIONAL") &
         boundarygr != "9, 10, 11, 12" &
-        !(file_year %in% c("2017", "2018")))
-    ) %>%
+        !(file_year %in% c("2017", "2018"))
+    )) %>%
     mutate(school_nm = str_replace(school_nm, "H S", "HS")) %>%
     group_by(grade_cat, school_id, school_nm) %>%
     summarise() %>%
