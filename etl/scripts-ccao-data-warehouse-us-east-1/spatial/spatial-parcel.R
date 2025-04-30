@@ -491,14 +491,16 @@ all_addresses <- dbGetQuery(
   filter(year <= max(pre_geocoding_data$year, na.rm = TRUE))
 
 cook_county <- geoarrow::read_geoparquet_sf(
-  's3://ccao-data-warehouse-us-east-1/spatial/ccao/county/2019.parquet') %>%
+  "s3://ccao-data-warehouse-us-east-1/spatial/ccao/county/2019.parquet"
+) %>%
   st_transform(3435)
 
 missing_geographies <- pre_geocoding_data %>%
   full_join(
     all_addresses %>%
       distinct(pin10, year, .keep_all = TRUE),
-    by = c("pin10", "year")) %>%
+    by = c("pin10", "year")
+  ) %>%
   group_by(pin10, prop_address_full) %>%
   mutate(missing = is.na(x_3435) | is.na(y_3435)) %>%
   arrange(year) %>%
@@ -517,8 +519,10 @@ imputed <- missing_geographies %>%
 missing_geographies <- missing_geographies %>%
   filter(is.na(x_3435) & is.na(y_3435) & is.na(lon) & is.na(lat)) %>%
   distinct(pin10, year, .keep_all = TRUE) %>%
-  select(pin10, year, prop_address_full,
-         prop_address_city_name, prop_address_state)
+  select(
+    pin10, year, prop_address_full,
+    prop_address_city_name, prop_address_state
+  )
 
 # Split the missing coordinates into batches of 1000 rows for tidygeocoder
 batch_list <- split(
