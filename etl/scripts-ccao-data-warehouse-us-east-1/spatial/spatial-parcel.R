@@ -457,7 +457,8 @@ pre_geocoding_data <- open_dataset(
   filter(source == "raw") %>%
   mutate(year = as.character(year))
 
-# Get missing geographies and all matching pin address combinations
+# Get unique combinations of PIN10 and year. There is no reason why the lowest
+# value PIN is better, but we do it for a reproducable query.
 # We remove info from before 2000 since almost all lon/lat information
 # is missing
 all_addresses <- dbGetQuery(
@@ -484,71 +485,38 @@ all_addresses <- dbGetQuery(
     FROM filtered
     WHERE rn = 1
   "
-)
-
-
-all_addresses <- all_addresses %>%
-  mutate(year = as.character(year))
-
-cook_county <- dbGetQuery(
-  conn = con,
-  "SELECT * FROM spatial.county"
 ) %>%
-  mutate(geometry = st_as_sfc(geometry_3435, EWKB = TRUE)) %>%
-  st_as_sf(crs = 3435)
-
-
-# This will be larger than the parcel dataframe since it's on PIN level.
-# Parcels dataframe is on Pin10 level.
-all_addresses <- all_addresses %>%
   # We can have address data from current year, before parcel data
   # is available.
   filter(year <= max(pre_geocoding_data$year, na.rm = TRUE))
 
-missing_geographies <- anti_join(
-  all_addresses,
-  pre_geocoding_data,
-  by = c("pin10", "year")
-)
+cook_county <- geoarrow::read_geoparquet_sf('s3://ccao-data-warehouse-us-east-1/spatial/ccao/county/2019.parquet') %>%
+  st_transform(3435)
 
-# Grab all years of data for parcels which are missing in any year
-spatial_subset <- pre_geocoding_data %>%
-  filter(pin10 %in% missing_geographies$pin10) %>%
-  # Add property address to the subset to make sure PINs are consistent.
-  # This will expand the dataset since prop_addresses are not unique
-  # by PIN10.
-  left_join(
-    all_addresses %>% select(year, pin10, prop_address_full),
-    by = c("year", "pin10")
-  )
-
-rm(all_addresses)
-
-imputed <- bind_rows(spatial_subset, missing_geographies)
-
-# We impute geographies based on a matching address and pin10
-# This is forward-backward filled, meaning that if the information
-# is missing for 2015, it pulls 2016 then 2014, 2017, etc.
-imputed <- imputed %>%
+missing_geographies <- pre_geocoding_data %>%
+  full_join(
+    all_addresses %>%
+      distinct(pin10, year, .keep_all = TRUE),
+    by = c("pin10", "year")) %>%
   group_by(pin10, prop_address_full) %>%
   mutate(missing = is.na(x_3435) | is.na(y_3435)) %>%
   arrange(year) %>%
   fill(x_3435, y_3435, lon, lat, .direction = "updown") %>%
   ungroup() %>%
-  # Remove duplicate rows based on pin10 and year
-  distinct(pin10, year, .keep_all = TRUE) %>%
-  # Only keep rows where none of the four fields are missing
+  # Keep only values which in our input had no x-y coordinates
+  filter(missing)
+
+# Split the missing parcels into those which were encoded with inputed technique
+# and those which still need to be calculated with geocoding
+imputed <- missing_geographies %>%
   filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat)) %>%
-  # Keep observations which were originally missing
-  filter(missing) %>%
-  mutate(source = "imputed") %>%
-  select(year, pin10, x_3435, y_3435, lon, lat, source)
+  select(pin10, year, x_3435, y_3435, lon, lat) %>%
+  mutate(source = "imputed")
 
 missing_geographies <- missing_geographies %>%
-  # Remove rows that were handled in the imputed data frame.
-  anti_join(imputed, by = c("pin10" = "pin10", "year" = "year")) %>%
-  # Keep distinct pin but not pin10 since geocoding is on address level
-  distinct(pin, year, .keep_all = TRUE)
+  filter(is.na(x_3435) & is.na(y_3435) & is.na(lon) & is.na(lat)) %>%
+  distinct(pin10, year, .keep_all = TRUE) %>%
+  select(pin10, year, prop_address_full, prop_address_city_name, prop_address_state)
 
 # Split the missing coordinates into batches of 1000 rows for tidygeocoder
 batch_list <- split(
@@ -579,24 +547,15 @@ geocode_batch <- function(batch) {
 geocoded <- map(batch_list, geocode_batch) %>%
   do.call(rbind, .)
 
-# Addresses are on PIN level, so we create the PIN10 average
-# This is mostly for housing complexes.
-# We don't create geographies since these are shapes for other
-# parcels and we only have centroids for these.
 geocoded <- geocoded %>%
   # Check that properties are in Cook County Boundaries.
   # This arose due to one known error.
   st_intersection(cook_county) %>%
-  group_by(pin10, year) %>%
-  summarise(
-    lon = mean(long, na.rm = TRUE),
-    lat = mean(lat, na.rm = TRUE),
-    x_3435 = mean(x_3435, na.rm = TRUE),
-    y_3435 = mean(y_3435, na.rm = TRUE)
-  ) %>%
-  ungroup() %>%
-  mutate(source = "geocoded") %>%
-  st_drop_geometry()
+  # We don't create geographies since these are shapes for other
+  # parcels and we only have centroids for these.
+  st_drop_geometry() %>%
+  select(pin10, year, lat, long, x_3435, y_3435) %>%
+  mutate(source = "geocoded")
 
 post_geocoding_data <- bind_rows(pre_geocoding_data, imputed, geocoded)
 
