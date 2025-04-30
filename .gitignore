@@ -11,6 +11,7 @@
 .Ruserdata
 package*.json
 settings.json
+test.py
 
 # Directories
 *.egg-info/
