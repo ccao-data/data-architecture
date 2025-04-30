@@ -6,7 +6,7 @@ SELECT
     pin,
     class,
     township_code,
-    year,
+    CAST(year AS INT) AS year,
     mailed_bldg,
     mailed_land,
     mailed_tot,

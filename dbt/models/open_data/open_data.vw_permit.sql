@@ -6,13 +6,12 @@ SELECT
         pin, COALESCE(permit_number, ''), COALESCE(date_issued, '')
     ) AS row_id,
     pin,
-    year,
+    CAST(year AS INT) AS year,
     permit_number,
     local_permit_number,
     CAST(date_issued AS TIMESTAMP) AS date_issued,
     CAST(date_submitted AS TIMESTAMP) AS date_submitted,
     estimated_date_of_completion,
-    assessment_year,
     recheck_year,
     CASE
         WHEN status = 'C' THEN 'CLOSED'
@@ -27,7 +26,10 @@ SELECT
         WHEN assessable = 'N' THEN 'Non-Assessable'
     END AS assessable,
     amount,
-    address_full AS address,
+    tax_municipality_name AS municipality,
+    township_name AS township,
+    prop_address_full AS property_address,
+    mail_address AS mailing_address,
     applicant_name,
     CASE
         WHEN job_code_primary = '1' THEN 'RESIDENTIAL PERMIT'

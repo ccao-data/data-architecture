@@ -5,7 +5,7 @@
 SELECT
     CONCAT(pin, year) AS row_id,
     pin,
-    year,
+    CAST(year AS INT) AS year,
     township_name,
     township_code,
     owner_name,

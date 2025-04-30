@@ -87,5 +87,8 @@ walk(years, ~ get_geojson(tracts, .x, "tract", county = "031"))
 ##### ZCTA #####
 walk(
   c(2010, 2012:max_year),
-  ~ get_geojson(zctas, .x, "zcta", starts_with = c("60", "61", "62"), state = NULL)
+  ~ get_geojson(
+    zctas, .x, "zcta",
+    starts_with = c("60", "61", "62"), state = NULL
+  )
 )

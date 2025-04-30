@@ -38,19 +38,10 @@ SELECT
     permit.flag AS status,
     permit.user18 AS assessable,
     permit.amount,
-    -- When note2 is filled out and present, it represents the full
-    -- concatenated street address. When not present, we need to
-    -- reconstruct it from the detailed address fields
-    COALESCE(
-        -- Replace double commas that are present in the note2 field. We need
-        -- to get rid of two types of double commas: trailing double commas,
-        -- which need to be removed, and double commas inside an address
-        -- string, which should be replaced with a single comma
-        REPLACE(
-            REGEXP_REPLACE(permit.note2, ',,$'),
-            ',,',
-            ', '
-        ),
+    vpu.township_name,
+    NULLIF(ARRAY_JOIN(vpu.tax_municipality_name, ', '), '')
+        AS tax_municipality_name,
+    NULLIF(
         CONCAT_WS(
             ' ',
             CAST(address.address_street_number AS VARCHAR),
@@ -58,13 +49,23 @@ SELECT
             address.address_street_name,
             address.address_suffix_1,
             address.address_suffix_2
-        )
-    ) AS address_full,
-    address.address_street_dir,
-    address.address_street_number,
-    address.address_street_name,
-    address.address_suffix_1,
-    address.address_suffix_2,
+        ),
+        ''
+    ) AS prop_address_full,
+    address.address_street_dir AS prop_address_street_dir,
+    address.address_street_number AS prop_address_street_number,
+    address.address_street_name AS prop_address_street_name,
+    address.address_suffix_1 AS prop_address_suffix_1,
+    address.address_suffix_2 AS prop_address_suffix_2,
+    -- Replace double commas that are present in the note2 field. We need
+    -- to get rid of two types of double commas: trailing double commas,
+    -- which need to be removed, and double commas inside an address
+    -- string, which should be replaced with a single comma
+    REPLACE(
+        REGEXP_REPLACE(permit.note2, ',,$'),
+        ',,',
+        ', '
+    ) AS mail_address,
     permit.user21 AS applicant_name,
     permit.why AS job_code_primary,
     permit.user42 AS job_code_secondary,
@@ -80,3 +81,6 @@ FROM active_permits AS permit
 -- so we can use it as a basis for joining permits to themselves
 INNER JOIN permit_addresses AS address
     ON permit.iasw_id = address.iasw_id
+LEFT JOIN {{ ref('default.vw_pin_universe') }} AS vpu
+    ON permit.parid = vpu.pin
+    AND SUBSTR(permit.permdt, 1, 4) = vpu.year
