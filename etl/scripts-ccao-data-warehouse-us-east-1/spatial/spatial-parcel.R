@@ -457,18 +457,29 @@ pre_geocoding_data <- open_dataset(
 all_addresses <- dbGetQuery(
   conn = con,
   "
-    SELECT
-      year,
-      pin,
-      pin10,
-      prop_address_full,
-      prop_address_city_name,
-      prop_address_state,
-      prop_address_zipcode_1
-    FROM default.vw_pin_address
-    WHERE year >= '2000'
+    WITH filtered AS (
+      SELECT
+        year,
+        pin,
+        pin10,
+        prop_address_full,
+        prop_address_city_name,
+        prop_address_state,
+        prop_address_zipcode_1,
+        ROW_NUMBER() OVER (PARTITION BY pin10, year ORDER BY pin ASC) AS rn
+      FROM default.vw_pin_address
+      WHERE year >= '2000'
+        AND prop_address_full IS NOT NULL
+        AND prop_address_city_name IS NOT NULL
+        AND prop_address_state IS NOT NULL
+        AND prop_address_zipcode_1 IS NOT NULL
+    )
+    SELECT *
+    FROM filtered
+    WHERE rn = 1
   "
 )
+
 
 all_addresses <- all_addresses %>%
   mutate(year = as.character(year))
