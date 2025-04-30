@@ -4,6 +4,8 @@ WITH runs_to_include AS (
         model_predictor_all_name,
         assessment_year
     FROM {{ source('model', 'metadata') }}
+    -- This will eventually grab all run_ids where
+    -- run_type == comps
     WHERE run_id = '2025-02-11-charming-eric'
 ),
 
