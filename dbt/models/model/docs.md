@@ -26,6 +26,16 @@ PIN-level predicted values, etc. Predicted values are aggregated from
 **Primary Key**: `year`, `run_id`, `meta_pin`
 {% enddocs %}
 
+# comp
+
+{% docs table_comp %}
+
+Table containing comparable sales along with similarity scores
+for each comparable sale.
+
+**Primary Key**: `pin`, `card`, `run_id`
+{% enddocs %}
+
 # feature_importance
 
 {% docs table_feature_importance %}

@@ -57,6 +57,9 @@ sources:
                 - year
                 - run_id
 
+      - name: comp
+        description: '{{ doc("table_model_comp") }}'
+
       - name: parameter_final
         description: '{{ doc("table_parameter_final") }}'
         tags:
