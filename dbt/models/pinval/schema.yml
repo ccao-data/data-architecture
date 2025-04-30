@@ -19,6 +19,3 @@ models:
             - run_id
             - meta_pin
             - meta_card_num
-          allowed_duplicates: 0
-          config:
-            error_if: ">0"
