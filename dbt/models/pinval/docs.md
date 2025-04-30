@@ -1,6 +1,6 @@
 # vw_assessment_card
 
-{% docs view_vw_pinval_assessment_card %}
+{% docs view_vw_assessment_card %}
 
 Table that holds card level data for subject PINs for PINVAL.
 
