@@ -30,11 +30,4 @@ selectors:
         - exclude:
           - method: tag
             value: data_test_iasworld
-  - name: select_data_test_load_manual
-    description: Selector for running data tests tagged with load_manual
-    definition:
-      intersection:
-        - method: resource_type
-          value: test
-        - method: tag
-          value: load_manual
+            indirect_selection: cautious

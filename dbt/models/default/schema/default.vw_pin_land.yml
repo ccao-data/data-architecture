@@ -7,9 +7,9 @@ models:
     data_tests:
       - row_count:
           name: default_vw_pin_land_matches_iasworld_land
-          above: >
+          equals: >
             (
-              SELECT COUNT(DISTINCT pin, year)
+              SELECT COUNT(DISTINCT(parid, taxyr))
               FROM {{ source('iasworld', 'land') }}
               WHERE cur = 'Y'
                 AND deactivat IS NULL

@@ -245,14 +245,14 @@ models:
     data_tests:
       - row_count:
           name: default_vw_pin_universe_row_count
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('iasworld', 'pardat') }}
               WHERE cur = 'Y'
                 AND deactivat IS NULL
                 AND LENGTH(parid) = 14
-                AND REGEXP_COUNT(par.parid, '[a-zA-Z]') = 0
+                AND REGEXP_COUNT(parid, '[a-zA-Z]') = 0
                 AND class NOT IN ('999')
             )
           meta:

@@ -91,12 +91,15 @@ models:
     data_tests:
       - row_count:
           name: default_vw_pin_history_matches_iasworld_pardat
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
-              FROM {{ source('iasworld', 'pardat') }}
-              WHERE cur = 'Y'
-                AND deactivat IS NULL
+              FROM {{ ref('default.vw_pin_value') }} AS vwpv
+              INNER JOIN {{ source('iasworld', 'pardat') }} AS par
+                ON vwpv.pin = par.parid
+                AND vwpv.year = par.taxyr
+                AND par.cur = 'Y'
+                AND par.deactivat IS NULL
             )
           meta:
             description: vw_pin_history row count should equal iasworld_pardat

@@ -76,7 +76,7 @@ models:
     data_tests:
       - row_count:
           name: default_vw_pin_status_row_count_matches_iasworld_pardat
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('iasworld', 'pardat') }}

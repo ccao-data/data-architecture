@@ -69,7 +69,7 @@ models:
     data_tests:
       - row_count:
           name: default_vw_pin_permit_row_count_matches_iasworld_permit
-          above: >
+          equals: >
             (
               SELECT COUNT(*)
               FROM {{ source('iasworld', 'permit') }}

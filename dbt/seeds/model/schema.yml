@@ -1,8 +1,6 @@
 seeds:
   - name: model.final_model_raw
     description: '{{ doc("seed_final_model_raw") }}'
-    tags:
-      - load_manual
     data_tests:
       - accepted_values:
           name: model_final_model_triad_name_accepted_values
