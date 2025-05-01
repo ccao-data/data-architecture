@@ -116,12 +116,15 @@ def parse_years(years=None):
     if years == "":
         years = None
     if years is not None:
-        # Only allow anticipated values
-        years = [
-            re.sub("[^0-9]", "", year)
-            for year in str(years).split(",")
-            if re.sub("[^0-9]", "", year)
-        ]
+        if years == "all":
+            years = ["all"]
+        else:
+            # Only allow anticipated values
+            years = [
+                re.sub("[^0-9]", "", year)
+                for year in str(years).split(",")
+                if re.sub("[^0-9]", "", year)
+            ]
 
     return years
 
