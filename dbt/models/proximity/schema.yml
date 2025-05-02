@@ -378,6 +378,15 @@ models:
   - name: proximity.dist_pin_to_pin
     description: '{{ doc("view_dist_pin_to_pin") }}'
     data_tests:
+      - row_count:
+        name: proximity_dist_pin_to_pin_matches_spatial_parcel
+        equals: >
+          (
+            SELECT COUNT(*)
+            FROM {{ source('spatial', 'parcel') }}
+          )
+        meta:
+          description: dist_pin_to_pin should match spatial_parcel
       - unique_combination_of_columns:
           name: proximity_dist_pin_to_pin_unique_by_10_digit_pin_and_year
           combination_of_columns:
