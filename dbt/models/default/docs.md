@@ -157,12 +157,12 @@ Sourced from `iasworld.sales`, which is sourced from
   to `iasworld.sales` (which is only parcel-level) without creating duplicates
 - Row uniqueness is complicated, and depends on the type of data you are
   interested in:
-    - If you exclude sales of multiple PINs ("multisales") by filtering where
+  - If you exclude sales of multiple PINs ("multisales") by filtering where
       `not is_multisale`, sales are unique by `doc_no`
-    - If you include multisales but filter where
+  - If you include multisales but filter where
       `not sale_filter_same_sale_within_365`, sales are unique by `pin`,
       `doc_no`, and `sale_price`
-        - The reason `sale_price` is necessary here is to handle some known
+    - The reason `sale_price` is necessary here is to handle some known
           duplicates in the source data. To remove these duplicates and make
           multisales unique by `pin` and `doc_no`, group your query by `pin`
           and `doc_no` and select either the maximum or minimum sale price.
@@ -236,9 +236,9 @@ is the view you're looking for.
 - `spatial.parcel` typically lags behind `iasworld.pardat` by a year, so data
   for current year can be relatively sparse or missing. Parcel shapefiles
   typically become available to populate this view at the end of each year.
-- There are some parcels in `iasworld.pardat` that have *never* been present in
+- There are some parcels in `iasworld.pardat` that have _never_ been present in
   `spatial.parcel`. These parcels are missing spatial data since they cannot be
-  spatially joined *nor* filled forward. The number of discrepancies seems to
+  spatially joined _nor_ filled forward. The number of discrepancies seems to
   vary randomly by year.
 - `spatial.township` is not yearly.
 
