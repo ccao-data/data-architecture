@@ -65,6 +65,17 @@ the correct model values for reporting views.
 **Primary Key**: `year`, `run_id`, `township_code_coverage`
 {% enddocs %}
 
+# input_data
+
+{% docs input_data %}
+
+A table containing the input data from the final model runs. This is uploaded
+manually at the end of modeling via the [`S3 model-training_data.R`](https://github.com/ccao-data/data-architecture/tree/master/etl/scripts-ccao-data-warehouse-us-east-1/model/model-training_data.R)
+script.
+
+**Primary Key**: `run_id`
+{% enddocs %}
+
 # metadata
 
 {% docs table_metadata %}
