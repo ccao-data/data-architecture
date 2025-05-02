@@ -16,8 +16,6 @@ selectors:
         - exclude:
           - method: tag
             value: data_test_iasworld_exclude_from_workbook
-          - method: tag
-            value: load_manual
           - method: resource_type
             value: seed
 
