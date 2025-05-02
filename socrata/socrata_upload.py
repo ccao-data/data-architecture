@@ -116,12 +116,15 @@ def parse_years(years=None):
     if years == "":
         years = None
     if years is not None:
-        # Only allow anticipated values
-        years = [
-            re.sub("[^0-9]", "", year)
-            for year in str(years).split(",")
-            if re.sub("[^0-9]", "", year)
-        ]
+        if years == "all":
+            years = ["all"]
+        else:
+            # Only allow anticipated values
+            years = [
+                re.sub("[^0-9]", "", year)
+                for year in str(years).split(",")
+                if re.sub("[^0-9]", "", year)
+            ]
 
     return years
 
@@ -155,7 +158,7 @@ def parse_years_list(athena_asset, years=None):
             .as_pandas()["year"]
             .to_list()
         )
-        years_list.append(str(datetime.now().year))
+        years_list.append(datetime.now().year)
         years_list = [min(years_list)]
 
     else:
@@ -240,7 +243,7 @@ def build_query_dict(athena_asset, asset_id, years=None):
         query_dict = {None: query}
 
     else:
-        query_dict = {year: f"{query} WHERE year = '{year}'" for year in years}
+        query_dict = {year: f"{query} WHERE year = {year}" for year in years}
 
     return query_dict
 
@@ -268,7 +271,7 @@ def upload(asset_id, sql_query, overwrite):
             print_message = print_message + " all years for asset " + asset_id
         else:
             print_message = (
-                print_message + " year: " + year + " for asset " + asset_id
+                f"{print_message} year: {year} for asset {asset_id}"
             )
 
         input_data = cursor.execute(query).as_pandas()
