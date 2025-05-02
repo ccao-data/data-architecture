@@ -69,6 +69,16 @@ sources:
                 - card
                 - run_id
 
+      - name: input_data
+        description: '{{ doc("table_input_data") }}'
+        tags:
+          - load_auto
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_input_data_unique_run_id
+              combination_of_columns:
+                - run_id
+              
       - name: parameter_final
         description: '{{ doc("table_parameter_final") }}'
         tags:
