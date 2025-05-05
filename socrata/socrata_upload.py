@@ -54,7 +54,7 @@ def parse_assets(assets=None):
         "--quiet",
         "list",
         "--select",
-        "open_data.*",
+        "z_ci_fix_open_data_row_deletion_open_data.*",
         "--resource-types",
         "exposure",
         "--exclude",
