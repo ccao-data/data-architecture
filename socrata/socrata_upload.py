@@ -54,7 +54,7 @@ def parse_assets(assets=None):
         "--quiet",
         "list",
         "--select",
-        "z_ci_fix_open_data_row_deletion_open_data.*",
+        "open_data.*",
         "--resource-types",
         "exposure",
         "--exclude",
@@ -98,6 +98,9 @@ def parse_assets(assets=None):
         assets = [asset.strip() for asset in str(assets).split(",")]
 
         all_assets = all_assets[all_assets["label"].isin(assets)]
+        all_assets["athena_asset"] = all_assets["athena_asset"].str.replace(
+            "open_data", "z_ci_fix_open_data_row_deletion_open_data"
+        )
 
     print("Assets that will be updated:")
     print(all_assets["label"])
