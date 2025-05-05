@@ -1,6 +1,6 @@
 models:
-  - name: pinval.vw_pinval_comp
-    description: '{{ doc("vw_pinval_comp") }}'
+  - name: pinval.vw_comp
+    description: '{{ doc("view_pinval_vw_comp") }}'
     data_tests:
       - unique_combination_of_columns:
           name: pinval_comp_unique_run_id_pin_card_comp_num
@@ -10,8 +10,8 @@ models:
             - card
             - comp_num
 
-  - name: pinval.vw_pinval_assessment_card
-    description: '{{ doc("vw_pinval_assessment_card") }}'
+  - name: pinval.vw_assessment_card
+    description: '{{ doc("view_pinval_vw_assessment_card") }}'
     data_tests:
       - unique_combination_of_columns:
           name: pinval_assessment_card_unique_run_id_pin_card
