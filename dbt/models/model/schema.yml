@@ -198,6 +198,8 @@ sources:
                 - run_id
                 - meta_pin
                 - meta_card_num
+              config:
+                error_if: ">2"
 
 models:
   - name: model.final_model
