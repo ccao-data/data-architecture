@@ -68,7 +68,7 @@ sources:
                 - pin
                 - card
                 - run_id
-              
+
       - name: parameter_final
         description: '{{ doc("table_parameter_final") }}'
         tags:
