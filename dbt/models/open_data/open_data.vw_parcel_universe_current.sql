@@ -4,7 +4,8 @@
 
 WITH deleted AS (
     SELECT
-        CONCAT(parid, taxyr) AS row_id,
+        parid,
+        taxyr,
         TRUE AS ":deleted" -- noqa
     FROM {{ source('iasworld', 'pardat') }}
     WHERE
@@ -14,6 +15,7 @@ WITH deleted AS (
 
 feeder AS (
     SELECT
+        CONCAT(pin, year) AS row_id,
         pin,
         pin10,
         CAST(year AS INT) AS year,
@@ -139,11 +141,11 @@ feeder AS (
 )
 
 SELECT
-    COALESCE(CONCAT(feeder.pin, CAST(feeder.year AS VARCHAR)), deleted.row_id)
+    COALESCE(feeder.row_id, CONCAT(deleted.parid, deleted.taxyr))
         AS row_id,
     feeder.*,
     deleted.":deleted" -- noqa
 FROM feeder
 FULL OUTER JOIN deleted
     ON
-    CONCAT(feeder.pin, CAST(feeder.year AS VARCHAR)) = deleted.row_id
+    feeder.row_id = CONCAT(deleted.parid, deleted.taxyr)
