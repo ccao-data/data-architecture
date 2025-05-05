@@ -209,7 +209,7 @@ def build_query_dict(athena_asset, asset_id, years=None):
         .split(",")
     )
     # row id won't show up here since it's hidden on the open data portal assets
-    asset_columns += ["row_id", ":deleted"]
+    asset_columns += ["row_id"]
     asset_columns.sort()
 
     # If there are columns on Socrata that are not in Athena, abort upload and
@@ -239,7 +239,7 @@ def build_query_dict(athena_asset, asset_id, years=None):
     print(f"The following columns will be updated for {athena_asset}:")
     print(columns)
 
-    query = f"SELECT {', '.join(columns['column'])} FROM {athena_asset}"
+    query = f"""SELECT {", ".join(columns["column"])}, ":deleted" FROM {athena_asset}"""
 
     # Build a dictionary with queries for each year requested, or no years
     if not years:
