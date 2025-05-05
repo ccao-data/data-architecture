@@ -14,7 +14,6 @@ WITH deleted AS (
 
 feeder AS (
     SELECT
-        CONCAT(pin, year) AS row_id,
         pin,
         pin10,
         CAST(year AS INT) AS year,
@@ -140,9 +139,10 @@ feeder AS (
 )
 
 SELECT
+    COALESCE(CONCAT(feeder.pin, feeder.year), deleted.row_id) AS row_id,
     feeder.*,
-    deleted.":deleted" -- noqa
+    deleted."deleted" -- noqa
 FROM feeder
 FULL OUTER JOIN deleted
     ON
-    feeder.row_id = deleted.row_id
+    CONCAT(feeder.pin, feeder.year) = deleted.row_id
