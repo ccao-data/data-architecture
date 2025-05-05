@@ -137,7 +137,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: pabr-t5kh
+      asset_id: y7q2-6pvn
       primary_key:
         - pin
         - year
