@@ -7,7 +7,8 @@ library(noctua)
 library(purrr)
 library(stringr)
 
-# Once original data has been uploaded, we should do it for the current year
+# Once original data has been uploaded,
+# we should only need to upload the current year data.
 run_year <- format(Sys.Date(), "%Y")
 
 # Connect to Athena
