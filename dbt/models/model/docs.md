@@ -65,17 +65,6 @@ the correct model values for reporting views.
 **Primary Key**: `year`, `run_id`, `township_code_coverage`
 {% enddocs %}
 
-# input_data
-
-{% docs table_input_data %}
-
-A table containing the input data from the final model runs. This is uploaded
-manually at the end of modeling via the [`S3 model-training_data.R`](https://github.com/ccao-data/data-architecture/tree/master/etl/scripts-ccao-data-warehouse-us-east-1/model/model-training_data.R)
-script.
-
-**Primary Key**: `run_id`
-{% enddocs %}
-
 # metadata
 
 {% docs table_metadata %}
@@ -182,6 +171,17 @@ of sales_.
 Wall time of each stage (train, assess, etc.) for each model run (`run_id`).
 
 **Primary Key**: `year`, `run_id`
+{% enddocs %}
+
+# training_data
+
+{% docs table_training_data %}
+
+A table containing the training data from the final model runs. This is uploaded
+manually at the end of modeling via the [`S3 model-training_data.R`](https://github.com/ccao-data/data-architecture/tree/master/etl/scripts-ccao-data-warehouse-us-east-1/model/model-training_data.R)
+script.
+
+**Primary Key**: `run_id`
 {% enddocs %}
 
 # vw_card_res_input
