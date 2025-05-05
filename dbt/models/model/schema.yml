@@ -193,9 +193,11 @@ sources:
           - load_auto
         data_tests:
           - unique_combination_of_columns:
-              name: model_training_data_unique_run_id
+              name: model_training_data_unique_run_id_pin_card_num
               combination_of_columns:
                 - run_id
+                - meta_pin
+                - meta_card_num
 
 models:
   - name: model.final_model
