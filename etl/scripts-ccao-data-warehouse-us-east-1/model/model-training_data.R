@@ -19,7 +19,7 @@ output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "model", "training_data")
 # Query final model metadata
 metadata <- dbGetQuery(
   conn,
-  glue(
+  glue_sql(
     "
     SELECT
       run_id,
@@ -28,7 +28,9 @@ metadata <- dbGetQuery(
       model_predictor_all_name
     FROM model.metadata
     WHERE run_type = 'final'
-    "
+      AND year IN ({run_year*})
+    ",
+    .con = conn
   )
 )
 
