@@ -3,13 +3,7 @@
 -- Some columns from the feeder view may not be present in this view.
 
 WITH deleted AS (
-    SELECT
-        CONCAT(parid, taxyr) AS row_id,
-        TRUE AS ":deleted" -- noqa
-    FROM {{ source('iasworld', 'pardat') }}
-    WHERE
-        deactivat IS NOT NULL
-        OR class = '999'
+    {{ open_data_rows_to_delete(source('iasworld', 'pardat'), ['parid', 'taxyr']) }}
 ),
 
 feeder AS (
