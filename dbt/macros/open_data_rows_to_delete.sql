@@ -9,6 +9,7 @@ which includes card in row_id rather than just pin and year.
         {%- if card == true -%}
             select
                 pdat.parid || cast(ddat.card as varchar) || pdat.taxyr as row_id,
+                cast(pardat.taxyr as int) as year,
                 true as ":deleted"  -- noqa
             from {{ source("iasworld", "pardat") }} as pdat
             inner join
@@ -17,7 +18,10 @@ which includes card in row_id rather than just pin and year.
                 and pdat.taxyr = ddat.taxyr
             where pdat.deactivat is not null or pdat.class = '999'
         {%- else -%}
-            select concat(parid, taxyr) as row_id, true as ":deleted"  -- noqa
+            select
+                concat(parid, taxyr) as row_id,
+                cast(taxyr as int) as year,
+                true as ":deleted"  -- noqa
             from {{ source("iasworld", "pardat") }}
             where deactivat is not null or class = '999'
         {%- endif -%}
@@ -29,15 +33,17 @@ which includes card in row_id rather than just pin and year.
             {%- if card == true -%}
                 feeder.pin
                 || cast(feeder.card as varchar)
-                || cast(feeder.year as varchar)
-            {%- else -%}concat(feeder.pin, cast(feeder.year as varchar))
+                || cast(feeder.feeder_year as varchar)
+            {%- else -%}concat(feeder.pin, cast(feeder.feeder_year as varchar))
             {%- endif -%},
             deleted.row_id
         ) as row_id,
         feeder.*,
+        cast(coalesce(feeder.feeder_year, deleted.year) as int) as year,
         deleted.":deleted"  -- noqa
     from feeder
     full outer join
-        deleted on concat(feeder.pin, cast(feeder.year as varchar)) = deleted.row_id
+        deleted
+        on concat(feeder.pin, cast(feeder.feeder_year as varchar)) = deleted.row_id
 
 {% endmacro %}
