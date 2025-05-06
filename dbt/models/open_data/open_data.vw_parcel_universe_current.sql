@@ -4,6 +4,7 @@
 
 WITH feeder AS (
     SELECT
+        CONCAT(pin, year) AS row_id,
         pin,
         pin10,
         CAST(year AS INT) AS year,

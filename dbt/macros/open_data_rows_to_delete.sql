@@ -1,5 +1,5 @@
 -- Macro that aggregates CDUs to PIN-level. Strips out duplicate CDUs.
-{% macro open_data_rows_to_delete(feeder) %}
+{% macro open_data_rows_to_delete(feeder, card=false) %}
     deleted as (
         select concat(parid, taxyr) as row_id, true as ":deleted"  -- noqa
         from {{ source("iasworld", "pardat") }}
@@ -8,7 +8,13 @@
 
     select
         coalesce(
-            concat(feeder.pin, cast(feeder.year as varchar)), deleted.row_id
+            {%- if card == true -%}
+                feeder.pin
+                || cast(feeder.card as varchar)
+                || cast(feeder.year as varchar)
+            {%- else -%}concat(feeder.pin, cast(feeder.year as varchar))
+            {%- endif -%},
+            deleted.row_id
         ) as row_id,
         feeder.*,
         deleted.":deleted"  -- noqa
