@@ -2,11 +2,7 @@
 -- Universe (Current Year)" open data asset.
 -- Some columns from the feeder view may not be present in this view.
 
-WITH deleted AS (
-    {{ open_data_rows_to_delete(source('iasworld', 'pardat'), ['parid', 'taxyr']) }}
-),
-
-feeder AS (
+WITH feeder AS (
     SELECT
         pin,
         pin10,
@@ -130,14 +126,6 @@ feeder AS (
         misc_subdivision_data_year
     FROM {{ ref('default.vw_pin_universe') }}
     WHERE year = (SELECT MAX(year) FROM {{ ref('default.vw_pin_universe') }})
-)
+),
 
-SELECT
-    COALESCE(CONCAT(feeder.pin, CAST(feeder.year AS VARCHAR)), deleted.row_id)
-        AS row_id,
-    feeder.*,
-    deleted.":deleted" -- noqa
-FROM feeder
-FULL OUTER JOIN deleted
-    ON
-    CONCAT(feeder.pin, CAST(feeder.year AS VARCHAR)) = deleted.row_id
+{{ open_data_rows_to_delete(feeder) }}
