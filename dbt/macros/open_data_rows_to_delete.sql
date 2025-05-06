@@ -1,9 +1,22 @@
 -- Macro that aggregates CDUs to PIN-level. Strips out duplicate CDUs.
 {% macro open_data_rows_to_delete(feeder, card=false) %}
     deleted as (
-        select concat(parid, taxyr) as row_id, true as ":deleted"  -- noqa
-        from {{ source("iasworld", "pardat") }}
-        where deactivat is not null or class = '999'
+        {%- if card == true -%}
+            select
+                pdat.parid || cast(ddat.card as varchar) || pdat.taxyr as row_id,
+                true as ":deleted"  -- noqa
+            from {{ source("iasworld", "pardat") }} as pdat
+            inner join
+                {{ source("iasworld", "dweldat") }} as ddat
+                on pdat.parid = ddat.parid
+                and pdat.taxyr = ddat.taxyr
+            where pdat.deactivat is not null or pdat.class = '999'
+        {%- else -%}
+            select concat(parid, taxyr) as row_id, true as ":deleted"  -- noqa
+            from {{ source("iasworld", "pardat") }}
+            where deactivat is not null or class = '999'
+        {%- endif -%}
+
     )
 
     select
