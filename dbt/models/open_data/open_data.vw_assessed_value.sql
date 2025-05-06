@@ -5,7 +5,7 @@
 WITH feeder AS (
     SELECT
         pin,
-        CAST(year AS INT) AS year,
+        CAST(year AS INT) AS feeder_year,
         class,
         township_code,
         township_name,

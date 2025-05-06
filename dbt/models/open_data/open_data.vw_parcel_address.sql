@@ -6,7 +6,7 @@ WITH feeder AS (
     SELECT
         pin,
         pin10,
-        CAST(year AS INT) AS year,
+        CAST(year AS INT) AS feeder_year,
         prop_address_full,
         prop_address_city_name,
         prop_address_state,
