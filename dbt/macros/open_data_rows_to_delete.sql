@@ -9,7 +9,7 @@ which includes card in row_id rather than just pin and year.
         {%- if card == true -%}
             select
                 pdat.parid || cast(ddat.card as varchar) || pdat.taxyr as row_id,
-                cast(pardat.taxyr as int) as year,
+                cast(pdat.taxyr as int) as year,
                 true as ":deleted"  -- noqa
             from {{ source("iasworld", "pardat") }} as pdat
             inner join
