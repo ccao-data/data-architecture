@@ -248,7 +248,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: x54s-btds
+      asset_id: m8yg-pxqr
       primary_key:
         - pin
         - card
