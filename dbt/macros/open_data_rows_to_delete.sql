@@ -1,4 +1,9 @@
--- Macro that aggregates CDUs to PIN-level. Strips out duplicate CDUs.
+/*
+Macro that removes deactivated and class 999 rows from the open data views. The
+only real complication here is that feeder views can have different columns that
+define row_id. Currently, the only case we are accomodating is res sf/mf data,
+which includes card in row_id rather than just pin and year.
+*/
 {% macro open_data_rows_to_delete(feeder, card=false) %}
     deleted as (
         {%- if card == true -%}
