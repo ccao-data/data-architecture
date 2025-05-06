@@ -42,7 +42,7 @@ school_data AS (
     WHERE year > '2014'
 ),
 
-, sale_years AS (
+sale_years AS (
     SELECT
         pin,
         run_id,
