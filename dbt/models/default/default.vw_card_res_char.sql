@@ -149,3 +149,4 @@ LEFT JOIN townships
     AND dwel.taxyr = townships.taxyr
 WHERE dwel.cur = 'Y'
     AND dwel.deactivat IS NULL
+    AND pardat.class NOT IN ('999')
