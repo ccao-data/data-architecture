@@ -137,7 +137,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: y7q2-6pvn
+      asset_id: pabr-t5kh
       primary_key:
         - pin
         - year
@@ -248,7 +248,7 @@ exposures:
       name: Data Department
     meta:
       test_row_count: true
-      asset_id: m8yg-pxqr
+      asset_id: x54s-btds
       primary_key:
         - pin
         - card
