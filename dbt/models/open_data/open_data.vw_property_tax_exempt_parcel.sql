@@ -2,20 +2,17 @@
 -- open data asset.
 -- Some columns from the feeder view may not be present in this view.
 
-WITH feeder AS (
-    SELECT
-        pin,
-        CAST(year AS INT) AS feeder_year,
-        township_name,
-        township_code,
-        owner_name,
-        owner_num,
-        class,
-        property_address,
-        property_city,
-        lon,
-        lat
-    FROM {{ ref('default.vw_pin_exempt') }}
-),
-
-{{ open_data_rows_to_delete(feeder) }}
+SELECT
+    feeder.pin,
+    feeder.township_name,
+    feeder.township_code,
+    feeder.owner_name,
+    feeder.owner_num,
+    feeder.class,
+    feeder.property_address,
+    feeder.property_city,
+    feeder.lon,
+    feeder.lat,
+    {{ open_data_columns(card=false) }}
+FROM {{ ref('default.vw_pin_exempt') }} AS feeder
+{{ open_data_rows_to_delete(card=false) }}

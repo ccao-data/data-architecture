@@ -2,21 +2,18 @@
 -- asset.
 -- Some columns from the feeder view may not be present in this view.
 
-WITH feeder AS (
-    SELECT
-        pin,
-        pin10,
-        CAST(year AS INT) AS feeder_year,
-        prop_address_full,
-        prop_address_city_name,
-        prop_address_state,
-        prop_address_zipcode_1,
-        mail_address_name,
-        mail_address_full,
-        mail_address_city_name,
-        mail_address_state,
-        mail_address_zipcode_1
-    FROM {{ ref('default.vw_pin_address') }}
-),
-
-{{ open_data_rows_to_delete(feeder) }}
+SELECT
+    feeder.pin,
+    feeder.pin10,
+    feeder.prop_address_full,
+    feeder.prop_address_city_name,
+    feeder.prop_address_state,
+    feeder.prop_address_zipcode_1,
+    feeder.mail_address_name,
+    feeder.mail_address_full,
+    feeder.mail_address_city_name,
+    feeder.mail_address_state,
+    feeder.mail_address_zipcode_1,
+    {{ open_data_columns(card=false) }}
+FROM {{ ref('default.vw_pin_address') }} AS feeder
+{{ open_data_rows_to_delete(card=false) }}
