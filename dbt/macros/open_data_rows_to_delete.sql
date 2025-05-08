@@ -1,6 +1,6 @@
 /*
-Macro that adds deactivated and class 999 rows to the open data views so that a
-":deleted" flag associated with their row_id can be sent to the open data
+Macro that adds deactivated and/or class 999 rows to the open data views so that
+a ":deleted" flag associated with their row_id can be sent to the open data
 portal.
 
 The only real complication here is that feeder views can have different columns
