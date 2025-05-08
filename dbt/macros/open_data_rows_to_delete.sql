@@ -7,7 +7,9 @@ The only real complication here is that feeder views can have different columns
 that define row_id. Currently, the only case we are accomodating is res sf/mf
 data, which includes card in row_id rather than just pin and year.
 */
-{%- macro open_data_rows_to_delete(card=false, allow_999=false, model_class=none) -%}
+{%- macro open_data_rows_to_delete(
+    card=false, allow_999=false, model_class=none, own=false
+) -%}
     full outer join
         (
             {% if card == true -%}
@@ -27,13 +29,24 @@ data, which includes card in row_id rather than just pin and year.
                     {%- endif %}
                     {%- if allow_999 == false %} or pdat.class = '999' {%- endif %}
             {%- else -%}
-                select parid || taxyr as row_id, taxyr as year, true as ":deleted"
-                from {{ source("iasworld", "pardat") }}
+                select
+                    pdat.parid || pdat.taxyr as row_id,
+                    pdat.taxyr as year,
+                    true as ":deleted"
+                from {{ source("iasworld", "pardat") }} as pdat
+                {%- if own == true %}
+                    left join
+                        {{ source("iasworld", "owndat") }} as odat
+                        on pdat.parid = odat.parid
+                        and pdat.taxyr = odat.taxyr
+                {%- endif %}
                 where
-                    deactivat is not null
-                    {%- if model_class == "condo" %} or class not in ('299', '399')
+                    pdat.deactivat is not null
+                    {%- if own == true %} or odat.ownnum is null
                     {%- endif %}
-                    {%- if allow_999 == false %} or class = '999'
+                    {%- if model_class == "condo" %} or pdat.class not in ('299', '399')
+                    {%- endif %}
+                    {%- if allow_999 == false %} or pdat.class = '999'
                     {%- endif -%}
 
             {%- endif %}
