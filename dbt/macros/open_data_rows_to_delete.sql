@@ -1,8 +1,11 @@
 /*
-Macro that removes deactivated and class 999 rows from the open data views. The
-only real complication here is that feeder views can have different columns that
-define row_id. Currently, the only case we are accomodating is res sf/mf data,
-which includes card in row_id rather than just pin and year.
+Macro that adds deactivated and class 999 rows to the open data views so that a
+":deleted" flag associated with their row_id can be sent to the open data
+portal.
+
+The only real complication here is that feeder views can have different columns
+that define row_id. Currently, the only case we are accomodating is res sf/mf
+data, which includes card in row_id rather than just pin and year.
 */
 {%- macro open_data_rows_to_delete(card=false) -%}
     full outer join
@@ -28,6 +31,6 @@ which includes card in row_id rather than just pin and year.
         {% if card == true -%}
             on feeder.pin || cast(feeder.card as varchar) || feeder.year
             = deleted_rows.row_id
-        {%- else -%} on concat(feeder.pin, feeder.year) = deleted_rows.row_id
+        {%- else -%} on feeder.pin || feeder.year = deleted_rows.row_id
         {%- endif -%}
 {%- endmacro -%}
