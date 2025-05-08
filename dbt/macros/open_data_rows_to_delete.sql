@@ -1,14 +1,18 @@
 /*
-Macro that adds deactivated and/or class 999/non-modeling class rows to the open
-data views so that a ":deleted" flag associated with their row_id can be sent to
-the open data portal.
+Macro that can selectively add:
+- deactivated
+- class 999
+- non-condo class
+- non-property tax exempt
+rows to the open data views so that a ":deleted" flag associated with their
+row_id can be sent to the open data portal.
 
 The only real complication here is that feeder views can have different columns
 that define row_id. Currently, the only case we are accomodating is res sf/mf
 data, which includes card in row_id rather than just pin and year.
 */
 {%- macro open_data_rows_to_delete(
-    card=false, allow_999=false, model_class=none, own=false
+    card=false, allow_999=false, condo=false, own=false
 ) -%}
     full outer join
         (
@@ -42,7 +46,7 @@ data, which includes card in row_id rather than just pin and year.
                     pdat.deactivat is not null
                     {%- if own == true %} or odat.ownnum is null
                     {%- endif %}
-                    {%- if model_class == "condo" %} or pdat.class not in ('299', '399')
+                    {%- if condo == true %} or pdat.class not in ('299', '399')
                     {%- endif %}
                     {%- if allow_999 == false %} or pdat.class = '999'
                     {%- endif -%}
