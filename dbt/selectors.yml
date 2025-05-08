@@ -16,6 +16,8 @@ selectors:
         - exclude:
           - method: tag
             value: data_test_iasworld_exclude_from_workbook
+          - method: resource_type
+            value: seed
 
   - name: select_data_test_non_iasworld
     description: Selector for running non-iasWorld data tests and unit tests
@@ -26,3 +28,4 @@ selectors:
         - exclude:
           - method: tag
             value: data_test_iasworld
+            indirect_selection: cautious

@@ -10,9 +10,7 @@ SELECT
     permit_number,
     local_permit_number,
     CAST(date_issued AS TIMESTAMP) AS date_issued,
-    CAST(date_submitted AS TIMESTAMP) AS date_submitted,
     estimated_date_of_completion,
-    recheck_year,
     CASE
         WHEN status = 'C' THEN 'CLOSED'
         WHEN status = 'L' THEN 'LEGACY'

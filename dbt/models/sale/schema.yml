@@ -28,6 +28,13 @@ sources:
             description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
           - name: sv_outlier_reason1
             description: '{{ doc("shared_column_sv_outlier_reason") }}'
+            data_tests:
+              - not_null:
+                  name: sale_flag_sv_outlier_reason1_not_null_when_sv_is_outlier
+                  config: 
+                    where: sv_is_outlier
+                  meta:
+                   description: sv_outlier_reason1 is not null when sv_is_outlier
           - name: sv_outlier_reason2
             description: '{{ doc("shared_column_sv_outlier_reason") }}'
           - name: sv_outlier_reason3
@@ -36,21 +43,43 @@ sources:
             description: '{{ doc("shared_column_sv_version") }}'
 
         data_tests:
-        - unique_combination_of_columns:
-            name: sale_flag_unique_by_doc_num_version
-            combination_of_columns:
-              - meta_sale_document_num
-              - version
+          - unique_combination_of_columns:
+              name: sale_flag_unique_by_doc_num_version
+              combination_of_columns:
+                - meta_sale_document_num
+                - version
+              meta:
+                description: flag is unique by meta_sale_document_num and version
 
       - name: foreclosure
         description: '{{ doc("foreclosure") }}'
         tags:
           - load_manual
+        data_tests:
+          - unique_combination_of_columns:
+              name: sale_foreclosure_unique
+              combination_of_columns:
+                - case_number
+                - pin
+                - sale_results
+                - date_of_sale
+              meta:
+                description: foreclosure is unique by case_number, pin, sale_results and date_of_sale
+              config:
+                error_if: ">1"
 
       - name: group_mean
         description: '{{ doc("group_mean") }}'
         tags:
           - load_auto
+        data_tests:
+          - unique_combination_of_columns:
+              name: sale_group_mean_unique_by_group_run_id
+              combination_of_columns:
+                - '"group"'
+                - run_id
+              meta:
+                description: group_mean is unique by group and run_id
 
         columns:
           - name: group
@@ -71,6 +100,13 @@ sources:
         description: '{{ doc("parameter") }}'
         tags:
           - load_auto
+        data_tests:
+          - unique_combination_of_columns:
+              name: sale_parameter_unique_by_run_id
+              combination_of_columns:
+                - run_id
+              meta:
+                description: parameter is unique by run_id
 
         columns:
           - name: condo_stat_groups
@@ -134,6 +170,13 @@ sources:
         description: '{{ doc("metadata") }}'
         tags:
           - load_auto
+        data_tests:
+          - unique_combination_of_columns:
+              name: sale_metadata_unique_by_run_id
+              combination_of_columns:
+                - run_id
+              meta:
+                description: metadata is unique by run_id
 
         columns:
           - name: long_commit_sha
@@ -162,10 +205,26 @@ sources:
         description: '{{ doc("mydec") }}'
         tags:
           - load_manual
+        data_tests:
+          - unique_combination_of_columns:
+              name: sale_mydec_unique_by_document_number_year_of_sale
+              combination_of_columns:
+                - document_number
+                - year_of_sale
+              meta:
+                description: mydec is unique by document_number and year_of_sale
 
 models:
   - name: sale.vw_ias_salesval_upload
     description: '{{ doc("vw_ias_salesval_upload") }}'
+    data_tests:
+      - unique_combination_of_columns:
+          name: sale_vw_ias_salesval_upload_unique_by_salekey_run_id
+          combination_of_columns:
+            - salekey
+            - run_id
+          meta:
+            description: vw_ias_salesval_upload is unique by salekey and run_id
 
     columns:
       - name: run_id
