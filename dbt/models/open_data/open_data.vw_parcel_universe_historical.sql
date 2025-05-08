@@ -124,4 +124,4 @@ SELECT
     feeder.misc_subdivision_data_year,
     {{ open_data_columns(card=false) }}
 FROM {{ ref('default.vw_pin_universe') }} AS feeder
-{{ open_data_rows_to_delete(card=false) }}
+{{ open_data_rows_to_delete(card=false, allow_999=false) }}

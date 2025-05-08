@@ -7,7 +7,7 @@ The only real complication here is that feeder views can have different columns
 that define row_id. Currently, the only case we are accomodating is res sf/mf
 data, which includes card in row_id rather than just pin and year.
 */
-{%- macro open_data_rows_to_delete(card=false) -%}
+{%- macro open_data_rows_to_delete(card=false, allow_999=false) -%}
     full outer join
         (
             {% if card == true -%}
@@ -20,13 +20,18 @@ data, which includes card in row_id rather than just pin and year.
                     {{ source("iasworld", "dweldat") }} as ddat
                     on pdat.parid = ddat.parid
                     and pdat.taxyr = ddat.taxyr
-                where pdat.deactivat is not null or pdat.class = '999'
+                where
+                    pdat.deactivat is not null
+                    {%- if allow_999 == false %} or pdat.class = '999' {%- endif %}
             {%- else -%}
                 select parid || taxyr as row_id, taxyr as year, true as ":deleted"
                 from {{ source("iasworld", "pardat") }}
-                where deactivat is not null or class = '999'
+                where
+                    deactivat is not null
+                    {%- if allow_999 == false %} or class = '999'
+                    {%- endif -%}
 
-            {% endif -%}
+            {%- endif -%}
         ) as deleted_rows
         {% if card == true -%}
             on feeder.pin || cast(feeder.card as varchar) || feeder.year
