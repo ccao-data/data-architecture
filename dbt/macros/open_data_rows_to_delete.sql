@@ -24,10 +24,8 @@ data, which includes card in row_id rather than just pin and year.
                     and pdat.taxyr = ddat.taxyr
                 where
                     pdat.deactivat is not null
-                    {%- if model_class == "condo" %}
-                        or pdat.class not in ('299', '399')
-                    {%- endif %}
-                    {%- if allow_999 == false %} or pdat.class = '999' {%- endif %}
+                    or ddat.deactivat is not null
+                    or pdat.class = '999'
             {%- else -%}
                 select
                     pdat.parid || pdat.taxyr as row_id,
