@@ -1,13 +1,13 @@
 /*
-Macro that adds deactivated and/or class 999 rows to the open data views so that
-a ":deleted" flag associated with their row_id can be sent to the open data
-portal.
+Macro that adds deactivated and/or class 999/non-modeling class rows to the open
+data views so that a ":deleted" flag associated with their row_id can be sent to
+the open data portal.
 
 The only real complication here is that feeder views can have different columns
 that define row_id. Currently, the only case we are accomodating is res sf/mf
 data, which includes card in row_id rather than just pin and year.
 */
-{%- macro open_data_rows_to_delete(card=false, allow_999=false) -%}
+{%- macro open_data_rows_to_delete(card=false, allow_999=false, model_class=none) -%}
     full outer join
         (
             {% if card == true -%}
@@ -22,16 +22,21 @@ data, which includes card in row_id rather than just pin and year.
                     and pdat.taxyr = ddat.taxyr
                 where
                     pdat.deactivat is not null
+                    {%- if model_class == "condo" %}
+                        or pdat.class not in ('299', '399')
+                    {%- endif %}
                     {%- if allow_999 == false %} or pdat.class = '999' {%- endif %}
             {%- else -%}
                 select parid || taxyr as row_id, taxyr as year, true as ":deleted"
                 from {{ source("iasworld", "pardat") }}
                 where
                     deactivat is not null
+                    {%- if model_class == "condo" %} or class not in ('299', '399')
+                    {%- endif %}
                     {%- if allow_999 == false %} or class = '999'
                     {%- endif -%}
 
-            {%- endif -%}
+            {%- endif %}
         ) as deleted_rows
         {% if card == true -%}
             on feeder.pin || cast(feeder.card as varchar) || feeder.year
