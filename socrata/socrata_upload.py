@@ -221,6 +221,9 @@ def build_query_dict(athena_asset, asset_id, years=None):
     # Athena view that feeds an open data asset need to be part of that asset.
     if athena_columns != asset_columns:
         columns_not_on_socrata = set(
+            # Ensure ":deleted" is not included in the comparison since it is
+            # only used to trigger row deletion in Socrata and is not actually a
+            # column in open data assets
             [column for column in athena_columns if column != ":deleted"]
         ) - set(asset_columns)
         columns_not_in_athena = set(asset_columns) - set(athena_columns)
