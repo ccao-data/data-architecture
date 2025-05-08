@@ -57,17 +57,18 @@ sources:
                 - year
                 - run_id
 
-      - name: comp
-        description: '{{ doc("table_comp") }}'
+      - name: comp_version
+        description: '{{ doc("table_comp_version")'
         tags:
           - load_auto
         data_tests:
           - unique_combination_of_columns:
-              name: model_comp_unique_pin_card_run_id
+              name: model_comp_version_unique_pin_card_run_id_version
               combination_of_columns:
                 - pin
                 - card
                 - run_id
+                - version
 
       - name: parameter_final
         description: '{{ doc("table_parameter_final") }}'
@@ -188,6 +189,16 @@ sources:
                 - run_id
 
 models:
+  - name: model.comp
+    description: '{{ doc("view_comp") }}'
+    data_tests:
+      - unique_combination_of_columns:
+          name: model_comp_unique_pin_card_run_id
+          combination_of_columns:
+            - pin
+            - card
+            - run_id
+
   - name: model.final_model
     description: '{{ doc("table_final_model") }}'
     columns:

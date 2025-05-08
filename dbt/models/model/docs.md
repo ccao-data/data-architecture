@@ -28,11 +28,23 @@ PIN-level predicted values, etc. Predicted values are aggregated from
 
 # comp
 
-{% docs table_comp %}
+{% docs view_comp %}
 
 Table containing comparable sales along with similarity scores
 for each comparable sale extracted from the structure of the
 tree model.
+
+Comps are computed at the card level, meaning each row has a `pin` and a
+`card`. They are also computed using a specific model run, which we reference
+in the `run_id` column. In the `model.comp_version` table that powers this view,
+we use a `version` column as a type 2 slowly changing dimension in order to
+track comps runs that are based on the same model run. This view acts as
+convenience layer on top of that table in order to return only the most recent
+version of comps for each `run_id`.
+
+While this model is indeed a view, it does not use our typical `vw_` prefix
+in its name in order to preserve backwards compatibility with downstream
+consumers that we built when this was a table.
 
 These comparable sales are experimental and not yet public.
 For details on our current approach to extracting comparable
@@ -40,6 +52,23 @@ sales from the model, see [this
 vignette](https://ccao-data.github.io/lightsnip/articles/finding-comps.html).
 
 **Primary Key**: `pin`, `card`, `run_id`
+{% enddocs %}
+
+# comp_version
+
+{% docs table_comp_version %}
+Table containing comparable sales along with similarity scores
+for each comparable sale extracted from the structure of a
+tree model.
+
+This is a raw table that uses a `version` column as a type 2 slowly changing
+dimension in order to allow for multiple comps runs based on the same model
+run, so we do not use its contents for published work. If you would like to
+query comps for publication, prefer the `model.comp` view, which is a
+convenience view that filters this table for only the most recent version of
+comps for each model run.
+
+**Primary Key**: `pin`, `card`, `run_id`, `version`
 {% enddocs %}
 
 # feature_importance
