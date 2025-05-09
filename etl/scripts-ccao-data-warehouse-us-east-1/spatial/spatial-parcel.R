@@ -490,6 +490,7 @@ all_addresses <- dbGetQuery(
   # is available.
   filter(year <= max(pre_geocoding_data$year, na.rm = TRUE))
 
+# Use the county shapefile as a bounding box to ensure no parcels are geo-coded outside of where we'd expect them to be
 cook_county <- geoarrow::read_geoparquet_sf(
   "s3://ccao-data-warehouse-us-east-1/spatial/ccao/county/2019.parquet"
 ) %>%
