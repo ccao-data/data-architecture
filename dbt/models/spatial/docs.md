@@ -136,7 +136,7 @@ The algorithm is:
    they form a 90 degree angle, it is a corner. All other cases are not
    corners.
 
-**Primary Key**: `pin10`
+**Primary Key**: `pin10`, `year`
 {% enddocs %}
 
 # county

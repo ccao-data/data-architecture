@@ -4,23 +4,73 @@ sources:
       - load_manual
     tables:
       - name: acs1
+        data_tests:
+          - unique_combination_of_columns:
+              name: census_acs_1_unique_by_year_geography_geoid
+              combination_of_columns:
+                - year
+                - geography
+                - geoid
+              meta:
+                description: census acs1 should be unique by geography, year, and geoid
         description: '{{ doc("table_acs1") }}'
 
       - name: acs5
         description: '{{ doc("table_acs5") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: census_acs_5_unique_by_year_geography_geoid
+              combination_of_columns:
+                - year
+                - geography
+                - geoid
+              meta:
+                description: census acs5 should be unique by geography, year, and geoid
 
       - name: decennial
         description: '{{ doc("table_decennial") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: census_decennial_unique_by_year_geography_geoid
+              combination_of_columns:
+                - year
+                - geography
+                - geoid
+              meta:
+                description: census decennial should be unique by geography, year, and geoid
 
       - name: table_dict
         description: '{{ doc("table_table_dict") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: census_table_dict_unique_by_variable_table_code
+              combination_of_columns:
+                - variable_table_code
+              meta:
+                description: census table_dict should be unique by variable_table_code
 
       - name: variable_dict
         description: '{{ doc("table_variable_dict") }}'
-
+        data_tests:
+          - unique_combination_of_columns:
+              name: census_variable_dict_unique_by_variable_name_and_survey
+              combination_of_columns:
+                - variable_name
+                - survey
+              meta:
+                description: census variable_dict should be unique by variable name and survey
 models:
   - name: census.vw_acs5_stat
     description: '{{ doc("view_vw_acs5_stat") }}'
+    data_tests:
+      - unique_combination_of_columns:
+          name: census_acs_5_stat_unique_by_year_geography_geoid
+          combination_of_columns:
+            - year
+            - geography
+            - geoid
+          meta:
+            description: census acs5 stat should be unique by geography, year, and geoid
     columns:
       - name: acs5_data_year
         description: '{{ doc("shared_column_data_year") }}'

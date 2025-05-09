@@ -26,6 +26,22 @@ PIN-level predicted values, etc. Predicted values are aggregated from
 **Primary Key**: `year`, `run_id`, `meta_pin`
 {% enddocs %}
 
+# comp
+
+{% docs table_comp %}
+
+Table containing comparable sales along with similarity scores
+for each comparable sale extracted from the structure of the
+tree model.
+
+These comparable sales are experimental and not yet public.
+For details on our current approach to extracting comparable
+sales from the model, see [this
+vignette](https://ccao-data.github.io/lightsnip/articles/finding-comps.html).
+
+**Primary Key**: `pin`, `card`, `run_id`
+{% enddocs %}
+
 # feature_importance
 
 {% docs table_feature_importance %}
@@ -114,6 +130,14 @@ Identical to `model.performance`, but additionally broken out by quantile.
 
 **Primary Key**: `year`, `run_id`, `stage`, `triad_code`, `geography_type`,
 `geography_id`, `by_class`, `num_quantile`, `quantile`
+{% enddocs %}
+
+# pinval_test_training_data
+
+{% docs pinval_test_training_data %}
+
+Testing table for storing training data in athena.
+
 {% enddocs %}
 
 # shap

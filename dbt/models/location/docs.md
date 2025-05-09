@@ -55,7 +55,7 @@ This table (and its filling) are necessary because not all geographic data
 is released every year. For example, an ACS5 release from 2019 would be
 filled forward into future years (until the next release).
 
-**Primary Key**: `pin10`, `year`
+**Primary Key**: `year`
 {% enddocs %}
 
 # economy

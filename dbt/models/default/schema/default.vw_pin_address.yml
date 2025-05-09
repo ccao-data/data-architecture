@@ -47,11 +47,21 @@ models:
         description: '{{ doc("shared_column_prop_address_zipcode_2") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
-
     data_tests:
       - row_count:
           name: default_vw_pin_address_row_count
-          above: 46944042 # as of 2024-11-14
+          equals: >
+            (
+              SELECT COUNT(*)
+              FROM {{ source('iasworld', 'pardat') }}
+              WHERE cur = 'Y'
+                AND deactivat IS NULL
+                AND LENGTH(parid) = 14
+                AND REGEXP_COUNT(parid, '[a-zA-Z]') = 0
+                AND class NOT IN ('999')
+            )
+          meta:
+            description: vw_pin_address row count should equal iasworld pardat
       - unique_combination_of_columns:
           name: default_vw_pin_address_unique_by_14_digit_pin_and_year
           combination_of_columns:
