@@ -552,9 +552,7 @@ geocode_batch <- function(batch) {
 
 # Apply geocoding to each batch and combine results
 geocoded <- map(batch_list, geocode_batch) %>%
-  do.call(rbind, .)
-
-geocoded <- geocoded %>%
+bind_rows() %>%
   # Check that properties are in Cook County Boundaries.
   # This arose due to one known error.
   st_intersection(cook_county) %>%
