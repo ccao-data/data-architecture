@@ -11,7 +11,7 @@ data, which includes card in row_id rather than just pin and year.
 */
 {%- macro open_data_columns(card=false) -%}
     coalesce(cast(feeder.year as int), cast(deleted_rows.year as int)) as year,
-    {%- if card == true -%}
+    {%- if card == true %}
         coalesce(
             feeder.pin || cast(feeder.card as varchar) || feeder.year,
             deleted_rows.row_id
