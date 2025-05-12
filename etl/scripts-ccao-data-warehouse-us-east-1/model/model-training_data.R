@@ -65,13 +65,8 @@ for (i in seq_len(nrow(metadata))) {
     collect()
 
   # Ensure known type mismatches are cast consistently
-  if ("ccao_is_active_exe_homeowner" %in% names(df)) {
-    df <- df %>%
-      mutate(
-        ccao_is_active_exe_homeowner =
-          as.logical(ccao_is_active_exe_homeowner)
-      )
-  }
+  df <- df %>%
+    mutate(across(matches('ccao_is_active_exe_homeowner'), as.logical))
 
   # Add run_id after cleaning types
 df %>%
