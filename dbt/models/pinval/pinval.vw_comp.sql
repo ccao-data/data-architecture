@@ -67,6 +67,7 @@ SELECT
     || 'K' AS sale_price_short,
     ROUND(train.meta_sale_price / NULLIF(train.char_bldg_sf, 0))
         AS sale_price_per_sq_ft,
+    format_datetime(train.meta_sale_date, 'MMM yyyy') AS sale_month_year,
     train.*,
     school.school_elementary_district_name
         AS loc_school_elementary_district_name,
@@ -75,7 +76,9 @@ SELECT
     meta.model_predictor_all_name,
     CASE
         WHEN s.min_year = s.max_year THEN CAST(s.min_year AS VARCHAR)
-        ELSE CAST(s.min_year AS VARCHAR) || ' and ' || CAST(s.max_year AS VARCHAR)
+        ELSE CAST(s.min_year AS VARCHAR)
+            || ' and '
+            || CAST(s.max_year AS VARCHAR)
     END AS sale_year_range
 FROM pivoted_comp AS pc
 LEFT JOIN {{ source('model', 'pinval_test_training_data') }} AS train
