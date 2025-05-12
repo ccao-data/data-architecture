@@ -490,16 +490,23 @@ all_addresses <- dbGetQuery(
   # is available.
   filter(year <= max(pre_geocoding_data$year, na.rm = TRUE))
 
-# Use the county shapefile as a bounding box to ensure no parcels are geo-coded outside of where we'd expect them to be
-cook_county <- geoarrow::read_geoparquet_sf(
-  "s3://ccao-data-warehouse-us-east-1/spatial/ccao/county/2019.parquet"
+# We will use the Sidwell grid to compare the first 4 digits
+# of the geocoded PIN10s against their expected location.
+sidwell_sf <- dbGetQuery(
+  conn = con,
+  statement =
+    "SELECT section, geometry_3435, geometry FROM spatial.sidwell_grid"
 ) %>%
-  st_transform(3435)
+  mutate(geometry = st_as_sfc(geometry_3435, EWKB = TRUE)) %>%
+  st_as_sf(crs = 3435)
 
+# Identify any PIN10s which are present in all_addresses, but not
+# present in spatial.parcel.
+# Then use an up-down fill identify locations for PIN10s which are
+# present in other years.
 missing_geographies <- pre_geocoding_data %>%
   full_join(
-    all_addresses %>%
-      distinct(pin10, year, .keep_all = TRUE),
+    all_addresses,
     by = c("pin10", "year")
   ) %>%
   group_by(pin10, prop_address_full) %>%
@@ -507,8 +514,8 @@ missing_geographies <- pre_geocoding_data %>%
   arrange(year) %>%
   fill(x_3435, y_3435, lon, lat, .direction = "updown") %>%
   ungroup() %>%
-  # Keep only values which in our input had no x-y coordinates
   filter(missing)
+
 
 # Split the missing parcels into those which were encoded with inputed technique
 # and those which still need to be calculated with geocoding
@@ -519,7 +526,6 @@ imputed <- missing_geographies %>%
 
 missing_geographies <- missing_geographies %>%
   filter(is.na(x_3435) & is.na(y_3435) & is.na(lon) & is.na(lat)) %>%
-  distinct(pin10, year, .keep_all = TRUE) %>%
   select(
     pin10, year, prop_address_full,
     prop_address_city_name, prop_address_state
@@ -552,12 +558,14 @@ geocode_batch <- function(batch) {
 
 # Apply geocoding to each batch and combine results
 geocoded <- map(batch_list, geocode_batch) %>%
-bind_rows() %>%
-  # Check that properties are in Cook County Boundaries.
-  # This arose due to one known error.
-  st_intersection(cook_county) %>%
-  # We don't create geographies since these are shapes for other
-  # parcels and we only have centroids for these.
+  bind_rows() %>%
+  st_join(sidwell_sf) %>% # spatially join geocoded points to Sidwell grid
+  mutate(
+    pin_prefix = substr(pin10, 1, 4),
+    mismatch = pin_prefix != section
+  ) %>%
+  # Keep only observations where first 4 digits match Sidwell Grid
+  filter(mismatch == FALSE) %>%
   st_drop_geometry() %>%
   select(pin10, year, lat, long, x_3435, y_3435) %>%
   mutate(source = "geocoded")
