@@ -136,8 +136,6 @@ FROM {{ source('iasworld', 'dweldat') }} AS dwel
 LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
     ON dwel.parid = pardat.parid
     AND dwel.taxyr = pardat.taxyr
-    AND pardat.cur = 'Y'
-    AND pardat.deactivat IS NULL
 LEFT JOIN multicodes
     ON dwel.parid = multicodes.parid
     AND dwel.taxyr = multicodes.taxyr
@@ -149,4 +147,6 @@ LEFT JOIN townships
     AND dwel.taxyr = townships.taxyr
 WHERE dwel.cur = 'Y'
     AND dwel.deactivat IS NULL
+    AND pardat.cur = 'Y'
+    AND pardat.deactivat IS NULL
     AND pardat.class NOT IN ('999')
