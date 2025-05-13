@@ -145,6 +145,6 @@ SELECT
         WHEN feeder.char_tp_plan = '1' THEN 'Architect'
         WHEN feeder.char_tp_plan = '2' THEN 'Stock Plan'
     END AS char_tp_plan,
-    {{ open_data_columns(card=true) }}
+    {{ open_data_columns(row_id_cols=['pin', 'card', 'year']) }}
 FROM {{ ref('default.vw_card_res_char') }} AS feeder
 {{ open_data_join_rows_to_delete(card=true) }}
