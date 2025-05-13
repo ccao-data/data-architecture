@@ -1,6 +1,5 @@
 library(arrow)
 library(aws.s3)
-library(ccao)
 library(data.table)
 library(dplyr)
 library(geoarrow)
@@ -20,7 +19,7 @@ noctua_options(unload = TRUE)
 # This script cleans historical Cook County parcel data and uploads it to S3
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel_test")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
 parcel_tmp_dir <- here("parcel-tmp")
 con <- dbConnect(noctua::athena(), rstudio_conn_tab = FALSE)
 
@@ -83,7 +82,7 @@ process_parcel_file <- function(s3_bucket_uri,
                                 spatial_uri) {
   file_year_processed <- aws.s3::get_bucket_df(
     bucket = AWS_S3_WAREHOUSE_BUCKET,
-    prefix = file.path("spatial", "parcel_test")
+    prefix = file.path("spatial", "parcel")
   ) %>%
     filter(Size > 0, str_detect(Key, file_year), !str_detect(Key, "test2"))
 
@@ -449,7 +448,7 @@ gc()
 
 # Ingest processed parcel files into one dataframe
 pre_geocoding_data <- open_dataset(
-  file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel_test")
+  file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "parcel")
 ) %>%
   collect() %>%
   # Ensure previously geocoded/imputed parcels don't interfere with geocoding
@@ -565,6 +564,8 @@ geocoded <- map(batch_list, geocode_batch) %>%
     mismatch = pin_prefix != section
   ) %>%
   # Keep only observations where first 4 digits match Sidwell Grid
+  # This provides a verification that PIN10s are in the correct
+  # general "neighborhood" rather than just within Cook County.
   filter(mismatch == FALSE) %>%
   st_drop_geometry() %>%
   select(pin10, year, lat, long, x_3435, y_3435) %>%
@@ -587,7 +588,7 @@ post_geocoding_data %>%
   relocate(year, town_code, .after = last_col()) %>%
   group_by(year, town_code) %>%
   write_partitions_to_s3(
-    "s3://ccao-data-warehouse-us-east-1/spatial/parcel_test2",
+    "s3://ccao-data-warehouse-us-east-1/spatial/parcel",
     is_spatial = TRUE,
     overwrite = TRUE
   )
