@@ -2,7 +2,8 @@ WITH runs_to_include AS (
     SELECT
         run_id,
         model_predictor_all_name,
-        assessment_year
+        assessment_year,
+        assessment_triad
     FROM {{ source('model', 'metadata') }}
     -- This will eventually grab all run_ids where
     -- run_type == comps
@@ -37,6 +38,7 @@ SELECT
         AS loc_school_elementary_district_name,
     school.school_secondary_district_name AS loc_school_secondary_district_name,
     run.model_predictor_all_name,
+    run.assessment_triad,
     final.final_model_run_date
 FROM runs_to_include AS run
 INNER JOIN model.assessment_card AS ac
