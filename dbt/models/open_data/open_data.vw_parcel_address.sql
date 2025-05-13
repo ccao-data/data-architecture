@@ -16,4 +16,4 @@ SELECT
     feeder.mail_address_zipcode_1,
     {{ open_data_columns() }}
 FROM {{ ref('default.vw_pin_address') }} AS feeder
-{{ open_data_rows_to_delete() }}
+{{ open_data_join_rows_to_delete() }}

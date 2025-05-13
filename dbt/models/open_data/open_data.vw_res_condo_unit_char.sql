@@ -28,4 +28,4 @@ SELECT
     feeder.pin_num_landlines,
     {{ open_data_columns() }}
 FROM {{ ref('default.vw_pin_condo_char') }} AS feeder
-{{ open_data_rows_to_delete(condo=true) }}
+{{ open_data_join_rows_to_delete(condo=true) }}

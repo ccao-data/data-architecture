@@ -15,7 +15,7 @@ rather than just pin and year.
 is different for different feeder views. The macro takes arguments to specify
 how to construct the approriate universe of rows to purge.
 */
-{%- macro open_data_rows_to_delete(
+{%- macro open_data_join_rows_to_delete(
     card=false, allow_999=false, condo=false, own=false
 ) -%}
     full outer join
