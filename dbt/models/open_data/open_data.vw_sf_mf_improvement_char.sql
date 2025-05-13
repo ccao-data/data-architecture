@@ -147,4 +147,4 @@ SELECT
     END AS char_tp_plan,
     {{ open_data_columns(card=true) }}
 FROM {{ ref('default.vw_card_res_char') }} AS feeder
-{{ open_data_rows_to_delete(card=true, allow_999=false) }}
+{{ open_data_rows_to_delete(card=true) }}

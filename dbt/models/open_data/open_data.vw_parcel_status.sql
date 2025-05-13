@@ -25,6 +25,6 @@ SELECT
     feeder.pardat_note,
     feeder.is_filler_class,
     feeder.is_filler_pin,
-    {{ open_data_columns(card=false) }}
+    {{ open_data_columns() }}
 FROM {{ ref('default.vw_pin_status') }} AS feeder
-{{ open_data_rows_to_delete(card=false, allow_999=true) }}
+{{ open_data_rows_to_delete(allow_999=true) }}

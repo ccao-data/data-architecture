@@ -26,6 +26,6 @@ SELECT
     feeder.is_common_area,
     feeder.pin_is_multiland,
     feeder.pin_num_landlines,
-    {{ open_data_columns(card=false) }}
+    {{ open_data_columns() }}
 FROM {{ ref('default.vw_pin_condo_char') }} AS feeder
-{{ open_data_rows_to_delete(card=false, allow_999=false, condo=true) }}
+{{ open_data_rows_to_delete(condo=true) }}
