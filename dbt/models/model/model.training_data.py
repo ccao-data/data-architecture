@@ -15,9 +15,9 @@ config = {
 def model(dbt, session):
     dbt.config(**config)
 
-    # Get the maximum year already loaded if incremental
+    # Get the maximum year
     if dbt.is_incremental:
-        existing = dbt.ref("model__training_data").to_pandas()
+        existing = dbt.ref("model.training_data").to_pandas()
         max_loaded_year = existing["year"].max() if not existing.empty else 0
     else:
         max_loaded_year = 0
