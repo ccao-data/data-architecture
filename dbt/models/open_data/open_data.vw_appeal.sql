@@ -25,3 +25,4 @@ SELECT
     feeder.status,
     {{ open_data_columns(row_id_cols=['pin', 'year', 'case_no']) }}
 FROM {{ ref('default.vw_pin_appeal') }} AS feeder
+{{ open_data_join_rows_to_delete(addn_table="htpar") }}
