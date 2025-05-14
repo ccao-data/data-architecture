@@ -20,7 +20,11 @@ how to construct the approriate universe of rows to purge.
 ) %}
     full outer join
         (
+            -- Unfortunately, some iasworld tables are not unique by the columns
+            -- we expect them to be when look at deactivated rows, so we need to
+            -- use distinct.
             select
+                {% if addn_table == "htpar" %} distinct {% endif %}
                 {% if addn_table == "dweldat" %}
                     pdat.parid || cast(addndat.card as varchar) || pdat.taxyr as row_id,
                 {% elif addn_table == "htpar" %}
@@ -31,7 +35,7 @@ how to construct the approriate universe of rows to purge.
                 true as ":deleted"
             from {{ source("iasworld", "pardat") }} as pdat
             {% if addn_table is not none %}
-                {% if addn_table == "dweldat" %} inner join
+                {% if addn_table in ["dweldat", "htpar"] %} inner join
                 {% else %} left join
                 {% endif %}
                     {{ source("iasworld", addn_table) }} as addndat
@@ -41,7 +45,13 @@ how to construct the approriate universe of rows to purge.
             where
                 pdat.deactivat is not null
                 {% if addn_table == "htpar" %}
-                    or addndat.caseno is not null or addndat.heartyp in ('A', 'C')
+                    or (
+                        (
+                            addndat.deactivat is not null
+                            or addndat.heartyp not in ('A', 'C')
+                        )
+                        and addndat.caseno is not null
+                    )
                 {% endif %}
                 {% if addn_table == "owndat" %} or addndat.ownnum is null {% endif %}
                 {% if condo == true %} or pdat.class not in ('299', '399') {% endif %}
