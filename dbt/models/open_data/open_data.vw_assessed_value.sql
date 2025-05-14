@@ -3,20 +3,20 @@
 -- Some columns from the feeder view may not be present in this view.
 
 SELECT
-    CONCAT(pin, year) AS row_id,
-    pin,
-    CAST(year AS INT) AS year,
-    class,
-    township_code,
-    township_name,
-    nbhd,
-    mailed_bldg,
-    mailed_land,
-    mailed_tot,
-    certified_bldg,
-    certified_land,
-    certified_tot,
-    board_bldg,
-    board_land,
-    board_tot
-FROM {{ ref('default.vw_pin_history') }}
+    feeder.pin,
+    feeder.class,
+    feeder.township_code,
+    feeder.township_name,
+    feeder.nbhd,
+    feeder.mailed_bldg,
+    feeder.mailed_land,
+    feeder.mailed_tot,
+    feeder.certified_bldg,
+    feeder.certified_land,
+    feeder.certified_tot,
+    feeder.board_bldg,
+    feeder.board_land,
+    feeder.board_tot,
+    {{ open_data_columns() }}
+FROM {{ ref('default.vw_pin_history') }} AS feeder
+{{ open_data_join_rows_to_delete() }}
