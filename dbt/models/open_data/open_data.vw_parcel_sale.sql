@@ -2,32 +2,32 @@
 -- Some columns from the feeder view may not be present in this view.
 
 SELECT
-    CAST(sale_key AS VARCHAR) AS row_id,
-    pin,
-    CAST(year AS INT) AS year,
-    township_code,
-    nbhd,
-    class,
-    sale_date,
-    is_mydec_date,
-    sale_price,
-    doc_no,
+    feeder.pin,
+    feeder.township_code,
+    feeder.nbhd,
+    feeder.class,
+    feeder.sale_date,
+    feeder.is_mydec_date,
+    feeder.sale_price,
+    feeder.doc_no,
     CASE
-        WHEN deed_type = '01' THEN 'Warranty'
-        WHEN deed_type = '02' THEN 'Trustee'
-        WHEN deed_type = '03' THEN 'Quit claim'
-        WHEN deed_type = '04' THEN 'Executor'
-        WHEN deed_type = '05' THEN 'Other'
-        WHEN deed_type = '06' THEN 'Beneficiary'
-        WHEN deed_type = '99' THEN 'Unknown'
+        WHEN feeder.deed_type = '01' THEN 'Warranty'
+        WHEN feeder.deed_type = '02' THEN 'Trustee'
+        WHEN feeder.deed_type = '03' THEN 'Quit claim'
+        WHEN feeder.deed_type = '04' THEN 'Executor'
+        WHEN feeder.deed_type = '05' THEN 'Other'
+        WHEN feeder.deed_type = '06' THEN 'Beneficiary'
+        WHEN feeder.deed_type = '99' THEN 'Unknown'
     END AS deed_type,
-    seller_name,
-    is_multisale,
-    num_parcels_sale,
-    buyer_name,
-    sale_type,
-    sale_filter_same_sale_within_365,
-    sale_filter_less_than_10k,
-    sale_filter_deed_type,
-    mydec_deed_type
-FROM {{ ref('default.vw_pin_sale') }}
+    feeder.seller_name,
+    feeder.is_multisale,
+    feeder.num_parcels_sale,
+    feeder.buyer_name,
+    feeder.sale_type,
+    feeder.sale_filter_same_sale_within_365,
+    feeder.sale_filter_less_than_10k,
+    feeder.sale_filter_deed_type,
+    feeder.mydec_deed_type,
+    {{ open_data_columns(row_id_cols=['sale_key']) }}
+FROM {{ ref('default.vw_pin_sale') }} AS feeder
+{{ open_data_join_rows_to_delete(addn_table="sales") }}
