@@ -600,5 +600,5 @@ SELECT
             WHEN improvement_code_{{ idx }} = '900' THEN 'OTHER'
         END AS improvement_code_{{ idx }}{% if not loop.last %},{% endif %}
     {% endfor %},
-    NULL AS ":deleted" --noqa: L057
+    CAST(NULL AS BOOLEAN) AS ":deleted" --noqa: L057
 FROM {{ ref('default.vw_pin_permit') }}
