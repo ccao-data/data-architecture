@@ -110,7 +110,7 @@ def main() -> None:
                         "{"
                         f"model: '{source_model_name}', "
                         "group_by: 'year', "
-                        # """where: 'not ":deleted"', """
+                        """where: 'not ":deleted"', """
                         "print: true"
                         "}"
                     ),

@@ -73,5 +73,6 @@ SELECT
     nearest_neighbor_2_pin10,
     nearest_neighbor_2_dist_ft,
     nearest_neighbor_3_pin10,
-    nearest_neighbor_3_dist_ft
+    nearest_neighbor_3_dist_ft,
+    NULL AS ":deleted" --noqa: L057
 FROM {{ ref('proximity.vw_pin10_proximity') }}

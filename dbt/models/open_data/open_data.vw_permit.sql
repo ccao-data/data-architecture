@@ -447,157 +447,158 @@ SELECT
         WHEN job_code_secondary = '911' THEN 'OCCUPANCY CODE - WILL NOT BE USED'
     END AS job_code_secondary,
     work_description,
-{% for idx in range(1, 5) %}
-    CASE
-        WHEN
-            improvement_code_{{ idx }} = '110'
-            THEN 'NEW CONSTRUCTION - MAJOR IMPRVT'
-        WHEN improvement_code_{{ idx }} = '111' THEN 'NEW BUILDING'
-        WHEN improvement_code_{{ idx }} = '112' THEN 'ADDITIONS'
-        WHEN improvement_code_{{ idx }} = '113' THEN 'DORMERS'
-        WHEN
-            improvement_code_{{ idx }} = '114'
-            THEN 'OTHER - MAJOR NEW CONSTRUCTION'
-        WHEN
-            improvement_code_{{ idx }} = '130'
-            THEN 'NEW CONSTRUCTION - MINOR IMPRVMT'
-        WHEN
-            improvement_code_{{ idx }} = '131'
-            THEN 'SWIMMING POOL - TENNIS COURT'
-        WHEN
-            improvement_code_{{ idx }} = '132'
-            THEN 'DRIVEWAYS - PATIOS - WOOD DECK'
-        WHEN improvement_code_{{ idx }} = '133' THEN 'FENCING (and Gates)'
-        WHEN improvement_code_{{ idx }} = '134' THEN 'GARAGE CARPORTS BARNS'
-        WHEN
-            improvement_code_{{ idx }} = '135'
-            THEN 'OTHER - MINOR NEW CONSTRUCTION'
-        WHEN
-            improvement_code_{{ idx }} = '151'
-            THEN 'BASEMENT ROOM - REC ROOM'
-        WHEN
-            improvement_code_{{ idx }} = '152'
-            THEN 'ATTIC ROOM - BATHROOMS'
-        WHEN
-            improvement_code_{{ idx }} = '153'
-            THEN 'FIREPLACE-CENTRAL AIR CONDITIONING'
-        WHEN improvement_code_{{ idx }} = '154' THEN 'OTHER - REMODELING'
-        WHEN improvement_code_{{ idx }} = '155' THEN '???'
-        WHEN
-            improvement_code_{{ idx }} = '156'
-            THEN 'REMODELING - INTERIOR ONLY'
-        WHEN
-            improvement_code_{{ idx }} = '157'
-            THEN 'REMODELING - EXTERIOR ONLY'
-        WHEN
-            improvement_code_{{ idx }} = '171'
-            THEN 'MAJOR IMPROVEMENT - WRECK'
-        WHEN
-            improvement_code_{{ idx }} = '172'
-            THEN 'MINOR IMPROVEMENT - WRECK'
-        WHEN
-            improvement_code_{{ idx }} = '191'
-            THEN 'MAJOR IMPROVEMENT - BURNOUT'
-        WHEN
-            improvement_code_{{ idx }} = '192'
-            THEN 'MINOR IMPROVEMENT - BURNOUT'
-        WHEN improvement_code_{{ idx }} = '211' THEN 'NEW BUILDING'
-        WHEN improvement_code_{{ idx }} = '212' THEN 'ADDITIONS'
-        WHEN
-            improvement_code_{{ idx }} = '213'
-            THEN 'OTHER - MAJOR NEW CONSTRUCTION'
-        WHEN
-            improvement_code_{{ idx }} = '231'
-            THEN 'SWIMMING POOL - TENNIS COURT'
-        WHEN improvement_code_{{ idx }} = '232' THEN 'DRIVEWAYS - PATIOS'
-        WHEN improvement_code_{{ idx }} = '233' THEN 'FENCING'
-        WHEN
-            improvement_code_{{ idx }} = '234'
-            THEN 'GARAGE-BARN-BUTLER BUILDING'
-        WHEN
-            improvement_code_{{ idx }} = '235'
-            THEN 'OTHER - MINOR NEW CONSTRUCTION'
-        WHEN improvement_code_{{ idx }} = '236' THEN '???'
-        WHEN improvement_code_{{ idx }} = '251' THEN 'PARTITIONING'
-        WHEN
-            improvement_code_{{ idx }} = '252'
-            THEN 'DECONV/CONV AMT. LIV. UT.'
-        WHEN
-            improvement_code_{{ idx }} = '253'
-            THEN 'AIR CONDITIONING - FIREPLACES'
-        WHEN
-            improvement_code_{{ idx }} = '254'
-            THEN 'BASEMENT-ATTIC ROOM BATH'
-        WHEN
-            improvement_code_{{ idx }} = '255'
-            THEN 'REPLACE-REPAIR BUILDING - FACTORY'
-        WHEN improvement_code_{{ idx }} = '256' THEN 'OTHER REMODELING'
-        WHEN
-            improvement_code_{{ idx }} = '257'
-            THEN 'REMODELING - INTERIOR ONLY'
-        WHEN
-            improvement_code_{{ idx }} = '258'
-            THEN 'REMODELING - EXTERIOR ONLY'
-        WHEN
-            improvement_code_{{ idx }} = '271'
-            THEN 'MAJOR IMPROVEMENT - WRECK'
-        WHEN
-            improvement_code_{{ idx }} = '272'
-            THEN 'MINOR IMPROVEMENT - WRECK'
-        WHEN
-            improvement_code_{{ idx }} = '291'
-            THEN 'MAJOR IMPROVEMENT - BURNOUT'
-        WHEN
-            improvement_code_{{ idx }} = '292'
-            THEN 'MINOR IMPROVEMENT - BURNOUT'
-        WHEN improvement_code_{{ idx }} = '300' THEN 'RAILROAD PROPERTIES'
-        WHEN
-            improvement_code_{{ idx }} = '310'
-            THEN 'NEW CONST MAJOR IMPROVEMENT'
-        WHEN
-            improvement_code_{{ idx }} = '311'
-            THEN 'CARRIER - NEW MAJOR CONSTRUCTION'
-        WHEN
-            improvement_code_{{ idx }} = '312'
-            THEN 'NON-CARRIER NEW MAJOR CONSTRUCTION'
-        WHEN
-            improvement_code_{{ idx }} = '330'
-            THEN 'NEW CONSTRUCTION MINOR IMPROVEMENT'
-        WHEN improvement_code_{{ idx }} = '331' THEN 'CARRIER - REMODELING'
-        WHEN
-            improvement_code_{{ idx }} = '332'
-            THEN 'NON-CARRIER - REMODELING'
-        WHEN improvement_code_{{ idx }} = '350' THEN 'REMODELING'
-        WHEN improvement_code_{{ idx }} = '351' THEN 'CARRIER - REMODELING'
-        WHEN
-            improvement_code_{{ idx }} = '352'
-            THEN 'NON-CARRIER - REMODELING'
-        WHEN improvement_code_{{ idx }} = '370' THEN 'WRECKS'
-        WHEN
-            improvement_code_{{ idx }} = '371'
-            THEN 'MAJOR IMPROVEMENT WRECK'
-        WHEN
-            improvement_code_{{ idx }} = '372'
-            THEN 'MINOR IMPROVEMENT - WRECK'
-        WHEN improvement_code_{{ idx }} = '390' THEN 'BURNOUTS'
-        WHEN
-            improvement_code_{{ idx }} = '391'
-            THEN 'MAJOR IMPROVEMENT - BURNOUT'
-        WHEN
-            improvement_code_{{ idx }} = '392'
-            THEN 'MINOR IMPROVEMENT - BURNOUT'
-        WHEN improvement_code_{{ idx }} = '400' THEN 'EXEMPT PROPERTIES'
-        WHEN improvement_code_{{ idx }} = '411' THEN 'LEASEHOLD'
-        WHEN improvement_code_{{ idx }} = '510' THEN 'RECHECKS'
-        WHEN improvement_code_{{ idx }} = '511' THEN 'OCCUPANCY'
-        WHEN
-            improvement_code_{{ idx }} = '512'
-            THEN 'PRIOR YEAR PARTIAL ASSESSMENT'
-        WHEN
-            improvement_code_{{ idx }} = '515'
-            THEN 'MANUALLY ISSUED PERMIT'
-        WHEN improvement_code_{{ idx }} = '516' THEN 'PRIOR YEAR RECHECK'
-        WHEN improvement_code_{{ idx }} = '900' THEN 'OTHER'
-    END AS improvement_code_{{ idx }}{% if not loop.last %},{% endif %}
-{% endfor %}
+    {% for idx in range(1, 5) %}
+        CASE
+            WHEN
+                improvement_code_{{ idx }} = '110'
+                THEN 'NEW CONSTRUCTION - MAJOR IMPRVT'
+            WHEN improvement_code_{{ idx }} = '111' THEN 'NEW BUILDING'
+            WHEN improvement_code_{{ idx }} = '112' THEN 'ADDITIONS'
+            WHEN improvement_code_{{ idx }} = '113' THEN 'DORMERS'
+            WHEN
+                improvement_code_{{ idx }} = '114'
+                THEN 'OTHER - MAJOR NEW CONSTRUCTION'
+            WHEN
+                improvement_code_{{ idx }} = '130'
+                THEN 'NEW CONSTRUCTION - MINOR IMPRVMT'
+            WHEN
+                improvement_code_{{ idx }} = '131'
+                THEN 'SWIMMING POOL - TENNIS COURT'
+            WHEN
+                improvement_code_{{ idx }} = '132'
+                THEN 'DRIVEWAYS - PATIOS - WOOD DECK'
+            WHEN improvement_code_{{ idx }} = '133' THEN 'FENCING (and Gates)'
+            WHEN improvement_code_{{ idx }} = '134' THEN 'GARAGE CARPORTS BARNS'
+            WHEN
+                improvement_code_{{ idx }} = '135'
+                THEN 'OTHER - MINOR NEW CONSTRUCTION'
+            WHEN
+                improvement_code_{{ idx }} = '151'
+                THEN 'BASEMENT ROOM - REC ROOM'
+            WHEN
+                improvement_code_{{ idx }} = '152'
+                THEN 'ATTIC ROOM - BATHROOMS'
+            WHEN
+                improvement_code_{{ idx }} = '153'
+                THEN 'FIREPLACE-CENTRAL AIR CONDITIONING'
+            WHEN improvement_code_{{ idx }} = '154' THEN 'OTHER - REMODELING'
+            WHEN improvement_code_{{ idx }} = '155' THEN '???'
+            WHEN
+                improvement_code_{{ idx }} = '156'
+                THEN 'REMODELING - INTERIOR ONLY'
+            WHEN
+                improvement_code_{{ idx }} = '157'
+                THEN 'REMODELING - EXTERIOR ONLY'
+            WHEN
+                improvement_code_{{ idx }} = '171'
+                THEN 'MAJOR IMPROVEMENT - WRECK'
+            WHEN
+                improvement_code_{{ idx }} = '172'
+                THEN 'MINOR IMPROVEMENT - WRECK'
+            WHEN
+                improvement_code_{{ idx }} = '191'
+                THEN 'MAJOR IMPROVEMENT - BURNOUT'
+            WHEN
+                improvement_code_{{ idx }} = '192'
+                THEN 'MINOR IMPROVEMENT - BURNOUT'
+            WHEN improvement_code_{{ idx }} = '211' THEN 'NEW BUILDING'
+            WHEN improvement_code_{{ idx }} = '212' THEN 'ADDITIONS'
+            WHEN
+                improvement_code_{{ idx }} = '213'
+                THEN 'OTHER - MAJOR NEW CONSTRUCTION'
+            WHEN
+                improvement_code_{{ idx }} = '231'
+                THEN 'SWIMMING POOL - TENNIS COURT'
+            WHEN improvement_code_{{ idx }} = '232' THEN 'DRIVEWAYS - PATIOS'
+            WHEN improvement_code_{{ idx }} = '233' THEN 'FENCING'
+            WHEN
+                improvement_code_{{ idx }} = '234'
+                THEN 'GARAGE-BARN-BUTLER BUILDING'
+            WHEN
+                improvement_code_{{ idx }} = '235'
+                THEN 'OTHER - MINOR NEW CONSTRUCTION'
+            WHEN improvement_code_{{ idx }} = '236' THEN '???'
+            WHEN improvement_code_{{ idx }} = '251' THEN 'PARTITIONING'
+            WHEN
+                improvement_code_{{ idx }} = '252'
+                THEN 'DECONV/CONV AMT. LIV. UT.'
+            WHEN
+                improvement_code_{{ idx }} = '253'
+                THEN 'AIR CONDITIONING - FIREPLACES'
+            WHEN
+                improvement_code_{{ idx }} = '254'
+                THEN 'BASEMENT-ATTIC ROOM BATH'
+            WHEN
+                improvement_code_{{ idx }} = '255'
+                THEN 'REPLACE-REPAIR BUILDING - FACTORY'
+            WHEN improvement_code_{{ idx }} = '256' THEN 'OTHER REMODELING'
+            WHEN
+                improvement_code_{{ idx }} = '257'
+                THEN 'REMODELING - INTERIOR ONLY'
+            WHEN
+                improvement_code_{{ idx }} = '258'
+                THEN 'REMODELING - EXTERIOR ONLY'
+            WHEN
+                improvement_code_{{ idx }} = '271'
+                THEN 'MAJOR IMPROVEMENT - WRECK'
+            WHEN
+                improvement_code_{{ idx }} = '272'
+                THEN 'MINOR IMPROVEMENT - WRECK'
+            WHEN
+                improvement_code_{{ idx }} = '291'
+                THEN 'MAJOR IMPROVEMENT - BURNOUT'
+            WHEN
+                improvement_code_{{ idx }} = '292'
+                THEN 'MINOR IMPROVEMENT - BURNOUT'
+            WHEN improvement_code_{{ idx }} = '300' THEN 'RAILROAD PROPERTIES'
+            WHEN
+                improvement_code_{{ idx }} = '310'
+                THEN 'NEW CONST MAJOR IMPROVEMENT'
+            WHEN
+                improvement_code_{{ idx }} = '311'
+                THEN 'CARRIER - NEW MAJOR CONSTRUCTION'
+            WHEN
+                improvement_code_{{ idx }} = '312'
+                THEN 'NON-CARRIER NEW MAJOR CONSTRUCTION'
+            WHEN
+                improvement_code_{{ idx }} = '330'
+                THEN 'NEW CONSTRUCTION MINOR IMPROVEMENT'
+            WHEN improvement_code_{{ idx }} = '331' THEN 'CARRIER - REMODELING'
+            WHEN
+                improvement_code_{{ idx }} = '332'
+                THEN 'NON-CARRIER - REMODELING'
+            WHEN improvement_code_{{ idx }} = '350' THEN 'REMODELING'
+            WHEN improvement_code_{{ idx }} = '351' THEN 'CARRIER - REMODELING'
+            WHEN
+                improvement_code_{{ idx }} = '352'
+                THEN 'NON-CARRIER - REMODELING'
+            WHEN improvement_code_{{ idx }} = '370' THEN 'WRECKS'
+            WHEN
+                improvement_code_{{ idx }} = '371'
+                THEN 'MAJOR IMPROVEMENT WRECK'
+            WHEN
+                improvement_code_{{ idx }} = '372'
+                THEN 'MINOR IMPROVEMENT - WRECK'
+            WHEN improvement_code_{{ idx }} = '390' THEN 'BURNOUTS'
+            WHEN
+                improvement_code_{{ idx }} = '391'
+                THEN 'MAJOR IMPROVEMENT - BURNOUT'
+            WHEN
+                improvement_code_{{ idx }} = '392'
+                THEN 'MINOR IMPROVEMENT - BURNOUT'
+            WHEN improvement_code_{{ idx }} = '400' THEN 'EXEMPT PROPERTIES'
+            WHEN improvement_code_{{ idx }} = '411' THEN 'LEASEHOLD'
+            WHEN improvement_code_{{ idx }} = '510' THEN 'RECHECKS'
+            WHEN improvement_code_{{ idx }} = '511' THEN 'OCCUPANCY'
+            WHEN
+                improvement_code_{{ idx }} = '512'
+                THEN 'PRIOR YEAR PARTIAL ASSESSMENT'
+            WHEN
+                improvement_code_{{ idx }} = '515'
+                THEN 'MANUALLY ISSUED PERMIT'
+            WHEN improvement_code_{{ idx }} = '516' THEN 'PRIOR YEAR RECHECK'
+            WHEN improvement_code_{{ idx }} = '900' THEN 'OTHER'
+        END AS improvement_code_{{ idx }}{% if not loop.last %},{% endif %}
+    {% endfor %},
+    NULL AS ":deleted" --noqa: L057
 FROM {{ ref('default.vw_pin_permit') }}
