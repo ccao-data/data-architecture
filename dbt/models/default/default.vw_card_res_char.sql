@@ -122,8 +122,8 @@ LEFT JOIN multicodes
     ON dwel.parid = multicodes.parid
     AND dwel.taxyr = multicodes.taxyr
 LEFT JOIN {{ ref('default.vw_pin_land') }} AS aggregate_land
-    ON dwel.parid = aggregate_land.parid
-    AND dwel.taxyr = aggregate_land.taxyr
+    ON dwel.parid = aggregate_land.pin
+    AND dwel.taxyr = aggregate_land.year
 LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     ON dwel.parid = leg.parid
     AND dwel.taxyr = leg.taxyr

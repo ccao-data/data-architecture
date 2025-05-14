@@ -24,7 +24,7 @@ how to construct the approriate universe of rows to purge.
                 {% if addn_table == "dweldat" %}
                     pdat.parid || cast(addndat.card as varchar) || pdat.taxyr as row_id,
                 {% elif addn_table == "htpar" %}
-                    pdat.parid || pdat.taxyr || addndat.case_no as row_id,
+                    pdat.parid || pdat.taxyr || addndat.caseno as row_id,
                 {% else %} pdat.parid || pdat.taxyr as row_id,
                 {% endif %}
                 pdat.taxyr as year,
