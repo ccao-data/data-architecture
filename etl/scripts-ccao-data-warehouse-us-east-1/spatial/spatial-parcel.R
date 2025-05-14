@@ -588,7 +588,7 @@ post_geocoding_data %>%
   relocate(year, town_code, .after = last_col()) %>%
   group_by(year, town_code) %>%
   write_partitions_to_s3(
-    "s3://ccao-data-warehouse-us-east-1/spatial/parcel",
+    output_bucket,
     is_spatial = TRUE,
     overwrite = TRUE
   )
