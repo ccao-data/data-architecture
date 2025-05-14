@@ -20,45 +20,55 @@ how to construct the approriate universe of rows to purge.
 ) %}
     full outer join
         (
-            -- Unfortunately, some iasworld tables are not unique by the columns
-            -- we expect them to be when look at deactivated rows, so we need to
-            -- use distinct.
-            select
-                {% if addn_table == "htpar" %} distinct {% endif %}
-                {% if addn_table == "dweldat" %}
-                    pdat.parid || cast(addndat.card as varchar) || pdat.taxyr as row_id,
-                {% elif addn_table == "htpar" %}
-                    pdat.parid || pdat.taxyr || addndat.caseno as row_id,
-                {% else %} pdat.parid || pdat.taxyr as row_id,
+            {% if addn_table == "sales" %}
+                select
+                    salekey as row_id, substr(saledt, 1, 4) as year, true as ":deleted"
+                from {{ source("iasworld", addn_table) }}
+            {% else %}
+                select
+                    {% if addn_table == "dweldat" %}
+                        pdat.parid
+                        || cast(addndat.card as varchar)
+                        || pdat.taxyr as row_id,
+                    -- Unfortunately, some iasworld tables are not unique by the columns
+                    -- we expect them to be when look at deactivated rows, so we need to
+                    -- use distinct.
+                    {% elif addn_table == "htpar" %}
+                        distinct pdat.parid || pdat.taxyr || addndat.caseno as row_id,
+                    {% else %} pdat.parid || pdat.taxyr as row_id,
+                    {% endif %}
+                    pdat.taxyr as year,
+                    true as ":deleted"
+                from {{ source("iasworld", "pardat") }} as pdat
+                {% if addn_table is not none %}
+                    {% if addn_table in ["dweldat", "htpar"] %} inner join
+                    {% else %} left join
+                    {% endif %}
+                        {{ source("iasworld", addn_table) }} as addndat
+                        on pdat.parid = addndat.parid
+                        and pdat.taxyr = addndat.taxyr
                 {% endif %}
-                pdat.taxyr as year,
-                true as ":deleted"
-            from {{ source("iasworld", "pardat") }} as pdat
-            {% if addn_table is not none %}
-                {% if addn_table in ["dweldat", "htpar"] %} inner join
-                {% else %} left join
-                {% endif %}
-                    {{ source("iasworld", addn_table) }} as addndat
-                    on pdat.parid = addndat.parid
-                    and pdat.taxyr = addndat.taxyr
-            {% endif %}
-            where
-                pdat.deactivat is not null
-                {% if addn_table == "htpar" %}
-                    or (
-                        (
-                            addndat.deactivat is not null
-                            or addndat.heartyp not in ('A', 'C')
+                where
+                    pdat.deactivat is not null
+                    {% if addn_table == "htpar" %}
+                        or (
+                            (
+                                addndat.deactivat is not null
+                                or addndat.heartyp not in ('A', 'C')
+                            )
+                            and addndat.caseno is not null
                         )
-                        and addndat.caseno is not null
-                    )
-                {% endif %}
-                {% if addn_table == "owndat" %} or addndat.ownnum is null {% endif %}
-                {% if condo == true %} or pdat.class not in ('299', '399') {% endif %}
-                {% if allow_999 == false %} or pdat.class = '999' {% endif %}
-
+                    {% endif %}
+                    {% if addn_table == "owndat" %} or addndat.ownnum is null
+                    {% endif %}
+                    {% if condo == true %} or pdat.class not in ('299', '399')
+                    {% endif %}
+                    {% if allow_999 == false %} or pdat.class = '999'
+                    {% endif %}
+            {% endif %}
         ) as deleted_rows
-        {% if addn_table == "dweldat" %}
+        {% if addn_table == "sales" %} on feeder.sale_key
+        {% elif addn_table == "dweldat" %}
             on feeder.pin || cast(feeder.card as varchar) || feeder.year
         {% elif addn_table == "htpar" %} on feeder.pin || feeder.year || feeder.case_no
         {% else %} on feeder.pin || feeder.year

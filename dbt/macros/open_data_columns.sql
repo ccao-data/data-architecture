@@ -18,7 +18,7 @@ data, which includes card in row_id rather than just pin and year.
                 feeder.{{ row_id_cols | join(" as varchar) || cast(feeder.") }}
                 as varchar
             ),
-            deleted_rows.row_id
+            cast(deleted_rows.row_id as varchar)
         ) as row_id,
     {%- else -%} coalesce(feeder.pin || feeder.year, deleted_rows.row_id) as row_id,
     {%- endif %}
