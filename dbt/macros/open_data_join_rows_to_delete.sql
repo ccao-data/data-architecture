@@ -20,12 +20,18 @@ how to construct the approriate universe of rows to purge.
 ) %}
     full outer join
         (
+            select
             {% if addn_table == "sales" %}
-                select
-                    salekey as row_id, substr(saledt, 1, 4) as year, true as ":deleted"
+                    salekey as row_id,
+                    substr(saledt, 1, 4) as year,
+                    true as ":deleted"
+                from {{ source("iasworld", addn_table) }}
+            {% elif addn_table == "permit" %}
+                    parid || coalesce(num, '') || coalesce(permdt, '') as row_id,
+                    substr(permdt, 1, 4) as year,
+                    true as ":deleted"
                 from {{ source("iasworld", addn_table) }}
             {% else %}
-                select
                     {% if addn_table == "dweldat" %}
                         pdat.parid
                         || cast(addndat.card as varchar)
@@ -68,6 +74,10 @@ how to construct the approriate universe of rows to purge.
             {% endif %}
         ) as deleted_rows
         {% if addn_table == "sales" %} on feeder.sale_key
+        {% elif addn_table == "permit" %}
+            on feeder.pin
+            || coalesce(feeder.permit_number, '')
+            || coalesce(feeder.date_issued, '')
         {% elif addn_table == "dweldat" %}
             on feeder.pin || cast(feeder.card as varchar) || feeder.year
         {% elif addn_table == "htpar" %} on feeder.pin || feeder.year || feeder.case_no
