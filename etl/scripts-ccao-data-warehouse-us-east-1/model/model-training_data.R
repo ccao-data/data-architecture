@@ -65,16 +65,11 @@ for (i in seq_len(nrow(metadata))) {
     collect()
 
   # Ensure known type mismatches are cast consistently
-  if ("ccao_is_active_exe_homeowner" %in% names(df)) {
-    df <- df %>%
-      mutate(
-        ccao_is_active_exe_homeowner =
-          as.logical(ccao_is_active_exe_homeowner)
-      )
-  }
+  df <- df %>%
+    mutate(across(matches('ccao_is_active_exe_homeowner'), as.logical))
 
   # Add run_id after cleaning types
-  df <- df %>%
+df %>%
     mutate(run_id = run_id) %>%
     group_by(run_id) %>%
     write_partitions_to_s3(
