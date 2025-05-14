@@ -3,39 +3,28 @@ import re
 import pandas as pd
 import pyarrow.dataset as ds
 
-# dbt configs
-config = {
-    "materialized": "incremental",
-    "file_format": "parquet",
-    "incremental_strategy": "insert_overwrite",
-    "on_schema_change": "append_new_columns",
-}
-
 
 def model(dbt, session):
-    dbt.config(**config)
+    # overwrite only the run_id partitions we emit
+    dbt.config(
+        materialized="incremental",
+        incremental_strategy="insert_overwrite",
+        partitions_by=[{"field": "run_id", "data_type": "string"}],
+        file_format="parquet",
+        on_schema_change="append_new_columns",
+    )
 
-    # Get the maximum year
-    if dbt.is_incremental:
-        existing = dbt.ref("model.training_data").to_pandas()
-        max_loaded_year = existing["year"].max() if not existing.empty else 0
-    else:
-        max_loaded_year = 0
-
-    # Query metadata for new runs
-    query = f"""
-        SELECT run_id, year, dvc_md5_assessment_data, model_predictor_all_name
+    # grab all final runs via Spark SQL
+    query = """
+        SELECT
+          run_id,
+          year,
+          dvc_md5_assessment_data,
+          model_predictor_all_name
         FROM model.metadata
         WHERE run_type = 'final'
-          AND year > {max_loaded_year}
     """
-    metadata = session.execute(query).fetch_arrow_table().to_pandas()
-
-    if metadata.empty:
-        dbt.log("No new metadata found.")
-        return pd.DataFrame(
-            columns=["meta_pin", "meta_card_num", "run_id", "year"]
-        )
+    metadata = session.sql(query).toPandas()
 
     all_dfs = []
     predictors_union = set()
@@ -44,26 +33,30 @@ def model(dbt, session):
         run_id = row["run_id"]
         year = row["year"]
         dvc_hash = row["dvc_md5_assessment_data"]
-        predictors_raw = row["model_predictor_all_name"]
+        preds_raw = row["model_predictor_all_name"]
 
-        predictors = [
+        # parse predictor list
+        preds = [
             col.strip()
-            for col in re.sub(r"^\[|\]$", "", predictors_raw).split(",")
+            for col in re.sub(r"^\[|\]$", "", preds_raw).split(",")
+            if col.strip()
         ]
-        predictors_union.update(predictors)
+        predictors_union.update(preds)
 
-        dvc_prefix = "" if int(year) <= 2023 else "files/md5/"
-        dvc_path = f"s3://ccao-data-dvc-us-east-1/{dvc_prefix}{dvc_hash[:2]}/{dvc_hash[2:]}"
+        # build the S3 path
+        prefix = "" if int(year) <= 2023 else "files/md5/"
+        path = f"s3://ccao-data-dvc-us-east-1/{prefix}{dvc_hash[:2]}/{dvc_hash[2:]}"
 
         try:
-            dataset = ds.dataset(dvc_path, format="parquet")
+            dataset = ds.dataset(path, format="parquet")
             df = dataset.to_table(
-                columns=["meta_pin", "meta_card_num"] + predictors
+                columns=["meta_pin", "meta_card_num"] + preds
             ).to_pandas()
         except Exception as e:
-            dbt.log(f"Error reading {dvc_path}: {e}")
+            dbt.log(f"Error reading {path}: {e}")
             continue
 
+        # ensure correct boolean type
         if "ccao_is_active_exe_homeowner" in df.columns:
             df["ccao_is_active_exe_homeowner"] = df[
                 "ccao_is_active_exe_homeowner"
@@ -75,12 +68,15 @@ def model(dbt, session):
         all_dfs.append(df)
         dbt.log(f"Processed run_id={run_id}, year={year}, rows={len(df)}")
 
+    # if nothing was read, return an empty DF with the expected schema
     if not all_dfs:
-        dbt.log("No new records to process.")
-        return pd.DataFrame(
-            columns=["meta_pin", "meta_card_num", "run_id", "year"]
-            + sorted(predictors_union)
+        cols = ["meta_pin", "meta_card_num", "run_id", "year"] + sorted(
+            predictors_union
         )
+        dbt.log(
+            f"No data found for any run; returning empty DataFrame with columns: {cols}"
+        )
+        return pd.DataFrame(columns=cols)
 
-    result_df = pd.concat(all_dfs, ignore_index=True)
-    return result_df
+    # concatenate and return
+    return pd.concat(all_dfs, ignore_index=True)
