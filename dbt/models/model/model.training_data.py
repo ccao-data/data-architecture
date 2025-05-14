@@ -15,14 +15,14 @@ config = {
 def model(dbt, session):
     dbt.config(**config)
 
+    # Get the maximum year already loaded if incremental
     if dbt.is_incremental:
-        # Get max year already in the table
-        existing_max_year_df = dbt.ref("model_training_data").to_pandas()
-        max_loaded_year = existing_max_year_df["year"].max()
+        existing = dbt.ref("model__training_data").to_pandas()
+        max_loaded_year = existing["year"].max() if not existing.empty else 0
     else:
         max_loaded_year = 0
 
-    # Query final model metadata for years > max_loaded_year
+    # Query metadata for new runs
     query = f"""
         SELECT run_id, year, dvc_md5_assessment_data, model_predictor_all_name
         FROM model.metadata
@@ -32,9 +32,13 @@ def model(dbt, session):
     metadata = session.execute(query).fetch_arrow_table().to_pandas()
 
     if metadata.empty:
-        return pd.DataFrame()  # nothing new to process
+        dbt.log("No new metadata found.")
+        return pd.DataFrame(
+            columns=["meta_pin", "meta_card_num", "run_id", "year"]
+        )
 
     all_dfs = []
+    predictors_union = set()
 
     for _, row in metadata.iterrows():
         run_id = row["run_id"]
@@ -46,8 +50,8 @@ def model(dbt, session):
             col.strip()
             for col in re.sub(r"^\[|\]$", "", predictors_raw).split(",")
         ]
+        predictors_union.update(predictors)
 
-        # Construct DVC path depending on year
         dvc_prefix = "" if int(year) <= 2023 else "files/md5/"
         dvc_path = f"s3://ccao-data-dvc-us-east-1/{dvc_prefix}{dvc_hash[:2]}/{dvc_hash[2:]}"
 
@@ -60,7 +64,6 @@ def model(dbt, session):
             dbt.log(f"Error reading {dvc_path}: {e}")
             continue
 
-        # Ensure type consistency for a column with different types
         if "ccao_is_active_exe_homeowner" in df.columns:
             df["ccao_is_active_exe_homeowner"] = df[
                 "ccao_is_active_exe_homeowner"
@@ -70,10 +73,14 @@ def model(dbt, session):
         df["year"] = year
 
         all_dfs.append(df)
-
         dbt.log(f"Processed run_id={run_id}, year={year}, rows={len(df)}")
 
-    if all_dfs:
-        return pd.concat(all_dfs, ignore_index=True)
-    else:
-        return pd.DataFrame()
+    if not all_dfs:
+        dbt.log("No new records to process.")
+        return pd.DataFrame(
+            columns=["meta_pin", "meta_card_num", "run_id", "year"]
+            + sorted(predictors_union)
+        )
+
+    result_df = pd.concat(all_dfs, ignore_index=True)
+    return result_df
