@@ -5,11 +5,11 @@
 -- If the `print` argument is set to True (default is False), the macro will
 -- print the results of the query to stdout, which allows this macro to be used
 -- by scripts to return data.
-{% macro row_count_by_group(model, group_by, ordering="asc", where=None, print=False) %}
+{% macro row_count_by_group(model, group_by, ordering="asc", where=none, print=False) %}
     {% set query %}
         select count(*) as COUNT, {{ group_by }}
         from {{ model }}
-        {% if where is not None %}
+        {% if where is not none %}
             where {{ where }}
         {% endif %}
         group by {{ group_by }}
