@@ -84,7 +84,7 @@ process_parcel_file <- function(s3_bucket_uri,
     bucket = AWS_S3_WAREHOUSE_BUCKET,
     prefix = file.path("spatial", "parcel")
   ) %>%
-    filter(Size > 0, str_detect(Key, file_year), !str_detect(Key, "test2"))
+    filter(Size > 0, str_detect(Key, file_year))
 
   # Skip processing if expected data already exists in warehouse
   if (nrow(file_year_processed) != 39) {
@@ -456,6 +456,8 @@ pre_geocoding_data <- open_dataset(
   filter(source == "raw") %>%
   mutate(year = as.character(year))
 
+gc()
+
 # Get unique combinations of PIN10 and year. There is no reason why the lowest
 # value PIN is better, but we do it for a reproducable query.
 # We remove info from before 2000 since almost all lon/lat information
@@ -578,17 +580,22 @@ duplicate_keys <- post_geocoding_data %>%
   group_by(pin10, year) %>%
   filter(n() > 1)
 
+gc()
+
 if (nrow(duplicate_keys) > 0) {
   stop("Duplicate rows found pin10 and year combinations. Check rbind")
 }
 
 # Write final dataframe to dataset on S3, partitioned by town and year
 post_geocoding_data %>%
-  mutate(uploaded_before_geocoding = FALSE) %>%
+  mutate(
+    uploaded_before_geocoding = FALSE,
+    town_code = as.character(town_code)
+  ) %>%
   relocate(year, town_code, .after = last_col()) %>%
   group_by(year, town_code) %>%
   write_partitions_to_s3(
-    "s3://ccao-data-warehouse-us-east-1/spatial/parcel",
+    output_bucket,
     is_spatial = TRUE,
     overwrite = TRUE
   )
