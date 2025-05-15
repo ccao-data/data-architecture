@@ -456,6 +456,8 @@ pre_geocoding_data <- open_dataset(
   filter(source == "raw") %>%
   mutate(year = as.character(year))
 
+gc()
+
 # Get unique combinations of PIN10 and year. There is no reason why the lowest
 # value PIN is better, but we do it for a reproducable query.
 # We remove info from before 2000 since almost all lon/lat information
@@ -577,6 +579,8 @@ post_geocoding_data <- bind_rows(pre_geocoding_data, imputed, geocoded)
 duplicate_keys <- post_geocoding_data %>%
   group_by(pin10, year) %>%
   filter(n() > 1)
+
+gc()
 
 if (nrow(duplicate_keys) > 0) {
   stop("Duplicate rows found pin10 and year combinations. Check rbind")
