@@ -1,5 +1,3 @@
-import re
-
 import pandas as pd
 import pyarrow.dataset as ds
 
@@ -31,26 +29,21 @@ def model(dbt, session):
 
     for _, row in metadata.iterrows():
         run_id = row["run_id"]
-        year = row["year"]
+        year = int(row["year"])
         dvc_hash = row["dvc_md5_assessment_data"]
         preds_raw = row["model_predictor_all_name"]
 
-        # parse predictor list
-        preds = [
-            col.strip()
-            for col in re.sub(r"^\[|\]$", "", preds_raw).split(",")
-            if col.strip()
-        ]
-        predictors_union.update(preds)
+        print(preds_raw)
 
         # build the S3 path
-        prefix = "" if int(year) <= 2023 else "files/md5/"
+        prefix = "" if year <= 2023 else "files/md5/"
         path = f"s3://ccao-data-dvc-us-east-1/{prefix}{dvc_hash[:2]}/{dvc_hash[2:]}"
+        print(path)
 
         try:
             dataset = ds.dataset(path, format="parquet")
             df = dataset.to_table(
-                columns=["meta_pin", "meta_card_num"] + preds
+                columns=["meta_pin", "meta_card_num"] + preds_raw
             ).to_pandas()
         except Exception as e:
             dbt.log(f"Error reading {path}: {e}")
@@ -62,19 +55,19 @@ def model(dbt, session):
                 "ccao_is_active_exe_homeowner"
             ].astype(bool)
 
+        # only add run_id
         df["run_id"] = run_id
-        df["year"] = year
 
         all_dfs.append(df)
         dbt.log(f"Processed run_id={run_id}, year={year}, rows={len(df)}")
 
     # if nothing was read, return an empty DF with the expected schema
     if not all_dfs:
-        cols = ["meta_pin", "meta_card_num", "run_id", "year"] + sorted(
+        cols = ["meta_pin", "meta_card_num", "run_id"] + sorted(
             predictors_union
         )
         dbt.log(
-            f"No data found for any run; returning empty DataFrame with columns: {cols}"
+            f"No data found; returning empty DataFrame with columns: {cols}"
         )
         return pd.DataFrame(columns=cols)
 
