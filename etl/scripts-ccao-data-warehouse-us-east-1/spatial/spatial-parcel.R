@@ -84,7 +84,7 @@ process_parcel_file <- function(s3_bucket_uri,
     bucket = AWS_S3_WAREHOUSE_BUCKET,
     prefix = file.path("spatial", "parcel")
   ) %>%
-    filter(Size > 0, str_detect(Key, file_year), !str_detect(Key, "test2"))
+    filter(Size > 0, str_detect(Key, file_year))
 
   # Skip processing if expected data already exists in warehouse
   if (nrow(file_year_processed) != 39) {
