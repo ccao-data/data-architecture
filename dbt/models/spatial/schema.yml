@@ -133,7 +133,12 @@ sources:
 
       - name: parcel
         description: '{{ doc("table_parcel") }}'
-
+        columns:
+          - name: source
+            description: |
+              Column denoting if the parcel's geography was derived from Cook County GIS `raw`,
+              `imputed` (using a previous or future year of the same parcel), or
+              `geocoded` with tidygeocoder.
       - name: park
         description: '{{ doc("table_park") }}'
 

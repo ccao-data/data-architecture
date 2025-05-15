@@ -86,7 +86,7 @@ write_partitions_to_s3 <- function(df,
       } else {
         arrow::write_parquet(.x, tmp_file, compression = "snappy")
       }
-      aws.s3::put_object(tmp_file, remote_path)
+      aws.s3::put_object(tmp_file, remote_path, multipart = TRUE)
     }
   })
 }
