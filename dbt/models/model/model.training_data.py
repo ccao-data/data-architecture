@@ -1,9 +1,10 @@
 import pandas as pd
 import pyarrow.dataset as ds
+import pyarrow.fs as fs
 
 
 def model(dbt, session):
-    # overwrite only the run_id partitions we emit
+    # configure incremental insert-overwrite by run_id
     dbt.config(
         materialized="incremental",
         incremental_strategy="insert_overwrite",
@@ -12,64 +13,56 @@ def model(dbt, session):
         on_schema_change="append_new_columns",
     )
 
+    # build a PyArrow S3FileSystem with the right region
+    s3 = fs.S3FileSystem(region="us-east-1")
+
     # grab all final runs via Spark SQL
     query = """
         SELECT
-          run_id,
-          year,
-          dvc_md5_assessment_data,
-          model_predictor_all_name
+          CAST(run_id                  AS STRING) AS run_id,
+          CAST(year                    AS STRING) AS year,
+          CAST(dvc_md5_assessment_data AS STRING) AS dvc_md5_assessment_data
         FROM model.metadata
         WHERE run_type = 'final'
     """
     metadata = session.sql(query).toPandas()
 
+    bucket = "ccao-data-dvc-us-east-1"
     all_dfs = []
-    predictors_union = set()
 
     for _, row in metadata.iterrows():
         run_id = row["run_id"]
         year = int(row["year"])
         dvc_hash = row["dvc_md5_assessment_data"]
-        preds_raw = row["model_predictor_all_name"]
 
-        print(preds_raw)
-
-        # build the S3 path
+        # for post-2023 we have the extra files/md5/ prefix
         prefix = "" if year <= 2023 else "files/md5/"
-        path = f"s3://ccao-data-dvc-us-east-1/{prefix}{dvc_hash[:2]}/{dvc_hash[2:]}"
-        print(path)
+        key = f"{prefix}{dvc_hash[:2]}/{dvc_hash[2:]}"
+        s3_path = f"{bucket}/{key}"
+
+        print(f">>> reading all columns for run {run_id!r}")
+        print(f"    →   S3 key = {s3_path}")
 
         try:
-            dataset = ds.dataset(path, format="parquet")
-            df = dataset.to_table(
-                columns=["meta_pin", "meta_card_num"] + preds_raw
-            ).to_pandas()
+            # note: no "s3://", just "bucket/key/..."
+            dataset = ds.dataset(s3_path, filesystem=s3, format="parquet")
+            df = dataset.to_table().to_pandas()
         except Exception as e:
-            dbt.log(f"Error reading {path}: {e}")
+            print(f"[WARN] Error reading {s3_path!r}: {e}")
             continue
 
-        # ensure correct boolean type
-        if "ccao_is_active_exe_homeowner" in df.columns:
+        # coerce booleans if needed
+        if "ccao_is_active_exe_homeowner" in df:
             df["ccao_is_active_exe_homeowner"] = df[
                 "ccao_is_active_exe_homeowner"
             ].astype(bool)
 
-        # only add run_id
         df["run_id"] = run_id
-
         all_dfs.append(df)
-        dbt.log(f"Processed run_id={run_id}, year={year}, rows={len(df)}")
+        print(f"[INFO] Processed run_id={run_id}, rows={len(df)}")
 
-    # if nothing was read, return an empty DF with the expected schema
     if not all_dfs:
-        cols = ["meta_pin", "meta_card_num", "run_id"] + sorted(
-            predictors_union
-        )
-        dbt.log(
-            f"No data found; returning empty DataFrame with columns: {cols}"
-        )
-        return pd.DataFrame(columns=cols)
+        print("[INFO] No data found; returning empty DataFrame.")
+        return pd.DataFrame(columns=["run_id"])
 
-    # concatenate and return
     return pd.concat(all_dfs, ignore_index=True)
