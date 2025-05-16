@@ -1,6 +1,6 @@
-import pandas as pd
-import pyarrow.dataset as ds
-import pyarrow.fs as fs
+import functools
+
+from pyspark.sql.functions import lit
 
 
 def model(dbt, session):
@@ -13,9 +13,6 @@ def model(dbt, session):
         on_schema_change="append_new_columns",
     )
 
-    # build a PyArrow S3FileSystem with the right region
-    s3 = fs.S3FileSystem(region="us-east-1")
-
     # grab all final runs via Spark SQL
     query = """
         SELECT
@@ -26,6 +23,11 @@ def model(dbt, session):
         WHERE run_type = 'final'
     """
     metadata = session.sql(query).toPandas()
+
+    if metadata.shape[0] == 0:
+        raise ValueError(
+            "No final model run data found; cannot extract training data"
+        )
 
     bucket = "ccao-data-dvc-us-east-1"
     all_dfs = []
@@ -42,27 +44,20 @@ def model(dbt, session):
 
         print(f">>> reading all columns for run {run_id!r}")
         print(f"    →   S3 key = {s3_path}")
-
-        try:
-            # note: no "s3://", just "bucket/key/..."
-            dataset = ds.dataset(s3_path, filesystem=s3, format="parquet")
-            df = dataset.to_table().to_pandas()
-        except Exception as e:
-            print(f"[WARN] Error reading {s3_path!r}: {e}")
-            continue
+        df = session.read.parquet(f"s3://{s3_path}")
 
         # coerce booleans if needed
-        if "ccao_is_active_exe_homeowner" in df:
-            df["ccao_is_active_exe_homeowner"] = df[
-                "ccao_is_active_exe_homeowner"
-            ].astype(bool)
+        if "ccao_is_active_exe_homeowner" in df.columns:
+            df = df.withColumn(
+                "ccao_is_active_exe_homeowner",
+                df["ccao_is_active_exe_homeowner"].cast("boolean"),
+            )
+        # add run_id column
+        df = df.withColumn("run_id", lit(run_id))
 
-        df["run_id"] = run_id
         all_dfs.append(df)
-        print(f"[INFO] Processed run_id={run_id}, rows={len(df)}")
+        print(f"Processed run_id={run_id}, rows={df.count()}")
 
-    if not all_dfs:
-        print("[INFO] No data found; returning empty DataFrame.")
-        return pd.DataFrame(columns=["run_id"])
-
-    return pd.concat(all_dfs, ignore_index=True)
+    return functools.reduce(
+        lambda x, y: x.unionByName(y, allowMissingColumns=True), all_dfs
+    )
