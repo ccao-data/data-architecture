@@ -1,7 +1,8 @@
 WITH runs_to_include AS (
     SELECT
         run_id,
-        model_predictor_all_name
+        model_predictor_all_name,
+        assessment_triad
     FROM {{ source('model', 'metadata') }}
     -- This will eventually grab all run_ids where
     -- run_type == comps
@@ -67,13 +68,14 @@ SELECT
     || 'K' AS sale_price_short,
     ROUND(train.meta_sale_price / NULLIF(train.char_bldg_sf, 0))
         AS sale_price_per_sq_ft,
-    format_datetime(train.meta_sale_date, 'MMM yyyy') AS sale_month_year,
+    FORMAT_DATETIME(train.meta_sale_date, 'MMM yyyy') AS sale_month_year,
     train.*,
     school.school_elementary_district_name
         AS loc_school_elementary_district_name,
     school.school_secondary_district_name
         AS loc_school_secondary_district_name,
     meta.model_predictor_all_name,
+    meta.assessment_triad,
     CASE
         WHEN s.min_year = s.max_year THEN CAST(s.min_year AS VARCHAR)
         ELSE CAST(s.min_year AS VARCHAR)
