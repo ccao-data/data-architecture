@@ -599,7 +599,6 @@ geocoded <- map(batch_list, geocode_batch) %>%
     mismatch   = pin_prefix != section
   ) %>%
   filter(!mismatch) %>%
-  st_transform(town_crs) %>%
   st_join(township %>%
     select(township_code)) %>% # nolint: indentation_linter
   st_drop_geometry() %>%
