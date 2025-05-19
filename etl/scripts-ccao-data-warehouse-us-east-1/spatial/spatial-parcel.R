@@ -570,7 +570,7 @@ geocoded <- map(batch_list, geocode_batch) %>%
   # general "neighborhood" rather than just within Cook County.
   filter(mismatch == FALSE) %>%
   st_drop_geometry() %>%
-  select(pin10, year, lat, long, x_3435, y_3435) %>%
+  select(pin10, year, lat, lon, x_3435, y_3435) %>%
   mutate(source = "geocoded")
 
 post_geocoding_data <- bind_rows(pre_geocoding_data, imputed, geocoded)
