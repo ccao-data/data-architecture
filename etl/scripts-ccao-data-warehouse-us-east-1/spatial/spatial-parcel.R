@@ -459,7 +459,7 @@ pre_geocoding_data <- open_dataset(
 gc()
 
 # Get unique combinations of PIN10 and year. There is no reason why the lowest
-# value PIN is better, but we do it for a reproducable query.
+# value PIN is better, but we do it for a reproducible query.
 # We remove info from before 2000 since almost all lon/lat information
 # is missing
 all_addresses <- dbGetQuery(
@@ -491,6 +491,17 @@ all_addresses <- dbGetQuery(
   # is available.
   filter(year <= max(pre_geocoding_data$year, na.rm = TRUE))
 
+# The upload is partitioned by town_code, so we need to do a st_intersection
+township <- dbGetQuery(
+  conn = con,
+  statement =
+    "SELECT * FROM spatial.township"
+) %>%
+  mutate(geometry = st_as_sfc(geometry_3435, EWKB = TRUE)) %>%
+  st_as_sf(crs = 3435)
+
+town_crs <- st_crs(township)
+
 # We will use the Sidwell grid to compare the first 4 digits
 # of the geocoded PIN10s against their expected location.
 sidwell_sf <- dbGetQuery(
@@ -517,13 +528,30 @@ missing_geographies <- pre_geocoding_data %>%
   ungroup() %>%
   filter(missing)
 
-
 # Split the missing parcels into those which were encoded with inputed technique
 # and those which still need to be calculated with geocoding
+# grab township CRS object
+
 imputed <- missing_geographies %>%
-  filter(!is.na(x_3435) & !is.na(y_3435) & !is.na(lon) & !is.na(lat)) %>%
-  select(pin10, year, x_3435, y_3435, lon, lat) %>%
-  mutate(source = "imputed")
+  filter(
+    !is.na(x_3435),
+    !is.na(y_3435),
+    !is.na(lon),
+    !is.na(lat)
+  ) %>%
+  st_as_sf(coords = c("x_3435", "y_3435"), remove = FALSE) %>%
+  st_set_crs(town_crs) %>%
+  st_join(township %>%
+    select(township_code)) %>% # nolint: indentation_linter
+  st_drop_geometry() %>%
+  select(pin10, year, x_3435, y_3435, lon,
+    lat,
+    town_code = township_code
+  ) %>%
+  mutate(
+    town_code = as.integer(town_code),
+    source = "imputed"
+  )
 
 missing_geographies <- missing_geographies %>%
   filter(is.na(x_3435) & is.na(y_3435) & is.na(lon) & is.na(lat)) %>%
@@ -569,9 +597,18 @@ geocoded <- map(batch_list, geocode_batch) %>%
   # This provides a verification that PIN10s are in the correct
   # general "neighborhood" rather than just within Cook County.
   filter(mismatch == FALSE) %>%
+  st_join(township %>%
+    select(township_code)) %>% # nolint: indentation_linter
   st_drop_geometry() %>%
-  select(pin10, year, lat, lon = long, x_3435, y_3435) %>%
-  mutate(source = "geocoded")
+  select(pin10, year, lat,
+    lon = long, x_3435,
+    y_3435,
+    town_code = township_code
+  ) %>%
+  mutate(
+    town_code = as.integer(town_code),
+    source = "geocoded"
+  )
 
 post_geocoding_data <- bind_rows(pre_geocoding_data, imputed, geocoded)
 
