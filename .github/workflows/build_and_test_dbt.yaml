@@ -98,7 +98,7 @@ jobs:
               dbt test -t "$TARGET" -s ${{ inputs.models }} --exclude "tag:data_test_iasworld" --indirect-selection cautious --defer --state "$STATE_DIR"
             else
               echo "Running tests on modified/new resources only"
-              dbt test -t "$TARGET" -s state:modified state:new --exclude "tag:data_test_iasworld" --indirect-selection cautious --defer --state "$STATE_DIR"
+              dbt test -t "$TARGET" --selector select_data_test_new_or_modified_non_iasworld --defer --state "$STATE_DIR"
             fi
           else
             echo "Running tests on all resources"

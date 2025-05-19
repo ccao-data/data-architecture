@@ -29,3 +29,21 @@ selectors:
           - method: tag
             value: data_test_iasworld
             indirect_selection: cautious
+
+  - name: select_data_test_new_or_modified_non_iasworld
+    description: >
+      Selector for running new or modified tests, while excluding iasWorld data
+      tests
+    definition:
+      intersection:
+        - method: resource_type
+          value: test
+        - union:
+            - method: state
+              value: new
+            - method: state
+              value: modified
+        - exclude:
+            - method: tag
+              value: data_test_iasworld
+              indirect_selection: cautious
