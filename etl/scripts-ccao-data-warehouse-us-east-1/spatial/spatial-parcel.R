@@ -530,7 +530,6 @@ missing_geographies <- pre_geocoding_data %>%
 
 # Split the missing parcels into those which were encoded with inputed technique
 # and those which still need to be calculated with geocoding
-# grab township CRS object
 
 imputed <- missing_geographies %>%
   filter(
