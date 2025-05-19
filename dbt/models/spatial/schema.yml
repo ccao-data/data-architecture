@@ -136,9 +136,16 @@ sources:
         columns:
           - name: source
             description: |
-              Column denoting if the parcel's geography was derived from Cook County GIS `raw`,
-              `imputed` (using a previous or future year of the same parcel), or
-              `geocoded` with tidygeocoder.
+              Column denoting where the parcel geography is derived from.
+              Possible values are:
+              - `raw`: County GIS department
+              - `imputed`: Imputed with up-down filling from other years of 
+              the same PIN10
+              - `geocoded`: Geocoded using tidygeocoder
+          - name: uploaded_before_geocoding
+            description: |
+              Binary variable indiciating whether the parcel has gone through
+              the geocoding process to fill missing observations.
       - name: park
         description: '{{ doc("table_park") }}'
 
