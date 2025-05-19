@@ -65,6 +65,8 @@ how to construct the approriate universe of rows to purge.
                             and addndat.caseno is not null
                         )
                     {% endif %}
+                    {% if addn_table == "dweldat" %} or addndat.deactivat is not null
+                    {% endif %}
                     {% if addn_table == "owndat" %} or addndat.ownnum is null
                     {% endif %}
                     {% if condo == true %} or pdat.class not in ('299', '399')
