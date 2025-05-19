@@ -492,25 +492,23 @@ all_addresses <- dbGetQuery(
   filter(year <= max(pre_geocoding_data$year, na.rm = TRUE))
 
 # The upload is partitioned by town_code, so we need to do a st_intersection
-township <- dbGetQuery(
-  conn = con,
-  statement =
-    "SELECT * FROM spatial.township"
-) %>%
-  mutate(geometry = st_as_sfc(geometry_3435, EWKB = TRUE)) %>%
-  st_as_sf(crs = 3435)
+township <- read_geoparquet_sf(
+  file.path(
+    AWS_S3_WAREHOUSE_BUCKET,
+    "spatial", "ccao", "township", "2022.parquet"
+  )
+)
 
 town_crs <- st_crs(township)
 
 # We will use the Sidwell grid to compare the first 4 digits
 # of the geocoded PIN10s against their expected location.
-sidwell_sf <- dbGetQuery(
-  conn = con,
-  statement =
-    "SELECT section, geometry_3435, geometry FROM spatial.sidwell_grid"
-) %>%
-  mutate(geometry = st_as_sfc(geometry_3435, EWKB = TRUE)) %>%
-  st_as_sf(crs = 3435)
+sidwell_sf <- read_geoparquet_sf(
+  file.path(
+    AWS_S3_WAREHOUSE_BUCKET,
+    "spatial", "tax", "sidwell_grid", "sidwell_grid.parquet"
+  )
+)
 
 # Identify any PIN10s which are present in all_addresses, but not
 # present in spatial.parcel.
