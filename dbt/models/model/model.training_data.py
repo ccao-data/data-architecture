@@ -9,6 +9,7 @@ def model(dbt, session):
         materialized="incremental",
         incremental_strategy="insert_overwrite",
         partitions_by=[{"field": "run_id", "data_type": "string"}],
+        unique_key="run_id",
         on_schema_change="append_new_columns",
     )
 
