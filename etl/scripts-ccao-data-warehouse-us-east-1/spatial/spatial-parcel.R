@@ -497,7 +497,8 @@ township <- read_geoparquet_sf(
     AWS_S3_WAREHOUSE_BUCKET,
     "spatial", "ccao", "township", "2022.parquet"
   )
-)
+) %>%
+  st_make_valid()
 
 town_crs <- st_crs(township)
 
@@ -508,7 +509,10 @@ sidwell_sf <- read_geoparquet_sf(
     AWS_S3_WAREHOUSE_BUCKET,
     "spatial", "tax", "sidwell_grid", "sidwell_grid.parquet"
   )
-)
+) %>%
+  select(-year)
+
+sidwell_crs <- st_crs(sidwell_sf)
 
 # Identify any PIN10s which are present in all_addresses, but not
 # present in spatial.parcel.
@@ -585,21 +589,23 @@ geocode_batch <- function(batch) {
 # Apply geocoding to each batch and combine results
 geocoded <- map(batch_list, geocode_batch) %>%
   bind_rows() %>%
-  st_join(sidwell_sf) %>% # spatially join geocoded points to Sidwell grid
-  mutate(
-    pin_prefix = substr(pin10, 1, 4),
-    mismatch = pin_prefix != section
-  ) %>%
   # Keep only observations where first 4 digits match Sidwell Grid
   # This provides a verification that PIN10s are in the correct
   # general "neighborhood" rather than just within Cook County.
-  filter(mismatch == FALSE) %>%
+  st_transform(sidwell_crs) %>%
+  st_join(sidwell_sf, join = st_intersects) %>%
+  mutate(
+    pin_prefix = substr(pin10, 1, 4),
+    mismatch   = pin_prefix != section
+  ) %>%
+  filter(!mismatch) %>%
+  st_transform(town_crs) %>%
   st_join(township %>%
     select(township_code)) %>% # nolint: indentation_linter
   st_drop_geometry() %>%
-  select(pin10, year, lat,
-    lon = long, x_3435,
-    y_3435,
+  select(
+    pin10, year, lat,
+    lon = long, x_3435, y_3435,
     town_code = township_code
   ) %>%
   mutate(
