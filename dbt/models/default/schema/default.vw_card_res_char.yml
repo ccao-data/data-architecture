@@ -115,9 +115,15 @@ models:
           equals: >
             (
               SELECT COUNT(*)
-              FROM {{ source('iasworld', 'dweldat') }}
-              WHERE cur = 'Y'
-                AND deactivat IS NULL
+              FROM {{ source('iasworld', 'dweldat') }} AS dwel
+              LEFT JOIN {{ source('iasworld', 'pardat') }} AS par
+                ON dwel.parid = par.parid
+                AND dwel.taxyr = par.taxyr
+                AND par.cur = 'Y'
+                AND par.deactivat IS NULL
+              WHERE dwel.cur = 'Y'
+                AND dwel.deactivat IS NULL
+                AND par.class != '999'
             )
       - unique_combination_of_columns:
           name: default_vw_card_res_char_unique_by_pin_card_and_year
