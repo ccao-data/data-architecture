@@ -454,7 +454,7 @@ pre_geocoding_data <- open_dataset(
   # Ensure previously geocoded/imputed parcels don't interfere with geocoding
   # and imputing for any new years of data
   filter(source == "raw") %>%
-  mutate(year = as.character(year))
+  mutate(across(c(year, town_code), as.character))
 
 gc()
 
@@ -498,9 +498,8 @@ township <- read_geoparquet_sf(
     "spatial", "ccao", "township", "2022.parquet"
   )
 ) %>%
-  st_make_valid()
-
-town_crs <- st_crs(township)
+  select(town_code = township_code) %>%
+  st_transform(crs = 3435)
 
 # We will use the Sidwell grid to compare the first 4 digits
 # of the geocoded PIN10s against their expected location.
@@ -510,9 +509,8 @@ sidwell_sf <- read_geoparquet_sf(
     "spatial", "tax", "sidwell_grid", "sidwell_grid.parquet"
   )
 ) %>%
-  select(-year)
-
-sidwell_crs <- st_crs(sidwell_sf)
+  select(-year) %>%
+  st_transform(crs = 3435)
 
 # Identify any PIN10s which are present in all_addresses, but not
 # present in spatial.parcel.
@@ -526,36 +524,19 @@ missing_geographies <- pre_geocoding_data %>%
   group_by(pin10, prop_address_full) %>%
   mutate(missing = is.na(x_3435) | is.na(y_3435)) %>%
   arrange(year) %>%
-  fill(x_3435, y_3435, lon, lat, .direction = "updown") %>%
+  fill(x_3435, y_3435, lon, lat, town_code, .direction = "updown") %>%
   ungroup() %>%
   filter(missing)
 
-# Split the missing parcels into those which were encoded with inputed technique
+# Split the missing parcels into those which were encoded with imputed technique
 # and those which still need to be calculated with geocoding
-
 imputed <- missing_geographies %>%
-  filter(
-    !is.na(x_3435),
-    !is.na(y_3435),
-    !is.na(lon),
-    !is.na(lat)
-  ) %>%
-  st_as_sf(coords = c("x_3435", "y_3435"), remove = FALSE) %>%
-  st_set_crs(town_crs) %>%
-  st_join(township %>%
-    select(township_code)) %>% # nolint: indentation_linter
-  st_drop_geometry() %>%
-  select(pin10, year, x_3435, y_3435, lon,
-    lat,
-    town_code = township_code
-  ) %>%
-  mutate(
-    town_code = as.integer(town_code),
-    source = "imputed"
-  )
+  filter(if_all(c(x_3435, x_3435, lon, lat), ~ !is.na(.x))) %>%
+  select(pin10, year, x_3435, y_3435, lon, lat, town_code) %>%
+  mutate(source = "imputed")
 
 missing_geographies <- missing_geographies %>%
-  filter(is.na(x_3435) & is.na(y_3435) & is.na(lon) & is.na(lat)) %>%
+  filter(if_all(c(x_3435, y_3435, lon, lat), is.na)) %>%
   select(
     pin10, year, prop_address_full,
     prop_address_city_name, prop_address_state
@@ -577,8 +558,7 @@ geocode_batch <- function(batch) {
       method = "census"
     ) %>%
     filter(!is.na(long) & !is.na(lat)) %>%
-    st_as_sf(coords = c("long", "lat"), remove = FALSE) %>%
-    st_set_crs(4326) %>%
+    st_as_sf(coords = c("long", "lat"), remove = FALSE, crs = 4326) %>%
     st_transform(3435) %>%
     mutate(
       x_3435 = st_coordinates(.)[, 1],
@@ -589,28 +569,16 @@ geocode_batch <- function(batch) {
 # Apply geocoding to each batch and combine results
 geocoded <- map(batch_list, geocode_batch) %>%
   bind_rows() %>%
+  # spatially join geocoded points to Sidwell grid
+  st_join(sidwell_sf) %>%
   # Keep only observations where first 4 digits match Sidwell Grid
   # This provides a verification that PIN10s are in the correct
   # general "neighborhood" rather than just within Cook County.
-  st_transform(sidwell_crs) %>%
-  st_join(sidwell_sf, join = st_intersects) %>%
-  mutate(
-    pin_prefix = substr(pin10, 1, 4),
-    mismatch   = pin_prefix != section
-  ) %>%
-  filter(!mismatch) %>%
-  st_join(township %>%
-    select(township_code)) %>% # nolint: indentation_linter
+  filter(substr(pin10, 1, 4) == section) %>%
+  st_join(township) %>%
   st_drop_geometry() %>%
-  select(
-    pin10, year, lat,
-    lon = long, x_3435, y_3435,
-    town_code = township_code
-  ) %>%
-  mutate(
-    town_code = as.integer(town_code),
-    source = "geocoded"
-  )
+  select(pin10, year, lat, lon = long, x_3435, y_3435, town_code) %>%
+  mutate(source = "geocoded")
 
 post_geocoding_data <- bind_rows(pre_geocoding_data, imputed, geocoded)
 
@@ -627,10 +595,7 @@ if (nrow(duplicate_keys) > 0) {
 
 # Write final dataframe to dataset on S3, partitioned by town and year
 post_geocoding_data %>%
-  mutate(
-    uploaded_before_geocoding = FALSE,
-    town_code = as.character(town_code)
-  ) %>%
+  mutate(uploaded_before_geocoding = FALSE) %>%
   relocate(year, town_code, .after = last_col()) %>%
   group_by(year, town_code) %>%
   write_partitions_to_s3(
