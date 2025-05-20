@@ -177,9 +177,7 @@ Wall time of each stage (train, assess, etc.) for each model run (`run_id`).
 
 {% docs table_training_data %}
 
-A table containing the training data from the final model runs. This is uploaded
-manually at the end of modeling via the [`S3 model-training_data.R`](https://github.com/ccao-data/data-architecture/tree/master/etl/scripts-ccao-data-warehouse-us-east-1/model/model-training_data.R)
-script.
+A table containing the training data from the final model runs.
 
 **Primary Key**: `run_id`, `meta_card_num`, `meta_pin`
 {% enddocs %}
