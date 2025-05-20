@@ -132,9 +132,7 @@ SELECT
     CASE
         WHEN reasons.user40 = 'Y' THEN TRUE WHEN reasons.user40 = 'N' THEN FALSE
     END AS reason_other,
-    CASE
-        WHEN reasons.user81 = 'Y' THEN TRUE WHEN reasons.user81 = 'N' THEN FALSE
-    END AS reason_other_description,
+    reasons.user81 AS reason_other_description,
 
     -- Status and agent name come from different columns before and after 2020
     CASE
