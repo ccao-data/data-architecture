@@ -13,8 +13,17 @@ def model(dbt, session):
         on_schema_change="append_new_columns",
     )
 
-    # grab all final runs via Spark SQL
-    query = """
+    # Collect existing run_ids
+    if dbt.is_incremental:
+        existing_rows = session.sql(
+            f"SELECT DISTINCT run_id FROM {dbt.this.schema}.{dbt.this.identifier}"
+        ).collect()
+        existing_run_ids = [row["run_id"] for row in existing_rows]
+    else:
+        existing_run_ids = []
+
+    # Build metadata query, excluding already-loaded run_ids
+    base_query = """
         SELECT
           CAST(run_id                  AS STRING) AS run_id,
           CAST(year                    AS STRING) AS year,
@@ -22,11 +31,17 @@ def model(dbt, session):
         FROM model.metadata
         WHERE run_type = 'final'
     """
-    metadata = session.sql(query).toPandas()
+    if existing_run_ids:
+        quoted = ",".join(f"'{rid}'" for rid in existing_run_ids)
+        base_query += f" AND run_id NOT IN ({quoted})"
 
-    if metadata.shape[0] == 0:
-        raise ValueError(
-            "No final model run data found; cannot extract training data"
+    metadata = session.sql(base_query).toPandas()
+
+    # If no new runs, just return the existing table
+    if metadata.empty:
+        print(">>> no new run_id found; returning existing data unchanged")
+        return session.sql(
+            f"SELECT * FROM {dbt.this.schema}.{dbt.this.identifier}"
         )
 
     bucket = "ccao-data-dvc-us-east-1"
@@ -46,18 +61,20 @@ def model(dbt, session):
         print(f"    →   S3 key = {s3_path}")
         df = session.read.parquet(f"s3://{s3_path}")
 
-        # coerce booleans if needed
+        # coerce booleans for data with different types
         if "ccao_is_active_exe_homeowner" in df.columns:
             df = df.withColumn(
                 "ccao_is_active_exe_homeowner",
                 df["ccao_is_active_exe_homeowner"].cast("boolean"),
             )
+
         # add run_id column
         df = df.withColumn("run_id", lit(run_id))
 
         all_dfs.append(df)
         print(f"Processed run_id={run_id}, rows={df.count()}")
 
+    # Union all the new runs together
     return functools.reduce(
         lambda x, y: x.unionByName(y, allowMissingColumns=True), all_dfs
     )
