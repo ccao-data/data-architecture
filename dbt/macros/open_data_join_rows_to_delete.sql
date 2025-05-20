@@ -22,11 +22,13 @@ how to construct the approriate universe of rows to purge.
                     substr(saledt, 1, 4) as year,
                     true as ":deleted"
                 from {{ source("iasworld", addn_table) }}
+                where deactivat is not null
             {% elif addn_table == "permit" %}
                     parid || coalesce(num, '') || coalesce(permdt, '') as row_id,
                     substr(permdt, 1, 4) as year,
                     true as ":deleted"
                 from {{ source("iasworld", addn_table) }}
+                where deactivat is not null
             {% else %}
                     {% if addn_table == "dweldat" %}
                         pdat.parid
