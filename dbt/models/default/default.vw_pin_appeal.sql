@@ -10,6 +10,17 @@ WITH reasons AS (
         htpar.taxyr,
         htpar.caseno,
         htpar.user38,
+        htpar.user19,
+        htpar.user20,
+        htpar.user21,
+        htpar.user22,
+        htpar.user23,
+        htpar.user24,
+        htpar.user25,
+        htpar.user109,
+        htpar.user110,
+        htpar.user40,
+        htpar.user81,
         htpar.user104,
         htpar.resact,
         htpar.hrstatus,
@@ -86,6 +97,18 @@ SELECT
         WHEN reasons.user38 = 'OM' THEN 'omitted assessment'
         WHEN reasons.user38 = 'RS' THEN 'residential'
     END AS appeal_type,
+
+    reasons.user19 AS reason_lack_of_uniformity,
+    reasons.user20 AS reason_fire_damage,
+    reasons.user21 AS reason_building_no_longer_exists,
+    reasons.user22 AS reason_over_valuation,
+    reasons.user23 AS reason_property_description_error,
+    reasons.user24 AS reason_vacancy_occupancy,
+    reasons.user25 AS reason_building_is_uninhabitable,
+    reasons.user109 AS reason_homeowner_exemption,
+    reasons.user110 AS reason_legal_argument,
+    reasons.user40 AS reason_other,
+    reasons.user81 AS reason_other_description,
 
     -- Status and agent name come from different columns before and after 2020
     CASE
