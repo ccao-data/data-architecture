@@ -133,7 +133,19 @@ sources:
 
       - name: parcel
         description: '{{ doc("table_parcel") }}'
-
+        columns:
+          - name: source
+            description: |
+              Column denoting where the parcel geography is derived from.
+              Possible values are:
+              - `raw`: County GIS department
+              - `imputed`: Imputed with up-down filling from other years of 
+              the same PIN10
+              - `geocoded`: Geocoded using tidygeocoder
+          - name: uploaded_before_geocoding
+            description: |
+              Binary variable indiciating whether the parcel has gone through
+              the geocoding process to fill missing observations.
       - name: park
         description: '{{ doc("table_park") }}'
 
