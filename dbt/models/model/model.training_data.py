@@ -32,7 +32,7 @@ def model(dbt, session):
         )
         metadata_df = metadata_df.join(existing, on="run_id", how="left_anti")
 
-        # if there’s nothing new, return an *empty* DataFrame (same schema as the target)
+        # if there’s nothing new, return an *empty* DataFrame
         if metadata_df.limit(1).count() == 0:
             print(">>> no new run_id found; skipping incremental update")
             # this returns zero rows but preserves the full target schema
@@ -72,7 +72,7 @@ def model(dbt, session):
         all_dfs.append(df)
         print(f"Processed run_id={run_id}, rows={df.count()}")
 
-    # 3) Union all the new runs together
+    # Union all the new runs together
     return functools.reduce(
         lambda x, y: x.unionByName(y, allowMissingColumns=True), all_dfs
     )
