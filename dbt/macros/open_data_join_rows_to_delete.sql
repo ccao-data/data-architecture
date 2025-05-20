@@ -3,21 +3,17 @@ Macro that can selectively add:
 - deactivated
 - class 999
 - non-condo class
-- non-property tax exempt
-rows to the open data views so that a ":deleted" flag associated with their
-row_id can be sent to the open data portal.
+rows to the open data views, as well as rows from tables other than pardat so
+that a ":deleted" flag associated with their row_id can be sent to the open data
+portal.
 
 There are multiple complications here:
-- Feeder views can have different columns that define row_id. Currently, the
-only case we are accomodating is res sf/mf data, which includes card in row_id
-rather than just pin and year.
+- Feeder views can have different columns that define row_id.
 - The universe of parcels that might need to be purged from the open data assets
 is different for different feeder views. The macro takes arguments to specify
 how to construct the approriate universe of rows to purge.
 */
-{% macro open_data_join_rows_to_delete(
-    card=false, allow_999=false, condo=false, addn_table=none
-) %}
+{% macro open_data_join_rows_to_delete(allow_999=false, condo=false, addn_table=none) %}
     full outer join
         (
             select
