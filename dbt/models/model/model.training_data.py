@@ -4,7 +4,6 @@ from pyspark.sql.functions import lit
 
 
 def model(dbt, session):
-    # configure incremental insert-overwrite by run_id
     dbt.config(
         materialized="incremental",
         incremental_strategy="insert_overwrite",
