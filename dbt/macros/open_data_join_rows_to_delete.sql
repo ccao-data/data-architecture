@@ -56,11 +56,7 @@ how to construct the approriate universe of rows to purge.
                     pdat.deactivat is not null
                     {% if addn_table == "htpar" %}
                         or (
-                            (
-                                addndat.deactivat is not null
-                                or addndat.heartyp not in ('A', 'C')
-                            )
-                            and addndat.caseno is not null
+                            addndat.deactivat is not null and addndat.caseno is not null
                         )
                     {% endif %}
                     {% if addn_table == "dweldat" %} or addndat.deactivat is not null
