@@ -190,7 +190,7 @@ sources:
       - name: training_data
         description: '{{ doc("table_training_data") }}'
         tags:
-          - load_auto
+          - load_manual
         data_tests:
           - unique_combination_of_columns:
               name: model_training_data_unique_run_id_pin_card_num
