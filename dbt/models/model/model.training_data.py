@@ -13,16 +13,7 @@ def model(dbt, session):
         on_schema_change="append_new_columns",
     )
 
-    # Collect existing run_ids
-    if dbt.is_incremental:
-        existing_rows = session.sql(
-            f"SELECT DISTINCT run_id FROM {dbt.this.schema}.{dbt.this.identifier}"
-        ).collect()
-        existing_run_ids = [row["run_id"] for row in existing_rows]
-    else:
-        existing_run_ids = []
-
-    # Build metadata query, excluding already-loaded run_ids
+    # Build the base metadata DataFrame
     base_query = """
         SELECT
           CAST(run_id                  AS STRING) AS run_id,
@@ -31,18 +22,27 @@ def model(dbt, session):
         FROM model.metadata
         WHERE run_type = 'final'
     """
-    if existing_run_ids:
-        quoted = ",".join(f"'{rid}'" for rid in existing_run_ids)
-        base_query += f" AND run_id NOT IN ({quoted})"
+    metadata_df = session.sql(base_query)
 
-    metadata = session.sql(base_query).toPandas()
-
-    # If no new runs, just return the existing table
-    if metadata.empty:
-        print(">>> no new run_id found; returning existing data unchanged")
-        return session.sql(
-            f"SELECT * FROM {dbt.this.schema}.{dbt.this.identifier}"
+    if dbt.is_incremental:
+        # anti-join out any run_ids already in the target
+        existing = (
+            session.table(f"{dbt.this.schema}.{dbt.this.identifier}")
+            .select("run_id")
+            .distinct()
         )
+        metadata_df = metadata_df.join(existing, on="run_id", how="left_anti")
+
+        # if there’s nothing new, return an *empty* DataFrame (same schema as the target)
+        if metadata_df.limit(1).count() == 0:
+            print(">>> no new run_id found; skipping incremental update")
+            # this returns zero rows but preserves the full target schema
+            return session.table(
+                f"{dbt.this.schema}.{dbt.this.identifier}"
+            ).limit(0)
+
+    # Collect remaining metadata
+    metadata = metadata_df.toPandas()
 
     bucket = "ccao-data-dvc-us-east-1"
     all_dfs = []
@@ -50,18 +50,17 @@ def model(dbt, session):
     for _, row in metadata.iterrows():
         run_id = row["run_id"]
         year = int(row["year"])
-        dvc_hash = row["dvc_md5_assessment_data"]
+        h = row["dvc_md5_assessment_data"]
 
-        # for post-2023 we have the extra files/md5/ prefix
         prefix = "" if year <= 2023 else "files/md5/"
-        key = f"{prefix}{dvc_hash[:2]}/{dvc_hash[2:]}"
-        s3_path = f"{bucket}/{key}"
+        key = f"{prefix}{h[:2]}/{h[2:]}"
+        s3p = f"{bucket}/{key}"
 
         print(f">>> reading all columns for run {run_id!r}")
-        print(f"    →   S3 key = {s3_path}")
-        df = session.read.parquet(f"s3://{s3_path}")
+        print(f"    →   S3 key = {s3p}")
+        df = session.read.parquet(f"s3://{s3p}")
 
-        # coerce booleans for data with different types
+        # coerce booleans for mismatched types
         if "ccao_is_active_exe_homeowner" in df.columns:
             df = df.withColumn(
                 "ccao_is_active_exe_homeowner",
@@ -74,7 +73,7 @@ def model(dbt, session):
         all_dfs.append(df)
         print(f"Processed run_id={run_id}, rows={df.count()}")
 
-    # Union all the new runs together
+    # 3) Union all the new runs together
     return functools.reduce(
         lambda x, y: x.unionByName(y, allowMissingColumns=True), all_dfs
     )
