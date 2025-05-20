@@ -16,9 +16,10 @@ how to construct the approriate universe of rows to purge.
 {% macro open_data_join_rows_to_delete(allow_999=false, condo=false, addn_table=none) %}
     full outer join
         (
-            -- htpar is by far the most complex here since row_id's can show up
-            -- multiple times, sometimes being deactivated and sometimes not.
             {% if addn_table == "htpar" %}
+                -- htpar is by far the most complex here since row_id's can show
+                -- up multiple times, sometimes being deactivated and sometimes
+                -- not.
                 with
                     entire_case as (
                         select
