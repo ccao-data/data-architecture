@@ -19,10 +19,9 @@ characters before concatenating them.
         ) as row_id,
     {%- elif row_id_cols is not none %}
         coalesce(
-            cast(
-                feeder.{{ row_id_cols | join(" as varchar) || cast(feeder.") }}
-                as varchar
-            ),
+            {% for col in row_id_cols %}
+                cast(feeder.{{ col }} as varchar){% if not loop.last %} ||{% else %},{% endif %}
+            {% endfor %}
             cast(deleted_rows.row_id as varchar)
         ) as row_id,
     {%- else -%} coalesce(feeder.pin || feeder.year, deleted_rows.row_id) as row_id,
