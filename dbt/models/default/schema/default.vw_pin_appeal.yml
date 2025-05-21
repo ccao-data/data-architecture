@@ -40,23 +40,23 @@ models:
       - name: reason_code3
         description: '{{ doc("shared_column_reason_code") }}'
       - name: reason_fire_damage
-        description: Reason for appeal is fire damage
+        description: '{{ doc("shared_column_appeal_reason") }}'
       - name: reason_homeowner_exemption
-        description: Reason for appeal is homeowner exemption
+        description: '{{ doc("shared_column_appeal_reason") }}'
       - name: reason_lack_of_uniformity
-        description: Reason for appeal is lack of uniformity
+        description: '{{ doc("shared_column_appeal_reason") }}'
       - name: reason_legal_argument
-        description: Reason for appeal is legal argument
+        description: '{{ doc("shared_column_appeal_reason") }}'
       - name: reason_other
-        description: Reason for appeal is other
+        description: '{{ doc("shared_column_appeal_reason") }}'
       - name: reason_other_description
         description: Description if reason for appeal is other
       - name: reason_over_valuation
-        description: Reason for appeal is over valuation
+        description: '{{ doc("shared_column_appeal_reason") }}'
       - name: reason_property_description_error
-        description: Reason for appeal is property description error
+        description: '{{ doc("shared_column_appeal_reason") }}'
       - name: reason_vacancy_occupancy
-        description: Reason for appeal is vacancy/occupancy
+        description: '{{ doc("shared_column_appeal_reason") }}'
       - name: status
         description: '{{ doc("shared_column_appeal_status") }}'
       - name: township_code
