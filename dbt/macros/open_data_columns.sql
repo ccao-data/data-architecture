@@ -20,7 +20,10 @@ characters before concatenating them.
     {%- elif row_id_cols is not none %}
         coalesce(
             {% for col in row_id_cols %}
-                cast(feeder.{{ col }} as varchar){% if not loop.last %} ||{% else %},{% endif %}
+                cast(feeder.{{ col }} as varchar)
+                {% if not loop.last %} ||
+                {% else %},
+                {% endif %}
             {% endfor %}
             cast(deleted_rows.row_id as varchar)
         ) as row_id,
