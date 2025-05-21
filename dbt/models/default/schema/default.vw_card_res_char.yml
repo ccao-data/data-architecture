@@ -115,14 +115,14 @@ models:
           equals: >
             (
               SELECT COUNT(*)
-              FROM {{ source('iasworld', 'dweldat') }} AS dwel
-              LEFT JOIN {{ source('iasworld', 'pardat') }} AS par
-                ON dwel.parid = par.parid
-                AND dwel.taxyr = par.taxyr
-                AND par.cur = 'Y'
+              FROM {{ source('iasworld', 'pardat') }} AS par
+              INNER JOIN {{ source('iasworld', 'dweldat') }} AS dwel
+                ON par.parid = dwel.parid
+                AND par.taxyr = dwel.taxyr
+                AND dwel.cur = 'Y'
                 AND par.deactivat IS NULL
-              WHERE dwel.cur = 'Y'
-                AND dwel.deactivat IS NULL
+              WHERE par.cur = 'Y'
+                AND par.deactivat IS NULL
                 AND par.class != '999'
             )
       - unique_combination_of_columns:
