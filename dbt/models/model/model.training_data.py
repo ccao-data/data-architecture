@@ -10,7 +10,7 @@ def model(dbt, session):
         partitions_by=[
             {"field": "year", "data_type": "string"},
             {"field": "run_id", "data_type": "string"},
-            {"field": "meta_township_code", "data_type": "string"}
+            {"field": "meta_township_code", "data_type": "string"},
         ],
         on_schema_change="append_new_columns",
     )
