@@ -30,9 +30,9 @@ models:
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: reason_building_is_uninhabitable
-        description: '{{ doc("shared_column_reason_code") }}'
+        description: '{{ doc("shared_column_appeal_reason") }}'
       - name: reason_building_no_longer_exists
-        description: '{{ doc("shared_column_reason_code") }}'
+        description: '{{ doc("shared_column_appeal_reason") }}'
       - name: reason_code1
         description: '{{ doc("shared_column_reason_code") }}'
       - name: reason_code2
