@@ -49,7 +49,7 @@ def model(dbt, session):
     for _, row in metadata.iterrows():
         run_id = row["run_id"]
         year = int(row["year"])
-        h = row["dvc_md5_assessment_data"]
+        h = row["dvc_md5_training_data"]
 
         prefix = "" if year <= 2023 else "files/md5/"
         key = f"{prefix}{h[:2]}/{h[2:]}"
