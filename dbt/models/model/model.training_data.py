@@ -65,8 +65,10 @@ def model(dbt, session):
                 df["ccao_is_active_exe_homeowner"].cast("boolean"),
             )
 
-        # add run_id column
-        df = df.withColumn("run_id", lit(run_id))
+        # add run_id and assessment_year columns
+        df = df.withColumn("run_id", lit(run_id)).withColumn(
+            "assessment_year", lit(row["assessment_year"])
+        )
 
         all_dfs.append(df)
         print(f"Processed run_id={run_id}, rows={df.count()}")
