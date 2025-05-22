@@ -17,7 +17,7 @@ def model(dbt, session):
           run_id,
           year,
           assessment_year,
-          dvc_md5_assessment_data
+          dvc_md5_training_data
         FROM model.metadata
         WHERE run_type = 'final'
     """
