@@ -15,4 +15,4 @@ SELECT
     feeder.lat,
     {{ open_data_columns() }}
 FROM {{ ref('default.vw_pin_exempt') }} AS feeder
-{{ open_data_join_rows_to_delete(own=true) }}
+{{ open_data_join_rows_to_delete(addn_table="owndat") }}
