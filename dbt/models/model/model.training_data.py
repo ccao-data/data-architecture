@@ -14,9 +14,10 @@ def model(dbt, session):
     # Build the base metadata DataFrame
     base_query = """
         SELECT
-          CAST(run_id                  AS STRING) AS run_id,
-          CAST(year                    AS STRING) AS year,
-          CAST(dvc_md5_assessment_data AS STRING) AS dvc_md5_assessment_data
+          run_id,
+          year,
+          assessment_year,
+          dvc_md5_assessment_data
         FROM model.metadata
         WHERE run_type = 'final'
     """
