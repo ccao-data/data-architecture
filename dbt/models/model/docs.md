@@ -183,7 +183,7 @@ We update this table once per assessment year after choosing the final model
 runs for the year. As such, only final model run IDs should be present in this
 table.
 
-**Primary Key**: `run_id`, `meta_card_num`, `meta_pin`
+**Primary Key**: `run_id`, `meta_card_num`, `meta_sale_document_num`
 {% enddocs %}
 
 # vw_card_res_input

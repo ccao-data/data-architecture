@@ -196,7 +196,7 @@ sources:
               name: model_training_data_unique_run_id_pin_card_num
               combination_of_columns:
                 - run_id
-                - meta_pin
+                - meta_sale_document_num
                 - meta_card_num
               config:
                 error_if: ">2"
