@@ -179,6 +179,10 @@ Wall time of each stage (train, assess, etc.) for each model run (`run_id`).
 
 A table containing the training data from the final model runs.
 
+We update this table once per assessment year after choosing the final model
+runs for the year. As such, only final model run IDs should be present in this
+table.
+
 **Primary Key**: `run_id`, `meta_card_num`, `meta_pin`
 {% enddocs %}
 
