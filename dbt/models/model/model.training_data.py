@@ -7,11 +7,7 @@ def model(dbt, session):
     dbt.config(
         materialized="incremental",
         incremental_strategy="insert_overwrite",
-        partitions_by=[
-            {"field": "year", "data_type": "string"},
-            {"field": "run_id", "data_type": "string"},
-            {"field": "meta_township_code", "data_type": "string"},
-        ],
+        partitioned_by=["assessment_year", "run_id", "meta_township_code"],
         on_schema_change="append_new_columns",
     )
 
