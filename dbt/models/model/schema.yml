@@ -241,6 +241,7 @@ models:
             - run_id
             - meta_sale_document_num
             - meta_card_num
+
   - name: model.vw_pin_shared_input
     description: '{{ doc("view_vw_pin_shared_input") }}'
     config:
