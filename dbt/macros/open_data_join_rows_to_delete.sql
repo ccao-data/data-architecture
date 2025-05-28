@@ -26,7 +26,7 @@ how to construct the approriate universe of rows to purge.
             from {{ source("iasworld", "pardat") }} as pdat
             {% if addn_table is not none %}
                 {% if addn_table == "dweldat" %} inner join
-                {% else %} left join
+                {% elif addn_table == "owndat" %} left join
                 {% endif %}
                     {{ source("iasworld", addn_table) }} as addndat
                     on pdat.parid = addndat.parid
@@ -34,10 +34,9 @@ how to construct the approriate universe of rows to purge.
             {% endif %}
             where
                 pdat.deactivat is not null
-                {% if addn_table == "dweldat" %}
-                    or addndat.deactivat is not null
+                {% if addn_table == "dweldat" %} or addndat.deactivat is not null
+                {% elif addn_table == "owndat" %} or addndat.ownnum is null
                 {% endif %}
-                {% if addn_table == "owndat" %} or addndat.ownnum is null {% endif %}
                 {% if condo == true %} or pdat.class not in ('299', '399') {% endif %}
                 {% if allow_999 == false %} or pdat.class = '999' {% endif %}
         ) as deleted_rows
