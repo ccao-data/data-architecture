@@ -232,8 +232,9 @@ models:
 
   - name: model.training_data
     description: '{{ doc("table_training_data") }}'
-    tags:
-      - load_manual
+    config:
+      tags:
+        - load_manual
     tests:
       - unique_combination_of_columns:
           name: model_training_data_unique_card_doc_number_run_id
