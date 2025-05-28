@@ -27,9 +27,12 @@ SELECT
 FROM {{ ref('default.vw_pin_appeal') }} AS feeder
 FULL OUTER JOIN
     (
-        -- htpar is by far the most complex here since row_id's can show
-        -- up multiple times, sometimes being deactivated and sometimes
-        -- not.
+        /*
+        row_id's in htpar consist of PINs and appeal case numbers (as well as
+        years) and can show up multiple times, sometimes being deactivated and
+        sometimes not. We aggregate them and to figure out which case/PIN
+        combos have been entirely deactivated.
+        */
         WITH
         entire_case AS (
             SELECT
