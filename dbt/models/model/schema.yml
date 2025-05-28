@@ -187,19 +187,17 @@ sources:
                 - year
                 - run_id
 
-      - name: training_data
-        description: '{{ doc("table_training_data") }}'
-        tags:
-          - load_manual
-        data_tests:
-          - unique_combination_of_columns:
-              name: model_training_data_unique_run_id_document_number_card_number
-              combination_of_columns:
-                - run_id
-                - meta_sale_document_num
-                - meta_card_num
-
 models:
+  - name: training_data
+    description: '{{ doc("table_training_data") }}'
+    tags:
+      - load_manual
+    tests:
+      - unique_combination_of_columns:
+          combination_of_columns:
+            - run_id
+            - meta_sale_document_num
+            - meta_card_num
   - name: model.final_model
     description: '{{ doc("table_final_model") }}'
     columns:
