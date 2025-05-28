@@ -16,35 +16,7 @@ how to construct the approriate universe of rows to purge.
 {% macro open_data_join_rows_to_delete(allow_999=false, condo=false, addn_table=none) %}
     full outer join
         (
-            {% if addn_table == "htpar" %}
-                -- htpar is by far the most complex here since row_id's can show
-                -- up multiple times, sometimes being deactivated and sometimes
-                -- not.
-                with
-                    entire_case as (
-                        select
-                            addndat.parid || addndat.taxyr || addndat.caseno as row_id,
-                            addndat.taxyr as year,
-                            true as ":deleted",
-                            avg(
-                                case
-                                    when addndat.deactivat is not null then 1 else 0
-                                end
-                            ) as deactivat
-                        from {{ source("iasworld", addn_table) }} as addndat
-                        left join
-                            {{ source("iasworld", "pardat") }} as pdat
-                            on addndat.parid = pdat.parid
-                            and addndat.taxyr = pdat.taxyr
-                        where addndat.caseno is not null or pdat.deactivat is not null
-                        group by
-                            addndat.parid || addndat.taxyr || addndat.caseno,
-                            addndat.taxyr
-                    )
-                select row_id, year, ":deleted"
-                from entire_case
-                where deactivat = 1
-            {% elif addn_table == "sales" %}
+            {% if addn_table == "sales" %}
                 select
                     salekey as row_id, substr(saledt, 1, 4) as year, true as ":deleted"
                 from {{ source("iasworld", addn_table) }}
@@ -94,7 +66,6 @@ how to construct the approriate universe of rows to purge.
             || coalesce(feeder.date_issued, '')
         {% elif addn_table == "dweldat" %}
             on feeder.pin || cast(feeder.card as varchar) || feeder.year
-        {% elif addn_table == "htpar" %} on feeder.pin || feeder.year || feeder.case_no
         {% else %} on feeder.pin || feeder.year
         {% endif %} = deleted_rows.row_id
 {% endmacro %}
