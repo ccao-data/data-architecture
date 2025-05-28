@@ -27,7 +27,6 @@ SELECT
 FROM {{ ref('default.vw_pin_appeal') }} AS feeder
 FULL OUTER JOIN
     (
-
         -- htpar is by far the most complex here since row_id's can show
         -- up multiple times, sometimes being deactivated and sometimes
         -- not.
@@ -59,7 +58,6 @@ FULL OUTER JOIN
             deleted AS ":deleted" -- noqa: RF05
         FROM entire_case
         WHERE deactivat = 1
-
     ) AS deleted_rows
     ON feeder.pin || feeder.year || feeder.case_no
     = deleted_rows.row_id

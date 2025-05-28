@@ -32,14 +32,12 @@ SELECT
 FROM {{ ref('default.vw_pin_sale') }} AS feeder
 FULL OUTER JOIN
     (
-
         SELECT
             salekey AS row_id,
             SUBSTR(saledt, 1, 4) AS year,
             TRUE AS ":deleted" -- noqa: RF05
         FROM {{ source("iasworld", "sales") }}
         WHERE deactivat IS NOT NULL
-
     ) AS deleted_rows
     ON feeder.sale_key
     = deleted_rows.row_id

@@ -724,16 +724,13 @@ SELECT
 FROM {{ ref('default.vw_pin_permit') }} AS feeder
 FULL OUTER JOIN
     (
-
         SELECT
             parid || COALESCE(num, '') || COALESCE(permdt, '') AS row_id,
             SUBSTR(permdt, 1, 4) AS year,
             TRUE AS ":deleted" -- noqa: RF05
         FROM {{ source("iasworld", "permit") }}
         WHERE deactivat IS NOT NULL
-
     ) AS deleted_rows
-
     ON feeder.pin
     || COALESCE(feeder.permit_number, '')
     || COALESCE(feeder.date_issued, '')
