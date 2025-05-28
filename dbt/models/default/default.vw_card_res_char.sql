@@ -30,6 +30,19 @@ townships AS (
     FROM {{ source('iasworld', 'legdat') }}
     WHERE cur = 'Y'
         AND deactivat IS NULL
+),
+
+pools AS (
+    SELECT
+        parid,
+        taxyr,
+        1 AS in_ground_pool
+    FROM {{ source('iasworld', 'oby') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
+        AND code = '297'
+        AND user1 = '13' -- This is our best understanding of a pool indicator
+    GROUP BY parid, taxyr
 )
 
 SELECT
@@ -130,7 +143,9 @@ SELECT
     != '1'), FALSE) AS char_recent_renovation,
     dwel.user30 AS char_porch,
     dwel.user7 AS char_air,
-    dwel.user5 AS char_tp_plan
+    dwel.user5 AS char_tp_plan,
+
+    COALESCE(pools.in_ground_pool, 0) AS in_ground_pool
 
 FROM {{ source('iasworld', 'dweldat') }} AS dwel
 LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
@@ -145,6 +160,9 @@ LEFT JOIN aggregate_land
 LEFT JOIN townships
     ON dwel.parid = townships.parid
     AND dwel.taxyr = townships.taxyr
+LEFT JOIN pools
+    ON dwel.parid = pools.parid
+    AND dwel.taxyr = pools.taxyr
 WHERE dwel.cur = 'Y'
     AND dwel.deactivat IS NULL
     AND pardat.cur = 'Y'
