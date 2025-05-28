@@ -29,12 +29,34 @@ models:
         description: '{{ doc("shared_column_mailed_tot") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
+      - name: reason_building_is_uninhabitable
+        description: '{{ doc("shared_column_appeal_reason") }}'
+      - name: reason_building_no_longer_exists
+        description: '{{ doc("shared_column_appeal_reason") }}'
       - name: reason_code1
         description: '{{ doc("shared_column_reason_code") }}'
       - name: reason_code2
         description: '{{ doc("shared_column_reason_code") }}'
       - name: reason_code3
         description: '{{ doc("shared_column_reason_code") }}'
+      - name: reason_fire_damage
+        description: '{{ doc("shared_column_appeal_reason") }}'
+      - name: reason_homeowner_exemption
+        description: '{{ doc("shared_column_appeal_reason") }}'
+      - name: reason_lack_of_uniformity
+        description: '{{ doc("shared_column_appeal_reason") }}'
+      - name: reason_legal_argument
+        description: '{{ doc("shared_column_appeal_reason") }}'
+      - name: reason_other
+        description: '{{ doc("shared_column_appeal_reason") }}'
+      - name: reason_other_description
+        description: Description if reason for appeal is other
+      - name: reason_over_valuation
+        description: '{{ doc("shared_column_appeal_reason") }}'
+      - name: reason_property_description_error
+        description: '{{ doc("shared_column_appeal_reason") }}'
+      - name: reason_vacancy_occupancy
+        description: '{{ doc("shared_column_appeal_reason") }}'
       - name: status
         description: '{{ doc("shared_column_appeal_status") }}'
       - name: township_code

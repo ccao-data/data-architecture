@@ -57,23 +57,23 @@ SELECT
     -- PIN information
     -- 218, 219, 236, 241 classes added to DWELDAT
     dwel.class,
-    townships.township_code,
+    leg.user1 AS township_code,
     dwel.cdu,
-    pardat.tieback AS tieback_key_pin,
+    par.tieback AS tieback_key_pin,
     CASE
-        WHEN pardat.tiebldgpct IS NOT NULL THEN pardat.tiebldgpct / 100.0
+        WHEN par.tiebldgpct IS NOT NULL THEN par.tiebldgpct / 100.0
         ELSE 1.0
     END AS tieback_proration_rate,
     CAST(dwel.user24 AS DOUBLE) / 100.0 AS card_proration_rate,
     multicodes.pin_is_multicard,
     multicodes.pin_num_cards,
-    aggregate_land.pin_is_multiland,
-    aggregate_land.pin_num_landlines,
+    COALESCE(aggregate_land.num_landlines > 1, FALSE) AS pin_is_multiland,
+    aggregate_land.num_landlines AS pin_num_landlines,
 
     -- Continuous variables
     dwel.yrblt AS char_yrblt,
     dwel.sfla AS char_bldg_sf,
-    aggregate_land.total_land_sf AS char_land_sf,
+    aggregate_land.sf AS char_land_sf,
     dwel.rmbed AS char_beds,
     dwel.rmtot AS char_rooms,
     dwel.fixbath AS char_fbath,
@@ -147,10 +147,12 @@ SELECT
 
     COALESCE(pools.in_ground_pool, 0) AS in_ground_pool
 
-FROM {{ source('iasworld', 'dweldat') }} AS dwel
-LEFT JOIN {{ source('iasworld', 'pardat') }} AS pardat
-    ON dwel.parid = pardat.parid
-    AND dwel.taxyr = pardat.taxyr
+FROM {{ source('iasworld', 'pardat') }} AS par
+INNER JOIN {{ source('iasworld', 'dweldat') }} AS dwel
+    ON par.parid = dwel.parid
+    AND par.taxyr = dwel.taxyr
+    AND dwel.cur = 'Y'
+    AND dwel.deactivat IS NULL
 LEFT JOIN multicodes
     ON dwel.parid = multicodes.parid
     AND dwel.taxyr = multicodes.taxyr
@@ -168,3 +170,14 @@ WHERE dwel.cur = 'Y'
     AND pardat.cur = 'Y'
     AND pardat.deactivat IS NULL
     AND pardat.class NOT IN ('999')
+LEFT JOIN {{ ref('default.vw_pin_land') }} AS aggregate_land
+    ON dwel.parid = aggregate_land.pin
+    AND dwel.taxyr = aggregate_land.year
+LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
+    ON dwel.parid = leg.parid
+    AND dwel.taxyr = leg.taxyr
+    AND leg.cur = 'Y'
+    AND leg.deactivat IS NULL
+WHERE par.cur = 'Y'
+    AND par.deactivat IS NULL
+    AND par.class NOT IN ('999')
