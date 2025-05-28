@@ -188,7 +188,7 @@ sources:
                 - run_id
 
 models:
-  - name: training_data
+  - name: model.training_data
     description: '{{ doc("table_training_data") }}'
     tags:
       - load_manual
