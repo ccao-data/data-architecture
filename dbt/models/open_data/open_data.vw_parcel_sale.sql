@@ -30,4 +30,16 @@ SELECT
     feeder.mydec_deed_type,
     {{ open_data_columns(row_id_cols=['sale_key']) }}
 FROM {{ ref('default.vw_pin_sale') }} AS feeder
-{{ open_data_join_rows_to_delete(addn_table="sales") }}
+FULL OUTER JOIN
+    (
+
+        SELECT
+            salekey AS row_id,
+            SUBSTR(saledt, 1, 4) AS year,
+            TRUE AS ":deleted" -- noqa: RF05
+        FROM {{ source("iasworld", "sales") }}
+        WHERE deactivat IS NOT NULL
+
+    ) AS deleted_rows
+    ON feeder.sale_key
+    = deleted_rows.row_id
