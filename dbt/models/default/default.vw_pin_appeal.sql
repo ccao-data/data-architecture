@@ -10,6 +10,17 @@ WITH reasons AS (
         htpar.taxyr,
         htpar.caseno,
         htpar.user38,
+        htpar.user19,
+        htpar.user20,
+        htpar.user21,
+        htpar.user22,
+        htpar.user23,
+        htpar.user24,
+        htpar.user25,
+        htpar.user109,
+        htpar.user110,
+        htpar.user40,
+        htpar.user81,
         htpar.user104,
         htpar.resact,
         htpar.hrstatus,
@@ -86,6 +97,42 @@ SELECT
         WHEN reasons.user38 = 'OM' THEN 'omitted assessment'
         WHEN reasons.user38 = 'RS' THEN 'residential'
     END AS appeal_type,
+
+    CASE
+        WHEN reasons.user19 = 'Y' THEN TRUE WHEN reasons.user19 = 'N' THEN FALSE
+    END AS reason_lack_of_uniformity,
+    CASE
+        WHEN reasons.user20 = 'Y' THEN TRUE WHEN reasons.user20 = 'N' THEN FALSE
+    END AS reason_fire_damage,
+    CASE
+        WHEN reasons.user21 = 'Y' THEN TRUE WHEN reasons.user21 = 'N' THEN FALSE
+    END AS reason_building_no_longer_exists,
+    CASE
+        WHEN reasons.user22 = 'Y' THEN TRUE WHEN reasons.user22 = 'N' THEN FALSE
+    END AS reason_over_valuation,
+    CASE
+        WHEN reasons.user23 = 'Y' THEN TRUE WHEN reasons.user23 = 'N' THEN FALSE
+    END AS reason_property_description_error,
+    CASE
+        WHEN reasons.user24 = 'Y' THEN TRUE WHEN reasons.user24 = 'N' THEN FALSE
+    END AS reason_vacancy_occupancy,
+    CASE
+        WHEN reasons.user25 = 'Y' THEN TRUE WHEN reasons.user25 = 'N' THEN FALSE
+    END AS reason_building_is_uninhabitable,
+    CASE
+        WHEN reasons.user109 = 'Y' THEN TRUE WHEN
+            reasons.user109 = 'N'
+            THEN FALSE
+    END AS reason_homeowner_exemption,
+    CASE
+        WHEN reasons.user110 = 'Y' THEN TRUE WHEN
+            reasons.user110 = 'N'
+            THEN FALSE
+    END AS reason_legal_argument,
+    CASE
+        WHEN reasons.user40 = 'Y' THEN TRUE WHEN reasons.user40 = 'N' THEN FALSE
+    END AS reason_other,
+    reasons.user81 AS reason_other_description,
 
     -- Status and agent name come from different columns before and after 2020
     CASE
