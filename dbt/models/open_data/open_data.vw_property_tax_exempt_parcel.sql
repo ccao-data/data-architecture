@@ -3,16 +3,16 @@
 -- Some columns from the feeder view may not be present in this view.
 
 SELECT
-    feeder.pin,
-    feeder.township_name,
-    feeder.township_code,
-    feeder.owner_name,
-    feeder.owner_num,
-    feeder.class,
-    feeder.property_address,
-    feeder.property_city,
-    feeder.lon,
-    feeder.lat,
-    {{ open_data_columns() }}
-FROM {{ ref('default.vw_pin_exempt') }} AS feeder
-{{ open_data_join_rows_to_delete(addn_table="owndat") }}
+    CONCAT(pin, year) AS row_id,
+    pin,
+    CAST(year AS INT) AS year,
+    township_name,
+    township_code,
+    owner_name,
+    owner_num,
+    class,
+    property_address,
+    property_city,
+    lon,
+    lat
+FROM {{ ref('default.vw_pin_exempt') }}
