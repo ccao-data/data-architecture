@@ -253,6 +253,33 @@ def build_query_dict(athena_asset, asset_id, years=None):
     return query_dict
 
 
+def check_deleted(input_data, asset_id, app_token):
+    """
+    Download row_ids from Socrata asset to check for rows still present in
+    Socrata that have been deleted in Athena. If any are found, they will be
+    passed to Socrata with the ":deleted" column set to true.
+    """
+
+    url = f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$select=pin&$limit=2000000"
+
+    socrata_rows = pd.DataFrame(
+        session.get(url=url, headers={"X-App-Token": app_token}).json()
+    )
+
+    rows_to_delete = socrata_rows.merge(
+        input_data["pin"], how="left", indicator=True
+    )
+    rows_to_delete = rows_to_delete[
+        rows_to_delete["_merge"] == "left_only"
+    ].drop(columns=["_merge"])
+
+    rows_to_delete[":deleted"] = True
+    input_data[":deleted"] = None
+    input_data = pd.concat([input_data, rows_to_delete], ignore_index=True)
+
+    return input_data
+
+
 def upload(asset_id, sql_query, overwrite):
     """
     Function to perform the upload to Socrata. `puts` or `posts` depending on
@@ -280,6 +307,10 @@ def upload(asset_id, sql_query, overwrite):
             )
 
         input_data = cursor.execute(query).as_pandas()
+
+        # Ensure rows that need to be deleted from Socrata are marked as such
+        input_data = check_deleted(input_data, asset_id, app_token)
+
         date_columns = input_data.select_dtypes(include="datetime").columns
         for i in date_columns:
             input_data[i] = input_data[i].fillna("").dt.strftime("%Y-%m-%dT%X")
