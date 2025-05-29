@@ -55,7 +55,7 @@ def parse_assets(assets=None):
         "--quiet",
         "list",
         "--select",
-        "open_data.*",
+        "z_dev_wridgeway_open_data.*",
         "--resource-types",
         "exposure",
         "--exclude",
