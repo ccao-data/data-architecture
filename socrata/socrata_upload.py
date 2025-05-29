@@ -6,6 +6,7 @@ import os
 import re
 import time
 from datetime import datetime
+from urllib.parse import quote
 
 import pandas as pd
 import requests
@@ -260,14 +261,20 @@ def check_deleted(input_data, asset_id, app_token):
     passed to Socrata with the ":deleted" column set to true.
     """
 
-    url = f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$select=pin&$limit=2000000"
+    years = [str(year) for year in input_data["year"].unique().tolist()]
+    years = ", ".join(years)
+
+    url = (
+        f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
+        + quote(f"SELECT row_id, year WHERE year IN ({years}) LIMIT 20000000")
+    )
 
     socrata_rows = pd.DataFrame(
         session.get(url=url, headers={"X-App-Token": app_token}).json()
     )
 
     rows_to_delete = socrata_rows.merge(
-        input_data["pin"], how="left", indicator=True
+        input_data["row_id"], how="left", indicator=True
     )
     rows_to_delete = rows_to_delete[
         rows_to_delete["_merge"] == "left_only"
