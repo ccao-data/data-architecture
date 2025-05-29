@@ -799,7 +799,7 @@ Possible values for this variable are:
 {% docs shared_column_char_in_ground_pool %}
 This is a TRUE / FALSE indicator where residential valuations is attempting
 to identify pools. These are coded by class of 297 and a user1 value of 13. Because
-it is in ongoing development, it is not currently used for modeling or in open data
+it is in ongoing development; it is not currently used for modeling or in open data.
 
 {% enddocs %}
 
