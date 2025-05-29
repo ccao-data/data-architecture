@@ -12,6 +12,7 @@ WITH multicodes AS (
     GROUP BY parid, taxyr
 ),
 
+-- We need a CTE because data is iasworld.oby is not distinct by parid and taxyr
 pools AS (
     SELECT
         parid,
