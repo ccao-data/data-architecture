@@ -39,6 +39,7 @@ SELECT
     school.school_secondary_district_name AS loc_school_secondary_district_name,
     run.model_predictor_all_name,
     run.assessment_triad,
+    run.assessment_year,
     final.final_model_run_date
 FROM runs_to_include AS run
 INNER JOIN model.assessment_card AS ac
