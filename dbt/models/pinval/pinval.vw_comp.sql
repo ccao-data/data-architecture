@@ -1,7 +1,8 @@
 WITH runs_to_include AS (
     SELECT
         run_id,
-        model_predictor_all_name
+        model_predictor_all_name,
+        assessment_triad
     FROM {{ source('model', 'metadata') }}
     -- This will eventually grab all run_ids where
     -- run_type == comps
@@ -40,6 +41,19 @@ school_data AS (
         school_secondary_district_name
     FROM location.school
     WHERE year > '2014'
+),
+
+sale_years AS (
+    SELECT
+        pin,
+        run_id,
+        MIN(EXTRACT(YEAR FROM train.meta_sale_date)) AS min_year,
+        MAX(EXTRACT(YEAR FROM train.meta_sale_date)) AS max_year
+    FROM pivoted_comp AS pc
+    LEFT JOIN {{ source('model', 'pinval_test_training_data') }} AS train
+        ON pc.comp_pin = train.meta_pin
+        AND pc.comp_document_num = train.meta_sale_document_num
+    GROUP BY pin, run_id
 )
 
 SELECT
@@ -54,12 +68,20 @@ SELECT
     || 'K' AS sale_price_short,
     ROUND(train.meta_sale_price / NULLIF(train.char_bldg_sf, 0))
         AS sale_price_per_sq_ft,
+    FORMAT_DATETIME(train.meta_sale_date, 'MMM yyyy') AS sale_month_year,
     train.*,
     school.school_elementary_district_name
         AS loc_school_elementary_district_name,
     school.school_secondary_district_name
         AS loc_school_secondary_district_name,
-    meta.model_predictor_all_name
+    meta.model_predictor_all_name,
+    meta.assessment_triad,
+    CASE
+        WHEN s.min_year = s.max_year THEN CAST(s.min_year AS VARCHAR)
+        ELSE CAST(s.min_year AS VARCHAR)
+            || ' and '
+            || CAST(s.max_year AS VARCHAR)
+    END AS sale_year_range
 FROM pivoted_comp AS pc
 LEFT JOIN {{ source('model', 'pinval_test_training_data') }} AS train
     ON pc.comp_pin = train.meta_pin
@@ -69,3 +91,5 @@ LEFT JOIN school_data AS school
     AND train.meta_year = school.year
 LEFT JOIN runs_to_include AS meta
     ON pc.run_id = meta.run_id
+LEFT JOIN sale_years AS s
+    ON pc.pin = s.pin AND pc.run_id = s.run_id
