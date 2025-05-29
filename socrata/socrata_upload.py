@@ -261,18 +261,22 @@ def check_deleted(input_data, asset_id, app_token):
     passed to Socrata with the ":deleted" column set to true.
     """
 
+    # Determine which years are present in the input data. We only want to retrieve row_ids for the corresponding years from Socrata.
     years = [str(year) for year in input_data["year"].unique().tolist()]
     years = ", ".join(years)
 
+    # Construct the API call to retrieve row_ids for the specified asset and years
     url = (
         f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
         + quote(f"SELECT row_id, year WHERE year IN ({years}) LIMIT 20000000")
     )
 
+    # Retrieve row_ids from Socrata for the specified asset and years
     socrata_rows = pd.DataFrame(
         session.get(url=url, headers={"X-App-Token": app_token}).json()
     )
 
+    # Anti-join the Socrata rows with the input data to find rows that are present in Socrata but not in the Athena input data, then append them to the input data with the ":deleted" column set to True.
     rows_to_delete = socrata_rows.merge(
         input_data["row_id"], how="left", indicator=True
     )
