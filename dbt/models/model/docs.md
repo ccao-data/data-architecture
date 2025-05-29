@@ -173,6 +173,19 @@ Wall time of each stage (train, assess, etc.) for each model run (`run_id`).
 **Primary Key**: `year`, `run_id`
 {% enddocs %}
 
+# training_data
+
+{% docs table_training_data %}
+
+A table containing the training data from the final model runs.
+
+We update this table once per assessment year after choosing the final model
+runs for the year. As such, only final model run IDs should be present in this
+table.
+
+**Primary Key**: `run_id`, `meta_card_num`, `meta_sale_document_num`
+{% enddocs %}
+
 # vw_card_res_input
 
 {% docs view_vw_card_res_input %}
