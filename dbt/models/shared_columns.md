@@ -797,10 +797,11 @@ Possible values for this variable are:
 ## char_in_ground_pool
 
 {% docs shared_column_char_in_ground_pool %}
-This is a TRUE / FALSE indicator where residential valuations is attempting
-to identify pools. These are coded by class of 297 and a user1 value of 13. Because
-it is in ongoing development; it is not currently used for modeling or in open data.
-
+This is a boolean indicator where Residential Valuations is attempting
+to identify pools. These are coded by an outbuilding (`OBY` table entry) with
+class of 297 and an Improvement Type (`OBY.USER1`) value of 13. Because it is
+in ongoing development, this indicator is not currently used for modeling or
+in open data.
 {% enddocs %}
 
 ## char_land_sf
