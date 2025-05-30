@@ -55,7 +55,7 @@ def parse_assets(assets=None):
         "--quiet",
         "list",
         "--select",
-        "z_dev_wridgeway_open_data.*",
+        "open_data.*",
         "--resource-types",
         "exposure",
         "--exclude",
@@ -242,7 +242,7 @@ def build_query_dict(athena_asset, asset_id, years=None):
     print(f"The following columns will be updated for {athena_asset}:")
     print(columns)
 
-    query = f"""SELECT {", ".join(columns["column"])}, ":deleted" FROM {athena_asset}"""
+    query = f"""SELECT {", ".join(columns["column"])}, ":deleted" FROM {athena_asset.replace("open_data", "z_dev_wridgeway_open_data")}"""
 
     # Build a dictionary with queries for each year requested, or no years
     if not years:
