@@ -218,12 +218,7 @@ def build_query_dict(athena_asset, asset_id, years=None):
     # they should be added, but there are also cases when not all columns for an
     # Athena view that feeds an open data asset need to be part of that asset.
     if athena_columns != asset_columns:
-        columns_not_on_socrata = set(
-            # Ensure ":deleted" is not included in the comparison since it is
-            # only used to trigger row deletion in Socrata and is not actually a
-            # column in open data assets
-            [column for column in athena_columns if column != ":deleted"]
-        ) - set(asset_columns)
+        columns_not_on_socrata = set(athena_columns) - set(asset_columns)
         columns_not_in_athena = set(asset_columns) - set(athena_columns)
         exception_message = (
             f"Columns on Socrata and in Athena do not match for {athena_asset}"
@@ -242,7 +237,7 @@ def build_query_dict(athena_asset, asset_id, years=None):
     print(f"The following columns will be updated for {athena_asset}:")
     print(columns)
 
-    query = f"""SELECT {", ".join(columns["column"])}, ":deleted" FROM {athena_asset.replace("open_data", "z_dev_wridgeway_open_data")}"""
+    query = f"""SELECT {", ".join(columns["column"])} FROM {athena_asset.replace("open_data", "z_dev_wridgeway_open_data")}"""
 
     # Build a dictionary with queries for each year requested, or no years
     if not years:
@@ -276,7 +271,9 @@ def check_deleted(input_data, asset_id, app_token):
         session.get(url=url, headers={"X-App-Token": app_token}).json()
     )
 
-    # Anti-join the Socrata rows with the input data to find rows that are present in Socrata but not in the Athena input data, then append them to the input data with the ":deleted" column set to True.
+    # Anti-join the Socrata rows with the input data to find rows that are
+    # present in Socrata but not in the Athena input data, then append them to
+    # the input data with the ":deleted" column set to True.
     rows_to_delete = socrata_rows.merge(
         input_data["row_id"], how="left", indicator=True
     )
