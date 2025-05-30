@@ -147,4 +147,23 @@ SELECT
     END AS char_tp_plan,
     {{ open_data_columns(row_id_cols=['pin', 'card', 'year']) }}
 FROM {{ ref('default.vw_card_res_char') }} AS feeder
-{{ open_data_join_rows_to_delete(addn_table="dweldat") }}
+FULL OUTER JOIN
+    (
+        SELECT
+            pdat.parid
+            || CAST(addndat.card AS VARCHAR)
+            || pdat.taxyr AS row_id,
+            pdat.taxyr AS year,
+            TRUE AS ":deleted" -- noqa: RF05
+        FROM {{ source("iasworld", "pardat") }} AS pdat
+        INNER JOIN
+            {{ source("iasworld", "dweldat") }} AS addndat
+            ON pdat.parid = addndat.parid
+            AND pdat.taxyr = addndat.taxyr
+        WHERE
+            pdat.deactivat IS NOT NULL
+            OR addndat.deactivat IS NOT NULL
+            OR pdat.class = '999'
+    ) AS deleted_rows
+    ON feeder.pin || CAST(feeder.card AS VARCHAR) || feeder.year
+    = deleted_rows.row_id
