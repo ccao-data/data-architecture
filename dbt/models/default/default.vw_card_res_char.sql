@@ -126,9 +126,9 @@ SELECT
     dwel.user7 AS char_air,
     dwel.user5 AS char_tp_plan,
 
-    -- This is a brand new characteristic being collected by valuations and we
-    -- are not condifendent about it's completeness or accuracy.
-    -- This is not currently being used in open data.
+    -- This is a brand new characteristic being collected by Valuations and we
+    -- are not yet confident about its completeness or accuracy.
+    -- This is not currently being used in open data or modeling.
     COALESCE(pools.in_ground_pool, FALSE) AS char_in_ground_pool
 
 FROM {{ source('iasworld', 'pardat') }} AS par
