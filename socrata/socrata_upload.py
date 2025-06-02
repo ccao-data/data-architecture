@@ -237,7 +237,7 @@ def build_query_dict(athena_asset, asset_id, years=None):
     print(f"The following columns will be updated for {athena_asset}:")
     print(columns)
 
-    query = f"""SELECT {", ".join(columns["column"])} FROM {athena_asset.replace("open_data", "z_ci_alternate_open_data_delete_solution_open_data")}"""
+    query = f"""SELECT {", ".join(columns["column"])} FROM {athena_asset}"""
 
     # Build a dictionary with queries for each year requested, or no years
     if not years:
@@ -256,14 +256,15 @@ def check_deleted(input_data, asset_id, app_token):
     passed to Socrata with the ":deleted" column set to true.
     """
 
-    # Determine which years are present in the input data. We only want to retrieve row_ids for the corresponding years from Socrata.
+    # Determine which years are present in the input data. We only want to
+    # retrieve row_ids for the corresponding years from Socrata.
     years = [str(year) for year in input_data["year"].unique().tolist()]
     years = ", ".join(years)
 
     # Construct the API call to retrieve row_ids for the specified asset and years
     url = (
         f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
-        + quote(f"SELECT row_id, year WHERE year IN ({years}) LIMIT 20000000")
+        + quote(f"SELECT row_id WHERE year IN ({years}) LIMIT 20000000")
     )
 
     # Retrieve row_ids from Socrata for the specified asset and years
@@ -271,19 +272,15 @@ def check_deleted(input_data, asset_id, app_token):
         session.get(url=url, headers={"X-App-Token": app_token}).json()
     )
 
-    # Anti-join the Socrata rows with the input data to find rows that are
-    # present in Socrata but not in the Athena input data, then append them to
-    # the input data with the ":deleted" column set to True.
-    rows_to_delete = socrata_rows.merge(
-        input_data["row_id"], how="left", indicator=True
+    # Outer-join the input data with Socrata data to find rows that are
+    # present in Socrata but not in the Athena input data. For those rows set
+    # the ":deleted" column to True.
+    input_data = input_data.merge(
+        socrata_rows, on="row_id", how="outer", indicator=True
     )
-    rows_to_delete = rows_to_delete[
-        rows_to_delete["_merge"] == "left_only"
-    ].drop(columns=["_merge"])
-
-    rows_to_delete[":deleted"] = True
     input_data[":deleted"] = None
-    input_data = pd.concat([input_data, rows_to_delete], ignore_index=True)
+    input_data.loc[input_data["_merge"] == "right_only", ":deleted"] = True
+    input_data = input_data.drop(columns=["_merge"])
 
     return input_data
 
