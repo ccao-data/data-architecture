@@ -10,6 +10,20 @@ WITH multicodes AS (
     WHERE cur = 'Y'
         AND deactivat IS NULL
     GROUP BY parid, taxyr
+),
+
+-- Conditionals in CTE do not ensure distinct outputs
+pools AS (
+    SELECT
+        parid,
+        taxyr,
+        TRUE AS in_ground_pool
+    FROM {{ source('iasworld', 'oby') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
+        AND code = '297'
+        AND user1 = '13' -- This is our best understanding of a pool indicator
+    GROUP BY parid, taxyr
 )
 
 SELECT
@@ -110,7 +124,12 @@ SELECT
     != '1'), FALSE) AS char_recent_renovation,
     dwel.user30 AS char_porch,
     dwel.user7 AS char_air,
-    dwel.user5 AS char_tp_plan
+    dwel.user5 AS char_tp_plan,
+
+    -- This is a brand new characteristic being collected by Valuations and we
+    -- are not yet confident about its completeness or accuracy.
+    -- This is not currently being used in open data or modeling.
+    COALESCE(pools.in_ground_pool, FALSE) AS char_in_ground_pool
 
 FROM {{ source('iasworld', 'pardat') }} AS par
 INNER JOIN {{ source('iasworld', 'dweldat') }} AS dwel
@@ -129,6 +148,9 @@ LEFT JOIN {{ source('iasworld', 'legdat') }} AS leg
     AND dwel.taxyr = leg.taxyr
     AND leg.cur = 'Y'
     AND leg.deactivat IS NULL
+LEFT JOIN pools
+    ON dwel.parid = pools.parid
+    AND dwel.taxyr = pools.taxyr
 WHERE par.cur = 'Y'
     AND par.deactivat IS NULL
     AND par.class NOT IN ('999')

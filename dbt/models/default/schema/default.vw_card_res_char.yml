@@ -52,6 +52,8 @@ models:
         description: '{{ doc("shared_column_char_hbath") }}'
       - name: char_heat
         description: '{{ doc("shared_column_char_heat") }}'
+      - name: char_in_ground_pool
+        description: '{{ doc("shared_column_char_in_ground_pool") }}'
       - name: char_land_sf
         description: '{{ doc("shared_column_char_land_sf") }}'
       - name: char_ncu
