@@ -77,10 +77,10 @@ SELECT
     meta.model_predictor_all_name,
     meta.assessment_triad,
     CASE
-        WHEN s.min_year = s.max_year THEN CAST(s.min_year AS VARCHAR)
-        ELSE CAST(s.min_year AS VARCHAR)
+        WHEN sy.min_year = sy.max_year THEN CAST(sy.min_year AS VARCHAR)
+        ELSE CAST(sy.min_year AS VARCHAR)
             || ' and '
-            || CAST(s.max_year AS VARCHAR)
+            || CAST(sy.max_year AS VARCHAR)
     END AS sale_year_range
 FROM pivoted_comp AS pc
 LEFT JOIN {{ source('model', 'pinval_test_training_data') }} AS train
