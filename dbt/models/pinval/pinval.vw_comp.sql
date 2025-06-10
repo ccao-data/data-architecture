@@ -91,5 +91,5 @@ LEFT JOIN school_data AS school
     AND train.meta_year = school.year
 LEFT JOIN runs_to_include AS meta
     ON pc.run_id = meta.run_id
-LEFT JOIN sale_years AS s
-    ON pc.pin = s.pin AND pc.run_id = s.run_id
+LEFT JOIN sale_years AS sy
+    ON pc.pin = sy.pin AND pc.run_id = sy.run_id
