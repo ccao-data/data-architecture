@@ -45,15 +45,15 @@ school_data AS (
 
 sale_years AS (
     SELECT
-        pin,
-        run_id,
+        pc.pin,
+        pc.run_id,
         MIN(EXTRACT(YEAR FROM train.meta_sale_date)) AS min_year,
         MAX(EXTRACT(YEAR FROM train.meta_sale_date)) AS max_year
     FROM pivoted_comp AS pc
     LEFT JOIN {{ source('model', 'pinval_test_training_data') }} AS train
         ON pc.comp_pin = train.meta_pin
         AND pc.comp_document_num = train.meta_sale_document_num
-    GROUP BY pin, run_id
+    GROUP BY pc.pin, pc.run_id
 )
 
 SELECT
