@@ -22,7 +22,7 @@ pivoted_comp AS (
             comp_pin_{{ i }} AS comp_pin,
             comp_score_{{ i }} AS comp_score,
             comp_document_num_{{ i }} AS comp_document_num,
-            run_id
+            run_id AS comps_run_id
         FROM raw_comp
         {% if not loop.last %}
             UNION ALL
@@ -38,6 +38,13 @@ school_data AS (
         school_secondary_district_name
     FROM location.school
     WHERE year > '2014'
+),
+
+training_data_rename_run_id AS (
+    SELECT
+        *,
+        run_id AS model_train_run_id
+    FROM {{ ref('model.training_data') }}
 )
 
 SELECT
@@ -59,7 +66,7 @@ SELECT
         AS loc_school_secondary_district_name,
     meta.model_predictor_all_name
 FROM pivoted_comp AS pc
-LEFT JOIN {{ ref('model.training_data') }} AS train
+LEFT JOIN training_data_rename_run_id AS train
     ON pc.comp_pin = train.meta_pin
     AND pc.comp_document_num = train.meta_sale_document_num
 LEFT JOIN school_data AS school
