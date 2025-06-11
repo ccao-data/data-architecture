@@ -154,6 +154,24 @@ Agent name, typically name of taxpayer or attorney filing appeal
 Result of appeal: `change` or `no change`
 {% enddocs %}
 
+## appeal_reason
+
+{% docs shared_column_appeal_reason %}
+Indicator for an appeal reason, selected by the applicant on appeal.
+
+Generally, the column name should describe the reason; for example,
+`reason_over_valuation` means the applicant claims that the appeal is justified
+by overvaluation. The one exception to this pattern is reason_other, which
+relies on the reason_other_description column to provide a description of the
+appeal reason.
+
+Possible values for this variable are:
+
+- TRUE: The applicant selected this reason
+- FALSE: The applicant did not select this reason
+- NULL: We are unsure, but we think this is equivalent to FALSE
+{% enddocs %}
+
 ## appeal_status
 
 {% docs shared_column_appeal_status %}
@@ -774,6 +792,16 @@ Possible values for this variable are:
 - `2` = Steam / radiator (`STM`)
 - `3` = Electric (`ELEC`)
 - `4` = None (`NONE`)
+{% enddocs %}
+
+## char_in_ground_pool
+
+{% docs shared_column_char_in_ground_pool %}
+This is a boolean indicator where Residential Valuations is attempting
+to identify pools. These are coded by an outbuilding (`OBY` table entry) with
+class of 297 and an Improvement Type (`OBY.USER1`) value of 13. Because it is
+in ongoing development, this indicator is not currently used for modeling or
+in open data.
 {% enddocs %}
 
 ## char_land_sf

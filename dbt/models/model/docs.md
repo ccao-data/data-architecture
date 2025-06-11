@@ -26,6 +26,22 @@ PIN-level predicted values, etc. Predicted values are aggregated from
 **Primary Key**: `year`, `run_id`, `meta_pin`
 {% enddocs %}
 
+# comp
+
+{% docs table_comp %}
+
+Table containing comparable sales along with similarity scores
+for each comparable sale extracted from the structure of the
+tree model.
+
+These comparable sales are experimental and not yet public.
+For details on our current approach to extracting comparable
+sales from the model, see [this
+vignette](https://ccao-data.github.io/lightsnip/articles/finding-comps.html).
+
+**Primary Key**: `pin`, `card`, `run_id`
+{% enddocs %}
+
 # feature_importance
 
 {% docs table_feature_importance %}
@@ -116,6 +132,14 @@ Identical to `model.performance`, but additionally broken out by quantile.
 `geography_id`, `by_class`, `num_quantile`, `quantile`
 {% enddocs %}
 
+# pinval_test_training_data
+
+{% docs pinval_test_training_data %}
+
+Testing table for storing training data in athena.
+
+{% enddocs %}
+
 # shap
 
 {% docs table_shap %}
@@ -147,6 +171,19 @@ of sales_.
 Wall time of each stage (train, assess, etc.) for each model run (`run_id`).
 
 **Primary Key**: `year`, `run_id`
+{% enddocs %}
+
+# training_data
+
+{% docs table_training_data %}
+
+A table containing the training data from the final model runs.
+
+We update this table once per assessment year after choosing the final model
+runs for the year. As such, only final model run IDs should be present in this
+table.
+
+**Primary Key**: `run_id`, `meta_card_num`, `meta_sale_document_num`
 {% enddocs %}
 
 # vw_card_res_input
