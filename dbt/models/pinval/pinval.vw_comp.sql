@@ -73,4 +73,4 @@ LEFT JOIN school_data AS school
     ON SUBSTRING(pc.comp_pin, 1, 10) = school.school_pin
     AND train.meta_year = school.year
 LEFT JOIN runs_to_include AS meta
-    ON pc.run_id = meta.run_id
+    ON pc.comps_run_id = meta.run_id
