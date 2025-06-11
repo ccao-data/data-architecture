@@ -3,9 +3,7 @@ WITH runs_to_include AS (
         run_id,
         model_predictor_all_name
     FROM {{ source('model', 'metadata') }}
-    -- This will eventually grab all run_ids where
-    -- run_type == comps
-    WHERE run_id = '2025-04-25-fancy-free-billy'
+    WHERE run_id = 'comps'
 ),
 
 raw_comp AS (
@@ -61,7 +59,7 @@ SELECT
         AS loc_school_secondary_district_name,
     meta.model_predictor_all_name
 FROM pivoted_comp AS pc
-LEFT JOIN {{ source('model', 'pinval_test_training_data') }} AS train
+LEFT JOIN {{ source('model', 'training_data') }} AS train
     ON pc.comp_pin = train.meta_pin
     AND pc.comp_document_num = train.meta_sale_document_num
 LEFT JOIN school_data AS school
