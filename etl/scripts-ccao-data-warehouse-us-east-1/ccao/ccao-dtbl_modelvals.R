@@ -16,4 +16,4 @@ read_parquet(
 ) %>%
   select(-row_names) %>%
   group_by(TAX_YEAR) %>%
-  write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
+  write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = FALSE)
