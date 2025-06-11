@@ -59,7 +59,7 @@ SELECT
         AS loc_school_secondary_district_name,
     meta.model_predictor_all_name
 FROM pivoted_comp AS pc
-LEFT JOIN {{ source('model', 'training_data') }} AS train
+LEFT JOIN {{ ref('model.training_data') }} AS train
     ON pc.comp_pin = train.meta_pin
     AND pc.comp_document_num = train.meta_sale_document_num
 LEFT JOIN school_data AS school
