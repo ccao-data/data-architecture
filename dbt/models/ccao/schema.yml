@@ -24,6 +24,52 @@ sources:
       - name: cc_pifdb_piexemptre_sted
         description: '{{ doc("table_cc_pifdb_piexemptre_sted") }}'
 
+      - name: dtbl_modelvals
+        description: '{{ doc("table_dtbl_modelvals") }}'
+        columns:
+          - name: class
+            description: '{{ doc("shared_column_class") }}'
+          - name: doc_no
+            description: '{{ doc("shared_column_document_number") }}'
+          - name: fitted_value_1
+            description: Valuation of the PIN after the first valuation step (Leverage optimal models to predict values)
+          - name: fitted_value_2
+            description: Valuation of the PIN after the second valuation step (Adjust values to 10% assessment level)
+          - name: fitted_value_3
+            description: Valuation of the PIN after the third valuation step (Regressivity adjustment - currently non-functional)
+          - name: fitted_value_4
+            description: Valuation of the PIN after the fourth valuation step (Limit excessive ratios)
+          - name: fitted_value_5
+            description: Valuation of the PIN after the fifth valuation step (Land valuation)
+          - name: fitted_value_6
+            description: Valuation of the PIN after the sixth valuation step (Condominiums)
+          - name: max_version
+            description: Used to identify the most recent model version used to generate fitted values for a given PIN and year
+          - name: modeling_group
+            description: Deprecated model group designations consisting of 'SF', 'MF', 'NCHARS', and 'FIXED'
+          - name: nbhd_mapping
+            description: '{{ doc("shared_column_nbhd_code") }}'
+          - name: pin
+            description: '{{ doc("shared_column_pin") }}'
+          - name: ratio_1
+            description: Sale ratio for `fitted_value_1` if `most_recent_sale_price` exists
+          - name: ratio_2
+            description: Sale ratio for `fitted_value_2` if `most_recent_sale_price` exists
+          - name: ratio_3
+            description: Sale ratio for `fitted_value_3` if `most_recent_sale_price` exists
+          - name: ratio_4
+            description: Sale ratio for `fitted_value_4` if `most_recent_sale_price` exists
+          - name: ratio_5
+            description: Sale ratio for `fitted_value_5` if `most_recent_sale_price` exists
+          - name: ratio_6
+            description: Sale ratio for `fitted_value_6` if `most_recent_sale_price` exists
+          - name: tax_year
+            description: '{{ doc("shared_column_year") }}'
+          - name: town_code
+            description: '{{ doc("shared_column_township_code") }}'
+          - name: version
+            description: In the past, models were not assigned alphanumeric IDs but rather pin and year-level output was consecutively "versioned" by model run.
+
       - name: hie
         description: '{{ doc("table_hie") }}'
         tags:
@@ -94,7 +140,7 @@ sources:
               combination_of_columns:
                 - pin
                 - year
-              meta: 
+              meta:
                 description: pin nonlivable should be unique by pin and year
         columns:
           - name: flag
