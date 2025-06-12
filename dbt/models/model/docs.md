@@ -23,6 +23,9 @@ Includes recent sales, PIN-level characteristics, desk review flags,
 PIN-level predicted values, etc. Predicted values are aggregated from
 `model.assessment_card` and post-processed in a variety of ways.
 
+Model values for 2019 and 2020 can be found in `ccao.dtbl_modelvals`. They are
+not compatible with the current `model` database architecture.
+
 **Primary Key**: `year`, `run_id`, `meta_pin`
 {% enddocs %}
 
