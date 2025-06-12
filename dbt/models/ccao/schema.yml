@@ -68,7 +68,7 @@ sources:
           - name: town_code
             description: '{{ doc("shared_column_township_code") }}'
           - name: version
-            description: In the past, models were not assigned alphanumeric IDs but rather pin and year-level output was consecutively "versioned" by model run.
+            description: In the past, models were not assigned alphanumeric IDs but rather PIN and year-level output was consecutively "versioned" by model run.
 
       - name: hie
         description: '{{ doc("table_hie") }}'
