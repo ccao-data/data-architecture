@@ -51,7 +51,7 @@ aggregated or used for analyses, only provided in raw.
 {% docs table_dtbl_modelvals %}
 Archived model values produced by the [legacy Data Department AVM](https://gitlab.com/ccao-data-science---modeling/ccao_sf_cama_dev).
 
-These model values were produced and recoreded used a model and architecture
+These model values were produced and recoreded using a model and architecture
 that are incompatible with the department's current AVM and `model` database.
 
 ### Nuance
