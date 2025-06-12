@@ -37,7 +37,6 @@ MV 08/18/2024.
 {% docs table_commercial_valuation %}
 CCAO commercial valuation data, aggregated from the commercial team spreadsheets
 [available on the Assessor's site](https://www.cookcountyassessor.com/valuation-reports).
-Archived documentation can be found [here](https://gitlab.com/ccao-data-science---modeling/ccao_sf_cama_dev/-/blob/master/data_dictionary_constituents/DTBL_MODELVALS.csv).
 
 ### Nuance
 
@@ -50,7 +49,7 @@ aggregated or used for analyses, only provided in raw.
 # dtbl_modelvals
 
 {% docs table_dtbl_modelvals %}
-Archived model values produced by the [legacy Data Department AVM](https://gitlab.com/ccao-data-science---modeling/ccao_sf_cama_dev).
+Archived model values produced by the [legacy Data Department AVM](https://gitlab.com/ccao-data-science---modeling/ccao_sf_cama_dev). Archived documentation can be found [here](https://gitlab.com/ccao-data-science---modeling/ccao_sf_cama_dev/-/blob/master/data_dictionary_constituents/DTBL_MODELVALS.csv).
 
 These model values were produced and recorded using a model and architecture
 that are incompatible with the department's current AVM and `model` database.
