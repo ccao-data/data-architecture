@@ -5,7 +5,7 @@ inputs:
     description: AWS IAM role to assume when running dbt operations.
     required: true
   aws-account-id:
-    description: AWS account ID to use to create resources.
+    description: AWS account ID. Only used for masking the value in logs.
     required: true
   role-duration-seconds:
     description: Expiration time for AWS OIDC token. Default is one hour.
