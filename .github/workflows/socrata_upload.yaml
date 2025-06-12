@@ -74,8 +74,6 @@ jobs:
 
       - name: Upload to Socrata
         env:
-          AWS_IAM_ROLE_TO_ASSUME_ARN: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
           AWS_ATHENA_S3_STAGING_DIR: ${{ vars.AWS_ATHENA_S3_STAGING_DIR }}
           SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}
           SOCRATA_USERNAME: ${{ secrets.SOCRATA_USERNAME }}
