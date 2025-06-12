@@ -55,6 +55,7 @@ LEFT JOIN (
     AND asmt.cur = 'Y'
     AND asmt.deactivat IS NULL
     AND asmt.valclass IS NULL
+    AND asmt.rolltype != 'RR'
 WHERE aprval.cur = 'Y'
     AND aprval.deactivat IS NULL
     AND pardat.class NOT BETWEEN '200' AND '299'
