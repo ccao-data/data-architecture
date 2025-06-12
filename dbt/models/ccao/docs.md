@@ -37,6 +37,7 @@ MV 08/18/2024.
 {% docs table_commercial_valuation %}
 CCAO commercial valuation data, aggregated from the commercial team spreadsheets
 [available on the Assessor's site](https://www.cookcountyassessor.com/valuation-reports).
+Archived documentation can be found [here](https://gitlab.com/ccao-data-science---modeling/ccao_sf_cama_dev/-/blob/master/data_dictionary_constituents/DTBL_MODELVALS.csv).
 
 ### Nuance
 
