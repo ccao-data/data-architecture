@@ -6,6 +6,7 @@ import os
 import re
 import time
 from datetime import datetime
+from urllib.parse import quote
 
 import pandas as pd
 import requests
@@ -116,12 +117,15 @@ def parse_years(years=None):
     if years == "":
         years = None
     if years is not None:
-        # Only allow anticipated values
-        years = [
-            re.sub("[^0-9]", "", year)
-            for year in str(years).split(",")
-            if re.sub("[^0-9]", "", year)
-        ]
+        if years == "all":
+            years = ["all"]
+        else:
+            # Only allow anticipated values
+            years = [
+                re.sub("[^0-9]", "", year)
+                for year in str(years).split(",")
+                if re.sub("[^0-9]", "", year)
+            ]
 
     return years
 
@@ -155,7 +159,7 @@ def parse_years_list(athena_asset, years=None):
             .as_pandas()["year"]
             .to_list()
         )
-        years_list.append(str(datetime.now().year))
+        years_list.append(datetime.now().year)
         years_list = [min(years_list)]
 
     else:
@@ -233,16 +237,52 @@ def build_query_dict(athena_asset, asset_id, years=None):
     print(f"The following columns will be updated for {athena_asset}:")
     print(columns)
 
-    query = f"SELECT {', '.join(columns['column'])} FROM {athena_asset}"
+    query = f"""SELECT {", ".join(columns["column"])} FROM {athena_asset}"""
 
     # Build a dictionary with queries for each year requested, or no years
     if not years:
         query_dict = {None: query}
 
     else:
-        query_dict = {year: f"{query} WHERE year = '{year}'" for year in years}
+        query_dict = {year: f"{query} WHERE year = {year}" for year in years}
 
     return query_dict
+
+
+def check_deleted(input_data, asset_id, app_token):
+    """
+    Download row_ids from Socrata asset to check for rows still present in
+    Socrata that have been deleted in Athena. If any are found, they will be
+    passed to Socrata with the ":deleted" column set to true.
+    """
+
+    # Determine which years are present in the input data. We only want to
+    # retrieve row_ids for the corresponding years from Socrata.
+    years = [str(year) for year in input_data["year"].unique().tolist()]
+    years = ", ".join(years)
+
+    # Construct the API call to retrieve row_ids for the specified asset and years
+    url = (
+        f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
+        + quote(f"SELECT row_id WHERE year IN ({years}) LIMIT 20000000")
+    )
+
+    # Retrieve row_ids from Socrata for the specified asset and years
+    socrata_rows = pd.DataFrame(
+        session.get(url=url, headers={"X-App-Token": app_token}).json()
+    )
+
+    # Outer-join the input data with Socrata data to find rows that are
+    # present in Socrata but not in the Athena input data. For those rows set
+    # the ":deleted" column to True.
+    input_data = input_data.merge(
+        socrata_rows, on="row_id", how="outer", indicator=True
+    )
+    input_data[":deleted"] = None
+    input_data.loc[input_data["_merge"] == "right_only", ":deleted"] = True
+    input_data = input_data.drop(columns=["_merge"])
+
+    return input_data
 
 
 def upload(asset_id, sql_query, overwrite):
@@ -268,10 +308,14 @@ def upload(asset_id, sql_query, overwrite):
             print_message = print_message + " all years for asset " + asset_id
         else:
             print_message = (
-                print_message + " year: " + year + " for asset " + asset_id
+                f"{print_message} year: {year} for asset {asset_id}"
             )
 
         input_data = cursor.execute(query).as_pandas()
+
+        # Ensure rows that need to be deleted from Socrata are marked as such
+        input_data = check_deleted(input_data, asset_id, app_token)
+
         date_columns = input_data.select_dtypes(include="datetime").columns
         for i in date_columns:
             input_data[i] = input_data[i].fillna("").dt.strftime("%Y-%m-%dT%X")

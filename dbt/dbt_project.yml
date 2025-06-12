@@ -55,6 +55,8 @@ models:
       +schema: model
     open_data:
       +schema: open_data
+    pinval:
+      +schema: pinval
     proximity:
       +schema: proximity
     reporting:

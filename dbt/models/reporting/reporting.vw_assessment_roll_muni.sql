@@ -161,8 +161,14 @@ SELECT
     SUM(tot_sum)
         OVER (PARTITION BY year, stage, municipality)
         AS phase_total_av,
-    CAST(tot_sum AS DOUBLE)
-    / CAST(
-        SUM(tot_sum) OVER (PARTITION BY year, stage, municipality) AS DOUBLE
-    ) AS phase_av_share
+    CASE WHEN SUM(tot_sum)
+                OVER (PARTITION BY year, stage, municipality)
+            = 0 THEN NULL ELSE
+            CAST(tot_sum AS DOUBLE)
+            / CAST(
+                SUM(tot_sum)
+                    OVER (PARTITION BY year, stage, municipality)
+                AS DOUBLE
+            )
+    END AS phase_av_share
 FROM muni_aggregated

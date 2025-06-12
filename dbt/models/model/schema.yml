@@ -57,6 +57,18 @@ sources:
                 - year
                 - run_id
 
+      - name: comp
+        description: '{{ doc("table_comp") }}'
+        tags:
+          - load_auto
+        data_tests:
+          - unique_combination_of_columns:
+              name: model_comp_unique_pin_card_run_id
+              combination_of_columns:
+                - pin
+                - card
+                - run_id
+
       - name: parameter_final
         description: '{{ doc("table_parameter_final") }}'
         tags:
@@ -129,6 +141,9 @@ sources:
                 - class
                 - num_quantile
                 - quantile
+
+      - name: pinval_test_training_data
+        description: '{{ doc("pinval_test_training_data") }}'
 
       - name: shap
         description: '{{ doc("table_shap") }}'
@@ -214,6 +229,19 @@ models:
       - name: note
         description: |
           Any notes or caveats associated with the model run
+
+  - name: model.training_data
+    description: '{{ doc("table_training_data") }}'
+    config:
+      tags:
+        - load_manual
+    tests:
+      - unique_combination_of_columns:
+          name: model_training_data_unique_card_doc_number_run_id
+          combination_of_columns:
+            - run_id
+            - meta_sale_document_num
+            - meta_card_num
 
   - name: model.vw_pin_shared_input
     description: '{{ doc("view_vw_pin_shared_input") }}'
