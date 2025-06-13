@@ -70,6 +70,7 @@ jobs:
         uses: ./.github/actions/setup_dbt
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+          aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
 
       - name: Restore dbt state cache
         id: cache

@@ -21,6 +21,7 @@ jobs:
         uses: ./.github/actions/setup_dbt
         with:
           role-to-assume: ${{ secrets.AWS_IAM_ROLE_TO_ASSUME_ARN }}
+          aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
 
       - name: Install requirements for cleaning up dbt resources
         run: sudo apt-get update && sudo apt-get install jq
