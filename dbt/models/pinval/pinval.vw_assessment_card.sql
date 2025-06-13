@@ -12,7 +12,7 @@ school_district AS (
         geoid,
         name,
         year
-    FROM {{ ref('spatial.school_district') }}
+    FROM {{ source('spatial', 'school_district') }}
 ),
 
 final_model_run AS (
