@@ -4,9 +4,7 @@ WITH runs_to_include AS (
         model_predictor_all_name,
         assessment_year
     FROM {{ source('model', 'metadata') }}
-    -- This will eventually grab all run_ids where
-    -- run_type == comps
-    WHERE run_id = '2025-02-11-charming-eric'
+    WHERE run_id = 'comps'
 ),
 
 school_data AS (
@@ -42,7 +40,7 @@ FROM runs_to_include AS run
 INNER JOIN model.assessment_card AS ac
     ON run.run_id = ac.run_id
 LEFT JOIN model.assessment_pin AS ap
-    ON ac.meta_pin = ap.meta_pin
+    ON ac.meta_pin = ap.meta_pinl
     AND ac.run_id = ap.run_id
 LEFT JOIN school_data AS school
     ON SUBSTRING(ac.meta_pin, 1, 10) = school.school_pin

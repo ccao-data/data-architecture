@@ -3,9 +3,7 @@ WITH runs_to_include AS (
         run_id,
         model_predictor_all_name
     FROM {{ source('model', 'metadata') }}
-    -- This will eventually grab all run_ids where
-    -- run_type == comps
-    WHERE run_id = '2025-04-25-fancy-free-billy'
+    WHERE run_id = 'comps'
 ),
 
 raw_comp AS (
@@ -24,7 +22,7 @@ pivoted_comp AS (
             comp_pin_{{ i }} AS comp_pin,
             comp_score_{{ i }} AS comp_score,
             comp_document_num_{{ i }} AS comp_document_num,
-            run_id
+            run_id AS comps_run_id
         FROM raw_comp
         {% if not loop.last %}
             UNION ALL
@@ -40,6 +38,13 @@ school_data AS (
         school_secondary_district_name
     FROM location.school
     WHERE year > '2014'
+),
+
+training_data_rename_run_id AS (
+    SELECT
+        *,
+        run_id AS model_train_run_id
+    FROM {{ ref('model.training_data') }}
 )
 
 SELECT
@@ -61,11 +66,11 @@ SELECT
         AS loc_school_secondary_district_name,
     meta.model_predictor_all_name
 FROM pivoted_comp AS pc
-LEFT JOIN {{ source('model', 'pinval_test_training_data') }} AS train
+LEFT JOIN training_data_rename_run_id AS train
     ON pc.comp_pin = train.meta_pin
     AND pc.comp_document_num = train.meta_sale_document_num
 LEFT JOIN school_data AS school
     ON SUBSTRING(pc.comp_pin, 1, 10) = school.school_pin
     AND train.meta_year = school.year
 LEFT JOIN runs_to_include AS meta
-    ON pc.run_id = meta.run_id
+    ON pc.comps_run_id = meta.run_id
