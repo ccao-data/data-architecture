@@ -42,7 +42,7 @@ LEFT JOIN spatial.school_district AS sec_sd
     ON ac.loc_school_secondary_district_geoid = sec_sd.geoid
     AND ac.meta_year = sec_sd.year
 LEFT JOIN location.vw_pin10_location AS loc
-    ON LEFT(ac.meta_pin, 10) = loc.pin10
+    ON SUBSTRING(ac.meta_pin, 1, 10) = loc.pin10
     AND ac.meta_year = loc.year
 LEFT JOIN final_model_run AS final
     ON run.assessment_year = final.year
