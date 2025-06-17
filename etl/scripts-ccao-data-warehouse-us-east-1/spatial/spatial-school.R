@@ -209,6 +209,8 @@ county_districts_df <- st_join(
   filter(
     (year == census_year & district_type == census_district_type) | is.na(geoid)
   ) %>%
+  # Some districts don't properly join to census shapes and need to have geoids
+  # manually assigned
   mutate(geoid = case_when(
     district_type == "unified" & school_num == "205" ~ "1713970",
     district_type == "elementary" & school_num == "100" ~ "1706090",
