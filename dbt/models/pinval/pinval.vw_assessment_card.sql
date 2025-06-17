@@ -16,6 +16,16 @@ final_model_run AS (
     FROM {{ ref('model.final_model') }}
     WHERE type = 'res'
         AND is_final
+),
+
+school_districts AS (
+    SELECT
+        geoid,
+        year,
+        MAX(name) AS name
+    FROM spatial.school_district
+    WHERE geoid IS NOT NULL
+    GROUP BY geoid, year
 )
 
 SELECT
@@ -35,17 +45,12 @@ INNER JOIN model.assessment_card AS ac
 LEFT JOIN model.assessment_pin AS ap
     ON ac.meta_pin = ap.meta_pin
     AND ac.run_id = ap.run_id
-LEFT JOIN location.vw_pin10_location_fill AS elem_sd
-    ON ac.loc_school_elementary_district_geoid
-    = elem_sd.school_elementary_district_geoid
+LEFT JOIN school_districts AS elem_sd
+    ON ac.loc_school_elementary_district_geoid = elem_sd.geoid
     AND ac.meta_year = elem_sd.year
-LEFT JOIN location.vw_pin10_location_fill AS sec_sd
-    ON ac.loc_school_secondary_district_geoid
-    = sec_sd.school_secondary_district_geoid
+LEFT JOIN school_districts AS sec_sd
+    ON ac.loc_school_secondary_district_geoid = sec_sd.geoid
     AND ac.meta_year = sec_sd.year
-LEFT JOIN location.vw_pin10_location_fill AS mun
-    ON SUBSTRING(ac.meta_pin, 1, 10) = mun.pin10
-    AND ac.meta_year = mun.year
 LEFT JOIN final_model_run AS final
     ON run.assessment_year = final.year
 WHERE ap.meta_triad_code = final.triad_code
