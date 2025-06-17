@@ -211,7 +211,7 @@ county_districts_df <- st_join(
   ) %>%
   mutate(geoid = case_when(
     district_type == "unified" & school_num == "205" ~ "1713970",
-    district_type == "elementary" & school_num == "100" ~ "1737860",
+    district_type == "elementary" & school_num == "100" ~ "1706090",
     district_type == "elementary" & school_num == "125" ~ "1704560",
     school_num == "180" ~ "1730510",
     school_num == "157-" ~ "1715700",
