@@ -36,10 +36,12 @@ LEFT JOIN model.assessment_pin AS ap
     ON ac.meta_pin = ap.meta_pin
     AND ac.run_id = ap.run_id
 LEFT JOIN location.vw_pin10_location_fill AS elem_sd
-    ON ac.school_elementary_district_geoid = elem_sd.geoid
+    ON ac.loc_school_elementary_district_geoid
+    = elem_sd.school_elementary_district_geoid
     AND ac.meta_year = elem_sd.year
 LEFT JOIN location.vw_pin10_location_fill AS sec_sd
-    ON ac.school_secondary_district_geoid = sec_sd.geoid
+    ON ac.loc_school_secondary_district_geoid
+    = sec_sd.school_secondary_district_geoid
     AND ac.meta_year = sec_sd.year
 LEFT JOIN location.vw_pin10_location_fill AS mun
     ON SUBSTRING(ac.meta_pin, 1, 10) = mun.pin10
