@@ -24,59 +24,6 @@ spark = (
     .config("spark.driver.bindAddress", "127.0.0.1")
     .getOrCreate()
 )
-# %%
-schema = {
-    "stage_name": "string",
-    "class": "string",
-    "av_tot": "double",
-    "av_bldg": "double",
-    "av_land": "double",
-    "county": "string",
-    "triad": "string",
-    "township": "string",
-    "nbhd": "string",
-    "tax_code": "string",
-    "zip_code": "string",
-    "community_area": "string",
-    "census_place": "string",
-    "census_tract": "string",
-    "census_congressional_district": "string",
-    "census_zcta": "string",
-    "cook_board_of_review_district": "string",
-    "cook_commissioner_district": "string",
-    "cook_judicial_district": "string",
-    "ward_num": "string",
-    "police_district": "string",
-    "school_elementary_district": "string",
-    "school_secondary_district": "string",
-    "school_unified_district": "string",
-    "tax_municipality": "string",
-    "tax_park_district": "string",
-    "tax_library_district": "string",
-    "tax_fire_protection_district": "string",
-    "tax_community_college_district": "string",
-    "tax_sanitation_district": "string",
-    "tax_special_service_area": "string",
-    "tax_tif_district": "string",
-    "central_business_district": "string",
-    "census_data_year": "string",
-    "cook_board_of_review_district_data_year": "string",
-    "cook_commissioner_district_data_year": "string",
-    "cook_judicial_district_data_year": "string",
-    "ward_data_year": "string",
-    "community_area_data_year": "string",
-    "police_district_data_year": "string",
-    "central_business_district_data_year": "string",
-    "school_data_year": "string",
-    "tax_data_year": "string",
-    "no_group": "string",
-    "major_class": "string",
-    "modeling_group": "string",
-    "res_other": "string",
-    "year": "string",
-}
-schema = ", ".join(f"{key}: {val}" for key, val in schema.items())
-spark_df = spark.createDataFrame(data, schema=schema)
 
 
 # %%
@@ -128,16 +75,58 @@ stats = {
 }
 
 # %%
+groups = {
+    "res_other": "string",
+    "major_class": "string",
+    "no_group": "string",
+    "class": "string",
+    "modeling_group": "string",
+}
+
+geographies = {
+    "county": "string",
+    "triad": "string",
+    "township": "string",
+    "nbhd": "string",
+    "tax_code": "string",
+    "zip_code": "string",
+    "community_area": "string",
+    "census_place": "string",
+    "census_tract": "string",
+    "census_congressional_district": "string",
+    "census_zcta": "string",
+    "cook_board_of_review_district": "string",
+    "cook_commissioner_district": "string",
+    "cook_judicial_district": "string",
+    "ward_num": "string",
+    "police_district": "string",
+    "school_elementary_district": "string",
+    "school_secondary_district": "string",
+    "school_unified_district": "string",
+    "tax_municipality": "string",
+    "tax_park_district": "string",
+    "tax_library_district": "string",
+    "tax_fire_protection_district": "string",
+    "tax_community_college_district": "string",
+    "tax_sanitation_district": "string",
+    "tax_special_service_area": "string",
+    "tax_tif_district": "string",
+    "central_business_district": "string",
+}
+
 schema = {
+    "year": "string",
     "stage_name": "string",
     "av_tot": "double",
     "av_bldg": "double",
     "av_land": "double",
 }
-schema = ", ".join(f"{key}: {val}" for key, val in schema.items())
-spark_df = spark.createDataFrame(
-    data[["stage_name", "av_tot", "av_bldg", "av_land"]], schema=schema
-)
+
+schema = schema | groups | geographies
+
+cols = list(schema.keys())
+schema = ", ".join(f"{key} {val}" for key, val in schema.items())
+spark_df = spark.createDataFrame(data[cols], schema=schema)
 
 
 # %%
@@ -162,8 +151,10 @@ def aggregate(key, pdf):
 
 
 # %%
-spark_df.groupby("stage_name").applyInPandas(
-    aggregate,
-    schema="stage_name string, min_av_tot double, q10_av_tot double, q25_av_tot double, median_av_tot double, q75_av_tot double, q90_av_tot double, max_av_tot double, mean_av_tot double, sum_av_tot double, min_av_bldg double, q10_av_bldg double, q25_av_bldg double, median_av_bldg double, q75_av_bldg double, q90_av_bldg double, max_av_bldg double, mean_av_bldg double, sum_av_bldg double, min_av_land double, q10_av_land double, q25_av_land double, median_av_land double, q75_av_land double, q90_av_land double, max_av_land double, mean_av_land double, sum_av_land double",
-).show()
+for group in list(groups.keys()):
+    for geography in list(geographies.keys()):
+        spark_df.groupby(["stage_name", group, geography]).applyInPandas(
+            aggregate,
+            schema="stage_name string, group_id string, geography string, min_av_tot double, q10_av_tot double, q25_av_tot double, median_av_tot double, q75_av_tot double, q90_av_tot double, max_av_tot double, mean_av_tot double, sum_av_tot double, min_av_bldg double, q10_av_bldg double, q25_av_bldg double, median_av_bldg double, q75_av_bldg double, q90_av_bldg double, max_av_bldg double, mean_av_bldg double, sum_av_bldg double, min_av_land double, q10_av_land double, q25_av_land double, median_av_land double, q75_av_land double, q90_av_land double, max_av_land double, mean_av_land double, sum_av_land double",
+        ).show()
 # %%
