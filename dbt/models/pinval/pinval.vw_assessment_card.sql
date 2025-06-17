@@ -34,7 +34,6 @@ SELECT
     ap.loc_property_address AS property_address,
     elem_sd.name AS school_elementary_district_name,
     sec_sd.name AS school_secondary_district_name,
-    mun.tax_municipality_name,
     run.model_predictor_all_name,
     run.assessment_triad,
     run.assessment_year,
