@@ -209,9 +209,11 @@ county_districts_df <- st_join(
   filter(
     (year == census_year & district_type == census_district_type) | is.na(geoid)
   ) %>%
+  # Some districts don't properly join to census shapes and need to have geoids
+  # manually assigned
   mutate(geoid = case_when(
     district_type == "unified" & school_num == "205" ~ "1713970",
-    district_type == "elementary" & school_num == "100" ~ "1737860",
+    district_type == "elementary" & school_num == "100" ~ "1706090",
     district_type == "elementary" & school_num == "125" ~ "1704560",
     school_num == "180" ~ "1730510",
     school_num == "157-" ~ "1715700",
@@ -278,7 +280,14 @@ process_cps_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
         boundarygr != "9, 10, 11, 12" &
         !(file_year %in% c("2017", "2018"))
     )) %>%
-    mutate(school_nm = str_replace(school_nm, "H S", "HS")) %>%
+    mutate(
+      school_nm = str_replace(school_nm, "H S", "HS"),
+      school_nm = str_replace(school_nm, "MERTO", "METRO"),
+      school_id = case_when(
+        school_nm == "HANCOCK HS" & file_year == "2011" ~ "609694",
+        TRUE ~ school_id
+      )
+    ) %>%
     group_by(grade_cat, school_id, school_nm) %>%
     summarise() %>%
     ungroup() %>%
