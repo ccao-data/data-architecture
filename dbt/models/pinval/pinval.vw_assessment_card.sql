@@ -46,4 +46,4 @@ LEFT JOIN location.vw_pin10_location AS loc
     AND ac.meta_year = loc.year
 LEFT JOIN final_model_run AS final
     ON run.assessment_year = final.year
-WHERE ap.meta_triad_code = final.triad_code;
+WHERE ap.meta_triad_code = final.triad_code
