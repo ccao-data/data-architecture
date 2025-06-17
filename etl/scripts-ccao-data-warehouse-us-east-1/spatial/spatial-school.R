@@ -280,7 +280,14 @@ process_cps_file <- function(s3_bucket_uri, file_year, uri, dist_type) {
         boundarygr != "9, 10, 11, 12" &
         !(file_year %in% c("2017", "2018"))
     )) %>%
-    mutate(school_nm = str_replace(school_nm, "H S", "HS")) %>%
+    mutate(
+      school_nm = str_replace(school_nm, "H S", "HS"),
+      school_nm = str_replace(school_nm, "MERTO", "METRO"),
+      school_id = case_when(
+        school_nm == "HANCOCK HS" & file_year == "2011" ~ "609694",
+        TRUE ~ school_id
+      )
+    ) %>%
     group_by(grade_cat, school_id, school_nm) %>%
     summarise() %>%
     ungroup() %>%
