@@ -33,14 +33,14 @@ pivoted_comp AS (
     {% endfor %}
 ),
 
-school_data AS (
+school_districts AS (
     SELECT
-        pin10 AS school_pin,
+        geoid,
         year,
-        school_elementary_district_name,
-        school_secondary_district_name
-    FROM location.school
-    WHERE year > '2014'
+        MAX(name) AS name
+    FROM spatial.school_district
+    WHERE geoid IS NOT NULL
+    GROUP BY geoid, year
 ),
 
 sale_years AS (
@@ -70,10 +70,8 @@ SELECT
         AS sale_price_per_sq_ft,
     FORMAT_DATETIME(train.meta_sale_date, 'MMM yyyy') AS sale_month_year,
     train.*,
-    school.school_elementary_district_name
-        AS loc_school_elementary_district_name,
-    school.school_secondary_district_name
-        AS loc_school_secondary_district_name,
+    elem_sd.name AS loc_school_elementary_district_name,
+    sec_sd.name AS loc_school_secondary_district_name,
     meta.model_predictor_all_name,
     meta.assessment_triad,
     CASE
@@ -86,9 +84,12 @@ FROM pivoted_comp AS pc
 LEFT JOIN {{ source('model', 'pinval_test_training_data') }} AS train
     ON pc.comp_pin = train.meta_pin
     AND pc.comp_document_num = train.meta_sale_document_num
-LEFT JOIN school_data AS school
-    ON SUBSTRING(pc.comp_pin, 1, 10) = school.school_pin
-    AND train.meta_year = school.year
+LEFT JOIN school_districts AS elem_sd
+    ON train.loc_school_elementary_district_geoid = elem_sd.geoid
+    AND train.meta_year = elem_sd.year
+LEFT JOIN school_districts AS sec_sd
+    ON train.loc_school_secondary_district_geoid = sec_sd.geoid
+    AND train.meta_year = sec_sd.year
 LEFT JOIN runs_to_include AS meta
     ON pc.run_id = meta.run_id
 LEFT JOIN sale_years AS sy
