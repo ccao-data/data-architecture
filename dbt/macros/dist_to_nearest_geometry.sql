@@ -9,7 +9,10 @@
         -- proxy for PIN coordinates and year. We do this to limit the number
         -- of parcels for which we need to perform spatial operations
         distinct_pins as (
-            select distinct x_3435, y_3435 from {{ source("spatial", "parcel") }}
+            select distinct
+                cast(round(x_3435, 9) as decimal(20, 9)) as x_3435,
+                cast(round(y_3435, 9) as decimal(20, 9)) as y_3435
+            from {{ source("spatial", "parcel") }}
         ),
 
         -- Years that exist for parcel data. This determines the set of years
@@ -75,7 +78,12 @@
     -- nearest location data (name, id, etc.) to each PIN. Also calculate
     -- distance between the nearest points
     select
-        np.x_3435, np.y_3435, loc.*, st_distance(np.points[1], np.points[2]) as dist_ft
+        cast(round(np.x_3435, 9) as decimal(20, 9)) as x_3435,
+        cast(round(np.y_3435, 9) as decimal(20, 9)) as y_3435,
+        loc.*,
+        cast(
+            round(st_distance(np.points[1], np.points[2]), 9) as decimal(20, 9)
+        ) as dist_ft
     from nearest_point as np
     inner join
         location as loc
