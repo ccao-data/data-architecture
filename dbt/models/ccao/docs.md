@@ -46,6 +46,22 @@ aggregated or used for analyses, only provided in raw.
 **Primary Key**: `keypin`, `year`, `class(es)`, `sheet`
 {% enddocs %}
 
+# dtbl_modelvals
+
+{% docs table_dtbl_modelvals %}
+Archived model values produced by the [legacy Data Department AVM](https://gitlab.com/ccao-data-science---modeling/ccao_sf_cama_dev). Archived documentation can be found [here](https://gitlab.com/ccao-data-science---modeling/ccao_sf_cama_dev/-/blob/master/data_dictionary_constituents/DTBL_MODELVALS.csv).
+
+These model values were produced and recorded using a model and architecture
+that are incompatible with the department's current AVM and `model` database.
+
+### Nuance
+
+- The table is _not_ unique by its intended primary keys and should not be
+aggregated or used for analyses, only provided in raw.
+
+**Primary Key**: `pin`, `tax_year`, `version`
+{% enddocs %}
+
 # hie
 
 {% docs table_hie %}

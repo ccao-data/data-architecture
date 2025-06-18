@@ -4,6 +4,9 @@ inputs:
   role-to-assume:
     description: AWS IAM role to assume when running dbt operations.
     required: true
+  aws-account-id:
+    description: AWS account ID. Only used for masking the value in logs.
+    required: true
   role-duration-seconds:
     description: Expiration time for AWS OIDC token. Default is one hour.
     required: false
@@ -16,6 +19,12 @@ runs:
 
     - name: Load environment variables
       uses: ./.github/actions/load_environment_variables
+
+    - name: Mask sensitive AWS IDs from Terraform logs
+      run: |
+        echo "::add-mask::${{ inputs.role-to-assume }}"
+        echo "::add-mask::${{ inputs.aws-account-id }}"
+      shell: bash
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
