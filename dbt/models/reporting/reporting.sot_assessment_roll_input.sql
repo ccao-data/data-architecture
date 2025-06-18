@@ -102,5 +102,3 @@ LEFT JOIN {{ ref('reporting.vw_pin_value_long') }} AS vals
     AND uni.stage_name = vals.stage_name
 LEFT JOIN {{ ref('ccao.class_dict') }}
     ON uni.class = class_dict.class_code
--- Temporary limit on feeder table to avoid GitHub runner memory issues.
-WHERE uni.class = '278' AND uni.year IN ('2019', '2020', '2021')
