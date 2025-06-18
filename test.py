@@ -2,10 +2,12 @@
 # number of geographies, class combinations, and time.
 # %%
 # Import libraries
+from functools import reduce
+
 import pandas as pd
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
-from pyspark.sql import SparkSession
+from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql.functions import lit
 
 # Connect to Athena
@@ -82,7 +84,7 @@ def aggregate(key, pdf):
         first(pdf[years[geography]]),
         len(pdf["av_tot"]),
         pdf["av_tot"].count(),
-        pdf["av_tot"].count() / len(pdf["av_tot"]),
+        pdf["av_tot"].count() / pdf["av_tot"].size,
     )
     for column in columns:
         out += (
@@ -148,17 +150,24 @@ schema = ", ".join(f"{key} {val}" for key, val in schema.items())
 
 spark_df = spark.createDataFrame(data, schema=schema)
 
+output_schema = "stage_name string, group_id string, geography_id string, year string, reassessment_year string, geography_data_year string, pin_n_tot int, pin_n_w_value int, pin_pct_w_value double, min_av_tot double, q10_av_tot double, q25_av_tot double, median_av_tot double, q75_av_tot double, q90_av_tot double, max_av_tot double, mean_av_tot double, sum_av_tot double, min_av_bldg double, q10_av_bldg double, q25_av_bldg double, median_av_bldg double, q75_av_bldg double, q90_av_bldg double, max_av_bldg double, mean_av_bldg double, sum_av_bldg double, min_av_land double, q10_av_land double, q25_av_land double, median_av_land double, q75_av_land double, q90_av_land double, max_av_land double, mean_av_land double, sum_av_land double"
+
 # %%
+output = []
 for group in groups:
     for geography in geographies:
-        spark_df.groupby(
-            ["stage_name", group, geography, "year"]
-        ).applyInPandas(
-            aggregate,
-            schema="stage_name string, group_id string, geography_id string, year string, reassessment_year string, geography_data_year string, pin_n_tot int, pin_n_w_value int, pin_pct_w_value double, min_av_tot double, q10_av_tot double, q25_av_tot double, median_av_tot double, q75_av_tot double, q90_av_tot double, max_av_tot double, mean_av_tot double, sum_av_tot double, min_av_bldg double, q10_av_bldg double, q25_av_bldg double, median_av_bldg double, q75_av_bldg double, q90_av_bldg double, max_av_bldg double, mean_av_bldg double, sum_av_bldg double, min_av_land double, q10_av_land double, q25_av_land double, median_av_land double, q75_av_land double, q90_av_land double, max_av_land double, mean_av_land double, sum_av_land double",
-        ).select(
-            "*",
-            lit(group).alias("group_type"),
-            lit(geography).alias("geography_type"),
-        ).show()
+        output += [
+            spark_df.groupby(["stage_name", group, geography, "year"])
+            .applyInPandas(
+                aggregate,
+                schema=output_schema,
+            )
+            .select(
+                "*",
+                lit(group).alias("group_type"),
+                lit(geography).alias("geography_type"),
+            )
+        ]
+
+outputs = reduce(DataFrame.unionByName, output)
 # %%
