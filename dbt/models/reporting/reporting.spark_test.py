@@ -1,35 +1,14 @@
 # This script generates aggregated summary stats on assessed values across a
 # number of geographies, class combinations, and time.
-# %%
+
 # Import libraries
 from functools import reduce
 
 import pandas as pd
-from pyathena import connect
-from pyathena.pandas.cursor import PandasCursor
-from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import DataFrame
 from pyspark.sql.functions import lit
 
-# Connect to Athena
-cursor = connect(
-    s3_staging_dir="s3://ccao-athena-results-us-east-1/",
-    region_name="us-east-1",
-    cursor_class=PandasCursor,
-).cursor(unload=True)
 
-data = cursor.execute(
-    "select * from z_ci_387_reporting_sot_reporting.sot_assessment_roll_input"
-).as_pandas()
-
-spark = (
-    SparkSession.builder.appName("SparkByExamples.com")
-    .master("local[*]")
-    .config("spark.driver.bindAddress", "127.0.0.1")
-    .getOrCreate()
-)
-
-
-# %%
 # Define aggregation functions. These are just wrappers for basic python
 # functions that make using them easier to use with pandas.agg().
 def q10(x):
@@ -80,8 +59,8 @@ def aggregate(key, pdf):
 
     out = ()
     out += (
-        reassessment_year(pdf["year"][0], geography, pdf["triad"][0]),
-        first(pdf[years[geography]]),
+        reassessment_year(pdf["year"][0], geography, pdf["triad"][0]),  # noqa: F821
+        first(pdf[years[geography]]),  # noqa: F821
         len(pdf["av_tot"]),
         pdf["av_tot"].count(),
         pdf["av_tot"].count() / pdf["av_tot"].size,
@@ -102,7 +81,6 @@ def aggregate(key, pdf):
     return pd.DataFrame([key + out])
 
 
-# %%
 groups = [
     "res_other",
     "major_class",
@@ -144,30 +122,40 @@ years = {
 
 geographies = list(years.keys())
 
-schema = dict.fromkeys(data.columns, "string")
-schema |= dict.fromkeys(["av_tot", "av_bldg", "av_land"], "double")
-schema = ", ".join(f"{key} {val}" for key, val in schema.items())
-
-spark_df = spark.createDataFrame(data, schema=schema)
-
 output_schema = "stage_name string, group_id string, geography_id string, year string, reassessment_year string, geography_data_year string, pin_n_tot int, pin_n_w_value int, pin_pct_w_value double, min_av_tot double, q10_av_tot double, q25_av_tot double, median_av_tot double, q75_av_tot double, q90_av_tot double, max_av_tot double, mean_av_tot double, sum_av_tot double, min_av_bldg double, q10_av_bldg double, q25_av_bldg double, median_av_bldg double, q75_av_bldg double, q90_av_bldg double, max_av_bldg double, mean_av_bldg double, sum_av_bldg double, min_av_land double, q10_av_land double, q25_av_land double, median_av_land double, q75_av_land double, q90_av_land double, max_av_land double, mean_av_land double, sum_av_land double"
 
-# %%
-output = []
-for group in groups:
-    for geography in geographies:
-        output += [
-            spark_df.groupby(["stage_name", group, geography, "year"])
-            .applyInPandas(
-                aggregate,
-                schema=output_schema,
-            )
-            .select(
-                "*",
-                lit(group).alias("group_type"),
-                lit(geography).alias("geography_type"),
-            )
-        ]
 
-outputs = reduce(DataFrame.unionByName, output)
-# %%
+def model(dbt, spark_session):
+    dbt.config(materialized="table", engine_config={"MaxConcurrentDpus": 40})
+    athena_user_logger.info("Loading assessment roll input table")
+
+    input = dbt.ref("reporting.sot_assessment_roll_input")
+    spark_schema = dict.fromkeys(input.columns, "string")
+    spark_schema |= dict.fromkeys(["av_tot", "av_bldg", "av_land"], "double")
+    spark_schema = ", ".join(
+        f"{key} {val}" for key, val in spark_schema.items()
+    )
+
+    spark_df = spark_session.createDataFrame(input, schema=spark_schema)
+
+    athena_user_logger.info("Dope stuff is happening... maybe?")
+
+    output = []
+    for group in groups:
+        for geography in geographies:
+            output += [
+                spark_df.groupby(["stage_name", group, geography, "year"])
+                .applyInPandas(
+                    aggregate,
+                    schema=output_schema,
+                )
+                .select(
+                    "*",
+                    lit(group).alias("group_type"),
+                    lit(geography).alias("geography_type"),
+                )
+            ]
+
+    df = reduce(DataFrame.unionByName, output)
+
+    return df
