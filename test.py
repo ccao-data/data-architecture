@@ -55,25 +55,50 @@ def first(x):
     return output
 
 
-more_stats = [
-    "min",
-    q10,
-    q25,
-    "median",
-    q75,
-    q90,
-    "max",
-    "mean",
-    "sum",
-]
+def reassessment_year(year, geography, triad):
+    if geography in ["triad", "township", "nbhd"]:
+        year = int(year) % 3
 
-stats = {
-    "av_tot": ["size", "count"] + more_stats,
-    "av_bldg": more_stats,
-    "av_land": more_stats,
-    "triad": [first],
-    "geography_data_year": [first],
-}
+        if (
+            ((year == 0) & (triad == "North"))
+            | ((year == 1) & (triad == "South"))
+            | ((year == 2) & (triad == "City"))
+        ):
+            out = "Yes"
+        else:
+            out = "No"
+    else:
+        out = ""
+
+    return out
+
+
+def aggregate(key, pdf):
+    columns = ["av_tot", "av_bldg", "av_land"]
+
+    out = ()
+    out += (
+        reassessment_year(pdf["year"][0], geography, pdf["triad"][0]),
+        first(pdf[years[geography]]),
+        len(pdf["av_tot"]),
+        pdf["av_tot"].count(),
+        pdf["av_tot"].count() / len(pdf["av_tot"]),
+    )
+    for column in columns:
+        out += (
+            pdf[column].min(),
+            q10(pdf[column]),
+            q25(pdf[column]),
+            pdf[column].median(),
+            q75(pdf[column]),
+            q90(pdf[column]),
+            pdf[column].max(),
+            pdf[column].mean(),
+            pdf[column].sum(),
+        )
+
+    return pd.DataFrame([key + out])
+
 
 # %%
 groups = {
@@ -130,53 +155,6 @@ schema = schema | groups | geographies
 cols = list(schema.keys())
 schema = ", ".join(f"{key} {val}" for key, val in schema.items())
 spark_df = spark.createDataFrame(data[cols], schema=schema)
-
-
-# %%
-def reassessment_year(year, geography, triad):
-    if geography in ["triad", "township", "nbhd"]:
-        year = int(year) % 3
-
-        if (
-            ((year == 0) & (triad == "North"))
-            | ((year == 1) & (triad == "South"))
-            | ((year == 2) & (triad == "City"))
-        ):
-            out = "Yes"
-        else:
-            out = "No"
-    else:
-        out = ""
-
-    return out
-
-
-def aggregate(key, pdf):
-    columns = ["av_tot", "av_bldg", "av_land"]
-
-    out = ()
-    out += (
-        reassessment_year(pdf["year"][0], geography, pdf["triad"][0]),
-        first(pdf[years[geography]]),
-        len(pdf["av_tot"]),
-        pdf["av_tot"].count(),
-        pdf["av_tot"].count() / len(pdf["av_tot"]),
-    )
-    for column in columns:
-        out += (
-            pdf[column].min(),
-            q10(pdf[column]),
-            q25(pdf[column]),
-            pdf[column].median(),
-            q75(pdf[column]),
-            q90(pdf[column]),
-            pdf[column].max(),
-            pdf[column].mean(),
-            pdf[column].sum(),
-        )
-
-    return pd.DataFrame([key + out])
-
 
 # %%
 for group in [list(groups.keys())[1]]:
