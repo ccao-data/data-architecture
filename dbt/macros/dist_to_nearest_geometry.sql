@@ -1,6 +1,3 @@
--- Macro that takes a `source_model` containing geometries and joins it
--- against `spatial.parcel` in order to generate the distance from each PIN
--- to each geometry and year combination
 {% macro dist_to_nearest_geometry(source_model) %}
 
     with
@@ -10,8 +7,8 @@
         -- of parcels for which we need to perform spatial operations
         distinct_pins as (
             select distinct
-                cast(round(x_3435, 9) as decimal(20, 9)) as x_3435,
-                cast(round(y_3435, 9) as decimal(20, 9)) as y_3435
+                cast(round(x_3435, 2) as decimal(20, 2)) as x_3435,
+                cast(round(y_3435, 2) as decimal(20, 2)) as y_3435
             from {{ source("spatial", "parcel") }}
         ),
 
@@ -64,11 +61,15 @@
         -- is a pair of points, one from each geometry and year
         nearest_point as (
             select
-                dp.x_3435,
-                dp.y_3435,
+                cast(round(dp.x_3435, 2) as decimal(20, 2)) as x_3435,
+                cast(round(dp.y_3435, 2) as decimal(20, 2)) as y_3435,
                 loc_agg.pin_year,
                 geometry_nearest_points(
-                    st_point(dp.x_3435, dp.y_3435), loc_agg.geom_3435
+                    st_point(
+                        cast(round(dp.x_3435, 2) as decimal(20, 2)),
+                        cast(round(dp.y_3435, 2) as decimal(20, 2))
+                    ),
+                    loc_agg.geom_3435
                 ) as points
             from distinct_pins as dp
             cross join location_agg as loc_agg
@@ -78,11 +79,11 @@
     -- nearest location data (name, id, etc.) to each PIN. Also calculate
     -- distance between the nearest points
     select
-        cast(round(np.x_3435, 9) as decimal(20, 9)) as x_3435,
-        cast(round(np.y_3435, 9) as decimal(20, 9)) as y_3435,
+        cast(round(np.x_3435, 2) as decimal(20, 2)) as x_3435,
+        cast(round(np.y_3435, 2) as decimal(20, 2)) as y_3435,
         loc.*,
         cast(
-            round(st_distance(np.points[1], np.points[2]), 9) as decimal(20, 9)
+            round(st_distance(np.points[1], np.points[2]), 2) as decimal(20, 2)
         ) as dist_ft
     from nearest_point as np
     inner join
@@ -93,4 +94,5 @@
     -- spatial join (like the one above) results in terrible performance,
     -- while doing a cross join then filtering the rows is much faster
     where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
+
 {% endmacro %}
