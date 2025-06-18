@@ -101,13 +101,13 @@ def aggregate(key, pdf):
 
 
 # %%
-groups = {
-    "res_other": "string",
-    "major_class": "string",
-    "no_group": "string",
-    "class": "string",
-    "modeling_group": "string",
-}
+groups = [
+    "res_other",
+    "major_class",
+    "no_group",
+    "class",
+    "modeling_group",
+]
 
 years = {
     "county": "year",
@@ -131,7 +131,7 @@ years = {
     "school_unified_district": "school_data_year",
     "tax_municipality": "tax_data_year",
     "tax_park_district": "tax_data_year",
-    "tax_library_district": "tax_data_yearg",
+    "tax_library_district": "tax_data_year",
     "tax_fire_protection_district": "tax_data_year",
     "tax_community_college_district": "tax_data_year",
     "tax_sanitation_district": "tax_data_year",
@@ -140,25 +140,17 @@ years = {
     "central_business_district": "central_business_district_data_year",
 }
 
-geographies = dict.fromkeys(list(years.keys()), "string")
+geographies = list(years.keys())
 
-schema = {
-    "year": "string",
-    "stage_name": "string",
-    "av_tot": "double",
-    "av_bldg": "double",
-    "av_land": "double",
-}
-
-schema = schema | groups | geographies
-
-cols = list(schema.keys())
+schema = dict.fromkeys(data.columns, "string")
+schema |= dict.fromkeys(["av_tot", "av_bldg", "av_land"], "double")
 schema = ", ".join(f"{key} {val}" for key, val in schema.items())
-spark_df = spark.createDataFrame(data[cols], schema=schema)
+
+spark_df = spark.createDataFrame(data, schema=schema)
 
 # %%
-for group in [list(groups.keys())[1]]:
-    for geography in [list(geographies.keys())[1]]:
+for group in groups:
+    for geography in geographies:
         spark_df.groupby(
             ["stage_name", group, geography, "year"]
         ).applyInPandas(
