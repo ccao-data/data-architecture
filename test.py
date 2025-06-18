@@ -6,6 +6,7 @@ import pandas as pd
 from pyathena import connect
 from pyathena.pandas.cursor import PandasCursor
 from pyspark.sql import SparkSession
+from pyspark.sql.functions import lit
 
 # Connect to Athena
 cursor = connect(
@@ -83,36 +84,38 @@ groups = {
     "modeling_group": "string",
 }
 
-geographies = {
-    "county": "string",
-    "triad": "string",
-    "township": "string",
-    "nbhd": "string",
-    "tax_code": "string",
-    "zip_code": "string",
-    "community_area": "string",
-    "census_place": "string",
-    "census_tract": "string",
-    "census_congressional_district": "string",
-    "census_zcta": "string",
-    "cook_board_of_review_district": "string",
-    "cook_commissioner_district": "string",
-    "cook_judicial_district": "string",
-    "ward_num": "string",
-    "police_district": "string",
-    "school_elementary_district": "string",
-    "school_secondary_district": "string",
-    "school_unified_district": "string",
-    "tax_municipality": "string",
-    "tax_park_district": "string",
-    "tax_library_district": "string",
-    "tax_fire_protection_district": "string",
-    "tax_community_college_district": "string",
-    "tax_sanitation_district": "string",
-    "tax_special_service_area": "string",
-    "tax_tif_district": "string",
-    "central_business_district": "string",
+years = {
+    "county": "year",
+    "triad": "year",
+    "township": "year",
+    "nbhd": "year",
+    "tax_code": "year",
+    "zip_code": "year",
+    "community_area": "community_area_data_year",
+    "census_place": "census_data_year",
+    "census_tract": "census_data_year",
+    "census_congressional_district": "census_data_year",
+    "census_zcta": "census_data_year",
+    "cook_board_of_review_district": "cook_board_of_review_district_data_year",
+    "cook_commissioner_district": "cook_commissioner_district_data_year",
+    "cook_judicial_district": "cook_judicial_district_data_year",
+    "ward_num": "ward_data_year",
+    "police_district": "police_district_data_year",
+    "school_elementary_district": "school_data_year",
+    "school_secondary_district": "school_data_year",
+    "school_unified_district": "school_data_year",
+    "tax_municipality": "tax_data_year",
+    "tax_park_district": "tax_data_year",
+    "tax_library_district": "tax_data_yearg",
+    "tax_fire_protection_district": "tax_data_year",
+    "tax_community_college_district": "tax_data_year",
+    "tax_sanitation_district": "tax_data_year",
+    "tax_special_service_area": "tax_data_year",
+    "tax_tif_district": "tax_data_year",
+    "central_business_district": "central_business_district_data_year",
 }
+
+geographies = dict.fromkeys(list(years.keys()), "string")
 
 schema = {
     "year": "string",
@@ -130,10 +133,35 @@ spark_df = spark.createDataFrame(data[cols], schema=schema)
 
 
 # %%
+def reassessment_year(year, geography, triad):
+    if geography in ["triad", "township", "nbhd"]:
+        year = int(year) % 3
+
+        if (
+            ((year == 0) & (triad == "North"))
+            | ((year == 1) & (triad == "South"))
+            | ((year == 2) & (triad == "City"))
+        ):
+            out = "Yes"
+        else:
+            out = "No"
+    else:
+        out = ""
+
+    return out
+
+
 def aggregate(key, pdf):
     columns = ["av_tot", "av_bldg", "av_land"]
 
     out = ()
+    out += (
+        reassessment_year(pdf["year"][0], geography, pdf["triad"][0]),
+        first(pdf[years[geography]]),
+        len(pdf["av_tot"]),
+        pdf["av_tot"].count(),
+        pdf["av_tot"].count() / len(pdf["av_tot"]),
+    )
     for column in columns:
         out += (
             pdf[column].min(),
@@ -151,10 +179,16 @@ def aggregate(key, pdf):
 
 
 # %%
-for group in list(groups.keys()):
-    for geography in list(geographies.keys()):
-        spark_df.groupby(["stage_name", group, geography]).applyInPandas(
+for group in [list(groups.keys())[1]]:
+    for geography in [list(geographies.keys())[1]]:
+        spark_df.groupby(
+            ["stage_name", group, geography, "year"]
+        ).applyInPandas(
             aggregate,
-            schema="stage_name string, group_id string, geography string, min_av_tot double, q10_av_tot double, q25_av_tot double, median_av_tot double, q75_av_tot double, q90_av_tot double, max_av_tot double, mean_av_tot double, sum_av_tot double, min_av_bldg double, q10_av_bldg double, q25_av_bldg double, median_av_bldg double, q75_av_bldg double, q90_av_bldg double, max_av_bldg double, mean_av_bldg double, sum_av_bldg double, min_av_land double, q10_av_land double, q25_av_land double, median_av_land double, q75_av_land double, q90_av_land double, max_av_land double, mean_av_land double, sum_av_land double",
+            schema="stage_name string, group_id string, geography_id string, year string, reassessment_year string, geography_data_year string, pin_n_tot int, pin_n_w_value int, pin_pct_w_value double, min_av_tot double, q10_av_tot double, q25_av_tot double, median_av_tot double, q75_av_tot double, q90_av_tot double, max_av_tot double, mean_av_tot double, sum_av_tot double, min_av_bldg double, q10_av_bldg double, q25_av_bldg double, median_av_bldg double, q75_av_bldg double, q90_av_bldg double, max_av_bldg double, mean_av_bldg double, sum_av_bldg double, min_av_land double, q10_av_land double, q25_av_land double, median_av_land double, q75_av_land double, q90_av_land double, max_av_land double, mean_av_land double, sum_av_land double",
+        ).select(
+            "*",
+            lit(group).alias("group_type"),
+            lit(geography).alias("geography_type"),
         ).show()
 # %%
