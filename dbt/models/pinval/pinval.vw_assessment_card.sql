@@ -26,20 +26,6 @@ school_districts AS (
     FROM spatial.school_district
     WHERE geoid IS NOT NULL
     GROUP BY geoid, year
-),
-
-townships AS (
-    SELECT
-        township_code,
-        township_name
-    FROM spatial.township
-),
-
-class_dict AS (
-    SELECT
-        class_code,
-        class_desc
-    FROM ccao.class_dict
 )
 
 SELECT
