@@ -69,8 +69,8 @@ LEFT JOIN school_districts AS sec_sd
     AND ac.meta_year = sec_sd.year
 LEFT JOIN final_model_run AS final
     ON run.assessment_year = final.year
-LEFT JOIN townships AS tw
+LEFT JOIN {{ source('spatial', 'township') }} AS tw
     ON ac.township_code = tw.township_code
-LEFT JOIN class_dict AS cd
+LEFT JOIN {{ ref('ccao.class_dict') }} AS cd
     ON ac.char_class = cd.class_code
 WHERE ap.meta_triad_code = final.triad_code
