@@ -65,7 +65,8 @@
                 dp.y_3435,
                 loc_agg.pin_year,
                 geometry_nearest_points(
-                    st_point(dp.x_3435, dp.y_3435), loc_agg.geom_3435
+                    st_point(round(dp.x_3435, 2), round(dp.y_3435, 2)),
+                    loc_agg.geom_3435
                 ) as points
             from distinct_pins as dp
             cross join location_agg as loc_agg
@@ -85,4 +86,5 @@
     -- spatial join (like the one above) results in terrible performance,
     -- while doing a cross join then filtering the rows is much faster
     where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
+
 {% endmacro %}
