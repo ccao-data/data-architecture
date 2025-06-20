@@ -33,6 +33,13 @@ townships AS (
         township_code,
         township_name
     FROM spatial.township
+),
+
+class_dict AS (
+    SELECT
+        class_code,
+        class_desc
+    FROM ccao.class_dict
 )
 
 SELECT
@@ -45,7 +52,9 @@ SELECT
     run.assessment_triad,
     run.assessment_year,
     final.final_model_run_date,
-    tw.township_name
+    tw.township_name,
+    CONCAT(CAST(ac.char_class AS VARCHAR), ': ', cd.class_desc)
+        AS char_class_detailed
 FROM runs_to_include AS run
 INNER JOIN model.assessment_card AS ac
     ON run.run_id = ac.run_id
@@ -62,4 +71,6 @@ LEFT JOIN final_model_run AS final
     ON run.assessment_year = final.year
 LEFT JOIN townships AS tw
     ON ac.township_code = tw.township_code
+LEFT JOIN class_dict AS cd
+    ON ac.char_class = cd.class_code
 WHERE ap.meta_triad_code = final.triad_code
