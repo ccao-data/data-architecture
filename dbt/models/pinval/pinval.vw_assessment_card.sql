@@ -26,6 +26,13 @@ school_districts AS (
     FROM spatial.school_district
     WHERE geoid IS NOT NULL
     GROUP BY geoid, year
+),
+
+townships AS (
+    SELECT
+        township_code,
+        township_name
+    FROM spatial.township
 )
 
 SELECT
@@ -37,7 +44,8 @@ SELECT
     run.model_predictor_all_name,
     run.assessment_triad,
     run.assessment_year,
-    final.final_model_run_date
+    final.final_model_run_date,
+    tw.township_name
 FROM runs_to_include AS run
 INNER JOIN model.assessment_card AS ac
     ON run.run_id = ac.run_id
@@ -52,4 +60,6 @@ LEFT JOIN school_districts AS sec_sd
     AND ac.meta_year = sec_sd.year
 LEFT JOIN final_model_run AS final
     ON run.assessment_year = final.year
+LEFT JOIN townships AS tw
+    ON ac.township_code = tw.township_code
 WHERE ap.meta_triad_code = final.triad_code
