@@ -82,7 +82,8 @@
         st_distance(np.points[1], np.points[2]) as dist_ft
     from nearest_point as np
     inner join
-        location as loc on st_equals(np.points[2], st_geomfrombinary(loc.geometry_3435))
+        location as loc
+        on st_intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
     -- This horrifying conditional is designed to trick the Athena query
     -- planner. For some reason, adding a true conditional to a query with a
     -- spatial join (like the one above) results in terrible performance,
