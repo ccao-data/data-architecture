@@ -62,11 +62,12 @@
         -- is a pair of points, one from each geometry and year
         nearest_point as (
             select
-                dp.x_3435,
-                dp.y_3435,
+                round(dp.x_3435, 2) as x_3435,
+                round(dp.y_3435, 2) as y_3435,
                 loc_agg.pin_year,
                 geometry_nearest_points(
-                    st_point(dp.x_3435, dp.y_3435), loc_agg.geom_3435
+                    st_point(round(dp.x_3435, 2), round(dp.y_3435, 2)),
+                    loc_agg.geom_3435
                 ) as points
             from distinct_pins as dp
             cross join location_agg as loc_agg
