@@ -46,15 +46,15 @@ SELECT
     ac.*,
     ap.pred_pin_final_fmv_round,
     ap.loc_property_address AS property_address,
+    tw.township_name,
+    CONCAT(CAST(ac.char_class AS VARCHAR), ': ', cd.class_desc)
+        AS char_class_detailed,
     elem_sd.name AS school_elementary_district_name,
     sec_sd.name AS school_secondary_district_name,
     run.model_predictor_all_name,
     run.assessment_triad,
     run.assessment_year,
-    final.final_model_run_date,
-    tw.township_name,
-    CONCAT(CAST(ac.char_class AS VARCHAR), ': ', cd.class_desc)
-        AS char_class_detailed
+    final.final_model_run_date
 FROM runs_to_include AS run
 INNER JOIN model.assessment_card AS ac
     ON run.run_id = ac.run_id
