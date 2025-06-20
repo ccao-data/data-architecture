@@ -38,8 +38,13 @@
         -- will result in one row per geometry per year of parcel data i.e.
         -- for hospitals, there will be one row for each hospital for each
         -- year of parcel data (up to the current year)
+        -- We also add rounded x/y coordinates here to ensure consistent joining later
         location as (
-            select fy.pin_year, fill_data.*
+            select
+                fy.pin_year,
+                fill_data.*,
+                round(fill_data.x_3435, 2) as x_3435,
+                round(fill_data.y_3435, 2) as y_3435
             from fill_years as fy
             inner join {{ source_model }} as fill_data on fy.fill_year = fill_data.year
         ),
