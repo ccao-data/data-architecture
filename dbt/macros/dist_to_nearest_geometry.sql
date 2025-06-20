@@ -9,8 +9,7 @@
         -- proxy for PIN coordinates and year. We do this to limit the number
         -- of parcels for which we need to perform spatial operations
         distinct_pins as (
-            select distinct round(x_3435, 2) as x_3435, round(y_3435, 2) as y_3435
-            from {{ source("spatial", "parcel") }}
+            select distinct x_3435, y_3435 from {{ source("spatial", "parcel") }}
         ),
 
         -- Years that exist for parcel data. This determines the set of years
@@ -38,13 +37,8 @@
         -- will result in one row per geometry per year of parcel data i.e.
         -- for hospitals, there will be one row for each hospital for each
         -- year of parcel data (up to the current year)
-        -- We also add rounded x/y coordinates here to ensure consistent joining later
         location as (
-            select
-                fy.pin_year,
-                fill_data.*,
-                round(fill_data.x_3435, 2) as x_3435,
-                round(fill_data.y_3435, 2) as y_3435
+            select fy.pin_year, fill_data.*
             from fill_years as fy
             inner join {{ source_model }} as fill_data on fy.fill_year = fill_data.year
         ),
@@ -67,8 +61,8 @@
         -- is a pair of points, one from each geometry and year
         nearest_point as (
             select
-                round(dp.x_3435, 2) as x_3435,
-                round(dp.y_3435, 2) as y_3435,
+                dp.x_3435,
+                dp.y_3435,
                 loc_agg.pin_year,
                 geometry_nearest_points(
                     st_point(round(dp.x_3435, 2), round(dp.y_3435, 2)),
@@ -82,10 +76,7 @@
     -- nearest location data (name, id, etc.) to each PIN. Also calculate
     -- distance between the nearest points
     select
-        round(np.x_3435, 2) as x_3435,
-        round(np.y_3435, 2) as y_3435,
-        loc.*,
-        st_distance(np.points[1], np.points[2]) as dist_ft
+        np.x_3435, np.y_3435, loc.*, st_distance(np.points[1], np.points[2]) as dist_ft
     from nearest_point as np
     inner join
         location as loc
