@@ -32,6 +32,9 @@ SELECT
     ac.*,
     ap.pred_pin_final_fmv_round,
     ap.loc_property_address AS property_address,
+    tw.township_name,
+    CONCAT(CAST(ac.char_class AS VARCHAR), ': ', cd.class_desc)
+        AS char_class_detailed,
     elem_sd.name AS school_elementary_district_name,
     sec_sd.name AS school_secondary_district_name,
     run.model_predictor_all_name,
@@ -52,4 +55,8 @@ LEFT JOIN school_districts AS sec_sd
     AND ac.meta_year = sec_sd.year
 LEFT JOIN final_model_run AS final
     ON run.assessment_year = final.year
+LEFT JOIN {{ source('spatial', 'township') }} AS tw
+    ON ac.township_code = tw.township_code
+LEFT JOIN {{ ref('ccao.class_dict') }} AS cd
+    ON ac.char_class = cd.class_code
 WHERE ap.meta_triad_code = final.triad_code
