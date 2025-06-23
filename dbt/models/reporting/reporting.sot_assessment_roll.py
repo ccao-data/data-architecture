@@ -54,31 +54,34 @@ def reassessment_year(year, geography, triad):
     return out
 
 
-def aggregate(key, pdf):
-    columns = ["av_tot", "av_bldg", "av_land"]
+def aggregate_geography(geography):
+    def aggregate(key, pdf):
+        columns = ["av_tot", "av_bldg", "av_land"]
 
-    out = ()
-    out += (
-        reassessment_year(pdf["year"][0], geography, pdf["triad"][0]),  # noqa: F821
-        first(pdf[years[geography]]),  # noqa: F821
-        len(pdf["av_tot"]),
-        pdf["av_tot"].count(),
-        pdf["av_tot"].count() / pdf["av_tot"].size,
-    )
-    for column in columns:
+        out = ()
         out += (
-            pdf[column].min(),
-            q10(pdf[column]),
-            q25(pdf[column]),
-            pdf[column].median(),
-            q75(pdf[column]),
-            q90(pdf[column]),
-            pdf[column].max(),
-            pdf[column].mean(),
-            pdf[column].sum(),
+            reassessment_year(pdf["year"][0], geography, pdf["triad"][0]),  # noqa: F821
+            first(pdf[years[geography]]),  # noqa: F821
+            len(pdf["av_tot"]),
+            pdf["av_tot"].count(),
+            pdf["av_tot"].count() / pdf["av_tot"].size,
         )
+        for column in columns:
+            out += (
+                pdf[column].min(),
+                q10(pdf[column]),
+                q25(pdf[column]),
+                pdf[column].median(),
+                q75(pdf[column]),
+                q90(pdf[column]),
+                pdf[column].max(),
+                pdf[column].mean(),
+                pdf[column].sum(),
+            )
 
-    return pd.DataFrame([key + out])
+        return pd.DataFrame([key + out])
+
+    return aggregate
 
 
 groups = [
@@ -130,7 +133,7 @@ def model(dbt, spark_session):
     athena_user_logger.info("Loading assessment roll input table")
 
     input = dbt.ref("reporting.sot_assessment_roll_input")
-    
+
     athena_user_logger.info("Dope stuff is happening... maybe?")
 
     output = []
@@ -139,7 +142,7 @@ def model(dbt, spark_session):
             output += [
                 input.groupby(["stage_name", group, geography, "year"])
                 .applyInPandas(
-                    aggregate,
+                    aggregate_geography(geography),
                     schema=output_schema,
                 )
                 .select(
