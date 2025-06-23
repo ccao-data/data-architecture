@@ -130,21 +130,14 @@ def model(dbt, spark_session):
     athena_user_logger.info("Loading assessment roll input table")
 
     input = dbt.ref("reporting.sot_assessment_roll_input")
-    spark_schema = dict.fromkeys(input.columns, "string")
-    spark_schema |= dict.fromkeys(["av_tot", "av_bldg", "av_land"], "double")
-    spark_schema = ", ".join(
-        f"{key} {val}" for key, val in spark_schema.items()
-    )
-
-    spark_df = spark_session.createDataFrame(input, schema=spark_schema)
-
+    
     athena_user_logger.info("Dope stuff is happening... maybe?")
 
     output = []
     for group in groups:
         for geography in geographies:
             output += [
-                spark_df.groupby(["stage_name", group, geography, "year"])
+                input.groupby(["stage_name", group, geography, "year"])
                 .applyInPandas(
                     aggregate,
                     schema=output_schema,
