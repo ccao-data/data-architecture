@@ -579,11 +579,8 @@ models:
     data_tests:
       - row_count:
           name: proximity_dist_pin_to_vacant_land_matches_spatial_parcel
-          # Temporarily handle 187 rows that we know are failing due to a bug in
-          # geometry aggregation
           equals: >
             (
-              SELECT COUNT(*) - 187
               FROM {{ source('spatial', 'parcel') }}
             )
       - unique_combination_of_columns:
