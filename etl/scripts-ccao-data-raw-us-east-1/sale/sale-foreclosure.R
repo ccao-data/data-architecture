@@ -9,7 +9,7 @@ source("utils.R")
 
 # This script retrieves raw foreclosure sales from the CCAO's O Drive
 # THIS SOURCE WILL NEED TO BE UPDATED
-AWS_S3_RAW_BUCKET <- "s3://ccao-data-raw-us-east-1"
+AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "sale", "foreclosure")
 
 # Get S3 file address
