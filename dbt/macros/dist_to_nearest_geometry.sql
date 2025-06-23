@@ -86,5 +86,4 @@
     -- spatial join (like the one above) results in terrible performance,
     -- while doing a cross join then filtering the rows is much faster
     where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
-
 {% endmacro %}
