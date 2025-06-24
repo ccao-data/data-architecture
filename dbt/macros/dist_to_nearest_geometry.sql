@@ -9,7 +9,8 @@
         -- proxy for PIN coordinates and year. We do this to limit the number
         -- of parcels for which we need to perform spatial operations
         distinct_pins as (
-            select distinct x_3435, y_3435 from {{ source("spatial", "parcel") }}
+            select distinct round(x_3435, 2) as x_3435, round(y_3435, 2) as y_3435
+            from {{ source("spatial", "parcel") }}
         ),
 
         -- Years that exist for parcel data. This determines the set of years
@@ -38,7 +39,39 @@
         -- for hospitals, there will be one row for each hospital for each
         -- year of parcel data (up to the current year)
         location as (
-            select fy.pin_year, fill_data.*
+            select
+                fy.pin_year,
+                fill_data.pin10,
+                fill_data.year,
+                -- If geometry is a POINT, rebuild it with rounded coords using ST_Point
+                -- Otherwise, keep the original geometry
+                st_asbinary(
+                    case
+                        when
+                            st_geometrytype(st_geomfrombinary(fill_data.geometry_3435))
+                            = 'ST_POINT'
+                        then
+                            st_point(
+                                cast(
+                                    round(
+                                        st_x(
+                                            st_geomfrombinary(fill_data.geometry_3435)
+                                        ),
+                                        2
+                                    ) as decimal(10, 2)
+                                ),
+                                cast(
+                                    round(
+                                        st_y(
+                                            st_geomfrombinary(fill_data.geometry_3435)
+                                        ),
+                                        2
+                                    ) as decimal(10, 2)
+                                )
+                            )
+                        else st_geomfrombinary(fill_data.geometry_3435)
+                    end
+                ) as geometry_3435
             from fill_years as fy
             inner join {{ source_model }} as fill_data on fy.fill_year = fill_data.year
         ),
@@ -65,8 +98,7 @@
                 dp.y_3435,
                 loc_agg.pin_year,
                 geometry_nearest_points(
-                    st_point(round(dp.x_3435, 2), round(dp.y_3435, 2)),
-                    loc_agg.geom_3435
+                    st_point(dp.x_3435, dp.y_3435), loc_agg.geom_3435
                 ) as points
             from distinct_pins as dp
             cross join location_agg as loc_agg
@@ -76,21 +108,24 @@
     -- nearest location data (name, id, etc.) to each PIN. Also calculate
     -- distance between the nearest points
     select
-        np.x_3435, np.y_3435, loc.*, st_distance(np.points[1], np.points[2]) as dist_ft
+        round(np.x_3435, 2) as x_3435,
+        round(np.y_3435, 2) as y_3435,
+        loc.*,
+        st_distance(np.points[1], np.points[2]) as dist_ft
     from nearest_point as np
     inner join
         location as loc
         on st_intersects(
-            -- Round np.points[2] to two decimal places
-            -- We do this because the st_intersects function can result in 
-            -- null values due to floating point precision issues
-            st_point(round(st_x(np.points[2]), 2), round(st_y(np.points[2]), 2)),
-            -- Round loc geometry to two decimal places
             st_point(
-                round(st_x(st_geomfrombinary(loc.geometry_3435)), 2),
-                round(st_y(st_geomfrombinary(loc.geometry_3435)), 2)
-            )
+                cast(round(st_x(np.points[2]), 2) as decimal(10, 2)),
+                cast(round(st_y(np.points[2]), 2) as decimal(10, 2))
+            ),
+            st_geomfrombinary(loc.geometry_3435)
         )
+    -- This horrifying conditional is designed to trick the Athena query
+    -- planner. For some reason, adding a true conditional to a query with a
+    -- spatial join (like the one above) results in terrible performance,
+    -- while doing a cross join then filtering the rows is much faster
     where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
 
 {% endmacro %}
