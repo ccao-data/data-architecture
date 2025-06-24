@@ -68,6 +68,8 @@ SELECT
     || 'K' AS sale_price_short,
     ROUND(train.meta_sale_price / NULLIF(train.char_bldg_sf, 0))
         AS sale_price_per_sq_ft,
+    ROUND(pc.pred_card_initial_fmv / train.char_bldg_sf, 0)
+        AS pred_card_initial_fmv_per_sqft,
     FORMAT_DATETIME(train.meta_sale_date, 'MMM yyyy') AS sale_month_year,
     train.*,
     elem_sd.name AS loc_school_elementary_district_name,
