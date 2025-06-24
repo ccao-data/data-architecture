@@ -30,6 +30,14 @@ township_paths <- c(
   "O:/AndrewGIS/ZoningMaps/TownshipZoning/Wheeling/Wheeling.xlsx"
 )
 
+township_paths <- list.files(
+  "O:/AndrewGIS/ZoningMaps/TownshipZoning",
+  pattern = ".xlsx",
+  recursive = TRUE,
+  full.names = TRUE
+) %>%
+  grep("Compress|evanstontw313", ., invert = TRUE, value = TRUE)
+
 # Corresponding metadata for each file
 township_specs <- tibble::tibble(
   file_path = township_paths,
@@ -91,7 +99,7 @@ names(township_data) <- township_specs$folder
 Chicago <- read_csv(
   "O:/AndrewGIS/ZoningMaps/ChicagoZoning/ChicagoTriCSV.csv"
 ) %>%
-  select(Pin10 = PIN10, zoning_code = zone_class) %>%
+  select(Pin10, zoning_code = zone_class) %>%
   filter(!is.na(Pin10), !is.na(zoning_code))
 
 township_data$Chicago <- Chicago
