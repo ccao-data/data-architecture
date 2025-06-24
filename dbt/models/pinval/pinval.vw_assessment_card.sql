@@ -31,7 +31,7 @@ school_districts AS (
 SELECT
     ac.*,
     ap.pred_pin_final_fmv_round,
-    ROUND(ac.pred_card_initial_fmv / ac.char_bldg_sf, 0)
+    CAST(ROUND(ac.pred_card_initial_fmv / ac.char_bldg_sf, 0) AS INTEGER)
         AS pred_card_initial_fmv_per_sqft,
     ap.loc_property_address AS property_address,
     tw.township_name,
