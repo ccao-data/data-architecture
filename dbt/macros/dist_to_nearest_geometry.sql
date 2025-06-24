@@ -82,19 +82,15 @@
         location as loc
         on (
             (
-                geometrytype(st_geomfrombinary(loc.geometry_3435)) != 'POINT'
+                st_geometrytype(st_geomfrombinary(loc.geometry_3435)) != 'POINT'
                 and st_intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
             )
             or (
-                geometrytype(st_geomfrombinary(loc.geometry_3435)) = 'POINT'
+                st_geometrytype(st_geomfrombinary(loc.geometry_3435)) = 'POINT'
                 and st_intersects(
-                    -- Round np.points[2] to two decimal places
-                    -- We do this because the st_intersects function can result in 
-                    -- null values due to floating point precision issues
                     st_point(
                         round(st_x(np.points[2]), 2), round(st_y(np.points[2]), 2)
                     ),
-                    -- Round loc geometry to two decimal places
                     st_point(
                         round(st_x(st_geomfrombinary(loc.geometry_3435)), 2),
                         round(st_y(st_geomfrombinary(loc.geometry_3435)), 2)
@@ -102,6 +98,7 @@
                 )
             )
         )
+
     -- This horrifying conditional is designed to trick the Athena query
     -- planner. For some reason, adding a true conditional to a query with a
     -- spatial join (like the one above) results in terrible performance,
