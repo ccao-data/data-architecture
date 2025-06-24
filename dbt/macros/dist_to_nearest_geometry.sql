@@ -81,16 +81,18 @@
     inner join
         location as loc
         on st_intersects(
-            -- Round np.points[2] to two decimal places
-            -- We do this because the st_intersects function can result in 
-            -- null values due to floating point precision issues
             st_point(round(st_x(np.points[2]), 2), round(st_y(np.points[2]), 2)),
-            -- Round loc geometry to two decimal places
-            st_point(
-                round(st_x(st_geomfrombinary(loc.geometry_3435)), 2),
-                round(st_y(st_geomfrombinary(loc.geometry_3435)), 2)
-            )
+            case
+                when
+                    try(st_x(st_geomfrombinary(loc.geometry_3435))) is not null
+                    and try(st_y(st_geomfrombinary(loc.geometry_3435))) is not null
+                then
+                    st_point(
+                        round(st_x(st_geomfrombinary(loc.geometry_3435)), 2),
+                        round(st_y(st_geomfrombinary(loc.geometry_3435)), 2)
+                    )
+                else st_geomfrombinary(loc.geometry_3435)
+            end
         )
-    where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
 
 {% endmacro %}
