@@ -31,6 +31,8 @@ school_districts AS (
 SELECT
     ac.*,
     ap.pred_pin_final_fmv_round,
+    ac.pred_card_initial_fmv / ac.char_bldg_sf
+        AS pred_card_initial_fmv_per_sqft,
     ap.loc_property_address AS property_address,
     tw.township_name,
     CONCAT(CAST(ac.char_class AS VARCHAR), ': ', cd.class_desc)
