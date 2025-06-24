@@ -65,8 +65,7 @@
                 dp.y_3435,
                 loc_agg.pin_year,
                 geometry_nearest_points(
-                    st_point(round(dp.x_3435, 2), round(dp.y_3435, 2)),
-                    loc_agg.geom_3435
+                    st_point(dp.x_3435, dp.y_3435), loc_agg.geom_3435
                 ) as points
             from distinct_pins as dp
             cross join location_agg as loc_agg
@@ -78,31 +77,12 @@
     select
         np.x_3435, np.y_3435, loc.*, st_distance(np.points[1], np.points[2]) as dist_ft
     from nearest_point as np
-    inner join
+    left join
         location as loc
-        on (
-            (
-                st_geometrytype(st_geomfrombinary(loc.geometry_3435)) != 'POINT'
-                and st_intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
-            )
-            or (
-                st_geometrytype(st_geomfrombinary(loc.geometry_3435)) = 'POINT'
-                and st_intersects(
-                    st_point(
-                        round(st_x(np.points[2]), 2), round(st_y(np.points[2]), 2)
-                    ),
-                    st_point(
-                        round(st_x(st_geomfrombinary(loc.geometry_3435)), 2),
-                        round(st_y(st_geomfrombinary(loc.geometry_3435)), 2)
-                    )
-                )
-            )
-        )
-
+        on st_intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
     -- This horrifying conditional is designed to trick the Athena query
     -- planner. For some reason, adding a true conditional to a query with a
     -- spatial join (like the one above) results in terrible performance,
     -- while doing a cross join then filtering the rows is much faster
     where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
-
 {% endmacro %}
