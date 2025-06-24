@@ -133,7 +133,6 @@ def model(dbt, spark_session):
     athena_user_logger.info("Loading assessment roll input table")
 
     input = dbt.ref("reporting.sot_assessment_roll_input")
-    input = input.filter(input.stage_name == "BOR CERTIFIED")
 
     athena_user_logger.info("Dope stuff is happening... maybe?")
 
