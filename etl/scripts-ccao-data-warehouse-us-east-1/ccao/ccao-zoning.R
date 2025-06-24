@@ -10,7 +10,7 @@ library(readxl)
 source("utils.R")
 
 # Define S3 root
-AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
+AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "zoning")
 
 # === Full file paths with folders ===
@@ -36,7 +36,9 @@ township_paths <- list.files(
   recursive = TRUE,
   full.names = TRUE
 ) %>%
-  grep("Compress|evanstontw313", ., invert = TRUE, value = TRUE)
+  grep("Compress|evanstontw313|Northfield(?!Zoning)", .,
+    invert = TRUE, value = TRUE, perl = TRUE
+  )
 
 # Corresponding metadata for each file
 township_specs <- tibble::tibble(
@@ -106,8 +108,9 @@ township_data$Chicago <- Chicago
 
 # === Upload to S3 with only Pin10 and zoning_code ===
 walk2(township_data, names(township_data), function(df, folder_name) {
-  output_path <- file.path(
-    output_bucket, folder_name, "zoning.parquet"
-  )
-  write_parquet(df, output_path)
+  output_path <- file.path(output_bucket, folder_name, "zoning.parquet")
+  df_out <- df %>%
+    distinct(Pin10, zoning_code, .keep_all = TRUE) %>%
+    mutate(year = "2025")
+  write_parquet(df_out, output_path)
 })
