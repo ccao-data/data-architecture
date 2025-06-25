@@ -10,36 +10,24 @@ library(readxl)
 source("utils.R")
 
 # Define S3 root
-AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "ccao", "zoning")
+AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "zoning")
 
-# === Full file paths with folders ===
 township_paths <- c(
-  "O:/AndrewGIS/ZoningMaps/TownshipZoning/Barrington/BarringtonTwp.xlsx",
-  "O:/AndrewGIS/ZoningMaps/TownshipZoning/ElkGrove/ElkGroveTwpZoning.xlsx",
-  "O:/AndrewGIS/ZoningMaps/TownshipZoning/Evanston/evanstontw317.xlsx",
-  "O:/AndrewGIS/ZoningMaps/TownshipZoning/Hanover/HanoverZoning.xlsx",
-  "O:/AndrewGIS/ZoningMaps/TownshipZoning/Lyons/LyonsTwpZoning.xlsx",
-  "O:/AndrewGIS/ZoningMaps/TownshipZoning/Maine/MaineZoning.xlsx",
-  "O:/AndrewGIS/ZoningMaps/TownshipZoning/NewTrier/NewTrierZoning.xlsx",
-  "O:/AndrewGIS/ZoningMaps/TownshipZoning/Niles/Niles.xlsx",
-  "O:/AndrewGIS/ZoningMaps/TownshipZoning/Northfield/NorthfieldZoning.xlsx",
-  "O:/AndrewGIS/ZoningMaps/TownshipZoning/NorwoodPark/norwoodpark313.xlsx",
-  "O:/AndrewGIS/ZoningMaps/TownshipZoning/Palatine/PalatineTwp.xlsx",
-  "O:/AndrewGIS/ZoningMaps/TownshipZoning/Schaumburg/SchaumburgTwp.xlsx",
-  "O:/AndrewGIS/ZoningMaps/TownshipZoning/Wheeling/Wheeling.xlsx"
+  "O:/CCAODATA/zoning/data/BarringtonTwp.xlsx",
+  "O:/CCAODATA/zoning/data/ElkGroveTwpZoning.xlsx",
+  "O:/CCAODATA/zoning/data/evanstontw317.xlsx",
+  "O:/CCAODATA/zoning/data/HanoverZoning.xlsx",
+  "O:/CCAODATA/zoning/data/Leyden.xlsx",
+  "O:/CCAODATA/zoning/data/MaineZoning.xlsx",
+  "O:/CCAODATA/zoning/data/NewTrierZoning.xlsx",
+  "O:/CCAODATA/zoning/data/Niles.xlsx",
+  "O:/CCAODATA/zoning/data/NorthfieldZoning.xlsx",
+  "O:/CCAODATA/zoning/data/norwoodpark313.xlsx",
+  "O:/CCAODATA/zoning/data/PalatineTwp.xlsx",
+  "O:/CCAODATA/zoning/data/SchaumburgTwp.xlsx",
+  "O:/CCAODATA/zoning/data/Wheeling.xlsx"
 )
-
-township_paths <- list.files(
-  "O:/AndrewGIS/ZoningMaps/TownshipZoning",
-  pattern = ".xlsx",
-  recursive = TRUE,
-  full.names = TRUE
-) %>%
-  grep("Compress|evanstontw313|Northfield(?!Zoning)", .,
-    invert = TRUE, value = TRUE, perl = TRUE
-  )
-
 # Corresponding metadata for each file
 township_specs <- tibble::tibble(
   file_path = township_paths,
@@ -99,7 +87,7 @@ names(township_data) <- township_specs$folder
 
 # === Read Chicago CSV from unique path and csv ===
 Chicago <- read_csv(
-  "O:/AndrewGIS/ZoningMaps/ChicagoZoning/ChicagoTriCSV.csv"
+  "O:/CCAODATA/zoning/data/ChicagoTriCSV.csv"
 ) %>%
   select(Pin10, zoning_code = zone_class) %>%
   filter(!is.na(Pin10), !is.na(zoning_code))
