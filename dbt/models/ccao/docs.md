@@ -127,3 +127,19 @@ tests.
 
 See: <https://discourse.getdbt.com/t/dynamic-dates-in-unit-tests/16883/2?>
 {% enddocs %}
+
+
+# zoning
+
+{% docs table_zoning %}
+CCAO GIS produces pin level zoning on the pin level. These are coded as the year
+2025, however they are pulled asynchronously from different sources. Because of
+this we do not include them in modeling or default data. There are known issues
+where pins have multiple zoning codes due to fuzzy geo-spatial techniques.
+Because of this, we concatenate them with ','.
+
+Data is stored in 
+`O:\CCAODATA\zoning\data`
+
+**Primary Key**: `pin`
+{% enddocs %}
