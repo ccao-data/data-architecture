@@ -138,6 +138,9 @@ this we do not include this feature in modeling or default. There are known issu
 where pins have multiple zoning codes due to fuzzy geo-spatial techniques.
 Because of this, we concatenate them with ','.
 
+GIS is currently updating data for the South Tri. These townships will be
+uploaded upon completion.
+
 Raw data is stored in 
 `O:\CCAODATA\zoning\data`
 
