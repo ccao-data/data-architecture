@@ -11,7 +11,7 @@ source("utils.R")
 
 # Define S3 root
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-output_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "zoning")
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "other", "zoning")
 
 township_paths <- c(
   "O:/CCAODATA/zoning/data/BarringtonTwp.xlsx",
