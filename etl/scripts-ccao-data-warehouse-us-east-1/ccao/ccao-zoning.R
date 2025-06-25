@@ -17,6 +17,7 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "other", "zoning")
 
 # === File paths ===
+# Kept as list to ensure that they align with the following function
 township_paths <- c(
   "O:/CCAODATA/zoning/data/BarringtonTwp.xlsx",
   "O:/CCAODATA/zoning/data/ElkGroveTwpZoning.xlsx",
@@ -64,6 +65,7 @@ read_and_standardize <- function(file_path,
   df %>%
     mutate(pin = !!sym(pin14_col)) %>%
     select(pin, zoning_code = !!sym(zone_col)) %>%
+    # Drop observations without a zoning code
     filter(!is.na(pin), !is.na(zoning_code))
 }
 
@@ -75,9 +77,12 @@ zoning <- bind_rows(township_data) %>%
   distinct(pin, zoning_code, .keep_all = TRUE) %>%
   group_by(pin) %>%
   summarise(
+    # A small number of observations have two zoning codes
+    # due to fuzzy geo-spatial techniques
     zoning_code = paste(unique(zoning_code), collapse = ", "),
     .groups = "drop"
   ) %>%
+  # Created year since data is downloaded from different data sources.
   mutate(year = "2025") %>%
   group_by(year)
 
