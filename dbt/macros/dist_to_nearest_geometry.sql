@@ -77,9 +77,17 @@
     select
         np.x_3435, np.y_3435, loc.*, st_distance(np.points[1], np.points[2]) as dist_ft
     from nearest_point as np
-    left join
-        location as loc
-        on st_difference(np.points[2], st_geomfrombinary(loc.geometry_3435)) < 0.00001
+    left join location as loc
+      on case
+        -- Use precise ST_Difference logic for points
+        when ST_GeometryType(st_geomfrombinary(loc.geometry_3435)) = 'ST_Point'
+             and ST_GeometryType(np.points[2]) = 'ST_Point'
+        then ST_Distance(np.points[2], st_geomfrombinary(loc.geometry_3435)) < 0.00001
+    
+        -- Use ST_Intersects for other geometry types
+        else ST_Intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
+      end
+
     -- This horrifying conditional is designed to trick the Athena query
     -- planner. For some reason, adding a true conditional to a query with a
     -- spatial join (like the one above) results in terrible performance,
