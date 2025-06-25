@@ -16,6 +16,7 @@ source("utils.R")
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "other", "zoning")
 
+# === File paths ===
 township_paths <- c(
   "O:/CCAODATA/zoning/data/BarringtonTwp.xlsx",
   "O:/CCAODATA/zoning/data/ElkGroveTwpZoning.xlsx",
@@ -48,12 +49,6 @@ township_specs <- tibble::tibble(
     "NewTrier_MunZone", "Niles_MunZone", "Northfield_MunZone", "MunZone",
     "PalatineTwp_MunZone", "Schaumburg_MunZone", "Wheeling_MunZone",
     "zone_class"
-  ),
-  special_case = c(
-    TRUE, FALSE, FALSE, FALSE,
-    TRUE, FALSE, FALSE, FALSE,
-    FALSE, FALSE, FALSE, FALSE,
-    FALSE, FALSE
   )
 )
 
@@ -62,26 +57,13 @@ read_and_standardize <- function(file_path,
                                  file_name,
                                  folder,
                                  pin14_col,
-                                 zone_col,
-                                 special_case) {
+                                 zone_col) {
   df <- read_excel(file_path) %>%
     mutate(across(everything(), as.character))
 
-  if (file_name == "Leyden.xlsx") {
-    df <- df %>%
-      mutate(pin = !!sym(pin14_col)) %>%
-      select(pin, zoning_code = !!sym(zone_col))
-  } else {
-    df <- df %>%
-      mutate(pin = !!sym(pin14_col)) %>%
-      select(pin, zoning_code = !!sym(zone_col))
-  }
-
   df %>%
-    mutate(
-      pin = as.character(pin),
-      zoning_code = as.character(zoning_code)
-    ) %>%
+    mutate(pin = !!sym(pin14_col)) %>%
+    select(pin, zoning_code = !!sym(zone_col)) %>%
     filter(!is.na(pin), !is.na(zoning_code))
 }
 
