@@ -150,6 +150,8 @@ sources:
                   values: ["questionable", "negative pred", "399 GR"]
             meta:
               description: pin nonlivable flag should have values of questionable, negative pre or 399 GR
+      - name: zoning
+        description: '{{ doc("table_zoning") }}'
 
 exposures:
   - name: commercial_valuation_data
