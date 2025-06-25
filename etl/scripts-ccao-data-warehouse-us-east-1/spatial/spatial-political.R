@@ -59,6 +59,8 @@ columns <- list(
   "municipality_2020" = c("agency", "agency_desc"),
   "municipality_2021" = c("agency", "agency_desc"),
   "municipality_2022" = c("agency", "agency_desc"),
+  "municipality_2023" = c("agency", "agency_desc"),
+  "municipality_2024" = c("agency", "agency_desc"),
   "state_representative_district_2010" = c("district_n"),
   "state_representative_district_2023" = c("district_int", "district_txt"),
   "state_senate_district_2010" = c("senatenum", "senatedist"),

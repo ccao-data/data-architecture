@@ -141,7 +141,7 @@ ward_chicago AS (
     SELECT
         dp.x_3435,
         dp.y_3435,
-        MAX(cprod.ward_num) AS ward_num,
+        CAST(MAX(cprod.ward_num) AS VARCHAR) AS ward_num,
         MAX(cprod.ward_name) AS ward_name,
         MAX(
             CASE
@@ -185,7 +185,7 @@ ward_evanston AS (
     SELECT
         dp.x_3435,
         dp.y_3435,
-        MAX(cprod.ward_num) AS ward_num,
+        CAST(MAX(cprod.ward_num) AS VARCHAR) AS ward_num,
         MAX(cprod.ward_name) AS ward_name,
         MAX(
             CASE
@@ -233,7 +233,7 @@ SELECT
     cd.cook_commissioner_district_data_year,
     jd.cook_judicial_district_num,
     jd.cook_judicial_district_data_year,
-    CAST(COALESCE(we.ward_num, wc.ward_num) AS VARCHAR) AS ward_num,
+    COALESCE(we.ward_num, wc.ward_num) AS ward_num,
     COALESCE(we.ward_name, wc.ward_name) AS ward_name,
     wc.ward_chicago_data_year,
     we.ward_evanston_data_year,
