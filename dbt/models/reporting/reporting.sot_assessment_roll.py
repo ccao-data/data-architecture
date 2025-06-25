@@ -125,7 +125,7 @@ years = {
 
 geographies = list(years.keys())
 
-output_schema = "stage_name string, group_id string, geography_id string, year string, reassessment_year string, geography_data_year string, pin_n_tot int, pin_n_w_value int, pin_pct_w_value double, min_av_tot double, q10_av_tot double, q25_av_tot double, median_av_tot double, q75_av_tot double, q90_av_tot double, max_av_tot double, mean_av_tot double, sum_av_tot double, min_av_bldg double, q10_av_bldg double, q25_av_bldg double, median_av_bldg double, q75_av_bldg double, q90_av_bldg double, max_av_bldg double, mean_av_bldg double, sum_av_bldg double, min_av_land double, q10_av_land double, q25_av_land double, median_av_land double, q75_av_land double, q90_av_land double, max_av_land double, mean_av_land double, sum_av_land double"
+output_schema = "stage_name string, group_id string, geography_id string, year string, reassessment_year string, geography_data_year string, pin_n_tot bigint, pin_n_w_value bigint, pin_pct_w_value double, min_av_tot double, q10_av_tot double, q25_av_tot double, median_av_tot double, q75_av_tot double, q90_av_tot double, max_av_tot double, mean_av_tot double, sum_av_tot double, min_av_bldg double, q10_av_bldg double, q25_av_bldg double, median_av_bldg double, q75_av_bldg double, q90_av_bldg double, max_av_bldg double, mean_av_bldg double, sum_av_bldg double, min_av_land double, q10_av_land double, q25_av_land double, median_av_land double, q75_av_land double, q90_av_land double, max_av_land double, mean_av_land double, sum_av_land double"
 
 
 def model(dbt, spark_session):
