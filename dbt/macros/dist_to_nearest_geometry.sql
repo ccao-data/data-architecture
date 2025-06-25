@@ -79,7 +79,7 @@
     from nearest_point as np
     left join
         location as loc
-        on st_intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
+        on st_difference(np.points[2], st_geomfrombinary(loc.geometry_3435)) < 0.00001
     -- This horrifying conditional is designed to trick the Athena query
     -- planner. For some reason, adding a true conditional to a query with a
     -- spatial join (like the one above) results in terrible performance,
