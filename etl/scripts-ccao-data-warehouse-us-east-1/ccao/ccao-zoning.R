@@ -118,8 +118,13 @@ zoning <- bind_rows(township_data) %>%
     zoning_code = paste(unique(zoning_code), collapse = ", "),
     .groups = "drop"
   ) %>%
-  mutate(year = "2025")
+  mutate(year = "2025") %>%
+  group_by(year)
 
 
-output_path <- file.path(output_bucket, "zoning.parquet")
-write_parquet(zoning, output_path)
+write_partitions_to_s3(
+  df = zoning,
+  s3_output_path = output_bucket,
+  is_spatial = FALSE,
+  overwrite = TRUE
+)
