@@ -99,7 +99,12 @@ township_data <- pmap(township_specs, read_and_standardize)
 # === Combine and write one file ===
 zoning <- bind_rows(township_data) %>%
   distinct(Pin10, zoning_code, .keep_all = TRUE) %>%
-  mutate(year = "2025")
+  mutate(year = "2025") %>%
+  group_by(year)
 
-output_path <- file.path(output_bucket, "zoning.parquet")
-write_parquet(zoning, output_path)
+write_partitions_to_s3(
+  df = zoning,
+  s3_output_path = output_bucket,
+  is_spatial = FALSE,
+  overwrite = TRUE
+)
