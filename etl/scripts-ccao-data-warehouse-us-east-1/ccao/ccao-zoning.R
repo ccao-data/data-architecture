@@ -1,3 +1,6 @@
+# Prevent scientific notation in console and I/O
+options(scipen = 999)
+
 library(arrow)
 library(aws.s3)
 library(dplyr)
@@ -27,7 +30,7 @@ township_paths <- c(
   "O:/CCAODATA/zoning/data/PalatineTwp.xlsx",
   "O:/CCAODATA/zoning/data/SchaumburgTwp.xlsx",
   "O:/CCAODATA/zoning/data/Wheeling.xlsx",
-  "O:/CCAODATA/zoning/data/ChicagoTriCSV.csv"
+  "O:/CCAODATA/zoning/data/ChicagoTri.xlsx"
 )
 
 # === Metadata for each file ===
@@ -61,7 +64,7 @@ township_specs <- tibble::tibble(
   )
 )
 
-# === Reader function for Excel and CSV files ===
+# === Reader function for Excel files only ===
 read_and_standardize <- function(file_path,
                                  file_name,
                                  folder,
@@ -69,14 +72,11 @@ read_and_standardize <- function(file_path,
                                  pin14_col,
                                  zone_col,
                                  special_case) {
-  # Read based on file extension
-  df <- if (tolower(file_ext(file_path)) == "csv") {
-    read_csv(file_path, col_types = cols(.default = "c"))
-  } else {
-    read_excel(file_path)
-  }
+  # Read Excel file and coerce all columns to character
+  df <- read_excel(file_path) %>%
+    mutate(across(everything(), as.character))
 
-  # Apply custom logic
+  # Standardize to pin10 / pin / zoning_code
   df <- if (file_name == "Leyden.xlsx") {
     df %>%
       mutate(
@@ -107,13 +107,19 @@ read_and_standardize <- function(file_path,
     filter(!is.na(pin10), !is.na(zoning_code))
 }
 
-# === Read all township zoning datasets ===
+# === Read and standardize all zoning files ===
 township_data <- pmap(township_specs, read_and_standardize)
 
-# === Combine and write one file ===
+# === Combine all data and write one Parquet file ===
 zoning <- bind_rows(township_data) %>%
-  distinct(pin10, zoning_code, .keep_all = TRUE) %>%
+  distinct(pin, zoning_code, .keep_all = TRUE) %>%
+  group_by(pin) %>%
+  summarise(
+    zoning_code = paste(unique(zoning_code), collapse = ", "),
+    .groups = "drop"
+  ) %>%
   mutate(year = "2025")
+
 
 output_path <- file.path(output_bucket, "zoning.parquet")
 write_parquet(zoning, output_path)
