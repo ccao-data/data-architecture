@@ -10,8 +10,8 @@ library(readxl)
 source("utils.R")
 
 # Define S3 root
-AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-output_bucket <- file.path(AWS_S3_RAW_BUCKET, "ccao", "zoning")
+AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "ccao", "zoning")
 
 # === Full file paths with folders ===
 township_paths <- c(
