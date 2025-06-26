@@ -30,7 +30,8 @@ SELECT
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN
-    ( {{ dist_to_nearest_geometry('vacant_land') }} ) AS xy
+    ( {{ dist_to_nearest_geometry('vacant_land', point_rounding=True) }} )
+        AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
     AND pcl.year = xy.pin_year
