@@ -8,6 +8,8 @@ import pandas as pd
 from pyspark.sql import DataFrame
 from pyspark.sql.functions import lit
 
+spark.driver.maxResultSize = 0  # noqa:F821
+
 
 # Define aggregation functions. These are just wrappers for basic python
 # functions that make using them easier to use with pandas.agg().
@@ -130,7 +132,6 @@ output_schema = "stage_name string, group_id string, geography_id string, year s
 
 def model(dbt, spark_session):
     dbt.config(materialized="table", engine_config={"MaxConcurrentDpus": 40})
-    spark_session.builder.config("spark.driver.maxResultSize", "0")
     athena_user_logger.info("Loading assessment roll input table")
 
     input = dbt.ref("reporting.sot_assessment_roll_input")
