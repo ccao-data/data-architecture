@@ -129,8 +129,14 @@ output_schema = "stage_name string, group_id string, geography_id string, year s
 
 
 def model(dbt, spark_session):
-    dbt.config(materialized="table", engine_config={"MaxConcurrentDpus": 40})
-    spark_session.driver.maxResultSize = 0
+    dbt.config(
+        materialized="table",
+        engine_config={
+            "MaxConcurrentDpus": 40,
+            "SparkProperties": {"spark.driver.maxResultSize": "4g"},
+        },
+    )
+
     athena_user_logger.info("Loading assessment roll input table")
 
     input = dbt.ref("reporting.sot_assessment_roll_input")
