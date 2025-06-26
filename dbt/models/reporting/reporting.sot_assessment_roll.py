@@ -6,7 +6,7 @@ from functools import reduce
 
 import pandas as pd
 from pyspark.sql import DataFrame
-from pyspark.sql.functions import col, lit
+from pyspark.sql.functions import lit
 
 
 # Define aggregation functions. These are just wrappers for basic python
@@ -153,17 +153,5 @@ def model(dbt, spark_session):
             ]
 
     df = reduce(DataFrame.unionByName, output)
-
-    for column in [
-        "stage_name",
-        "group_id",
-        "geography_id",
-        "year",
-        "reassessment_year",
-        "geography_data_year",
-        "group_type",
-        "geography_type",
-    ]:
-        df = df.withColumn(column, col(column).cast("string"))
 
     return df
