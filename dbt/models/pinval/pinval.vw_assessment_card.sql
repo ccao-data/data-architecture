@@ -23,12 +23,44 @@ school_districts AS (
         geoid,
         year,
         MAX(name) AS name
-    FROM spatial.school_district
+    FROM {{ source('spatial', 'school_district') }}
     WHERE geoid IS NOT NULL
     GROUP BY geoid, year
 )
 
 SELECT
+    uni.pin,
+    uni.year AS pin_year,  -- Alias to avoid collision with ac.year
+    uni.township_name,
+    uni.triad_name,
+    -- Two possible reasons we would decline to build a PINVAL report:
+    --
+    --   1. No representation of the PIN in assessment_card (likely
+    --      due to PIN not being a regression class)
+    --   2. PIN tri is not up for reassessment
+    --
+    -- It's important that we get this right because PINVAL reports will
+    -- use this indicator to determine whether to render a report
+    -- TODO: Why is this not producing false?
+    (
+        (ac.meta_pin IS NULL)
+        OR (LOWER(uni.triad_name) != LOWER(run.assessment_triad))
+    ) AS is_missing,
+    CASE
+        -- Note that in some rare cases the PIN class can be different from
+        -- the card class, in which case these class explanations are not
+        -- guaranteed to be the true reason that a report is missing. But
+        -- in those cases, a non-regression class for the PIN should still be
+        -- a valid reason for a report to not be available, so we report it
+        -- for lack of the true reason why the report is missing
+        WHEN uni.class IN ('299') THEN 'condo'
+        WHEN
+            (NOT pin_cd.regression_class)
+            OR (pin_cd.modeling_group NOT IN ('SF', 'MF'))
+            THEN 'non_regression_class'
+        WHEN uni.triad_code != run.assessment_triad THEN 'non_tri'
+        ELSE 'unknown'
+    END AS reason_missing,
     ac.*,
     ap.pred_pin_final_fmv_round,
     CAST(
@@ -38,8 +70,7 @@ SELECT
     )
         AS pred_card_initial_fmv_per_sqft,
     ap.loc_property_address AS property_address,
-    tw.township_name,
-    CONCAT(CAST(ac.char_class AS VARCHAR), ': ', cd.class_desc)
+    CONCAT(CAST(ac.char_class AS VARCHAR), ': ', card_cd.class_desc)
         AS char_class_detailed,
     elem_sd.name AS school_elementary_district_name,
     sec_sd.name AS school_secondary_district_name,
@@ -47,10 +78,17 @@ SELECT
     run.assessment_triad,
     run.assessment_year,
     final.final_model_run_date
-FROM runs_to_include AS run
-INNER JOIN model.assessment_card AS ac
+-- We use pin_universe as the base for the query rather than assessment_card
+-- because we need to generate explanations for why reports are missing if a
+-- PIN is valid but not in assessment_card
+FROM {{ ref('default.vw_pin_universe') }} AS uni
+INNER JOIN runs_to_include AS run
+    ON uni.year = run.assessment_year
+LEFT JOIN {{ source('model', 'assessment_card') }} AS ac
     ON run.run_id = ac.run_id
-LEFT JOIN model.assessment_pin AS ap
+    AND uni.pin = ac.meta_pin
+    AND uni.year = ac.meta_year
+LEFT JOIN {{ source('model', 'assessment_pin') }} AS ap
     ON ac.meta_pin = ap.meta_pin
     AND ac.run_id = ap.run_id
 LEFT JOIN school_districts AS elem_sd
@@ -61,8 +99,8 @@ LEFT JOIN school_districts AS sec_sd
     AND ac.meta_year = sec_sd.year
 LEFT JOIN final_model_run AS final
     ON run.assessment_year = final.year
-LEFT JOIN {{ source('spatial', 'township') }} AS tw
-    ON ac.township_code = tw.township_code
-LEFT JOIN {{ ref('ccao.class_dict') }} AS cd
-    ON ac.char_class = cd.class_code
-WHERE ap.meta_triad_code = final.triad_code
+-- Join to class dict twice, since PIN class and card class can be different
+LEFT JOIN {{ ref('ccao.class_dict') }} AS pin_cd
+    ON uni.class = pin_cd.class_code
+LEFT JOIN {{ ref('ccao.class_dict') }} AS card_cd
+    ON ac.char_class = card_cd.class_code
