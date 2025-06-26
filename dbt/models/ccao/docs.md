@@ -128,7 +128,6 @@ tests.
 See: <https://discourse.getdbt.com/t/dynamic-dates-in-unit-tests/16883/2?>
 {% enddocs %}
 
-
 # zoning
 
 {% docs table_zoning %}
