@@ -55,8 +55,7 @@
 
         -- For each unique PIN location, find the nearest point from each
         -- geometry set from each year. The output of geometry_nearest_points
-        -- is a pair of points, one from each geometry and one from each
-        -- geometry union (one-to-one)
+        -- is a pair of points, one from each geometry and year
         nearest_point as (
             select
                 dp.x_3435,
@@ -69,9 +68,8 @@
             cross join location_agg as loc_agg
         ),
 
-        -- Using the nearest point from each target geometry and year, join the
-        -- nearest location data (name, id, etc.) to each PIN using ST_Intersects.
-        -- Also calculate the distance between the nearest points.
+        -- Primary spatial join using ST_Intersects between the nearest point
+        -- and each geometry. This captures the majority of expected matches.
         intersect_join as (
             select
                 np.x_3435,
@@ -82,38 +80,38 @@
             inner join
                 location as loc
                 on st_intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
-            -- This horrifying conditional is designed to trick the Athena query
-            -- planner. For some reason, adding a true conditional to a query with a
-            -- spatial join (like the one above) results in terrible performance,
-            -- while doing a cross join then filtering the rows is much faster
+            -- Year filter is applied after the spatial join for performance
             where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
         ),
 
-        -- Fallback join using ST_Equals only for unmatched records from ST_Intersects.
-        -- This ensures we catch edge cases where intersection fails due to geometry
-        -- precision.
+        -- Fallback join using ST_Equals for nearest_point observations that
+        -- were *not matched* by ST_Intersects. This is more expensive, so we
+        -- restrict it to only unmatched rows.
         equals_join as (
             select
                 np.x_3435,
                 np.y_3435,
                 loc.*,
                 st_distance(np.points[1], np.points[2]) as dist_ft
-            from nearest_point as np
+            from
+                (
+                    -- Filter to nearest_point rows that did NOT appear in
+                    -- intersect_join
+                    select np.*
+                    from nearest_point np
+                    left join
+                        intersect_join ij
+                        on np.x_3435 = ij.x_3435
+                        and np.y_3435 = ij.y_3435
+                    where ij.x_3435 is null
+                ) as np
             inner join
                 location as loc
                 on st_equals(np.points[2], st_geomfrombinary(loc.geometry_3435))
-            -- Still enforce valid year match
-            where
-                abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
-                -- Only include fallback rows that didn't match in intersect_join
-                and not exists (
-                    select 1
-                    from intersect_join ij
-                    where ij.x_3435 = np.x_3435 and ij.y_3435 = np.y_3435
-                )
+            where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
         )
 
-    -- Final output includes both intersect and fallback equals matches
+    -- Final output includes both intersect matches and fallback equals matches
     select *
     from intersect_join
     union all
