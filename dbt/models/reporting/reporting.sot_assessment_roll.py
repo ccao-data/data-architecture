@@ -136,7 +136,6 @@ def model(dbt, spark_session):
         materialized="table",
         engine_config={
             "MaxConcurrentDpus": 40,
-            "SparkProperties": {"spark.driver.maxResultSize": "4g"},
         },
     )
 
