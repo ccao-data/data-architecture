@@ -1,7 +1,7 @@
 -- Macro that takes a `source_model` containing geometries and joins it
 -- against `spatial.parcel` in order to generate the distance from each PIN
 -- to each geometry and year combination
-{% macro dist_to_nearest_geometry(source_model) %}
+{% macro dist_to_nearest_geometry(source_model, point_rounding=False) %}
 
     with
         -- Universe of all possible PINs. This ignores years since PINs don't
@@ -75,14 +75,29 @@
     -- nearest location data (name, id, etc.) to each PIN. Also calculate
     -- distance between the nearest points
     select
+        -- This conditional fixes a floating point error occurs for a small number of
+        -- points. If the error exists, add in the conditional value for 
+        -- point_rounding in the query.
+        -- This will round both the parcel point and the geometry point to 2 decimal
+        -- places, ensuring that they join correctly.
         np.x_3435, np.y_3435, loc.*, st_distance(np.points[1], np.points[2]) as dist_ft
     from nearest_point as np
     inner join
         location as loc
-        on st_intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
+        on {% if point_rounding %}
+            st_intersects(
+                st_point(round(st_x(np.points[2]), 2), round(st_y(np.points[2]), 2)),
+                st_point(
+                    round(st_x(st_geomfrombinary(loc.geometry_3435)), 2),
+                    round(st_y(st_geomfrombinary(loc.geometry_3435)), 2)
+                )
+            )
+        {% else %} st_intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
+        {% endif %}
     -- This horrifying conditional is designed to trick the Athena query
     -- planner. For some reason, adding a true conditional to a query with a
     -- spatial join (like the one above) results in terrible performance,
     -- while doing a cross join then filtering the rows is much faster
     where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
+
 {% endmacro %}

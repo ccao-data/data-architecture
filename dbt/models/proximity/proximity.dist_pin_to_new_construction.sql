@@ -20,6 +20,7 @@ WITH new_construction AS (  -- noqa: ST03
         AND CAST(parcel.year AS INT)
         <= CAST(vw_card_res_char.char_yrblt AS INT) + 3
 )
+
 SELECT
     pcl.pin10,
     ARBITRARY(xy.pin10) AS nearest_new_construction_pin10,
@@ -29,7 +30,8 @@ SELECT
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
 INNER JOIN
-    ( {{ dist_to_nearest_geometry('new_construction') }} ) AS xy
+    ( {{ dist_to_nearest_geometry('new_construction', point_rounding=True) }} )
+        AS xy
     ON pcl.x_3435 = xy.x_3435
     AND pcl.y_3435 = xy.y_3435
     AND pcl.year = xy.pin_year
