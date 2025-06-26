@@ -1,27 +1,15 @@
 {% macro dist_to_nearest_geometry(source_model) %}
 
     with
-        -- Universe of all possible PINs. This ignores years since PINs don't
-        -- actually move very often, so unique xy coordinates are a good enough
-        -- proxy for PIN coordinates and year. We do this to limit the number
-        -- of parcels for which we need to perform spatial operations
+        -- Unique parcel coordinates
         distinct_pins as (
             select distinct x_3435, y_3435 from {{ source("spatial", "parcel") }}
         ),
 
-        -- Years that exist for parcel data. This determines the set of years
-        -- for which data will be filled forward in time i.e. if park locations
-        -- exist for 2020, and distinct_years goes up to 2023, then park data
-        -- from 2020 will be filled forward to 2023
-        -- Each year of the `source_model` needs to be a complete set of observations. 
-        -- For example, if a park is constructed in 2020, all parks from prior years 
-        -- need to be included in the 2020 data.
-        -- The `source_model` needs to have a comparable year in spatial.parcel to
-        -- join (>= 2000).
+        -- All parcel years
         distinct_years as (select distinct year from {{ source("spatial", "parcel") }}),
 
-        -- Crosswalk of the source data and distinct years, used to perform
-        -- the forward filling described above
+        -- Forward-fill mapping
         fill_years as (
             select dy.year as pin_year, max(df.year) as fill_year
             from {{ source_model }} as df
@@ -30,20 +18,14 @@
             group by dy.year
         ),
 
-        -- Source table with forward filling applied by year. This
-        -- will result in one row per geometry per year of parcel data i.e.
-        -- for hospitals, there will be one row for each hospital for each
-        -- year of parcel data (up to the current year)
+        -- Forward-filled source data
         location as (
             select fy.pin_year, fill_data.*
             from fill_years as fy
             inner join {{ source_model }} as fill_data on fy.fill_year = fill_data.year
         ),
 
-        -- Source table with forward filling applied by year, but containing
-        -- the union of all geometries for each year. This will result in just
-        -- one record per year, with all geometries for each year squished into
-        -- a single object
+        -- Aggregated geometry union by year
         location_agg as (
             select
                 loc.pin_year,
@@ -53,9 +35,7 @@
             group by loc.pin_year
         ),
 
-        -- For each unique PIN location, find the nearest point from each
-        -- geometry set from each year. The output of geometry_nearest_points
-        -- is a pair of points, one from each geometry and year
+        -- Find nearest points from parcels to geometry union
         nearest_point as (
             select
                 dp.x_3435,
@@ -68,52 +48,43 @@
             cross join location_agg as loc_agg
         ),
 
-        -- Primary spatial join using ST_Intersects between the nearest point
-        -- and each geometry. This captures the majority of expected matches.
-        intersect_join as (
+        -- Attempt fast spatial join using ST_Intersects
+        intersects_join as (
             select
                 np.x_3435,
                 np.y_3435,
                 loc.*,
                 st_distance(np.points[1], np.points[2]) as dist_ft
-            from nearest_point as np
-            inner join
-                location as loc
+            from nearest_point np
+            join
+                location loc
                 on st_intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
-            -- Year filter is applied after the spatial join for performance
             where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
         ),
 
-        -- Fallback join using ST_Equals for nearest_point observations that
-        -- were *not matched* by ST_Intersects. This is more expensive, so we
-        -- restrict it to only unmatched rows.
+        -- Only fallback to ST_Equals where ST_Intersects did not return matches
         equals_join as (
             select
                 np.x_3435,
                 np.y_3435,
                 loc.*,
                 st_distance(np.points[1], np.points[2]) as dist_ft
-            from
-                (
-                    -- Filter to nearest_point rows that did NOT appear in
-                    -- intersect_join
-                    select np.*
-                    from nearest_point np
-                    left join
-                        intersect_join ij
-                        on np.x_3435 = ij.x_3435
-                        and np.y_3435 = ij.y_3435
-                    where ij.x_3435 is null
-                ) as np
-            inner join
-                location as loc
+            from nearest_point np
+            join
+                location loc
                 on st_equals(np.points[2], st_geomfrombinary(loc.geometry_3435))
-            where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
+            where
+                abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
+                and not exists (
+                    select 1
+                    from intersects_join ij
+                    where ij.x_3435 = np.x_3435 and ij.y_3435 = np.y_3435
+                )
         )
 
-    -- Final output includes both intersect matches and fallback equals matches
+    -- Combine results
     select *
-    from intersect_join
+    from intersects_join
     union all
     select *
     from equals_join
