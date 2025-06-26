@@ -141,7 +141,7 @@ ward_chicago AS (
     SELECT
         dp.x_3435,
         dp.y_3435,
-        MAX(cprod.ward_num) AS ward_num,
+        CAST(MAX(cprod.ward_num) AS VARCHAR) AS ward_num,
         MAX(cprod.ward_name) AS ward_name,
         MAX(
             CASE
@@ -185,7 +185,7 @@ ward_evanston AS (
     SELECT
         dp.x_3435,
         dp.y_3435,
-        MAX(cprod.ward_num) AS ward_num,
+        CAST(MAX(cprod.ward_num) AS VARCHAR) AS ward_num,
         MAX(cprod.ward_name) AS ward_name,
         MAX(
             CASE
