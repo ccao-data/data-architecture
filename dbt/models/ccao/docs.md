@@ -131,11 +131,12 @@ See: <https://discourse.getdbt.com/t/dynamic-dates-in-unit-tests/16883/2?>
 # zoning
 
 {% docs table_zoning %}
-CCAO GIS produces compiles zoning on the pin level. All years are coded as
-2025. This is because data is pulled asynchronously from different sources. Because of
-this we do not include this feature in modeling or default. There are known issues
-where pins have multiple zoning codes due to fuzzy geo-spatial techniques.
-Because of this, we concatenate them with ','.
+CCAO GIS compiles zoning on the pin level. All years are coded as
+2025. This is because data is pulled asynchronously from different sources. At the moment,
+the measn that we do not include this feature in modeling or default views.
+
+There are known issues where pins have multiple zoning codes due to fuzzy geo-spatial techniques.
+These are concatenated them with ','.
 
 GIS is currently updating data for the South Tri. These townships will be
 uploaded upon completion.
