@@ -1,3 +1,6 @@
+-- Macro that takes a `source_model` containing geometries and joins it
+-- against `spatial.parcel` in order to generate the distance from each PIN
+-- to each geometry and year combination
 {% macro dist_to_nearest_geometry(source_model, point_rounding=False) %}
 
     with
@@ -13,6 +16,11 @@
         -- for which data will be filled forward in time i.e. if park locations
         -- exist for 2020, and distinct_years goes up to 2023, then park data
         -- from 2020 will be filled forward to 2023
+        -- Each year of the `source_model` needs to be a complete set of observations. 
+        -- For example, if a park is constructed in 2020, all parks from prior years 
+        -- need to be included in the 2020 data.
+        -- The `source_model` needs to have a comparable year in spatial.parcel to
+        -- join (>= 2000).
         distinct_years as (select distinct year from {{ source("spatial", "parcel") }}),
 
         -- Crosswalk of the source data and distinct years, used to perform
@@ -25,14 +33,20 @@
             group by dy.year
         ),
 
-        -- Forward-filled source table by year
+        -- Source table with forward filling applied by year. This
+        -- will result in one row per geometry per year of parcel data i.e.
+        -- for hospitals, there will be one row for each hospital for each
+        -- year of parcel data (up to the current year)
         location as (
             select fy.pin_year, fill_data.*
             from fill_years as fy
             inner join {{ source_model }} as fill_data on fy.fill_year = fill_data.year
         ),
 
-        -- Geometry union per year for finding nearest points
+        -- Source table with forward filling applied by year, but containing
+        -- the union of all geometries for each year. This will result in just
+        -- one record per year, with all geometries for each year squished into
+        -- a single object
         location_agg as (
             select
                 loc.pin_year,
@@ -42,7 +56,9 @@
             group by loc.pin_year
         ),
 
-        -- For each PIN location, find nearest geometry point for each year
+        -- For each unique PIN location, find the nearest point from each
+        -- geometry set from each year. The output of geometry_nearest_points
+        -- is a pair of points, one from each geometry and year
         nearest_point as (
             select
                 dp.x_3435,
@@ -55,8 +71,17 @@
             cross join location_agg as loc_agg
         )
 
-    -- Join back to individual location geometries to get metadata
+    -- Using the nearest point from each target geometry and year, join the
+    -- nearest location data (name, id, etc.) to each PIN. Also calculate
+    -- distance between the nearest points
     select
+        -- This conditional fixes a floating point error occurs for a small number of
+        -- points.
+        -- If the error exists, add in the conditional value for point_rounding in the
+        -- query.
+        -- This will round both the parcel point and the geometry point to 2 decimal
+        -- places,
+        -- ensuring that they join correctly.
         np.x_3435, np.y_3435, loc.*, st_distance(np.points[1], np.points[2]) as dist_ft
     from nearest_point as np
     inner join
@@ -71,6 +96,10 @@
             )
         {% else %} st_intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
         {% endif %}
+    -- This horrifying conditional is designed to trick the Athena query
+    -- planner. For some reason, adding a true conditional to a query with a
+    -- spatial join (like the one above) results in terrible performance,
+    -- while doing a cross join then filtering the rows is much faster
     where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
 
 {% endmacro %}
