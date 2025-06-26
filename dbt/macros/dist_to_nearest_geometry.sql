@@ -1,6 +1,3 @@
--- Macro that takes a `source_model` containing geometries and joins it
--- against `spatial.parcel` in order to generate the distance from each PIN
--- to each geometry and year combination
 {% macro dist_to_nearest_geometry(source_model) %}
 
     with
@@ -58,7 +55,8 @@
 
         -- For each unique PIN location, find the nearest point from each
         -- geometry set from each year. The output of geometry_nearest_points
-        -- is a pair of points, one from each geometry and year
+        -- is a pair of points, one from each geometry and one from each
+        -- geometry union (one-to-one)
         nearest_point as (
             select
                 dp.x_3435,
@@ -69,28 +67,57 @@
                 ) as points
             from distinct_pins as dp
             cross join location_agg as loc_agg
+        ),
+
+        -- Using the nearest point from each target geometry and year, join the
+        -- nearest location data (name, id, etc.) to each PIN using ST_Intersects.
+        -- Also calculate the distance between the nearest points.
+        intersect_join as (
+            select
+                np.x_3435,
+                np.y_3435,
+                loc.*,
+                st_distance(np.points[1], np.points[2]) as dist_ft
+            from nearest_point as np
+            inner join
+                location as loc
+                on st_intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
+            -- This horrifying conditional is designed to trick the Athena query
+            -- planner. For some reason, adding a true conditional to a query with a
+            -- spatial join (like the one above) results in terrible performance,
+            -- while doing a cross join then filtering the rows is much faster
+            where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
+        ),
+
+        -- Fallback join using ST_Equals only for unmatched records from ST_Intersects.
+        -- This ensures we catch edge cases where intersection fails due to geometry
+        -- precision.
+        equals_join as (
+            select
+                np.x_3435,
+                np.y_3435,
+                loc.*,
+                st_distance(np.points[1], np.points[2]) as dist_ft
+            from nearest_point as np
+            inner join
+                location as loc
+                on st_equals(np.points[2], st_geomfrombinary(loc.geometry_3435))
+            -- Still enforce valid year match
+            where
+                abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
+                -- Only include fallback rows that didn't match in intersect_join
+                and not exists (
+                    select 1
+                    from intersect_join ij
+                    where ij.x_3435 = np.x_3435 and ij.y_3435 = np.y_3435
+                )
         )
 
-    -- Using the nearest point from each target geometry and year, join the
-    -- nearest location data (name, id, etc.) to each PIN. Also calculate
-    -- distance between the nearest points
-    select
-        np.x_3435, np.y_3435, loc.*, st_distance(np.points[1], np.points[2]) as dist_ft
-    from nearest_point as np
-    left join location as loc
-      on case
-        -- Use precise ST_Difference logic for points
-        when ST_GeometryType(st_geomfrombinary(loc.geometry_3435)) = 'ST_Point'
-             and ST_GeometryType(np.points[2]) = 'ST_Point'
-        then ST_Distance(np.points[2], st_geomfrombinary(loc.geometry_3435)) < 0.00001
-    
-        -- Use ST_Intersects for other geometry types
-        else ST_Intersects(np.points[2], st_geomfrombinary(loc.geometry_3435))
-      end
+    -- Final output includes both intersect and fallback equals matches
+    select *
+    from intersect_join
+    union all
+    select *
+    from equals_join
 
-    -- This horrifying conditional is designed to trick the Athena query
-    -- planner. For some reason, adding a true conditional to a query with a
-    -- spatial join (like the one above) results in terrible performance,
-    -- while doing a cross join then filtering the rows is much faster
-    where abs(cast(np.pin_year as int) - cast(loc.pin_year as int)) = 0
 {% endmacro %}
