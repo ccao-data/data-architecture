@@ -4,6 +4,29 @@
 When `TRUE`, this PIN is eligible for a PINVAL report for the given model run
 {% enddocs %}
 
+## parcel_class
+
+{% docs column_pinval_parcel_class %}
+The class for the parcel that this card is associated with.
+
+This field is different from `char_class`, which comes from
+`model.assessment_card` and represents the card class. Card classes do not
+necessarily match the class of the parcel that the card is associated with.
+This field will also always be present even if `char_class` is null, because
+this field comes from `default.vw_pin_universe` which contains PINs that
+are not present in the assessment set due to not being a residential
+regression class.
+{% enddocs %}
+
+## parcel_class_description
+
+{% docs column_pinval_parcel_class_description %}
+The short description for the card's parcel class.
+
+See `parcel_class` for details on the difference between parcel classes and
+card classes in the context of this view.
+{% enddocs %}
+
 ## reason_report_ineligible
 
 {% docs column_pinval_reason_report_ineligible %}

@@ -18,6 +18,15 @@ models:
         data_tests:
           - not_null:
               name: pinval_assessment_card_is_report_eligible_not_null
+      - name: parcel_class
+        description: '{{ doc("column_pinval_parcel_class") }}'
+        data_tests:
+          - not_null:
+              name: pinval_assessment_card_parcel_class_not_null
+              config:
+                where: reason_report_ineligible = 'non_regression_class'
+      - name: parcel_class_description
+        description: '{{ doc("column_pinval_parcel_class_description") }}'
       - name: reason_report_ineligible
         description: '{{ doc("column_pinval_reason_report_ineligible") }}'
         data_tests:
@@ -38,7 +47,7 @@ models:
               values:
                 - non_tri
               config:
-                where: LOWER(meta_triad_name) = LOWER(assessment_triad)
+                where: LOWER(meta_triad_name) = LOWER(assessment_triad_name)
           - not_accepted_values:
               name: pinval_vw_assessment_card_reason_report_ineligible_not_unknown
               values:

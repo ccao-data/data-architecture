@@ -33,6 +33,8 @@ SELECT
     uni.pin,
     uni.township_name AS meta_township_name,
     LOWER(uni.triad_name) AS meta_triad_name,
+    uni.class AS parcel_class,
+    pin_cd.class_desc AS parcel_class_description,
     -- Two possible reasons we would decline to build a PINVAL report for a PIN:
     --
     --   1. No representation of the PIN in assessment_card because it is
@@ -89,7 +91,7 @@ SELECT
     elem_sd.name AS school_elementary_district_name,
     sec_sd.name AS school_secondary_district_name,
     run.model_predictor_all_name,
-    run.assessment_triad,
+    run.assessment_triad AS assessment_triad_name,
     run.assessment_year,
     final.final_model_run_date
 -- We use pin_universe as the base for the query rather than assessment_card
