@@ -56,7 +56,7 @@ SELECT
         AND LOWER(uni.triad_name) = LOWER(run.assessment_triad)
     ) AS is_report_eligible,
     CASE
-        -- In some rare cases the PIN class can be different from
+        -- In some rare cases the parcel class can be different from
         -- the card class, in which case these class explanations are not
         -- guaranteed to be the true reason that a report is missing. But
         -- in those cases, a non-regression class for the PIN should still be
