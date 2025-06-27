@@ -4,6 +4,16 @@
 When `TRUE`, this PIN is eligible for a PINVAL report for the given model run
 {% enddocs %}
 
+## model_run_id
+
+{% docs column_pinval_model_run_id %}
+Run ID for the model run associated with this card and its values.
+
+Prefer this to `run_id`, which comes from `model.assessment_card`,
+because `run_id` will be null if the parcel is ineligible for a report
+for this model run. In contrast, this column will never be null.
+{% enddocs %}
+
 ## parcel_class
 
 {% docs column_pinval_parcel_class %}

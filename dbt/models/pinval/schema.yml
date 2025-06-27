@@ -18,6 +18,11 @@ models:
         data_tests:
           - not_null:
               name: pinval_assessment_card_is_report_eligible_not_null
+      - name: model_run_id
+        description: '{{ doc("column_pinval_model_run_id") }}'
+        data_tests:
+          - not_null:
+              name: pinval_assessment_card_model_run_id_not_null
       - name: parcel_class
         description: '{{ doc("column_pinval_parcel_class") }}'
         data_tests:

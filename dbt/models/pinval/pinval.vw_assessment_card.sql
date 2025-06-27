@@ -90,6 +90,7 @@ SELECT
         AS char_class_detailed,
     elem_sd.name AS school_elementary_district_name,
     sec_sd.name AS school_secondary_district_name,
+    run.run_id AS model_run_id,
     run.model_predictor_all_name,
     run.assessment_triad AS assessment_triad_name,
     run.assessment_year,
