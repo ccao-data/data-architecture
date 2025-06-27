@@ -31,22 +31,32 @@ school_districts AS (
 
 SELECT
     uni.pin,
-    uni.township_name,
-    uni.triad_name,
+    uni.township_name AS meta_township_name,
+    LOWER(uni.triad_name) AS meta_triad_name,
     -- Two possible reasons we would decline to build a PINVAL report for a PIN:
     --
-    --   1. No representation of the PIN in assessment_card (likely
-    --      due to PIN not being a regression class)
+    --   1. No representation of the PIN in assessment_card because it is
+    --      not a regression class and so was excluded from the assessment set
     --   2. PIN tri is not up for reassessment
+    --        - These PINs are still included in the assessment set, they just
+    --          do not receive final model values
     --
     -- It's important that we get this right because PINVAL reports will
-    -- use this indicator to determine whether to render a report
+    -- use this indicator to determine whether to render a report. As such,
+    -- the conditions in this column are a bit more lax than the conditions
+    -- in the `reason_report_ineligible` column, because we want to catch cases
+    -- where PINs are unexpectedly eligible for reports.
+    --
+    -- Also note that the 'unknown' conditional branch for
+    -- the `reason_report_ineligible` column mirrors this logic in its column
+    -- definition, so if you change this logic, you should also change that
+    -- conditional branch
     (
-        (ac.meta_pin IS NULL)
-        OR (LOWER(uni.triad_name) != LOWER(run.assessment_triad))
-    ) AS is_missing,
+        ac.meta_pin IS NOT NULL
+        AND LOWER(uni.triad_name) = LOWER(run.assessment_triad)
+    ) AS is_report_eligible,
     CASE
-        -- Note that in some rare cases the PIN class can be different from
+        -- In some rare cases the PIN class can be different from
         -- the card class, in which case these class explanations are not
         -- guaranteed to be the true reason that a report is missing. But
         -- in those cases, a non-regression class for the PIN should still be
@@ -64,7 +74,7 @@ SELECT
             AND LOWER(uni.triad_name) = LOWER(run.assessment_triad)
             THEN NULL
         ELSE 'unknown'
-    END AS reason_missing,
+    END AS reason_report_ineligible,
     ac.*,
     ap.pred_pin_final_fmv_round,
     CAST(
