@@ -3,6 +3,7 @@ WITH runs_to_include AS (
         run_id,
         model_predictor_all_name,
         assessment_year,
+        assessment_data_year,
         assessment_triad
     FROM {{ source('model', 'metadata') }}
     WHERE run_id = '2025-02-11-charming-eric'
@@ -30,10 +31,9 @@ school_districts AS (
 
 SELECT
     uni.pin,
-    uni.year AS pin_year,  -- Alias to avoid collision with ac.year
     uni.township_name,
     uni.triad_name,
-    -- Two possible reasons we would decline to build a PINVAL report:
+    -- Two possible reasons we would decline to build a PINVAL report for a PIN:
     --
     --   1. No representation of the PIN in assessment_card (likely
     --      due to PIN not being a regression class)
@@ -41,7 +41,6 @@ SELECT
     --
     -- It's important that we get this right because PINVAL reports will
     -- use this indicator to determine whether to render a report
-    -- TODO: Why is this not producing false?
     (
         (ac.meta_pin IS NULL)
         OR (LOWER(uni.triad_name) != LOWER(run.assessment_triad))
@@ -55,10 +54,15 @@ SELECT
         -- for lack of the true reason why the report is missing
         WHEN uni.class IN ('299') THEN 'condo'
         WHEN
-            (NOT pin_cd.regression_class)
+            pin_cd.class_code IS NULL  -- Class is not in our class dict
+            OR NOT pin_cd.regression_class
             OR (pin_cd.modeling_group NOT IN ('SF', 'MF'))
             THEN 'non_regression_class'
-        WHEN uni.triad_code != run.assessment_triad THEN 'non_tri'
+        WHEN LOWER(uni.triad_name) != LOWER(run.assessment_triad) THEN 'non_tri'
+        WHEN
+            ac.meta_pin IS NOT NULL
+            AND LOWER(uni.triad_name) = LOWER(run.assessment_triad)
+            THEN NULL
         ELSE 'unknown'
     END AS reason_missing,
     ac.*,
@@ -83,7 +87,7 @@ SELECT
 -- PIN is valid but not in assessment_card
 FROM {{ ref('default.vw_pin_universe') }} AS uni
 INNER JOIN runs_to_include AS run
-    ON uni.year = run.assessment_year
+    ON uni.year = run.assessment_data_year
 LEFT JOIN {{ source('model', 'assessment_card') }} AS ac
     ON run.run_id = ac.run_id
     AND uni.pin = ac.meta_pin
