@@ -2,10 +2,8 @@
 # number of geographies, class combinations, and time.
 
 # Import libraries
-from functools import reduce
 
 import pandas as pd
-from pyspark.sql import DataFrame
 from pyspark.sql.functions import lit
 
 
@@ -146,7 +144,6 @@ def model(dbt, spark_session):
     athena_user_logger.info("Dope stuff is happening... maybe?")
 
     output = []
-
     for group in groups:
         for geography in geographies:
             output += [
@@ -160,8 +157,9 @@ def model(dbt, spark_session):
                     lit(group).alias("group_type"),
                     lit(geography).alias("geography_type"),
                 )
+                .toPandas()
             ]
 
-        df = reduce(DataFrame.unionByName, output)
+    df = pd.concat(output)
 
     return df
