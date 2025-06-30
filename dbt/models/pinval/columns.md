@@ -55,6 +55,33 @@ See `parcel_class` for details on the difference between parcel classes and
 card classes in the context of this view.
 {% enddocs %}
 
+## parcel_township_code
+
+{% docs column_pinval_parcel_township_code %}
+Township code for the card's parcel.
+
+See `parcel_class` for details on the difference between parcel classes and
+card classes in the context of this view.
+{% enddocs %}
+
+## parcel_township_name
+
+{% docs column_pinval_parcel_township_name %}
+Township name for the card's parcel.
+
+See `parcel_class` for details on the difference between parcel classes and
+card classes in the context of this view.
+{% enddocs %}
+
+## parcel_triad_name
+
+{% docs column_pinval_parcel_triad_name %}
+Triad name for the card's parcel.
+
+See `parcel_class` for details on the difference between parcel classes and
+card classes in the context of this view.
+{% enddocs %}
+
 ## pin
 
 {% docs column_pinval_pin %}

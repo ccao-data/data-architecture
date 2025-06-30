@@ -30,9 +30,19 @@ school_districts AS (
 )
 
 SELECT
+    -- Select PIN from `default.vw_pin_universe` so that we always have a PIN
+    -- even if no row exists in `model.assesssment_card`, in which case
+    -- `meta_pin` will be null
     uni.pin,
-    uni.township_name AS meta_township_name,
-    LOWER(uni.triad_name) AS meta_triad_name,
+    -- Use the `parcel_` prefix to mark attributes that come from
+    -- `default.vw_pin_universe` (except `pin` above, since `parcel_pin` would
+    -- be redundant). We use these attributes when explaining to end users
+    -- why a PIN is ineligible for a report, so we want to query these attrs
+    -- even when they duplicate attrs in `model.assessment_card` because we
+    -- need to be sure they will always be non-null
+    uni.township_code AS parcel_township_code,
+    uni.township_name AS parcel_township_name,
+    LOWER(uni.triad_name) AS parcel_triad_name,
     uni.class AS parcel_class,
     pin_cd.class_desc AS parcel_class_description,
     -- Two possible reasons we would decline to build a PINVAL report for a PIN:
