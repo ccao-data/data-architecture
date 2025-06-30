@@ -20,7 +20,6 @@ WITH new_construction AS (  -- noqa: ST03
         AND CAST(parcel.year AS INT)
         <= CAST(vw_card_res_char.char_yrblt AS INT) + 3
 )
-
 SELECT
     pcl.pin10,
     ARBITRARY(xy.pin10) AS nearest_new_construction_pin10,
