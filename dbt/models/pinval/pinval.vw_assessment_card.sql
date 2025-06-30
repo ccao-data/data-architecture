@@ -50,7 +50,7 @@ SELECT
 
     COALESCE(
         CAST(run.assessment_year AS INTEGER) >= 2025
-        AND ac.meta_pin_num_cards IN (2, 3)
+        AND ap.meta_pin_num_cards IN (2, 3)
         AND ROW_NUMBER() OVER (
             PARTITION BY ac.meta_pin, ac.run_id
             ORDER BY COALESCE(ac.char_bldg_sf, 0) DESC, ac.meta_card_num ASC
@@ -59,7 +59,7 @@ SELECT
 
     CASE
         WHEN CAST(run.assessment_year AS INTEGER) >= 2025
-            AND ac.meta_pin_num_cards IN (2, 3)
+            AND ap.meta_pin_num_cards IN (2, 3)
             THEN SUM(COALESCE(ac.char_bldg_sf, 0)) OVER (
                 PARTITION BY ac.meta_pin, ac.run_id
             )
