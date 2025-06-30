@@ -75,7 +75,7 @@
     -- nearest location data (name, id, etc.) to each PIN. Also calculate
     -- distance between the nearest points
     select
-        -- This conditional fixes a floating point error occurs for a small number of
+        -- This conditional fixes a floating point error that occurs for a small number of
         -- points. If the error exists, add in the conditional value for 
         -- point_rounding in the query.
         -- This will round both the parcel point and the geometry point to 2 decimal
