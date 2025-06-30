@@ -4,6 +4,24 @@
 When `TRUE`, this PIN is eligible for a PINVAL report for the given model run
 {% enddocs %}
 
+## meta_card_num
+
+{% docs meta_card_num %}
+The card number for the card.
+
+There are two cases in which this column might be null:
+
+- **No entry exists for this card in `model.assessment_card`**. This
+  means that the card was ineligible for a model value and got filtered out of
+  the model's assessment set prior to prediction. In this case, the `meta_pin`
+  column (and all other columns that come from `model.assessment_card`) will
+  also be null.
+- **The PIN does not have any cards.** This indicates a data error that
+  causes the model to ignore the parcel for valuation purposes. In this case,
+  the `reason_report_ineligible` column will have the value `'missing_card'`.
+
+{% enddocs %}
+
 ## model_run_id
 
 {% docs column_pinval_model_run_id %}
@@ -35,6 +53,17 @@ The short description for the card's parcel class.
 
 See `parcel_class` for details on the difference between parcel classes and
 card classes in the context of this view.
+{% enddocs %}
+
+## pin
+
+{% docs column_pinval_pin %}
+The card's parcel identification number (PIN).
+
+In general, you should prefer this column to `meta_pin` when querying from this
+table, since `meta_pin` comes from `model.assessment_card` and will be null for
+PINs that the res model does not value. You can safely use `meta_pin` when
+filtering by `is_report_eligible = TRUE`, however.
 {% enddocs %}
 
 ## reason_report_ineligible

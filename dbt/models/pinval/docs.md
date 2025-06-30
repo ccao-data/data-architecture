@@ -6,7 +6,7 @@ Table that holds card level data for subject PINs for PINVAL.
 This table contains all PINs for the assessment data year for every
 PINVAL-enabled model run, not just the PINs that have values and comps.
 This choice enables us to support the generation of "error pages" for
-non-tri or non-regression-class PINs explaining to the user why those PINs
+non-tri or non-regression-class PINs that explain to a user why those PINs
 do not have reports. Use the `is_report_eligible` column to filter for
 report-eligible PINs, and use the `reason_report_ineligible` column to explain
 missing reports.

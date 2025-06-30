@@ -18,6 +18,12 @@ models:
         data_tests:
           - not_null:
               name: pinval_assessment_card_is_report_eligible_not_null
+      - name: meta_card_num
+        data_tests:
+          - is_null:
+              name: pinval_vw_assessment_card_meta_card_num_null_when_reason_report_ineligible_is_missing_card
+              config:
+                where: reason_report_ineligible = 'missing_card'
       - name: model_run_id
         description: '{{ doc("column_pinval_model_run_id") }}'
         data_tests:
@@ -32,6 +38,11 @@ models:
                 where: reason_report_ineligible = 'non_regression_class'
       - name: parcel_class_description
         description: '{{ doc("column_pinval_parcel_class_description") }}'
+      - name: pin
+        description: '{{ doc("column_pinval_pin") }}'
+        data_tests:
+          - not_null:
+              name: pinval_assessment_card_pin_not_null
       - name: reason_report_ineligible
         description: '{{ doc("column_pinval_reason_report_ineligible") }}'
         data_tests:
