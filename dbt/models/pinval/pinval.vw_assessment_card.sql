@@ -41,6 +41,26 @@ SELECT
     tw.township_name,
     CONCAT(CAST(ac.char_class AS VARCHAR), ': ', cd.class_desc)
         AS char_class_detailed,
+
+
+    COALESCE (run.assessment_year >= 2025 AND ac.meta_pin_num_cards IN (2, 3),
+    FALSE) AS is_parcel_small_multicard,
+
+    COALESCE (run.assessment_year >= 2025
+    AND ac.meta_pin_num_cards IN (2, 3)
+    AND ROW_NUMBER() OVER (
+        PARTITION BY ac.meta_pin, ac.run_id
+        ORDER BY COALESCE(ac.char_bldg_sf, 0) DESC, ac.meta_card_num ASC
+    ) = 1, FALSE) AS is_frankencard,
+
+    CASE
+        WHEN run.assessment_year >= 2025 AND ac.meta_pin_num_cards IN (2, 3)
+            THEN SUM(COALESCE(ac.char_bldg_sf, 0)) OVER (
+                PARTITION BY ac.meta_pin, ac.run_id
+            )
+    END AS combined_bldg_sf,
+
+
     elem_sd.name AS school_elementary_district_name,
     sec_sd.name AS school_secondary_district_name,
     run.model_predictor_all_name,
