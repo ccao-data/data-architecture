@@ -43,10 +43,10 @@ SELECT
         AS char_class_detailed,
 
 
-    COALESCE (run.assessment_year >= 2025 AND ac.meta_pin_num_cards IN (2, 3),
-    FALSE) AS is_parcel_small_multicard,
+    COALESCE (CAST(run.assessment_year AS INTEGER) >= 2025
+    AND ac.meta_pin_num_cards IN (2, 3), FALSE) AS is_parcel_small_multicard,
 
-    COALESCE (run.assessment_year >= 2025
+    COALESCE (CAST(run.assessment_year AS INTEGER) >= 2025
     AND ac.meta_pin_num_cards IN (2, 3)
     AND ROW_NUMBER() OVER (
         PARTITION BY ac.meta_pin, ac.run_id
@@ -54,7 +54,8 @@ SELECT
     ) = 1, FALSE) AS is_frankencard,
 
     CASE
-        WHEN run.assessment_year >= 2025 AND ac.meta_pin_num_cards IN (2, 3)
+        WHEN CAST(run.assessment_year AS INTEGER) >= 2025
+            AND ac.meta_pin_num_cards IN (2, 3)
             THEN SUM(COALESCE(ac.char_bldg_sf, 0)) OVER (
                 PARTITION BY ac.meta_pin, ac.run_id
             )
