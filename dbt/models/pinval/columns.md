@@ -56,6 +56,9 @@ Possible values for this variable are:
   explain why it's ineligible. This value primarily exists to allow us to test
   for unexpected conditions in our data integrity tests, and should never
   be present in the data in practice
+- `'missing_card'`: The PIN does not have any cards. This usually indicates an
+  error in the underlying source data that causes the model to ignore
+  the parcel for valuation purposes.
 - `NULL`: The PIN is eligible for a PINVAL report. This should only ever be
   the case when `is_report_eligible` is `TRUE`, and our data integrity
   tests check to make sure this is true

@@ -55,6 +55,7 @@ SELECT
     -- conditional branch
     (
         ac.meta_pin IS NOT NULL
+        AND ac.meta_card_num IS NOT NULL
         AND LOWER(uni.triad_name) = LOWER(run.assessment_triad)
     ) AS is_report_eligible,
     CASE
@@ -71,6 +72,7 @@ SELECT
             OR (pin_cd.modeling_group NOT IN ('SF', 'MF'))
             THEN 'non_regression_class'
         WHEN LOWER(uni.triad_name) != LOWER(run.assessment_triad) THEN 'non_tri'
+        WHEN ac.meta_card_num IS NULL THEN 'missing_card'
         WHEN
             ac.meta_pin IS NOT NULL
             AND LOWER(uni.triad_name) = LOWER(run.assessment_triad)
