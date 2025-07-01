@@ -66,3 +66,4 @@ LEFT JOIN {{ source('spatial', 'township') }} AS tw
 LEFT JOIN {{ ref('ccao.class_dict') }} AS cd
     ON ac.char_class = cd.class_code
 WHERE ap.meta_triad_code = final.triad_code
+    AND ac.meta_card_num IS NOT NULL
