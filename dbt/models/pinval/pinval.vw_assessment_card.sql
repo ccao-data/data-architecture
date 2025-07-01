@@ -38,7 +38,7 @@ SELECT
     )
         AS pred_card_initial_fmv_per_sqft,
     ap.loc_property_address AS property_address,
-    ap.meta_pin_num_cards AS ap_meta_pin_num_cards,
+    CAST(ap.meta_pin_num_cards AS INTEGER) AS meta_pin_num_cards,
     tw.township_name,
     CONCAT(CAST(ac.char_class AS VARCHAR), ': ', cd.class_desc)
         AS char_class_detailed,
