@@ -38,16 +38,14 @@ SELECT
     )
         AS pred_card_initial_fmv_per_sqft,
     ap.loc_property_address AS property_address,
+    ap.meta_pin_num_cards AS ap_meta_pin_num_cards,
     tw.township_name,
     CONCAT(CAST(ac.char_class AS VARCHAR), ': ', cd.class_desc)
         AS char_class_detailed,
-
-
     COALESCE(
         CAST(run.assessment_year AS INTEGER) >= 2025
         AND ap.meta_pin_num_cards IN (2, 3), FALSE
     ) AS is_parcel_small_multicard,
-
     COALESCE(
         CAST(run.assessment_year AS INTEGER) >= 2025
         AND ap.meta_pin_num_cards IN (2, 3)
@@ -56,7 +54,6 @@ SELECT
             ORDER BY COALESCE(ac.char_bldg_sf, 0) DESC, ac.meta_card_num ASC
         ) = 1, FALSE
     ) AS is_frankencard,
-
     CASE
         WHEN CAST(run.assessment_year AS INTEGER) >= 2025
             AND ap.meta_pin_num_cards IN (2, 3)
@@ -64,8 +61,6 @@ SELECT
                 PARTITION BY ac.meta_pin, ac.run_id
             )
     END AS combined_bldg_sf,
-
-
     elem_sd.name AS school_elementary_district_name,
     sec_sd.name AS school_secondary_district_name,
     run.model_predictor_all_name,
