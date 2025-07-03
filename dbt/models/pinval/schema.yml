@@ -12,10 +12,88 @@ models:
 
   - name: pinval.vw_assessment_card
     description: '{{ doc("view_pinval_vw_assessment_card") }}'
+    columns:
+      - name: is_report_eligible
+        description: '{{ doc("column_pinval_is_report_eligible") }}'
+        data_tests:
+          - not_null:
+              name: pinval_assessment_card_is_report_eligible_not_null
+      - name: meta_card_num
+        data_tests:
+          - is_null:
+              name: pinval_vw_assessment_card_meta_card_num_null_when_reason_report_ineligible_is_missing_card
+              config:
+                where: reason_report_ineligible = 'missing_card'
+      - name: model_run_id
+        description: '{{ doc("column_pinval_model_run_id") }}'
+        data_tests:
+          - not_null:
+              name: pinval_assessment_card_model_run_id_not_null
+      - name: parcel_class
+        description: '{{ doc("column_pinval_parcel_class") }}'
+        data_tests:
+          - not_null:
+              name: pinval_assessment_card_parcel_class_not_null
+              config:
+                where: reason_report_ineligible = 'non_regression_class'
+      - name: parcel_class_description
+        description: '{{ doc("column_pinval_parcel_class_description") }}'
+      - name: parcel_township_code
+        description: '{{ doc("column_pinval_parcel_township_code") }}'
+        data_tests:
+          - columns_match:
+              name: pinval_assessment_card_parcel_township_code_matches_meta_township_code
+              matching_column_names:
+                - meta_township_code
+              config:
+                where: meta_township_code IS NOT NULL
+          - not_null:
+              name: pinval_assessment_card_parcel_township_code_not_null
+      - name: parcel_township_name
+        description: '{{ doc("column_pinval_parcel_township_name") }}'
+        data_tests:
+          - not_null:
+              name: pinval_assessment_card_parcel_township_name_not_null
+      - name: parcel_triad_name
+        description: '{{ doc("column_pinval_parcel_triad_name") }}'
+        data_tests:
+          - not_null:
+              name: pinval_assessment_card_parcel_triad_name_not_null
+      - name: pin
+        description: '{{ doc("column_pinval_pin") }}'
+        data_tests:
+          - not_null:
+              name: pinval_assessment_card_pin_not_null
+      - name: reason_report_ineligible
+        description: '{{ doc("column_pinval_reason_report_ineligible") }}'
+        data_tests:
+          - not_null:
+              name: pinval_vw_assessment_card_reason_report_ineligible_is_not_null_when_not_report_eligible
+              config:
+                where: NOT is_report_eligible
+          - is_null:
+              name: pinval_vw_assessment_card_reason_report_ineligible_is_null_when_is_report_eligible
+              config:
+                where: is_report_eligible
+                # One known North tri 2025 PIN that had the wrong class
+                # at modeling time, and so got a model value even though it
+                # should not have
+                error_if: ">1"
+          - not_accepted_values:
+              name: pinval_vw_assessment_card_reason_report_ineligible_not_non_tri_for_tri
+              values:
+                - non_tri
+              config:
+                where: LOWER(parcel_triad_name) = LOWER(assessment_triad_name)
+          - not_accepted_values:
+              name: pinval_vw_assessment_card_reason_report_ineligible_not_unknown
+              values:
+                - unknown
+
     data_tests:
       - unique_combination_of_columns:
           name: pinval_assessment_card_unique_run_id_pin_card
           combination_of_columns:
             - run_id
-            - meta_pin
+            - pin
             - meta_card_num
