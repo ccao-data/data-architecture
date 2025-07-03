@@ -16,7 +16,7 @@ There are two cases in which this column might be null:
   the model's assessment set prior to prediction. In this case, the `meta_pin`
   column (and all other columns that come from `model.assessment_card`) will
   also be null.
-- **The PIN does not have any cards.** This indicates a data error that
+- **The PIN does not have any cards**. This indicates a data error that
   causes the model to ignore the parcel for valuation purposes. In this case,
   the `reason_report_ineligible` column will have the value `'missing_card'`.
 

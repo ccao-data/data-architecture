@@ -45,11 +45,14 @@ SELECT
     LOWER(uni.triad_name) AS parcel_triad_name,
     uni.class AS parcel_class,
     pin_cd.class_desc AS parcel_class_description,
-    -- Two possible reasons we would decline to build a PINVAL report for a PIN:
+    -- Three possible reasons we would decline to build a PINVAL report for a
+    -- PIN:
     --
     --   1. No representation of the PIN in assessment_card because it is
     --      not a regression class and so was excluded from the assessment set
-    --   2. PIN tri is not up for reassessment
+    --   2. PIN has a row in `model.assessment_card`, but no card number,
+    --      indicating a rare data error
+    --   3. PIN tri is not up for reassessment
     --        - These PINs are still included in the assessment set, they just
     --          do not receive final model values
     --
@@ -59,10 +62,10 @@ SELECT
     -- in the `reason_report_ineligible` column, because we want to catch cases
     -- where PINs are unexpectedly eligible for reports.
     --
-    -- Also note that the 'unknown' conditional branch for
+    -- Also note that the 'unknown' conditional case for
     -- the `reason_report_ineligible` column mirrors this logic in its column
     -- definition, so if you change this logic, you should also change that
-    -- conditional branch
+    -- conditional case
     (
         ac.meta_pin IS NOT NULL
         AND ac.meta_card_num IS NOT NULL
@@ -73,8 +76,8 @@ SELECT
         -- the card class, in which case these class explanations are not
         -- guaranteed to be the true reason that a report is missing. But
         -- in those cases, a non-regression class for the PIN should still be
-        -- a valid reason for a report to not be available, so we report it
-        -- for lack of the true reason why the report is missing
+        -- a valid reason for a report to be unavailable, so we report it
+        -- as a best guess at true reason why the report is missing
         WHEN uni.class IN ('299') THEN 'condo'
         WHEN
             pin_cd.class_code IS NULL  -- Class is not in our class dict
@@ -85,6 +88,7 @@ SELECT
         WHEN ac.meta_card_num IS NULL THEN 'missing_card'
         WHEN
             ac.meta_pin IS NOT NULL
+            AND ac.meta_card_num IS NOT NULL
             AND LOWER(uni.triad_name) = LOWER(run.assessment_triad)
             THEN NULL
         ELSE 'unknown'
