@@ -1,7 +1,7 @@
 -- Macro that takes a `source_model` containing geometries and joins it
 -- against `spatial.parcel` in order to generate the distance from each PIN
 -- to each geometry and year combination
-{% macro dist_to_nearest_geometry(source_model, point_rounding=False) %}
+{% macro dist_to_nearest_geometry(source_model, geometry_type="polygon") %}
 
     with
         -- Universe of all possible PINs. This ignores years since PINs don't
