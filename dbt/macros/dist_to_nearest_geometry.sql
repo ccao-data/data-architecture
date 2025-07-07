@@ -1,6 +1,10 @@
 -- Macro that takes a `source_model` containing geometries and joins it
 -- against `spatial.parcel` in order to generate the distance from each PIN
--- to each geometry and year combination
+-- to each geometry and year combination.
+--
+-- If the source model contains point geometries, you can set the
+-- `geometry_type` kwarg to `"point"` for better performance when
+-- comparing very large sets of points.
 {% macro dist_to_nearest_geometry(source_model, geometry_type="polygon") %}
 
     with
