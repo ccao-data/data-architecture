@@ -105,7 +105,7 @@
         -- at the scale of 100ths of a foot. In order to deduplicate parcels
         -- with similar locations, make sure to group outputs and select columns
         -- using ARBITRARY aggregation when calling this macro.
-        on {% if point_rounding %}
+        on {% if geometry_type == "point" %}
             st_intersects(
                 st_point(round(st_x(np.points[2]), 2), round(st_y(np.points[2]), 2)),
                 st_point(
