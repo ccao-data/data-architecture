@@ -70,6 +70,7 @@ SELECT
         AS sale_price_per_sq_ft,
     FORMAT_DATETIME(train.meta_sale_date, 'MMM yyyy') AS sale_month_year,
     train.*,
+    train.char_bldg_sf AS combined_bldg_sf,
     elem_sd.name AS loc_school_elementary_district_name,
     sec_sd.name AS loc_school_secondary_district_name,
     meta.model_predictor_all_name,
