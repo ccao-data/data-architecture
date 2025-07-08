@@ -27,9 +27,18 @@ There are two cases in which this column might be null:
 {% docs column_pinval_model_run_id %}
 Run ID for the model run associated with this card and its values.
 
-Prefer this to `run_id`, which comes from `model.assessment_card`,
+Prefer this column to `run_id`, which comes from `model.assessment_card`,
 because `run_id` will be null if the parcel is ineligible for a report
 for this model run. In contrast, this column will never be null.
+
+In the case of a parcel that is ineligible for a PINVAL report, the presence
+of a value for this column might seem confusing because that parcel wasn't
+actually valued in the model run. However, since this table requires a row
+for every parcel in every eligible model run in order to compute parcel
+eligibility in the `is_report_eligible` and `reason_report_ineligible` columns,
+we add parcels to model runs that considered them ineligible. As a result,
+every model run in this table should have a row for every parcel in its data
+year, regardless of whether that parcel was actually part of the model run.
 {% enddocs %}
 
 ## parcel_class
