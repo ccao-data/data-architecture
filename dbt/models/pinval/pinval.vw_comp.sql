@@ -44,14 +44,14 @@ school_districts AS (
 sale_years AS (
     SELECT
         pc.pin,
-        pc.run_id,
+        pc.comps_run_id,
         MIN(EXTRACT(YEAR FROM train.meta_sale_date)) AS min_year,
         MAX(EXTRACT(YEAR FROM train.meta_sale_date)) AS max_year
     FROM pivoted_comp AS pc
     LEFT JOIN {{ ref('model.training_data') }} AS train
         ON pc.comp_pin = train.meta_pin
         AND pc.comp_document_num = train.meta_sale_document_num
-    GROUP BY pc.pin, pc.run_id
+    GROUP BY pc.pin, pc.comps_run_id
 )
 
 SELECT
@@ -89,6 +89,6 @@ LEFT JOIN school_districts AS sec_sd
     ON train.loc_school_secondary_district_geoid = sec_sd.geoid
     AND train.meta_year = sec_sd.year
 LEFT JOIN runs_to_include AS meta
-    ON pc.run_id = meta.run_id
+    ON pc.comps_run_id = meta.run_id
 LEFT JOIN sale_years AS sy
-    ON pc.pin = sy.pin AND pc.run_id = sy.run_id
+    ON pc.pin = sy.pin AND pc.comps_run_id = sy.run_id
