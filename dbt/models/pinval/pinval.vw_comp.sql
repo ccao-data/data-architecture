@@ -4,9 +4,7 @@ WITH runs_to_include AS (
         model_predictor_all_name,
         assessment_triad
     FROM {{ source('model', 'metadata') }}
-    -- This will eventually grab all run_ids where
-    -- run_type == comps
-    WHERE run_id = '2025-04-25-fancy-free-billy'
+    WHERE run_type = 'comps'
 ),
 
 raw_comp AS (
@@ -50,7 +48,7 @@ sale_years AS (
         MIN(EXTRACT(YEAR FROM train.meta_sale_date)) AS min_year,
         MAX(EXTRACT(YEAR FROM train.meta_sale_date)) AS max_year
     FROM pivoted_comp AS pc
-    LEFT JOIN {{ source('model', 'pinval_test_training_data') }} AS train
+    LEFT JOIN {{ source('model', 'training_data') }} AS train
         ON pc.comp_pin = train.meta_pin
         AND pc.comp_document_num = train.meta_sale_document_num
     GROUP BY pc.pin, pc.run_id
@@ -81,7 +79,7 @@ SELECT
             || CAST(sy.max_year AS VARCHAR)
     END AS sale_year_range
 FROM pivoted_comp AS pc
-LEFT JOIN {{ source('model', 'pinval_test_training_data') }} AS train
+LEFT JOIN {{ source('model', 'training_data') }} AS train
     ON pc.comp_pin = train.meta_pin
     AND pc.comp_document_num = train.meta_sale_document_num
 LEFT JOIN school_districts AS elem_sd

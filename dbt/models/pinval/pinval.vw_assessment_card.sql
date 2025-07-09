@@ -6,7 +6,7 @@ WITH runs_to_include AS (
         assessment_data_year,
         assessment_triad
     FROM {{ source('model', 'metadata') }}
-    WHERE run_id = '2025-02-11-charming-eric'
+    WHERE run_type = 'comps'
 ),
 
 final_model_run AS (
