@@ -30,21 +30,19 @@ school_districts AS (
 )
 
 SELECT
-    -- Select PIN from `default.vw_pin_universe` so that we always have a PIN
-    -- even if no row exists in `model.assesssment_card`, in which case
-    -- `meta_pin` will be null
-    uni.pin,
-    -- Use the `parcel_` prefix to mark attributes that come from
-    -- `default.vw_pin_universe` (except `pin` above, since `parcel_pin` would
-    -- be redundant). We use these attributes when explaining to end users
-    -- why a PIN is ineligible for a report, so we want to query these attrs
-    -- even when they duplicate attrs in `model.assessment_card` because we
-    -- need to be sure they will always be non-null
-    uni.township_code AS parcel_township_code,
-    uni.township_name AS parcel_township_name,
-    LOWER(uni.triad_name) AS parcel_triad_name,
-    uni.class AS parcel_class,
-    pin_cd.class_desc AS parcel_class_description,
+    -- For essential attributes like PIN and class, fall back to values from
+    -- `default.vw_pin_universe` when no row exists in `model.assesssment_card`
+    -- so we can ensure a row for every card regardless of whether it was
+    -- included in the assessment set for a given model run. We need these
+    -- essential attrs even when parcels aren't in the assessment set in order
+    -- to generate detailed descriptions for why those parcels don't have
+    -- reports
+    COALESCE(ac.meta_pin, uni.pin) AS meta_pin,
+    COALESCE(ac.township_code, uni.township_code) AS meta_township_code,
+    uni.township_name AS meta_township_name,
+    LOWER(uni.triad_name) AS meta_triad_name,
+    COALESCE(ac.char_class, uni.class) AS char_class,
+    COALESCE(card_cd.class_desc, pin_cd.class_desc) AS char_class_desc,
     -- Three possible reasons we would decline to build a PINVAL report for a
     -- PIN:
     --
@@ -93,8 +91,109 @@ SELECT
             THEN NULL
         ELSE 'unknown'
     END AS reason_report_ineligible,
-    ac.*,
+    -- Select all predictors from `model.assessment_card`. Unfortunately we
+    -- have to add predictors to this list manually whenever we add them to
+    -- the model, but we have a data integrity test on this table that should
+    -- alert us if we ever fall out of sync with the model.
+    --
+    -- Never remove predictors from this list, only add them. Outdated
+    -- predictors are most likely necessary to support reports for prior
+    -- assessment years
+    ac.meta_nbhd_code,
+    ac.meta_sale_count_past_n_years,
+    ac.char_yrblt,
+    ac.char_air,
+    ac.char_apts,
+    ac.char_attic_fnsh,
+    ac.char_attic_type,
+    ac.char_beds,
+    ac.char_bldg_sf,
+    ac.char_bsmt,
+    ac.char_bsmt_fin,
+    ac.char_ext_wall,
+    ac.char_fbath,
+    ac.char_frpl,
+    ac.char_gar1_att,
+    ac.char_gar1_cnst,
+    ac.char_gar1_size,
+    ac.char_hbath,
+    ac.char_land_sf,
+    ac.char_heat,
+    ac.char_ncu,
+    ac.char_porch,
+    ac.char_roof_cnst,
+    ac.char_rooms,
+    ac.char_tp_dsgn,
+    ac.char_type_resd,
+    ac.char_recent_renovation,
+    ac.loc_longitude,
+    ac.loc_latitude,
+    ac.loc_census_tract_geoid,
+    ac.loc_env_flood_fs_factor,
+    ac.loc_school_elementary_district_geoid,
+    ac.loc_school_secondary_district_geoid,
+    ac.loc_access_cmap_walk_nta_score,
+    ac.loc_access_cmap_walk_total_score,
+    ac.loc_tax_municipality_name,
+    ac.prox_num_pin_in_half_mile,
+    ac.prox_num_bus_stop_in_half_mile,
+    ac.prox_num_foreclosure_per_1000_pin_past_5_years,
+    ac.prox_avg_school_rating_in_half_mile,
+    ac.prox_airport_dnl_total,
+    ac.prox_nearest_bike_trail_dist_ft,
+    ac.prox_nearest_cemetery_dist_ft,
+    ac.prox_nearest_cta_route_dist_ft,
+    ac.prox_nearest_cta_stop_dist_ft,
+    ac.prox_nearest_hospital_dist_ft,
+    ac.prox_lake_michigan_dist_ft,
+    ac.prox_nearest_metra_route_dist_ft,
+    ac.prox_nearest_metra_stop_dist_ft,
+    ac.prox_nearest_park_dist_ft,
+    ac.prox_nearest_railroad_dist_ft,
+    ac.prox_nearest_university_dist_ft,
+    ac.prox_nearest_vacant_land_dist_ft,
+    ac.prox_nearest_water_dist_ft,
+    ac.prox_nearest_golf_course_dist_ft,
+    ac.prox_nearest_road_highway_dist_ft,
+    ac.prox_nearest_road_arterial_dist_ft,
+    ac.prox_nearest_road_collector_dist_ft,
+    ac.prox_nearest_road_arterial_daily_traffic,
+    ac.prox_nearest_road_collector_daily_traffic,
+    ac.prox_nearest_new_construction_dist_ft,
+    ac.prox_nearest_stadium_dist_ft,
+    ac.acs5_percent_age_children,
+    ac.acs5_percent_age_senior,
+    ac.acs5_median_age_total,
+    ac.acs5_percent_household_family_married,
+    ac.acs5_percent_household_nonfamily_alone,
+    ac.acs5_percent_education_high_school,
+    ac.acs5_percent_education_bachelor,
+    ac.acs5_percent_education_graduate,
+    ac.acs5_percent_income_below_poverty_level,
+    ac.acs5_median_income_household_past_year,
+    ac.acs5_median_income_per_capita_past_year,
+    ac.acs5_percent_income_household_received_snap_past_year,
+    ac.acs5_percent_employment_unemployed,
+    ac.acs5_median_household_total_occupied_year_built,
+    ac.acs5_median_household_renter_occupied_gross_rent,
+    ac.acs5_percent_household_owner_occupied,
+    ac.other_tax_bill_rate,
+    ac.time_sale_year,
+    ac.time_sale_day,
+    ac.time_sale_quarter_of_year,
+    ac.time_sale_month_of_year,
+    ac.time_sale_day_of_year,
+    ac.time_sale_day_of_month,
+    ac.time_sale_day_of_week,
+    ac.time_sale_post_covid,
+    ac.shp_parcel_centroid_dist_ft_sd,
+    ac.shp_parcel_edge_len_ft_sd,
+    ac.shp_parcel_interior_angle_sd,
+    ac.shp_parcel_mrr_area_ratio,
+    ac.shp_parcel_mrr_side_ratio,
+    ac.shp_parcel_num_vertices,
     ap.pred_pin_final_fmv_round,
+    -- Pull some additional parcel-level info from `model.assessment_pin`
     CAST(
         ROUND(
             ac.pred_card_initial_fmv / NULLIF(ac.char_bldg_sf, 0), 0
@@ -102,10 +201,17 @@ SELECT
     )
         AS pred_card_initial_fmv_per_sqft,
     ap.loc_property_address AS property_address,
+    -- Format some card-level predictors to make them more interpretable to
+    -- non-technical users
     CONCAT(CAST(ac.char_class AS VARCHAR), ': ', card_cd.class_desc)
         AS char_class_detailed,
     elem_sd.name AS school_elementary_district_name,
     sec_sd.name AS school_secondary_district_name,
+    -- Pull model run metadata from `model.metadata` and `model.final_model`.
+    -- This metadata will be duplicated across all cards in a model run, but
+    -- that's fine because this table is only ever intended to be used to
+    -- extract individual rows and use those rows as the basis for PINVAL
+    -- reports, in which case row-level duplication is useful
     run.run_id AS model_run_id,
     run.model_predictor_all_name,
     run.assessment_triad AS assessment_triad_name,
@@ -116,6 +222,9 @@ SELECT
 -- PIN is valid but not in assessment_card
 FROM {{ ref('default.vw_pin_universe') }} AS uni
 INNER JOIN runs_to_include AS run
+-- We use prior year characteristics for model predictors, so we need to
+-- pull parcel information based on the model's data year, not its
+-- assessment year
     ON uni.year = run.assessment_data_year
 LEFT JOIN {{ source('model', 'assessment_card') }} AS ac
     ON run.run_id = ac.run_id
