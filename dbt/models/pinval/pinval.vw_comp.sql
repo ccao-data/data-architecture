@@ -91,4 +91,4 @@ LEFT JOIN school_districts AS sec_sd
 LEFT JOIN runs_to_include AS meta
     ON pc.comps_run_id = meta.run_id
 LEFT JOIN sale_years AS sy
-    ON pc.pin = sy.pin AND pc.comps_run_id = sy.run_id
+    ON pc.pin = sy.pin AND pc.comps_run_id = sy.comps_run_id
