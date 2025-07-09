@@ -23,7 +23,7 @@ pivoted_comp AS (
             comp_pin_{{ i }} AS comp_pin,
             comp_score_{{ i }} AS comp_score,
             comp_document_num_{{ i }} AS comp_document_num,
-            run_id
+            run_id AS comps_run_id
         FROM raw_comp
         {% if not loop.last %}
             UNION ALL
