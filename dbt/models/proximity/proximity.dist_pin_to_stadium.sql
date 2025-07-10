@@ -15,10 +15,14 @@ SELECT
     ARBITRARY(xy.year) AS nearest_stadium_data_year,
     pcl.year
 FROM {{ source('spatial', 'parcel') }} AS pcl
-INNER JOIN
-    ( {{ dist_to_nearest_geometry(ref('spatial.stadium',
-    geometry_type = "point") }} ) AS xy
-    ON pcl.x_3435 = xy.x_3435
-    AND pcl.y_3435 = xy.y_3435
-    AND pcl.year = xy.pin_year
+INNER JOIN (
+    {{ dist_to_nearest_geometry(
+        ref('spatial__stadium'),
+        geometry_type="point"
+    ) }}
+) AS xy
+ON pcl.x_3435 = xy.x_3435
+AND pcl.y_3435 = xy.y_3435
+AND pcl.year = xy.pin_year
 GROUP BY pcl.pin10, pcl.year
+
