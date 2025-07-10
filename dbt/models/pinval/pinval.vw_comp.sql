@@ -57,7 +57,11 @@ sale_years AS (
 )
 
 SELECT
-    pc.*,
+    pc.pin,
+    pc.card,
+    pc.comp_num,
+    pc.comp_score,
+    pc.comp_document_num,
     COALESCE(pc.pin = pc.comp_pin, FALSE) AS is_subject_pin_sale,
     CASE
         WHEN train.ind_pin_is_multicard = TRUE THEN 'Subject card'
@@ -82,8 +86,9 @@ SELECT
             || CAST(sy.max_year AS VARCHAR)
     END AS sale_year_range
 FROM pivoted_comp AS pc
-LEFT JOIN {{ source('model', 'pinval_test_training_data') }} AS train
-    ON pc.comp_pin = train.meta_pin
+LEFT JOIN {{ ref('model.training_data') }} AS train
+    ON pc.run_id = train.run_id
+    AND pc.comp_pin = train.meta_pin
     AND pc.comp_document_num = train.meta_sale_document_num
 LEFT JOIN school_districts AS elem_sd
     ON train.loc_school_elementary_district_geoid = elem_sd.geoid
