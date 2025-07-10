@@ -193,6 +193,7 @@ SELECT
     ac.shp_parcel_mrr_area_ratio,
     ac.shp_parcel_mrr_side_ratio,
     ac.shp_parcel_num_vertices,
+    ac.pred_card_initial_fmv,
     ap.pred_pin_final_fmv_round,
     -- Pull some additional parcel-level info from `model.assessment_pin`
     CAST(
