@@ -232,7 +232,7 @@ SELECT
     -- that's fine because this table is only ever intended to be used to
     -- extract individual rows and use those rows as the basis for PINVAL
     -- reports, in which case row-level duplication is useful
-    run.run_id AS model_run_id,
+    run.run_id,
     run.model_predictor_all_name,
     run.assessment_triad AS assessment_triad_name,
     run.assessment_year,
