@@ -34,6 +34,11 @@ models:
               name: pinval_vw_assessment_card_meta_card_num_null_when_reason_report_ineligible_is_missing_card
               config:
                 where: reason_report_ineligible = 'missing_card'
+      - name: meta_pin
+        description: '{{ doc("shared_column_pin") }}'
+        data_tests:
+          - not_null:
+              name: pinval_assessment_card_meta_pin_not_null
       - name: meta_township_code
         description: '{{ doc("shared_column_township_code") }}'
         data_tests:
@@ -49,11 +54,6 @@ models:
         data_tests:
           - not_null:
               name: pinval_assessment_card_meta_triad_name_not_null
-      - name: pin
-        description: '{{ doc("shared_column_pin") }}'
-        data_tests:
-          - not_null:
-              name: pinval_assessment_card_pin_not_null
       - name: reason_report_ineligible
         description: '{{ doc("column_pinval_reason_report_ineligible") }}'
         data_tests:
@@ -74,7 +74,7 @@ models:
               values:
                 - non_tri
               config:
-                where: LOWER(parcel_triad_name) = LOWER(assessment_triad_name)
+                where: LOWER(meta_triad_name) = LOWER(assessment_triad_name)
           - not_accepted_values:
               name: pinval_vw_assessment_card_reason_report_ineligible_not_unknown
               values:
@@ -83,7 +83,7 @@ models:
         description: '{{ doc("column_pinval_run_id") }}'
         data_tests:
           - not_null:
-              name: pinval_assessment_card_run_id_not_null
+              name: pinval_assessment_card_meta_run_id_not_null
 
     data_tests:
       - expression_is_true:
@@ -106,8 +106,8 @@ models:
               )
             ) = 0
       - unique_combination_of_columns:
-          name: pinval_assessment_card_unique_run_id_pin_card
+          name: pinval_assessment_card_unique_run_id_meta_pin_meta_card_num
           combination_of_columns:
             - run_id
-            - pin
+            - meta_pin
             - meta_card_num

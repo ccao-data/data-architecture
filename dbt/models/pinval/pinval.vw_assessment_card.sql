@@ -38,6 +38,7 @@ SELECT
     -- to generate detailed descriptions for why those parcels don't have
     -- reports
     COALESCE(ac.meta_pin, uni.pin) AS meta_pin,
+    ac.meta_card_num,
     COALESCE(ac.township_code, uni.township_code) AS meta_township_code,
     uni.township_name AS meta_township_name,
     LOWER(uni.triad_name) AS meta_triad_name,
