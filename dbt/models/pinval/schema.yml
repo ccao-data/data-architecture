@@ -13,57 +13,47 @@ models:
   - name: pinval.vw_assessment_card
     description: '{{ doc("view_pinval_vw_assessment_card") }}'
     columns:
+      - name: char_class
+        description: '{{ doc("column_pinval_char_class") }}'
+        data_tests:
+          - not_null:
+              name: pinval_assessment_card_char_class_not_null
+              config:
+                where: reason_report_ineligible = 'non_regression_class'
+      - name: char_class_desc
+        description: '{{ doc("column_pinval_char_class_desc") }}'
       - name: is_report_eligible
         description: '{{ doc("column_pinval_is_report_eligible") }}'
         data_tests:
           - not_null:
               name: pinval_assessment_card_is_report_eligible_not_null
       - name: meta_card_num
+        description: '{{ doc("column_pinval_meta_card_num") }}'
         data_tests:
           - is_null:
               name: pinval_vw_assessment_card_meta_card_num_null_when_reason_report_ineligible_is_missing_card
               config:
                 where: reason_report_ineligible = 'missing_card'
-      - name: model_run_id
-        description: '{{ doc("column_pinval_model_run_id") }}'
+      - name: meta_pin
+        description: '{{ doc("shared_column_pin") }}'
         data_tests:
           - not_null:
-              name: pinval_assessment_card_model_run_id_not_null
-      - name: parcel_class
-        description: '{{ doc("column_pinval_parcel_class") }}'
+              name: pinval_assessment_card_meta_pin_not_null
+      - name: meta_township_code
+        description: '{{ doc("shared_column_township_code") }}'
         data_tests:
           - not_null:
-              name: pinval_assessment_card_parcel_class_not_null
-              config:
-                where: reason_report_ineligible = 'non_regression_class'
-      - name: parcel_class_description
-        description: '{{ doc("column_pinval_parcel_class_description") }}'
-      - name: parcel_township_code
-        description: '{{ doc("column_pinval_parcel_township_code") }}'
-        data_tests:
-          - columns_match:
-              name: pinval_assessment_card_parcel_township_code_matches_meta_township_code
-              matching_column_names:
-                - meta_township_code
-              config:
-                where: meta_township_code IS NOT NULL
-          - not_null:
-              name: pinval_assessment_card_parcel_township_code_not_null
-      - name: parcel_township_name
-        description: '{{ doc("column_pinval_parcel_township_name") }}'
+              name: pinval_assessment_card_meta_township_code_not_null
+      - name: meta_township_name
+        description: '{{ doc("shared_column_township_name") }}'
         data_tests:
           - not_null:
-              name: pinval_assessment_card_parcel_township_name_not_null
-      - name: parcel_triad_name
-        description: '{{ doc("column_pinval_parcel_triad_name") }}'
+              name: pinval_assessment_card_meta_township_name_not_null
+      - name: meta_triad_name
+        description: '{{ doc("shared_column_triad_name") }}'
         data_tests:
           - not_null:
-              name: pinval_assessment_card_parcel_triad_name_not_null
-      - name: pin
-        description: '{{ doc("column_pinval_pin") }}'
-        data_tests:
-          - not_null:
-              name: pinval_assessment_card_pin_not_null
+              name: pinval_assessment_card_meta_triad_name_not_null
       - name: reason_report_ineligible
         description: '{{ doc("column_pinval_reason_report_ineligible") }}'
         data_tests:
@@ -84,16 +74,53 @@ models:
               values:
                 - non_tri
               config:
-                where: LOWER(parcel_triad_name) = LOWER(assessment_triad_name)
+                where: LOWER(meta_triad_name) = LOWER(assessment_triad_name)
           - not_accepted_values:
               name: pinval_vw_assessment_card_reason_report_ineligible_not_unknown
               values:
                 - unknown
+      - name: run_id
+        description: '{{ doc("column_pinval_run_id") }}'
+        data_tests:
+          - not_null:
+              name: pinval_assessment_card_meta_run_id_not_null
 
     data_tests:
+      - expression_is_true:
+          name: pinval_assessment_card_contains_a_column_for_all_predictors
+          # Test that every `model_predictor_all_name` array for every row is a
+          # subset of the columns in the table. This ensures that we never face
+          # a situation where we accidentally forget to update columns to add
+          # new model predictors, which might cause empty characteristics in
+          # the rendered reports.
+          #
+          # This test query is a bit complicated, but basically we're
+          # using `ARRAY_EXCEPT()` to perform a set difference between each
+          # `model_predictor_all_name` array on the left side, and the columns
+          # in the view on the right side. The `CARDINALITY(...) = 0` expression
+          # ensures that we return any rows where the length of the set
+          # difference is >0.
+          #
+          # It'd be nice to use the `model` Relation that is the first argument
+          # to the `expression_is_true` generic test instead of relying on
+          # `ref()` to extract the database and table name, but since this
+          # expression gets evaluated at compile time, it does not point to
+          # the correct model if we try to reference `model`
+          expression: |
+            CARDINALITY(
+              ARRAY_EXCEPT(
+                model_predictor_all_name,
+                (
+                  SELECT ARRAY_AGG(column_name)
+                  FROM information_schema.columns
+                  WHERE table_schema = '{{ ref("pinval.vw_assessment_card").schema }}'
+                    AND table_name = '{{ ref("pinval.vw_assessment_card").identifier }}'
+                )
+              )
+            ) = 0
       - unique_combination_of_columns:
-          name: pinval_assessment_card_unique_run_id_pin_card
+          name: pinval_assessment_card_unique_run_id_meta_pin_meta_card_num
           combination_of_columns:
             - run_id
-            - pin
+            - meta_pin
             - meta_card_num

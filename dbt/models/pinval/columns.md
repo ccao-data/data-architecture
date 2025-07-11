@@ -1,3 +1,24 @@
+## char_class
+
+{% docs column_pinval_char_class %}
+The class for the card or parcel that this row represents.
+
+If a row represents a card that was part of the model assessment set, then
+this column will be the card class that we used as a predictor in the model.
+If a row instead represents a parcel that was _not_ part of the assessment set,
+then this column will be the parcel class, and is used in the
+`reason_report_ineligible` column to explain why we excluded the parcel from
+the assessment set.
+
+This column will never be null.
+{% enddocs %}
+
+## char_class_desc
+
+{% docs column_pinval_char_class_desc %}
+A short description explaining the code contained in `char_class`
+{% enddocs %}
+
 ## is_report_eligible
 
 {% docs column_pinval_is_report_eligible %}
@@ -6,7 +27,7 @@ When `TRUE`, this PIN is eligible for a PINVAL report for the given model run
 
 ## meta_card_num
 
-{% docs meta_card_num %}
+{% docs column_pinval_meta_card_num %}
 The card number for the card.
 
 There are two cases in which this column might be null:
@@ -20,86 +41,6 @@ There are two cases in which this column might be null:
   causes the model to ignore the parcel for valuation purposes. In this case,
   the `reason_report_ineligible` column will have the value `'missing_card'`.
 
-{% enddocs %}
-
-## model_run_id
-
-{% docs column_pinval_model_run_id %}
-Run ID for the model run associated with this card and its values.
-
-Prefer this column to `run_id`, which comes from `model.assessment_card`,
-because `run_id` will be null if the parcel is ineligible for a report
-for this model run. In contrast, this column will never be null.
-
-In the case of a parcel that is ineligible for a PINVAL report, the presence
-of a value for this column might seem confusing because that parcel wasn't
-actually valued in the model run. However, since this table requires a row
-for every parcel in every eligible model run in order to compute parcel
-eligibility in the `is_report_eligible` and `reason_report_ineligible` columns,
-we add parcels to model runs that considered them ineligible. As a result,
-every model run in this table should have a row for every parcel in its data
-year, regardless of whether that parcel was actually part of the model run.
-{% enddocs %}
-
-## parcel_class
-
-{% docs column_pinval_parcel_class %}
-The class for the parcel that this card is associated with.
-
-This field is different from `char_class`, which comes from
-`model.assessment_card` and represents the card class. Card classes do not
-necessarily match the class of the parcel that the card is associated with.
-This field will also always be present even if `char_class` is null, because
-this field comes from `default.vw_pin_universe` which contains PINs that
-are not present in the assessment set due to not being a residential
-regression class.
-{% enddocs %}
-
-## parcel_class_description
-
-{% docs column_pinval_parcel_class_description %}
-The short description for the card's parcel class.
-
-See `parcel_class` for details on the difference between parcel classes and
-card classes in the context of this view.
-{% enddocs %}
-
-## parcel_township_code
-
-{% docs column_pinval_parcel_township_code %}
-Township code for the card's parcel.
-
-See `parcel_class` for details on the difference between parcel classes and
-card classes in the context of this view.
-{% enddocs %}
-
-## parcel_township_name
-
-{% docs column_pinval_parcel_township_name %}
-Township name for the card's parcel.
-
-See `parcel_class` for details on the difference between parcel classes and
-card classes in the context of this view.
-{% enddocs %}
-
-## parcel_triad_name
-
-{% docs column_pinval_parcel_triad_name %}
-Triad name for the card's parcel.
-
-See `parcel_class` for details on the difference between parcel classes and
-card classes in the context of this view.
-{% enddocs %}
-
-## pin
-
-{% docs column_pinval_pin %}
-The card's parcel identification number (PIN).
-
-In general, you should prefer this column to `meta_pin` when querying from this
-table, since `meta_pin` comes from `model.assessment_card` and will be null for
-PINs that the res model does not value. You can safely use `meta_pin` when
-filtering by `is_report_eligible = TRUE`, however.
 {% enddocs %}
 
 ## reason_report_ineligible
@@ -127,4 +68,19 @@ Possible values for this variable are:
 - `NULL`: The PIN is eligible for a PINVAL report. This should only ever be
   the case when `is_report_eligible` is `TRUE`, and our data integrity
   tests check to make sure this is true
+{% enddocs %}
+
+## run_id
+
+{% docs column_pinval_run_id %}
+Run ID for the model run associated with this card and its values.
+
+In the case of a parcel that is ineligible for a PINVAL report, the presence
+of a value for this column might seem confusing because that parcel wasn't
+actually valued in the model run. However, since this table requires a row
+for every parcel in every eligible model run in order to compute parcel
+eligibility in the `is_report_eligible` and `reason_report_ineligible` columns,
+we add parcels to model runs that considered them ineligible. As a result,
+every model run in this table should have a row for every parcel in its data
+year, regardless of whether that parcel was actually part of the model run.
 {% enddocs %}
