@@ -88,6 +88,19 @@ models:
     data_tests:
       - expression_is_true:
           name: pinval_assessment_card_contains_a_column_for_all_predictors
+          # Test that every `model_predictor_all_name` array for every row is a
+          # subset of the columns in the table. This ensures that we never face
+          # a situation where we accidentally forget to update columns to add
+          # new model predictors, which might cause empty characteristics in
+          # the rendered reports.
+          #
+          # This test query is a bit complicated, but basically we're
+          # using `ARRAY_EXCEPT()` to perform a set difference between each
+          # `model_predictor_all_name` array on the left side, and the columns
+          # in the view on the right side. The `CARDINALITY(...) = 0` expression
+          # ensures that we return any rows where the length of the set
+          # difference is >0.
+          #
           # It'd be nice to use the `model` Relation that is the first argument
           # to the `expression_is_true` generic test instead of relying on
           # `ref()` to extract the database and table name, but since this
