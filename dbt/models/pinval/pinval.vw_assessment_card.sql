@@ -203,6 +203,7 @@ SELECT
     )
         AS pred_card_initial_fmv_per_sqft,
     ap.loc_property_address AS property_address,
+    ap.loc_property_city,
     CAST(ap.meta_pin_num_cards AS INTEGER) AS ap_meta_pin_num_cards,
     -- Format some card-level predictors to make them more interpretable to
     -- non-technical users
