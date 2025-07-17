@@ -1,3 +1,13 @@
+## assessment_year
+
+{% docs column_pinval_assessment_year %}
+Assessment year for the model run associated with this card and its values.
+
+An assessment year can map to multiple model runs, since model runs can be
+different for different towns in a triad. However, cards should be unique
+by assessment year in this view.
+{% enddocs %}
+
 ## char_class
 
 {% docs column_pinval_char_class %}
@@ -75,12 +85,8 @@ Possible values for this variable are:
 {% docs column_pinval_run_id %}
 Run ID for the model run associated with this card and its values.
 
-In the case of a parcel that is ineligible for a PINVAL report, the presence
-of a value for this column might seem confusing because that parcel wasn't
-actually valued in the model run. However, since this table requires a row
-for every parcel in every eligible model run in order to compute parcel
-eligibility in the `is_report_eligible` and `reason_report_ineligible` columns,
-we add parcels to model runs that considered them ineligible. As a result,
-every model run in this table should have a row for every parcel in its data
-year, regardless of whether that parcel was actually part of the model run.
+For PINs that are in the assessment triad for a given assessment year,
+this column will correspond to the final model run ID for the PIN's township
+in that assessment year. For PINs that are _not_ in the assessment triad, this
+column will be null.
 {% enddocs %}

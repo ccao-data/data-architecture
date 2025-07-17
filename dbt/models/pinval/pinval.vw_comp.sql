@@ -2,11 +2,15 @@ WITH runs_to_include AS (
     SELECT
         run_id,
         model_predictor_all_name,
-        assessment_triad
+        assessment_triad,
+        assessment_year
     FROM {{ source('model', 'metadata') }}
     -- This will eventually grab all run_ids where
     -- run_type == comps
-    WHERE run_id = '2025-04-25-fancy-free-billy'
+    WHERE run_id IN (
+            '2024-06-18-calm-nathan',
+            '2025-04-25-fancy-free-billy'
+        )
 ),
 
 raw_comp AS (
@@ -81,6 +85,7 @@ SELECT
     sec_sd.name AS loc_school_secondary_district_name,
     meta.model_predictor_all_name,
     meta.assessment_triad,
+    meta.assessment_year,
     CASE
         WHEN sy.min_year = sy.max_year THEN CAST(sy.min_year AS VARCHAR)
         ELSE CAST(sy.min_year AS VARCHAR)

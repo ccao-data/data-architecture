@@ -1,22 +1,73 @@
+-- Get some metadata for the model runs that we want to use as the basis for
+-- PINVAL reports
 WITH runs_to_include AS (
     SELECT
-        run_id,
-        model_predictor_all_name,
-        assessment_year,
-        assessment_data_year,
-        assessment_triad
-    FROM {{ source('model', 'metadata') }}
-    WHERE run_id = '2025-02-11-charming-eric'
+        meta.run_id,
+        meta.model_predictor_all_name,
+        meta.assessment_year,
+        meta.assessment_data_year,
+        meta.assessment_triad,
+        SUBSTRING(final.run_id, 1, 10) AS final_model_run_date,
+        final.township_code_coverage
+    FROM {{ source('model', 'metadata') }} AS meta
+    INNER JOIN {{ ref('model.final_model') }} AS final
+        ON meta.run_id = final.run_id
+    WHERE meta.run_id IN (
+            '2024-02-06-relaxed-tristan',
+            '2024-03-17-stupefied-maya',
+            '2025-02-11-charming-eric'
+        )
 ),
 
-final_model_run AS (
+-- Get the universe of PINs we want to produce reports for, even if those PINs
+-- are not eligible for reports (in which case we will generate error pages for
+-- them explaining why).
+pin_universe AS (
     SELECT
-        year,
-        triad_code,
-        SUBSTRING(run_id, 1, 10) AS final_model_run_date
-    FROM {{ ref('model.final_model') }}
-    WHERE type = 'res'
-        AND is_final
+        uni.*,
+        run.run_id,
+        -- These are the only run metadata fields that are necessary to generate
+        -- error pages
+        run.assessment_year,
+        run.assessment_triad
+    FROM {{ ref('default.vw_pin_universe') }} AS uni
+    INNER JOIN (
+        SELECT
+            *,
+            ROW_NUMBER()
+                -- When an assessment year has two models, pick the more recent
+                -- one
+                OVER (PARTITION BY assessment_data_year ORDER BY run_id DESC)
+                AS row_num
+        FROM runs_to_include
+    ) AS run
+    -- We use prior year characteristics for model predictors, so we need to
+    -- pull parcel information based on the model's data year, not its
+        -- assessment year
+        ON uni.year = run.assessment_data_year
+        AND run.row_num = 1
+),
+
+-- Get the assessment set for each model run that we want to use for reports
+assessment_card AS (
+    SELECT
+        ac.*,
+        run.model_predictor_all_name,
+        run.assessment_year,
+        run.assessment_data_year,
+        run.assessment_triad,
+        run.final_model_run_date
+    FROM {{ source('model', 'assessment_card') }} AS ac
+    INNER JOIN (
+        SELECT
+            run.*,
+            t.township_code
+        FROM runs_to_include AS run
+        -- Handle the use of different model runs for different towns
+        CROSS JOIN UNNEST(run.township_code_coverage) AS t (township_code)
+    ) AS run
+        ON ac.run_id = run.run_id
+        AND ac.meta_township_code = run.township_code
 ),
 
 school_districts AS (
@@ -44,6 +95,12 @@ SELECT
     LOWER(uni.triad_name) AS meta_triad_name,
     COALESCE(ac.char_class, uni.class) AS char_class,
     COALESCE(card_cd.class_desc, pin_cd.class_desc) AS char_class_desc,
+    COALESCE(ac.assessment_year, uni.assessment_year) AS assessment_year,
+    COALESCE(ac.assessment_triad, uni.assessment_triad)
+        AS assessment_triad_name,
+    ac.run_id,
+    ac.model_predictor_all_name,
+    ac.final_model_run_date,
     -- Three possible reasons we would decline to build a PINVAL report for a
     -- PIN:
     --
@@ -68,7 +125,7 @@ SELECT
     (
         ac.meta_pin IS NOT NULL
         AND ac.meta_card_num IS NOT NULL
-        AND LOWER(uni.triad_name) = LOWER(run.assessment_triad)
+        AND LOWER(uni.triad_name) = LOWER(uni.assessment_triad)
     ) AS is_report_eligible,
     CASE
         -- In some rare cases the parcel class can be different from
@@ -83,12 +140,12 @@ SELECT
             OR NOT pin_cd.regression_class
             OR (pin_cd.modeling_group NOT IN ('SF', 'MF'))
             THEN 'non_regression_class'
-        WHEN LOWER(uni.triad_name) != LOWER(run.assessment_triad) THEN 'non_tri'
+        WHEN LOWER(uni.triad_name) != LOWER(uni.assessment_triad) THEN 'non_tri'
         WHEN ac.meta_card_num IS NULL THEN 'missing_card'
         WHEN
             ac.meta_pin IS NOT NULL
             AND ac.meta_card_num IS NOT NULL
-            AND LOWER(uni.triad_name) = LOWER(run.assessment_triad)
+            AND LOWER(uni.triad_name) = LOWER(uni.assessment_triad)
             THEN NULL
         ELSE 'unknown'
     END AS reason_report_ineligible,
@@ -131,6 +188,7 @@ SELECT
     ac.loc_latitude,
     ac.loc_census_tract_geoid,
     ac.loc_env_flood_fs_factor,
+    ac.loc_env_airport_noise_dnl,
     ac.loc_school_elementary_district_geoid,
     ac.loc_school_secondary_district_geoid,
     ac.loc_access_cmap_walk_nta_score,
@@ -139,6 +197,8 @@ SELECT
     ac.prox_num_pin_in_half_mile,
     ac.prox_num_bus_stop_in_half_mile,
     ac.prox_num_foreclosure_per_1000_pin_past_5_years,
+    ac.prox_num_school_in_half_mile,
+    ac.prox_num_school_with_rating_in_half_mile,
     ac.prox_avg_school_rating_in_half_mile,
     ac.prox_airport_dnl_total,
     ac.prox_nearest_bike_trail_dist_ft,
@@ -147,10 +207,12 @@ SELECT
     ac.prox_nearest_cta_stop_dist_ft,
     ac.prox_nearest_hospital_dist_ft,
     ac.prox_lake_michigan_dist_ft,
+    ac.prox_nearest_major_road_dist_ft,
     ac.prox_nearest_metra_route_dist_ft,
     ac.prox_nearest_metra_stop_dist_ft,
     ac.prox_nearest_park_dist_ft,
     ac.prox_nearest_railroad_dist_ft,
+    ac.prox_nearest_secondary_road_dist_ft,
     ac.prox_nearest_university_dist_ft,
     ac.prox_nearest_vacant_land_dist_ft,
     ac.prox_nearest_water_dist_ft,
@@ -165,6 +227,8 @@ SELECT
     ac.acs5_percent_age_children,
     ac.acs5_percent_age_senior,
     ac.acs5_median_age_total,
+    ac.acs5_percent_mobility_no_move,
+    ac.acs5_percent_mobility_moved_from_other_state,
     ac.acs5_percent_household_family_married,
     ac.acs5_percent_household_nonfamily_alone,
     ac.acs5_percent_education_high_school,
@@ -178,7 +242,14 @@ SELECT
     ac.acs5_median_household_total_occupied_year_built,
     ac.acs5_median_household_renter_occupied_gross_rent,
     ac.acs5_percent_household_owner_occupied,
+    ac.acs5_percent_household_total_occupied_w_sel_cond,
+    ac.acs5_percent_mobility_moved_in_county,
     ac.other_tax_bill_rate,
+    ac.other_school_district_elementary_avg_rating,
+    ac.other_school_district_secondary_avg_rating,
+    ac.ccao_is_active_exe_homeowner,
+    ac.ccao_is_corner_lot,
+    ac.ccao_n_years_exe_homeowner,
     ac.time_sale_year,
     ac.time_sale_day,
     ac.time_sale_quarter_of_year,
@@ -210,48 +281,21 @@ SELECT
     CONCAT(CAST(ac.char_class AS VARCHAR), ': ', card_cd.class_desc)
         AS char_class_detailed,
     COALESCE(
-        CAST(run.assessment_year AS INTEGER) >= 2025
+        CAST(ac.assessment_year AS INTEGER) >= 2025
         AND ap.meta_pin_num_cards IN (2, 3), FALSE
     ) AS is_parcel_small_multicard,
-    COALESCE(
-        CAST(run.assessment_year AS INTEGER) >= 2025
-        AND ap.meta_pin_num_cards IN (2, 3)
-        AND ROW_NUMBER() OVER (
-            PARTITION BY ac.meta_pin, ac.run_id
-            ORDER BY COALESCE(ac.char_bldg_sf, 0) DESC, ac.meta_card_num ASC
-        ) = 1, FALSE
-    ) AS is_frankencard,
     CASE
-        WHEN CAST(run.assessment_year AS INTEGER) >= 2025
+        WHEN CAST(ac.assessment_year AS INTEGER) >= 2025
             AND ap.meta_pin_num_cards IN (2, 3)
             THEN SUM(COALESCE(ac.char_bldg_sf, 0)) OVER (
                 PARTITION BY ac.meta_pin, ac.run_id
             )
     END AS combined_bldg_sf,
     elem_sd.name AS school_elementary_district_name,
-    sec_sd.name AS school_secondary_district_name,
-    -- Pull model run metadata from `model.metadata` and `model.final_model`.
-    -- This metadata will be duplicated across all cards in a model run, but
-    -- that's fine because this table is only ever intended to be used to
-    -- extract individual rows and use those rows as the basis for PINVAL
-    -- reports, in which case row-level duplication is useful
-    run.run_id,
-    run.model_predictor_all_name,
-    run.assessment_triad AS assessment_triad_name,
-    run.assessment_year,
-    final.final_model_run_date
--- We use pin_universe as the base for the query rather than assessment_card
--- because we need to generate explanations for why reports are missing if a
--- PIN is valid but not in assessment_card
-FROM {{ ref('default.vw_pin_universe') }} AS uni
-INNER JOIN runs_to_include AS run
--- We use prior year characteristics for model predictors, so we need to
--- pull parcel information based on the model's data year, not its
--- assessment year
-    ON uni.year = run.assessment_data_year
-LEFT JOIN {{ source('model', 'assessment_card') }} AS ac
-    ON run.run_id = ac.run_id
-    AND uni.pin = ac.meta_pin
+    sec_sd.name AS school_secondary_district_name
+FROM pin_universe AS uni
+FULL OUTER JOIN assessment_card AS ac
+    ON uni.pin = ac.meta_pin
     AND uni.year = ac.meta_year
 LEFT JOIN {{ source('model', 'assessment_pin') }} AS ap
     ON ac.meta_pin = ap.meta_pin
@@ -262,9 +306,7 @@ LEFT JOIN school_districts AS elem_sd
 LEFT JOIN school_districts AS sec_sd
     ON ac.loc_school_secondary_district_geoid = sec_sd.geoid
     AND ac.meta_year = sec_sd.year
-LEFT JOIN final_model_run AS final
-    ON run.assessment_year = final.year
--- Join to class dict twice, since PIN class and card class can be different
+--- Join to class dict twice, since PIN class and card class can be different
 LEFT JOIN {{ ref('ccao.class_dict') }} AS pin_cd
     ON uni.class = pin_cd.class_code
 LEFT JOIN {{ ref('ccao.class_dict') }} AS card_cd
