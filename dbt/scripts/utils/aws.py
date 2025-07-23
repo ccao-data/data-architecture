@@ -1,12 +1,7 @@
 import os
 import time
-from datetime import datetime
 
 import boto3
-
-from utils.helpers import create_python_logger
-
-logger = create_python_logger(__name__)
 
 
 class AWSClient:
@@ -38,46 +33,6 @@ class AWSClient:
             s3_prefix if s3_prefix else os.getenv("AWS_S3_PREFIX", "iasworld")
         )
 
-    def run_and_wait_for_crawler(self, crawler_name) -> None:
-        initial_response = self.glue_client.get_crawler(Name=crawler_name)
-        if initial_response["Crawler"]["State"] == "READY":  # type: ignore
-            logger.info(f"Starting AWS Glue crawler {crawler_name}")
-            self.glue_client.start_crawler(Name=crawler_name)
-        else:
-            logger.warning(
-                f"AWS Glue crawler {crawler_name} is already running"
-            )
-            return
-
-        # Wait for the crawler to complete before triggering dbt tests
-        time_elapsed = 0
-        time_increment = 30
-        timeout = 1200  # 20 minute timeout
-        job_complete = False
-        while time_elapsed < timeout:
-            response = self.glue_client.get_crawler(Name=crawler_name)
-            state = response["Crawler"]["State"]  # type: ignore
-            if state in ["READY", "STOPPING"]:
-                logger.info(f"Crawler {crawler_name} has finished")
-                job_complete = True
-                break
-            elif state == "RUNNING":
-                logger.info(
-                    (
-                        f"Crawler {crawler_name} is running: "
-                        f"{time_elapsed}s elapsed"
-                    )
-                )
-            time.sleep(time_increment)
-            time_elapsed += time_increment
-        if not job_complete:
-            logger.warning(
-                (
-                    f"Crawler {crawler_name} was still running after the {timeout}s"
-                    f"timeout; continuing execution without confirming its status"
-                )
-            )
-
     def upload_logs_to_cloudwatch(
         self, log_group_name: str, log_stream_name: str, log_file_path: str
     ) -> None:
@@ -91,40 +46,26 @@ class AWSClient:
         """
         try:
             with open(log_file_path, "r") as log_file:
-                log_events: list[dict[str, int | str]] = []
+                log_events = []
                 for line in log_file:
-                    timestamp_str, message = line.split(" ", 1)
-                    timestamp: int = int(
-                        (
-                            datetime.strptime(
-                                timestamp_str, "%Y-%m-%d_%H:%M:%S.%f"
-                            ).timestamp()
-                            * 1000
-                        )
-                    )
                     log_events.append(
                         {
-                            "timestamp": timestamp,
-                            "message": message.strip(),
+                            "timestamp": int(time.time() * 1000),
+                            "message": line.strip(),
                         }
                     )
 
-            # Sort log events by timestamp
-            log_events.sort(key=lambda event: event["timestamp"])
-
-            # CloudWatch doesn't allow colon in stream names, so use a dash
-            log_stream_name_fmt = log_stream_name.replace(":", "-")
             try:
                 self.logs_client.create_log_stream(
                     logGroupName=log_group_name,
-                    logStreamName=log_stream_name_fmt,
+                    logStreamName=log_stream_name,
                 )
             except self.logs_client.exceptions.ResourceAlreadyExistsException:
                 pass
 
             self.logs_client.put_log_events(
                 logGroupName=log_group_name,
-                logStreamName=log_stream_name_fmt,
+                logStreamName=log_stream_name,
                 logEvents=log_events,
             )
             print("Successfully uploaded log file to CloudWatch")
