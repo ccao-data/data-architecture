@@ -3,6 +3,7 @@
 # Run `python scripts/export_models.py --help` for details.
 import argparse
 import os
+from datetime import date
 
 from utils import constants
 from utils.aws import AWSClient
@@ -108,7 +109,7 @@ if __name__ == "__main__":
 
     aws = AWSClient()
     aws.upload_logs_to_cloudwatch(
-        log_group_name="/ccao/jobs/qc_books",
-        log_stream_name="daily_export",
+        log_group_name="/ccao/jobs/qc_workbooks",
+        log_stream_name=f"daily_export_{date.today()}",
         log_file_path=PATH_MODELS_LOG,
     )
