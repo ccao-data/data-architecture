@@ -1,13 +1,12 @@
 # Export dbt models to Excel files.
 #
 # Run `python scripts/export_models.py --help` for details.
-
 import argparse
 import logging
 from datetime import date
 
 from utils import constants
-from utils.aws import AWSClient
+from utils.aws import upload_logs_to_cloudwatch
 from utils.export import export_models
 
 # Create and start the logger
@@ -103,8 +102,7 @@ if __name__ == "__main__":
     except Exception as e:
         logger.error(e)
 
-    aws = AWSClient()
-    aws.upload_logs_to_cloudwatch(
+    upload_logs_to_cloudwatch(
         log_group_name="/ccao/jobs/qc_workbooks",
         log_stream_name=f"daily_export_{date.today()}",
         log_file_path="models.log",
