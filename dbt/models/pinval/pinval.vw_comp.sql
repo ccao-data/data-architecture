@@ -36,6 +36,19 @@ pivoted_comp AS (
     {% endfor %}
 ),
 
+training_data AS (
+    SELECT
+        train.*,
+        meta.model_predictor_all_name
+    FROM {{ ref('model.training_data') }} AS train
+    LEFT JOIN {{ source('model', 'metadata') }} AS meta
+        ON train.run_id = meta.run_id
+    WHERE train.run_id IN (
+            '2024-03-17-stupefied-maya',
+            '2025-02-11-charming-eric'
+        )
+),
+
 school_districts AS (
     SELECT
         geoid,
@@ -87,9 +100,8 @@ SELECT
     train.char_bldg_sf AS combined_bldg_sf,
     elem_sd.name AS loc_school_elementary_district_name,
     sec_sd.name AS loc_school_secondary_district_name,
-    meta.model_predictor_all_name,
-    meta.assessment_triad,
-    meta.assessment_year,
+    train.model_predictor_all_name,
+    train.assessment_year,
     CASE
         WHEN sy.min_year = sy.max_year THEN CAST(sy.min_year AS VARCHAR)
         ELSE CAST(sy.min_year AS VARCHAR)
@@ -97,7 +109,7 @@ SELECT
             || CAST(sy.max_year AS VARCHAR)
     END AS sale_year_range
 FROM pivoted_comp AS pc
-LEFT JOIN {{ ref('model.training_data') }} AS train
+LEFT JOIN training_data AS train
 -- Join on year rather than run ID because `model.training_data` is
 -- guaranteed to be unique by year but may have a different run ID
 -- than the comps run
@@ -110,7 +122,5 @@ LEFT JOIN school_districts AS elem_sd
 LEFT JOIN school_districts AS sec_sd
     ON train.loc_school_secondary_district_geoid = sec_sd.geoid
     AND train.meta_year = sec_sd.year
-LEFT JOIN runs_to_include AS meta
-    ON pc.run_id = meta.run_id
 LEFT JOIN sale_years AS sy
     ON pc.pin = sy.pin AND pc.run_id = sy.run_id
