@@ -2,9 +2,16 @@
 #
 # Run `python scripts/export_models.py --help` for details.
 import argparse
+import logging
+from datetime import date
 
 from utils import constants
+from utils.aws import upload_logs_to_cloudwatch
 from utils.export import export_models
+
+# Create and start the logger
+logger = logging.getLogger(__name__)
+
 
 CLI_DESCRIPTION = """Export dbt models to Excel files.
 
@@ -75,12 +82,28 @@ def parse_args():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(filename="models.log", level=logging.INFO)
+    logger.info("Starting export_models.py script")
+
     args = parse_args()
-    export_models(
-        args.target,
-        args.select,
-        args.selector,
-        args.rebuild,
-        args.where,
-        args.output_dir,
+
+    try:
+        export_models(
+            args.target,
+            args.select,
+            args.selector,
+            args.rebuild,
+            args.where,
+            args.output_dir,
+        )
+
+        logger.info("Export completed successfully.")
+
+    except Exception as e:
+        logger.error(e)
+
+    upload_logs_to_cloudwatch(
+        log_group_name="/ccao/jobs/qc_workbooks",
+        log_stream_name=f"daily_export_{date.today()}",
+        log_file_path="models.log",
     )
