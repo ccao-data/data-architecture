@@ -91,7 +91,7 @@ SELECT
     COALESCE(ac.meta_pin, uni.pin) AS meta_pin,
     ac.meta_card_num,
     COALESCE(ac.township_code, uni.township_code) AS meta_township_code,
-    uni.township_name AS meta_township_name,
+    COALESCE(twn.township_name, uni.township_name) AS meta_township_name,
     LOWER(uni.triad_name) AS meta_triad_name,
     COALESCE(ac.char_class, uni.class) AS char_class,
     COALESCE(card_cd.class_desc, pin_cd.class_desc) AS char_class_desc,
@@ -192,6 +192,8 @@ LEFT JOIN school_districts AS elem_sd
 LEFT JOIN school_districts AS sec_sd
     ON ac.loc_school_secondary_district_geoid = sec_sd.geoid
     AND ac.meta_year = sec_sd.year
+LEFT JOIN {{ source('spatial', 'township') }} AS twn
+    ON ac.township_code = twn.township_code
 --- Join to class dict twice, since PIN class and card class can be different
 LEFT JOIN {{ ref('ccao.class_dict') }} AS pin_cd
     ON uni.class = pin_cd.class_code
