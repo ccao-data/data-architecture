@@ -63,8 +63,7 @@ read_and_standardize <- function(file_path,
     mutate(across(everything(), as.character))
 
   df %>%
-    mutate(pin = !!sym(pin14_col)) %>%
-    select(pin, zoning_code = !!sym(zone_col)) %>%
+    select(pin = matches(c("PIN14", "PARID")), zoning_code = !!sym(zone_col)) %>%
     # Drop observations without a zoning code
     filter(!is.na(pin), !is.na(zoning_code))
 }
