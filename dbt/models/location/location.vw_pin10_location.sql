@@ -1,4 +1,5 @@
 -- View containing each of the PIN-level location (spatial joins)
+
 SELECT
     pin.pin10,
     pin.year,
@@ -85,7 +86,21 @@ SELECT
     school.school_data_year,
 
     tax.tax_municipality_num,
-    tax.tax_municipality_name,
+    COALESCE(
+        tax.tax_municipality_name,
+        CASE
+            WHEN political.cook_municipality_name = 'CICERO' THEN 'CICERO'
+            WHEN pin.pin10 IN (
+                    SELECT SUBSTR(parid, 1, 10)
+                    FROM iasworld.pardat
+                    WHERE cur = 'Y'
+                        AND deactivat IS NULL
+                    GROUP BY SUBSTR(parid, 1, 10)
+                    HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
+                )
+                THEN political.cook_municipality_name
+        END
+    ) AS tax_municipality_name,
     tax.tax_school_elementary_district_num,
     tax.tax_school_elementary_district_name,
     tax.tax_school_secondary_district_num,
