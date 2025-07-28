@@ -8,9 +8,7 @@ def create_cloudwatch_logger(
     name: str, log_file_path: str, log_group_name: str, stream_name: str
 ) -> logging.Logger:
     """
-    Sets up a logger with the same output format and location as the primary
-    Spark logger from the JVM. Also used as a fallback in case any part of the
-    main job loop fails.
+    Sets up a logger that can send output to CloudWatch.
 
     Args:
         name: Module name to use for the logger.
@@ -19,7 +17,7 @@ def create_cloudwatch_logger(
         stream_name: String name for log group stream name.
 
     Returns:
-        logging.Logger: Generic logger CloudWatch handling.
+        logging.Logger: Generic logger with CloudWatch handling.
     """
 
     # Formatter class to change WARNING to WARN for consistency with Spark
