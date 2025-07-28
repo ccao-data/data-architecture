@@ -154,6 +154,19 @@ Chicago industrial corridor name
 2-digit Cook County judicial district number
 {% enddocs %}
 
+## cook_municipality_name
+
+{% docs column_cook_municipality_name %}
+
+Cook county municipality name
+{% enddocs %}
+
+## cook_municipality_num
+
+{% docs column_cook_municipality_num %}
+Cook county municipality number
+{% enddocs %}
+
 ## econ_coordinated_care_area_num
 
 {% docs column_econ_coordinated_care_area_num %}
