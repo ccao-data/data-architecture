@@ -211,6 +211,8 @@ models:
                   UNION ALL
                   SELECT year FROM {{ source('spatial', 'judicial_district') }}
                   UNION ALL
+                  SELECT year FROM {{ source('spatial', 'municipality') }}
+                  UNION ALL
                   SELECT year FROM {{ source('spatial', 'ward') }}
                 ) unioned_years
               )
@@ -356,6 +358,12 @@ models:
         description: '{{ doc("shared_column_data_year") }}'
       - name: cook_judicial_district_num
         description: '{{ doc("column_cook_judicial_district_num") }}'
+      - name: cook_municipality_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: cook_municipality_name
+        description: '{{ doc("column_cook_municipality_name") }}'
+      - name: cook_municipality_num
+        description: '{{ doc("column_cook_municipality_num") }}'
       - name: econ_coordinated_care_area_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: econ_coordinated_care_area_num
