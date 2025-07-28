@@ -3,21 +3,10 @@
 # Run `python scripts/export_models.py --help` for details.
 import argparse
 import os
-from datetime import date
 
 from utils import constants
 from utils.export import export_models
-from utils.helpers import create_cloudwatch_logger
-
-# Declate log file path and remove it if it exists
-log_file_path = "export_models.log"
-logger = create_cloudwatch_logger(
-    name=__name__,
-    log_file_path=log_file_path,
-    log_group_name="/ccao/jobs/ic_reference_file_export",
-    stream_name=f"{date.today()}",
-)
-
+from utils.helpers import create_logger
 
 CLI_DESCRIPTION = """Export dbt models to Excel files.
 
@@ -83,16 +72,58 @@ def parse_args():
         *constants.OUTPUT_DIR_ARGUMENT_ARGS,
         **constants.OUTPUT_DIR_ARGUMENT_KWARGS,
     )
+    parser.add_argument(
+        *constants.LOG_TO_FILE_ARGUMENT_ARGS,
+        **constants.LOG_TO_FILE_ARGUMENT_KWARGS,
+    )
+    parser.add_argument(
+        *constants.LOG_TO_CLOUDWATCH_GROUP_ARGUMENT_ARGS,
+        **constants.LOG_TO_CLOUDWATCH_GROUP_ARGUMENT_KWARGS,
+    )
 
     return parser.parse_args()
 
 
 if __name__ == "__main__":
-    logger.info("Starting export_models.py script")
-
     args = parse_args()
 
-    try:
+    # Declate log file path and remove it if it exists
+    log_file_path = args.log_to_file or "export_models.log"
+
+    if (
+        args.log_to_file is not None
+        or args.log_to_cloudwatch_group is not None
+    ):
+        logger = create_logger(
+            name=__name__,
+            log_file_path=log_file_path,
+            log_group_name=args.log_to_cloudwatch_group,
+        )
+
+        logger.info("Starting export_models.py script")
+
+        try:
+            export_models(
+                args.target,
+                args.select,
+                args.selector,
+                args.rebuild,
+                args.where,
+                args.output_dir,
+            )
+
+            logger.info("Export completed successfully.")
+
+        except Exception as e:
+            # The CloudWatch log handler does not include error codes, so we need to
+            # preface the message with "ERROR" to trigger alarms.
+            logger.error(f"ERROR - {e}")
+
+        if args.log_to_cloudwatch_group is not None:
+            # Remove the log file
+            os.remove(log_file_path)
+
+    else:
         export_models(
             args.target,
             args.select,
@@ -101,13 +132,3 @@ if __name__ == "__main__":
             args.where,
             args.output_dir,
         )
-
-        logger.info("Export completed successfully.")
-
-    except Exception as e:
-        # The CloudWatch log handler does not include error codes, so we need to
-        # preface the message with "ERROR" to trigger alarms.
-        logger.error(f"ERROR - {e}")
-
-    # Remove the log file
-    os.remove(log_file_path)
