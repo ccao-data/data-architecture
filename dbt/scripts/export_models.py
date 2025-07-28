@@ -2,33 +2,21 @@
 #
 # Run `python scripts/export_models.py --help` for details.
 import argparse
-import logging
 import os
 from datetime import date
 
-import watchtower
 from utils import constants
 from utils.export import export_models
+from utils.helpers import create_cloudwatch_logger
 
 # Declate log file path and remove it if it exists
 log_file_path = "export_models.log"
-if os.path.exists(log_file_path):
-    os.remove(log_file_path)
-
-# Create and start the logger, which will log to CloudWatch
-cw_handler = watchtower.CloudWatchLogHandler(
+logger = create_cloudwatch_logger(
+    name=__name__,
+    log_file_path=log_file_path,
     log_group_name="/ccao/jobs/ic_reference_file_export",
-    stream_name=f"daily_export_{date.today()}",
+    stream_name=f"{date.today()}",
 )
-
-logging.basicConfig(
-    filename=log_file_path,
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d_%H:%M:%S.%f",
-)
-logger = logging.getLogger(__name__)
-logger.addHandler(cw_handler)
 
 
 CLI_DESCRIPTION = """Export dbt models to Excel files.
