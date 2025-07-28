@@ -3,14 +3,32 @@
 # Run `python scripts/export_models.py --help` for details.
 import argparse
 import logging
+import os
 from datetime import date
 
+import watchtower
 from utils import constants
-from utils.aws import upload_logs_to_cloudwatch
 from utils.export import export_models
 
-# Create and start the logger
+# Declate log file path and remove it if it exists
+log_file_path = "export_models.log"
+if os.path.exists(log_file_path):
+    os.remove(log_file_path)
+
+# Create and start the logger, which will log to CloudWatch
+cw_handler = watchtower.CloudWatchLogHandler(
+    log_group_name="/ccao/jobs/ic_reference_file_export",
+    stream_name=f"daily_export_{date.today()}",
+)
+
+logging.basicConfig(
+    filename=log_file_path,
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d_%H:%M:%S.%f",
+)
 logger = logging.getLogger(__name__)
+logger.addHandler(cw_handler)
 
 
 CLI_DESCRIPTION = """Export dbt models to Excel files.
@@ -82,7 +100,6 @@ def parse_args():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(filename="export_models.log", level=logging.INFO)
     logger.info("Starting export_models.py script")
 
     args = parse_args()
@@ -100,10 +117,9 @@ if __name__ == "__main__":
         logger.info("Export completed successfully.")
 
     except Exception as e:
-        logger.error(e)
+        # The CloudWatch log handler does not include error codes, so we need to
+        # preface the message with "ERROR: " to trigger alarms.
+        logger.error(f"ERROR - {e}")
 
-    upload_logs_to_cloudwatch(
-        log_group_name="/ccao/jobs/ic_reference_file_export",
-        log_stream_name=f"daily_export_{date.today()}",
-        log_file_path="models.log",
-    )
+    # Remove the log file
+    os.remove(log_file_path)
