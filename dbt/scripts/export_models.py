@@ -82,7 +82,7 @@ def parse_args():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(filename="models.log", level=logging.INFO)
+    logging.basicConfig(filename="export_models.log", level=logging.INFO)
     logger.info("Starting export_models.py script")
 
     args = parse_args()
