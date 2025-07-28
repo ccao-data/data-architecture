@@ -103,7 +103,7 @@ if __name__ == "__main__":
         logger.error(e)
 
     upload_logs_to_cloudwatch(
-        log_group_name="/ccao/jobs/qc_workbooks",
+        log_group_name="/ccao/jobs/ic_reference_file_export",
         log_stream_name=f"daily_export_{date.today()}",
         log_file_path="models.log",
     )
