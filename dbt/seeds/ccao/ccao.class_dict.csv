@@ -21,7 +21,7 @@ major_class_code,major_class_type,regression_class,modeling_group,reporting_grou
 2,Residential,TRUE,BB,Bed & Breakfast,2,219,"A residential building licensed as a Bed & Breakfast by the municipality, County of Cook, or registered as a Bed & Breakfast with the State of Illinois under 50 ILCS 820/1 et seq., with six or fewer rentable units and where none of the units are owner occupied and no homeowner’s exemption is allowed under the Property Tax Code",0,Infinity,0,Infinity
 2,Residential,FALSE,,,2,224,Farm building,0,Infinity,0,Infinity
 2,Residential,FALSE,,,2,225,Single-room occupancy rental building,0,Infinity,0,Infinity
-2,Residential,TRUE,SF,Single-Family,2,234,"Spllit level residence, with a lower level below grade, all ages, all sizes",0,Infinity,0,Infinity
+2,Residential,TRUE,SF,Single-Family,2,234,"Split level residence, with a lower level below grade, all ages, all sizes",0,Infinity,0,Infinity
 2,Residential,FALSE,,,2,236,Any residence located on a parcel used primarily for commercial or industrial purposes,0,Infinity,0,Infinity
 2,Residential,FALSE,,,2,239,"Non-equalized land under agricultural use, valued at farm pricing",0,Infinity,0,Infinity
 2,Residential,FALSE,,,2,240,First-time agricultural use of land valued at market price,0,Infinity,0,Infinity
