@@ -18,10 +18,10 @@ def create_logger(
         name: Module name to use for the logger.
         log_file_path: String path to the log file where logs will be written.
         log_group_name: String name for CloudWatch log group.
-        stream_name: Optional string name for log group stream name.
+        stream_name: Optional string name for log group stream.
 
     Returns:
-        logging.Logger: Generic logger with CloudWatch handling.
+        logging.Logger: Generic logger with optional CloudWatch handling.
     """
 
     # Formatter class to change WARNING to WARN for consistency with Spark
