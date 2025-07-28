@@ -89,7 +89,9 @@ SELECT
     COALESCE(
         tax.tax_municipality_name,
         CASE
-            WHEN political.cook_municipality_name = 'CICERO' THEN 'CICERO'
+            WHEN
+                political.cook_municipality_name = 'Town Of Cicero'
+                THEN 'TOWN OF CICERO'
             WHEN pin.pin10 IN (
                     SELECT SUBSTR(parid, 1, 10)
                     FROM iasworld.pardat
