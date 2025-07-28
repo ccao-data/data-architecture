@@ -34,6 +34,7 @@ def create_logger(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
         datefmt="%Y-%m-%d_%H:%M:%S.%f",
+        force=True,
     )
     logger = logging.getLogger(name)
 
@@ -46,5 +47,7 @@ def create_logger(
             stream_name=stream_name,
         )
         logger.addHandler(cw_handler)
+
+    logger.addHandler(logging.StreamHandler())
 
     return logger
