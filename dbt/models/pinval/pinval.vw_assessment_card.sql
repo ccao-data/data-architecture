@@ -70,6 +70,33 @@ assessment_card AS (
         AND ac.meta_township_code = run.township_code
 ),
 
+-- Count cards for each PIN. We need to do this in a subquery because newer
+-- model runs save this value to `model.assessment_pin`, but we need to compute
+-- it for older runs that did not save the value
+card_count AS (
+    SELECT
+        ap.meta_pin,
+        ap.run_id,
+        CAST(
+            COALESCE(
+                ap.meta_pin_num_cards,
+                card_count.meta_pin_num_cards
+            )
+            AS INTEGER
+        ) AS meta_pin_num_cards
+    FROM {{ source('model', 'assessment_pin') }} AS ap
+    LEFT JOIN (
+        SELECT
+            meta_pin,
+            run_id,
+            COUNT(*) AS meta_pin_num_cards
+        FROM {{ source('model', 'assessment_card') }}
+        GROUP BY run_id, meta_pin
+    ) AS card_count
+        ON ap.meta_pin = card_count.meta_pin
+        AND ap.run_id = card_count.run_id
+),
+
 school_districts AS (
     SELECT
         geoid,
@@ -161,18 +188,18 @@ SELECT
         AS pred_card_initial_fmv_per_sqft,
     ap.loc_property_address AS property_address,
     ap.loc_property_city,
-    CAST(ap.meta_pin_num_cards AS INTEGER) AS ap_meta_pin_num_cards,
+    card_count.meta_pin_num_cards,
     -- Format some card-level predictors to make them more interpretable to
     -- non-technical users
     CONCAT(CAST(ac.char_class AS VARCHAR), ': ', card_cd.class_desc)
         AS char_class_detailed,
     COALESCE(
         CAST(ac.assessment_year AS INTEGER) >= 2025
-        AND ap.meta_pin_num_cards IN (2, 3), FALSE
+        AND card_count.meta_pin_num_cards IN (2, 3), FALSE
     ) AS is_parcel_small_multicard,
     CASE
         WHEN CAST(ac.assessment_year AS INTEGER) >= 2025
-            AND ap.meta_pin_num_cards IN (2, 3)
+            AND card_count.meta_pin_num_cards IN (2, 3)
             THEN SUM(COALESCE(ac.char_bldg_sf, 0)) OVER (
                 PARTITION BY ac.meta_pin, ac.run_id
             )
@@ -186,6 +213,9 @@ FULL OUTER JOIN assessment_card AS ac
 LEFT JOIN {{ source('model', 'assessment_pin') }} AS ap
     ON ac.meta_pin = ap.meta_pin
     AND ac.run_id = ap.run_id
+LEFT JOIN card_count
+    ON ac.meta_pin = card_count.meta_pin
+    AND ac.run_id = card_count.run_id
 LEFT JOIN school_districts AS elem_sd
     ON ac.loc_school_elementary_district_geoid = elem_sd.geoid
     AND ac.meta_year = elem_sd.year

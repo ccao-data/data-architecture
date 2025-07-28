@@ -38,9 +38,6 @@ models:
         data_tests:
           - not_null:
               name: pinval_vw_assessment_card_is_report_eligible_not_null
-              config:
-                # 1 PIN in LEGDAT with missing triad code
-                error_if: ">1"
       - name: meta_card_num
         description: '{{ doc("column_pinval_meta_card_num") }}'
         data_tests:
@@ -53,6 +50,13 @@ models:
         data_tests:
           - not_null:
               name: pinval_vw_assessment_card_meta_pin_not_null
+      - name: meta_pin_num_cards
+        description: '{{ doc("shared_column_pin_num_cards") }}'
+        data_tests:
+          - not_null:
+              name: pinval_vw_assessment_card_meta_pin_num_cards_not_null
+              config:
+                where: is_report_eligible
       - name: meta_township_code
         description: '{{ doc("shared_column_township_code") }}'
         data_tests:
@@ -68,9 +72,6 @@ models:
         data_tests:
           - not_null:
               name: pinval_vw_assessment_card_meta_triad_name_not_null
-              config:
-                # 1 PIN in LEGDAT with missing triad code
-                error_if: ">1"
       - name: reason_report_ineligible
         description: '{{ doc("column_pinval_reason_report_ineligible") }}'
         data_tests:
@@ -96,9 +97,6 @@ models:
               name: pinval_vw_assessment_card_reason_report_ineligible_not_unknown
               values:
                 - unknown
-              config:
-                # 1 PIN in LEGDAT with missing township code
-                error_if: ">1"
       - name: run_id
         description: '{{ doc("column_pinval_run_id") }}'
         data_tests:
