@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     except Exception as e:
         # The CloudWatch log handler does not include error codes, so we need to
-        # preface the message with "ERROR: " to trigger alarms.
+        # preface the message with "ERROR" to trigger alarms.
         logger.error(f"ERROR - {e}")
 
     # Remove the log file
