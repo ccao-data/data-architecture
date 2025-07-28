@@ -29,6 +29,8 @@ distinct_years_rhs AS (
     SELECT DISTINCT year FROM {{ source('spatial', 'judicial_district') }}
     UNION ALL
     SELECT DISTINCT year FROM {{ source('spatial', 'ward') }}
+    UNION ALL
+    SELECT DISTINCT year FROM {{ source('spatial', 'municipality') }}
 ),
 
 board_of_review_district AS (
@@ -137,6 +139,38 @@ judicial_district AS (
     GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
 ),
 
+municipality AS (
+    SELECT
+        dp.x_3435,
+        dp.y_3435,
+        MAX(cprod.municipality_num) AS cook_municipality_num,
+        MAX(cprod.municipality_name) AS cook_municipality_name,
+        MAX(cprod.year) AS cook_municipality_data_year,
+        cprod.pin_year
+    FROM distinct_pins AS dp
+    LEFT JOIN (
+        SELECT
+            fill_years.pin_year,
+            fill_data.*
+        FROM (
+            SELECT
+                dy.year AS pin_year,
+                MAX(df.year) AS fill_year
+            FROM spatial.municipality AS df
+            CROSS JOIN distinct_years AS dy
+            WHERE dy.year >= df.year
+            GROUP BY dy.year
+        ) AS fill_years
+        LEFT JOIN spatial.municipality AS fill_data
+            ON fill_years.fill_year = fill_data.year
+    ) AS cprod
+        ON ST_WITHIN(
+            ST_POINT(dp.x_3435, dp.y_3435),
+            ST_GEOMFROMBINARY(cprod.geometry_3435)
+        )
+    GROUP BY dp.x_3435, dp.y_3435, cprod.pin_year
+),
+
 ward_chicago AS (
     SELECT
         dp.x_3435,
@@ -231,6 +265,9 @@ SELECT
     brd.cook_board_of_review_district_data_year,
     cd.cook_commissioner_district_num,
     cd.cook_commissioner_district_data_year,
+    municipality.cook_municipality_num,
+    municipality.cook_municipality_name,
+    municipality.cook_municipality_data_year,
     jd.cook_judicial_district_num,
     jd.cook_judicial_district_data_year,
     COALESCE(we.ward_num, wc.ward_num) AS ward_num,
@@ -251,6 +288,10 @@ LEFT JOIN judicial_district AS jd
     ON pcl.x_3435 = jd.x_3435
     AND pcl.y_3435 = jd.y_3435
     AND pcl.year = jd.pin_year
+LEFT JOIN municipality
+    ON pcl.x_3435 = municipality.x_3435
+    AND pcl.y_3435 = municipality.y_3435
+    AND pcl.year = municipality.pin_year
 LEFT JOIN ward_chicago AS wc
     ON pcl.x_3435 = wc.x_3435
     AND pcl.y_3435 = wc.y_3435
