@@ -86,6 +86,7 @@ SELECT
     school.school_data_year,
 
     tax.tax_municipality_num,
+    tax.tax_municipality_name,
     COALESCE(
         ARRAY[tax.tax_municipality_name],
         CASE
@@ -99,7 +100,7 @@ SELECT
                     HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
                 ) THEN ARRAY[political.cook_municipality_name]
         END
-    ) AS tax_municipality_name,
+    ) AS combined_municipality,
 
     tax.tax_school_elementary_district_num,
     tax.tax_school_elementary_district_name,
