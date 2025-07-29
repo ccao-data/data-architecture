@@ -1,3 +1,13 @@
+## assessment_card_assessment_year
+
+{% docs column_pinval_assessment_card_assessment_year %}
+Assessment year for the model run associated with this card and its values.
+
+An assessment year can map to multiple model runs, since model runs can be
+different for different towns in a triad. However, cards should be unique
+by assessment year in this view.
+{% enddocs %}
+
 ## assessment_card_run_id
 
 {% docs column_pinval_assessment_card_run_id %}
@@ -7,16 +17,6 @@ For PINs that are in the assessment triad for a given assessment year,
 this column will correspond to the final model run ID for the PIN's township
 in that assessment year. For PINs that are _not_ in the assessment triad, this
 column will be null.
-{% enddocs %}
-
-## assessment_year
-
-{% docs column_pinval_assessment_year %}
-Assessment year for the model run associated with this card and its values.
-
-An assessment year can map to multiple model runs, since model runs can be
-different for different towns in a triad. However, cards should be unique
-by assessment year in this view.
 {% enddocs %}
 
 ## char_class
@@ -48,6 +48,12 @@ Combined building SF for all cards in the PIN.
 This field is only computed for recent small multicards, which are
 distinguished by the value `is_parcel_small_multicard == TRUE`. It
 will be null for all other cards.
+{% enddocs %}
+
+## comps_assessment_year
+
+{% docs column_pinval_comps_assessment_year %}
+Assessment year for the model run associated with this card and its comps
 {% enddocs %}
 
 ## comps_run_id
