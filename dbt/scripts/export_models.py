@@ -90,6 +90,9 @@ if __name__ == "__main__":
     # Declate log file path and remove it if it exists
     log_file_path = args.log_to_file or "export_models.log"
 
+    # If statement to check if logging to local file or CloudWatch is enabled
+    # and create the logger accordingly.
+    # If neither is enabled, just run the export_models function without logging.
     if (
         args.log_to_file is not None
         or args.log_to_cloudwatch_group is not None
@@ -115,8 +118,9 @@ if __name__ == "__main__":
             logger.info("Export completed successfully.")
 
         except Exception as e:
-            # The CloudWatch log handler does not include error codes, so we need to
-            # preface the message with "ERROR" to trigger alarms.
+            # The CloudWatch log handler does not include "ERROR - " at the
+            # beginning of log lines, so we need to preface the message with
+            # "ERROR - " to trigger alarms.
             logger.error(f"ERROR - {e}")
 
         if args.log_to_cloudwatch_group is not None:

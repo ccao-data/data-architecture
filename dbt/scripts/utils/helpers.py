@@ -16,9 +16,9 @@ def create_logger(
 
     Args:
         name: Module name to use for the logger.
-        log_file_path: String path to the log file where logs will be written.
+        log_file_path: String path to the local log file where logs will be written.
         log_group_name: String name for CloudWatch log group.
-        stream_name: Optional string name for log group stream.
+        stream_name: Optional string name for log group stream. Defaults to today's date.
 
     Returns:
         logging.Logger: Generic logger with optional CloudWatch handling.
@@ -48,6 +48,7 @@ def create_logger(
         )
         logger.addHandler(cw_handler)
 
+    # Add console handler for local debugging regardless of CloudWatch logging
     logger.addHandler(logging.StreamHandler())
 
     return logger
