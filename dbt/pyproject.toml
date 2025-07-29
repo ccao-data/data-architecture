@@ -18,6 +18,7 @@ dbt_tests = [
   "pyarrow==15.0.2",
   "pyathena~=3.8.3",
   "simplejson~=3.19.2",
+  "watchtower>=3.4.0",
 ]
 ci_checks = [
   "pyyaml==6.0.2",
