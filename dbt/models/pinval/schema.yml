@@ -41,6 +41,10 @@ models:
       - name: meta_card_num
         description: '{{ doc("column_pinval_meta_card_num") }}'
         data_tests:
+          - not_null:
+              name: pinval_vw_assessment_card_meta_card_num_not_null_when_is_report_eligible
+              config:
+                where: is_report_eligible
           - is_null:
               name: pinval_vw_assessment_card_meta_card_num_null_when_reason_report_ineligible_is_missing_card
               config:
