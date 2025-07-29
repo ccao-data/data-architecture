@@ -58,7 +58,7 @@ LOG_TO_FILE_ARGUMENT_KWARGS: AddArgumentKwargs = {
 LOG_TO_CLOUDWATCH_GROUP_ARGUMENT_ARGS = ["--log-to-cloudwatch-group"]
 LOG_TO_CLOUDWATCH_GROUP_ARGUMENT_KWARGS: AddArgumentKwargs = {
     "help": (
-        "Flag to indicate whether to log to a CloudWatch group. If set, logs"
-        "will be written to a user-defined AWS CloudWatch group."
+        "Flag to indicate whether to log to a CloudWatch log group. If set, "
+        "logs will be written to a user-defined AWS CloudWatch log group."
     )
 }
