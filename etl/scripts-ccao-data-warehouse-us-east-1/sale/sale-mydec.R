@@ -21,7 +21,7 @@ output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "sale", "mydec_test")
 sales <- open_dataset(file.path(AWS_S3_RAW_BUCKET, "sale", "mydec_test")) %>%
   collect()
 
-# Clean up, then write to warehouse S3
+# Clean up, then write to S3
 sales %>%
   rename_with(~ str_remove_all(.x, "X_")) %>%
   filter(!is.na(document_number)) %>%
