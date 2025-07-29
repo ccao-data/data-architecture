@@ -135,14 +135,6 @@ Identical to `model.performance`, but additionally broken out by quantile.
 `geography_id`, `by_class`, `num_quantile`, `quantile`
 {% enddocs %}
 
-# pinval_test_training_data
-
-{% docs pinval_test_training_data %}
-
-Testing table for storing training data in athena.
-
-{% enddocs %}
-
 # shap
 
 {% docs table_shap %}
