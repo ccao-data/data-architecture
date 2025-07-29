@@ -31,19 +31,27 @@ pin_universe AS (
         run.assessment_year,
         run.assessment_triad
     FROM {{ ref('default.vw_pin_universe') }} AS uni
+    -- Join to `runs_to_include` so that we can assign assessment triad and
+    -- year information to all PINs, even if they're missing from the
+    -- assessment set.
+    --
+    -- We use an inner join so that we only return PINs for years that are
+    -- report-enabled
     INNER JOIN (
         SELECT
             *,
             ROW_NUMBER()
                 -- When an assessment year has two models, pick the more recent
-                -- one
+                -- one to use for extracting metadata. This works because the
+                -- metadata that this subquery extracts should be identical for
+                -- all final models in a year
                 OVER (PARTITION BY assessment_data_year ORDER BY run_id DESC)
                 AS row_num
         FROM runs_to_include
     ) AS run
     -- We use prior year characteristics for model predictors, so we need to
     -- pull parcel information based on the model's data year, not its
-        -- assessment year
+    -- assessment year
         ON uni.year = run.assessment_data_year
         AND run.row_num = 1
 ),
@@ -274,7 +282,7 @@ LEFT JOIN school_districts AS sec_sd
     AND ac.meta_year = sec_sd.year
 LEFT JOIN {{ source('spatial', 'township') }} AS twn
     ON ac.township_code = twn.township_code
---- Join to class dict twice, since PIN class and card class can be different
+-- Join to class dict twice, since PIN class and card class can be different
 LEFT JOIN {{ ref('ccao.class_dict') }} AS pin_cd
     ON uni.class = pin_cd.class_code
 LEFT JOIN {{ ref('ccao.class_dict') }} AS card_cd
