@@ -1,3 +1,14 @@
+## assessment_card_run_id
+
+{% docs column_pinval_assessment_card_run_id %}
+Run ID for the model run associated with this card and its values.
+
+For PINs that are in the assessment triad for a given assessment year,
+this column will correspond to the final model run ID for the PIN's township
+in that assessment year. For PINs that are _not_ in the assessment triad, this
+column will be null.
+{% enddocs %}
+
 ## assessment_year
 
 {% docs column_pinval_assessment_year %}
@@ -37,6 +48,16 @@ Combined building SF for all cards in the PIN.
 This field is only computed for recent small multicards, which are
 distinguished by the value `is_parcel_small_multicard == TRUE`. It
 will be null for all other cards.
+{% enddocs %}
+
+## comps_run_id
+
+{% docs column_pinval_comps_run_id %}
+Run ID for the model run associated with this card and its comps.
+
+Our data tests guarantee that there is only ever one comps run per assessment
+year, so for uniqueness purposes, this column should be interchangeable with
+`assessment_year`.
 {% enddocs %}
 
 ## is_frankencard
@@ -103,15 +124,4 @@ Possible values for this variable are:
 - `NULL`: The PIN is eligible for a PINVAL report. This should only ever be
   the case when `is_report_eligible` is `TRUE`, and our data integrity
   tests check to make sure this is true
-{% enddocs %}
-
-## run_id
-
-{% docs column_pinval_run_id %}
-Run ID for the model run associated with this card and its values.
-
-For PINs that are in the assessment triad for a given assessment year,
-this column will correspond to the final model run ID for the PIN's township
-in that assessment year. For PINs that are _not_ in the assessment triad, this
-column will be null.
 {% enddocs %}
