@@ -29,6 +29,31 @@ This column will never be null.
 A short description explaining the code contained in `char_class`
 {% enddocs %}
 
+## combined_bldg_sf
+
+{% docs column_pinval_combined_bldg_sf %}
+Combined building SF for all cards in the PIN.
+
+This field is only computed for recent small multicards, which are
+distinguished by the value `is_parcel_small_multicard == TRUE`. It
+will be null for all other cards.
+{% enddocs %}
+
+## is_frankencard
+
+{% docs column_pinval_is_frankencard %}
+Whether this card is the "frankencard" for its PIN.
+
+"Frankencards" refer to the largest card by building square footage in a
+multicard PIN, or the largest card with the lowest card number in the case of
+square footage ties. We use the PIN's frankencard as the basis for its non-SF
+characteristics when valuing small (2-3 card) multicards.
+
+Note that this valuation method is new as of 2025 and restricted to 2-3 card
+PINs, so it will only ever be true if `assessment_year` and
+`meta_pin_num_cards` meet those conditions.
+{% enddocs %}
+
 ## is_report_eligible
 
 {% docs column_pinval_is_report_eligible %}

@@ -97,6 +97,56 @@ card_count AS (
         AND ap.run_id = card_count.run_id
 ),
 
+-- Determine whether the card is part of a small multicard PIN that was valued
+-- after we changed our multicard valuation strategy, which will help us
+-- explain its value
+card_pin_meta AS (
+    SELECT
+        ac.meta_pin,
+        ac.meta_card_num,
+        ac.run_id,
+        cc.meta_pin_num_cards,
+        COALESCE(
+            CAST(ac.assessment_year AS INTEGER) >= 2025
+            AND cc.meta_pin_num_cards IN (2, 3), FALSE
+        ) AS is_parcel_small_multicard
+    FROM assessment_card AS ac
+    LEFT JOIN card_count AS cc
+        ON ac.meta_pin = cc.meta_pin
+        AND ac.run_id = cc.run_id
+),
+
+-- Further aggregation for small multicards to use for explaining their
+-- valuation
+card_agg AS (
+    SELECT
+        ac.meta_pin,
+        ac.meta_card_num,
+        ac.run_id,
+        cpm.meta_pin_num_cards,
+        cpm.is_parcel_small_multicard,
+        COALESCE(
+            cpm.is_parcel_small_multicard
+            AND ROW_NUMBER() OVER (
+                PARTITION BY ac.meta_pin, ac.run_id
+                ORDER BY COALESCE(ac.char_bldg_sf, 0) DESC, ac.meta_card_num ASC
+            ) = 1, FALSE
+        ) AS is_frankencard,
+        CASE
+            WHEN cpm.is_parcel_small_multicard
+                THEN SUM(COALESCE(ac.char_bldg_sf, 0)) OVER (
+                    PARTITION BY ac.meta_pin, ac.run_id
+                )
+        END AS combined_bldg_sf
+    FROM assessment_card AS ac
+    LEFT JOIN card_pin_meta AS cpm
+        ON ac.meta_pin = cpm.meta_pin
+        AND ac.meta_card_num = cpm.meta_card_num
+        AND ac.run_id = cpm.run_id
+),
+
+-- Get crosswalk between school district geo IDs and names, so that we can
+-- translate the geo IDs in user-facing reports
 school_districts AS (
     SELECT
         geoid,
@@ -177,33 +227,32 @@ SELECT
         ELSE 'unknown'
     END AS reason_report_ineligible,
     {{ all_predictors('ac') }},
-    ac.pred_card_initial_fmv,
-    ap.pred_pin_final_fmv_round,
-    -- Pull some additional parcel-level info from `model.assessment_pin`
-    CAST(
-        ROUND(
-            ac.pred_card_initial_fmv / NULLIF(ac.char_bldg_sf, 0), 0
-        ) AS INTEGER
-    )
-        AS pred_card_initial_fmv_per_sqft,
-    ap.loc_property_address AS property_address,
-    ap.loc_property_city,
-    card_count.meta_pin_num_cards,
-    -- Format some card-level predictors to make them more interpretable to
-    -- non-technical users
     CONCAT(CAST(ac.char_class AS VARCHAR), ': ', card_cd.class_desc)
         AS char_class_detailed,
-    COALESCE(
-        CAST(ac.assessment_year AS INTEGER) >= 2025
-        AND card_count.meta_pin_num_cards IN (2, 3), FALSE
-    ) AS is_parcel_small_multicard,
+    ap.loc_property_address AS property_address,
+    ap.loc_property_city,
+    ac.pred_card_initial_fmv,
     CASE
-        WHEN CAST(ac.assessment_year AS INTEGER) >= 2025
-            AND card_count.meta_pin_num_cards IN (2, 3)
-            THEN SUM(COALESCE(ac.char_bldg_sf, 0)) OVER (
-                PARTITION BY ac.meta_pin, ac.run_id
+        WHEN card_agg.is_parcel_small_multicard
+            THEN CAST(
+                ROUND(
+                    ac.pred_card_initial_fmv
+                    / NULLIF(card_agg.combined_bldg_sf, 0),
+                    0
+                ) AS INTEGER
             )
-    END AS combined_bldg_sf,
+        ELSE CAST(
+                ROUND(
+                    ac.pred_card_initial_fmv / NULLIF(ac.char_bldg_sf, 0),
+                    0
+                ) AS INTEGER
+            )
+    END AS pred_card_initial_fmv_per_sqft,
+    ap.pred_pin_final_fmv_round,
+    card_agg.meta_pin_num_cards,
+    card_agg.is_parcel_small_multicard,
+    card_agg.is_frankencard,
+    card_agg.combined_bldg_sf,
     elem_sd.name AS school_elementary_district_name,
     sec_sd.name AS school_secondary_district_name
 FROM pin_universe AS uni
@@ -213,9 +262,10 @@ FULL OUTER JOIN assessment_card AS ac
 LEFT JOIN {{ source('model', 'assessment_pin') }} AS ap
     ON ac.meta_pin = ap.meta_pin
     AND ac.run_id = ap.run_id
-LEFT JOIN card_count
-    ON ac.meta_pin = card_count.meta_pin
-    AND ac.run_id = card_count.run_id
+LEFT JOIN card_agg
+    ON ac.meta_pin = card_agg.meta_pin
+    AND ac.meta_card_num = card_agg.meta_card_num
+    AND ac.run_id = card_agg.run_id
 LEFT JOIN school_districts AS elem_sd
     ON ac.loc_school_elementary_district_geoid = elem_sd.geoid
     AND ac.meta_year = elem_sd.year

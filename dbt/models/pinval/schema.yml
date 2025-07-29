@@ -33,6 +33,34 @@ models:
                 where: reason_report_ineligible = 'non_regression_class'
       - name: char_class_desc
         description: '{{ doc("column_pinval_char_class_desc") }}'
+      - name: combined_bldg_sf
+        description: '{{ doc("column_pinval_combined_bldg_sf")}}'
+        data_tests:
+          - is_null:
+              name: pinval_vw_assessment_card_combined_bldg_sf_is_null_when_not_is_parcel_small_multicard
+              config:
+                where: not is_parcel_small_multicard
+          - not_null:
+              name: pinval_vw_assessment_card_combined_bldg_sf_not_null_when_is_parcel_small_multicard
+              config:
+                where: is_parcel_small_multicard
+      - name: is_frankencard
+        description: '{{ doc("column_pinval_is_frankencard") }}'
+        data_tests:
+          - accepted_values:
+              name: pinval_vw_assesment_card_is_frankencard_false_when_not_small_multicard
+              values:
+                - FALSE
+              quote: false
+              config:
+                where: not is_parcel_small_multicard
+          - count_is_consistent:
+              name: pinval_vw_assessment_card_is_frankencard_contains_both_values_when_small_multicard
+              group_column: run_id, meta_pin
+              min_value: 2
+              max_value: 2
+              config:
+                where: is_parcel_small_multicard
       - name: is_report_eligible
         description: '{{ doc("column_pinval_is_report_eligible") }}'
         data_tests:
