@@ -88,7 +88,7 @@ SELECT
     tax.tax_municipality_num,
     tax.tax_municipality_name,
     COALESCE(
-        ARRAY[tax.tax_municipality_name],
+        tax.tax_municipality_name,
         CASE
             WHEN political.cook_municipality_name = 'TOWN OF CICERO'
                 THEN ARRAY['TOWN OF CICERO']
@@ -101,17 +101,7 @@ SELECT
                 )
                 THEN COALESCE(
                     ARRAY[political.cook_municipality_name],
-                    ARRAY[
-                        (
-                            SELECT xwalk.tax_municipality_name
-                            FROM
-                                {{ ref('spatial.municipality_crosswalk') }}
-                                    AS xwalk
-                            WHERE xwalk.cook_municipality_name
-                                = political.cook_municipality_name
-                            LIMIT 1
-                        )
-                    ]
+                    ARRAY[xwalk.tax_municipality_name]
                 )
         END
     ) AS combined_municipality,
@@ -156,6 +146,8 @@ LEFT JOIN {{ ref('location.census_acs5') }} AS census_acs5
 LEFT JOIN {{ ref('location.political') }} AS political
     ON pin.pin10 = political.pin10
     AND pin.year = political.year
+LEFT JOIN {{ ref('spatial.municipality_crosswalk') }} AS xwalk
+    ON political.cook_municipality_name = xwalk.cook_municipality_name
 LEFT JOIN {{ ref('location.chicago') }} AS chicago
     ON pin.pin10 = chicago.pin10
     AND pin.year = chicago.year
