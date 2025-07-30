@@ -90,7 +90,7 @@ SELECT
     COALESCE(
         tax.tax_municipality_name,
         CASE
-            WHEN political.cook_municipality_name = 'CICERO'
+            WHEN political.cook_municipality_name = 'TOWN OF CICERO'
                 THEN ARRAY['TOWN OF CICERO']
             WHEN pin.pin10 IN (
                     SELECT SUBSTR(parid, 1, 10)
