@@ -89,17 +89,20 @@ SELECT
     tax.tax_municipality_name,
     COALESCE(
         ARRAY[tax.tax_municipality_name],
-        CASE
-            WHEN political.cook_municipality_name = 'CICERO'
-                THEN ARRAY['TOWN OF CICERO']
-            WHEN pin.pin10 IN (
-                    SELECT SUBSTR(parid, 1, 10)
-                    FROM iasworld.pardat
-                    WHERE cur = 'Y' AND deactivat IS NULL
-                    GROUP BY SUBSTR(parid, 1, 10)
-                    HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
-                ) THEN ARRAY[political.cook_municipality_name]
-        END
+        ARRAY[
+            CASE
+                WHEN
+                    political.cook_municipality_name = 'CICERO'
+                    THEN 'TOWN OF CICERO'
+                WHEN pin.pin10 IN (
+                        SELECT SUBSTR(parid, 1, 10)
+                        FROM iasworld.pardat
+                        WHERE cur = 'Y' AND deactivat IS NULL
+                        GROUP BY SUBSTR(parid, 1, 10)
+                        HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
+                    ) THEN political.cook_municipality_name
+            END
+        ]
     ) AS combined_municipality,
 
     tax.tax_school_elementary_district_num,
