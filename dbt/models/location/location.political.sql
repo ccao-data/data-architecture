@@ -144,7 +144,7 @@ municipality AS (
         dp.x_3435,
         dp.y_3435,
         MAX(cprod.municipality_num) AS cook_municipality_num,
-        MAX(UPPER(cprod.municipality_name)) AS cook_municipality_name,
+        ARRAY[MAX(UPPER(cprod.municipality_name))] AS cook_municipality_name,
         MAX(cprod.year) AS cook_municipality_data_year,
         cprod.pin_year
     FROM distinct_pins AS dp

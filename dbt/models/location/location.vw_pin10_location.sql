@@ -91,7 +91,7 @@ SELECT
         tax.tax_municipality_name,
         CASE
             WHEN political.cook_municipality_name = 'TOWN OF CICERO'
-                THEN ARRAY['TOWN OF CICERO']
+                THEN ['TOWN OF CICERO']
             WHEN pin.pin10 IN (
                     SELECT SUBSTR(parid, 1, 10)
                     FROM iasworld.pardat
@@ -100,8 +100,8 @@ SELECT
                     HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
                 )
                 THEN COALESCE(
-                    ARRAY[political.cook_municipality_name],
-                    ARRAY[xwalk.tax_municipality_name]
+                    [political.cook_municipality_name],
+                    [xwalk.tax_municipality_name]
                 )
         END
     ) AS combined_municipality,
