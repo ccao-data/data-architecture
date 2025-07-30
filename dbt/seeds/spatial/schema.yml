@@ -1,4 +1,10 @@
 seeds:
+  - name: spatial.municipality_crosswalk
+    description: '{{ doc("seed_municipality_crosswalk") }}'
+    config:
+      column_types:
+        cook_municipality_name: string
+        tax_municipality_name: string
   - name: spatial.stadium_raw
     description: '{{ doc("seed_stadium_raw") }}'
     config:

@@ -88,7 +88,7 @@ SELECT
     tax.tax_municipality_num,
     tax.tax_municipality_name,
     COALESCE(
-        tax.tax_municipality_name,
+        ARRAY[tax.tax_municipality_name],
         CASE
             WHEN political.cook_municipality_name = 'TOWN OF CICERO'
                 THEN ARRAY['TOWN OF CICERO']
@@ -99,7 +99,20 @@ SELECT
                     GROUP BY SUBSTR(parid, 1, 10)
                     HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
                 )
-                THEN ARRAY[political.cook_municipality_name]
+                THEN COALESCE(
+                    ARRAY[political.cook_municipality_name],
+                    ARRAY[
+                        (
+                            SELECT xwalk.tax_municipality_name
+                            FROM
+                                {{ ref('spatial.municipality_crosswalk') }}
+                                    AS xwalk
+                            WHERE xwalk.cook_municipality_name
+                                = political.cook_municipality_name
+                            LIMIT 1
+                        )
+                    ]
+                )
         END
     ) AS combined_municipality,
 
