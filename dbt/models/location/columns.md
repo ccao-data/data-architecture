@@ -158,13 +158,13 @@ Chicago industrial corridor name
 
 {% docs column_cook_municipality_name %}
 
-Cook county municipality name
+Cook county municipality name from Cook County GIS files
 {% enddocs %}
 
 ## cook_municipality_num
 
 {% docs column_cook_municipality_num %}
-Cook county municipality number
+Cook county municipality number. This does not correspond with tax_municipality_num
 {% enddocs %}
 
 ## econ_coordinated_care_area_num
