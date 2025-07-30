@@ -87,24 +87,6 @@ SELECT
 
     tax.tax_municipality_num,
     tax.tax_municipality_name,
-    COALESCE(
-        tax.tax_municipality_name,
-        CASE
-            WHEN political.cook_municipality_name = 'TOWN OF CICERO'
-                THEN ['TOWN OF CICERO']
-            WHEN pin.pin10 IN (
-                    SELECT SUBSTR(parid, 1, 10)
-                    FROM iasworld.pardat
-                    WHERE cur = 'Y' AND deactivat IS NULL
-                    GROUP BY SUBSTR(parid, 1, 10)
-                    HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
-                )
-                THEN COALESCE(
-                    [political.cook_municipality_name],
-                    [xwalk.tax_municipality_name]
-                )
-        END
-    ) AS combined_municipality,
 
     tax.tax_school_elementary_district_num,
     tax.tax_school_elementary_district_name,
@@ -146,8 +128,6 @@ LEFT JOIN {{ ref('location.census_acs5') }} AS census_acs5
 LEFT JOIN {{ ref('location.political') }} AS political
     ON pin.pin10 = political.pin10
     AND pin.year = political.year
-LEFT JOIN {{ ref('spatial.municipality_crosswalk') }} AS xwalk
-    ON political.cook_municipality_name = xwalk.cook_municipality_name
 LEFT JOIN {{ ref('location.chicago') }} AS chicago
     ON pin.pin10 = chicago.pin10
     AND pin.year = chicago.year
