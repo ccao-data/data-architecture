@@ -87,6 +87,9 @@ SELECT
 
     tax.tax_municipality_num,
     tax.tax_municipality_name,
+    -- This is needed for two reasons. The first is that all PINs in 
+    -- Cicero are encoded as [] or unincorporated.
+    -- Because of this, we prioritize these values in the coalesce.
     COALESCE(
         CASE
             WHEN political.cook_municipality_name[1] IN (
@@ -94,6 +97,12 @@ SELECT
                 )
                 THEN
                 political.cook_municipality_name
+            -- We also discovered that some new PINs do not have 
+            -- their municipality provided yet.
+            -- Because of this, we coalesce values where the 
+            -- municipality is NULL and the PIN is in the
+            -- PARID table with a tax year greater than 
+            -- the maximum tax year in the tax.pin
             WHEN tax.tax_municipality_name IS NULL
                 AND pin.pin10 IN (
                     SELECT SUBSTR(parid, 1, 10)
@@ -104,6 +113,10 @@ SELECT
                     HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
                 )
                 THEN
+                -- There are a few municipalities with slightly 
+                -- different names between the two files.
+                -- Village of Mt Prospect and Village of Mount Prospect.
+                -- We use the xwalk table to ensure we use a single name.
                 ARRAY[
                     COALESCE(
                         xwalk.tax_municipality_name,
