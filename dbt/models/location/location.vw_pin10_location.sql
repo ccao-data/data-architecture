@@ -3,7 +3,6 @@
 SELECT
     pin.pin10,
     pin.year,
-
     census.census_block_group_geoid,
     census.census_block_geoid,
     census.census_congressional_district_geoid,
@@ -90,43 +89,31 @@ SELECT
     -- This is needed for two reasons. The first is that all PINs in 
     -- Cicero are encoded as [] or unincorporated.
     -- Because of this, we prioritize these values in the coalesce.
-    COALESCE(
-        CASE
-            WHEN political.cook_municipality_name[1] IN (
-                    'TOWN OF CICERO', 'VILLAGE OF CICERO'
+    CASE
+        WHEN
+            CARDINALITY(tax.tax_municipality_name) > 0
+            THEN tax.tax_municipality_name
+        WHEN
+            political.cook_municipality_name[1] IN (
+                'TOWN OF CICERO', 'VILLAGE OF CICERO'
+            )
+            THEN ARRAY['TOWN OF CICERO']
+        WHEN pin.pin10 IN (
+                SELECT SUBSTR(parid, 1, 10)
+                FROM iasworld.pardat
+                WHERE cur = 'Y'
+                    AND deactivat IS NULL
+                GROUP BY SUBSTR(parid, 1, 10)
+                HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
+            )
+            THEN ARRAY[
+                COALESCE(
+                    xwalk.tax_municipality_name,
+                    political.cook_municipality_name[1]
                 )
-                THEN
-                political.cook_municipality_name
-            -- We also discovered that some new PINs do not have 
-            -- their municipality provided yet.
-            -- Because of this, we coalesce values where the 
-            -- municipality is NULL and the PIN is in the
-            -- PARID table with a tax year greater than 
-            -- the maximum tax year in the tax.pin
-            WHEN tax.tax_municipality_name IS NULL
-                AND pin.pin10 IN (
-                    SELECT SUBSTR(parid, 1, 10)
-                    FROM iasworld.pardat
-                    WHERE cur = 'Y'
-                        AND deactivat IS NULL
-                    GROUP BY SUBSTR(parid, 1, 10)
-                    HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
-                )
-                THEN
-                -- There are a few municipalities with slightly 
-                -- different names between the two files.
-                -- Village of Mt Prospect and Village of Mount Prospect.
-                -- We use the xwalk table to ensure we use a single name.
-                ARRAY[
-                    COALESCE(
-                        xwalk.tax_municipality_name,
-                        political.cook_municipality_name[1]
-                    )
-                ]
-            ELSE
-                tax.tax_municipality_name
-        END
-    ) AS combined_municipality,
+            ]
+        ELSE tax.tax_municipality_name
+    END AS combined_municipality,
 
     tax.tax_school_elementary_district_num,
     tax.tax_school_elementary_district_name,

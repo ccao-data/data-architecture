@@ -136,6 +136,21 @@ Chicago industrial corridor name
 2-digit Chicago police district number
 {% enddocs %}
 
+## combined_municipality
+
+{% docs column_combined_municipality %}
+This is a column which combines tax_municipality_name and cook_municipality_name.
+This is because tax_municipality_name does not have values for Cicero and 
+for some new parcels. 
+Steps:
+1: We take the value of tax_municipality_name if
+the cardinality is >0 (non-NULL).
+2: We check if the PIN is in Cicero in cook_municipality_name.
+3: We check if the PIN is new in iasworld.pardat
+4: We return the remaining NULL values from tax_municipality_name
+
+{% enddocs %}
+
 ## cook_board_of_review_district_num
 
 {% docs column_cook_board_of_review_district_num %}
