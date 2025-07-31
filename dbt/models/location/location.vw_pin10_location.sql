@@ -90,8 +90,22 @@ SELECT
     COALESCE(
         CASE
             WHEN political.cook_municipality_name[1] = 'TOWN OF CICERO'
-                THEN political.cook_municipality_name
-            ELSE tax.tax_municipality_name
+                OR political.cook_municipality_name[1] = 'VILLAGE OF CICERO'
+                THEN
+                political.cook_municipality_name
+            WHEN tax.tax_municipality_name IS NULL
+                AND pin.pin10 IN (
+                    SELECT SUBSTR(parid, 1, 10)
+                    FROM iasworld.pardat
+                    WHERE cur = 'Y'
+                        AND deactivat IS NULL
+                    GROUP BY SUBSTR(parid, 1, 10)
+                    HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
+                )
+                THEN
+                political.cook_municipality_name
+            ELSE
+                tax.tax_municipality_name
         END
     ) AS combined_municipality,
 
