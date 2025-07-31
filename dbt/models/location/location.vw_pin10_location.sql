@@ -87,17 +87,22 @@ SELECT
     tax.tax_municipality_num,
     tax.tax_municipality_name,
     -- This is needed for two reasons. The first is that all PINs in 
-    -- Cicero are encoded as [] or unincorporated.
-    -- Because of this, we prioritize these values in the coalesce.
+    -- Cicero are encoded as [] or unincorporated and some recent
+    -- PINs have not been assigned a municipality in our data.
     CASE
+    -- Prioritize tax_municipality_name when it is not NULL
         WHEN
             CARDINALITY(tax.tax_municipality_name) > 0
             THEN tax.tax_municipality_name
+        -- If the municipality is Cicero, we need to
+        -- grab it from cook_municipality_name
         WHEN
             political.cook_municipality_name[1] IN (
+                -- Naming changes in 2007
                 'TOWN OF CICERO', 'VILLAGE OF CICERO'
             )
-            THEN ARRAY['TOWN OF CICERO']
+            THEN political.cook_municipality_name
+        -- Grab new PINs which may not have been assigned a municipality yet
         WHEN pin.pin10 IN (
                 SELECT SUBSTR(parid, 1, 10)
                 FROM iasworld.pardat
@@ -108,10 +113,13 @@ SELECT
             )
             THEN ARRAY[
                 COALESCE(
+                    -- Some PINs have slighlty different names so we
+                    -- use create a crosswalk.
                     xwalk.tax_municipality_name,
                     political.cook_municipality_name[1]
                 )
             ]
+        -- Return NULL values
         ELSE tax.tax_municipality_name
     END AS combined_municipality,
 
