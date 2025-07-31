@@ -96,7 +96,9 @@ SELECT
     ROUND(train.meta_sale_price / NULLIF(train.char_bldg_sf, 0))
         AS sale_price_per_sq_ft,
     FORMAT_DATETIME(train.meta_sale_date, 'MMM yyyy') AS sale_month_year,
-    {{ all_predictors('train') }},
+    {% for predictor in get_all_predictors() %}
+        train.{{ predictor }},
+    {% endfor %}
     train.char_bldg_sf AS combined_bldg_sf,
     elem_sd.name AS loc_school_elementary_district_name,
     sec_sd.name AS loc_school_secondary_district_name,
