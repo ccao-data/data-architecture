@@ -91,9 +91,7 @@ SELECT
         CASE
             WHEN political.cook_municipality_name[1] = 'TOWN OF CICERO'
                 THEN political.cook_municipality_name
-            WHEN tax.tax_municipality_name IS NOT NULL
-                THEN tax.tax_municipality_name
-            ELSE ARRAY[NULL]
+            ELSE tax.tax_municipality_name
         END
     ) AS combined_municipality,
 
