@@ -1,8 +1,8 @@
 -- View containing each of the PIN-level location (spatial joins)
+
 SELECT
     pin.pin10,
     pin.year,
-
     census.census_block_group_geoid,
     census.census_block_geoid,
     census.census_congressional_district_geoid,
@@ -36,6 +36,9 @@ SELECT
     political.cook_commissioner_district_data_year,
     political.cook_judicial_district_num,
     political.cook_judicial_district_data_year,
+    political.cook_municipality_num,
+    political.cook_municipality_name,
+    political.cook_municipality_data_year,
     political.ward_num,
     political.ward_name,
     political.ward_chicago_data_year,
@@ -83,6 +86,43 @@ SELECT
 
     tax.tax_municipality_num,
     tax.tax_municipality_name,
+    -- This is needed for two reasons. The first is that all PINs in 
+    -- Cicero are encoded as [] or unincorporated and some recent
+    -- PINs have not been assigned a municipality in our data.
+    CASE
+    -- Prioritize tax_municipality_name when it is not NULL
+        WHEN
+            CARDINALITY(tax.tax_municipality_name) > 0
+            THEN tax.tax_municipality_name
+        -- If the municipality is Cicero, we need to
+        -- grab it from cook_municipality_name
+        WHEN
+            political.cook_municipality_name[1] IN (
+                -- Naming changes in 2007
+                'TOWN OF CICERO', 'VILLAGE OF CICERO'
+            )
+            THEN political.cook_municipality_name
+        -- Grab new PINs which may not have been assigned a municipality yet
+        WHEN pin.pin10 IN (
+                SELECT SUBSTR(parid, 1, 10)
+                FROM iasworld.pardat
+                WHERE cur = 'Y'
+                    AND deactivat IS NULL
+                GROUP BY SUBSTR(parid, 1, 10)
+                HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
+            )
+            THEN ARRAY[
+                COALESCE(
+                    -- Some PINs have slighlty different names so we
+                    -- use create a crosswalk.
+                    xwalk.tax_municipality_name,
+                    political.cook_municipality_name[1]
+                )
+            ]
+        -- Return NULL values
+        ELSE tax.tax_municipality_name
+    END AS combined_municipality,
+
     tax.tax_school_elementary_district_num,
     tax.tax_school_elementary_district_name,
     tax.tax_school_secondary_district_num,
@@ -123,6 +163,8 @@ LEFT JOIN {{ ref('location.census_acs5') }} AS census_acs5
 LEFT JOIN {{ ref('location.political') }} AS political
     ON pin.pin10 = political.pin10
     AND pin.year = political.year
+LEFT JOIN {{ ref('location.municipality_crosswalk') }} AS xwalk
+    ON political.cook_municipality_name[1] = xwalk.cook_municipality_name
 LEFT JOIN {{ ref('location.chicago') }} AS chicago
     ON pin.pin10 = chicago.pin10
     AND pin.year = chicago.year
