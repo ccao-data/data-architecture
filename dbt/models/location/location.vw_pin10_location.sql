@@ -163,7 +163,7 @@ LEFT JOIN {{ ref('location.census_acs5') }} AS census_acs5
 LEFT JOIN {{ ref('location.political') }} AS political
     ON pin.pin10 = political.pin10
     AND pin.year = political.year
-LEFT JOIN {{ ref('spatial.municipality_crosswalk') }} AS xwalk
+LEFT JOIN {{ ref('location.municipality_crosswalk') }} AS xwalk
     ON political.cook_municipality_name[1] = xwalk.cook_municipality_name
 LEFT JOIN {{ ref('location.chicago') }} AS chicago
     ON pin.pin10 = chicago.pin10

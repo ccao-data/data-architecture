@@ -137,6 +137,7 @@ SELECT
     vwl.school_data_year,
     vwl.tax_municipality_num,
     vwl.tax_municipality_name,
+    vwl.combined_municipality,
     vwl.tax_school_elementary_district_num,
     vwl.tax_school_elementary_district_name,
     vwl.tax_school_secondary_district_num,
