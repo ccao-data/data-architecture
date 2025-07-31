@@ -48,3 +48,17 @@ SELECTOR_ARGUMENT_KWARGS: AddArgumentKwargs = {
         "selectors.yml. Takes precedence over --select when both are present"
     )
 }
+LOG_TO_FILE_ARGUMENT_ARGS = ["--log-to-file"]
+LOG_TO_FILE_ARGUMENT_KWARGS: AddArgumentKwargs = {
+    "help": (
+        "Flag to indicate whether to log to a local file. If set, logs will be "
+        "written to a user-defined location."
+    )
+}
+LOG_TO_CLOUDWATCH_GROUP_ARGUMENT_ARGS = ["--log-to-cloudwatch-group"]
+LOG_TO_CLOUDWATCH_GROUP_ARGUMENT_KWARGS: AddArgumentKwargs = {
+    "help": (
+        "Flag to indicate whether to log to a CloudWatch log group. If set, "
+        "logs will be written to a user-defined AWS CloudWatch log group."
+    )
+}
