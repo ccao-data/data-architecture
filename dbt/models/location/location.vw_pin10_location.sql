@@ -89,8 +89,9 @@ SELECT
     tax.tax_municipality_name,
     COALESCE(
         CASE
-            WHEN political.cook_municipality_name[1] = 'TOWN OF CICERO'
-                OR political.cook_municipality_name[1] = 'VILLAGE OF CICERO'
+            WHEN political.cook_municipality_name[1] IN (
+                    'TOWN OF CICERO', 'VILLAGE OF CICERO'
+                )
                 THEN
                 political.cook_municipality_name
             WHEN tax.tax_municipality_name IS NULL
@@ -103,7 +104,12 @@ SELECT
                     HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
                 )
                 THEN
-                political.cook_municipality_name
+                ARRAY[
+                    COALESCE(
+                        xwalk.tax_municipality_name,
+                        political.cook_municipality_name[1]
+                    )
+                ]
             ELSE
                 tax.tax_municipality_name
         END
@@ -149,6 +155,8 @@ LEFT JOIN {{ ref('location.census_acs5') }} AS census_acs5
 LEFT JOIN {{ ref('location.political') }} AS political
     ON pin.pin10 = political.pin10
     AND pin.year = political.year
+LEFT JOIN {{ ref('spatial.municipality_crosswalk') }} AS xwalk
+    ON political.cook_municipality_name[1] = xwalk.cook_municipality_name
 LEFT JOIN {{ ref('location.chicago') }} AS chicago
     ON pin.pin10 = chicago.pin10
     AND pin.year = chicago.year
