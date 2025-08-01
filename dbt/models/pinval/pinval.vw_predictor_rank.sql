@@ -32,11 +32,11 @@ shap_abs AS (
         shap.year,
         shap.township_code,
         shap.meta_pin,
-        shap.meta_card_num
+        shap.meta_card_num,
     {% for predictor in predictors -%}
-            shap.{{ predictor }},
-            abs(shap.{{ predictor }}) AS abs_{{ predictor }}{% if not loop.last %},{% endif %}
-        {% endfor %}
+        shap.{{ predictor }},
+        abs(shap.{{ predictor }}) AS abs_{{ predictor }}{% if not loop.last %},{% endif %}
+    {% endfor %}
     FROM {{ source('model', 'shap') }} AS shap
     INNER JOIN (
         SELECT
@@ -78,8 +78,8 @@ pred_wt AS (
         shap_abs.township_code,
         shap_abs.meta_pin,
         shap_abs.meta_card_num,
-        shap_sum.shap_sum
-    {% for predictor in predictors -%}
+        shap_sum.shap_sum,
+        {% for predictor in predictors -%}
             shap_abs.{{ predictor }},
             shap_abs.abs_{{ predictor }},
             shap_abs.abs_{{ predictor }} / shap_sum.shap_sum AS wt_{{ predictor }}{% if not loop.last %},{% endif %}
@@ -128,7 +128,7 @@ pred_wt_long AS (
         pred_name,
         pred_wt
     FROM pred_wt_map
-    CROSS JOIN UNNEST(pred_wt_map)
+    CROSS JOIN UNNEST(pred_wt_map) AS t (pred_name, pred_wt)
 ),
 
 -- Compute rank and quantile for all predictors
@@ -154,8 +154,8 @@ pred_rank AS (
         year,
         township_code,
         meta_pin,
-        meta_card_num
-    {% for predictor in predictors -%}
+        meta_card_num,
+        {% for predictor in predictors -%}
             MAX(CASE WHEN pred_name = 'wt_{{ predictor }}' THEN pred_wt END) AS wt_{{ predictor }},
             MAX(CASE WHEN pred_name = 'wt_{{ predictor }}' THEN rank END) AS rank_{{ predictor }},
             MAX(CASE WHEN pred_name = 'wt_{{ predictor }}' THEN tercile END) AS terc_{{ predictor }}{% if not loop.last %},{% endif %}
