@@ -13,7 +13,9 @@ AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "sale", "mydec_test")
 
 # Read in MyDec column name crosswalk
-columns_crosswalk <- read_delim("../mydec_crosswalk.csv", delim = ",")
+columns_crosswalk <- read_delim("../mydec_crosswalk.csv", delim = ",") %>%
+  # We store dates as strings in Athena
+  mutate(field_type = str_replace_all(field_type, "date", "character"))
 lookup <- columns_crosswalk %>% pull(mydec_api)
 names(lookup) <- columns_crosswalk$ccao_warehouse
 
@@ -24,21 +26,28 @@ sales <- open_dataset(file.path(AWS_S3_RAW_BUCKET, "sale", "mydec_test")) %>%
 # Clean up, then write to S3
 temp <- sales %>%
   rename(any_of(lookup)) %>%
-  select(any_of(names(lookup)), loaded_at, year) %>%
+  (\(x) {
+    # If the lookup has column names that are not in the dataset, add them as
+    # empty columns
+    x[setdiff(names(lookup), names(x))] <- NA
+    return(x)
+  }) %>%
+  select(all_of(names(lookup)), loaded_at, year) %>%
   filter(!is.na(document_number)) %>%
   mutate(
     across(where(is.character), str_squish),
     across(where(is.character), ~ na_if(.x, "")),
     across(where(is.character), ~ na_if(.x, "NULL")),
-    document_number = str_remove_all(document_number, "D"),
-    # Convert all columns that are character and contain only "TRUE", "FALSE"
-    # or NA to booleans. This could potentially convert an empty column to a
-    # boolean but it doesn't matter what type empty columns are.
-    across(where(~ all(unique(.x) %in% c("FALSE", "TRUE", NA))), as.logical),
-    # Convert columns that only contain numbers to numeric
-    across(where(~ all(grepl("[0-9.]", .x[!is.na(.x)]))), as.numeric),
-    across(ends_with("consideration"), as.integer),
+    across(contains("date"), ~ str_sub(.x, 1, 10)), # Remove time from dates,
+    document_number = str_remove_all(document_number, "D")
   ) %>%
+  # This function is slow, but too convenient not to use. It will convert all
+  # columns types according to the crosswalk.
+  type_convert(paste(
+    # Add two more c's for loaded_at and year since they're not in the crosswalk
+    c(str_sub(columns_crosswalk$field_type, 1, 1), "c", "c"),
+    collapse = ""
+  )) %>%
   group_by(document_number) %>%
   # Remove sales that have multiple lines with the same document number where
   # the total number of parcels don't match line_2_total_parcels or the sales
