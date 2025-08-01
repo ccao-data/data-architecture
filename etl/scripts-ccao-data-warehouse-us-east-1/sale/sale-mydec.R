@@ -12,19 +12,26 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "sale", "mydec_test")
 
+# Crosswalk ----
+
 # Read in MyDec column name crosswalk
 columns_crosswalk <- read_delim("../mydec_crosswalk.csv", delim = ",") %>%
   # We store dates as strings in Athena
   mutate(field_type = str_replace_all(field_type, "date", "character"))
+
+# We can convert two columns from the crosswalk to a named list and use them to
+# rename all the columns from the raw data
 lookup <- columns_crosswalk %>% pull(mydec_api)
 names(lookup) <- columns_crosswalk$ccao_warehouse
+
+# Data cleaning ----
 
 # Load raw sales files
 sales <- open_dataset(file.path(AWS_S3_RAW_BUCKET, "sale", "mydec_test")) %>%
   collect()
 
 # Clean up, then write to S3
-temp <- sales %>%
+sales %>%
   rename(any_of(lookup)) %>%
   (\(x) {
     # If the lookup has column names that are not in the dataset, add them as
