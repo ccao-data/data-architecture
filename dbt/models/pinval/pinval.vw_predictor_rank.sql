@@ -142,7 +142,11 @@ pred_rank_long AS (
         NTILE(3) OVER (
             PARTITION BY run_id, year, township_code, meta_pin, meta_card_num
             ORDER BY pred_wt ASC
-        ) AS tercile
+        ) AS tercile,
+        NTILE(4) OVER (
+            PARTITION BY run_id, year, township_code, meta_pin, meta_card_num
+            ORDER BY pred_wt ASC
+        ) AS quartile
     FROM pred_wt_long
 ),
 
@@ -158,7 +162,8 @@ pred_rank AS (
         {% for predictor in predictors -%}
             MAX(CASE WHEN pred_name = 'wt_{{ predictor }}' THEN pred_wt END) AS wt_{{ predictor }},
             MAX(CASE WHEN pred_name = 'wt_{{ predictor }}' THEN rank END) AS rank_{{ predictor }},
-            MAX(CASE WHEN pred_name = 'wt_{{ predictor }}' THEN tercile END) AS terc_{{ predictor }}{% if not loop.last %},{% endif %}
+            MAX(CASE WHEN pred_name = 'wt_{{ predictor }}' THEN tercile END) AS terc_{{ predictor }},
+            MAX(CASE WHEN pred_name = 'wt_{{ predictor }}' THEN quartile END) AS quart_{{ predictor }}{% if not loop.last %},{% endif %}
         {% endfor -%}
     FROM pred_rank_long
     GROUP BY run_id, year, township_code, meta_pin, meta_card_num
