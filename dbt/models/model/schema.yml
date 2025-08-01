@@ -150,9 +150,6 @@ sources:
                 - num_quantile
                 - quantile
 
-      - name: pinval_test_training_data
-        description: '{{ doc("pinval_test_training_data") }}'
-
       - name: shap
         description: '{{ doc("table_shap") }}'
         tags:
