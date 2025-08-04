@@ -213,12 +213,9 @@ mydec_sales AS (
             line_10s_senior_citizens_assessment_freeze
                 AS mydec_homestead_exemption_senior_citizens_assessment_freeze,
             (
-                COALESCE(line_10b, 0) + COALESCE(line_10c, 0)
-                + COALESCE(line_10d, 0) + COALESCE(line_10e, 0)
-                + COALESCE(line_10f, 0) + COALESCE(line_10g, 0)
-                + COALESCE(line_10h, 0) + COALESCE(line_10i, 0)
-                + COALESCE(line_10k, 0)
-            ) > 0 AS sale_filter_ptax_flag,
+                line_10b OR line_10c OR line_10d OR line_10e OR line_10f
+                OR line_10g OR line_10h OR line_10i OR line_10k
+            ) AS sale_filter_ptax_flag,
             /* We partition by line_2_total_parcels as well as pin and date here
             since we historically excluded multisales from construction of mydec
             sales sample. Here we can let in mydec multisales, but not let them

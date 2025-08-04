@@ -204,12 +204,9 @@ mydec_sales AS (
             -- which finds sales more than 2 SD from the year, town, and
             -- class mean
             (
-                COALESCE(line_10b, 0) + COALESCE(line_10c, 0)
-                + COALESCE(line_10d, 0) + COALESCE(line_10e, 0)
-                + COALESCE(line_10f, 0) + COALESCE(line_10g, 0)
-                + COALESCE(line_10h, 0) + COALESCE(line_10i, 0)
-                + COALESCE(line_10k, 0)
-            ) > 0 AS sale_filter_ptax_flag,
+                line_10b OR line_10c OR line_10d OR line_10e OR line_10f
+                OR line_10g OR line_10h OR line_10i OR line_10k
+            ) AS sale_filter_ptax_flag,
             COUNT() OVER (
                 PARTITION BY line_1_primary_pin, line_4_instrument_date
             ) AS num_single_day_sales,
