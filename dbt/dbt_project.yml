@@ -78,5 +78,7 @@ seeds:
       +schema: location
     model:
       +schema: model
+    sale:
+      +schema: sale
     spatial:
       +schema: spatial
