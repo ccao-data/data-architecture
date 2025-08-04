@@ -200,6 +200,7 @@ mydec_sales AS (
             line_10j AS mydec_is_seller_buyer_a_relocation_company,
             line_10k
                 AS mydec_is_seller_buyer_a_financial_institution_or_government_agency, --noqa
+            line_10l AS mydec_is_buyer_a_real_estate_investment_trust,
             line_10m AS mydec_is_buyer_a_pension_fund,
             line_10n AS mydec_is_buyer_an_adjacent_property_owner,
             line_10o AS mydec_is_buyer_exercising_an_option_to_purchase,
