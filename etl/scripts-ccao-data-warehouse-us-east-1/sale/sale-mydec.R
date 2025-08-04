@@ -15,7 +15,10 @@ output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "sale", "mydec_test")
 # Crosswalk ----
 
 # Read in MyDec column name crosswalk
-columns_crosswalk <- read_delim("../mydec_crosswalk.csv", delim = ",") %>%
+columns_crosswalk <- read_delim(
+  "../dbt/seeds/sale/sale.mydec_crosswalk.csv",
+  delim = ","
+) %>%
   # We store dates as strings in Athena
   mutate(field_type = str_replace_all(field_type, "date", "character"))
 
