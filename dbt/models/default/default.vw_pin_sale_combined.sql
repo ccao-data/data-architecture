@@ -230,7 +230,7 @@ mydec_sales AS (
                     line_2_total_parcels
             ) AS num_single_day_sales,
             year_of_sale AS year
-        FROM {{ source('sale', 'mydec') }}
+        FROM {{ source('sale', 'mydec_test') }}
         --WHERE line_2_total_parcels < 2
     )
     /* Some sales in mydec have multiple rows for one pin on a given sale date.
