@@ -201,6 +201,19 @@ sources:
               config:
                 where: run_id = 'initial_flagging'
 
+      - name: mydec
+        description: '{{ doc("mydec") }}'
+        tags:
+          - load_manual
+        data_tests:
+          - unique_combination_of_columns:
+              name: sale_mydec_unique_by_document_number_year_of_sale
+              combination_of_columns:
+                - document_number
+                - year_of_sale
+              meta:
+                description: mydec is unique by document_number and year_of_sale
+
       - name: mydec_test
         description: '{{ doc("mydec") }}'
         tags:
