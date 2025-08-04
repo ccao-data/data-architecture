@@ -239,9 +239,8 @@ SELECT
         {% if predictor not in ['meta_township_code', 'char_class'] %}
             ac.{{ predictor }},
         {% endif %}
-        pred_rank.wt_{{ predictor }},
-        pred_rank.rank_{{ predictor }},
-        pred_rank.terc_{{ predictor }},
+        shap_wt.wt_{{ predictor }},
+        shap_wt.quart_{{ predictor }},
     {% endfor %}
     CONCAT(CAST(ac.char_class AS VARCHAR), ': ', card_cd.class_desc)
         AS char_class_detailed,
@@ -282,12 +281,12 @@ LEFT JOIN card_agg
     ON ac.meta_pin = card_agg.meta_pin
     AND ac.meta_card_num = card_agg.meta_card_num
     AND ac.run_id = card_agg.run_id
-LEFT JOIN {{ ref('pinval.vw_predictor_rank') }} AS pred_rank
-    ON ac.meta_pin = pred_rank.meta_pin
-    AND ac.meta_card_num = pred_rank.meta_card_num
+LEFT JOIN {{ ref('pinval.vw_shap_weight') }} AS shap_wt
+    ON ac.meta_pin = shap_wt.meta_pin
+    AND ac.meta_card_num = shap_wt.meta_card_num
     -- Use year instead of run ID to account for SHAP run IDs that may differ
     -- from the final model run that we use in this view
-    AND ac.assessment_year = pred_rank.year
+    AND ac.assessment_year = shap_wt.year
 LEFT JOIN school_districts AS elem_sd
     ON ac.loc_school_elementary_district_geoid = elem_sd.geoid
     AND ac.meta_year = elem_sd.year

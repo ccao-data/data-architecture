@@ -71,7 +71,7 @@ shap_sum AS (
 -- Get magnitude of absolute SHAP value relative to the sum of absolute SHAP
 -- values for a card, as a rough measure of feature importance for that card.
 -- We'll consider this to be the predictor weight
-pred_wt AS (
+shap_wt AS (
     SELECT
         shap_abs.run_id,
         shap_abs.year,
@@ -95,7 +95,7 @@ pred_wt AS (
 
 -- Pull predictors and weights into arrays so that we can pivot them longer
 -- in order to facilitate ranking them and computing quantiles
-pred_wt_map AS (
+shap_wt_map AS (
     SELECT
         run_id,
         year,
@@ -113,12 +113,12 @@ pred_wt_map AS (
                     wt_{{ predictor }}{% if not loop.last %}, {% endif %}
                 {% endfor %}
             ]
-        ) AS pred_wt_map
-    FROM pred_wt
+        ) AS shap_wt_map
+    FROM shap_wt
 ),
 
 -- Pivot predictor weights longer
-pred_wt_long AS (
+shap_wt_long AS (
     SELECT
         run_id,
         year,
@@ -126,33 +126,29 @@ pred_wt_long AS (
         meta_pin,
         meta_card_num,
         pred_name,
-        pred_wt
-    FROM pred_wt_map
-    CROSS JOIN UNNEST(pred_wt_map) AS t (pred_name, pred_wt)
+        shap_wt
+    FROM shap_wt_map
+    CROSS JOIN UNNEST(shap_wt_map) AS t (pred_name, shap_wt)
 ),
 
 -- Compute rank and quantile for all predictors
-pred_rank_long AS (
+shap_rank_long AS (
     SELECT
         *,
         ROW_NUMBER() OVER (
             PARTITION BY run_id, year, township_code, meta_pin, meta_card_num
-            ORDER BY pred_wt DESC
+            ORDER BY shap_wt ASC
         ) AS rank,
-        NTILE(3) OVER (
-            PARTITION BY run_id, year, township_code, meta_pin, meta_card_num
-            ORDER BY pred_wt ASC
-        ) AS tercile,
         NTILE(4) OVER (
             PARTITION BY run_id, year, township_code, meta_pin, meta_card_num
-            ORDER BY pred_wt ASC
+            ORDER BY shap_wt ASC
         ) AS quartile
-    FROM pred_wt_long
+    FROM shap_wt_long
 ),
 
 -- Pivot the weights, ranks, and quantiles wider so we can return one row per
 -- card
-pred_rank AS (
+shap_rank AS (
     SELECT
         run_id,
         year,
@@ -160,14 +156,13 @@ pred_rank AS (
         meta_pin,
         meta_card_num,
         {% for predictor in predictors -%}
-            MAX(CASE WHEN pred_name = 'wt_{{ predictor }}' THEN pred_wt END) AS wt_{{ predictor }},
+            MAX(CASE WHEN pred_name = 'wt_{{ predictor }}' THEN shap_wt END) AS wt_{{ predictor }},
             MAX(CASE WHEN pred_name = 'wt_{{ predictor }}' THEN rank END) AS rank_{{ predictor }},
-            MAX(CASE WHEN pred_name = 'wt_{{ predictor }}' THEN tercile END) AS terc_{{ predictor }},
             MAX(CASE WHEN pred_name = 'wt_{{ predictor }}' THEN quartile END) AS quart_{{ predictor }}{% if not loop.last %},{% endif %}
         {% endfor -%}
-    FROM pred_rank_long
+    FROM shap_rank_long
     GROUP BY run_id, year, township_code, meta_pin, meta_card_num
 )
 
 SELECT *
-FROM pred_rank
+FROM shap_rank
