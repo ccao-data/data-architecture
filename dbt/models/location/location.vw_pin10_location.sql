@@ -1,8 +1,8 @@
 -- View containing each of the PIN-level location (spatial joins)
-
 SELECT
     pin.pin10,
     pin.year,
+    
     census.census_block_group_geoid,
     census.census_block_geoid,
     census.census_congressional_district_geoid,
