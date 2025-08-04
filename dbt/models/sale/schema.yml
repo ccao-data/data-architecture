@@ -31,7 +31,7 @@ sources:
             data_tests:
               - not_null:
                   name: sale_flag_sv_outlier_reason1_not_null_when_sv_is_outlier
-                  config: 
+                  config:
                     where: sv_is_outlier
                   meta:
                    description: sv_outlier_reason1 is not null when sv_is_outlier
@@ -201,7 +201,7 @@ sources:
               config:
                 where: run_id = 'initial_flagging'
 
-      - name: mydec
+      - name: mydec_test
         description: '{{ doc("mydec") }}'
         tags:
           - load_manual
