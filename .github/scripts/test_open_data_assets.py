@@ -91,7 +91,10 @@ def main() -> None:
         asset_row_counts_by_year = [
             {
                 **year_count,
-                asset_year_field: int(year_count[asset_year_field])
+                # Convert year field to float first to handle cases where
+                # Socrata passes a float representation of an integer, e.g.
+                # "2025.0" rather than "2025"
+                asset_year_field: int(float(year_count[asset_year_field]))
                 if year_count.get(asset_year_field) is not None
                 else None,
             }
