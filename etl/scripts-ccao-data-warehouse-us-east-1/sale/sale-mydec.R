@@ -49,7 +49,7 @@ sales %>%
     across(where(is.character), ~ na_if(.x, "")),
     across(where(is.character), ~ na_if(.x, "NULL")),
     across(contains("date"), ~ str_sub(.x, 1, 10)), # Remove time from dates,
-    document_number = str_remove_all(document_number, "D")
+    document_number = gsub("\\D", "", document_number)
   ) %>%
   # This function is slow, but too convenient not to use. It will convert all
   # columns types according to the crosswalk.
@@ -59,15 +59,16 @@ sales %>%
     collapse = ""
   )) %>%
   group_by(document_number) %>%
+  mutate(line_2_total_parcels = max(line_2_total_parcels)) %>%
   # Remove sales that have multiple lines with the same document number where
   # the total number of parcels don't match line_2_total_parcels or the sales
   # took place on different days. These sales are too dirty to be useful.
   filter(
-    (n() == 1 | max(line_2_total_parcels) == n()),
+    (n() == 1 | line_2_total_parcels == n()),
     n_distinct(line_4_instrument_date) == 1
   ) %>%
   arrange(line_4_instrument_date, date_recorded, .by_group = TRUE) %>%
-  mutate(is_multisale = n() > 1) %>%
+  mutate(is_multisale = n() > 1 | line_2_total_parcels > 1) %>%
   relocate(year_of_sale = year, .after = last_col()) %>%
   group_by(year_of_sale) %>%
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)
