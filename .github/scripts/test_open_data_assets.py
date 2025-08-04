@@ -91,7 +91,7 @@ def main() -> None:
         asset_row_counts_by_year = [
             {
                 **year_count,
-                asset_year_field: int(year_count[asset_year_field])
+                asset_year_field: int(float(year_count[asset_year_field]))
                 if year_count.get(asset_year_field) is not None
                 else None,
             }
