@@ -139,19 +139,20 @@ Chicago industrial corridor name
 ## combined_municipality_name
 
 {% docs column_combined_municipality_name %}
-This is a column which combines tax_municipality_name and cook_municipality_name.
-This is because tax_municipality_name does not have values for Cicero and 
-for some new parcels. 
+Combines `tax_municipality_name` and `cook_municipality_name`.
+While `tax_municipality_name` is more dependable, it does not have values for
+Cicero due to its status as both a township and a municipality, or parcels that
+have been created more recently than our most recent tax data.
 Steps:
-1: We take the value of tax_municipality_name if
-the cardinality is >0 (non-NULL).
-2: We check if the PIN is in Cicero in cook_municipality_name. There are two
-names for this Village and Town of Cicero. These switch over completely in 2007.
-Because of this, we coalesce with either of these values.
-3: We check if the PIN is new in iasworld.pardat. If it is, we coalesce the 
-value from cook_municipality_name. We then run these values through a
-crosswalk file to make sure they align with tax_municipality_name.
-4: We return the remaining NULL values from tax_municipality_name
+1. Use the value of `tax_municipality_name` if it contains one or more non-null
+values.
+2. Check if the PIN has a value of "Village of Cicero" or "Town of Cicero" for
+`cook_municipality_name` depending on whether the data is pre- or post-2007.
+3. If the PIN is newer than the most recent year of tax data coalesce the 
+value from `cook_municipality_name`. We then run these values through a
+crosswalk file to make sure they align semantically with
+`tax_municipality_name`.
+4. Return the remaining NULL values from `tax_municipality_name`
 
 {% enddocs %}
 
