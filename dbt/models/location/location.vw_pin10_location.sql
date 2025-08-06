@@ -88,7 +88,8 @@ SELECT
     tax.tax_municipality_name,
     -- This is needed for two reasons. The first is that all PINs in 
     -- Cicero are encoded as [] or unincorporated and PINs created
-    -- after the most recent year of tax data won't have values for tax_municipality_name.
+    -- after the most recent year of tax data won't
+    -- have values for tax_municipality_name.
     CASE
     -- Prioritize tax_municipality_name when it is not NULL
         WHEN
