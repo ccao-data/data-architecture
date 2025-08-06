@@ -136,7 +136,7 @@ Chicago industrial corridor name
 2-digit Chicago police district number
 {% enddocs %}
 
-## combined_municipality
+## combined_municipality_name
 
 {% docs column_combined_municipality %}
 This is a column which combines tax_municipality_name and cook_municipality_name.
