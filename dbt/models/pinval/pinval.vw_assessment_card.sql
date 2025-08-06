@@ -280,13 +280,8 @@ SELECT
             THEN NULL
         ELSE 'unknown'
     END AS reason_report_ineligible,
-    {% for predictor in all_predictors() %}
-        {#- Skip predictors that we've already selected above -#}
-        {% if predictor not in ['meta_township_code', 'char_class'] %}
-            ac.{{ predictor }},
-        {% endif %}
-        shap.{{ predictor }} AS shap_{{ predictor }},
-    {% endfor %}
+    {{ all_predictors('ac', exclude=['meta_township_code', 'char_class']) }},
+    {{ all_predictors('shap') }},
     CONCAT(CAST(ac.char_class AS VARCHAR), ': ', card_cd.class_desc)
         AS char_class_detailed,
     ap.loc_property_address AS property_address,
@@ -329,8 +324,8 @@ LEFT JOIN card_agg
 LEFT JOIN shap
     ON ac.meta_pin = shap.meta_pin
     AND ac.meta_card_num = shap.meta_card_num
--- SHAP run IDs can differ from final model run IDs, so use assessment year
--- to join them
+    -- SHAP run IDs can differ from final model run IDs, so use assessment year
+    -- to join them
     AND ac.assessment_year = shap.assessment_year
 LEFT JOIN school_districts AS elem_sd
     ON ac.loc_school_elementary_district_geoid = elem_sd.geoid
