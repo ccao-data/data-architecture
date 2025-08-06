@@ -150,6 +150,15 @@ sources:
                   values: ["questionable", "negative pred", "399 GR"]
             meta:
               description: pin nonlivable flag should have values of questionable, negative pre or 399 GR
+      - name: zoning
+        description: '{{ doc("table_zoning") }}'
+        data_tests:
+          - unique_combination_of_columns:
+              name: ccao_zoning_unique_by_pin
+              combination_of_columns:
+                - pin
+              meta:
+                description: zoning should be unique by pin
 
 exposures:
   - name: commercial_valuation_data
