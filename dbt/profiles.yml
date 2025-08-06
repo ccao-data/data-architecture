@@ -1,38 +1,38 @@
 athena:
   target: dev
   outputs:
-      dev:
-        type: athena
-        s3_staging_dir: s3://ccao-dbt-athena-dev-us-east-1/results/
-        s3_data_dir: s3://ccao-dbt-athena-dev-us-east-1/data/
-        s3_data_naming: schema_table_unique
-        region_name: us-east-1
-        # "schema" here corresponds to a Glue database
-        schema: z_static_unused_dbt_stub_database
-        # "database" here corresponds to a Glue data catalog
-        database: awsdatacatalog
-        spark_work_group: primary-spark-staging
-        threads: 16
-        num_retries: 1
-      ci:
-        type: athena
-        s3_staging_dir: s3://ccao-dbt-athena-ci-us-east-1/results/
-        s3_data_dir: s3://ccao-dbt-athena-ci-us-east-1/data/
-        s3_data_naming: schema_table_unique
-        region_name: us-east-1
-        schema: z_static_unused_dbt_stub_database
-        database: awsdatacatalog
-        spark_work_group: primary-spark-staging
-        threads: 16
-        num_retries: 1
-      prod:
-        type: athena
-        s3_staging_dir: s3://ccao-athena-results-us-east-1/
-        s3_data_dir: s3://ccao-athena-ctas-us-east-1/
-        s3_data_naming: schema_table_unique
-        region_name: us-east-1
-        schema: default
-        database: awsdatacatalog
-        spark_work_group: primary-spark
-        threads: 16
-        num_retries: 1
+    dev:
+      type: athena
+      s3_staging_dir: s3://ccao-dbt-athena-dev-us-east-1/results/
+      s3_data_dir: s3://ccao-dbt-athena-dev-us-east-1/data/
+      s3_data_naming: schema_table_unique
+      region_name: us-east-1
+      # "schema" here corresponds to a Glue database
+      schema: z_static_unused_dbt_stub_database
+      # "database" here corresponds to a Glue data catalog
+      database: awsdatacatalog
+      spark_work_group: primary-spark-staging
+      threads: 16
+      num_retries: 1
+    ci:
+      type: athena
+      s3_staging_dir: s3://ccao-dbt-athena-ci-us-east-1/results/
+      s3_data_dir: s3://ccao-dbt-athena-ci-us-east-1/data/
+      s3_data_naming: schema_table_unique
+      region_name: us-east-1
+      schema: z_static_unused_dbt_stub_database
+      database: awsdatacatalog
+      spark_work_group: primary-spark-staging
+      threads: 16
+      num_retries: 1
+    prod:
+      type: athena
+      s3_staging_dir: s3://ccao-athena-results-us-east-1/
+      s3_data_dir: s3://ccao-athena-ctas-us-east-1/
+      s3_data_naming: schema_table_unique
+      region_name: us-east-1
+      schema: default
+      database: awsdatacatalog
+      spark_work_group: primary-spark
+      threads: 16
+      num_retries: 1
