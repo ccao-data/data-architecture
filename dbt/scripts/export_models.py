@@ -2,7 +2,6 @@
 #
 # Run `python scripts/export_models.py --help` for details.
 import argparse
-import os
 
 from utils import constants
 from utils.export import export_models
@@ -117,10 +116,3 @@ if __name__ == "__main__":
         # perform cleanup below, but otherwise, raise the error
         if args.log_to_cloudwatch_group is None:
             raise
-
-    if (
-        args.log_to_file is not None
-        and args.log_to_cloudwatch_group is not None
-    ):
-        # Remove the log file if we're pushing logs to Cloudwatch
-        os.remove(args.log_to_file)
