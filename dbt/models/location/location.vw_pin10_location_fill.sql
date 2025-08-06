@@ -37,9 +37,6 @@ SELECT
     cook_commissioner_district.cook_commissioner_district_data_year,
     cook_judicial_district.cook_judicial_district_num,
     cook_judicial_district.cook_judicial_district_data_year,
-    municipality.municipality_num,
-    municipality.municipality_name,
-    municipality.municipality_data_year,
     COALESCE(ward_evanston.ward_num, ward_chicago.ward_num) AS ward_num,
     COALESCE(ward_evanston.ward_name, ward_chicago.ward_name) AS ward_name,
     ward_chicago.ward_chicago_data_year,
@@ -139,10 +136,6 @@ LEFT JOIN {{ ref('location.political') }} AS cook_commissioner_district
     ON pin.pin10 = cook_commissioner_district.pin10
     AND cyf.cook_commissioner_district_fill_year
     = cook_commissioner_district.year
-LEFT JOIN {{ref('location.political') }} AS municipality
-    ON pin.pin10 = municipality.pin10
-    AND cyf.municipality_fill_year
-    = municipality.year
 LEFT JOIN {{ ref('location.political') }} AS cook_judicial_district
     ON pin.pin10 = cook_judicial_district.pin10
     AND cyf.cook_judicial_district_fill_year = cook_judicial_district.year

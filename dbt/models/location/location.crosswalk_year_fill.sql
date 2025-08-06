@@ -36,9 +36,6 @@ and how we construct them.
         "ward_chicago",
         "ward_evanston"
     ],
-    "municipality": [
-        "municipality"
-    ],
     "chicago": [
         "chicago_community_area",
         "chicago_industrial_corridor",
