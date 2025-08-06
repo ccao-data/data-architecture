@@ -31,7 +31,7 @@ models:
       - name: char_unit_sf
         description: '{{ doc("shared_column_char_unit_sf") }}'
       - name: char_yrblt
-        description: '{{ doc("shared_column_char_yrblt") }}'
+          description: '{{ doc("shared_column_char_yrblt") }}'
       - name: class
         description: '{{ doc("shared_column_class") }}'
       - name: is_common_area
@@ -40,7 +40,7 @@ models:
         description: Indicates a negative prediction when testing models.
 
           Typically this results from mislabeled parking spaces which have
-          a very low percentage of ownership.
+            a very low percentage of ownership.
       - name: is_parking_space
         description: '{{ doc("shared_column_is_parking_space") }}'
       - name: is_question_garage_unit
