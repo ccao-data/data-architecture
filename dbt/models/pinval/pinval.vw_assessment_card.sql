@@ -153,6 +153,52 @@ card_agg AS (
         AND ac.run_id = cpm.run_id
 ),
 
+-- Get run IDs for SHAPs that we want to include for the purposes of ranking
+-- features by importance
+shap_runs_to_include AS (
+    SELECT
+        meta.run_id,
+        meta.assessment_year,
+        COALESCE(
+            final.township_code_coverage,
+            -- `township_code_coverage` will only be present if the model is a
+            -- final model, but it's possible for SHAP runs to be separate from
+            -- the final model run. Handle this using a special indicator 'all'
+            -- to mark SHAP runs that are not final models
+            ARRAY['all']
+        ) AS township_code_coverage
+    FROM {{ source('model', 'metadata') }} AS meta
+    LEFT JOIN {{ ref('model.final_model') }} AS final
+        ON meta.run_id = final.run_id
+    WHERE meta.run_id IN (
+            '2024-02-06-relaxed-tristan',
+            '2024-03-17-stupefied-maya',
+            '2025-04-25-fancy-free-billy'
+        )
+),
+
+-- Return SHAPs based on the runs we want to include
+shap AS (
+    SELECT
+        shap.*,
+        run.assessment_year
+    FROM {{ source('model', 'shap') }} AS shap
+    INNER JOIN (
+        SELECT
+            run.*,
+            t.township_code
+        FROM shap_runs_to_include AS run
+        -- Handle the use of different model runs for different towns
+        CROSS JOIN UNNEST(run.township_code_coverage) AS t (township_code)
+    ) AS run
+        ON shap.run_id = run.run_id
+        AND (
+            shap.township_code = run.township_code
+            -- Handle non-final SHAP models
+            OR run.township_code = 'all'
+        )
+),
+
 -- Get crosswalk between school district geo IDs and names, so that we can
 -- translate the geo IDs in user-facing reports
 school_districts AS (
@@ -234,13 +280,12 @@ SELECT
             THEN NULL
         ELSE 'unknown'
     END AS reason_report_ineligible,
-    {% for predictor in all_predictors() %} -- noqa: TMP
+    {% for predictor in all_predictors() %}
         {#- Skip predictors that we've already selected above -#}
         {% if predictor not in ['meta_township_code', 'char_class'] %}
             ac.{{ predictor }},
         {% endif %}
-        shap_wt.wt_{{ predictor }},
-        shap_wt.quart_{{ predictor }},
+        shap.{{ predictor }} AS shap_{{ predictor }},
     {% endfor %}
     CONCAT(CAST(ac.char_class AS VARCHAR), ': ', card_cd.class_desc)
         AS char_class_detailed,
@@ -281,12 +326,12 @@ LEFT JOIN card_agg
     ON ac.meta_pin = card_agg.meta_pin
     AND ac.meta_card_num = card_agg.meta_card_num
     AND ac.run_id = card_agg.run_id
-LEFT JOIN {{ ref('pinval.vw_shap_weight') }} AS shap_wt
-    ON ac.meta_pin = shap_wt.meta_pin
-    AND ac.meta_card_num = shap_wt.meta_card_num
-    -- Use year instead of run ID to account for SHAP run IDs that may differ
-    -- from the final model run that we use in this view
-    AND ac.assessment_year = shap_wt.year
+LEFT JOIN shap
+    ON ac.meta_pin = shap.meta_pin
+    AND ac.meta_card_num = shap.meta_card_num
+-- SHAP run IDs can differ from final model run IDs, so use assessment year
+-- to join them
+    AND ac.assessment_year = shap.assessment_year
 LEFT JOIN school_districts AS elem_sd
     ON ac.loc_school_elementary_district_geoid = elem_sd.geoid
     AND ac.meta_year = elem_sd.year
