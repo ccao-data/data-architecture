@@ -2,7 +2,7 @@
 -- query, with an optional tablename indicating the table that the predictor
 -- columns should be selected from.
 --
--- If the `skip` parameter is set to a string or a list of strings representing
+-- If the `exclude` parameter is set to a string or a list of strings representing
 -- one or more predictors, the macro will omit those predictors from the
 -- output. This is useful in cases where you plan to select a predictor
 -- elsewhere in your query, and you don't want this macro to collide with that
@@ -18,10 +18,10 @@
 -- Never remove predictors from this list, only add them. Outdated
 -- predictors are most likely necessary to support reports for prior
 -- assessment years.
-{% macro all_predictors(tablename=None, skip=None) %}
+{% macro all_predictors(tablename=None, exclude=None) %}
     {#-
         List all predictor column names so we can iterate them and optionally
-        skip them
+        exclude them
     -#}
     {%- set predictors = [
         "meta_township_code",
@@ -135,27 +135,27 @@
         "shp_parcel_num_vertices",
     ] -%}
 
-    {#- Handle skip input: None, string, or list -#}
-    {%- if skip is none -%} {%- set skip_list = [] -%}
-    {%- elif skip is string -%} {%- set skip_list = [skip] -%}
-    {%- else -%} {%- set skip_list = skip -%}
+    {#- Handle exclude input: None, string, or list -#}
+    {%- if exclude is none -%} {%- set exclude_list = [] -%}
+    {%- elif exclude is string -%} {%- set exclude_list = [exclude] -%}
+    {%- else -%} {%- set exclude_list = exclude -%}
     {%- endif -%}
 
-    {#- Raise error if any skip value isn't in predictors -#}
-    {%- for s in skip_list -%}
-        {%- if s not in predictors -%}
+    {#- Raise error if any exclude value isn't in predictors -#}
+    {%- for excluded in exclude_list -%}
+        {%- if excluded not in predictors -%}
             {{
                 exceptions.raise_compiler_error(
-                    "Predictor '"
-                    ~ s
+                    "Excluded predictor '"
+                    ~ excluded
                     ~ "' not found in predictor list for all_predictors macro."
                 )
             }}
         {%- endif -%}
     {%- endfor -%}
 
-    {#- Remove skip values from predictor list -#}
-    {%- set predictors_to_use = predictors | reject("in", skip_list) | list -%}
+    {#- Remove exclude values from predictor list -#}
+    {%- set predictors_to_use = predictors | reject("in", exclude_list) | list -%}
 
     {#- Add prefix if tablename provided -#}
     {%- set prefix = tablename ~ "." if tablename else "" -%}

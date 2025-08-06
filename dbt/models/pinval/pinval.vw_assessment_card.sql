@@ -234,7 +234,7 @@ SELECT
             THEN NULL
         ELSE 'unknown'
     END AS reason_report_ineligible,
-    {{ all_predictors('ac', skip=['meta_township_code', 'char_class']) }},
+    {{ all_predictors('ac', exclude=['meta_township_code', 'char_class']) }},
     CONCAT(CAST(ac.char_class AS VARCHAR), ': ', card_cd.class_desc)
         AS char_class_detailed,
     ap.loc_property_address AS property_address,
