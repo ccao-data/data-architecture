@@ -177,13 +177,13 @@ crosswalk file to make sure they align with tax_municipality_name.
 
 {% docs column_cook_municipality_name %}
 
-Cook county municipality name from Cook County GIS files
+Municipality name according to Cook County  GIS geodatabase files.
 {% enddocs %}
 
 ## cook_municipality_num
 
 {% docs column_cook_municipality_num %}
-Cook county municipality number. This does not correspond with tax_municipality_num
+Municipality number according to Cook County  GIS geodatabase files. Does not correspond with `tax_municipality_num`
 {% enddocs %}
 
 ## econ_coordinated_care_area_num

@@ -156,12 +156,12 @@ municipality AS (
             SELECT
                 dy.year AS pin_year,
                 MAX(df.year) AS fill_year
-            FROM spatial.municipality AS df
+            FROM {{ source('spatial', 'municipal') }} AS df
             CROSS JOIN distinct_years AS dy
             WHERE dy.year >= df.year
             GROUP BY dy.year
         ) AS fill_years
-        LEFT JOIN spatial.municipality AS fill_data
+        LEFT JOIN {{ source('spatial', 'municipal') }} AS fill_data
             ON fill_years.fill_year = fill_data.year
     ) AS cprod
         ON ST_WITHIN(

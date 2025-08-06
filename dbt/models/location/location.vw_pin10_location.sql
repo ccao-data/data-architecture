@@ -87,8 +87,8 @@ SELECT
     tax.tax_municipality_num,
     tax.tax_municipality_name,
     -- This is needed for two reasons. The first is that all PINs in 
-    -- Cicero are encoded as [] or unincorporated and some recent
-    -- PINs have not been assigned a municipality in our data.
+    -- Cicero are encoded as [] or unincorporated and PINs created
+    -- after the most recent year of tax data won't have values for tax_municipality_name.
     CASE
     -- Prioritize tax_municipality_name when it is not NULL
         WHEN
@@ -121,7 +121,7 @@ SELECT
             ]
         -- Return NULL values
         ELSE tax.tax_municipality_name
-    END AS combined_municipality,
+    END AS combined_municipality_name,
 
     tax.tax_school_elementary_district_num,
     tax.tax_school_elementary_district_name,
