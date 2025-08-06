@@ -87,47 +87,15 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
 
-    # Declate log file path and remove it if it exists
-    log_file_path = args.log_to_file or "export_models.log"
+    logger = create_logger(
+        name=__name__,
+        log_file_path=args.log_to_file,
+        log_group_name=args.log_to_cloudwatch_group,
+    )
 
-    # If statement to check if logging to local file or CloudWatch is enabled
-    # and create the logger accordingly.
-    # If neither is enabled, just run the export_models function without logging.
-    if (
-        args.log_to_file is not None
-        or args.log_to_cloudwatch_group is not None
-    ):
-        logger = create_logger(
-            name=__name__,
-            log_file_path=log_file_path,
-            log_group_name=args.log_to_cloudwatch_group,
-        )
+    logger.info("Starting model export")
 
-        logger.info("Starting export_models.py script")
-
-        try:
-            export_models(
-                args.target,
-                args.select,
-                args.selector,
-                args.rebuild,
-                args.where,
-                args.output_dir,
-            )
-
-            logger.info("Export completed successfully.")
-
-        except Exception as e:
-            # The CloudWatch log handler does not include "ERROR - " at the
-            # beginning of log lines, so we need to preface the message with
-            # "ERROR - " to trigger alarms.
-            logger.error(f"ERROR - {e}")
-
-        if args.log_to_cloudwatch_group is not None:
-            # Remove the log file
-            os.remove(log_file_path)
-
-    else:
+    try:
         export_models(
             args.target,
             args.select,
@@ -136,3 +104,23 @@ if __name__ == "__main__":
             args.where,
             args.output_dir,
         )
+
+        logger.info("Export completed successfully.")
+
+    except Exception as e:
+        # The CloudWatch log handler does not include "ERROR - " at the
+        # beginning of log lines, so we need to preface the message with
+        # "ERROR - " to trigger alarms.
+        logger.error(f"ERROR - {e}")
+
+        # Suppress the error if we're uploading to Cloudwatch so that we can
+        # perform cleanup below, but otherwise, raise the error
+        if args.log_to_cloudwatch_group is None:
+            raise
+
+    if (
+        args.log_to_file is not None
+        and args.log_to_cloudwatch_group is not None
+    ):
+        # Remove the log file if we're pushing logs to Cloudwatch
+        os.remove(args.log_to_file)
