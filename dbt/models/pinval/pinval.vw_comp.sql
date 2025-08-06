@@ -43,6 +43,11 @@ training_data AS (
     FROM {{ ref('model.training_data') }} AS train
     LEFT JOIN {{ source('model', 'metadata') }} AS meta
         ON train.run_id = meta.run_id
+    -- Currently the `model.training_data` table only includes training data
+    -- for final model runs, not comp runs, so we can only use final model runs
+    -- here. Further, we have to make a manual decision about which final model
+    -- run has training data that matches the comp run for assessment years
+    -- that have multiple final models.
     WHERE train.run_id IN (
             '2024-03-17-stupefied-maya',
             '2025-02-11-charming-eric'
@@ -66,7 +71,7 @@ sale_years AS (
         MIN(EXTRACT(YEAR FROM train.meta_sale_date)) AS min_year,
         MAX(EXTRACT(YEAR FROM train.meta_sale_date)) AS max_year
     FROM pivoted_comp AS pc
-    LEFT JOIN {{ ref('model.training_data') }} AS train
+    LEFT JOIN training_data AS train
     -- Join on year rather than run ID because `model.training_data` is
     -- guaranteed to be unique by year but may have a different run ID
     -- than the comps run
