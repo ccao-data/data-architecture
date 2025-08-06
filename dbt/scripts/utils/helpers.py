@@ -24,11 +24,11 @@ def create_logger(
         logging.Logger: Generic logger with optional CloudWatch handling.
     """
 
-    # Formatter class to change WARNING to WARN for consistency with Spark
+    # Remove the log file if it already exists
     if log_file_path is not None and os.path.exists(log_file_path):
         os.remove(log_file_path)
 
-    # Create and start the logger
+    # Create and start the default stream logger
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
@@ -46,10 +46,6 @@ def create_logger(
             stream_name=stream_name,
         )
         logger.addHandler(cw_handler)
-
-        # Add console handler for local debugging regardless of CloudWatch
-        # logging
-        logger.addHandler(logging.StreamHandler())
 
     # Add a file handler to write logs to a local file if specified
     if log_file_path is not None:
