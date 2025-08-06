@@ -138,7 +138,7 @@ Chicago industrial corridor name
 
 ## combined_municipality_name
 
-{% docs column_combined_municipality %}
+{% docs column_combined_municipality_name %}
 This is a column which combines tax_municipality_name and cook_municipality_name.
 This is because tax_municipality_name does not have values for Cicero and 
 for some new parcels. 
