@@ -1,11 +1,25 @@
 models:
   - name: pinval.vw_comp
     description: '{{ doc("view_pinval_vw_comp") }}'
+    columns:
+      - name: assessment_year
+        description: '{{ doc("column_pinval_comps_assessment_year") }}'
+        data_tests:
+          - not_null:
+              name: pinval_vw_comp_assessment_year_not_null
+      - name: run_id
+        description: '{{ doc("column_pinval_comps_run_id") }}'
+        data_tests:
+          - count_is_consistent:
+              name: pinval_vw_comp_run_id_one_per_assessment_year
+              group_column: assessment_year
+              min_value: 1
+              max_value: 1
     data_tests:
       - unique_combination_of_columns:
-          name: pinval_comp_unique_run_id_pin_card_comp_num
+          name: pinval_vw_comp_unique_by_assessment_year_pin_card_comp_num
           combination_of_columns:
-            - run_id
+            - assessment_year
             - pin
             - card
             - comp_num
@@ -13,20 +27,53 @@ models:
   - name: pinval.vw_assessment_card
     description: '{{ doc("view_pinval_vw_assessment_card") }}'
     columns:
+      - name: assessment_year
+        description: '{{ doc("column_pinval_assessment_card_assessment_year") }}'
+        data_tests:
+          - not_null:
+              name: pinval_vw_assessment_card_assessment_year_not_null
       - name: char_class
         description: '{{ doc("column_pinval_char_class") }}'
         data_tests:
           - not_null:
-              name: pinval_assessment_card_char_class_not_null
+              name: pinval_vw_assessment_card_char_class_not_null
               config:
                 where: reason_report_ineligible = 'non_regression_class'
       - name: char_class_desc
         description: '{{ doc("column_pinval_char_class_desc") }}'
+      - name: combined_bldg_sf
+        description: '{{ doc("column_pinval_combined_bldg_sf")}}'
+        data_tests:
+          - is_null:
+              name: pinval_vw_assessment_card_combined_bldg_sf_is_null_when_not_is_parcel_small_multicard
+              config:
+                where: not is_parcel_small_multicard
+          - not_null:
+              name: pinval_vw_assessment_card_combined_bldg_sf_not_null_when_is_parcel_small_multicard
+              config:
+                where: is_parcel_small_multicard
+      - name: is_frankencard
+        description: '{{ doc("column_pinval_is_frankencard") }}'
+        data_tests:
+          - accepted_values:
+              name: pinval_vw_assesment_card_is_frankencard_false_when_not_small_multicard
+              values:
+                - FALSE
+              quote: false
+              config:
+                where: not is_parcel_small_multicard
+          - count_is_consistent:
+              name: pinval_vw_assessment_card_is_frankencard_contains_both_values_when_small_multicard
+              group_column: run_id, meta_pin
+              min_value: 2
+              max_value: 2
+              config:
+                where: is_parcel_small_multicard
       - name: is_report_eligible
         description: '{{ doc("column_pinval_is_report_eligible") }}'
         data_tests:
           - not_null:
-              name: pinval_assessment_card_is_report_eligible_not_null
+              name: pinval_vw_assessment_card_is_report_eligible_not_null
       - name: meta_card_num
         description: '{{ doc("column_pinval_meta_card_num") }}'
         data_tests:
@@ -42,22 +89,29 @@ models:
         description: '{{ doc("shared_column_pin") }}'
         data_tests:
           - not_null:
-              name: pinval_assessment_card_meta_pin_not_null
+              name: pinval_vw_assessment_card_meta_pin_not_null
+      - name: meta_pin_num_cards
+        description: '{{ doc("shared_column_pin_num_cards") }}'
+        data_tests:
+          - not_null:
+              name: pinval_vw_assessment_card_meta_pin_num_cards_not_null
+              config:
+                where: is_report_eligible
       - name: meta_township_code
         description: '{{ doc("shared_column_township_code") }}'
         data_tests:
           - not_null:
-              name: pinval_assessment_card_meta_township_code_not_null
+              name: pinval_vw_assessment_card_meta_township_code_not_null
       - name: meta_township_name
         description: '{{ doc("shared_column_township_name") }}'
         data_tests:
           - not_null:
-              name: pinval_assessment_card_meta_township_name_not_null
+              name: pinval_vw_assessment_card_meta_township_name_not_null
       - name: meta_triad_name
         description: '{{ doc("shared_column_triad_name") }}'
         data_tests:
           - not_null:
-              name: pinval_assessment_card_meta_triad_name_not_null
+              name: pinval_vw_assessment_card_meta_triad_name_not_null
       - name: reason_report_ineligible
         description: '{{ doc("column_pinval_reason_report_ineligible") }}'
         data_tests:
@@ -69,10 +123,10 @@ models:
               name: pinval_vw_assessment_card_reason_report_ineligible_is_null_when_is_report_eligible
               config:
                 where: is_report_eligible
-                # One known North tri 2025 PIN that had the wrong class
+                # There are a handful of known PINs that had the wrong class
                 # at modeling time, and so got a model value even though it
                 # should not have
-                error_if: ">1"
+                error_if: ">29"
           - not_accepted_values:
               name: pinval_vw_assessment_card_reason_report_ineligible_not_non_tri_for_tri
               values:
@@ -84,14 +138,16 @@ models:
               values:
                 - unknown
       - name: run_id
-        description: '{{ doc("column_pinval_run_id") }}'
+        description: '{{ doc("column_pinval_assessment_card_run_id") }}'
         data_tests:
           - not_null:
-              name: pinval_assessment_card_meta_run_id_not_null
+              name: pinval_vw_assessment_card_run_id_not_null_when_report_eligible
+              config:
+                where: is_report_eligible
 
     data_tests:
       - expression_is_true:
-          name: pinval_assessment_card_contains_a_column_for_all_predictors
+          name: pinval_vw_assessment_card_contains_a_column_for_all_predictors
           # Test that every `model_predictor_all_name` array for every row is a
           # subset of the columns in the table. This ensures that we never face
           # a situation where we accidentally forget to update columns to add
@@ -122,9 +178,11 @@ models:
                 )
               )
             ) = 0
+          config:
+            where: model_predictor_all_name IS NOT NULL
       - unique_combination_of_columns:
-          name: pinval_assessment_card_unique_run_id_meta_pin_meta_card_num
+          name: pinval_vw_assessment_card_unique_assessment_year_meta_pin_meta_card_num
           combination_of_columns:
-            - run_id
+            - assessment_year
             - meta_pin
             - meta_card_num

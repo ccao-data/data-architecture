@@ -1,3 +1,24 @@
+## assessment_card_assessment_year
+
+{% docs column_pinval_assessment_card_assessment_year %}
+Assessment year for the model run associated with this card and its values.
+
+An assessment year can map to multiple model runs, since model runs can be
+different for different towns in a triad. However, cards should be unique
+by assessment year in this view.
+{% enddocs %}
+
+## assessment_card_run_id
+
+{% docs column_pinval_assessment_card_run_id %}
+Run ID for the model run associated with this card and its values.
+
+For PINs that are in the assessment triad for a given assessment year,
+this column will correspond to the final model run ID for the PIN's township
+in that assessment year. For PINs that are _not_ in the assessment triad, this
+column will be null.
+{% enddocs %}
+
 ## char_class
 
 {% docs column_pinval_char_class %}
@@ -17,6 +38,47 @@ This column will never be null.
 
 {% docs column_pinval_char_class_desc %}
 A short description explaining the code contained in `char_class`
+{% enddocs %}
+
+## combined_bldg_sf
+
+{% docs column_pinval_combined_bldg_sf %}
+Combined building SF for all cards in the PIN.
+
+This field is only computed for recent small multicards, which are
+distinguished by the value `is_parcel_small_multicard == TRUE`. It
+will be null for all other cards.
+{% enddocs %}
+
+## comps_assessment_year
+
+{% docs column_pinval_comps_assessment_year %}
+Assessment year for the model run associated with this card and its comps
+{% enddocs %}
+
+## comps_run_id
+
+{% docs column_pinval_comps_run_id %}
+Run ID for the model run associated with this card and its comps.
+
+Our data tests guarantee that there is only ever one comps run per assessment
+year, so for uniqueness purposes, this column should be interchangeable with
+`assessment_year`.
+{% enddocs %}
+
+## is_frankencard
+
+{% docs column_pinval_is_frankencard %}
+Whether this card is the "frankencard" for its PIN.
+
+"Frankencards" refer to the largest card by building square footage in a
+multicard PIN, or the largest card with the lowest card number in the case of
+square footage ties. We use the PIN's frankencard as the basis for its non-SF
+characteristics when valuing small (2-3 card) multicards.
+
+Note that this valuation method is new as of 2025 and restricted to 2-3 card
+PINs, so it will only ever be true if `assessment_year` and
+`meta_pin_num_cards` meet those conditions.
 {% enddocs %}
 
 ## is_report_eligible
@@ -68,19 +130,4 @@ Possible values for this variable are:
 - `NULL`: The PIN is eligible for a PINVAL report. This should only ever be
   the case when `is_report_eligible` is `TRUE`, and our data integrity
   tests check to make sure this is true
-{% enddocs %}
-
-## run_id
-
-{% docs column_pinval_run_id %}
-Run ID for the model run associated with this card and its values.
-
-In the case of a parcel that is ineligible for a PINVAL report, the presence
-of a value for this column might seem confusing because that parcel wasn't
-actually valued in the model run. However, since this table requires a row
-for every parcel in every eligible model run in order to compute parcel
-eligibility in the `is_report_eligible` and `reason_report_ineligible` columns,
-we add parcels to model runs that considered them ineligible. As a result,
-every model run in this table should have a row for every parcel in its data
-year, regardless of whether that parcel was actually part of the model run.
 {% enddocs %}
