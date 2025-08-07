@@ -113,6 +113,7 @@ SELECT
             )
             THEN political.cook_municipality_name
         WHEN new_pins.pin10 IS NOT NULL
+            AND political.cook_municipality_name[1] NOT IN ('UNINCORPORATED')
             THEN ARRAY[
                 COALESCE(
                     xwalk.tax_municipality_name,
