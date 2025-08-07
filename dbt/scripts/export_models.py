@@ -5,6 +5,7 @@ import argparse
 
 from utils import constants
 from utils.export import export_models
+from utils.helpers import create_logger
 
 CLI_DESCRIPTION = """Export dbt models to Excel files.
 
@@ -70,17 +71,48 @@ def parse_args():
         *constants.OUTPUT_DIR_ARGUMENT_ARGS,
         **constants.OUTPUT_DIR_ARGUMENT_KWARGS,
     )
+    parser.add_argument(
+        *constants.LOG_TO_FILE_ARGUMENT_ARGS,
+        **constants.LOG_TO_FILE_ARGUMENT_KWARGS,
+    )
+    parser.add_argument(
+        *constants.LOG_TO_CLOUDWATCH_GROUP_ARGUMENT_ARGS,
+        **constants.LOG_TO_CLOUDWATCH_GROUP_ARGUMENT_KWARGS,
+    )
 
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    export_models(
-        args.target,
-        args.select,
-        args.selector,
-        args.rebuild,
-        args.where,
-        args.output_dir,
+
+    logger = create_logger(
+        name=__name__,
+        log_file_path=args.log_to_file,
+        log_group_name=args.log_to_cloudwatch_group,
     )
+
+    logger.info("Starting model export")
+
+    try:
+        export_models(
+            args.target,
+            args.select,
+            args.selector,
+            args.rebuild,
+            args.where,
+            args.output_dir,
+        )
+
+        logger.info("Export completed successfully.")
+
+    except Exception as e:
+        # The CloudWatch log handler does not include "ERROR - " at the
+        # beginning of log lines, so we need to preface the message with
+        # "ERROR - " to trigger alarms.
+        logger.error(f"ERROR - {e}")
+
+        # Suppress the error if we're uploading to Cloudwatch so that we can
+        # perform cleanup below, but otherwise, raise the error
+        if args.log_to_cloudwatch_group is None:
+            raise
