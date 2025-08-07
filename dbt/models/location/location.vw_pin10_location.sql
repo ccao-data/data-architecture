@@ -1,4 +1,18 @@
 -- View containing each of the PIN-level location (spatial joins)
+
+-- Grab PINs that have been created more recently than the latest year in the
+-- tax.pin table
+WITH new_pins AS (
+    SELECT
+        SUBSTR(parid, 1, 10) AS pin10,
+        MIN(taxyr) AS year
+    FROM {{ source('iasworld', 'pardat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
+    GROUP BY SUBSTR(parid, 1, 10)
+    HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
+)
+
 SELECT
     pin.pin10,
     pin.year,
@@ -91,36 +105,21 @@ SELECT
     -- after the most recent year of tax data won't
     -- have values for tax_municipality_name.
     CASE
-    -- Prioritize tax_municipality_name when it is not NULL
-        WHEN
-            CARDINALITY(tax.tax_municipality_name) > 0
+        WHEN CARDINALITY(tax.tax_municipality_name) > 0
             THEN tax.tax_municipality_name
-        -- If the municipality is Cicero, we need to
-        -- grab it from cook_municipality_name
-        WHEN
-            political.cook_municipality_name[1] IN (
-                -- Naming changes in 2007
+
+        WHEN political.cook_municipality_name[1] IN (
                 'TOWN OF CICERO', 'VILLAGE OF CICERO'
             )
             THEN political.cook_municipality_name
-        -- Grab new PINs which may not have been assigned a municipality yet
-        WHEN pin.pin10 IN (
-                SELECT SUBSTR(parid, 1, 10)
-                FROM iasworld.pardat
-                WHERE cur = 'Y'
-                    AND deactivat IS NULL
-                GROUP BY SUBSTR(parid, 1, 10)
-                HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
-            )
+        WHEN new_pins.pin10 IS NOT NULL
             THEN ARRAY[
                 COALESCE(
-                    -- Some PINs have slighlty different names so we
-                    -- use create a crosswalk.
                     xwalk.tax_municipality_name,
                     political.cook_municipality_name[1]
                 )
             ]
-        -- Return NULL values
+
         ELSE tax.tax_municipality_name
     END AS combined_municipality_name,
 
@@ -187,3 +186,6 @@ LEFT JOIN {{ ref('location.access') }} AS access
 LEFT JOIN {{ ref('location.other') }} AS other
     ON pin.pin10 = other.pin10
     AND pin.year = other.year
+LEFT JOIN
+    new_pins ON pin.pin10 = new_pins.pin10
+AND pin.year = new_pins.year
