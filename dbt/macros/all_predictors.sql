@@ -10,7 +10,7 @@
 --
 -- If the `alias_prefix` parameter is set to a string, it will alias each
 -- predictor with the specified prefix prepended to the predictor name.
--- For example, `prefix='shap'` will return column aliases following the
+-- For example, `alias_prefix='shap'` will return column aliases following the
 -- pattern "shap_<predictor_name>", e.g. "shap_char_bldg_sf".
 --
 -- This macro is currently only used by PINVAL views, so it only includes
@@ -163,11 +163,11 @@
     {%- set predictors_to_use = predictors | reject("in", exclude_list) | list -%}
 
     {#- Add tablename prefix if a tablename is provided -#}
-    {%- set prefix = tablename ~ "." if tablename else "" -%}
+    {%- set tablename_prefix = tablename ~ "." if tablename else "" -%}
 
     {#- Build select list -#}
     {%- for predictor in predictors_to_use -%}
-        {{ prefix }}{{ predictor }}
+        {{ tablename_prefix }}{{ predictor }}
         {%- if alias_prefix %} as {{ alias_prefix }}_{{ predictor }}{% endif %}
         {%- if not loop.last %},{% endif -%}
     {%- endfor -%}

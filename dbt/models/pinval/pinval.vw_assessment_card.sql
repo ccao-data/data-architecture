@@ -153,7 +153,7 @@ card_agg AS (
         AND ac.run_id = cpm.run_id
 ),
 
--- Get run IDs for SHAPs that we want to include for the purposes of ranking
+-- Get run IDs for SHAPs that we want to include for the purpose of ranking
 -- features by importance
 shap_runs_to_include AS (
     SELECT
@@ -177,7 +177,7 @@ shap_runs_to_include AS (
         )
 ),
 
--- Return SHAPs based on the runs we want to include
+-- Query SHAP values for on the runs we want to include
 shap AS (
     SELECT
         shap.*,
