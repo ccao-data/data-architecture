@@ -56,7 +56,12 @@ def create_logger(
             log_group_name=log_group_name,
             stream_name=stream_name,
         )
-        cw_handler.setFormatter(formatter)
+
+        # Don't push timestamps to CloudWatch, since CloudWatch adds its own
+        # timestamps
+        cw_handler.setFormatter(
+            logging.Formatter(fmt="%(levelname)s - %(message)s")
+        )
         logger.addHandler(cw_handler)
 
     # Add a file handler to write logs to a local file if specified
