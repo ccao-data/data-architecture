@@ -1,6 +1,6 @@
 # column_dictionary
 
-{% docs seed_column_dictionary %}
+{% docs column_dictionary %}
 
 test
 
