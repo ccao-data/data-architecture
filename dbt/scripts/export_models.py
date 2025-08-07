@@ -92,9 +92,9 @@ if __name__ == "__main__":
         log_group_name=args.log_to_cloudwatch_group,
     )
 
-    logger.info("Starting model export")
-
     try:
+        logger.info("Starting model export")
+
         export_models(
             args.target,
             args.select,
@@ -107,12 +107,8 @@ if __name__ == "__main__":
         logger.info("Export completed successfully.")
 
     except Exception as e:
-        # The CloudWatch log handler does not include "ERROR - " at the
-        # beginning of log lines, so we need to preface the message with
-        # "ERROR - " to trigger alarms.
-        logger.error(f"ERROR - {e}")
-
-        # Suppress the error if we're uploading to Cloudwatch so that we can
-        # perform cleanup below, but otherwise, raise the error
-        if args.log_to_cloudwatch_group is None:
-            raise
+        logger.error(
+            str(e) or f"{type(e).__name__} raised with no message",
+            exc_info=True,
+        )
+        raise
