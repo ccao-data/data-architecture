@@ -78,5 +78,7 @@ seeds:
       +schema: location
     model:
       +schema: model
+    pinval:
+      +schema: pinval
     spatial:
       +schema: spatial
