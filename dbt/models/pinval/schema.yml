@@ -144,6 +144,15 @@ models:
               name: pinval_vw_assessment_card_run_id_not_null_when_report_eligible
               config:
                 where: is_report_eligible
+      # Test that a random SHAP column is not null to confirm that the join to
+      # the SHAP table works correctly. We choose char_bldg_sf because it is
+      # very unlikely to be removed from future models
+      - name: shap_char_bldg_sf
+        data_tests:
+          - not_null:
+              name: pinval_vw_assessment_card_shap_char_bldg_sf_not_null
+              config:
+                where: is_report_eligible
 
     data_tests:
       - expression_is_true:

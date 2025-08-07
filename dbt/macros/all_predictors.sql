@@ -8,6 +8,11 @@
 -- elsewhere in your query, and you don't want this macro to collide with that
 -- selection.
 --
+-- If the `alias_prefix` parameter is set to a string, it will alias each
+-- predictor with the specified prefix prepended to the predictor name.
+-- For example, `alias_prefix='shap'` will return column aliases following the
+-- pattern "shap_<predictor_name>", e.g. "shap_char_bldg_sf".
+--
 -- This macro is currently only used by PINVAL views, so it only includes
 -- predictors for PINVAL-eligible years.
 --
@@ -18,7 +23,7 @@
 -- Never remove predictors from this list, only add them. Outdated
 -- predictors are most likely necessary to support reports for prior
 -- assessment years.
-{% macro all_predictors(tablename=None, exclude=None) %}
+{% macro all_predictors(tablename=None, exclude=None, alias_prefix=None) %}
     {#-
         List all predictor column names so we can iterate them and optionally
         exclude them
@@ -157,11 +162,13 @@
     {#- Remove exclude values from predictor list -#}
     {%- set predictors_to_use = predictors | reject("in", exclude_list) | list -%}
 
-    {#- Add prefix if tablename provided -#}
-    {%- set prefix = tablename ~ "." if tablename else "" -%}
+    {#- Add tablename prefix if a tablename is provided -#}
+    {%- set tablename_prefix = tablename ~ "." if tablename else "" -%}
 
     {#- Build select list -#}
     {%- for predictor in predictors_to_use -%}
-        {{ prefix }}{{ predictor }}{% if not loop.last %},{% endif %}
+        {{ tablename_prefix }}{{ predictor }}
+        {%- if alias_prefix %} as {{ alias_prefix }}_{{ predictor }}{% endif %}
+        {%- if not loop.last %},{% endif -%}
     {%- endfor -%}
 {% endmacro %}
