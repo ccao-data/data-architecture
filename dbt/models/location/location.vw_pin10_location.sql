@@ -100,18 +100,9 @@ SELECT
 
     tax.tax_municipality_num,
     tax.tax_municipality_name,
-    -- This is needed for two reasons. The first is that all PINs in 
-    -- Cicero are encoded as [] or unincorporated and PINs created
-    -- after the most recent year of tax data won't
-    -- have values for tax_municipality_name.
+    -- PINs created after the most recent year of tax data won't have values for
+    -- tax_municipality_name.
     CASE
-        WHEN CARDINALITY(tax.tax_municipality_name) > 0
-            THEN tax.tax_municipality_name
-
-        WHEN political.cook_municipality_name[1] IN (
-                'TOWN OF CICERO', 'VILLAGE OF CICERO'
-            )
-            THEN political.cook_municipality_name
         WHEN new_pins.pin10 IS NOT NULL
             AND political.cook_municipality_name[1] NOT IN ('UNINCORPORATED')
             THEN ARRAY[
@@ -120,10 +111,8 @@ SELECT
                     political.cook_municipality_name[1]
                 )
             ]
-
         ELSE tax.tax_municipality_name
     END AS combined_municipality_name,
-
     tax.tax_school_elementary_district_num,
     tax.tax_school_elementary_district_name,
     tax.tax_school_secondary_district_num,
