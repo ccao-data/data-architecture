@@ -104,13 +104,8 @@ SELECT
     -- tax_municipality_name.
     CASE
         WHEN new_pins.pin10 IS NOT NULL
-            AND political.cook_municipality_name[1] NOT IN ('UNINCORPORATED')
-            THEN ARRAY[
-                COALESCE(
-                    xwalk.tax_municipality_name,
-                    political.cook_municipality_name[1]
-                )
-            ]
+            AND NOT CONTAINS(political.cook_municipality_name, 'UNINCORPORATED')
+            THEN political.cook_municipality_name
         ELSE tax.tax_municipality_name
     END AS combined_municipality_name,
     tax.tax_school_elementary_district_num,

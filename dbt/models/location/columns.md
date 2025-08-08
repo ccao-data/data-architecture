@@ -140,19 +140,11 @@ Chicago industrial corridor name
 
 {% docs column_combined_municipality_name %}
 Combines `tax_municipality_name` and `cook_municipality_name`.
-While `tax_municipality_name` is more dependable, it does not have values for
-Cicero due to its status as both a township and a municipality, or parcels that
-have been created more recently than our most recent tax data.
-Steps:
-1. Use the value of `tax_municipality_name` if it contains one or more non-null
-values.
-2. Check if the PIN has a value of "Village of Cicero" or "Town of Cicero" for
-`cook_municipality_name` depending on whether the data is pre- or post-2007.
-3. If the PIN is newer than the most recent year of tax data coalesce the 
-value from `cook_municipality_name`. We then run these values through a
-crosswalk file to make sure they align semantically with
-`tax_municipality_name`.
-4. Return the remaining NULL values from `tax_municipality_name`
+`tax_municipality_name`  does not have values for
+parcels that have been created more recently than our most recent tax data. If a
+PIN is newer than the most recent year of tax data, this column uses
+`cook_municipality_name`. We then run these values through a crosswalk file to
+make sure they align semantically with `tax_municipality_name`.
 
 {% enddocs %}
 
@@ -178,13 +170,13 @@ crosswalk file to make sure they align semantically with
 
 {% docs column_cook_municipality_name %}
 
-Municipality name according to Cook County  GIS geodatabase files.
+Municipality name according to Cook County GIS geodatabase files.
 {% enddocs %}
 
 ## cook_municipality_num
 
 {% docs column_cook_municipality_num %}
-Municipality number according to Cook County  GIS geodatabase files. Does not correspond with `tax_municipality_num`
+Municipality number according to Cook County GIS geodatabase files. Does not correspond with `tax_municipality_num`
 {% enddocs %}
 
 ## econ_coordinated_care_area_num
