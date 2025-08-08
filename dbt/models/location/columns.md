@@ -136,6 +136,18 @@ Chicago industrial corridor name
 2-digit Chicago police district number
 {% enddocs %}
 
+## combined_municipality_name
+
+{% docs column_combined_municipality_name %}
+Combines `tax_municipality_name` and `cook_municipality_name`.
+`tax_municipality_name`  does not have values for
+parcels that have been created more recently than our most recent tax data. If a
+PIN is newer than the most recent year of tax data, this column uses
+`cook_municipality_name`. We then run these values through a crosswalk file to
+make sure they align semantically with `tax_municipality_name`.
+
+{% enddocs %}
+
 ## cook_board_of_review_district_num
 
 {% docs column_cook_board_of_review_district_num %}
@@ -152,6 +164,19 @@ Chicago industrial corridor name
 
 {% docs column_cook_judicial_district_num %}
 2-digit Cook County judicial district number
+{% enddocs %}
+
+## cook_municipality_name
+
+{% docs column_cook_municipality_name %}
+
+Municipality name according to Cook County GIS geodatabase files.
+{% enddocs %}
+
+## cook_municipality_num
+
+{% docs column_cook_municipality_num %}
+Municipality number according to Cook County GIS geodatabase files. Does not correspond with `tax_municipality_num`
 {% enddocs %}
 
 ## econ_coordinated_care_area_num

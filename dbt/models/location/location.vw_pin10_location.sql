@@ -1,4 +1,18 @@
 -- View containing each of the PIN-level location (spatial joins)
+
+-- Grab PINs that have been created more recently than the latest year in the
+-- tax.pin table
+WITH new_pins AS (
+    SELECT
+        SUBSTR(parid, 1, 10) AS pin10,
+        MIN(taxyr) AS year
+    FROM {{ source('iasworld', 'pardat') }}
+    WHERE cur = 'Y'
+        AND deactivat IS NULL
+    GROUP BY SUBSTR(parid, 1, 10)
+    HAVING MIN(taxyr) > (SELECT MAX(year) FROM tax.pin)
+)
+
 SELECT
     pin.pin10,
     pin.year,
@@ -36,6 +50,9 @@ SELECT
     political.cook_commissioner_district_data_year,
     political.cook_judicial_district_num,
     political.cook_judicial_district_data_year,
+    political.cook_municipality_num,
+    political.cook_municipality_name,
+    political.cook_municipality_data_year,
     political.ward_num,
     political.ward_name,
     political.ward_chicago_data_year,
@@ -83,6 +100,20 @@ SELECT
 
     tax.tax_municipality_num,
     tax.tax_municipality_name,
+    -- PINs created after the most recent year of tax data won't have values for
+    -- tax_municipality_name.
+    CASE
+        WHEN new_pins.pin10 IS NOT NULL
+            AND NOT CONTAINS(political.cook_municipality_name, 'UNINCORPORATED')
+            THEN ARRAY[
+                -- Use the crosswalk to get the standardized municipality name
+                COALESCE(
+                    xwalk.tax_municipality_name,
+                    political.cook_municipality_name[1]
+                )
+            ]
+        ELSE tax.tax_municipality_name
+    END AS combined_municipality_name,
     tax.tax_school_elementary_district_num,
     tax.tax_school_elementary_district_name,
     tax.tax_school_secondary_district_num,
@@ -123,6 +154,8 @@ LEFT JOIN {{ ref('location.census_acs5') }} AS census_acs5
 LEFT JOIN {{ ref('location.political') }} AS political
     ON pin.pin10 = political.pin10
     AND pin.year = political.year
+LEFT JOIN {{ ref('location.municipality_crosswalk') }} AS xwalk
+    ON political.cook_municipality_name[1] = xwalk.cook_municipality_name
 LEFT JOIN {{ ref('location.chicago') }} AS chicago
     ON pin.pin10 = chicago.pin10
     AND pin.year = chicago.year
@@ -144,3 +177,5 @@ LEFT JOIN {{ ref('location.access') }} AS access
 LEFT JOIN {{ ref('location.other') }} AS other
     ON pin.pin10 = other.pin10
     AND pin.year = other.year
+LEFT JOIN
+    new_pins ON pin.pin10 = new_pins.pin10
