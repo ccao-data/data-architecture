@@ -189,4 +189,3 @@ LEFT JOIN {{ ref('location.other') }} AS other
     AND pin.year = other.year
 LEFT JOIN
     new_pins ON pin.pin10 = new_pins.pin10
-AND pin.year = new_pins.year
