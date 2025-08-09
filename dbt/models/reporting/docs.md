@@ -80,6 +80,70 @@ for every possible geography and reporting group combination.
 **Primary Key**: `pin`, `year`
 {% enddocs %}
 
+# sot_assessment_roll
+{% docs table_sot_assessment_roll %}
+Aggregated summary stats of assessed values across a number of geographies,
+class combinations, and time.
+
+**Primary Key**: `year`, `stage_name`, `geography_id`, `group_id`
+{% enddocs %}
+
+# sot_assessment_roll_input
+{% docs table_sot_assessment_roll_input %}
+Table to feed the Python dbt job that creates the
+`reporting.sot_assessment_roll` table. Feeds public reporting assets.
+
+**Primary Key**: `year`, `stage_name`, `geography_id`, `group_id`
+{% enddocs %}
+
+# sot_ratio_stat
+{% docs table_sot_ratio_stat %}
+Aggregated summary stats of sales ratios across a number of geographies, class
+combinations, and time.
+
+**Primary Key**: `year`, `stage_name`, `geography_id`, `group_id`
+{% enddocs %}
+
+# sot_ratio_stat_input
+{% docs table_sot_ratio_stat_input %}
+Table to feed the Python dbt job that creates the
+`reporting.sot_ratio_stats` table. Feeds public reporting assets.
+
+**Primary Key**: `year`, `stage_name`, `geography_id`, `group_id`
+{% enddocs %}
+
+# sot_sale
+{% docs table_sot_sale %}
+Aggregated summary stats of sales across a number of geographies, class
+combinations, and time.
+
+**Primary Key**: `year`, `geography_id`, `group_id`
+{% enddocs %}
+
+# sot_sale_input
+{% docs table_sot_sale_input %}
+Table to feed the Python dbt job that creates the
+`reporting.sot_sale` table. Feeds public reporting assets.
+
+**Primary Key**: `year`, `geography_id`, `group_id`
+{% enddocs %}
+
+# sot_taxes_exemptions
+{% docs table_sot_taxes_exemptions %}
+Aggregated summary stats of taxes and exemptions data across a number of
+geographies, class combinations, and time.
+
+**Primary Key**: `year`, `geography_id`, `group_id`
+{% enddocs %}
+
+# sot_taxes_exemptions_input
+{% docs table_sot_taxes_exemptions_input %}
+Table to feed the Python dbt job that creates the
+`reporting.sot_taxes_exemptions` table. Feeds public reporting assets.
+
+**Primary Key**: `year`, `geography_id`, `group_id`
+{% enddocs %}
+
 # vw_assessment_roll
 
 {% docs view_vw_assessment_roll %}
