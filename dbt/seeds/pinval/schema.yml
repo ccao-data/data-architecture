@@ -1,3 +1,3 @@
 seeds:
   - name: pinval.column_dictionary
-    description: '{{ doc("column_dictionary") }}'
+    description: '{{ doc("seed_column_dictionary") }}'
