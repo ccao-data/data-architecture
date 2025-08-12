@@ -89,6 +89,13 @@ stage_values AS (
                     THEN asmt.valasm3
             END
         ) AS pre_mailed_tot,
+        ARBITRARY(
+            CASE
+                WHEN
+                    {{ pre_mailed_filters('asmt') }} AND asmt.taxyr >= '2020'
+                    THEN asmt.tot30
+            END
+        ) AS pre_mailed_hie,
         -- Pre-mailed market values
         ARBITRARY(
             CASE
@@ -234,6 +241,13 @@ stage_values AS (
                     THEN asmt.valasm3
             END
         ) AS pre_certified_tot,
+        ARBITRARY(
+            CASE
+                WHEN
+                    {{ pre_certified_filters('asmt') }} AND asmt.taxyr >= '2020'
+                    THEN asmt.tot30
+            END
+        ) AS pre_certified_hie,
         -- Assessor pre-certified market values
         ARBITRARY(
             CASE
