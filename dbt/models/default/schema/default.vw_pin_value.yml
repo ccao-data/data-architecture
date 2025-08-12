@@ -9,6 +9,8 @@ models:
         description: '{{ doc("shared_column_board_bldg") }}'
       - name: board_class
         description: '{{ doc("shared_column_board_class") }}'
+      - name: board_hie
+        description: '{{ doc("shared_column_board_hie") }}'
       - name: board_land
         description: '{{ doc("shared_column_board_land") }}'
       - name: board_land_mv
@@ -28,6 +30,8 @@ models:
               name: default_vw_pin_value_certified_class_is_null_when_pre_certified
               config:
                 where: stage_name = 'ASSESSOR PRE-CERTIFIED'
+      - name: certified_hie
+        description: '{{ doc("shared_column_certified_hie") }}'
       - name: certified_land
         description: '{{ doc("shared_column_certified_land") }}'
       - name: certified_land_mv
@@ -53,6 +57,8 @@ models:
               name: default_vw_pin_value_mailed_class_not_null_when_pre_certified
               config:
                 where: stage_name = 'ASSESSOR PRE-CERTIFIED'
+      - name: mailed_hie
+        description: '{{ doc("shared_column_mailed_hie") }}'
       - name: mailed_land
         description: '{{ doc("shared_column_mailed_land") }}'
       - name: mailed_land_mv
@@ -69,6 +75,8 @@ models:
         description: '{{ doc("shared_column_pre_certified_bldg") }}'
       - name: pre_certified_class
         description: '{{ doc("shared_column_pre_certified_class") }}'
+      - name: pre_certified_hie
+        description: '{{ doc("shared_column_pre_certified_hie") }}'
       - name: pre_certified_land
         description: '{{ doc("shared_column_pre_certified_land") }}'
       - name: pre_certified_land_mv
@@ -83,6 +91,8 @@ models:
         description: '{{ doc("shared_column_pre_mailed_bldg") }}'
       - name: pre_mailed_class
         description: '{{ doc("shared_column_pre_mailed_class") }}'
+      - name: pre_mailed_hie
+        description: '{{ doc("shared_column_pre_mailed_hie") }}'
       - name: pre_mailed_land
         description: '{{ doc("shared_column_pre_mailed_land") }}'
       - name: pre_mailed_land_mv
