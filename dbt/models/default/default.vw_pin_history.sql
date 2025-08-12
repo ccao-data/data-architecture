@@ -12,18 +12,22 @@ SELECT
     vwpv.pre_mailed_bldg,
     vwpv.pre_mailed_land,
     vwpv.pre_mailed_tot,
+    vwpv.pre_mailed_hie,
     vwpv.mailed_class,
     vwpv.mailed_bldg,
     vwpv.mailed_land,
     vwpv.mailed_tot,
+    vwpv.mailed_hie,
     vwpv.certified_class,
     vwpv.certified_bldg,
     vwpv.certified_land,
     vwpv.certified_tot,
+    vwpv.certified_hie,
     vwpv.board_class,
     vwpv.board_bldg,
     vwpv.board_land,
     vwpv.board_tot,
+    vwpv.board_hie,
     vwpv.change_reason,
     -- Add lagged values for previous two years
     LAG(vwpv.mailed_bldg) OVER (
@@ -38,6 +42,10 @@ SELECT
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_mailed_tot,
+    LAG(vwpv.mailed_hie) OVER (
+        PARTITION BY vwpv.pin
+        ORDER BY vwpv.pin, vwpv.year
+    ) AS oneyr_pri_mailed_hie,
     LAG(vwpv.certified_bldg) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
@@ -50,6 +58,10 @@ SELECT
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_certified_tot,
+    LAG(vwpv.certified_hie) OVER (
+        PARTITION BY vwpv.pin
+        ORDER BY vwpv.pin, vwpv.year
+    ) AS oneyr_pri_certified_hie,
     LAG(vwpv.board_bldg) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
@@ -62,6 +74,10 @@ SELECT
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS oneyr_pri_board_tot,
+    LAG(vwpv.board_hie) OVER (
+        PARTITION BY vwpv.pin
+        ORDER BY vwpv.pin, vwpv.year
+    ) AS oneyr_pri_board_hie,
     LAG(vwpv.change_reason) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
@@ -78,6 +94,10 @@ SELECT
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_mailed_tot,
+    LAG(vwpv.mailed_hie, 2) OVER (
+        PARTITION BY vwpv.pin
+        ORDER BY vwpv.pin, vwpv.year
+    ) AS twoyr_pri_mailed_hie,
     LAG(vwpv.certified_bldg, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
@@ -90,6 +110,10 @@ SELECT
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_certified_tot,
+    LAG(vwpv.certified_hie, 2) OVER (
+        PARTITION BY vwpv.pin
+        ORDER BY vwpv.pin, vwpv.year
+    ) AS twoyr_pri_certified_hie,
     LAG(vwpv.board_bldg, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
@@ -102,6 +126,10 @@ SELECT
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
     ) AS twoyr_pri_board_tot,
+    LAG(vwpv.board_hie, 2) OVER (
+        PARTITION BY vwpv.pin
+        ORDER BY vwpv.pin, vwpv.year
+    ) AS twoyr_pri_board_hie,
     LAG(vwpv.change_reason, 2) OVER (
         PARTITION BY vwpv.pin
         ORDER BY vwpv.pin, vwpv.year
