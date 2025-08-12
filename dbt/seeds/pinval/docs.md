@@ -1,6 +1,6 @@
-# column_dictionary
+# vars_dict
 
-{% docs seed_column_dictionary %}
+{% docs seed_vars_dict %}
 
 Table containing human-readable descriptions and tooltips for terms in the pinval application
 
