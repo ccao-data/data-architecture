@@ -1,8 +1,4 @@
 -- View containing each of the PIN-level location (spatial joins)
-
--- Grab PINs that have been created more recently than the latest year in the
--- tax.pin table
-
 SELECT
     pin.pin10,
     pin.year,
