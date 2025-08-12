@@ -14,7 +14,6 @@ Percent Households Family + Married in Census Tract,acs5_percent_household_famil
 Percent Households Nonfamily + Living Alone in Census Tract,acs5_percent_household_nonfamily_alone,"Percent of households that are non-family, alone (non-married), in the home's census tract (ACS 5-year estimate).",
 Percent Population with High School Degree in Census Tract,acs5_percent_education_high_school,Percent of people older than 25 who attained a high school degree in the home's census tract (ACS 5-year estimate).,
 Percent Population with Bachelor's Degree in Census Tract,acs5_percent_education_bachelor,Percent of people older than 25 who attained a bachelor's degree in the home's census tract (ACS 5-year estimate).,
-
 Percent Population with Graduate Degree in Census Tract,acs5_percent_education_graduate,Percent of people older than 25 who attained a graduate degree in the home's census tract (ACS 5-year estimate).,
 Percent Population Below Poverty Level in Census Tract,acs5_percent_income_below_poverty_level,Percent of people above the federal poverty line in the last 12 months in the home's census tract (ACS 5-year estimate).,
 Median Household Income in Past Year in Census Tract,acs5_median_income_household_past_year,Median income per household in the past 12 months in the home's census tract (ACS 5-year estimate).,
@@ -68,7 +67,6 @@ Standard Deviation Distance From Parcel Centroid to Vertices (Feet),shp_parcel_c
 Standard Deviation Parcel Edge Length (Feet),shp_parcel_edge_len_ft_sd,"Standard deviation of the edge length between parcel vertices, based on the parcel's geometric shape.",
 Standard Deviation Parcel Interior Angle (Degrees),shp_parcel_interior_angle_sd,"Standard deviation of the interior angles of the parcel polygon, based on the parcel's geometric shape.",
 Ratio of Parcel Area to Minimum Rotated Bounding Rectangle,shp_parcel_mrr_area_ratio,"Ratio of the parcel's area to the area of its minimum rotated bounding rectangle, based on the parcel's geometric shape.",
-
 Ratio of Parcel Minimum Rotated Bounding Rectangle Longest to Shortest Side,shp_parcel_mrr_side_ratio,"Ratio of the longest to the shortest side of the minimum rotated bounding rectangle, based on the parcel's geometric shape.",
 Number of Parcel Vertices,shp_parcel_num_vertices,The number of vertices of the parcel's geometric shape.,
 Number of PINs in Half Mile,prox_num_pin_in_half_mile,Number of parcels within a half mile.,
@@ -78,7 +76,6 @@ Number of Schools in Half Mile,prox_num_school_in_half_mile,Number of schools of
 Number of Schools with Rating in Half Mile,prox_num_school_with_rating_in_half_mile,Number of schools of any kind with a GreatSchools rating within a half mile.,
 Average School Rating in Half Mile,prox_avg_school_rating_in_half_mile,"Average school rating of schools of any kind within a half mile, according to Great Schools.",
 Total Airport Noise DNL,prox_airport_dnl_total,Estimated average airport noise level for this PIN. Assumes a baseline of 50 (""quiet suburban"") then adds predicted noise from O'Hare and Midway airports to that baseline.,
-
 Nearest Bike Trail Distance (Feet),prox_nearest_bike_trail_dist_ft,Distance in feet to the nearest bike trail.,
 Nearest Cemetery Distance (Feet),prox_nearest_cemetery_dist_ft,Distance in feet to the nearest cemetery.,
 Nearest CTA L Route Distance (Feet),prox_nearest_cta_route_dist_ft,"Distance in feet to the tracks of the nearest CTA L line, including both subway and elevated lines.",
@@ -114,7 +111,6 @@ Percent Population in Same House 1 Year Ago in Census  Tract,acs5_percent_mobili
 Percent Population Moved From Other State in Past Year in Census Tract,acs5_percent_mobility_moved_from_other_state,Percent of people (older than 1 year) in the home's census tract who moved from another state in the past 12 months (ACS 5-year estimate).,
 Percent Owner-Occupied Households in Census Tract,acs5_percent_household_total_occupied_w_sel_cond,Percent of households in the home's census tract that are owner-occupied (ACS 5-year estimate).,
 Percent Population Moved From Within Same County in Past Year in Census Tract,acs5_percent_mobility_moved_in_county,Percent of people (older than 1 year) in the home's census tract who moved within the same county in the past 12 months (ACS 5-year estimate).,
-
 Elementary School District GreatSchools Rating,other_school_district_elementary_avg_rating,Average GreatSchools rating of elementary schools within the district.,
 Secondary School District GreatSchools Rating,other_school_district_secondary_avg_rating,Average GreatSchools rating of secondary schools within the district.,
 Active Homeowner Exemption,ccao_is_active_exe_homeowner,Whether the home has an active homeowner exemption.,
