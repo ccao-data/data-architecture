@@ -1,6 +1,7 @@
 display_name,code,description,
 Statistical model,model,The Assessor's statistical model is a computer program that uses vast amounts of data about past home sales to estimate current values.,
 PIN,pin,"A PIN, or property index number (also called a permanent real estate index number), is a unique 14-digit number that represents a parcel of land for taxation purposes. PINs can be vacant land, have one card (building) on them, or multiple cards (buildings).",
+card, card, An assessment term that describes a building or improvement on a property.,
 Tax year,tax_year,"For property tax purposes, the effective year for the property's valuation and assessment. Also referred to as the ""Assessment Year"". ",
 Property characteristics,characteristics,These are the attributes of a home (such as a building's square footage and location). The CCAO uses dozens of characteristics in its model to capture important additive and subtractive components of real estate value.,
 "Open market, arm's-length transaction",open_market_transaction,"A sale between a willing buyer and a willing seller, who are are unrelated parties, each of whom is reasonably knowledgeable about market conditions and under no undue pressure to buy or sell. ",
