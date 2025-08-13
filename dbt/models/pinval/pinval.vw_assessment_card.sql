@@ -140,12 +140,9 @@ card_agg AS (
                 ORDER BY COALESCE(ac.char_bldg_sf, 0) DESC, ac.meta_card_num ASC
             ) = 1, FALSE
         ) AS is_frankencard,
-        CASE
-            WHEN cpm.is_parcel_small_multicard
-                THEN SUM(COALESCE(ac.char_bldg_sf, 0)) OVER (
-                    PARTITION BY ac.meta_pin, ac.run_id
-                )
-        END AS combined_bldg_sf
+        SUM(COALESCE(ac.char_bldg_sf, 0))
+            OVER (PARTITION BY ac.meta_pin, ac.run_id)
+            AS combined_bldg_sf
     FROM assessment_card AS ac
     LEFT JOIN card_pin_meta AS cpm
         ON ac.meta_pin = cpm.meta_pin
@@ -304,6 +301,13 @@ SELECT
             )
     END AS pred_card_initial_fmv_per_sqft,
     ap.pred_pin_final_fmv_round,
+    CAST(
+        ROUND(
+            ap.pred_pin_final_fmv_round
+            / NULLIF(card_agg.combined_bldg_sf, 0),
+            0
+        ) AS INTEGER
+    ) AS pred_pin_final_fmv_round_per_sqft,
     card_agg.meta_pin_num_cards,
     card_agg.is_parcel_small_multicard,
     card_agg.is_frankencard,

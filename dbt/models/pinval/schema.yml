@@ -44,14 +44,10 @@ models:
       - name: combined_bldg_sf
         description: '{{ doc("column_pinval_combined_bldg_sf")}}'
         data_tests:
-          - is_null:
-              name: pinval_vw_assessment_card_combined_bldg_sf_is_null_when_not_is_parcel_small_multicard
-              config:
-                where: not is_parcel_small_multicard
           - not_null:
               name: pinval_vw_assessment_card_combined_bldg_sf_not_null_when_is_parcel_small_multicard
               config:
-                where: is_parcel_small_multicard
+                where: is_report_eligible
       - name: is_frankencard
         description: '{{ doc("column_pinval_is_frankencard") }}'
         data_tests:
