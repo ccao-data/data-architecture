@@ -97,7 +97,12 @@ SELECT
             > 0
             THEN CAST(ARRAY[] AS ARRAY<VARCHAR>)
 
-        -- Otherwise: use crosswalked cook; else cook value
+        -- tax and cook are both NULL, return NULL (not [NULL])
+        WHEN tax.tax_municipality_name IS NULL
+            AND political.cook_municipality_name IS NULL
+            THEN NULL
+
+        -- Otherwise: use crosswalked cook
         ELSE ARRAY[
                 COALESCE(
                     xwalk.tax_municipality_name,
@@ -105,6 +110,7 @@ SELECT
                 )
             ]
     END AS combined_municipality_name,
+
     tax.tax_school_elementary_district_num,
     tax.tax_school_elementary_district_name,
     tax.tax_school_secondary_district_num,
