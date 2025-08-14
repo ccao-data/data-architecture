@@ -87,6 +87,8 @@ models:
               # that lets us see if counts are way off of what we expect
               min_value: 100
               max_value: 200
+      - name: combined_municipality_name
+        description: '{{ doc("column_combined_municipality_name") }}'
       - name: cook_board_of_review_district_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: cook_board_of_review_district_num
@@ -99,6 +101,12 @@ models:
         description: '{{ doc("shared_column_data_year") }}'
       - name: cook_judicial_district_num
         description: '{{ doc("column_cook_judicial_district_num") }}'
+      - name: cook_municipality_data_year
+        description: '{{ doc("shared_column_data_year") }}'
+      - name: cook_municipality_name
+        description: '{{ doc("column_cook_municipality_name") }}'
+      - name: cook_municipality_num
+        description: '{{ doc("column_cook_municipality_num") }}'
       - name: econ_coordinated_care_area_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: econ_coordinated_care_area_num

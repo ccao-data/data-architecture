@@ -136,6 +136,22 @@ Chicago industrial corridor name
 2-digit Chicago police district number
 {% enddocs %}
 
+## combined_municipality_name
+
+{% docs column_combined_municipality_name %}
+Combines `tax_municipality_name` and `cook_municipality_name`.
+`tax_municipality_name` has both NULL values and empty array values.
+If `tax_municipality_name` value is NULL, we replace it with `cook_municipality_name`.
+If the `tax_municipality_name` is an empty array, we preserve
+this as a representation for unincorporated and do
+not change it. We then run these values through a crosswalk file to
+make sure they align semantically with `tax_municipality_name`.
+
+Values which are NULL represent values which we do not have information for.
+Values which are an empty array represent unincorporated parcels.
+
+{% enddocs %}
+
 ## cook_board_of_review_district_num
 
 {% docs column_cook_board_of_review_district_num %}
@@ -152,6 +168,19 @@ Chicago industrial corridor name
 
 {% docs column_cook_judicial_district_num %}
 2-digit Cook County judicial district number
+{% enddocs %}
+
+## cook_municipality_name
+
+{% docs column_cook_municipality_name %}
+
+Municipality name according to Cook County GIS geodatabase files.
+{% enddocs %}
+
+## cook_municipality_num
+
+{% docs column_cook_municipality_num %}
+Municipality number according to Cook County GIS geodatabase files. Does not correspond with `tax_municipality_num`
 {% enddocs %}
 
 ## econ_coordinated_care_area_num

@@ -25,22 +25,38 @@ WITH long AS (
         ON tc.agency_num = ai.agency_num
     WHERE ai.minor_type IN (
             'MUNI', 'ELEMENTARY', 'SECONDARY', 'UNIFIED', 'COMM COLL',
-            'FIRE', 'LIBRARY', 'PARK', 'SANITARY', 'SSA', 'TIF'
+            'FIRE', 'LIBRARY', 'PARK', 'SANITARY', 'SSA', 'TIF', 'TOWNSHIP'
         )
 ),
 
 wide AS (
     SELECT
         pin10,
+        -- Cicero is both a municipality and a township, so we include it in the
+        -- municipality fields.
         FILTER(
             ARRAY_AGG(
-                CASE WHEN minor_type = 'MUNI' THEN agency_num END
+                CASE
+                    WHEN
+                        minor_type = 'MUNI'
+                        OR (
+                            minor_type = 'TOWNSHIP'
+                            AND agency_name = 'TOWN CICERO'
+                        )
+                        THEN agency_num
+                END
             ),
             x -> x IS NOT NULL
         ) AS tax_municipality_num,
         FILTER(
             ARRAY_AGG(
-                CASE WHEN minor_type = 'MUNI' THEN agency_name END
+                CASE
+                    WHEN
+                        minor_type = 'MUNI'
+                        THEN agency_name
+                    WHEN minor_type = 'TOWNSHIP' AND agency_name = 'TOWN CICERO'
+                        THEN 'TOWN OF CICERO'
+                END
             ),
             x -> x IS NOT NULL
         ) AS tax_municipality_name,
