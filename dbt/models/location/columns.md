@@ -147,6 +147,9 @@ this as a representation for unincorporated and do
 not change it. We then run these values through a crosswalk file to
 make sure they align semantically with `tax_municipality_name`.
 
+Values which are NULL represent values which we do not have information for.
+Values which are an empty array represent unincorporated parcels.
+
 {% enddocs %}
 
 ## cook_board_of_review_district_num
