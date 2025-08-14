@@ -364,6 +364,8 @@ models:
         description: '{{ doc("column_cook_municipality_name") }}'
       - name: cook_municipality_num
         description: '{{ doc("column_cook_municipality_num") }}'
+      - name: combined_municipality_name
+        description: '{{ doc("column_combined_municipality_name") }}'
       - name: econ_coordinated_care_area_data_year
         description: '{{ doc("shared_column_data_year") }}'
       - name: econ_coordinated_care_area_num
