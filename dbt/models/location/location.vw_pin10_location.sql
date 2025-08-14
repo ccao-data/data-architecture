@@ -93,14 +93,15 @@ SELECT
 
         -- tax is NULL; if cook contains UNINCORPORATED -> empty array
         WHEN political.cook_municipality_name IS NOT NULL
-            AND CONTAINS(political.cook_municipality_name, 'UNINCORPORATED')
+            AND POSITION('UNINCORPORATED' IN political.cook_municipality_name)
+            > 0
             THEN CAST(ARRAY[] AS ARRAY<VARCHAR>)
 
-        -- Otherwise: use crosswalked cook; else cook[1]
+        -- Otherwise: use crosswalked cook; else cook value
         ELSE ARRAY[
                 COALESCE(
                     xwalk.tax_municipality_name,
-                    political.cook_municipality_name[1]
+                    political.cook_municipality_name
                 )
             ]
     END AS combined_municipality_name,
