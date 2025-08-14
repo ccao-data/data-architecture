@@ -146,7 +146,7 @@ LEFT JOIN {{ ref('location.political') }} AS political
     ON pin.pin10 = political.pin10
     AND pin.year = political.year
 LEFT JOIN {{ ref('location.municipality_crosswalk') }} AS xwalk
-    ON political.cook_municipality_name[1] = xwalk.cook_municipality_name
+    ON political.cook_municipality_name = xwalk.cook_municipality_name
 LEFT JOIN {{ ref('location.chicago') }} AS chicago
     ON pin.pin10 = chicago.pin10
     AND pin.year = chicago.year
