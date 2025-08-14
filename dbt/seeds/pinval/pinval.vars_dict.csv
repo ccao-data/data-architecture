@@ -1,119 +1,119 @@
-display_name,code,description,
-Statistical model,model,The Assessor's statistical model is a computer program that uses vast amounts of data about past home sales to estimate current values.,
-PIN,pin,"A PIN, or property index number (also called a permanent real estate index number), is a unique 14-digit number that represents a parcel of land for taxation purposes. PINs can be vacant land, have one card (building) on them, or multiple cards (buildings).",
-card,card,An assessment term that describes a building or improvement on a property.,
-Tax year,tax_year,"For property tax purposes, the effective year for the property's valuation and assessment. Also referred to as the ""Assessment Year"". ",
-Property characteristics,characteristics,These are the attributes of a home (such as a building's square footage and location). The CCAO uses dozens of characteristics in its model to capture important additive and subtractive components of real estate value.,
-"Open market, arm's-length transaction",open_market_transaction,"A sale between a willing buyer and a willing seller, who are are unrelated parties, each of whom is reasonably knowledgeable about market conditions and under no undue pressure to buy or sell. ",
-Municipality,loc_property_municipality,"Municipality that has jurisdiction over this home, as derived from the parcel's legal description.",
-Lien date,lien_date,"Often synonymous with ""Appraisal Date"" or ""Valuation Date"", this is the date to which the estimated value of the property applies. A lien date is also the date on which an obligation, such as a property tax bill, attaches to a property.",
-Score,score,"How much a characteristic added to or subtracted from the home's value, relative to an average home in Cook County. More stars indicate a characteristic that more strongly differentiates this home from the average home.",
-Percent Population Under 19 Years Old in Census Tract,acs5_percent_age_children,Percent of people 19 years or younger in the home's census tract (ACS 5-year estimate).,
-Percent Population Over 65 Years Old in Census Tract,acs5_percent_age_senior,Percent of the people 65 years or older in the home's census tract (ACS 5-year estimate).,
-Median Population Age in Census Tract,acs5_median_age_total,Median age for the population in the home's census tract (ACS 5-year estimate).,
-Percent Households Family + Married in Census Tract,acs5_percent_household_family_married,Percent of households that are family and married in the home's census tract (ACS 5-year estimate).,
-Percent Households Nonfamily + Living Alone in Census Tract,acs5_percent_household_nonfamily_alone,"Percent of households that are non-family, alone (non-married), in the home's census tract (ACS 5-year estimate).",
-Percent Population with High School Degree in Census Tract,acs5_percent_education_high_school,Percent of people older than 25 who attained a high school degree in the home's census tract (ACS 5-year estimate).,
-Percent Population with Bachelor's Degree in Census Tract,acs5_percent_education_bachelor,Percent of people older than 25 who attained a bachelor's degree in the home's census tract (ACS 5-year estimate).,
-Percent Population with Graduate Degree in Census Tract,acs5_percent_education_graduate,Percent of people older than 25 who attained a graduate degree in the home's census tract (ACS 5-year estimate).,
-Percent Population Below Poverty Level in Census Tract,acs5_percent_income_below_poverty_level,Percent of people above the federal poverty line in the last 12 months in the home's census tract (ACS 5-year estimate).,
-Median Household Income in Past Year in Census Tract,acs5_median_income_household_past_year,Median income per household in the past 12 months in the home's census tract (ACS 5-year estimate).,
-Median Per Capita Income in Past Year in Census Tract,acs5_median_income_per_capita_past_year,Median income per capita in the past 12 months in the home's census tract (ACS 5-year estimate).,
-Percent Population Received SNAP in Past Year in Census Tract,acs5_percent_income_household_received_snap_past_year,Percent of households that received SNAP in the past 12 months in the home's census tract (ACS 5-year estimate).,
-Percent Population Unemployed in Census Tract,acs5_percent_employment_unemployed,Percent of people 16 years and older who are unemployed in the home's census tract (ACS 5-year estimate).,
-Median House Year Built in Census Tract,acs5_median_household_total_occupied_year_built,Median year built for all occupied households in the home's census tract (ACS 5-year estimate).,
-Median Gross Rent in Census Tract,acs5_median_household_renter_occupied_gross_rent,Median gross rent for only renter-occupied units in the home's census tract (ACS 5-year estimate).,
-Percent Owner-Occupied Households in Census Tract,acs5_percent_household_owner_occupied,Percent of households that are owner-occupied in the home's census tract (ACS 5-year estimate).,
-Year Built,char_yrblt,Year the home was constructed.,
-Central Air Conditioning,char_air,,
-Apartments,char_apts,Number of residential apartments in the building.,
-Attic Finish,char_attic_fnsh,,
-Attic Type,char_attic_type,,
-Bedrooms,char_beds,Number of bedrooms in the building.,
-Building Square Feet,char_bldg_sf,"Square footage of the building, as measured from the exterior.",
-Combined Bldg. Sq. Ft.,combined_bldg_sf,"Combined building square footage of all buildings on the parcel. The model excludes sales of parcels with multiple buildings, so for all sales, this value will correspond to the square footage of the only building on the parcel.",
-Basement Type,char_bsmt,,
-Basement Finish,char_bsmt_fin,,
-Property Class,char_class,Card-level property type and/or use code.,
-Exterior Wall Material,char_ext_wall,,
-Full Baths,char_fbath,Number of full bathrooms in the building.,
-Fireplaces,char_frpl,"Number of fireplaces, as measured by stacks that are visible from the exterior.",
-Garage Is Attached,char_gar1_att,,
-Garage Exterior Wall Material,char_gar1_cnst,,
-Garage Size,char_gar1_size,"Garage size, measured in number of cars.",
-Half Baths,char_hbath,Number of half bathrooms in the building.,
-Land Square Feet,char_land_sf,Square footage of the land of the property.,
-Central Heating,char_heat,,
-Number of Commercial Units,char_ncu,Number of commercial units in the building.,
-Porch,char_porch,,
-Roof Material,char_roof_cnst,,
-Rooms,char_rooms,"Number of total rooms in the building, excluding bathrooms.",
-Cathedral Ceiling,char_tp_dsgn,This characteristic is deprecated and is no longer in use.,
-Type of Residence,char_type_resd,,
-Recent Renovation,char_recent_renovation,Indicates whether or not a property was renovated within the last 3 years.,
-Longitude,loc_longitude,X coordinate in degrees (global longitude).,
-Latitude,loc_latitude,Y coordinate in degrees (global latitude).,
-Census Tract GEOID,loc_census_tract_geoid,11-digit unique identifier used by Census and ACS variables to identify the Census tract.,
-First Street Flood Factor,loc_env_flood_fs_factor,"Flooding risk score developed by First Street, where 10 is the highest risk and 1 is the lowest risk.",
-School Elementary District GEOID,loc_school_elementary_district_geoid,Unique identifier for the elementary school district.,
-School Secondary District GEOID,loc_school_secondary_district_geoid,Unique identifier for the secondary school district.,
-CMAP Walkability Score (No Transit),loc_access_cmap_walk_nta_score,"Walkability score for a given PIN as determined by the Chicago Metropolitan Agency for Planning (CMAP), excluding transit walkability.",
-CMAP Walkability Total Score,loc_access_cmap_walk_total_score,"Walkability score for a given PIN as determined by the Chicago Metropolitan Agency for Planning (CMAP), including transit walkability.",
-Municipality Name,loc_tax_municipality_name,"The municipality that has jurisdiction over this home, as derived from the property tax district names on this home's Cook County property tax bills.",
-Township Code,meta_township_code,Cook County township code.,
-Neighborhood Code,meta_nbhd_code,The code for the Assessor neighborhood. Assessor neighborhoods are geographic units that the CCAO uses to divide townships into smaller units for the purposes of valuing property. ,
-Number of sales within previous N years of sale/lien date,meta_sale_count_past_n_years,"Number of transactions of this property in the past few years. The year range is configurable and may change in the future, but historically it has been the four years preceding the sale date or lien date.",
-Property Tax Bill Aggregate Rate,other_tax_bill_rate,"Property tax rate, from this home's Cook County property tax bills.",
-Standard Deviation Distance From Parcel Centroid to Vertices (Feet),shp_parcel_centroid_dist_ft_sd,"Standard deviation of the distance from each major parcel vertex to the parcel centroid, based on the parcel's geometric shape.",
-Standard Deviation Parcel Edge Length (Feet),shp_parcel_edge_len_ft_sd,"Standard deviation of the edge length between parcel vertices, based on the parcel's geometric shape.",
-Standard Deviation Parcel Interior Angle (Degrees),shp_parcel_interior_angle_sd,"Standard deviation of the interior angles of the parcel polygon, based on the parcel's geometric shape.",
-Ratio of Parcel Area to Minimum Rotated Bounding Rectangle,shp_parcel_mrr_area_ratio,"Ratio of the parcel's area to the area of its minimum rotated bounding rectangle, based on the parcel's geometric shape.",
-Ratio of Parcel Minimum Rotated Bounding Rectangle Longest to Shortest Side,shp_parcel_mrr_side_ratio,"Ratio of the longest to the shortest side of the minimum rotated bounding rectangle, based on the parcel's geometric shape.",
-Number of Parcel Vertices,shp_parcel_num_vertices,The number of vertices of the parcel's geometric shape.,
-Number of PINs in Half Mile,prox_num_pin_in_half_mile,Number of parcels within a half mile.,
-Number of Bus Stops in Half Mile,prox_num_bus_stop_in_half_mile,Number of CTA or Pace bus stops within a half mile.,
-"Number of Foreclosures Per 1,000 PINs (Past 5 Years)",prox_num_foreclosure_per_1000_pin_past_5_years,Number of foreclosures per one thousand PINs within a half mile over the past 5 years.,
-Number of Schools in Half Mile,prox_num_school_in_half_mile,Number of schools of any kind within a half mile.,
-Number of Schools with Rating in Half Mile,prox_num_school_with_rating_in_half_mile,Number of schools of any kind with a GreatSchools rating within a half mile.,
-Average School Rating in Half Mile,prox_avg_school_rating_in_half_mile,"Average school rating of schools of any kind within a half mile, according to Great Schools.",
-Total Airport Noise DNL,prox_airport_dnl_total,Estimated average airport noise level for this PIN. Assumes a baseline of 50 (""quiet suburban"") then adds predicted noise from O'Hare and Midway airports to that baseline.,
-Nearest Bike Trail Distance (Feet),prox_nearest_bike_trail_dist_ft,Distance in feet to the nearest bike trail.,
-Nearest Cemetery Distance (Feet),prox_nearest_cemetery_dist_ft,Distance in feet to the nearest cemetery.,
-Nearest CTA L Route Distance (Feet),prox_nearest_cta_route_dist_ft,"Distance in feet to the tracks of the nearest CTA L line, including both subway and elevated lines.",
-Nearest CTA L Stop Distance (Feet),prox_nearest_cta_stop_dist_ft,Distance in feet to the nearest CTA L station.,
-Nearest Hospital Distance (Feet),prox_nearest_hospital_dist_ft,Distance in feet to the nearest hospital.,
-Nearest Major Road Distance (Feet),prox_nearest_major_road_dist_f,"Distance in feet to the nearest major road, where a ""major road"" is defined as a road whose ""highway"" tag on OpenStreetMap has a value of ""motorway"", ""trunk"", or ""primary"".",
-Nearest Secondary Road Distance (Feet),nearest_secondary_road_dist_ft,"Distance in feet to the nearest secondary road, where a ""secondary road"" is defined as a road whose ""highway"" tag on OpenStreet Map has a value of ""secondary"".",
-Lake Michigan Distance (Feet),prox_lake_michigan_dist_ft,Distance in feet to the shoreline of Lake Michigan.,
-Nearest Metra Route Distance (Feet),prox_nearest_metra_route_dist_ft,Distance in feet to the tracks of the nearest Metra route.,
-Nearest Metra Stop Distance (Feet),prox_nearest_metra_stop_dist_ft,Distance in feet to the nearest Metra station.,
-Nearest Park Distance (Feet),prox_nearest_park_dist_ft,Distance in feet to the nearest park.,
-Nearest Railroad Distance (Feet),prox_nearest_railroad_dist_ft,Distance in feet to the nearest railroad.,
-Nearest University Distance (Feet),prox_nearest_university_dist_ft,Distance in feet to the nearest university.,
-Nearest Vacant Land Parcel Distance (Feet),prox_nearest_vacant_land_dist_ft,"Distance in feet to the nearest vacant land, where ""vacant land"" is defined as a parcel over one thousand square feet that has the Assessor property class 100.",
-Nearest Water Distance (Feet),prox_nearest_water_dist_ft,"Distance in feet to the nearest water of any kind, including lakes, ponds, and rivers.",
-Nearest Golf Course Distance (Feet),prox_nearest_golf_course_dist_ft,Distance in feet to the nearest golf course.,
-Nearest Highway Distance (Feet),prox_nearest_road_highway_dist_ft,"Distance in feet to the nearest highway road, where ""highway road"" is defined as a road that the Illinois Department of Transportation classifies as ""Interstate"" or ""Freeway and Expressway"".",
-Nearest Arterial Road Distance (Feet),prox_nearest_road_arterial_dist_ft,"Distance in feet to the nearest arterial road, where ""arterial road"" is defined as a road that the Illinois Department of Transportation classifies as ""Minor Arterial"" or ""Other Principal Arterial"".",
-Nearest Collector Road Distance (Feet),prox_nearest_road_collector_dist_ft,"Distance in feet to the nearest collector road, where ""collector road"" is defined as a road that the Illinois Department of Transportation classifies as ""Major Collector"" or ""Minor Collector"".",
-Average Daily Traffic Count on Nearest Arterial Road,prox_nearest_road_arterial_daily_traffic,"Daily average number of car trips on the nearest arterial road as measured by the Illinois Department of Transportation (IDOT), where ""arterial road"" is defined as a road that IDOT classifies as ""Minor Arterial"" or ""Other Principal Arterial"".",
-Average Daily Traffic Count on Nearest Collector Road,prox_nearest_road_collector_daily_traffic,"Daily average number of car trips on the nearest collector road, where ""collector road"" is defined as a road that IDOT classifies as ""Major Collector"" or ""Minor Collector"".",
-Nearest New Construction (Feet),prox_nearest_new_construction_dist_ft,Distance in feet to the nearest newly constructed building.,
-Nearest Major Stadium (Feet),prox_nearest_stadium_dist_ft,Distance in feet to the nearest major stadium.,
-Sale Year,time_sale_year,"Sale year calculated as the number of years since 0 B.C.E. For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead.",
-Sale Day,time_sale_day,"Sale day calculated as the number of days since January 1st, 1997. For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead.",
-Sale Quarter of Year,time_sale_quarter_of_year,"The quarter of the year of the sale date (Q1 - Q4). For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead.",
-Sale Month of Year,time_sale_month_of_year,"The month of the sale date (Jan - Dec). For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead.",
-Sale Day of Year,time_sale_day_of_year,"The day of the year of the sale date (1 - 365). For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead.",
-Sale Day of Month,time_sale_day_of_month,"The day of the month of the sale date (1 - 31). For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead.",
-Sale Day of Week,time_sale_day_of_week,"The day of the week of the sale date (1 - 7). For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead.",
-Sale After COVID-19,time_sale_post_covid,"Indicator for whether the sale occurred after COVID-19 was widely publicized (around March 15, 2020). For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead.",
-Percent Population in Same House 1 Year Ago in Census  Tract,acs5_percent_mobility_no_move,Percent of people (older than 1 year) in the home's census tract who have not moved in the past 12 months (ACS 5-year estimate).,
-Percent Population Moved From Other State in Past Year in Census Tract,acs5_percent_mobility_moved_from_other_state,Percent of people (older than 1 year) in the home's census tract who moved from another state in the past 12 months (ACS 5-year estimate).,
-Percent Owner-Occupied Households in Census Tract,acs5_percent_household_total_occupied_w_sel_cond,Percent of households in the home's census tract that are owner-occupied (ACS 5-year estimate).,
-Percent Population Moved From Within Same County in Past Year in Census Tract,acs5_percent_mobility_moved_in_county,Percent of people (older than 1 year) in the home's census tract who moved within the same county in the past 12 months (ACS 5-year estimate).,
-Elementary School District GreatSchools Rating,other_school_district_elementary_avg_rating,Average GreatSchools rating of elementary schools within the district.,
-Secondary School District GreatSchools Rating,other_school_district_secondary_avg_rating,Average GreatSchools rating of secondary schools within the district.,
-Active Homeowner Exemption,ccao_is_active_exe_homeowner,Whether the home has an active homeowner exemption.,
-Number of Years Active Homeowner Exemption,ccao_n_years_exe_homeowner,Number of years that the home has had an active homeowner exemption.,
-Corner Lot,ccao_is_corner_lot,Whether the parcel is a corner lot.,
+display_name,code,description
+Statistical model,model,The Assessor's statistical model is a computer program that uses vast amounts of data about past home sales to estimate current values.
+PIN,pin,"A PIN, or property index number (also called a permanent real estate index number), is a unique 14-digit number that represents a parcel of land for taxation purposes. PINs can be vacant land, have one card (building) on them, or multiple cards (buildings)."
+card,card,An assessment term that describes a building or improvement on a property.
+Tax year,tax_year,"For property tax purposes, the effective year for the property's valuation and assessment. Also referred to as the ""Assessment Year""."
+Property characteristics,characteristics,These are the attributes of a home (such as a building's square footage and location). The CCAO uses dozens of characteristics in its model to capture important additive and subtractive components of real estate value.
+"Open market, arm's-length transaction",open_market_transaction,"A sale between a willing buyer and a willing seller, who are are unrelated parties, each of whom is reasonably knowledgeable about market conditions and under no undue pressure to buy or sell."
+Municipality,loc_property_municipality,"Municipality that has jurisdiction over this home, as derived from the parcel's legal description."
+Lien date,lien_date,"Often synonymous with ""Appraisal Date"" or ""Valuation Date"", this is the date to which the estimated value of the property applies. A lien date is also the date on which an obligation, such as a property tax bill, attaches to a property."
+Score,score,"How much a characteristic added to or subtracted from the home's value, relative to an average home in Cook County. More stars indicate a characteristic that more strongly differentiates this home from the average home."
+Percent Population Under 19 Years Old in Census Tract,acs5_percent_age_children,Percent of people 19 years or younger in the home's census tract (ACS 5-year estimate).
+Percent Population Over 65 Years Old in Census Tract,acs5_percent_age_senior,Percent of the people 65 years or older in the home's census tract (ACS 5-year estimate).
+Median Population Age in Census Tract,acs5_median_age_total,Median age for the population in the home's census tract (ACS 5-year estimate).
+Percent Households Family + Married in Census Tract,acs5_percent_household_family_married,Percent of households that are family and married in the home's census tract (ACS 5-year estimate).
+Percent Households Nonfamily + Living Alone in Census Tract,acs5_percent_household_nonfamily_alone,"Percent of households that are non-family, alone (non-married), in the home's census tract (ACS 5-year estimate)."
+Percent Population with High School Degree in Census Tract,acs5_percent_education_high_school,Percent of people older than 25 who attained a high school degree in the home's census tract (ACS 5-year estimate).
+Percent Population with Bachelor's Degree in Census Tract,acs5_percent_education_bachelor,Percent of people older than 25 who attained a bachelor's degree in the home's census tract (ACS 5-year estimate).
+Percent Population with Graduate Degree in Census Tract,acs5_percent_education_graduate,Percent of people older than 25 who attained a graduate degree in the home's census tract (ACS 5-year estimate).
+Percent Population Below Poverty Level in Census Tract,acs5_percent_income_below_poverty_level,Percent of people above the federal poverty line in the last 12 months in the home's census tract (ACS 5-year estimate).
+Median Household Income in Past Year in Census Tract,acs5_median_income_household_past_year,Median income per household in the past 12 months in the home's census tract (ACS 5-year estimate).
+Median Per Capita Income in Past Year in Census Tract,acs5_median_income_per_capita_past_year,Median income per capita in the past 12 months in the home's census tract (ACS 5-year estimate).
+Percent Population Received SNAP in Past Year in Census Tract,acs5_percent_income_household_received_snap_past_year,Percent of households that received SNAP in the past 12 months in the home's census tract (ACS 5-year estimate).
+Percent Population Unemployed in Census Tract,acs5_percent_employment_unemployed,Percent of people 16 years and older who are unemployed in the home's census tract (ACS 5-year estimate).
+Median House Year Built in Census Tract,acs5_median_household_total_occupied_year_built,Median year built for all occupied households in the home's census tract (ACS 5-year estimate).
+Median Gross Rent in Census Tract,acs5_median_household_renter_occupied_gross_rent,Median gross rent for only renter-occupied units in the home's census tract (ACS 5-year estimate).
+Percent Owner-Occupied Households in Census Tract,acs5_percent_household_owner_occupied,Percent of households that are owner-occupied in the home's census tract (ACS 5-year estimate).
+Year Built,char_yrblt,Year the home was constructed.
+Central Air Conditioning,char_air
+Apartments,char_apts,Number of residential apartments in the building.
+Attic Finish,char_attic_fnsh,
+Attic Type,char_attic_type,
+Bedrooms,char_beds,Number of bedrooms in the building.
+Building Square Feet,char_bldg_sf,"Square footage of the building, as measured from the exterior."
+Combined Bldg. Sq. Ft.,combined_bldg_sf,"Combined building square footage of all buildings on the parcel. The model excludes sales of parcels with multiple buildings, so for all sales, this value will correspond to the square footage of the only building on the parcel."
+Basement Type,char_bsmt,
+Basement Finish,char_bsmt_fin,
+Property Class,char_class,Card-level property type and/or use code.
+Exterior Wall Material,char_ext_wall,
+Full Baths,char_fbath,Number of full bathrooms in the building.
+Fireplaces,char_frpl,"Number of fireplaces, as measured by stacks that are visible from the exterior."
+Garage Is Attached,char_gar1_att,
+Garage Exterior Wall Material,char_gar1_cnst,
+Garage Size,char_gar1_size,"Garage size, measured in number of cars."
+Half Baths,char_hbath,Number of half bathrooms in the building.
+Land Square Feet,char_land_sf,Square footage of the land of the property.
+Central Heating,char_heat,
+Number of Commercial Units,char_ncu,Number of commercial units in the building.
+Porch,char_porch,
+Roof Material,char_roof_cnst,
+Rooms,char_rooms,"Number of total rooms in the building, excluding bathrooms."
+Cathedral Ceiling,char_tp_dsgn,This characteristic is deprecated and is no longer in use.
+Type of Residence,char_type_resd,
+Recent Renovation,char_recent_renovation,Indicates whether or not a property was renovated within the last 3 years.
+Longitude,loc_longitude,X coordinate in degrees (global longitude).
+Latitude,loc_latitude,Y coordinate in degrees (global latitude).
+Census Tract GEOID,loc_census_tract_geoid,11-digit unique identifier used by Census and ACS variables to identify the Census tract.
+First Street Flood Factor,loc_env_flood_fs_factor,"Flooding risk score developed by First Street, where 10 is the highest risk and 1 is the lowest risk."
+School Elementary District GEOID,loc_school_elementary_district_geoid,Unique identifier for the elementary school district.
+School Secondary District GEOID,loc_school_secondary_district_geoid,Unique identifier for the secondary school district.
+CMAP Walkability Score (No Transit),loc_access_cmap_walk_nta_score,"Walkability score for a given PIN as determined by the Chicago Metropolitan Agency for Planning (CMAP), excluding transit walkability."
+CMAP Walkability Total Score,loc_access_cmap_walk_total_score,"Walkability score for a given PIN as determined by the Chicago Metropolitan Agency for Planning (CMAP), including transit walkability."
+Municipality Name,loc_tax_municipality_name,"The municipality that has jurisdiction over this home, as derived from the property tax district names on this home's Cook County property tax bills."
+Township Code,meta_township_code,Cook County township code.
+Neighborhood Code,meta_nbhd_code,The code for the Assessor neighborhood. Assessor neighborhoods are geographic units that the CCAO uses to divide townships into smaller units for the purposes of valuing property. 
+Number of sales within previous N years of sale/lien date,meta_sale_count_past_n_years,"Number of transactions of this property in the past few years. The year range is configurable and may change in the future, but historically it has been the four years preceding the sale date or lien date."
+Property Tax Bill Aggregate Rate,other_tax_bill_rate,"Property tax rate, from this home's Cook County property tax bills."
+Standard Deviation Distance From Parcel Centroid to Vertices (Feet),shp_parcel_centroid_dist_ft_sd,"Standard deviation of the distance from each major parcel vertex to the parcel centroid, based on the parcel's geometric shape."
+Standard Deviation Parcel Edge Length (Feet),shp_parcel_edge_len_ft_sd,"Standard deviation of the edge length between parcel vertices, based on the parcel's geometric shape."
+Standard Deviation Parcel Interior Angle (Degrees),shp_parcel_interior_angle_sd,"Standard deviation of the interior angles of the parcel polygon, based on the parcel's geometric shape."
+Ratio of Parcel Area to Minimum Rotated Bounding Rectangle,shp_parcel_mrr_area_ratio,"Ratio of the parcel's area to the area of its minimum rotated bounding rectangle, based on the parcel's geometric shape."
+Ratio of Parcel Minimum Rotated Bounding Rectangle Longest to Shortest Side,shp_parcel_mrr_side_ratio,"Ratio of the longest to the shortest side of the minimum rotated bounding rectangle, based on the parcel's geometric shape."
+Number of Parcel Vertices,shp_parcel_num_vertices,The number of vertices of the parcel's geometric shape.
+Number of PINs in Half Mile,prox_num_pin_in_half_mile,Number of parcels within a half mile.
+Number of Bus Stops in Half Mile,prox_num_bus_stop_in_half_mile,Number of CTA or Pace bus stops within a half mile.
+"Number of Foreclosures Per 1,000 PINs (Past 5 Years)",prox_num_foreclosure_per_1000_pin_past_5_years,Number of foreclosures per one thousand PINs within a half mile over the past 5 years.
+Number of Schools in Half Mile,prox_num_school_in_half_mile,Number of schools of any kind within a half mile.
+Number of Schools with Rating in Half Mile,prox_num_school_with_rating_in_half_mile,Number of schools of any kind with a GreatSchools rating within a half mile.
+Average School Rating in Half Mile,prox_avg_school_rating_in_half_mile,"Average school rating of schools of any kind within a half mile, according to Great Schools."
+Total Airport Noise DNL,prox_airport_dnl_total,Estimated average airport noise level for this PIN. Assumes a baseline of 50 (""quiet suburban"") then adds predicted noise from O'Hare and Midway airports to that baseline.
+Nearest Bike Trail Distance (Feet),prox_nearest_bike_trail_dist_ft,Distance in feet to the nearest bike trail.
+Nearest Cemetery Distance (Feet),prox_nearest_cemetery_dist_ft,Distance in feet to the nearest cemetery.
+Nearest CTA L Route Distance (Feet),prox_nearest_cta_route_dist_ft,"Distance in feet to the tracks of the nearest CTA L line, including both subway and elevated lines."
+Nearest CTA L Stop Distance (Feet),prox_nearest_cta_stop_dist_ft,Distance in feet to the nearest CTA L station.
+Nearest Hospital Distance (Feet),prox_nearest_hospital_dist_ft,Distance in feet to the nearest hospital.
+Nearest Major Road Distance (Feet),prox_nearest_major_road_dist_f,"Distance in feet to the nearest major road, where a ""major road"" is defined as a road whose ""highway"" tag on OpenStreetMap has a value of ""motorway"", ""trunk"", or ""primary""."
+Nearest Secondary Road Distance (Feet),nearest_secondary_road_dist_ft,"Distance in feet to the nearest secondary road, where a ""secondary road"" is defined as a road whose ""highway"" tag on OpenStreet Map has a value of ""secondary""."
+Lake Michigan Distance (Feet),prox_lake_michigan_dist_ft,Distance in feet to the shoreline of Lake Michigan.
+Nearest Metra Route Distance (Feet),prox_nearest_metra_route_dist_ft,Distance in feet to the tracks of the nearest Metra route.
+Nearest Metra Stop Distance (Feet),prox_nearest_metra_stop_dist_ft,Distance in feet to the nearest Metra station.
+Nearest Park Distance (Feet),prox_nearest_park_dist_ft,Distance in feet to the nearest park.
+Nearest Railroad Distance (Feet),prox_nearest_railroad_dist_ft,Distance in feet to the nearest railroad.
+Nearest University Distance (Feet),prox_nearest_university_dist_ft,Distance in feet to the nearest university.
+Nearest Vacant Land Parcel Distance (Feet),prox_nearest_vacant_land_dist_ft,"Distance in feet to the nearest vacant land, where ""vacant land"" is defined as a parcel over one thousand square feet that has the Assessor property class 100."
+Nearest Water Distance (Feet),prox_nearest_water_dist_ft,"Distance in feet to the nearest water of any kind, including lakes, ponds, and rivers."
+Nearest Golf Course Distance (Feet),prox_nearest_golf_course_dist_ft,Distance in feet to the nearest golf course.
+Nearest Highway Distance (Feet),prox_nearest_road_highway_dist_ft,"Distance in feet to the nearest highway road, where ""highway road"" is defined as a road that the Illinois Department of Transportation classifies as ""Interstate"" or ""Freeway and Expressway""."
+Nearest Arterial Road Distance (Feet),prox_nearest_road_arterial_dist_ft,"Distance in feet to the nearest arterial road, where ""arterial road"" is defined as a road that the Illinois Department of Transportation classifies as ""Minor Arterial"" or ""Other Principal Arterial""."
+Nearest Collector Road Distance (Feet),prox_nearest_road_collector_dist_ft,"Distance in feet to the nearest collector road, where ""collector road"" is defined as a road that the Illinois Department of Transportation classifies as ""Major Collector"" or ""Minor Collector""."
+Average Daily Traffic Count on Nearest Arterial Road,prox_nearest_road_arterial_daily_traffic,"Daily average number of car trips on the nearest arterial road as measured by the Illinois Department of Transportation (IDOT), where ""arterial road"" is defined as a road that IDOT classifies as ""Minor Arterial"" or ""Other Principal Arterial""."
+Average Daily Traffic Count on Nearest Collector Road,prox_nearest_road_collector_daily_traffic,"Daily average number of car trips on the nearest collector road, where ""collector road"" is defined as a road that IDOT classifies as ""Major Collector"" or ""Minor Collector""."
+Nearest New Construction (Feet),prox_nearest_new_construction_dist_ft,Distance in feet to the nearest newly constructed building.
+Nearest Major Stadium (Feet),prox_nearest_stadium_dist_ft,Distance in feet to the nearest major stadium.
+Sale Year,time_sale_year,"Sale year calculated as the number of years since 0 B.C.E. For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead."
+Sale Day,time_sale_day,"Sale day calculated as the number of days since January 1st, 1997. For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead."
+Sale Quarter of Year,time_sale_quarter_of_year,"The quarter of the year of the sale date (Q1 - Q4). For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead."
+Sale Month of Year,time_sale_month_of_year,"The month of the sale date (Jan - Dec). For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead."
+Sale Day of Year,time_sale_day_of_year,"The day of the year of the sale date (1 - 365). For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead."
+Sale Day of Month,time_sale_day_of_month,"The day of the month of the sale date (1 - 31). For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead."
+Sale Day of Week,time_sale_day_of_week,"The day of the week of the sale date (1 - 7). For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead."
+Sale After COVID-19,time_sale_post_covid,"Indicator for whether the sale occurred after COVID-19 was widely publicized (around March 15, 2020). For homes that are being reassessed, there is no sale date, so this value is based on the lien date instead."
+Percent Population in Same House 1 Year Ago in Census  Tract,acs5_percent_mobility_no_move,Percent of people (older than 1 year) in the home's census tract who have not moved in the past 12 months (ACS 5-year estimate).
+Percent Population Moved From Other State in Past Year in Census Tract,acs5_percent_mobility_moved_from_other_state,Percent of people (older than 1 year) in the home's census tract who moved from another state in the past 12 months (ACS 5-year estimate).
+Percent Owner-Occupied Households in Census Tract,acs5_percent_household_total_occupied_w_sel_cond,Percent of households in the home's census tract that are owner-occupied (ACS 5-year estimate).
+Percent Population Moved From Within Same County in Past Year in Census Tract,acs5_percent_mobility_moved_in_county,Percent of people (older than 1 year) in the home's census tract who moved within the same county in the past 12 months (ACS 5-year estimate).
+Elementary School District GreatSchools Rating,other_school_district_elementary_avg_rating,Average GreatSchools rating of elementary schools within the district.
+Secondary School District GreatSchools Rating,other_school_district_secondary_avg_rating,Average GreatSchools rating of secondary schools within the district.
+Active Homeowner Exemption,ccao_is_active_exe_homeowner,Whether the home has an active homeowner exemption.
+Number of Years Active Homeowner Exemption,ccao_n_years_exe_homeowner,Number of years that the home has had an active homeowner exemption.
+Corner Lot,ccao_is_corner_lot,Whether the parcel is a corner lot.
