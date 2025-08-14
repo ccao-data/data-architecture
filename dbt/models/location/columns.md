@@ -141,8 +141,9 @@ Chicago industrial corridor name
 {% docs column_combined_municipality_name %}
 Combines `tax_municipality_name` and `cook_municipality_name`.
 `tax_municipality_name` has both NULL values and empty array values.
-If the value is NULL, we replace it with `cook_municipality_name`. If the value 
-is an empty array, we preserve this as a representation for unincorporated and do
+If `tax_municipality_name` value is NULL, we replace it with `cook_municipality_name`.
+If the `tax_municipality_name` is an empty array, we preserve
+this as a representation for unincorporated and do
 not change it. We then run these values through a crosswalk file to
 make sure they align semantically with `tax_municipality_name`.
 
