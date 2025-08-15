@@ -76,8 +76,8 @@ Number of Bus Stops in Half Mile,prox_num_bus_stop_in_half_mile,Number of CTA or
 Number of Schools in Half Mile,prox_num_school_in_half_mile,Number of schools of any kind within a half mile.
 Number of Schools with Rating in Half Mile,prox_num_school_with_rating_in_half_mile,Number of schools of any kind with a GreatSchools rating within a half mile.
 Average School Rating in Half Mile,prox_avg_school_rating_in_half_mile,"Average school rating of schools of any kind within a half mile, according to Great Schools."
-Total Airport Noise DNL,prox_airport_dnl_total,Estimated average airport noise level for this PIN. Assumes a baseline of 50 (""quiet suburban"") then adds predicted noise from O'Hare and Midway airports to that baseline.
-Total Airport Noise DNL,loc_env_airport_noise_dnl,Estimated average airport noise level for this PIN. Assumes a baseline of 50 (""quiet suburban"") then adds predicted noise from O'Hare and Midway airports to that baseline.
+Airport Noise Index,prox_airport_dnl_total,Estimated average airport noise level for this PIN. Assumes a baseline of 50 (""quiet suburban"") then adds predicted noise from O'Hare and Midway airports to that baseline.
+Airport Noise Index,loc_env_airport_noise_dnl,Estimated average airport noise level for this PIN. Assumes a baseline of 50 (""quiet suburban"") then adds predicted noise from O'Hare and Midway airports to that baseline.
 Nearest Bike Trail Distance (Feet),prox_nearest_bike_trail_dist_ft,Distance in feet to the nearest bike trail.
 Nearest Cemetery Distance (Feet),prox_nearest_cemetery_dist_ft,Distance in feet to the nearest cemetery.
 Nearest CTA L Route Distance (Feet),prox_nearest_cta_route_dist_ft,"Distance in feet to the tracks of the nearest CTA L line, including both subway and elevated lines."
