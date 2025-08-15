@@ -185,6 +185,21 @@ models:
             ) = 0
           config:
             where: model_predictor_all_name IS NOT NULL
+      - expression_is_true:
+          name: pinval_vw_assessment_card_predictors_match_pinval_vars_dict
+          # Test that every `model_predictor_all_name` array for every row is a
+          # subset of the labels in the `pinval.vars_dict` seed. This ensures
+          # that we never forget to update the seed when predictors change
+          expression: |
+            CARDINALITY(
+              ARRAY_EXCEPT(
+                model_predictor_all_name,
+                (
+                  SELECT ARRAY_AGG(code)
+                  FROM {{ ref("pinval.vars_dict") }}
+                )
+              )
+            ) = 0
       - unique_combination_of_columns:
           name: pinval_vw_assessment_card_unique_assessment_year_meta_pin_meta_card_num
           combination_of_columns:
