@@ -254,6 +254,11 @@ SELECT
         ac.meta_pin IS NOT NULL
         AND ac.meta_card_num IS NOT NULL
         AND LOWER(uni.triad_name) = LOWER(uni.assessment_triad)
+        -- Fix for one 2024 mysterious 2024 PIN that had the wrong class
+        -- and got excluded from comps. Because it got excluded from comps,
+        -- it breaks a key assumption of the report generation pipeline, which
+        -- is that all report eligible PINs have comps
+        AND NOT (ac.meta_pin = '10361150280000' AND ac.assessment_year = '2024')
     ) AS is_report_eligible,
     CASE
         -- In some rare cases the parcel class can be different from
