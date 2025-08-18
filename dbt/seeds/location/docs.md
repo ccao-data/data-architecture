@@ -1,3 +1,11 @@
+# municipality_crosswalk
+
+{% docs seed_municipality_crosswalk %}
+A list of semantic discrepancies between `cook_municipality_name` and `tax_municipality_name`
+
+**Primary Key**: `cook_municipality_name', 'tax_municipality_name`
+{% enddocs %}
+
 # neighborhood_group
 
 {% docs seed_neighborhood_group %}
