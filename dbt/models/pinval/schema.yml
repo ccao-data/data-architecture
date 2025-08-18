@@ -81,6 +81,11 @@ models:
               name: pinval_vw_assessment_card_meta_card_num_null_when_reason_report_ineligible_is_missing_card
               config:
                 where: reason_report_ineligible = 'missing_card'
+      - name: meta_nbhd_code
+        description: Assessor neighborhood code. Guaranteed to never be null.
+        data_tests:
+          - not_null:
+              name: pinval_vw_assessment_card_meta_nbhd_code_not_null
       - name: meta_pin
         description: '{{ doc("shared_column_pin") }}'
         data_tests:

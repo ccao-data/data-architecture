@@ -220,6 +220,7 @@ SELECT
     ac.meta_card_num,
     COALESCE(ac.township_code, uni.township_code) AS meta_township_code,
     COALESCE(twn.township_name, uni.township_name) AS meta_township_name,
+    COALESCE(ac.meta_nbhd_code, uni.nbhd_code) AS meta_nbhd_code,
     LOWER(uni.triad_name) AS meta_triad_name,
     COALESCE(ac.char_class, uni.class) AS char_class,
     COALESCE(card_cd.class_desc, pin_cd.class_desc) AS char_class_desc,
@@ -282,7 +283,12 @@ SELECT
             THEN NULL
         ELSE 'unknown'
     END AS reason_report_ineligible,
-    {{ all_predictors('ac', exclude=['meta_township_code', 'char_class']) }},
+    {{
+        all_predictors(
+            'ac',
+            exclude=['meta_township_code', 'meta_nbhd_code', 'char_class']
+        )
+    }},
     {{ all_predictors('shap', alias_prefix='shap') }},
     CONCAT(CAST(ac.char_class AS VARCHAR), ': ', card_cd.class_desc)
         AS char_class_detailed,
