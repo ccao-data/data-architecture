@@ -1,5 +1,6 @@
 library("ccao")
 library("dplyr")
+library("glue")
 library("geoarrow")
 library("mapview")
 library("sf")
@@ -11,11 +12,6 @@ county <- read_geoparquet_sf(
   st_transform(3435) %>%
   select(geometry)
 
-# Ingest CCAO townships
-towns <- ccao::town_shp %>%
-  st_transform(3435) %>%
-  select(township_name)
-
 # Ingest City of Chicago community areas
 city <- read_geoparquet_sf(
   paste0(
@@ -26,58 +22,72 @@ city <- read_geoparquet_sf(
   st_transform(3435) %>%
   mutate(
     geo_type = "community area",
-    geo_name = str_to_title(community)
+    geo_name = community
   ) %>%
-  select(geo_type, geo_name, geo_num = area_number, geometry)
+  select(geo_type, geo_name, geo_num = area_number, geometry) %>%
+  # Limit to our county boundary
+  st_intersection(county)
 
 # Ingest county municipalities
-munis <- read_geoparquet_sf(
-  paste0(
-    "s3://ccao-data-warehouse-us-east-1/spatial/political/municipality/",
-    "year=2024/part-0.parquet"
-  )
-) %>%
+munis <- st_read(paste0(
+  "https://gis.cookcountyil.gov/traditional/rest/services/",
+  "politicalBoundary/MapServer/2/query?outFields=*&where=1%3D1&f=geojson"
+)) %>%
   st_transform(3435) %>%
   mutate(
     geo_type = "municipality",
-    geo_num = as.character(municipality_num)
+    geo_name = case_when(
+      str_detect(AGENCY_DESC, "TWP") ~
+        glue("UNINCORPORATED {str_remove(AGENCY_DESC, ' TWP')}"),
+      TRUE ~ AGENCY_DESC
+    ),
+    geo_num = as.character(AGENCY)
   ) %>%
   select(
     geo_type,
-    geo_name = municipality_name,
+    geo_name,
     geo_num,
     geometry
-  )
+  ) %>%
+  # Remove Chicago since we're using community areas
+  filter(geo_name != "CITY OF CHICAGO")
 
 # Adjust City of Chicago boundary to avoid gaps
 buffered_city <- city %>%
-  st_buffer(2000) %>%
-  st_intersection(
-    munis %>%
-      filter(geo_name == "City Of Chicago")
+  mutate(geometry = case_when(
+    # Unfortunately the discrepancies between the city and county boundaries of
+    # O'Hare are pretty large. We can be less aggressive with our buffer for the
+    # rest of Chicago
+    geo_name == "OHARE" ~ st_buffer(geometry, 1800),
+    TRUE ~ st_buffer(geometry, 300)
+  )) %>%
+  # Move O'Hare to the bottom so it' gets cut the most's last during sequential
+  # st_difference
+  slice(
+    which(geo_name != "OHARE"),
+    which(geo_name == "OHARE")
   ) %>%
+  # After we buffer, cut away any part that would overlap municipalities, be
+  # outside the county, and parts of the city we already have
+  st_difference(st_union(munis)) %>%
+  st_intersection(county) %>%
   st_difference(st_union(city)) %>%
-  select(geo_type, geo_name, geo_num, geometry) %>%
+  # Add back a clean version of the city and merge community areas to their
+  # buffers
   bind_rows(city) %>%
   group_by(geo_type, geo_name, geo_num) %>%
-  summarize()
-
-unincorporated <- towns %>%
-  st_intersection(
-    munis %>%
-      filter(geo_name == "Unincorporated")
-  ) %>%
-  mutate(geo_name = paste(geo_name, township_name)) %>%
-  select(-township_name) %>%
-  st_difference(st_union(buffered_city))
-
-munis <- munis %>%
-  filter(!(geo_name %in% c("Unincorporated", "City Of Chicago"))) %>%
-  st_difference(st_union(buffered_city))
+  summarise() %>%
+  ungroup() %>%
+  st_difference(st_union(munis)) %>%
+  st_buffer(-1) %>%
+  st_buffer(1) %>%
+  # Sequential buffer to remove overlaps within buffered sections of community
+  # areas
+  st_difference()
 
 output <- munis %>%
   bind_rows(buffered_city) %>%
-  bind_rows(unincorporated) %>%
-  st_intersection(county)
+  st_transform(4326) %>%
+  mutate(geometry_3435 = st_transform(geometry, 3435))
 
-mapview(list(orig, unincorporated, munis))
+st_write(output, "municipalities_community_areas.geojson", delete_dsn = TRUE)
