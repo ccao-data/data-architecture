@@ -24,9 +24,7 @@ city <- read_geoparquet_sf(
     geo_type = "community area",
     geo_name = community
   ) %>%
-  select(geo_type, geo_name, geo_num = area_number, geometry) %>%
-  # Limit to our county boundary
-  st_intersection(county)
+  select(geo_type, geo_name, geo_num = area_number, geometry)
 
 # Ingest county municipalities
 munis <- st_read(paste0(
@@ -61,26 +59,27 @@ buffered_city <- city %>%
     geo_name == "OHARE" ~ st_buffer(geometry, 1800),
     TRUE ~ st_buffer(geometry, 300)
   )) %>%
+  # We don't want any interior buffers since they'll overlap, so we only keep
+  # the buffered community areas that might fill in gaps
+  st_difference(st_union(city)) %>%
+  bind_rows(city) %>%
+  # After we buffer, cut away any part that would overlap municipalities or is
+  # outside the county
+  st_difference(st_union(munis)) %>%
+  st_intersection(county) %>%
+  # Merge community areas to their buffers
+  group_by(geo_type, geo_name, geo_num) %>%
+  summarise() %>%
+  ungroup() %>%
+  # Clean up polygon remnants from st_difference operations
+  st_buffer(-1) %>%
+  st_buffer(1) %>%
   # Move O'Hare to the bottom so it' gets cut the most's last during sequential
   # st_difference
   slice(
     which(geo_name != "OHARE"),
     which(geo_name == "OHARE")
   ) %>%
-  # After we buffer, cut away any part that would overlap municipalities, be
-  # outside the county, and parts of the city we already have
-  st_difference(st_union(munis)) %>%
-  st_intersection(county) %>%
-  st_difference(st_union(city)) %>%
-  # Add back a clean version of the city and merge community areas to their
-  # buffers
-  bind_rows(city) %>%
-  group_by(geo_type, geo_name, geo_num) %>%
-  summarise() %>%
-  ungroup() %>%
-  st_difference(st_union(munis)) %>%
-  st_buffer(-1) %>%
-  st_buffer(1) %>%
   # Sequential buffer to remove overlaps within buffered sections of community
   # areas
   st_difference()
