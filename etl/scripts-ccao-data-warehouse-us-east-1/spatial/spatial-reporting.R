@@ -2,10 +2,17 @@ library("ccao")
 library("dplyr")
 library("glue")
 library("geoarrow")
-library("mapview")
 library("sf")
 library("stringr")
+source("utils.R")
 
+# This script builds shapefiles that are not pure representations of data in the
+# raw s3 bucket. Data can be combined or heavily altered for the purpose of
+# creating useful shapefiles for reporting and visualization.
+AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
+output_path <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "reporting")
+
+# Ingest county shapefile to make sure we never wander outside its borders
 county <- read_geoparquet_sf(
   "s3://ccao-data-warehouse-us-east-1/spatial/ccao/county/2019.parquet"
 ) %>%
@@ -87,4 +94,6 @@ output <- munis %>%
   st_transform(4326) %>%
   mutate(geometry_3435 = st_transform(geometry, 3435))
 
-st_write(output, "municipalities_community_areas.geojson", delete_dsn = TRUE)
+geoparquet_to_s3(
+  output, file.path(output_path, "municipalities_community_areas.parquet")
+)
