@@ -75,7 +75,7 @@ buffered_city <- city %>%
   # Clean up polygon remnants from st_difference operations
   st_buffer(-3) %>%
   st_buffer(3, joinStyle = "MITRE", mitreLimit = 3) %>%
-  # Move O'Hare to the bottom so it' gets cut the most's last during sequential
+  # Move O'Hare to the bottom so it gets cut the most during sequential
   # st_difference
   slice(which(geo_name != "OHARE"), which(geo_name == "OHARE")) %>%
   # Sequential buffer to remove overlaps within buffered sections of community
