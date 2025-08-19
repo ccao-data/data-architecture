@@ -232,4 +232,4 @@ LEFT JOIN {{ ref('location.other') }} AS other
     ON pin.pin10 = other.pin10
     AND cyf.misc_subdivision_fill_year = other.year
 LEFT JOIN {{ ref('location.municipality_crosswalk') }} AS xwalk
-    ON political.cook_municipality_name = xwalk.cook_municipality_name
+    ON cook_municipality.cook_municipality_name = xwalk.cook_municipality_name
