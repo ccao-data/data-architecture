@@ -44,6 +44,7 @@ munis <- st_read(paste0(
     geo_name = case_when(
       str_detect(AGENCY_DESC, "TWP") ~
         glue("UNINCORPORATED {str_remove(AGENCY_DESC, ' TWP')}"),
+      AGENCY_DESC == "CITY OF CICERO" ~ "TOWN OF CICERO",
       TRUE ~ AGENCY_DESC
     ),
     geo_num = as.character(AGENCY)
