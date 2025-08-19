@@ -54,10 +54,11 @@ munis <- st_read(paste0(
 buffered_city <- city %>%
   mutate(geometry = case_when(
     # Unfortunately the discrepancies between the city and county boundaries of
-    # O'Hare are pretty large. We can be less aggressive with our buffer for the
-    # rest of Chicago
+    # O'Hare are pretty large (same, but to a lesser extent for Norwood Park).
+    # We can be less aggressive with our buffer for the rest of Chicago.
     geo_name == "OHARE" ~ st_buffer(geometry, 1800),
-    TRUE ~ st_buffer(geometry, 300)
+    geo_name == "NORWOOD PARK" ~ st_buffer(geometry, 300),
+    TRUE ~ st_buffer(geometry, 100)
   )) %>%
   # We don't want any interior buffers since they'll overlap, so we only keep
   # the buffered community areas that might fill in gaps
@@ -72,8 +73,8 @@ buffered_city <- city %>%
   summarise() %>%
   ungroup() %>%
   # Clean up polygon remnants from st_difference operations
-  st_buffer(-1) %>%
-  st_buffer(1) %>%
+  st_buffer(-3) %>%
+  st_buffer(3, joinStyle = "MITRE", mitreLimit = 3) %>%
   # Move O'Hare to the bottom so it' gets cut the most's last during sequential
   # st_difference
   slice(which(geo_name != "OHARE"), which(geo_name == "OHARE")) %>%
