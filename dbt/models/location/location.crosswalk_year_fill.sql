@@ -33,6 +33,7 @@ and how we construct them.
         "cook_board_of_review_district",
         "cook_commissioner_district",
         "cook_judicial_district",
+        "cook_municipality",
         "ward_chicago",
         "ward_evanston"
     ],
