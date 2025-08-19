@@ -48,7 +48,10 @@ munis <- st_read(paste0(
   ) %>%
   select(geo_type, geo_name, geo_num, geometry) %>%
   # Remove Chicago since we're using community areas
-  filter(geo_name != "CITY OF CHICAGO")
+  filter(geo_name != "CITY OF CHICAGO") %>%
+  group_by(geo_type, geo_name, geo_num) %>%
+  summarise() %>%
+  group_by()
 
 # Adjust City of Chicago boundary to avoid gaps
 buffered_city <- city %>%
@@ -86,13 +89,16 @@ buffered_city <- city %>%
 # Combine community areas and municipalities, then transform to WGS84 for Athena
 output <- munis %>%
   bind_rows(buffered_city) %>%
-  st_transform(4326)
+  st_transform(4326) %>%
+  st_make_valid()
+
 
 # Upload data to S3
 tmp_file <- tempfile(fileext = ".geojson")
 st_write(output, tmp_file)
 save_local_to_s3(
   s3_uri = file.path(output_path, "municipalities_community_areas.geojson"),
-  path = tmp_file
+  path = tmp_file,
+  overwrite = TRUE
 )
 file.remove(tmp_file)
