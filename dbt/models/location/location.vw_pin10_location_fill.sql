@@ -114,10 +114,7 @@ SELECT
 
         -- Otherwise: use crosswalked cook
         ELSE ARRAY[
-                COALESCE(
-                    xwalk.tax_municipality_name,
-                    cook_municipality.cook_municipality_name
-                )
+                cook_municipality.cook_municipality_name
             ]
     END AS combined_municipality_name,
     tax.tax_school_elementary_district_num,
@@ -231,5 +228,3 @@ LEFT JOIN {{ ref('location.access') }} AS access
 LEFT JOIN {{ ref('location.other') }} AS other
     ON pin.pin10 = other.pin10
     AND cyf.misc_subdivision_fill_year = other.year
-LEFT JOIN {{ ref('location.municipality_crosswalk') }} AS xwalk
-    ON cook_municipality.cook_municipality_name = xwalk.cook_municipality_name
