@@ -7,7 +7,7 @@ library("stringr")
 source("utils.R")
 
 # This script builds shapefiles that are not pure representations of data in the
-# raw s3 bucket. Data can be combined or heavily altered for the purpose of
+# raw S3 bucket. Data can be combined or heavily altered for the purpose of
 # creating useful shapefiles for reporting and visualization.
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_path <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "reporting")
@@ -27,10 +27,7 @@ city <- read_geoparquet_sf(
   )
 ) %>%
   st_transform(3435) %>%
-  mutate(
-    geo_type = "community area",
-    geo_name = community
-  ) %>%
+  mutate(geo_type = "community area", geo_name = community) %>%
   select(geo_type, geo_name, geo_num = area_number, geometry)
 
 # Ingest county municipalities
@@ -49,12 +46,7 @@ munis <- st_read(paste0(
     ),
     geo_num = as.character(AGENCY)
   ) %>%
-  select(
-    geo_type,
-    geo_name,
-    geo_num,
-    geometry
-  ) %>%
+  select(geo_type, geo_name, geo_num, geometry) %>%
   # Remove Chicago since we're using community areas
   filter(geo_name != "CITY OF CHICAGO")
 
@@ -90,11 +82,13 @@ buffered_city <- city %>%
   # areas
   st_difference()
 
+# Combine community areas and municipalities, then transform to WGS84 for Athena
 output <- munis %>%
   bind_rows(buffered_city) %>%
   st_transform(4326) %>%
   mutate(geometry_3435 = st_transform(geometry, 3435))
 
+# Upload data to S3
 geoparquet_to_s3(
   output, file.path(output_path, "municipalities_community_areas.parquet")
 )
