@@ -85,10 +85,13 @@ buffered_city <- city %>%
 # Combine community areas and municipalities, then transform to WGS84 for Athena
 output <- munis %>%
   bind_rows(buffered_city) %>%
-  st_transform(4326) %>%
-  mutate(geometry_3435 = st_transform(geometry, 3435))
+  st_transform(4326)
 
 # Upload data to S3
-geoparquet_to_s3(
-  output, file.path(output_path, "municipalities_community_areas.parquet")
+tmp_file <- tempfile(fileext = ".geojson")
+st_write(output, tmp_file)
+save_local_to_s3(
+  s3_uri = file.path(output_path, "municipalities_community_areas.geojson"),
+  path = tmp_file
 )
+file.remove(tmp_file)
