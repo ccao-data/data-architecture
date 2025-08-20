@@ -93,7 +93,7 @@ stage_values AS (
             CASE
                 WHEN
                     {{ pre_mailed_filters('asmt') }} AND asmt.taxyr >= '2020'
-                    THEN asmt.tot30
+                    THEN COALESCE(asmt.tot30, 0)
             END
         ) AS pre_mailed_hie,
         -- Pre-mailed market values
@@ -169,7 +169,7 @@ stage_values AS (
             CASE
                 WHEN
                     asmt.procname = 'CCAOVALUE' AND asmt.taxyr >= '2020'
-                    THEN asmt.tot30
+                    THEN COALESCE(asmt.tot30, 0)
             END
         ) AS mailed_hie,
         -- Mailed market values
@@ -245,7 +245,7 @@ stage_values AS (
             CASE
                 WHEN
                     {{ pre_certified_filters('asmt') }} AND asmt.taxyr >= '2020'
-                    THEN asmt.tot30
+                    THEN COALESCE(asmt.tot30, 0)
             END
         ) AS pre_certified_hie,
         -- Assessor pre-certified market values
@@ -321,7 +321,7 @@ stage_values AS (
             CASE
                 WHEN
                     asmt.procname = 'CCAOFINAL' AND asmt.taxyr >= '2020'
-                    THEN asmt.tot30
+                    THEN COALESCE(asmt.tot30, 0)
             END
         ) AS certified_hie,
         -- Assessor certified market values
@@ -397,7 +397,7 @@ stage_values AS (
             CASE
                 WHEN
                     asmt.procname = 'BORVALUE' AND asmt.taxyr >= '2020'
-                    THEN asmt.tot30
+                    THEN COALESCE(asmt.tot30, 0)
             END
         ) AS board_hie,
         -- Board certified market values

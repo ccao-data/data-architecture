@@ -240,7 +240,7 @@ Board of Review home improvement exemption (HIE) value from year specified by
 column prefix (or year of observation if not prefixed). Taxable AV is total AV
 less HIE AV.
 
-A parcel with no HIE can have an HIE value of 0 or NULL.
+NULL HIE values are recoded to 0.
 {% enddocs %}
 
 ## board_land
@@ -293,7 +293,7 @@ Certified home improvement exemption (HIE) value from year specified by column
 prefix (or year of observation if not prefixed). Taxable AV is total AV less
 HIE AV.
 
-A parcel with no HIE can have an HIE value of 0 or NULL.
+NULL HIE values are recoded to 0.
 {% enddocs %}
 
 ## certified_land
@@ -413,7 +413,7 @@ Mailed home improvement exemption (HIE) value from year specified by column
 prefix (or year of observation if not prefixed). Taxable AV is total AV less
 HIE AV.
 
-A parcel with no HIE can have an HIE value of 0 or NULL.
+NULL HIE values are recoded to 0.
 {% enddocs %}
 
 ## mailed_land
@@ -470,7 +470,7 @@ Provisional certified home improvement exemption (HIE) value from year specified
 by column prefix (or year of observation if not prefixed). Taxable AV is total
 AV less HIE AV.
 
-A parcel with no HIE can have an HIE value of 0 or NULL.
+NULL HIE values are recoded to 0.
 
 Provisional certified values are not final, and are only present in the
 data for the current assessment year up until the moment when appeals are
@@ -539,7 +539,7 @@ Provisional mailed home improvement exemption (HIE) value from year specified
 by column prefix (or year of observation if not prefixed). Taxable AV is total
 AV less HIE AV.
 
-A parcel with no HIE can have an HIE value of 0 or NULL.
+NULL HIE values are recoded to 0.
 
 Provisional mailed values are not final, and are only present in the
 data for the current assessment year up until the moment when values go out to
