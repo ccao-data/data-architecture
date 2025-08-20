@@ -44,14 +44,10 @@ models:
       - name: combined_bldg_sf
         description: '{{ doc("column_pinval_combined_bldg_sf")}}'
         data_tests:
-          - is_null:
-              name: pinval_vw_assessment_card_combined_bldg_sf_is_null_when_not_is_parcel_small_multicard
-              config:
-                where: not is_parcel_small_multicard
           - not_null:
               name: pinval_vw_assessment_card_combined_bldg_sf_not_null_when_is_parcel_small_multicard
               config:
-                where: is_parcel_small_multicard
+                where: is_report_eligible
       - name: is_frankencard
         description: '{{ doc("column_pinval_is_frankencard") }}'
         data_tests:
@@ -85,6 +81,11 @@ models:
               name: pinval_vw_assessment_card_meta_card_num_null_when_reason_report_ineligible_is_missing_card
               config:
                 where: reason_report_ineligible = 'missing_card'
+      - name: meta_nbhd_code
+        description: Assessor neighborhood code. Guaranteed to never be null.
+        data_tests:
+          - not_null:
+              name: pinval_vw_assessment_card_meta_nbhd_code_not_null
       - name: meta_pin
         description: '{{ doc("shared_column_pin") }}'
         data_tests:
@@ -126,7 +127,7 @@ models:
                 # There are a handful of known PINs that had the wrong class
                 # at modeling time, and so got a model value even though it
                 # should not have
-                error_if: ">29"
+                error_if: ">28"
           - not_accepted_values:
               name: pinval_vw_assessment_card_reason_report_ineligible_not_non_tri_for_tri
               values:
@@ -189,6 +190,21 @@ models:
             ) = 0
           config:
             where: model_predictor_all_name IS NOT NULL
+      - expression_is_true:
+          name: pinval_vw_assessment_card_predictors_match_pinval_vars_dict
+          # Test that every `model_predictor_all_name` array for every row is a
+          # subset of the labels in the `pinval.vars_dict` seed. This ensures
+          # that we never forget to update the seed when predictors change
+          expression: |
+            CARDINALITY(
+              ARRAY_EXCEPT(
+                model_predictor_all_name,
+                (
+                  SELECT ARRAY_AGG(code)
+                  FROM {{ ref("pinval.vars_dict") }}
+                )
+              )
+            ) = 0
       - unique_combination_of_columns:
           name: pinval_vw_assessment_card_unique_assessment_year_meta_pin_meta_card_num
           combination_of_columns:

@@ -140,12 +140,9 @@ card_agg AS (
                 ORDER BY COALESCE(ac.char_bldg_sf, 0) DESC, ac.meta_card_num ASC
             ) = 1, FALSE
         ) AS is_frankencard,
-        CASE
-            WHEN cpm.is_parcel_small_multicard
-                THEN SUM(COALESCE(ac.char_bldg_sf, 0)) OVER (
-                    PARTITION BY ac.meta_pin, ac.run_id
-                )
-        END AS combined_bldg_sf
+        SUM(COALESCE(ac.char_bldg_sf, 0))
+            OVER (PARTITION BY ac.meta_pin, ac.run_id)
+            AS combined_bldg_sf
     FROM assessment_card AS ac
     LEFT JOIN card_pin_meta AS cpm
         ON ac.meta_pin = cpm.meta_pin
@@ -223,6 +220,7 @@ SELECT
     ac.meta_card_num,
     COALESCE(ac.township_code, uni.township_code) AS meta_township_code,
     COALESCE(twn.township_name, uni.township_name) AS meta_township_name,
+    COALESCE(ac.meta_nbhd_code, uni.nbhd_code) AS meta_nbhd_code,
     LOWER(uni.triad_name) AS meta_triad_name,
     COALESCE(ac.char_class, uni.class) AS char_class,
     COALESCE(card_cd.class_desc, pin_cd.class_desc) AS char_class_desc,
@@ -257,6 +255,19 @@ SELECT
         ac.meta_pin IS NOT NULL
         AND ac.meta_card_num IS NOT NULL
         AND LOWER(uni.triad_name) = LOWER(uni.assessment_triad)
+        -- Fix for one 2024 PIN that switched from regression class to
+        -- non-regression class between the date when we ran the final model
+        -- and the date we ran final comps. Without the filter below, this view
+        -- will consider the PIN to be eligible for a report, because it had
+        -- a regression class at the time of final modeling; however, the PIN
+        -- doesn't have any comps, because it had a non-regression class at the
+        -- time of comps.
+        --
+        -- An alternative approach might be to use the presence of comps to
+        -- determine report eligibilty, but eligible reports without comps
+        -- can be a useful signal of something going wrong with our eligibility
+        -- criteria, so instead we hardcode this exception.
+        AND NOT (ac.meta_pin = '10361150280000' AND ac.assessment_year = '2024')
     ) AS is_report_eligible,
     CASE
         -- In some rare cases the parcel class can be different from
@@ -280,7 +291,12 @@ SELECT
             THEN NULL
         ELSE 'unknown'
     END AS reason_report_ineligible,
-    {{ all_predictors('ac', exclude=['meta_township_code', 'char_class']) }},
+    {{
+        all_predictors(
+            'ac',
+            exclude=['meta_township_code', 'meta_nbhd_code', 'char_class']
+        )
+    }},
     {{ all_predictors('shap', alias_prefix='shap') }},
     CONCAT(CAST(ac.char_class AS VARCHAR), ': ', card_cd.class_desc)
         AS char_class_detailed,
@@ -304,6 +320,13 @@ SELECT
             )
     END AS pred_card_initial_fmv_per_sqft,
     ap.pred_pin_final_fmv_round,
+    CAST(
+        ROUND(
+            ap.pred_pin_final_fmv_round
+            / NULLIF(card_agg.combined_bldg_sf, 0),
+            0
+        ) AS INTEGER
+    ) AS pred_pin_final_fmv_round_per_sqft,
     card_agg.meta_pin_num_cards,
     card_agg.is_parcel_small_multicard,
     card_agg.is_frankencard,
