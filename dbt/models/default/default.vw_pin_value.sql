@@ -89,6 +89,13 @@ stage_values AS (
                     THEN asmt.valasm3
             END
         ) AS pre_mailed_tot,
+        ARBITRARY(
+            CASE
+                WHEN
+                    {{ pre_mailed_filters('asmt') }} AND asmt.taxyr >= '2020'
+                    THEN COALESCE(asmt.tot30, 0)
+            END
+        ) AS pre_mailed_hie,
         -- Pre-mailed market values
         ARBITRARY(
             CASE
@@ -158,6 +165,13 @@ stage_values AS (
                     THEN asmt.valasm3
             END
         ) AS mailed_tot,
+        ARBITRARY(
+            CASE
+                WHEN
+                    asmt.procname = 'CCAOVALUE' AND asmt.taxyr >= '2020'
+                    THEN COALESCE(asmt.tot30, 0)
+            END
+        ) AS mailed_hie,
         -- Mailed market values
         ARBITRARY(
             CASE
@@ -227,6 +241,13 @@ stage_values AS (
                     THEN asmt.valasm3
             END
         ) AS pre_certified_tot,
+        ARBITRARY(
+            CASE
+                WHEN
+                    {{ pre_certified_filters('asmt') }} AND asmt.taxyr >= '2020'
+                    THEN COALESCE(asmt.tot30, 0)
+            END
+        ) AS pre_certified_hie,
         -- Assessor pre-certified market values
         ARBITRARY(
             CASE
@@ -296,6 +317,13 @@ stage_values AS (
                     THEN asmt.valasm3
             END
         ) AS certified_tot,
+        ARBITRARY(
+            CASE
+                WHEN
+                    asmt.procname = 'CCAOFINAL' AND asmt.taxyr >= '2020'
+                    THEN COALESCE(asmt.tot30, 0)
+            END
+        ) AS certified_hie,
         -- Assessor certified market values
         ARBITRARY(
             CASE
@@ -365,6 +393,13 @@ stage_values AS (
                     THEN asmt.valasm3
             END
         ) AS board_tot,
+        ARBITRARY(
+            CASE
+                WHEN
+                    asmt.procname = 'BORVALUE' AND asmt.taxyr >= '2020'
+                    THEN COALESCE(asmt.tot30, 0)
+            END
+        ) AS board_hie,
         -- Board certified market values
         ARBITRARY(
             CASE
