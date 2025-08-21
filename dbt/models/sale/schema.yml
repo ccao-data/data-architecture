@@ -34,7 +34,7 @@ sources:
                   config:
                     where: sv_is_outlier
                   meta:
-                   description: sv_outlier_reason1 is not null when sv_is_outlier
+                    description: sv_outlier_reason1 is not null when sv_is_outlier
           - name: sv_outlier_reason2
             description: '{{ doc("shared_column_sv_outlier_reason") }}'
           - name: sv_outlier_reason3
