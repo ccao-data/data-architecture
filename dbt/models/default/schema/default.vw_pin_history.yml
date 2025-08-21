@@ -7,6 +7,8 @@ models:
         description: '{{ doc("shared_column_board_bldg") }}'
       - name: board_class
         description: '{{ doc("shared_column_board_class") }}'
+      - name: board_hie
+        description: '{{ doc("shared_column_board_hie") }}'
       - name: board_land
         description: '{{ doc("shared_column_board_land") }}'
       - name: board_tot
@@ -15,6 +17,8 @@ models:
         description: '{{ doc("shared_column_certified_bldg") }}'
       - name: certified_class
         description: '{{ doc("shared_column_certified_class") }}'
+      - name: certified_hie
+        description: '{{ doc("shared_column_certified_hie") }}'
       - name: certified_land
         description: '{{ doc("shared_column_certified_land") }}'
       - name: certified_tot
@@ -27,18 +31,24 @@ models:
         description: '{{ doc("shared_column_mailed_bldg") }}'
       - name: mailed_class
         description: '{{ doc("shared_column_mailed_class") }}'
+      - name: mailed_hie
+        description: '{{ doc("shared_column_mailed_hie") }}'
       - name: mailed_land
         description: '{{ doc("shared_column_mailed_land") }}'
       - name: mailed_tot
         description: '{{ doc("shared_column_mailed_tot") }}'
       - name: oneyr_pri_board_bldg
         description: '{{ doc("shared_column_board_bldg") }}'
+      - name: oneyr_pri_board_hie
+        description: '{{ doc("shared_column_board_hie") }}'
       - name: oneyr_pri_board_land
         description: '{{ doc("shared_column_board_land") }}'
       - name: oneyr_pri_board_tot
         description: '{{ doc("shared_column_board_tot") }}'
       - name: oneyr_pri_certified_bldg
         description: '{{ doc("shared_column_certified_bldg") }}'
+      - name: oneyr_pri_certified_hie
+        description: '{{ doc("shared_column_certified_hie") }}'
       - name: oneyr_pri_certified_land
         description: '{{ doc("shared_column_certified_land") }}'
       - name: oneyr_pri_certified_tot
@@ -47,6 +57,8 @@ models:
         description: '{{ doc("shared_column_change_reason") }}'
       - name: oneyr_pri_mailed_bldg
         description: '{{ doc("shared_column_mailed_bldg") }}'
+      - name: oneyr_pri_mailed_hie
+        description: '{{ doc("shared_column_mailed_hie") }}'
       - name: oneyr_pri_mailed_land
         description: '{{ doc("shared_column_mailed_land") }}'
       - name: oneyr_pri_mailed_tot
@@ -57,6 +69,8 @@ models:
         description: '{{ doc("shared_column_pre_mailed_bldg") }}'
       - name: pre_mailed_class
         description: '{{ doc("shared_column_pre_mailed_class") }}'
+      - name: pre_mailed_hie
+        description: '{{ doc("shared_column_pre_mailed_hie") }}'
       - name: pre_mailed_land
         description: '{{ doc("shared_column_pre_mailed_land") }}'
       - name: pre_mailed_tot
@@ -67,12 +81,16 @@ models:
         description: '{{ doc("shared_column_township_name") }}'
       - name: twoyr_pri_board_bldg
         description: '{{ doc("shared_column_board_bldg") }}'
+      - name: twoyr_pri_board_hie
+        description: '{{ doc("shared_column_board_hie") }}'
       - name: twoyr_pri_board_land
         description: '{{ doc("shared_column_board_land") }}'
       - name: twoyr_pri_board_tot
         description: '{{ doc("shared_column_board_tot") }}'
       - name: twoyr_pri_certified_bldg
         description: '{{ doc("shared_column_certified_bldg") }}'
+      - name: twoyr_pri_certified_hie
+        description: '{{ doc("shared_column_certified_hie") }}'
       - name: twoyr_pri_certified_land
         description: '{{ doc("shared_column_certified_land") }}'
       - name: twoyr_pri_certified_tot
@@ -81,6 +99,8 @@ models:
         description: '{{ doc("shared_column_change_reason") }}'
       - name: twoyr_pri_mailed_bldg
         description: '{{ doc("shared_column_mailed_bldg") }}'
+      - name: twoyr_pri_mailed_hie
+        description: '{{ doc("shared_column_mailed_hie") }}'
       - name: twoyr_pri_mailed_land
         description: '{{ doc("shared_column_mailed_land") }}'
       - name: twoyr_pri_mailed_tot

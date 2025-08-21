@@ -233,6 +233,16 @@ percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
+## board_hie
+
+{% docs shared_column_board_hie %}
+Board of Review home improvement exemption (HIE) value from year specified by
+column prefix (or year of observation if not prefixed). Taxable AV is total AV
+less HIE AV.
+
+NULL HIE values are recoded to 0.
+{% enddocs %}
+
 ## board_land
 
 {% docs shared_column_board_land %}
@@ -274,6 +284,16 @@ Designates the property type, such as vacant, residential, multi-family,
 agricultural, commercial or industrial. The classification determines the
 percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information
+{% enddocs %}
+
+## certified_hie
+
+{% docs shared_column_certified_hie %}
+Certified home improvement exemption (HIE) value from year specified by column
+prefix (or year of observation if not prefixed). Taxable AV is total AV less
+HIE AV.
+
+NULL HIE values are recoded to 0.
 {% enddocs %}
 
 ## certified_land
@@ -386,6 +406,16 @@ percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
+## mailed_hie
+
+{% docs shared_column_mailed_hie %}
+Mailed home improvement exemption (HIE) value from year specified by column
+prefix (or year of observation if not prefixed). Taxable AV is total AV less
+HIE AV.
+
+NULL HIE values are recoded to 0.
+{% enddocs %}
+
 ## mailed_land
 
 {% docs shared_column_mailed_land %}
@@ -426,6 +456,21 @@ Designates the property type, such as vacant, residential, multi-family,
 agricultural, commercial or industrial. The classification determines the
 percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information.
+
+Provisional certified values are not final, and are only present in the
+data for the current assessment year up until the moment when appeals are
+finalized. At that point the `pre_certified` values disappear and `certified`
+values replace them
+{% enddocs %}
+
+## pre_certified_hie
+
+{% docs shared_column_pre_certified_hie %}
+Provisional certified home improvement exemption (HIE) value from year specified
+by column prefix (or year of observation if not prefixed). Taxable AV is total
+AV less HIE AV.
+
+NULL HIE values are recoded to 0.
 
 Provisional certified values are not final, and are only present in the
 data for the current assessment year up until the moment when appeals are
@@ -480,6 +525,21 @@ Designates the property type, such as vacant, residential, multi-family,
 agricultural, commercial or industrial. The classification determines the
 percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information.
+
+Provisional mailed values are not final, and are only present in the
+data for the current assessment year up until the moment when values go out to
+mail. At that point the `pre_mailed` values disappear and `mailed` values
+replace them
+{% enddocs %}
+
+## pre_mailed_hie
+
+{% docs shared_column_pre_mailed_hie %}
+Provisional mailed home improvement exemption (HIE) value from year specified
+by column prefix (or year of observation if not prefixed). Taxable AV is total
+AV less HIE AV.
+
+NULL HIE values are recoded to 0.
 
 Provisional mailed values are not final, and are only present in the
 data for the current assessment year up until the moment when values go out to

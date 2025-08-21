@@ -36,6 +36,9 @@ SELECT
     political.cook_commissioner_district_data_year,
     political.cook_judicial_district_num,
     political.cook_judicial_district_data_year,
+    political.cook_municipality_num,
+    political.cook_municipality_name,
+    political.cook_municipality_data_year,
     political.ward_num,
     political.ward_name,
     political.ward_chicago_data_year,
@@ -83,6 +86,31 @@ SELECT
 
     tax.tax_municipality_num,
     tax.tax_municipality_name,
+    CASE
+        -- Keep whatever tax has (including empty arrays)
+        WHEN tax.tax_municipality_name IS NOT NULL
+            THEN tax.tax_municipality_name
+
+        -- tax is NULL; if cook contains UNINCORPORATED -> empty array
+        WHEN political.cook_municipality_name IS NOT NULL
+            AND POSITION('UNINCORPORATED' IN political.cook_municipality_name)
+            > 0
+            THEN CAST(ARRAY[] AS ARRAY<VARCHAR>)
+
+        -- tax and cook are both NULL, return NULL (not [NULL])
+        WHEN tax.tax_municipality_name IS NULL
+            AND political.cook_municipality_name IS NULL
+            THEN NULL
+
+        -- Otherwise: use crosswalked cook
+        ELSE ARRAY[
+                COALESCE(
+                    xwalk.tax_municipality_name,
+                    political.cook_municipality_name
+                )
+            ]
+    END AS combined_municipality_name,
+
     tax.tax_school_elementary_district_num,
     tax.tax_school_elementary_district_name,
     tax.tax_school_secondary_district_num,
@@ -123,6 +151,8 @@ LEFT JOIN {{ ref('location.census_acs5') }} AS census_acs5
 LEFT JOIN {{ ref('location.political') }} AS political
     ON pin.pin10 = political.pin10
     AND pin.year = political.year
+LEFT JOIN {{ ref('location.municipality_crosswalk') }} AS xwalk
+    ON political.cook_municipality_name = xwalk.cook_municipality_name
 LEFT JOIN {{ ref('location.chicago') }} AS chicago
     ON pin.pin10 = chicago.pin10
     AND pin.year = chicago.year

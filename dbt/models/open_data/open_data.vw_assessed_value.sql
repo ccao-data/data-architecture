@@ -13,10 +13,13 @@ SELECT
     mailed_bldg,
     mailed_land,
     mailed_tot,
+    mailed_hie,
     certified_bldg,
     certified_land,
     certified_tot,
+    certified_hie,
     board_bldg,
     board_land,
-    board_tot
+    board_tot,
+    board_hie
 FROM {{ ref('default.vw_pin_history') }}

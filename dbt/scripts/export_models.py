@@ -5,6 +5,7 @@ import argparse
 
 from utils import constants
 from utils.export import export_models
+from utils.helpers import create_logger
 
 CLI_DESCRIPTION = """Export dbt models to Excel files.
 
@@ -70,17 +71,44 @@ def parse_args():
         *constants.OUTPUT_DIR_ARGUMENT_ARGS,
         **constants.OUTPUT_DIR_ARGUMENT_KWARGS,
     )
+    parser.add_argument(
+        *constants.LOG_TO_FILE_ARGUMENT_ARGS,
+        **constants.LOG_TO_FILE_ARGUMENT_KWARGS,
+    )
+    parser.add_argument(
+        *constants.LOG_TO_CLOUDWATCH_GROUP_ARGUMENT_ARGS,
+        **constants.LOG_TO_CLOUDWATCH_GROUP_ARGUMENT_KWARGS,
+    )
 
     return parser.parse_args()
 
 
 if __name__ == "__main__":
     args = parse_args()
-    export_models(
-        args.target,
-        args.select,
-        args.selector,
-        args.rebuild,
-        args.where,
-        args.output_dir,
+
+    logger = create_logger(
+        name=__name__,
+        log_file_path=args.log_to_file,
+        log_group_name=args.log_to_cloudwatch_group,
     )
+
+    try:
+        logger.info("Starting model export")
+
+        export_models(
+            args.target,
+            args.select,
+            args.selector,
+            args.rebuild,
+            args.where,
+            args.output_dir,
+        )
+
+        logger.info("Export completed successfully.")
+
+    except Exception as e:
+        logger.error(
+            str(e) or f"{type(e).__name__} raised with no message",
+            exc_info=True,
+        )
+        raise

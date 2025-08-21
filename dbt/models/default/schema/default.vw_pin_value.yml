@@ -9,6 +9,8 @@ models:
         description: '{{ doc("shared_column_board_bldg") }}'
       - name: board_class
         description: '{{ doc("shared_column_board_class") }}'
+      - name: board_hie
+        description: '{{ doc("shared_column_board_hie") }}'
       - name: board_land
         description: '{{ doc("shared_column_board_land") }}'
       - name: board_land_mv
@@ -28,6 +30,8 @@ models:
               name: default_vw_pin_value_certified_class_is_null_when_pre_certified
               config:
                 where: stage_name = 'ASSESSOR PRE-CERTIFIED'
+      - name: certified_hie
+        description: '{{ doc("shared_column_certified_hie") }}'
       - name: certified_land
         description: '{{ doc("shared_column_certified_land") }}'
       - name: certified_land_mv
@@ -53,6 +57,8 @@ models:
               name: default_vw_pin_value_mailed_class_not_null_when_pre_certified
               config:
                 where: stage_name = 'ASSESSOR PRE-CERTIFIED'
+      - name: mailed_hie
+        description: '{{ doc("shared_column_mailed_hie") }}'
       - name: mailed_land
         description: '{{ doc("shared_column_mailed_land") }}'
       - name: mailed_land_mv
@@ -69,6 +75,8 @@ models:
         description: '{{ doc("shared_column_pre_certified_bldg") }}'
       - name: pre_certified_class
         description: '{{ doc("shared_column_pre_certified_class") }}'
+      - name: pre_certified_hie
+        description: '{{ doc("shared_column_pre_certified_hie") }}'
       - name: pre_certified_land
         description: '{{ doc("shared_column_pre_certified_land") }}'
       - name: pre_certified_land_mv
@@ -83,6 +91,8 @@ models:
         description: '{{ doc("shared_column_pre_mailed_bldg") }}'
       - name: pre_mailed_class
         description: '{{ doc("shared_column_pre_mailed_class") }}'
+      - name: pre_mailed_hie
+        description: '{{ doc("shared_column_pre_mailed_hie") }}'
       - name: pre_mailed_land
         description: '{{ doc("shared_column_pre_mailed_land") }}'
       - name: pre_mailed_land_mv
@@ -123,101 +133,101 @@ models:
               name: default_vw_pin_value_stage_num_not_null
 
     data_tests:
-    - not_null:
-        name: default_vw_pin_value_board_class_not_null
-        column_name: board_class
-        config:
-          where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1
-          error_if: ">1261"
-    - not_null:
-        name: default_vw_pin_value_board_tot_mv_not_null
-        column_name: board_tot_mv
-        config:
-          where: |
-            CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1 AND
-            year >= '2020'
-          error_if: ">1261"
-    - not_null:
-        name: default_vw_pin_value_board_tot_not_null
-        column_name: board_tot
-        config:
-          where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1
-          error_if: ">1261"
-    - not_null:
-        name: default_vw_pin_value_certified_class_not_null
-        column_name: certified_class
-        config:
-          where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
-          error_if: ">15"
-    - not_null:
-        name: default_vw_pin_value_certified_tot_mv_not_null
-        column_name: certified_tot_mv
-        config:
-          where: |
-            CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} AND
-            year >= '2021'
-          error_if: ">15"
-    - not_null:
-        name: default_vw_pin_value_certified_tot_not_null
-        column_name: certified_tot
-        config:
-          where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
-          error_if: ">15"
-    - expression_is_true:
-        name: default_vw_pin_value_class_is_null_when_values_are_null
-        meta:
-          description: >
-            Test that the 'class' column for each assessment stage is null
-            whenever the value columns for that stage are null, which is an
-            assumption that downstream consumers of this view depend upon
-        expression: |
-          {% set stages = ['pre_mailed', 'mailed', 'pre_certified', 'certified', 'board'] %}
-          {% set cols = ['bldg', 'land', 'tot', 'bldg_mv', 'land_mv', 'tot_mv'] %}
+      - not_null:
+          name: default_vw_pin_value_board_class_not_null
+          column_name: board_class
+          config:
+            where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1
+            error_if: ">1261"
+      - not_null:
+          name: default_vw_pin_value_board_tot_mv_not_null
+          column_name: board_tot_mv
+          config:
+            where: |
+              CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1 AND
+              year >= '2020'
+            error_if: ">1261"
+      - not_null:
+          name: default_vw_pin_value_board_tot_not_null
+          column_name: board_tot
+          config:
+            where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} - 1
+            error_if: ">1261"
+      - not_null:
+          name: default_vw_pin_value_certified_class_not_null
+          column_name: certified_class
+          config:
+            where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
+            error_if: ">15"
+      - not_null:
+          name: default_vw_pin_value_certified_tot_mv_not_null
+          column_name: certified_tot_mv
+          config:
+            where: |
+              CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} AND
+              year >= '2021'
+            error_if: ">15"
+      - not_null:
+          name: default_vw_pin_value_certified_tot_not_null
+          column_name: certified_tot
+          config:
+            where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
+            error_if: ">15"
+      - expression_is_true:
+          name: default_vw_pin_value_class_is_null_when_values_are_null
+          meta:
+            description: >
+              Test that the 'class' column for each assessment stage is null
+              whenever the value columns for that stage are null, which is an
+              assumption that downstream consumers of this view depend upon
+          expression: |
+            {% set stages = ['pre_mailed', 'mailed', 'pre_certified', 'certified', 'board'] %}
+            {% set cols = ['bldg', 'land', 'tot', 'bldg_mv', 'land_mv', 'tot_mv'] %}
 
-          {% for stage in  stages %}
-            {% for null_status in ['IS NULL', 'IS NOT NULL'] %}
-              (
-                {{ stage }}_class {{ null_status }}
-                AND (
-                  {% for col in cols %}
-                    {{ stage }}_{{ col }} {{ null_status }}
-                    {% if not loop.last %}AND{% endif %}
-                  {% endfor %}
+            {% for stage in  stages %}
+              {% for null_status in ['IS NULL', 'IS NOT NULL'] %}
+                (
+                  {{ stage }}_class {{ null_status }}
+                  AND (
+                    {% for col in cols %}
+                      {{ stage }}_{{ col }} {{ null_status }}
+                      {% if not loop.last %}AND{% endif %}
+                    {% endfor %}
+                  )
                 )
-              )
+                {% if not loop.last %}OR{% endif %}
+              {% endfor %}
               {% if not loop.last %}OR{% endif %}
             {% endfor %}
-            {% if not loop.last %}OR{% endif %}
-          {% endfor %}
-    - not_accepted_values:
-        name: default_vw_pin_value_mailed_class_no_hyphens
-        column_name: mailed_class
-        values: "2-99"
-    - not_null:
-        name: default_vw_pin_value_mailed_class_not_null
-        column_name: mailed_class
-        config:
-          where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
-          error_if: ">310"
-    - not_null:
-        name: default_vw_pin_value_mailed_tot_mv_not_null
-        column_name: mailed_tot_mv
-        config:
-          where: |
-            CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} AND
-            year >= '2021'
-          error_if: ">310"
-    - not_null:
-        name: default_vw_pin_value_mailed_tot_not_null
-        column_name: mailed_tot
-        config:
-          where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
-          error_if: ">310"
-    - unique_combination_of_columns:
-        name: default_vw_pin_value_unique_by_14_digit_pin_and_year
-        combination_of_columns:
-          - pin
-          - year
+      - not_accepted_values:
+          name: default_vw_pin_value_mailed_class_no_hyphens
+          column_name: mailed_class
+          values: "2-99"
+      - not_null:
+          name: default_vw_pin_value_mailed_class_not_null
+          column_name: mailed_class
+          config:
+            where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
+            error_if: ">310"
+      - not_null:
+          name: default_vw_pin_value_mailed_tot_mv_not_null
+          column_name: mailed_tot_mv
+          config:
+            where: |
+              CAST(year AS int) < {{ var('data_test_iasworld_year_start') }} AND
+              year >= '2021'
+            error_if: ">310"
+      - not_null:
+          name: default_vw_pin_value_mailed_tot_not_null
+          column_name: mailed_tot
+          config:
+            where: CAST(year AS int) < {{ var('data_test_iasworld_year_start') }}
+            error_if: ">310"
+      - unique_combination_of_columns:
+          name: default_vw_pin_value_unique_by_14_digit_pin_and_year
+          combination_of_columns:
+            - pin
+            - year
 
 unit_tests:
   - name: default_vw_pin_value_mailed_class_strips_non_alphanumerics
