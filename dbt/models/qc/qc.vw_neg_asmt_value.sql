@@ -54,7 +54,6 @@ SELECT
     asmt.val45,
     asmt.val46,
     asmt.val47,
-    asmt.val48,
     asmt.val49,
     asmt.val50,
     asmt.val51,
