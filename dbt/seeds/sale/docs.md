@@ -1,4 +1,4 @@
-# commercial_major_subclass
+# mydec_crosswalk
 
 {% docs seed_mydec_crosswalk %}
 Crosswalk that allows users to convert column names between excel files provided
