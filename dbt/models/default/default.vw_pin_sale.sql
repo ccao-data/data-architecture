@@ -212,7 +212,7 @@ mydec_sales AS (
             ) AS num_single_day_sales,
             year_of_sale
         FROM {{ source('sale', 'mydec_test') }}
-        WHERE line_2_total_parcels = 1 -- Remove multisales
+        WHERE NOT is_multisale
     )
     /* Some sales in mydec have multiple rows for one pin on a given sale date.
     Sometimes they have different dates than iasworld prior to 2021 and when
