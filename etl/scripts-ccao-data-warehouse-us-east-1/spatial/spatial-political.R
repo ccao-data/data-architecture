@@ -150,7 +150,9 @@ unique(str_remove_all(str_sub(names(columns), 1, -6), "_chicago|_evanston")) %>%
     bind_rows(clean_files[grepl(x, names(clean_files))]) %>%
       group_by(district_name) %>%
       mutate(district_num = min(district_num, na.rm = TRUE)) %>%
-      mutate(district_num = na_if(district_num, Inf)) %>%
+      mutate(district_num = as.integer(
+        ifelse(is.infinite(district_num), NA_integer_, district_num)
+      )) %>%
       rename_with(~ gsub("district", x, .x)) %>%
       group_by(year) %>%
       write_partitions_to_s3(
