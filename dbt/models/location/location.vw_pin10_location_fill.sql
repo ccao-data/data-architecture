@@ -105,6 +105,7 @@ SELECT
                 'UNINCORPORATED' IN cook_municipality.cook_municipality_name
             )
             > 0
+        THEN CAST(ARRAY[] AS ARRAY<VARCHAR>)	
         -- tax and cook are both NULL, return NULL (not [NULL])
         WHEN tax.tax_municipality_name IS NULL
             AND cook_municipality.cook_municipality_name IS NULL
