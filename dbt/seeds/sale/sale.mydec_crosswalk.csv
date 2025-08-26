@@ -1,0 +1,184 @@
+mydec_excel,mydec_api,ccao_warehouse,field_type
+Declaration ID,declaration_id,declaration_id,character
+Status,status,status,character
+Document Number,document_number,document_number,character
+Date Recorded,date_recorded,date_recorded,date
+County Stamp Number,county_stamp_number,county_stamp_number,character
+City Stamp Number,city_stamp_number,city_stamp_number,character
+State Exemption,state_exemption,state_exemption,character
+Full Address,full_address,full_address,character
+Line 1 - Street,line_1_street,line_1_street,character
+Line 1 - City,line_1_city,line_1_city,character
+Line 1 - ZIP Code,line_1_zip_code,line_1_zip_code,character
+Line 1 - Township,line_1_township,line_1_township,character
+Line 1 - County,line_1_county,line_1_county,character
+Line 1 - Primary PIN,line_1_primary_pin,line_1_primary_pin,character
+Line 1 - Lot Size or Acreage,line_1_lot_size_or_acreage,line_1_lot_size_or_acreage,character
+Line 1 - Unit,line_1_unit,line_1_unit,character
+Line 1 - Split Parcel?,line_1_split_parcel,line_1_split_parcel,logical
+Line 2 - Total Parcels,line_2_total_parcels,line_2_total_parcels,integer
+Line 3 - Additional PINs?,line_3_additional_pins,line_3_additional_pins,logical
+Line 4 - Instrument Date,line_4_instrument_date,line_4_instrument_date,date
+Line 5 - Instrument Type,line_5_instrument_type,line_5_instrument_type,character
+Line 5 - Other Instrument Type Description,line_5_other_instrument_type,line_5_other_instrument_type_description,character
+Line 6 - Principal Residence?,line_6_principal_residence,line_6_principal_residence,logical
+Line 7 - Property Advertised?,line_7_property_advertised,line_7_property_advertised,logical
+Line 8 - Current Use,line_8_current_use,line_8_current_use,character
+Line 8 - Current Number of Apartment Units,line_8_current_number_of,line_8_current_number_of_apartment_units,integer
+Line 8 - Current Commercial Building Type,line_8_current_commercial,line_8_current_commercial_building_type,character
+Line 8 - Current Other Commercial Building Description,line_8_current_other,line_8_current_other_commercial_building_description,character
+Line 8 - Current Other Use Type,line_8_current_other_use,line_8_current_other_use_type,character
+Line 8 - Current Miscellaneous Other Use Type Description,line_8_current_miscellaneous,line_8_current_miscellaneous_other_use_type_description,character
+Line 8 - Intended Use,line_8_intended_use,line_8_intended_use,character
+Line 8 - Intended Number of Apartment Units,line_8_intended_number_of,line_8_intended_number_of_apartment_units,integer
+Line 8 - Intended Commercial Building Type,line_8_intended_commercial,line_8_intended_commercial_building_type,character
+Line 8 - Intended Other Commercial Building Description,line_8_intended_other,line_8_intended_other_commercial_building_description,character
+Line 8 - Intended Other Use Type,line_8_intended_other_use,line_8_intended_other_use_type,character
+Line 8 - Intended Miscellaneous Other Use Type Description,line_8_intended_miscellaneous,line_8_intended_miscellaneous_other_use_type_description,character
+Line 9 - No Changes,line_9_no_changes,line_9_no_changes,logical
+Line 9 - Demolition/damage,line_9_demolition_damage,line_9_demolitiondamage,logical
+Line 9 - Additions,line_9_additions,line_9_additions,logical
+Line 9 - Major Remodeling,line_9_major_remodeling,line_9_major_remodeling,logical
+Line 9 - New Construction,line_9_new_construction,line_9_new_construction,logical
+Line 9 - Other Change,line_9_other_change,line_9_other_change,logical
+Line 9 - Other Change Description,line_9_other_change_1,line_9_other_change_description,character
+Line 9 - Date of Significant Change,line_9_date_of_significant,line_9_date_of_significant_change,date
+Line 10a,line_10a_fulfillment_of,line_10a,logical
+Line 10a - Year Contract Initiated,line_10a_year_contract,line_10a_year_contract_initiated,character
+Line 10b,line_10b_sale_between_related,line_10b,logical
+Line 10c,line_10c_transfer_of_100,line_10c,logical
+Line 10d,line_10d_court_ordered_sale,line_10d,logical
+Line 10e,line_10e_sale_in_lieu_of,line_10e,logical
+Line 10f,line_10f_condemnation,line_10f,logical
+Line 10g,line_10g_short_sale,line_10g,logical
+Line 10h,line_10h_bank_reo,line_10h,logical
+Line 10i,line_10i_auction_sale,line_10i,logical
+Line 10j,line_10j_seller_buyer_is,line_10j,logical
+Line 10k,line_10k_seller_buyer_is,line_10k,logical
+Line 10l,line_10l_buyer_is_a_real,line_10l,logical
+Line 10m,line_10m_buyer_is_a_pension,line_10m,logical
+Line 10n,line_10n_buyer_is_an_adjacent,line_10n,logical
+Line 10o,line_10o_buyer_is_exercising,line_10o,logical
+Line 10p,line_10p_trade_of_property,line_10p,logical
+Line 10q,line_10q_sale_leaseback,line_10q,logical
+Line 10r,line_10r_other,line_10r,logical
+Line 10r - Description,line_10r_description,line_10r_description,character
+Line 10s,line_10s_homestead_exemptions,line_10s,logical
+Line 10s - General/Alternative,line_10s_general_alternative,line_10s_generalalternative,numeric
+Line 10s - Senior Citizens,line_10s_senior_citizens,line_10s_senior_citizens,numeric
+Line 10s - Senior Citizens Assessment Freeze,line_10s_senior_citizens_1,line_10s_senior_citizens_assessment_freeze,numeric
+Line 11 - Full consideration,line_11_full_consideration,line_11_full_consideration,numeric
+Line 12a - Personal Property?,line_12a_personal_property,line_12a_personal_property,logical
+Line 12a - Total Personal Property,line_12a_total_personal,line_12a_total_personal_property,numeric
+Line 12b - Mobile Home Included?,line_12b_mobile_home_included,line_12b_mobile_home_included,logical
+Line 13 - Net Consideration,line_13_net_consideration,line_13_net_consideration,numeric
+Line 14 - Amount of Other Property Transferred,line_14_amount_of_other,line_14_amount_of_other_property_transferred,numeric
+Line 15 - Outstanding Mortgage,line_15_outstanding_mortgage,line_15_outstanding_mortgage,numeric
+Line 16 - State Exemption,line_16_state_exemption,line_16_state_exemption,character
+Line 17 - Net Consideration Subject to Transfer Tax,line_17_net_consideration,line_17_net_consideration_subject_to_transfer_tax,numeric
+Line 18,line_18_number_of_tax_stamps,line_18,numeric
+Line 19 - State Tax,line_19_state_tax,line_19_state_tax,numeric
+Line 20 - County Tax,line_20_county_tax,line_20_county_tax,numeric
+Line 21 - Total Transfer Tax,line_21_total_transfer_tax,line_21_total_transfer_tax,numeric
+Step 4 - Seller Name,step_4_seller_name,seller_name,character
+Step 4 - Seller Organization,step_4_seller_organization,seller_organization,character
+Additional Sellers?,additional_sellers,additional_sellers,logical
+Step 4 - Seller's Agent?,step_4_seller_s_agent,sellers_agent,logical
+Step 4 - Seller's Agent's Name,step_4_seller_s_agent_s_name,sellers_agents_name,character
+Step 4 - Seller's Agent's Title,step_4_seller_s_agent_s_title,sellers_agents_title,character
+Step 4 - Seller's Agent's Business Name,step_4_seller_s_agent_s,sellers_agents_business_name,character
+Step 4 - Seller's Agent's Address,step_4_seller_s_agent_s_1,sellers_agents_address,character
+Step 4 - Seller's Agent's Country,step_4_seller_s_agent_s_2,sellers_agents_country,character
+Step 4 - Buyer Name,step_4_buyer_name,buyer_name,character
+Step 4 - Buyer Organization,step_4_buyer_organization,buyer_organization,character
+Additional Buyers?,additional_buyers,additional_buyers,logical
+Step 4 - Buyer's Agent?,step_4_buyer_s_agent,buyers_agent,logical
+Step 4 - Buyer's Agent's Name,step_4_buyer_s_agent_s_name,buyers_agents_name,character
+Step 4 - Buyer's Agent's Title,step_4_buyer_s_agent_s_title,buyers_agents_title,character
+Step 4 - Buyer's Agent's Business Name,step_4_buyer_s_agent_s,buyers_agents_business_name,character
+Step 4 - Buyer's Agent's Address,step_4_buyer_s_agent_s_address,buyers_agents_address,character
+Step 4 - Buyer's Agent's Country,step_4_buyer_s_agent_s_country,buyers_agents_country,character
+Step 4 - Preparer Name,step_4_preparer_name,preparer_name,character
+Step 4 - Preparer File Number,step_4_preparer_file_number,preparer_file_number,character
+Step 4 - Escrow Number,step_4_escrow_number,escrow_number,character
+Step 4 - Preparer Address,step_4_preparer_address,preparer_address,character
+Step 4 - Preparer Country,step_4_preparer_country,preparer_country,character
+PTAX-203-A Attached,ptax_203_a_attached,ptax203a_attached,logical
+203-A Line 1 - Street,X_203_a_line_1_street,203a_line_1_street,character
+203-A Line 1 - City,X_203_a_line_1_city,203a_line_1_city,character
+203-A Line 1 - Township,X_203_a_line_1_township,203a_line_1_township,character
+203-A Line 2 - Primary PIN,X_203_a_line_2_primary_pin,203a_line_2_primary_pin,character
+203-A Line 3 - Months for Sale,X_203_a_line_3_months_for,203a_line_3_months_for_sale,integer
+203-A Line 4a - Improvements Occupied?,X_203_a_line_4a_improvements,203a_line_4a_improvements_occupied,logical
+203-A Line 4a - Months Unoccupied,X_203_a_line_4a_months,203a_line_4a_months_unoccupied,integer
+203-A Line 4b - Percent Occupied,X_203_a_line_4b_percent,203a_line_4b_percent_occupied,integer
+203-A Line 4c - Buyer Occupied?,X_203_a_line_4c_buyer_occupied,203a_line_4c_buyer_occupied,logical
+203-A Line 4d - Buyer Continue to Occupy?,X_203_a_line_4d_buyer_continue,203a_line_4d_buyer_continue_to_occupy,logical
+203-A Line 4e - Lease Begin Date,X_203_a_line_4e_lease_begin,203a_line_4e_lease_begin_date,date
+203-A Line 4e - Lease End Date,X_203_a_line_4e_lease_end,203a_line_4e_lease_end_date,date
+203-A Line 4f - Renewal Options,X_203_a_line_4f_renewal_options,203a_line_4f_renewal_options,character
+203-A Line 5 - Property 1 Address,X_203_a_line_5_property_1,203a_line_5_property_1_address,character
+203-A Line 5 - Property 1 City,X_203_a_line_5_property_1_1,203a_line_5_property_1_city,character
+203-A Line 5 - Property 1 PIN,X_203_a_line_5_property_1_2,203a_line_5_property_1_pin,character
+203-A Line 5 - Property 2 Address,X_203_a_line_5_property_2,203a_line_5_property_2_address,character
+203-A Line 5 - Property 2 City,X_203_a_line_5_property_2_1,203a_line_5_property_2_city,character
+203-A Line 5 - Property 2 PIN,X_203_a_line_5_property_2_2,203a_line_5_property_2_pin,character
+203-A Line 6 - Personal Property Transferred?,X_203_a_line_6_personal,203a_line_6_personal_property_transferred,logical
+203-A Line 7 - Sale Price Affected?,X_203_a_line_7_sale_price,203a_line_7_sale_price_affected,logical
+203-A Line 7 - Reason Sale Price Affected,X_203_a_line_7_reason_sale,203a_line_7_reason_sale_price_affected,character
+203-A Line 8 - Fair Reflection of Market Value?,X_203_a_line_8_fair_reflection,203a_line_8_fair_reflection_of_market_value,logical
+203-A Line 8 - Reason for Unfair Reflection,X_203_a_line_8_reason_for,203a_line_8_reason_for_unfair_reflection,character
+PTAX-203-B Attached,ptax_203_b_attached,ptax203b_attached,logical
+203-B Line 1 - Street,X_203_b_line_1_street,203b_line_1_street,character
+203-B Line 1 - City,X_203_b_line_1_city,203b_line_1_city,character
+203-B Line 1 - Township,X_203_b_line_1_township,203b_line_1_township,character
+203-B Line 2 - Primary PIN,X_203_b_line_2_primary_pin,203b_line_2_primary_pin,character
+203-B Line 3 - Ground Lease,X_203_b_line_3_ground_lease,203b_line_3_ground_lease,logical
+203-B Line 3 - Controlling Interest,X_203_b_line_3_controlling,203b_line_3_controlling_interest,logical
+203-B Line 3 - Co-op Unit,X_203_b_line_3_co_op_unit,203b_line_3_coop_unit,logical
+203-B Line 3 - Other Interest,X_203_b_line_3_other_interest,203b_line_3_other_interest,logical
+203-B Line 3 - Other Interest Type,X_203_b_line_3_other_interest_1,203b_line_3_other_interest_type,character
+203-B Line 3 - Other Interest Freeform Description,X_203_b_line_3_other_interest_2,203b_line_3_other_interest_freeform_description,character
+203-B Line 4 - 30+ Year Term?,X_203_b_line_4_30_year_term,203b_line_4_30+_year_term,logical
+203-B Line 5 - Lessee Interest?,X_203_b_line_5_lessee_interest,203b_line_5_lessee_interest,logical
+203-B Line 6 - Lease Begin Date,X_203_b_line_6_lease_begin,203b_line_6_lease_begin_date,date
+203-B Line 6 - Lease End Date,X_203_b_line_6_lease_end_date,203b_line_6_lease_end_date,date
+203-B Line 7 - Renewal Options,X_203_b_line_7_renewal_options,203b_line_7_renewal_options,character
+203-B Line 8 - Single Transfer?,X_203_b_line_8_single_transfer,203b_line_8_single_transfer,logical
+203-B Line 8 - Related Transfers?,X_203_b_line_8_related,203b_line_8_related_transfers,logical
+203-B Line 9a - Interest 1 Transfer Date,X_203_b_line_9a_interest_1,203b_line_9a_interest_1_transfer_date,date
+203-B Line 9a - Interest 1 Percent Transferred,X_203_b_line_9a_interest_1_1,203b_line_9a_interest_1_percent_transferred,numeric
+203-B Line 9a - Interest 1 Prior Payment,X_203_b_line_9a_interest_1_2,203b_line_9a_interest_1_prior_payment,logical
+203-B Line 9a - Interest 2 Transfer Date,X_203_b_line_9a_interest_2,203b_line_9a_interest_2_transfer_date,date
+203-B Line 9a - Interest 2 Percent Transferred,X_203_b_line_9a_interest_2_1,203b_line_9a_interest_2_percent_transferred,numeric
+203-B Line 9a - Interest 2 Prior Payment,X_203_b_line_9a_interest_2_2,203b_line_9a_interest_2_prior_payment,logical
+203-B Line 9a - Interest 3 Transfer Date,X_203_b_line_9a_interest_3,203b_line_9a_interest_3_transfer_date,date
+203-B Line 9a - Interest 3 Percent Transferred,X_203_b_line_9a_interest_3_1,203b_line_9a_interest_3_percent_transferred,numeric
+203-B Line 9a - Interest 3 Prior Payment,X_203_b_line_9a_interest_3_2,203b_line_9a_interest_3_prior_payment,logical
+203-B Line 9a - Interest 4 Transfer Date,X_203_b_line_9a_interest_4,203b_line_9a_interest_4_transfer_date,date
+203-B Line 9a - Interest 4 Percent Transferred,X_203_b_line_9a_interest_4_1,203b_line_9a_interest_4_percent_transferred,numeric
+203-B Line 9a - Interest 4 Prior Payment,X_203_b_line_9a_interest_4_2,203b_line_9a_interest_4_prior_payment,logical
+203-B Line 9a - Aggregate Percent,X_203_b_line_9a_aggregate,203b_line_9a_aggregate_percent,numeric
+203-B Line 9b - Prior Transfer Tax Paid,X_203_b_line_9b_prior_transfer,203b_line_9b_prior_transfer_tax_paid,numeric
+203-B Line 10a - Corporate Franchise Tax?,X_203_b_line_10a_corporate,203b_line_10a_corporate_franchise_tax,logical
+203-B Line 10b - Corporate Franchise Tax Paid,X_203_b_line_10b_corporate,203b_line_10b_corporate_franchise_tax_paid,numeric
+203-B Line 10c - Corporate Name,X_203_b_line_10c_corporate,203b_line_10c_corporate_name,character
+203-B Line 10c - File Number,X_203_b_line_10c_file_number,203b_line_10c_file_number,character
+203-B Line 10c - BCA Form Number,X_203_b_line_10c_bca_form,203b_line_10c_bca_form_number,character
+203-B Line 10c - Date Paid,X_203_b_line_10c_date_paid,203b_line_10c_date_paid,date
+203-B Line 11a - Full consideration,X_203_b_line_11a_full,203b_line_11a_full_consideration,numeric
+203-B Line 11b - Contingent Payment?,X_203_b_line_11b_contingent,203b_line_11b_contingent_payment,logical
+203-B Line 12a - Personal Property?,X_203_b_line_12a_personal,203b_line_12a_personal_property,logical
+203-B Line 12a - Total Personal Property,X_203_b_line_12a_total_personal,203b_line_12a_total_personal_property,numeric
+203-B Line 12b - Mobile Home Included?,X_203_b_line_12b_mobile_home,203b_line_12b_mobile_home_included,logical
+203-B Line 13,X_203_b_line_13_consideration,203b_line_13,numeric
+203-B Line 14 - Amount of Other Property Transferred,X_203_b_line_14_amount_of,203b_line_14_amount_of_other_property_transferred,numeric
+203-B Line 15 - Outstanding Mortgage,X_203_b_line_15_outstanding,203b_line_15_outstanding_mortgage,numeric
+203-B Line 16 - Exemption,X_203_b_line_16_exemption,203b_line_16_exemption,character
+203-B Line 17,X_203_b_line_17_taxable_value,203b_line_17,numeric
+203-B Line 18 - State Tax,X_203_b_line_18_state_tax,203b_line_18_state_tax,numeric
+203-B Line 19 - County Tax,X_203_b_line_19_county_tax,203b_line_19_county_tax,numeric
+203-B Line 20 - Transfer Taxes Paid (Line 9b),X_203_b_line_20_transfer_taxes,203b_line_20_transfer_taxes_paid_line_9b,numeric
+203-B Line 21 - Corporate Franchise Tax Paid,X_203_b_line_21_corporate,203b_line_21_corporate_franchise_tax_paid,numeric
+203-B Line 22 - Total Transfer Tax Due,X_203_b_line_22_total_transfer,203b_line_22_total_transfer_tax_due,numeric
+Step 3 - Legal Description,step_3_legal_description,legal_description,character

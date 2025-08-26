@@ -1,14 +1,8 @@
 library(arrow)
-library(aws.s3)
-library(data.table)
 library(dplyr)
-library(glue)
 library(lubridate)
-library(purrr)
 library(readr)
-library(sf)
 library(stringr)
-library(tidyr)
 library(tools)
 source("utils.R")
 
@@ -17,124 +11,63 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
 output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "sale", "mydec")
 
-# Destination for upload
-dest_file <- file.path(
-  AWS_S3_WAREHOUSE_BUCKET,
-  max(aws.s3::get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "sale/mydec/")$Key)
-)
+# Crosswalk ----
 
-# Get S3 file addresses
-files <- grep(
-  ".parquet",
-  file.path(
-    AWS_S3_RAW_BUCKET,
-    aws.s3::get_bucket_df(AWS_S3_RAW_BUCKET, prefix = "sale/mydec/")$Key
-  ),
-  value = TRUE
-)
+# Read in MyDec column name crosswalk
+columns_crosswalk <- read_delim(
+  "../dbt/seeds/sale/sale.mydec_crosswalk.csv",
+  delim = ","
+) %>%
+  # We store dates as strings in Athena
+  mutate(field_type = str_replace_all(field_type, "date", "character"))
 
-# Function to make sure mydec data can be stacked across years
-clean_up <- function(x) {
-  read_parquet(x) %>%
-    mutate(across(where(is.Date), as.character)) %>%
-    rename_with(
-      ~ str_replace_all(.x, c("\\?" = "", "Step 4 - " = "", "Step 3 - " = ""))
-    ) %>%
-    rename_with(
-      ~ paste0(.x, " 1", recycle0 = TRUE),
-      .cols = ends_with("Legal Description")
-    )
-}
+# We can convert two columns from the crosswalk to a named list and use them to
+# rename all the columns from the raw data
+lookup <- columns_crosswalk %>% pull(mydec_api)
+names(lookup) <- columns_crosswalk$ccao_warehouse
 
-# MyDec columns we want to use, tend to be different across duplicate sales...
-mydec_vars <- c(
-  "line_7_property_advertised",
-  "line_10a",
-  "line_10b",
-  "line_10c",
-  "line_10d",
-  "line_10e",
-  "line_10f",
-  "line_10g",
-  "line_10h",
-  "line_10i",
-  "line_10j",
-  "line_10k",
-  "line_10l",
-  "line_10m",
-  "line_10n",
-  "line_10o",
-  "line_10p",
-  "line_10q",
-  "line_10s",
-  "line_10s",
-  "line_10s_generalalternative",
-  "line_10s_senior_citizens",
-  "line_10s_senior_citizens_assessment_freeze"
-)
+# Data cleaning ----
 
-# Load raw files, cleanup, then write to warehouse S3
-map(files, clean_up) %>%
-  rbindlist(fill = TRUE) %>%
-  rename_with(~ tolower(
-    str_replace_all(
-      str_squish(
-        str_replace_all(.x, "[[:punct:]]", "")
-      ), " ", "_"
-    )
-  )) %>%
+# Load raw sales files
+sales <- open_dataset(file.path(AWS_S3_RAW_BUCKET, "sale", "mydec")) %>%
+  collect()
+
+# Clean up, then write to S3
+sales %>%
+  rename(any_of(lookup)) %>%
+  (\(x) {
+    # If the lookup has column names that are not in the dataset, add them as
+    # empty columns
+    x[setdiff(names(lookup), names(x))] <- NA
+    return(x)
+  }) %>%
+  select(all_of(names(lookup)), loaded_at, year) %>%
+  filter(!is.na(document_number)) %>%
   mutate(
     across(where(is.character), str_squish),
     across(where(is.character), ~ na_if(.x, "")),
     across(where(is.character), ~ na_if(.x, "NULL")),
-    across(ends_with("consideration"), as.integer)
+    across(contains("date"), ~ str_sub(.x, 1, 10)), # Remove time from dates,
+    document_number = gsub("\\D", "", document_number)
   ) %>%
-  filter(!is.na(document_number) & line_1_county == "Cook") %>%
-  mutate(document_number = str_replace_all(document_number, "D", "")) %>%
+  # This function is slow, but too convenient not to use. It will convert all
+  # columns types according to the crosswalk.
+  type_convert(paste(
+    # Add two more c's for loaded_at and year since they're not in the crosswalk
+    c(str_sub(columns_crosswalk$field_type, 1, 1), "c", "c"),
+    collapse = ""
+  )) %>%
   group_by(document_number) %>%
-  # Because MyDec variables can be different across duplicate sales doc #s,
-  # we'll take the max values
-  mutate(across(all_of(mydec_vars), ~ max(.x, na.rm = TRUE))) %>%
-  # The max of an empty set is `-Inf`, but we want it to be null instead
-  # since `-Inf` is not semantically meaningful in our output data.
-  # Cast all `-Inf`s to null in case all values of a MyDec field were null
-  # across all dupes ahead of the `max()` call above
-  mutate(across(all_of(mydec_vars), ~ na_if(.x, -Inf))) %>%
-  distinct(
-    document_number,
-    line_7_property_advertised,
-    line_10a,
-    line_10b,
-    line_10c,
-    line_10d,
-    line_10e,
-    line_10f,
-    line_10g,
-    line_10h,
-    line_10i,
-    line_10j,
-    line_10k,
-    line_10l,
-    line_10m,
-    line_10n,
-    line_10o,
-    line_10p,
-    line_10q,
-    line_10s,
-    line_10s,
-    line_10s_senior_citizens,
-    line_10s_senior_citizens_assessment_freeze,
-    .keep_all = TRUE
+  mutate(line_2_total_parcels = max(line_2_total_parcels)) %>%
+  # Remove sales that have multiple lines with the same document number where
+  # the total number of parcels don't match line_2_total_parcels or the sales
+  # took place on different days. These sales are too dirty to be useful.
+  filter(
+    (n() == 1 | line_2_total_parcels == n()),
+    n_distinct(line_4_instrument_date) == 1
   ) %>%
-  # Data isn't unique by document number, or even transaction date and document
-  # number so we arrange by transaction date and then recorded date within
-  # document number and create an indicator for the first row within duplicated
-  # document numbers
   arrange(line_4_instrument_date, date_recorded, .by_group = TRUE) %>%
-  mutate(
-    year_of_sale = as.character(lubridate::year(line_4_instrument_date)),
-    declaration_id = as.character(declaration_id),
-    is_earliest_within_doc_no = row_number() == 1
-  ) %>%
+  mutate(is_multisale = n() > 1 | line_2_total_parcels > 1) %>%
+  relocate(year_of_sale = year, .after = last_col()) %>%
   group_by(year_of_sale) %>%
   write_partitions_to_s3(output_bucket, is_spatial = FALSE, overwrite = TRUE)

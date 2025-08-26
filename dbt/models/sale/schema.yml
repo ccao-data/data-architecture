@@ -31,10 +31,10 @@ sources:
             data_tests:
               - not_null:
                   name: sale_flag_sv_outlier_reason1_not_null_when_sv_is_outlier
-                  config: 
+                  config:
                     where: sv_is_outlier
                   meta:
-                   description: sv_outlier_reason1 is not null when sv_is_outlier
+                    description: sv_outlier_reason1 is not null when sv_is_outlier
           - name: sv_outlier_reason2
             description: '{{ doc("shared_column_sv_outlier_reason") }}'
           - name: sv_outlier_reason3
@@ -207,12 +207,13 @@ sources:
           - load_manual
         data_tests:
           - unique_combination_of_columns:
-              name: sale_mydec_unique_by_document_number_year_of_sale
+              name: sale_mydec_unique_by_document_number
               combination_of_columns:
                 - document_number
-                - year_of_sale
+              config:
+                where: not is_multisale
               meta:
-                description: mydec is unique by document_number and year_of_sale
+                description: mydec is unique by document_number
 
 models:
   - name: sale.vw_ias_salesval_upload

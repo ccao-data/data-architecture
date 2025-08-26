@@ -1,0 +1,3 @@
+seeds:
+  - name: sale.mydec_crosswalk
+    description: '{{ doc("seed_mydec_crosswalk") }}'
