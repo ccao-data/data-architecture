@@ -187,7 +187,7 @@ mydec_sales AS (
                 AS mydec_line_9_date_of_significant_change,
             line_10a
                 AS mydec_is_installment_contract_fulfilled,
-            line_10b --noqa
+            line_10b
                 AS mydec_is_sale_between_related_individuals_or_corporate_affiliates, --noqa
             line_10c
                 AS mydec_is_transfer_of_less_than_100_percent_interest,
@@ -229,7 +229,6 @@ mydec_sales AS (
             ) AS num_single_day_sales,
             year_of_sale AS year
         FROM {{ source('sale', 'mydec_test') }}
-        --WHERE line_2_total_parcels < 2
     )
     /* Some sales in mydec have multiple rows for one pin on a given sale date.
     Sometimes they have different dates than iasworld prior to 2021 and when
