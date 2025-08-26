@@ -211,7 +211,7 @@ mydec_sales AS (
                 PARTITION BY line_1_primary_pin, line_4_instrument_date
             ) AS num_single_day_sales,
             year_of_sale
-        FROM {{ source('sale', 'mydec_test') }}
+        FROM {{ source('sale', 'mydec') }}
         WHERE NOT is_multisale
     )
     /* Some sales in mydec have multiple rows for one pin on a given sale date.

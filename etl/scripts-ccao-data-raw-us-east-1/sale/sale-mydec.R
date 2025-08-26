@@ -6,7 +6,7 @@ source("utils.R")
 
 # This script retrieves raw mydec data from Illinois Department of Revenue
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
-output_bucket <- file.path(AWS_S3_RAW_BUCKET, "sale", "mydec_test")
+output_bucket <- file.path(AWS_S3_RAW_BUCKET, "sale", "mydec")
 
 # Mydec sales data is available from IDOR's API. We grab data for all years
 # because we're not entirely sure how common updates for previous years are.

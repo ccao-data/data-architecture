@@ -9,7 +9,7 @@ source("utils.R")
 # This script cleans and combines raw mydec data for the warehouse
 AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "sale", "mydec_test")
+output_bucket <- file.path(AWS_S3_WAREHOUSE_BUCKET, "sale", "mydec")
 
 # Crosswalk ----
 
@@ -29,7 +29,7 @@ names(lookup) <- columns_crosswalk$ccao_warehouse
 # Data cleaning ----
 
 # Load raw sales files
-sales <- open_dataset(file.path(AWS_S3_RAW_BUCKET, "sale", "mydec_test")) %>%
+sales <- open_dataset(file.path(AWS_S3_RAW_BUCKET, "sale", "mydec")) %>%
   collect()
 
 # Clean up, then write to S3
