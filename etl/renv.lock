@@ -2080,9 +2080,9 @@
     },
     "paws.common": {
       "Package": "paws.common",
-      "Version": "0.8.5",
+      "Version": "0.8.5.9000",
       "Source": "Repository",
-      "Repository": "RSPM",
+      "Repository": "CRAN",
       "Requirements": [
         "R",
         "Rcpp",
@@ -2096,7 +2096,7 @@
         "utils",
         "xml2"
       ],
-      "Hash": "988d9d011a6f6fe5063f0be358047ffb"
+      "Hash": "0733ebf91a501105f4db263527f03a7e"
     },
     "paws.compute": {
       "Package": "paws.compute",
