@@ -101,9 +101,10 @@ SELECT
 
         -- tax is NULL; if cook contains UNINCORPORATED -> empty array
         WHEN cook_municipality.cook_municipality_name IS NOT NULL
-            AND CONTAINS(cook_municipality.cook_municipality_name, 'UNINCORPORATED')
-            THEN CAST(ARRAY[] AS ARRAY<VARCHAR>)
-
+            AND POSITION(
+                'UNINCORPORATED' IN cook_municipality.cook_municipality_name
+            )
+            > 0
         -- tax and cook are both NULL, return NULL (not [NULL])
         WHEN tax.tax_municipality_name IS NULL
             AND cook_municipality.cook_municipality_name IS NULL
