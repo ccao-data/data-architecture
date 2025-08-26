@@ -92,7 +92,7 @@ SELECT
             THEN tax.tax_municipality_name
 
         -- tax is NULL; if cook contains UNINCORPORATED -> empty array
-        WHEN tax.cook_municipality_name IS NOT NULL
+        WHEN political.cook_municipality_name IS NOT NULL
             AND political.cook_municipality_name = 'UNINCORPORATED'
             THEN CAST(ARRAY[] AS ARRAY<VARCHAR>)
 
