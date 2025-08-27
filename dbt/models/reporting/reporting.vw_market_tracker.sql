@@ -3,20 +3,14 @@
 
 SELECT
     vps.pin,
-    vps.doc_no,
-    vps.sale_price,
-    vps.sale_date,
+    vrc.card,
+    vrc.pin_is_multicard,
+    vrc.pin_num_cards,
     vps.class,
+    cls.modeling_group,
     vps.year,
-    vps.sale_filter_is_outlier,
-    vps.sv_is_outlier,
-    vps.is_multisale,
-    vps.sale_filter_same_sale_within_365,
-    vps.sale_filter_less_than_10k,
-    vps.sale_filter_deed_type,
-    vps.sv_outlier_reason1,
-    vps.sv_outlier_reason2,
-    vps.sv_outlier_reason3,
+    vpu.triad_name AS triad,
+    vpu.township_name AS township,
     -- This ugly case when lets us report on both Chicago community areas and
     -- suburban municipalities
     CASE WHEN vpu.chicago_community_area_name IS NULL
@@ -34,22 +28,28 @@ SELECT
             THEN 'community area'
         ELSE 'municipality'
     END AS geo_type,
-    vpu.township_name AS township,
-    vpu.triad_name AS triad,
+    vpa.prop_address_full,
     vpu.lat,
     vpu.lon,
-    vpa.prop_address_full,
+    vps.doc_no,
+    vps.sale_price,
+    vps.sale_date,
+    vps.sale_filter_is_outlier,
+    vps.sv_is_outlier,
+    vps.is_multisale,
+    vps.sale_filter_same_sale_within_365,
+    vps.sale_filter_less_than_10k,
+    vps.sale_filter_deed_type,
+    vps.sv_outlier_reason1,
+    vps.sv_outlier_reason2,
+    vps.sv_outlier_reason3,
     COALESCE(vrc.char_yrblt, vcr.char_yrblt) AS year_built,
     vrc.char_bldg_sf AS bldg_sf,
     vrc.char_land_sf AS land_sf,
     vcr.char_unit_sf AS unit_sf,
     COALESCE(vrc.char_fbath, vcr.char_full_baths) AS full_baths,
     COALESCE(vrc.char_hbath, vcr.char_half_baths) AS half_baths,
-    COALESCE(vrc.char_beds, vcr.char_bedrooms) AS bedrooms,
-    vrc.pin_is_multicard,
-    vrc.card,
-    vrc.pin_num_cards,
-    cls.modeling_group
+    COALESCE(vrc.char_beds, vcr.char_bedrooms) AS bedrooms
 FROM default.vw_pin_sale AS vps
 LEFT JOIN
     default.vw_pin_universe AS vpu
