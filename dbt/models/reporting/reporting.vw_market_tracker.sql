@@ -1,6 +1,5 @@
-/*
-XXXXXXXXXX
-*/
+-- This view feeds our Market Tracker™ Tableau dashboard. It combines sales
+-- data with characteristics and geographic information.
 
 SELECT
     vps.pin,
@@ -21,6 +20,8 @@ SELECT
     vpu.chicago_community_area_name,
     ARRAY_JOIN(vpu.combined_municipality_name, ', ')
         AS combined_municipality_name,
+    -- This ugly case when lets us report on both Chicago community areas and
+    -- suburban municipalities
     CASE WHEN vpu.chicago_community_area_name IS NULL
             AND CARDINALITY(vpu.combined_municipality_name) = 0
             THEN CONCAT('UNINCORPORATED ', UPPER(vpu.township_name))
