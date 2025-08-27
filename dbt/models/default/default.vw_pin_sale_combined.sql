@@ -173,61 +173,40 @@ mydec_sales AS (
             NULLIF(TRIM(buyer_name), '') AS buyer_name,
             CAST(line_11_full_consideration AS BIGINT) AS sale_price,
             line_2_total_parcels AS num_parcels_sale,
-            COALESCE(line_2_total_parcels > 1, FALSE) AS is_multisale,
-            COALESCE(line_7_property_advertised = 1, FALSE)
-                AS mydec_property_advertised,
-            COALESCE(line_9_no_changes = 1, FALSE)
-                AS mydec_line_9_no_changes,
-            COALESCE(line_9_demolitiondamage = 1, FALSE)
-                AS mydec_line_9_demolition_damage,
-            COALESCE(line_9_additions = 1, FALSE)
-                AS mydec_line_9_additions,
-            COALESCE(line_9_major_remodeling = 1, FALSE)
-                AS mydec_line_9_major_remodeling,
-            COALESCE(line_9_new_construction = 1, FALSE)
-                AS mydec_line_9_new_construction,
-            COALESCE(line_9_other_change = 1, FALSE)
-                AS mydec_line_9_other_change,
+            is_multisale,
+            line_7_property_advertised AS mydec_property_advertised,
+            line_9_no_changes AS mydec_line_9_no_changes,
+            line_9_demolitiondamage AS mydec_line_9_demolition_damage,
+            line_9_additions AS mydec_line_9_additions,
+            line_9_major_remodeling AS mydec_line_9_major_remodeling,
+            line_9_new_construction AS mydec_line_9_new_construction,
+            line_9_other_change AS mydec_line_9_other_change,
             line_9_other_change_description
                 AS mydec_line_9_other_change_description,
             line_9_date_of_significant_change
                 AS mydec_line_9_date_of_significant_change,
-            COALESCE(line_10a = 1, FALSE)
+            line_10a
                 AS mydec_is_installment_contract_fulfilled,
-            COALESCE(line_10b = 1, FALSE) --noqa
+            line_10b
                 AS mydec_is_sale_between_related_individuals_or_corporate_affiliates, --noqa
-            COALESCE(line_10c = 1, FALSE)
+            line_10c
                 AS mydec_is_transfer_of_less_than_100_percent_interest,
-            COALESCE(line_10d = 1, FALSE)
-                AS mydec_is_court_ordered_sale,
-            COALESCE(line_10e = 1, FALSE)
-                AS mydec_is_sale_in_lieu_of_foreclosure,
-            COALESCE(line_10f = 1, FALSE)
-                AS mydec_is_condemnation,
-            COALESCE(line_10g = 1, FALSE)
-                AS mydec_is_short_sale,
-            COALESCE(line_10h = 1, FALSE)
-                AS mydec_is_bank_reo_real_estate_owned,
-            COALESCE(line_10i = 1, FALSE)
-                AS mydec_is_auction_sale,
-            COALESCE(line_10j = 1, FALSE)
-                AS mydec_is_seller_buyer_a_relocation_company,
-            COALESCE(line_10k = 1, FALSE)
+            line_10d AS mydec_is_court_ordered_sale,
+            line_10e AS mydec_is_sale_in_lieu_of_foreclosure,
+            line_10f AS mydec_is_condemnation,
+            line_10g AS mydec_is_short_sale,
+            line_10h AS mydec_is_bank_reo_real_estate_owned,
+            line_10i AS mydec_is_auction_sale,
+            line_10j AS mydec_is_seller_buyer_a_relocation_company,
+            line_10k
                 AS mydec_is_seller_buyer_a_financial_institution_or_government_agency, --noqa
-            COALESCE(line_10l = 1, FALSE)
-                AS mydec_is_buyer_a_real_estate_investment_trust,
-            COALESCE(line_10m = 1, FALSE)
-                AS mydec_is_buyer_a_pension_fund,
-            COALESCE(line_10n = 1, FALSE)
-                AS mydec_is_buyer_an_adjacent_property_owner,
-            COALESCE(line_10o = 1, FALSE)
-                AS mydec_is_buyer_exercising_an_option_to_purchase,
-            COALESCE(line_10p = 1, FALSE)
-                AS mydec_is_simultaneous_trade_of_property,
-            COALESCE(line_10q = 1, FALSE)
-                AS mydec_is_sale_leaseback,
-            COALESCE(line_10s = 1, FALSE)
-                AS mydec_is_homestead_exemption,
+            line_10l AS mydec_is_buyer_a_real_estate_investment_trust,
+            line_10m AS mydec_is_buyer_a_pension_fund,
+            line_10n AS mydec_is_buyer_an_adjacent_property_owner,
+            line_10o AS mydec_is_buyer_exercising_an_option_to_purchase,
+            line_10p AS mydec_is_simultaneous_trade_of_property,
+            line_10q AS mydec_is_sale_leaseback,
+            line_10s AS mydec_is_homestead_exemption,
             line_10s_generalalternative
                 AS mydec_homestead_exemption_general_alternative,
             line_10s_senior_citizens
@@ -235,12 +214,9 @@ mydec_sales AS (
             line_10s_senior_citizens_assessment_freeze
                 AS mydec_homestead_exemption_senior_citizens_assessment_freeze,
             (
-                COALESCE(line_10b, 0) + COALESCE(line_10c, 0)
-                + COALESCE(line_10d, 0) + COALESCE(line_10e, 0)
-                + COALESCE(line_10f, 0) + COALESCE(line_10g, 0)
-                + COALESCE(line_10h, 0) + COALESCE(line_10i, 0)
-                + COALESCE(line_10k, 0)
-            ) > 0 AS sale_filter_ptax_flag,
+                line_10b OR line_10c OR line_10d OR line_10e OR line_10f
+                OR line_10g OR line_10h OR line_10i OR line_10k
+            ) AS sale_filter_ptax_flag,
             /* We partition by line_2_total_parcels as well as pin and date here
             since we historically excluded multisales from construction of mydec
             sales sample. Here we can let in mydec multisales, but not let them
@@ -253,7 +229,6 @@ mydec_sales AS (
             ) AS num_single_day_sales,
             year_of_sale AS year
         FROM {{ source('sale', 'mydec') }}
-        --WHERE line_2_total_parcels < 2
     )
     /* Some sales in mydec have multiple rows for one pin on a given sale date.
     Sometimes they have different dates than iasworld prior to 2021 and when

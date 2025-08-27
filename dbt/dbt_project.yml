@@ -80,5 +80,7 @@ seeds:
       +schema: model
     pinval:
       +schema: pinval
+    sale:
+      +schema: sale
     spatial:
       +schema: spatial

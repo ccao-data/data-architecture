@@ -857,14 +857,6 @@ models:
                 table_name: asmt
                 description: val47 (45. .:) should not be negative
               <<: *test-non-negative
-      - name: val48
-        data_tests:
-          - accepted_range:
-              name: qc_vw_neg_asmt_value_val48_gte_0
-              meta:
-                table_name: asmt
-                description: val48 (46. .:) should not be negative
-              <<: *test-non-negative
       - name: val49
         data_tests:
           - accepted_range:

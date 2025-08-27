@@ -45,9 +45,9 @@ A short description explaining the code contained in `char_class`
 {% docs column_pinval_combined_bldg_sf %}
 Combined building SF for all cards in the PIN.
 
-This field is only computed for recent small multicards, which are
-distinguished by the value `is_parcel_small_multicard == TRUE`. It
-will be null for all other cards.
+This field may be null for parcels that are not up for reassessment in the
+given `assessment_year`. It is guaranteed to be not-null for rows where
+`is_report_eligible` is true.
 {% enddocs %}
 
 ## comps_assessment_year
