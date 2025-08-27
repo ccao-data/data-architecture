@@ -191,6 +191,24 @@ models:
               - municipality
               - class
 
+  - name: reporting.vw_market_tracker
+    description: '{{ doc("view_vw_market_tracker") }}'
+    data_tests:
+      - expression_is_true:
+          name: reporting_vw_market_tracker_no_nulls
+          expression: |
+            pin IS NOT NULL
+            AND doc_no IS NOT NULL
+            AND sale_price IS NOT NULL
+            AND sale_date IS NOT NULL
+            AND class IS NOT NULL
+      - unique_combination_of_columns:
+          name: reporting_vw_market_tracker_unique_by_keys
+          combination_of_columns:
+            - doc_no
+          config:
+            where: NOT is_multisale AND NOT pin_is_multicard
+
   - name: reporting.vw_pin_most_recent_boundary
     description: '{{ doc("view_vw_pin_most_recent_boundary") }}'
     data_tests:
