@@ -17,9 +17,6 @@ SELECT
     vps.sv_outlier_reason1,
     vps.sv_outlier_reason2,
     vps.sv_outlier_reason3,
-    vpu.chicago_community_area_name,
-    ARRAY_JOIN(vpu.combined_municipality_name, ', ')
-        AS combined_municipality_name,
     -- This ugly case when lets us report on both Chicago community areas and
     -- suburban municipalities
     CASE WHEN vpu.chicago_community_area_name IS NULL
@@ -37,8 +34,8 @@ SELECT
             THEN 'community area'
         ELSE 'municipality'
     END AS geo_type,
-    vpu.township_name,
-    vpu.triad_name,
+    vpu.township_name AS township,
+    vpu.triad_name AS triad,
     vpu.lat,
     vpu.lon,
     vpa.prop_address_full,
