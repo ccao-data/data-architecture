@@ -70,5 +70,5 @@ LEFT JOIN
 LEFT JOIN
     default.vw_pin_condo_char AS vcr
     ON vps.pin = vcr.pin AND vps.year = vcr.year
-WHERE vps.year IN ('2020', '2021', '2022', '2023', '2024')
+WHERE vps.year BETWEEN '2020' AND '2024'
     AND cls.modeling_group IN ('SF', 'CONDO', 'MF')
