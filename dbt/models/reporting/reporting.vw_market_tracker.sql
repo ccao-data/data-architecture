@@ -21,6 +21,21 @@ SELECT
     vpu.chicago_community_area_name,
     ARRAY_JOIN(vpu.combined_municipality_name, ', ')
         AS combined_municipality_name,
+    CASE WHEN vpu.chicago_community_area_name IS NULL
+            AND CARDINALITY(vpu.combined_municipality_name) = 0
+            THEN CONCAT('UNINCORPORATED ', UPPER(vpu.township_name))
+        ELSE
+            COALESCE(
+                vpu.chicago_community_area_name,
+                ARRAY_JOIN(vpu.combined_municipality_name, ', ')
+            )
+    END AS geo_name,
+    CASE
+        WHEN
+            vpu.chicago_community_area_name IS NOT NULL
+            THEN 'community area'
+        ELSE 'municipality'
+    END AS geo_type,
     vpu.township_name,
     vpu.triad_name,
     vpu.lat,
