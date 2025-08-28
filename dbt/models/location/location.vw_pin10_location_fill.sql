@@ -37,6 +37,9 @@ SELECT
     cook_commissioner_district.cook_commissioner_district_data_year,
     cook_judicial_district.cook_judicial_district_num,
     cook_judicial_district.cook_judicial_district_data_year,
+    cook_municipality.cook_municipality_name,
+    cook_municipality.cook_municipality_num,
+    cook_municipality.cook_municipality_data_year,
     COALESCE(ward_evanston.ward_num, ward_chicago.ward_num) AS ward_num,
     COALESCE(ward_evanston.ward_name, ward_chicago.ward_name) AS ward_name,
     ward_chicago.ward_chicago_data_year,
@@ -90,6 +93,30 @@ SELECT
 
     tax.tax_municipality_num,
     tax.tax_municipality_name,
+
+    CASE
+        -- Keep whatever tax has (including empty arrays)
+        WHEN tax.tax_municipality_name IS NOT NULL
+            THEN tax.tax_municipality_name
+
+        -- tax is NULL; if cook = UNINCORPORATED -> empty array
+        WHEN tax.tax_municipality_name IS NULL
+            AND cook_municipality.cook_municipality_name = 'UNINCORPORATED'
+            THEN CAST(ARRAY[] AS ARRAY<VARCHAR>)
+
+        -- tax and cook are both NULL, return NULL (not [NULL])
+        WHEN tax.tax_municipality_name IS NULL
+            AND cook_municipality.cook_municipality_name IS NULL
+            THEN NULL
+
+        -- Otherwise: use crosswalked cook
+        ELSE ARRAY[
+                COALESCE(
+                    xwalk.tax_municipality_name,
+                    cook_municipality.cook_municipality_name
+                )
+            ]
+    END AS combined_municipality_name,
     tax.tax_school_elementary_district_num,
     tax.tax_school_elementary_district_name,
     tax.tax_school_secondary_district_num,
@@ -139,6 +166,9 @@ LEFT JOIN {{ ref('location.political') }} AS cook_commissioner_district
 LEFT JOIN {{ ref('location.political') }} AS cook_judicial_district
     ON pin.pin10 = cook_judicial_district.pin10
     AND cyf.cook_judicial_district_fill_year = cook_judicial_district.year
+LEFT JOIN {{ ref('location.political') }} AS cook_municipality
+    ON pin.pin10 = cook_municipality.pin10
+    AND cyf.cook_municipality_fill_year = cook_municipality.year
 LEFT JOIN {{ ref('location.political') }} AS ward_chicago
     ON pin.pin10 = ward_chicago.pin10
     AND cyf.ward_chicago_fill_year = ward_chicago.year
@@ -198,3 +228,5 @@ LEFT JOIN {{ ref('location.access') }} AS access
 LEFT JOIN {{ ref('location.other') }} AS other
     ON pin.pin10 = other.pin10
     AND cyf.misc_subdivision_fill_year = other.year
+LEFT JOIN {{ ref('location.municipality_crosswalk') }} AS xwalk
+    ON cook_municipality.cook_municipality_name = xwalk.cook_municipality_name
