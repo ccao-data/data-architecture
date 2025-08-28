@@ -1,11 +1,25 @@
 -- This view feeds our Market Tracker™ Tableau dashboard. It combines sales
 -- data with characteristics and geographic information.
 
+WITH res_chars AS (
+    SELECT
+        *,
+        COUNT(*) OVER (
+            PARTITION BY pin, year
+            ORDER BY card
+        ) AS pin_num_res_cards,
+        RANK() OVER (
+            PARTITION BY pin, year
+            ORDER BY card
+        ) AS rnk
+    FROM default.vw_card_res_char
+)
+
 SELECT
     vps.pin,
-    vrc.card,
-    vrc.pin_is_multicard,
-    vrc.pin_num_cards,
+    vrc1.pin_is_multicard,
+    vrc1.pin_num_cards,
+    vrc1.pin_num_res_cards,
     vps.class,
     cls.modeling_group,
     vps.year,
@@ -43,13 +57,21 @@ SELECT
     vps.sv_outlier_reason1,
     vps.sv_outlier_reason2,
     vps.sv_outlier_reason3,
-    COALESCE(vrc.char_yrblt, vcr.char_yrblt) AS year_built,
-    vrc.char_bldg_sf AS bldg_sf,
-    vrc.char_land_sf AS land_sf,
-    vcr.char_unit_sf AS unit_sf,
-    COALESCE(vrc.char_fbath, vcr.char_full_baths) AS full_baths,
-    COALESCE(vrc.char_hbath, vcr.char_half_baths) AS half_baths,
-    COALESCE(vrc.char_beds, vcr.char_bedrooms) AS bedrooms
+    vrc1.card AS card1,
+    COALESCE(vrc1.char_yrblt, vcr.char_yrblt) AS year_built1,
+    vrc1.char_bldg_sf AS bldg_sf1,
+    vrc1.char_land_sf AS land_sf1,
+    vcr.char_unit_sf AS unit_sf1,
+    COALESCE(vrc1.char_fbath, vcr.char_full_baths) AS full_baths1,
+    COALESCE(vrc1.char_hbath, vcr.char_half_baths) AS half_baths1,
+    COALESCE(vrc1.char_beds, vcr.char_bedrooms) AS bedrooms1,
+    vrc2.card AS card2,
+    vrc2.char_yrblt AS year_built2,
+    vrc2.char_bldg_sf AS bldg_sf2,
+    vrc2.char_land_sf AS land_sf2,
+    vrc2.char_fbath AS full_baths2,
+    vrc2.char_hbath AS half_baths2,
+    vrc2.char_beds AS bedrooms2
 FROM default.vw_pin_sale AS vps
 LEFT JOIN
     default.vw_pin_universe AS vpu
@@ -59,8 +81,13 @@ LEFT JOIN
     default.vw_pin_address AS vpa
     ON vps.pin = vpa.pin AND vps.year = vpa.year
 LEFT JOIN
-    default.vw_card_res_char AS vrc
-    ON vps.pin = vrc.pin AND vps.year = vrc.year
+    res_chars AS vrc1
+    ON vps.pin = vrc1.pin AND vps.year = vrc1.year
+    AND vrc1.rnk = 1
+LEFT JOIN
+    res_chars AS vrc2
+    ON vps.pin = vrc2.pin AND vps.year = vrc2.year
+    AND vrc2.rnk = 2
 LEFT JOIN
     default.vw_pin_condo_char AS vcr
     ON vps.pin = vcr.pin AND vps.year = vcr.year
