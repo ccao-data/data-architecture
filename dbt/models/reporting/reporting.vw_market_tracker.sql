@@ -1,6 +1,8 @@
 -- This view feeds our Market Tracker™ Tableau dashboard. It combines sales
 -- data with characteristics and geographic information.
 
+-- CTE that lets us grab only the first two residential cards from
+-- vw_card_res_char
 WITH res_chars AS (
     SELECT
         *,
@@ -19,6 +21,8 @@ SELECT
     vps.pin,
     vrc1.pin_is_multicard,
     vrc1.pin_num_cards,
+    -- This can vary from pin_num_cards, which can also include non-residential
+    -- cards
     vrc1.pin_num_res_cards,
     vps.class,
     cls.modeling_group,
@@ -80,6 +84,8 @@ LEFT JOIN ccao.class_dict AS cls ON vps.class = cls.class_code
 LEFT JOIN
     default.vw_pin_address AS vpa
     ON vps.pin = vpa.pin AND vps.year = vpa.year
+-- We join res_chars twice so that we can get characteristics from up to two
+-- residential cards with out creating duplicate sales
 LEFT JOIN
     res_chars AS vrc1
     ON vps.pin = vrc1.pin AND vps.year = vrc1.year
