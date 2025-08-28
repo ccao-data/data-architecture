@@ -207,7 +207,9 @@ models:
           combination_of_columns:
             - doc_no
           config:
-            where: NOT is_multisale AND NOT pin_is_multicard
+            where: |
+              NOT is_multisale
+              AND (NOT pin_is_multicard or pin_is_multicard IS NULL)
 
   - name: reporting.vw_pin_most_recent_boundary
     description: '{{ doc("view_vw_pin_most_recent_boundary") }}'
