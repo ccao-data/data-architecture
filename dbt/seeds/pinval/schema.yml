@@ -6,3 +6,5 @@ seeds:
           name: pinval_vars_dict_unique_by_code
           combination_of_columns:
             - code
+  - name: pinval.model_run
+    description: '{{ doc("seed_model_run") }}'
