@@ -14,7 +14,21 @@ WITH res_chars AS (
             PARTITION BY pin, year
             ORDER BY card
         ) AS rnk
-    FROM default.vw_card_res_char
+    FROM {{ ref('default.vw_card_res_char') }}
+),
+
+-- CTE to determine which models a given sale has been used for
+models AS (
+    SELECT
+        train.meta_sale_document_num AS doc_no,
+        ARRAY_JOIN(
+            ARRAY_AGG(CONCAT_WS(' ', fin_mod.type, fin_mod.year)), ', '
+        ) AS models_used
+    FROM {{ ref('model.training_data') }} AS train
+    INNER JOIN {{ ref('model.final_model') }} AS fin_mod
+        ON train.run_id = fin_mod.run_id
+        AND fin_mod.is_final
+    GROUP BY train.meta_sale_document_num
 )
 
 SELECT
@@ -75,14 +89,17 @@ SELECT
     vrc2.char_land_sf AS land_sf2,
     vrc2.char_fbath AS full_baths2,
     vrc2.char_hbath AS half_baths2,
-    vrc2.char_beds AS bedrooms2
-FROM default.vw_pin_sale AS vps
+    vrc2.char_beds AS bedrooms2,
+    models.models_used
+FROM {{ ref('default.vw_pin_sale') }} AS vps
 LEFT JOIN
-    default.vw_pin_universe AS vpu
+    {{ ref('default.vw_pin_universe') }} AS vpu
     ON vps.pin = vpu.pin AND vps.year = vpu.year
-LEFT JOIN ccao.class_dict AS cls ON vps.class = cls.class_code
 LEFT JOIN
-    default.vw_pin_address AS vpa
+    {{ ref('ccao.class_dict') }} AS cls
+    ON vps.class = cls.class_code
+LEFT JOIN
+    {{ ref('default.vw_pin_address') }} AS vpa
     ON vps.pin = vpa.pin AND vps.year = vpa.year
 -- We join res_chars twice so that we can get characteristics from up to two
 -- residential cards with out creating duplicate sales
@@ -95,7 +112,8 @@ LEFT JOIN
     ON vps.pin = vrc2.pin AND vps.year = vrc2.year
     AND vrc2.rnk = 2
 LEFT JOIN
-    default.vw_pin_condo_char AS vcr
+    {{ ref('default.vw_pin_condo_char') }} AS vcr
     ON vps.pin = vcr.pin AND vps.year = vcr.year
+LEFT JOIN models ON vps.doc_no = models.doc_no
 WHERE vps.year BETWEEN '2020' AND '2024'
     AND cls.modeling_group IN ('SF', 'CONDO', 'MF')
