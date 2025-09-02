@@ -18,7 +18,10 @@ models AS (
     SELECT
         train.meta_sale_document_num AS doc_no,
         ARRAY_JOIN(
-            ARRAY_AGG(CONCAT_WS(' ', fin_mod.type, fin_mod.year)), ', '
+            ARRAY_DISTINCT(
+                ARRAY_AGG(CONCAT_WS(' ', fin_mod.type, fin_mod.year))
+            ),
+            ', '
         ) AS models_used
     FROM {{ ref('model.training_data') }} AS train
     INNER JOIN {{ ref('model.final_model') }} AS fin_mod
