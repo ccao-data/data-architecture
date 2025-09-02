@@ -10,13 +10,9 @@ WITH runs_to_include AS (
         SUBSTRING(final.run_id, 1, 10) AS final_model_run_date,
         final.township_code_coverage
     FROM {{ source('model', 'metadata') }} AS meta
-    INNER JOIN {{ ref('model.final_model') }} AS final
+    INNER JOIN {{ ref('pinval.model_run') }} AS final
         ON meta.run_id = final.run_id
-    WHERE meta.run_id IN (
-            '2024-02-06-relaxed-tristan',
-            '2024-03-17-stupefied-maya',
-            '2025-02-11-charming-eric'
-        )
+    WHERE meta.run_id = 'card'
 ),
 
 -- Get the universe of PINs we want to produce reports for, even if those PINs
@@ -164,14 +160,10 @@ shap_runs_to_include AS (
             -- to mark SHAP runs that are not final models
             ARRAY['all']
         ) AS township_code_coverage
-    FROM {{ source('model', 'metadata') }} AS meta
+    FROM {{ ref('pinval.model_run') }} AS meta
     LEFT JOIN {{ ref('model.final_model') }} AS final
         ON meta.run_id = final.run_id
-    WHERE meta.run_id IN (
-            '2024-02-06-relaxed-tristan',
-            '2024-03-17-stupefied-maya',
-            '2025-04-25-fancy-free-billy'
-        )
+    WHERE meta.type = 'shap'
 ),
 
 -- Query SHAP values for on the runs we want to include
