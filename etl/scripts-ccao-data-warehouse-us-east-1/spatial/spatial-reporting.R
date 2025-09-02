@@ -70,7 +70,7 @@ buffered_city <- city %>%
     TRUE ~ st_buffer(geometry, 100)
   )) %>%
   # We don't want any interior buffers since they'll overlap, so we only keep
-  # the portions buffered community areas that might fill in gaps between
+  # the portions of buffered community areas that might fill in gaps between
   # Chicago and suburbs after removing Chicago from the municipalities shapefile
   st_difference(st_union(city)) %>%
   bind_rows(city) %>%
@@ -97,7 +97,6 @@ output <- munis %>%
   bind_rows(buffered_city) %>%
   st_transform(4326) %>%
   st_make_valid()
-
 
 # Upload geojson to export bucket for tableau usage
 tmp_file <- tempfile(fileext = ".geojson")
