@@ -10,7 +10,13 @@ source("utils.R")
 # raw S3 bucket. Data can be combined or heavily altered for the purpose of
 # creating useful shapefiles for reporting and visualization.
 AWS_S3_WAREHOUSE_BUCKET <- Sys.getenv("AWS_S3_WAREHOUSE_BUCKET")
-output_path <- file.path(AWS_S3_WAREHOUSE_BUCKET, "spatial", "reporting")
+export_path <- file.path(AWS_S3_WAREHOUSE_BUCKET, "export", "geojson")
+output_path <- file.path(
+  AWS_S3_WAREHOUSE_BUCKET,
+  "spatial",
+  "reporting",
+  "municipality_community_area_combined"
+)
 
 # Ingest county shapefile to make sure we never wander outside its borders
 county <- read_geoparquet_sf(
@@ -21,9 +27,9 @@ county <- read_geoparquet_sf(
 
 # Ingest City of Chicago community areas
 city <- read_geoparquet_sf(
-  paste0(
-    "s3://ccao-data-warehouse-us-east-1/spatial/other/community_area/",
-    "year=2018/part-0.parquet"
+  file.path(
+    AWS_S3_WAREHOUSE_BUCKET,
+    "spatial/other/community_area/year=2018/part-0.parquet"
   )
 ) %>%
   st_transform(3435) %>%
@@ -93,12 +99,25 @@ output <- munis %>%
   st_make_valid()
 
 
-# Upload data to S3
+# Upload geojson to export bucket for tableau usage
 tmp_file <- tempfile(fileext = ".geojson")
 st_write(output, tmp_file)
 save_local_to_s3(
-  s3_uri = file.path(output_path, "municipalities_community_areas.geojson"),
+  s3_uri = file.path(export_path, "municipalities_community_areas.geojson"),
   path = tmp_file,
   overwrite = TRUE
 )
 file.remove(tmp_file)
+
+# Upload to normal spatial bucket for general usage
+output %>%
+  mutate(
+    geometry_3435 = st_transform(geometry, 3435),
+    year = substr(Sys.Date(), 1, 4)
+  ) %>%
+  group_by(year) %>%
+  write_partitions_to_s3(
+    file.path(output_path),
+    is_spatial = TRUE,
+    overwrite = TRUE
+  )
