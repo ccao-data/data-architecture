@@ -8,7 +8,6 @@ WITH res_chars AS (
         *,
         COUNT(*) OVER (
             PARTITION BY pin, year
-            ORDER BY card
         ) AS pin_num_res_cards,
         RANK() OVER (
             PARTITION BY pin, year
