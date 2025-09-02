@@ -6,7 +6,7 @@
 WITH res_chars AS (
     SELECT
         *,
-        COUNT(*) OVER (
+        COUNT() OVER (
             PARTITION BY pin, year
         ) AS pin_num_res_cards,
         RANK() OVER (
