@@ -10,7 +10,7 @@ WITH runs_to_include AS (
         SUBSTRING(final.run_id, 1, 10) AS final_model_run_date,
         final.township_code_coverage
     FROM {{ source('model', 'metadata') }} AS meta
-    INNER JOIN {{ ref('pinval.model_run') }} AS final
+    INNER JOIN {{ ref('z_ci_876_factor_out_pinvalmodel_run_model_for_centralized_list_of_modval_model_runs_pinval.model_run') }} AS final
         ON meta.run_id = final.run_id
     WHERE meta.run_id = 'card'
 ),
@@ -160,7 +160,7 @@ shap_runs_to_include AS (
             -- to mark SHAP runs that are not final models
             ARRAY['all']
         ) AS township_code_coverage
-    FROM {{ ref('pinval.model_run') }} AS meta
+    FROM {{ ref('z_ci_876_factor_out_pinvalmodel_run_model_for_centralized_list_of_modval_model_runs_pinval.model_run') }} AS meta
     LEFT JOIN {{ ref('model.final_model') }} AS final
         ON meta.run_id = final.run_id
     WHERE meta.type = 'shap'
