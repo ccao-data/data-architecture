@@ -164,10 +164,10 @@ shap_runs_to_include AS (
             -- to mark SHAP runs that are not final models
             ARRAY['all']
         ) AS township_code_coverage
-    FROM {{ ref('pinval.model_run') }} AS meta
+    FROM {{ ref('z_ci_add_pinval_model_run_seed_pinval.model_run') }} AS meta
     LEFT JOIN {{ ref('model.final_model') }} AS final
         ON meta.run_id = final.run_id
-WHERE meta.type = 'shap'
+    WHERE meta.type = 'shap'
 ),
 
 -- Query SHAP values for on the runs we want to include
