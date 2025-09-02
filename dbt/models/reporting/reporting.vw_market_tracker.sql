@@ -6,9 +6,6 @@
 WITH res_chars AS (
     SELECT
         *,
-        COUNT() OVER (
-            PARTITION BY pin, year
-        ) AS pin_num_res_cards,
         RANK() OVER (
             PARTITION BY pin, year
             ORDER BY card
@@ -34,9 +31,6 @@ SELECT
     vps.pin,
     vrc1.pin_is_multicard,
     vrc1.pin_num_cards,
-    -- This can vary from pin_num_cards, which can also include non-residential
-    -- cards
-    vrc1.pin_num_res_cards,
     vps.class,
     cls.modeling_group,
     vps.year,
