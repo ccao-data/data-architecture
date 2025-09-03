@@ -18,7 +18,7 @@ WITH runs_to_include AS (
             '2025-02-11-charming-eric'
         )
 ),
-
+ 
 -- Get the universe of PINs we want to produce reports for, even if those PINs
 -- are not eligible for reports (in which case we will generate error pages for
 -- them explaining why).
@@ -55,7 +55,7 @@ pin_universe AS (
         ON uni.year = run.assessment_data_year
         AND run.row_num = 1
 ),
-
+ 
 -- Get the assessment set for each model run that we want to use for reports
 assessment_card AS (
     SELECT
@@ -77,7 +77,7 @@ assessment_card AS (
         ON ac.run_id = run.run_id
         AND ac.meta_township_code = run.township_code
 ),
-
+ 
 -- Count cards for each PIN. We need to do this in a subquery because newer
 -- model runs save this value to `model.assessment_pin`, but we need to compute
 -- it for older runs that did not save the value
@@ -104,7 +104,7 @@ card_count AS (
         ON ap.meta_pin = card_count.meta_pin
         AND ap.run_id = card_count.run_id
 ),
-
+ 
 -- Determine whether the card is part of a small multicard PIN that was valued
 -- after we changed our multicard valuation strategy, which will help us
 -- explain its value
@@ -123,7 +123,7 @@ card_pin_meta AS (
         ON ac.meta_pin = cc.meta_pin
         AND ac.run_id = cc.run_id
 ),
-
+ 
 -- Further aggregation for small multicards to use for explaining their
 -- valuation
 card_agg AS (
@@ -149,7 +149,7 @@ card_agg AS (
         AND ac.meta_card_num = cpm.meta_card_num
         AND ac.run_id = cpm.run_id
 ),
-
+ 
 -- Get run IDs for SHAPs that we want to include for the purpose of ranking
 -- features by importance
 shap_runs_to_include AS (
@@ -164,16 +164,12 @@ shap_runs_to_include AS (
             -- to mark SHAP runs that are not final models
             ARRAY['all']
         ) AS township_code_coverage
-    FROM {{ source('model', 'metadata') }} AS meta
+    FROM {{ ref('pinval.model_run') }} AS meta
     LEFT JOIN {{ ref('model.final_model') }} AS final
         ON meta.run_id = final.run_id
-    WHERE meta.run_id IN (
-            '2024-02-06-relaxed-tristan',
-            '2024-03-17-stupefied-maya',
-            '2025-04-25-fancy-free-billy'
-        )
+    WHERE meta.type = 'shap'
 ),
-
+ 
 -- Query SHAP values for on the runs we want to include
 shap AS (
     SELECT
@@ -195,7 +191,7 @@ shap AS (
             OR run.township_code = 'all'
         )
 ),
-
+ 
 -- Get crosswalk between school district geo IDs and names, so that we can
 -- translate the geo IDs in user-facing reports
 school_districts AS (
@@ -207,7 +203,7 @@ school_districts AS (
     WHERE geoid IS NOT NULL
     GROUP BY geoid, year
 )
-
+ 
 SELECT
     -- For essential attributes like PIN and class, fall back to values from
     -- `default.vw_pin_universe` when no row exists in `model.assesssment_card`
