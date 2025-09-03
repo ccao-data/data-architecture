@@ -207,7 +207,6 @@ def build_query_dict(athena_asset, asset_id, years=None):
         .split(",")
     )
     # row id won't show up here since it's hidden on the open data portal assets
-    asset_columns += ["row_id"]
     asset_columns.sort()
 
     # If there are columns on Socrata that are not in Athena, abort upload and
@@ -258,13 +257,19 @@ def check_deleted(input_data, asset_id, app_token):
 
     # Determine which years are present in the input data. We only want to
     # retrieve row_ids for the corresponding years from Socrata.
+    add_null = ""
     years = [str(year) for year in input_data["year"].unique().tolist()]
+    if "nan" in years:
+        years.remove("nan")
+        add_null = "OR year IS NULL"
     years = ", ".join(years)
 
     # Construct the API call to retrieve row_ids for the specified asset and years
     url = (
         f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
-        + quote(f"SELECT row_id WHERE year IN ({years}) LIMIT 20000000")
+        + quote(
+            f"SELECT row_id WHERE year IN ({years}) {add_null} LIMIT 20000000"
+        )
     )
 
     # Retrieve row_ids from Socrata for the specified asset and years
