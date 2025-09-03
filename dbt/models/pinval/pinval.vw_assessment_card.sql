@@ -6,7 +6,7 @@ WITH card_runs_to_include AS (
   WHERE type = 'card'
 ),
 
-WITH runs_to_include AS (
+runs_to_include AS (
     SELECT
         meta.run_id,
         meta.model_predictor_all_name,
