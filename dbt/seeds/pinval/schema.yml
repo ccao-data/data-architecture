@@ -8,3 +8,6 @@ seeds:
             - code
   - name: pinval.model_run
     description: '{{ doc("seed_model_run") }}'
+    config:
+      column_types:
+        assessment_year: varchar
