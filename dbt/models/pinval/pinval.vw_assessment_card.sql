@@ -1,9 +1,9 @@
 -- Get some metadata for the model runs that we want to use as the basis for
 -- PINVAL reports
 WITH card_runs_to_include AS (
-  SELECT DISTINCT run_id
-  FROM {{ ref('pinval.model_run') }}
-  WHERE type = 'card'
+    SELECT DISTINCT run_id
+    FROM {{ ref('pinval.model_run') }}
+    WHERE type = 'card'
 ),
 
 runs_to_include AS (
