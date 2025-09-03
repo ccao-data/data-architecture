@@ -5,10 +5,10 @@
 This table holds the production model runs that the homeval application uses to pull data from.
 
 We can have multiple model runs for different purposes.
-For example, we can have different types of model runs represented in the type column:
-    - the model run that generated our predicted values (card)
-    - the model run that generated the top 5 sales (comps)
-    - the model run that generated the shap values used in the Score column (shap)
+For example, we can have different types of model runs represented in the `type` column:
+    - the model run that generated our predicted values (`"card"`)
+    - the model run that generated the top 5 sales (`"comps"`)
+    - the model run that generated the shap values used in the Score column (`"shap"`)
 
 Importantly, we will need at least three rows per assessment year in this table,
 one for each of the three types of model runs.
