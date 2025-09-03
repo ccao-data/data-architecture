@@ -275,12 +275,15 @@ def check_deleted(input_data, asset_id, app_token):
     # Outer-join the input data with Socrata data to find rows that are
     # present in Socrata but not in the Athena input data. For those rows set
     # the ":deleted" column to True.
-    input_data = input_data.merge(
-        socrata_rows, on="row_id", how="outer", indicator=True
-    )
-    input_data[":deleted"] = None
-    input_data.loc[input_data["_merge"] == "right_only", ":deleted"] = True
-    input_data = input_data.drop(columns=["_merge"])
+    if len(socrata_rows) > 0:
+        input_data = input_data.merge(
+            socrata_rows, on="row_id", how="outer", indicator=True
+        )
+        input_data[":deleted"] = None
+        input_data.loc[input_data["_merge"] == "right_only", ":deleted"] = True
+        input_data = input_data.drop(columns=["_merge"])
+    else:
+        input_data[":deleted"] = None
 
     return input_data
 
