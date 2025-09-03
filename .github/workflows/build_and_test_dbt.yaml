@@ -17,6 +17,15 @@ on:
 jobs:
   build-and-test-dbt:
     runs-on: ubuntu-latest
+    # Restrict concurrent jobs, since builds can cause race conditions
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      # Cancel in-progress jobs on PRs because we are more likely to push
+      # to PRs very frequently and hence waste resources on oudated builds.
+      # While this might increase the risk of half-completed builds that
+      # end up in weird states, that's OK because PRs run in disposable
+      # environments
+      cancel-in-progress: ${{ github.event_name == 'pull_request' }}
     # These permissions are needed to interact with GitHub's OIDC Token endpoint
     # so that we can authenticate with AWS
     permissions:
