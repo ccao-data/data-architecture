@@ -164,10 +164,14 @@ shap_runs_to_include AS (
             -- to mark SHAP runs that are not final models
             ARRAY['all']
         ) AS township_code_coverage
-    FROM {{ ref('pinval.model_run') }} AS meta
+    FROM {{ source('model', 'metadata') }} AS meta
     LEFT JOIN {{ ref('model.final_model') }} AS final
         ON meta.run_id = final.run_id
-    WHERE meta.type = 'shap'
+    WHERE meta.run_id IN (
+            '2024-02-06-relaxed-tristan',
+            '2024-03-17-stupefied-maya',
+            '2025-04-25-fancy-free-billy'
+        )
 ),
 
 -- Query SHAP values for on the runs we want to include
