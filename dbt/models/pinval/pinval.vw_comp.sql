@@ -5,7 +5,7 @@ WITH runs_to_include AS (
         meta.assessment_triad,
         meta.assessment_year
     FROM {{ source('model', 'metadata') }} AS meta
-    INNER JOIN {{ ref('model.final_model') }} AS model_run
+    INNER JOIN {{ ref('pinval.model_run') }} AS model_run
         ON meta.run_id = model_run.run_id
     WHERE model_run.type = 'comps'
 ),
