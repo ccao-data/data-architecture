@@ -17,7 +17,7 @@ runs_to_include AS (
         final.township_code_coverage
     FROM {{ source('model', 'metadata') }} AS meta
     INNER JOIN card_runs_to_include cr
-        ON meta.run_id = sr.run_id
+        ON meta.run_id = cr.run_id
     INNER JOIN {{ ref('model.final_model') }} AS final
         ON meta.run_id = final.run_id
 ),
