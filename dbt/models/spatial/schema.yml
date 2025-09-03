@@ -42,13 +42,13 @@ sources:
       - name: corner
         description: '{{ doc("table_corner") }}'
         data_tests:
-        - unique_combination_of_columns:
-            name: spatial_corner_unique_by_pin10_year
-            combination_of_columns:
-              - pin10
-              - year
-            meta:
-              description: corner unique by pin10 and year
+          - unique_combination_of_columns:
+              name: spatial_corner_unique_by_pin10_year
+              combination_of_columns:
+                - pin10
+                - year
+              meta:
+                description: corner unique by pin10 and year
         columns:
           - name: geometry
             description: |
@@ -122,6 +122,9 @@ sources:
       - name: municipality
         description: '{{ doc("table_municipality") }}'
 
+      - name: municipality_community_area_combined
+        description: '{{ doc("table_municipality_community_area_combined") }}'
+
       - name: neighborhood
         description: '{{ doc("table_neighborhood") }}'
 
@@ -139,7 +142,7 @@ sources:
               Column denoting where the parcel geography is derived from.
               Possible values are:
               - `raw`: County GIS department
-              - `imputed`: Imputed with up-down filling from other years of 
+              - `imputed`: Imputed with up-down filling from other years of
               the same PIN10
               - `geocoded`: Geocoded using tidygeocoder
           - name: uploaded_before_geocoding

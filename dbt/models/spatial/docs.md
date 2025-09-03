@@ -300,6 +300,19 @@ Cook County municipality taxing district boundaries.
 **Geometry:** `MULTIPOLYGON`
 {% enddocs %}
 
+# municipality_community_area_combined
+
+{% docs table_municipality_community_area_combined %}
+Combination of non-Chicago suburban municipalities and Chicago community areas.
+
+Sourced from Cook County and City of Chicago data portals, repsectively.
+
+Note: The suburban municipalities used in this table are *not* from the Cook
+County Clerk provided geodatabases `location.political` is derived from.
+
+**Geometry:** `MULTIPOLYGON`
+{% enddocs %}
+
 # neighborhood
 
 {% docs table_neighborhood %}
