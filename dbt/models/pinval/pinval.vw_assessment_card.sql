@@ -16,8 +16,8 @@ runs_to_include AS (
         SUBSTRING(final.run_id, 1, 10) AS final_model_run_date,
         final.township_code_coverage
     FROM {{ source('model', 'metadata') }} AS meta
-    INNER JOIN card_runs_to_include cr
-        ON meta.run_id = cr.run_id
+    INNER JOIN card_runs_to_include AS card_runs
+        ON meta.run_id = card_runs.run_id
     INNER JOIN {{ ref('model.final_model') }} AS final
         ON meta.run_id = final.run_id
 ),
