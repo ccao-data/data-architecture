@@ -308,7 +308,7 @@ Combination of non-Chicago suburban municipalities and Chicago community areas.
 Sourced from Cook County and City of Chicago data portals, repsectively.
 
 Note: The suburban municipalities used in this table are *not* from the Cook
-County Clerk provided geodatabases `location.tax` is derived from.
+County Clerk provided geodatabases `location.political` is derived from.
 
 **Geometry:** `MULTIPOLYGON`
 {% enddocs %}
