@@ -1,5 +1,11 @@
 -- Get some metadata for the model runs that we want to use as the basis for
 -- PINVAL reports
+WITH card_runs_to_include AS (
+  SELECT DISTINCT run_id
+  FROM {{ ref('pinval.model_run') }}
+  WHERE type = 'card'
+),
+
 WITH runs_to_include AS (
     SELECT
         meta.run_id,
@@ -10,13 +16,10 @@ WITH runs_to_include AS (
         SUBSTRING(final.run_id, 1, 10) AS final_model_run_date,
         final.township_code_coverage
     FROM {{ source('model', 'metadata') }} AS meta
+    INNER JOIN card_runs cr
+        ON meta.run_id = sr.run_id
     INNER JOIN {{ ref('model.final_model') }} AS final
         ON meta.run_id = final.run_id
-    WHERE meta.run_id IN (
-            '2024-02-06-relaxed-tristan',
-            '2024-03-17-stupefied-maya',
-            '2025-02-11-charming-eric'
-        )
 ),
 
 -- Get the universe of PINs we want to produce reports for, even if those PINs
