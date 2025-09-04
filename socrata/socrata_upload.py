@@ -299,13 +299,24 @@ def check_deleted(input_data, asset_id, app_token):
     return input_data
 
 
-def check_missing_years(sql_query, asset_id, app_token):
+def check_missing_years(athena_asset, asset_id):
     """
     Check for years that are present on Socrata but not in the current upload, and retrieve any row_ids for those years so they can be marked as deleted.
     """
-    years = ", ".join(
-        (str(year) for year in sql_query.keys() if str(year) != "nan")
+
+    # Load environmental variables
+    app_token = os.getenv("SOCRATA_APP_TOKEN")
+
+    years = (
+        cursor.execute(
+            "SELECT DISTINCT year FROM " + athena_asset + " ORDER BY year"
+        )
+        .as_pandas()["year"]
+        .to_list()
     )
+
+    years = [str(year) for year in years if not pd.isna(year)]
+    years = ", ".join(years)
 
     url = (
         f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
@@ -321,7 +332,7 @@ def check_missing_years(sql_query, asset_id, app_token):
     return missing_years
 
 
-def upload(asset_id, sql_query, overwrite):
+def upload(asset_id, sql_query, overwrite, missing_years):
     """
     Function to perform the upload to Socrata. `puts` or `posts` depending on
     user's choice to overwrite existing data.
@@ -334,8 +345,6 @@ def upload(asset_id, sql_query, overwrite):
 
     # Raise URL status if it's bad
     session.get(url=url, headers={"X-App-Token": app_token}).raise_for_status()
-
-    missing_years = check_missing_years(sql_query, asset_id, app_token)
 
     # We grab the data before uploading it so we can make sure timestamps are
     # properly formatted
@@ -391,6 +400,8 @@ def socrata_upload(asset_info, overwrite=False, years=None):
 
     athena_asset, asset_id = asset_info["athena_asset"], asset_info["asset_id"]
 
+    missing_years = check_missing_years(athena_asset, asset_id)
+
     years_list = parse_years_list(years=years, athena_asset=athena_asset)
 
     sql_query = build_query_dict(
@@ -400,7 +411,7 @@ def socrata_upload(asset_info, overwrite=False, years=None):
     )
 
     tic = time.perf_counter()
-    upload(asset_id, sql_query, overwrite)
+    upload(asset_id, sql_query, overwrite, missing_years)
     toc = time.perf_counter()
 
     print(f"Total upload in {toc - tic:0.4f} seconds")
