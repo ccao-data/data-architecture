@@ -1,11 +1,12 @@
--- Get some metadata for the model runs that we want to use as the basis for
--- PINVAL reports
-WITH card_runs_to_include AS (
+-- Grab the relevant `card` type model runs from our source of truth table
+WITH eligible_card_runs AS (
     SELECT DISTINCT run_id
     FROM {{ ref('pinval.model_run') }}
     WHERE type = 'card'
 ),
 
+-- Get some metadata for the model runs that we want to use as the basis for
+-- PINVAL reports
 runs_to_include AS (
     SELECT
         meta.run_id,
@@ -16,7 +17,7 @@ runs_to_include AS (
         SUBSTRING(final.run_id, 1, 10) AS final_model_run_date,
         final.township_code_coverage
     FROM {{ source('model', 'metadata') }} AS meta
-    INNER JOIN card_runs_to_include AS card_runs
+    INNER JOIN eligible_card_runs AS card_runs
         ON meta.run_id = card_runs.run_id
     INNER JOIN {{ ref('model.final_model') }} AS final
         ON meta.run_id = final.run_id
