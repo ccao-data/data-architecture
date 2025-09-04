@@ -13,13 +13,13 @@ seeds:
     # there is at least one of each type: card, shap, and comp,
     # and we limit the type column to accept only those three values
       - count_is_consistent:
-          name: model_run_has_all_required_types_per_year
+          name: pinval_model_run_has_all_required_types_per_year
           column_name: type
           group_column: assessment_year
           min_value: 3
           max_value: 3
       - accepted_values:
-          name: model_run_type_accepted_values
+          name: pinval_model_run_type_accepted_values
           column_name: type
           values:
             - card
