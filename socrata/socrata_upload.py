@@ -299,6 +299,28 @@ def check_deleted(input_data, asset_id, app_token):
     return input_data
 
 
+def check_missing_years(sql_query, asset_id, app_token):
+    """
+    Check for years that are present on Socrata but not in the current upload, and retrieve any row_ids for those years so they can be marked as deleted.
+    """
+    years = ", ".join(
+        (str(year) for year in sql_query.keys() if str(year) != "nan")
+    )
+
+    url = (
+        f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
+        + quote(f"SELECT row_id WHERE year not in ({years}) LIMIT 20000000")
+    )
+
+    missing_years = pd.DataFrame(
+        session.get(url=url, headers={"X-App-Token": app_token}).json()
+    )
+
+    missing_years[":deleted"] = True
+
+    return missing_years
+
+
 def upload(asset_id, sql_query, overwrite):
     """
     Function to perform the upload to Socrata. `puts` or `posts` depending on
@@ -312,6 +334,8 @@ def upload(asset_id, sql_query, overwrite):
 
     # Raise URL status if it's bad
     session.get(url=url, headers={"X-App-Token": app_token}).raise_for_status()
+
+    missing_years = check_missing_years(sql_query, asset_id, app_token)
 
     # We grab the data before uploading it so we can make sure timestamps are
     # properly formatted
@@ -328,7 +352,13 @@ def upload(asset_id, sql_query, overwrite):
         input_data = cursor.execute(query).as_pandas()
 
         # Ensure rows that need to be deleted from Socrata are marked as such
-        input_data = check_deleted(input_data, asset_id, app_token)
+        if not overwrite:
+            input_data = check_deleted(input_data, asset_id, app_token)
+            # If there are years present on Socrata that are not in the current upload, add them to the final input data so they can be deleted
+            if year == list(sql_query.keys())[-1]:
+                input_data = pd.concat(
+                    [input_data, missing_years], ignore_index=True
+                )
 
         date_columns = input_data.select_dtypes(include="datetime").columns
         for i in date_columns:
