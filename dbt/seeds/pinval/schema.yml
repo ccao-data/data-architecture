@@ -11,7 +11,7 @@ seeds:
     data_tests:
     # These two tests ensure that for each assessment year,
     # there is at least one of each type: card, shap, and comp,
-    # and we limit the type column to only those three values
+    # and we limit the type column to accept only those three values
       - count_is_consistent:
           name: model_run_has_all_required_types_per_year
           column_name: type
