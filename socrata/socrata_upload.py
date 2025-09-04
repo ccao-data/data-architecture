@@ -243,7 +243,14 @@ def build_query_dict(athena_asset, asset_id, years=None):
         query_dict = {None: query}
 
     else:
-        query_dict = {year: f"{query} WHERE year = {year}" for year in years}
+        query_dict = {
+            year: f"{query} WHERE year = {year}"
+            for year in years
+            if not pd.isna(year)
+        }
+
+        if any(pd.isna(years)):
+            query_dict.update({"nan": f"{query} WHERE year IS NULL"})
 
     return query_dict
 
@@ -257,19 +264,20 @@ def check_deleted(input_data, asset_id, app_token):
 
     # Determine which years are present in the input data. We only want to
     # retrieve row_ids for the corresponding years from Socrata.
-    add_null = ""
     years = [str(year) for year in input_data["year"].unique().tolist()]
-    if "nan" in years:
+    select = []
+    if years == ["nan"] or "nan" in years:
         years.remove("nan")
-        add_null = "OR year IS NULL"
-    years = ", ".join(years)
+        select.append("year is NULL")
+    if any(year != "nan" for year in years):
+        years = ", ".join(years)
+        select.append(f"year IN ({years})")
+    select = " or ".join(select)
 
     # Construct the API call to retrieve row_ids for the specified asset and years
     url = (
         f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
-        + quote(
-            f"SELECT row_id WHERE year IN ({years}) {add_null} LIMIT 20000000"
-        )
+        + quote(f"SELECT row_id WHERE {select} LIMIT 20000000")
     )
 
     # Retrieve row_ids from Socrata for the specified asset and years
