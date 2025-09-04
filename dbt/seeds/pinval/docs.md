@@ -25,7 +25,7 @@ execution, and no subsequent updates require separate runs. In this case, all th
 rows must still be recorded explicitly to ensure complete coverage of the required
 types.
 
-**Primary Key**: `assessment_year, type, run_id`
+**Primary Key**: `assessment_year`, `type`, `run_id`
 {% enddocs %}
 
 # vars_dict
