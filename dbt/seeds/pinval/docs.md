@@ -13,16 +13,17 @@ For example, we can have different types of model runs represented in the `type`
 Importantly, we will need at least three rows per assessment year in this table,
 one for each of the three types of model runs.
 
-The reason that we have multiple different model runs per assessment year and for
-each of the different types is that we may want to re-run a model for a specific
-type without changing the other types. For example, we may want to re-run the comps
-model to get updated top 5 sales due to a change in methodology, without changing
-the predicted values or shap values.
+Multiple model runs are maintained for each assessment year to allow independent
+updates by type. This enables re-running a model for a specific purpose without
+affecting the others. For example, the `"comps"` model can be re-run to refresh
+the top 5 sales when methodology changes, while leaving the `"card"` (predicted
+values) and `"shap"` runs unchanged.
 
-It is also theoretically possible to have the same run_id for the all 3 types of
-model run. This could happen if we generated shaps and comps along with predicted
-values in the same run, and we didn't retroactively make any updates that would
-require a new run. In this case, we would still need to add all 3 rows.
+It is also possible for all three types of runs to share the same `run_id`. This
+occurs when predicted values, comps, and shap values are generated in the same
+execution, and no subsequent updates require separate runs. In this case, all three
+rows must still be recorded explicitly to ensure complete coverage of the required
+types.
 
 **Primary Key**: `assessment_year, type, run_id`
 {% enddocs %}
