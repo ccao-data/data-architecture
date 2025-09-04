@@ -60,6 +60,7 @@ SELECT
     vpu.lat,
     vpu.lon,
     vps.doc_no,
+    vps.deed_type,
     vps.sale_price,
     vps.sale_date,
     vps.sale_filter_is_outlier,
