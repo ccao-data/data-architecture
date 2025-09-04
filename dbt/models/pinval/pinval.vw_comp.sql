@@ -7,7 +7,7 @@ WITH runs_to_include AS (
     FROM {{ source('model', 'metadata') }} AS meta
     INNER JOIN {{ ref('pinval.model_run') }} AS model_run
         ON meta.run_id = model_run.run_id
-    WHERE model_run.type = 'comps'
+    WHERE model_run.type = 'comp'
 ),
 
 raw_comp AS (
