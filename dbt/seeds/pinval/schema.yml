@@ -25,6 +25,12 @@ seeds:
             - card
             - shap
             - comp
+      - unique_combination_of_columns:
+          name: pinval_model_run_unique_by_assessment_year_type_and_run_id
+          combination_of_columns:
+            - assessment_year
+            - type
+            - run_id
     config:
       column_types:
         assessment_year: varchar

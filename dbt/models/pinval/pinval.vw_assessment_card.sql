@@ -1,6 +1,6 @@
 -- Grab the relevant `card` type model runs from our source of truth table
 WITH eligible_card_runs AS (
-    SELECT DISTINCT run_id
+    SELECT run_id
     FROM {{ ref('pinval.model_run') }}
     WHERE type = 'card'
 ),
