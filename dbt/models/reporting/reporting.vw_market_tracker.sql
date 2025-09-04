@@ -77,6 +77,8 @@ SELECT
     vrc1.char_bldg_sf AS bldg_sf1,
     vrc1.char_land_sf AS land_sf1,
     vcr.char_unit_sf AS unit_sf1,
+    vcr.is_common_area,
+    vcr.is_parking_space,
     COALESCE(vrc1.char_fbath, vcr.char_full_baths) AS full_baths1,
     COALESCE(vrc1.char_hbath, vcr.char_half_baths) AS half_baths1,
     COALESCE(vrc1.char_beds, vcr.char_bedrooms) AS bedrooms1,
