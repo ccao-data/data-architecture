@@ -158,8 +158,8 @@ card_agg AS (
 -- features by importance
 shap_runs_to_include AS (
     SELECT
-        meta.run_id,
-        meta.assessment_year,
+        model_run.run_id,
+        model_run.assessment_year,
         COALESCE(
             final.township_code_coverage,
             -- `township_code_coverage` will only be present if the model is a
@@ -168,10 +168,10 @@ shap_runs_to_include AS (
             -- to mark SHAP runs that are not final models
             ARRAY['all']
         ) AS township_code_coverage
-    FROM {{ ref('pinval.model_run') }} AS meta
+    FROM {{ ref('pinval.model_run') }} AS model_run
     LEFT JOIN {{ ref('model.final_model') }} AS final
-        ON meta.run_id = final.run_id
-    WHERE meta.type = 'shap'
+        ON model_run.run_id = final.run_id
+    WHERE model_run.type = 'shap'
 ),
 
 -- Query SHAP values for on the runs we want to include
