@@ -265,6 +265,9 @@ def check_deleted(input_data, asset_id, app_token):
     # Determine which years are present in the input data. We only want to
     # retrieve row_ids for the corresponding years from Socrata.
     years = [str(year) for year in input_data["year"].unique().tolist()]
+    # Unfortunately we can have null values for year, so we need to make sure
+    # they are handled properly rathen than being included in the IN clause
+    # below
     select = []
     if years == ["nan"] or "nan" in years:
         years.remove("nan")
@@ -285,9 +288,9 @@ def check_deleted(input_data, asset_id, app_token):
         session.get(url=url, headers={"X-App-Token": app_token}).json()
     )
 
-    # Outer-join the input data with Socrata data to find rows that are
-    # present in Socrata but not in the Athena input data. For those rows set
-    # the ":deleted" column to True.
+    # Outer-join the input data with Socrata data (if it exists) to find rows
+    # that are present in Socrata but not in the Athena input data. For those
+    # rows set the ":deleted" column to True.
     input_data[":deleted"] = None
     if len(socrata_rows) > 0:
         input_data = input_data.merge(
@@ -301,7 +304,8 @@ def check_deleted(input_data, asset_id, app_token):
 
 def check_missing_years(athena_asset, asset_id):
     """
-    Check for years that are present on Socrata but not in the current upload, and retrieve any row_ids for those years so they can be marked as deleted.
+    Check for years that are present on Socrata but not in the current upload,
+    and retrieve any row_ids for those years so they can be marked as deleted.
     """
 
     # Load environmental variables
@@ -363,7 +367,8 @@ def upload(asset_id, sql_query, overwrite, missing_years):
         # Ensure rows that need to be deleted from Socrata are marked as such
         if not overwrite:
             input_data = check_deleted(input_data, asset_id, app_token)
-            # If there are years present on Socrata that are not in the current upload, add them to the final input data so they can be deleted
+            # If there are years present on Socrata that are not in the current
+            # upload, add them to the final input data so they can be deleted
             if year == list(sql_query.keys())[-1]:
                 input_data = pd.concat(
                     [input_data, missing_years], ignore_index=True
