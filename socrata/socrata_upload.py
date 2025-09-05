@@ -305,7 +305,9 @@ def check_deleted(input_data, asset_id, app_token):
 def check_missing_years(athena_asset, asset_id):
     """
     Check for years that are present on Socrata but not in the current upload,
-    and retrieve any row_ids for those years so they can be marked as deleted.
+    and retrieve any row_ids for those years so they can be marked for deletion.
+    This is only relevant when year values that were previously present have
+    been *removed* from an Athena view.
     """
 
     # Load environmental variables
