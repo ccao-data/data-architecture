@@ -1,0 +1,8 @@
+deed_num,deed_name
+01,Warranty
+02,Trustee
+03,Quit claim
+04,Executor
+05,Other
+06,Beneficiary
+99,Unknown

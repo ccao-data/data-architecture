@@ -60,7 +60,7 @@ SELECT
     vpu.lat,
     vpu.lon,
     vps.doc_no,
-    vps.deed_type,
+    deeds.deed_name AS deed_type,
     vps.sale_price,
     vps.sale_date,
     vps.sale_filter_is_outlier,
@@ -114,5 +114,7 @@ LEFT JOIN
     {{ ref('default.vw_pin_condo_char') }} AS vcr
     ON vps.pin = vcr.pin AND vps.year = vcr.year
 LEFT JOIN models ON vps.doc_no = models.doc_no
+LEFT JOIN {{ ref('sale.deed_type') }} AS deeds
+    ON vps.deed_type = deeds.deed_num
 WHERE vps.year BETWEEN '2020' AND '2024'
     AND cls.modeling_group IN ('SF', 'CONDO', 'MF')
