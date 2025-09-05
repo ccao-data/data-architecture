@@ -1,3 +1,10 @@
+# deed_type
+
+{% docs seed_deed_type %}
+Crosswalk for sale deed type number and description.
+
+{% enddocs %}
+
 # mydec_crosswalk
 
 {% docs seed_mydec_crosswalk %}

@@ -1,3 +1,8 @@
 seeds:
+  - name: sale.deed_type
+    description: '{{ doc("seed_deed_type") }}'
+    config:
+      column_types:
+        deed_num: string
   - name: sale.mydec_crosswalk
     description: '{{ doc("seed_mydec_crosswalk") }}'

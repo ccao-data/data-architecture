@@ -2,32 +2,27 @@
 -- Some columns from the feeder view may not be present in this view.
 
 SELECT
-    CAST(sale_key AS VARCHAR) AS row_id,
-    pin,
-    CAST(year AS INT) AS year,
-    township_code,
-    nbhd,
-    class,
-    sale_date,
-    is_mydec_date,
-    sale_price,
-    doc_no,
-    CASE
-        WHEN deed_type = '01' THEN 'Warranty'
-        WHEN deed_type = '02' THEN 'Trustee'
-        WHEN deed_type = '03' THEN 'Quit claim'
-        WHEN deed_type = '04' THEN 'Executor'
-        WHEN deed_type = '05' THEN 'Other'
-        WHEN deed_type = '06' THEN 'Beneficiary'
-        WHEN deed_type = '99' THEN 'Unknown'
-    END AS deed_type,
-    seller_name,
-    is_multisale,
-    num_parcels_sale,
-    buyer_name,
-    sale_type,
-    sale_filter_same_sale_within_365,
-    sale_filter_less_than_10k,
-    sale_filter_deed_type,
-    mydec_deed_type
-FROM {{ ref('default.vw_pin_sale') }}
+    CAST(vps.sale_key AS VARCHAR) AS row_id,
+    vps.pin,
+    CAST(vps.year AS INT) AS year,
+    vps.township_code,
+    vps.nbhd,
+    vps.class,
+    vps.sale_date,
+    vps.is_mydec_date,
+    vps.sale_price,
+    vps.doc_no,
+    deeds.deed_name AS deed_type,
+    vps.seller_name,
+    vps.is_multisale,
+    vps.num_parcels_sale,
+    vps.buyer_name,
+    vps.sale_type,
+    vps.sale_filter_same_sale_within_365,
+    vps.sale_filter_less_than_10k,
+    vps.sale_filter_deed_type,
+    vps.mydec_deed_type
+FROM {{ ref('default.vw_pin_sale') }} AS vps
+-- Join to get deed type description
+LEFT JOIN {{ ref('sale.deed_type') }} AS deeds
+    ON vps.deed_type = deeds.deed_num
