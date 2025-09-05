@@ -1,22 +1,26 @@
+-- Grab the relevant `card` type model runs from our source of truth table
+WITH eligible_card_runs AS (
+    SELECT run_id
+    FROM {{ ref('pinval.model_run') }}
+    WHERE type = 'card'
+),
+
 -- Get some metadata for the model runs that we want to use as the basis for
 -- PINVAL reports
-WITH runs_to_include AS (
+runs_to_include AS (
     SELECT
-        meta.run_id,
-        meta.model_predictor_all_name,
-        meta.assessment_year,
-        meta.assessment_data_year,
-        meta.assessment_triad,
+        model_run.run_id,
+        model_run.model_predictor_all_name,
+        model_run.assessment_year,
+        model_run.assessment_data_year,
+        model_run.assessment_triad,
         SUBSTRING(final.run_id, 1, 10) AS final_model_run_date,
         final.township_code_coverage
-    FROM {{ source('model', 'metadata') }} AS meta
+    FROM {{ source('model', 'metadata') }} AS model_run
+    INNER JOIN eligible_card_runs AS card_runs
+        ON model_run.run_id = card_runs.run_id
     INNER JOIN {{ ref('model.final_model') }} AS final
-        ON meta.run_id = final.run_id
-    WHERE meta.run_id IN (
-            '2024-02-06-relaxed-tristan',
-            '2024-03-17-stupefied-maya',
-            '2025-02-11-charming-eric'
-        )
+        ON model_run.run_id = final.run_id
 ),
 
 -- Get the universe of PINs we want to produce reports for, even if those PINs
@@ -154,8 +158,8 @@ card_agg AS (
 -- features by importance
 shap_runs_to_include AS (
     SELECT
-        meta.run_id,
-        meta.assessment_year,
+        model_run.run_id,
+        model_run.assessment_year,
         COALESCE(
             final.township_code_coverage,
             -- `township_code_coverage` will only be present if the model is a
@@ -164,14 +168,10 @@ shap_runs_to_include AS (
             -- to mark SHAP runs that are not final models
             ARRAY['all']
         ) AS township_code_coverage
-    FROM {{ source('model', 'metadata') }} AS meta
+    FROM {{ ref('pinval.model_run') }} AS model_run
     LEFT JOIN {{ ref('model.final_model') }} AS final
-        ON meta.run_id = final.run_id
-    WHERE meta.run_id IN (
-            '2024-02-06-relaxed-tristan',
-            '2024-03-17-stupefied-maya',
-            '2025-04-25-fancy-free-billy'
-        )
+        ON model_run.run_id = final.run_id
+    WHERE model_run.type = 'shap'
 ),
 
 -- Query SHAP values for on the runs we want to include

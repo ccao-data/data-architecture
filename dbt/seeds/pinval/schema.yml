@@ -6,3 +6,31 @@ seeds:
           name: pinval_vars_dict_unique_by_code
           combination_of_columns:
             - code
+  - name: pinval.model_run
+    description: '{{ doc("seed_model_run") }}'
+    data_tests:
+    # These two tests ensure that for each assessment year,
+    # there is at least one of each type: card, shap, and comp,
+    # and we limit the type column to accept only those three values
+      - count_is_consistent:
+          name: pinval_model_run_has_all_required_types_per_year
+          column_name: type
+          group_column: assessment_year
+          min_value: 3
+          max_value: 3
+      - accepted_values:
+          name: pinval_model_run_type_accepted_values
+          column_name: type
+          values:
+            - card
+            - shap
+            - comp
+      - unique_combination_of_columns:
+          name: pinval_model_run_unique_by_assessment_year_type_and_run_id
+          combination_of_columns:
+            - assessment_year
+            - type
+            - run_id
+    config:
+      column_types:
+        assessment_year: varchar

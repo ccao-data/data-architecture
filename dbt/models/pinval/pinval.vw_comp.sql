@@ -1,14 +1,13 @@
 WITH runs_to_include AS (
     SELECT
-        run_id,
-        model_predictor_all_name,
-        assessment_triad,
-        assessment_year
-    FROM {{ source('model', 'metadata') }}
-    WHERE run_id IN (
-            '2024-06-18-calm-nathan',
-            '2025-04-25-fancy-free-billy'
-        )
+        meta.run_id,
+        meta.model_predictor_all_name,
+        meta.assessment_triad,
+        meta.assessment_year
+    FROM {{ source('model', 'metadata') }} AS meta
+    INNER JOIN {{ ref('pinval.model_run') }} AS model_run
+        ON meta.run_id = model_run.run_id
+    WHERE model_run.type = 'comp'
 ),
 
 raw_comp AS (
