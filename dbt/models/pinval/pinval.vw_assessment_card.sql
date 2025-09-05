@@ -9,18 +9,18 @@ WITH eligible_card_runs AS (
 -- PINVAL reports
 runs_to_include AS (
     SELECT
-        meta.run_id,
-        meta.model_predictor_all_name,
-        meta.assessment_year,
-        meta.assessment_data_year,
-        meta.assessment_triad,
+        model_run.run_id,
+        model_run.model_predictor_all_name,
+        model_run.assessment_year,
+        model_run.assessment_data_year,
+        model_run.assessment_triad,
         SUBSTRING(final.run_id, 1, 10) AS final_model_run_date,
         final.township_code_coverage
-    FROM {{ source('model', 'metadata') }} AS meta
+    FROM {{ source('model', 'metadata') }} AS model_run
     INNER JOIN eligible_card_runs AS card_runs
-        ON meta.run_id = card_runs.run_id
+        ON model_run.run_id = card_runs.run_id
     INNER JOIN {{ ref('model.final_model') }} AS final
-        ON meta.run_id = final.run_id
+        ON model_run.run_id = final.run_id
 ),
 
 -- Get the universe of PINs we want to produce reports for, even if those PINs
