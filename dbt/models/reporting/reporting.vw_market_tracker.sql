@@ -72,6 +72,8 @@ SELECT
     vps.sv_outlier_reason1,
     vps.sv_outlier_reason2,
     vps.sv_outlier_reason3,
+    -- Cards 1 and 2 are card numbers for the first two residential cards for a
+    -- parcel. They will not always be values of 1 and 2.
     vrc1.card AS card1,
     COALESCE(vrc1.char_yrblt, vcr.char_yrblt) AS year_built1,
     vrc1.char_bldg_sf AS bldg_sf1,
