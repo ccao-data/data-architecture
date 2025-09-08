@@ -302,8 +302,12 @@ SELECT
         AS char_class_detailed,
     ap.loc_property_address AS property_address,
     ap.loc_property_city,
-    ap.meta_tieback_key_pin,
-    ap.meta_tieback_proration_rate,
+    CASE
+        WHEN ap.meta_tieback_key_pin IS NOT NULL
+        AND ap.meta_tieback_proration_rate IS NOT NULL
+        THEN TRUE
+        ELSE FALSE
+    END AS is_prorated,
     ac.pred_card_initial_fmv,
     CASE
         WHEN card_agg.is_parcel_small_multicard
