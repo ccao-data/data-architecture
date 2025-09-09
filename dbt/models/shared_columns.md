@@ -1077,6 +1077,21 @@ percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
+## exemption_amount
+
+{% docs shared_column_exemption_amount %}
+{% enddocs %}
+
+## exemption_code
+
+{% docs shared_column_exemption_code %}
+{% enddocs %}
+
+## exemption_description
+
+{% docs shared_column_exemption_description %}
+{% enddocs %}
+
 ## is_active_exe_homeowner
 
 {% docs shared_column_is_active_exe_homeowner %}

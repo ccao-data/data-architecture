@@ -1,0 +1,15 @@
+models:
+  - name: default.vw_pin_exemption
+    description: '{{ doc("view_vw_pin_exemption") }}'
+
+    columns:
+      - name: exemption_amount
+        description: '{{ doc("shared_column_exemption_amount") }}'
+      - name: exemption_code
+        description: '{{ doc("shared_column_exemption_code") }}'
+      - name: exemption_description
+        description: '{{ doc("shared_column_exemption_description") }}'
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: year
+        description: '{{ doc("shared_column_year") }}'
