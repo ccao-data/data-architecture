@@ -13,3 +13,16 @@ models:
         description: '{{ doc("shared_column_pin") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
+
+    data_tests:
+      - unique_combination_of_columns:
+          name: default_vw_pin_exemption_unique_by_pin_year_exemption_code
+          combination_of_columns:
+            - pin
+            - year
+            - exemption_code
+          config:
+            error_if: ">10"
+          meta:
+            description: |
+              vw_pin_exemption should be unique by pin, year, and exemption_code
