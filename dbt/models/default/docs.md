@@ -105,7 +105,7 @@ institutions, or local governments.
 {% docs view_vw_pin_exemption %}
 Parcel-level exemption codes and values.
 
-**Primary Key**: `year`, `pin`
+**Primary Key**: `year`, `pin`, `exemption_code`
 {% enddocs %}
 
 # vw_pin_history
