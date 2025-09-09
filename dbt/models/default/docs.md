@@ -100,6 +100,14 @@ institutions, or local governments.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_pin_exemption
+
+{% docs view_vw_pin_exemption %}
+Parcel-level exemption codes and values.
+
+**Primary Key**: `year`, `pin`
+{% enddocs %}
+
 # vw_pin_history
 
 {% docs view_vw_pin_history %}
