@@ -303,8 +303,8 @@ SELECT
     ap.loc_property_address AS property_address,
     ap.loc_property_city,
     COALESCE(
-        meta_tieback_proration_rate != 1 OR
-        meta_tieback_key_pin is not null, FALSE
+        ap.meta_tieback_proration_rate != 1
+        OR ap.meta_tieback_key_pin IS NOT NULL, FALSE
     ) AS is_prorated,
     ac.pred_card_initial_fmv,
     CASE
