@@ -100,31 +100,31 @@ models:
       tags:
         - daily
     data_tests:
-    - expression_is_true:
-        name: reporting_res_report_summary_no_nulls
-        expression: |
-          triad IS NOT NULL
-          AND geography_type IS NOT NULL
-          AND property_group IS NOT NULL
-          AND assessment_stage IS NOT NULL
-        additional_select_columns:
-          - triad
-          - geography_type
-          - property_group
-          - assessment_stage
-    - expression_is_true:
-        name: reporting_res_report_summary_sale_year_eq_year_minus_one
-        expression: CAST(sale_year AS INTEGER) = CAST(year AS INTEGER) - 1
-        additional_select_columns:
-          - sale_year
-          - year
-    - unique_combination_of_columns:
-        name: reporting_res_report_summary_unique_by_keys
-        combination_of_columns:
-          - geography_id
-          - property_group
-          - assessment_stage
-          - year
+      - expression_is_true:
+          name: reporting_res_report_summary_no_nulls
+          expression: |
+            triad IS NOT NULL
+            AND geography_type IS NOT NULL
+            AND property_group IS NOT NULL
+            AND assessment_stage IS NOT NULL
+          additional_select_columns:
+            - triad
+            - geography_type
+            - property_group
+            - assessment_stage
+      - expression_is_true:
+          name: reporting_res_report_summary_sale_year_eq_year_minus_one
+          expression: CAST(sale_year AS INTEGER) = CAST(year AS INTEGER) - 1
+          additional_select_columns:
+            - sale_year
+            - year
+      - unique_combination_of_columns:
+          name: reporting_res_report_summary_unique_by_keys
+          combination_of_columns:
+            - geography_id
+            - property_group
+            - assessment_stage
+            - year
 
   - name: reporting.res_report_summary_sales_input
     description: '{{ doc("table_res_report_summary_sales_input") }}'
@@ -159,37 +159,58 @@ models:
   - name: reporting.vw_assessment_roll_muni
     description: '{{ doc("view_vw_assessment_roll_muni") }}'
     data_tests:
-        - expression_is_true:
-            name: reporting_vw_assessment_roll_muni_no_nulls
-            expression: |
-              stage IS NOT NULL
-              AND municipality IS NOT NULL
-              AND class IS NOT NULL
-        - expression_is_true:
-            name: reporting_vw_assessment_roll_muni_no_vals_for_empty_stages
-            expression: |
-              num_pin_w_value != 0
-              OR (bldg_sum IS NULL
-              AND land_sum IS NULL
-              AND tot_sum IS NULL
-              AND delta_pct_av IS NULL
-              AND phase_av_share IS NULL)
-        - accepted_range:
-            name: reporting_vw_assessment_roll_muni_phase_av_share_range
-            column_name: phase_av_share
-            min_value: 0
-            max_value: 1
-        - expression_is_true:
-            name: reporting_vw_assessment_roll_muni_tot_sum_lte_phase
-            expression: |
-              tot_sum IS NULL OR tot_sum <= phase_total_av
-        - unique_combination_of_columns:
-            name: reporting_vw_assessment_roll_muni_unique_by_keys
-            combination_of_columns:
-              - year
-              - stage
-              - municipality
-              - class
+      - expression_is_true:
+          name: reporting_vw_assessment_roll_muni_no_nulls
+          expression: |
+            stage IS NOT NULL
+            AND municipality IS NOT NULL
+            AND class IS NOT NULL
+      - expression_is_true:
+          name: reporting_vw_assessment_roll_muni_no_vals_for_empty_stages
+          expression: |
+            num_pin_w_value != 0
+            OR (bldg_sum IS NULL
+            AND land_sum IS NULL
+            AND tot_sum IS NULL
+            AND delta_pct_av IS NULL
+            AND phase_av_share IS NULL)
+      - accepted_range:
+          name: reporting_vw_assessment_roll_muni_phase_av_share_range
+          column_name: phase_av_share
+          min_value: 0
+          max_value: 1
+      - expression_is_true:
+          name: reporting_vw_assessment_roll_muni_tot_sum_lte_phase
+          expression: |
+            tot_sum IS NULL OR tot_sum <= phase_total_av
+      - unique_combination_of_columns:
+          name: reporting_vw_assessment_roll_muni_unique_by_keys
+          combination_of_columns:
+            - year
+            - stage
+            - municipality
+            - class
+
+  - name: reporting.vw_market_tracker
+    description: '{{ doc("view_vw_market_tracker") }}'
+    data_tests:
+      - expression_is_true:
+          name: reporting_vw_market_tracker_no_nulls
+          expression: |
+            pin IS NOT NULL
+            AND doc_no IS NOT NULL
+            AND sale_price IS NOT NULL
+            AND sale_date IS NOT NULL
+            AND class IS NOT NULL
+            AND geo_name IS NOT NULL
+      - unique_combination_of_columns:
+          name: reporting_vw_market_tracker_unique_by_keys
+          combination_of_columns:
+            - doc_no
+          config:
+            where: |
+              NOT is_multisale
+              AND (NOT pin_is_multicard or pin_is_multicard IS NULL)
 
   - name: reporting.vw_pin_most_recent_boundary
     description: '{{ doc("view_vw_pin_most_recent_boundary") }}'
@@ -238,7 +259,6 @@ models:
             - agency_num
             - pin
             - year
-
 
   - name: reporting.vw_pin_township_class
     description: '{{ doc("view_vw_pin_township_class") }}'

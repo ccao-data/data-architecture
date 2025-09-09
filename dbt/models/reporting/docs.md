@@ -98,6 +98,22 @@ assessment stage, and year. Feeds public reporting assets.
 **Primary Key**: `year`, `municipality_name`, `class`, `stage`
 {% enddocs %}
 
+# vw_market_tracker
+
+{% docs view_vw_market_tracker %}
+View that feeds Market Tracker™ Tableau dashboard. Contains sales joined to
+characteristics and geographies.
+
+### Nuance
+
+- Card-level residential characteristics are joined to pin-level sales, but
+  duplicate sales are avoided by joining the top two cards by card number
+  individually to sales and indicating characteristics for each card using
+  column names.
+
+**Primary Key**: `doc_no`
+{% enddocs %}
+
 # vw_pin_most_recent_boundary
 
 {% docs view_vw_pin_most_recent_boundary %}
