@@ -8,7 +8,7 @@ WITH res_chars AS (
         *,
         RANK() OVER (
             PARTITION BY pin, year
-            ORDER BY card
+            ORDER BY char_bldg_sf DESC, card ASC
         ) AS rnk
     FROM {{ ref('default.vw_card_res_char') }}
 ),
