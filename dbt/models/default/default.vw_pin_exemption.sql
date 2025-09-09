@@ -1,3 +1,4 @@
+-- View to collect pin-level exemptions
 SELECT
     det.parid AS pin,
     det.taxyr AS year,

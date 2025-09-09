@@ -1080,16 +1080,23 @@ purposes. See `ccao.class_dict` for more information
 ## exemption_amount
 
 {% docs shared_column_exemption_amount %}
+Exemption amount. Looks like MV, but not sure yet.
+
 {% enddocs %}
 
 ## exemption_code
 
 {% docs shared_column_exemption_code %}
+Parcels can have multiple exemptions in any year and these codes are used to
+determine which exemption is associated with a given exemption value.
+
 {% enddocs %}
 
 ## exemption_description
 
 {% docs shared_column_exemption_description %}
+Descriptions for exemption codes.
+
 {% enddocs %}
 
 ## is_active_exe_homeowner
