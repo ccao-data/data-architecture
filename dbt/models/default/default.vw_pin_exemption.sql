@@ -3,7 +3,7 @@ SELECT
     det.taxyr AS year,
     det.excode AS exemption_code,
     code.descr AS exemption_description,
-    det.apother AS exemption_amount
+    CAST(det.apother AS INT) AS exemption_amount
 FROM {{ source('iasworld', 'exdet') }} AS det
 LEFT JOIN {{ source('iasworld', 'excode') }} AS code
     ON det.excode = code.excode
