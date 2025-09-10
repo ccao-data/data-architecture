@@ -1079,32 +1079,32 @@ purposes. See `ccao.class_dict` for more information
 
 ## disabled_persons_exemption_amount
 
-{% doc(shared_column_exe_disabled %}
+{% doc(shared_column_exe_disabled) %}
 {% enddocs %}
 
 ## disabled_veteran_50_to_69_exemption_amount
 
-{% doc(shared_column_exe_vet_dis_50_69 %}
+{% doc(shared_column_exe_vet_dis_50_69) %}
 {% enddocs %}
 
 ## disabled_veteran_70_or_greater_exemption_amount
 
-{% doc(shared_column_exe_vet_dis_ge70 %}
+{% doc(shared_column_exe_vet_dis_ge70) %}
 {% enddocs %}
 
 ## disabled_veteran_100_exemption_amount
 
-{% doc(shared_column_exe_vet_dis_100 %}
+{% doc(shared_column_exe_vet_dis_100) %}
 {% enddocs %}
 
 ## disabled_veteran_less_than_50_exemption_amount
 
-{% doc(shared_column_exe_vet_dis_lt50 %}
+{% doc(shared_column_exe_vet_dis_lt50) %}
 {% enddocs %}
 
 ## homestead_exemption_amount
 
-{% doc(shared_column_exe_homeowner %}
+{% doc(shared_column_exe_homeowner) %}
 {% enddocs %}
 
 ## is_active_exe_homeowner
@@ -1145,7 +1145,7 @@ Only applies to condo classes (299 and 399).
 
 ## longtime_homeowner_exemption_amount
 
-{% doc(shared_column_exe_longtime_homeowner %}
+{% doc(shared_column_exe_longtime_homeowner) %}
 {% enddocs %}
 
 ## modeling_group
@@ -1156,7 +1156,7 @@ Modeling group, one of: `SF`, `MF`, `CONDO`, or `BB`
 
 ## municipality_built_exemption_amount
 
-{% doc(shared_column_exe_muni_built %}
+{% doc(shared_column_exe_muni_built) %}
 {% enddocs %}
 
 ## nbhd_code
@@ -1209,17 +1209,17 @@ digits of a PIN identifies individual units
 
 ## returning_veteran_exemption_amount
 
-{% doc(shared_column_exe_vet_returning %}
+{% doc(shared_column_exe_vet_returning) %}
 {% enddocs %}
 
 ## senior_freeze_exemption_amount
 
-{% doc(shared_column_exe_freeze %}
+{% doc(shared_column_exe_freeze) %}
 {% enddocs %}
 
 ## senior_homestead_exemption_amount
 
-{% doc(shared_column_exe_senior %}
+{% doc(shared_column_exe_senior) %}
 {% enddocs %}
 
 ## tax_code
@@ -1279,7 +1279,7 @@ or `City` (Chicago)
 
 ## wwii_veteran_exemption_amount
 
-{% doc(shared_column_exe_wwii %}
+{% doc(shared_column_exe_wwii) %}
 {% enddocs %}
 
 ## year
