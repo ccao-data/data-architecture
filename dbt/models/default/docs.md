@@ -87,7 +87,7 @@ workbooks rather than iasWorld.
 # vw_pin_exe
 
 {% docs view_vw_pin_exe %}
-Parcel-level exemption amounts
+Parcel-level exemption amounts.
 
 **Primary Key**: `year`, `pin`
 {% enddocs %}
