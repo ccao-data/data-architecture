@@ -39,8 +39,7 @@ WITH long AS (
 SELECT
     pin,
     year,
-{% for exe_ in exes -%}
-    
+{%- for exe_ in exes %}
     CASE
         WHEN ptax_exe = '{{ exe_ }}' THEN exemption_amount ELSE 0
     END

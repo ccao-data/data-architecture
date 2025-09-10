@@ -1077,26 +1077,34 @@ percentage of fair cash value at which a property is assessed for taxing
 purposes. See `ccao.class_dict` for more information
 {% enddocs %}
 
-## exemption_amount
+## disabled_persons_exemption_amount
 
-{% docs shared_column_exemption_amount %}
-Exemption amount. Looks like MV, but not sure yet.
-
+{% doc(shared_column_exe_disabled %}
 {% enddocs %}
 
-## exemption_code
+## disabled_veteran_50_to_69_exemption_amount
 
-{% docs shared_column_exemption_code %}
-Parcels can have multiple exemptions in any year and these codes are used to
-determine which exemption is associated with a given exemption value.
-
+{% doc(shared_column_exe_vet_dis_50_69 %}
 {% enddocs %}
 
-## exemption_description
+## disabled_veteran_70_or_greater_exemption_amount
 
-{% docs shared_column_exemption_description %}
-Descriptions for exemption codes.
+{% doc(shared_column_exe_vet_dis_ge70 %}
+{% enddocs %}
 
+## disabled_veteran_100_exemption_amount
+
+{% doc(shared_column_exe_vet_dis_100 %}
+{% enddocs %}
+
+## disabled_veteran_less_than_50_exemption_amount
+
+{% doc(shared_column_exe_vet_dis_lt50 %}
+{% enddocs %}
+
+## homestead_exemption_amount
+
+{% doc(shared_column_exe_homeowner %}
 {% enddocs %}
 
 ## is_active_exe_homeowner
@@ -1135,10 +1143,20 @@ Detected either by valuations, CDU, or unit number/proration rate heuristics.
 Only applies to condo classes (299 and 399).
 {% enddocs %}
 
+## longtime_homeowner_exemption_amount
+
+{% doc(shared_column_exe_longtime_homeowner %}
+{% enddocs %}
+
 ## modeling_group
 
 {% docs shared_column_modeling_group %}
 Modeling group, one of: `SF`, `MF`, `CONDO`, or `BB`
+{% enddocs %}
+
+## municipality_built_exemption_amount
+
+{% doc(shared_column_exe_muni_built %}
 {% enddocs %}
 
 ## nbhd_code
@@ -1187,6 +1205,21 @@ First 10 digits of a PIN.
 
 Useful for identifying individual condominium buildings since the last 4
 digits of a PIN identifies individual units
+{% enddocs %}
+
+## returning_veteran_exemption_amount
+
+{% doc(shared_column_exe_vet_returning %}
+{% enddocs %}
+
+## senior_freeze_exemption_amount
+
+{% doc(shared_column_exe_freeze %}
+{% enddocs %}
+
+## senior_homestead_exemption_amount
+
+{% doc(shared_column_exe_senior %}
 {% enddocs %}
 
 ## tax_code
@@ -1242,6 +1275,11 @@ Triads are the "unit of yearly work" for the Cook County property system:
 one triad is reassessed every 3 years on a rotating cycle. Each triad is made
 up of townships. The possible triad names are: `North`, `South`,
 or `City` (Chicago)
+{% enddocs %}
+
+## wwii_veteran_exemption_amount
+
+{% doc(shared_column_exe_wwii %}
 {% enddocs %}
 
 ## year
