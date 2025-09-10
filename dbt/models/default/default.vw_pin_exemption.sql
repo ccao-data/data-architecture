@@ -40,9 +40,10 @@ SELECT
     pin,
     year,
 {%- for exe_ in exes %}
-    CASE
+    SUM(CASE
         WHEN ptax_exe = '{{ exe_ }}' THEN exemption_amount ELSE 0
-    END
+        END)
         AS {{ exe_ }}{%- if not loop.last -%},{%- endif -%}
 {% endfor %}
 FROM long
+GROUP BY pin, year

@@ -37,7 +37,7 @@ models:
           name: default_vw_pin_exemption_matches_iasworld_exdet
           equals: >
             (
-              SELECT COUNT(DISTINCT parid, taxyr)
+              SELECT COUNT(DISTINCT(parid, taxyr))
               FROM {{ source('iasworld', 'exdet') }}
               WHERE cur = 'Y'
                 AND deactivat IS NULL
