@@ -84,6 +84,14 @@ workbooks rather than iasWorld.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_pin_exe
+
+{% docs view_vw_pin_exe %}
+Parcel-level exemption amounts
+
+**Primary Key**: `year`, `pin`
+{% enddocs %}
+
 # vw_pin_exempt
 
 {% docs view_vw_pin_exempt %}
@@ -98,14 +106,6 @@ institutions, or local governments.
   need to be assigned one by the postal service.
 
 **Primary Key**: `year`, `pin`
-{% enddocs %}
-
-# vw_pin_exemption
-
-{% docs view_vw_pin_exemption %}
-Parcel-level exemption codes and values.
-
-**Primary Key**: `year`, `pin`, `exemption_code`
 {% enddocs %}
 
 # vw_pin_history

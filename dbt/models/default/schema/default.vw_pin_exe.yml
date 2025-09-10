@@ -1,6 +1,6 @@
 models:
-  - name: default.vw_pin_exemption
-    description: '{{ doc("view_vw_pin_exemption") }}'
+  - name: default.vw_pin_exe
+    description: '{{ doc("view_vw_pin_exe") }}'
 
     columns:
       - name: exe_disabled
@@ -34,7 +34,7 @@ models:
 
     data_tests:
       - row_count:
-          name: default_vw_pin_exemption_matches_iasworld_exdet
+          name: default_vw_pin_exe_matches_iasworld_exdet
           equals: >
             (
               SELECT COUNT(DISTINCT(parid, taxyr))
@@ -43,13 +43,13 @@ models:
                 AND deactivat IS NULL
             )
           meta:
-            description: vw_pin_exemption row count should equal iasworld exdet row count
+            description: vw_pin_exe row count should equal iasworld exdet row count
       - unique_combination_of_columns:
-          name: default_vw_pin_exemption_unique_by_pin_year
+          name: default_vw_pin_exe_unique_by_pin_year
           combination_of_columns:
             - pin
             - year
           config:
             error_if: ">10"
           meta:
-            description: vw_pin_exemption should be unique by pin and year
+            description: vw_pin_exe should be unique by pin and year
