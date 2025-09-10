@@ -28,7 +28,7 @@ models:
       - name: exe_wwii
         description: '{{ doc("shared_column_exe_wwii") }}'
       - name: pin
-        description: '{{ doc("shared_column_pin	") }}'
+        description: '{{ doc("shared_column_pin") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
 
