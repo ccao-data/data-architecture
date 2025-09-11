@@ -10,13 +10,13 @@ WITH long AS (
     SELECT
         det.parid AS pin,
         det.taxyr AS year,
-        det.excode AS exemption_code,
-        code.descr AS exemption_description,
         CASE WHEN det.excode LIKE '%DP%' THEN 'exe_disabled'
             WHEN det.excode LIKE '%SF%' THEN 'exe_freeze'
             WHEN det.excode LIKE '%HO%' THEN 'exe_homeowner'
             WHEN det.excode LIKE '%LT%' THEN 'exe_longtime_homeowner'
-            WHEN det.excode LIKE '%SR%' THEN 'exe_senior'
+            WHEN
+                det.excode LIKE '%SR%' OR det.excode LIKE '%SC%'
+                THEN 'exe_senior'
             WHEN det.excode = 'MUNI' THEN 'exe_muni_built'
             WHEN det.excode LIKE '%DV1%' THEN 'exe_vet_dis_lt50'
             WHEN det.excode LIKE '%DV2%' THEN 'exe_vet_dis_50_69'
@@ -40,9 +40,9 @@ SELECT
     pin,
     year,
 {%- for exe_ in exes %}
-    SUM(CASE
+    CAST(SUM(CASE
         WHEN ptax_exe = '{{ exe_ }}' THEN exemption_amount ELSE 0
-        END)
+        END) AS INT)
         AS {{ exe_ }}{%- if not loop.last -%},{%- endif -%}
 {% endfor %}
 FROM long
