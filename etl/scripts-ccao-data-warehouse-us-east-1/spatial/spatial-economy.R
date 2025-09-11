@@ -59,12 +59,7 @@ clean_enterprise_zone <- function(shapefile, economic_unit) {
   if (economic_unit == "enterprise_zone") {
     return(
       shapefile %>%
-        filter(str_detect(County, "Will", negate = TRUE)) %>%
-        group_by(Name) %>%
-        summarise() %>%
-        mutate(ez_num = as.character(NA)) %>%
-        select(ez_num, ez_name = Name, geometry) %>%
-        ungroup()
+        select(ez_num = name, ez_name = name, geometry)
     )
   } else {
     return(shapefile)

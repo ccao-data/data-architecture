@@ -8,6 +8,29 @@ AWS_S3_RAW_BUCKET <- Sys.getenv("AWS_S3_RAW_BUCKET")
 output_bucket <- file.path(AWS_S3_RAW_BUCKET, "spatial", "economy")
 current_year <- strftime(Sys.Date(), "%Y")
 
+##### ENTERPRISE ZONE #####
+remote_file_enterprise_zone <- file.path(
+  output_bucket, "enterprise_zone",
+  paste0("2021", ".geojson")
+)
+
+# Write file to S3 if it doesn't already exist
+if (!aws.s3::object_exists(remote_file_enterprise_zone)) {
+  tmp_file_enterprise_zone <- tempfile(fileext = ".geojson")
+  download.file(
+    paste0(
+      "https://data.cityofchicago.org/api/geospatial",
+      "/bwpt-y235?method=export&format=GeoJSON"
+    ),
+    tmp_file_enterprise_zone
+  )
+  save_local_to_s3(
+    remote_file_enterprise_zone,
+    tmp_file_enterprise_zone
+  )
+  file.remove(tmp_file_enterprise_zone)
+}
+
 ##### INDUSTRIAL GROWTH ZONE #####
 remote_file_industrial_growth_zone <- file.path(
   output_bucket, "industrial_growth_zone",
