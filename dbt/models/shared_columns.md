@@ -1313,6 +1313,8 @@ or `City` (Chicago)
 ## wwii_veteran_exemption_amount
 
 {% docs shared_column_exe_wwii %}
+World War 2 veteran 100% exemption. Value in EAV. Defined as exemption code(s):
+- `WW2: WORLD WAR 2 VETERAN 100%`
 {% enddocs %}
 
 ## year
