@@ -20,7 +20,22 @@ LEFT JOIN {{ source('iasworld', 'legdat') }} AS legdat
         SELECT
             {{ tablename }}.parid,
             {{ tablename }}.taxyr,
-            ARRAY_AGG(DISTINCT {{ tablename }}.class) AS classes
+            -- If the comparison table only has rows for this PIN/year with
+            -- null class codes, a naive `ARRAY_AGG()` will return an array
+            -- with one null element, which causes the `CONTAINS()` check below
+            -- to return null and so exclude the row from the result set (even
+            -- though this should count as a mismatch). To handle this edge
+            -- case, ignore nulls when building the array of distinct classes,
+            -- and format any resulting empty arrays as ['NULL'] so that they
+            -- will always fail the `CONTAINS()` check below while also
+            -- returning output that the `ARRAY_JOIN()` call in the `SELECT`
+            -- clause above can turn into useful, human-readable output
+            COALESCE(
+                ARRAY_AGG(DISTINCT {{ tablename }}.class) FILTER (
+                    WHERE {{ tablename }}.class IS NOT NULL
+                ),
+                ARRAY['NULL']
+            ) AS classes
         FROM {{ source('iasworld', tablename) }} AS {{ tablename }}
         WHERE {{ tablename }}.cur = 'Y'
             AND {{ tablename }}.deactivat IS NULL
