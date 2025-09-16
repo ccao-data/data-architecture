@@ -1093,6 +1093,8 @@ Pre-2024 codes:
 Disabled veteran 50-69% exemption. Value in EAV. Defined as exemption code(s):
 - `C-DV2: DISABLED VETERAN 50-69% - COOP`
 - `DV2: DISABLED VETERAN 50-69%`
+Pre-2024 codes:
+- `DV-2: DISABLED VETERAN  50-69%`
 {% enddocs %}
 
 ## disabled_veteran_70_or_greater_exemption_amount
@@ -1103,7 +1105,7 @@ code(s):
 - `DV3: DISABLED VETERAN 70% OR GREATER`
 - `DV3-M: DV3 MULTI-UNIT`
 Pre-2024 codes:
-- `DV30: DVSHE 30-49%`
+- `DV-3: DISABLED VETERAN 70-100%`
 {% enddocs %}
 
 ## disabled_veteran_100_exemption_amount
@@ -1112,14 +1114,20 @@ Pre-2024 codes:
 Disabled veteran 100%, totally and permanently disabled exemption. Value in EAV.
 Defined as exemption code(s):
 - `DV4: DISABLED VETERAN 100%, TOTALLY AND PERMANENTLY DISABLED`
+Pre-2024 codes:
+- `DV-4: DISABLED VETERAN 100%, TOTALLY AND PERMANENTLY DISABLED`
 {% enddocs %}
 
 ## disabled_veteran_less_than_50_exemption_amount
 
 {% docs shared_column_exe_vet_dis_lt50 %}
-Disabled veteran 30-49% exemption. Value in EAV. Defined as exemption code(s):
+Disabled veteran less than 50% exemption. Value in EAV. Defined as exemption code(s):
 - `C-DV1: DISABLED VETERAN 30-49% - COOP`
 - `DV1: DISABLED VETERAN 30-49%`
+Pre-2024 codes:
+- `C-DV0: DISABLED VETERAN 30-49% - COOP`
+- `DV-1: DISABLED VETERAN 30-49%`
+- `DV0: DISABLED VETERAN 1-29%`
 {% enddocs %}
 
 ## homestead_exemption_amount
@@ -1244,6 +1252,10 @@ digits of a PIN identifies individual units
 Returning veterans exemption. Value in EAV. Defined as exemption code(s):
 - `C-RTV: RETURNING VETERAN - COOP`
 - `RTV: RETURNING VETERANS`
+Pre-2024 codes:
+- `RDV1: RETURNING VETERANS`
+- `RDV2: RETURNING VETERANS`
+- `RV1: RETURNING VETERANS`
 {% enddocs %}
 
 ## senior_freeze_exemption_amount
@@ -1261,9 +1273,7 @@ Senior homestead exemption. Value in EAV. Defined as exemption code(s):
 - `C-SR: SENIOR HOMESTEAD - COOP`
 - `SR: SENIOR HOMESTEAD`
 Pre-2024 codes:
-- `SCHEM: SENIOR CITIZEN HMST EX MULTI.`
 - `SCHE: SENIOR CITIZENS HOMESTEAD EX`
-- `SCAFHE: SENIOR CITIZENS ASMT FREEZE`
 - `SC: SENIOR HOMESTEAD`
 {% enddocs %}
 

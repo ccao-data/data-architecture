@@ -60,7 +60,7 @@ sources:
                       AND deactivat IS NULL
                       and taxyr >= '2024'
                   meta:
-                    description: excode for disabled veteran 30-49% exemption should be DV1 or C-DV1
+                    description: excode for disabled veteran less than 50% exemption should be DV1 or C-DV1
               - accepted_values:
                   name: iasworld_excode_dv2_exe_accepted_values
                   values: ['DV2', 'C-DV2']

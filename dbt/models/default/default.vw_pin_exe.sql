@@ -16,14 +16,18 @@ WITH long AS (
             WHEN
                 det.excode IN ('LT', 'C-LT', 'LT1', 'LT2')
                 THEN 'exe_longtime_homeowner'
-            WHEN det.excode IN ('SR', 'C-SR', 'SC', 'SCHEM', 'SCHE', 'SCHE')
+            WHEN det.excode IN ('SR', 'C-SR', 'SC', 'SCHE')
                 THEN 'exe_senior'
             WHEN det.excode = 'MUNI' THEN 'exe_muni_built'
-            WHEN det.excode IN ('DV1', 'C-DV1') THEN 'exe_vet_dis_lt50'
-            WHEN det.excode IN ('DV2', 'C-DV2') THEN 'exe_vet_dis_50_69'
-            WHEN det.excode IN ('DV3', 'DV3-M', 'DV30') THEN 'exe_vet_dis_ge70'
-            WHEN det.excode IN ('DV4', 'DV4-M') THEN 'exe_vet_dis_100'
-            WHEN det.excode IN ('RTV', 'C-RTV') THEN 'exe_vet_returning'
+            WHEN
+                det.excode IN ('DV1', 'C-DV1', 'DV0', 'C-DV0', 'DV-1')
+                THEN 'exe_vet_dis_lt50'
+            WHEN det.excode IN ('DV2', 'C-DV2', 'DV-2') THEN 'exe_vet_dis_50_69'
+            WHEN det.excode IN ('DV3', 'DV3-M', 'DV-3') THEN 'exe_vet_dis_ge70'
+            WHEN det.excode IN ('DV4', 'DV4-M', 'DV-4') THEN 'exe_vet_dis_100'
+            WHEN
+                det.excode IN ('RTV', 'C-RTV', 'RDV1', 'RV1', 'RDV2')
+                THEN 'exe_vet_returning'
             WHEN det.excode = 'WW2' THEN 'exe_wwii'
         END AS ptax_exe,
         CAST(det.apother AS INT) AS exemption_amount
