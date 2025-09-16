@@ -1088,7 +1088,7 @@ Disable persons exemption. Value in EAV. Defined as exemption code(s):
 ## disabled_veteran_50_to_69_exemption_amount
 
 {% docs shared_column_exe_vet_dis_50_69 %}
-Disable veteran 50-69% exemption. Value in EAV. Defined as exemption code(s):
+Disabled veteran 50-69% exemption. Value in EAV. Defined as exemption code(s):
 - `C-DV2: DISABLED VETERAN 50-69% - COOP`
 - `DV2: DISABLED VETERAN 50-69%`
 {% enddocs %}
@@ -1096,7 +1096,7 @@ Disable veteran 50-69% exemption. Value in EAV. Defined as exemption code(s):
 ## disabled_veteran_70_or_greater_exemption_amount
 
 {% docs shared_column_exe_vet_dis_ge70 %}
-Disable veteran 70% or greater exemption. Value in EAV. Defined as exemption
+Disabled veteran 70% or greater exemption. Value in EAV. Defined as exemption
 code(s):
 - `DV3: DISABLED VETERAN 70% OR GREATER`
 - `DV3-M: DV3 MULTI-UNIT`
@@ -1105,7 +1105,7 @@ code(s):
 ## disabled_veteran_100_exemption_amount
 
 {% docs shared_column_exe_vet_dis_100 %}
-Disable veteran 100%, totally and permanently disabled exemption. Value in EAV.
+Disabled veteran 100%, totally and permanently disabled exemption. Value in EAV.
 Defined as exemption code(s):
 - `DV4: DISABLED VETERAN 100%, TOTALLY AND PERMANENTLY DISABLED`
 {% enddocs %}
@@ -1113,7 +1113,7 @@ Defined as exemption code(s):
 ## disabled_veteran_less_than_50_exemption_amount
 
 {% docs shared_column_exe_vet_dis_lt50 %}
-Disable veteran 30-49% exemption. Value in EAV. Defined as exemption code(s):
+Disabled veteran 30-49% exemption. Value in EAV. Defined as exemption code(s):
 - `C-DV1: DISABLED VETERAN 30-49% - COOP`
 - `DV1: DISABLED VETERAN 30-49%`
 {% enddocs %}
