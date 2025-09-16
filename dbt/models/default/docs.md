@@ -84,6 +84,14 @@ workbooks rather than iasWorld.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_pin_exe
+
+{% docs view_vw_pin_exe %}
+Parcel-level exemption amounts in EAV.
+
+**Primary Key**: `year`, `pin`
+{% enddocs %}
+
 # vw_pin_exempt
 
 {% docs view_vw_pin_exempt %}
