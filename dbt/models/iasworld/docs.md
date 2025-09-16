@@ -152,7 +152,7 @@ Exemption applicant information table.
 
 {% docs table_excode %}
 Exemption code table. In order to match these codes to our commonly defined
-exemptions we aggregate them as below:
+exemptions we aggregate them (for 2024 and later) as below:
 
 - homestead exemption
   - `C-HO: GENERAL HOMESTEAD EXEMPTION - COOP`
