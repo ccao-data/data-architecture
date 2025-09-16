@@ -151,7 +151,44 @@ Exemption applicant information table.
 # excode
 
 {% docs table_excode %}
-Exemption code table.
+Exemption code table. In order to match these codes to our commonly defined
+exemptions we aggregate them as below:
+
+- homestead exemption
+  - `C-HO: GENERAL HOMESTEAD EXEMPTION - COOP`
+  - `HO: GENERAL HOMESTEAD EXEMPTION`
+- senior homestead exemption
+  - `C-SR: SENIOR HOMESTEAD - COOP`
+  - `SR: SENIOR HOMESTEAD`
+- senior freeze exemption
+  - `C-SF: SENIOR FREEZE - COOP`
+  - `SF: SENIOR FREEZE`
+- longtime homeowner exemption
+  - `C-LT: LONG-TIME HOMEOWNER - COOP`
+  - `LT: LONG-TIME HOMEOWNER`
+- returning veterans exemption
+  - `C-RTV: RETURNING VETERAN - COOP`
+  - `RTV: RETURNING VETERANS`
+- disabled persons exemption
+  - `C-DP: DISABLED PERSONS - COOP`
+  - `DP: DISABLED PERSON HOMESTD EX`
+- veterans with disabilites exemption
+  - `C-DV1: DISABLED VETERAN 30-49% - COOP`
+  - `C-DV2: DISABLED VETERAN 50-69% - COOP`
+  - `DV1: DISABLED VETERAN 30-49%`
+  - `DV2: DISABLED VETERAN  50-69%`
+  - `DV3: DISABLED VETERAN  70% OR GREATER`
+  - `DV3-M: DV3 MULTI-UNIT`
+  - `DV4: DISABLED VETERAN 100%, TOTALLY AND PERMANENTLY DISABLED`
+  - `DV4-M: DV4 MULTI-UNIT`
+- municipality-built gradual exemption
+  - `MUNI: MUNICIPALITY-BUILT GRADUAL EXEMPTION`
+- world war 2 veteran exemption
+  - `WW2: WORLD WAR 2 VETERAN 100%`
+
+NOTE: Some exemption codes are not included in these aggregations since they
+apply to AV rather than EAV, the most notable being
+`DV5: DISABLED VETERAN IDOR 100%`. For more information available see [exemptions.xlsx](https://cookcounty.sharepoint.com/:x:/r/sites/Data-Assessor/Shared%20Documents/General/exemptions.xlsx).
 
 **Primary Key**: `jur`, `taxyr`, `excode`
 {% enddocs %}
