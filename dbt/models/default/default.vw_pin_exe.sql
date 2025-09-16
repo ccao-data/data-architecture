@@ -15,7 +15,8 @@ WITH long AS (
             WHEN det.excode LIKE '%HO%' THEN 'exe_homeowner'
             WHEN det.excode LIKE '%LT%' THEN 'exe_longtime_homeowner'
             WHEN
-                det.excode LIKE '%SR%' OR det.excode LIKE '%SC%'
+                (det.excode LIKE '%SR%' AND det.excode != 'I-SRO')
+                OR (det.excode LIKE '%SC%' AND det.excode != 'SCAFHE')
                 THEN 'exe_senior'
             WHEN det.excode = 'MUNI' THEN 'exe_muni_built'
             WHEN det.excode LIKE '%DV1%' THEN 'exe_vet_dis_lt50'
