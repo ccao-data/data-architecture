@@ -23,7 +23,7 @@ WITH long AS (
             WHEN det.excode IN ('DV2', 'C-DV2') THEN 'exe_vet_dis_50_69'
             WHEN det.excode IN ('DV3', 'DV3-M', 'DV30') THEN 'exe_vet_dis_ge70'
             WHEN det.excode IN ('DV4', 'DV4-M') THEN 'exe_vet_dis_100'
-            WHEN det.excode = 'RTV' THEN 'exe_vet_returning'
+            WHEN det.excode IN ('RTV', 'C-RTV') THEN 'exe_vet_returning'
             WHEN det.excode = 'WW2' THEN 'exe_wwii'
         END AS ptax_exe,
         CAST(det.apother AS INT) AS exemption_amount

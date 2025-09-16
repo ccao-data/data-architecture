@@ -150,17 +150,6 @@ sources:
                       and taxyr >= '2024'
                   meta:
                     description: excode for senior homestead exemption should be SR or C-SR
-              - accepted_values:
-                  name: iasworld_excode_ww2_exe_accepted_values
-                  values: ['WW2']
-                  config:
-                    where: |
-                      excode LIKE '%WW2%'
-                      AND cur = 'Y'
-                      AND deactivat IS NULL
-                      and taxyr >= '2024'
-                  meta:
-                    description: excode for world war 2 veteran exemption should be WW2
           - name: exgrp
             description: Exemption code grouping for view definitions
           - name: extype
