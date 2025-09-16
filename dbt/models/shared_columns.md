@@ -1083,6 +1083,8 @@ purposes. See `ccao.class_dict` for more information
 Disable persons exemption. Value in EAV. Defined as exemption code(s):
 - `C-DP: DISABLED PERSONS - COOP`
 - `DP: DISABLED PERSON HOMESTD EX`
+Pre-2024 codes:
+- `DPHE: DISABLED PERSON HOMESTD EX`
 {% enddocs %}
 
 ## disabled_veteran_50_to_69_exemption_amount
@@ -1100,6 +1102,8 @@ Disabled veteran 70% or greater exemption. Value in EAV. Defined as exemption
 code(s):
 - `DV3: DISABLED VETERAN 70% OR GREATER`
 - `DV3-M: DV3 MULTI-UNIT`
+Pre-2024 codes:
+- `DV30: DVSHE 30-49%`
 {% enddocs %}
 
 ## disabled_veteran_100_exemption_amount
@@ -1168,6 +1172,9 @@ Only applies to condo classes (299 and 399).
 Long-time homeowner exemption. Value in EAV. Defined as exemption code(s):
 - `C-LT: LONG-TIME HOMEOWNER - COOP`
 - `LT: LONG-TIME HOMEOWNER`
+Pre-2024 codes:
+- `LT1: LONG-TIME HOMEOWNER`
+- `LT2: LONG-TIME HOMEOWNER`
 {% enddocs %}
 
 ## modeling_group
@@ -1253,6 +1260,11 @@ Senior freeze exemption. Value in EAV. Defined as exemption code(s):
 Senior homestead exemption. Value in EAV. Defined as exemption code(s):
 - `C-SR: SENIOR HOMESTEAD - COOP`
 - `SR: SENIOR HOMESTEAD`
+Pre-2024 codes:
+- `SCHEM: SENIOR CITIZEN HMST EX MULTI.`
+- `SCHE: SENIOR CITIZENS HOMESTEAD EX`
+- `SCAFHE: SENIOR CITIZENS ASMT FREEZE`
+- `SC: SENIOR HOMESTEAD`
 {% enddocs %}
 
 ## tax_code
