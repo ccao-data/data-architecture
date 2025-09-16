@@ -19,8 +19,12 @@ WITH long AS (
                 OR (det.excode LIKE '%SC%' AND det.excode != 'SCAFHE')
                 THEN 'exe_senior'
             WHEN det.excode = 'MUNI' THEN 'exe_muni_built'
-            WHEN det.excode LIKE '%DV1%' THEN 'exe_vet_dis_lt50'
-            WHEN det.excode LIKE '%DV2%' THEN 'exe_vet_dis_50_69'
+            WHEN
+                det.excode LIKE '%DV1%' AND det.excode != 'RDV1'
+                THEN 'exe_vet_dis_lt50'
+            WHEN
+                det.excode LIKE '%DV2%' AND det.excode != 'RDV2'
+                THEN 'exe_vet_dis_50_69'
             WHEN det.excode LIKE '%DV3%' THEN 'exe_vet_dis_ge70'
             WHEN det.excode LIKE '%DV4%' THEN 'exe_vet_dis_100'
             WHEN det.excode LIKE '%RTV%' THEN 'exe_vet_returning'
