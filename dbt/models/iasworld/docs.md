@@ -188,7 +188,7 @@ exemptions we aggregate them as below:
 
 NOTE: Some exemption codes are not included in these aggregations since they
 apply to AV rather than EAV, the most notable being
-`DV5: DISABLED VETERAN IDOR 100%`. For more information available see [exemptions.xlsx](https://cookcounty.sharepoint.com/:x:/r/sites/Data-Assessor/Shared%20Documents/General/exemptions.xlsx).
+`DV5: DISABLED VETERAN IDOR 100%`. For more information see [exemptions.xlsx](https://cookcounty.sharepoint.com/:x:/r/sites/Data-Assessor/Shared%20Documents/General/exemptions.xlsx).
 
 **Primary Key**: `jur`, `taxyr`, `excode`
 {% enddocs %}
