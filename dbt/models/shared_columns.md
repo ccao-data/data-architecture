@@ -1097,7 +1097,7 @@ Disable veteran 50-69% exemption. Value in EAV. Defined as exemption code(s):
 
 {% docs shared_column_exe_vet_dis_ge70 %}
 Disable veteran 70% or greater exemption. Value in EAV. Defined as exemption
-codes:
+code(s):
 - `DV3: DISABLED VETERAN 70% OR GREATER`
 - `DV3-M: DV3 MULTI-UNIT`
 {% enddocs %}
