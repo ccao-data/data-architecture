@@ -38,6 +38,17 @@ sources:
             description: Equation to calculate 2nd set of values
           - name: excode
             description: '{{ doc("column_excode") }}'
+            data_tests:
+              - accepted_values:
+                  name: iasworld_excode_dp_exe_accepted_values
+                  values: ['C-DP', 'DPHE', 'DP']
+                  config:
+                    where: |
+                      excode LIKE '%DP%'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                  meta:
+                    description: excode for disabled persons exemption should be one of C-DP, DPHE, or DP
           - name: exgrp
             description: Exemption code grouping for view definitions
           - name: extype
