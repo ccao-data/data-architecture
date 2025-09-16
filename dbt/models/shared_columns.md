@@ -1080,31 +1080,50 @@ purposes. See `ccao.class_dict` for more information
 ## disabled_persons_exemption_amount
 
 {% docs shared_column_exe_disabled %}
+Disable persons exemption. Value in EAV. Defined as exemption code(s):
+- `C-DP: DISABLED PERSONS - COOP`
+- `DP: DISABLED PERSON HOMESTD EX`
 {% enddocs %}
 
 ## disabled_veteran_50_to_69_exemption_amount
 
 {% docs shared_column_exe_vet_dis_50_69 %}
+Disable veteran 50-69% exemption. Value in EAV. Defined as exemption code(s):
+- `C-DV2: DISABLED VETERAN 50-69% - COOP`
+- `DV2: DISABLED VETERAN 50-69%`
 {% enddocs %}
 
 ## disabled_veteran_70_or_greater_exemption_amount
 
 {% docs shared_column_exe_vet_dis_ge70 %}
+Disable veteran 70% or greater exemption. Value in EAV. Defined as exemption
+codes:
+- `DV3: DISABLED VETERAN 70% OR GREATER`
+- `DV3-M: DV3 MULTI-UNIT`
 {% enddocs %}
 
 ## disabled_veteran_100_exemption_amount
 
 {% docs shared_column_exe_vet_dis_100 %}
+Disable veteran 100%, totally and permanently disabled exemption. Value in EAV.
+Defined as exemption code(s):
+- `DV4: DISABLED VETERAN 100%, TOTALLY AND PERMANENTLY DISABLED`
 {% enddocs %}
 
 ## disabled_veteran_less_than_50_exemption_amount
 
 {% docs shared_column_exe_vet_dis_lt50 %}
+Disable veteran 30-49% exemption. Value in EAV. Defined as exemption code(s):
+- `C-DV1: DISABLED VETERAN 30-49% - COOP`
+- `DV1: DISABLED VETERAN 30-49%`
 {% enddocs %}
 
 ## homestead_exemption_amount
 
 {% docs shared_column_exe_homeowner %}
+General homestead exemption. Value in EAV. Defined as exemption code(s):
+- `C-HO: GENERAL HOMESTEAD EXEMPTION - COOP`
+- `HO: GENERAL HOMESTEAD EXEMPTION`
 {% enddocs %}
 
 ## is_active_exe_homeowner
@@ -1146,6 +1165,9 @@ Only applies to condo classes (299 and 399).
 ## longtime_homeowner_exemption_amount
 
 {% docs shared_column_exe_longtime_homeowner %}
+Long-time homeowner exemption. Value in EAV. Defined as exemption code(s):
+- `C-LT: LONG-TIME HOMEOWNER - COOP`
+- `LT: LONG-TIME HOMEOWNER`
 {% enddocs %}
 
 ## modeling_group
@@ -1157,6 +1179,8 @@ Modeling group, one of: `SF`, `MF`, `CONDO`, or `BB`
 ## municipality_built_exemption_amount
 
 {% docs shared_column_exe_muni_built %}
+Municipality-built gradual exemption. Value in EAV. Defined as exemption code(s):
+- `MUNI: MUNICIPALITY-BUILT GRADUAL EXEMPTION`
 {% enddocs %}
 
 ## nbhd_code
@@ -1210,16 +1234,25 @@ digits of a PIN identifies individual units
 ## returning_veteran_exemption_amount
 
 {% docs shared_column_exe_vet_returning %}
+Returning veterans exemption. Value in EAV. Defined as exemption code(s):
+- `C-RTV: RETURNING VETERAN - COOP`
+- `RTV: RETURNING VETERANS`
 {% enddocs %}
 
 ## senior_freeze_exemption_amount
 
 {% docs shared_column_exe_freeze %}
+Senior freeze exemption. Value in EAV. Defined as exemption code(s):
+- `C-SF: SENIOR FREEZE - COOP`
+- `SF: SENIOR FREEZE`
 {% enddocs %}
 
 ## senior_homestead_exemption_amount
 
 {% docs shared_column_exe_senior %}
+Senior homestead exemption. Value in EAV. Defined as exemption code(s):
+- `C-SR: SENIOR HOMESTEAD - COOP`
+- `SR: SENIOR HOMESTEAD`
 {% enddocs %}
 
 ## tax_code

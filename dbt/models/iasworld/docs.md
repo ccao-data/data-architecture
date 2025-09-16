@@ -163,7 +163,7 @@ exemptions we aggregate them as below:
 - senior freeze exemption
   - `C-SF: SENIOR FREEZE - COOP`
   - `SF: SENIOR FREEZE`
-- longtime homeowner exemption
+- long-time homeowner exemption
   - `C-LT: LONG-TIME HOMEOWNER - COOP`
   - `LT: LONG-TIME HOMEOWNER`
 - returning veterans exemption
@@ -176,8 +176,8 @@ exemptions we aggregate them as below:
   - `C-DV1: DISABLED VETERAN 30-49% - COOP`
   - `C-DV2: DISABLED VETERAN 50-69% - COOP`
   - `DV1: DISABLED VETERAN 30-49%`
-  - `DV2: DISABLED VETERAN  50-69%`
-  - `DV3: DISABLED VETERAN  70% OR GREATER`
+  - `DV2: DISABLED VETERAN 50-69%`
+  - `DV3: DISABLED VETERAN 70% OR GREATER`
   - `DV3-M: DV3 MULTI-UNIT`
   - `DV4: DISABLED VETERAN 100%, TOTALLY AND PERMANENTLY DISABLED`
   - `DV4-M: DV4 MULTI-UNIT`
