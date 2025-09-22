@@ -8,7 +8,7 @@ This is the primary sales validation output table. Flags within this table
 should be possible to reconstruct using the other sales validation tables:
 `sale.group_mean`, `sale.parameter`, and `sale.metadata`.
 
-**Primary Key**: `meta_sale_document_number`, `run_id`, `version`
+**Primary Key**: `meta_sale_document_num`, `run_id`, `version`
 {% enddocs %}
 
 # foreclosure

@@ -7,8 +7,8 @@ sources:
           - load_auto
 
         columns:
-          - name: meta_sale_document_number
-            description: '{{ doc("shared_column_document_number") }}'
+          - name: meta_sale_document_num
+            description: '{{ doc("shared_column_document_num") }}'
           - name: ptax_flag_original
             description: |
               Whether or not this sale was flagged on Q10 of the
