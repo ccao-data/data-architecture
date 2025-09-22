@@ -9,6 +9,12 @@ sources:
         columns:
           - name: meta_sale_document_number
             description: '{{ doc("shared_column_document_number") }}'
+          - name: meta_sale_price_original
+            description: |
+              This is the original sale price pulled from default.vw_pin_sale. This is
+              the original sale price. We log the sale price prior to assigning flags
+              so this column holds a historical record of the original sale price at the
+              snapshot in time that we ran the flagging pipeline.
           - name: ptax_flag_original
             description: |
               Whether or not this sale was flagged on Q10 of the
