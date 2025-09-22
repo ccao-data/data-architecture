@@ -1464,7 +1464,7 @@ Possible values for this variable include:
 
 ## document_number
 
-{% docs shared_column_document_num %}
+{% docs shared_column_document_number %}
 Deed number/document number of the sale.
 
 Serves as the unique identifier for each sale. Can be used to lookup more
