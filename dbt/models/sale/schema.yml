@@ -7,8 +7,20 @@ sources:
           - load_auto
 
         columns:
+          - name: group
+            description: |
+              Group string used as a unique identifier for the statistical flagging
+              group this sale belongs to. An example is township code, class, and
+              rolling window. You can join this field onto the `group_mean` table to
+              see more details about the group statistics.
           - name: meta_sale_document_number
             description: '{{ doc("shared_column_document_number") }}'
+          - name: meta_sale_price_original
+            description: |
+              This is the original sale price pulled from default.vw_pin_sale. This is
+              the original sale price. We log the sale price prior to assigning flags
+              so this column holds a historical record of the original sale price at the
+              snapshot in time that we ran the flagging pipeline.
           - name: ptax_flag_original
             description: |
               Whether or not this sale was flagged on Q10 of the
@@ -39,6 +51,18 @@ sources:
             description: '{{ doc("shared_column_sv_outlier_reason") }}'
           - name: sv_outlier_reason3
             description: '{{ doc("shared_column_sv_outlier_reason") }}'
+          - name: sv_price_deviation
+            description: |
+              The number of standard deviations this sale price is away from
+              the mean price of its group (township, class, rolling window).
+              This is used to determine whether or not the sale is an outlier
+              based on statistical deviation. We persist this column for ease in
+              understanding why a sale was or was not flagged as an outlier.
+          - name: sv_price_per_sqft_deviation
+            description: |
+              Same as sv_price_deviation, but calculated using price per sqft.
+              Will only be populated for res classes, since we don't have sqft
+              data for condos.
           - name: version
             description: '{{ doc("shared_column_sv_version") }}'
 
