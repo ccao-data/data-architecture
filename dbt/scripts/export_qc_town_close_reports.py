@@ -101,13 +101,14 @@ def main():
     args = parse_args()
 
     townships: list[Township] = []
-    for code in args.township:
-        if town := TOWNSHIPS_BY_CODE.get(code):
-            townships.append(town)
-        elif town := TOWNSHIPS_BY_NAME.get(code.lower()):
-            townships.append(town)
-        else:
-            raise ValueError(f"Town code/name not recognized: {code}")
+    if args.township:
+        for code in args.township:
+            if town := TOWNSHIPS_BY_CODE.get(code):
+                townships.append(town)
+            elif town := TOWNSHIPS_BY_NAME.get(code.lower()):
+                townships.append(town)
+            else:
+                raise ValueError(f"Town code/name not recognized: {code}")
     else:
         townships = TOWNSHIPS
 
