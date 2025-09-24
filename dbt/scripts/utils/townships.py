@@ -71,8 +71,11 @@ TOWNSHIPS = [
     for code, name, tri_code, tri_name in township_attrs
 ]
 
-# Map township codes to the corresponding Township data object so that we can
-# lookup Township objects by code
+# Map township codes and names to the corresponding Township data object so
+# that we can lookup Township objects by identifier
 TOWNSHIPS_BY_CODE: dict[str, Township] = {
     town.township_code: town for town in TOWNSHIPS
+}
+TOWNSHIPS_BY_NAME: dict[str, Township] = {
+    town.township_name.lower(): town for town in TOWNSHIPS
 }

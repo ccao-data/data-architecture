@@ -19,6 +19,8 @@ from utils.export import (
 from utils.townships import (
     TOWNSHIPS,
     TOWNSHIPS_BY_CODE,
+    TOWNSHIPS_BY_NAME,
+    Township,
 )
 
 DBT = dbtRunner()
@@ -98,11 +100,16 @@ def main():
     """Main entrypoint for the script"""
     args = parse_args()
 
-    townships = (
-        [TOWNSHIPS_BY_CODE[code] for code in args.township]
-        if args.township
-        else TOWNSHIPS
-    )
+    townships: list[Township] = []
+    for code in args.township:
+        if town := TOWNSHIPS_BY_CODE.get(code):
+            townships.append(town)
+        elif town := TOWNSHIPS_BY_NAME.get(code.lower()):
+            townships.append(town)
+        else:
+            raise ValueError(f"Town code/name not recognized: {code}")
+    else:
+        townships = TOWNSHIPS
 
     # Determine which dbt tags to select based on the tri status of each town
     # (i.e. whether the town is up for reassessment in the given year).
