@@ -24,8 +24,8 @@ on:
         description: Overwrite socrata asset
         required: false
   schedule:
-  # First of every month at 9am UTC (4am UTC-5)
-  - cron: '0 9 1 * *'
+  # First of every month at 11am UTC (6am UTC-5)
+  - cron: '0 11 1 * *'
 
 
 env:
