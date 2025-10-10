@@ -3,7 +3,7 @@ name: test-open-data-assets
 on:
   workflow_dispatch:
   schedule:
-    # Every first day of the month at 11:30pm (4:30am UTC-5 on the second). This
+    # Every second day of the month at 4:30am (11:30am UTC-5 on the first). This
     # schedule makes sense since most of our assets are configured to refresh on
     # the first day of the month. Some assets have a biweekly schedule such
     # that they also refresh in the middle of the month, but we ignore that
