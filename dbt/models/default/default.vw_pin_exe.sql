@@ -49,8 +49,8 @@ asmt AS (
         taxyr AS year,
         MAX(CASE WHEN procname = 'CCAOVALUE' THEN tot51 END) AS mailed_eav,
         MAX(CASE WHEN procname = 'CCAOFINAL' THEN tot51 END)
-            AS assessor_certified_eav,
-        MAX(CASE WHEN procname = 'BORVALUE' THEN tot51 END) AS bor_certified_eav
+            AS certified_eav,
+        MAX(CASE WHEN procname = 'BORVALUE' THEN tot51 END) AS board_eav
     FROM {{ source('iasworld', 'asmt_all') }}
     WHERE rolltype != 'RR'
         AND deactivat IS NULL
