@@ -1,4 +1,4 @@
--- View to collect pin-level exemptions
+-- View to collect pin-level exemptions and taxable EAV
 {% set exes = [
     'exe_disabled', 'exe_freeze', 'exe_homeowner',
     'exe_longtime_homeowner', 'exe_senior', 'exe_muni_built', 'exe_vet_dis_lt50',
@@ -42,7 +42,7 @@ WITH long AS (
         AND det.cur = 'Y'
 ),
 
--- pin-level EAVs by stage
+-- pin-level taxable EAV by stage
 asmt AS (
     SELECT
         parid AS pin,
