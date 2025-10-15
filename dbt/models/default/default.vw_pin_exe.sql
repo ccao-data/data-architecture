@@ -6,6 +6,7 @@
     'exe_vet_returning', 'exe_wwii'
 ] %}
 
+-- pin-level exemptions from the exdet table
 WITH long AS (
     SELECT
         det.parid AS pin,
@@ -39,16 +40,49 @@ WITH long AS (
         AND code.deactivat IS NULL
     WHERE det.deactivat IS NULL
         AND det.cur = 'Y'
+),
+
+-- pin-level EAVs by stage
+asmt AS (
+    SELECT
+        parid AS pin,
+        taxyr AS year,
+        MAX(CASE WHEN procname = 'CCAOVALUE' THEN tot51 END) AS mailed_eav,
+        MAX(CASE WHEN procname = 'CCAOFINAL' THEN tot51 END)
+            AS assessor_certified_eav,
+        MAX(CASE WHEN procname = 'BORVALUE' THEN tot51 END) AS bor_certified_eav
+    FROM {{ source('iasworld', 'asmt_all') }}
+    WHERE rolltype != 'RR'
+        AND deactivat IS NULL
+        AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+        AND valclass IS NULL
+        -- Class 999 are test pins
+        AND class NOT IN ('999')
+    GROUP BY parid, taxyr
+
+
+),
+
+-- Widen the exemptions
+wide AS (
+    SELECT
+        pin,
+        year,
+    {%- for exe_ in exes %}
+        CAST(SUM(CASE
+            WHEN ptax_exe = '{{ exe_ }}' THEN exemption_amount ELSE 0
+            END) AS INT)
+            AS {{ exe_ }}{%- if not loop.last -%},{%- endif -%}
+    {% endfor %}
+    FROM long
+    GROUP BY pin, year
 )
 
+-- Join exemptions and EAVs
 SELECT
-    pin,
-    year,
-{%- for exe_ in exes %}
-    CAST(SUM(CASE
-        WHEN ptax_exe = '{{ exe_ }}' THEN exemption_amount ELSE 0
-        END) AS INT)
-        AS {{ exe_ }}{%- if not loop.last -%},{%- endif -%}
-{% endfor %}
-FROM long
-GROUP BY pin, year
+    wide.*,
+    asmt.mailed_eav,
+    asmt.assessor_certified_eav,
+    asmt.bor_certified_eav
+FROM wide
+LEFT JOIN asmt ON wide.pin = asmt.pin AND wide.year = asmt.year
