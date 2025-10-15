@@ -82,7 +82,7 @@ wide AS (
 SELECT
     wide.*,
     asmt.mailed_eav,
-    asmt.assessor_certified_eav,
-    asmt.bor_certified_eav
+    asmt.certified_eav,
+    asmt.board_eav
 FROM wide
 LEFT JOIN asmt ON wide.pin = asmt.pin AND wide.year = asmt.year
