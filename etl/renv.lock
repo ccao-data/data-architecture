@@ -3110,6 +3110,39 @@
       ],
       "Hash": "4fae513a3bb1a155943d1e9d1ae467ec"
     },
+    "tabulizer": {
+      "Package": "tabulizer",
+      "Version": "0.2.3",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "tabulizer",
+      "RemoteUsername": "ropensci",
+      "RemoteSha": "08e3d763b7bb2becfe5fc95f800b3767ea704439",
+      "Requirements": [
+        "png",
+        "rJava",
+        "tabulizerjars",
+        "tools",
+        "utils"
+      ],
+      "Hash": "8088eff177c4dc5ac1b875ab97190b53"
+    },
+    "tabulizerjars": {
+      "Package": "tabulizerjars",
+      "Version": "1.0.1",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "ropensci",
+      "RemoteRepo": "tabulizerjars",
+      "RemoteRef": "master",
+      "RemoteSha": "d1924e01db15b75251e4eb8f558e6e1a81e1c270",
+      "Requirements": [
+        "rJava"
+      ],
+      "Hash": "b97a48912685ce7c5ac2cc883977d986"
+    },
     "terra": {
       "Package": "terra",
       "Version": "1.8-70",
