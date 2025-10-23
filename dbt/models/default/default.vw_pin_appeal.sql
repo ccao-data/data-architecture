@@ -63,10 +63,9 @@ WITH reasons AS (
     WHERE htpar.cur = 'Y'
         AND htpar.deactivat IS NULL
         AND htpar.caseno IS NOT NULL
-        AND (
-            -- Remove COEs since they are not ready for production use
-            htpar.heartyp IN ('A', 'C') AND SUBSTR(htpar.caseno, 1, 3) != 'COE'
-        )
+        AND htpar.heartyp IN ('A', 'C')
+        -- Remove legacy COEs
+        AND SUBSTR(htpar.caseno, 1, 3) != 'COE'
 
 )
 
