@@ -64,6 +64,8 @@ WITH reasons AS (
         AND htpar.deactivat IS NULL
         AND htpar.caseno IS NOT NULL
         AND htpar.heartyp IN ('A', 'C')
+        -- Remove legacy COEs
+        AND SUBSTR(htpar.caseno, 1, 3) != 'COE'
 
 )
 
