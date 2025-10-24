@@ -231,6 +231,14 @@ Constructs the Data Department's AHSAP indicator.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_pin_tax_roll
+
+{% docs view_vw_pin_tax_roll %}
+Parcel-level exemption amounts in EAV.
+
+**Primary Key**: `year`, `pin`
+{% enddocs %}
+
 # vw_pin_universe
 
 {% docs view_vw_pin_universe %}
