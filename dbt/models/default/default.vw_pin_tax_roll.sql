@@ -61,7 +61,7 @@ asmt AS (
                 WHEN
                     procname = 'CCAOVALUE'
                     AND COALESCE(tot30, 0) + COALESCE(tot31, 0) = 0
-                    THEN tot31
+                    THEN tot13
             END
         ) AS mailed_taxable_av,
         MAX(
@@ -72,7 +72,7 @@ asmt AS (
                 WHEN
                     procname = 'CCAOFINAL'
                     AND COALESCE(tot30, 0) + COALESCE(tot31, 0) = 0
-                    THEN tot31
+                    THEN tot13
             END
         ) AS certified_taxable_av,
         MAX(
@@ -83,7 +83,7 @@ asmt AS (
                 WHEN
                     procname = 'BORVALUE'
                     AND COALESCE(tot30, 0) + COALESCE(tot31, 0) = 0
-                    THEN tot31
+                    THEN tot13
             END
         ) AS board_taxable_av,
         MAX(CASE WHEN procname = 'CCAOVALUE' THEN tot51 END) AS mailed_eav,
