@@ -119,8 +119,11 @@ wide AS (
 -- Join exemptions and EAVs
 SELECT
     wide.*,
+    asmt.mailed_taxable_av,
     asmt.mailed_eav,
+    asmt.certified_taxable_av,
     asmt.certified_eav,
+    asmt.board_taxable_av,
     asmt.board_eav
 FROM wide
 LEFT JOIN asmt ON wide.pin = asmt.pin AND wide.year = asmt.year
