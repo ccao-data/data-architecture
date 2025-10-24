@@ -60,7 +60,7 @@ asmt AS (
                     THEN tot32
                 WHEN
                     procname = 'CCAOVALUE'
-                    AND (COALESCE(tot30, 0) = 0 AND COALESCE(tot31, 0) = 0)
+                    AND COALESCE(tot30, 0) + COALESCE(tot31, 0) = 0
                     THEN tot31
             END
         ) AS mailed_taxable_av,
@@ -71,7 +71,7 @@ asmt AS (
                     THEN tot32
                 WHEN
                     procname = 'CCAOFINAL'
-                    AND (COALESCE(tot30, 0) = 0 AND COALESCE(tot31, 0) = 0)
+                    AND COALESCE(tot30, 0) + COALESCE(tot31, 0) = 0
                     THEN tot31
             END
         ) AS certified_taxable_av,
@@ -82,7 +82,7 @@ asmt AS (
                     THEN tot32
                 WHEN
                     procname = 'BORVALUE'
-                    AND (COALESCE(tot30, 0) = 0 AND COALESCE(tot31, 0) = 0)
+                    AND COALESCE(tot30, 0) + COALESCE(tot31, 0) = 0
                     THEN tot31
             END
         ) AS board_taxable_av,
