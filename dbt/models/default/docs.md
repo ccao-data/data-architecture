@@ -84,6 +84,14 @@ workbooks rather than iasWorld.
 **Primary Key**: `year`, `pin`
 {% enddocs %}
 
+# vw_pin_exe
+
+{% docs view_vw_pin_exe %}
+Parcel-level exemption amounts in EAV.
+
+**Primary Key**: `year`, `pin`
+{% enddocs %}
+
 # vw_pin_exempt
 
 {% docs view_vw_pin_exempt %}
@@ -219,6 +227,14 @@ Constructs the Data Department's AHSAP indicator.
 ### Nuance
 
 - Parcels can have different CDUs from multiple tables. See PIN 05272010320000.
+
+**Primary Key**: `year`, `pin`
+{% enddocs %}
+
+# vw_pin_tax_roll
+
+{% docs view_vw_pin_tax_roll %}
+Parcel-level exemption amounts in EAV.
 
 **Primary Key**: `year`, `pin`
 {% enddocs %}
