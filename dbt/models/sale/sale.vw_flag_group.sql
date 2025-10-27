@@ -20,15 +20,15 @@ WITH base AS (
         pin_sale."year",
         p_uni.triad_code,
         p_uni.class
-    FROM sale.flag AS flag
-    LEFT JOIN sale.group_mean AS group_mean
+    FROM {{ source('sale', 'flag') }} AS flag
+    LEFT JOIN {{ source('sale', 'group_mean') }} AS group_mean
         ON flag.run_id = group_mean.run_id
        AND flag."group" = group_mean."group"
-    LEFT JOIN sale.parameter AS param
+    LEFT JOIN {{ source('sale', 'parameter') }} AS param
         ON flag.run_id = param.run_id
-    LEFT JOIN default.vw_pin_sale AS pin_sale
+    LEFT JOIN {{ ref('default.vw_pin_sale') }} AS pin_sale
         ON pin_sale.doc_no = flag.meta_sale_document_num
-    LEFT JOIN default.vw_pin_universe AS p_uni
+    LEFT JOIN {{ ref('default.vw_pin_universe') }} AS p_uni
         ON p_uni.pin = pin_sale.pin
        AND p_uni."year" = pin_sale."year"
 ),
