@@ -48,89 +48,80 @@ normalized_json AS (
     FROM base b
 ),
 
--- Determine triad number & desired housing key dynamically from housing_json
-triad_and_key AS (
+-- Pull triad number (digits only) and carry forward JSON
+triad_only AS (
     SELECT
         n.*,
-
-        -- robust: keep only digits from triad_code (e.g., "tri3", "3", " TRI-2 ")
-        NULLIF(regexp_replace(lower(trim(CAST(n.triad_code AS VARCHAR))), '[^0-9]+', ''), '') AS tri_num,
-
-        -- DYNAMIC: find the first key in housing_json whose array contains this class
-        CASE
-            WHEN cardinality(
-                     map_keys(
-                       map_filter(
-                         CAST(n.housing_json AS MAP(VARCHAR, JSON)),
-                         (k, v) -> contains(CAST(v AS ARRAY(VARCHAR)), CAST(n.class AS VARCHAR))
-                       )
-                     )
-                 ) > 0
-            THEN map_keys(
-                   map_filter(
-                     CAST(n.housing_json AS MAP(VARCHAR, JSON)),
-                     (k, v) -> contains(CAST(v AS ARRAY(VARCHAR)), CAST(n.class AS VARCHAR))
-                   )
-                 )[1]
-            ELSE NULL
-        END AS desired_housing_key
+        NULLIF(
+            regexp_replace(lower(trim(CAST(n.triad_code AS VARCHAR))), '[^0-9]+', ''),
+            ''
+        ) AS tri_num
     FROM normalized_json n
 ),
 
--- Choose an effective housing key: prefer desired; otherwise dynamically pick any key under tri{n} that has a .columns array
+-- Constrain class matching to submarkets that actually exist under tri{n}
 effective_key AS (
     SELECT
-      x.*,
+        x.*,
 
-      CASE
-        WHEN json_array_length(
-               json_extract(
-                 x.stat_groups_json,
-                 format('$.tri%s.%s.columns', x.tri_num, x.desired_housing_key)
-               )
-             ) IS NOT NULL
-        THEN x.desired_housing_key
-        ELSE
-          CASE
-            WHEN cardinality(
-                   map_keys(
-                     map_filter(
-                       CAST(
-                         json_extract(x.stat_groups_json, format('$.tri%s', x.tri_num))
-                         AS MAP(VARCHAR, JSON)
-                       ),
-                       (k, v) -> json_array_length(json_extract(v, '$.columns')) IS NOT NULL
-                     )
-                   )
-                 ) > 0
-            THEN map_keys(
-                   map_filter(
-                     CAST(
-                       json_extract(x.stat_groups_json, format('$.tri%s', x.tri_num))
-                       AS MAP(VARCHAR, JSON)
-                     ),
-                     (k, v) -> json_array_length(json_extract(v, '$.columns')) IS NOT NULL
-                   )
-                 )[1]
+        -- Keys present under tri{n} that have a .columns array
+        CASE
+            WHEN x.tri_num IS NOT NULL THEN
+                map_keys(
+                    map_filter(
+                        CAST(json_extract(x.stat_groups_json, format('$.tri%s', x.tri_num)) AS MAP(VARCHAR, JSON)),
+                        (k, v) -> json_array_length(json_extract(v, '$.columns')) IS NOT NULL
+                    )
+                )
+            ELSE CAST(ARRAY[] AS ARRAY(VARCHAR))
+        END AS keys_present,
+
+        -- Keys (submarkets) whose class list contains this row's class
+        CASE
+            WHEN x.housing_json IS NOT NULL THEN
+                map_keys(
+                    map_filter(
+                        CAST(x.housing_json AS MAP(VARCHAR, JSON)),
+                        (k, v) -> contains(CAST(v AS ARRAY(VARCHAR)), CAST(x.class AS VARCHAR))
+                    )
+                )
+            ELSE CAST(ARRAY[] AS ARRAY(VARCHAR))
+        END AS keys_for_class
+    FROM triad_only x
+),
+
+-- Choose effective housing key:
+-- 1) intersection(keys_present, keys_for_class) if any
+-- 2) otherwise any keys_present (fallback)
+choose_key AS (
+    SELECT
+        e.*,
+        -- intersection via filter to avoid relying on engine-specific array_intersect
+        filter(e.keys_present, k -> contains(e.keys_for_class, k)) AS present_and_matching,
+
+        CASE
+            WHEN cardinality(filter(e.keys_present, k -> contains(e.keys_for_class, k))) > 0
+                THEN filter(e.keys_present, k -> contains(e.keys_for_class, k))[1]
+            WHEN cardinality(e.keys_present) > 0
+                THEN e.keys_present[1]
             ELSE NULL
-          END
-      END AS effective_housing_key
-    FROM triad_and_key x
+        END AS effective_housing_key
+    FROM effective_key e
 ),
 
 -- Pull columns array for tri{n}.{effective_housing_key}.columns
 cols_json AS (
     SELECT
-        e.*,
+        c.*,
         CASE
-            WHEN e.tri_num IS NOT NULL AND e.effective_housing_key IS NOT NULL
+            WHEN c.tri_num IS NOT NULL AND c.effective_housing_key IS NOT NULL
                 THEN json_extract(
-                         e.stat_groups_json,
-                         format('$.tri%s.%s.columns', e.tri_num, e.effective_housing_key)
+                         c.stat_groups_json,
+                         format('$.tri%s.%s.columns', c.tri_num, c.effective_housing_key)
                      )
             ELSE NULL
         END AS columns_json
-    FROM effective_key e
+    FROM choose_key c
 )
 
 SELECT
