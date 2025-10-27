@@ -25,14 +25,14 @@ WITH base AS (
     FROM {{ source('sale', 'flag') }} AS flag
     LEFT JOIN {{ source('sale', 'group_mean') }} AS group_mean
         ON flag.run_id = group_mean.run_id
-       AND flag."group" = group_mean."group"
+        AND flag."group" = group_mean."group"
     LEFT JOIN {{ source('sale', 'parameter') }} AS param
         ON flag.run_id = param.run_id
     LEFT JOIN {{ ref('default.vw_pin_sale') }} AS pin_sale
         ON pin_sale.doc_no = flag.meta_sale_document_num
     LEFT JOIN {{ ref('default.vw_pin_universe') }} AS p_uni
         ON p_uni.pin = pin_sale.pin
-       AND p_uni.year = pin_sale.year
+        AND p_uni.year = pin_sale.year
 ),
 
 -- Normalize JSON: try parsing as-is; if NULL, retry with single quotes swapped
@@ -75,32 +75,32 @@ effective_key AS (
         -- Keys present under tri{n} that have a .columns array
         CASE
             WHEN triad_only.tri_num IS NOT NULL
-            THEN MAP_KEYS(
-                MAP_FILTER(
-                    CAST(
-                        JSON_EXTRACT(
-                            triad_only.stat_groups_json,
-                            FORMAT('$.tri%s', triad_only.tri_num)
-                        ) AS MAP (VARCHAR, JSON)
-                    ),
-                    (k, v) ->
-                        JSON_ARRAY_LENGTH(
-                            JSON_EXTRACT(v, '$.columns')
-                        ) IS NOT NULL
+                THEN MAP_KEYS(
+                    MAP_FILTER(
+                        CAST(
+                            JSON_EXTRACT(
+                                triad_only.stat_groups_json,
+                                FORMAT('$.tri%s', triad_only.tri_num)
+                            ) AS MAP (VARCHAR, JSON)
+                        ),
+                        (k, v) ->
+                            JSON_ARRAY_LENGTH(
+                                JSON_EXTRACT(v, '$.columns')
+                            ) IS NOT NULL
+                    )
                 )
-            )
             ELSE CAST(ARRAY[] AS ARRAY (VARCHAR))
         END AS keys_present,
 
         -- Keys (submarkets) whose class list contains this row's class
         CASE
             WHEN triad_only.housing_json IS NOT NULL
-            THEN MAP_KEYS(
-                MAP_FILTER(
-                    CAST(
-                        triad_only.housing_json AS MAP (VARCHAR, JSON)
-                    ),
-                    (k, v) ->
+                THEN MAP_KEYS(
+                    MAP_FILTER(
+                        CAST(
+                            triad_only.housing_json AS MAP (VARCHAR, JSON)
+                        ),
+                        (k, v) ->
                         CONTAINS(
                             CAST(v AS ARRAY (VARCHAR)),
                             CAST(triad_only.class AS VARCHAR)
@@ -127,15 +127,15 @@ choose_key AS (
 
         CASE
             WHEN CARDINALITY(
-                     FILTER(
-                         eff_key.keys_present,
-                         k -> CONTAINS(eff_key.keys_for_class, k)
-                     )
-                 ) > 0
+                    FILTER(
+                        eff_key.keys_present,
+                        k -> CONTAINS(eff_key.keys_for_class, k)
+                    )
+                ) > 0
             THEN FILTER(
-                     eff_key.keys_present,
-                     k -> CONTAINS(eff_key.keys_for_class, k)
-                 )[1]
+                    eff_key.keys_present,
+                    k -> CONTAINS(eff_key.keys_for_class, k)
+                )[1]
             WHEN CARDINALITY(eff_key.keys_present) > 0
             THEN eff_key.keys_present[1]
             ELSE NULL
@@ -149,15 +149,15 @@ cols_json AS (
         choose_key.*,
         CASE
             WHEN choose_key.tri_num IS NOT NULL
-             AND choose_key.effective_housing_key IS NOT NULL
-            THEN JSON_EXTRACT(
-                     choose_key.stat_groups_json,
-                     FORMAT(
-                         '$.tri%s.%s.columns',
-                         choose_key.tri_num,
-                         choose_key.effective_housing_key
-                     )
-                 )
+            AND choose_key.effective_housing_key IS NOT NULL
+                THEN JSON_EXTRACT(
+                        choose_key.stat_groups_json,
+                        FORMAT(
+                            '$.tri%s.%s.columns',
+                            choose_key.tri_num,
+                            choose_key.effective_housing_key
+                        )
+                    )
             ELSE NULL
         END AS columns_json
     FROM choose_key
@@ -187,22 +187,22 @@ SELECT
     CASE
         WHEN columns_json IS NULL
           OR JSON_ARRAY_LENGTH(columns_json) = 0
-        THEN CAST(ARRAY[] AS ARRAY (VARCHAR))
-        ELSE TRANSFORM(
-                 SEQUENCE(
-                     0,
-                     JSON_ARRAY_LENGTH(columns_json) - 1
-                 ),
-                 i -> COALESCE(
-                     JSON_EXTRACT_SCALAR(
-                         columns_json,
-                         FORMAT('$[%s].column', i)
-                     ),
-                     JSON_EXTRACT_SCALAR(
-                         columns_json,
-                         FORMAT('$[%s]', i)
-                     )
-                 )
-             )
+            THEN CAST(ARRAY[] AS ARRAY (VARCHAR))
+            ELSE TRANSFORM(
+                    SEQUENCE(
+                        0,
+                        JSON_ARRAY_LENGTH(columns_json) - 1
+                    ),
+                    i -> COALESCE(
+                        JSON_EXTRACT_SCALAR(
+                            columns_json,
+                            FORMAT('$[%s].column', i)
+                        ),
+                        JSON_EXTRACT_SCALAR(
+                            columns_json,
+                            FORMAT('$[%s]', i)
+                        )
+                    )
+                )
     END AS groups_used
 FROM cols_json;
