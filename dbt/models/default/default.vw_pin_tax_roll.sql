@@ -6,7 +6,7 @@
     'exe_vet_returning', 'exe_wwii'
 ] %}
 
--- pin-level exemptions from the exdet table
+-- pin-level exemptions from the exdet table, universe of pins is pardat
 WITH long AS (
     SELECT
         par.parid AS pin,
@@ -48,7 +48,7 @@ WITH long AS (
         AND par.taxyr BETWEEN '2021' AND '2024'
 ),
 
--- pin-level taxable EAV by stage
+-- pin-level taxable AV and final EAV by stage
 asmt AS (
     SELECT
         parid AS pin,
