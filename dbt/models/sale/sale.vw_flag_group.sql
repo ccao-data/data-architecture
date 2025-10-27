@@ -35,7 +35,8 @@ WITH base AS (
         AND p_uni.year = pin_sale.year
 ),
 
--- Normalize JSON: try parsing as-is; if NULL, retry with single quotes swapped
+-- The json data comes in a string column, so we need to transform them into
+-- a json representation sql can recognize and operate on
 normalized_json AS (
     SELECT
         base.*,
@@ -50,7 +51,7 @@ normalized_json AS (
     FROM base
 ),
 
--- Pull triad number (digits only) and carry forward JSON
+-- Extract triad number from keys such as 'tri1, tri2'
 triad_only AS (
     SELECT
         norm_json.*,
@@ -72,7 +73,8 @@ effective_key AS (
     SELECT
         triad_only.*,
 
-        -- Keys present under tri{n} that have a .columns array
+        -- Identify and extract housing submarket keys from
+        -- triads
         CASE
             WHEN triad_only.tri_num IS NOT NULL
                 THEN MAP_KEYS(
@@ -92,7 +94,7 @@ effective_key AS (
             ELSE CAST(ARRAY[] AS ARRAY (VARCHAR))
         END AS keys_present,
 
-        -- Keys (submarkets) whose class list contains this row's class
+        -- Grab submarkets that contain row's class code
         CASE
             WHEN triad_only.housing_json IS NOT NULL
                 THEN MAP_KEYS(
@@ -112,9 +114,16 @@ effective_key AS (
     FROM triad_only
 ),
 
--- Choose effective housing key:
--- 1) intersection(keys_present, keys_for_class) if any
--- 2) otherwise any keys_present (fallback)
+/*
+This CTE compares keys_present and keys_for_class. The assumption
+here is that a class should show up only one time for one housing class'
+code grouping. Here we are grabbing the intersectrion of
+- the housing submarkets defined under a tri in sale.paramater.stat_groups
+- the housing submarkets that contain the given row's class code
+
+This allows us to select the correct housing submarket class code key to
+index to get the correct grouping columns
+*/
 choose_key AS (
     SELECT
         eff_key.*,
