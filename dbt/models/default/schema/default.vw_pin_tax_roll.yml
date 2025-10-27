@@ -3,6 +3,14 @@ models:
     description: '{{ doc("view_vw_pin_tax_roll") }}'
 
     columns:
+      - name: board_eav
+        description: Board of Review certified EAV
+      - name: board_taxable_av
+        description: Board of Review taxable AV
+      - name: certified_eav
+        description: Assessor certified EAV
+      - name: certified_taxable_av
+        description: Assessor Certified Taxable AV
       - name: exe_disabled
         description: '{{ doc("shared_column_exe_disabled") }}'
       - name: exe_freeze
@@ -27,7 +35,32 @@ models:
         description: '{{ doc("shared_column_exe_vet_returning") }}'
       - name: exe_wwii
         description: '{{ doc("shared_column_exe_wwii") }}'
+      - name: mailed_eav
+        description: Mailed EAV
+      - name: mailed_taxable_av
+        description: Mailed Taxable AV
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: year
         description: '{{ doc("shared_column_year") }}'
+
+    data_tests:
+      - row_count:
+          name: default_vw_pin_tax_roll_matches_iasworld_pardat
+          equals: >
+            (
+              SELECT COUNT(DISTINCT(parid, taxyr))
+              FROM {{ source('iasworld', 'pardat') }}
+              WHERE cur = 'Y'
+                AND deactivat IS NULL
+                AND taxyr BETWEEN '2021' AND '2024'
+            )
+          meta:
+            description: vw_pin_tax_roll row count should equal iasworld pardat row count
+      - unique_combination_of_columns:
+          name: default_vw_pin_tax_roll_unique_by_pin_year
+          combination_of_columns:
+            - pin
+            - year
+          meta:
+            description: vw_pin_tax_roll should be unique by pin and year
