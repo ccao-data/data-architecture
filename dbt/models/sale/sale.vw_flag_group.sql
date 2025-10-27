@@ -37,13 +37,13 @@ WITH base AS (
 normalized_json AS (
     SELECT
         base.*,
-        coalesce(
+        COALESCE(
             try(json_parse(base.stat_groups)),
-            try(json_parse(replace(base.stat_groups, '''', '"')))
+            try(json_parse(REPLACE(base.stat_groups, '''', '"')))
         ) AS stat_groups_json,
-        coalesce(
+        COALESCE(
             try(json_parse(base.housing_market_class_codes)),
-            try(json_parse(replace(base.housing_market_class_codes, '''', '"')))
+            try(json_parse(REPLACE(base.housing_market_class_codes, '''', '"')))
         ) AS housing_json
     FROM base
 ),
@@ -53,7 +53,7 @@ triad_only AS (
     SELECT
         norm_json.*,
         NULLIF(
-            regexp_replace(lower(trim(CAST(norm_json.triad_code AS VARCHAR))), '[^0-9]+', ''),
+            regexp_REPLACE(lower(trim(CAST(norm_json.triad_code AS VARCHAR))), '[^0-9]+', ''),
             ''
         ) AS tri_num
     FROM normalized_json norm_json
@@ -152,7 +152,7 @@ SELECT
         THEN CAST(ARRAY[] AS ARRAY(VARCHAR))
         ELSE transform(
                sequence(0, json_array_length(columns_json) - 1),
-               i -> coalesce(
+               i -> COALESCE(
                       json_extract_scalar(columns_json, format('$[%s].column', i)),
                       json_extract_scalar(columns_json, format('$[%s]', i))
                     )
