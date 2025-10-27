@@ -33,7 +33,7 @@ WITH base AS (
        AND p_uni."year" = pin_sale."year"
 ),
 
--- Robust JSON parse: try as-is; if invalid (e.g., single quotes), swap ' -> "
+-- Normalize JSON: try parsing as-is; if NULL, retry after swapping single quotes to double quotes
 normalized_json AS (
     SELECT
         b.*,
@@ -48,12 +48,15 @@ normalized_json AS (
     FROM base b
 ),
 
--- Triad digits + DYNAMIC housing key (with guard to avoid indexing an empty array)
+-- Determine triad number & desired housing key dynamically from housing_json
 triad_and_key AS (
     SELECT
         n.*,
+
+        -- robust: keep only digits from triad_code (e.g., "tri3", "3", " TRI-2 ")
         NULLIF(regexp_replace(lower(trim(CAST(n.triad_code AS VARCHAR))), '[^0-9]+', ''), '') AS tri_num,
 
+        -- DYNAMIC: find the first key in housing_json whose array contains this class
         CASE
             WHEN cardinality(
                      map_keys(
@@ -74,19 +77,60 @@ triad_and_key AS (
     FROM normalized_json n
 ),
 
--- Pull columns only when we have a usable tri number and desired key
+-- Choose an effective housing key: prefer desired; otherwise dynamically pick any key under tri{n} that has a .columns array
+effective_key AS (
+    SELECT
+      x.*,
+
+      CASE
+        WHEN json_array_length(
+               json_extract(
+                 x.stat_groups_json,
+                 format('$.tri%s.%s.columns', x.tri_num, x.desired_housing_key)
+               )
+             ) IS NOT NULL
+        THEN x.desired_housing_key
+        ELSE
+          CASE
+            WHEN cardinality(
+                   map_keys(
+                     map_filter(
+                       CAST(
+                         json_extract(x.stat_groups_json, format('$.tri%s', x.tri_num))
+                         AS MAP(VARCHAR, JSON)
+                       ),
+                       (k, v) -> json_array_length(json_extract(v, '$.columns')) IS NOT NULL
+                     )
+                   )
+                 ) > 0
+            THEN map_keys(
+                   map_filter(
+                     CAST(
+                       json_extract(x.stat_groups_json, format('$.tri%s', x.tri_num))
+                       AS MAP(VARCHAR, JSON)
+                     ),
+                     (k, v) -> json_array_length(json_extract(v, '$.columns')) IS NOT NULL
+                   )
+                 )[1]
+            ELSE NULL
+          END
+      END AS effective_housing_key
+    FROM triad_and_key x
+),
+
+-- Pull columns array for tri{n}.{effective_housing_key}.columns
 cols_json AS (
     SELECT
-        t.*,
+        e.*,
         CASE
-            WHEN t.tri_num IS NOT NULL AND t.desired_housing_key IS NOT NULL
-            THEN json_extract(
-                   t.stat_groups_json,
-                   format('$.tri%s.%s.columns', t.tri_num, t.desired_housing_key)
-                 )
+            WHEN e.tri_num IS NOT NULL AND e.effective_housing_key IS NOT NULL
+                THEN json_extract(
+                         e.stat_groups_json,
+                         format('$.tri%s.%s.columns', e.tri_num, e.effective_housing_key)
+                     )
             ELSE NULL
         END AS columns_json
-    FROM triad_and_key t
+    FROM effective_key e
 )
 
 SELECT
@@ -110,7 +154,8 @@ SELECT
     triad_code,
     class,
 
-    -- Normalize strings and {"column": "..."} objects into names
+    -- Convert the columns array into an ARRAY<VARCHAR> of column names,
+    -- handling both scalar strings and objects with {"column": "..."}
     CASE
         WHEN columns_json IS NULL OR json_array_length(columns_json) = 0
         THEN CAST(ARRAY[] AS ARRAY(VARCHAR))
