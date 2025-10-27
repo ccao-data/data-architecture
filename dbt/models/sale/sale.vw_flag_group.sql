@@ -33,92 +33,60 @@ WITH base AS (
        AND p_uni."year" = pin_sale."year"
 ),
 
--- TODO: do we need this?
--- Normalize JSON: try parsing as-is; if NULL, retry after swapping single quotes to double quotes
+-- Robust JSON parse: try as-is; if invalid (e.g., single quotes), swap ' -> "
 normalized_json AS (
     SELECT
-        base.*,
+        b.*,
         coalesce(
-            try(json_parse(base.stat_groups)),
-            try(json_parse(replace(base.stat_groups, '''', '"')))
+            try(json_parse(b.stat_groups)),
+            try(json_parse(replace(b.stat_groups, '''', '"')))
         ) AS stat_groups_json,
         coalesce(
-            try(json_parse(base.housing_market_class_codes)),
-            try(json_parse(replace(base.housing_market_class_codes, '''', '"')))
+            try(json_parse(b.housing_market_class_codes)),
+            try(json_parse(replace(b.housing_market_class_codes, '''', '"')))
         ) AS housing_json
-    FROM base base
+    FROM base b
 ),
 
--- Determine triad number & desired housing key from parsed JSON
+-- Triad digits + DYNAMIC housing key (with guard to avoid indexing an empty array)
 triad_and_key AS (
     SELECT
         n.*,
-
-        -- keep only digits from triad_code (e.g., "tri3", "3", etc.)
         NULLIF(regexp_replace(lower(trim(CAST(n.triad_code AS VARCHAR))), '[^0-9]+', ''), '') AS tri_num,
 
-        -- Map class -> desired housing_key using housing_json
         CASE
-            WHEN coalesce(
-                     contains(
-                         CAST(json_extract(n.housing_json, '$.res_single_family') AS ARRAY(VARCHAR)),
-                         CAST(n.class AS VARCHAR)
-                     ), false
-                 ) THEN 'res_single_family'
-            WHEN coalesce(
-                     contains(
-                         CAST(json_extract(n.housing_json, '$.res_multi_family') AS ARRAY(VARCHAR)),
-                         CAST(n.class AS VARCHAR)
-                     ), false
-                 ) THEN 'res_multi_family'
-            WHEN coalesce(
-                     contains(
-                         CAST(json_extract(n.housing_json, '$.condos') AS ARRAY(VARCHAR)),
-                         CAST(n.class AS VARCHAR)
-                     ), false
-                 ) THEN 'condos'
-            WHEN coalesce(
-                     contains(
-                         CAST(json_extract(n.housing_json, '$.res_all') AS ARRAY(VARCHAR)),
-                         CAST(n.class AS VARCHAR)
-                     ), false
-                 ) THEN 'res_all'
+            WHEN cardinality(
+                     map_keys(
+                       map_filter(
+                         CAST(n.housing_json AS MAP(VARCHAR, JSON)),
+                         (k, v) -> contains(CAST(v AS ARRAY(VARCHAR)), CAST(n.class AS VARCHAR))
+                       )
+                     )
+                 ) > 0
+            THEN map_keys(
+                   map_filter(
+                     CAST(n.housing_json AS MAP(VARCHAR, JSON)),
+                     (k, v) -> contains(CAST(v AS ARRAY(VARCHAR)), CAST(n.class AS VARCHAR))
+                   )
+                 )[1]
             ELSE NULL
         END AS desired_housing_key
     FROM normalized_json n
 ),
 
--- Choose a housing key that actually exists under tri{n} in stat_groups_json
-effective_key AS (
-    SELECT
-      tri_and_key.*,
-
-      -- test availability for desired key, then common fallbacks
-      CASE
-        WHEN json_array_length(json_extract(tri_and_key.stat_groups_json, format('$.tri%s.%s.columns', tri_and_key.tri_num, tri_and_key.desired_housing_key))) IS NOT NULL
-          THEN tri_and_key.desired_housing_key
-        WHEN json_array_length(json_extract(tri_and_key.stat_groups_json, format('$.tri%s.%s.columns', tri_and_key.tri_num, 'res_all'))) IS NOT NULL
-          THEN 'res_all'
-        WHEN json_array_length(json_extract(tri_and_key.stat_groups_json, format('$.tri%s.%s.columns', tri_and_key.tri_num, 'condos'))) IS NOT NULL
-          THEN 'condos'
-        ELSE NULL
-      END AS effective_housing_key
-    FROM triad_and_key tri_and_key
-),
-
--- Pull columns array for tri{n}.{effective_housing_key}.columns
+-- Pull columns only when we have a usable tri number and desired key
 cols_json AS (
     SELECT
-        e_key.*,
+        t.*,
         CASE
-            WHEN e_key.tri_num IS NOT NULL AND e_key.effective_housing_key IS NOT NULL
-                THEN json_extract(
-                         e_key.stat_groups_json,
-                         format('$.tri%s.%s.columns', e_key.tri_num, e_key.effective_housing_key)
-                     )
+            WHEN t.tri_num IS NOT NULL AND t.desired_housing_key IS NOT NULL
+            THEN json_extract(
+                   t.stat_groups_json,
+                   format('$.tri%s.%s.columns', t.tri_num, t.desired_housing_key)
+                 )
             ELSE NULL
         END AS columns_json
-    FROM effective_key e_key
+    FROM triad_and_key t
 )
 
 SELECT
@@ -142,18 +110,17 @@ SELECT
     triad_code,
     class,
 
-    -- Use correct scalar/object extraction via parent-array indexing
+    -- Normalize strings and {"column": "..."} objects into names
     CASE
-        WHEN columns_json IS NULL THEN CAST(ARRAY[] AS ARRAY(VARCHAR))
+        WHEN columns_json IS NULL OR json_array_length(columns_json) = 0
+        THEN CAST(ARRAY[] AS ARRAY(VARCHAR))
         ELSE transform(
-               sequence(0, coalesce(json_array_length(columns_json), 0) - 1),
+               sequence(0, json_array_length(columns_json) - 1),
                i -> coalesce(
-                      -- object with a "column" key
                       json_extract_scalar(columns_json, format('$[%s].column', i)),
-                      -- scalar string at that index
                       json_extract_scalar(columns_json, format('$[%s]', i))
                     )
              )
     END AS groups_used
 
-FROM cols_json
+FROM cols_json;
