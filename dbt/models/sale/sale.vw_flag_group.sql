@@ -87,7 +87,7 @@ effective_key AS (
                 )
             ELSE CAST(ARRAY[] AS ARRAY(VARCHAR))
         END AS keys_for_class
-    FROM triad_only AS eff_key
+    FROM triad_only
 ),
 
 -- Choose effective housing key:
@@ -159,4 +159,4 @@ SELECT
              )
     END AS groups_used
 
-FROM cols_json;
+FROM cols_json
