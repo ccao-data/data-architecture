@@ -2,7 +2,9 @@ WITH base AS (
     SELECT
         flag.meta_sale_document_num,
         flag.run_id,
-        (group_mean.group_size >= param.min_group_thresh) AS meets_group_threshold,
+        (
+            group_mean.group_size >= param.min_group_thresh
+        ) AS meets_group_threshold,
         flag."group",
         group_mean.group_size,
         -- flag.sv_price_deviation,
@@ -33,7 +35,7 @@ WITH base AS (
        AND p_uni.year = pin_sale.year
 ),
 
--- Normalize JSON: try parsing as-is; if NULL, retry after swapping single quotes to double quotes
+-- Normalize JSON: try parsing as-is; if NULL, retry with single quotes swapped
 normalized_json AS (
     SELECT
         base.*,
@@ -54,7 +56,9 @@ triad_only AS (
         norm_json.*,
         NULLIF(
             REGEXP_REPLACE(
-                LOWER(TRIM(CAST(norm_json.triad_code AS VARCHAR))),
+                LOWER(
+                    TRIM(CAST(norm_json.triad_code AS VARCHAR))
+                ),
                 '[^0-9]+',
                 ''
             ),
@@ -70,7 +74,8 @@ effective_key AS (
 
         -- Keys present under tri{n} that have a .columns array
         CASE
-            WHEN triad_only.tri_num IS NOT NULL THEN MAP_KEYS(
+            WHEN triad_only.tri_num IS NOT NULL
+            THEN MAP_KEYS(
                 MAP_FILTER(
                     CAST(
                         JSON_EXTRACT(
@@ -78,7 +83,10 @@ effective_key AS (
                             FORMAT('$.tri%s', triad_only.tri_num)
                         ) AS MAP (VARCHAR, JSON)
                     ),
-                    (k, v) -> JSON_ARRAY_LENGTH(JSON_EXTRACT(v, '$.columns')) IS NOT NULL
+                    (k, v) ->
+                        JSON_ARRAY_LENGTH(
+                            JSON_EXTRACT(v, '$.columns')
+                        ) IS NOT NULL
                 )
             )
             ELSE CAST(ARRAY[] AS ARRAY (VARCHAR))
@@ -86,10 +94,17 @@ effective_key AS (
 
         -- Keys (submarkets) whose class list contains this row's class
         CASE
-            WHEN triad_only.housing_json IS NOT NULL THEN MAP_KEYS(
+            WHEN triad_only.housing_json IS NOT NULL
+            THEN MAP_KEYS(
                 MAP_FILTER(
-                    CAST(triad_only.housing_json AS MAP (VARCHAR, JSON)),
-                    (k, v) -> CONTAINS(CAST(v AS ARRAY (VARCHAR)), CAST(triad_only.class AS VARCHAR))
+                    CAST(
+                        triad_only.housing_json AS MAP (VARCHAR, JSON)
+                    ),
+                    (k, v) ->
+                        CONTAINS(
+                            CAST(v AS ARRAY (VARCHAR)),
+                            CAST(triad_only.class AS VARCHAR)
+                        )
                 )
             )
             ELSE CAST(ARRAY[] AS ARRAY (VARCHAR))
@@ -104,7 +119,7 @@ choose_key AS (
     SELECT
         eff_key.*,
 
-        -- Intersection via FILTER to avoid relying on engine-specific ARRAY_INTERSECT
+        -- Intersection via FILTER to avoid ARRAY_INTERSECT dependency
         FILTER(
             eff_key.keys_present,
             k -> CONTAINS(eff_key.keys_for_class, k)
@@ -112,11 +127,18 @@ choose_key AS (
 
         CASE
             WHEN CARDINALITY(
-                FILTER(eff_key.keys_present, k -> CONTAINS(eff_key.keys_for_class, k))
-            ) > 0 THEN
-                FILTER(eff_key.keys_present, k -> CONTAINS(eff_key.keys_for_class, k))[1]
-            WHEN CARDINALITY(eff_key.keys_present) > 0 THEN
-                eff_key.keys_present[1]
+                     FILTER(
+                         eff_key.keys_present,
+                         k -> CONTAINS(eff_key.keys_for_class, k)
+                     )
+                 ) > 0
+            THEN FILTER(
+                     eff_key.keys_present,
+                     k -> CONTAINS(eff_key.keys_for_class, k)
+                 )[1]
+            WHEN CARDINALITY(eff_key.keys_present) > 0
+            THEN eff_key.keys_present[1]
+            ELSE NULL
         END AS effective_housing_key
     FROM effective_key AS eff_key
 ),
@@ -127,11 +149,16 @@ cols_json AS (
         choose_key.*,
         CASE
             WHEN choose_key.tri_num IS NOT NULL
-             AND choose_key.effective_housing_key IS NOT NULL THEN
-                JSON_EXTRACT(
-                    choose_key.stat_groups_json,
-                    FORMAT('$.tri%s.%s.columns', choose_key.tri_num, choose_key.effective_housing_key)
-                )
+             AND choose_key.effective_housing_key IS NOT NULL
+            THEN JSON_EXTRACT(
+                     choose_key.stat_groups_json,
+                     FORMAT(
+                         '$.tri%s.%s.columns',
+                         choose_key.tri_num,
+                         choose_key.effective_housing_key
+                     )
+                 )
+            ELSE NULL
         END AS columns_json
     FROM choose_key
 )
@@ -155,20 +182,27 @@ SELECT
     year,
     triad_code,
     class,
-
-    -- Convert the columns array into an ARRAY<VARCHAR> of column names,
-    -- handling both scalar strings and objects with {"column": "..."}
+    -- Convert the columns array into ARRAY<VARCHAR> of column names,
+    -- handling scalar strings and {"column": "..."} objects
     CASE
         WHEN columns_json IS NULL
-          OR JSON_ARRAY_LENGTH(columns_json) = 0 THEN
-            CAST(ARRAY[] AS ARRAY (VARCHAR))
-        ELSE
-            TRANSFORM(
-                SEQUENCE(0, JSON_ARRAY_LENGTH(columns_json) - 1),
-                i -> COALESCE(
-                    JSON_EXTRACT_SCALAR(columns_json, FORMAT('$[%s].column', i)),
-                    JSON_EXTRACT_SCALAR(columns_json, FORMAT('$[%s]', i))
-                )
-            )
+          OR JSON_ARRAY_LENGTH(columns_json) = 0
+        THEN CAST(ARRAY[] AS ARRAY (VARCHAR))
+        ELSE TRANSFORM(
+                 SEQUENCE(
+                     0,
+                     JSON_ARRAY_LENGTH(columns_json) - 1
+                 ),
+                 i -> COALESCE(
+                     JSON_EXTRACT_SCALAR(
+                         columns_json,
+                         FORMAT('$[%s].column', i)
+                     ),
+                     JSON_EXTRACT_SCALAR(
+                         columns_json,
+                         FORMAT('$[%s]', i)
+                     )
+                 )
+             )
     END AS groups_used
 FROM cols_json;
