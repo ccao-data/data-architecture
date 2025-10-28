@@ -87,7 +87,7 @@ effective_key AS (
                     )
                 )
             ELSE CAST(ARRAY[] AS ARRAY (VARCHAR))
-        END AS keys_present
+        END AS keys_present,
 
         -- Grab submarkets that contain row's class code
         -- from the housing_market_class_codes object
