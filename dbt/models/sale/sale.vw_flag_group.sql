@@ -174,7 +174,7 @@ SELECT
     meta_sale_document_num,
     run_id,
     meets_group_threshold,
-    group,
+    "group",
     group_size,
     -- sv_price_deviation,
     -- sv_price_per_sqft_deviation,
