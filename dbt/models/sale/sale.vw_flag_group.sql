@@ -86,9 +86,9 @@ effective_key AS (
                             ) AS MAP (VARCHAR, JSON)
                         ),
                         (k, v) ->
-                            JSON_ARRAY_LENGTH(
-                                JSON_EXTRACT(v, '$.columns')
-                            ) IS NOT NULL
+                        JSON_ARRAY_LENGTH(
+                            JSON_EXTRACT(v, '$.columns')
+                        ) IS NOT NULL
                     )
                 )
             ELSE CAST(ARRAY[] AS ARRAY (VARCHAR))
@@ -119,7 +119,8 @@ This CTE compares keys_present and keys_for_class. The assumption
 here is that a class should show up only one time for one housing class'
 code grouping. Here we are grabbing the intersectrion of
 - the housing submarkets defined under a tri in sale.paramater.stat_groups
-- the housing submarkets that contain the given row's class code
+- the housing submarkets that contain the given row's class code in
+  param.housing_market_class_codes
 
 This allows us to select the correct housing submarket class code key to
 index to get the correct grouping columns
@@ -128,7 +129,6 @@ choose_key AS (
     SELECT
         eff_key.*,
 
-        -- Intersection via FILTER to avoid ARRAY_INTERSECT dependency
         FILTER(
             eff_key.keys_present,
             k -> CONTAINS(eff_key.keys_for_class, k)
