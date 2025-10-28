@@ -188,7 +188,6 @@ SELECT
     sv_outlier_reason1,
     sv_outlier_reason2,
     sv_outlier_reason3,
-    class,
     -- Convert the columns array into ARRAY<VARCHAR> of column names,
     -- handling scalar strings and {"column": "..."} objects
     CASE
