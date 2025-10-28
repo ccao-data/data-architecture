@@ -79,21 +79,15 @@ effective_key AS (
         CASE
             WHEN triad_only.tri_num IS NOT NULL
                 THEN MAP_KEYS(
-                    MAP_FILTER(
-                        CAST(
-                            JSON_EXTRACT(
-                                triad_only.stat_groups_json,
-                                FORMAT('$.tri%s', triad_only.tri_num)
-                            ) AS MAP (VARCHAR, JSON)
-                        ),
-                        (k, v)
-                        -> JSON_ARRAY_LENGTH(
-                            JSON_EXTRACT(v, '$.columns')
-                        ) IS NOT NULL
+                    CAST(
+                        JSON_EXTRACT(
+                            triad_only.stat_groups_json,
+                            FORMAT('$.tri%s', triad_only.tri_num)
+                        ) AS MAP (VARCHAR, JSON)
                     )
                 )
             ELSE CAST(ARRAY[] AS ARRAY (VARCHAR))
-        END AS keys_present,
+        END AS keys_present
 
         -- Grab submarkets that contain row's class code
         -- from the housing_market_class_codes object
