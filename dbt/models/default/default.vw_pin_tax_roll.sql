@@ -1,65 +1,7 @@
 -- View to collect pin-level exemptions and taxable EAV
-{% set exes = [
-    'exe_disabled', 'exe_freeze', 'exe_homeowner',
-    'exe_longtime_homeowner', 'exe_senior', 'exe_muni_built', 'exe_vet_dis_lt50',
-    'exe_vet_dis_50_69', 'exe_vet_dis_ge70', 'exe_vet_dis_100',
-    'exe_vet_returning', 'exe_wwii'
-] %}
-
--- pin-level exemptions from the exdet table
-WITH exemptions AS (
-    SELECT
-        det.parid,
-        det.taxyr,
-        CASE WHEN det.excode IN ('DP', 'C-DP', 'DPHE') THEN 'exe_disabled'
-            WHEN det.excode IN ('SF', 'C-SF') THEN 'exe_freeze'
-            WHEN det.excode IN ('HO', 'C-HO') THEN 'exe_homeowner'
-            WHEN
-                det.excode IN ('LT', 'C-LT', 'LT1', 'LT2')
-                THEN 'exe_longtime_homeowner'
-            WHEN det.excode IN ('SR', 'C-SR', 'SC', 'SCHE')
-                THEN 'exe_senior'
-            WHEN det.excode = 'MUNI' THEN 'exe_muni_built'
-            WHEN
-                det.excode IN ('DV1', 'C-DV1', 'DV0', 'C-DV0', 'DV-1')
-                THEN 'exe_vet_dis_lt50'
-            WHEN det.excode IN ('DV2', 'C-DV2', 'DV-2') THEN 'exe_vet_dis_50_69'
-            WHEN det.excode IN ('DV3', 'DV3-M', 'DV-3') THEN 'exe_vet_dis_ge70'
-            WHEN det.excode IN ('DV4', 'DV4-M', 'DV-4') THEN 'exe_vet_dis_100'
-            WHEN
-                det.excode IN ('RTV', 'C-RTV', 'RDV1', 'RV1', 'RDV2')
-                THEN 'exe_vet_returning'
-            WHEN det.excode = 'WW2' THEN 'exe_wwii'
-        END AS ptax_exe,
-        CAST(det.apother AS INT) AS exemption_amount
-    FROM {{ source('iasworld', 'exdet') }} AS det
-    INNER JOIN {{ source('iasworld', 'excode') }} AS code
-        ON det.excode = code.excode
-        AND det.taxyr = code.taxyr
-        AND code.cur = 'Y'
-        AND code.deactivat IS NULL
-    WHERE det.deactivat IS NULL
-        AND det.cur = 'Y'
-),
-
--- Join exemptions to pardat to get all pins in the roll
-long AS (
-    SELECT
-        par.parid AS pin,
-        par.taxyr AS year,
-        det.ptax_exe,
-        det.exemption_amount
-    FROM {{ source('iasworld', 'pardat') }} AS par
-    LEFT JOIN exemptions AS det
-        ON par.parid = det.parid
-        AND par.taxyr = det.taxyr
-    WHERE par.deactivat IS NULL
-        AND par.cur = 'Y'
-        AND par.taxyr BETWEEN '2021' AND '2024'
-),
 
 -- pin-level taxable AV and final EAV by stage
-asmt AS (
+WITH asmt AS (
     SELECT
         parid AS pin,
         taxyr AS year,
@@ -109,31 +51,31 @@ asmt AS (
         AND class NOT IN ('999')
     GROUP BY parid, taxyr
 
-),
-
--- Widen the exemptions
-wide AS (
-    SELECT
-        pin,
-        year,
-    {%- for exe_ in exes %}
-        CAST(SUM(CASE
-            WHEN ptax_exe = '{{ exe_ }}' THEN exemption_amount ELSE 0
-            END) AS INT)
-            AS {{ exe_ }}{%- if not loop.last -%},{%- endif -%}
-    {% endfor %}
-    FROM long
-    GROUP BY pin, year
 )
 
 -- Join exemptions and EAVs
 SELECT
-    wide.*,
+    asmt.pin,
+    asmt.year,
+    wide.exe_disabled,
+    wide.exe_freeze,
+    wide.exe_homeowner,
+    wide.exe_longtime_homeowner,
+    wide.exe_senior,
+    wide.exe_muni_built,
+    wide.exe_vet_dis_lt50,
+    wide.exe_vet_dis_50_69,
+    wide.exe_vet_dis_ge70,
+    wide.exe_vet_dis_100,
+    wide.exe_vet_returning,
+    wide.exe_wwii,
     asmt.mailed_taxable_av,
     asmt.mailed_eav,
     asmt.certified_taxable_av,
     asmt.certified_eav,
     asmt.board_taxable_av,
     asmt.board_eav
-FROM wide
-LEFT JOIN asmt ON wide.pin = asmt.pin AND wide.year = asmt.year
+FROM asmt
+LEFT JOIN {{ ref('default.vw_pin_exe') }} AS wide
+    ON asmt.pin = wide.pin
+    AND asmt.year = wide.year

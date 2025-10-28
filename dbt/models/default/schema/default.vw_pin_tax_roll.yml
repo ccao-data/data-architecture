@@ -46,17 +46,20 @@ models:
 
     data_tests:
       - row_count:
-          name: default_vw_pin_tax_roll_matches_iasworld_pardat
+          name: default_vw_pin_tax_roll_matches_iasworld_asmt_all
           equals: >
             (
               SELECT COUNT(DISTINCT(parid, taxyr))
-              FROM {{ source('iasworld', 'pardat') }}
-              WHERE cur = 'Y'
+              FROM {{ source('iasworld', 'asmt_all') }}
+              WHERE rolltype != 'RR'
                 AND deactivat IS NULL
-                AND taxyr BETWEEN '2021' AND '2024'
+                AND procname IN ('CCAOVALUE', 'CCAOFINAL', 'BORVALUE')
+                AND valclass IS NULL
+                -- Class 999 are test pins
+                AND class NOT IN ('999')
             )
           meta:
-            description: vw_pin_tax_roll row count should equal iasworld pardat row count
+            description: vw_pin_tax_roll row count should equal iasworld asmt_all row count
       - unique_combination_of_columns:
           name: default_vw_pin_tax_roll_unique_by_pin_year
           combination_of_columns:
