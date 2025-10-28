@@ -57,6 +57,14 @@ including the statistical bounds, groupings, window sizes, etc.
 **Primary Key**: `run_id`
 {% enddocs %}
 
+# vw_flag_group
+
+{% docs vw_flag_group %}
+
+**Primary Key**: `run_id`, `meta_sale_document_num`
+{% enddocs %}
+
+
 # vw_ias_salesval_upload
 
 {% docs vw_ias_salesval_upload %}
