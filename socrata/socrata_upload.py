@@ -268,7 +268,7 @@ def check_deleted(input_data, asset_id, app_token):
     # they are handled properly rather than being included in the IN clause
     # below
     select = []
-    if years == ["nan"] or "nan" in years:
+    if "nan" in years:
         years.remove("nan")
         select.append("year is NULL")
     if any(year != "nan" for year in years):
