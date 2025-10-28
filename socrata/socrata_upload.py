@@ -206,7 +206,6 @@ def build_query_dict(athena_asset, asset_id, years=None):
         .strip("]")
         .split(",")
     )
-    # row id won't show up here since it's hidden on the open data portal assets
     asset_columns.sort()
 
     # If there are columns on Socrata that are not in Athena, abort upload and
