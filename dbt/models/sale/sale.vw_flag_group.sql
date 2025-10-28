@@ -85,8 +85,8 @@ effective_key AS (
                                 FORMAT('$.tri%s', triad_only.tri_num)
                             ) AS MAP (VARCHAR, JSON)
                         ),
-                        (k, v) ->
-                        JSON_ARRAY_LENGTH(
+                        (k, v)
+                        -> JSON_ARRAY_LENGTH(
                             JSON_EXTRACT(v, '$.columns')
                         ) IS NOT NULL
                     )
@@ -102,8 +102,8 @@ effective_key AS (
                         CAST(
                             triad_only.housing_json AS MAP (VARCHAR, JSON)
                         ),
-                        (k, v) ->
-                        CONTAINS(
+                        (k, v)
+                        -> CONTAINS(
                             CAST(v AS ARRAY (VARCHAR)),
                             CAST(triad_only.class AS VARCHAR)
                         )
@@ -174,7 +174,7 @@ SELECT
     meta_sale_document_num,
     run_id,
     meets_group_threshold,
-    "group",
+    group,
     group_size,
     -- sv_price_deviation,
     -- sv_price_per_sqft_deviation,
