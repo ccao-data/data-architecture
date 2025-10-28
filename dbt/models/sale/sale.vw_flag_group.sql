@@ -108,7 +108,7 @@ effective_key AS (
                             CAST(triad_only.class AS VARCHAR)
                         )
                     )
-               )
+                )
             ELSE CAST(ARRAY[] AS ARRAY (VARCHAR))
         END AS keys_for_class
     FROM triad_only
@@ -158,15 +158,14 @@ cols_json AS (
         CASE
             WHEN choose_key.tri_num IS NOT NULL
                 AND choose_key.effective_housing_key IS NOT NULL
-                    THEN JSON_EXTRACT(
-                        choose_key.stat_groups_json,
-                        FORMAT(
-                            '$.tri%s.%s.columns',
-                            choose_key.tri_num,
-                            choose_key.effective_housing_key
-                        )
+                THEN JSON_EXTRACT(
+                    choose_key.stat_groups_json,
+                    FORMAT(
+                        '$.tri%s.%s.columns',
+                        choose_key.tri_num,
+                        choose_key.effective_housing_key
                     )
-            ELSE NULL
+                )
         END AS columns_json
     FROM choose_key
 )
@@ -194,23 +193,23 @@ SELECT
     -- handling scalar strings and {"column": "..."} objects
     CASE
         WHEN columns_json IS NULL
-          OR JSON_ARRAY_LENGTH(columns_json) = 0
+            OR JSON_ARRAY_LENGTH(columns_json) = 0
             THEN CAST(ARRAY[] AS ARRAY (VARCHAR))
-            ELSE TRANSFORM(
-                    SEQUENCE(
-                        0,
-                        JSON_ARRAY_LENGTH(columns_json) - 1
+        ELSE TRANSFORM(
+                SEQUENCE(
+                    0,
+                    JSON_ARRAY_LENGTH(columns_json) - 1
+                ),
+                i -> COALESCE(
+                    JSON_EXTRACT_SCALAR(
+                        columns_json,
+                        FORMAT('$[%s].column', i)
                     ),
-                    i -> COALESCE(
-                        JSON_EXTRACT_SCALAR(
-                            columns_json,
-                            FORMAT('$[%s].column', i)
-                        ),
-                        JSON_EXTRACT_SCALAR(
-                            columns_json,
-                            FORMAT('$[%s]', i)
-                        )
+                    JSON_EXTRACT_SCALAR(
+                        columns_json,
+                        FORMAT('$[%s]', i)
                     )
                 )
+            )
     END AS groups_used
 FROM cols_json;
