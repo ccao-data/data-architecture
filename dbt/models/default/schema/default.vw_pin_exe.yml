@@ -37,10 +37,15 @@ models:
           name: default_vw_pin_exe_matches_iasworld_exdet
           equals: >
             (
-              SELECT COUNT(DISTINCT(parid, taxyr))
-              FROM {{ source('iasworld', 'exdet') }}
-              WHERE cur = 'Y'
-                AND deactivat IS NULL
+              SELECT COUNT(DISTINCT(det.parid, det.taxyr))
+              FROM {{ source('iasworld', 'exdet') }} AS det
+              INNER JOIN {{ source('iasworld', 'excode') }} AS code
+                ON det.excode = code.excode
+                AND det.taxyr = code.taxyr
+                AND code.cur = 'Y'
+                AND code.deactivat IS NULL
+              WHERE det.cur = 'Y'
+                AND det.deactivat IS NULL
             )
           meta:
             description: vw_pin_exe row count should equal iasworld exdet row count
