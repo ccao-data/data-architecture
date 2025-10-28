@@ -267,19 +267,19 @@ def check_deleted(input_data, asset_id, app_token):
     # Unfortunately we can have null values for year, so we need to make sure
     # they are handled properly rather than being included in the IN clause
     # below
-    select = []
+    where = []
     if "nan" in years:
         years.remove("nan")
-        select.append("year is NULL")
+        where.append("year is NULL")
     if any(year != "nan" for year in years):
         years = ", ".join(years)
-        select.append(f"year IN ({years})")
-    select = " or ".join(select)
+        where.append(f"year IN ({years})")
+    where = " or ".join(where)
 
     # Construct the API call to retrieve row_ids for the specified asset and years
     url = (
         f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
-        + quote(f"SELECT row_id WHERE {select} LIMIT 20000000")
+        + quote(f"SELECT row_id WHERE {where} LIMIT 20000000")
     )
 
     # Retrieve row_ids from Socrata for the specified asset and years
