@@ -24,6 +24,8 @@ FROM {{ source('sale', 'flag') }} AS flag
 LEFT JOIN {{ source('sale', 'group_mean') }} AS group_mean
     ON flag.run_id = group_mean.run_id
     AND flag."group" = group_mean."group"
+LEFT JOIN {{ source('sale', 'parameter') }} AS param
+    ON flag.run_id = param.run_id
 LEFT JOIN {{ ref('default.vw_pin_sale') }} AS pin_sale
     ON pin_sale.doc_no = flag.meta_sale_document_num
 LEFT JOIN {{ ref('default.vw_pin_universe') }} AS p_uni
