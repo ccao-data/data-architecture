@@ -266,7 +266,7 @@ def check_deleted(input_data, asset_id, app_token):
     # retrieve row_ids for the corresponding years from Socrata.
     years = [str(year) for year in input_data["year"].unique().tolist()]
     # Unfortunately we can have null values for year, so we need to make sure
-    # they are handled properly rathen than being included in the IN clause
+    # they are handled properly rather than being included in the IN clause
     # below
     select = []
     if years == ["nan"] or "nan" in years:
@@ -313,6 +313,7 @@ def check_missing_years(athena_asset, asset_id):
     # Load environmental variables
     app_token = os.getenv("SOCRATA_APP_TOKEN")
 
+    # Grab a list of *all* years currently present in Athena asset
     years = (
         cursor.execute(
             "SELECT DISTINCT year FROM " + athena_asset + " ORDER BY year"
