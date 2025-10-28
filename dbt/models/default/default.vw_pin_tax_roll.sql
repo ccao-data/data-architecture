@@ -6,22 +6,11 @@
     'exe_vet_returning', 'exe_wwii'
 ] %}
 
--- pin-level exemptions from the exdet table, universe of pins is pardat
+-- pin-level exemptions from the exdet table
 WITH exemptions AS (
-    SELECT det.* FROM {{ source('iasworld', 'exdet') }} AS det
-    INNER JOIN {{ source('iasworld', 'excode') }} AS code
-        ON det.excode = code.excode
-        AND det.taxyr = code.taxyr
-        AND code.cur = 'Y'
-        AND code.deactivat IS NULL
-    WHERE det.deactivat IS NULL
-        AND det.cur = 'Y'
-),
-
-long AS (
     SELECT
-        par.parid AS pin,
-        par.taxyr AS year,
+        det.parid,
+        det.taxyr,
         CASE WHEN det.excode IN ('DP', 'C-DP', 'DPHE') THEN 'exe_disabled'
             WHEN det.excode IN ('SF', 'C-SF') THEN 'exe_freeze'
             WHEN det.excode IN ('HO', 'C-HO') THEN 'exe_homeowner'
@@ -43,6 +32,23 @@ long AS (
             WHEN det.excode = 'WW2' THEN 'exe_wwii'
         END AS ptax_exe,
         CAST(det.apother AS INT) AS exemption_amount
+    FROM {{ source('iasworld', 'exdet') }} AS det
+    INNER JOIN {{ source('iasworld', 'excode') }} AS code
+        ON det.excode = code.excode
+        AND det.taxyr = code.taxyr
+        AND code.cur = 'Y'
+        AND code.deactivat IS NULL
+    WHERE det.deactivat IS NULL
+        AND det.cur = 'Y'
+),
+
+-- Join exemptions to pardat to get all pins in the roll
+long AS (
+    SELECT
+        par.parid AS pin,
+        par.taxyr AS year,
+        det.ptax_exe,
+        det.exemption_amount
     FROM {{ source('iasworld', 'pardat') }} AS par
     LEFT JOIN exemptions AS det
         ON par.parid = det.parid
