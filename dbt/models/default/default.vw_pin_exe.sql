@@ -33,7 +33,7 @@ WITH long AS (
         END AS ptax_exe,
         CAST(det.apother AS INT) AS exemption_amount
     FROM {{ source('iasworld', 'exdet') }} AS det
-    LEFT JOIN {{ source('iasworld', 'excode') }} AS code
+    INNER JOIN {{ source('iasworld', 'excode') }} AS code
         ON det.excode = code.excode
         AND det.taxyr = code.taxyr
         AND code.cur = 'Y'

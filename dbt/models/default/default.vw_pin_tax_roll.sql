@@ -38,11 +38,6 @@ WITH long AS (
         AND par.taxyr = det.taxyr
         AND det.cur = 'Y'
         AND det.deactivat IS NULL
-    LEFT JOIN {{ source('iasworld', 'excode') }} AS code
-        ON det.excode = code.excode
-        AND det.taxyr = code.taxyr
-        AND code.cur = 'Y'
-        AND code.deactivat IS NULL
     WHERE par.deactivat IS NULL
         AND par.cur = 'Y'
         AND par.taxyr BETWEEN '2021' AND '2024'
