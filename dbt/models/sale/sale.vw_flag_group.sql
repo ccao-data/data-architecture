@@ -172,6 +172,7 @@ cols_json AS (
 
 SELECT
     meta_sale_document_num,
+    pin,
     run_id,
     meets_group_threshold,
     "group",
@@ -185,9 +186,6 @@ SELECT
     sv_outlier_reason1,
     sv_outlier_reason2,
     sv_outlier_reason3,
-    pin,
-    year,
-    triad_code,
     class,
     -- Convert the columns array into ARRAY<VARCHAR> of column names,
     -- handling scalar strings and {"column": "..."} objects
