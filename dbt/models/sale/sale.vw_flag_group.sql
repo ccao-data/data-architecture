@@ -107,8 +107,8 @@ effective_key AS (
                             CAST(v AS ARRAY (VARCHAR)),
                             CAST(triad_only.class AS VARCHAR)
                         )
-                )
-            )
+                    )
+               )
             ELSE CAST(ARRAY[] AS ARRAY (VARCHAR))
         END AS keys_for_class
     FROM triad_only
@@ -141,13 +141,12 @@ choose_key AS (
                         k -> CONTAINS(eff_key.keys_for_class, k)
                     )
                 ) > 0
-            THEN FILTER(
+                THEN FILTER(
                     eff_key.keys_present,
                     k -> CONTAINS(eff_key.keys_for_class, k)
                 )[1]
             WHEN CARDINALITY(eff_key.keys_present) > 0
-            THEN eff_key.keys_present[1]
-            ELSE NULL
+                THEN eff_key.keys_present[1]
         END AS effective_housing_key
     FROM effective_key AS eff_key
 ),
@@ -158,8 +157,8 @@ cols_json AS (
         choose_key.*,
         CASE
             WHEN choose_key.tri_num IS NOT NULL
-            AND choose_key.effective_housing_key IS NOT NULL
-                THEN JSON_EXTRACT(
+                AND choose_key.effective_housing_key IS NOT NULL
+                    THEN JSON_EXTRACT(
                         choose_key.stat_groups_json,
                         FORMAT(
                             '$.tri%s.%s.columns',
