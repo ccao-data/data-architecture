@@ -244,23 +244,23 @@ models:
     description: '{{ doc("vw_flag_group") }}'
 
     columns:
-    - name: group
-    - name: group_size
-    - name: groups_used
-    - name: meets_group_threshold
-    - name: meta_sale_document_num
-    - name: meta_sale_price_original
-    - name: pin
-    - name: ptax_flag_original
-    - name: run_id
-      description: '{{ doc("shared_column_sv_run_id") }}'
-    - name: sale_date
-    - name: sv_is_outlier
-      description: '{{ doc("shared_column_sv_is_outlier") }}'
-    - name: sv_is_ptax_outlier
-    - name: sv_outlier_reason1
-      description: '{{ doc("shared_column_sv_outlier_reason") }}'
-    - name: sv_outlier_reason2
-      description: '{{ doc("shared_column_sv_outlier_reason") }}'
-    - name: sv_outlier_reason3
-      description: '{{ doc("shared_column_sv_outlier_reason") }}'
+      - name: group
+      - name: group_size
+      - name: groups_used
+      - name: meets_group_threshold
+      - name: meta_sale_document_num
+      - name: meta_sale_price_original
+      - name: pin
+      - name: ptax_flag_original
+      - name: run_id
+        description: '{{ doc("shared_column_sv_run_id") }}'
+      - name: sale_date
+      - name: sv_is_outlier
+        description: '{{ doc("shared_column_sv_is_outlier") }}'
+      - name: sv_is_ptax_outlier
+      - name: sv_outlier_reason1
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
+      - name: sv_outlier_reason2
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
+      - name: sv_outlier_reason3
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
