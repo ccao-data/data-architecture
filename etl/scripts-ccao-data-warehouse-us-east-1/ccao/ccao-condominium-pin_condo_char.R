@@ -69,9 +69,9 @@ athena_chars <- function(x) {
 # A place to store characteristics data so we can stack it
 chars <- list()
 
-# Determine if original condo data needs to be processed or not. This data was
-# collected in 2021-2023. We have also been updating and correcting this data
-# post-2023 - this process is handled below (updates).
+# Determine if original 2021-2023 condo data needs to be processed. We have also
+# been updating and correcting this data post-2023 - this process is handled
+# below (updates).
 
 # We use tax year, valuations uses year the work was done
 for (i in c("2021", "2022", "2023")) {
@@ -213,7 +213,7 @@ for (i in c("2021", "2022", "2023")) {
 # At the end of 2024 and 2025 (tax years 2025 and 2026) valuations revisited
 # some old condos and updated their characteristics
 updates <- map(
-  hug <- file.path(
+  file.path(
     "s3://ccao-data-raw-us-east-1",
     aws.s3::get_bucket_df(
       AWS_S3_RAW_BUCKET,
