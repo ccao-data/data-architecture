@@ -20,6 +20,7 @@ WITH base AS (
         param.housing_market_class_codes,
         pin_sale.pin,
         pin_sale.year,
+        pin_sale.sale_date,
         p_uni.triad_code,
         p_uni.class
     FROM {{ source('sale', 'flag') }} AS flag
@@ -174,6 +175,7 @@ SELECT
     meta_sale_document_num,
     pin,
     run_id,
+    sale_date,
     meets_group_threshold,
     "group",
     group_size,
