@@ -75,7 +75,7 @@ effective_key AS (
         triad_only.*,
 
         -- Identify and extract housing submarket keys from
-        -- triads
+        -- triads. Examples: res_all or res_single_family
         CASE
             WHEN triad_only.tri_num IS NOT NULL
                 THEN MAP_KEYS(
@@ -96,6 +96,7 @@ effective_key AS (
         END AS keys_present,
 
         -- Grab submarkets that contain row's class code
+        -- from the housing_market_class_codes object
         CASE
             WHEN triad_only.housing_json IS NOT NULL
                 THEN MAP_KEYS(
@@ -116,15 +117,21 @@ effective_key AS (
 ),
 
 /*
-This CTE compares keys_present and keys_for_class. The assumption
-here is that a class should show up only one time for one housing class'
-code grouping. Here we are grabbing the intersectrion of
-- the housing submarkets defined under a tri in sale.paramater.stat_groups
-- the housing submarkets that contain the given row's class code in
-  param.housing_market_class_codes
+This CTE determines which housing submarket key should be
+used for each record. It addresses the question:
+"how do we know which submarket to index under the tri key?"
 
-This allows us to select the correct housing submarket class code key to
-index to get the correct grouping columns
+It compares:
+- `keys_present`: the submarket keys that exist under
+   the current triad (from `param.stat_groups`)
+- `keys_for_class`: the submarket keys that include the
+   record’s class code (from `param.housing_market_class_codes`)
+
+When there is overlap, we select that housing submarket key.
+
+The assumption that makes this work is that for a given sales
+val run, the housing market class codes (res_all, res_single_family, etc.)
+are mutually exclusive within a single sales val run.
 */
 choose_key AS (
     SELECT
