@@ -271,8 +271,18 @@ models:
 
       - name: group_size
         description: |
-          The size of the s
+          The total number of the sales as defined by the `group` column.
+          The price standard deviation for the statistical flagging algorithm
+          is calcualted within each of these groups.
       - name: meets_group_threshold
+        description: |
+          If a group's `group_size` is under a certain threshold, we decide to
+          automatically set the `sv_is_outlier` status to `False`. This is a binary
+          column that tells us if that threshold is met or not.
+          
+          A caveat is that even if the threshold is not met, sales with certain
+          line items marked on the ptax-203 form can still be classified as an
+          outlier.
       - name: meta_sale_document_num
         description: '{{ doc("shared_column_document_number") }}'
       - name: meta_sale_price_original
