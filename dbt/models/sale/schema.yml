@@ -246,7 +246,6 @@ models:
     columns:
       - name: group
       - name: group_size
-      - name: groups_used
       - name: meets_group_threshold
       - name: meta_sale_document_num
       - name: meta_sale_price_original
