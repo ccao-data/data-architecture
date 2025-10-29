@@ -38,6 +38,118 @@ sources:
             description: Equation to calculate 2nd set of values
           - name: excode
             description: '{{ doc("column_excode") }}'
+            data_tests:
+              - accepted_values:
+                  name: iasworld_excode_dp_exe_accepted_values
+                  values: ['C-DP', 'DP']
+                  config:
+                    where: |
+                      excode LIKE '%DP%'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      and taxyr >= '2024'
+                  meta:
+                    description: excode for disabled persons exemption should be C-DP or DP
+              - accepted_values:
+                  name: iasworld_excode_dv1_exe_accepted_values
+                  values: ['DV1', 'C-DV1']
+                  config:
+                    where: |
+                      excode LIKE '%DV1%'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      and taxyr >= '2024'
+                  meta:
+                    description: excode for disabled veteran less than 50% exemption should be DV1 or C-DV1
+              - accepted_values:
+                  name: iasworld_excode_dv2_exe_accepted_values
+                  values: ['DV2', 'C-DV2']
+                  config:
+                    where: |
+                      excode LIKE '%DV2%'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      and taxyr >= '2024'
+                  meta:
+                    description: excode for disabled veteran 50-69% exemption should be DV2 or C-DV2
+              - accepted_values:
+                  name: iasworld_excode_dv3_exe_accepted_values
+                  values: ['DV3', 'DV3-M']
+                  config:
+                    where: |
+                      excode LIKE '%DV3%'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      and taxyr >= '2024'
+                  meta:
+                    description: excode for disabled veteran 70% or greater exemption should be DV3 or DV3-M
+              - accepted_values:
+                  name: iasworld_excode_dv4_exe_accepted_values
+                  values: ['DV4', 'DV4-M']
+                  config:
+                    where: |
+                      excode LIKE '%DV4%'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      and taxyr >= '2024'
+                  meta:
+                    description: excode for disabled veteran 100% exemption should be DV4 or DV4-M
+              - accepted_values:
+                  name: iasworld_excode_ho_exe_accepted_values
+                  values: ['C-HO', 'HO']
+                  config:
+                    where: |
+                      excode LIKE '%HO%'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      and taxyr >= '2024'
+                  meta:
+                    description: excode for homestead exemption should be C-HO or HO
+              - accepted_values:
+                  name: iasworld_excode_lt_exe_accepted_values
+                  values: ['C-LT', 'LT']
+                  config:
+                    where: |
+                      excode LIKE '%LT%'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      and taxyr >= '2024'
+                  meta:
+                    description: excode for long-time homeowner exemption should be C-LT or LT
+              - accepted_values:
+                  name: iasworld_excode_rtv_exe_accepted_values
+                  values: ['RTV', 'C-RTV']
+                  config:
+                    where: |
+                      excode LIKE '%RTV%'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      and taxyr >= '2024'
+                  meta:
+                    description: excode for returning veterans exemption should be RTV or C-RTV
+              - accepted_values:
+                  name: iasworld_excode_sf_exe_accepted_values
+                  values: ['C-SF', 'SF']
+                  config:
+                    where: |
+                      excode LIKE '%SF%'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      and taxyr >= '2024'
+                  meta:
+                    description: excode for senior freeze exemption should be C-SF or SF
+              - accepted_values:
+                  name: iasworld_excode_sr_exe_accepted_values
+                  values: ['SR', 'C-SR']
+                  config:
+                    where: |
+                      excode LIKE '%SR%'
+                      AND excode != 'I-SRO'
+                      AND cur = 'Y'
+                      AND deactivat IS NULL
+                      and taxyr >= '2024'
+                  meta:
+                    description: excode for senior homestead exemption should be SR or C-SR
           - name: exgrp
             description: Exemption code grouping for view definitions
           - name: extype
