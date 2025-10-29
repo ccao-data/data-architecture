@@ -21,7 +21,7 @@ pd.set_option("display.max_rows", None)
 
 # Create a session object so HTTP requests can be pooled
 session = requests.Session()
-session.headers.update(headers={"X-App-Token": os.getenv("SOCRATA_APP_TOKEN")})
+session.headers.update({"X-App-Token": os.getenv("SOCRATA_APP_TOKEN")})
 session.auth = (
     str(os.getenv("SOCRATA_USERNAME")),
     str(os.getenv("SOCRATA_PASSWORD")),
