@@ -7,6 +7,16 @@ sources:
           - load_auto
 
         columns:
+          - name: group
+            description: |
+              Group string used as a unique identifier.
+
+              Typically a combination of a
+
+                - geographic component (township/nbhd groupings)
+                - charactersitic component (class, sqft, age)
+                - temporal range (previous year)
+
           - name: meta_sale_document_number
             description: '{{ doc("shared_column_document_number") }}'
           - name: ptax_flag_original
@@ -86,7 +96,12 @@ sources:
             description: |
               Group string used as a unique identifier.
 
-              Typically a combination of year, township, and class
+              Typically a combination of a
+
+                - geographic component (township/nbhd groupings)
+                - charactersitic component (class, sqft, age)
+                - temporal range (previous year)
+
           - name: group_size
             description: Number of properties in the group
           - name: mean_price
@@ -245,7 +260,18 @@ models:
 
     columns:
       - name: group
+        description: |
+          Group string used as a unique identifier.
+
+          Typically a combination of a
+
+            - geographic component (township/nbhd groupings)
+            - charactersitic component (class, sqft, age)
+            - temporal range (previous year)
+
       - name: group_size
+        description: |
+          The size of the s
       - name: meets_group_threshold
       - name: meta_sale_document_num
         description: '{{ doc("shared_column_document_number") }}'
