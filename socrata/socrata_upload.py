@@ -21,6 +21,7 @@ pd.set_option("display.max_rows", None)
 
 # Create a session object so HTTP requests can be pooled
 session = requests.Session()
+session.headers.update({"X-App-Token": str(os.getenv("SOCRATA_APP_TOKEN"))})
 session.auth = (
     str(os.getenv("SOCRATA_USERNAME")),
     str(os.getenv("SOCRATA_PASSWORD")),
@@ -206,8 +207,6 @@ def build_query_dict(athena_asset, asset_id, years=None):
         .strip("]")
         .split(",")
     )
-    # row id won't show up here since it's hidden on the open data portal assets
-    asset_columns += ["row_id"]
     asset_columns.sort()
 
     # If there are columns on Socrata that are not in Athena, abort upload and
@@ -244,12 +243,19 @@ def build_query_dict(athena_asset, asset_id, years=None):
         query_dict = {None: query}
 
     else:
-        query_dict = {year: f"{query} WHERE year = {year}" for year in years}
+        query_dict = {
+            year: f"{query} WHERE year = {year}"
+            for year in years
+            if not pd.isna(year)
+        }
+
+        if any(pd.isna(years)):
+            query_dict.update({"nan": f"{query} WHERE year IS NULL"})
 
     return query_dict
 
 
-def check_deleted(input_data, asset_id, app_token):
+def check_deleted(input_data, asset_id):
     """
     Download row_ids from Socrata asset to check for rows still present in
     Socrata that have been deleted in Athena. If any are found, they will be
@@ -259,45 +265,83 @@ def check_deleted(input_data, asset_id, app_token):
     # Determine which years are present in the input data. We only want to
     # retrieve row_ids for the corresponding years from Socrata.
     years = [str(year) for year in input_data["year"].unique().tolist()]
-    years = ", ".join(years)
+    # Unfortunately we can have null values for year, so we need to make sure
+    # they are handled properly rather than being included in the IN clause
+    # below
+    where = []
+    if "nan" in years:
+        years.remove("nan")
+        where.append("year is NULL")
+    if any(year != "nan" for year in years):
+        years = ", ".join(years)
+        where.append(f"year IN ({years})")
+    where = " or ".join(where)
 
     # Construct the API call to retrieve row_ids for the specified asset and years
     url = (
         f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
-        + quote(f"SELECT row_id WHERE year IN ({years}) LIMIT 20000000")
+        + quote(f"SELECT row_id WHERE {where} LIMIT 20000000")
     )
 
     # Retrieve row_ids from Socrata for the specified asset and years
-    socrata_rows = pd.DataFrame(
-        session.get(url=url, headers={"X-App-Token": app_token}).json()
-    )
+    socrata_rows = pd.DataFrame(session.get(url=url).json())
 
-    # Outer-join the input data with Socrata data to find rows that are
-    # present in Socrata but not in the Athena input data. For those rows set
-    # the ":deleted" column to True.
-    input_data = input_data.merge(
-        socrata_rows, on="row_id", how="outer", indicator=True
-    )
+    # Outer-join the input data with Socrata data (if it exists) to find rows
+    # that are present in Socrata but not in the Athena input data. For those
+    # rows set the ":deleted" column to True.
     input_data[":deleted"] = None
-    input_data.loc[input_data["_merge"] == "right_only", ":deleted"] = True
-    input_data = input_data.drop(columns=["_merge"])
+    if len(socrata_rows) > 0:
+        input_data = input_data.merge(
+            socrata_rows, on="row_id", how="outer", indicator=True
+        )
+        input_data.loc[input_data["_merge"] == "right_only", ":deleted"] = True
+        input_data = input_data.drop(columns=["_merge"])
 
     return input_data
 
 
-def upload(asset_id, sql_query, overwrite):
+def check_missing_years(athena_asset, asset_id):
+    """
+    Check for years that are present on Socrata but not in the current upload,
+    and retrieve any row_ids for those years so they can be marked for deletion.
+    This is only relevant when year values that were previously present have
+    been *removed* from an Athena view.
+    """
+
+    # Grab a list of *all* years currently present in Athena asset
+    years = (
+        cursor.execute(
+            "SELECT DISTINCT year FROM " + athena_asset + " ORDER BY year"
+        )
+        .as_pandas()["year"]
+        .to_list()
+    )
+
+    years = [str(year) for year in years if not pd.isna(year)]
+    years = ", ".join(years)
+
+    url = (
+        f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
+        + quote(f"SELECT row_id WHERE year not in ({years}) LIMIT 20000000")
+    )
+
+    missing_years = pd.DataFrame(session.get(url=url).json())
+
+    missing_years[":deleted"] = True
+
+    return missing_years
+
+
+def upload(asset_id, sql_query, overwrite, missing_years):
     """
     Function to perform the upload to Socrata. `puts` or `posts` depending on
     user's choice to overwrite existing data.
     """
 
-    # Load environmental variables
-    app_token = os.getenv("SOCRATA_APP_TOKEN")
-
     url = "https://datacatalog.cookcountyil.gov/resource/" + asset_id + ".json"
 
     # Raise URL status if it's bad
-    session.get(url=url, headers={"X-App-Token": app_token}).raise_for_status()
+    session.get(url=url).raise_for_status()
 
     # We grab the data before uploading it so we can make sure timestamps are
     # properly formatted
@@ -314,7 +358,14 @@ def upload(asset_id, sql_query, overwrite):
         input_data = cursor.execute(query).as_pandas()
 
         # Ensure rows that need to be deleted from Socrata are marked as such
-        input_data = check_deleted(input_data, asset_id, app_token)
+        if not overwrite:
+            input_data = check_deleted(input_data, asset_id)
+            # If there are years present on Socrata that are not in the current
+            # upload, add them to the final input data so they can be deleted
+            if year == list(sql_query.keys())[-1]:
+                input_data = pd.concat(
+                    [input_data, missing_years], ignore_index=True
+                )
 
         date_columns = input_data.select_dtypes(include="datetime").columns
         for i in date_columns:
@@ -327,7 +378,6 @@ def upload(asset_id, sql_query, overwrite):
             response = getattr(session, method)(
                 url=url,
                 data=input_data.iloc[i : i + 10000].to_json(orient="records"),
-                headers={"X-App-Token": app_token},
             )
             overwrite = False
             print(response.content)
@@ -347,6 +397,8 @@ def socrata_upload(asset_info, overwrite=False, years=None):
 
     athena_asset, asset_id = asset_info["athena_asset"], asset_info["asset_id"]
 
+    missing_years = check_missing_years(athena_asset, asset_id)
+
     years_list = parse_years_list(years=years, athena_asset=athena_asset)
 
     sql_query = build_query_dict(
@@ -356,7 +408,7 @@ def socrata_upload(asset_info, overwrite=False, years=None):
     )
 
     tic = time.perf_counter()
-    upload(asset_id, sql_query, overwrite)
+    upload(asset_id, sql_query, overwrite, missing_years)
     toc = time.perf_counter()
 
     print(f"Total upload in {toc - tic:0.4f} seconds")
