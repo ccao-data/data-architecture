@@ -248,12 +248,15 @@ models:
       - name: group_size
       - name: meets_group_threshold
       - name: meta_sale_document_num
+        description: '{{ doc("shared_column_document_number") }}'
       - name: meta_sale_price_original
       - name: pin
+        description: '{{ doc("shared_column_pin") }}'
       - name: ptax_flag_original
       - name: run_id
         description: '{{ doc("shared_column_sv_run_id") }}'
       - name: sale_date
+        description: '{{ doc("shared_column_sale_date") }}'
       - name: sv_is_outlier
         description: '{{ doc("shared_column_sv_is_outlier") }}'
       - name: sv_is_ptax_outlier
