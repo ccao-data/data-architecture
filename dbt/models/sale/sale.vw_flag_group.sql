@@ -4,6 +4,7 @@ SELECT
     (
         group_mean.group_size >= param.min_group_thresh
     ) AS meets_group_threshold,
+    group_mean.min_group_thresh,
     flag."group" AS group_id,
     group_mean.group_size,
     -- These columns are not yet deployed to production flags
