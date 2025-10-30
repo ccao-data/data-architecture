@@ -10,7 +10,7 @@ SELECT
     -- flag.sv_price_per_sqft_deviation,
     flag.meta_sale_price_original,
     flag.sv_is_outlier,
-    flag.ptax_flag_original,
+    flag.ptax_flag_original AS ptax_flag,
     flag.sv_is_ptax_outlier,
     flag.sv_outlier_reason1,
     flag.sv_outlier_reason2,
