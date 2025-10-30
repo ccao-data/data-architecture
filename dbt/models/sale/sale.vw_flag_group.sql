@@ -9,7 +9,7 @@ SELECT
     -- These columns are not yet deployed to production flags
     -- flag.sv_price_deviation,
     -- flag.sv_price_per_sqft_deviation,
-    flag.meta_sale_price_original,
+    flag.meta_sale_price_original as sale_price,
     flag.sv_is_outlier,
     flag.ptax_flag_original AS ptax_flag,
     flag.sv_is_ptax_outlier,
