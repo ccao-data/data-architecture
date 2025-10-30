@@ -6,7 +6,7 @@ SELECT
     ) AS meets_group_threshold,
     group_mean.min_group_thresh,
     flag."group" AS group_id,
-    group_mean.group_size,
+    param.group_size,
     -- These columns are not yet deployed to production flags
     -- flag.sv_price_deviation,
     -- flag.sv_price_per_sqft_deviation,
