@@ -9,7 +9,7 @@ SELECT
     -- These columns are not yet deployed to production flags
     -- flag.sv_price_deviation,
     -- flag.sv_price_per_sqft_deviation,
-    flag.meta_sale_price_original as sale_price,
+    flag.meta_sale_price_original AS sale_price,
     flag.sv_is_outlier,
     flag.ptax_flag_original AS ptax_flag,
     flag.sv_is_ptax_outlier,
@@ -28,7 +28,7 @@ LEFT JOIN {{ source('sale', 'group_mean') }} AS group_mean
 LEFT JOIN {{ source('sale', 'parameter') }} AS param
     ON flag.run_id = param.run_id
 LEFT JOIN {{ ref('default.vw_pin_sale') }} AS pin_sale
-    ON pin_sale.doc_no = flag.meta_sale_document_num
+    ON flag.meta_sale_document_num = pin_sale.doc_no 
 LEFT JOIN {{ ref('default.vw_pin_universe') }} AS p_uni
-    ON p_uni.pin = pin_sale.pin
-    AND p_uni.year = pin_sale.year
+    ON pin_sale.pin = p_uni.pin
+    AND pin_sale.year = p_uni.year
