@@ -304,7 +304,6 @@ models:
         description: |
           Whether or not this sale was flagged on certain Q10 
           line items of the PTAX-203 form.
-        description:
       - name: run_id
         description: '{{ doc("shared_column_sv_run_id") }}'
       - name: sale_date
