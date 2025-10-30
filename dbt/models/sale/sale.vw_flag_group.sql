@@ -4,7 +4,7 @@ SELECT
     (
         group_mean.group_size >= param.min_group_thresh
     ) AS meets_group_threshold,
-    flag."group",
+    flag."group" AS group_id,
     group_mean.group_size,
     -- flag.sv_price_deviation,
     -- flag.sv_price_per_sqft_deviation,
