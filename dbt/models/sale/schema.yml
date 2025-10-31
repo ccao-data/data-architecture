@@ -318,3 +318,12 @@ models:
         description: '{{ doc("shared_column_sv_outlier_reason") }}'
       - name: sv_outlier_reason3
         description: '{{ doc("shared_column_sv_outlier_reason") }}'
+
+    data_tests:
+      - unique_combination_of_columns:
+          name: sale_vw_flag_group
+          combination_of_columns:
+            - run_id
+            - meta_sale_document_num
+          config:
+            error_if: ">1"
