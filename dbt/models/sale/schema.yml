@@ -7,12 +7,22 @@ sources:
           - load_auto
 
         columns:
+          - name: group
+            description: |
+              Group string used as a unique identifier.
+
+              Typically a combination of a
+
+                - geographic component (township/nbhd groupings)
+                - charactersitic component (class, sqft, age)
+                - temporal range (previous year)
+
           - name: meta_sale_document_number
             description: '{{ doc("shared_column_document_number") }}'
           - name: ptax_flag_original
             description: |
-              Whether or not this sale was flagged on Q10 of the
-              PTAX-203 form (regardless of statistical deviation)
+              Whether or not this sale was flagged on certain Q10 
+              line items of the PTAX-203 form.
           - name: rolling_window
             description: |
               Rolling window period used to calculate grouping statistics
@@ -86,7 +96,12 @@ sources:
             description: |
               Group string used as a unique identifier.
 
-              Typically a combination of year, township, and class
+              Typically a combination of a
+
+                - geographic component (township/nbhd groupings)
+                - charactersitic component (class, sqft, age)
+                - temporal range (previous year)
+
           - name: group_size
             description: Number of properties in the group
           - name: mean_price
@@ -134,9 +149,11 @@ sources:
             description: |
               Minimum number of sales required for statistical flagging.
 
-              If the minimum number of sales in our group methodology
-              (township, class, rolling window) is below N, these sales
-              are not flagged and are set to `Not outlier`
+              If the minimum number of sales in our statistical group
+              (eg: township, class, rolling window) is below N, these sales
+              are not flagged and are set to `Not outlier`. This threshold
+              does not apply if the sale in question has certain line items
+              on line 10 of the ptax-203 form marked.
           - name: ptax_sd
             description: |
               Boundaries for standard deviation flagging in combination
@@ -240,3 +257,77 @@ models:
         description: '{{ doc("shared_column_sv_outlier_reason") }}'
       - name: sv_outlier_reason3
         description: '{{ doc("shared_column_sv_outlier_reason") }}'
+  - name: sale.vw_flag_group
+    description: '{{ doc("vw_flag_group") }}'
+
+    columns:
+      - name: group_id
+        description: |
+          Group string used as a unique identifier.
+
+          Typically a combination of a
+
+            - geographic component (township/nbhd groupings)
+            - charactersitic component (class, sqft, age)
+            - temporal range (previous year)
+
+      - name: group_size
+        description: |
+          The total number of the sales as defined by the `group` column.
+          The price standard deviation for the statistical flagging algorithm
+          is calcualted within each of these groups.
+      - name: meets_group_threshold
+        description: |
+          If a group's `group_size` is under a certain threshold, we decide to
+          automatically set the `sv_is_outlier` status to `False`. This is a binary
+          column that tells us if that threshold is met or not.
+          
+          A caveat is that even if the threshold is not met, sales with certain
+          line items marked on the ptax-203 form can still be classified as an
+          outlier.
+      - name: meta_sale_document_num
+        description: '{{ doc("shared_column_document_number") }}'
+      - name: meta_sale_price
+        description: '{{ doc("shared_column_sale_price") }}'
+      - name: min_group_thresh
+        description: |
+          Minimum number of sales required for statistical flagging.
+
+          If the minimum number of sales in our statistical group
+          (eg: township, class, rolling window) is below N, these sales
+          are not flagged and are set to `Not outlier`. This threshold
+          does not apply if the sale in question has certain line items
+          on line 10 of the ptax-203 form marked.
+      - name: pin
+        description: '{{ doc("shared_column_pin") }}'
+      - name: ptax_flag
+        description: |
+          Whether or not this sale was flagged on certain Q10 
+          line items of the PTAX-203 form.
+      - name: run_id
+        description: '{{ doc("shared_column_sv_run_id") }}'
+      - name: sale_date
+        description: '{{ doc("shared_column_sale_date") }}'
+      - name: sv_is_outlier
+        description: '{{ doc("shared_column_sv_is_outlier") }}'
+      - name: sv_is_ptax_outlier
+        description: '{{ doc("shared_column_sv_is_ptax_outlier") }}'
+      - name: sv_outlier_reason1
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
+      - name: sv_outlier_reason2
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
+      - name: sv_outlier_reason3
+        description: '{{ doc("shared_column_sv_outlier_reason") }}'
+
+    data_tests:
+      - unique_combination_of_columns:
+          name: sale_vw_flag_group
+          combination_of_columns:
+            - run_id
+            - meta_sale_document_num
+          config:
+            # This threshold is based on an existing data problem in which there are
+            # 4 violations of this assumption
+            # more details: https://github.com/ccao-data/data-architecture/pull/913#discussion_r2475427865
+            # If there are any more duplicates, we will be pushed over 4 and this test will flag it
+            error_if: ">4"
