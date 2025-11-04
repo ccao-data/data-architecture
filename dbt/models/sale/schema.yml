@@ -230,6 +230,8 @@ models:
     description: '{{ doc("vw_flag_group") }}'
 
     columns:
+      - name: doc_no
+        description: '{{ doc("shared_column_document_number") }}'
       - name: group_id
         description: '{{ doc("column_group_id") }}'
       - name: group_size
@@ -243,8 +245,6 @@ models:
           A caveat is that even if the threshold is not met, sales with certain
           line items marked on the ptax-203 form can still be classified as an
           outlier.
-      - name: doc_no
-        description: '{{ doc("shared_column_document_number") }}'
       - name: meta_sale_price
         description: '{{ doc("shared_column_sale_price") }}'
       - name: min_group_thresh
