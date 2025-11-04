@@ -324,7 +324,7 @@ models:
           name: sale_vw_flag_group_unique_by_run_id_and_doc_no
           combination_of_columns:
             - run_id
-            - meta_sale_document_num
+            - doc_no
           config:
             # This threshold is based on an existing data problem in which there are
             # 4 violations of this assumption
