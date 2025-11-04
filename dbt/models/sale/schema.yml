@@ -8,15 +8,7 @@ sources:
 
         columns:
           - name: group
-            description: |
-              Group string used as a unique identifier.
-
-              Typically a combination of a
-
-                - geographic component (township/nbhd groupings)
-                - charactersitic component (class, sqft, age)
-                - temporal range (previous year)
-
+            description: '{{ doc("column_group_id") }}'
           - name: meta_sale_document_number
             description: '{{ doc("shared_column_document_number") }}'
           - name: ptax_flag_original
@@ -24,10 +16,7 @@ sources:
               Whether or not this sale was flagged on certain Q10 
               line items of the PTAX-203 form.
           - name: rolling_window
-            description: |
-              Rolling window period used to calculate grouping statistics
-              for flagging this sale. As of Sep 2024, ~1 year is the rolling window.
-              The month of the sale and the prior 11 months are used.
+            description: '{{ doc("column_rolling_window") }}'
           - name: run_id
             description: '{{ doc("shared_column_sv_run_id") }}'
           - name: sv_is_heuristic_outlier
@@ -93,17 +82,9 @@ sources:
 
         columns:
           - name: group
-            description: |
-              Group string used as a unique identifier.
-
-              Typically a combination of a
-
-                - geographic component (township/nbhd groupings)
-                - charactersitic component (class, sqft, age)
-                - temporal range (previous year)
-
+            description: '{{ doc("column_group_id") }}'
           - name: group_size
-            description: Number of properties in the group
+            description: '{{ doc("column_group_size") }}'
           - name: mean_price
             description: Mean price of the group, in FMV
           - name: mean_price_per_sqft
@@ -146,14 +127,7 @@ sources:
           - name: latest_data_ingest
             description: Date of latest sale used in validation
           - name: min_group_thresh
-            description: |
-              Minimum number of sales required for statistical flagging.
-
-              If the minimum number of sales in our statistical group
-              (eg: township, class, rolling window) is below N, these sales
-              are not flagged and are set to `Not outlier`. This threshold
-              does not apply if the sale in question has certain line items
-              on line 10 of the ptax-203 form marked.
+            description: '{{ doc("column_min_group_thresh") }}'
           - name: ptax_sd
             description: |
               Boundaries for standard deviation flagging in combination
@@ -163,12 +137,7 @@ sources:
               Groups used to calculate flagging statistics (std. dev.)
               for residential (class 2) properties
           - name: rolling_window
-            description: |
-              Rolling window size, in months.
-
-              For each target sale, calculate statistics (std. dev.,
-              group size) using all sales in the period N months prior,
-              inclusive of the month of the sale itself
+            description: '{{ doc("column_rolling_window") }}'
           - name: run_id
             description: '{{ doc("shared_column_sv_run_id") }}'
           - name: sales_flagged
@@ -262,20 +231,9 @@ models:
 
     columns:
       - name: group_id
-        description: |
-          Group string used as a unique identifier.
-
-          Typically a combination of a
-
-            - geographic component (township/nbhd groupings)
-            - charactersitic component (class, sqft, age)
-            - temporal range (previous year)
-
+        description: '{{ doc("column_group_id") }}'
       - name: group_size
-        description: |
-          The total number of the sales as defined by the `group` column.
-          The price standard deviation for the statistical flagging algorithm
-          is calcualted within each of these groups.
+        description: '{{ doc("column_group_size") }}'
       - name: meets_group_threshold
         description: |
           If a group's `group_size` is under a certain threshold, we decide to
@@ -290,14 +248,7 @@ models:
       - name: meta_sale_price
         description: '{{ doc("shared_column_sale_price") }}'
       - name: min_group_thresh
-        description: |
-          Minimum number of sales required for statistical flagging.
-
-          If the minimum number of sales in our statistical group
-          (eg: township, class, rolling window) is below N, these sales
-          are not flagged and are set to `Not outlier`. This threshold
-          does not apply if the sale in question has certain line items
-          on line 10 of the ptax-203 form marked.
+        description: '{{ doc("column_min_group_thresh") }}'
       - name: pin
         description: '{{ doc("shared_column_pin") }}'
       - name: ptax_flag
