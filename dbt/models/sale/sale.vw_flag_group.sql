@@ -1,5 +1,5 @@
 SELECT
-    flag.meta_sale_document_num,
+    flag.meta_sale_document_num AS doc_no,
     flag.run_id,
     (
         group_mean.group_size >= param.min_group_thresh
