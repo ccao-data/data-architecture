@@ -309,30 +309,31 @@ def check_missing_years(athena_asset, asset_id):
     """
 
     # Grab a list of *all* years currently present in Athena asset
-    years = (
+    athena_years = (
         cursor.execute(
-            "SELECT DISTINCT year FROM " + athena_asset + " ORDER BY year"
+            "SELECT DISTINCT CAST(year AS varchar) as year FROM "
+            + athena_asset
+            + " ORDER BY year"
         )
         .as_pandas()["year"]
         .to_list()
     )
 
-    years = [str(year) for year in years if not pd.isna(year)]
-    years = ", ".join(years)
-
-    # Construct the API call to retrieve years present on Socrata but not in Athena
+    # Construct the API call to retrieve all distinct years from Socrata
     url = (
         f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
-        + quote(
-            f"SELECT distinct year WHERE year not in ({years}) LIMIT 20000000"
-        )
+        + quote("SELECT distinct year LIMIT 1000")
     )
 
-    missing_years = session.get(url=url).json()
+    socrata_years = session.get(url=url).json()
+    socrata_years = pd.DataFrame(socrata_years)["year"].tolist()
 
-    # If there are any missing years, retrieve their row_ids so they can be deleted
+    missing_years = set(athena_years) - set(socrata_years)
+
+    # If there are any missing years, retrieve their row_ids so they can be marked
+    # for deletion
     if missing_years:
-        missing_years = missing_years[0]["year"]
+        missing_years = ", ".join(list(missing_years))
 
         url = (
             f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
