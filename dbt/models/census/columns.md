@@ -453,7 +453,7 @@ ACS variable `B19301_001E`
 ## percent_age_children
 
 {% docs column_percent_age_children %}
-Percent of the people 17 years or younger.
+Percent of the people 19 years or younger.
 
 ACS variable (`B01001_003E` + `B01001_004E` + `B01001_005E` +
 `B01001_006E` + `B01001_007E` + `B01001_027E` + `B01001_028E` +
