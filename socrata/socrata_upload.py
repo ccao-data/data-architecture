@@ -328,7 +328,8 @@ def check_missing_years(athena_asset, asset_id):
     socrata_years = session.get(url=url).json()
     socrata_years = pd.DataFrame(socrata_years)["year"].tolist()
 
-    missing_years = set(athena_years) - set(socrata_years)
+    # Determine which years are present on Socrata but not in Athena
+    missing_years = set(socrata_years) - set(athena_years)
 
     # If there are any missing years, retrieve their row_ids so they can be marked
     # for deletion
