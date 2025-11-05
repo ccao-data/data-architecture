@@ -322,14 +322,30 @@ def check_missing_years(athena_asset, asset_id):
 
     url = (
         f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
-        + quote(f"SELECT row_id WHERE year not in ({years}) LIMIT 20000000")
+        + quote(
+            f"SELECT distinct year WHERE year not in ({years}) LIMIT 20000000"
+        )
     )
 
-    missing_years = pd.DataFrame(session.get(url=url).json())
+    missing_years = session.get(url=url).json()
 
-    missing_years[":deleted"] = True
+    if missing_years:
+        missing_years = missing_years[0]["year"]
 
-    return missing_years
+        url = (
+            f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
+            + quote(
+                f"SELECT row_id WHERE year in ({missing_years}) LIMIT 20000000"
+            )
+        )
+        years_to_remove = session.get(url=url).json()
+        years_to_remove = pd.DataFrame(years_to_remove)
+        years_to_remove[":deleted"] = True
+
+    else:
+        years_to_remove = pd.DataFrame()
+
+    return years_to_remove
 
 
 def upload(asset_id, sql_query, overwrite, missing_years):
