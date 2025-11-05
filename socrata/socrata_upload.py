@@ -326,10 +326,27 @@ def check_missing_years(athena_asset, asset_id):
     )
 
     socrata_years = session.get(url=url).json()
-    socrata_years = pd.DataFrame(socrata_years)["year"].tolist()
+    socrata_years = pd.DataFrame(socrata_years)
+
+    # Socrata may return years as strings of floats (e.g., "2020.0"), so we
+    # need to convert them to integers first before comparing to Athena years.
+    # We also need to handle null years properly.
+    socrata_years["year"] = pd.to_numeric(
+        socrata_years["year"], errors="coerce"
+    )
+    socrata_years["year"] = (
+        socrata_years["year"]
+        .astype("Int64")
+        .astype("str")
+        .replace({"<NA>": None})
+    )
+    socrata_years = socrata_years["year"].tolist()
 
     # Determine which years are present on Socrata but not in Athena
     missing_years = set(socrata_years) - set(athena_years)
+    missing_years = {
+        "NULL" if item is None else item for item in missing_years
+    }
 
     # If there are any missing years, retrieve their row_ids so they can be marked
     # for deletion
