@@ -320,6 +320,7 @@ def check_missing_years(athena_asset, asset_id):
     years = [str(year) for year in years if not pd.isna(year)]
     years = ", ".join(years)
 
+    # Construct the API call to retrieve years present on Socrata but not in Athena
     url = (
         f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
         + quote(
@@ -329,6 +330,7 @@ def check_missing_years(athena_asset, asset_id):
 
     missing_years = session.get(url=url).json()
 
+    # If there are any missing years, retrieve their row_ids so they can be deleted
     if missing_years:
         missing_years = missing_years[0]["year"]
 
