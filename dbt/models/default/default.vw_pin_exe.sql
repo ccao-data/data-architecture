@@ -9,7 +9,7 @@
     'exe_vet_returning', 'exe_wwii'
 ] %}
 
--- Gather PIN-level exemptions from the exdet table. Exdet is contains a row for
+-- Gather PIN-level exemptions from the exdet table. Exdet contains a row for
 -- each exemption applied to a PIN. Below we pivot these rows into columns
 -- for each exemption type.
 WITH long AS (
