@@ -72,7 +72,7 @@ can be still receieve a value of `sv_is_outlier = True` if both are true
 - the sale is a certain standard deviation away from the mean of its' group
   as defined in `ptax_sd` in the configuration file
 
-**Primary Key**: `run_id`, `meta_sale_document_num`
+**Primary Key**: `run_id`, `doc_no`
 {% enddocs %}
 
 # vw_ias_salesval_upload
