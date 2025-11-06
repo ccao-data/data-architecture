@@ -57,6 +57,24 @@ including the statistical bounds, groupings, window sizes, etc.
 **Primary Key**: `run_id`
 {% enddocs %}
 
+# vw_flag_group
+
+{% docs vw_flag_group %}
+Information about sales val flags and the underlying parameters used
+in the flagging determination.
+
+Nuance: The `meets_group_threshold` column tells us whether or not a sale's
+`group` met the number of observations requirement. If it was not met,
+typically the sale will be set to `sv_is_outlier = False`. However, the sale
+can be still receieve a value of `sv_is_outlier = True` if both are true
+
+- the sale sees certain line items marked on line 10 of the ptax-203 form
+- the sale is a certain standard deviation away from the mean of its' group
+  as defined in `ptax_sd` in the configuration file
+
+**Primary Key**: `run_id`, `doc_no`
+{% enddocs %}
+
 # vw_ias_salesval_upload
 
 {% docs vw_ias_salesval_upload %}
