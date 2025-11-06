@@ -322,7 +322,7 @@ def check_missing_years(athena_asset, asset_id):
     # Construct the API call to retrieve all distinct years from Socrata
     url = (
         f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
-        + quote("SELECT distinct year LIMIT 1000")
+        + quote("SELECT distinct year")
     )
 
     socrata_years = session.get(url=url).json()
@@ -344,20 +344,28 @@ def check_missing_years(athena_asset, asset_id):
 
     # Determine which years are present on Socrata but not in Athena
     missing_years = set(socrata_years) - set(athena_years)
-    missing_years = {
-        "NULL" if item is None else item for item in missing_years
-    }
+
+    # Note if there are null years present on Socrata so they can be handled,
+    # then remove them from the missing_years set
+    socrata_nulls = ""
+    if None in missing_years:
+        socrata_nulls = "year is NULL"
+    missing_years = {item for item in missing_years if item is not None}
 
     # If there are any missing years, retrieve their row_ids so they can be marked
     # for deletion
-    if missing_years:
-        missing_years = ", ".join(list(missing_years))
+    if missing_years or socrata_nulls:
+        if missing_years:
+            missing_years = ", ".join(list(missing_years))
+            where = f"year in ({missing_years})"
+        if socrata_nulls:
+            where = f"{socrata_nulls}"
+        if missing_years and socrata_nulls:
+            where = f"year in ({missing_years}) or {socrata_nulls}"
 
         url = (
             f"https://datacatalog.cookcountyil.gov/resource/{asset_id}.json?$query="
-            + quote(
-                f"SELECT row_id WHERE year in ({missing_years}) LIMIT 20000000"
-            )
+            + quote(f"SELECT row_id WHERE {where} LIMIT 20000000")
         )
         years_to_remove = session.get(url=url).json()
         years_to_remove = pd.DataFrame(years_to_remove)
