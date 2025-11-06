@@ -185,7 +185,7 @@ sources:
                   meta:
                     description: taxyr should not be null
           - name: tot13
-            description: Taxable AV for Parcels with no HIE or IDOR Exemption
+            description: Taxable AV
           - name: tot30
             description: HIE AV Amount
             data_tests:
@@ -195,8 +195,6 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: tot30 (HIE TOT) should be <7500
-          - name: tot31
-            description: IDOR 100% Exemption AV Amount
           - name: tot32
             description: Value After HIE
             data_tests:
@@ -206,6 +204,8 @@ sources:
                   config: *unique-conditions
                   meta:
                     description: TOT32 (Value After HIE) should be TOT29 - TOT30 - TOT31
+          - name: tot51
+            description: Equalized AV
           - name: tottax
             description: Total tax
           - name: trans_id
