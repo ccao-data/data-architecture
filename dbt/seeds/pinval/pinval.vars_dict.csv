@@ -30,7 +30,7 @@ Apartments,char_apts,Number of residential apartments in the building.
 Attic Finish,char_attic_fnsh,
 Attic Type,char_attic_type,
 Bedrooms,char_beds,Number of bedrooms in the building.
-Building Square Feet,char_bldg_sf,"Square footage of the building, as measured from the exterior."
+Building Square Feet,char_bldg_sf,"Square footage of the home, measured from the exterior or from architectural plans. The CCAO's measurement of building square footage only includes parts of the home that are heated and above-grade. This excludes any square footage that is not heated (such as garage space), and excludes square footage that is below-grade (such as a basement)."
 Combined Bldg. Sq. Ft.,combined_bldg_sf,"Combined building square footage of all buildings on the parcel. The model excludes sales of parcels with multiple buildings, so for all sales, this value will correspond to the square footage of the only building on the parcel."
 Basement Type,char_bsmt,
 Basement Finish,char_bsmt_fin,
