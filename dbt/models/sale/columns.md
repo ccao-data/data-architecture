@@ -10,7 +10,7 @@ Typically a combination of a:
 
 ## group_size
 {% docs column_group_size %}
-Count of sales/properties in the group (as defined by the `group` column).  
+Count of sales/properties in the group.
 This is the population within which price statistics (e.g., standard deviation) are calculated.
 {% enddocs %}
 
