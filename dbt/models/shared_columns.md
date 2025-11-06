@@ -1080,7 +1080,8 @@ purposes. See `ccao.class_dict` for more information
 ## disabled_persons_exemption_amount
 
 {% docs shared_column_exe_disabled %}
-Disable persons exemption. Value in EAV. Defined as exemption code(s):
+Homestead exemption for persons with disabilities (35 ILCS 200/15-168). Value
+in EAV. Defined as exemption code(s):
 - `C-DP: DISABLED PERSONS - COOP`
 - `DP: DISABLED PERSON HOMESTD EX`
 Pre-2024 codes:
@@ -1090,7 +1091,8 @@ Pre-2024 codes:
 ## disabled_veteran_50_to_69_exemption_amount
 
 {% docs shared_column_exe_vet_dis_50_69 %}
-Disabled veteran 50-69% exemption. Value in EAV. Defined as exemption code(s):
+Veterans with disabilities exemption for specially-adapted housing 50-69%
+(35 ILCS 200/15-165). Value in EAV. Defined as exemption code(s):
 - `C-DV2: DISABLED VETERAN 50-69% - COOP`
 - `DV2: DISABLED VETERAN 50-69%`
 Pre-2024 codes:
@@ -1100,7 +1102,8 @@ Pre-2024 codes:
 ## disabled_veteran_70_or_greater_exemption_amount
 
 {% docs shared_column_exe_vet_dis_ge70 %}
-Disabled veteran 70% or greater exemption. Value in EAV. Defined as exemption
+Veterans with disabilities exemption for specially-adapted housing 70% or
+greater (35 ILCS 200/15-165). Value in EAV. Defined as exemption
 code(s):
 - `DV3: DISABLED VETERAN 70% OR GREATER`
 - `DV3-M: DV3 MULTI-UNIT`
@@ -1111,7 +1114,8 @@ Pre-2024 codes:
 ## disabled_veteran_100_exemption_amount
 
 {% docs shared_column_exe_vet_dis_100 %}
-Disabled veteran 100%, totally and permanently disabled exemption. Value in EAV.
+Veterans with disabilities exemption for specially-adapted housing 100%, totally
+and permanently disabled (35 ILCS 200/15-165). Value in EAV.
 Defined as exemption code(s):
 - `DV4: DISABLED VETERAN 100%, TOTALLY AND PERMANENTLY DISABLED`
 Pre-2024 codes:
@@ -1121,7 +1125,8 @@ Pre-2024 codes:
 ## disabled_veteran_less_than_50_exemption_amount
 
 {% docs shared_column_exe_vet_dis_lt50 %}
-Disabled veteran less than 50% exemption. Value in EAV. Defined as exemption code(s):
+Veterans with disabilities exemption for specially-adapted housing less than 50%
+exemption (35 ILCS 200/15-165). Value in EAV. Defined as exemption code(s):
 - `C-DV1: DISABLED VETERAN 30-49% - COOP`
 - `DV1: DISABLED VETERAN 30-49%`
 Pre-2024 codes:
@@ -1133,7 +1138,8 @@ Pre-2024 codes:
 ## homestead_exemption_amount
 
 {% docs shared_column_exe_homeowner %}
-General homestead exemption. Value in EAV. Defined as exemption code(s):
+General homestead exemption (35 ILCS 200/15-175). Value in EAV. Defined as
+exemption code(s):
 - `C-HO: GENERAL HOMESTEAD EXEMPTION - COOP`
 - `HO: GENERAL HOMESTEAD EXEMPTION`
 {% enddocs %}
@@ -1177,7 +1183,8 @@ Only applies to condo classes (299 and 399).
 ## longtime_homeowner_exemption_amount
 
 {% docs shared_column_exe_longtime_homeowner %}
-Long-time homeowner exemption. Value in EAV. Defined as exemption code(s):
+Long-time occupant homestead exemption (35 ILCS 200/15-177). Value in EAV.
+Defined as exemption code(s):
 - `C-LT: LONG-TIME HOMEOWNER - COOP`
 - `LT: LONG-TIME HOMEOWNER`
 Pre-2024 codes:
@@ -1194,7 +1201,8 @@ Modeling group, one of: `SF`, `MF`, `CONDO`, or `BB`
 ## municipality_built_exemption_amount
 
 {% docs shared_column_exe_muni_built %}
-Municipality-built gradual exemption. Value in EAV. Defined as exemption code(s):
+ Special homestead exemption for certain municipality-built homes
+ (35 ILCS 200/15-174.5). Value in EAV. Defined as exemption code(s):
 - `MUNI: MUNICIPALITY-BUILT GRADUAL EXEMPTION`
 {% enddocs %}
 
@@ -1249,7 +1257,8 @@ digits of a PIN identifies individual units
 ## returning_veteran_exemption_amount
 
 {% docs shared_column_exe_vet_returning %}
-Returning veterans exemption. Value in EAV. Defined as exemption code(s):
+Returning veterans' homestead exemption (35 ILCS 200/15-167). Value in EAV.
+Defined as exemption code(s):
 - `C-RTV: RETURNING VETERAN - COOP`
 - `RTV: RETURNING VETERANS`
 Pre-2024 codes:
@@ -1261,7 +1270,8 @@ Pre-2024 codes:
 ## senior_freeze_exemption_amount
 
 {% docs shared_column_exe_freeze %}
-Senior freeze exemption. Value in EAV. Defined as exemption code(s):
+Low-Income Senior Citizens Assessment Freeze Homestead Exemption
+(35 ILCS 200/15-172). Value in EAV. Defined as exemption code(s):
 - `C-SF: SENIOR FREEZE - COOP`
 - `SF: SENIOR FREEZE`
 {% enddocs %}
@@ -1269,7 +1279,8 @@ Senior freeze exemption. Value in EAV. Defined as exemption code(s):
 ## senior_homestead_exemption_amount
 
 {% docs shared_column_exe_senior %}
-Senior homestead exemption. Value in EAV. Defined as exemption code(s):
+Senior citizens homestead exemption (35 ILCS 200/15-170). Value in EAV. Defined
+as exemption code(s):
 - `C-SR: SENIOR HOMESTEAD - COOP`
 - `SR: SENIOR HOMESTEAD`
 Pre-2024 codes:
@@ -1335,7 +1346,8 @@ or `City` (Chicago)
 ## wwii_veteran_exemption_amount
 
 {% docs shared_column_exe_wwii %}
-World War 2 veteran 100% exemption. Value in EAV. Defined as exemption code(s):
+Homestead exemption for veterans with disabilities and veterans of World War II
+100% (35 ILCS 200/15-169). Value in EAV. Defined as exemption code(s):
 - `WW2: WORLD WAR 2 VETERAN 100%`
 {% enddocs %}
 
