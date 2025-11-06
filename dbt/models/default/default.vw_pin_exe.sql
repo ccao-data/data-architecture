@@ -1,4 +1,7 @@
--- View to collect pin-level exemptions
+-- View to collect pin-level exemptions from exdet. *Only* PINs with exemptions
+-- are included in this view.
+
+-- List of exemption types to pivot
 {% set exes = [
     'exe_disabled', 'exe_freeze', 'exe_homeowner',
     'exe_longtime_homeowner', 'exe_senior', 'exe_muni_built', 'exe_vet_dis_lt50',
@@ -6,7 +9,9 @@
     'exe_vet_returning', 'exe_wwii'
 ] %}
 
--- pin-level exemptions from the exdet table
+-- Gather PIN-level exemptions from the exdet table. Exdet is contains a row for
+-- each exemption applied to a PIN. Below we pivot these rows into columns
+-- for each exemption type.
 WITH long AS (
     SELECT
         det.parid AS pin,
@@ -33,6 +38,7 @@ WITH long AS (
         END AS ptax_exe,
         CAST(det.apother AS INT) AS exemption_amount
     FROM {{ source('iasworld', 'exdet') }} AS det
+    -- Ensure we are only pulling valid exemption codes
     INNER JOIN {{ source('iasworld', 'excode') }} AS code
         ON det.excode = code.excode
         AND det.taxyr = code.taxyr
@@ -42,6 +48,7 @@ WITH long AS (
         AND det.cur = 'Y'
 )
 
+-- Pivot exemptions into columns
 SELECT
     pin,
     year,

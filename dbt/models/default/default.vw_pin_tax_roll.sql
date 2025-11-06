@@ -1,6 +1,8 @@
--- View to collect pin-level exemptions and taxable EAV
+-- View to collect pin-level exemptions and taxable EAV.
+-- Unlike default.vw_pin_exe, all PINs, regardless of exemptions, are included.
 
--- pin-level taxable AV and final EAV by stage
+-- PIN-level taxable AV and final EAV by stage. We use arbitrary aggregation
+-- because there are known duplicates in the asmt_all table.
 WITH asmt AS (
     SELECT
         parid AS pin,
