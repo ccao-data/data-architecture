@@ -245,7 +245,7 @@ models:
           A caveat is that even if the threshold is not met, sales with certain
           line items marked on the ptax-203 form can still be classified as an
           outlier.
-      - name: meta_sale_price
+      - name: sale_price
         description: '{{ doc("shared_column_sale_price") }}'
       - name: min_group_thresh
         description: '{{ doc("column_min_group_thresh") }}'
