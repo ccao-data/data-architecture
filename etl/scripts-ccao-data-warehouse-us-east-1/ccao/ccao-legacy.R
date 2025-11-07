@@ -354,3 +354,60 @@ cc_pifdb_piexemptre_ownr %>%
     hive_style = TRUE,
     compression = "zstd"
   )
+
+
+##### CCT_AS_COFE_HDR
+files_cct_as_cofe_hdr <- aws.s3::get_bucket_df(
+  bucket = AWS_S3_RAW_BUCKET,
+  prefix = "ccao/legacy/CCT_AS_COFE_HDR",
+  max = Inf
+) %>%
+  filter(Size > 0)
+
+cct_as_cofe_hdr <- map_dfr(files_cct_as_cofe_hdr$Key, \(f) {
+  aws.s3::s3read_using(
+    object = f,
+    bucket = AWS_S3_RAW_BUCKET,
+    FUN = readr::read_fwf,
+    trim_ws = TRUE,
+    col_positions = readr::fwf_cols(
+      township_code = c(1, 3),
+      volume = c(5, 7),
+      pin = c(9, 22),
+      process_year = c(24, 27),
+      tax_year = c(29, 32),
+      tax_type = c(34, 34),
+      certificate_number = c(36, 42),
+      date_issued = c(59, 66),
+      control_number = c(59, 66),
+      certificate_issued_by = c(59, 66),
+      segment_counter = c(68, 69)
+    ),
+    col_types = cols(
+      township_code = col_character(),
+      volume = col_character(),
+      pin = col_character(),
+      process_year = col_character(),
+      tax_year = col_character(),
+      tax_type = col_character(),
+      certificate_number = col_character(),
+      date_issued = col_character(),
+      control_number = col_character(),
+      certificate_issued_by = col_character(),
+      segment_counter = col_character()
+    )
+  ) %>%
+    mutate(year = tax_year)
+})
+
+cct_as_cofe_hdr %>%
+  mutate(loaded_at = as.character(Sys.time())) %>%
+  group_by(year) %>%
+  arrow::write_dataset(
+    path = file.path(
+      output_bucket, "cct_as_cofe_hdr"
+    ),
+    format = "parquet",
+    hive_style = TRUE,
+    compression = "zstd"
+  )
