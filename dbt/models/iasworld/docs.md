@@ -184,6 +184,9 @@ Hearing date and note maintenance.
 # htpar
 
 {% docs table_htpar %}
+***Appeals are currently unavailable pre-2021. We expect to have them back by
+the end of 2025.***
+
 Main appeal tracking table. Used in the construction of Data Department
 appeal views.
 
