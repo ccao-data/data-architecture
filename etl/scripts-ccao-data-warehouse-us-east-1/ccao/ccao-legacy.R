@@ -425,10 +425,23 @@ files_cct_as_cofe_dtl <- aws.s3::get_bucket_df(
   filter(Size > 0)
 
 cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
-  aws.s3::s3read_using(
+  raw_path <- tempfile(fileext = ".txt")
+  clean_path <- tempfile(fileext = ".txt")
+
+  aws.s3::save_object(
     object = f,
     bucket = AWS_S3_RAW_BUCKET,
-    FUN = readr::read_fwf,
+    file = raw_path
+  )
+
+  # Convert ASCII nulls to spaces in raw file
+  raw_bytes <- readBin(raw_path, what = "raw", n = file.info(raw_path)$size)
+  clean_bytes <- raw_bytes
+  clean_bytes[clean_bytes == as.raw(0)] <- as.raw(32)
+  writeBin(clean_bytes, clean_path)
+
+  df_raw <- readr::read_fwf(
+    file = clean_path,
     trim_ws = TRUE,
     col_positions = readr::fwf_cols(
       pin = c(1, 14),
@@ -487,7 +500,7 @@ cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
       amount_of_credit_sign = c(514, 514),
       refund_amount = c(516, 528),
       refund_amount_sign = c(530, 530),
-      date_interest_mmyyyy = c(532, 537),
+      mmyyyy_date_interest = c(532, 537),
       interest_percent = c(539, 543),
       filler = c(545, 553),
       will_call_name = c(555, 576),
@@ -540,6 +553,7 @@ cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
       adjudicated_indicator = col_character(),
       tax_code = col_character(),
       tax_rate = col_integer(),
+      amount_due = col_integer(),
       amount_due_sign = col_character(),
       amount_paid = col_integer(),
       amount_paid_sign = col_character(),
@@ -585,7 +599,7 @@ cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
       amount_of_credit_sign = col_character(),
       refund_amount = col_integer(),
       refund_amount_sign = col_character(),
-      date_interest_mmyyyy = col_character(),
+      mmyyyy_date_interest = col_character(),
       interest_percent = col_integer(),
       filler = col_character(),
       will_call_name = col_character(),
@@ -593,12 +607,12 @@ cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
       federal_id_number = col_character(),
       interest_amount = col_integer(),
       interest_amount_sign = col_character(),
-      rsf_resp = col_logical(),
+      rsf_resp = col_character(),
       rsf_value = col_integer(),
       date_action_issued = col_character(),
       date_track = col_character(),
       tracking_disposition = col_character(),
-      certified_sen_freeze_resp = col_logical(),
+      certified_sen_freeze_resp = col_character(),
       certified_land_valuation = col_integer(),
       certified_building_valuation = col_integer(),
       certified_exe_freeze_valuation = col_integer(),
@@ -612,8 +626,8 @@ cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
       certified_exe_homeowner_proration = col_integer(),
       certified_exe_homeowner_coop_qty = col_integer(),
       certified_exe_homeowner_occ_factor = col_integer(),
-      cho_resp = col_logical(),
-      chs_resp = col_logical(),
+      cho_resp = col_character(),
+      chs_resp = col_character(),
       will_call_zip = col_character(),
       refund_indicator = col_character(),
       recommended_exe_homestead = col_integer(),
@@ -627,7 +641,8 @@ cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
       certified_lt_response = col_character(),
       certified_lt_value = col_integer()
     )
-  ) %>%
+  )
+  df <- df_raw %>%
     mutate(
       year = tax_year,
       across(starts_with("applicant_"), \(x) str_trim(str_squish(x))),
@@ -636,11 +651,18 @@ cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
       will_call_name = str_trim(str_squish(will_call_name)),
       will_call_phone_number = na_if(will_call_phone_number, "0000000000"),
       federal_id_number = na_if(federal_id_number, "000000000"),
+      across(starts_with("date_"), lubridate::mdy),
+      mmyyyy_date_interest = lubridate::my(mmyyyy_date_interest),
       across(
-        starts_with("date_"),
-        \(x) ifelse(x == "00000000", NA, lubridate::mdy(x))
+        c(rsf_resp, certified_sen_freeze_resp),
+        \(x) {
+          case_when(
+            x == "Y" ~ TRUE,
+            x == "N" ~ FALSE,
+            is.na(x) ~ NA
+          )
+        }
       ),
-      date_interest_mmyyyy = lubridate::my(date_interest_mmyyyy),
       across(ends_with("_zip"), \(x) str_sub(x, 1, 5)),
       across(contains("exe_homeowner_proration"), \(x) x / 1000000),
       across(contains("exe_homeowner_occ_factor"), \(x) x / 1000),
