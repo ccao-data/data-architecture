@@ -645,16 +645,29 @@ cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
   df <- df_raw %>%
     mutate(
       year = tax_year,
-      across(starts_with("applicant_"), \(x) str_trim(str_squish(x))),
-      update_id = str_trim(str_squish(update_id)),
-      d_o_number = str_trim(str_squish(d_o_number)),
-      will_call_name = str_trim(str_squish(will_call_name)),
+      # Clean string columns to remove extraneous whitespace
+      across(
+        c(
+          starts_with("applicant_"),
+          "update_id", "d_o_number", "will_call_name"
+        ),
+        \(x) str_trim(str_squish(x))
+      ),
+      # Replace numeric columns with nulls for all-zero values
       will_call_phone_number = na_if(will_call_phone_number, "0000000000"),
       federal_id_number = na_if(federal_id_number, "000000000"),
-      across(starts_with("date_"), lubridate::mdy),
-      mmyyyy_date_interest = lubridate::my(mmyyyy_date_interest),
+      # Parse MMDDYYYY date columns
       across(
-        c(rsf_resp, certified_sen_freeze_resp),
+        starts_with("date_"),
+        \(x) lubridate::mdy(na_if(x, "00000000"))
+      ),
+      # Parse MMYYYY date columns
+      mmyyyy_date_interest = lubridate::my(
+        na_if(mmyyyy_date_interest, "000000")
+      ),
+      # Logical conversion for some response columns
+      across(
+        c("rsf_resp", "certified_sen_freeze_resp"),
         \(x) {
           case_when(
             x == "Y" ~ TRUE,
@@ -663,14 +676,22 @@ cct_as_cofe_dtl <- map_dfr(files_cct_as_cofe_dtl$Key, \(f) {
           )
         }
       ),
+      # Zip code truncation
       across(ends_with("_zip"), \(x) str_sub(x, 1, 5)),
+      # Numeric scaling for percentages
       across(contains("exe_homeowner_proration"), \(x) x / 1000000),
-      across(contains("exe_homeowner_occ_factor"), \(x) x / 1000),
-      interest_percent = interest_percent / 1000,
-      tax_rate = tax_rate / 1000,
-      source_file = {{ f }}
+      across(
+        c(contains("exe_homeowner_occ_factor"), "interest_percent", "tax_rate"),
+        \(x) x / 1000
+      ),
+      source_file = f
     ) %>%
     select(-filler)
+
+  # Clean up temp files
+  file.remove(c(raw_path, clean_path))
+
+  df
 })
 
 cct_as_cofe_dtl %>%
