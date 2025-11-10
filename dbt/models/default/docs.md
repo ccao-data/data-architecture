@@ -33,6 +33,9 @@ and mailing (owner/taxpayer address).
 # vw_pin_appeal
 
 {% docs view_vw_pin_appeal %}
+***Appeals are currently unavailable pre-2021. We expect to have them back by
+the end of 2025.***
+
 View of assessment appeals by stage (wide format). Shows appeal decision,
 reason, and results.
 
