@@ -1346,8 +1346,8 @@ or `City` (Chicago)
 ## wwii_veteran_exemption_amount
 
 {% docs shared_column_exe_wwii %}
-Homestead exemption for veterans with disabilities and veterans of World War II
-100% (35 ILCS 200/15-169). Value in EAV. Defined as exemption code(s):
+Homestead exemption for veterans of World War II (35 ILCS 200/15-169).
+Value in EAV. Defined as exemption code(s):
 - `WW2: WORLD WAR 2 VETERAN 100%`
 {% enddocs %}
 
